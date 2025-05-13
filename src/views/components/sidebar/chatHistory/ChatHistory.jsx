@@ -14,52 +14,66 @@ const infiniteScrollStyle = {
 	flexDirection: 'column',
 	alignItems: 'flex-start',
 	alignSelf: 'stretch',
-	gap: '4px',
+	gap: '2px',
 	// height: '38vh',
 };
-const skeletonLoaders = Array.from({ length: 30 }, (_, index) => index + 1);
+const skeletonLoaders = Array?.from({ length: 30 }, (_, index) => index + 1);
 const page = 1;
 const limit = 30;
 const append = true;
 
 const ChatHistory = () => {
 	const navigate = useNavigate();
-	const { sessionId } = useParams();
 	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
-		templates: { chatInfo, updateStateValues, currentSessionId },
+		templates: { refetchChatHistoryList, updateStateValues, currentSessionId, currentChatData },
 	} = useContext(Context);
-	const previousSearchQuery = useRef('');
-	const [searchQuery, setSearchQuery] = useState('');
+	// const previousSearchQuery = useRef('');
+	// const [searchQuery, setSearchQuery] = useState('');
 
-	const debouncedSearch = useCallback(
-		debounce((query) => {
-			previousSearchQuery.current = query;
-			getAiChatSessions(page, limit, append, query);
-		}, 500),
-		[],
-	);
+	// const debouncedSearch = useCallback(
+	// 	debounce((query) => {
+	// 		previousSearchQuery.current = query;
+	// 		getAiChatSessions(page, limit, append, query);
+	// 	}, 500),
+	// 	[],
+	// );
 
 	useEffect(() => {
-		const timeoutId = setTimeout(() => {
-			if (!searchQuery) {
-				getAiChatSessions(page, limit, append);
-			} else {
-				debouncedSearch(searchQuery);
+		// const timeoutId = setTimeout(() => {
+		// 	if (!searchQuery) {
+		// 		getAiChatSessions(page, limit, append);
+		// 	} else {
+		// 		debouncedSearch(searchQuery);
+		// 	}
+		// }, 0);
+		fetchChats();
+
+		// return () => {
+		// 	clearTimeout(timeoutId);
+		// 	debouncedSearch.cancel();
+		// };
+	}, []);
+
+	useEffect(() => {
+		if (currentSessionId && currentChatData?._id !== currentSessionId) {
+			const index = aiChatSessions?.data?.findIndex((chat) => chat?._id === currentSessionId);
+			if (typeof index === 'number' && index !== -1) {
+				updateStateValues({ currentChatData: aiChatSessions?.data[index] });
 			}
-		}, 0);
+		}
+	}, [currentSessionId, aiChatSessions]);
 
-		return () => {
-			clearTimeout(timeoutId);
-			debouncedSearch.cancel();
-		};
-	}, [searchQuery, debouncedSearch]);
+	useEffect(() => {
+		if (refetchChatHistoryList) {
+			fetchChats();
+			updateStateValues({ refetchChatHistoryList: false });
+		}
+	}, [refetchChatHistoryList]);
 
-	const chats = aiChatSessions?.data;
-	const emptyChatsState = aiChatSessions?.data?.length === 0;
-	const loadingState = aiChatSessions?.data === undefined;
-	const hasNextPage = aiChatSessions?.hasMore || false;
-	const currentPage = aiChatSessions?.currentPage || 1;
+	const fetchChats = useCallback(() => {
+		getAiChatSessions(page, limit, append);
+	}, []);
 
 	const fetchMoreChats = () => {
 		if (hasNextPage) {
@@ -71,16 +85,16 @@ const ChatHistory = () => {
 	const handleChatNavigation = useCallback(
 		(chat) => {
 			if (currentSessionId === chat?._id) return;
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					agentType: chat?.agentType,
-					assistantId: chat?.assistantId,
-				},
-			});
-			navigate(`/chat/${chat?._id}`);
+
+			if (chat?.agentType === 'knowledge_agent') {
+				navigate(
+					`/chat/${chat?._id}?agentType=knowledge_agent&assistantId=${chat?.assistantId}`,
+				);
+			} else {
+				navigate(`/chat/${chat?._id}`);
+			}
 		},
-		[currentSessionId, chatInfo],
+		[currentSessionId],
 	);
 
 	const handleCreateChat = useCallback(() => {
@@ -103,10 +117,16 @@ const ChatHistory = () => {
 		return 'Older';
 	}, []);
 
+	const chats = aiChatSessions?.data;
+	const emptyChatsState = aiChatSessions?.data?.length === 0;
+	const loadingState = aiChatSessions?.data === undefined;
+	const hasNextPage = aiChatSessions?.hasMore || false;
+	const currentPage = aiChatSessions?.currentPage || 1;
+
 	return (
 		<div className="chats-drawer-container">
 			<div className="chats-container">
-				{(chats?.length > 10 || previousSearchQuery.current) && (
+				{/* {(chats?.length > 10 || previousSearchQuery.current) && (
 					<div className="searchContainer">
 						<Search />
 						<input
@@ -117,7 +137,7 @@ const ChatHistory = () => {
 							onChange={(e) => setSearchQuery(e.target.value)}
 						/>
 					</div>
-				)}
+				)} */}
 				{loadingState ? (
 					<div className="skeleton-loader-container">
 						{skeletonLoaders?.map((skeletonId) => (
@@ -130,11 +150,12 @@ const ChatHistory = () => {
 						))}
 					</div>
 				) : emptyChatsState ? (
-					<div className="empty-state">
-						<button className="create-chat-btn" onClick={handleCreateChat}>
-							Create New Chat
-						</button>
-					</div>
+					// <div className="empty-state">
+					// 	<button className="create-chat-btn" onClick={handleCreateChat}>
+					// 		Create New Chat
+					// 	</button>
+					// </div>
+					''
 				) : (
 					<InfiniteScroll
 						dataLength={chats?.length || 0}
@@ -154,11 +175,16 @@ const ChatHistory = () => {
 							return (
 								<div key={chat?._id} className="chat-container-wrapper ">
 									{showGroupHeader && (
-										<div className="chat-group-header">{dateGroup}</div>
+										<div
+											className="chat-group-header"
+											style={{ marginTop: `${index !== 0 ? '20px' : '0'}` }}
+										>
+											{dateGroup}
+										</div>
 									)}
 									<div
 										className={`chat-containers ${
-											sessionId === chat?._id ? 'active-chat' : ''
+											currentSessionId === chat?._id ? 'active-chat' : ''
 										}`}
 										onClick={() => handleChatNavigation(chat)}
 									>

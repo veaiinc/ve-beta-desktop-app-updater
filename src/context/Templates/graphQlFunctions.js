@@ -269,6 +269,7 @@ export const getTemplatesListForCreateLeadQuery = gql`
 				status
 				slug
 				createdAt
+				formResponsesCount
 			}
 		}
 	}
@@ -535,6 +536,14 @@ export const updateWorkflowTemplateQuery = gql`
 		updateWorkflowTemplate(templateId: $templateId, updateObj: $updateObj) {
 			_id
 			title
+		}
+	}
+`;
+
+export const duplicateSmartFileQuery = gql`
+	mutation DuplicateSmartFile($duplicateSmartFile: DuplicateSmartFileInput) {
+		duplicateSmartFile(duplicateSmartFile: $duplicateSmartFile) {
+			_id
 		}
 	}
 `;

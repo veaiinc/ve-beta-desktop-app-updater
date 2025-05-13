@@ -17,43 +17,46 @@
 		width: 100%;
 		flex-direction: column;
 		align-items: center;
-		gap: 32px;
+		gap: 28px;
 		flex-shrink: 0;
-		background: var(--background-color, #0c0c0d);
-		margin-top: 55px;
+		background: var(--background-color);
+		margin-top: 85px;
 
 		.title-container {
 			display: flex;
 			align-items: center;
 			justify-content: flex-end;
 			flex-direction: column;
-			gap: 12px;
+			gap: 2px;
 
 			.title-text {
 				.title-one {
-					color: var(--primary-font, #f2f2f3);
+					color: var(--primary-font);
 					text-align: center;
-					font-family: var(--primary-font-family);
-					font-size: 35px;
+					font-family: Manrope;
+					font-size: 40px;
 					font-style: normal;
-					font-weight: 600;
-					line-height: 60px;
-					letter-spacing: -1.59px;
+					font-weight: 400;
+					line-height: normal;
+					@media screen and (max-width: 425px) {
+						font-size: 24px;
+						letter-spacing: -0.72px;
+					}
 				}
 				.title-two {
-					color: var(--primary-font, #f2f2f3);
-					font-family: var(--primary-font-family);
-					font-size: 53px;
-					font-style: italic;
+					color: var(--secondary-font);
+					text-align: center;
+					color: var(--secondary-font);
+					font-family: Manrope;
+					font-size: 13px;
+					font-style: normal;
 					font-weight: 400;
-					line-height: 60px;
-					letter-spacing: -1.59px;
-					text-transform: lowercase;
+					line-height: normal;
 				}
 			}
 
 			.sub-text {
-				color: var(--secondary-font, #7a7e85);
+				color: var(--secondary-font);
 				text-align: center;
 				font-family: var(--primary-font-family);
 				font-size: 22px;
@@ -64,10 +67,13 @@
 			}
 		}
 		.chatbox-wrapper {
-			height: 122px;
+			height: 60px;
 			width: 700px;
-			margin-top: -20px;
+			// margin-top: -20px;
 			border-radius: 16px;
+			@media screen and (max-width: 425px) {
+				width: 350px;
+			}
 			.chatbox-container {
 				height: 100%;
 				position: relative;
@@ -82,10 +88,17 @@
 				}
 			}
 		}
-
 		.options-container {
 			display: flex;
+			justify-content: center;
+			align-items: center;
+			align-content: center;
 			gap: 6px;
+			align-self: stretch;
+			flex-wrap: wrap;
+			@media screen and (max-width: 425px) {
+				flex-wrap: wrap;
+			}
 			.option {
 				display: flex;
 				height: 37px;
@@ -93,21 +106,35 @@
 				align-items: center;
 				gap: 10px;
 				border-radius: 100px;
-				background: var(--card, #202123);
 				border: 1px solid var(--stroke, #202123);
-
 				cursor: pointer;
 				box-sizing: border-box;
+				&:hover {
+					border: 1px solid var(--stroke-hover);
+				}
 				.option-label {
-					color: var(--primary-font, #f2f2f3);
+					color: var(--primary-font);
 					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: 21px; /* 150% */
+					display: flex;
+					gap: 4px;
+					align-items: center;
+					svg {
+						color: var(--secondary-font);
+					}
 				}
+
 				&.active {
-					border: 1px solid var(--primary-button, #f2f2f3);
+					border: 1px solid var(--primary-button);
+					.option-label {
+						color: var(--primary-button);
+						svg {
+							color: var(--primary-button);
+						}
+					}
 				}
 			}
 		}
@@ -115,8 +142,9 @@
 
 	.home-page-container-content {
 		width: 100%;
-		padding-top: 30px;
-		overflow: hidden;
+		padding-top: 32px;
+		overflow-y: auto;
+		overflow-x: hidden;
 	}
 }
 
@@ -153,6 +181,23 @@
 	.chatbox-container {
 		animation: add-overflow 1s linear forwards;
 	}
+}
+
+.tooltipOption {
+	display: flex;
+	justify-content: center;
+	padding: 12px 14px;
+	border-radius: 12px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--popup, #202123);
+	box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
+	color: var(--primary-font, #f2f2f3);
+	font-family: var(--primary-font-family);
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 600;
+	line-height: normal;
+	align-self: stretch;
 }
 
 @keyframes height-minimize {
@@ -222,10 +267,17 @@
 	}
 }
 
-@media screen and (max-width: 1500px) {
+// @media screen and (max-width: 1500px) {
+// 	.initial-home-page-container {
+// 		.home-page-container-header {
+// 			margin-top: 0;
+// 		}
+// 	}
+// }
+@media screen and (max-width: 425px) {
 	.initial-home-page-container {
 		.home-page-container-header {
-			margin-top: 0;
+			margin-top: 45px;
 		}
 	}
 }

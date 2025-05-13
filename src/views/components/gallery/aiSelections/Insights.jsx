@@ -234,7 +234,7 @@ const Insights = () => {
 					</div>
 				))}
 			</div>
-			{visitorData?.docs?.length > 0 && (
+			{visitorData?.length > 0 && (
 				<>
 					<div className="insightsHeader">
 						<div className="heading">
@@ -338,7 +338,7 @@ const Insights = () => {
 						}}
 					>
 						<div className="insightsDetails">
-							{details.map((ele, index) => (
+							{details?.map((ele, index) => (
 								<div key={index} className="insightsDetails-item">
 									<p className="itemName">{ele.name}</p>
 									<p className="count">{ele.number}</p>

@@ -1,6 +1,7 @@
 import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
+import { ReactComponent as NotesIcon } from '../../../assets/svg/files/notes-icon.svg';
 import { useNavigate } from 'react-router-dom';
 import { memo, useContext, useEffect, useState } from 'react';
 import Context from '../../../context/context';
@@ -16,11 +17,13 @@ const filterOptions = [
 	{ label: 'Private', value: 'private' },
 	{ label: 'Shared', value: 'shared' },
 	{ label: 'Favorite', value: 'favorite' },
+	{ label: 'Published', value: 'published' },
+	{ label: 'Trashed', value: 'trashed' },
 ];
 
 const sortOptions = [
-	{ label: 'Recently Created', value: 'createdAt', sortType: -1 },
 	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
+	{ label: 'Recently Created', value: 'createdAt', sortType: -1 },
 	{ label: 'A-Z', value: 'title', sortType: 1 },
 ];
 
@@ -37,7 +40,7 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 		currentPage: 1,
 		hasNextPage: false,
 		selectedFilter: { label: 'All', value: 'all' },
-		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
+		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 	});
 
 	useEffect(() => {
@@ -216,17 +219,23 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 							</div>
 							{info?.notes?.map((note, index) => (
 								<div
-									className="card-item"
+									className="card-item notes-grid-container tooltip"
 									key={index}
 									onClick={() => navigate(`/note/${note?._id}`)}
+									data-tooltip={note?.title}
 								>
 									<div className="card-item-style content-wrapper note-card-content">
-										<span className="item-title">
-											{note?.title || 'Untitled Note'}
-										</span>
-										<span className="notes-sub-heading">
-											{moment.unix(note?.createdAt).fromNow()}
-										</span>
+										<div className="title-container">
+											<NotesIcon />
+											<span className="item-title">
+												{note?.title || 'Untitled Note'}
+											</span>
+										</div>
+										<div className="note-footer-container">
+											<span className="note-sub-heading">
+												{moment.unix(note?.createdAt).fromNow()}
+											</span>
+										</div>
 									</div>
 								</div>
 							))}

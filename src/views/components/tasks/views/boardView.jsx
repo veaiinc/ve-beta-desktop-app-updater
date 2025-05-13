@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback } from 'react';
+import { memo, useState, useCallback } from 'react';
 import '../../../../assets/scss/tasks/boardView.scss';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';

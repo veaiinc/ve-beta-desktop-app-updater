@@ -5,28 +5,28 @@ import PromptPopup from '../../components/homePage/PromptPopup';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
-const promptsList = [
-	{
-		id: 1,
-		label: 'All prompts',
-		value: 'all',
-	},
-	{
-		id: 2,
-		label: 'Sales',
-		value: 'sales',
-	},
-	{
-		id: 3,
-		label: 'Marketing',
-		value: 'marketing',
-	},
-	{
-		id: 4,
-		label: 'Operarions',
-		value: 'operations',
-	},
-];
+// const promptsList = [
+// 	{
+// 		id: 1,
+// 		label: 'All prompts',
+// 		value: 'all',
+// 	},
+// 	{
+// 		id: 2,
+// 		label: 'Sales',
+// 		value: 'sales',
+// 	},
+// 	{
+// 		id: 3,
+// 		label: 'Marketing',
+// 		value: 'marketing',
+// 	},
+// 	{
+// 		id: 4,
+// 		label: 'Operarions',
+// 		value: 'operations',
+// 	},
+// ];
 let timeoutId;
 const ChatPrompts = ({
 	promptsCategory,
@@ -53,13 +53,13 @@ const ChatPrompts = ({
 		return () => clearTimeout(timeoutId);
 	}, []);
 
-	useEffect(() => {
-		const element = document?.querySelector('.infinite-scroll-container');
-		if (element) {
-			infiniteScrollRef.current = element;
-			element?.addEventListener('scroll', handleScroll);
-		}
-	}, []);
+	// useEffect(() => {
+	// 	const element = document?.querySelector('.infinite-scroll-container');
+	// 	if (element) {
+	// 		infiniteScrollRef.current = element;
+	// 		element?.addEventListener('scroll', handleScroll);
+	// 	}
+	// }, []);
 
 	useEffect(() => {
 		if (promptsData) {
@@ -119,24 +119,24 @@ const ChatPrompts = ({
 		setInfo((prev) => ({ ...prev, selectedCard: card, promptPopupOpen: true }));
 	};
 
-	const handlePromptCategoryClick = (value) => {
-		updatePromptsCategory(value);
-	};
+	// const handlePromptCategoryClick = (value) => {
+	// 	updatePromptsCategory(value);
+	// };
 
-	const handleSearchQueryChange = (e) => {
-		setInfo((prev) => ({ ...prev, searchQuery: e?.target?.value }));
+	// const handleSearchQueryChange = (e) => {
+	// 	setInfo((prev) => ({ ...prev, searchQuery: e?.target?.value }));
 
-		clearTimeout(timeoutId);
-		timeoutId = setTimeout(() => {
-			fetchAiSuggestedPrompts(1, e?.target?.value);
-			setInfo((prev) => ({
-				...prev,
-				promptsData: [],
-				page: 1,
-				hasNextPage: false,
-			}));
-		}, 1000);
-	};
+	// 	clearTimeout(timeoutId);
+	// 	timeoutId = setTimeout(() => {
+	// 		fetchAiSuggestedPrompts(1, e?.target?.value);
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			promptsData: [],
+	// 			page: 1,
+	// 			hasNextPage: false,
+	// 		}));
+	// 	}, 1000);
+	// };
 
 	return (
 		<div className="chat-prompts-wrapper">
@@ -193,8 +193,9 @@ const ChatPrompts = ({
 							className="infinite-scroll-container"
 						>
 							<div className="suggested-prompts-container">
-								{info?.promptsData?.map((card) => (
+								{info?.promptsData?.map((card, index) => (
 									<div
+										key={index}
 										className="suggested-prompt-card"
 										onClick={() => handlePromptCardClick(card)}
 									>

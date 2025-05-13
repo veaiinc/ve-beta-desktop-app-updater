@@ -26,6 +26,8 @@ const HEADER_HEIGHT = 43;
 const MORE_BUTTON_WIDTH = 85;
 const ADD_BUTTON_WIDTH = 32;
 const MINIMUM_TAB_WIDTH = 80;
+const MAXIMUM_TAB_WIDTH = 200; // Maximum width for a tab
+const TAB_PADDING = 16; // 8px padding on each side
 
 const TabHeader = ({
 	activeTab,
@@ -37,7 +39,6 @@ const TabHeader = ({
 	layoutOptions,
 	handleLayoutOptionClick,
 }) => {
-	// ... (previous state and ref declarations remain the same) ...
 	const containerRef = useRef(null);
 	const tabsContainerRef = useRef(null);
 	const [tabList, setTabList] = useState([]);
@@ -60,13 +61,11 @@ const TabHeader = ({
 		setInfo((prevInfo) => ({ ...prevInfo, dropdownIsOpen: value }));
 	};
 
-	// ... (previous useLayoutEffect for tabList update remains the same) ...
 	useLayoutEffect(() => {
 		const tabArray = Object.values(tabs || {}).sort((a, b) => a.order - b.order);
 		setTabList(tabArray);
 	}, [tabs]);
 
-	// ... (previous measureTabSizes function remains the same) ...
 	const measureTabSizes = useCallback(() => {
 		if (!tabsContainerRef.current) return new Map();
 
@@ -76,96 +75,136 @@ const TabHeader = ({
 		);
 
 		tabElements.forEach((tab, index) => {
-			const width = Math.max(tab.offsetWidth, MINIMUM_TAB_WIDTH);
+			// Measure the content width without constraints
+			const label = tab.querySelector('.tab-label');
+			const icon = tab.querySelector('.tab-icon');
+
+			// Start with minimum width
+			let contentWidth = MINIMUM_TAB_WIDTH;
+
+			if (label) {
+				// Create a measurement div with the same text but not constrained
+				const measureDiv = document.createElement('div');
+				measureDiv.style.position = 'absolute';
+				measureDiv.style.visibility = 'hidden';
+				measureDiv.style.whiteSpace = 'nowrap';
+				measureDiv.style.width = 'auto';
+				measureDiv.style.fontFamily = getComputedStyle(label).fontFamily;
+				measureDiv.style.fontSize = getComputedStyle(label).fontSize;
+				measureDiv.style.fontWeight = getComputedStyle(label).fontWeight;
+				measureDiv.innerText = label.innerText;
+				document.body.appendChild(measureDiv);
+
+				// Calculate content width: text width + icon width (if exists) + padding
+				contentWidth = measureDiv.getBoundingClientRect().width;
+				if (icon) {
+					contentWidth += icon.getBoundingClientRect().width + 8; // 8px gap between icon and text
+				}
+				contentWidth += TAB_PADDING; // Add padding
+
+				document.body.removeChild(measureDiv);
+			}
+
+			// Constrain width between minimum and maximum
+			const width = Math.min(Math.max(contentWidth, MINIMUM_TAB_WIDTH), MAXIMUM_TAB_WIDTH);
+
 			newTabSizes.set(index, width);
 		});
 
 		return newTabSizes;
 	}, []);
 
-	// ... (previous dimension update useLayoutEffect remains the same) ...
 	useLayoutEffect(() => {
 		if (!containerRef.current) return;
 
 		const updateDimensions = () => {
+			// First, ensure we have the correct tab list data
 			const newTabSizes = measureTabSizes();
-			setDimensions((prev) => ({
+
+			// Update dimensions with the new container width and tab sizes
+			setDimensions({
 				containerWidth: containerRef.current?.offsetWidth || 0,
 				tabSizes: newTabSizes,
-			}));
+			});
 		};
 
+		// Initial update
 		updateDimensions();
+
+		// Set up resize observer for responsive behavior
 		const resizeObserver = new ResizeObserver(() => {
 			requestAnimationFrame(updateDimensions);
 		});
 
 		resizeObserver.observe(containerRef.current);
 		return () => resizeObserver.disconnect();
-	}, [measureTabSizes]);
+	}, [measureTabSizes, tabList]);
 
-	// ... (previous visibility calculation useLayoutEffect remains the same) ...
 	useLayoutEffect(() => {
 		if (!dimensions.containerWidth || !tabList.length) return;
 
 		const calculateVisibility = () => {
+			// Account for padding, add button, and extra space for potential "more" button
 			const availableWidth = dimensions.containerWidth - ADD_BUTTON_WIDTH - TAB_GAP * 2;
-			let totalWidth = 0;
-			let visibleCount = 0;
-			let needsOverflow = false;
 
-			// First pass: try to fit all tabs
+			// Calculate total width if all tabs were shown
+			const tabWidths = [];
+			let allTabsWidth = 0;
+
+			// Get all tab widths
 			for (let i = 0; i < tabList.length; i++) {
 				const tabWidth = dimensions.tabSizes.get(i) || MINIMUM_TAB_WIDTH;
-				const widthWithGap = tabWidth + TAB_GAP;
+				tabWidths.push(tabWidth);
+				allTabsWidth += tabWidth + (i < tabList.length - 1 ? TAB_GAP : 0);
+			}
 
-				if (totalWidth + widthWithGap <= availableWidth) {
+			// If all tabs fit, show them all
+			if (allTabsWidth <= availableWidth) {
+				return {
+					visibleCount: tabList.length,
+					shouldShowOverflow: false,
+				};
+			}
+
+			// Otherwise, calculate how many tabs can fit
+			let totalWidth = 0;
+			let visibleCount = 0;
+
+			// First pass: try to fit as many tabs as possible, reserve space for "more" button
+			const moreButtonSpace = MORE_BUTTON_WIDTH + TAB_GAP; // Space for "more" button
+			const availableForTabs = availableWidth - moreButtonSpace;
+
+			for (let i = 0; i < tabList.length; i++) {
+				const tabWidth = tabWidths[i];
+				const widthWithGap = tabWidth + (i < tabList.length - 1 ? TAB_GAP : 0);
+
+				if (totalWidth + widthWithGap <= availableForTabs) {
 					totalWidth += widthWithGap;
 					visibleCount++;
 				} else {
-					needsOverflow = true;
 					break;
 				}
 			}
 
-			// If we need overflow, recalculate with more button
-			if (needsOverflow) {
-				totalWidth = 0;
-				visibleCount = 0;
-				const availableWithMore = availableWidth - MORE_BUTTON_WIDTH;
-
-				for (let i = 0; i < tabList.length; i++) {
-					const tabWidth = dimensions.tabSizes.get(i) || MINIMUM_TAB_WIDTH;
-					const widthWithGap = tabWidth + TAB_GAP;
-
-					if (totalWidth + widthWithGap <= availableWithMore) {
-						totalWidth += widthWithGap;
-						visibleCount++;
-					} else {
-						break;
-					}
-				}
+			// If we can show all tabs without the "more" button, do so
+			if (visibleCount === tabList.length) {
+				return {
+					visibleCount: tabList.length,
+					shouldShowOverflow: false,
+				};
 			}
 
+			// Otherwise, show what fits plus the "more" button
 			return {
 				visibleCount: Math.max(1, visibleCount),
-				shouldShowOverflow: needsOverflow,
+				shouldShowOverflow: true,
 			};
 		};
 
 		const newVisibility = calculateVisibility();
-		setVisibility((prev) => {
-			if (
-				prev.visibleCount !== newVisibility.visibleCount ||
-				prev.shouldShowOverflow !== newVisibility.shouldShowOverflow
-			) {
-				return newVisibility;
-			}
-			return prev;
-		});
+		setVisibility(newVisibility);
 	}, [dimensions, tabList]);
 
-	// ... (previous tab measurement useLayoutEffect remains the same) ...
 	useLayoutEffect(() => {
 		if (!tabList.length) return;
 
@@ -190,6 +229,44 @@ const TabHeader = ({
 
 		setTabList(newTabList);
 		onTabsReorder(newTabList, movedItem, destinationIndex);
+	};
+
+	// Function to adjust tab widths to distribute available space
+	const getTabStyle = (index) => {
+		const baseWidth = dimensions.tabSizes.get(index) || MINIMUM_TAB_WIDTH;
+
+		// If we're showing all tabs and there's extra space, distribute it
+		if (!visibility.shouldShowOverflow && visibility.visibleCount === tabList.length) {
+			const totalTabsWidth = Array.from(
+				{ length: tabList.length },
+				(_, i) => dimensions.tabSizes.get(i) || MINIMUM_TAB_WIDTH,
+			).reduce((sum, width, i) => sum + width + (i < tabList.length - 1 ? TAB_GAP : 0), 0);
+
+			const availableWidth = dimensions.containerWidth - ADD_BUTTON_WIDTH - TAB_GAP * 2;
+
+			if (totalTabsWidth < availableWidth) {
+				// Calculate how much extra width each tab can get
+				const extraWidth = availableWidth - totalTabsWidth;
+				const extraWidthPerTab = extraWidth / tabList.length;
+
+				// Set a fixed width that includes the distributed extra space
+				const newWidth = baseWidth + extraWidthPerTab;
+
+				return {
+					width: `${newWidth}px`,
+					minWidth: `${MINIMUM_TAB_WIDTH}px`,
+					// Use flex grow for smooth space distribution
+					flex: `${baseWidth} 1 ${baseWidth}px`,
+				};
+			}
+		}
+
+		// Default style with explicit width
+		return {
+			width: `${baseWidth}px`,
+			minWidth: `${MINIMUM_TAB_WIDTH}px`,
+			maxWidth: `${MAXIMUM_TAB_WIDTH}px`,
+		};
 	};
 
 	return (
@@ -235,7 +312,13 @@ const TabHeader = ({
 												activeTab === tab._id &&
 												index < visibility.visibleCount ? (
 													<TabDropDown
-														options={tabDropdownOptions}
+														options={tabDropdownOptions?.filter(
+															(item) =>
+																!(
+																	tabList?.length == 1 &&
+																	item.value === 'deleteView'
+																),
+														)}
 														onOptionClick={(option) => {
 															handleDropDown(false);
 															handleTabDropdownClick(option);
@@ -263,13 +346,11 @@ const TabHeader = ({
 														index >= visibility.visibleCount
 															? 'none'
 															: undefined,
+													...getTabStyle(index),
 												}}
+												title={tab?.label} // Add title attribute for native browser tooltip
 											>
-												{tab?.Icon && (
-													<tab.Icon
-														style={{ color: 'var(--primary-font)' }}
-													/>
-												)}
+												{tab?.Icon && <tab.Icon className="tab-icon" />}
 												<span className="tab-label">{tab?.label}</span>
 												<span className="tab-underline" />
 											</div>

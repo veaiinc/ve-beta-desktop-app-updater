@@ -75,10 +75,16 @@ const ShareModal = ({
 		ctaLink: tenantPreferences?.ctaPreferences?.ctaLink,
 		clientSubscription: tenantPreferences?.allowClientsToSubscribe || false,
 	});
+
 	useEffect(() => {
-		if (!galleryShareDetails) {
-			getGalleryShareDetails(galleryId);
-		}
+		if (!galleryId) return;
+
+		getGalleryShareDetails(galleryId);
+		getVisitorFormAccess(galleryId);
+		getGuestAccessDetails(galleryId);
+		getEditPreferences(galleryId);
+	}, [galleryId]);
+	useEffect(() => {
 		if (galleryShareDetails) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -87,9 +93,6 @@ const ShareModal = ({
 		}
 	}, [galleryShareDetails]);
 	useEffect(() => {
-		if (!visitorFormAccess) {
-			getVisitorFormAccess(galleryId);
-		}
 		if (visitorFormAccess) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -97,31 +100,17 @@ const ShareModal = ({
 			}));
 		}
 	}, [visitorFormAccess]);
-	useEffect(() => {
-		if (!galleryGuestAccess) {
-			getGalleryGuestAccess(galleryId);
-		}
-		if (galleryGuestAccess) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				galleryGuestAccess: galleryGuestAccess,
-			}));
-		}
-	}, [galleryGuestAccess]);
 
 	useEffect(() => {
-		if (!galleryGuestAccessDetails) {
-			getGuestAccessDetails(galleryId);
+		if (galleryGuestAccessDetails) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				galleryGuestAccessDetails: galleryGuestAccessDetails,
+				galleryGuestAccess: galleryGuestAccessDetails,
 			}));
 		}
 	}, [galleryGuestAccessDetails]);
 	useEffect(() => {
-		if (!tenantPreferences) {
-			getEditPreferences(galleryId);
-		}
 		if (tenantPreferences) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -268,7 +257,7 @@ const ShareModal = ({
 		if (payloadKeyMap[name]) {
 			const payload = {
 				[payloadKeyMap[name]]: !galleryGuestAccessDetails?.[payloadKeyMap[name]],
-				accessPin: galleryGuestAccessDetails?.pin,
+				accessPin: info?.galleryGuestAccessDetails?.pin,
 			};
 			await updateGuestAccess(payload, galleryId);
 		}
@@ -421,7 +410,7 @@ const ShareModal = ({
 					<div className="galleryLinkInputContainer">
 						<div className="galleryLinkInput">
 							<input
-								placeholder="businessname.ve.ai/gallery/galleryname"
+								placeholder="Loading..."
 								disabled
 								value={info?.galleryLink}
 								// value={`https://${workspaceId}.ve.ai/gallery/${activeGallery?.slug}`}
@@ -677,6 +666,7 @@ const ShareModal = ({
 							mobile number after entering a Pin or completing a face scan.
 						</p>
 					</div>
+
 					{info?.visitorFormAccess?.isEnabled && (
 						<div className="visitorFormAccessContainer visitorAnimation">
 							{[
@@ -689,7 +679,7 @@ const ShareModal = ({
 								<div key={item.label} className="visitorFormAccessItem">
 									<input
 										type="checkbox"
-										checked={data?.visitorFormAccess?.accessibleTo?.includes(
+										checked={info?.visitorFormAccess?.accessibleTo?.includes(
 											item.apiKey,
 										)}
 										onChange={() => handleVisitorForm(item.apiKey)}

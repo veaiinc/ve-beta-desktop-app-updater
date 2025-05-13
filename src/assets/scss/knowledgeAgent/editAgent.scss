@@ -58,6 +58,14 @@
 				transform: translateZ(0);
 				.chat-container {
 					height: 100%;
+					padding: 0px !important;
+
+					.chat-header {
+						display: none !important;
+					}
+					.chatBodyContainer {
+						height: 100% !important;
+					}
 
 					.chatContent {
 						// padding-bottom: 100px;

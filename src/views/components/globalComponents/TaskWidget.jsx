@@ -1,4 +1,13 @@
-import React, { memo, useContext, useEffect, useState, useMemo, useCallback } from 'react';
+import {
+	memo,
+	useContext,
+	useEffect,
+	useState,
+	useMemo,
+	useCallback,
+	Fragment,
+	useRef,
+} from 'react';
 import '../../../assets/scss/globalComponents/taskWidget.scss';
 import { ReactComponent as DownArrowIcon } from '../../../assets/svg/chat/downArrow.svg';
 import { ReactComponent as FiltersIcon } from '../../../assets/svg/tasks/filterLines.svg';
@@ -6,7 +15,7 @@ import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.sv
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ListViewSidebar from '../modalsV2/tasks/ListViewSidebar';
 import { colors, rowTypes } from '../../features/tasks/Tasks';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
@@ -20,6 +29,7 @@ import CreateTaskPopup from '../modalsV2/tasks/CreateTaskPopup';
 import { message } from '../../components/globalComponents/CustomToast';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
+import { FetchMoreLoaderComp } from '../../../helpers';
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
@@ -48,6 +58,8 @@ const defaultPreference = {
 };
 
 const TaskWidget = ({ width, height }) => {
+	const location = useLocation();
+	const isContactPage = location?.pathname?.includes('contact');
 	const navigate = useNavigate();
 	const {
 		tasks: {
@@ -71,14 +83,15 @@ const TaskWidget = ({ width, height }) => {
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
+	const isLoading = useRef(true);
 	const [info, setInfo] = useState({
 		limit: 20,
 		page: 1,
-		loading: false,
+		loading: true,
 		promptPopupOpen: false,
 		selectedCard: null,
 		isModalOpen: false,
-		selectedTask: null,
+		selectedRow: null,
 		tenantUsers: [],
 		taskMetadata: null,
 		createTaskPopup: false,
@@ -92,11 +105,11 @@ const TaskWidget = ({ width, height }) => {
 		group: null,
 		page: 1,
 	});
+
 	useEffect(() => {
-		if (!listTasks) {
-			getTasksList(info?.page);
-		}
-	}, []);
+		setInfo((prev) => ({ ...prev, loading: true }));
+		getTasksList(1);
+	}, [location.pathname]);
 
 	useEffect(() => {
 		if (listTasks) {
@@ -108,7 +121,7 @@ const TaskWidget = ({ width, height }) => {
 							? listTasks?.data
 							: [...prevInfo?.listItems, ...listTasks?.data],
 					hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
-					loadingSkeleton: false,
+					loading: false,
 					infinityLoading: false,
 				}));
 			}
@@ -116,7 +129,7 @@ const TaskWidget = ({ width, height }) => {
 		if (listTasks?.error) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				loadingSkeleton: false,
+				loading: false,
 				infinityLoading: false,
 				error: listTasks?.error,
 				hasMore: false,
@@ -240,13 +253,6 @@ const TaskWidget = ({ width, height }) => {
 	);
 
 	useEffect(() => {
-		if (refetchTasks) {
-			fetchListItems();
-			updateTaskState({ refetchTasks: false });
-		}
-	}, [refetchTasks]);
-
-	useEffect(() => {
 		if (!tenantsUserList) {
 			getTeamMembers();
 		} else {
@@ -343,25 +349,27 @@ const TaskWidget = ({ width, height }) => {
 	}, []);
 
 	const getTasksList = async (page) => {
-		setInfo((prev) => ({ ...prev, loading: true }));
-		const response = await getListItems({
-			taskFilterInput: {
-				limit: 20,
-				page,
-			},
-		});
-		const nextPage = response?.[1]?.data?.listTasks?.currentPage + 1;
-		const hasNextPage = response?.[1]?.data?.listTasks?.hasNextPage;
-		setInfo((prev) => ({
-			...prev,
-			loading: false,
-			page: nextPage,
-			hasNextPage,
-		}));
+		try {
+			const response = await getListItems({
+				taskFilterInput: {
+					limit: 20,
+					page,
+				},
+			});
+			const nextPage = response?.[1]?.data?.listTasks?.currentPage + 1;
+			const hasNextPage = response?.[1]?.data?.listTasks?.hasNextPage;
+			setInfo((prev) => ({
+				...prev,
+				page: nextPage,
+				hasNextPage,
+			}));
+		} catch (error) {
+			setInfo((prev) => ({ ...prev, loading: false, error: error.message }));
+		}
 	};
 
 	const fetchMoreData = () => {
-		if (hasNextPage) {
+		if (info?.hasNextPage) {
 			getTasksList(info?.page);
 		}
 	};
@@ -373,7 +381,7 @@ const TaskWidget = ({ width, height }) => {
 	const handleTaskClick = (tasks) => {
 		setInfo((prev) => ({
 			...prev,
-			selectedTask: tasks,
+			selectedRow: tasks,
 			isModalOpen: true,
 		}));
 	};
@@ -531,7 +539,7 @@ const TaskWidget = ({ width, height }) => {
 						};
 					});
 				}
-				if (!info?.sidebarIsOpen) {
+				if (!info?.isModalOpen) {
 					fetchListItems();
 				}
 			} catch (error) {
@@ -552,7 +560,7 @@ const TaskWidget = ({ width, height }) => {
 				});
 			}
 		},
-		[updateListItem, info?.selectedSubTask, info?.sidebarIsOpen],
+		[updateListItem, info?.selectedSubTask, info?.isModalOpen],
 	);
 
 	const handleDebounceUpdate = useCallback(
@@ -658,7 +666,7 @@ const TaskWidget = ({ width, height }) => {
 								(row) => row._id !== payload?.taskId,
 							),
 							isModalOpen: false,
-							selectedTask: null,
+							selectedRow: null,
 						}));
 					}
 				}
@@ -673,7 +681,7 @@ const TaskWidget = ({ width, height }) => {
 				<div className="taskWidgetBody">
 					<div className="taskWidgetBodyHeader">
 						<div className="taskWidgetBodyHeaderLeft">
-							<span className="taskWidgetDay">{info?.listItems?.length}</span>
+							<span className="taskWidgetDay">{listTasks?.analytics?.allTasks}</span>
 							<span className="taskWidgetRemainder">Reminder</span>
 						</div>
 						{/* <div className="taskWidgetBodyHeaderRight">
@@ -684,9 +692,13 @@ const TaskWidget = ({ width, height }) => {
 							<FiltersIcon />
 						</div> */}
 					</div>
-					<div className="taskWidgetBodyContainer" id="taskWidgetBodyContainer">
-						{info?.loading ? (
-							skeletonLoaders?.map((item) => (
+					<div
+						className="taskWidgetBodyContainer"
+						style={{ maxHeight: isContactPage ? '400px' : '300px' }}
+						id="taskWidgetBodyContainer"
+					>
+						{info.loading ? (
+							skeletonLoaders?.map((_, index) => (
 								<Skeleton
 									width="300px"
 									height="36px"
@@ -694,6 +706,7 @@ const TaskWidget = ({ width, height }) => {
 										'--highlight-color': 'gray',
 										'--base-color': 'transparent',
 									}}
+									key={index}
 								/>
 							))
 						) : info?.listItems?.length === 0 ? (
@@ -708,12 +721,12 @@ const TaskWidget = ({ width, height }) => {
 								dataLength={info?.listItems?.length || 0}
 								hasMore={info?.hasNextPage}
 								next={fetchMoreData}
-								loader={<div>Loading...</div>}
+								loader={<FetchMoreLoaderComp />}
 								scrollableTarget="taskWidgetBodyContainer"
 								scrollThreshold="90%"
 							>
-								{info?.listItems?.map((eachOption) => (
-									<>
+								{info?.listItems?.map((eachOption, index) => (
+									<Fragment key={index}>
 										{eachOption?.status === 'Overdue' && (
 											<div className="taskWidgetStatusContainer">
 												<div className="taskWidgetStatusTitle">
@@ -736,7 +749,7 @@ const TaskWidget = ({ width, height }) => {
 												</div>
 											</div>
 										</div>
-									</>
+									</Fragment>
 								))}
 							</InfiniteScroll>
 						)}
@@ -749,7 +762,7 @@ const TaskWidget = ({ width, height }) => {
 					}}
 					style={{ cursor: 'pointer' }}
 				>
-					<div className="taskWidgetFooterTitle">View Tasks</div>
+					<div className="taskWidgetFooterTitle">View All Tasks</div>
 					<PlusIcon
 						onClick={(e) => {
 							e.stopPropagation();
@@ -759,7 +772,7 @@ const TaskWidget = ({ width, height }) => {
 				</div>
 			</div>
 			<ListViewSidebar
-				selectedRow={info?.selectedTask}
+				selectedRow={info?.selectedRow}
 				sidebarIsOpen={info?.isModalOpen}
 				closeSidebar={handleModalClose}
 				handleUpdate={updatePropertyValue}
@@ -781,8 +794,8 @@ const TaskWidget = ({ width, height }) => {
 				// sidebarChildren={
 				// 	info?.selectedRow ? (
 				// 		<ChildTaskComponent
-				// 			parentTaskId={info?.selectedTask?._id}
-				// 			childTasks={info?.selectedTask?.childTasks}
+				// 			parentTaskId={info?.selectedRow?._id}
+				// 			childTasks={info?.selectedRow?.childTasks}
 				// 			completedStatus={info?.taskMetadata?.completedGroupLabels}
 				// 			rowTypes={rowTypes}
 				// 			responseMetadata={responseMetadata}

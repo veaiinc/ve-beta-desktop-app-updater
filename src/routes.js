@@ -57,7 +57,7 @@ import KnowledgeAgents from './views/features/knowledgeAgent/KnowledgeAgents';
 import KnowledgeAgentDetails from './views/features/knowledgeAgent/AgentDetails';
 import EditKnowledgeAgent from './views/features/knowledgeAgent/EditAgent';
 import FormResCard from './views/components/forms/FormResCard';
-import FormAnalytics from './views/components/forms/FormAnalytics';
+// import FormAnalytics from './views/components/forms/FormAnalytics';
 import FormSummary from './views/components/forms/FormSummary';
 import Integrations from './views/features/integrationsList/Integrations';
 
@@ -67,6 +67,14 @@ import Contacts from './views/features/contacts/Contacts';
 const routes = [
 	{
 		path: '/',
+		component: <Landing_screen />,
+	},
+	{
+		path: '/mission',
+		component: <Landing_screen />,
+	},
+	{
+		path: '/contact-us',
 		component: <Landing_screen />,
 	},
 	{
@@ -136,7 +144,7 @@ const routes = [
 		component: (
 			<AuthWrapper
 				title={'Home'}
-				// outerContainerStyle={{ padding: '0 32px' }}
+				outerContainerStyle={{ overflow: 'hidden' }}
 				showBottomToolbar={false}
 			>
 				<InitialHomePage />
@@ -293,7 +301,11 @@ const routes = [
 	{
 		path: '/tasks',
 		component: (
-			<AuthWrapper title={'Tasks'}>
+			<AuthWrapper
+				title={'Tasks'}
+				outerContainerStyle={{ padding: '0 32px 0 0' }}
+				childrenContainerStyles={{ maxWidth: '100%' }}
+			>
 				<Tasks />
 			</AuthWrapper>
 		),
@@ -326,8 +338,8 @@ const routes = [
 		component: (
 			<AuthWrapper
 				title={'Calendar'}
-				maxWidth={'100%'}
-				outerContainerStyle={{ overflow: 'hidden', padding: '4px 32px' }}
+				outerContainerStyle={{ overflow: 'hidden', padding: '0 32px 0 0 ' }}
+				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
 				<CalendarModule />
 			</AuthWrapper>
@@ -368,7 +380,11 @@ const routes = [
 	{
 		path: '/contacts',
 		component: (
-			<AuthWrapper title={'Contacts'}>
+			<AuthWrapper
+				title={'Contacts'}
+				outerContainerStyle={{ padding: '0 32px 0 0' }}
+				childrenContainerStyles={{ maxWidth: '100%' }}
+			>
 				<Contacts />
 			</AuthWrapper>
 		),
@@ -522,15 +538,15 @@ const routes = [
 		),
 		exact: true,
 	},
-	{
-		path: '/forms/:id/analytics',
-		component: (
-			<AuthWrapper title={'Form Analytics'}>
-				<FormAnalytics view="analytics" />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
+	// {
+	// 	path: '/forms/:id/analytics',
+	// 	component: (
+	// 		<AuthWrapper title={'Form Analytics'}>
+	// 			<FormAnalytics view="analytics" />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 	{
 		path: '/forms/:id/responses',
 		component: (
@@ -579,6 +595,7 @@ const routes = [
 				}}
 				sidebarContainerStyles={{ paddingTop: '32px', paddingLeft: '32px' }}
 				maxWidth={'100%'}
+				sidebarContainerClassName={'auth-sidebar-container'}
 			>
 				<Notes />
 			</AuthWrapper>
@@ -596,7 +613,11 @@ const routes = [
 	{
 		path: '/contact/:contactId',
 		component: (
-			<AuthWrapper title="Contact Details">
+			<AuthWrapper
+				title="Contact Details"
+				outerContainerStyle={{ padding: '0 32px 0 0' }}
+				childrenContainerStyles={{ maxWidth: '100%' }}
+			>
 				<ExpandedClientView />
 			</AuthWrapper>
 		),

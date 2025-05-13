@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/dropdown/tasks/optionsDropDown.scss';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
@@ -13,6 +13,7 @@ import PropertiesDropDown from './PropertiesDropDown';
 import GroupDropDown from './GroupDropDown';
 import LayoutDropDown from './LayoutDropDown';
 import ThreeDotsSvg from '../../../../assets/svg/my_templates/ThreeDotsSvg';
+import Context from '../../../../context/context';
 // import CrossSvg from '../../../../assets/svg/docs/CrossSvg';
 
 const OptionsDropDown = ({
@@ -28,17 +29,24 @@ const OptionsDropDown = ({
 	handleDuplicateView,
 	prefix,
 	layoutOptions,
+	tabLength,
 }) => {
+	const {
+		tasks: { updateTaskPrefix, updateSelectedView },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		selected: null,
 		isOpen: false,
 		pendingLabel: viewData?.label,
+		pendingPrefix: prefix,
 	});
 
 	useEffect(() => {
 		setInfo((prev) => ({
 			...prev,
 			pendingLabel: viewData?.label,
+			pendingPrefix: prefix,
 		}));
 	}, [viewData?.label]);
 
@@ -95,6 +103,36 @@ const OptionsDropDown = ({
 			updateViewInfo({ label: info.pendingLabel });
 		}
 	}, [info.pendingLabel, updateViewInfo, viewData?.label]);
+
+	const handlePrefixChange = useCallback((e) => {
+		if (e.target?.value?.trim()?.length > 4) {
+			return;
+		}
+
+		setInfo((prev) => ({
+			...prev,
+			pendingPrefix: e.target.value?.trim()?.toUpperCase(),
+		}));
+	}, []);
+
+	const handlePrefixKeyDown = useCallback(
+		(e) => {
+			if (e.key === 'Enter') {
+				e.target.blur();
+			}
+		},
+		[info.pendingPrefix, updateTaskPrefix],
+	);
+
+	const handlePrefixBlur = useCallback(() => {
+		if (!info?.pendingPrefix?.trim()) {
+			setInfo((prevInfo) => ({ ...prevInfo, pendingPrefix: prefix }));
+			return;
+		}
+		if (info.pendingPrefix !== prefix) {
+			updateTaskPrefix({ input: { prefix: info?.pendingPrefix } });
+		}
+	}, [info.pendingPrefix, updateTaskPrefix, prefix]);
 
 	const handlePropertyToggle = useCallback(
 		(property) => {
@@ -241,31 +279,39 @@ const OptionsDropDown = ({
 											<ChevronRightThinSvg />
 										</span>
 									</div>
-									<div
-										className="view-options-list-item"
-										onClick={() => handleOptionChange('group')}
-									>
-										<ListSvg
-											width={16}
-											height={16}
-											style={{ stroke: 'var(--primary-font)' }}
-										/>
-										<span className="view-options-list-item-label">Group</span>
-										<span className="view-options-list-item-value">
-											{properties?.find(
-												(property) => property?.value === viewData?.group,
-											)?.label || 'None'}
-											<ChevronRightThinSvg />
-										</span>
-									</div>
+									{viewData?.viewType === 'board' && (
+										<div
+											className="view-options-list-item"
+											onClick={() => handleOptionChange('group')}
+										>
+											<ListSvg
+												width={16}
+												height={16}
+												style={{ stroke: 'var(--primary-font)' }}
+											/>
+											<span className="view-options-list-item-label">
+												Group
+											</span>
+											<span className="view-options-list-item-value">
+												{properties?.find(
+													(property) =>
+														property?.value === viewData?.group,
+												)?.label || 'None'}
+												<ChevronRightThinSvg />
+											</span>
+										</div>
+									)}
+
 									<div className="view-options-list-item">
 										<span className="view-options-list-item-label">
 											ID Prefix
 										</span>
 										<input
 											className="id-prefix-input"
-											readOnly
-											defaultValue={prefix || 'NONE'}
+											value={info.pendingPrefix}
+											onChange={handlePrefixChange}
+											onKeyDown={handlePrefixKeyDown}
+											onBlur={handlePrefixBlur}
 										/>
 									</div>
 								</div>
@@ -279,15 +325,17 @@ const OptionsDropDown = ({
 											Duplicate View
 										</span>
 									</div>
-									<div
-										className="view-options-list-item"
-										onClick={() => handleDeleteView(viewData?._id)}
-									>
-										<DeleteIcon className="task-delete-icon" />
-										<span className="view-options-list-item-label">
-											Delete View
-										</span>
-									</div>
+									{tabLength > 1 && (
+										<div
+											className="view-options-list-item"
+											onClick={() => handleDeleteView(viewData?._id)}
+										>
+											<DeleteIcon className="task-delete-icon" />
+											<span className="view-options-list-item-label">
+												Delete View
+											</span>
+										</div>
+									)}
 								</div>
 							</div>
 						</div>

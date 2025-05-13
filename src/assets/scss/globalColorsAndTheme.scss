@@ -14,61 +14,67 @@
 	--info: rgb(80, 137, 249); /* #5089f9 */
 
 	/* main colors */
-	--background-color: rgb(12, 12, 13); /* #0c0c0d */
+	--background-color: rgb(15, 15, 16); /* #0f0f10 */
 
 	/* font colors */
 	--primary-font: rgb(242, 242, 243); /* #f2f2f3 */
 	--secondary-font: rgb(122, 126, 133); /* #7a7e85 */
 
 	/* card colors */
-	--card: rgb(30, 32, 33); /* #1e2021 */
-	--card-hover: rgb(38, 40, 41); /* #262829 */
-	--card-over-card: rgb(38, 40, 41); /* #262829 */
-	--card-over-card-hover: rgb(46, 47, 50); /* #2e2f32 */
+	--card: rgb(24, 25, 27); /* #18191b */
+	--card-hover: rgb(32, 33, 35); /* #202123 */
+	--card-over-card: rgb(32, 33, 35); /* #202123 */
+	--card-over-card-hover: rgb(39, 40, 43); /* #27282b */
 	--popup: rgb(32, 33, 35); /* #202123 */
 
 	/* stroke colors */
-	// --stroke: rgb(44, 46, 49); /* #2c2e31 */
-	--stroke: #2e3033;
-	// --stroke-hover: rgb(66, 69, 72); /* #424548 */
-	--stroke-hover: #424548;
-
+	--stroke: rgb(44, 45, 46); /* #2c2d2e */
+	--stroke-hover: rgb(66, 69, 72); /* #424548 */
 	--stroke-active: rgb(32, 33, 35); /* #202123 */
 
 	/* navbar colors */
-	--navbar: rgb(32, 33, 35); /* #202123 */
+	--navbar: rgb(24, 25, 27); /* #18191b */
 	--right-bar: rgb(23, 24, 25); /* #171819 */
 
-	/* ai color code (gradient: colors inside are rgb with hex comments) */
+	/* ai color code */
 	--ai-color-code: linear-gradient(
 		94deg,
 		rgba(195, 157, 248, 0) -2.07%,
 		/* #c39df8 */ rgb(195, 157, 248) -2.06%,
-		/* #c39df8 */ rgb(236, 124, 157) 95.85% /* #ec7c9d */
+		/* #ec7c9d */ rgb(236, 124, 157) 95.85%
 	);
 
 	/* button colors */
 	--primary-button: rgb(207, 255, 72); /* #cfff48 */
 	--primary-button-hover: rgb(38, 40, 41); /* #262829 */
 	--primary-button-active: rgb(38, 40, 41); /* #262829 */
-	--primary-button-font: rgb(12, 12, 13); /* #0c0c0d */
+	--primary-button-font: var(--background-color); /* #0c0c0d */
 
 	--secondary-button: rgb(122, 126, 133); /* #7a7e85 */
 	--secondary-button-hover: rgb(255, 255, 231); /* #ffffe7 */
 	--secondary-button-active: rgb(255, 255, 231); /* #ffffe7 */
 
 	/* spinner colors */
-	--spinner-color-light: rgb(0, 0, 0); /* #000 */
-	--spinner-color-dark: rgb(255, 255, 255); /* #fff */
+	--spinner-color-light: rgb(0, 0, 0); /* #000000 */
+	--spinner-color-dark: rgb(255, 255, 255); /* #ffffff */
 
 	/* setting colors */
-	--setting-color-light: rgb(255, 255, 255); /* #fff */
-	--setting-color-dark: rgb(0, 0, 0); /* #000 */
-	--spinner-color: rgb(255, 255, 255); /* #fff */
-	--setting-color: rgb(255, 255, 255); /* #fff */
+	--setting-color-light: rgb(255, 255, 255); /* #ffffff */
+	--setting-color-dark: rgb(0, 0, 0); /* #000000 */
+	--spinner-color: rgb(255, 255, 255); /* #ffffff */
+	--setting-color: rgb(255, 255, 255); /* #ffffff */
 
 	--default-state-buttons: rgb(46, 47, 51); /* #2e2f33 */
-	--chat-secondary-font: #c1c1c9; /* rgb(195, 195, 201) */
+	--chat-secondary-font: #c1c1c9; /* rgb(193, 193, 201) */
+
+	--backdrop: rgba(15, 15, 16, 0.5); /* #0f0f10 */
+
+	// gradients
+	--linear-gradient: linear-gradient(
+		0deg,
+		rgba(12, 12, 13, 0.9) 19.76%,
+		rgba(12, 12, 13, 0) 100%
+	); // Used in /files route
 }
 
 /* light theme global css variables */
@@ -80,24 +86,22 @@
 	--info: rgb(80, 137, 249); /* #5089f9 */
 	--error: rgb(192, 55, 68); /* #c03744 */
 	--success: rgb(28, 153, 62); /* #1c993e */
-	--pending: rgb(237, 161, 69); /* #edA145 */
+	--pending: rgb(237, 161, 69); /* #eda145 */
 
 	/* font colors */
 	--primary-font: rgb(12, 12, 13); /* #0c0c0d */
-	--secondary-font: rgb(123, 126, 132); /* #7f858f */
+	--secondary-font: rgb(123, 126, 132); /* #7b7e84 */
 
 	/* card colors */
 	--card: rgb(242, 242, 243); /* #f2f2f3 */
 	--card-hover: rgb(228, 229, 231); /* #e4e5e7 */
-	--card-over-card: rgb(221, 221, 224); /* #dddde0 */
+	--card-over-card: rgb(217, 219, 221); /* #d9dbdd */
 	--card-over-card-hover: rgb(233, 235, 236); /* #e9ebec */
 	--popup: rgb(250, 250, 250); /* #fafafa */
 
 	/* stroke colors */
-	// --stroke: rgb(228, 229, 231); /* #e4e5e7 */
-	--stroke: #dddde0;
-	// --stroke-hover: rgb(228, 229, 231); /* #e4e5e7 */
-	--stroke-hover: #d3d3d8;
+	--stroke: rgba(228, 229, 230, 1); /* #e4e5e6 */
+	--stroke-hover: rgb(201, 203, 207); /* #C9CBCF */
 	--stroke-active: rgb(242, 242, 243); /* #f2f2f3 */
 	--stroke-disabled: rgb(242, 242, 243); /* #f2f2f3 */
 
@@ -106,19 +110,28 @@
 	--right-bar: rgb(250, 250, 250); /* #fafafa */
 
 	/* button colors */
-	--primary-button: rgb(165, 217, 255);
+	--primary-button: rgb(49, 144, 130); /* #319082 */
 	--primary-button-hover: rgb(242, 242, 243); /* #f2f2f3 */
 	--primary-button-active: rgb(242, 242, 243); /* #f2f2f3 */
-	--primary-button-font: rgb(12, 12, 13); /* #0c0c0d */
+	--primary-button-font: var(--background-color); /* #0c0c0d */
 
 	--secondary-button: rgb(242, 242, 243); /* #f2f2f3 */
 	--secondary-button-hover: rgb(228, 228, 231); /* #e4e4e7 */
 	--secondary-button-active: rgb(228, 228, 231); /* #e4e4e7 */
 
 	/* spinner colors */
-	--spinner-color: rgb(0, 0, 0); /* #000 */
-	--setting-color: rgb(0, 0, 0); /* #000 */
+	--spinner-color: rgb(0, 0, 0); /* #000000 */
+	--setting-color: rgb(0, 0, 0); /* #000000 */
 
 	--default-state-buttons: rgb(223, 223, 223); /* #dfdfdf */
-	--chat-secondary-font: #4f6064;
+	--chat-secondary-font: #4f6064; /* rgb(79, 96, 100) */
+
+	--backdrop: rgb(176, 178, 181, 0.5); /* #B0B2B5 */
+
+	// gradients
+	--linear-gradient: linear-gradient(
+		180deg,
+		rgba(255, 255, 255, 0) 0%,
+		#fff 100%
+	); // Used in /files route
 }

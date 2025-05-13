@@ -13,6 +13,10 @@
 		align-self: stretch;
 		border-radius: 20px;
 		background: var(--card, #171819);
+		cursor: pointer;
+		&:hover {
+			background: var(--card-over-card, #202123);
+		}
 		.calenderWidgetSection2ItemContainer {
 			display: flex;
 			align-items: center;
@@ -20,7 +24,7 @@
 			align-self: stretch;
 			.calenderWidgetSection2ItemTitle {
 				color: var(--secondary-font, #93989f);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -29,7 +33,7 @@
 		}
 		.calenderWidgetSection2ItemSubtitle {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;

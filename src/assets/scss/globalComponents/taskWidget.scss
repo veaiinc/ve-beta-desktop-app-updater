@@ -17,7 +17,7 @@
 		align-self: stretch;
 		border-radius: 24px;
 		background: var(--card, #171819);
-		width: 344px;
+		width: 100%;
 		.taskWidgetBody {
 			display: flex;
 			flex-direction: column;
@@ -35,7 +35,7 @@
 					gap: 8px;
 					.taskWidgetDay {
 						color: var(--primary-font, #f2f2f3);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 40px;
 						font-style: normal;
 						font-weight: 300;
@@ -43,7 +43,7 @@
 					}
 					.taskWidgetRemainder {
 						color: var(--primary-button, #b2ff00);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -61,7 +61,7 @@
 						gap: 4px;
 						span {
 							color: var(--primary-font, #f2f2f3);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -72,14 +72,13 @@
 			}
 			.taskWidgetBodyContainer {
 				display: flex;
-				padding: 10px 12px;
 				flex-direction: column;
+				justify-content: flex-start;
 				align-items: flex-start;
 				gap: 8px;
 				align-self: stretch;
 				border-radius: 12px;
-				background: var(--card-over-card, #202123);
-				height: 300px;
+				height: 100%;
 				overflow-y: auto;
 				.taskWidgetEmptyState {
 					display: flex;
@@ -87,7 +86,7 @@
 					align-items: center;
 					align-self: stretch;
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -102,7 +101,7 @@
 						align-self: stretch;
 						.taskWidgetStatusTitle {
 							color: #d7485a;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 600;
@@ -122,9 +121,9 @@
 						gap: 12px;
 						align-self: stretch;
 						cursor: pointer;
+						border-radius: 8px;
 						&:hover {
 							background: var(--card-over-card-hover);
-							border-radius: 8px;
 						}
 						.taskWidgetSelectOption {
 							width: 14px;
@@ -146,7 +145,7 @@
 								flex: 1 0 0;
 								align-self: stretch;
 								color: var(--primary-font, #f2f2f3);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 600;
@@ -154,7 +153,7 @@
 							}
 							.taskWidgetOptionName {
 								color: var(--Secondary-Font, #787e87);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 500;
@@ -174,7 +173,7 @@
 			padding-top: 12px;
 			.taskWidgetFooterTitle {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -205,7 +204,7 @@
 				align-self: stretch;
 				.taskWidgetSection2ItemTitle {
 					color: var(--secondary-font, #93989f);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -214,7 +213,7 @@
 			}
 			.taskWidgetSection2ItemSubtitle {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -222,4 +221,6 @@
 			}
 		}
 	}
+}
+@media screen and (max-width: 1440px) {
 }

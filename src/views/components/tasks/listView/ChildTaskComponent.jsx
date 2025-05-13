@@ -82,7 +82,7 @@ const ChildTaskComponent = ({
 						type="circle"
 						percent={(info?.completedCount / info?.totalCount) * 100}
 						size={16}
-						strokeColor={'#6055EC'}
+						strokeColor={'var(--primary-button)'}
 						trailColor={'#2F2F2F'}
 						strokeWidth={14}
 					/>

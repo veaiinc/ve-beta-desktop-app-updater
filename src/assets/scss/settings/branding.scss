@@ -10,7 +10,7 @@
 			align-self: stretch;
 
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 32px;
 			font-style: normal;
 			font-weight: 300;
@@ -371,7 +371,7 @@
 			.headerSection {
 				h1 {
 					color: var(--primary-font, #f2f2f3);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -380,7 +380,7 @@
 
 				p {
 					color: var(--secondary-font, #787e87);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -390,7 +390,7 @@
 
 			button {
 				color: #f2f2f3;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -468,7 +468,7 @@
 		.logoTextContainer {
 			h1 {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -477,7 +477,7 @@
 			}
 			p {
 				color: rgba(228, 229, 230, 0.48);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
@@ -549,7 +549,7 @@
 		.footerTextContainer {
 			h1 {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -558,7 +558,7 @@
 
 			p {
 				color: rgba(228, 229, 230, 0.48);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;

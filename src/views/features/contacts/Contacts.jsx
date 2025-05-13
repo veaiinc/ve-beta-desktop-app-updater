@@ -1,14 +1,12 @@
-import { useContext, useEffect, useState, useCallback, memo } from 'react';
-import '../../../assets/scss/contacts/ncontacts.scss';
-import { useNavigate } from 'react-router-dom';
+import { useContext, useEffect, useState, useCallback, memo, useRef } from 'react';
+import '../../../assets/scss/contacts/contacts.scss';
 import Context from '../../../context/context';
-import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import SingleContact from '../../components/contacts/singleContact';
+import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 import QuickActions from '../../components/globalComponents/QuickActions';
-
-dayjs.extend(relativeTime);
+import ContactsListView from '../../components/contacts/ContactsListView';
+import ContactsWidgetView from '../../components/contacts/ContactsWidgetView';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/chat/search.svg';
 
 const suggestedPrompts = [
 	'Start a Deep Research on revamping the current Dashboard Layout',
@@ -22,15 +20,15 @@ const statItems = [
 	{ key: 'normal', label: 'Normal', className: 'normal' },
 	{ key: 'weak', label: 'Weak', className: 'weak' },
 ];
+
 const Contacts = () => {
-	const navigate = useNavigate();
+	const timeoutIdRef = useRef(null);
+
 	const {
-		templates: { updateStateValues: updateContactState },
-		contacts: { clientList, getClients, getClient, refetchClientList },
+		templates: { updateStateValues },
+		contacts: { clientList, getClients, updateStateValues: updateContactState },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		page: 1,
-		hasMore: false,
 		loadingSkeleton: true,
 		error: null,
 		sort: [],
@@ -39,24 +37,54 @@ const Contacts = () => {
 		updated: false,
 		selectedContact: null,
 		selectedContactOption: null,
+		activeView: 'listView',
 	});
+	const listItems = clientList?.data || [];
+	const isMountedRef = useRef(true);
+	const pageRef = useRef(1);
+	const searchValueRef = useRef('');
 
 	useEffect(() => {
-		updateContactState({ leftSidebarState: 'close' });
+		updateStateValues({ leftSidebarState: 'close' });
+
 		return () => {
-			updateContactState({ leftSidebarState: null });
+			if (searchValueRef.current !== '') {
+				updateContactState({ clientList: null });
+			}
 		};
 	}, []);
 
 	useEffect(() => {
-		fetchClientList(info?.page);
-	}, []);
+		if (isMountedRef.current && clientList?.data) {
+			isMountedRef.current = false;
+			return;
+		}
+		timeoutIdRef.current = setTimeout(() => {
+			const reset = true;
+			fetchClientList(1, reset);
+			pageRef.current = 1;
+		}, 500);
+		return () => {
+			clearTimeout(timeoutIdRef.current);
+		};
+	}, [info?.searchValue]);
+
+	useEffect(() => {
+		if (clientList?.data) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				loadingSkeleton: false,
+				hasMore: clientList?.hasNextPage,
+			}));
+			pageRef.current = clientList?.currentPage;
+		}
+	}, [clientList]);
 
 	const fetchClientList = useCallback(
-		(page = 1) => {
+		(page = 1, reset = false) => {
 			const payload = {
 				clientFilterInput: {
-					limit: 20,
+					limit: 15,
 					page: page,
 					sort:
 						info?.sort?.length > 0
@@ -66,75 +94,110 @@ const Contacts = () => {
 						search: info?.searchValue,
 					}),
 					...(info?.filters?.length > 0 && {
-						filters: info?.filters.map((filter) => ({
+						filters: info?.filters?.map((filter) => ({
 							key: filter.key,
 							value: filter.value?._id || filter.value,
 						})),
 					}),
 				},
 			};
-			getClients(payload);
+			getClients(payload, reset);
 		},
-		[getClients, info?.searchValue, info?.filters, info?.sort],
+		[info?.searchValue, info?.filters, info?.sort, getClients],
 	);
 
-	const stats = {
-		all: clientList?.data?.data?.length,
-		strong: 3,
-		normal: 3,
-		weak: 3,
+	const fetchMoreClientsList = useCallback(() => {
+		if (info?.hasMore) {
+			const nextPage = pageRef.current + 1;
+			const reset = false;
+			fetchClientList(nextPage, reset);
+		}
+	}, [info?.hasMore, fetchClientList]);
+
+	const handleViewChange = (view) => {
+		setInfo({ ...info, activeView: view });
 	};
+
+	const handleSearchQueryChange = (e) => {
+		setInfo({ ...info, searchValue: e?.target?.value });
+		searchValueRef.current = e?.target?.value;
+	};
+
 	return (
 		<div className="contacts-container">
-			{/* <div className="left-section">
-				<div className="contacts-header">
-					<h2>Contacts</h2>
-				</div>
-				<div className="contacts-stats-container">
-					<div className="contacts-stats">
-						{statItems.map(({ key, label, className }) => (
-							<div
-								className={`stat-item ${
-									info?.selectedContactOption === key ? 'active' : ''
-								}`}
-								key={key}
-							>
-								<div className="count">
-									{key !== 'all' && <span></span>}
-									{stats[key]}
-								</div>
-								<div className="label">{label}</div>
+			<ChatLeftBarComponent>
+				<div className="left-section">
+					<div className="contacts-Header">
+						<div className="contacts-search-container">
+							<div className="search-icon">
+								<SearchIcon />
 							</div>
-						))}
+							<input
+								type="text"
+								className="search-input"
+								placeholder="Search Contacts"
+								onChange={handleSearchQueryChange}
+								autoFocus
+							/>
+						</div>
 					</div>
-
-					<div className="suggested-sections">
-						<div className="section-title">Suggested Actions</div>
-						<div className="action-buttons">
-							<button>Hand off to Priya</button>
-							<button>Add Collaborator</button>
-							<button>Snooze</button>
-						</div>
-
-						<div className="section-title">Suggested Prompts</div>
-						<div className="prompts-list">
-							{suggestedPrompts.map((prompt, index) => (
-								<div key={index} className="prompt-item">
-									<ArrowRightSvg style={{ flexShrink: '0' }} />
-									{prompt}
+					<div className="contacts-body">
+						<div className="view-type-container">
+							<div
+								className="view-container"
+								onClick={() => handleViewChange('widgetView')}
+							>
+								<div
+									className={`view ${
+										info?.activeView === 'widgetView' ? 'active' : ''
+									}`}
+								>
+									Widget View
 								</div>
-							))}
+							</div>
+							<div className="vertical-line" />
+							<div
+								className="view-container"
+								onClick={() => handleViewChange('listView')}
+							>
+								<div
+									className={`view ${
+										info?.activeView === 'listView' ? 'active' : ''
+									}`}
+								>
+									List View
+								</div>
+							</div>
 						</div>
+						{/* <div className="suggested-sections">
+							<div className="section-title">Suggested Actions</div>
+							<div className="action-buttons">
+								<button>Hand off to Priya</button>
+								<button>Add Collaborator</button>
+								<button>Snooze</button>
+							</div>
+
+							<div className="section-title">Suggested Prompts</div>
+							<div className="prompts-list">
+								{suggestedPrompts.map((prompt, index) => (
+									<div key={index} className="prompt-item">
+										<ArrowRightSvg style={{ flexShrink: '0' }} />
+										{prompt}
+									</div>
+								))}
+							</div>
+						</div> */}
 					</div>
 				</div>
-			</div> */}
+			</ChatLeftBarComponent>
+
 			{info?.selectedContact ? (
 				<SingleContact
 					selectedContact={info?.selectedContact}
 					selectedOptions={info?.selectedContactOption}
 				/>
 			) : (
-				<div className="right-section">
+				<div className="contacts-right-section">
 					<div className="header">
 						<h1 className="header-title">Your Contacts</h1>
 						<QuickActions />
@@ -143,43 +206,25 @@ const Contacts = () => {
 						<input type="text" className="search-bar" placeholder="Search" />
 					</div> */}
 					</div>
-
-					<div className="contacts-table">
-						<div className="table-header">
-							<div className="column people">People</div>
-							<div className="column strength"></div>
-							<div className="column interaction">Last Interaction</div>
+					{info?.loadingSkeleton ? (
+						<div className="skeleton">Loading...</div>
+					) : (
+						<div className="contacts-body">
+							{info?.activeView === 'listView' ? (
+								<ContactsListView
+									data={listItems}
+									hasMore={info?.hasMore}
+									fetchMore={fetchMoreClientsList}
+								/>
+							) : (
+								<ContactsWidgetView
+									data={listItems}
+									hasMore={info?.hasMore}
+									fetchMore={fetchMoreClientsList}
+								/>
+							)}
 						</div>
-						<div className="table-body">
-							{clientList?.data?.data?.map((contact) => (
-								<div
-									key={contact.id}
-									className="table-row"
-									onClick={() => navigate(`/contact/${contact?._id}`)}
-								>
-									<div className="column people">
-										{/* <input type="checkbox" className="checkbox" /> */}
-										{/* <div className="avatar">{contact.avatar}</div> */}
-										<div className="contact-info">
-											<div className="name">{contact.name}</div>
-											<div className="email">{contact.email}</div>
-										</div>
-									</div>
-									<div className="column strength">
-										{/* <span
-											className={`dot ${contact.strength.toLowerCase()}`}
-										></span>
-										<span className="text">{contact.strength}</span> */}
-									</div>
-									<div className="column interaction">
-										{contact?.updatedAt
-											? dayjs.unix(contact.updatedAt).fromNow() // Converts Unix seconds -> "14 days ago"
-											: 'N/A'}
-									</div>
-								</div>
-							))}
-						</div>
-					</div>
+					)}
 				</div>
 			)}
 		</div>

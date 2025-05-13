@@ -47,6 +47,7 @@
 			overflow: hidden;
 			white-space: nowrap;
 			text-overflow: ellipsis;
+			max-width: 300px;
 		}
 
 		.notes-nav-right {
@@ -66,6 +67,85 @@
 				width: fit-content;
 				background-color: transparent;
 				cursor: pointer;
+			}
+		}
+	}
+
+	.deleted-badge {
+		display: flex;
+		width: 100%;
+		padding: 10px 32px;
+		justify-content: space-between;
+		align-items: center;
+		border-bottom: 1px solid var(--error, #c03744);
+		background: var(--card, #18191b);
+		gap: 6px;
+		margin-bottom: 10px;
+
+		.badge-text-wrapper {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+
+			svg {
+				flex-shrink: 0;
+			}
+
+			.delete-badge-message {
+				flex-grow: 1;
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		.badge-button-wrapper {
+			display: flex;
+			gap: 6px;
+			.delete-badge-restore-btn {
+				display: flex;
+				padding: 10px 16px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				border-radius: 24px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				white-space: nowrap;
+				background-color: transparent;
+				cursor: pointer;
+			}
+			.delete-badge-permanent-delete-btn {
+				display: flex;
+				padding: 10px 16px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				border-radius: 24px;
+				background-color: var(--error, #c03744);
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				border: none;
+				white-space: nowrap;
+				cursor: pointer;
+
+				svg {
+					path {
+						stroke: var(--primary-font) !important;
+					}
+				}
 			}
 		}
 	}
@@ -183,8 +263,8 @@
 					line-height: normal;
 					margin-right: 5px;
 					display: flex;
-					align-items: center;
 					justify-content: center;
+					padding-top: 2px;
 				}
 
 				input[type='checkbox'] {
@@ -407,5 +487,20 @@
 		height: 14px;
 		border: 1px solid var(--stroke) !important;
 		font-size: 12px !important;
+	}
+}
+
+.auth-sidebar-container {
+	.FullScreenSidebar.opened {
+		margin-right: 0 !important;
+	}
+}
+
+@media (max-width: 991px) {
+	.deleted-badge {
+		flex-wrap: wrap;
+		.badge-button-wrapper {
+			width: 100%;
+		}
 	}
 }

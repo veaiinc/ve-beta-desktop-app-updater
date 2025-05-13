@@ -514,7 +514,14 @@ body > .rbc-overlay {
 	padding: 15px;
 	display: flex;
 	flex-direction: column;
+	max-width: 500px;
 	align-items: start;
+	.rbc-event-content {
+		width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
 	.rbc-overlay-header {
 		color: var(--primary-font);
 		font-size: 13px;

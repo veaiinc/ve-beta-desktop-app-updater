@@ -102,11 +102,12 @@ const AutomationWidget = ({ width, height }) => {
 	};
 	return (
 		<div className="automation" style={{ width: width, height: height }}>
+			∑
 			<div className="automationWidgetContainer">
 				<div className="automationWidgetBody">
 					<div className="automationWidgetBodyHeader" id="automationWidgetBodyHeader">
 						{info?.isLoading ? (
-							skeletonLoaders?.map((item) => (
+							skeletonLoaders?.map((_, index) => (
 								<Skeleton
 									width="280px"
 									height="36px"
@@ -114,6 +115,7 @@ const AutomationWidget = ({ width, height }) => {
 										'--highlight-color': 'gray',
 										'--base-color': 'transparent',
 									}}
+									key={index}
 								/>
 							))
 						) : automationsLength > 0 ? (
@@ -125,22 +127,23 @@ const AutomationWidget = ({ width, height }) => {
 								scrollableTarget="automationWidgetBodyHeader"
 								style={infiniteScrollStyle}
 							>
-								{automationsList?.data?.map((automation) => (
+								{automationsList?.data?.map((automation, index) => (
 									<div
 										className="automationWidgetBodyItem"
 										onClick={() => handleAutomationClick(automation)}
+										key={index}
 									>
 										<div className="automationWidgetOptionDetails">
 											<div className="automationWidgetOptionDetailsTitle">
-												{automation.name}
+												{automation?.name}
 											</div>
 											<div
 												className="automationWidgetOptionDetailsSubtitle"
 												style={{
-													color: statusColors[automation.status],
+													color: statusColors[automation?.status],
 												}}
 											>
-												{automation.status}
+												{automation?.status}
 											</div>
 										</div>
 									</div>

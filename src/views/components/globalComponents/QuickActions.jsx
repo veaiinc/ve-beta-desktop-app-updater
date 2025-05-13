@@ -1,11 +1,7 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { Tooltip } from 'antd';
-import { useContext, useState, useCallback, useEffect, memo, useMemo } from 'react';
-// import '../../../assets/scss/home_page/homepage.scss';
+import { useContext, useState, useCallback, useEffect, memo, useMemo, useRef } from 'react';
 import '../../../assets/scss/globalComponents/quickActions.scss';
-import Search from '../../../assets/svg/seach-magnifier.svg';
 import LoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
 import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
 import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
@@ -23,49 +19,80 @@ import { colors } from '../../features/tasks/Tasks';
 import jwtDecode from 'jwt-decode';
 import EventsPopup from '../calendar/EventsPopUp';
 import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
+import { ReactComponent as Flash } from '../../../assets/svg/flash.svg';
+import Search from '../../../assets/svg/searc.svg';
 
-const moduleOptions = [
+const suggestedOptions = [];
+
+const buildAiOptions = [
+	// {
+	// 	id: 1,
+	// 	title: 'Form',
+	// 	value: 'form-submission',
+	// 	controlValue: 'form',
+	// 	action: ({ updateStateValues, navigate }) => {
+	// 		const sessionId = ObjectID()?.toString();
+	// 		updateStateValues({ activeInputForChat: 'Create a form for' });
+	// 		navigate(`/chat/${sessionId}`);
+	// 	},
+	// },
+	// {
+	// 	id: 2,
+	// 	title: 'Task',
+	// 	value: 'task',
+	// 	action: ({ updateStateValues, navigate }) => {
+	// 		const sessionId = ObjectID()?.toString();
+	// 		updateStateValues({ activeInputForChat: 'Create a task for' });
+	// 		navigate(`/chat/${sessionId}`);
+	// 	},
+	// },
+	// {
+	// 	id: 3,
+	// 	title: 'Event',
+	// 	value: 'event',
+	// 	controlValue: 'event',
+	// 	action: ({ updateStateValues, navigate }) => {
+	// 		const sessionId = ObjectID()?.toString();
+	// 		updateStateValues({ activeInputForChat: 'Create a meeting for' });
+	// 		navigate(`/chat/${sessionId}`);
+	// 	},
+	// },
+];
+
+const createOptions = [
 	{
-		id: 0,
-		title: 'Contact/Lead',
+		id: 1,
+		title: 'Contact',
 		value: 'contacts',
 		controlValue: 'contact',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openClientPopup: true }));
-		},
-	},
-	{
-		id: 1,
-		title: 'Task',
-		value: 'task',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, createTaskPopup: true }));
+			setInfo((prev) => ({ ...prev, openClientPopup: true, dropdown: false }));
 		},
 	},
 	{
 		id: 2,
-		title: 'Event',
-		value: 'event',
+		title: 'Task',
+		value: 'task',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openEventsPopup: true }));
+			setInfo((prev) => ({ ...prev, createTaskPopup: true, dropdown: false }));
 		},
 	},
 	{
 		id: 3,
-		title: 'Session',
-		value: 'session',
-		controlValue: 'calendar',
+		title: 'Event',
+		value: 'event',
+		controlValue: 'event',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openSessionPopup: true }));
+			setInfo((prev) => ({ ...prev, openEventsPopup: true, dropdown: false }));
 		},
 	},
 	{
 		id: 4,
-		title: 'Documents',
-		value: '',
-		controlValue: 'all',
+		title: 'Session',
+		value: 'session',
+		controlValue: 'calendar',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: '' }));
+			setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
 		},
 	},
 	{
@@ -78,6 +105,7 @@ const moduleOptions = [
 				...prev,
 				openProposalPopup: true,
 				commonState: 'form-submission',
+				dropdown: false,
 			}));
 		},
 	},
@@ -87,7 +115,12 @@ const moduleOptions = [
 		value: 'proposal',
 		controlValue: 'workflow',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'proposal' }));
+			setInfo((prev) => ({
+				...prev,
+				openProposalPopup: true,
+				commonState: 'proposal',
+				dropdown: false,
+			}));
 		},
 	},
 	{
@@ -96,16 +129,26 @@ const moduleOptions = [
 		value: 'invoice',
 		controlValue: 'workflow',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'invoice' }));
+			setInfo((prev) => ({
+				...prev,
+				openProposalPopup: true,
+				commonState: 'invoice',
+				dropdown: false,
+			}));
 		},
 	},
 	{
 		id: 8,
-		title: 'Contracts',
+		title: 'Contract',
 		value: 'contract',
 		controlValue: 'workflow',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'contract' }));
+			setInfo((prev) => ({
+				...prev,
+				openProposalPopup: true,
+				commonState: 'contract',
+				dropdown: false,
+			}));
 		},
 	},
 	{
@@ -114,7 +157,12 @@ const moduleOptions = [
 		value: 'presentation',
 		controlValue: 'workflow',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'presentation' }));
+			setInfo((prev) => ({
+				...prev,
+				openProposalPopup: true,
+				commonState: 'presentation',
+				dropdown: false,
+			}));
 		},
 	},
 	{
@@ -129,6 +177,7 @@ const moduleOptions = [
 					...prev,
 					showLoader: true,
 					loaderMessage: 'Creating automation...',
+					dropdown: false,
 				}));
 				const response = await createAutomation({
 					name: 'Untitled Automation',
@@ -163,6 +212,7 @@ const moduleOptions = [
 					...prev,
 					showLoader: true,
 					loaderMessage: 'Creating AI Assistant...',
+					dropdown: false,
 				}));
 				const aiAssistantId = await createNewAiAssistant({
 					name: 'Untitled Assistant',
@@ -181,86 +231,33 @@ const moduleOptions = [
 			}
 		},
 	},
+];
+
+const uploadOptions = [
 	{
-		id: 12,
+		id: 0,
 		title: 'Classic Gallery',
 		value: 'galleries',
 		controlValue: 'classicGallery',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openGalleryPopup: true }));
+			setInfo((prev) => ({ ...prev, openGalleryPopup: true, dropdown: false }));
 		},
 	},
 	{
-		id: 13,
+		id: 1,
 		title: 'Lite Gallery',
 		value: 'lite-gallery',
 		controlValue: 'liteGallery',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openLiteGalleryPopup: true }));
-		},
-	},
-	{
-		id: 14,
-		title: 'Note',
-		value: 'note',
-		action: async ({ setInfo, navigate, createNotesList }) => {
-			try {
-				setInfo((prev) => ({
-					...prev,
-					showLoader: true,
-					loaderMessage: 'Creating note...',
-				}));
-				const payload = {
-					input: {
-						title: 'New Note',
-					},
-				};
-				const response = await createNotesList(payload);
-				if (response?.[1]?._id) {
-					navigate(`/note/${response[1]._id}`);
-				}
-			} catch (error) {
-				message.error('Failed to create note');
-			} finally {
-				setInfo((prev) => ({
-					...prev,
-					showLoader: false,
-					loaderMessage: '',
-				}));
-			}
-		},
-	},
-	{
-		id: 15,
-		title: 'Knowledge Agent',
-		value: 'knowledge-agent',
-		controlValue: 'knowledgeAgent',
-		action: async ({ setInfo, navigate, createNewKnowledgeAgent }) => {
-			try {
-				setInfo((prev) => ({
-					...prev,
-					showLoader: true,
-					loaderMessage: 'Creating knowledge agent...',
-				}));
-				const [, data] = await createNewKnowledgeAgent('Untitled Assistant');
-				const aiAssistantId = data?.insertedId;
-				if (aiAssistantId) {
-					navigate(`/knowledge-agent/${aiAssistantId}/edit`);
-				}
-			} catch (error) {
-				console.log(error);
-
-				message.error('Failed to create knowledge agent');
-			} finally {
-				setInfo((prev) => ({
-					...prev,
-					showLoader: false,
-					loaderMessage: '',
-				}));
-			}
+			setInfo((prev) => ({ ...prev, openLiteGalleryPopup: true, dropdown: false }));
 		},
 	},
 ];
+
+const locationOptions = {
+	files: 'Files',
+	'knowledge-agent': 'Knowledge Agents',
+};
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -280,9 +277,18 @@ const defaultPreference = {
 	updatedAt: { show: false, order: 15 },
 };
 
-const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDetails = null }) => {
+const QuickActions = ({
+	styles,
+	suggestedOptions: propSuggestedOptions = [],
+	timeout = null,
+	clientDetails = null,
+	isFromForms = false,
+}) => {
+	const navigate = useNavigate();
+	const location = useLocation();
+
 	const {
-		templates: { toggleCreateLeadModal },
+		templates: { toggleCreateLeadModal, updateStateValues },
 		profileInfo: { tenantUserAccessControls },
 		automationBuilder: { createAutomation },
 		aiSetup: { createNewAiAssistant },
@@ -299,11 +305,9 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			updateTaskState,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState, currentPlan },
 	} = useContext(Context);
-
-	const navigate = useNavigate();
-
+	// const timeoutRef = useRef(null);
 	const [info, setInfo] = useState({
 		dropdown: false,
 		openProposalPopup: false,
@@ -312,9 +316,18 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		openLiteGalleryPopup: false,
 		openEventsPopup: false,
 		openSessionPopup: false,
-		// openTaskPopup: false,
-		options: { suggestedOptions, moduleOptions },
-		filteredOptions: { suggestedOptions, moduleOptions },
+		options: {
+			suggestedOptions: propSuggestedOptions.length ? propSuggestedOptions : suggestedOptions,
+			buildAi: buildAiOptions,
+			create: createOptions,
+			upload: uploadOptions,
+		},
+		filteredOptions: {
+			suggestedOptions: propSuggestedOptions.length ? propSuggestedOptions : suggestedOptions,
+			buildAi: buildAiOptions,
+			create: createOptions,
+			upload: uploadOptions,
+		},
 		isAutomationLoading: false,
 		commonState: 'All',
 		search: '',
@@ -333,7 +346,568 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		},
 		group: null,
 		page: 1,
+		currentLocation: '',
+		locationNeeded: false,
 	});
+
+	const isAdmin = tenantUserAccessControls?.role === 'admin';
+	const liteGalleryPaidPlan = currentPlan?.apps?.find(
+		(app) => app.app === 'liteGallery',
+	)?.isPaidPlan;
+
+	const getSuggestedOptionsByPath = (pathname) => {
+		if (pathname.includes('/home')) {
+			return [
+				{
+					id: 1,
+					title: 'Event',
+					value: 'event',
+					controlValue: 'event',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, openEventsPopup: true, dropdown: false }));
+					},
+				},
+				{
+					id: 2,
+					title: 'Session',
+					value: 'session',
+					controlValue: 'calendar',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+					},
+				},
+				{
+					id: 3,
+					title: 'Task',
+					value: 'task',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, createTaskPopup: true, dropdown: false }));
+					},
+				},
+				{
+					id: 4,
+					title: 'Contact',
+					value: 'contacts',
+					controlValue: 'contact',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, openClientPopup: true, dropdown: false }));
+					},
+				},
+				{
+					id: 5,
+					title: 'Automation',
+					value: 'automation',
+					controlValue: 'automation',
+					action: async ({ setInfo, navigate, createAutomation, info }) => {
+						if (info?.isAutomationLoading) return;
+						try {
+							setInfo((prev) => ({
+								...prev,
+								showLoader: true,
+								loaderMessage: 'Creating automation...',
+								dropdown: false,
+							}));
+							const response = await createAutomation({
+								name: 'Untitled Automation',
+								version: 1,
+								steps: [],
+								status: 'draft',
+							});
+							if (response?.[0]) {
+								navigate(`/automation-builder/${response?.[1]?._id}`);
+							} else {
+								message.error('Failed to create automation');
+							}
+						} catch (error) {
+							message.error('Failed to create automation');
+						} finally {
+							setInfo((prev) => ({
+								...prev,
+								showLoader: false,
+								loaderMessage: '',
+							}));
+						}
+					},
+				},
+			];
+		} else if (pathname.includes('/knowledge-agent')) {
+			return [
+				{
+					id: 1,
+					title: 'Conversational Agent',
+					value: 'ai-assistant',
+					controlValue: 'conversationalAgent',
+					action: async ({ setInfo, createNewAiAssistant, navigate }) => {
+						try {
+							setInfo((prev) => ({
+								...prev,
+								showLoader: true,
+								loaderMessage: 'Creating AI Assistant...',
+								dropdown: false,
+							}));
+							const aiAssistantId = await createNewAiAssistant({
+								name: 'Untitled Assistant',
+							});
+							if (aiAssistantId) {
+								navigate(`/ai-assistant/${aiAssistantId}/edit`);
+							}
+						} catch (error) {
+							message.error('Failed to create AI Assistant');
+						} finally {
+							setInfo((prev) => ({
+								...prev,
+								showLoader: false,
+								loaderMessage: '',
+							}));
+						}
+					},
+				},
+				{
+					id: 2,
+					title: 'Knowledge Agent',
+					value: 'knowledge-agent',
+					controlValue: 'knowledgeAgent',
+					action: async ({ setInfo, createNewKnowledgeAgent, navigate }) => {
+						try {
+							setInfo((prev) => ({
+								...prev,
+								showLoader: true,
+								loaderMessage: 'Creating Knowledge Agent...',
+								dropdown: false,
+							}));
+							const knowledgeAgentId = await createNewKnowledgeAgent({
+								name: 'Untitled Knowledge Agent',
+							});
+							if (knowledgeAgentId) {
+								navigate(`/knowledge-agent/${knowledgeAgentId}/edit`);
+							}
+						} catch (error) {
+							message.error('Failed to create Knowledge Agent');
+						} finally {
+							setInfo((prev) => ({
+								...prev,
+								showLoader: false,
+								loaderMessage: '',
+							}));
+						}
+					},
+				},
+			];
+		} else if (pathname.includes('/files')) {
+			return [
+				{
+					id: 1,
+					title: 'Documents',
+					value: '',
+					controlValue: 'all',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({
+							...prev,
+							openProposalPopup: true,
+							commonState: '',
+							dropdown: false,
+						}));
+					},
+				},
+				{
+					id: 2,
+					title: 'Note',
+					value: 'note',
+					action: async ({ setInfo, navigate }) => {
+						try {
+							setInfo((prev) => ({
+								...prev,
+								showLoader: true,
+								loaderMessage: 'Creating note...',
+								dropdown: false,
+							}));
+							const payload = {
+								input: {
+									title: 'New Note',
+								},
+							};
+							const response = await createNotesList(payload);
+							if (response?.[0] && response?.[1]?._id) {
+								navigate(`/note/${response[1]._id}`);
+							} else {
+								message.error('Failed to create note');
+							}
+						} catch (error) {
+							console.error('Note creation error:', error);
+							message.error('Failed to create note');
+						} finally {
+							setInfo((prev) => ({
+								...prev,
+								showLoader: false,
+								loaderMessage: '',
+							}));
+						}
+					},
+				},
+				{
+					id: 3,
+					title: 'Forms',
+					value: 'form-submission',
+					controlValue: 'form',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({
+							...prev,
+							openProposalPopup: true,
+							commonState: 'form-submission',
+							dropdown: false,
+						}));
+					},
+				},
+				{
+					id: 4,
+					title: 'Proposal',
+					value: 'proposal',
+					controlValue: 'workflow',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({
+							...prev,
+							openProposalPopup: true,
+							commonState: 'proposal',
+							dropdown: false,
+						}));
+					},
+				},
+				{
+					id: 5,
+					title: 'Invoice',
+					value: 'invoice',
+					controlValue: 'workflow',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({
+							...prev,
+							openProposalPopup: true,
+							commonState: 'invoice',
+							dropdown: false,
+						}));
+					},
+				},
+				{
+					id: 6,
+					title: 'Contracts',
+					value: 'contract',
+					controlValue: 'workflow',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({
+							...prev,
+							openProposalPopup: true,
+							commonState: 'contract',
+							dropdown: false,
+						}));
+					},
+				},
+				{
+					id: 7,
+					title: 'Presentation',
+					value: 'presentation',
+					controlValue: 'workflow',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({
+							...prev,
+							openProposalPopup: true,
+							commonState: 'presentation',
+							dropdown: false,
+						}));
+					},
+				},
+				{
+					id: 8,
+					title: 'Classic Gallery',
+					value: 'galleries',
+					controlValue: 'classicGallery',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, openGalleryPopup: true, dropdown: false }));
+					},
+				},
+				{
+					id: 9,
+					title: 'Lite Gallery',
+					value: 'lite-gallery',
+					controlValue: 'liteGallery',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({
+							...prev,
+							openLiteGalleryPopup: true,
+							dropdown: false,
+						}));
+					},
+				},
+			];
+		} else if (pathname.includes('/forms')) {
+			return [
+				{
+					id: 1,
+					title: 'Form',
+					value: 'form-submission',
+					controlValue: 'form',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({
+							...prev,
+							openProposalPopup: true,
+							commonState: 'form-submission',
+							dropdown: false,
+						}));
+					},
+				},
+			];
+		} else if (pathname.includes('/tasks')) {
+			return [
+				{
+					id: 1,
+					title: 'Task',
+					value: 'task',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, createTaskPopup: true, dropdown: false }));
+					},
+				},
+			];
+		} else if (pathname.includes('/task/')) {
+			return [
+				{
+					id: 1,
+					title: 'meeting',
+					value: 'event',
+					controlValue: 'event',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, openEventsPopup: true, dropdown: false }));
+					},
+				},
+				{
+					id: 2,
+					title: 'automation',
+					value: 'automation',
+					controlValue: 'automation',
+					action: async ({ setInfo, navigate, createAutomation, info }) => {
+						if (info?.isAutomationLoading) return;
+						try {
+							setInfo((prev) => ({
+								...prev,
+								showLoader: true,
+								loaderMessage: 'Creating automation...',
+								dropdown: false,
+							}));
+							const response = await createAutomation({
+								name: 'Untitled Automation',
+								version: 1,
+								steps: [],
+								status: 'draft',
+							});
+							if (response?.[0]) {
+								navigate(`/automation-builder/${response?.[1]?._id}`);
+							} else {
+								message.error('Failed to create automation');
+							}
+						} catch (error) {
+							message.error('Failed to create automation');
+						} finally {
+							setInfo((prev) => ({
+								...prev,
+								showLoader: false,
+								loaderMessage: '',
+							}));
+						}
+					},
+				},
+			];
+		} else if (pathname.includes('/contacts')) {
+			return [
+				{
+					id: 1,
+					title: 'Create New Contact',
+					value: 'contacts',
+					controlValue: 'contact',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, openClientPopup: true, dropdown: false }));
+					},
+				},
+			];
+		} else if (pathname.includes('/docs')) {
+			return [
+				{
+					id: 1,
+					title: 'Document',
+					value: '',
+					controlValue: 'all',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({
+							...prev,
+							openProposalPopup: true,
+							commonState: '',
+							dropdown: false,
+						}));
+					},
+				},
+				{
+					id: 2,
+					title: 'Proposal',
+					value: 'proposal',
+					controlValue: 'workflow',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({
+							...prev,
+							openProposalPopup: true,
+							commonState: 'proposal',
+							dropdown: false,
+						}));
+					},
+				},
+				{
+					id: 3,
+					title: 'Invoice',
+					value: 'invoice',
+					controlValue: 'workflow',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({
+							...prev,
+							openProposalPopup: true,
+							commonState: 'invoice',
+							dropdown: false,
+						}));
+					},
+				},
+				{
+					id: 4,
+					title: 'Contract',
+					value: 'contract',
+					controlValue: 'workflow',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({
+							...prev,
+							openProposalPopup: true,
+							commonState: 'contract',
+							dropdown: false,
+						}));
+					},
+				},
+				{
+					id: 5,
+					title: 'Presentation',
+					value: 'presentation',
+					controlValue: 'workflow',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({
+							...prev,
+							openProposalPopup: true,
+							commonState: 'presentation',
+							dropdown: false,
+						}));
+					},
+				},
+			];
+		} else if (pathname.includes('/calendar')) {
+			return [
+				{
+					id: 1,
+					title: 'Event',
+					value: 'event',
+					controlValue: 'event',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, openEventsPopup: true, dropdown: false }));
+					},
+				},
+				{
+					id: 2,
+					title: 'Session',
+					value: 'session',
+					controlValue: 'calendar',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+					},
+				},
+			];
+		} else if (pathname.includes('/calendar/')) {
+			return [
+				{
+					id: 1,
+					title: 'Task',
+					value: 'task',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, createTaskPopup: true, dropdown: false }));
+					},
+				},
+			];
+		} else if (pathname.includes('/scheduler')) {
+			return [
+				{
+					id: 1,
+					title: 'Session',
+					value: 'session',
+					controlValue: 'calendar',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+					},
+				},
+				{
+					id: 2,
+					title: 'Event',
+					value: 'event',
+					controlValue: 'event',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, openEventsPopup: true, dropdown: false }));
+					},
+				},
+			];
+		}
+		return suggestedOptions;
+	};
+
+	useEffect(() => {
+		if (!tenantUserAccessControls) return;
+
+		const pathBasedOptions = getSuggestedOptionsByPath(location.pathname);
+		let filteredSuggested = pathBasedOptions;
+		let filteredBuildAi = buildAiOptions;
+		let filteredCreate = createOptions;
+		let filteredUpload = uploadOptions;
+
+		if (isAdmin) {
+			filteredUpload = uploadOptions;
+		} else if (tenantUserAccessControls?.accessControls) {
+			const enabledApps = new Set(
+				tenantUserAccessControls.accessControls
+					.filter((permission) => {
+						const isLiteGallery = permission?.app === 'liteGallery';
+						return isLiteGallery
+							? permission?.isEnabled && permission?.hasFullAccess
+							: permission?.isEnabled;
+					})
+					.map((permission) => permission?.app),
+			);
+
+			filteredSuggested = pathBasedOptions?.filter((option) =>
+				option?.controlValue ? enabledApps.has(option?.controlValue) : true,
+			);
+			filteredBuildAi = buildAiOptions?.filter((option) =>
+				option?.controlValue ? enabledApps.has(option?.controlValue) : true,
+			);
+			filteredCreate = createOptions?.filter((option) =>
+				option?.controlValue ? enabledApps.has(option?.controlValue) : true,
+			);
+			filteredUpload = uploadOptions?.filter((option) =>
+				option?.controlValue ? enabledApps.has(option?.controlValue) : true,
+			);
+		}
+
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			options: {
+				suggestedOptions: filteredSuggested,
+				buildAi: filteredBuildAi,
+				create: filteredCreate,
+				upload: filteredUpload,
+			},
+			filteredOptions: {
+				suggestedOptions: filteredSuggested,
+				buildAi: filteredBuildAi,
+				create: filteredCreate,
+				upload: filteredUpload,
+			},
+		}));
+	}, [tenantUserAccessControls, isAdmin, liteGalleryPaidPlan, location.pathname]);
 
 	const responseMetadata = useMemo(
 		() => ({
@@ -504,48 +1078,65 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 
 	const filtereOptions = useCallback(
 		(searchKey = '') => {
-			if (!info?.options) return { suggestedOptions: [], moduleOptions: [] };
+			if (!info?.options)
+				return { suggestedOptions: [], buildAi: [], create: [], upload: [] };
 
 			const searchTerm = searchKey.toLowerCase();
+
 			let suggestedOptions = searchKey
 				? info?.options?.suggestedOptions?.filter((option) =>
-						option?.title?.toLowerCase().includes(searchTerm),
+						option?.title.toLowerCase().includes(searchTerm),
 				  )
 				: info?.options?.suggestedOptions;
 
-			let moduleOptions = searchKey
-				? info?.options?.moduleOptions?.filter((option) =>
-						option?.title?.toLowerCase().includes(searchTerm),
+			let buildAi = searchKey
+				? info?.options?.buildAi?.filter((option) =>
+						option?.title.toLowerCase().includes(searchTerm),
 				  )
-				: info?.options?.moduleOptions;
+				: info?.options?.buildAi;
 
-			moduleOptions = accessibleOptions(moduleOptions);
+			let create = searchKey
+				? info?.options?.create?.filter((option) =>
+						option?.title.toLowerCase().includes(searchTerm),
+				  )
+				: info?.options?.create;
+
+			let upload = searchKey
+				? info?.options?.upload?.filter((option) =>
+						option?.title.toLowerCase().includes(searchTerm),
+				  )
+				: info?.options?.upload;
+
+			// Filter by access control
 			suggestedOptions = accessibleOptions(suggestedOptions);
+			buildAi = accessibleOptions(buildAi);
+			create = accessibleOptions(create);
+			upload = accessibleOptions(upload);
 
-			return { suggestedOptions, moduleOptions };
+			return { suggestedOptions, buildAi, create, upload };
 		},
-		[info?.options, tenantUserAccessControls],
+		[info?.options, tenantUserAccessControls, accessibleOptions],
 	);
 
 	useEffect(() => {
 		const options = filtereOptions();
 		setInfo((prev) => ({ ...prev, filteredOptions: options }));
-	}, [filtereOptions]);
+	}, [tenantUserAccessControls, filtereOptions]);
 
 	useEffect(() => {
 		const fetchTaskMetadata = async () => {
-			await getTaskMetadata(); // Fetch task metadata
+			await getTaskMetadata();
 		};
 		if (!taskMetadata) {
 			fetchTaskMetadata();
 		}
-	}, []); // Run when getTaskMetadata changes
+	}, [getTaskMetadata]);
 
 	useEffect(() => {
 		if (taskMetadata) {
-			setInfo((prev) => ({ ...prev, taskMetadata })); // Update info.taskMetadata when taskMetadata changes
+			setInfo((prev) => ({ ...prev, taskMetadata }));
 		}
-	}, [taskMetadata]); // Run when taskMetadata changes
+	}, [taskMetadata]);
 
 	useEffect(() => {
 		if (info?.taskPreferences?.preferences) {
@@ -554,7 +1145,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 				properties: mapPropertyType(),
 			}));
 		}
-	}, [info?.taskPreferences?.preferences]);
+	}, [info?.taskPreferences?.preferences, mapPropertyType]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -573,18 +1164,15 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 	}, [tenantsUserList]);
 
 	useEffect(() => {
-		if (!info.dropdown) {
-			// Reset search and filtered options when dropdown closes
+		if (!info?.dropdown) {
+			const options = filtereOptions();
 			setInfo((prev) => ({
 				...prev,
 				search: '',
-				filteredOptions: {
-					suggestedOptions: accessibleOptions(suggestedOptions),
-					moduleOptions: accessibleOptions(moduleOptions),
-				},
+				filteredOptions: options,
 			}));
 		}
-	}, [info.dropdown, accessibleOptions]);
+	}, [info.dropdown, filtereOptions]);
 
 	useEffect(() => {
 		if (taskPreference === null) {
@@ -615,7 +1203,17 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 				preferences: taskPreference?.data,
 			},
 		}));
-	}, [taskPreference]);
+	}, [taskPreference, getTaskPreferences, updateTaskPreferences]);
+
+	useEffect(() => {
+		if (location.pathname.includes('knowledge-agent') || location.pathname.includes('files')) {
+			setInfo((prev) => ({
+				...prev,
+				locationNeeded: true,
+				currentLocation: locationOptions[location.pathname.split('/')[1]],
+			}));
+		}
+	}, [location.pathname]);
 
 	const addNewTask = useCallback(
 		async (payload) => {
@@ -665,7 +1263,15 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 				}
 			}
 		},
-		[info?.isCreatingSubtask, info?.selectedRow?._id],
+		[
+			info?.isCreatingSubtask,
+			info?.selectedRow?._id,
+			addListItem,
+			addSubTask,
+			updateTaskState,
+			validateExpiryData,
+			updateSubscriptionState,
+		],
 	);
 
 	const handleDebounceSearch = useCallback(
@@ -676,7 +1282,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			const options = filtereOptions(search);
 			setInfo((prev) => ({ ...prev, filteredOptions: options }));
 		},
-		[filtereOptions],
+		[filtereOptions, timeout],
 	);
 
 	const handleSearch = (e) => {
@@ -687,89 +1293,173 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			handleDebounceSearch(e.target.value);
 		}
 	};
+
+	const dropdownRef = useRef(null);
+	const buttonRef = useRef(null);
+
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (
+				dropdownRef.current &&
+				!dropdownRef.current.contains(event.target) &&
+				buttonRef.current &&
+				!buttonRef.current.contains(event.target)
+			) {
+				setInfo((prev) => ({ ...prev, dropdown: false }));
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, []);
+
 	return (
-		<div className="quick-actions-dropdown-container" style={{ ...styles }}>
-			<Tooltip
-				placement="bottomRight"
-				align="right"
-				open={info?.dropdown}
-				trigger={'hover'}
-				onOpenChange={(open) => setInfo({ ...info, dropdown: open })}
-				color="transparent"
-				rootClassName="customQuickActionsToolTip"
-				title={
-					<div className="quick-actions-dropdown-options-container">
-						<div className="top-search-container">
-							<img src={Search} alt="searchh" />
-							<input
-								type="text"
-								placeholder="Search Anything"
-								value={info?.search}
-								onChange={handleSearch}
-							/>
-						</div>
-						{info?.filteredOptions?.suggestedOptions?.length > 0 && (
-							<div className="suggested-modules-container">
-								<div className="suggested-modules-container-header">Suggested</div>
-								<div className="suggested-modules-container-options">
-									{info?.filteredOptions?.suggestedOptions?.map((option) => (
-										<div
-											key={option?.id}
-											className="dropdown-option"
-											onClick={() =>
-												option?.action({
-													setInfo,
-													navigate,
-													createNewAiAssistant,
-													createAutomation,
-													createNotesList,
-													createNewKnowledgeAgent,
-												})
-											}
-										>
-											{option?.icon && <img src={option?.icon} alt="icon" />}
-											{option?.title}
-										</div>
-									))}
-								</div>
-							</div>
-						)}
-						{info?.filteredOptions?.moduleOptions?.length > 0 && (
-							<div className="modules-container">
-								<div className="modules-container-header">Module Actions</div>
-								<div className="modules-container-options">
-									{info?.filteredOptions?.moduleOptions?.map((option) => (
-										<div
-											key={option?.id}
-											className="dropdown-option"
-											onClick={() =>
-												option?.action({
-													setInfo,
-													navigate,
-													createNewAiAssistant,
-													createAutomation,
-													createNotesList,
-													createNewKnowledgeAgent,
-												})
-											}
-										>
-											{option?.icon && <img src={option?.icon} alt="icon" />}
-											{option?.title}
-										</div>
-									))}
-								</div>
-							</div>
-						)}
-					</div>
-				}
+		<div className="quick-actions-container" style={{ ...styles }}>
+			<button
+				ref={buttonRef}
+				className="dropdown-header"
+				onMouseEnter={() => setInfo((prev) => ({ ...prev, dropdown: true }))}
 			>
-				<button
-					className="dropdown-header"
-					onClick={() => setInfo({ ...info, dropdown: !info?.dropdown })}
-				>
-					New
-				</button>
-			</Tooltip>
+				<div className="newMenuText">New</div>
+				<div className="flashmage">
+					<Flash />
+				</div>
+			</button>
+
+			<div
+				ref={dropdownRef}
+				className={`quick-actions-dropdown-options-container ${
+					info.dropdown ? 'slide-in' : 'slide-out'
+				}`}
+				onMouseEnter={() => setInfo((prev) => ({ ...prev, dropdown: true }))}
+				onMouseLeave={() => setInfo((prev) => ({ ...prev, dropdown: false }))}
+			>
+				<div className="top-search-container">
+					<img src={Search} alt="search" />
+					<input
+						type="text"
+						placeholder="Search"
+						value={info?.search}
+						onChange={handleSearch}
+					/>
+				</div>
+				<div className="search-divider" />
+				<div className="content-container">
+					{info?.filteredOptions?.suggestedOptions?.length > 0 && (
+						<div className="suggested-modules-container">
+							<div className="suggested-modules-container-header">
+								Suggested Actions
+							</div>
+							<div className="suggested-modules-container-options">
+								{info?.filteredOptions?.suggestedOptions?.map((option) => (
+									<div
+										key={option?.id}
+										className="dropdown-option"
+										onClick={() =>
+											option?.action({
+												setInfo,
+												navigate,
+												createNewAiAssistant,
+												createAutomation,
+												createNewKnowledgeAgent,
+											})
+										}
+									>
+										{option?.icon && <img src={option?.icon} alt="icon" />}
+										<div className="dropdown-option-title">{option?.title}</div>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+					{info?.filteredOptions?.buildAi?.length > 0 && (
+						<div className="suggested-modules-container">
+							<div className="suggested-modules-container-header">Build with AI</div>
+							<div className="suggested-modules-container-options">
+								{info?.filteredOptions?.buildAi?.map((option) => (
+									<div
+										key={option?.id}
+										className="dropdown-option"
+										onClick={() =>
+											option?.action({
+												setInfo,
+												navigate,
+												createNewAiAssistant,
+												createAutomation,
+												createNewKnowledgeAgent,
+											})
+										}
+									>
+										{option?.icon && <img src={option?.icon} alt="icon" />}
+										<div className="dropdown-option-title">{option?.title}</div>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+					{info?.filteredOptions?.create?.length > 0 && (
+						<div className="modules-container">
+							<div className="modules-container-header">Create</div>
+							<div className="modules-container-options">
+								{info?.filteredOptions?.create?.map((option) => (
+									<div
+										key={option?.id}
+										className="dropdown-option"
+										onClick={() =>
+											option?.action({
+												setInfo,
+												navigate,
+												createNewAiAssistant,
+												createAutomation,
+												createNewKnowledgeAgent,
+											})
+										}
+									>
+										{option?.icon && <img src={option?.icon} alt="icon" />}
+										<div className="dropdown-option-title">{option?.title}</div>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+					{info?.filteredOptions?.upload?.length > 0 && (
+						<div className="suggested-modules-container">
+							<div className="suggested-modules-container-header">Upload</div>
+							<div className="suggested-modules-container-options">
+								{info?.filteredOptions?.upload
+									?.filter(
+										(option) =>
+											liteGalleryPaidPlan ||
+											option.controlValue !== 'liteGallery',
+									)
+									?.map((option) => (
+										<div
+											key={option?.id}
+											className="dropdown-option"
+											onClick={() =>
+												option?.action({
+													setInfo,
+													navigate,
+													createNewAiAssistant,
+													createAutomation,
+													createNewKnowledgeAgent,
+												})
+											}
+										>
+											{option?.icon && <img src={option?.icon} alt="icon" />}
+											<div className="dropdown-option-title">
+												{option?.title}
+											</div>
+										</div>
+									))}
+							</div>
+						</div>
+					)}
+				</div>
+			</div>
+
 			<ProposalsPopup
 				open={info?.openProposalPopup}
 				closeModal={() => setInfo({ ...info, openProposalPopup: false })}
@@ -784,11 +1474,13 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			<CreateGallery
 				open={info?.openGalleryPopup}
 				closeModal={() => setInfo({ ...info, openGalleryPopup: false })}
+				message={message}
 			/>
 			<CreateGallery
 				open={info?.openLiteGalleryPopup}
 				closeModal={() => setInfo({ ...info, openLiteGalleryPopup: false })}
 				isLightGallery={true}
+				message={message}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.createTaskPopup}

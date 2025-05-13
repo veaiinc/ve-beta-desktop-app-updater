@@ -1,6 +1,7 @@
 .integrations-container {
 	padding: 2rem;
-	min-height: 100vh;
+	height: 100%;
+	overflow-y: auto;
 	color: var(--primary-font);
 
 	.title-container {
@@ -426,7 +427,7 @@
 		border-radius: 20px;
 		border: 1px solid var(--stroke);
 		background: transparent;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;

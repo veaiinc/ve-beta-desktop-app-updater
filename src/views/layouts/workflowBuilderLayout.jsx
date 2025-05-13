@@ -6,13 +6,13 @@ import { Helmet } from 'react-helmet';
 import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
-import useAccessControls from '../hooks/useAcessControls';
-import Context from '../../context/context';
-import RenewBanner from '../components/globalComponents/RenewBanner';
+import useAccessControls from '../hooks/useAccessControls';
+// import Context from '../../context/context';
+// import RenewBanner from '../components/globalComponents/RenewBanner';
 const WorkflowBuilderLayout = ({ title, children, hideQuickNav = false }) => {
-	const {
-		subscriptionInfo: { renewBanner },
-	} = useContext(Context);
+	// const {
+	// 	subscriptionInfo: { renewBanner },
+	// } = useContext(Context);
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
@@ -26,7 +26,7 @@ const WorkflowBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 				<meta charSet="utf-8" />
 				<title>{title}</title>
 			</Helmet>
-			{renewBanner && <RenewBanner />}
+			{/* {renewBanner && <RenewBanner />} */}
 			<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
 				<div className="childrenContainer">{children}</div>
 			</SkeletonTheme>

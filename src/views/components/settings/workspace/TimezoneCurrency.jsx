@@ -28,6 +28,10 @@ const TimeZoneCurrencyComponent = ({ overviewState }) => {
 						icon={<GlobeSettings />}
 						downArrow={false}
 						disableHover={true}
+						style={{
+							borderRadius: '12px',
+							width: 'fit-content',
+						}}
 						// func={() => {
 						// 	setpopupType('timezone');
 						// 	setopenPopup(true);
@@ -68,6 +72,10 @@ const TimeZoneCurrencyComponent = ({ overviewState }) => {
 						// icon={getSymbolFromCurrency(overviewState?.currency)}
 						downArrow={false}
 						disableHover={true}
+						style={{
+							borderRadius: '12px',
+							width: 'fit-content',
+						}}
 						// func={() => {
 						// 	setpopupType('currency');
 						// 	setopenPopup(true);

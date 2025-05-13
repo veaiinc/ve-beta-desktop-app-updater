@@ -21,6 +21,11 @@ const initialState = {
 	eventKeys: ['locationAdrress', 'locationPincode'],
 };
 
+const customStyles = {
+	height: 'calc(100dvh - 41px)',
+	marginTop: '41px',
+};
+
 const EventDetailsModal = ({
 	selectedEvent,
 	isEventSelected,
@@ -294,7 +299,10 @@ const EventDetailsModal = ({
 					</div>
 				</div>
 			) : (
-				<div className="eventDetailsDrawerParentCOntainer">
+				<div
+					className="eventDetailsDrawerParentCOntainer"
+					// style={renewBanner ? customStyles : {}}
+				>
 					<div className="innerContainer">
 						{/* Event Header */}
 						<div className="eventHeader">

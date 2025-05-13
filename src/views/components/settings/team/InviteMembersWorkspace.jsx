@@ -102,16 +102,9 @@ const InviteMembersWorkspaceComponent = ({
 			return;
 		} else {
 			const filteredAccessControls = filterFunction(accessControls?.accessControls);
-
 			// New logic to only include changed options
-			const updatedAccessControls = filteredAccessControls.filter(
-				(control) =>
-					control.isEnabled &&
-					control.hasFullAccess !== (control.previousHasFullAccess || false),
-			);
-
 			setUpdatedData({
-				accessControls: updatedAccessControls,
+				accessControls: filteredAccessControls,
 			});
 		}
 	};

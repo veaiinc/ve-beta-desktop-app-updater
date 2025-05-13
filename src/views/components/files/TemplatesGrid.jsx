@@ -11,6 +11,7 @@ import { fetchOriginSelection } from '../../../helpers';
 import { message } from '../globalComponents/CustomToast';
 import moment from 'moment';
 import EmptyState from './EmptyState';
+import { Tooltip } from 'antd';
 
 const filterOptions = [
 	{ label: 'All', value: '' },
@@ -38,7 +39,7 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 		hasNextPage: false,
 		loading: true,
 		selectedFilter: { label: 'All', value: '' },
-		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
+		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 		blankTemplateLoading: false,
 	});
 
@@ -286,7 +287,10 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 									key={index}
 									onClick={() => handleCardClick(template?._id)}
 								>
-									<div className="card-item-style content-wrapper note-card-content">
+									<div
+										className="card-item-style content-wrapper note-card-content templates-grid-container tooltip"
+										data-tooltip={template?.title || ''}
+									>
 										{/* <span
 											className={`status-badge ${
 												template?.status === 'published' ? 'live' : 'draft'

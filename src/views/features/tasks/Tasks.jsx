@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
-import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
-import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
+import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/ChartDonut.svg';
+import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/ChartBar.svg';
 import { ReactComponent as WorkflowSvg } from '../../../assets/svg/tasks/workflow.svg';
 import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
-import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
+import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/CalendarBlank.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Context from '../../../context/context';
 import { message } from '../../components/globalComponents/CustomToast';
@@ -31,9 +31,11 @@ import ParentTaskComponent from '../../components/tasks/listView/ParentTaskCompo
 import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
 import LinkText from '../../components/tasks/listView/LinkText';
 import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
-import QuickActions from '../../components/globalComponents/QuickActions';
 import PersonMultiSelect from '../../components/tasks/listView/PersonMultiSelect';
 import { useSearchParams } from 'react-router-dom';
+import Taskwidget from '../../components/tasks/Taskwidget';
+import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
+import CreatedWithAi from '../../components/tasks/listView/CreatedWithAi';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -51,6 +53,7 @@ const defaultPreference = {
 	completedAt: { show: false, order: 13 },
 	createdAt: { show: false, order: 14 },
 	updatedAt: { show: false, order: 15 },
+	createdWithAi: { show: false, order: 16 },
 };
 
 export const colors = {
@@ -80,11 +83,14 @@ export const rowTypes = {
 	childTasks: ChildTaskProgress,
 	linkText: LinkText,
 	personMultiSelect: PersonMultiSelect,
+	createdWithAi: CreatedWithAi,
 };
 
-const availableViews = ['table', 'board', 'list', 'gallery'];
-
 const Tasks = () => {
+	const timeoutRef = useRef(null);
+	const [searchParams, setSearchParams] = useSearchParams();
+	const query = searchParams.get('itemId');
+
 	const {
 		tasks: {
 			listTasks,
@@ -106,9 +112,15 @@ const Tasks = () => {
 			updateTaskPreferences,
 			taskPreference,
 			getListTaskWithGroup,
+			updateSelectedView,
+			updateSideBarData,
+			sideBarData,
 		},
+		templates: { updateStateValues },
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		contacts: { getClientsForTask, clientListForTask },
+		templates: { updateStateValues: updateSidebarState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -142,10 +154,6 @@ const Tasks = () => {
 		group: null,
 	});
 
-	const timeoutRef = useRef(null);
-	const [searchParams, setSearchParams] = useSearchParams();
-	const query = searchParams.get('itemId');
-
 	const responseMetadata = useMemo(
 		() => ({
 			title: {
@@ -175,9 +183,9 @@ const Tasks = () => {
 				Icon: PrioritySvg,
 				props: {
 					options: [
-						{ label: 'Low', _id: 'low', color: '1' },
-						{ label: 'Medium', _id: 'medium', color: '2' },
-						{ label: 'High', _id: 'high', color: '3' },
+						{ label: 'Low', _id: 'low', color: '6' },
+						{ label: 'Medium', _id: 'medium', color: '4' },
+						{ label: 'High', _id: 'high', color: '1' },
 					],
 				},
 			},
@@ -198,18 +206,16 @@ const Tasks = () => {
 				name: 'Assigned To',
 				Icon: PersonSvg,
 				props: {
-					options: info?.tenantUsers || [],
 					multiSelect: true,
 					parseValue: true,
 				},
 			},
-			dueDate: { type: 'date', name: 'Due Date', Icon: ClockSvg, props: {} },
+			dueDate: { type: 'date', name: 'Due Date', Icon: CalendarSvg, props: {} },
 			assignedBy: {
 				type: 'person',
 				name: 'Assigned By',
 				Icon: PersonSvg,
 				props: {
-					options: info?.tenantUsers || [],
 					disabled: true,
 					parseValue: true,
 				},
@@ -237,13 +243,13 @@ const Tasks = () => {
 				type: 'person',
 				name: 'Created By',
 				Icon: PersonSvg,
-				props: { options: info?.tenantUsers, disabled: true, parseValue: true },
+				props: { disabled: true, parseValue: true },
 			},
 			updatedBy: {
 				type: 'person',
 				name: 'Updated By',
 				Icon: PersonSvg,
-				props: { options: info?.tenantUsers, disabled: true, parseValue: true },
+				props: { disabled: true, parseValue: true },
 			},
 			taskSlNo: {
 				type: 'id',
@@ -258,19 +264,35 @@ const Tasks = () => {
 				props: {},
 			},
 		}),
-		[info?.tenantUsers, info?.taskMetadata],
+		[, info?.taskMetadata],
 	);
+	useEffect(() => {
+		updateSidebarState({ leftSidebarState: 'close' });
+		return () => {
+			updateSidebarState({ leftSidebarState: null });
+		};
+	}, []);
 
 	useEffect(() => {
 		handleDebounceFetch();
 	}, [info?.filters, info?.searchValue, info?.sort, info?.group]);
 
 	useEffect(() => {
+		if (sideBarData) {
+			handleRowClick(sideBarData, false);
+		}
+	}, [sideBarData]);
+
+	useEffect(() => {
+		updateStateValues({ leftSidebarState: 'close' });
+	}, []);
+
+	useEffect(() => {
 		if (!tenantsUserList) {
 			getTeamMembers();
 		} else {
 			const formattedUsers = tenantsUserList?.map(({ firstName, lastName, _id }) => ({
-				label: `${firstName} ${lastName}`,
+				label: `${firstName} ${lastName ? lastName : ''}`,
 				value: _id,
 			}));
 
@@ -402,6 +424,13 @@ const Tasks = () => {
 			}
 		}
 	}, [query, info?.listItems]);
+
+	useEffect(() => {
+		if (!clientListForTask) {
+			getClientsForTask({ filters: { page: 1, limit: 20 } });
+		}
+	}, [clientListForTask]);
+
 	const fetchListItems = useCallback(
 		(page = 1) => {
 			if (info?.group) {
@@ -877,6 +906,7 @@ const Tasks = () => {
 			updateTaskInfo({ updated: false });
 		}
 		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
+		updateSideBarData(null);
 	}, [info?.updated]);
 
 	const updateView = useCallback(
@@ -898,17 +928,12 @@ const Tasks = () => {
 		[deleteTaskView, info?.taskMetadata?._id],
 	);
 
+	const handleActiveTabChange = useCallback((payload) => {
+		updateSelectedView(payload);
+	}, []);
+
 	return (
-		<>
-			<div className="task-header-container">
-				<div className="header-text">
-					<span className="lineOne">Tasks</span>
-					<span className="lineTwo">You Created</span>
-				</div>
-				<div className="quick-actions-btn">
-					<QuickActions suggestedOptions={suggestedOptions} />
-				</div>
-			</div>
+		<div className="tasks-page-container">
 			<Task
 				responseMetadata={responseMetadata}
 				handleAddButtonOnClick={handleAddButtonOnClick}
@@ -930,8 +955,10 @@ const Tasks = () => {
 				createButtonText={'Create Task'}
 				prefix={info?.taskMetadata?.prefix}
 				views={info?.taskMetadata?.views}
+				activeTab={info?.taskMetadata?.selectedTaskView}
 				updateView={updateView}
 				deleteView={deleteView}
+				updateActiveTab={handleActiveTabChange}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
@@ -947,7 +974,7 @@ const Tasks = () => {
 				error={info?.error}
 			/>
 			<ListViewSidebar
-				selectedRow={info?.selectedRow}
+				selectedRow={info?.selectedRow || sideBarData}
 				sidebarIsOpen={info?.sidebarIsOpen}
 				closeSidebar={handleCloseSidebar}
 				handleUpdate={updatePropertyValue}
@@ -982,8 +1009,9 @@ const Tasks = () => {
 						/>
 					) : null
 				}
+				// renewBanner={renewBanner}
 			/>
-		</>
+		</div>
 	);
 };
 

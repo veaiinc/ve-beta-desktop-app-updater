@@ -6,9 +6,16 @@ import Context from '../../../context/context';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
 import DeepSearchChainOfThought from './chatComponents/DeepSearchChainOfThought';
 import DeepResearchChainOfThought from './chatComponents/DeepResearchChainOfThought';
-import { getFaviconUrl, getWebsiteName } from '../../../helpers';
+import {
+	getFaviconUrl,
+	getWebsiteName,
+	fileTypeIcons,
+	redirectTo,
+	redirectTypeMapper,
+} from '../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import AIMessage from './AIMessage';
+import CombinedChainOfThought from './chatComponents/CombinedChainOfThought';
 const AIMessageRenderer = ({
 	messageData,
 	handleNoteComponentModalOpen,
@@ -19,6 +26,8 @@ const AIMessageRenderer = ({
 	toggleLatestStreamMessage,
 	handleViewDocument,
 	isPublicChat = false,
+	userMessageElement = null,
+	chatContentElement = null,
 }) => {
 	const {
 		templates: { globalChatMessages },
@@ -29,7 +38,11 @@ const AIMessageRenderer = ({
 
 	useEffect(() => {
 		if (index === globalChatMessages?.length - 1) {
-			if (messageData?.message?.length > 0 || messageData?.deepSearch?.cot?.length === 0) {
+			if (
+				messageData?.message?.length > 0 ||
+				messageData?.widget_type === 'clarifyWidget' ||
+				messageData?.deepSearch?.cot?.length === 0
+			) {
 				if (info?.activeTab !== 'response') {
 					setInfo((prev) => ({
 						...prev,
@@ -47,10 +60,37 @@ const AIMessageRenderer = ({
 		}
 	}, [globalChatMessages]);
 
+	const handleTabClick = useCallback(
+		(tab) => {
+			if (info?.activeTab === tab) return;
+
+			setInfo((prev) => ({
+				...prev,
+				activeTab: tab,
+			}));
+
+			if (chatContentElement && userMessageElement) {
+				const chatTop = chatContentElement?.getBoundingClientRect()?.top;
+				const containerTop = userMessageElement?.getBoundingClientRect()?.top;
+
+				const scrollOffset = containerTop - chatTop;
+
+				chatContentElement?.scrollBy({
+					top: scrollOffset,
+					behavior: 'smooth',
+				});
+			}
+		},
+		[chatContentElement, userMessageElement, info?.activeTab],
+	);
+
 	return (
 		<div className="ai-message-renderer">
 			<div
 				className={`tabs-wrapper`}
+				style={{
+					marginBottom: messageData?.message?.length > 0 ? '16px' : '32px',
+				}}
 				ref={(el) => {
 					if (el) {
 						tabsRefs.current[messageData?.messageId] = el;
@@ -68,12 +108,7 @@ const AIMessageRenderer = ({
 				<div className="tab-buttons">
 					<div
 						className={`tab-btn ${info?.activeTab === 'response' ? 'active' : ''}`}
-						onClick={() =>
-							setInfo((prev) => ({
-								...prev,
-								activeTab: 'response',
-							}))
-						}
+						onClick={() => handleTabClick('response')}
 					>
 						{messageData?.stream_end ? (
 							<Logo2 className="" width={'24px'} height={'24px'} />
@@ -83,33 +118,28 @@ const AIMessageRenderer = ({
 						{messageData?.processing || 'Answer'}
 					</div>
 					{(messageData?.deepSearch?.cot?.length > 0 ||
-						messageData?.deepResearch?.cot?.length > 0) && (
+						messageData?.deepResearch?.cot?.length > 0 ||
+						messageData?.report?.hasChainOfThought) && (
 						<div
 							className={`tab-btn ${info?.activeTab === 'cot' ? 'active' : ''}`}
-							onClick={() =>
-								setInfo((prev) => ({
-									...prev,
-									activeTab: 'cot',
-								}))
-							}
+							onClick={() => handleTabClick('cot')}
 						>
 							Chain of Thought
-							<span className="citation-badge">
-								{messageData?.deepSearch?.cot?.length ||
-									messageData?.deepResearch?.cot?.length ||
-									0}
-							</span>
+							{!messageData?.report && (
+								<span className="citation-badge">
+									{messageData?.deepSearch?.cot?.length +
+										messageData?.deepSearch?.cot_refined?.length ||
+										messageData?.deepResearch?.cot?.length +
+											messageData?.deepResearch?.sections?.length ||
+										0}
+								</span>
+							)}
 						</div>
 					)}
 					{messageData?.citations && messageData?.citations?.length > 0 && (
 						<div
 							className={`tab-btn ${info?.activeTab === 'source' ? 'active' : ''}`}
-							onClick={() =>
-								setInfo((prev) => ({
-									...prev,
-									activeTab: 'source',
-								}))
-							}
+							onClick={() => handleTabClick('source')}
 						>
 							Sources
 							<span className="citation-badge">{messageData?.citations?.length}</span>
@@ -137,14 +167,18 @@ const AIMessageRenderer = ({
 					isPublicChat={isPublicChat}
 				/>
 			) : info?.activeTab === 'cot' ? (
-				messageData?.deepResearch ? (
-					<DeepResearchChainOfThought data={messageData?.deepResearch} />
-				) : (
-					<DeepSearchChainOfThought
-						data={messageData?.deepSearch}
-						stream_end={messageData?.stream_end}
-					/>
-				)
+				<div className="div">
+					{messageData?.deepResearch && (
+						<DeepResearchChainOfThought data={messageData?.deepResearch} />
+					)}
+					{messageData?.deepSearch && (
+						<DeepSearchChainOfThought
+							data={messageData?.deepSearch}
+							stream_end={messageData?.stream_end}
+						/>
+					)}
+					{messageData?.report && <CombinedChainOfThought data={messageData?.report} />}
+				</div>
 			) : (
 				<div className="source-content">
 					{messageData?.citations && messageData?.citations.length > 0
@@ -152,33 +186,54 @@ const AIMessageRenderer = ({
 								<div
 									key={citation?.id || idx}
 									className="citation-item"
-									onClick={() => window?.open(citation?.name, '_blank')}
+									onClick={() =>
+										redirectTo?.(
+											citation?.type,
+											citation?.[redirectTypeMapper?.[citation?.type]],
+										)
+									}
 								>
 									<div className="citation-header">
 										<div className="citation-icon">
-											{getFaviconUrl(citation.name) ? (
-												<img
-													src={getFaviconUrl(citation.name)}
-													alt="favicon"
-													className="favicon-image"
-												/>
+											{citation?.type === 'url' ? (
+												getFaviconUrl(citation?.name) ? (
+													<img
+														src={getFaviconUrl(citation?.name)}
+														alt="favicon"
+														className="favicon-image"
+													/>
+												) : (
+													<div className="company-icon">
+														{getWebsiteName(citation?.name)?.charAt(0)}
+													</div>
+												)
 											) : (
 												<div className="company-icon">
-													{getWebsiteName(citation?.name)?.charAt(0)}
+													{citation?.type === 's3_key'
+														? fileTypeIcons[
+																citation?.name?.match(
+																	/\.(\w+)$/,
+																)?.[1]
+														  ]
+														: fileTypeIcons[citation?.type]}
 												</div>
 											)}
 										</div>
 										<div className="citation-details">
 											<div className="website-name">
-												{getWebsiteName(citation?.name)}
+												{citation?.type === 'url'
+													? getWebsiteName(citation?.name)
+													: citation?.name}
 											</div>
-											<div className="citation-url">
-												<LinkIcon className="link-icon" />
-												{citation?.name}
-											</div>
-											<div className="citation-title">
-												{citation?.snippet}
-											</div>
+											{citation?.type === 'url' && (
+												<div className="citation-url">{citation?.name}</div>
+											)}
+
+											{citation?.snippet && (
+												<div className="citation-title">
+													{citation?.snippet}
+												</div>
+											)}
 										</div>
 									</div>
 									<ArrowRightIcon className="arrow-icon" />

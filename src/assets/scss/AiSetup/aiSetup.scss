@@ -60,7 +60,7 @@
 
 			.ai-setup-title {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 32px;
 				font-style: normal;
 				font-weight: 300;

@@ -66,8 +66,7 @@ import { getCurrentWorkspaceId } from '../../../helpers';
 import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
 import SharePopup from '../../components/modalsV2/gallery/SharePopup';
 import GalleryViewer from './GalleryViewer';
-// import { message } from '../../components/globalComponents/CustomToast';
-// import EarnAndShareOverlay from './galleryPage/EditAndShareOverlay';
+import { ReactComponent as ArrowSvg } from '../../../assets/svg/file/arrow.svg';
 
 // const workspaceId = localStorage.getItem('workspaceId');
 
@@ -114,6 +113,13 @@ const showMessage = (type, content, dismissFunction) => {
 
 let startTime;
 let animationFrame;
+
+const filterOptions = [
+	{ label: 'File name', value: 'displayName', sortType: 1 },
+	{ label: 'Date Captured', value: 'originalDateTime', sortType: 1 },
+	{ label: 'Upload time', value: '_id', sortType: 1 },
+	{ label: 'Random', value: 'custom', sortType: 1, noArrow: true },
+];
 
 const GalleryPage = () => {
 	const { galleryId } = useParams();
@@ -194,6 +200,8 @@ const GalleryPage = () => {
 			editTag,
 			deleteTag,
 			lightroomCopyList,
+			aiFace,
+			updateStateValues: updateGalleryStateValues,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -218,7 +226,7 @@ const GalleryPage = () => {
 		showCollaborators: false,
 		activeGallery: location?.state?.galleryData,
 		isLightGallery: searchkeys.get('lite-gallery') || false,
-		activeAlbumId: tenantAlbums?.albums?.[0]?._id,
+		activeAlbumId: null,
 		callToAction: tenantPreferences?.ctaPreferences?.isEnabled,
 		timeout: null,
 		galleryDueDate: location?.state?.galleryData?.dueDateEpoch,
@@ -286,7 +294,7 @@ const GalleryPage = () => {
 		expiryDate: '',
 		showDeletePopup: false,
 		showUploadCover: false,
-		activeAlbumId: null,
+		// activeAlbumId: null,
 		albumName: '',
 		showShareAlbum: false,
 		showDownloadAlbum: false,
@@ -604,10 +612,34 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [clientSelectionImages]);
+
 	useEffect(() => {
-		if (!albumImagesCount) {
+		if (galleryId) {
 			getAlbumImagesCount(galleryId);
 		}
+	}, [galleryId]);
+	useEffect(() => {
+		return () => {
+			updateGalleryStateValues({
+				tenantAlbums: null,
+				albumImagesCount: null,
+				galleryCredentials: null,
+				albumDetails: null,
+				imagesList: null,
+				albumImagesCount: null,
+				albumDetails: null,
+				imagesList: null,
+				imageDetail: null,
+				galleryGuestAccess: null,
+				albumImagesCount: null,
+				clientSelectionsData: null,
+				clientSelectionImages: null,
+				aiFace: null,
+				aiFaceImages: null,
+			});
+		};
+	}, []);
+	useEffect(() => {
 		if (albumImagesCount) {
 			setInfo((prev) => ({
 				...prev,
@@ -618,7 +650,18 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [albumImagesCount]);
-
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			activeGallery: location?.state?.galleryData,
+		}));
+		return () => {
+			setInfo((prev) => ({
+				...prev,
+				activeGallery: null,
+			}));
+		};
+	}, [galleryId]);
 	useEffect(() => {
 		if (!tenantAlbums || tenantAlbums?._id !== galleryId) {
 			getAlbums(galleryId).then((response) => {
@@ -626,9 +669,6 @@ const GalleryPage = () => {
 					navigate('/galleries');
 				}
 			});
-			if (!albumImagesCount) {
-				getAlbumImagesCount(galleryId);
-			}
 		}
 		if (!tenantPreferences || tenantPreferences?._id !== galleryId) {
 			getEditPreferences(galleryId);
@@ -647,7 +687,7 @@ const GalleryPage = () => {
 		}
 
 		// Only set the active album if it's not already set
-		if (tenantAlbums && !info?.activeAlbumId) {
+		if (tenantAlbums && galleryId) {
 			setInfo((prev) => ({
 				...prev,
 				albumName: tenantAlbums?.albums?.[0]?.title,
@@ -660,7 +700,7 @@ const GalleryPage = () => {
 			}));
 		}
 		// ... rest of the effect
-	}, [tenantPreferences]);
+	}, [tenantPreferences, galleryId]);
 
 	useEffect(() => {
 		if (updateActiveAlbum !== null && updateActiveAlbum !== info?.activeAlbum) {
@@ -728,13 +768,13 @@ const GalleryPage = () => {
 	}, [info?.activeAlbumId]);
 
 	useEffect(() => {
-		if (info?.albumTagId && info?.activeAlbumId && info?.activeTab === 'Albums') {
+		if (info?.albumTagId && info?.activeAlbumId && info?.activeTab === 'Albums' && galleryId) {
 			handleGetGalleryImages();
 		}
-	}, [info?.albumTagId, info?.activeAlbumId, info?.activeTab]);
+	}, [info?.albumTagId, info?.activeAlbumId, info?.activeTab, galleryId]);
 
 	const handleGetGalleryImages = async () => {
-		if (info?.albumTagId && info?.activeAlbumId && info?.activeTab === 'Albums') {
+		if (info?.albumTagId && info?.activeAlbumId && info?.activeTab === 'Albums' && galleryId) {
 			setInfo((prev) => ({
 				...prev,
 				loadingImagesList: true,
@@ -1040,7 +1080,7 @@ const GalleryPage = () => {
 			const searchParams = new URLSearchParams(location.search);
 
 			if (info.activeAlbumId) {
-				searchParams.set('albumId', info.activeAlbumId);
+				searchParams.set('albumId', info?.activeAlbumId);
 			}
 
 			if (info.activeTab) {
@@ -2589,23 +2629,39 @@ const GalleryPage = () => {
 		showMessage('success', 'Images deleted successfully');
 	};
 
-	const handleFilter = async (filter) => {
-		// albumTagId
+	const handleFilter = async (value) => {
+		const current = info?.sortType || '';
+		const baseValue = current.replace('-', '');
+		const isSame = baseValue === value;
+		const isCurrentlyDesc = current.startsWith('-');
+
+		let newSortType;
+
+		if (isSame) {
+			// Toggle sort direction
+			newSortType = isCurrentlyDesc ? value : `-${value}`;
+		} else {
+			// New selection → start with default (descending)
+			const defaultItem = filterOptions.find((item) => item.value === value);
+			newSortType = defaultItem?.sortType === 1 ? value : `-${value}`; // fallback to descending
+		}
+
 		setInfo((prev) => ({
 			...prev,
-			sortType: filter,
+			sortType: newSortType,
 			imagesList: [],
 			page: 1,
 		}));
-		const payload = {
-			sortType: filter,
-		};
+
+		const payload = { sortType: newSortType };
+
 		const response = await updateTagSortType(
 			payload,
 			galleryId,
 			info?.activeAlbumId,
 			info?.albumTagId,
 		);
+
 		if (response?.[0] === true) {
 			getGalleryImages(
 				galleryId,
@@ -3521,6 +3577,20 @@ const GalleryPage = () => {
 			isGalleryViewer: false,
 		}));
 	};
+	const handleBackNavigation = () => {
+		navigate(location.pathname, { replace: true, state: {} });
+		setInfo((prev) => ({
+			...prev,
+			activeAlbumId: null,
+		}));
+		navigate(-1);
+	};
+	const selectedFaceChange = (face) => {
+		setInfo((prev) => ({
+			...prev,
+			selectedFace: face,
+		}));
+	};
 	return (
 		<>
 			<div className="galleryContainer">
@@ -3534,11 +3604,7 @@ const GalleryPage = () => {
 						</span>
 						<span
 							className="galleryTitle"
-							onClick={() =>
-								info?.isLightGallery
-									? navigate(`/lite-gallery`)
-									: navigate(`/galleries`)
-							}
+							onClick={handleBackNavigation}
 							style={{ cursor: 'pointer' }}
 						>
 							Files
@@ -4377,114 +4443,79 @@ const GalleryPage = () => {
 												</div>
 
 												<div style={{ position: 'relative' }}>
-													<div
-														onClick={() =>
-															setInfo((prevInfo) => ({
-																...prevInfo,
-																showFilter: !prevInfo.showFilter,
-															}))
+													<Tooltip
+														title={
+															<div
+																ref={filtersOptionsRef}
+																className="filterContainer"
+															>
+																{filterOptions.map((item) => {
+																	const currentSortType =
+																		info?.sortType || '';
+																	const isSelected =
+																		currentSortType.replace(
+																			'-',
+																			'',
+																		) === item.value;
+																	const isDescending =
+																		currentSortType ===
+																		`-${item.value}`;
+
+																	return (
+																		<div
+																			key={item.value}
+																			className={`file-filter-option-items ${
+																				isSelected
+																					? 'active'
+																					: ''
+																			}`}
+																			onClick={(e) => {
+																				e.stopPropagation();
+																				handleFilter(
+																					item.value,
+																				);
+																			}}
+																		>
+																			{isSelected && (
+																				<div className="sortTypeIndicator"></div>
+																			)}
+																			<div className="option-value-wrapper">
+																				{item.label}
+																			</div>
+																			{!item.noArrow &&
+																				isSelected && (
+																					<ArrowSvg
+																						className={`sortType ${
+																							isDescending
+																								? 'sortType-up'
+																								: ''
+																						}`}
+																					/>
+																				)}
+																		</div>
+																	);
+																})}
+															</div>
 														}
-														ref={filtersRef}
-														className="iconsContainer"
+														placement="bottom"
+														arrow={false}
+														color="transparent"
+														trigger="click"
 													>
-														<FilterIcon fill="var(--primary-font)" />
-													</div>
-													{info.showFilter && (
 														<div
-															ref={filtersOptionsRef}
-															className="filterContianer"
+															onClick={() =>
+																setInfo((prevInfo) => ({
+																	...prevInfo,
+																	showFilter:
+																		!prevInfo.showFilter,
+																}))
+															}
+															ref={filtersRef}
+															className="iconsContainer"
 														>
-															<li
-																onClick={() =>
-																	handleFilter('displayName')
-																}
-																className={
-																	info?.sortType === 'displayName'
-																		? 'active'
-																		: ''
-																}
-															>
-																File name
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter('-displayName')
-																}
-																className={
-																	info?.sortType ===
-																	'-displayName'
-																		? 'active'
-																		: ''
-																}
-															>
-																File name (reverse)
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter('originalDateTime')
-																}
-																className={
-																	info?.sortType ===
-																	'originalDateTime'
-																		? 'active'
-																		: ''
-																}
-															>
-																Date Captured
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter(
-																		'-originalDateTime',
-																	)
-																}
-																className={
-																	info?.sortType ===
-																	'-originalDateTime'
-																		? 'active'
-																		: ''
-																}
-															>
-																Date captured (reverse)
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter('createdAt')
-																}
-																className={
-																	info?.sortType === 'createdAt'
-																		? 'active'
-																		: ''
-																}
-															>
-																upload time
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter('-createdAt')
-																}
-																className={
-																	info?.sortType === '-createdAt'
-																		? 'active'
-																		: ''
-																}
-															>
-																upload time (reverse)
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter('custom')
-																}
-																className={
-																	info?.sortType === 'custom'
-																		? 'active'
-																		: ''
-																}
-															>
-																Random
-															</li>
+															<FilterIcon fill="var(--primary-font)" />
 														</div>
-													)}
+													</Tooltip>
 												</div>
 												<div
 													onClick={handleRearrange}
@@ -4539,7 +4570,8 @@ const GalleryPage = () => {
 																	<span
 																		style={{
 																			color: 'var(--secondary-font)',
-																			fontFamily: 'Inter',
+																			fontFamily:
+																				'var(--primary-font-family)',
 																			fontSize: '14px',
 																			fontWeight: '400',
 																			lineHeight: '16px',
@@ -5726,6 +5758,7 @@ const GalleryPage = () => {
 						selectedFace={info?.selectedFace}
 						selectedFaceId={info?.selectedFaceId}
 						selectedImage={info?.selectedImage}
+						selectedFaceChange={selectedFaceChange}
 					/>
 				)}
 				{info.activeTab === 'Insights' && <Insights galleryId={galleryId} />}

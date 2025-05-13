@@ -147,6 +147,23 @@ const actionHandlers = {
 			views: action?.payload,
 		},
 	}),
+
+	UPDATE_TASK_PREFIX: (state, action) => ({
+		...state,
+		taskMetadata: {
+			...state.taskMetadata,
+			prefix: action?.payload,
+		},
+	}),
+
+	UPDATE_SELECTED_VIEW: (state, action) => ({
+		...state,
+		taskMetadata: {
+			...state.taskMetadata,
+			selectedTaskView: action?.payload,
+		},
+	}),
+
 	SET_TASK_PREFERENCES: (state, action) => ({
 		...state,
 		taskPreference: action?.payload,
@@ -279,6 +296,11 @@ const actionHandlers = {
 			},
 		};
 	},
+	UPDATE_SIDEBAR_DATA: (state, action) => ({
+		...state,
+		sideBarData: action?.payload,
+	}),
+
 	RESET_STATE: () => intialState,
 };
 

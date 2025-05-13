@@ -25,7 +25,7 @@
 	overflow: hidden;
 	color: var(--secondary-font);
 	text-overflow: ellipsis;
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
@@ -95,7 +95,7 @@
 
 			.title {
 				color: var(--primary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -108,7 +108,7 @@
 				color: var(--secondary-font, #787e87);
 				color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
 				text-overflow: ellipsis;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -143,7 +143,7 @@
 
 		.copy-text {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -152,7 +152,7 @@
 
 		.responses-count {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -162,7 +162,7 @@
 		.summary {
 			display: flex;
 			gap: 8px;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -189,7 +189,7 @@
 
 	.title {
 		color: var(--primary-font);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 16px;
 		font-style: normal;
 		font-weight: 500;
@@ -200,7 +200,7 @@
 	.summary {
 		display: flex;
 		gap: 8px;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -251,7 +251,7 @@
 				display: block;
 				color: var(--secondary-font);
 				text-transform: uppercase;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -262,7 +262,7 @@
 				display: block;
 				font-weight: 600;
 				color: var(--primary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 18px;
 				font-style: normal;
 				line-height: normal;
@@ -287,7 +287,7 @@
 
 			.skill-name {
 				color: var(--secondary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -297,7 +297,7 @@
 
 			.skill-count {
 				color: #787e87;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -356,7 +356,7 @@
 
 							.question-label {
 								color: var(--secondary-font);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-weight: 500;
 								text-transform: capitalize;
@@ -364,7 +364,7 @@
 
 							.answer {
 								color: var(--primary-font);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 14px;
 								font-weight: 400;
 								word-break: break-word;
@@ -375,7 +375,7 @@
 
 				.candidate-timestamp {
 					color: #7c7c84;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-weight: 400;
 					white-space: nowrap;
@@ -426,7 +426,7 @@
 		color: var(--secondary-font, #787e87);
 		color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
 		text-overflow: ellipsis;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;

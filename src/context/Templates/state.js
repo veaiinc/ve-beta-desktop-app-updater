@@ -43,6 +43,7 @@ import {
 	getFormResponseSummaryQuery,
 	getFormResponseAnalyticsQuery,
 	updateWorkflowTemplateQuery,
+	duplicateSmartFileQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -101,10 +102,11 @@ export const intialState = {
 	formResponsesList: null,
 	moreFormResponsesList: null,
 	activePromptForChat: null,
+	activePayloadForChat: null,
+	activeInputForChat: null,
 	leftSidebarState: null,
 	recentChatStorage: null,
 	moreRecentChatStorage: null,
-	activePayloadForChat: null,
 	llmModels: null,
 	chatInfo: {
 		deepResearch: false,
@@ -118,6 +120,8 @@ export const intialState = {
 			webSearch: false,
 		},
 	},
+	citationChunks: {},
+	currentChatData: null,
 	chatPayload: {
 		workflowTemplateId: null,
 		moduleTemplateId: null,
@@ -130,6 +134,7 @@ export const intialState = {
 		workflowTemplateId: null,
 		moduleTemplateId: null,
 	},
+	refetchChatHistoryList: false,
 };
 
 export const TemplatesState = (props) => {
@@ -274,7 +279,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const resetTemplateState = async () => {
+	const resetTemplateState = () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
 		} catch (error) {
@@ -1825,7 +1830,7 @@ export const TemplatesState = (props) => {
 				payload.query += str;
 			} else {
 				updatedGlobalChatMessages = [
-					{ type: 'user', message: payload?.query || '', typingEffect: false },
+					{ type: 'user', message: payload?.query || '' },
 					{
 						type: 'AI',
 						message: 'loading....',
@@ -1885,7 +1890,6 @@ export const TemplatesState = (props) => {
 					type: 'AI',
 					message: response?.[1]?.answer,
 					messageId: response?.[1]?.['message_id'],
-					typingEffect: true,
 					rating: null,
 					deepResearch: response?.[1]?.['deep_research'],
 				};
@@ -1957,7 +1961,7 @@ export const TemplatesState = (props) => {
 		// }
 		else {
 			updatedGlobalChatMessages = [
-				{ type: 'user', message: queryMessage || '', typingEffect: false },
+				{ type: 'user', message: queryMessage || '' },
 				{
 					type: 'AI',
 					message: 'loading....',
@@ -2018,7 +2022,7 @@ export const TemplatesState = (props) => {
 				isPublicChat,
 			);
 			if (response?.[0]) {
-				return [true];
+				return [true, response?.[1]];
 			}
 		} catch (error) {
 			console.log('error==>updatedAiChatMessageRating', error);
@@ -2251,11 +2255,11 @@ export const TemplatesState = (props) => {
 				);
 			} else {
 				response = await Service.fetchGet(
-					`/${workspaceId}/list-multiagent-conversations/${encodeURIComponent(
+					`/${workspaceId}/ai-chat/list-multiagent-conversations/${encodeURIComponent(
 						sessionId,
 					)}?page=${page}&limit=${limit}&sortBy=createdAt&sortType=-1`,
 					usertoken,
-					'tenant',
+					'ai_assistant_api',
 				);
 			}
 
@@ -2427,6 +2431,34 @@ export const TemplatesState = (props) => {
 			console.log('error==>pendingActionsUpdate', error);
 		}
 	};
+
+	const duplicateSmartFile = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				duplicateSmartFileQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>duplicateSmartFile', error);
+		}
+	};
+	const updateCitationChunks = async (payload) => {
+		try {
+			dispatch({ type: Actions?.UPDATE_CITATION_CHUNKS, payload });
+		} catch (error) {
+			console.log('error==>updateCitationChunks', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -2510,5 +2542,8 @@ export const TemplatesState = (props) => {
 		sendContactFormData,
 		updateWorkflowTemplate,
 		pendingActionsUpdate,
+		duplicateSmartFile,
+		updateCitationChunks,
+		getFormResponseAnalytics,
 	};
 };

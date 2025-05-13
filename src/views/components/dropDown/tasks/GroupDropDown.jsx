@@ -225,7 +225,7 @@ const GroupDropDown = ({
 								<ChevronRightThinSvg />
 							</span>
 						</div> */}
-						<div className="group-dropDown-options-item">
+						{/* <div className="group-dropDown-options-item">
 							<span className="group-dropDown-options-item-label">
 								Hide empty groups
 							</span>
@@ -233,7 +233,7 @@ const GroupDropDown = ({
 								value={info?.hideEmptyGroups}
 								onChange={(value) => setInfo({ ...info, hideEmptyGroups: value })}
 							/>
-						</div>
+						</div> */}
 					</div>
 					{/* <div className="group-drag-list">
 						<div className="group-drag-list-header">

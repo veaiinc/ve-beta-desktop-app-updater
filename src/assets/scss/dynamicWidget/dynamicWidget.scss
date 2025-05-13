@@ -11,7 +11,7 @@
 	padding: 12px 24px !important;
 	height: 46px;
 	flex-shrink: 0;
-	z-index: 99999999;
+	z-index: 9998;
 
 	.dynamic-widget-mini {
 		width: 314px;
@@ -68,7 +68,7 @@
 
 				.dynamic-widget-prompt-title {
 					color: var(--primary-font, #f2f2f3);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;

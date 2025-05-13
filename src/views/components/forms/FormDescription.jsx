@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo, useState } from 'react';
 import { Flex, Rate } from 'antd';
 import '../../../assets/scss/forms/FormDescription.scss';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/doubleBack.svg';
@@ -27,6 +27,9 @@ import {
 } from '@ant-design/icons';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import QuickActions from '../globalComponents/QuickActions';
+import FormPreview from './FormPreview';
+import moment from 'moment';
 
 const iconsForQuestions = {
 	shortText: <BiDash />,
@@ -46,27 +49,26 @@ const iconsForQuestions = {
 	number: <Hash />,
 };
 
-const eventsTableHeaderData = [
+const suggestedOptions = [
 	{
 		id: 1,
-		label: 'Event Name',
-	},
-	{
-		id: 2,
-		label: 'Date',
-	},
-	{
-		id: 3,
-		label: 'Location',
-	},
-	{
-		id: 4,
-		label: 'Guests',
+		title: 'Document',
+		value: 'all',
+		controlValue: 'all',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: '' }));
+		},
 	},
 ];
 
-const removeHTMLTagsAndnbsp = (text) =>
-	text?.replace(/<\/?[^>]+(>|$)/g, '')?.replace(/&nbsp;/g, ' ');
+const eventsTableHeaderData = [
+	{ id: 1, label: 'Event Name' },
+	{ id: 2, label: 'Date' },
+	{ id: 3, label: 'Location' },
+	{ id: 4, label: 'Guests' },
+];
+
+const removeHTMLTagsAndnbsp = (text) => text?.replace(/<\/?[^>]+(>|$)/g, '')?.replace(/ /g, ' ');
 
 const removeQuotes = (text) => {
 	if (!text) {
@@ -97,7 +99,7 @@ const DropdownAnswer = ({ answer }) => {
 	}
 	return (
 		<>
-			<p className={`answer`}>
+			<p className="answer">
 				<span className="selectedOption">{text || ''}</span>
 			</p>
 			<div className="divider"></div>
@@ -105,62 +107,61 @@ const DropdownAnswer = ({ answer }) => {
 	);
 };
 
-const EventsAnswer = ({ answer }) => {
-	if (!answer) {
-		return '';
-	}
+export const EventsAnswer = ({ answer }) => {
+	if (!answer) return '';
 
+	// Ensure answer is an array, parse if it's a string
 	let events;
 	try {
-		// If answer is already an object, use it directly
-		if (typeof answer === 'object') {
-			events = answer;
-		} else {
-			// If it's a string, try to parse it as JSON
-			events = JSON.parse(answer);
-		}
+		events = typeof answer === 'string' ? JSON.parse(answer) : answer;
+		events = Array.isArray(events) ? events : [events];
 	} catch (e) {
 		console.error('Error parsing events:', e);
 		return '';
 	}
 
-	// Ensure we have an array of events
-	const eventsArray = Array.isArray(events) ? events : [events];
-
-	return eventsArray.length > 0 ? (
+	return events.length > 0 ? (
 		<>
 			<table className="eventsContainer">
 				<thead className="eventsTableHeader">
 					<tr className="eventsTableHeaderRow">
-						{eventsTableHeaderData?.map((headerData) => (
-							<th key={headerData?.id} className="eventsTableHeaderLabel">
-								{headerData?.label}
+						{eventsTableHeaderData.map((headerData) => (
+							<th key={headerData.id} className="eventsTableHeaderLabel">
+								{headerData.label}
 							</th>
 						))}
 					</tr>
 				</thead>
 				<tbody>
-					{eventsArray.map((event, index) => {
-						// Handle both string and object event formats
+					{events.map((event, index) => {
 						const eventName =
 							typeof event === 'string'
-								? event
-								: event?.name || event?.eventName || '';
+								? event.trim()
+								: (
+										event?.nameReactSelect?.label ||
+										event?.name ||
+										event?.eventName ||
+										''
+								  ).trim();
 						const eventDate =
-							typeof event === 'string' ? '' : event?.date || event?.eventDate || '';
+							typeof event === 'string'
+								? ''
+								: (event?.date || event?.eventDate || '').trim();
 						const eventLocation =
 							typeof event === 'string'
 								? ''
-								: event?.location || event?.eventLocation || '';
+								: (event?.location || event?.eventLocation || '').trim();
 						const eventGuests =
 							typeof event === 'string'
 								? ''
-								: event?.noOfGuests || event?.guests || '';
+								: (event?.noOfGuests || event?.guests || '').trim();
 
 						return (
 							<tr key={index} className="eventCard">
 								<td className="eventName">{eventName}</td>
-								<td className="eventDate">{eventDate}</td>
+								<td className="eventDate">
+									{moment(eventDate).format('DD MMM YYYY')}
+								</td>
 								<td className="eventLocation">{eventLocation}</td>
 								<td className="eventGuests">{eventGuests}</td>
 							</tr>
@@ -198,7 +199,7 @@ const TimeAnswer = ({ answer }) => {
 	const minutes = answer?.split(':')[1];
 	return (
 		<>
-			<p className={`answer timeContainer`}>
+			<p className="answer timeContainer">
 				<span className="time">{hours}</span>
 				<TimeDivider />
 				<span className="time">{minutes}</span>
@@ -240,6 +241,7 @@ const LinkAnswer = ({ answer }) => {
 };
 
 const FileUploadAnswer = ({ answer }) => {
+	const [selectedFile, setSelectedFile] = useState(null);
 	// Ensure answer is an array and parse if it's a string
 	let files;
 	try {
@@ -257,14 +259,17 @@ const FileUploadAnswer = ({ answer }) => {
 		<>
 			{files?.length > 0 && (
 				<div className="fileUploadContainer">
-					{files?.map((file, index) => {
-						// Handle both string and object file formats
+					{files.map((file, index) => {
 						const fileName =
 							typeof file === 'string' ? file : file?.name || file?.fileName || '';
 						const fileUrl =
 							typeof file === 'string'
 								? file
-								: file?.url || file?.previewUrl || file?.fileUrl || '';
+								: file?.fileURL ||
+								  file?.url ||
+								  file?.previewUrl ||
+								  file?.fileUrl ||
+								  '';
 						const fileExtension = fileName?.split('.').pop()?.toLowerCase();
 						const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(
 							fileExtension,
@@ -277,12 +282,32 @@ const FileUploadAnswer = ({ answer }) => {
 						return (
 							<div key={index} className="fileItem">
 								{isImage ? (
-									<div className="imagePreview">
+									<div
+										className="imagePreview"
+										onClick={() =>
+											setSelectedFile({
+												name: fileName,
+												fileURL: fileUrl,
+												type: 'image',
+											})
+										}
+										style={{ cursor: 'pointer' }}
+									>
 										<img src={fileUrl} alt={fileName} />
 										<span className="fileName">{fileName}</span>
 									</div>
 								) : (
-									<div className="filePreview">
+									<div
+										className="filePreview"
+										onClick={() =>
+											setSelectedFile({
+												name: fileName,
+												fileURL: fileUrl,
+												type: 'document',
+											})
+										}
+										style={{ cursor: 'pointer' }}
+									>
 										<div className="fileIcon">
 											{isPDF && <FilePdfOutlined />}
 											{isDocument && <FileTextOutlined />}
@@ -293,20 +318,16 @@ const FileUploadAnswer = ({ answer }) => {
 												!isSpreadsheet &&
 												!isPresentation && <FileOutlined />}
 										</div>
-										<a
-											href={fileUrl}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="fileName"
-										>
-											{fileName}
-										</a>
+										<span className="fileName">{fileName}</span>
 									</div>
 								)}
 							</div>
 						);
 					})}
 				</div>
+			)}
+			{selectedFile && (
+				<FormPreview file={selectedFile} onClose={() => setSelectedFile(null)} />
 			)}
 			<div className="divider"></div>
 		</>
@@ -377,9 +398,6 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 
 	if (activeTab === 'analytics') {
 		return (
-			// <div className="formDescription">
-			// 	<FormAnalytics formId={formId} />
-			// </div>
 			<div className="formDescription">
 				<div className="emptyState">
 					<p>Form Analytics Updating Soon</p>
@@ -400,7 +418,7 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 
 	const getName = (response) => {
 		if (!response?.response) return 'No Name';
-		const nameField = response.response.find((item) =>
+		const nameField = response?.response.find((item) =>
 			item?.question?.toLowerCase().includes('name'),
 		);
 		return nameField?.answer || 'No Name';
@@ -408,7 +426,7 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 
 	const getEmail = (response) => {
 		if (!response?.response) return '';
-		const emailField = response.response.find((item) =>
+		const emailField = response?.response.find((item) =>
 			item?.question?.toLowerCase().includes('email'),
 		);
 		return emailField?.answer || '';
@@ -454,27 +472,27 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	};
 
 	const formatLabel = (question) => {
-		const lowerQuestion = question.toLowerCase();
-		if (lowerQuestion.includes('first name')) return 'First Name';
-		if (lowerQuestion.includes('last name')) return 'Last Name';
+		const lowerQuestion = question?.toLowerCase();
+		if (lowerQuestion?.includes('first name')) return 'First Name';
+		if (lowerQuestion?.includes('last name')) return 'Last Name';
 		if (
-			lowerQuestion.includes('name') &&
-			!lowerQuestion.includes('first') &&
-			!lowerQuestion.includes('last')
+			lowerQuestion?.includes('name') &&
+			!lowerQuestion?.includes('first') &&
+			!lowerQuestion?.includes('last')
 		)
 			return 'Name';
-		if (lowerQuestion.includes('email')) return 'Email';
+		if (lowerQuestion?.includes('email')) return 'Email';
 		if (
-			lowerQuestion.includes('phone') ||
-			lowerQuestion.includes('mobile') ||
-			lowerQuestion.includes('contact')
+			lowerQuestion?.includes('phone') ||
+			lowerQuestion?.includes('mobile') ||
+			lowerQuestion?.includes('contact')
 		)
 			return 'Phone';
-		if (lowerQuestion.includes('address')) return 'Address';
-		if (lowerQuestion.includes('location')) return 'Location';
-		if (lowerQuestion.includes('company') || lowerQuestion.includes('organization'))
+		if (lowerQuestion?.includes('address')) return 'Address';
+		if (lowerQuestion?.includes('location')) return 'Location';
+		if (lowerQuestion?.includes('company') || lowerQuestion?.includes('organization'))
 			return 'Company';
-		if (lowerQuestion.includes('position') || lowerQuestion.includes('title'))
+		if (lowerQuestion?.includes('position') || lowerQuestion?.includes('title'))
 			return 'Position';
 		return question;
 	};
@@ -531,15 +549,18 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 			<div className="descriptionContent">
 				{response ? (
 					<>
+						{/* <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+							<QuickActions suggestedOptions={suggestedOptions} isFromForms={true} />
+						</div> */}
 						<div className="descriptionSection">
 							<h3 className="sectionTitle">Basic Information</h3>
 							{getBasicInfo(response).map((field, index) => (
 								<div key={index} className="infoRow">
 									<span className="infoLabel">
-										{formatLabel(field.question)}:
+										{formatLabel(field?.question)}:
 									</span>
 									<span className="infoValue">
-										{field.answer || 'Not provided'}
+										{field?.answer || 'Not provided'}
 									</span>
 								</div>
 							))}
@@ -555,7 +576,7 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 									(formData) =>
 										formData?.type !== 'signature' &&
 										!getBasicInfo(response).some(
-											(field) => field.question === formData.question,
+											(field) => field?.question === formData?.question,
 										) && (
 											<div
 												className="formResponseContainer"
@@ -584,4 +605,4 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	);
 };
 
-export default FormDescription;
+export default memo(FormDescription);

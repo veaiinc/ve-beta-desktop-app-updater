@@ -3,26 +3,23 @@ import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import Context from '../../../../context/context';
 import '../../../../assets/scss/chat/citationsTooltip.scss';
 import { Markdown } from '../../../../helpers/markdownHelper';
-import { getFaviconUrl, getWebsiteName } from '../../../../helpers';
-import { ReactComponent as TextSvg } from '../../../../assets/svg/ai_agents/text.svg';
-import { ReactComponent as DocxSvg } from '../../../../assets/svg/ai_agents/docx.svg';
-import { ReactComponent as JsonSvg } from '../../../../assets/svg/ai_agents/json.svg';
-import { ReactComponent as PdfSvg } from '../../../../assets/svg/ai_agents/pdf.svg';
-import { ReactComponent as JpgSvg } from '../../../../assets/svg/ai_agents/jpg.svg';
-import { ReactComponent as PngSvg } from '../../../../assets/svg/ai_agents/png.svg';
-
-const fileTypeIcons = {
-	txt: <TextSvg />,
-	docx: <DocxSvg />,
-	json: <JsonSvg />,
-	pdf: <PdfSvg />,
-	jpg: <JpgSvg />,
-	png: <PngSvg />,
-};
+import {
+	getFaviconUrl,
+	getWebsiteName,
+	fileTypeIcons,
+	redirectTo,
+	redirectTypeMapper,
+} from '../../../../helpers';
 
 export const CitationsTooltip = memo(({ citationId, citations, placement = 'topLeft' }) => {
 	const {
-		templates: { getCitationData, currentSessionId },
+		templates: {
+			getCitationData,
+			currentSessionId,
+			updateCitationChunks,
+			citationChunks,
+			updateStateValues,
+		},
 	} = useContext(Context);
 	const [citationData, setCitationData] = useState(null);
 	const [citationInfo, setCitationInfo] = useState({});
@@ -31,12 +28,10 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 	useEffect(() => {
 		if (citations?.length > 0) {
 			const citation = citations?.find((citation) => citation?.id === citationId);
-			const { name, type, snippet, source } = citation || {};
-			const fileType = name?.match(/\.(\w+)$/)?.[1];
-			setCitationInfo({ name, type, link: citation?.[type], snippet, source, fileType });
+			setCitationInfo(citation);
 			fetchCitationData(citation);
 		}
-	}, [citations, citationId]);
+	}, [citationId]);
 
 	useEffect(() => {
 		if (citationData) {
@@ -54,8 +49,18 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 
 	const fetchCitationData = async (citation) => {
 		if (citation?.source) {
-			const response = await getCitationData(currentSessionId, citation?.source);
-			setCitationData(response);
+			if (citationChunks?.[citation?.source]) {
+				setCitationData(citationChunks?.[citation?.source]);
+			} else {
+				const response = await getCitationData(currentSessionId, citation?.source);
+				const payload = { [citation?.source]: response };
+				setCitationData(response);
+				updateCitationChunks(payload);
+
+				if (Object?.keys(citationChunks)?.length >= 150) {
+					updateStateValues({ citationChunks: {} });
+				}
+			}
 		}
 	};
 
@@ -65,7 +70,9 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 		if (citationInfo?.snippet && citationInfo.snippet?.trim() !== '') {
 			updatedText = updatedText?.replace(
 				citationInfo?.snippet,
-				`<span id="citation-snippet" style="background-color: rgb(178, 161, 232); color : black; padding: 1px 3px; box-decoration-break: clone;">${citationInfo.snippet}</span>`,
+				`<span id="citation-snippet" style="background-color: var(--primary-font); color : var(--background-color); padding: 1px 3px; box-decoration-break: clone;">${
+					citationInfo?.snippet || ''
+				}</span>`,
 			);
 		}
 		return updatedText;
@@ -79,11 +86,14 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 			placement={placement}
 			rootClassName="citation-tooltip-wrapper"
 			title={
-				<a
-					href={citationInfo?.link}
-					target="_blank"
-					rel="noreferrer"
+				<div
 					className="citation-tooltip-container"
+					onClick={() => {
+						redirectTo?.(
+							citationInfo?.type,
+							citationInfo?.[redirectTypeMapper?.[citationInfo?.type]],
+						);
+					}}
 				>
 					{(processedCitationData?.length > 0 || citationInfo?.snippet?.length > 0) && (
 						<div className="tooltip-content">
@@ -97,25 +107,38 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 
 					<div className="info">
 						<div className="citation-link-container">
-							{citationInfo?.type === 's3_key' ? (
-								<div className="image">{fileTypeIcons[citationInfo?.fileType]}</div>
-							) : getFaviconUrl(citationInfo?.link) ? (
-								<img
-									src={getFaviconUrl(citationInfo?.link)}
-									alt="favicon"
-									className="citation-link-favicon"
-								/>
-							) : (
-								<div className="citation-link-favicon">
-									{getWebsiteName(citationInfo?.link)?.charAt(0)}
-								</div>
-							)}
-							<div className="citation-link-text">
-								<div className="citation-link">{citationInfo?.link}</div>
+							<div className="icon">
+								{citationInfo?.type === 'url' ? (
+									getFaviconUrl(citationInfo?.name) ? (
+										<img
+											src={getFaviconUrl(citationInfo?.name)}
+											alt="favicon"
+											className="favicon-image"
+										/>
+									) : (
+										<div className="company-icon">
+											{getWebsiteName(citationInfo?.name)?.charAt(0)}
+										</div>
+									)
+								) : (
+									<div className="company-icon">
+										{citationInfo?.type === 's3_key'
+											? fileTypeIcons[
+													citationInfo?.name?.match(/\.(\w+)$/)?.[1]
+											  ]
+											: fileTypeIcons[citationInfo?.type]}
+									</div>
+								)}
+							</div>
+
+							<div className="citation-link">
+								{citationInfo?.type === 'url'
+									? getWebsiteName(citationInfo?.name || '')
+									: citationInfo?.name || ''}
 							</div>
 						</div>
 					</div>
-				</a>
+				</div>
 			}
 		>
 			<span className="citation-tooltip-header">{number}</span>

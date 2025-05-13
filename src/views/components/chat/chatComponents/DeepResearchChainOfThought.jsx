@@ -1,28 +1,13 @@
 import { memo } from 'react';
 import '../../../../assets/scss/chat/chatComponents/deepResearchChainOfThought.scss';
 import { Markdown } from '../../../../helpers/markdownHelper';
-import { getFaviconUrl, getWebsiteName } from '../../../../helpers';
 import { ReactComponent as HashTagSvg } from '../../../../assets/svg/ai_agents/hash-tag.svg';
 import { ReactComponent as CurveSvg } from '../../../../assets/svg/ai_agents/curve.svg';
 import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
-import { ReactComponent as TextSvg } from '../../../../assets/svg/ai_agents/text.svg';
-import { ReactComponent as DocxSvg } from '../../../../assets/svg/ai_agents/docx.svg';
-import { ReactComponent as JsonSvg } from '../../../../assets/svg/ai_agents/json.svg';
-import { ReactComponent as PdfSvg } from '../../../../assets/svg/ai_agents/pdf.svg';
-import { ReactComponent as JpgSvg } from '../../../../assets/svg/ai_agents/jpg.svg';
-import { ReactComponent as PngSvg } from '../../../../assets/svg/ai_agents/png.svg';
+import Sources from './Sources';
 
-const fileTypeIcons = {
-	txt: <TextSvg />,
-	docx: <DocxSvg />,
-	json: <JsonSvg />,
-	pdf: <PdfSvg />,
-	jpg: <JpgSvg />,
-	png: <PngSvg />,
-};
-
-const DeepResearchChainOfThought = ({ data }) => {
+const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false }) => {
 	return (
 		<div className="deep-research-container">
 			<div className="chain-of-thought">
@@ -33,14 +18,9 @@ const DeepResearchChainOfThought = ({ data }) => {
 								<div className="indicator" />
 							</div>
 							<div className="content">
-								<div
-									className="line"
-									style={{
-										...(index === data?.cot?.length - 1 && {
-											display: data?.sections?.length > 0 ? 'block' : 'none',
-										}),
-									}}
-								/>
+								{(index !== data?.cot?.length - 1 ||
+									data?.sections?.length > 0 ||
+									showLastIndicatorLine) && <div className="line" />}
 								<div className="step">
 									<Markdown citations={item?.citations || []}>
 										{item?.step || ''}
@@ -70,59 +50,7 @@ const DeepResearchChainOfThought = ({ data }) => {
 									{item?.sources?.length > 0 && (
 										<div className="sources-container">
 											<div className="text-container">Sources</div>
-											<div className="sources">
-												{item?.sources?.map?.((source, index) => {
-													const { type, name } = source;
-
-													return (
-														<div
-															className="source"
-															key={index}
-															onClick={() => {
-																window?.open(
-																	source?.[type],
-																	'_blank',
-																);
-															}}
-														>
-															<div className="icon">
-																{type === 'url' ? (
-																	getFaviconUrl(name) ? (
-																		<img
-																			src={getFaviconUrl(
-																				name,
-																			)}
-																			alt="favicon"
-																			className="favicon-image"
-																		/>
-																	) : (
-																		<div className="company-icon">
-																			{getWebsiteName(
-																				name,
-																			)?.charAt(0)}
-																		</div>
-																	)
-																) : (
-																	<div className="company-icon">
-																		{
-																			fileTypeIcons[
-																				name?.match(
-																					/\.(\w+)$/,
-																				)?.[1]
-																			]
-																		}
-																	</div>
-																)}
-															</div>
-															<div className="website-name">
-																{type === 'url'
-																	? getWebsiteName(name)
-																	: name}
-															</div>
-														</div>
-													);
-												})}
-											</div>
+											<Sources sources={item?.sources} />
 										</div>
 									)}
 								</div>
@@ -140,6 +68,8 @@ const DeepResearchChainOfThought = ({ data }) => {
 								<div className="indicator" />
 							</div>
 							<div className="section-content">
+								{(index !== data?.sections?.length - 1 ||
+									showLastIndicatorLine) && <div className="line" />}
 								<div className={`section-title`}>{section || ''}</div>
 								<div className="sub-queries">
 									{sub_queries?.map((subQuery, idx) => {
@@ -203,7 +133,10 @@ const DeepResearchChainOfThought = ({ data }) => {
 																		<div className="queries-container">
 																			{queries?.map(
 																				(query, idx) => (
-																					<div className="query-container">
+																					<div
+																						className="query-container"
+																						key={idx}
+																					>
 																						<div className="query-link">
 																							<CurveSvg />
 																						</div>
@@ -228,75 +161,9 @@ const DeepResearchChainOfThought = ({ data }) => {
 																		<div className="source-text">
 																			Sources
 																		</div>
-																		<div className="sources">
-																			{sources?.map?.(
-																				(source, index) => {
-																					const {
-																						type,
-																						name,
-																					} = source;
-																					return (
-																						<div
-																							className="source"
-																							key={
-																								index
-																							}
-																							onClick={() => {
-																								window?.open(
-																									source?.[
-																										type
-																									],
-																									'_blank',
-																								);
-																							}}
-																						>
-																							<div className="icon">
-																								{type ===
-																								'url' ? (
-																									getFaviconUrl(
-																										name,
-																									) ? (
-																										<img
-																											src={getFaviconUrl(
-																												name,
-																											)}
-																											alt="favicon"
-																											className="favicon-image"
-																										/>
-																									) : (
-																										<div className="company-icon">
-																											{getWebsiteName(
-																												name,
-																											)?.charAt(
-																												0,
-																											)}
-																										</div>
-																									)
-																								) : (
-																									<div className="company-icon">
-																										{
-																											fileTypeIcons[
-																												name?.match(
-																													/\.(\w+)$/,
-																												)?.[1]
-																											]
-																										}
-																									</div>
-																								)}
-																							</div>
-																							<div className="website-name">
-																								{type ===
-																								'url'
-																									? getWebsiteName(
-																											name,
-																									  )
-																									: name}
-																							</div>
-																						</div>
-																					);
-																				},
-																			)}
-																		</div>
+																		<Sources
+																			sources={sources}
+																		/>
 																	</div>
 																)}
 															</div>

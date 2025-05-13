@@ -10,6 +10,7 @@ import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import gsap from 'gsap';
 import EmptyState from './EmptyState';
+import { Tooltip } from 'antd';
 
 const filterOptions = [
 	{ label: 'All', value: 'all' },
@@ -19,9 +20,9 @@ const filterOptions = [
 ];
 
 const sortOptions = [
-	{ label: 'Recently Created', value: 'createdAt', sortType: -1 },
+	{ label: 'Recently Created', value: 'createdAt', sortType: -1 }, // descending
 	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
-	{ label: 'A-Z', value: 'title', sortType: 1 },
+	{ label: 'A-Z', value: 'title', sortType: 1 }, // ascending
 	{ label: 'Albums Count', value: 'albumsCount', sortType: -1 },
 	{ label: 'Images Count', value: 'imagesCount', sortType: -1 },
 ];
@@ -35,7 +36,7 @@ const GalleryGrid = ({
 	const navigate = useNavigate();
 
 	const {
-		galleryInfo: { getGalleries, tenantGalleries },
+		galleryInfo: { getGalleries, tenantGalleries, setDefaultSort },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -43,7 +44,7 @@ const GalleryGrid = ({
 		hasNextPage: false,
 		currentPage: 1,
 		loading: true,
-		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
+		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 	});
 
 	useEffect(() => {
@@ -52,10 +53,10 @@ const GalleryGrid = ({
 		const options = {
 			page: 1,
 			limit: 20,
-			storeOriginals: selectedOption === 'Classic Gallery',
+			storeOriginals: selectedOption === 'Gallery',
 		};
 		fetchGalleries(options);
-	}, [selectedOption, info?.selectedSort]);
+	}, [selectedOption]);
 
 	useEffect(() => {
 		if (tenantGalleries) {
@@ -79,9 +80,7 @@ const GalleryGrid = ({
 	}, [tenantGalleries]);
 	useEffect(() => {
 		const delay =
-			info.selectedView === 'Classic Gallery' || info.selectedView === 'Lite Gallery'
-				? 100
-				: 0;
+			info.selectedView === 'Gallery' || info.selectedView === 'Lite Gallery' ? 100 : 0;
 
 		const timeout = setTimeout(() => {
 			const cards = document.querySelectorAll(
@@ -166,14 +165,11 @@ const GalleryGrid = ({
 
 	const fetchGalleries = async ({ page = 1, limit = 20, storeOriginals }) => {
 		try {
-			const { value, sortType } = info?.selectedSort;
-
 			getGalleries(
 				{
 					page,
 					limit,
-					storeOriginals: storeOriginals || selectedOption === 'Classic Gallery',
-					sort: `${sortType === -1 ? `-` : ''}${value}`,
+					storeOriginals: storeOriginals || selectedOption === 'Gallery',
 				},
 				true,
 			);
@@ -190,7 +186,7 @@ const GalleryGrid = ({
 		const options = {
 			page: info?.currentPage + 1,
 			limit: info.limit,
-			storeOriginals: selectedOption === 'Classic Gallery',
+			storeOriginals: selectedOption === 'Gallery',
 		};
 		fetchGalleries(options);
 	};
@@ -201,10 +197,17 @@ const GalleryGrid = ({
 
 	const handleSortClick = (value) => {
 		let sortType = value?.sortType;
+
 		if (value?.value === info?.selectedSort?.value) {
 			sortType = info?.selectedSort?.sortType * -1;
 		}
-		handleStateUpdate({ selectedSort: { ...value, sortType } });
+
+		setInfo((prev) => ({
+			...prev,
+			selectedSort: { ...value, sortType },
+		}));
+
+		setDefaultSort({ sort: `${sortType === -1 ? `-` : ''}${value?.value}` });
 	};
 
 	return (
@@ -246,7 +249,7 @@ const GalleryGrid = ({
 									</button>
 								</div>
 							</div>
-							{info?.galleries.map((item, index) => (
+							{info?.galleries?.map((item, index) => (
 								<div
 									className="card-item"
 									key={index}
@@ -263,6 +266,8 @@ const GalleryGrid = ({
 											alignItems: 'center',
 											minHeight: '120px',
 											marginBottom: '8px',
+											backgroundSize: 'cover',
+											backgroundPosition: 'center',
 										}}
 									>
 										{!item?.coverImage?.thumbnailUrl && (
@@ -281,7 +286,9 @@ const GalleryGrid = ({
 								</span>
 							</span> */}
 									</div>
-									<span className="gallery-item-title">{item?.title}</span>
+									<Tooltip title={item?.title || ''} placement="bottom">
+										<span className="gallery-item-title">{item?.title}</span>
+									</Tooltip>
 								</div>
 							))}
 						</div>

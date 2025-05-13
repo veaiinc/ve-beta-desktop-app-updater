@@ -1,22 +1,20 @@
-import React, { useState, useContext, useEffect, useCallback, memo } from 'react';
+import { useState, useContext, useEffect, memo } from 'react';
 import '../../../assets/scss/sidebar.scss';
 import { useLocation } from 'react-router-dom';
 import Intercom from '@intercom/messenger-js-sdk';
 import OpenedSidebar from './OpenedSidebar';
 import Context from '../../../context/context';
 import { styles } from './sidebarindex';
-import CreateLeadModal from '../modalsV2/proposalModals/CreateLeadModal';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { veAiModulesItemsList } from './sidebarindex';
 import { Tooltip } from 'antd';
 import Notifications from './notifications/Notifications';
 import Notes from './notes/Notes';
-import ChatHistory from './chatHistory/ChatHistory';
-import Cookies from 'js-cookie';
+import SidebarTooltip from './SidebarTooltip';
 
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
-		subscriptionInfo: { renewBanner },
+		// subscriptionInfo: { renewBanner },
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
@@ -33,21 +31,18 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const [isOpen, setIsOpen] = useState(() => {
 		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
 	});
-
-	// const themePreference = userDetailsData?.theme || 'dark'; // TODO: change this to systemDefault after light theme is good
-	// if (themePreference) {
-	// 	localStorage.setItem('theme', themePreference);
-	// 	Cookies.set('theme', themePreference);
-	// 	document.documentElement.setAttribute('theme', themePreference);
-	// }
-
+	const [isClosing, setIsClosing] = useState(false);
 	// conditional margin top for home page
-	const isHome = location?.pathname?.includes('home') || location?.pathname?.includes('notes');
+	const isHome = location?.pathname?.includes('notes');
+
+	const isChatSidebarRoute =
+		location?.pathname?.includes('calendar') ||
+		location?.pathname?.includes('tasks') ||
+		location?.pathname?.includes('contact');
 
 	useEffect(() => {
 		localStorage.setItem('isOpen', JSON.stringify(isOpen));
 	}, [isOpen]);
-
 	const [info, setInfo] = useState({
 		switchWorkspaceModal: false,
 		activeBusniessName: '',
@@ -58,8 +53,15 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	});
 
 	useEffect(() => {
-		if (leftSidebarState && leftSidebarState === 'open') {
-			setIsOpen(true);
+		if (leftSidebarState === 'open') {
+			if (!isOpen) {
+				setIsOpen(true);
+			}
+			updateStateValues({ leftSidebarState: null });
+		} else if (leftSidebarState === 'close') {
+			if (isOpen) {
+				setIsOpen(false);
+			}
 			updateStateValues({ leftSidebarState: null });
 		}
 	}, [leftSidebarState]);
@@ -120,10 +122,16 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		}
 	}, [location?.pathname]);
 
-	const closeCreateLeadModal = useCallback(async () => {
-		setInfo((prev) => ({ ...prev, createLeadModal: false }));
-	}, []);
-
+	const handleOpen = () => {
+		setIsOpen(true); // Sidebar comes into view
+	};
+	const handleClose = () => {
+		setIsClosing(true);
+		setTimeout(() => {
+			setIsOpen(false); // Sidebar disappears
+			setIsClosing(false);
+		}, 400); // Match this with the SCSS transition duration
+	};
 	return (
 		<>
 			<div
@@ -134,20 +142,27 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					)?.subModules?.length > 0
 						? 'has-submodules'
 						: 'no-submodules'
-				}`}
+				} ${isChatSidebarRoute ? 'contacts-sidebar' : ''}`}
 				style={{
-					height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
+					// height: isOpen
+					// 	? renewBanner
+					// 		? 'calc(100dvh - 58px)'
+					// 		: '100dvh'
+					// 	: 'fit-content',
+					height: isOpen ? '100dvh' : 'fit-content',
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
-					marginTop: isHome && '0',
+					marginTop: isHome ? '0' : isChatSidebarRoute ? '0' : '',
 					display: hideClosedSidebarIcon ? 'none' : '',
+					marginLeft: isChatSidebarRoute ? '0' : '',
+					// top: isOpen ? '' : renewBanner ? '105px' : '',
 				}}
 			>
 				<nav
-					className={`sidebarComponent ${isOpen ? 'open' : ''} ${
-						!isOpen && isHome && 'padding-48'
-					}`}
+					className={`sidebarComponent ${isOpen && !isClosing ? 'open' : ''} ${
+						isClosing ? 'closing' : ''
+					} ${!isOpen && isHome && 'padding-48'}`}
 					style={styles[sidebarStates?.navStyle]}
 				>
 					{isOpen ? (
@@ -158,33 +173,23 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							setInfo={setInfo}
 							userWorkSpaceList={userWorkSpaceList}
 							isOpen={isOpen}
-							setIsOpen={setIsOpen}
+							setIsOpen={handleClose}
 							setShowChatsDrawer={setShowChatsDrawer}
 							setShowNotificationsDrawer={setShowNotificationsDrawer}
 							setShowNotesDrawer={setShowNotesDrawer}
 							setHideClosedSidebarIcon={setHideClosedSidebarIcon}
-							renewBanner={renewBanner}
+							// renewBanner={renewBanner}
 						/>
 					) : (
-						<Tooltip
-							title="Open Sidebar"
-							placement="right"
-							arrow={false}
-							overlayInnerStyle={{
-								padding: '6px 10px',
-								borderRadius: '10px',
-								fontSize: '14px',
-								background: '#E8E8E8',
-								color: '#202123',
-								textAlign: 'center',
-								marginLeft: '12px',
-							}}
-						>
-							<SidebarClosingSvg
-								onClick={() => setIsOpen(true)}
-								style={{ cursor: 'pointer' }}
-							/>
-						</Tooltip>
+						<SidebarTooltip
+							label="Open Sidebar"
+							icon={
+								<SidebarClosingSvg
+									onClick={handleOpen}
+									style={{ cursor: 'pointer' }}
+								/>
+							}
+						/>
 					)}
 				</nav>
 				<Notifications

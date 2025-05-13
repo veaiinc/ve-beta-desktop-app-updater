@@ -9,7 +9,7 @@
 
 	.ifElseInputHeading {
 		color: #f2f2f3;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -25,7 +25,7 @@
 
 		.ifElseInputHeading {
 			color: #7a7e85;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -44,7 +44,7 @@
 
 			.ifElseInputConditionText {
 				color: #7a7e85;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -69,7 +69,7 @@
 			border: 1px solid #2a2a2a;
 			background-color: transparent;
 			color: #f2f2f3;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -86,7 +86,7 @@
 
 		label {
 			color: #7a7e85;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -114,7 +114,7 @@
 	background: #202123;
 	border: none;
 	color: #f2f2f3;
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 13px;
 	font-style: normal;
 	font-weight: 400;
@@ -139,7 +139,7 @@
 
 	.ifElseInputConditionText {
 		color: #7a7e85;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -154,7 +154,7 @@
 
 		.ifElseInputConditionItem {
 			color: #f2f2f3;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;

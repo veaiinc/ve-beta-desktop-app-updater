@@ -20,6 +20,7 @@ import { ReactComponent as OverviewSvg } from '../../../assets/svg/contacts/over
 import { ReactComponent as ActivitySvg } from '../../../assets/svg/contacts/activity.svg';
 import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
 import { ReactComponent as ProfileIcon } from '../../../assets/svg/sidebar/profileIcon.svg';
+import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 
 // Define rowTypes
 const rowTypes = {
@@ -46,12 +47,12 @@ const selectedContactOptions = [
 		value: 'files',
 		icon: <FilesSvg fill="var(--primary-font)" />,
 	},
-	{
-		id: 4,
-		label: 'About',
-		value: 'about',
-		icon: <ProfileIcon fill="var(--primary-font)" />,
-	},
+	// {
+	// 	id: 4,
+	// 	label: 'About',
+	// 	value: 'about',
+	// 	icon: <ProfileIcon fill="var(--primary-font)" />,
+	// },
 ];
 
 const suggestedPrompts = [
@@ -306,57 +307,62 @@ const ExpandedClientView = () => {
 				height: '100%',
 			}}
 		>
-			<div className="left-section">
-				<div className="contacts-header">
-					<h2>Contacts</h2>
-				</div>
-				<div className="contacts-stats-container">
-					<div className="contacts-stats">
-						{selectedContactOptions.map(({ key, label, icon, className }) => (
-							<div
-								className={`stat-item ${className} ${
-									info?.selectedContactOption === label ? 'active' : ''
-								}`}
-								key={key}
-								onClick={() =>
-									setInfo((prev) => ({
-										...prev,
-										selectedContactOption: label,
-									}))
-								}
-							>
+			<ChatLeftBarComponent>
+				<div className="left-section">
+					<div className="contacts-header">
+						<h2>
+							{clientData?.name} <span>suggestions</span>
+						</h2>
+					</div>
+					<div className="contacts-stats-container">
+						<div className="contacts-stats">
+							{selectedContactOptions?.map(({ label, icon, className }, index) => (
 								<div
-									className={`iconContainer ${
+									className={`stat-item ${className} ${
 										info?.selectedContactOption === label ? 'active' : ''
 									}`}
+									key={index}
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											selectedContactOption: label,
+										}))
+									}
 								>
-									{icon}
-								</div>
-								<div className="label">{label}</div>
-							</div>
-						))}
-					</div>
-
-					<div className="suggested-sections">
-						<div className="section-title">Suggested Actions</div>
-						<div className="action-buttons">
-							<button>Hand off to Priya</button>
-							<button>Add Collaborator</button>
-							<button>Snooze</button>
-						</div>
-
-						<div className="section-title">Suggested Prompts</div>
-						<div className="prompts-list">
-							{suggestedPrompts.map((prompt, index) => (
-								<div key={index} className="prompt-item">
-									<ArrowRightSvg style={{ flexShrink: '0' }} />
-									{prompt}
+									<div
+										className={`iconContainer ${
+											info?.selectedContactOption === label ? 'active' : ''
+										}`}
+									>
+										{icon}
+									</div>
+									<div className="label">{label}</div>
 								</div>
 							))}
 						</div>
+
+						{/* <div className="suggested-sections">
+							<div className="section-title">Suggested Actions</div>
+							<div className="action-buttons">
+								<button>Hand off to Priya</button>
+								<button>Add Collaborator</button>
+								<button>Snooze</button>
+							</div>
+
+							<div className="section-title">Suggested Prompts</div>
+							<div className="prompts-list">
+								{suggestedPrompts.map((prompt, index) => (
+									<div key={index} className="prompt-item">
+										<ArrowRightSvg style={{ flexShrink: '0' }} />
+										{prompt}
+									</div>
+								))}
+							</div>
+						</div> */}
 					</div>
 				</div>
-			</div>
+			</ChatLeftBarComponent>
+
 			<SingleContact
 				selectedContact={clientData}
 				selectedOptions={info?.selectedContactOption}

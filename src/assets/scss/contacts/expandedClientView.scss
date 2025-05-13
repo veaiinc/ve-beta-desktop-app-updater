@@ -151,23 +151,38 @@
 
 .left-section {
 	display: flex;
-	width: 437px;
-	padding: 32px 24px;
+	// width: 437px;
+	// padding: 32px 24px;
+	width: 100%;
+	padding: 0;
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 65px;
 	flex-shrink: 0;
-	background: var(--navbar, #18191b);
+	// background: var(--navbar-bg, #18191b);
+	background: transparent;
 	color: var(--primary-font);
 
 	.contacts-header {
 		display: flex;
 		align-items: center;
 		gap: 12px;
+		margin-left: 25px;
 		h2 {
 			color: var(--primary-font);
 			font-size: 16px;
 			font-weight: 500;
+
+			span {
+				overflow: hidden;
+				color: var(--primary-button, #cfff48);
+				text-overflow: ellipsis;
+				font-family: var(--primary-font-family);
+				font-size: 18px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
 		}
 	}
 	.contacts-stats-container {
@@ -188,11 +203,11 @@
 				align-items: flex-start;
 				gap: 4px;
 				border-radius: 8px;
-				background: var(--card, #1e1f21);
+				background: var(--card-over-card, #1e1f21);
 				cursor: pointer;
 				min-width: 121px;
 				&.active {
-					background: var(--card-hover, #252628);
+					background: var(--card-over-card-hover, #252628);
 				}
 
 				.count {
@@ -262,7 +277,7 @@
 
 		.section-title {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -284,7 +299,7 @@
 				border: 1px solid var(--stroke, #333334);
 				background: transparent;
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;

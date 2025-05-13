@@ -89,7 +89,7 @@ export const SubscriptionState = (props) => {
 			console.log('errror ==>createStripeCheckoutSession', error);
 		}
 	};
-	const resetSubscriptionState = async () => {
+	const resetSubscriptionState = () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
 		} catch (error) {
@@ -103,7 +103,7 @@ export const SubscriptionState = (props) => {
 			const response = await Service.fetchGet(
 				`/subscription/${workspaceId}/get-current-subscription-plan`,
 				usertoken,
-				'auth',
+				'tenant',
 			);
 			if (response?.[0] === true) {
 				dispatch({

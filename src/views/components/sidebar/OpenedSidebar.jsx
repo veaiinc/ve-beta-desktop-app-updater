@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useContext, memo } from 'react';
+import { createElement, useState, useCallback, useEffect, useContext, memo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
 	veAiModulesItemsList,
@@ -6,34 +6,37 @@ import {
 	photographerModules,
 	SETTINGS_OPTIONS,
 } from './sidebarindex';
-import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg.svg';
 import { ReactComponent as SingleRightArrowSvg } from '../../../assets/svg/sidebar/singleRightArrow.svg';
 import { ReactComponent as SwitchWorkspaceSvg } from '../../../assets/svg/sidebar/switchWorkspace.svg';
+import { ReactComponent as SunIcon } from '../../../assets/svg/sun.svg';
+import { ReactComponent as MoonIcon } from '../../../assets/svg/moon.svg';
+import { ReactComponent as NewEditSvg } from '../../../assets/svg/sidebar/newEdit.svg';
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
-import { Tooltip } from 'antd';
 import ChatHistory from './chatHistory/ChatHistory';
-
+import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import Cropper from 'react-easy-crop';
 import Context from '../../../context/context';
 import { getInitials } from '../../../helpers/index';
 import { message } from '../globalComponents/CustomToast';
+import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
+import ObjectID from 'bson-objectid';
+import { ReactComponent as CreateWorkspaceSvg } from '../../../assets/svg/sidebar/createWorkspace.svg';
+import SidebarTooltip from './SidebarTooltip';
 
 const workspaceStyles = {
 	position: 'absolute',
-	top: '60px', // Adjust this value based on your header height
-	left: '0',
-	width: '230px',
-	marginLeft: '10px',
+	bottom: '122px',
+	left: '0px',
+	width: '280px',
 	border: 'none',
-	zIndex: '1000',
+	zIndex: '10000',
 	borderRadius: '16px',
-	animation: 'slideDown 0.3s ease-out',
-	transformOrigin: 'top',
+	transformOrigin: 'bottom',
 };
 
 const MODULE_NAME_MAP = {
@@ -50,6 +53,10 @@ const MODULE_NAME_MAP = {
 	// notes: 'notes',
 	agents: 'knowledgeAgent',
 };
+
+const routeType = 'public';
+
+const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 
 const OpenedSidebarModules = ({
 	name,
@@ -173,18 +180,9 @@ const OpenedSidebarModules = ({
 						width: '100%',
 					}}
 				>
-					{Icon && (
-						<Icon
-							fill={
-								isExactPathMatch()
-									? 'var(--primary-button)'
-									: isHover
-									? 'var(--primary-font)'
-									: 'var(--primary-font)'
-							}
-						/>
-					)}
+					{Icon && <Icon fill={'var(--secondary-font)'} />}
 					<p>{name}</p>
+					{isExactPathMatch() && <TickSvg />}
 				</div>
 				{isDropdownVisible && subModules?.length > 0 && (
 					<div>
@@ -219,13 +217,12 @@ const OpenedSidebarModules = ({
 										activeSubModule?.id === index ? 'active' : ''
 									}`}
 									onClick={(e) => handleSubModuleClick(e, subItem)}
-									style={{ cursor: 'pointer' }}
 								>
 									<div className="subitem-content">
 										<p>{subItem.name}</p>
 									</div>
 									{subItem.icon &&
-										React.createElement(subItem.icon, {
+										createElement(subItem.icon, {
 											fill: activeSubModule === index ? '#FFFFFF' : '#939393',
 										})}
 								</div>
@@ -234,7 +231,7 @@ const OpenedSidebarModules = ({
 					</div>
 				)}
 				{subModules?.length > 0 && (
-					<div style={{ padding: '0px', margin: '0px' }}>
+					<div style={{ padding: '0px', margin: '0px', height: '16px' }}>
 						<DownArrowSmallSvg
 							className={`downArrow ${isDropdownVisible ? 'rotate' : ''}`}
 							style={{ height: '16px', width: '16px' }}
@@ -258,7 +255,7 @@ const OpenedSidebar = ({
 	setShowChatsDrawer,
 	setShowNotesDrawer,
 	setHideClosedSidebarIcon,
-	renewBanner,
+	// renewBanner,
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
@@ -268,6 +265,7 @@ const OpenedSidebar = ({
 			tennantSettingsData,
 			getTenantSettings,
 		},
+		themeInfo: { theme, updateTheme },
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
@@ -290,6 +288,7 @@ const OpenedSidebar = ({
 	// Add this constant for Settings options
 	const settingsOptions = isAdmin ? SETTINGS_OPTIONS.admin : SETTINGS_OPTIONS.user;
 
+	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
 	useEffect(() => {
 		if (!tennantSettingsData) {
 			getTenantSettings();
@@ -324,15 +323,12 @@ const OpenedSidebar = ({
 		logoutFunc();
 	}, [logoutFunc]);
 
-	const openWorkspacesFunction = () => {
-		setsidebarStates((prevState) => {
-			const newState = {
-				...prevState,
-				workSpaceOpen: !prevState?.workSpaceOpen,
-				navStyle: prevState?.workSpaceOpen ? 'close' : 'workspace',
-			};
-			return newState;
-		});
+	const openWorkspacesFunction = (isOpen) => {
+		setsidebarStates((prevState) => ({
+			...prevState,
+			workSpaceOpen: isOpen,
+			navStyle: isOpen ? 'workspace' : 'close',
+		}));
 	};
 
 	const handleNavigateFunction = useCallback(
@@ -441,8 +437,7 @@ const OpenedSidebar = ({
 
 	const tenantModules =
 		tennantSettingsData?.businessType === 'photography' ||
-		tennantSettingsData?.businessType === 'photographer' ||
-		tennantSettingsData?.businessType === 'agency'
+		tennantSettingsData?.businessType === 'photographer'
 			? photographerModules
 			: veAiModulesItemsList;
 
@@ -473,13 +468,52 @@ const OpenedSidebar = ({
 		if (showSettingsSidebar && settingsOptions?.length > 0) {
 			const firstItem = settingsOptions[0];
 			setSelectedSettingsOption(firstItem.name);
-			navigate(firstItem.route);
+			// navigate(firstItem.route);
 		}
 	}, [showSettingsSidebar, settingsOptions]);
 
 	const toggleSidebar = () => {
+		navigate('/settings/my-profile');
 		setShowSettingsSidebar((prev) => !prev);
 	};
+
+	const triggerCmdK = () => {
+		const event = new KeyboardEvent('keydown', {
+			key: 'k',
+			metaKey: true, // For macOS; use ctrlKey for Windows
+			bubbles: true,
+		});
+		document.dispatchEvent(event);
+	};
+	const handleNewChat = () => {
+		const sessionId = ObjectID()?.toString();
+		navigate(`/chat/${sessionId}`);
+		updateStateValues({
+			currentChatData: null,
+		});
+	};
+
+	const tooltipItems = [
+		{
+			key: 'theme',
+			label: (theme) => `Switch to ${theme === 'dark' ? 'white' : 'dark'} mode`,
+			icon: (theme) => (theme === 'dark' ? <SunIcon /> : <MoonIcon />),
+			onClick: (updateTheme, newThemeValue) => () => updateTheme(newThemeValue),
+		},
+		{
+			key: 'search',
+			label: (_, isMac) => (isMac ? 'Search ⌘ + k' : 'Search Ctrl + k'),
+			icon: () => <SearchSvg />,
+			onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
+		},
+		{
+			key: 'newChat',
+			label: () => 'New Chat',
+			icon: () => <NewEditSvg />,
+			onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
+		},
+	];
+
 	return (
 		<>
 			<div style={{ display: 'flex', position: 'relative' }}>
@@ -490,11 +524,13 @@ const OpenedSidebar = ({
 								<div
 									className="openSideBarComponent"
 									style={{
-										height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
+										// height: renewBanner ? 'calc(100dvh - 58px)' : '100dvh',
+										height: '100dvh',
 										display: 'flex',
 										flexDirection: 'column',
 										justifyContent: 'space-between',
 										overflowY: 'auto',
+										borderRight: '1px solid var(--stroke)',
 									}}
 								>
 									<div className="topOptionsList">
@@ -507,86 +543,87 @@ const OpenedSidebar = ({
 												zIndex: '1000',
 											}}
 										>
-											<div
-												className="workspaceDetailsDiv"
-												onClick={openWorkspacesFunction}
-												style={{ cursor: 'pointer' }}
-											>
-												{info?.activeBusniessName?.logo_s3_500w_key && (
-													<div className="workspaceLogoContainer">
-														<img
-															className="workspaceLogo"
-															src={
-																info?.activeBusniessName
-																	?.logo_s3_500w_key
-															}
-															alt={
-																info?.activeBusniessName
-																	?.activeWorkspaceId
-															}
-														/>
-													</div>
-												)}
-												<h6 className="workspaceName">
-													{info?.activeBusniessName?.businessName}
-												</h6>
-												{userWorkSpaceList?.length > 1 && (
-													<DownArrowSmallSvg
-														style={{ height: '16px', width: '16px' }}
-													/>
-												)}
-											</div>
-											<Tooltip
-												title="Close Sidebar"
-												placement="right"
-												arrow={false}
-												overlayInnerStyle={{
-													padding: '6px 10px',
-													borderRadius: '10px',
-													fontSize: '14px',
-													background: '#E8E8E8',
-													color: '#202123',
-													textAlign: 'center',
-													marginLeft: '12px',
-												}}
-											>
-												<SidebarClosingSvg
-													className="collapseArrow"
-													onClick={handleSidebarCollapse}
+											{isThisEarlyAccessPage && (
+												<div
+													className="workspaceDetailsDiv"
+													onClick={openWorkspacesFunction}
 													style={{ cursor: 'pointer' }}
-												/>
-											</Tooltip>
+												>
+													{info?.activeBusniessName?.logo_s3_500w_key && (
+														<div className="workspaceLogoContainer">
+															<img
+																className="workspaceLogo"
+																src={
+																	info?.activeBusniessName
+																		?.logo_s3_500w_key
+																}
+																alt={
+																	info?.activeBusniessName
+																		?.activeWorkspaceId
+																}
+															/>
+														</div>
+													)}
+													<h6 className="workspaceName">
+														{info?.activeBusniessName?.businessName}
+													</h6>
+													{userWorkSpaceList?.length > 1 && (
+														<DownArrowSmallSvg
+															style={{
+																height: '16px',
+																width: '16px',
+															}}
+														/>
+													)}
+												</div>
+											)}
+											<SidebarTooltip
+												label="Close Sidebar"
+												icon={
+													<SidebarClosingSvg
+														className="collapseArrow"
+														style={{ cursor: 'pointer' }}
+													/>
+												}
+												onClick={setIsOpen}
+											/>
+
+											{!isThisEarlyAccessPage && (
+												<div className="sideBarOptions">
+													{tooltipItems?.map(
+														({ key, label, icon, onClick }) => (
+															<SidebarTooltip
+																key={key}
+																label={label(theme, isMac)}
+																icon={icon(theme)}
+																onClick={onClick(
+																	updateTheme,
+																	newThemeValue,
+																	triggerCmdK,
+																	handleNewChat,
+																)}
+															/>
+														),
+													)}
+												</div>
+											)}
 										</div>
 
 										<div
 											className="allmodulesList"
 											style={{
-												height: '100%',
+												height: 'calc(100% - 65px)',
 												gap: '4px',
 												display: 'flex',
 												flexDirection: 'column',
-												width: '211px',
+												width: '100%',
+												justifyContent: `${
+													isThisEarlyAccessPage ? 'flex-end' : ''
+												}`,
 												// overflowY: 'auto',
 											}}
 											id="chatsScroll"
 										>
-											{sidebarStates?.workSpaceOpen &&
-												userWorkSpaceList?.length > 1 && (
-													<div
-														style={{
-															...workspaceStyles,
-															top: '20px',
-														}}
-													>
-														<WorkspaceListComponent
-															setsidebarStates={setsidebarStates}
-															sidebarStates={sidebarStates}
-															info={info}
-															userWorkSpaceList={userWorkSpaceList}
-															sidebarSettings="close"
-														/>
-													</div>
-												)}
 											{!isThisEarlyAccessPage && (
 												<>
 													{/* <hr
@@ -651,19 +688,31 @@ const OpenedSidebar = ({
 														</div>
 													))}
 
-													<hr
-														style={{
-															border: '0.7px solid var(--stroke)',
-															margin: '16px 0px',
-														}}
-													/>
-
+													<div>
+														<hr
+															className={`${
+																isOpen
+																	? 'horizontal-line-sidebar'
+																	: ''
+															}`}
+														/>
+													</div>
 													<ChatHistory />
 													<div
-														className="settingsOptionsContainer"
+														className={`settingsOptionsContainer  ${
+															!showSettingsSidebar
+																? 'settingsOptionsContainerOpen'
+																: ''
+														}`}
 														onClick={toggleSidebar}
 													>
-														<div className="settingsHoverState">
+														<div
+															className={`settingsHoverState ${
+																!showSettingsSidebar
+																	? 'settingsHoverStateOpen'
+																	: ''
+															}`}
+														>
 															<div className="settingsOptionsUserInfo">
 																<div>
 																	{userDetailsData?.logoURL ? (
@@ -714,13 +763,99 @@ const OpenedSidebar = ({
 																	)}
 																</div>
 																<div className="settingsOptionsUserName">
-																	{userDetailsData?.firstName}
+																	<span>
+																		{userDetailsData?.firstName}{' '}
+																		<span className="workspaceId">
+																			(
+																			{`${
+																				isAdmin
+																					? 'Admin'
+																					: 'Member'
+																			}`}
+																			)
+																		</span>
+																	</span>
+																	<span className="workspaceId">
+																		{tennantSettingsData?.businessName.toUpperCase()}
+																	</span>
 																</div>
 															</div>
 															<SingleRightArrowSvg fill="var(--primary-font)" />
 														</div>
 													</div>
 												</>
+											)}
+											{isThisEarlyAccessPage && (
+												<div
+													className={`settingsOptionsContainer ${
+														isThisEarlyAccessPage
+															? 'settingsOptionsContainerEarlyAccess'
+															: ''
+													}`}
+													style={{ borderTop: '1px solid var(--stroke)' }}
+												>
+													<div
+														className="settingsOptionsUserInfo"
+														onClick={() => {
+															setShowSettingsSidebar(false);
+														}}
+													>
+														<div>
+															{userDetailsData?.logoURL ? (
+																<div className="crop-container">
+																	<Cropper
+																		image={
+																			userDetailsData?.logoURL
+																		} // Image URL to crop
+																		crop={
+																			userDetailsData
+																				?.cropSettings?.crop
+																		}
+																		zoom={
+																			userDetailsData
+																				?.cropSettings?.zoom
+																		}
+																		showGrid={false}
+																		onCropChange={(e) => ''}
+																		onCropComplete={(e) => ''}
+																		onZoomChange={(e) => ''}
+																	/>
+																</div>
+															) : (
+																<div
+																	className="noImageText"
+																	style={{
+																		background:
+																			userDetailsData
+																				?.cropSettings
+																				?.profileDpColor ||
+																			'',
+																		fontSize: '12px',
+																	}}
+																>
+																	{getInitials(
+																		userDetailsData?.firstName,
+																		userDetailsData?.lastName,
+																	)}
+																</div>
+															)}
+														</div>
+														<div className="settingsOptionsUserName">
+															<span>
+																{userDetailsData?.firstName}
+															</span>
+															<span className="workspaceId">
+																{tennantSettingsData?.businessName}
+															</span>
+														</div>
+													</div>
+													<div className="logoutIcon">
+														<LogoutRedSvg
+															onClick={handleLogout}
+															style={{ cursor: 'pointer' }}
+														/>
+													</div>
+												</div>
 											)}
 										</div>
 									</div>
@@ -761,23 +896,13 @@ const OpenedSidebar = ({
 					</div>
 				)}
 				{/* Settings Sidebar Overlay */}
-				{showSettingsSidebar && (
+				{showSettingsSidebar && !isThisEarlyAccessPage && (
 					<div
 						className="settings-sidebar"
-						style={{ height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh' }}
+						// style={{ height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh' }}
+						style={{ height: '100dvh' }}
 					>
 						{/* Settings Header */}
-						{sidebarStates?.workSpaceOpen && (
-							<div style={workspaceStyles}>
-								<WorkspaceListComponent
-									setsidebarStates={setsidebarStates}
-									sidebarStates={sidebarStates}
-									info={info}
-									userWorkSpaceList={userWorkSpaceList}
-									settingsSideBar="open"
-								/>
-							</div>
-						)}
 						<div className="settings-header">
 							<div className="settings-header-left">
 								<SingleRightArrowSvg
@@ -787,47 +912,30 @@ const OpenedSidebar = ({
 								/>
 								{/* <h6>Settings</h6> */}
 							</div>
-							<Tooltip
-								title="Close Sidebar"
-								placement="right"
-								arrow={false}
-								overlayInnerStyle={{
-									padding: '6px 10px',
-									borderRadius: '10px',
-									fontSize: '14px',
-									background: 'var(--primary-font)',
-									color: 'var(--secondary-font)',
-									textAlign: 'center',
-									marginLeft: '12px',
-								}}
-							>
-								<SidebarClosingSvg
-									className="collapseArrow"
-									onClick={handleSidebarCollapse}
-									style={{ cursor: 'pointer' }}
-								/>
-							</Tooltip>
+							{!isThisEarlyAccessPage && (
+								<div className="sideBarOptions">
+									<div
+										className="eachOption"
+										onClick={() => updateTheme(newThemeValue, routeType)}
+									>
+										{theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+									</div>
+									<div className="eachOption" onClick={triggerCmdK}>
+										<SearchSvg />
+									</div>
+									<div className="eachOption" onClick={handleNewChat}>
+										<NewEditSvg />
+									</div>
+								</div>
+							)}
 						</div>
-						<div className="settings-footer" onClick={openWorkspacesFunction}>
-							<SwitchWorkspaceSvg fill="var(--primary-font)" />
-							<p>Switch workspace</p>
-						</div>
-						<div
-							className="settings-footer"
-							onClick={() => {
-								navigate('/create-workspace');
-							}}
-						>
-							{' '}
-							<ArrowUpRightSvg />
-							<p>Create workspace</p>
-						</div>
-						<hr
+
+						{/* <hr
 							style={{
 								border: '0.7px solid var(--stroke)',
 								margin: '16px 0px',
 							}}
-						/>
+						/> */}
 						{/* Settings Options */}
 						<div className="settings-options">
 							<div className="settings-options-title">Settings</div>
@@ -842,13 +950,7 @@ const OpenedSidebar = ({
 										setSelectedSettingsOption(option.name);
 									}}
 								>
-									<option.icon
-										fill={
-											isExactPathMatch(option.route)
-												? 'var(--primary-button)'
-												: 'var(--primary-font)'
-										}
-									/>
+									<option.icon fill={'var(--secondary-font)'} />
 									<p>{option.name}</p>
 								</div>
 							))}
@@ -862,7 +964,11 @@ const OpenedSidebar = ({
 						<div className="settings-options-container">
 							<div className="settings-options-title">Essentials</div>
 							{filterModules2?.map((singleItem, index) => (
-								<div key={index}>
+								<div
+									key={index}
+									style={{ width: '100%' }}
+									className="settings-option"
+								>
 									<OpenedSidebarModules
 										name={singleItem.name}
 										Icon={singleItem.icon}
@@ -891,57 +997,120 @@ const OpenedSidebar = ({
 								</div>
 							))}
 						</div>
-						<div className="settingsOptionsContainer">
+						{sidebarStates?.workSpaceOpen && <div className="settingBackdrop"></div>}
+						<div
+							className="settingsOptionsContainer"
+							style={{
+								borderTop: `${
+									!sidebarStates?.workSpaceOpen ? '1px solid var(--stroke)' : ''
+								}`,
+							}}
+						>
 							<div
-								className="settingsOptionsUserInfo"
-								onClick={() => {
-									setShowSettingsSidebar(false);
-								}}
+								style={{ width: '100%', gap: '4px', position: 'relative' }}
+								className={`${
+									showSettingsSidebar ? 'settingsAnimationContainer' : ''
+								}`}
 							>
-								<div>
-									{userDetailsData?.logoURL ? (
-										<div className="crop-container">
-											<Cropper
-												image={userDetailsData?.logoURL} // Image URL to crop
-												crop={userDetailsData?.cropSettings?.crop}
-												zoom={userDetailsData?.cropSettings?.zoom}
-												showGrid={false}
-												onCropChange={(e) => ''}
-												onCropComplete={(e) => ''}
-												onZoomChange={(e) => ''}
-											/>
-										</div>
-									) : (
-										<div
-											className="noImageText"
-											style={{
-												background:
-													userDetailsData?.cropSettings?.profileDpColor ||
-													'',
-												fontSize: '12px',
-											}}
-										>
-											{getInitials(
-												userDetailsData?.firstName,
-												userDetailsData?.lastName,
-											)}
-										</div>
-									)}
-								</div>
-								<div className="settingsOptionsUserName">
-									{userDetailsData?.firstName}
+								{!sidebarStates?.workSpaceOpen && (
+									<div
+										className="settings-footer"
+										onClick={() => openWorkspacesFunction(true)}
+									>
+										<SwitchWorkspaceSvg fill="var(--primary-font)" />
+										<p>Switch workspace</p>
+									</div>
+								)}
+								<div
+									className="settings-footer"
+									onClick={() => {
+										navigate('/create-workspace');
+									}}
+								>
+									{' '}
+									<CreateWorkspaceSvg />
+									<p>Create workspace</p>
 								</div>
 							</div>
-							<div className="logoutIcon">
-								<LogoutRedSvg
-									onClick={handleLogout}
-									style={{ cursor: 'pointer' }}
-								/>
+							<div
+								className="settingsOptionsContainerInsideOne"
+								onClick={toggleSidebar}
+							>
+								<div className="settingsHoverState">
+									<div className="settingsOptionsUserInfo">
+										<div>
+											{userDetailsData?.logoURL ? (
+												<div className="crop-container">
+													<Cropper
+														image={userDetailsData?.logoURL} // Image URL to crop
+														crop={userDetailsData?.cropSettings?.crop}
+														zoom={userDetailsData?.cropSettings?.zoom}
+														showGrid={false}
+														onCropChange={(e) => ''}
+														onCropComplete={(e) => ''}
+														onZoomChange={(e) => ''}
+													/>
+												</div>
+											) : (
+												<div
+													className="noImageText"
+													style={{
+														background:
+															userDetailsData?.cropSettings
+																?.profileDpColor || '',
+														fontSize: '12px',
+													}}
+												>
+													{getInitials(
+														userDetailsData?.firstName,
+														userDetailsData?.lastName,
+													)}
+												</div>
+											)}
+										</div>
+										<div className="settingsOptionsUserName">
+											<span>
+												{userDetailsData?.firstName}{' '}
+												<span className="workspaceId">
+													({`${isAdmin ? 'Admin' : 'Member'}`})
+												</span>
+											</span>
+											<span className="workspaceId">
+												{tennantSettingsData?.businessName.toUpperCase()}
+											</span>
+										</div>
+									</div>
+									<LogoutRedSvg
+										onClick={handleLogout}
+										style={{ cursor: 'pointer' }}
+									/>
+								</div>
 							</div>
 						</div>
 					</div>
 				)}
 			</div>
+			{sidebarStates?.workSpaceOpen && (
+				<div
+					style={{
+						...workspaceStyles,
+						animation: `${
+							sidebarStates?.workSpaceOpen ? 'slideUp' : 'slideDown'
+						} 0.3s ease-out`,
+						top: `${isThisEarlyAccessPage ? '40px' : ''}`,
+						transformOrigin: `${isThisEarlyAccessPage ? 'top' : 'bottom'}`,
+					}}
+				>
+					<WorkspaceListComponent
+						setsidebarStates={setsidebarStates}
+						sidebarStates={sidebarStates}
+						info={info}
+						userWorkSpaceList={userWorkSpaceList}
+						sidebarSettings="close"
+						// openWorkspacesFunction={openWorkspacesFunction}
+					/>
+				</div>
+			)}
 		</>
 	);
 };

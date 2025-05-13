@@ -11,7 +11,7 @@ const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 const ContactsWidget = ({ width, height }) => {
 	const navigate = useNavigate();
 	const {
-		contacts: { clientList, getClients, refetchClientList, updateStateValues },
+		contacts: { clientList, getClients },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		contacts: null,
@@ -27,12 +27,33 @@ const ContactsWidget = ({ width, height }) => {
 		selectedCard: null,
 		createLeadPopup: false,
 	});
+
+	useEffect(() => {
+		if (clientList?.data) {
+			setInfo((prev) => ({
+				...prev,
+				listItems: clientList?.data,
+				hasMore: clientList?.hasNextPage,
+			}));
+		}
+	}, [clientList]);
+
+	useEffect(() => {
+		if (!clientList) {
+			fetchClientList();
+		}
+	}, []);
+
+	const handlePromptPopup = (item) => {
+		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
+	};
+
 	const fetchClientList = useCallback(
 		async (page = 1) => {
-			setInfo((prev) => ({ ...prev, loadingSkeleton: true }));
+			// setInfo((prev) => ({ ...prev, loadingSkeleton: true }));
 			const payload = {
 				clientFilterInput: {
-					limit: 20,
+					limit: 15,
 					page: page,
 					sort:
 						info?.sort?.length > 0
@@ -49,38 +70,12 @@ const ContactsWidget = ({ width, height }) => {
 					}),
 				},
 			};
-			const response = await getClients(payload);
+			getClients(payload);
 
-			updateStateValues({ refetchClientList: false });
-
-			setInfo((prev) => ({ ...prev, loadingSkeleton: false }));
+			// setInfo((prev) => ({ ...prev, loadingSkeleton: false }));
 		},
 		[getClients, info?.searchValue, info?.filters, info?.sort],
 	);
-	useEffect(() => {
-		if (refetchClientList && !info?.sidebarIsOpen) {
-			setInfo((prev) => ({ ...prev, page: 1 }));
-			fetchClientList(1);
-		}
-		if (clientList?.data?.data) {
-			setInfo((prev) => ({
-				...prev,
-				contacts: clientList.data.data,
-				listItems: clientList.data.data,
-				hasMore: clientList.data.hasNextPage,
-			}));
-		}
-	}, [refetchClientList, clientList]);
-
-	useEffect(() => {
-		if (!clientList) {
-			fetchClientList();
-		}
-	}, [info?.searchValue, info?.filters, info?.sort]);
-
-	const handlePromptPopup = (item) => {
-		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
-	};
 
 	return (
 		<div className="contactsWidgetContainer" style={{ width: width, height: height }}>
@@ -108,8 +103,9 @@ const ContactsWidget = ({ width, height }) => {
 					</div>
 				</div> */}
 					{info?.loadingSkeleton
-						? skeletonLoaders?.map((item) => (
+						? skeletonLoaders?.map((_, index) => (
 								<Skeleton
+									key={index}
 									width="300px"
 									height="36px"
 									style={{
@@ -118,7 +114,7 @@ const ContactsWidget = ({ width, height }) => {
 									}}
 								/>
 						  ))
-						: info.listItems.map((item, index) => (
+						: info?.listItems?.map((item, index) => (
 								<div key={index} className="contactsEachOptions">
 									<div className="contactDetails">
 										<div className="contactDetailsTitle">{item?.name}</div>

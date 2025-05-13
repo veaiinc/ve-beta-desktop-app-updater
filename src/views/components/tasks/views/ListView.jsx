@@ -50,7 +50,7 @@ const ListView = ({
 						width: '100%',
 						overflow: 'auto',
 					}}
-					height={infiniteScrollHeight || 'calc(100vh - 170px)'}
+					height={infiniteScrollHeight || 'calc(100vh - 100px)'}
 					scrollThreshold="90%"
 				>
 					{data?.map((task, index) => (
