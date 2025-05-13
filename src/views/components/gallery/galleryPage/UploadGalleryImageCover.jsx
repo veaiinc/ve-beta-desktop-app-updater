@@ -6,6 +6,7 @@ import Cropper from 'react-easy-crop';
 import ReactModal from '../../modalsV2/index';
 import { FocusedImage, FocusPicker } from 'image-focus';
 import '../../../../assets/scss/gallery/albumSettings.scss';
+import Spinner from '../../loaders/Spinner';
 
 const UploadGalleryImageCover = ({
 	info,
@@ -19,6 +20,7 @@ const UploadGalleryImageCover = ({
 	open,
 	onClose,
 	showUploadPhoto,
+	uploadImageLoader,
 }) => {
 	const [focusInfo, setFocusInfo] = useState({
 		focalPoint: { x: 0, y: 0 },
@@ -51,6 +53,8 @@ const UploadGalleryImageCover = ({
 			});
 		}
 	};
+	const isImageThere = info?.imageURL?.startsWith('https://');
+
 	return (
 		<ReactModal
 			isOpen={open}
@@ -70,40 +74,56 @@ const UploadGalleryImageCover = ({
 						<div className="album-preview">
 							<div className="laptop-preview">
 								<div className="screen">
-									<div
-										style={{
-											width: '100%',
-											height: '100%',
-											backgroundImage: `url(${info?.imageURL})`,
-											backgroundPosition: focusInfo?.focalPoint?.x
-												? `${focusInfo?.focalPoint?.x * 50 + 50}% ${
-														50 - focusInfo?.focalPoint?.y * 50
-												  }%`
-												: 'center',
-											backgroundSize: 'cover',
-											backgroundRepeat: 'no-repeat',
-										}}
-									></div>
+									{isImageThere ? (
+										<div
+											style={{
+												width: '100%',
+												height: '100%',
+												backgroundImage: `url(${info?.imageURL})`,
+												backgroundPosition: focusInfo?.focalPoint?.x
+													? `${focusInfo?.focalPoint?.x * 50 + 50}% ${
+															50 - focusInfo?.focalPoint?.y * 50
+													  }%`
+													: 'center',
+												backgroundSize: 'cover',
+												backgroundRepeat: 'no-repeat',
+											}}
+										></div>
+									) : (
+										<div
+											style={{
+												width: '100%',
+												height: '100%',
+												color: 'var(--secondary-font)',
+											}}
+										>
+											No selected Image
+										</div>
+									)}
 								</div>
 								<LaptopLogo />
 							</div>
 							<div className="mobile-preview">
-								<div
-									className="mobile-preview-container"
-									style={{
-										backgroundImage: `url(${info?.imageURL})`,
-										backgroundPosition: focusInfo?.focalPoint?.x
-											? `${focusInfo?.focalPoint?.x * 50 + 50}% ${
-													50 - focusInfo?.focalPoint?.y * 50
-											  }%`
-											: 'center',
-										backgroundSize: 'cover',
-										backgroundRepeat: 'no-repeat',
-									}}
-								>
-									{/* <img src={imageURL} alt="mobile" /> */}
-								</div>
-								<img src={mobile} alt="mobile" className="mobile-logo" />
+								{isImageThere && (
+									<>
+										<div
+											className="mobile-preview-container"
+											style={{
+												backgroundImage: `url(${info?.imageURL})`,
+												backgroundPosition: focusInfo?.focalPoint?.x
+													? `${focusInfo?.focalPoint?.x * 50 + 50}% ${
+															50 - focusInfo?.focalPoint?.y * 50
+													  }%`
+													: 'center',
+												backgroundSize: 'cover',
+												backgroundRepeat: 'no-repeat',
+											}}
+										>
+											{/* <img src={imageURL} alt="mobile" /> */}
+										</div>
+										<img src={mobile} alt="mobile" className="mobile-logo" />
+									</>
+								)}
 							</div>
 						</div>
 						<div
@@ -133,14 +153,18 @@ const UploadGalleryImageCover = ({
 							showGrid={false}
 							cropSize={{ width: 233.8432, height: 402.667 }}
 						/> */}
-							<div className="focused-image">
-								<img
-									className="focus-picker-img"
-									src={info?.imageURL}
-									alt="cover"
-									style={{ width: '100%', objectFit: 'cover' }}
-								/>
-							</div>
+							{isImageThere ? (
+								<div className="focused-image">
+									<img
+										className="focus-picker-img"
+										src={info?.imageURL}
+										alt="cover"
+										style={{ width: '100%', objectFit: 'cover' }}
+									/>
+								</div>
+							) : (
+								''
+							)}
 						</div>
 					</div>
 				)}
@@ -158,7 +182,7 @@ const UploadGalleryImageCover = ({
 							}}
 							style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
 						>
-							Upload cover photo
+							{uploadImageLoader ? <Spinner /> : 'Upload cover photo'}
 						</p>
 					)}
 
