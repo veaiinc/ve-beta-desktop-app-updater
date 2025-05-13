@@ -112,7 +112,7 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 		const payload = {
 			startDate: info?.currentCalendarDate?.toISOString(),
 			sortType: 'startDateTime',
-			sortOrder: 'dsc',
+			sortOrder: 'asc',
 		};
 		if (eventsCurrentPage !== undefined) {
 			getAllCalendarEvents(nextPage, 20, payload);
