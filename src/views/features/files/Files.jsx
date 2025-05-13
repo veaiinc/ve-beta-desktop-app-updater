@@ -1,24 +1,45 @@
-import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import '../../../assets/scss/files/index.scss';
-import '../../../assets/scss/files/files.scss';
-import { ReactComponent as SearchSvg } from '../../../assets/svg/elastic_search/search-icon.svg';
-import Context from '../../../context/context';
-import { useNavigate } from 'react-router-dom';
-import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
-import { message } from '../../components/globalComponents/CustomToast';
-import Spinner from '../../components/loaders/Spinner';
-import ProposalsPopup from '../../components/docs/ProposalsPopup';
 import ObjectID from 'bson-objectid';
-import QuickActions from '../../components/globalComponents/QuickActions';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import '../../../assets/scss/files/files.scss';
+import '../../../assets/scss/files/index.scss';
+import { ReactComponent as SearchSvg } from '../../../assets/svg/elastic_search/search-icon.svg';
+import { ReactComponent as CommandIcon } from '../../../assets/svg/files/command.svg';
+import Context from '../../../context/context';
+import ProposalsPopup from '../../components/docs/ProposalsPopup';
 import DocsGrid from '../../components/files/DocsGrid';
-import NotesGrid from '../../components/files/NotesGrid';
 import FormsGrid from '../../components/files/FormsGrid';
 import GalleryGrid from '../../components/files/GalleryGrid';
 import MostUsedEntries from '../../components/files/MostUsedEntries';
+import NotesGrid from '../../components/files/NotesGrid';
 import TemplatesGrid from '../../components/files/TemplatesGrid';
-import { useSearchParams } from 'react-router-dom';
-import ElasticSearchResults from './ElasticSearchResults';
+import { message } from '../../components/globalComponents/CustomToast';
+import QuickActions from '../../components/globalComponents/QuickActions';
+import Spinner from '../../components/loaders/Spinner';
+import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
 import getFileTypeInfo from './getFiletypeInfo';
+import { triggerCmdK } from '../../components/commandKSearch/CommandKSearch';
+
+const items = [
+	{
+		value: 1,
+		label: 'Files',
+	},
+	{
+		value: 2,
+		label: 'Meetings',
+	},
+	{
+		value: 3,
+		label: 'Webpages',
+	},
+];
+
+const customDropdownStyle = {
+	display: 'flex',
+	alignItems: 'center',
+	gap: '5px',
+};
 
 const options = [
 	// 'All',
@@ -247,17 +268,20 @@ const suggestedOptions = [
 		},
 	},
 ];
+
 const Files = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const activeTab = searchParams.get('activeTab') || 'Notes';
 	const cardItems = useRef(null);
-	const elasticSearchInputRef = useRef(null);
 	const elasticSearchTimeoutRef = useRef(null);
 	const navigate = useNavigate();
+	const inputRef = useRef(null);
+	// Add a ref for the search container
+	const searchContainerRef = useRef(null);
 
 	const {
 		galleryInfo: { tenantGalleries },
-		elasticSearch: { elasticSearchResults, performElasticSearch },
+		elasticSearch: { elasticSearchResults, performElasticSearch, resetElasticSearchState },
 		templates: { formsTemplatesList, updateStateValues: updateTemplateStateValues },
 		notes: { createNotesList },
 		profileInfo: { tenantUserAccessControls },
@@ -276,7 +300,7 @@ const Files = () => {
 		limit: 15,
 		timeout: null,
 		cardHover: false,
-		isElasticSearchLoading: false,
+		isLoading: false,
 		selectedView: 'Documents',
 		openProposalPopup: false,
 		initialDataFetched: false,
@@ -284,6 +308,9 @@ const Files = () => {
 		options: [{ label: 'Notes', value: 'notes' }],
 		totalCount: null,
 		showElasticSearchResults: false,
+		isFocused: false,
+		selectedSource: null,
+		selectedIntegration: null,
 	});
 
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
@@ -348,6 +375,40 @@ const Files = () => {
 			}));
 		}
 	}, [tenantUserAccessControls]);
+
+	const handleOutsideClick = useCallback((e) => {
+		if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+			handleCloseSearch(e);
+		}
+	}, []);
+
+	// Update the useEffect for focus handling
+	useEffect(() => {
+		document.addEventListener('keydown', handleKeyDown);
+
+		if (info.isFocused) {
+			// Clear input and focus after modal mounts
+			const timer = setTimeout(() => {
+				if (inputRef.current) {
+					inputRef.current.value = '';
+					inputRef.current.focus();
+				}
+			}, 50);
+
+			// Add click listener
+			document.addEventListener('mousedown', handleOutsideClick);
+
+			return () => {
+				clearTimeout(timer);
+				document.removeEventListener('mousedown', handleOutsideClick);
+				document.removeEventListener('keydown', handleKeyDown);
+			};
+		}
+
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [info.isFocused]);
 
 	const handleNavigateGallery = (gallery) => {
 		navigate(`/galleries/${gallery?._id}`, { state: { galleryData: gallery } });
@@ -414,25 +475,28 @@ const Files = () => {
 	const handleSearch = async (e) => {
 		clearTimeout(elasticSearchTimeoutRef?.current);
 		const searchInput = e?.target?.value;
-		const emptySearchInput = searchInput === '';
 
-		if (emptySearchInput) {
-			setInfo((prev) => ({
-				...prev,
-				isLoading: false, // Ensure isLoading is set to false
-				elasticSearchLoading: false,
-				showElasticSearchResults: false,
-			}));
+		// Update searchQuery state first
+		setInfo((prev) => ({
+			...prev,
+			searchQuery: searchInput,
+			// Always show elastic search results container
+			showElasticSearchResults: true,
+			// Only set loading if there's text to search
+			isLoading: searchInput.trim() !== '',
+		}));
+
+		// Skip searching if input is empty - just show "No results found"
+		if (!searchInput.trim()) {
 			return;
 		}
 
-		setInfo((prev) => ({ ...prev, isLoading: true }));
-
+		// Only perform search if we have actual text
 		elasticSearchTimeoutRef.current = setTimeout(async () => {
+			// Start the search
 			setInfo((prev) => ({
 				...prev,
-				elasticSearchLoading: true,
-				showElasticSearchResults: false,
+				isLoading: true,
 			}));
 
 			const response = await performElasticSearch(searchInput);
@@ -443,13 +507,69 @@ const Files = () => {
 				message.error(errMsg);
 			}
 
+			// Update loading state
 			setInfo((prev) => ({
 				...prev,
-				elasticSearchLoading: false,
-				showElasticSearchResults: true,
 				isLoading: false,
 			}));
 		}, 500);
+	};
+
+	const handleCloseSearch = (e) => {
+		setInfo((prev) => ({
+			...prev,
+			isFocused: false,
+			showElasticSearchResults: false,
+			searchQuery: '', // Clear the search input
+			isLoading: false, // Stop any loading state
+			searchResults: [], // Clear any search results
+		}));
+
+		// Blur the input to take away focus
+		if (inputRef.current) {
+			inputRef.current.blur();
+			// Remove the input-focus class explicitly
+			inputRef.current.classList.remove('input-focus');
+			inputRef.current.classList.remove('search-input-focused');
+		}
+
+		// Clear any pending searches
+		if (elasticSearchTimeoutRef.current) {
+			clearTimeout(elasticSearchTimeoutRef.current);
+		}
+	};
+
+	const handleKeyDown = (e) => {
+		if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
+			e.preventDefault();
+
+			resetElasticSearchState();
+
+			if (info.isFocused) {
+				handleCloseSearch(e);
+			} else {
+				// Open search with empty query and show "No results found"
+				setInfo((prev) => ({
+					...prev,
+					isFocused: true,
+					showElasticSearchResults: true,
+					isLoading: false,
+					searchQuery: '',
+				}));
+
+				setTimeout(() => {
+					if (inputRef.current) {
+						inputRef.current.focus();
+						// Add "input-focus" class to ensure full-width style
+						inputRef.current.classList.add('input-focus');
+						inputRef.current.classList.add('search-input-focused');
+					}
+				}, 10);
+			}
+		}
+		if (e.key === 'Escape') {
+			handleCloseSearch(e);
+		}
 	};
 
 	const SearchResults = () => {
@@ -624,119 +744,95 @@ const Files = () => {
 
 	return (
 		<div className="files-container">
-			{info?.showElasticSearchResults ? (
-				<>
-					<h1 className="search-heading">All Files</h1>
-					<ElasticSearchResults />
-				</>
-			) : (
-				<>
-					<div className="storage-main-container">
-						<div className="storage-header-container">
-							<span className="beta-text">
-								{/* <div className="beta-text-bold">Search | Create | Share</div>
+			<div className="storage-main-container">
+				<div className="storage-header-container">
+					<span className="beta-text">
+						{/* <div className="beta-text-bold">Search | Create | Share</div>
 						<div className="beta-text">File Flow Inspired by Your Mind</div> */}
-							</span>
-							<div className="storage-header-items">
-								<QuickActions suggestedOptions={suggestedOptions} />
-							</div>
-						</div>
-						<div className="card-container-wrapper">
-							<div className="card-sub-container">
-								<div className="card-sub-container-left">
-									<div className="left-sidebar-header"></div>
-								</div>
-								{info?.search ? (
-									<SearchResults />
-								) : (
-									tabsMapper?.[info?.selectedView]
-								)}
-								<div className="card-sub-container-right">
-									<div className="right-sidebar-options">
-										{info?.options.map((option) => (
-											<div
-												className="sidebar-option-wrapper"
-												key={option?.value}
-											>
-												<div
-													className={`sidebar-option ${
-														info?.selectedView === option?.label
-															? 'active'
-															: ''
-													}`}
-													onClick={() =>
-														handleDropdownOptionClick(option?.label)
-													}
-												>
-													<div
-														style={{
-															display: 'flex',
-															alignItems: 'center',
-															justifyContent: 'space-between',
-														}}
-													>
-														{option?.label}
-													</div>
-													{info?.totalCount?.[option?.value] ? (
-														<div className="count-wrapper">
-															{info?.totalCount?.[option?.value]}
-														</div>
-													) : null}
-												</div>
-
-												{loadingView === option?.label && (
-													<div className="sidebar-option-spinner">
-														<Spinner
-															cssstyle={{
-																border: '1px solid #fff',
-															}}
-															width={'16px'}
-															height={'16px'}
-														/>
-													</div>
-												)}
-											</div>
-										))}
-									</div>
-								</div>
-							</div>
-						</div>
-						<div className="black-gradient-btm"></div>
-					</div>
-
-					<CreateGallery
-						open={info?.createNewGalleryModal}
-						closeModal={handleCloseModal}
-						message={message}
-						isLightGallery={info?.selectedView === 'Lite Gallery'}
-					/>
-					<ProposalsPopup
-						open={info?.openProposalPopup}
-						closeModal={() =>
-							setInfo((prev) => ({
-								...prev,
-								openProposalPopup: false,
-								commonState:
-									info?.selectedView === 'Forms' ? 'form-submission' : 'All',
-							}))
-						}
-						clientDetails={formsTemplatesList}
-						commonState={info?.selectedView === 'Forms' ? 'form-submission' : 'All'}
-					/>
-				</>
-			)}
-			<div className="search-input-container" ref={elasticSearchInputRef}>
-				<div className="search-input">
-					<input type="text" placeholder="Search" onChange={handleSearch} />
-					<div className="spinner-wrapper">
-						{info?.isLoading ? (
-							<Spinner width={'16px'} height={'16px'} />
-						) : (
-							<SearchSvg />
-						)}
+					</span>
+					<div className="storage-header-items">
+						<QuickActions suggestedOptions={suggestedOptions} />
 					</div>
 				</div>
+				<div className="card-container-wrapper">
+					<div className="card-sub-container">
+						<div className="card-sub-container-left">
+							<div className="left-sidebar-header"></div>
+						</div>
+						{info?.search ? <SearchResults /> : tabsMapper?.[info?.selectedView]}
+						<div className="card-sub-container-right">
+							<div className="right-sidebar-options">
+								{info?.options.map((option) => (
+									<div className="sidebar-option-wrapper" key={option?.value}>
+										<div
+											className={`sidebar-option ${
+												info?.selectedView === option?.label ? 'active' : ''
+											}`}
+											onClick={() => handleDropdownOptionClick(option?.label)}
+										>
+											<div
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'space-between',
+												}}
+											>
+												{option?.label}
+											</div>
+											{info?.totalCount?.[option?.value] ? (
+												<div className="count-wrapper">
+													{info?.totalCount?.[option?.value]}
+												</div>
+											) : null}
+										</div>
+
+										{loadingView === option?.label && (
+											<div className="sidebar-option-spinner">
+												<Spinner
+													cssstyle={{
+														border: '1px solid #fff',
+													}}
+													width={'16px'}
+													height={'16px'}
+												/>
+											</div>
+										)}
+									</div>
+								))}
+							</div>
+						</div>
+
+						<div className={`search-input-container`} onClick={triggerCmdK}>
+							<div className="search-input-wrapper">
+								<SearchSvg /> Search
+							</div>
+							<div className="command-text">
+								<CommandIcon /> <span>+ K</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div className="black-gradient-btm"></div>
 			</div>
+
+			<CreateGallery
+				open={info?.createNewGalleryModal}
+				closeModal={handleCloseModal}
+				message={message}
+				isLightGallery={info?.selectedView === 'Lite Gallery'}
+			/>
+			<ProposalsPopup
+				open={info?.openProposalPopup}
+				closeModal={() =>
+					setInfo((prev) => ({
+						...prev,
+						openProposalPopup: false,
+						commonState: info?.selectedView === 'Forms' ? 'form-submission' : 'All',
+					}))
+				}
+				clientDetails={formsTemplatesList}
+				commonState={info?.selectedView === 'Forms' ? 'form-submission' : 'All'}
+			/>
 		</div>
 	);
 };
