@@ -4,7 +4,7 @@ import { memo } from 'react';
 const tooltipTitleStyle = {
 	color: 'var(--primary-font, #F2F2F3)',
 	textAlign: 'right',
-	fontFamily: 'Inter',
+	fontFamily: 'var(--primary-font-family)',
 	fontSize: '13px',
 	fontStyle: 'normal',
 	fontWeight: 500,

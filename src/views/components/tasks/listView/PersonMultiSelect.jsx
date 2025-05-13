@@ -10,6 +10,7 @@ const PersonMultiSelect = ({
 	onOptionClick,
 	disabled = false,
 	showLabel = false,
+	showEmail = true,
 }) => {
 	const [info, setInfo] = useState({
 		open: false,
@@ -95,7 +96,7 @@ const PersonMultiSelect = ({
 													<span className="person-multi-select-selected-item-name-text">
 														{item?.name}
 													</span>
-													{item?.email && (
+													{showEmail && item?.email && (
 														<span className="person-multi-select-selected-item-email">
 															{item?.email}
 														</span>

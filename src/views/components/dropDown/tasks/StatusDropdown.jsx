@@ -12,19 +12,6 @@ const StatusDropdown = ({
 }) => {
 	return (
 		<div className="status-dropdown-container" onClick={(e) => e?.stopPropagation()}>
-			{/* <div className="status-dropdown-header-wrapper">
-				<span className="select-listItem">
-					<span
-						className="select-listItem-color"
-						style={{
-							backgroundColor: colors?.[selected?.color]?.color,
-						}}
-					></span>
-					<span className="select-listItem-label">
-						{selected?.[labelField] || (!value ? 'Select status' : '')}
-					</span>
-				</span>
-			</div> */}
 			<div className="status-dropdown-header">
 				<div className="status-dropdown-header-text">Status</div>
 			</div>
@@ -56,7 +43,7 @@ const StatusDropdown = ({
 								<div
 									key={option?._id}
 									className={`select-listItem ${
-										selected?._id === option?._id ? 'selected' : ''
+										selected === option?._id ? 'selected' : ''
 									}`}
 									onClick={() => {
 										onOptionClick(option?._id);
@@ -77,7 +64,7 @@ const StatusDropdown = ({
 													</div>
 												</div>
 												<div className="select-option-item-tick-wrapper">
-													{selected?._id === option?._id && <Tick />}
+													{selected === option?._id && <Tick />}
 												</div>
 											</div>
 										</div>

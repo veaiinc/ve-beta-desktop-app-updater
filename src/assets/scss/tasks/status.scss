@@ -103,7 +103,7 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	max-width: 192px;
-	width: fit-content;
+	width: fit-content !important;
 }
 .select-listItem {
 	display: flex;

@@ -102,7 +102,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		} else {
 			setInfo((prev) => ({
 				...prev,
-				categories: [...calendarCategoriesList],
+				...(!calendarCategoriesList?.error && { categories: [...calendarCategoriesList] }),
 			}));
 		}
 	}, [calendarCategoriesList]);

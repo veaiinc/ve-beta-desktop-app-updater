@@ -5,18 +5,33 @@ import { memo, useContext, useEffect, useRef, useState } from 'react';
 import Context from '../../../context/context';
 import { message } from '../globalComponents/CustomToast';
 import Spinner from '../loaders/Spinner';
-import ElasticSearchResults from './ElasticSearchResults';
-// import CustomDropdown from './CustomDropdownForCommandK';
+import ElasticSearchResults from '../../features/files/ElasticSearchResults';
+import CustomDropdown from '../../features/files/CustomDropdown';
+import { ReactComponent as Folder } from '../../../assets/svg/files/FolderSearch.svg';
+import { ReactComponent as Plug } from '../../../assets/svg/files/plug.svg';
+
+const items = [
+	{
+		value: 1,
+		label: 'Files',
+	},
+	{
+		value: 2,
+		label: 'Meetings',
+	},
+	{
+		value: 3,
+		label: 'Webpages',
+	},
+];
+
+const customDropdownStyle = {
+	display: 'flex',
+	alignItems: 'center',
+	gap: '5px',
+};
 
 const CommandKSearch = () => {
-	// Optional filter states if needed
-	// selectedFilters: {
-	// 	source: null,
-	// 	collection: null,
-	// 	assistance: null,
-	// 	date: null,
-	// },
-
 	const elasticSearchTimeoutRef = useRef(null);
 	const modalRef = useRef(null);
 	const inputRef = useRef(null);
@@ -34,48 +49,46 @@ const CommandKSearch = () => {
 
 	const noResults = elasticSearchResults?.length === 0 && info.showElasticSearchResults;
 
-	// useEffect(() => {
-	// 	const handleKeyDown = (e) => {
-	// 		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-	// 			e.preventDefault();
-	// 			setInfo((prev) => ({ ...prev, isOpen: !prev.isOpen }));
-	// 		}
-	// 		if (e.key === 'Escape') {
-	// 			setInfo((prev) => ({ ...prev, isOpen: false }));
-	// 		}
-	// 	};
+	const handleKeyDown = (e) => {
+		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+			e.preventDefault();
+			setInfo((prev) => ({ ...prev, isOpen: !prev.isOpen }));
+		}
+		if (e.key === 'Escape') {
+			setInfo((prev) => ({ ...prev, isOpen: false }));
+		}
+	};
 
-	// 	document.addEventListener('keydown', handleKeyDown);
+	useEffect(() => {
+		document.addEventListener('keydown', handleKeyDown);
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown);
+		};
+	}, []);
 
-	// 	if (info.isOpen) {
-	// 		// ✅ Clear local search info
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			elasticSearchLoading: false,
-	// 			showElasticSearchResults: false,
-	// 		}));
+	useEffect(() => {
+		if (info.isOpen) {
+			setInfo((prev) => ({
+				...prev,
+				elasticSearchLoading: false,
+				showElasticSearchResults: false,
+			}));
 
-	// 		// ✅ Clear input and focus after modal mounts
-	// 		const timer = setTimeout(() => {
-	// 			if (inputRef.current) {
-	// 				inputRef.current.value = ''; // if uncontrolled
-	// 				inputRef.current.focus();
-	// 			}
-	// 		}, 50);
+			const timer = setTimeout(() => {
+				if (inputRef.current) {
+					inputRef.current.value = '';
+					inputRef.current.focus();
+				}
+			}, 50);
 
-	// 		document.addEventListener('mousedown', handleOutsideClick);
+			document.addEventListener('mousedown', handleOutsideClick);
 
-	// 		return () => {
-	// 			clearTimeout(timer);
-	// 			document.removeEventListener('mousedown', handleOutsideClick);
-	// 			document.removeEventListener('keydown', handleKeyDown);
-	// 		};
-	// 	}
-
-	// 	return () => {
-	// 		document.removeEventListener('keydown', handleKeyDown);
-	// 	};
-	// }, [info.isOpen]);
+			return () => {
+				clearTimeout(timer);
+				document.removeEventListener('mousedown', handleOutsideClick);
+			};
+		}
+	}, [info.isOpen]);
 
 	const handleCloseModal = () => {
 		setInfo((prev) => ({ ...prev, isOpen: false }));
@@ -121,74 +134,76 @@ const CommandKSearch = () => {
 		}, 500);
 	};
 
-	// If filter functionality is needed
-	// const handleFilterChange = (filterType, selectedOption) => {
-	// 	setInfo(prev => ({
-	// 		...prev,
-	// 		selectedFilters: {
-	// 			...prev.selectedFilters,
-	// 			[filterType]: selectedOption,
-	// 		}
-	// 	}));
-	// };
-
-	// const resetFilters = () => {
-	// 	setInfo(prev => ({
-	// 		...prev,
-	// 		selectedFilters: {
-	// 			source: null,
-	// 			collection: null,
-	// 			assistance: null,
-	// 			date: null,
-	// 		}
-	// 	}));
-	// };
-
-	// Handle clicks outside the modal to close it
 	const handleOutsideClick = (e) => {
 		if (modalRef.current && !modalRef.current.contains(e.target)) {
 			setInfo((prev) => ({ ...prev, isOpen: false }));
 		}
 	};
 
-	// Render the modal
 	return (
 		<div className={`command-k-search-container ${info.isOpen ? 'open' : ''}`}>
 			<div className="command-k-search" ref={modalRef}>
-				<div className="search-header">
-					<h2>Search</h2>
-					<button onClick={handleCloseModal}>
-						<CrossSvg />
-					</button>
+				<div className={`search-output-container ${noResults ? 'noResultsContainer' : ''}`}>
+					{noResults || !info.showElasticSearchResults ? (
+						<p className="noResults">No results found</p>
+					) : (
+						<ElasticSearchResults handleCloseSearchModal={handleCloseModal} />
+					)}
 				</div>
 				<div className="search-input-container">
 					<div className="search-input">
-						<SearchSvg className="search-icon" />
 						<input
 							type="text"
 							placeholder="Search any file or documents"
 							onChange={handleSearch}
 							ref={inputRef}
 						/>
-						{info.isLoading && (
-							<div className="spinner-wrapper">
+						<div className="spinner-wrapper">
+							{info.isLoading ? (
 								<Spinner
 									width={'16px'}
 									height={'16px'}
 									color={'var(--primary-font)'}
 								/>
+							) : (
+								<SearchSvg />
+							)}
+						</div>
+						{/* <div className="dropdown-container" onMouseDown={(e) => e.preventDefault()}>
+							<div>
+								<CustomDropdown
+									options={items}
+									value={info.selectedSource}
+									onChange={(val) =>
+										setInfo((prev) => ({
+											...prev,
+											selectedSource: val,
+										}))
+									}
+								>
+									<div style={customDropdownStyle}>
+										<Folder /> Sources
+									</div>
+								</CustomDropdown>
 							</div>
-						)}
+							<div>
+								<CustomDropdown
+									options={items}
+									value={info.selectedIntegration}
+									onChange={(val) =>
+										setInfo((prev) => ({
+											...prev,
+											selectedIntegration: val,
+										}))
+									}
+								>
+									<div style={customDropdownStyle}>
+										<Plug /> Integrations
+									</div>
+								</CustomDropdown>
+							</div>
+						</div> */}
 					</div>
-				</div>
-				<div className={`search-output-container ${noResults ? 'noResultsContainer' : ''}`}>
-					{noResults ? (
-						<p className="noResults">No results found</p>
-					) : (
-						info.showElasticSearchResults && (
-							<ElasticSearchResults handleCloseSearchModal={handleCloseModal} />
-						)
-					)}
 				</div>
 			</div>
 		</div>

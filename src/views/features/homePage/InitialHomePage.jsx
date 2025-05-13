@@ -314,6 +314,7 @@ const InitialHomePage = () => {
 					placement="bottom"
 					arrow={false}
 					trigger="hover"
+					color={'transparent'}
 				>
 					<div
 						className={`option ${
@@ -425,8 +426,9 @@ const InitialHomePage = () => {
 			>
 				<div className={`title-container `}>
 					<div className="title-text">
-						<span className="title-one">Answers before you Ask!</span>
 						<h2 className="title-two">PROACTIVE</h2>
+						<span className="title-one">Answers before you Ask!</span>
+
 						{/* <span className="title-two">truly yours</span> */}
 					</div>
 					{/* <div className="sub-text">Answers before you Ask!</div> */}

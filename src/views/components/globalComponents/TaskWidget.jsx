@@ -89,7 +89,7 @@ const TaskWidget = ({ width, height }) => {
 		promptPopupOpen: false,
 		selectedCard: null,
 		isModalOpen: false,
-		selectedTask: null,
+		selectedRow: null,
 		tenantUsers: [],
 		taskMetadata: null,
 		createTaskPopup: false,
@@ -108,6 +108,14 @@ const TaskWidget = ({ width, height }) => {
 			getTasksList(info?.page);
 		}
 	}, []);
+
+	useEffect(() => {
+		if (info?.selectedRow) {
+			updateTaskInfo({
+				selectedRow: info?.listItems.find((item) => item._id === info?.selectedRow._id),
+			});
+		}
+	}, [info?.listItems, info?.selectedRow]);
 
 	useEffect(() => {
 		if (listTasks) {
@@ -251,13 +259,6 @@ const TaskWidget = ({ width, height }) => {
 	);
 
 	useEffect(() => {
-		if (refetchTasks) {
-			fetchListItems();
-			updateTaskState({ refetchTasks: false });
-		}
-	}, [refetchTasks]);
-
-	useEffect(() => {
 		if (!tenantsUserList) {
 			getTeamMembers();
 		} else {
@@ -383,7 +384,7 @@ const TaskWidget = ({ width, height }) => {
 	const handleTaskClick = (tasks) => {
 		setInfo((prev) => ({
 			...prev,
-			selectedTask: tasks,
+			selectedRow: tasks,
 			isModalOpen: true,
 		}));
 	};
@@ -541,7 +542,7 @@ const TaskWidget = ({ width, height }) => {
 						};
 					});
 				}
-				if (!info?.sidebarIsOpen) {
+				if (!info?.isModalOpen) {
 					fetchListItems();
 				}
 			} catch (error) {
@@ -562,7 +563,7 @@ const TaskWidget = ({ width, height }) => {
 				});
 			}
 		},
-		[updateListItem, info?.selectedSubTask, info?.sidebarIsOpen],
+		[updateListItem, info?.selectedSubTask, info?.isModalOpen],
 	);
 
 	const handleDebounceUpdate = useCallback(
@@ -668,7 +669,7 @@ const TaskWidget = ({ width, height }) => {
 								(row) => row._id !== payload?.taskId,
 							),
 							isModalOpen: false,
-							selectedTask: null,
+							selectedRow: null,
 						}));
 					}
 				}
@@ -770,7 +771,7 @@ const TaskWidget = ({ width, height }) => {
 				</div>
 			</div>
 			<ListViewSidebar
-				selectedRow={info?.selectedTask}
+				selectedRow={info?.selectedRow}
 				sidebarIsOpen={info?.isModalOpen}
 				closeSidebar={handleModalClose}
 				handleUpdate={updatePropertyValue}
@@ -792,8 +793,8 @@ const TaskWidget = ({ width, height }) => {
 				// sidebarChildren={
 				// 	info?.selectedRow ? (
 				// 		<ChildTaskComponent
-				// 			parentTaskId={info?.selectedTask?._id}
-				// 			childTasks={info?.selectedTask?.childTasks}
+				// 			parentTaskId={info?.selectedRow?._id}
+				// 			childTasks={info?.selectedRow?.childTasks}
 				// 			completedStatus={info?.taskMetadata?.completedGroupLabels}
 				// 			rowTypes={rowTypes}
 				// 			responseMetadata={responseMetadata}
