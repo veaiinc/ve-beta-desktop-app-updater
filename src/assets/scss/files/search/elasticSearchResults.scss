@@ -1,3 +1,98 @@
+.elastic-search-tooltip {
+	z-index: 99999;
+	.ant-tooltip-inner {
+		color: var(--primary-font);
+		font-size: 12px;
+		background: transparent;
+
+		.hover-card {
+			// position: relative;
+			width: 180px;
+			height: 170px;
+			padding: 10px;
+			background: var(--background-color);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			border-radius: 8px;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+			overflow: auto;
+			display: flex;
+			flex-direction: column;
+			gap: 5px;
+
+			.hover-card-header {
+				padding: 5px;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+				display: flex;
+				align-items: center;
+				gap: 12px;
+
+				.hover-card-icon {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+
+					svg {
+						width: 20px;
+						height: 30px;
+					}
+				}
+
+				.hover-card-title {
+					color: var(--primary-font, #f2f2f3);
+					text-overflow: ellipsis;
+					overflow: hidden;
+					text-wrap: nowrap;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+
+			.hover-card-content {
+				color: var(--primary-font, #f2f2f3);
+				text-overflow: ellipsis;
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 18px;
+
+				&::-webkit-scrollbar {
+					width: 4px;
+				}
+
+				&::-webkit-scrollbar-track {
+					background: transparent;
+				}
+
+				&::-webkit-scrollbar-thumb {
+					background: rgba(255, 255, 255, 0.1);
+					border-radius: 2px;
+				}
+
+				.hover-card-description {
+					color: var(--primary-font);
+					text-overflow: ellipsis;
+					overflow-y: scroll;
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 18px;
+					mark {
+						background-color: rgba(190, 244, 4, 0.3);
+						color: var(--primary-font);
+						font-weight: 500;
+						padding: 0 2px;
+						border-radius: 2px;
+					}
+				}
+			}
+		}
+	}
+}
+
 .elastic-search-results-container {
 	display: flex;
 	align-items: center;
@@ -7,7 +102,6 @@
 	padding-inline: 10px;
 	bottom: 117px;
 	background: var(--popup, #18191b);
-	overflow-y: auto;
 	border-radius: 16px;
 	border-bottom-right-radius: 0px;
 	border-bottom-left-radius: 0px;
@@ -113,92 +207,6 @@
 			background-color: var(--card-hover);
 			&:last-child {
 				margin-bottom: 30px;
-			}
-		}
-
-		.hover-card {
-			position: relative;
-			width: 180px;
-			height: 170px;
-			padding: 10px;
-			background: var(--background-color);
-			border: 1px solid rgba(255, 255, 255, 0.1);
-			border-radius: 8px;
-			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-			overflow: auto;
-			display: flex;
-			flex-direction: column;
-			gap: 5px;
-
-			.hover-card-header {
-				padding: 5px;
-				border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-				display: flex;
-				align-items: center;
-				gap: 12px;
-
-				.hover-card-icon {
-					display: flex;
-					align-items: center;
-					justify-content: center;
-
-					svg {
-						width: 20px;
-						height: 30px;
-					}
-				}
-
-				.hover-card-title {
-					color: var(--primary-font, #f2f2f3);
-					text-overflow: ellipsis;
-					overflow: hidden;
-					text-wrap: nowrap;
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-				}
-			}
-
-			.hover-card-content {
-				color: var(--primary-font, #f2f2f3);
-				text-overflow: ellipsis;
-				font-family: var(--primary-font-family);
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: 18px;
-
-				&::-webkit-scrollbar {
-					width: 4px;
-				}
-
-				&::-webkit-scrollbar-track {
-					background: transparent;
-				}
-
-				&::-webkit-scrollbar-thumb {
-					background: rgba(255, 255, 255, 0.1);
-					border-radius: 2px;
-				}
-
-				.hover-card-description {
-					color: var(--primary-font);
-					text-overflow: ellipsis;
-					overflow-y: scroll;
-					font-family: var(--primary-font-family);
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 400;
-					line-height: 18px;
-					mark {
-						background-color: rgba(190, 244, 4, 0.3);
-						color: var(--primary-font);
-						font-weight: 500;
-						padding: 0 2px;
-						border-radius: 2px;
-					}
-				}
 			}
 		}
 
