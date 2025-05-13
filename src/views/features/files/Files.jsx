@@ -21,6 +21,7 @@ import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
 import CustomDropdown from './CustomDropdown';
 import ElasticSearchResults from './ElasticSearchResults';
 import getFileTypeInfo from './getFiletypeInfo';
+import ObjectID from 'bson-objectid';
 
 const items = [
 	{
