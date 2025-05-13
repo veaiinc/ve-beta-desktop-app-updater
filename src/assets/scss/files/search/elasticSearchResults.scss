@@ -1,12 +1,11 @@
 .elastic-search-results-container {
 	display: flex;
-	flex-direction: column;
 	align-items: center;
 	gap: 8px;
 	flex-shrink: 0;
 	width: 100%;
 
-	padding-top: 25px;
+	padding-top: 50px;
 	padding-inline: 10px;
 	bottom: 117px;
 	background: var(--popup, #18191b);
@@ -26,6 +25,7 @@
 	.source-type-group {
 		display: flex;
 		width: 100%;
+		height: 100%;
 
 		flex-direction: column;
 		.source-type-heading {
@@ -100,8 +100,8 @@
 
 		.hover-card-wrapper {
 			position: absolute;
-			top: 0;
-			left: 50%;
+			top: -72px;
+			left: 51%;
 			opacity: 0;
 			visibility: hidden;
 			z-index: 1050;
@@ -115,6 +115,9 @@
 				visibility: visible;
 			}
 			background-color: var(--card-hover);
+			&:last-child {
+				margin-bottom: 30px;
+			}
 		}
 
 		.hover-card {
@@ -152,7 +155,7 @@
 				.hover-card-title {
 					color: var(--primary-font, #f2f2f3);
 					text-overflow: ellipsis;
-					overflow: auto;
+					overflow: hidden;
 					text-wrap: nowrap;
 					font-size: 12px;
 					font-style: normal;
