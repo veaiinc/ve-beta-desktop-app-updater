@@ -4,19 +4,15 @@
 	gap: 8px;
 	flex-shrink: 0;
 	width: 100%;
-
-	padding-top: 50px;
 	padding-inline: 10px;
 	bottom: 117px;
 	background: var(--popup, #18191b);
 	overflow-y: auto;
-
 	border-radius: 16px;
 	border-bottom-right-radius: 0px;
 	border-bottom-left-radius: 0px;
 	border: 1px solid var(--stroke);
 	color: var(--primary-font);
-
 	transition: transform 0.24s ease-in, opacity 0.24s ease-in;
 	// transform: translateX(-50%) scale(0.45);
 	transform-origin: center bottom;
@@ -100,12 +96,12 @@
 
 		.hover-card-wrapper {
 			position: absolute;
-			top: -72px;
+			top: -21px;
 			left: 51%;
 			opacity: 0;
 			visibility: hidden;
 			z-index: 1050;
-			width: 320px;
+			width: fit-content;
 			transition: all 0.3s ease;
 		}
 
