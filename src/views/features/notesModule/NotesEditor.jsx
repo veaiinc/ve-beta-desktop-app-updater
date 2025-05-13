@@ -23,6 +23,7 @@ import jwtDecode from 'jwt-decode';
 import { ReactComponent as DustBinIcon } from '../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as RestoreIcon } from '../../../assets/svg/notes/restore.svg';
 import { Tooltip } from 'antd';
+import UploadPopup from '../../components/notes/UploadPopup';
 
 const getRandomWidth = () => {
 	const min = 70;
@@ -87,7 +88,15 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		deleteLoading: false,
 		updatedBy: null,
 		showUploadPopup: false,
+		coverImageError: false,
+		uploadedLink: false,
 	});
+
+	const coverImage = info?.uploadedLink
+		? info?.uploadedLink
+		: info?.coverImageError
+		? false
+		: notesPageData?.data?.coverImage ?? false;
 
 	async function uploadFile(file) {
 		const response = await uploadNotesImageBlock(
@@ -108,6 +117,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 		return undefined;
 	}
+
+	const setLinkUploadedInfo = (link) => {
+		setInfo((prev) => ({ ...prev, uploadedLink: link }));
+	};
 
 	const editor = useCreateBlockNote({
 		tables: {
@@ -453,6 +466,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		}
 	};
 
+	const handleCoverImageError = () => {
+		setInfo((prev) => ({ ...prev, coverImageError: true }));
+	};
+
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
 			{info?.title && (
@@ -549,48 +566,71 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 						</div>
 					</div>
 				) : (
-					<div
-						className="notes-editor-wrapper"
-						style={{ maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px' }}
-					>
-						<Tooltip
-							open={true}
-							// onOpenChange={setInfo((prev) => ({
-							// 	...prev,
-							// 	showUploadPopup: !prev.showUploadPopup,
-							// }))}
-							placement="topLeft"
-							title={<h1>Hello</h1>}
-							overlayStyle={{
-								backgroundColor: 'inherit',
-							}}
-							arrow={false}
-						>
-							<CustomTextArea
-								className="notes-title"
-								value={info?.title}
-								onChange={handleTitleChange}
-								autoResize={true}
-								onKeyDown={handleKeyDown}
-							/>
-						</Tooltip>
-						<BlockNoteView
-							editor={editor}
-							formattingToolbar={false}
-							onChange={onChange}
-							style={innerContainerStyle || {}}
-							theme={'dark'}
-							editable={info?.myAccess !== 'view' || !info?.isDeleted}
-						>
-							{(info?.myAccess !== 'view' || !info?.isDeleted) && (
-								<NoteToolbar
-									sendMessage={customSendMessage}
-									aiResonse={info?.aiResonse}
-									resetAiResponse={resetAiResponse}
+					<>
+						{coverImage && (
+							<div className="notes-cover-image-container">
+								<img
+									src={coverImage}
+									onError={handleCoverImageError}
+									alt="cover image"
 								/>
-							)}
-						</BlockNoteView>
-					</div>
+							</div>
+						)}
+						<div
+							className="notes-editor-wrapper"
+							style={{ maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px' }}
+						>
+							<Tooltip
+								open={info?.showUploadPopup}
+								onOpenChange={() =>
+									setInfo((prev) => ({
+										...prev,
+										showUploadPopup: !prev.showUploadPopup,
+									}))
+								}
+								placement="bottomLeft"
+								title={
+									<UploadPopup
+										closePopup={() =>
+											setInfo((prev) => ({ ...prev, showUploadPopup: false }))
+										}
+										setLinkUploadedInfo={setLinkUploadedInfo}
+									/>
+								}
+								styles={{
+									backgroundColor: 'red',
+								}}
+								overlayInnerStyle={{
+									backgroundColor: 'inherit',
+								}}
+								arrow={false}
+							>
+								<CustomTextArea
+									className="notes-title"
+									value={info?.title}
+									onChange={handleTitleChange}
+									autoResize={true}
+									onKeyDown={handleKeyDown}
+								/>
+							</Tooltip>
+							<BlockNoteView
+								editor={editor}
+								formattingToolbar={false}
+								onChange={onChange}
+								style={innerContainerStyle || {}}
+								theme={'dark'}
+								editable={info?.myAccess !== 'view' || !info?.isDeleted}
+							>
+								{(info?.myAccess !== 'view' || !info?.isDeleted) && (
+									<NoteToolbar
+										sendMessage={customSendMessage}
+										aiResonse={info?.aiResonse}
+										resetAiResponse={resetAiResponse}
+									/>
+								)}
+							</BlockNoteView>
+						</div>
+					</>
 				)}
 			</div>
 		</div>

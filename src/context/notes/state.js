@@ -17,6 +17,7 @@ import {
 	globalNotesAccessMutation,
 	notesImageBlockUploadMutation,
 	notesImageBlockDeleteMutation,
+	notesLinkUploadMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -429,6 +430,42 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const notesCoverImageLinkUpload = async ({ link, pageId }) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const payload = {
+				pageId,
+				input: {
+					coverImage: link,
+				},
+			};
+			const response = await service.mutation(
+				notesLinkUploadMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>notesUploadLink', error);
+		}
+	};
+
+	const notesCoverImageFileUpload = async (imageFile, pageId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+		} catch (error) {
+			console.log('error==>notesCoverImageFileUpload', error);
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -448,5 +485,7 @@ export const NotesState = (props) => {
 		updateGlobalAccess,
 		uploadNotesImageBlock,
 		deleteNotesImageBlock,
+		notesCoverImageLinkUpload,
+		notesCoverImageFileUpload,
 	};
 };
