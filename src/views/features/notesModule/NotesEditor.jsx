@@ -22,6 +22,7 @@ import ObjectID from 'bson-objectid';
 import jwtDecode from 'jwt-decode';
 import { ReactComponent as DustBinIcon } from '../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as RestoreIcon } from '../../../assets/svg/notes/restore.svg';
+import { Tooltip } from 'antd';
 
 const getRandomWidth = () => {
 	const min = 70;
@@ -47,6 +48,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const prevDocRef = useRef([]);
+	const { createWebSocketConnection, sendMessage } = useChatStream();
 
 	const {
 		notes: {
@@ -68,7 +70,24 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 
-	const { createWebSocketConnection, sendMessage } = useChatStream();
+	const [info, setInfo] = useState({
+		timeouts: {}, // Single timeouts object to store all timeouts
+		title: '',
+		updatedAt: '',
+		notesConfigs: {
+			smallText: false,
+			fullWidth: false,
+		},
+		isFavorite: false,
+		loading: true,
+		aiResonse: '',
+		myAccess: 'view',
+		isDeleted: false,
+		lastUpdated: null,
+		deleteLoading: false,
+		updatedBy: null,
+		showUploadPopup: false,
+	});
 
 	async function uploadFile(file) {
 		const response = await uploadNotesImageBlock(
@@ -98,23 +117,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			headers: true,
 		},
 		uploadFile,
-	});
-	const [info, setInfo] = useState({
-		timeouts: {}, // Single timeouts object to store all timeouts
-		title: '',
-		updatedAt: '',
-		notesConfigs: {
-			smallText: false,
-			fullWidth: false,
-		},
-		isFavorite: false,
-		loading: true,
-		aiResonse: '',
-		myAccess: 'view',
-		isDeleted: false,
-		lastUpdated: null,
-		deleteLoading: false,
-		updatedBy: null,
 	});
 
 	useEffect(() => {
@@ -551,13 +553,27 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 						className="notes-editor-wrapper"
 						style={{ maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px' }}
 					>
-						<CustomTextArea
-							className="notes-title"
-							value={info?.title}
-							onChange={handleTitleChange}
-							autoResize={true}
-							onKeyDown={handleKeyDown}
-						/>
+						<Tooltip
+							open={true}
+							// onOpenChange={setInfo((prev) => ({
+							// 	...prev,
+							// 	showUploadPopup: !prev.showUploadPopup,
+							// }))}
+							placement="topLeft"
+							title={<h1>Hello</h1>}
+							overlayStyle={{
+								backgroundColor: 'inherit',
+							}}
+							arrow={false}
+						>
+							<CustomTextArea
+								className="notes-title"
+								value={info?.title}
+								onChange={handleTitleChange}
+								autoResize={true}
+								onKeyDown={handleKeyDown}
+							/>
+						</Tooltip>
 						<BlockNoteView
 							editor={editor}
 							formattingToolbar={false}
