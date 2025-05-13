@@ -60,6 +60,7 @@ const Stages = () => {
 		verifyPhoneNumberLoading: false,
 		userDetailsLoading: true,
 		verifyOtpLoader: false,
+		isWorkspaceHandleLengthInvalid: true,
 	});
 
 	const emailCntxt = userDetailsFromTenantAPI?.email;
@@ -182,7 +183,17 @@ const Stages = () => {
 		if (info?.companyName?.length > 1) {
 			const timeout = setTimeout(async () => {
 				const workspaceHandle = info?.companyName?.toLowerCase()?.replace(/[^a-z0-9]/g, '');
-				handleCheckWorkspaceHandleAvailability(workspaceHandle);
+				if (workspaceHandle?.length >= 4) {
+					handleCheckWorkspaceHandleAvailability(workspaceHandle);
+				} else {
+					setInfo((prev) => ({
+						...prev,
+						isWorkspaceHandleLengthInvalid: true,
+						checkingWorkspaceHandle: false,
+						isWorkspaceHandleAvailable: null,
+						workspaceHandle: '',
+					}));
+				}
 			}, 500);
 
 			return () => clearTimeout(timeout);
