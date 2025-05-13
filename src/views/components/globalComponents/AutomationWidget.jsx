@@ -20,7 +20,6 @@ const infiniteScrollStyle = {
 	display: 'flex',
 	alignItems: 'flex-start',
 	flexDirection: 'column',
-	gap: '12px',
 	width: '100%',
 };
 
