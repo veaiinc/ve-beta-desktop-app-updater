@@ -3789,7 +3789,7 @@ const GalleryPage = () => {
 												className="onlineStatus"
 												style={{
 													backgroundColor: info.isOnline
-														? 'var(--success)'
+														? 'var(--primary-button)'
 														: 'var(--error)',
 												}}
 											></div>
@@ -3803,7 +3803,7 @@ const GalleryPage = () => {
 											size="small"
 											style={{
 												backgroundColor: info.isOnline
-													? 'var(--success)'
+													? 'var(--primary-button)'
 													: 'var(--error)',
 											}}
 										/>
@@ -6009,6 +6009,7 @@ const GalleryPage = () => {
 				onClose={() => setInfo((prev) => ({ ...prev, showShareAlbum: false }))}
 				link={getShareLink()}
 				onCopyLink={handleCopyAlbumLink}
+				shouldShow={info?.activeAlbum?.guestAccess?.isEnabled}
 			/>
 
 			<MoveToAlbumPopup
