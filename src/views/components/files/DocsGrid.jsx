@@ -5,7 +5,7 @@ import { DocsStatusButton } from '../../features/docs/Docs';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import DocsCardBg from '../../../assets/images/files/docs-card-bg.png';
 import { useNavigate } from 'react-router-dom';
-import { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState, useCallback } from 'react';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import Context from '../../../context/context';
 import gsap from 'gsap';
@@ -13,6 +13,7 @@ import Spinner from '../loaders/Spinner';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import EmptyState from './EmptyState';
 import { fetchOriginSelection } from '../../../helpers';
+import { Tooltip } from 'antd';
 
 const origin = fetchOriginSelection();
 
@@ -190,6 +191,15 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 		handleStateUpdate({ selectedSort: { ...value, sortType } });
 	};
 
+	const handleDocClick = useCallback((doc) => {
+		if (doc) {
+			const version = doc?.version;
+			version === 0 || version === null
+				? navigate(`/smart-file/${doc?.templateId}/${doc?._id}`)
+				: (window.location.href = `${origin}/document/view/${doc?._id}?workflow=true`);
+		}
+	}, []);
+
 	return (
 		<div className="card-sub-container-center">
 			<div className="center-container-header">
@@ -221,7 +231,13 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 						height={'100%'}
 					>
 						<div className={`card-container`}>
-							<div className="card-item" onClick={handleCreateDoc}>
+							<div
+								className="card-item"
+								// onClick={handleCreateDoc}
+								onClick={() => {
+									window.location.href = `${origin}/create-document`;
+								}}
+							>
 								<div className="card-item-style card-item-style-btn">
 									<button className="card-btn">
 										<Plus />
@@ -233,7 +249,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 								<div
 									className="card-item"
 									key={index}
-									onClick={() => navigate(`/doc/${doc?._id}`)}
+									onClick={() => handleDocClick(doc)}
 								>
 									<div className="card-item-style content-wrapper docs">
 										<img
@@ -250,7 +266,15 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 										<div className="docs-title-wrapper docs-card-container">
 											<span className="docs-item-title">{doc?.title}</span>
 											<span className="docs-item-sub-title">
-												{moment.unix(doc?.createdAt).fromNow()}
+												{info?.selectedSort?.value === 'updatedAt' ? (
+													<Tooltip title="Updated On">
+														{moment.unix(doc?.updatedAt).fromNow()}
+													</Tooltip>
+												) : (
+													<Tooltip title="Created On">
+														{moment.unix(doc?.createdAt).fromNow()}
+													</Tooltip>
+												)}
 											</span>
 										</div>
 									</div>

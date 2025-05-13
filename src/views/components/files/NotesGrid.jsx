@@ -11,6 +11,7 @@ import FilterDropdown from '../dropDown/file/FilterDropdown';
 import Spinner from '../loaders/Spinner';
 import moment from 'moment';
 import EmptyState from './EmptyState';
+import { Tooltip } from 'antd';
 
 const filterOptions = [
 	{ label: 'All', value: 'all' },
@@ -233,7 +234,16 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 										</div>
 										<div className="note-footer-container">
 											<span className="note-sub-heading">
-												{moment.unix(note?.createdAt).fromNow()}
+												{console.log(info?.selectedSort?.value)}
+												{info?.selectedSort?.value === 'updatedAt' ? (
+													<Tooltip title="Updated On">
+														{moment.unix(note?.updatedAt).fromNow()}
+													</Tooltip>
+												) : (
+													<Tooltip title="Created On">
+														{moment.unix(note?.createdAt).fromNow()}
+													</Tooltip>
+												)}
 											</span>
 										</div>
 									</div>

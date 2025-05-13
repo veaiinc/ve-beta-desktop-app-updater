@@ -115,6 +115,27 @@
 	}
 }
 
+.infoRow {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.createDocumentButton {
+	color: var(--primary-button);
+	font-family: var(--primary-font-family);
+	font-size: 14px;
+	cursor: pointer;
+	border-radius: 12px;
+	padding: 4px 8px;
+	border: 1px solid var(--primary-button);
+
+	&:hover {
+		color: var(--primary-font);
+		border-color: var(--primary-font);
+	}
+}
+
 .sectionTitle {
 	color: var(--primary-font);
 	font-family: var(--primary-font-family);

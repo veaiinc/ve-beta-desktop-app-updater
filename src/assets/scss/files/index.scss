@@ -150,6 +150,7 @@
 		margin-bottom: 0px !important;
 
 		&.docs {
+			border: 1px solid var(--stroke);
 			padding: 0px;
 			position: relative;
 
@@ -453,7 +454,7 @@
 		align-items: center;
 		gap: 10px;
 		background-color: var(--card, #171819);
-
+		border: 1px solid var(--stroke);
 		.card-btn {
 			display: flex;
 			justify-content: space-around;

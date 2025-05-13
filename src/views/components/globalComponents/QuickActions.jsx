@@ -21,6 +21,7 @@ import EventsPopup from '../calendar/EventsPopUp';
 import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
 import { ReactComponent as Flash } from '../../../assets/svg/flash.svg';
 import Search from '../../../assets/svg/searc.svg';
+import { fetchOriginSelection } from '../../../helpers';
 
 const suggestedOptions = [];
 
@@ -494,19 +495,15 @@ const QuickActions = ({
 				},
 			];
 		} else if (pathname.includes('/files')) {
+			const origin = fetchOriginSelection();
 			return [
 				{
 					id: 1,
-					title: 'Documents',
+					title: 'Document',
 					value: '',
-					controlValue: 'all',
-					action: ({ setInfo }) => {
-						setInfo((prev) => ({
-							...prev,
-							openProposalPopup: true,
-							commonState: '',
-							dropdown: false,
-						}));
+					controlValue: 'workflow',
+					action: () => {
+						window.location.href = `${origin}/create-document`;
 					},
 				},
 				{

@@ -18,8 +18,10 @@ import QuickActions from '../../components/globalComponents/QuickActions';
 import Spinner from '../../components/loaders/Spinner';
 import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
 import getFileTypeInfo from './getFiletypeInfo';
+import { fetchOriginSelection } from '../../../helpers';
 import { triggerCmdK } from '../../components/commandKSearch/CommandKSearch';
 
+const origin = fetchOriginSelection();
 const items = [
 	{
 		value: 1,
@@ -162,16 +164,16 @@ export const statusTextmapper = {
 const suggestedOptions = [
 	{
 		id: 1,
-		title: 'Documents',
+		title: 'Document',
 		value: '',
-		controlValue: 'All',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: '' }));
+		controlValue: 'workflow',
+		action: () => {
+			window.location.href = `${origin}/create-document`;
 		},
 	},
 	{
 		id: 2,
-		title: 'Notes',
+		title: 'Note',
 		value: 'note',
 		action: async ({ setInfo, navigate, createNotesList }) => {
 			try {
@@ -233,7 +235,7 @@ const suggestedOptions = [
 	},
 	{
 		id: 6,
-		title: 'Contracts',
+		title: 'Contract',
 		value: 'contract',
 		controlValue: 'workflow',
 		action: ({ setInfo }) => {
@@ -812,7 +814,7 @@ const Files = () => {
 						</div>
 					</div>
 				</div>
-				<div className="black-gradient-btm"></div>
+				{/* <div className="black-gradient-btm"></div> */}
 			</div>
 
 			<CreateGallery
