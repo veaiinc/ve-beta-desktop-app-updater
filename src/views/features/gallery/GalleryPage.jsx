@@ -700,7 +700,7 @@ const GalleryPage = () => {
 			}));
 		}
 		// ... rest of the effect
-	}, [tenantPreferences, galleryId]);
+	}, [tenantPreferences, galleryId, tenantAlbums]);
 
 	useEffect(() => {
 		if (updateActiveAlbum !== null && updateActiveAlbum !== info?.activeAlbum) {
@@ -1526,6 +1526,10 @@ const GalleryPage = () => {
 				activeAlbumId: newAlbum?.album_id,
 				activeAlbum: newAlbum,
 			}));
+			const searchParams = new URLSearchParams(location.search);
+			searchParams.set('albumId', newAlbum?.album_id);
+
+			navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
 			await getAlbumImagesCount(galleryId);
 		} catch (error) {
 			console.error('Error updating albums:', error);
