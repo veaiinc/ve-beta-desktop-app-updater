@@ -45,7 +45,7 @@
 	);
 
 	/* button colors */
-	--primary-button: rgb(207, 255, 72); /* #cfff48 */
+	--primary-button: rgba(121, 236, 201, 1);
 	--primary-button-hover: rgb(38, 40, 41); /* #262829 */
 	--primary-button-active: rgb(38, 40, 41); /* #262829 */
 	--primary-button-font: var(--background-color); /* #0c0c0d */
@@ -110,7 +110,7 @@
 	--right-bar: rgb(250, 250, 250); /* #fafafa */
 
 	/* button colors */
-	--primary-button: rgb(49, 144, 130); /* #319082 */
+	--primary-button: rgba(52, 160, 144, 1);
 	--primary-button-hover: rgb(242, 242, 243); /* #f2f2f3 */
 	--primary-button-active: rgb(242, 242, 243); /* #f2f2f3 */
 	--primary-button-font: var(--background-color); /* #0c0c0d */
