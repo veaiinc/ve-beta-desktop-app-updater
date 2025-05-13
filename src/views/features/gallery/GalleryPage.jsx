@@ -3602,25 +3602,26 @@ const GalleryPage = () => {
 	};
 
 	const openUploadCoverPhoto = (file) => {
-		if (!file?._id) return;
-		const hasValidImage = Boolean(
-			selectedImage?.activeVersion?.givenFileName && galleryCredentials,
-		);
-
-		const selectedImage = info?.imagesList?.docs?.find((img) => img?._id === file?._id);
-		const imageURL = hasValidImage
-			? `${galleryCredentials.baseURL}/${tenantAlbums.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials['Key-Pair-Id']}&Signature=${galleryCredentials.Signature}&Policy=${galleryCredentials.Policy}`
-			: null;
 		setInfo((prev) => ({
 			...prev,
 			showUploadCover: true,
 			coverType: 'album',
-			selectedImages: [file._id],
+			selectedImages: [file?._id],
 			coverPhoto: true,
-			isLoadingCover: !imageURL,
-			imageURL,
-			coverImageDetails: selectedImage,
+			isLoadingCover: true, // Set loading to true while fetching the image
 		}));
+		// Fetch the selected image's URL after setting the state
+		const selectedImage = info?.imagesList?.docs?.find((img) => img._id === file?._id);
+		if (selectedImage?.activeVersion?.givenFileName && galleryCredentials) {
+			const imageURL = `${galleryCredentials.baseURL}/${tenantAlbums.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials['Key-Pair-Id']}&Signature=${galleryCredentials.Signature}&Policy=${galleryCredentials.Policy}`;
+			// Update state with the image URL after fetching it
+			setInfo((prev) => ({
+				...prev,
+				isLoadingCover: false, // Set loading to false once the image URL is ready
+				imageURL: imageURL,
+				coverImageDetails: selectedImage,
+			}));
+		}
 	};
 
 	return (
