@@ -2432,6 +2432,18 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const pendingActionsFeedback = async (pendingActionId, payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}/feedback`;
+			const response = await Service.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+			return response;
+		} catch (error) {
+			console.log('error==>pendingActionsFeedback', error);
+		}
+	};
+
 	const duplicateSmartFile = async (payload) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -2545,5 +2557,6 @@ export const TemplatesState = (props) => {
 		duplicateSmartFile,
 		updateCitationChunks,
 		getFormResponseAnalytics,
+		pendingActionsFeedback,
 	};
 };

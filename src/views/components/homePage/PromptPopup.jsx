@@ -64,11 +64,12 @@ const PromptPopup = ({
 	liked = null,
 	confidenceScore = null,
 	messageId = null,
+	feedbackType = 'chatFeedback',
 }) => {
 	const navigate = useNavigate();
 
 	const {
-		templates: { updateStateValues, updateAiChatMessageRating },
+		templates: { updateStateValues, updateAiChatMessageRating, pendingActionsFeedback },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -179,14 +180,23 @@ const PromptPopup = ({
 		}
 
 		try {
-			const res = await updateAiChatMessageRating(
+			const feedbackReq = [
 				{
 					rating: feedback,
 					userFeedbackReasons,
 					userRemarks: feedbackMessage,
 				},
-				messageId,
-			);
+			];
+
+			let promise;
+
+			if (feedbackType === 'chatFeedback') {
+				promise = updateAiChatMessageRating(feedbackReq, messageId);
+			} else {
+				promise = pendingActionsFeedback(messageId, feedbackReq);
+			}
+
+			const res = await promise;
 
 			if (res) {
 				message.success(res?.[1]?.message);

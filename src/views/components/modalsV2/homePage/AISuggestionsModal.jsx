@@ -26,8 +26,8 @@ import {
 	redirectTypeMapper,
 } from '../../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
-const { Panel } = Collapse;
 import PromptPopup from '../../homePage/PromptPopup';
+const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
 	open,
@@ -119,14 +119,14 @@ const AISuggestionsModal = ({
 			message.error('Failed to ignore pending action');
 		}
 	};
-	const handleThumbClick = async (type) => {
-		if (info?.selectedFeedback === type) return;
-		setInfo((prev) => ({ ...prev, selectedFeedback: type }));
-		const res = await pendingActionsUpdate(data?._id, { feedback: type });
-		if (res?.[0] === false) {
-			message.error('Failed to update feedback');
-		}
-	};
+	// const handleThumbClick = async (type) => {
+	// 	if (info?.selectedFeedback === type) return;
+	// 	setInfo((prev) => ({ ...prev, selectedFeedback: type }));
+	// 	const res = await pendingActionsUpdate(data?._id, { feedback: type });
+	// 	if (res?.[0] === false) {
+	// 		message.error('Failed to update feedback');
+	// 	}
+	// };
 
 	const handleRunBtnClick = () => {
 		const questions = data?.informationRequests;
@@ -221,15 +221,16 @@ const AISuggestionsModal = ({
 			style={{ padding: '0px', maxWidth: '70vw', minWidth: '20vw' }}
 			rootClassName="ai-suggestions-drawer"
 		>
-			{/* {info?.feedbackPopupOpen && (
+			{info?.feedbackPopupOpen && (
 				<PromptPopup
-					messageId={messageData?.messageId}
+					messageId={data?._id}
 					liked={info?.liked}
 					open={info?.feedbackPopupOpen}
 					feedbackPopupOpen={info?.feedbackPopupOpen}
 					closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
+					feedbackType="pendingActionFeedback"
 				/>
-			)} */}
+			)}
 			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
 				<div className="drag-handler" onMouseDown={handleMouseDown} />
 
@@ -1006,7 +1007,7 @@ const AISuggestionsModal = ({
 											? 'selected-thumb'
 											: ''
 									}`}
-									onClick={() => handleThumbClick('thumbsdown')}
+									onClick={() => handleThumbsClick('thumbsdown')}
 								>
 									<ThumbsDownSvg />
 								</div>
