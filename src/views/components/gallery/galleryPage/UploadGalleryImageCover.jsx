@@ -7,6 +7,7 @@ import ReactModal from '../../modalsV2/index';
 import { FocusedImage, FocusPicker } from 'image-focus';
 import '../../../../assets/scss/gallery/albumSettings.scss';
 import Spinner from '../../loaders/Spinner';
+import { isURL } from '../../../../helpers';
 
 const UploadGalleryImageCover = ({
 	info,
@@ -53,7 +54,7 @@ const UploadGalleryImageCover = ({
 			});
 		}
 	};
-	const isImageThere = info?.imageURL?.startsWith('https://');
+	const isImageExists = isURL(info?.imageURL);
 
 	return (
 		<ReactModal
@@ -74,7 +75,7 @@ const UploadGalleryImageCover = ({
 						<div className="album-preview">
 							<div className="laptop-preview">
 								<div className="screen">
-									{isImageThere ? (
+									{isImageExists ? (
 										<div
 											style={{
 												width: '100%',
@@ -104,7 +105,7 @@ const UploadGalleryImageCover = ({
 								<LaptopLogo />
 							</div>
 							<div className="mobile-preview">
-								{isImageThere && (
+								{isImageExists && (
 									<>
 										<div
 											className="mobile-preview-container"
@@ -153,7 +154,7 @@ const UploadGalleryImageCover = ({
 								showGrid={false}
 								cropSize={{ width: 233.8432, height: 402.667 }}
 							/> */}
-							{isImageThere ? (
+							{isImageExists ? (
 								<div className="focused-image" style={{ overflow: 'hidden' }}>
 									<img
 										className="focus-picker-img"
