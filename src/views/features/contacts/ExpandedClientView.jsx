@@ -306,7 +306,8 @@ const ExpandedClientView = () => {
 				<div className="left-section">
 					<div className="contacts-header">
 						<h2>
-							{clientData?.name} <span>suggestions</span>
+							<span>suggestions for </span>
+							{clientData?.name}
 						</h2>
 					</div>
 					<div className="contacts-stats-container">
