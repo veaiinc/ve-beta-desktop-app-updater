@@ -9,7 +9,7 @@ const ShareAlbum = (props) => {
 		content: { zIndex: 999 },
 		overlay: { zIndex: 998 },
 	};
-	const { open, onClose, onCopyLink, link, shouldShow } = props;
+	const { open, onClose, onCopyLink, link, shouldShowPin } = props;
 
 	const inputRef = useRef(null);
 
@@ -37,7 +37,7 @@ const ShareAlbum = (props) => {
 						<p className="shareAlbumPopupInputText">{link?.url}</p>
 					</div>
 				</div>
-				{shouldShow && (
+				{shouldShowPin && (
 					<div className="shareAlbumPopupFooter">
 						<div className="shareAlbumPopupFooterPin">Pin</div>
 						<div className="shareAlbumPopupPinInputContainer">
