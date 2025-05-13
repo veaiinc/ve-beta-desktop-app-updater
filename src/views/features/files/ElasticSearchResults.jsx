@@ -22,6 +22,7 @@ const ElasticSearchResults = () => {
 	const handleOpenClick = (gallery) => {
 		if (gallery?.sourceType === 'workflow') {
 			navigate(`/doc/${gallery?._id}`);
+			triggerCmdK();
 		} else if (gallery?.platform === 've.ai') {
 			if (gallery?.fileUrl) window.open(gallery?.fileUrl, '_blank');
 			if (gallery?.url) window.open(gallery?.url, '_blank');

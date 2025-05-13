@@ -111,6 +111,8 @@
 	// transform: translateX(-50%) scale(0.45);
 	transform-origin: center bottom;
 	height: 100%;
+	flex-direction: column;
+	overflow: auto;
 
 	.source-type-group {
 		display: flex;
@@ -207,9 +209,6 @@
 				visibility: visible;
 			}
 			background-color: var(--card-hover);
-			&:last-child {
-				margin-bottom: 30px;
-			}
 		}
 
 		&:hover {
@@ -225,6 +224,7 @@
 			align-items: center;
 			justify-content: end;
 			flex: 1;
+			margin-left: -10px;
 
 			.action-buttons {
 				display: flex;
