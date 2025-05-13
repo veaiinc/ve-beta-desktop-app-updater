@@ -12,7 +12,9 @@ import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import EmptyState from './EmptyState';
-import { Tooltip } from 'antd';
+import { fetchOriginSelection } from '../../../helpers';
+
+const origin = fetchOriginSelection();
 
 const filterOptions = [
 	{ label: 'All', value: '' },
@@ -42,7 +44,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 		currentPage: 1,
 		loading: true,
 		selectedFilter: { label: 'All', value: '' },
-		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
+		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 	});
 
 	useEffect(() => {
@@ -245,10 +247,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 											style={statusTextmapper?.[doc?.status]?.style}
 											dotStyle={statusTextmapper?.[doc?.status]?.dotStyle}
 										/>
-										<div
-											className="docs-title-wrapper docs-card-container"
-											data-tooltip={doc?.title}
-										>
+										<div className="docs-title-wrapper docs-card-container">
 											<span className="docs-item-title">{doc?.title}</span>
 											<span className="docs-item-sub-title">
 												{moment.unix(doc?.createdAt).fromNow()}

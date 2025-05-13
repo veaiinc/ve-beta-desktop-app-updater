@@ -10,6 +10,7 @@ import { ReactComponent as ArrowsOut } from '../../../../assets/svg/gallery/arro
 import { Tooltip } from 'antd';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import GalleryViewer from '../../../features/gallery/GalleryViewer';
+import { FetchMoreLoaderComp } from '../../../../helpers';
 // import { ReactComponent as AddNewSvg } from '../../../../assets/svg/addNew.svg';
 const AiFacesContainer = ({
 	galleryId,
@@ -20,7 +21,7 @@ const AiFacesContainer = ({
 	activeAlbumId,
 	activeTagId,
 	selectedImage,
-	handleSelectedFace,
+	selectedFaceChange,
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -37,6 +38,7 @@ const AiFacesContainer = ({
 		hasScrolledToImage: false,
 		isGalleryViewer: false,
 		selectedImage: null,
+		loadingMore: false,
 	});
 	const scrollRef = useRef(null);
 	const debounceTimerRef = useRef(null);
@@ -95,12 +97,20 @@ const AiFacesContainer = ({
 		};
 	}, [aiFace]);
 
-	const handleScroll = useCallback(() => {
+	const handleScroll = useCallback(async () => {
 		if (scrollRef?.current) {
 			const { scrollLeft, scrollWidth, clientWidth } = scrollRef?.current;
 			if (scrollLeft + clientWidth >= scrollWidth - 20) {
 				if (aiFace?.hasNextPage) {
-					getAiFace(galleryId, aiFace?.currentPage + 1, 40, false);
+					setInfo((prev) => ({
+						...prev,
+						loadingMore: true,
+					}));
+					await getAiFace(galleryId, aiFace?.currentPage + 1, 40, false);
+					setInfo((prev) => ({
+						...prev,
+						loadingMore: false,
+					}));
 				}
 			}
 		}
@@ -136,6 +146,7 @@ const AiFacesContainer = ({
 			selectedFace: face,
 		}));
 		aiFaceImagesReset();
+		selectedFaceChange(face);
 	};
 	const handleExpandClick = (image) => {
 		setInfo((prev) => ({
@@ -150,6 +161,7 @@ const AiFacesContainer = ({
 			isGalleryViewer: false,
 		}));
 	};
+
 	const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 	const src = `${galleryCredentials?.baseURL}/${info?.selectedFace?.displayImage?.optimizedImageS3Key}?${params}`;
 	return (
@@ -219,38 +231,43 @@ const AiFacesContainer = ({
 							const src = `${galleryCredentials?.baseURL}/${face?.displayImage?.optimizedImageS3Key}?${params}`;
 
 							return (
-								<div
-									className="aiPeople-person"
-									onClick={() => handleFaceClick(face)}
-									style={{
-										border:
-											info?.activeFace === face?._id
-												? '1px solid #B89CF9'
-												: '1px solid transparent',
-										borderRadius: '50%',
-										padding: '4px',
-									}}
-								>
-									<div className="aiPeople-person-image">
-										<PeopleCard
-											url={src}
-											people={face?.displayImage}
-											thumbwidth={58}
-											thumbHeight={58}
-											key={face?._id}
-											match={{ params: { tenantID: face?.tenant_id } }}
-											originalWidth={
-												face?.imageDetails?.activeVersion?.originalWidth
-											}
-											originalHeight={
-												face?.imageDetails?.activeVersion?.originalHeight
-											}
-										/>
+								<>
+									<div
+										className="aiPeople-person"
+										onClick={() => handleFaceClick(face)}
+										style={{
+											border:
+												info?.activeFace === face?._id
+													? '1px solid #B89CF9'
+													: '1px solid transparent',
+											borderRadius: '50%',
+											padding: '4px',
+										}}
+									>
+										<div className="aiPeople-person-image">
+											<PeopleCard
+												url={src}
+												people={face?.displayImage}
+												thumbwidth={58}
+												thumbHeight={58}
+												key={face?._id}
+												match={{ params: { tenantID: face?.tenant_id } }}
+												originalWidth={
+													face?.imageDetails?.activeVersion?.originalWidth
+												}
+												originalHeight={
+													face?.imageDetails?.activeVersion
+														?.originalHeight
+												}
+											/>
+										</div>
+
+										<p>{face?.name}</p>
 									</div>
-									<p>{face?.name}</p>
-								</div>
+								</>
 							);
 						})}
+						{info?.loadingMore && <FetchMoreLoaderComp />}
 					</div>
 				</div>
 			</div>
