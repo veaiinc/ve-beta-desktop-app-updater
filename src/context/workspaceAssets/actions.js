@@ -1,0 +1,4 @@
+export const Actions = {
+	GET_WORKSPACE_IMAGES: 'GET_WORKSPACE_IMAGES',
+	RESET_STATE: 'RESET_STATE',
+};

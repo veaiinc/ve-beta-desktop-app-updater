@@ -20,6 +20,7 @@ const useLogout = () => {
 		automationBuilder: { resetAutomationBuilderState },
 		knowledgeAgent: { resetKnowledgeAgentState },
 		elasticSearch: { resetElasticSearchState },
+		workspaceAssets: { resetWorkspaceAssetsState },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
@@ -41,7 +42,7 @@ const useLogout = () => {
 		resetAutomationBuilderState();
 		resetElasticSearchState();
 		resetKnowledgeAgentState();
-
+		resetWorkspaceAssetsState();
 		// Preserve theme settings
 		const theme = localStorage.getItem('theme');
 		const cookieTheme = Cookies.get('theme');

@@ -1,13 +1,12 @@
-import { memo, useState } from 'react';
+import { memo, useState, useContext, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import '../../../assets/scss/notes/uploadPopup.scss';
 import Context from '../../../context/context';
-import { useParams } from 'react-router-dom';
-import { useContext } from 'react';
-import { ReactComponent as UploadIcon } from '../../../assets/svg/notes/upload.svg';
-import { ReactComponent as LinkIcon } from '../../../assets/svg/notes/link.svg';
 import { message } from '../globalComponents/CustomToast';
 import { isURL } from '../../../helpers';
-
+import { ReactComponent as UploadIcon } from '../../../assets/svg/notes/upload.svg';
+import { ReactComponent as LinkIcon } from '../../../assets/svg/notes/link.svg';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/notes/search.svg';
 const initialState = {
 	selectedUploadCategory: 'images',
 	link: '',
@@ -37,12 +36,21 @@ const uploadCategoryOptions = [
 	},
 ];
 
-const UploadPopup = ({ closePopup, setLinkUploadedInfo }) => {
+const UploadPopup = ({ closePopup, setLocalCoverImage }) => {
 	const { noteId } = useParams();
 	const {
 		notes: { notesCoverImageLinkUpload, notesCoverImageFileUpload },
+		workspaceAssets: { workspaceImages, getWorkspaceImages },
 	} = useContext(Context);
 	const [info, setInfo] = useState(initialState);
+
+	useEffect(() => {
+		if (workspaceImages.length === 0) {
+			getWorkspaceImages({ page: 1, limit: 10 });
+		}
+	}, [workspaceImages]);
+
+	console.log(workspaceImages);
 
 	const handleLinkSubmit = async () => {
 		const payload = {
@@ -54,7 +62,7 @@ const UploadPopup = ({ closePopup, setLinkUploadedInfo }) => {
 		if (success) {
 			message.success('Link uploaded successfully');
 			setInfo(initialState);
-			setLinkUploadedInfo(info.link);
+			setLocalCoverImage(info.link);
 			closePopup();
 		} else {
 			message.error('Failed to upload link');
@@ -66,12 +74,44 @@ const UploadPopup = ({ closePopup, setLinkUploadedInfo }) => {
 		setInfo((prev) => ({ ...prev, link, isLinkValid: isURL(link) }));
 	};
 
-	const handleImageUpload = (e) => {
-		const file = e.target.files[0];
+	const handleImageUpload = async (e) => {
+		const imageFile = e.target.files[0];
+		const payload = {
+			imageFile,
+			pageId: noteId,
+		};
+		const response = await notesCoverImageFileUpload(payload);
+		if (response[0]) {
+			message.success('Cover image updated successfully');
+			setInfo(initialState);
+			setLocalCoverImage(URL.createObjectURL(imageFile));
+			closePopup();
+		} else {
+			message.error('Failed to update cover image');
+		}
+	};
+
+	const handleImageSearch = (e) => {
+		const search = e.target.value;
+		console.log(search);
 	};
 
 	const uploadCategoryOptionsUI = {
-		images: <div>Images</div>,
+		images: (
+			<div className="images">
+				<div className="imagesSearchContainer">
+					<SearchIcon />
+					<input
+						className="imagesSearchInput"
+						autoFocus
+						type="text"
+						onChange={handleImageSearch}
+						placeholder="Search workspace images"
+					/>
+				</div>
+				<div className="imagesListContainer"></div>
+			</div>
+		),
 		upload: (
 			<div className="upload">
 				<input

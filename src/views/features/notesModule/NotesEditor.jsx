@@ -24,6 +24,7 @@ import { ReactComponent as DustBinIcon } from '../../../assets/svg/tasks/dustBin
 import { ReactComponent as RestoreIcon } from '../../../assets/svg/notes/restore.svg';
 import { Tooltip } from 'antd';
 import UploadPopup from '../../components/notes/UploadPopup';
+import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 
 const getRandomWidth = () => {
 	const min = 70;
@@ -88,12 +89,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		deleteLoading: false,
 		updatedBy: null,
 		showUploadPopup: false,
+		showCustomizeAppearance: false,
 		coverImageError: false,
-		uploadedLink: false,
+		localCoverImage: false, // cover image or link that is selected/uploaded before refreshing the page
 	});
 
-	const coverImage = info?.uploadedLink
-		? info?.uploadedLink
+	const coverImage = info?.localCoverImage
+		? info?.localCoverImage
 		: info?.coverImageError
 		? false
 		: notesPageData?.data?.coverImage ?? false;
@@ -581,25 +583,47 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 							style={{ maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px' }}
 						>
 							<Tooltip
-								open={info?.showUploadPopup}
-								onOpenChange={() =>
+								open={info?.showCustomizeAppearance || true}
+								onOpenChange={() => {
+									if (info?.showUploadPopup) {
+										setInfo((prev) => ({
+											...prev,
+											showUploadPopup: true,
+										}));
+									}
 									setInfo((prev) => ({
 										...prev,
-										showUploadPopup: !prev.showUploadPopup,
-									}))
-								}
+										showCustomizeAppearance: !prev.showCustomizeAppearance,
+									}));
+								}}
 								placement="bottomLeft"
 								title={
-									<UploadPopup
-										closePopup={() =>
-											setInfo((prev) => ({ ...prev, showUploadPopup: false }))
-										}
-										setLinkUploadedInfo={setLinkUploadedInfo}
-									/>
+									info?.showUploadPopup ? (
+										<UploadPopup
+											closePopup={() =>
+												setInfo((prev) => ({
+													...prev,
+													showUploadPopup: false,
+												}))
+											}
+											setLocalCoverImage={(coverImage) =>
+												setInfo((prev) => ({
+													...prev,
+													localCoverImage: coverImage,
+												}))
+											}
+										/>
+									) : (
+										<CustomizeAppearance
+											showUploadPopup={() =>
+												setInfo((prev) => ({
+													...prev,
+													showUploadPopup: true,
+												}))
+											}
+										/>
+									)
 								}
-								styles={{
-									backgroundColor: 'red',
-								}}
 								overlayInnerStyle={{
 									backgroundColor: 'inherit',
 								}}

@@ -1,4 +1,5 @@
 import service from '../../services/graphQlServices';
+import Service from '../../services/index';
 import { message } from '../../views/components/globalComponents/CustomToast';
 import {
 	getNotesListQuery,
@@ -18,6 +19,7 @@ import {
 	notesImageBlockUploadMutation,
 	notesImageBlockDeleteMutation,
 	notesLinkUploadMutation,
+	notesCoverImageFileUploadMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -457,12 +459,46 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const notesCoverImageFileUpload = async (imageFile, pageId) => {
+	const notesCoverImageFileUpload = async ({ imageFile, pageId }) => {
 		try {
-			let workspaceId = localStorage.getItem('workspaceId');
-			let usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+
+			const payload = {
+				pageId,
+				imageType: 'cover',
+			};
+
+			const response = await service.mutation(
+				notesCoverImageFileUploadMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+
+			if (response?.[0]) {
+				const signedUrl = response?.[1]?.data?.uploadPageImage?.signedUrl;
+
+				const uploadRes = await fetch(signedUrl, {
+					method: 'PUT',
+					headers: {
+						'Content-Type': imageFile.type,
+					},
+					body: imageFile,
+				});
+
+				if (uploadRes.status === 200) {
+					return [true];
+				} else {
+					return [false];
+				}
+			} else {
+				return false;
+			}
 		} catch (error) {
-			console.log('error==>notesCoverImageFileUpload', error);
+			console.error('error==>notesCoverImageFileUpload', error);
+			return false;
 		}
 	};
 
