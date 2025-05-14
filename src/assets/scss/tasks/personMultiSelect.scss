@@ -233,21 +233,6 @@
 					flex-shrink: 0;
 					margin-left: 8px;
 				}
-
-				&.selected {
-					// background-color: var(--card);
-					&:hover {
-						background-color: var(--card-over-card-hover);
-					}
-
-					.person-multi-select-selected-item-name-text {
-						color: var(--primary);
-					}
-
-					.person-multi-select-selected-item-avatar {
-						background-color: var(--primary);
-					}
-				}
 			}
 			.no-data-error-text {
 				padding: 6px 0;

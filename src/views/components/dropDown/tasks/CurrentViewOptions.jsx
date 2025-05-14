@@ -125,7 +125,7 @@ const CurrentViewOptions = ({
 			if (data?.prefix !== undefined) {
 				updateTaskPrefix({ input: { prefix: data.prefix } });
 			} else {
-				updateViewInfo(viewData?._id, { ...info, ...data });
+				updateViewInfo(viewData?._id, { ...data });
 			}
 		}, 500);
 	};
