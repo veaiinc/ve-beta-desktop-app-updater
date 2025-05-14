@@ -57,6 +57,14 @@
 				align-items: center;
 				width: 100%;
 
+				.left-container {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					padding: 8px;
+					margin: -8px;
+				}
+
 				.headerActions {
 					display: flex;
 					gap: 6px;
@@ -370,7 +378,7 @@
 	height: 31px;
 	&:hover {
 		cursor: pointer;
-		background: var(--card-over-card-hover);
+		// background: var(--card-over-card-hover);
 	}
 }
 

@@ -236,8 +236,9 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 					style={{
 						marginBottom: '8px',
 						width: '100%',
-						backgroundColor: 'var(--card)',
+						backgroundColor: 'var(--popup)',
 						color: 'var(--primary-font)',
+						'::placeholder': { color: 'var(--primary-font) !important' },
 					}}
 					onPressEnter={showAddOption ? handleAddFromSearch : undefined}
 					onKeyDown={handleKeyDown}
@@ -256,10 +257,12 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 							display: 'flex',
 							alignItems: 'center',
 							opacity: showAddOption ? 1 : 0.5,
-							color: 'white',
+							color: 'var(--primary-font)',
 						}}
 					>
-						<PlusOutlined style={{ marginRight: '8px', color: 'white' }} />
+						<PlusOutlined
+							style={{ marginRight: '8px', color: 'var(--primary-font)' }}
+						/>
 						{showAddOption
 							? `Add "${trimmedSearchValue}" as new attendee`
 							: 'Enter a valid, unique name or email to add as new attendee'}
@@ -292,11 +295,12 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 					color: 'var(--primary-font)',
 				}}
 			>
-				<PlusOutlined style={{ marginRight: '4px', color: 'var(--primary-font)' }} />
+				<PlusOutlined
+					style={{ marginRight: '4px', color: 'var(--primary-font) !important' }}
+				/>
 				<span>Add more</span>
 			</div>
 			<Select
-				// onClick={handleAddMoreClick}
 				ref={selectRef}
 				mode="multiple"
 				variant="borderless"
@@ -336,7 +340,6 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 				defaultOpen={true}
 				showArrow={false}
 				style={{ width: '100%' }}
-				placeholderStyle={{ color: 'var(--primary-text)' }}
 			/>
 			{hasMoreAttendees && !showAll && (
 				<button

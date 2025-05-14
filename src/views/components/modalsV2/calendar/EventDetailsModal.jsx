@@ -623,8 +623,8 @@ const EventDetailsModal = ({
 								<div className="header-content">
 									<div className="left-container">
 										<CloseSvg
-											width={16}
-											height={16}
+											width={20}
+											height={20}
 											onClick={modifiedOnClose}
 											style={{ cursor: 'pointer' }}
 										/>
