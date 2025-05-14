@@ -7,6 +7,7 @@ import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
 const PersonDropdown = memo(({ selected = [], onOptionClick, title, value }) => {
 	const searchDebounceRef = useRef(null);
 	const searchRef = useRef('');
+	console.log(selected, 'selected');
 
 	const {
 		contacts: { getClientsForTask, clientListForTask },

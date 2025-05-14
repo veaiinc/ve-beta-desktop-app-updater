@@ -240,6 +240,7 @@
 				line-height: normal;
 				cursor: pointer;
 				user-select: none;
+				background-color: transparent;
 
 				&.show {
 					border-radius: 8px;
@@ -248,9 +249,7 @@
 					color: var(--primary-font, #f2f2f3);
 				}
 
-				&.disabled {
-					opacity: 0.5;
-					pointer-events: none;
+				&:disabled {
 					cursor: not-allowed;
 				}
 			}

@@ -37,7 +37,6 @@ const Taskwidget = ({
 		tasks: { listTasks },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		widgetShown: false,
 		filterShown: false,
 		sort: null,
 		filters: null,
@@ -160,7 +159,13 @@ const Taskwidget = ({
 	};
 
 	const handleRemoveWidgetFilter = (key) => {
-		const newFilters = info?.filters?.filter((filter) => filter?.key !== key);
+		let newFilters = [];
+
+		if (Array.isArray(key)) {
+			newFilters = info?.filters?.filter((filter) => !key?.includes(filter?.key));
+		} else {
+			newFilters = info?.filters?.filter((filter) => filter?.key !== key);
+		}
 
 		setInfo((prevInfo) => ({
 			...prevInfo,
@@ -355,26 +360,25 @@ const Taskwidget = ({
 				</div>
 			)}
 
-			<div
-				className="taskWidgetHeaderContainer"
-				onClick={() =>
-					setInfo((prevInfo) => ({
-						...prevInfo,
-						widgetShown: !prevInfo?.widgetShown,
-					}))
-				}
-			>
-				<div className="taskHeader">
-					<div className="taskWidgetHeaderNumber">{allTasks || 0}</div>
-					<div className="taskWidgetHeaderText">All tasks</div>
+			<div className="widgets">
+				<div
+					className={`taskWidgetHeaderContainer ${
+						!pendingWidget && !overDueWidget && !dueTodayWidget && !completedWidget
+							? 'active'
+							: ''
+					}`}
+					onClick={() => handleRemoveWidgetFilter(['dueToday', 'overDue', 'status'])}
+				>
+					<div className="taskHeader">
+						<div className="taskWidgetHeaderNumber">{allTasks || 0}</div>
+						<div className="taskWidgetHeaderText">All tasks</div>
+					</div>
+					{/* <div className="taskWidgeticon">
+						<ChevronRightThinSvg
+							className={`chevron-icon ${info?.widgetShown && 'chevron-icon-rotate'}`}
+						/>
+					</div> */}
 				</div>
-				<div className="taskWidgeticon">
-					<ChevronRightThinSvg
-						className={`chevron-icon ${info?.widgetShown && 'chevron-icon-rotate'}`}
-					/>
-				</div>
-			</div>
-			<div className={`widgets ${info?.widgetShown && 'widget-show'}`}>
 				<div
 					className={`taskWidgetcontent ${dueTodayWidget && 'active'}`}
 					onClick={() => {
@@ -394,24 +398,6 @@ const Taskwidget = ({
 					</div>
 				</div>
 				<div
-					className={`taskWidgetcontent ${pendingWidget && 'active'}`}
-					onClick={() => {
-						if (pendingWidget) {
-							handleRemoveWidgetFilter('status', '');
-						} else {
-							handleWidgetStatusFilter('pending');
-						}
-					}}
-				>
-					<div className="taskWidgetoption">
-						<div className="taskWidgetnumber">{allPending || 0}</div>
-						<div className="taskWidgettext">Pending</div>
-					</div>
-					<div className="taskWidgeticon">
-						<Pending />
-					</div>
-				</div>
-				<div
 					className={`taskWidgetcontent ${overDueWidget && 'active'}`}
 					onClick={() => {
 						if (overDueWidget) {
@@ -427,6 +413,24 @@ const Taskwidget = ({
 					</div>
 					<div className="taskWidgeticon">
 						<Warn />
+					</div>
+				</div>
+				<div
+					className={`taskWidgetcontent ${pendingWidget && 'active'}`}
+					onClick={() => {
+						if (pendingWidget) {
+							handleRemoveWidgetFilter('status', '');
+						} else {
+							handleWidgetStatusFilter('pending');
+						}
+					}}
+				>
+					<div className="taskWidgetoption">
+						<div className="taskWidgetnumber">{allPending || 0}</div>
+						<div className="taskWidgettext">Pending</div>
+					</div>
+					<div className="taskWidgeticon">
+						<Pending />
 					</div>
 				</div>
 				<div

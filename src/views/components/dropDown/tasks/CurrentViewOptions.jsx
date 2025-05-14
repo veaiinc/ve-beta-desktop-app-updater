@@ -294,19 +294,18 @@ const CurrentViewOptions = ({
 							<div className="current-view-option-title">Task Properties</div>
 							<div className="property-items-wrapper">
 								{properties?.map((property) => (
-									<div
-										className={`property-item ${property?.show ? 'show' : ''} ${
-											property.value === 'title' ? 'disabled' : ''
-										}`}
+									<button
+										className={`property-item ${property?.show ? 'show' : ''} `}
 										key={property?.value}
 										onClick={() =>
 											updatePropertyPreference(property?.value, {
 												show: !property?.show,
 											})
 										}
+										disabled={property?.value === 'title'}
 									>
 										{property?.label}
-									</div>
+									</button>
 								))}
 							</div>
 						</div>
