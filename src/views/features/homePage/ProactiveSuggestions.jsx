@@ -245,7 +245,8 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			isMountedRef.current = false;
 			return;
 		}
-		getAISuggestedPendingActions(newUpdatedPayload);
+		const reset = true;
+		getAISuggestedPendingActions(newUpdatedPayload, reset);
 	}, [info?.selectedFilters]);
 
 	const updateCardsData = () => {
@@ -253,21 +254,16 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			(card) => card?.title?.length > 0,
 		);
 
-		const isPagination = aiSuggestedPendingActions?.metaInfo?.currentPage > 1;
-
 		if (cards?.length > 0) {
-			const updatedCards = isPagination
-				? [...totalCardsDataRef.current, ...cards]
-				: [...cards];
-
-			totalCardsDataRef.current = updatedCards;
+			totalCardsDataRef.current = cards;
 
 			setInfo((prev) => ({
 				...prev,
-				totalCardsData: updatedCards,
+				totalCardsData: cards,
 				loading: false,
 			}));
 		} else {
+			totalCardsDataRef.current = [];
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
@@ -354,7 +350,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 					...filterPayload,
 				};
 
-				await getAISuggestedPendingActions(newPayload);
+				await getAISuggestedPendingActions(newPayload, false);
 				setInfo((prev) => ({
 					...prev,
 					isApiLoading: false,
@@ -445,22 +441,23 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			};
 		});
 	};
-	const fetchMorePendingActions = async () => {
-		const nextPage = aiSuggestedPendingActions.metaInfo.currentPage + 1;
 
-		const filters = info.selectedFilters || [];
+	const fetchMorePendingActions = async () => {
+		const nextPage = aiSuggestedPendingActions?.metaInfo?.currentPage + 1;
+
+		const filters = info?.selectedFilters || [];
 
 		const selectedPriority = filters
-			?.filter((f) => f.group === 'Priority Level')
-			.map((f) => f.value || f.title);
+			?.filter((f) => f?.group === 'Priority Level')
+			.map((f) => f?.value || f?.title);
 
 		const selectedReadStatus = filters
-			?.filter((f) => f.group === 'Read Status')
-			.map((f) => f.value || f.title);
+			?.filter((f) => f?.group === 'Read Status')
+			.map((f) => f?.value || f?.title);
 
 		const selectedConfidenceScore = filters
-			?.filter((f) => f.group === 'Confidence level')
-			.map((f) => f.value || f.title);
+			?.filter((f) => f?.group === 'Confidence level')
+			.map((f) => f?.value || f?.title);
 
 		const { from, to } = getDateRangeFromFilters(filters);
 
@@ -479,7 +476,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			...filterPayload,
 		};
 
-		await getAISuggestedPendingActions(newPayload);
+		await getAISuggestedPendingActions(newPayload, false);
 	};
 
 	const handleThumbClick = async (id) => {
@@ -491,6 +488,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 				{
 					isFavourite: true,
 				},
+				false,
 				'update',
 				id,
 			);
@@ -584,17 +582,17 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 						title={
 							<div className="filter-container">
 								<div className="filter-items">
-									{filterGroups.map((group, idx) => (
-										<div key={group.title} style={{ width: '100%' }}>
+									{filterGroups?.map((group, idx) => (
+										<div key={group?.title} style={{ width: '100%' }}>
 											<div className="filter-item">
 												<div className="filter-item-title">
-													{group.title}
+													{group?.title}
 												</div>
 												<div className="filter-item-options">
-													{group.options.map((item) => {
+													{group?.options?.map((item) => {
 														const itemWithGroup = {
 															...item,
-															group: group.title,
+															group: group?.title,
 														};
 
 														const isSelected =
@@ -737,7 +735,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 										return (
 											<div
 												className="eachCardContainer"
-												key={card?._id}
+												key={index}
 												onMouseEnter={() =>
 													setInfo((prev) => ({
 														...prev,

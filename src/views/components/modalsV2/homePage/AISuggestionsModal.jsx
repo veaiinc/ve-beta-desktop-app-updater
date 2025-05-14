@@ -107,21 +107,21 @@ const AISuggestionsModal = ({
 		[info?.chainOfThoughtData],
 	);
 
-	const handleThumbClick = async (type) => {
-		if (data?.feedback === type) return;
-		const res = await pendingActionsUpdate(data?._id, { feedback: type });
-		if (res?.[0] === true) {
-			getAISuggestedPendingActions(
-				{
-					feedback: type,
-				},
-				'update',
-				data?._id,
-			);
-		} else {
-			message.error('Failed to update feedback');
-		}
-	};
+	// const handleThumbClick = async (type) => {
+	// 	if (data?.feedback === type) return;
+	// 	const res = await pendingActionsUpdate(data?._id, { feedback: type });
+	// 	if (res?.[0] === true) {
+	// 		getAISuggestedPendingActions(
+	// 			{
+	// 				feedback: type,
+	// 			},
+	// 			'update',
+	// 			data?._id,
+	// 		);
+	// 	} else {
+	// 		message.error('Failed to update feedback');
+	// 	}
+	// };
 
 	const handleRunBtnClick = () => {
 		const questions = data?.informationRequests;
@@ -191,7 +191,7 @@ const AISuggestionsModal = ({
 
 		const res = await pendingActionsUpdate(data?._id, { isDeleted: true });
 		if (res?.[0] === true) {
-			getAISuggestedPendingActions(null, 'delete', data?._id);
+			getAISuggestedPendingActions(null, false, 'delete', data?._id);
 			onClose?.();
 		} else {
 			message.error('Failed to delete pending action');
@@ -213,8 +213,6 @@ const AISuggestionsModal = ({
 		knowledge_base_sources,
 		category,
 		crux,
-		_id,
-		feedback,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -808,7 +806,7 @@ const AISuggestionsModal = ({
 
 					<div className="footer">
 						<div className="footer-content">
-							<div className="footer-left">
+							{/* <div className="footer-left">
 								<div
 									className={`thumbs-up-container ${
 										feedback === 'thumbsup' ? 'selected-thumb' : ''
@@ -825,7 +823,7 @@ const AISuggestionsModal = ({
 								>
 									<ThumbsDownSvg />
 								</div>
-							</div>
+							</div> */}
 							<div className="btns-container">
 								<button
 									className="report-btn"

@@ -2362,7 +2362,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getAISuggestedPendingActions = async (payload, type = null, id = null) => {
+	const getAISuggestedPendingActions = async (payload, reset = false, type = null, id = null) => {
 		try {
 			if (type === 'delete') {
 				const data = state?.aiSuggestedPendingActions?.pendingActions?.filter(
@@ -2409,9 +2409,18 @@ export const TemplatesState = (props) => {
 			const response = await Service.fetchGet(url, usertoken, 'tenant', {});
 
 			if (response?.[0]) {
+				const data = reset
+					? response?.[1]?.pendingActions || []
+					: [
+							...(state?.aiSuggestedPendingActions?.pendingActions || []),
+							...(response?.[1]?.pendingActions || []),
+					  ];
 				dispatch({
 					type: Actions.GET_AI_SUGGESTED_PENDING_ACTIONS_SUCCESS,
-					payload: response[1],
+					payload: {
+						...response?.[1],
+						pendingActions: data,
+					},
 				});
 			} else {
 				console.log('response==>getAISuggestedPendingActions');
