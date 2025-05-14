@@ -73,6 +73,29 @@ const ChildTaskComponent = ({
 		getSubTasks({ taskId: parentTaskId });
 	}, [parentTaskId]);
 
+	const renderComponent = (task, key, value) => {
+		if (key === 'createdWithAi') {
+			const Component = rowTypes?.['createdWithAi'];
+			return <Component />;
+		}
+		const { type, name, Icon, props } = responseMetadata?.[key] || {};
+		const RowComponent = rowTypes?.[type] || null;
+		if (RowComponent) {
+			return (
+				<RowComponent
+					key={key}
+					value={value}
+					title={name}
+					Icon={Icon}
+					{...props}
+					showIcon={true}
+					onOptionClick={(value) => handleUpdate(task?._id, key, value)}
+				/>
+			);
+		}
+		return null;
+	};
+
 	return (
 		<div className="sidebar-subtask-container">
 			<div className="sidebar-subtask-header">
@@ -97,7 +120,26 @@ const ChildTaskComponent = ({
 				</div>
 			</div>
 			<div className="subtask-list-container">
-				{
+				{childTasks?.map((task) => (
+					<div className="subtask-wrapper">
+						<div className="sub-task-text-wrapper">
+							<div className="title">This is a title</div>
+							<div className="description">This is a description</div>
+						</div>
+						<div className="other-properties">
+							<div className="property">
+								<div className="property-tags">
+									{task?.status && renderComponent(task, 'status', task?.status)}
+									{task?.priority &&
+										renderComponent(task, 'priority', task?.priority)}
+								</div>
+								{task?.assignedTo &&
+									renderComponent(task, 'assignedTo', task?.assignedTo)}
+							</div>
+						</div>
+					</div>
+				))}
+				{/* {
 					<ListView
 						handleUpdate={handleUpdate}
 						responseMetadata={responseMetadata}
@@ -113,7 +155,7 @@ const ChildTaskComponent = ({
 						error={null}
 						infiniteScrollHeight="200px"
 					/>
-				}
+				} */}
 			</div>
 		</div>
 	);
