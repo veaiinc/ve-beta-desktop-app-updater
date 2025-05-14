@@ -52,7 +52,9 @@ const GalleryCard = ({ task, responseMetadata, handleUpdate }) => {
 			</div>
 
 			<div className="gallery-card-footer">
-				{task?.childTasks && renderComponent('childTasks', task?.childTasks)}
+				{task?.childTasks &&
+					task?.childTasks?.length > 0 &&
+					renderComponent('childTasks', task?.childTasks)}
 				{/* <div className="gallery-card-footer-created-with-ai">
 					{!task?.createdBy && renderComponent('createdWithAi')}
 				</div> */}

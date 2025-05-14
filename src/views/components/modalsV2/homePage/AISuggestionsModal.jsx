@@ -27,6 +27,7 @@ import {
 	redirectTypeMapper,
 } from '../../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
+import PromptPopup from '../../homePage/PromptPopup';
 const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
@@ -54,6 +55,7 @@ const AISuggestionsModal = ({
 		chainOfThoughtData: {
 			hasChainOfThought: false,
 		},
+		feedbackPopupOpen: false,
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -68,7 +70,7 @@ const AISuggestionsModal = ({
 		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || []);
 		setInfo((prev) => ({
 			...prev,
-			selectedFeedback: data?.feedback,
+			selectedFeedback: data?.rating,
 			chainOfThoughtData,
 		}));
 		if (bodyRef?.current) {
@@ -202,6 +204,10 @@ const AISuggestionsModal = ({
 		}
 	};
 
+	const handleThumbsClick = (thumbs) => {
+		setInfo((prev) => ({ ...prev, selectedFeedback: thumbs, feedbackPopupOpen: true }));
+	};
+
 	const handleDeleteCard = useCallback(async () => {
 		if (!data?._id) return;
 
@@ -253,6 +259,17 @@ const AISuggestionsModal = ({
 			bodyStyle={{ padding: '0px' }}
 			rootClassName="ai-suggestions-drawer"
 		>
+			{info?.feedbackPopupOpen && (
+				<PromptPopup
+					messageId={data?._id}
+					liked={info?.selectedFeedback}
+					open={info?.feedbackPopupOpen}
+					feedbackPopupOpen={info?.feedbackPopupOpen}
+					closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
+					feedbackType="pendingActionFeedback"
+					setLiked={(liked) => setInfo((prev) => ({ ...prev, selectedFeedback: liked }))}
+				/>
+			)}
 			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
 				<div className="drag-handler" onMouseDown={handleMouseDown} />
 
@@ -910,7 +927,7 @@ const AISuggestionsModal = ({
 									className={`thumbs-up-container ${
 										feedback === 'thumbsup' ? 'selected-thumb' : ''
 									}`}
-									onClick={() => handleThumbClick('thumbsup')}
+									onClick={() => handleThumbsClick('thumbsup')}
 								>
 									<ThumbsUpSvg />
 								</div>
@@ -918,7 +935,7 @@ const AISuggestionsModal = ({
 									className={`thumbs-up-container ${
 										feedback === 'thumbsdown' ? 'selected-thumb' : ''
 									}`}
-									onClick={() => handleThumbClick('thumbsdown')}
+									onClick={() => handleThumbsClick('thumbsdown')}
 								>
 									<ThumbsDownSvg />
 								</div>

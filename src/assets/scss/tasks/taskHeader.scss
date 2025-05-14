@@ -19,14 +19,11 @@
 		max-width: 100%;
 		flex: 1;
 		min-width: 0;
-		&::-webkit-scrollbar {
-			display: none;
-		}
 
 		> div {
 			display: flex;
 			align-items: center;
-			flex-shrink: 1;
+			flex-shrink: 0;
 			min-width: 0;
 		}
 

@@ -59,11 +59,11 @@
 				transition: background-color 0.3s ease;
 
 				&.active {
-					background-color: var(--chat-button, #2e2f33);
+					background-color: var(--card-hover, #202123);
 				}
 
 				&:hover {
-					background-color: var(--chat-button, #2e2f33);
+					background-color: var(--card-hover, #202123);
 				}
 			}
 		}
@@ -200,6 +200,7 @@
 			cursor: pointer;
 			font-size: 14px;
 			font-weight: 500;
+			color: var(--primary-font);
 
 			&.selected-feedback {
 				border-radius: 20px;
@@ -339,7 +340,7 @@
 			}
 
 			.runPrompt {
-				background: var(--chat-button, #2e2f33);
+				background-color: var(--card-hover, #202123);
 				text-wrap: nowrap;
 				svg {
 					width: 16px;
@@ -347,11 +348,9 @@
 					aspect-ratio: 1/1;
 				}
 
-				& {
-					&:hover {
-						opacity: 0.7;
-						transition: opacity 0.3s ease;
-					}
+				&:hover {
+					background-color: var(--card-over-card-hover);
+					transition: background-color 0.3s ease;
 				}
 			}
 
@@ -360,11 +359,9 @@
 
 				background: transparent;
 
-				& {
-					&:hover {
-						background: var(--card-hover);
-						transition: background 0.3s ease;
-					}
+				&:hover {
+					background: var(--card-hover);
+					transition: background 0.3s ease;
 				}
 			}
 		}
