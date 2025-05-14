@@ -30,6 +30,7 @@ import { message } from '../../components/globalComponents/CustomToast';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 import { FetchMoreLoaderComp } from '../../../helpers';
+import { Tooltip } from 'antd';
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
@@ -467,11 +468,10 @@ const TaskWidget = ({ width, height }) => {
 				} else {
 					// Update state only after successful API call
 					if (onSuccess) onSuccess();
-
+					const token = localStorage.getItem('usertoken');
+					const { user_id, userName } = jwtDecode(token);
 					// Handle assignedTo special case
 					if (propName === 'assignedTo') {
-						const token = localStorage.getItem('usertoken');
-						const { user_id, userName } = jwtDecode(token);
 						if (isUpdatingSubTask) {
 							setInfo((prevInfo) => ({
 								...prevInfo,
@@ -518,9 +518,6 @@ const TaskWidget = ({ width, height }) => {
 							});
 						}
 					}
-					// Update updatedBy for any successful update
-					const token = localStorage.getItem('usertoken');
-					const { user_id, userName } = jwtDecode(token);
 
 					setInfo((prevInfo) => {
 						const newListItems = prevInfo?.listItems?.map((row) => {
@@ -682,7 +679,7 @@ const TaskWidget = ({ width, height }) => {
 					<div className="taskWidgetBodyHeader">
 						<div className="taskWidgetBodyHeaderLeft">
 							<span className="taskWidgetDay">{listTasks?.analytics?.allTasks}</span>
-							<span className="taskWidgetRemainder">Reminder</span>
+							<span className="taskWidgetRemainder">Pending Tasks</span>
 						</div>
 						{/* <div className="taskWidgetBodyHeaderRight">
 							<div className="taskWidgetDaysFilter">
@@ -745,7 +742,13 @@ const TaskWidget = ({ width, height }) => {
 													{eachOption?.title}
 												</div>
 												<div className="taskWidgetOptionName">
-													{eachOption?.createdBy?.name}
+													<Tooltip
+														title={`Assigned By: ${eachOption?.assignedBy?.name}`}
+													>
+														<span className="taskWidgetOptionNameText">
+															{eachOption?.assignedBy?.name}
+														</span>
+													</Tooltip>
 												</div>
 											</div>
 										</div>
