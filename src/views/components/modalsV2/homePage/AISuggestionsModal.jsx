@@ -158,13 +158,20 @@ const AISuggestionsModal = ({
 	};
 
 	const handleMouseMove = (e) => {
-		if (!resizableContainerRef.current) return;
-		const deltaX = mouseXPosition.current - e.clientX;
+		if (!resizableContainerRef?.current) return;
 
-		resizableContainerRef.current.style.width = `${
-			resizableContainerRef.current.offsetWidth + deltaX
-		}px`;
-		mouseXPosition.current = e.clientX;
+		const deltaX = mouseXPosition?.current - e?.clientX;
+		const currentWidth = resizableContainerRef?.current?.offsetWidth;
+		const newWidth = currentWidth + deltaX;
+
+		const minWidth = 600;
+		const maxWidth = window?.innerWidth * 0.8 || 1000; // 80vw
+
+		// Clamp the new width within min and max bounds
+		const clampedWidth = Math?.min(Math?.max(newWidth, minWidth), maxWidth);
+
+		resizableContainerRef.current.style.width = `${clampedWidth}px`;
+		mouseXPosition.current = e?.clientX;
 	};
 
 	const handleMouseUp = () => {
@@ -212,7 +219,6 @@ const AISuggestionsModal = ({
 			placement="right"
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
-			style={{ padding: '0px', maxWidth: '70vw', minWidth: '20vw' }}
 			rootClassName="ai-suggestions-drawer"
 		>
 			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
