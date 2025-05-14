@@ -5,6 +5,7 @@ import { ReactComponent as ArrowRightSvg } from '../../../../assets/svg/home_pag
 import { ReactComponent as ShareSvg } from '../../../../assets/svg/files/share.svg';
 import { ReactComponent as DownloadSvg } from '../../../../assets/svg/download.svg';
 import { ReactComponent as DeleteSvg } from '../../../../assets/svg/delete.svg';
+import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as ThumbsUpSvg } from '../../../../assets/svg/thumbsUp.svg';
 import { ReactComponent as ThumbsDownSvg } from '../../../../assets/svg/thumbsDown.svg';
 import { ReactComponent as CoinSvg } from '../../../../assets/svg/ai_agents/coin.svg';
@@ -43,7 +44,7 @@ const AISuggestionsModal = ({
 
 	const [info, setInfo] = useState({
 		isExpanded: false,
-		isSolutionsExpanded: false,
+		isSolutionsExpanded: true,
 		isActionsExpanded: false,
 		isPromptsExpanded: false,
 		isReportExpanded: true,
@@ -213,9 +214,15 @@ const AISuggestionsModal = ({
 		knowledge_base_sources,
 		category,
 		crux,
+		createdAt,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
+	const createdDate = new Date(createdAt * 1000)?.toLocaleDateString('en-US', {
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric',
+	});
 	const reportCitations = useMemo(() => {
 		return [...(web_sources || []), ...(knowledge_base_sources || [])];
 	}, [web_sources, knowledge_base_sources]);
@@ -238,13 +245,13 @@ const AISuggestionsModal = ({
 					<div className="drawer-header">
 						<div className="header-content">
 							<div className="left-container">
-								<div className="prev-btn" onClick={onPrevCardClick}>
-									<ChevronRightThinSvg />
-								</div>
 								<div className="total-docs">
 									<div className="current-doc">{selectedCardNumber}</div>
 									<div className="doc-divider">/</div>
 									<div className="total">{totalDocs}</div>
+								</div>
+								<div className="prev-btn" onClick={onPrevCardClick}>
+									<ChevronRightThinSvg />
 								</div>
 								<div className="next-btn" onClick={onNextCardClick}>
 									<ChevronRightThinSvg />
@@ -252,9 +259,9 @@ const AISuggestionsModal = ({
 							</div>
 
 							<div className="right-container">
-								<div className="btn share-btn">
+								{/* <div className="btn share-btn">
 									<ShareSvg />
-								</div>
+								</div> */}
 								{/* <div className="btn download-btn">
 									<DownloadSvg />
 								</div> */}
@@ -274,6 +281,20 @@ const AISuggestionsModal = ({
 
 							<div className="suggestions-info">
 								<div className="info">
+									{confidence_score && (
+										<Tooltip
+											title={`Confidence Score: ${confidence_score * 100}%`}
+											trigger="hover"
+											arrow={false}
+											placement="top"
+										>
+											<div className="confidence">
+												<div className="value">{`${
+													confidence_score * 100
+												}%`}</div>
+											</div>
+										</Tooltip>
+									)}
 									{priority && (
 										<Tooltip title={`Priority: ${priority}`}>
 											<div className="priority">
@@ -302,17 +323,13 @@ const AISuggestionsModal = ({
 											</div>
 										</Tooltip>
 									)}
-									{confidence_score && (
-										<Tooltip
-											title={`Confidence Score: ${confidence_score * 100}%`}
-											trigger="hover"
-											arrow={false}
-											placement="bottom"
-										>
-											<div className="confidence">
-												<div className="value">{`${
-													confidence_score * 100
-												}%`}</div>
+									{createdAt && (
+										<Tooltip title={`Created At: ${createdDate}`} arrow={false}>
+											<div className="priority">
+												<div className="icon">
+													<CalendarSvg />
+												</div>
+												<div className="priority-text">{`${createdDate}`}</div>
 											</div>
 										</Tooltip>
 									)}
@@ -356,9 +373,7 @@ const AISuggestionsModal = ({
 						</div>
 						{solutions?.length > 0 && (
 							<div
-								className={`solutions-container ${
-									info?.isSolutionsExpanded ? 'active' : ''
-								}`}
+								className={`solutions-container`}
 								onClick={() =>
 									setInfo((prev) => ({
 										...prev,

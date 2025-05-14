@@ -163,9 +163,9 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	}, [aiSuggestedPendingActions]);
 
 	const handleKeyDown = (e) => {
-		if (e?.key === 'ArrowLeft') {
+		if (e?.key === 'ArrowUp') {
 			handleLeft();
-		} else if (e?.key === 'ArrowRight') {
+		} else if (e?.key === 'ArrowDown') {
 			handleRight();
 		}
 	};
@@ -250,9 +250,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	}, [info?.selectedFilters]);
 
 	const updateCardsData = () => {
-		const cards = aiSuggestedPendingActions?.pendingActions?.filter(
-			(card) => card?.title?.length > 0,
-		);
+		const cards = aiSuggestedPendingActions?.pendingActions;
 
 		if (cards?.length > 0) {
 			totalCardsDataRef.current = cards;

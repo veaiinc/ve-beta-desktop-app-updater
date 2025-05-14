@@ -2,6 +2,7 @@
 	.ant-collapse {
 		width: 100%;
 		border: none;
+		background-color: transparent;
 		.ant-collapse-item-active {
 			.ant-collapse-header {
 				.ant-collapse-expand-icon {
@@ -112,10 +113,10 @@
 					.left-container {
 						display: flex;
 						align-items: center;
-						gap: 18px;
+						gap: 12px;
 						.prev-btn {
 							cursor: pointer;
-							transform: rotate(180deg);
+							transform: rotate(-90deg);
 							height: fit-content;
 							height: 22px;
 							display: flex;
@@ -157,6 +158,9 @@
 							display: flex;
 							align-items: center;
 							justify-content: center;
+							transform: rotate(90deg);
+							position: relative;
+							top: 1px;
 							svg {
 								width: 20px;
 								height: 20px;
@@ -294,7 +298,7 @@
 								.priority-text {
 									color: var(--primary-font, #f2f2f3);
 									font-family: var(--primary-font-family);
-									font-size: 14px;
+									font-size: 12px;
 									font-style: normal;
 									font-weight: 500;
 									line-height: normal;
@@ -346,7 +350,8 @@
 								align-items: center;
 								gap: 8px;
 								border-radius: 8px;
-								background: #b06253;
+								border: 1px solid var(--stroke, #424548);
+								background: var(--popup, #202123);
 
 								color: var(--primary-font, #f2f2f3);
 								font-family: var(--primary-font-family);
@@ -361,18 +366,13 @@
 				.solutions-container {
 					display: flex;
 					width: 100%;
-					padding: 12px;
+					padding: 14px;
 					flex-direction: column;
 					align-items: flex-start;
 					gap: 16px;
 					border-radius: 8px;
 					transition: background 200ms ease-in-out;
-					&.active {
-						background: var(--popup, #202123);
-					}
-					&:hover {
-						background: var(--popup, #202123);
-					}
+
 					.solutions {
 						margin-top: 24px;
 						display: grid;
@@ -394,8 +394,8 @@
 							transition: background 0.2s ease-in-out, border 0.2s ease-in-out;
 
 							&:hover {
-								border: 1px solid #239f72;
-								background: rgba(35, 159, 114, 0.05);
+								border: 1px solid var(--primary-button);
+								background: rgba(121, 236, 201, 0.05);
 							}
 
 							.item-text {
@@ -477,7 +477,7 @@
 						width: 100%;
 						flex-direction: column;
 						gap: 24px;
-						padding: 12px;
+						padding: 14px;
 						border-radius: 8px;
 						transition: background 200ms ease-in-out;
 						&:hover {
@@ -513,7 +513,7 @@
 					.suggested-actions-container {
 						display: flex;
 						width: 100%;
-						padding: 12px;
+						padding: 14px;
 						flex-direction: column;
 						align-items: flex-start;
 						gap: 16px;
@@ -572,7 +572,7 @@
 					.suggested-prompts-container {
 						display: flex;
 						width: 100%;
-						padding: 12px;
+						padding: 14px;
 						flex-direction: column;
 						align-items: flex-start;
 						gap: 16px;
@@ -630,7 +630,7 @@
 					.questions-wrapper {
 						display: flex;
 						width: 100%;
-						padding: 12px;
+						padding: 14px;
 						flex-direction: column;
 						align-items: flex-start;
 						gap: 16px;
