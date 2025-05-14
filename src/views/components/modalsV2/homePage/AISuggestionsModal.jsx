@@ -26,6 +26,7 @@ import {
 	redirectTypeMapper,
 } from '../../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
+import PromptPopup from '../../homePage/PromptPopup';
 const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
@@ -47,13 +48,14 @@ const AISuggestionsModal = ({
 		isActionsExpanded: false,
 		isPromptsExpanded: false,
 		isReportExpanded: true,
-		selectedFeedback: data?.feedback,
+		selectedFeedback: data?.rating,
 		isQuestionsExpanded: false,
 		questionsAnswers: {},
 		activeTab: 'situation',
 		chainOfThoughtData: {
 			hasChainOfThought: false,
 		},
+		feedbackPopupOpen: false,
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -67,7 +69,7 @@ const AISuggestionsModal = ({
 		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || []);
 		setInfo((prev) => ({
 			...prev,
-			selectedFeedback: data?.feedback,
+			selectedFeedback: data?.rating,
 			chainOfThoughtData,
 		}));
 	}, [data]);
@@ -116,14 +118,14 @@ const AISuggestionsModal = ({
 			message.error('Failed to ignore pending action');
 		}
 	};
-	const handleThumbClick = async (type) => {
-		if (info?.selectedFeedback === type) return;
-		setInfo((prev) => ({ ...prev, selectedFeedback: type }));
-		const res = await pendingActionsUpdate(data?._id, { feedback: type });
-		if (res?.[0] === false) {
-			message.error('Failed to update feedback');
-		}
-	};
+	// const handleThumbClick = async (type) => {
+	// 	if (info?.selectedFeedback === type) return;
+	// 	setInfo((prev) => ({ ...prev, selectedFeedback: type }));
+	// 	const res = await pendingActionsUpdate(data?._id, { feedback: type });
+	// 	if (res?.[0] === false) {
+	// 		message.error('Failed to update feedback');
+	// 	}
+	// };
 
 	const handleRunBtnClick = () => {
 		const questions = data?.informationRequests;
@@ -181,6 +183,10 @@ const AISuggestionsModal = ({
 		}
 	};
 
+	const handleThumbsClick = (thumbs) => {
+		setInfo((prev) => ({ ...prev, selectedFeedback: thumbs, feedbackPopupOpen: true }));
+	};
+
 	const {
 		title,
 		description,
@@ -215,6 +221,17 @@ const AISuggestionsModal = ({
 			style={{ padding: '0px', maxWidth: '70vw', minWidth: '20vw' }}
 			rootClassName="ai-suggestions-drawer"
 		>
+			{info?.feedbackPopupOpen && (
+				<PromptPopup
+					messageId={data?._id}
+					liked={info?.selectedFeedback}
+					open={info?.feedbackPopupOpen}
+					feedbackPopupOpen={info?.feedbackPopupOpen}
+					closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
+					feedbackType="pendingActionFeedback"
+					setLiked={(liked) => setInfo((prev) => ({ ...prev, selectedFeedback: liked }))}
+				/>
+			)}
 			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
 				<div className="drag-handler" onMouseDown={handleMouseDown} />
 
@@ -982,7 +999,7 @@ const AISuggestionsModal = ({
 											? 'selected-thumb'
 											: ''
 									}`}
-									onClick={() => handleThumbClick('thumbsup')}
+									onClick={() => handleThumbsClick('thumbsup')}
 								>
 									<ThumbsUpSvg />
 								</div>
@@ -992,7 +1009,7 @@ const AISuggestionsModal = ({
 											? 'selected-thumb'
 											: ''
 									}`}
-									onClick={() => handleThumbClick('thumbsdown')}
+									onClick={() => handleThumbsClick('thumbsdown')}
 								>
 									<ThumbsDownSvg />
 								</div>
