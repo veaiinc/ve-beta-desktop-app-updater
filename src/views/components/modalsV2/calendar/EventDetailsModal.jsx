@@ -19,6 +19,8 @@ import { Drawer } from 'antd';
 import moment from 'moment';
 import { PlusOutlined } from '@ant-design/icons';
 import { Input } from 'antd';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 // Utility to sanitize input
 const sanitizeInput = (value) => {
@@ -493,13 +495,25 @@ const EventDetailsModal = ({
 				/>
 			),
 			phone: (value) => (
-				<CustomInput
-					type="tel"
+				<PhoneInput
+					placeholder="Enter phone number"
 					value={value}
-					className="inputFeilds"
-					onChange={(e) => {
-						updateEventDetails('phone', e.target?.value);
+					onChange={(phoneValue) => {
+						updateEventDetails('phone', phoneValue);
 					}}
+					defaultCountry={(() => {
+						try {
+							const locationDetails = JSON.parse(
+								localStorage.getItem('locationDetails'),
+							);
+							return locationDetails?.countryCode || 'US';
+						} catch {
+							return 'US';
+						}
+					})()}
+					className="phoneInputNumber"
+					countryCallingCodeEditable={true}
+					autoComplete="tel"
 				/>
 			),
 			organizer: (value) => (
@@ -557,7 +571,17 @@ const EventDetailsModal = ({
 	const handleMouseMove = (e) => {
 		if (!resizableContainerRef.current) return;
 		const deltaX = mouseXPosition.current - e.clientX;
-		const newWidth = resizableContainerRef.current.offsetWidth + deltaX;
+		let newWidth = resizableContainerRef.current.offsetWidth + deltaX;
+
+		const minWidth = 450; // Minimum width in pixels
+		const maxWidth = window.innerHeight * 1.0; // Maximum width (75vh) in pixels
+
+		if (newWidth < minWidth) {
+			newWidth = minWidth;
+		} else if (newWidth > maxWidth) {
+			newWidth = maxWidth;
+		}
+
 		requestAnimationFrame(() => {
 			resizableContainerRef.current.style.width = `${newWidth}px`;
 		});
@@ -606,9 +630,9 @@ const EventDetailsModal = ({
 										/>
 									</div>
 									<div className="headerActions">
-										<div className="action-btn">
+										{/* <div className="action-btn">
 											<Share width={20} height={20} />
-										</div>
+										</div> */}
 										{selectedEvent?.id && !info?.deleting ? (
 											<Delete
 												width={20}

@@ -296,7 +296,7 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 				<span>Add more</span>
 			</div>
 			<Select
-				onClick={handleAddMoreClick}
+				// onClick={handleAddMoreClick}
 				ref={selectRef}
 				mode="multiple"
 				variant="borderless"
