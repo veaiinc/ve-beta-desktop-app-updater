@@ -37,6 +37,7 @@ const AISuggestionsModal = ({
 	onPrevCardClick,
 	totalDocs,
 	selectedCardNumber,
+	bodyRef = null,
 }) => {
 	const {
 		templates: { updateStateValues, pendingActionsUpdate, getAISuggestedPendingActions },
@@ -59,7 +60,6 @@ const AISuggestionsModal = ({
 	const resizableContainerRef = useRef(null);
 	const mouseXPosition = useRef(null);
 	const navigate = useNavigate();
-
 	useEffect(() => {
 		if (!data) return;
 
@@ -148,6 +148,26 @@ const AISuggestionsModal = ({
 
 		updateStateValues({ activePromptForChat: prompt });
 		navigate(`/chat/${ObjectID()?.toString()}`);
+	};
+
+	const handlePrevCardClick = () => {
+		onPrevCardClick?.();
+		if (bodyRef?.current) {
+			bodyRef?.current?.scrollTo({
+				top: 0,
+				behavior: 'smooth',
+			});
+		}
+	};
+
+	const handleNextCardClick = () => {
+		onNextCardClick?.();
+		if (bodyRef?.current) {
+			bodyRef?.current?.scrollTo({
+				top: 0,
+				behavior: 'smooth',
+			});
+		}
 	};
 
 	const handleMouseDown = (e) => {
@@ -250,10 +270,10 @@ const AISuggestionsModal = ({
 									<div className="doc-divider">/</div>
 									<div className="total">{totalDocs}</div>
 								</div>
-								<div className="prev-btn" onClick={onPrevCardClick}>
+								<div className="prev-btn" onClick={handlePrevCardClick}>
 									<ChevronRightThinSvg />
 								</div>
-								<div className="next-btn" onClick={onNextCardClick}>
+								<div className="next-btn" onClick={handleNextCardClick}>
 									<ChevronRightThinSvg />
 								</div>
 							</div>
@@ -272,10 +292,12 @@ const AISuggestionsModal = ({
 						</div>
 					</div>
 
-					<div className="body">
+					<div className="body" ref={bodyRef}>
+						<div className="header-title-text">{title || ''}</div>
+
 						<div className="body-header-wrapper">
 							<div className="body-header">
-								<div className="title-text">{title || ''}</div>
+								{/* <div className="title-text">{title || ''}</div> */}
 								<div className="description">{description || ''}</div>
 							</div>
 
@@ -533,8 +555,7 @@ const AISuggestionsModal = ({
 														<div className="cot-text">
 															<div className="title-text">Report</div>
 															<div className="description-text">
-																{crux ||
-																	'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. lorem epusme fe efie egij egfme fk '}
+																{crux || ''}
 															</div>
 														</div>
 													</div>

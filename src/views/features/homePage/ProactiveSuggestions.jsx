@@ -151,6 +151,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	const currentIndexRef = useRef(0);
 	const totalCardsDataRef = useRef([]);
 	const isMountedRef = useRef(true);
+	const modalBodyRef = useRef(null);
 
 	useEffect(() => {
 		selectedOptionRef.current = selectedOption;
@@ -163,10 +164,22 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	}, [aiSuggestedPendingActions]);
 
 	const handleKeyDown = (e) => {
-		if (e?.key === 'ArrowUp') {
+		if (e?.key === 'ArrowUp' || e?.key === 'ArrowLeft') {
 			handleLeft();
-		} else if (e?.key === 'ArrowDown') {
+			if (modalBodyRef?.current) {
+				modalBodyRef?.current?.scrollTo({
+					top: 0,
+					behavior: 'smooth',
+				});
+			}
+		} else if (e?.key === 'ArrowDown' || e?.key === 'ArrowRight') {
 			handleRight();
+			if (modalBodyRef?.current) {
+				modalBodyRef?.current?.scrollTo({
+					top: 0,
+					behavior: 'smooth',
+				});
+			}
 		}
 	};
 	useEffect(() => {
@@ -1111,6 +1124,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 				onPrevCardClick={handleLeft}
 				totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
 				selectedCardNumber={currentIndexRef?.current + 1}
+				bodyRef={modalBodyRef}
 			/>
 		</div>
 	);
