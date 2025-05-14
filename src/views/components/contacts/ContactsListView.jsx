@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
+import { Tooltip } from 'antd';
 
 dayjs?.extend(relativeTime);
 
@@ -62,9 +63,19 @@ const ContactsListView = ({ data, hasMore, fetchMore }) => {
                     <span className="text">{contact.strength}</span> */}
 										</div>
 										<div className="interaction">
-											{contact?.updatedAt
-												? dayjs?.unix(contact?.updatedAt)?.fromNow() // Converts Unix seconds -> "14 days ago"
-												: 'N/A'}
+											{contact?.updatedAt ? (
+												<Tooltip
+													title={`Last Interacted on: ${dayjs
+														?.unix(contact?.updatedAt)
+														?.format('DD MMM YYYY')}`}
+												>
+													<span>
+														{dayjs?.unix(contact?.updatedAt)?.fromNow()}
+													</span>
+												</Tooltip>
+											) : (
+												'N/A'
+											)}
 										</div>
 									</div>
 								</div>

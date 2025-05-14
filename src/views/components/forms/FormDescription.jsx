@@ -27,10 +27,11 @@ import {
 } from '@ant-design/icons';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import QuickActions from '../globalComponents/QuickActions';
 import FormPreview from './FormPreview';
 import moment from 'moment';
+import { fetchOriginSelection } from '../../../helpers';
 
+const origin = fetchOriginSelection();
 const iconsForQuestions = {
 	shortText: <BiDash />,
 	longText: <Hamburger />,
@@ -48,18 +49,6 @@ const iconsForQuestions = {
 	link: <Link />,
 	number: <Hash />,
 };
-
-const suggestedOptions = [
-	{
-		id: 1,
-		title: 'Document',
-		value: 'all',
-		controlValue: 'all',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: '' }));
-		},
-	},
-];
 
 const eventsTableHeaderData = [
 	{ id: 1, label: 'Event Name' },
@@ -549,11 +538,18 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 			<div className="descriptionContent">
 				{response ? (
 					<>
-						{/* <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-							<QuickActions suggestedOptions={suggestedOptions} isFromForms={true} />
-						</div> */}
 						<div className="descriptionSection">
-							<h3 className="sectionTitle">Basic Information</h3>
+							<div className="infoRow">
+								<h3 className="sectionTitle">Basic Information</h3>
+								<span
+									className="createDocumentButton"
+									onClick={() => {
+										window.location.href = `${origin}/create-document?formResponseId=${response?._id}`;
+									}}
+								>
+									Create Document
+								</span>
+							</div>
 							{getBasicInfo(response).map((field, index) => (
 								<div key={index} className="infoRow">
 									<span className="infoLabel">

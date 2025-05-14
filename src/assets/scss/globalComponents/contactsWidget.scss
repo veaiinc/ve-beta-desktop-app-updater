@@ -23,7 +23,6 @@
 			height: 423px;
 			align-items: flex-start;
 			color: var(--primary-font, #f2f2f3);
-			gap: 16px;
 			flex: 1 0 0;
 			align-self: stretch;
 			overflow-y: scroll;
@@ -92,9 +91,14 @@
 			}
 			.contactsEachOptions {
 				display: flex;
-				justify-content: space-between;
-				align-items: center;
+				padding: 6px;
+				align-items: flex-start;
 				align-self: stretch;
+				cursor: pointer;
+				border-radius: 8px;
+				&:hover {
+					background: var(--card-over-card-hover);
+				}
 				.contactDetails {
 					display: flex;
 					flex-direction: column;
@@ -126,6 +130,10 @@
 					align-items: center;
 					gap: 10px;
 					border-radius: 24px;
+					background: var(--card-over-card-hover, #2e2f33);
+				}
+
+				&:hover {
 					background: var(--card-over-card-hover, #2e2f33);
 				}
 			}

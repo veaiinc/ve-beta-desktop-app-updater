@@ -252,6 +252,7 @@ export const getWorkflowListQuery = gql`
 				templateId
 				version
 				createdAt
+				updatedAt
 			}
 		}
 	}

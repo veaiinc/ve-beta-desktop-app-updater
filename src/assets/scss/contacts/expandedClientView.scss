@@ -203,7 +203,7 @@
 				align-items: flex-start;
 				gap: 4px;
 				border-radius: 8px;
-				background: var(--card-over-card, #1e1f21);
+				background: var(--card, #1e1f21);
 				cursor: pointer;
 				min-width: 121px;
 				&.active {
@@ -226,15 +226,15 @@
 				}
 
 				&.strong .dot {
-					background-color: #4caf50;
+					background-color: var(--success);
 				}
 
 				&.normal .dot {
-					background-color: #2196f3;
+					background-color: var(--warning);
 				}
 
 				&.weak .dot {
-					background-color: #f44336;
+					background-color: var(--error);
 				}
 				.iconContainer {
 					display: flex;
@@ -328,7 +328,7 @@
 				cursor: pointer;
 
 				&:hover {
-					background: var(--active-card-bg, #252628);
+					background: var(--card-hover, #252628);
 				}
 			}
 		}

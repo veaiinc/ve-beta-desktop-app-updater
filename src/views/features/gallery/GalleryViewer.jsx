@@ -64,6 +64,7 @@ const GalleryViewer = ({
 	activeAlbumId = null,
 	selectedFace = null,
 	tagId = null,
+	handleOpenUploadCover,
 }) => {
 	const [searchkeys, setsearchkeys] = useSearchParams();
 	const selectedImages = currentSelectedImages;
@@ -74,8 +75,8 @@ const GalleryViewer = ({
 	const hasRunFakeLoading = useRef(true);
 
 	const customStyles = {
-		content: { zIndex: 99999, height: '100vh', width: '100vw' },
-		overlay: { zIndex: 99998, background: 'var(--card-over-card)' },
+		content: { zIndex: 9999, height: '100vh', width: '100vw' },
+		overlay: { zIndex: 9998, background: 'var(--card-over-card)' },
 	};
 
 	const {
@@ -343,6 +344,7 @@ const GalleryViewer = ({
 							removeTagFromImage={removeTagFromImage}
 							getDownloadLinkForImage={getDownloadLinkForImage}
 							closeModal={() => closeModal()}
+							handleOpenUploadCover={handleOpenUploadCover}
 						/>
 					)}
 				</div>

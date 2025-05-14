@@ -338,6 +338,8 @@ const GalleryPage = () => {
 		isGalleryViewer: false,
 		currentExpandImage: null,
 		currentWorkspaceId: null,
+		noImageSelected: false,
+		uploadImageLoader: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -700,7 +702,7 @@ const GalleryPage = () => {
 			}));
 		}
 		// ... rest of the effect
-	}, [tenantPreferences, galleryId]);
+	}, [tenantPreferences, galleryId, tenantAlbums]);
 
 	useEffect(() => {
 		if (updateActiveAlbum !== null && updateActiveAlbum !== info?.activeAlbum) {
@@ -1526,6 +1528,10 @@ const GalleryPage = () => {
 				activeAlbumId: newAlbum?.album_id,
 				activeAlbum: newAlbum,
 			}));
+			const searchParams = new URLSearchParams(location.search);
+			searchParams.set('albumId', newAlbum?.album_id);
+
+			navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
 			await getAlbumImagesCount(galleryId);
 		} catch (error) {
 			console.error('Error updating albums:', error);
@@ -2414,7 +2420,7 @@ const GalleryPage = () => {
 		if (!image) {
 			return;
 		}
-
+		setInfo((prev) => ({ ...prev, uploadImageLoader: true }));
 		getImageDetail(null, true, false);
 		setsearchkeys({ uploadImageId: 'image-uploading' });
 
@@ -2480,6 +2486,7 @@ const GalleryPage = () => {
 				imageURL: '',
 				coverPhoto: true,
 				coverType: prev.coverType,
+				uploadImageLoader: false,
 			}));
 
 			if (uploadResponse.status === 200) {
@@ -2490,6 +2497,7 @@ const GalleryPage = () => {
 			showMessage('error', 'Something went wrong, please try again later', () =>
 				uploadGalleryCoverChangeHandler(e),
 			);
+			setInfo((prev) => ({ ...prev, uploadImageLoader: false }));
 		}
 	};
 
@@ -3050,6 +3058,7 @@ const GalleryPage = () => {
 			}));
 		}
 	};
+
 	const handleSetGalleryCover = async () => {
 		if (info?.selectedImages?.length === 1) {
 			const selectedImageId = info?.selectedImages[0];
@@ -3591,6 +3600,30 @@ const GalleryPage = () => {
 			selectedFace: face,
 		}));
 	};
+
+	const openUploadCoverPhoto = (file) => {
+		setInfo((prev) => ({
+			...prev,
+			showUploadCover: true,
+			coverType: 'album',
+			selectedImages: [file?._id],
+			coverPhoto: true,
+			isLoadingCover: true, // Set loading to true while fetching the image
+		}));
+		// Fetch the selected image's URL after setting the state
+		const selectedImage = info?.imagesList?.docs?.find((img) => img._id === file?._id);
+		if (selectedImage?.activeVersion?.givenFileName && galleryCredentials) {
+			const imageURL = `${galleryCredentials.baseURL}/${tenantAlbums.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials['Key-Pair-Id']}&Signature=${galleryCredentials.Signature}&Policy=${galleryCredentials.Policy}`;
+			// Update state with the image URL after fetching it
+			setInfo((prev) => ({
+				...prev,
+				isLoadingCover: false, // Set loading to false once the image URL is ready
+				imageURL: imageURL,
+				coverImageDetails: selectedImage,
+			}));
+		}
+	};
+
 	return (
 		<>
 			<div className="galleryContainer">
@@ -3753,7 +3786,7 @@ const GalleryPage = () => {
 												className="onlineStatus"
 												style={{
 													backgroundColor: info.isOnline
-														? 'var(--success)'
+														? 'var(--primary-button)'
 														: 'var(--error)',
 												}}
 											></div>
@@ -3767,7 +3800,7 @@ const GalleryPage = () => {
 											size="small"
 											style={{
 												backgroundColor: info.isOnline
-													? 'var(--success)'
+													? 'var(--primary-button)'
 													: 'var(--error)',
 											}}
 										/>
@@ -5710,6 +5743,7 @@ const GalleryPage = () => {
 								handleSetCoverPosition={handleSetCoverPosition}
 								message={message}
 								showUploadPhoto={info?.selectedImages.length > 0}
+								uploadImageLoader={info?.uploadImageLoader}
 							/>
 
 							<DeleteGalleryComponent
@@ -5814,9 +5848,17 @@ const GalleryPage = () => {
 				imageURL={info.imageURL}
 				isLoading={info.isLoadingCover}
 				open={info.showUploadCover}
-				showUploadPhoto={info?.selectedImages.length > 0}
-				onClose={() => setInfo((prev) => ({ ...prev, showUploadCover: false }))}
+				showUploadPhoto={info?.selectedImages?.length > 0 && !info?.noImageSelected}
+				onClose={() =>
+					setInfo((prev) => ({
+						...prev,
+						showUploadCover: false,
+						noImageSelected: false,
+						selectedImages: [],
+					}))
+				}
 				style={{ position: 'absolute', top: '60%', left: '0', right: '0', bottom: '0' }}
+				uploadImageLoader={info?.uploadImageLoader}
 			/>
 
 			<CollaboratorPopup
@@ -5964,6 +6006,7 @@ const GalleryPage = () => {
 				onClose={() => setInfo((prev) => ({ ...prev, showShareAlbum: false }))}
 				link={getShareLink()}
 				onCopyLink={handleCopyAlbumLink}
+				shouldShowPin={info?.activeAlbum?.guestAccess?.isEnabled}
 			/>
 
 			<MoveToAlbumPopup
@@ -6019,6 +6062,7 @@ const GalleryPage = () => {
 				activeGalleryId={galleryId}
 				activeAlbumId={info?.activeAlbumId}
 				tagId={info?.activeTagId}
+				handleOpenUploadCover={openUploadCoverPhoto}
 			/>
 		</>
 	);

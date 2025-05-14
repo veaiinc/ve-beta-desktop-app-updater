@@ -202,6 +202,7 @@ const AISuggestionsModal = ({
 		web_sources,
 		knowledge_base_sources,
 		category,
+		crux,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -423,8 +424,7 @@ const AISuggestionsModal = ({
 														<div className="cot-text">
 															<div className="title-text">Report</div>
 															<div className="description-text">
-																Summary of key insights and
-																outcomes.
+																{crux}
 															</div>
 														</div>
 													</div>
@@ -693,7 +693,9 @@ const AISuggestionsModal = ({
 												header={
 													<div className="cot-header">
 														<div className="cot-text">
-															<div className="title-text">Ask Me</div>
+															<div className="title-text">
+																Suggested Prompts
+															</div>
 															<div className="description-text">
 																Explore more with these prompts.
 															</div>
