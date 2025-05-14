@@ -283,10 +283,15 @@ const AISuggestionsModal = ({
 								<div className="info">
 									{confidence_score && (
 										<Tooltip
-											title={`Confidence Score: ${confidence_score * 100}%`}
+											title={
+												<div className="tooltipOption">
+													Confidence Score: {confidence_score * 100}%
+												</div>
+											}
 											trigger="hover"
 											arrow={false}
 											placement="top"
+											color="transparent"
 										>
 											<div className="confidence">
 												<div className="value">{`${
@@ -296,7 +301,14 @@ const AISuggestionsModal = ({
 										</Tooltip>
 									)}
 									{priority && (
-										<Tooltip title={`Priority: ${priority}`}>
+										<Tooltip
+											title={
+												<div className="tooltipOption">
+													Priority: {priority}
+												</div>
+											}
+											color="transparent"
+										>
 											<div className="priority">
 												<div
 													className="indicator"
@@ -314,7 +326,14 @@ const AISuggestionsModal = ({
 										</Tooltip>
 									)}
 									{creditUsed && (
-										<Tooltip title={`Credits Used: ${creditUsed}`}>
+										<Tooltip
+											title={
+												<div className="tooltipOption">
+													Credits Used: {creditUsed}
+												</div>
+											}
+											color="transparent"
+										>
 											<div className="priority">
 												<div className="icon">
 													<CoinSvg />
@@ -324,7 +343,15 @@ const AISuggestionsModal = ({
 										</Tooltip>
 									)}
 									{createdAt && (
-										<Tooltip title={`Created At: ${createdDate}`} arrow={false}>
+										<Tooltip
+											title={
+												<div className="tooltipOption">
+													Created At: {createdDate}
+												</div>
+											}
+											color="transparent"
+											arrow={false}
+										>
 											<div className="priority">
 												<div className="icon">
 													<CalendarSvg />
@@ -338,7 +365,12 @@ const AISuggestionsModal = ({
 								<div className="more-info">
 									{data?.knowledgeBase?.[0]?.metadata?.connectedEmail && (
 										<Tooltip
-											title="Triggered Source"
+											title={
+												<div className="tooltipOption">
+													Triggered Source
+												</div>
+											}
+											color="transparent"
 											arrow={false}
 											placement="bottom"
 										>
@@ -389,6 +421,13 @@ const AISuggestionsModal = ({
 											isSolutionsExpanded: key.length > 0,
 										}))
 									}
+									expandIcon={() => {
+										return (
+											<div className="expand-icon">
+												<ChevronRightThinSvg />
+											</div>
+										);
+									}}
 								>
 									<Panel
 										header={
@@ -480,6 +519,13 @@ const AISuggestionsModal = ({
 													isReportExpanded: key.length > 0,
 												}))
 											}
+											expandIcon={() => {
+												return (
+													<div className="expand-icon">
+														<ChevronRightThinSvg />
+													</div>
+												);
+											}}
 										>
 											<Panel
 												header={
@@ -487,7 +533,8 @@ const AISuggestionsModal = ({
 														<div className="cot-text">
 															<div className="title-text">Report</div>
 															<div className="description-text">
-																{crux}
+																{crux ||
+																	'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. lorem epusme fe efie egij egfme fk '}
 															</div>
 														</div>
 													</div>
@@ -527,6 +574,13 @@ const AISuggestionsModal = ({
 													isActionsExpanded: key.length > 0,
 												}))
 											}
+											expandIcon={() => {
+												return (
+													<div className="expand-icon">
+														<ChevronRightThinSvg />
+													</div>
+												);
+											}}
 										>
 											<Panel
 												header={
@@ -591,6 +645,13 @@ const AISuggestionsModal = ({
 													isPromptsExpanded: key.length > 0,
 												}))
 											}
+											expandIcon={() => {
+												return (
+													<div className="expand-icon">
+														<ChevronRightThinSvg />
+													</div>
+												);
+											}}
 										>
 											<Panel
 												header={
@@ -654,6 +715,13 @@ const AISuggestionsModal = ({
 													isQuestionsExpanded: key?.length > 0,
 												}))
 											}
+											expandIcon={() => {
+												return (
+													<div className="expand-icon">
+														<ChevronRightThinSvg />
+													</div>
+												);
+											}}
 										>
 											<Panel
 												header={
