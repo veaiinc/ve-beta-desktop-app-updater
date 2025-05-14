@@ -10,15 +10,15 @@ import BrandingSetup from './BrandSetup';
 import OldIntegrationsPage from './OdIntegrationsPage';
 import TeamSettings from './TeamSettings';
 import PlanBilling from './PlanBilling';
-import AiSetup from '../AiSetup/index';
-import Integrations from '../Integrations/Integrations';
+import AiSetup from '../aiSetup/AiSetup';
+import Integrations from '../integrationsList/Integrations';
 const mapper = {
 	'my-profile': <MyProfile />,
 	workspace: <SettingsWorkspace />,
 	'public-information': <PublicInformation />,
 	// 'brand-setup': <BrandingSetup />,
 	integrations: <Integrations />,
-	'team-settings': <TeamSettings />,
+	'team-members': <TeamSettings />,
 	'plan-billing': <PlanBilling />,
 	'ai-setup': <AiSetup />,
 };
@@ -37,7 +37,8 @@ const SettingsWrapper = (props) => {
 	} = useContext(Context);
 
 	useEffect(() => {
-		if (!tennantSettingsData) {
+		const token = localStorage.getItem('usertoken');
+		if (token && !tennantSettingsData) {
 			getTenantSettings();
 		}
 	}, [tennantSettingsData]);
@@ -47,12 +48,25 @@ const SettingsWrapper = (props) => {
 			className={`${
 				type === 'integrations' || type === 'ai-setup' ? '' : 'accountSettingsMainWrapper'
 			}`}
+			style={{
+				height: '100%',
+			}}
 		>
 			{type === 'ai-setup' ? (
 				mapper?.[type]
 			) : (
-				<div className={`${type !== 'integrations' ? 'accountSettingsWrapper' : ''}`}>
-					<div className={`${type !== 'integrations' ? 'accountSettingsMapper' : ''}`}>
+				<div
+					className={`${type !== 'integrations' ? 'accountSettingsWrapper' : ''}`}
+					style={{
+						height: '100%',
+					}}
+				>
+					<div
+						className={`${type !== 'integrations' ? 'accountSettingsMapper' : ''}`}
+						style={{
+							height: '100%',
+						}}
+					>
 						{mapper?.[type]}
 					</div>
 					{/* <div className="accountSettingsSidebar">

@@ -251,28 +251,6 @@
 					font-size: 14px;
 				}
 			}
-
-			.changeTriggerButton {
-				display: flex;
-				padding: 6px 8px;
-				align-items: center;
-				gap: 12px;
-				cursor: pointer;
-				border-radius: 6px;
-				background: var(--card);
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				border: none;
-				outline: none;
-
-				&:hover {
-					background: var(--card);
-				}
-			}
 		}
 
 		.step2TitleDescriptionContainer {

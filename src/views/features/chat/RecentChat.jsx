@@ -1,18 +1,25 @@
-import React, { memo, useCallback, useState, useRef, useEffect, useContext, useMemo } from 'react';
+import React, { memo, useCallback, useState, useRef, useEffect, useContext, Fragment } from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
+import {
+	handleDeepSearchChainOfThought,
+	handleDeepResearchChainOfThought,
+} from '../../../helpers/chatHelpers';
+import { ReactComponent as LeftSvg } from '../../../assets/svg/activity/left.svg';
 import Context from '../../../context/context';
-import Markdown from 'react-markdown';
-import { TypingEffect, UserMessageRenderer } from '../../../helpers/markdownHelper';
+import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
-import ChatBox from '../../components/homePage/ChatBox';
-import { useParams } from 'react-router-dom';
+import ChatBox from '../../components/chat/ChatBox';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
 import useChatStream from '../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
+import { ReactComponent as PlusCircleSvg } from '../../../assets/svg/ai_agents/plus-cricle.svg';
+import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
+import { Tooltip } from 'antd';
 
 let throttleTimer = null;
 const RecentChat = ({
@@ -22,12 +29,22 @@ const RecentChat = ({
 	aiChatLoading,
 	handleAiUploadImage,
 	customChatActions = false,
+	isPublicChat = false,
+	isPreview = false,
+	sId = null,
+	showIconText = true,
+	autoFocus = true,
+	customChatBoxClick = null,
+	sessionIdChanged = false,
+	onChangeSessionId = null,
+	chatActive = false,
+	onNewChatBtnClick = null,
+	onNavigateBack = null,
 }) => {
 	const {
 		templates: {
 			globalChatMessages,
 			updateStateValues,
-			citations,
 			updateAiChatMessageRating,
 			getRecentChatMessages,
 			recentChatStorage,
@@ -35,21 +52,19 @@ const RecentChat = ({
 			handleStreamIncomingMessage,
 			handleStreamMessageChunk,
 			globalLoadingMesssage,
+			chatInfo,
+			currentChatData,
+			chatHistoryDrawerIsOpen,
+			currentSessionId,
+			citationChunks,
 		},
 	} = useContext(Context);
 
-	const { socketRef, createWebSocketConnection, sendMessage } = useChatStream();
 	const [info, setInfo] = useState({
-		expanded: false,
-		inputExpanded: false,
-		bigToolbarIsOpen: false,
-		chatQuery: '',
-		position: { x: window.innerWidth / 2 - 900, y: 0 },
-		addQuickAction: false,
+		position: { x: window?.innerWidth / 2 - 900, y: 0 },
 		chatSessionId: null,
 		uploadedImages: [],
 		chatLoading: false,
-		showFullPage: true,
 		voiceIntegration: false,
 		noteModalIsOpen: false,
 		citationsModalIsOpen: false,
@@ -57,37 +72,67 @@ const RecentChat = ({
 		currentPage: true,
 		latestStreamMesage: null,
 		lastQuery: '',
-		lastVisibleMessageId: null,
-		lastVisibleUserMessageIndex: null,
+		activeAIMessageIndex: null,
+		activeAIMessageId: null,
+		activeUserMessageIndex: null,
 		renderingTwice: false,
 		initialRendering: false,
 		scrollExecuted: false,
+		previousAgentType: null,
+		showScrollButton: false,
+		showViewDocument: false,
 	});
 
+	const { createWebSocketConnection, sendMessage } = useChatStream();
 	const chatContentRef = useRef(null);
 	const loadingMessageRef = useRef(globalLoadingMesssage);
 	const chatMessagesRef = useRef(globalChatMessages || []);
-	const { sessionId } = useParams();
+	let { sessionId } = useParams();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const userMessagesRefs = useRef({});
+	// const aiMessagesRef = useRef([]);
+	// const previousAiMessagesRef = useRef([]);
+	// const aiCitationsByIdRef = useRef({});
+	const tabsRefs = useRef({});
+	const previousTabsRefs = useRef({});
+	const isFirstTimeConnectingToPublicChatRef = useRef(true);
+	const navigate = useNavigate();
+	const location = useLocation();
 
-	const aiMessagesRef = useRef([]);
-	const aiCitationsByIdRef = useRef({});
+	sessionId = isPreview ? sId : sessionId;
 
 	useEffect(() => {
-		window.addEventListener('resize', handleResize);
-		// chatContentRef.current = document.querySelector('.smooth-scroll');
+		if (sessionIdChanged && chatActive) {
+			const agentType = 'mulit_agent';
+			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
+			onChangeSessionId?.();
+		}
+	}, [sessionIdChanged, chatActive]);
+
+	useEffect(() => {
+		window?.addEventListener('resize', handleResize);
+
 		handleResize(0);
 
 		return () => {
-			window.removeEventListener('resize', handleResize);
+			window?.removeEventListener('resize', handleResize);
 			clearTimeout(throttleTimer);
 
-			updateStateValues({
-				moreRecentChatStorage: null,
-				recentChatStorage: null,
-				globalChatMessages: [],
-				currentSessionId: ObjectID().toString(),
-				citations: null,
-			});
+			setTimeout(() => {
+				tabsRefs.current = {};
+				userMessagesRefs.current = {};
+				updateStateValues({
+					moreRecentChatStorage: null,
+					recentChatStorage: null,
+					globalChatMessages: [],
+					citations: null,
+					chatPayload: {
+						workflowTemplateId: null,
+						moduleTemplateId: null,
+					},
+				});
+			}, 0);
+			updateStateValues({ currentSessionId: ObjectID()?.toString() });
 		};
 	}, []);
 
@@ -100,27 +145,56 @@ const RecentChat = ({
 					recentChatStorage: null,
 					globalChatMessages: [],
 					citations: null,
+					chatPayload: {
+						workflowTemplateId: null,
+						moduleTemplateId: null,
+					},
 				});
+				tabsRefs.current = {};
+				userMessagesRefs.current = {};
+				setInfo((prev) => ({
+					...prev,
+					scrollExecuted: false,
+				}));
+				// aiMessagesRef.current = [];
 			}
 
-			getRecentChatMessages(sessionId);
+			getRecentChatMessages(sessionId, 1, false, 1000, isPublicChat);
 			setInfo((prev) => ({
 				...prev,
 				chatLoading: true,
 				chatSessionId: sessionId,
 				renderingTwice: true,
 			}));
-			updateStateValues({ currentSessionId: sessionId });
-			createWebSocketConnection(sessionId, onMessageFunc);
-
-			return () => {
-				socketRef?.current?.close();
-			};
+			if (currentSessionId !== sessionId) {
+				updateStateValues({ currentSessionId: sessionId });
+			}
 		}
 	}, [sessionId]);
 
 	useEffect(() => {
-		if (globalChatMessages && globalChatMessages?.length > 5 && !info?.scrollExecuted) {
+		const agentType = searchParams?.get('agentType');
+		const assistantId = searchParams?.get('assistantId') || null;
+		if ((!agentType && location?.pathname?.includes('knowledge-agent')) || chatActive) {
+			return;
+		}
+
+		if (agentType) {
+			updateStateValues({ chatInfo: { ...chatInfo, agentType, assistantId } });
+		}
+
+		if (sessionId && !isPublicChat) {
+			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
+		}
+
+		if (sessionId && isPublicChat && isFirstTimeConnectingToPublicChatRef.current) {
+			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
+			isFirstTimeConnectingToPublicChatRef.current = false;
+		}
+	}, [sessionId, searchParams]);
+
+	useEffect(() => {
+		if (globalChatMessages?.length > 4 && !info?.scrollExecuted) {
 			setTimeout(() => {
 				let lastMessageSelector = globalChatMessages?.length - 1;
 				const lastMessage = document.querySelector(`.chat-${lastMessageSelector}`);
@@ -135,97 +209,169 @@ const RecentChat = ({
 	}, [globalChatMessages, chatContentRef, info?.scrollExecuted]);
 
 	useEffect(() => {
-		chatMessagesRef.current = [...(globalChatMessages || [])];
-		chatMessagesRef.current?.forEach((message) => {
-			if (message?.type?.toLowerCase() === 'ai') {
-				const messageId = message?.messageId;
-				if (message?.citations && !aiCitationsByIdRef.current[messageId]) {
-					aiCitationsByIdRef.current[messageId] = message?.citations;
-				}
-			}
-		});
-		// smoothScrollToBottom();
-
-		const visibleMessagesSet = new Set();
+		if (!chatContentRef?.current || !tabsRefs?.current) return;
+		previousTabsRefs.current = tabsRefs.current;
 		const observer = new IntersectionObserver(
-			(entries) => {
-				entries.forEach((entry) => {
-					if (entry.isIntersecting) {
-						visibleMessagesSet.add(entry.target);
+			() => {
+				Object?.values(tabsRefs?.current)?.forEach((entry) => {
+					if (
+						entry?.getBoundingClientRect()?.top <
+						chatContentRef?.current?.getBoundingClientRect()?.top
+					) {
+						if (!entry?.classList?.contains('sticky-element')) {
+							entry?.classList?.add('sticky-element');
+						}
 					} else {
-						visibleMessagesSet.delete(entry.target);
+						if (entry?.classList?.contains('sticky-element')) {
+							entry?.classList?.remove('sticky-element');
+						}
 					}
 				});
-				const visibleMessages = Array.from(visibleMessagesSet).sort(
-					(a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top,
-				);
-				if (visibleMessages.length > 0) {
-					const lastVisibleMessage = visibleMessages[visibleMessages.length - 1];
-
-					let lastVisibleAIMessageIndex = -1;
-					for (let i = 0; i < chatMessagesRef.current.length; i++) {
-						if (
-							chatMessagesRef.current[i].messageId ===
-								lastVisibleMessage.dataset.messageId &&
-							chatMessagesRef.current[i]?.type?.toLowerCase() === 'ai'
-						) {
-							lastVisibleAIMessageIndex = i;
-							break;
-						}
-					}
-					let lastVisibleUserMessageIndex = null;
-
-					if (lastVisibleAIMessageIndex > 0) {
-						lastVisibleUserMessageIndex = lastVisibleAIMessageIndex - 1;
-
-						if (
-							chatMessagesRef.current[
-								lastVisibleUserMessageIndex
-							]?.type?.toLowerCase() !== 'user'
-						) {
-							lastVisibleUserMessageIndex = null;
-						}
-					}
-					setInfo((prev) => ({
-						...prev,
-						lastVisibleMessageId: lastVisibleMessage.dataset.messageId,
-						lastVisibleUserMessageIndex,
-					}));
-				}
 			},
 			{
-				root: chatContentRef.current,
-				threshold: 0.01,
+				root: chatContentRef?.current, // Observe within the parent
+				threshold: [0.99, 1], // Triggers when any part enters
 			},
 		);
-		aiMessagesRef.current.forEach((msg) => observer.observe(msg));
 
-		// smoothScrollToBottom();
+		Object?.values(tabsRefs?.current)?.forEach((tab) => {
+			observer?.observe(tab);
+		});
 		return () => {
-			aiMessagesRef.current.forEach((msg) => observer.unobserve(msg));
-			visibleMessagesSet.clear();
+			Object?.values(previousTabsRefs?.current)?.forEach((tab) => {
+				observer.unobserve(tab);
+			});
 		};
-	}, [globalChatMessages, chatContentRef]);
+	}, [globalChatMessages]);
 
 	useEffect(() => {
-		if (info?.lastVisibleMessageId) {
-			updateStateValues({
-				citations: aiCitationsByIdRef.current[info?.lastVisibleMessageId],
-			});
-		}
-	}, [info?.lastVisibleMessageId]);
+		chatMessagesRef.current = [...(globalChatMessages || [])];
+		// chatMessagesRef.current?.forEach((message) => {
+		// 	if (message?.type?.toLowerCase() === 'ai') {
+		// 		const messageId = message?.messageId;
+		// 		if (message?.citations && !aiCitationsByIdRef.current[messageId]) {
+		// 			aiCitationsByIdRef.current[messageId] = message?.citations;
+		// 		}
+		// 	}
+		// });
+
+		// if (aiMessagesRef?.current?.length === 0) return;
+
+		// previousAiMessagesRef.current = [...aiMessagesRef.current];
+
+		// const visibleMessagesSet = new Set();
+		// const observer = new IntersectionObserver(
+		// 	(entries) => {
+		// 		entries.forEach((entry) => {
+		// 			if (entry.isIntersecting) {
+		// 				visibleMessagesSet.add(entry.target);
+		// 			} else {
+		// 				visibleMessagesSet.delete(entry.target);
+		// 			}
+		// 		});
+		// 		const visibleMessages = Array.from(visibleMessagesSet).sort(
+		// 			(a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top,
+		// 		);
+
+		// 		// Change to get the first visible message instead of the last
+		// 		if (visibleMessages.length > 0) {
+		// 			const firstVisibleMessage = visibleMessages[0]; // Get the first visible message
+
+		// 			let activeAIMessageIndex = firstVisibleMessage.dataset.index;
+		// 			let activeUserMessageIndex = null;
+
+		// 			if (activeAIMessageIndex > 0) {
+		// 				activeUserMessageIndex = activeAIMessageIndex - 1;
+		// 				while (activeUserMessageIndex) {
+		// 					if (
+		// 						chatMessagesRef.current[
+		// 							activeUserMessageIndex
+		// 						]?.type?.toLowerCase() === 'user'
+		// 					) {
+		// 						break;
+		// 					}
+		// 					activeUserMessageIndex--;
+		// 				}
+
+		// 				if (
+		// 					chatMessagesRef.current[activeUserMessageIndex]?.type?.toLowerCase() !==
+		// 					'user'
+		// 				) {
+		// 					activeUserMessageIndex = null;
+		// 				}
+		// 			}
+		// 			setInfo((prev) => ({
+		// 				...prev,
+		// 				activeAIMessageIndex: parseInt(activeAIMessageIndex),
+		// 				activeAIMessageId: firstVisibleMessage.dataset.messageId,
+		// 				activeUserMessageIndex,
+		// 			}));
+		// 		}
+		// 	},
+		// 	{
+		// 		root: chatContentRef.current,
+		// 		threshold: 0.01,
+		// 	},
+		// );
+		// aiMessagesRef.current.forEach((msg) => observer.observe(msg));
+
+		// smoothScrollToBottom();
+		// return () => {
+		// 	previousAiMessagesRef.current.forEach((msg) => observer.unobserve(msg));
+		// 	visibleMessagesSet.clear();
+		// };
+	}, [globalChatMessages]);
+
+	// useEffect(() => {
+	// 	if (info?.activeAIMessageId) {
+	// 		updateStateValues({
+	// 			citations: aiCitationsByIdRef.current[info?.activeAIMessageId],
+	// 		});
+	// 	}
+	// }, [info?.activeAIMessageId]);
 
 	useEffect(() => {
 		if (recentChatStorage) {
-			recentChatHandler(recentChatStorage, true);
+			const firstTimeApiCall = true;
+			recentChatHandler(recentChatStorage, true, firstTimeApiCall);
 		}
 	}, [recentChatStorage]);
 
 	useEffect(() => {
 		if (moreRecentChatStorage) {
-			recentChatHandler(moreRecentChatStorage, true);
+			const firstTimeApiCall = false;
+			recentChatHandler(moreRecentChatStorage, true, firstTimeApiCall);
 		}
 	}, [moreRecentChatStorage]);
+
+	const handleScroll = useCallback(() => {
+		if (!chatContentRef.current) return;
+		const { scrollTop, scrollHeight, clientHeight } = chatContentRef.current;
+		const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+		const isNearBottom = distanceFromBottom < 5;
+
+		if (isNearBottom && info?.showScrollButton) {
+			setInfo((prev) => ({
+				...prev,
+				showScrollButton: false,
+			}));
+		} else if (!isNearBottom && !info?.showScrollButton) {
+			setInfo((prev) => ({
+				...prev,
+				showScrollButton: true,
+			}));
+		}
+	}, [info?.showScrollButton]);
+
+	useEffect(() => {
+		const chatContent = chatContentRef.current;
+		if (chatContent) {
+			chatContent.addEventListener('scroll', handleScroll);
+			return () => {
+				chatContent.removeEventListener('scroll', handleScroll);
+			};
+		}
+	}, [handleScroll]);
 
 	const handleResize = (time = 300) => {
 		if (throttleTimer) return;
@@ -236,42 +382,84 @@ const RecentChat = ({
 					...prev,
 					citationsModalIsOpen: false,
 				}));
-			} else {
-				setInfo((prev) => ({
-					...prev,
-					citationsModalIsOpen: true,
-				}));
 			}
 			throttleTimer = null;
 		}, time);
 	};
 
 	const recentChatHandler = useCallback(
-		(inComingData, fetcMore = false) => {
+		(inComingData, fetcMore = false, firstTimeApiCall = false) => {
 			const { data, hasNextPage, currentPage } = inComingData;
 			let messages = [];
+			let chatPayload = {
+				workflowTemplateId: null,
+				moduleTemplateId: null,
+			};
 			for (let i = 0; i < data?.length; i++) {
-				const { originalQuery = '', response, _id: messageId, citations } = data?.[i] || {};
+				const {
+					originalQuery = '',
+					response,
+					_id: messageId,
+					citations,
+					workflowTemplateId,
+					moduleTemplateId,
+					followUpQuery,
+					chainOfThought,
+				} = data?.[i] || {};
+
+				if (firstTimeApiCall) {
+					chatPayload = {
+						workflowTemplateId: workflowTemplateId || null,
+						moduleTemplateId: moduleTemplateId || null,
+					};
+				}
+				let processing = null;
+				let deepSearch = {},
+					deepResearch = {};
+
+				if (chainOfThought?.length > 0) {
+					processing = chainOfThought?.[0]?.deep_search
+						? 'Deep Search'
+						: chainOfThought?.[0]?.deep_research
+						? 'Deep Research'
+						: null;
+
+					if (processing === 'Deep Search') {
+						deepSearch = handleDeepSearchChainOfThought(chainOfThought);
+					} else if (processing === 'Deep Research') {
+						deepResearch = handleDeepResearchChainOfThought(chainOfThought);
+					}
+				}
 
 				messages = [
 					{
 						message: originalQuery,
 						type: 'user',
-						typingEffect: false,
 					},
 					{
 						message: response,
 						type: 'AI',
 						messageId,
-						typingEffect: false,
 						rating: null,
 						citations,
+						follow_up_query: followUpQuery || [],
+						workflow_template_id: workflowTemplateId || null,
+						module_template_id: moduleTemplateId || null,
+						isOldMessage: true,
+						stream_end: true,
+						processing,
+						...(processing === 'Deep Search' && { deepSearch }),
+						...(processing === 'Deep Research' && { deepResearch }),
 					},
 				]?.concat(messages);
 			}
 
 			if (fetcMore) {
-				updateStateValues({ globalChatMessages: messages?.concat(globalChatMessages) });
+				updateStateValues({
+					globalChatMessages: messages?.concat(chatMessagesRef?.current),
+					...(chatPayload?.moduleTemplateId &&
+						chatPayload?.workflowTemplateId && { chatPayload }),
+				});
 				// if (chatContentRef?.current) {
 				// 	chatContentRef.current.scrollBy({
 				// 		top: 300, // Reduced from 500 for smoother feel
@@ -279,7 +467,11 @@ const RecentChat = ({
 				// 	});
 				// }
 			} else {
-				updateStateValues({ globalChatMessages: messages });
+				updateStateValues({
+					globalChatMessages: messages,
+					...(chatPayload?.moduleTemplateId &&
+						chatPayload?.workflowTemplateId && { chatPayload }),
+				});
 				// setTimeout(() => {
 				// 	// smoothScrollToBottom();
 				// }, 1000);
@@ -287,17 +479,17 @@ const RecentChat = ({
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
 		},
-		[info, chatContentRef],
+		[],
 	);
 
-	const handleRatingClick = async (type, messageId) => {
+	const handleRatingClick = useCallback(async (type, messageId) => {
 		try {
 			if (messageId) {
 				const message = [...(chatMessagesRef.current || [])]?.find(
 					(chat) => chat?.messageId === messageId,
 				);
 				if (message?.rating === null || message?.rating !== type) {
-					await updateAiChatMessageRating({ rating: type }, messageId);
+					await updateAiChatMessageRating({ rating: type }, messageId, isPublicChat);
 					let messages = [...(chatMessagesRef.current || [])];
 					messages = messages?.map((chat) => {
 						if (chat?.messageId === messageId) {
@@ -311,7 +503,7 @@ const RecentChat = ({
 		} catch (error) {
 			console.log('error', error);
 		}
-	};
+	}, []);
 
 	const handleNoteComponentModalClose = () => {
 		setInfo((prev) => ({
@@ -326,12 +518,12 @@ const RecentChat = ({
 		}));
 	};
 
-	const handleNoteComponentModalOpen = () => {
+	const handleNoteComponentModalOpen = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
 			noteModalIsOpen: true,
 		}));
-	};
+	}, []);
 
 	const smoothScrollToBottom = useCallback(
 		(type) => {
@@ -339,7 +531,7 @@ const RecentChat = ({
 			if (!scrollElement) return;
 
 			const scrollToPosition = (position) => {
-				scrollElement.scrollTo({
+				scrollElement?.scrollTo({
 					top: position,
 					behavior: type === 'instant' ? 'auto' : 'smooth',
 				});
@@ -350,7 +542,7 @@ const RecentChat = ({
 				const scrollOffset = 100;
 				scrollToPosition(scrollHeight - scrollOffset);
 			} else {
-				scrollToPosition(scrollElement.scrollHeight);
+				scrollToPosition(scrollElement?.scrollHeight);
 			}
 		},
 		[chatContentRef?.current, info?.initialRendering],
@@ -358,48 +550,60 @@ const RecentChat = ({
 
 	const fetchMoreData = useCallback(
 		debounce(async () => {
-			if (!info?.hasNextPage || info.chatLoading) {
+			if (!info?.hasNextPage || info?.chatLoading) {
 				return;
 			}
-			getRecentChatMessages(sessionId, info?.currentPage + 1, true);
+			getRecentChatMessages(sessionId, info?.currentPage + 1, true, isPublicChat);
 			setInfo((prev) => ({ ...prev, chatLoading: true }));
 		}, 1000),
-		[info, sessionId],
+		[info, sessionId, isPublicChat],
 	);
 
 	// stream chat
+	const onMessageFunc = useCallback((event) => {
+		let { data = '' } = event || {};
+		data = JSON?.parse(data);
 
-	const onMessageFunc = useCallback(
-		(event) => {
-			let { data = '' } = event || {};
-			data = JSON.parse(data);
-			if (data?.hasOwnProperty('intermediate_response')) {
-				if (data?.intermediate_response_done === true) {
-					loadingMessageRef.current = null;
-					return;
-				}
-
-				loadingMessageRef.current = loadingMessageRef?.current || '';
-				loadingMessageRef.current += data?.intermediate_response || '';
-				updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
+		if (data?.hasOwnProperty('intermediate_response')) {
+			if (data?.intermediate_response_done === true) {
+				loadingMessageRef.current = null;
 				return;
 			}
-			if (data?.type === 'variableRequirement') {
-				loadingMessageRef.current = null;
-			}
 
-			if (data?.stream_end) {
-				handleStreamIncomingMessage(data);
-				updateStateValues({ globalLoadingMesssage: null });
-				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
+			loadingMessageRef.current = loadingMessageRef?.current || '';
+			loadingMessageRef.current += data?.intermediate_response || '';
+			updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
+			return;
+		}
+		if (data?.type === 'variableRequirement') {
+			loadingMessageRef.current = null;
+		}
+		if (data?.user_id) {
+			localStorage?.setItem('user_id', data?.user_id);
+		}
+		let chatPayload = null;
+		if (data?.stream_end) {
+			const { workflow_template_id, module_template_id } = data;
+			if (workflow_template_id || module_template_id) {
+				chatPayload = {
+					workflowTemplateId: workflow_template_id,
+					moduleTemplateId: module_template_id,
+				};
 			}
-			const { message_chunk_id } = data;
-			if (message_chunk_id) {
-				handleStreamMessageChunk(data, message_chunk_id);
-			}
-		},
-		[info],
-	);
+			handleStreamIncomingMessage(data);
+			updateStateValues({
+				globalLoadingMesssage: null,
+				...(chatPayload && { chatPayload }),
+				...(chatMessagesRef?.current?.length === 2 && { refetchChatHistoryList: true }),
+			});
+			setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
+		}
+		const { message_chunk_id } = data;
+
+		if (message_chunk_id) {
+			handleStreamMessageChunk(data, message_chunk_id);
+		}
+	}, []);
 
 	const handleSendWebsocketMessage = useCallback(
 		async (data, lastQuery) => {
@@ -418,40 +622,82 @@ const RecentChat = ({
 	const toggleLatestStreamMessage = useCallback(() => {
 		setInfo((prev) => ({ ...prev, latestStreamMesage: null }));
 	}, []);
+	const handleViewDocument = useCallback((value) => {
+		setInfo((prev) => ({ ...prev, showViewDocument: value }));
+	}, []);
+
+	// const handleNewChatClick = useCallback(() => {
+	// 	const pathname = location?.pathname?.split('/')?.[1];
+	// 	const sessionId = ObjectID()?.toString();
+
+	// 	if (pathname === 'chat') {
+	// 		navigate(`/chat/${sessionId}`);
+	// 	} else if (pathname === 'c') {
+	// 		navigate(`/c/${sessionId}`);
+	// 	} else if (
+	// 		pathname === 'calendar' ||
+	// 		pathname === 'contacts' ||
+	// 		pathname === 'tasks' ||
+	// 		pathname === 'contact'
+	// 	) {
+	// 		onNewChatBtnClick?.();
+	// 	}
+	// }, [location?.pathname]);
+
+	const handleNavigateBack = useCallback(() => {
+		const pathname = location?.pathname?.split('/')?.[1];
+		if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
+			onNavigateBack?.();
+		} else {
+			navigate(-1);
+		}
+	}, [location?.pathname]);
 
 	return (
 		<>
-			<div className="chat-container">
+			<div
+				className="chat-container"
+				style={{
+					height: isPublicChat ? 'calc(100% - 32px)' : '',
+				}}
+			>
 				<div className="chatBarContainer" style={{ width: '100%' }}>
 					{/* header */}
-					<div className="containerHeader">
-						<h1 className="containerHeaderTitle"></h1>
-						<div className="iconContainer">
-							{!info?.citationsModalIsOpen && (
-								<ExpandChatIcon
-									onClick={() => {
-										setInfo((prev) => ({
-											...prev,
-											citationsModalIsOpen: true,
-										}));
-									}}
-								/>
-							)}
+					{!isPublicChat && (
+						<div className="chat-header">
+							<div className="left-container">
+								<div className="icon-container" onClick={handleNavigateBack}>
+									<LeftSvg />
+								</div>
+								<div className="chat-title">
+									{currentChatData?.title || 'New Chat'}
+								</div>
+							</div>
+							{/* <div className="right-container">
+								<Tooltip title="New Chat" placement="bottom">
+									<button className="new-chat-btn" onClick={handleNewChatClick}>
+										<PlusCircleSvg />
+									</button>
+								</Tooltip>
+							</div> */}
 						</div>
-					</div>
+					)}
 
 					{/* chat body */}
-
 					<div
 						className="chatBodyContainer"
 						style={{
 							width: `${info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%'}`,
+							paddingLeft: `${chatHistoryDrawerIsOpen ? '250px' : '0px'}`,
 						}}
 					>
 						<div
 							className={`chatBodyParentContainer`}
 							ref={chatContentRef}
 							id="scrollableDiv"
+							style={{
+								'--chat-content-height': `${chatContentRef?.current?.clientHeight}px`,
+							}}
 						>
 							<InfiniteScroll
 								dataLength={globalChatMessages?.length || 0}
@@ -464,16 +710,15 @@ const RecentChat = ({
 									display: 'flex',
 									flexDirection: 'column-reverse',
 									transition: 'all 0.3s ease',
-									// overflowY: 'scroll',
+									overflow: 'visible',
 								}}
-								// height={'calc(100vh - 180px)'}
 								scrollThreshold={0.8}
 								className="smooth-scroll"
 							>
 								<div className="chatContent" style={{ flex: 1 }}>
 									{(globalChatMessages || [])?.map((chat, index) =>
 										chat?.content ? (
-											chat?.content
+											<Fragment key={index}>{chat?.content}</Fragment>
 										) : (
 											<div
 												key={index}
@@ -483,66 +728,82 @@ const RecentChat = ({
 													{chat?.type?.toLowerCase() === 'ai' ? (
 														<div
 															className="content"
-															style={{
-																opacity:
-																	chat?.messageId ===
-																	info?.lastVisibleMessageId
-																		? 1
-																		: 0.6,
-															}}
-															ref={(el) => {
-																if (
-																	el &&
-																	!aiMessagesRef.current.includes(
-																		el,
-																	)
-																) {
-																	aiMessagesRef?.current?.push(
-																		el,
-																	);
-																}
-															}}
+															// style={{
+															// 	opacity:
+															// 		index ===
+															// 		info?.activeAIMessageIndex
+															// 			? 1
+															// 			: 0.6,
+															// }}
+															// ref={(el) => {
+															// 	if (
+															// 		el &&
+															// 		!aiMessagesRef.current.includes(
+															// 			el,
+															// 		)
+															// 	) {
+															// 		aiMessagesRef?.current?.push(
+															// 			el,
+															// 		);
+															// 	}
+															// }}
 															data-message-id={chat?.messageId}
+															data-index={index}
 														>
-															<TypingEffect
-																text={chat?.message}
-																messageId={chat?.messageId}
-																customePencilClickFunc={
-																	handleNoteComponentModalOpen
+															<AIMessageRenderer
+																messageData={chat}
+																userMessageElement={
+																	userMessagesRefs.current?.[
+																		index - 1
+																	]
 																}
-																smoothScrollToBottom={
-																	smoothScrollToBottom
+																chatContentElement={
+																	chatContentRef?.current
+																}
+																handleNoteComponentModalOpen={
+																	handleNoteComponentModalOpen
 																}
 																handleRatingClick={
 																	handleRatingClick
 																}
-																rating={chat?.rating}
-																citations={chat?.citations}
-																messageData={chat}
+																tabsRefs={tabsRefs}
+																index={index}
+																handleSendWebsocketMessage={
+																	handleSendWebsocketMessage
+																}
+																toggleLatestStreamMessage={
+																	toggleLatestStreamMessage
+																}
+																handleViewDocument={
+																	handleViewDocument
+																}
+																isPublicChat={isPublicChat}
 															/>
 														</div>
 													) : (
-														<UserMessageRenderer
-															messageData={chat}
-															lastVisibleUserMessageIndex={
-																index ===
-																info?.lastVisibleUserMessageIndex
-															}
-														/>
-														// <div
-														// 	style={{
-														// 		transition:
-														// 			'opacity 0.3s ease-in-out',
-														// 		opacity:
-														// 			index ===
-														// 			info?.lastVisibleUserMessageIndex
-														// 				? 1
-														// 				: 0.6,
-														// 	}}
-														// 	className="fade-in"
-														// >
-														// 	<Markdown>{chat?.message}</Markdown>
-														// </div>
+														<div
+															ref={(el) => {
+																if (
+																	el &&
+																	!userMessagesRefs.current?.[
+																		index
+																	]
+																) {
+																	userMessagesRefs.current[
+																		index
+																	] = el;
+																}
+															}}
+															key={index}
+														>
+															<UserMessageRenderer
+																messageData={chat}
+																// activeUserMessageIndex={
+																// 	index ===
+																// 	info?.activeUserMessageIndex
+																// }
+															/>
+														</div>
 													)}
 												</div>
 											</div>
@@ -553,15 +814,23 @@ const RecentChat = ({
 						</div>
 						<div className="chatBoxWrapper">
 							<ChatBox
+								showIconText={showIconText}
+								isPublicChat={isPublicChat}
 								handleSendWebsocketMessage={handleSendWebsocketMessage}
 								latestStreamMesage={info?.latestStreamMesage}
 								lastQuery={info?.lastQuery}
 								toggleLatestStreamMessage={toggleLatestStreamMessage}
+								hideDeepResearch={searchParams?.get('agentType') === 'search_agent'}
+								autoFocus={autoFocus}
+								customChatBoxClick={customChatBoxClick}
+								showScrollButton={info?.showScrollButton}
+								smoothScrollToBottom={smoothScrollToBottom}
 							/>
 						</div>
 					</div>
 				</div>
 			</div>
+
 			<CitationsModal
 				modalIsOpen={info?.citationsModalIsOpen}
 				closeModal={handleCloseCitationsModal}

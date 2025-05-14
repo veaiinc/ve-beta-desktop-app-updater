@@ -7,8 +7,9 @@ import { ReactComponent as UpArrow } from '../../../../assets/svg/workflow/downA
 import ToggleSlider from '../../input/slider';
 import Context from '../../../../context/context';
 import { getCurrentWorkspaceId, getInitials } from '../../../../helpers/index';
-import { message, Drawer, Select } from 'antd';
+import { Drawer, Select } from 'antd';
 import _ from 'lodash';
+import { message } from '../../globalComponents/CustomToast';
 
 const workspaceId = localStorage.getItem('workspaceId');
 
@@ -39,6 +40,9 @@ const ShareModal = ({
 			getGalleryShareDetails,
 			galleryShareDetails,
 			changeMasterAccessPin,
+			updateGuestAccess,
+			getGuestAccessDetails,
+			galleryGuestAccessDetails,
 		},
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
@@ -66,14 +70,21 @@ const ShareModal = ({
 		canGuestDownloadOriginals: tenantPreferences?.canGuestDownloadOriginals || false,
 		currentWorkspaceId: null,
 		galleryLink: null,
+		galleryGuestAccessDetails: null,
 		callToAction: tenantPreferences?.ctaPreferences?.isEnabled,
 		ctaLink: tenantPreferences?.ctaPreferences?.ctaLink,
 		clientSubscription: tenantPreferences?.allowClientsToSubscribe || false,
 	});
+
 	useEffect(() => {
-		if (!galleryShareDetails) {
-			getGalleryShareDetails(galleryId);
-		}
+		if (!galleryId) return;
+
+		getGalleryShareDetails(galleryId);
+		getVisitorFormAccess(galleryId);
+		getGuestAccessDetails(galleryId);
+		getEditPreferences(galleryId);
+	}, [galleryId]);
+	useEffect(() => {
 		if (galleryShareDetails) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -82,9 +93,6 @@ const ShareModal = ({
 		}
 	}, [galleryShareDetails]);
 	useEffect(() => {
-		if (!visitorFormAccess) {
-			getVisitorFormAccess(galleryId);
-		}
 		if (visitorFormAccess) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -92,21 +100,17 @@ const ShareModal = ({
 			}));
 		}
 	}, [visitorFormAccess]);
+
 	useEffect(() => {
-		if (!galleryGuestAccess) {
-			getGalleryGuestAccess(galleryId);
-		}
-		if (galleryGuestAccess) {
+		if (galleryGuestAccessDetails) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				galleryGuestAccess: galleryGuestAccess,
+				galleryGuestAccessDetails: galleryGuestAccessDetails,
+				galleryGuestAccess: galleryGuestAccessDetails,
 			}));
 		}
-	}, [galleryGuestAccess]);
+	}, [galleryGuestAccessDetails]);
 	useEffect(() => {
-		if (!tenantPreferences) {
-			getEditPreferences(galleryId);
-		}
 		if (tenantPreferences) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -243,18 +247,22 @@ const ShareModal = ({
 		editPreferences(galleryId, payload);
 	};
 
-	const handleGalleryGuestAccess = () => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			galleryGuestAccess: {
-				...prevInfo?.galleryGuestAccess,
-				isEnabled: !prevInfo?.galleryGuestAccess?.isEnabled,
-			},
-		}));
-		const payload = {
-			isEnabled: !info?.galleryGuestAccess?.isEnabled,
+	const handleGuestAccessUpdate = async (name) => {
+		const payloadKeyMap = {
+			canGuestDownloadOriginals: 'canDownloadOriginals',
+			canGuestDownloadOptimized: 'canDownloadOptimized',
+			isEnabled: 'isEnabled',
 		};
-		editGalleryGuestAccess(payload, galleryId);
+
+		if (payloadKeyMap[name]) {
+			const payload = {
+				[payloadKeyMap[name]]: !galleryGuestAccessDetails?.[payloadKeyMap[name]],
+				accessPin: info?.galleryGuestAccessDetails?.pin,
+			};
+			await updateGuestAccess(payload, galleryId);
+		}
+
+		await getGuestAccessDetails(galleryId);
 	};
 
 	const handleShareViaEmail = useCallback(async () => {
@@ -380,7 +388,6 @@ const ShareModal = ({
 
 		editVisitorFormAccess(payload, galleryId);
 	};
-
 	return (
 		<Drawer
 			open={open}
@@ -403,7 +410,7 @@ const ShareModal = ({
 					<div className="galleryLinkInputContainer">
 						<div className="galleryLinkInput">
 							<input
-								placeholder="businessname.ve.ai/gallery/galleryname"
+								placeholder="Loading..."
 								disabled
 								value={info?.galleryLink}
 								// value={`https://${workspaceId}.ve.ai/gallery/${activeGallery?.slug}`}
@@ -469,13 +476,13 @@ const ShareModal = ({
 						<div className="pinContainerItem">
 							<div className="optionsToggleContainer">
 								<ToggleSlider
-									value={info?.galleryGuestAccess?.isEnabled}
-									onChange={handleGalleryGuestAccess}
+									value={galleryGuestAccessDetails?.isEnabled}
+									onChange={() => handleGuestAccessUpdate('isEnabled')}
 								/>
 								<p>Guest PIN</p>
 							</div>
 							<p>If enabled gallery will be protected by PIN for guests</p>
-							{info?.galleryGuestAccess?.isEnabled && (
+							{galleryGuestAccessDetails?.isEnabled && (
 								<div className="editPinContainer">
 									<input
 										placeholder="Enter 3-digit PIN"
@@ -577,12 +584,12 @@ const ShareModal = ({
 											onClick={() => handleOpenDownloadOptions('Guest')}
 										>
 											<p>
-												{info?.canGuestDownloadOriginals &&
-												info?.canGuestDownloadOptimized
+												{galleryGuestAccessDetails?.canClientDownloadOriginals &&
+												galleryGuestAccessDetails?.canDownloadOptimized
 													? 'Guest Download Originals , Guest Download Optimized'
-													: info?.canGuestDownloadOriginals
+													: galleryGuestAccessDetails?.canDownloadOriginals
 													? 'Guest Download Originals'
-													: info?.canGuestDownloadOptimized
+													: galleryGuestAccessDetails?.canDownloadOptimized
 													? 'Guest Download Optimized'
 													: ''}
 											</p>
@@ -613,9 +620,11 @@ const ShareModal = ({
 													<p>Can Download Originals Images</p>
 													<input
 														type="checkbox"
-														checked={info?.canGuestDownloadOriginals}
+														checked={
+															galleryGuestAccessDetails?.canDownloadOriginals
+														}
 														onChange={() =>
-															handleGalleryProtection(
+															handleGuestAccessUpdate(
 																'canGuestDownloadOriginals',
 															)
 														}
@@ -626,9 +635,11 @@ const ShareModal = ({
 												<p>Can Download Optimised Images</p>
 												<input
 													type="checkbox"
-													checked={info?.canGuestDownloadOptimized}
+													checked={
+														galleryGuestAccessDetails?.canDownloadOptimized
+													}
 													onChange={() =>
-														handleGalleryProtection(
+														handleGuestAccessUpdate(
 															'canGuestDownloadOptimized',
 														)
 													}
@@ -655,6 +666,7 @@ const ShareModal = ({
 							mobile number after entering a Pin or completing a face scan.
 						</p>
 					</div>
+
 					{info?.visitorFormAccess?.isEnabled && (
 						<div className="visitorFormAccessContainer visitorAnimation">
 							{[
@@ -667,7 +679,7 @@ const ShareModal = ({
 								<div key={item.label} className="visitorFormAccessItem">
 									<input
 										type="checkbox"
-										checked={data?.visitorFormAccess?.accessibleTo?.includes(
+										checked={info?.visitorFormAccess?.accessibleTo?.includes(
 											item.apiKey,
 										)}
 										onChange={() => handleVisitorForm(item.apiKey)}

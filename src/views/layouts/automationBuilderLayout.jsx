@@ -6,12 +6,12 @@ import { Helmet } from 'react-helmet';
 import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
-import Context from '../../context/context';
-import RenewBanner from '../components/globalComponents/RenewBanner';
+// import Context from '../../context/context';
+// import RenewBanner from '../components/globalComponents/RenewBanner';
 const AutomationBuilderLayout = ({ title, children, hideQuickNav = false }) => {
-	const {
-		subscriptionInfo: { renewBanner },
-	} = useContext(Context);
+	// const {
+	// 	subscriptionInfo: { renewBanner },
+	// } = useContext(Context);
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
@@ -22,9 +22,9 @@ const AutomationBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 		<div className="automationBuilderParentContainer">
 			<Helmet>
 				<meta charSet="utf-8" />
-				<title>{title} | VE</title>
+				<title>{title}</title>
 			</Helmet>
-			{renewBanner && <RenewBanner />}
+			{/* {renewBanner && <RenewBanner />} */}
 			<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
 				<div className="childrenContainer">{children}</div>
 			</SkeletonTheme>

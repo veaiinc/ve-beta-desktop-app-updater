@@ -41,7 +41,7 @@ export const ProfileState = () => {
 			const userDetails = await service.fetchGet(
 				'/tenant-user/my-profile',
 				usertoken,
-				'auth',
+				'tenant',
 			);
 
 			if (userDetails?.[0]) {
@@ -442,7 +442,7 @@ export const ProfileState = () => {
 			console.log('error==>updateAccessControlOpenModal', error);
 		}
 	};
-	const resetProfileSettingsState = async () => {
+	const resetProfileSettingsState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
 
@@ -455,11 +455,14 @@ export const ProfileState = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
+
+			if (!usertoken) return;
+
 			let decoded = jwt_decode(usertoken);
 			const response = await service.fetchGet(
-				`/tenant/${workspaceId}/tenant-user-access-control/${decoded.user_id}`,
+				`/tenant-user/${workspaceId}/tenant-user-access-control/${decoded.user_id}`,
 				usertoken,
-				'auth',
+				'tenant',
 			);
 			if (response?.[0]) {
 				dispatch({
@@ -469,6 +472,22 @@ export const ProfileState = () => {
 			}
 		} catch (error) {
 			console.log('error==>getTenantUserAccessControls', error);
+		}
+	};
+	// {{ _.googleBaseUrl }}/gmail/{{ _.workspaceId }}/disconnect/{{ _.uid }}
+	const updatedGmailAccount = async (type, uid) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${type}/${workspaceId}/disconnect/${uid}`;
+			const response = await service.fetchPost(path, null, token, 'calendar_api');
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>updatedGmailAccount', error);
 		}
 	};
 	return {
@@ -498,5 +517,6 @@ export const ProfileState = () => {
 		getTenantUserAccessControls,
 		updateAccessControlOpenModal,
 		updateModuleAppTypeSelectAll,
+		updatedGmailAccount,
 	};
 };

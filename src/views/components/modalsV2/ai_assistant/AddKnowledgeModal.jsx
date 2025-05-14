@@ -12,6 +12,8 @@ const tabOptions = [
 	{ label: 'File', Icon: FolderIcon },
 	{ label: 'Custom Text', Icon: TIcon },
 ];
+const customStyles = { content: { borderRadius: '15px' } };
+
 const AddKnowledgeModal = ({ isOpen, onClose, onActionClick, isActionbtnLoading }) => {
 	const [info, setInfo] = useState({
 		activeTab: 'URL',
@@ -25,7 +27,7 @@ const AddKnowledgeModal = ({ isOpen, onClose, onActionClick, isActionbtnLoading 
 			isOpen={isOpen}
 			closeModal={onClose}
 			modalType={'center'}
-			customStyles={{ content: { borderRadius: '15px' } }}
+			customStyles={customStyles}
 		>
 			<div className="add-knowledge-modal">
 				<div className="add-knowledge-modal-header">

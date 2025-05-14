@@ -1,10 +1,10 @@
-import React, { useContext, useCallback } from 'react';
+import { useContext, useCallback } from 'react';
 import Context from '../../context/context';
-import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
+
 const useLogout = () => {
-	const navigate = useNavigate();
-	let {
+	const {
 		chatInfo: { resetChatState },
 		companyInfo: { resetCompanySettings },
 		profileInfo: { resetProfileSettingsState },
@@ -18,47 +18,59 @@ const useLogout = () => {
 		contacts: { resetContactsState },
 		documentPreview: { resetDocumentPreviewState },
 		automationBuilder: { resetAutomationBuilderState },
+		knowledgeAgent: { resetKnowledgeAgentState },
+		elasticSearch: { resetElasticSearchState },
 	} = useContext(Context);
 
-	const resetApplications = useCallback(async () => {
-		//clear localstorage
+	const navigate = useNavigate();
+
+	const resetApplications = useCallback(() => {
+		// First reset all application state
+		resetChatState();
+		resetCompanySettings();
+		resetProfileSettingsState();
+		resetTemplateState();
+		resetGallleryState();
+		resetSubscriptionState();
+		resetCalendarState();
+		resetActivityState();
+		resetAiSetupState();
+		resetTasksState();
+		resetContactsState();
+		resetDocumentPreviewState();
+		resetAutomationBuilderState();
+		resetElasticSearchState();
+		resetKnowledgeAgentState();
+
+		// Preserve theme settings
 		const theme = localStorage.getItem('theme');
 		const cookieTheme = Cookies.get('theme');
 
+		// Clear storage
 		localStorage.clear();
-		Object.keys(Cookies.get()).forEach((cookieName) => {
-			Cookies.remove(cookieName);
-		});
 
+		// Re-apply theme if it existed before
 		if (theme) {
 			localStorage.setItem('theme', theme);
 		}
+
+		// Clear cookies (except theme)
+		Object.keys(Cookies.get()).forEach((cookieName) => {
+			if (cookieName !== 'theme') {
+				Cookies.remove(cookieName);
+			}
+		});
+
+		// Reapply theme cookie if it existed
 		if (cookieTheme) {
-			Cookies.set('theme', cookieTheme, { expires: 365 }); // Set expiration to persist
+			Cookies.set('theme', cookieTheme, { expires: 365 });
 		}
 
-		window.location.replace('/');
-
-		/* since framer website is added in / route the following ciode is not needed */
-
-		//add here all reset context state func
-		// resetChatState();
-		// resetCompanySettings();
-		// resetProfileSettingsState();
-		// resetTemplateState();
-		// resetGallleryState();
-		// resetSubscriptionState();
-		// resetCalendarState();
-		// resetActivityState();
-		// resetAiSetupState();
-		// resetTasksState();
-		// resetContactsState();
-		// resetDocumentPreviewState();
-		// resetAutomationBuilderState();
-		// resetElasticSearchState();
-		// resetKnowledgeAgentState();
-
-		// navigate('/');
+		// Important: Use navigate with a timeout to ensure state changes have completed
+		// This helps avoid navigation issues when clearing state
+		setTimeout(() => {
+			navigate('/', { replace: true });
+		}, 0);
 	}, []);
 
 	return resetApplications;

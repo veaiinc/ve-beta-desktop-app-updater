@@ -1,4 +1,16 @@
 import Spinner from '../views/components/loaders/Spinner';
+import { ReactComponent as TextSvg } from '../assets/svg/ai_agents/text.svg';
+import { ReactComponent as DocxSvg } from '../assets/svg/files/docSvg.svg';
+import { ReactComponent as JsonSvg } from '../assets/svg/ai_agents/json.svg';
+import { ReactComponent as PdfSvg } from '../assets/svg/ai_agents/pdf.svg';
+import { ReactComponent as JpgSvg } from '../assets/svg/ai_agents/jpg.svg';
+import { ReactComponent as PngSvg } from '../assets/svg/ai_agents/png.svg';
+import { ReactComponent as MdSvg } from '../assets/svg/ai_agents/md.svg';
+import { ReactComponent as ExcelSvg } from '../assets/svg/ai_agents/excel.svg';
+import { ReactComponent as GmailSvg } from '../assets/svg/login_page/gmail.svg';
+import { ReactComponent as SlackSvg } from '../assets/svg/slack.svg';
+import { ReactComponent as NotionSvg } from '../assets/svg/notion.svg';
+import { ReactComponent as VeLogoSvg } from '../assets/svg/veLogo.svg';
 import axios from 'axios';
 
 export const nameShortner = (name) => {
@@ -56,8 +68,17 @@ export const getLocationsDetails = async () => {
 	const response = await axios.get(
 		'https://ipapi.co/json/?key=B17oRoM25399fyZGLiTtq5qbfNE2XaleKkzTmKdnPzGJfgo1UY',
 	);
-	const { country_code, region_code, region, country_name, city, timezone, postal, currency } =
-		response?.data;
+	const {
+		country_code,
+		region_code,
+		region,
+		country_name,
+		city,
+		timezone,
+		postal,
+		currency,
+		ip,
+	} = response?.data;
 	const locationDetails = {
 		countryCode: country_code,
 		countryRegionCode: region_code,
@@ -86,6 +107,7 @@ export const getLocationsDetails = async () => {
 	locationDetails.region = apiRegion;
 	localStorage.setItem('region', apiRegion);
 	localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
+	localStorage.setItem('ipAddress', ip);
 	return locationDetails;
 };
 
@@ -232,4 +254,88 @@ export const checkDevices = async () => {
 	} catch (error) {
 		console.error('Error checking devices:', error);
 	}
+};
+
+const faviconCache = new Map();
+
+export const getFaviconUrl = (url) => {
+	try {
+		if (faviconCache?.has(url)) {
+			return faviconCache?.get(url);
+		}
+
+		const domain = new URL(url)?.hostname;
+		const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+
+		faviconCache?.set(url, faviconUrl);
+		return faviconUrl;
+	} catch (error) {
+		return null;
+	}
+};
+
+export const getWebsiteName = (url) => {
+	try {
+		const domain = new URL(url)?.hostname;
+		// Remove common TLDs and www
+		const name = domain?.replace(/^www\./i, '')?.split('.')?.[0];
+		// Capitalize first letter
+		return name?.charAt(0)?.toUpperCase() + name?.slice(1);
+	} catch (error) {
+		return url;
+	}
+};
+
+export const fileTypeIcons = {
+	docx: <DocxSvg />,
+	txt: <TextSvg />,
+	png: <PngSvg />,
+	pdf: <PdfSvg />,
+	jpg: <JpgSvg />,
+	json: <JsonSvg />,
+	md: <MdSvg />,
+	jpeg: <JpgSvg />,
+	xlsx: <ExcelSvg />,
+	xls: <ExcelSvg />,
+	gmail: <GmailSvg />,
+	slack: <SlackSvg />,
+	notion: <NotionSvg />,
+	workflowId: <VeLogoSvg />,
+	'image/png': <PngSvg />,
+	'image/jpeg': <JpgSvg />,
+	'image/jpg': <JpgSvg />,
+	'application/pdf': <PdfSvg />,
+	'application/docx': <DocxSvg />,
+	'application/txt': <TextSvg />,
+	'application/json': <JsonSvg />,
+	'application/md': <MdSvg />,
+	'application/jpeg': <JpgSvg />,
+	'text/plain': <TextSvg />,
+};
+
+export const redirectTo = (type, id) => {
+	if (!id) return;
+
+	const urls = {
+		gmail: `https://mail.google.com/mail/u/0/#inbox/${id}`,
+		notion: id,
+		url: id,
+		workflowId: `https://builder.ve.ai/workflow/${id}`,
+		slack: `https://app.slack.com/client/${id}`,
+		s3_key: id,
+	};
+
+	const url = urls?.[type];
+	if (url) {
+		window.open(url, '_blank');
+	}
+};
+
+export const redirectTypeMapper = {
+	url: 'url',
+	notion: 'notion',
+	workflowId: 'workflow_id',
+	gmail: 'thread_id',
+	slack: 'channel_id',
+	s3_key: 's3_key',
 };

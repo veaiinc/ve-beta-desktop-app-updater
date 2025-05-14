@@ -19,6 +19,7 @@ import {
 	deleteTaskViewMutation,
 	taskMetadataQuery,
 	listTaskWithGroupQuery,
+	updateTaskMetadataMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -39,6 +40,7 @@ export const intialState = {
 	refetchTasks: false,
 	refetchTasksForDue: false,
 	listTaskWithGroup: null,
+	sideBarData: null,
 };
 
 export const TasksState = () => {
@@ -68,6 +70,7 @@ export const TasksState = () => {
 					payload: { error: 'Failed to fetch tasks, try again' },
 				});
 			}
+			return response;
 		} catch (error) {
 			console.log('API failed ==> getListItems', error);
 		}
@@ -654,6 +657,50 @@ export const TasksState = () => {
 		}
 	};
 
+	const updateTaskPrefix = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateTaskMetadataMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_TASK_PREFIX,
+					payload: response?.[1]?.data?.updateTaskMetadata?.prefix,
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> updateTaskViews', error);
+		}
+	};
+
+	const updateSelectedView = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateTaskMetadataMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_SELECTED_VIEW,
+					payload: response?.[1]?.data?.updateTaskMetadata?.selectedTaskView,
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> updateTaskViews', error);
+		}
+	};
+
 	const deleteTaskView = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -802,6 +849,13 @@ export const TasksState = () => {
 		}
 	};
 
+	const updateSideBarData = (data) => {
+		dispatch({
+			type: Actions.UPDATE_SIDEBAR_DATA,
+			payload: data,
+		});
+	};
+
 	return {
 		...state,
 		getListItems,
@@ -834,5 +888,8 @@ export const TasksState = () => {
 		getListTaskWithGroup,
 		fetchGroupData,
 		handleGroupChange,
+		updateTaskPrefix,
+		updateSelectedView,
+		updateSideBarData,
 	};
 };

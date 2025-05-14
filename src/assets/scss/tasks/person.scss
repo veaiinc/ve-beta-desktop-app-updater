@@ -1,355 +1,94 @@
-.person-dropdown-menu {
-	display: flex;
-	width: 220px;
-	padding-bottom: 12px;
+.person-tooltip-container {
+	border-radius: 10px;
+	display: inline-flex;
+	padding: 6px 10px;
 	flex-direction: column;
-	align-items: flex-start;
-	gap: 12px;
-
-	.person-dropdown-menu-header {
-		display: flex;
-		padding: 12px;
-		align-items: center;
-		align-content: center;
-		gap: 4px;
-		align-self: stretch;
-		flex-wrap: wrap;
-		border-radius: 8px 8px 0px 0px;
-		background: var(--card);
-		&-title {
-			color: var(--primary-font);
-			text-align: center;
-			font-family: var(--primary-font-family);
-			font-size: 12px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-		}
-	}
-
-	.person-dropdown-menu-body {
-		.ant-select-item {
-			padding: 0 6px !important;
-			padding-bottom: 4px !important;
-			margin: 0;
-
-			&:hover {
-				background-color: transparent !important	;
-			}
-
-			&.ant-select-item-option-selected {
-				background-color: transparent !important;
-				.person-dropdown-menu-option {
-					background: var(--card);
-				}
-			}
-		}
-	}
-
-	.person-dropdown-menu-option {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		display: flex;
-		height: 31px;
-		padding: 4px;
-		align-items: center;
-		gap: 6px;
-		align-self: stretch;
-		border-radius: 8px;
-		width: 208px;
-
-		&-avatar {
-			width: 20px;
-			height: 20px;
-			border-radius: 50%;
-			background: var(--card);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			border: 1px solid var(--stroke);
-
-			&-icon {
-				color: var(--primary-font);
-				text-align: center;
-				font-family: var(--primary-font-family);
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				opacity: 0.5;
-			}
-		}
-
-		&-label {
-			color: var(--primary-font);
-			text-align: center;
-			font-family: var(--primary-font-family);
-			font-size: 12px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-		}
-
-		&:hover {
-			background: var(--card);
-		}
-	}
-}
-
-// Override Ant Design styles
-.ant-select-dropdown {
-	background-color: var(--card) !important;
-	padding: 0 !important;
-	border: 1px solid var(--stroke) !important;
-
-	.ant-select-item {
-		color: var(--primary-font) !important;
-
-		&:hover {
-			background-color: var(--card) !important;
-		}
-
-		&.ant-select-item-option-selected {
-			background-color: var(--card) !important;
-		}
-	}
-}
-
-.listItem-person {
-	display: flex;
-	gap: 5px;
+	justify-content: center;
 	align-items: center;
-	align-self: center;
+	gap: 2px;
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: 13px; /* 100% */
+	letter-spacing: -0.26px;
+	background-color: var(--stroke);
+}
+
+.person-multi-select-selected {
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--primary-font);
 	cursor: pointer;
-	max-height: 32px;
-	margin-right: 4px;
-	.avatar {
-		width: 20px;
-		height: 20px;
-		border-radius: 50px;
-		background-color: var(--card);
-		img {
-			object-fit: cover;
-			width: 100%;
-			height: 100%;
+
+	.person-multi-select-selected-list {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 6px;
+		&:has(.person-multi-select-selected-item-stacked) {
+			// padding-left: 10px;
 		}
-		.profile-name {
-			height: 100%;
-			width: 100%;
-			border-radius: 30px;
+
+		.person-multi-select-selected-item {
 			display: flex;
-			justify-content: center;
 			align-items: center;
-			color: var(--primary-font);
-			font-size: small;
-			border: 1px solid var(--stroke);
-		}
-	}
-	.name {
-		color: var(--primary-font);
-		font-family: var(--primary-font-family);
-		font-size: 13px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
-		padding: 12px 0;
-	}
-}
+			gap: 4px;
 
-.person-select {
-	padding: 0px !important;
-	.ant-select-selection-placeholder {
-		padding: 0px !important;
-		display: flex;
-		align-items: center;
-		text-align: center;
-		color: var(--primary-font);
-		width: fit-content;
-		padding: 6px 0 !important;
-		display: flex;
-		justify-content: flex-start;
-		align-items: center;
-		gap: 3px;
-		width: -moz-fit-content;
-		width: fit-content;
-		height: -moz-fit-content;
-		height: fit-content;
-		font-family: var(--primary-font-family);
-		font-size: 12px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
-	}
-
-	&.disabled {
-		.ant-select-selection-placeholder {
-			color: var(--secondary-font) !important;
-			padding: 0px !important;
-		}
-	}
-
-	.ant-select-dropdown {
-		// background-color: #1f1f1f !important;
-
-		.ant-select-item {
-			padding: 8px 12px !important;
-			color: var(--primary-font) !important;
-
-			&:hover {
-				background-color: var(--card) !important;
+			.person-multi-select-selected-item-avatar {
+				width: 20px;
+				height: 20px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 50%;
+				background-color: var(--card);
+				border: 1px solid var(--stroke);
+				font-size: 11px;
+				color: var(--secondary-font);
+				text-transform: uppercase;
 			}
 
-			&.ant-select-item-option-selected {
-				background-color: var(--card) !important;
-			}
-		}
+			.person-multi-select-selected-item-name {
+				display: flex;
+				flex-direction: column;
+				flex-direction: column;
 
-		.person-dropdown-menu {
-			background-color: var(--card) !important;
-
-			.person-dropdown-menu-option {
-				padding: 8px 12px;
-
-				&:hover {
-					background-color: var(--card);
+				.person-multi-select-selected-item-name-text {
+					font-size: 12px;
+					font-weight: 500;
+					color: var(--primary-font);
 				}
 
-				.person-dropdown-menu-option-label {
-					color: var(--primary-font) !important;
+				.person-multi-select-selected-item-email {
+					font-size: 12px;
+					font-weight: 500;
+					color: var(--secondary-font);
 				}
 			}
 		}
-	}
 
-	// Override any Ant Design default styles
-	.ant-select-item-option-content {
-		color: var(--primary-font) !important;
-	}
+		.person-multi-select-selected-item-stacked {
+			position: relative;
+			margin-left: -10px;
 
-	.ant-select-dropdown-menu {
-		background-color: var(--card) !important;
-	}
-}
+			&:first-child {
+				margin-left: 0;
+			}
 
-// Add these global styles to ensure dropdown is visible
-:where(.css-dev-only-do-not-override-xxx).ant-select-dropdown {
-	background-color: var(--card) !important;
+			.person-multi-select-selected-item-avatar {
+				transition: transform 0.2s ease;
 
-	.ant-select-item-option {
-		color: var(--primary-font) !important;
+				// &:hover {
+				// 	transform: translateY(-2px);
+				// }
+			}
 
-		&:hover {
-			background-color: var(--card) !important;
-		}
-
-		&-selected {
-			background-color: var(--card) !important;
+			.person-multi-select-selected-item-name {
+				display: none;
+			}
 		}
 	}
 }
-
-.person-tag {
-	display: flex;
-	align-items: center;
-	padding: 2px 0px;
-
-	.person-tag-avatar {
-		width: 20px;
-		height: 20px;
-		border-radius: 50%;
-		background-color: var(--card);
-		justify-content: center;
-		align-items: center;
-		flex-shrink: 0;
-		margin-right: 4px;
-
-		.person-tag-avatar-icon {
-			width: 100%;
-			height: 100%;
-			display: flex;
-			border-radius: 50px;
-			border: 1px solid var(--stroke);
-			align-items: center;
-			justify-content: center;
-			color: var(--secondary-font);
-			font-family: var(--primary-font-family);
-			font-size: 11px;
-			font-style: normal;
-			font-weight: 400;
-		}
-	}
-
-	.person-tag-label {
-		padding: 0px 6px;
-		color: var(--primary-font);
-		flex-grow: 1;
-		max-width: 154px;
-		word-break: break-word;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		overflow: hidden;
-		text-align: left;
-		font-family: var(--primary-font-family);
-		font-size: 12px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
-	}
-}
-
-.person-tooltip-wrapper {
-	width: fit-content;
-	.person-tooltip-container {
-		border-radius: 10px;
-		display: inline-flex;
-		padding: 6px 10px;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		gap: 2px;
-		color: var(--primary-font);
-		font-family: var(--primary-font-family);
-		font-size: 13px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: 13px; /* 100% */
-		letter-spacing: -0.26px;
-		background-color: var(--stroke);
-	}
-}
-
-.listItemRow,
-.listView-sidebar-container {
-	.ant-select-selection-item {
-		padding: 0 !important;
-		display: flex;
-		align-items: center;
-	}
-	.ant-select-selection-overflow-item.ant-select-selection-overflow-item-suffix {
-		display: none !important;
-	}
-	.ant-select-selector {
-		padding: 0px !important;
-	}
-}
-
-.person-select-dropdown {
-	border: none !important;
-	.ant-select-item {
-		padding: 8px 12px !important;
-		color: var(--primary-font) !important;
-
-		&:hover {
-			background-color: var(--card) !important;
-		}
-
-		&.ant-select-item-option-selected {
-			background-color: var(--card) !important;
-		}
-	}
-
-	.ant-select-item-option-content {
-		color: var(--primary-font) !important;
-	}
-}
+// }

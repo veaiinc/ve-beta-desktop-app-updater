@@ -178,7 +178,6 @@ const BoardItem = ({
 													rowTypes={rowTypes}
 													properties={properties}
 													handleUpdate={handleUpdate}
-													// onClick={() => handleRowClick({ ...item })}
 												/>
 											</div>
 										)}
@@ -187,20 +186,6 @@ const BoardItem = ({
 								{/* 5) Place the placeholder inside the same container as Draggables */}
 								{provided.placeholder}
 							</InfiniteScroll>
-
-							<div
-								className="board-view-item-add-card"
-								onClick={() => handleAddButtonOnClick(group._id)}
-								style={{ borderColor: 'var(--secondary-font)' }}
-							>
-								<PlusIcon />
-								<span
-									className="board-view-item-add-card-text"
-									style={{ color: 'var(--primary-font)' }}
-								>
-									New Task
-								</span>
-							</div>
 						</div>
 					)}
 				</Droppable>
@@ -210,3 +195,16 @@ const BoardItem = ({
 };
 
 export default memo(BoardItem);
+
+{
+	/* <div
+	className="board-view-item-add-card"
+	onClick={() => handleAddButtonOnClick(group._id)}
+	style={{ borderColor: 'var(--secondary-font)' }}
+>
+	<PlusIcon />
+	<span className="board-view-item-add-card-text" style={{ color: 'var(--primary-font)' }}>
+		New Task
+	</span>
+</div>; */
+}

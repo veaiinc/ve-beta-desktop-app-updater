@@ -3,7 +3,7 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../../../assets/scss/gallery/table.scss';
 
-const Table = ({ tableData, thead, loading, scrollLoading }) => {
+const Table = ({ tableData, thead, loading, scrollLoading, tableHeader }) => {
 	const formatDate = (timestamp) => {
 		if (!timestamp) return '';
 
@@ -32,15 +32,17 @@ const Table = ({ tableData, thead, loading, scrollLoading }) => {
 		));
 
 	return (
-		<div className="tableContainer">
+		<div className="tableContainer" style={{ overflow: 'auto' }}>
 			<table>
-				<thead>
-					<tr>
-						<th className="text-left">Name or Email</th>
-						<th>{thead}</th>
-						<th>Date</th>
-					</tr>
-				</thead>
+				{!tableHeader && (
+					<thead>
+						<tr>
+							<th className="text-left">Name or Email</th>
+							<th>{thead}</th>
+							<th>Date</th>
+						</tr>
+					</thead>
+				)}
 				<tbody>
 					{loading && !tableData?.data?.length ? (
 						<LoadingSkeleton />
@@ -56,7 +58,13 @@ const Table = ({ tableData, thead, loading, scrollLoading }) => {
 						<>
 							{tableData?.data?.map((row, index) => (
 								<tr key={`row-${index}`}>
-									<td className="text-left">
+									<td
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '10px',
+										}}
+									>
 										<div
 											style={{
 												display: 'flex',
@@ -75,12 +83,14 @@ const Table = ({ tableData, thead, loading, scrollLoading }) => {
 											<p>{row?.email || 'Anonymous'}</p>
 										</div>
 									</td>
-									<td>
+									<td style={{ textAlign: 'center', width: '20%' }}>
 										{row.registrationStage === 'registered'
 											? 'Registered'
 											: 'In Progress'}
 									</td>
-									<td>{formatDate(row.createdAt)}</td>
+									<td style={{ textAlign: 'center', width: '22%' }}>
+										{formatDate(row.createdAt)}
+									</td>
 								</tr>
 							))}
 							{scrollLoading && <LoadingSkeleton />}

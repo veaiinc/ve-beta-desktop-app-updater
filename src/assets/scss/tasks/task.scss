@@ -1,16 +1,49 @@
-.task-container {
+.tasks-left-container {
 	width: 100%;
-	height: calc(100vh - 60px);
+	flex-shrink: 0;
+}
+
+.tasks-right-container {
+	flex: 1;
+	min-width: 0;
 	display: flex;
 	flex-direction: column;
+	gap: 24px;
+	padding-top: 32px;
 
-	.task-content-area {
-		flex-grow: 1;
-		overflow: auto;
-	}
+	.task-container {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		gap: 24px;
 
-	.ant-select-selector {
-		padding: 0px !important;
+		.task-header-container {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+
+			.quick-actions-btn {
+				display: flex;
+				align-items: center;
+				margin-left: auto;
+				width: 103px;
+				flex-shrink: 0;
+			}
+		}
+
+		.task-content-area {
+			display: flex;
+			flex-grow: 1;
+			overflow: hidden;
+			.listViewContainer {
+				overflow: hidden;
+			}
+		}
+
+		.ant-select-selector {
+			padding: 0px !important;
+		}
 	}
 }
 
@@ -18,6 +51,6 @@
 	width: 16px;
 	height: 17px;
 	path {
-		stroke: #f2f2f3 !important;
+		stroke: var(--primary-font) !important;
 	}
 }

@@ -1,57 +1,79 @@
-import { Drawer } from 'antd';
 import Skeleton from 'react-loading-skeleton';
-import React, { useContext, useEffect, memo, useCallback } from 'react';
+import React, { useContext, useEffect, memo, useCallback, useState, useRef } from 'react';
 import '../../../../assets/scss/chats.scss';
-import { ReactComponent as Back } from '../../../../assets/svg/sidebar/notifications/back.svg';
 import Context from '../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../helpers';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import InfiniteScroll from '../../../components/globalComponents/InfiniteScroll';
 import moment from 'moment';
 import { useNavigate, useParams } from 'react-router-dom';
-import ChatTitleTooltip from './ChatTitleTooltip';
-
-const infiniteScrollHeight = 'calc(100vh - 72px)';
+import { ReactComponent as Search } from '../../../../assets/svg/sidebar/notifications/search.svg';
+import debounce from 'lodash/debounce';
+import ObjectID from 'bson-objectid';
 const infiniteScrollStyle = {
 	display: 'flex',
 	flexDirection: 'column',
 	alignItems: 'flex-start',
-	flex: '1 0 0',
 	alignSelf: 'stretch',
+	gap: '2px',
+	// height: '38vh',
 };
-const skeletonLoaders = Array.from({ length: 30 }, (_, index) => index + 1);
+const skeletonLoaders = Array?.from({ length: 30 }, (_, index) => index + 1);
 const page = 1;
 const limit = 30;
 const append = true;
 
-const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebarIcon }) => {
+const ChatHistory = () => {
 	const navigate = useNavigate();
-	const { sessionId } = useParams();
 	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
+		templates: { refetchChatHistoryList, updateStateValues, currentSessionId, currentChatData },
 	} = useContext(Context);
+	// const previousSearchQuery = useRef('');
+	// const [searchQuery, setSearchQuery] = useState('');
+
+	// const debouncedSearch = useCallback(
+	// 	debounce((query) => {
+	// 		previousSearchQuery.current = query;
+	// 		getAiChatSessions(page, limit, append, query);
+	// 	}, 500),
+	// 	[],
+	// );
 
 	useEffect(() => {
-		if (showChatsDrawer) {
-			getAiChatSessions(page, limit, append);
+		// const timeoutId = setTimeout(() => {
+		// 	if (!searchQuery) {
+		// 		getAiChatSessions(page, limit, append);
+		// 	} else {
+		// 		debouncedSearch(searchQuery);
+		// 	}
+		// }, 0);
+		fetchChats();
+
+		// return () => {
+		// 	clearTimeout(timeoutId);
+		// 	debouncedSearch.cancel();
+		// };
+	}, []);
+
+	useEffect(() => {
+		if (currentSessionId && currentChatData?._id !== currentSessionId) {
+			const index = aiChatSessions?.data?.findIndex((chat) => chat?._id === currentSessionId);
+			if (typeof index === 'number' && index !== -1) {
+				updateStateValues({ currentChatData: aiChatSessions?.data[index] });
+			}
 		}
-	}, [showChatsDrawer]);
+	}, [currentSessionId, aiChatSessions]);
 
-	const chats = aiChatSessions?.data;
-	const emptyChatsState = aiChatSessions?.data?.length === 0;
-	const loadingState = aiChatSessions?.data === undefined;
-	const hasNextPage = aiChatSessions?.hasMore || false;
-	const currentPage = aiChatSessions?.currentPage || 1;
+	useEffect(() => {
+		if (refetchChatHistoryList) {
+			fetchChats();
+			updateStateValues({ refetchChatHistoryList: false });
+		}
+	}, [refetchChatHistoryList]);
 
-	const handleCloseDrawer = () => {
-		setShowChatsDrawer(false);
-		setHideClosedSidebarIcon(false);
-	};
-
-	const formatTimestamp = (timestamp) => {
-		const date = moment.unix(timestamp);
-		const isToday = date.isSame(moment(), 'day');
-		return isToday ? date.format('HH:mm') : date.format('MMM DD');
-	};
+	const fetchChats = useCallback(() => {
+		getAiChatSessions(page, limit, append);
+	}, []);
 
 	const fetchMoreChats = () => {
 		if (hasNextPage) {
@@ -60,78 +82,131 @@ const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebar
 		}
 	};
 
-	const handleChatNavigation = useCallback((chat) => {
-		navigate(`/chat/${chat?._id}`);
+	const handleChatNavigation = useCallback(
+		(chat) => {
+			if (currentSessionId === chat?._id) return;
+
+			if (chat?.agentType === 'knowledge_agent') {
+				navigate(
+					`/chat/${chat?._id}?agentType=knowledge_agent&assistantId=${chat?.assistantId}`,
+				);
+			} else {
+				navigate(`/chat/${chat?._id}`);
+			}
+		},
+		[currentSessionId],
+	);
+
+	const handleCreateChat = useCallback(() => {
+		const sessionId = ObjectID()?.toString();
+		navigate(`/chat/${sessionId}`);
 	}, []);
 
+	const getChatDateGroup = useCallback((timestamp) => {
+		const chatDate = moment.unix(timestamp).startOf('day');
+		const today = moment().startOf('day');
+		const yesterday = moment().subtract(1, 'day').startOf('day');
+		const weekAgo = moment().subtract(7, 'days').startOf('day');
+		const monthAgo = moment().subtract(1, 'month').startOf('day');
+
+		if (chatDate.isSame(today)) return 'Today';
+		if (chatDate.isSame(yesterday)) return 'Yesterday';
+		if (chatDate.isAfter(weekAgo)) return 'Previous 7 Days';
+		if (chatDate.isAfter(monthAgo)) return 'Last Month';
+
+		return 'Older';
+	}, []);
+
+	const chats = aiChatSessions?.data;
+	const emptyChatsState = aiChatSessions?.data?.length === 0;
+	const loadingState = aiChatSessions?.data === undefined;
+	const hasNextPage = aiChatSessions?.hasMore || false;
+	const currentPage = aiChatSessions?.currentPage || 1;
+
 	return (
-		<Drawer
-			title={null}
-			open={showChatsDrawer}
-			onClose={handleCloseDrawer}
-			placement="left"
-			width={250}
-			rootClassName="sidebar-chats-drawer"
-			closeIcon={null}
-			zIndex={1009}
-		>
-			<div className="chats-drawer-container">
-				<div className="header">
-					<h1 className="title">AI Chat History</h1>
-					<div onClick={handleCloseDrawer} className="cta-container">
-						<Back />
+		<div className="chats-drawer-container">
+			<div className="chats-container">
+				{/* {(chats?.length > 10 || previousSearchQuery.current) && (
+					<div className="searchContainer">
+						<Search />
+						<input
+							type="text"
+							placeholder="Ai Chat History"
+							className="search-input"
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+						/>
 					</div>
-				</div>
-				<div className="chats-container">
-					{loadingState ? (
-						<div className="skeleton-loader-container">
-							{skeletonLoaders?.map((skeletonId) => (
-								<Skeleton
-									key={skeletonId}
-									width="230px"
-									height="46px"
-									borderRadius="12px"
-								/>
-							))}
-						</div>
-					) : emptyChatsState ? (
-						<div className="empty-state">
-							<p className="message">No AI chats yet!</p>
-						</div>
-					) : (
-						<InfiniteScroll
-							dataLength={chats?.length || 0}
-							next={fetchMoreChats}
-							hasMore={hasNextPage || false}
-							loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
-							style={infiniteScrollStyle}
-							height={infiniteScrollHeight}
-						>
-							{chats?.map((chat) => (
-								<div
-									key={chat?.id}
-									className={`chat-container ${
-										sessionId === chat?._id ? 'active-chat' : ''
-									}`}
-									onClick={() => handleChatNavigation(chat)}
-								>
-									<div className="chat-title-and-query">
-										{/* // Todo: uncomment after styling tooltip properly, no need to render tooltip in safari. Perform conditional rendering based on browser */}
-										{/* <ChatTitleTooltip content={chat?.title}> */}
-										<p className="chat-title">{chat?.title}</p>
-										{/* </ChatTitleTooltip> */}
-										<p className="chat-query">{chat?.query}</p>
+				)} */}
+				{loadingState ? (
+					<div className="skeleton-loader-container">
+						{skeletonLoaders?.map((skeletonId) => (
+							<Skeleton
+								key={skeletonId}
+								width="211px"
+								height="46px"
+								borderRadius="12px"
+							/>
+						))}
+					</div>
+				) : emptyChatsState ? (
+					// <div className="empty-state">
+					// 	<button className="create-chat-btn" onClick={handleCreateChat}>
+					// 		Create New Chat
+					// 	</button>
+					// </div>
+					''
+				) : (
+					<InfiniteScroll
+						dataLength={chats?.length || 0}
+						next={fetchMoreChats}
+						hasMore={hasNextPage || false}
+						loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
+						style={infiniteScrollStyle}
+						// scrollableTarget="chatsScroll"
+						height={'100%'}
+					>
+						{chats?.map((chat, index) => {
+							const dateGroup = getChatDateGroup(chat.createdAt);
+							const showGroupHeader =
+								index === 0 ||
+								dateGroup !== getChatDateGroup(chats[index - 1].createdAt);
+
+							return (
+								<div key={chat?._id} className="chat-container-wrapper ">
+									{showGroupHeader && (
+										<div
+											className="chat-group-header"
+											style={{ marginTop: `${index !== 0 ? '20px' : '0'}` }}
+										>
+											{dateGroup}
+										</div>
+									)}
+									<div
+										className={`chat-containers ${
+											currentSessionId === chat?._id ? 'active-chat' : ''
+										}`}
+										onClick={() => handleChatNavigation(chat)}
+									>
+										<div className="chat-title-and-query">
+											<p
+												className={`chat-title ${
+													index === chats.length - 1
+														? 'last-chat-title'
+														: ''
+												}`}
+											>
+												{chat?.title}
+											</p>
+										</div>
 									</div>
-									<p className="chat-timestamp">
-										{formatTimestamp(chat?.createdAt)}
-									</p>
 								</div>
-							))}
-						</InfiniteScroll>
-					)}
-				</div>
+							);
+						})}
+					</InfiniteScroll>
+				)}
 			</div>
-		</Drawer>
+		</div>
 	);
 };
 

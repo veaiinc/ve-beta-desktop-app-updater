@@ -12,6 +12,7 @@ const ReusableButtonSettings = ({
 	href = null,
 	loader = false,
 	disableHover = false, // New prop to disable hover effect
+	style = {},
 }) => {
 	const [isHovered, setIsHovered] = useState(false);
 
@@ -71,6 +72,7 @@ const ReusableButtonSettings = ({
 					cursor: 'pointer',
 					// minWidth: '150px',
 					border: '1px solid var(--stroke)',
+					...style,
 				}}
 			>
 				{icon && <span style={{ display: 'flex', alignItems: 'center' }}>{icon}</span>}

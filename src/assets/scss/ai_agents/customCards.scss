@@ -129,18 +129,6 @@
 		}
 	}
 
-	.aiAgentsactivityCardsholder {
-		display: flex;
-		height: 340px;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 6px;
-		flex-shrink: 0;
-		align-self: stretch;
-		max-height: 340px;
-		overflow-y: auto;
-	}
-
 	.aiAgentsActivityCards {
 		display: flex;
 		padding: 14px 16px;
@@ -251,26 +239,6 @@
 
 		border-radius: 16px;
 		background: var(--card);
-		.aiAgentsDraftsCardHeaderText {
-			display: -webkit-box;
-			-webkit-box-orient: vertical;
-			-webkit-line-clamp: 1;
-			align-self: stretch;
-			color: var(--secondary-font);
-			font-family: var(--primary-font-family);
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			text-transform: capitalize;
-		}
-
-		.aiAgentsDraftsCardIcon {
-			width: 41px;
-			height: 41px;
-			border-radius: 4px;
-			background: var(--card);
-		}
 
 		.aiAgentsDraftsCardText {
 			color: var(--primary-font);
@@ -289,18 +257,6 @@
 			align-self: stretch;
 			align-items: flex-end;
 			gap: 6px;
-
-			.aiAgentsActivityCardssubTextStyling {
-				overflow: hidden;
-				color: var(--secondary-font);
-				text-overflow: ellipsis;
-				font-family: var(--primary-font-family);
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: normal;
-				flex: 1;
-			}
 		}
 		.aiAgentsDraftCardTime {
 			color: var(--secondary-font);
@@ -354,18 +310,6 @@
 			overflow: hidden;
 			text-overflow: ellipsis;
 		}
-	}
-
-	.aiAgentsNotesCardholder {
-		display: flex;
-		height: 340px;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 6px;
-		flex-shrink: 0;
-		align-self: stretch;
-		max-height: 340px;
-		overflow-y: auto;
 	}
 
 	.aiAgentsNotesCard {

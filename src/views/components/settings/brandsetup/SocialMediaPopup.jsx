@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext, memo } from 'react';
-import 'react-phone-input-2/lib/style.css';
 import ReactModal from '../../modalsV2/index';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import Context from '../../../../context/context';
@@ -196,7 +195,7 @@ const SocialMediaPopup = ({
 						>
 							<div>
 								<span>
-									{isActive ? 'Update' : 'Add'}
+									{isActive ? 'Update ' : 'Add '}
 									{logo.charAt(0).toUpperCase() + logo.slice(1)}
 								</span>
 							</div>

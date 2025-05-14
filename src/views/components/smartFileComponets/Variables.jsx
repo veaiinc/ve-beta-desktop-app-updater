@@ -169,7 +169,7 @@ const Variables = ({
 				))}
 				<div className="proposalContainer">
 					<div className="inputWithLabelContainer">
-						<span className="labelName">Workflow Validity</span>
+						<span className="labelName">Document Validity</span>
 						<div
 							style={{
 								display: 'flex',

@@ -12,12 +12,23 @@ import Skeleton from 'react-loading-skeleton';
 import CustomTextArea from '../../globalComponents/CusomTextArea';
 import QuickActions from '../../globalComponents/QuickActions';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import moment from 'moment';
 const optionsForQuickActions = [
 	{ id: 4, title: 'Document', value: 'document' },
 	{ id: 6, title: 'Proposal', value: 'proposal' },
 	{ id: 7, title: 'Invoice', value: 'invoice' },
 	{ id: 8, title: 'Contract', value: 'contract' },
 ];
+
+const getFormattedDate = (date) => {
+	if (!date) return '';
+	return moment(date * 1000)?.format('DD/MM/YYYY - hh:mm A');
+};
+
+const customStyles = {
+	height: 'calc(100dvh - 41px)',
+	marginTop: '53px',
+};
 
 const ListViewSidebar = ({
 	selectedRow,
@@ -36,6 +47,7 @@ const ListViewSidebar = ({
 	breadCrumbs,
 	handleBreadCrumbsClick,
 	showQuickActions = true,
+	// renewBanner,
 }) => {
 	const [info, setInfo] = useState({
 		subTasks: [],
@@ -175,6 +187,13 @@ const ListViewSidebar = ({
 						'workflowId',
 						'parentTask',
 						'childTasks',
+						'assignedBy',
+						'assignedAt',
+						'createdAt',
+						'createdBy',
+						'updatedAt',
+						'updatedBy',
+						// 'clients',
 					].includes(key) ||
 					isTitle
 				) {
@@ -186,13 +205,12 @@ const ListViewSidebar = ({
 				}
 
 				const RowComponent = rowTypes?.[type] || null;
+
 				listItems.push(
 					<div className="property-list" key={key}>
 						<span className="property-title">
-							{Icon && <Icon width={16} height={16} />}
-							{name}
-						</span>
-						<span className={`property-value`}>
+							{Icon && <Icon width={16} height={16} className="property-icon" />}
+
 							{RowComponent ? (
 								<RowComponent
 									key={key}
@@ -211,11 +229,13 @@ const ListViewSidebar = ({
 										handleUpdate(row._id, key, value, false, onSuccess)
 									}
 									takeFullspace={true}
+									className={key === 'dueDate' ? 'listview-date-picker' : ''}
 								/>
 							) : (
 								<div key={key}>{value}</div>
 							)}
 						</span>
+						<span className={`property-value`}>{name}</span>
 					</div>,
 				);
 			}
@@ -224,6 +244,30 @@ const ListViewSidebar = ({
 		},
 		[responseMetadata, rowTypes, handleUpdate, colors],
 	);
+
+	const generateTimestampDiv = useCallback((row) => {
+		return (
+			<div className="timestamp-div">
+				<div className="timestamp-cell">
+					<div className="timestamp-item">
+						<span className="timestamp-label">Created at</span>
+						<span className="timestamp-value">{getFormattedDate(row?.createdAt)}</span>
+						<span className="timestamp-assignee">{row?.createdBy?.name}</span>
+					</div>
+					<div className="timestamp-item">
+						<span className="timestamp-label">Assigned at</span>
+						<span className="timestamp-value">{getFormattedDate(row?.assignedAt)}</span>
+						<span className="timestamp-assignee">{row?.assignedBy?.name}</span>
+					</div>
+					<div className="timestamp-item">
+						<span className="timestamp-label">Updated at</span>
+						<span className="timestamp-value">{getFormattedDate(row?.updatedAt)}</span>
+						<span className="timestamp-assignee">{row?.updatedBy?.name}</span>
+					</div>
+				</div>
+			</div>
+		);
+	}, []);
 
 	const generateSkeleton = useCallback(() => {
 		return [...Array(3)]?.map((_, index) => (
@@ -249,95 +293,81 @@ const ListViewSidebar = ({
 			open={sidebarIsOpen}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			bodyStyle={{ padding: '0px', overflow: 'hidden' }}
+			className="listview-sidebar-drawer"
+			destroyOnClose={true}
 		>
 			<div
 				className={`listView-sidebar-container ${
 					isSidebarExpanded ? 'listView-sidebar-container-expanded' : ''
 				}`}
 			>
-				<div className="listView-sidebar-innerContainer">
-					<div className="listView-sidebar-wrapper">
-						<div className="sidebar-header">
-							<div className="sidebar-header-left-container">
-								<div className="sidebar-header-expand-button">
-									{!isSidebarExpanded ? (
-										<CloseArrow
-											width={16}
-											height={16}
-											onClick={closeSidebar}
-											style={{ cursor: 'pointer' }}
-										/>
-									) : (
-										''
-									)}
-								</div>
-								<div
-									className="sidebar-header-expand-button"
-									onClick={handleExpandClick}
-								>
-									{isSidebarExpanded ? (
-										<ExpandSvg
-											width={16}
-											height={16}
-											style={{ cursor: 'pointer' }}
-										/>
-									) : (
-										<ExpandSvg
-											width={16}
-											height={16}
-											style={{ cursor: 'pointer' }}
-										/>
-									)}
-								</div>
+				<div
+					className="listView-sidebar-innerContainer"
+					// style={renewBanner ? customStyles : {}}
+				>
+					<div className="sidebar-header">
+						<div className="sidebar-header-left-container">
+							<div className="sidebar-header-expand-button">
+								{!isSidebarExpanded ? (
+									<CloseArrow
+										width={16}
+										height={16}
+										onClick={closeSidebar}
+										style={{ cursor: 'pointer' }}
+									/>
+								) : (
+									''
+								)}
 							</div>
-
-							<div className="sidebar-header-right-container">
-								{showQuickActions && isSidebarExpanded && (
-									<QuickActions
-										suggestedOptions={suggestedOptions}
-										// clientDetails={selectedRow}
+							<div
+								className="sidebar-header-expand-button"
+								onClick={handleExpandClick}
+							>
+								{isSidebarExpanded ? (
+									<ExpandSvg
+										width={16}
+										height={16}
+										style={{ cursor: 'pointer' }}
+									/>
+								) : (
+									<ExpandSvg
+										width={16}
+										height={16}
+										style={{ cursor: 'pointer' }}
 									/>
 								)}
-								<button
-									className="sidebar-delete-button"
-									onClick={() => {
-										handleDeleteTask();
-									}}
-									disabled={info?.deleteLoading}
-								>
-									{info?.deleteLoading ? (
-										<Spinner width={20} height={20} color="#7d7d7d" />
-									) : (
-										<DustBinIcon
-											width={20}
-											height={20}
-											className="cursor-pointer"
-										/>
-									)}
-								</button>
 							</div>
+							<div className="sidebar-header-id">{headerText}</div>
 						</div>
-						{headerText && (
-							<div className="breadCrumbs-container">
-								{breadCrumbs?.map((item, index) => (
-									<div
-										className="breadCrumbs-item"
-										key={item?.label}
-										onClick={() => {
-											handleBreadCrumbsClick(item, index);
-										}}
-									>
-										{item?.label}
-										<div className="right-svg">
-											<RightSvg height={12} width={12} />
-										</div>
-									</div>
-								))}
-								<div className="breadCrumbs-item active">{headerText}</div>
-							</div>
-						)}
 
+						<div className="sidebar-header-right-container">
+							{showQuickActions && isSidebarExpanded && (
+								<QuickActions
+									suggestedOptions={suggestedOptions}
+									// clientDetails={selectedRow}
+								/>
+							)}
+							<button
+								className="sidebar-delete-button"
+								onClick={() => {
+									handleDeleteTask();
+								}}
+								disabled={info?.deleteLoading}
+							>
+								{info?.deleteLoading ? (
+									<Spinner width={20} height={20} color="#7d7d7d" />
+								) : (
+									<DustBinIcon
+										width={20}
+										height={20}
+										className="cursor-pointer"
+									/>
+								)}
+							</button>
+						</div>
+					</div>
+					<div className="listView-sidebar-wrapper">
 						<div className="sidebar-title">
 							<CustomTextArea
 								value={localTitle}
@@ -346,22 +376,26 @@ const ListViewSidebar = ({
 								className="sidebar-title-input"
 								autoResize={true}
 							/>
+							{selectedRow?.description !== undefined && (
+								<div className="sidebar-description">
+									<CustomTextArea
+										value={localDescription}
+										onChange={handleDescriptionChange}
+										placeholder="Enter description"
+										className="sidebar-description-textarea"
+										autoResize={true}
+									/>
+								</div>
+							)}
 						</div>
 						<div className="sidebar-properties-container">
+							<h4>Details</h4>
 							{generateRow(selectedRow)}
 						</div>
 						{sidebarChildren}
-						{selectedRow?.description !== undefined && (
-							<div className="sidebar-description">
-								<CustomTextArea
-									value={localDescription}
-									onChange={handleDescriptionChange}
-									placeholder="Enter description"
-									className="sidebar-description-textarea"
-									autoResize={true}
-								/>
-							</div>
-						)}
+						<div className="sidebar-timestamp-container">
+							{generateTimestampDiv(selectedRow)}
+						</div>
 					</div>
 				</div>
 			</div>

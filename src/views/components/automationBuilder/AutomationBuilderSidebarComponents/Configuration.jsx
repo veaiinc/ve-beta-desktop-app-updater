@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useState } from 'react';
 
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/configration.scss';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
 const Configuration = ({ specificAutomationInfo, updateCurrentAutomation }) => {
 	const [info, setInfo] = useState({

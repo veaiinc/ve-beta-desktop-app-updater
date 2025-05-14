@@ -4,6 +4,8 @@ import { Actions } from './action';
 import * as API from './actionTypes';
 import jwt_decode from 'jwt-decode';
 import service from '../../services/index';
+import Service from '../../services/graphQlServices';
+import { getMostUsedEntitiesQuery } from './graphQlFunctions';
 import axios from 'axios';
 
 export const intialState = {
@@ -38,6 +40,7 @@ export const intialState = {
 		imagesCount: 0,
 	},
 	clientSelectionLightRoomCopy: null,
+	galleryGuestAccessDetails: null,
 };
 
 export const Galleries = () => {
@@ -138,6 +141,7 @@ export const Galleries = () => {
 			if (response?.[0] === 200) {
 				getAlbums(galleryId);
 				getAlbumImagesCount(galleryId);
+				return response;
 			}
 			return response;
 		} catch (error) {
@@ -540,7 +544,7 @@ export const Galleries = () => {
 		}
 	};
 
-	const resetGallleryState = async () => {
+	const resetGallleryState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/set-up-image-upload
@@ -727,6 +731,7 @@ export const Galleries = () => {
 					type: Actions.GET_IMAGES_LIST,
 					payload: reset ? response?.[1] : payload,
 				});
+				return [true, response?.[1]];
 			}
 		} catch (error) {
 			console.log('error==>getGalleryImages', error);
@@ -1027,13 +1032,22 @@ export const Galleries = () => {
 				null,
 				'galleries',
 			);
-			if (response[0] === true) {
-				let updateGallery = [...state.tenantGalleries?.galleries];
-				updateGallery = updateGallery.filter((item) => galleryId !== item._id);
-				dispatch({
-					type: Actions.GET_TENANT_GALLERIES,
-					payload: { ...state.tenantGalleries, galleries: updateGallery },
-				});
+			if (response && response[0] === true) {
+				// Check if tenantGalleries and galleries exist before spreading
+				if (state?.tenantGalleries?.galleries) {
+					const updateGallery = state.tenantGalleries.galleries.filter(
+						(item) => galleryId !== item?._id,
+					);
+
+					dispatch({
+						type: Actions.GET_TENANT_GALLERIES,
+						payload: {
+							...state.tenantGalleries,
+							galleries: updateGallery,
+						},
+					});
+				}
+				return response;
 			}
 			return response;
 		} catch (error) {
@@ -1384,7 +1398,7 @@ export const Galleries = () => {
 		}
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/default-sort
-	const setDefaultSort = async (payload) => {
+	const setDefaultSort = async (payload, storeOriginals = true) => {
 		try {
 			dispatch({
 				type: Actions.GET_TENANT_GALLERIES,
@@ -1401,7 +1415,7 @@ export const Galleries = () => {
 				'galleries',
 			);
 			if (response[0] === true) {
-				getGalleries({ page: 1, limit: 15 }, true);
+				getGalleries({ page: 1, limit: 15, storeOriginals }, true);
 			}
 		} catch (error) {
 			console.log('error==>setDefaultSort', error);
@@ -1812,6 +1826,110 @@ export const Galleries = () => {
 		});
 	};
 
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/tags/{{ _.tag_id }}
+	const editTag = async (galleryId, tagId, payload) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/tags/${tagId}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>editTag', error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}
+
+	const deleteTag = async (galleryId, tagId, albumSlug, selectedDropDownValue) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const payload = {
+				removeType: selectedDropDownValue,
+			};
+			const response = await service.fetchDelete(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumSlug}/tags/${tagId}`,
+				usertoken,
+				payload,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>deleteTag', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/guest-access
+	const updateGuestAccess = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const apiUrl = `/${workspaceId}/galleries/${galleryId}/guest-access`;
+			const type = 'galleries';
+			const response = await service?.fetchPut(apiUrl, payload, usertoken, type);
+			if (response[0] === true) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>updateGuestAccess', error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/guest-access
+	const getGuestAccessDetails = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const baseUrl = `/${workspaceId}/galleries/${galleryId}/guest-access`;
+			const type = 'galleries';
+			const response = await service?.fetchGet(baseUrl, usertoken, type);
+			if (response[0] === true) {
+				dispatch({
+					type: Actions.GET_GALLERY_GUEST_ACCESS_DETAILS,
+					payload: response?.[1],
+				});
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>getGuesAccessDetails', error);
+		}
+	};
+	const getMostUsedEntities = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await Service.query(
+				getMostUsedEntitiesQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>getMostUsedEntities', error);
+		}
+	};
+
+	const updateStateValues = async (updatedVariableValuesObj) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+				payload: updatedVariableValuesObj,
+			});
+		} catch (error) {
+			console.log('error==>updateStateValues', error);
+		}
+	};
 	return {
 		...state,
 		getGalleries,
@@ -1899,5 +2017,11 @@ export const Galleries = () => {
 		getClientSelectionLightRoomCopy,
 		deleteWaterMark,
 		downloadImagesForClientSelection,
+		editTag,
+		deleteTag,
+		updateGuestAccess,
+		getGuestAccessDetails,
+		getMostUsedEntities,
+		updateStateValues,
 	};
 };

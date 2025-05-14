@@ -11,7 +11,7 @@ import { ReactComponent as DustbinIcon } from '../../../../assets/svg/tasks/dust
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import Select from '../../tasks/listView/Select';
 import Status from '../../tasks/listView/Status';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 import Spinner from '../../loaders/Spinner';
 import Person from '../../tasks/listView/Person';
 import DateView from '../../tasks/listView/DateView';
@@ -190,14 +190,6 @@ const CreateTaskPopup = ({
 			isOpen={isOpen}
 			closeModal={info?.isLoading ? null : closeModal}
 			modalType={'center'}
-			customStyles={{
-				content: {
-					zIndex: 30000,
-				},
-				overlay: {
-					zIndex: 2,
-				},
-			}}
 		>
 			<div className="createTask-container">
 				<div className="header-wrapper">
@@ -352,27 +344,26 @@ const CreateTaskPopup = ({
 							/>
 						</div>
 						<div className="footer-wrapper">
-							{info?.isSubTaskEditing && (
-								<button
-									className="btn-cancel"
-									onClick={() => {
-										setInfo((prev) => ({
-											...prev,
-											showSubTaskCreate: false,
-											isSubTaskEditing: false,
-											editingSubTaskIndex: null,
-											subTaskTitle: '',
-											subTaskDescription: '',
-											subTaskAssignedTo: [],
-											subTaskDueDate: null,
-											subTaskPriority: 'low',
-											subTaskStatus: 'todo',
-										}));
-									}}
-								>
-									Cancel
-								</button>
-							)}
+							<button
+								className="btn-cancel"
+								onClick={() => {
+									setInfo((prev) => ({
+										...prev,
+										showSubTaskCreate: false,
+										isSubTaskEditing: false,
+										editingSubTaskIndex: null,
+										subTaskTitle: '',
+										subTaskDescription: '',
+										subTaskAssignedTo: [],
+										subTaskDueDate: null,
+										subTaskPriority: 'low',
+										subTaskStatus: 'todo',
+									}));
+								}}
+							>
+								Cancel
+							</button>
+
 							<button
 								className="btn-createSubTask"
 								onClick={handleAddSubTask}

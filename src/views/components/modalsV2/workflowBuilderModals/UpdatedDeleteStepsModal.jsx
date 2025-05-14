@@ -5,7 +5,7 @@ import Spinner from '../../loaders/Spinner';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import Context from '../../../../context/context';
 import { Spin } from 'antd';
-import { getTotalNumnerofNodesRecursively } from '../../../features/workflow_builder/workflowContantsHelpers';
+import { getTotalNumnerofNodesRecursively } from '../../../features/workflowBuilder/workflowContantsHelpers';
 const customStyles = {
 	content: { zIndex: 99999 },
 	overlay: { zIndex: 99998 },

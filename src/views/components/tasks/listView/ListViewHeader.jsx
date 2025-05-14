@@ -1,40 +1,21 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/tasks/listViewHeader.scss';
-import { ReactComponent as FilterLinesSvg } from '../../../../assets/svg/tasks/filterLines.svg';
-import { ReactComponent as ArrowUpAndDown } from '../../../../assets/svg/tasks/arrowUpAndDown.svg';
-import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import OptionsDropDown from '../../dropDown/tasks/OptionsDropDown';
-import DropDown from '../../dropDown/tasks/DropDown';
-import SortComponent from './SortComponent';
-import FilterComponent from './FilterComponent';
 import TabHeader from './TabHeader';
-import SearchSvg from '../../../../assets/svg/activity/SearchSvg';
-import CrossSvg from '../../../../assets/svg/docs/CrossSvg';
-import FilterSvg from '../../../../assets/svg/my_templates/FilterSvg';
-import UpDownArrowSvg from '../../../../assets/svg/my_templates/UpDownArrowSvg';
-import { ReactComponent as PlusSvg } from '../../../../assets/svg/my_templates/plus.svg';
-const defaultFilterValue = {
-	text: '',
-	linkText: '',
-};
 
 const ListViewHeader = ({
 	properties,
-	searchValue,
 	responseMetadata,
-	addButtonOnClick,
 	taskPreferences,
 	editingProperty,
 	handleEditPropertyChange,
 	colors,
-	createButtonText,
 	handleTabChange,
 	tabs,
 	prefix,
 	updateViewInfo,
 	updateTaskInfo,
 	viewData,
-	blockTitle,
 	handleTabsReorder,
 	showEditViewDropDown,
 	closeEditViewDropDown,
@@ -44,117 +25,45 @@ const ListViewHeader = ({
 	layoutOptions,
 	handleLayoutOptionClick,
 }) => {
-	const [info, setInfo] = useState({
-		searchExpand: false,
-		showFilters: true,
-		showSort: true,
-	});
-	const [pendingFilters, setPendingFilters] = useState([]);
-	const searchInputRef = useRef(null);
-	const [showDropdown, setShowDropdown] = useState(false);
+	// const [showDropdown, setShowDropdown] = useState(false);
 
-	useEffect(() => {
-		if (info.searchExpand && searchInputRef.current) {
-			searchInputRef.current?.focus();
-		}
-	}, [info.searchExpand]);
+	// const handleTabClick = useCallback(
+	// 	(tab) => {
+	// 		if (tab._id === viewData?._id) {
+	// 			setShowDropdown((prev) => !prev);
+	// 		} else {
+	// 			setShowDropdown(false);
+	// 			handleTabChange(tab);
+	// 		}
+	// 	},
+	// 	[viewData?._id, handleTabChange],
+	// );
+	// // Add click outside handler
+	// useEffect(() => {
+	// 	const handleClickOutside = (event) => {
+	// 		const dropdownElement = document.querySelector('.tab-dropdown-content');
+	// 		const tabElement = document.querySelector('.tabHeaderButton.active');
 
-	const handelSortClick = useCallback(
-		(value) => {
-			if (!value) {
-				setInfo((prev) => ({
-					...prev,
-					showSort: !prev.showSort,
-				}));
-				return;
-			}
+	// 		if (dropdownElement && tabElement) {
+	// 			// Don't close if clicking inside dropdown
+	// 			if (dropdownElement.contains(event.target)) {
+	// 				return;
+	// 			}
+	// 			// Don't close if clicking the active tab
+	// 			if (tabElement.contains(event.target)) {
+	// 				return;
+	// 			}
+	// 			setShowDropdown(false);
+	// 		}
+	// 	};
 
-			setInfo((prev) => ({
-				...prev,
-				showSort: true,
-			}));
-
-			const newSort = viewData?.sort?.some((item) => item?.sortBy === value)
-				? viewData?.sort
-				: [...viewData?.sort, { sortBy: value, sortType: 1 }];
-
-			updateViewInfo(viewData?._id, { sort: newSort, page: 1 });
-		},
-		[viewData, updateViewInfo],
-	);
-
-	const handelFilterClick = useCallback(
-		(value) => {
-			if (!value) {
-				setInfo((prev) => ({
-					...prev,
-					showFilters: !prev.showFilters,
-				}));
-				return;
-			}
-
-			setInfo((prev) => ({
-				...prev,
-				showFilters: true,
-			}));
-
-			if (
-				!viewData?.filters?.some((item) => item.key === value) &&
-				!pendingFilters.some((item) => item.key === value)
-			) {
-				setPendingFilters((prev) => [
-					...prev,
-					{
-						key: value,
-						value: null,
-					},
-				]);
-			}
-		},
-		[viewData, pendingFilters],
-	);
-
-	const handleTabClick = useCallback(
-		(tab) => {
-			if (tab._id === viewData?._id) {
-				setShowDropdown((prev) => !prev);
-			} else {
-				setShowDropdown(false);
-				handleTabChange(tab);
-			}
-		},
-		[viewData?._id, handleTabChange],
-	);
-	// Add click outside handler
-	useEffect(() => {
-		const handleClickOutside = (event) => {
-			const dropdownElement = document.querySelector('.tab-dropdown-content');
-			const tabElement = document.querySelector('.tabHeaderButton.active');
-
-			if (dropdownElement && tabElement) {
-				// Don't close if clicking inside dropdown
-				if (dropdownElement.contains(event.target)) {
-					return;
-				}
-				// Don't close if clicking the active tab
-				if (tabElement.contains(event.target)) {
-					return;
-				}
-				setShowDropdown(false);
-			}
-		};
-
-		document.addEventListener('mousedown', handleClickOutside);
-		return () => document.removeEventListener('mousedown', handleClickOutside);
-	}, []);
-
-	const hasFilters = viewData?.filters?.length > 0 || pendingFilters?.length > 0;
-	const hasSort = viewData?.sort?.length > 0;
+	// 	document.addEventListener('mousedown', handleClickOutside);
+	// 	return () => document.removeEventListener('mousedown', handleClickOutside);
+	// }, []);
 
 	return (
 		<div className="listViewHeaderContainer">
-			<div className="listViewHeaderTitleWrapper">
-				{/* <div className="listViewHeader-title">{blockTitle || 'Untitled'}</div> */}
+			{/* <div className="listViewHeaderTitleWrapper">
 				<div className="listViewHeader">
 					<div className="listViewHeaderTabsContainer">
 						<TabHeader
@@ -167,127 +76,9 @@ const ListViewHeader = ({
 							layoutOptions={layoutOptions}
 							handleLayoutOptionClick={handleLayoutOptionClick}
 						/>
-						{/* <button className="listViewHeaderTabsAddButton" onClick={handleAddTab}>
-						<PlusSvg />
-					</button> */}
 					</div>
 
 					<div className="listViewHeaderActions">
-						{/* <button className="listViewHeaderAddTaskButton" onClick={addButtonOnClick}>
-							{createButtonText || 'Add'}
-						</button> */}
-						<PlusSvg onClick={addButtonOnClick} />
-						<div
-							className="searchContainer"
-							style={{
-								width: info?.searchExpand ? '140px' : '16px',
-							}}
-						>
-							<div
-								className={`searchBtn ${info?.searchExpand ? 'searchExpand' : ''}`}
-							>
-								<span
-									style={{
-										display: 'flex',
-										justifyContent: 'center',
-										alignItems: 'center',
-										cursor: 'pointer',
-									}}
-									onClick={() => {
-										setInfo((prev) => ({
-											...prev,
-											searchExpand: true,
-										}));
-									}}
-								>
-									<SearchSvg />
-								</span>
-
-								<div className="inputAndCloseContainer">
-									<input
-										ref={searchInputRef}
-										className="searchInputTag"
-										placeholder="Search"
-										value={searchValue}
-										onChange={(e) =>
-											updateTaskInfo({ searchValue: e.target?.value })
-										}
-									/>
-									<span
-										style={{
-											display: 'flex',
-											justifyContent: 'center',
-											alignItems: 'center',
-											cursor: 'pointer',
-										}}
-										onClick={() => {
-											setInfo((prev) => ({
-												...prev,
-												searchExpand: false,
-											}));
-											updateTaskInfo({ searchValue: '' });
-										}}
-									>
-										<CrossSvg />
-									</span>
-								</div>
-							</div>
-							{
-								// <button className="listViewHeaderActionButton">
-								// 	<ThunderSvg />
-								// </button>
-							}
-						</div>
-						{hasSort ? (
-							<div
-								className="listViewHeaderActionButton"
-								onClick={() => handelSortClick()}
-							>
-								<UpDownArrowSvg />
-							</div>
-						) : (
-							<DropDown
-								title="Sort"
-								options={properties?.filter(
-									(item) => !['childTasks', 'parentTask']?.includes(item.value),
-								)}
-								onOptionClick={handelSortClick}
-								valueSelector="value"
-							>
-								<div
-									className="listViewHeaderActionButton"
-									onClick={() => handelSortClick()}
-								>
-									<UpDownArrowSvg />
-								</div>
-							</DropDown>
-						)}
-
-						{hasFilters ? (
-							<div
-								className="listViewHeaderActionButton"
-								onClick={() => handelFilterClick()}
-							>
-								<FilterSvg />
-							</div>
-						) : (
-							<DropDown
-								title="Filter"
-								options={properties.filter(
-									(item) => !['childTasks', 'parentTask']?.includes(item.value),
-								)}
-								onOptionClick={handelFilterClick}
-								valueSelector="value"
-							>
-								<div
-									className="listViewHeaderActionButton"
-									onClick={() => handelFilterClick()}
-									style={{ color: 'var(--primary-color)' }}
-								>
-									<FilterSvg />
-								</div>
-							</DropDown>
-						)}
 						<OptionsDropDown
 							properties={properties}
 							prefix={prefix}
@@ -304,90 +95,12 @@ const ListViewHeader = ({
 							handleDuplicateView={handleDuplicateView}
 							handleDeleteView={handleDeleteView}
 							layoutOptions={layoutOptions}
+							tabLength={Object.values(tabs || {}).length}
 						/>
+						<span className="list-separator"></span>
 					</div>
 				</div>
-			</div>
-
-			{(viewData?.sort?.length > 0 && info?.showSort) ||
-			((viewData?.filters?.length > 0 || pendingFilters.length > 0) && info.showFilters) ? (
-				<div className="listViewOptionsContainer">
-					{viewData?.sort?.length > 0 && info?.showSort ? (
-						<SortComponent
-							sort={viewData?.sort}
-							options={properties?.filter(
-								(item) => !['childTasks', 'parentTask']?.includes(item.value),
-							)}
-							responseMetadata={responseMetadata}
-							updateViewInfo={(viewInfo) => updateViewInfo(viewData?._id, viewInfo)}
-							handelSortClick={handelSortClick}
-							properties={properties.filter(
-								(item) => !['childTasks', 'parentTask']?.includes(item.value),
-							)}
-						/>
-					) : null}
-					{(viewData?.filters?.length > 0 || pendingFilters.length > 0) &&
-					info.showFilters ? (
-						<div className="listView-filterContainer">
-							{[...viewData?.filters, ...pendingFilters].map((filter) => {
-								const {
-									Icon = null,
-									name = null,
-									props = {},
-									type = null,
-								} = responseMetadata?.[filter?.key];
-								return (
-									<FilterComponent
-										key={filter?.key}
-										Icon={Icon}
-										title={name}
-										fieldName={filter?.key}
-										value={filter?.value}
-										updateViewInfo={(viewInfo) =>
-											updateViewInfo(viewData?._id, viewInfo)
-										}
-										filters={viewData?.filters}
-										props={props}
-										type={type}
-										colors={colors}
-										isPending={
-											!viewData?.filters?.some((f) => f.key === filter?.key)
-										}
-										onConfirm={(key, value) => {
-											setPendingFilters((prev) =>
-												prev.filter((f) => f.key !== key),
-											);
-											updateViewInfo(viewData?._id, {
-												filters: [...viewData?.filters, { key, value }],
-											});
-										}}
-										setPendingFilters={setPendingFilters}
-										responseMetadata
-									/>
-								);
-							})}
-							<DropDown
-								title="Add Filter"
-								options={properties?.filter(
-									(item) =>
-										!viewData?.filters?.some(
-											(filter) => filter.key === item.value,
-										) && !['childTasks', 'parentTask']?.includes(item.value),
-								)}
-								onOptionClick={handelFilterClick}
-								valueSelector="value"
-							>
-								<div className="listView-addFilterButton">
-									<PlusSvg />
-									<span className="listView-addFilterButtonText">Add Filter</span>
-								</div>
-							</DropDown>
-						</div>
-					) : null}
-				</div>
-			) : (
-				''
-			)}
+			</div> */}
 		</div>
 	);
 };

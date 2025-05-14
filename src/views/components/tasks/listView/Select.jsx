@@ -1,9 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/select.scss';
 import { Tooltip } from 'antd';
-import { ReactComponent as SixDotsIcon } from '../../../../assets/svg/tasks/sixDots.svg';
-import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
+import SelectDropdown from '../../dropDown/tasks/SelectDropdown';
+
+const colors = {
+	1: { backgroundColor: '#62344B', color: '#A35A7E' },
+	2: { backgroundColor: '#373737', color: '#707070' },
+	3: { backgroundColor: '#5B3D2F', color: '#8F614B' },
+	4: { backgroundColor: '#7D4F27', color: '#B37339' },
+	5: { backgroundColor: '#375841', color: '#588F69' },
+	6: { backgroundColor: '#2F4469', color: '#4F71B3' },
+	7: { backgroundColor: '#453061', color: '#6F4C99' },
+};
 
 const Select = ({
 	value,
@@ -11,7 +20,7 @@ const Select = ({
 	title,
 	showTitle = false,
 	onOptionClick,
-	colors = [],
+	// colors = [],
 	disabled = false,
 }) => {
 	const [info, setInfo] = useState({
@@ -44,69 +53,20 @@ const Select = ({
 	};
 
 	const getBackgroundColor = (colorKey) => {
-		return colors?.[colorKey]?.backgroundColor || 'transparent';
+		return colors?.[colorKey]?.color || 'transparent';
 	};
 
 	return (
-		<div className="select-options-wrapper">
+		<div className="select-options-wrapper filter-wrapper">
 			<Tooltip
 				title={
-					<div className="select-options-dropdown" onClick={(e) => e.stopPropagation()}>
-						<div className="select-options-dropdown-header">
-							{info?.selectedOption ? (
-								<div
-									className="select-list-item-tag"
-									style={{
-										backgroundColor: getBackgroundColor(
-											info.selectedOption.color,
-										),
-									}}
-								>
-									{info.selectedOption.label}
-								</div>
-							) : (
-								<input type="text" placeholder="Search for an option..." />
-							)}
-						</div>
-						{!disabled && (
-							<div className="select-options-dropdown-body">
-								<div className="select-options-dropdown-body-title">
-									Select an option
-								</div>
-								<div className="select-options-dropdown-body-options">
-									{options?.map((option) => (
-										<div
-											className="select-list-item"
-											key={option?._id}
-											onClick={() => handleOptionClick(option?._id)}
-										>
-											<SixDotsIcon />
-											<div className="select-list-item-tag-wrapper">
-												<div
-													className="select-list-item-tag"
-													style={{
-														backgroundColor: getBackgroundColor(
-															option?.color,
-														),
-													}}
-												>
-													{option?.label}
-												</div>
-											</div>
-											<HorizontalMoreIcon
-												style={{
-													width: '20px',
-													height: '20px',
-													stroke: '#E8E8E8',
-													opacity: 0.5,
-												}}
-											/>
-										</div>
-									))}
-								</div>
-							</div>
-						)}
-					</div>
+					<SelectDropdown
+						options={options}
+						selected={value}
+						onOptionClick={handleOptionClick}
+						disabled={disabled}
+						title={title}
+					/>
 				}
 				placement="bottom"
 				arrow={false}
@@ -137,15 +97,18 @@ const Select = ({
 						}}
 					>
 						{value ? (
-							<div
-								className="select-option-item"
-								style={{
-									backgroundColor: getBackgroundColor(
-										info?.selectedOption?.color,
-									),
-								}}
-							>
-								{info?.selectedOption?.label}
+							<div className="select-option-item">
+								<div
+									className="select-option-dot"
+									style={{
+										backgroundColor: getBackgroundColor(
+											info?.selectedOption?.color,
+										),
+									}}
+								/>
+								<div className="select-option-label">
+									{info?.selectedOption?.label}
+								</div>
 							</div>
 						) : (
 							<div className="select-option-item">Select an option</div>

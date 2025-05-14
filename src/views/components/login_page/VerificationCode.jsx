@@ -2,7 +2,7 @@ import { memo, useState, useEffect, useRef, useContext, useCallback } from 'reac
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/login_page/left-arrow-back-btn.svg';
-import { Input, message } from 'antd';
+import { message } from '../globalComponents/CustomToast';
 import { getLocationsDetails } from '../../../helpers';
 import Context from '../../../context/context';
 import Spinner from '../loaders/Spinner';
@@ -151,9 +151,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 	return (
 		<div className="verification-code-container">
 			<div className="back-btn-container" onClick={() => setActiveStage('email')}>
-				<span>
-					<LeftArrowBackBtn />
-				</span>
+				<LeftArrowBackBtn />
 				<span>Back</span>
 			</div>
 			<h1 className="verification-code-title">We sent you a code</h1>

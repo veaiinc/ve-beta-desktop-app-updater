@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState, useRef } from 'react';
 import '../../../assets/scss/gallery/galleryViewer.scss';
 import { useSearchParams, useParams, useNavigate, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
@@ -6,10 +6,12 @@ import Thumbnails from '../../components/gallery/galleryView/Thumbnails';
 import FullImagesComponent from '../../components/gallery/galleryView/FullImagesComponent';
 import ImageDetailNav from '../../components/gallery/galleryView/ImageDetailNav';
 import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import { ReactComponent as CrossWhite } from '../../../assets/svg/workspaceSettings/cross.svg';
 import Skeleton from 'react-loading-skeleton';
 import gsap from 'gsap';
+import ReactModal from '../../components/modalsV2';
+import { Background } from '@xyflow/react';
 
 const FakeLoadingComponent = () => {
 	return (
@@ -37,7 +39,7 @@ const FakeLoadingComponent = () => {
 				<div className="activeImageWrapper" id="activeImageWrapper-target">
 					{[...Array(1)].map((_, index) => (
 						<div key={index} className="imageContainer" style={{ width: '800px' }}>
-							<Skeleton width="800px" height="900px" />
+							<Skeleton width="1000px" height="900px" />
 						</div>
 					))}
 				</div>
@@ -52,11 +54,30 @@ const FakeLoadingComponent = () => {
 	);
 };
 
-const GalleryViewer = () => {
-	const { galleryId, albumId } = useParams();
+const GalleryViewer = ({
+	open,
+	closeModal,
+	selectedImage,
+	currentSelectedImages = null,
+	aiFace,
+	activeGalleryId = null,
+	activeAlbumId = null,
+	selectedFace = null,
+	tagId = null,
+	handleOpenUploadCover,
+}) => {
 	const [searchkeys, setsearchkeys] = useSearchParams();
-	const location = useLocation();
-	const selectedImages = location.state?.selectedImages || null;
+	const selectedImages = currentSelectedImages;
+	const aiface = aiFace;
+	const faceId = selectedFace;
+	const activeImageId = selectedImage;
+
+	const hasRunFakeLoading = useRef(true);
+
+	const customStyles = {
+		content: { zIndex: 9999, height: '100vh', width: '100vw' },
+		overlay: { zIndex: 9998, background: 'var(--card-over-card)' },
+	};
 
 	const {
 		galleryInfo: {
@@ -74,6 +95,8 @@ const GalleryViewer = () => {
 			removeTagFromImage,
 			addTagToImage,
 			getDownloadLinkForImage,
+			getAiFaceImages,
+			aiFaceImages,
 		},
 	} = useContext(Context);
 
@@ -87,14 +110,13 @@ const GalleryViewer = () => {
 		showDeleteAlbum: false,
 		fakeLoading: false,
 	});
-	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (!imagesList) {
+		if (!aiface && !imagesList && tagId) {
 			getGalleryImages(
-				galleryId,
-				albumId,
-				searchkeys.get('tagId'),
+				activeGalleryId,
+				activeAlbumId,
+				tagId,
 				info?.page,
 				info?.limit,
 				'',
@@ -102,20 +124,20 @@ const GalleryViewer = () => {
 			);
 		}
 
-		const imageId = searchkeys.get('image');
+		if (aiface && faceId && (!aiFaceImages || aiFaceImages.images?.length === 0)) {
+			getAiFaceImages(activeGalleryId, faceId, info?.page, info?.limit, true);
+		}
 
-		if (imagesList && imageId) {
+		if (
+			(imagesList || (aiFaceImages && aiFaceImages.images?.length > 0)) &&
+			activeImageId &&
+			hasRunFakeLoading.current
+		) {
+			hasRunFakeLoading.current = false;
 			setInfo((prev) => ({
 				...prev,
-				activeImage: searchkeys.get('image'),
 				fakeLoading: true,
 			}));
-			setTimeout(() => {
-				const image = document.getElementById(imageId || '');
-				if (image) {
-					image.scrollIntoView({ behavior: 'instant', block: 'start' });
-				}
-			}, 1000);
 
 			setTimeout(() => {
 				setInfo((prev) => ({
@@ -125,24 +147,29 @@ const GalleryViewer = () => {
 			}, 1500);
 		}
 
-		// if ( imagesList&& selectedImages) {
-
-		// }
+		if ((imagesList || (aiFaceImages && aiFaceImages.images?.length > 0)) && activeImageId) {
+			setInfo((prev) => ({
+				...prev,
+				activeImage: activeImageId,
+			}));
+			setTimeout(() => {
+				const image = document.getElementById(activeImageId || '');
+				if (image) {
+					image.scrollIntoView({ behavior: 'instant', block: 'center' });
+				}
+			}, 1000);
+		}
 
 		if (!galleryCredentials) {
-			getGalleryCredentials(galleryId);
+			getGalleryCredentials(activeGalleryId);
 		}
-	}, [imagesList, selectedImages]);
+	}, [imagesList, selectedImages, faceId, activeGalleryId, aiface, activeImageId]);
 
 	useEffect(() => {
 		if (info?.activeImage) {
 			const thumbnail = document.getElementById('thumbnail' + info?.activeImage);
 			if (thumbnail) {
 				thumbnail.scrollIntoView({ behavior: 'smooth', block: 'center' });
-			}
-
-			if (searchkeys.get('image')) {
-				setsearchkeys({ tagId: searchkeys.get('tagId') });
 			}
 		}
 	}, [info?.activeImage]);
@@ -164,27 +191,22 @@ const GalleryViewer = () => {
 			gsap.from('.stagger_step_animation1', {
 				opacity,
 				duration,
-				// scale: 0.9,
 				y: 10,
 			});
 			gsap.from('.stagger_step_animation2', {
 				opacity,
 				duration,
-				// scale: 0.9,
 				y: 90,
 			});
 			gsap.from('.stagger_step_animation3', {
 				opacity,
 				duration,
 				height: 30,
-				// scale: 0.9,
 				y: 70,
 			});
 			gsap.from('.stagger_step_animation4', {
 				opacity,
 				duration,
-				// height: 0,
-				// scale: 0.9,
 				y: 40,
 			});
 		}
@@ -192,14 +214,23 @@ const GalleryViewer = () => {
 
 	const fetchMoreImages = () => {
 		const nextPage = info.page + 1;
-		getGalleryImages(galleryId, albumId, searchkeys.get('tagId'), nextPage, info?.limit).then(
-			() => {
+		if (aiface) {
+			getAiFaceImages(activeGalleryId, selectedFace, nextPage, info?.limit).then(() => {
 				setInfo((prev) => ({
 					...prev,
 					page: nextPage,
 				}));
-			},
-		);
+			});
+		} else {
+			getGalleryImages(activeGalleryId, activeAlbumId, tagId, nextPage, info?.limit).then(
+				() => {
+					setInfo((prev) => ({
+						...prev,
+						page: nextPage,
+					}));
+				},
+			);
+		}
 	};
 
 	const activeThumbnailFunction = (id, index) => {
@@ -236,7 +267,7 @@ const GalleryViewer = () => {
 			image_ids: [info?.imageDetailId],
 		};
 
-		const response = await deleteImages(payload, galleryId, albumId);
+		const response = await deleteImages(payload, activeGalleryId, activeAlbumId);
 		if (response[0] === true) {
 			setInfo((prev) => ({
 				...prev,
@@ -248,9 +279,8 @@ const GalleryViewer = () => {
 			message.error('Failed to delete images');
 		}
 	};
-
 	const handleCloseGallery = () => {
-		navigate(`/galleries/${galleryId}`);
+		closeModal();
 	};
 
 	const handleRotateImage = async (degree) => {
@@ -266,7 +296,7 @@ const GalleryViewer = () => {
 	};
 
 	return (
-		<>
+		<ReactModal isOpen={open} closeModal={closeModal} customStyles={customStyles}>
 			<div className="closeGallery">
 				<CrossWhite onClick={handleCloseGallery} />
 
@@ -279,21 +309,23 @@ const GalleryViewer = () => {
 				<Thumbnails
 					galleryCredentials={galleryCredentials}
 					fetchMoreImages={fetchMoreImages}
-					imagesList={imagesList}
+					imagesList={aiface ? aiFaceImages : imagesList}
 					activeThumbnailFunction={activeThumbnailFunction}
 					info={info}
 					selectedImages={selectedImages}
+					isAiFace={aiface}
 				/>
 
 				<div className="activeImageContainer">
 					<FullImagesComponent
 						galleryCredentials={galleryCredentials}
 						fetchMoreImages={fetchMoreImages}
-						imagesList={imagesList}
+						imagesList={aiface ? aiFaceImages : imagesList}
 						largeImageFunction={largeImageFunction}
 						info={info}
 						setInfo={setInfo}
 						selectedImages={selectedImages}
+						isAiFace={aiface}
 					/>
 
 					{info?.imageDetailId && (
@@ -302,8 +334,8 @@ const GalleryViewer = () => {
 							setInfo={setInfo}
 							imageDetail={imageDetail}
 							galleryCredentials={galleryCredentials}
-							galleryId={galleryId}
-							albumId={albumId}
+							galleryId={activeGalleryId}
+							albumId={activeAlbumId}
 							handleRotateImage={handleRotateImage}
 							getGalleryTagsList={getGalleryTagsList}
 							tagsList={tagsList}
@@ -311,6 +343,8 @@ const GalleryViewer = () => {
 							addTagToImage={addTagToImage}
 							removeTagFromImage={removeTagFromImage}
 							getDownloadLinkForImage={getDownloadLinkForImage}
+							closeModal={() => closeModal()}
+							handleOpenUploadCover={handleOpenUploadCover}
 						/>
 					)}
 				</div>
@@ -318,7 +352,7 @@ const GalleryViewer = () => {
 				<DeletePopup
 					open={info?.showDeleteAlbum}
 					closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
-					galleryId={galleryId}
+					galleryId={activeGalleryId}
 					title={'Permanently Delete  image?'}
 					paragraph={
 						'You cannot undo this action.All your photos in this album lined to this label will be lost'
@@ -328,7 +362,7 @@ const GalleryViewer = () => {
 			</div>
 
 			{info?.fakeLoading && <FakeLoadingComponent />}
-		</>
+		</ReactModal>
 	);
 };
 

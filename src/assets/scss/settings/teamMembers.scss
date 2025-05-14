@@ -255,7 +255,7 @@
 			border-radius: 12px;
 			border: 1px solid var(--stroke);
 			.textInput {
-				color: var(--secondary-font);
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
@@ -264,6 +264,9 @@
 				flex: 1 0 0;
 				background-color: transparent !important;
 				border: none;
+				&::placeholder {
+					color: var(--secondary-font);
+				}
 			}
 			.dropdownContainer {
 				// background-color: none;
@@ -271,6 +274,7 @@
 					background: none;
 					border: none;
 					color: var(--primary-font);
+					cursor: pointer;
 				}
 			}
 		}
@@ -299,22 +303,13 @@
 			overflow-y: auto;
 			.accessControlOption {
 				display: flex;
+				flex-direction: column;
 				padding: 12px 0px;
-				justify-content: center;
-				align-items: center;
+				justify-content: flex-start;
+				align-items: flex-start;
 				gap: 10px;
 				align-self: stretch;
-				.accessControlOptionIcon {
-					display: flex;
-					width: 16px;
-					height: 16px;
-					padding: 4px;
-					align-items: center;
-					gap: 10px;
-					border-radius: 2px;
-					border: 2px solid var(--stroke);
-					background: var(--card-over-card-hover);
-				}
+
 				.accessControlOptionText {
 					flex: 1 0 0;
 					color: var(--primary-font);
@@ -323,6 +318,17 @@
 					font-style: normal;
 					font-weight: 400;
 					line-height: normal;
+				}
+				.accessLevelOptions {
+					display: flex;
+					flex-direction: row;
+					gap: 10px;
+					margin-left: 25px;
+					label {
+						display: flex;
+						gap: 10px;
+						align-items: center;
+					}
 				}
 			}
 		}
@@ -333,26 +339,6 @@
 		justify-content: flex-end;
 		align-items: center;
 		width: 100%;
-		.addmore {
-			color: var(--secondary-font);
-			font-family: var(--primary-font-family);
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 400;
-			line-height: 22px; /* 157.143% */
-			letter-spacing: -0.28px;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			gap: 4px;
-
-			span {
-				svg {
-					transform: rotate(45deg);
-					margin-top: 3px;
-				}
-			}
-		}
 
 		button {
 			padding: 9px 16px;
@@ -366,12 +352,5 @@
 			letter-spacing: -0.28px;
 			min-width: 130px;
 		}
-	}
-}
-
-.ant-checkbox-checked {
-	.ant-checkbox-inner {
-		background-color: var(--card-over-card-hover);
-		border-color: var(--stroke);
 	}
 }

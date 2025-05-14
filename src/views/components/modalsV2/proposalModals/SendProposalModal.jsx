@@ -15,7 +15,7 @@ import { ReactComponent as Settings } from '../../../../assets/svg/workflow/sett
 import { ReactComponent as DownArrow } from '../../../../assets/svg/workflow/smallDownArrow.svg';
 import ToggleSlider from '../../../components/input/slider';
 import JoditEditor from 'jodit-react';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 import moment from 'moment';
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../../popover/ToolTipContainer';

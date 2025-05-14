@@ -184,16 +184,17 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const getAiChatSessions = async (page = 1, limit = 10, reset = false) => {
+	const getAiChatSessions = async (page = 1, limit = 10, reset = false, title = '') => {
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-			const type = 'tenant';
+			const type = 'ai_assistant_api';
 			const params = {
 				page,
 				limit,
+				title,
 			};
-			const url = '/' + workspaceId + '/list-multiagent-sessions';
+			const url = '/' + workspaceId + '/ai-chat/list-multiagent-sessions';
 			const response = await service?.fetchGet(url, token, type, params);
 			if (response?.[0]) {
 				const aiChatSessions = {
@@ -923,7 +924,7 @@ export const AiSetupState = () => {
 				'ai_assistant_api',
 				queryParams,
 			);
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				dispatch({
 					type: Actions?.GET_PROMPTS_DATA,
 					payload: response?.[1],

@@ -4,8 +4,17 @@ import Context from '../../../../context/context';
 import '../../../../assets/scss/settings/teamMembers.scss';
 import ReusableButtonSettings from '../ReusableButtonSettings';
 import ReactModal from '../../modalsV2';
-import { Checkbox, message } from 'antd';
+import { Checkbox, Tooltip } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
+const appsWithAccessLevels = [
+	'note',
+	'classicGallery',
+	'task',
+	'calendar',
+	'liteGallery',
+	'knowledgeAgent',
+];
 const InviteMembersWorkspaceComponent = ({
 	handleChnage,
 	info,
@@ -22,6 +31,7 @@ const InviteMembersWorkspaceComponent = ({
 	userEmail,
 	selectedUser = null,
 	isSubmitLoading,
+	handleAccessTypeChange,
 }) => {
 	const {
 		companyInfo: { updateTenantAccessControls, updateTenantRole, getTeamMembers },
@@ -86,22 +96,34 @@ const InviteMembersWorkspaceComponent = ({
 			return !['project', 'proposal', 'gallery', 'folder'].includes(option?.app);
 		});
 	};
+	// ... existing code ...
 	const handleUpdateUser = () => {
 		if (isLoading) {
 			return;
 		} else {
 			const filteredAccessControls = filterFunction(accessControls?.accessControls);
-
+			// New logic to only include changed options
 			setUpdatedData({
 				accessControls: filteredAccessControls,
 			});
 		}
 	};
+	// ... existing code ...
 
 	const customStyles = {
-		content: { zIndex: 99999 },
-		overlay: { zIndex: 99998 },
+		content: { zIndex: 999 },
+		overlay: { zIndex: 998 },
 	};
+	// const handleAccessTypeChange = (app, isFullAccess) => {
+	// 	setAccessControls((prevState) => {
+	// 		const updatedAccessControls = prevState?.accessControls?.map((control) =>
+	// 			control?.app === app ? { ...control, hasFullAccess: isFullAccess } : control,
+	// 		);
+
+	// 		return { ...prevState, accessControls: updatedAccessControls };
+	// 	});
+	// };
+
 	return (
 		<ReactModal isOpen={isOpen} closeModal={closeModal} customStyles={customStyles}>
 			<div className="settingsBoxContainer inviteMemberComponent">
@@ -129,7 +151,7 @@ const InviteMembersWorkspaceComponent = ({
 									<input
 										type="email"
 										className="textInput"
-										placeholder="Type here..."
+										placeholder="Email"
 										name="email"
 										onChange={(e) => handleChnage(e, index)}
 										value={userEmail}
@@ -184,25 +206,70 @@ const InviteMembersWorkspaceComponent = ({
 							<div className="accessControlTitle">Access Controls</div>
 							<div className="accessControlOptions">
 								{filterFunction(selectableOptions)?.map((option) => {
+									const control = accessControls?.accessControls?.find(
+										(c) => c.app === option?.app,
+									);
+									const isChecked = control?.isEnabled || false;
+									const accessLevel = control?.hasFullAccess ? 'full' : 'limited';
+									const shouldShowAccessLevels = appsWithAccessLevels.includes(
+										option.app,
+									);
 									return (
-										<div className="accessControlOption">
-											<Checkbox
-												type="checkbox"
-												checked={
-													accessControls?.accessControls?.find(
-														(control) => control.app === option?.app,
-													)?.isEnabled || false
-												}
-												onChange={(e) =>
-													handleCheckboxChange(
-														option?.app,
-														e.target.checked,
-													)
-												}
-											/>
-											<div className="accessControlOptionText">
-												{option?.app}
+										<div className="accessControlOption" key={option?.app}>
+											<div
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '10px',
+												}}
+											>
+												<Checkbox
+													checked={isChecked}
+													onChange={(e) =>
+														handleCheckboxChange(
+															option?.app,
+															e.target.checked,
+														)
+													}
+												/>
+												<div className="accessControlOptionText">
+													{option?.app}
+												</div>
 											</div>
+											{/* Show Full/Limited checkboxes if enabled */}
+											{isChecked && shouldShowAccessLevels && (
+												<div className="accessLevelOptions">
+													<label className="accessControlOptionText">
+														<Checkbox
+															checked={accessLevel === 'full'}
+															onChange={() =>
+																handleAccessTypeChange(
+																	option?.app,
+																	'full',
+																)
+															}
+														/>
+														Full Access
+													</label>
+													<label
+														style={{
+															width: '165px',
+														}}
+														className="accessControlOptionText"
+													>
+														<Checkbox
+															checked={accessLevel === 'limited'}
+															onChange={() =>
+																handleAccessTypeChange(
+																	option?.app,
+																	'limited',
+																)
+															}
+														/>
+														Limited Access
+													</label>
+												</div>
+											)}
 										</div>
 									);
 								})}

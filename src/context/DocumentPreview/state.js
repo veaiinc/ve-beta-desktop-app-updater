@@ -22,5 +22,9 @@ export const DocumentPreviewState = () => {
 		});
 	};
 
-	return { ...state, setNoteContent, resetDocumentPreviewState };
+	return {
+		...state,
+		setNoteContent,
+		resetDocumentPreviewState,
+	};
 };

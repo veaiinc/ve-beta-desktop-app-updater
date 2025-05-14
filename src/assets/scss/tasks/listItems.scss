@@ -143,7 +143,7 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	gap: 3px;
+	gap: 8px;
 	color: var(--primary-font);
 	width: fit-content;
 	height: fit-content;
@@ -152,11 +152,6 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
-	svg {
-		path {
-			stroke: var(--stroke) !important;
-		}
-	}
 }
 // .datePicker {
 // 	width: 100%;
@@ -178,12 +173,6 @@
 .listItem-status,
 .listItem-multiSelect {
 	width: fit-content;
-	.currentIcon {
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		width: fit-content;
-	}
 }
 .listItem-phone,
 .listItem-url,
@@ -275,11 +264,13 @@
 	gap: 2px;
 	overflow: hidden;
 	padding: 0 !important;
+	background-color: var(--card);
 }
 
 .dateView-datePicker {
 	border: none;
-	background-color: transparent !important;
+	// background-color: transparent !important;
+	background-color: var(--card);
 	color: var(--primary-font) !important;
 	border-radius: 36px;
 	font-family: var(--primary-font-family) !important;
@@ -355,4 +346,33 @@
 		font-weight: 500;
 		line-height: normal;
 	}
+}
+
+.created-with-ai {
+	display: flex;
+	height: 23px;
+	padding: 4px 6px;
+	align-items: center;
+	gap: 6px;
+	border-radius: 6px;
+	border: 1px solid var(--primary-button);
+	color: var(--primary-button);
+	font-family: var(--primary-font-family);
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+}
+
+.text-field {
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 100px;
 }

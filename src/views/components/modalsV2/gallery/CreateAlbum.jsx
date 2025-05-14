@@ -1,14 +1,21 @@
 import React, { useState, memo, useContext, useEffect, useCallback } from 'react';
 import '../../../../assets/scss/gallery/modals/createAlbum.scss';
 import ReactModal from '../index';
-import { DatePicker, message } from 'antd';
+import { DatePicker } from 'antd';
 import Context from '../../../../context/context';
 import { useLocation } from 'react-router-dom';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import slugify from 'slugify';
 import dayjs from 'dayjs';
+import { message } from '../../globalComponents/CustomToast';
 
-const CreateAlbum = ({ open, closeModal, galleryId }) => {
+const customStyles = {
+	content: { position: 'absolute', overflow: 'hidden', zIndex: 998 },
+	overlay: { zIndex: 998 },
+	className: 'createAlbumModal',
+};
+
+const CreateAlbum = ({ open, closeModal, galleryId, handleNewAlbumCreated }) => {
 	const {
 		galleryInfo: { createNewAlbum, checkAlbumSlugIsAvalible },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -83,6 +90,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 		if (response?.[0] === true) {
 			closeModelFunction();
 			message.success('Album Created Successfully');
+			handleNewAlbumCreated(response?.[1]);
 		} else {
 			message.error(response?.[1]?.message);
 		}
@@ -128,14 +136,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 	};
 
 	return (
-		<ReactModal
-			isOpen={open}
-			closeModal={closeModelFunction}
-			customStyles={{
-				content: { position: 'absolute', overflow: 'hidden' },
-				className: 'createAlbumModal',
-			}}
-		>
+		<ReactModal isOpen={open} closeModal={closeModelFunction} customStyles={customStyles}>
 			<div className="createAlbumMainContainer">
 				<div className="createAlbumHeading">
 					<p className="heading">Create New Album</p>
@@ -169,6 +170,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 							}
 							inputReadOnly
 							allowClear={false}
+							style={{ zIndex: 99999 }}
 						/>
 						{info?.eventDateError && <p className="error">Album Date is Required</p>}
 					</div>

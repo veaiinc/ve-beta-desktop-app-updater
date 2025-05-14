@@ -8,22 +8,22 @@ import UpdatePasswordComponent from '../../components/settings/profile/UpdatePas
 import TwoFactorAuthenticationComponent from '../../components/settings/profile/TwoFactorAuthentication';
 import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWorkspace';
 import Notifications from '../../components/settings/profile/Notifications';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import Cookies from 'js-cookie';
 
 const themePreferenceOptions = [
-	// {
-	// 	id: 0,
-	// 	title: 'System',
-	// 	value: 'systemDefault',
-	// },
 	{
 		id: 0,
+		title: 'System',
+		value: 'systemDefault',
+	},
+	{
+		id: 1,
 		title: 'Dark Mode',
 		value: 'dark',
 	},
 	{
-		id: 1,
+		id: 2,
 		title: 'Light Mode',
 		value: 'light',
 	},

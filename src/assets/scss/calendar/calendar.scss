@@ -1,34 +1,155 @@
+.calendarHeaderContainer {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 5px;
+	margin-bottom: 8px;
+	align-self: stretch;
+	user-select: none;
+	overflow-x: hidden;
+
+	.calendarHeaderTitle {
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 40px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+
+		span {
+			color: var(--primary-font);
+		}
+	}
+
+	.calendarHeaderSubTitle {
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+	}
+}
+.dateDisplay {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-direction: column;
+	align-self: flex-end;
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
+	font-size: 16px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	padding-right: 16px;
+}
 .calendarParentContainer {
 	display: flex;
 	align-items: flex-start;
 	gap: 10px;
-	height: calc(95vh - 60px);
-
-	//To override the default AuthWrapper Children Component
+	height: calc(100vh - 210px);
 	margin: auto;
 	width: 100%;
+
+	@media (max-width: 768px) {
+		flex-direction: column;
+		height: 95%;
+	}
 }
 
 .calendarSidebarContainer {
+	margin-bottom: 25px;
 	display: flex;
-	width: 330px;
-	height: 100%;
-	padding: 15px 0;
-	padding-right: 10px;
+	// width: 400px;
+	width: 100%;
+	height: auto;
+	min-height: 100%;
+	// padding-right: 10px;
 	flex-direction: column;
-	align-items: flex-start;
+	align-items: center;
 	gap: 16px;
 	flex-shrink: 0;
-	overflow-y: auto;
+	overflow-y: visible;
+	justify-content: flex-start;
+
+	@media (max-width: 768px) {
+		display: none; // Hide sidebar in mobile view
+	}
+
+	.calendarSidebarContent {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		overflow-y: auto;
+		position: relative;
+		overflow: hidden;
+
+		&::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		&::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background: var(--secondary-font);
+			border-radius: 3px;
+		}
+
+		&::-webkit-scrollbar-thumb:hover {
+			background: var(--primary-font);
+		}
+
+		.calendarWrapper {
+			position: relative;
+			z-index: 1;
+			flex-shrink: 0; // Prevent calendar from shrinking
+		}
+
+		// Ensure other components don't push calendar out of view
+		> *:not(.calendarWrapper) {
+			flex-shrink: 1;
+		}
+	}
+
+	.calendar-chatbox-wrapper {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-top: auto;
+	}
 }
 
 .calendarViewParentContainer {
 	display: flex;
 	flex-direction: column;
-	height: 100%;
-
+	height: calc(100vh - 64px);
+	width: 100%;
 	flex-grow: 1;
-	border-radius: 36px;
-	border: 1px solid var(--stroke);
-	background: var(--card);
+	overflow: hidden;
+
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+
+	@media (max-width: 768px) {
+		border-radius: 0;
+		height: calc(100vh - 64px);
+	}
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+.meetingCardParentContainer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	width: 100%;
+	background-color: var(--popup);
 }

@@ -10,8 +10,10 @@ import { ReactComponent as ThreeDots } from '../../../assets/svg/my_templates/ve
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
 import moment from 'moment';
 import CopiedModal from '../modalsV2/workflowsModals/CopiedModal';
-import { Tooltip, message, Spin } from 'antd';
+import { Tooltip, Spin } from 'antd';
 import Context from '../../../context/context';
+import { message } from '../globalComponents/CustomToast';
+
 let origin = fetchOriginSelection();
 
 const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => {
@@ -269,7 +271,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 													window.location.href = `${origin}/${info?.hoverTemplateData?._id} `;
 												}}
 											>
-												Edit Workflow
+												Edit Template
 											</button>
 										</div>
 									)}
@@ -348,6 +350,9 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 																setInfo((prev) => ({
 																	...prev,
 																	deleteWorkflowModal: true,
+																	title: 'Delete Template',
+																	description:
+																		'Deleting this template will remove it from your templates list.',
 																	deleteTemplateData:
 																		prev.hoverTemplateData,
 																}));

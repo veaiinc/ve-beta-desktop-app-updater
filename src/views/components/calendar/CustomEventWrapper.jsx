@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/calendar/customEventCard.scss';
-const CustomEventWrapper = ({ event, children }) => {
+const CustomEventWrapper = ({ event, children, view }) => {
 	return (
 		<div
 			className="customEventWrapper"
@@ -8,6 +8,7 @@ const CustomEventWrapper = ({ event, children }) => {
 
 			// onClick={() => alert(`Event Row clicked: ${event.title}`)}
 		>
+			{event?.allDay && view === 'week' && <span className="allDay">All Day</span>}
 			{children}
 		</div>
 	);

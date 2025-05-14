@@ -10,10 +10,10 @@ import {
 	dropDownStyle,
 	dropDownTextStyling,
 	selectedValueStyling,
-} from '../../../features/automation_builder/automationContentsHelper';
+} from '../../../features/automationBuilder/automationContentsHelper';
 import VariableComponent from './VariableComponent';
 import { useCallback } from 'react';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
 const SlackActions = ({
 	onBack,

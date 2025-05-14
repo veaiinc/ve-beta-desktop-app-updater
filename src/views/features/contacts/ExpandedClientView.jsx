@@ -1,18 +1,21 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { message, Spin } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import { useNavigate, useParams } from 'react-router-dom';
 import Context from '../../../context/context';
-import ListTabs from '../../components/tasks/listView/ListTabs';
 import TabListFile from '../../components/tasks/listView/TabListFile';
 import QuickActions from '../../components/globalComponents/QuickActions';
-import CustomTextArea from '../../components/globalComponents/CusomTextArea';
-import { ReactComponent as CloseArrow } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Text from '../../components/tasks/listView/Text';
 import LinkText from '../../components/tasks/listView/LinkText';
-import Sidebar from '../../components/docs/Sidebar';
 import '../../../assets/scss/contacts/expandedClientView.scss';
+import SingleContact from '../../components/contacts/singleContact';
+// import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
+import { ReactComponent as OverviewSvg } from '../../../assets/svg/contacts/overview.svg';
+// import { ReactComponent as ActivitySvg } from '../../../assets/svg/contacts/activity.svg';
+import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
+// import { ReactComponent as ProfileIcon } from '../../../assets/svg/sidebar/profileIcon.svg';
+import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 
 // Define rowTypes
 const rowTypes = {
@@ -20,7 +23,39 @@ const rowTypes = {
 	linkText: LinkText,
 };
 
-// Define colors (same as in contacts/index.jsx)
+const selectedContactOptions = [
+	{
+		id: 1,
+		label: 'Overview',
+		value: 'overview',
+		icon: <OverviewSvg />,
+	},
+	// {
+	// 	id: 2,
+	// 	label: 'Activity',
+	// 	value: 'activity',
+	// 	icon: <ActivitySvg />,
+	// },
+	{
+		id: 3,
+		label: 'Files',
+		value: 'files',
+		icon: <FilesSvg fill="var(--primary-font)" />,
+	},
+	// {
+	// 	id: 4,
+	// 	label: 'About',
+	// 	value: 'about',
+	// 	icon: <ProfileIcon fill="var(--primary-font)" />,
+	// },
+];
+
+const suggestedPrompts = [
+	'Start a Deep Research on revamping the current Dashboard Layout',
+	'Create a form for A/B Testing of current Dashboard',
+	'Analyze which widgets are most and least used on the Dashboard',
+];
+
 const colors = {
 	1: { backgroundColor: '#62344B', color: '#A35A7E' },
 	2: { backgroundColor: '#373737', color: '#707070' },
@@ -94,12 +129,16 @@ const ExpandedClientView = () => {
 		refetchDocsFilesList: false,
 		activeFileData: null,
 		showRightDrawer: false,
+		selectedContactOption: 'Overview',
 	});
 
 	useEffect(() => {
 		if (contactId) {
 			fetchClientDetails();
 		}
+		return () => {
+			setClientData(null);
+		};
 	}, [contactId]);
 
 	const fetchClientDetails = async () => {
@@ -256,72 +295,73 @@ const ExpandedClientView = () => {
 	};
 
 	return (
-		<div className="expanded-client-view">
-			<div className="expanded-header">
-				<div className="header-left">
-					<button className="close-button" onClick={handleBack}>
-						<CloseArrow width={16} height={16} style={{ cursor: 'pointer' }} />
-						Back
-					</button>
-					<h1>Contact Details</h1>
-				</div>
-				<div className="header-right">
-					<QuickActions
-						customActions={optionsForQuickActions}
-						clientDetails={clientData}
-					/>
-				</div>
-			</div>
-
-			<div className="expanded-content">
-				{isLoading ? (
-					<div className="loading-container">
-						<Spin size="large" />
+		<div
+			style={{
+				display: 'flex',
+				gap: '1rem',
+				height: '100%',
+			}}
+		>
+			<ChatLeftBarComponent>
+				<div className="left-section">
+					<div className="contacts-header">
+						<h2>
+							<span>suggestions for </span>
+							{clientData?.name}
+						</h2>
 					</div>
-				) : (
-					<>
-						<div className="main-info">
-							<div className="title-section">
-								<CustomTextArea
-									value={localTitle}
-									onChange={handleTitleChange}
-									placeholder="Enter title"
-									className="title-input"
-									autoResize={true}
-								/>
-							</div>
-
-							{clientData && (
-								<div className="properties-container">{generatePropertyList()}</div>
-							)}
+					<div className="contacts-stats-container">
+						<div className="contacts-stats">
+							{selectedContactOptions?.map(({ label, icon, className }, index) => (
+								<div
+									className={`stat-item ${className} ${
+										info?.selectedContactOption === label ? 'active' : ''
+									}`}
+									key={index}
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											selectedContactOption: label,
+										}))
+									}
+								>
+									<div
+										className={`iconContainer ${
+											info?.selectedContactOption === label ? 'active' : ''
+										}`}
+									>
+										{icon}
+									</div>
+									<div className="label">{label}</div>
+								</div>
+							))}
 						</div>
 
-						{clientData && (
-							<div className="tabs-container">
-								<ListTabs tabs={tabs} defaultActiveTab="files" />
+						{/* <div className="suggested-sections">
+							<div className="section-title">Suggested Actions</div>
+							<div className="action-buttons">
+								<button>Hand off to Priya</button>
+								<button>Add Collaborator</button>
+								<button>Snooze</button>
 							</div>
-						)}
-					</>
-				)}
-			</div>
 
-			{/* Add Sidebar component for file preview */}
-			<Sidebar
-				open={info.showRightDrawer}
-				onClose={() => {
-					setInfo((prev) => ({
-						...prev,
-						showRightDrawer: false,
-						activeFileData: null,
-					}));
-				}}
-				activeFileData={info.activeFileData}
-				refetchDocsFilesList={() => {
-					setInfo((prev) => ({
-						...prev,
-						refetchDocsFilesList: true,
-					}));
-				}}
+							<div className="section-title">Suggested Prompts</div>
+							<div className="prompts-list">
+								{suggestedPrompts.map((prompt, index) => (
+									<div key={index} className="prompt-item">
+										<ArrowRightSvg style={{ flexShrink: '0' }} />
+										{prompt}
+									</div>
+								))}
+							</div>
+						</div> */}
+					</div>
+				</div>
+			</ChatLeftBarComponent>
+
+			<SingleContact
+				selectedContact={clientData}
+				selectedOptions={info?.selectedContactOption}
 			/>
 		</div>
 	);

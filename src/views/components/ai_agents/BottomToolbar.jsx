@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import useVoiceIntegration from '../../hooks/useVoiceIntegration';
-import ChatBox from '../homePage/ChatBox';
+import ChatBox from '../chat/ChatBox';
 
 const BottomToolbar = ({
 	outerContainerStyle = {},

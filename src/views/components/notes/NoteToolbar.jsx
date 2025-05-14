@@ -3,7 +3,6 @@ import '@blocknote/mantine/style.css';
 import {
 	BasicTextStyleButton,
 	BlockTypeSelect,
-	ColorStyleButton,
 	CreateLinkButton,
 	FileCaptionButton,
 	FileReplaceButton,
@@ -13,14 +12,20 @@ import {
 	TextAlignButton,
 	UnnestBlockButton,
 } from '@blocknote/react';
-// import { TextColorPicker } from './TextColorPicker';
+import AskAiButton from './AskAiButton';
+import { memo, useEffect } from 'react';
+import TextColorPicker from './TextColorPicker';
+import { useBlockNoteEditor, useComponentsContext } from '@blocknote/react';
+import AlignButton from './AlignButton';
 
-export default function NoteToolbar() {
+const NoteToolbar = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
 	return (
 		<FormattingToolbarController
 			formattingToolbar={() => (
 				<FormattingToolbar>
 					<BlockTypeSelect key={'blockTypeSelect'} />
+
+					<TextColorPicker key={'colorStyleButton1'} />
 
 					<FileCaptionButton key={'fileCaptionButton'} />
 					<FileReplaceButton key={'replaceFileButton'} />
@@ -32,21 +37,29 @@ export default function NoteToolbar() {
 						key={'underlineStyleButton'}
 					/>
 					<BasicTextStyleButton basicTextStyle={'strike'} key={'strikeStyleButton'} />
+					<span className="bn-divider" />
 					{/* Extra button to toggle code styles */}
 					<BasicTextStyleButton key={'codeStyleButton'} basicTextStyle={'code'} />
 
-					{/* <TextColorPicker key={'textColorPicker'} /> */}
-					<ColorStyleButton key={'colorStyleButton'} />
+					<AlignButton />
 
-					<TextAlignButton textAlignment={'left'} key={'textAlignLeftButton'} />
+					{/* <TextAlignButton textAlignment={'left'} key={'textAlignLeftButton'} />
 					<TextAlignButton textAlignment={'center'} key={'textAlignCenterButton'} />
-					<TextAlignButton textAlignment={'right'} key={'textAlignRightButton'} />
+					<TextAlignButton textAlignment={'right'} key={'textAlignRightButton'} /> */}
 					<NestBlockButton key={'nestBlockButton'} />
 					<UnnestBlockButton key={'unnestBlockButton'} />
 
 					<CreateLinkButton key={'createLinkButton'} />
+					<AskAiButton
+						key={'askAiButton'}
+						sendMessage={sendMessage}
+						aiResonse={aiResonse}
+						resetAiResponse={resetAiResponse}
+					/>
 				</FormattingToolbar>
 			)}
 		/>
 	);
-}
+});
+
+export default NoteToolbar;

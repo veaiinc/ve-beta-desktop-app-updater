@@ -6,7 +6,7 @@ import ProgressBar from './ProgressBar';
 import UserDetailsForm from './UserDetailsForm';
 import WorkspaceDetailsForm from './WorkspaceDetailsForm';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { message } from 'antd';
+import { message } from '../globalComponents/CustomToast';
 import Skeleton from 'react-loading-skeleton';
 
 let usernameTimeoutId, companyLogoFile;
@@ -60,6 +60,7 @@ const Stages = () => {
 		verifyPhoneNumberLoading: false,
 		userDetailsLoading: true,
 		verifyOtpLoader: false,
+		isWorkspaceHandleLengthInvalid: true,
 	});
 
 	const emailCntxt = userDetailsFromTenantAPI?.email;
@@ -182,7 +183,17 @@ const Stages = () => {
 		if (info?.companyName?.length > 1) {
 			const timeout = setTimeout(async () => {
 				const workspaceHandle = info?.companyName?.toLowerCase()?.replace(/[^a-z0-9]/g, '');
-				handleCheckWorkspaceHandleAvailability(workspaceHandle);
+				if (workspaceHandle?.length >= 4) {
+					handleCheckWorkspaceHandleAvailability(workspaceHandle);
+				} else {
+					setInfo((prev) => ({
+						...prev,
+						isWorkspaceHandleLengthInvalid: true,
+						checkingWorkspaceHandle: false,
+						isWorkspaceHandleAvailable: null,
+						workspaceHandle: '',
+					}));
+				}
 			}, 500);
 
 			return () => clearTimeout(timeout);
@@ -250,7 +261,12 @@ const Stages = () => {
 	const handleSetWorkspaceType = useCallback(
 		(e, workspaceTypeOption) => {
 			const workspaceType = e?.target?.value ?? workspaceTypeOption?.label ?? '';
-			setInfo((prev) => ({ ...prev, workspaceType }));
+			const formattedWorkspaceType = workspaceType
+				.replace(/[^a-zA-Z0-9 ]/g, '')
+				.split(' ')
+				.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+				.join(' ');
+			setInfo((prev) => ({ ...prev, workspaceType: formattedWorkspaceType }));
 		},
 		[info?.workspaceType],
 	);

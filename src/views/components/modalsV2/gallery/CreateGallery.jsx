@@ -166,12 +166,17 @@ const CreateGallery = ({
 
 			setGalleryData((prev) => ({ ...prev, isSubmitting: true }));
 			let response = await createNewGallery(payload);
-
 			if (response?.[0] === true) {
 				message.success('Gallery created successfully');
-				closeModalFunc();
-				navigate(`/galleries/${response[1]?._id}`);
-				// fetchGalleries(1, null, true);
+				const galleryId = response?.[1]?._id;
+				if (galleryId) {
+					const searchParams = isLightGallery ? '?lite-gallery=true' : '';
+					const state = {
+						galleryData: response?.[1],
+					};
+
+					navigate(`/galleries/${galleryId}${searchParams}`, { state });
+				}
 			} else {
 				message.error(response?.[1]?.message || 'Failed to create gallery');
 			}

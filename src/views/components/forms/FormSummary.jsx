@@ -1,7 +1,149 @@
-import React, { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { Tooltip, Flex } from 'antd';
+import {
+	FilePdfOutlined,
+	FileTextOutlined,
+	FileExcelOutlined,
+	FilePptOutlined,
+	FileOutlined,
+} from '@ant-design/icons';
+import moment from 'moment';
+import { TemplatesState } from '../../../context/Templates/state';
+import { ReactComponent as CopyIcon } from '../../../assets/svg/copy.svg';
 import '../../../assets/scss/forms/formSummary.scss';
+import FormPreview from './FormPreview';
+import { EventsAnswer } from './FormDescription';
 
-const FormResponseList = ({ expanded, handleExpand, items, visibleItems }) => {
+const removeHTMLTags = (text) =>
+	text
+		?.replace(/<\/?[^>]+(>|$)/g, '')
+		.replace(/ /g, ' ')
+		.trim() || '';
+
+const FileUploadAnswer = ({ answer }) => {
+	const [selectedFile, setSelectedFile] = useState(null);
+
+	if (!answer?.length) return null;
+
+	const renderFileIcon = (fileExtension) => {
+		const extension = fileExtension?.toLowerCase();
+		if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) return null; // No icon for images
+		if (extension === 'pdf') return <FilePdfOutlined />;
+		if (['doc', 'docx', 'txt', 'rtf'].includes(extension)) return <FileTextOutlined />;
+		if (['xls', 'xlsx', 'csv'].includes(extension)) return <FileExcelOutlined />;
+		if (['ppt', 'pptx'].includes(extension)) return <FilePptOutlined />;
+		return <FileOutlined />;
+	};
+
+	return (
+		<div className="form-summary-fileUploadContainer">
+			{answer.map(({ name, fileURL, lastModified, type }) => {
+				if (!name || !fileURL) return null;
+				const fileExtension = name?.split('.').pop()?.toLowerCase() || '';
+				const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension);
+
+				return (
+					<div key={lastModified} className="form-summary-fileItem">
+						<div
+							className="form-summary-filePreview"
+							onClick={() => setSelectedFile({ name, fileURL, type })}
+							style={{
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+							}}
+						>
+							{renderFileIcon(fileExtension) && (
+								<div className="form-summary-fileIcon">
+									{renderFileIcon(fileExtension)}
+								</div>
+							)}
+							{isImage ? (
+								<img
+									src={fileURL}
+									alt={name}
+									style={{
+										maxWidth: '50px',
+										maxHeight: '50px',
+										objectFit: 'cover',
+									}}
+								/>
+							) : null}
+							<span className="form-summary-fileName">{name}</span>
+						</div>
+					</div>
+				);
+			})}
+			{selectedFile && (
+				<FormPreview file={selectedFile} onClose={() => setSelectedFile(null)} />
+			)}
+		</div>
+	);
+};
+
+const RatingAnswer = ({ answer }) =>
+	answer ? (
+		<Flex gap="middle" vertical>
+			<span className="rating-text">{answer}/5</span>
+		</Flex>
+	) : null;
+
+const FormResponseList = ({
+	expanded,
+	handleExpand,
+	items,
+	question,
+	handleCopy,
+	copyStatus,
+	type,
+	onUserClick,
+}) => {
+	const formatDate = (timestamp) =>
+		timestamp ? moment.unix(timestamp).format('MMMM D, YYYY [at] h:mm:ss A') : '';
+
+	const getName = (response) => {
+		const nameField = response?.response?.find((item) =>
+			item?.question?.toLowerCase()?.includes('name'),
+		);
+		return nameField?.answer || 'No Name';
+	};
+
+	const responsesWithAnswers =
+		items?.filter((item) => {
+			const field = item?.response?.find((r) =>
+				r?.question?.toLowerCase()?.includes(removeHTMLTags(question)?.toLowerCase()),
+			);
+			if (!field) return false;
+			if (field.type === 'fileupload') return field?.answer?.length > 0;
+			if (field.type === 'rating') return field?.answer && field.answer !== '0';
+			if (field.type === 'events') return field?.answer && field.answer.length > 0;
+			return field?.answer && field.answer !== '0' && field.answer !== '';
+		}) || [];
+
+	const visibleResponses = expanded ? responsesWithAnswers : responsesWithAnswers.slice(0, 5);
+
+	const renderAnswer = (field) => {
+		if (!field) return null; // Skip rendering if no field
+		if (field?.type === 'fileupload') return <FileUploadAnswer answer={field?.answer} />;
+		if (field?.type === 'link' && field?.answer)
+			return (
+				<a
+					href={field?.answer}
+					target="_blank"
+					rel="noopener noreferrer"
+					className="linkedin-link"
+					style={{ color: '#0A66C2', textDecoration: 'none', fontWeight: 500 }}
+				>
+					{field?.answer}
+				</a>
+			);
+		if (field?.type === 'rating') return <RatingAnswer answer={field?.answer} />;
+		if (field?.type === 'events') return <EventsAnswer answer={field?.answer} />;
+		return field?.answer || null;
+	};
+
 	return (
 		<div className="collapsible-list">
 			<div
@@ -12,21 +154,43 @@ const FormResponseList = ({ expanded, handleExpand, items, visibleItems }) => {
 				}`}
 			>
 				<div className="collapsible-list__items">
-					{visibleItems?.map((item, index) => (
-						<div key={index} className="collapsible-list__item">
-							<span className="collapsible-list__item-name">{item?.name}</span>
-							<span className="collapsible-list__item-timestamp">
-								{item?.timestamp}
-							</span>
-						</div>
-					))}
+					{visibleResponses?.map((item, index) => {
+						const field = item?.response?.find((r) =>
+							r?.question
+								?.toLowerCase()
+								?.includes(removeHTMLTags(question)?.toLowerCase()),
+						);
+						if (!field) return null; // Skip if no valid field
+						const answerContent = renderAnswer(field);
+						if (!answerContent) return null; // Skip if answer is null (e.g., empty or 0)
+						return (
+							<Tooltip key={index} title={getName(item)} placement="top">
+								<div className="collapsible-list__item">
+									<div className="candidate-info">
+										<div
+											className="candidate-name"
+											onClick={(e) => {
+												e.stopPropagation();
+												onUserClick?.(item);
+											}}
+											style={{ cursor: 'pointer' }}
+										>
+											{answerContent}
+										</div>
+									</div>
+									<div className="candidate-timestamp">
+										{formatDate(item?.createdAt)}
+									</div>
+								</div>
+							</Tooltip>
+						);
+					})}
 				</div>
 			</div>
-
-			{items?.length > 5 && (
+			{responsesWithAnswers.length > 5 && (
 				<div className="collapsible-list__footer">
 					<span onClick={handleExpand}>
-						{expanded ? 'See less' : `See all (${items?.length})`}
+						{expanded ? 'See less' : `See all (${responsesWithAnswers.length})`}
 					</span>
 				</div>
 			)}
@@ -34,79 +198,195 @@ const FormResponseList = ({ expanded, handleExpand, items, visibleItems }) => {
 	);
 };
 
-const FormSummary = () => {
-	const [info, setInfo] = useState({
-		isExpanded: false,
-		items: [
-			{ name: 'Ankit G', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Tony Chopper', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Roronoa Zoro', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Robin', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Kaido', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Shanks', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Brook', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Luffy', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Nami', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Usopp', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Sanji', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Franky', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Jinbe', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Yamato', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Law', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Kid', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Ace', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Sabo', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Marco', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Whitebeard', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Garp', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Dragon', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Rayleigh', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Mihawk', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Doflamingo', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Crocodile', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Buggy', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Blackbeard', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Big Mom', timestamp: '5 Oct, 2024 · 09:31 am' },
-			{ name: 'Akainu', timestamp: '5 Oct, 2024 · 09:31 am' },
-		],
+const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
+	const { id } = useParams();
+	const {
+		state: { formData: locationFormData },
+	} = useLocation();
+	const navigate = useNavigate();
+	const formId = inputFormId || id;
+	const [expanded, setExpanded] = useState(false);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
+	const [copyStatus, setCopyStatus] = useState({});
+	const [formData, setFormData] = useState({
+		responses: [],
+		total: 0,
+		submitted: 0,
+		title: locationFormData?.title || '',
 	});
+	const [questions, setQuestions] = useState([]);
+	const { getFormResponseAnalytics } = TemplatesState();
 
-	const handleExpand = () => {
-		setInfo({ ...info, isExpanded: !info?.isExpanded });
+	useEffect(() => {
+		if (formId) fetchFormAnalytics();
+	}, [formId]);
+
+	useEffect(() => {
+		onDataUpdate?.({ formData, questions });
+	}, [formData, questions, onDataUpdate]);
+
+	const fetchFormAnalytics = async () => {
+		try {
+			setLoading(true);
+			const [success, response] = await getFormResponseAnalytics(formId);
+
+			if (success && response) {
+				const { data, totalDocs } = response;
+
+				const allQuestions =
+					data
+						?.flatMap((item) => item?.response?.filter((r) => r?.question) || [])
+						.map(({ question, type }) => ({ question, type }))
+						.filter(
+							(item, index, self) =>
+								index ===
+								self.findIndex(
+									(q) =>
+										removeHTMLTags(q?.question)?.toLowerCase() ===
+										removeHTMLTags(item?.question)?.toLowerCase(),
+								),
+						)
+						.sort((a, b) => {
+							const aLower = removeHTMLTags(a?.question)?.toLowerCase();
+							const bLower = removeHTMLTags(b?.question)?.toLowerCase();
+							const aIsName =
+								aLower?.includes('name') || aLower?.includes('full name');
+							const bIsName =
+								bLower?.includes('name') || bLower?.includes('full name');
+							const aIsEmail = aLower?.includes('email');
+							const bIsEmail = bLower?.includes('email');
+							if (aIsName && !bIsName) return -1;
+							if (!aIsName && bIsName) return 1;
+							if (aIsEmail && !bIsEmail) return -1;
+							if (!aIsEmail && bIsEmail) return 1;
+							return 0;
+						}) || [];
+
+				setQuestions(allQuestions);
+				setFormData((prev) => ({
+					...prev,
+					responses: data || [],
+					total: totalDocs || 0,
+					submitted: totalDocs || 0,
+					title: prev.title || data?.[0]?.title || '',
+				}));
+			} else {
+				setError('No Responses Found');
+			}
+		} catch (err) {
+			setError(err.message || 'An error occurred');
+		} finally {
+			setLoading(false);
+		}
 	};
 
-	const visibleItems = info?.isExpanded ? info?.items : info?.items?.slice(0, 6);
+	const handleExpand = () => setExpanded((prev) => !prev);
+
+	const handleCopy = useCallback(
+		(question) => {
+			const content = formData.responses
+				.map((response) => {
+					const field = response?.response?.find((r) =>
+						removeHTMLTags(r?.question)
+							?.toLowerCase()
+							?.includes(removeHTMLTags(question)?.toLowerCase()),
+					);
+					if (!field) return '';
+					if (field.type === 'fileupload') {
+						return field?.answer?.length ? 'File Uploaded' : '';
+					}
+					if (field.type === 'events') {
+						if (!field?.answer || field.answer.length === 0) return '';
+						// Format events as a readable string (assuming answer is an array of objects)
+						return field.answer
+							.map((event) => {
+								const title = event.title || 'Unnamed Event';
+								const date = event.date
+									? moment(event.date).format('MMMM D, YYYY')
+									: 'No Date';
+								return `Event: ${title} (${date})`;
+							})
+							.join('\n');
+					}
+					return field?.answer || '';
+				})
+				.filter(Boolean)
+				.join('\n');
+
+			if (content) {
+				navigator.clipboard.writeText(content).then(() => {
+					setCopyStatus((prev) => ({ ...prev, [question]: true }));
+					setTimeout(
+						() => setCopyStatus((prev) => ({ ...prev, [question]: false })),
+						2000,
+					);
+				});
+			}
+		},
+		[formData.responses],
+	);
+
+	const getQuestionResponseCount = (questionText) =>
+		formData.responses.filter((response) => {
+			const field = response?.response?.find((r) =>
+				removeHTMLTags(r?.question)
+					?.toLowerCase()
+					?.includes(removeHTMLTags(questionText)?.toLowerCase()),
+			);
+			if (!field) return false;
+			if (field.type === 'fileupload') return field?.answer?.length > 0;
+			if (field.type === 'rating') return field?.answer && field.answer !== '0';
+			if (field.type === 'events') return field?.answer && field.answer.length > 0;
+			return field?.answer && field.answer !== '0' && field.answer !== '';
+		}).length;
+
+	if (!formId) return <div>No form ID provided</div>;
+	if (!formData.responses.length) return <div className="no-responses">No summary found</div>;
+	if (loading || !formData.responses.length)
+		return <div className="loading-state">Loading...</div>;
 
 	return (
-		<div className="formSummaryParentContainer">
-			<div className="formSummaryContainer">
-				<div className="header">
-					<div className="headerWrapper">
-						<span className="title">Title</span>
-						<span className="summary">
-							<span>Response : 7</span>
-							<span>Skipped : 2</span>
-						</span>
-					</div>
-				</div>
-
-				<FormResponseList
-					expanded={info?.isExpanded}
-					handleExpand={handleExpand}
-					items={info?.items}
-					visibleItems={visibleItems}
-				/>
-			</div>
-
-			<div className="formSummaryContainer">
-				<div className="header">
-					<div className="headerWrapper">
-						<span className="title">Title</span>
-						<span className="summary">
-							<span>Response : 7</span>
-							<span>Skipped : 2</span>
-						</span>
-					</div>
+		<div className="formSummaryWrapper">
+			<div className="formSummaryParentContainer">
+				<div
+					className="formSummaryContainer"
+					style={{ height: '100%', overflow: 'auto', marginBottom: '100px' }}
+				>
+					{questions?.map((item, index) => (
+						<div key={index} className="section">
+							<div className="header">
+								<div className="header-top">
+									<span className="title">
+										<span className="question-number">Q{index + 1}:</span>{' '}
+										{removeHTMLTags(item?.question)}
+									</span>
+									<div
+										className="copy-button"
+										onClick={() => handleCopy(item?.question)}
+									>
+										<CopyIcon className="copy-icon" />
+										<span className="copy-text">
+											{copyStatus[item?.question] ? 'Copied!' : 'Copy'}
+										</span>
+									</div>
+								</div>
+								<div className="total-responses">
+									Total Responses: {getQuestionResponseCount(item.question)}
+								</div>
+							</div>
+							<FormResponseList
+								expanded={expanded}
+								handleExpand={handleExpand}
+								items={formData.responses}
+								question={item.question}
+								handleCopy={handleCopy}
+								copyStatus={copyStatus}
+								type={item.type}
+								onUserClick={onUserClick}
+							/>
+						</div>
+					))}
 				</div>
 			</div>
 		</div>
