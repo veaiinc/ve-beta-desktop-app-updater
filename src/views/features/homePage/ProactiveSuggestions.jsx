@@ -789,7 +789,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 														className="cardContainerUnreadIndicator"
 														style={{ cursor: 'pointer' }}
 														onMouseMove={(e) => {
-															const tooltip = document.querySelector(
+															const tooltip = document?.querySelector(
 																`.tooltip-${card?._id}`,
 															);
 															if (tooltip) {

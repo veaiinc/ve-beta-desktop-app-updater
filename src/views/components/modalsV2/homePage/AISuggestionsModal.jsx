@@ -351,6 +351,62 @@ const AISuggestionsModal = ({
 								</div>
 							</div>
 						</div>
+						{solutions?.length > 0 && (
+							<div
+								className={`solutions-container ${
+									info?.isSolutionsExpanded ? 'active' : ''
+								}`}
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										isSolutionsExpanded: !prev?.isSolutionsExpanded,
+									}))
+								}
+							>
+								<Collapse
+									activeKey={info?.isSolutionsExpanded ? ['1'] : []}
+									onChange={(key) =>
+										setInfo((prev) => ({
+											...prev,
+											isSolutionsExpanded: key.length > 0,
+										}))
+									}
+								>
+									<Panel
+										header={
+											<div className="cot-header">
+												<div className="cot-text">
+													<div className="title-text">
+														Suggested Solutions
+													</div>
+													<div className="description-text">
+														Quick questions to dig deeper or explore.
+													</div>
+												</div>
+											</div>
+										}
+										key="1"
+									>
+										<div
+											className="solutions"
+											onClick={(e) => e.stopPropagation()}
+										>
+											{Array?.isArray(solutions)
+												? solutions?.map((item, index) => (
+														<div
+															className="solution-item"
+															key={index}
+															onClick={() => handleClickRun(item)}
+														>
+															<div className="item-text">{item}</div>
+														</div>
+												  ))
+												: solutions}
+										</div>
+									</Panel>
+								</Collapse>
+							</div>
+						)}
 						<div className="tabs-container">
 							<div className="tab-buttons">
 								<div
@@ -432,166 +488,6 @@ const AISuggestionsModal = ({
 										</Collapse>
 									</div>
 								)}
-
-								{/* {solutions?.length > 0 && (
-									<div
-										className={`solutions-container ${
-											info?.isSolutionsExpanded ? 'active' : ''
-										}`}
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												isSolutionsExpanded: !prev?.isSolutionsExpanded,
-											}))
-										}
-									>
-										<div className="cot-header">
-											<div className="cot-text">
-												<div className="title-text">
-													Suggested Solutions
-												</div>
-												<div className="description-text">
-													Quick questions to dig deeper or explore.
-												</div>
-											</div>
-										</div>
-
-										{info?.isSolutionsExpanded && (
-											<div
-												className="solutions"
-												onClick={(e) => e.stopPropagation()}
-											>
-												{Array?.isArray(solutions)
-													? solutions?.map((item, index) => (
-															<div
-																className="solution-item"
-																key={index}
-																onClick={() => handleClickRun(item)}
-															>
-																 <div className="logo">
-																	<ArrowRightSvg />
-																</div> 
-																<div className="item-text">
-																	{item}
-																</div>
-															</div>
-													  ))
-													: solutions}
-											</div>
-										)}
-									</div>
-								)} */}
-
-								{solutions?.length > 0 && (
-									<div
-										className={`solutions-container ${
-											info?.isSolutionsExpanded ? 'active' : ''
-										}`}
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												isSolutionsExpanded: !prev?.isSolutionsExpanded,
-											}))
-										}
-									>
-										<Collapse
-											activeKey={info?.isSolutionsExpanded ? ['1'] : []}
-											onChange={(key) =>
-												setInfo((prev) => ({
-													...prev,
-													isSolutionsExpanded: key.length > 0,
-												}))
-											}
-										>
-											<Panel
-												header={
-													<div className="cot-header">
-														<div className="cot-text">
-															<div className="title-text">
-																Suggested Solutions
-															</div>
-															<div className="description-text">
-																Quick questions to dig deeper or
-																explore.
-															</div>
-														</div>
-													</div>
-												}
-												key="1"
-											>
-												<div
-													className="solutions"
-													onClick={(e) => e.stopPropagation()}
-												>
-													{Array.isArray(solutions)
-														? solutions.map((item, index) => (
-																<div
-																	className="solution-item"
-																	key={index}
-																	onClick={() =>
-																		handleClickRun(item)
-																	}
-																>
-																	<div className="item-text">
-																		{item}
-																	</div>
-																</div>
-														  ))
-														: solutions}
-												</div>
-											</Panel>
-										</Collapse>
-									</div>
-								)}
-
-								{/* {suggested_actions?.length > 0 && (
-									<div
-										className={`suggested-actions-container ${
-											info?.isActionsExpanded ? 'active' : ''
-										}`}
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												isActionsExpanded: !prev?.isActionsExpanded,
-											}))
-										}
-									>
-										<div className="cot-header">
-											<div className="cot-text">
-												<div className="title-text">
-													Recommended Actions
-												</div>
-												<div className="description-text">
-													AI-curated next steps to resolve issues.
-												</div>
-											</div>
-										</div>
-
-										{info?.isActionsExpanded && (
-											<div
-												className="suggested-actions"
-												onClick={(e) => e.stopPropagation()}
-											>
-												{Array?.isArray(suggested_actions)
-													? suggested_actions?.map((item, index) => (
-															<div
-																className="action-item"
-																key={index}
-																onClick={() => handleClickRun(item)}
-															>
-																<div className="logo">
-																	<ArrowRightSvg />
-																</div>
-																<div className="item-text">
-																	{item}
-																</div>
-															</div>
-													  ))
-													: suggested_actions}
-											</div>
-										)}
-									</div>
-								)} */}
 
 								{suggested_actions?.length > 0 && (
 									<div
@@ -697,8 +593,8 @@ const AISuggestionsModal = ({
 													className="suggested-prompts"
 													onClick={(e) => e.stopPropagation()}
 												>
-													{Array.isArray(suggested_prompts)
-														? suggested_prompts.map((item, index) => (
+													{Array?.isArray(suggested_prompts)
+														? suggested_prompts?.map((item, index) => (
 																<div
 																	className="prompt-item"
 																	key={index}
@@ -720,80 +616,6 @@ const AISuggestionsModal = ({
 										</Collapse>
 									</div>
 								)}
-								{/* {informationRequests?.length > 0 && (
-									<div
-										className={`questions-wrapper ${
-											info?.isQuestionsExpanded ? 'active' : ''
-										}`}
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												isQuestionsExpanded: !prev?.isQuestionsExpanded,
-											}))
-										}
-									>
-										<div className="cot-header">
-											<div className="cot-text">
-												<div className="title-text">Questions AI have</div>
-												<div className="description-text">
-													Unanswered queries needing follow-up or clarity.
-												</div>
-											</div>
-											<div
-												className="cot-expand-btn"
-												style={{
-													transform: info?.isQuestionsExpanded
-														? 'rotate(-90deg)'
-														: 'rotate(90deg)',
-												}}
-											>
-												<ChevronRightThinSvg />
-											</div>
-										</div>
-
-										{info?.isQuestionsExpanded && (
-											<div
-												className="questions-container"
-												onClick={(e) => e.stopPropagation()}
-											>
-												{informationRequests?.map((questionData, index) => (
-													<div className="question-container" key={index}>
-														<div className="question">
-															{questionData?.question || ''}
-														</div>
-														<input
-															type="text"
-															className="answers-input"
-															placeholder="Enter your answer..."
-															value={
-																info?.questionsAnswers?.[index] ||
-																''
-															}
-															onChange={(e) => {
-																setInfo({
-																	...info,
-																	questionsAnswers: {
-																		...info.questionsAnswers,
-																		[index]: e?.target?.value,
-																	},
-																});
-															}}
-														/>
-													</div>
-												))}
-												<button
-													onClick={handleRunBtnClick}
-													className="submit-btn"
-												>
-													Submit
-													<div className="icon-container">
-														<ArrowUpRightSvg />
-													</div>
-												</button>
-											</div>
-										)}
-									</div>
-								)} */}
 								{informationRequests?.length > 0 && (
 									<div
 										className={`questions-wrapper ${
@@ -811,7 +633,7 @@ const AISuggestionsModal = ({
 											onChange={(key) =>
 												setInfo((prev) => ({
 													...prev,
-													isQuestionsExpanded: key.length > 0,
+													isQuestionsExpanded: key?.length > 0,
 												}))
 											}
 										>
