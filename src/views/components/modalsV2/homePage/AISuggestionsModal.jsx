@@ -280,9 +280,9 @@ const AISuggestionsModal = ({
 								{/* <div className="btn download-btn">
 									<DownloadSvg />
 								</div> */}
-								<div className="btn delete-btn" onClick={handleDeleteCard}>
+								{/* <div className="btn delete-btn" onClick={handleDeleteCard}>
 									<DeleteSvg />
-								</div>
+								</div> */}
 							</div>
 						</div>
 					</div>
