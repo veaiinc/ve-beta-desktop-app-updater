@@ -32,7 +32,7 @@
 				.calenderWidgetDateContainerDayContainer {
 					display: flex;
 					flex-direction: column;
-					align-items: center;
+					align-items: flex-start;
 					align-self: stretch;
 					width: 68px;
 					.calenderWidgetDateContainerDay {
@@ -46,7 +46,7 @@
 					.calenderWidgetDateContainerDate {
 						color: var(--primary-font, #f2f2f3);
 						font-family: var(--primary-font-family);
-						font-size: 26px;
+						font-size: 22px;
 						font-style: normal;
 						font-weight: 300;
 						line-height: normal;

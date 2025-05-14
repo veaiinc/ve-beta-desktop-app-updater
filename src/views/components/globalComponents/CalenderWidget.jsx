@@ -222,8 +222,8 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 															{new Date(
 																meet?.date,
 															)?.toLocaleDateString(undefined, {
-																day: '2-digit',
-																month: '2-digit',
+																day: 'numeric',
+																month: 'short',
 															})}
 														</div>
 													</div>
