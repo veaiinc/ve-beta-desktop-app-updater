@@ -199,8 +199,12 @@ const Contacts = () => {
 			) : (
 				<div className="contacts-right-section">
 					<div className="header">
-						<h1 className="header-title">Contacts</h1>
+						<h1 className="header-title">Your Contacts</h1>
 						<QuickActions />
+						{/* <div className="search-bar-container">
+						<SearchIcon className="search-icon" />
+						<input type="text" className="search-bar" placeholder="Search" />
+					</div> */}
 					</div>
 					{info?.loadingSkeleton ? (
 						<div className="skeleton">Loading...</div>

@@ -115,7 +115,13 @@ const ContactsWidget = ({ width, height }) => {
 								/>
 						  ))
 						: info?.listItems?.map((item, index) => (
-								<div key={index} className="contactsEachOptions">
+								<div
+									key={index}
+									className="contactsEachOptions"
+									onClick={() => {
+										navigate(`/contact/${item?._id}`);
+									}}
+								>
 									<div className="contactDetails">
 										<div className="contactDetailsTitle">{item?.name}</div>
 										<div className="contactDetailsSubtitle">{item?.email}</div>

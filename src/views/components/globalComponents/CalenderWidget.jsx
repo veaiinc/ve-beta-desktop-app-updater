@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect, useCallback, useRef } from 'react';
 import '../../../assets/scss/globalComponents/calenderWidget.scss';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import EventDetailsModal from '../modalsV2/calendar/EventDetailsModal';
@@ -22,6 +22,8 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 			resetCalendarAiChat,
 		},
 	} = useContext(Context);
+	const location = useLocation();
+	const isContactPage = location?.pathname?.includes('contact');
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		currentCalendarDate: new Date(),
@@ -110,7 +112,7 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 		const payload = {
 			startDate: info?.currentCalendarDate?.toISOString(),
 			sortType: 'startDateTime',
-			sortOrder: 'dsc',
+			sortOrder: 'asc',
 		};
 		if (eventsCurrentPage !== undefined) {
 			getAllCalendarEvents(nextPage, 20, payload);
@@ -163,7 +165,10 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 		setInfo((prev) => ({ ...prev, isLoading: false }));
 	};
 	return (
-		<div className="calender-main-container" style={{ width: width, height: height }}>
+		<div
+			className="calender-main-container"
+			style={{ width: isContactPage ? '100%' : '350px', height: height }}
+		>
 			<div className="calenderWidgetContainer">
 				<div className="calenderWidgetMain">
 					{/* <div className="calenderWidgetDateContainer">

@@ -15,7 +15,7 @@ import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.sv
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ListViewSidebar from '../modalsV2/tasks/ListViewSidebar';
 import { colors, rowTypes } from '../../features/tasks/Tasks';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
@@ -58,6 +58,8 @@ const defaultPreference = {
 };
 
 const TaskWidget = ({ width, height }) => {
+	const location = useLocation();
+	const isContactPage = location?.pathname?.includes('contact');
 	const navigate = useNavigate();
 	const {
 		tasks: {
@@ -85,7 +87,7 @@ const TaskWidget = ({ width, height }) => {
 	const [info, setInfo] = useState({
 		limit: 20,
 		page: 1,
-		loading: false,
+		loading: true,
 		promptPopupOpen: false,
 		selectedCard: null,
 		isModalOpen: false,
@@ -103,19 +105,11 @@ const TaskWidget = ({ width, height }) => {
 		group: null,
 		page: 1,
 	});
-	useEffect(() => {
-		if (!listTasks) {
-			getTasksList(info?.page);
-		}
-	}, []);
 
 	useEffect(() => {
-		if (info?.selectedRow) {
-			updateTaskInfo({
-				selectedRow: info?.listItems.find((item) => item._id === info?.selectedRow._id),
-			});
-		}
-	}, [info?.listItems, info?.selectedRow]);
+		setInfo((prev) => ({ ...prev, loading: true }));
+		getTasksList(1);
+	}, [location.pathname]);
 
 	useEffect(() => {
 		if (listTasks) {
@@ -127,7 +121,7 @@ const TaskWidget = ({ width, height }) => {
 							? listTasks?.data
 							: [...prevInfo?.listItems, ...listTasks?.data],
 					hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
-					loadingSkeleton: false,
+					loading: false,
 					infinityLoading: false,
 				}));
 			}
@@ -135,7 +129,7 @@ const TaskWidget = ({ width, height }) => {
 		if (listTasks?.error) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				loadingSkeleton: false,
+				loading: false,
 				infinityLoading: false,
 				error: listTasks?.error,
 				hasMore: false,
@@ -355,20 +349,23 @@ const TaskWidget = ({ width, height }) => {
 	}, []);
 
 	const getTasksList = async (page) => {
-		const response = await getListItems({
-			taskFilterInput: {
-				limit: 20,
-				page,
-			},
-		});
-		const nextPage = response?.[1]?.data?.listTasks?.currentPage + 1;
-		const hasNextPage = response?.[1]?.data?.listTasks?.hasNextPage;
-		setInfo((prev) => ({
-			...prev,
-			page: nextPage,
-			hasNextPage,
-		}));
-		isLoading.current = false;
+		try {
+			const response = await getListItems({
+				taskFilterInput: {
+					limit: 20,
+					page,
+				},
+			});
+			const nextPage = response?.[1]?.data?.listTasks?.currentPage + 1;
+			const hasNextPage = response?.[1]?.data?.listTasks?.hasNextPage;
+			setInfo((prev) => ({
+				...prev,
+				page: nextPage,
+				hasNextPage,
+			}));
+		} catch (error) {
+			setInfo((prev) => ({ ...prev, loading: false, error: error.message }));
+		}
 	};
 
 	const fetchMoreData = () => {
@@ -695,8 +692,12 @@ const TaskWidget = ({ width, height }) => {
 							<FiltersIcon />
 						</div> */}
 					</div>
-					<div className="taskWidgetBodyContainer" id="taskWidgetBodyContainer">
-						{isLoading.current ? (
+					<div
+						className="taskWidgetBodyContainer"
+						style={{ maxHeight: isContactPage ? '400px' : '300px' }}
+						id="taskWidgetBodyContainer"
+					>
+						{info.loading ? (
 							skeletonLoaders?.map((_, index) => (
 								<Skeleton
 									width="300px"
