@@ -1,17 +1,16 @@
-import React, { memo, useContext, useEffect, useState, useCallback } from 'react';
+import { memo, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { ReactComponent as ArrowLeftSvg } from '../../../../assets/svg/tasks/arrowLeft.svg';
-import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
-import { ReactComponent as SixDotsSvg } from '../../../../assets/svg/tasks/sixDots.svg';
-import { ReactComponent as OpenEye } from '../../../../assets/svg/gallery/open-eye.svg';
+import { ReactComponent as HorizontalLines } from '../../../../assets/svg/tasks/horizontalLines.svg';
 import '../../../../assets/scss/dropdown/tasks/statusEditDropDown.scss';
-import PropertyEditDropDown from './PropertyEditDropDown';
 import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';
+import { colors } from '../../../../helpers/taskHelpers';
+import { ReactComponent as Check } from '../../../../assets/svg/tasks/checkmark.svg';
+import { ReactComponent as Dustbin } from '../../../../assets/svg/tasks/dustBin.svg';
 
-const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) => {
+const StatusEditDropDown = ({ handleEditPropertyChange, handleClose }) => {
 	const {
 		tasks: { addNewStatusLabel, deleteStatusLabel, updateStatusLabel, taskMetadata },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -25,7 +24,30 @@ const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) =
 			group: null,
 			label: '',
 		},
+		editingStatus: null,
 	});
+
+	// Create ref for debounced update
+	const updateStatusDebounceRef = useRef(null);
+
+	const debounceUpdateStatus = (params, sourceId, delay = 500) => {
+		if (updateStatusDebounceRef.current) {
+			clearTimeout(updateStatusDebounceRef.current);
+		}
+
+		updateStatusDebounceRef.current = setTimeout(async () => {
+			try {
+				const response = await updateStatusLabel(params, sourceId);
+				if (response?.[0]) {
+					message.success('Status updated successfully');
+				} else {
+					throw new Error(response?.[1]?.[0]?.message || 'Failed to update status');
+				}
+			} catch (error) {
+				message.error(error?.message || 'Failed to update status');
+			}
+		}, delay);
+	};
 
 	useEffect(() => {
 		if (taskMetadata) {
@@ -84,7 +106,7 @@ const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) =
 
 			// Get the dragged item and update its group
 			const draggedItem = info[`${sourceId}Options`][sourceIndex];
-			const response = await updateStatusLabel(
+			debounceUpdateStatus(
 				{
 					labelId: draggedItem._id,
 					group: destinationId,
@@ -95,12 +117,6 @@ const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) =
 				},
 				sourceId,
 			);
-
-			if (response?.[0]) {
-				message.success('Status order updated successfully');
-			} else {
-				throw new Error(response?.[1]?.[0]?.message || 'Failed to update status order');
-			}
 		} catch (error) {
 			// Rollback to previous state
 			setInfo((prev) => ({
@@ -298,9 +314,8 @@ const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) =
 				),
 			}));
 
-			// Call API to update the status
-
-			const response = await updateStatusLabel(
+			// Call debounced API to update the status
+			debounceUpdateStatus(
 				{
 					taskMetadataId: taskMetadata?._id,
 					labelId: status._id,
@@ -309,11 +324,6 @@ const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) =
 				},
 				status.group,
 			);
-			if (response?.[0]) {
-				message.success('Status updated successfully');
-			} else {
-				throw new Error(response?.[1]?.[0]?.message);
-			}
 		} catch (error) {
 			// Revert local state on error
 			setInfo((prev) => ({
@@ -323,6 +333,13 @@ const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) =
 				),
 			}));
 			message.error(error?.message || 'Failed to update status');
+		}
+	};
+	const handleStatusLabelBlur = (e, option) => {
+		if (e?.target?.value !== option?.label && e?.target?.value?.trim() !== '') {
+			handleStatusUpdate(option, {
+				label: e?.target?.value,
+			});
 		}
 	};
 
@@ -364,11 +381,10 @@ const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) =
 						{items?.map((option, index) => (
 							<Draggable key={option?._id} draggableId={option?._id} index={index}>
 								{(provided, snapshot) => (
-									<PropertyEditDropDown
-										colors={colors}
-										value={option}
-										onDelete={() => handleDeleteStatus(option)}
-										onUpdate={(updates) => handleStatusUpdate(option, updates)}
+									<div
+										className={`status-edit-option-container ${
+											info.editingStatus === option?._id ? 'active' : ''
+										}`}
 									>
 										<div
 											ref={provided.innerRef}
@@ -376,22 +392,25 @@ const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) =
 											className={`property-edit-section-option-item ${
 												snapshot.isDragging ? 'dragging' : ''
 											}`}
+											onClick={() =>
+												setInfo((prev) => ({
+													...prev,
+													editingStatus:
+														prev?.editingStatus === option?._id
+															? null
+															: option?._id,
+												}))
+											}
 										>
 											<div
 												{...provided.dragHandleProps}
 												className="drag-handle-icon"
+												onClick={(e) => e.stopPropagation()}
 											>
-												<SixDotsSvg />
+												<HorizontalLines />
 											</div>
 											<span className="property-edit-section-body-option-wrapper">
-												<span
-													className="status-option-container"
-													style={{
-														backgroundColor:
-															colors?.[option?.color]
-																?.backgroundColor,
-													}}
-												>
+												<span className="status-option-container">
 													<span
 														className="status-option-dot"
 														style={{
@@ -399,19 +418,81 @@ const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) =
 																colors?.[option?.color]?.color,
 														}}
 													></span>
-													<span className="status-option-label">
-														{option?.label}
-													</span>
+													<input
+														className="status-option-label"
+														defaultValue={option?.label}
+														onBlur={(e) =>
+															handleStatusLabelBlur(e, option)
+														}
+														onKeyDown={(e) => {
+															if (e.key === 'Enter') {
+																e.preventDefault();
+																e.target.blur();
+															}
+														}}
+														onClick={(e) => e.stopPropagation()}
+														style={{
+															width: `${option?.label?.length}ch`,
+														}}
+													/>
 												</span>
 											</span>
 											{option?.isDefault ? (
-												<span className="default-status-text">DEFAULT</span>
+												<span className="default-status-text">Default</span>
 											) : (
 												''
 											)}
-											<ChevronRightThinSvg />
+
+											<ChevronRightThinSvg className="edit-status-icon" />
 										</div>
-									</PropertyEditDropDown>
+										<div className="status-edit-container">
+											<div className="colors-wrapper">
+												<div className="colors-title">Colors</div>
+												<div className="colors-list">
+													{Object.entries(colors)?.map(([key, color]) => (
+														<div
+															className={`color-item ${
+																option?.color === key
+																	? 'selected'
+																	: ''
+															}`}
+															key={key}
+															onClick={() =>
+																handleStatusUpdate(option, {
+																	color: key,
+																})
+															}
+															style={{
+																backgroundColor: color?.color,
+															}}
+														></div>
+													))}
+												</div>
+											</div>
+											<div className="status-edit-footer-btns">
+												<button
+													className="status-edit-footer-btn"
+													disabled={option?.isDefault}
+													onClick={() =>
+														handleStatusUpdate(option, {
+															isDefault: true,
+														})
+													}
+												>
+													<Check />
+													Set as default
+												</button>
+												<button
+													className="status-edit-footer-btn delete"
+													disabled={option?.isDefault}
+													onClick={() => handleDeleteStatus(option)}
+												>
+													<Dustbin />
+													Delete
+												</button>
+											</div>
+										</div>
+									</div>
 								)}
 							</Draggable>
 						))}
@@ -424,26 +505,9 @@ const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) =
 
 	return (
 		<div className="options-property-edit-container">
-			<div className="options-property-edit-header">
-				<ArrowLeftSvg
-					className="cursor-pointer"
-					onClick={() => handleEditPropertyChange(null)}
-				/>
-				<span className="options-property-edit-header-title">Edit property</span>
-				<CrossSvg className="cursor-pointer" onClick={handleClose} />
-			</div>
-
-			<div className="property-edit-section">
-				<div className="property-edit-section-body">
-					<div className="property-edit-section-body-item">
-						<div className="property-edit-section-body-item-title">Name</div>
-						<div className="property-edit-section-body-item-value">Status</div>
-					</div>
-					<div className="property-edit-section-body-item">
-						<div className="property-edit-section-body-item-title">Shown as</div>
-						<div className="property-edit-section-body-item-value">Status</div>
-					</div>
-				</div>
+			<div className="options-property-edit-header" onClick={handleClose}>
+				<ChevronRightThinSvg className="back-icon" />
+				<span className="options-property-edit-header-title">Display</span>
 			</div>
 
 			<DragDropContext onDragEnd={handleDragEnd}>
@@ -459,11 +523,6 @@ const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) =
 					title="Completed"
 				/>
 			</DragDropContext>
-
-			<div className="property-edit-footer">
-				<OpenEye />
-				<span className="property-edit-footer-title">Show in view</span>
-			</div>
 		</div>
 	);
 };

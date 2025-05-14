@@ -108,6 +108,7 @@ const TaskHeader = ({
 									<div
 										className="add-new-tab-tooltip-body-item"
 										onClick={() => handleAddTab(layout?.viewType)}
+										key={layout?.viewType}
 									>
 										<div className="add-new-tab-tooltip-body-item-icon">
 											{layout?.Icon}

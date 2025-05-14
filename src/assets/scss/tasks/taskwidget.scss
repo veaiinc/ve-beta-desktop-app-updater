@@ -97,6 +97,7 @@
 		align-items: center;
 		border-radius: 10px;
 		border: 1px solid var(--stroke);
+		cursor: pointer;
 
 		.taskHeader {
 			display: flex;
@@ -131,6 +132,7 @@
 
 			&.active {
 				background: var(--popup);
+				border: 1px solid var(--primary-font);
 			}
 
 			.taskWidgetoption {
