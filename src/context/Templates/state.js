@@ -2437,7 +2437,7 @@ export const TemplatesState = (props) => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const url = `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}/feedback`;
-			const response = await Service.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+			const response = await Service.fetchPut(url, payload, usertoken, 'tenant');
 			return response;
 		} catch (error) {
 			console.log('error==>pendingActionsFeedback', error);

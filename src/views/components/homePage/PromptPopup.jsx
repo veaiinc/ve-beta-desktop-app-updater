@@ -180,13 +180,11 @@ const PromptPopup = ({
 		}
 
 		try {
-			const feedbackReq = [
-				{
-					rating: feedback,
-					userFeedbackReasons,
-					userRemarks: feedbackMessage,
-				},
-			];
+			const feedbackReq = {
+				rating: feedback,
+				userFeedbackReasons,
+				userRemarks: feedbackMessage,
+			};
 
 			let promise;
 
@@ -199,7 +197,7 @@ const PromptPopup = ({
 			const res = await promise;
 
 			if (res) {
-				message.success(res?.[1]?.message);
+				if (res?.[0]) message.success('Feedback added successfully');
 			}
 
 			setInfo((prev) => ({
