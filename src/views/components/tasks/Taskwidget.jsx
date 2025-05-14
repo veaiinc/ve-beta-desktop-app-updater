@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import '../../../assets/scss/tasks/taskwidget.scss';
 import { ReactComponent as Warn } from '../../../assets/svg/tasks/warn.svg';
 import { ReactComponent as Check } from '../../../assets/svg/tasks/check.svg';
@@ -64,6 +64,13 @@ const Taskwidget = ({
 	};
 
 	const statusOptions = responseMetadata?.status?.props?.options;
+	const filteredProperties = useMemo(
+		() =>
+			properties?.filter((property) => {
+				return !['parentTask', 'childTasks'].includes(property?.value);
+			}),
+		[properties],
+	);
 
 	const handleSortChange = (sort, update = false) => {
 		const currentSort = info?.sort || [];
@@ -247,7 +254,7 @@ const Taskwidget = ({
 						<div className="sort-filter-header">
 							<div className="sort-filter-title">Sort</div>
 							<SortDropdown
-								properties={properties}
+								properties={filteredProperties}
 								responseMetadata={responseMetadata}
 								sort={info?.sort}
 								handleSortChange={handleSortChange}
@@ -295,7 +302,7 @@ const Taskwidget = ({
 						<div className="sort-filter-header">
 							<div className="sort-filter-title">Filter</div>
 							<FilterDropdown
-								properties={properties}
+								properties={filteredProperties}
 								responseMetadata={responseMetadata}
 								colors={colors}
 								filters={info?.filters}

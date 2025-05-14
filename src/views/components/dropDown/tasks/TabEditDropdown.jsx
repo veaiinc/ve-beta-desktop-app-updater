@@ -9,7 +9,13 @@ const tabTooltipContent = [
 	{ label: 'Duplicate', value: 'duplicate', icon: <DuplicateSvg /> },
 ];
 
-const TabEditDropdown = ({ tab, activeTab, handleTabChange, handleTabDropdownClick }) => {
+const TabEditDropdown = ({
+	tab,
+	activeTab,
+	handleTabChange,
+	handleTabDropdownClick,
+	tabLength,
+}) => {
 	const [info, setInfo] = useState({
 		showEditViewDropDown: false,
 	});
@@ -50,17 +56,19 @@ const TabEditDropdown = ({ tab, activeTab, handleTabChange, handleTabDropdownCli
 							<div className="tab-tooltip-content-item-label">{item?.label}</div>
 						</div>
 					))}
-					<div
-						className="delete-view-container"
-						onClick={() =>
-							customHandleTabDropdownClick({ value: 'delete', tabId: tab?._id })
-						}
-					>
-						<div className="delete-view-icon">
-							<Dustbin />
+					{tabLength > 1 && (
+						<div
+							className="delete-view-container"
+							onClick={() =>
+								customHandleTabDropdownClick({ value: 'delete', tabId: tab?._id })
+							}
+						>
+							<div className="delete-view-icon">
+								<Dustbin />
+							</div>
+							<div className="delete-view-label">Delete</div>
 						</div>
-						<div className="delete-view-label">Delete</div>
-					</div>
+					)}
 				</div>
 			}
 			key={tab?._id}
