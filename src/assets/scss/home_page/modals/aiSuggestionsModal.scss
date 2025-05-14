@@ -921,18 +921,7 @@
 								background: var(--card-over-card, #202123);
 							}
 							&.selected-thumb {
-								background: var(--navbar, #2e2f33);
-								svg {
-									path {
-										stroke: var(--primary-font, #f2f2f3);
-									}
-								}
-							}
-
-							svg {
-								path {
-									stroke: var(--secondary-font, #f2f2f3);
-								}
+								background: var(--card-over-card, #202123);
 							}
 						}
 					}

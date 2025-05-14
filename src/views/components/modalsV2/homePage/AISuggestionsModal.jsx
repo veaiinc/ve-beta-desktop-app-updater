@@ -48,7 +48,7 @@ const AISuggestionsModal = ({
 		isActionsExpanded: false,
 		isPromptsExpanded: false,
 		isReportExpanded: true,
-		selectedFeedback: data?.feedback,
+		selectedFeedback: data?.rating,
 		isQuestionsExpanded: false,
 		questionsAnswers: {},
 		activeTab: 'situation',
@@ -56,7 +56,6 @@ const AISuggestionsModal = ({
 			hasChainOfThought: false,
 		},
 		feedbackPopupOpen: false,
-		liked: null,
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -70,7 +69,7 @@ const AISuggestionsModal = ({
 		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || []);
 		setInfo((prev) => ({
 			...prev,
-			selectedFeedback: data?.feedback,
+			selectedFeedback: data?.rating,
 			chainOfThoughtData,
 		}));
 	}, [data]);
@@ -185,7 +184,7 @@ const AISuggestionsModal = ({
 	};
 
 	const handleThumbsClick = (thumbs) => {
-		setInfo((prev) => ({ ...prev, liked: thumbs, feedbackPopupOpen: true }));
+		setInfo((prev) => ({ ...prev, selectedFeedback: thumbs, feedbackPopupOpen: true }));
 	};
 
 	const {
@@ -225,11 +224,12 @@ const AISuggestionsModal = ({
 			{info?.feedbackPopupOpen && (
 				<PromptPopup
 					messageId={data?._id}
-					liked={info?.liked}
+					liked={info?.selectedFeedback}
 					open={info?.feedbackPopupOpen}
 					feedbackPopupOpen={info?.feedbackPopupOpen}
 					closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
 					feedbackType="pendingActionFeedback"
+					setLiked={(liked) => setInfo((prev) => ({ ...prev, selectedFeedback: liked }))}
 				/>
 			)}
 			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
@@ -999,7 +999,7 @@ const AISuggestionsModal = ({
 											? 'selected-thumb'
 											: ''
 									}`}
-									onClick={() => handleThumbsClick('thumbsUp')}
+									onClick={() => handleThumbsClick('thumbsup')}
 								>
 									<ThumbsUpSvg />
 								</div>

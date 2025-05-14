@@ -65,6 +65,7 @@ const PromptPopup = ({
 	confidenceScore = null,
 	messageId = null,
 	feedbackType = 'chatFeedback',
+	setLiked = null,
 }) => {
 	const navigate = useNavigate();
 
@@ -161,6 +162,7 @@ const PromptPopup = ({
 
 	const handleFeedbackClick = (feedback) => {
 		setInfo((prev) => ({ ...prev, feedback }));
+		if (setLiked) setLiked(feedback);
 	};
 
 	const handleFeedbackSubmit = useCallback(async () => {
@@ -248,14 +250,14 @@ const PromptPopup = ({
 					{info?.feedbackPopupOpen && (
 						<div className="promptPopupContainerHeaderRight">
 							<button
-								className={`${info?.feedback === 'thumbsUp' ? 'active' : ''}`}
-								onClick={() => handleFeedbackClick('thumbsUp')}
+								className={`${info?.feedback === 'thumbsup' ? 'active' : ''}`}
+								onClick={() => handleFeedbackClick('thumbsup')}
 							>
 								<ThumbsUp />
 							</button>
 							<button
-								className={`${info?.feedback === 'thumbsDown' ? 'active' : ''}`}
-								onClick={() => handleFeedbackClick('thumbsDown')}
+								className={`${info?.feedback === 'thumbsdown' ? 'active' : ''}`}
+								onClick={() => handleFeedbackClick('thumbsdown')}
 							>
 								<ThumbsDown />
 							</button>
