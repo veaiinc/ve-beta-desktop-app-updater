@@ -33,8 +33,6 @@ import LinkText from '../../components/tasks/listView/LinkText';
 import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
 import PersonMultiSelect from '../../components/tasks/listView/PersonMultiSelect';
 import { useSearchParams } from 'react-router-dom';
-import Taskwidget from '../../components/tasks/Taskwidget';
-import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 import CreatedWithAi from '../../components/tasks/listView/CreatedWithAi';
 import { colors } from '../../../helpers/taskHelpers';
 
@@ -79,7 +77,7 @@ export const rowTypes = {
 
 const Tasks = () => {
 	const timeoutRef = useRef(null);
-	const [searchParams, setSearchParams] = useSearchParams();
+	const [searchParams] = useSearchParams();
 	const query = searchParams.get('itemId');
 
 	const {
@@ -255,7 +253,7 @@ const Tasks = () => {
 				props: {},
 			},
 		}),
-		[, info?.taskMetadata],
+		[info?.taskMetadata],
 	);
 	useEffect(() => {
 		updateSidebarState({ leftSidebarState: 'close' });
@@ -818,18 +816,6 @@ const Tasks = () => {
 	const handleAddButtonOnClick = () => {
 		updateTaskInfo({ isCreatingSubtask: false, isCreateModalOpen: true });
 	};
-
-	const suggestedOptions = [
-		{
-			id: 0,
-			title: 'Create new Task',
-			value: 'task',
-			controlValue: 'task',
-			action: () => {
-				handleAddButtonOnClick();
-			},
-		},
-	];
 
 	const handleCloseCreateModal = useCallback(() => {
 		if (info?.isCreatingSubtask) {
