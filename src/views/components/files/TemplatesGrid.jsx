@@ -24,7 +24,7 @@ const filterOptions = [
 
 const sortOptions = [
 	{ label: 'Recently Created', value: 'createdAt', sortType: -1 },
-	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
+	// { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 	{ label: 'A-Z', value: 'title', sortType: 1 },
 ];
 let origin = fetchOriginSelection();
@@ -39,7 +39,7 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 		hasNextPage: false,
 		loading: true,
 		selectedFilter: { label: 'All', value: '' },
-		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
+		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
 		blankTemplateLoading: false,
 	});
 
@@ -300,7 +300,9 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 										</span> */}
 										<span className="item-title">{template?.title || ''}</span>
 										<span className="notes-sub-heading">
-											{moment.unix(template?.createdAt).fromNow()}
+											<Tooltip title="Created On">
+												{moment.unix(template?.createdAt).fromNow()}
+											</Tooltip>
 										</span>
 									</div>
 								</div>

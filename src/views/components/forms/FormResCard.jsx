@@ -377,7 +377,7 @@ const FormResCard = ({
 												</span>
 												<h1 className="option">Email</h1>
 											</div>
-											<div
+											{/* <div
 												className="resoption"
 												onClick={(e) => {
 													e.stopPropagation();
@@ -388,7 +388,7 @@ const FormResCard = ({
 													<Calender />
 												</span>
 												<h1 className="option">Schedule</h1>
-											</div>
+											</div> */}
 										</div>
 									</div>
 								)}

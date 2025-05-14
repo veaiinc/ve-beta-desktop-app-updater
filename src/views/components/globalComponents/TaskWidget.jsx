@@ -15,7 +15,7 @@ import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.sv
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ListViewSidebar from '../modalsV2/tasks/ListViewSidebar';
 import { colors, rowTypes } from '../../features/tasks/Tasks';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
@@ -30,6 +30,7 @@ import { message } from '../../components/globalComponents/CustomToast';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 import { FetchMoreLoaderComp } from '../../../helpers';
+import { Tooltip } from 'antd';
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
@@ -58,6 +59,8 @@ const defaultPreference = {
 };
 
 const TaskWidget = ({ width, height }) => {
+	const location = useLocation();
+	const isContactPage = location?.pathname?.includes('contact');
 	const navigate = useNavigate();
 	const {
 		tasks: {
@@ -85,7 +88,7 @@ const TaskWidget = ({ width, height }) => {
 	const [info, setInfo] = useState({
 		limit: 20,
 		page: 1,
-		loading: false,
+		loading: true,
 		promptPopupOpen: false,
 		selectedCard: null,
 		isModalOpen: false,
@@ -103,19 +106,11 @@ const TaskWidget = ({ width, height }) => {
 		group: null,
 		page: 1,
 	});
-	useEffect(() => {
-		if (!listTasks) {
-			getTasksList(info?.page);
-		}
-	}, []);
 
 	useEffect(() => {
-		if (info?.selectedRow) {
-			updateTaskInfo({
-				selectedRow: info?.listItems.find((item) => item._id === info?.selectedRow._id),
-			});
-		}
-	}, [info?.listItems, info?.selectedRow]);
+		setInfo((prev) => ({ ...prev, loading: true }));
+		getTasksList(1);
+	}, [location.pathname]);
 
 	useEffect(() => {
 		if (listTasks) {
@@ -127,7 +122,7 @@ const TaskWidget = ({ width, height }) => {
 							? listTasks?.data
 							: [...prevInfo?.listItems, ...listTasks?.data],
 					hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
-					loadingSkeleton: false,
+					loading: false,
 					infinityLoading: false,
 				}));
 			}
@@ -135,7 +130,7 @@ const TaskWidget = ({ width, height }) => {
 		if (listTasks?.error) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				loadingSkeleton: false,
+				loading: false,
 				infinityLoading: false,
 				error: listTasks?.error,
 				hasMore: false,
@@ -355,20 +350,23 @@ const TaskWidget = ({ width, height }) => {
 	}, []);
 
 	const getTasksList = async (page) => {
-		const response = await getListItems({
-			taskFilterInput: {
-				limit: 20,
-				page,
-			},
-		});
-		const nextPage = response?.[1]?.data?.listTasks?.currentPage + 1;
-		const hasNextPage = response?.[1]?.data?.listTasks?.hasNextPage;
-		setInfo((prev) => ({
-			...prev,
-			page: nextPage,
-			hasNextPage,
-		}));
-		isLoading.current = false;
+		try {
+			const response = await getListItems({
+				taskFilterInput: {
+					limit: 20,
+					page,
+				},
+			});
+			const nextPage = response?.[1]?.data?.listTasks?.currentPage + 1;
+			const hasNextPage = response?.[1]?.data?.listTasks?.hasNextPage;
+			setInfo((prev) => ({
+				...prev,
+				page: nextPage,
+				hasNextPage,
+			}));
+		} catch (error) {
+			setInfo((prev) => ({ ...prev, loading: false, error: error.message }));
+		}
 	};
 
 	const fetchMoreData = () => {
@@ -470,11 +468,10 @@ const TaskWidget = ({ width, height }) => {
 				} else {
 					// Update state only after successful API call
 					if (onSuccess) onSuccess();
-
+					const token = localStorage.getItem('usertoken');
+					const { user_id, userName } = jwtDecode(token);
 					// Handle assignedTo special case
 					if (propName === 'assignedTo') {
-						const token = localStorage.getItem('usertoken');
-						const { user_id, userName } = jwtDecode(token);
 						if (isUpdatingSubTask) {
 							setInfo((prevInfo) => ({
 								...prevInfo,
@@ -521,9 +518,6 @@ const TaskWidget = ({ width, height }) => {
 							});
 						}
 					}
-					// Update updatedBy for any successful update
-					const token = localStorage.getItem('usertoken');
-					const { user_id, userName } = jwtDecode(token);
 
 					setInfo((prevInfo) => {
 						const newListItems = prevInfo?.listItems?.map((row) => {
@@ -685,7 +679,7 @@ const TaskWidget = ({ width, height }) => {
 					<div className="taskWidgetBodyHeader">
 						<div className="taskWidgetBodyHeaderLeft">
 							<span className="taskWidgetDay">{listTasks?.analytics?.allTasks}</span>
-							<span className="taskWidgetRemainder">Reminder</span>
+							<span className="taskWidgetRemainder">Pending Tasks</span>
 						</div>
 						{/* <div className="taskWidgetBodyHeaderRight">
 							<div className="taskWidgetDaysFilter">
@@ -695,8 +689,12 @@ const TaskWidget = ({ width, height }) => {
 							<FiltersIcon />
 						</div> */}
 					</div>
-					<div className="taskWidgetBodyContainer" id="taskWidgetBodyContainer">
-						{isLoading.current ? (
+					<div
+						className="taskWidgetBodyContainer"
+						style={{ maxHeight: isContactPage ? '400px' : '300px' }}
+						id="taskWidgetBodyContainer"
+					>
+						{info.loading ? (
 							skeletonLoaders?.map((_, index) => (
 								<Skeleton
 									width="300px"
@@ -744,7 +742,13 @@ const TaskWidget = ({ width, height }) => {
 													{eachOption?.title}
 												</div>
 												<div className="taskWidgetOptionName">
-													{eachOption?.createdBy?.name}
+													<Tooltip
+														title={`Assigned By: ${eachOption?.assignedBy?.name}`}
+													>
+														<span className="taskWidgetOptionNameText">
+															{eachOption?.assignedBy?.name}
+														</span>
+													</Tooltip>
 												</div>
 											</div>
 										</div>
