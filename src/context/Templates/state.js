@@ -2362,15 +2362,37 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getAISuggestedPendingActions = async (payload) => {
+	const getAISuggestedPendingActions = async (payload, type = null, id = null) => {
 		try {
+			if (type === 'delete') {
+				const data = state?.aiSuggestedPendingActions?.pendingActions?.filter(
+					(item) => item?._id !== id,
+				);
+				dispatch({
+					type: Actions?.GET_AI_SUGGESTED_PENDING_ACTIONS_SUCCESS,
+					payload: {
+						...state?.aiSuggestedPendingActions,
+						pendingActions: data,
+					},
+				});
+				return;
+			} else if (type === 'update') {
+				const data = state?.aiSuggestedPendingActions?.pendingActions?.map((item) =>
+					item?._id === id ? { ...item, ...payload } : item,
+				);
+				dispatch({
+					type: Actions?.GET_AI_SUGGESTED_PENDING_ACTIONS_SUCCESS,
+					payload: { ...state?.aiSuggestedPendingActions, pendingActions: data },
+				});
+				return;
+			}
 			const { page = 1, limit = 10, from, to } = payload || {};
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 
 			// Build filter params (priority, read, confidenceScore)
 			const filterParams = ['priority', 'read', 'confidenceScore']?.flatMap((key) =>
-				Array.isArray(payload?.[key])
+				Array?.isArray(payload?.[key])
 					? payload[key]?.map((val) => `${key}=${encodeURIComponent(val)}`)
 					: [],
 			);

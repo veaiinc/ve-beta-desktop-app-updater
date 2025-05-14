@@ -482,37 +482,21 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		await getAISuggestedPendingActions(newPayload);
 	};
 
-	const handleThumbClick = async (id, type) => {
-		const card = info?.cards?.find((c) => c._id === id);
-		if (card?.isFavourite === type) return;
+	const handleThumbClick = async (id) => {
+		const card = info?.cards?.find((c) => c?._id === id);
+		if (card?.isFavourite === true) return;
 		const res = await pendingActionsUpdate(id, { isFavourite: true });
 		if (res?.[0] === true) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				cards: prevInfo?.cards?.map((card) =>
-					card._id === id ? { ...card, isFavourite: true } : card,
-				),
-			}));
+			getAISuggestedPendingActions(
+				{
+					isFavourite: true,
+				},
+				'update',
+				id,
+			);
 			message.success('Added to favourites ');
 		} else {
 			message.error('Failed to update');
-		}
-	};
-
-	const handleIgnoreClick = async (id) => {
-		const card = info?.cards?.find((c) => c?._id === id);
-		if (card?.isIgnored === true) return;
-		const res = await pendingActionsUpdate(id, { isIgnored: true });
-		if (res?.[0] === true) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				cards: prevInfo?.cards?.map((card) =>
-					card?._id === id ? { ...card, isIgnored: true } : card,
-				),
-			}));
-			message?.success('Card IgnoredSuccessfully');
-		} else {
-			message?.success('Failed to updated he card status');
 		}
 	};
 
@@ -771,7 +755,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 												<Tooltip
 													title={
 														<div className="tooltipContainer">
-															{card?.description}
+															{card?.description || ''}
 														</div>
 													}
 													placement="bottomLeft"
@@ -840,10 +824,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 																}`}
 																onClick={(e) => {
 																	e.stopPropagation();
-																	handleThumbClick(
-																		card?._id,
-																		'true',
-																	);
+																	handleThumbClick(card?._id);
 																}}
 																style={{
 																	cursor: 'pointer',

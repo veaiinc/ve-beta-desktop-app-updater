@@ -38,7 +38,7 @@ const AISuggestionsModal = ({
 	selectedCardNumber,
 }) => {
 	const {
-		templates: { updateStateValues, pendingActionsUpdate },
+		templates: { updateStateValues, pendingActionsUpdate, getAISuggestedPendingActions },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -47,7 +47,6 @@ const AISuggestionsModal = ({
 		isActionsExpanded: false,
 		isPromptsExpanded: false,
 		isReportExpanded: true,
-		selectedFeedback: data?.feedback,
 		isQuestionsExpanded: false,
 		questionsAnswers: {},
 		activeTab: 'situation',
@@ -108,19 +107,18 @@ const AISuggestionsModal = ({
 		[info?.chainOfThoughtData],
 	);
 
-	const handleIgnoreClick = async () => {
-		const res = await pendingActionsUpdate(data?._id, { isIgnored: true });
-		if (res?.[0] === true) {
-			onClose();
-		} else {
-			message.error('Failed to ignore pending action');
-		}
-	};
 	const handleThumbClick = async (type) => {
-		if (info?.selectedFeedback === type) return;
-		setInfo((prev) => ({ ...prev, selectedFeedback: type }));
+		if (data?.feedback === type) return;
 		const res = await pendingActionsUpdate(data?._id, { feedback: type });
-		if (res?.[0] === false) {
+		if (res?.[0] === true) {
+			getAISuggestedPendingActions(
+				{
+					feedback: type,
+				},
+				'update',
+				data?._id,
+			);
+		} else {
 			message.error('Failed to update feedback');
 		}
 	};
@@ -130,19 +128,19 @@ const AISuggestionsModal = ({
 		const answers = info?.questionsAnswers || {};
 
 		// Check if there's at least one non-empty answer
-		const hasAnswer = Object.values(answers).some((a) => a?.trim().length > 0);
+		const hasAnswer = Object?.values(answers)?.some((a) => a?.trim()?.length > 0);
 		if (!hasAnswer) return;
 
 		let prompt = '';
 		if (questions?.length > 0) {
 			const answersText = questions
-				.map((q, idx) => {
-					const answer = answers[idx]?.trim();
+				?.map((q, idx) => {
+					const answer = answers?.[idx]?.trim();
 					if (!answer) return null;
-					return `Q${idx + 1}: ${q.question}\nA${idx + 1}: ${answer}`;
+					return `Q${idx + 1}: ${q?.question}\nA${idx + 1}: ${answer}`;
 				})
-				.filter(Boolean)
-				.join('\n\n');
+				?.filter(Boolean)
+				?.join('\n\n');
 
 			prompt = `\n\nThese are answers of your questions:\n${answersText}\n`;
 		}
@@ -188,6 +186,18 @@ const AISuggestionsModal = ({
 		}
 	};
 
+	const handleDeleteCard = useCallback(async () => {
+		if (!data?._id) return;
+
+		const res = await pendingActionsUpdate(data?._id, { isDeleted: true });
+		if (res?.[0] === true) {
+			getAISuggestedPendingActions(null, 'delete', data?._id);
+			onClose?.();
+		} else {
+			message.error('Failed to delete pending action');
+		}
+	}, [data?._id, getAISuggestedPendingActions, onClose, pendingActionsUpdate]);
+
 	const {
 		title,
 		description,
@@ -203,6 +213,8 @@ const AISuggestionsModal = ({
 		knowledge_base_sources,
 		category,
 		crux,
+		_id,
+		feedback,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -241,17 +253,17 @@ const AISuggestionsModal = ({
 								</div>
 							</div>
 
-							{/* <div className="right-container">
+							<div className="right-container">
 								<div className="btn share-btn">
 									<ShareSvg />
 								</div>
-								<div className="btn download-btn">
+								{/* <div className="btn download-btn">
 									<DownloadSvg />
-								</div>
-								<div className="btn delete-btn">
+								</div> */}
+								<div className="btn delete-btn" onClick={handleDeleteCard}>
 									<DeleteSvg />
 								</div>
-							</div> */}
+							</div>
 						</div>
 					</div>
 
@@ -332,13 +344,6 @@ const AISuggestionsModal = ({
 															?.connectedEmail
 													}
 												</span>
-												<div className="categories">
-													{data?.categories?.map((category, idx) => (
-														<div key={idx} className="category">
-															{category}
-														</div>
-													))}
-												</div>
 											</div>
 										</Tooltip>
 									)}
@@ -806,9 +811,7 @@ const AISuggestionsModal = ({
 							<div className="footer-left">
 								<div
 									className={`thumbs-up-container ${
-										info?.selectedFeedback === 'thumbsup'
-											? 'selected-thumb'
-											: ''
+										feedback === 'thumbsup' ? 'selected-thumb' : ''
 									}`}
 									onClick={() => handleThumbClick('thumbsup')}
 								>
@@ -816,9 +819,7 @@ const AISuggestionsModal = ({
 								</div>
 								<div
 									className={`thumbs-up-container ${
-										info?.selectedFeedback === 'thumbsdown'
-											? 'selected-thumb'
-											: ''
+										feedback === 'thumbsdown' ? 'selected-thumb' : ''
 									}`}
 									onClick={() => handleThumbClick('thumbsdown')}
 								>
@@ -826,9 +827,6 @@ const AISuggestionsModal = ({
 								</div>
 							</div>
 							<div className="btns-container">
-								<button className="ignore-btn" onClick={handleIgnoreClick}>
-									Ignore
-								</button>
 								<button
 									className="report-btn"
 									onClick={() => handleViewReportClick(data)}
