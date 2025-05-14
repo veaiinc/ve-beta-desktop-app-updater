@@ -27,6 +27,7 @@ const Status = ({
 	// colors,
 	title = 'Status',
 	showTitle = false,
+	disabled = false,
 }) => {
 	const [info, setInfo] = useState({
 		selected: null,
@@ -88,7 +89,7 @@ const Status = ({
 
 	return (
 		<Tooltip
-			open={info?.open}
+			open={!disabled && info?.open}
 			onOpenChange={(open) => {
 				if (!open) {
 					handleDropdown(false);

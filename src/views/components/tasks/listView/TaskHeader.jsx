@@ -86,6 +86,7 @@ const TaskHeader = ({
 												activeTab={activeTab}
 												handleTabChange={handleTabChange}
 												handleTabDropdownClick={handleTabDropdownClick}
+												tabLength={tabArray?.length}
 											/>
 										</div>
 									)}
@@ -107,7 +108,10 @@ const TaskHeader = ({
 								?.map((layout) => (
 									<div
 										className="add-new-tab-tooltip-body-item"
-										onClick={() => handleAddTab(layout?.viewType)}
+										onClick={() => {
+											handleAddTab(layout?.viewType);
+											handleStateChange({ showAddNewTabDropDown: false });
+										}}
 										key={layout?.viewType}
 									>
 										<div className="add-new-tab-tooltip-body-item-icon">
