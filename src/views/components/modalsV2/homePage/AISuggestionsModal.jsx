@@ -37,7 +37,6 @@ const AISuggestionsModal = ({
 	onPrevCardClick,
 	totalDocs,
 	selectedCardNumber,
-	bodyRef = null,
 }) => {
 	const {
 		templates: { updateStateValues, pendingActionsUpdate, getAISuggestedPendingActions },
@@ -60,6 +59,8 @@ const AISuggestionsModal = ({
 	const resizableContainerRef = useRef(null);
 	const mouseXPosition = useRef(null);
 	const navigate = useNavigate();
+	const bodyRef = useRef(null);
+
 	useEffect(() => {
 		if (!data) return;
 
@@ -70,13 +71,19 @@ const AISuggestionsModal = ({
 			selectedFeedback: data?.feedback,
 			chainOfThoughtData,
 		}));
+		if (bodyRef?.current) {
+			bodyRef?.current?.scrollTo({
+				top: 0,
+				behavior: 'smooth',
+			});
+		}
 	}, [data]);
 
 	const handleClickRun = useCallback((prompt) => {
 		if (typeof updateStateValues === 'function') {
 			updateStateValues({ activePromptForChat: prompt });
 		}
-		onClose();
+		onClose?.();
 		navigate(`/chat/${ObjectID()?.toString()}`);
 	}, []);
 
@@ -152,26 +159,14 @@ const AISuggestionsModal = ({
 
 	const handlePrevCardClick = () => {
 		onPrevCardClick?.();
-		if (bodyRef?.current) {
-			bodyRef?.current?.scrollTo({
-				top: 0,
-				behavior: 'smooth',
-			});
-		}
 	};
 
 	const handleNextCardClick = () => {
 		onNextCardClick?.();
-		if (bodyRef?.current) {
-			bodyRef?.current?.scrollTo({
-				top: 0,
-				behavior: 'smooth',
-			});
-		}
 	};
 
 	const handleMouseDown = (e) => {
-		mouseXPosition.current = e.clientX;
+		mouseXPosition.current = e?.clientX;
 		document?.addEventListener('mousemove', handleMouseMove);
 		document?.addEventListener('mouseup', handleMouseUp);
 	};
