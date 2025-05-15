@@ -1,6 +1,6 @@
 import { initialState } from './state';
 const actionHandlers = {
-	GET_WORKSPACE_IMAGES: (state, action) => ({ ...state, workspaceImages: action?.payload }),
+	SET_WORKSPACE_IMAGES: (state, action) => ({ ...state, workspaceImagesData: action?.payload }),
 	RESET_STATE: () => initialState,
 };
 

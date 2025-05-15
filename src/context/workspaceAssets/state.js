@@ -4,27 +4,55 @@ import Reducer from './reducer';
 import { Actions } from './actions';
 
 export const initialState = {
-	workspaceImages: [],
+	workspaceImagesData: null,
 };
 
 export const WorkspaceAssetsState = () => {
 	const [state, dispatch] = useReducer(Reducer, initialState);
 
-	const getWorkspaceImages = async ({ page = 1, limit = 10 }) => {
+	const getWorkspaceImages = async (page = 1, limit = 10, append = false) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const path = `${workspaceId}/workspaceAssets-images`;
 			const token = localStorage.getItem('usertoken');
-			const params = {
-				page,
-				limit,
-			};
+			const params = { page, limit };
 			const type = 'workspace_images_api';
+
 			const response = await Service.fetchGet(path, token, type, params);
+
 			if (response?.[0]) {
+				const fetchedImages = response?.[1]?.data?.map((img) => ({
+					id: img._id,
+					givenFileName: img.givenFileName,
+					imageUrl: img?.s3_optimized_3840w?.key
+						? `https://ap.images.ve.ai/${img.s3_optimized_3840w.key}`
+						: img?.s3_optimized_2560w?.key
+						? `https://ap.images.ve.ai/${img.s3_optimized_2560w.key}`
+						: img?.s3_optimized_1920w?.key
+						? `https://ap.images.ve.ai/${img.s3_optimized_1920w.key}`
+						: img?.s3_optimized_1000w?.key
+						? `https://ap.images.ve.ai/${img.s3_optimized_1000w.key}`
+						: img?.s3_optimized_500w?.key
+						? `https://ap.images.ve.ai/${img.s3_optimized_500w.key}`
+						: '',
+				}));
+
+				const data = append
+					? [...(state?.workspaceImagesData?.data || []), ...fetchedImages]
+					: fetchedImages;
+
+				const currentPage = response?.[1]?.currentPage || page;
+				const hasNextPage = response?.[1]?.hasNextPage ?? false;
+
+				const payload = {
+					data,
+					hasNextPage,
+					currentPage,
+				};
+
 				dispatch({
-					type: Actions.GET_WORKSPACE_IMAGES,
-					payload: response?.[1]?.data,
+					type: Actions.SET_WORKSPACE_IMAGES,
+					payload,
 				});
 			}
 		} catch (error) {
