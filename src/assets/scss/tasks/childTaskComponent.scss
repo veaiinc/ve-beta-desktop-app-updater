@@ -46,73 +46,59 @@
 			flex-grow: 1;
 			justify-content: flex-end;
 			gap: 8px;
-			button {
+			flex-shrink: 0;
+			// background-color: red;
+
+			.subtask-action-button {
 				border: none;
-				background: none;
-				width: 20px;
-				height: 20px;
+				// background: none;
+				width: 27px;
+				height: 27px;
+				background-color: transparent;
 				cursor: pointer;
 				display: flex;
 				align-items: center;
 				justify-content: center;
+				svg {
+					width: 24px;
+					height: 24px;
+					path {
+						stroke: var(--primary-font);
+						stroke-width: 1.5;
+					}
+				}
+
+				.chevron-icon {
+					transform: rotate(90deg);
+
+					&.open {
+						transform: rotate(-90deg);
+					}
+				}
 			}
 		}
 	}
 	.subtask-list-container {
 		display: flex;
 		flex-direction: column;
-		max-height: 200px;
-		overflow-x: auto;
+		max-height: 105px;
+		overflow-y: hidden;
+		gap: 12px;
+		justify-content: flex-start;
+		scrollbar-width: 1px;
 
-		// .listViewContainer {
-		// 	gap: 15px;
+		&.open {
+			max-height: 300px;
+			overflow-y: auto;
+		}
 
-		// 	.infinite-scroll-component__outerdiv {
-		// 		.infinite-scroll-component {
-		// 			gap: 15px;
-
-		// 			.listItemRowContainer {
-		// 				display: flex;
-		// 				padding: 14px 12px;
-		// 				flex-direction: column;
-		// 				align-items: flex-start;
-		// 				gap: 14px;
-		// 				align-self: stretch;
-		// 				background-color: var(--card);
-		// 				border-radius: 8px;
-
-		// 				.listItemRow {
-		// 					display: flex;
-		// 					align-items: center;
-		// 					gap: 10px;
-		// 					align-self: stretch;
-		// 					flex-direction: column;
-
-		// 					.leftPart {
-		// 						.tooltip-text {
-		// 							font-size: 14px;
-		// 						}
-		// 					}
-		// 					.rightPart {
-		// 						justify-content: flex-start;
-
-		// 						.person-select {
-		// 							margin-left: auto;
-		// 						}
-
-		// 						.select-options-wrapper {
-		// 							.select-selected-wrapper {
-		// 								.select-option-item {
-		// 									color: var(--secondary-button-active);
-		// 								}
-		// 							}
-		// 						}
-		// 					}
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// }
+		.spinner-container {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100px;
+		}
 
 		.subtask-wrapper {
 			display: flex;
@@ -162,6 +148,20 @@
 					word-break: normal;
 					overflow-wrap: break-word;
 				}
+			}
+		}
+
+		.other-properties {
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-end;
+			align-self: stretch;
+
+			.property-tags {
+				display: flex;
+				justify-content: flex-end;
+				align-items: center;
+				gap: 6px;
 			}
 		}
 
