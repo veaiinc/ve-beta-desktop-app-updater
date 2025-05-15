@@ -54,7 +54,7 @@
 	.formDescription {
 		width: 40%;
 		padding: 20px;
-		margin: 20px;
+		margin: 50px;
 		background: var(--card);
 		border-radius: 24px;
 		height: calc(100% - 40px);
@@ -90,9 +90,10 @@
 		}
 		.button-space {
 			display: flex;
-			justify-content: space-between;
+			// justify-content: space-between;
 			width: 100%;
 			margin-top: 16px;
+			gap: 16px;
 		}
 		.duplicate-button {
 			display: flex;
@@ -106,23 +107,65 @@
 		}
 		.button-con {
 			display: flex;
-			gap: 16px;
-			justify-content: space-between;
+			align-items: center;
+			gap: 8px;
 		}
 		.edit-button {
-			padding: 8px 14px;
+			display: flex;
+			height: 32px;
+			padding: 8px 10px;
 			justify-content: center;
 			align-items: center;
 			gap: 8px;
-			border-radius: 100px;
-			border: 1px solid var(--stroke);
+			border-radius: 8px;
+			border: 1px solid var(--stroke, #333334);
 			cursor: pointer;
+			&:hover {
+				background: var(--card-over-card-hover);
+			}
+		}
+		.edit {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 18px; /* 150% */
 		}
 		.edit-button:hover,
 		.duplicate-button:hover {
 			background: var(--card-over-card-hover);
 		}
+		.dividerr {
+			width: 1px;
+			height: 18px;
+			border-radius: 0.5px;
+			opacity: 0.3;
+			margin-top: 6px;
 
+			background: var(--secondary-font, #7a7e85);
+		}
+		.delete-button {
+			display: flex;
+			height: 32px;
+			padding: 8px 10px;
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+			border-radius: 8px;
+			border: 1px solid var(--error, #c03744);
+			background: rgba(199, 27, 58, 0.06);
+			cursor: pointer;
+
+			.delete-button-text {
+				color: var(--error, #c71b3a);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 18px; /* 150% */
+			}
+		}
 		.copy-button {
 			display: flex;
 			padding: 8px 14px;
@@ -179,9 +222,8 @@
 			display: flex;
 			gap: 24px;
 			width: 100%;
-			// background: var(--card);
 			border-radius: 24px;
-			// padding: 30px;
+			padding: 15px;
 			flex-direction: column;
 
 			.imgContainer {
@@ -237,11 +279,14 @@
 			}
 			.detailsContainer {
 				display: flex;
+				padding: 12px;
 				flex-direction: column;
-				align-items: flex-start;
-				justify-content: space-between;
-				padding: 5px;
-
+				align-items: center;
+				gap: 6px;
+				align-self: stretch;
+				border-radius: 16px;
+				border: 1px solid var(--stroke, #2b2e31);
+				background: var(--card, #1f2023);
 				width: 100%;
 				.headerContainer {
 					display: flex;
@@ -315,16 +360,32 @@
 				.headerTitle {
 					overflow: hidden;
 					color: var(--primary-font, #f2f2f3);
-					color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
 					text-overflow: ellipsis;
 					font-family: var(--primary-font-family);
 					font-size: 20px;
 					font-style: normal;
 					font-weight: 500;
-					line-height: 26px; /* 130% */
+					line-height: 28px; /* 140% */
+				}
+				.file-status {
+					display: flex;
+					height: 20px;
+					padding: 2px 8px;
+					justify-content: center;
+					align-items: center;
+					gap: 4px;
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 10px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 14px;
+					border-radius: 100px;
+					border: 1px solid var(--stroke, #2b2e31);
+					background: var(--card-over-card, #27282b);
 				}
 
-				.dataEnrichmentToggle {
+				.liveStatusContainer {
 					display: flex;
 					align-items: center;
 					gap: 16px;
@@ -334,6 +395,17 @@
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
+					justify-content: flex-start;
+					align-self: flex-start !important;
+
+					.time {
+						color: var(--secondary-font, #7a7e85);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 20px; /* 142.857% */
+					}
 
 					.ant-switch {
 						height: 16px;
@@ -450,7 +522,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 16px;
+		gap: 6px;
 		align-self: stretch;
 
 		.headerContainer {
@@ -490,13 +562,13 @@
 
 					.active {
 						opacity: 1;
-						color: var(--);
+						color: var(--primary-font);
 					}
 
 					.divider {
-						width: 20px;
-						height: 1px;
-						background: var(--secondary-font);
+						width: 58px;
+						height: 2px;
+						background: var(--primary-font);
 						opacity: 0;
 						transition: opacity 0.3s ease;
 
@@ -641,27 +713,34 @@
 }
 
 .DocsStatusButtonOuterContainer {
+	// display: flex;
+	// padding: 4px 6px;
+	// justify-content: center;
+	// align-items: center;
+	// gap: 4px;
+	border-radius: 35px;
 	display: flex;
-	padding: 4px 6px;
+	height: 24px;
+	padding: 4px 10px;
 	justify-content: center;
 	align-items: center;
-	gap: 4px;
-	border-radius: 35px;
+	gap: 6px;
+	border: 1px solid var(--stroke, #2b2e31);
+	background: var(--card-over-card, #27282b) !important;
 
 	.DocsStatusCircle {
 		width: 6px;
 		height: 6px;
 		border-radius: 100%;
-		background: var(--card-hover);
+		background: var(--product-lime-blu, #cfff48) !important;
 	}
 	.DocsButtontext {
-		color: #f2f2f3; /* this is a badge text color  don't use variable here */
-		text-align: center;
+		color: var(--product-lime-blu, #cfff48);
 		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
-		line-height: normal;
+		line-height: 21px; /* 175% */
 	}
 }
 

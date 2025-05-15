@@ -6,7 +6,10 @@ import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
 import { ReactComponent as UpDownArrow } from '../../../assets/svg/my_templates/up-down-arrow.svg';
-import { ReactComponent as Edit } from '../../../assets/svg/ai_agents/edit.svg';
+import { ReactComponent as Edit } from '../../../assets/svg/my_templates/edit.svg';
+import { ReactComponent as Duplicate } from '../../../assets/svg/my_templates/duplicate.svg';
+import { ReactComponent as GreenDot } from '../../../assets/svg/files/green-dot.svg';
+import { ReactComponent as GreyDot } from '../../../assets/svg/files/grey-dot.svg';
 import { ReactComponent as Vector } from '../../../assets/svg/vector.svg';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import FormResCard from '../../components/forms/FormResCard';
@@ -44,11 +47,11 @@ const FormLeads = () => {
 		},
 		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState('');
 	const [formData, setFormData] = useState(() => {
 		const initialData = location?.state?.formData;
 		if (!initialData || !initialData._id) {
-			message.error('Form not found');
-			navigate(-1);
 			return null;
 		}
 		return initialData;
@@ -156,16 +159,6 @@ const FormLeads = () => {
 		{
 			label: 'Sort by Date (Oldest First)',
 			value: 'date-asc',
-			valueSelector: 'valueSelector',
-		},
-		{
-			label: 'Sort Alphabetically (A-Z)',
-			value: 'alpha-asc',
-			valueSelector: 'valueSelector',
-		},
-		{
-			label: 'Sort Alphabetically (Z-A)',
-			value: 'alpha-desc',
 			valueSelector: 'valueSelector',
 		},
 	];
@@ -365,6 +358,12 @@ const FormLeads = () => {
 		setSummaryData(data);
 	}, []);
 
+	const removeHTMLTags = (text) =>
+		text
+			?.replace(/<[^>]+>/g, '')
+			.replace(/&nbsp;/g, ' ')
+			.trim() || '';
+
 	const handleDownload = useCallback(() => {
 		if (info.activeTab === 'responses') {
 			const { formData, questions } = summaryData;
@@ -380,7 +379,7 @@ const FormLeads = () => {
 				'Submission ID',
 				'Submission Date',
 				'Submission Time',
-				...questions.map((q) => q?.question || 'Untitled Question'),
+				...questions.map((q) => removeHTMLTags(q?.question || 'Untitled Question')),
 			];
 			const csvRows = [headers];
 
@@ -419,7 +418,13 @@ const FormLeads = () => {
 									answer = events
 										.map(
 											(event) =>
-												`${event.name} (${event.date}, ${event.location}, ${event.noOfGuests} guests)`,
+												`${event.name} (${event.date}${
+													event.location ? ', ' + event.location : ''
+												}${
+													event.noOfGuests
+														? ', ' + event.noOfGuests + ' guests'
+														: ''
+												})`,
 										)
 										.join('; ');
 								} catch (e) {
@@ -444,11 +449,13 @@ const FormLeads = () => {
 					}
 
 					// Clean the answer
-					const cleanAnswer = answer
-						?.replace(/^["']|["']$/g, '')
-						?.replace(/<\/?[^>]+(>|$)/g, '')
-						?.replace(/&nbsp;/g, ' ')
-						?.trim();
+					const cleanAnswer = removeHTMLTags(
+						typeof answer === 'string'
+							? answer.replace(/^['"]|['"]$/g, '')
+							: answer !== undefined && answer !== null
+							? String(answer)
+							: 'No answer',
+					);
 
 					row.push(cleanAnswer || 'No answer');
 				});
@@ -522,23 +529,52 @@ const FormLeads = () => {
 		let isMounted = true;
 		const fetchFormData = async () => {
 			if (!formData && id) {
+				setLoading(true);
 				try {
 					const response = await getFormResponse({ formId: id });
 					if (isMounted && response && response._id) {
 						setFormData(response);
+						setError('');
+					} else {
+						setError('Form not found.');
 					}
 				} catch (error) {
 					console.error('Error fetching form data:', error);
-					message.error('Failed to fetch form data');
+					setError('Failed to fetch form data.');
 				}
+				setLoading(false);
 			}
 		};
-
 		fetchFormData();
 		return () => {
 			isMounted = false;
 		};
 	}, [id, getFormResponse]);
+
+	if (loading) {
+		return (
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					height: '80vh',
+				}}
+			>
+				Loading...
+			</div>
+		);
+	}
+	if (error) {
+		return <div style={{ color: 'red', textAlign: 'center', marginTop: '40px' }}>{error}</div>;
+	}
+	if (!formData) {
+		return (
+			<div style={{ color: 'red', textAlign: 'center', marginTop: '40px' }}>
+				Form not found or failed to load.
+			</div>
+		);
+	}
 
 	return (
 		<div className="formLeadsParentContainer" role="main">
@@ -551,6 +587,7 @@ const FormLeads = () => {
 			>
 				<QuickActions />
 			</div> */}
+			<QuickActions />
 			<div className="formWrapper">
 				<div className="formEnquiryContainer">
 					<div className="formContainer">
@@ -583,21 +620,25 @@ const FormLeads = () => {
 											{formTitle}
 										</h1>
 									)}
-									<div className="liveoption">
-										<DocsStatusButton
-											content={statusTextmapper?.[formData?.status]?.text}
-											style={statusTextmapper?.[formData?.status]?.style}
-											dotStyle={
-												statusTextmapper?.[formData?.status]?.dotStyle
-											}
-										/>
-									</div>
 								</div>
 							</div>
 
-							<div className="dataEnrichmentToggle">
+							<div className="liveStatusContainer">
+								<div className="file-status">
+									{formData?.status === 'published' ? (
+										<>
+											<GreenDot />
+											<span>Live</span>
+										</>
+									) : (
+										<>
+											<GreyDot />
+											<span>Draft</span>
+										</>
+									)}
+								</div>
 								<h1 className="time">
-									{getTimeAgo({ createdAt: info.latestUpdateTime })}
+									Updated {getTimeAgo({ createdAt: info.latestUpdateTime })}
 								</h1>
 								{/* <span className="dataEnrichmentText">
 									<Vector />
@@ -615,30 +656,33 @@ const FormLeads = () => {
 							<div className="button-space">
 								<div className="button-con">
 									<div className="edit-button" onClick={handleEditDesign}>
+										<Edit />
 										<div className="edit">Edit Form</div>
 									</div>
-									<span className="divider">|</span>
+									{/* <span className="divider">|</span> */}
 									<div
-										className="duplicate-button"
+										className="edit-button"
 										onClick={() => handleFormResponsesMenu('duplicateForm')}
 									>
-										<span>Duplicate</span>
+										<Duplicate />
+										<div className="edit">Duplicate Form</div>
 									</div>
 								</div>
+								<div className="dividerr"></div>
 								<div className="button-con">
 									<div
-										className="copy-button"
+										className="edit-button"
 										onClick={() => handleFormResponsesMenu('copyLink')}
-										data-tooltip="Copy Link"
 									>
 										<Copylink />
+										<div className="edit">Copy Link</div>
 									</div>
 									<div
-										className="copy-button"
+										className="delete-button"
 										onClick={() => handleFormResponsesMenu('deleteForm')}
-										data-tooltip="Delete Form"
 									>
 										<Delete />
+										<div className="delete-button-text">Delete</div>
 									</div>
 								</div>
 							</div>
@@ -729,7 +773,7 @@ const FormLeads = () => {
 												</div>
 											</div>
 										</div>
-										<DropDown
+										{/* <DropDown
 											title="Sort"
 											options={Filters}
 											valueSelector="valueSelector"
@@ -741,7 +785,7 @@ const FormLeads = () => {
 											onOptionClick={(option) => handleSort(option.value)}
 										>
 											<Filter />
-										</DropDown>
+										</DropDown> */}
 										<div
 											className="downloadButtonItem"
 											onClick={handleDownload}
@@ -754,7 +798,12 @@ const FormLeads = () => {
 							<div
 								className="tabContent"
 								style={{
-									height: 'calc(100vh - 160px)',
+									height:
+										info.activeTab === 'responses'
+											? 'calc(100vh - 500px)'
+											: info.activeTab === 'analytics'
+											? 'calc(100vh - 350px)'
+											: 'calc(100vh - 100px)',
 									overflowY: 'auto',
 									position: 'relative',
 								}}
