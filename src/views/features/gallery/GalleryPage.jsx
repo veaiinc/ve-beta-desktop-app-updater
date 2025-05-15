@@ -365,15 +365,15 @@ const GalleryPage = () => {
 		{ name: 'Client Selections', number: clientSelectionsData?.totalDocs },
 		{
 			name: 'Ai People',
-			number:
-				imageProcessingStatus?.numberOfImagesPeoples > 0
-					? parseInt(
-							(imageProcessingStatus?.numberOfImagesGroupedFaces /
-								imageProcessingStatus?.numberOfImagesPeoples) *
-								100,
-							0,
-					  ) + '%'
-					: '0',
+			// number:
+			// 	imageProcessingStatus?.numberOfImagesPeoples > 0
+			// 		? parseInt(
+			// 				(imageProcessingStatus?.numberOfImagesGroupedFaces /
+			// 					imageProcessingStatus?.numberOfImagesPeoples) *
+			// 					100,
+			// 				0,
+			// 		  ) + '%'
+			// 		: '0',
 		},
 		// {
 		// 	name: 'breaker',
