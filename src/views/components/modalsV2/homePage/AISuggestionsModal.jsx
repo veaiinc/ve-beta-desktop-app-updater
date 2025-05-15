@@ -42,7 +42,6 @@ const AISuggestionsModal = ({
 	const {
 		templates: { updateStateValues, pendingActionsUpdate, getAISuggestedPendingActions },
 	} = useContext(Context);
-
 	const [info, setInfo] = useState({
 		isExpanded: false,
 		isSolutionsExpanded: true,

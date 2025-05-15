@@ -558,17 +558,19 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		<div className="proactive-suggestions-container">
 			<div className="action-container">
 				<div className="left-container">
-					<div className="btns-container">
-						<div
-							className={`btn ${info?.activeBtn === 'insights' ? 'active' : ''}`}
-							onClick={() => handleBtnClick('insights')}
-						>
-							<div className="icon-container">
-								<ListDashesSvg />
+					{info?.isListView && (
+						<div className="btns-container">
+							<div
+								className={`btn ${info?.activeBtn === 'insights' ? 'active' : ''}`}
+								onClick={() => handleBtnClick('insights')}
+							>
+								<div className="icon-container">
+									<ListDashesSvg />
+								</div>
+								<div className="text-container">Insights</div>
 							</div>
-							<div className="text-container">Insights</div>
 						</div>
-					</div>
+					)}
 				</div>
 				<div className="right-container">
 					<div className="viewSelectionContainer">
