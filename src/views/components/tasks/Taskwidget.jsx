@@ -349,6 +349,7 @@ const Taskwidget = ({
 												onChange={(value) => {
 													handleFilterChange(filter?.key, value);
 												}}
+												hideRemove={true}
 											/>
 											<button
 												className="filter-remove-btn"
