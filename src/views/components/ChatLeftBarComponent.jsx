@@ -123,7 +123,7 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 			<RecentChat
 				showIconText={false}
 				isPreview={true}
-				autoFocus={false}
+				autoFocus={true}
 				customChatBoxClick={handleChatActive}
 				chatActive={info?.chatActive}
 				sessionIdChanged={info?.sessionIdChanged}
