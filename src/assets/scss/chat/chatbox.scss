@@ -263,13 +263,17 @@
 
 												.icon-text {
 													overflow: hidden;
-													color: var(--primary-font, #f2f2f3);
 													text-overflow: ellipsis;
+													color: var(--secondary-font);
 													font-family: var(--primary-font-family);
 													font-size: 13px;
 													font-style: normal;
 													font-weight: 500;
-													line-height: normal; /* 150% */
+													line-height: normal;
+
+													&:hover {
+														color: var(--primary-font);
+													}
 												}
 
 												.icon-arrow {
@@ -291,7 +295,29 @@
 											}
 										}
 										.chat-box-icon-container.active {
-											background-color: var(--primary-button);
+											border: 1px solid var(--primary-button, #404548);
+
+											.icon {
+												.icon-text {
+													color: var(--primary-button);
+												}
+											}
+
+											.websearch-icon {
+												svg {
+													path {
+														stroke: var(--primary-button);
+													}
+												}
+											}
+
+											.workspace-search-icon {
+												svg {
+													path {
+														fill: var(--primary-button);
+													}
+												}
+											}
 										}
 									}
 

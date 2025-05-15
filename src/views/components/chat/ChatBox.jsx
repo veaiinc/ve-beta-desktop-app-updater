@@ -1392,21 +1392,10 @@ const ChatBox = ({
 																}}
 																onClick={handleWebSearchClick}
 															>
-																<div className="icon">
-																	<WebSvg
-																		selected={
-																			chatInfo?.webSearch
-																		}
-																	/>
+																<div className="icon websearch-icon">
+																	<WebSvg selected={false} />
 																	{showIconText && (
-																		<div
-																			className="icon-text"
-																			style={{
-																				color: chatInfo?.webSearch
-																					? 'var(--primary-button-font)'
-																					: 'var(--secondary-font)',
-																			}}
-																		>
+																		<div className="icon-text">
 																			Web Search
 																		</div>
 																	)}
@@ -1441,21 +1430,14 @@ const ChatBox = ({
 																		}`,
 																	}}
 																>
-																	<div className="icon">
+																	<div className="icon workspace-search-icon">
 																		<BookSvg
 																			selected={
 																				chatInfo?.workspaceSearch
 																			}
 																		/>
 																		{showIconText && (
-																			<div
-																				className="icon-text"
-																				style={{
-																					color: chatInfo?.workspaceSearch
-																						? 'var(--primary-button-font)'
-																						: 'var(--secondary-font)',
-																				}}
-																			>
+																			<div className="icon-text">
 																				Workspace Search
 																			</div>
 																		)}
