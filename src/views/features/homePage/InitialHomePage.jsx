@@ -156,6 +156,7 @@ const InitialHomePage = () => {
 			return acc;
 		}, {}),
 		minimized: false,
+		minimizedChatBox: true,
 	});
 
 	const {
@@ -376,6 +377,14 @@ const InitialHomePage = () => {
 		}
 	};
 
+	const handleCustomChatBoxClick = () => {
+		if (!info?.minimizedChatBox) return;
+		setInfo((prev) => ({
+			...prev,
+			minimizedChatBox: !prev?.minimizedChatBox,
+		}));
+	};
+
 	const componentMapper = {
 		proactiveSuggestions: <ProactiveSuggestions selectedOption={info?.selectedOption} />,
 		prompts: (
@@ -436,22 +445,16 @@ const InitialHomePage = () => {
 					</div>
 					{/* <div className="sub-text">Answers before you Ask!</div> */}
 				</div>
-				<div
-					className={`chatbox-wrapper`}
-					style={{
-						borderBottom: info?.minimized ? '1px solid var(--stroke)' : '',
-						borderRight: info?.minimized ? '1px solid var(--stroke)' : '',
-						borderLeft: info?.minimized ? '1px solid var(--stroke)' : '',
-					}}
-				>
-					<div className={`chatbox-container`}>
+				<div className={`chatbox-wrapper ${!info?.minimizedChatBox ? 'expanded' : ''}`}>
+					<div className={`chatbox-container `}>
 						<ChatBox
 							onSend={handleCustomOnSendFunction}
 							customChatActions={true}
 							autoFocus={false}
 							isParentHeaderMinimized={info?.minimized}
 							animatePlaceholder={true}
-							startPage={true}
+							startPage={info?.minimizedChatBox}
+							customChatBoxClick={handleCustomChatBoxClick}
 						/>
 					</div>
 				</div>
@@ -459,12 +462,7 @@ const InitialHomePage = () => {
 				<div className="options-container">{renderedOptions}</div>
 			</div>
 			{options?.length > 0 && (
-				<div
-					className="home-page-container-content"
-					style={{
-						height: 'calc(100vh - 295px)',
-					}}
-				>
+				<div className="home-page-container-content">
 					{componentMapper[info?.selectedOption]}
 				</div>
 			)}

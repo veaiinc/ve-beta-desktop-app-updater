@@ -342,6 +342,7 @@ const AISuggestionsModal = ({
 												</div>
 											}
 											color="transparent"
+											arrow={false}
 										>
 											<div className="priority">
 												<div
@@ -367,6 +368,7 @@ const AISuggestionsModal = ({
 												</div>
 											}
 											color="transparent"
+											arrow={false}
 										>
 											<div className="priority">
 												<div className="icon">

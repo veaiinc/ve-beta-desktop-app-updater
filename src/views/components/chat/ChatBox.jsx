@@ -1353,9 +1353,7 @@ const ChatBox = ({
 																					? '0.5'
 																					: '1'
 																			}`,
-																			background:
-																				'var(--card)',
-																			padding: '6px 8px',
+																			padding: '6px 5px',
 																		}}
 																	>
 																		<div className="icon">
@@ -1372,9 +1370,7 @@ const ChatBox = ({
 														<Tooltip
 															title={
 																<div className="chatbox-icon-tooltip-container">
-																	{chatInfo?.webSearch
-																		? 'Disable web search'
-																		: 'Search on web'}
+																	Search on web
 																</div>
 															}
 															color="transparent"
@@ -1408,7 +1404,7 @@ const ChatBox = ({
 																			style={{
 																				color: chatInfo?.webSearch
 																					? 'var(--primary-button-font)'
-																					: 'var(--primary-font)',
+																					: 'var(--secondary-font)',
 																			}}
 																		>
 																			Web Search
@@ -1421,9 +1417,7 @@ const ChatBox = ({
 															<Tooltip
 																title={
 																	<div className="chatbox-icon-tooltip-container">
-																		{chatInfo?.workspaceSearch
-																			? 'Explore workspace data'
-																			: 'Explore workspace data'}
+																		Explore workspace data
 																	</div>
 																}
 																color="transparent"
@@ -1459,7 +1453,7 @@ const ChatBox = ({
 																				style={{
 																					color: chatInfo?.workspaceSearch
 																						? 'var(--primary-button-font)'
-																						: 'var(--primary-font)',
+																						: 'var(--secondary-font)',
 																				}}
 																			>
 																				Workspace Search
@@ -1499,7 +1493,7 @@ const ChatBox = ({
 																	rootClassName="chatbox-tooltip"
 																>
 																	<div
-																		className={`chat-box-icon-container`}
+																		className={`chat-box-icon-container reason-container`}
 																		style={{
 																			border: `1px solid ${
 																				chatInfo?.reason
@@ -1519,7 +1513,7 @@ const ChatBox = ({
 																					chatInfo?.reason
 																						?.workspaceSearch
 																						? 'var(--primary-button)'
-																						: 'var(--secondary-font)'
+																						: 'var(--primary-font)'
 																				}
 																			/>
 																			{showIconText && (
@@ -1550,7 +1544,7 @@ const ChatBox = ({
 																									?.reason
 																									?.workspaceSearch
 																									? 'var(--primary-button)'
-																									: 'var(--secondary-font)'
+																									: 'var(--primary-font)'
 																							}
 																						/>
 																					</div>
@@ -1726,7 +1720,7 @@ const ChatBox = ({
 															</div>
 														) : (
 															<div
-																className="click-btn"
+																className="click-btn "
 																onClick={(e) => {
 																	e.stopPropagation();
 																	handleMicIconClick(e);
