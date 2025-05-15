@@ -455,7 +455,7 @@ const InitialHomePage = () => {
 							isParentHeaderMinimized={info?.minimized}
 							animatePlaceholder={true}
 							startPage={info?.minimizedChatBox}
-							customChatBoxClick={handleCustomChatBoxClick}
+							// customChatBoxClick={handleCustomChatBoxClick}
 						/>
 					</div>
 				</div>

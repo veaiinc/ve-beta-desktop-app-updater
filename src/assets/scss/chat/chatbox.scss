@@ -120,6 +120,7 @@
 								.placeholderContainer {
 									position: relative;
 									width: 100%;
+									top: -3px;
 
 									.textArea {
 										width: 100%;
@@ -140,7 +141,7 @@
 										z-index: 0;
 										&.startTextPage {
 											margin-top: 0px;
-											top: 10px;
+											top: 11px;
 										}
 									}
 								}
