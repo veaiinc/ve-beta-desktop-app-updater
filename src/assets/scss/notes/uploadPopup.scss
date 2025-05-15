@@ -252,6 +252,12 @@
 		}
 
 		.unsplash {
+			.unsplashImagesLoading {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+			}
+
 			.unsplashImagesListContainer {
 				padding-top: 12px;
 				width: 100%;

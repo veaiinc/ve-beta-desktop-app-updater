@@ -6,7 +6,7 @@ import { message } from '../globalComponents/CustomToast';
 import { FetchMoreLoaderComp, isURL } from '../../../helpers';
 import { ReactComponent as UploadIcon } from '../../../assets/svg/notes/upload.svg';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/notes/link.svg';
-// import { ReactComponent as SearchIcon } from '../../../assets/svg/notes/search.svg';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/notes/search.svg';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import Skeleton from 'react-loading-skeleton';
 
@@ -273,29 +273,42 @@ const UploadPopup = ({ closePopup, setLocalCoverImage }) => {
 						</h1>
 					</div>
 				) : (
-					<InfiniteScroll
-						dataLength={unsplashImagesLength}
-						next={fetchNextUnsplashImages}
-						hasMore={unsplashImagesHasNextPage}
-						loader={<FetchMoreLoaderComp />}
-						height={'364px'}
-					>
-						<div className="unsplashImagesListContainer">
-							{unsplashImagesList?.map((image) => (
-								<img
-									key={image.id}
-									className="unsplashImage"
-									onClick={() => handleImageClick(image.imageUrl)}
-									src={image.imageUrl}
-									alt={
-										image.alt_description ||
-										image.description ||
-										'Unsplash Image'
-									}
-								/>
-							))}
+					<div>
+						<div className="imagesSearchContainer">
+							{/* <SearchIcon />
+							<input
+								className="imagesSearchInput"
+								autoFocus
+								type="text"
+								// onChange={handleImageSearch}
+								placeholder="Search workspace images"
+							/> */}
 						</div>
-					</InfiniteScroll>
+
+						<InfiniteScroll
+							dataLength={unsplashImagesLength}
+							next={fetchNextUnsplashImages}
+							hasMore={unsplashImagesHasNextPage}
+							loader={<FetchMoreLoaderComp />}
+							height={'364px'}
+						>
+							<div className="unsplashImagesListContainer">
+								{unsplashImagesList?.map((image) => (
+									<img
+										key={image.id}
+										className="unsplashImage"
+										onClick={() => handleImageClick(image.uploadImageUrl)}
+										src={image.previewImageUrl}
+										alt={
+											image.alt_description ||
+											image.description ||
+											'Unsplash Image'
+										}
+									/>
+								))}
+							</div>
+						</InfiniteScroll>
+					</div>
 				)}
 			</div>
 		),

@@ -1,15 +1,15 @@
 import { memo } from 'react';
 import '../../../assets/scss/notes/customizeAppearance.scss';
 import { ReactComponent as ImageIcon } from '../../../assets/svg/notes/image.svg';
-import { ReactComponent as EmojiIcon } from '../../../assets/svg/notes/emoji.svg';
+// import { ReactComponent as EmojiIcon } from '../../../assets/svg/notes/emoji.svg';
 
 const customizeAppearanceOptions = [
-	{
-		id: 1,
-		label: 'Add icon',
-		value: 'addIcon',
-		icon: <EmojiIcon />,
-	},
+	// {
+	// 	id: 1,
+	// 	label: 'Add icon',
+	// 	value: 'addIcon',
+	// 	icon: <EmojiIcon />,
+	// },
 	{
 		id: 2,
 		label: 'Add cover',

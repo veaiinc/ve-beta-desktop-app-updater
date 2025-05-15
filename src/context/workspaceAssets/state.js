@@ -2,12 +2,13 @@ import Service from '../../services/index';
 import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './actions';
+
 export const initialState = {
 	workspaceImagesData: null,
 	unsplashImagesData: null,
 };
 
-const unsplashAccessKey = process.env.REACT_APP_UNSPLASH_ACCESS_KEY;
+const unsplashAccessKey = 'IM1OB5Rl6mXxzyWEkSagDs7dDEOZys65NSSQoRCai7M';
 
 export const WorkspaceAssetsState = () => {
 	const [state, dispatch] = useReducer(Reducer, initialState);
@@ -71,7 +72,8 @@ export const WorkspaceAssetsState = () => {
 			const images = json?.results?.map((img) => ({
 				id: img.id,
 				description: img.alt_description,
-				imageUrl: img.urls.full, //raw, full, small, regular, thumb, small_s3
+				previewImageUrl: img.urls.small, //raw, full, small, regular, thumb, small_s3
+				uploadImageUrl: img.urls.full,
 			}));
 
 			const data = append ? [...(state?.unsplashImagesData?.data || []), ...images] : images;
