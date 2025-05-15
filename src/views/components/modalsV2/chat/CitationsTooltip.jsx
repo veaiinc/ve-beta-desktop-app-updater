@@ -141,7 +141,14 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 				</div>
 			}
 		>
-			<span className="citation-tooltip-header">{number}</span>
+			<span
+				className="citation-tooltip-header"
+				style={{
+					display: citationInfo ? 'inline-block' : 'none',
+				}}
+			>
+				{number}
+			</span>
 		</Tooltip>
 	);
 });

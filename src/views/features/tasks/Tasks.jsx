@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/ChartDonut.svg';
 import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/ChartBar.svg';
 import { ReactComponent as WorkflowSvg } from '../../../assets/svg/tasks/workflow.svg';
@@ -212,7 +211,7 @@ const Tasks = () => {
 			assignedAt: {
 				type: 'date',
 				name: 'Assigned At',
-				Icon: ClockSvg,
+				Icon: CalendarSvg,
 				props: { timestamp: true },
 			},
 			completedAt: { type: 'date', name: 'Completed At', Icon: CalendarSvg, props: {} },
@@ -488,7 +487,7 @@ const Tasks = () => {
 		return filters.map((filter) => ({
 			key: filter.key,
 			value:
-				typeof filter.value === 'object'
+				typeof filter.value === 'object' && !Array.isArray(filter?.value)
 					? filter?.value?._id || filter?.value?.value
 					: filter?.value,
 		}));
