@@ -6,13 +6,11 @@
 	align-self: stretch;
 	border-radius: 24px;
 	// margin: 0 auto;
-	max-width: 350px;
 	.calenderWidgetContainer {
 		display: flex;
 		padding: 16px;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 12px;
 		align-self: stretch;
 		border-radius: 24px;
 		background: var(--card, #171819);
@@ -34,7 +32,7 @@
 				.calenderWidgetDateContainerDayContainer {
 					display: flex;
 					flex-direction: column;
-					align-items: center;
+					align-items: flex-start;
 					align-self: stretch;
 					width: 68px;
 					.calenderWidgetDateContainerDay {
@@ -48,7 +46,7 @@
 					.calenderWidgetDateContainerDate {
 						color: var(--primary-font, #f2f2f3);
 						font-family: var(--primary-font-family);
-						font-size: 26px;
+						font-size: 22px;
 						font-style: normal;
 						font-weight: 300;
 						line-height: normal;

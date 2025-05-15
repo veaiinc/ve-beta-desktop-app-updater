@@ -89,32 +89,42 @@
 		}
 	}
 
-	.taskWidgetHeaderContainer {
-		display: flex;
-		width: 100%;
-		padding: 14px 16px;
-		justify-content: space-between;
-		align-items: center;
-		border-radius: 10px;
-		border: 1px solid var(--stroke);
-
-		.taskHeader {
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 2px;
-		}
-	}
-
 	.widgets {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: flex-start;
 		gap: 8px;
 		align-self: stretch;
-		height: 0px;
+		height: fit-content;
 		overflow: hidden;
 		transition: height 0.5s ease-in-out;
+
+		.taskWidgetHeaderContainer {
+			display: flex;
+			width: 100%;
+			padding: 14px 16px;
+			justify-content: space-between;
+			align-items: center;
+			border-radius: 10px;
+			border: 1px solid var(--stroke);
+			cursor: pointer;
+
+			.taskHeader {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 2px;
+			}
+
+			&:hover {
+				background: var(--popup);
+			}
+
+			&.active {
+				background: var(--popup);
+				border: 1px solid var(--primary-font);
+			}
+		}
 
 		.taskWidgetcontent {
 			display: flex;
@@ -131,6 +141,7 @@
 
 			&.active {
 				background: var(--popup);
+				border: 1px solid var(--primary-font);
 			}
 
 			.taskWidgetoption {
@@ -146,10 +157,6 @@
 				flex-shrink: 0;
 				aspect-ratio: 1/1;
 			}
-		}
-
-		&.widget-show {
-			height: fit-content;
 		}
 	}
 

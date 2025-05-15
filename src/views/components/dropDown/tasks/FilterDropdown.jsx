@@ -111,7 +111,7 @@ const FilterDropdown = ({ properties, colors, filters, responseMetadata, handleF
 										}
 										arrow={false}
 										trigger={['click', 'hover']}
-										color="red"
+										color="transparent"
 										placement="rightTop"
 										overlayStyle={{ minWidth: 'fit-content' }}
 									>

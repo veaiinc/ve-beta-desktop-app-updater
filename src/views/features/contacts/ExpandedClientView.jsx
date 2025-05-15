@@ -1,25 +1,20 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { message } from '../../components/globalComponents/CustomToast';
-import { Spin } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import Context from '../../../context/context';
-import ListTabs from '../../components/tasks/listView/ListTabs';
 import TabListFile from '../../components/tasks/listView/TabListFile';
 import QuickActions from '../../components/globalComponents/QuickActions';
-import CustomTextArea from '../../components/globalComponents/CusomTextArea';
-import { ReactComponent as CloseArrow } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Text from '../../components/tasks/listView/Text';
 import LinkText from '../../components/tasks/listView/LinkText';
-import Sidebar from '../../components/docs/Sidebar';
 import '../../../assets/scss/contacts/expandedClientView.scss';
 import SingleContact from '../../components/contacts/singleContact';
-import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
+// import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
 import { ReactComponent as OverviewSvg } from '../../../assets/svg/contacts/overview.svg';
-import { ReactComponent as ActivitySvg } from '../../../assets/svg/contacts/activity.svg';
+// import { ReactComponent as ActivitySvg } from '../../../assets/svg/contacts/activity.svg';
 import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
-import { ReactComponent as ProfileIcon } from '../../../assets/svg/sidebar/profileIcon.svg';
+// import { ReactComponent as ProfileIcon } from '../../../assets/svg/sidebar/profileIcon.svg';
 import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 
 // Define rowTypes
@@ -311,7 +306,8 @@ const ExpandedClientView = () => {
 				<div className="left-section">
 					<div className="contacts-header">
 						<h2>
-							Grace Taylors’s <span>suggestions</span>
+							<span>suggestions for </span>
+							{clientData?.name}
 						</h2>
 					</div>
 					<div className="contacts-stats-container">

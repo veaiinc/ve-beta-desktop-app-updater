@@ -11,7 +11,6 @@
 		padding: 16px;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 12px;
 		flex: 1 0 0;
 		align-self: stretch;
 		border-radius: 24px;
@@ -42,7 +41,7 @@
 				}
 				.automationWidgetBodyItem {
 					display: flex;
-					padding: 10px 12px;
+					padding: 6px;
 					flex-direction: column;
 					align-items: flex-start;
 					gap: 6px;
@@ -50,8 +49,9 @@
 					border-radius: 12px;
 					cursor: pointer;
 					&:hover {
-						background: var(--card-over-card, #202123);
+						background: var(--card-over-card-hover, #202123);
 					}
+
 					.automationWidgetOptionDetailsTitle {
 						color: var(--primary-font, #f2f2f3);
 						font-family: var(--primary-font-family);

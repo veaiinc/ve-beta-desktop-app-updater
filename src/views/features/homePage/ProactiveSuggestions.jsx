@@ -163,9 +163,9 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	}, [aiSuggestedPendingActions]);
 
 	const handleKeyDown = (e) => {
-		if (e?.key === 'ArrowLeft') {
+		if (e?.key === 'ArrowUp' || e?.key === 'ArrowLeft') {
 			handleLeft();
-		} else if (e?.key === 'ArrowRight') {
+		} else if (e?.key === 'ArrowDown' || e?.key === 'ArrowRight') {
 			handleRight();
 		}
 	};
@@ -245,29 +245,23 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			isMountedRef.current = false;
 			return;
 		}
-		getAISuggestedPendingActions(newUpdatedPayload);
+		const reset = true;
+		getAISuggestedPendingActions(newUpdatedPayload, reset);
 	}, [info?.selectedFilters]);
 
 	const updateCardsData = () => {
-		const cards = aiSuggestedPendingActions?.pendingActions?.filter(
-			(card) => card?.title?.length > 0,
-		);
-
-		const isPagination = aiSuggestedPendingActions?.metaInfo?.currentPage > 1;
+		const cards = aiSuggestedPendingActions?.pendingActions;
 
 		if (cards?.length > 0) {
-			const updatedCards = isPagination
-				? [...totalCardsDataRef.current, ...cards]
-				: [...cards];
-
-			totalCardsDataRef.current = updatedCards;
+			totalCardsDataRef.current = cards;
 
 			setInfo((prev) => ({
 				...prev,
-				totalCardsData: updatedCards,
+				totalCardsData: cards,
 				loading: false,
 			}));
 		} else {
+			totalCardsDataRef.current = [];
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
@@ -354,7 +348,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 					...filterPayload,
 				};
 
-				await getAISuggestedPendingActions(newPayload);
+				await getAISuggestedPendingActions(newPayload, false);
 				setInfo((prev) => ({
 					...prev,
 					isApiLoading: false,
@@ -445,22 +439,23 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			};
 		});
 	};
-	const fetchMorePendingActions = async () => {
-		const nextPage = aiSuggestedPendingActions.metaInfo.currentPage + 1;
 
-		const filters = info.selectedFilters || [];
+	const fetchMorePendingActions = async () => {
+		const nextPage = aiSuggestedPendingActions?.metaInfo?.currentPage + 1;
+
+		const filters = info?.selectedFilters || [];
 
 		const selectedPriority = filters
-			?.filter((f) => f.group === 'Priority Level')
-			.map((f) => f.value || f.title);
+			?.filter((f) => f?.group === 'Priority Level')
+			.map((f) => f?.value || f?.title);
 
 		const selectedReadStatus = filters
-			?.filter((f) => f.group === 'Read Status')
-			.map((f) => f.value || f.title);
+			?.filter((f) => f?.group === 'Read Status')
+			.map((f) => f?.value || f?.title);
 
 		const selectedConfidenceScore = filters
-			?.filter((f) => f.group === 'Confidence level')
-			.map((f) => f.value || f.title);
+			?.filter((f) => f?.group === 'Confidence level')
+			.map((f) => f?.value || f?.title);
 
 		const { from, to } = getDateRangeFromFilters(filters);
 
@@ -479,40 +474,25 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			...filterPayload,
 		};
 
-		await getAISuggestedPendingActions(newPayload);
+		await getAISuggestedPendingActions(newPayload, false);
 	};
 
-	const handleThumbClick = async (id, type) => {
-		const card = info?.cards?.find((c) => c._id === id);
-		if (card?.isFavourite === type) return;
+	const handleThumbClick = async (id) => {
+		const card = info?.cards?.find((c) => c?._id === id);
+		if (card?.isFavourite === true) return;
 		const res = await pendingActionsUpdate(id, { isFavourite: true });
 		if (res?.[0] === true) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				cards: prevInfo?.cards?.map((card) =>
-					card._id === id ? { ...card, isFavourite: true } : card,
-				),
-			}));
+			getAISuggestedPendingActions(
+				{
+					isFavourite: true,
+				},
+				false,
+				'update',
+				id,
+			);
 			message.success('Added to favourites ');
 		} else {
 			message.error('Failed to update');
-		}
-	};
-
-	const handleIgnoreClick = async (id) => {
-		const card = info?.cards?.find((c) => c?._id === id);
-		if (card?.isIgnored === true) return;
-		const res = await pendingActionsUpdate(id, { isIgnored: true });
-		if (res?.[0] === true) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				cards: prevInfo?.cards?.map((card) =>
-					card?._id === id ? { ...card, isIgnored: true } : card,
-				),
-			}));
-			message?.success('Card IgnoredSuccessfully');
-		} else {
-			message?.success('Failed to updated he card status');
 		}
 	};
 
@@ -573,116 +553,133 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 						timely suggestions—helping you act smartly before issues arise.
 					</div>
 				</div> */}
-				<div className="viewSelectionContainer">
-					<div
-						className={`viewSelection ${info?.isListView ? 'active' : ''}`}
-						onClick={() => handleViewChange(true)}
-					>
-						<ListViewSvg className={info?.isListView ? 'active-icon' : ''} />
-						List View
+				<div className="left-container"></div>
+				<div className="right-container">
+					<div className="viewSelectionContainer">
+						<Tooltip
+							arrow={false}
+							title={<div className="tooltipTitle">List View</div>}
+							color="transparent"
+							placement="bottom"
+						>
+							<div
+								className={`viewSelection ${info?.isListView ? 'active' : ''}`}
+								onClick={() => handleViewChange(true)}
+							>
+								<ListViewSvg className={info?.isListView ? 'active-icon' : ''} />
+							</div>
+						</Tooltip>
+						<Tooltip
+							arrow={false}
+							title={<div className="tooltipTitle">Focus View</div>}
+							color="transparent"
+							placement="bottom"
+						>
+							<div
+								className={`viewSelection ${!info?.isListView ? 'active' : ''}`}
+								onClick={() => handleViewChange(false)}
+							>
+								<FocusViewSvg className={!info?.isListView ? 'active-icon' : ''} />
+							</div>
+						</Tooltip>
 					</div>
-					<div
-						className={`viewSelection ${!info?.isListView ? 'active' : ''}`}
-						onClick={() => handleViewChange(false)}
-					>
-						<FocusViewSvg className={!info?.isListView ? 'active-icon' : ''} />
-						Focus View
-					</div>
-				</div>
-				<div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
-					{/* <button className="sort-btn" data-tooltip="Sort">
+					<div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+						{/* <button className="sort-btn" data-tooltip="Sort">
 						<SortIcon />
 					</button> */}
-					<Tooltip
-						open={info?.openFilter}
-						onOpenChange={() => setInfo((prev) => ({ ...prev, openFilter: false }))}
-						placement="top"
-						title={
-							<div className="filter-container">
-								<div className="filter-items">
-									{filterGroups.map((group, idx) => (
-										<div key={group.title} style={{ width: '100%' }}>
-											<div className="filter-item">
-												<div className="filter-item-title">
-													{group.title}
-												</div>
-												<div className="filter-item-options">
-													{group.options.map((item) => {
-														const itemWithGroup = {
-															...item,
-															group: group.title,
-														};
+						<Tooltip
+							open={info?.openFilter}
+							onOpenChange={() => setInfo((prev) => ({ ...prev, openFilter: false }))}
+							placement="top"
+							title={
+								<div className="filter-container">
+									<div className="filter-items">
+										{filterGroups?.map((group, idx) => (
+											<div key={group?.title} style={{ width: '100%' }}>
+												<div className="filter-item">
+													<div className="filter-item-title">
+														{group?.title}
+													</div>
+													<div className="filter-item-options">
+														{group?.options?.map((item) => {
+															const itemWithGroup = {
+																...item,
+																group: group?.title,
+															};
 
-														const isSelected =
-															info?.selectedFilters?.some(
-																(option) =>
-																	option?.title ===
-																		itemWithGroup.title &&
-																	option?.group ===
-																		itemWithGroup.group,
+															const isSelected =
+																info?.selectedFilters?.some(
+																	(option) =>
+																		option?.title ===
+																			itemWithGroup.title &&
+																		option?.group ===
+																			itemWithGroup.group,
+																);
+															return (
+																<div
+																	key={item.id}
+																	className="eachOption"
+																	onClick={() =>
+																		handleFilterClick(
+																			itemWithGroup,
+																			group?.title,
+																		)
+																	}
+																	style={{
+																		display: 'flex',
+																		justifyContent:
+																			'space-between',
+																		alignItems: 'center',
+																	}}
+																>
+																	<span>{item.title}</span>
+																	{isSelected && (
+																		<TickIcon
+																			style={{
+																				marginLeft: '8px',
+																			}}
+																		/>
+																	)}
+																</div>
 															);
-														return (
-															<div
-																key={item.id}
-																className="eachOption"
-																onClick={() =>
-																	handleFilterClick(
-																		itemWithGroup,
-																		group?.title,
-																	)
-																}
-																style={{
-																	display: 'flex',
-																	justifyContent: 'space-between',
-																	alignItems: 'center',
-																}}
-															>
-																<span>{item.title}</span>
-																{isSelected && (
-																	<TickIcon
-																		style={{
-																			marginLeft: '8px',
-																		}}
-																	/>
-																)}
-															</div>
-														);
-													})}
+														})}
+													</div>
 												</div>
+												{idx < filterGroups.length - 1 && (
+													<hr
+														style={{
+															width: '100%',
+															height: '1px',
+															backgroundColor: 'var(--stroke)',
+															border: 'none',
+															marginTop: '10px',
+														}}
+													/>
+												)}
 											</div>
-											{idx < filterGroups.length - 1 && (
-												<hr
-													style={{
-														width: '100%',
-														height: '1px',
-														backgroundColor: 'var(--stroke)',
-														border: 'none',
-														marginTop: '10px',
-													}}
-												/>
-											)}
-										</div>
-									))}
+										))}
+									</div>
 								</div>
-							</div>
-						}
-						color={'transparent'}
-						style={{ cursor: 'pointer', userSelect: 'none' }}
-						trigger={'click'}
-					>
-						<div
-							className="action-left"
-							onClick={() => setInfo((prev) => ({ ...prev, openFilter: true }))}
+							}
+							color={'transparent'}
+							style={{ cursor: 'pointer', userSelect: 'none' }}
+							trigger={'click'}
 						>
-							<button
-								className={`filter-btn ${info?.openFilter ? 'active' : ''}`}
-								data-tooltip="Filter"
+							<div
+								className="action-left"
+								onClick={() => setInfo((prev) => ({ ...prev, openFilter: true }))}
 							>
-								<FilterIcon />
-							</button>
-						</div>
-					</Tooltip>
+								<button
+									className={`filter-btn ${info?.openFilter ? 'active' : ''}`}
+									data-tooltip="Filter"
+								>
+									<FilterIcon />
+								</button>
+							</div>
+						</Tooltip>
+					</div>
 				</div>
+
 				{/* {info?.cards?.length > 5 && (
 					<div className="action-right">
 						<button className="card-change-btn" onClick={handleLeft}>
@@ -753,7 +750,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 										return (
 											<div
 												className="eachCardContainer"
-												key={card?._id}
+												key={index}
 												onMouseEnter={() =>
 													setInfo((prev) => ({
 														...prev,
@@ -768,10 +765,10 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 												}
 												onClick={() => handleCardClick(card, index)}
 											>
-												<Tooltip
+												{/* <Tooltip
 													title={
 														<div className="tooltipContainer">
-															{card?.description}
+															{card?.description || ''}
 														</div>
 													}
 													placement="bottomLeft"
@@ -784,33 +781,31 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 														pointerEvents: 'none',
 													}}
 													overlayClassName={`tooltip-${card?._id}`}
+												> */}
+												<div
+													className="cardContainerUnreadIndicator"
+													style={{ cursor: 'pointer' }}
+													onMouseMove={(e) => {
+														const tooltip = document?.querySelector(
+															`.tooltip-${card?._id}`,
+														);
+														if (tooltip) {
+															tooltip.style.left = `${
+																e.clientX + 10
+															}px`;
+															tooltip.style.top = `${
+																e.clientY + 10
+															}px`;
+														}
+													}}
 												>
-													<div
-														className="cardContainerUnreadIndicator"
-														style={{ cursor: 'pointer' }}
-														onMouseMove={(e) => {
-															const tooltip = document.querySelector(
-																`.tooltip-${card?._id}`,
-															);
-															if (tooltip) {
-																tooltip.style.left = `${
-																	e.clientX + 10
-																}px`;
-																tooltip.style.top = `${
-																	e.clientY + 10
-																}px`;
-															}
-														}}
-													>
-														{!isRead && (
-															<span className="unread"></span>
-														)}
-														<div className="cardContianerTitle">
-															<span>{card?.title} - </span>
-															{card?.description}
-														</div>
+													{!isRead && <span className="unread"></span>}
+													<div className="cardContianerTitle">
+														<span>{card?.title} - </span>
+														{card?.description}
 													</div>
-												</Tooltip>
+												</div>
+												{/* </Tooltip> */}
 												<div
 													className={`cardOptionsMainContainer ${
 														info?.hoveredCard?._id === card?._id
@@ -840,10 +835,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 																}`}
 																onClick={(e) => {
 																	e.stopPropagation();
-																	handleThumbClick(
-																		card?._id,
-																		'true',
-																	);
+																	handleThumbClick(card?._id);
 																}}
 																style={{
 																	cursor: 'pointer',
@@ -862,11 +854,13 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 																/>
 															</div>
 														</Tooltip>
-														<div className="verticalLine"></div>
-														<Tooltip
-															title={
-																<div className="emailContainer">
-																	{/* <div className="emailHeader">
+														{card?.moduleType === 'gmail' && (
+															<>
+																<div className="verticalLine"></div>
+																<Tooltip
+																	title={
+																		<div className="emailContainer">
+																			{/* <div className="emailHeader">
 																		<div className="emailTitle">
 																			Summary of the mail
 																		</div>
@@ -893,24 +887,29 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 																			requirements and modify.
 																		</div>
 																	</div> */}
-																	<div className="relativeTime">
+																			<div className="relativeTime">
+																				<EmailIcon
+																					width={16}
+																					height={12}
+																				/>
+																				{messageAt}
+																			</div>
+																		</div>
+																	}
+																	placement="bottom"
+																	trigger={'hover'}
+																	arrow={false}
+																	color={'transparent'}
+																>
+																	<div>
 																		<EmailIcon
 																			width={16}
 																			height={12}
 																		/>
-																		{messageAt}
 																	</div>
-																</div>
-															}
-															placement="bottom"
-															trigger={'hover'}
-															arrow={false}
-															color={'transparent'}
-														>
-															<div>
-																<EmailIcon width={16} height={12} />
-															</div>
-														</Tooltip>
+																</Tooltip>
+															</>
+														)}
 														<div className="verticalLine"></div>
 
 														{priority && (
@@ -973,7 +972,10 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 															arrow={false}
 															color={'transparent'}
 														>
-															<div style={{ fontSize: '12px' }}>
+															<div
+																style={{ fontSize: '12px' }}
+																className="confidenceScore"
+															>
 																{card?.confidence_score * 100} %
 															</div>
 														</Tooltip>
@@ -1056,13 +1058,13 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 								No data available
 							</div>
 						) : (
-							info.cards.map((card, index) => {
-								if (card.position === null) return null;
-								const classList = ['card', positionClassMap[card.position]];
+							info?.cards?.map((card, index) => {
+								if (card?.position === null) return null;
+								const classList = ['card', positionClassMap[card?.position]];
 								return (
 									<div
 										key={card?._id}
-										className={classList.join(' ')}
+										className={classList?.join(' ')}
 										onClick={() => handleCardClick(card, index)}
 									>
 										<div className="header">
@@ -1099,7 +1101,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 															<div>
 																{dayjs(
 																	card?.updatedAt * 1000,
-																).fromNow()}
+																)?.fromNow()}
 															</div>
 														</Tooltip>
 													</div>

@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/ChartDonut.svg';
 import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/ChartBar.svg';
 import { ReactComponent as WorkflowSvg } from '../../../assets/svg/tasks/workflow.svg';
@@ -33,9 +32,8 @@ import LinkText from '../../components/tasks/listView/LinkText';
 import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
 import PersonMultiSelect from '../../components/tasks/listView/PersonMultiSelect';
 import { useSearchParams } from 'react-router-dom';
-import Taskwidget from '../../components/tasks/Taskwidget';
-import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 import CreatedWithAi from '../../components/tasks/listView/CreatedWithAi';
+import { colors } from '../../../helpers/taskHelpers';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -54,16 +52,6 @@ const defaultPreference = {
 	createdAt: { show: false, order: 14 },
 	updatedAt: { show: false, order: 15 },
 	createdWithAi: { show: false, order: 16 },
-};
-
-export const colors = {
-	1: { backgroundColor: '#62344B', color: '#A35A7E' },
-	2: { backgroundColor: '#373737', color: '#707070' },
-	3: { backgroundColor: '#5B3D2F', color: '#8F614B' },
-	4: { backgroundColor: '#7D4F27', color: '#B37339' },
-	5: { backgroundColor: '#375841', color: '#588F69' },
-	6: { backgroundColor: '#2F4469', color: '#4F71B3' },
-	7: { backgroundColor: '#453061', color: '#6F4C99' },
 };
 
 export const rowTypes = {
@@ -88,7 +76,7 @@ export const rowTypes = {
 
 const Tasks = () => {
 	const timeoutRef = useRef(null);
-	const [searchParams, setSearchParams] = useSearchParams();
+	const [searchParams] = useSearchParams();
 	const query = searchParams.get('itemId');
 
 	const {
@@ -223,7 +211,7 @@ const Tasks = () => {
 			assignedAt: {
 				type: 'date',
 				name: 'Assigned At',
-				Icon: ClockSvg,
+				Icon: CalendarSvg,
 				props: { timestamp: true },
 			},
 			completedAt: { type: 'date', name: 'Completed At', Icon: CalendarSvg, props: {} },
@@ -264,7 +252,7 @@ const Tasks = () => {
 				props: {},
 			},
 		}),
-		[, info?.taskMetadata],
+		[info?.taskMetadata],
 	);
 	useEffect(() => {
 		updateSidebarState({ leftSidebarState: 'close' });
@@ -499,7 +487,7 @@ const Tasks = () => {
 		return filters.map((filter) => ({
 			key: filter.key,
 			value:
-				typeof filter.value === 'object'
+				typeof filter.value === 'object' && !Array.isArray(filter?.value)
 					? filter?.value?._id || filter?.value?.value
 					: filter?.value,
 		}));
@@ -827,18 +815,6 @@ const Tasks = () => {
 	const handleAddButtonOnClick = () => {
 		updateTaskInfo({ isCreatingSubtask: false, isCreateModalOpen: true });
 	};
-
-	const suggestedOptions = [
-		{
-			id: 0,
-			title: 'Create new Task',
-			value: 'task',
-			controlValue: 'task',
-			action: () => {
-				handleAddButtonOnClick();
-			},
-		},
-	];
 
 	const handleCloseCreateModal = useCallback(() => {
 		if (info?.isCreatingSubtask) {

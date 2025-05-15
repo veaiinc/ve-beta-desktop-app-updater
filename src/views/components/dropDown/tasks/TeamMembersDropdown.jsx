@@ -1,6 +1,5 @@
-import { memo, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useContext, useMemo, useState } from 'react';
 import '../../../../assets/scss/tasks/personMultiSelect.scss';
-import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 import Context from '../../../../context/context';
 import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
 
@@ -43,9 +42,7 @@ const TeamMembersDropdown = memo(({ selected = [], onOptionClick, title }) => {
 							const isSelected = selected.some((item) => item?._id === option?._id);
 							return (
 								<div
-									className={`person-multi-select-selected-item ${
-										isSelected ? 'selected' : ''
-									}`}
+									className="person-multi-select-selected-item"
 									key={option?._id}
 									onClick={(e) => {
 										e?.stopPropagation();
