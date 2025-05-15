@@ -212,11 +212,14 @@ const InitialHomePage = () => {
 
 	useEffect(() => {
 		if (!aiSuggestedPendingActions) {
-			getAISuggestedPendingActions({
-				page: 1,
-				limit: 20,
-				sortBy: 'createdAt',
-			});
+			getAISuggestedPendingActions(
+				{
+					page: 1,
+					limit: 20,
+					sortBy: 'createdAt',
+				},
+				true,
+			);
 			return;
 		}
 

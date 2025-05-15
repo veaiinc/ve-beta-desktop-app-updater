@@ -509,7 +509,7 @@ const ChatBox = ({
 				}
 
 				if (!checkAllUploadLoadingStatus()) {
-					return message.error('Please wait for the images to upload');
+					return message.error('Please wait for the files to upload');
 				}
 
 				if (info?.chatQuery?.trim()?.length > 0 || query?.trim()?.length > 0) {

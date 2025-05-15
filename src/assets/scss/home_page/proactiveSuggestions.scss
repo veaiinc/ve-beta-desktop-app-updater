@@ -145,7 +145,7 @@
 				left: 0;
 				right: 0;
 				bottom: 0;
-				background: linear-gradient(90deg, #98cf00, #5089f9);
+				background: linear-gradient(180deg, #4acea6 0%, #5f8ee0 100%);
 				z-index: 0;
 				border-radius: 16px;
 			}
@@ -290,6 +290,73 @@
 		@media screen and (max-width: 425px) {
 			width: 350px;
 		}
+		.right-container {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+
+			.viewSelectionContainer {
+				display: flex;
+				border: 1px solid var(--stroke);
+				border-radius: 8px;
+				padding: 4px;
+
+				.viewSelection {
+					display: flex;
+					align-items: center;
+					border-radius: 6px;
+					cursor: pointer;
+					color: var(--secondary-font);
+					transition: all 0.2s ease;
+
+					display: flex;
+					padding: 6px 8px;
+					justify-content: center;
+					align-items: center;
+					gap: 8px;
+					color: var(--secondary-font, #7a7e85);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+
+					.view-icon {
+						transition: all 0.2s ease;
+						color: var(--secondary-font);
+					}
+
+					&.active {
+						border-radius: 6px;
+						background: var(--card);
+						color: var(--primary-font);
+
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+
+						.view-icon {
+							color: var(--primary-font);
+						}
+					}
+
+					&:hover {
+						color: var(--primary-font);
+						.view-icon {
+							color: var(--primary-font);
+						}
+					}
+				}
+			}
+
+			.action-left {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+			}
+		}
 		.suggestionPromptContainer {
 			display: flex;
 			align-items: center;
@@ -305,63 +372,7 @@
 				line-height: normal;
 			}
 		}
-		.viewSelectionContainer {
-			display: flex;
-			gap: 8px;
-			margin-right: 16px;
-			border: 1px solid var(--stroke);
-			border-radius: 8px;
-			padding: 4px;
 
-			.viewSelection {
-				display: flex;
-				align-items: center;
-				border-radius: 6px;
-				cursor: pointer;
-				color: var(--secondary-font);
-				transition: all 0.2s ease;
-
-				display: flex;
-				padding: 6px 8px;
-				justify-content: center;
-				align-items: center;
-				gap: 8px;
-				color: var(--secondary-font, #7a7e85);
-				font-family: Inter;
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-
-				.view-icon {
-					transition: all 0.2s ease;
-					color: var(--secondary-font);
-				}
-
-				&.active {
-					border-radius: 6px;
-					background: var(--card);
-					color: var(--primary-font);
-
-					font-family: Inter;
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-
-					.view-icon {
-						color: var(--primary-font);
-					}
-				}
-
-				&:hover {
-					color: var(--primary-font);
-					.view-icon {
-						color: var(--primary-font);
-					}
-				}
-			}
-		}
 		.verticalLine {
 			width: 1px;
 			height: 18px;
@@ -394,11 +405,6 @@
 					line-height: 18px;
 				}
 			}
-		}
-		.action-left {
-			display: flex;
-			align-items: center;
-			gap: 6px;
 		}
 
 		.sort-btn,
@@ -522,7 +528,7 @@
 				&:hover {
 					margin: 0;
 					background: linear-gradient(var(--card), var(--card)) padding-box,
-						linear-gradient(90deg, #98cf00, #5089f9) border-box;
+						linear-gradient(90deg, #4acea6 0%, #5f8ee0 100%) border-box;
 					border: 1.5px solid transparent; /* needed for border-box to work */
 					border-radius: 8px;
 					.relativeTime {
@@ -530,6 +536,12 @@
 						svg {
 							color: var(--primary-font) !important;
 						}
+					}
+					.priority-text {
+						color: var(--primary-font) !important;
+					}
+					.confidenceScore {
+						color: var(--primary-font) !important;
 					}
 				}
 				.cardContainerUnreadIndicator {
@@ -742,7 +754,7 @@
 	justify-content: center;
 	align-items: center;
 	gap: 6px;
-	color: var(--primary-font, #f2f2f3);
+	color: var(--secondary-font, #7a7e85);
 	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
@@ -753,6 +765,10 @@
 		height: 6px;
 		border-radius: 50%;
 	}
+}
+
+.confidenceScore {
+	color: var(--secondary-font, #7a7e85);
 }
 .ant-tooltip-inner {
 	.tooltipContainer {
@@ -903,4 +919,16 @@
 			line-height: normal;
 		}
 	}
+}
+
+.tooltipTitle {
+	color: var(--primary-font, #f2f2f3);
+	font-family: var(--primary-font-family);
+	font-size: 10px;
+	padding: 6px 8px;
+	border-radius: 6px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: normal;
+	background-color: var(--popup);
 }
