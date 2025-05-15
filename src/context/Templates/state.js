@@ -2452,11 +2452,13 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const pendingActionsUpdate = async (pendingActionId, payload) => {
+	const pendingActionsUpdate = async (pendingActionId, payload, type = null) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}`;
+			const url = type
+				? `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}/${type}`
+				: `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}`;
 			const response = await Service.fetchPut(url, payload, usertoken, 'tenant');
 			return response;
 		} catch (error) {
