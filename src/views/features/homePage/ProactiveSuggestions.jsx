@@ -544,6 +544,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 
 		return groups;
 	}, [info?.cards]);
+
 	return (
 		<div className="proactive-suggestions-container">
 			<div className="action-container">
@@ -667,7 +668,12 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 						>
 							<div
 								className="action-left"
-								onClick={() => setInfo((prev) => ({ ...prev, openFilter: true }))}
+								onClick={() => {
+									if (info?.openFilter) {
+										return;
+									}
+									setInfo((prev) => ({ ...prev, openFilter: true }));
+								}}
 							>
 								<button
 									className={`filter-btn ${info?.openFilter ? 'active' : ''}`}
