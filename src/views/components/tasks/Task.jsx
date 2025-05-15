@@ -43,7 +43,6 @@ const Task = ({
 	data,
 	loading,
 	rowTypes,
-	handleRowClick,
 	handleUpdate,
 	properties,
 	taskPreferences,
@@ -298,7 +297,6 @@ const Task = ({
 					loading={loading}
 					properties={properties}
 					rowTypes={rowTypes}
-					handleRowClick={handleRowClick}
 					hasMore={hasMore}
 					error={error}
 					handleAddButtonOnClick={handleAddButtonOnClick}
@@ -315,7 +313,6 @@ const Task = ({
 			loading,
 			properties,
 			rowTypes,
-			handleRowClick,
 			hasMore,
 			error,
 		],
@@ -437,7 +434,6 @@ const Task = ({
 								groupBy={taskInfo?.tabs?.[taskInfo?.activeTab]?.group}
 								sort={taskInfo?.tabs?.[taskInfo?.activeTab]?.sort}
 								filters={taskInfo?.tabs?.[taskInfo?.activeTab]?.filters}
-								handleRowClick={handleRowClick}
 							/>
 						) : (
 							viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType)

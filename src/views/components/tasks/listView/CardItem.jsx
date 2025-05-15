@@ -30,7 +30,7 @@ const CardItem = ({ task, responseMetadata, colors, rowTypes, properties, handle
 				if (
 					(typeof value === 'object' && !Array.isArray(value)
 						? !value?._id
-						: key === '!title' && !value) ||
+						: key !== 'title' && !value) ||
 					(Array?.isArray(value) && value?.length === 0) ||
 					key === '__typename' ||
 					key === '_id'
@@ -62,7 +62,10 @@ const CardItem = ({ task, responseMetadata, colors, rowTypes, properties, handle
 	);
 
 	return (
-		<div className="task-card-item" onClick={() => updateSideBarData(task)}>
+		<div
+			className="task-card-item"
+			onClick={() => updateSideBarData({ data: task, open: true })}
+		>
 			{/* <div className="card-header"></div>
 			<div className="card-body"></div>
 			<div className="card-footer"></div> */}

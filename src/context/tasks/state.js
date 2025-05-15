@@ -40,7 +40,10 @@ export const intialState = {
 	refetchTasks: false,
 	refetchTasksForDue: false,
 	listTaskWithGroup: null,
-	sideBarData: null,
+	sideBarData: {
+		stack: [],
+		open: false,
+	},
 };
 
 export const TasksState = () => {
@@ -849,10 +852,24 @@ export const TasksState = () => {
 		}
 	};
 
-	const updateSideBarData = (data) => {
+	const updateSideBarData = ({ open, data }) => {
+		let stack = [...state?.sideBarData?.stack];
+
+		if (data) {
+			if (data === -1) {
+				stack.pop();
+			} else {
+				stack.push(data);
+			}
+		}
+
 		dispatch({
 			type: Actions.UPDATE_SIDEBAR_DATA,
-			payload: data,
+			payload: {
+				...state?.sideBarData,
+				stack: data ? stack : state?.sideBarData?.stack,
+				open: open ?? state?.sideBarData?.open,
+			},
 		});
 	};
 

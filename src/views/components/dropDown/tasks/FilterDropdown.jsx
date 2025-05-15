@@ -10,18 +10,30 @@ import StatusDropdown from './StatusDropdown';
 import SelectDropdown from './SelectDropdown';
 import PersonDropdown from './PersonDropdown';
 import TeamMembersDropdown from './TeamMembersDropdown';
+import DateViewDropdown from './DateViewDropdown';
+// const filterMapper = {
+// 	status: StatusDropdown,
+// 	priority: SelectDropdown,
+// 	clients: PersonDropdown,
+// 	title: TextFilter,
+// 	description: TextFilter,
+// 	taskSlNo: TextFilter,
+// 	assignedTo: TeamMembersDropdown,
+// 	assignedBy: TeamMembersDropdown,
+// 	createdBy: TeamMembersDropdown,
+// 	updatedBy: TeamMembersDropdown,
+// 	dueDate: DateViewDropdown,
+// 	assign,
+// };
 
-const filterMapper = {
+const filterMapperTypes = {
+	text: TextFilter,
+	select: SelectDropdown,
+	person: TeamMembersDropdown,
+	date: DateViewDropdown,
+	id: TextFilter,
 	status: StatusDropdown,
-	priority: SelectDropdown,
-	clients: PersonDropdown,
-	title: TextFilter,
-	description: TextFilter,
-	taskSlNo: TextFilter,
-	assignedTo: TeamMembersDropdown,
-	assignedBy: TeamMembersDropdown,
-	createdBy: TeamMembersDropdown,
-	updatedBy: TeamMembersDropdown,
+	personMultiSelect: PersonDropdown,
 };
 
 const FilterDropdown = ({ properties, colors, filters, responseMetadata, handleFilterChange }) => {
@@ -65,7 +77,8 @@ const FilterDropdown = ({ properties, colors, filters, responseMetadata, handleF
 					<div className="filter-dropdown-tooltip-body">
 						{filteredProperties?.length > 0 ? (
 							filteredProperties?.map((property) => {
-								const FilterComponent = filterMapper[property?.value] || TextFilter;
+								const FilterComponent =
+									filterMapperTypes[property?.type] || TextFilter;
 
 								return (
 									<Tooltip
@@ -113,7 +126,10 @@ const FilterDropdown = ({ properties, colors, filters, responseMetadata, handleF
 										trigger={['click', 'hover']}
 										color="transparent"
 										placement="rightTop"
-										overlayStyle={{ minWidth: 'fit-content' }}
+										overlayStyle={{
+											minWidth: 'fit-content',
+											paddingLeft: '8px',
+										}}
 									>
 										<div className="filter-dropdown-tooltip-body-item">
 											<div className="filter-dropdown-tooltip-body-item-icon">

@@ -10,7 +10,6 @@ const ListView = ({
 	responseMetadata,
 	colors,
 	fetchMoreData,
-	handleRowClick,
 	handleUpdate,
 	data,
 	loading,
@@ -60,7 +59,6 @@ const ListView = ({
 							properties={properties}
 							rowTypes={rowTypes}
 							handleUpdate={handleUpdate}
-							handleRowClick={handleRowClick}
 							responseMetadata={responseMetadata}
 							colors={colors}
 						/>
