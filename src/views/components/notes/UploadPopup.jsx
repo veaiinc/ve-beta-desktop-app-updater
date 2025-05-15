@@ -157,7 +157,7 @@ const UploadPopup = ({ closePopup, setLocalCoverImage }) => {
 						{skeletonLoaders?.map((skeletonId) => (
 							<Skeleton
 								key={skeletonId}
-								width="116px"
+								width="125.5px"
 								height="82px"
 								borderRadius="8px"
 							/>
