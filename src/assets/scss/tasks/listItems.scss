@@ -303,11 +303,11 @@
 			fill: var(--primary-font) !important;
 		}
 	}
-	&:hover {
-		background-color: transparent;
-		color: var(--primary-font) !important;
-		border: 1px solid var(--stroke);
-	}
+	// &:hover {
+	// 	background-color: transparent;
+	// 	color: var(--primary-font) !important;
+	// 	border: 1px solid var(--stroke);
+	// }
 	&:placeholder {
 		color: var(--primary-font) !important;
 		opacity: 1;
