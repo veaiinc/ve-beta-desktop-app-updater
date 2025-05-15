@@ -2,10 +2,12 @@ import Service from '../../services/index';
 import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './actions';
-
 export const initialState = {
 	workspaceImagesData: null,
+	unsplashImagesData: null,
 };
+
+const unsplashAccessKey = process.env.REACT_APP_UNSPLASH_ACCESS_KEY;
 
 export const WorkspaceAssetsState = () => {
 	const [state, dispatch] = useReducer(Reducer, initialState);
@@ -60,6 +62,36 @@ export const WorkspaceAssetsState = () => {
 		}
 	};
 
+	const getUnsplashImages = async (query = 'fall', page = 1, perPage = 10, append = false) => {
+		try {
+			const url = `https://api.unsplash.com/search/photos?query=${query}&orientation=landscape&page=${page}&per_page=${perPage}&client_id=${unsplashAccessKey}`;
+			const res = await fetch(url);
+			const json = await res.json();
+
+			const images = json?.results?.map((img) => ({
+				id: img.id,
+				description: img.alt_description,
+				imageUrl: img.urls.full, //raw, full, small, regular, thumb, small_s3
+			}));
+
+			const data = append ? [...(state?.unsplashImagesData?.data || []), ...images] : images;
+
+			const hasNextPage = page < json?.total_pages / perPage;
+			const payload = {
+				data,
+				hasNextPage,
+				currentPage: page,
+			};
+
+			dispatch({
+				type: Actions.SET_UNSPLASH_IMAGES,
+				payload,
+			});
+		} catch (error) {
+			console.log('error fetching unsplash images', error);
+		}
+	};
+
 	const resetWorkspaceAssetsState = () => {
 		dispatch({
 			type: Actions.RESET_STATE,
@@ -69,6 +101,7 @@ export const WorkspaceAssetsState = () => {
 	return {
 		...state,
 		getWorkspaceImages,
+		getUnsplashImages,
 		resetWorkspaceAssetsState,
 	};
 };

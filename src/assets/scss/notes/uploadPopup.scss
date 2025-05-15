@@ -250,5 +250,32 @@
 				}
 			}
 		}
+
+		.unsplash {
+			.unsplashImagesListContainer {
+				padding-top: 12px;
+				width: 100%;
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				justify-content: flex-start;
+
+				.unsplashImage {
+					width: calc((100% - 24px) / 4);
+					height: 82px;
+					border-radius: 8px;
+					cursor: pointer;
+					object-fit: cover;
+					border: 1px solid transparent;
+					transition: all 0.2s ease-in;
+
+					&:hover {
+						border: 1px solid var(--primary-font);
+						transform: scale(1.02);
+						transition: all 0.2s ease-in;
+					}
+				}
+			}
+		}
 	}
 }

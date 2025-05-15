@@ -17,8 +17,10 @@ const initialState = {
 	workspaceImagesLoading: false,
 };
 
+const page = 1;
 const limit = 16;
 const append = true;
+const query = 'fall';
 
 const skeletonLoaders = Array.from({ length: 16 }, (_, index) => index + 1);
 
@@ -49,7 +51,12 @@ const UploadPopup = ({ closePopup, setLocalCoverImage }) => {
 	const { noteId } = useParams();
 	const {
 		notes: { notesCoverImageLinkUpload, notesCoverImageFileUpload },
-		workspaceAssets: { workspaceImagesData, getWorkspaceImages },
+		workspaceAssets: {
+			workspaceImagesData,
+			getWorkspaceImages,
+			unsplashImagesData,
+			getUnsplashImages,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState(initialState);
 
@@ -60,21 +67,36 @@ const UploadPopup = ({ closePopup, setLocalCoverImage }) => {
 	const workspaceImagesHasNextPage = Boolean(workspaceImagesData?.hasNextPage);
 	const workspaceImagesCurrentPage = Number(workspaceImagesData?.currentPage) || 1;
 
+	const unsplashImagesList = unsplashImagesData?.data;
+	const unsplashImagesLoading = unsplashImagesList ? false : true;
+	const unsplashImagesLength = unsplashImagesList?.length ?? 0;
+	const unsplashImagesEmpty = unsplashImagesLength === 0 && !unsplashImagesLoading;
+	const unsplashImagesHasNextPage = Boolean(unsplashImagesData?.hasNextPage);
+	const unsplashImagesCurrentPage = Number(unsplashImagesData?.currentPage) || 1;
+
 	useEffect(() => {
-		if (!workspaceImagesData) {
+		if (!workspaceImagesData && info?.selectedUploadCategory === 'images') {
+			getWorkspaceImages(page, limit);
+		}
+		if (!unsplashImagesData && info?.selectedUploadCategory === 'unsplash') {
+			const query = 'fall';
 			const page = 1;
 			const limit = 16;
-			const append = false;
-			getWorkspaceImages(page, limit, append);
+			getUnsplashImages(query, page, limit);
 		}
-	}, []);
-
-	console.log(workspaceImagesData);
+	}, [info?.selectedUploadCategory]);
 
 	const fetchNextWorkspaceImages = async () => {
 		if (workspaceImagesHasNextPage) {
 			const page = workspaceImagesCurrentPage + 1;
 			getWorkspaceImages(page, limit, append);
+		}
+	};
+
+	const fetchNextUnsplashImages = async () => {
+		if (unsplashImagesHasNextPage) {
+			const page = unsplashImagesCurrentPage + 1;
+			getUnsplashImages(query, page, limit, append);
 		}
 	};
 
@@ -231,7 +253,52 @@ const UploadPopup = ({ closePopup, setLocalCoverImage }) => {
 				</div>
 			</div>
 		),
-		unsplash: <div>Unsplash</div>,
+		unsplash: (
+			<div className="unsplash">
+				{unsplashImagesLoading ? (
+					<div className="unsplashImagesLoading">
+						{skeletonLoaders?.map((skeletonId) => (
+							<Skeleton
+								key={skeletonId}
+								width="125.5px"
+								height="82px"
+								borderRadius="8px"
+							/>
+						))}
+					</div>
+				) : unsplashImagesEmpty ? (
+					<div className="noUnsplashImagesFound">
+						<h1 className="emptyUnsplashImagesMessage">
+							Oops! No Unsplash images found!
+						</h1>
+					</div>
+				) : (
+					<InfiniteScroll
+						dataLength={unsplashImagesLength}
+						next={fetchNextUnsplashImages}
+						hasMore={unsplashImagesHasNextPage}
+						loader={<FetchMoreLoaderComp />}
+						height={'364px'}
+					>
+						<div className="unsplashImagesListContainer">
+							{unsplashImagesList?.map((image) => (
+								<img
+									key={image.id}
+									className="unsplashImage"
+									onClick={() => handleImageClick(image.imageUrl)}
+									src={image.imageUrl}
+									alt={
+										image.alt_description ||
+										image.description ||
+										'Unsplash Image'
+									}
+								/>
+							))}
+						</div>
+					</InfiniteScroll>
+				)}
+			</div>
+		),
 	};
 
 	return (
