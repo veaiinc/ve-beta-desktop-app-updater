@@ -27,6 +27,8 @@ import { ReactComponent as RelativeTimeSvg } from '../../../assets/svg/home_page
 import { ReactComponent as BookIcon } from '../../../assets/svg/home_page/bookIcon.svg';
 import { ReactComponent as ListViewSvg } from '../../../assets/svg/home_page/listView.svg';
 import { ReactComponent as FocusViewSvg } from '../../../assets/svg/home_page/focusView.svg';
+import { ReactComponent as SortDescSvg } from '../../../assets/svg/home_page/sortDesc.svg';
+import { ReactComponent as SortAscSvg } from '../../../assets/svg/home_page/sortAsc.svg';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/sidebar/agentsIcon.svg';
 
 dayjs.extend(relativeTime);
@@ -146,6 +148,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		hoveredCard: null,
 		isListView: true,
 		isApiLoading: false,
+		sortByCreatedAt: -1,
 		activeBtn: 'insights',
 	});
 	const navigate = useNavigate();
@@ -185,6 +188,30 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			updateWindow(info?.currentIndex);
 		}
 	}, [info?.totalCardsData, info.currentIndex]);
+
+	useEffect(() => {
+		const scrollableContainer = document?.querySelector('.scrollable-container');
+		if (scrollableContainer) {
+			scrollableContainer?.scrollTo({
+				top: 0,
+				behavior: 'instant',
+			});
+		}
+	}, [info?.selectedFilters, info?.sortByCreatedAt]);
+
+	useEffect(() => {
+		if (!aiSuggestedPendingActions) return;
+		if (
+			aiSuggestedPendingActions?.metaInfo?.currentPage === 1 &&
+			info?.selectedFilters?.length === 0 &&
+			isMountedRef.current
+		) {
+			isMountedRef.current = false;
+			return;
+		}
+		const reset = true;
+		getAISuggestedPendingActions(newUpdatedPayload, reset);
+	}, [info?.selectedFilters, info?.sortByCreatedAt]);
 
 	const getDateRangeFromFilters = (filters) => {
 		const selectedDateFilter = filters?.find((f) => f?.group === 'Date');
@@ -234,22 +261,10 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			...(selectedReadStatus.length && { read: selectedReadStatus }),
 			...(selectedConfidenceScore.length && { confidenceScore: selectedConfidenceScore }),
 			...(from !== undefined && to !== undefined && { from, to }),
+			sortType: info?.sortByCreatedAt,
+			sortBy: 'createdAt',
 		};
-	}, [payload, info?.selectedFilters]);
-
-	useEffect(() => {
-		if (!info?.selectedFilters || !aiSuggestedPendingActions) return;
-		if (
-			aiSuggestedPendingActions?.metaInfo?.currentPage === 1 &&
-			info?.selectedFilters?.length === 0 &&
-			isMountedRef.current
-		) {
-			isMountedRef.current = false;
-			return;
-		}
-		const reset = true;
-		getAISuggestedPendingActions(newUpdatedPayload, reset);
-	}, [info?.selectedFilters]);
+	}, [payload, info?.selectedFilters, info?.sortByCreatedAt]);
 
 	const updateCardsData = () => {
 		const cards = aiSuggestedPendingActions?.pendingActions;
@@ -319,38 +334,12 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			if (aiSuggestedPendingActions?.metaInfo?.hasNextPage) {
 				const nextPage = aiSuggestedPendingActions.metaInfo.currentPage + 1;
 
-				const filters = info.selectedFilters || [];
-
-				const selectedPriority = filters
-					?.filter((f) => f.group === 'Priority Level')
-					.map((f) => f.value || f.title);
-
-				const selectedReadStatus = filters
-					?.filter((f) => f.group === 'Read Status')
-					.map((f) => f.value || f.title);
-
-				const selectedConfidenceScore = filters
-					?.filter((f) => f.group === 'Confidence level')
-					.map((f) => f.value || f.title);
-
-				const { from, to } = getDateRangeFromFilters(filters);
-
-				const filterPayload = {
+				const payload = {
+					...newUpdatedPayload,
 					page: nextPage,
-					...(selectedPriority?.length > 0 && { priority: selectedPriority }),
-					...(selectedReadStatus?.length > 0 && { read: selectedReadStatus }),
-					...(selectedConfidenceScore?.length > 0 && {
-						confidenceScore: selectedConfidenceScore,
-					}),
-					...(from !== undefined && to !== undefined && { from, to }),
 				};
 
-				const newPayload = {
-					...payload,
-					...filterPayload,
-				};
-
-				await getAISuggestedPendingActions(newPayload, false);
+				await getAISuggestedPendingActions(payload, false);
 				setInfo((prev) => ({
 					...prev,
 					isApiLoading: false,
@@ -445,38 +434,12 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	const fetchMorePendingActions = async () => {
 		const nextPage = aiSuggestedPendingActions?.metaInfo?.currentPage + 1;
 
-		const filters = info?.selectedFilters || [];
-
-		const selectedPriority = filters
-			?.filter((f) => f?.group === 'Priority Level')
-			.map((f) => f?.value || f?.title);
-
-		const selectedReadStatus = filters
-			?.filter((f) => f?.group === 'Read Status')
-			.map((f) => f?.value || f?.title);
-
-		const selectedConfidenceScore = filters
-			?.filter((f) => f?.group === 'Confidence level')
-			.map((f) => f?.value || f?.title);
-
-		const { from, to } = getDateRangeFromFilters(filters);
-
-		const filterPayload = {
+		const payload = {
+			...newUpdatedPayload,
 			page: nextPage,
-			...(selectedPriority?.length > 0 && { priority: selectedPriority }),
-			...(selectedReadStatus?.length > 0 && { read: selectedReadStatus }),
-			...(selectedConfidenceScore?.length > 0 && {
-				confidenceScore: selectedConfidenceScore,
-			}),
-			...(from !== undefined && to !== undefined && { from, to }),
 		};
 
-		const newPayload = {
-			...payload,
-			...filterPayload,
-		};
-
-		await getAISuggestedPendingActions(newPayload, false);
+		await getAISuggestedPendingActions(payload, false);
 	};
 
 	const handleThumbClick = async (id) => {
@@ -535,6 +498,13 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		}));
 	};
 
+	const handleSortByCreatedAt = () => {
+		setInfo((prev) => ({
+			...prev,
+			sortByCreatedAt: -1 * prev?.sortByCreatedAt,
+		}));
+	};
+
 	const handleBtnClick = (btn) => {
 		if (info?.activeBtn === btn) return;
 		setInfo((prev) => ({
@@ -554,6 +524,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 
 		return groups;
 	}, [info?.cards]);
+
 	return (
 		<div className="proactive-suggestions-container">
 			<div className="action-container">
@@ -601,6 +572,9 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 							</div>
 						</Tooltip>
 					</div>
+					{/* <div className="sort-by-created-at" onClick={handleSortByCreatedAt}>
+						{info?.sortByCreatedAt === -1 ? <SortAscSvg /> : <SortDescSvg />}
+					</div> */}
 					<div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
 						{/* <button className="sort-btn" data-tooltip="Sort">
 						<SortIcon />
@@ -616,7 +590,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 											<div key={group?.title} style={{ width: '100%' }}>
 												<div className="filter-item">
 													<div className="filter-item-title">
-														{group?.title}
+														{group?.title || ''}
 													</div>
 													<div className="filter-item-options">
 														{group?.options?.map((item) => {
@@ -685,7 +659,12 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 						>
 							<div
 								className="action-left"
-								onClick={() => setInfo((prev) => ({ ...prev, openFilter: true }))}
+								onClick={() => {
+									if (info?.openFilter) {
+										return;
+									}
+									setInfo((prev) => ({ ...prev, openFilter: true }));
+								}}
 							>
 								<button
 									className={`filter-btn ${info?.openFilter ? 'active' : ''}`}
@@ -752,6 +731,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 									style={infiniteScrollStyle}
 									height={'100%'}
 									endMessage={<div style={{ paddingBottom: '50px' }}></div>}
+									className="scrollable-container"
 								>
 									{Object?.entries(groupedCards)?.map(([label, cards], index) => (
 										<div key={index} className="groupedCardsContainer">
