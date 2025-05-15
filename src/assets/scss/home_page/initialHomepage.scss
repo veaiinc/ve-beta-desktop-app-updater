@@ -87,10 +87,15 @@
 				.chatParentWrapper {
 					bottom: unset;
 					top: 0px;
-				}
 
-				.textArea {
-					max-height: 34px !important;
+					.chatInputParentContainer {
+						gap: 16px !important;
+						.chat-input-container {
+							.textArea {
+								max-height: 34px !important;
+							}
+						}
+					}
 				}
 			}
 		}
