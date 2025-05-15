@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState, useRef } from 'react';
+import { memo, useCallback, useEffect, useState, useRef } from 'react';
 import '../../../assets/scss/calendar/attendeeSelector.scss';
 import { Select, Modal, Input, Form } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';

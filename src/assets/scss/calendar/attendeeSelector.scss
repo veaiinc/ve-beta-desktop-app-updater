@@ -110,6 +110,21 @@
 		position: fixed !important;
 		z-index: 1050;
 
+		div {
+			div {
+				.ant-input-outlined {
+					&::placeholder {
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+			}
+		}
+
 		.ant-select-item {
 			padding: 8px 12px;
 			display: flex;

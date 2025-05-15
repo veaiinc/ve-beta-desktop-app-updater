@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { memo, useContext, useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import '../../../../assets/scss/calendar/modal/eventDetailsModal.scss';
 import CustomInput from '../../../components/globalComponents/CustomInput';
 import CustomTextArea from '../../../components/globalComponents/CustomTextArea';
@@ -17,8 +17,8 @@ import Spinner from '../../../components/loaders/Spinner';
 import Context from '../../../../context/context';
 import { Drawer } from 'antd';
 import moment from 'moment';
-import { PlusOutlined } from '@ant-design/icons';
-import { Input } from 'antd';
+// import { PlusOutlined } from '@ant-design/icons';
+// import { Input } from 'antd';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 
@@ -31,57 +31,53 @@ const sanitizeInput = (value) => {
 };
 
 // Utility to normalize select values
-const normalizeSelectValue = (value, options, field) => {
-	if (!options?.length) {
-		console.warn(`${field} options are empty or invalid:`, options);
-		return field === 'attendees' ? [] : null;
-	}
+// const normalizeSelectValue = (value, options, field) => {
+// 	if (!options?.length) {
+// 		return field === 'attendees' ? [] : null;
+// 	}
 
-	const findValue = (v) => {
-		// Handle direct value matches
-		const option = options.find((opt) => opt.value === v || opt.label === v || opt._id === v);
+// 	const findValue = (v) => {
+// 		// Handle direct value matches
+// 		const option = options.find((opt) => opt.value === v || opt.label === v || opt._id === v);
 
-		// Handle object values
-		if (!option && typeof v === 'object') {
-			if (v._id) {
-				return options.find((opt) => opt._id === v._id)?.value || null;
-			}
-			if (v.id) {
-				return options.find((opt) => opt.value === v.id)?.value || null;
-			}
-			if (v.value) {
-				return options.find((opt) => opt.value === v.value)?.value || null;
-			}
-		}
+// 		// Handle object values
+// 		if (!option && typeof v === 'object') {
+// 			if (v._id) {
+// 				return options.find((opt) => opt._id === v._id)?.value || null;
+// 			}
+// 			if (v.id) {
+// 				return options.find((opt) => opt.value === v.id)?.value || null;
+// 			}
+// 			if (v.value) {
+// 				return options.find((opt) => opt.value === v.value)?.value || null;
+// 			}
+// 		}
 
-		return option ? option.value : null;
-	};
+// 		return option ? option.value : null;
+// 	};
 
-	// Handle attendees array
-	if (field === 'attendees') {
-		if (!value || !Array.isArray(value)) {
-			return [];
-		}
-		const normalized = value.map(findValue).filter(Boolean);
-		console.log(`Normalized ${field}:`, { input: value, output: normalized });
-		return normalized;
-	}
+// 	// Handle attendees array
+// 	if (field === 'attendees') {
+// 		if (!value || !Array.isArray(value)) {
+// 			return [];
+// 		}
+// 		const normalized = value.map(findValue).filter(Boolean);
+// 		return normalized;
+// 	}
 
-	// Handle calendar category
-	if (field === 'calendarCategory') {
-		if (!value) {
-			return null;
-		}
-		const normalized = findValue(value);
-		console.log(`Normalized ${field}:`, { input: value, output: normalized });
-		return normalized;
-	}
+// 	// Handle calendar category
+// 	if (field === 'calendarCategory') {
+// 		if (!value) {
+// 			return null;
+// 		}
+// 		const normalized = findValue(value);
+// 		return normalized;
+// 	}
 
-	// Default case
-	const normalized = findValue(value);
-	console.log(`Normalized ${field}:`, { input: value, output: normalized });
-	return normalized;
-};
+// 	// Default case
+// 	const normalized = findValue(value);
+// 	return normalized;
+// };
 
 const initialState = {
 	loading: false,
@@ -112,23 +108,7 @@ const EventDetailsModal = ({
 	const [newAttendee, setNewAttendee] = useState('');
 	const resizableContainerRef = useRef(null);
 	const mouseXPosition = useRef(null);
-
 	const updateEventDebounceRef = useRef(null);
-
-	// Debug select options and values
-	useEffect(() => {
-		console.log('categoryList:', categoryList);
-		console.log('tenantsUserList:', tenantsUserList);
-		console.log('calendarCategory value:', info.eventDetails?.calendarCategory);
-		console.log('attendees value:', info.eventDetails?.attendees);
-		console.log('selectedEvent:', selectedEvent);
-		if (!categoryList?.length) {
-			console.warn('categoryList is empty or invalid');
-		}
-		if (!tenantsUserList?.length) {
-			console.warn('tenantsUserList is empty or invalid');
-		}
-	}, [categoryList, tenantsUserList, info.eventDetails, selectedEvent]);
 
 	useEffect(() => {
 		if (selectedEvent) {
@@ -165,14 +145,14 @@ const EventDetailsModal = ({
 		};
 	}, []);
 
-	const formatTimeMiliSec = useCallback((milliseconds) => {
-		const duration = moment.duration(milliseconds / 1000, 'seconds');
-		const hours = String(duration.hours()).padStart(2, '0');
-		const minutes = String(duration.minutes()).padStart(2, '0');
-		const secs = String(duration.seconds()).padStart(2, '0');
-		const millisecs = String(milliseconds % 1000).padStart(1, '0');
-		return `${hours}:${minutes}:${secs}.${millisecs}`;
-	}, []);
+	// const formatTimeMiliSec = useCallback((milliseconds) => {
+	// 	const duration = moment.duration(milliseconds / 1000, 'seconds');
+	// 	const hours = String(duration.hours()).padStart(2, '0');
+	// 	const minutes = String(duration.minutes()).padStart(2, '0');
+	// 	const secs = String(duration.seconds()).padStart(2, '0');
+	// 	const millisecs = String(milliseconds % 1000).padStart(1, '0');
+	// 	return `${hours}:${minutes}:${secs}.${millisecs}`;
+	// }, []);
 
 	const validateEventUpdate = useCallback(
 		(field, value) => {
@@ -235,7 +215,6 @@ const EventDetailsModal = ({
 					updateCalenderEventsList(eventId, updateBody);
 					message.success('Event updated successfully');
 				} catch (error) {
-					console.error('Failed to update event:', error);
 					const errorMessage =
 						error.message === 'Unauthorized access'
 							? 'Please log in again'
@@ -298,7 +277,6 @@ const EventDetailsModal = ({
 			message.success('Event deleted successfully');
 			modifiedOnClose();
 		} catch (error) {
-			console.error('Failed to delete event:', error);
 			const errorMessage =
 				error.message === 'Unauthorized access'
 					? 'Please log in again'
