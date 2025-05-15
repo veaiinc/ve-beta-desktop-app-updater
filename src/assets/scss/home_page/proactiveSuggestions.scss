@@ -295,6 +295,19 @@
 			align-items: center;
 			gap: 6px;
 
+			.sort-by-created-at {
+				display: flex;
+				width: 36px;
+				height: 36px;
+				padding: 10px;
+				justify-content: center;
+				align-items: center;
+				gap: 18px;
+				border-radius: 6px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				cursor: pointer;
+			}
+
 			.viewSelectionContainer {
 				display: flex;
 				border: 1px solid var(--stroke);
