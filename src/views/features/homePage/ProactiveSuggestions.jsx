@@ -25,6 +25,8 @@ import { ReactComponent as RelativeTimeSvg } from '../../../assets/svg/home_page
 import { ReactComponent as BookIcon } from '../../../assets/svg/home_page/bookIcon.svg';
 import { ReactComponent as ListViewSvg } from '../../../assets/svg/home_page/listView.svg';
 import { ReactComponent as FocusViewSvg } from '../../../assets/svg/home_page/focusView.svg';
+import { ReactComponent as SortDescSvg } from '../../../assets/svg/home_page/sortDesc.svg';
+import { ReactComponent as SortAscSvg } from '../../../assets/svg/home_page/sortAsc.svg';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/sidebar/agentsIcon.svg';
 
 dayjs.extend(relativeTime);
@@ -193,7 +195,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 				behavior: 'instant',
 			});
 		}
-	}, [info?.selectedFilters]);
+	}, [info?.selectedFilters, info?.sortByCreatedAt]);
 
 	useEffect(() => {
 		if (!aiSuggestedPendingActions) return;
@@ -257,8 +259,10 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			...(selectedReadStatus.length && { read: selectedReadStatus }),
 			...(selectedConfidenceScore.length && { confidenceScore: selectedConfidenceScore }),
 			...(from !== undefined && to !== undefined && { from, to }),
+			sortType: info?.sortByCreatedAt,
+			sortBy: 'createdAt',
 		};
-	}, [payload, info?.selectedFilters]);
+	}, [payload, info?.selectedFilters, info?.sortByCreatedAt]);
 
 	const updateCardsData = () => {
 		const cards = aiSuggestedPendingActions?.pendingActions;
@@ -550,7 +554,9 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 							</div>
 						</Tooltip>
 					</div>
-					{/* <div className="sort-by-created-at" onClick={handleSortByCreatedAt}></div> */}
+					<div className="sort-by-created-at" onClick={handleSortByCreatedAt}>
+						{info?.sortByCreatedAt === -1 ? <SortDescSvg /> : <SortAscSvg />}
+					</div>
 					<div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
 						{/* <button className="sort-btn" data-tooltip="Sort">
 						<SortIcon />

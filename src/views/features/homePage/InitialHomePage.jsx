@@ -217,6 +217,7 @@ const InitialHomePage = () => {
 					page: 1,
 					limit: 20,
 					sortBy: 'createdAt',
+					sortType: -1,
 				},
 				true,
 			);

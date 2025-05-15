@@ -2386,7 +2386,7 @@ export const TemplatesState = (props) => {
 				});
 				return;
 			}
-			const { page = 1, limit = 10, from, to } = payload || {};
+			const { page = 1, limit = 10, from, to, sortType, sortBy } = payload || {};
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 
@@ -2398,11 +2398,12 @@ export const TemplatesState = (props) => {
 			);
 
 			// Add date filters if present
-			if (from) filterParams.push(`from=${from}`);
-			if (to) filterParams.push(`to=${to}`);
+			if (from) filterParams?.push(`from=${from}`);
+			if (to) filterParams?.push(`to=${to}`);
+			if (sortType && sortBy) filterParams?.push(`sortType=${sortType}&sortBy=${sortBy}`);
 
-			const queryString = new URLSearchParams({ page, limit }).toString();
-			const fullQuery = `${queryString}&${filterParams.join('&')}`;
+			const queryString = new URLSearchParams({ page, limit })?.toString();
+			const fullQuery = `${queryString}&${filterParams?.join('&')}`;
 
 			const url = `/${workspaceId}/knowledge-bases/pending-actions?${fullQuery}`;
 
