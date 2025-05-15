@@ -945,7 +945,7 @@ const AISuggestionsModal = ({
 									className="report-btn"
 									onClick={() => handleViewReportClick(data)}
 								>
-									View report
+									Ask AI
 								</button>
 							</div>
 						</div>

@@ -765,7 +765,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 												}
 												onClick={() => handleCardClick(card, index)}
 											>
-												<Tooltip
+												{/* <Tooltip
 													title={
 														<div className="tooltipContainer">
 															{card?.description || ''}
@@ -781,33 +781,31 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 														pointerEvents: 'none',
 													}}
 													overlayClassName={`tooltip-${card?._id}`}
+												> */}
+												<div
+													className="cardContainerUnreadIndicator"
+													style={{ cursor: 'pointer' }}
+													onMouseMove={(e) => {
+														const tooltip = document?.querySelector(
+															`.tooltip-${card?._id}`,
+														);
+														if (tooltip) {
+															tooltip.style.left = `${
+																e.clientX + 10
+															}px`;
+															tooltip.style.top = `${
+																e.clientY + 10
+															}px`;
+														}
+													}}
 												>
-													<div
-														className="cardContainerUnreadIndicator"
-														style={{ cursor: 'pointer' }}
-														onMouseMove={(e) => {
-															const tooltip = document?.querySelector(
-																`.tooltip-${card?._id}`,
-															);
-															if (tooltip) {
-																tooltip.style.left = `${
-																	e.clientX + 10
-																}px`;
-																tooltip.style.top = `${
-																	e.clientY + 10
-																}px`;
-															}
-														}}
-													>
-														{!isRead && (
-															<span className="unread"></span>
-														)}
-														<div className="cardContianerTitle">
-															<span>{card?.title} - </span>
-															{card?.description}
-														</div>
+													{!isRead && <span className="unread"></span>}
+													<div className="cardContianerTitle">
+														<span>{card?.title} - </span>
+														{card?.description}
 													</div>
-												</Tooltip>
+												</div>
+												{/* </Tooltip> */}
 												<div
 													className={`cardOptionsMainContainer ${
 														info?.hoveredCard?._id === card?._id
@@ -856,11 +854,13 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 																/>
 															</div>
 														</Tooltip>
-														<div className="verticalLine"></div>
-														<Tooltip
-															title={
-																<div className="emailContainer">
-																	{/* <div className="emailHeader">
+														{card?.moduleType === 'gmail' && (
+															<>
+																<div className="verticalLine"></div>
+																<Tooltip
+																	title={
+																		<div className="emailContainer">
+																			{/* <div className="emailHeader">
 																		<div className="emailTitle">
 																			Summary of the mail
 																		</div>
@@ -887,24 +887,29 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 																			requirements and modify.
 																		</div>
 																	</div> */}
-																	<div className="relativeTime">
+																			<div className="relativeTime">
+																				<EmailIcon
+																					width={16}
+																					height={12}
+																				/>
+																				{messageAt}
+																			</div>
+																		</div>
+																	}
+																	placement="bottom"
+																	trigger={'hover'}
+																	arrow={false}
+																	color={'transparent'}
+																>
+																	<div>
 																		<EmailIcon
 																			width={16}
 																			height={12}
 																		/>
-																		{messageAt}
 																	</div>
-																</div>
-															}
-															placement="bottom"
-															trigger={'hover'}
-															arrow={false}
-															color={'transparent'}
-														>
-															<div>
-																<EmailIcon width={16} height={12} />
-															</div>
-														</Tooltip>
+																</Tooltip>
+															</>
+														)}
 														<div className="verticalLine"></div>
 
 														{priority && (
