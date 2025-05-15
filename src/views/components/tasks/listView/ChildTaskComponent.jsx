@@ -1,5 +1,5 @@
 import { Progress } from 'antd';
-import React, { useCallback, useContext, useEffect, useState, memo, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useState, memo, useRef, useMemo } from 'react';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import '../../../../assets/scss/tasks/childTaskComponent.scss';
 import Context from '../../../../context/context';
@@ -11,41 +11,18 @@ const ChildTaskComponent = ({
 	onAddButtonClick,
 	rowTypes,
 	responseMetadata,
-	colors,
-	properties,
-	childTasks = [],
 	completedStatus = [],
-	parentTaskId,
-	handleRowClick,
 }) => {
 	const containerRef = useRef(null);
 	const {
-		tasks: { subTasks, getSubTasks, resetSubTasks },
+		tasks: { subTasks, getSubTasks, resetSubTasks, sideBarData, updateSideBarData },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		loading: true,
-		error: null,
-		subTasks: [],
-		totalCount: 0,
-		completedCount: 0,
-		tasks: [],
 		subtaskOpen: false,
 	});
 
-	useEffect(() => {
-		const completedStatusIds = completedStatus?.map((item) => item._id);
-		const completedCount = info?.tasks?.filter((item) =>
-			completedStatusIds?.includes(item.status),
-		)?.length;
-		const totalCount = info?.tasks?.length;
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			loading: false,
-			error: null,
-			totalCount: totalCount,
-			completedCount: completedCount,
-		}));
-	}, [info?.tasks, completedStatus]);
+	const parentTaskId = sideBarData?.stack?.at(-1)?._id;
 
 	useEffect(() => {
 		resetSubTasks();
@@ -96,7 +73,19 @@ const ChildTaskComponent = ({
 		return null;
 	};
 
-	const subTaskList = subTasks?.data;
+	const subTaskList = subTasks?.data || [];
+
+	const totalCount = subTaskList?.length || 0;
+
+	const completedCount = useMemo(() => {
+		const completedStatusIds = completedStatus?.map((item) => item._id);
+		return subTaskList?.reduce((acc, task) => {
+			if (task?.status && completedStatusIds?.includes(task?.status)) {
+				return acc + 1;
+			}
+			return acc;
+		}, 0);
+	}, [subTaskList, completedStatus]);
 
 	return (
 		<div className="sidebar-subtask-container">
@@ -105,14 +94,14 @@ const ChildTaskComponent = ({
 				<span className="sidebar-subtask-header-count">
 					<Progress
 						type="circle"
-						percent={(info?.completedCount / info?.totalCount) * 100}
+						percent={(completedCount / totalCount) * 100}
 						size={16}
 						strokeColor={'var(--primary-button)'}
 						trailColor={'#2F2F2F'}
 						strokeWidth={14}
 					/>
 					<span className="task-count">
-						{info?.completedCount || 0}/{info?.totalCount || 0}
+						{completedCount || 0}/{totalCount || 0}
 					</span>
 				</span>
 				<div className="subtask-actions-wrapper">
@@ -139,7 +128,11 @@ const ChildTaskComponent = ({
 					</div>
 				) : subTaskList?.length > 0 ? (
 					subTaskList?.map((task) => (
-						<div className="subtask-wrapper" onClick={() => handleRowClick(task)}>
+						<div
+							className="subtask-wrapper"
+							onClick={() => updateSideBarData({ data: task })}
+							key={task?._id}
+						>
 							<div className="sub-task-text-wrapper">
 								<div className="title">{task?.title}</div>
 								<div className="description">{task?.description}</div>

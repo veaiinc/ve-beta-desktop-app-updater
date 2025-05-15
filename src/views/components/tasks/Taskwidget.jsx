@@ -67,7 +67,7 @@ const Taskwidget = ({
 	const filteredProperties = useMemo(
 		() =>
 			properties?.filter((property) => {
-				return !['parentTask', 'childTasks'].includes(property?.value);
+				return !['parentTask', 'childTasks', 'createdWithAi'].includes(property?.value);
 			}),
 		[properties],
 	);

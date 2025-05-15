@@ -81,15 +81,16 @@
 	.subtask-list-container {
 		display: flex;
 		flex-direction: column;
-		max-height: 105px;
+		max-height: 122px;
 		overflow-y: hidden;
-		gap: 12px;
+		gap: 20px;
 		justify-content: flex-start;
 		scrollbar-width: 1px;
 
 		&.open {
 			max-height: 300px;
 			overflow-y: auto;
+			gap: 12px;
 		}
 
 		.spinner-container {
@@ -109,6 +110,7 @@
 			align-self: stretch;
 			border-radius: 8px;
 			background: var(--popup, #202123);
+			cursor: pointer;
 
 			.sub-task-text-wrapper {
 				display: flex;
