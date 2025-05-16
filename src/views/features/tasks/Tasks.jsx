@@ -52,6 +52,8 @@ const defaultPreference = {
 	createdAt: { show: false, order: 14 },
 	updatedAt: { show: false, order: 15 },
 	createdWithAi: { show: false, order: 16 },
+	statusUpdatedAt: { show: false, order: 17 },
+	statusUpdatedBy: { show: false, order: 18 },
 };
 
 export const rowTypes = {
@@ -256,6 +258,18 @@ const Tasks = () => {
 				name: 'Created With AI',
 				Icon: '',
 				props: {},
+			},
+			statusUpdatedAt: {
+				type: 'date',
+				name: 'Completed At',
+				Icon: CalendarSvg,
+				props: { timestamp: true },
+			},
+			statusUpdatedBy: {
+				type: 'person',
+				name: 'Completed By',
+				Icon: PersonSvg,
+				props: { disabled: true, parseValue: true },
 			},
 		}),
 		[info?.taskMetadata],
@@ -734,7 +748,7 @@ const Tasks = () => {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			} else {
 				if (info?.isCreatingSubtask) {
-					payload.parentTaskId = info?.selectedRow?._id;
+					payload.parentTaskId = sideBarData?.stack?.at(-1)?._id;
 				}
 				const response = await addListItem({ input: payload });
 
@@ -750,8 +764,8 @@ const Tasks = () => {
 						newTask.updatedBy = { _id: user_id, name: userName };
 						if (info?.isCreatingSubtask) {
 							newTask.parentTask = {
-								title: info?.selectedRow?.title,
-								_id: info?.selectedRow?._id,
+								title: sideBarData?.stack?.at(-1)?.title,
+								_id: sideBarData?.stack?.at(-1)?._id,
 							};
 							addSubTask(newTask);
 						}
@@ -773,7 +787,7 @@ const Tasks = () => {
 				}
 			}
 		},
-		[info?.isCreatingSubtask, info?.selectedRow?._id],
+		[info?.isCreatingSubtask, sideBarData?.stack?.at(-1)?._id],
 	);
 
 	const deleteTask = useCallback(
@@ -786,6 +800,7 @@ const Tasks = () => {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			} else {
 				const response = await deleteListItem(payload);
+
 				if (response) {
 					if (info?.selectedSubTask?._id === payload?.taskId) {
 						updateTaskInfo({ selectedSubTask: null });
@@ -797,19 +812,20 @@ const Tasks = () => {
 							listTasksForOverdue: null,
 							listTasksDueTillToday: null,
 						});
+						console.log(info?.listItems);
+
 						setInfo((prevInfo) => ({
 							...prevInfo,
 							listItems: prevInfo?.listItems?.filter(
 								(row) => row._id !== payload?.taskId,
 							),
-							sidebarIsOpen: false,
-							selectedRow: null,
 						}));
+						updateSideBarData({ data: -1, open: sideBarData?.stack?.length > 1 });
 					}
 				}
 			}
 		},
-		[info?.selectedSubTask?._id, removeSubTask],
+		[info?.selectedSubTask?._id, removeSubTask, info?.listItems],
 	);
 
 	const handleAddButtonOnClick = () => {
@@ -936,8 +952,6 @@ const Tasks = () => {
 				prefix={info?.taskMetadata?.prefix}
 				sidebarChildren={
 					<ChildTaskComponent
-						parentTaskId={info?.selectedRow?._id}
-						childTasks={info?.selectedRow?.childTasks}
 						completedStatus={info?.taskMetadata?.completedGroupLabels}
 						rowTypes={rowTypes}
 						responseMetadata={responseMetadata}
