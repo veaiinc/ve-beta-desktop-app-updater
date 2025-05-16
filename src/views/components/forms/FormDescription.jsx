@@ -219,7 +219,15 @@ const LinkAnswer = ({ answer }) => {
 	}
 	return (
 		<>
-			<p className="answer link">
+			<p
+				className="answer link"
+				style={{
+					textOverflow: 'ellipsis',
+					overflow: 'hidden',
+					whiteSpace: 'nowrap',
+					maxWidth: '350px',
+				}}
+			>
 				<a href={removeQuotes(answer)} target="_blank" rel="noopener noreferrer">
 					{removeQuotes(answer) ?? 'No answer'}
 				</a>
@@ -383,28 +391,6 @@ const FormDescriptionSkeleton = () => {
 };
 
 const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
-	if (loading) return <FormDescriptionSkeleton />;
-
-	if (activeTab === 'analytics') {
-		return (
-			<div className="formDescription">
-				<div className="emptyState">
-					<p>Form Analytics Updating Soon</p>
-				</div>
-			</div>
-		);
-	}
-
-	if (!response || !response.response || response.response.length === 0) {
-		return (
-			<div className="formDescription">
-				<div className="emptyState">
-					<p>No form responses available</p>
-				</div>
-			</div>
-		);
-	}
-
 	const getName = (response) => {
 		if (!response?.response) return 'No Name';
 		const nameField = response?.response.find((item) =>
@@ -536,7 +522,17 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	return (
 		<div className="formDescription">
 			<div className="descriptionContent">
-				{response ? (
+				{loading ? (
+					<FormDescriptionSkeleton />
+				) : activeTab === 'analytics' ? (
+					<div className="emptyState">
+						<p>Form Analytics Updating Soon</p>
+					</div>
+				) : !response || !response.response || response.response.length === 0 ? (
+					<div className="emptyState">
+						<p>Select Form Response to view details</p>
+					</div>
+				) : (
 					<>
 						<div className="descriptionSection">
 							<div className="infoRow">
@@ -591,10 +587,6 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 							</div>
 						</div>
 					</>
-				) : (
-					<div className="emptyState">
-						<p>Select a form response to view details</p>
-					</div>
 				)}
 			</div>
 		</div>
