@@ -1,6 +1,6 @@
 import { memo } from 'react';
 const BookSvg = ({ active = false, selected = null }) => {
-	let fillColor = active ? 'var(--primary-button)' : 'var(--primary-font)';
+	let fillColor = active ? 'var(--primary-button)' : 'var(--secondary-font)';
 
 	if (selected) {
 		fillColor = 'var(--primary-button-font)';

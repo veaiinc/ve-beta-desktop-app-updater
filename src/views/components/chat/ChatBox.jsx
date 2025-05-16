@@ -1151,7 +1151,7 @@ const ChatBox = ({
 														rootClassName="chatbox-tooltip"
 													>
 														<div
-															className="chat-box-icon-container"
+															className="chat-box-icon-container start-page-icon"
 															style={{
 																opacity: `${
 																	chatInfo?.deepResearch
@@ -1175,7 +1175,11 @@ const ChatBox = ({
 											</>
 										)}
 
-										<div className="placeholderContainer">
+										<div
+											className={`placeholderContainer ${
+												startPage ? 'startPagePlaceholderContainer' : ''
+											}`}
+										>
 											<textarea
 												type="text"
 												value={info?.chatQuery}
