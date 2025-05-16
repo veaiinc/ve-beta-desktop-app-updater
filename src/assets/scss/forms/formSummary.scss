@@ -81,12 +81,31 @@
 							font-weight: 500;
 							line-height: 30px;
 							white-space: nowrap;
-
-							.question-number {
-								font-weight: 500;
-								color: var(--primary-font);
-								margin-right: 8px;
-							}
+						}
+						.question-text {
+							overflow: hidden;
+							text-overflow: ellipsis;
+							text-wrap: wrap;
+						}
+						.total-responses {
+							overflow: hidden;
+							color: var(--secondary-font, #787e87);
+							color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
+							text-overflow: ellipsis;
+							font-family: var(--primary-font-family);
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 12px;
+							text-transform: capitalize;
+							display: -webkit-box;
+							-webkit-box-orient: vertical;
+							-webkit-line-clamp: 1;
+							white-space: nowrap;
+							text-align: left;
+							align-self: flex-start;
+							margin-left: 0;
+							padding-left: 0;
 						}
 
 						.copy-button {
