@@ -392,16 +392,16 @@ const FormDescriptionSkeleton = () => {
 const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	const getName = (response) => {
 		if (!response?.response) return 'No Name';
-		const nameField = response?.response.find((item) =>
-			item?.question?.toLowerCase().includes('name'),
+		const nameField = response?.response.find(
+			(item) => item?._id === '682710397cc68d40024204aa',
 		);
 		return nameField?.answer || 'No Name';
 	};
 
 	const getEmail = (response) => {
 		if (!response?.response) return '';
-		const emailField = response?.response.find((item) =>
-			item?.question?.toLowerCase().includes('email'),
+		const emailField = response?.response.find(
+			(item) => item?._id === '682710397cc68d40024204ab',
 		);
 		return emailField?.answer || '';
 	};
@@ -409,66 +409,33 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	const getPhone = (response) => {
 		if (!response?.response) return '';
 		const phoneField = response.response.find(
-			(item) =>
-				item?.question?.toLowerCase().includes('phone') ||
-				item?.question?.toLowerCase().includes('mobile') ||
-				item?.question?.toLowerCase().includes('contact'),
+			(item) => item?._id === '682710397cc68d40024204ac',
 		);
 		return phoneField?.answer || '';
 	};
 
 	const getBasicInfo = (response) => {
 		if (!response?.response) return [];
-		const basicInfoFields = [
-			'first name',
-			'last name',
-			'name',
-			'email',
-			'phone',
-			'mobile',
-			'contact',
-			'address',
-			'location',
-			'company',
-			'organization',
-			'position',
-			'title',
+
+		return [
+			{
+				question: 'Name',
+				answer: getName(response),
+			},
+			{
+				question: 'Email',
+				answer: getEmail(response),
+			},
+			{
+				question: 'Phone',
+				answer: getPhone(response),
+			},
 		];
-		return response.response.filter((item) => {
-			const question = item?.question?.toLowerCase() || '';
-			return basicInfoFields.some((field) => question.includes(field));
-		});
 	};
 
 	const getTimeAgo = (response) => {
 		if (!response?.createdAt) return '';
 		return new Date(response.createdAt * 1000).toLocaleString();
-	};
-
-	const formatLabel = (question) => {
-		const lowerQuestion = question?.toLowerCase();
-		if (lowerQuestion?.includes('first name')) return 'First Name';
-		if (lowerQuestion?.includes('last name')) return 'Last Name';
-		if (
-			lowerQuestion?.includes('name') &&
-			!lowerQuestion?.includes('first') &&
-			!lowerQuestion?.includes('last')
-		)
-			return 'Name';
-		if (lowerQuestion?.includes('email')) return 'Email';
-		if (
-			lowerQuestion?.includes('phone') ||
-			lowerQuestion?.includes('mobile') ||
-			lowerQuestion?.includes('contact')
-		)
-			return 'Phone';
-		if (lowerQuestion?.includes('address')) return 'Address';
-		if (lowerQuestion?.includes('location')) return 'Location';
-		if (lowerQuestion?.includes('company') || lowerQuestion?.includes('organization'))
-			return 'Company';
-		if (lowerQuestion?.includes('position') || lowerQuestion?.includes('title'))
-			return 'Position';
-		return question;
 	};
 
 	const formAnswer = (type, answer) => {
@@ -551,12 +518,8 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 							</div>
 							{getBasicInfo(response).map((field, index) => (
 								<div key={index} className="infoRow">
-									<span className="infoLabel">
-										{formatLabel(field?.question)}:
-									</span>
-									<span className="infoValue">
-										{field?.answer || 'Not provided'}
-									</span>
+									<span className="infoLabel">{field?.question}:</span>
+									<span className="infoValue">{field?.answer}</span>
 								</div>
 							))}
 							<div className="infoRow">
