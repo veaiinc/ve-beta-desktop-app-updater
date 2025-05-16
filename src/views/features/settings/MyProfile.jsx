@@ -42,6 +42,7 @@ const MyProfile = () => {
 			getTenantUserDetails,
 			tenantUserDetails,
 			updateUserDetailsState,
+			updateUserDetails: updateUserDetailsProfile,
 		},
 		companyInfo: { getTenantPreferences, tenantPreferenceData },
 		themeInfo: { theme, updateTheme },
@@ -238,7 +239,7 @@ const MyProfile = () => {
 		let json = {
 			dp_style: settings,
 		};
-		const response = await updateUserDetails(json);
+		const response = await updateUserDetailsProfile(json);
 
 		if (response[0]) {
 			setUserDetails((prev) => ({ ...prev, cropSettings: settings }));
@@ -356,7 +357,7 @@ const MyProfile = () => {
 						<p>Change Theme</p>
 						<div className="theme-container-item-content">
 							{themePreferenceOptions?.map((themeOption) => (
-								<>
+								<React.Fragment key={themeOption?.id}>
 									<p
 										key={themeOption?.id}
 										onClick={() => handleThemeChange(themeOption?.value)}
@@ -370,7 +371,7 @@ const MyProfile = () => {
 											|
 										</span>
 									)}
-								</>
+								</React.Fragment>
 							))}
 						</div>
 					</div>
