@@ -490,7 +490,7 @@
 			&::after {
 				content: attr(data-tooltip);
 				position: absolute;
-				bottom: -40px;
+				bottom: -45px;
 				left: 50%;
 				transform: translateX(-50%);
 				border-radius: 4px;
@@ -500,17 +500,21 @@
 				transition: all 0.2s ease;
 				z-index: 1000;
 
+				display: inline-flex;
+				padding: 10px;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+				border-radius: 8px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: var(--popup, #202123);
+				box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
 				color: var(--primary-font, #f2f2f3);
 				font-family: var(--primary-font-family);
 				font-size: 11px;
 				font-style: normal;
-				font-weight: 600;
+				font-weight: 500;
 				line-height: normal;
-				border-radius: 12px;
-				border: 1px solid var(--stroke, #2c2d2e);
-				background: var(--popup, #202123);
-				box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
-				padding: 8px 12px;
 			}
 
 			&:hover {
@@ -952,21 +956,15 @@
 	}
 }
 .priorityTooltip {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 12px;
-	color: var(--primary-font, #f2f2f3);
-	font-family: var(--primary-font-family);
-	font-size: 12px;
-	font-style: normal;
-	font-weight: 600;
-	line-height: normal;
-	border-radius: 12px;
+	display: inline-flex;
+	padding: 10px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	border-radius: 8px;
 	border: 1px solid var(--stroke, #2c2d2e);
 	background: var(--popup, #202123);
 	box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
-	padding: 8px 14px;
 }
 .confidenceScoreContainer {
 	display: flex;
@@ -999,19 +997,19 @@
 }
 
 .tooltipTitle {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 12px;
+	display: inline-flex;
+	padding: 10px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	border-radius: 8px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--popup, #202123);
+	box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
 	color: var(--primary-font, #f2f2f3);
 	font-family: var(--primary-font-family);
 	font-size: 11px;
 	font-style: normal;
-	font-weight: 600;
+	font-weight: 500;
 	line-height: normal;
-	border-radius: 12px;
-	border: 1px solid var(--stroke, #2c2d2e);
-	background: var(--popup, #202123);
-	box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
-	padding: 8px 12px;
 }

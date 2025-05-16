@@ -557,6 +557,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 							title={<div className="tooltipTitle">List View</div>}
 							color="transparent"
 							placement="bottom"
+							trigger={'hover'}
 						>
 							<div
 								className={`viewSelection ${info?.isListView ? 'active' : ''}`}
