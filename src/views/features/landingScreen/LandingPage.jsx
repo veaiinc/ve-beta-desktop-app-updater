@@ -85,7 +85,14 @@ const LandingPage = () => {
 		navigate(tabRoutes[tabVal]);
 	};
 
-	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
+	const resolvedTheme =
+		theme === 'systemDefault'
+			? window.matchMedia('(prefers-color-scheme: dark)').matches
+				? 'dark'
+				: 'light'
+			: theme;
+
+	const newThemeValue = resolvedTheme === 'dark' ? 'light' : 'dark';
 
 	// Simple tab-to-component mapping
 	const tabComponents = {
@@ -182,7 +189,7 @@ const LandingPage = () => {
 						className={`theme-btn ${isSidebarOpen ? 'hidden-on-mobile' : ''}`}
 						onClick={() => updateTheme(newThemeValue, routeType)}
 					>
-						{theme === 'dark' ? <MoonSvg /> : <SunSvg />}
+						{resolvedTheme === 'dark' ? <SunSvg /> : <MoonSvg />}
 					</button>
 					<button className="login-btn" onClick={handleLoginBtnClick}>
 						Login
