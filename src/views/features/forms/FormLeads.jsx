@@ -31,6 +31,7 @@ import { ReactComponent as Download } from '../../../assets/svg/download.svg';
 import FilterPopUp from '../../components/globalComponents/FilterPopUp';
 import DropDown from '../../components/dropDown/tasks/DropDown';
 import Context from '../../../context/context';
+import ShareWidget from '../../components/globalComponents/ShareWidget';
 
 const FormLeads = () => {
 	const origin = fetchOriginSelection();
@@ -84,7 +85,8 @@ const FormLeads = () => {
 			return `https://${activeWorkspaceId}.ve.ai/${formData?.slug}`;
 		}
 	}, [activeWorkspaceId, formData?.slug, tennantSettingsData?.customDomain]);
-	const embeddedLinkUrl = useMemo(() => {
+	const embeddedCode = useMemo(() => {
+		if (!copyLinkUrl) return '';
 		return `<iframe src="${copyLinkUrl}" height="100%" width="100%" title="VEAI Form"></iframe>`;
 	}, [copyLinkUrl]);
 	const [expandedCard, setExpandedCard] = useState(null);
@@ -342,16 +344,6 @@ const FormLeads = () => {
 							message.error('Failed to copy form link');
 						});
 					break;
-				case 'embeddedLink':
-					navigator.clipboard
-						.writeText(embeddedLinkUrl)
-						.then(() => {
-							message.success('Embedded code copied successfully');
-						})
-						.catch(() => {
-							message.error('Failed to copy embedded code');
-						});
-					break;
 				case 'deleteForm':
 					handleDeleteForm(formData?._id);
 					break;
@@ -365,7 +357,7 @@ const FormLeads = () => {
 					break;
 			}
 		},
-		[copyLinkUrl, formData?._id, handleDeleteForm, handleDuplicateForm, embeddedLinkUrl],
+		[copyLinkUrl, formData?._id, handleDeleteForm, handleDuplicateForm],
 	);
 
 	const handleSummaryDataUpdate = useCallback((data) => {
@@ -565,6 +557,32 @@ const FormLeads = () => {
 		};
 	}, [id, getFormResponse]);
 
+	const [shareModalInfo, setShareModalInfo] = useState({
+		isOpen: false,
+	});
+
+	const handleShareModalClose = useCallback(() => {
+		setShareModalInfo((prev) => ({ ...prev, isOpen: false }));
+	}, []);
+
+	const handleCopyLink = useCallback(() => {
+		if (!copyLinkUrl) {
+			message.error('Form link is not available');
+			return;
+		}
+		navigator.clipboard.writeText(copyLinkUrl);
+		message.success('Form link copied to clipboard');
+	}, [copyLinkUrl]);
+
+	const handleCopyEmbedded = useCallback(() => {
+		if (!embeddedCode) {
+			message.error('Embedded code is not available');
+			return;
+		}
+		navigator.clipboard.writeText(embeddedCode);
+		message.success('Embedded code copied to clipboard');
+	}, [embeddedCode]);
+
 	return (
 		<div className="formLeadsParentContainer" role="main">
 			{info.loading ? (
@@ -611,15 +629,6 @@ const FormLeads = () => {
 													{formTitle}
 												</h1>
 											)}
-											<div
-												className="edit-button"
-												onClick={() =>
-													handleFormResponsesMenu('embeddedLink')
-												}
-											>
-												<Copylink />
-												<div className="edit">Embedded Link</div>
-											</div>
 										</div>
 									</div>
 
@@ -638,16 +647,8 @@ const FormLeads = () => {
 											)}
 										</div>
 										<h1 className="time">
-											{info.latestUpdateTime ? (
-												<>
-													Updated{' '}
-													{getTimeAgo({
-														createdAt: info.latestUpdateTime,
-													})}
-												</>
-											) : (
-												<>No response</>
-											)}
+											Updated{' '}
+											{getTimeAgo({ createdAt: info.latestUpdateTime })}
 										</h1>
 									</div>
 									<div className="button-space">
@@ -670,10 +671,15 @@ const FormLeads = () => {
 										<div className="button-con">
 											<div
 												className="edit-button"
-												onClick={() => handleFormResponsesMenu('copyLink')}
+												onClick={() =>
+													setShareModalInfo((prev) => ({
+														...prev,
+														isOpen: true,
+													}))
+												}
 											>
 												<Copylink />
-												<div className="edit">Copy Link</div>
+												<div className="edit">Share</div>
 											</div>
 											<div
 												className="delete-button"
@@ -830,6 +836,17 @@ const FormLeads = () => {
 					</div>
 				</>
 			)}
+
+			{/* Update ShareWidget implementation */}
+			<ShareWidget
+				isOpen={shareModalInfo.isOpen}
+				onClose={handleShareModalClose}
+				shareUrl={copyLinkUrl}
+				title="Share Form"
+				onCopyLink={handleCopyLink}
+				onCopyEmbedded={handleCopyEmbedded}
+				embeddedCode={embeddedCode}
+			/>
 		</div>
 	);
 };
