@@ -667,6 +667,12 @@
 		align-self: stretch;
 		border-radius: 24px;
 		background: var(--card-hover);
+		svg {
+			path,
+			circle {
+				stroke: var(--secondary-font);
+			}
+		}
 		input {
 			flex: 1 0 0;
 			width: 100%;
@@ -785,7 +791,7 @@
 			cursor: pointer;
 
 			&:hover {
-				background: var(--backgroung-color, #2f3336);
+				background: var(--background-color, #2f3336);
 			}
 
 			.upload-file-text {
