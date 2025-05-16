@@ -62,7 +62,9 @@ const TableBody = ({ data, columns, rowTypes, responseMetadata, handleUpdate, co
 								width: column?.width,
 								flex: '1 0 auto',
 							}}
-							onClick={() => updateSideBarData({ data: row, open: true })}
+							onClick={() =>
+								updateSideBarData({ data: row, open: true, replace: true })
+							}
 						>
 							{generateCell(row, column)}
 						</div>

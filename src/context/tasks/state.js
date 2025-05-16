@@ -852,23 +852,13 @@ export const TasksState = () => {
 		}
 	};
 
-	const updateSideBarData = ({ open, data }) => {
-		let stack = [...state?.sideBarData?.stack];
-
-		if (data) {
-			if (data === -1) {
-				stack.pop();
-			} else {
-				stack.push(data);
-			}
-		}
-
+	const updateSideBarData = ({ open, data = null, replace = false }) => {
 		dispatch({
 			type: Actions.UPDATE_SIDEBAR_DATA,
 			payload: {
-				...state?.sideBarData,
-				stack: data ? stack : state?.sideBarData?.stack,
-				open: open ?? state?.sideBarData?.open,
+				open,
+				data,
+				replace,
 			},
 		});
 	};

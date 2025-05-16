@@ -32,7 +32,10 @@ const GalleryCard = ({ task, responseMetadata, handleUpdate }) => {
 	};
 
 	return (
-		<div className="gallery-card" onClick={() => updateSideBarData({ data: task, open: true })}>
+		<div
+			className="gallery-card"
+			onClick={() => updateSideBarData({ data: task, open: true, replace: true })}
+		>
 			<div className="gallery-card-header">
 				{task?.dueDate && renderComponent('dueDate', task?.dueDate)}
 				<div className="" />

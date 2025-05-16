@@ -638,7 +638,7 @@ const Tasks = () => {
 						};
 					});
 				}
-				if (!info?.sidebarIsOpen) {
+				if (!sideBarData?.open) {
 					fetchListItems();
 				}
 			} catch (error) {
@@ -659,7 +659,7 @@ const Tasks = () => {
 				});
 			}
 		},
-		[updateListItem, info?.selectedSubTask, info?.sidebarIsOpen],
+		[updateListItem, info?.selectedSubTask, sideBarData?.open],
 	);
 
 	const handleDebounceUpdate = useCallback(
@@ -812,7 +812,6 @@ const Tasks = () => {
 							listTasksForOverdue: null,
 							listTasksDueTillToday: null,
 						});
-						console.log(info?.listItems);
 
 						setInfo((prevInfo) => ({
 							...prevInfo,
@@ -834,13 +833,14 @@ const Tasks = () => {
 
 	const handleCloseCreateModal = useCallback(() => {
 		if (info?.isCreatingSubtask) {
-			updateTaskInfo({ sidebarIsOpen: true });
+			updateSideBarData({ open: true });
 		}
 		updateTaskInfo({ isCreateModalOpen: false });
 	}, [info?.isCreatingSubtask]);
 
 	const handleCreateSubTaskClick = useCallback(() => {
-		updateTaskInfo({ sidebarIsOpen: false, isCreatingSubtask: true, isCreateModalOpen: true });
+		updateTaskInfo({ isCreatingSubtask: true, isCreateModalOpen: true });
+		updateSideBarData({ open: false });
 	}, []);
 
 	const handleSubTaskClick = useCallback(
@@ -868,15 +868,15 @@ const Tasks = () => {
 		[info?.breadCrumbs],
 	);
 
-	const handleCloseSidebar = useCallback(() => {
-		if (info?.updated) {
-			updateTaskInfo({ loadingSkeleton: true });
-			fetchListItems();
-			updateTaskInfo({ updated: false });
-		}
-		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
-		updateSideBarData(null);
-	}, [info?.updated]);
+	// const handleCloseSidebar = useCallback(() => {
+	// 	if (info?.updated) {
+	// 		updateTaskInfo({ loadingSkeleton: true });
+	// 		fetchListItems();
+	// 		updateTaskInfo({ updated: false });
+	// 	}
+	// 	updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
+	// 	updateSideBarData(null);
+	// }, [info?.updated]);
 
 	const updateView = useCallback(
 		(viewId, updateData, taskMetadataId) => {

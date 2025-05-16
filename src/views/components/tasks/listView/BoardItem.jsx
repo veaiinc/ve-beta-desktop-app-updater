@@ -26,7 +26,6 @@ const BoardItem = ({
 	handleAddButtonOnClick,
 	sort,
 	filters,
-	handleRowClick,
 }) => {
 	const [columnData, setColumnData] = useState({
 		group: group._id,
