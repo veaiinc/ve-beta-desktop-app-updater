@@ -56,7 +56,6 @@ const RecentChat = ({
 			currentChatData,
 			chatHistoryDrawerIsOpen,
 			currentSessionId,
-			citationChunks,
 		},
 	} = useContext(Context);
 
