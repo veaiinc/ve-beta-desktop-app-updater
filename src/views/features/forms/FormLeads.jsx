@@ -18,7 +18,7 @@ import { message } from '../../components/globalComponents/CustomToast';
 import { fetchOriginSelection } from '../../../helpers';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
-import { Switch, Tooltip, Input } from 'antd';
+import { Input } from 'antd';
 import FormResponsesMenuItem from './FormResponsesMenuItem';
 import FormSummary from '../../../views/components/forms/FormSummary';
 import FormAnalytics from '../../../views/components/forms/FormAnalytics';
@@ -31,13 +31,13 @@ import { ReactComponent as Download } from '../../../assets/svg/download.svg';
 import FilterPopUp from '../../components/globalComponents/FilterPopUp';
 import DropDown from '../../components/dropDown/tasks/DropDown';
 import Context from '../../../context/context';
-import PropTypes from 'prop-types';
 
 const FormLeads = () => {
 	const origin = fetchOriginSelection();
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { id } = useParams();
+
 	const {
 		templates: {
 			getFormResponse,
@@ -47,8 +47,27 @@ const FormLeads = () => {
 		},
 		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState('');
+
+	const [info, setInfo] = useState({
+		loading: false,
+		error: '',
+		searchExpand: false,
+		searchValue: '',
+		totalViews: 0,
+		totalStarts: 0,
+		totalSubmissions: 0,
+		submissionRate: 0,
+		avgSubmissionTime: 0,
+		completedEntries: 0,
+		partialEntries: 0,
+		activeTab: 'responses',
+		tooltipVisible: false,
+		dataEnrichment: false,
+		latestUpdateTime: null,
+		isEditingTitle: false,
+		editTitleValue: '',
+	});
+
 	const [formData, setFormData] = useState(() => {
 		const initialData = location?.state?.formData;
 		if (!initialData || !initialData._id) {
@@ -72,24 +91,6 @@ const FormLeads = () => {
 		setSelectedResponse(response);
 		setExpandedCard(index);
 	}, []);
-
-	const [info, setInfo] = useState({
-		searchExpand: false,
-		searchValue: '',
-		totalViews: 0,
-		totalStarts: 0,
-		totalSubmissions: 0,
-		submissionRate: 0,
-		avgSubmissionTime: 0,
-		completedEntries: 0,
-		partialEntries: 0,
-		activeTab: 'responses',
-		tooltipVisible: false,
-		dataEnrichment: false,
-		latestUpdateTime: null,
-		isEditingTitle: false,
-		editTitleValue: '',
-	});
 
 	const [formTitle, setFormTitle] = useState(formData?.title);
 	const [summaryData, setSummaryData] = useState({
@@ -529,20 +530,20 @@ const FormLeads = () => {
 		let isMounted = true;
 		const fetchFormData = async () => {
 			if (!formData && id) {
-				setLoading(true);
+				setInfo((prev) => ({ ...prev, loading: true }));
 				try {
 					const response = await getFormResponse({ formId: id });
 					if (isMounted && response && response._id) {
 						setFormData(response);
-						setError('');
+						setInfo((prev) => ({ ...prev, error: '' }));
 					} else {
-						setError('Form not found.');
+						setInfo((prev) => ({ ...prev, error: 'Form not found.' }));
 					}
 				} catch (error) {
 					console.error('Error fetching form data:', error);
-					setError('Failed to fetch form data.');
+					setInfo((prev) => ({ ...prev, error: 'Failed to fetch form data.' }));
 				}
-				setLoading(false);
+				setInfo((prev) => ({ ...prev, loading: false }));
 			}
 		};
 		fetchFormData();
@@ -553,23 +554,12 @@ const FormLeads = () => {
 
 	return (
 		<div className="formLeadsParentContainer" role="main">
-			{loading ? (
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'center',
-						alignItems: 'center',
-						height: '80vh',
-					}}
-				>
-					Loading...
-				</div>
-			) : error ? (
-				<div style={{ color: 'red', textAlign: 'center', marginTop: '40px' }}>{error}</div>
+			{info.loading ? (
+				<p className="loaderContainer">Loading...</p>
+			) : info.error ? (
+				<div className="errState">{info.error}</div>
 			) : !formData ? (
-				<div style={{ color: 'red', textAlign: 'center', marginTop: '40px' }}>
-					Form not found or failed to load.
-				</div>
+				<div className="noFormFound">Form not found or failed to load.</div>
 			) : (
 				<>
 					<QuickActions />
@@ -813,41 +803,5 @@ const FormLeads = () => {
 		</div>
 	);
 };
-
-// FormLeads.propTypes = {
-// 	location: PropTypes.shape({
-// 		state: PropTypes.shape({
-// 			formData: PropTypes.shape({
-// 				_id: PropTypes.string,
-// 				title: PropTypes.string,
-// 				slug: PropTypes.string,
-// 				status: PropTypes.string,
-// 			}),
-// 		}),
-// 	}),
-// 	templates: PropTypes.shape({
-// 		getFormResponse: PropTypes.func.isRequired,
-// 		deleteWorkflowTemplates: PropTypes.func.isRequired,
-// 		duplicateGlobalWorkflowTemplate: PropTypes.func.isRequired,
-// 		updateWorkflowTemplate: PropTypes.func.isRequired,
-// 	}).isRequired,
-// 	profileInfo: PropTypes.shape({
-// 		tennantSettingsData: PropTypes.object,
-// 	}).isRequired,
-// };
-
-// // Add type definitions for the context
-// const FormContext = PropTypes.shape({
-// 	templates: PropTypes.shape({
-// 		getFormResponse: PropTypes.func.isRequired,
-// 		deleteWorkflowTemplates: PropTypes.func.isRequired,
-// 		duplicateGlobalWorkflowTemplate: PropTypes.func.isRequired,
-// 		updateWorkflowTemplate: PropTypes.func.isRequired,
-// 	}).isRequired,
-// });
-
-// FormLeads.contextTypes = {
-// 	templates: FormContext,
-// };
 
 export default memo(FormLeads);
