@@ -16,7 +16,7 @@ import ChatBox from '../../components/chat/ChatBox';
 const KnowledgeAgentDetails = () => {
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, getActiveKnowledgeAgentDetails },
-		templates: { updateStateValues, currentSessionId },
+		templates: { updateStateValues, currentSessionId, chatInfo },
 	} = useContext(Context);
 
 	const { agentId } = useParams();
@@ -47,6 +47,18 @@ const KnowledgeAgentDetails = () => {
 			}
 		}
 	}, [agentId, activeKnowledgeAssistant]);
+
+	useEffect(() => {
+		if (agentId) {
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					agentType: 'knowledge_agent',
+					assistantId: agentId,
+				},
+			});
+		}
+	}, [agentId]);
 
 	useEffect(() => {
 		checkAccess();
