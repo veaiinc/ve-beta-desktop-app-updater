@@ -94,6 +94,7 @@
 			width: 100%;
 			margin-top: 16px;
 			gap: 16px;
+			flex-wrap: wrap;
 		}
 		.duplicate-button {
 			display: flex;
@@ -131,6 +132,10 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: 18px; /* 150% */
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			max-width: 100px;
 		}
 		.edit-button:hover,
 		.duplicate-button:hover {
