@@ -184,6 +184,7 @@ const AIMessageRenderer = ({
 						<DeepSearchChainOfThought
 							data={messageData?.deepSearch}
 							stream_end={messageData?.stream_end}
+							streamEnd={messageData?.stream_end}
 						/>
 					)}
 					{messageData?.report && <CombinedChainOfThought data={messageData?.report} />}
