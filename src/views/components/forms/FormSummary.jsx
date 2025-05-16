@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Tooltip, Flex } from 'antd';
 import {
@@ -437,4 +437,4 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 	);
 };
 
-export default FormSummary;
+export default memo(FormSummary);
