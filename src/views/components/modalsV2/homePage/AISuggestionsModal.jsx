@@ -42,7 +42,6 @@ const AISuggestionsModal = ({
 	const {
 		templates: { updateStateValues, pendingActionsUpdate, getAISuggestedPendingActions },
 	} = useContext(Context);
-
 	const [info, setInfo] = useState({
 		isExpanded: false,
 		isSolutionsExpanded: true,
@@ -210,8 +209,8 @@ const AISuggestionsModal = ({
 
 	const handleDeleteCard = useCallback(async () => {
 		if (!data?._id) return;
-
-		const res = await pendingActionsUpdate(data?._id, { isDeleted: true });
+		const type = 'delete';
+		const res = await pendingActionsUpdate(data?._id, { isDeleted: true }, type);
 		if (res?.[0] === true) {
 			getAISuggestedPendingActions(null, false, 'delete', data?._id);
 			onClose?.();
@@ -297,9 +296,9 @@ const AISuggestionsModal = ({
 								{/* <div className="btn download-btn">
 									<DownloadSvg />
 								</div> */}
-								{/* <div className="btn delete-btn" onClick={handleDeleteCard}>
+								<div className="btn delete-btn" onClick={handleDeleteCard}>
 									<DeleteSvg />
-								</div> */}
+								</div>
 							</div>
 						</div>
 					</div>
@@ -342,6 +341,7 @@ const AISuggestionsModal = ({
 												</div>
 											}
 											color="transparent"
+											arrow={false}
 										>
 											<div className="priority">
 												<div
@@ -367,6 +367,7 @@ const AISuggestionsModal = ({
 												</div>
 											}
 											color="transparent"
+											arrow={false}
 										>
 											<div className="priority">
 												<div className="icon">

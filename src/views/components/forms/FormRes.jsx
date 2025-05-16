@@ -2,7 +2,7 @@ import { useState, useEffect, memo, useCallback, useContext } from 'react';
 import '../../../assets/scss/forms/formRes.scss';
 import Context from '../../../context/context';
 import { FetchMoreLoaderComp, isURL } from '../../../helpers';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import InfiniteScroll from 'global-infinite-scroll';
 import moment from 'moment';
 import FormModal from './FormModal';
 import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';

@@ -6,7 +6,10 @@ import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
 import { ReactComponent as UpDownArrow } from '../../../assets/svg/my_templates/up-down-arrow.svg';
-import { ReactComponent as Edit } from '../../../assets/svg/ai_agents/edit.svg';
+import { ReactComponent as Edit } from '../../../assets/svg/my_templates/edit.svg';
+import { ReactComponent as Duplicate } from '../../../assets/svg/my_templates/duplicate.svg';
+import { ReactComponent as GreenDot } from '../../../assets/svg/files/green-dot.svg';
+import { ReactComponent as GreyDot } from '../../../assets/svg/files/grey-dot.svg';
 import { ReactComponent as Vector } from '../../../assets/svg/vector.svg';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import FormResCard from '../../components/forms/FormResCard';
@@ -15,7 +18,7 @@ import { message } from '../../components/globalComponents/CustomToast';
 import { fetchOriginSelection } from '../../../helpers';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
-import { Switch, Tooltip, Input } from 'antd';
+import { Input } from 'antd';
 import FormResponsesMenuItem from './FormResponsesMenuItem';
 import FormSummary from '../../../views/components/forms/FormSummary';
 import FormAnalytics from '../../../views/components/forms/FormAnalytics';
@@ -28,13 +31,13 @@ import { ReactComponent as Download } from '../../../assets/svg/download.svg';
 import FilterPopUp from '../../components/globalComponents/FilterPopUp';
 import DropDown from '../../components/dropDown/tasks/DropDown';
 import Context from '../../../context/context';
-import PropTypes from 'prop-types';
 
 const FormLeads = () => {
 	const origin = fetchOriginSelection();
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { id } = useParams();
+
 	const {
 		templates: {
 			getFormResponse,
@@ -44,11 +47,30 @@ const FormLeads = () => {
 		},
 		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		loading: false,
+		error: '',
+		searchExpand: false,
+		searchValue: '',
+		totalViews: 0,
+		totalStarts: 0,
+		totalSubmissions: 0,
+		submissionRate: 0,
+		avgSubmissionTime: 0,
+		completedEntries: 0,
+		partialEntries: 0,
+		activeTab: 'responses',
+		tooltipVisible: false,
+		dataEnrichment: false,
+		latestUpdateTime: null,
+		isEditingTitle: false,
+		editTitleValue: '',
+	});
+
 	const [formData, setFormData] = useState(() => {
 		const initialData = location?.state?.formData;
 		if (!initialData || !initialData._id) {
-			message.error('Form not found');
-			navigate(-1);
 			return null;
 		}
 		return initialData;
@@ -69,24 +91,6 @@ const FormLeads = () => {
 		setSelectedResponse(response);
 		setExpandedCard(index);
 	}, []);
-
-	const [info, setInfo] = useState({
-		searchExpand: false,
-		searchValue: '',
-		totalViews: 0,
-		totalStarts: 0,
-		totalSubmissions: 0,
-		submissionRate: 0,
-		avgSubmissionTime: 0,
-		completedEntries: 0,
-		partialEntries: 0,
-		activeTab: 'responses',
-		tooltipVisible: false,
-		dataEnrichment: false,
-		latestUpdateTime: null,
-		isEditingTitle: false,
-		editTitleValue: '',
-	});
 
 	const [formTitle, setFormTitle] = useState(formData?.title);
 	const [summaryData, setSummaryData] = useState({
@@ -158,16 +162,6 @@ const FormLeads = () => {
 			value: 'date-asc',
 			valueSelector: 'valueSelector',
 		},
-		{
-			label: 'Sort Alphabetically (A-Z)',
-			value: 'alpha-asc',
-			valueSelector: 'valueSelector',
-		},
-		{
-			label: 'Sort Alphabetically (Z-A)',
-			value: 'alpha-desc',
-			valueSelector: 'valueSelector',
-		},
 	];
 
 	const tabs = useMemo(
@@ -193,7 +187,7 @@ const FormLeads = () => {
 	);
 
 	const handleEditDesign = useCallback(() => {
-		window.location.href = `${origin}/${formData?._id}`;
+		window.location.href = `${origin}/${formData?._id}?form=true`;
 	}, [origin, formData?._id]);
 
 	const handleThreeDotsClick = useCallback(() => {
@@ -365,6 +359,12 @@ const FormLeads = () => {
 		setSummaryData(data);
 	}, []);
 
+	const removeHTMLTags = (text) =>
+		text
+			?.replace(/<[^>]+>/g, '')
+			.replace(/&nbsp;/g, ' ')
+			.trim() || '';
+
 	const handleDownload = useCallback(() => {
 		if (info.activeTab === 'responses') {
 			const { formData, questions } = summaryData;
@@ -380,7 +380,7 @@ const FormLeads = () => {
 				'Submission ID',
 				'Submission Date',
 				'Submission Time',
-				...questions.map((q) => q?.question || 'Untitled Question'),
+				...questions.map((q) => removeHTMLTags(q?.question || 'Untitled Question')),
 			];
 			const csvRows = [headers];
 
@@ -419,7 +419,13 @@ const FormLeads = () => {
 									answer = events
 										.map(
 											(event) =>
-												`${event.name} (${event.date}, ${event.location}, ${event.noOfGuests} guests)`,
+												`${event.name} (${event.date}${
+													event.location ? ', ' + event.location : ''
+												}${
+													event.noOfGuests
+														? ', ' + event.noOfGuests + ' guests'
+														: ''
+												})`,
 										)
 										.join('; ');
 								} catch (e) {
@@ -444,11 +450,13 @@ const FormLeads = () => {
 					}
 
 					// Clean the answer
-					const cleanAnswer = answer
-						?.replace(/^["']|["']$/g, '')
-						?.replace(/<\/?[^>]+(>|$)/g, '')
-						?.replace(/&nbsp;/g, ' ')
-						?.trim();
+					const cleanAnswer = removeHTMLTags(
+						typeof answer === 'string'
+							? answer.replace(/^['"]|['"]$/g, '')
+							: answer !== undefined && answer !== null
+							? String(answer)
+							: 'No answer',
+					);
 
 					row.push(cleanAnswer || 'No answer');
 				});
@@ -522,18 +530,22 @@ const FormLeads = () => {
 		let isMounted = true;
 		const fetchFormData = async () => {
 			if (!formData && id) {
+				setInfo((prev) => ({ ...prev, loading: true }));
 				try {
 					const response = await getFormResponse({ formId: id });
 					if (isMounted && response && response._id) {
 						setFormData(response);
+						setInfo((prev) => ({ ...prev, error: '' }));
+					} else {
+						setInfo((prev) => ({ ...prev, error: 'Form not found.' }));
 					}
 				} catch (error) {
 					console.error('Error fetching form data:', error);
-					message.error('Failed to fetch form data');
+					setInfo((prev) => ({ ...prev, error: 'Failed to fetch form data.' }));
 				}
+				setInfo((prev) => ({ ...prev, loading: false }));
 			}
 		};
-
 		fetchFormData();
 		return () => {
 			isMounted = false;
@@ -542,281 +554,254 @@ const FormLeads = () => {
 
 	return (
 		<div className="formLeadsParentContainer" role="main">
-			{/* <div
-				style={{
-					display: 'flex',
-					justifyContent: 'flex-end',
-					zIndex: 1000,
-				}}
-			>
-				<QuickActions />
-			</div> */}
-			<div className="formWrapper">
-				<div className="formEnquiryContainer">
-					<div className="formContainer">
-						<div className="headerContainer">
-							<div className="backBtnContainer">
-								<span
-									className="backBtn"
-									onClick={() => navigate(-1)}
-									aria-label="Go back to previous page"
-								>
-									<BackArrowSvg aria-hidden="true" />
-									<span>Back</span>
-								</span>
-							</div>
-						</div>
-						<div className="detailsContainer">
-							<div className="headerContainer">
-								<div className="header-left">
-									{info.isEditingTitle ? (
-										<Input
-											className="title-input"
-											value={info.editTitleValue}
-											onChange={handleTitleChange}
-											onBlur={handleTitleBlur}
-											onKeyDown={handleTitleKeyDown}
-											autoFocus
-										/>
-									) : (
-										<h1 className="headerTitle" onClick={handleTitleClick}>
-											{formTitle}
+			{info.loading ? (
+				<p className="loaderContainer">Loading...</p>
+			) : info.error ? (
+				<div className="errState">{info.error}</div>
+			) : !formData ? (
+				<div className="noFormFound">Form not found or failed to load.</div>
+			) : (
+				<>
+					<QuickActions />
+					<div className="formWrapper">
+						<div className="formEnquiryContainer">
+							<div className="formContainer">
+								<div className="headerContainer">
+									<div className="backBtnContainer">
+										<span
+											className="backBtn"
+											onClick={() => navigate(-1)}
+											aria-label="Go back to previous page"
+										>
+											<BackArrowSvg aria-hidden="true" />
+											<span>Back</span>
+										</span>
+									</div>
+								</div>
+								<div className="detailsContainer">
+									<div className="headerContainer">
+										<div className="header-left">
+											{info.isEditingTitle ? (
+												<Input
+													className="title-input"
+													value={info.editTitleValue}
+													onChange={handleTitleChange}
+													onBlur={handleTitleBlur}
+													onKeyDown={handleTitleKeyDown}
+													autoFocus
+												/>
+											) : (
+												<h1
+													className="headerTitle"
+													onClick={handleTitleClick}
+												>
+													{formTitle}
+												</h1>
+											)}
+										</div>
+									</div>
+
+									<div className="liveStatusContainer">
+										<div className="file-status">
+											{formData?.status === 'published' ? (
+												<>
+													<GreenDot />
+													<span>Live</span>
+												</>
+											) : (
+												<>
+													<GreyDot />
+													<span>Draft</span>
+												</>
+											)}
+										</div>
+										<h1 className="time">
+											Updated{' '}
+											{getTimeAgo({ createdAt: info.latestUpdateTime })}
 										</h1>
-									)}
-									<div className="liveoption">
-										<DocsStatusButton
-											content={statusTextmapper?.[formData?.status]?.text}
-											style={statusTextmapper?.[formData?.status]?.style}
-											dotStyle={
-												statusTextmapper?.[formData?.status]?.dotStyle
-											}
-										/>
 									</div>
-								</div>
-							</div>
-
-							<div className="dataEnrichmentToggle">
-								<h1 className="time">
-									{getTimeAgo({ createdAt: info.latestUpdateTime })}
-								</h1>
-								{/* <span className="dataEnrichmentText">
-									<Vector />
-									Enhanced Data
-								</span> */}
-
-								{/* <Switch
-									checked={info.dataEnrichment}
-									onChange={handleDataEnrichmentToggle}
-									style={{
-										backgroundColor: '#202123',
-									}}
-								/> */}
-							</div>
-							<div className="button-space">
-								<div className="button-con">
-									<div className="edit-button" onClick={handleEditDesign}>
-										<div className="edit">Edit Form</div>
-									</div>
-									<span className="divider">|</span>
-									<div
-										className="duplicate-button"
-										onClick={() => handleFormResponsesMenu('duplicateForm')}
-									>
-										<span>Duplicate</span>
-									</div>
-								</div>
-								<div className="button-con">
-									<div
-										className="copy-button"
-										onClick={() => handleFormResponsesMenu('copyLink')}
-										data-tooltip="Copy Link"
-									>
-										<Copylink />
-									</div>
-									<div
-										className="copy-button"
-										onClick={() => handleFormResponsesMenu('deleteForm')}
-										data-tooltip="Delete Form"
-									>
-										<Delete />
-									</div>
-								</div>
-							</div>
-						</div>
-						<div className="formDetailsContainer">
-							<div className="headerContainer">
-								<div className="formViewTabsContainer">
-									{Object.keys(tabs).map((tab) => (
-										<div key={tab} className="tabContainer">
-											<div
-												className={`formViewTab ${
-													info.activeTab === tab ? 'active' : ''
-												}`}
-												onClick={() =>
-													setInfo((prev) => ({ ...prev, activeTab: tab }))
-												}
-												style={{
-													fontWeight:
-														info.activeTab === tab ? '500' : '400',
-													fontFamily:
-														info.activeTab === tab
-															? 'var(--primary-font)'
-															: 'var(--secondary-font)',
-												}}
-											>
-												{tabs[tab].label}
+									<div className="button-space">
+										<div className="button-con">
+											<div className="edit-button" onClick={handleEditDesign}>
+												<Edit />
+												<div className="edit">Edit Form</div>
 											</div>
 											<div
-												className={`divider ${
-													info.activeTab === tab ? 'active' : ''
-												}`}
-											/>
-										</div>
-									))}
-								</div>
-								{info.activeTab !== 'analytics' && (
-									<div className="downloadButton">
-										<div
-											className="searchContainer"
-											style={{ width: info?.searchExpand ? '140px' : '16px' }}
-										>
-											<div
-												className={`searchBtn ${
-													info?.searchExpand ? 'searchExpand' : ''
-												}`}
+												className="edit-button"
+												onClick={() =>
+													handleFormResponsesMenu('duplicateForm')
+												}
 											>
-												<span
-													style={{
-														display: 'flex',
-														justifyContent: 'center',
-														alignItems: 'center',
-														cursor: 'pointer',
-													}}
-													onClick={() =>
-														setInfo((prev) => ({
-															...prev,
-															searchExpand: true,
-														}))
-													}
-												>
-													<Search />
-												</span>
-
-												<div className="inputAndCloseContainer">
-													<input
-														className="searchInputTag"
-														placeholder="Search"
-														value={info?.searchValue}
-														onChange={(e) =>
+												<Duplicate />
+												<div className="edit">Duplicate Form</div>
+											</div>
+										</div>
+										<div className="dividerr"></div>
+										<div className="button-con">
+											<div
+												className="edit-button"
+												onClick={() => handleFormResponsesMenu('copyLink')}
+											>
+												<Copylink />
+												<div className="edit">Copy Link</div>
+											</div>
+											<div
+												className="delete-button"
+												onClick={() =>
+													handleFormResponsesMenu('deleteForm')
+												}
+											>
+												<Delete />
+												<div className="delete-button-text">Delete</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div className="formDetailsContainer">
+									<div className="headerContainer">
+										<div className="formViewTabsContainer">
+											{Object.keys(tabs).map((tab) => (
+												<div key={tab} className="tabContainer">
+													<div
+														className={`formViewTab ${
+															info.activeTab === tab ? 'active' : ''
+														}`}
+														onClick={() =>
 															setInfo((prev) => ({
 																...prev,
-																searchValue: e?.target?.value,
+																activeTab: tab,
 															}))
 														}
-														autoFocus={info?.searchExpand}
-													/>
-													<span
-														onClick={() => {
-															setInfo((prev) => ({
-																...prev,
-																searchExpand: false,
-																searchValue: '',
-															}));
+														style={{
+															fontWeight:
+																info.activeTab === tab
+																	? '500'
+																	: '400',
+															fontFamily:
+																info.activeTab === tab
+																	? 'var(--primary-font)'
+																	: 'var(--secondary-font)',
 														}}
 													>
-														<Cross />
-													</span>
+														{tabs[tab].label}
+													</div>
+													<div
+														className={`divider ${
+															info.activeTab === tab ? 'active' : ''
+														}`}
+													/>
+												</div>
+											))}
+										</div>
+										{info.activeTab !== 'analytics' && (
+											<div className="downloadButton">
+												<div
+													className="searchContainer"
+													style={{
+														width: info?.searchExpand
+															? '140px'
+															: '16px',
+													}}
+												>
+													<div
+														className={`searchBtn ${
+															info?.searchExpand ? 'searchExpand' : ''
+														}`}
+													>
+														<span
+															style={{
+																display: 'flex',
+																justifyContent: 'center',
+																alignItems: 'center',
+																cursor: 'pointer',
+															}}
+															onClick={() =>
+																setInfo((prev) => ({
+																	...prev,
+																	searchExpand: true,
+																}))
+															}
+														>
+															<Search />
+														</span>
+
+														<div className="inputAndCloseContainer">
+															<input
+																className="searchInputTag"
+																placeholder="Search"
+																value={info?.searchValue}
+																onChange={(e) =>
+																	setInfo((prev) => ({
+																		...prev,
+																		searchValue:
+																			e?.target?.value,
+																	}))
+																}
+																autoFocus={info?.searchExpand}
+															/>
+															<span
+																onClick={() => {
+																	setInfo((prev) => ({
+																		...prev,
+																		searchExpand: false,
+																		searchValue: '',
+																	}));
+																}}
+															>
+																<Cross />
+															</span>
+														</div>
+													</div>
+												</div>
+												<div
+													className="downloadButtonItem"
+													onClick={handleDownload}
+												>
+													<Download />
 												</div>
 											</div>
-										</div>
-										<DropDown
-											title="Sort"
-											options={Filters}
-											valueSelector="valueSelector"
-											containerStyles={{
-												borderRadius: '14px',
-												background: '#202123',
-												boxShadow: '0px 2px 44px 0px rgba(0, 0, 0, 0.25)',
-											}}
-											onOptionClick={(option) => handleSort(option.value)}
-										>
-											<Filter />
-										</DropDown>
-										<div
-											className="downloadButtonItem"
-											onClick={handleDownload}
-										>
-											<Download />
-										</div>
+										)}
 									</div>
-								)}
-							</div>
-							<div
-								className="tabContent"
-								style={{
-									height: 'calc(100vh - 160px)',
-									overflowY: 'auto',
-									position: 'relative',
-								}}
-							>
-								{tabs[info.activeTab].Component}
+									<div
+										className="tabContent"
+										style={{
+											height:
+												info.activeTab === 'responses'
+													? 'calc(100vh - 500px)'
+													: info.activeTab === 'analytics'
+													? 'calc(100vh - 350px)'
+													: 'calc(100vh - 100px)',
+											overflowY: 'auto',
+											position: 'relative',
+										}}
+									>
+										{tabs[info.activeTab].Component}
+									</div>
+								</div>
 							</div>
 						</div>
+						<FormDescription
+							response={selectedResponse}
+							onClose={() => {
+								setSelectedResponse(null);
+								setExpandedCard(null);
+							}}
+							formId={formData?._id}
+							activeTab={info.activeTab}
+							className="formDescription"
+						/>
 					</div>
-				</div>
-				<FormDescription
-					response={selectedResponse}
-					onClose={() => {
-						setSelectedResponse(null);
-						setExpandedCard(null);
-					}}
-					formId={formData?._id}
-					activeTab={info.activeTab}
-					className="formDescription"
-				/>
-			</div>
-			{/* Hidden FormSummary for data collection */}
-			<div style={{ display: 'none' }}>
-				<FormSummary formId={formData?._id} onDataUpdate={handleSummaryDataUpdate} />
-			</div>
+					{/* Hidden FormSummary for data collection */}
+					<div style={{ display: 'none' }}>
+						<FormSummary
+							formId={formData?._id}
+							onDataUpdate={handleSummaryDataUpdate}
+						/>
+					</div>
+				</>
+			)}
 		</div>
 	);
 };
-
-// FormLeads.propTypes = {
-// 	location: PropTypes.shape({
-// 		state: PropTypes.shape({
-// 			formData: PropTypes.shape({
-// 				_id: PropTypes.string,
-// 				title: PropTypes.string,
-// 				slug: PropTypes.string,
-// 				status: PropTypes.string,
-// 			}),
-// 		}),
-// 	}),
-// 	templates: PropTypes.shape({
-// 		getFormResponse: PropTypes.func.isRequired,
-// 		deleteWorkflowTemplates: PropTypes.func.isRequired,
-// 		duplicateGlobalWorkflowTemplate: PropTypes.func.isRequired,
-// 		updateWorkflowTemplate: PropTypes.func.isRequired,
-// 	}).isRequired,
-// 	profileInfo: PropTypes.shape({
-// 		tennantSettingsData: PropTypes.object,
-// 	}).isRequired,
-// };
-
-// // Add type definitions for the context
-// const FormContext = PropTypes.shape({
-// 	templates: PropTypes.shape({
-// 		getFormResponse: PropTypes.func.isRequired,
-// 		deleteWorkflowTemplates: PropTypes.func.isRequired,
-// 		duplicateGlobalWorkflowTemplate: PropTypes.func.isRequired,
-// 		updateWorkflowTemplate: PropTypes.func.isRequired,
-// 	}).isRequired,
-// });
-
-// FormLeads.contextTypes = {
-// 	templates: FormContext,
-// };
 
 export default memo(FormLeads);

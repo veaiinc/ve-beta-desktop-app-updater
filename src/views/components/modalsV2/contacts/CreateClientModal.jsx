@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState, useEffect, useCallback } from 'react';
+import { memo, useContext, useState, useEffect, useCallback } from 'react';
 import Context from '../../../../context/context';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import ReactModal from '../../modalsV2/index';
@@ -219,6 +219,14 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 						<div className="inputWrapper">
 							<InputComponent
 								label={'Contact Name'}
+								autoFocus={true}
+								style={{
+									backgroundColor: 'inherit',
+								}}
+								placeholderStyles={{
+									backgroundColor: 'inherit',
+									padding: '0px 2px',
+								}}
 								type={'text'}
 								placeholder={'Enter contact name'}
 								name={'name'}
@@ -234,7 +242,14 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 						<div className="inputWrapper">
 							<InputComponent
 								label={'Email Id'}
-								type={'email'}
+								style={{
+									backgroundColor: 'inherit',
+								}}
+								placeholderStyles={{
+									backgroundColor: 'inherit',
+									padding: '0px 2px',
+								}}
+								inputType={'email'}
 								placeholder={'Enter email id'}
 								name={'emailId'}
 								value={leadDetails['emailId']}
@@ -257,7 +272,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 								}
 								disabled={false}
 								style={{
-									backgroundColor: 'var(--card)',
+									backgroundColor: 'inherit',
 								}}
 							/>
 							{errorState['isphoneNumberError'] && (

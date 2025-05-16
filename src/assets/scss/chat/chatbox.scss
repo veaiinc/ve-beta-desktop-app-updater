@@ -79,9 +79,9 @@
 							display: flex;
 							max-height: 400px;
 							width: 100%;
-							padding: 4px 20px 18px 20px;
+							padding: 4px 12px 18px 16px;
 							flex-direction: column;
-							gap: 16px;
+							gap: 12px;
 							align-self: center;
 							border-radius: 16px;
 							background-color: var(--card);
@@ -120,10 +120,11 @@
 								.placeholderContainer {
 									position: relative;
 									width: 100%;
+									top: -3px;
 
 									.textArea {
 										width: 100%;
-										min-height: 17px;
+										min-height: 34px;
 										max-height: 300px;
 										border: none;
 										outline: none;
@@ -135,12 +136,12 @@
 										font-weight: 400;
 										line-height: normal;
 										resize: none;
-										margin-top: 12px;
 										position: relative;
+										margin-top: 12px;
 										z-index: 0;
 										&.startTextPage {
 											margin-top: 0px;
-											top: 5px;
+											top: 11px;
 										}
 									}
 								}
@@ -229,7 +230,7 @@
 
 									.chat-icons-container {
 										display: flex;
-										gap: 5px;
+										gap: 6px;
 										align-items: center;
 										justify-content: center;
 
@@ -239,16 +240,16 @@
 
 										.chat-box-icon-container {
 											display: flex;
-											height: 32px;
-											padding: 6px 14px;
+											height: 28px;
+											padding: 6px 8px;
 											justify-content: center;
 											align-items: center;
-											gap: 6px;
-											border-radius: 24px;
-											background: transparent;
-											transition: 200ms ease-in-out;
-											border: 1px solid var(--stroke, #f2f2f3);
-											background: var(--card-over-card, #2e2f33);
+											gap: 18px;
+											border-radius: 6px;
+											border: 1px solid var(--stroke, #2c2d2e);
+											&.reason-container {
+												background-color: var(--popup);
+											}
 
 											.icon {
 												display: flex;
@@ -256,15 +257,31 @@
 												justify-content: center;
 												gap: 6px;
 
+												svg {
+													width: 16px;
+													height: 16px;
+												}
+
 												.icon-text {
 													overflow: hidden;
-													color: var(--primary-font, #f2f2f3);
 													text-overflow: ellipsis;
+													color: var(--secondary-font);
 													font-family: var(--primary-font-family);
-													font-size: 12px;
+													font-size: 13px;
 													font-style: normal;
 													font-weight: 500;
-													line-height: 18px; /* 150% */
+													line-height: normal;
+
+													&:hover {
+														color: var(--primary-font);
+													}
+												}
+
+												.icon-arrow {
+													svg {
+														width: 12px;
+														height: 12px;
+													}
 												}
 											}
 											.right-text {
@@ -279,7 +296,29 @@
 											}
 										}
 										.chat-box-icon-container.active {
-											background-color: var(--primary-button);
+											border: 1px solid var(--primary-button, #404548);
+
+											.icon {
+												.icon-text {
+													color: var(--primary-button);
+												}
+											}
+
+											.websearch-icon {
+												svg {
+													path {
+														stroke: var(--primary-button);
+													}
+												}
+											}
+
+											.workspace-search-icon {
+												svg {
+													path {
+														fill: var(--primary-button);
+													}
+												}
+											}
 										}
 									}
 
@@ -863,33 +902,20 @@
 
 .click-btn {
 	display: flex;
-	width: 60px;
+	width: 40px;
 	height: 32px;
-	padding: 6.4px;
+	padding: 10px;
 	justify-content: center;
 	align-items: center;
-	gap: 9.6px;
-	cursor: pointer;
-
-	border-radius: 24px;
-	background-color: var(--primary-button);
+	gap: 6px;
+	border-radius: 8px;
+	background: var(--primary-button, #79ecc9);
 
 	svg {
 		path {
 			stroke: var(--primary-button-font) !important;
 		}
 	}
-}
-.startPage {
-	display: flex;
-	padding: 10px !important;
-	justify-content: center;
-	align-items: center;
-	gap: 6px;
-	border-radius: 8px;
-	background: var(--primary-button, #cfff48);
-	height: auto !important;
-	width: fit-content !important;
 }
 @media screen and (max-width: 700px) {
 	.icon {

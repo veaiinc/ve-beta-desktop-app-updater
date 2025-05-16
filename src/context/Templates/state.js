@@ -2386,7 +2386,7 @@ export const TemplatesState = (props) => {
 				});
 				return;
 			}
-			const { page = 1, limit = 10, from, to } = payload || {};
+			const { page = 1, limit = 10, from, to, sortType, sortBy } = payload || {};
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 
@@ -2398,11 +2398,12 @@ export const TemplatesState = (props) => {
 			);
 
 			// Add date filters if present
-			if (from) filterParams.push(`from=${from}`);
-			if (to) filterParams.push(`to=${to}`);
+			if (from) filterParams?.push(`from=${from}`);
+			if (to) filterParams?.push(`to=${to}`);
+			if (sortType && sortBy) filterParams?.push(`sortType=${sortType}&sortBy=${sortBy}`);
 
-			const queryString = new URLSearchParams({ page, limit }).toString();
-			const fullQuery = `${queryString}&${filterParams.join('&')}`;
+			const queryString = new URLSearchParams({ page, limit })?.toString();
+			const fullQuery = `${queryString}&${filterParams?.join('&')}`;
 
 			const url = `/${workspaceId}/knowledge-bases/pending-actions?${fullQuery}`;
 
@@ -2451,11 +2452,14 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const pendingActionsUpdate = async (pendingActionId, payload) => {
+	const pendingActionsUpdate = async (pendingActionId, payload, type = null) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}`;
+			const url =
+				type === 'delete'
+					? `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}/delete`
+					: `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}`;
 			const response = await Service.fetchPut(url, payload, usertoken, 'tenant');
 			return response;
 		} catch (error) {
