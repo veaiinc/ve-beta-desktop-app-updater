@@ -111,10 +111,20 @@ const Taskwidget = ({
 		}
 
 		const filteredWidgets = newFilters?.filter((filter) => {
-			if (key === 'overDue' && filter?.key === 'dueToday') {
-				return false;
-			} else if (key === 'dueToday' && filter?.key === 'overDue') {
-				return false;
+			if (key === 'status' && Array.isArray(value)) {
+				return !['dueToday', 'overDue'].includes(filter?.key);
+			}
+			if (key === 'dueToday') {
+				return (
+					filter?.key !== 'overDue' &&
+					!(filter?.key === 'status' && Array.isArray(filter?.value))
+				);
+			}
+			if (key === 'overDue') {
+				return (
+					filter?.key !== 'dueToday' &&
+					!(filter?.key === 'status' && Array.isArray(filter?.value))
+				);
 			}
 			return true;
 		});
