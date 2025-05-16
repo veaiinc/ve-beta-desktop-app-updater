@@ -33,7 +33,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 		resendTimerInterval: null,
 		locationDetails: null,
 	});
-	const [otpArray, setOtpArray] = useState(Array(6).fill(''));
+	const [otpArray, setOtpArray] = useState(Array(4).fill(''));
 	const otpContainerRef = useRef(null);
 
 	useEffect(() => {
@@ -45,7 +45,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 	}, []);
 
 	useEffect(() => {
-		if (info?.otp?.length === 6) {
+		if (info?.otp?.length === 4) {
 			verifyCode(info?.otp);
 		} else {
 			setInfo((prev) => ({ ...prev, otpError: '' }));
@@ -156,7 +156,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			</div>
 			<h1 className="verification-code-title">We sent you a code</h1>
 			<p className="verification-code-subtitle">
-				A 6-digit verification code has been sent to {email}.
+				A 4-digit verification code has been sent to {email}.
 			</p>
 			<div className="verification-code-input-container" ref={otpContainerRef}>
 				<CustomOtp
