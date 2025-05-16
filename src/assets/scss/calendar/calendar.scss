@@ -62,15 +62,12 @@
 .calendarSidebarContainer {
 	margin-bottom: 25px;
 	display: flex;
-	// width: 400px;
 	width: 100%;
 	height: auto;
 	min-height: 100%;
-	// padding-right: 10px;
 	flex-direction: column;
 	align-items: center;
 	gap: 16px;
-	flex-shrink: 0;
 	overflow-y: visible;
 	justify-content: flex-start;
 
@@ -83,26 +80,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: 16px;
-		overflow-y: auto;
+		height: calc(100vh - 108px);
 		position: relative;
-		overflow: hidden;
-
-		&::-webkit-scrollbar {
-			width: 6px;
-		}
-
-		&::-webkit-scrollbar-track {
-			background: transparent;
-		}
-
-		&::-webkit-scrollbar-thumb {
-			background: var(--secondary-font);
-			border-radius: 3px;
-		}
-
-		&::-webkit-scrollbar-thumb:hover {
-			background: var(--primary-font);
-		}
 
 		.calendarWrapper {
 			position: relative;
@@ -133,9 +112,6 @@
 	flex-grow: 1;
 	overflow: hidden;
 
-	-ms-overflow-style: none;
-	scrollbar-width: none;
-
 	@media (max-width: 768px) {
 		border-radius: 0;
 		height: calc(100vh - 64px);
@@ -144,6 +120,9 @@
 	&::-webkit-scrollbar {
 		display: none;
 	}
+
+	-ms-overflow-style: none;
+	scrollbar-width: none;
 }
 .meetingCardParentContainer {
 	display: flex;

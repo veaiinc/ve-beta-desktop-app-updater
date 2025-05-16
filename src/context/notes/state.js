@@ -1,4 +1,5 @@
 import service from '../../services/graphQlServices';
+import Service from '../../services/index';
 import { message } from '../../views/components/globalComponents/CustomToast';
 import {
 	getNotesListQuery,
@@ -17,6 +18,8 @@ import {
 	globalNotesAccessMutation,
 	notesImageBlockUploadMutation,
 	notesImageBlockDeleteMutation,
+	notesLinkUploadMutation,
+	notesCoverImageFileUploadMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -429,6 +432,76 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const notesCoverImageLinkUpload = async ({ link, pageId }) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const payload = {
+				pageId,
+				input: {
+					coverImage: link,
+				},
+			};
+			const response = await service.mutation(
+				notesLinkUploadMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>notesUploadLink', error);
+		}
+	};
+
+	const notesCoverImageFileUpload = async ({ imageFile, pageId }) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+
+			const payload = {
+				pageId,
+				imageType: 'cover',
+			};
+
+			const response = await service.mutation(
+				notesCoverImageFileUploadMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+
+			if (response?.[0]) {
+				const signedUrl = response?.[1]?.data?.uploadPageImage?.signedUrl;
+
+				const uploadRes = await fetch(signedUrl, {
+					method: 'PUT',
+					headers: {
+						'Content-Type': imageFile.type,
+					},
+					body: imageFile,
+				});
+
+				if (uploadRes.status === 200) {
+					return [true];
+				} else {
+					return [false];
+				}
+			} else {
+				return false;
+			}
+		} catch (error) {
+			console.error('error==>notesCoverImageFileUpload', error);
+			return false;
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -448,5 +521,7 @@ export const NotesState = (props) => {
 		updateGlobalAccess,
 		uploadNotesImageBlock,
 		deleteNotesImageBlock,
+		notesCoverImageLinkUpload,
+		notesCoverImageFileUpload,
 	};
 };
