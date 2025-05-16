@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { ReactComponent as OpenEye } from '../../../../assets/svg/gallery/open-eye.svg';
 import { ReactComponent as CrossedOpenEye } from '../../../../assets/svg/gallery/crossedOpenEye.svg';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';

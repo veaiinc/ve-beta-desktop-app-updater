@@ -2362,15 +2362,37 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getAISuggestedPendingActions = async (payload) => {
+	const getAISuggestedPendingActions = async (payload, reset = false, type = null, id = null) => {
 		try {
+			if (type === 'delete') {
+				const data = state?.aiSuggestedPendingActions?.pendingActions?.filter(
+					(item) => item?._id !== id,
+				);
+				dispatch({
+					type: Actions?.GET_AI_SUGGESTED_PENDING_ACTIONS_SUCCESS,
+					payload: {
+						...state?.aiSuggestedPendingActions,
+						pendingActions: data,
+					},
+				});
+				return;
+			} else if (type === 'update') {
+				const data = state?.aiSuggestedPendingActions?.pendingActions?.map((item) =>
+					item?._id === id ? { ...item, ...payload } : item,
+				);
+				dispatch({
+					type: Actions?.GET_AI_SUGGESTED_PENDING_ACTIONS_SUCCESS,
+					payload: { ...state?.aiSuggestedPendingActions, pendingActions: data },
+				});
+				return;
+			}
 			const { page = 1, limit = 10, from, to } = payload || {};
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 
 			// Build filter params (priority, read, confidenceScore)
 			const filterParams = ['priority', 'read', 'confidenceScore']?.flatMap((key) =>
-				Array.isArray(payload?.[key])
+				Array?.isArray(payload?.[key])
 					? payload[key]?.map((val) => `${key}=${encodeURIComponent(val)}`)
 					: [],
 			);
@@ -2387,9 +2409,18 @@ export const TemplatesState = (props) => {
 			const response = await Service.fetchGet(url, usertoken, 'tenant', {});
 
 			if (response?.[0]) {
+				const data = reset
+					? response?.[1]?.pendingActions || []
+					: [
+							...(state?.aiSuggestedPendingActions?.pendingActions || []),
+							...(response?.[1]?.pendingActions || []),
+					  ];
 				dispatch({
 					type: Actions.GET_AI_SUGGESTED_PENDING_ACTIONS_SUCCESS,
-					payload: response[1],
+					payload: {
+						...response?.[1],
+						pendingActions: data,
+					},
 				});
 			} else {
 				console.log('response==>getAISuggestedPendingActions');
@@ -2429,6 +2460,18 @@ export const TemplatesState = (props) => {
 			return response;
 		} catch (error) {
 			console.log('error==>pendingActionsUpdate', error);
+		}
+	};
+
+	const pendingActionsFeedback = async (pendingActionId, payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}/feedback`;
+			const response = await Service.fetchPut(url, payload, usertoken, 'tenant');
+			return response;
+		} catch (error) {
+			console.log('error==>pendingActionsFeedback', error);
 		}
 	};
 
@@ -2545,5 +2588,6 @@ export const TemplatesState = (props) => {
 		duplicateSmartFile,
 		updateCitationChunks,
 		getFormResponseAnalytics,
+		pendingActionsFeedback,
 	};
 };

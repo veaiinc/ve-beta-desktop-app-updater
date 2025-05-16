@@ -53,7 +53,7 @@ const CalendarCategories = ({
 	// Handler for checkbox changes
 	const handleCheckboxChange = (categoryId) => {
 		const defaultCategory = categoryList?.find(
-			(cat) => cat?.name?.toLowerCase() === 'all' || cat?.type?.toLowerCase() === 'all',
+			(cat) => cat?.name?.toLowerCase() === 'null' || cat?.type?.toLowerCase() === 'null',
 		)?._id;
 
 		// If selecting Default category

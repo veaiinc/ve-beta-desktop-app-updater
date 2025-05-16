@@ -17,10 +17,11 @@ import { ReactComponent as GreyDot } from '../../../assets/svg/files/grey-dot.sv
 import { ReactComponent as TrendUp } from '../../../assets/svg/files/trend-up.svg';
 import { message } from '../globalComponents/CustomToast';
 import { fetchOriginSelection } from '../../../helpers';
+import { Tooltip } from 'antd';
 
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
-	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
+	// { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 	{ label: 'A-Z', value: 'title', sortType: 1 },
 ];
 
@@ -65,7 +66,7 @@ const FormsGrid = ({
 		hasNextPage: false,
 		currentPage: 1,
 		loading: true,
-		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
+		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
 	});
 
 	useEffect(() => {
@@ -319,7 +320,9 @@ const FormsGrid = ({
 														.unix(form?.createdAt)
 														.format('DD MMM YYYY')}`}
 												>
-													{moment.unix(form?.createdAt).fromNow()}
+													<Tooltip title="Created On">
+														{moment.unix(form?.createdAt).fromNow()}
+													</Tooltip>
 												</p>
 											</div>
 											<div className="card-footer">

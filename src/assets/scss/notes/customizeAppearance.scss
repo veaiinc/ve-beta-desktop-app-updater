@@ -1,0 +1,25 @@
+.customizeAppearanceContainer {
+	width: fit-content;
+	display: flex;
+	gap: 8px;
+
+	.customizeAppearanceOption {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 8px;
+		border-radius: 10px;
+		border: 1px solid var(--stroke, #333334);
+		background: var(--card);
+		cursor: pointer;
+
+		.customizeAppearanceOptionLabel {
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+}

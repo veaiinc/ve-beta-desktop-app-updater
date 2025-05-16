@@ -50,7 +50,7 @@ const PersonMultiSelect = ({
 								title={title}
 								selectedOptions={info?.selected}
 								onOptionClick={handleOptionClick}
-								value={value}
+								selected={value}
 								open={info?.open}
 							/>
 						) : null

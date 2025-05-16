@@ -2,18 +2,21 @@ import { Progress, Tooltip } from 'antd';
 import React, { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 
-const ChildTaskProgress = ({ value, showTitle = false }) => {
+const ChildTaskProgress = ({ value, showTitle = false, completedStatus = [] }) => {
 	const [info, setInfo] = useState({ completedCount: 0, totalCount: 0 });
 
 	useEffect(() => {
 		if (Array.isArray(value)) {
-			const completedCount = value.filter((item) => item?.status === 'completed').length;
+			const completedStatusIds = completedStatus?.map((item) => item._id);
+			const completedCount = value.filter((item) =>
+				completedStatusIds?.includes(item?.status),
+			).length;
 			const totalCount = value.length;
 			setInfo({ completedCount, totalCount });
 		} else {
 			setInfo({ completedCount: 0, totalCount: 0 });
 		}
-	}, [value]);
+	}, [value, completedStatus]);
 
 	return (
 		<Tooltip

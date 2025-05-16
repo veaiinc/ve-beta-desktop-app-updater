@@ -32,7 +32,7 @@ const GalleryCard = ({ task, responseMetadata, handleUpdate }) => {
 	};
 
 	return (
-		<div className="gallery-card" onClick={() => updateSideBarData(task)}>
+		<div className="gallery-card" onClick={() => updateSideBarData({ data: task, open: true })}>
 			<div className="gallery-card-header">
 				{task?.dueDate && renderComponent('dueDate', task?.dueDate)}
 				<div className="" />
@@ -46,14 +46,21 @@ const GalleryCard = ({ task, responseMetadata, handleUpdate }) => {
 				<div className="gallery-card-body-title">{task?.title}</div>
 				<div className="gallery-card-body-description">{task?.description}</div>
 			</div>
-			<div className="gallery-card-tags">
-				{task?.status && renderComponent('status', task?.status)}
-				{task?.priority && renderComponent('priority', task?.priority)}
+
+			<div className="gallery-card-meta-info">
+				{task?.taskSlNo && renderComponent('taskSlNo', task?.taskSlNo)}
 			</div>
+
 			<div className="gallery-card-footer">
-				{task?.childTasks && renderComponent('childTasks', task?.childTasks)}
-				<div className="gallery-card-footer-created-with-ai">
+				{task?.childTasks &&
+					task?.childTasks?.length > 0 &&
+					renderComponent('childTasks', task?.childTasks)}
+				{/* <div className="gallery-card-footer-created-with-ai">
 					{!task?.createdBy && renderComponent('createdWithAi')}
+				</div> */}
+				<div className="gallery-card-tags">
+					{task?.status && renderComponent('status', task?.status)}
+					{task?.priority && renderComponent('priority', task?.priority)}
 				</div>
 			</div>
 		</div>

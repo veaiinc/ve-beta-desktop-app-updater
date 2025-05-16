@@ -64,11 +64,13 @@ const PromptPopup = ({
 	liked = null,
 	confidenceScore = null,
 	messageId = null,
+	feedbackType = 'chatFeedback',
+	setLiked = null,
 }) => {
 	const navigate = useNavigate();
 
 	const {
-		templates: { updateStateValues, updateAiChatMessageRating },
+		templates: { updateStateValues, updateAiChatMessageRating, pendingActionsFeedback },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -160,6 +162,7 @@ const PromptPopup = ({
 
 	const handleFeedbackClick = (feedback) => {
 		setInfo((prev) => ({ ...prev, feedback }));
+		if (setLiked) setLiked(feedback);
 	};
 
 	const handleFeedbackSubmit = useCallback(async () => {
@@ -179,17 +182,24 @@ const PromptPopup = ({
 		}
 
 		try {
-			const res = await updateAiChatMessageRating(
-				{
-					rating: feedback,
-					userFeedbackReasons,
-					userRemarks: feedbackMessage,
-				},
-				messageId,
-			);
+			const feedbackReq = {
+				rating: feedback,
+				userFeedbackReasons,
+				userRemarks: feedbackMessage,
+			};
+
+			let promise;
+
+			if (feedbackType === 'chatFeedback') {
+				promise = updateAiChatMessageRating(feedbackReq, messageId);
+			} else {
+				promise = pendingActionsFeedback(messageId, feedbackReq);
+			}
+
+			const res = await promise;
 
 			if (res) {
-				message.success(res?.[1]?.message);
+				if (res?.[0]) message.success('Feedback added successfully');
 			}
 
 			setInfo((prev) => ({
@@ -240,14 +250,14 @@ const PromptPopup = ({
 					{info?.feedbackPopupOpen && (
 						<div className="promptPopupContainerHeaderRight">
 							<button
-								className={`${info?.feedback === 'thumbsUp' ? 'active' : ''}`}
-								onClick={() => handleFeedbackClick('thumbsUp')}
+								className={`${info?.feedback === 'thumbsup' ? 'active' : ''}`}
+								onClick={() => handleFeedbackClick('thumbsup')}
 							>
 								<ThumbsUp />
 							</button>
 							<button
-								className={`${info?.feedback === 'thumbsDown' ? 'active' : ''}`}
-								onClick={() => handleFeedbackClick('thumbsDown')}
+								className={`${info?.feedback === 'thumbsdown' ? 'active' : ''}`}
+								onClick={() => handleFeedbackClick('thumbsdown')}
 							>
 								<ThumbsDown />
 							</button>

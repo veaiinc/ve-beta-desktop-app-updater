@@ -2,20 +2,22 @@
 .custom-dropdown {
 	position: relative;
 	display: inline-block;
-	width: 100%;
-	margin-top: 8px;
+	font-size: 14px;
+	font-family: var(--primary-font);
 
 	&__toggle {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		padding: 14px 16px;
-		border-radius: 8px;
+		border-radius: 100px;
 		border: 1px solid var(--stroke, #2c2d2e);
-		background: var(--card, #181a1b);
+		background: var(--card-over-card, #202123);
 		color: var(--primary-font, #f2f2f3);
 		cursor: pointer;
 		transition: all 0.2s ease;
+		min-width: 121px;
+		height: 34px;
 
 		&-value {
 			flex: 1;
@@ -27,37 +29,46 @@
 
 		&-arrow {
 			transition: transform 0.2s ease;
+			margin-top: 2px;
+			margin-left: 3px;
+			svg {
+				width: 14px;
+				height: 14px;
+				color: var(--secondary-font);
+			}
 		}
 
 		&.open &-arrow {
 			transform: rotate(180deg);
 		}
+
+		&:hover {
+			border: 1px solid var(--stroke-hover);
+		}
 	}
 
 	&__menu {
 		position: absolute;
-		top: 100%;
+		bottom: 100%; // Pushes dropdown above the toggle
 		left: 0;
 		right: 0;
 		z-index: 10;
-		background: var(--card, #181a1b);
+		background: var(--card-over-card-hover, #181a1b);
 		border: 1px solid var(--stroke, #2c2d2e);
-		border-top: none;
-		border-radius: 0 0 8px 8px;
-		max-height: 200px;
+		border-bottom: none;
+		border-radius: 12px;
 		overflow-y: auto;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-		transform-origin: top center;
+		box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); // Flip shadow direction
+		transform-origin: bottom center; // Open from bottom
 		transform: scaleY(0);
 		opacity: 0;
 		transition: transform 0.2s ease, opacity 0.1s ease;
-		max-height: 0;
 
 		&-item {
 			padding: 12px 16px;
 			cursor: pointer;
 			transition: background-color 0.2s ease;
-			background-color: var(--card);
+			background-color: var(--card-over-card-hover);
 			color: var(--primary-font);
 
 			&:empty,
@@ -66,11 +77,11 @@
 			}
 
 			&:hover {
-				background-color: var(--popup, #2c2d2e);
+				background-color: var(--card-over-card, #d9dbdd);
 			}
 
 			&.selected {
-				background-color: var(--popup, #2c2d2e);
+				background-color: var(--card-over-card, #d9dbdd);
 				color: var(--primary-font);
 			}
 		}

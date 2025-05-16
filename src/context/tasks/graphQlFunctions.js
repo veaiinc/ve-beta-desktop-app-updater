@@ -46,6 +46,7 @@ export const getListItemsQuery = gql`
 					name
 					email
 				}
+				createdByAI
 			}
 			analytics {
 				allTasks
@@ -182,7 +183,7 @@ export const getTaskQuery = gql`
 			dueDate
 			status
 			priority
-			client {
+			clients {
 				_id
 				name
 			}
@@ -202,6 +203,7 @@ export const getTaskQuery = gql`
 				_id
 				name
 			}
+			createdByAI
 		}
 	}
 `;
@@ -244,6 +246,7 @@ export const getSubTasksQuery = gql`
 				_id
 				name
 			}
+			createdByAI
 		}
 	}
 `;

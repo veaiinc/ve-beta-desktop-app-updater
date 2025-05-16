@@ -99,4 +99,62 @@ const getFileTypeInfo = (item) => {
 	return defaultType;
 };
 
+export const categoryMap = {
+	doc: 'Documents',
+	docx: 'Documents',
+	xls: 'Documents',
+	xlsx: 'Documents',
+	csv: 'Documents',
+	ods: 'Documents',
+	ppt: 'Documents',
+	pptx: 'Documents',
+	key: 'Documents',
+	pdf: 'Documents',
+	epub: 'Documents',
+	mobi: 'Documents',
+	azw: 'Documents',
+	workflow: 'Documents',
+
+	mp3: 'Audio',
+	wav: 'Audio',
+	aac: 'Audio',
+	flac: 'Audio',
+	ogg: 'Audio',
+
+	mp4: 'Video',
+	mkv: 'Video',
+	avi: 'Video',
+	mov: 'Video',
+	webm: 'Video',
+
+	psd: 'Design',
+	ai: 'Design',
+	figma: 'Design',
+	xd: 'Design',
+	sketch: 'Design',
+
+	zip: 'Archives',
+	rar: 'Archives',
+	'7z': 'Archives',
+	'tar.gz': 'Archives',
+
+	png: 'Images',
+	jpg: 'Images',
+	jpeg: 'Images',
+	image: 'Images',
+
+	json: 'Text Files',
+	xml: 'Text Files',
+	yaml: 'Text Files',
+	txt: 'Text Files',
+	md: 'Text Files',
+	log: 'Text Files',
+	ini: 'Text Files',
+	cfg: 'Text Files',
+
+	url: 'Links',
+
+	others: 'Workflows',
+};
+
 export default getFileTypeInfo;

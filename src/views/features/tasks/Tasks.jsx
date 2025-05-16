@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/ChartDonut.svg';
 import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/ChartBar.svg';
 import { ReactComponent as WorkflowSvg } from '../../../assets/svg/tasks/workflow.svg';
@@ -33,9 +32,8 @@ import LinkText from '../../components/tasks/listView/LinkText';
 import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
 import PersonMultiSelect from '../../components/tasks/listView/PersonMultiSelect';
 import { useSearchParams } from 'react-router-dom';
-import Taskwidget from '../../components/tasks/Taskwidget';
-import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 import CreatedWithAi from '../../components/tasks/listView/CreatedWithAi';
+import { colors } from '../../../helpers/taskHelpers';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -54,16 +52,6 @@ const defaultPreference = {
 	createdAt: { show: false, order: 14 },
 	updatedAt: { show: false, order: 15 },
 	createdWithAi: { show: false, order: 16 },
-};
-
-export const colors = {
-	1: { backgroundColor: '#62344B', color: '#A35A7E' },
-	2: { backgroundColor: '#373737', color: '#707070' },
-	3: { backgroundColor: '#5B3D2F', color: '#8F614B' },
-	4: { backgroundColor: '#7D4F27', color: '#B37339' },
-	5: { backgroundColor: '#375841', color: '#588F69' },
-	6: { backgroundColor: '#2F4469', color: '#4F71B3' },
-	7: { backgroundColor: '#453061', color: '#6F4C99' },
 };
 
 export const rowTypes = {
@@ -88,7 +76,7 @@ export const rowTypes = {
 
 const Tasks = () => {
 	const timeoutRef = useRef(null);
-	const [searchParams, setSearchParams] = useSearchParams();
+	const [searchParams] = useSearchParams();
 	const query = searchParams.get('itemId');
 
 	const {
@@ -199,7 +187,7 @@ const Tasks = () => {
 				type: 'childTasks',
 				name: 'Sub Tasks',
 				Icon: WorkflowSvg,
-				props: {},
+				props: { completedStatus: info?.taskMetadata?.completedGroupLabels },
 			},
 			assignedTo: {
 				type: 'person',
@@ -223,7 +211,7 @@ const Tasks = () => {
 			assignedAt: {
 				type: 'date',
 				name: 'Assigned At',
-				Icon: ClockSvg,
+				Icon: CalendarSvg,
 				props: { timestamp: true },
 			},
 			completedAt: { type: 'date', name: 'Completed At', Icon: CalendarSvg, props: {} },
@@ -263,8 +251,14 @@ const Tasks = () => {
 				Icon: PersonSvg,
 				props: {},
 			},
+			createdWithAi: {
+				type: 'createdWithAi',
+				name: 'Created With AI',
+				Icon: '',
+				props: {},
+			},
 		}),
-		[, info?.taskMetadata],
+		[info?.taskMetadata],
 	);
 	useEffect(() => {
 		updateSidebarState({ leftSidebarState: 'close' });
@@ -276,12 +270,6 @@ const Tasks = () => {
 	useEffect(() => {
 		handleDebounceFetch();
 	}, [info?.filters, info?.searchValue, info?.sort, info?.group]);
-
-	useEffect(() => {
-		if (sideBarData) {
-			handleRowClick(sideBarData, false);
-		}
-	}, [sideBarData]);
 
 	useEffect(() => {
 		updateStateValues({ leftSidebarState: 'close' });
@@ -409,21 +397,21 @@ const Tasks = () => {
 		}
 	}, [refetchTasks]);
 
-	useEffect(() => {
-		if (query && info?.listItems?.length) {
-			const taskId = query;
-			let requiredTask = null;
-			for (let i = 0; i < info?.listItems?.length; i++) {
-				if (info?.listItems?.[i]?._id === taskId) {
-					requiredTask = info?.listItems?.[i];
-					break;
-				}
-			}
-			if (requiredTask) {
-				handleRowClick(requiredTask, true);
-			}
-		}
-	}, [query, info?.listItems]);
+	// useEffect(() => {
+	// 	if (query && info?.listItems?.length) {
+	// 		const taskId = query;
+	// 		let requiredTask = null;
+	// 		for (let i = 0; i < info?.listItems?.length; i++) {
+	// 			if (info?.listItems?.[i]?._id === taskId) {
+	// 				requiredTask = info?.listItems?.[i];
+	// 				break;
+	// 			}
+	// 		}
+	// 		if (requiredTask) {
+	// 			handleRowClick(requiredTask, true);
+	// 		}
+	// 	}
+	// }, [query, info?.listItems]);
 
 	useEffect(() => {
 		if (!clientListForTask) {
@@ -499,7 +487,7 @@ const Tasks = () => {
 		return filters.map((filter) => ({
 			key: filter.key,
 			value:
-				typeof filter.value === 'object'
+				typeof filter.value === 'object' && !Array.isArray(filter?.value)
 					? filter?.value?._id || filter?.value?.value
 					: filter?.value,
 		}));
@@ -828,47 +816,12 @@ const Tasks = () => {
 		updateTaskInfo({ isCreatingSubtask: false, isCreateModalOpen: true });
 	};
 
-	const suggestedOptions = [
-		{
-			id: 0,
-			title: 'Create new Task',
-			value: 'task',
-			controlValue: 'task',
-			action: () => {
-				handleAddButtonOnClick();
-			},
-		},
-	];
-
 	const handleCloseCreateModal = useCallback(() => {
 		if (info?.isCreatingSubtask) {
 			updateTaskInfo({ sidebarIsOpen: true });
 		}
 		updateTaskInfo({ isCreateModalOpen: false });
 	}, [info?.isCreatingSubtask]);
-
-	const handleRowClick = useCallback(
-		(row, expandRightModal = false) => {
-			// Find the complete row data from listItems to ensure we have all properties
-			// const selectedTask = info?.listItems?.find((item) => item._id === row?._id) || row;
-
-			if (info?.selectedRow?._id !== row?._id) {
-				resetSubTasks();
-			}
-
-			if (row) {
-				updateTaskInfo({
-					selectedRow: row,
-					sidebarIsOpen: true,
-					breadCrumbs: [],
-					// Reset any previously selected subtask
-					selectedSubTask: null,
-					isSidebarExpanded: expandRightModal,
-				});
-			}
-		},
-		[info?.listItems, info?.selectedRow?._id, resetSubTasks],
-	);
 
 	const handleCreateSubTaskClick = useCallback(() => {
 		updateTaskInfo({ sidebarIsOpen: false, isCreatingSubtask: true, isCreateModalOpen: true });
@@ -937,7 +890,6 @@ const Tasks = () => {
 			<Task
 				responseMetadata={responseMetadata}
 				handleAddButtonOnClick={handleAddButtonOnClick}
-				handleRowClick={handleRowClick}
 				colors={colors}
 				updateTaskInfo={updateTaskInfo}
 				rowTypes={rowTypes}
@@ -974,40 +926,26 @@ const Tasks = () => {
 				error={info?.error}
 			/>
 			<ListViewSidebar
-				selectedRow={info?.selectedRow || sideBarData}
-				sidebarIsOpen={info?.sidebarIsOpen}
-				closeSidebar={handleCloseSidebar}
 				handleUpdate={updatePropertyValue}
 				deleteTask={deleteTask}
 				rowTypes={rowTypes}
 				responseMetadata={responseMetadata}
 				properties={info?.properties}
 				colors={colors}
-				toggleSidebarExpand={() =>
-					updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
-				}
 				isSidebarExpanded={info?.isSidebarExpanded}
-				headerText={
-					`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
-					(info?.selectedRow?.taskSlNo || '')
-				}
-				breadCrumbs={info?.breadCrumbs}
-				handleBreadCrumbsClick={handleBreadCrumbsClick}
+				prefix={info?.taskMetadata?.prefix}
 				sidebarChildren={
-					info?.selectedRow ? (
-						<ChildTaskComponent
-							parentTaskId={info?.selectedRow?._id}
-							childTasks={info?.selectedRow?.childTasks}
-							completedStatus={info?.taskMetadata?.completedGroupLabels}
-							rowTypes={rowTypes}
-							responseMetadata={responseMetadata}
-							colors={colors}
-							properties={info?.properties}
-							onAddButtonClick={handleCreateSubTaskClick}
-							handleUpdate={(...args) => updatePropertyValue(...args, true)}
-							handleRowClick={handleSubTaskClick}
-						/>
-					) : null
+					<ChildTaskComponent
+						parentTaskId={info?.selectedRow?._id}
+						childTasks={info?.selectedRow?.childTasks}
+						completedStatus={info?.taskMetadata?.completedGroupLabels}
+						rowTypes={rowTypes}
+						responseMetadata={responseMetadata}
+						colors={colors}
+						properties={info?.properties}
+						onAddButtonClick={handleCreateSubTaskClick}
+						handleUpdate={(...args) => updatePropertyValue(...args, true)}
+					/>
 				}
 				// renewBanner={renewBanner}
 			/>

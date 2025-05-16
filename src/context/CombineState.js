@@ -17,6 +17,7 @@ import { AutomationBuilderState } from './automationBuilder/state';
 import { NotesState } from './notes/state';
 import { ElasticSearchState } from './elastic_search/state';
 import { KnowledgeAgentState } from './knowledgeAgent/state';
+import { WorkspaceAssetsState } from './workspaceAssets/state';
 
 const useCombineState = () => {
 	// Call all hooks at the top level
@@ -38,6 +39,7 @@ const useCombineState = () => {
 	const notes = NotesState();
 	const knowledgeAgent = KnowledgeAgentState();
 	const elasticSearch = ElasticSearchState();
+	const workspaceAssets = WorkspaceAssetsState();
 	// Only memoize the final combined object
 	return useMemo(
 		() => ({
@@ -59,6 +61,7 @@ const useCombineState = () => {
 			notes,
 			knowledgeAgent,
 			elasticSearch,
+			workspaceAssets,
 		}),
 		[
 			chatInfo,
@@ -79,6 +82,7 @@ const useCombineState = () => {
 			notes,
 			knowledgeAgent,
 			elasticSearch,
+			workspaceAssets,
 		],
 	);
 };

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as ArrowLeftSvg } from '../../../../assets/svg/tasks/arrowLeft.svg';
 import '../../../../assets/scss/dropdown/tasks/layoutDropDown.scss';

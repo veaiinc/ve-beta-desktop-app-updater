@@ -16,12 +16,15 @@ const DateView = ({
 	showIcon = false,
 	showTime = false,
 	showTitle = false,
+	placement = 'bottom',
+	hideRemove = false,
 }) => {
 	const [info, setInfo] = useState({
 		showDatePicker: false,
 		dateOptions: [
 			{ label: 'Remove date', value: null },
 			{ label: 'Custom', value: 'custom' },
+			{ label: 'Today', value: moment().endOf('day').unix() },
 			{ label: 'Tomorrow', value: moment().add(1, 'days').endOf('day').unix() },
 			{ label: 'End of the week', value: moment().endOf('week').unix() },
 			{ label: 'In one week', value: moment().add(1, 'weeks').endOf('day').unix() },
@@ -74,14 +77,16 @@ const DateView = ({
 			) : (
 				<DropDown
 					title={`Change ${title ? title : 'date'}`}
-					options={info?.dateOptions?.filter((item) => !(!value && item?.value === null))}
+					options={info?.dateOptions?.filter(
+						(item) => !((!value || hideRemove) && item?.value === null),
+					)}
 					onOptionClick={updatedOnOptionClick}
 					selected={info?.dueDate}
 					valueSelector="value"
 				>
 					<Tooltip
 						title={showTitle && <div className="tooltip-inner">{title}</div>}
-						placement="bottom"
+						placement={placement}
 						overlayClassName="tooltip-overlay-container"
 						color="transparent"
 					>

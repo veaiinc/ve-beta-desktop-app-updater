@@ -542,7 +542,7 @@ const FormLeads = () => {
 
 	return (
 		<div className="formLeadsParentContainer" role="main">
-			<div
+			{/* <div
 				style={{
 					display: 'flex',
 					justifyContent: 'flex-end',
@@ -550,7 +550,7 @@ const FormLeads = () => {
 				}}
 			>
 				<QuickActions />
-			</div>
+			</div> */}
 			<div className="formWrapper">
 				<div className="formEnquiryContainer">
 					<div className="formContainer">
