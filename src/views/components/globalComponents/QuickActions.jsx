@@ -1125,10 +1125,10 @@ const QuickActions = ({
 		const fetchTaskMetadata = async () => {
 			await getTaskMetadata();
 		};
-		if (!taskMetadata) {
+		if (!taskMetadata && info?.dropdown) {
 			fetchTaskMetadata();
 		}
-	}, []);
+	}, [info?.dropdown]);
 
 	useEffect(() => {
 		if (taskMetadata) {
@@ -1146,7 +1146,7 @@ const QuickActions = ({
 	}, [info?.taskPreferences?.preferences, mapPropertyType]);
 
 	useEffect(() => {
-		if (!tenantsUserList) {
+		if (!tenantsUserList && info?.dropdown) {
 			getTeamMembers();
 		} else {
 			const formattedUsers = tenantsUserList?.map(({ firstName, lastName, _id }) => ({
@@ -1159,7 +1159,7 @@ const QuickActions = ({
 				tenantUsers: formattedUsers,
 			}));
 		}
-	}, [tenantsUserList]);
+	}, [tenantsUserList, info?.dropdown]);
 
 	useEffect(() => {
 		if (!info?.dropdown) {
@@ -1173,7 +1173,7 @@ const QuickActions = ({
 	}, [info.dropdown, filtereOptions]);
 
 	useEffect(() => {
-		if (!taskPreference) {
+		if (!taskPreference && info?.dropdown) {
 			getTaskPreferences({ preferences: 'taskPreference' });
 			return;
 		}
@@ -1201,7 +1201,7 @@ const QuickActions = ({
 				preferences: taskPreference?.data,
 			},
 		}));
-	}, []);
+	}, [info?.dropdown]);
 
 	useEffect(() => {
 		if (location.pathname.includes('knowledge-agent') || location.pathname.includes('files')) {
