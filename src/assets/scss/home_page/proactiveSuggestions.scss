@@ -3,6 +3,7 @@
 	margin: 0 auto;
 	height: 100%;
 	display: flex;
+	gap: 20px;
 	flex-direction: column;
 	align-items: center;
 	overflow-y: hidden;
@@ -290,10 +291,69 @@
 		@media screen and (max-width: 425px) {
 			width: 350px;
 		}
+		.left-container {
+			.btns-container {
+				display: flex;
+				height: 36px;
+				padding: 4px;
+				align-items: center;
+				gap: 2px;
+				border-radius: 8px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				.btn {
+					display: flex;
+					padding: 6px 8px;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 6px;
+					cursor: pointer;
+					.icon-container {
+						height: 16px;
+					}
+
+					.text-container {
+						color: var(--secondary-font, #7a7e85);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+
+				.btn.active {
+					background-color: var(--card-hover);
+					.text-container {
+						color: var(--primary-font);
+					}
+					.icon-container {
+						svg {
+							path {
+								stroke: var(--primary-font);
+							}
+						}
+					}
+				}
+			}
+		}
 		.right-container {
 			display: flex;
 			align-items: center;
 			gap: 6px;
+
+			.sort-by-created-at {
+				display: flex;
+				width: 36px;
+				height: 36px;
+				padding: 10px;
+				justify-content: center;
+				align-items: center;
+				gap: 18px;
+				border-radius: 6px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				cursor: pointer;
+			}
 
 			.viewSelectionContainer {
 				display: flex;
@@ -315,7 +375,7 @@
 					align-items: center;
 					gap: 8px;
 					color: var(--secondary-font, #7a7e85);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -331,7 +391,7 @@
 						background: var(--card);
 						color: var(--primary-font);
 
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -489,187 +549,192 @@
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 8px;
-		margin: 20px auto;
-		// flex-grow: 1;
-		max-height: 100%;
-		.groupedCardsContainer {
-			display: flex;
-			flex-direction: column;
-			gap: 8px;
-			.dateLabel {
-				color: var(--secondary-font, #7a7e85);
-				font-family: var(--primary-font-family);
-				font-size: 13px;
-				font-style: normal;
-				font-weight: 600;
-				line-height: normal;
-				margin-bottom: 4px;
-			}
-			.eachCardContainer {
+		margin: 0 auto;
+		flex-grow: 1;
+		overflow: auto;
+		.list-view-container {
+			height: 100%;
+			width: 100%;
+			.groupedCardsContainer {
 				display: flex;
-				width: 100%;
-				max-width: 750px;
-				padding: 14px 16px;
 				flex-direction: column;
-				align-items: flex-start;
-				gap: 12px;
-				border-radius: 8px;
-				position: relative;
-				z-index: 10;
-				border: 1px solid var(--stroke);
-				background: transparent;
-				cursor: pointer;
-				margin: 0.5px;
-				@media screen and (max-width: 425px) {
-					width: 345px;
+				gap: 8px;
+				width: 100%;
+				.dateLabel {
+					color: var(--secondary-font, #7a7e85);
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: normal;
+					margin-bottom: 4px;
 				}
-
-				/* Initially hide the gradient and background color */
-				&:hover {
-					margin: 0;
-					background: linear-gradient(var(--card), var(--card)) padding-box,
-						linear-gradient(90deg, #4acea6 0%, #5f8ee0 100%) border-box;
-					border: 1.5px solid transparent; /* needed for border-box to work */
-					border-radius: 8px;
-					.relativeTime {
-						color: var(--primary-font) !important;
-						svg {
-							color: var(--primary-font) !important;
-						}
-					}
-					.priority-text {
-						color: var(--primary-font) !important;
-					}
-					.confidenceScore {
-						color: var(--primary-font) !important;
-					}
-				}
-				.cardContainerUnreadIndicator {
+				.eachCardContainer {
 					display: flex;
-					align-items: flex-start;
-					gap: 14px;
-					align-self: stretch;
-					.unread {
-						display: inline-flex;
-						width: 6px;
-						height: 6px;
-						background: var(--primary-button, #cfff48);
-						border-radius: 50%;
-						padding: 4px;
-						margin-top: 7px;
-					}
-					.cardContianerTitle {
-						color: var(--primary-font, #f2f2f3);
-						font-family: var(--primary-font-family);
-						font-size: 13px;
-						font-style: normal;
-						font-weight: 400;
-						line-height: 22px;
-						align-self: stretch;
-						height: 42px;
-						overflow: hidden;
-						display: -webkit-box;
-						-webkit-box-orient: vertical;
-						-webkit-line-clamp: 2;
-						line-clamp: 2;
-						text-overflow: ellipsis;
-						span {
-							color: var(--primary-font, #f2f2f3);
-							font-family: var(--primary-font-family);
-							font-size: 13px;
-							font-style: normal;
-							font-weight: 700;
-							line-height: 22px; /* 146.154% */
-						}
-					}
-				}
-				.cardOptionsMainContainer {
-					display: flex;
-					justify-content: space-between;
 					width: 100%;
-					align-items: center;
-					height: 15px;
-					.cardOptionsContainer {
-						display: flex;
-						align-items: center;
-						gap: 12px;
-						.priorityOption {
-							display: flex;
-							justify-content: center;
-							align-items: center;
-							gap: 6px;
-							color: var(--primary-font, #f2f2f3);
-							font-family: var(--primary-font-family);
-							font-size: 12px;
-							font-style: normal;
-							font-weight: 500;
-							line-height: normal;
-						}
-						.verticalLine {
-							width: 1px;
-							height: 14px;
-							background: var(--stroke, #2c2d2e);
-						}
+					max-width: 750px;
+					padding: 14px 16px;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 12px;
+					border-radius: 8px;
+					position: relative;
+					z-index: 10;
+					border: 1px solid var(--stroke);
+					background: transparent;
+					cursor: pointer;
+					margin: 0.5px;
+					@media screen and (max-width: 425px) {
+						width: 345px;
+					}
+
+					/* Initially hide the gradient and background color */
+					&:hover {
+						margin: 0;
+						background: linear-gradient(var(--card), var(--card)) padding-box,
+							linear-gradient(90deg, #4acea6 0%, #5f8ee0 100%) border-box;
+						border: 1.5px solid transparent; /* needed for border-box to work */
+						border-radius: 8px;
 						.relativeTime {
-							display: flex;
-							justify-content: center;
-							align-items: center;
-							gap: 4px;
-							color: var(--secondary-font, #7a7e85);
-							font-family: var(--primary-font-family);
-							font-size: 12px;
-							font-style: normal;
-							font-weight: 500;
-							line-height: normal;
-							svg {
-								color: var(--secondary-font);
-							}
-						}
-						.thumbsUpContainer {
+							color: var(--primary-font) !important;
 							svg {
 								color: var(--primary-font) !important;
 							}
 						}
+						.priority-text {
+							color: var(--primary-font) !important;
+						}
+						.confidenceScore {
+							color: var(--primary-font) !important;
+						}
 					}
-					.cardButtonsContainer {
+					.cardContainerUnreadIndicator {
 						display: flex;
 						align-items: flex-start;
-						gap: 6px;
-						.skipButton {
-							display: flex;
-							padding: 6px 18px;
-							justify-content: center;
-							align-items: center;
-							gap: 2px;
-							border-radius: 24px;
-							border: 1px solid var(--stroke, #2c2d2e);
-							background: var(--popup, #202123);
-							overflow: hidden;
+						gap: 14px;
+						align-self: stretch;
+						.unread {
+							display: inline-flex;
+							width: 6px;
+							height: 6px;
+							background: var(--primary-button, #cfff48);
+							border-radius: 50%;
+							padding: 4px;
+							margin-top: 7px;
+						}
+						.cardContianerTitle {
 							color: var(--primary-font, #f2f2f3);
-							text-overflow: ellipsis;
 							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
-							font-weight: 500;
-							line-height: normal;
+							font-weight: 400;
+							line-height: 22px;
+							align-self: stretch;
+							height: 42px;
+							overflow: hidden;
 							display: -webkit-box;
 							-webkit-box-orient: vertical;
-							-webkit-line-clamp: 1;
-							line-clamp: 1;
-							border: none;
-							cursor: pointer;
+							-webkit-line-clamp: 2;
+							line-clamp: 2;
+							text-overflow: ellipsis;
+							span {
+								color: var(--primary-font, #f2f2f3);
+								font-family: var(--primary-font-family);
+								font-size: 13px;
+								font-style: normal;
+								font-weight: 700;
+								line-height: 22px; /* 146.154% */
+							}
 						}
-						.checkButton {
+					}
+					.cardOptionsMainContainer {
+						display: flex;
+						justify-content: space-between;
+						width: 100%;
+						align-items: center;
+						height: 15px;
+						.cardOptionsContainer {
 							display: flex;
-							justify-content: flex-end;
 							align-items: center;
-							gap: 8px;
-							color: var(--primary-font, #f2f2f3);
-							font-family: var(--primary-font-family);
-							font-size: 13px;
-							font-style: normal;
-							font-weight: 500;
-							line-height: normal;
+							gap: 12px;
+							.priorityOption {
+								display: flex;
+								justify-content: center;
+								align-items: center;
+								gap: 6px;
+								color: var(--primary-font, #f2f2f3);
+								font-family: var(--primary-font-family);
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
+							.verticalLine {
+								width: 1px;
+								height: 14px;
+								background: var(--stroke, #2c2d2e);
+							}
+							.relativeTime {
+								display: flex;
+								justify-content: center;
+								align-items: center;
+								gap: 4px;
+								color: var(--secondary-font, #7a7e85);
+								font-family: var(--primary-font-family);
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+								svg {
+									color: var(--secondary-font);
+								}
+							}
+							.thumbsUpContainer {
+								svg {
+									color: var(--primary-font) !important;
+								}
+							}
+						}
+						.cardButtonsContainer {
+							display: flex;
+							align-items: flex-start;
+							gap: 6px;
+							.skipButton {
+								display: flex;
+								padding: 6px 18px;
+								justify-content: center;
+								align-items: center;
+								gap: 2px;
+								border-radius: 24px;
+								border: 1px solid var(--stroke, #2c2d2e);
+								background: var(--popup, #202123);
+								overflow: hidden;
+								color: var(--primary-font, #f2f2f3);
+								text-overflow: ellipsis;
+								font-family: var(--primary-font-family);
+								font-size: 13px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+								display: -webkit-box;
+								-webkit-box-orient: vertical;
+								-webkit-line-clamp: 1;
+								line-clamp: 1;
+								border: none;
+								cursor: pointer;
+							}
+							.checkButton {
+								display: flex;
+								justify-content: flex-end;
+								align-items: center;
+								gap: 8px;
+								color: var(--primary-font, #f2f2f3);
+								font-family: var(--primary-font-family);
+								font-size: 13px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
 						}
 					}
 				}
@@ -823,7 +888,6 @@
 
 .emailContainer {
 	display: flex;
-	width: 350px;
 	padding: 8px 14px;
 	flex-direction: column;
 	justify-content: center;
@@ -861,7 +925,9 @@
 	.relativeTime {
 		display: flex;
 		justify-content: space-between;
+		align-items: center;
 		width: 100%;
+		gap: 10px;
 		.relativeTimeText {
 			width: 80px;
 			color: var(--primary-font, #f2f2f3);

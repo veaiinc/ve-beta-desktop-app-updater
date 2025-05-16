@@ -2,6 +2,7 @@ import { useState, useEffect, memo } from 'react';
 import { ReactComponent as Call } from '../../../assets/svg/smartFiles/formResponse/call.svg';
 import { ReactComponent as Message } from '../../../assets/svg/smartFiles/formResponse/message.svg';
 import { ReactComponent as Calender } from '../../../assets/svg/smartFiles/formResponse/calendar.svg';
+import { ReactComponent as Download } from '../../../assets/svg/download.svg';
 import moment from 'moment';
 import '../../../assets/scss/forms/FormresCard.scss';
 import service from '../../../services/graphQlServices';
@@ -12,6 +13,14 @@ import QuickActions from '../globalComponents/QuickActions';
 import { Tooltip } from 'antd';
 import { removeQuotes } from './FormDescription';
 import { useParams } from 'react-router-dom';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+
+const removeHTMLTags = (text) =>
+	text
+		?.replace(/<[^>]+>/g, '')
+		.replace(/&nbsp;/g, ' ')
+		.trim() || '';
 
 const FormResCard = ({
 	formId: inputFormId,
@@ -202,6 +211,71 @@ const FormResCard = ({
 		}
 	};
 
+	const handleDownloadSingleResponse = (response) => {
+		if (!response) return;
+		// Collect all questions and answers
+		const fields = response.response || [];
+		const headers = ['Question', 'Answer'];
+		const csvRows = [headers];
+		fields.forEach((item) => {
+			let answer = item.answer;
+			// Handle fileupload type
+			if (item.type === 'fileupload' && answer && typeof answer === 'object') {
+				answer = answer.name || 'File Uploaded';
+			}
+			// Handle events type (format as readable string, not JSON)
+			if (item.type === 'events' && answer) {
+				try {
+					const events = typeof answer === 'string' ? JSON.parse(answer) : answer;
+					answer = (Array.isArray(events) ? events : [events])
+						.map((event) => {
+							if (!event) return '';
+							const name = event.name || event.eventName || event.title || 'Event';
+							const date = event.date || event.eventDate || '';
+							const location = event.location || event.eventLocation || '';
+							const guests = event.noOfGuests || event.guests || '';
+							return `${name} (${date}${location ? ', ' + location : ''}${
+								guests ? ', ' + guests + ' guests' : ''
+							})`;
+						})
+						.filter(Boolean)
+						.join('; ');
+				} catch (e) {
+					// fallback to raw answer if parsing fails
+				}
+			}
+			// Handle array answers (e.g., multiple choice)
+			if (Array.isArray(answer)) {
+				answer = answer.join(', ');
+			}
+			// Remove HTML tags from question and answer
+			const cleanQuestion = removeHTMLTags(
+				item.question ? item.question.replace(/\n/g, ' ') : '',
+			);
+			const cleanAnswer = removeHTMLTags(answer ? String(answer).replace(/\n/g, ' ') : '');
+			csvRows.push([cleanQuestion, cleanAnswer]);
+		});
+		// Add meta info
+		csvRows.push(['Submission ID', response._id || '']);
+		csvRows.push([
+			'Submitted At',
+			response.createdAt ? moment.unix(response.createdAt).format('YYYY-MM-DD HH:mm:ss') : '',
+		]);
+		// Convert to CSV
+		const csvContent = csvRows
+			.map((row) => row.map((cell) => `"${cell}"`).join(','))
+			.join('\n');
+		const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+		const link = document.createElement('a');
+		const url = URL.createObjectURL(blob);
+		link.setAttribute('href', url);
+		link.setAttribute('download', `form_response_${response._id || 'single'}.csv`);
+		link.style.visibility = 'hidden';
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	};
+
 	const sortResponses = (responses) => {
 		if (!responses || !Array.isArray(responses)) return [];
 
@@ -311,91 +385,118 @@ const FormResCard = ({
 	};
 
 	if (error) return <div>Error: {error}</div>;
-	if (loading) return <div className="loading-state">Loading...</div>;
+	if (loading) {
+		return (
+			<div className="formResCardScrollParent">
+				<div className="formResLayout">
+					<div className="formResponsesContainer">
+						<div className="resWrapper">
+							<div className="topRow">
+								<div className="carddetails">
+									<h1 className="name">
+										<Skeleton width={120} height={20} />
+									</h1>
+									<h1 className="time">
+										<Skeleton width={60} height={16} />
+									</h1>
+								</div>
+							</div>
+							{/* Optionally, add more skeletons for expanded card, etc. */}
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
 	if (!responses.length) return <div className="no-responses">No responses yet</div>;
 
 	return (
-		<div className="formResLayout">
-			<div className="formResponsesContainer">
-				<InfiniteScroll
-					dataLength={responses.length}
-					next={fetchMoreResponses}
-					hasMore={hasNextPage}
-					loader={<FetchMoreLoaderComp />}
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						width: '100%',
-					}}
-					height="calc(100vh - 100px)"
-				>
-					{sortResponses(responses).map((response, index) => {
-						const resumeInfo = getResumeInfo(response);
-						const isExpanded = expandedCard === index;
+		<div className="formResCardScrollParent">
+			<div className="formResLayout">
+				<div className="formResponsesContainer">
+					<InfiniteScroll
+						dataLength={responses.length}
+						next={fetchMoreResponses}
+						hasMore={hasNextPage}
+						loader={<FetchMoreLoaderComp />}
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							width: '100%',
+						}}
+					>
+						{sortResponses(responses).map((response, index) => {
+							const resumeInfo = getResumeInfo(response);
+							const isExpanded = expandedCard === index;
 
-						return (
-							<div
-								key={index}
-								className={`resWrapper ${isExpanded ? 'open' : ''}`}
-								onClick={() => {
-									setExpandedCard(expandedCard === index ? null : index);
-									handleCardClick(response, index);
-								}}
-							>
-								<div className="topRow">
-									<div className="carddetails">
-										<h1 className="name">{getName(response)}</h1>
-										<h1 className="time">{getTimeAgo(response)}</h1>
-									</div>
-								</div>
-
-								{isExpanded && (
-									<div className="incard">
-										<h3 className="options">Actions</h3>
-										<div className="actionsRow">
-											<div
-												className="resoption"
-												onClick={(e) => {
-													e.stopPropagation();
-													handleActionClick('Call', response);
-												}}
-											>
-												<span className="optioncon">
-													<Call />
-												</span>
-												<h1 className="option">Call</h1>
-											</div>
-											<div
-												className="resoption"
-												onClick={(e) => {
-													e.stopPropagation();
-													handleActionClick('Mail', response);
-												}}
-											>
-												<span className="optioncon">
-													<Message />
-												</span>
-												<h1 className="option">Email</h1>
-											</div>
-											{/* <div
-												className="resoption"
-												onClick={(e) => {
-													e.stopPropagation();
-													handleActionClick('Schedule', response);
-												}}
-											>
-												<span className="optioncon">
-													<Calender />
-												</span>
-												<h1 className="option">Schedule</h1>
-											</div> */}
+							return (
+								<div
+									key={index}
+									className={`resWrapper ${isExpanded ? 'open' : ''}`}
+									onClick={() => {
+										setExpandedCard(expandedCard === index ? null : index);
+										handleCardClick(response, index);
+									}}
+								>
+									<div className="topRow">
+										<div className="carddetails">
+											<h1 className="name">{getName(response)}</h1>
+											<h1 className="time">{getTimeAgo(response)}</h1>
 										</div>
 									</div>
-								)}
-							</div>
-						);
-					})}
-				</InfiniteScroll>
+
+									{isExpanded && (
+										<div className="incard">
+											<h3 className="options">Actions</h3>
+											<div className="actionsRow">
+												<div
+													className="resoption"
+													onClick={(e) => {
+														e.stopPropagation();
+														handleActionClick('Call', response);
+													}}
+												>
+													<span className="optioncon">
+														<Call />
+													</span>
+													<h1 className="option">Call</h1>
+												</div>
+												<div
+													className="resoption"
+													onClick={(e) => {
+														e.stopPropagation();
+														handleActionClick('Mail', response);
+													}}
+												>
+													<span className="optioncon">
+														<Message />
+													</span>
+													<h1 className="option">Email</h1>
+												</div>
+												<div
+													className="resoption"
+													onClick={(e) => {
+														e.stopPropagation();
+														handleDownloadSingleResponse(response);
+													}}
+													style={{
+														display: 'flex',
+														alignItems: 'center',
+													}}
+												>
+													<span className="optioncon">
+														<Download />
+													</span>
+													<h1 className="option">Download</h1>
+												</div>
+											</div>
+										</div>
+									)}
+								</div>
+							);
+						})}
+					</InfiniteScroll>
+				</div>
 			</div>
 		</div>
 	);

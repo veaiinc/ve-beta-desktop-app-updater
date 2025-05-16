@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Tooltip, Flex } from 'antd';
 import {
@@ -14,12 +14,22 @@ import { ReactComponent as CopyIcon } from '../../../assets/svg/copy.svg';
 import '../../../assets/scss/forms/formSummary.scss';
 import FormPreview from './FormPreview';
 import { EventsAnswer } from './FormDescription';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
-const removeHTMLTags = (text) =>
-	text
-		?.replace(/<\/?[^>]+(>|$)/g, '')
-		.replace(/ /g, ' ')
-		.trim() || '';
+const removeHTMLTags = (text) => {
+	const decodeHTML = (html) => {
+		const txt = document.createElement('textarea');
+		txt.innerHTML = html;
+		return txt.value;
+	};
+	return decodeHTML(
+		text
+			?.replace(/<\/?[^>]+(>|$)/g, '')
+			?.replace(/ /g, ' ')
+			?.trim() || '',
+	);
+};
 
 const FileUploadAnswer = ({ answer }) => {
 	const [selectedFile, setSelectedFile] = useState(null);
@@ -122,7 +132,13 @@ const FormResponseList = ({
 			return field?.answer && field.answer !== '0' && field.answer !== '';
 		}) || [];
 
-	const visibleResponses = expanded ? responsesWithAnswers : responsesWithAnswers.slice(0, 5);
+	// Show only 2 for events, 3 for fileupload, 5 for others
+	let defaultVisibleCount = 5;
+	if (type === 'events') defaultVisibleCount = 2;
+	else if (type === 'fileupload') defaultVisibleCount = 3;
+	const visibleResponses = expanded
+		? responsesWithAnswers
+		: responsesWithAnswers.slice(0, defaultVisibleCount);
 
 	const renderAnswer = (field) => {
 		if (!field) return null; // Skip rendering if no field
@@ -187,7 +203,7 @@ const FormResponseList = ({
 					})}
 				</div>
 			</div>
-			{responsesWithAnswers.length > 5 && (
+			{responsesWithAnswers.length > defaultVisibleCount && (
 				<div className="collapsible-list__footer">
 					<span onClick={handleExpand}>
 						{expanded ? 'See less' : `See all (${responsesWithAnswers.length})`}
@@ -341,56 +357,92 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 			return field?.answer && field.answer !== '0' && field.answer !== '';
 		}).length;
 
-	if (!formId) return <div>No form ID provided</div>;
-	if (!formData.responses.length) return <div className="no-responses">No summary found</div>;
-	if (loading || !formData.responses.length)
-		return <div className="loading-state">Loading...</div>;
-
 	return (
 		<div className="formSummaryWrapper">
-			<div className="formSummaryParentContainer">
-				<div
-					className="formSummaryContainer"
-					style={{ height: '100%', overflow: 'auto', marginBottom: '100px' }}
-				>
-					{questions?.map((item, index) => (
-						<div key={index} className="section">
+			{!formId ? (
+				<div>No form ID provided</div>
+			) : loading ? (
+				<div className="formSummaryParentContainer">
+					<div
+						className="formSummaryContainer"
+						style={{ height: '100%', overflow: 'auto', marginBottom: '100px' }}
+					>
+						<div className="section">
 							<div className="header">
 								<div className="header-top">
 									<span className="title">
-										<span className="question-number">Q{index + 1}:</span>{' '}
-										{removeHTMLTags(item?.question)}
+										<span className="question-number">
+											<Skeleton width={32} height={20} />
+										</span>{' '}
+										<Skeleton width={180} height={20} />
 									</span>
-									<div
-										className="copy-button"
-										onClick={() => handleCopy(item?.question)}
-									>
-										<CopyIcon className="copy-icon" />
-										<span className="copy-text">
-											{copyStatus[item?.question] ? 'Copied!' : 'Copy'}
-										</span>
-									</div>
-								</div>
-								<div className="total-responses">
-									Total Responses: {getQuestionResponseCount(item.question)}
 								</div>
 							</div>
-							<FormResponseList
-								expanded={expanded}
-								handleExpand={handleExpand}
-								items={formData.responses}
-								question={item.question}
-								handleCopy={handleCopy}
-								copyStatus={copyStatus}
-								type={item.type}
-								onUserClick={onUserClick}
-							/>
+							<div className="collapsible-list">
+								<div className="collapsible-list__content collapsible-list__content--collapsed">
+									<div className="collapsible-list__items">
+										<div className="collapsible-list__item">
+											<div className="candidate-info">
+												<div className="candidate-name">
+													<Skeleton width={140} height={18} />
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
-					))}
+					</div>
 				</div>
-			</div>
+			) : !formData.responses.length ? (
+				<div className="no-responses">No summary found</div>
+			) : (
+				<div className="formSummaryParentContainer">
+					<div
+						className="formSummaryContainer"
+						style={{ height: '100%', overflow: 'auto', marginBottom: '100px' }}
+					>
+						{questions?.map((item, index) => (
+							<div key={index} className="section">
+								<div className="header">
+									<div className="header-top">
+										<span className="title">
+											<span className="question-number">Q{index + 1}:</span>{' '}
+											<span className="question-text">
+												{removeHTMLTags(item?.question)}
+											</span>
+										</span>
+										<div
+											className="copy-button"
+											onClick={() => handleCopy(item?.question)}
+										>
+											<CopyIcon className="copy-icon" />
+											<span className="copy-text">
+												{copyStatus[item?.question] ? 'Copied!' : 'Copy'}
+											</span>
+										</div>
+									</div>
+									<div className="total-responses">
+										Total Responses: {getQuestionResponseCount(item.question)}
+									</div>
+								</div>
+								<FormResponseList
+									expanded={expanded}
+									handleExpand={handleExpand}
+									items={formData.responses}
+									question={item.question}
+									handleCopy={handleCopy}
+									copyStatus={copyStatus}
+									type={item.type}
+									onUserClick={onUserClick}
+								/>
+							</div>
+						))}
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };
 
-export default FormSummary;
+export default memo(FormSummary);
