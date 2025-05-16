@@ -196,16 +196,6 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	}, [info?.totalCardsData, info.currentIndex]);
 
 	useEffect(() => {
-		const scrollableContainer = document?.querySelector('.scrollable-container');
-		if (scrollableContainer) {
-			scrollableContainer?.scrollTo({
-				top: 0,
-				behavior: 'instant',
-			});
-		}
-	}, [info?.selectedFilters, info?.sortOptions, info?.sortBy]);
-
-	useEffect(() => {
 		if (!aiSuggestedPendingActions) return;
 		if (
 			aiSuggestedPendingActions?.metaInfo?.currentPage === 1 &&
