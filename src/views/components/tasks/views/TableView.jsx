@@ -16,7 +16,6 @@ const TableView = ({
 	data = [],
 	responseMetadata,
 	handleUpdate,
-	handleRowClick,
 	colors,
 	isSubTask = false,
 	loading = false,
@@ -221,7 +220,6 @@ const TableView = ({
 								rowTypes={rowTypes}
 								responseMetadata={responseMetadata}
 								handleUpdate={handleUpdate}
-								handleRowClick={handleRowClick}
 								colors={colors}
 								isSubTask={isSubTask}
 							/>

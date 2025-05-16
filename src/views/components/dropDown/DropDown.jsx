@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react';
+import { useState, memo } from 'react';
 import '../../../assets/scss/dropdown/dropdown.scss';
 import { ReactComponent as DownArrow } from '../../../assets/svg/chat/downArrow.svg';
 import { ReactComponent as Instagram } from '../../../assets/svg/chat/instagram.svg';

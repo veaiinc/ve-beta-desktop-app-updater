@@ -226,3 +226,20 @@ export const notesImageBlockDeleteMutation = gql`
 		}
 	}
 `;
+
+export const notesLinkUploadMutation = gql`
+	mutation Mutation($pageId: ID!, $input: UpdatePageInput!) {
+		updatePage(pageId: $pageId, input: $input) {
+			coverImage
+		}
+	}
+`;
+
+export const notesCoverImageFileUploadMutation = gql`
+	mutation Mutation($pageId: ID!, $imageType: ImageTypeInput!) {
+		uploadPageImage(pageId: $pageId, imageType: $imageType) {
+			imageUrl
+			signedUrl
+		}
+	}
+`;

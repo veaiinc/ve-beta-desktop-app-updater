@@ -19,6 +19,7 @@ module.exports = {
 	// multi_agent_chat: 'ws://ai.ap-south-1.ve.ai',
 	page_notes_api: 'https://ap.api.ve.ai/block-notes/1.0',
 	elastic_search_api: 'https://ap.api.ve.ai/elastic-search/1.0',
+	workspace_images_api: 'https://ap.api.ve.ai/images/1.0/',
 
 	//outside India
 	auth_Api_US: 'https://auth.ve.ai',
@@ -39,4 +40,5 @@ module.exports = {
 	automations_api_US: 'https://ap.api.ve.ai/automations/1.0/automation',
 	page_notes_api_US: 'https://us.api.ve.ai/block-notes/1.0',
 	elastic_search_api_US: 'https://ap.api.ve.ai/elastic-search/1.0',
+	workspace_images_api_US: 'https://us.api.ve.ai/images/1.0/',
 };

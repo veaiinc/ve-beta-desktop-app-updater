@@ -1,0 +1,23 @@
+.date-view-dropdown {
+	display: flex;
+	padding: 18px 16px;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 10px;
+	align-self: stretch;
+	background-color: var(--card, #2c2d2e);
+	display: flex;
+	width: 250px;
+	border-radius: 12px;
+	border: 1px solid var(--stroke, #2c2d2e);
+
+	.title {
+		color: var(--secondary-font, #7a7e85);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+}

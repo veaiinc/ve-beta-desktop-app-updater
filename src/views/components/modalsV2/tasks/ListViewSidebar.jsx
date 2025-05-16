@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import { Drawer } from 'antd';
-import React, { memo, useCallback, useEffect, useState, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useState, useRef, useContext } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
 import { ReactComponent as CloseArrow } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as RightSvg } from '../../../../assets/svg/activity/right.svg';
@@ -13,6 +13,7 @@ import CustomTextArea from '../../globalComponents/CusomTextArea';
 import QuickActions from '../../globalComponents/QuickActions';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import moment from 'moment';
+import Context from '../../../../context/context';
 const optionsForQuickActions = [
 	{ id: 4, title: 'Document', value: 'document' },
 	{ id: 6, title: 'Proposal', value: 'proposal' },
@@ -31,24 +32,19 @@ const customStyles = {
 };
 
 const ListViewSidebar = ({
-	selectedRow,
-	sidebarIsOpen,
-	closeSidebar,
 	handleUpdate,
 	deleteTask,
 	rowTypes,
-	handleSubTaskClick,
 	responseMetadata,
 	colors,
 	sidebarChildren,
 	isSidebarExpanded = false,
-	toggleSidebarExpand,
-	headerText,
-	breadCrumbs,
-	handleBreadCrumbsClick,
 	showQuickActions = true,
-	// renewBanner,
+	prefix,
 }) => {
+	const {
+		tasks: { sideBarData, updateSideBarData },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
 		subTasks: [],
 		subTaskLoading: true,
@@ -74,6 +70,8 @@ const ListViewSidebar = ({
 			},
 		},
 	];
+
+	const selectedRow = sideBarData?.stack?.at(-1);
 
 	useEffect(() => {
 		if (selectedRow?.title !== localTitle) {
@@ -282,15 +280,17 @@ const ListViewSidebar = ({
 			const isTask = !!selectedRow?.taskSlNo;
 			const path = isTask ? `/task/${selectedRow._id}` : `/contact/${selectedRow._id}`;
 			navigate(path);
-			closeSidebar();
+			updateSideBarData({ open: false });
 		}
 	};
 
+	const sideBarOpen = sideBarData?.open;
+
 	return (
 		<Drawer
-			onClose={closeSidebar}
+			onClose={() => updateSideBarData({ open: false })}
 			width={'fit-content'}
-			open={sidebarIsOpen}
+			open={sideBarOpen}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px', overflow: 'hidden' }}
@@ -313,7 +313,12 @@ const ListViewSidebar = ({
 									<CloseArrow
 										width={16}
 										height={16}
-										onClick={closeSidebar}
+										onClick={() =>
+											updateSideBarData({
+												data: -1,
+												open: sideBarData?.stack?.length > 1,
+											})
+										}
 										style={{ cursor: 'pointer' }}
 									/>
 								) : (
@@ -338,7 +343,9 @@ const ListViewSidebar = ({
 									/>
 								)}
 							</div>
-							<div className="sidebar-header-id">{headerText}</div>
+							<div className="sidebar-header-id">
+								{prefix}-{selectedRow?.taskSlNo}
+							</div>
 						</div>
 
 						<div className="sidebar-header-right-container">
