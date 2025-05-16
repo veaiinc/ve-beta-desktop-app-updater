@@ -2456,9 +2456,10 @@ export const TemplatesState = (props) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const url = type
-				? `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}/${type}`
-				: `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}`;
+			const url =
+				type === 'delete'
+					? `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}/delete`
+					: `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}`;
 			const response = await Service.fetchPut(url, payload, usertoken, 'tenant');
 			return response;
 		} catch (error) {
