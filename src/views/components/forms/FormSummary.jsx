@@ -17,11 +17,19 @@ import { EventsAnswer } from './FormDescription';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-const removeHTMLTags = (text) =>
-	text
-		?.replace(/<\/?[^>]+(>|$)/g, '')
-		.replace(/ /g, ' ')
-		.trim() || '';
+const removeHTMLTags = (text) => {
+	const decodeHTML = (html) => {
+		const txt = document.createElement('textarea');
+		txt.innerHTML = html;
+		return txt.value;
+	};
+	return decodeHTML(
+		text
+			?.replace(/<\/?[^>]+(>|$)/g, '')
+			?.replace(/ /g, ' ')
+			?.trim() || '',
+	);
+};
 
 const FileUploadAnswer = ({ answer }) => {
 	const [selectedFile, setSelectedFile] = useState(null);
@@ -400,7 +408,9 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 									<div className="header-top">
 										<span className="title">
 											<span className="question-number">Q{index + 1}:</span>{' '}
-											{removeHTMLTags(item?.question)}
+											<span className="question-text">
+												{removeHTMLTags(item?.question)}
+											</span>
 										</span>
 										<div
 											className="copy-button"

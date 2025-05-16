@@ -103,7 +103,11 @@
 				line-height: 30px;
 				white-space: nowrap;
 			}
-
+			.question-text {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				text-wrap: wrap;
+			}
 			.total-responses {
 				overflow: hidden;
 				color: var(--secondary-font, #787e87);

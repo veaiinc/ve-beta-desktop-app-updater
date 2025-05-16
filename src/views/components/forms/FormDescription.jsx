@@ -57,7 +57,14 @@ const eventsTableHeaderData = [
 	{ id: 4, label: 'Guests' },
 ];
 
-const removeHTMLTagsAndnbsp = (text) => text?.replace(/<\/?[^>]+(>|$)/g, '')?.replace(/ /g, ' ');
+const removeHTMLTagsAndnbsp = (text) => {
+	const decodeHTML = (html) => {
+		const txt = document.createElement('textarea');
+		txt.innerHTML = html;
+		return txt.value;
+	};
+	return decodeHTML(text?.replace(/<\/?[^>]+(>|$)/g, '')?.replace(/ /g, ' '));
+};
 
 const removeQuotes = (text) => {
 	if (!text) {
