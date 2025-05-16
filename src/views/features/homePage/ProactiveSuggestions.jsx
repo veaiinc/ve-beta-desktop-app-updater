@@ -115,6 +115,11 @@ const PriorityLevel = {
 	Medium: 'yellow',
 	Low: 'green',
 };
+const sortOptions = {
+	createdAt: {
+		sortType: -1,
+	},
+};
 const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
 
 const getRelativeDayLabel = (timestamp) => {
@@ -148,8 +153,9 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		hoveredCard: null,
 		isListView: true,
 		isApiLoading: false,
-		sortByCreatedAt: -1,
+		sortBy: 'createdAt',
 		activeBtn: 'insights',
+		sortOptions,
 	});
 	const navigate = useNavigate();
 	const selectedOptionRef = useRef(selectedOption);
@@ -197,7 +203,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 				behavior: 'instant',
 			});
 		}
-	}, [info?.selectedFilters, info?.sortByCreatedAt]);
+	}, [info?.selectedFilters, info?.sortOptions, info?.sortBy]);
 
 	useEffect(() => {
 		if (!aiSuggestedPendingActions) return;
@@ -211,7 +217,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		}
 		const reset = true;
 		getAISuggestedPendingActions(newUpdatedPayload, reset);
-	}, [info?.selectedFilters, info?.sortByCreatedAt]);
+	}, [info?.selectedFilters, info?.sortOptions, info?.sortBy]);
 
 	const getDateRangeFromFilters = (filters) => {
 		const selectedDateFilter = filters?.find((f) => f?.group === 'Date');
@@ -261,10 +267,10 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			...(selectedReadStatus.length && { read: selectedReadStatus }),
 			...(selectedConfidenceScore.length && { confidenceScore: selectedConfidenceScore }),
 			...(from !== undefined && to !== undefined && { from, to }),
-			sortType: info?.sortByCreatedAt,
-			sortBy: 'createdAt',
+			sortType: info?.sortOptions[info?.sortBy]?.sortType,
+			sortBy: info?.sortBy,
 		};
-	}, [payload, info?.selectedFilters, info?.sortByCreatedAt]);
+	}, [payload, info?.selectedFilters, info?.sortOptions, info?.sortBy]);
 
 	const updateCardsData = () => {
 		const cards = aiSuggestedPendingActions?.pendingActions;
@@ -498,11 +504,22 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		}));
 	};
 
-	const handleSortByCreatedAt = () => {
-		setInfo((prev) => ({
-			...prev,
-			sortByCreatedAt: -1 * prev?.sortByCreatedAt,
-		}));
+	const handleSortByClick = (sortBy) => {
+		setInfo((prev) => {
+			const updatedSortOption = {
+				...prev?.sortOptions[sortBy],
+				sortType: -1 * prev?.sortOptions[sortBy]?.sortType,
+			};
+			const updatedSortOptions = {
+				...prev?.sortOptions,
+				[sortBy]: updatedSortOption,
+			};
+			return {
+				...prev,
+				sortOptions: updatedSortOptions,
+				sortBy: sortBy,
+			};
+		});
 	};
 
 	const handleBtnClick = (btn) => {
@@ -572,9 +589,23 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 							</div>
 						</Tooltip>
 					</div>
-					{/* <div className="sort-by-created-at" onClick={handleSortByCreatedAt}>
-						{info?.sortByCreatedAt === -1 ? <SortAscSvg /> : <SortDescSvg />}
-					</div> */}
+					<Tooltip
+						placement="bottom"
+						title={<div className="tooltipTitle">Sort by created at</div>}
+						color="transparent"
+						arrow={false}
+					>
+						<div
+							className="sort-by-created-at"
+							onClick={() => handleSortByClick('createdAt')}
+						>
+							{info?.sortOptions[info?.sortBy]?.sortType === -1 ? (
+								<SortAscSvg />
+							) : (
+								<SortDescSvg />
+							)}
+						</div>
+					</Tooltip>
 					<div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
 						{/* <button className="sort-btn" data-tooltip="Sort">
 						<SortIcon />
