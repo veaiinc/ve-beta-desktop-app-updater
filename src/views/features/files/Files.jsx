@@ -772,6 +772,9 @@ const Files = () => {
 											}`}
 											onClick={() => handleDropdownOptionClick(option?.label)}
 										>
+											{info?.selectedView === option?.label && (
+												<span className="sidebar-option-active-indicator"></span>
+											)}
 											<div
 												style={{
 													display: 'flex',
