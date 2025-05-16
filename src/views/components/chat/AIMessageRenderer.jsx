@@ -155,7 +155,6 @@ const AIMessageRenderer = ({
 							messageData?.processing === 'Deep Research') && (
 							<ResearchWidget messageData={messageData} />
 						)} */}
-					<ResearchWidget messageData={messageData} />
 
 					<AIMessage
 						text={messageData?.message}
