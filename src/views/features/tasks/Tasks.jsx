@@ -455,6 +455,7 @@ const Tasks = () => {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				page: page,
+				searchLoader: false,
 			}));
 		},
 		[info?.sort, info?.filters, info?.searchValue, info?.group],
@@ -903,6 +904,7 @@ const Tasks = () => {
 				updateView={updateView}
 				deleteView={deleteView}
 				updateActiveTab={handleActiveTabChange}
+				searchLoader={info?.searchLoader}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}

@@ -1,17 +1,14 @@
-import { memo, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/tasks/taskwidget.scss';
 import { ReactComponent as Warn } from '../../../assets/svg/tasks/warn.svg';
 import { ReactComponent as Check } from '../../../assets/svg/tasks/check.svg';
 import { ReactComponent as Pending } from '../../../assets/svg/tasks/time.svg';
 import { ReactComponent as Calendar } from '../../../assets/svg/tasks/calender.svg';
-import { ReactComponent as Calendar1 } from '../../../assets/svg/tasks/Calender1.svg';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/tasks/newFilter.svg';
 import { ReactComponent as SortIcon } from '../../../assets/svg/tasks/newSort.svg';
 import { ReactComponent as SortDownIcon } from '../../../assets/svg/tasks/sortDown.svg';
 import { ReactComponent as SortUpIcon } from '../../../assets/svg/tasks/sortUp.svg';
-import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
-import { ReactComponent as PlusIcon } from '../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as CrossIcon } from '../../../assets/svg/tasks/cross.svg';
 
 import Context from '../../../context/context';
@@ -20,6 +17,7 @@ import CurrentViewOptions from '../dropDown/tasks/CurrentViewOptions';
 import SortDropdown from '../dropDown/tasks/SortDropdown';
 import { rowTypes } from '../../features/tasks/Tasks';
 import TextField from './listView/TextField';
+import Spinner from '../loaders/Spinner';
 
 const Taskwidget = ({
 	properties,
@@ -32,6 +30,7 @@ const Taskwidget = ({
 	showEditViewDropDown,
 	handleEditViewDropDown,
 	taskPreferences,
+	searchLoader,
 }) => {
 	const {
 		tasks: { listTasks },
@@ -231,15 +230,16 @@ const Taskwidget = ({
 						placeholder="Search"
 						className="task-widget-search-input"
 						value={searchValue}
-						onChange={(e) => updateTaskInfo({ searchValue: e.target?.value })}
+						onChange={(e) =>
+							updateTaskInfo({ searchValue: e.target?.value, searchLoader: true })
+						}
 					/>
+					{searchLoader && (
+						<div className="task-widget-search-spinner">
+							<Spinner width="20px" height="20px" />
+						</div>
+					)}
 				</div>
-				{/* <FilterDropdown
-					properties={properties}
-					colors={colors}
-					responseMetadata={responseMetadata}
-				/>
-				<CurrentViewOptions /> */}
 
 				<button
 					className="filter-icon-btn"
