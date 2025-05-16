@@ -226,15 +226,7 @@ const LinkAnswer = ({ answer }) => {
 	}
 	return (
 		<>
-			<p
-				className="answer link"
-				style={{
-					textOverflow: 'ellipsis',
-					overflow: 'hidden',
-					whiteSpace: 'nowrap',
-					maxWidth: '350px',
-				}}
-			>
+			<p className="answer link">
 				<a href={removeQuotes(answer)} target="_blank" rel="noopener noreferrer">
 					{removeQuotes(answer) ?? 'No answer'}
 				</a>
