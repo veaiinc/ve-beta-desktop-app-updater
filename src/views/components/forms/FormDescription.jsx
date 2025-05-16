@@ -57,7 +57,14 @@ const eventsTableHeaderData = [
 	{ id: 4, label: 'Guests' },
 ];
 
-const removeHTMLTagsAndnbsp = (text) => text?.replace(/<\/?[^>]+(>|$)/g, '')?.replace(/ /g, ' ');
+const removeHTMLTagsAndnbsp = (text) => {
+	const decodeHTML = (html) => {
+		const txt = document.createElement('textarea');
+		txt.innerHTML = html;
+		return txt.value;
+	};
+	return decodeHTML(text?.replace(/<\/?[^>]+(>|$)/g, '')?.replace(/ /g, ' '));
+};
 
 const removeQuotes = (text) => {
 	if (!text) {
@@ -383,28 +390,6 @@ const FormDescriptionSkeleton = () => {
 };
 
 const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
-	if (loading) return <FormDescriptionSkeleton />;
-
-	if (activeTab === 'analytics') {
-		return (
-			<div className="formDescription">
-				<div className="emptyState">
-					<p>Form Analytics Updating Soon</p>
-				</div>
-			</div>
-		);
-	}
-
-	if (!response || !response.response || response.response.length === 0) {
-		return (
-			<div className="formDescription">
-				<div className="emptyState">
-					<p>No form responses available</p>
-				</div>
-			</div>
-		);
-	}
-
 	const getName = (response) => {
 		if (!response?.response) return 'No Name';
 		const nameField = response?.response.find((item) =>
@@ -536,7 +521,17 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	return (
 		<div className="formDescription">
 			<div className="descriptionContent">
-				{response ? (
+				{loading ? (
+					<FormDescriptionSkeleton />
+				) : activeTab === 'analytics' ? (
+					<div className="emptyState">
+						<p>Form Analytics Updating Soon</p>
+					</div>
+				) : !response || !response.response || response.response.length === 0 ? (
+					<div className="emptyState">
+						<p>Select Form Response to view details</p>
+					</div>
+				) : (
 					<>
 						<div className="descriptionSection">
 							<div className="infoRow">
@@ -544,7 +539,11 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 								<span
 									className="createDocumentButton"
 									onClick={() => {
-										window.location.href = `${origin}/create-document?formResponseId=${response?._id}`;
+										window.location.href = `${origin}/create-document?formResponseId=${
+											response?._id
+										}&name=${getName(response)}&email=${getEmail(
+											response,
+										)}&phoneNumber=${getPhone(response)}`;
 									}}
 								>
 									Create Document
@@ -591,10 +590,6 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 							</div>
 						</div>
 					</>
-				) : (
-					<div className="emptyState">
-						<p>Select a form response to view details</p>
-					</div>
 				)}
 			</div>
 		</div>
