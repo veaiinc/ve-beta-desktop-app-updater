@@ -84,6 +84,9 @@ const FormLeads = () => {
 			return `https://${activeWorkspaceId}.ve.ai/${formData?.slug}`;
 		}
 	}, [activeWorkspaceId, formData?.slug, tennantSettingsData?.customDomain]);
+	const embeddedLinkUrl = useMemo(() => {
+		return `<iframe src="${copyLinkUrl}" height="100%" width="100%" title="VEAI Form"></iframe>`;
+	}, [copyLinkUrl]);
 	const [expandedCard, setExpandedCard] = useState(null);
 	const [selectedResponse, setSelectedResponse] = useState(null);
 	const [sortOrder, setSortOrder] = useState('date-desc');
@@ -339,6 +342,16 @@ const FormLeads = () => {
 							message.error('Failed to copy form link');
 						});
 					break;
+				case 'embeddedLink':
+					navigator.clipboard
+						.writeText(embeddedLinkUrl)
+						.then(() => {
+							message.success('Embedded code copied successfully');
+						})
+						.catch(() => {
+							message.error('Failed to copy embedded code');
+						});
+					break;
 				case 'deleteForm':
 					handleDeleteForm(formData?._id);
 					break;
@@ -352,7 +365,7 @@ const FormLeads = () => {
 					break;
 			}
 		},
-		[copyLinkUrl, formData?._id, handleDeleteForm, handleDuplicateForm],
+		[copyLinkUrl, formData?._id, handleDeleteForm, handleDuplicateForm, embeddedLinkUrl],
 	);
 
 	const handleSummaryDataUpdate = useCallback((data) => {
@@ -598,6 +611,15 @@ const FormLeads = () => {
 													{formTitle}
 												</h1>
 											)}
+											<div
+												className="edit-button"
+												onClick={() =>
+													handleFormResponsesMenu('embeddedLink')
+												}
+											>
+												<Copylink />
+												<div className="edit">Embedded Link</div>
+											</div>
 										</div>
 									</div>
 
@@ -616,8 +638,16 @@ const FormLeads = () => {
 											)}
 										</div>
 										<h1 className="time">
-											Updated{' '}
-											{getTimeAgo({ createdAt: info.latestUpdateTime })}
+											{info.latestUpdateTime ? (
+												<>
+													Updated{' '}
+													{getTimeAgo({
+														createdAt: info.latestUpdateTime,
+													})}
+												</>
+											) : (
+												<>No response</>
+											)}
 										</h1>
 									</div>
 									<div className="button-space">
