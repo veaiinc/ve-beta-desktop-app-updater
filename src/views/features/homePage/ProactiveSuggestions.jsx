@@ -3,7 +3,6 @@ import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import Context from '../../../context/context';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/tasks/newFiltersIcon.svg';
-import { ReactComponent as SortIcon } from '../../../assets/svg/tasks/sort.svg';
 import { ReactComponent as TickIcon } from '../../../assets/svg/tick.svg';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/close.svg';
 import { ReactComponent as EmailIcon } from '../../../assets/svg/login_page/gmail.svg';
@@ -580,27 +579,25 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 							</div>
 						</Tooltip>
 					</div>
-					<Tooltip
-						placement="bottom"
-						title={<div className="tooltipTitle">Sort by created at</div>}
-						color="transparent"
-						arrow={false}
-					>
-						<div
-							className="sort-by-created-at"
-							onClick={() => handleSortByClick('createdAt')}
+
+					<div style={{ display: 'flex', flexDirection: 'row', gap: '6px' }}>
+						<Tooltip
+							placement="bottom"
+							title={<div className="tooltipTitle">Sort by created at</div>}
+							color="transparent"
+							arrow={false}
 						>
-							{info?.sortOptions[info?.sortBy]?.sortType === -1 ? (
-								<SortAscSvg />
-							) : (
-								<SortDescSvg />
-							)}
-						</div>
-					</Tooltip>
-					<div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
-						{/* <button className="sort-btn" data-tooltip="Sort">
-						<SortIcon />
-					</button> */}
+							<div
+								className="sort-by-created-at"
+								onClick={() => handleSortByClick('createdAt')}
+							>
+								{info?.sortOptions[info?.sortBy]?.sortType === -1 ? (
+									<SortAscSvg />
+								) : (
+									<SortDescSvg />
+								)}
+							</div>
+						</Tooltip>
 						<Tooltip
 							open={info?.openFilter}
 							onOpenChange={() => setInfo((prev) => ({ ...prev, openFilter: false }))}

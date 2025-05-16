@@ -17,7 +17,7 @@
 		width: 100%;
 		flex-direction: column;
 		align-items: center;
-		gap: 28px;
+		gap: 20px;
 		flex-shrink: 0;
 		background: var(--background-color);
 		margin-top: 85px;
@@ -48,10 +48,12 @@
 					text-align: center;
 					color: var(--secondary-font);
 					font-family: Manrope;
-					font-size: 13px;
+					font-size: 16px;
 					font-style: normal;
 					font-weight: 400;
 					line-height: normal;
+					margin: 0;
+					margin-bottom: 6px;
 				}
 			}
 
@@ -113,7 +115,7 @@
 			.option {
 				display: flex;
 				height: 37px;
-				padding: 8px 16px;
+				padding: 8px 12px;
 				align-items: center;
 				gap: 10px;
 				border-radius: 100px;
@@ -131,7 +133,7 @@
 					font-weight: 500;
 					line-height: 21px; /* 150% */
 					display: flex;
-					gap: 4px;
+					gap: 6px;
 					align-items: center;
 					svg {
 						color: var(--secondary-font);
@@ -296,6 +298,14 @@
 	.initial-home-page-container {
 		.home-page-container-header {
 			margin-top: 45px;
+		}
+	}
+}
+
+@media screen and (max-width: 1440px) {
+	.initial-home-page-container {
+		.home-page-container-header {
+			margin-top: 0 !important;
 		}
 	}
 }
