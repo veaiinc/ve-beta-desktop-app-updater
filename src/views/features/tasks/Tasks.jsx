@@ -78,8 +78,6 @@ export const rowTypes = {
 
 const Tasks = () => {
 	const timeoutRef = useRef(null);
-	const [searchParams] = useSearchParams();
-	const query = searchParams.get('itemId');
 
 	const {
 		tasks: {
@@ -105,6 +103,7 @@ const Tasks = () => {
 			updateSelectedView,
 			updateSideBarData,
 			sideBarData,
+			handleDeleteInGroup,
 		},
 		templates: { updateStateValues },
 		companyInfo: { getTeamMembers, tenantsUserList },
@@ -405,27 +404,11 @@ const Tasks = () => {
 	}, [taskMetadata]);
 
 	useEffect(() => {
-		if (refetchTasks) {
+		if (refetchTasks && !sideBarData?.open) {
 			fetchListItems();
 			updateTaskState({ refetchTasks: false });
 		}
-	}, [refetchTasks]);
-
-	// useEffect(() => {
-	// 	if (query && info?.listItems?.length) {
-	// 		const taskId = query;
-	// 		let requiredTask = null;
-	// 		for (let i = 0; i < info?.listItems?.length; i++) {
-	// 			if (info?.listItems?.[i]?._id === taskId) {
-	// 				requiredTask = info?.listItems?.[i];
-	// 				break;
-	// 			}
-	// 		}
-	// 		if (requiredTask) {
-	// 			handleRowClick(requiredTask, true);
-	// 		}
-	// 	}
-	// }, [query, info?.listItems]);
+	}, [refetchTasks, sideBarData?.open]);
 
 	useEffect(() => {
 		if (!clientListForTask) {
@@ -638,9 +621,7 @@ const Tasks = () => {
 						};
 					});
 				}
-				if (!sideBarData?.open) {
-					fetchListItems();
-				}
+				updateTaskState({ refetchTasks: true });
 			} catch (error) {
 				message.error(error?.message || 'Something went wrong! Please try again.');
 
@@ -791,7 +772,7 @@ const Tasks = () => {
 	);
 
 	const deleteTask = useCallback(
-		async (payload) => {
+		async (payload, groupId = null) => {
 			if (
 				validateExpiryData &&
 				validateExpiryData?.restrictTasks &&
@@ -813,12 +794,17 @@ const Tasks = () => {
 							listTasksDueTillToday: null,
 						});
 
-						setInfo((prevInfo) => ({
-							...prevInfo,
-							listItems: prevInfo?.listItems?.filter(
-								(row) => row._id !== payload?.taskId,
-							),
-						}));
+						if (info?.group) {
+							handleDeleteInGroup({ group: groupId, taskId: payload?.taskId });
+						} else {
+							setInfo((prevInfo) => ({
+								...prevInfo,
+								listItems: prevInfo?.listItems?.filter(
+									(row) => row._id !== payload?.taskId,
+								),
+							}));
+						}
+
 						updateSideBarData({ data: -1, open: sideBarData?.stack?.length > 1 });
 					}
 				}
@@ -867,16 +853,6 @@ const Tasks = () => {
 		},
 		[info?.breadCrumbs],
 	);
-
-	// const handleCloseSidebar = useCallback(() => {
-	// 	if (info?.updated) {
-	// 		updateTaskInfo({ loadingSkeleton: true });
-	// 		fetchListItems();
-	// 		updateTaskInfo({ updated: false });
-	// 	}
-	// 	updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
-	// 	updateSideBarData(null);
-	// }, [info?.updated]);
 
 	const updateView = useCallback(
 		(viewId, updateData, taskMetadataId) => {
@@ -945,6 +921,7 @@ const Tasks = () => {
 				handleUpdate={updatePropertyValue}
 				deleteTask={deleteTask}
 				rowTypes={rowTypes}
+				groupBy={info?.group}
 				responseMetadata={responseMetadata}
 				properties={info?.properties}
 				colors={colors}

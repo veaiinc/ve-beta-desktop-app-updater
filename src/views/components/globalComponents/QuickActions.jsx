@@ -1222,39 +1222,16 @@ const QuickActions = ({
 			) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			} else {
-				if (info?.isCreatingSubtask) {
-					payload.parentTaskId = info?.selectedRow?._id;
-				}
 				const response = await addListItem({ input: payload });
 
 				if (response) {
 					const task = response?.createTask;
 
 					if (task) {
-						const token = localStorage.getItem('usertoken');
-						const { user_id, userName } = jwtDecode(token);
-
-						const newTask = { ...task };
-						newTask.createdBy = { _id: user_id, name: userName };
-						newTask.updatedBy = { _id: user_id, name: userName };
-						if (info?.isCreatingSubtask) {
-							newTask.parentTask = {
-								title: info?.selectedRow?.title,
-								_id: info?.selectedRow?._id,
-							};
-							addSubTask(newTask);
-						}
 						message.success('Task added successfully');
-						if (!info?.isCreatingSubtask) {
-							if (payload?.assignedTo || payload?.dueDate) {
-								updateTaskState({
-									refetchTasksForDue: true,
-									listTasksForToday: null,
-									listTasksForOverdue: null,
-									listTasksDueTillToday: null,
-								});
-							}
-						}
+						updateTaskState({
+							refetchTasks: true,
+						});
 					}
 				} else {
 					throw new Error('Failed to add new task');

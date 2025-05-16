@@ -297,6 +297,22 @@ const actionHandlers = {
 		};
 	},
 
+	HANDLE_DELETE_IN_GROUP: (state, action) => {
+		const { group, taskId } = action?.payload;
+		const groupData = state?.listTaskWithGroup?.groups?.find((item) => item?.group === group);
+		const updatedGroup = groupData?.data?.filter((item) => item?._id !== taskId);
+		const updatedGroups = state?.listTaskWithGroup?.groups?.map((item) =>
+			item?.group === group ? { ...item, data: updatedGroup } : item,
+		);
+		return {
+			...state,
+			listTaskWithGroup: {
+				...state.listTaskWithGroup,
+				groups: updatedGroups,
+			},
+		};
+	},
+
 	UPDATE_SIDEBAR_DATA: (state, action) => {
 		const { data = null, replace = false, open } = action?.payload;
 		let stack = [...state?.sideBarData?.stack];

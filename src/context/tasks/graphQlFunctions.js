@@ -458,6 +458,13 @@ export const listTaskWithGroupQuery = gql`
 				groupName
 			}
 			groupBy
+			analytics {
+				allTasks
+				completed
+				overdue
+				today
+				allPending
+			}
 		}
 	}
 `;

@@ -41,6 +41,7 @@ const ListViewSidebar = ({
 	isSidebarExpanded = false,
 	showQuickActions = true,
 	prefix,
+	groupBy = null,
 }) => {
 	const {
 		tasks: { sideBarData, updateSideBarData },
@@ -151,7 +152,7 @@ const ListViewSidebar = ({
 			...prevInfo,
 			deleteLoading: true,
 		}));
-		await deleteTask({ taskId: selectedRow?._id });
+		await deleteTask({ taskId: selectedRow?._id }, selectedRow?.[groupBy] || null);
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			deleteLoading: false,
