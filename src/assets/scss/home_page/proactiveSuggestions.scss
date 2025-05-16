@@ -3,6 +3,7 @@
 	margin: 0 auto;
 	height: 100%;
 	display: flex;
+	gap: 20px;
 	flex-direction: column;
 	align-items: center;
 	overflow-y: hidden;
@@ -549,7 +550,6 @@
 		align-items: flex-start;
 		gap: 8px;
 		margin: 0 auto;
-		padding-top: 20px;
 		flex-grow: 1;
 		overflow: auto;
 		.list-view-container {
@@ -888,7 +888,6 @@
 
 .emailContainer {
 	display: flex;
-	width: 350px;
 	padding: 8px 14px;
 	flex-direction: column;
 	justify-content: center;
@@ -926,7 +925,9 @@
 	.relativeTime {
 		display: flex;
 		justify-content: space-between;
+		align-items: center;
 		width: 100%;
+		gap: 10px;
 		.relativeTimeText {
 			width: 80px;
 			color: var(--primary-font, #f2f2f3);
