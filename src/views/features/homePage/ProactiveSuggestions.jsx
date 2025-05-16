@@ -131,6 +131,12 @@ const getRelativeDayLabel = (timestamp) => {
 	return `${daysAgo} Days Ago`;
 };
 const ProactiveSuggestions = ({ selectedOption }) => {
+	const navigate = useNavigate();
+	const selectedOptionRef = useRef(selectedOption);
+	const currentIndexRef = useRef(0);
+	const totalCardsDataRef = useRef([]);
+	const isMountedRef = useRef(true);
+
 	const {
 		templates: {
 			getAISuggestedPendingActions,
@@ -157,11 +163,6 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		activeBtn: 'insights',
 		sortOptions,
 	});
-	const navigate = useNavigate();
-	const selectedOptionRef = useRef(selectedOption);
-	const currentIndexRef = useRef(0);
-	const totalCardsDataRef = useRef([]);
-	const isMountedRef = useRef(true);
 
 	useEffect(() => {
 		selectedOptionRef.current = selectedOption;
