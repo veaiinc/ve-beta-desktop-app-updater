@@ -349,10 +349,11 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 			return field?.answer && field.answer !== '0' && field.answer !== '';
 		}).length;
 
-	if (!formId) return <div>No form ID provided</div>;
-	if (loading) {
-		return (
-			<div className="formSummaryWrapper">
+	return (
+		<div className="formSummaryWrapper">
+			{!formId ? (
+				<div>No form ID provided</div>
+			) : loading ? (
 				<div className="formSummaryParentContainer">
 					<div
 						className="formSummaryContainer"
@@ -385,54 +386,51 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 						</div>
 					</div>
 				</div>
-			</div>
-		);
-	}
-	if (!formData.responses.length) return <div className="no-responses">No summary found</div>;
-
-	return (
-		<div className="formSummaryWrapper">
-			<div className="formSummaryParentContainer">
-				<div
-					className="formSummaryContainer"
-					style={{ height: '100%', overflow: 'auto', marginBottom: '100px' }}
-				>
-					{questions?.map((item, index) => (
-						<div key={index} className="section">
-							<div className="header">
-								<div className="header-top">
-									<span className="title">
-										<span className="question-number">Q{index + 1}:</span>{' '}
-										{removeHTMLTags(item?.question)}
-									</span>
-									<div
-										className="copy-button"
-										onClick={() => handleCopy(item?.question)}
-									>
-										<CopyIcon className="copy-icon" />
-										<span className="copy-text">
-											{copyStatus[item?.question] ? 'Copied!' : 'Copy'}
+			) : !formData.responses.length ? (
+				<div className="no-responses">No summary found</div>
+			) : (
+				<div className="formSummaryParentContainer">
+					<div
+						className="formSummaryContainer"
+						style={{ height: '100%', overflow: 'auto', marginBottom: '100px' }}
+					>
+						{questions?.map((item, index) => (
+							<div key={index} className="section">
+								<div className="header">
+									<div className="header-top">
+										<span className="title">
+											<span className="question-number">Q{index + 1}:</span>{' '}
+											{removeHTMLTags(item?.question)}
 										</span>
+										<div
+											className="copy-button"
+											onClick={() => handleCopy(item?.question)}
+										>
+											<CopyIcon className="copy-icon" />
+											<span className="copy-text">
+												{copyStatus[item?.question] ? 'Copied!' : 'Copy'}
+											</span>
+										</div>
+									</div>
+									<div className="total-responses">
+										Total Responses: {getQuestionResponseCount(item.question)}
 									</div>
 								</div>
-								<div className="total-responses">
-									Total Responses: {getQuestionResponseCount(item.question)}
-								</div>
+								<FormResponseList
+									expanded={expanded}
+									handleExpand={handleExpand}
+									items={formData.responses}
+									question={item.question}
+									handleCopy={handleCopy}
+									copyStatus={copyStatus}
+									type={item.type}
+									onUserClick={onUserClick}
+								/>
 							</div>
-							<FormResponseList
-								expanded={expanded}
-								handleExpand={handleExpand}
-								items={formData.responses}
-								question={item.question}
-								handleCopy={handleCopy}
-								copyStatus={copyStatus}
-								type={item.type}
-								onUserClick={onUserClick}
-							/>
-						</div>
-					))}
+						))}
+					</div>
 				</div>
-			</div>
+			)}
 		</div>
 	);
 };

@@ -540,7 +540,11 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 								<span
 									className="createDocumentButton"
 									onClick={() => {
-										window.location.href = `${origin}/create-document?formResponseId=${response?._id}`;
+										window.location.href = `${origin}/create-document?formResponseId=${
+											response?._id
+										}&name=${getName(response)}&email=${getEmail(
+											response,
+										)}&phoneNumber=${getPhone(response)}`;
 									}}
 								>
 									Create Document
