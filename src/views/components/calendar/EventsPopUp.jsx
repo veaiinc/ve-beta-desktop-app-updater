@@ -97,15 +97,17 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 	});
 
 	useEffect(() => {
-		if (!calendarCategoriesList) {
+		if (!calendarCategoriesList && open) {
 			getCalendarCategories();
 		} else {
 			setInfo((prev) => ({
 				...prev,
-				...(!calendarCategoriesList?.error && { categories: [...calendarCategoriesList] }),
+				...(!calendarCategoriesList?.error && {
+					categories: [...(calendarCategoriesList || [])],
+				}),
 			}));
 		}
-	}, [calendarCategoriesList]);
+	}, [calendarCategoriesList, open]);
 
 	useEffect(() => {
 		if (selectedSlot) {
