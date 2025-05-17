@@ -392,16 +392,16 @@ const FormDescriptionSkeleton = () => {
 const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	const getName = (response) => {
 		if (!response?.response) return 'No Name';
-		const nameField = response?.response.find((item) =>
-			item?.question?.toLowerCase().includes('name'),
+		const nameField = response?.response.find(
+			(item) => item?.variableId === '619f75683f381fd66dac4b65',
 		);
 		return nameField?.answer || 'No Name';
 	};
 
 	const getEmail = (response) => {
 		if (!response?.response) return '';
-		const emailField = response?.response.find((item) =>
-			item?.question?.toLowerCase().includes('email'),
+		const emailField = response?.response.find(
+			(item) => item?.variableId === '6311efc4911e0f82be7e2b2d',
 		);
 		return emailField?.answer || '';
 	};
@@ -409,66 +409,44 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	const getPhone = (response) => {
 		if (!response?.response) return '';
 		const phoneField = response.response.find(
-			(item) =>
-				item?.question?.toLowerCase().includes('phone') ||
-				item?.question?.toLowerCase().includes('mobile') ||
-				item?.question?.toLowerCase().includes('contact'),
+			(item) => item?.variableId === '6311ee8f8e7c108259cf96e6',
 		);
 		return phoneField?.answer || '';
 	};
 
 	const getBasicInfo = (response) => {
 		if (!response?.response) return [];
-		const basicInfoFields = [
-			'first name',
-			'last name',
-			'name',
-			'email',
-			'phone',
-			'mobile',
-			'contact',
-			'address',
-			'location',
-			'company',
-			'organization',
-			'position',
-			'title',
+
+		const basicInfo = [
+			{
+				question: 'Name',
+				answer: getName(response),
+			},
+			{
+				question: 'Email',
+				answer: getEmail(response),
+			},
+			{
+				question: 'Phone',
+				answer: getPhone(response),
+			},
 		];
-		return response.response.filter((item) => {
-			const question = item?.question?.toLowerCase() || '';
-			return basicInfoFields.some((field) => question.includes(field));
-		});
+
+		// Filter out entries where answer is empty or 'No Name'
+		return basicInfo.filter((info) => info.answer && info.answer !== 'No Name');
 	};
 
 	const getTimeAgo = (response) => {
 		if (!response?.createdAt) return '';
-		return new Date(response.createdAt * 1000).toLocaleString();
-	};
-
-	const formatLabel = (question) => {
-		const lowerQuestion = question?.toLowerCase();
-		if (lowerQuestion?.includes('first name')) return 'First Name';
-		if (lowerQuestion?.includes('last name')) return 'Last Name';
-		if (
-			lowerQuestion?.includes('name') &&
-			!lowerQuestion?.includes('first') &&
-			!lowerQuestion?.includes('last')
-		)
-			return 'Name';
-		if (lowerQuestion?.includes('email')) return 'Email';
-		if (
-			lowerQuestion?.includes('phone') ||
-			lowerQuestion?.includes('mobile') ||
-			lowerQuestion?.includes('contact')
-		)
-			return 'Phone';
-		if (lowerQuestion?.includes('address')) return 'Address';
-		if (lowerQuestion?.includes('location')) return 'Location';
-		if (lowerQuestion?.includes('company') || lowerQuestion?.includes('organization'))
-			return 'Company';
-		if (lowerQuestion?.includes('position') || lowerQuestion?.includes('title'))
-			return 'Position';
-		return question;
+		return new Date(response.createdAt * 1000).toLocaleString('en-US', {
+			hour: 'numeric',
+			minute: 'numeric',
+			second: 'numeric',
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+			hour12: true, // Enables AM/PM format
+		});
 	};
 
 	const formAnswer = (type, answer) => {
@@ -534,35 +512,35 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 				) : (
 					<>
 						<div className="descriptionSection">
-							<div className="infoRow">
-								<h3 className="sectionTitle">Basic Information</h3>
-								<span
-									className="createDocumentButton"
-									onClick={() => {
-										window.location.href = `${origin}/create-document?formResponseId=${
-											response?._id
-										}&name=${getName(response)}&email=${getEmail(
-											response,
-										)}&phoneNumber=${getPhone(response)}`;
-									}}
-								>
-									Create Document
-								</span>
-							</div>
-							{getBasicInfo(response).map((field, index) => (
-								<div key={index} className="infoRow">
-									<span className="infoLabel">
-										{formatLabel(field?.question)}:
-									</span>
-									<span className="infoValue">
-										{field?.answer || 'Not provided'}
-									</span>
-								</div>
-							))}
-							<div className="infoRow">
-								<span className="infoLabel">Submitted:</span>
-								<span className="infoValue">{getTimeAgo(response)}</span>
-							</div>
+							{getBasicInfo(response).length > 0 && (
+								<>
+									<div className="infoRow">
+										<h3 className="sectionTitle">Basic Information</h3>
+										<span
+											className="createDocumentButton"
+											onClick={() => {
+												window.location.href = `${origin}/create-document?formResponseId=${
+													response?.variableId
+												}&name=${getName(response)}&email=${getEmail(
+													response,
+												)}&phoneNumber=${getPhone(response)}`;
+											}}
+										>
+											Create Document
+										</span>
+									</div>
+									{getBasicInfo(response).map((field, index) => (
+										<div key={index} className="infoRow">
+											<span className="infoLabel">{field?.question}:</span>
+											<span className="infoValue">{field?.answer}</span>
+										</div>
+									))}
+									<div className="infoRow">
+										<span className="infoLabel">Submitted:</span>
+										<span className="infoValue">{getTimeAgo(response)}</span>
+									</div>
+								</>
+							)}
 						</div>
 						<div className="descriptionSection">
 							<h3 className="sectionTitle">Form Responses</h3>
