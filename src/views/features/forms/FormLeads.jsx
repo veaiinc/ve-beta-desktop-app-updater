@@ -813,7 +813,7 @@ const FormLeads = () => {
 												info.activeTab === 'responses'
 													? 'calc(100vh - 500px)'
 													: info.activeTab === 'analytics'
-													? 'calc(100vh - 350px)'
+													? 'calc(100vh - 150px)'
 													: 'calc(100vh - 100px)',
 											overflowY: 'auto',
 											position: 'relative',
