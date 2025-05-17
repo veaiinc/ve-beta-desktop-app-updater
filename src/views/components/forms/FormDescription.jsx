@@ -393,7 +393,7 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	const getName = (response) => {
 		if (!response?.response) return 'No Name';
 		const nameField = response?.response.find(
-			(item) => item?._id === '682710397cc68d40024204aa',
+			(item) => item?.variableId === '619f75683f381fd66dac4b65',
 		);
 		return nameField?.answer || 'No Name';
 	};
@@ -401,7 +401,7 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	const getEmail = (response) => {
 		if (!response?.response) return '';
 		const emailField = response?.response.find(
-			(item) => item?._id === '682710397cc68d40024204ab',
+			(item) => item?.variableId === '6311efc4911e0f82be7e2b2d',
 		);
 		return emailField?.answer || '';
 	};
@@ -409,7 +409,7 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	const getPhone = (response) => {
 		if (!response?.response) return '';
 		const phoneField = response.response.find(
-			(item) => item?._id === '682710397cc68d40024204ac',
+			(item) => item?.variableId === '6311ee8f8e7c108259cf96e6',
 		);
 		return phoneField?.answer || '';
 	};
@@ -417,7 +417,7 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	const getBasicInfo = (response) => {
 		if (!response?.response) return [];
 
-		return [
+		const basicInfo = [
 			{
 				question: 'Name',
 				answer: getName(response),
@@ -431,6 +431,9 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 				answer: getPhone(response),
 			},
 		];
+
+		// Filter out entries where answer is empty or 'No Name'
+		return basicInfo.filter((info) => info.answer && info.answer !== 'No Name');
 	};
 
 	const getTimeAgo = (response) => {
@@ -501,31 +504,35 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 				) : (
 					<>
 						<div className="descriptionSection">
-							<div className="infoRow">
-								<h3 className="sectionTitle">Basic Information</h3>
-								<span
-									className="createDocumentButton"
-									onClick={() => {
-										window.location.href = `${origin}/create-document?formResponseId=${
-											response?._id
-										}&name=${getName(response)}&email=${getEmail(
-											response,
-										)}&phoneNumber=${getPhone(response)}`;
-									}}
-								>
-									Create Document
-								</span>
-							</div>
-							{getBasicInfo(response).map((field, index) => (
-								<div key={index} className="infoRow">
-									<span className="infoLabel">{field?.question}:</span>
-									<span className="infoValue">{field?.answer}</span>
-								</div>
-							))}
-							<div className="infoRow">
-								<span className="infoLabel">Submitted:</span>
-								<span className="infoValue">{getTimeAgo(response)}</span>
-							</div>
+							{getBasicInfo(response).length > 0 && (
+								<>
+									<div className="infoRow">
+										<h3 className="sectionTitle">Basic Information</h3>
+										<span
+											className="createDocumentButton"
+											onClick={() => {
+												window.location.href = `${origin}/create-document?formResponseId=${
+													response?.variableId
+												}&name=${getName(response)}&email=${getEmail(
+													response,
+												)}&phoneNumber=${getPhone(response)}`;
+											}}
+										>
+											Create Document
+										</span>
+									</div>
+									{getBasicInfo(response).map((field, index) => (
+										<div key={index} className="infoRow">
+											<span className="infoLabel">{field?.question}:</span>
+											<span className="infoValue">{field?.answer}</span>
+										</div>
+									))}
+									<div className="infoRow">
+										<span className="infoLabel">Submitted:</span>
+										<span className="infoValue">{getTimeAgo(response)}</span>
+									</div>
+								</>
+							)}
 						</div>
 						<div className="descriptionSection">
 							<h3 className="sectionTitle">Form Responses</h3>
