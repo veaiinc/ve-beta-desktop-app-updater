@@ -52,8 +52,8 @@ const CreateTaskPopup = ({
 	useEffect(() => {
 		setInfo({
 			...initialState,
-			status: responseMetadata?.status?.props?.options?.[0]?._id,
-			subTaskStatus: responseMetadata?.status?.props?.options?.[0]?._id,
+			// status: responseMetadata?.status?.props?.options?.[0]?._id,
+			// subTaskStatus: responseMetadata?.status?.props?.options?.[0]?._id,
 		});
 	}, [isOpen, responseMetadata]);
 
@@ -226,6 +226,7 @@ const CreateTaskPopup = ({
 						title={'Status'}
 						options={responseMetadata?.status?.props?.options}
 						colors={colors}
+						setDefault={true}
 					/>
 					<Select
 						value={info?.priority}
