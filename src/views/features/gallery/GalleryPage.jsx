@@ -442,7 +442,7 @@ const GalleryPage = () => {
 		},
 		{
 			icon: <TrashIcon />,
-			label: 'Move to Trash',
+			label: 'Delete Gallery',
 			onClick: () =>
 				setInfo((prev) => ({
 					...prev,
