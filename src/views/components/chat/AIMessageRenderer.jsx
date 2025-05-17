@@ -50,13 +50,6 @@ const AIMessageRenderer = ({
 						activeTab: 'response',
 					}));
 				}
-			} else {
-				if (info?.activeTab !== 'cot') {
-					setInfo((prev) => ({
-						...prev,
-						activeTab: 'cot',
-					}));
-				}
 			}
 		}
 	}, [globalChatMessages]);
@@ -150,10 +143,10 @@ const AIMessageRenderer = ({
 			</div>
 			{info?.activeTab == 'response' ? (
 				<>
-					{/* {(messageData?.processing === 'Deep Search' ||
+					{(messageData?.processing === 'Deep Search' ||
 						messageData?.processing === 'Deep Research') && (
 						<ResearchWidget messageData={messageData} />
-					)} */}
+					)}
 
 					<AIMessage
 						text={messageData?.message}
