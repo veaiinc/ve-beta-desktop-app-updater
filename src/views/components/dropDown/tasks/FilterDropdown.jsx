@@ -107,6 +107,7 @@ const FilterDropdown = ({ properties, colors, filters, responseMetadata, handleF
 															'createdBy',
 															'updatedBy',
 															'clients',
+															'statusUpdatedBy',
 														].includes(property?.value)
 															? [
 																	selectedFilters?.get(

@@ -145,8 +145,8 @@ const Taskwidget = ({
 		updateViewInfo(viewData?._id, { filters: [] });
 	};
 
-	const handleRemoveFilter = (index) => {
-		const newFilters = info?.filters?.filter((_, i) => i !== index);
+	const handleRemoveFilter = (key) => {
+		const newFilters = info?.filters?.filter((filter) => filter?.key !== key);
 
 		setInfo((prevInfo) => ({
 			...prevInfo,
@@ -207,13 +207,9 @@ const Taskwidget = ({
 		}
 		if (filter?.key === 'status' && Array.isArray(filter?.value)) {
 			const { todo, inProgress, completed } = statusOptions;
-			if (filter?.value?.length === [...todo, ...inProgress]?.length) {
-				pendingWidget = true;
-			}
-			if (filter?.value?.length === completed?.length) {
-				completedWidget = true;
-			}
-
+			const statusMap = new Map(filter?.value?.map((item) => [item, true]));
+			pendingWidget = [...todo, ...inProgress]?.every((item) => statusMap?.get(item?._id));
+			completedWidget = completed?.every((item) => statusMap?.get(item?._id));
 			return false;
 		}
 		return true;
@@ -328,7 +324,51 @@ const Taskwidget = ({
 							)}
 						</div>
 						<div className="sort-filter-values-container">
-							{cleanedFilters?.length > 0 ? (
+							{overDueWidget && (
+								<div className="sort-filter-value-item">
+									<div className="widget-filter-title">Overdue</div>
+									<button
+										className="filter-remove-btn"
+										onClick={() => handleRemoveWidgetFilter('overDue')}
+									>
+										<CrossIcon />
+									</button>
+								</div>
+							)}
+							{pendingWidget && (
+								<div className="sort-filter-value-item">
+									<div className="widget-filter-title">Pending</div>
+									<button
+										className="filter-remove-btn"
+										onClick={() => handleRemoveWidgetFilter('status')}
+									>
+										<CrossIcon />
+									</button>
+								</div>
+							)}
+							{completedWidget && (
+								<div className="sort-filter-value-item">
+									<div className="widget-filter-title">Completed</div>
+									<button
+										className="filter-remove-btn"
+										onClick={() => handleRemoveWidgetFilter('status')}
+									>
+										<CrossIcon />
+									</button>
+								</div>
+							)}
+							{dueTodayWidget && (
+								<div className="sort-filter-value-item">
+									<div className="widget-filter-title">Due Today</div>
+									<button
+										className="filter-remove-btn"
+										onClick={() => handleRemoveWidgetFilter('dueToday')}
+									>
+										<CrossIcon />
+									</button>
+								</div>
+							)}
+							{info?.filters?.length > 0 ? (
 								cleanedFilters?.map((filter, index) => {
 									const { type, props, name } = responseMetadata?.[filter?.key];
 									let Component = null;
@@ -363,7 +403,7 @@ const Taskwidget = ({
 											/>
 											<button
 												className="filter-remove-btn"
-												onClick={() => handleRemoveFilter(index)}
+												onClick={() => handleRemoveFilter(filter?.key)}
 											>
 												<CrossIcon />
 											</button>
