@@ -144,9 +144,6 @@ const InitialHomePage = () => {
 	} = useContext(Context);
 
 	const navigate = useNavigate();
-	const containerRef = useRef(null);
-	const headerMinimizedRef = useRef(false);
-
 	const [info, setInfo] = useState({
 		selectedOption: '',
 		options: optionsList,
@@ -198,18 +195,6 @@ const InitialHomePage = () => {
 			}));
 		}
 	}, [promptsData]);
-
-	useEffect(() => {
-		if (info?.selectedOption) {
-			if (info?.minimized) {
-				setInfo((prev) => ({
-					...prev,
-					minimized: false,
-				}));
-				headerMinimizedRef.current = false;
-			}
-		}
-	}, [info?.selectedOption]);
 
 	useEffect(() => {
 		if (!aiSuggestedPendingActions) {
@@ -264,6 +249,15 @@ const InitialHomePage = () => {
 			}));
 		}
 	}, [options, info?.selectedOption]);
+
+	const handleMouseDown = useCallback(() => {
+		if (!info?.minimizedChatBox) {
+			setInfo((prev) => ({
+				...prev,
+				minimizedChatBox: true,
+			}));
+		}
+	}, [info?.minimizedChatBox]);
 
 	const handleUpdateOptions = (value) => {
 		let updatedOptions = info?.options;
@@ -359,27 +353,8 @@ const InitialHomePage = () => {
 		}));
 	};
 
-	const handleMinimizeHeader = () => {
-		if (headerMinimizedRef.current === false) {
-			setInfo((prev) => ({
-				...prev,
-				minimized: true,
-			}));
-			headerMinimizedRef.current = true;
-		}
-	};
-
-	const handleExpandHeader = () => {
-		if (headerMinimizedRef.current) {
-			setInfo((prev) => ({
-				...prev,
-				minimized: false,
-			}));
-			headerMinimizedRef.current = false;
-		}
-	};
-
-	const handleCustomChatBoxClick = () => {
+	const handleCustomChatBoxClick = (e) => {
+		e?.stopPropagation();
 		if (!info?.minimizedChatBox) return;
 		setInfo((prev) => ({
 			...prev,
@@ -387,44 +362,22 @@ const InitialHomePage = () => {
 		}));
 	};
 
-	const componentMapper = {
-		proactiveSuggestions: <ProactiveSuggestions selectedOption={info?.selectedOption} />,
-		prompts: (
-			<ChatPrompts
-				promptsCategory={info?.promptsCategory}
-				updatePromptsCategory={updatePromptsCategory}
-				isHeaderMinimized={info?.minimized}
-				onMinimizeHeader={handleMinimizeHeader}
-				onExpandHeader={handleExpandHeader}
-			/>
-		),
-		calendar: <GlobalWidget option={'calendar'} />,
-		task: <GlobalWidget option={'task'} />,
-		automation: <GlobalWidget option={'automation'} />,
-		contact: <GlobalWidget option={'contacts'} />,
-	};
-
-	// if (options?.length > 0) {
-	// 	if (info?.minimized) {
-	// 		animationClass = 'minimized-animation';
-	// 	} else if (headerRef?.current?.classList?.contains('minimized-animation')) {
-	// 		animationClass = 'expanded-animation';
-	// 	}
-	// }
-
-	const animationClass =
-		options?.length > 0
-			? info?.minimized
-				? 'minimized-animation'
-				: containerRef?.current?.classList?.contains('minimized-animation')
-				? 'expanded-animation'
-				: ''
-			: '';
+	const componentMapper = useMemo(
+		() => ({
+			proactiveSuggestions: <ProactiveSuggestions />,
+			prompts: <ChatPrompts promptsCategory={info?.promptsCategory} />,
+			calendar: <GlobalWidget option={'calendar'} />,
+			task: <GlobalWidget option={'task'} />,
+			automation: <GlobalWidget option={'automation'} />,
+			contact: <GlobalWidget option={'contacts'} />,
+		}),
+		[info?.promptsCategory],
+	);
 
 	return (
 		<div
-			className={`initial-home-page-container ${animationClass}`}
-			ref={containerRef}
+			className={`initial-home-page-container`}
+			onClick={handleMouseDown}
 			style={{
 				...(options?.length === 0 && { justifyContent: 'center' }),
 			}}
@@ -447,13 +400,16 @@ const InitialHomePage = () => {
 					</div>
 					{/* <div className="sub-text">Answers before you Ask!</div> */}
 				</div>
-				<div className={`chatbox-wrapper ${!info?.minimizedChatBox ? 'expanded' : ''}`}>
+				<div
+					className={`chatbox-wrapper ${
+						!info?.minimizedChatBox ? 'expanded' : 'minimized'
+					}`}
+				>
 					<div className={`chatbox-container `}>
 						<ChatBox
 							onSend={handleCustomOnSendFunction}
 							customChatActions={true}
 							autoFocus={false}
-							isParentHeaderMinimized={info?.minimized}
 							animatePlaceholder={true}
 							startPage={info?.minimizedChatBox}
 							customChatBoxClick={handleCustomChatBoxClick}

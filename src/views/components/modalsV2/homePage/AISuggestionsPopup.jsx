@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { memo, useContext, useEffect, useRef, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/home_page/modals/aiSuggestionsPopup.scss';
 import Context from '../../../../context/context';

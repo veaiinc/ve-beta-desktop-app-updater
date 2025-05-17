@@ -12,10 +12,7 @@ import Skeleton from 'react-loading-skeleton';
 import AISuggestionsModal from '../../components/modalsV2/homePage/AISuggestionsModal';
 import { Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import updateLocale from 'dayjs/plugin/updateLocale';
-import isToday from 'dayjs/plugin/isToday';
-import isYesterday from 'dayjs/plugin/isYesterday';
+import { getRelativeDayLabel } from '../../../helpers';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { ReactComponent as AiSuggestionIcon } from '../../../assets/svg/home_page/aiSuggestion.svg';
 import { message } from '../../components/globalComponents/CustomToast';
@@ -29,28 +26,7 @@ import { ReactComponent as FocusViewSvg } from '../../../assets/svg/home_page/fo
 import { ReactComponent as SortDescSvg } from '../../../assets/svg/home_page/sortDesc.svg';
 import { ReactComponent as SortAscSvg } from '../../../assets/svg/home_page/sortAsc.svg';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/sidebar/agentsIcon.svg';
-
-dayjs.extend(relativeTime);
-dayjs.extend(updateLocale);
-dayjs.extend(isToday);
-dayjs.extend(isYesterday);
-dayjs.updateLocale('en', {
-	relativeTime: {
-		future: 'in %s',
-		past: '%s ago',
-		s: '%d sec',
-		m: '1 min',
-		mm: '%d min',
-		h: '1 hr',
-		hh: '%d hr',
-		d: '1 day',
-		dd: '%d days',
-		M: '1 month',
-		MM: '%d months',
-		y: '1 year',
-		yy: '%d years',
-	},
-});
+import AIQuestions from './AIQuestions';
 
 const payload = {
 	page: 1,
@@ -121,17 +97,8 @@ const sortOptions = {
 };
 const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
 
-const getRelativeDayLabel = (timestamp) => {
-	const date = dayjs(timestamp * 1000);
-	if (date.isToday()) return 'Today';
-	if (date.isYesterday()) return 'Yesterday';
-
-	const daysAgo = dayjs().startOf('day').diff(date.startOf('day'), 'day');
-	return `${daysAgo} Days Ago`;
-};
-const ProactiveSuggestions = ({ selectedOption }) => {
+const ProactiveSuggestions = () => {
 	const navigate = useNavigate();
-	const selectedOptionRef = useRef(selectedOption);
 	const currentIndexRef = useRef(0);
 	const totalCardsDataRef = useRef([]);
 	const isMountedRef = useRef(true);
@@ -162,10 +129,6 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		activeBtn: 'insights',
 		sortOptions,
 	});
-
-	useEffect(() => {
-		selectedOptionRef.current = selectedOption;
-	}, [selectedOption]);
 
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
@@ -547,6 +510,15 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 								</div>
 								<div className="text-container">Insights</div>
 							</div>
+							{/* <div
+								className={`btn ${info?.activeBtn === 'questions' ? 'active' : ''}`}
+								onClick={() => handleBtnClick('questions')}
+							>
+								<div className="icon-container">
+									<QuestionSvg />
+								</div>
+								<div className="text-container">Questions</div>
+							</div> */}
 						</div>
 					)}
 				</div>
@@ -1099,6 +1071,11 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 										)}
 									</div>
 								</InfiniteScroll>
+							)}
+							{info?.activeBtn === 'questions' && (
+								<div className="ai-questions-wrapper">
+									<AIQuestions />
+								</div>
 							)}
 						</div>
 					)}
