@@ -104,7 +104,7 @@ const ListViewRow = ({
 		<div
 			className={`listItemRowContainer`}
 			onClick={() => {
-				updateSideBarData({ data: task, open: true });
+				updateSideBarData({ data: task, open: true, replace: true });
 			}}
 		>
 			<div className="listItemRow">{generateRow(task)}</div>

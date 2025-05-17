@@ -87,6 +87,8 @@ const ChildTaskComponent = ({
 		}, 0);
 	}, [subTaskList, completedStatus]);
 
+	const firstTask = subTaskList?.[0];
+
 	return (
 		<div className="sidebar-subtask-container">
 			<div className="sidebar-subtask-header">
@@ -127,27 +129,53 @@ const ChildTaskComponent = ({
 						<Spinner />
 					</div>
 				) : subTaskList?.length > 0 ? (
-					subTaskList?.map((task) => (
+					info?.subtaskOpen ? (
+						subTaskList?.map((task) => (
+							<div
+								className="subtask-wrapper"
+								onClick={() => updateSideBarData({ data: task })}
+								key={task?._id}
+							>
+								<div className="sub-task-text-wrapper">
+									<div className="title">{task?.title}</div>
+									<div className="description">{task?.description}</div>
+								</div>
+								<div className="other-properties">
+									<div className="property-tags">
+										{task?.status &&
+											renderComponent(task, 'status', task?.status)}
+										{task?.priority &&
+											renderComponent(task, 'priority', task?.priority)}
+									</div>
+									{task?.assignedTo &&
+										task?.assignedTo?.length > 0 &&
+										renderComponent(task, 'assignedTo', task?.assignedTo)}
+								</div>
+							</div>
+						))
+					) : (
 						<div
 							className="subtask-wrapper"
-							onClick={() => updateSideBarData({ data: task })}
-							key={task?._id}
+							onClick={() => updateSideBarData({ data: firstTask })}
+							key={firstTask?._id}
 						>
 							<div className="sub-task-text-wrapper">
-								<div className="title">{task?.title}</div>
-								<div className="description">{task?.description}</div>
+								<div className="title">{firstTask?.title}</div>
+								<div className="description">{firstTask?.description}</div>
 							</div>
 							<div className="other-properties">
 								<div className="property-tags">
-									{task?.status && renderComponent(task, 'status', task?.status)}
-									{task?.priority &&
-										renderComponent(task, 'priority', task?.priority)}
+									{firstTask?.status &&
+										renderComponent(firstTask, 'status', firstTask?.status)}
+									{firstTask?.priority &&
+										renderComponent(firstTask, 'priority', firstTask?.priority)}
 								</div>
-								{task?.assignedTo &&
-									renderComponent(task, 'assignedTo', task?.assignedTo)}
+								{firstTask?.assignedTo &&
+									firstTask?.assignedTo?.length > 0 &&
+									renderComponent(firstTask, 'assignedTo', firstTask?.assignedTo)}
 							</div>
 						</div>
-					))
+					)
 				) : (
 					<div className="no-subtasks">No subtasks found</div>
 				)}
