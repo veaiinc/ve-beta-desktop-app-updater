@@ -167,8 +167,11 @@ const createOptions = [
 			}));
 		},
 	},
+];
+
+const launchOptions = [
 	{
-		id: 10,
+		id: 1,
 		title: 'Automation',
 		value: 'automation',
 		controlValue: 'automation',
@@ -204,7 +207,7 @@ const createOptions = [
 		},
 	},
 	{
-		id: 11,
+		id: 2,
 		title: 'Conversational Agent',
 		value: 'ai-assistant',
 		controlValue: 'conversationalAgent',
@@ -323,12 +326,14 @@ const QuickActions = ({
 			buildAi: buildAiOptions,
 			create: createOptions,
 			upload: uploadOptions,
+			launch: launchOptions,
 		},
 		filteredOptions: {
 			suggestedOptions: propSuggestedOptions.length ? propSuggestedOptions : suggestedOptions,
 			buildAi: buildAiOptions,
 			create: createOptions,
 			upload: uploadOptions,
+			launch: launchOptions,
 		},
 		isAutomationLoading: false,
 		commonState: 'All',
@@ -861,7 +866,7 @@ const QuickActions = ({
 		let filteredBuildAi = buildAiOptions;
 		let filteredCreate = createOptions;
 		let filteredUpload = uploadOptions;
-
+		let filteredLaunch = launchOptions;
 		if (isAdmin) {
 			filteredUpload = uploadOptions;
 		} else if (tenantUserAccessControls?.accessControls) {
@@ -888,6 +893,9 @@ const QuickActions = ({
 			filteredUpload = uploadOptions?.filter((option) =>
 				option?.controlValue ? enabledApps.has(option?.controlValue) : true,
 			);
+			filteredLaunch = launchOptions?.filter((option) =>
+				option?.controlValue ? enabledApps.has(option?.controlValue) : true,
+			);
 		}
 
 		setInfo((prevInfo) => ({
@@ -897,12 +905,14 @@ const QuickActions = ({
 				buildAi: filteredBuildAi,
 				create: filteredCreate,
 				upload: filteredUpload,
+				launch: filteredLaunch,
 			},
 			filteredOptions: {
 				suggestedOptions: filteredSuggested,
 				buildAi: filteredBuildAi,
 				create: filteredCreate,
 				upload: filteredUpload,
+				launch: filteredLaunch,
 			},
 		}));
 	}, [tenantUserAccessControls, isAdmin, liteGalleryPaidPlan, location.pathname]);
@@ -1077,7 +1087,7 @@ const QuickActions = ({
 	const filtereOptions = useCallback(
 		(searchKey = '') => {
 			if (!info?.options)
-				return { suggestedOptions: [], buildAi: [], create: [], upload: [] };
+				return { suggestedOptions: [], buildAi: [], create: [], upload: [], launch: [] };
 
 			const searchTerm = searchKey.toLowerCase();
 
@@ -1105,13 +1115,19 @@ const QuickActions = ({
 				  )
 				: info?.options?.upload;
 
+			let launch = searchKey
+				? info?.options?.launch?.filter((option) =>
+						option?.title.toLowerCase().includes(searchTerm),
+				  )
+				: info?.options?.launch;
+
 			// Filter by access control
 			suggestedOptions = accessibleOptions(suggestedOptions);
 			buildAi = accessibleOptions(buildAi);
 			create = accessibleOptions(create);
 			upload = accessibleOptions(upload);
-
-			return { suggestedOptions, buildAi, create, upload };
+			launch = accessibleOptions(launch);
+			return { suggestedOptions, buildAi, create, upload, launch };
 		},
 		[info?.options, tenantUserAccessControls, accessibleOptions],
 	);
@@ -1361,6 +1377,32 @@ const QuickActions = ({
 											option?.action({
 												updateStateValues,
 												navigate,
+											})
+										}
+									>
+										{option?.icon && <img src={option?.icon} alt="icon" />}
+										<div className="dropdown-option-title">{option?.title}</div>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+
+					{info?.filteredOptions?.launch?.length > 0 && (
+						<div className="suggested-modules-container">
+							<div className="suggested-modules-container-header">Launch</div>
+							<div className="suggested-modules-container-options">
+								{info?.filteredOptions?.launch?.map((option) => (
+									<div
+										key={option?.id}
+										className="dropdown-option"
+										onClick={() =>
+											option?.action({
+												setInfo,
+												navigate,
+												createNewAiAssistant,
+												createAutomation,
+												createNewKnowledgeAgent,
 											})
 										}
 									>
