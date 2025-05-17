@@ -138,16 +138,14 @@ const SuggestedOptions = [
 	},
 ];
 const InitialHomePage = () => {
-	const navigate = useNavigate();
-	const containerRef = useRef(null);
-	const headerMinimizedRef = useRef(false);
-
 	const {
 		templates: { updateStateValues, currentSessionId },
 		profileInfo: { tenantUserAccessControls },
 		aiSetup: { getPromptsData, promptsData },
 		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions },
 	} = useContext(Context);
+
+	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		selectedOption: '',
