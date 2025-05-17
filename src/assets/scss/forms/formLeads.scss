@@ -9,14 +9,6 @@
 	padding-bottom: 5px;
 	overflow: hidden;
 
-	@media screen and (max-width: 768px) {
-		height: auto;
-		min-height: 100vh;
-		padding-right: 0;
-		gap: 16px;
-		overflow-y: auto;
-	}
-
 	.loaderContainer {
 		display: flex;
 		justify-content: center;
@@ -31,15 +23,12 @@
 		margin-top: 40px;
 	}
 
-	/* Hide scrollbar for Chrome, Safari and Opera */
 	&::-webkit-scrollbar {
 		display: none;
 	}
-
-	/* Hide scrollbar for IE, Edge and Firefox */
 	& {
-		-ms-overflow-style: none; /* IE and Edge */
-		scrollbar-width: none; /* Firefox */
+		-ms-overflow-style: none;
+		scrollbar-width: none;
 	}
 
 	.formWrapper {
@@ -50,22 +39,12 @@
 		justify-content: space-between;
 		overflow: hidden;
 
-		@media screen and (max-width: 768px) {
-			flex-direction: column;
-			gap: 16px;
-			height: auto;
-			overflow: visible;
-		}
-
-		/* Hide scrollbar for Chrome, Safari and Opera */
 		&::-webkit-scrollbar {
 			display: none;
 		}
-
-		/* Hide scrollbar for IE, Edge and Firefox */
 		& {
-			-ms-overflow-style: none; /* IE and Edge */
-			scrollbar-width: none; /* Firefox */
+			-ms-overflow-style: none;
+			scrollbar-width: none;
 		}
 	}
 
@@ -92,28 +71,13 @@
 		height: calc(98% - 40px);
 		overflow-y: auto;
 
-		@media screen and (max-width: 768px) {
-			width: 100%;
-			margin: 0;
-			height: auto;
-			min-height: 300px;
-			max-height: 500px;
-			padding: 16px;
-			position: relative;
-			order: 2;
-			top: -70px;
-		}
-
-		/* Scrollbar Styles */
 		&::-webkit-scrollbar {
 			width: 6px;
 		}
-
 		&::-webkit-scrollbar-track {
 			background: var(--card);
 			border-radius: 8px;
 		}
-
 		&::-webkit-scrollbar-thumb {
 			background: var(--stroke);
 			border-radius: 8px;
@@ -133,28 +97,13 @@
 		gap: 25px;
 		width: 55%;
 
-		@media screen and (max-width: 768px) {
-			width: 100%;
-			flex-direction: column;
-			gap: 16px;
-			order: 1;
-		}
-
 		.headerContainer {
 			display: flex;
 			align-items: center;
 			gap: 6px;
 
-			@media screen and (max-width: 768px) {
-				flex-wrap: wrap;
-			}
-
 			.headerTitle {
 				font-size: 20px;
-
-				@media screen and (max-width: 768px) {
-					font-size: 16px;
-				}
 			}
 		}
 
@@ -164,10 +113,6 @@
 			margin-top: 16px;
 			gap: 16px;
 			flex-wrap: wrap;
-
-			@media screen and (max-width: 768px) {
-				gap: 8px;
-			}
 		}
 
 		.button-con {
@@ -203,12 +148,6 @@
 				text-overflow: ellipsis;
 				max-width: 100px;
 			}
-
-			@media screen and (max-width: 768px) {
-				height: 28px;
-				padding: 6px 8px;
-				font-size: 11px;
-			}
 		}
 
 		.delete-button {
@@ -230,12 +169,6 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: 18px;
-			}
-
-			@media screen and (max-width: 768px) {
-				height: 28px;
-				padding: 6px 8px;
-				font-size: 11px;
 			}
 		}
 
@@ -395,10 +328,12 @@
 
 				.downloadButtonItem {
 					position: relative;
+
 					svg {
 						width: 20px;
 						height: 20px;
 					}
+
 					&:hover::after {
 						content: 'Download';
 						position: absolute;
@@ -429,10 +364,6 @@
 		height: 32px;
 		display: flex;
 		align-items: center;
-
-		@media screen and (max-width: 768px) {
-			width: 100%;
-		}
 
 		.searchBtn {
 			display: flex;
@@ -489,11 +420,88 @@
 				opacity: 1;
 				pointer-events: auto;
 			}
+		}
+	}
+}
 
-			&.searchExpand {
-				@media screen and (max-width: 768px) {
-					width: 100%;
+@media screen and (max-width: 900px) {
+	.formLeadsParentContainer {
+		padding-right: 0;
+
+		.formWrapper {
+			flex-direction: column;
+			overflow-y: auto;
+			overflow-x: hidden;
+		}
+
+		.formDescription {
+			width: 100%;
+			margin: 0;
+			height: auto;
+		}
+
+		.formEnquiryContainer {
+			width: 100%;
+			flex-direction: column;
+		}
+	}
+}
+
+@media screen and (max-width: 768px) {
+	.formLeadsParentContainer {
+		height: auto;
+		min-height: 100vh;
+		padding-right: 0;
+		gap: 16px;
+		overflow-y: auto;
+
+		.formWrapper {
+			flex-direction: column;
+			gap: 16px;
+			height: auto;
+			overflow: visible;
+		}
+
+		.formDescription {
+			width: 100%;
+			margin: 0;
+			height: auto;
+			min-height: 300px;
+			max-height: 500px;
+			padding: 16px;
+			position: relative;
+			order: 2;
+			top: -70px;
+		}
+
+		.formEnquiryContainer {
+			width: 100%;
+			flex-direction: column;
+			gap: 16px;
+			order: 1;
+
+			.headerContainer {
+				flex-wrap: wrap;
+
+				.headerTitle {
+					font-size: 16px;
 				}
+			}
+
+			.button-space {
+				gap: 8px;
+			}
+
+			.edit-button {
+				height: 28px;
+				padding: 6px 8px;
+				font-size: 11px;
+			}
+
+			.delete-button {
+				height: 28px;
+				padding: 6px 8px;
+				font-size: 11px;
 			}
 		}
 	}
