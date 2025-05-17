@@ -136,6 +136,8 @@ const Person = ({
 								</div>
 							)}
 						</div>
+					) : disabled ? (
+						'No data'
 					) : (
 						`Select ${title}`
 					)}

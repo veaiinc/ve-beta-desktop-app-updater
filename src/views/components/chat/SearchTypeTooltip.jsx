@@ -57,7 +57,7 @@ const SearchTypeTooltip = ({
 												background: `${
 													searchType?.[type]
 														? 'var(--primary-button)'
-														: 'var(--primary-font)'
+														: 'var(--stroke-hover)'
 												}`,
 											}}
 											className="custom-switch"

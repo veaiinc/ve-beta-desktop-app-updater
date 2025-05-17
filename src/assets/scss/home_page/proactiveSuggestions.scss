@@ -1,5 +1,5 @@
 .proactive-suggestions-container {
-	max-width: 903px;
+	width: 100%;
 	margin: 0 auto;
 	height: 100%;
 	display: flex;
@@ -353,6 +353,9 @@
 				border-radius: 6px;
 				border: 1px solid var(--stroke, #2c2d2e);
 				cursor: pointer;
+				&:hover {
+					background-color: var(--card);
+				}
 			}
 
 			.viewSelectionContainer {
@@ -388,7 +391,7 @@
 
 					&.active {
 						border-radius: 6px;
-						background: var(--card);
+						background: var(--card-hover);
 						color: var(--primary-font);
 
 						font-family: var(--primary-font-family);
@@ -481,25 +484,37 @@
 			border: 1px solid var(--stroke, #2c2d2e);
 			border-radius: 6px;
 			transition: all 0.2s ease;
-			color: var(--secondary-font);
+			color: var(--primary-font);
 			position: relative;
 
 			&::after {
 				content: attr(data-tooltip);
 				position: absolute;
-				bottom: -30px;
+				bottom: -45px;
 				left: 50%;
 				transform: translateX(-50%);
-				padding: 4px 8px;
-				background: var(--popup, #202123);
-				color: var(--primary-font);
-				font-size: 12px;
 				border-radius: 4px;
 				white-space: nowrap;
 				opacity: 0;
 				visibility: hidden;
 				transition: all 0.2s ease;
 				z-index: 1000;
+
+				display: inline-flex;
+				padding: 10px;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+				border-radius: 8px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: var(--popup, #202123);
+				box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 11px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
 			}
 
 			&:hover {
@@ -549,7 +564,7 @@
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 8px;
-		margin: 0 auto;
+		width: 100%;
 		flex-grow: 1;
 		overflow: auto;
 		.list-view-container {
@@ -941,21 +956,15 @@
 	}
 }
 .priorityTooltip {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 12px;
-	color: var(--primary-font, #f2f2f3);
-	font-family: var(--primary-font-family);
-	font-size: 12px;
-	font-style: normal;
-	font-weight: 600;
-	line-height: normal;
-	border-radius: 12px;
+	display: inline-flex;
+	padding: 10px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	border-radius: 8px;
 	border: 1px solid var(--stroke, #2c2d2e);
 	background: var(--popup, #202123);
 	box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
-	padding: 8px 14px;
 }
 .confidenceScoreContainer {
 	display: flex;
@@ -988,13 +997,19 @@
 }
 
 .tooltipTitle {
+	display: inline-flex;
+	padding: 10px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	border-radius: 8px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--popup, #202123);
+	box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
 	color: var(--primary-font, #f2f2f3);
 	font-family: var(--primary-font-family);
-	font-size: 10px;
-	padding: 6px 8px;
-	border-radius: 6px;
+	font-size: 11px;
 	font-style: normal;
-	font-weight: 400;
+	font-weight: 500;
 	line-height: normal;
-	background-color: var(--popup);
 }

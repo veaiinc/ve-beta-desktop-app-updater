@@ -6,10 +6,10 @@ const EmptyState = ({ title, subtitle, buttonText, buttonOnClick, showUpload = f
 		<div className="file-empty-satate">
 			<div className="file-empty-satate-title">{title}</div>
 			<div className="file-empty-satate-sub-title">{subtitle}</div>
-			<button onClick={buttonOnClick} className="file-empty-satate-button">
+			{/* <button onClick={buttonOnClick} className="file-empty-satate-button">
 				{showUpload ? <UploadSvg /> : null}
 				{buttonText}
-			</button>
+			</button> */}
 		</div>
 	);
 };

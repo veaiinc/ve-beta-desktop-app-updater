@@ -17,7 +17,7 @@
 		width: 100%;
 		flex-direction: column;
 		align-items: center;
-		gap: 28px;
+		gap: 20px;
 		flex-shrink: 0;
 		background: var(--background-color);
 		margin-top: 85px;
@@ -48,10 +48,12 @@
 					text-align: center;
 					color: var(--secondary-font);
 					font-family: Manrope;
-					font-size: 13px;
+					font-size: 16px;
 					font-style: normal;
 					font-weight: 400;
 					line-height: normal;
+					margin: 0;
+					margin-bottom: 6px;
 				}
 			}
 
@@ -67,7 +69,7 @@
 			}
 		}
 		.chatbox-wrapper {
-			max-width: 700px;
+			max-width: 750px;
 			width: 100%;
 			height: 66px;
 			border-radius: 16px;
@@ -87,9 +89,10 @@
 				.chatParentWrapper {
 					bottom: unset;
 					top: 0px;
+					max-width: unset;
 
 					.chatInputParentContainer {
-						gap: 16px !important;
+						gap: 8px !important;
 						.chat-input-container {
 							.textArea {
 								max-height: 34px !important;
@@ -112,29 +115,31 @@
 			}
 			.option {
 				display: flex;
-				height: 37px;
-				padding: 8px 16px;
+				padding: 8px 12px;
 				align-items: center;
 				gap: 10px;
 				border-radius: 100px;
 				border: 1px solid var(--stroke, #202123);
 				cursor: pointer;
 				box-sizing: border-box;
+				height: 32px;
 				&:hover {
 					border: 1px solid var(--stroke-hover);
 				}
 				.option-label {
 					color: var(--primary-font);
 					font-family: var(--primary-font-family);
-					font-size: 14px;
+					font-size: 13px !important;
 					font-style: normal;
 					font-weight: 500;
-					line-height: 21px; /* 150% */
+					line-height: normal;
 					display: flex;
-					gap: 4px;
+					gap: 6px;
 					align-items: center;
 					svg {
 						color: var(--secondary-font);
+						width: 16px;
+						height: 16px;
 					}
 				}
 
@@ -153,7 +158,7 @@
 
 	.home-page-container-content {
 		width: 100%;
-		padding-top: 32px;
+		padding-top: 18px;
 		overflow-y: auto;
 		overflow-x: hidden;
 		flex-grow: 1;
@@ -195,21 +200,26 @@
 	}
 }
 
-.tooltipOption {
-	display: flex;
-	justify-content: center;
-	padding: 12px 14px;
-	border-radius: 12px;
+.tooltipValue {
+	display: inline-flex;
+	padding: 10px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	border-radius: 8px;
 	border: 1px solid var(--stroke, #2c2d2e);
 	background: var(--popup, #202123);
 	box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
 	color: var(--primary-font, #f2f2f3);
 	font-family: var(--primary-font-family);
-	font-size: 12px;
+	font-size: 11px;
 	font-style: normal;
-	font-weight: 600;
+	font-weight: 500;
 	line-height: normal;
-	align-self: stretch;
+}
+
+.tooltip-wrapper {
+	max-width: unset;
 }
 
 @keyframes height-minimize {
@@ -285,17 +295,18 @@
 	}
 }
 
-// @media screen and (max-width: 1500px) {
-// 	.initial-home-page-container {
-// 		.home-page-container-header {
-// 			margin-top: 0;
-// 		}
-// 	}
-// }
 @media screen and (max-width: 425px) {
 	.initial-home-page-container {
 		.home-page-container-header {
 			margin-top: 45px;
+		}
+	}
+}
+
+@media screen and (max-width: 1500px) {
+	.initial-home-page-container {
+		.home-page-container-header {
+			margin-top: 0 !important;
 		}
 	}
 }

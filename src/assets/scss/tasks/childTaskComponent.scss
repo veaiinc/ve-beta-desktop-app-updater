@@ -47,11 +47,9 @@
 			justify-content: flex-end;
 			gap: 8px;
 			flex-shrink: 0;
-			// background-color: red;
 
 			.subtask-action-button {
 				border: none;
-				// background: none;
 				width: 27px;
 				height: 27px;
 				background-color: transparent;
@@ -81,9 +79,9 @@
 	.subtask-list-container {
 		display: flex;
 		flex-direction: column;
-		max-height: 122px;
+		max-height: fit-content;
 		overflow-y: hidden;
-		gap: 20px;
+		gap: 12px;
 		justify-content: flex-start;
 		scrollbar-width: 1px;
 

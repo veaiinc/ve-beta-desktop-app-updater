@@ -796,6 +796,11 @@ export const TasksState = () => {
 					type: Actions.SET_LIST_TASK_WITH_GROUP,
 					payload: response?.[1]?.data?.listTasksWithGroup,
 				});
+
+				dispatch({
+					type: Actions.SET_LIST_ITEMS,
+					payload: { analytics: response?.[1]?.data?.listTasksWithGroup?.analytics },
+				});
 			} else {
 				dispatch({
 					type: Actions.SET_LIST_TASK_WITH_GROUP,
@@ -852,23 +857,25 @@ export const TasksState = () => {
 		}
 	};
 
-	const updateSideBarData = ({ open, data }) => {
-		let stack = [...state?.sideBarData?.stack];
-
-		if (data) {
-			if (data === -1) {
-				stack.pop();
-			} else {
-				stack.push(data);
-			}
+	const handleDeleteInGroup = (payload) => {
+		try {
+			dispatch({
+				type: Actions.HANDLE_DELETE_IN_GROUP,
+				payload,
+			});
+		} catch (error) {
+			console.log('error ==> handleDeleteInGroup', error);
 		}
+	};
 
+	const updateSideBarData = ({ open, data = null, replace = false, update = false }) => {
 		dispatch({
 			type: Actions.UPDATE_SIDEBAR_DATA,
 			payload: {
-				...state?.sideBarData,
-				stack: data ? stack : state?.sideBarData?.stack,
-				open: open ?? state?.sideBarData?.open,
+				open,
+				data,
+				replace,
+				update,
 			},
 		});
 	};
@@ -905,6 +912,7 @@ export const TasksState = () => {
 		getListTaskWithGroup,
 		fetchGroupData,
 		handleGroupChange,
+		handleDeleteInGroup,
 		updateTaskPrefix,
 		updateSelectedView,
 		updateSideBarData,

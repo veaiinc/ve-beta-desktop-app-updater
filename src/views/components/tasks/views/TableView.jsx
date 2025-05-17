@@ -2,7 +2,6 @@ import React, { memo, useState, useCallback, useRef, useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 import TableHeader from '../listView/TableHeader';
 import TableBody from '../listView/TableBody';
-// import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';

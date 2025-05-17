@@ -296,10 +296,48 @@ const actionHandlers = {
 			},
 		};
 	},
-	UPDATE_SIDEBAR_DATA: (state, action) => ({
-		...state,
-		sideBarData: action?.payload,
-	}),
+
+	HANDLE_DELETE_IN_GROUP: (state, action) => {
+		const { group, taskId } = action?.payload;
+		const groupData = state?.listTaskWithGroup?.groups?.find((item) => item?.group === group);
+		const updatedGroup = groupData?.data?.filter((item) => item?._id !== taskId);
+		const updatedGroups = state?.listTaskWithGroup?.groups?.map((item) =>
+			item?.group === group ? { ...item, data: updatedGroup } : item,
+		);
+		return {
+			...state,
+			listTaskWithGroup: {
+				...state.listTaskWithGroup,
+				groups: updatedGroups,
+			},
+		};
+	},
+
+	UPDATE_SIDEBAR_DATA: (state, action) => {
+		const { data = null, replace = false, open, update = false } = action?.payload;
+		let stack = [...state?.sideBarData?.stack];
+		if (data) {
+			if (update) {
+				stack[stack?.length - 1] = { ...stack[stack?.length - 1], ...data };
+			} else {
+				if (data === -1) {
+					stack.pop();
+				} else if (replace) {
+					stack = [data];
+				} else {
+					stack.push(data);
+				}
+			}
+		}
+		return {
+			...state,
+			sideBarData: {
+				...state?.sideBarData,
+				stack: data ? stack : state?.sideBarData?.stack,
+				open: open ?? state?.sideBarData?.open,
+			},
+		};
+	},
 
 	RESET_STATE: () => intialState,
 };

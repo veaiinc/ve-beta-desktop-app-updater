@@ -34,12 +34,11 @@ const layouts = {
 };
 
 const Task = ({
-	blockTitle,
-	createButtonText,
 	responseMetadata,
 	handleAddButtonOnClick,
 	colors,
 	updateTaskInfo,
+	searchLoader,
 	data,
 	loading,
 	rowTypes,
@@ -55,7 +54,6 @@ const Task = ({
 	updateActiveTab,
 	updateView = () => {},
 	deleteView = () => {},
-	prefix = null,
 	availableViews = ['list', 'board', 'table', 'gallery'],
 }) => {
 	const timeoutRef = useRef(null);
@@ -374,6 +372,7 @@ const Task = ({
 						showEditViewDropDown={showEditViewDropDown}
 						handleEditViewDropDown={handleEditViewDropDown}
 						taskPreferences={taskPreferences}
+						searchLoader={searchLoader}
 					/>
 				</div>
 			</ChatLeftBarComponent>
