@@ -26,7 +26,7 @@ import { ReactComponent as FocusViewSvg } from '../../../assets/svg/home_page/fo
 import { ReactComponent as SortDescSvg } from '../../../assets/svg/home_page/sortDesc.svg';
 import { ReactComponent as SortAscSvg } from '../../../assets/svg/home_page/sortAsc.svg';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/sidebar/agentsIcon.svg';
-import AIQuestions from './AIQuestions';
+// import AIQuestions from './AIQuestions';
 
 const payload = {
 	page: 1,
@@ -1074,11 +1074,11 @@ const ProactiveSuggestions = () => {
 									</div>
 								</InfiniteScroll>
 							)}
-							{info?.activeBtn === 'questions' && (
+							{/* {info?.activeBtn === 'questions' && (
 								<div className="ai-questions-wrapper">
 									<AIQuestions />
 								</div>
-							)}
+							)} */}
 						</div>
 					)}
 				</div>
