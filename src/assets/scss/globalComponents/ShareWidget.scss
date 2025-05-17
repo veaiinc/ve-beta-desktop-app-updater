@@ -148,17 +148,3 @@
 		}
 	}
 }
-
-// Modal overlay styles
-.share-widget-modal {
-	.modal-content {
-		background: transparent;
-		border: none;
-		padding: 0;
-	}
-
-	.modal-overlay {
-		background-color: rgba(0, 0, 0, 0.5);
-		backdrop-filter: blur(4px);
-	}
-}
