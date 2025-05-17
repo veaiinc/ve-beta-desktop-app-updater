@@ -608,10 +608,11 @@ const Tasks = () => {
 					setInfo((prevInfo) => {
 						const newListItems = prevInfo.listItems.map((row) => {
 							if (row._id === rowId) {
-								return {
+								const data = {
 									...row,
 									updatedBy: { _id: user_id, name: userName },
 								};
+								return data;
 							}
 							return row;
 						});
@@ -639,6 +640,7 @@ const Tasks = () => {
 						listItems: rolledBackListItems,
 					};
 				});
+				updateSideBarData({ data: { [propName]: originalValue }, update: true });
 			}
 		},
 		[updateListItem, info?.selectedSubTask, sideBarData?.open],
@@ -701,6 +703,7 @@ const Tasks = () => {
 						listItems: updatedListItems,
 					};
 				});
+				updateSideBarData({ data: { [propName]: updatedValue }, update: true });
 			}
 
 			handleDebounceUpdate(

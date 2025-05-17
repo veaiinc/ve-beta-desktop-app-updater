@@ -314,15 +314,19 @@ const actionHandlers = {
 	},
 
 	UPDATE_SIDEBAR_DATA: (state, action) => {
-		const { data = null, replace = false, open } = action?.payload;
+		const { data = null, replace = false, open, update = false } = action?.payload;
 		let stack = [...state?.sideBarData?.stack];
 		if (data) {
-			if (data === -1) {
-				stack.pop();
-			} else if (replace) {
-				stack = [data];
+			if (update) {
+				stack[stack?.length - 1] = { ...stack[stack?.length - 1], ...data };
 			} else {
-				stack.push(data);
+				if (data === -1) {
+					stack.pop();
+				} else if (replace) {
+					stack = [data];
+				} else {
+					stack.push(data);
+				}
 			}
 		}
 		return {

@@ -868,13 +868,14 @@ export const TasksState = () => {
 		}
 	};
 
-	const updateSideBarData = ({ open, data = null, replace = false }) => {
+	const updateSideBarData = ({ open, data = null, replace = false, update = false }) => {
 		dispatch({
 			type: Actions.UPDATE_SIDEBAR_DATA,
 			payload: {
 				open,
 				data,
 				replace,
+				update,
 			},
 		});
 	};
