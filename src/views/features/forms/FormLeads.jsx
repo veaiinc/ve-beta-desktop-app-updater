@@ -647,8 +647,16 @@ const FormLeads = () => {
 											)}
 										</div>
 										<h1 className="time">
-											Updated{' '}
-											{getTimeAgo({ createdAt: info.latestUpdateTime })}
+											{info.totalSubmissions === 0 ? (
+												'No responses'
+											) : (
+												<>
+													Updated{' '}
+													{getTimeAgo({
+														createdAt: info.latestUpdateTime,
+													})}
+												</>
+											)}
 										</h1>
 									</div>
 									<div className="button-space">

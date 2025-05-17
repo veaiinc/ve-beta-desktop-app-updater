@@ -511,23 +511,23 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 					</div>
 				) : (
 					<>
+						<span
+							className="createDocumentButton"
+							onClick={() => {
+								window.location.href = `${origin}/create-document?formResponseId=${
+									response?.variableId
+								}&name=${getName(response)}&email=${getEmail(
+									response,
+								)}&phoneNumber=${getPhone(response)}`;
+							}}
+						>
+							Create Document
+						</span>
 						<div className="descriptionSection">
 							{getBasicInfo(response).length > 0 && (
 								<>
 									<div className="infoRow">
 										<h3 className="sectionTitle">Basic Information</h3>
-										<span
-											className="createDocumentButton"
-											onClick={() => {
-												window.location.href = `${origin}/create-document?formResponseId=${
-													response?.variableId
-												}&name=${getName(response)}&email=${getEmail(
-													response,
-												)}&phoneNumber=${getPhone(response)}`;
-											}}
-										>
-											Create Document
-										</span>
 									</div>
 									{getBasicInfo(response).map((field, index) => (
 										<div key={index} className="infoRow">
