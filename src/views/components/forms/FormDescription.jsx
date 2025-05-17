@@ -438,7 +438,15 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 
 	const getTimeAgo = (response) => {
 		if (!response?.createdAt) return '';
-		return new Date(response.createdAt * 1000).toLocaleString();
+		return new Date(response.createdAt * 1000).toLocaleString('en-US', {
+			hour: 'numeric',
+			minute: 'numeric',
+			second: 'numeric',
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+			hour12: true, // Enables AM/PM format
+		});
 	};
 
 	const formAnswer = (type, answer) => {
