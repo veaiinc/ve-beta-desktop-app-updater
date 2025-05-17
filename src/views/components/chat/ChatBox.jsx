@@ -59,7 +59,7 @@ const searchTypeOptions = {
 	webSearch: {
 		icon: WebSvg,
 		title: 'Web Search',
-		subTitle: 'Search that Adapts query',
+		subTitle: 'Deep research web search',
 	},
 	workspaceSearch: {
 		icon: BookSvg,
@@ -1374,7 +1374,9 @@ const ChatBox = ({
 														<Tooltip
 															title={
 																<div className="chatbox-icon-tooltip-container">
-																	Search on web
+																	{chatInfo?.deepResearch
+																		? 'Web Search is disabled due to Deep Research'
+																		: 'Search on web'}
 																</div>
 															}
 															color="transparent"
@@ -1393,6 +1395,9 @@ const ChatBox = ({
 																			? '0.5'
 																			: '1'
 																	}`,
+																	cursor: chatInfo?.deepResearch
+																		? 'not-allowed'
+																		: 'pointer',
 																}}
 																onClick={handleWebSearchClick}
 															>
@@ -1410,7 +1415,9 @@ const ChatBox = ({
 															<Tooltip
 																title={
 																	<div className="chatbox-icon-tooltip-container">
-																		Explore workspace data
+																		{chatInfo?.deepResearch
+																			? 'Workspace Search is disabled due to Deep Research'
+																			: 'Explore workspace data'}
 																	</div>
 																}
 																color="transparent"
