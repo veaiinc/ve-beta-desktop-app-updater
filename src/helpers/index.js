@@ -12,6 +12,33 @@ import { ReactComponent as SlackSvg } from '../assets/svg/slack.svg';
 import { ReactComponent as NotionSvg } from '../assets/svg/notion.svg';
 import { ReactComponent as VeLogoSvg } from '../assets/svg/veLogo.svg';
 import axios from 'axios';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import updateLocale from 'dayjs/plugin/updateLocale';
+import isToday from 'dayjs/plugin/isToday';
+import isYesterday from 'dayjs/plugin/isYesterday';
+
+dayjs.extend(relativeTime);
+dayjs.extend(updateLocale);
+dayjs.extend(isToday);
+dayjs.extend(isYesterday);
+dayjs.updateLocale('en', {
+	relativeTime: {
+		future: 'in %s',
+		past: '%s ago',
+		s: '%d sec',
+		m: '1 min',
+		mm: '%d min',
+		h: '1 hr',
+		hh: '%d hr',
+		d: '1 day',
+		dd: '%d days',
+		M: '1 month',
+		MM: '%d months',
+		y: '1 year',
+		yy: '%d years',
+	},
+});
 
 export const nameShortner = (name) => {
 	let newName = name?.split(' ');
@@ -62,6 +89,15 @@ export const FetchMoreLoaderComp = ({
 			{text}
 		</h4>
 	);
+};
+
+export const getRelativeDayLabel = (timestamp) => {
+	const date = dayjs(timestamp * 1000);
+	if (date.isToday()) return 'Today';
+	if (date.isYesterday()) return 'Yesterday';
+
+	const daysAgo = dayjs().startOf('day').diff(date.startOf('day'), 'day');
+	return `${daysAgo} Days Ago`;
 };
 
 export const getLocationsDetails = async () => {

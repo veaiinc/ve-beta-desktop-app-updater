@@ -7,7 +7,7 @@
 	.cot-container {
 		display: flex;
 		flex-direction: column;
-		gap: 24px;
+		gap: 16px;
 		.cot {
 			display: flex;
 			gap: 16px;
@@ -53,7 +53,7 @@
 					z-index: 1;
 				}
 				.sub-query {
-					color: var(--primary-font, #f2f2f3);
+					color: var(--chat-secondary-font, #f2f2f3);
 					font-family: var(--chat-primary-font-family);
 					font-size: 15px;
 					font-style: normal;
@@ -147,7 +147,7 @@
 										top: 0;
 									}
 									.query {
-										color: var(--primary-font, #f2f2f3);
+										color: var(--chat-secondary-font, #f2f2f3);
 										font-family: var(--chat-primary-font-family);
 										font-size: 15px;
 										font-style: normal;
