@@ -1439,6 +1439,9 @@ const ChatBox = ({
 																				? '0.5'
 																				: '1'
 																		}`,
+																		cursor: chatInfo?.deepResearch
+																			? 'not-allowed'
+																			: 'pointer',
 																	}}
 																>
 																	<div className="icon workspace-search-icon">
