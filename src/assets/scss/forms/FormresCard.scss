@@ -203,6 +203,10 @@
 							border-radius: 8px;
 							border: 1px solid var(--stroke);
 							width: fit-content;
+							cursor: pointer;
+							&:hover {
+								border: 1px solid var(--stroke-hover);
+							}
 
 							@media screen and (max-width: 768px) {
 								height: 32px;
@@ -263,32 +267,31 @@
 						border-radius: 4px;
 					}
 				}
+				.downloadButton {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					cursor: pointer;
+					align-self: flex-end;
+
+					@media screen and (max-width: 768px) {
+						width: 100%;
+						justify-content: flex-start;
+					}
+				}
 			}
 		}
 	}
 }
 
-.downloadButton {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	cursor: pointer;
-	align-self: flex-end;
-
-	@media screen and (max-width: 768px) {
-		width: 100%;
-		justify-content: flex-start;
-	}
-}
-
-@keyframes pulse {
-	0% {
-		opacity: 0.6;
-	}
-	50% {
-		opacity: 0.8;
-	}
-	100% {
-		opacity: 0.6;
-	}
-}
+// @keyframes pulse {
+// 	0% {
+// 		opacity: 0.6;
+// 	}
+// 	50% {
+// 		opacity: 0.8;
+// 	}
+// 	100% {
+// 		opacity: 0.6;
+// 	}
+// }
