@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback } from 'react';
 import '../../../../assets/scss/tasks/listView.scss';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import ListViewRow from '../listView/ListViewRow';
 import Skeleton from 'react-loading-skeleton';
+import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 
 const ListView = ({
 	responseMetadata,
@@ -43,13 +43,7 @@ const ListView = ({
 					next={fetchMoreData}
 					hasMore={hasMore}
 					loader={<FetchMoreLoaderComp />}
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						width: '100%',
-						overflow: 'auto',
-					}}
-					height={infiniteScrollHeight || 'calc(100vh - 100px)'}
+					height={'100%'}
 					scrollThreshold="90%"
 				>
 					{data?.map((task, index) => (

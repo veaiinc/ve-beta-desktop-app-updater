@@ -4,7 +4,7 @@ import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.sv
 import CardItem from './CardItem';
 import Status from './Status';
 import Select from './Select';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 
 const headerMapper = {
 	status: Status,
