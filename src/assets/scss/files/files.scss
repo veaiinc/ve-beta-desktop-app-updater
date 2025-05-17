@@ -718,6 +718,7 @@
 				transition: all 0.3s ease-in;
 				gap: 10px;
 				justify-content: flex-start;
+				align-items: center;
 				&:hover {
 					color: var(--primary-font);
 					background: var(--card-hover);
@@ -727,7 +728,13 @@
 					color: var(--primary-font);
 					background: var(--card, #171819);
 				}
-
+				.sidebar-option-active-indicator {
+					width: 5px;
+					height: 5px;
+					flex-shrink: 0;
+					background-color: var(--primary-button);
+					border-radius: 10px;
+				}
 				.count-wrapper {
 					display: flex;
 					padding: 3.637px;

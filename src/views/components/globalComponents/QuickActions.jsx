@@ -1125,10 +1125,10 @@ const QuickActions = ({
 		const fetchTaskMetadata = async () => {
 			await getTaskMetadata();
 		};
-		if (!taskMetadata) {
+		if (!taskMetadata && info?.dropdown) {
 			fetchTaskMetadata();
 		}
-	}, []);
+	}, [info?.dropdown]);
 
 	useEffect(() => {
 		if (taskMetadata) {
@@ -1146,7 +1146,7 @@ const QuickActions = ({
 	}, [info?.taskPreferences?.preferences, mapPropertyType]);
 
 	useEffect(() => {
-		if (!tenantsUserList) {
+		if (!tenantsUserList && info?.dropdown) {
 			getTeamMembers();
 		} else {
 			const formattedUsers = tenantsUserList?.map(({ firstName, lastName, _id }) => ({
@@ -1159,7 +1159,7 @@ const QuickActions = ({
 				tenantUsers: formattedUsers,
 			}));
 		}
-	}, [tenantsUserList]);
+	}, [tenantsUserList, info?.dropdown]);
 
 	useEffect(() => {
 		if (!info?.dropdown) {
@@ -1173,7 +1173,7 @@ const QuickActions = ({
 	}, [info.dropdown, filtereOptions]);
 
 	useEffect(() => {
-		if (!taskPreference) {
+		if (!taskPreference && info?.dropdown) {
 			getTaskPreferences({ preferences: 'taskPreference' });
 			return;
 		}
@@ -1201,7 +1201,7 @@ const QuickActions = ({
 				preferences: taskPreference?.data,
 			},
 		}));
-	}, []);
+	}, [info?.dropdown]);
 
 	useEffect(() => {
 		if (location.pathname.includes('knowledge-agent') || location.pathname.includes('files')) {
@@ -1222,39 +1222,16 @@ const QuickActions = ({
 			) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			} else {
-				if (info?.isCreatingSubtask) {
-					payload.parentTaskId = info?.selectedRow?._id;
-				}
 				const response = await addListItem({ input: payload });
 
 				if (response) {
 					const task = response?.createTask;
 
 					if (task) {
-						const token = localStorage.getItem('usertoken');
-						const { user_id, userName } = jwtDecode(token);
-
-						const newTask = { ...task };
-						newTask.createdBy = { _id: user_id, name: userName };
-						newTask.updatedBy = { _id: user_id, name: userName };
-						if (info?.isCreatingSubtask) {
-							newTask.parentTask = {
-								title: info?.selectedRow?.title,
-								_id: info?.selectedRow?._id,
-							};
-							addSubTask(newTask);
-						}
 						message.success('Task added successfully');
-						if (!info?.isCreatingSubtask) {
-							if (payload?.assignedTo || payload?.dueDate) {
-								updateTaskState({
-									refetchTasksForDue: true,
-									listTasksForToday: null,
-									listTasksForOverdue: null,
-									listTasksDueTillToday: null,
-								});
-							}
-						}
+						updateTaskState({
+							refetchTasks: true,
+						});
 					}
 				} else {
 					throw new Error('Failed to add new task');

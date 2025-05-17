@@ -64,7 +64,7 @@ const CardItem = ({ task, responseMetadata, colors, rowTypes, properties, handle
 	return (
 		<div
 			className="task-card-item"
-			onClick={() => updateSideBarData({ data: task, open: true })}
+			onClick={() => updateSideBarData({ data: task, open: true, replace: true })}
 		>
 			{/* <div className="card-header"></div>
 			<div className="card-body"></div>

@@ -314,54 +314,47 @@
 			}
 
 			.eventInfoWrapper {
-				display: flex;
-				flex-direction: column;
-				align-items: flex-start;
-				gap: 12px;
-				align-self: stretch;
-				padding: 20px 0px;
-				border-top: 1px solid var(--stroke);
-				margin-top: 16px;
+				padding: 16px;
+				background: var(--secondary-bg);
+				border-radius: 12px;
 
-				.eventInfoTitle {
-					color: var(--primary-font);
-					font-family: var(--primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 600;
-					margin-bottom: 8px;
-				}
+				.timestamp-div {
+					display: flex;
+					flex-wrap: wrap;
+					justify-content: space-between;
+					row-gap: 16px;
 
-				.eventInfoRow {
-					min-height: 31px;
-					width: 100%;
-					gap: 15px;
-					align-items: center;
+					.timestamp-cell {
+						display: flex;
+						flex-wrap: wrap;
+						justify-content: space-between;
+						row-gap: 16px;
+						width: 100%;
 
-					.eventKey {
-						color: var(--secondary-font, #7a7e85);
-						font-family: Inter;
-						font-size: 12px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						cursor: text !important;
-						svg {
-							flex-shrink: 0;
-							opacity: 0.7;
+						.timestamp-item {
+							width: calc(50% - 20px);
+							display: flex;
+							flex-direction: column;
+							gap: 4px;
+
+							.timestamp-label {
+								color: var(--secondary-font);
+								font-size: 12px;
+								font-weight: 500;
+							}
+
+							.timestamp-value {
+								color: var(--primary-font);
+								font-size: 12px;
+								font-weight: 500;
+							}
+
+							.timestamp-assignee {
+								color: var(--primary-font);
+								font-size: 12px;
+								font-weight: 500;
+							}
 						}
-					}
-
-					.eventValue {
-						color: var(--primary-font);
-						text-overflow: ellipsis;
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						text-align: start;
-						text-transform: capitalize;
 					}
 				}
 			}

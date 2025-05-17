@@ -611,15 +611,15 @@ const EventDetailsModal = ({
 										{/* <div className="action-btn">
 											<Share width={20} height={20} />
 										</div> */}
-										{selectedEvent?.id && !info?.deleting ? (
+										{info?.deleting ? (
+											<Spinner width={18} height={18} color="#7d7d7d" />
+										) : (
 											<Delete
 												width={20}
 												height={20}
 												className="deleteIcon"
 												onClick={deleteEvent}
 											/>
-										) : (
-											<Spinner width={18} height={18} color="#7d7d7d" />
 										)}
 									</div>
 								</div>
@@ -701,24 +701,59 @@ const EventDetailsModal = ({
 											</div>
 										))}
 								</div>
-								<div className="eventInfoWrapper" style={{ cursor: 'pointer' }}>
-									{[
-										'status',
-										'createdAt',
-										'organizer',
-										'updatedAt',
-										'source',
-									].map((key) => (
-										<div className="eventInfoRow" key={key}>
-											<span className="eventKey">{key}</span>
-											<span
-												className="eventValue"
-												style={{ textAlign: 'left' }}
-											>
-												{componentMapper?.[key](info?.eventDetails?.[key])}
-											</span>
+								<div className="eventInfoWrapper">
+									<div className="timestamp-div">
+										<div className="timestamp-cell">
+											<div className="timestamp-item">
+												<span className="timestamp-label">Created at</span>
+												<span className="timestamp-value">
+													{componentMapper?.createdAt(
+														info?.eventDetails?.createdAt,
+													)}
+												</span>
+												{/* <span className="timestamp-assignee">
+													{componentMapper?.organizer(
+														info?.eventDetails?.organizer,
+													)}
+												</span> */}
+											</div>
+											<div className="timestamp-item">
+												<span className="timestamp-label">Organizer</span>
+												<span className="timestamp-value">
+													{componentMapper?.organizer(
+														info?.eventDetails?.organizer,
+													)}
+												</span>
+											</div>
+											<div className="timestamp-item">
+												<span className="timestamp-label">Updated at</span>
+												<span className="timestamp-value">
+													{componentMapper?.updatedAt(
+														info?.eventDetails?.updatedAt,
+													)}
+												</span>
+												{/* <span className="timestamp-assignee">
+													{info?.eventDetails?.updatedBy?.name || '-'}
+												</span> */}
+											</div>
+											<div className="timestamp-item">
+												<span className="timestamp-label">Source</span>
+												<span className="timestamp-value">
+													{componentMapper?.source(
+														info?.eventDetails?.source,
+													)}
+												</span>
+											</div>
+											<div className="timestamp-item">
+												<span className="timestamp-label">Status</span>
+												<span className="timestamp-value">
+													{componentMapper?.status(
+														info?.eventDetails?.status,
+													)}
+												</span>
+											</div>
 										</div>
-									))}
+									</div>
 								</div>
 								{info?.error && (
 									<div

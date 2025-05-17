@@ -47,6 +47,8 @@ export const getListItemsQuery = gql`
 					email
 				}
 				createdByAI
+				statusUpdatedAt
+				statusUpdatedBy
 			}
 			analytics {
 				allTasks
@@ -204,6 +206,8 @@ export const getTaskQuery = gql`
 				name
 			}
 			createdByAI
+			statusUpdatedAt
+			statusUpdatedBy
 		}
 	}
 `;
@@ -247,6 +251,8 @@ export const getSubTasksQuery = gql`
 				name
 			}
 			createdByAI
+			statusUpdatedAt
+			statusUpdatedBy
 		}
 	}
 `;
@@ -445,10 +451,20 @@ export const listTaskWithGroupQuery = gql`
 						_id
 						title
 					}
+					statusUpdatedAt
+					statusUpdatedBy
+					createdByAI
 				}
 				groupName
 			}
 			groupBy
+			analytics {
+				allTasks
+				completed
+				overdue
+				today
+				allPending
+			}
 		}
 	}
 `;

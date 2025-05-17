@@ -52,6 +52,8 @@ const defaultPreference = {
 	createdAt: { show: false, order: 14 },
 	updatedAt: { show: false, order: 15 },
 	createdWithAi: { show: false, order: 16 },
+	statusUpdatedAt: { show: false, order: 17 },
+	statusUpdatedBy: { show: false, order: 18 },
 };
 
 export const rowTypes = {
@@ -76,8 +78,6 @@ export const rowTypes = {
 
 const Tasks = () => {
 	const timeoutRef = useRef(null);
-	const [searchParams] = useSearchParams();
-	const query = searchParams.get('itemId');
 
 	const {
 		tasks: {
@@ -103,6 +103,7 @@ const Tasks = () => {
 			updateSelectedView,
 			updateSideBarData,
 			sideBarData,
+			handleDeleteInGroup,
 		},
 		templates: { updateStateValues },
 		companyInfo: { getTeamMembers, tenantsUserList },
@@ -257,6 +258,18 @@ const Tasks = () => {
 				Icon: '',
 				props: {},
 			},
+			statusUpdatedAt: {
+				type: 'date',
+				name: 'Completed At',
+				Icon: CalendarSvg,
+				props: { timestamp: true },
+			},
+			statusUpdatedBy: {
+				type: 'person',
+				name: 'Completed By',
+				Icon: PersonSvg,
+				props: { disabled: true, parseValue: true },
+			},
 		}),
 		[info?.taskMetadata],
 	);
@@ -391,27 +404,11 @@ const Tasks = () => {
 	}, [taskMetadata]);
 
 	useEffect(() => {
-		if (refetchTasks) {
+		if (refetchTasks && !sideBarData?.open) {
 			fetchListItems();
 			updateTaskState({ refetchTasks: false });
 		}
-	}, [refetchTasks]);
-
-	// useEffect(() => {
-	// 	if (query && info?.listItems?.length) {
-	// 		const taskId = query;
-	// 		let requiredTask = null;
-	// 		for (let i = 0; i < info?.listItems?.length; i++) {
-	// 			if (info?.listItems?.[i]?._id === taskId) {
-	// 				requiredTask = info?.listItems?.[i];
-	// 				break;
-	// 			}
-	// 		}
-	// 		if (requiredTask) {
-	// 			handleRowClick(requiredTask, true);
-	// 		}
-	// 	}
-	// }, [query, info?.listItems]);
+	}, [refetchTasks, sideBarData?.open]);
 
 	useEffect(() => {
 		if (!clientListForTask) {
@@ -458,6 +455,7 @@ const Tasks = () => {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				page: page,
+				searchLoader: false,
 			}));
 		},
 		[info?.sort, info?.filters, info?.searchValue, info?.group],
@@ -610,10 +608,11 @@ const Tasks = () => {
 					setInfo((prevInfo) => {
 						const newListItems = prevInfo.listItems.map((row) => {
 							if (row._id === rowId) {
-								return {
+								const data = {
 									...row,
 									updatedBy: { _id: user_id, name: userName },
 								};
+								return data;
 							}
 							return row;
 						});
@@ -624,9 +623,7 @@ const Tasks = () => {
 						};
 					});
 				}
-				if (!info?.sidebarIsOpen) {
-					fetchListItems();
-				}
+				updateTaskState({ refetchTasks: true });
 			} catch (error) {
 				message.error(error?.message || 'Something went wrong! Please try again.');
 
@@ -643,9 +640,10 @@ const Tasks = () => {
 						listItems: rolledBackListItems,
 					};
 				});
+				updateSideBarData({ data: { [propName]: originalValue }, update: true });
 			}
 		},
-		[updateListItem, info?.selectedSubTask, info?.sidebarIsOpen],
+		[updateListItem, info?.selectedSubTask, sideBarData?.open],
 	);
 
 	const handleDebounceUpdate = useCallback(
@@ -705,6 +703,7 @@ const Tasks = () => {
 						listItems: updatedListItems,
 					};
 				});
+				updateSideBarData({ data: { [propName]: updatedValue }, update: true });
 			}
 
 			handleDebounceUpdate(
@@ -734,7 +733,7 @@ const Tasks = () => {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			} else {
 				if (info?.isCreatingSubtask) {
-					payload.parentTaskId = info?.selectedRow?._id;
+					payload.parentTaskId = sideBarData?.stack?.at(-1)?._id;
 				}
 				const response = await addListItem({ input: payload });
 
@@ -750,8 +749,8 @@ const Tasks = () => {
 						newTask.updatedBy = { _id: user_id, name: userName };
 						if (info?.isCreatingSubtask) {
 							newTask.parentTask = {
-								title: info?.selectedRow?.title,
-								_id: info?.selectedRow?._id,
+								title: sideBarData?.stack?.at(-1)?.title,
+								_id: sideBarData?.stack?.at(-1)?._id,
 							};
 							addSubTask(newTask);
 						}
@@ -773,11 +772,11 @@ const Tasks = () => {
 				}
 			}
 		},
-		[info?.isCreatingSubtask, info?.selectedRow?._id],
+		[info?.isCreatingSubtask, sideBarData?.stack?.at(-1)?._id],
 	);
 
 	const deleteTask = useCallback(
-		async (payload) => {
+		async (payload, groupId = null) => {
 			if (
 				validateExpiryData &&
 				validateExpiryData?.restrictTasks &&
@@ -786,6 +785,7 @@ const Tasks = () => {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			} else {
 				const response = await deleteListItem(payload);
+
 				if (response) {
 					if (info?.selectedSubTask?._id === payload?.taskId) {
 						updateTaskInfo({ selectedSubTask: null });
@@ -797,19 +797,24 @@ const Tasks = () => {
 							listTasksForOverdue: null,
 							listTasksDueTillToday: null,
 						});
-						setInfo((prevInfo) => ({
-							...prevInfo,
-							listItems: prevInfo?.listItems?.filter(
-								(row) => row._id !== payload?.taskId,
-							),
-							sidebarIsOpen: false,
-							selectedRow: null,
-						}));
+
+						if (info?.group) {
+							handleDeleteInGroup({ group: groupId, taskId: payload?.taskId });
+						} else {
+							setInfo((prevInfo) => ({
+								...prevInfo,
+								listItems: prevInfo?.listItems?.filter(
+									(row) => row._id !== payload?.taskId,
+								),
+							}));
+						}
+
+						updateSideBarData({ data: -1, open: sideBarData?.stack?.length > 1 });
 					}
 				}
 			}
 		},
-		[info?.selectedSubTask?._id, removeSubTask],
+		[info?.selectedSubTask?._id, removeSubTask, info?.listItems],
 	);
 
 	const handleAddButtonOnClick = () => {
@@ -818,13 +823,14 @@ const Tasks = () => {
 
 	const handleCloseCreateModal = useCallback(() => {
 		if (info?.isCreatingSubtask) {
-			updateTaskInfo({ sidebarIsOpen: true });
+			updateSideBarData({ open: true });
 		}
 		updateTaskInfo({ isCreateModalOpen: false });
 	}, [info?.isCreatingSubtask]);
 
 	const handleCreateSubTaskClick = useCallback(() => {
-		updateTaskInfo({ sidebarIsOpen: false, isCreatingSubtask: true, isCreateModalOpen: true });
+		updateTaskInfo({ isCreatingSubtask: true, isCreateModalOpen: true });
+		updateSideBarData({ open: false });
 	}, []);
 
 	const handleSubTaskClick = useCallback(
@@ -851,16 +857,6 @@ const Tasks = () => {
 		},
 		[info?.breadCrumbs],
 	);
-
-	const handleCloseSidebar = useCallback(() => {
-		if (info?.updated) {
-			updateTaskInfo({ loadingSkeleton: true });
-			fetchListItems();
-			updateTaskInfo({ updated: false });
-		}
-		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
-		updateSideBarData(null);
-	}, [info?.updated]);
 
 	const updateView = useCallback(
 		(viewId, updateData, taskMetadataId) => {
@@ -911,6 +907,7 @@ const Tasks = () => {
 				updateView={updateView}
 				deleteView={deleteView}
 				updateActiveTab={handleActiveTabChange}
+				searchLoader={info?.searchLoader}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
@@ -929,6 +926,7 @@ const Tasks = () => {
 				handleUpdate={updatePropertyValue}
 				deleteTask={deleteTask}
 				rowTypes={rowTypes}
+				groupBy={info?.group}
 				responseMetadata={responseMetadata}
 				properties={info?.properties}
 				colors={colors}
@@ -936,8 +934,6 @@ const Tasks = () => {
 				prefix={info?.taskMetadata?.prefix}
 				sidebarChildren={
 					<ChildTaskComponent
-						parentTaskId={info?.selectedRow?._id}
-						childTasks={info?.selectedRow?.childTasks}
 						completedStatus={info?.taskMetadata?.completedGroupLabels}
 						rowTypes={rowTypes}
 						responseMetadata={responseMetadata}

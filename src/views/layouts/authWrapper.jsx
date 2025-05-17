@@ -1,4 +1,4 @@
-import React, { useEffect, memo, useContext, useRef, useState } from 'react';
+import { useEffect, memo, useContext, useRef, useState } from 'react';
 import '../../assets/scss/authWrapper.scss';
 import { Helmet } from 'react-helmet';
 import useActiveWorkspace from '../hooks/useActiveWorkspace';

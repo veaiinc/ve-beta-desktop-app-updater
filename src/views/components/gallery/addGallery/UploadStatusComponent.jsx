@@ -6,6 +6,7 @@ import DuplicateComponent from './DuplicateComponent';
 import AiEnabledSwitch from './AiEnabledSwitch';
 import Context from '../../../../context/context';
 import { getImageSizeFormat } from '../../../../helpers';
+import { message } from '../../globalComponents/CustomToast';
 
 const UploadStatusComponent = ({
 	info,
@@ -16,7 +17,7 @@ const UploadStatusComponent = ({
 	lightGallery,
 }) => {
 	const {
-		galleryInfo: { setUpImageUpload },
+		galleryInfo: { setUpImageUpload, tenantAlbums },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	// func for removing the image
@@ -61,6 +62,10 @@ const UploadStatusComponent = ({
 		let imageCount = Object.keys(info?.uploadImages || {}).length;
 		if (imageCount <= 0) return;
 
+		if (tenantAlbums?.storageDetails?.imagesCount + imageCount > 10000 && !lightGallery) {
+			message.error('You are exceeding the maximum limit of 10,000 photos');
+			return;
+		}
 		const payload = {
 			expectedImages: imageCount,
 			uploadBatchId: info?.uploadBatchID,
@@ -96,7 +101,7 @@ const UploadStatusComponent = ({
 							{Object.keys(info?.uploadImages || {}).length} Images added -{' '}
 							{getImageSizeFormat(info?.uploadSize)}
 						</h1>
-						<p>Max amount 10,000 photos</p>
+						<p>Max amount {10000 - tenantAlbums?.storageDetails?.imagesCount} photos</p>
 					</div>
 
 					{info?.startedUploading ? (

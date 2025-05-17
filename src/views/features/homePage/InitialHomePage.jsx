@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { memo, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import '../../../assets/scss/home_page/initialHomepage.scss';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
@@ -138,12 +138,17 @@ const SuggestedOptions = [
 	},
 ];
 const InitialHomePage = () => {
+	const navigate = useNavigate();
+	const containerRef = useRef(null);
+	const headerMinimizedRef = useRef(false);
+
 	const {
 		templates: { updateStateValues, currentSessionId },
 		profileInfo: { tenantUserAccessControls },
+		aiSetup: { getPromptsData, promptsData },
+		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions },
 	} = useContext(Context);
 
-	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		selectedOption: '',
 		options: optionsList,
@@ -155,11 +160,6 @@ const InitialHomePage = () => {
 		minimized: false,
 		minimizedChatBox: true,
 	});
-
-	const {
-		aiSetup: { getPromptsData, promptsData },
-		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions },
-	} = useContext(Context);
 
 	useEffect(() => {
 		return () => {
