@@ -315,11 +315,12 @@ const InitialHomePage = () => {
 			return (
 				<Tooltip
 					key={option?.id}
-					title={<div className="tooltipOption">{option?.tooltip}</div>}
+					title={<div className="tooltipValue">{option?.tooltip}</div>}
 					placement="bottom"
 					arrow={false}
 					trigger="hover"
 					color={'transparent'}
+					rootClassName="tooltip-wrapper"
 				>
 					<div
 						className={`option ${

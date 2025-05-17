@@ -1,4 +1,4 @@
-import React, { memo, useState, useContext, useEffect, useCallback } from 'react';
+import { memo, useState, useContext, useEffect, useCallback } from 'react';
 import '../../../assets/scss/forms/index.scss';
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import { useNavigate } from 'react-router-dom';

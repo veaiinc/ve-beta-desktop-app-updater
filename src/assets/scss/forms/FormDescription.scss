@@ -34,8 +34,7 @@
 		width: 100%;
 		padding: 16px;
 	}
-
-	.form-analytics {
+	.answer .form-analytics {
 		height: 100%;
 		overflow-y: auto;
 		padding: 0;
@@ -220,6 +219,9 @@
 	}
 
 	&.link {
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
 		a {
 			color: #1890ff;
 			text-decoration: none;
