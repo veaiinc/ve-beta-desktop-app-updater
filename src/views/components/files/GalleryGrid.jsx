@@ -27,6 +27,23 @@ const sortOptions = [
 	{ label: 'Images Count', value: 'imagesCount', sortType: -1 },
 ];
 
+const toolTipStyles = {
+	display: 'inline-flex',
+	padding: '10px',
+	flexDirection: 'column',
+	alignItems: 'flex-start',
+	gap: '8px',
+	borderRadius: '8px',
+	border: '1px solid var(--stroke, #2c2d2e)',
+	background: 'var(--popup, #202123)',
+	boxShadow: '0px 0px 30px 0px rgba(0, 0, 0, 0.12)',
+	color: 'var(--primary-font, #f2f2f3)',
+	fontFamily: 'var(--primary-font-family)',
+	fontSize: '11px',
+	fontStyle: 'normal',
+	fontWeight: '500',
+	lineHeight: 'normal',
+};
 const GalleryGrid = ({
 	handleCreateNewGallery,
 	handleNavigateGallery,
@@ -253,7 +270,7 @@ const GalleryGrid = ({
 								<div
 									className="card-item"
 									key={index}
-									onClick={() => handleNavigateGallery(item)}
+									// onClick={() => handleNavigateGallery(item)}
 								>
 									<div
 										className="card-item-style content-wrapper"
@@ -286,8 +303,15 @@ const GalleryGrid = ({
 								</span>
 							</span> */}
 									</div>
-									<Tooltip title={item?.title || ''} placement="bottom">
-										<span className="gallery-item-title">{item?.title}</span>
+									<Tooltip
+										title={item?.title || ''}
+										placement="bottom"
+										arrow={false}
+										overlayInnerStyle={toolTipStyles}
+									>
+										<span className="gallery-item-title galleryTitleTooltip">
+											{item?.title}
+										</span>
 									</Tooltip>
 								</div>
 							))}
