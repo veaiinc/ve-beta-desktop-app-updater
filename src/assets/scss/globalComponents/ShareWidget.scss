@@ -69,8 +69,11 @@
 					background: var(--card, #18191b);
 					flex-grow: 1;
 
-					.domain-section {
-						overflow: hidden;
+					.domain-section-wrapper {
+						display: flex;
+						align-items: center;
+						gap: 8px;
+						width: 100%;
 						color: var(--primary-font, #f2f2f3);
 						text-overflow: ellipsis;
 						font-family: var(--primary-font-family);
@@ -78,6 +81,23 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+						cursor: pointer;
+						.domain-section {
+							flex: 1;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							white-space: nowrap;
+						}
+
+						.copy-icon {
+							width: 20px;
+							height: 20px;
+							flex-shrink: 0;
+
+							&:hover {
+								opacity: 0.8;
+							}
+						}
 					}
 
 					.slug-display {

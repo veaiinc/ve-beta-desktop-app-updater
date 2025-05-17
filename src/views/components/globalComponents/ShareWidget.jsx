@@ -2,6 +2,7 @@ import { memo } from 'react';
 import ReactModal from '../modalsV2/index';
 import '../../../assets/scss/globalComponents/ShareWidget.scss';
 import { ReactComponent as CrossWhite } from '../../../assets/svg/Settings/CrossWhite.svg';
+import { ReactComponent as CopyIcon } from '../../../assets/svg/ai_assistant/url.svg';
 import { message } from '../globalComponents/CustomToast';
 
 const ShareWidget = ({
@@ -73,7 +74,13 @@ const ShareWidget = ({
 					<div className="link-container">
 						<div className="link-container-wrapper">
 							<div className="link-input-container">
-								<div className="domain-section">{shareUrl}</div>
+								<div className="domain-section-wrapper" onClick={handleCopyLink}>
+									<div className="domain-section">{shareUrl}</div>
+									<CopyIcon
+										className="copy-icon cursor-pointer"
+										title="Copy to clipboard"
+									/>
+								</div>
 							</div>
 						</div>
 					</div>
