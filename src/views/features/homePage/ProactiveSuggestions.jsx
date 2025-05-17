@@ -698,17 +698,19 @@ const ProactiveSuggestions = () => {
 			{info?.isListView ? (
 				<div className="proactiveSuggestionsContainer">
 					{info?.loading ? (
-						skeletonLoaders?.map((_, index) => (
-							<Skeleton
-								width="739px"
-								height="100px"
-								style={{
-									'--highlight-color': 'gray',
-									'--base-color': 'transparent',
-								}}
-								key={index}
-							/>
-						))
+						<div className="skeleton-container">
+							{skeletonLoaders?.map((_, index) => (
+								<Skeleton
+									width="739px"
+									height="100px"
+									style={{
+										'--highlight-color': 'gray',
+										'--base-color': 'transparent',
+									}}
+									key={index}
+								/>
+							))}
+						</div>
 					) : aiSuggestedPendingActions?.pendingActions?.length === 0 ? (
 						<div className="no-data" style={{ color: 'var(--primary-font)' }}>
 							No data available

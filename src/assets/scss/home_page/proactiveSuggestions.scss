@@ -567,6 +567,13 @@
 		width: 100%;
 		flex-grow: 1;
 		overflow: auto;
+
+		.skeleton-container {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			margin: auto;
+		}
 		.list-view-container {
 			height: 100%;
 			width: 100%;

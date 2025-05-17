@@ -6,7 +6,6 @@ import '../../../assets/scss/notes/askAiButton.scss';
 import { ReactComponent as ArrowSvg } from '../../../assets/svg/file/arrow.svg';
 import { ReactComponent as LensSvg } from '../../../assets/svg/notes/lens.svg';
 import { ReactComponent as VeSvg } from '../../../assets/svg/ve.svg';
-import useChatStream from '../../hooks/useChatStream';
 import Spinner from '../loaders/Spinner';
 
 const buttonStyle = {

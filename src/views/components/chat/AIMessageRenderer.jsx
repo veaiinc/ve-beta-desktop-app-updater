@@ -150,11 +150,10 @@ const AIMessageRenderer = ({
 			</div>
 			{info?.activeTab == 'response' ? (
 				<>
-					{/* {(!messageData?.stream_end || !messageData?.message?.length > 0) &&
-						(messageData?.processing === 'Deep Search' ||
-							messageData?.processing === 'Deep Research') && (
-							<ResearchWidget messageData={messageData} />
-						)} */}
+					{/* {(messageData?.processing === 'Deep Search' ||
+						messageData?.processing === 'Deep Research') && (
+						<ResearchWidget messageData={messageData} />
+					)} */}
 
 					<AIMessage
 						text={messageData?.message}

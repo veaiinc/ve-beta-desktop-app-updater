@@ -7,9 +7,8 @@
 // 	align-self: stretch;
 // 	border-radius: 16px;
 // 	border: 1px solid var(--stroke, #2b2e31);
-// 	background: var(--popup, #18191b);
+// 	background: var(--card, #18191b);
 // 	max-height: 400px;
-
 // 	.cot-wrapper {
 // 		margin-top: 0;
 // 	}
@@ -40,5 +39,22 @@
 // 		gap: 36px;
 // 		align-self: stretch;
 // 		overflow-y: auto;
+// 		transition: max-height 0.3s ease-in-out;
+
+// 		.loader-container {
+// 			display: flex;
+// 			align-items: center;
+// 			gap: 12px;
+
+// 			.loader-text {
+// 				color: var(--primary-font, #f2f2f3);
+// 				font-family: var(--chat-primary-font-family);
+// 				font-size: 15px;
+// 				font-style: normal;
+// 				font-weight: 400;
+// 				line-height: 24px;
+// 				letter-spacing: 0.2px;
+// 			}
+// 		}
 // 	}
 // }
