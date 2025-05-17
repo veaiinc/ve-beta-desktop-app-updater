@@ -9,7 +9,7 @@ const CategorySelector = ({ options, value, onChange, className }) => {
 	});
 
 	useEffect(() => {
-		const formattedOptions = options.map((option) => ({
+		const formattedOptions = options?.map((option) => ({
 			value: option?._id,
 			label: option?.name,
 			color: option?.color,
