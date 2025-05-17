@@ -36,6 +36,7 @@ const CombinedChainOfThought = ({ data }) => {
 								showLastIndicatorLine={
 									index !== deepSearches?.length - 1 || deepResearches?.length > 0
 								}
+								streamEnd={true}
 							/>
 						);
 					})}

@@ -5,14 +5,14 @@ import { ReactComponent as CurveSvg } from '../../../../assets/svg/ai_agents/cur
 import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
 import Sources from './Sources';
 
-const DeepSearchChainOfThought = ({ data, showLastIndicatorLine = false }) => {
+const DeepSearchChainOfThought = ({ data, showLastIndicatorLine = false, streamEnd = false }) => {
 	return (
 		<div className="cot-wrapper">
 			<div className="cot-container">
 				{data?.cot?.map((item, index) => {
 					const { readings, sub_query } = item;
 					return (
-						<div className="cot" key={index}>
+						<div className={`cot ${!streamEnd ? 'animate-fade-in' : ''} `} key={index}>
 							<div className="logo-container">
 								<div className="indicator" />
 							</div>

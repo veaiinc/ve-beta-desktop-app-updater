@@ -1,11 +1,11 @@
 import { memo } from 'react';
 const WebSvg = ({ selected = false, active }) => {
-	let strokeColor = selected ? 'black' : 'var(--secondary-font)';
+	let strokeColor = selected ? 'var(--primary-button-font)' : 'var(--secondary-font)';
 
 	if (active) {
 		strokeColor = 'var(--primary-button)';
 	} else if (active == false) {
-		strokeColor = 'var(--primary-font)';
+		strokeColor = 'var(--secondary-font)';
 	}
 
 	return (
