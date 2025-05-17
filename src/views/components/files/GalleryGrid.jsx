@@ -270,7 +270,7 @@ const GalleryGrid = ({
 								<div
 									className="card-item"
 									key={index}
-									// onClick={() => handleNavigateGallery(item)}
+									onClick={() => handleNavigateGallery(item)}
 								>
 									<div
 										className="card-item-style content-wrapper"
