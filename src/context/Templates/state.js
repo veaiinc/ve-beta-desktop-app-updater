@@ -2387,7 +2387,15 @@ export const TemplatesState = (props) => {
 				});
 				return;
 			}
-			const { page = 1, limit = 10, from, to, sortType, sortBy } = payload || {};
+			const {
+				page = 1,
+				limit = 10,
+				from,
+				to,
+				sortType,
+				sortBy,
+				isFavourited,
+			} = payload || {};
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 
@@ -2402,6 +2410,7 @@ export const TemplatesState = (props) => {
 			if (from) filterParams?.push(`from=${from}`);
 			if (to) filterParams?.push(`to=${to}`);
 			if (sortType && sortBy) filterParams?.push(`sortType=${sortType}&sortBy=${sortBy}`);
+			if (isFavourited) filterParams?.push(`isFavourited=${isFavourited}`);
 
 			const queryString = new URLSearchParams({ page, limit })?.toString();
 			const fullQuery = `${queryString}&${filterParams?.join('&')}`;
@@ -2525,6 +2534,18 @@ export const TemplatesState = (props) => {
 			console.log('error==>getAiQuestions', error);
 		}
 	};
+	const updateAiQuestions = async (payload, id = null) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/user-persona/${id}/user-response`;
+			const response = await Service.fetchPut(url, payload, usertoken, 'tenant');
+			return response;
+		} catch (error) {
+			console.log('error==>updateAiQuestions', error);
+		}
+	};
+
 	const updateCitationChunks = async (payload) => {
 		try {
 			dispatch({ type: Actions?.UPDATE_CITATION_CHUNKS, payload });
@@ -2620,5 +2641,6 @@ export const TemplatesState = (props) => {
 		getFormResponseAnalytics,
 		pendingActionsFeedback,
 		getAiQuestions,
+		updateAiQuestions,
 	};
 };

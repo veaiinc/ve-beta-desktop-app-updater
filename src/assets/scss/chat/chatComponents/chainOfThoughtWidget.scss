@@ -8,8 +8,9 @@
 	border-radius: 16px;
 	border: 1px solid var(--stroke, #2b2e31);
 	background: var(--card, #18191b);
-	max-height: 400px;
+	overflow: hidden;
 	margin-bottom: 16px;
+	transition: max-height 0.3s ease-in-out;
 
 	.cot-wrapper {
 		margin-top: 0;
@@ -19,22 +20,36 @@
 		display: flex;
 		padding: 18px 16px;
 		align-items: center;
-		gap: 8px;
-		align-self: stretch;
+		justify-content: space-between;
 		border-bottom: 1px solid var(--stroke, #2b2e31);
-		.icon-container {
-			height: 20px;
+		width: 100%;
+		cursor: pointer;
+		.left-container {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			.icon-container {
+				height: 20px;
+			}
+			.text-container {
+				position: relative;
+				top: 1px;
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--chat-primary-font-family);
+				font-size: 15px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				letter-spacing: 0.2px;
+			}
 		}
-		.text-container {
-			position: relative;
-			top: 1px;
-			color: var(--primary-font, #f2f2f3);
-			font-family: var(--chat-primary-font-family);
-			font-size: 15px;
-			font-style: normal;
-			font-weight: 400;
-			line-height: normal;
-			letter-spacing: 0.2px;
+
+		.right-container {
+			height: 18px;
+			svg {
+				width: 18px;
+				height: 18px;
+			}
 		}
 	}
 

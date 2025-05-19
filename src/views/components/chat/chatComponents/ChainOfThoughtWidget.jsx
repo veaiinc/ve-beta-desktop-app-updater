@@ -3,6 +3,7 @@ import '../../../../assets/scss/chat/chatComponents/chainOfThoughtWidget.scss';
 import { ReactComponent as TickSvg } from '../../../../assets/svg/ai_agents/tick.svg';
 import DeepResearchChainOfThought from './DeepResearchChainOfThought';
 import DeepSearchChainOfThought from './DeepSearchChainOfThought';
+import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 
 const ChainOfThoughtWidget = ({ messageData }) => {
 	const [info, setInfo] = useState({
@@ -61,23 +62,35 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 	) {
 		return null;
 	}
+
+	const chainOfThoughtCompleted = messageData?.message?.length > 0 || messageData?.stream_end;
+	const maxHeight = chainOfThoughtCompleted ? (info?.isExpanded ? '400px' : '57px') : '400px';
+
 	return (
-		<div className="chain-of-thought-widget-container">
-			<div className="widget-header">
-				<div className="icon-container">
-					{(messageData?.message?.length > 0 || messageData?.stream_end) && <TickSvg />}
-				</div>
-				<div className="text-container">{text}</div>
-			</div>
+		<div
+			className="chain-of-thought-widget-container"
+			style={{
+				maxHeight,
+			}}
+		>
 			<div
-				className="widget-content-container"
-				ref={contentContainerRef}
-				// style={{
-				// 	maxHeight: info?.isExpanded
-				// 		? `${contentContainerRef?.current?.scrollHeight}px`
-				// 		: '400px',
-				// }}
+				className="widget-header"
+				onClick={() => setInfo({ isExpanded: !info?.isExpanded })}
 			>
+				<div className="left-container">
+					<div className="icon-container">{chainOfThoughtCompleted && <TickSvg />}</div>
+					<div className="text-container">{text}</div>
+				</div>
+				<div
+					className="right-container"
+					style={{
+						transform: info?.isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)',
+					}}
+				>
+					{chainOfThoughtCompleted && <ChevronRightThinSvg />}
+				</div>
+			</div>
+			<div className="widget-content-container" ref={contentContainerRef}>
 				<div className="content-container">
 					{messageData?.deepResearch && (
 						<DeepResearchChainOfThought data={messageData?.deepResearch} />

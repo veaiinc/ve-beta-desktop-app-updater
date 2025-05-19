@@ -76,6 +76,16 @@ const filterGroups = [
 			{ id: 14, title: 'Last 30 days', value: 'last30days' },
 		],
 	},
+	// {
+	// 	title: 'Bookmark',
+	// 	options: [
+	// 		{
+	// 			id: 15,
+	// 			title: 'Favourite',
+	// 			value: true,
+	// 		},
+	// 	],
+	// },
 ];
 
 const infiniteScrollStyle = {
@@ -138,11 +148,11 @@ const ProactiveSuggestions = () => {
 		}
 	}, [aiSuggestedPendingActions]);
 
-	useEffect(() => {
-		if (!aiQuestions) {
-			getAiQuestions();
-		}
-	}, []);
+	// useEffect(() => {
+	// 	if (!aiQuestions) {
+	// 		getAiQuestions();
+	// 	}
+	// }, []);
 
 	const handleKeyDown = (e) => {
 		if (e?.key === 'ArrowUp' || e?.key === 'ArrowLeft') {
@@ -219,7 +229,7 @@ const ProactiveSuggestions = () => {
 		const selectedPriority = getFilterValues('Priority Level');
 		const selectedReadStatus = getFilterValues('Read Status', 'All');
 		const selectedConfidenceScore = getFilterValues('Confidence level');
-
+		const selectedBookmark = getFilterValues('Bookmark');
 		const { from, to } = getDateRangeFromFilters(info?.selectedFilters);
 
 		return {
@@ -230,6 +240,7 @@ const ProactiveSuggestions = () => {
 			...(from !== undefined && to !== undefined && { from, to }),
 			sortType: info?.sortOptions[info?.sortBy]?.sortType,
 			sortBy: info?.sortBy,
+			// ...(selectedBookmark.length && { isFavourited: selectedBookmark?.[0] }),
 		};
 	}, [payload, info?.selectedFilters, info?.sortOptions, info?.sortBy]);
 

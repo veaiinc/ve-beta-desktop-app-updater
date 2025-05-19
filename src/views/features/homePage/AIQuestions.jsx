@@ -35,14 +35,15 @@ const AIQuestions = () => {
 	const groupedCards = useMemo(() => {
 		const groups = {};
 
-		questions?.forEach((question) => {
-			const label = getRelativeDayLabel(question?.createdAt);
+		aiQuestions?.data?.forEach((item) => {
+			const label = getRelativeDayLabel(item?.createdAt);
 			if (!groups[label]) groups[label] = [];
-			groups[label]?.push(question);
+			groups[label]?.push(item);
 		});
 
 		return groups;
-	}, []);
+	}, [aiQuestions?.data]);
+
 	return (
 		<div className="ai-questions-container">
 			{/* <InfiniteScroll
@@ -80,7 +81,11 @@ const AIQuestions = () => {
 			))}
 			{/* </div> */}
 			{/* </InfiniteScroll> */}
-			<AIQuestionsModal open={info?.isModalOpen} onClose={handleCloseModal} />
+			<AIQuestionsModal
+				open={info?.isModalOpen}
+				onClose={handleCloseModal}
+				data={info?.selectedCard}
+			/>
 		</div>
 	);
 };
