@@ -352,7 +352,7 @@ const MyProfile = () => {
 						qrcode={qrcode}
 					/>
 				</div> */}
-				<div className="theme-container">
+				{/* <div className="theme-container">
 					<div className="theme-container-item">
 						<p>Change Theme</p>
 						<div className="theme-container-item-content">
@@ -375,7 +375,7 @@ const MyProfile = () => {
 							))}
 						</div>
 					</div>
-				</div>
+				</div> */}
 				{/* Temporary Hide */}
 				<Notifications />
 
