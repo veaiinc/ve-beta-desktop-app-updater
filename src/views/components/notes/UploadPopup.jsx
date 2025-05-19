@@ -47,7 +47,7 @@ const uploadCategoryOptions = [
 	},
 ];
 
-const UploadPopup = ({ closePopup, setLocalCoverImage }) => {
+const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 	const { noteId } = useParams();
 	const {
 		notes: { notesCoverImageLinkUpload, notesCoverImageFileUpload },
@@ -275,14 +275,14 @@ const UploadPopup = ({ closePopup, setLocalCoverImage }) => {
 				) : (
 					<div>
 						<div className="imagesSearchContainer">
-							{/* <SearchIcon />
+							<SearchIcon />
 							<input
 								className="imagesSearchInput"
 								autoFocus
 								type="text"
 								// onChange={handleImageSearch}
 								placeholder="Search workspace images"
-							/> */}
+							/>
 						</div>
 
 						<InfiniteScroll
@@ -316,27 +316,35 @@ const UploadPopup = ({ closePopup, setLocalCoverImage }) => {
 
 	return (
 		<div className="uploadPopupContainer">
-			<header className="uploadPopupHeader">
-				{uploadCategoryOptions.map((uploadCategory) => (
-					<div
-						key={uploadCategory.id}
-						onClick={() =>
-							setInfo((prev) => ({
-								...prev,
-								selectedUploadCategory: uploadCategory.value,
-							}))
-						}
-						className={`uploadCategoryLabel ${
-							info.selectedUploadCategory === uploadCategory.value ? 'active' : ''
-						}`}
-					>
-						{uploadCategory.label}
+			{uploadType === 'cover' ? (
+				<>
+					<header className="uploadPopupHeader">
+						{uploadCategoryOptions.map((uploadCategory) => (
+							<div
+								key={uploadCategory.id}
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										selectedUploadCategory: uploadCategory.value,
+									}))
+								}
+								className={`uploadCategoryLabel ${
+									info.selectedUploadCategory === uploadCategory.value
+										? 'active'
+										: ''
+								}`}
+							>
+								{uploadCategory.label}
+							</div>
+						))}
+					</header>
+					<div className="uploadPopupBody">
+						{uploadCategoryOptionsUI[info.selectedUploadCategory]}
 					</div>
-				))}
-			</header>
-			<div className="uploadPopupBody">
-				{uploadCategoryOptionsUI[info.selectedUploadCategory]}
-			</div>
+				</>
+			) : (
+				<></>
+			)}
 		</div>
 	);
 };

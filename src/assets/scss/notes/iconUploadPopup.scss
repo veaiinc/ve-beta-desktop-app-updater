@@ -1,0 +1,50 @@
+.iconUploadPopupContainer {
+	width: 550px;
+	height: fit-content;
+	border-radius: 12px;
+	background-color: var(--popup);
+
+	.iconUploadPopupHeader {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 12px;
+		border-bottom: 1px solid rgba(124, 124, 132, 0.15);
+		margin: 0;
+
+		.iconTypeOption {
+			color: var(--secondary-font, #787e87);
+			font-family: var(--primary-font-family);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+			transition: color 0.2s ease-in;
+			padding: 12px;
+			margin: 0;
+
+			&.active {
+				color: var(--primary-font, #f2f2f3);
+				position: relative;
+
+				&::after {
+					content: '';
+					position: absolute;
+					bottom: -2px;
+					left: 50%;
+					transform: translateX(-50%);
+					width: 24px;
+					height: 3px;
+					background-color: var(--primary-font);
+					border-radius: 12px;
+				}
+			}
+		}
+	}
+
+	.iconUploadPopupBody {
+		width: 100%;
+		padding: 12px;
+	}
+}
