@@ -170,20 +170,23 @@ const CreateTaskPopup = ({
 		}));
 	}, []);
 
-	const handleEditSubTask = useCallback((index) => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			isSubTaskEditing: true,
-			showSubTaskCreate: true,
-			editingSubTaskIndex: index, // Store the index being edited
-			subTaskTitle: prevInfo?.childTasks[index]?.title,
-			subTaskDescription: prevInfo?.childTasks[index]?.description,
-			subTaskAssignedTo: prevInfo?.childTasks[index]?.assignedTo || [],
-			subTaskDueDate: prevInfo?.childTasks[index]?.dueDate,
-			subTaskPriority: prevInfo?.childTasks[index]?.priority,
-			subTaskStatus: prevInfo?.childTasks[index]?.status,
-		}));
-	}, []);
+	const handleEditSubTask = useCallback(
+		(index) => {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				isSubTaskEditing: true,
+				showSubTaskCreate: true,
+				editingSubTaskIndex: index, // Store the index being edited
+				subTaskTitle: prevInfo?.childTasks[index]?.title,
+				subTaskDescription: prevInfo?.childTasks[index]?.description,
+				subTaskAssignedTo: prevInfo?.childTasks[index]?.assignedTo || [],
+				subTaskDueDate: prevInfo?.childTasks[index]?.dueDate,
+				subTaskPriority: prevInfo?.childTasks[index]?.priority,
+				subTaskStatus: prevInfo?.childTasks[index]?.status,
+			}));
+		},
+		[info?.childTasks],
+	);
 
 	return (
 		<ReactModal
@@ -260,7 +263,7 @@ const CreateTaskPopup = ({
 						parseValue={true}
 						removeBtn={true}
 					/>
-					{!isSubTask ? (
+					{!isSubTask && info?.childTasks?.length < 1 ? (
 						<div
 							className="task-icon-wrapper"
 							onClick={() => updateModalInfo('showSubTaskCreate', true)}
@@ -306,6 +309,7 @@ const CreateTaskPopup = ({
 								onOptionClick={(value) => updateModalInfo('subTaskStatus', value)}
 								title={'Status'}
 								colors={colors}
+								setDefault={info?.isSubTaskEditing ? false : true}
 							/>
 							<Select
 								value={info?.subTaskPriority}
