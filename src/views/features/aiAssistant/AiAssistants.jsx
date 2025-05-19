@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import QuickActions from '../../components/globalComponents/QuickActions';
+import AgentsHeader from '../knowledgeAgent/AgentsHeader';
 
 const AiAssistants = () => {
 	const navigate = useNavigate();
@@ -63,17 +63,6 @@ const AiAssistants = () => {
 		}
 	}, [moreAiAssistants]);
 
-	const CreateNewAiAssistant = useCallback(async () => {
-		setInfo((prev) => ({ ...prev, creatingNewAiAssistantLoading: true }));
-		const aiAssistantId = await createNewAiAssistant({
-			name: info?.aiAssistantName,
-		});
-		if (aiAssistantId) {
-			setInfo((prev) => ({ ...prev, aiAssistantId }));
-			navigate(`/ai-assistant/${aiAssistantId}/edit`);
-		}
-	}, []);
-
 	const getMoreAiAssistants = useCallback(() => {
 		if (info?.hasNextPage) {
 			getAiAssistants(info?.currentPage + 1, 20, true);
@@ -91,39 +80,7 @@ const AiAssistants = () => {
 
 	return (
 		<div className="aiAssistantsParentContainer" style={{ paddingRight: 10 }}>
-			<div className="pageHeadContainer">
-				<div className="headTitleContainer">
-					<span className="lineOne">Create</span>
-					<span className="lineTwo">AI Assistants</span>
-				</div>
-				<QuickActions />
-
-				{/* <div className="headActionContainer" onClick={CreateNewAiAssistant}>
-					{info?.creatingNewAiAssistantLoading ? (
-						<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-							Building AI Assistant <Spinner width="18px" height="18px" />
-						</span>
-					) : (
-						<span>Create an AI Assistant</span>
-					)}
-				</div> */}
-			</div>
-
-			{/* <div className="promtsContainer">
-				<div className="promptHeader">
-					<span>Suggested Prompt</span>
-					<Sync />
-				</div>
-
-				<div className="promptCardsContainer">
-					{staticCreateActions?.map((ele, index) => (
-						<div key={index} className="createStaticActionsCards">
-							<span className="createStaticActionsCardsTitle">{ele?.type}</span>
-							<span className="createStaticActionsCardsSubTitle">{ele?.prompt}</span>
-						</div>
-					))}
-				</div>
-			</div> */}
+			<AgentsHeader />
 
 			<div className="displayAgenstsContainer">
 				<div className="titleContainer">

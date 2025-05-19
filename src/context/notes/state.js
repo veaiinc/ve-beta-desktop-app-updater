@@ -20,6 +20,8 @@ import {
 	notesImageBlockDeleteMutation,
 	notesLinkUploadMutation,
 	notesCoverImageFileUploadMutation,
+	notesIconUploadMutation,
+	notesDeleteCoverImageMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -502,6 +504,102 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const notesIconUpload = async ({ icon, pageId }) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+
+			const iconImage = {
+				id: icon?.id,
+				native: icon?.native,
+				unified: icon?.unified,
+			};
+
+			const payload = {
+				pageId,
+				input: {
+					iconImage: JSON.stringify(iconImage),
+				},
+			};
+
+			const response = await service.mutation(
+				notesIconUploadMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.error('error==>notesCoverImageFileUpload', error);
+			return false;
+		}
+	};
+
+	const notesDeleteCoverImage = async ({ pageId }) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+
+			const payload = {
+				pageId,
+				imageInput: {
+					type: 'cover',
+				},
+			};
+
+			const response = await service.mutation(
+				notesDeleteCoverImageMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.error('error==>notesDeleteCoverImage', error);
+			return false;
+		}
+	};
+
+	const notesDeleteIcon = async ({ pageId }) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+
+			const payload = {
+				pageId,
+				imageInput: {
+					type: 'icon',
+				},
+			};
+
+			const response = await service.mutation(
+				notesDeleteCoverImageMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.error('error==>notesDeleteIcon', error);
+			return false;
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -523,5 +621,8 @@ export const NotesState = (props) => {
 		deleteNotesImageBlock,
 		notesCoverImageLinkUpload,
 		notesCoverImageFileUpload,
+		notesIconUpload,
+		notesDeleteCoverImage,
+		notesDeleteIcon,
 	};
 };

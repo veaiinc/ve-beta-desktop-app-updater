@@ -6,7 +6,7 @@ import { useCreateBlockNote } from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
 import NoteToolbar from '../../components/notes/NoteToolbar';
 import ShareComponent from '../../components/notes/ShareComponent';
-import { useEffect, memo, useContext, useCallback, useState, useRef } from 'react';
+import { useEffect, memo, useContext, useCallback, useState, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
@@ -14,6 +14,7 @@ import CustomTextArea from '../../components/globalComponents/CustomTextArea';
 import MoreOptions from '../../components/notes/MoreOptions';
 import { StarSvg } from '../../../assets/svg/notes/Star';
 import { ReactComponent as DangerSvg } from '../../../assets/svg/notes/danger.svg';
+import { ReactComponent as CrossIcon } from '../../../assets/svg/notes/cross.svg';
 import { message } from '../../components/globalComponents/CustomToast';
 import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
@@ -25,6 +26,44 @@ import { ReactComponent as RestoreIcon } from '../../../assets/svg/notes/restore
 import { Tooltip } from 'antd';
 import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
+import { pasteHandler } from './pasteHandler';
+import IconUploadPopup from '../../components/notes/IconUploadPopup';
+
+const initialState = {
+	timeouts: {}, // Single timeouts object to store all timeouts
+	title: '',
+	updatedAt: '',
+	notesConfigs: {
+		smallText: false,
+		fullWidth: false,
+	},
+	isFavorite: false,
+	loading: true,
+	aiResonse: '',
+	myAccess: 'view',
+	isDeleted: false,
+	lastUpdated: null,
+	deleteLoading: false,
+	updatedBy: null,
+	showUploadPopup: false,
+	showCustomizeAppearance: false,
+	coverImageError: false,
+	localCoverImage: false, // cover image or link that is selected/uploaded before refreshing the page
+	uploadType: null, // can be 'cover' or 'icon'
+	showRemoveCoverBtn: false,
+	showRemoveIconBtn: false,
+	selectedEmoji: null,
+	coverImageRemoved: false,
+	iconImageRemoved: false,
+};
+
+const accessLevels = {
+	full: 0,
+	edit: 1,
+	view: 2,
+};
+
+let userId = null;
 
 const getRandomWidth = () => {
 	const min = 70;
@@ -37,19 +76,12 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 	height: 14,
 }));
 
-const accessLevels = {
-	full: 0,
-	edit: 1,
-	view: 2,
-};
-
-let userId = null;
-
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const { noteId } = useParams();
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const prevDocRef = useRef([]);
+	const originalFaviconRef = useRef(null);
 	const { createWebSocketConnection, sendMessage } = useChatStream();
 
 	const {
@@ -68,61 +100,54 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			globalAccess,
 			uploadNotesImageBlock,
 			deleteNotesImageBlock,
+			notesDeleteCoverImage,
+			notesDeleteIcon,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 
-	const [info, setInfo] = useState({
-		timeouts: {}, // Single timeouts object to store all timeouts
-		title: '',
-		updatedAt: '',
-		notesConfigs: {
-			smallText: false,
-			fullWidth: false,
-		},
-		isFavorite: false,
-		loading: true,
-		aiResonse: '',
-		myAccess: 'view',
-		isDeleted: false,
-		lastUpdated: null,
-		deleteLoading: false,
-		updatedBy: null,
-		showUploadPopup: false,
-		showCustomizeAppearance: false,
-		coverImageError: false,
-		localCoverImage: false, // cover image or link that is selected/uploaded before refreshing the page
-	});
+	const [info, setInfo] = useState(initialState);
 
-	const coverImage = info?.localCoverImage
-		? info?.localCoverImage
-		: info?.coverImageError
-		? false
-		: notesPageData?.data?.coverImage ?? false;
+	// Derived states
+	const coverImage = useMemo(() => {
+		if (info?.coverImageRemoved) return false;
+		return info?.localCoverImage
+			? info.localCoverImage
+			: info?.coverImageError
+			? false
+			: notesPageData?.data?.coverImage ?? false;
+	}, [
+		info?.localCoverImage,
+		notesPageData?.data?.coverImage,
+		info?.coverImageError,
+		info?.coverImageRemoved,
+	]);
 
-	async function uploadFile(file) {
-		const response = await uploadNotesImageBlock(
-			{
-				pageId: noteId,
-				uploadPageBlockImageInput: {
-					imageName: file?.name,
-					imageSize: file?.size,
-				},
-			},
-			file,
-		);
+	const iconImage = useMemo(() => {
+		if (info?.iconImageRemoved) return false;
+		let icon = notesPageData?.data?.iconImage;
 
-		if (response?.[0]) {
-			await new Promise((resolve) => setTimeout(resolve, 5000));
-			return response?.[1];
+		try {
+			if (info?.selectedEmoji?.native) {
+				return { native: info.selectedEmoji.native };
+			}
+
+			if (typeof icon === 'string') {
+				icon = JSON.parse(icon);
+				if (typeof icon === 'string') {
+					icon = JSON.parse(icon);
+				}
+			}
+
+			if (icon?.native) {
+				return icon;
+			}
+		} catch (e) {
+			console.error('Failed to parse iconImage:', e);
 		}
 
-		return undefined;
-	}
-
-	const setLinkUploadedInfo = (link) => {
-		setInfo((prev) => ({ ...prev, uploadedLink: link }));
-	};
+		return null;
+	}, [notesPageData?.data?.iconImage, info?.selectedEmoji?.native]);
 
 	const editor = useCreateBlockNote({
 		tables: {
@@ -132,6 +157,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			headers: true,
 		},
 		uploadFile,
+		pasteHandler: pasteHandler,
 	});
 
 	useEffect(() => {
@@ -155,6 +181,49 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		notesContainer.addEventListener('keydown', handleKeyDown);
 		return () => notesContainer.removeEventListener('keydown', handleKeyDown);
 	}, []);
+
+	useEffect(() => {
+		if (originalFaviconRef.current === null) {
+			const originalFaviconTag = document.querySelector("link[rel~='icon']");
+			originalFaviconRef.current = originalFaviconTag?.href ?? null;
+		}
+
+		if (!iconImage?.native) {
+			document.querySelectorAll("link[rel~='icon']").forEach((el) => el.remove());
+
+			if (originalFaviconRef.current) {
+				const link = document.createElement('link');
+				link.rel = 'icon';
+				link.href = originalFaviconRef.current;
+				document.head.appendChild(link);
+			}
+			return;
+		}
+
+		const canvasSize = 256;
+		const canvas = document.createElement('canvas');
+		canvas.width = canvasSize;
+		canvas.height = canvasSize;
+
+		const ctx = canvas.getContext('2d');
+		if (!ctx) return;
+
+		ctx.font = '200px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillText(iconImage.native, canvasSize / 2, canvasSize / 2);
+
+		const faviconUrl = canvas.toDataURL();
+
+		// Remove existing favicons
+		document.querySelectorAll("link[rel~='icon']").forEach((el) => el.remove());
+
+		// Create and append new favicon
+		const link = document.createElement('link');
+		link.rel = 'icon';
+		link.href = faviconUrl;
+		document.head.appendChild(link);
+	}, [iconImage]);
 
 	useEffect(() => {
 		getNotesAccess({ pageId: noteId });
@@ -472,6 +541,59 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		setInfo((prev) => ({ ...prev, coverImageError: true }));
 	};
 
+	async function uploadFile(file) {
+		const response = await uploadNotesImageBlock(
+			{
+				pageId: noteId,
+				uploadPageBlockImageInput: {
+					imageName: file?.name,
+					imageSize: file?.size,
+				},
+			},
+			file,
+		);
+
+		if (response?.[0]) {
+			await new Promise((resolve) => setTimeout(resolve, 5000));
+			return response?.[1];
+		}
+
+		return undefined;
+	}
+
+	const handleRemoveCover = async () => {
+		const response = await notesDeleteCoverImage({ pageId: noteId });
+		const success = response?.[0];
+		if (success) {
+			message.success('Cover image removed successfully');
+			setInfo((prev) => ({
+				...prev,
+				showRemoveCoverBtn: false,
+				localCoverImage: false,
+				coverImageError: false,
+				coverImageRemoved: true,
+			}));
+		} else {
+			message.error('Failed to remove cover image');
+		}
+	};
+
+	const handleRemoveIcon = async () => {
+		const response = await notesDeleteIcon({ pageId: noteId });
+		const success = response?.[0];
+		if (success) {
+			message.success('Icon removed successfully');
+			setInfo((prev) => ({
+				...prev,
+				showRemoveIconBtn: false,
+				selectedEmoji: null,
+				iconImageRemoved: true,
+			}));
+		} else {
+			message.error('Failed to remove icon');
+		}
+	};
+
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
 			{info?.title && (
@@ -570,12 +692,28 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				) : (
 					<>
 						{coverImage && (
-							<div className="notes-cover-image-container">
+							<div
+								onMouseEnter={() =>
+									setInfo((prev) => ({ ...prev, showRemoveCoverBtn: true }))
+								}
+								onMouseLeave={() =>
+									setInfo((prev) => ({ ...prev, showRemoveCoverBtn: false }))
+								}
+								className="notes-cover-image-container"
+							>
 								<img
 									src={coverImage}
 									onError={handleCoverImageError}
 									alt="cover image"
 								/>
+								{info?.showRemoveCoverBtn && (
+									<button
+										onClick={handleRemoveCover}
+										className="remove-cover-btn"
+									>
+										Remove
+									</button>
+								)}
 							</div>
 						)}
 						<div
@@ -598,27 +736,48 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 								}}
 								placement="bottomLeft"
 								title={
-									info?.showUploadPopup ? (
+									info?.showUploadPopup && info?.uploadType === 'cover' ? (
 										<UploadPopup
 											closePopup={() =>
 												setInfo((prev) => ({
 													...prev,
 													showUploadPopup: false,
+													showCustomizeAppearance: false,
 												}))
 											}
 											setLocalCoverImage={(coverImage) =>
 												setInfo((prev) => ({
 													...prev,
 													localCoverImage: coverImage,
+													coverImageRemoved: false,
+												}))
+											}
+											uploadType={info?.uploadType}
+										/>
+									) : info?.showUploadPopup && info?.uploadType === 'icon' ? (
+										<IconUploadPopup
+											setSelectedEmoji={(emoji) =>
+												setInfo((prev) => ({
+													...prev,
+													selectedEmoji: emoji,
+												}))
+											}
+											closePopup={() =>
+												setInfo((prev) => ({
+													...prev,
+													showUploadPopup: false,
+													showCustomizeAppearance: false,
 												}))
 											}
 										/>
 									) : (
 										<CustomizeAppearance
-											showUploadPopup={() =>
+											// uploadType can be 'cover' or 'icon'
+											showUploadPopup={(uploadType) =>
 												setInfo((prev) => ({
 													...prev,
 													showUploadPopup: true,
+													uploadType,
 												}))
 											}
 										/>
@@ -629,13 +788,58 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 								}}
 								arrow={false}
 							>
-								<CustomTextArea
-									className="notes-title"
-									value={info?.title}
-									onChange={handleTitleChange}
-									autoResize={true}
-									onKeyDown={handleKeyDown}
-								/>
+								<div
+									className="notes-icon-container"
+									style={{
+										paddingTop: coverImage
+											? '42px'
+											: iconImage
+											? '100px'
+											: '0px',
+									}}
+								>
+									{iconImage && (
+										<div
+											className="notes-icon-wrapper"
+											onMouseEnter={() =>
+												setInfo((prev) => ({
+													...prev,
+													showRemoveIconBtn: true,
+												}))
+											}
+											onMouseLeave={() =>
+												setInfo((prev) => ({
+													...prev,
+													showRemoveIconBtn: false,
+												}))
+											}
+											style={{
+												top: coverImage
+													? '-72px'
+													: iconImage
+													? '-10px'
+													: '-24px',
+											}}
+										>
+											{info?.showRemoveIconBtn && (
+												<div className="remove-icon-btn-container">
+													<CrossIcon
+														className="remove-icon-btn"
+														onClick={handleRemoveIcon}
+													/>
+												</div>
+											)}
+											{iconImage?.native}
+										</div>
+									)}
+									<CustomTextArea
+										className="notes-title"
+										value={info?.title}
+										onChange={handleTitleChange}
+										autoResize={true}
+										onKeyDown={handleKeyDown}
+									/>
+								</div>
 							</Tooltip>
 							<BlockNoteView
 								editor={editor}

@@ -163,7 +163,7 @@
 			height: 100%;
 			max-height: 280px;
 			overflow: hidden;
-
+			position: relative;
 			img {
 				display: block;
 				object-fit: cover;
@@ -171,6 +171,36 @@
 				height: 30vh;
 				max-height: 280px;
 				object-position: center 60%;
+			}
+
+			.notes-cover-image-emoji {
+				position: absolute;
+				left: 50%;
+				transform: translateX(-50%);
+				z-index: 1000;
+				font-size: 32px;
+				padding: 8px;
+				background: white;
+				border-radius: 8px;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+			}
+
+			.remove-cover-btn {
+				position: absolute;
+				top: 10px;
+				right: 10px;
+				background-color: var(--error);
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				border: none;
+				outline: none;
+				cursor: pointer;
+				padding: 8px;
+				border-radius: 4px;
 			}
 		}
 
@@ -182,7 +212,28 @@
 			align-items: flex-start;
 			gap: 18px;
 			flex-grow: 1;
-			// overflow-y: auto;
+
+			.notes-icon-container {
+				width: 100%;
+				position: relative;
+
+				.notes-icon-wrapper {
+					position: absolute;
+					width: 100px;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					z-index: 1000;
+					font-size: 94px;
+
+					.remove-icon-btn-container {
+						position: absolute;
+						right: -6px;
+						top: -62px;
+						cursor: pointer;
+					}
+				}
+			}
 
 			.notes-title {
 				margin: 0;
