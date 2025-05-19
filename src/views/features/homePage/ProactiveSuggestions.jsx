@@ -697,7 +697,7 @@ const ProactiveSuggestions = () => {
 			</>
 			{info?.isListView ? (
 				<div className="proactiveSuggestionsContainer">
-					{info?.loading ? (
+					{info?.loading && aiSuggestedPendingActions?.pendingActions?.length === 0 ? (
 						<div className="skeleton-container">
 							{skeletonLoaders?.map((_, index) => (
 								<Skeleton

@@ -15,6 +15,7 @@ import { ReactComponent as CalendarSvg } from '../../../assets/svg/home_page/cal
 import { ReactComponent as TaskSvg } from '../../../assets/svg/home_page/tasks.svg';
 import { ReactComponent as ContactSvg } from '../../../assets/svg/home_page/contacts.svg';
 import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/automation.svg';
+import Suggestions from './Suggestions';
 
 const optionsList = [
 	{
@@ -137,6 +138,37 @@ const SuggestedOptions = [
 		},
 	},
 ];
+
+const suggestions = [
+	{
+		id: 1,
+		text: 'Innovations reshape healthcare, enhancing patient experiences with data.',
+	},
+	{
+		id: 2,
+		text: 'Breakthrough tech revolutionizes healthcare, leading to better outcomes.',
+	},
+	{
+		id: 3,
+		text: 'Innovative advancements enhance healthcare, driving better patient results.',
+	},
+	{
+		id: 4,
+		text: 'Tech changes healthcare, providing better outcomes through data.',
+	},
+	{
+		id: 5,
+		text: 'Next-gen tech alters healthcare, ensuring better patient results.',
+	},
+	{
+		id: 6,
+		text: 'Tech transforms healthcare, improving patient care with data.',
+	},
+	{
+		id: 7,
+		text: 'Pioneering tech reshapes healthcare, achieving better patient results.',
+	},
+];
 const InitialHomePage = () => {
 	const {
 		templates: { updateStateValues, currentSessionId },
@@ -146,6 +178,7 @@ const InitialHomePage = () => {
 	} = useContext(Context);
 
 	const navigate = useNavigate();
+	const timeoutIdRef = useRef(null);
 
 	const [info, setInfo] = useState({
 		selectedOption: '',
@@ -155,13 +188,15 @@ const InitialHomePage = () => {
 			acc[option.value] = false;
 			return acc;
 		}, {}),
-		minimized: false,
 		minimizedChatBox: true,
+		minimizedChatBoxState: true,
+		showSuggestions: false,
 	});
 
 	useEffect(() => {
 		return () => {
 			updateStateValues({ aiSuggestedPendingActions: null });
+			clearTimeout(timeoutIdRef.current);
 		};
 	}, []);
 
@@ -233,11 +268,6 @@ const InitialHomePage = () => {
 		}
 	}, [aiSuggestedPendingActions]);
 
-	const options = useMemo(
-		() => info?.options?.filter((option) => option?.showOption),
-		[info?.options],
-	);
-
 	useEffect(() => {
 		if (options?.length > 0 && !info?.selectedOption) {
 			// Set the first visible option as the selected option
@@ -246,15 +276,22 @@ const InitialHomePage = () => {
 				selectedOption: options[0]?.value,
 			}));
 		}
-	}, [options, info?.selectedOption]);
+	}, [info?.selectedOption]);
 
-	const handleMouseDown = useCallback(() => {
-		if (!info?.minimizedChatBox) {
+	const handleContainerClick = useCallback(() => {
+		if (info?.minimizedChatBox) return;
+
+		setInfo((prev) => ({
+			...prev,
+			minimizedChatBox: true,
+			showSuggestions: false,
+		}));
+		timeoutIdRef.current = setTimeout(() => {
 			setInfo((prev) => ({
 				...prev,
-				minimizedChatBox: true,
+				minimizedChatBoxState: true,
 			}));
-		}
+		}, 300);
 	}, [info?.minimizedChatBox]);
 
 	const handleUpdateOptions = (value) => {
@@ -356,7 +393,9 @@ const InitialHomePage = () => {
 		if (!info?.minimizedChatBox) return;
 		setInfo((prev) => ({
 			...prev,
-			minimizedChatBox: !prev?.minimizedChatBox,
+			minimizedChatBox: false,
+			minimizedChatBoxState: false,
+			showSuggestions: true,
 		}));
 	};
 
@@ -372,10 +411,15 @@ const InitialHomePage = () => {
 		[info?.promptsCategory],
 	);
 
+	const options = useMemo(
+		() => info?.options?.filter((option) => option?.showOption),
+		[info?.options],
+	);
+
 	return (
 		<div
 			className={`initial-home-page-container`}
-			onClick={handleMouseDown}
+			onClick={handleContainerClick}
 			style={{
 				...(options?.length === 0 && { justifyContent: 'center' }),
 			}}
@@ -409,19 +453,23 @@ const InitialHomePage = () => {
 							customChatActions={true}
 							autoFocus={false}
 							animatePlaceholder={true}
-							startPage={info?.minimizedChatBox}
+							startPage={info?.minimizedChatBoxState}
 							customChatBoxClick={handleCustomChatBoxClick}
 						/>
 					</div>
 				</div>
 
-				<div className="options-container">{renderedOptions}</div>
+				{!info?.showSuggestions && (
+					<div className="options-container">{renderedOptions}</div>
+				)}
 			</div>
-			{options?.length > 0 && (
+			{options?.length > 0 && !info?.showSuggestions && (
 				<div className="home-page-container-content">
 					{componentMapper[info?.selectedOption]}
 				</div>
 			)}
+
+			{info?.showSuggestions && <Suggestions data={suggestions} />}
 		</div>
 	);
 };
