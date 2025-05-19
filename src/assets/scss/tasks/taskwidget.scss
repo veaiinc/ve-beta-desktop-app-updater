@@ -66,6 +66,7 @@
 					border: none;
 					outline: none;
 					background-color: transparent;
+					display: inline;
 					flex-grow: 1;
 
 					&::placeholder {
@@ -282,6 +283,14 @@
 
 					.filter-title {
 						color: var(--secondary-font, #7a7e85);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+					.widget-filter-title {
+						color: var(--primary-font, #f2f2f3);
 						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;

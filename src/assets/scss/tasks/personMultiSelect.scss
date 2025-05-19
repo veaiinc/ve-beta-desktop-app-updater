@@ -46,12 +46,18 @@
 						font-size: 12px;
 						font-weight: 500;
 						color: var(--primary-font);
+						max-width: 150px;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+						text-align: left;
 					}
 
 					.person-multi-select-selected-item-email {
 						font-size: 12px;
 						font-weight: 500;
 						color: var(--secondary-font);
+						text-align: left;
 					}
 				}
 			}

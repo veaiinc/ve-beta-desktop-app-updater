@@ -116,16 +116,23 @@ const TaskWidget = ({ width, height }) => {
 	useEffect(() => {
 		if (listTasks) {
 			if (listTasks?.data) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					listItems:
-						info?.page === 1
-							? listTasks?.data
-							: [...prevInfo?.listItems, ...listTasks?.data],
-					hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
-					loading: false,
-					infinityLoading: false,
-				}));
+				setInfo((prevInfo) => {
+					const existingTaskIds = new Set(prevInfo?.listItems?.map((task) => task._id));
+					const newTasks = listTasks?.data?.filter(
+						(task) => !existingTaskIds.has(task._id),
+					);
+
+					return {
+						...prevInfo,
+						listItems:
+							info?.page === 1
+								? listTasks?.data
+								: [...prevInfo?.listItems, ...newTasks],
+						hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
+						loading: false,
+						infinityLoading: false,
+					};
+				});
 			}
 		}
 		if (listTasks?.error) {
@@ -723,57 +730,108 @@ const TaskWidget = ({ width, height }) => {
 								scrollableTarget="taskWidgetBodyContainer"
 								scrollThreshold="90%"
 							>
-								{info?.listItems?.map((eachOption, index) => (
-									<Fragment key={index}>
-										{eachOption?.status === 'Overdue' && (
-											<div className="taskWidgetStatusContainer">
-												<div className="taskWidgetStatusTitle">
-													{eachOption?.status}
+								<div className="taskWidgetOptionsContainer">
+									{info?.listItems
+										?.sort((a, b) => {
+											// Sort overdue tasks first
+											const aIsOverdue =
+												a?.dueDate &&
+												moment.unix(a.dueDate).isBefore(moment(), 'day');
+											const bIsOverdue =
+												b?.dueDate &&
+												moment.unix(b.dueDate).isBefore(moment(), 'day');
+											if (aIsOverdue && !bIsOverdue) return -1;
+											if (!aIsOverdue && bIsOverdue) return 1;
+
+											// Then sort today's tasks
+											const aIsToday =
+												a?.dueDate &&
+												moment.unix(a.dueDate).isSame(moment(), 'day');
+											const bIsToday =
+												b?.dueDate &&
+												moment.unix(b.dueDate).isSame(moment(), 'day');
+											if (aIsToday && !bIsToday) return -1;
+											if (!aIsToday && bIsToday) return 1;
+
+											return 0;
+										})
+										?.map((eachOption, index) => (
+											<Fragment key={index}>
+												{index === 0 &&
+													eachOption?.dueDate &&
+													moment
+														.unix(eachOption.dueDate)
+														.isSame(moment(), 'day') && (
+														<div className="taskWidgetStatusContainer">
+															<div className="taskWidgetStatusTitle">
+																Today
+															</div>
+															<hr className="taskWidgetHr" />
+														</div>
+													)}
+												<div
+													className="taskWidgetOption"
+													onClick={() => handleTaskClick(eachOption)}
+												>
+													<div className="taskWidgetOptionDetails">
+														<div className="taskWidgetOptionTitle">
+															{eachOption?.title}
+														</div>
+														<div className="taskWidgetOptionName">
+															<Tooltip
+																title={`Assigned By: ${eachOption?.assignedBy?.name}`}
+															>
+																<span className="taskWidgetOptionNameText">
+																	{eachOption?.assignedBy?.name}
+																</span>
+															</Tooltip>
+														</div>
+													</div>
+													{eachOption?.dueDate && (
+														<>
+															{moment
+																.unix(eachOption.dueDate)
+																.isBefore(moment(), 'day') && (
+																<div className="taskWidgetDueNow overdue">
+																	Over Due
+																</div>
+															)}
+															{moment
+																.unix(eachOption.dueDate)
+																.isSame(moment(), 'day') && (
+																<div className="taskWidgetDueNow">
+																	Due Now
+																</div>
+															)}
+														</>
+													)}
 												</div>
-												<hr className="taskWidgetHr" />
-											</div>
-										)}
-										<div
-											className="taskWidgetOption"
-											onClick={() => handleTaskClick(eachOption)}
-										>
-											{/* <div className="taskWidgetSelectOption"></div> */}
-											<div className="taskWidgetOptionDetails">
-												<div className="taskWidgetOptionTitle">
-													{eachOption?.title}
-												</div>
-												<div className="taskWidgetOptionName">
-													<Tooltip
-														title={`Assigned By: ${eachOption?.assignedBy?.name}`}
-													>
-														<span className="taskWidgetOptionNameText">
-															{eachOption?.assignedBy?.name}
-														</span>
-													</Tooltip>
-												</div>
-											</div>
-										</div>
-									</Fragment>
-								))}
+											</Fragment>
+										))}
+								</div>
 							</InfiniteScroll>
 						)}
 					</div>
 				</div>
-				<div
-					className="taskWidgetFooter"
-					onClick={() => {
-						navigate('/tasks');
+			</div>
+			<div
+				className="taskWidgetFooter"
+				onClick={() => {
+					navigate('/tasks');
+				}}
+				style={{ cursor: 'pointer' }}
+			>
+				<div className="taskWidgetFooterTitle">View All Tasks</div>
+				<PlusIcon
+					onClick={(e) => {
+						e.stopPropagation();
+						handleCreateTaskPopup();
 					}}
-					style={{ cursor: 'pointer' }}
-				>
-					<div className="taskWidgetFooterTitle">View All Tasks</div>
-					<PlusIcon
-						onClick={(e) => {
-							e.stopPropagation();
-							handleCreateTaskPopup();
-						}}
-					/>
-				</div>
+					style={{
+						width: '18px',
+						height: '18px',
+					}}
+				/>
 			</div>
 			<ListViewSidebar
 				selectedRow={info?.selectedRow}
