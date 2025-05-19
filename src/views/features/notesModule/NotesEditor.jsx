@@ -587,6 +587,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				...prev,
 				showRemoveIconBtn: false,
 				selectedEmoji: null,
+				iconImageRemoved: true,
 			}));
 		} else {
 			message.error('Failed to remove icon');
@@ -720,12 +721,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 							style={{ maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px' }}
 						>
 							<Tooltip
-								open={info?.showCustomizeAppearance || true}
+								open={info?.showCustomizeAppearance}
 								onOpenChange={() => {
 									if (info?.showUploadPopup) {
 										setInfo((prev) => ({
 											...prev,
-											showUploadPopup: true,
+											showUploadPopup: false,
 										}));
 									}
 									setInfo((prev) => ({
@@ -741,6 +742,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 												setInfo((prev) => ({
 													...prev,
 													showUploadPopup: false,
+													showCustomizeAppearance: false,
 												}))
 											}
 											setLocalCoverImage={(coverImage) =>
@@ -764,6 +766,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 												setInfo((prev) => ({
 													...prev,
 													showUploadPopup: false,
+													showCustomizeAppearance: false,
 												}))
 											}
 										/>
