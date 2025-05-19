@@ -167,7 +167,8 @@ const Stages = () => {
 					(!info?.companyName ||
 						!info?.workspaceHandle ||
 						!info?.isWorkspaceHandleAvailable ||
-						!info?.workspaceType)),
+						!info?.workspaceType)) ||
+				info?.continueBtnLoading,
 		}));
 	}, [
 		info?.username,
@@ -177,6 +178,7 @@ const Stages = () => {
 		info?.workspaceHandle,
 		info?.isWorkspaceHandleAvailable,
 		info?.workspaceType,
+		info?.continueBtnLoading,
 	]);
 
 	useEffect(() => {
