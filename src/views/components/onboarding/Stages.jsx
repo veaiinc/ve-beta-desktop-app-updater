@@ -51,7 +51,6 @@ const Stages = () => {
 		companyLogo: null,
 		checkingWorkspaceHandle: false,
 		isWorkspaceHandleAvailable: null,
-		continueBtnDisabled: true,
 		continueBtnLoading: false,
 		otp: '',
 		otpSent: false,
@@ -71,6 +70,14 @@ const Stages = () => {
 	const phoneNumberCntxt = userDetailsFromTenantAPI?.phoneNumber;
 	const profilePictureCntxt = userDetailsFromTenantAPI?.googleMeta?.picture ?? null;
 	const userLogo = userDetailsFromTenantAPI?.dp_s3_500w_key ?? null;
+	const continueBtnDisabled =
+		(info?.stage === 1 && (!info?.username || !info?.isPhoneNumberVerified)) ||
+		(info?.stage === 2 &&
+			(!info?.companyName ||
+				!info?.workspaceHandle ||
+				!info?.isWorkspaceHandleAvailable ||
+				!info?.workspaceType)) ||
+		info?.continueBtnLoading;
 
 	useEffect(() => {
 		if (!usertoken) {
@@ -157,29 +164,6 @@ const Stages = () => {
 			}));
 		}
 	}, [profilePictureCntxt, userLogo]);
-
-	useEffect(() => {
-		setInfo((prev) => ({
-			...prev,
-			continueBtnDisabled:
-				(info?.stage === 1 && (!info?.username || !info?.isPhoneNumberVerified)) ||
-				(info?.stage === 2 &&
-					(!info?.companyName ||
-						!info?.workspaceHandle ||
-						!info?.isWorkspaceHandleAvailable ||
-						!info?.workspaceType)) ||
-				info?.continueBtnLoading,
-		}));
-	}, [
-		info?.username,
-		info?.isPhoneNumberVerified,
-		info?.stage,
-		info?.companyName,
-		info?.workspaceHandle,
-		info?.isWorkspaceHandleAvailable,
-		info?.workspaceType,
-		info?.continueBtnLoading,
-	]);
 
 	useEffect(() => {
 		if (info?.companyName?.length > 1) {
@@ -484,7 +468,6 @@ const Stages = () => {
 		if (info?.stage === 2) {
 			setInfo((prev) => ({ ...prev, continueBtnLoading: true }));
 			await handleCreateWorkspace();
-			setInfo((prev) => ({ ...prev, continueBtnLoading: false }));
 			return;
 		}
 		setInfo((prev) => ({ ...prev, stage: prev?.stage + 1 }));
@@ -560,10 +543,10 @@ const Stages = () => {
 				)}
 				<button
 					style={{
-						opacity: info?.continueBtnDisabled ? 0.4 : 1,
-						cursor: info?.continueBtnDisabled ? 'not-allowed' : 'pointer',
+						opacity: continueBtnDisabled ? 0.4 : 1,
+						cursor: continueBtnDisabled ? 'not-allowed' : 'pointer',
 					}}
-					disabled={info?.continueBtnDisabled}
+					disabled={continueBtnDisabled}
 					className="continueBtn"
 					onClick={handleNextStage}
 				>
