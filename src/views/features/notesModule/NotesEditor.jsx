@@ -718,12 +718,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 							style={{ maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px' }}
 						>
 							<Tooltip
-								open={info?.showCustomizeAppearance}
+								open={info?.showCustomizeAppearance || true}
 								onOpenChange={() => {
 									if (info?.showUploadPopup) {
 										setInfo((prev) => ({
 											...prev,
-											showUploadPopup: false,
+											showUploadPopup: true,
 										}));
 									}
 									setInfo((prev) => ({

@@ -1,4 +1,4 @@
-import { memo, useState, useContext, useEffect } from 'react';
+import { memo, useState, useContext, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import '../../../assets/scss/notes/uploadPopup.scss';
 import Context from '../../../context/context';
@@ -15,12 +15,12 @@ const initialState = {
 	link: '',
 	isLinkValid: false,
 	workspaceImagesLoading: false,
+	unsplashSearchQuery: 'fall',
 };
 
 const page = 1;
 const limit = 16;
 const append = true;
-const query = 'fall';
 
 const skeletonLoaders = Array.from({ length: 16 }, (_, index) => index + 1);
 
@@ -49,6 +49,7 @@ const uploadCategoryOptions = [
 
 const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 	const { noteId } = useParams();
+	const unsplashSearchTimeout = useRef(null);
 	const {
 		notes: { notesCoverImageLinkUpload, notesCoverImageFileUpload },
 		workspaceAssets: {
@@ -73,16 +74,16 @@ const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 	const unsplashImagesEmpty = unsplashImagesLength === 0 && !unsplashImagesLoading;
 	const unsplashImagesHasNextPage = Boolean(unsplashImagesData?.hasNextPage);
 	const unsplashImagesCurrentPage = Number(unsplashImagesData?.currentPage) || 1;
+	const unsplashQuery = info?.unsplashSearchQuery;
 
 	useEffect(() => {
 		if (!workspaceImagesData && info?.selectedUploadCategory === 'images') {
 			getWorkspaceImages(page, limit);
 		}
 		if (!unsplashImagesData && info?.selectedUploadCategory === 'unsplash') {
-			const query = 'fall';
 			const page = 1;
 			const limit = 16;
-			getUnsplashImages(query, page, limit);
+			getUnsplashImages(unsplashQuery, page, limit);
 		}
 	}, [info?.selectedUploadCategory]);
 
@@ -96,7 +97,7 @@ const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 	const fetchNextUnsplashImages = async () => {
 		if (unsplashImagesHasNextPage) {
 			const page = unsplashImagesCurrentPage + 1;
-			getUnsplashImages(query, page, limit, append);
+			getUnsplashImages(unsplashQuery, page, limit, append);
 		}
 	};
 
@@ -156,10 +157,23 @@ const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 		}
 	};
 
-	// const handleImageSearch = (e) => {
-	// 	const search = e.target.value;
-	// 	console.log(search);
-	// };
+	const handleUnsplashImageSearch = (e) => {
+		const search = e.target.value;
+		setInfo((prev) => ({
+			...prev,
+			unsplashSearchQuery: search,
+			unsplashImagesLoading: true,
+		}));
+
+		clearTimeout(unsplashSearchTimeout.current);
+
+		unsplashSearchTimeout.current = setTimeout(() => {
+			if (search.length > 2) {
+				getUnsplashImages(search, page, limit);
+			}
+			setInfo((prev) => ({ ...prev, unsplashImagesLoading: false }));
+		}, 1500);
+	};
 
 	const uploadCategoryOptionsUI = {
 		images: (
@@ -273,15 +287,15 @@ const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 						</h1>
 					</div>
 				) : (
-					<div>
+					<div className="unsplashImagesContainer">
 						<div className="imagesSearchContainer">
 							<SearchIcon />
 							<input
 								className="imagesSearchInput"
 								autoFocus
 								type="text"
-								// onChange={handleImageSearch}
-								placeholder="Search workspace images"
+								onChange={handleUnsplashImageSearch}
+								placeholder="Search unsplash images"
 							/>
 						</div>
 
