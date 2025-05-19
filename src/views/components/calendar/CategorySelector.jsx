@@ -9,11 +9,12 @@ const CategorySelector = ({ options, value, onChange, className }) => {
 	});
 
 	useEffect(() => {
-		const formattedOptions = options?.map((option) => ({
-			value: option?._id,
-			label: option?.name,
-			color: option?.color,
-		}));
+		const formattedOptions =
+			options?.map((option) => ({
+				value: option?._id,
+				label: option?.name,
+				color: option?.color,
+			})) || [];
 		setInfo((prev) => ({ ...prev, formattedOptions }));
 	}, [options]);
 

@@ -25,7 +25,6 @@ import { ReactComponent as RestoreIcon } from '../../../assets/svg/notes/restore
 import { Tooltip } from 'antd';
 import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
-import { pasteHandler } from './pasteHandler';
 
 const getRandomWidth = () => {
 	const min = 70;
@@ -133,7 +132,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			headers: true,
 		},
 		uploadFile,
-		pasteHandler: pasteHandler,
 	});
 
 	useEffect(() => {

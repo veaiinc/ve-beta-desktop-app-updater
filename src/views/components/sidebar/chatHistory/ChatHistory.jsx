@@ -40,6 +40,9 @@ const ChatHistory = () => {
 	// );
 
 	useEffect(() => {
+		if (!aiChatSessions) {
+			fetchChats();
+		}
 		// const timeoutId = setTimeout(() => {
 		// 	if (!searchQuery) {
 		// 		getAiChatSessions(page, limit, append);
@@ -47,7 +50,6 @@ const ChatHistory = () => {
 		// 		debouncedSearch(searchQuery);
 		// 	}
 		// }, 0);
-		fetchChats();
 
 		// return () => {
 		// 	clearTimeout(timeoutId);

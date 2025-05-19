@@ -1,0 +1,59 @@
+.ai-questions-container {
+	max-width: 750px;
+	margin: auto;
+	.groupedQuestionsContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		.dateLabel {
+			color: var(--secondary-font, #7a7e85);
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: normal;
+			margin-bottom: 4px;
+		}
+		.cardContainer {
+			display: flex;
+			width: 100%;
+			padding: 14px 16px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 14px;
+			border-radius: 8px;
+			position: relative;
+			z-index: 10;
+			border: 1px solid var(--stroke);
+			background: transparent;
+			cursor: pointer;
+			margin: 0.5px;
+			@media screen and (max-width: 425px) {
+				width: 345px;
+			}
+
+			&:hover {
+				margin: 0;
+				background: linear-gradient(var(--card), var(--card)) padding-box,
+					linear-gradient(90deg, #4acea6 0%, #5f8ee0 100%) border-box;
+				border: 1.5px solid transparent; /* needed for border-box to work */
+				border-radius: 8px;
+			}
+			.text-container {
+				display: -webkit-box;
+				-webkit-box-orient: vertical;
+				-webkit-line-clamp: 2;
+				line-clamp: 2;
+				flex: 1 0 0;
+				overflow: hidden;
+				color: var(--primary-font, #f2f2f3);
+				text-overflow: ellipsis;
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 22px;
+			}
+		}
+	}
+}
