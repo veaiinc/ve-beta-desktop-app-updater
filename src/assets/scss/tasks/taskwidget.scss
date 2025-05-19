@@ -278,7 +278,6 @@
 					border-radius: 8px;
 					border: 1px solid var(--stroke-hover, #424548);
 					background-color: transparent;
-					cursor: pointer;
 					padding: 0 8px;
 
 					.filter-title {
@@ -288,6 +287,7 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+						user-select: none;
 					}
 					.widget-filter-title {
 						color: var(--primary-font, #f2f2f3);
@@ -296,6 +296,7 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+						user-select: none;
 					}
 					.filter-type {
 						color: var(--secondary-font, #7a7e85);
@@ -307,6 +308,7 @@
 						height: 100%;
 						display: flex;
 						align-items: center;
+						user-select: none;
 					}
 					.filter-wrapper {
 						padding: 4px 8px !important;
