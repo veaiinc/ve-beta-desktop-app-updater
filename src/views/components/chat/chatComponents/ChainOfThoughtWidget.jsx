@@ -1,9 +1,10 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import '../../../../assets/scss/chat/chatComponents/researchWidget.scss';
+import '../../../../assets/scss/chat/chatComponents/chainOfThoughtWidget.scss';
+import { ReactComponent as TickSvg } from '../../../../assets/svg/ai_agents/tick.svg';
 import DeepResearchChainOfThought from './DeepResearchChainOfThought';
 import DeepSearchChainOfThought from './DeepSearchChainOfThought';
 
-const ResearchWidget = ({ messageData }) => {
+const ChainOfThoughtWidget = ({ messageData }) => {
 	const [info, setInfo] = useState({
 		isExpanded: false,
 	});
@@ -61,9 +62,11 @@ const ResearchWidget = ({ messageData }) => {
 		return null;
 	}
 	return (
-		<div className="research-widget-container">
+		<div className="chain-of-thought-widget-container">
 			<div className="widget-header">
-				<div className="icon-container"></div>
+				<div className="icon-container">
+					{(messageData?.message?.length > 0 || messageData?.stream_end) && <TickSvg />}
+				</div>
 				<div className="text-container">{text}</div>
 			</div>
 			<div
@@ -96,4 +99,4 @@ const ResearchWidget = ({ messageData }) => {
 	);
 };
 
-export default memo(ResearchWidget);
+export default memo(ChainOfThoughtWidget);
