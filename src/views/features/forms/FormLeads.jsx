@@ -647,8 +647,16 @@ const FormLeads = () => {
 											)}
 										</div>
 										<h1 className="time">
-											Updated{' '}
-											{getTimeAgo({ createdAt: info.latestUpdateTime })}
+											{info.totalSubmissions === 0 ? (
+												'No responses'
+											) : (
+												<>
+													Updated{' '}
+													{getTimeAgo({
+														createdAt: info.latestUpdateTime,
+													})}
+												</>
+											)}
 										</h1>
 									</div>
 									<div className="button-space">
@@ -805,7 +813,7 @@ const FormLeads = () => {
 												info.activeTab === 'responses'
 													? 'calc(100vh - 500px)'
 													: info.activeTab === 'analytics'
-													? 'calc(100vh - 350px)'
+													? 'calc(100vh - 150px)'
 													: 'calc(100vh - 100px)',
 											overflowY: 'auto',
 											position: 'relative',

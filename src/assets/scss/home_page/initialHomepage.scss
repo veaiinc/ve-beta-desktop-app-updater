@@ -76,8 +76,11 @@
 			transition: height 0.3s ease-in-out;
 			overflow: hidden;
 			&.expanded {
-				height: 122px;
+				height: 114px;
 				animation: setOverflow 0.1s ease-in-out 0.3s forwards;
+			}
+			&.minimized {
+				height: 66px;
 			}
 			@media screen and (max-width: 425px) {
 				width: 350px;
@@ -162,41 +165,6 @@
 		overflow-y: auto;
 		overflow-x: hidden;
 		flex-grow: 1;
-	}
-}
-
-.initial-home-page-container.minimized-animation .home-page-container-content {
-	animation: height-minimize 0.5s linear forwards;
-}
-
-.initial-home-page-container.expanded-animation .home-page-container-content {
-	animation: height-expand 0.5s linear forwards;
-}
-
-.initial-home-page-container.minimized-animation .sub-text {
-	animation: text-minimize 0.5s linear forwards;
-}
-
-.initial-home-page-container.expanded-animation .sub-text {
-	animation: text-expand 0.5s linear forwards;
-}
-
-.initial-home-page-container.minimized-animation .chatbox-wrapper {
-	animation: chatbox-minimize 0.5s linear forwards;
-	pointer-events: none;
-	overflow: hidden;
-
-	.chatbox-container {
-		overflow: hidden;
-	}
-}
-
-.initial-home-page-container.expanded-animation .chatbox-wrapper {
-	animation: chatbox-expand 0.5s linear forwards, add-overflow 1s linear forwards;
-	pointer-events: all;
-
-	.chatbox-container {
-		animation: add-overflow 1s linear forwards;
 	}
 }
 

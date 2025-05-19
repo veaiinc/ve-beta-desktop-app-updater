@@ -380,3 +380,68 @@
 		border-radius: 0;
 	}
 }
+
+.task-notetaker {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	align-self: stretch;
+	padding: 2px 12px;
+
+	.task-notetaker-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-end;
+		align-self: stretch;
+
+		.task-note-title {
+			font-size: 16px;
+			font-weight: 500;
+			color: var(--primary-font);
+		}
+
+		.task-add-icon {
+			font-size: 20px;
+			color: var(--primary-font);
+			cursor: pointer;
+			padding: 4px;
+			line-height: 1;
+		}
+	}
+
+	.task-note-textarea {
+		width: 100%;
+
+		.task-note-textarea-input {
+			height: 100px;
+			padding: 14px;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+			border-radius: 10px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			background: var(--popup, #202123);
+			width: 100%;
+			resize: none;
+			color: var(--primary-font);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+
+			&::placeholder {
+				color: var(--secondary-font, #7a7e85);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				text-transform: lowercase;
+			}
+		}
+	}
+}

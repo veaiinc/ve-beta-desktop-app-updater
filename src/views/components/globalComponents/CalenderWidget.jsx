@@ -203,7 +203,7 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 								next={fetchMoreCalendarEvents}
 								hasMore={allCalendarEvents?.hasNextPage}
 								loader={<FetchMoreLoaderComp />}
-								height={330}
+								height={500}
 							>
 								<div className="calenderWidgetMainContentDate">
 									{groupedEventsArray?.map((meet, index) => (

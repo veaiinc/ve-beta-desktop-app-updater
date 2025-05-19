@@ -28,12 +28,7 @@ import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
 // 	},
 // ];
 let timeoutId;
-const ChatPrompts = ({
-	promptsCategory,
-	updatePromptsCategory,
-	onMinimizeHeader = null,
-	onExpandHeader = null,
-}) => {
+const ChatPrompts = ({ promptsCategory }) => {
 	const {
 		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
@@ -52,14 +47,6 @@ const ChatPrompts = ({
 	useEffect(() => {
 		return () => clearTimeout(timeoutId);
 	}, []);
-
-	// useEffect(() => {
-	// 	const element = document?.querySelector('.infinite-scroll-container');
-	// 	if (element) {
-	// 		infiniteScrollRef.current = element;
-	// 		element?.addEventListener('scroll', handleScroll);
-	// 	}
-	// }, []);
 
 	useEffect(() => {
 		if (promptsData) {
@@ -92,14 +79,6 @@ const ChatPrompts = ({
 			}
 		}
 	}, [promptsData]);
-
-	const handleScroll = () => {
-		if (infiniteScrollRef?.current?.scrollTop === 0) {
-			onExpandHeader?.();
-		} else {
-			onMinimizeHeader?.();
-		}
-	};
 
 	const fetchAiSuggestedPrompts = async (page = 1, searchQuery = '') => {
 		const payload = {

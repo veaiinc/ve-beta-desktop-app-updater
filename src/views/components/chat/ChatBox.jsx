@@ -11,7 +11,7 @@ import { ReactComponent as ArrowDownSvg } from '../../../assets/svg/ai_agents/ar
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { checkDevices, getBase64, getLocationsDetails } from '../../../helpers';
 import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
 import SearchDropdown from './SearchDropdown';
@@ -101,7 +101,6 @@ const ChatBox = ({
 	isPublicChat = false,
 	showIconText = true,
 	autoFocus = true,
-	isParentHeaderMinimized = false,
 	animatePlaceholder = false,
 	customChatBoxClick = null,
 	showScrollButton = false,
@@ -112,6 +111,7 @@ const ChatBox = ({
 	const location = useLocation();
 
 	const { handleConnect } = useUpdatedVoiceIntegration();
+	const params = useParams();
 
 	const {
 		templates: {
@@ -225,12 +225,6 @@ const ChatBox = ({
 			updateStateValues({ galleryFile: null });
 		}
 	}, [galleryFile]);
-
-	useEffect(() => {
-		if (isParentHeaderMinimized) {
-			textAreaRef?.current?.blur();
-		}
-	}, [isParentHeaderMinimized]);
 
 	//useEffect to handle send user edited query
 	useEffect(() => {
@@ -515,6 +509,7 @@ const ChatBox = ({
 				if (info?.chatQuery?.trim()?.length > 0 || query?.trim()?.length > 0) {
 					setInfo((prev) => ({ ...prev, chatLoading: true }));
 					let currentQuery = info?.chatQuery?.trim() || query?.trim();
+					const routeName = location?.pathname?.split('/')?.[1];
 
 					const date =
 						info?.chatFilters?.dateRange?.length > 0
@@ -585,6 +580,10 @@ const ChatBox = ({
 						payload.module_template_id = chatPayload?.moduleTemplateId;
 					}
 
+					if (routeName === 'contact') {
+						payload.module_id = params?.contactId;
+					}
+
 					// if (
 					// 	!chatInfo?.webSearch &&
 					// 	!chatInfo?.workspaceSearch &&
@@ -647,6 +646,8 @@ const ChatBox = ({
 			activeWorkflowSlugForSmartFile,
 			recentFilesRef.current,
 			uploadedImagesRef?.current,
+			location,
+			params,
 		],
 	);
 
@@ -1081,16 +1082,16 @@ const ChatBox = ({
 		});
 	};
 
-	const handleChatBoxClick = () => {
+	const handleChatBoxClick = (e) => {
 		if (customChatBoxClick) {
-			customChatBoxClick();
+			customChatBoxClick?.(e);
 		}
 	};
 
 	return (
 		<div
 			className="chatParentWrapper"
-			{...(customChatBoxClick && { onClick: customChatBoxClick })}
+			{...(customChatBoxClick && { onClick: handleChatBoxClick })}
 		>
 			<div className={`chatWrapper`}>
 				<div
@@ -1189,6 +1190,7 @@ const ChatBox = ({
 												className={`textArea ${
 													startPage ? 'startTextPage' : ''
 												}`}
+												rows={1}
 												ref={textAreaRef}
 												placeholder={
 													!animatePlaceholder
