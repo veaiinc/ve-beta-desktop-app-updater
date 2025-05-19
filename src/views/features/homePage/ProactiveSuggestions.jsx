@@ -26,7 +26,7 @@ import { ReactComponent as FocusViewSvg } from '../../../assets/svg/home_page/fo
 import { ReactComponent as SortDescSvg } from '../../../assets/svg/home_page/sortDesc.svg';
 import { ReactComponent as SortAscSvg } from '../../../assets/svg/home_page/sortAsc.svg';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/sidebar/agentsIcon.svg';
-// import AIQuestions from './AIQuestions';
+import AIQuestions from './AIQuestions';
 
 const payload = {
 	page: 1,
@@ -109,6 +109,8 @@ const ProactiveSuggestions = () => {
 			aiSuggestedPendingActions,
 			pendingActionsUpdate,
 			updateStateValues,
+			getAiQuestions,
+			aiQuestions,
 		},
 	} = useContext(Context);
 
@@ -135,6 +137,12 @@ const ProactiveSuggestions = () => {
 			updateCardsData();
 		}
 	}, [aiSuggestedPendingActions]);
+
+	useEffect(() => {
+		if (!aiQuestions) {
+			getAiQuestions();
+		}
+	}, []);
 
 	const handleKeyDown = (e) => {
 		if (e?.key === 'ArrowUp' || e?.key === 'ArrowLeft') {
@@ -510,15 +518,19 @@ const ProactiveSuggestions = () => {
 								</div>
 								<div className="text-container">Insights</div>
 							</div>
-							{/* <div
-								className={`btn ${info?.activeBtn === 'questions' ? 'active' : ''}`}
-								onClick={() => handleBtnClick('questions')}
-							>
-								<div className="icon-container">
-									<QuestionSvg />
+							{aiQuestions?.data?.length > 0 && (
+								<div
+									className={`btn ${
+										info?.activeBtn === 'questions' ? 'active' : ''
+									}`}
+									onClick={() => handleBtnClick('questions')}
+								>
+									<div className="icon-container">
+										<QuestionSvg />
+									</div>
+									<div className="text-container">Questions</div>
 								</div>
-								<div className="text-container">Questions</div>
-							</div> */}
+							)}
 						</div>
 					)}
 				</div>
@@ -1074,11 +1086,11 @@ const ProactiveSuggestions = () => {
 									</div>
 								</InfiniteScroll>
 							)}
-							{/* {info?.activeBtn === 'questions' && (
+							{info?.activeBtn === 'questions' && (
 								<div className="ai-questions-wrapper">
 									<AIQuestions />
 								</div>
-							)} */}
+							)}
 						</div>
 					)}
 				</div>

@@ -2501,17 +2501,30 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	// const getAiQuestions = async (payload) => {
-	// 	try {
-	// 		const workspaceId = localStorage.getItem('workspaceId');
-	// 		const usertoken = localStorage.getItem('usertoken');
-	// 		const url = `/${workspaceId}/user-persona/ai-questions`;
-	// 		const response = await Service.fetchGet(url, usertoken, 'tenant');
-	// 		console.log('response==>getAiQuestions', response);
-	// 	} catch (error) {
-	// 		console.log('error==>getAiQuestions', error);
-	// 	}
-	// };
+	const getAiQuestions = async (payload, reset = false) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/user-persona/ai-questions`;
+			const response = await Service.fetchGet(url, usertoken, 'tenant');
+			if (response?.[0]) {
+				const data = reset
+					? response?.[1]?.data || []
+					: [...(state?.aiQuestions?.data || []), ...(response?.[1]?.data || [])];
+				dispatch({
+					type: Actions.GET_AI_QUESTIONS_SUCCESS,
+					payload: {
+						...response?.[1],
+						data,
+					},
+				});
+			} else {
+				console.log('error==>getAiQuestions', response);
+			}
+		} catch (error) {
+			console.log('error==>getAiQuestions', error);
+		}
+	};
 	const updateCitationChunks = async (payload) => {
 		try {
 			dispatch({ type: Actions?.UPDATE_CITATION_CHUNKS, payload });
@@ -2606,6 +2619,6 @@ export const TemplatesState = (props) => {
 		updateCitationChunks,
 		getFormResponseAnalytics,
 		pendingActionsFeedback,
-		// getAiQuestions,
+		getAiQuestions,
 	};
 };

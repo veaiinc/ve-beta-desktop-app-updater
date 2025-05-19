@@ -33,7 +33,7 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 
 				<div className="modal-content">
 					<div className="questions-container">
-						{data.questions.map((question, index) => (
+						{data?.questions?.map((question, index) => (
 							<div className="question-container" key={index}>
 								<div className="question-text">{question?.question}</div>
 								<input
