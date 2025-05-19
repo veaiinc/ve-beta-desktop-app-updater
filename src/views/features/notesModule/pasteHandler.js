@@ -5,22 +5,32 @@ export const pasteHandler = ({ event, editor, defaultPasteHandler }) => {
 		const lines = text.split('\n').filter((line) => line.trim());
 		if (!lines.length) return defaultPasteHandler({ pasteBehavior: 'prefer-markdown' });
 
-		// Extract text and background colors from HTML
+		// Extract text, background colors, and inline styles from HTML
 		const textColors = {};
 		const backgroundColors = {};
+		const inlineStyles = {};
 		let tableData = null;
 		if (html) {
 			const doc = new DOMParser().parseFromString(html, 'text/html');
-			// Extract colors
-			doc.querySelectorAll('[data-text-color], [data-background-color]').forEach((el) => {
-				const textContent = el.textContent.trim();
-				if (textContent) {
-					const textColor = el.getAttribute('data-text-color');
-					const bgColor = el.getAttribute('data-background-color');
-					if (textColor) textColors[textContent] = textColor;
-					if (bgColor) backgroundColors[textContent] = bgColor;
+			// Process all elements for colors and inline styles
+			const processNode = (node, styles = {}) => {
+				if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+					const textContent = node.textContent.trim();
+					inlineStyles[textContent] = { ...inlineStyles[textContent], ...styles };
+				} else if (node.nodeType === Node.ELEMENT_NODE) {
+					const newStyles = { ...styles };
+					const tag = node.tagName.toLowerCase();
+					if (['strong', 'b'].includes(tag)) newStyles.bold = true;
+					if (['em', 'i'].includes(tag)) newStyles.italic = true;
+					if (node.getAttribute('data-text-color'))
+						textColors[node.textContent.trim()] = node.getAttribute('data-text-color');
+					if (node.getAttribute('data-background-color'))
+						backgroundColors[node.textContent.trim()] =
+							node.getAttribute('data-background-color');
+					Array.from(node.childNodes).forEach((child) => processNode(child, newStyles));
 				}
-			});
+			};
+			Array.from(doc.body.childNodes).forEach((node) => processNode(node));
 			// Detect HTML table structure
 			const table = doc.querySelector('table');
 			if (table) {
@@ -29,7 +39,7 @@ export const pasteHandler = ({ event, editor, defaultPasteHandler }) => {
 					const cells = [];
 					row.querySelectorAll('td, th').forEach((cell) => {
 						const cellText = cell.textContent.trim();
-						const cellStyles = {};
+						const cellStyles = { ...inlineStyles[cellText] };
 						const textColor =
 							cell.getAttribute('data-text-color') || textColors[cellText] || null;
 						const bgColor =
@@ -39,7 +49,7 @@ export const pasteHandler = ({ event, editor, defaultPasteHandler }) => {
 						if (textColor) cellStyles.textColor = textColor;
 						if (bgColor) cellStyles.backgroundColor = bgColor;
 						cells.push({
-							content: cellText,
+							content: parseMarkdownInline(cellText),
 							props: Object.keys(cellStyles).length ? cellStyles : undefined,
 						});
 					});
@@ -48,19 +58,116 @@ export const pasteHandler = ({ event, editor, defaultPasteHandler }) => {
 			}
 		}
 
+		// Parse Markdown inline formatting
+		const parseMarkdownInline = (text) => {
+			if (!text || typeof text !== 'string') return text;
+
+			const segments = [];
+			let currentText = text;
+			let lastIndex = 0;
+
+			// Match bold (**text**, __text__) and italic (*text*, _text_)
+			const boldRegex = /(?:\*\*|__)([^\s][^\n]*?[^\s])(?:\*\*|__)/g;
+			const italicRegex = /(\*)([^\s*][^\n]*?[^\s*])\1|(_)([^\s_][^\n]*?[^\s_])\3/g;
+
+			// Collect all matches
+			const matches = [];
+			let match;
+			while ((match = boldRegex.exec(currentText)) !== null) {
+				matches.push({
+					type: 'bold',
+					text: match[1],
+					start: match.index,
+					end: match.index + match[0].length,
+				});
+			}
+			while ((match = italicRegex.exec(currentText)) !== null) {
+				const matchedText = match[2] || match[4];
+				const start = match.index;
+				const end = match.index + match[0].length;
+				// Only include italic match if it doesn't overlap with a bold match
+				const overlapsBold = matches.some(
+					(m) => m.type === 'bold' && m.start <= start && m.end >= end,
+				);
+				if (!overlapsBold) {
+					matches.push({
+						type: 'italic',
+						text: matchedText,
+						start,
+						end,
+					});
+				}
+			}
+
+			// Sort matches by start index and prioritize bold over italic
+			matches.sort((a, b) => {
+				if (a.start === b.start) {
+					return a.type === 'bold' ? -1 : 1; // Bold takes precedence
+				}
+				return a.start - b.start;
+			});
+
+			// Process matches
+			for (const { type, text: matchedText, start, end } of matches) {
+				// Add plain text before the match
+				if (lastIndex < start) {
+					segments.push({
+						type: 'text',
+						text: currentText.slice(lastIndex, start),
+						styles: {},
+					});
+				}
+				// Add formatted text
+				segments.push({
+					type: 'text',
+					text: matchedText,
+					styles: type === 'bold' ? { bold: true } : { italic: true },
+				});
+				lastIndex = end;
+			}
+
+			// Add remaining plain text
+			if (lastIndex < currentText.length) {
+				segments.push({ type: 'text', text: currentText.slice(lastIndex), styles: {} });
+			}
+
+			// Merge adjacent segments with the same styles
+			const mergedSegments = [];
+			let currentSegment = null;
+			for (const segment of segments) {
+				if (!segment.text) continue;
+				if (!currentSegment) {
+					currentSegment = { ...segment };
+				} else if (
+					JSON.stringify(currentSegment.styles) === JSON.stringify(segment.styles)
+				) {
+					currentSegment.text += segment.text;
+				} else {
+					mergedSegments.push(currentSegment);
+					currentSegment = { ...segment };
+				}
+			}
+			if (currentSegment?.text) mergedSegments.push(currentSegment);
+
+			// Return rich text array or plain text
+			return mergedSegments.length > 1 || Object.keys(mergedSegments[0]?.styles || {}).length
+				? mergedSegments.map((seg) => ({
+						type: 'text',
+						text: seg.text,
+						styles: seg.styles,
+				  }))
+				: mergedSegments[0]?.text || text;
+		};
+
 		// Parse Markdown table from plain text
 		const parseMarkdownTable = (lines) => {
-			if (lines.length < 2) return null; // Need at least header and separator
+			if (lines.length < 2) return null;
 			const isTableLike = lines[0].includes('|') && lines[1].match(/^\s*\|?[\s\-:|]+\|?\s*$/);
 			if (!isTableLike) return null;
 
 			const rows = [];
-			let headerProcessed = false;
 			for (const line of lines) {
-				if (line.match(/^\s*\|?[\s\-:|]+\|?\s*$/)) {
-					headerProcessed = true;
-					continue; // Skip separator line
-				}
+				if (line.match(/^\s*\|?[\s\-:|]+\|?\s*$/)) continue;
 				const cells = line
 					.split('|')
 					.map((cell) => cell.trim())
@@ -69,11 +176,12 @@ export const pasteHandler = ({ event, editor, defaultPasteHandler }) => {
 				const cellData = cells.map((cellText) => {
 					const textColor = textColors[cellText] || null;
 					const bgColor = backgroundColors[cellText] || null;
-					const cellStyles = {};
+					const inline = inlineStyles[cellText] || {};
+					const cellStyles = { ...inline };
 					if (textColor) cellStyles.textColor = textColor;
 					if (bgColor) cellStyles.backgroundColor = bgColor;
 					return {
-						content: cellText,
+						content: parseMarkdownInline(cellText),
 						props: Object.keys(cellStyles).length ? cellStyles : undefined,
 					};
 				});
@@ -213,13 +321,15 @@ export const pasteHandler = ({ event, editor, defaultPasteHandler }) => {
 							(key) => normalizeText(key) === normalizeText(trimmedLine),
 						)
 					] || null;
+				const inline = inlineStyles[trimmedLine] || {};
 
 				if (blockType && block.type === 'paragraph' && !currentContent.trim()) {
 					const newBlock = {
 						type: blockType.type,
 						...blockType.clean(lines[0], lines[0].match(blockType.regex)),
 					};
-					if (textColor || bgColor) {
+					newBlock.content = parseMarkdownInline(newBlock.content);
+					if (textColor || bgColor || inline.bold || inline.italic) {
 						newBlock.props = {
 							...newBlock.props,
 							...(textColor && { textColor }),
@@ -232,7 +342,8 @@ export const pasteHandler = ({ event, editor, defaultPasteHandler }) => {
 						type: blockType.type,
 						...blockType.clean(lines[0], lines[0].match(blockType.regex)),
 					};
-					if (textColor || bgColor) {
+					newBlock.content = parseMarkdownInline(newBlock.content);
+					if (textColor || bgColor || inline.bold || inline.italic) {
 						newBlock.props = {
 							...newBlock.props,
 							...(textColor && { textColor }),
@@ -241,18 +352,21 @@ export const pasteHandler = ({ event, editor, defaultPasteHandler }) => {
 					}
 					editor.insertBlocks([newBlock], block.id, 'after');
 				} else {
-					const newContent =
-						currentContent.slice(0, cursorOffset) +
-						trimmedLine +
-						currentContent.slice(cursorOffset);
-					const styles = {};
+					const content = parseMarkdownInline(trimmedLine);
+					const styles = { ...inline };
 					if (textColor) styles.textColor = textColor;
 					if (bgColor) styles.backgroundColor = bgColor;
+					const finalContent =
+						typeof content === 'string' && Object.keys(styles).length
+							? [{ type: 'text', text: content, styles }]
+							: content;
 					editor.updateBlock(block.id, {
 						...block,
-						content: Object.keys(styles).length
-							? [{ type: 'text', text: newContent, styles }]
-							: newContent,
+						content: Array.isArray(finalContent)
+							? finalContent
+							: currentContent.slice(0, cursorOffset) +
+							  finalContent +
+							  currentContent.slice(cursorOffset),
 					});
 				}
 			} else {
@@ -269,6 +383,7 @@ export const pasteHandler = ({ event, editor, defaultPasteHandler }) => {
 							(key) => normalizeText(key) === normalizeText(firstLine),
 						)
 					] || null;
+				const inline = inlineStyles[firstLine] || {};
 				const firstBlockType = blockTypes.find(({ regex }) => regex.test(lines[0]));
 
 				if (firstBlockType && block.type === 'paragraph' && !currentContent.trim()) {
@@ -276,7 +391,8 @@ export const pasteHandler = ({ event, editor, defaultPasteHandler }) => {
 						type: firstBlockType.type,
 						...firstBlockType.clean(lines[0], lines[0].match(firstBlockType.regex)),
 					};
-					if (textColor || bgColor) {
+					newBlock.content = parseMarkdownInline(newBlock.content);
+					if (textColor || bgColor || inline.bold || inline.italic) {
 						newBlock.props = {
 							...newBlock.props,
 							...(textColor && { textColor }),
@@ -285,18 +401,21 @@ export const pasteHandler = ({ event, editor, defaultPasteHandler }) => {
 					}
 					editor.updateBlock(block.id, newBlock);
 				} else {
-					const updatedContent =
-						currentContent.slice(0, cursorOffset) +
-						firstLine +
-						currentContent.slice(cursorOffset);
-					const styles = {};
+					const content = parseMarkdownInline(firstLine);
+					const styles = { ...inline };
 					if (textColor) styles.textColor = textColor;
 					if (bgColor) styles.backgroundColor = bgColor;
+					const finalContent =
+						typeof content === 'string' && Object.keys(styles).length
+							? [{ type: 'text', text: content, styles }]
+							: content;
 					editor.updateBlock(block.id, {
 						...block,
-						content: Object.keys(styles).length
-							? [{ type: 'text', text: updatedContent, styles }]
-							: updatedContent,
+						content: Array.isArray(finalContent)
+							? finalContent
+							: currentContent.slice(0, cursorOffset) +
+							  finalContent +
+							  currentContent.slice(cursorOffset),
 					});
 				}
 
@@ -317,14 +436,17 @@ export const pasteHandler = ({ event, editor, defaultPasteHandler }) => {
 									(key) => normalizeText(key) === normalizeText(trimmedLine),
 								)
 							] || null;
-						const blockStyles = {};
+						const blockInline = inlineStyles[trimmedLine] || {};
+						const content = parseMarkdownInline(trimmedLine);
+						const blockStyles = { ...blockInline };
 						if (blockTextColor) blockStyles.textColor = blockTextColor;
 						if (blockBgColor) blockStyles.backgroundColor = blockBgColor;
 						return {
 							type: 'paragraph',
-							content: Object.keys(blockStyles).length
-								? [{ type: 'text', text: trimmedLine, styles: blockStyles }]
-								: trimmedLine,
+							content:
+								Object.keys(blockStyles).length && typeof content === 'string'
+									? [{ type: 'text', text: content, styles: blockStyles }]
+									: content,
 						};
 					});
 
@@ -352,31 +474,35 @@ export const pasteHandler = ({ event, editor, defaultPasteHandler }) => {
 							(key) => normalizeText(key) === normalizeText(trimmedLine),
 						)
 					] || null;
-				return { line, indentLevel, trimmedLine, textColor, bgColor };
+				const inline = inlineStyles[trimmedLine] || {};
+				return { line, indentLevel, trimmedLine, textColor, bgColor, inline };
 			})
 			.filter(Boolean);
 
 		const blocks = [];
 		const stack = [{ children: blocks, indentLevel: -1 }];
 
-		parsedLines.forEach(({ line, indentLevel, trimmedLine, textColor, bgColor }) => {
+		parsedLines.forEach(({ line, indentLevel, trimmedLine, textColor, bgColor, inline }) => {
 			const blockType = blockTypes.find(({ regex }) => regex.test(line));
 			const block = blockType
 				? { type: blockType.type, ...blockType.clean(line, line.match(blockType.regex)) }
 				: { type: 'paragraph', content: trimmedLine };
 
-			if (textColor || bgColor) {
+			block.content = parseMarkdownInline(block.content);
+			if (textColor || bgColor || inline.bold || inline.italic) {
 				if (block.type === 'task' || block.type === 'heading') {
 					block.props = {
 						...block.props,
 						...(textColor && { textColor }),
 						...(bgColor && { backgroundColor: bgColor }),
 					};
-				} else {
-					const styles = {};
+				} else if (typeof block.content === 'string') {
+					const styles = { ...inline };
 					if (textColor) styles.textColor = textColor;
 					if (bgColor) styles.backgroundColor = bgColor;
-					block.content = [{ type: 'text', text: block.content, styles }];
+					if (Object.keys(styles).length) {
+						block.content = [{ type: 'text', text: block.content, styles }];
+					}
 				}
 			}
 
