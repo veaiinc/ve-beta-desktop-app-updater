@@ -313,11 +313,14 @@
 	.emailTemplatesCard {
 		display: flex;
 		padding: 12px 24px;
-
 		align-items: center;
 		gap: 12px;
 		align-self: stretch;
 		cursor: pointer;
+
+		&:hover {
+			background-color: var(--card-over-card-hover);
+		}
 
 		.emailTemplateCardContent {
 			display: flex;
@@ -346,9 +349,6 @@
 				text-transform: capitalize;
 			}
 		}
-	}
-	.emailTemplatesCard:hover {
-		background-color: var(--card);
 	}
 }
 

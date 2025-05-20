@@ -69,6 +69,7 @@ const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false }) => 
 							</div>
 							<div className="section-content">
 								{(index !== data?.sections?.length - 1 ||
+									data?.sections_refined?.length > 0 ||
 									showLastIndicatorLine) && <div className="line" />}
 								<div className={`section-title`}>{section || ''}</div>
 								<div className="sub-queries">
@@ -82,6 +83,126 @@ const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false }) => 
 													</div>
 													<div className="title-text">
 														{sub_query || ''}
+													</div>
+												</div>
+												<div className="sub-query-readings">
+													{readings?.map((reading, idx) => {
+														const { tool, queries, sources } =
+															reading?.reading || {};
+														return (
+															<div className="reading" key={idx}>
+																{queries?.length > 0 && (
+																	<div className="queries-wrapper">
+																		<div className="tool-container">
+																			{tool ===
+																			'search_web' ? (
+																				<div className="search">
+																					<div className="svg">
+																						<WebSvg />
+																					</div>
+																					<div className="search-text">
+																						Searched Web
+																						For :
+																					</div>
+																				</div>
+																			) : tool ===
+																			  'search_knowledge_base' ? (
+																				<div className="search">
+																					<div className="svg">
+																						<BookSvg
+																							selected={
+																								false
+																							}
+																						/>
+																					</div>
+																					<div className="search-text">
+																						Searched
+																						Knowledge
+																						Base For :
+																					</div>
+																				</div>
+																			) : (
+																				<div className="search">
+																					<div className="search-text">
+																						Searched For
+																						:
+																					</div>
+																				</div>
+																			)}
+																		</div>
+
+																		<div className="queries-container">
+																			{queries?.map(
+																				(query, idx) => (
+																					<div
+																						className="query-container"
+																						key={idx}
+																					>
+																						<div className="query-link">
+																							<CurveSvg />
+																						</div>
+																						<div
+																							key={
+																								idx
+																							}
+																							className="query"
+																						>
+																							{query ||
+																								''}
+																						</div>
+																					</div>
+																				),
+																			)}
+																		</div>
+																	</div>
+																)}
+
+																{sources?.length > 0 && (
+																	<div className="sources-container">
+																		<div className="source-text">
+																			Sources
+																		</div>
+																		<Sources
+																			sources={sources}
+																		/>
+																	</div>
+																)}
+															</div>
+														);
+													})}
+												</div>
+											</div>
+										);
+									})}
+								</div>
+							</div>
+						</div>
+					);
+				})}
+			</div>
+			<div className="sections">
+				{data?.sections_refined?.map((sec, index) => {
+					const { refined_sub_queries, section, compiling } = sec;
+					return (
+						<div className="section" key={index}>
+							<div className="logo-container">
+								<div className="indicator" />
+							</div>
+							<div className="section-content">
+								{(index !== data?.sections_refined?.length - 1 ||
+									showLastIndicatorLine) && <div className="line" />}
+								<div className={`section-title`}>{section || ''}</div>
+								<div className="sub-queries">
+									{refined_sub_queries?.map((subQuery, idx) => {
+										const { refined_sub_query, readings } = subQuery || {};
+										return (
+											<div className="sub-query" key={idx}>
+												<div className="sub-query-title">
+													<div className="sub-query-logo">
+														<HashTagSvg />
+													</div>
+													<div className="title-text">
+														{refined_sub_query || ''}
 													</div>
 												</div>
 												<div className="sub-query-readings">

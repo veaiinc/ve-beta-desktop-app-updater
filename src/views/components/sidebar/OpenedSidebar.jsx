@@ -58,7 +58,7 @@ const MODULE_NAME_MAP = {
 
 const routeType = 'public';
 
-const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+const isMac = navigator?.platform?.toUpperCase()?.indexOf('MAC') >= 0;
 
 const OpenedSidebarModules = ({
 	name,
@@ -793,7 +793,7 @@ const OpenedSidebar = ({
 																		</span>
 																	</span>
 																	<span className="workspaceId">
-																		{tennantSettingsData?.businessName.toUpperCase()}
+																		{tennantSettingsData?.businessName?.toUpperCase()}
 																	</span>
 																</div>
 															</div>
@@ -1096,7 +1096,7 @@ const OpenedSidebar = ({
 												</span>
 											</span>
 											<span className="workspaceId">
-												{tennantSettingsData?.businessName.toUpperCase()}
+												{tennantSettingsData?.businessName?.toUpperCase()}
 											</span>
 										</div>
 									</div>

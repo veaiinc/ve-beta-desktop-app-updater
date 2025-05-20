@@ -112,7 +112,7 @@ const InviteMembersWorkspaceComponent = ({
 
 	const customStyles = {
 		content: { zIndex: 999 },
-		overlay: { zIndex: 998 },
+		overlay: { zIndex: 9999 },
 	};
 	// const handleAccessTypeChange = (app, isFullAccess) => {
 	// 	setAccessControls((prevState) => {
@@ -155,6 +155,7 @@ const InviteMembersWorkspaceComponent = ({
 										name="email"
 										onChange={(e) => handleChnage(e, index)}
 										value={userEmail}
+										autoComplete="off"
 									/>
 									<div className="dropdownContainer">
 										<select

@@ -16,7 +16,6 @@ import PersonSvg from '../../../assets/svg/tasks/person.svg?react';
 import CalendarSvg from '../../../assets/svg/tasks/calendar.svg?react';
 import textSvg from '../../../assets/svg/tasks/letterA.svg?react';
 import { colors } from '../../../helpers/taskHelpers';
-import jwtDecode from 'jwt-decode';
 import EventsPopup from '../calendar/EventsPopUp';
 import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
 import Flash from '../../../assets/svg/flash.svg?react';

@@ -213,11 +213,8 @@ export const containerStyle = {
 };
 
 export const dropDownStyle = {
-	top: '55px',
-	backgroundColor: '	',
-	borderRadius: '14px',
-	border: '1px solid var(--stroke)',
-	backgroundColor: 'var(--card)',
+	top: '46px',
+	padding: '4px',
 };
 
 export const dropDownTextStyling = {

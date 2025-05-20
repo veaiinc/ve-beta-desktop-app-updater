@@ -260,7 +260,9 @@ const GoogleActions = ({
 						key={index}
 						style={{
 							backgroundColor:
-								ele?._id === info?.selectedEmailTemplate?._id ? '#202123' : '',
+								ele?._id === info?.selectedEmailTemplate?._id
+									? 'var(--card-over-card-hover)'
+									: '',
 						}}
 						onClick={() =>
 							updateInfo({
@@ -748,12 +750,6 @@ const ReplyMessage = memo(
 							outerContainerStyle={{ width: '100%' }}
 							dropDownStyle={{
 								...dropDownStyle,
-								background: '#1C1C1C',
-								border: '1px solid #2C2C2C',
-							}}
-							dropDownTextStyling={{
-								...dropDownTextStyling,
-								color: '#FFFFFF',
 							}}
 							showSelectedValueTick={true}
 							uniqueIdentifierForTickIcon={'value'}
@@ -872,27 +868,27 @@ const SendMessage = memo(
 							showIcon={false}
 							containerStyle={{
 								...containerStyle,
-								background: '#1C1C1C',
-								border: '1px solid #2C2D2E',
+								background: 'var(--card)',
+								border: '1px solid var(--stroke)',
 								borderRadius: '12px',
 								height: '40px',
 							}}
 							outerContainerStyle={{ width: '100%' }}
 							dropDownStyle={{
 								...dropDownStyle,
-								background: '#1C1C1C',
-								border: '1px solid #2C2C2C',
+								background: 'var(--card)',
+								border: '1px solid var(--stroke)',
 							}}
 							dropDownTextStyling={{
 								...dropDownTextStyling,
-								color: '#FFFFFF',
+								color: 'var(--primary-font)',
 							}}
 							showSelectedValueTick={true}
 							uniqueIdentifierForTickIcon={'value'}
 							selectedValueObj={selectedGoogleAccount}
 							selectedValueStyle={{
 								...selectedValueStyling,
-								color: '#FFFFFF',
+								color: 'var(--primary-font)',
 							}}
 						/>
 					</div>

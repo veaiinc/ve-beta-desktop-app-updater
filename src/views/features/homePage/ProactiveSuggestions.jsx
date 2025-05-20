@@ -26,7 +26,7 @@ import FocusViewSvg from '../../../assets/svg/home_page/focusView.svg?react';
 import SortDescSvg from '../../../assets/svg/home_page/sortDesc.svg?react';
 import SortAscSvg from '../../../assets/svg/home_page/sortAsc.svg?react';
 import AgentIcon from '../../../assets/svg/sidebar/agentsIcon.svg?react';
-// import AIQuestions from './AIQuestions';
+import AIQuestions from './AIQuestions';
 
 const payload = {
 	page: 1,
@@ -76,6 +76,16 @@ const filterGroups = [
 			{ id: 14, title: 'Last 30 days', value: 'last30days' },
 		],
 	},
+	{
+		title: 'Other',
+		options: [
+			{
+				id: 15,
+				title: 'Favourites',
+				value: true,
+			},
+		],
+	},
 ];
 
 const infiniteScrollStyle = {
@@ -109,6 +119,8 @@ const ProactiveSuggestions = () => {
 			aiSuggestedPendingActions,
 			pendingActionsUpdate,
 			updateStateValues,
+			getAiQuestions,
+			aiQuestions,
 		},
 	} = useContext(Context);
 
@@ -135,6 +147,12 @@ const ProactiveSuggestions = () => {
 			updateCardsData();
 		}
 	}, [aiSuggestedPendingActions]);
+
+	// useEffect(() => {
+	// 	if (!aiQuestions) {
+	// 		getAiQuestions();
+	// 	}
+	// }, []);
 
 	const handleKeyDown = (e) => {
 		if (e?.key === 'ArrowUp' || e?.key === 'ArrowLeft') {
@@ -211,7 +229,7 @@ const ProactiveSuggestions = () => {
 		const selectedPriority = getFilterValues('Priority Level');
 		const selectedReadStatus = getFilterValues('Read Status', 'All');
 		const selectedConfidenceScore = getFilterValues('Confidence level');
-
+		const [favourite] = getFilterValues('Other');
 		const { from, to } = getDateRangeFromFilters(info?.selectedFilters);
 
 		return {
@@ -222,6 +240,7 @@ const ProactiveSuggestions = () => {
 			...(from !== undefined && to !== undefined && { from, to }),
 			sortType: info?.sortOptions[info?.sortBy]?.sortType,
 			sortBy: info?.sortBy,
+			...(favourite && { isFavourited: favourite }),
 		};
 	}, [payload, info?.selectedFilters, info?.sortOptions, info?.sortBy]);
 
@@ -510,15 +529,19 @@ const ProactiveSuggestions = () => {
 								</div>
 								<div className="text-container">Insights</div>
 							</div>
-							{/* <div
-								className={`btn ${info?.activeBtn === 'questions' ? 'active' : ''}`}
-								onClick={() => handleBtnClick('questions')}
-							>
-								<div className="icon-container">
-									<QuestionSvg />
+							{aiQuestions?.data?.length > 0 && (
+								<div
+									className={`btn ${
+										info?.activeBtn === 'questions' ? 'active' : ''
+									}`}
+									onClick={() => handleBtnClick('questions')}
+								>
+									<div className="icon-container">
+										<QuestionSvg />
+									</div>
+									<div className="text-container">Questions</div>
 								</div>
-								<div className="text-container">Questions</div>
-							</div> */}
+							)}
 						</div>
 					)}
 				</div>
@@ -697,7 +720,7 @@ const ProactiveSuggestions = () => {
 			</>
 			{info?.isListView ? (
 				<div className="proactiveSuggestionsContainer">
-					{info?.loading ? (
+					{info?.loading && aiSuggestedPendingActions?.pendingActions?.length === 0 ? (
 						<div className="skeleton-container">
 							{skeletonLoaders?.map((_, index) => (
 								<Skeleton
@@ -1074,11 +1097,11 @@ const ProactiveSuggestions = () => {
 									</div>
 								</InfiniteScroll>
 							)}
-							{/* {info?.activeBtn === 'questions' && (
+							{info?.activeBtn === 'questions' && (
 								<div className="ai-questions-wrapper">
 									<AIQuestions />
 								</div>
-							)} */}
+							)}
 						</div>
 					)}
 				</div>
