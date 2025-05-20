@@ -372,7 +372,7 @@ const Taskwidget = ({
 								cleanedFilters?.map((filter, index) => {
 									const { type, props, name } = responseMetadata?.[filter?.key];
 									let Component = null;
-									if (type === 'text') {
+									if (type === 'text' || type === 'id') {
 										Component = TextField;
 									} else {
 										Component = rowTypes?.[type];
@@ -400,6 +400,7 @@ const Taskwidget = ({
 													handleFilterChange(filter?.key, value);
 												}}
 												hideRemove={true}
+												prefix={props?.prefix}
 											/>
 											<button
 												className="filter-remove-btn"

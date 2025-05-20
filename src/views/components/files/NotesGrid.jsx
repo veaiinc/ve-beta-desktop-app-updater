@@ -234,7 +234,6 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 										</div>
 										<div className="note-footer-container">
 											<span className="note-sub-heading">
-												{console.log(info?.selectedSort?.value)}
 												{info?.selectedSort?.value === 'updatedAt' ? (
 													<Tooltip title="Updated On">
 														{moment.unix(note?.updatedAt).fromNow()}
