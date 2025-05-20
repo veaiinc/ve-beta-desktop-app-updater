@@ -26,7 +26,6 @@ import { ReactComponent as RestoreIcon } from '../../../assets/svg/notes/restore
 import { Tooltip } from 'antd';
 import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
-import { pasteHandler } from './pasteHandler';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 
@@ -158,7 +157,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			headers: true,
 		},
 		uploadFile,
-		pasteHandler: pasteHandler,
 	});
 
 	useEffect(() => {

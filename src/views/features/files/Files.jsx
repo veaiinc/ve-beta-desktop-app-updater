@@ -712,7 +712,11 @@ const Files = () => {
 			<FormsGrid
 				statusTextmapper={statusTextmapper}
 				handleNavigateForm={handleNavigateForm}
-				handleCreateForm={() => setInfo((prev) => ({ ...prev, openProposalPopup: true }))}
+				handleCreateForm={() => {
+					const sessionId = ObjectID().toHexString();
+					updateTemplateStateValues({ activeInputForChat: 'Create a form for ' });
+					navigate(`/chat/${sessionId}`);
+				}}
 				handleTotalChange={(value) => handleTotalChange({ form: value })}
 			/>
 		),

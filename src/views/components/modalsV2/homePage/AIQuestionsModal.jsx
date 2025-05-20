@@ -1,19 +1,41 @@
-import { memo, useEffect, useRef } from 'react';
+import { memo, useContext, useEffect, useRef } from 'react';
 import '../../../../assets/scss/home_page/modals/aiQuestionsModal.scss';
 import ReactModal from '../index';
 import { ReactComponent as QuestionSvg } from '../../../../assets/svg/home_page/question.svg';
+import Context from '../../../../context/context';
 
 const AIQuestionsModal = ({ open, onClose, data }) => {
 	const inputRefs = useRef([]);
+	const isUpdatedRef = useRef(false);
+
+	const {
+		templates: { updateAiQuestions },
+	} = useContext(Context);
 
 	useEffect(() => {
 		if (!open) {
 			inputRefs.current = [];
+			isUpdatedRef.current = false;
 		}
 	}, [open]);
 
-	const handleSubmit = () => {
-		console.log(inputRefs.current?.map((el) => el.value));
+	const handleSubmit = async () => {
+		if (!isUpdatedRef.current) {
+			return;
+		}
+
+		const payload = {
+			questions: data?.questions?.map((question, index) => {
+				return {
+					...question,
+					answer: inputRefs.current[index]?.value,
+				};
+			}),
+		};
+		const id = data?._id;
+
+		const response = await updateAiQuestions(payload, id);
+		// console.log('response', response);
 	};
 
 	return (
@@ -33,15 +55,18 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 
 				<div className="modal-content">
 					<div className="questions-container">
-						{data.questions.map((question, index) => (
+						{data?.questions?.map((question, index) => (
 							<div className="question-container" key={index}>
-								<div className="question-text">{question?.question}</div>
+								<div className="question-text">{question?.question || ''}</div>
 								<input
 									type="text"
 									className="answer-input"
 									placeholder="Type your answer"
-									defaultValue={question?.answer}
+									defaultValue={question?.existingUrl || ''}
 									ref={(el) => (inputRefs.current[index] = el)}
+									onChange={() => {
+										isUpdatedRef.current = true;
+									}}
 								/>
 							</div>
 						))}
