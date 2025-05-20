@@ -142,31 +142,39 @@ const SuggestedOptions = [
 const suggestions = [
 	{
 		id: 1,
-		text: 'Innovations reshape healthcare, enhancing patient experiences with data.',
+		text: 'Use a task management system to prioritize tasks based on urgency and importance.',
 	},
 	{
 		id: 2,
-		text: 'Breakthrough tech revolutionizes healthcare, leading to better outcomes.',
+		text: 'Draft and send a follow-up email to a client',
 	},
 	{
 		id: 3,
-		text: 'Innovative advancements enhance healthcare, driving better patient results.',
+		text: 'Deep research “latest industry trends” with sources',
 	},
 	{
 		id: 4,
-		text: 'Tech changes healthcare, providing better outcomes through data.',
+		text: 'Generate a professional-looking form in seconds',
 	},
 	{
 		id: 5,
-		text: 'Next-gen tech alters healthcare, ensuring better patient results.',
+		text: 'Search across Gmail, Drive, and Notion for “invoice”',
 	},
 	{
 		id: 6,
-		text: 'Tech transforms healthcare, improving patient care with data.',
+		text: 'Summarize all emails from today',
 	},
 	{
 		id: 7,
-		text: 'Pioneering tech reshapes healthcare, achieving better patient results.',
+		text: 'Schedule a meeting for next week',
+	},
+	{
+		id: 8,
+		text: 'Create a new contact',
+	},
+	{
+		id: 9,
+		text: 'Create a new automation',
 	},
 ];
 const InitialHomePage = () => {
@@ -191,6 +199,7 @@ const InitialHomePage = () => {
 		minimizedChatBox: true,
 		minimizedChatBoxState: true,
 		showSuggestions: false,
+		chatQuery: '',
 	});
 
 	useEffect(() => {
@@ -309,6 +318,13 @@ const InitialHomePage = () => {
 			...prev,
 			options: updatedOptions,
 			selectedOption,
+		}));
+	};
+
+	const handleChatQueryChange = (query) => {
+		setInfo((prev) => ({
+			...prev,
+			chatQuery: query,
 		}));
 	};
 
@@ -455,6 +471,7 @@ const InitialHomePage = () => {
 							animatePlaceholder={true}
 							startPage={info?.minimizedChatBoxState}
 							customChatBoxClick={handleCustomChatBoxClick}
+							onChatQueryChange={handleChatQueryChange}
 						/>
 					</div>
 				</div>
@@ -469,7 +486,9 @@ const InitialHomePage = () => {
 				</div>
 			)}
 
-			{info?.showSuggestions && <Suggestions data={suggestions} />}
+			{info?.showSuggestions && info?.chatQuery?.length === 0 && (
+				<Suggestions data={suggestions} />
+			)}
 		</div>
 	);
 };
