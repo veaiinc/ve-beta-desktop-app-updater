@@ -14,7 +14,6 @@ import FilterDropdown from '../dropDown/file/FilterDropdown';
 import EmptyState from './EmptyState';
 import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
-import ObjectID from 'bson-objectid';
 
 const origin = fetchOriginSelection();
 
@@ -37,7 +36,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 	const navigate = useNavigate();
 
 	const {
-		templates: { getDocsFilesList, docsFilesList, updateStateValues },
+		templates: { getDocsFilesList, docsFilesList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -236,9 +235,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 								className="card-item"
 								// onClick={handleCreateDoc}
 								onClick={() => {
-									const sessionId = ObjectID().toHexString();
-									updateStateValues({ activeInputForChat: 'Create a form for' });
-									navigate(`/chat/${sessionId}`);
+									window.location.href = `${origin}/create-document`;
 								}}
 							>
 								<div className="card-item-style card-item-style-btn">
