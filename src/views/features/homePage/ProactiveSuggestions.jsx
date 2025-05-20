@@ -873,11 +873,6 @@ const ProactiveSuggestions = () => {
 																						card?._id,
 																					);
 																				}}
-																				style={{
-																					cursor: 'pointer',
-																					marginBottom:
-																						'-6px',
-																				}}
 																			>
 																				<StarSvg />
 																			</div>
