@@ -22,10 +22,6 @@ import ObjectID from 'bson-objectid';
 import jwtDecode from 'jwt-decode';
 import { ReactComponent as DustBinIcon } from '../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as RestoreIcon } from '../../../assets/svg/notes/restore.svg';
-import { Tooltip } from 'antd';
-import UploadPopup from '../../components/notes/UploadPopup';
-import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
-import { pasteHandler } from './pasteHandler';
 
 const getRandomWidth = () => {
 	const min = 70;
@@ -51,7 +47,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const prevDocRef = useRef([]);
-	const { createWebSocketConnection, sendMessage } = useChatStream();
 
 	const {
 		notes: {
@@ -73,33 +68,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 
-	const [info, setInfo] = useState({
-		timeouts: {}, // Single timeouts object to store all timeouts
-		title: '',
-		updatedAt: '',
-		notesConfigs: {
-			smallText: false,
-			fullWidth: false,
-		},
-		isFavorite: false,
-		loading: true,
-		aiResonse: '',
-		myAccess: 'view',
-		isDeleted: false,
-		lastUpdated: null,
-		deleteLoading: false,
-		updatedBy: null,
-		showUploadPopup: false,
-		showCustomizeAppearance: false,
-		coverImageError: false,
-		localCoverImage: false, // cover image or link that is selected/uploaded before refreshing the page
-	});
-
-	const coverImage = info?.localCoverImage
-		? info?.localCoverImage
-		: info?.coverImageError
-		? false
-		: notesPageData?.data?.coverImage ?? false;
+	const { createWebSocketConnection, sendMessage } = useChatStream();
 
 	async function uploadFile(file) {
 		const response = await uploadNotesImageBlock(
@@ -121,10 +90,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		return undefined;
 	}
 
-	const setLinkUploadedInfo = (link) => {
-		setInfo((prev) => ({ ...prev, uploadedLink: link }));
-	};
-
 	const editor = useCreateBlockNote({
 		tables: {
 			splitCells: true,
@@ -133,7 +98,23 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			headers: true,
 		},
 		uploadFile,
-		pasteHandler: pasteHandler,
+	});
+	const [info, setInfo] = useState({
+		timeouts: {}, // Single timeouts object to store all timeouts
+		title: '',
+		updatedAt: '',
+		notesConfigs: {
+			smallText: false,
+			fullWidth: false,
+		},
+		isFavorite: false,
+		loading: true,
+		aiResonse: '',
+		myAccess: 'view',
+		isDeleted: false,
+		lastUpdated: null,
+		deleteLoading: false,
+		updatedBy: null,
 	});
 
 	useEffect(() => {
@@ -470,10 +451,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		}
 	};
 
-	const handleCoverImageError = () => {
-		setInfo((prev) => ({ ...prev, coverImageError: true }));
-	};
-
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
 			{info?.title && (
@@ -570,93 +547,34 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 						</div>
 					</div>
 				) : (
-					<>
-						{coverImage && (
-							<div className="notes-cover-image-container">
-								<img
-									src={coverImage}
-									onError={handleCoverImageError}
-									alt="cover image"
-								/>
-							</div>
-						)}
-						<div
-							className="notes-editor-wrapper"
-							style={{ maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px' }}
+					<div
+						className="notes-editor-wrapper"
+						style={{ maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px' }}
+					>
+						<CustomTextArea
+							className="notes-title"
+							value={info?.title}
+							onChange={handleTitleChange}
+							autoResize={true}
+							onKeyDown={handleKeyDown}
+						/>
+						<BlockNoteView
+							editor={editor}
+							formattingToolbar={false}
+							onChange={onChange}
+							style={innerContainerStyle || {}}
+							theme={'dark'}
+							editable={info?.myAccess !== 'view' || !info?.isDeleted}
 						>
-							<Tooltip
-								open={info?.showCustomizeAppearance}
-								onOpenChange={() => {
-									if (info?.showUploadPopup) {
-										setInfo((prev) => ({
-											...prev,
-											showUploadPopup: false,
-										}));
-									}
-									setInfo((prev) => ({
-										...prev,
-										showCustomizeAppearance: !prev.showCustomizeAppearance,
-									}));
-								}}
-								placement="bottomLeft"
-								title={
-									info?.showUploadPopup ? (
-										<UploadPopup
-											closePopup={() =>
-												setInfo((prev) => ({
-													...prev,
-													showUploadPopup: false,
-												}))
-											}
-											setLocalCoverImage={(coverImage) =>
-												setInfo((prev) => ({
-													...prev,
-													localCoverImage: coverImage,
-												}))
-											}
-										/>
-									) : (
-										<CustomizeAppearance
-											showUploadPopup={() =>
-												setInfo((prev) => ({
-													...prev,
-													showUploadPopup: true,
-												}))
-											}
-										/>
-									)
-								}
-								overlayInnerStyle={{
-									backgroundColor: 'inherit',
-								}}
-								arrow={false}
-							>
-								<CustomTextArea
-									className="notes-title"
-									value={info?.title}
-									onChange={handleTitleChange}
-									autoResize={true}
-									onKeyDown={handleKeyDown}
+							{(info?.myAccess !== 'view' || !info?.isDeleted) && (
+								<NoteToolbar
+									sendMessage={customSendMessage}
+									aiResonse={info?.aiResonse}
+									resetAiResponse={resetAiResponse}
 								/>
-							</Tooltip>
-							<BlockNoteView
-								editor={editor}
-								formattingToolbar={false}
-								onChange={onChange}
-								style={innerContainerStyle || {}}
-								theme={'dark'}
-								editable={info?.myAccess !== 'view' || !info?.isDeleted}
-							>
-								{(info?.myAccess !== 'view' || !info?.isDeleted) && (
-									<NoteToolbar
-										sendMessage={customSendMessage}
-										aiResonse={info?.aiResonse}
-										resetAiResponse={resetAiResponse}
-									/>
-								)}
-							</BlockNoteView>
-						</div>
-					</>
+							)}
+						</BlockNoteView>
+					</div>
 				)}
 			</div>
 		</div>
