@@ -52,6 +52,8 @@ const MODULE_NAME_MAP = {
 	automation: 'automation',
 	// notes: 'notes',
 	agents: 'knowledgeAgent',
+	'ai assistant': 'conversationalAgent',
+	'knowledge agent': 'knowledgeAgent',
 };
 
 const routeType = 'public';
@@ -138,8 +140,15 @@ const OpenedSidebarModules = ({
 	const isExactPathMatch = useCallback(() => {
 		const currentPath = location.pathname.replace(/\/$/, '');
 		const routePath = route?.replace(/\/$/, '');
+
+		if (name === 'Agents') {
+			return (
+				currentPath.includes('/knowledge-agent') || currentPath.includes('/ai-assistant')
+			);
+		}
+
 		return currentPath === routePath;
-	}, [location.pathname, route]);
+	}, [location.pathname, route, name]);
 
 	return (
 		<div
@@ -456,9 +465,17 @@ const OpenedSidebar = ({
 			: filterModules(veAiModules, tenantUserAccessControls?.accessControls, allPossibleApps);
 
 	const isExactPathMatch = useCallback(
-		(route) => {
+		(currentRoute, moduleName) => {
 			const currentPath = location.pathname.replace(/\/$/, '');
-			const routePath = route?.replace(/\/$/, '');
+			const routePath = currentRoute?.replace(/\/$/, '');
+
+			if (moduleName === 'Agents') {
+				return (
+					currentPath.includes('/knowledge-agent') ||
+					currentPath.includes('/ai-assistant')
+				);
+			}
+
 			return currentPath === routePath;
 		},
 		[location.pathname],
@@ -651,10 +668,10 @@ const OpenedSidebar = ({
 																	selectedOption ===
 																	singleItem.name
 																}
-																isActive={
-																	location.pathname ===
-																	singleItem.route
-																}
+																isActive={isExactPathMatch(
+																	singleItem.route,
+																	singleItem.name,
+																)}
 																subModules={singleItem.subModules}
 																isDropdownVisible={
 																	activeDropdown ===
@@ -978,7 +995,10 @@ const OpenedSidebar = ({
 											handleNavigateFunction(route, singleItem)
 										}
 										isSelected={selectedOption === singleItem.name}
-										isActive={location.pathname === singleItem.route}
+										isActive={isExactPathMatch(
+											singleItem.route,
+											singleItem.name,
+										)}
 										subModules={singleItem.subModules}
 										isDropdownVisible={activeDropdown === singleItem.name}
 										onDropdownToggle={() =>

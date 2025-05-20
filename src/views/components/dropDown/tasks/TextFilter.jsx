@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/dropdown/tasks/textFilter.scss';
 
-const TextFilter = ({ value = '', onChange = () => {}, title = 'Text' }) => {
+const TextFilter = ({ value = '', onChange = () => {}, title = 'Text', prefix = '' }) => {
 	const debounceRef = useRef(null);
 
 	const [inputValue, setInputValue] = useState(value);
@@ -26,12 +26,15 @@ const TextFilter = ({ value = '', onChange = () => {}, title = 'Text' }) => {
 	return (
 		<div className="filter-dropdown-text-filter">
 			<div className="filter-dropdown-text-filter-title">{title}</div>
-			<input
-				className="filter-dropdown-text-filter-input"
-				placeholder="Add Filter"
-				value={inputValue}
-				onChange={handleChange}
-			/>
+			<div className="filter-dropdown-text-filter-input-container">
+				{title === 'Id' ? `${prefix} - ` : ''}
+				<input
+					className="filter-dropdown-text-filter-input"
+					placeholder={title === 'Id' ? '' : 'Add Filter'}
+					value={inputValue}
+					onChange={handleChange}
+				/>
+			</div>
 		</div>
 	);
 };
