@@ -143,18 +143,23 @@ const ContactsWidget = ({ width, height }) => {
 					onClick={() => {
 						navigate('/contacts');
 					}}
-					style={{ cursor: 'pointer' }}
 				>
 					<div className="contactsWidgetFooterTitle">View Contacts</div>
-					<PlusIcon
-						onClick={(e) => {
-							e.stopPropagation();
-							setInfo((prev) => ({
-								...prev,
-								createLeadPopup: true,
-							}));
-						}}
-					/>
+					<div className="contactsWidgetFooterAdd">
+						<PlusIcon
+							onClick={(e) => {
+								e.stopPropagation();
+								setInfo((prev) => ({
+									...prev,
+									createLeadPopup: true,
+								}));
+							}}
+							style={{
+								width: '18px',
+								height: '18px',
+							}}
+						/>
+					</div>
 				</div>
 			</div>
 			<CreateClientModal

@@ -157,15 +157,20 @@ const AutomationWidget = ({ width, height }) => {
 					onClick={() => {
 						navigate('/automations');
 					}}
-					style={{ cursor: 'pointer' }}
 				>
 					<div className="automationWidgetFooterTitle">View Automations</div>
-					<PlusIcon
-						onClick={(e) => {
-							e.stopPropagation();
-							handleCreateAutomation();
-						}}
-					/>
+					<div className="automationWidgetFooterAdd">
+						<PlusIcon
+							onClick={(e) => {
+								e.stopPropagation();
+								handleCreateAutomation();
+							}}
+							style={{
+								width: '18px',
+								height: '18px',
+							}}
+						/>
+					</div>
 				</div>
 			</div>
 			<AutomationLoaderModal loading={info?.showLoader} message={info?.loaderMessage} />
