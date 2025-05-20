@@ -124,17 +124,29 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 	};
 
 	const handleCalendarClick = (meet) => {
-		setInfo((prev) => ({
-			...prev,
-			selectedEvent: meet,
-			isModalOpen: true,
-		}));
+		// Create a clean copy of the event data
+		const eventData = {
+			...meet,
+			id: meet._id || meet.id, // Ensure we have an id
+			attendees: Array.isArray(meet.attendees) ? meet.attendees : [],
+			calendarCategory: meet.calendarCategory || null,
+		};
+
+		setInfo((prev) => {
+			const newState = {
+				...prev,
+				selectedEvent: eventData,
+				isModalOpen: true,
+			};
+			return newState;
+		});
 	};
 
 	const handleModalClose = () => {
 		setInfo((prev) => ({
 			...prev,
 			isModalOpen: false,
+			selectedEvent: null,
 		}));
 	};
 
@@ -147,8 +159,14 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 				}
 			}
 			setInfo((prev) => ({ ...prev, eventsList: updatedEventsList }));
+
+			if (allCalendarEvents?.data) {
+				const updatedAllEvents = allCalendarEvents.data.map((event) =>
+					event.id === eventId ? { ...event, ...updateBody } : event,
+				);
+			}
 		},
-		[info?.eventsList],
+		[info?.eventsList, allCalendarEvents?.data],
 	);
 	const filterDeletedEvent = useCallback(
 		(eventId) => {

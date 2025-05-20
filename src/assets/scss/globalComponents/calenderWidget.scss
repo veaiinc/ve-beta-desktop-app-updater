@@ -86,6 +86,8 @@
 					background: var(--popup, #202123);
 					margin-bottom: 12px;
 					width: 100%;
+					transition: border 0.2s ease-in-out;
+					border: 1px solid var(--primary-button, #79ecc9);
 
 					.upcomingEventDetails {
 						display: flex;
@@ -206,6 +208,10 @@
 							align-self: stretch;
 							border-radius: 8px;
 							background: var(--popup, #202123);
+							transition: border 0.2s ease-in-out;
+							&:hover {
+								border: 1px solid var(--primary-button, #79ecc9);
+							}
 							.meetingDetailsTitle {
 								color: var(--primary-font, #f2f2f3);
 								font-family: var(--primary-font-family);
@@ -276,6 +282,10 @@
 				border-radius: 6px;
 				border: 1px solid var(--primary-button, #79ecc9);
 				cursor: pointer;
+				transition: all 0.2s ease-in-out;
+				&:hover {
+					background: rgba(121, 236, 201, 0.1);
+				}
 			}
 		}
 	}
