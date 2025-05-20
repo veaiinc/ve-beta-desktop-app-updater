@@ -6,26 +6,26 @@ import {
 	photographerModules,
 	SETTINGS_OPTIONS,
 } from './sidebarindex';
-import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
-import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
-import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg.svg';
-import { ReactComponent as SingleRightArrowSvg } from '../../../assets/svg/sidebar/singleRightArrow.svg';
-import { ReactComponent as SwitchWorkspaceSvg } from '../../../assets/svg/sidebar/switchWorkspace.svg';
-import { ReactComponent as SunIcon } from '../../../assets/svg/sun.svg';
-import { ReactComponent as MoonIcon } from '../../../assets/svg/moon.svg';
-import { ReactComponent as NewEditSvg } from '../../../assets/svg/sidebar/newEdit.svg';
+import DownArrowSmallSvg from '../../../assets/svg/sidebar/downarrowsmall.svg?react';
+import SidebarClosingSvg from '../../../assets/svg/sidebar/SidebarClosing.svg?react';
+import CrossSvg from '../../../assets/svg/sidebar/CrossSvg.svg?react';
+import SingleRightArrowSvg from '../../../assets/svg/sidebar/singleRightArrow.svg?react';
+import SwitchWorkspaceSvg from '../../../assets/svg/sidebar/switchWorkspace.svg?react';
+import SunIcon from '../../../assets/svg/sun.svg?react';
+import MoonIcon from '../../../assets/svg/moon.svg?react';
+import NewEditSvg from '../../../assets/svg/sidebar/newEdit.svg?react';
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import ChatHistory from './chatHistory/ChatHistory';
-import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
-import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
+import TickSvg from '../../../assets/svg/tick.svg?react';
+import LogoutRedSvg from '../../../assets/svg/sidebar/logout_red.svg?react';
 import Cropper from 'react-easy-crop';
 import Context from '../../../context/context';
 import { getInitials } from '../../../helpers/index';
 import { message } from '../globalComponents/CustomToast';
-import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
+import SearchSvg from '../../../assets/svg/sidebar/SearchSvg?react';
 import ObjectID from 'bson-objectid';
-import { ReactComponent as CreateWorkspaceSvg } from '../../../assets/svg/sidebar/createWorkspace.svg';
+import CreateWorkspaceSvg from '../../../assets/svg/sidebar/createWorkspace.svg?react';
 import SidebarTooltip from './SidebarTooltip';
 
 const workspaceStyles = {

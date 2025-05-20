@@ -1,12 +1,12 @@
 import React, { useState, useRef, useContext, useCallback, useEffect } from 'react';
 import '../../../assets/scss/chat/formModel.scss';
-import { ReactComponent as ExpandIcon } from '../../../assets/svg/docs/expand.svg';
+import ExpandIcon from '../../../assets/svg/docs/expand.svg?react';
 import { fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import ChatBox from './ChatBox';
 import Markdown from 'react-markdown';
-import { ReactComponent as LinkLightSvg } from '../../../assets/svg/notes/loop-light.svg';
-import { ReactComponent as LinkDarkSvg } from '../../../assets/svg/notes/loop-dark.svg';
+import LinkLightSvg from '../../../assets/svg/notes/loop-light.svg?react';
+import LinkDarkSvg from '../../../assets/svg/notes/loop-dark.svg?react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import AIMessage from './AIMessage';
 const FormModel = ({

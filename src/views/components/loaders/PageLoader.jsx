@@ -1,6 +1,6 @@
 import React from 'react';
 import '../../../assets/scss/pageLoader.scss';
-import { ReactComponent as Logo } from '../../../assets/svg/windmill.svg';
+import Logo from '../../../assets/svg/windmill.svg?react';
 const InitialPageLoader = () => {
 	return (
 		<div className="mainBody">

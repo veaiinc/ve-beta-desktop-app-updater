@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback, useContext, useRef, memo } fro
 import '../../../assets/scss/gallery/albumSettings.scss';
 import ToggleSlider from '../../../views/components/input/slider';
 import { useNavigate, useLocation, useParams, useSearchParams } from 'react-router-dom';
-import { ReactComponent as CopyLogo } from '../../../assets/svg/gallery/copy.svg';
-import { ReactComponent as SaveLogo } from '../../../assets/svg/gallery/save.svg';
-import { ReactComponent as GalleryLogo } from '../../../assets/svg/gallery/gallery.svg';
+import CopyLogo from '../../../assets/svg/gallery/copy.svg?react';
+import SaveLogo from '../../../assets/svg/gallery/save.svg?react';
+import GalleryLogo from '../../../assets/svg/gallery/gallery.svg?react';
 import Context from '../../../context/context';
-import { ReactComponent as DownArrow } from '../../../assets/svg/workflow/downArrow.svg';
+import DownArrow from '../../../assets/svg/workflow/downArrow.svg?react';
 import { message } from '../../components/globalComponents/CustomToast';
 import moment from 'moment';
 import randomize from 'randomatic';

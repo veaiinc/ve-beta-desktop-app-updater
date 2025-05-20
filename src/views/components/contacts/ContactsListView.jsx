@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import '../../../assets/scss/contacts/contactsListView.scss';
 import { useNavigate } from 'react-router-dom';
-import { ReactComponent as ClockSvg } from '../../../assets/svg/contacts/clock.svg';
+import ClockSvg from '../../../assets/svg/contacts/clock.svg?react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useContext, useEffect, useCallback, memo } from 'react';
-import { ReactComponent as CopyIcon } from '../../../../assets/svg/gallery/copy.svg';
-import { ReactComponent as DownloadIcon } from '../../../../assets/svg/gallery/download2.svg';
-import { ReactComponent as CloseIcon } from '../../../../assets/svg/close.svg';
+import CopyIcon from '../../../../assets/svg/gallery/copy.svg?react';
+import DownloadIcon from '../../../../assets/svg/gallery/download2.svg?react';
+import CloseIcon from '../../../../assets/svg/close.svg?react';
 import Context from '../../../../context/context';
 import Table from './RegisteredUsersTable';
 import QRCode from 'react-qr-code';

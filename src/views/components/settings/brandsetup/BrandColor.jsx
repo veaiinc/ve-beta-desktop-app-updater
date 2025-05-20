@@ -1,8 +1,8 @@
 import ReusableButtonSettings from '../ReusableButtonSettings';
-import { ReactComponent as PlusSvg } from '../../../../assets/svg/workspaceSettings/plus-button.svg';
+import PlusSvg from '../../../../assets/svg/workspaceSettings/plus-button.svg?react';
 import ColorPicker from '../../colorPicker/ColorPicker';
-import { ReactComponent as CloseSvg } from '../../../../assets/svg/Settings/CrossWhite.svg';
-import { ReactComponent as InfoIcon } from '../../../../assets/svg/workspaceSettings/info.svg';
+import CloseSvg from '../../../../assets/svg/Settings/CrossWhite.svg?react';
+import InfoIcon from '../../../../assets/svg/workspaceSettings/info.svg?react';
 import { memo, useState } from 'react';
 
 const BrandColorComponent = ({

@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactModal from '../index';
-import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
-import { ReactComponent as BookMarkSvg } from '../../../../assets/svg/gallery/bookMark.svg';
-import { ReactComponent as GallerySvg } from '../../../../assets/svg/gallery/gallery.svg';
+import CrossSvg from '../../../../assets/svg/gallery/cross.svg?react';
+import BookMarkSvg from '../../../../assets/svg/gallery/bookMark.svg?react';
+import GallerySvg from '../../../../assets/svg/gallery/gallery.svg?react';
 import ToggleSlider from '../../../components/input/slider';
 const DownloadAlbum = (props) => {
 	const {

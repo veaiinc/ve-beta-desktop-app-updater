@@ -17,11 +17,11 @@ import {
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import Spinner from '../../loaders/Spinner';
 import EditAndViewEmailTemplateModal from './EditAndViewEmailTemplateModal';
-import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/doubleArrow.svg';
+import DoubleArrow from '../../../../assets/svg/worflow_builder/doubleArrow.svg?react';
 import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
 import WorkflowBuilderLoader from '../../workflowBuilderComponents/WorkflowBuilderLoader';
 import ToggleSlider from '../../input/slider';
-import { ReactComponent as Pen } from '../../../../assets/svg/worflow_builder/editPen.svg';
+import Pen from '../../../../assets/svg/worflow_builder/editPen.svg?react';
 import { Button, Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { message } from '../../globalComponents/CustomToast';

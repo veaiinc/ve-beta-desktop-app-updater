@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/workflowBuilder/workflowbuilder.scss';
-import { ReactComponent as BackArrow } from '../../../assets/svg/worflow_builder/BackArrow.svg';
-import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
+import BackArrow from '../../../assets/svg/worflow_builder/BackArrow.svg?react';
+import ThreeDots from '../../../assets/svg/workflow/threeDots.svg?react';
 import WorkflowBuilderCards from '../../components/workflowBuilderComponents/WorkflowBuilderCards';
 import WorkflowConnector from '../../components/workflowBuilderComponents/WorkflowConnector';
 import WorkflowCardEditModal from '../../components/modalsV2/workflowBuilderModals/WorkflowCardEditModal';
@@ -13,7 +13,7 @@ import RenameWorkflow from '../../components/modalsV2/workflowBuilderModals/Rena
 import HeadersDropDownComp from '../../components/dropDown/HeadersDropDownComp';
 import DuplicateIndicatorModal from '../../components/modalsV2/workflowBuilderModals/DuplicateIndicatorModal';
 import ExitWithoutPublishingModal from '../../components/modalsV2/workflowBuilderModals/ExitWithoutPublishingModal';
-import { ReactComponent as VE } from '../../../assets/svg/smallVe.svg';
+import VE from '../../../assets/svg/smallVe.svg?react';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
 import { message } from '../../components/globalComponents/CustomToast';

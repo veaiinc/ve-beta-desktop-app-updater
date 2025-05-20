@@ -1,15 +1,15 @@
 import { memo, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/tasks/taskwidget.scss';
-import { ReactComponent as Warn } from '../../../assets/svg/tasks/warn.svg';
-import { ReactComponent as Check } from '../../../assets/svg/tasks/check.svg';
-import { ReactComponent as Pending } from '../../../assets/svg/tasks/time.svg';
-import { ReactComponent as Calendar } from '../../../assets/svg/tasks/calender.svg';
-import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
-import { ReactComponent as FilterIcon } from '../../../assets/svg/tasks/newFilter.svg';
-import { ReactComponent as SortIcon } from '../../../assets/svg/tasks/newSort.svg';
-import { ReactComponent as SortDownIcon } from '../../../assets/svg/tasks/sortDown.svg';
-import { ReactComponent as SortUpIcon } from '../../../assets/svg/tasks/sortUp.svg';
-import { ReactComponent as CrossIcon } from '../../../assets/svg/tasks/cross.svg';
+import Warn from '../../../assets/svg/tasks/warn.svg?react';
+import Check from '../../../assets/svg/tasks/check.svg?react';
+import Pending from '../../../assets/svg/tasks/time.svg?react';
+import Calendar from '../../../assets/svg/tasks/calender.svg?react';
+import SearchSvg from '../../../assets/svg/workflow/search.svg?react';
+import FilterIcon from '../../../assets/svg/tasks/newFilter.svg?react';
+import SortIcon from '../../../assets/svg/tasks/newSort.svg?react';
+import SortDownIcon from '../../../assets/svg/tasks/sortDown.svg?react';
+import SortUpIcon from '../../../assets/svg/tasks/sortUp.svg?react';
+import CrossIcon from '../../../assets/svg/tasks/cross.svg?react';
 
 import Context from '../../../context/context';
 import FilterDropdown from '../dropDown/tasks/FilterDropdown';

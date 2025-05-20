@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/runSidebar.scss';
-import { ReactComponent as Tick } from '../../../../assets/svg/workflow/Tick.svg';
+import Tick from '../../../../assets/svg/workflow/Tick.svg?react';
 
 import HeaderComponent from './HeaderComponent';
 import { Tooltip } from 'antd';

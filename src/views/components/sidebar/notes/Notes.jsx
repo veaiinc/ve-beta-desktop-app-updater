@@ -1,19 +1,19 @@
 import { Drawer, Tooltip } from 'antd';
 import React, { useContext, useEffect, useState, useCallback, memo } from 'react';
 import '../../../../assets/scss/notes/sidebarNotes.scss';
-import { ReactComponent as Back } from '../../../../assets/svg/sidebar/notes/back.svg';
-import { ReactComponent as Search } from '../../../../assets/svg/sidebar/notes/search.svg';
-import { ReactComponent as Filter } from '../../../../assets/svg/sidebar/notes/filter.svg';
-import { ReactComponent as Menu } from '../../../../assets/svg/sidebar/notes/menu.svg';
-import { ReactComponent as NoteIcon } from '../../../../assets/svg/sidebar/notes/note.svg';
-import { ReactComponent as PlusIcon } from '../../../../assets/svg/sidebar/notes/Plus.svg';
+import Back from '../../../../assets/svg/sidebar/notes/back.svg?react';
+import Search from '../../../../assets/svg/sidebar/notes/search.svg?react';
+import Filter from '../../../../assets/svg/sidebar/notes/filter.svg?react';
+import Menu from '../../../../assets/svg/sidebar/notes/menu.svg?react';
+import NoteIcon from '../../../../assets/svg/sidebar/notes/note.svg?react';
+import PlusIcon from '../../../../assets/svg/sidebar/notes/Plus.svg?react';
 import LoaderModal from '../../modalsV2/automationBuilder/AutomationLoaderModal';
 import Context from '../../../../context/context';
 import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import { useNavigate } from 'react-router-dom';
-import { ReactComponent as Check } from '../../../../assets/svg/tasks/checkmark.svg';
+import Check from '../../../../assets/svg/tasks/checkmark.svg?react';
 const initialState = {
 	loading: true,
 	notesData: [],

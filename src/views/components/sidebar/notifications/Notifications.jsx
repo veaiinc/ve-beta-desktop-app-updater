@@ -1,11 +1,11 @@
 import { Drawer } from 'antd';
 import React, { useContext, useEffect, useState, useCallback, memo } from 'react';
 import '../../../../assets/scss/sidebarNotifications.scss';
-import { ReactComponent as Back } from '../../../../assets/svg/sidebar/notifications/back.svg';
-import { ReactComponent as Search } from '../../../../assets/svg/sidebar/notifications/search.svg';
-import { ReactComponent as Filter } from '../../../../assets/svg/sidebar/notifications/filter.svg';
-import { ReactComponent as Menu } from '../../../../assets/svg/sidebar/notifications/menu.svg';
-import { ReactComponent as WhiteDot } from '../../../../assets/svg/sidebar/notifications/white-dot.svg';
+import Back from '../../../../assets/svg/sidebar/notifications/back.svg?react';
+import Search from '../../../../assets/svg/sidebar/notifications/search.svg?react';
+import Filter from '../../../../assets/svg/sidebar/notifications/filter.svg?react';
+import Menu from '../../../../assets/svg/sidebar/notifications/menu.svg?react';
+import WhiteDot from '../../../../assets/svg/sidebar/notifications/white-dot.svg?react';
 import Context from '../../../../context/context';
 import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';

@@ -1,12 +1,12 @@
 import React, { memo } from 'react';
-import { ReactComponent as FlowArrowSvg } from '../../../../assets/svg/Settings/FlowArrow.svg';
-import { ReactComponent as TableSvg } from '../../../../assets/svg/Settings/Table.svg';
-import { ReactComponent as ImagesSvg } from '../../../../assets/svg/Settings/Images.svg';
-import { ReactComponent as InvoiceSvg } from '../../../../assets/svg/Settings/Invoice.svg';
-import { ReactComponent as HandshakeSvg } from '../../../../assets/svg/Settings/Handshake.svg';
-import { ReactComponent as LibraryCheckSvg } from '../../../../assets/svg/Settings/Library_add_check.svg';
-import { ReactComponent as InsertLinkSvg } from '../../../../assets/svg/Settings/Insert_link.svg';
-import { ReactComponent as SubscriptionButtonSvg } from '../../../../assets/svg/Settings/ArrowCross.svg';
+import FlowArrowSvg from '../../../../assets/svg/Settings/FlowArrow.svg?react';
+import TableSvg from '../../../../assets/svg/Settings/Table.svg?react';
+import ImagesSvg from '../../../../assets/svg/Settings/Images.svg?react';
+import InvoiceSvg from '../../../../assets/svg/Settings/Invoice.svg?react';
+import HandshakeSvg from '../../../../assets/svg/Settings/Handshake.svg?react';
+import LibraryCheckSvg from '../../../../assets/svg/Settings/Library_add_check.svg?react';
+import InsertLinkSvg from '../../../../assets/svg/Settings/Insert_link.svg?react';
+import SubscriptionButtonSvg from '../../../../assets/svg/Settings/ArrowCross.svg?react';
 import { useNavigate } from 'react-router-dom';
 
 const PlansList = [

@@ -1,8 +1,8 @@
 import { memo, useContext, useRef, useState } from 'react';
 import '../../../assets/scss/elastic_search/index.scss';
-import { ReactComponent as SearchIcon } from '../../../assets/svg/elastic_search/search-icon.svg';
-import { ReactComponent as DownArrowIcon } from '../../../assets/svg/elastic_search/down-arrow-icon.svg';
-import { ReactComponent as CrossIcon } from '../../../assets/svg/elastic_search/cross-icon.svg';
+import SearchIcon from '../../../assets/svg/elastic_search/search-icon.svg?react';
+import DownArrowIcon from '../../../assets/svg/elastic_search/down-arrow-icon.svg?react';
+import CrossIcon from '../../../assets/svg/elastic_search/cross-icon.svg?react';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 import { message } from '../../components/globalComponents/CustomToast';

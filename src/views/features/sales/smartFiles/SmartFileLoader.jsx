@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import Skeleton from 'react-loading-skeleton';
-import { ReactComponent as BackArrowSvg } from '../../../../assets/svg/workflow/backarrow.svg';
+import BackArrowSvg from '../../../../assets/svg/workflow/backarrow.svg?react';
 const SmartFileLoader = () => {
 	return (
 		<div

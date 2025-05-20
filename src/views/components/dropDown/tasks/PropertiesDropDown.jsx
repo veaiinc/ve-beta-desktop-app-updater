@@ -1,13 +1,13 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import '../../../../assets/scss/dropdown/tasks/optionsDropDown.scss';
-import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
-import { ReactComponent as OpenEye } from '../../../../assets/svg/gallery/open-eye.svg';
-import { ReactComponent as CrossedOpenEye } from '../../../../assets/svg/gallery/crossedOpenEye.svg';
-import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
-import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
-import { ReactComponent as SixDotsSvg } from '../../../../assets/svg/tasks/sixDots.svg';
-import { ReactComponent as ArrowLeftSvg } from '../../../../assets/svg/tasks/arrowLeft.svg';
+import HorizontalMoreIcon from '../../../../assets/svg/tasks/horizontalDotsThin.svg?react';
+import OpenEye from '../../../../assets/svg/gallery/open-eye.svg?react';
+import CrossedOpenEye from '../../../../assets/svg/gallery/crossedOpenEye.svg?react';
+import CrossSvg from '../../../../assets/svg/gallery/cross.svg?react';
+import ChevronRightThinSvg from '../../../../assets/svg/tasks/chevronRightThin.svg?react';
+import SixDotsSvg from '../../../../assets/svg/tasks/sixDots.svg?react';
+import ArrowLeftSvg from '../../../../assets/svg/tasks/arrowLeft.svg?react';
 import StatusEditDropDown from './StatusEditDropDown';
 
 const PropertiesDropDown = ({

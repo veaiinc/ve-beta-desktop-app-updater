@@ -1,7 +1,7 @@
 import { fontList } from '../../../features/settings/indexConstant';
 import { memo } from 'react';
 import ChangeFontPopup from './ChangeFontPopup';
-import { ReactComponent as InfoIcon } from '../../../../assets/svg/workspaceSettings/info.svg';
+import InfoIcon from '../../../../assets/svg/workspaceSettings/info.svg?react';
 
 const BrandFontsComponent = ({ setbrandState, brandState }) => {
 	return (

@@ -1,10 +1,10 @@
 import { memo, useState, useEffect, useContext } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { ReactComponent as HollowCircleBlue } from '../../../../assets/svg/Settings/hollow-circle-blue.svg';
+import HollowCircleBlue from '../../../../assets/svg/Settings/hollow-circle-blue.svg?react';
 import '../../../../assets/scss/settings/aiSetup.scss';
 import Spinner from '../../loaders/Spinner';
 import Context from '../../../../context/context';
-import { ReactComponent as LinkWhite } from '../../../../assets/svg/Settings/link-white-color.svg';
+import LinkWhite from '../../../../assets/svg/Settings/link-white-color.svg?react';
 import { fetchOriginSelection } from '../../../../helpers';
 import { message } from '../../globalComponents/CustomToast';
 let origin = fetchOriginSelection();

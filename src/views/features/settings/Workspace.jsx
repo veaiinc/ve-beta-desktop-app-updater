@@ -6,7 +6,8 @@ import TimeZoneCurrencyComponent from '../../components/settings/workspace/Timez
 import DeleteWorkpsaceComponent from '../../components/settings/workspace/DeleteWorkspace';
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../../components/popover/ToolTipContainer';
-import { ReactComponent as QuestionMark } from '../../../assets/svg/Settings/question_circle.svg';
+import QuestionMark from '../../../assets/svg/Settings/question_circle.svg?react';
+
 import PublicInformation from './PublicInformation';
 import BrandSetup from './BrandSetup';
 import { message } from '../../components/globalComponents/CustomToast';

@@ -2,9 +2,9 @@ import React, { memo, useState, useEffect, useCallback, useContext, useRef } fro
 import '../../../assets/scss/calendar/calendarAiChat.scss';
 import ObjectId from 'bson-objectid';
 import Context from '../../../context/context';
-import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
-import { ReactComponent as SendSvg } from '../../../assets/svg/calendar/send.svg';
-import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
+import CloseSvg from '../../../assets/svg/calendar/close.svg?react';
+import SendSvg from '../../../assets/svg/calendar/send.svg?react';
+import AiSparkel from '../../../assets/svg/calendar/aiSparkel.svg?react';
 import { Markdown } from '../../../helpers/markdownHelper';
 
 const initialState = {

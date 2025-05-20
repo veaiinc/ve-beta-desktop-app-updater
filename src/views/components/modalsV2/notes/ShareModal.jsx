@@ -1,17 +1,17 @@
 import { memo, useContext, useEffect, useRef, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/notes/modals/shareModal.scss';
-import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/CrossWhite.svg';
+import CrossWhite from '../../../../assets/svg/Settings/CrossWhite.svg?react';
 import AccessDropdown from '../../notes/AccessDropDown';
-import { ReactComponent as Copy } from '../../../../assets/svg/ai_assistant/url.svg';
-import { ReactComponent as Check } from '../../../../assets/svg/tasks/checkmark.svg';
-import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import Copy from '../../../../assets/svg/ai_assistant/url.svg?react';
+import Check from '../../../../assets/svg/tasks/checkmark.svg?react';
+import ChevronRightThinSvg from '../../../../assets/svg/tasks/chevronRightThin.svg?react';
 import jwtDecode from 'jwt-decode';
 import { Tooltip } from 'antd';
 import Context from '../../../../context/context';
 import { message } from '../../../components/globalComponents/CustomToast';
-import { ReactComponent as LockIcon } from '../../../../assets/svg/workspaceSettings/lock-big.svg';
-import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
+import LockIcon from '../../../../assets/svg/workspaceSettings/lock-big.svg?react';
+import CalendarSvg from '../../../../assets/svg/tasks/calendar.svg?react';
 import moment from 'moment';
 const tabs = [
 	{ value: 'share', label: 'Share' },

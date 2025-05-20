@@ -2,16 +2,16 @@ import { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Rate } from 'antd';
 import Context from '../../../context/context';
-import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
-import { ReactComponent as BiDash } from '../../../assets/svg/smartFiles/formResponse/bi-dash.svg';
-import { ReactComponent as Email } from '../../../assets/svg/smartFiles/formResponse/email.svg';
-import { ReactComponent as Phone } from '../../../assets/svg/smartFiles/formResponse/phone.svg';
-import { ReactComponent as Calendar } from '../../../assets/svg/smartFiles/formResponse/calendar.svg';
-import { ReactComponent as Clock } from '../../../assets/svg/smartFiles/formResponse/clock.svg';
-import { ReactComponent as FileUpload } from '../../../assets/svg/smartFiles/formResponse/file-upload.svg';
-import { ReactComponent as Link } from '../../../assets/svg/smartFiles/formResponse/link.svg';
-import { ReactComponent as Hash } from '../../../assets/svg/smartFiles/formResponse/hash.svg';
-import { ReactComponent as TimeDivider } from '../../../assets/svg/smartFiles/formResponse/time-divider.svg';
+import CloseSvg from '../../../assets/svg/tasks/doubleRightArrow.svg?react';
+import BiDash from '../../../assets/svg/smartFiles/formResponse/bi-dash.svg?react';
+import Email from '../../../assets/svg/smartFiles/formResponse/email.svg?react';
+import Phone from '../../../assets/svg/smartFiles/formResponse/phone.svg?react';
+import Calendar from '../../../assets/svg/smartFiles/formResponse/calendar.svg?react';
+import Clock from '../../../assets/svg/smartFiles/formResponse/clock.svg?react';
+import FileUpload from '../../../assets/svg/smartFiles/formResponse/file-upload.svg?react';
+import Link from '../../../assets/svg/smartFiles/formResponse/link.svg?react';
+import Hash from '../../../assets/svg/smartFiles/formResponse/hash.svg?react';
+import TimeDivider from '../../../assets/svg/smartFiles/formResponse/time-divider.svg?react';
 import '../../../assets/scss/forms/formFullView.scss';
 
 const iconsForQuestions = {

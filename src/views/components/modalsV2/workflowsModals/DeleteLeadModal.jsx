@@ -1,6 +1,6 @@
 import React, { memo, useState, useCallback } from 'react';
 import ReactModal from '../../modalsV2/index';
-import { ReactComponent as Warning } from '../../../../assets/svg/worflow_builder/warning.svg';
+import Warning from '../../../../assets/svg/worflow_builder/warning.svg?react';
 import '../../../../assets/scss/workflowBuilder/deleteLeadModal.scss';
 
 import Spinner from '../../loaders/Spinner';

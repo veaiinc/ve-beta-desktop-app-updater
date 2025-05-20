@@ -5,7 +5,7 @@ import { FetchMoreLoaderComp, isURL } from '../../../helpers';
 import InfiniteScroll from 'global-infinite-scroll';
 import moment from 'moment';
 import FormModal from './FormModal';
-import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
+import ExpandSvg from '../../../assets/svg/docs/expand.svg?react';
 import { useNavigate } from 'react-router-dom';
 
 const FormRes = ({ formId, updateTotalSubmissions }) => {

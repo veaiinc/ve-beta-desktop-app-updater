@@ -76,7 +76,9 @@
 	"scripts": {
 		"start": "webpack serve --open",
 		"win-start": "set \"PORT=8000\" && react-scripts start",
-		"build": "webpack --mode production",
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview",
 		"delete-maps": "rm ./build/static/js/*.map && rm ./build/static/css/*.map",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
@@ -129,6 +131,7 @@
 		"@babel/preset-env": "^7.27.1",
 		"@locator/babel-jsx": "^0.4.4",
 		"@svgr/webpack": "^8.1.0",
+		"@vitejs/plugin-react": "^4.4.1",
 		"babel-loader": "^10.0.0",
 		"css-loader": "^7.1.2",
 		"eslint-config-prettier": "^6.15.0",
@@ -140,6 +143,8 @@
 		"sass": "^1.77.5",
 		"sass-loader": "^16.0.5",
 		"style-loader": "^4.0.0",
+		"vite": "^6.3.5",
+		"vite-plugin-svgr": "^4.3.0",
 		"webpack": "^5.99.7",
 		"webpack-cli": "^6.0.1",
 		"webpack-dev-server": "^5.2.1"

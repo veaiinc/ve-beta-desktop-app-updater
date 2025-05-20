@@ -1,8 +1,8 @@
 import '../../../assets/scss/signin.scss';
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import Context from '../../../context/context';
-import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
-import { ReactComponent as EyeOpen } from '../../../assets/svg/password-eye-open.svg';
+import VE from '../../../assets/svg/ve.svg?react';
+import EyeOpen from '../../../assets/svg/password-eye-open.svg?react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getLocationsDetails } from '../../../helpers';
 import { createUsersAccount, signUpInvitedUser } from '../../../services/authServices/authServices';

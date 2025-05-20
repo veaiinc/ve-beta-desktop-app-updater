@@ -1,7 +1,7 @@
 import { memo, useState, useEffect, useRef, useContext, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../../../assets/scss/login_page/index.scss';
-import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/login_page/left-arrow-back-btn.svg';
+import LeftArrowBackBtn from '../../../assets/svg/login_page/left-arrow-back-btn.svg?react';
 import { message } from '../globalComponents/CustomToast';
 import { getLocationsDetails } from '../../../helpers';
 import Context from '../../../context/context';
@@ -65,9 +65,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			} else if (emailVerified) {
 				if (response?.[1]?.hasWorkspaces) {
 					if (response?.[1]?.isOnboard) {
-						const locationDetails = JSON.parse(
-							localStorage?.getItem('locationDetails'),
-						);
+						let locationDetails = JSON.parse(localStorage?.getItem('locationDetails'));
 						if (!locationDetails) {
 							locationDetails = await getLocationsDetails();
 						}

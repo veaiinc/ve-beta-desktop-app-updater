@@ -1,9 +1,9 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/aichatlogs.scss';
-import { ReactComponent as DownArrow } from '../../../assets/svg/activity/down.svg';
-import { ReactComponent as Export } from '../../../assets/svg/gallery/download2.svg';
-import { ReactComponent as Refresh } from '../../../assets/svg/sidebar/Refresh.svg';
-import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
+import DownArrow from '../../../assets/svg/activity/down.svg?react';
+import Export from '../../../assets/svg/gallery/download2.svg?react';
+import Refresh from '../../../assets/svg/sidebar/Refresh.svg?react';
+import AgentIcon from '../../../assets/svg/ai_assistant/agent.svg?react';
 import { Tooltip } from 'antd';
 import Skeleton from 'react-loading-skeleton';
 import Context from '../../../context/context';

@@ -1,7 +1,7 @@
 import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import { Tooltip } from 'antd';
-import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
-import { ReactComponent as TickSvg } from '../../../assets/svg/home_page/Tick.svg';
+import SearchSvg from '../../../assets/svg/workflow/search.svg?react';
+import TickSvg from '../../../assets/svg/home_page/Tick.svg?react';
 import Context from '../../../context/context';
 
 const LLMTooltip = ({ children, isOpen, setIsLLMModelOpen, handleOptionClick, selectedModel }) => {

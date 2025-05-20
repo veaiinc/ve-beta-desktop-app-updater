@@ -1,10 +1,10 @@
 import { memo, useMemo, useState } from 'react';
 import '../../../../assets/scss/tasks/taskHeader.scss';
-import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';
-import { ReactComponent as ListViewIcon } from '../../../../assets/svg/tasks/list.svg';
-import { ReactComponent as BoardViewIcon } from '../../../../assets/svg/tasks/board.svg';
-import { ReactComponent as TableViewIcon } from '../../../../assets/svg/tasks/grid.svg';
-import { ReactComponent as GalleryViewIcon } from '../../../../assets/svg/tasks/blocks.svg';
+import PlusIcon from '../../../../assets/svg/tasks/plus.svg?react';
+import ListViewIcon from '../../../../assets/svg/tasks/list.svg?react';
+import BoardViewIcon from '../../../../assets/svg/tasks/board.svg?react';
+import TableViewIcon from '../../../../assets/svg/tasks/grid.svg?react';
+import GalleryViewIcon from '../../../../assets/svg/tasks/blocks.svg?react';
 import { Tooltip } from 'antd';
 import TabEditDropdown from '../../dropDown/tasks/TabEditDropdown';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';

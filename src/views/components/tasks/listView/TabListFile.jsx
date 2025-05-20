@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import ListViewRow from './ListViewRow';
-import { ReactComponent as TextSvg } from '../../../../assets/svg/tasks/letterA.svg';
+import TextSvg from '../../../../assets/svg/tasks/letterA.svg?react';
 import '../../../../assets/scss/tasks/tabListView.scss';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';

@@ -1,9 +1,9 @@
 import { Tooltip } from 'antd';
 import React, { memo, useCallback } from 'react';
-import { ReactComponent as DownArrow } from '../../../../assets/svg/tasks/downArrow.svg';
-import { ReactComponent as CloseSvg } from '../../../../assets/svg/Settings/CrossWhite.svg';
-import { ReactComponent as ArrowUpAndDown } from '../../../../assets/svg/tasks/arrowUpAndDown.svg';
-import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
+import DownArrow from '../../../../assets/svg/tasks/downArrow.svg?react';
+import CloseSvg from '../../../../assets/svg/Settings/CrossWhite.svg?react';
+import ArrowUpAndDown from '../../../../assets/svg/tasks/arrowUpAndDown.svg?react';
+import PlusSvg from '../../../../assets/svg/tasks/plus.svg?react';
 import DropDown from '../../dropDown/tasks/DropDown';
 
 const SortComponent = ({ sort, properties, responseMetadata, updateViewInfo, handelSortClick }) => {

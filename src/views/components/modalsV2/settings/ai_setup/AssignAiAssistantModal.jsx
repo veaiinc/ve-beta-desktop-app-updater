@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState, useContext } from 'react';
 import Modal from '../../';
 import '../../../../../assets/scss/settings/aiSetup.scss';
-import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/cross-grey.svg';
+import CrossGrey from '../../../../../assets/svg/Settings/cross-grey.svg?react';
 import Workflows from '../../../settings/ai_setup/Workflows';
 import Context from '../../../../../context/context';
 import { message } from '../../../globalComponents/CustomToast';

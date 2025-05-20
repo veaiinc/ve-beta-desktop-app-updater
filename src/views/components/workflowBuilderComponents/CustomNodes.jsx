@@ -1,14 +1,14 @@
 import React, { useCallback, useState } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import '../../../assets/scss/workflowBuilder/customNodes.scss';
-import { ReactComponent as Form } from '../../../assets/svg/worflow_builder/customNodes/form.svg';
-import { ReactComponent as Action } from '../../../assets/svg/worflow_builder/customNodes/actionSvg.svg';
-import { ReactComponent as IfElse } from '../../../assets/svg/worflow_builder/customNodes/ifelse.svg';
-import { ReactComponent as Slack } from '../../../assets/svg/worflow_builder/buildercard/slack.svg';
-import { ReactComponent as Google } from '../../../assets/svg/worflow_builder/buildercard/google.svg';
-import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/buildercard/labelledDustbin.svg';
-import { ReactComponent as Copy } from '../../../assets/svg/worflow_builder/buildercard/labelledCopy.svg';
-import { ReactComponent as Eye } from '../../../assets/svg/worflow_builder/buildercard/labelledEye.svg';
+import Form from '../../../assets/svg/worflow_builder/customNodes/form.svg?react';
+import Action from '../../../assets/svg/worflow_builder/customNodes/actionSvg.svg?react';
+import IfElse from '../../../assets/svg/worflow_builder/customNodes/ifelse.svg?react';
+import Slack from '../../../assets/svg/worflow_builder/buildercard/slack.svg?react';
+import Google from '../../../assets/svg/worflow_builder/buildercard/google.svg?react';
+import Dustbin from '../../../assets/svg/worflow_builder/buildercard/labelledDustbin.svg?react';
+import Copy from '../../../assets/svg/worflow_builder/buildercard/labelledCopy.svg?react';
+import Eye from '../../../assets/svg/worflow_builder/buildercard/labelledEye.svg?react';
 import UpdatedDeleteWorkflowStep from '../modalsV2/workflowBuilderModals/UpdatedDeleteStepsModal';
 import { Tooltip } from 'antd';
 const actionTypeMapper = {

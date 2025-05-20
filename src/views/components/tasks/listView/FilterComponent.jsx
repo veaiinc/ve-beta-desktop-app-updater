@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useState } from 'react';
 import '../../../../assets/scss/tasks/filterComponent.scss';
-import { ReactComponent as DownArrow } from '../../../../assets/svg/tasks/downArrow.svg';
-import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
+import DownArrow from '../../../../assets/svg/tasks/downArrow.svg?react';
+import CrossIcon from '../../../../assets/svg/workspaceSettings/cross.svg?react';
 import { Tooltip } from 'antd';
 import Person from './Person';
 import WorkFlow from './WorkFlow';

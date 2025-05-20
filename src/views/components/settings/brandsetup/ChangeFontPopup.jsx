@@ -1,5 +1,5 @@
 import React, { useState, memo } from 'react';
-import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
+import CrossIcon from '../../../../assets/svg/workspaceSettings/cross.svg?react';
 import ReactModal from '../../modalsV2';
 import Dropzone from 'react-dropzone';
 

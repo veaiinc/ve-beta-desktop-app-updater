@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
-import { ReactComponent as DeleteLogo } from '../../../../assets/svg/gallery/delete.svg';
-import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
+import DeleteLogo from '../../../../assets/svg/gallery/delete.svg?react';
+import CloseSvg from '../../../../assets/svg/close.svg?react';
 import { message } from '../../globalComponents/CustomToast';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';

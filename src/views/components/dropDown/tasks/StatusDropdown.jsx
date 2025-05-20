@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import '../../../../assets/scss/tasks/status.scss';
-import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
+import Tick from '../../../../assets/svg/tasks/tick.svg?react';
 
 const StatusDropdown = ({
 	colors,

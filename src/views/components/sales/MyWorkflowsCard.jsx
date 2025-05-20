@@ -2,8 +2,8 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/MyWorkflowsCard.scss';
 import ActionCards from './ActionCards';
 import StatsCard from './StatsCard';
-import { ReactComponent as ArrowSvg } from '../../../assets/svg/worflow_builder/smallArrow.svg';
-import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
+import ArrowSvg from '../../../assets/svg/worflow_builder/smallArrow.svg?react';
+import UpArrow from '../../../assets/svg/workflow/downArrow.svg?react';
 import { fetchOriginSelection } from '../../../helpers';
 
 let origin = fetchOriginSelection();

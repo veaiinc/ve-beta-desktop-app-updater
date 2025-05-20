@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../../assets/scss/ai_assistant/modal/deleteAgentModal.scss';
-import { ReactComponent as Warning } from '../../../../assets/svg/worflow_builder/warning.svg';
+import Warning from '../../../../assets/svg/worflow_builder/warning.svg?react';
 import ReactModal from '../../modalsV2/index';
 import Spinner from '../../loaders/Spinner';
 

@@ -1,6 +1,6 @@
 import ReactModal from '../index';
 import React from 'react';
-import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
+import CrossSvg from '../../../../assets/svg/gallery/cross.svg?react';
 const ShowLightRoomCopy = (props) => {
 	const customStyles = {
 		content: { zIndex: 99999 },

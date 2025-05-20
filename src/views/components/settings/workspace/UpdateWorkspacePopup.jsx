@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import ReactModal from '../../modalsV2';
-import { ReactComponent as FinalInfoSvg } from '../../../../assets/svg/Settings/exlametryCircle.svg';
-import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
+import FinalInfoSvg from '../../../../assets/svg/Settings/exlametryCircle.svg?react';
+import CloseSvg from '../../../../assets/svg/close.svg?react';
 import '../../../../assets/scss/settings/workspacesection.scss';
 
 const UpdateWorkspacePopup = ({

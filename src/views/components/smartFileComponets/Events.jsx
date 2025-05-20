@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
-import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
-import { ReactComponent as Close } from '../../../assets/svg/close.svg';
-import { ReactComponent as EventsPridiction } from '../../../assets/svg/sales/smartFile/eventsPrediction.svg';
+import Dustbin from '../../../assets/svg/worflow_builder/dustbin.svg?react';
+import Close from '../../../assets/svg/close.svg?react';
+import EventsPridiction from '../../../assets/svg/sales/smartFile/eventsPrediction.svg?react';
 import { DatePicker, Tooltip } from 'antd';
-import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/questionMark.svg';
+import QuestionMark from '../../../assets/svg/workflow/questionMark.svg?react';
 import ToolTipContainer from '../popover/ToolTipContainer';
 import dayjs from 'dayjs';
 import _ from 'lodash';

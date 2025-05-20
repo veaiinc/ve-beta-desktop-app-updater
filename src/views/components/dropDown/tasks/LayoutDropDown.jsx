@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
-import { ReactComponent as ArrowLeftSvg } from '../../../../assets/svg/tasks/arrowLeft.svg';
+import CrossSvg from '../../../../assets/svg/gallery/cross.svg?react';
+import ArrowLeftSvg from '../../../../assets/svg/tasks/arrowLeft.svg?react';
 import '../../../../assets/scss/dropdown/tasks/layoutDropDown.scss';
 
 const LayoutDropDown = ({ handleBack, handleClose, handleLayoutChange, layoutOptions, view }) => {

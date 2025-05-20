@@ -1,9 +1,9 @@
 import React, { memo, useState, useEffect, useContext } from 'react';
 import '../../../assets/scss/knowledgeAgent/visibility.scss';
-import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
-import { ReactComponent as Check } from '../../../assets/svg/tasks/checkmark.svg';
+import ChevronRightThinSvg from '../../../assets/svg/tasks/chevronRightThin.svg?react';
+import Check from '../../../assets/svg/tasks/checkmark.svg?react';
 import Context from '../../../context/context';
-import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
+import PersonSvg from '../../../assets/svg/tasks/person.svg?react';
 import { message } from '../globalComponents/CustomToast';
 import jwtDecode from 'jwt-decode';
 

@@ -2,10 +2,10 @@ import { BaseEdge, EdgeLabelRenderer, getBezierPath, getSmoothStepPath } from '@
 import React, { useCallback, useState } from 'react';
 import '../../../assets/scss/automation_builder/customEdges.scss';
 import { Tooltip } from 'antd';
-import { ReactComponent as Action } from '../../../assets/svg/worflow_builder/customNodes/actionSvg.svg';
-import { ReactComponent as IfElse } from '../../../assets/svg/worflow_builder/customNodes/ifelse.svg';
+import Action from '../../../assets/svg/worflow_builder/customNodes/actionSvg.svg?react';
+import IfElse from '../../../assets/svg/worflow_builder/customNodes/ifelse.svg?react';
 
-import { ReactComponent as Notification } from '../../../assets/svg/worflow_builder/customNodes/notification.svg';
+import Notification from '../../../assets/svg/worflow_builder/customNodes/notification.svg?react';
 // const CustomEdges = ({
 // 	id,
 // 	sourceX,

@@ -2,12 +2,12 @@ import '../../../assets/scss/signin.scss';
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import GoogleLogo from '../../../assets/images/googleLogo.png';
 import Context from '../../../context/context';
-import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
+import VE from '../../../assets/svg/ve.svg?react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getLocationsDetails } from '../../../helpers';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
-var validator = require('validator');
+import validator from 'validator';
 
 const VerifyUserStep = ({
 	handleInput,

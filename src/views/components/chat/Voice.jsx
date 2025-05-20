@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import '../../../assets/scss/chat/voice.scss';
-// import { ReactComponent as PauseSvg } from '../../../assets/svg/ai_agents/pause.svg';
-import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
-// import { ReactComponent as VoiceSvg } from '../../../assets/svg/ai_agents/voice.svg';
-// import { ReactComponent as VoiceLightSvg } from '../../../assets/svg/ai_agents/voice-light.svg';
-// import { ReactComponent as VoiceMuteSvg } from '../../../assets/svg/ai_agents/voice-mute.svg';
-import { ReactComponent as UserSoundSvg } from '../../../assets/svg/chat/UserSound.svg';
+// import PauseSvg from '../../../assets/svg/ai_agents/pause.svg?react';
+import CloseSvg from '../../../assets/svg/calendar/close.svg?react';
+// import VoiceSvg from '../../../assets/svg/ai_agents/voice.svg?react';
+// import VoiceLightSvg from '../../../assets/svg/ai_agents/voice-light.svg?react';
+// import VoiceMuteSvg from '../../../assets/svg/ai_agents/voice-mute.svg?react';
+import UserSoundSvg from '../../../assets/svg/chat/UserSound.svg?react';
 import { ConnectionState, LocalParticipant, Track } from 'livekit-client';
 import {
 	TrackToggle,

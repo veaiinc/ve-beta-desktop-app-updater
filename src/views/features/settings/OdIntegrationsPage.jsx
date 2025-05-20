@@ -6,14 +6,13 @@ import paypal from '../../../assets/svg/Settings/paypal.svg';
 import square from '../../../assets/svg/Settings/square.svg';
 import zoho from '../../../assets/svg/Settings/zoho-logo.svg';
 import slack from '../../../assets/svg/Settings/slack.svg';
-import hubspot from '../../../assets/svg/Settings/hubspot.svg';
 import '../../../assets/scss/settings/OldintegrationsPage.scss';
 import Context from '../../../context/context';
 import ReusableButtonSettings from '../../components/settings/ReusableButtonSettings';
-import { ve_conversations_api } from '../../../services/config.live';
 import axios from 'axios';
 import { Spin } from 'antd';
 import { message } from '../../components/globalComponents/CustomToast';
+import { ve_conversations_api } from '../../../services/config.live.js';
 
 const availableIntegrations = [
 	{

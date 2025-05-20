@@ -2,8 +2,8 @@ import '../../../assets/scss/signin.scss';
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
-import { ReactComponent as EyeOpen } from '../../../assets/svg/password-eye-open.svg';
-import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
+import EyeOpen from '../../../assets/svg/password-eye-open.svg?react';
+import VE from '../../../assets/svg/ve.svg?react';
 const LoginWithPassword = ({
 	handleInput,
 	usersData,

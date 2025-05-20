@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, memo } from 'react';
-import { ReactComponent as CancelTag } from '../../../../assets/svg/gallery/cancel_tag.svg';
+import CancelTag from '../../../../assets/svg/gallery/cancel_tag.svg?react';
 import Context from '../../../../context/context';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Select } from 'antd';

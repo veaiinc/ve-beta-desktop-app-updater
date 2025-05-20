@@ -1,11 +1,11 @@
 // Replace with your actual imports
-import { ReactComponent as Pdf } from '../../../assets/svg/files/pdfSvg.svg';
-import { ReactComponent as Mp3 } from '../../../assets/svg/files/mp3Svg.svg';
-import { ReactComponent as Mp4 } from '../../../assets/svg/files/mp4Svg.svg';
-import { ReactComponent as Document } from '../../../assets/svg/files/docSvg.svg';
-import { ReactComponent as Psd } from '../../../assets/svg/files/psdSvg.svg';
-import { ReactComponent as Zip } from '../../../assets/svg/files/zipSvg.svg';
-import { ReactComponent as File } from '../../../assets/svg/files/file.svg';
+import Pdf from '../../../assets/svg/files/pdfSvg.svg?react';
+import Mp3 from '../../../assets/svg/files/mp3Svg.svg?react';
+import Mp4 from '../../../assets/svg/files/mp4Svg.svg?react';
+import Document from '../../../assets/svg/files/docSvg.svg?react';
+import Psd from '../../../assets/svg/files/psdSvg.svg?react';
+import Zip from '../../../assets/svg/files/zipSvg.svg?react';
+import File from '../../../assets/svg/files/file.svg?react';
 
 const fileTypeMap = {
 	pdf: { icon: <Pdf />, color: '#FF4D4D' },

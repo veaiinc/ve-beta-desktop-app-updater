@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import '../../../assets/scss/notes/customizeAppearance.scss';
-import { ReactComponent as ImageIcon } from '../../../assets/svg/notes/image.svg';
-import { ReactComponent as EmojiIcon } from '../../../assets/svg/notes/emoji.svg';
+import ImageIcon from '../../../assets/svg/notes/image.svg?react';
+import EmojiIcon from '../../../assets/svg/notes/emoji.svg?react';
 
 const customizeAppearanceOptions = [
 	{

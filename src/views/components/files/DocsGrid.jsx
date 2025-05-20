@@ -2,7 +2,7 @@ import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
 import moment from 'moment';
 import { DocsStatusButton } from '../../features/docs/Docs';
-import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
+import Plus from '../../../assets/svg/files/Plus.svg?react';
 import DocsCardBg from '../../../assets/images/files/docs-card-bg.png';
 import { useNavigate } from 'react-router-dom';
 import { memo, useContext, useEffect, useState, useCallback } from 'react';

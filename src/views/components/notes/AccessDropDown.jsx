@@ -1,8 +1,8 @@
 import { memo, useState, useEffect } from 'react';
 import { Tooltip } from 'antd';
 import '../../../assets/scss/notes/shareComponent.scss';
-import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
-import { ReactComponent as Check } from '../../../assets/svg/tasks/checkmark.svg';
+import ChevronRightThinSvg from '../../../assets/svg/tasks/chevronRightThin.svg?react';
+import Check from '../../../assets/svg/tasks/checkmark.svg?react';
 
 const accessOptions = [
 	{

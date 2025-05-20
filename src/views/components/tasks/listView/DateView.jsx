@@ -3,8 +3,8 @@ import moment from 'moment';
 import '../../../../assets/scss/tasks/listItems.scss';
 import DropDown from '../../dropDown/tasks/DropDown';
 import { DatePicker, Tooltip } from 'antd';
-// import { ReactComponent as CalendarIcon } from '../../../../assets/svg/tasks/calendar.svg';
-import { ReactComponent as CalendarIcon } from '../../../../assets/svg/tasks/calender.svg';
+// import CalendarIcon from '../../../../assets/svg/tasks/calendar.svg?react';
+import CalendarIcon from '../../../../assets/svg/tasks/calender.svg?react';
 const DateView = ({
 	value,
 	format = 'MMM DD',

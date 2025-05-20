@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/actions.scss';
-import { ReactComponent as Search } from '../../../../assets/svg/worflow_builder/buildercard/search.svg';
-import { ReactComponent as Google } from '../../../../assets/svg/worflow_builder/buildercard/google.svg';
-import { ReactComponent as Slack } from '../../../../assets/svg/worflow_builder/buildercard/slack.svg';
-import { ReactComponent as RightArrrow } from '../../../../assets/svg/worflow_builder/buildercard/rightArrow.svg';
+import Search from '../../../../assets/svg/worflow_builder/buildercard/search.svg?react';
+import Google from '../../../../assets/svg/worflow_builder/buildercard/google.svg?react';
+import Slack from '../../../../assets/svg/worflow_builder/buildercard/slack.svg?react';
+import RightArrrow from '../../../../assets/svg/worflow_builder/buildercard/rightArrow.svg?react';
 
 import { useCallback } from 'react';
 import Context from '../../../../context/context';

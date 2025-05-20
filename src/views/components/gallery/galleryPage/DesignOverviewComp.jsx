@@ -1,10 +1,10 @@
 import React from 'react';
-import { ReactComponent as UpArrow } from '../../../../assets/svg/workflow/downArrow.svg';
+import UpArrow from '../../../../assets/svg/workflow/downArrow.svg?react';
 import ToggleSlider from '../../../../views/components/input/slider';
-import { ReactComponent as GridStyleVertical } from '../../../../assets/svg/gallery/gridStyleVertical.svg';
-import { ReactComponent as ThumbnailV } from '../../../../assets/svg/gallery/thumbnailV.svg';
-import { ReactComponent as GridStyleHorizontal } from '../../../../assets/svg/gallery/gridStyleH.svg';
-import { ReactComponent as ThumbnailH } from '../../../../assets/svg/gallery/thumbnailH.svg';
+import GridStyleVertical from '../../../../assets/svg/gallery/gridStyleVertical.svg?react';
+import ThumbnailV from '../../../../assets/svg/gallery/thumbnailV.svg?react';
+import GridStyleHorizontal from '../../../../assets/svg/gallery/gridStyleH.svg?react';
+import ThumbnailH from '../../../../assets/svg/gallery/thumbnailH.svg?react';
 
 const DesignOverviewComp = ({ info, handleLayoutType }) => {
 	return (

@@ -6,12 +6,12 @@ import '../../../assets/scss/contacts/overViewContact.scss';
 import Context from '../../../context/context';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ReactComponent as EditIcon } from '../../../assets/svg/workflow/edit.svg';
-import { ReactComponent as DeleteIcon } from '../../../assets/svg/delete.svg';
+import EditIcon from '../../../assets/svg/workflow/edit.svg?react';
+import DeleteIcon from '../../../assets/svg/delete.svg?react';
 import QuickActions from '../globalComponents/QuickActions';
-import { ReactComponent as EmailIcon } from '../../../assets/svg/footer/email.svg';
-import { ReactComponent as PhoneIcon } from '../../../assets/svg/contacts/phone.svg';
-import { ReactComponent as AvatarIcon } from '../../../assets/svg/contacts/phone.svg';
+import EmailIcon from '../../../assets/svg/footer/email.svg?react';
+import PhoneIcon from '../../../assets/svg/contacts/phone.svg?react';
+import AvatarIcon from '../../../assets/svg/contacts/phone.svg?react';
 import UserSvg from '../../../assets/svg/Settings/UserSvg';
 const OverviewContact = () => {
 	const { contactId } = useParams();

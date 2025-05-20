@@ -1,7 +1,7 @@
 import React from 'react';
-import { ReactComponent as RearrangeSvg } from '../../../assets/svg/automation_builder/rearrange.svg';
-import { ReactComponent as PlusSvg } from '../../../assets/svg/tasks/plus.svg';
-import { ReactComponent as MinusSvg } from '../../../assets/svg/automation_builder/minus.svg';
+import RearrangeSvg from '../../../assets/svg/automation_builder/rearrange.svg?react';
+import PlusSvg from '../../../assets/svg/tasks/plus.svg?react';
+import MinusSvg from '../../../assets/svg/automation_builder/minus.svg?react';
 import { useReactFlow, useViewport } from '@xyflow/react';
 import { Tooltip } from 'antd';
 import '../../../assets/scss/automation_builder/customControls.scss';

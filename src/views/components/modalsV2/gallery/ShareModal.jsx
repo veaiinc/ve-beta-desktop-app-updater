@@ -1,9 +1,9 @@
 import React, { memo, useEffect, useContext, useState, useCallback } from 'react';
 import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/gallery/modals/shareModal.scss';
-import { ReactComponent as Copy } from '../../../../assets/svg/gallery/copy.svg';
-import { ReactComponent as Mail } from '../../../../assets/svg/gallery/mail.svg';
-import { ReactComponent as UpArrow } from '../../../../assets/svg/workflow/downArrow.svg';
+import Copy from '../../../../assets/svg/gallery/copy.svg?react';
+import Mail from '../../../../assets/svg/gallery/mail.svg?react';
+import UpArrow from '../../../../assets/svg/workflow/downArrow.svg?react';
 import ToggleSlider from '../../input/slider';
 import Context from '../../../../context/context';
 import { getCurrentWorkspaceId, getInitials } from '../../../../helpers/index';

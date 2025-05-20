@@ -2,8 +2,8 @@ import React, { memo, useCallback, useContext, useEffect, useState } from 'react
 import '../../../assets/scss/ai_assistant/agentDetails.scss';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
-import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
-import { ReactComponent as EditIcon } from '../../../assets/svg/ai_assistant/edit.svg';
+import AgentIcon from '../../../assets/svg/ai_assistant/agent.svg?react';
+import EditIcon from '../../../assets/svg/ai_assistant/edit.svg?react';
 import TabHeader from '../../components/ai_assistant/TabHeader';
 import Context from '../../../context/context';
 import AiPlayGround from '../../components/ai_assistant/AiPlayGround';

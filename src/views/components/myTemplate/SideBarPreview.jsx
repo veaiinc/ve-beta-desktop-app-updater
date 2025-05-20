@@ -1,8 +1,8 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/my_templates/sidePreview.scss';
-import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
-import { ReactComponent as ShareSvg } from '../../../assets/svg/docs/share.svg';
-import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
+import CloseSvg from '../../../assets/svg/tasks/doubleRightArrow.svg?react';
+import ShareSvg from '../../../assets/svg/docs/share.svg?react';
+import DotsSvg from '../../../assets/svg/docs/vertidot.svg?react';
 import { DocsStatusButton, statusTextmapper } from '../../features/docs/Docs';
 import Context from '../../../context/context';
 import { Drawer } from 'antd';

@@ -1,11 +1,11 @@
 import { useState, useEffect, useContext, useCallback, memo, useMemo } from 'react';
-import { ReactComponent as UploadSvg } from '../../../assets/svg/ai_agents/upload.svg';
+import UploadSvg from '../../../assets/svg/ai_agents/upload.svg?react';
 import { Tooltip, Upload } from 'antd';
-import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
+import SearchSvg from '../../../assets/svg/workflow/search.svg?react';
 import Context from '../../../context/context';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { ReactComponent as TickSvg } from '../../../assets/svg/home_page/Tick.svg';
+import TickSvg from '../../../assets/svg/home_page/Tick.svg?react';
 let timeoutId = null;
 
 const UploadFileTooltip = ({

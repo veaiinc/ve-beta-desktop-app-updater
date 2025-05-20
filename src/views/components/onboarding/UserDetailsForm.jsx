@@ -1,10 +1,10 @@
 import { memo, useCallback } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
 import PhoneInput from 'react-phone-number-input';
-import { ReactComponent as DarkIcon } from '../../../assets/svg/onboarding/dark.svg';
-import { ReactComponent as LightIcon } from '../../../assets/svg/onboarding/light.svg';
-import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/green-tick.svg';
-import { ReactComponent as UploadIcon } from '../../../assets/svg/onboarding/upload-icon.svg';
+import DarkIcon from '../../../assets/svg/onboarding/dark.svg?react';
+import LightIcon from '../../../assets/svg/onboarding/light.svg?react';
+import GreenTick from '../../../assets/svg/onboarding/green-tick.svg?react';
+import UploadIcon from '../../../assets/svg/onboarding/upload-icon.svg?react';
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../popover/ToolTipContainer';
 import Skeleton from 'react-loading-skeleton';

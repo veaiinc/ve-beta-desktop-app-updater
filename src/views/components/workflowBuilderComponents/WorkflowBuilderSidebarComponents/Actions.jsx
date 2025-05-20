@@ -1,7 +1,7 @@
 import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/workflowBuilder/workflowBuilderSidebarComponents/actions.scss';
-import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/buildercard/doubleArrow.svg';
-import { ReactComponent as Search } from '../../../../assets/svg/worflow_builder/buildercard/search.svg';
+import DoubleArrow from '../../../../assets/svg/worflow_builder/buildercard/doubleArrow.svg?react';
+import Search from '../../../../assets/svg/worflow_builder/buildercard/search.svg?react';
 import { useCallback } from 'react';
 import Context from '../../../../context/context';
 import { Spin } from 'antd';

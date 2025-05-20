@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/globalWorkflowCard.scss';
-import { ReactComponent as Circled } from '../../../assets/svg/workflow/circled.svg';
-import { ReactComponent as RightArrow } from '../../../assets/svg/workflow/rightArrow.svg';
+import Circled from '../../../assets/svg/workflow/circled.svg?react';
+import RightArrow from '../../../assets/svg/workflow/rightArrow.svg?react';
 import { fetchOriginSelection } from '../../../helpers';
 let origin = fetchOriginSelection();
 

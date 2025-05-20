@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { ReactComponent as CrossSvg } from '../../../../assets/svg/close.svg';
+import CrossSvg from '../../../../assets/svg/close.svg?react';
 import Context from '../../../../context/context';
 import '../../../../assets/scss/settings/teamMembers.scss';
 import ReusableButtonSettings from '../ReusableButtonSettings';

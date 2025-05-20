@@ -1,9 +1,9 @@
 import { useState, useEffect, memo } from 'react';
 import { useBlockNoteEditor, useComponentsContext } from '@blocknote/react';
 import '../../../assets/scss/notes/alignButton.scss';
-import { ReactComponent as LeftAlignIcon } from '../../../assets/svg/notes/leftAlign.svg';
-import { ReactComponent as RightAlignIcon } from '../../../assets/svg/notes/rightAlign.svg';
-import { ReactComponent as CenterAlignIcon } from '../../../assets/svg/notes/centerAlign.svg';
+import LeftAlignIcon from '../../../assets/svg/notes/leftAlign.svg?react';
+import RightAlignIcon from '../../../assets/svg/notes/rightAlign.svg?react';
+import CenterAlignIcon from '../../../assets/svg/notes/centerAlign.svg?react';
 import { Tooltip } from 'antd';
 
 const alignmentOptions = [

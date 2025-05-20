@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
-import { ReactComponent as Delete } from '../../../assets/svg/ai_assistant/delete.svg';
+import Delete from '../../../assets/svg/ai_assistant/delete.svg?react';
 
 const KnowledgeAgentActions = ({ assistant }) => {
 	const { aiAssistantId } = useParams();

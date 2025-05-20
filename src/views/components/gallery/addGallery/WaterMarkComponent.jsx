@@ -1,8 +1,8 @@
 import React, { useState, useRef, useContext, memo } from 'react';
 import { Switch, Tooltip } from 'antd';
-import { ReactComponent as DownArrowSvg } from '../../../../assets/svg/sidebar/downarrowsmall.svg';
+import DownArrowSvg from '../../../../assets/svg/sidebar/downarrowsmall.svg?react';
 import Context from '../../../../context/context';
-import { ReactComponent as DeleteIcon } from '../../../../assets/svg/gallery/delete-red.svg';
+import DeleteIcon from '../../../../assets/svg/gallery/delete-red.svg?react';
 import { message } from '../../globalComponents/CustomToast';
 
 const watermarkPositions = [

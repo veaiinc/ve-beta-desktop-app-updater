@@ -1,7 +1,7 @@
 import '../../../assets/scss/signin.scss';
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import Context from '../../../context/context';
-import { ReactComponent as EyeOpen } from '../../../assets/svg/password-eye-open.svg';
+import EyeOpen from '../../../assets/svg/password-eye-open.svg?react';
 import { useNavigate } from 'react-router-dom';
 const VerifyEmailCode = ({
 	screenType,

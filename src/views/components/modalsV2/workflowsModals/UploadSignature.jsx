@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useRef, useState } from 'react';
 import '../../../../assets/scss/sales/uploadSignatureModal.scss';
 import ReactModal from '../../modalsV2/index';
-import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
+import Close from '../../../../assets/svg/close.svg?react';
 import SignaturePad from 'react-signature-canvas';
 import Context from '../../../../context/context';
 import moment from 'moment';

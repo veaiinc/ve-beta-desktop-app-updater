@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../../assets/scss/sales/moveToStageModal.scss';
 import ReactModal from '../../modalsV2/index';
-import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
+import Close from '../../../../assets/svg/close.svg?react';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 
 const options = [
@@ -103,7 +103,6 @@ const MoveStageModal = ({
 						dropDownStyle={{
 							top: '50px',
 							left: 'unset',
-							width: 'auto',
 							height: 'auto',
 							width: '100%',
 						}}

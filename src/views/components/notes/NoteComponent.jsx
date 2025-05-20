@@ -4,7 +4,6 @@ import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/mantine/style.css';
 import { useCreateBlockNote } from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
-import { createBlockSpec, locales } from '@blocknote/core';
 import NoteToolbar from './NoteToolbar';
 import { useEffect, memo, useContext, useCallback, useState } from 'react';
 import Context from '../../../context/context';

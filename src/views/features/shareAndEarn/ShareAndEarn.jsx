@@ -1,6 +1,6 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/shareAndEarn/shareAndEarn.scss';
-import { ReactComponent as Copy } from '../../../assets/svg/shareAndEarn/copy.svg';
+import Copy from '../../../assets/svg/shareAndEarn/copy.svg?react';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import { message } from '../../components/globalComponents/CustomToast';
 import { useNavigate } from 'react-router-dom';

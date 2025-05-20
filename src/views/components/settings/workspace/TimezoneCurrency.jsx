@@ -1,8 +1,8 @@
 import { useState, memo } from 'react';
 import ReusableButtonSettings from '../ReusableButtonSettings';
-import { ReactComponent as GlobeSettings } from '../../../../assets/svg/workspaceSettings/globeSettings.svg';
+import GlobeSettings from '../../../../assets/svg/workspaceSettings/globeSettings.svg?react';
 import getSymbolFromCurrency from 'currency-symbol-map';
-import { ReactComponent as ChevronDown } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import ChevronDown from '../../../../assets/svg/tasks/chevronRightThin.svg?react';
 import currencyList from '../../../../helpers/Country-By-Currency-Code.json';
 const TimeZoneCurrencyComponent = ({ overviewState }) => {
 	const [selectedCurrency, setSelectedCurrency] = useState(currencyList);

@@ -1,7 +1,8 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
-import { ReactComponent as Success } from '../../../assets/svg/custom_toast/tickmark.svg';
-import { ReactComponent as Error } from '../../../assets/svg/custom_toast/exclamatory.svg';
-import { ReactComponent as Warning } from '../../../assets/svg/custom_toast/warning.svg';
+import { memo, useEffect, useRef, useState } from 'react';
+import Success from '../../../assets/svg/custom_toast/tickmark.svg?react';
+import Error from '../../../assets/svg/custom_toast/exclamatory.svg?react';
+import Warning from '../../../assets/svg/custom_toast/warning.svg?react';
+
 import { SpinnerIcon } from '@livekit/components-react';
 import '../../../assets/scss/toast/toast.scss';
 

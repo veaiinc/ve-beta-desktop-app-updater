@@ -9,12 +9,12 @@ import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 import ChatBox from '../../components/chat/ChatBox';
 import { message } from '../../components/globalComponents/CustomToast';
 import { Tooltip } from 'antd';
-import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
-import { ReactComponent as PromptsSvg } from '../../../assets/svg/home_page/prompts.svg';
-import { ReactComponent as CalendarSvg } from '../../../assets/svg/home_page/calendar.svg';
-import { ReactComponent as TaskSvg } from '../../../assets/svg/home_page/tasks.svg';
-import { ReactComponent as ContactSvg } from '../../../assets/svg/home_page/contacts.svg';
-import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/automation.svg';
+import AgentsSvg from '../../../assets/svg/sidebar/agentsIcon.svg?react';
+import PromptsSvg from '../../../assets/svg/home_page/prompts.svg?react';
+import CalendarSvg from '../../../assets/svg/home_page/calendar.svg?react';
+import TaskSvg from '../../../assets/svg/home_page/tasks.svg?react';
+import ContactSvg from '../../../assets/svg/home_page/contacts.svg?react';
+import AutomationsSvg from '../../../assets/svg/home_page/automation.svg?react';
 
 const optionsList = [
 	{

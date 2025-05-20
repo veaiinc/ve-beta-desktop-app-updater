@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useState, useEffect } from 'react';
 import '../../../assets/scss/sales/activity/modalSessionComponents.scss';
-import { ReactComponent as PageAlignSvg } from '../../../assets/svg/activity/pagealign.svg';
-import { ReactComponent as ReviewsSvg } from '../../../assets/svg/activity/reviews.svg';
+import PageAlignSvg from '../../../assets/svg/activity/pagealign.svg?react';
+import ReviewsSvg from '../../../assets/svg/activity/reviews.svg?react';
 
 const data = [
 	{

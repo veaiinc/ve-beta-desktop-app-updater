@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState, memo } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/variableComponent.scss';
-import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
-import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import CrossIcon from '../../../../assets/svg/workspaceSettings/cross.svg?react';
+import ChevronRightThinSvg from '../../../../assets/svg/tasks/chevronRightThin.svg?react';
 import { Tooltip } from 'antd';
 
 const labelMapper = {

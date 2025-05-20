@@ -1,8 +1,8 @@
 import { memo } from 'react';
 import ReactModal from '../modalsV2/index';
 import '../../../assets/scss/globalComponents/ShareWidget.scss';
-import { ReactComponent as CrossWhite } from '../../../assets/svg/Settings/CrossWhite.svg';
-import { ReactComponent as CopyIcon } from '../../../assets/svg/ai_assistant/url.svg';
+import CrossWhite from '../../../assets/svg/Settings/CrossWhite.svg?react';
+import CopyIcon from '../../../assets/svg/ai_assistant/url.svg?react';
 import { message } from '../globalComponents/CustomToast';
 
 const ShareWidget = ({

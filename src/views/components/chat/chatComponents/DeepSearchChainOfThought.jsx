@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import '../../../../assets/scss/chat/chatComponents/deepSearchChainOfThought.scss';
 import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
-import { ReactComponent as CurveSvg } from '../../../../assets/svg/ai_agents/curve.svg';
+import CurveSvg from '../../../../assets/svg/ai_agents/curve.svg?react';
 import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
 import Sources from './Sources';
 

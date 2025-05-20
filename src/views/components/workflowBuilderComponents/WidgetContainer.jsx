@@ -1,6 +1,6 @@
 import React, { memo, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { ReactComponent as ArrowSvg } from '../../../assets/svg/worflow_builder/smallArrow.svg';
+import ArrowSvg from '../../../assets/svg/worflow_builder/smallArrow.svg?react';
 
 const INITIAL_STAGES = [
 	{ id: 'enquiry', title: 'Enquiry' },

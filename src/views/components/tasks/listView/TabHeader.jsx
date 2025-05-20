@@ -1,7 +1,7 @@
 import React, { memo, useRef, useLayoutEffect, useState, useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Tooltip } from 'antd';
-import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
+import PlusSvg from '../../../../assets/svg/tasks/plus.svg?react';
 import '../../../../assets/scss/tasks/tabHeader.scss';
 import TabDropDown from '../../dropDown/tasks/TabDropDown';
 import DropDown from '../../dropDown/tasks/DropDown';

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactModal from '../index';
 import '../../../../assets/chat/unsendMessageModal.scss';
-import { ReactComponent as Close } from '../../../../assets/svg/workspaceSettings/modalclose.svg';
+import Close from '../../../../assets/svg/workspaceSettings/modalclose.svg?react';
 
 const UnsendMessageModal = ({ modalIsOpen, closeModalFunc, handleUnsendMessage }) => {
 	return (

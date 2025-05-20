@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/index.scss';
-import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
-import { ReactComponent as Sync } from '../../../assets/svg/docs/sync.svg';
+import AgentIcon from '../../../assets/svg/ai_assistant/agent.svg?react';
+import Sync from '../../../assets/svg/docs/sync.svg?react';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';

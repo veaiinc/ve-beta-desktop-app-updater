@@ -1,9 +1,9 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/calendar/modal/createSessionModal.scss';
-import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
-import { ReactComponent as Down } from '../../../../assets/svg/calendar/down.svg';
-import { ReactComponent as DateSvg } from '../../../../assets/svg/calendar/date.svg';
+import Close from '../../../../assets/svg/close.svg?react';
+import Down from '../../../../assets/svg/calendar/down.svg?react';
+import DateSvg from '../../../../assets/svg/calendar/date.svg?react';
 import InputComponent from '../../ai_assistant/InputComponent';
 import { Tooltip, DatePicker } from 'antd';
 import dayjs from 'dayjs';

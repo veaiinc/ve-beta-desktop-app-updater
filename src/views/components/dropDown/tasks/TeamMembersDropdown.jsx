@@ -1,7 +1,7 @@
 import { memo, useContext, useMemo, useState, useEffect } from 'react';
 import '../../../../assets/scss/tasks/personMultiSelect.scss';
 import Context from '../../../../context/context';
-import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
+import Tick from '../../../../assets/svg/tasks/tick.svg?react';
 import jwtDecode from 'jwt-decode';
 import Skeleton from 'react-loading-skeleton';
 

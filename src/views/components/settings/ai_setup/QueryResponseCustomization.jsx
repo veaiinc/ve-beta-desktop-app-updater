@@ -1,9 +1,9 @@
 import React, { memo, useState } from 'react';
-import { ReactComponent as DotWhite } from '../../../../assets/svg/Settings/dot-white.svg';
-import { ReactComponent as Speaker } from '../../../../assets/svg/Settings/speaker.svg';
-import { ReactComponent as SpeakerActive } from '../../../../assets/svg/Settings/speaker-active.svg';
-import { ReactComponent as Dustbin } from '../../../../assets/svg/Settings/dustbin.svg';
-import { ReactComponent as Reload } from '../../../../assets/svg/Settings/reload.svg';
+import DotWhite from '../../../../assets/svg/Settings/dot-white.svg?react';
+import Speaker from '../../../../assets/svg/Settings/speaker.svg?react';
+import SpeakerActive from '../../../../assets/svg/Settings/speaker-active.svg?react';
+import Dustbin from '../../../../assets/svg/Settings/dustbin.svg?react';
+import Reload from '../../../../assets/svg/Settings/reload.svg?react';
 import '../../../../assets/scss/settings/aiSetupPage.scss';
 
 const QueryResponseCustomization = () => {

@@ -1,6 +1,6 @@
 import { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/status.scss';
-import { ReactComponent as PencilWithLine } from '../../../../assets/svg/tasks/pencilWithLine.svg';
+import PencilWithLine from '../../../../assets/svg/tasks/pencilWithLine.svg?react';
 import { Tooltip } from 'antd';
 import StatusDropdown from '../../dropDown/tasks/StatusDropdown';
 

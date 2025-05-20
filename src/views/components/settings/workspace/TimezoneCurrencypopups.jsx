@@ -1,6 +1,6 @@
 import React, { useState, memo, useEffect } from 'react';
-import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
-import { ReactComponent as SearchSvg } from '../../../../assets/svg/seach-magnifier.svg';
+import CloseSvg from '../../../../assets/svg/close.svg?react';
+import SearchSvg from '../../../../assets/svg/seach-magnifier.svg?react';
 import ReactModal from '../../modalsV2';
 import { timeZoneList, currencyList } from '../../../features/settings/indexConstant';
 import getSymbolFromCurrency from 'currency-symbol-map';

@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect, useContext, useCallback } from 'react';
 import ReactModal from '../index';
-import { ReactComponent as CrossWhite } from '../../../../assets/svg/workspaceSettings/cross.svg';
+import CrossWhite from '../../../../assets/svg/workspaceSettings/cross.svg?react';
 import '../../../../assets/scss/gallery/modals/createGallery.scss';
 import Context from '../../../../context/context';
 import jwt_decode from 'jwt-decode';

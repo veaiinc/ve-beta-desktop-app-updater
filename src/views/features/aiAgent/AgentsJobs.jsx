@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import '../../../assets/scss/ai_agents/jobs.scss';
-import { ReactComponent as CircledCross } from '../../../assets/svg/ai_agents/cross.svg';
-import { ReactComponent as Search } from '../../../assets/svg/ai_agents/search.svg';
+import CircledCross from '../../../assets/svg/ai_agents/cross.svg?react';
+import Search from '../../../assets/svg/ai_agents/search.svg?react';
 import AgentsWorkflows from '../../components/ai_agents/ai_agents_jobs/AgentsWorkflows';
 import AgentsTask from '../../components/ai_agents/ai_agents_jobs/AgentsTask';
 import AgentsActions from '../../components/ai_agents/ai_agents_jobs/AgentsActions';

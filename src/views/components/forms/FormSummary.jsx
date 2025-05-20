@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 import moment from 'moment';
 import { TemplatesState } from '../../../context/Templates/state';
-import { ReactComponent as CopyIcon } from '../../../assets/svg/copy.svg';
+import CopyIcon from '../../../assets/svg/copy.svg?react';
 import '../../../assets/scss/forms/formSummary.scss';
 import FormPreview from './FormPreview';
 import { EventsAnswer } from './FormDescription';

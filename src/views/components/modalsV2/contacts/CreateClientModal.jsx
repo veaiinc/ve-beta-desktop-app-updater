@@ -1,6 +1,6 @@
 import { memo, useContext, useState, useEffect, useCallback } from 'react';
 import Context from '../../../../context/context';
-import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
+import Close from '../../../../assets/svg/close.svg?react';
 import ReactModal from '../../modalsV2/index';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import '../../../../assets/scss/contacts/modals/createClientModal.scss';
@@ -48,7 +48,7 @@ const dropDownTextStyling = {
 	lineHeight: 'normal',
 };
 
-const validator = require('validator');
+import validator from 'validator';
 const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = false }) => {
 	let {
 		contacts: { createClient, updateStateValues },

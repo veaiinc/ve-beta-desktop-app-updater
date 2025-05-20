@@ -1,8 +1,8 @@
 import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
-import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
+import Plus from '../../../assets/svg/files/Plus.svg?react';
 import Spinner from '../../components/loaders/Spinner';
-import { ReactComponent as Folder } from '../../../assets/svg/files/Folder.svg';
+import Folder from '../../../assets/svg/files/Folder.svg?react';
 import { memo, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';

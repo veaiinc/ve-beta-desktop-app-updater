@@ -1,14 +1,14 @@
 import React, { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/docs/index.scss';
-import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
-import { ReactComponent as UppercaseLowercaseA } from '../../../assets/svg/docs/uppercase-lowercase-a.svg';
-import { ReactComponent as MailLetter } from '../../../assets/svg/docs/mail-letter.svg';
-import { ReactComponent as StatusCircle } from '../../../assets/svg/docs/status-circle.svg';
-import { ReactComponent as CrossPurple } from '../../../assets/svg/docs/cross-purple.svg';
-import { ReactComponent as Sync } from '../../../assets/svg/docs/sync.svg';
+import Cross from '../../../assets/svg/docs/cross.svg?react';
+import UppercaseLowercaseA from '../../../assets/svg/docs/uppercase-lowercase-a.svg?react';
+import MailLetter from '../../../assets/svg/docs/mail-letter.svg?react';
+import StatusCircle from '../../../assets/svg/docs/status-circle.svg?react';
+import CrossPurple from '../../../assets/svg/docs/cross-purple.svg?react';
+import Sync from '../../../assets/svg/docs/sync.svg?react';
 
-import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers/index.js';
+import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers/index.jsx';
 import Context from '../../../context/context.js';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Sidebar from '../../components/docs/Sidebar.jsx';

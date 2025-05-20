@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import '../../../../assets/scss/settings/clientportal_view.scss';
-import { ReactComponent as VEAI } from '../../../../assets/svg/ve.svg';
+import VEAI from '../../../../assets/svg/ve.svg?react';
 const ClientPortalView = ({ themeProperties, logoUrl }) => {
 	return (
 		<div

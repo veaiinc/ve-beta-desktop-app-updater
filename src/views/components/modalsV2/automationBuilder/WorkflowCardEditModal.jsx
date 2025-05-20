@@ -1,8 +1,8 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
-import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
-import { ReactComponent as Dustbin } from '../../../../assets/svg/worflow_builder/dustbin.svg';
-import { ReactComponent as Ai } from '../../../../assets/svg/workflow/ai.svg';
+import Close from '../../../../assets/svg/close.svg?react';
+import Dustbin from '../../../../assets/svg/worflow_builder/dustbin.svg?react';
+import Ai from '../../../../assets/svg/workflow/ai.svg?react';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import Context from '../../../../context/context';
 import ToggleSlider from '../../input/slider';
@@ -415,7 +415,6 @@ const WorkflowCardEditModal = ({
 										containerStyle={{
 											padding: '12px 24px',
 											height: '48px',
-											padding: '12px 24px',
 											color: 'var(--primary-font)',
 											// width: 'inherit',
 											flex: 1,
@@ -479,7 +478,6 @@ const WorkflowCardEditModal = ({
 										containerStyle={{
 											padding: '12px 24px',
 											height: '48px',
-											padding: '12px 24px',
 											color: 'var(--primary-font)',
 											width: 'inherit',
 											flex: 1,
@@ -516,7 +514,6 @@ const WorkflowCardEditModal = ({
 									containerStyle={{
 										padding: '12px 24px',
 										height: '48px',
-										padding: '12px 24px',
 										color: 'var(--primary-font)',
 										width: 'inherit',
 										flex: 1,

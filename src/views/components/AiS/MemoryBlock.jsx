@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/AiSetup/memoryBlock.scss';
-import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
-import { ReactComponent as Pencil } from '../../../assets/svg/calendar/pencil.svg';
+import Dustbin from '../../../assets/svg/worflow_builder/dustbin.svg?react';
+import Pencil from '../../../assets/svg/calendar/pencil.svg?react';
 const MemoryBlock = ({ data, onDeleteClick, onEditClick }) => {
 	return (
 		<div className="memoryBlockContainer">

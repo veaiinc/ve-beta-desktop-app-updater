@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
-import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
-import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
+import BackArrowSvg from '../../../assets/svg/workflow/backarrow.svg?react';
+import ThreeDots from '../../../assets/svg/workflow/threeDots.svg?react';
 import { useNavigate } from 'react-router-dom';
 import HeadersDropDownComp from '../dropDown/HeadersDropDownComp';
 import Spinner from '../loaders/Spinner';

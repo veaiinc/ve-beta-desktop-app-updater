@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/sales/activity/emailModal.scss';
 import { Drawer } from 'antd';
-import { ReactComponent as CloseSvg } from '../../../assets/svg/close.svg';
-import { ReactComponent as EmailSvg } from '../../../assets/svg/activity/email.svg';
+import CloseSvg from '../../../assets/svg/close.svg?react';
+import EmailSvg from '../../../assets/svg/activity/email.svg?react';
 
 const EmailModal = ({ modalIsOpen, showDrawer }) => {
 	return (

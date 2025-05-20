@@ -1,6 +1,6 @@
 import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
-import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
+import Plus from '../../../assets/svg/files/Plus.svg?react';
 import Spinner from '../../components/loaders/Spinner';
 import { memo, useContext, useEffect, useState, useCallback } from 'react';
 import Context from '../../../context/context';
@@ -158,7 +158,7 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 			const payload = {
 				filters: {
 					limit: 20,
-					page: page,
+					page,
 					type: 'workspace',
 					sortBy,
 					sortType,
@@ -202,7 +202,6 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 				workflowTemplates,
 				currentPage,
 				hasNextPage,
-				loading: false,
 			}));
 			handleTotalChange(totalDocs);
 		},

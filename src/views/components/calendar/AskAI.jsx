@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/calendar/askAi.scss';
-import { ReactComponent as AiStar } from '../../../assets/svg/calendar/aiStar.svg';
+import AiStar from '../../../assets/svg/calendar/aiStar.svg?react';
 
 const AskAI = ({ toggleAskAi }) => {
 	return (

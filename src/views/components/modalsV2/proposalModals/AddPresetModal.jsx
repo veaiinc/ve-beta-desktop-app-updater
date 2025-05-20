@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import ReactModal from '../../modalsV2/index';
-import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
+import Close from '../../../../assets/svg/close.svg?react';
 import '../../../../assets/scss/sales/smartFile/addPresetModal.scss';
 import Context from '../../../../context/context';
 

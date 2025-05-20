@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import '../../../assets/scss/globalComponents/automationWidget.scss';
-import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
+import PlusIcon from '../../../assets/svg/calendar/plus.svg?react';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';

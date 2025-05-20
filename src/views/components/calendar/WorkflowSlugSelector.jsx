@@ -1,6 +1,6 @@
 import React, { memo, useState, useContext, useEffect, useCallback } from 'react';
 import '../../../assets/scss/calendar/workflowSlugSelector.scss';
-import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
+import DownSvg from '../../../assets/svg/calendar/down.svg?react';
 import { FetchMoreLoaderComp } from '../../../helpers/index';
 import Context from '../../../context/context';
 import { Select } from 'antd';

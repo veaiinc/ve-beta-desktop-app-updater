@@ -5,9 +5,9 @@ import VerificationCode from '../../components/login_page/VerificationCode';
 import CookiesImg from '../../../assets/images/login_page/cookies.png';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
-import { ReactComponent as DarkModeGradient } from '../../../assets/svg/onboarding/dark-mode-gradient.svg';
-import { ReactComponent as LightModeGradient } from '../../../assets/svg/onboarding/light-mode-gradient.svg';
-import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
+import DarkModeGradient from '../../../assets/svg/onboarding/dark-mode-gradient.svg?react';
+import LightModeGradient from '../../../assets/svg/onboarding/light-mode-gradient.svg?react';
+import VeLogo from '../../../assets/svg/veLogo.svg?react';
 
 const LoginPage = () => {
 	const navigate = useNavigate();

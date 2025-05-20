@@ -1,36 +1,36 @@
 import { useState, useEffect, useRef, useContext, useCallback, memo } from 'react';
-import { ReactComponent as ShareIcon } from '../../../assets/svg/gallery/share.svg';
+import ShareIcon from '../../../assets/svg/gallery/share.svg?react';
 import sixDots from '../../../assets/svg/gallery/sixdots.svg';
-import { ReactComponent as ThreeDotsIcon } from '../../../assets/svg/gallery/threeDots.svg';
-import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
-import { ReactComponent as FilterIcon } from '../../../assets/svg/gallery/newFilter.svg';
-import { ReactComponent as ExpandIcon } from '../../../assets/svg/gallery/expand.svg';
-import { ReactComponent as ForwardIcon } from '../../../assets/svg/gallery/forward.svg';
-import { ReactComponent as PinIcon } from '../../../assets/svg/gallery/pin.svg';
-import { ReactComponent as DragIcon } from '../../../assets/svg/gallery/drag.svg';
-import { ReactComponent as RotatingCircle } from '../../../assets/svg/gallery/rotating-circle.svg';
-import { ReactComponent as OptionsIcon } from '../../../assets/svg/gallery/dotsThree.svg';
-import { ReactComponent as CloudUpload } from '../../../assets/svg/Settings/CloudUpload.svg';
-import { ReactComponent as OpenEye } from '../../../assets/svg/gallery/open-eye.svg';
-import { ReactComponent as CrossedOpenEye } from '../../../assets/svg/gallery/crossedOpenEye.svg';
-import { ReactComponent as GalleryPreview } from '../../../assets/svg/gallery/galleryPreview.svg';
-import { ReactComponent as EditPen } from '../../../assets/svg/gallery/editpen.svg';
-import { ReactComponent as ChangeCalender } from '../../../assets/svg/gallery/changeCalender.svg';
-import { ReactComponent as BrushIcon } from '../../../assets/svg/gallery/brush.svg';
-import { ReactComponent as TrashIcon } from '../../../assets/svg/gallery/delete-red.svg';
-import { ReactComponent as DownloadIcon } from '../../../assets/svg/gallery/download2.svg';
-import { ReactComponent as LightRoomIcon } from '../../../assets/svg/gallery/light-room.svg';
-import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/changeAlbumCover.svg';
-import { ReactComponent as DeleteIcon } from '../../../assets/svg/gallery/delete-red.svg';
-import { ReactComponent as LockIcon } from '../../../assets/svg/gallery/lockIcon.svg';
-import { ReactComponent as HomeIcon } from '../../../assets/svg/gallery/home.svg';
-import { ReactComponent as RightArrow } from '../../../assets/svg/gallery/rightArrow.svg';
-import { ReactComponent as ToastSuccess } from '../../../assets/svg/gallery/toastSuccess.svg';
-import { ReactComponent as ToastWarning } from '../../../assets/svg/gallery/toastWarning.svg';
-import { ReactComponent as ToastError } from '../../../assets/svg/gallery/toastError.svg';
-import { ReactComponent as SettingsIcon } from '../../../assets/svg/gallery/settingIcon.svg';
+import ThreeDotsIcon from '../../../assets/svg/gallery/threeDots.svg?react';
+import SearchIcon from '../../../assets/svg/workflow/search.svg?react';
+import FilterIcon from '../../../assets/svg/gallery/newFilter.svg?react';
+import ExpandIcon from '../../../assets/svg/gallery/expand.svg?react';
+import ForwardIcon from '../../../assets/svg/gallery/forward.svg?react';
+import PinIcon from '../../../assets/svg/gallery/pin.svg?react';
+import DragIcon from '../../../assets/svg/gallery/drag.svg?react';
+import RotatingCircle from '../../../assets/svg/gallery/rotating-circle.svg?react';
+import OptionsIcon from '../../../assets/svg/gallery/dotsThree.svg?react';
+import CloudUpload from '../../../assets/svg/Settings/CloudUpload.svg?react';
+import OpenEye from '../../../assets/svg/gallery/open-eye.svg?react';
+import CrossedOpenEye from '../../../assets/svg/gallery/crossedOpenEye.svg?react';
+import GalleryPreview from '../../../assets/svg/gallery/galleryPreview.svg?react';
+import EditPen from '../../../assets/svg/gallery/editpen.svg?react';
+import ChangeCalender from '../../../assets/svg/gallery/changeCalender.svg?react';
+import BrushIcon from '../../../assets/svg/gallery/brush.svg?react';
+import TrashIcon from '../../../assets/svg/gallery/delete-red.svg?react';
+import DownloadIcon from '../../../assets/svg/gallery/download2.svg?react';
+import LightRoomIcon from '../../../assets/svg/gallery/light-room.svg?react';
+import AlbumCoverIcon from '../../../assets/svg/gallery/changeAlbumCover.svg?react';
+import DeleteIcon from '../../../assets/svg/gallery/delete-red.svg?react';
+import LockIcon from '../../../assets/svg/gallery/lockIcon.svg?react';
+import HomeIcon from '../../../assets/svg/gallery/home.svg?react';
+import RightArrow from '../../../assets/svg/gallery/rightArrow.svg?react';
+import ToastSuccess from '../../../assets/svg/gallery/toastSuccess.svg?react';
+import ToastWarning from '../../../assets/svg/gallery/toastWarning.svg?react';
+import ToastError from '../../../assets/svg/gallery/toastError.svg?react';
+import SettingsIcon from '../../../assets/svg/gallery/settingIcon.svg?react';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
-import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
+import UpArrow from '../../../assets/svg/workflow/downArrow.svg?react';
 import { Checkbox, Result, theme, Tooltip } from 'antd';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
@@ -66,7 +66,7 @@ import { getCurrentWorkspaceId } from '../../../helpers';
 import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
 import SharePopup from '../../components/modalsV2/gallery/SharePopup';
 import GalleryViewer from './GalleryViewer';
-import { ReactComponent as ArrowSvg } from '../../../assets/svg/file/arrow.svg';
+import ArrowSvg from '../../../assets/svg/file/arrow.svg?react';
 
 // const workspaceId = localStorage.getItem('workspaceId');
 
@@ -208,7 +208,6 @@ const GalleryPage = () => {
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		albumName: '',
 		albumContains: 'All',
 		showOptions: false,
 		showGalleryOptions: false,
@@ -277,7 +276,6 @@ const GalleryPage = () => {
 		isPublished: tenantAlbums?.albums?.[0]?.isPublished,
 		showDragIconOfAlbum: null,
 		isOnline: true,
-		isDragging: false,
 		dragPosition: { x: 0, y: 0 },
 		stackOffset: 3,
 		dropIndex: null,
@@ -305,14 +303,13 @@ const GalleryPage = () => {
 		lightroomCopyList: [],
 		isAlbumCover: false,
 		coverType: null,
-		showDeleteAlbum: false,
 		isAlbumHidden: false,
 		showGalleryStyles: false,
 		themeMode: 'dark',
 		showCoverButton: false,
 		showAlbumOptionsMenu: false,
 		showAlbumSettings: false,
-		currentWorkspaceId: null,
+
 		galleryLink: null,
 		clientSubscriptionOptions: false,
 		imageProcessingStatus: {
@@ -628,12 +625,10 @@ const GalleryPage = () => {
 				galleryCredentials: null,
 				albumDetails: null,
 				imagesList: null,
-				albumImagesCount: null,
-				albumDetails: null,
-				imagesList: null,
+
 				imageDetail: null,
 				galleryGuestAccess: null,
-				albumImagesCount: null,
+
 				clientSelectionsData: null,
 				clientSelectionImages: null,
 				aiFace: null,

@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import '../../../../assets/scss/sales/myWorkflowModals.scss';
-import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
-import { ReactComponent as Search } from '../../../../assets/svg/workflow/search.svg';
-import { ReactComponent as Tick } from '../../../../assets/svg/workflow/Tick.svg';
-import { ReactComponent as CircledCross } from '../../../../assets/svg/workflow/circledCorss.svg';
-import { ReactComponent as RightArrow } from '../../../../assets/svg/worflow_builder/rightColoredArrow.svg';
+import Close from '../../../../assets/svg/close.svg?react';
+import Search from '../../../../assets/svg/workflow/search.svg?react';
+import Tick from '../../../../assets/svg/workflow/Tick.svg?react';
+import CircledCross from '../../../../assets/svg/workflow/circledCorss.svg?react';
+import RightArrow from '../../../../assets/svg/worflow_builder/rightColoredArrow.svg?react';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
@@ -313,7 +313,6 @@ const MyWorkflowsModals = ({
 								showIcon={false}
 								options={timeOptions}
 								containerStyle={{
-									padding: '12px 24px',
 									height: ' 26px',
 									padding: '4px 8px',
 									color: '#E4E5E6',
@@ -392,7 +391,6 @@ const MyWorkflowsModals = ({
 								showIcon={false}
 								options={sortOptions}
 								containerStyle={{
-									padding: '12px 24px',
 									height: ' 26px',
 									padding: '4px 8px',
 									color: '#E4E5E6',

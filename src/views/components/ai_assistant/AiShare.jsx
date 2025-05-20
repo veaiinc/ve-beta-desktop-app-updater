@@ -1,7 +1,7 @@
 import React, { memo, useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import '../../../assets/scss/ai_assistant/aiShare.scss';
-import { ReactComponent as ExternalLink } from '../../../assets/svg/ai_assistant/externalLink.svg';
-import { ReactComponent as Link } from '../../../assets/svg/smartFiles/formResponse/link.svg';
+import ExternalLink from '../../../assets/svg/ai_assistant/externalLink.svg?react';
+import Link from '../../../assets/svg/smartFiles/formResponse/link.svg?react';
 import { message } from '../globalComponents/CustomToast';
 
 const AiShare = ({ assistant }) => {

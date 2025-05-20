@@ -1,8 +1,8 @@
 import { useState, useContext, useCallback, memo, useEffect } from 'react';
 import Context from '../../../../context/context';
 import { Skeleton } from 'antd';
-import { ReactComponent as MinusIcon } from '../../../../assets/svg/Settings/minusIcon.svg';
-import { ReactComponent as PlusIcon } from '../../../../assets/svg/Settings/plusIcon.svg';
+import MinusIcon from '../../../../assets/svg/Settings/minusIcon.svg?react';
+import PlusIcon from '../../../../assets/svg/Settings/plusIcon.svg?react';
 import Spinner from '../../../components/loaders/Spinner';
 import ReactModal from '../../modalsV2';
 import { message } from '../../globalComponents/CustomToast';

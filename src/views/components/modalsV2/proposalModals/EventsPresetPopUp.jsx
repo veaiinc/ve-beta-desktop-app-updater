@@ -3,7 +3,7 @@ import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import AddPresetModal from './AddPresetModal';
 import Context from '../../../../context/context';
 import { Tooltip } from 'antd';
-import { ReactComponent as ThreeDots } from '../../../../assets/svg/workflow/threeDots.svg';
+import ThreeDots from '../../../../assets/svg/workflow/threeDots.svg?react';
 import Spinner from '../../loaders/Spinner';
 import Skeleton from 'react-loading-skeleton';
 import { message } from '../../globalComponents/CustomToast';

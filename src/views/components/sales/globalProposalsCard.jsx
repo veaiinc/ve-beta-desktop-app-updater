@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/globalProposalCard.scss';
 import Skeleton from 'react-loading-skeleton';
-import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
+import VeAiLogoGrey from '../../../assets/svg/landingScreen/veai-logo-grey.svg?react';
 import { fetchOriginSelection } from '../../../helpers';
 
 let origin = fetchOriginSelection();

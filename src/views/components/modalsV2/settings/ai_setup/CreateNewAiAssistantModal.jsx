@@ -1,6 +1,6 @@
 import { memo, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/cross-grey.svg';
+import CrossGrey from '../../../../../assets/svg/Settings/cross-grey.svg?react';
 import '../../../../../assets/scss/settings/aiSetup.scss';
 import Modal from '../../';
 import Context from '../../../../../context/context';

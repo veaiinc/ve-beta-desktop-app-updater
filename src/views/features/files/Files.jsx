@@ -3,8 +3,8 @@ import { memo, useCallback, useContext, useEffect, useRef, useState } from 'reac
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import '../../../assets/scss/files/files.scss';
 import '../../../assets/scss/files/index.scss';
-import { ReactComponent as SearchSvg } from '../../../assets/svg/elastic_search/search-icon.svg';
-import { ReactComponent as CommandIcon } from '../../../assets/svg/files/command.svg';
+import SearchSvg from '../../../assets/svg/elastic_search/search-icon.svg?react';
+import CommandIcon from '../../../assets/svg/files/command.svg?react';
 import Context from '../../../context/context';
 import ProposalsPopup from '../../components/docs/ProposalsPopup';
 import DocsGrid from '../../components/files/DocsGrid';

@@ -2,7 +2,7 @@ import { memo, useContext, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/tasks/personMultiSelect.scss';
 import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 import Context from '../../../../context/context';
-import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
+import Tick from '../../../../assets/svg/tasks/tick.svg?react';
 
 const PersonDropdown = memo(({ selected = [], onOptionClick, title, value }) => {
 	const searchDebounceRef = useRef(null);

@@ -1,11 +1,11 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/ai_assistant/AiPersonality.scss';
-import { ReactComponent as PlayIcon } from '../../../assets/svg/ai_assistant/play.svg';
-import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
-import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
-import { ReactComponent as UploadIcon } from '../../../assets/svg/ai_assistant/upload.svg';
-import { ReactComponent as PencilWithLine } from '../../../assets/svg/tasks/pencilWithLine.svg';
-import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.svg';
+import PlayIcon from '../../../assets/svg/ai_assistant/play.svg?react';
+import DownSvg from '../../../assets/svg/activity/down.svg?react';
+import AgentIcon from '../../../assets/svg/ai_assistant/agent.svg?react';
+import UploadIcon from '../../../assets/svg/ai_assistant/upload.svg?react';
+import PencilWithLine from '../../../assets/svg/tasks/pencilWithLine.svg?react';
+import Plus from '../../../assets/svg/ai_assistant/plus.svg?react';
 import CustomInput from '../globalComponents/CustomInput';
 import { Tooltip } from 'antd';
 import CustomTextArea from '../globalComponents/CustomTextArea';

@@ -1,8 +1,8 @@
 import React, { memo, useContext, useState, useEffect, useCallback } from 'react';
 import Context from '../../../context/context';
-import { ReactComponent as Checked } from '../../../assets/svg/workflow/checked.svg';
-import { ReactComponent as Unchecked } from '../../../assets/svg/workflow/unchecked.svg';
-import { ReactComponent as Close } from '../../../assets/svg/close.svg';
+import Checked from '../../../assets/svg/workflow/checked.svg?react';
+import Unchecked from '../../../assets/svg/workflow/unchecked.svg?react';
+import Close from '../../../assets/svg/close.svg?react';
 import ReactModal from '../modalsV2/index';
 import InputForModules from '../input/inputForModules';
 import HeadersDropDownComp from '../dropDown/HeadersDropDownComp';
@@ -10,7 +10,7 @@ import '../../../assets/scss/sales/createLeadModal.scss';
 import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash/debounce';
 import { fetchOriginSelection } from '../../../helpers';
-const validator = require('validator');
+import validator from 'validator';
 
 let origin = fetchOriginSelection();
 
@@ -34,7 +34,6 @@ const selectedWorkflowStyles = {
 const headerDropdownStyles = {
 	padding: '12px 24px',
 	height: '48px',
-	padding: '12px 14px',
 	color: 'var(--primary-font)',
 	width: 'inherit',
 	flex: 1,

@@ -1,9 +1,9 @@
 import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import validator from 'validator';
 import '../../../assets/scss/login_page/index.scss';
-import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
-import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
-import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
+import GoogleLogo from '../../../assets/svg/login_page/google.svg?react';
+import UpArrowGrey from '../../../assets/svg/login_page/uparrow-grey.svg?react';
+import UpArrowBlackHover from '../../../assets/svg/login_page/up-arrow-black-hover.svg?react';
 import Context from '../../../context/context';
 import { getLocationsDetails } from '../../../helpers';
 import { useLocation, useNavigate } from 'react-router-dom';

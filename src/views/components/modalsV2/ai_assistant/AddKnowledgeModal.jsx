@@ -1,8 +1,8 @@
 import ReactModal from '../index';
-import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
-import { ReactComponent as TIcon } from '../../../../assets/svg/ai_assistant/tIcon.svg';
-import { ReactComponent as URLIcon } from '../../../../assets/svg/ai_assistant/url.svg';
-import { ReactComponent as FolderIcon } from '../../../../assets/svg/ai_assistant/folder.svg';
+import CloseSvg from '../../../../assets/svg/close.svg?react';
+import TIcon from '../../../../assets/svg/ai_assistant/tIcon.svg?react';
+import URLIcon from '../../../../assets/svg/ai_assistant/url.svg?react';
+import FolderIcon from '../../../../assets/svg/ai_assistant/folder.svg?react';
 import ActionButton from '../../ai_assistant/ActionButton';
 import '../../../../assets/scss/ai_assistant/modal/addKnowledgeModal.scss';
 import { useState } from 'react';

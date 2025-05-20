@@ -1,9 +1,9 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/calendar/appointmentDetailsModal.scss';
-import { ReactComponent as BgSvg1 } from '../../../assets/svg/calendar/backgroundBlur1.svg';
-import { ReactComponent as BgSvg2 } from '../../../assets/svg/calendar/backgroundBlur2.svg';
-import { ReactComponent as BgSvg3 } from '../../../assets/svg/calendar/backgroundBlur3.svg';
-import { ReactComponent as BackArrow } from '../../../assets/svg/calendar/backArrow.svg';
+import BgSvg1 from '../../../assets/svg/calendar/backgroundBlur1.svg?react';
+import BgSvg2 from '../../../assets/svg/calendar/backgroundBlur2.svg?react';
+import BgSvg3 from '../../../assets/svg/calendar/backgroundBlur3.svg?react';
+import BackArrow from '../../../assets/svg/calendar/backArrow.svg?react';
 
 const AppointmentDetailsModal = () => {
 	return (

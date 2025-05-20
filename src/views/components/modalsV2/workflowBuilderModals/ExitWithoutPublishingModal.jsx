@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
-import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
-import { ReactComponent as Warning } from '../../../../assets/svg/worflow_builder/warning.svg';
+import Close from '../../../../assets/svg/close.svg?react';
+import Warning from '../../../../assets/svg/worflow_builder/warning.svg?react';
 import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/workflowBuilder/exitWithoutPublishingModal.scss';
 import { useNavigate } from 'react-router-dom';

@@ -1,9 +1,9 @@
 import { memo, useState } from 'react';
 import { Tooltip } from 'antd';
 import { layouts } from '../../tasks/listView/TaskHeader';
-import { ReactComponent as Dustbin } from '../../../../assets/svg/tasks/dustBin.svg';
+import Dustbin from '../../../../assets/svg/tasks/dustBin.svg?react';
 import DuplicateSvg from '../../../../assets/svg/tasks/DuplicateSvg';
-import { ReactComponent as Pencil } from '../../../../assets/svg/tasks/pencilWithLine.svg';
+import Pencil from '../../../../assets/svg/tasks/pencilWithLine.svg?react';
 const tabTooltipContent = [
 	{ label: 'Edit', value: 'edit', icon: <Pencil /> },
 	{ label: 'Duplicate', value: 'duplicate', icon: <DuplicateSvg /> },

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import ReactModal from '../../components/modalsV2/index';
-import { ReactComponent as Close } from '../../../assets/svg/close.svg';
+import Close from '../../../assets/svg/close.svg?react';
 import InputForModules from '../../components/input/inputForModules';
 import '../../../assets/scss/settings/changePassword.scss';
 import Context from '../../../context/context';

@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/workflowBuilder/workflowBuilderSidebarComponents/conditions.scss';
-import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/buildercard/doubleArrow.svg';
-import { ReactComponent as Search } from '../../../../assets/svg/worflow_builder/buildercard/search.svg';
+import DoubleArrow from '../../../../assets/svg/worflow_builder/buildercard/doubleArrow.svg?react';
+import Search from '../../../../assets/svg/worflow_builder/buildercard/search.svg?react';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import {
 	conditionOptions,

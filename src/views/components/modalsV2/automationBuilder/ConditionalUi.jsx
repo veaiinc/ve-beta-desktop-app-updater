@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import Context from '../../../../context/context';
-import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/doubleArrow.svg';
+import DoubleArrow from '../../../../assets/svg/worflow_builder/doubleArrow.svg?react';
 import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
 import Spinner from '../../loaders/Spinner';
 import {

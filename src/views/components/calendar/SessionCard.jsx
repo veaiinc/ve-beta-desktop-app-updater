@@ -1,8 +1,8 @@
 import React, { memo, useCallback, useState, useRef, useEffect } from 'react';
 import '../../../assets/scss/calendar/SessionCard.scss';
-import { ReactComponent as PencilSvg } from '../../../assets/svg/calendar/pencil.svg';
+import PencilSvg from '../../../assets/svg/calendar/pencil.svg?react';
 import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
-import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
+import DownSvg from '../../../assets/svg/calendar/down.svg?react';
 import UpdateSessionSlot from '../../../views/components/modalsV2/calendar/UpdateSessionSlot';
 import CreateSessionModal from '../../../views/components/modalsV2/calendar/CreateSessionModal';
 import dayjs from 'dayjs';

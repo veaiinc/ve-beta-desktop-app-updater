@@ -1,7 +1,7 @@
 import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
-import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
-import { ReactComponent as NotesIcon } from '../../../assets/svg/files/notes-icon.svg';
+import Plus from '../../../assets/svg/files/Plus.svg?react';
+import NotesIcon from '../../../assets/svg/files/notes-icon.svg?react';
 import { useNavigate } from 'react-router-dom';
 import { memo, useContext, useEffect, useState } from 'react';
 import Context from '../../../context/context';

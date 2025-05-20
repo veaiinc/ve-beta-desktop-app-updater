@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef } from 'react';
 import '../../../../assets/scss/home_page/modals/aiQuestionsModal.scss';
 import ReactModal from '../index';
-import { ReactComponent as QuestionSvg } from '../../../../assets/svg/home_page/question.svg';
+import QuestionSvg from '../../../../assets/svg/home_page/question.svg?react';
 
 const AIQuestionsModal = ({ open, onClose, data }) => {
 	const inputRefs = useRef([]);
