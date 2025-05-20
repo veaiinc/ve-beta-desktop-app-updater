@@ -1,0 +1,108 @@
+.agents-header {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+
+	.assistants-navigation-container {
+		display: inline-flex;
+		height: 36px;
+		padding: 4px;
+		align-items: center;
+		gap: 2px;
+		flex-shrink: 0;
+		border-radius: 8px;
+		border: 1px solid var(--stroke, #2c2d2e);
+		align-self: flex-start;
+		margin-left: 34px;
+		transition: all 0.3s ease;
+		cursor: pointer;
+
+		.assistants-navigation-item {
+			display: flex;
+			padding: 6px 8px;
+			justify-content: center;
+			align-items: center;
+			gap: 18px;
+			border-radius: 6px;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			&.assistants-navigation-item-active {
+				background: var(--card-hover, #202123);
+			}
+		}
+	}
+
+	.page-header {
+		display: flex;
+		gap: 10px;
+		box-sizing: border-box;
+		font-family: var(--primary-font-family);
+		font-size: 20px;
+		font-weight: 500;
+		align-items: flex-start;
+		justify-content: space-between;
+		width: 100%;
+
+		h1 {
+			display: flex;
+			flex-direction: column;
+			gap: 5px;
+			text-align: left;
+
+			.header-subtitle {
+				color: var(--secondary-font, #787e87);
+				font-family: var(--primary-font-family);
+				font-size: 24px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+
+			.header-title {
+				color: var(--primary-button);
+				font-family: var(--primary-font-family);
+				font-size: 24px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+
+		.search-wrapper {
+			display: flex;
+			width: 50%;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 12px;
+			border-radius: 20px;
+			background: #2a2c2e;
+			border: 1px solid var(--stroke);
+
+			.search-icon {
+				width: 16px;
+				height: 16px;
+				color: var(--primary-font);
+			}
+
+			.search-input {
+				background: transparent;
+				border: none;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				width: 160px;
+				outline: none;
+
+				&::placeholder {
+					color: var(--secondary-font);
+				}
+			}
+		}
+	}
+}

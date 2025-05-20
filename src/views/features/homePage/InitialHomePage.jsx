@@ -15,6 +15,7 @@ import { ReactComponent as CalendarSvg } from '../../../assets/svg/home_page/cal
 import { ReactComponent as TaskSvg } from '../../../assets/svg/home_page/tasks.svg';
 import { ReactComponent as ContactSvg } from '../../../assets/svg/home_page/contacts.svg';
 import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/automation.svg';
+import Suggestions from './Suggestions';
 
 const optionsList = [
 	{
@@ -137,6 +138,45 @@ const SuggestedOptions = [
 		},
 	},
 ];
+
+const suggestions = [
+	{
+		id: 1,
+		text: 'Use a task management system to prioritize tasks based on urgency and importance.',
+	},
+	{
+		id: 2,
+		text: 'Draft and send a follow-up email to a client',
+	},
+	{
+		id: 3,
+		text: 'Deep research “latest industry trends” with sources',
+	},
+	{
+		id: 4,
+		text: 'Generate a professional-looking form in seconds',
+	},
+	{
+		id: 5,
+		text: 'Search across Gmail, Drive, and Notion for “invoice”',
+	},
+	{
+		id: 6,
+		text: 'Summarize all emails from today',
+	},
+	{
+		id: 7,
+		text: 'Schedule a meeting for next week',
+	},
+	{
+		id: 8,
+		text: 'Create a new contact',
+	},
+	{
+		id: 9,
+		text: 'Create a new automation',
+	},
+];
 const InitialHomePage = () => {
 	const {
 		templates: { updateStateValues, currentSessionId },
@@ -146,6 +186,7 @@ const InitialHomePage = () => {
 	} = useContext(Context);
 
 	const navigate = useNavigate();
+	const timeoutIdRef = useRef(null);
 
 	const [info, setInfo] = useState({
 		selectedOption: '',
@@ -155,13 +196,16 @@ const InitialHomePage = () => {
 			acc[option.value] = false;
 			return acc;
 		}, {}),
-		minimized: false,
 		minimizedChatBox: true,
+		minimizedChatBoxState: true,
+		showSuggestions: false,
+		chatQuery: '',
 	});
 
 	useEffect(() => {
 		return () => {
 			updateStateValues({ aiSuggestedPendingActions: null });
+			clearTimeout(timeoutIdRef.current);
 		};
 	}, []);
 
@@ -233,11 +277,6 @@ const InitialHomePage = () => {
 		}
 	}, [aiSuggestedPendingActions]);
 
-	const options = useMemo(
-		() => info?.options?.filter((option) => option?.showOption),
-		[info?.options],
-	);
-
 	useEffect(() => {
 		if (options?.length > 0 && !info?.selectedOption) {
 			// Set the first visible option as the selected option
@@ -246,15 +285,22 @@ const InitialHomePage = () => {
 				selectedOption: options[0]?.value,
 			}));
 		}
-	}, [options, info?.selectedOption]);
+	}, [info?.selectedOption]);
 
-	const handleMouseDown = useCallback(() => {
-		if (!info?.minimizedChatBox) {
+	const handleContainerClick = useCallback(() => {
+		if (info?.minimizedChatBox) return;
+
+		setInfo((prev) => ({
+			...prev,
+			minimizedChatBox: true,
+			showSuggestions: false,
+		}));
+		timeoutIdRef.current = setTimeout(() => {
 			setInfo((prev) => ({
 				...prev,
-				minimizedChatBox: true,
+				minimizedChatBoxState: true,
 			}));
-		}
+		}, 300);
 	}, [info?.minimizedChatBox]);
 
 	const handleUpdateOptions = (value) => {
@@ -272,6 +318,13 @@ const InitialHomePage = () => {
 			...prev,
 			options: updatedOptions,
 			selectedOption,
+		}));
+	};
+
+	const handleChatQueryChange = (query) => {
+		setInfo((prev) => ({
+			...prev,
+			chatQuery: query,
 		}));
 	};
 
@@ -356,7 +409,9 @@ const InitialHomePage = () => {
 		if (!info?.minimizedChatBox) return;
 		setInfo((prev) => ({
 			...prev,
-			minimizedChatBox: !prev?.minimizedChatBox,
+			minimizedChatBox: false,
+			minimizedChatBoxState: false,
+			showSuggestions: true,
 		}));
 	};
 
@@ -372,10 +427,15 @@ const InitialHomePage = () => {
 		[info?.promptsCategory],
 	);
 
+	const options = useMemo(
+		() => info?.options?.filter((option) => option?.showOption),
+		[info?.options],
+	);
+
 	return (
 		<div
 			className={`initial-home-page-container`}
-			onClick={handleMouseDown}
+			onClick={handleContainerClick}
 			style={{
 				...(options?.length === 0 && { justifyContent: 'center' }),
 			}}
@@ -409,18 +469,25 @@ const InitialHomePage = () => {
 							customChatActions={true}
 							autoFocus={false}
 							animatePlaceholder={true}
-							startPage={info?.minimizedChatBox}
+							startPage={info?.minimizedChatBoxState}
 							customChatBoxClick={handleCustomChatBoxClick}
+							onChatQueryChange={handleChatQueryChange}
 						/>
 					</div>
 				</div>
 
-				<div className="options-container">{renderedOptions}</div>
+				{!info?.showSuggestions && (
+					<div className="options-container">{renderedOptions}</div>
+				)}
 			</div>
-			{options?.length > 0 && (
+			{options?.length > 0 && !info?.showSuggestions && (
 				<div className="home-page-container-content">
 					{componentMapper[info?.selectedOption]}
 				</div>
+			)}
+
+			{info?.showSuggestions && info?.chatQuery?.length === 0 && (
+				<Suggestions data={suggestions} />
 			)}
 		</div>
 	);

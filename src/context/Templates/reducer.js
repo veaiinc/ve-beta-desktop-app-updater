@@ -450,6 +450,10 @@ const actionHandlers = {
 			citationChunks: { ...state?.citationChunks, [sourceId]: action?.payload?.[sourceId] },
 		};
 	},
+	GET_AI_QUESTIONS_SUCCESS: (state, action) => ({
+		...state,
+		aiQuestions: action?.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 
