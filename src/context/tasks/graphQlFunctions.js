@@ -48,7 +48,10 @@ export const getListItemsQuery = gql`
 				}
 				createdByAI
 				statusUpdatedAt
-				statusUpdatedBy
+				statusUpdatedBy {
+					_id
+					name
+				}
 			}
 			analytics {
 				allTasks
@@ -207,7 +210,10 @@ export const getTaskQuery = gql`
 			}
 			createdByAI
 			statusUpdatedAt
-			statusUpdatedBy
+			statusUpdatedBy {
+				_id
+				name
+			}
 		}
 	}
 `;
@@ -252,7 +258,10 @@ export const getSubTasksQuery = gql`
 			}
 			createdByAI
 			statusUpdatedAt
-			statusUpdatedBy
+			statusUpdatedBy {
+				_id
+				name
+			}
 		}
 	}
 `;
@@ -452,7 +461,10 @@ export const listTaskWithGroupQuery = gql`
 						title
 					}
 					statusUpdatedAt
-					statusUpdatedBy
+					statusUpdatedBy {
+						_id
+						name
+					}
 					createdByAI
 				}
 				groupName
