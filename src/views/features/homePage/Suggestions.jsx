@@ -1,7 +1,7 @@
 import { memo, useContext } from 'react';
 import '../../../assets/scss/home_page/suggestions.scss';
-import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
-import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
+import SearchSvg from '../../../assets/svg/workflow/search.svg?react';
+import ArrowRightSvg from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg?react';
 import ObjectID from 'bson-objectid';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
