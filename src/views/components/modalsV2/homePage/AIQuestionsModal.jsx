@@ -35,7 +35,7 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 		const id = data?._id;
 
 		const response = await updateAiQuestions(payload, id);
-		console.log('response', response);
+		// console.log('response', response);
 	};
 
 	return (

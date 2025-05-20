@@ -2523,7 +2523,7 @@ export const TemplatesState = (props) => {
 				dispatch({
 					type: Actions.GET_AI_QUESTIONS_SUCCESS,
 					payload: {
-						...response?.[1],
+						...response?.[1], // includes hasNextPage, hasPreviousPage, totalPages, totalItems, etc
 						data,
 					},
 				});
@@ -2534,6 +2534,7 @@ export const TemplatesState = (props) => {
 			console.log('error==>getAiQuestions', error);
 		}
 	};
+
 	const updateAiQuestions = async (payload, id = null) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
