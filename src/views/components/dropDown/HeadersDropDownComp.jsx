@@ -147,7 +147,7 @@ const HeadersDropDownComp = ({
 							hasMore={hasNextPage}
 							next={fetchMoreData}
 							loader={<FetchMoreLoaderComp />}
-							style={{ backgroundColor: 'var(--card-over-card)' }}
+							style={{ backgroundColor: 'var(--card)' }}
 							scrollableTarget="dropdown-menu"
 						>
 							{options.map((option, index) => (

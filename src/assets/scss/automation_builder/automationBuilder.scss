@@ -1,7 +1,7 @@
 .updatedAutomationBuilderContainer {
 	width: 100vw;
 	height: 100vh;
-	background-color: var(--background-color);
+	background-color: var(--card);
 
 	.updatedBuilderHeaderContainer {
 		display: flex;
@@ -11,7 +11,7 @@
 		align-items: center;
 		flex-shrink: 0;
 		border-bottom: 1px solid var(--stroke);
-		background: var(--background-color);
+		background: var(--card);
 
 		.previousStepText {
 			color: var(--primary-font);
@@ -42,7 +42,7 @@
 			align-items: center;
 			gap: 12px;
 			border-radius: 6px;
-			background: var(--background-color);
+			background: var(--card);
 			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
@@ -87,7 +87,7 @@
 		display: flex;
 		.reactFlowContainer {
 			flex-grow: 1;
-			background-color: var(--background-color);
+			background-color: var(--card);
 			position: relative;
 
 			.react-flow {
@@ -125,7 +125,7 @@
 			gap: 12px;
 			flex-shrink: 0;
 			border-left: 1px solid var(--stroke);
-			background: var(--background-color);
+			background: var(--card);
 		}
 	}
 

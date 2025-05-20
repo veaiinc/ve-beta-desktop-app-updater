@@ -312,6 +312,10 @@
 		align-self: stretch;
 		cursor: pointer;
 
+		&:hover {
+			background-color: var(--card-over-card-hover);
+		}
+
 		.emailTemplateCardContent {
 			display: flex;
 			flex-direction: column;
@@ -339,9 +343,6 @@
 				text-transform: capitalize;
 			}
 		}
-	}
-	.emailTemplatesCard:hover {
-		background-color: var(--card);
 	}
 }
 

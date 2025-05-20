@@ -112,7 +112,7 @@ const InviteMembersWorkspaceComponent = ({
 
 	const customStyles = {
 		content: { zIndex: 999 },
-		overlay: { zIndex: 998 },
+		overlay: { zIndex: 9999 },
 	};
 	// const handleAccessTypeChange = (app, isFullAccess) => {
 	// 	setAccessControls((prevState) => {
