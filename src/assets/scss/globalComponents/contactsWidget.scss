@@ -19,6 +19,22 @@
 		background: var(--card, #171819);
 		align-self: stretch;
 		position: relative;
+		.contactsWidgetBodyHeaderLeft {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 4px;
+			align-self: stretch;
+			.contactsWidgetRemainder {
+				color: var(--secondary-font, #7a7e85);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
 		.contactsWidgetBody {
 			display: flex;
 			flex-direction: column;
@@ -28,6 +44,7 @@
 			flex: 1 0 0;
 			align-self: stretch;
 			overflow-y: auto;
+			gap: 6px;
 			padding-bottom: 16px; // Add padding to prevent content from being hidden behind footer
 			.contactsWidgetBodyMainContainer {
 				display: flex;
@@ -94,11 +111,14 @@
 			}
 			.contactsEachOptions {
 				display: flex;
-				padding: 6px;
-				align-items: flex-start;
+				padding: 10px;
+				flex-direction: row;
+				justify-content: space-between;
+				align-items: center;
+				gap: 6px;
 				align-self: stretch;
-				cursor: pointer;
 				border-radius: 8px;
+				background: var(--popup, #202123);
 				&:hover {
 					background: var(--card-over-card-hover);
 				}

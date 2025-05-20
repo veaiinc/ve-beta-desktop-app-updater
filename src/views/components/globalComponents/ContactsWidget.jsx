@@ -82,6 +82,9 @@ const ContactsWidget = ({ width, height }) => {
 	return (
 		<div className="contactsWidgetContainer" style={{ width: width, height: height }}>
 			<div className="contactsWidgetSection1">
+				<div className="contactsWidgetBodyHeaderLeft">
+					<span className="contactsWidgetRemainder">Contacts</span>
+				</div>
 				<div className="contactsWidgetBody">
 					{/* <div className="contactsWidgetBodyMainContainer">
 					<div className="contactsWidgetBodyHeader">

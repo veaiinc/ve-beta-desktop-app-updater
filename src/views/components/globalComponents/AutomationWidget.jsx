@@ -22,6 +22,7 @@ const infiniteScrollStyle = {
 	alignItems: 'flex-start',
 	flexDirection: 'column',
 	width: '100%',
+	gap: '6px',
 };
 
 const skeletonLoaders = Array.from({ length: 5 }, (_, index) => index + 1);
@@ -103,6 +104,9 @@ const AutomationWidget = ({ width, height }) => {
 	return (
 		<div className="automation" style={{ width: width, height: height }}>
 			<div className="automationWidgetContainer">
+				<div className="automationWidgetBodyHeaderLeft">
+					<span className="automationWidgetRemainder">Automations</span>
+				</div>
 				<div className="automationWidgetBody">
 					<div className="automationWidgetBodyHeader" id="automationWidgetBodyHeader">
 						{info?.isLoading ? (

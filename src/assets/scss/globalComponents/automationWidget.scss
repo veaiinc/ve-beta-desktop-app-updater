@@ -18,6 +18,25 @@
 		background: var(--card, #171819);
 		width: 100%;
 		position: relative;
+
+		.automationWidgetBodyHeaderLeft {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 4px;
+			align-self: stretch;
+			margin-bottom: 16px;
+			.automationWidgetRemainder {
+				color: var(--secondary-font, #7a7e85);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+
 		.automationWidgetBody {
 			display: flex;
 			flex-direction: column;
@@ -42,17 +61,19 @@
 				.infinite-scroll-component__outerdiv {
 					height: 250px;
 				}
+
 				.automationWidgetBodyItem {
 					display: flex;
-					padding: 6px;
-					flex-direction: column;
-					align-items: flex-start;
+					padding: 10px;
+					flex-direction: row;
+					justify-content: space-between;
+					align-items: center;
 					gap: 6px;
 					align-self: stretch;
-					border-radius: 12px;
-					cursor: pointer;
+					border-radius: 8px;
+					background: var(--popup, #202123);
 					&:hover {
-						background: var(--card-over-card-hover, #202123);
+						background: var(--card-over-card-hover);
 					}
 
 					.automationWidgetOptionDetailsTitle {
