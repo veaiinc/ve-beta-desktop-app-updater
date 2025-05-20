@@ -4,6 +4,7 @@
 	bottom: 0;
 	width: 100%;
 	max-width: 700px;
+	z-index: 20;
 
 	.chatWrapper {
 		// overflow: hidden;
@@ -309,7 +310,7 @@
 				width: 40px;
 				height: 40px;
 				border-radius: 50%;
-				background-color: transparent;
+				background-color: var(--card);
 				border: 1px solid var(--stroke, #333334);
 				color: var(--primary-font, #f2f2f3);
 				cursor: pointer;

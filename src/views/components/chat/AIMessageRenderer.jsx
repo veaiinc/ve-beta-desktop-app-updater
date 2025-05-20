@@ -16,7 +16,7 @@ import {
 import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import AIMessage from './AIMessage';
 import CombinedChainOfThought from './chatComponents/CombinedChainOfThought';
-import ResearchWidget from './chatComponents/ResearchWidget';
+import ChainOfThoughtWidget from './chatComponents/ChainOfThoughtWidget';
 const AIMessageRenderer = ({
 	messageData,
 	handleNoteComponentModalOpen,
@@ -145,7 +145,7 @@ const AIMessageRenderer = ({
 				<>
 					{(messageData?.processing === 'Deep Search' ||
 						messageData?.processing === 'Deep Research') && (
-						<ResearchWidget messageData={messageData} />
+						<ChainOfThoughtWidget messageData={messageData} />
 					)}
 
 					<AIMessage

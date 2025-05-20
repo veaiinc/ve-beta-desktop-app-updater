@@ -17,14 +17,14 @@ import { Tooltip } from 'antd';
 
 const origin = fetchOriginSelection();
 
-const filterOptions = [
-	{ label: 'All', value: '' },
-	{ label: 'Form', value: 'form-submission' },
-	{ label: 'Proposal', value: 'proposal' },
-	{ label: 'Presentation', value: 'presentation' },
-	{ label: 'Invoice', value: 'invoice' },
-	{ label: 'Contract', value: 'contract' },
-];
+// const filterOptions = [
+// 	{ label: 'All', value: '' },
+// 	{ label: 'Form', value: 'form-submission' },
+// 	{ label: 'Proposal', value: 'proposal' },
+// 	{ label: 'Presentation', value: 'presentation' },
+// 	{ label: 'Invoice', value: 'invoice' },
+// 	{ label: 'Contract', value: 'contract' },
+// ];
 
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
