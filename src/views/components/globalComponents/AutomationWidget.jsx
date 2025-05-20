@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import '../../../assets/scss/globalComponents/automationWidget.scss';
-import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
+import { ReactComponent as AddIcon } from '../../../assets/svg/calendar/add.svg';
+import { ReactComponent as ArrowViewIcon } from '../../../assets/svg/calendar/arrowview.svg';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
@@ -158,9 +159,12 @@ const AutomationWidget = ({ width, height }) => {
 						navigate('/automations');
 					}}
 				>
-					<div className="automationWidgetFooterTitle">View Automations</div>
+					<div className="automationWidgetFooterTitle">
+						<ArrowViewIcon style={{ width: '18px', height: '18px' }} />
+						View Automations
+					</div>
 					<div className="automationWidgetFooterAdd">
-						<PlusIcon
+						<AddIcon
 							onClick={(e) => {
 								e.stopPropagation();
 								handleCreateAutomation();

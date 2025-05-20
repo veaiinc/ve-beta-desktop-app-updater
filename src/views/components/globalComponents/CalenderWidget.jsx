@@ -374,7 +374,10 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 						navigate('/calendar');
 					}}
 				>
-					<div className="calenderWidgetFooterTitle">View Calendar</div>
+					<div className="calenderWidgetFooterTitle">
+						<ArrowViewIcon style={{ width: '18px', height: '18px' }} />
+						View Calendar
+					</div>
 					<div className="calenderWidgetFooterAdd">
 						<AddIcon
 							onClick={(e) => {
