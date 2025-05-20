@@ -20,7 +20,7 @@ import ObjectID from 'bson-objectid';
 import { useNavigate } from 'react-router-dom';
 import { handleCombinedChainOfThought } from '../../../helpers/chatHelpers';
 import { ReactComponent as RelativeTimeSvg } from '../../../assets/svg/home_page/relativeTime.svg';
-import { ReactComponent as BookIcon } from '../../../assets/svg/home_page/bookIcon.svg';
+import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
 import { ReactComponent as ListViewSvg } from '../../../assets/svg/home_page/listView.svg';
 import { ReactComponent as FocusViewSvg } from '../../../assets/svg/home_page/focusView.svg';
 import { ReactComponent as SortDescSvg } from '../../../assets/svg/home_page/sortDesc.svg';
@@ -861,14 +861,14 @@ const ProactiveSuggestions = () => {
 																			color={'transparent'}
 																		>
 																			<div
-																				className={`${
+																				className={`starLogoContainer ${
 																					card?.isFavourite ===
 																					true
-																						? 'thumbsUpContainer'
+																						? 'active'
 																						: ''
 																				}`}
 																				onClick={(e) => {
-																					e.stopPropagation();
+																					e?.stopPropagation();
 																					handleThumbClick(
 																						card?._id,
 																					);
@@ -879,16 +879,7 @@ const ProactiveSuggestions = () => {
 																						'-6px',
 																				}}
 																			>
-																				<BookIcon
-																					style={{
-																						color: `${
-																							card?.isFavourite ===
-																							true
-																								? 'var(--primary-font)'
-																								: 'var(--secondary-font)'
-																						}`,
-																					}}
-																				/>
+																				<StarSvg />
 																			</div>
 																		</Tooltip>
 																		{card?.moduleType ===

@@ -679,7 +679,6 @@
 						justify-content: space-between;
 						width: 100%;
 						align-items: center;
-						height: 15px;
 						.cardOptionsContainer {
 							display: flex;
 							align-items: center;
@@ -698,7 +697,7 @@
 							}
 							.verticalLine {
 								width: 1px;
-								height: 14px;
+								height: 16px;
 								background: var(--stroke, #2c2d2e);
 							}
 							.relativeTime {
@@ -716,9 +715,21 @@
 									color: var(--secondary-font);
 								}
 							}
-							.thumbsUpContainer {
-								svg {
-									color: var(--primary-font) !important;
+							.starLogoContainer {
+								&:hover {
+									svg {
+										path {
+											stroke: var(--primary-font);
+										}
+									}
+								}
+								&.active {
+									svg {
+										fill: #79ecc9;
+										path {
+											stroke: #79ecc9;
+										}
+									}
 								}
 							}
 						}
