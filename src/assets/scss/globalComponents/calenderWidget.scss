@@ -210,7 +210,7 @@
 							background: var(--popup, #202123);
 							transition: border 0.2s ease-in-out;
 							&:hover {
-								border: 1px solid var(--primary-button, #79ecc9);
+								background: var(--card-over-card-hover, #27282b);
 							}
 							.meetingDetailsTitle {
 								color: var(--primary-font, #f2f2f3);
