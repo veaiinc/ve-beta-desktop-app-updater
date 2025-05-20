@@ -76,16 +76,16 @@ const filterGroups = [
 			{ id: 14, title: 'Last 30 days', value: 'last30days' },
 		],
 	},
-	// {
-	// 	title: 'Bookmark',
-	// 	options: [
-	// 		{
-	// 			id: 15,
-	// 			title: 'Favourite',
-	// 			value: true,
-	// 		},
-	// 	],
-	// },
+	{
+		title: 'Other',
+		options: [
+			{
+				id: 15,
+				title: 'Favourites',
+				value: true,
+			},
+		],
+	},
 ];
 
 const infiniteScrollStyle = {
@@ -229,7 +229,7 @@ const ProactiveSuggestions = () => {
 		const selectedPriority = getFilterValues('Priority Level');
 		const selectedReadStatus = getFilterValues('Read Status', 'All');
 		const selectedConfidenceScore = getFilterValues('Confidence level');
-		const selectedBookmark = getFilterValues('Bookmark');
+		const [favourite] = getFilterValues('Other');
 		const { from, to } = getDateRangeFromFilters(info?.selectedFilters);
 
 		return {
@@ -240,7 +240,7 @@ const ProactiveSuggestions = () => {
 			...(from !== undefined && to !== undefined && { from, to }),
 			sortType: info?.sortOptions[info?.sortBy]?.sortType,
 			sortBy: info?.sortBy,
-			// ...(selectedBookmark.length && { isFavourited: selectedBookmark?.[0] }),
+			...(favourite && { isFavourited: favourite }),
 		};
 	}, [payload, info?.selectedFilters, info?.sortOptions, info?.sortBy]);
 

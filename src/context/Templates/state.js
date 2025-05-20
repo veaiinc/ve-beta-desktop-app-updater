@@ -2410,7 +2410,7 @@ export const TemplatesState = (props) => {
 			if (from) filterParams?.push(`from=${from}`);
 			if (to) filterParams?.push(`to=${to}`);
 			if (sortType && sortBy) filterParams?.push(`sortType=${sortType}&sortBy=${sortBy}`);
-			if (isFavourited) filterParams?.push(`isFavourited=${isFavourited}`);
+			if (isFavourited) filterParams?.push(`isFavourite=${isFavourited}`);
 
 			const queryString = new URLSearchParams({ page, limit })?.toString();
 			const fullQuery = `${queryString}&${filterParams?.join('&')}`;
