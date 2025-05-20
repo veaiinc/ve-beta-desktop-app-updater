@@ -60,6 +60,7 @@ const EditAndViewEmailTemplateModal = ({
 							type="text"
 							value={info?.subject}
 							className="inputForeditEmailInput"
+							placeholder="Subject Line Here"
 							onChange={(e) =>
 								setInfo((prev) => ({ ...prev, subject: e.target.value }))
 							}
@@ -70,6 +71,11 @@ const EditAndViewEmailTemplateModal = ({
 						<span className="inputlabel">Email Body Here</span>
 						<div className="joditWrapper">
 							<JoditEditor
+								style={{
+									backgroundColor: 'var(--card)',
+									border: '1px solid var(--stroke)',
+									borderRadius: '10px',
+								}}
 								ref={editor}
 								value={info?.emailBody}
 								tabIndex={1} // tabIndex of textarea

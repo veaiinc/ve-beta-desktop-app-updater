@@ -16,7 +16,6 @@ import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.sv
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import { colors } from '../../../helpers/taskHelpers';
-import jwtDecode from 'jwt-decode';
 import EventsPopup from '../calendar/EventsPopUp';
 import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
 import { ReactComponent as Flash } from '../../../assets/svg/flash.svg';

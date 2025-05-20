@@ -231,6 +231,8 @@ const CustomEdges = ({
 								type="button"
 								className="edgeButton nodrag nopan"
 								style={{
+									color: 'var(--primary-font)',
+									background: 'var(--card)',
 									pointerEvents: 'all',
 									cursor: 'pointer',
 									marginTop: data?.label ? '6px' : '0', // Add space if there's a label

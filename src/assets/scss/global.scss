@@ -3733,6 +3733,25 @@ input[type='number'] {
 			border-top-left-radius: 0px !important;
 			border-top-right-radius: 0px !important;
 
+			.jodit-wysiwyg {
+				.container {
+					background-color: var(--card) !important;
+					border: 1px solid var(--stroke) !important;
+					.footer {
+						p {
+							font,
+							a {
+								color: var(--primary-font) !important;
+							}
+
+							img {
+								content: unset !important;
+							}
+						}
+					}
+				}
+			}
+
 			// p {
 			// 	color: #fff;
 			// }
@@ -3752,4 +3771,13 @@ input[type='number'] {
 
 #ve-ai-chat-iframe {
 	display: none;
+}
+
+body.ReactModal__Body--open {
+	background-color: var(--card) !important;
+	padding: 0 !important;
+}
+
+.jodit-toolbar-editor-collection.jodit-toolbar-editor-collection_mode_horizontal.jodit-toolbar-editor-collection_size_middle {
+	background-color: var(--card) !important;
 }
