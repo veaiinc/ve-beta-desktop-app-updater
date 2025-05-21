@@ -224,9 +224,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		document.head.appendChild(link);
 	}, [iconImage]);
 
-	useEffect(() => {
-		getNotesAccess({ pageId: noteId });
-	}, [noteId]);
+	// useEffect(() => {
+	// 	getNotesAccess({ pageId: noteId });
+	// }, [noteId]);
 
 	useEffect(() => {
 		if (noteId) {
@@ -252,25 +252,31 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}, [tenantsUserList, info?.updatedBy]);
 
 	useEffect(() => {
-		if (notesAccess && noteId && userId) {
-			const hasAccess = notesAccess?.find((access) => access?.userId === userId);
+		if (noteId) {
+			getNotesAccess({ pageId: noteId });
+		}
+	}, [noteId]);
+
+	// Process access logic when relevant data changes
+	useEffect(() => {
+		if (notesAccess && userId && noteId) {
+			const hasAccess = notesAccess.find((access) => access?.userId === userId);
 			if (hasAccess) {
-				let myAccess = hasAccess?.access;
+				let myAccess = hasAccess.access;
 
 				if (globalAccess?.isEnabled) {
 					const myAccessLevel = accessLevels?.[myAccess];
 					const teamAccessLevel = accessLevels?.[globalAccess?.access];
-					myAccess = myAccessLevel > teamAccessLevel ? globalAccess?.access : myAccess;
+					myAccess = myAccessLevel > teamAccessLevel ? globalAccess.access : myAccess;
 				}
+
 				setInfo((prev) => ({
 					...prev,
 					myAccess,
 				}));
 			}
-		} else {
-			getNotesAccess({ pageId: noteId });
 		}
-	}, [notesAccess, noteId, userId, globalAccess]);
+	}, [notesAccess, userId, noteId, globalAccess]);
 
 	useEffect(() => {
 		const handleKeyDown = (e) => {
@@ -632,7 +638,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 							/>
 						</button>
 
-						{info?.myAccess === 'full' && <ShareComponent pageId={noteId} />}
+						{info?.myAccess === 'full' && (
+							<ShareComponent pageId={noteId} makeApiCall={false} />
+						)}
 
 						<MoreOptions
 							notesConfigs={info?.notesConfigs}

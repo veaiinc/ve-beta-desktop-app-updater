@@ -34,7 +34,12 @@ const Stages = () => {
 			verifyMobileOtpCode,
 			createWorkspace,
 		},
-		profileInfo: { userDetailsFromTenantAPI, getUserDetailsFromTenantAPI, updateUserLogo },
+		profileInfo: {
+			userDetailsFromTenantAPI,
+			getUserDetailsFromTenantAPI,
+			updateUserLogo,
+			getUserWorkSpaceList,
+		},
 		companyInfo: { uploadTenantLogo },
 		themeInfo: { updateTheme },
 	} = useContext(Context);
@@ -166,7 +171,7 @@ const Stages = () => {
 	}, [profilePictureCntxt, userLogo]);
 
 	useEffect(() => {
-		if (info?.companyName?.length > 1) {
+		if (info?.companyName?.length > 0) {
 			const timeout = setTimeout(async () => {
 				const workspaceHandle = info?.companyName?.toLowerCase()?.replace(/[^a-z0-9]/g, '');
 				if (workspaceHandle?.length >= 4) {
@@ -177,7 +182,7 @@ const Stages = () => {
 						isWorkspaceHandleLengthInvalid: true,
 						checkingWorkspaceHandle: false,
 						isWorkspaceHandleAvailable: null,
-						workspaceHandle: '',
+						workspaceHandle: workspaceHandle,
 					}));
 				}
 			}, 500);
@@ -434,6 +439,7 @@ const Stages = () => {
 		});
 		const success = response?.[0] === true;
 		if (success) {
+			await getUserWorkSpaceList();
 			if (companyLogoFile) {
 				const isCompanyLogoUploaded = await handleUploadCompanyLogo();
 				if (isCompanyLogoUploaded) {
