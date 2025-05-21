@@ -77,7 +77,7 @@ const FormResCard = ({
 					filters: {
 						workflowTemplateId: formId,
 						page: 1,
-						limit: 20,
+						limit: 50,
 					},
 				},
 				workspaceId,
@@ -115,7 +115,7 @@ const FormResCard = ({
 					filters: {
 						workflowTemplateId: formId,
 						page: nextPage,
-						limit: 20,
+						limit: 50,
 					},
 				},
 				workspaceId,
@@ -131,6 +131,7 @@ const FormResCard = ({
 			}
 		} catch (err) {
 			console.error('Error fetching more form responses:', err);
+			setError('Failed to fetch more responses');
 		}
 	};
 
@@ -424,6 +425,7 @@ const FormResCard = ({
 							flexDirection: 'column',
 							width: '100%',
 						}}
+						scrollThreshold="90%"
 					>
 						{sortResponses(responses).map((response, index) => {
 							const resumeInfo = getResumeInfo(response);
@@ -431,7 +433,7 @@ const FormResCard = ({
 
 							return (
 								<div
-									key={index}
+									key={response._id || index}
 									className={`resWrapper ${isExpanded ? 'open' : ''}`}
 									onClick={() => {
 										setExpandedCard(expandedCard === index ? null : index);
