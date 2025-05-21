@@ -90,15 +90,15 @@
 				position: relative;
 
 				.chatParentWrapper {
-					bottom: unset;
-					top: 0px;
 					max-width: unset;
+					top: 0px;
+					bottom: unset;
 
 					.chatInputParentContainer {
 						gap: 8px !important;
 						.chat-input-container {
 							.textArea {
-								max-height: 34px !important;
+								max-height: 43px !important;
 							}
 						}
 					}
@@ -188,73 +188,6 @@
 
 .tooltip-wrapper {
 	max-width: unset;
-}
-
-@keyframes height-minimize {
-	from {
-		height: calc(100vh - 295px);
-	}
-	to {
-		height: calc(100vh - 220px);
-	}
-}
-
-@keyframes height-expand {
-	from {
-		height: calc(100vh - 220px);
-	}
-	to {
-		height: calc(100vh - 295px);
-	}
-}
-
-@keyframes chatbox-minimize {
-	from {
-		height: 122px;
-	}
-	to {
-		height: 47px;
-	}
-}
-
-@keyframes chatbox-expand {
-	from {
-		height: 47px;
-	}
-	to {
-		height: 122px;
-	}
-}
-
-@keyframes add-overflow {
-	0% {
-		overflow: hidden;
-	}
-	100% {
-		overflow: unset;
-	}
-}
-
-@keyframes text-minimize {
-	0% {
-		height: 27px;
-		margin-top: 0;
-	}
-	100% {
-		height: 0;
-		margin-top: -12px;
-	}
-}
-
-@keyframes text-expand {
-	0% {
-		height: 0;
-		margin-top: -12px;
-	}
-	100% {
-		height: 27px;
-		margin-top: 0;
-	}
 }
 
 @keyframes setOverflow {

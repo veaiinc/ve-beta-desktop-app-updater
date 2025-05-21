@@ -121,8 +121,7 @@ const AIMessageRenderer = ({
 							Chain of Thought
 							{!messageData?.report && (
 								<span className="citation-badge">
-									{messageData?.deepSearch?.cot?.length +
-										messageData?.deepSearch?.cot_refined?.length ||
+									{messageData?.deepSearch?.cot?.length ||
 										messageData?.deepResearch?.cot?.length +
 											messageData?.deepResearch?.sections?.length ||
 										0}
