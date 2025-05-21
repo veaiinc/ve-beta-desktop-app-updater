@@ -35,6 +35,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 	const [searchWorkspace, setSearchWorkspace] = useState('');
 	const [focusedIndex, setFocusedIndex] = useState(0);
 
+	const currentId = info?.activeBusniessName?.activeWorkspaceId;
 	useEffect(() => {
 		if (userWorkSpaceList && info?.activeBusniessName?.activeWorkspaceId) {
 			const activeIndex = userWorkSpaceList.findIndex(
@@ -51,9 +52,14 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 		setsidebarStates({ ...sidebarStates, workSpaceOpen: false, navStyle: 'open' });
 	};
 
-	const filteredWorkspaces = userWorkSpaceList?.filter((workspace) =>
-		workspace?.businessName?.toLowerCase()?.includes(searchWorkspace?.toLowerCase()),
-	);
+	const filteredWorkspaces =
+		userWorkSpaceList
+			?.filter((ws) => ws.businessName.toLowerCase().includes(searchWorkspace?.toLowerCase()))
+			.sort((a, b) => {
+				if (a.activeWorkspaceId === currentId) return -1;
+				if (b.activeWorkspaceId === currentId) return 1;
+				return 0;
+			}) ?? [];
 
 	useEffect(() => {
 		const handleKeyDown = (e) => {
