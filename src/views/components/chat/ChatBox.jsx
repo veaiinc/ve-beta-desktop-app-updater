@@ -1431,16 +1431,15 @@ const ChatBox = ({
 																	rootClassName="chatbox-tooltip"
 																>
 																	<div
-																		className={`chat-box-icon-container`}
+																		className={`chat-box-icon-container ${
+																			chatInfo?.ask
+																				?.webSearch ||
+																			chatInfo?.ask
+																				?.workspaceSearch
+																				? 'active'
+																				: ''
+																		}`}
 																		style={{
-																			border: `1px solid ${
-																				chatInfo?.ask
-																					?.webSearch ||
-																				chatInfo?.ask
-																					?.workspaceSearch
-																					? 'var(--primary-button)'
-																					: 'var(--stroke)'
-																			} `,
 																			opacity: `${
 																				chatInfo?.deepResearch
 																					? '0.5'
@@ -1530,17 +1529,14 @@ const ChatBox = ({
 																	rootClassName="chatbox-tooltip"
 																>
 																	<div
-																		className={`chat-box-icon-container`}
-																		style={{
-																			border: `1px solid ${
-																				chatInfo?.reason
-																					?.webSearch ||
-																				chatInfo?.reason
-																					?.workspaceSearch
-																					? 'var(--primary-button)'
-																					: 'var(--stroke)'
-																			} `,
-																		}}
+																		className={`chat-box-icon-container ${
+																			chatInfo?.reason
+																				?.webSearch ||
+																			chatInfo?.reason
+																				?.workspaceSearch
+																				? 'active'
+																				: ''
+																		}`}
 																	>
 																		<div className="icon">
 																			{chatInfo?.reason

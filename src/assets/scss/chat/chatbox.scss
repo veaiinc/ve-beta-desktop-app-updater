@@ -418,7 +418,11 @@
 	transition: background 200ms ease-in-out;
 
 	&:hover {
-		background: var(--stroke-hover);
+		border: 1px solid var(--stroke-hover);
+	}
+
+	&.active {
+		border: 1px solid var(--primary-button);
 	}
 
 	.icon {

@@ -866,11 +866,12 @@
 			}
 			.footer {
 				background: var(--navbar, #202123);
-				padding: 20px;
+				padding: 16px 20px;
 				width: 100%;
 				display: flex;
 				flex-direction: column;
 				gap: 4px;
+				border-top: 1px solid var(--stroke);
 				.footer-content {
 					display: flex;
 					flex-direction: row;
