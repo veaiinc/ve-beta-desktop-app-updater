@@ -101,7 +101,12 @@ const UploadStatusComponent = ({
 							{Object.keys(info?.uploadImages || {}).length} Images added -{' '}
 							{getImageSizeFormat(info?.uploadSize)}
 						</h1>
-						<p>Max amount {10000 - tenantAlbums?.storageDetails?.imagesCount} photos</p>
+						{!lightGallery && (
+							<p>
+								Max amount {10000 - tenantAlbums?.storageDetails?.imagesCount}{' '}
+								photos
+							</p>
+						)}
 					</div>
 
 					{info?.startedUploading ? (
