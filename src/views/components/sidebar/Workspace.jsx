@@ -54,10 +54,12 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 
 	const filteredWorkspaces =
 		userWorkSpaceList
-			?.filter((ws) => ws.businessName.toLowerCase().includes(searchWorkspace?.toLowerCase()))
+			?.filter((ws) =>
+				ws?.businessName?.toLowerCase()?.includes(searchWorkspace?.toLowerCase()),
+			)
 			.sort((a, b) => {
-				if (a.activeWorkspaceId === currentId) return -1;
-				if (b.activeWorkspaceId === currentId) return 1;
+				if (a?.activeWorkspaceId === currentId) return -1;
+				if (b?.activeWorkspaceId === currentId) return 1;
 				return 0;
 			}) ?? [];
 
