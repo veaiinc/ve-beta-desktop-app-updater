@@ -46,9 +46,9 @@ const filterGroups = [
 		title: 'Priority Level',
 		options: [
 			// { id: 1, title: 'Urgent Priority', value: 'High' },
-			{ id: 2, title: 'High', value: 'High' },
-			{ id: 3, title: 'Medium ', value: 'Medium' },
-			{ id: 4, title: 'Low ', value: 'Low' },
+			{ id: 2, title: 'High', value: 'High', bgColor: 'var(--error)' },
+			{ id: 3, title: 'Medium ', value: 'Medium', bgColor: 'var(--pending)' },
+			{ id: 4, title: 'Low ', value: 'Low', bgColor: 'var(--success)' },
 		],
 	},
 	{
@@ -618,13 +618,13 @@ const ProactiveSuggestions = () => {
 																info?.selectedFilters?.some(
 																	(option) =>
 																		option?.title ===
-																			itemWithGroup.title &&
+																			itemWithGroup?.title &&
 																		option?.group ===
-																			itemWithGroup.group,
+																			itemWithGroup?.group,
 																);
 															return (
 																<div
-																	key={item.id}
+																	key={item?.id}
 																	className="eachOption"
 																	onClick={() =>
 																		handleFilterClick(
@@ -632,27 +632,37 @@ const ProactiveSuggestions = () => {
 																			group?.title,
 																		)
 																	}
-																	style={{
-																		display: 'flex',
-																		justifyContent:
-																			'space-between',
-																		alignItems: 'center',
-																	}}
 																>
-																	<span>{item.title}</span>
-																	{isSelected && (
-																		<TickIcon
+																	{group?.title ===
+																		'Priority Level' && (
+																		<div
+																			className="indicator"
 																			style={{
-																				marginLeft: '8px',
+																				backgroundColor:
+																					item?.bgColor ||
+																					'',
 																			}}
-																		/>
+																		></div>
 																	)}
+																	<div className="option-text">
+																		<span className="option-text-content">
+																			{item?.title || ''}
+																		</span>
+																		{isSelected && (
+																			<TickIcon
+																				style={{
+																					marginLeft:
+																						'8px',
+																				}}
+																			/>
+																		)}
+																	</div>
 																</div>
 															);
 														})}
 													</div>
 												</div>
-												{idx < filterGroups.length - 1 && (
+												{idx < filterGroups?.length - 1 && (
 													<hr
 														style={{
 															width: '100%',
@@ -735,7 +745,10 @@ const ProactiveSuggestions = () => {
 							))}
 						</div>
 					) : aiSuggestedPendingActions?.pendingActions?.length === 0 ? (
-						<div className="no-data" style={{ color: 'var(--primary-font)' }}>
+						<div
+							className="no-data"
+							style={{ color: 'var(--primary-font)', margin: '0 auto' }}
+						>
 							No data available
 						</div>
 					) : (

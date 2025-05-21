@@ -785,14 +785,14 @@
 
 .filter-container {
 	display: flex;
-	width: 260px;
-	padding: 14px;
+	width: 200px;
+	padding: 6px 0px;
 	flex-direction: column;
-	align-items: center;
-	gap: 10px;
-	border-radius: 16px;
-	background: var(--card, #202123);
-	border: 1px solid var(--stroke, #2e3033);
+	align-items: flex-start;
+	gap: 6px;
+	border-radius: 12px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--navbar, #18191b);
 	position: relative;
 	z-index: 2;
 	margin-top: -8px;
@@ -804,7 +804,6 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: flex-start;
-		gap: 12px;
 		align-self: stretch;
 		.filter-item {
 			display: flex;
@@ -812,42 +811,62 @@
 			justify-content: center;
 			align-items: flex-start;
 			align-self: stretch;
+			gap: 2px;
 			.filter-item-title {
-				margin-bottom: 4px;
+				display: flex;
+				padding: 8px 16px 6px 16px;
+				align-items: center;
+				gap: 10px;
+				align-self: stretch;
+
 				color: var(--secondary-font, #7a7e85);
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: 18px;
-				flex: 1 0 0;
+				line-height: normal;
 			}
 			.filter-item-options {
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
-				gap: 4px;
+				gap: 2px;
 				align-self: stretch;
 				.eachOption {
 					display: flex;
-					padding: 6px 8px;
-					justify-content: flex-start;
+					padding: 8px 16px;
 					align-items: center;
-					gap: 14px;
+					justify-content: space-between;
+					gap: 8px;
 					align-self: stretch;
-					border-radius: 6px;
-					color: var(--primary-font, #f2f2f3);
-					font-family: var(--primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 20px;
-					flex: 1 0 0;
 					cursor: pointer;
 					transition: background-color 0.2s ease;
 
 					&:hover {
 						background-color: var(--card-hover, #252628);
+					}
+
+					.indicator {
+						width: 6px;
+						height: 6px;
+						border-radius: 50%;
+						background-color: transparent;
+					}
+
+					.option-text {
+						flex-grow: 1;
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+
+						.option-text-content {
+							color: var(--primary-font, #f2f2f3);
+							font-family: var(--primary-font-family);
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
 					}
 				}
 			}
