@@ -27,6 +27,8 @@
 		justify-content: flex-start;
 		flex-grow: 1;
 		overflow-y: auto;
+		gap: 4px;
+		padding: 4px;
 
 		.error-message {
 			color: var(--primary-font);

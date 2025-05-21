@@ -1,7 +1,7 @@
 .menuItemsContainer {
 	width: 100px;
 	padding: 8px;
-	background-color: var(--popup, #1a1b1d);
+	background-color: var(--popup);
 	border-radius: 12px;
 	list-style: none;
 
@@ -12,11 +12,11 @@
 		cursor: pointer;
 
 		&:hover {
-			background-color: var(--card-hover, #2e2f33);
+			background-color: var(--card-over-card-hover);
 		}
 
 		.title {
-			color: var(--primary-font, #f2f2f3);
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;

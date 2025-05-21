@@ -106,6 +106,7 @@ const ChatBox = ({
 	showScrollButton = false,
 	smoothScrollToBottom = null,
 	startPage = false,
+	onChatQueryChange = null,
 }) => {
 	const textAreaRef = useRef(null);
 	const location = useLocation();
@@ -993,6 +994,8 @@ const ChatBox = ({
 		} else {
 			isUploadFileOpen = false;
 		}
+
+		onChatQueryChange?.(query);
 
 		setInfo((prev) => ({
 			...prev,

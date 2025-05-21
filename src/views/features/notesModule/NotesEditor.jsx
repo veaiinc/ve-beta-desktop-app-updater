@@ -27,6 +27,7 @@ import { Tooltip } from 'antd';
 import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
+import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
@@ -603,7 +604,20 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 			{!info?.isDeleted ? (
 				<div className="notes-nav-menu">
-					<div className="notes-nav-title">{info?.title}</div>
+					<div className="notes-nav-left">
+						<div className="backBtnContainer">
+							<span
+								className="backBtn"
+								onClick={() => navigate(-1)}
+								aria-label="Go back to previous page"
+							>
+								<BackArrowSvg aria-hidden="true" />
+								<span>Notes</span>
+								<div>/</div>
+							</span>
+						</div>
+						<div className="notes-nav-title">{info?.title}</div>
+					</div>
 
 					<div className="notes-nav-right">
 						<button
