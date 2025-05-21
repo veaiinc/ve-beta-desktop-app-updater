@@ -55,20 +55,20 @@ const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 	const {
 		notes: { notesCoverImageLinkUpload, notesCoverImageFileUpload },
 		workspaceAssets: {
-			// workspaceImagesData,
-			// getWorkspaceImages,
+			workspaceImagesData,
+			getWorkspaceImages,
 			unsplashImagesData,
 			getUnsplashImages,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState(initialState);
 
-	// const workspaceImagesList = workspaceImagesData?.data;
-	// const workspaceImagesLoading = workspaceImagesList ? false : true;
-	// const workspaceImagesLength = workspaceImagesList?.length ?? 0;
-	// const workspaceImagesEmpty = workspaceImagesLength === 0 && !workspaceImagesLoading;
-	// const workspaceImagesHasNextPage = Boolean(workspaceImagesData?.hasNextPage);
-	// const workspaceImagesCurrentPage = Number(workspaceImagesData?.currentPage) || 1;
+	const workspaceImagesList = workspaceImagesData?.data;
+	const workspaceImagesLoading = workspaceImagesList ? false : true;
+	const workspaceImagesLength = workspaceImagesList?.length ?? 0;
+	const workspaceImagesEmpty = workspaceImagesLength === 0 && !workspaceImagesLoading;
+	const workspaceImagesHasNextPage = Boolean(workspaceImagesData?.hasNextPage);
+	const workspaceImagesCurrentPage = Number(workspaceImagesData?.currentPage) || 1;
 
 	const unsplashImagesList = unsplashImagesData?.data;
 	const unsplashImagesLoading = unsplashImagesList ? false : true;
@@ -79,9 +79,9 @@ const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 	const unsplashQuery = info?.unsplashSearchQuery;
 
 	useEffect(() => {
-		// if (!workspaceImagesData && info?.selectedUploadCategory === 'images') {
-		// 	getWorkspaceImages(page, limit);
-		// }
+		if (!workspaceImagesData && info?.selectedUploadCategory === 'images') {
+			getWorkspaceImages(page, limit);
+		}
 		if (!unsplashImagesData && info?.selectedUploadCategory === 'unsplash') {
 			const page = 1;
 			const limit = 16;
@@ -89,12 +89,12 @@ const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 		}
 	}, [info?.selectedUploadCategory]);
 
-	// const fetchNextWorkspaceImages = async () => {
-	// 	if (workspaceImagesHasNextPage) {
-	// 		const page = workspaceImagesCurrentPage + 1;
-	// 		getWorkspaceImages(page, limit, append);
-	// 	}
-	// };
+	const fetchNextWorkspaceImages = async () => {
+		if (workspaceImagesHasNextPage) {
+			const page = workspaceImagesCurrentPage + 1;
+			getWorkspaceImages(page, limit, append);
+		}
+	};
 
 	const fetchNextUnsplashImages = async () => {
 		if (unsplashImagesHasNextPage) {
