@@ -34,7 +34,20 @@ const removeHTMLTags = (text) => {
 const FileUploadAnswer = ({ answer }) => {
 	const [selectedFile, setSelectedFile] = useState(null);
 
-	if (!answer?.length) return null;
+	// Ensure answer is an array and parse if it's a string
+	let files;
+	try {
+		if (typeof answer === 'string') {
+			files = JSON.parse(answer);
+		} else {
+			files = Array.isArray(answer) ? answer : [answer].filter(Boolean);
+		}
+	} catch (e) {
+		console.error('Error parsing files:', e);
+		files = [];
+	}
+
+	if (!files?.length) return null;
 
 	const renderFileIcon = (fileExtension) => {
 		const extension = fileExtension?.toLowerCase();
@@ -48,16 +61,27 @@ const FileUploadAnswer = ({ answer }) => {
 
 	return (
 		<div className="form-summary-fileUploadContainer">
-			{answer.map(({ name, fileURL, lastModified, type }) => {
-				if (!name || !fileURL) return null;
-				const fileExtension = name?.split('.').pop()?.toLowerCase() || '';
+			{files.map((file, index) => {
+				const fileName =
+					typeof file === 'string' ? file : file?.name || file?.fileName || '';
+				const fileUrl =
+					typeof file === 'string'
+						? file
+						: file?.fileURL || file?.url || file?.previewUrl || file?.fileUrl || '';
+				const fileExtension = fileName?.split('.').pop()?.toLowerCase() || '';
 				const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension);
 
 				return (
-					<div key={lastModified} className="form-summary-fileItem">
+					<div key={index} className="form-summary-fileItem">
 						<div
 							className="form-summary-filePreview"
-							onClick={() => setSelectedFile({ name, fileURL, type })}
+							onClick={() =>
+								setSelectedFile({
+									name: fileName,
+									fileURL: fileUrl,
+									type: 'document',
+								})
+							}
 							style={{
 								cursor: 'pointer',
 								display: 'flex',
@@ -72,8 +96,8 @@ const FileUploadAnswer = ({ answer }) => {
 							)}
 							{isImage ? (
 								<img
-									src={fileURL}
-									alt={name}
+									src={fileUrl}
+									alt={fileName}
 									style={{
 										maxWidth: '50px',
 										maxHeight: '50px',
@@ -81,7 +105,7 @@ const FileUploadAnswer = ({ answer }) => {
 									}}
 								/>
 							) : null}
-							<span className="form-summary-fileName">{name}</span>
+							<span className="form-summary-fileName">{fileName}</span>
 						</div>
 					</div>
 				);
@@ -221,7 +245,7 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 	} = useLocation();
 	const navigate = useNavigate();
 	const formId = inputFormId || id;
-	const [expanded, setExpanded] = useState(false);
+	const [expandedQuestions, setExpandedQuestions] = useState({});
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [copyStatus, setCopyStatus] = useState({});
@@ -250,8 +274,25 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 			if (success && response) {
 				const { data, totalDocs } = response;
 
+				// Sanitize the response data
+				const sanitizedData =
+					data?.map((item) => ({
+						...item,
+						response: Array.isArray(item?.response)
+							? item?.response.map((responseItem) => ({
+									...responseItem,
+									question: responseItem?.question || '',
+									answer:
+										typeof responseItem?.answer === 'object'
+											? JSON.stringify(responseItem?.answer)
+											: responseItem?.answer || '',
+									type: responseItem?.type || '',
+							  }))
+							: [],
+					})) || [];
+
 				const allQuestions =
-					data
+					sanitizedData
 						?.flatMap((item) => item?.response?.filter((r) => r?.question) || [])
 						.map(({ question, type }) => ({ question, type }))
 						.filter(
@@ -282,10 +323,10 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 				setQuestions(allQuestions);
 				setFormData((prev) => ({
 					...prev,
-					responses: data || [],
+					responses: sanitizedData || [],
 					total: totalDocs || 0,
 					submitted: totalDocs || 0,
-					title: prev.title || data?.[0]?.title || '',
+					title: prev.title || sanitizedData?.[0]?.title || '',
 				}));
 			} else {
 				setError('No Responses Found');
@@ -297,7 +338,12 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 		}
 	};
 
-	const handleExpand = () => setExpanded((prev) => !prev);
+	const handleExpand = (questionId) => {
+		setExpandedQuestions((prev) => ({
+			...prev,
+			[questionId]: !prev[questionId],
+		}));
+	};
 
 	const handleCopy = useCallback(
 		(question) => {
@@ -427,8 +473,8 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 									</div>
 								</div>
 								<FormResponseList
-									expanded={expanded}
-									handleExpand={handleExpand}
+									expanded={expandedQuestions[item.question]}
+									handleExpand={() => handleExpand(item.question)}
 									items={formData.responses}
 									question={item.question}
 									handleCopy={handleCopy}
