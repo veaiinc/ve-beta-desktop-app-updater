@@ -86,7 +86,6 @@ const WorkspaceDetailsForm = ({
 					</div>
 
 					<div className="domainInfoContainer">
-						{console.log(workspaceHandle, 'workspaceHandle')}
 						{workspaceHandle?.length > 0 &&
 							(workspaceHandle.length < 4 ? (
 								// length 1–3: show the “too short” message
