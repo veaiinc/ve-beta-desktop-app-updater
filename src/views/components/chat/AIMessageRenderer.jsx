@@ -174,7 +174,6 @@ const AIMessageRenderer = ({
 					{messageData?.deepSearch && (
 						<DeepSearchChainOfThought
 							data={messageData?.deepSearch}
-							stream_end={messageData?.stream_end}
 							streamEnd={messageData?.stream_end}
 						/>
 					)}
