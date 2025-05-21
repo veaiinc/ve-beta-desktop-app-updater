@@ -12,7 +12,7 @@ import Skeleton from 'react-loading-skeleton';
 import Spinner from '../loaders/Spinner';
 
 const initialState = {
-	selectedUploadCategory: 'upload',
+	selectedUploadCategory: 'images',
 	link: '',
 	isLinkValid: false,
 	workspaceImagesLoading: false,
@@ -27,11 +27,11 @@ const append = true;
 const skeletonLoaders = Array.from({ length: 16 }, (_, index) => index + 1);
 
 const uploadCategoryOptions = [
-	// {
-	// 	id: 1,
-	// 	label: 'Images',
-	// 	value: 'images',
-	// },
+	{
+		id: 1,
+		label: 'Images',
+		value: 'images',
+	},
 	{
 		id: 2,
 		label: 'Upload',
@@ -178,58 +178,58 @@ const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 	};
 
 	const uploadCategoryOptionsUI = {
-		// images: (
-		// 	<div className="images">
-		// 		{/* <div className="imagesSearchContainer">
-		// 			<SearchIcon />
-		// 			<input
-		// 				className="imagesSearchInput"
-		// 				autoFocus
-		// 				type="text"
-		// 				onChange={handleImageSearch}
-		// 				placeholder="Search workspace images"
-		// 			/>
-		// 		</div> */}
-		// 		{workspaceImagesLoading ? (
-		// 			<div className="workspaceImagesLoading">
-		// 				{skeletonLoaders?.map((skeletonId) => (
-		// 					<Skeleton
-		// 						key={skeletonId}
-		// 						width="125.5px"
-		// 						height="82px"
-		// 						borderRadius="8px"
-		// 					/>
-		// 				))}
-		// 			</div>
-		// 		) : workspaceImagesEmpty ? (
-		// 			<div className="noImagesFound">
-		// 				<h1 className="emptyImagesMessage">
-		// 					Oops! No images found in your workspace!
-		// 				</h1>
-		// 			</div>
-		// 		) : (
-		// 			<InfiniteScroll
-		// 				dataLength={workspaceImagesLength}
-		// 				next={fetchNextWorkspaceImages}
-		// 				hasMore={workspaceImagesHasNextPage}
-		// 				loader={<FetchMoreLoaderComp />}
-		// 				height={'364px'}
-		// 			>
-		// 				<div className="imagesListContainer">
-		// 					{workspaceImagesList?.map((image) => (
-		// 						<img
-		// 							key={image.id}
-		// 							className="imageItem"
-		// 							onClick={() => handleImageClick(image.imageUrl)}
-		// 							src={image.imageUrl}
-		// 							alt={image.givenFileName}
-		// 						/>
-		// 					))}
-		// 				</div>
-		// 			</InfiniteScroll>
-		// 		)}
-		// 	</div>
-		// ),
+		images: (
+			<div className="images">
+				{/* <div className="imagesSearchContainer">
+					<SearchIcon />
+					<input
+						className="imagesSearchInput"
+						autoFocus
+						type="text"
+						onChange={handleImageSearch}
+						placeholder="Search workspace images"
+					/>
+				</div> */}
+				{workspaceImagesLoading ? (
+					<div className="workspaceImagesLoading">
+						{skeletonLoaders?.map((skeletonId) => (
+							<Skeleton
+								key={skeletonId}
+								width="125.5px"
+								height="82px"
+								borderRadius="8px"
+							/>
+						))}
+					</div>
+				) : workspaceImagesEmpty ? (
+					<div className="noImagesFound">
+						<h1 className="emptyImagesMessage">
+							Oops! No images found in your workspace!
+						</h1>
+					</div>
+				) : (
+					<InfiniteScroll
+						dataLength={workspaceImagesLength}
+						next={fetchNextWorkspaceImages}
+						hasMore={workspaceImagesHasNextPage}
+						loader={<FetchMoreLoaderComp />}
+						height={'364px'}
+					>
+						<div className="imagesListContainer">
+							{workspaceImagesList?.map((image) => (
+								<img
+									key={image.id}
+									className="imageItem"
+									onClick={() => handleImageClick(image.imageUrl)}
+									src={image.imageUrl}
+									alt={image.givenFileName}
+								/>
+							))}
+						</div>
+					</InfiniteScroll>
+				)}
+			</div>
+		),
 		upload: (
 			<div className="upload">
 				<input
