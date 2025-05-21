@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import '../../../assets/scss/globalComponents/automationWidget.scss';
-import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
+import { ReactComponent as AddIcon } from '../../../assets/svg/calendar/add.svg';
+import { ReactComponent as ArrowViewIcon } from '../../../assets/svg/calendar/arrowview.svg';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +22,7 @@ const infiniteScrollStyle = {
 	alignItems: 'flex-start',
 	flexDirection: 'column',
 	width: '100%',
+	gap: '6px',
 };
 
 const skeletonLoaders = Array.from({ length: 5 }, (_, index) => index + 1);
@@ -102,6 +104,9 @@ const AutomationWidget = ({ width, height }) => {
 	return (
 		<div className="automation" style={{ width: width, height: height }}>
 			<div className="automationWidgetContainer">
+				<div className="automationWidgetBodyHeaderLeft">
+					<span className="automationWidgetRemainder">Automations</span>
+				</div>
 				<div className="automationWidgetBody">
 					<div className="automationWidgetBodyHeader" id="automationWidgetBodyHeader">
 						{info?.isLoading ? (
@@ -157,15 +162,23 @@ const AutomationWidget = ({ width, height }) => {
 					onClick={() => {
 						navigate('/automations');
 					}}
-					style={{ cursor: 'pointer' }}
 				>
-					<div className="automationWidgetFooterTitle">View Automations</div>
-					<PlusIcon
-						onClick={(e) => {
-							e.stopPropagation();
-							handleCreateAutomation();
-						}}
-					/>
+					<div className="automationWidgetFooterTitle">
+						<ArrowViewIcon style={{ width: '18px', height: '18px' }} />
+						View Automations
+					</div>
+					<div className="automationWidgetFooterAdd">
+						<AddIcon
+							onClick={(e) => {
+								e.stopPropagation();
+								handleCreateAutomation();
+							}}
+							style={{
+								width: '18px',
+								height: '18px',
+							}}
+						/>
+					</div>
 				</div>
 			</div>
 			<AutomationLoaderModal loading={info?.showLoader} message={info?.loaderMessage} />
