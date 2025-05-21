@@ -316,9 +316,11 @@ const Files = () => {
 	});
 
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
-	const liteGalleryPaidPlan = currentPlan?.apps?.find(
-		(app) => (app.app = 'liteGallery'),
-	)?.isPaidPlan;
+	const appPaidMap = currentPlan?.apps?.reduce((acc, { app, isPaidPlan }) => {
+		acc[app] = isPaidPlan;
+		return acc;
+	}, {});
+	const liteGalleryPaidPlan = appPaidMap?.liteGallery;
 
 	useEffect(() => {
 		if (activeTab) {

@@ -818,19 +818,20 @@ const TaskWidget = ({ width, height }) => {
 				onClick={() => {
 					navigate('/tasks');
 				}}
-				style={{ cursor: 'pointer' }}
 			>
-				<div className="taskWidgetFooterTitle">View All Tasks</div>
-				<PlusIcon
-					onClick={(e) => {
-						e.stopPropagation();
-						handleCreateTaskPopup();
-					}}
-					style={{
-						width: '18px',
-						height: '18px',
-					}}
-				/>
+				<div className="taskWidgetFooterTitle">View Tasks</div>
+				<div className="taskWidgetFooterAdd">
+					<PlusIcon
+						onClick={(e) => {
+							e.stopPropagation();
+							handleCreateTaskPopup();
+						}}
+						style={{
+							width: '18px',
+							height: '18px',
+						}}
+					/>
+				</div>
 			</div>
 			<ListViewSidebar
 				selectedRow={info?.selectedRow}
