@@ -5,7 +5,7 @@ import Context from '../../../context/context';
 import slugify from 'slugify';
 import ShareModal from '../modalsV2/notes/ShareModal';
 
-const ShareComponent = ({ pageId }) => {
+const ShareComponent = ({ pageId, makeApiCall = true }) => {
 	const {
 		companyInfo: { getTeamMembers, tenantsUserList },
 		notes: {
@@ -44,8 +44,10 @@ const ShareComponent = ({ pageId }) => {
 	const debounceRef = useRef(null);
 	const dateInputRef = useRef(null);
 	useEffect(() => {
-		getNotesPageData({ pageId });
-	}, [pageId]);
+		if (pageId && makeApiCall) {
+			getNotesPageData({ pageId });
+		}
+	}, [pageId, makeApiCall]);
 
 	useEffect(() => {
 		if (notesPageData && pageId) {
@@ -81,10 +83,10 @@ const ShareComponent = ({ pageId }) => {
 	}, [notesAccess]);
 
 	useEffect(() => {
-		if (pageId) {
+		if (pageId && makeApiCall) {
 			getNotesAccess({ pageId });
 		}
-	}, [pageId]);
+	}, [pageId, makeApiCall]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
