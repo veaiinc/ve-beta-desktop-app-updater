@@ -251,77 +251,71 @@ const FileUploadAnswer = ({ answer }) => {
 		files = [];
 	}
 
+	if (!files?.length) return null;
+
 	return (
 		<>
-			{files?.length > 0 && (
-				<div className="fileUploadContainer">
-					{files.map((file, index) => {
-						const fileName =
-							typeof file === 'string' ? file : file?.name || file?.fileName || '';
-						const fileUrl =
-							typeof file === 'string'
-								? file
-								: file?.fileURL ||
-								  file?.url ||
-								  file?.previewUrl ||
-								  file?.fileUrl ||
-								  '';
-						const fileExtension = fileName?.split('.').pop()?.toLowerCase();
-						const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(
-							fileExtension,
-						);
-						const isPDF = fileExtension === 'pdf';
-						const isDocument = ['doc', 'docx', 'txt', 'rtf'].includes(fileExtension);
-						const isSpreadsheet = ['xls', 'xlsx', 'csv'].includes(fileExtension);
-						const isPresentation = ['ppt', 'pptx'].includes(fileExtension);
+			<div className="fileUploadContainer">
+				{files.map((file, index) => {
+					const fileName =
+						typeof file === 'string' ? file : file?.name || file?.fileName || '';
+					const fileUrl =
+						typeof file === 'string'
+							? file
+							: file?.fileURL || file?.url || file?.previewUrl || file?.fileUrl || '';
+					const fileExtension = fileName?.split('.').pop()?.toLowerCase();
+					const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension);
+					const isPDF = fileExtension === 'pdf';
+					const isDocument = ['doc', 'docx', 'txt', 'rtf'].includes(fileExtension);
+					const isSpreadsheet = ['xls', 'xlsx', 'csv'].includes(fileExtension);
+					const isPresentation = ['ppt', 'pptx'].includes(fileExtension);
 
-						return (
-							<div key={index} className="fileItem">
-								{isImage ? (
-									<div
-										className="imagePreview"
-										onClick={() =>
-											setSelectedFile({
-												name: fileName,
-												fileURL: fileUrl,
-												type: 'image',
-											})
-										}
-										style={{ cursor: 'pointer' }}
-									>
-										<img src={fileUrl} alt={fileName} />
-										<span className="fileName">{fileName}</span>
+					return (
+						<div key={index} className="fileItem">
+							{isImage ? (
+								<div
+									className="imagePreview"
+									onClick={() =>
+										setSelectedFile({
+											name: fileName,
+											fileURL: fileUrl,
+											type: 'image',
+										})
+									}
+									style={{ cursor: 'pointer' }}
+								>
+									<img src={fileUrl} alt={fileName} />
+									<span className="fileName">{fileName}</span>
+								</div>
+							) : (
+								<div
+									className="filePreview"
+									onClick={() =>
+										setSelectedFile({
+											name: fileName,
+											fileURL: fileUrl,
+											type: 'document',
+										})
+									}
+									style={{ cursor: 'pointer' }}
+								>
+									<div className="fileIcon">
+										{isPDF && <FilePdfOutlined />}
+										{isDocument && <FileTextOutlined />}
+										{isSpreadsheet && <FileExcelOutlined />}
+										{isPresentation && <FilePptOutlined />}
+										{!isPDF &&
+											!isDocument &&
+											!isSpreadsheet &&
+											!isPresentation && <FileOutlined />}
 									</div>
-								) : (
-									<div
-										className="filePreview"
-										onClick={() =>
-											setSelectedFile({
-												name: fileName,
-												fileURL: fileUrl,
-												type: 'document',
-											})
-										}
-										style={{ cursor: 'pointer' }}
-									>
-										<div className="fileIcon">
-											{isPDF && <FilePdfOutlined />}
-											{isDocument && <FileTextOutlined />}
-											{isSpreadsheet && <FileExcelOutlined />}
-											{isPresentation && <FilePptOutlined />}
-											{!isPDF &&
-												!isDocument &&
-												!isSpreadsheet &&
-												!isPresentation && <FileOutlined />}
-										</div>
-										<span className="fileName">{fileName}</span>
-									</div>
-								)}
-							</div>
-						);
-					})}
-				</div>
-			)}
+									<span className="fileName">{fileName}</span>
+								</div>
+							)}
+						</div>
+					);
+				})}
+			</div>
 			{selectedFile && (
 				<FormPreview file={selectedFile} onClose={() => setSelectedFile(null)} />
 			)}
