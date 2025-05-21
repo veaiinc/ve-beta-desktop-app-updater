@@ -17,7 +17,8 @@ module.exports = {
 	slack_api: 'https://slack.com/api',
 	automation_builder_api: 'https://ap.api.ve.ai/automations/1.0/automation',
 	// multi_agent_chat: 'ws://ai.ap-south-1.ve.ai',
-	page_notes_api: 'https://ap.api.ve.ai/block-notes/1.0',
+	// page_notes_api: 'https://ap.api.ve.ai/block-notes/1.0',
+	page_notes_api: 'https://gazelle-ruling-monster.ngrok-free.app',
 	elastic_search_api: 'https://ap.api.ve.ai/elastic-search/1.0',
 	workspace_images_api: 'https://ap.api.ve.ai/images/1.0/',
 

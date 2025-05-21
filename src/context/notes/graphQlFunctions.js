@@ -1,72 +1,72 @@
 import { gql } from '@apollo/client';
-export const getNotesListQuery = gql`
-	query ListPages($input: ListPageInput!) {
-		listPages(input: $input) {
-			totalPages
-			totalDocs
-			limit
-			currentPage
-			hasNextPage
-			hasPrevPage
-			prevPage
-			nextPage
-			data {
-				_id
-				title
-				coverImage
-				permissions {
-					private
-					sharedWith {
-						access
-						userId
-					}
-				}
-				isDeleted
-				tenantId
-				createdAt
-				updatedAt
-				createdBy
-			}
-		}
-	}
-`;
-export const createNotesQuery = gql`
-	mutation CreatePage($input: CreatePageInput!) {
-		createPage(input: $input) {
-			_id
-		}
-	}
-`;
+// export const getNotesListQuery = gql`
+// 	query ListPages($input: ListPageInput!) {
+// 		listPages(input: $input) {
+// 			totalPages
+// 			totalDocs
+// 			limit
+// 			currentPage
+// 			hasNextPage
+// 			hasPrevPage
+// 			prevPage
+// 			nextPage
+// 			data {
+// 				_id
+// 				title
+// 				coverImage
+// 				permissions {
+// 					private
+// 					sharedWith {
+// 						access
+// 						userId
+// 					}
+// 				}
+// 				isDeleted
+// 				tenantId
+// 				createdAt
+// 				updatedAt
+// 				createdBy
+// 			}
+// 		}
+// 	}
+// `;
+// export const createNotesQuery = gql`
+// 	mutation CreatePage($input: CreatePageInput!) {
+// 		createPage(input: $input) {
+// 			_id
+// 		}
+// 	}
+// `;
 
-export const getPageQuery = gql`
-	query Query($pageId: ID!) {
-		getPage(pageId: $pageId) {
-			_id
-			title
-			coverImage
-			iconImage
-			permissions {
-				private
-				sharedWith {
-					userId
-					access
-				}
-			}
-			blocks
-			isDeleted
-			tenantId
-			createdAt
-			updatedAt
-			updatedBy
-			createdBy
-			isFavorite
-			isPublished
-			slug
-			expiresAt
-			globalNoteAccess
-		}
-	}
-`;
+// export const getPageQuery = gql`
+// 	query Query($pageId: ID!) {
+// 		getPage(pageId: $pageId) {
+// 			_id
+// 			title
+// 			coverImage
+// 			iconImage
+// 			permissions {
+// 				private
+// 				sharedWith {
+// 					userId
+// 					access
+// 				}
+// 			}
+// 			blocks
+// 			isDeleted
+// 			tenantId
+// 			createdAt
+// 			updatedAt
+// 			updatedBy
+// 			createdBy
+// 			isFavorite
+// 			isPublished
+// 			slug
+// 			expiresAt
+// 			globalNoteAccess
+// 		}
+// 	}
+// `;
 
 export const saveNotesPageQuery = gql`
 	mutation UpdateBlocks($pageId: ID!, $blocks: [JSON]) {
@@ -258,6 +258,152 @@ export const notesDeleteCoverImageMutation = gql`
 		deletePageImage(pageId: $pageId, imageInput: $imageInput) {
 			success
 			message
+		}
+	}
+`;
+
+export const getNotesListQuery = gql`
+	query ListPrivatePages($input: PageFilterInput!) {
+		listPrivatePages(input: $input) {
+			totalPages
+			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
+			prevPage
+			nextPage
+			data {
+				id
+				title
+				icon
+				coverImage
+				permissions {
+					private
+					sharedWith {
+						userId
+						access
+					}
+				}
+				tenantId
+				createdAt
+				updatedAt
+				createdBy
+			}
+		}
+	}
+`;
+
+export const createNotesMutation = gql`
+	mutation Mutation($input: CreatePageInput!) {
+		createPage(input: $input) {
+			_id
+			title
+			icon
+			coverImage
+			permissions {
+				private
+				sharedWith {
+					userId
+					access
+				}
+			}
+			tenantId
+			createdAt
+			updatedAt
+			createdBy
+		}
+	}
+`;
+
+export const getPageQuery = gql`
+	query Query($pageId: ID!) {
+		getPage(pageId: $pageId) {
+			_id
+			title
+			icon
+			coverImage
+			permissions {
+				private
+				sharedWith {
+					userId
+					access
+				}
+			}
+			tenantId
+			createdAt
+			updatedAt
+			createdBy
+		}
+	}
+`;
+
+export const getBlocksQuery = gql`
+	query Query($pageId: ID!, $listBlockInput: ListBlockInput!) {
+		blocks(pageId: $pageId, listBlockInput: $listBlockInput) {
+			totalPages
+			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
+			prevPage
+			nextPage
+			data {
+				_id
+				id
+				type
+				pageId
+				parentBlockId
+				position
+				props
+				content
+				children
+				comments
+				createdAt
+				updatedAt
+				tenantId
+			}
+		}
+	}
+`;
+
+export const createBlockMutation = gql`
+	mutation CreateBlock($pageId: ID!, $input: CreateBlockInput!) {
+		createBlock(pageId: $pageId, input: $input) {
+			_id
+			id
+			type
+			pageId
+			parentBlockId
+			position
+			props
+			content
+			children
+			comments
+			createdAt
+			updatedAt
+			tenantId
+		}
+	}
+`;
+
+export const updateBlockMutation = gql`
+	mutation UpdateBlock($updateBlockId: ID!, $pageId: ID!, $input: UpdateBlockInput!) {
+		updateBlock(id: $updateBlockId, pageId: $pageId, input: $input) {
+			_id
+			id
+			type
+			pageId
+			parentBlockId
+			position
+			props
+			content
+			children
+			comments
+			createdAt
+			updatedAt
+			tenantId
 		}
 	}
 `;

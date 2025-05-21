@@ -27,6 +27,8 @@ import { Tooltip } from 'antd';
 import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
+import { isEqual } from 'lodash';
+import ObjectId from 'bson-objectid';
 
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
@@ -80,6 +82,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const prevDocRef = useRef([]);
+	const previousBlocksRef = useRef(new Map());
 	const originalFaviconRef = useRef(null);
 	const { createWebSocketConnection, sendMessage } = useChatStream();
 
@@ -101,6 +104,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			deleteNotesImageBlock,
 			notesDeleteCoverImage,
 			notesDeleteIcon,
+			getBlocks,
+			blocks,
+			createBlock,
+			updateBlock,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
@@ -157,6 +164,22 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		},
 		uploadFile,
 	});
+
+	useEffect(() => {
+		if (noteId) {
+			getBlocks({
+				pageId: noteId,
+				listBlockInput: { limit: 100, page: 1 },
+			});
+		}
+	}, [noteId]);
+
+	useEffect(() => {
+		if (blocks) {
+			previousBlocksRef.current = new Map(blocks?.data?.map((block) => [block.id, block]));
+			loadNotesContent(blocks?.data);
+		}
+	}, [blocks]);
 
 	useEffect(() => {
 		const token = localStorage.getItem('usertoken');
@@ -420,25 +443,226 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		return urls;
 	};
 
+	////////////////////////////////////////////////////////////////
+
+	const compareFn = (old, newBlock) => {
+		const oldBlock = {
+			id: old?.id,
+			type: old?.type,
+			props: old?.props,
+			children: old?.children,
+			content: old?.content,
+		};
+
+		const newBlockFormatted = {
+			id: newBlock?.id,
+			type: newBlock?.type,
+			props: newBlock?.props,
+			children: newBlock?.children,
+			content: newBlock?.content,
+		};
+
+		if (oldBlock?.type !== newBlockFormatted?.type) {
+			return true;
+		}
+
+		return !isEqual(oldBlock, newBlockFormatted);
+	};
+
+	const diffArrays = (newArr) => {
+		// Create a map of new items with their indexes
+		const newMap = new Map(newArr.map((item, index) => [item.id, { ...item, index }]));
+
+		// Initialize result arrays
+		const deleted = [];
+		const added = [];
+		const updated = [];
+
+		// Get all ids from both old and new maps
+		const allIds = new Set([...previousBlocksRef.current.keys(), ...newMap.keys()]);
+
+		// Create an array of previous blocks sorted by position
+		const sortedPreviousBlocks = [...previousBlocksRef.current.values()].sort(
+			(a, b) => a.position - b.position,
+		);
+
+		// Create a map of id to previous index
+		const prevIndexMap = new Map();
+		sortedPreviousBlocks.forEach((block, index) => {
+			prevIndexMap.set(block.id, index);
+		});
+
+		// Process each id to determine its status
+		for (const id of allIds) {
+			const oldItem = previousBlocksRef.current.get(id);
+			const newItem = newMap.get(id);
+
+			if (oldItem && !newItem) {
+				// Item was deleted
+				deleted.push(oldItem);
+				previousBlocksRef.current.delete(id);
+			} else if (!oldItem && newItem) {
+				// Item was added
+				const _id = ObjectId().toString();
+				const index = newItem.index;
+
+				// Find surrounding blocks to determine position
+				const prevId = index > 0 ? newArr[index - 1]?.id : null;
+				const nextId = index < newArr.length - 1 ? newArr[index + 1]?.id : null;
+
+				const prevBlock = prevId ? previousBlocksRef.current.get(prevId) : null;
+				const nextBlock = nextId ? previousBlocksRef.current.get(nextId) : null;
+
+				const prevPosition = prevBlock?.position;
+				const nextPosition = nextBlock?.position;
+
+				// Calculate position based on surrounding blocks
+				let position;
+				if (prevPosition && nextPosition) {
+					position = (prevPosition + nextPosition) / 2;
+				} else if (prevPosition) {
+					position = prevPosition + 1;
+				} else if (nextPosition) {
+					position = nextPosition / 2;
+				} else {
+					position = 1;
+				}
+
+				const { type, props, children, content, id } = newItem;
+				const newItemFormatted = { _id, position, type, props, children, content, id };
+
+				added.push(newItemFormatted);
+				previousBlocksRef.current.set(id, newItemFormatted);
+			} else if (oldItem && newItem) {
+				// Item exists in both old and new arrays
+				const { type, props, children, content, id } = newItem;
+				const index = newItem.index;
+
+				// Check if this item has changed position
+				let positionChanged = false;
+				let position = oldItem.position;
+
+				// Get the old index (if it exists)
+				const oldIndex = prevIndexMap.get(id);
+
+				// If old index is different from new index, position may need to change
+				if (oldIndex !== undefined && oldIndex !== index) {
+					// Find surrounding blocks to determine if position needs to change
+					const prevId = index > 0 ? newArr[index - 1]?.id : null;
+					const nextId = index < newArr.length - 1 ? newArr[index + 1]?.id : null;
+
+					const prevBlock = prevId ? previousBlocksRef.current.get(prevId) : null;
+					const nextBlock = nextId ? previousBlocksRef.current.get(nextId) : null;
+
+					const prevPosition = prevBlock?.position;
+					const nextPosition = nextBlock?.position;
+
+					// Only change position if it's not properly ordered relative to neighbors
+					if (prevPosition && nextPosition) {
+						if (position <= prevPosition || position >= nextPosition) {
+							position = (prevPosition + nextPosition) / 2;
+							positionChanged = true;
+						}
+					} else if (prevPosition) {
+						if (position <= prevPosition) {
+							position = prevPosition + 1;
+							positionChanged = true;
+						}
+					} else if (nextPosition) {
+						if (position >= nextPosition) {
+							position = nextPosition / 2;
+							positionChanged = true;
+						}
+					} else {
+						// This is the only block
+						if (position !== 1) {
+							position = 1;
+							positionChanged = true;
+						}
+					}
+				}
+
+				// Only update if position changed or content changed
+				const isChanged = positionChanged || compareFn(oldItem, newItem);
+				if (isChanged) {
+					const newItemFormatted = {
+						_id: oldItem._id,
+						position,
+						type,
+						props,
+						children,
+						content,
+						id,
+					};
+					updated.push(newItemFormatted);
+					previousBlocksRef.current.set(id, newItemFormatted);
+				}
+			}
+		}
+
+		return { deleted, added, updated };
+	};
+
+	useEffect(() => {
+		const unsubscribe = editor.onChange(() => {
+			const currentBlocks = editor.document;
+			onEditorUpdate(currentBlocks);
+		});
+
+		return () => unsubscribe();
+	}, [editor]);
+
+	const onEditorUpdate = (currentTopLevelBlocks) => {
+		const { added, deleted, updated } = diffArrays(currentTopLevelBlocks);
+
+		added.forEach((block) =>
+			createBlock({
+				pageId: noteId,
+				input: {
+					...block,
+					content: Array.isArray(block?.content)
+						? { textContent: block?.content }
+						: block.content,
+				},
+			}),
+		);
+
+		updated.forEach(({ _id, ...block }) => {
+			updateBlock({
+				updateBlockId: _id,
+				pageId: noteId,
+				input: {
+					...block,
+					content: Array.isArray(block?.content)
+						? {
+								textContent: block?.content,
+						  }
+						: block.content,
+				},
+			});
+		});
+	};
+
+	///////////////////////////////////////////////////////////////
+
 	const onChange = () => {
 		if (editor?.document?.length) {
-			const newDoc = editor.document;
-			const prevImages = extractImageUrls(prevDocRef.current);
-			const newImages = extractImageUrls(newDoc);
-			const removedImages = prevImages.filter((url) => !newImages.includes(url));
-			for (const url of removedImages) {
-				const payload = {
-					pageId: noteId,
-					imageInput: {
-						imageUrl: url,
-						type: 'block',
-					},
-				};
-				deleteNotesImageBlock(payload);
-			}
-
-			handleContentChange(newDoc);
-			prevDocRef.current = newDoc;
+			// const newDoc = editor.document;
+			// const prevImages = extractImageUrls(prevDocRef.current);
+			// const newImages = extractImageUrls(newDoc);
+			// const removedImages = prevImages.filter((url) => !newImages.includes(url));
+			// for (const url of removedImages) {
+			// 	const payload = {
+			// 		pageId: noteId,
+			// 		imageInput: {
+			// 			imageUrl: url,
+			// 			type: 'block',
+			// 		},
+			// 	};
+			// 	deleteNotesImageBlock(payload);
+			// }
+			// handleContentChange(newDoc);
+			// prevDocRef.current = newDoc;
 		}
 	};
 
@@ -842,7 +1066,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 							<BlockNoteView
 								editor={editor}
 								formattingToolbar={false}
-								onChange={onChange}
+								// onChange={onChange}
 								style={innerContainerStyle || {}}
 								theme={'dark'}
 								editable={info?.myAccess !== 'view' || !info?.isDeleted}

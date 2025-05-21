@@ -3,7 +3,7 @@ import Service from '../../services/index';
 import { message } from '../../views/components/globalComponents/CustomToast';
 import {
 	getNotesListQuery,
-	createNotesQuery,
+	createNotesMutation,
 	getPageQuery,
 	saveNotesPageQuery,
 	getNotesAccessQuery,
@@ -22,6 +22,9 @@ import {
 	notesCoverImageFileUploadMutation,
 	notesIconUploadMutation,
 	notesDeleteCoverImageMutation,
+	getBlocksQuery,
+	createBlockMutation,
+	updateBlockMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -34,6 +37,7 @@ export const intialState = {
 	notesPageData: null,
 	notesAccess: null,
 	globalAccess: null,
+	blocks: null,
 };
 
 export const NotesState = (props) => {
@@ -70,13 +74,14 @@ export const NotesState = (props) => {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
-				createNotesQuery,
+				createNotesMutation,
 				payload,
 				workspaceId,
 				usertoken,
 				'page_notes_api',
 			);
 
+			console.log('response==>getNotesList', response);
 			if (response?.[0]) {
 				const dataResponse = response?.[1]?.data?.createPage;
 				return [true, dataResponse];
@@ -600,6 +605,66 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const getBlocks = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getBlocksQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_BLOCKS,
+					payload: response?.[1]?.data?.blocks,
+				});
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.error('error==>getBlocks', error);
+			return false;
+		}
+	};
+
+	const createBlock = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				createBlockMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+		} catch (error) {
+			console.error('error==>createBlock', error);
+			return false;
+		}
+	};
+
+	const updateBlock = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateBlockMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+		} catch (error) {
+			console.error('error==>updateBlock', error);
+			return false;
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -624,5 +689,8 @@ export const NotesState = (props) => {
 		notesIconUpload,
 		notesDeleteCoverImage,
 		notesDeleteIcon,
+		getBlocks,
+		createBlock,
+		updateBlock,
 	};
 };
