@@ -81,6 +81,12 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 		window?.addEventListener('keydown', handleKeyDown);
 		return () => window?.removeEventListener('keydown', handleKeyDown);
 	}, [filteredWorkspaces, focusedIndex]);
+	useEffect(() => {
+		const el = document.querySelector(`.singleWorkspace[data-index="${focusedIndex}"]`);
+		if (el) {
+			el.scrollIntoView({ block: 'nearest' });
+		}
+	}, [focusedIndex]);
 
 	const handleSwitchWorkSpaceLogic = useCallback(
 		(data) => {
@@ -163,6 +169,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 						{filteredWorkspaces?.map((singleWorkspace, index) => (
 							<div
 								key={singleWorkspace?.activeWorkspaceId}
+								data-index={index}
 								className={`singleWorkspace ${
 									singleWorkspace?.activeWorkspaceId ===
 									info?.activeBusniessName?.activeWorkspaceId
