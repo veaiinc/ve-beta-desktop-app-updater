@@ -182,8 +182,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}, []);
 
 	useEffect(() => {
+		const originalFaviconTag = document.querySelector("link[rel~='icon']");
+
 		if (originalFaviconRef.current === null) {
-			const originalFaviconTag = document.querySelector("link[rel~='icon']");
 			originalFaviconRef.current = originalFaviconTag?.href ?? null;
 		}
 
@@ -214,14 +215,22 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 		const faviconUrl = canvas.toDataURL();
 
-		// Remove existing favicons
 		document.querySelectorAll("link[rel~='icon']").forEach((el) => el.remove());
-
-		// Create and append new favicon
 		const link = document.createElement('link');
 		link.rel = 'icon';
 		link.href = faviconUrl;
 		document.head.appendChild(link);
+
+		return () => {
+			document.querySelectorAll("link[rel~='icon']").forEach((el) => el.remove());
+
+			if (originalFaviconRef.current) {
+				const restoreLink = document.createElement('link');
+				restoreLink.rel = 'icon';
+				restoreLink.href = originalFaviconRef.current;
+				document.head.appendChild(restoreLink);
+			}
+		};
 	}, [iconImage]);
 
 	useEffect(() => {
