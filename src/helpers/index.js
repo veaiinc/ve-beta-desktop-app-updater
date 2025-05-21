@@ -9,6 +9,7 @@ import { ReactComponent as MdSvg } from '../assets/svg/ai_agents/md.svg';
 import { ReactComponent as ExcelSvg } from '../assets/svg/ai_agents/excel.svg';
 import { ReactComponent as GmailSvg } from '../assets/svg/login_page/gmail.svg';
 import { ReactComponent as SlackSvg } from '../assets/svg/slack.svg';
+import { ReactComponent as DriveSvg } from '../assets/svg/drive.svg';
 import { ReactComponent as NotionSvg } from '../assets/svg/notion.svg';
 import { ReactComponent as VeLogoSvg } from '../assets/svg/veLogo.svg';
 import axios from 'axios';
@@ -335,6 +336,7 @@ export const fileTypeIcons = {
 	xls: <ExcelSvg />,
 	gmail: <GmailSvg />,
 	slack: <SlackSvg />,
+	drive: <DriveSvg />,
 	notion: <NotionSvg />,
 	workflowId: <VeLogoSvg />,
 	'image/png': <PngSvg />,
@@ -359,6 +361,7 @@ export const redirectTo = (type, id) => {
 		workflowId: `https://builder.ve.ai/workflow/${id}`,
 		slack: `https://app.slack.com/client/${id}`,
 		s3_key: id,
+		drive: `https://drive.google.com/file/d/${id}/view`,
 	};
 
 	const url = urls?.[type];
@@ -374,4 +377,5 @@ export const redirectTypeMapper = {
 	gmail: 'thread_id',
 	slack: 'channel_id',
 	s3_key: 's3_key',
+	drive: 'drive_id',
 };

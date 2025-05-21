@@ -9,6 +9,8 @@
 	gap: 6px;
 	align-self: stretch;
 	border-radius: 8px;
+	background-color: var(--background-color);
+	transition: background-color 0.1s ease-out;
 
 	.suggestion-container {
 		display: flex;
@@ -18,7 +20,6 @@
 		gap: 8px;
 		border-radius: 6px;
 		cursor: pointer;
-		transition: background-color 0.3s ease-in-out;
 		&:hover {
 			background-color: var(--card);
 			.suggestion-text {
@@ -51,14 +52,14 @@
 			font-style: normal;
 			font-weight: 400;
 			line-height: normal;
-			transition: color 0.3s ease-in-out;
+			transition: color 0.1s ease-out;
 		}
 		.arrow-icon {
 			height: 18px;
 			svg {
 				path {
-					transition: fill 0.3s ease-in-out !important;
-					fill: inherit;
+					transition: fill 0.1s ease-out !important;
+					fill: var(--background-color);
 				}
 			}
 		}

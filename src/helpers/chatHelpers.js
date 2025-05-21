@@ -1,33 +1,14 @@
 export const handleDeepSearchChainOfThought = (chainOfThought) => {
-	const cot = [],
-		cot_refined = [];
-	let initial_answer = {};
+	const cot = [];
 
 	for (let i = 0; i < chainOfThought?.length; i++) {
 		const data = chainOfThought?.[i] || {};
-
-		if (data?.sub_query) {
-			cot.push({
-				sub_query: data?.sub_query,
-				searching: data?.searching,
-				readings: data?.reading,
-			});
-		}
-
-		if (data?.initial_answer) {
-			initial_answer = data;
-		}
-
-		if (data?.refined_sub_query) {
-			cot_refined.push({
-				sub_query: data?.refined_sub_query,
-				searching: data?.searching,
-				readings: data?.reading,
-			});
+		if (data?.step) {
+			cot?.push({ step: data?.step, readings: data?.reading || [] });
 		}
 	}
 
-	return { cot, cot_refined, initial_answer };
+	return { cot };
 };
 
 export const handleDeepResearchChainOfThought = (chainOfThought) => {

@@ -6,10 +6,11 @@ import { ReactComponent as ShareSvg } from '../../../../assets/svg/files/share.s
 import { ReactComponent as DownloadSvg } from '../../../../assets/svg/download.svg';
 import { ReactComponent as DeleteSvg } from '../../../../assets/svg/delete.svg';
 import { ReactComponent as CalendarSvg } from '../../../../assets/svg/home_page/calendar.svg';
-
+import { ReactComponent as RocketSvg } from '../../../../assets/svg/home_page/rocket.svg';
+import { ReactComponent as BulbSvg } from '../../../../assets/svg/home_page/bulb.svg';
 import { ReactComponent as ThumbsUpSvg } from '../../../../assets/svg/thumbsUp.svg';
 import { ReactComponent as ThumbsDownSvg } from '../../../../assets/svg/thumbsDown.svg';
-import { ReactComponent as CoinSvg } from '../../../../assets/svg/ai_agents/coin.svg';
+import CreditCoinImage from '../../../../assets/images/creditCoin.png';
 import { ReactComponent as ArrowUpRightSvg } from '../../../../assets/svg/sidebar/arrowupright.svg';
 import { handleCombinedChainOfThought } from '../../../../helpers/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
@@ -44,10 +45,7 @@ const AISuggestionsModal = ({
 		templates: { updateStateValues, pendingActionsUpdate, getAISuggestedPendingActions },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		isExpanded: false,
-		isSolutionsExpanded: true,
-		isActionsExpanded: false,
-		isPromptsExpanded: false,
+		isAIResultsExpanded: true,
 		isReportExpanded: false,
 		isQuestionsExpanded: false,
 		questionsAnswers: {},
@@ -379,7 +377,12 @@ const AISuggestionsModal = ({
 										>
 											<div className="priority">
 												<div className="icon">
-													<CoinSvg />
+													<img
+														src={CreditCoinImage}
+														width={16}
+														height={16}
+														alt="credit-coin"
+													/>
 												</div>
 												<div className="priority-text">{`${creditUsed} C`}</div>
 											</div>
@@ -446,22 +449,24 @@ const AISuggestionsModal = ({
 								</div>
 							</div>
 						</div>
-						{solutions?.length > 0 && (
+						{(solutions?.length > 0 ||
+							suggested_prompts?.length > 0 ||
+							suggested_actions?.length > 0) && (
 							<div
-								className={`solutions-container`}
+								className={`ai-results-container`}
 								onClick={() =>
 									setInfo((prev) => ({
 										...prev,
-										isSolutionsExpanded: !prev?.isSolutionsExpanded,
+										isAIResultsExpanded: !prev?.isAIResultsExpanded,
 									}))
 								}
 							>
 								<Collapse
-									activeKey={info?.isSolutionsExpanded ? ['1'] : []}
+									activeKey={info?.isAIResultsExpanded ? ['1'] : []}
 									onChange={(key) =>
 										setInfo((prev) => ({
 											...prev,
-											isSolutionsExpanded: key.length > 0,
+											isAIResultsExpanded: key.length > 0,
 										}))
 									}
 									expandIcon={() => {
@@ -477,31 +482,93 @@ const AISuggestionsModal = ({
 											<div className="cot-header">
 												<div className="cot-text">
 													<div className="title-text">
-														Suggested Solutions
+														What you can do now
 													</div>
 													<div className="description-text">
-														Quick questions to dig deeper or explore.
+														AI-curated solutions and recommended actions
+														and prompts based on the current context.
 													</div>
 												</div>
 											</div>
 										}
 										key="1"
 									>
-										<div
-											className="solutions"
-											onClick={(e) => e.stopPropagation()}
-										>
-											{Array?.isArray(solutions)
-												? solutions?.map((item, index) => (
-														<div
-															className="solution-item"
-															key={index}
-															onClick={() => handleClickRun(item)}
-														>
-															<div className="item-text">{item}</div>
-														</div>
-												  ))
-												: solutions}
+										<div className="ai-results-wrapper">
+											<div className="results-container">
+												{Array?.isArray(solutions)
+													? solutions?.map((item, index) => (
+															<div
+																className="result-item"
+																key={index}
+																onClick={() => handleClickRun(item)}
+															>
+																<div className="result-text">
+																	{item}
+																</div>
+																<div className="logo-container">
+																	<BulbSvg />
+																	<div className="logo-text">
+																		Solution
+																	</div>
+																</div>
+															</div>
+													  ))
+													: solutions}
+
+												{Array?.isArray(suggested_actions)
+													? suggested_actions?.map((item, index) => (
+															<div
+																className="result-item"
+																key={index}
+																onClick={() => handleClickRun(item)}
+															>
+																<div className="result-text">
+																	{item}
+																</div>
+
+																<div className="logo-container">
+																	<RocketSvg />
+																	<div className="logo-text">
+																		Action
+																	</div>
+																</div>
+															</div>
+													  ))
+													: suggested_actions}
+											</div>
+
+											{suggested_prompts?.length > 0 && (
+												<div className="suggested-prompts-container">
+													<div className="suggested-prompts-title">
+														Recommended Prompts
+													</div>
+													<div
+														className="suggested-prompts"
+														onClick={(e) => e.stopPropagation()}
+													>
+														{Array?.isArray(suggested_prompts)
+															? suggested_prompts?.map(
+																	(item, index) => (
+																		<div
+																			className="prompt-item"
+																			key={index}
+																			onClick={() =>
+																				handleClickRun(item)
+																			}
+																		>
+																			<div className="logo">
+																				<ArrowRightSvg />
+																			</div>
+																			<div className="item-text">
+																				{item}
+																			</div>
+																		</div>
+																	),
+															  )
+															: suggested_prompts}
+													</div>
+												</div>
+											)}
 										</div>
 									</Panel>
 								</Collapse>
@@ -597,147 +664,6 @@ const AISuggestionsModal = ({
 									</div>
 								)}
 
-								{suggested_actions?.length > 0 && (
-									<div
-										className={`suggested-actions-container ${
-											info?.isActionsExpanded ? 'active' : ''
-										}`}
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												isActionsExpanded: !prev?.isActionsExpanded,
-											}))
-										}
-									>
-										<Collapse
-											activeKey={info?.isActionsExpanded ? ['1'] : []}
-											onChange={(key) =>
-												setInfo((prev) => ({
-													...prev,
-													isActionsExpanded: key.length > 0,
-												}))
-											}
-											expandIcon={() => {
-												return (
-													<div className="expand-icon">
-														<ChevronRightThinSvg />
-													</div>
-												);
-											}}
-										>
-											<Panel
-												header={
-													<div className="cot-header">
-														<div className="cot-text">
-															<div className="title-text">
-																Recommended Actions
-															</div>
-															<div className="description-text">
-																AI-curated next steps to resolve
-																issues.
-															</div>
-														</div>
-													</div>
-												}
-												key="1"
-											>
-												<div
-													className="suggested-actions"
-													onClick={(e) => e.stopPropagation()}
-												>
-													{Array.isArray(suggested_actions)
-														? suggested_actions.map((item, index) => (
-																<div
-																	className="action-item"
-																	key={index}
-																	onClick={() =>
-																		handleClickRun(item)
-																	}
-																>
-																	<div className="logo">
-																		<ArrowRightSvg />
-																	</div>
-																	<div className="item-text">
-																		{item}
-																	</div>
-																</div>
-														  ))
-														: suggested_actions}
-												</div>
-											</Panel>
-										</Collapse>
-									</div>
-								)}
-								{suggested_prompts?.length > 0 && (
-									<div
-										className={`suggested-prompts-container ${
-											info?.isPromptsExpanded ? 'active' : ''
-										}`}
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												isPromptsExpanded: !prev?.isPromptsExpanded,
-											}))
-										}
-									>
-										<Collapse
-											activeKey={info?.isPromptsExpanded ? ['1'] : []}
-											onChange={(key) =>
-												setInfo((prev) => ({
-													...prev,
-													isPromptsExpanded: key.length > 0,
-												}))
-											}
-											expandIcon={() => {
-												return (
-													<div className="expand-icon">
-														<ChevronRightThinSvg />
-													</div>
-												);
-											}}
-										>
-											<Panel
-												header={
-													<div className="cot-header">
-														<div className="cot-text">
-															<div className="title-text">
-																Suggested Prompts
-															</div>
-															<div className="description-text">
-																Explore more with these prompts.
-															</div>
-														</div>
-													</div>
-												}
-												key="1"
-											>
-												<div
-													className="suggested-prompts"
-													onClick={(e) => e.stopPropagation()}
-												>
-													{Array?.isArray(suggested_prompts)
-														? suggested_prompts?.map((item, index) => (
-																<div
-																	className="prompt-item"
-																	key={index}
-																	onClick={() =>
-																		handleClickRun(item)
-																	}
-																>
-																	<div className="logo">
-																		<ArrowRightSvg />
-																	</div>
-																	<div className="item-text">
-																		{item}
-																	</div>
-																</div>
-														  ))
-														: suggested_prompts}
-												</div>
-											</Panel>
-										</Collapse>
-									</div>
-								)}
 								{informationRequests?.length > 0 && (
 									<div
 										className={`questions-wrapper ${
@@ -837,19 +763,8 @@ const AISuggestionsModal = ({
 
 						{info?.activeTab === 'chainOfThought' && (
 							<div className="cot">
-								<div
-									className="chain-of-thought-container"
-									onClick={() =>
-										setInfo((prev) => ({
-											...prev,
-											isExpanded: !prev?.isExpanded,
-										}))
-									}
-								>
-									<div
-										className="chain-of-thought-content"
-										onClick={(e) => e.stopPropagation()}
-									>
+								<div className="chain-of-thought-container">
+									<div className="chain-of-thought-content">
 										<CombinedChainOfThought data={info?.chainOfThoughtData} />
 									</div>
 								</div>

@@ -97,27 +97,6 @@
 								align-items: center;
 								gap: 14px;
 
-								.active-search-types {
-									display: flex;
-									padding: 3px;
-									flex-direction: row;
-									align-items: flex-start;
-									.search-type {
-										display: flex;
-										width: 24px;
-										height: 24px;
-										justify-content: center;
-										align-items: center;
-										gap: 10px;
-										flex-shrink: 0;
-										border-radius: 100px;
-										background: var(--primary-button, #cfff48);
-									}
-									.knowledge-search-type {
-										margin-left: -4px;
-										box-shadow: -1px 0px 4px 0px rgba(0, 0, 0, 0.3);
-									}
-								}
 								.placeholderContainer {
 									position: relative;
 									width: 100%;
@@ -435,6 +414,16 @@
 	gap: 18px;
 	border-radius: 6px;
 	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--popup);
+	transition: background 200ms ease-in-out;
+
+	&:hover {
+		border: 1px solid var(--stroke-hover);
+	}
+
+	&.active {
+		border: 1px solid var(--primary-button);
+	}
 
 	.icon {
 		display: flex;
@@ -508,7 +497,7 @@
 }
 
 .start-page-icon {
-	border: unset;
+	border: unset !important;
 	padding: 0 2px 0 8px !important;
 	svg {
 		width: 20px !important;
