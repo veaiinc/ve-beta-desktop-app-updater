@@ -30,7 +30,6 @@ import axios from 'axios';
 
 export const intialState = {
 	notes: null,
-	moreNotes: null,
 	notesPageData: null,
 	notesAccess: null,
 	globalAccess: null,
@@ -39,7 +38,7 @@ export const intialState = {
 export const NotesState = (props) => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
-	const getNotesList = async (payload, fetchMore = false) => {
+	const getNotesList = async (payload, append = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -53,9 +52,20 @@ export const NotesState = (props) => {
 			);
 
 			if (response?.[0]) {
+				const currentPageNotesList = response?.[1]?.data?.listPages?.data;
+				const currentPage = response?.[1]?.data?.listPages?.currentPage;
+				const hasNextPage = response?.[1]?.data?.listPages?.hasNextPage;
+
+				const payload = {
+					data: append
+						? [...(state?.notes?.data || []), ...currentPageNotesList]
+						: currentPageNotesList,
+					hasNextPage,
+					currentPage,
+				};
 				dispatch({
-					type: fetchMore ? Actions.GET_MORE_NOTES_SUCCESS : Actions.GET_NOTES_SUCCESS,
-					payload: response?.[1]?.data?.listPages,
+					type: Actions.GET_NOTES_SUCCESS,
+					payload,
 				});
 			} else {
 				message.error('Error fetching notes logs');

@@ -111,7 +111,7 @@ const OpenedSidebarModules = ({
 		}
 
 		if (name === 'Notes') {
-			setShowNotesDrawer((prev) => !prev);
+			// setShowNotesDrawer((prev) => !prev);
 		} else {
 			setShowNotesDrawer(false);
 		}
