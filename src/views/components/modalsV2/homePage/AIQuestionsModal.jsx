@@ -5,48 +5,95 @@ import { ReactComponent as QuestionSvg } from '../../../../assets/svg/home_page/
 import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';
 
+const getPlatformRegex = {
+	linkedin: /^https?:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9-_]+\/?$/,
+	instagram: /^https?:\/\/(www\.)?instagram\.com\/[a-zA-Z0-9._]+\/?$/,
+	facebook: /^https?:\/\/(www\.)?facebook\.com\/[a-zA-Z0-9.]+\/?$/,
+	twitter: /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/[a-zA-Z0-9_]+\/?$/,
+};
+
 const AIQuestionsModal = ({ open, onClose, data }) => {
 	const [info, setInfo] = useState({
 		isUpdated: false,
 		submittingAnswers: false,
+		questions: [],
 	});
-	const inputRefs = useRef([]);
 
 	const {
 		templates: { updateAiQuestions, updateStateValues, aiQuestions },
 	} = useContext(Context);
 
 	useEffect(() => {
+		if (data?.questions?.length > 0) {
+			const questions = data?.questions?.map((question) => {
+				const item = { actualQuestion: question };
+				return item;
+			});
+			setInfo((prev) => ({ ...prev, questions }));
+		}
+	}, [data]);
+
+	useEffect(() => {
 		if (!open) {
-			inputRefs.current = [];
-			setInfo((prev) => ({ ...prev, isUpdated: false, submittingAnswers: false }));
+			setInfo((prev) => ({
+				...prev,
+				submittingAnswers: false,
+				questions: [],
+				isUpdated: false,
+			}));
 		}
 	}, [open]);
+
+	const validateURL = (type, url) => {
+		const regex = getPlatformRegex[type];
+		return regex?.test(url);
+	};
 
 	const handleSubmit = async () => {
 		try {
 			setInfo((prev) => ({ ...prev, submittingAnswers: true }));
+			let questions = info?.questions;
+			let error = null;
+			const type = data?.type;
+
+			questions = questions?.map((item) => {
+				const platform = item?.actualQuestion?.platform,
+					answer = item?.actualQuestion?.answer;
+
+				if (type === 'userPersona' && !platform) {
+					if (!answer) {
+						error = 'You need to answer first question';
+					}
+				} else if (type === 'userPersona' && platform && answer) {
+					const isValidAnswer = validateURL(platform, answer);
+					if (!isValidAnswer) {
+						error = `Please enter a valid URL for ${platform}`;
+					}
+				}
+				return item?.actualQuestion;
+			});
+
+			if (error) {
+				throw new Error(error);
+			}
+
 			const payload = {
-				questions: data?.questions?.map((question, index) => {
-					return {
-						...question,
-						answer: inputRefs.current[index]?.value,
-					};
-				}),
+				questions,
 			};
 			const id = data?._id;
+
 			const response = await updateAiQuestions(payload, id);
 			if (response?.[0] === true) {
-				const updatedData = aiQuestions?.data?.map((question) => {
-					if (question?._id === response?.[1]?._id) {
+				const data = aiQuestions?.data?.map((eachItem) => {
+					if (eachItem?._id === response?.[1]?._id) {
 						return response?.[1];
 					}
-					return question;
+					return eachItem;
 				});
-				updateStateValues({ aiQuestions: { ...aiQuestions, data: updatedData } });
+				updateStateValues({ aiQuestions: { ...aiQuestions, data } });
 				onClose?.();
 			} else {
-				throw new Error('error');
+				throw new Error();
 			}
 		} catch (error) {
 			message.error(error?.message || 'Something went wrong!');
@@ -59,10 +106,23 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 		}
 	};
 
-	const handleInputChange = useCallback(() => {
-		if (info?.isUpdated) return;
-		setInfo((prev) => ({ ...prev, isUpdated: true }));
-	}, [info?.isUpdated]);
+	const handleInputChange = useCallback((e, index) => {
+		const value = e?.target?.value;
+		setInfo((prev) => ({
+			...prev,
+			isUpdated: true,
+			questions: prev?.questions?.map((item, i) => {
+				if (i === index)
+					return {
+						...item,
+						actualQuestion: { ...(item?.actualQuestion || {}), answer: value },
+					};
+				return item;
+			}),
+		}));
+	}, []);
+
+	const type = data?.type;
 
 	return (
 		<ReactModal
@@ -71,53 +131,71 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 			modalType={'center'}
 			customStyles={{ overlay: { zIndex: 9999 } }}
 		>
-			<div className="ai-questions-modal-container">
-				<div className="modal-header">
-					<div className="icon-container">
-						<QuestionSvg />
-					</div>
-					<div className="modal-title">Help me understand you more </div>
-				</div>
-
-				<div className="modal-content">
-					<div className="questions-container">
-						{data?.questions?.map((question, index) => (
-							<div className="question-container" key={index}>
-								<div className="question-text">
-									{`${index + 1}. ${question?.question}` || ''}
-								</div>
-								<input
-									type="text"
-									className="answer-input"
-									placeholder="Type your answer"
-									defaultValue={question?.existingUrl || question?.answer || ''}
-									ref={(el) => (inputRefs.current[index] = el)}
-									onChange={handleInputChange}
-								/>
-							</div>
-						))}
-					</div>
-					<div className="btns-container">
-						<div className="btn ignore-btn" onClick={onClose}>
-							Discard
+			{info?.questions?.length && (
+				<div className="ai-questions-modal-container">
+					<div className="modal-header">
+						<div className="icon-container">
+							<QuestionSvg />
 						</div>
-						<button
-							className="btn submit-btn"
-							onClick={handleSubmit}
-							disabled={!info?.isUpdated || info?.submittingAnswers}
-							style={{
-								opacity: info?.isUpdated || info?.submittingAnswers ? 1 : 0.5,
-								cursor:
-									info?.isUpdated || info?.submittingAnswers
-										? 'pointer'
-										: 'not-allowed',
-							}}
-						>
-							Submit
-						</button>
+						<div className="modal-title">Help me understand you more </div>
+					</div>
+
+					<div className="modal-content">
+						<div className="questions-container">
+							{info?.questions?.map((item, index) => {
+								const question = item?.actualQuestion || {};
+								const answer = item?.actualQuestion?.answer || '';
+								return (
+									<div className="question-container" key={index}>
+										<div className="question-text">
+											{`${index + 1}. ${question?.question || ''}` || ''}
+										</div>
+
+										{type === 'userPersona' ? (
+											<div className="user-persona-answer-container">
+												<input
+													type={question?.answerType || 'text'}
+													className="answer-input"
+													placeholder="Type your answer"
+													value={answer}
+													onChange={(e) => handleInputChange(e, index)}
+												/>
+											</div>
+										) : (
+											<input
+												type="text"
+												className="answer-input"
+												placeholder="Type your answer"
+												value={answer}
+												onChange={(e) => handleInputChange(e, index)}
+											/>
+										)}
+									</div>
+								);
+							})}
+						</div>
+						<div className="btns-container">
+							<div className="btn ignore-btn" onClick={onClose}>
+								Discard
+							</div>
+							<button
+								className="btn submit-btn"
+								onClick={handleSubmit}
+								disabled={!info?.isUpdated || info?.submittingAnswers}
+								style={{
+									opacity: info?.isUpdated || info?.submittingAnswers ? 1 : 0.5,
+									cursor:
+										info?.isUpdated || info?.submittingAnswers
+											? 'pointer'
+											: 'not-allowed',
+								}}
+							>
+								Submit
+							</button>
+						</div>
 					</div>
 				</div>
-			</div>
+			)}
 		</ReactModal>
 	);
 };
