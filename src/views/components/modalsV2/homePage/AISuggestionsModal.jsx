@@ -306,7 +306,7 @@ const AISuggestionsModal = ({
 									<AgentsSvg style={{ color: 'var(--primary-button)' }} /> Teach
 									me
 								</div>
-								<Tooltip
+								{/* <Tooltip
 									title={<div className="tooltipOption">Share</div>}
 									placement="bottom"
 									color="transparent"
@@ -315,7 +315,7 @@ const AISuggestionsModal = ({
 									<div className="btn share-btn" onClick={handleShareClick}>
 										<ShareSvg />
 									</div>
-								</Tooltip>
+								</Tooltip> */}
 
 								{/* <div className="btn download-btn">
 									<DownloadSvg />
