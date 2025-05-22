@@ -2,14 +2,9 @@ import { memo, useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import '../../../../assets/scss/home_page/modals/aiSuggestionsModal.scss';
 import ChevronRightThinSvg from '../../../../assets/svg/tasks/chevronRightThin.svg?react';
 import ArrowRightSvg from '../../../../assets/svg/home_page/arrow-right.svg?react';
-import ShareSvg from '../../../../assets/svg/files/share.svg?react';
-import DownloadSvg from '../../../../assets/svg/download.svg?react';
 import DeleteSvg from '../../../../assets/svg/delete.svg?react';
 import CalendarSvg from '../../../../assets/svg/home_page/calendar.svg?react';
 
-import ThumbsUpSvg from '../../../../assets/svg/thumbsUp.svg?react';
-import ThumbsDownSvg from '../../../../assets/svg/thumbsDown.svg?react';
-import CoinSvg from '../../../../assets/svg/ai_agents/coin.svg?react';
 import ArrowUpRightSvg from '../../../../assets/svg/sidebar/arrowupright.svg?react';
 import { handleCombinedChainOfThought } from '../../../../helpers/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';

@@ -11,6 +11,7 @@ import GmailSvg from '../assets/svg/login_page/gmail.svg?react';
 import SlackSvg from '../assets/svg/slack.svg?react';
 import NotionSvg from '../assets/svg/notion.svg?react';
 import VeLogoSvg from '../assets/svg/veLogo.svg?react';
+import DriveSvg from '../assets/svg/drive.svg?react';
 
 import axios from 'axios';
 import dayjs from 'dayjs';

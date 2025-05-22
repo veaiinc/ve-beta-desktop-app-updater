@@ -14,19 +14,18 @@ import { Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { getRelativeDayLabel } from '../../../helpers';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
-import AiSuggestionIcon from '../../../assets/svg/home_page/aiSuggestion.svg?react';
 import { message } from '../../components/globalComponents/CustomToast';
 import ObjectID from 'bson-objectid';
 import { useNavigate } from 'react-router-dom';
 import { handleCombinedChainOfThought } from '../../../helpers/chatHelpers';
 import RelativeTimeSvg from '../../../assets/svg/home_page/relativeTime.svg?react';
-import BookIcon from '../../../assets/svg/home_page/bookIcon.svg?react';
 import ListViewSvg from '../../../assets/svg/home_page/listView.svg?react';
 import FocusViewSvg from '../../../assets/svg/home_page/focusView.svg?react';
 import SortDescSvg from '../../../assets/svg/home_page/sortDesc.svg?react';
 import SortAscSvg from '../../../assets/svg/home_page/sortAsc.svg?react';
 import AgentIcon from '../../../assets/svg/sidebar/agentsIcon.svg?react';
 import AIQuestions from './AIQuestions';
+import StarSvg from '../../../assets/svg/home_page/star.svg?react';
 
 const payload = {
 	page: 1,

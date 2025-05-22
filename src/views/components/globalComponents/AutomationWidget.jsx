@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import '../../../assets/scss/globalComponents/automationWidget.scss';
-import AddIcon from '../../../assets/svg/calendar/add.svg';
+import AddIcon from '../../../assets/svg/calendar/add.svg?react';
 import ArrowViewIcon from '../../../assets/svg/calendar/arrowview.svg?react';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
