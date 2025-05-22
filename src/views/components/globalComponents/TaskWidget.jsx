@@ -11,7 +11,7 @@ import {
 import '../../../assets/scss/globalComponents/taskWidget.scss';
 import { ReactComponent as DownArrowIcon } from '../../../assets/svg/chat/downArrow.svg';
 import { ReactComponent as FiltersIcon } from '../../../assets/svg/tasks/filterLines.svg';
-import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
+import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/add.svg';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
@@ -819,19 +819,20 @@ const TaskWidget = ({ width, height }) => {
 				onClick={() => {
 					navigate('/tasks');
 				}}
-				style={{ cursor: 'pointer' }}
 			>
-				<div className="taskWidgetFooterTitle">View All Tasks</div>
-				<PlusIcon
-					onClick={(e) => {
-						e.stopPropagation();
-						handleCreateTaskPopup();
-					}}
-					style={{
-						width: '18px',
-						height: '18px',
-					}}
-				/>
+				<div className="taskWidgetFooterTitle">View Tasks</div>
+				<div className="taskWidgetFooterAdd">
+					<PlusIcon
+						onClick={(e) => {
+							e.stopPropagation();
+							handleCreateTaskPopup();
+						}}
+						style={{
+							width: '18px',
+							height: '18px',
+						}}
+					/>
+				</div>
 			</div>
 			<ListViewSidebar
 				selectedRow={info?.selectedRow}

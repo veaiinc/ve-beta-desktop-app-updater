@@ -27,6 +27,7 @@ import { Tooltip } from 'antd';
 import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
+import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { isEqual } from 'lodash';
 import ObjectId from 'bson-objectid';
 
@@ -208,8 +209,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}, []);
 
 	useEffect(() => {
+		const originalFaviconTag = document.querySelector("link[rel~='icon']");
+
 		if (originalFaviconRef.current === null) {
-			const originalFaviconTag = document.querySelector("link[rel~='icon']");
 			originalFaviconRef.current = originalFaviconTag?.href ?? null;
 		}
 
@@ -240,19 +242,27 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 		const faviconUrl = canvas.toDataURL();
 
-		// Remove existing favicons
 		document.querySelectorAll("link[rel~='icon']").forEach((el) => el.remove());
-
-		// Create and append new favicon
 		const link = document.createElement('link');
 		link.rel = 'icon';
 		link.href = faviconUrl;
 		document.head.appendChild(link);
+
+		return () => {
+			document.querySelectorAll("link[rel~='icon']").forEach((el) => el.remove());
+
+			if (originalFaviconRef.current) {
+				const restoreLink = document.createElement('link');
+				restoreLink.rel = 'icon';
+				restoreLink.href = originalFaviconRef.current;
+				document.head.appendChild(restoreLink);
+			}
+		};
 	}, [iconImage]);
 
-	useEffect(() => {
-		getNotesAccess({ pageId: noteId });
-	}, [noteId]);
+	// useEffect(() => {
+	// 	getNotesAccess({ pageId: noteId });
+	// }, [noteId]);
 
 	useEffect(() => {
 		if (noteId) {
@@ -278,25 +288,31 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}, [tenantsUserList, info?.updatedBy]);
 
 	useEffect(() => {
-		if (notesAccess && noteId && userId) {
-			const hasAccess = notesAccess?.find((access) => access?.userId === userId);
+		if (noteId) {
+			getNotesAccess({ pageId: noteId });
+		}
+	}, [noteId]);
+
+	// Process access logic when relevant data changes
+	useEffect(() => {
+		if (notesAccess && userId && noteId) {
+			const hasAccess = notesAccess.find((access) => access?.userId === userId);
 			if (hasAccess) {
-				let myAccess = hasAccess?.access;
+				let myAccess = hasAccess.access;
 
 				if (globalAccess?.isEnabled) {
 					const myAccessLevel = accessLevels?.[myAccess];
 					const teamAccessLevel = accessLevels?.[globalAccess?.access];
-					myAccess = myAccessLevel > teamAccessLevel ? globalAccess?.access : myAccess;
+					myAccess = myAccessLevel > teamAccessLevel ? globalAccess.access : myAccess;
 				}
+
 				setInfo((prev) => ({
 					...prev,
 					myAccess,
 				}));
 			}
-		} else {
-			getNotesAccess({ pageId: noteId });
 		}
-	}, [notesAccess, noteId, userId, globalAccess]);
+	}, [notesAccess, userId, noteId, globalAccess]);
 
 	useEffect(() => {
 		const handleKeyDown = (e) => {
@@ -852,7 +868,20 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 			{!info?.isDeleted ? (
 				<div className="notes-nav-menu">
-					<div className="notes-nav-title">{info?.title}</div>
+					<div className="notes-nav-left">
+						<div className="backBtnContainer">
+							<span
+								className="backBtn"
+								onClick={() => navigate(-1)}
+								aria-label="Go back to previous page"
+							>
+								<BackArrowSvg aria-hidden="true" />
+								<span>Notes</span>
+								<div>/</div>
+							</span>
+						</div>
+						<div className="notes-nav-title">{info?.title}</div>
+					</div>
 
 					<div className="notes-nav-right">
 						<button
@@ -867,7 +896,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 							/>
 						</button>
 
-						{info?.myAccess === 'full' && <ShareComponent pageId={noteId} />}
+						{info?.myAccess === 'full' && (
+							<ShareComponent pageId={noteId} makeApiCall={false} />
+						)}
 
 						<MoreOptions
 							notesConfigs={info?.notesConfigs}

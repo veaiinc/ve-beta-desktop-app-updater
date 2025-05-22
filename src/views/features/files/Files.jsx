@@ -316,9 +316,11 @@ const Files = () => {
 	});
 
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
-	const liteGalleryPaidPlan = currentPlan?.apps?.find(
-		(app) => (app.app = 'liteGallery'),
-	)?.isPaidPlan;
+	const appPaidMap = currentPlan?.apps?.reduce((acc, { app, isPaidPlan }) => {
+		acc[app] = isPaidPlan;
+		return acc;
+	}, {});
+	const liteGalleryPaidPlan = appPaidMap?.liteGallery;
 
 	useEffect(() => {
 		if (activeTab) {
@@ -698,7 +700,7 @@ const Files = () => {
 		Documents: (
 			<DocsGrid
 				statusTextmapper={statusTextmapper}
-				handleCreateDoc={() => setInfo((prev) => ({ ...prev, openProposalPopup: true }))}
+				handleCreateDoc={() => (window.location.href = `${origin}/create-document`)}
 				handleTotalChange={(value) => handleTotalChange({ workflow: value })}
 			/>
 		),
@@ -712,7 +714,11 @@ const Files = () => {
 			<FormsGrid
 				statusTextmapper={statusTextmapper}
 				handleNavigateForm={handleNavigateForm}
-				handleCreateForm={() => setInfo((prev) => ({ ...prev, openProposalPopup: true }))}
+				handleCreateForm={() => {
+					const sessionId = ObjectID().toHexString();
+					updateTemplateStateValues({ activeInputForChat: 'Create a form for ' });
+					navigate(`/chat/${sessionId}`);
+				}}
 				handleTotalChange={(value) => handleTotalChange({ form: value })}
 			/>
 		),

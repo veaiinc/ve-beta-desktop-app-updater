@@ -9,6 +9,7 @@ import { ReactComponent as LinkIcon } from '../../../assets/svg/notes/link.svg';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/notes/search.svg';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import Skeleton from 'react-loading-skeleton';
+import Spinner from '../loaders/Spinner';
 
 const initialState = {
 	selectedUploadCategory: 'images',
@@ -16,6 +17,7 @@ const initialState = {
 	isLinkValid: false,
 	workspaceImagesLoading: false,
 	unsplashSearchQuery: 'fall',
+	spinnerLoading: false,
 };
 
 const page = 1;
@@ -162,7 +164,7 @@ const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 		setInfo((prev) => ({
 			...prev,
 			unsplashSearchQuery: search,
-			unsplashImagesLoading: true,
+			spinnerLoading: true,
 		}));
 
 		clearTimeout(unsplashSearchTimeout.current);
@@ -171,7 +173,7 @@ const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 			if (search.length > 2) {
 				getUnsplashImages(search, page, limit);
 			}
-			setInfo((prev) => ({ ...prev, unsplashImagesLoading: false }));
+			setInfo((prev) => ({ ...prev, spinnerLoading: false }));
 		}, 1500);
 	};
 
@@ -280,12 +282,6 @@ const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 							/>
 						))}
 					</div>
-				) : unsplashImagesEmpty ? (
-					<div className="noUnsplashImagesFound">
-						<h1 className="emptyUnsplashImagesMessage">
-							Oops! No Unsplash images found!
-						</h1>
-					</div>
 				) : (
 					<div className="unsplashImagesContainer">
 						<div className="imagesSearchContainer">
@@ -297,31 +293,39 @@ const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 								onChange={handleUnsplashImageSearch}
 								placeholder="Search unsplash images"
 							/>
+							{info?.spinnerLoading && <Spinner width="16px" height="16px" />}
 						</div>
-
-						<InfiniteScroll
-							dataLength={unsplashImagesLength}
-							next={fetchNextUnsplashImages}
-							hasMore={unsplashImagesHasNextPage}
-							loader={<FetchMoreLoaderComp />}
-							height={'364px'}
-						>
-							<div className="unsplashImagesListContainer">
-								{unsplashImagesList?.map((image) => (
-									<img
-										key={image.id}
-										className="unsplashImage"
-										onClick={() => handleImageClick(image.uploadImageUrl)}
-										src={image.previewImageUrl}
-										alt={
-											image.alt_description ||
-											image.description ||
-											'Unsplash Image'
-										}
-									/>
-								))}
+						{unsplashImagesEmpty ? (
+							<div className="noUnsplashImagesFound">
+								<h1 className="emptyUnsplashImagesMessage">
+									Oops! No Unsplash images found!
+								</h1>
 							</div>
-						</InfiniteScroll>
+						) : (
+							<InfiniteScroll
+								dataLength={unsplashImagesLength}
+								next={fetchNextUnsplashImages}
+								hasMore={unsplashImagesHasNextPage}
+								loader={<FetchMoreLoaderComp />}
+								height={'364px'}
+							>
+								<div className="unsplashImagesListContainer">
+									{unsplashImagesList?.map((image) => (
+										<img
+											key={image.id}
+											className="unsplashImage"
+											onClick={() => handleImageClick(image.uploadImageUrl)}
+											src={image.previewImageUrl}
+											alt={
+												image.alt_description ||
+												image.description ||
+												'Unsplash Image'
+											}
+										/>
+									))}
+								</div>
+							</InfiniteScroll>
+						)}
 					</div>
 				)}
 			</div>
@@ -330,35 +334,27 @@ const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 
 	return (
 		<div className="uploadPopupContainer">
-			{uploadType === 'cover' ? (
-				<>
-					<header className="uploadPopupHeader">
-						{uploadCategoryOptions.map((uploadCategory) => (
-							<div
-								key={uploadCategory.id}
-								onClick={() =>
-									setInfo((prev) => ({
-										...prev,
-										selectedUploadCategory: uploadCategory.value,
-									}))
-								}
-								className={`uploadCategoryLabel ${
-									info.selectedUploadCategory === uploadCategory.value
-										? 'active'
-										: ''
-								}`}
-							>
-								{uploadCategory.label}
-							</div>
-						))}
-					</header>
-					<div className="uploadPopupBody">
-						{uploadCategoryOptionsUI[info.selectedUploadCategory]}
+			<header className="uploadPopupHeader">
+				{uploadCategoryOptions.map((uploadCategory) => (
+					<div
+						key={uploadCategory.id}
+						onClick={() =>
+							setInfo((prev) => ({
+								...prev,
+								selectedUploadCategory: uploadCategory.value,
+							}))
+						}
+						className={`uploadCategoryLabel ${
+							info.selectedUploadCategory === uploadCategory.value ? 'active' : ''
+						}`}
+					>
+						{uploadCategory.label}
 					</div>
-				</>
-			) : (
-				<></>
-			)}
+				))}
+			</header>
+			<div className="uploadPopupBody">
+				{uploadCategoryOptionsUI[info.selectedUploadCategory]}
+			</div>
 		</div>
 	);
 };

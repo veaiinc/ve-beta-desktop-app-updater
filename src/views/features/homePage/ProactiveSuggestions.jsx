@@ -20,7 +20,7 @@ import ObjectID from 'bson-objectid';
 import { useNavigate } from 'react-router-dom';
 import { handleCombinedChainOfThought } from '../../../helpers/chatHelpers';
 import { ReactComponent as RelativeTimeSvg } from '../../../assets/svg/home_page/relativeTime.svg';
-import { ReactComponent as BookIcon } from '../../../assets/svg/home_page/bookIcon.svg';
+import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
 import { ReactComponent as ListViewSvg } from '../../../assets/svg/home_page/listView.svg';
 import { ReactComponent as FocusViewSvg } from '../../../assets/svg/home_page/focusView.svg';
 import { ReactComponent as SortDescSvg } from '../../../assets/svg/home_page/sortDesc.svg';
@@ -46,9 +46,9 @@ const filterGroups = [
 		title: 'Priority Level',
 		options: [
 			// { id: 1, title: 'Urgent Priority', value: 'High' },
-			{ id: 2, title: 'High', value: 'High' },
-			{ id: 3, title: 'Medium ', value: 'Medium' },
-			{ id: 4, title: 'Low ', value: 'Low' },
+			{ id: 2, title: 'High', value: 'High', bgColor: 'var(--error)' },
+			{ id: 3, title: 'Medium ', value: 'Medium', bgColor: 'var(--pending)' },
+			{ id: 4, title: 'Low ', value: 'Low', bgColor: 'var(--success)' },
 		],
 	},
 	{
@@ -148,11 +148,11 @@ const ProactiveSuggestions = () => {
 		}
 	}, [aiSuggestedPendingActions]);
 
-	// useEffect(() => {
-	// 	if (!aiQuestions) {
-	// 		getAiQuestions();
-	// 	}
-	// }, []);
+	useEffect(() => {
+		if (!aiQuestions) {
+			getAiQuestions();
+		}
+	}, []);
 
 	const handleKeyDown = (e) => {
 		if (e?.key === 'ArrowUp' || e?.key === 'ArrowLeft') {
@@ -618,13 +618,13 @@ const ProactiveSuggestions = () => {
 																info?.selectedFilters?.some(
 																	(option) =>
 																		option?.title ===
-																			itemWithGroup.title &&
+																			itemWithGroup?.title &&
 																		option?.group ===
-																			itemWithGroup.group,
+																			itemWithGroup?.group,
 																);
 															return (
 																<div
-																	key={item.id}
+																	key={item?.id}
 																	className="eachOption"
 																	onClick={() =>
 																		handleFilterClick(
@@ -632,27 +632,37 @@ const ProactiveSuggestions = () => {
 																			group?.title,
 																		)
 																	}
-																	style={{
-																		display: 'flex',
-																		justifyContent:
-																			'space-between',
-																		alignItems: 'center',
-																	}}
 																>
-																	<span>{item.title}</span>
-																	{isSelected && (
-																		<TickIcon
+																	{group?.title ===
+																		'Priority Level' && (
+																		<div
+																			className="indicator"
 																			style={{
-																				marginLeft: '8px',
+																				backgroundColor:
+																					item?.bgColor ||
+																					'',
 																			}}
-																		/>
+																		></div>
 																	)}
+																	<div className="option-text">
+																		<span className="option-text-content">
+																			{item?.title || ''}
+																		</span>
+																		{isSelected && (
+																			<TickIcon
+																				style={{
+																					marginLeft:
+																						'8px',
+																				}}
+																			/>
+																		)}
+																	</div>
 																</div>
 															);
 														})}
 													</div>
 												</div>
-												{idx < filterGroups.length - 1 && (
+												{idx < filterGroups?.length - 1 && (
 													<hr
 														style={{
 															width: '100%',
@@ -735,7 +745,10 @@ const ProactiveSuggestions = () => {
 							))}
 						</div>
 					) : aiSuggestedPendingActions?.pendingActions?.length === 0 ? (
-						<div className="no-data" style={{ color: 'var(--primary-font)' }}>
+						<div
+							className="no-data"
+							style={{ color: 'var(--primary-font)', margin: '0 auto' }}
+						>
 							No data available
 						</div>
 					) : (
@@ -861,34 +874,20 @@ const ProactiveSuggestions = () => {
 																			color={'transparent'}
 																		>
 																			<div
-																				className={`${
+																				className={`starLogoContainer ${
 																					card?.isFavourite ===
 																					true
-																						? 'thumbsUpContainer'
+																						? 'active'
 																						: ''
 																				}`}
 																				onClick={(e) => {
-																					e.stopPropagation();
+																					e?.stopPropagation();
 																					handleThumbClick(
 																						card?._id,
 																					);
 																				}}
-																				style={{
-																					cursor: 'pointer',
-																					marginBottom:
-																						'-6px',
-																				}}
 																			>
-																				<BookIcon
-																					style={{
-																						color: `${
-																							card?.isFavourite ===
-																							true
-																								? 'var(--primary-font)'
-																								: 'var(--secondary-font)'
-																						}`,
-																					}}
-																				/>
+																				<StarSvg />
 																			</div>
 																		</Tooltip>
 																		{card?.moduleType ===
