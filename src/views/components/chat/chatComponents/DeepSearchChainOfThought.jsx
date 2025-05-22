@@ -6,7 +6,7 @@ import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
 import Sources from './Sources';
 import SmoothExpand from './SmoothExpand';
 
-const DeepSearchChainOfThought = ({ data, showLastIndicatorLine = false, streamEnd = false }) => {
+const DeepSearchChainOfThought = ({ data, showLastIndicatorLine = false, streamEnd = true }) => {
 	return (
 		<div className="cot-wrapper">
 			<div className="cot-container">

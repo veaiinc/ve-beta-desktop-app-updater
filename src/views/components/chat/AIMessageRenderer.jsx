@@ -169,7 +169,10 @@ const AIMessageRenderer = ({
 			) : info?.activeTab === 'cot' ? (
 				<div className="div">
 					{messageData?.deepResearch && (
-						<DeepResearchChainOfThought data={messageData?.deepResearch} />
+						<DeepResearchChainOfThought
+							data={messageData?.deepResearch}
+							streamEnd={messageData?.stream_end}
+						/>
 					)}
 					{messageData?.deepSearch && (
 						<DeepSearchChainOfThought

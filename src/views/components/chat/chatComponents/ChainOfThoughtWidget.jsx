@@ -87,7 +87,10 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 			<div className="widget-content-container" ref={contentContainerRef}>
 				<div className="content-container">
 					{messageData?.deepResearch && (
-						<DeepResearchChainOfThought data={messageData?.deepResearch} />
+						<DeepResearchChainOfThought
+							data={messageData?.deepResearch}
+							streamEnd={messageData?.message?.length > 0 || messageData?.stream_end}
+						/>
 					)}
 					{messageData?.deepSearch && (
 						<DeepSearchChainOfThought

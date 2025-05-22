@@ -8,6 +8,7 @@ const SmoothExpand = ({ children, animate = true }) => {
 	});
 
 	useEffect(() => {
+		if (!animate) return;
 		setInfo((prev) => ({ ...prev, expand: true }));
 	}, []);
 
@@ -15,9 +16,9 @@ const SmoothExpand = ({ children, animate = true }) => {
 		<div
 			ref={containerRef}
 			style={{
-				'--height': `${containerRef?.current?.scrollHeight}px`,
+				'--height': `${containerRef?.current?.scrollHeight || 0}px`,
 				...(!animate && {
-					height: 'auto',
+					height: 'unset',
 				}),
 			}}
 			className={`smooth-expand-container ${
