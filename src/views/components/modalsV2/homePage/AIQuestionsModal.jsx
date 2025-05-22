@@ -12,7 +12,7 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 	const inputRefs = useRef([]);
 
 	const {
-		templates: { updateAiQuestions },
+		templates: { updateAiQuestions, updateStateValues, aiQuestions },
 	} = useContext(Context);
 
 	useEffect(() => {
@@ -24,6 +24,7 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 
 	const handleSubmit = async () => {
 		try {
+			setInfo((prev) => ({ ...prev, submittingAnswers: true }));
 			const payload = {
 				questions: data?.questions?.map((question, index) => {
 					return {
@@ -33,10 +34,19 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 				}),
 			};
 			const id = data?._id;
-
-			setInfo((prev) => ({ ...prev, submittingAnswers: true }));
-			await updateAiQuestions(payload, id);
-			onClose?.();
+			const response = await updateAiQuestions(payload, id);
+			if (response?.[0] === true) {
+				const updatedData = aiQuestions?.data?.map((question) => {
+					if (question?._id === response?.[1]?._id) {
+						return response?.[1];
+					}
+					return question;
+				});
+				updateStateValues({ aiQuestions: { ...aiQuestions, data: updatedData } });
+				onClose?.();
+			} else {
+				throw new Error('error');
+			}
 		} catch (error) {
 			console.log('error', error);
 		} finally {
