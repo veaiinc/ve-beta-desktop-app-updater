@@ -27,7 +27,7 @@ import { Tooltip } from 'antd';
 import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
-import BackArrowSvg from '../../../assets/svg/workflow/backarrow.svg';
+import BackArrowSvg from '../../../assets/svg/workflow/backarrow.svg?react';
 
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
