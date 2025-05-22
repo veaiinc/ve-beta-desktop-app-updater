@@ -148,11 +148,11 @@ const ProactiveSuggestions = () => {
 		}
 	}, [aiSuggestedPendingActions]);
 
-	// useEffect(() => {
-	// 	if (!aiQuestions) {
-	// 		getAiQuestions();
-	// 	}
-	// }, []);
+	useEffect(() => {
+		if (!aiQuestions) {
+			getAiQuestions();
+		}
+	}, []);
 
 	const handleKeyDown = (e) => {
 		if (e?.key === 'ArrowUp' || e?.key === 'ArrowLeft') {
