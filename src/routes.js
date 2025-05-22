@@ -64,6 +64,7 @@ import Integrations from './views/features/integrationsList/Integrations';
 import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
 import EditScheduler from './views/features/calendar/EditScheduler';
 import Contacts from './views/features/contacts/Contacts';
+import NotesPage from './views/features/notesPage/NotesPage';
 const routes = [
 	{
 		path: '/',
@@ -364,15 +365,24 @@ const routes = [
 		),
 		exact: true,
 	},
+	// {
+	// 	path: '/notes',
+	// 	component: (
+	// 		<AuthWrapper
+	// 			title={'Notes'}
+	// 			outerContainerStyle={{ padding: '0 0 0 32px', backgroundColor: '#1e1e1e' }}
+	// 			maxWidth={'100%'}
+	// 		>
+	// 			<Notes />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 	{
 		path: '/notes',
 		component: (
-			<AuthWrapper
-				title={'Notes'}
-				outerContainerStyle={{ padding: '0 0 0 32px', backgroundColor: '#1e1e1e' }}
-				maxWidth={'100%'}
-			>
-				<Notes />
+			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0 32px' }}>
+				<NotesPage />
 			</AuthWrapper>
 		),
 		exact: true,

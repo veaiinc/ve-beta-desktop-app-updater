@@ -11,6 +11,7 @@ import { ReactComponent as WorkspaceIcon } from '../../../assets/svg/sidebar/wor
 import { ReactComponent as TeamIcon } from '../../../assets/svg/sidebar/teamMembersIcon.svg';
 import { ReactComponent as IntegrationsIcon } from '../../../assets/svg/sidebar/integrationsIcon.svg';
 import { ReactComponent as PlanBillingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
+import { ReactComponent as NotesIcon } from '../../../assets/svg/sidebar/notes-icon.svg';
 
 export const photographerModules = [
 	{
@@ -70,13 +71,13 @@ export const photographerModules = [
 	// 	route: '/automations',
 	// 	icon: '',
 	// },
-	// {
-	// 	id: 8,
-	// 	name: 'Notes',
-	// 	moduleRoute: '/notes',
-	// 	route: null,
-	// 	icon: '',
-	// },
+	{
+		id: 8,
+		name: 'Notes',
+		moduleRoute: '/notes',
+		route: null,
+		icon: NotesIcon,
+	},
 	{
 		id: 9,
 		name: 'Storage',
@@ -107,6 +108,12 @@ export const veAiModulesItemsList = [
 	{ id: 1, name: 'Files', route: '/files', icon: FilesSvg },
 	// { id: 2, name: 'Search', route: '/search', icon: SearchIcon },
 	{ id: 3, name: 'Agents', route: '/knowledge-agent', icon: AgentsSvg },
+	{
+		id: 4,
+		name: 'Notes',
+		route: '/notes',
+		icon: NotesIcon,
+	},
 ];
 
 export const veAiModules = [
