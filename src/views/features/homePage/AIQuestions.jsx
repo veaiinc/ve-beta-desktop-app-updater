@@ -70,7 +70,9 @@ const AIQuestions = () => {
 								key={index}
 								onClick={() => handleCardClick(card, index)}
 							>
-								<div className="text-container">{card?.question}</div>
+								<div className="text-container">
+									{card?.questions?.[0]?.question || ''}
+								</div>
 							</div>
 						);
 					})}

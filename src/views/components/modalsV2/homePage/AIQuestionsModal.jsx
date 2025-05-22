@@ -36,6 +36,7 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 
 			setInfo((prev) => ({ ...prev, submittingAnswers: true }));
 			await updateAiQuestions(payload, id);
+			onClose?.();
 		} catch (error) {
 			console.log('error', error);
 		} finally {
