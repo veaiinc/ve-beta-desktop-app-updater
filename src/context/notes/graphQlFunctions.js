@@ -14,6 +14,7 @@ export const getNotesListQuery = gql`
 				_id
 				title
 				coverImage
+				iconImage
 				permissions {
 					private
 					sharedWith {

@@ -18,6 +18,7 @@ const ShareWidget = ({
 	const handleCopyLink = () => {
 		if (onCopyLink) {
 			onCopyLink();
+			onClose();
 			return;
 		}
 
@@ -28,11 +29,13 @@ const ShareWidget = ({
 
 		navigator.clipboard.writeText(shareUrl);
 		message.success('Link copied to clipboard');
+		onClose();
 	};
 
 	const handleCopyEmbedded = () => {
 		if (onCopyEmbedded) {
 			onCopyEmbedded();
+			onClose();
 			return;
 		}
 
@@ -43,6 +46,7 @@ const ShareWidget = ({
 
 		navigator.clipboard.writeText(embeddedCode);
 		message.success('Embedded code copied to clipboard');
+		onClose();
 	};
 
 	return (
