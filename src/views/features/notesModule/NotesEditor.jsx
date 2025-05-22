@@ -83,6 +83,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const aiResponseRef = useRef('');
 	const prevDocRef = useRef([]);
 	const previousBlocksRef = useRef(new Map());
+	const pendingUpdatesRef = useRef(new Map());
+	const debounceTimerRef = useRef(null);
+
 	const originalFaviconRef = useRef(null);
 	const { createWebSocketConnection, sendMessage } = useChatStream();
 
@@ -108,6 +111,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			blocks,
 			createBlock,
 			updateBlock,
+			deleteBlock,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
@@ -352,6 +356,15 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		};
 	}, [info.timeouts]);
 
+	useEffect(() => {
+		const unsubscribe = editor.onChange(() => {
+			const currentBlocks = editor.document;
+			onEditorUpdate(currentBlocks);
+		});
+
+		return () => unsubscribe();
+	}, [editor]);
+
 	const getNotesPageDataFunc = useCallback(async () => {
 		const payload = {
 			pageId: noteId,
@@ -442,8 +455,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		}
 		return urls;
 	};
-
-	////////////////////////////////////////////////////////////////
 
 	const compareFn = (old, newBlock) => {
 		const oldBlock = {
@@ -584,6 +595,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 				// Only update if position changed or content changed
 				const isChanged = positionChanged || compareFn(oldItem, newItem);
+
 				if (isChanged) {
 					const newItemFormatted = {
 						_id: oldItem._id,
@@ -603,14 +615,32 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		return { deleted, added, updated };
 	};
 
-	useEffect(() => {
-		const unsubscribe = editor.onChange(() => {
-			const currentBlocks = editor.document;
-			onEditorUpdate(currentBlocks);
-		});
+	const queueBlockUpdate = (block, noteId, delay = 500) => {
+		pendingUpdatesRef.current.set(block._id, block);
 
-		return () => unsubscribe();
-	}, [editor]);
+		if (debounceTimerRef.current) {
+			clearTimeout(debounceTimerRef.current);
+		}
+
+		debounceTimerRef.current = setTimeout(() => {
+			const updatesToSend = Array.from(pendingUpdatesRef.current.values());
+
+			updatesToSend.forEach(({ _id, ...rest }) => {
+				updateBlock({
+					updateBlockId: _id,
+					pageId: noteId,
+					input: {
+						...rest,
+						content: Array.isArray(rest?.content)
+							? { textContent: rest?.content }
+							: rest.content,
+					},
+				});
+			});
+
+			pendingUpdatesRef.current.clear();
+		}, delay);
+	};
 
 	const onEditorUpdate = (currentTopLevelBlocks) => {
 		const { added, deleted, updated } = diffArrays(currentTopLevelBlocks);
@@ -627,44 +657,39 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			}),
 		);
 
-		updated.forEach(({ _id, ...block }) => {
-			updateBlock({
-				updateBlockId: _id,
+		updated.forEach((block) => {
+			queueBlockUpdate(block, noteId);
+		});
+
+		deleted.forEach((block) => {
+			pendingUpdatesRef.current.delete(block._id);
+			deleteBlock({
 				pageId: noteId,
-				input: {
-					...block,
-					content: Array.isArray(block?.content)
-						? {
-								textContent: block?.content,
-						  }
-						: block.content,
-				},
+				deleteBlockId: block._id,
 			});
 		});
 	};
 
-	///////////////////////////////////////////////////////////////
-
-	const onChange = () => {
-		if (editor?.document?.length) {
-			// const newDoc = editor.document;
-			// const prevImages = extractImageUrls(prevDocRef.current);
-			// const newImages = extractImageUrls(newDoc);
-			// const removedImages = prevImages.filter((url) => !newImages.includes(url));
-			// for (const url of removedImages) {
-			// 	const payload = {
-			// 		pageId: noteId,
-			// 		imageInput: {
-			// 			imageUrl: url,
-			// 			type: 'block',
-			// 		},
-			// 	};
-			// 	deleteNotesImageBlock(payload);
-			// }
-			// handleContentChange(newDoc);
-			// prevDocRef.current = newDoc;
-		}
-	};
+	// const onChange = () => {
+	// 	if (editor?.document?.length) {
+	// 		const newDoc = editor.document;
+	// 		const prevImages = extractImageUrls(prevDocRef.current);
+	// 		const newImages = extractImageUrls(newDoc);
+	// 		const removedImages = prevImages.filter((url) => !newImages.includes(url));
+	// 		for (const url of removedImages) {
+	// 			const payload = {
+	// 				pageId: noteId,
+	// 				imageInput: {
+	// 					imageUrl: url,
+	// 					type: 'block',
+	// 				},
+	// 			};
+	// 			deleteNotesImageBlock(payload);
+	// 		}
+	// 		handleContentChange(newDoc);
+	// 		prevDocRef.current = newDoc;
+	// 	}
+	// };
 
 	const handleMoreOptionsChange = useCallback(
 		(key, value) => {

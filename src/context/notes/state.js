@@ -25,6 +25,7 @@ import {
 	getBlocksQuery,
 	createBlockMutation,
 	updateBlockMutation,
+	deleteBlockMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -665,6 +666,23 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const deleteBlock = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				deleteBlockMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+		} catch (error) {
+			console.error('error==>deleteBlock', error);
+			return false;
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -692,5 +710,6 @@ export const NotesState = (props) => {
 		getBlocks,
 		createBlock,
 		updateBlock,
+		deleteBlock,
 	};
 };

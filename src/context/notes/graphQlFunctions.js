@@ -407,3 +407,9 @@ export const updateBlockMutation = gql`
 		}
 	}
 `;
+
+export const deleteBlockMutation = gql`
+	mutation DeleteBlock($pageId: ID!, $deleteBlockId: ID!) {
+		deleteBlock(pageId: $pageId, id: $deleteBlockId)
+	}
+`;
