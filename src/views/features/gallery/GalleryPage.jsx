@@ -817,13 +817,12 @@ const GalleryPage = () => {
 	}, [albumDetails]);
 
 	useEffect(() => {
-		if(!)
+		if (!info.albumTags) return;
 		setInfo((prev) => ({
 			...prev,
 			albumContains: info?.albumTags?.[0]?.displayName,
-			albumContains: albumDetails?.tags?.[0]?.displayName,
-			albumTagId: albumDetails?.tags?.[0]?._id,
-			sortType: albumDetails?.tags?.[0]?.sortType,
+			albumTagId: info?.albumTags?.[0]?._id,
+			sortType: info?.albumTags?.[0]?.sortType,
 		}));
 	}, [info?.albumTags]);
 	useEffect(() => {
