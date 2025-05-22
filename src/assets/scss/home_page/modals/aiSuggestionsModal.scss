@@ -259,7 +259,6 @@
 					align-items: flex-start;
 					gap: 16px;
 					align-self: stretch;
-					margin-top: -20px;
 
 					.body-header {
 						display: flex;
@@ -273,6 +272,7 @@
 							font-style: normal;
 							font-weight: 400;
 							line-height: 20px;
+							margin-top: 8px;
 						}
 					}
 
