@@ -3,6 +3,7 @@ import '../../../../assets/scss/home_page/modals/aiQuestionsModal.scss';
 import ReactModal from '../index';
 import { ReactComponent as QuestionSvg } from '../../../../assets/svg/home_page/question.svg';
 import Context from '../../../../context/context';
+import { message } from '../../globalComponents/CustomToast';
 
 const AIQuestionsModal = ({ open, onClose, data }) => {
 	const [info, setInfo] = useState({
@@ -48,7 +49,7 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 				throw new Error('error');
 			}
 		} catch (error) {
-			console.log('error', error);
+			message.error(error?.message || 'Something went wrong!');
 		} finally {
 			setInfo((prev) => ({
 				...prev,
