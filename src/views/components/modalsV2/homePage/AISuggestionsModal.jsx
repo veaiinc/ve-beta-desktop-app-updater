@@ -257,17 +257,6 @@ const AISuggestionsModal = ({
 			bodyStyle={{ padding: '0px' }}
 			rootClassName="ai-suggestions-drawer"
 		>
-			{info?.feedbackPopupOpen && (
-				<PromptPopup
-					messageId={data?._id}
-					liked={info?.selectedFeedback}
-					open={info?.feedbackPopupOpen}
-					feedbackPopupOpen={info?.feedbackPopupOpen}
-					closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
-					feedbackType="pendingActionFeedback"
-					setLiked={(liked) => setInfo((prev) => ({ ...prev, selectedFeedback: liked }))}
-				/>
-			)}
 			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
 				<div className="drag-handler" onMouseDown={handleMouseDown} />
 
@@ -877,6 +866,16 @@ const AISuggestionsModal = ({
 					</div>
 				</div>
 			</div>
+
+			<PromptPopup
+				messageId={data?._id}
+				liked={info?.selectedFeedback}
+				open={info?.feedbackPopupOpen}
+				feedbackPopupOpen={info?.feedbackPopupOpen}
+				closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
+				feedbackType="pendingActionFeedback"
+				setLiked={(liked) => setInfo((prev) => ({ ...prev, selectedFeedback: liked }))}
+			/>
 		</Drawer>
 	);
 };
