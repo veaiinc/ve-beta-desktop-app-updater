@@ -6,8 +6,9 @@ import CurveSvg from '../../../../assets/svg/ai_agents/curve.svg?react';
 import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
 import Sources from './Sources';
+import SmoothExpand from './SmoothExpand';
 
-const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false }) => {
+const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false, streamEnd = true }) => {
 	return (
 		<div className="deep-research-container">
 			<div className="chain-of-thought">
@@ -90,84 +91,93 @@ const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false }) => 
 														const { tool, queries, sources } =
 															reading?.reading || {};
 														return (
-															<div className="reading" key={idx}>
-																{queries?.length > 0 && (
-																	<div className="queries-wrapper">
-																		<div className="tool-container">
-																			{tool ===
-																			'search_web' ? (
-																				<div className="search">
-																					<div className="svg">
-																						<WebSvg />
-																					</div>
-																					<div className="search-text">
-																						Searched Web
-																						For :
-																					</div>
-																				</div>
-																			) : tool ===
-																			  'search_knowledge_base' ? (
-																				<div className="search">
-																					<div className="svg">
-																						<BookSvg
-																							selected={
-																								false
-																							}
-																						/>
-																					</div>
-																					<div className="search-text">
-																						Searched
-																						Knowledge
-																						Base For :
-																					</div>
-																				</div>
-																			) : (
-																				<div className="search">
-																					<div className="search-text">
-																						Searched For
-																						:
-																					</div>
-																				</div>
-																			)}
-																		</div>
-
-																		<div className="queries-container">
-																			{queries?.map(
-																				(query, idx) => (
-																					<div
-																						className="query-container"
-																						key={idx}
-																					>
-																						<div className="query-link">
-																							<CurveSvg />
+															<SmoothExpand animate={!streamEnd}>
+																<div className="reading" key={idx}>
+																	{queries?.length > 0 && (
+																		<div className="queries-wrapper">
+																			<div className="tool-container">
+																				{tool ===
+																				'search_web' ? (
+																					<div className="search">
+																						<div className="svg">
+																							<WebSvg />
 																						</div>
+																						<div className="search-text">
+																							Searched
+																							Web For
+																							:
+																						</div>
+																					</div>
+																				) : tool ===
+																				  'search_knowledge_base' ? (
+																					<div className="search">
+																						<div className="svg">
+																							<BookSvg
+																								selected={
+																									false
+																								}
+																							/>
+																						</div>
+																						<div className="search-text">
+																							Searched
+																							Knowledge
+																							Base For
+																							:
+																						</div>
+																					</div>
+																				) : (
+																					<div className="search">
+																						<div className="search-text">
+																							Searched
+																							For :
+																						</div>
+																					</div>
+																				)}
+																			</div>
+
+																			<div className="queries-container">
+																				{queries?.map(
+																					(
+																						query,
+																						idx,
+																					) => (
 																						<div
+																							className="query-container"
 																							key={
 																								idx
 																							}
-																							className="query"
 																						>
-																							{query ||
-																								''}
+																							<div className="query-link">
+																								<CurveSvg />
+																							</div>
+																							<div
+																								key={
+																									idx
+																								}
+																								className="query"
+																							>
+																								{query ||
+																									''}
+																							</div>
 																						</div>
-																					</div>
-																				),
-																			)}
+																					),
+																				)}
+																			</div>
 																		</div>
-																	</div>
-																)}
+																	)}
 
-																{sources?.length > 0 && (
-																	<div className="sources-container">
-																		<div className="source-text">
-																			Sources
+																	{sources?.length > 0 && (
+																		<div className="sources-container">
+																			<div className="source-text">
+																				Sources
+																			</div>
+																			<Sources
+																				sources={sources}
+																			/>
 																		</div>
-																		<Sources
-																			sources={sources}
-																		/>
-																	</div>
-																)}
-															</div>
+																	)}
+																</div>
+															</SmoothExpand>
 														);
 													})}
 												</div>
@@ -210,84 +220,93 @@ const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false }) => 
 														const { tool, queries, sources } =
 															reading?.reading || {};
 														return (
-															<div className="reading" key={idx}>
-																{queries?.length > 0 && (
-																	<div className="queries-wrapper">
-																		<div className="tool-container">
-																			{tool ===
-																			'search_web' ? (
-																				<div className="search">
-																					<div className="svg">
-																						<WebSvg />
-																					</div>
-																					<div className="search-text">
-																						Searched Web
-																						For :
-																					</div>
-																				</div>
-																			) : tool ===
-																			  'search_knowledge_base' ? (
-																				<div className="search">
-																					<div className="svg">
-																						<BookSvg
-																							selected={
-																								false
-																							}
-																						/>
-																					</div>
-																					<div className="search-text">
-																						Searched
-																						Knowledge
-																						Base For :
-																					</div>
-																				</div>
-																			) : (
-																				<div className="search">
-																					<div className="search-text">
-																						Searched For
-																						:
-																					</div>
-																				</div>
-																			)}
-																		</div>
-
-																		<div className="queries-container">
-																			{queries?.map(
-																				(query, idx) => (
-																					<div
-																						className="query-container"
-																						key={idx}
-																					>
-																						<div className="query-link">
-																							<CurveSvg />
+															<SmoothExpand animate={!streamEnd}>
+																<div className="reading" key={idx}>
+																	{queries?.length > 0 && (
+																		<div className="queries-wrapper">
+																			<div className="tool-container">
+																				{tool ===
+																				'search_web' ? (
+																					<div className="search">
+																						<div className="svg">
+																							<WebSvg />
 																						</div>
+																						<div className="search-text">
+																							Searched
+																							Web For
+																							:
+																						</div>
+																					</div>
+																				) : tool ===
+																				  'search_knowledge_base' ? (
+																					<div className="search">
+																						<div className="svg">
+																							<BookSvg
+																								selected={
+																									false
+																								}
+																							/>
+																						</div>
+																						<div className="search-text">
+																							Searched
+																							Knowledge
+																							Base For
+																							:
+																						</div>
+																					</div>
+																				) : (
+																					<div className="search">
+																						<div className="search-text">
+																							Searched
+																							For :
+																						</div>
+																					</div>
+																				)}
+																			</div>
+
+																			<div className="queries-container">
+																				{queries?.map(
+																					(
+																						query,
+																						idx,
+																					) => (
 																						<div
+																							className="query-container"
 																							key={
 																								idx
 																							}
-																							className="query"
 																						>
-																							{query ||
-																								''}
+																							<div className="query-link">
+																								<CurveSvg />
+																							</div>
+																							<div
+																								key={
+																									idx
+																								}
+																								className="query"
+																							>
+																								{query ||
+																									''}
+																							</div>
 																						</div>
-																					</div>
-																				),
-																			)}
+																					),
+																				)}
+																			</div>
 																		</div>
-																	</div>
-																)}
+																	)}
 
-																{sources?.length > 0 && (
-																	<div className="sources-container">
-																		<div className="source-text">
-																			Sources
+																	{sources?.length > 0 && (
+																		<div className="sources-container">
+																			<div className="source-text">
+																				Sources
+																			</div>
+																			<Sources
+																				sources={sources}
+																			/>
 																		</div>
-																		<Sources
-																			sources={sources}
-																		/>
-																	</div>
-																)}
-															</div>
+																	)}
+																</div>
+															</SmoothExpand>
 														);
 													})}
 												</div>

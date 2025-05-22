@@ -17,12 +17,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 			return;
 		}
 		smoothScrollToBottom();
-	}, [
-		deepSearch?.cot?.length,
-		deepSearch?.cot_refined?.length,
-		deepResearch?.cot?.length,
-		deepResearch?.sections?.length,
-	]);
+	}, [deepSearch?.cot?.length, deepResearch?.cot?.length, deepResearch?.sections?.length]);
 
 	const smoothScrollToBottom = useCallback((type) => {
 		const scrollElement = contentContainerRef?.current;
@@ -56,8 +51,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 			messageData?.deepResearch?.cot?.length > 0 ||
 			messageData?.deepResearch?.sections?.length > 0 ||
 			messageData?.deepResearch?.sections_refined?.length > 0 ||
-			messageData?.deepSearch?.cot?.length > 0 ||
-			messageData?.deepSearch?.cot_refined?.length > 0
+			messageData?.deepSearch?.cot?.length > 0
 		)
 	) {
 		return null;
@@ -93,7 +87,10 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 			<div className="widget-content-container" ref={contentContainerRef}>
 				<div className="content-container">
 					{messageData?.deepResearch && (
-						<DeepResearchChainOfThought data={messageData?.deepResearch} />
+						<DeepResearchChainOfThought
+							data={messageData?.deepResearch}
+							streamEnd={messageData?.message?.length > 0 || messageData?.stream_end}
+						/>
 					)}
 					{messageData?.deepSearch && (
 						<DeepSearchChainOfThought

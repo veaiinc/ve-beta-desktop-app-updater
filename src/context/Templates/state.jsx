@@ -110,10 +110,12 @@ export const intialState = {
 	chatInfo: {
 		deepResearch: false,
 		selectedLLMModel: null,
-		webSearch: false,
-		workspaceSearch: true,
 		agentType: null,
 		assistantId: null,
+		ask: {
+			workspaceSearch: true,
+			webSearch: false,
+		},
 		reason: {
 			workspaceSearch: false,
 			webSearch: false,

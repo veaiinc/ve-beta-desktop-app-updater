@@ -336,6 +336,7 @@ export const fileTypeIcons = {
 	xls: <ExcelSvg />,
 	gmail: <GmailSvg />,
 	slack: <SlackSvg />,
+	drive: <DriveSvg />,
 	notion: <NotionSvg />,
 	workflowId: <VeLogoSvg />,
 	'image/png': <PngSvg />,
@@ -360,6 +361,7 @@ export const redirectTo = (type, id) => {
 		workflowId: `https://builder.ve.ai/workflow/${id}`,
 		slack: `https://app.slack.com/client/${id}`,
 		s3_key: id,
+		drive: `https://drive.google.com/file/d/${id}/view`,
 	};
 
 	const url = urls?.[type];
@@ -375,4 +377,5 @@ export const redirectTypeMapper = {
 	gmail: 'thread_id',
 	slack: 'channel_id',
 	s3_key: 's3_key',
+	drive: 'drive_id',
 };

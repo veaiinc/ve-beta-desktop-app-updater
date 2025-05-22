@@ -700,7 +700,7 @@ const Files = () => {
 		Documents: (
 			<DocsGrid
 				statusTextmapper={statusTextmapper}
-				handleCreateDoc={() => setInfo((prev) => ({ ...prev, openProposalPopup: true }))}
+				handleCreateDoc={() => (window.location.href = `${origin}/create-document`)}
 				handleTotalChange={(value) => handleTotalChange({ workflow: value })}
 			/>
 		),

@@ -1335,7 +1335,7 @@ const QuickActions = ({
 						onChange={handleSearch}
 					/>
 				</div>
-				<div className="search-divider" />
+
 				<div className="content-container">
 					{info?.filteredOptions?.suggestedOptions?.length > 0 && (
 						<div className="suggested-modules-container">
@@ -1362,6 +1362,7 @@ const QuickActions = ({
 									</div>
 								))}
 							</div>
+							<hr className="horizontal-divider" />
 						</div>
 					)}
 					{info?.filteredOptions?.buildAi?.length > 0 && (
@@ -1384,6 +1385,7 @@ const QuickActions = ({
 									</div>
 								))}
 							</div>
+							<hr className="horizontal-divider" />
 						</div>
 					)}
 
@@ -1410,12 +1412,13 @@ const QuickActions = ({
 									</div>
 								))}
 							</div>
+							<hr className="horizontal-divider" />
 						</div>
 					)}
 					{info?.filteredOptions?.create?.length > 0 && (
-						<div className="modules-container">
-							<div className="modules-container-header">Create</div>
-							<div className="modules-container-options">
+						<div className="suggested-modules-container">
+							<div className="suggested-modules-container-header">Create</div>
+							<div className="suggested-modules-container-options">
 								{info?.filteredOptions?.create?.map((option) => (
 									<div
 										key={option?.id}
@@ -1435,6 +1438,7 @@ const QuickActions = ({
 									</div>
 								))}
 							</div>
+							<hr className="horizontal-divider" />
 						</div>
 					)}
 					{info?.filteredOptions?.upload?.length > 0 && (

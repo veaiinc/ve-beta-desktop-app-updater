@@ -1,12 +1,16 @@
-import { memo, useContext, useEffect, useRef } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/home_page/modals/aiQuestionsModal.scss';
 import ReactModal from '../index';
 import QuestionSvg from '../../../../assets/svg/home_page/question.svg?react';
 import Context from '../../../../context/context';
+import { message } from '../../globalComponents/CustomToast';
 
 const AIQuestionsModal = ({ open, onClose, data }) => {
+	const [info, setInfo] = useState({
+		isUpdated: false,
+		submittingAnswers: false,
+	});
 	const inputRefs = useRef([]);
-	const isUpdatedRef = useRef(false);
 
 	const {
 		templates: { updateAiQuestions },
@@ -15,28 +19,40 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 	useEffect(() => {
 		if (!open) {
 			inputRefs.current = [];
-			isUpdatedRef.current = false;
+			setInfo((prev) => ({ ...prev, isUpdated: false, submittingAnswers: false }));
 		}
 	}, [open]);
 
 	const handleSubmit = async () => {
-		if (!isUpdatedRef.current) {
-			return;
+		try {
+			const payload = {
+				questions: data?.questions?.map((question, index) => {
+					return {
+						...question,
+						answer: inputRefs.current[index]?.value,
+					};
+				}),
+			};
+			const id = data?._id;
+
+			setInfo((prev) => ({ ...prev, submittingAnswers: true }));
+			await updateAiQuestions(payload, id);
+			onClose?.();
+		} catch (error) {
+			message.error(error?.message || 'Something went wrong!');
+		} finally {
+			setInfo((prev) => ({
+				...prev,
+				submittingAnswers: false,
+				isUpdated: false,
+			}));
 		}
-
-		const payload = {
-			questions: data?.questions?.map((question, index) => {
-				return {
-					...question,
-					answer: inputRefs.current[index]?.value,
-				};
-			}),
-		};
-		const id = data?._id;
-
-		const response = await updateAiQuestions(payload, id);
-		// console.log('response', response);
 	};
+
+	const handleInputChange = useCallback(() => {
+		if (info?.isUpdated) return;
+		setInfo((prev) => ({ ...prev, isUpdated: true }));
+	}, [info?.isUpdated]);
 
 	return (
 		<ReactModal
@@ -57,16 +73,16 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 					<div className="questions-container">
 						{data?.questions?.map((question, index) => (
 							<div className="question-container" key={index}>
-								<div className="question-text">{question?.question || ''}</div>
+								<div className="question-text">
+									{`${index + 1}. ${question?.question}` || ''}
+								</div>
 								<input
 									type="text"
 									className="answer-input"
 									placeholder="Type your answer"
-									defaultValue={question?.existingUrl || ''}
+									defaultValue={question?.existingUrl || question?.answer || ''}
 									ref={(el) => (inputRefs.current[index] = el)}
-									onChange={() => {
-										isUpdatedRef.current = true;
-									}}
+									onChange={handleInputChange}
 								/>
 							</div>
 						))}
@@ -75,9 +91,20 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 						<div className="btn ignore-btn" onClick={onClose}>
 							Discard
 						</div>
-						<div className="btn submit-btn" onClick={handleSubmit}>
+						<button
+							className="btn submit-btn"
+							onClick={handleSubmit}
+							disabled={!info?.isUpdated || info?.submittingAnswers}
+							style={{
+								opacity: info?.isUpdated || info?.submittingAnswers ? 1 : 0.5,
+								cursor:
+									info?.isUpdated || info?.submittingAnswers
+										? 'pointer'
+										: 'not-allowed',
+							}}
+						>
 							Submit
-						</div>
+						</button>
 					</div>
 				</div>
 			</div>
