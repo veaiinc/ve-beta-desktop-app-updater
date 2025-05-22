@@ -1,7 +1,6 @@
 .notesPageContainer {
 	width: 100%;
 	height: 100vh;
-	padding-left: 32px;
 	display: flex;
 	flex-direction: column;
 	gap: 40px;
@@ -10,7 +9,6 @@
 		width: 100%;
 		display: flex;
 		align-items: center;
-		padding-top: 32px;
 
 		.viewModeAndFilters {
 			display: flex;

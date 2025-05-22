@@ -381,7 +381,7 @@ const routes = [
 	{
 		path: '/notes',
 		component: (
-			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0 32px' }}>
+			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '32px 32px 0px' }}>
 				<NotesPage />
 			</AuthWrapper>
 		),
