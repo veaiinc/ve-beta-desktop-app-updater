@@ -201,14 +201,22 @@
 								height: 18px;
 							}
 						}
+						.teach-me-btn {
+							color: var(--primary-font, #f2f2f3);
+							font-family: var(--primary-font-family);
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
 						.delete-btn {
 							border: 1px solid var(--error);
 						}
 
 						.share-btn {
 							svg {
-								width: 15px;
-								height: 15px;
+								width: 18px;
+								height: 18px;
 								path {
 									fill: var(--primary-font, #f2f2f3);
 								}
