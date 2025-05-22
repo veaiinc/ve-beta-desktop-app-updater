@@ -4,19 +4,15 @@ import { getRelativeDayLabel } from '../../../helpers';
 import AIQuestionsModal from '../../components/modalsV2/homePage/AIQuestionsModal';
 import Context from '../../../context/context';
 
-const questions = [];
 const AIQuestions = () => {
 	const {
-		templates: { aiQuestions, getAiQuestions },
+		templates: { aiQuestions },
 	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		selectedCard: null,
 		isModalOpen: false,
 	});
-
-	useEffect(() => {
-		getAiQuestions();
-	}, []);
 
 	const handleCardClick = (card) => {
 		setInfo((prev) => ({
@@ -25,6 +21,7 @@ const AIQuestions = () => {
 			isModalOpen: true,
 		}));
 	};
+
 	const handleCloseModal = () => {
 		setInfo((prev) => ({
 			...prev,
