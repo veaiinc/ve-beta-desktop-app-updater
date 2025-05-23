@@ -3,9 +3,38 @@ import { createReactBlockSpec } from '@blocknote/react';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
 import '../../../assets/scss/notes/database.scss';
-import { memo } from 'react';
+import { memo, useContext, useEffect } from 'react';
+import Context from '../../../context/context';
+import { useParams } from 'react-router-dom';
 
 const DatabaseComponent = memo(({ block, editor }) => {
+	const { noteId: pageId } = useParams();
+	const {
+		notes: { createDatabase, database },
+	} = useContext(Context);
+
+	const { databaseId, databaseViewId } = block?.props;
+
+	console.log('database==>', database);
+
+	useEffect(() => {
+		if (!databaseId) {
+			createDatabase({
+				pageId: pageId,
+				input: {
+					name: 'Database',
+					fields: [
+						{
+							name: 'Name',
+							type: 'text',
+						},
+					],
+					sourceBlockId: block?.id,
+				},
+			});
+		}
+	}, [databaseId]);
+
 	return <div className="notes-database-container"></div>;
 });
 

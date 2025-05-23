@@ -684,8 +684,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	};
 
 	const onEditorUpdate = (currentTopLevelBlocks) => {
-		console.log('block', previousBlocksRef.current);
-
 		const { added, deleted, updated } = diffArrays(currentTopLevelBlocks);
 
 		added.forEach((block) =>

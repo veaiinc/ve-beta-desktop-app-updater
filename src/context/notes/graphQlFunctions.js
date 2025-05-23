@@ -413,3 +413,27 @@ export const deleteBlockMutation = gql`
 		deleteBlock(pageId: $pageId, id: $deleteBlockId)
 	}
 `;
+
+export const createDatabaseMutation = gql`
+	mutation CreateDatabase($pageId: ID!, $input: CreateDatabaseInput!) {
+		createDatabase(pageId: $pageId, input: $input) {
+			_id
+			name
+			description
+			icon
+			fields {
+				_id
+				name
+				type
+				config
+				isRequired
+				isUnique
+			}
+			createdAt
+			updatedAt
+			sourceBlockId
+			createdBy
+			updatedBy
+		}
+	}
+`;

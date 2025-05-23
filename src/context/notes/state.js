@@ -26,6 +26,7 @@ import {
 	createBlockMutation,
 	updateBlockMutation,
 	deleteBlockMutation,
+	createDatabaseMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -39,6 +40,7 @@ export const intialState = {
 	notesAccess: null,
 	globalAccess: null,
 	blocks: null,
+	database: null,
 };
 
 export const NotesState = (props) => {
@@ -683,6 +685,29 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const createDatabase = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				createDatabaseMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				console.log('response==>createDatabase', response?.[1]);
+				dispatch({
+					type: Actions.ADD_DATABASE,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.error('error==>createDatabase', error);
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -711,5 +736,6 @@ export const NotesState = (props) => {
 		createBlock,
 		updateBlock,
 		deleteBlock,
+		createDatabase,
 	};
 };
