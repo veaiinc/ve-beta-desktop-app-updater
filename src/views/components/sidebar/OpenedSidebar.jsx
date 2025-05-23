@@ -111,7 +111,7 @@ const OpenedSidebarModules = ({
 		}
 
 		if (name === 'Notes') {
-			setShowNotesDrawer((prev) => !prev);
+			// setShowNotesDrawer((prev) => !prev);
 		} else {
 			setShowNotesDrawer(false);
 		}
@@ -189,7 +189,7 @@ const OpenedSidebarModules = ({
 						width: '100%',
 					}}
 				>
-					{Icon && <Icon fill={'var(--secondary-font)'} />}
+					{Icon && <Icon fill={name === 'Notes' ? 'none' : 'var(--secondary-font)'} />}
 					<p>{name}</p>
 					{isExactPathMatch() && <TickSvg />}
 				</div>

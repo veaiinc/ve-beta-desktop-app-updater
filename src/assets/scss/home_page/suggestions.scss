@@ -19,9 +19,11 @@
 		align-items: center;
 		gap: 8px;
 		border-radius: 6px;
+		border: 1px solid transparent;
 		cursor: pointer;
 		&:hover {
 			background-color: var(--card);
+			border: 1px solid var(--stroke);
 			.suggestion-text {
 				color: var(--primary-font);
 			}
@@ -35,6 +37,8 @@
 		}
 		.icon-container {
 			height: 18px;
+			position: relative;
+			top: -1px;
 			svg {
 				width: 18px;
 				height: 18px;
@@ -57,6 +61,8 @@
 		.arrow-icon {
 			height: 18px;
 			svg {
+				width: 16px;
+				height: 16px;
 				path {
 					transition: fill 0.1s ease-out !important;
 					fill: var(--background-color);
