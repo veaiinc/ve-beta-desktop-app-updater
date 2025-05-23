@@ -9,21 +9,21 @@ module.exports = {
 	output: {
 		path: path.resolve(__dirname, 'build'),
 		filename: 'bundle.js',
-		clean: true, // Removes old files from the build folder
+		clean: true,
 		publicPath: '/',
 	},
 	resolve: {
-		extensions: ['.js', '.jsx', '.ts', '.tsx'], // Resolves imports without specifying extensions
+		extensions: ['.js', '.jsx', '.ts', '.tsx'],
 	},
 	plugins: [
 		new HtmlWebpackPlugin({
 			template: path.join(__dirname, 'public', 'index.html'),
 			templateParameters: {
-				PUBLIC_URL: '.', // Use a valid public path instead of the placeholder
+				PUBLIC_URL: '.',
 			},
 		}),
 		new webpack.DefinePlugin({
-			'process.env': JSON.stringify(process.env), // <-- Add this plugin
+			'process.env': JSON.stringify(process.env),
 		}),
 	],
 	module: {
@@ -46,7 +46,28 @@ module.exports = {
 				use: ['style-loader', 'css-loader'],
 			},
 			{
-				test: /\.s[ac]ss$/i, // Matches both .scss and .sass files
+				test: /\.module\.s[ac]ss$/i,
+				use: [
+					'style-loader',
+					{
+						loader: 'css-loader',
+						options: {
+							modules: {
+								localIdentName: '[local]__[hash:base64:5]',
+							},
+						},
+					},
+					{
+						loader: 'sass-loader',
+						options: {
+							implementation: require('sass'),
+						},
+					},
+				],
+			},
+			{
+				test: /\.s[ac]ss$/i,
+				exclude: /\.module\.s[ac]ss$/i,
 				use: [
 					'style-loader',
 					'css-loader',
@@ -59,7 +80,6 @@ module.exports = {
 				],
 			},
 			{
-				// Convert SVGs into React components with a URL fallback.
 				test: /\.svg$/,
 				issuer: /\.[jt]sx?$/,
 				use: [
@@ -84,17 +104,16 @@ module.exports = {
 				],
 			},
 			{
-				// Handles image files (png, jpg, jpeg, gif)
 				test: /\.(png|jpe?g|gif)$/i,
-				type: 'asset/resource', // Emits the file and returns the URL
+				type: 'asset/resource',
 			},
 		],
 	},
 	devServer: {
 		port: 8000,
-		hot: true, // Enables Hot Module Replacement
-		static: path.resolve(__dirname, 'public'), // Serves static files from the public folder
-		historyApiFallback: true, // Enables SPA routing
+		hot: true,
+		static: path.resolve(__dirname, 'public'),
+		historyApiFallback: true,
 		client: {
 			overlay: {
 				warnings: false,

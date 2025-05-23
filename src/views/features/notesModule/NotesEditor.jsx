@@ -475,7 +475,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			const [success] = await deletePage({ pageId: noteId, isPermanent: permanent });
 			if (success) {
 				message.success(`Page ${permanent ? 'permanently ' : ''}deleted successfully`);
-				navigate('/files');
+				navigate('/notes');
 			} else {
 				message.error('Failed to delete page');
 			}

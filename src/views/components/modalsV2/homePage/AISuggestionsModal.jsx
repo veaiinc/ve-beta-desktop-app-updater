@@ -335,7 +335,7 @@ const AISuggestionsModal = ({
 					</div>
 
 					<div className="body" ref={bodyRef}>
-						<div className="header-title-text">{title || ''}</div>
+						{/* <div className="header-title-text">{title || ''}</div> */}
 
 						<div className="body-header-wrapper">
 							<div className="body-header">
