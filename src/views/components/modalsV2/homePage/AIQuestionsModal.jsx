@@ -4,6 +4,8 @@ import ReactModal from '../index';
 import { ReactComponent as QuestionSvg } from '../../../../assets/svg/home_page/question.svg';
 import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';
+import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import OptionsDropdown from './OptionsDropdown';
 
 const getPlatformRegex = {
 	linkedin: /^https?:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9-_]+\/?$/,
@@ -54,11 +56,11 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 			setInfo((prev) => ({ ...prev, submittingAnswers: true }));
 			let questions = info?.questions;
 			let error = null;
-			const type = data?.type;
+			const type = data?.type || '';
 
 			questions = questions?.map((item) => {
-				const platform = item?.actualQuestion?.platform,
-					answer = item?.actualQuestion?.answer;
+				const platform = item?.platform,
+					answer = item?.answer;
 
 				if (type === 'userPersona' && !platform) {
 					if (!answer) {
@@ -70,7 +72,7 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 						error = `Please enter a valid URL for ${platform}`;
 					}
 				}
-				return item?.actualQuestion;
+				return item;
 			});
 
 			if (error) {
@@ -115,14 +117,27 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 				if (i === index)
 					return {
 						...item,
-						actualQuestion: { ...(item?.actualQuestion || {}), answer: value },
+						answer: value,
 					};
 				return item;
 			}),
 		}));
 	}, []);
 
-	const type = data?.type;
+	const handleOptionClick = useCallback((questionIndex, value) => {
+		setInfo((prev) => ({
+			...prev,
+			isUpdated: true,
+			questions: prev?.questions?.map((item, i) => {
+				if (i === questionIndex)
+					return {
+						...item,
+						answer: value,
+					};
+				return item;
+			}),
+		}));
+	}, []);
 
 	return (
 		<ReactModal
@@ -142,28 +157,38 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 
 					<div className="modal-content">
 						<div className="questions-container">
-							{info?.questions?.map((item, index) => {
-								const question = item?.actualQuestion || {};
-								const answer = item?.actualQuestion?.answer || '';
+							{info?.questions?.map((question, index) => {
+								const answer = question?.answer || '';
+								const options = question?.options;
 								return (
 									<div className="question-container" key={index}>
 										<div className="question-text">
 											{`${index + 1}. ${question?.question || ''}` || ''}
 										</div>
 
-										{type === 'userPersona' ? (
-											<div className="user-persona-answer-container">
+										{options ? (
+											<div className="answer-container-with-options">
 												<input
 													type={question?.answerType || 'text'}
-													className="answer-input"
-													placeholder="Type your answer"
+													className="input-element"
+													placeholder="Enter answer / Select from option"
 													value={answer}
 													onChange={(e) => handleInputChange(e, index)}
 												/>
+												<OptionsDropdown
+													options={options}
+													value={answer}
+													questionIndex={index}
+													onOptionClick={handleOptionClick}
+												>
+													<div className="icon-container">
+														<ChevronRightThinSvg />
+													</div>
+												</OptionsDropdown>
 											</div>
 										) : (
 											<input
-												type="text"
+												type={question?.answerType || 'text'}
 												className="answer-input"
 												placeholder="Type your answer"
 												value={answer}
