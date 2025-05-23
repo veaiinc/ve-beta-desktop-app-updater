@@ -19,6 +19,7 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 		isUpdated: false,
 		submittingAnswers: false,
 		questions: [],
+		independentQuestions: [],
 	});
 
 	const {
@@ -31,7 +32,11 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 				const item = { actualQuestion: question };
 				return item;
 			});
-			setInfo((prev) => ({ ...prev, questions }));
+			let independentQuestions = [];
+			if (data?.type === 'userPersona' && data?.independentQuestions?.length) {
+				independentQuestions = data?.independentQuestions;
+			}
+			setInfo((prev) => ({ ...prev, questions, independentQuestions }));
 		}
 	}, [data]);
 
@@ -54,25 +59,28 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 	const handleSubmit = async () => {
 		try {
 			setInfo((prev) => ({ ...prev, submittingAnswers: true }));
-			let questions = info?.questions;
+			const questions = info?.questions;
+			const independentQuestions = info?.independentQuestions;
 			let error = null;
 			const type = data?.type || '';
 
-			questions = questions?.map((item) => {
+			independentQuestions?.forEach((item) => {
+				const answer = item?.answer || '';
+				if (type === 'userPersona' && (!answer || answer?.length === 0)) {
+					error = 'You need to answer first question';
+				}
+			});
+
+			questions?.forEach((item) => {
 				const platform = item?.platform,
 					answer = item?.answer;
 
-				if (type === 'userPersona' && !platform) {
-					if (!answer) {
-						error = 'You need to answer first question';
-					}
-				} else if (type === 'userPersona' && platform && answer) {
+				if (type === 'userPersona' && platform && answer) {
 					const isValidAnswer = validateURL(platform, answer);
 					if (!isValidAnswer) {
 						error = `Please enter a valid URL for ${platform}`;
 					}
 				}
-				return item;
 			});
 
 			if (error) {
@@ -81,6 +89,8 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 
 			const payload = {
 				questions,
+				...(type === 'userPersona' &&
+					independentQuestions?.length > 0 && { independentQuestions }),
 			};
 			const id = data?._id;
 
@@ -124,6 +134,22 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 		}));
 	}, []);
 
+	const handleIndependentQuestionInputChange = useCallback((e, index) => {
+		const value = e?.target?.value;
+		setInfo((prev) => ({
+			...prev,
+			isUpdated: true,
+			independentQuestions: prev?.independentQuestions?.map((item, i) => {
+				if (i === index)
+					return {
+						...item,
+						answer: value,
+					};
+				return item;
+			}),
+		}));
+	}, []);
+
 	const handleOptionClick = useCallback((questionIndex, value) => {
 		setInfo((prev) => ({
 			...prev,
@@ -157,16 +183,34 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 
 					<div className="modal-content">
 						<div className="questions-container">
+							{info?.independentQuestions?.map((question, index) => {
+								return (
+									<div className="question-container" key={index}>
+										<div className="question-text">
+											{`${question?.question || ''}` || ''}
+										</div>
+										<input
+											type={question?.answerType || 'text'}
+											className="answer-input"
+											placeholder="Type your answer"
+											value={question?.answer || ''}
+											onChange={(e) =>
+												handleIndependentQuestionInputChange(e, index)
+											}
+										/>
+									</div>
+								);
+							})}
 							{info?.questions?.map((question, index) => {
 								const answer = question?.answer || '';
 								const options = question?.options;
 								return (
 									<div className="question-container" key={index}>
 										<div className="question-text">
-											{`${index + 1}. ${question?.question || ''}` || ''}
+											{`${question?.question || ''}` || ''}
 										</div>
 
-										{options ? (
+										{options?.length > 0 ? (
 											<div className="answer-container-with-options">
 												<input
 													type={question?.answerType || 'text'}
