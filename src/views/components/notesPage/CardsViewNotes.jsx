@@ -1,17 +1,19 @@
 import { memo } from 'react';
-import s from '../../../assets/scss/notesPage/notesPage.module.scss';
-import InfiniteScroll from '../globalComponents/InfiniteScroll';
-import { FetchMoreLoaderComp } from '../../../helpers';
+import { useNavigate } from 'react-router-dom';
+import '../../../assets/scss/notesPage/notesPage.scss';
 import moment from 'moment';
+
+//components
+import { FetchMoreLoaderComp } from '../../../helpers';
+import CreateNewNote from './CreateNewNote';
+import InfiniteScroll from '../globalComponents/InfiniteScroll';
 
 // icons
 import { ReactComponent as NoteIcon } from '../../../assets/svg/notesPage/note-icon.svg';
 import { ReactComponent as LockIcon } from '../../../assets/svg/notesPage/lock-icon.svg';
-import CreateNewNote from './CreateNewNote';
-import { useNavigate } from 'react-router-dom';
 
 //constants
-const infiniteScrollHeight = 'calc(100vh - 114px)';
+const infiniteScrollHeight = 'calc(100vh - 142px)';
 
 const CardsViewNotes = ({ notes, fetchMoreNotes }) => {
 	const navigate = useNavigate();
@@ -38,32 +40,33 @@ const CardsViewNotes = ({ notes, fetchMoreNotes }) => {
 		>
 			<CreateNewNote viewMode="cards" />
 			{notesList.map((note) => {
-				const { updatedAt, title, iconImage, coverImage, _id } = note;
+				const { updatedAt, title, iconImage, coverImage, _id, permissions } = note;
 				const parsedIconImage = JSON.parse(JSON.parse(iconImage))?.native;
+				const isLocked = permissions?.private;
 				return (
-					<div key={_id} onClick={() => navigate(`/note/${_id}`)} className={s.noteCard}>
+					<div key={_id} onClick={() => navigate(`/note/${_id}`)} className="noteCard">
 						{coverImage ? (
-							<div className={s.coverImageContainer}>
+							<div className="coverImageContainer">
 								<img src={coverImage} alt={title} />
 							</div>
 						) : (
-							<div className={s.coverImageContainer}></div>
+							<div className="coverImageContainer"></div>
 						)}
 						{iconImage ? (
-							<div className={s.iconImageContainer}>
+							<div className="iconImageContainer">
 								{parsedIconImage ?? <NoteIcon />}
 							</div>
 						) : (
-							<div className={s.iconImageContainer}>
+							<div className="iconImageContainer">
 								<NoteIcon />
 							</div>
 						)}
-						<header className={s.noteCardHeader}>
-							<h3 className={s.noteCardTitle}>{title}</h3>
+						<header className="noteCardHeader">
+							<h3 className="noteCardTitle">{title}</h3>
 						</header>
-						<footer className={s.noteCardFooter}>
-							<span className={s.updatedAt}>{moment.unix(updatedAt).fromNow()}</span>
-							<LockIcon />
+						<footer className="noteCardFooter">
+							<span className="updatedAt">{moment.unix(updatedAt).fromNow()}</span>
+							{isLocked && <LockIcon />}
 						</footer>
 					</div>
 				);
