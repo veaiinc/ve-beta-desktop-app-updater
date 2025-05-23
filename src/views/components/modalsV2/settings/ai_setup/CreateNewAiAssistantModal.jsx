@@ -4,7 +4,7 @@ import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/
 import '../../../../../assets/scss/settings/aiSetup.scss';
 import Modal from '../../';
 import Context from '../../../../../context/context';
-import { message } from 'antd';
+import { message } from '../../../globalComponents/CustomToast';
 
 const CreateNewAiModal = ({ isOpen, toggleModal }) => {
 	const {

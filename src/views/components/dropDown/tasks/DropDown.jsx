@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import '../../../../assets/scss/dropdown/tasks/dropDown.scss';
 import { ReactComponent as Tick } from '../../../../assets/svg/tasks/checkmark.svg';
 import { Tooltip } from 'antd';
@@ -45,7 +45,7 @@ const DropDown = ({
 							className="dropdown-title"
 							style={titleStyles ? { ...titleStyles } : {}}
 						>
-							<span style={{ color: 'var(--primary-font)' }}>{title}</span>
+							<span style={{ color: 'var(--secondary-font)' }}>{title}</span>
 						</div>
 					) : (
 						''

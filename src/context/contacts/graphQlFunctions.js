@@ -10,9 +10,11 @@ export const getClientsQuery = gql`
 				phoneNumber
 				updatedAt
 				createdAt
+				workflows
 			}
 			hasNextPage
 			currentPage
+			totalDocs
 		}
 	}
 `;
@@ -111,6 +113,34 @@ export const deleteContactViewMutation = gql`
 	mutation DeleteClientView($clientMetadataId: ID!, $viewId: ID!) {
 		deleteClientView(clientMetadataId: $clientMetadataId, viewId: $viewId) {
 			message
+		}
+	}
+`;
+
+export const getClientsListQuery = gql`
+	query ClientsList($filters: ClientListFiltersInput!) {
+		clientsList(filters: $filters) {
+			data {
+				_id
+				name
+				email
+				phoneNumber
+				tenantId
+				workflows
+				templateDetails
+				createdBy
+				updatedBy
+				createdAt
+				updatedAt
+			}
+			totalPages
+			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
+			prevPage
+			nextPage
 		}
 	}
 `;

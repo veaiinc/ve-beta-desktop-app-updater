@@ -1,77 +1,93 @@
 import { Progress } from 'antd';
-import React, { useCallback, useContext, useEffect, useState, memo } from 'react';
+import React, { useCallback, useContext, useEffect, useState, memo, useRef, useMemo } from 'react';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import '../../../../assets/scss/tasks/childTaskComponent.scss';
-import ListView from '../views/ListView';
 import Context from '../../../../context/context';
+import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import Spinner from '../../loaders/Spinner';
 
 const ChildTaskComponent = ({
 	handleUpdate,
 	onAddButtonClick,
 	rowTypes,
 	responseMetadata,
-	colors,
-	properties,
-	childTasks = [],
 	completedStatus = [],
-	parentTaskId,
-	handleRowClick,
 }) => {
+	const containerRef = useRef(null);
 	const {
-		tasks: { subTasks, getSubTasks, resetSubTasks },
+		tasks: { subTasks, getSubTasks, resetSubTasks, sideBarData, updateSideBarData },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		loading: true,
-		error: null,
-		subTasks: [],
-		totalCount: 0,
-		completedCount: 0,
-		tasks: [],
+		subtaskOpen: false,
 	});
 
-	useEffect(() => {
-		const completedStatusIds = completedStatus?.map((item) => item._id);
-		const completedCount = info?.tasks?.filter((item) =>
-			completedStatusIds?.includes(item.status),
-		)?.length;
-		const totalCount = info?.tasks?.length;
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			loading: false,
-			error: null,
-			totalCount: totalCount,
-			completedCount: completedCount,
-		}));
-	}, [info?.tasks, completedStatus]);
+	const parentTaskId = sideBarData?.stack?.at(-1)?._id;
 
 	useEffect(() => {
 		resetSubTasks();
 		fetchChildTasks();
+	}, [parentTaskId]);
+
+	const fetchChildTasks = useCallback(async () => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			loading: true,
 		}));
+		await getSubTasks({ taskId: parentTaskId });
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			loading: false,
+		}));
 	}, [parentTaskId]);
 
-	useEffect(() => {
-		if (subTasks?.data) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				tasks: [...subTasks?.data],
-				loading: false,
-			}));
-		} else if (subTasks?.error) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				loading: false,
-				error: subTasks?.error,
-			}));
+	const handleSubtaskOpen = () => {
+		if (info?.subtaskOpen && containerRef.current) {
+			containerRef.current.scrollTop = 0;
 		}
-	}, [subTasks]);
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			subtaskOpen: !prevInfo.subtaskOpen,
+		}));
+	};
+	const renderComponent = (task, key, value) => {
+		if (key === 'createdWithAi') {
+			const Component = rowTypes?.['createdWithAi'];
+			return <Component />;
+		}
+		const { type, name, Icon, props } = responseMetadata?.[key] || {};
+		const RowComponent = rowTypes?.[type] || null;
+		if (RowComponent) {
+			return (
+				<RowComponent
+					key={key}
+					value={value}
+					title={name}
+					Icon={Icon}
+					{...props}
+					showIcon={true}
+					onOptionClick={(value) => handleUpdate(task?._id, key, value)}
+				/>
+			);
+		}
+		return null;
+	};
 
-	const fetchChildTasks = useCallback(() => {
-		getSubTasks({ taskId: parentTaskId });
-	}, [parentTaskId]);
+	const subTaskList = subTasks?.data || [];
+
+	const totalCount = subTaskList?.length || 0;
+
+	const completedCount = useMemo(() => {
+		const completedStatusIds = completedStatus?.map((item) => item._id);
+		return subTaskList?.reduce((acc, task) => {
+			if (task?.status && completedStatusIds?.includes(task?.status)) {
+				return acc + 1;
+			}
+			return acc;
+		}, 0);
+	}, [subTaskList, completedStatus]);
+
+	const firstTask = subTaskList?.[0];
 
 	return (
 		<div className="sidebar-subtask-container">
@@ -80,40 +96,89 @@ const ChildTaskComponent = ({
 				<span className="sidebar-subtask-header-count">
 					<Progress
 						type="circle"
-						percent={(info?.completedCount / info?.totalCount) * 100}
+						percent={(completedCount / totalCount) * 100}
 						size={16}
-						strokeColor={'#6055EC'}
+						strokeColor={'var(--primary-button)'}
 						trailColor={'#2F2F2F'}
 						strokeWidth={14}
 					/>
 					<span className="task-count">
-						{info?.completedCount || 0}/{info?.totalCount || 0}
+						{completedCount || 0}/{totalCount || 0}
 					</span>
 				</span>
 				<div className="subtask-actions-wrapper">
 					<button className="subtask-action-button" onClick={onAddButtonClick}>
-						<PlusSvg style={{ width: '20px', height: '20px' }} />
+						<PlusSvg />
 					</button>
+					{subTaskList?.length > 1 && (
+						<button className="subtask-action-button" onClick={handleSubtaskOpen}>
+							<ChevronRightThinSvg
+								className={`chevron-icon ${info?.subtaskOpen ? 'open' : ''}`}
+							/>
+						</button>
+					)}
 				</div>
 			</div>
-			<div className="subtask-list-container">
-				{
-					<ListView
-						handleUpdate={handleUpdate}
-						responseMetadata={responseMetadata}
-						addButtonOnClick={() => {}}
-						colors={colors}
-						fetchMoreData={() => {}}
-						data={info?.tasks}
-						loading={info?.loading}
-						properties={properties}
-						rowTypes={rowTypes}
-						handleRowClick={handleRowClick}
-						hasMore={false}
-						error={null}
-						infiniteScrollHeight="200px"
-					/>
-				}
+
+			<div
+				className={`subtask-list-container ${info?.subtaskOpen ? 'open' : ''}`}
+				ref={containerRef}
+			>
+				{info?.loading ? (
+					<div className="spinner-container">
+						<Spinner />
+					</div>
+				) : subTaskList?.length > 0 ? (
+					info?.subtaskOpen ? (
+						subTaskList?.map((task) => (
+							<div
+								className="subtask-wrapper"
+								onClick={() => updateSideBarData({ data: task })}
+								key={task?._id}
+							>
+								<div className="sub-task-text-wrapper">
+									<div className="title">{task?.title}</div>
+									<div className="description">{task?.description}</div>
+								</div>
+								<div className="other-properties">
+									<div className="property-tags">
+										{task?.status &&
+											renderComponent(task, 'status', task?.status)}
+										{task?.priority &&
+											renderComponent(task, 'priority', task?.priority)}
+									</div>
+									{task?.assignedTo &&
+										task?.assignedTo?.length > 0 &&
+										renderComponent(task, 'assignedTo', task?.assignedTo)}
+								</div>
+							</div>
+						))
+					) : (
+						<div
+							className="subtask-wrapper"
+							onClick={() => updateSideBarData({ data: firstTask })}
+							key={firstTask?._id}
+						>
+							<div className="sub-task-text-wrapper">
+								<div className="title">{firstTask?.title}</div>
+								<div className="description">{firstTask?.description}</div>
+							</div>
+							<div className="other-properties">
+								<div className="property-tags">
+									{firstTask?.status &&
+										renderComponent(firstTask, 'status', firstTask?.status)}
+									{firstTask?.priority &&
+										renderComponent(firstTask, 'priority', firstTask?.priority)}
+								</div>
+								{firstTask?.assignedTo &&
+									firstTask?.assignedTo?.length > 0 &&
+									renderComponent(firstTask, 'assignedTo', firstTask?.assignedTo)}
+							</div>
+						</div>
+					)
+				) : (
+					<div className="no-subtasks">No subtasks found</div>
+				)}
 			</div>
 		</div>
 	);

@@ -5,24 +5,25 @@ import { Select } from 'antd';
 const CategorySelector = ({ options, value, onChange, className }) => {
 	const [info, setInfo] = useState({
 		formattedOptions: [],
-		formattedValue: value?.name,
+		formattedValue: value?._id,
 	});
+
 	useEffect(() => {
-		const formattedOptions = options.map((option) => ({
-			value: option?._id,
-			label: option?.name,
-			color: option?.color,
-		}));
+		const formattedOptions =
+			options?.map((option) => ({
+				value: option?._id,
+				label: option?.name,
+				color: option?.color,
+			})) || [];
 		setInfo((prev) => ({ ...prev, formattedOptions }));
 	}, [options]);
 
 	useEffect(() => {
-		const formattedValue = value?.name ? value?.name : 'default';
-		setInfo((prev) => ({ ...prev, formattedValue }));
+		setInfo((prev) => ({ ...prev, formattedValue: value?._id }));
 	}, [value]);
 
 	const customLabel = (props) => {
-		const option = info?.formattedOptions?.find((option) => option?.label === props?.value);
+		const option = info?.formattedOptions?.find((option) => option?.value === props?.value);
 		return (
 			<div className="category-label" style={{ backgroundColor: option?.color }}>
 				{option?.label || 'Empty'}
@@ -48,6 +49,11 @@ const CategorySelector = ({ options, value, onChange, className }) => {
 					if (selectedOption) {
 						onChange(selectedOption);
 					}
+				}}
+				style={{
+					width: 'fit-content',
+					maxWidth: '100%',
+					minWidth: '125px',
 				}}
 				variant="borderless"
 				placeholder="Empty"

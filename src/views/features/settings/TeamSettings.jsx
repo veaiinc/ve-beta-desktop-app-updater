@@ -5,7 +5,7 @@ import validator from 'validator';
 import Context from '../../../context/context';
 import InviteMembersWorkspaceComponent from '../../components/settings/team/InviteMembersWorkspace';
 import TeamAccessListComponent from '../../components/settings/team/TeamAccessList';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 
 const TeamSettings = () => {
 	// Contexts
@@ -53,7 +53,6 @@ const TeamSettings = () => {
 	]);
 
 	const [filteredUsers, setfilteredUsers] = useState([]);
-	const [messageApi, contextHolder] = message.useMessage();
 
 	// useEffects
 	useEffect(() => {
@@ -259,110 +258,17 @@ const TeamSettings = () => {
 
 	const dataNeeded = dataNeededForInvite();
 
-	const loadingToastFunction = () => {
-		messageApi.open({
-			type: 'loading',
-			content: 'Requests are sending..',
-			duration: 0,
-		});
-	};
-
-	// const handleSubmit = async () => {
-	// 	try {
-	// 		if (
-	// 			validateExpiryData &&
-	// 			validateExpiryData?.restrictWorkflows &&
-	// 			validateExpiryData?.isExpired
-	// 		) {
-	// 			return updateSubscriptionState({ expiredSubscriptionModal: true });
-	// 		}
-	// 		if (info?.buttonLoading) return;
-
-	// 		let isAllCorrect = true;
-
-	// 		for (let index = 0; index < sendRequestList.length; index++) {
-	// 			if (!validateUsersEmails(sendRequestList[index].email, index) && isAllCorrect) {
-	// 				isAllCorrect = false;
-	// 			}
-	// 		}
-
-	// 		if (!isAllCorrect) return;
-
-	// 		for (let index = 0; index < sendRequestList.length; index++) {
-	// 			if (!validateDuplicateEmails(sendRequestList[index].email, index) && isAllCorrect) {
-	// 				isAllCorrect = false;
-	// 			}
-	// 		}
-
-	// 		if (!isAllCorrect) return;
-
-	// 		for (let index = 0; index < sendRequestList.length; index++) {
-	// 			if (!validateExistUser(sendRequestList[index].email, index) && isAllCorrect) {
-	// 				isAllCorrect = false;
-	// 			}
-	// 		}
-
-	// 		if (!isAllCorrect) return;
-
-	// 		const dataRoles = mapUsersRoleBased();
-	// 		setInfo((prev) => ({ ...prev, buttonLoading: true }));
-	// 		loadingToastFunction();
-
-	// 		const promises = dataRoles?.map((payload) => inviteNupdateTenantRoleFunewuser(payload));
-	// 		const results = await Promise.all(promises);
-	// 		let update = [...sendRequestList];
-	// 		let completionCount = 0;
-	// 		results?.forEach((singleResult, index) => {
-	// 			if (typeof singleResult[0] !== 'boolean' || singleResult[0] !== true) {
-	// 				update[index].emailIDError = true;
-	// 				update[index].emailIDMessage = singleResult[1]?.message;
-	// 			} else {
-	// 				update[index].emailIDError = false;
-	// 				update[index].successTrue = true;
-	// 				update[index].emailIDMessage = 'Invitation mail sent successfully';
-	// 				completionCount++;
-
-	// 				setTimeout(() => {
-	// 					if (sendRequestList?.length === completionCount) return;
-	// 					const tempUpdate = [...sendRequestList];
-	// 					tempUpdate[index].successTrue = false;
-	// 					tempUpdate[index].emailIDMessage = '';
-	// 					setsendRequestList(tempUpdate);
-	// 				}, 2000);
-	// 			}
-	// 		});
-
-	// 		if (completionCount === results?.length) {
-	// 			update = [
-	// 				{
-	// 					email: '',
-	// 					userRole: 'admin',
-	// 					emailIDError: false,
-	// 					emailIDMessage: '',
-	// 					successTrue: false,
-	// 				},
-	// 			];
-	// 		}
-	// 		setsendRequestList(update);
-	// 		setInfo((prev) => ({ ...prev, buttonLoading: false }));
-	// 		getTeamMembers();
-	// 		messageApi.destroy();
-	// 	} catch (error) {
-	// 		console.log('error==>handleSubmit', error);
-	// 	}
-	// };
-
 	const handleSubmit = async () => {
 		if (info?.isloading) {
 			return;
 		}
 		if (!dataNeeded?.email) {
-			messageApi.error('Please enter email');
+			message.error('Please enter email');
 			return;
 		}
 
 		if (!emailRegEx.test(dataNeeded?.email)) {
-			messageApi.error('Please enter a valid email address');
+			message.error('Please enter a valid email address');
 			return;
 		}
 
@@ -376,20 +282,13 @@ const TeamSettings = () => {
 				hasFullAccess: true,
 			}));
 		} else if (info?.selectedOption === 'default') {
-			// Ensure at least one access control is enabled
-			const hasEnabledAccess = updatedAccessControls.some((control) => control?.isEnabled);
-			if (!hasEnabledAccess) {
-				messageApi.error('At least one access control must be enabled.');
+			// Filter only enabled access controls
+			updatedAccessControls = updatedAccessControls.filter((control) => control?.isEnabled);
+
+			if (updatedAccessControls.length === 0) {
+				message.error('At least one access control must be enabled.');
 				return;
 			}
-			updatedAccessControls = currentPlan?.apps?.map((app) => {
-				// Find the existing control in the updated list
-				const existingControl = updatedAccessControls?.find(
-					(control) => control?.app === app?.app,
-				);
-				// Keep its state if it exists, otherwise default to disabled
-				return existingControl || { app: app?.app, isEnabled: false, hasFullAccess: false };
-			});
 		}
 
 		// Prepare final data for API call
@@ -413,7 +312,7 @@ const TeamSettings = () => {
 					})) || [],
 			}));
 		} else {
-			messageApi.error('Failed to invite user');
+			message.error('Failed to invite user');
 			setInfo((prev) => ({ ...prev, isloading: false }));
 		}
 
@@ -470,12 +369,12 @@ const TeamSettings = () => {
 				? await removeTenantRole(user?._id)
 				: await updateTenantRole(user?._id, json);
 		if (response?.[0] === true) {
-			messageApi.success(response?.[1]?.message);
+			message.success(response?.[1]?.message);
 			if (userDetailsData?._id === user?._id) {
 				window.location.reload();
 			}
 		} else {
-			messageApi.error(response?.[1]?.message);
+			message.error(response?.[1]?.message);
 		}
 	};
 
@@ -541,10 +440,21 @@ const TeamSettings = () => {
 		}));
 	};
 
+	const handleAccessTypeChange = (app, type) => {
+		setAccessControls((prev) => ({
+			accessControls: prev.accessControls.map((control) =>
+				control.app === app
+					? {
+							...control,
+							hasFullAccess: type === 'full',
+					  }
+					: control,
+			),
+		}));
+	};
+
 	return (
 		<>
-			{contextHolder}
-
 			<div className="TeamMemberContainer">
 				<h1 className="TeamMemberContainerTitle">Team Members</h1>
 				<div className="settingsBoxContainer yourTeamComponent">
@@ -575,6 +485,7 @@ const TeamSettings = () => {
 				selectedUser={info?.selectedUser}
 				tenantUserId={userDetailsData?._id}
 				isSubmitLoading={info?.isloading}
+				handleAccessTypeChange={handleAccessTypeChange}
 			/>
 		</>
 	);

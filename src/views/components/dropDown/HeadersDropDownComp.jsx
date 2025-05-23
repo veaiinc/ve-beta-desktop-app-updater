@@ -1,4 +1,4 @@
-import React, { useState, memo, useCallback } from 'react';
+import { useState, memo, useCallback } from 'react';
 import '../../../assets/scss/dropdown/headerDropdown.scss';
 import { ReactComponent as DownArrow } from '../../../assets/svg/chat/downArrow.svg';
 import { ReactComponent as Tick } from '../../../assets/svg/tick.svg';
@@ -72,7 +72,7 @@ const HeadersDropDownComp = ({
 		setIsOpen(false);
 		setSearchValue('');
 	};
-	const handleLogout = useCallback(async () => {
+	const handleLogout = useCallback(() => {
 		logoutFunc();
 	}, [logoutFunc]);
 
@@ -147,7 +147,7 @@ const HeadersDropDownComp = ({
 							hasMore={hasNextPage}
 							next={fetchMoreData}
 							loader={<FetchMoreLoaderComp />}
-							style={{ height: '150px' }}
+							style={{ backgroundColor: 'var(--card)' }}
 							scrollableTarget="dropdown-menu"
 						>
 							{options.map((option, index) => (

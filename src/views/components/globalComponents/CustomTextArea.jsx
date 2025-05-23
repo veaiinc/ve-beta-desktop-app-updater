@@ -45,7 +45,7 @@ const CustomTextArea = ({
 			}}
 			onBlur={onBlur}
 			onFocus={onFocus}
-			placeholder={placeholder}
+			placeholder={`Enter ${placeholder}`}
 			name={name}
 			className={`custom-textarea ${className}`}
 			style={{

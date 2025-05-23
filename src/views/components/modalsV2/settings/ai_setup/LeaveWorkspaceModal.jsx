@@ -19,7 +19,8 @@ const LeaveWorkspaceModal = ({ isOpen, toggleModal }) => {
 	});
 
 	useEffect(() => {
-		if (!userWorkSpaceList) {
+		const token = localStorage.getItem('usertoken');
+		if (token && !userWorkSpaceList) {
 			getUserWorkSpaceList();
 		}
 	}, [userWorkSpaceList]);

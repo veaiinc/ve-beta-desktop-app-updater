@@ -99,28 +99,6 @@
 				border: 1px solid var(--border);
 			}
 		}
-		.choose-workflow {
-			display: flex;
-			flex-direction: column;
-			gap: 6px;
-			width: 100%;
-			.selectWorkflow {
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-				padding: 11px 14px;
-				width: 100%;
-				gap: 10px;
-				background: transparent;
-				align-self: stretch;
-				border-radius: 10px;
-				border: 1px solid var(--border);
-				input {
-					background-color: transparent;
-					border: none;
-				}
-			}
-		}
 	}
 	.create-gallery-button {
 		display: flex;

@@ -3,7 +3,7 @@ import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
-import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/sidebar/searchIcon.svg';
 import { ReactComponent as FilterSvg } from '../../../assets/svg/docs/filter.svg';
 import '../../../assets/scss/docs/proposalsPopup.scss';
 import { fetchOriginSelection } from '../../../helpers';
@@ -28,8 +28,8 @@ const initialState = {
 	filterOption: false,
 };
 const customStyles = {
-	content: { zIndex: 999 },
-	overlay: { zIndex: 998 },
+	content: { zIndex: 1003 },
+	overlay: { zIndex: 1002 },
 };
 
 const infiniteScrollStyles = {
@@ -282,7 +282,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 				<div className="proposal-popup-body">
 					<div className="proposal-popup-search-div">
 						<div className="proposal-popup-search-div-input-container">
-							<SearchIcon />
+							<SearchIcon fill="var(--primary-font)" />
 							<input
 								placeholder="Search"
 								type="text"

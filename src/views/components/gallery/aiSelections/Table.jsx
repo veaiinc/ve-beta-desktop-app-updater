@@ -16,7 +16,13 @@ const Table = ({ tableData, thead }) => {
 				<tbody>
 					{tableData.map((row, index) => (
 						<tr key={index}>
-							<td className="text-left">
+							<td
+								style={{
+									display: 'flex',
+									justifyContent: 'flex-start',
+									gap: '4px',
+								}}
+							>
 								<div
 									style={{
 										width: '36px',

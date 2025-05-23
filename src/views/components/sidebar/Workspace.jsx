@@ -1,32 +1,98 @@
-import React, { memo, useCallback, useContext, useState } from 'react';
-import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
+import React, { memo, useCallback, useContext, useState, useEffect } from 'react';
+import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/singleRightArrow.svg';
 import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
-import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
-import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
+// import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
+// import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import useLogout from '../../hooks/useLogout';
+// import useLogout from '../../hooks/useLogout';
 import { fetchDomainName } from '../../../helpers';
+import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
+// import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
+// import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 
+const workspaceOpenStyle = {
+	position: 'fixed',
+	top: 0,
+	left: 0,
+	right: 0,
+	bottom: 0,
+	background: 'var(--card)',
+	opacity: 0.4,
+	height: '100vh',
+	zIndex: 997,
+	cursor: 'pointer',
+};
+
+const workspaceStyle = { display: 'flex', gap: '4px', alignItems: 'center' };
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
-	const navigate = useNavigate();
-	const logoutFunc = useLogout();
-	const [searchWorkspace, setSearchWorkspace] = useState('');
-
 	const {
 		subscriptionInfo: { renewBanner },
 	} = useContext(Context);
+	// const navigate = useNavigate();
+	// const logoutFunc = useLogout();
+	const [searchWorkspace, setSearchWorkspace] = useState('');
+	const [focusedIndex, setFocusedIndex] = useState(0);
+
+	const currentId = info?.activeBusniessName?.activeWorkspaceId;
+	useEffect(() => {
+		if (userWorkSpaceList && info?.activeBusniessName?.activeWorkspaceId) {
+			const activeIndex = userWorkSpaceList.findIndex(
+				(workspace) =>
+					workspace.activeWorkspaceId === info.activeBusniessName.activeWorkspaceId,
+			);
+			// if (activeIndex !== -1) {
+			// 	setFocusedIndex(activeIndex);
+			// }
+		}
+	}, [userWorkSpaceList, info?.activeBusniessName?.activeWorkspaceId]);
 
 	const closeWorkspaceList = () => {
 		setsidebarStates({ ...sidebarStates, workSpaceOpen: false, navStyle: 'open' });
 	};
 
-	const filteredWorkspaces = userWorkSpaceList?.filter((workspace) =>
-		workspace?.businessName?.toLowerCase().includes(searchWorkspace.toLowerCase()),
-	);
+	const filteredWorkspaces =
+		userWorkSpaceList
+			?.filter((ws) =>
+				ws?.businessName?.toLowerCase()?.includes(searchWorkspace?.toLowerCase()),
+			)
+			.sort((a, b) => {
+				if (a?.activeWorkspaceId === currentId) return -1;
+				if (b?.activeWorkspaceId === currentId) return 1;
+				return 0;
+			}) ?? [];
+
+	useEffect(() => {
+		const handleKeyDown = (e) => {
+			if (!filteredWorkspaces || filteredWorkspaces?.length === 0) return;
+
+			if (e?.key === 'ArrowDown') {
+				e?.preventDefault();
+				setFocusedIndex((prev) =>
+					prev < filteredWorkspaces?.length - 1 ? prev + 1 : prev,
+				);
+			} else if (e?.key === 'ArrowUp') {
+				e?.preventDefault();
+				setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+			} else if (e?.key === 'Enter') {
+				handleSwitchWorkSpaceLogic(filteredWorkspaces[focusedIndex]);
+			}
+		};
+
+		window?.addEventListener('keydown', handleKeyDown);
+		return () => window?.removeEventListener('keydown', handleKeyDown);
+	}, [filteredWorkspaces, focusedIndex]);
+	useEffect(() => {
+		const el = document.querySelector(`.singleWorkspace[data-index="${focusedIndex}"]`);
+		if (el) {
+			el.scrollIntoView({ block: 'nearest' });
+		}
+	}, [focusedIndex]);
+
 	const handleSwitchWorkSpaceLogic = useCallback(
 		(data) => {
+			if (!data) return;
 			const { activeWorkspaceId, isOnboard } = data;
 			const workspaceId = localStorage.getItem('workspaceId');
 			if (workspaceId === activeWorkspaceId) {
@@ -34,17 +100,17 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 			}
 			localStorage.setItem('workspaceId', activeWorkspaceId);
 			localStorage.setItem('isOnboard', isOnboard);
-
+			localStorage.setItem('showSettingsSidebar', 'false');
 			const host = fetchDomainName();
 
-			Cookies.set('workspaceID', activeWorkspaceId, {
+			Cookies?.set('workspaceID', activeWorkspaceId, {
 				sameSite: 'lax',
 				domain: host,
 			});
 
 			// case : if there is no usertoken in cookies so everytime make sure usertoken and cookies should be set,
 			let accessToken = localStorage.getItem('usertoken');
-			Cookies.set('usertoken', accessToken, {
+			Cookies?.set('usertoken', accessToken, {
 				sameSite: 'lax',
 				domain: host,
 			});
@@ -59,50 +125,32 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 			}
 			if (newWorkspaceRegion !== currentRegion) {
 				localStorage.setItem('region', newWorkspaceRegion);
-				Cookies.set('region', newWorkspaceRegion, {
+				Cookies?.set('region', newWorkspaceRegion, {
 					sameSite: 'lax',
 					domain: host,
 				});
 			}
-			window.location.reload();
+			window.location.href = '/home';
 		},
 		[userWorkSpaceList],
 	);
 
-	const handleCreateWorkspace = () => {
-		navigate(`/create-workspace`);
-	};
+	// const handleCreateWorkspace = () => {
+	// 	navigate(`/create-workspace`);
+	// };
 
-	const handleLogout = useCallback(() => {
-		logoutFunc();
-	}, [logoutFunc]);
+	// const handleLogout = useCallback(() => {
+	// 	logoutFunc();
+	// }, [logoutFunc]);
 
 	return (
 		<>
 			{sidebarStates?.workSpaceOpen && (
-				<div
-					style={{
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						// background: 'var(--background-color)',
-						opacity: 0.5,
-						height: '100vh',
-						zIndex: 997,
-						cursor: 'pointer',
-					}}
-					onClick={closeWorkspaceList}
-				/>
+				<div style={workspaceOpenStyle} onClick={closeWorkspaceList} />
 			)}
-			<div
-				style={{ maxHeight: renewBanner ? '93dvh' : '95dvh' }}
-				className="workspaceListComponent"
-			>
+			<div className="workspaceListComponent">
 				<div className="workspaceListHeader">
 					<div className="backContinaer" onClick={closeWorkspaceList}>
-						<ArrowLeftSvg />
 						<h6>Switch Workspace</h6>
 					</div>
 					{userWorkSpaceList?.length > 10 && (
@@ -112,7 +160,8 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 								type="text"
 								placeholder="Search"
 								className="searchWorkspace"
-								onChange={(e) => setSearchWorkspace(e.target.value)}
+								onChange={(e) => setSearchWorkspace(e?.target?.value)}
+								autoFocus={true}
 							/>
 						</div>
 					)}
@@ -122,41 +171,43 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 						{filteredWorkspaces?.map((singleWorkspace, index) => (
 							<div
 								key={singleWorkspace?.activeWorkspaceId}
+								data-index={index}
 								className={`singleWorkspace ${
 									singleWorkspace?.activeWorkspaceId ===
 									info?.activeBusniessName?.activeWorkspaceId
-										? 'activeWorkspace'
+										? 'activeWorkspace '
 										: ''
-								}`}
+								}${index === focusedIndex ? 'focused' : ''}`}
 								onClick={() => {
 									handleSwitchWorkSpaceLogic(singleWorkspace);
 								}}
 							>
-								<h6>{singleWorkspace?.businessName}</h6>
-								<div className="workSpaceCircle">
-									{singleWorkspace?.logo_s3_500w_key ? (
-										<img
-											src={singleWorkspace?.logo_s3_500w_key}
-											alt={singleWorkspace?.businessName}
-										/>
-									) : (
-										''
-										// <div className="no-logo">
-										// 	{/* {singleWorkspace?.businessName?.slice(0, 2)} */}
-										// </div>
-									)}
+								<div style={workspaceStyle}>
+									<div className="workSpaceCircle">
+										{singleWorkspace?.logo_s3_500w_key ? (
+											<img
+												src={singleWorkspace?.logo_s3_500w_key}
+												alt={singleWorkspace?.businessName}
+											/>
+										) : (
+											<div className="no-logo">
+												{singleWorkspace?.businessName?.slice(0, 2)}
+											</div>
+										)}
+									</div>
+									<h6>{singleWorkspace?.businessName}</h6>
 								</div>
 
-								{/* {singleWorkspace?.activeWorkspaceId ===
-								info?.activeBusniessName?.activeWorkspaceId && (
-								<div className="activeWorkspaceCheck">
-									<CircletickwhiteSvg />
-								</div>
-							)} */}
+								{singleWorkspace?.activeWorkspaceId ===
+									info?.activeBusniessName?.activeWorkspaceId && (
+									<div className="activeWorkspaceCheck">
+										<TickSvg />
+									</div>
+								)}
 							</div>
 						))}
 
-						<div className="workspaceListFooter">
+						{/* <div className="workspaceListFooter">
 							<hr
 								style={{
 									border: '0.1px solid var(--stroke)',
@@ -165,19 +216,13 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 									alignSelf: 'center',
 								}}
 							/>
-							<div className="singleWorkspace" onClick={handleCreateWorkspace}>
-								<h6>Add Workspace</h6>
-								<div className="workSpaceCircle">
-									<PlusSvg />
-								</div>
-							</div>
 							<div className="singleWorkspace logoutOption" onClick={handleLogout}>
 								<h6 style={{ color: 'var(--error)' }}>Logout</h6>
 								<div className="workSpaceCircle">
 									<LogoutRedSvg />
 								</div>
 							</div>
-						</div>
+						</div> */}
 					</div>
 				) : (
 					''

@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState, useEffect, useCallback, useContext } from 'react';
+import React, { memo, useMemo, useState, useEffect, useCallback, useContext, useRef } from 'react';
 import moment from 'moment';
 import '../../../assets/scss/calendar/calendarSelector.scss';
 // import { ReactComponent as LeftSvg } from '../../../assets/svg/activity/left.svg';
@@ -24,6 +24,8 @@ const CalendarSelector = ({
 	const [info, setInfo] = useState({
 		activeDropdown: null, // 'months', 'years', or null
 	});
+	const yearSelectorRef = useRef(null);
+	const monthSelectorRef = useRef(null);
 	const {
 		themeInfo: { theme },
 	} = useContext(Context);
@@ -34,6 +36,37 @@ const CalendarSelector = ({
 			moment({ year: selectedYear, month: selectedMonth }).toDate(),
 		);
 	}, [selectedMonth, selectedYear]);
+
+	// Scroll to current year when year dropdown opens
+	useEffect(() => {
+		if (info.activeDropdown === 'years' && yearSelectorRef.current) {
+			const currentYearIndex = YEARS.indexOf(selectedYear);
+			const yearElement = yearSelectorRef.current.querySelector(
+				`.yearList:nth-child(${currentYearIndex + 1})`,
+			);
+			if (yearElement) {
+				yearElement.scrollIntoView({ block: 'center' });
+			}
+		}
+	}, [info.activeDropdown, selectedYear]);
+
+	// Handle click outside for both selectors
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (
+				info.activeDropdown &&
+				!monthSelectorRef.current?.contains(event.target) &&
+				!yearSelectorRef.current?.contains(event.target)
+			) {
+				setInfo((prev) => ({ ...prev, activeDropdown: null }));
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [info.activeDropdown]);
 
 	// Memoized calendar computations
 	const daysInMonth = useMemo(() => {
@@ -95,73 +128,75 @@ const CalendarSelector = ({
 	const currentYear = useMemo(() => moment(currentCalendarDate).year(), [currentCalendarDate]);
 
 	return (
-		<div className="calendarContainer">
+		<div className="calendarWrapper">
 			<div className="calendarHeader">
 				<div className="dateSelectorContainer">
 					{/* Month Selector */}
-					<div className="monthSelector" onClick={toggleMonthDropDown}>
+					<div
+						className="monthSelector"
+						onClick={toggleMonthDropDown}
+						ref={monthSelectorRef}
+					>
 						<span>{monthName}</span>
 						<span className="captionDropDown">
-							<DownSvg />
+							<DownSvg className="downSvg" />
 						</span>
 						{info?.activeDropdown === 'months' && (
-							<div
-								className="monthSelectorContainer"
-								onMouseLeave={() => {
-									setInfo((prev) => ({ ...prev, activeDropdown: '' }));
-								}}
-							>
-								{MONTHS?.map((month, index) => (
-									<div
-										key={`monthName-${index}`}
-										className={`monthName ${
-											index === selectedMonth ? 'selectedMonth' : ''
-										}`}
-										onClick={() => {
-											updateCalendarInfo('selectedMonth', index);
-											setInfo((prev) => ({
-												...prev,
-												activeDropdown: 'months',
-											}));
-										}}
-									>
-										{month}
-									</div>
-								))}
+							<div className="monthSelectorContainer">
+								<div className="selectorGrid">
+									{MONTHS?.map((month, index) => (
+										<div
+											key={`monthName-${index}`}
+											className={`monthName ${
+												index === selectedMonth ? 'selectedMonth' : ''
+											}`}
+											onClick={() => {
+												updateCalendarInfo('selectedMonth', index);
+												setInfo((prev) => ({
+													...prev,
+													activeDropdown: 'months',
+												}));
+											}}
+										>
+											{month}
+										</div>
+									))}
+								</div>
 							</div>
 						)}
 					</div>
 
 					{/* Year Selector */}
-					<div className="yearSelector" onClick={toggleYearDropDown}>
+					<div
+						className="yearSelector"
+						onClick={toggleYearDropDown}
+						ref={yearSelectorRef}
+					>
 						<span>{currentYear}</span>
 						<span className="captionDropDown">
 							<DownSvg />
 						</span>
 						{info?.activeDropdown === 'years' && (
-							<div
-								className="yearSelectorContainer"
-								onMouseLeave={() => {
-									setInfo((prev) => ({ ...prev, activeDropdown: '' }));
-								}}
-							>
-								{YEARS?.map((year) => (
-									<div
-										key={year}
-										className={`yearList ${
-											year === selectedYear ? 'selectedYear' : ''
-										}`}
-										onClick={() => {
-											updateCalendarInfo('selectedYear', year);
-											setInfo((prev) => ({
-												...prev,
-												activeDropdown: 'years',
-											})); // Close the dropdown after selection
-										}}
-									>
-										{year}
-									</div>
-								))}
+							<div className="yearSelectorContainer">
+								<div className="selectorGrid">
+									{YEARS?.map((year) => (
+										<div
+											key={year}
+											className={`yearList ${
+												year === selectedYear ? 'selectedYear' : ''
+											}`}
+											onClick={() => {
+												updateCalendarInfo('selectedYear', year);
+												setInfo((prev) => ({
+													...prev,
+													activeDropdown: 'years',
+												}));
+											}}
+										>
+											{year}
+										</div>
+									))}
+								</div>
 							</div>
 						)}
 					</div>
@@ -178,54 +213,56 @@ const CalendarSelector = ({
 				</div>
 			</div>
 
-			{/* Day Names */}
-			<div className="calendarDayNameGrid">
-				{['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']?.map((day, index) => (
-					<div key={index} className="calendarDayName">
-						{day}
-					</div>
-				))}
-			</div>
-
-			{/* Date Grid */}
-			<div className="dateContainer">
-				{chunkArray(daysInMonth)?.map((week, weekIndex) => {
-					const isSelectedWeek = week?.some((date) =>
-						moment(date)?.isSame(selectedDate, 'day'),
-					);
-
-					return (
-						<div
-							key={weekIndex}
-							className={`dateRow ${isSelectedWeek ? 'highlightedRow' : ''}`}
-						>
-							{week?.map((date, dateIndex) => {
-								const isSelected = moment(date)?.isSame(selectedDate, 'day');
-								const isCurrent = moment(date)?.isSame(moment(), 'day');
-								const isCurrentMonth = moment(date)?.isSame(
-									currentCalendarDate,
-									'month',
-								);
-
-								return (
-									<div
-										key={dateIndex}
-										className={`calendarDay ${
-											isCurrentMonth ? 'currentMonth' : 'otherMonth'
-										} ${isSelected ? 'selectedDay' : ''} ${
-											isCurrent ? 'currentDay' : ''
-										}`}
-										onClick={() =>
-											updateCalendarInfo('selectedDate', date?.toDate())
-										}
-									>
-										{date?.date()}
-									</div>
-								);
-							})}
+			<div className="calendarContainer">
+				{/* Day Names */}
+				{/* <div className="calendarDayNameGrid">
+					{['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']?.map((day, index) => (
+						<div key={index} className="calendarDayName">
+							{day}
 						</div>
-					);
-				})}
+					))}
+				</div> */}
+
+				{/* Date Grid */}
+				<div className="dateContainer">
+					{chunkArray(daysInMonth)?.map((week, weekIndex) => {
+						const isSelectedWeek = week?.some((date) =>
+							moment(date)?.isSame(selectedDate, 'day'),
+						);
+
+						return (
+							<div
+								key={weekIndex}
+								className={`dateRow ${isSelectedWeek ? 'highlightedRow' : ''}`}
+							>
+								{week?.map((date, dateIndex) => {
+									const isSelected = moment(date)?.isSame(selectedDate, 'day');
+									const isCurrent = moment(date)?.isSame(moment(), 'day');
+									const isCurrentMonth = moment(date)?.isSame(
+										currentCalendarDate,
+										'month',
+									);
+
+									return (
+										<div
+											key={dateIndex}
+											className={`calendarDay ${
+												isCurrentMonth ? 'currentMonth' : 'otherMonth'
+											} ${isSelected ? 'selectedDay' : ''} ${
+												isCurrent ? 'currentDay' : ''
+											}`}
+											onClick={() =>
+												updateCalendarInfo('selectedDate', date?.toDate())
+											}
+										>
+											{date?.date()}
+										</div>
+									);
+								})}
+							</div>
+						);
+					})}
+				</div>
 			</div>
 		</div>
 	);

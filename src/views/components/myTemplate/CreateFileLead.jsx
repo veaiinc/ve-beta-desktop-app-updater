@@ -90,6 +90,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 		documentTitle: workflow?.title || '',
 		searchValue: '',
 		isSearching: false,
+		formError: null,
 	});
 
 	useEffect(() => {
@@ -367,6 +368,15 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 	}, [workflow, info?.leadDetails, info?.createButtonActive, info?.isLoading, navigate]);
 
 	const createDocumentFunc = async () => {
+		if (info?.isLoading) return;
+		setInfo((prev) => ({ ...prev, isLoading: true }));
+		if (!info?.selectedLead?._id) {
+			setInfo((prev) => ({
+				...prev,
+				formError: 'Please select a contact',
+			}));
+			return;
+		}
 		const payload = {
 			smartFileInput: {
 				title: info?.documentTitle,
@@ -375,6 +385,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 			},
 		};
 		await createSmartfile(payload);
+		setInfo((prev) => ({ ...prev, isLoading: false }));
 	};
 
 	return (
@@ -531,6 +542,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 								fetchMoreData={getMoreClientData}
 								hasNextPage={info?.hasNextPage}
 							/>
+							<p className="errorMessage">{info?.formError}</p>
 						</div>
 
 						<div className="leadSourceContainer">
@@ -557,7 +569,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 							className={`createButton ${info?.createButtonActive ? 'active' : ''}`}
 							onClick={info?.existingLeadSource ? createDocumentFunc : createLeadFunc}
 						>
-							{info?.isLoading ? <p>Loading...</p> : <p>Add Lead</p>}
+							{info?.isLoading ? <p>Loading...</p> : <p>Create</p>}
 						</div>
 						<p className="cancelText" onClick={closeModalFunc}>
 							Cancel

@@ -71,8 +71,9 @@ const RunSidebar = ({ automationId, onClose }) => {
 								<Skeleton
 									width="100%"
 									height="38px"
-									borderRadius={0}
-									baseColor="#202123"
+									borderRadius={'12px'}
+									padding={'6px'}
+									baseColor="var(--stroke-hover)"
 									highlightColor="#7a7e85"
 								/>
 							</div>

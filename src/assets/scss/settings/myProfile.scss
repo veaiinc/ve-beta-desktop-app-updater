@@ -14,7 +14,7 @@
 		.ProfileDetailsComponent {
 			.profile-title {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 32px;
 				font-style: normal;
 				font-weight: 300;
@@ -58,7 +58,7 @@
 						font-size: 24px;
 						color: #e4e5e6;
 						font-weight: bold;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						padding: 0px;
 					}
 
@@ -90,7 +90,7 @@
 
 				.details {
 					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 400;
@@ -98,7 +98,7 @@
 
 					.full_name_div {
 						color: #e4e5e6;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 20px;
 						font-style: normal;
 						font-weight: 500;
@@ -117,7 +117,7 @@
 
 						.role {
 							color: #6055ec;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -128,7 +128,7 @@
 
 				.errorMessage {
 					color: #cc5756;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 0.6875rem;
 					font-style: normal;
 					font-weight: 400;
@@ -160,7 +160,7 @@
 							width: 100%;
 							.role-input {
 								color: var(--primary-font);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 16px;
 								font-style: normal;
 								font-weight: 400;
@@ -169,7 +169,7 @@
 							.role {
 								color: var(--secondary-font, #787e87);
 								text-align: right;
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 500;
@@ -177,8 +177,8 @@
 							}
 						}
 						input {
-							color: #e4e5e6;
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 16px;
 							font-style: normal;
 							font-weight: 400;
@@ -187,6 +187,10 @@
 							border: none;
 							outline: none;
 							width: 100%;
+						}
+
+						.profileEmailInput {
+							pointer-events: none;
 						}
 
 						&:hover {
@@ -202,6 +206,7 @@
 
 						.PhoneInput {
 							width: 100%;
+							color: var(--primary-font);
 						}
 					}
 				}
@@ -222,14 +227,14 @@
 					gap: 10px;
 					align-items: baseline;
 					color: var(--secondary-font, #787e87);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
 					.theme-container-item-content-separator {
 						color: #787e87;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						width: 12px;
@@ -238,7 +243,7 @@
 					p {
 						&.active {
 							color: var(--primary-font, #f2f2f3);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -356,7 +361,7 @@
 
 						p {
 							color: rgba(228, 229, 230, 0.48);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 400;
@@ -387,9 +392,9 @@
 
 		// this are the stylings for the access controllers
 		.accessSettingsContainer {
-			padding: 32px;
-			border-radius: 40px;
-			background: rgba(29, 29, 35, 0.24);
+			padding: 12px 18px;
+			border-radius: 12px;
+			// background: rgba(29, 29, 35, 0.24);
 
 			.accessContainer {
 				display: flex;
@@ -397,7 +402,7 @@
 				gap: 48px;
 
 				h1 {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-size: 16px;
 					font-weight: 500;
 					line-height: 24px;
@@ -408,7 +413,7 @@
 					flex-direction: column;
 					align-items: flex-start;
 					h4 {
-						color: #e4e5e6;
+						color: var(--primary-font);
 						font-size: 16px;
 						font-weight: 500;
 						line-height: 24px;
@@ -416,7 +421,7 @@
 					}
 
 					p {
-						color: rgba(228, 229, 230, 0.48);
+						color: var(--secondary-font);
 						font-size: 13px;
 						font-weight: 400;
 						line-height: 21px;
@@ -429,61 +434,12 @@
 						border: 1px solid #1c1c1c;
 						background: #1c1c1c;
 						color: #666;
-					}
-				}
-
-				.chooseWorkspaces {
-					h4 {
-						color: #e4e5e6;
-						font-size: 16px;
-						font-weight: 500;
-						line-height: 24px;
-						margin-bottom: 8px;
-					}
-
-					p {
-						color: rgba(228, 229, 230, 0.48);
-						font-size: 13px;
-						font-weight: 400;
-						line-height: 21px;
-						margin-bottom: 24px;
-					}
-
-					button {
-						padding: 9px 16px;
-						border-radius: 20px;
-						border: 1px solid #1c1c1c;
-						background: #1c1c1c;
-						color: #666;
-					}
-
-					.workSpaceContainer {
-						display: flex;
-						flex-wrap: wrap;
-						gap: 13px;
-						padding: 20px 0;
-						width: 90%;
-					}
-
-					.workspaces {
-						padding: 9px 16px;
-						border-radius: 20px;
-						border: 1px solid #1c1c1c;
-						background: #1c1c1c;
-						color: #666;
-						width: fit-content;
-						cursor: pointer;
-						transition: background-color 0.3s;
-					}
-					.activeWorkspace {
-						border: 1px solid #6055ec;
-						color: #6055ec;
 					}
 				}
 
 				.leaveComponent {
 					h4 {
-						color: #e4e5e6;
+						color: var(--primary-font);
 						font-size: 16px;
 						font-weight: 500;
 						line-height: 24px;
@@ -491,7 +447,7 @@
 					}
 
 					p {
-						color: rgba(228, 229, 230, 0.48);
+						color: var(--secondary-font);
 						font-size: 13px;
 						font-weight: 400;
 						line-height: 21px;
@@ -555,8 +511,8 @@
 		justify-content: space-between;
 		align-items: center;
 		h1 {
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -602,7 +558,7 @@
 			font-size: 24px;
 			color: #e4e5e6;
 			font-weight: bold;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			padding: 0px;
 		}
 
@@ -646,7 +602,7 @@
 
 		h4 {
 			color: #666;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -677,7 +633,7 @@
 		align-items: center;
 		gap: 4px;
 		color: #e4e5e6;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 400;
@@ -731,7 +687,7 @@
 		border: 1px solid rgba(36, 36, 36, 0.64);
 		background: #1e1e1f;
 		color: #e4e5e6;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;
@@ -799,7 +755,6 @@
 	flex-direction: column;
 	justify-content: flex-end;
 	align-items: flex-start;
-	gap: 48px;
 	.notifications-container-header {
 		background-color: none;
 		display: flex;
@@ -815,7 +770,7 @@
 			gap: 8px;
 			.notificationTitle {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 20px;
 				font-style: normal;
 				font-weight: 500;
@@ -824,7 +779,7 @@
 			}
 			.notificationTitleDescription {
 				color: #7c7c83;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
@@ -857,7 +812,7 @@
 						gap: 8px;
 						.notifiactionSwitchesContainerContent-title {
 							color: var(--primary-font, #f2f2f3);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 16px;
 							font-style: normal;
 							font-weight: 500;
@@ -866,7 +821,7 @@
 						}
 						.notifiactionSwitchesContainerContent-description {
 							color: #7c7c83;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 400;
@@ -884,7 +839,7 @@
 		gap: 20px;
 		.notificationContainerContentTitle {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 500;
@@ -909,7 +864,7 @@
 				align-self: stretch;
 				.notificationContainerContent-items-item {
 					color: #7c7c83;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -931,7 +886,7 @@
 					align-self: stretch;
 					.notificationContainerOptions-item {
 						color: var(--primary-font, #f2f2f3);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 500;
@@ -954,7 +909,7 @@
 					align-self: stretch;
 					.notificationContainerOptionsTitle {
 						color: #7c7c83;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -977,7 +932,6 @@
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
-	margin-top: 24px;
 
 	.danger-zone-header {
 		display: flex;
@@ -991,12 +945,12 @@
 			content: '';
 			width: 238px;
 			height: 1px;
-			background: var(--stroke, #313336);
+			background: var(--error, #313336);
 		}
 
 		.danger-zone-title {
-			color: var(--secondary-font, #787e87);
-			font-family: Inter;
+			color: var(--error, #787e87);
+			font-family: var(--primary-font-family);
 			font-size: 10px;
 			font-style: normal;
 			font-weight: 500;
@@ -1005,7 +959,16 @@
 	}
 
 	.accessSettingsContainer {
-		border: 1px solid rgba(204, 87, 86, 0.16);
-		background: rgba(204, 87, 86, 0.04);
+		border: 1px solid var(--stroke);
 	}
+}
+
+.ant-switch {
+	background-color: var(--stroke);
+}
+.ant-switch-checked {
+	background-color: var(--primary-button);
+}
+.ant-switch.ant-switch-checked .ant-switch-handle::before {
+	background-color: var(--primary-font);
 }

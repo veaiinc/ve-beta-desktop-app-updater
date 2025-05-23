@@ -1,0 +1,948 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/ChartDonut.svg';
+import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/ChartBar.svg';
+import { ReactComponent as WorkflowSvg } from '../../../assets/svg/tasks/workflow.svg';
+import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
+import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/CalendarBlank.svg';
+import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
+import Context from '../../../context/context';
+import { message } from '../../components/globalComponents/CustomToast';
+import jwtDecode from 'jwt-decode';
+import moment from 'moment';
+import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
+import Task from '../../components/tasks/Task';
+import ListViewSidebar from '../../components/modalsV2/tasks/ListViewSidebar';
+import '../../../assets/scss/tasks/taskPage.scss';
+import Text from '../../components/tasks/listView/Text';
+import Select from '../../components/tasks/listView/Select';
+import Person from '../../components/tasks/listView/Person';
+import MultiSelect from '../../components/tasks/listView/MultiSelect';
+import DateView from '../../components/tasks/listView/DateView';
+import Status from '../../components/tasks/listView/Status';
+import Priority from '../../components/tasks/listView/Priority';
+import Email from '../../components/tasks/listView/Email';
+import Url from '../../components/tasks/listView/Url';
+import Phone from '../../components/tasks/listView/Phone';
+import CheckBox from '../../components/tasks/listView/CheckBox';
+import TaskId from '../../components/tasks/listView/TaskId';
+import ParentTaskComponent from '../../components/tasks/listView/ParentTaskComponent';
+import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
+import LinkText from '../../components/tasks/listView/LinkText';
+import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
+import PersonMultiSelect from '../../components/tasks/listView/PersonMultiSelect';
+import { useSearchParams } from 'react-router-dom';
+import CreatedWithAi from '../../components/tasks/listView/CreatedWithAi';
+import { colors } from '../../../helpers/taskHelpers';
+
+const defaultPreference = {
+	taskSlNo: { show: false, order: 1 },
+	title: { show: true, order: 2 },
+	parentTask: { show: false, order: 3 },
+	childTasks: { show: false, order: 4 },
+	description: { show: false, order: 5 },
+	status: { show: true, order: 6 },
+	priority: { show: true, order: 7 },
+	clients: { show: true, order: 8 },
+	assignedTo: { show: true, order: 9 },
+	dueDate: { show: true, order: 10 },
+	assignedBy: { show: true, order: 11 },
+	assignedAt: { show: false, order: 12 },
+	completedAt: { show: false, order: 13 },
+	createdAt: { show: false, order: 14 },
+	updatedAt: { show: false, order: 15 },
+	createdWithAi: { show: false, order: 16 },
+	statusUpdatedAt: { show: false, order: 17 },
+	statusUpdatedBy: { show: false, order: 18 },
+};
+
+export const rowTypes = {
+	text: Text,
+	select: Select,
+	person: Person,
+	'multi-select': MultiSelect,
+	date: DateView,
+	id: TaskId,
+	status: Status,
+	priority: Priority,
+	email: Email,
+	phone: Phone,
+	url: Url,
+	checkbox: CheckBox,
+	parentTask: ParentTaskComponent,
+	childTasks: ChildTaskProgress,
+	linkText: LinkText,
+	personMultiSelect: PersonMultiSelect,
+	createdWithAi: CreatedWithAi,
+};
+
+const Tasks = () => {
+	const timeoutRef = useRef(null);
+
+	const {
+		tasks: {
+			listTasks,
+			getListItems,
+			addListItem,
+			updateListItem,
+			deleteListItem,
+			addSubTask,
+			removeSubTask,
+			updateSubTask,
+			resetSubTasks,
+			taskMetadata,
+			refetchTasks,
+			updateTaskState,
+			getTaskMetadata,
+			updateTaskViews,
+			deleteTaskView,
+			getTaskPreferences,
+			updateTaskPreferences,
+			taskPreference,
+			getListTaskWithGroup,
+			updateSelectedView,
+			updateSideBarData,
+			sideBarData,
+			handleDeleteInGroup,
+		},
+		templates: { updateStateValues },
+		companyInfo: { getTeamMembers, tenantsUserList },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		contacts: { getClientsForTask, clientListForTask },
+		templates: { updateStateValues: updateSidebarState },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		listItems: [],
+		isOptionsDropDownOpen: false,
+		isCreateModalOpen: false,
+		isCreatingSubtask: true,
+		properties: [],
+		taskPreferences: {
+			preferenceType: 'taskPreference',
+			preferences: defaultPreference,
+		},
+		sidebarIsOpen: false,
+		selectedRow: null,
+		selectedSubTask: null,
+		taskMetadata: null,
+		clients: [],
+		tenantUsers: [],
+		page: 1,
+		hasMore: false,
+		loadingSkeleton: true,
+		error: null,
+		sort: [],
+		filters: [],
+		searchValue: '',
+		updated: false,
+		infinityLoading: false,
+		view: 'table',
+		breadCrumbs: [],
+		timeout: null,
+		group: null,
+	});
+
+	const responseMetadata = useMemo(
+		() => ({
+			title: {
+				type: 'text',
+				name: 'Title',
+				Icon: textSvg,
+				props: {},
+				doSplit: true,
+				isTitle: true,
+			},
+			description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
+			status: {
+				type: 'status',
+				name: 'Status',
+				Icon: PieSvg,
+				props: {
+					options: {
+						todo: info?.taskMetadata?.todoGroupLabels,
+						inProgress: info?.taskMetadata?.inProgressGroupLabels,
+						completed: info?.taskMetadata?.completedGroupLabels,
+					},
+				},
+			},
+			priority: {
+				type: 'select',
+				name: 'Priority',
+				Icon: PrioritySvg,
+				props: {
+					options: [
+						{ label: 'Low', _id: 'low', color: '6' },
+						{ label: 'Medium', _id: 'medium', color: '4' },
+						{ label: 'High', _id: 'high', color: '1' },
+					],
+				},
+			},
+			parentTask: {
+				type: 'parentTask',
+				name: 'Parent Task',
+				Icon: WorkflowSvg,
+				props: { options: info?.parentTasks },
+			},
+			childTasks: {
+				type: 'childTasks',
+				name: 'Sub Tasks',
+				Icon: WorkflowSvg,
+				props: { completedStatus: info?.taskMetadata?.completedGroupLabels },
+			},
+			assignedTo: {
+				type: 'person',
+				name: 'Assigned To',
+				Icon: PersonSvg,
+				props: {
+					multiSelect: true,
+					parseValue: true,
+				},
+			},
+			dueDate: { type: 'date', name: 'Due Date', Icon: CalendarSvg, props: {} },
+			assignedBy: {
+				type: 'person',
+				name: 'Assigned By',
+				Icon: PersonSvg,
+				props: {
+					disabled: true,
+					parseValue: true,
+				},
+			},
+			assignedAt: {
+				type: 'date',
+				name: 'Assigned At',
+				Icon: CalendarSvg,
+				props: { timestamp: true },
+			},
+			completedAt: { type: 'date', name: 'Completed At', Icon: CalendarSvg, props: {} },
+			createdAt: {
+				type: 'date',
+				name: 'Created At',
+				Icon: CalendarSvg,
+				props: { timestamp: true },
+			},
+			updatedAt: {
+				type: 'date',
+				name: 'Updated At',
+				Icon: CalendarSvg,
+				props: { timestamp: true },
+			},
+			createdBy: {
+				type: 'person',
+				name: 'Created By',
+				Icon: PersonSvg,
+				props: { disabled: true, parseValue: true },
+			},
+			updatedBy: {
+				type: 'person',
+				name: 'Updated By',
+				Icon: PersonSvg,
+				props: { disabled: true, parseValue: true },
+			},
+			taskSlNo: {
+				type: 'id',
+				name: 'Id',
+				Icon: textSvg,
+				props: { prefix: info?.taskMetadata?.prefix },
+			},
+			clients: {
+				type: 'personMultiSelect',
+				name: 'Clients',
+				Icon: PersonSvg,
+				props: {},
+			},
+			createdWithAi: {
+				type: 'createdWithAi',
+				name: 'Created With AI',
+				Icon: '',
+				props: {},
+			},
+			statusUpdatedAt: {
+				type: 'date',
+				name: 'Completed At',
+				Icon: CalendarSvg,
+				props: { timestamp: true },
+			},
+			statusUpdatedBy: {
+				type: 'person',
+				name: 'Completed By',
+				Icon: PersonSvg,
+				props: { disabled: true, parseValue: true },
+			},
+		}),
+		[info?.taskMetadata],
+	);
+	useEffect(() => {
+		updateSidebarState({ leftSidebarState: 'close' });
+		return () => {
+			updateSidebarState({ leftSidebarState: null });
+		};
+	}, []);
+
+	useEffect(() => {
+		handleDebounceFetch();
+	}, [info?.filters, info?.searchValue, info?.sort, info?.group]);
+
+	useEffect(() => {
+		updateStateValues({ leftSidebarState: 'close' });
+	}, []);
+
+	useEffect(() => {
+		if (!tenantsUserList) {
+			getTeamMembers();
+		} else {
+			const formattedUsers = tenantsUserList?.map(({ firstName, lastName, _id }) => ({
+				label: `${firstName} ${lastName ? lastName : ''}`,
+				value: _id,
+			}));
+
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				tenantUsers: formattedUsers,
+			}));
+		}
+	}, [tenantsUserList]);
+
+	useEffect(() => {
+		if (taskPreference === null) {
+			getTaskPreferences({ preferences: 'taskPreference' });
+		} else if (taskPreference?.data === false) {
+			updateTaskPreferences({ preferenceType: 'taskPreference', data: defaultPreference });
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: defaultPreference,
+				},
+			}));
+		} else if (taskPreference?.error) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: defaultPreference,
+				},
+			}));
+		} else {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: taskPreference?.data,
+				},
+			}));
+		}
+	}, [taskPreference]);
+
+	useEffect(() => {
+		if (listTasks) {
+			if (listTasks?.data) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					listItems:
+						info?.page === 1
+							? listTasks?.data
+							: [...prevInfo?.listItems, ...listTasks?.data],
+					hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
+					loadingSkeleton: false,
+					infinityLoading: false,
+				}));
+			}
+		}
+		if (listTasks?.error) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				loadingSkeleton: false,
+				infinityLoading: false,
+				error: listTasks?.error,
+				hasMore: false,
+			}));
+		}
+	}, [listTasks]);
+
+	useEffect(() => {
+		if (info?.taskPreferences?.preferences) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				properties: mapPropertyType(),
+			}));
+		}
+	}, [info?.taskPreferences?.preferences]);
+
+	useEffect(() => {
+		if (info?.selectedRow) {
+			updateTaskInfo({
+				selectedRow: info?.listItems.find((item) => item._id === info?.selectedRow._id),
+			});
+		}
+	}, [info?.listItems, info?.selectedRow]);
+
+	useEffect(() => {
+		if (!taskMetadata) {
+			getTaskMetadata();
+		} else {
+			if (!taskMetadata?.views) {
+				updateView(
+					null,
+					{
+						label: 'List view',
+						filters: [],
+						icon: null,
+						order: null,
+						sort: [],
+						viewType: 'list',
+					},
+					taskMetadata?._id,
+				);
+			}
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskMetadata: taskMetadata,
+			}));
+		}
+	}, [taskMetadata]);
+
+	useEffect(() => {
+		if (refetchTasks && !sideBarData?.open) {
+			fetchListItems();
+			updateTaskState({ refetchTasks: false });
+		}
+	}, [refetchTasks, sideBarData?.open]);
+
+	useEffect(() => {
+		if (!clientListForTask) {
+			getClientsForTask({ filters: { page: 1, limit: 20 } });
+		}
+	}, [clientListForTask]);
+
+	const fetchListItems = useCallback(
+		(page = 1) => {
+			if (info?.group) {
+				getListTaskWithGroup({
+					taskFilterInput: {
+						limit: 20,
+						page: page,
+						sort:
+							info?.sort.length > 0
+								? info?.sort?.map((item) => ({
+										sortBy: item?.sortBy,
+										sortType: item?.sortType,
+								  }))
+								: [{ sortBy: 'createdAt', sortType: 1 }],
+						filters: mapFiltersPayload(info?.filters),
+						search: info?.searchValue,
+						group: info?.group,
+					},
+				});
+			} else {
+				getListItems({
+					taskFilterInput: {
+						limit: 20,
+						page: page,
+						sort:
+							info?.sort.length > 0
+								? info?.sort?.map((item) => ({
+										sortBy: item?.sortBy,
+										sortType: item?.sortType,
+								  }))
+								: [{ sortBy: 'createdAt', sortType: 1 }],
+						filters: mapFiltersPayload(info?.filters),
+						search: info?.searchValue,
+					},
+				});
+			}
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				page: page,
+				searchLoader: false,
+			}));
+		},
+		[info?.sort, info?.filters, info?.searchValue, info?.group],
+	);
+
+	const handleDebounceFetch = useCallback(() => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
+		timeoutRef.current = setTimeout(() => {
+			fetchListItems(1);
+		}, 800);
+	}, [timeoutRef, fetchListItems]);
+
+	const fetchMoreData = useCallback(() => {
+		if (info.hasMore) {
+			const nextPage = info.page + 1;
+			fetchListItems(nextPage);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				infinityLoading: true,
+			}));
+		}
+	}, [info.infinityLoading, info.hasMore, info.page, fetchListItems]);
+
+	const mapFiltersPayload = useCallback((filters) => {
+		return filters.map((filter) => ({
+			key: filter.key,
+			value:
+				typeof filter.value === 'object' && !Array.isArray(filter?.value)
+					? filter?.value?._id || filter?.value?.value
+					: filter?.value,
+		}));
+	}, []);
+
+	const updateTaskInfo = useCallback((updateData) => {
+		if (updateData?.taskPreferences) {
+			updateTaskPreferences({
+				preferenceType: updateData?.taskPreferences?.preferenceType,
+				data: updateData?.taskPreferences?.preferences,
+			});
+		}
+		setInfo((previnfo) => ({ ...previnfo, ...updateData }));
+	}, []);
+
+	const mapPropertyType = useCallback(() => {
+		let properties = [];
+		for (let key in responseMetadata) {
+			if (key === '__typename' || key === '_id' || key === 'completedAt') {
+				continue;
+			}
+
+			const {
+				type = null,
+				name = null,
+				Icon = null,
+				isTitle = false,
+			} = responseMetadata[key] || {};
+			const { show, order } = info?.taskPreferences?.preferences?.[key] || {
+				show: false,
+				order: 0,
+			};
+
+			properties.push({
+				value: key,
+				type,
+				label: name,
+				Icon,
+				show,
+				order,
+				isTitle,
+			});
+		}
+		return properties;
+	}, [info?.taskPreferences?.preferences]);
+
+	const debouncedUpdateTask = useCallback(
+		async (rowId, propName, value, originalValue, isUpdatingSubTask, onSuccess) => {
+			try {
+				if (propName === 'clients') {
+					value = value?.map((client) => client?._id);
+				}
+				const response = await updateListItem({
+					taskId: rowId,
+					updateInput: {
+						[propName]: propName === 'assignedTo' ? { tenantUsers: value } : value,
+					},
+				});
+
+				if (response?.[0] === false) {
+					throw new Error('Failed to update, Try again later');
+				} else {
+					// Update state only after successful API call
+					if (onSuccess) onSuccess();
+					const token = localStorage.getItem('usertoken');
+					const { user_id, userName } = jwtDecode(token);
+
+					let update = {
+						updatedBy: { _id: user_id, name: userName },
+						updatedAt: moment().unix(),
+					};
+					if (propName === 'status') {
+						const { completed } = responseMetadata?.status?.props?.options || {};
+						const statusIsCompleted = completed?.find((item) => item?._id === value);
+						update = {
+							...update,
+							statusUpdatedBy: statusIsCompleted
+								? { _id: user_id, name: userName }
+								: null,
+							statusUpdatedAt: statusIsCompleted ? moment().unix() : null,
+						};
+					}
+					if (propName === 'assignedTo') {
+						update = {
+							...update,
+							assignedBy: { _id: user_id, name: userName },
+							assignedAt: moment().unix(),
+						};
+					}
+
+					if (isUpdatingSubTask) {
+						updateSubTask({
+							_id: rowId,
+							...update,
+						});
+					}
+
+					if (isUpdatingSubTask) {
+						updateSubTask({
+							_id: rowId,
+							...update,
+						});
+					} else {
+						setInfo((prevInfo) => {
+							const newListItems = prevInfo.listItems.map((row) => {
+								if (row._id === rowId) {
+									return {
+										...row,
+										...update,
+									};
+								}
+								return row;
+							});
+
+							return {
+								...prevInfo,
+								listItems: newListItems,
+							};
+						});
+						updateSideBarData({ data: update, update: true });
+					}
+
+					if (!isUpdatingSubTask) {
+						if (propName === 'assignedTo' || propName === 'dueDate') {
+							updateTaskState({
+								refetchTasksForDue: true,
+								listTasksForToday: null,
+								listTasksForOverdue: null,
+								listTasksDueTillToday: null,
+							});
+						}
+					}
+					updateTaskState({ refetchTasks: true });
+				}
+			} catch (error) {
+				message.error(error?.message || 'Something went wrong! Please try again.');
+
+				setInfo((prevInfo) => {
+					const rolledBackListItems = prevInfo.listItems.map((row) => {
+						if (row._id === rowId) {
+							return { ...row, [propName]: originalValue };
+						}
+						return row;
+					});
+
+					return {
+						...prevInfo,
+						listItems: rolledBackListItems,
+					};
+				});
+				updateSideBarData({ data: { [propName]: originalValue }, update: true });
+			}
+		},
+		[updateListItem, info?.selectedSubTask, sideBarData?.open],
+	);
+
+	const handleDebounceUpdate = useCallback(
+		(rowId, propName, value, originalValue, isSubTask, onSuccess) => {
+			clearInterval(info?.timeout);
+			const timeout = setTimeout(() => {
+				debouncedUpdateTask(rowId, propName, value, originalValue, isSubTask, onSuccess);
+				setInfo((prev) => ({
+					...prev,
+					loading: true,
+					timeout: null,
+				}));
+			}, 800);
+			setInfo((prev) => ({ ...prev, timeout }));
+		},
+		[debouncedUpdateTask, info?.timeout],
+	);
+
+	const updatePropertyValue = useCallback(
+		(rowId, propName, value, isUpdatingSubTask, onSuccess) => {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictTasks &&
+				validateExpiryData?.isExpired
+			) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
+			let originalValue;
+			let updatedValue = value;
+
+			if (info?.selectedSubTask || isUpdatingSubTask) {
+				if (info?.selectedSubTask) {
+					setInfo((prevInfo) => ({
+						...prevInfo,
+						updated: true,
+						selectedSubTask: { ...info?.selectedSubTask, [propName]: updatedValue },
+					}));
+				}
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					updated: true,
+				}));
+				updateSubTask({ _id: rowId, [propName]: updatedValue });
+			} else {
+				setInfo((prevInfo) => {
+					const updatedListItems = prevInfo.listItems.map((row) => {
+						if (row._id === rowId) {
+							originalValue = row[propName];
+							return { ...row, [propName]: updatedValue };
+						}
+						return row;
+					});
+
+					return {
+						...prevInfo,
+						updated: true,
+						listItems: updatedListItems,
+					};
+				});
+				updateSideBarData({ data: { [propName]: updatedValue }, update: true });
+			}
+
+			handleDebounceUpdate(
+				rowId,
+				propName,
+				value,
+				originalValue,
+				isUpdatingSubTask || info?.selectedSubTask !== null,
+				onSuccess,
+			);
+		},
+		[
+			validateExpiryData?.isExpired,
+			updateSubscriptionState,
+			debouncedUpdateTask,
+			info?.selectedSubTask,
+		],
+	);
+
+	const addNewTask = useCallback(
+		async (payload) => {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictTasks &&
+				validateExpiryData?.isExpired
+			) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			} else {
+				if (info?.isCreatingSubtask) {
+					payload.parentTaskId = sideBarData?.stack?.at(-1)?._id;
+				}
+				const response = await addListItem({ input: payload });
+
+				if (response) {
+					const task = response?.createTask;
+
+					if (task) {
+						const token = localStorage.getItem('usertoken');
+						const { user_id, userName } = jwtDecode(token);
+
+						const newTask = { ...task };
+						newTask.createdBy = { _id: user_id, name: userName };
+						newTask.updatedBy = { _id: user_id, name: userName };
+						if (info?.isCreatingSubtask) {
+							newTask.parentTask = {
+								title: sideBarData?.stack?.at(-1)?.title,
+								_id: sideBarData?.stack?.at(-1)?._id,
+							};
+							addSubTask(newTask);
+						}
+						message.success('Task added successfully');
+						if (!info?.isCreatingSubtask) {
+							if (payload?.assignedTo || payload?.dueDate) {
+								updateTaskState({
+									refetchTasksForDue: true,
+									listTasksForToday: null,
+									listTasksForOverdue: null,
+									listTasksDueTillToday: null,
+								});
+							}
+						}
+						fetchListItems();
+					}
+				} else {
+					throw new Error('Failed to add new task');
+				}
+			}
+		},
+		[info?.isCreatingSubtask, sideBarData?.stack?.at(-1)?._id],
+	);
+
+	const deleteTask = useCallback(
+		async (payload, groupId = null) => {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictTasks &&
+				validateExpiryData?.isExpired
+			) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			} else {
+				const response = await deleteListItem(payload);
+
+				if (response) {
+					if (info?.selectedSubTask?._id === payload?.taskId) {
+						updateTaskInfo({ selectedSubTask: null });
+						removeSubTask(payload?.taskId);
+					} else {
+						updateTaskState({
+							refetchTasksForDue: true,
+							listTasksForToday: null,
+							listTasksForOverdue: null,
+							listTasksDueTillToday: null,
+						});
+
+						if (info?.group) {
+							handleDeleteInGroup({ group: groupId, taskId: payload?.taskId });
+						} else {
+							setInfo((prevInfo) => ({
+								...prevInfo,
+								listItems: prevInfo?.listItems?.filter(
+									(row) => row._id !== payload?.taskId,
+								),
+							}));
+						}
+
+						updateSideBarData({ data: -1, open: sideBarData?.stack?.length > 1 });
+					}
+				}
+			}
+		},
+		[info?.selectedSubTask?._id, removeSubTask, info?.listItems],
+	);
+
+	const handleAddButtonOnClick = () => {
+		updateTaskInfo({ isCreatingSubtask: false, isCreateModalOpen: true });
+	};
+
+	const handleCloseCreateModal = useCallback(() => {
+		if (info?.isCreatingSubtask) {
+			updateSideBarData({ open: true });
+		}
+		updateTaskInfo({ isCreateModalOpen: false });
+	}, [info?.isCreatingSubtask]);
+
+	const handleCreateSubTaskClick = useCallback(() => {
+		updateTaskInfo({ isCreatingSubtask: true, isCreateModalOpen: true });
+		updateSideBarData({ open: false });
+	}, []);
+
+	const handleSubTaskClick = useCallback(
+		(task) => {
+			const breadCrumbs = [
+				...info?.breadCrumbs,
+				{
+					label:
+						`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
+						info?.selectedRow?.taskSlNo,
+					data: info?.selectedRow,
+				},
+			];
+			updateTaskInfo({ selectedRow: task, breadCrumbs });
+		},
+		[info?.selectedRow, info?.breadCrumbs],
+	);
+
+	const handleBreadCrumbsClick = useCallback(
+		(breadCrumb, index) => {
+			const breadCrumbs = [...info?.breadCrumbs];
+			const newBreadCrumbs = [...breadCrumbs].slice(0, index);
+			updateTaskInfo({ breadCrumbs: newBreadCrumbs, selectedRow: breadCrumb?.data });
+		},
+		[info?.breadCrumbs],
+	);
+
+	const updateView = useCallback(
+		(viewId, updateData, taskMetadataId) => {
+			const data = {
+				taskMetadataId: taskMetadataId || info?.taskMetadata?._id,
+				viewId,
+				input: updateData,
+			};
+			updateTaskViews(data);
+		},
+		[updateTaskViews, info?.taskMetadata?._id],
+	);
+
+	const deleteView = useCallback(
+		(viewId) => {
+			deleteTaskView({ taskMetadataId: info?.taskMetadata?._id, viewId });
+		},
+		[deleteTaskView, info?.taskMetadata?._id],
+	);
+
+	const handleActiveTabChange = useCallback((payload) => {
+		updateSelectedView(payload);
+	}, []);
+
+	return (
+		<div className="tasks-page-container">
+			<Task
+				responseMetadata={responseMetadata}
+				handleAddButtonOnClick={handleAddButtonOnClick}
+				colors={colors}
+				updateTaskInfo={updateTaskInfo}
+				rowTypes={rowTypes}
+				data={info?.listItems}
+				loading={info?.loadingSkeleton}
+				handleUpdate={updatePropertyValue}
+				properties={info?.properties}
+				taskPreferences={info?.taskPreferences}
+				searchValue={info?.searchValue}
+				infinityLoading={info?.infinityLoading}
+				hasMore={info?.hasMore}
+				error={info?.error}
+				fetchMoreData={fetchMoreData}
+				blockTitle={'Tasks'}
+				createButtonText={'Create Task'}
+				prefix={info?.taskMetadata?.prefix}
+				views={info?.taskMetadata?.views}
+				activeTab={info?.taskMetadata?.selectedTaskView}
+				updateView={updateView}
+				deleteView={deleteView}
+				updateActiveTab={handleActiveTabChange}
+				searchLoader={info?.searchLoader}
+			/>
+			<CreateTaskPopup
+				isOpen={info?.isCreateModalOpen}
+				closeModal={handleCloseCreateModal}
+				addNewTask={addNewTask}
+				tenantUsers={info?.tenantUsers}
+				clients={info?.clients}
+				isSubTask={info?.isCreatingSubtask}
+				responseMetadata={responseMetadata}
+				colors={colors}
+				fetchMoreData={fetchMoreData}
+				hasMore={info?.hasMore}
+				error={info?.error}
+			/>
+			<ListViewSidebar
+				handleUpdate={updatePropertyValue}
+				deleteTask={deleteTask}
+				rowTypes={rowTypes}
+				groupBy={info?.group}
+				responseMetadata={responseMetadata}
+				properties={info?.properties}
+				colors={colors}
+				isSidebarExpanded={info?.isSidebarExpanded}
+				prefix={info?.taskMetadata?.prefix}
+				sidebarChildren={
+					<ChildTaskComponent
+						completedStatus={info?.taskMetadata?.completedGroupLabels}
+						rowTypes={rowTypes}
+						responseMetadata={responseMetadata}
+						colors={colors}
+						properties={info?.properties}
+						onAddButtonClick={handleCreateSubTaskClick}
+						handleUpdate={(...args) => updatePropertyValue(...args, true)}
+					/>
+				}
+				// renewBanner={renewBanner}
+			/>
+		</div>
+	);
+};
+
+export default memo(Tasks);

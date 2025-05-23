@@ -10,7 +10,7 @@
 
 	.switchStepInputHeading {
 		color: #f2f2f3;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -21,7 +21,7 @@
 		border: none;
 		background: none;
 		color: #f2f2f3;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		cursor: pointer;
 		transition: all 0.3s ease;
@@ -48,7 +48,7 @@
 		border-radius: 6px;
 		background: #202123;
 		color: #f2f2f3;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -69,7 +69,7 @@
 
 		.switchStepInputHeading {
 			color: #7a7e85;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -83,7 +83,7 @@
 			flex-wrap: wrap;
 			label {
 				color: #7a7e85;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -112,7 +112,7 @@
 	background: #202123;
 	border: none;
 	color: #f2f2f3;
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 13px;
 	font-style: normal;
 	font-weight: 400;

@@ -1,14 +1,11 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useContext } from 'react';
+import Context from '../../../../context/context';
 
-const TableBody = ({
-	data,
-	columns,
-	rowTypes,
-	responseMetadata,
-	handleUpdate,
-	handleRowClick,
-	colors,
-}) => {
+const TableBody = ({ data, columns, rowTypes, responseMetadata, handleUpdate, colors }) => {
+	const {
+		tasks: { updateSideBarData },
+	} = useContext(Context);
+
 	const generateCell = useCallback(
 		(row, property) => {
 			const key = property.id;
@@ -16,6 +13,9 @@ const TableBody = ({
 
 			const Component = rowTypes?.[property.type];
 			if (!Component) return value;
+			if (key === 'createdWithAi' && !value) {
+				return null;
+			}
 
 			if (
 				key === '__typename' ||
@@ -48,11 +48,11 @@ const TableBody = ({
 	);
 
 	return (
-		<tbody className="table-body">
+		<div className="table-body">
 			{data.map((row, rowIndex) => (
-				<tr key={rowIndex} className="table-row">
+				<div key={rowIndex} className="table-row">
 					{columns.map((column, colIndex) => (
-						<td
+						<div
 							key={`${rowIndex}-${column.id}`}
 							className={`table-cell table-cell-${colIndex} ${
 								column.userResized ? 'user-resized' : ''
@@ -62,14 +62,16 @@ const TableBody = ({
 								width: column?.width,
 								flex: '1 0 auto',
 							}}
-							onClick={() => handleRowClick(row)}
+							onClick={() =>
+								updateSideBarData({ data: row, open: true, replace: true })
+							}
 						>
 							{generateCell(row, column)}
-						</td>
+						</div>
 					))}
-				</tr>
+				</div>
 			))}
-		</tbody>
+		</div>
 	);
 };
 

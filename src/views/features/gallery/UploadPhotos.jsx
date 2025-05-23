@@ -61,12 +61,15 @@ const UploadPhotos = () => {
 		isRefreshPopupOpen: false,
 		isAiEnabled: false,
 		isUploadComplete: false,
+		// lightGallery: false,
 	});
 	const recentImageInitiatedRef = useRef(info.recentImageInitiated);
 	const params = new URLSearchParams(window.location.search);
-	const lightGallery = params.get('light-gallery');
+	// const lightGallery = params.get('light-gallery');
+	const lightGallery = !tenantAlbums?.storeOriginals ? 'true' : 'false';
 
 	const aiFacesLogic =
+		lightGallery === 'true' &&
 		info?.isAiEnabled &&
 		(validateExpiryData?.liteImageLimitWithAiFace === 0 ||
 			validateExpiryData?.liteImageLimitWithAiFace <= validateExpiryData?.liteImageUsed);
@@ -343,11 +346,11 @@ const UploadPhotos = () => {
 					processedCount > 0 ? (processedCount / totalImagesWithoutDuplicates) * 25 : 0;
 				uploaded75Percent =
 					uploadedCount > 0 ? (uploadedCount / totalImagesWithoutDuplicates) * 75 : 0;
-				result = uploaded75Percent + processed25Percent;
+				result = Math.min(uploaded75Percent + processed25Percent, 100);
 			} else {
 				processed25Percent = processedCount > 0 ? (processedCount / totalImages) * 25 : 0;
 				uploaded75Percent = uploadedCount > 0 ? (uploadedCount / totalImages) * 75 : 0;
-				result = uploaded75Percent + processed25Percent;
+				result = Math.min(uploaded75Percent + processed25Percent, 100);
 			}
 
 			if (result === 100) {

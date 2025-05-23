@@ -17,7 +17,6 @@ const Board = ({
 	handleAddButtonOnClick,
 	sort,
 	filters,
-	handleRowClick,
 }) => {
 	const {
 		tasks: { handleGroupChange, listTaskWithGroup, fetchGroupData },
@@ -266,7 +265,6 @@ const Board = ({
 								handleAddButtonOnClick={handleAddButtonOnClick}
 								sort={sort}
 								filters={filters}
-								handleRowClick={handleRowClick}
 							/>
 						);
 					})}

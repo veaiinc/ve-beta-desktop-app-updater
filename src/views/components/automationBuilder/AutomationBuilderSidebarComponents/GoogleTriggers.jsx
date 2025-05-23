@@ -9,8 +9,8 @@ import {
 	dropDownStyle,
 	dropDownTextStyling,
 	selectedValueStyling,
-} from '../../../features/automation_builder/automationContentsHelper';
-import { message } from 'antd';
+} from '../../../features/automationBuilder/automationContentsHelper';
+import { message } from '../../globalComponents/CustomToast';
 
 const GoogleTriggers = ({
 	onClose,
@@ -129,27 +129,27 @@ const GoogleTriggers = ({
 							showIcon={false}
 							containerStyle={{
 								...containerStyle,
-								background: '#1C1C1C',
-								border: '1px solid #2C2D2E',
+								background: 'var(--card)',
+								border: '1px solid var(--stroke)',
 								borderRadius: '12px',
 								height: '40px',
 							}}
 							outerContainerStyle={{ width: '100%' }}
 							dropDownStyle={{
 								...dropDownStyle,
-								background: '#1C1C1C',
-								border: '1px solid #2C2C2C',
+								background: 'var(--card)',
+								border: '1px solid var(--stroke)',
 							}}
 							dropDownTextStyling={{
 								...dropDownTextStyling,
-								color: '#FFFFFF',
+								color: 'var(--primary-font)',
 							}}
 							showSelectedValueTick={true}
 							uniqueIdentifierForTickIcon={'value'}
 							selectedValueObj={info?.selectedGoogleAccount}
 							selectedValueStyle={{
 								...selectedValueStyling,
-								color: '#FFFFFF',
+								color: 'var(--primary-font)',
 							}}
 						/>
 					</div>
@@ -164,27 +164,27 @@ const GoogleTriggers = ({
 							showIcon={false}
 							containerStyle={{
 								...containerStyle,
-								background: '#1C1C1C',
-								border: '1px solid #2C2D2E',
+								background: 'var(--card)',
+								border: '1px solid var(--stroke)',
 								borderRadius: '12px',
 								height: '40px',
 							}}
 							outerContainerStyle={{ width: '100%' }}
 							dropDownStyle={{
 								...dropDownStyle,
-								background: '#1C1C1C',
-								border: '1px solid #2C2C2C',
+								background: 'var(--card)',
+								border: '1px solid var(--stroke)',
 							}}
 							dropDownTextStyling={{
 								...dropDownTextStyling,
-								color: '#FFFFFF',
+								color: 'var(--primary-font)',
 							}}
 							showSelectedValueTick={true}
 							uniqueIdentifierForTickIcon={'value'}
 							selectedValueObj={info?.selectedPollMode}
 							selectedValueStyle={{
 								...selectedValueStyling,
-								color: '#FFFFFF',
+								color: 'var(--primary-font)',
 							}}
 						/>
 					</div>

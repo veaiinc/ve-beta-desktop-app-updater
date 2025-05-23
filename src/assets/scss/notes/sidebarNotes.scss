@@ -12,6 +12,7 @@
 			background-color: var(--navbar);
 			border-right: 1px solid var(--stroke);
 			padding: 0px;
+			overflow-y: hidden;
 
 			.notifications-drawer-container {
 				// border: 1px solid rgb(51, 51, 52);
@@ -28,7 +29,7 @@
 					// border-bottom: 1px solid rgb(51, 51, 52);
 
 					.title {
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -46,7 +47,7 @@
 
 				.body {
 					width: 100%;
-					height: calc(100vh - 70px);
+					height: calc(100vh - 90px);
 
 					.loading-state {
 						display: flex;
@@ -57,7 +58,7 @@
 
 						.message {
 							color: var(--primary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -91,7 +92,7 @@
 
 						.time {
 							color: #797e86;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -109,7 +110,7 @@
 
 						.message {
 							color: #e8e8e8;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -129,7 +130,7 @@
 	padding: 8px;
 
 	.notes-sidebar-menu-item-dropdown-title {
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -152,7 +153,7 @@
 			border-radius: 8px;
 			cursor: pointer;
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;

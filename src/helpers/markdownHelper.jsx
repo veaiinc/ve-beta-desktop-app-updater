@@ -3,9 +3,6 @@ import { default as ReactMarkdown } from 'react-markdown';
 import '../assets/scss/markdown.scss';
 import '../assets/scss/markdownHelper.scss';
 import { ReactComponent as PencilSparkleIcon } from '../assets/svg/notes/pencilSparkle.svg';
-import { ReactComponent as ThumpsUpSvg } from '../assets/svg/ai_agents/thumps-up.svg';
-import { ReactComponent as ThumpsDownSvg } from '../assets/svg/ai_agents/thumps-down.svg';
-import { ReactComponent as HeadPhoneSvg } from '../assets/svg/ai_agents/head-phone.svg';
 import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
 import Context from '../context/context';
@@ -18,6 +15,7 @@ import rehypeRaw from 'rehype-raw';
 import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import AISuggestionsReportUserComponent from '../views/components/chat/chatComponents/AISuggestionsReportUserComponent';
 
 const rehypeCITPlugin = () => {
 	return (tree) => {
@@ -61,97 +59,103 @@ const rehypeCITPlugin = () => {
 
 // Move components outside to prevent recreation on every render
 const baseComponents = {
-	pre: ({ children }) => <pre className="markdown-pre mb-4 fade-in">{children}</pre>,
-	hr: ({ children }) => <hr className="mb-2 fade-in" />,
+	pre: ({ children }) => <pre className="pre">{children}</pre>,
+	hr: () => <hr />,
 	ol: ({ children, ...props }) => (
-		<ol className=" list-outside ml-8 mb-4 fade-in" {...props}>
+		<ol className="ol" {...props}>
 			{children}
 		</ol>
 	),
 	li: ({ children, ...props }) => {
-		return <li {...props}>{children}</li>;
+		return (
+			<li {...props} className="li">
+				{children}
+			</li>
+		);
 	},
 	ul: ({ children, ...props }) => {
 		return (
-			<ul className="list-decimal list-outside ml-8 mb-4 fade-in	" {...props}>
+			<ul {...props} className="ul">
 				{children}
 			</ul>
 		);
 	},
-	strong: ({ children, ...props }) => {
+	span: ({ children, ...props }) => {
 		return (
-			<span className="font-semibold text-white common-markdown-font " {...props}>
+			<span {...props} className="span">
 				{children}
 			</span>
 		);
 	},
+	strong: ({ children, ...props }) => {
+		return (
+			<strong {...props} className="strong">
+				{children}
+			</strong>
+		);
+	},
 	a: ({ children, ...props }) => {
 		return (
-			<a
-				className="text-blue-500 hover:underline common-markdown-font fade-in"
-				target="_blank"
-				rel="noreferrer"
-				{...props}
-			>
+			<a target="_blank" rel="noreferrer" {...props} className="a">
 				{children}
 			</a>
 		);
 	},
 	h1: ({ children, ...props }) => {
 		return (
-			<h1 className="text-3xl font-semibold mt-6 mb-4 fade-in" {...props}>
+			<h1 {...props} className="h1">
 				{children}
 			</h1>
 		);
 	},
 	h2: ({ children, ...props }) => {
 		return (
-			<h2 className="text-2xl font-semibold mt-6 mb-4 fade-in" {...props}>
+			<h2 {...props} className="h2">
 				{children}
 			</h2>
 		);
 	},
 	h3: ({ children, ...props }) => {
 		return (
-			<h3 className="text-xl font-semibold mt-6 mb-2 fade-in" {...props}>
+			<h3 {...props} className="h3">
 				{children}
 			</h3>
 		);
 	},
 	h4: ({ children, ...props }) => {
 		return (
-			<h4 className="text-lg font-semibold mt-6 mb-2 fade-in" {...props}>
+			<h4 {...props} className="h4">
 				{children}
 			</h4>
 		);
 	},
 	h5: ({ children, ...props }) => {
 		return (
-			<h5 className="text-base font-semibold mt-6 mb-2 fade-in" {...props}>
+			<h5 {...props} className="h5">
 				{children}
 			</h5>
 		);
 	},
 	h6: ({ children, ...props }) => {
 		return (
-			<h6 className="text-sm font-semibold mt-6 mb-2 fade-in" {...props}>
+			<h6 {...props} className="h6">
 				{children}
 			</h6>
 		);
 	},
 	p: ({ children, ...props }) => {
 		return (
-			<p className="text-white  mb-2 mt-2 common-markdown-font fade-in" {...props}>
+			<p {...props} className="p">
 				{children}
 			</p>
 		);
 	},
 	img: ({ children, ...props }) => {
 		return (
-			<div className="markdown-image-wrapper fade-in">
+			<div className="markdown-image-wrapper ">
 				<img
-					className="w-full h-auto"
 					{...props}
+					className="img"
 					src={props?.src}
 					alt="img"
 					style={{ maxWidth: '50%', maxHeight: '50%', borderRadius: '4px' }}
@@ -159,38 +163,22 @@ const baseComponents = {
 			</div>
 		);
 	},
-	table: ({ children, ...props }) => (
-		<div className="table-container my-4 overflow-x-auto fade-in">
-			<table className="markdown-table w-full" {...props}>
-				{children}
-			</table>
-		</div>
-	),
-	thead: ({ children, ...props }) => (
-		<thead className="bg-gray-800 fade-in" {...props}>
-			{children}
-		</thead>
-	),
-	th: ({ children, ...props }) => (
-		<th className="px-4 py-2 text-left border border-gray-700 fade-in" {...props}>
-			{children}
-		</th>
-	),
-	td: ({ children, ...props }) => (
-		<td className="px-4 py-2 border border-gray-700 fade-in" {...props}>
-			{children}
-		</td>
-	),
-	tr: ({ children, ...props }) => (
-		<tr className="border-b border-gray-700 hover:bg-gray-800 fade-in" {...props}>
-			{children}
-		</tr>
-	),
+	thead: ({ children, ...props }) => <thead {...props}>{children}</thead>,
+	th: ({ children, ...props }) => <th {...props}>{children}</th>,
+	td: ({ children, ...props }) => <td {...props}>{children}</td>,
+	tr: ({ children, ...props }) => <tr {...props}>{children}</tr>,
+	iframe: ({ children, ...props }) => {
+		return (
+			<div className="iframe-wrapper">
+				<iframe {...props} className="iframe" />
+			</div>
+		);
+	},
 	code({ node, inline, className, children, ...props }) {
-		const match = /language-(\w+)/.exec(className || '');
+		const match = /language-(\w+)/?.exec(className || '');
 		return !inline && match ? (
 			<SyntaxHighlighter style={dracula} language={match[1]} PreTag="div">
-				{String(children).replace(/\n$/, '')}
+				{String(children)?.replace(/\n$/, '')}
 			</SyntaxHighlighter>
 		) : (
 			<code {...props}>{children}</code>
@@ -198,23 +186,66 @@ const baseComponents = {
 	},
 };
 
+const MarkdownTable = memo(({ children, node, markdown }) => {
+	const [isCopied, setIsCopied] = useState(false);
+
+	const end = node?.position?.end?.offset;
+	const start = node?.position?.start?.offset;
+	const table = markdown?.slice(start, end);
+
+	const handleCopyTable = useCallback((table) => {
+		navigator?.clipboard?.writeText(table);
+		setIsCopied(true);
+		setTimeout(() => {
+			setIsCopied(false);
+		}, 1000);
+	}, []);
+	return (
+		<div className="table-wrapper">
+			<button className="copy-table-btn" onClick={() => handleCopyTable(table || '')}>
+				<Tooltip title={isCopied ? 'Copied Table' : 'Copy Table'} placement="bottom">
+					{isCopied ? <TickSvg /> : <CopyIcon />}
+				</Tooltip>
+			</button>
+			<div className="table-container">
+				<table className="table">{children}</table>
+			</div>
+		</div>
+	);
+});
+
 // Memoize citation-specific components
-const createCitationComponents = (citations) => ({
+const createCitationComponents = (citations, markdown) => ({
 	span: ({ children, citationId, ...props }) => {
 		if (citationId) return <CitationsTooltip citationId={citationId} citations={citations} />;
 		return <span {...props}>{children}</span>;
 	},
+	table: ({ node, children }) => {
+		return (
+			<MarkdownTable node={node} markdown={markdown}>
+				{children}
+			</MarkdownTable>
+		);
+	},
 });
+
 const remarkPlugins = [remarkGfm, remarkMath];
 const rehypePlugins = [rehypeKatex, rehypeCITPlugin, rehypeRaw];
+
 const NonMemoizedMarkdown = ({ children, citations }) => {
+	const markdown = children
+		?.replace(/(?<!\\)\$/g, '\\$')
+		?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')
+		?.replace(/\\\((.*?)\\\)/g, '$$$1$$')
+		?.replace(/\\n/g, '\n');
+
 	// Memoize the combined components object
 	const components = useMemo(
 		() => ({
 			...baseComponents,
-			...createCitationComponents(citations),
+			...createCitationComponents(citations, markdown),
 		}),
-		[citations],
+		[citations, markdown],
 	);
 
 	return (
@@ -224,7 +255,7 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 			components={components}
 			className="markdown-custom-content"
 		>
-			{children}
+			{markdown}
 		</ReactMarkdown>
 	);
 };
@@ -239,194 +270,46 @@ export const Markdown = memo(NonMemoizedMarkdown, (prevProps, nextProps) => {
 	return prevProps.children === nextProps.children && citationsEqual;
 });
 
-export const TypingEffect = memo(
-	({
-		text,
-		customePencilClickFunc = null,
-		smoothScrollToBottom,
-		messageId = null,
-		handleRatingClick = null,
-		rating = null,
-		citations = [],
-		messageData,
-	}) => {
-		const {
-			documentPreview: { setNoteContent },
-		} = useContext(Context);
-		const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
-		const [renderTrigger, setRenderTrigger] = useState(0);
-
-		const chunkSize = 200; // Size of each chunk (200 characters)
-		const textRef = useRef(text); // Store the latest text in a ref
-
-		const chunkRef = useRef(''); // Ref for storing chunk
-		const currentIndexRef = useRef(0); // Ref for storing currentIndex
-		const timeIntervalRef = useRef(null);
-		// useEffect(() => {
-		// 	textRef.current = messageData;
-		// }, [messageData]);
-
-		// useEffect(() => {
-		// 	if (messageData?.messageId) {
-		// 		// setChunk(text);
-		// 		chunkRef.current = text;
-		// 		return;
-		// 	}
-		// 	setTimeout(() => {
-		// 		const interval = setInterval(() => {
-		// 			handleChunkRendering();
-		// 		}, 500);
-		// 		timeIntervalRef.current = interval;
-		// 	}, 50);
-		// }, []);
-
-		// const handleChunkRendering = () => {
-		// 	const currentText = textRef.current?.message;
-
-		// 	if (currentIndexRef.current >= currentText?.length && textRef.current?.messageId) {
-		// 		clearInterval(timeIntervalRef.current);
-		// 		return (timeIntervalRef.current = null);
-		// 	}
-
-		// 	// Slice the current chunk from the text
-		// 	let startIndex = currentIndexRef.current;
-		// 	let endIndex =
-		// 		currentIndexRef.current + chunkSize < currentText?.length
-		// 			? currentIndexRef.current + chunkSize
-		// 			: currentText?.length;
-		// 	let subChunk = currentText?.slice(startIndex, endIndex);
-
-		// 	chunkRef.current += subChunk;
-		// 	currentIndexRef.current = endIndex;
-		// 	setRenderTrigger((prev) => prev + 1);
-		// };
-
-		const handleCopyTextClick = useCallback((text) => {
-			const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
-			navigator?.clipboard?.writeText(textToBeCopied).then(() => {
-				setIsCopiedToClipboard(true);
-				setTimeout(() => {
-					setIsCopiedToClipboard(false);
-				}, 1000);
-			});
-		}, []);
-
-		const handlePencilClick = useCallback(() => {
-			if (customePencilClickFunc) {
-				customePencilClickFunc();
-			}
-			setNoteContent(messageData);
-		}, [customePencilClickFunc, text, setNoteContent]);
-
-		const handleThumbsUp = useCallback(() => {
-			handleRatingClick && handleRatingClick('thumbsUp', messageId);
-		}, [handleRatingClick, messageId]);
-
-		const handleThumbsDown = useCallback(() => {
-			handleRatingClick && handleRatingClick('thumbsDown', messageId);
-		}, [handleRatingClick, messageId]);
-
-		return (
-			<div className="typing-effect-container">
-				<Markdown citations={citations}>
-					{/* {newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
-					{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
-					{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
-				</Markdown>
-
-				{messageData?.messageId && (
-					<div className="hover-actions-container">
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Like'}
-							>
-								<ThumpsUpSvg
-									fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
-									onClick={handleThumbsUp}
-								/>
-							</Tooltip>
-						</div>
-
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Dislike'}
-							>
-								<ThumpsDownSvg
-									fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
-									onClick={handleThumbsDown}
-								/>
-							</Tooltip>
-						</div>
-
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Audio'}
-							>
-								<HeadPhoneSvg />
-							</Tooltip>
-						</div>
-
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Edit'}
-							>
-								<PencilSparkleIcon onClick={handlePencilClick} />
-							</Tooltip>
-						</div>
-
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={isCopiedToClipboard ? 'Copied' : 'Copy'}
-							>
-								{isCopiedToClipboard ? (
-									<TickSvg />
-								) : (
-									<CopyIcon onClick={() => handleCopyTextClick(text)} />
-								)}
-							</Tooltip>
-						</div>
-					</div>
-				)}
-			</div>
-		);
-	},
-	(prevProps, nextProps) => {
-		// Custom comparison function for TypingEffect
-		return (
-			prevProps.text === nextProps.text &&
-			prevProps.messageId === nextProps.messageId &&
-			prevProps.rating === nextProps.rating &&
-			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
-			prevProps.messageData?.messageId === nextProps.messageData?.messageId
-		);
-	},
-);
-
-export const UserMessageRenderer = ({ messageData, lastVisibleUserMessageIndex }) => {
+export const UserMessageRenderer = memo(({ messageData, activeUserMessageIndex }) => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
+	const textRef = useRef(null);
 
 	const [info, setinfo] = useState({
 		isCopiedToClipboard: false,
 		editUserQuery: false,
 		userQuery: messageData?.message,
+		isExpanded: false,
+		isOverflowing: false,
 	});
+
+	useEffect(() => {
+		adjustFontSize();
+	}, [messageData?.message]);
+
+	const checkOverflow = (element) => {
+		return element?.scrollHeight > element?.clientHeight;
+	};
+
+	const adjustFontSize = () => {
+		if (textRef?.current) {
+			// Set initial font size
+			textRef.current.style.fontSize = '1.5rem';
+			textRef.current.style.lineHeight = '1.75rem';
+
+			// Check again for overflow
+			if (checkOverflow(textRef?.current)) {
+				// If still overflowing, revert to 0.875rem
+				textRef.current.style.fontSize = '0.875rem';
+				textRef.current.style.lineHeight = '1.25rem';
+
+				if (checkOverflow(textRef?.current)) {
+					setinfo((prev) => ({ ...prev, isOverflowing: true }));
+				}
+			}
+		}
+	};
 
 	const handleCopyTextClick = useCallback(
 		(text) => {
@@ -473,18 +356,46 @@ export const UserMessageRenderer = ({ messageData, lastVisibleUserMessageIndex }
 		[info],
 	);
 
+	const toggleExpand = useCallback(() => {
+		setinfo((prev) => ({ ...prev, isExpanded: !prev.isExpanded }));
+	}, []);
+
 	return (
-		<div className="user-message-renderer-container">
+		<div className="user-message-renderer-wrapper">
 			{!info?.editUserQuery ? (
-				<div
-					style={{
-						transition: 'opacity 0.3s ease-in-out',
-						opacity: lastVisibleUserMessageIndex ? 1 : 0.6,
-					}}
-					className="fade-in user-message-renderer-container"
-				>
-					{messageData?.message || ''}
-					{/* <Markdown>{messageData?.message || ''}</Markdown> */}
+				<div>
+					{messageData?.moduleType === 'ai_suggestion_report' ? (
+						<AISuggestionsReportUserComponent data={messageData?.data} />
+					) : (
+						<div>
+							<div
+								style={{
+									// opacity: activeUserMessageIndex ? 1 : 0.6,
+									maxHeight: info?.isExpanded
+										? `${textRef.current?.scrollHeight}px`
+										: '147px',
+								}}
+								className="user-message-renderer-container"
+								ref={textRef}
+							>
+								{(messageData?.message || '').split('\n').map((line, index) => (
+									<span key={index}>
+										{line}
+										{index < messageData?.message.split('\n').length - 1 && (
+											<br />
+										)}
+									</span>
+								))}
+							</div>
+							{info?.isOverflowing && (
+								<div className="expand-btn">
+									<div className="btn-text" onClick={toggleExpand}>
+										{info?.isExpanded ? 'Show less' : 'Show more'}
+									</div>
+								</div>
+							)}
+						</div>
+					)}
 				</div>
 			) : (
 				<div className="user-edit-query-input-box-container">
@@ -532,4 +443,4 @@ export const UserMessageRenderer = ({ messageData, lastVisibleUserMessageIndex }
 			)}
 		</div>
 	);
-};
+});

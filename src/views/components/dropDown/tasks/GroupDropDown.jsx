@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { ReactComponent as OpenEye } from '../../../../assets/svg/gallery/open-eye.svg';
 import { ReactComponent as CrossedOpenEye } from '../../../../assets/svg/gallery/crossedOpenEye.svg';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
@@ -11,7 +11,7 @@ import ToggleSwitch from '../../../../views/components/input/slider';
 
 import '../../../../assets/scss/dropdown/tasks/groupDropDown.scss';
 import DropDown from './DropDown';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
 const availableGroups = ['status', 'priority'];
 
@@ -225,7 +225,7 @@ const GroupDropDown = ({
 								<ChevronRightThinSvg />
 							</span>
 						</div> */}
-						<div className="group-dropDown-options-item">
+						{/* <div className="group-dropDown-options-item">
 							<span className="group-dropDown-options-item-label">
 								Hide empty groups
 							</span>
@@ -233,7 +233,7 @@ const GroupDropDown = ({
 								value={info?.hideEmptyGroups}
 								onChange={(value) => setInfo({ ...info, hideEmptyGroups: value })}
 							/>
-						</div>
+						</div> */}
 					</div>
 					{/* <div className="group-drag-list">
 						<div className="group-drag-list-header">

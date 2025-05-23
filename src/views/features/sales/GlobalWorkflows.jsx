@@ -9,9 +9,7 @@ import GlobalWorkflowModal from '../../components/modalsV2/workflowsModals/Globa
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import GlobalProposalsCard from '../../components/sales/globalProposalsCard';
 import Skeleton from 'react-loading-skeleton';
-import { FetchMoreLoaderComp } from '../../../helpers';
-import backgroundImage from '../../../assets/svg/sales/start.jpg';
-import { get } from 'lodash';
+import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 
 const options = [
 	{ id: 1, name: 'Design Files', value: '' },
@@ -22,6 +20,8 @@ const options = [
 	{ id: 6, name: 'Invoice', value: 'invoice' },
 	// { id: 7, name: 'Automation', value: 'automation' },
 ];
+
+const origin = fetchOriginSelection();
 
 const NoResultsFound = ({ searchQuery }) => (
 	<div

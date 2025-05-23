@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 const Spinner = ({ width, height, color, cssstyle = {}, borderTopColor }) => {
 	const style = {
 		width: width || '30px',
 		height: height || '30px',
-		border: `3px solid ${color || '#fff'}`,
+		border: `3px solid var(--primary-font)`,
 		borderTop: `4px solid ${borderTopColor || 'transparent'}`,
 		borderRadius: '50%',
 		animation: 'spin 1s linear infinite',
@@ -13,4 +13,4 @@ const Spinner = ({ width, height, color, cssstyle = {}, borderTopColor }) => {
 	return <div style={style}></div>;
 };
 
-export default Spinner;
+export default memo(Spinner);

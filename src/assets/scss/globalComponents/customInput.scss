@@ -8,9 +8,12 @@
 	font-size: 12px;
 	font-weight: 500;
 
+	&::placeholder {
+		color: var(--secondary-font);
+	}
+
 	&:hover {
-		cursor: pointer;
+		cursor: text;
 		// background: #1e1e1e;
-		background: var(--card);
 	}
 }

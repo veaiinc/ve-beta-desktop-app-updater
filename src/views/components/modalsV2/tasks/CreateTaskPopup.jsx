@@ -11,7 +11,7 @@ import { ReactComponent as DustbinIcon } from '../../../../assets/svg/tasks/dust
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import Select from '../../tasks/listView/Select';
 import Status from '../../tasks/listView/Status';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 import Spinner from '../../loaders/Spinner';
 import Person from '../../tasks/listView/Person';
 import DateView from '../../tasks/listView/DateView';
@@ -52,8 +52,8 @@ const CreateTaskPopup = ({
 	useEffect(() => {
 		setInfo({
 			...initialState,
-			status: responseMetadata?.status?.props?.options?.[0]?._id,
-			subTaskStatus: responseMetadata?.status?.props?.options?.[0]?._id,
+			// status: responseMetadata?.status?.props?.options?.[0]?._id,
+			// subTaskStatus: responseMetadata?.status?.props?.options?.[0]?._id,
 		});
 	}, [isOpen, responseMetadata]);
 
@@ -170,34 +170,29 @@ const CreateTaskPopup = ({
 		}));
 	}, []);
 
-	const handleEditSubTask = useCallback((index) => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			isSubTaskEditing: true,
-			showSubTaskCreate: true,
-			editingSubTaskIndex: index, // Store the index being edited
-			subTaskTitle: prevInfo?.childTasks[index]?.title,
-			subTaskDescription: prevInfo?.childTasks[index]?.description,
-			subTaskAssignedTo: prevInfo?.childTasks[index]?.assignedTo || [],
-			subTaskDueDate: prevInfo?.childTasks[index]?.dueDate,
-			subTaskPriority: prevInfo?.childTasks[index]?.priority,
-			subTaskStatus: prevInfo?.childTasks[index]?.status,
-		}));
-	}, []);
+	const handleEditSubTask = useCallback(
+		(index) => {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				isSubTaskEditing: true,
+				showSubTaskCreate: true,
+				editingSubTaskIndex: index, // Store the index being edited
+				subTaskTitle: prevInfo?.childTasks[index]?.title,
+				subTaskDescription: prevInfo?.childTasks[index]?.description,
+				subTaskAssignedTo: prevInfo?.childTasks[index]?.assignedTo || [],
+				subTaskDueDate: prevInfo?.childTasks[index]?.dueDate,
+				subTaskPriority: prevInfo?.childTasks[index]?.priority,
+				subTaskStatus: prevInfo?.childTasks[index]?.status,
+			}));
+		},
+		[info?.childTasks],
+	);
 
 	return (
 		<ReactModal
 			isOpen={isOpen}
 			closeModal={info?.isLoading ? null : closeModal}
 			modalType={'center'}
-			customStyles={{
-				content: {
-					zIndex: 30000,
-				},
-				overlay: {
-					zIndex: 2,
-				},
-			}}
 		>
 			<div className="createTask-container">
 				<div className="header-wrapper">
@@ -234,6 +229,7 @@ const CreateTaskPopup = ({
 						title={'Status'}
 						options={responseMetadata?.status?.props?.options}
 						colors={colors}
+						setDefault={true}
 					/>
 					<Select
 						value={info?.priority}
@@ -267,7 +263,7 @@ const CreateTaskPopup = ({
 						parseValue={true}
 						removeBtn={true}
 					/>
-					{!isSubTask ? (
+					{!isSubTask && info?.childTasks?.length < 1 ? (
 						<div
 							className="task-icon-wrapper"
 							onClick={() => updateModalInfo('showSubTaskCreate', true)}
@@ -313,6 +309,7 @@ const CreateTaskPopup = ({
 								onOptionClick={(value) => updateModalInfo('subTaskStatus', value)}
 								title={'Status'}
 								colors={colors}
+								setDefault={info?.isSubTaskEditing ? false : true}
 							/>
 							<Select
 								value={info?.subTaskPriority}
@@ -352,27 +349,26 @@ const CreateTaskPopup = ({
 							/>
 						</div>
 						<div className="footer-wrapper">
-							{info?.isSubTaskEditing && (
-								<button
-									className="btn-cancel"
-									onClick={() => {
-										setInfo((prev) => ({
-											...prev,
-											showSubTaskCreate: false,
-											isSubTaskEditing: false,
-											editingSubTaskIndex: null,
-											subTaskTitle: '',
-											subTaskDescription: '',
-											subTaskAssignedTo: [],
-											subTaskDueDate: null,
-											subTaskPriority: 'low',
-											subTaskStatus: 'todo',
-										}));
-									}}
-								>
-									Cancel
-								</button>
-							)}
+							<button
+								className="btn-cancel"
+								onClick={() => {
+									setInfo((prev) => ({
+										...prev,
+										showSubTaskCreate: false,
+										isSubTaskEditing: false,
+										editingSubTaskIndex: null,
+										subTaskTitle: '',
+										subTaskDescription: '',
+										subTaskAssignedTo: [],
+										subTaskDueDate: null,
+										subTaskPriority: 'low',
+										subTaskStatus: 'todo',
+									}));
+								}}
+							>
+								Cancel
+							</button>
+
 							<button
 								className="btn-createSubTask"
 								onClick={handleAddSubTask}

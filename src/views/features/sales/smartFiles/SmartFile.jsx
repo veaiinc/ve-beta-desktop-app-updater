@@ -5,7 +5,7 @@ import '../.././../../assets/scss/sales/smartFile.scss';
 import SmartFileHeader from '../../../components/smartFileComponets/SmartFileHeader';
 import FormResponses from './FormResponses';
 import File from './File';
-import ActivityDashboard from '../activity';
+import ActivityDashboard from '../activity/ActivityDashboard';
 import { useNavigate, useParams } from 'react-router-dom';
 import Context from '../../../../context/context';
 import SendProposalModal from '../../../components/modalsV2/proposalModals/SendProposalModal';

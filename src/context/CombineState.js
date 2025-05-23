@@ -11,11 +11,13 @@ import { Calendar } from './Calendar/state';
 import { ThemeState } from './Theme/state';
 import { TasksState } from './tasks/state';
 import { useMemo } from 'react';
-import { theme } from 'antd';
 import { ContactsState } from './contacts/state';
 import { DocumentPreviewState } from './DocumentPreview/state';
 import { AutomationBuilderState } from './automationBuilder/state';
 import { NotesState } from './notes/state';
+import { ElasticSearchState } from './elastic_search/state';
+import { KnowledgeAgentState } from './knowledgeAgent/state';
+import { WorkspaceAssetsState } from './workspaceAssets/state';
 
 const useCombineState = () => {
 	// Call all hooks at the top level
@@ -35,12 +37,14 @@ const useCombineState = () => {
 	const documentPreview = DocumentPreviewState();
 	const automationBuilder = AutomationBuilderState();
 	const notes = NotesState();
+	const knowledgeAgent = KnowledgeAgentState();
+	const elasticSearch = ElasticSearchState();
+	const workspaceAssets = WorkspaceAssetsState();
 	// Only memoize the final combined object
 	return useMemo(
 		() => ({
 			chatInfo,
 			templates,
-			themeInfo,
 			profileInfo,
 			companyInfo,
 			galleryInfo,
@@ -55,11 +59,13 @@ const useCombineState = () => {
 			documentPreview,
 			automationBuilder,
 			notes,
+			knowledgeAgent,
+			elasticSearch,
+			workspaceAssets,
 		}),
 		[
 			chatInfo,
 			templates,
-			themeInfo,
 			profileInfo,
 			companyInfo,
 			galleryInfo,
@@ -74,6 +80,9 @@ const useCombineState = () => {
 			documentPreview,
 			automationBuilder,
 			notes,
+			knowledgeAgent,
+			elasticSearch,
+			workspaceAssets,
 		],
 	);
 };

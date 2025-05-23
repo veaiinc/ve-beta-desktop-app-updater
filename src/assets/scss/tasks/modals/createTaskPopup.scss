@@ -64,7 +64,7 @@
 			line-height: normal;
 			color: var(--primary-font);
 			&::placeholder {
-				color: rgba(var(--primary-font), 0.38);
+				color: var(--secondary-font);
 			}
 		}
 		textarea {
@@ -80,7 +80,7 @@
 			border: none;
 
 			&::placeholder {
-				color: rgba(var(--primary-font), 0.38);
+				color: var(--secondary-font);
 			}
 		}
 	}
@@ -191,7 +191,7 @@
 				font-weight: 500;
 				line-height: 20px; /* 142.857% */
 				&::placeholder {
-					color: rgba(var(--primary-font), 0.38);
+					color: var(--secondary-font);
 				}
 			}
 
@@ -203,7 +203,7 @@
 				font-weight: 400;
 				line-height: normal;
 				&::placeholder {
-					color: rgba(var(--primary-font), 0.38);
+					color: var(--secondary-font);
 				}
 			}
 		}

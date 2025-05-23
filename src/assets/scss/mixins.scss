@@ -1,41 +1,11 @@
 @use 'sass:string';
-@import './variables.scss';
-@import './color.palette.scss';
+@use 'sass:map';
+@use './variables.scss' as *;
+@use './color.palette.scss' as *;
 
-@mixin font-property {
-	font-stretch: normal;
-	font-style: normal;
-	line-height: 1.23;
-	letter-spacing: -0.1px;
-	text-align: center;
-}
-@mixin font-20p-sb {
-	font-size: 20px;
-	font-family: $fontsemibold;
-}
-@mixin font-20p-b {
-	font-size: 20px;
-	font-family: $fontbold;
-}
-@mixin font-18p-sb {
-	font-size: 18px;
-	font-family: $fontsemibold;
-}
 @mixin font-16p-sb {
 	font-size: 16px;
 	font-family: $fontsemibold;
-}
-@mixin font-16p-b {
-	font-size: 16px;
-	font-family: $fontbold;
-}
-@mixin font-14p-sb {
-	font-size: 14px;
-	font-family: $fontsemibold;
-}
-@mixin font-14p-m {
-	font-size: 14px;
-	font-family: $fontmedium;
 }
 @mixin font-13p-sb {
 	font-size: 13px;
@@ -53,43 +23,9 @@
 	font-size: 12px;
 	font-family: $fontmedium;
 }
-@mixin font-13p-rm {
-	font-size: 13px;
-	font-weight: $fontregularmultiline;
-}
-@mixin font-12p-b {
-	font-size: 12px;
-	font-family: $fontbold;
-}
-@mixin font-12p-r {
-	font-size: 12px;
-	font-weight: $fontregularmultiline;
-}
-@mixin font-11p-sb-caps {
-	font-size: 11px;
-	font-family: $fontsemibold;
-	text-transform: uppercase;
-}
-@mixin font-11p-sb {
-	font-size: 11px;
-	font-family: $fontsemibold;
-}
-@mixin font-10p-sb-caps {
-	font-size: 10px;
-	font-family: $fontsemibold;
-	text-transform: uppercase;
-}
 @mixin font-11p-m {
 	font-size: 11px;
 	font-family: $fontmedium;
-}
-@mixin badge-counter {
-	width: fit-content;
-	@include font-12p-sb;
-	color: $secondarytextcolor;
-	border: 1px solid $disabledbgcolor;
-	padding: 0px 5px;
-	border-radius: 3px;
 }
 @mixin transition {
 	transition: all 0.3s ease-in-out;
@@ -127,29 +63,29 @@
 		.theme-#{$theme-name} & {
 			@if $key == 'box-shadow' {
 				#{$key}: $extraArg
-					map-get(map-get($themes, $theme-name), $color)
+					map.get(map.get($themes, $theme-name), $color)
 					return-immediate($important);
-			} @else if str-index($key, 'border') {
+			} @else if string.index($key, 'border') {
 				#{$key}: $extraArg
-					map-get(map-get($themes, $theme-name), $color)
+					map.get(map.get($themes, $theme-name), $color)
 					return-immediate($important);
-			} @else if str-index($key, 'border-left') {
-				#{$key}: map-get(map-get($themes, $theme-name), $color)
+			} @else if string.index($key, 'border-left') {
+				#{$key}: map.get(map.get($themes, $theme-name), $color)
 					return-immediate($important);
-			} @else if str-index($key, 'outline') {
+			} @else if string.index($key, 'outline') {
 				#{$key}: $extraArg
-					map-get(map-get($themes, $theme-name), $color)
+					map.get(map.get($themes, $theme-name), $color)
 					return-immediate($important);
-			} @else if str-index($key, '-webkit-box-shadow') {
+			} @else if string.index($key, '-webkit-box-shadow') {
 				#{$key}: $extraArg
-					map-get(map-get($themes, $theme-name), $color)
+					map.get(map.get($themes, $theme-name), $color)
 					return-immediate($important);
-			} @else if str-index($removequote, 'remove-quote') {
+			} @else if string.index($removequote, 'remove-quote') {
 				#{$key}: $extraArg
-					unquote(map-get(map-get($themes, $theme-name), $color))
+					unquote(map.get(map.get($themes, $theme-name), $color))
 					return-immediate($important);
 			} @else {
-				#{$key}: map-get(map-get($themes, $theme-name), $color)
+				#{$key}: map.get(map.get($themes, $theme-name), $color)
 					return-immediate($important);
 			}
 		}

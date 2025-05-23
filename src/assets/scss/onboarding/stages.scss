@@ -78,7 +78,7 @@
 						border-radius: 12px;
 						background: var(--card);
 						color: var(--primary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -135,6 +135,7 @@
 					font-style: normal;
 					border: none;
 					outline: none;
+					height: 40px;
 
 					.PhoneInputInput {
 						background-color: inherit;
@@ -365,11 +366,6 @@
 
 						.companyLogoInput {
 							display: none;
-						}
-
-						.companyLogoContainer {
-							width: 100%;
-							height: 100%;
 						}
 
 						.companyLogo {

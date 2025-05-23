@@ -2,12 +2,13 @@
 	height: 100%;
 	overflow: hidden;
 	position: relative;
+	width: 100%;
 
 	&-container {
 		display: flex;
 		gap: 1rem;
 		padding: 1rem;
-		height: 100%;
+		height: fit-content;
 		overflow-x: auto;
 		position: relative;
 		overflow-y: hidden;
@@ -25,20 +26,23 @@
 
 	&-item {
 		min-height: fit-content;
-		min-width: 246px;
+		// min-width: 246px;
 		border-radius: 12px;
 		display: flex;
 		flex-direction: column;
 		height: 100%;
 		transition: all 0.3s ease;
+		border-radius: 12px;
+		background: var(--card, #18191b);
 
 		// Style for empty groups
 
 		&-header {
-			padding: 1rem 0.5rem;
 			display: flex;
 			align-items: center;
 			gap: 8px;
+			border-radius: 12px 12px 0 0;
+			padding: 16px 12px;
 
 			&-count {
 				color: var(--secondary-font);
@@ -71,7 +75,6 @@
 			height: 100%;
 			width: fit-content;
 			min-width: 246px;
-			padding: 0.5rem;
 
 			// Optional: Hide scrollbar but keep functionality
 			&::-webkit-scrollbar {
@@ -160,40 +163,10 @@
 	}
 
 	&-card {
-		margin-bottom: 0.5rem;
+		margin-bottom: 8px;
 
 		&.dragging {
 			opacity: 0.5;
-		}
-	}
-
-	&-item-add-card {
-		display: flex;
-		width: 230px;
-		height: 42px;
-		padding: 12px 24px;
-		justify-content: center;
-		align-items: center;
-		cursor: pointer;
-		border-radius: 50px;
-		border: 1px solid var(--card);
-		color: var(--secondary-font);
-		font-family: var(--primary-font-family);
-		font-size: 13px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
-		gap: 8px;
-		svg {
-			width: 16px;
-			height: 16px;
-			path {
-				stroke: var(--secondary-font) !important;
-			}
-		}
-
-		&:hover {
-			background: rgba(0, 0, 0, 0.05);
 		}
 	}
 
@@ -207,21 +180,24 @@
 		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-weight: 500;
+		width: 100%;
 	}
 
 	&-card-skeleton {
 		margin-bottom: 0.75rem;
-		width: 230px;
+		width: 287px;
 	}
 }
 
 .board-view-item-wrapper {
 	height: calc(100vh - 200px); // Adjust based on your layout
 	overflow-y: auto;
+	border-radius: 0 0 12px 12px;
 
 	.board-view-item-cards {
 		min-height: 100%;
-		padding-bottom: 16px;
+		padding: 0px 12px 12px 12px;
+		border-radius: 0 0 12px 12px;
 	}
 }
 

@@ -10,6 +10,7 @@ import WeekDayHeader from './WeekDayHeader';
 import moment from 'moment';
 import LeftSvg from '../../../assets/svg/activity/LeftSvg';
 import RightSvg from '../../../assets/svg/activity/RightSvg';
+import QuickActions from '../globalComponents/QuickActions';
 
 const MIN_YEAR = 1990;
 const MAX_YEAR = 2050;
@@ -115,26 +116,31 @@ const CalendarHeader = ({
 					<div className="calendarControls">
 						<div className="calendarDate">
 							<Left onClick={() => goToPrevious(label)} />
+							{label}
 							<Right onClick={() => goToNext(label)} />
 							{/* <LeftSvg onClick={() => goToPrevious(label)} /> */}
 							{/* <RightSvg onClick={() => goToNext(label)} /> */}
-							{label}
 						</div>
-						<div className="viewToggleWrapper">
-							<div className="viewToggle">
-								{views?.length !== 0
-									? views.map((viewName) => (
-											<span
-												key={viewName}
-												className={`toggleButton ${
-													view === viewName ? 'active' : ''
-												}`}
-												onClick={() => onView(viewName)}
-											>
-												{viewName}
-											</span>
-									  ))
-									: ''}
+						<div className="calendarControlsRight">
+							<div className="viewToggleWrapper">
+								<div className="viewToggle">
+									{views?.length !== 0
+										? views.map((viewName) => (
+												<span
+													key={viewName}
+													className={`toggleButton ${
+														view === viewName ? 'active' : ''
+													}`}
+													onClick={() => onView(viewName)}
+												>
+													{viewName.substring(0, 1)}
+												</span>
+										  ))
+										: ''}
+								</div>
+							</div>
+							<div className="quickActionsWrapper">
+								<QuickActions />
 							</div>
 						</div>
 						{/* wrokflow and team dropdown */}

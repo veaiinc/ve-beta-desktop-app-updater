@@ -2,11 +2,12 @@ import React, { memo, useState, useCallback, useRef, useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 import TableHeader from '../listView/TableHeader';
 import TableBody from '../listView/TableBody';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../../../assets/scss/tasks/tableView.scss';
+import InfiniteScroll from '../../globalComponents/InfiniteScroll';
+import { Background } from '@xyflow/react';
 
 const TableView = ({
 	properties,
@@ -14,7 +15,6 @@ const TableView = ({
 	data = [],
 	responseMetadata,
 	handleUpdate,
-	handleRowClick,
 	colors,
 	isSubTask = false,
 	loading = false,
@@ -80,20 +80,26 @@ const TableView = ({
 		});
 	}, []);
 
-	// Effects
 	useEffect(() => {
-		setColumns(
-			[...(properties || [])]
+		setColumns((prevColumns) => {
+			const newProperties = [...(properties || [])]
 				?.sort((a, b) => (a?.order || 0) - (b?.order || 0))
-				?.filter((prop) => prop.show)
-				?.map((prop) => ({
+				?.filter((prop) => prop.show);
+
+			// Map new properties to columns, preserving existing widths where possible
+			return newProperties.map((prop) => {
+				const existingColumn = prevColumns.find((col) => col.id === prop.value);
+
+				return {
 					...prop,
-					id: prop?.value,
-					order: prop?.order || 0,
-					width: initialColumnWidth,
-				})) || [],
-		);
-	}, [properties, initialColumnWidth]);
+					id: prop.value,
+					order: prop.order || 0,
+					width: existingColumn?.userResized ? existingColumn.width : initialColumnWidth,
+					userResized: existingColumn?.userResized || false,
+				};
+			});
+		});
+	}, [properties]);
 
 	useEffect(() => {
 		if (resizing.isResizing) {
@@ -113,10 +119,10 @@ const TableView = ({
 
 			const tableWidth = tableRef.current.clientWidth;
 			const totalColumns = columns.length;
-			const minTotalWidth = totalColumns * minColumnWidth;
+			const totalCurrentWidth = columns.reduce((sum, col) => sum + col.width, 0);
 
-			// If table width is greater than minimum total width, distribute extra space
-			if (tableWidth > minTotalWidth) {
+			// Only adjust widths if the table is actually smaller than the total column width
+			if (tableWidth < totalCurrentWidth) {
 				const equalWidth = Math.max(Math.floor(tableWidth / totalColumns), minColumnWidth);
 
 				setColumns((prev) =>
@@ -158,23 +164,9 @@ const TableView = ({
 		const newWidth = Math.max(resizing.startWidth + deltaX, minColumnWidth);
 
 		setColumns((prev) => {
-			const nextColumnIndex = resizing.columnIndex + 1;
-			if (nextColumnIndex >= prev.length) return prev;
-
-			const nextColWidth = prev[nextColumnIndex].width;
-			const widthDiff = newWidth - prev[resizing.columnIndex].width;
-
-			// Prevent resizing if next column would become too small
-			if (nextColWidth - widthDiff < minColumnWidth) {
-				return prev;
-			}
-
 			return prev.map((col, index) => {
 				if (index === resizing.columnIndex) {
 					return { ...col, width: newWidth, userResized: true };
-				}
-				if (index === nextColumnIndex) {
-					return { ...col, width: nextColWidth - widthDiff, userResized: true };
 				}
 				return col;
 			});
@@ -193,7 +185,7 @@ const TableView = ({
 	return (
 		<div className={`table-view ${resizing.isResizing ? 'resizing' : ''}`} ref={tableRef}>
 			<div className="table-scroll-container">
-				<table className="table-content">
+				<div className="table-content">
 					<DragDropContext onDragEnd={handleDragEnd}>
 						<TableHeader
 							columns={loading ? loadingColumns : columns}
@@ -214,8 +206,9 @@ const TableView = ({
 							hasMore={hasMore}
 							loader={<FetchMoreLoaderComp />}
 							style={{
-								overflow: 'auto',
-								width: '100%',
+								overflowY: 'auto',
+								minWidth: '100%',
+								width: 'fit-content',
 							}}
 							height="calc(100vh - 160px)"
 							scrollThreshold="90%"
@@ -226,7 +219,6 @@ const TableView = ({
 								rowTypes={rowTypes}
 								responseMetadata={responseMetadata}
 								handleUpdate={handleUpdate}
-								handleRowClick={handleRowClick}
 								colors={colors}
 								isSubTask={isSubTask}
 							/>
@@ -236,7 +228,7 @@ const TableView = ({
 							<span className="noDataMessage">No tasks found</span>
 						</div>
 					)}
-				</table>
+				</div>
 			</div>
 		</div>
 	);

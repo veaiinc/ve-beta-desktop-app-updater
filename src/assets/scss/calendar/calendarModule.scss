@@ -1,0 +1,43 @@
+.calendarModuleHeaderContainer {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	align-self: stretch;
+
+	.moduleSwitcherContainer {
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		span {
+			color: var(--primary-font);
+			font-weight: 500;
+		}
+
+		.moduleSwitcherBtn {
+			background: transparent;
+			border: none;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			transition: 300ms;
+			appearance: none;
+			outline: none;
+			padding: 0;
+			margin: 0;
+
+			&:hover {
+				cursor: pointer;
+				color: var(--primary-font);
+			}
+
+			&.active {
+				cursor: default;
+				color: var(--primary-font);
+			}
+		}
+	}
+}

@@ -4,7 +4,7 @@ import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.sv
 import CardItem from './CardItem';
 import Status from './Status';
 import Select from './Select';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 
 const headerMapper = {
 	status: Status,
@@ -26,7 +26,6 @@ const BoardItem = ({
 	handleAddButtonOnClick,
 	sort,
 	filters,
-	handleRowClick,
 }) => {
 	const [columnData, setColumnData] = useState({
 		group: group._id,
@@ -178,7 +177,6 @@ const BoardItem = ({
 													rowTypes={rowTypes}
 													properties={properties}
 													handleUpdate={handleUpdate}
-													// onClick={() => handleRowClick({ ...item })}
 												/>
 											</div>
 										)}
@@ -187,20 +185,6 @@ const BoardItem = ({
 								{/* 5) Place the placeholder inside the same container as Draggables */}
 								{provided.placeholder}
 							</InfiniteScroll>
-
-							<div
-								className="board-view-item-add-card"
-								onClick={() => handleAddButtonOnClick(group._id)}
-								style={{ borderColor: 'var(--secondary-font)' }}
-							>
-								<PlusIcon />
-								<span
-									className="board-view-item-add-card-text"
-									style={{ color: 'var(--primary-font)' }}
-								>
-									New Task
-								</span>
-							</div>
 						</div>
 					)}
 				</Droppable>
@@ -210,3 +194,16 @@ const BoardItem = ({
 };
 
 export default memo(BoardItem);
+
+{
+	/* <div
+	className="board-view-item-add-card"
+	onClick={() => handleAddButtonOnClick(group._id)}
+	style={{ borderColor: 'var(--secondary-font)' }}
+>
+	<PlusIcon />
+	<span className="board-view-item-add-card-text" style={{ color: 'var(--primary-font)' }}>
+		New Task
+	</span>
+</div>; */
+}

@@ -1,64 +1,71 @@
-import React, { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/status.scss';
 import { ReactComponent as PencilWithLine } from '../../../../assets/svg/tasks/pencilWithLine.svg';
 import { Tooltip } from 'antd';
+import StatusDropdown from '../../dropDown/tasks/StatusDropdown';
+
+const colors = {
+	1: { backgroundColor: '#62344B', color: '#A35A7E' },
+	2: { backgroundColor: '#373737', color: '#707070' },
+	3: { backgroundColor: '#5B3D2F', color: '#8F614B' },
+	4: { backgroundColor: '#7D4F27', color: '#B37339' },
+	5: { backgroundColor: '#375841', color: '#588F69' },
+	6: { backgroundColor: '#2F4469', color: '#4F71B3' },
+	7: { backgroundColor: '#453061', color: '#6F4C99' },
+};
 
 const Status = ({
 	value,
 	showLabel = true,
 	customListItemStyle = {},
 	onOptionClick,
-	setDefault = true,
-	defaultValue = 'todo',
+	setDefault = false,
 	options = { todo: [], inProgress: [], completed: [] },
 	labelField = 'label',
 	valueField = 'value',
-	colors,
 	title = 'Status',
 	showTitle = false,
+	disabled = false,
 }) => {
 	const [info, setInfo] = useState({
 		selected: null,
 		open: false,
+		allOptions: [],
+		defaultStatus: null,
 	});
 
 	useEffect(() => {
-		setInfo((prevInfo) => {
-			const allOptions = [
-				...(options.todo || []),
-				...(options.inProgress || []),
-				...(options.completed || []),
-			];
+		const allOptions = [
+			...(options.todo || []),
+			...(options.inProgress || []),
+			...(options.completed || []),
+		];
+		const defaultStatus = allOptions.find((item) => item?.isDefault);
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			allOptions,
+			defaultStatus,
+		}));
+	}, [options]);
 
-			const selectedOption = allOptions.find((item) => item?._id === value);
-			if (selectedOption) {
-				return { ...prevInfo, selected: selectedOption };
+	useEffect(() => {
+		const selectedOption = info?.allOptions?.find((item) => item?._id === value);
+		if (selectedOption) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				selected: selectedOption,
+			}));
+		} else {
+			if (setDefault) {
+				onOptionClick?.(info?.defaultStatus?._id);
+			} else {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					selected: info?.defaultStatus,
+				}));
 			}
-
-			if (value) {
-				const defaultStatus = allOptions.find((item) => item?.isDefault);
-				if (defaultStatus && defaultStatus._id !== prevInfo.selected?._id) {
-					onOptionClick?.(defaultStatus._id); // ✅ Safe to update since it's different
-					return { ...prevInfo, selected: defaultStatus };
-				}
-			}
-
-			if (setDefault && !value) {
-				const defaultStatus = allOptions.find((item) => item?.isDefault);
-				if (defaultStatus && defaultStatus._id !== prevInfo.selected?._id) {
-					onOptionClick?.(defaultStatus._id);
-					return { ...prevInfo, selected: defaultStatus };
-				}
-
-				if (options.todo?.length > 0 && options.todo[0]._id !== prevInfo.selected?._id) {
-					onOptionClick?.(options.todo[0]._id);
-					return { ...prevInfo, selected: options.todo[0] };
-				}
-			}
-
-			return prevInfo;
-		});
-	}, [value, options, setDefault, onOptionClick]);
+		}
+	}, [value, info?.allOptions]);
 
 	const customOnOptionClick = (value) => {
 		setInfo((prevInfo) => ({
@@ -77,81 +84,21 @@ const Status = ({
 
 	return (
 		<Tooltip
-			open={info?.open}
+			open={!disabled && info?.open}
 			onOpenChange={(open) => {
 				if (!open) {
 					handleDropdown(false);
 				}
 			}}
 			title={
-				<div className="status-dropdown-container" onClick={(e) => e?.stopPropagation()}>
-					<div className="status-dropdown-header-wrapper">
-						<span
-							className="select-listItem"
-							style={{
-								backgroundColor: colors?.[info?.selected?.color]?.backgroundColor,
-							}}
-						>
-							<span
-								className="select-listItem-color"
-								style={{ backgroundColor: colors?.[info?.selected?.color]?.color }}
-							></span>
-							<span className="select-listItem-label">
-								{info?.selected?.[labelField] || (!value ? 'Select status' : '')}
-							</span>
-						</span>
-					</div>
-					<div className="status-dropdown-body-wrapper">
-						{[
-							{
-								group: 'To-do',
-								options: options.todo || [],
-							},
-							{
-								group: 'InProgress',
-								options: options.inProgress || [],
-							},
-							{
-								group: 'Completed',
-								options: options.completed || [],
-							},
-						]?.map((item, index) => (
-							<div
-								className={`status-option-container ${
-									!(index === 2) ? 'border-bottom' : ''
-								}`}
-								key={item?.group}
-							>
-								<div className="option-heading">{item?.group}</div>
-								<div className="option-list">
-									{item?.options?.map((option) => (
-										<span
-											key={option?._id}
-											className="select-listItem"
-											style={{
-												backgroundColor:
-													colors?.[option?.color]?.backgroundColor,
-											}}
-											onClick={() => {
-												customOnOptionClick(option?._id);
-											}}
-										>
-											<span
-												className="select-listItem-color"
-												style={{
-													backgroundColor: colors?.[option?.color]?.color,
-												}}
-											></span>
-											<span className="select-listItem-label">
-												{option?.label}
-											</span>
-										</span>
-									))}
-								</div>
-							</div>
-						))}
-					</div>
-				</div>
+				<StatusDropdown
+					colors={colors}
+					options={options}
+					selected={info?.selected?._id}
+					onOptionClick={customOnOptionClick}
+					labelField={labelField}
+					valueField={valueField}
+				/>
 			}
 			placement="bottom"
 			overlayClassName="status-dropdown"
@@ -167,12 +114,11 @@ const Status = ({
 				overlayClassName="tooltip-overlay-container"
 				color="transparent"
 			>
-				<div className="listItem-status">
+				<div className="listItem-status filter-wrapper">
 					<div
 						className={`select-listItem`}
 						style={{
 							...customListItemStyle,
-							backgroundColor: colors?.[info?.selected?.color]?.backgroundColor,
 						}}
 						onClick={() => {
 							handleDropdown(true);

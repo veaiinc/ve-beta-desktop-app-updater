@@ -1,4 +1,3 @@
-import { message } from 'antd';
 import { intialState } from './state';
 const actionHandlers = {
 	GET_WORKFLOW_DETAILS_SUCCESS: (state, action) => ({
@@ -49,6 +48,14 @@ const actionHandlers = {
 	GET_FORM_RESPONSES_SUCCESS: (state, action) => ({
 		...state,
 		formResponseData: action?.payload,
+	}),
+	// GET_FORM_RESPONSE_SUMMARY_SUCCESS: (state, action) => ({
+	// 	...state,
+	// 	formResponseSummary: action?.payload,
+	// }),
+	GET_FORM_RESPONSE_ANALYTICS_SUCCESS: (state, action) => ({
+		...state,
+		formResponseAnalytics: action?.payload,
 	}),
 	GET_SPECIFIC_TEMPLATE_INFO_SUCCESS: (state, action) => ({
 		...state,
@@ -176,18 +183,260 @@ const actionHandlers = {
 			}
 		}
 		if (requiredIndex !== -1) {
-			messages[requiredIndex] = {
-				...messages[requiredIndex],
-				...payload,
-				message: (messages?.[requiredIndex]?.message || '') + (payload?.answer || ''),
-				messageId: payload?.message_id,
-			};
+			const message = messages?.[requiredIndex];
+			const { processing } = message;
+			if (processing === 'Deep Search') {
+				let deepSearch = message?.deepSearch || {};
+				let cot = deepSearch?.cot || [];
+				// let cot_refined = deepSearch?.cot_refined || [];
+				// let initial_answer = deepSearch?.initial_answer || {};
+				// let final_answer = deepSearch?.final_answer || {};
+
+				// if (payload?.sub_query_id && payload?.reading && payload?.reading?.sub_query) {
+				// 	let index = cot?.findIndex(
+				// 		(item) => item?.sub_query_id === payload?.sub_query_id,
+				// 	);
+				// 	if (index !== -1) {
+				// 		let readings = cot[index]?.readings || [];
+				// 		readings?.push({ reading: payload?.reading });
+				// 		cot[index] = {
+				// 			...cot[index],
+				// 			readings,
+				// 		};
+				// 	} else {
+				// 		cot?.push({
+				// 			sub_query_id: payload?.sub_query_id,
+				// 			readings: [{ reading: payload?.reading }],
+				// 		});
+				// 	}
+				// }
+
+				// if (
+				// 	payload?.refined_sub_query_id &&
+				// 	payload?.reading &&
+				// 	payload?.reading?.refined_sub_query
+				// ) {
+				// 	let index = cot_refined?.findIndex(
+				// 		(item) => item?.refined_sub_query_id === payload?.refined_sub_query_id,
+				// 	);
+				// 	if (index !== -1) {
+				// 		let readings = cot_refined[index]?.readings || [];
+				// 		readings?.push({ reading: payload?.reading });
+				// 		cot_refined[index] = {
+				// 			...cot_refined[index],
+				// 			readings,
+				// 		};
+				// 	} else {
+				// 		cot_refined?.push({
+				// 			refined_sub_query_id: payload?.refined_sub_query_id,
+				// 			readings: [{ reading: payload?.reading }],
+				// 		});
+				// 	}
+				// }
+
+				// if (payload?.initial_answer) {
+				// 	initial_answer = {
+				// 		...initial_answer,
+				// 		...payload,
+				// 	};
+				// }
+
+				// if (payload?.final_answer) {
+				// 	final_answer = {
+				// 		...final_answer,
+				// 		...payload,
+				// 	};
+				// }
+
+				if (payload?.step && payload?.step_id) {
+					cot?.push({
+						step: payload?.step,
+						step_id: payload?.step_id,
+					});
+				} else if (payload?.reading && payload?.step_id) {
+					cot = cot?.map((item) => {
+						if (item?.step_id === payload?.step_id) {
+							item.readings = [
+								...(item?.readings || []),
+								{ reading: payload?.reading },
+							];
+						}
+						return item;
+					});
+				}
+
+				deepSearch = {
+					...deepSearch,
+					cot,
+				};
+
+				messages[requiredIndex] = {
+					...message,
+					...payload,
+					message: (message?.message || '') + (payload?.answer || ''),
+					messageId: payload?.message_id,
+					deepSearch,
+				};
+			} else if (processing === 'Deep Research') {
+				let deepResearch = message?.deepResearch || {};
+				let cot = deepResearch?.cot || [];
+				let sections = deepResearch?.sections || [];
+				let sections_refined = deepResearch?.sections_refined || [];
+
+				if (payload?.responded) {
+					cot?.push({
+						step: payload?.responded,
+					});
+				}
+				if (payload?.intermediate_step) {
+					let last_step = { ...(cot?.[cot?.length - 1] || {}) };
+					last_step = {
+						...(last_step || {}),
+						...(payload?.intermediate_step || {}),
+					};
+					cot[cot?.length - 1] = last_step;
+				}
+
+				if (payload?.step) {
+					cot?.push({
+						step: payload?.step,
+						citations: payload?.citations || [],
+					});
+				}
+
+				if (payload?.sub_queries) {
+					const sub_queries = (payload?.sub_queries || [])?.map((subQuery) => ({
+						sub_query: subQuery,
+					}));
+					sections?.push({
+						section: payload?.section,
+						sub_queries,
+						section_id: payload?.section_id,
+					});
+				}
+
+				if (payload?.compiling && payload?.section_id) {
+					sections = sections?.map((section) => {
+						if (section?.section_id === payload?.section_id) {
+							return {
+								...section,
+								compiling: payload?.compiling,
+							};
+						}
+						return section;
+					});
+					sections_refined = sections_refined?.map((section) => {
+						if (section?.section_id === payload?.section_id) {
+							return {
+								...section,
+								compiling: payload?.compiling,
+							};
+						}
+						return section;
+					});
+				}
+
+				if (payload?.reading && payload?.reading?.sub_query && payload?.section_id) {
+					sections = sections?.map((section) => {
+						if (section?.section_id === payload?.section_id) {
+							let sub_queries = section?.sub_queries?.map((subQuery) => {
+								if (subQuery?.sub_query === payload?.reading?.sub_query) {
+									const readings = [...(subQuery?.readings || [])];
+									readings?.push({ reading: payload?.reading });
+									return {
+										...subQuery,
+										readings,
+									};
+								}
+								return subQuery;
+							});
+							return {
+								...section,
+								sub_queries,
+							};
+						}
+						return section;
+					});
+				}
+
+				if (payload?.refined_sub_queries) {
+					const refined_sub_queries = (payload?.refined_sub_queries || [])?.map(
+						(subQuery) => ({
+							refined_sub_query: subQuery,
+						}),
+					);
+					sections_refined?.push({
+						section: payload?.section,
+						refined_sub_queries: refined_sub_queries,
+						section_id: payload?.section_id,
+					});
+				}
+
+				if (
+					payload?.reading &&
+					payload?.reading?.refined_sub_query &&
+					payload?.section_id
+				) {
+					sections_refined = sections_refined?.map((section) => {
+						if (section?.section_id === payload?.section_id) {
+							let refined_sub_queries = section?.refined_sub_queries?.map(
+								(subQuery) => {
+									if (
+										subQuery?.refined_sub_query ===
+										payload?.reading?.refined_sub_query
+									) {
+										const readings = [...(subQuery?.readings || [])];
+										readings?.push({ reading: payload?.reading });
+										return {
+											...subQuery,
+											readings,
+										};
+									}
+									return subQuery;
+								},
+							);
+							return {
+								...section,
+								refined_sub_queries,
+							};
+						}
+						return section;
+					});
+				}
+
+				deepResearch = {
+					...deepResearch,
+					cot,
+					sections,
+					sections_refined,
+				};
+
+				messages[requiredIndex] = {
+					...message,
+					...payload,
+					message:
+						(message?.message || '') +
+						(typeof payload?.answer === 'object'
+							? payload?.answer?.final_report || ''
+							: payload?.answer || ''),
+					deepResearch,
+					messageId: payload?.message_id,
+				};
+			} else {
+				messages[requiredIndex] = {
+					...message,
+					...payload,
+					message: (message?.message || '') + (payload?.answer || ''),
+					messageId: payload?.message_id,
+				};
+			}
 		} else {
-			messages.push({
+			messages?.push({
 				...payload,
 				type: 'AI',
 				contentType: 'message',
 				message: payload?.answer || '',
+				messageId: payload?.message_id,
 			});
 		}
 
@@ -197,10 +446,28 @@ const actionHandlers = {
 		...state,
 		llmModels: action?.payload,
 	}),
-	// SET_CONNECTED_THIRDPARTIES: (state, action) => ({
-	// 	...state,
-	// 	connectThirdParties: action?.payload,
-	// }),
+	GET_AI_SUGGESTED_PENDING_ACTIONS_SUCCESS: (state, action) => ({
+		...state,
+		aiSuggestedPendingActions: action?.payload,
+	}),
+	SET_CONNECTED_THIRDPARTIES: (state, action) => ({
+		...state,
+		connectThirdParties: action?.payload,
+	}),
+	UPDATE_CITATION_CHUNKS: (state, action) => {
+		const sourceId = Object?.keys(action?.payload)?.[0];
+		if (state?.citationChunks?.[sourceId]) {
+			return state;
+		}
+		return {
+			...state,
+			citationChunks: { ...state?.citationChunks, [sourceId]: action?.payload?.[sourceId] },
+		};
+	},
+	GET_AI_QUESTIONS_SUCCESS: (state, action) => ({
+		...state,
+		aiQuestions: action?.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

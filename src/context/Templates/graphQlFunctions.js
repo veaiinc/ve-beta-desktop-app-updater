@@ -4,6 +4,7 @@ export const getTemmplatesQuery = gql`
 		templates(filters: $filters) {
 			currentPage
 			hasNextPage
+			totalDocs
 			data {
 				_id
 				moduleTemplates {
@@ -41,6 +42,7 @@ export const getTemmplatesQuery = gql`
 				slug
 				actionRequired
 				createdAt
+				updatedAt
 			}
 		}
 	}
@@ -232,6 +234,7 @@ export const getWorkflowListQuery = gql`
 		workflows(filters: $filters) {
 			currentPage
 			hasNextPage
+			totalDocs
 			data {
 				_id
 				title
@@ -248,6 +251,8 @@ export const getWorkflowListQuery = gql`
 				requiredAction
 				templateId
 				version
+				createdAt
+				updatedAt
 			}
 		}
 	}
@@ -258,11 +263,14 @@ export const getTemplatesListForCreateLeadQuery = gql`
 		templates(filters: $filters) {
 			currentPage
 			hasNextPage
+			totalDocs
 			data {
 				_id
 				title
 				status
 				slug
+				createdAt
+				formResponsesCount
 			}
 		}
 	}
@@ -509,5 +517,34 @@ export const createBlankTemplateQuery = gql`
 export const getFormResponseQuery = gql`
 	query Query($formId: ID!) {
 		formResponse(formId: $formId)
+	}
+`;
+
+// export const getFormResponseSummaryQuery = gql`
+// 	query Query($workflowTemplateId: ID!) {
+// 		formResponseSummary(workflowTemplateId: $workflowTemplateId)
+// 	}
+// `;
+
+export const getFormResponseAnalyticsQuery = gql`
+	query Query($filter: AnalyticsFilterInput!) {
+		formResponseAnalytics(filter: $filter)
+	}
+`;
+
+export const updateWorkflowTemplateQuery = gql`
+	mutation UpdateWorkflowTemplate($templateId: ID!, $updateObj: TemplateUpdateObj!) {
+		updateWorkflowTemplate(templateId: $templateId, updateObj: $updateObj) {
+			_id
+			title
+		}
+	}
+`;
+
+export const duplicateSmartFileQuery = gql`
+	mutation DuplicateSmartFile($duplicateSmartFile: DuplicateSmartFileInput) {
+		duplicateSmartFile(duplicateSmartFile: $duplicateSmartFile) {
+			_id
+		}
 	}
 `;

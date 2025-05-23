@@ -33,6 +33,10 @@ const {
 	multi_agent_chat_US,
 	automation_builder_api,
 	automation_builder_api_US,
+	elastic_search_api,
+	elastic_search_api_US,
+	workspace_images_api,
+	workspace_images_api_US,
 } = config || {};
 
 const apiEndpoints = {
@@ -51,6 +55,8 @@ const apiEndpoints = {
 	workflow: workflows_Api,
 	multi_agent_chat,
 	automation_builder_api,
+	elastic_search_api,
+	workspace_images_api,
 };
 const apiEndpointsUS = {
 	tenant_users_api: tenant_users_api_US,
@@ -68,10 +74,14 @@ const apiEndpointsUS = {
 	workflow: workflows_Api_US,
 	multi_agent_chat: multi_agent_chat_US,
 	automation_builder_api: automation_builder_api_US,
+	elastic_search_api: elastic_search_api_US,
+	workspace_images_api: workspace_images_api_US,
 };
 
-const handleHeaders = (token, body, type) => {
+const handleHeaders = (token, body, type, isPublicChat = false) => {
 	const headers = { 'Content-Type': 'application/json' };
+	const x_access_key = 'QWxsb3dBY2Nlc3NUb0ZlZWRiYWNrQVBJ';
+
 	if (token) {
 		headers['x-access-token'] = token;
 		if (
@@ -79,10 +89,14 @@ const handleHeaders = (token, body, type) => {
 			type === 'ai_setup' ||
 			type === 'ai_predictions' ||
 			type === 'calendar_chat' ||
-			type === 'slack_api'
+			type === 'slack_api' ||
+			type === 'elastic_search_api'
 		) {
 			headers['Authorization'] = `Bearer ${token}`;
 		}
+	}
+	if (isPublicChat && type === 'ai_assistant_api') {
+		headers['x-access-key'] = x_access_key;
 	}
 	return headers;
 };
@@ -99,10 +113,10 @@ const processResponse = async (response) => {
 	}
 };
 
-const apiFetch = async (url, method, body, token, type) => {
+const apiFetch = async (url, method, body, token, type, isPublicChat = false) => {
 	const region = localStorage.getItem('region') || 'ap-south-1';
 	const endpoint = (region === 'ap-south-1' ? apiEndpoints[type] : apiEndpointsUS?.[type]) + url;
-	const headers = handleHeaders(token, body, type);
+	const headers = handleHeaders(token, body, type, isPublicChat);
 	if (body) {
 		body = JSON.stringify(body);
 	}
@@ -138,8 +152,8 @@ const Service = {
 	},
 	fetchPost: async (url, body, token = null, type = null) =>
 		await apiFetch(url, 'POST', body, token, type),
-	fetchPut: async (url, body, token = null, type = null) =>
-		await apiFetch(url, 'PUT', body, token, type),
+	fetchPut: async (url, body, token = null, type = null, isPublicChat = false) =>
+		await apiFetch(url, 'PUT', body, token, type, isPublicChat),
 	fetchDelete: async (url, token = null, body = null, type = null) =>
 		await apiFetch(url, 'DELETE', body, token, type),
 };

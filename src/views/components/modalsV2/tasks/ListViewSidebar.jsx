@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import { Drawer } from 'antd';
-import React, { memo, useCallback, useEffect, useState, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useState, useRef, useContext } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
 import { ReactComponent as CloseArrow } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as RightSvg } from '../../../../assets/svg/activity/right.svg';
@@ -12,6 +12,8 @@ import Skeleton from 'react-loading-skeleton';
 import CustomTextArea from '../../globalComponents/CusomTextArea';
 import QuickActions from '../../globalComponents/QuickActions';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import moment from 'moment';
+import Context from '../../../../context/context';
 const optionsForQuickActions = [
 	{ id: 4, title: 'Document', value: 'document' },
 	{ id: 6, title: 'Proposal', value: 'proposal' },
@@ -19,24 +21,32 @@ const optionsForQuickActions = [
 	{ id: 8, title: 'Contract', value: 'contract' },
 ];
 
+const getFormattedDate = (date) => {
+	if (!date) return '';
+	return moment(date * 1000)?.format('DD/MM/YYYY - hh:mm A');
+};
+
+const customStyles = {
+	height: 'calc(100dvh - 41px)',
+	marginTop: '53px',
+};
+
 const ListViewSidebar = ({
-	selectedRow,
-	sidebarIsOpen,
-	closeSidebar,
 	handleUpdate,
 	deleteTask,
 	rowTypes,
-	handleSubTaskClick,
 	responseMetadata,
 	colors,
 	sidebarChildren,
 	isSidebarExpanded = false,
-	toggleSidebarExpand,
-	headerText,
-	breadCrumbs,
-	handleBreadCrumbsClick,
 	showQuickActions = true,
+	prefix,
+	groupBy = null,
 }) => {
+	const {
+		tasks: { sideBarData, updateSideBarData, linkToTaskModule },
+		notes: { createNotesList },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
 		subTasks: [],
 		subTaskLoading: true,
@@ -62,6 +72,8 @@ const ListViewSidebar = ({
 			},
 		},
 	];
+
+	const selectedRow = sideBarData?.stack?.at(-1);
 
 	useEffect(() => {
 		if (selectedRow?.title !== localTitle) {
@@ -141,7 +153,7 @@ const ListViewSidebar = ({
 			...prevInfo,
 			deleteLoading: true,
 		}));
-		await deleteTask({ taskId: selectedRow?._id });
+		await deleteTask({ taskId: selectedRow?._id }, selectedRow?.[groupBy] || null);
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			deleteLoading: false,
@@ -175,6 +187,13 @@ const ListViewSidebar = ({
 						'workflowId',
 						'parentTask',
 						'childTasks',
+						'assignedBy',
+						'assignedAt',
+						'createdAt',
+						'createdBy',
+						'updatedAt',
+						'updatedBy',
+						// 'clients',
 					].includes(key) ||
 					isTitle
 				) {
@@ -186,13 +205,12 @@ const ListViewSidebar = ({
 				}
 
 				const RowComponent = rowTypes?.[type] || null;
+
 				listItems.push(
 					<div className="property-list" key={key}>
 						<span className="property-title">
-							{Icon && <Icon width={16} height={16} />}
-							{name}
-						</span>
-						<span className={`property-value`}>
+							{Icon && <Icon width={16} height={16} className="property-icon" />}
+
 							{RowComponent ? (
 								<RowComponent
 									key={key}
@@ -211,11 +229,13 @@ const ListViewSidebar = ({
 										handleUpdate(row._id, key, value, false, onSuccess)
 									}
 									takeFullspace={true}
+									className={key === 'dueDate' ? 'listview-date-picker' : ''}
 								/>
 							) : (
 								<div key={key}>{value}</div>
 							)}
 						</span>
+						<span className={`property-value`}>{name}</span>
 					</div>,
 				);
 			}
@@ -224,6 +244,30 @@ const ListViewSidebar = ({
 		},
 		[responseMetadata, rowTypes, handleUpdate, colors],
 	);
+
+	const generateTimestampDiv = useCallback((row) => {
+		return (
+			<div className="timestamp-div">
+				<div className="timestamp-cell">
+					<div className="timestamp-item">
+						<span className="timestamp-label">Created at</span>
+						<span className="timestamp-value">{getFormattedDate(row?.createdAt)}</span>
+						<span className="timestamp-assignee">{row?.createdBy?.name}</span>
+					</div>
+					<div className="timestamp-item">
+						<span className="timestamp-label">Assigned at</span>
+						<span className="timestamp-value">{getFormattedDate(row?.assignedAt)}</span>
+						<span className="timestamp-assignee">{row?.assignedBy?.name}</span>
+					</div>
+					<div className="timestamp-item">
+						<span className="timestamp-label">Updated at</span>
+						<span className="timestamp-value">{getFormattedDate(row?.updatedAt)}</span>
+						<span className="timestamp-assignee">{row?.updatedBy?.name}</span>
+					</div>
+				</div>
+			</div>
+		);
+	}, []);
 
 	const generateSkeleton = useCallback(() => {
 		return [...Array(3)]?.map((_, index) => (
@@ -238,106 +282,136 @@ const ListViewSidebar = ({
 			const isTask = !!selectedRow?.taskSlNo;
 			const path = isTask ? `/task/${selectedRow._id}` : `/contact/${selectedRow._id}`;
 			navigate(path);
-			closeSidebar();
+			updateSideBarData({ open: false });
 		}
 	};
 
+	const sideBarOpen = sideBarData?.open;
+
+	const handleNoteSubmit = useCallback(
+		async (noteText) => {
+			if (!noteText.trim() || !selectedRow?._id) return;
+
+			try {
+				// First create the note
+				const [success, noteData] = await createNotesList({
+					input: {
+						title: noteText,
+						blocks: [
+							{
+								type: 'paragraph',
+								content: noteText,
+							},
+						],
+					},
+				});
+
+				if (success && noteData?._id) {
+					// Then link it to the task
+					await linkToTaskModule({
+						taskId: selectedRow._id,
+						linkToModuleInput: {
+							moduleType: 'pages',
+							docId: noteData._id,
+						},
+					});
+				}
+			} catch (error) {
+				console.error('Failed to create/link note:', error);
+			}
+		},
+		[selectedRow?._id, linkToTaskModule, createNotesList],
+	);
+
 	return (
 		<Drawer
-			onClose={closeSidebar}
+			onClose={() => updateSideBarData({ open: false })}
 			width={'fit-content'}
-			open={sidebarIsOpen}
+			open={sideBarOpen}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			bodyStyle={{ padding: '0px', overflow: 'hidden' }}
+			className="listview-sidebar-drawer"
+			destroyOnClose={true}
 		>
 			<div
 				className={`listView-sidebar-container ${
 					isSidebarExpanded ? 'listView-sidebar-container-expanded' : ''
 				}`}
 			>
-				<div className="listView-sidebar-innerContainer">
-					<div className="listView-sidebar-wrapper">
-						<div className="sidebar-header">
-							<div className="sidebar-header-left-container">
-								<div className="sidebar-header-expand-button">
-									{!isSidebarExpanded ? (
-										<CloseArrow
-											width={16}
-											height={16}
-											onClick={closeSidebar}
-											style={{ cursor: 'pointer' }}
-										/>
-									) : (
-										''
-									)}
-								</div>
-								<div
-									className="sidebar-header-expand-button"
-									onClick={handleExpandClick}
-								>
-									{isSidebarExpanded ? (
-										<ExpandSvg
-											width={16}
-											height={16}
-											style={{ cursor: 'pointer' }}
-										/>
-									) : (
-										<ExpandSvg
-											width={16}
-											height={16}
-											style={{ cursor: 'pointer' }}
-										/>
-									)}
-								</div>
+				<div
+					className="listView-sidebar-innerContainer"
+					// style={renewBanner ? customStyles : {}}
+				>
+					<div className="sidebar-header">
+						<div className="sidebar-header-left-container">
+							<div className="sidebar-header-expand-button">
+								{!isSidebarExpanded ? (
+									<CloseArrow
+										width={16}
+										height={16}
+										onClick={() =>
+											updateSideBarData({
+												data: -1,
+												open: sideBarData?.stack?.length > 1,
+											})
+										}
+										style={{ cursor: 'pointer' }}
+									/>
+								) : (
+									''
+								)}
 							</div>
-
-							<div className="sidebar-header-right-container">
-								{showQuickActions && isSidebarExpanded && (
-									<QuickActions
-										suggestedOptions={suggestedOptions}
-										// clientDetails={selectedRow}
+							<div
+								className="sidebar-header-expand-button"
+								onClick={handleExpandClick}
+							>
+								{isSidebarExpanded ? (
+									<ExpandSvg
+										width={16}
+										height={16}
+										style={{ cursor: 'pointer' }}
+									/>
+								) : (
+									<ExpandSvg
+										width={16}
+										height={16}
+										style={{ cursor: 'pointer' }}
 									/>
 								)}
-								<button
-									className="sidebar-delete-button"
-									onClick={() => {
-										handleDeleteTask();
-									}}
-									disabled={info?.deleteLoading}
-								>
-									{info?.deleteLoading ? (
-										<Spinner width={20} height={20} color="#7d7d7d" />
-									) : (
-										<DustBinIcon
-											width={20}
-											height={20}
-											className="cursor-pointer"
-										/>
-									)}
-								</button>
+							</div>
+							<div className="sidebar-header-id">
+								{prefix}-{selectedRow?.taskSlNo}
 							</div>
 						</div>
-						{headerText && (
-							<div className="breadCrumbs-container">
-								{breadCrumbs?.map((item, index) => (
-									<div
-										className="breadCrumbs-item"
-										key={item?.label}
-										onClick={() => {
-											handleBreadCrumbsClick(item, index);
-										}}
-									>
-										{item?.label}
-										<div className="right-svg">
-											<RightSvg height={12} width={12} />
-										</div>
-									</div>
-								))}
-								<div className="breadCrumbs-item active">{headerText}</div>
-							</div>
-						)}
 
+						<div className="sidebar-header-right-container">
+							{showQuickActions && isSidebarExpanded && (
+								<QuickActions
+									suggestedOptions={suggestedOptions}
+									// clientDetails={selectedRow}
+								/>
+							)}
+							<button
+								className="sidebar-delete-button"
+								onClick={() => {
+									handleDeleteTask();
+								}}
+								disabled={info?.deleteLoading}
+							>
+								{info?.deleteLoading ? (
+									<Spinner width={20} height={20} color="#7d7d7d" />
+								) : (
+									<DustBinIcon
+										width={20}
+										height={20}
+										className="cursor-pointer"
+									/>
+								)}
+							</button>
+						</div>
+					</div>
+					<div className="listView-sidebar-wrapper">
 						<div className="sidebar-title">
 							<CustomTextArea
 								value={localTitle}
@@ -346,22 +420,46 @@ const ListViewSidebar = ({
 								className="sidebar-title-input"
 								autoResize={true}
 							/>
+							{selectedRow?.description !== undefined && (
+								<div className="sidebar-description">
+									<CustomTextArea
+										value={localDescription}
+										onChange={handleDescriptionChange}
+										placeholder="Enter description"
+										className="sidebar-description-textarea"
+										autoResize={true}
+									/>
+								</div>
+							)}
 						</div>
 						<div className="sidebar-properties-container">
+							<h4>Details</h4>
 							{generateRow(selectedRow)}
 						</div>
 						{sidebarChildren}
-						{selectedRow?.description !== undefined && (
-							<div className="sidebar-description">
+						<div className="sidebar-timestamp-container">
+							{generateTimestampDiv(selectedRow)}
+						</div>
+						<div className="task-notetaker">
+							<div className="task-notetaker-header">
+								<div className="task-note-title">Add a note</div>
+								<div className="task-add-icon">+</div>
+							</div>
+							<div className="task-note-textarea">
 								<CustomTextArea
-									value={localDescription}
-									onChange={handleDescriptionChange}
-									placeholder="Enter description"
-									className="sidebar-description-textarea"
-									autoResize={true}
+									placeholder="Add notes for this task"
+									className="task-note-textarea-input"
+									autoResize={false}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' && !e.shiftKey) {
+											e.preventDefault();
+											handleNoteSubmit(e.target.value);
+											e.target.value = '';
+										}
+									}}
 								/>
 							</div>
-						)}
+						</div>
 					</div>
 				</div>
 			</div>

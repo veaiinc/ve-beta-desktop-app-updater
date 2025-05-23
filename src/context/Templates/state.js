@@ -1,5 +1,5 @@
 import service from '../../services/graphQlServices';
-import { message } from 'antd';
+import { message } from '../../views/components/globalComponents/CustomToast';
 import {
 	getTemmplatesQuery,
 	duplicateTemplateQuery,
@@ -40,6 +40,10 @@ import {
 	createBlankWorkflowQuery,
 	createBlankTemplateQuery,
 	getFormResponseQuery,
+	getFormResponseSummaryQuery,
+	getFormResponseAnalyticsQuery,
+	updateWorkflowTemplateQuery,
+	duplicateSmartFileQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -88,7 +92,6 @@ export const intialState = {
 	globalChatMessages: [], // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
 	citations: null,
-	followUpQuery: null,
 	docsFilesList: null,
 	moreDocsFilesList: null,
 	smartFileRefetch: false,
@@ -99,19 +102,42 @@ export const intialState = {
 	formResponsesList: null,
 	moreFormResponsesList: null,
 	activePromptForChat: null,
+	activePayloadForChat: null,
+	activeInputForChat: null,
 	leftSidebarState: null,
 	recentChatStorage: null,
 	moreRecentChatStorage: null,
-	activePayloadForChat: null,
 	llmModels: null,
 	chatInfo: {
 		deepResearch: false,
 		selectedLLMModel: null,
-		webSearch: false,
-		workspaceSearch: true,
+		agentType: null,
+		assistantId: null,
+		ask: {
+			workspaceSearch: true,
+			webSearch: false,
+		},
+		reason: {
+			workspaceSearch: false,
+			webSearch: false,
+		},
 	},
+	citationChunks: {},
+	currentChatData: null,
+	chatPayload: {
+		workflowTemplateId: null,
+		moduleTemplateId: null,
+	},
+	galleryFile: null,
 	globalLoadingMesssage: null,
 	userEditedQuery: null,
+	aiSuggestedPendingActions: null,
+	documentPreviewIds: {
+		workflowTemplateId: null,
+		moduleTemplateId: null,
+	},
+	refetchChatHistoryList: false,
+	aiQuestions: null,
 };
 
 export const TemplatesState = (props) => {
@@ -256,7 +282,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const resetTemplateState = async () => {
+	const resetTemplateState = () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
 		} catch (error) {
@@ -657,18 +683,24 @@ export const TemplatesState = (props) => {
 			console.log('api failed ==>getTemplatesListForDocs', response);
 		}
 	};
-	const getTemplatesListForForms = async (page = 1, limit = 10, fetchMore = false) => {
+	const getTemplatesListForForms = async (
+		page = 1,
+		limit = 10,
+		fetchMore = false,
+		options = { sortBy: 'createdAt', sortType: -1 },
+	) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
+		const { sortBy, sortType } = options;
 
 		const payload = {
 			filters: {
 				limit,
 				page,
 				type: 'workspace',
-				status: 'published',
-				sortBy: 'createdAt',
-				sortType: -1,
+				// status: 'published',
+				sortBy,
+				sortType,
 				action: 'form-submission',
 			},
 		};
@@ -726,6 +758,226 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const sendContactFormData = async (formData) => {
+		const {
+			email,
+			firstName,
+			lastName,
+			companyName,
+			jobTitle,
+			platformUsers,
+			headquarters,
+			message: inputMessage,
+			marketingConsent,
+			type,
+		} = formData;
+
+		try {
+			const body = {
+				responseInput: {
+					response: [
+						{
+							_id: '67fcfbbcbfcf70d43e4f3585',
+							type: 'email',
+							question: 'Work Email',
+							required: true,
+							order: 1,
+							isEditing: false,
+							placeholder: 'Work Email',
+							answer: email,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbbcbfcf70d43e4f3586',
+							type: 'shortanswer',
+							question: 'First Name',
+							required: true,
+							order: 2,
+							isEditing: false,
+							placeholder: 'First Name',
+							answer: firstName,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbbcbfcf70d43e4f3587',
+							type: 'shortanswer',
+							question: 'Last Name',
+							required: true,
+							order: 3,
+							isEditing: false,
+							placeholder: 'Last Name',
+							answer: lastName,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbbcbfcf70d43e4f3588',
+							type: 'shortanswer',
+							question: 'Company Name',
+							required: true,
+							order: 4,
+							isEditing: false,
+							placeholder: 'Company Name',
+							answer: companyName,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbbcbfcf70d43e4f3589',
+							type: 'shortanswer',
+							question: 'Job Title',
+							required: true,
+							order: 5,
+							isEditing: false,
+							placeholder: 'Job Title',
+							answer: jobTitle,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbbcbfcf70d43e4f358a',
+							type: 'shortanswer',
+							question: 'Platform Users',
+							required: false,
+							order: 6,
+							isEditing: false,
+							placeholder: 'Platform Users',
+							answer: platformUsers,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbbcbfcf70d43e4f358b',
+							type: 'shortanswer',
+							question: 'Company Headquarters',
+							required: false,
+							order: 7,
+							isEditing: false,
+							placeholder: 'Company Headquarters',
+							answer: headquarters,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbbcbfcf70d43e4f358c',
+							type: 'longanswer',
+							question: 'Tell us more about how you want to use VE.AI',
+							required: false,
+							order: 8,
+							isEditing: false,
+							placeholder: 'Tell us more about how you want to use VE.AI',
+							answer: inputMessage,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbe9bfcf70d43e4f3592',
+							type: 'dropdown',
+							question: 'Type',
+							required: true,
+							order: 1,
+							isEditing: false,
+							placeholder: 'Type',
+							answer: type,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+					],
+				},
+			};
+
+			const token = null;
+
+			const url =
+				'/veai/67fcfbbcbfcf70d43e4f358d/67fcfbbcbfcf70d43e4f358e/67fcfbbcbfcf70d43e4f3584';
+
+			const response = await Service.fetchPost(url, body, token, 'workflow');
+
+			message?.success(response[1]?.message);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+	// const getFormResponseSummary = async (formId) => {
+	// 	try {
+	// 		let workspaceId = localStorage.getItem('workspaceId');
+	// 		let usertoken = localStorage.getItem('usertoken');
+	// 		const response = await service.query(
+	// 			getFormResponseSummaryQuery,
+	// 			{ workflowTemplateId: formId },
+	// 			workspaceId,
+	// 			usertoken,
+	// 			'workflows_Api',
+	// 		);
+	// 	} catch (error) {
+	// 		console.log('api failed ==>getFormResponseSummary', error);
+	// 	}
+	// };
+	const getFormResponseAnalytics = async (formId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getFormResponseAnalyticsQuery,
+				{ filter: { workflowTemplateId: formId } },
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_FORM_RESPONSE_ANALYTICS_SUCCESS,
+					payload: response?.[1]?.data?.formResponseAnalytics,
+				});
+				return [true, response?.[1]?.data?.formResponseAnalytics];
+			} else {
+				console.log('api failed ==>getFormResponseAnalytics', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>getFormResponseAnalytics', error);
+			return [false];
+		}
+	};
 	const createLeadfromTemplates = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -1339,17 +1591,15 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const connectThirdParty = async (connectType) => {
+	const connectThirdParty = async (connectType, integrationType) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const path = `/${connectType}/${workspaceId}/auth`;
+			const params = integrationType ? { access: integrationType } : {};
+			const type = 'third_party_integrations_api';
 
-			const response = await Service?.fetchGet(
-				path,
-				usertoken,
-				'third_party_integrations_api',
-			);
+			const response = await Service?.fetchGet(path, usertoken, type, params);
 
 			if (response?.[0] === true) {
 				dispatch({
@@ -1373,22 +1623,24 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getConnectedThirdParties = async () => {
+	const getConnectedThirdParties = async (integrationType) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const path = `/connect-account/${workspaceId}`;
 			const usertoken = localStorage.getItem('usertoken');
 			const type = 'third_party_integrations_api';
-			const response = await Service?.fetchGet(path, usertoken, type);
-			return response;
-			// if (response?.[0] === true) {
-			// 	dispatch({
-			// 		type: Actions?.SET_CONNECTED_THIRDPARTIES,
-			// 		payload: response?.[1],
-			// 	});
-			// } else {
-			// 	console.log('api failed==>getConnectedThirdParties', response);
-			// }
+			const params = integrationType ? { access: integrationType } : {};
+			const response = await Service?.fetchGet(path, usertoken, type, params);
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions?.SET_CONNECTED_THIRDPARTIES,
+					payload: response?.[1],
+				});
+				return response;
+			} else {
+				console.log('api failed==>getConnectedThirdParties', response);
+			}
 		} catch (error) {
 			console.log('error==>getConnectedThirdParties', error);
 		}
@@ -1581,7 +1833,7 @@ export const TemplatesState = (props) => {
 				payload.query += str;
 			} else {
 				updatedGlobalChatMessages = [
-					{ type: 'user', message: payload?.query || '', typingEffect: false },
+					{ type: 'user', message: payload?.query || '' },
 					{
 						type: 'AI',
 						message: 'loading....',
@@ -1641,7 +1893,6 @@ export const TemplatesState = (props) => {
 					type: 'AI',
 					message: response?.[1]?.answer,
 					messageId: response?.[1]?.['message_id'],
-					typingEffect: true,
 					rating: null,
 					deepResearch: response?.[1]?.['deep_research'],
 				};
@@ -1661,57 +1912,59 @@ export const TemplatesState = (props) => {
 
 		if (localPayload.showCustomChatOptions) {
 			updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
-		} else if (payload.files) {
-			let str = '  ';
-			for (let i = 0; i < localPayload?.files?.length; i++) {
-				str += localPayload?.files?.[i]?.name || '' + ' ,';
-			}
+		}
+		//  else if (payload.files) {
+		// 	let str = '  ';
+		// 	for (let i = 0; i < localPayload?.files?.length; i++) {
+		// 		str += localPayload?.files?.[i]?.name || '' + ' ,';
+		// 	}
 
+		// 	updatedGlobalChatMessages = [
+		// 		{
+		// 			type: 'user',
+		// 			content: (
+		// 				<div
+		// 					className="uploadedImagesContainer"
+		// 					style={{
+		// 						display: 'flex',
+		// 						flexDirection: 'column',
+		// 						gap: '2px',
+		// 						alignItems: 'flex-end',
+		// 					}}
+		// 				>
+		// 					{localPayload?.files?.map((ele, index) => (
+		// 						<img
+		// 							src={ele.preview}
+		// 							alt="filetochat"
+		// 							width={'75px'}
+		// 							onClick={() => localPayload?.handlePreview(ele)}
+		// 							style={{ cursor: 'pointer' }}
+		// 						/>
+		// 					))}
+
+		// 					<div className="message-content-user" style={{ marginTop: '8px' }}>
+		// 						<span>{queryMessage}</span>
+		// 					</div>
+		// 				</div>
+		// 			),
+		// 		},
+		// 		{
+		// 			type: 'AI',
+		// 			message: 'loading....',
+		// 			content: (
+		// 				<div className="aiMessageWrapper">
+		// 					<AIMessageLoader />
+		// 				</div>
+		// 			),
+		// 			contentType: 'loading',
+		// 		},
+		// 	];
+
+		// 	payload.query += str;
+		// }
+		else {
 			updatedGlobalChatMessages = [
-				{
-					type: 'user',
-					content: (
-						<div
-							className="uploadedImagesContainer"
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								gap: '2px',
-								alignItems: 'flex-end',
-							}}
-						>
-							{localPayload?.files?.map((ele, index) => (
-								<img
-									src={ele.preview}
-									alt="filetochat"
-									width={'75px'}
-									onClick={() => localPayload?.handlePreview(ele)}
-									style={{ cursor: 'pointer' }}
-								/>
-							))}
-
-							<div className="message-content-user" style={{ marginTop: '8px' }}>
-								<span>{queryMessage}</span>
-							</div>
-						</div>
-					),
-				},
-				{
-					type: 'AI',
-					message: 'loading....',
-					content: (
-						<div className="aiMessageWrapper">
-							<AIMessageLoader />
-						</div>
-					),
-					contentType: 'loading',
-				},
-			];
-
-			payload.query += str;
-		} else {
-			updatedGlobalChatMessages = [
-				{ type: 'user', message: queryMessage || '', typingEffect: false },
+				{ type: 'user', message: queryMessage || '' },
 				{
 					type: 'AI',
 					message: 'loading....',
@@ -1745,17 +1998,6 @@ export const TemplatesState = (props) => {
 		// 		payload: null,
 		// 	});
 		// }
-		if (followUpQuery?.length) {
-			dispatch({
-				type: Actions?.CHAT_FOLLOW_UP_QUERY,
-				payload: followUpQuery,
-			});
-		} else {
-			dispatch({
-				type: Actions?.CHAT_FOLLOW_UP_QUERY,
-				payload: null,
-			});
-		}
 	};
 
 	const handleStreamMessageChunk = (payload, chunkId) => {
@@ -1766,14 +2008,24 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const updateAiChatMessageRating = async (payload, messageId) => {
+	const updateAiChatMessageRating = async (payload, messageId, isPublicChat = false) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
-		const url = '/' + workspaceId + '/ai-chat/' + messageId + '/ai-chat-message-feedback';
+
+		let url = '/' + workspaceId + '/ai-chat/' + messageId + '/ai-chat-message-feedback';
+		if (isPublicChat) {
+			url = '/ai-chat/' + messageId + '/rate-ai-chat-guestchat';
+		}
 		try {
-			const response = await Service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+			const response = await Service?.fetchPut(
+				url,
+				payload,
+				usertoken,
+				'ai_assistant_api',
+				isPublicChat,
+			);
 			if (response?.[0]) {
-				return [true];
+				return [true, response?.[1]];
 			}
 		} catch (error) {
 			console.log('error==>updatedAiChatMessageRating', error);
@@ -1984,18 +2236,35 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getRecentChatMessages = async (sessionId, page = 1, fetchMore = false, limit = 1000) => {
+	const getRecentChatMessages = async (
+		sessionId,
+		page = 1,
+		fetchMore = false,
+		limit = 1000,
+		isPublicChat = false,
+	) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const selectedvariable = fetchMore ? 'moreRecentChatStorage' : 'recentChatStorage';
-			const response = await Service.fetchGet(
-				`/${workspaceId}/list-multiagent-conversations/${encodeURIComponent(
-					sessionId,
-				)}?page=${page}&limit=${limit}&sortBy=createdAt&sortType=-1`,
-				usertoken,
-				'tenant',
-			);
+			let response;
+			if (isPublicChat) {
+				response = await Service.fetchGet(
+					`/ai-chat/${encodeURIComponent(
+						sessionId,
+					)}/list-ai-chat-guestchat?page=${page}&limit=${limit}&sortBy=createdAt&sortOrder=-1`,
+					null,
+					'ai_assistant_api',
+				);
+			} else {
+				response = await Service.fetchGet(
+					`/${workspaceId}/ai-chat/list-multiagent-conversations/${encodeURIComponent(
+						sessionId,
+					)}?page=${page}&limit=${limit}&sortBy=createdAt&sortType=-1`,
+					usertoken,
+					'ai_assistant_api',
+				);
+			}
 
 			if (response?.[0]) {
 				dispatch({
@@ -2096,6 +2365,197 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getAISuggestedPendingActions = async (payload, reset = false, type = null, id = null) => {
+		try {
+			if (type === 'delete') {
+				const data = state?.aiSuggestedPendingActions?.pendingActions?.filter(
+					(item) => item?._id !== id,
+				);
+				dispatch({
+					type: Actions?.GET_AI_SUGGESTED_PENDING_ACTIONS_SUCCESS,
+					payload: {
+						...state?.aiSuggestedPendingActions,
+						pendingActions: data,
+					},
+				});
+				return;
+			} else if (type === 'update') {
+				const data = state?.aiSuggestedPendingActions?.pendingActions?.map((item) =>
+					item?._id === id ? { ...item, ...payload } : item,
+				);
+				dispatch({
+					type: Actions?.GET_AI_SUGGESTED_PENDING_ACTIONS_SUCCESS,
+					payload: { ...state?.aiSuggestedPendingActions, pendingActions: data },
+				});
+				return;
+			}
+			const {
+				page = 1,
+				limit = 10,
+				from,
+				to,
+				sortType,
+				sortBy,
+				isFavourited,
+			} = payload || {};
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+
+			// Build filter params (priority, read, confidenceScore)
+			const filterParams = ['priority', 'read', 'confidenceScore']?.flatMap((key) =>
+				Array?.isArray(payload?.[key])
+					? payload[key]?.map((val) => `${key}=${encodeURIComponent(val)}`)
+					: [],
+			);
+
+			// Add date filters if present
+			if (from) filterParams?.push(`from=${from}`);
+			if (to) filterParams?.push(`to=${to}`);
+			if (sortType && sortBy) filterParams?.push(`sortType=${sortType}&sortBy=${sortBy}`);
+			if (isFavourited) filterParams?.push(`isFavourite=${isFavourited}`);
+
+			const queryString = new URLSearchParams({ page, limit })?.toString();
+			const fullQuery = `${queryString}&${filterParams?.join('&')}`;
+
+			const url = `/${workspaceId}/knowledge-bases/pending-actions?${fullQuery}`;
+
+			const response = await Service.fetchGet(url, usertoken, 'tenant', {});
+
+			if (response?.[0]) {
+				const data = reset
+					? response?.[1]?.pendingActions || []
+					: [
+							...(state?.aiSuggestedPendingActions?.pendingActions || []),
+							...(response?.[1]?.pendingActions || []),
+					  ];
+				dispatch({
+					type: Actions.GET_AI_SUGGESTED_PENDING_ACTIONS_SUCCESS,
+					payload: {
+						...response?.[1],
+						pendingActions: data,
+					},
+				});
+			} else {
+				console.log('response==>getAISuggestedPendingActions');
+			}
+		} catch (error) {
+			console.log('error==>getAISuggestedPendingActions', error);
+		}
+	};
+
+	const updateWorkflowTemplate = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateWorkflowTemplateQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>updateWorkflowTemplate', error);
+		}
+	};
+
+	const pendingActionsUpdate = async (pendingActionId, payload, type = null) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url =
+				type === 'delete'
+					? `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}/delete`
+					: `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}`;
+			const response = await Service.fetchPut(url, payload, usertoken, 'tenant');
+			return response;
+		} catch (error) {
+			console.log('error==>pendingActionsUpdate', error);
+		}
+	};
+
+	const pendingActionsFeedback = async (pendingActionId, payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}/feedback`;
+			const response = await Service.fetchPut(url, payload, usertoken, 'tenant');
+			return response;
+		} catch (error) {
+			console.log('error==>pendingActionsFeedback', error);
+		}
+	};
+
+	const duplicateSmartFile = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				duplicateSmartFileQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>duplicateSmartFile', error);
+		}
+	};
+
+	const getAiQuestions = async (payload, reset = false) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/user-persona/ai-questions`;
+			const response = await Service.fetchGet(url, usertoken, 'tenant');
+			if (response?.[0]) {
+				const data = reset
+					? response?.[1]?.data || []
+					: [...(state?.aiQuestions?.data || []), ...(response?.[1]?.data || [])];
+				dispatch({
+					type: Actions.GET_AI_QUESTIONS_SUCCESS,
+					payload: {
+						...response?.[1], // includes hasNextPage, hasPreviousPage, totalPages, totalItems, etc
+						data,
+					},
+				});
+			} else {
+				console.log('error==>getAiQuestions', response);
+			}
+		} catch (error) {
+			console.log('error==>getAiQuestions', error);
+		}
+	};
+
+	const updateAiQuestions = async (payload, id = null) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/user-persona/${id}/user-response`;
+			const response = await Service.fetchPut(url, payload, usertoken, 'tenant');
+			return response;
+		} catch (error) {
+			console.log('error==>updateAiQuestions', error);
+		}
+	};
+
+	const updateCitationChunks = async (payload) => {
+		try {
+			dispatch({ type: Actions?.UPDATE_CITATION_CHUNKS, payload });
+		} catch (error) {
+			console.log('error==>updateCitationChunks', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -2175,5 +2635,15 @@ export const TemplatesState = (props) => {
 		createBlankTemplate,
 		getConnectedThirdParties,
 		getFormResponse,
+		getAISuggestedPendingActions,
+		sendContactFormData,
+		updateWorkflowTemplate,
+		pendingActionsUpdate,
+		duplicateSmartFile,
+		updateCitationChunks,
+		getFormResponseAnalytics,
+		pendingActionsFeedback,
+		getAiQuestions,
+		updateAiQuestions,
 	};
 };

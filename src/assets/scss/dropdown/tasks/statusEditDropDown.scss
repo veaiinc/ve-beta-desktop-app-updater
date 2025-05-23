@@ -1,63 +1,81 @@
 .options-property-edit-container {
+	overflow: hidden;
 	display: flex;
-	width: 220px;
-	padding: 12px 10px;
+	width: 250px;
 	flex-direction: column;
-	align-items: flex-start;
-	gap: 12px;
-	border-radius: 14px;
-	background: var(--popup);
-
+	align-items: center;
+	border-radius: 12px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background-color: var(--popup, #202123);
+	max-height: 472px;
+	overflow-y: auto;
+	position: relative;
 	.options-property-edit-header {
 		display: flex;
-		width: 100%;
-		justify-content: space-between;
+		padding: 4px 12px;
 		align-items: center;
-		border-bottom: 1px solid var(--stroke);
-		padding: 0 8px;
-		padding-bottom: 12px;
-		gap: 8px;
+		gap: 4px;
+		align-self: stretch;
+		cursor: pointer;
+		padding: 20px 12px 12px;
+		position: sticky;
+		top: 0;
+		background-color: var(--popup);
+		z-index: 1;
+
+		.back-icon {
+			cursor: pointer;
+			transition: all 0.2s ease-in-out;
+			transform: rotate(-180deg);
+			path {
+				stroke: var(--secondary-font) !important;
+				stroke-width: 1.5px;
+			}
+		}
+
 		.options-property-edit-header-title {
-			color: var(--primary-font);
+			color: var(--secondary-font);
 			font-family: var(--primary-font-family);
-			font-size: 12px;
+			font-size: 14px;
 			font-style: normal;
-			font-weight: 500;
+			font-weight: 600;
 			line-height: normal;
 			flex-grow: 1;
 		}
 	}
 
 	.property-edit-section {
-		padding-bottom: 12px;
 		width: 100%;
 		border-bottom: 1px solid var(--stroke);
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
 		user-select: none;
-		min-height: 50px;
-		max-height: 220px;
-		overflow-y: auto;
-		overflow-x: hidden;
-		// background-color: red;
+		display: flex;
+		padding: 8px 0;
+		flex-direction: column;
+		gap: 8px;
+		align-self: stretch;
+
+		&:last-child {
+			border-bottom: none;
+		}
 
 		.property-edit-section-title-wrapper {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
+			padding: 0 16px;
+
 			.property-edit-section-title {
-				color: var(--secondary-font);
+				color: var(--secondary-font, #7a7e85);
 				font-family: var(--primary-font-family);
-				font-size: 12px;
+				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
 			}
 
 			.add-new-property-icon {
-				width: 12px;
-				height: 12px;
+				width: 16px;
+				height: 16px;
 				opacity: 0.48;
 				cursor: pointer;
 				transition: all 0.2s ease-in-out;
@@ -66,30 +84,24 @@
 
 		.property-add-input-field {
 			display: flex;
-			height: 32.039px;
-			transform: rotate(-0.037deg);
-			padding: 6px;
+			padding: 8px 12px;
 			align-items: center;
-			gap: 10px;
-			width: 100%;
-			border-radius: 8px;
-			border: 1px solid var(--primary-font);
-			background: transparent;
+			gap: 6px;
+			align-self: stretch;
+			border-radius: 12px;
+			border: 1px solid var(--stroke-hover, #424548);
 			color: var(--primary-font);
 			font-family: var(--primary-font-family);
-			font-size: 11px;
+			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
-			box-sizing: border-box;
+			margin: 0 16px;
+			background-color: transparent;
+			outline: none;
 
 			&::placeholder {
 				color: var(--secondary-font);
-				font-family: var(--primary-font-family);
-				font-size: 11px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: normal;
 			}
 		}
 
@@ -97,6 +109,7 @@
 			display: flex;
 			flex-direction: column;
 			gap: 8px;
+			padding: 0 12px;
 
 			.property-edit-section-body-item {
 				display: flex;
@@ -124,81 +137,230 @@
 				}
 			}
 
-			.property-edit-section-option-item {
-				padding: 6px;
+			.status-edit-option-container {
 				display: flex;
-				justify-content: flex-start;
-				align-items: center;
-				align-self: stretch;
+				width: 100%;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
 				border-radius: 8px;
-				cursor: pointer;
-				gap: 4px;
-				.drag-handle-icon {
+
+				.property-edit-section-option-item {
 					display: flex;
+					width: 100%;
+					padding: 6px 12px 6px 4px;
+					justify-content: space-between;
 					align-items: center;
-					justify-content: center;
-				}
-				* {
-					flex-shrink: 0;
-				}
+					border-radius: 8px;
+					cursor: pointer;
+					gap: 4px;
 
-				.property-edit-section-body-option-wrapper {
-					flex-grow: 1;
-					overflow: hidden;
-
-					.status-option-container {
+					.drag-handle-icon {
 						display: flex;
-						width: fit-content;
-						max-width: 140px;
-						padding: 4px 6px;
 						align-items: center;
-						gap: 4px;
-						border-radius: 35px;
-						background-color: var(--card);
-
-						.status-option-dot {
-							width: 6px;
-							height: 6px;
-							border-radius: 50%;
-							background-color: var(--card);
-							flex-shrink: 0;
+						justify-content: center;
+						opacity: 0;
+						transition: all 0.2s ease-in-out;
+						path {
+							fill: var(--secondary-font) !important;
 						}
+					}
+					* {
+						flex-shrink: 0;
+					}
 
-						.status-option-label {
-							color: var(--primary-font);
+					.property-edit-section-body-option-wrapper {
+						flex-grow: 1;
+						overflow: hidden;
+
+						.status-option-container {
+							display: flex;
+							padding: 4px 8px;
+							justify-content: center;
+							align-items: center;
+							gap: 7px;
+							border-radius: 6px;
+							border: 1px solid var(--stroke, #2c2d2e);
+							width: fit-content;
+							flex-direction: row;
+
+							.status-option-dot {
+								width: 6px;
+								height: 6px;
+								border-radius: 50%;
+								background-color: var(--card);
+								flex-shrink: 0;
+							}
+
+							.status-option-label {
+								overflow: hidden;
+								color: var(--primary-font, #f2f2f3);
+								text-overflow: ellipsis;
+								font-family: var(--primary-font-family);
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+								background-color: transparent;
+								border: none;
+								outline: none;
+								min-width: 7ch;
+								max-width: 18ch;
+
+								&:focus {
+									width: 18ch !important;
+								}
+							}
+						}
+					}
+
+					.default-status-text {
+						color: var(--secondary-font, #7a7e85);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+
+					.edit-status-icon {
+						transform: rotate(90deg);
+						transition: all 0.5s ease-in-out;
+						path {
+							stroke: var(--secondary-font) !important;
+							stroke-width: 1.5px;
+						}
+					}
+
+					&:has(.default-status-text) {
+						.property-edit-section-body-option-wrapper {
+							.status-option-container {
+								// max-width: 100px;
+								.status-option-label {
+									max-width: 12ch;
+
+									&:focus {
+										width: 12ch !important;
+									}
+								}
+							}
+						}
+					}
+
+					&:hover {
+						background-color: var(--card-over-card-hover);
+
+						.drag-handle-icon {
+							opacity: 1;
+						}
+					}
+				}
+
+				.status-edit-container {
+					display: flex;
+					padding: 0px 8px 6px;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 8px;
+					align-self: stretch;
+					display: none;
+
+					.colors-wrapper {
+						display: flex;
+						width: 100%;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: 8px;
+
+						.colors-title {
+							color: var(--secondary-font, #7a7e85);
 							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
 							line-height: normal;
-							white-space: nowrap;
+						}
+
+						.colors-list {
+							display: flex;
+							align-items: center;
+							align-content: center;
+							gap: 12px;
+							align-self: stretch;
+							flex-wrap: wrap;
+
+							.color-item {
+								display: flex;
+								width: 18px;
+								height: 18px;
+								justify-content: center;
+								align-items: center;
+								gap: 1px;
+								aspect-ratio: 1/1;
+								border-radius: 100px;
+								cursor: pointer;
+								border: 1px solid transparent;
+
+								&.selected {
+									border: 1px solid var(--primary-font);
+								}
+							}
+						}
+					}
+
+					.status-edit-footer-btns {
+						display: flex;
+						align-items: flex-start;
+						gap: 4px;
+						align-self: stretch;
+
+						.status-edit-footer-btn {
+							display: flex;
+							height: 32px;
+							padding: 8px;
+							justify-content: center;
+							align-items: center;
+							gap: 8px;
 							overflow: hidden;
+							color: var(--primary-font, #f2f2f3);
 							text-overflow: ellipsis;
-							width: calc(100% - 10px);
+							font-family: var(--primary-font-family);
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							border-radius: 8px;
+							border: none;
+							background-color: transparent;
+							cursor: pointer;
+							white-space: nowrap;
+
+							&.delete {
+								color: var(--error);
+							}
+
+							&:disabled {
+								opacity: 0.5;
+								cursor: not-allowed;
+							}
 						}
 					}
 				}
 
-				.default-status-text {
-					color: var(--secondary-font);
-					font-family: var(--primary-font-family);
-					font-size: 11px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-					text-transform: uppercase;
-				}
+				&.active {
+					background-color: var(--card-over-card-hover);
 
-				&:has(.default-status-text) {
-					.property-edit-section-body-option-wrapper {
-						.status-option-container {
-							max-width: 90px;
-						}
+					.drag-handle-icon {
+						opacity: 1;
 					}
-				}
 
-				&:hover {
-					background-color: var(--card);
+					.edit-status-icon {
+						transform: rotate(-90deg);
+					}
+
+					.status-edit-container {
+						display: flex;
+					}
 				}
 			}
 		}
@@ -219,22 +381,6 @@
 			&.dragging {
 				background: var(--card-over-card);
 			}
-		}
-	}
-
-	.property-edit-footer {
-		display: flex;
-		padding: 0 6px;
-		align-items: center;
-		gap: 8px;
-
-		.property-edit-footer-title {
-			color: var(--primary-font);
-			font-family: var(--primary-font-family);
-			font-size: 12px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
 		}
 	}
 }

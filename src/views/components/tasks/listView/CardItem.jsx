@@ -1,14 +1,10 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 import '../../../../assets/scss/tasks/cardItem.scss';
-const CardItem = ({
-	task,
-	responseMetadata,
-	colors,
-	rowTypes,
-	properties,
-	handleUpdate,
-	onClick,
-}) => {
+import Context from '../../../../context/context';
+const CardItem = ({ task, responseMetadata, colors, rowTypes, properties, handleUpdate }) => {
+	const {
+		tasks: { updateSideBarData },
+	} = useContext(Context);
 	const generateRows = useCallback(
 		(row) => {
 			const rowItems = [];
@@ -34,7 +30,7 @@ const CardItem = ({
 				if (
 					(typeof value === 'object' && !Array.isArray(value)
 						? !value?._id
-						: key === '!title' && !value) ||
+						: key !== 'title' && !value) ||
 					(Array?.isArray(value) && value?.length === 0) ||
 					key === '__typename' ||
 					key === '_id'
@@ -66,7 +62,13 @@ const CardItem = ({
 	);
 
 	return (
-		<div className="task-card-item" onClick={onClick ? onClick : null}>
+		<div
+			className="task-card-item"
+			onClick={() => updateSideBarData({ data: task, open: true, replace: true })}
+		>
+			{/* <div className="card-header"></div>
+			<div className="card-body"></div>
+			<div className="card-footer"></div> */}
 			{generateRows(task)}
 		</div>
 	);

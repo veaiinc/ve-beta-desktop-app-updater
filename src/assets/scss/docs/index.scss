@@ -206,39 +206,6 @@
 					display: flex;
 					flex-direction: column;
 					position: relative;
-					.docsTemplateHoverContentContainer {
-						position: absolute;
-						top: 0;
-						left: 0;
-						width: 100%;
-						height: 100%;
-						opacity: 0;
-						transition: opacity 0.3s ease-in-out;
-						.docsHoverArrowContainer {
-							display: flex;
-							align-self: stretch;
-							justify-content: center;
-							margin-top: 8px;
-							transform: rotate(180deg);
-						}
-						.docsHoverOptionsContainer {
-							display: flex;
-							flex-direction: column;
-							gap: 10px;
-							padding: 7px 24px;
-							.docsHoverOptionsStyling {
-								color: var(--primary-font);
-								font-family: var(--primary-font-family);
-								font-size: 12px;
-								font-style: normal;
-								font-weight: 500;
-								line-height: normal;
-								letter-spacing: 0.24px;
-								text-transform: capitalize;
-								cursor: pointer;
-							}
-						}
-					}
 					img {
 						width: 100%;
 						height: 100%;
@@ -252,11 +219,6 @@
 						bottom: 0;
 					}
 					&:hover {
-						.docsTemplateHoverContentContainer {
-							opacity: 1;
-							display: flex;
-							flex-direction: column;
-						}
 						img {
 							height: 20%;
 						}
@@ -349,9 +311,12 @@
 						position: relative;
 						user-select: none;
 
-						svg {
-							path {
-								fill: var(--card-hover) !important;
+						.filter {
+							color: var(--primary-font);
+							svg {
+								path {
+									fill: var(--card-hover) !important;
+								}
 							}
 						}
 
@@ -366,14 +331,6 @@
 							justify-content: center;
 							align-items: center;
 							border-radius: 0 21px 21px 0;
-
-							&:hover {
-								svg {
-									path {
-										stroke: var(--card-hover) !important;
-									}
-								}
-							}
 						}
 
 						.templateName {
@@ -405,7 +362,6 @@
 					// background-color: red;
 					min-width: 16px;
 					display: inline-block;
-					height: 16px;
 					transition: all 0.3s ease;
 
 					.searchBtn {
@@ -429,6 +385,8 @@
 							display: none;
 							transition: all 0.3s ease;
 							overflow: hidden;
+							position: relative;
+
 							.searchInputTag {
 								flex: 1;
 								background-color: transparent;
@@ -448,6 +406,15 @@
 									font-style: normal;
 									font-weight: 400;
 									line-height: normal;
+								}
+							}
+
+							span {
+								svg {
+									position: absolute;
+									top: 50%;
+									right: 5px;
+									transform: translateY(-50%);
 								}
 							}
 						}
@@ -534,7 +501,7 @@
 						background: var(--card-hover);
 					}
 					.DocsButtontext {
-						color: var(--primary-font);
+						color: #f2f2f3; /* this is a badge text color  don't use variable here */
 						text-align: center;
 						font-family: var(--primary-font-family);
 						font-size: 12px;

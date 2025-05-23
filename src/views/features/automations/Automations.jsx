@@ -1,11 +1,11 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/automations/index.scss';
 import Context from '../../../context/context';
 import AutomationCard from '../../components/automations/automationCard/AutomationCard';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import QuickActions from '../../components/globalComponents/QuickActions';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
 

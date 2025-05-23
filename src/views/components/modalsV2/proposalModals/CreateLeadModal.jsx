@@ -7,7 +7,7 @@ import ReactModal from '../../modalsV2/index';
 import InputForModules from '../../input/inputForModules';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import '../../../../assets/scss/sales/createLeadModal.scss';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 const validator = require('validator');
 const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	let {

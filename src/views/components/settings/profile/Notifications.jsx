@@ -2,8 +2,9 @@ import React, { memo, useState, useEffect, useContext } from 'react';
 import { ReactComponent as EmailIcon } from '../../../../assets/svg/notification/email.svg';
 import { ReactComponent as WhatsappIcon } from '../../../../assets/svg/notification/whatsApp.svg';
 import { ReactComponent as SlackIcon } from '../../../../assets/svg/notification/slack.svg';
-import { message, Switch } from 'antd';
+import { Switch } from 'antd';
 import Context from '../../../../context/context';
+import { message } from '../../globalComponents/CustomToast';
 
 const appTypes = [
 	{
@@ -253,7 +254,9 @@ const Notifications = () => {
 									<div className="notificationContainerOptions-item-container">
 										<div className="notificationContainerOptions-item">
 											{/* replace "workflow" with "document" */}
-											{module.replace(/workflow/g, 'document')}
+											{module?.includes('calendarevent')
+												? module?.replace('calendarevent', 'calendar event')
+												: module?.replace(/workflow/g, 'document ')}
 										</div>
 										<div className="notificationContainerOptions-item-container">
 											{appTypes
@@ -288,7 +291,12 @@ const Notifications = () => {
 											<div className="notificationContainerOptions-item-container">
 												<div className="notificationContainerOptionsTitle">
 													{/* replace "workflow" with "document" */}
-													{action?.replace(/workflow/g, 'document')}
+													{action?.includes('calendarevent')
+														? action?.replace(
+																'calendarevent',
+																'calendar event',
+														  )
+														: action?.replace(/workflow/g, 'document ')}
 												</div>
 												<div className="notificationContainerOptions-item-checkbox">
 													{appTypes
@@ -321,7 +329,9 @@ const Notifications = () => {
 											</div>
 										))}
 									</div>
-									<div className="divider"></div>
+									{idx !== notificationPreferences?.length - 1 && (
+										<div className="divider"></div>
+									)}
 								</React.Fragment>
 							))}
 						</div>

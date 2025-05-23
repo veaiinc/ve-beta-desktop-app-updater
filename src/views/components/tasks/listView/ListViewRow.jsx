@@ -1,5 +1,6 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useContext } from 'react';
 import '../../../../assets/scss/tasks/listViewRow.scss';
+import Context from '../../../../context/context';
 const ListViewRow = ({
 	task,
 	properties,
@@ -9,6 +10,10 @@ const ListViewRow = ({
 	responseMetadata,
 	colors,
 }) => {
+	const {
+		tasks: { updateSideBarData },
+	} = useContext(Context);
+
 	const generateRow = useCallback(
 		(row) => {
 			const leftPart = [];
@@ -43,15 +48,22 @@ const ListViewRow = ({
 				}
 
 				if (
+					[
+						'__typename',
+						'_id',
+						'parentTaskId',
+						'workflowTemplateId',
+						'completedAt',
+					].includes(key)
+				) {
+					return;
+				}
+
+				if (
 					(typeof value === 'object' && !Array.isArray(value)
 						? !value?._id
-						: key === '!title' && !value) ||
-					(Array?.isArray(value) && value?.length === 0) ||
-					key === '__typename' ||
-					key === '_id' ||
-					key === 'parentTaskId' ||
-					key === 'workflowTemplateId' ||
-					key === 'completedAt'
+						: key !== 'title' && !value) ||
+					(Array?.isArray(value) && value?.length === 0)
 				) {
 					return;
 				}
@@ -92,7 +104,7 @@ const ListViewRow = ({
 		<div
 			className={`listItemRowContainer`}
 			onClick={() => {
-				handleRowClick(task);
+				updateSideBarData({ data: task, open: true, replace: true });
 			}}
 		>
 			<div className="listItemRow">{generateRow(task)}</div>

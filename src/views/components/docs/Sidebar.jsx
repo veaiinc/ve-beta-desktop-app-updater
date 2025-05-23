@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState, useContext, useEffect, useRef } from 'react';
+import { memo, useCallback, useMemo, useState, useContext, useEffect, useRef } from 'react';
 import '../../../assets/scss/docs/fileListView.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
@@ -17,13 +17,15 @@ import DocsActivity from './DocsActivity';
 import Preview from './Preview';
 import { Drawer, Spin } from 'antd';
 import { Tooltip } from 'antd';
-import { DocsStatusButton, statusTextmapper } from '../../features/docs';
+import { DocsStatusButton, statusTextmapper } from '../../features/docs/Docs.jsx';
 import Context from '../../../context/context.js';
 import SendProposalModal from '../modalsV2/proposalModals/SendProposalModal.jsx';
 import CopiedModal from '../modalsV2/workflowsModals/CopiedModal.jsx';
 import { fetchOriginSelection } from '../../../helpers/index.js';
 import { useNavigate } from 'react-router-dom';
 import DuplicateSvg from '../../../assets/svg/tasks/DuplicateSvg.jsx';
+import { message } from '../globalComponents/CustomToast.jsx';
+import Spinner from '../loaders/Spinner.jsx';
 
 const initialState = {
 	activeTab: 'preview',
@@ -44,6 +46,8 @@ const initialState = {
 	fileActivityData: null,
 	fileViewerList: null,
 	activityDataLoading: true,
+	duplicateLoading: false,
+	// renewBanner: false,
 };
 let origin = fetchOriginSelection();
 
@@ -66,8 +70,10 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 			updateThankyou,
 			getSmartFileData,
 			sendSmartFileSettings,
+			duplicateSmartFile,
 		},
 		profileInfo: { tennantSettingsData },
+		// subscriptionInfo: { renewBanner },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -400,6 +406,28 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 		}
 	}, [activeFileData, navigate]);
 
+	const handleDuplicateSmartFile = async () => {
+		if (info?.duplicateLoading) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, duplicateLoading: true }));
+		const payload = {
+			duplicateSmartFile: {
+				workflowId: info?.activeFileData?._id,
+				title: `Copy of ${info?.activeFileData?.title}`,
+			},
+		};
+
+		const response = await duplicateSmartFile(payload);
+		const workflowId = response?.[1]?.data?.duplicateSmartFile?._id;
+		if (workflowId) {
+			setInfo((prev) => ({ ...prev, duplicateLoading: false }));
+			window.location.href = `${origin}/workflow/${info?.activeFileData?._id}?workflow=true&templateId=${workflowId}`;
+		} else {
+			message.error(response?.[1]?.message);
+			setInfo((prev) => ({ ...prev, duplicateLoading: false }));
+		}
+	};
 	return (
 		<>
 			<Drawer
@@ -431,7 +459,17 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 					}`}
 					// style={{ width: info?.sideBarExpanded ? '100vw' : width }}
 				>
-					<div className="fileListViewDrawer">
+					<div
+						className="fileListViewDrawer"
+						// style={{
+						// 	height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
+						// 	marginTop: renewBanner ? '41px' : '0px',
+						// }}
+						style={{
+							height: '100dvh',
+							marginTop: '0px',
+						}}
+					>
 						<div className="headerContainer">
 							<div className="headerLeftLabel">
 								<CloseSvg onClick={modifyClose} />
@@ -472,9 +510,15 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 												<ActivitySvg />
 												<span>Activity</span>
 											</div> */}
-											<div className="items">
+											<div
+												className="items"
+												onClick={handleDuplicateSmartFile}
+											>
 												<DuplicateSvg />
 												<span>Duplicate</span>
+												{info?.duplicateLoading && (
+													<Spinner width={'16px'} height={'16px'} />
+												)}
 											</div>
 											<div className="items" onClick={openSendSmartFileModal}>
 												<ShareSvg />

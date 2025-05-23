@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState, useEffect, useCallback } from 'react';
+import { memo, useContext, useState, useEffect, useCallback } from 'react';
 import Context from '../../../../context/context';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import ReactModal from '../../modalsV2/index';
@@ -8,7 +8,7 @@ import ActionButton from '../../ai_assistant/ActionButton';
 import InputComponent from '../../ai_assistant/InputComponent';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
 const containerStyles = {
 	padding: '12px 24px',
@@ -36,7 +36,6 @@ const dropdownStyles = {
 	alignSelf: 'stretch',
 	borderRadius: '14px',
 	border: '1px solid var(--stroke)',
-	background: 'var(--card)',
 };
 
 const dropDownTextStyling = {
@@ -66,13 +65,18 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 
 	useEffect(() => {
 		const isValidEmail = leadDetails['emailId'] && validator?.isEmail(leadDetails['emailId']);
-		const isValidName = leadDetails['name'].trim()?.length > 0;
-		const isValidSource = leadDetails['source'].trim()?.length > 0;
-		const isValidPhoneNumber = leadDetails['phoneNumber']?.trim()?.length > 0;
+		const isValidName = leadDetails['name']?.trim()?.length > 0;
+		const isValidSource =
+			leadDetails['source'] &&
+			leadDetails['source'] !== 'null' &&
+			leadDetails['source'] !== 'Select Source';
+		const isValidPhoneNumber =
+			leadDetails['phoneNumber']?.trim()?.length > 0 &&
+			validator?.isMobilePhone(leadDetails['phoneNumber']);
 
-		setCreateButtonActiveState(
-			(isValidEmail || isValidPhoneNumber) && isValidName && isValidSource,
-		);
+		const shouldEnableButton =
+			(isValidEmail || isValidPhoneNumber) && isValidName && isValidSource;
+		setCreateButtonActiveState(shouldEnableButton);
 	}, [leadDetails]);
 
 	const closeModalFunc = useCallback(() => {
@@ -105,7 +109,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 	const onChangeSelectedSource = useCallback(async (data) => {
 		setLeadDetails((prevState) => ({
 			...prevState,
-			source: data?.value,
+			source: data?.searchValue || data?.value,
 		}));
 	}, []);
 
@@ -209,11 +213,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 			{
 				<div className="CreateClientModal" style={{ minHeight: '400px' }}>
 					<div className="modalHeading">
-						<p className="client-modal-title">
-							{leadOrClient
-								? 'What Lead/Contact is this file for? '
-								: 'What Client is this file for?'}
-						</p>
+						<p className="client-modal-title">Create New Contact</p>
 						<div className="closeContainer" onClick={closeModalFunc}>
 							<Close />
 						</div>
@@ -221,9 +221,17 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 					<div className="inputBoxHolder">
 						<div className="inputWrapper">
 							<InputComponent
-								label={'Client Name'}
+								label={'Contact Name'}
+								autoFocus={true}
+								style={{
+									backgroundColor: 'inherit',
+								}}
+								placeholderStyles={{
+									backgroundColor: 'inherit',
+									padding: '0px 2px',
+								}}
 								type={'text'}
-								placeholder={'Enter client name'}
+								placeholder={'Enter contact name'}
 								name={'name'}
 								value={leadDetails['name']}
 								onChange={handleInputChange}
@@ -237,7 +245,14 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 						<div className="inputWrapper">
 							<InputComponent
 								label={'Email Id'}
-								type={'email'}
+								style={{
+									backgroundColor: 'inherit',
+								}}
+								placeholderStyles={{
+									backgroundColor: 'inherit',
+									padding: '0px 2px',
+								}}
+								inputType={'email'}
 								placeholder={'Enter email id'}
 								name={'emailId'}
 								value={leadDetails['emailId']}
@@ -259,6 +274,9 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 									handleInputChange({ target: { name: 'phoneNumber', value: e } })
 								}
 								disabled={false}
+								style={{
+									backgroundColor: 'inherit',
+								}}
 							/>
 							{errorState['isphoneNumberError'] && (
 								<span className="errorMessage">
@@ -296,7 +314,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 									width: '100%',
 								}}
 							>
-								{isLoading ? <p>Loading...</p> : <p>Add Client</p>}
+								{isLoading ? <p>Loading...</p> : <p>Create Contact</p>}
 							</ActionButton>
 						</div>
 					</div>

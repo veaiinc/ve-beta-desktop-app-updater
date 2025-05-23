@@ -18,7 +18,7 @@ import { Spin } from 'antd';
 import _ from 'lodash';
 import AccpetAiGeneratedValues from '../../../components/modalsV2/proposalModals/AccpetAiGeneratedValues';
 let origin = fetchOriginSelection();
-// window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://builder.ve.ai';
+
 const File = ({
 	templateData,
 	workflowData,

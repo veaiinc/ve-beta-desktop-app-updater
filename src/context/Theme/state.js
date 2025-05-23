@@ -11,7 +11,7 @@ export const initialThemeState = {
 export const ThemeState = () => {
 	const [state, dispatch] = useReducer(Reducer, initialThemeState);
 
-	const updateTheme = async (themeValue) => {
+	const updateTheme = async (themeValue, routeType = 'protected') => {
 		try {
 			// Dispatch before API call for better UX
 			dispatch({ type: Actions?.UPDATE_THEME, payload: themeValue });
@@ -32,9 +32,11 @@ export const ThemeState = () => {
 			const token = localStorage.getItem('usertoken');
 			const type = 'auth';
 
-			const response = await Service?.fetchPut(path, body, token, type);
-			const success = !!response?.[0];
-			return [success];
+			if (routeType === 'protected') {
+				const response = await Service?.fetchPut(path, body, token, type);
+				const success = !!response?.[0];
+				return [success];
+			}
 		} catch (error) {
 			console.error('Error updating theme:', error);
 			return [false];

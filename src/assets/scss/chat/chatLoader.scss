@@ -1,0 +1,56 @@
+@import 'https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap';
+.chatLoader {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 0.7vw;
+}
+.chatLoader-logo {
+	// animation-name: RotateCurv;
+	animation-duration: 1s;
+	animation-timing-function: ease;
+	position: relative;
+}
+.chatLoader-stick {
+	position: absolute;
+	top: 85%;
+	left: 50%;
+	opacity: 0;
+	animation: stick 2s forwards 1s;
+}
+@keyframes stick {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+@keyframes RotateCurv {
+	to {
+		transform: translateY(0px);
+	}
+	from {
+		transform: translate(-100px, 500px);
+	}
+}
+.chatLoader-container {
+	height: 96%;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: none;
+}
+// .chatLoader-container {
+// 	background-color: var(--background-color);
+// 	height: 100%;
+// 	width: 100%;
+// 	display: flex;
+// 	align-items: center;
+// 	justify-content: center;
+// 	position: absolute;
+// 	top: 0px;
+// 	left: 0px;
+// 	// z-index: 10;
+// }

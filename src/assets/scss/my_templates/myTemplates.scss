@@ -152,26 +152,11 @@
 				}
 			}
 
-			.ctaContainer {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				gap: 16px;
-
-				.ctaItem {
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					cursor: pointer;
-				}
-			}
-
 			.searchContainer {
 				position: relative;
 				// background-color: red;
 				min-width: 16px;
 				display: inline-block;
-				height: 16px;
 				transition: all 0.3s ease;
 				margin-right: 70px;
 
@@ -196,13 +181,14 @@
 						display: none;
 						transition: all 0.3s ease;
 						overflow: hidden;
+						position: relative;
 						.searchInputTag {
 							flex: 1;
 							background-color: transparent;
 							color: #e4e5e6;
 							transition: all 0.3s ease;
 							border: none;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 400;
@@ -210,12 +196,19 @@
 
 							&::placeholder {
 								color: #939393;
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 400;
 								line-height: normal;
 							}
+						}
+
+						span {
+							position: absolute;
+							top: 50%;
+							right: 10px;
+							transform: translateY(-50%);
 						}
 					}
 				}
@@ -303,39 +296,6 @@
 							border: none;
 							&:hover {
 								background: var(--card-hover);
-							}
-						}
-					}
-					.docsTemplateHoverContentContainer {
-						position: absolute;
-						top: 0;
-						left: 0;
-						width: 100%;
-						height: 100%;
-						opacity: 0;
-						transition: opacity 0.3s ease-in-out;
-						.docsHoverArrowContainer {
-							display: flex;
-							align-self: stretch;
-							justify-content: center;
-							margin-top: 8px;
-							transform: rotate(180deg);
-						}
-						.docsHoverOptionsContainer {
-							display: flex;
-							flex-direction: column;
-							gap: 10px;
-							padding: 7px 24px;
-							.docsHoverOptionsStyling {
-								color: var(--primary-font);
-								font-family: var(--primary-font-family);
-								font-size: 12px;
-								font-style: normal;
-								font-weight: 500;
-								line-height: normal;
-								letter-spacing: 0.24px;
-								text-transform: capitalize;
-								cursor: pointer;
 							}
 						}
 					}

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import validator from 'validator';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
@@ -7,11 +7,18 @@ import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_p
 import Context from '../../../context/context';
 import { getLocationsDetails } from '../../../helpers';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { message } from 'antd';
+import { message } from '../globalComponents/CustomToast';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 
-const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
+const Email = ({
+	email,
+	setEmail,
+	setActiveStage,
+	setEmailVerified,
+	lastOtpEmail,
+	setLastOtpEmail,
+}) => {
 	const navigate = useNavigate();
 	const arrowRef = useRef(null);
 
@@ -25,6 +32,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
+		isHostnameVeDotAi: false,
 		isEmailValid: false,
 		isLoading: false,
 		googleLoading: false,
@@ -42,6 +50,10 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 		: false;
 
 	useEffect(() => {
+		const isHostnameVeDotAi =
+			typeof window !== 'undefined' && window.location.hostname.endsWith('ve.ai');
+		setInfo((prev) => ({ ...prev, isHostnameVeDotAi }));
+
 		if (referralCode) {
 			handleGetAndSetReferrerUserName();
 		}
@@ -162,18 +174,26 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	};
 
 	const handleContinueWithEmail = async (e, type, invitedUserEmail = false) => {
-		if (
-			((e?.key === 'Enter' || type === 'click') && info?.isEmailValid && !info?.isLoading) ||
-			invitedUserEmail
-		) {
+		if (e?.key !== 'Enter' && type !== 'click') {
+			return;
+		}
+
+		const currentEmail = email || invitedUserEmail;
+
+		if (currentEmail === lastOtpEmail) {
+			setActiveStage('verificationCode');
+			return;
+		}
+
+		if ((info?.isEmailValid && !info?.isLoading) || invitedUserEmail) {
 			setInfo((prev) => ({ ...prev, isLoading: true }));
 			try {
-				const response = await checkAccountExistsUsingEmail(email || invitedUserEmail);
+				const response = await checkAccountExistsUsingEmail(currentEmail);
 				if (response[0] === true) {
 					if (response?.[1]?.accountExists) {
 						if (response?.[1]?.emailVerified) {
 							if (referralCode && info?.referrerUserDetails?.isValidReferralCode) {
-								message?.info(
+								message.warning(
 									'An account with this email already exists. Referral cannot be applied.',
 								);
 							}
@@ -184,13 +204,14 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 							setActiveStage('verificationCode');
 						}
 					} else {
-						referralCode
-							? await handleCreateAccountWithEmail(
-									email || invitedUserEmail,
-									referralCode,
-							  )
-							: await handleCreateAccountWithEmail(email || invitedUserEmail);
+						const createResponse = referralCode
+							? await handleCreateAccountWithEmail(currentEmail, referralCode)
+							: await handleCreateAccountWithEmail(currentEmail);
+						if (createResponse[0] === true) {
+							setLastOtpEmail(currentEmail);
+						}
 					}
+					setLastOtpEmail(currentEmail);
 				} else {
 					message?.error(response?.[1]?.message);
 				}
@@ -210,39 +231,44 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 						invited you to join
 					</h1>
 				)}
-				<h1 className="login-page-title">The Workspace AI</h1>
-				<h2 className="login-page-subtitle">
-					Intelligence Connected to all your data and tools.
-				</h2>
+				<h1 className="login-page-title">
+					<span className="title-one">AI.&nbsp; </span>
+					<span className="title-two">truly yours</span>
+				</h1>
+				<h2 className="login-page-subtitle">Answers before you Ask!</h2>
 			</div>
 			<div className="login-button-container">
-				<button
-					disabled={info?.googleLoading}
-					className="google-login-button"
-					onClick={handleContinueWithGoogle}
-				>
-					<GoogleLogo />
-					<p>Continue with Google</p>
-					{info?.googleLoading && (
-						<Spinner
-							width="20px"
-							height="20px"
-							color="var(--background-color)"
-							borderTopColor="transparent"
-						/>
-					)}
-				</button>
-				<div className="or-divider">
-					<div className="line"></div>
-					<span>Or</span>
-					<div className="line"></div>
-				</div>
+				{info?.isHostnameVeDotAi && (
+					<>
+						<button
+							disabled={info?.googleLoading}
+							className="google-login-button"
+							onClick={handleContinueWithGoogle}
+						>
+							<GoogleLogo />
+							<p>Continue with Google</p>
+							{info?.googleLoading && (
+								<Spinner
+									width="20px"
+									height="20px"
+									color="var(--background-color)"
+									borderTopColor="transparent"
+								/>
+							)}
+						</button>
+						<div className="or-divider">
+							<div className="line"></div>
+							<span>Or</span>
+							<div className="line"></div>
+						</div>
+					</>
+				)}
 				<div className="email-input-container">
 					<input
 						value={email}
 						onChange={handleSetEmail}
 						onKeyDown={handleContinueWithEmail}
-						autoFocus={true}
+						autoFocus
 						type="email"
 						placeholder="example@acme.com"
 					/>
@@ -276,7 +302,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 							<span ref={arrowRef}>
 								<UpArrowGrey
 									style={{
-										stroke: 'var(--card-over-color)',
+										stroke: 'var(--card-over-card)',
 									}}
 								/>
 							</span>

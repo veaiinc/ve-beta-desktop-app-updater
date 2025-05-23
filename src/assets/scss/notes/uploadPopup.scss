@@ -1,0 +1,343 @@
+.uploadPopupContainer {
+	width: 550px;
+	height: fit-content;
+	border-radius: 12px;
+	background-color: var(--popup);
+
+	.uploadPopupHeader {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 12px;
+		border-bottom: 1px solid rgba(124, 124, 132, 0.15);
+		margin: 0;
+
+		.uploadCategoryLabel {
+			color: var(--secondary-font, #787e87);
+			font-family: var(--primary-font-family);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+			transition: color 0.2s ease-in;
+			padding: 12px;
+			margin: 0;
+
+			&.active {
+				color: var(--primary-font, #f2f2f3);
+				position: relative;
+
+				&::after {
+					content: '';
+					position: absolute;
+					bottom: -2px;
+					left: 50%;
+					transform: translateX(-50%);
+					width: 24px;
+					height: 3px;
+					background-color: var(--primary-font);
+					border-radius: 12px;
+				}
+			}
+		}
+	}
+
+	.uploadPopupBody {
+		width: 100%;
+		padding: 12px;
+
+		.images {
+			width: 100%;
+			height: fit-content;
+
+			.workspaceImagesLoading {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+			}
+
+			.imagesSearchContainer {
+				width: 100%;
+				height: 48px;
+				display: flex;
+				align-items: center;
+				justify-content: flex-start;
+				gap: 6px;
+				border-radius: 8px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				padding: 12px;
+
+				.imagesSearchInput {
+					width: 100%;
+					height: 100%;
+					border: none;
+					outline: none;
+					background-color: transparent;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+
+					&::placeholder {
+						color: var(--secondary-font, #787e87);
+						padding-left: 2px;
+					}
+				}
+			}
+
+			.noImagesFound {
+				width: 100%;
+				height: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				.emptyImagesMessage {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+
+			.imagesListContainer {
+				padding-top: 12px;
+				width: 100%;
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				justify-content: flex-start;
+
+				.imageItem {
+					width: calc((100% - 24px) / 4);
+					height: 82px;
+					border-radius: 8px;
+					cursor: pointer;
+					object-fit: cover;
+					border: 1px solid transparent;
+					transition: all 0.2s ease-in;
+
+					&:hover {
+						border: 1px solid var(--primary-font);
+						transform: scale(1.02);
+						transition: all 0.2s ease-in;
+					}
+				}
+			}
+		}
+
+		.upload {
+			width: 100%;
+			height: 160px;
+			background-color: var(--card);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			border: 1px dashed var(--secondary-font);
+			gap: 12px;
+			border-radius: 12px;
+			cursor: pointer;
+			position: relative;
+
+			.uploadInput {
+				width: 100%;
+				height: 100%;
+				cursor: pointer;
+				position: absolute;
+				top: 0;
+				left: 0;
+				opacity: 0;
+			}
+
+			.uploadContent {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+
+				.uploadTitle {
+					color: var(--secondary-font, #787e87);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					margin: 0;
+				}
+
+				.uploadSubtitle {
+					color: var(--secondary-font, #787e87);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+
+		.link {
+			width: 100%;
+			height: fit-content;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			gap: 12px;
+
+			.linkInputContainer {
+				width: 100%;
+				display: flex;
+				justify-content: flex-start;
+				align-items: center;
+				gap: 12px;
+				border-radius: 8px;
+				border: 1px solid rgba(124, 124, 132, 0.15);
+				padding: 12px;
+
+				.linkInput {
+					width: 100%;
+					height: 100%;
+					border: none;
+					outline: none;
+					background-color: transparent;
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+
+					&::placeholder {
+						padding-left: 2px;
+						color: var(--secondary-font, #787e87);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+			}
+
+			.linkSubmitButtonContainer {
+				width: 100%;
+				display: flex;
+				justify-content: flex-end;
+				align-items: center;
+
+				.linkSubmitButton {
+					background-color: var(--card-over-card-hover);
+					border: none;
+					outline: none;
+					width: fit-content;
+					height: 40px;
+					padding: 4px 14px;
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 16px;
+					border-radius: 8px;
+					cursor: pointer;
+
+					&.disabled {
+						background-color: var(--card-over-card-hover);
+						cursor: not-allowed;
+					}
+				}
+			}
+		}
+
+		.unsplash {
+			.unsplashImagesLoading {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+			}
+
+			.unsplashImagesContainer {
+				width: 100%;
+				height: fit-content;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+
+				.noUnsplashImagesFound {
+					width: 100%;
+					height: 100%;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+
+					.emptyUnsplashImagesMessage {
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+					}
+				}
+
+				.imagesSearchContainer {
+					width: 100%;
+					height: 48px;
+					display: flex;
+					align-items: center;
+					justify-content: flex-start;
+					gap: 6px;
+
+					.imagesSearchInput {
+						width: 90%;
+						height: 100%;
+						border: none;
+						outline: none;
+						background-color: transparent;
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+
+						&::placeholder {
+							color: var(--secondary-font, #787e87);
+							padding-left: 2px;
+						}
+					}
+				}
+			}
+
+			.unsplashImagesListContainer {
+				padding-top: 12px;
+				width: 100%;
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				justify-content: flex-start;
+
+				.unsplashImage {
+					width: calc((100% - 24px) / 4);
+					height: 82px;
+					border-radius: 8px;
+					cursor: pointer;
+					object-fit: cover;
+					border: 1px solid transparent;
+					transition: all 0.2s ease-in;
+
+					&:hover {
+						border: 1px solid var(--primary-font);
+						transform: scale(1.02);
+						transition: all 0.2s ease-in;
+					}
+				}
+			}
+		}
+	}
+}

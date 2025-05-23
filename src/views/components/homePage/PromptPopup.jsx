@@ -1,176 +1,390 @@
-import React, { useState, memo, useEffect, useCallback, useContext } from 'react';
+import { useState, memo, useEffect, useCallback, useContext } from 'react';
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import '../../../assets/scss/home_page/promptPopup.scss';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
-const files = [
-	'My Templates',
-	'Wedding Proposals',
-	'Ismail Wedding',
-	'Proposal planner.dox',
-	'Resume.pdf',
+import { ReactComponent as ThumbsUp } from '../../../assets/svg/thumbsUpPrimaryFont.svg';
+import { ReactComponent as ThumbsDown } from '../../../assets/svg/thumbsDown.svg';
+import { ReactComponent as ArrowUpRight } from '../../../assets/svg/sidebar/arrowupright.svg';
+import { message } from '../globalComponents/CustomToast';
+
+const customStyles = {
+	content: { zIndex: 99999 },
+	overlay: { zIndex: 99998 },
+};
+
+const spanStyles = {
+	display: 'inline-flex',
+	padding: '2px 8px 3px',
+	border: '1px solid var(--stroke)',
+	background: 'var(--card)',
+	borderRadius: '16px',
+	margin: '2px',
+	lineHeight: '1.4',
+};
+
+const dummyFeedbacks = [
+	{
+		id: '3421',
+		label: 'Not Relevant',
+	},
+	{
+		id: '3422',
+		label: 'Too generic',
+	},
+	{
+		id: '3433',
+		label: 'Incorrect Info',
+	},
+	{
+		id: '3434',
+		label: 'Hard to understand',
+	},
+	{
+		id: '3435',
+		label: 'Missing details',
+	},
+	{
+		id: '3436',
+		label: 'Essential information is absent.',
+	},
+	{
+		id: '3437',
+		label: 'Crucial details are lacking.',
+	},
 ];
 
-const clientOptions = [
-	{ id: 0, title: 'Ankit', value: 'Ankit' },
-	{ id: 1, title: 'Ismail', value: 'Ismail' },
-	{ id: 2, title: 'Avinash', value: 'Avinash' },
-];
-
-const PromptPopup = ({ open, closeModal, selectedCard }) => {
-	const {
-		templates: { updateStateValues },
-	} = useContext(Context);
-
-	const [searchText, setSearchText] = useState('');
-	const [selectedOptions, setSelectedOptions] = useState({});
-	const [isOpen, setIsOpen] = useState(false);
-	const [clientSearch, setClientSearch] = useState('');
-	const [dynamicPrompt, setDynamicPrompt] = useState(selectedCard?.prompt || '');
+const PromptPopup = ({
+	open,
+	closeModal,
+	selectedCard,
+	feedbackPopupOpen = false,
+	liked = null,
+	confidenceScore = null,
+	messageId = null,
+	feedbackType = 'chatFeedback',
+	setLiked = null,
+}) => {
 	const navigate = useNavigate();
 
-	const selectedCardVariables = selectedCard?.variables;
+	const {
+		templates: { updateStateValues, updateAiChatMessageRating, pendingActionsFeedback },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		selectedOptions: {},
+		dynamicValues: {},
+		parsedPrompt: [],
+		feedbackPopupOpen,
+		feedback: liked,
+		selectedFeedback: new Set(),
+		confidenceScore,
+		feedbackMessage: '',
+	});
 
 	useEffect(() => {
-		setDynamicPrompt(selectedCard?.prompt || '');
+		setInfo((prev) => ({ ...prev, feedbackPopupOpen }));
+	}, [feedbackPopupOpen]);
+
+	useEffect(() => {
+		if (!selectedCard?.prompt) return;
+
+		// Extract all placeholders enclosed in square brackets (e.g., [name]) from the prompt
+		const matches = [...selectedCard.prompt.matchAll(/\[([^\]]+)\]/g)];
+
+		let lastIndex = 0;
+		const parts = [];
+
+		matches.forEach((match) => {
+			const index = match.index;
+			if (lastIndex < index) {
+				parts.push({ type: 'text', value: selectedCard.prompt.slice(lastIndex, index) });
+			}
+			parts.push({ type: 'variable', value: match[1] });
+			lastIndex = index + match[0].length;
+		});
+
+		if (lastIndex < selectedCard.prompt.length) {
+			parts.push({ type: 'text', value: selectedCard.prompt.slice(lastIndex) });
+		}
+
+		const initialValues = {};
+		matches.forEach((m) => (initialValues[m[1]] = ''));
+
+		setInfo((prev) => ({
+			...prev,
+			dynamicValues: initialValues,
+			parsedPrompt: parts,
+		}));
 	}, [selectedCard]);
 
-	const handleSelectedFile = (file) => {
-		setSelectedOptions((prev) => {
-			const cardId = selectedCard?.id;
-			if (!cardId) return prev;
-
-			const isSelected = prev?.[cardId]?.includes(file);
-			const updatedFiles = isSelected
-				? prev[cardId]?.filter((f) => f !== file)
-				: [...(prev[cardId] || []), file];
-
-			return {
-				...prev,
-				[cardId]: updatedFiles.length > 0 ? updatedFiles : undefined,
-			};
-		});
-	};
-
-	const handleClientSearch = (value) => {
-		setClientSearch(value?.title);
+	const handleVariableChange = (key, value) => {
+		setInfo((prev) => ({
+			...prev,
+			dynamicValues: {
+				...prev.dynamicValues,
+				[key]: value,
+			},
+		}));
 	};
 
 	const handleRemoveSelectedFile = (file) => {
-		setSelectedOptions((prev) => {
+		setInfo((prev) => {
 			const cardId = selectedCard?.id;
-
 			if (!cardId) return prev;
-			const updatedOptions = {
+
+			const updated = { ...prev.selectedOptions };
+			updated[cardId] = (updated[cardId] || []).filter((f) => f !== file);
+			if (updated[cardId]?.length === 0) delete updated[cardId];
+
+			return {
 				...prev,
-				[cardId]: (prev[cardId] || [])?.filter((f) => f !== file),
+				selectedOptions: updated,
 			};
-
-			if (updatedOptions?.[cardId]?.length === 0) {
-				delete updatedOptions?.[cardId];
-			}
-
-			return updatedOptions;
 		});
 	};
 
 	const handleClickRun = useCallback(() => {
-		updateStateValues({ activePromptForChat: dynamicPrompt });
+		const finalPrompt = info.parsedPrompt
+			.map((part) =>
+				part.type === 'text'
+					? part.value
+					: info.dynamicValues[part.value] || `[${part.value}]`,
+			)
+			.join('');
+
+		updateStateValues({ activePromptForChat: finalPrompt });
 		closeModal();
 		navigate(`/chat/${ObjectID().toString()}`);
-	}, [dynamicPrompt]);
+	}, [info, updateStateValues, closeModal, navigate]);
+
+	const handleFeedbackClick = (feedback) => {
+		setInfo((prev) => ({ ...prev, feedback }));
+		if (setLiked) setLiked(feedback);
+	};
+
+	const handleFeedbackSubmit = useCallback(async () => {
+		const { selectedFeedback, feedbackMessage, feedback } = info;
+
+		if (!messageId || !feedback) {
+			console.warn('Cannot submit: Missing messageId or feedback type');
+			return;
+		}
+
+		const userFeedbackReasons =
+			selectedFeedback instanceof Set ? Array.from(selectedFeedback) : [];
+
+		if (userFeedbackReasons.length === 0 && !feedbackMessage) {
+			message.warning('Either select a feedback type or provide a message');
+			return;
+		}
+
+		try {
+			const feedbackReq = {
+				rating: feedback,
+				userFeedbackReasons,
+				userRemarks: feedbackMessage,
+			};
+
+			let promise;
+
+			if (feedbackType === 'chatFeedback') {
+				promise = updateAiChatMessageRating(feedbackReq, messageId);
+			} else {
+				promise = pendingActionsFeedback(messageId, feedbackReq);
+			}
+
+			const res = await promise;
+
+			if (res) {
+				if (res?.[0]) message.success('Feedback added successfully');
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				feedbackPopupOpen: false,
+				selectedFeedback: new Set(),
+				feedbackMessage: '',
+				feedback: null,
+			}));
+
+			closeModal();
+		} catch (error) {
+			console.error('Feedback submit error:', error);
+		}
+	}, [info, updateAiChatMessageRating, closeModal]);
+
+	const handleFeedbackSelect = (feedback) => {
+		setInfo((prev) => {
+			const selected = new Set(prev.selectedFeedback || new Set());
+			if (selected.has(feedback.label)) {
+				selected.delete(feedback.label);
+			} else {
+				selected.add(feedback.label);
+			}
+			return {
+				...prev,
+				selectedFeedback: selected,
+			};
+		});
+	};
 
 	return (
-		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
+		<ReactModal
+			isOpen={open}
+			closeModal={closeModal}
+			modalType={'center'}
+			customStyles={customStyles}
+		>
 			<div className="promptPopupContainer">
 				<div className="promptPopupContainerHeader">
 					<div className="promptPopupContainerHeaderLeft">
 						<div className="promptPopupContainerHeaderLeftTitle">
-							{selectedCard?.title}
+							{!info?.feedbackPopupOpen
+								? selectedCard?.title
+								: `Hey, I'm learning from you!`}
 						</div>
-						<div className="promptPopupContainerHeaderLeftSubtitle">20 Credits</div>
 					</div>
-					<div className="promptPopupContainerHeaderRight" onClick={closeModal}>
-						<CrossSvg />
-					</div>
+					{info?.feedbackPopupOpen && (
+						<div className="promptPopupContainerHeaderRight">
+							<button
+								className={`${info?.feedback === 'thumbsup' ? 'active' : ''}`}
+								onClick={() => handleFeedbackClick('thumbsup')}
+							>
+								<ThumbsUp />
+							</button>
+							<button
+								className={`${info?.feedback === 'thumbsdown' ? 'active' : ''}`}
+								onClick={() => handleFeedbackClick('thumbsdown')}
+							>
+								<ThumbsDown />
+							</button>
+						</div>
+					)}
 				</div>
+
+				{!info.feedbackPopupOpen && (
+					<div className="promptPopupContainerEditableFields">Editable Fields</div>
+				)}
 
 				<div className="promptPopupContainerBody">
-					<textarea
-						value={dynamicPrompt}
-						onChange={(e) => setDynamicPrompt(e?.target?.value)}
-						className="promptPopupContainerBodyText"
-						rows={2}
-						style={{ resize: 'none' }}
-					/>
+					{info?.feedbackPopupOpen ? (
+						<div className="feedbackInputContainer">
+							<h4>Your thoughts help me improve how I respond next time.</h4>
+							<textarea
+								placeholder="Want to share what didn’t quite hit the mark? I’m all ears."
+								className="feedbackInput"
+								value={info?.feedbackMessage}
+								onChange={(e) =>
+									setInfo((prev) => ({
+										...prev,
+										feedbackMessage: e.target.value,
+									}))
+								}
+							></textarea>
+						</div>
+					) : (
+						<div
+							className="promptPopupContainerBodyText"
+							style={{ whiteSpace: 'pre-wrap' }}
+						>
+							{info.parsedPrompt.map((part, index) => {
+								if (part.type === 'text') {
+									return <span key={index}>{part.value}</span>;
+								} else if (part.type === 'variable') {
+									return (
+										<span key={index} style={spanStyles}>
+											<span
+												className="editableContentStyles"
+												contentEditable
+												suppressContentEditableWarning
+												onBlur={(e) =>
+													handleVariableChange(
+														part.value,
+														e.target.innerText,
+													)
+												}
+												dangerouslySetInnerHTML={{
+													__html:
+														info.dynamicValues[part.value] ||
+														part.value,
+												}}
+											/>
+										</span>
+									);
+								}
+								return null;
+							})}
+						</div>
+					)}
 				</div>
 
-				{selectedOptions?.[selectedCard?.id]?.length && (
+				{info.selectedOptions?.[selectedCard?.id]?.length > 0 && (
 					<div className="promptPopupContainerSelectedFilesDiv">
-						{selectedOptions?.[selectedCard?.id]?.map((file, index) => {
-							return (
-								<div className="promptPopupContainerEachSelectedFile">
-									<div className="promptPopupContainerEachSelectedFileText">
-										{file}
-									</div>
-									<CrossSvg
-										onClick={() => handleRemoveSelectedFile(file)}
-										style={{ cursor: 'pointer' }}
-									/>
+						{info.selectedOptions[selectedCard.id].map((file, index) => (
+							<div className="promptPopupContainerEachSelectedFile" key={index}>
+								<div className="promptPopupContainerEachSelectedFileText">
+									{file}
 								</div>
-							);
-						})}
+								<CrossSvg
+									onClick={() => handleRemoveSelectedFile(file)}
+									style={{ cursor: 'pointer' }}
+								/>
+							</div>
+						))}
 					</div>
 				)}
 
-				{/* <div className="promptPopupContainerFilesDiv">
-					<div className="promptPopupContainerSelectionFiles">
-						<div className="promptPopupContainerSelectionFilesTitle">Select file</div>
-						<div className="promptPopupContainerSelectionFilesSearch">
-							<SearchIcon />
-							<input
-								type="text"
-								placeholder="Search Files"
-								className="inputSearchText"
-								value={searchText}
-								onChange={(e) => setSearchText(e?.target?.value)}
-							/>
-						</div>
+				{info?.feedbackPopupOpen && (
+					<div className="feedbacks-container" style={{ color: 'white' }}>
+						{dummyFeedbacks.map((feedback) => (
+							<span
+								className={`feedback-label ${
+									info?.selectedFeedback.has(feedback?.label)
+										? 'selected-feedback'
+										: ''
+								}`}
+								onClick={() => handleFeedbackSelect(feedback)}
+								key={feedback.id}
+							>
+								{feedback.label}
+							</span>
+						))}
 					</div>
-					<div className="promptPopupOptionsContainer">
-						{files?.map((file, index) => {
-							return (
-								<div
-									key={index}
-									className={`promptPopupOptionsContainerFiles ${
-										selectedOptions?.[selectedCard?.id]?.includes(file)
-											? 'selected'
-											: ''
-									}`}
-									onClick={() => handleSelectedFile(file)}
-									style={{ cursor: 'pointer' }}
-								>
-									<div className="promptPopupContainerFilesList">
-										<div className="promptPopupContainerFilesListFileIcon"></div>
-										<div className="promptPopupContainerFilesListFile">
-											{file}
-										</div>
-									</div>
-									{selectedOptions?.[selectedCard?.id]?.includes(file) && (
-										<div className="promptPopupContainerFilesListSelected">
-											<TickSvg />
-										</div>
-									)}
-								</div>
-							);
-						})}
+				)}
+
+				<div className="promptPopupFooter">
+					<div className="leftPart">
+						{confidenceScore && <span>{confidenceScore}</span>}
 					</div>
-				</div> */}
-				<button className="promptPopupContainerRunButton" onClick={handleClickRun}>
-					Run
-				</button>
+					<div className="rightPart">
+						<button
+							className="cancel"
+							onClick={() => {
+								setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }));
+								closeModal();
+							}}
+						>
+							Cancel
+						</button>
+						<button
+							className="runPrompt"
+							onClick={
+								info?.feedbackPopupOpen ? handleFeedbackSubmit : handleClickRun
+							}
+						>
+							{info?.feedbackPopupOpen ? (
+								'Submit'
+							) : (
+								<>
+									Run this prompt <ArrowUpRight />
+								</>
+							)}
+						</button>
+					</div>
+				</div>
 			</div>
 		</ReactModal>
 	);

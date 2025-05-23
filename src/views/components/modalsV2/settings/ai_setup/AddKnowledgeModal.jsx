@@ -7,7 +7,7 @@ import { ReactComponent as TIcon } from '../../../../../assets/svg/ai_assistant/
 import { ReactComponent as URLIcon } from '../../../../../assets/svg/ai_assistant/url.svg';
 import { ReactComponent as FolderIcon } from '../../../../../assets/svg/ai_assistant/folder.svg';
 import Modal from '../../';
-import { message } from 'antd';
+import { message } from '../../../globalComponents/CustomToast';
 import Context from '../../../../../context/context';
 import { useParams } from 'react-router-dom';
 import { isURL } from '../../../../../helpers';
@@ -31,6 +31,8 @@ const knowledgeFileTypes = [
 	},
 ];
 
+const customStyles = { overlay: { zIndex: 1002 }, content: { zIndex: 1003 } };
+
 const initialState = {
 	activeFileType: knowledgeFileTypes?.[0]?.value,
 	inputURL: '',
@@ -47,7 +49,7 @@ const initialState = {
 };
 
 const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
-	let {
+	const {
 		aiSetup: {
 			activeAiAssistantDetails,
 			knowledgeBaseFiles,
@@ -270,7 +272,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 	};
 
 	return (
-		<Modal isOpen={isOpen} closeModal={modifyClose} customStyles={{ overlay: { zIndex: 1 } }}>
+		<Modal isOpen={isOpen} closeModal={modifyClose} customStyles={customStyles}>
 			<div className="addKnowledgeModalContainer">
 				<div className="titleAndDescriptionContainer">
 					<h1 className="title">

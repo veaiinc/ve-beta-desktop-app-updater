@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import '../../../assets/scss/tasks/task.scss';
 import ListViewHeader from './listView/ListViewHeader';
 import { ReactComponent as ListViewIcon } from '../../../assets/svg/tasks/list.svg';
@@ -9,37 +9,39 @@ import ListView from './views/ListView';
 import BoardView from './views/Board';
 import GalleryView from './views/GalleryView';
 import TableView from './views/TableView';
+import QuickActions from '../globalComponents/QuickActions';
+import ChatLeftBarComponent from '../ChatLeftBarComponent';
+import Taskwidget from './Taskwidget';
+import TaskHeader from './listView/TaskHeader';
 
 const layouts = {
 	list: {
 		Icon: ListViewIcon,
-		label: 'List view',
+		label: 'List',
 	},
 	board: {
 		Icon: BoardViewIcon,
-		label: 'Board view',
+		label: 'Board',
 	},
 	table: {
 		Icon: TableViewIcon,
-		label: 'Table view',
+		label: 'Table',
 	},
 	gallery: {
 		Icon: GalleryViewIcon,
-		label: 'Gallery view',
+		label: 'Widget',
 	},
 };
 
 const Task = ({
-	blockTitle,
-	createButtonText,
 	responseMetadata,
 	handleAddButtonOnClick,
 	colors,
 	updateTaskInfo,
+	searchLoader,
 	data,
 	loading,
 	rowTypes,
-	handleRowClick,
 	handleUpdate,
 	properties,
 	taskPreferences,
@@ -48,58 +50,73 @@ const Task = ({
 	hasMore,
 	error,
 	views,
+	activeTab,
+	updateActiveTab,
 	updateView = () => {},
 	deleteView = () => {},
-	prefix = null,
 	availableViews = ['list', 'board', 'table', 'gallery'],
 }) => {
+	const timeoutRef = useRef(null);
+
 	const [taskInfo, setTaskInfo] = useState({
 		tabs: null,
 		activeTab: null,
 		timeout: null,
+		showEditViewDropDown: false,
 	});
 	const [showEditViewDropDown, setShowEditViewDropDown] = useState(false);
-	const timeoutRef = useRef(null);
 
-	const handleEditViewDropDown = useCallback(() => {
-		setShowEditViewDropDown(true);
+	const handleEditViewDropDown = useCallback((value) => {
+		setShowEditViewDropDown(value);
 	}, []);
 
 	useEffect(() => {
 		if (views) {
 			setTaskInfo((prevInfo) => {
-				// Only update sort and filters if there was no previous activeTab
+				const prevTabs = Object.keys(prevInfo?.tabs || {});
 				const isInitialLoad = !prevInfo?.activeTab;
+				const newTabs = Object.fromEntries(
+					views?.map((view, index) => [
+						view?._id,
+						{
+							...view,
+							order: index,
+							Icon: layouts?.[view?.viewType]?.Icon || ListViewIcon,
+						},
+					]),
+				);
 
-				if (isInitialLoad) {
+				const resolvedActiveTab =
+					prevTabs.length !== 0 && views.length !== prevTabs.length
+						? views[views.length - 1]?._id
+						: views.some((view) => view?._id === prevInfo?.activeTab)
+						? prevInfo?.activeTab
+						: activeTab
+						? activeTab
+						: views?.[0]?._id;
+
+				// if (isInitialLoad) {
+				const activeView = views.find((v) => v._id === resolvedActiveTab);
+				if (activeView) {
 					updateTaskInfo({
-						sort: [...views[0]?.sort].map((item) => ({
+						sort: (activeView?.sort || []).map((item) => ({
 							sortBy: item?.sortBy,
 							sortType: item?.sortType,
 						})),
-						filters: [...views[0]?.filters].map((item) => ({
+						filters: (activeView?.filters || []).map((item) => ({
 							key: item?.key,
 							value: item?.value,
 						})),
-						group: views[0]?.viewType === 'board' ? views[0]?.group || 'status' : null,
+						group:
+							activeView?.viewType === 'board' ? activeView?.group || 'status' : null,
 					});
 				}
+				// }
 
 				return {
 					...prevInfo,
-					tabs: Object.fromEntries(
-						views?.map((view, index) => [
-							view?._id,
-							{
-								...view,
-								order: index,
-								Icon: layouts?.[view?.viewType]?.Icon || ListViewIcon,
-							},
-						]),
-					),
-					activeTab: views?.some((view) => view?._id === prevInfo?.activeTab)
-						? prevInfo?.activeTab
-						: views?.[0]?._id,
+					tabs: newTabs,
+					activeTab: resolvedActiveTab,
 				};
 			});
 		}
@@ -130,10 +147,6 @@ const Task = ({
 		].filter((item) => availableViews.includes(item?.value));
 	}, []);
 
-	const closeEditViewDropDown = useCallback(() => {
-		setShowEditViewDropDown(false);
-	}, []);
-
 	const handleTabChange = useCallback(
 		(tabData) => {
 			if (taskInfo?.activeTab === tabData?._id) {
@@ -151,6 +164,11 @@ const Task = ({
 					taskInfo?.tabs?.[tabData?._id]?.viewType === 'board'
 						? taskInfo?.tabs?.[tabData?._id]?.group || 'status'
 						: null,
+			});
+			updateActiveTab({
+				input: {
+					selectedTaskView: tabData?._id,
+				},
 			});
 		},
 		[taskInfo.tabs, updateTaskInfo, taskInfo?.activeTab],
@@ -277,7 +295,6 @@ const Task = ({
 					loading={loading}
 					properties={properties}
 					rowTypes={rowTypes}
-					handleRowClick={handleRowClick}
 					hasMore={hasMore}
 					error={error}
 					handleAddButtonOnClick={handleAddButtonOnClick}
@@ -294,7 +311,6 @@ const Task = ({
 			loading,
 			properties,
 			rowTypes,
-			handleRowClick,
 			hasMore,
 			error,
 		],
@@ -306,9 +322,11 @@ const Task = ({
 				return;
 			}
 			deleteView(tabId);
-			updateTaskInfo({ activeTab: null });
+			updateTaskInfo({
+				activeTab: taskInfo?.activeTab === tabId ? null : taskInfo?.activeTab,
+			});
 		},
-		[taskInfo?.tabs, deleteView, updateTaskInfo],
+		[taskInfo?.tabs, deleteView, updateTaskInfo, taskInfo?.activeTab],
 	);
 
 	const handleDuplicateTab = useCallback(
@@ -326,69 +344,103 @@ const Task = ({
 
 	const handleTabDropdownClick = useCallback(
 		(option) => {
-			if (option?.value === 'deleteView') {
-				handleDeleteTab(taskInfo?.activeTab);
+			if (option?.value === 'delete') {
+				handleDeleteTab(option?.tabId);
 			}
-			if (option?.value === 'duplicateView') {
-				handleDuplicateTab(taskInfo?.activeTab);
+			if (option?.value === 'duplicate') {
+				handleDuplicateTab(option?.tabId);
 			}
-			if (option?.value === 'editView' || option?.value === 'renameView') {
-				handleEditViewDropDown();
+			if (option?.value === 'edit' || option?.value === 'rename') {
+				handleEditViewDropDown(true);
 			}
 		},
 		[handleDeleteTab, handleDuplicateTab, handleEditViewDropDown, taskInfo?.activeTab],
 	);
 
 	return (
-		<div className="task-container">
-			<ListViewHeader
-				updateTaskInfo={updateTaskInfo}
-				properties={properties}
-				taskPreferences={taskPreferences}
-				prefix={prefix}
-				searchValue={searchValue}
-				responseMetadata={responseMetadata}
-				blockTitle={blockTitle}
-				createButtonText={createButtonText}
-				addButtonOnClick={handleAddButtonOnClick}
-				editingProperty={null}
-				handleEditPropertyChange={() => {}}
-				colors={colors}
-				// view={taskInfo?.tabs?.[taskInfo?.activeTab]?.view}
-				handleTabChange={handleTabChange}
-				tabs={taskInfo?.tabs}
-				handleAddTab={handleAddTab}
-				updateViewInfo={updateViewInfo}
-				viewData={taskInfo?.tabs?.[taskInfo?.activeTab]}
-				handleTabsReorder={handleTabsReorder}
-				showEditViewDropDown={showEditViewDropDown}
-				closeEditViewDropDown={closeEditViewDropDown}
-				handleDuplicateView={handleDuplicateTab}
-				handleDeleteView={handleDeleteTab}
-				handleTabDropdownClick={handleTabDropdownClick}
-				layoutOptions={layoutOptions}
-				handleLayoutOptionClick={handleAddTab}
-			/>
-			<div className="task-content-area">
-				{taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType === 'board' ? (
-					<BoardView
-						handleUpdate={handleUpdate}
-						responseMetadata={responseMetadata}
-						handleAddButtonOnClick={handleAddButtonOnClick}
-						colors={colors}
-						fetchMoreData={fetchMoreData}
+		<>
+			<ChatLeftBarComponent>
+				<div className="tasks-left-container">
+					<Taskwidget
 						properties={properties}
-						rowTypes={rowTypes}
-						groupBy={taskInfo?.tabs?.[taskInfo?.activeTab]?.group}
-						sort={taskInfo?.tabs?.[taskInfo?.activeTab]?.sort}
-						filters={taskInfo?.tabs?.[taskInfo?.activeTab]?.filters}
-						handleRowClick={handleRowClick}
+						responseMetadata={responseMetadata}
+						colors={colors}
+						viewData={taskInfo?.tabs?.[taskInfo?.activeTab]}
+						updateViewInfo={updateViewInfo}
+						updateTaskInfo={updateTaskInfo}
+						searchValue={searchValue}
+						showEditViewDropDown={showEditViewDropDown}
+						handleEditViewDropDown={handleEditViewDropDown}
+						taskPreferences={taskPreferences}
+						searchLoader={searchLoader}
 					/>
-				) : (
-					viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType)
-				)}
+				</div>
+			</ChatLeftBarComponent>
+			<div className="tasks-right-container">
+				<div className="task-container">
+					<div className="task-header-container">
+						<TaskHeader
+							tabs={taskInfo?.tabs}
+							activeTab={taskInfo?.activeTab}
+							handleTabChange={handleTabChange}
+							handleAddTab={handleAddTab}
+							handleTabDropdownClick={handleTabDropdownClick}
+							handleTabsReorder={handleTabsReorder}
+						/>
+						{/* <ListViewHeader
+							updateTaskInfo={updateTaskInfo}
+							properties={properties}
+							taskPreferences={taskPreferences}
+							prefix={prefix}
+							searchValue={searchValue}
+							responseMetadata={responseMetadata}
+							blockTitle={blockTitle}
+							createButtonText={createButtonText}
+							addButtonOnClick={handleAddButtonOnClick}
+							editingProperty={null}
+							handleEditPropertyChange={() => {}}
+							colors={colors}
+							// view={taskInfo?.tabs?.[taskInfo?.activeTab]?.view}
+							handleTabChange={handleTabChange}
+							tabs={taskInfo?.tabs}
+							handleAddTab={handleAddTab}
+							updateViewInfo={updateViewInfo}
+							viewData={taskInfo?.tabs?.[taskInfo?.activeTab]}
+							handleTabsReorder={handleTabsReorder}
+							showEditViewDropDown={showEditViewDropDown}
+							closeEditViewDropDown={closeEditViewDropDown}
+							handleDuplicateView={handleDuplicateTab}
+							handleDeleteView={handleDeleteTab}
+							handleTabDropdownClick={handleTabDropdownClick}
+							layoutOptions={layoutOptions}
+							handleLayoutOptionClick={handleAddTab}
+						/> */}
+						<div className="quick-actions-btn">
+							<QuickActions />
+						</div>
+					</div>
+
+					<div className="task-content-area">
+						{taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType === 'board' ? (
+							<BoardView
+								handleUpdate={handleUpdate}
+								responseMetadata={responseMetadata}
+								handleAddButtonOnClick={handleAddButtonOnClick}
+								colors={colors}
+								fetchMoreData={fetchMoreData}
+								properties={properties}
+								rowTypes={rowTypes}
+								groupBy={taskInfo?.tabs?.[taskInfo?.activeTab]?.group}
+								sort={taskInfo?.tabs?.[taskInfo?.activeTab]?.sort}
+								filters={taskInfo?.tabs?.[taskInfo?.activeTab]?.filters}
+							/>
+						) : (
+							viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType)
+						)}
+					</div>
+				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 

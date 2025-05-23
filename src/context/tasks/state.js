@@ -19,6 +19,7 @@ import {
 	deleteTaskViewMutation,
 	taskMetadataQuery,
 	listTaskWithGroupQuery,
+	updateTaskMetadataMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -39,6 +40,10 @@ export const intialState = {
 	refetchTasks: false,
 	refetchTasksForDue: false,
 	listTaskWithGroup: null,
+	sideBarData: {
+		stack: [],
+		open: false,
+	},
 };
 
 export const TasksState = () => {
@@ -68,6 +73,7 @@ export const TasksState = () => {
 					payload: { error: 'Failed to fetch tasks, try again' },
 				});
 			}
+			return response;
 		} catch (error) {
 			console.log('API failed ==> getListItems', error);
 		}
@@ -654,6 +660,50 @@ export const TasksState = () => {
 		}
 	};
 
+	const updateTaskPrefix = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateTaskMetadataMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_TASK_PREFIX,
+					payload: response?.[1]?.data?.updateTaskMetadata?.prefix,
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> updateTaskViews', error);
+		}
+	};
+
+	const updateSelectedView = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateTaskMetadataMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_SELECTED_VIEW,
+					payload: response?.[1]?.data?.updateTaskMetadata?.selectedTaskView,
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> updateTaskViews', error);
+		}
+	};
+
 	const deleteTaskView = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -746,6 +796,11 @@ export const TasksState = () => {
 					type: Actions.SET_LIST_TASK_WITH_GROUP,
 					payload: response?.[1]?.data?.listTasksWithGroup,
 				});
+
+				dispatch({
+					type: Actions.SET_LIST_ITEMS,
+					payload: { analytics: response?.[1]?.data?.listTasksWithGroup?.analytics },
+				});
 			} else {
 				dispatch({
 					type: Actions.SET_LIST_TASK_WITH_GROUP,
@@ -802,6 +857,29 @@ export const TasksState = () => {
 		}
 	};
 
+	const handleDeleteInGroup = (payload) => {
+		try {
+			dispatch({
+				type: Actions.HANDLE_DELETE_IN_GROUP,
+				payload,
+			});
+		} catch (error) {
+			console.log('error ==> handleDeleteInGroup', error);
+		}
+	};
+
+	const updateSideBarData = ({ open, data = null, replace = false, update = false }) => {
+		dispatch({
+			type: Actions.UPDATE_SIDEBAR_DATA,
+			payload: {
+				open,
+				data,
+				replace,
+				update,
+			},
+		});
+	};
+
 	return {
 		...state,
 		getListItems,
@@ -834,5 +912,9 @@ export const TasksState = () => {
 		getListTaskWithGroup,
 		fetchGroupData,
 		handleGroupChange,
+		handleDeleteInGroup,
+		updateTaskPrefix,
+		updateSelectedView,
+		updateSideBarData,
 	};
 };

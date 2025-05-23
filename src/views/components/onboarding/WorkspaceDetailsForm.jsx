@@ -18,6 +18,7 @@ const WorkspaceDetailsForm = ({
 	isWorkspaceHandleAvailable,
 	workspaceType,
 	handleSetWorkspaceType,
+	isWorkspaceHandleLengthInvalid,
 }) => {
 	const [workspaceTypeContainerWidth, setWorkspaceTypeContainerWidth] = useState(0);
 	const [workspaceTypeContainerOpen, setWorkspaceTypeContainerOpen] = useState(false);
@@ -85,18 +86,25 @@ const WorkspaceDetailsForm = ({
 					</div>
 
 					<div className="domainInfoContainer">
-						{workspaceHandle?.length > 1 && (
-							<>
-								<span className="domainName">{workspaceHandle}.ve.ai</span>
-								{checkingWorkspaceHandle ? (
-									<Spinner width="16px" height="16px" />
-								) : isWorkspaceHandleAvailable === true ? (
-									<span className="available"> will be your domain</span>
-								) : isWorkspaceHandleAvailable === false ? (
-									<span className="unavailable"> is already taken</span>
-								) : null}
-							</>
-						)}
+						{workspaceHandle?.length > 0 &&
+							(workspaceHandle.length < 4 ? (
+								// length 1–3: show the “too short” message
+								<span className="unavailable">
+									Workspace handle must be at least 4 characters
+								</span>
+							) : (
+								// length ≥4: show the domain + availability spinner / status
+								<>
+									<span className="domainName">{workspaceHandle}.ve.ai</span>
+									{checkingWorkspaceHandle ? (
+										<Spinner width="16px" height="16px" />
+									) : isWorkspaceHandleAvailable ? (
+										<span className="available">will be your domain</span>
+									) : (
+										<span className="unavailable">is already taken</span>
+									)}
+								</>
+							))}
 					</div>
 				</div>
 				<div className="workspaceTypeContainer">

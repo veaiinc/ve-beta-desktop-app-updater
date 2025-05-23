@@ -16,17 +16,6 @@
 		width: 1250px;
 		height: 210px;
 	}
-
-	.background-for-stickies {
-		position: fixed;
-		top: 0;
-		left: 0;
-		z-index: 10;
-		background: var(--background-color);
-		width: 100%;
-		height: 252.5px;
-	}
-
 	// .home-page-container-header {
 	// 	display: flex;
 	// 	flex-direction: column;
@@ -344,10 +333,6 @@
 			flex-direction: row;
 			gap: 1rem;
 		}
-	}
-
-	.add-margin-top {
-		margin-top: 140px;
 	}
 }
 
