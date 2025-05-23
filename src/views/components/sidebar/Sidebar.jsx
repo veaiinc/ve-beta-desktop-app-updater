@@ -33,7 +33,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	});
 	const [isClosing, setIsClosing] = useState(false);
 	// conditional margin top for home page
-	const isHome = location?.pathname?.includes('notes');
+	const isHome = location?.pathname?.includes('home');
 
 	const isChatSidebarRoute =
 		location?.pathname?.includes('calendar') ||
@@ -153,7 +153,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
-					marginTop: isHome ? '0' : isChatSidebarRoute ? '0' : '',
+					marginTop: isChatSidebarRoute ? '0' : '',
 					display: hideClosedSidebarIcon ? 'none' : '',
 					marginLeft: isChatSidebarRoute ? '0' : '',
 					// top: isOpen ? '' : renewBanner ? '105px' : '',

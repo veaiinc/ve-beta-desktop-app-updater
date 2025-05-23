@@ -24,6 +24,9 @@ import {
 } from '../../../../helpers';
 import ArrowRightIcon from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg?react';
 import PromptPopup from '../../homePage/PromptPopup';
+import CreditCoinImage from '../../../../assets/images/creditCoin.png';
+import BulbSvg from '../../../../assets/svg/home_page/bulb.svg?react';
+import RocketSvg from '../../../../assets/svg/home_page/rocket.svg?react';
 const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
@@ -304,7 +307,7 @@ const AISuggestionsModal = ({
 					</div>
 
 					<div className="body" ref={bodyRef}>
-						<div className="header-title-text">{title || ''}</div>
+						{/* <div className="header-title-text">{title || ''}</div> */}
 
 						<div className="body-header-wrapper">
 							<div className="body-header">
