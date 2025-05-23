@@ -59,6 +59,40 @@ module.exports = {
 				],
 			},
 			{
+				test: /\.module\.s[ac]ss$/i,
+				use: [
+					'style-loader',
+					{
+						loader: 'css-loader',
+						options: {
+							modules: {
+								localIdentName: '[local]__[hash:base64:5]', // optional: customize CSS class names
+							},
+						},
+					},
+					{
+						loader: 'sass-loader',
+						options: {
+							implementation: require('sass'),
+						},
+					},
+				],
+			},
+			{
+				test: /\.s[ac]ss$/i,
+				exclude: /\.module\.s[ac]ss$/i,
+				use: [
+					'style-loader',
+					'css-loader',
+					{
+						loader: 'sass-loader',
+						options: {
+							implementation: require('sass'),
+						},
+					},
+				],
+			},
+			{
 				// Convert SVGs into React components with a URL fallback.
 				test: /\.svg$/,
 				issuer: /\.[jt]sx?$/,
