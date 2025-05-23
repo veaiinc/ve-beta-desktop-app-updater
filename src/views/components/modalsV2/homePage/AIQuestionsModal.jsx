@@ -28,10 +28,7 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 
 	useEffect(() => {
 		if (data?.questions?.length > 0) {
-			const questions = data?.questions?.map((question) => {
-				const item = { actualQuestion: question };
-				return item;
-			});
+			const questions = data?.questions || [];
 			let independentQuestions = [];
 			if (data?.type === 'userPersona' && data?.independentQuestions?.length) {
 				independentQuestions = data?.independentQuestions;
