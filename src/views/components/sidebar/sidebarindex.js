@@ -11,6 +11,7 @@ import { ReactComponent as WorkspaceIcon } from '../../../assets/svg/sidebar/wor
 import { ReactComponent as TeamIcon } from '../../../assets/svg/sidebar/teamMembersIcon.svg';
 import { ReactComponent as IntegrationsIcon } from '../../../assets/svg/sidebar/integrationsIcon.svg';
 import { ReactComponent as PlanBillingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
+import { ReactComponent as NotesIcon } from '../../../assets/svg/sidebar/notes-icon.svg';
 
 export const photographerModules = [
 	{
@@ -20,13 +21,6 @@ export const photographerModules = [
 		route: '/home',
 		icon: '',
 	},
-	{
-		id: 1,
-		name: 'Agents',
-		moduleRoute: '/knowledge-agent',
-		route: '/knowledge-agent',
-		icon: '',
-	},
 	// {
 	// 	id: 3,
 	// 	name: 'Search',
@@ -34,14 +28,28 @@ export const photographerModules = [
 	// 	route: '/search',
 	// 	icon: '',
 	// },
+	// {
+	// 	id: 2,
+	// 	name: 'Conversational Agent',
+	// 	moduleRoute: '/ai-assistant',
+	// 	route: '/ai-assistant',
+	// 	icon: '',
+	// },
+	{ id: 1, name: 'Files', route: '/files' },
 	{
 		id: 2,
-		name: 'Conversational Agent',
-		moduleRoute: '/ai-assistant',
-		route: '/ai-assistant',
+		name: 'Notes',
+		moduleRoute: '/notes',
+		route: '/notes',
 		icon: '',
 	},
-	{ id: 3, name: 'Files', route: '/files' },
+	{
+		id: 3,
+		name: 'Agents',
+		moduleRoute: '/knowledge-agent',
+		route: '/knowledge-agent',
+		icon: '',
+	},
 	{
 		id: 4,
 		name: 'Design Builder',
@@ -71,42 +79,41 @@ export const photographerModules = [
 	// 	icon: '',
 	// },
 	// {
-	// 	id: 8,
-	// 	name: 'Notes',
-	// 	moduleRoute: '/notes',
-	// 	route: null,
+	// 	id: 9,
+	// 	name: 'Storage',
+	// 	moduleRoute: '',
+	// 	route: '',
 	// 	icon: '',
+	// 	subModules: [
+	// 		{
+	// 			id: 0,
+	// 			name: 'Classic Gallery',
+	// 			moduleRoute: '/galleries',
+	// 			route: '/galleries',
+	// 			icon: '',
+	// 		},
+	// 		{
+	// 			id: 1,
+	// 			name: 'Lite Gallery',
+	// 			moduleRoute: '/lite-gallery',
+	// 			route: '/lite-gallery',
+	// 			icon: '',
+	// 		},
+	// 	],
 	// },
-	{
-		id: 9,
-		name: 'Storage',
-		moduleRoute: '',
-		route: '',
-		icon: '',
-		subModules: [
-			{
-				id: 0,
-				name: 'Classic Gallery',
-				moduleRoute: '/galleries',
-				route: '/galleries',
-				icon: '',
-			},
-			{
-				id: 1,
-				name: 'Lite Gallery',
-				moduleRoute: '/lite-gallery',
-				route: '/lite-gallery',
-				icon: '',
-			},
-		],
-	},
 ];
 
 export const veAiModulesItemsList = [
 	{ id: 0, name: 'Home', route: '/home', icon: HomeSvg },
 	{ id: 1, name: 'Files', route: '/files', icon: FilesSvg },
 	// { id: 2, name: 'Search', route: '/search', icon: SearchIcon },
-	{ id: 3, name: 'Agents', route: '/knowledge-agent', icon: AgentsSvg },
+	{ id: 2, name: 'Agents', route: '/knowledge-agent', icon: AgentsSvg },
+	{
+		id: 3,
+		name: 'Notes',
+		route: '/notes',
+		icon: NotesIcon,
+	},
 ];
 
 export const veAiModules = [
