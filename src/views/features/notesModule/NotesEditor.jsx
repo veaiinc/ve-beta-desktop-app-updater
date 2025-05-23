@@ -2,7 +2,11 @@ import '@blocknote/core/fonts/inter.css';
 import { BlockNoteView } from '@blocknote/mantine';
 // import { createBlock } from '@blocknote/core';
 import '@blocknote/mantine/style.css';
-import { useCreateBlockNote } from '@blocknote/react';
+import {
+	getDefaultReactSlashMenuItems,
+	SuggestionMenuController,
+	useCreateBlockNote,
+} from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
 import NoteToolbar from '../../components/notes/NoteToolbar';
 import ShareComponent from '../../components/notes/ShareComponent';
@@ -29,7 +33,8 @@ import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { isEqual } from 'lodash';
-import ObjectId from 'bson-objectid';
+import { Database, insertDatabase } from '../../components/notes/Database';
+import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
 
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
@@ -160,7 +165,17 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		return null;
 	}, [notesPageData?.data?.iconImage, info?.selectedEmoji?.native]);
 
+	const schema = BlockNoteSchema.create({
+		blockSpecs: {
+			// Adds all default blocks.
+			...defaultBlockSpecs,
+			// Adds the Alert block.
+			database: Database,
+		},
+	});
+
 	const editor = useCreateBlockNote({
+		schema,
 		tables: {
 			splitCells: true,
 			cellBackgroundColor: true,
@@ -181,6 +196,16 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 	useEffect(() => {
 		if (blocks) {
+			// const testBlock = [
+			// 	{ id: 'example-id', type: 'database', props: { databaseId: null, pageId: noteId } },
+			// 	{
+			// 		type: 'paragraph',
+			// 		content: [],
+			// 	},
+			// ];
+			// previousBlocksRef.current = new Map(testBlock?.map((block) => [block.id, block]));
+			// loadNotesContent(testBlock);
+
 			previousBlocksRef.current = new Map(blocks?.data?.map((block) => [block.id, block]));
 			loadNotesContent(blocks?.data);
 		}
@@ -530,7 +555,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				previousBlocksRef.current.delete(id);
 			} else if (!oldItem && newItem) {
 				// Item was added
-				const _id = ObjectId().toString();
+				const _id = ObjectID().toString();
 				const index = newItem.index;
 
 				// Find surrounding blocks to determine position
@@ -659,6 +684,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	};
 
 	const onEditorUpdate = (currentTopLevelBlocks) => {
+		console.log('block', previousBlocksRef.current);
+
 		const { added, deleted, updated } = diffArrays(currentTopLevelBlocks);
 
 		added.forEach((block) =>
@@ -1126,6 +1153,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 								style={innerContainerStyle || {}}
 								theme={'dark'}
 								editable={info?.myAccess !== 'view' || !info?.isDeleted}
+								slashMenu={false}
 							>
 								{(info?.myAccess !== 'view' || !info?.isDeleted) && (
 									<NoteToolbar
@@ -1134,6 +1162,27 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 										resetAiResponse={resetAiResponse}
 									/>
 								)}
+
+								<SuggestionMenuController
+									triggerCharacter={'/'}
+									getItems={async (query) => {
+										// Gets all default slash menu items.
+										const defaultItems = getDefaultReactSlashMenuItems(editor);
+										// Finds index of last item in "Basic blocks" group.
+										const lastAdvanceBlockIndex = defaultItems.findLastIndex(
+											(item) => item.group === 'Advanced',
+										);
+										// Inserts the Alert item as the last item in the "Basic blocks" group.
+										defaultItems.splice(
+											lastAdvanceBlockIndex + 1,
+											0,
+											insertDatabase(editor, noteId),
+										);
+
+										// Returns filtered items based on the query.
+										return filterSuggestionItems(defaultItems, query);
+									}}
+								/>
 							</BlockNoteView>
 						</div>
 					</>
