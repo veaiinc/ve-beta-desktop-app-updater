@@ -8,10 +8,10 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/ta
 import OptionsDropdown from './OptionsDropdown';
 
 const getPlatformRegex = {
-	linkedin: /^https?:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9-_]+\/?$/,
-	instagram: /^https?:\/\/(www\.)?instagram\.com\/[a-zA-Z0-9._]+\/?$/,
-	facebook: /^https?:\/\/(www\.)?facebook\.com\/[a-zA-Z0-9.]+\/?$/,
-	twitter: /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/[a-zA-Z0-9_]+\/?$/,
+	linkedin: /^https?:\/\/([a-z]{2,3}\.)?linkedin\.com\/.*$/,
+	instagram: /^https?:\/\/([a-z]{2,3}\.)?instagram\.com\/.*$/,
+	facebook: /^https?:\/\/([a-z]{2,3}\.)?facebook\.com\/.*$/,
+	twitter: /^https?:\/\/([a-z]{2,3}\.)?(twitter\.com|x\.com)\/.*$/,
 };
 
 const AIQuestionsModal = ({ open, onClose, data }) => {
