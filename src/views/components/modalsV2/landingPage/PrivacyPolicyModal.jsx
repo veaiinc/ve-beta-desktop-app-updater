@@ -1,8 +1,8 @@
 import React, { memo, useCallback } from 'react';
 import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/landingScreen/privacyModal.scss';
-import CrossIcon from '../../../../assets/svg/close.svg?react';
-import DownloadIcon from '../../../../assets/scss/landingScreen/downloadIcon.svg?react';
+import { ReactComponent as CrossIcon } from '../../../../assets/svg/close.svg';
+import { ReactComponent as DownloadIcon } from '../../../../assets/scss/landingScreen/downloadIcon.svg';
 import { useNavigate } from 'react-router-dom';
 import { PRIVACY_POLICY_URL_DIRECT_DOWNLOAD } from '../../../../helpers/ConstantUrls';
 const PrivacyPolicyModal = ({ isOpen, closeModal }) => {

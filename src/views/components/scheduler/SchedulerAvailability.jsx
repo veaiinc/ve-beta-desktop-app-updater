@@ -1,8 +1,8 @@
 import React, { useCallback, useState, useMemo } from 'react';
 import moment from 'moment';
 import '../../../assets/scss/scheduler/schedulerAvailability.scss';
-import Right from '../../../assets/svg/activity/right.svg?react';
-import Left from '../../../assets/svg/activity/left.svg?react';
+import { ReactComponent as Right } from '../../../assets/svg/activity/right.svg';
+import { ReactComponent as Left } from '../../../assets/svg/activity/left.svg';
 
 const WeeklySlot = ({ day, date, slots, toggleUpdateSlotModal }) => {
 	return (

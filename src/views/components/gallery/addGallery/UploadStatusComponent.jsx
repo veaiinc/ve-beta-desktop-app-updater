@@ -1,6 +1,6 @@
 import React, { memo, useContext, useEffect } from 'react';
-import UploadButtonSvg from '../../../../assets/svg/gallery/upload_gray.svg?react';
-import CancelUploadSvg from '../../../../assets/svg/gallery/cancel-bold-gray.svg?react';
+import { ReactComponent as UploadButtonSvg } from '../../../../assets/svg/gallery/upload_gray.svg';
+import { ReactComponent as CancelUploadSvg } from '../../../../assets/svg/gallery/cancel-bold-gray.svg';
 import { Progress } from 'antd';
 import DuplicateComponent from './DuplicateComponent';
 import AiEnabledSwitch from './AiEnabledSwitch';

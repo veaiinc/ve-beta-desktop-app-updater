@@ -1,6 +1,6 @@
 import { memo, useCallback, useState } from 'react';
 import '../../../../assets/scss/dropdown/tasks/dropDown.scss';
-import Tick from '../../../../assets/svg/tasks/checkmark.svg?react';
+import { ReactComponent as Tick } from '../../../../assets/svg/tasks/checkmark.svg';
 import { Tooltip } from 'antd';
 
 const DropDown = ({

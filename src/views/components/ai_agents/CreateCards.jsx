@@ -1,14 +1,13 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_agents/customCards.scss';
-import Loader from '../../../assets/svg/ai_agents/loader.svg?react';
+import { ReactComponent as Loader } from '../../../assets/svg/ai_agents/loader.svg';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import moment from 'moment';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
-import ThreeDotsVerticalIcon from '../../../assets/svg/home_page/workflows/DotsThreeVertical.svg?react';
+import { ReactComponent as ThreeDotsVerticalIcon } from '../../../assets/svg/home_page/workflows/DotsThreeVertical.svg';
 let origin = fetchOriginSelection();
 
 const CreateCards = () => {

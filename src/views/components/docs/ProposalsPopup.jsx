@@ -2,9 +2,9 @@ import React, { memo, useCallback, useContext, useEffect, useState, useRef } fro
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import ReactModal from '../modalsV2';
-import CrossSvg from '../../../assets/svg/gallery/cross.svg?react';
-import SearchIcon from '../../../assets/svg/sidebar/searchIcon.svg?react';
-import FilterSvg from '../../../assets/svg/docs/filter.svg?react';
+import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/sidebar/searchIcon.svg';
+import { ReactComponent as FilterSvg } from '../../../assets/svg/docs/filter.svg';
 import '../../../assets/scss/docs/proposalsPopup.scss';
 import { fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';

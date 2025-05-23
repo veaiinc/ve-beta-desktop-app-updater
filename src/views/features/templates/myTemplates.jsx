@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/globalWorkflow.scss';
-import BackArrowSvg from '../../../assets/svg/workflow/backarrow.svg?react';
+import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { useNavigate } from 'react-router-dom';
 import GlobalWorkflowCard from '../../components/sales/globalWorkflowCard';
 import Context from '../../../context/context';

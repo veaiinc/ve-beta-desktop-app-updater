@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/landingScreen/mobileNavSidebar.scss';
-import BackIcon from '../../../../assets/svg/landingScreen/backIcon.svg?react';
+import { ReactComponent as BackIcon } from '../../../../assets/svg/landingScreen/backIcon.svg';
 import { useNavigate } from 'react-router-dom';
 
 const MobileNavSidebar = ({ isOpen, closeModal, openPrivacyAndTermsModal }) => {

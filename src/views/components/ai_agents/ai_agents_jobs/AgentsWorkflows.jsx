@@ -1,9 +1,9 @@
 import React, { memo, useState } from 'react';
 import '../../../../assets/scss/ai_agents/agentsWorkflows.scss';
-import Link from '../../../../assets/svg/ai_agents/link.svg?react';
-import Edit from '../../../../assets/svg/ai_agents/edit.svg?react';
+import { ReactComponent as Link } from '../../../../assets/svg/ai_agents/link.svg';
+import { ReactComponent as Edit } from '../../../../assets/svg/ai_agents/edit.svg';
 import StatsCard from '../../sales/StatsCard';
-import ArrowSvg from '../../../../assets/svg/worflow_builder/smallArrow.svg?react';
+import { ReactComponent as ArrowSvg } from '../../../../assets/svg/worflow_builder/smallArrow.svg';
 const AgentsWorkflows = () => {
 	const [info, setInfo] = useState({
 		AgentsWorkflows: [{}, {}, {}],

@@ -1,8 +1,8 @@
 import React, { memo, useContext, useState, useEffect, useCallback } from 'react';
 import Context from '../../../../context/context';
-import Checked from '../../../../assets/svg/workflow/checked.svg?react';
-import Unchecked from '../../../../assets/svg/workflow/unchecked.svg?react';
-import Close from '../../../../assets/svg/close.svg?react';
+import { ReactComponent as Checked } from '../../../../assets/svg/workflow/checked.svg';
+import { ReactComponent as Unchecked } from '../../../../assets/svg/workflow/unchecked.svg';
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import ReactModal from '../../modalsV2/index';
 import InputForModules from '../../input/inputForModules';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';

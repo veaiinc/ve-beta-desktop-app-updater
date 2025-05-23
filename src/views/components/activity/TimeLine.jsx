@@ -1,10 +1,10 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/sales/activity/activityComponents.scss';
-import SortSvg from '../../../assets/svg/activity/sortIcon.svg?react';
-import FileArrowUp from '../../../assets/svg/activity/fileArrowUp.svg?react';
-import EventUser from '../../../assets/svg/activity/eventUserImg.svg?react';
-// import OutGoingMailSvg from '../../../assets/svg/activity/outgoingMail.svg?react';
-// import LinkSvg from '../../../assets/svg/activity/link.svg?react';
+import { ReactComponent as SortSvg } from '../../../assets/svg/activity/sortIcon.svg';
+import { ReactComponent as FileArrowUp } from '../../../assets/svg/activity/fileArrowUp.svg';
+import { ReactComponent as EventUser } from '../../../assets/svg/activity/eventUserImg.svg';
+// import { ReactComponent as OutGoingMailSvg } from '../../../assets/svg/activity/outgoingMail.svg';
+// import { ReactComponent as LinkSvg } from '../../../assets/svg/activity/link.svg';
 
 const TimeLine = () => {
 	return (

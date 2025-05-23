@@ -1,7 +1,7 @@
 import React, { memo, useState, useEffect } from 'react';
-import Dot from '../../../assets/svg/gallery/threeDots.svg?react';
-import QuestionMark from '../../../assets/svg/ai_assistant/question.svg?react';
-import Down from '../../../assets/svg/calendar/down.svg?react';
+import { ReactComponent as Dot } from '../../../assets/svg/gallery/threeDots.svg';
+import { ReactComponent as QuestionMark } from '../../../assets/svg/ai_assistant/question.svg';
+import { ReactComponent as Down } from '../../../assets/svg/calendar/down.svg';
 import ToggleSwitch from '../input/slider';
 import { Tooltip } from 'antd';
 import '../../../assets/scss/scheduler/editScheduler.scss';

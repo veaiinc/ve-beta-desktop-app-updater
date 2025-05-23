@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import '../../../assets/scss/chat/chatLoader.scss';
-import Logo from '../../../assets/svg/windmill2.svg?react';
-import Stick from '../../../assets/svg/loader/stick.svg?react';
+import { ReactComponent as Logo } from '../../../assets/svg/windmill2.svg';
+import { ReactComponent as Stick } from '../../../assets/svg/loader/stick.svg';
 const ChatLoader = () => {
 	return (
 		<div className="chatLoader">

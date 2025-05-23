@@ -1,7 +1,7 @@
 import React, { useState, useContext, memo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import '../../../assets/scss/gallery/aiOption.scss';
-import SearchIcon from '../../../assets/svg/workflow/search.svg?react';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
 import AiPeopleContainer from '../../components/gallery/aiSelections/AiPeopleContainer';
 import AiFaceRegistration from '../../components/gallery/aiSelections/AiFaceRegistration';
 import Insights from '../../components/gallery/aiSelections/Insights';

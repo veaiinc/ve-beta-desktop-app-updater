@@ -4,7 +4,7 @@ import StepsTab from './StepsTab';
 import InsightsTab from './InsightsTab';
 import PendingActionsTab from './PendingActionsTab';
 import FilesTab from './FilesTab';
-import ThreeDotsVerticalIcon from '../../../../../../assets/svg/home_page/workflows/DotsThreeVertical.svg?react';
+import { ReactComponent as ThreeDotsVerticalIcon } from '../../../../../../assets/svg/home_page/workflows/DotsThreeVertical.svg';
 import WorkflowPopUp from '../workflowCard/WorkflowPopUp';
 import Spinner from '../../../../loaders/Spinner';
 import ThreeDotsSvg from '../../../../../../assets/svg/my_templates/ThreeDotsSvg';

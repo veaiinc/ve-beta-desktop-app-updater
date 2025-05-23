@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/privacyPolicy.scss';
-import VE from '../../../assets/svg/ve.svg?react';
-import Back from '../../../assets/svg/privacyPolicyBack.svg?react';
+import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
+import { ReactComponent as Back } from '../../../assets/svg/privacyPolicyBack.svg';
 import { useNavigate } from 'react-router-dom';
 import { COOKIE_POLICY_URL } from '../../../helpers/ConstantUrls';
 const CookiePolicy = () => {

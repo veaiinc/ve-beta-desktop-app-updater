@@ -9,9 +9,9 @@ import {
 	useRef,
 } from 'react';
 import '../../../assets/scss/globalComponents/taskWidget.scss';
-import DownArrowIcon from '../../../assets/svg/chat/downArrow.svg?react';
-import FiltersIcon from '../../../assets/svg/tasks/filterLines.svg?react';
-import PlusIcon from '../../../assets/svg/calendar/plus.svg?react';
+import { ReactComponent as DownArrowIcon } from '../../../assets/svg/chat/downArrow.svg';
+import { ReactComponent as FiltersIcon } from '../../../assets/svg/tasks/filterLines.svg';
+import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/add.svg';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
@@ -19,13 +19,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import ListViewSidebar from '../modalsV2/tasks/ListViewSidebar';
 import { rowTypes } from '../../features/tasks/Tasks';
 import { colors } from '../../../helpers/taskHelpers';
-import ClockSvg from '../../../assets/svg/activity/clock.svg?react';
-import PieSvg from '../../../assets/svg/tasks/pieHollow.svg?react';
-import PrioritySvg from '../../../assets/svg/tasks/roundChevronRight.svg?react';
-import WorkflowSvg from '../../../assets/svg/tasks/workflow.svg?react';
-import PersonSvg from '../../../assets/svg/tasks/person.svg?react';
-import CalendarSvg from '../../../assets/svg/tasks/calendar.svg?react';
-import textSvg from '../../../assets/svg/tasks/letterA.svg?react';
+import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
+import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
+import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
+import { ReactComponent as WorkflowSvg } from '../../../assets/svg/tasks/workflow.svg';
+import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
+import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
+import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import CreateTaskPopup from '../modalsV2/tasks/CreateTaskPopup';
 import { message } from '../../components/globalComponents/CustomToast';
 import jwtDecode from 'jwt-decode';
@@ -105,6 +105,7 @@ const TaskWidget = ({ width, height }) => {
 			preferences: defaultPreference,
 		},
 		group: null,
+		page: 1,
 	});
 
 	useEffect(() => {

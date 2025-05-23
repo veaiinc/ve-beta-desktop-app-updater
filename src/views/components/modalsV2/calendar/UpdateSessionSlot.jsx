@@ -1,9 +1,9 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 import '../../../../assets/scss/calendar/modal/udateSessionSlot.scss';
 import ReactModal from '../index';
-import Delete from '../../../../assets/svg/ai_assistant/delete.svg?react';
-import Down from '../../../../assets/svg/calendar/down.svg?react';
-import Clock from '../../../../assets/svg/workflow/clock.svg?react';
+import { ReactComponent as Delete } from '../../../../assets/svg/ai_assistant/delete.svg';
+import { ReactComponent as Down } from '../../../../assets/svg/calendar/down.svg';
+import { ReactComponent as Clock } from '../../../../assets/svg/workflow/clock.svg';
 import { Tooltip, DatePicker } from 'antd';
 import moment from 'moment';
 import ToggleSwitch from '../../../components/input/slider';

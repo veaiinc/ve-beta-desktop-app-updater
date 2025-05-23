@@ -4,7 +4,7 @@ import ReactModal from '../index';
 import { DatePicker } from 'antd';
 import Context from '../../../../context/context';
 import { useLocation } from 'react-router-dom';
-import CrossWhite from '../../../../assets/svg/workspaceSettings/cross.svg?react';
+import { ReactComponent as CrossWhite } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import slugify from 'slugify';
 import dayjs from 'dayjs';
 import { message } from '../../globalComponents/CustomToast';

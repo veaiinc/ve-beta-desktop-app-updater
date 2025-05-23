@@ -1,14 +1,14 @@
 import { memo, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import PlusSvg from '../../../../assets/svg/tasks/plus.svg?react';
-import ChevronRightThinSvg from '../../../../assets/svg/tasks/chevronRightThin.svg?react';
-import HorizontalLines from '../../../../assets/svg/tasks/horizontalLines.svg?react';
+import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
+import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as HorizontalLines } from '../../../../assets/svg/tasks/horizontalLines.svg';
 import '../../../../assets/scss/dropdown/tasks/statusEditDropDown.scss';
 import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';
 import { colors } from '../../../../helpers/taskHelpers';
-import Check from '../../../../assets/svg/tasks/checkmark.svg?react';
-import Dustbin from '../../../../assets/svg/tasks/dustBin.svg?react';
+import { ReactComponent as Check } from '../../../../assets/svg/tasks/checkmark.svg';
+import { ReactComponent as Dustbin } from '../../../../assets/svg/tasks/dustBin.svg';
 
 const StatusEditDropDown = ({ handleEditPropertyChange, handleClose }) => {
 	const {

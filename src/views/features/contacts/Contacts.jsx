@@ -6,7 +6,7 @@ import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import ContactsListView from '../../components/contacts/ContactsListView';
 import ContactsWidgetView from '../../components/contacts/ContactsWidgetView';
-import SearchIcon from '../../../assets/svg/chat/search.svg?react';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/chat/search.svg';
 
 const suggestedPrompts = [
 	'Start a Deep Research on revamping the current Dashboard Layout',

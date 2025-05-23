@@ -3,7 +3,7 @@ import '../../../assets/scss/sales/smartFileComponets.scss';
 import ToggleSlider from '../../components/input/slider';
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../popover/ToolTipContainer';
-import QuestionMark from '../../../assets/svg/workflow/questionMark.svg?react';
+import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/questionMark.svg';
 
 const serviceStyleMapper = {
 	0: 'Select One',

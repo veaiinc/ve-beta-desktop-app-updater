@@ -27,7 +27,7 @@ import { Spin } from 'antd';
 import Configuration from '../../components/automationBuilder/AutomationBuilderSidebarComponents/Configuration';
 import TabHeader from '../../components/ai_assistant/TabHeader';
 import CustomControls from '../../components/automationBuilder/CustomControls';
-import ChevronRight from '../../../assets/svg/tasks/chevronRightThin.svg?react';
+import { ReactComponent as ChevronRight } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import UpdatedDeleteWorkflowStep from '../../components/modalsV2/automationBuilder/UpdatedDeleteStepsModal';
 import { message } from '../../components/globalComponents/CustomToast';
 

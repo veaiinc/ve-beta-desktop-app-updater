@@ -1,9 +1,9 @@
 import { memo, useContext, useCallback, useState, useEffect } from 'react';
 import '../../../assets/scss/chat/aiMessageRenderer.scss';
-import Logo from '../../../assets/svg/windmill.svg?react';
-import Logo2 from '../../../assets/svg/windmill2.svg?react';
+import { ReactComponent as Logo } from '../../../assets/svg/windmill.svg';
+import { ReactComponent as Logo2 } from '../../../assets/svg/windmill2.svg';
 import Context from '../../../context/context';
-import LinkIcon from '../../../assets/svg/ai_agents/link.svg?react';
+import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
 import DeepSearchChainOfThought from './chatComponents/DeepSearchChainOfThought';
 import DeepResearchChainOfThought from './chatComponents/DeepResearchChainOfThought';
 import {
@@ -13,7 +13,7 @@ import {
 	redirectTo,
 	redirectTypeMapper,
 } from '../../../helpers';
-import ArrowRightIcon from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg?react';
+import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import AIMessage from './AIMessage';
 import CombinedChainOfThought from './chatComponents/CombinedChainOfThought';
 import ChainOfThoughtWidget from './chatComponents/ChainOfThoughtWidget';

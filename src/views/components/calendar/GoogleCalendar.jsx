@@ -1,7 +1,7 @@
 import { memo, useState, useCallback, useEffect, useContext } from 'react';
 import '../../../assets/scss/calendar/googleCalendar.scss';
 import Context from '../../../context/context';
-import DownSvg from '../../../assets/svg/calendar/down.svg?react';
+import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import Spinner from '../loaders/Spinner';
 import { message } from '../../components/globalComponents/CustomToast';
 import ConnectIntegrationWidget from '../globalComponents/ConnectIntegrationWidget';

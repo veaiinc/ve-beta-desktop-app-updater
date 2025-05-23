@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import Close from '../../../../assets/svg/close.svg?react';
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import '../../../../assets/scss/sales/globalWorkflowModal.scss';
-import EditSvg from '../../../../assets/svg/worflow_builder/edit.svg?react';
+import { ReactComponent as EditSvg } from '../../../../assets/svg/worflow_builder/edit.svg';
 import { Drawer } from 'antd';
 import { fetchOriginSelection } from '../../../../helpers';
 let origin = fetchOriginSelection();

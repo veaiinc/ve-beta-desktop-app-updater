@@ -1,15 +1,15 @@
 import React, { memo, useState, useCallback, useContext, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../../../assets/scss/scheduler/editScheduler.scss';
-import Back from '../../../assets/svg/gallery/back-gray.svg?react';
-import DateSvg from '../../../assets/svg/calendar/date.svg?react';
-import DownArrow from '../../../assets/svg/activity/down.svg?react';
-import Down from '../../../assets/svg/calendar/down.svg?react';
+import { ReactComponent as Back } from '../../../assets/svg/gallery/back-gray.svg';
+import { ReactComponent as DateSvg } from '../../../assets/svg/calendar/date.svg';
+import { ReactComponent as DownArrow } from '../../../assets/svg/activity/down.svg';
+import { ReactComponent as Down } from '../../../assets/svg/calendar/down.svg';
 import SessionInfoCard from '../../components/scheduler/SessionInfoCard';
 import { Tooltip, DatePicker } from 'antd';
 import dayjs from 'dayjs';
-import Clock from '../../../assets/svg/workflow/clock.svg?react';
-import Duplicate from '../../../assets/svg/tasks/duplicate.svg?react';
+import { ReactComponent as Clock } from '../../../assets/svg/workflow/clock.svg';
+import { ReactComponent as Duplicate } from '../../../assets/svg/tasks/duplicate.svg';
 import Context from '../../../context/context';
 import Checkbox from 'antd/es/checkbox/Checkbox';
 import PhoneInput from 'react-phone-number-input';
@@ -645,7 +645,6 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 				value={info[config?.value] || ''}
 				onChange={(e) => handleDebouncedSessionTypeInput(config?.value, e.target.value)}
 				placeholder={config?.placeholder}
-				backgroundColor={config?.backgroundColor}
 				className="inputHeight"
 			/>
 		);

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Context from '../../../../context/context';
 import {
@@ -17,11 +16,11 @@ import {
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import Spinner from '../../loaders/Spinner';
 import EditAndViewEmailTemplateModal from './EditAndViewEmailTemplateModal';
-import DoubleArrow from '../../../../assets/svg/worflow_builder/doubleArrow.svg?react';
+import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/doubleArrow.svg';
 import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
 import WorkflowBuilderLoader from '../../workflowBuilderComponents/WorkflowBuilderLoader';
 import ToggleSlider from '../../input/slider';
-import Pen from '../../../../assets/svg/worflow_builder/editPen.svg?react';
+import { ReactComponent as Pen } from '../../../../assets/svg/worflow_builder/editPen.svg';
 import { Button, Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { message } from '../../globalComponents/CustomToast';

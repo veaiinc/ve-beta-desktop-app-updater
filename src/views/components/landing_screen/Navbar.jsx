@@ -1,6 +1,6 @@
 import React, { memo, useEffect } from 'react';
 import gsap from 'gsap';
-import VeAiLogo from '../../../assets/svg/landingScreen/veai-logo.svg?react';
+import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
 import '../../../assets/scss/landingScreen/index.scss';
 
 const animateButtonEnter = (selector) => {

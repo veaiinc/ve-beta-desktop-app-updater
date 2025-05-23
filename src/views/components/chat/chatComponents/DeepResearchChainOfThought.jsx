@@ -1,8 +1,8 @@
 import { memo } from 'react';
 import '../../../../assets/scss/chat/chatComponents/deepResearchChainOfThought.scss';
 import { Markdown } from '../../../../helpers/markdownHelper';
-import HashTagSvg from '../../../../assets/svg/ai_agents/hash-tag.svg?react';
-import CurveSvg from '../../../../assets/svg/ai_agents/curve.svg?react';
+import { ReactComponent as HashTagSvg } from '../../../../assets/svg/ai_agents/hash-tag.svg';
+import { ReactComponent as CurveSvg } from '../../../../assets/svg/ai_agents/curve.svg';
 import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
 import Sources from './Sources';

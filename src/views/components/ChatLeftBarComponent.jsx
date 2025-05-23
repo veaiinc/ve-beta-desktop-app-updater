@@ -3,8 +3,8 @@ import '../../assets/scss/chatLeftBarComponent.scss';
 import Context from '../../context/context';
 import ObjectID from 'bson-objectid';
 import RecentChat from '../features/chat/RecentChat';
-import SparkleSvg from '../../assets/svg/ai_agents/sparkle.svg?react';
-import LeftSvg from '../../assets/svg/activity/left.svg?react';
+import { ReactComponent as SparkleSvg } from '../../assets/svg/ai_agents/sparkle.svg';
+import { ReactComponent as LeftSvg } from '../../assets/svg/activity/left.svg';
 
 const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 	const {

@@ -1,6 +1,6 @@
 import React, { memo, useState, useCallback, useContext, useEffect } from 'react';
 import '../../assets/scss/header.scss';
-import VE from '../../assets/svg/ve.svg?react';
+import { ReactComponent as VE } from '../../assets/svg/ve.svg';
 import { useNavigate } from 'react-router-dom';
 import HeadersDropDownComp from './dropDown/HeadersDropDownComp';
 import SwitchWorkspaceModal from './modalsV2/switchWorkspaceModal';

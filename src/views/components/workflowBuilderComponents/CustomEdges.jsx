@@ -2,11 +2,11 @@ import { BaseEdge, EdgeLabelRenderer, getBezierPath } from '@xyflow/react';
 import React, { useCallback, useState } from 'react';
 import '../../../assets/scss/workflowBuilder/customEdges.scss';
 import { Tooltip } from 'antd';
-import Action from '../../../assets/svg/worflow_builder/customNodes/actionSvg.svg?react';
-import IfElse from '../../../assets/svg/worflow_builder/customNodes/ifelse.svg?react';
+import { ReactComponent as Action } from '../../../assets/svg/worflow_builder/customNodes/actionSvg.svg';
+import { ReactComponent as IfElse } from '../../../assets/svg/worflow_builder/customNodes/ifelse.svg';
 
-import Pipeline from '../../../assets/svg/worflow_builder/customNodes/movePipeline.svg?react';
-import Notification from '../../../assets/svg/worflow_builder/customNodes/notification.svg?react';
+import { ReactComponent as Pipeline } from '../../../assets/svg/worflow_builder/customNodes/movePipeline.svg';
+import { ReactComponent as Notification } from '../../../assets/svg/worflow_builder/customNodes/notification.svg';
 const CustomEdges = ({
 	id,
 	sourceX,

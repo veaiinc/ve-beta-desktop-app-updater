@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import ReactModal from '../index';
-import CrossSvg from '../../../../assets/svg/gallery/cross.svg?react';
-import Copy from '../../../../assets/svg/gallery/copy.svg?react';
+import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
+import { ReactComponent as Copy } from '../../../../assets/svg/gallery/copy.svg';
 import { message } from '../../globalComponents/CustomToast';
 
 const ShareAlbum = (props) => {

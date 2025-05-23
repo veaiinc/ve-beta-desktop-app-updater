@@ -1,8 +1,8 @@
 import { useState, memo } from 'react';
 import '../../../assets/scss/dropdown/dropdown.scss';
-import DownArrow from '../../../assets/svg/chat/downArrow.svg?react';
-import Instagram from '../../../assets/svg/chat/instagram.svg?react';
-import Tick from '../../../assets/svg/chat/tick.svg?react';
+import { ReactComponent as DownArrow } from '../../../assets/svg/chat/downArrow.svg';
+import { ReactComponent as Instagram } from '../../../assets/svg/chat/instagram.svg';
+import { ReactComponent as Tick } from '../../../assets/svg/chat/tick.svg';
 const DropDown = ({
 	containerStyle,
 	dropDownStyle,

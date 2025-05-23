@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../assets/scss/sales/smartFileLayout.scss';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { Helmet } from 'react-helmet';
-import VE from '../../assets/svg/smallVe.svg?react';
+import { ReactComponent as VE } from '../../assets/svg/smallVe.svg';
 import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';

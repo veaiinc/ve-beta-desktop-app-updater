@@ -1,7 +1,7 @@
 import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/home_page/modals/aiQuestionsModal.scss';
 import ReactModal from '../index';
-import QuestionSvg from '../../../../assets/svg/home_page/question.svg?react';
+import { ReactComponent as QuestionSvg } from '../../../../assets/svg/home_page/question.svg';
 import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';
 

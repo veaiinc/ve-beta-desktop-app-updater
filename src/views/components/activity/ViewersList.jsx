@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/sales/activity/activityComponents.scss';
-import SortSvg from '../../../assets/svg/activity/sortIcon.svg?react';
+import { ReactComponent as SortSvg } from '../../../assets/svg/activity/sortIcon.svg';
 import Skeleton from 'react-loading-skeleton';
 
 const ViewersList = ({

@@ -1,9 +1,9 @@
 import { memo, useMemo, useState } from 'react';
 import '../../../../assets/scss/dropdown/tasks/filterDropdown.scss';
-import SearchSvg from '../../../../assets/svg/workflow/search.svg?react';
-import Tick from '../../../../assets/svg/tasks/tick.svg?react';
+import { ReactComponent as SearchSvg } from '../../../../assets/svg/workflow/search.svg';
+import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
 import { Tooltip } from 'antd';
-import PlusIcon from '../../../../assets/svg/tasks/plus.svg?react';
+import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';
 
 const SortDropdown = ({ properties, sort, handleSortChange }) => {
 	const [info, setInfo] = useState({

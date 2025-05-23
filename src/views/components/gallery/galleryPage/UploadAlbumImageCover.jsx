@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import LaptopLogo from '../../../../assets/svg/gallery/laptop.svg?react';
-import CrossSvg from '../../../../assets/svg/gallery/cross.svg?react';
+import { ReactComponent as LaptopLogo } from '../../../../assets/svg/gallery/laptop.svg';
+import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import mobile from '../../../../assets/svg/gallery/mobile.png';
 import { FocusedImage, FocusPicker } from 'image-focus';
 import '../../../../assets/scss/gallery/uploadGalleryImageCover.scss';

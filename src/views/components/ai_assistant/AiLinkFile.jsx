@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/aiLinkFile.scss';
-import Link from '../../../assets/svg/smartFiles/formResponse/link.svg?react';
-import Pdf from '../../../assets/svg/ai_assistant/pdf.svg?react';
+import { ReactComponent as Link } from '../../../assets/svg/smartFiles/formResponse/link.svg';
+import { ReactComponent as Pdf } from '../../../assets/svg/ai_assistant/pdf.svg';
 import AssignAiAssistantModal from '../modalsV2/settings/ai_setup/AssignAiAssistantModal';
 import Context from '../../../context/context';
 import { useParams } from 'react-router-dom';

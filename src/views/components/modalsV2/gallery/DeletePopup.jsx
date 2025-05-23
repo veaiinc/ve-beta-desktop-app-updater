@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/gallery/modals/deletePopup.scss';
-import CrossSvg from '../../../../assets/svg/gallery/cross.svg?react';
-import WarningSvg from '../../../../assets/svg/gallery/warning.svg?react';
+import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
+import { ReactComponent as WarningSvg } from '../../../../assets/svg/gallery/warning.svg';
 const DeletePopup = ({
 	open,
 	closeModal,

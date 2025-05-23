@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import BackSvg from '../../../assets/svg/sidebar/leftarrowwhite.svg?react';
+import { ReactComponent as BackSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import '../../../assets/scss/ai_assistant/createAgentHeader.scss';
 
 const CreateAgentHeader = ({

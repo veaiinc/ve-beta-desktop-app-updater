@@ -1,13 +1,13 @@
 import { memo, useContext, useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import Context from '../../../context/context';
-import ChevronRightThinSvg from '../../../assets/svg/tasks/chevronRightThin.svg?react';
-import FilterIcon from '../../../assets/svg/tasks/newFiltersIcon.svg?react';
-import TickIcon from '../../../assets/svg/tick.svg?react';
-import CloseIcon from '../../../assets/svg/close.svg?react';
-import EmailIcon from '../../../assets/svg/login_page/gmail.svg?react';
-import QuestionSvg from '../../../assets/svg/home_page/question.svg?react';
-import ListDashesSvg from '../../../assets/svg/home_page/listDashes.svg?react';
+import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as FilterIcon } from '../../../assets/svg/tasks/newFiltersIcon.svg';
+import { ReactComponent as TickIcon } from '../../../assets/svg/tick.svg';
+import { ReactComponent as CloseIcon } from '../../../assets/svg/close.svg';
+import { ReactComponent as EmailIcon } from '../../../assets/svg/login_page/gmail.svg';
+import { ReactComponent as QuestionSvg } from '../../../assets/svg/home_page/question.svg';
+import { ReactComponent as ListDashesSvg } from '../../../assets/svg/home_page/listDashes.svg';
 import Skeleton from 'react-loading-skeleton';
 import AISuggestionsModal from '../../components/modalsV2/homePage/AISuggestionsModal';
 import { Tooltip } from 'antd';
@@ -18,14 +18,14 @@ import { message } from '../../components/globalComponents/CustomToast';
 import ObjectID from 'bson-objectid';
 import { useNavigate } from 'react-router-dom';
 import { handleCombinedChainOfThought } from '../../../helpers/chatHelpers';
-import RelativeTimeSvg from '../../../assets/svg/home_page/relativeTime.svg?react';
-import ListViewSvg from '../../../assets/svg/home_page/listView.svg?react';
-import FocusViewSvg from '../../../assets/svg/home_page/focusView.svg?react';
-import SortDescSvg from '../../../assets/svg/home_page/sortDesc.svg?react';
-import SortAscSvg from '../../../assets/svg/home_page/sortAsc.svg?react';
-import AgentIcon from '../../../assets/svg/sidebar/agentsIcon.svg?react';
+import { ReactComponent as RelativeTimeSvg } from '../../../assets/svg/home_page/relativeTime.svg';
+import { ReactComponent as ListViewSvg } from '../../../assets/svg/home_page/listView.svg';
+import { ReactComponent as FocusViewSvg } from '../../../assets/svg/home_page/focusView.svg';
+import { ReactComponent as SortDescSvg } from '../../../assets/svg/home_page/sortDesc.svg';
+import { ReactComponent as SortAscSvg } from '../../../assets/svg/home_page/sortAsc.svg';
+import { ReactComponent as AgentIcon } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import AIQuestions from './AIQuestions';
-import StarSvg from '../../../assets/svg/home_page/star.svg?react';
+import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
 
 const payload = {
 	page: 1,

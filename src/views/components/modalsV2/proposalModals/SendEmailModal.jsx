@@ -1,8 +1,7 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/modules/workflow/sendEmail.scss';
-import Close from '../../../../assets/svg/close.svg?react';
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import Context from '../../../../context/context';
 import { Spin } from 'antd';
 import JoditEditor from 'jodit-react';

@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../../assets/scss/chat/chatStyling.scss';
-import Instagram from '../../../assets/svg/chat/emptyStateInstagram.svg?react';
-import Facebook from '../../../assets/svg/chat/facebook.svg?react';
+import { ReactComponent as Instagram } from '../../../assets/svg/chat/emptyStateInstagram.svg';
+import { ReactComponent as Facebook } from '../../../assets/svg/chat/facebook.svg';
 import { nameShortner } from '../../../helpers';
 
 const ChannelCard = ({ active, onChannelPress, item, index, activeFilter }) => {

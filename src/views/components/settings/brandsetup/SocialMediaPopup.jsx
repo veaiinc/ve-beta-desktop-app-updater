@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, memo } from 'react';
 import ReactModal from '../../modalsV2/index';
-import CrossIcon from '../../../../assets/svg/workspaceSettings/cross.svg?react';
+import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import Context from '../../../../context/context';
 import validator from 'validator';
 

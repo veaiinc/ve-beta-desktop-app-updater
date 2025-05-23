@@ -1,9 +1,9 @@
 import { Progress } from 'antd';
 import React, { useCallback, useContext, useEffect, useState, memo, useRef, useMemo } from 'react';
-import PlusSvg from '../../../../assets/svg/tasks/plus.svg?react';
+import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import '../../../../assets/scss/tasks/childTaskComponent.scss';
 import Context from '../../../../context/context';
-import ChevronRightThinSvg from '../../../../assets/svg/tasks/chevronRightThin.svg?react';
+import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import Spinner from '../../loaders/Spinner';
 
 const ChildTaskComponent = ({

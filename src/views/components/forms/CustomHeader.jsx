@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import DownloadIcon from '../../../assets/svg/download.svg?react';
+import { ReactComponent as DownloadIcon } from '../../../assets/svg/download.svg';
 const CustomHeader = ({ name, handleDownload }) => {
 	const handleDownloadClick = () => {
 		handleDownload();

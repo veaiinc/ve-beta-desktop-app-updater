@@ -1,6 +1,6 @@
 import React, { memo, useState, useCallback } from 'react';
 import ReactModal from '../../modalsV2';
-import CloseSvg from '../../../../assets/svg/close.svg?react';
+import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
 import Cropper from 'react-easy-crop';
 import { Slider } from 'antd';
 

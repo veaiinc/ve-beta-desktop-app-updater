@@ -1,5 +1,5 @@
 import React from 'react';
-import CloudFileUploadSvg from '../../../../assets/svg/Settings/CloudUpload.svg?react';
+import { ReactComponent as CloudFileUploadSvg } from '../../../../assets/svg/Settings/CloudUpload.svg';
 import Dropzone from 'react-dropzone';
 
 const UploadInputComponent = ({ onDropFunction }) => {

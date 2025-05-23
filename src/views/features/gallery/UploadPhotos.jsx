@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect, useRef, memo } from 'react';
 import '../../../assets/scss/gallery/uploadGallery.scss';
 import AddLables from '../../components/gallery/addGallery/AddLablesComponent';
 import UploadInputComponent from '../../components/gallery/addGallery/UploadInputComponent';
-import BackIcon from '../../../assets/svg/gallery/back-gray.svg?react';
+import { ReactComponent as BackIcon } from '../../../assets/svg/gallery/back-gray.svg';
 import WaterMarkComponent from '../../components/gallery/addGallery/WaterMarkComponent';
 import UploadStatusComponent from '../../components/gallery/addGallery/UploadStatusComponent';
 import randomize from 'randomatic';

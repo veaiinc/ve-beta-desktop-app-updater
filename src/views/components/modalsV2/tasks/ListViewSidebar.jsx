@@ -1,12 +1,11 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import { Drawer } from 'antd';
 import React, { memo, useCallback, useEffect, useState, useRef, useContext } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
-import CloseArrow from '../../../../assets/svg/tasks/doubleRightArrow.svg?react';
-import RightSvg from '../../../../assets/svg/activity/right.svg?react';
-import DustBinIcon from '../../../../assets/svg/tasks/dustBin.svg?react';
-import ExpandSvg from '../../../../assets/svg/docs/expand.svg?react';
+import { ReactComponent as CloseArrow } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
+import { ReactComponent as RightSvg } from '../../../../assets/svg/activity/right.svg';
+import { ReactComponent as DustBinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
+import { ReactComponent as ExpandSvg } from '../../../../assets/svg/docs/expand.svg';
 import Spinner from '../../loaders/Spinner';
 import Skeleton from 'react-loading-skeleton';
 import CustomTextArea from '../../globalComponents/CusomTextArea';

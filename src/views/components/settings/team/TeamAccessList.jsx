@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { getInitials } from '../../../../helpers/index';
-import TickSvg from '../../../../assets/svg/tick.svg?react';
-import DownArrow from '../../../../assets/svg/Settings/Downarrowwhite.svg?react';
+import { ReactComponent as TickSvg } from '../../../../assets/svg/tick.svg';
+import { ReactComponent as DownArrow } from '../../../../assets/svg/Settings/Downarrowwhite.svg';
 import { useContext } from 'react';
 import { Select } from 'antd';
 import Context from '../../../../context/context';

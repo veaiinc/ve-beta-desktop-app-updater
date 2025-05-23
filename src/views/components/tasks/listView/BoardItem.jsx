@@ -1,6 +1,6 @@
 import React, { useState, useEffect, memo, useCallback } from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
-import PlusIcon from '../../../../assets/svg/tasks/plus.svg?react';
+import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';
 import CardItem from './CardItem';
 import Status from './Status';
 import Select from './Select';

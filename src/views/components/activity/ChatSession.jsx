@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import Sparkel from '../../../assets/svg/activity/sparkel.svg?react';
+import { ReactComponent as Sparkel } from '../../../assets/svg/activity/sparkel.svg';
 
 const ChatSession = () => {
 	return (

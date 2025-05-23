@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import ReactModal from '../index';
-import CloseSvg from '../../../../assets/svg/close.svg?react';
-import DeleteSvg from '../../../../assets/svg/tasks/dustBin.svg?react';
+import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
+import { ReactComponent as DeleteSvg } from '../../../../assets/svg/tasks/dustBin.svg';
 import '../../../../assets/scss/ai_assistant/modal/instructionModal.scss';
 import ActionButton from '../../ai_assistant/ActionButton';
 import InputComponent from '../../ai_assistant/InputComponent';

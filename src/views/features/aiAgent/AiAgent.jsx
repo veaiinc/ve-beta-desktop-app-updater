@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useState } from 'react';
 import '../../../assets/scss/ai_agents/home.scss';
-import CircledCross from '../../../assets/svg/ai_agents/cross.svg?react';
-import Search from '../../../assets/svg/ai_agents/search.svg?react';
+import { ReactComponent as CircledCross } from '../../../assets/svg/ai_agents/cross.svg';
+import { ReactComponent as Search } from '../../../assets/svg/ai_agents/search.svg';
 import AiAgentsCards from '../../components/ai_agents/AiAgentsCards';
 import CreateCards, { Drafts } from '../../components/ai_agents/CreateCards';
 const tabs = ['all', 'guidence', 'approval', 'suggestions'];

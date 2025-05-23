@@ -3,11 +3,11 @@ import HeaderComponent from './HeaderComponent';
 import ActionDetailsBlock from './ActionDetailsBlock';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/googleActions.scss';
 import Context from '../../../../context/context';
-import FilledTick from '../../../../assets/svg/worflow_builder/buildercard/filledTick.svg?react';
+import { ReactComponent as FilledTick } from '../../../../assets/svg/worflow_builder/buildercard/filledTick.svg';
 import EditAndViewEmailTemplateModal from '../../modalsV2/workflowBuilderModals/EditAndViewEmailTemplateModal';
 import VariableComponent from './VariableComponent';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
-import Edit from '../../../../assets/svg/worflow_builder/buildercard/edit.svg?react';
+import { ReactComponent as Edit } from '../../../../assets/svg/worflow_builder/buildercard/edit.svg';
 import {
 	containerStyle,
 	dropDownStyle,

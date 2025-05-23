@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/calendar/customEventCard.scss';
-import User from '../../../assets/svg/calendar/calendarEllipse.svg?react';
+import { ReactComponent as User } from '../../../assets/svg/calendar/calendarEllipse.svg';
 import moment from 'moment';
 
 const CustomEventCard = ({ event }) => {

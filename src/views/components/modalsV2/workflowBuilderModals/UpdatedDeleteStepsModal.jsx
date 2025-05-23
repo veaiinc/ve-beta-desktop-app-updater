@@ -2,7 +2,7 @@ import React, { memo, useCallback, useContext, useEffect, useState } from 'react
 import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/workflowBuilder/updatedDeleteWorkflowStep.scss';
 import Spinner from '../../loaders/Spinner';
-import Close from '../../../../assets/svg/close.svg?react';
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import Context from '../../../../context/context';
 import { Spin } from 'antd';
 import { getTotalNumnerofNodesRecursively } from '../../../features/workflowBuilder/workflowContantsHelpers';

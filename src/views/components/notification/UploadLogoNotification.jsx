@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import Notification from './Notification';
 import '../../../assets/scss/notification/uploadLogoNotification.scss';
-import Close from '../../../assets/svg/close.svg?react';
-import Warning from '../../../assets/svg/notification/notificationWarning.svg?react';
+import { ReactComponent as Close } from '../../../assets/svg/close.svg';
+import { ReactComponent as Warning } from '../../../assets/svg/notification/notificationWarning.svg';
 import { useNavigate } from 'react-router-dom';
 const UploadLogoNotification = ({ onClose, open }) => {
 	const navigate = useNavigate();

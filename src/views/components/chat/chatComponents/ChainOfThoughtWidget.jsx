@@ -1,9 +1,9 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import '../../../../assets/scss/chat/chatComponents/chainOfThoughtWidget.scss';
-import TickSvg from '../../../../assets/svg/ai_agents/tick.svg?react';
+import { ReactComponent as TickSvg } from '../../../../assets/svg/ai_agents/tick.svg';
 import DeepResearchChainOfThought from './DeepResearchChainOfThought';
 import DeepSearchChainOfThought from './DeepSearchChainOfThought';
-import ChevronRightThinSvg from '../../../../assets/svg/tasks/chevronRightThin.svg?react';
+import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 
 const ChainOfThoughtWidget = ({ messageData }) => {
 	const [info, setInfo] = useState({

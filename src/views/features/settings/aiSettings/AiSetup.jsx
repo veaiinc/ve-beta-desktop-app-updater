@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
 import CreateNewAiAssistantModal from '../../../components/modalsV2/settings/ai_setup/CreateNewAiAssistantModal';
 import '../../../../assets/scss/settings/aiSetup.scss';
-import QuestionMark from '../../../../assets/svg/Settings/question_circle.svg?react';
-import Plus from '../../../../assets/svg/Settings/plus.svg?react';
-import Robot from '../../../../assets/svg/Settings/robot.svg?react';
-import LinkGrey from '../../../../assets/svg/Settings/link-grey-color.svg?react';
+import { ReactComponent as QuestionMark } from '../../../../assets/svg/Settings/question_circle.svg';
+import { ReactComponent as Plus } from '../../../../assets/svg/Settings/plus.svg';
+import { ReactComponent as Robot } from '../../../../assets/svg/Settings/robot.svg';
+import { ReactComponent as LinkGrey } from '../../../../assets/svg/Settings/link-grey-color.svg';
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../../../components/popover/ToolTipContainer';
 

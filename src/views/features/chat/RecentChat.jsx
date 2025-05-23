@@ -1,11 +1,11 @@
 import React, { memo, useCallback, useState, useRef, useEffect, useContext, Fragment } from 'react';
 import '../../../assets/scss/chat/chat.scss';
-import ExpandChatIcon from '../../../assets/svg/ai_agents/expand-chat-icon.svg?react';
+import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import {
 	handleDeepSearchChainOfThought,
 	handleDeepResearchChainOfThought,
 } from '../../../helpers/chatHelpers';
-import LeftSvg from '../../../assets/svg/activity/left.svg?react';
+import { ReactComponent as LeftSvg } from '../../../assets/svg/activity/left.svg';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
@@ -17,7 +17,7 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
 import useChatStream from '../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
-import PlusCircleSvg from '../../../assets/svg/ai_agents/plus-cricle.svg?react';
+import { ReactComponent as PlusCircleSvg } from '../../../assets/svg/ai_agents/plus-cricle.svg';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import { Tooltip } from 'antd';
 

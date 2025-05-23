@@ -1,8 +1,8 @@
 import React, { useState, memo } from 'react';
 import '../../../assets/scss/AiSetup/toggleBlock.scss';
-import Plus from '../../../assets/svg/ai_assistant/plus.svg?react';
-import Dustbin from '../../../assets/svg/worflow_builder/dustbin.svg?react';
-import Pencil from '../../../assets/svg/calendar/pencil.svg?react';
+import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.svg';
+import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
+import { ReactComponent as Pencil } from '../../../assets/svg/calendar/pencil.svg';
 
 const ToggleBlock = ({ data, type, onDeleteClick, onEditClick }) => {
 	const [info, setInfo] = useState({

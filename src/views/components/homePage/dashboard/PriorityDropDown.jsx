@@ -1,7 +1,7 @@
 import { Tooltip } from 'antd';
 import React, { useContext, useState, useEffect } from 'react';
 import '../../../../assets/scss/home_page/priorityDropDown.scss';
-import ChevronRightThinIcon from '../../../../assets/svg/tasks/chevronRightThin.svg?react';
+import { ReactComponent as ChevronRightThinIcon } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import Context from '../../../../context/context';
 
 const optionItems = [

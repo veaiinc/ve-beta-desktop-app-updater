@@ -1,6 +1,6 @@
 import React, { memo, useContext, useState, useMemo } from 'react';
 import '../../../../assets/scss/automations/automationCard.scss';
-import ThreeDotsVerticalIcon from '../../../../assets/svg/home_page/workflows/DotsThreeVertical.svg?react';
+import { ReactComponent as ThreeDotsVerticalIcon } from '../../../../assets/svg/home_page/workflows/DotsThreeVertical.svg';
 import Context from '../../../../context/context';
 import AutomationMenu from './AutomationMenu';
 import AutomationSteps from './AutomationSteps';

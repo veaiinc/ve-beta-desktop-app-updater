@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Skeleton from 'react-loading-skeleton';
-import CrossIcon from '../../../assets/svg/workspaceSettings/cross.svg?react';
-import LockIcon from '../../../assets/svg/workspaceSettings/lock-big.svg?react';
-import CheckIcon from '../../../assets/svg/workspaceSettings/checkmark-green.svg?react';
-import Shield from '../../../assets/svg/workspaceSettings/shield-gray.svg?react';
+import { ReactComponent as CrossIcon } from '../../../assets/svg/workspaceSettings/cross.svg';
+import { ReactComponent as LockIcon } from '../../../assets/svg/workspaceSettings/lock-big.svg';
+import { ReactComponent as CheckIcon } from '../../../assets/svg/workspaceSettings/checkmark-green.svg';
+import { ReactComponent as Shield } from '../../../assets/svg/workspaceSettings/shield-gray.svg';
 import InputNew from '../../components/input/inputNew';
 import validator from 'validator';
-import PreviousIcon from '../../../assets/svg/workspaceSettings/back3.svg?react';
+import { ReactComponent as PreviousIcon } from '../../../assets/svg/workspaceSettings/back3.svg';
 import Context from '../../../context/context';
 import '../../../assets/scss/workspaceSettings/userDetailsLayout.scss';
 

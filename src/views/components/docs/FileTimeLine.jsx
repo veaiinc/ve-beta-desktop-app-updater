@@ -2,8 +2,8 @@ import React, { memo } from 'react';
 import '../../../assets/scss/docs/fileTimeLine.scss';
 import moment from 'moment';
 
-import FileArrowUp from '../../../assets/svg/activity/fileArrowUp.svg?react';
-import EventUser from '../../../assets/svg/activity/eventUserImg.svg?react';
+import { ReactComponent as FileArrowUp } from '../../../assets/svg/activity/fileArrowUp.svg';
+import { ReactComponent as EventUser } from '../../../assets/svg/activity/eventUserImg.svg';
 
 const FileTimeLine = ({ data }) => {
 	return (

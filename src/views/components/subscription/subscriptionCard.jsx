@@ -1,13 +1,12 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import '../../../assets/scss/subscriptions/subscriptionsCard.scss';
-import Tasks from '../../../assets/svg/subscription/tasks.svg?react';
-import Forms from '../../../assets/svg/subscription/forms.svg?react';
-import Invoices from '../../../assets/svg/subscription/invoice.svg?react';
-import Automation from '../../../assets/svg/subscription/automation.svg?react';
-import Contracts from '../../../assets/svg/subscription/contract.svg?react';
-import Proposals from '../../../assets/svg/subscription/proposal.svg?react';
-import Tick from '../../../assets/svg/subscription/tick.svg?react';
+import { ReactComponent as Tasks } from '../../../assets/svg/subscription/tasks.svg';
+import { ReactComponent as Forms } from '../../../assets/svg/subscription/forms.svg';
+import { ReactComponent as Invoices } from '../../../assets/svg/subscription/invoice.svg';
+import { ReactComponent as Automation } from '../../../assets/svg/subscription/automation.svg';
+import { ReactComponent as Contracts } from '../../../assets/svg/subscription/contract.svg';
+import { ReactComponent as Proposals } from '../../../assets/svg/subscription/proposal.svg';
+import { ReactComponent as Tick } from '../../../assets/svg/subscription/tick.svg';
 import Context from '../../../context/context';
 import { Spin } from 'antd';
 

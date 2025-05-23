@@ -1,14 +1,14 @@
 import '../../../assets/scss/commandKSearch/commandKSearch.scss';
-// import CrossSvg from '../../../assets/svg/docs/cross.svg?react';
-import SearchSvg from '../../../assets/svg/elastic_search/search-icon.svg?react';
+// import { ReactComponent as CrossSvg } from '../../../assets/svg/docs/cross.svg';
+import { ReactComponent as SearchSvg } from '../../../assets/svg/elastic_search/search-icon.svg';
 import { memo, useContext, useEffect, useRef, useState } from 'react';
 import Context from '../../../context/context';
 import { message } from '../globalComponents/CustomToast';
 import Spinner from '../loaders/Spinner';
 import ElasticSearchResults from '../../features/files/ElasticSearchResults';
 // import CustomDropdown from '../../features/files/CustomDropdown';
-// import Folder from '../../../assets/svg/files/FolderSearch.svg?react';
-// import Plug from '../../../assets/svg/files/plug.svg?react';
+// import { ReactComponent as Folder } from '../../../assets/svg/files/FolderSearch.svg';
+// import { ReactComponent as Plug } from '../../../assets/svg/files/plug.svg';
 
 // const items = [
 // 	{

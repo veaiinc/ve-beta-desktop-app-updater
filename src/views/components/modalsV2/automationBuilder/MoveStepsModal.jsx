@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../../assets/scss/workflowBuilder/moveSteps.scss';
 import ReactModal from '../../modalsV2/index';
-import Close from '../../../../assets/svg/close.svg?react';
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import { getTotalNumnerofNodesRecursively } from '../../../features/workflow_builder/workflowContantsHelpers';
 
 const customStyles = {

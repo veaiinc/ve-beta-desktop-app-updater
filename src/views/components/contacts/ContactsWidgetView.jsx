@@ -1,8 +1,8 @@
 import { memo } from 'react';
 import '../../../assets/scss/contacts/contactsWidgetView.scss';
-import PersonSvg from '../../../assets/svg/tasks/person.svg?react';
-import PhoneSvg from '../../../assets/svg/contacts/phone.svg?react';
-import EmailSvg from '../../../assets/svg/activity/email.svg?react';
+import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
+import { ReactComponent as PhoneSvg } from '../../../assets/svg/contacts/phone.svg';
+import { ReactComponent as EmailSvg } from '../../../assets/svg/activity/email.svg';
 import { useNavigate } from 'react-router-dom';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';

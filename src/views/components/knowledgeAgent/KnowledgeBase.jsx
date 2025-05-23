@@ -1,9 +1,9 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/knowledgeAgent/knowledgeBase.scss';
-import Link from '../../../assets/svg/smartFiles/formResponse/link.svg?react';
-import Pdf from '../../../assets/svg/ai_assistant/pdf.svg?react';
-import Text from '../../../assets/svg/ai_assistant/tIcon.svg?react';
-import Delete from '../../../assets/svg/ai_assistant/delete.svg?react';
+import { ReactComponent as Link } from '../../../assets/svg/smartFiles/formResponse/link.svg';
+import { ReactComponent as Pdf } from '../../../assets/svg/ai_assistant/pdf.svg';
+import { ReactComponent as Text } from '../../../assets/svg/ai_assistant/tIcon.svg';
+import { ReactComponent as Delete } from '../../../assets/svg/ai_assistant/delete.svg';
 import AddKnowledgeModal from '../../components/modalsV2/knowledgeAgent/AddKnowledgeModal';
 import Context from '../../../context/context';
 import ToggleSwitch from '../../components/input/slider';

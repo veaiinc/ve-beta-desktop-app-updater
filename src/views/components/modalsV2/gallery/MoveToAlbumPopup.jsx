@@ -1,9 +1,9 @@
 import React, { memo, useState } from 'react';
 import ReactModal from '../../modalsV2';
 import '../../../../assets/scss/gallery/modals/moveToAlbumPopup.scss';
-import CrossWhite from '../../../../assets/svg/workspaceSettings/cross.svg?react';
-import BackArrow from '../../../../assets/svg/gallery/backArrow.svg?react';
-import Circle from '../../../../assets/svg/gallery/add-circle.svg?react';
+import { ReactComponent as CrossWhite } from '../../../../assets/svg/workspaceSettings/cross.svg';
+import { ReactComponent as BackArrow } from '../../../../assets/svg/gallery/backArrow.svg';
+import { ReactComponent as Circle } from '../../../../assets/svg/gallery/add-circle.svg';
 import CreateAlbum from './CreateAlbum';
 const MoveToAlbumPopup = ({ open, closeModal, galleryId, albums, albumName, moveImageToAlbum }) => {
 	const [info, setInfo] = useState({

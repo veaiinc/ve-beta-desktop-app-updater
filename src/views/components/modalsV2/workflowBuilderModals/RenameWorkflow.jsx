@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../../assets/scss/workflowBuilder/renameWorkflowModal.scss';
-import Close from '../../../../assets/svg/close.svg?react';
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import ReactModal from '../../modalsV2/index';
 
 const initialState = {

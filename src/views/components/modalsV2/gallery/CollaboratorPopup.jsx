@@ -2,8 +2,8 @@ import React, { memo, useCallback, useContext, useEffect, useState } from 'react
 import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/gallery/modals/collaboratorPopup.scss';
 import ToggleSlider from '../../input/slider';
-import DeleteLogo from '../../../../assets/svg/gallery/delete.svg?react';
-import SearchLogo from '../../../../assets/svg/chat/search.svg?react';
+import { ReactComponent as DeleteLogo } from '../../../../assets/svg/gallery/delete.svg';
+import { ReactComponent as SearchLogo } from '../../../../assets/svg/chat/search.svg';
 import Context from '../../../../context/context';
 import { Tooltip } from 'antd';
 import { getInitials } from '../../../../helpers/index';

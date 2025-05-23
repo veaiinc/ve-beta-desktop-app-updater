@@ -1,8 +1,8 @@
 import React, { memo, useState, useEffect, useMemo, useCallback, useContext } from 'react';
 import '../../../assets/scss/calendar/meetingDetails.scss';
-import MeetClock from '../../../assets/svg/calendar/meetClock.svg?react';
+import { ReactComponent as MeetClock } from '../../../assets/svg/calendar/meetClock.svg';
 import Meetwomen from '../../../assets/svg/calendar/meetwomen.png';
-import Ellipse from '../../../assets/svg/calendar/ellipseCircle.svg?react';
+import { ReactComponent as Ellipse } from '../../../assets/svg/calendar/ellipseCircle.svg';
 import Context from '../../../context/context';
 import moment from 'moment';
 import MeetingSvg from '../../../assets/svg/calendar/meetClockSvg';

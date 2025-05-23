@@ -2,7 +2,7 @@ import '../../../assets/scss/signin.scss';
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import GoogleLogo from '../../../assets/images/googleLogo.png';
 import Context from '../../../context/context';
-import VE from '../../../assets/svg/ve.svg?react';
+import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getLocationsDetails } from '../../../helpers';
 import { LoadingOutlined } from '@ant-design/icons';

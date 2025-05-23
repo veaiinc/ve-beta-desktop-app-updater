@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import ReactModal from '../../modalsV2/index';
-import BackIcon from '../../../../assets/svg/landingScreen/right-arrow-white.svg?react';
+import { ReactComponent as BackIcon } from '../../../../assets/svg/landingScreen/right-arrow-white.svg';
 import { useNavigate } from 'react-router-dom';
 import '../../../../assets/scss/integrations/integrationModel.scss';
 

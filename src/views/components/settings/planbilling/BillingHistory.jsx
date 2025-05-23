@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import DownloadSvg from '../../../../assets/svg/Settings/Download.svg?react';
+import { ReactComponent as DownloadSvg } from '../../../../assets/svg/Settings/Download.svg';
 
 const DataList = [
 	{ subcription: 'Free Plan', date: '20 Sept 2024', status: 'Free', amount: 0 },

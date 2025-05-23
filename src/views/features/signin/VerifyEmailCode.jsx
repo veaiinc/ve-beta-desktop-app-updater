@@ -1,7 +1,7 @@
 import '../../../assets/scss/signin.scss';
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import Context from '../../../context/context';
-import EyeOpen from '../../../assets/svg/password-eye-open.svg?react';
+import { ReactComponent as EyeOpen } from '../../../assets/svg/password-eye-open.svg';
 import { useNavigate } from 'react-router-dom';
 const VerifyEmailCode = ({
 	screenType,
@@ -158,7 +158,7 @@ const VerifyEmailCode = ({
 						<input
 							type="text"
 							placeholder="000000"
-							maxlength="6"
+							maxLength="6"
 							pattern="[0-9]*"
 							onChange={handleInput}
 							name="verifyCode"

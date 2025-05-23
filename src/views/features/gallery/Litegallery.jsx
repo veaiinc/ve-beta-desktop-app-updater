@@ -8,7 +8,7 @@ import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
-import FilterIcon from '../../../assets/svg/chat/filter.svg?react';
+import { ReactComponent as FilterIcon } from '../../../assets/svg/chat/filter.svg';
 import { Result, Tooltip } from 'antd';
 import { getCurrentWorkspaceId } from '../../../helpers';
 import QuickActions from '../../components/globalComponents/QuickActions';

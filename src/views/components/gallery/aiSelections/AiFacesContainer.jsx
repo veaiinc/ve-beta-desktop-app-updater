@@ -3,15 +3,15 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Context from '../../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import PeopleCard from '../galleryView/PeopleCard';
-import BackIcon from '../../../../assets/svg/gallery/back-gray.svg?react';
+import { ReactComponent as BackIcon } from '../../../../assets/svg/gallery/back-gray.svg';
 import Skeleton from 'react-loading-skeleton';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
-import ArrowsOut from '../../../../assets/svg/gallery/arrowsOut.svg?react';
+import { ReactComponent as ArrowsOut } from '../../../../assets/svg/gallery/arrowsOut.svg';
 import { Tooltip } from 'antd';
-import CrossSvg from '../../../../assets/svg/gallery/cross.svg?react';
+import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import GalleryViewer from '../../../features/gallery/GalleryViewer';
 import { FetchMoreLoaderComp } from '../../../../helpers';
-// import AddNewSvg from '../../../../assets/svg/addNew.svg?react';
+// import { ReactComponent as AddNewSvg } from '../../../../assets/svg/addNew.svg';
 const AiFacesContainer = ({
 	galleryId,
 	galleryCredentials,

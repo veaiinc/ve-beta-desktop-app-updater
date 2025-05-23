@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/workflowBuilder/deleteWorkflow.scss';
-import Warning from '../../../../assets/svg/worflow_builder/warnings.svg?react';
+import { ReactComponent as Warning } from '../../../../assets/svg/worflow_builder/warnings.svg';
 import Spinner from '../../loaders/Spinner';
 
 const DeleteWorkflowModal = ({

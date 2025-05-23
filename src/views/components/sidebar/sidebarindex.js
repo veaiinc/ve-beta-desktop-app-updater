@@ -1,17 +1,17 @@
-import NotificationSvg from '../../../assets/svg/sidebar/notification.svg?react';
-import SearchIcon from '../../../assets/svg/sidebar/searchIcon.svg?react';
+import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/notification.svg';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/sidebar/searchIcon.svg';
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
-import FilesSvg from '../../../assets/svg/sidebar/filesIcon.svg?react';
-import AgentsSvg from '../../../assets/svg/sidebar/agentsIcon.svg?react';
+import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
+import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
-import HelpSvg from '../../../assets/svg/sidebar/help.svg?react';
-import ProfileIcon from '../../../assets/svg/sidebar/profileIcon.svg?react';
-import WorkspaceIcon from '../../../assets/svg/sidebar/workspaceIcon.svg?react';
-import TeamIcon from '../../../assets/svg/sidebar/teamMembersIcon.svg?react';
-import IntegrationsIcon from '../../../assets/svg/sidebar/integrationsIcon.svg?react';
-import PlanBillingIcon from '../../../assets/svg/sidebar/planBilling.svg?react';
-import NotesIcon from '../../../assets/svg/sidebar/notes-icon.svg?react';
+import { ReactComponent as HelpSvg } from '../../../assets/svg/sidebar/help.svg';
+import { ReactComponent as ProfileIcon } from '../../../assets/svg/sidebar/profileIcon.svg';
+import { ReactComponent as WorkspaceIcon } from '../../../assets/svg/sidebar/workspaceIcon.svg';
+import { ReactComponent as TeamIcon } from '../../../assets/svg/sidebar/teamMembersIcon.svg';
+import { ReactComponent as IntegrationsIcon } from '../../../assets/svg/sidebar/integrationsIcon.svg';
+import { ReactComponent as PlanBillingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
+import { ReactComponent as NotesIcon } from '../../../assets/svg/sidebar/notes-icon.svg';
 
 export const photographerModules = [
 	{

@@ -1,8 +1,8 @@
 import { Tooltip } from 'antd';
 import { useState, memo } from 'react';
 import '../../../../assets/scss/dropdown/file/filterDropdown.scss';
-import ChevronRightThinSvg from '../../../../assets/svg/tasks/chevronRightThin.svg?react';
-import ArrowSvg from '../../../../assets/svg/file/arrow.svg?react';
+import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as ArrowSvg } from '../../../../assets/svg/file/arrow.svg';
 
 const FilterDropdown = ({
 	selected,

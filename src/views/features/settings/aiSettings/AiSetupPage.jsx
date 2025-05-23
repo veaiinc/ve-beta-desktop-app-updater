@@ -2,7 +2,7 @@ import React, { memo, useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../../../../assets/scss/settings/aiSetupPage.scss';
 import Context from '../../../../context/context';
-import LeftArrowBackBtn from '../../../../assets/svg/Settings/left-arrow-back-btn.svg?react';
+import { ReactComponent as LeftArrowBackBtn } from '../../../../assets/svg/Settings/left-arrow-back-btn.svg';
 import AiPersonalityCustomization from '../../../components/settings/ai_setup/AiPersonalityCustomization';
 import KnowledgeBase from '../../../components/settings/ai_setup/KnowledgeBase';
 import QueryResponseCustomization from '../../../components/settings/ai_setup/QueryResponseCustomization';

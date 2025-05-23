@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../../../assets/scss/landingScreen/contactus/customDropdown.scss';
-import ArrowDown from '../../../assets/svg/CaretDown.svg?react';
+import { ReactComponent as ArrowDown } from '../../../assets/svg/CaretDown.svg';
 
 const CustomDropdown = ({ options, value, onChange, children }) => {
 	const [isOpen, setIsOpen] = useState(false);

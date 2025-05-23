@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactModal from '../index';
-import CrossSvg from '../../../../assets/svg/gallery/cross.svg?react';
+import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import '../../../../assets/scss/gallery/reusablePopups.scss';
 const MainPopup = (props) => {
 	const {

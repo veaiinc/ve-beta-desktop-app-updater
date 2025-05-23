@@ -1,6 +1,6 @@
 import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
-import Plus from '../../../assets/svg/files/Plus.svg?react';
+import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import Spinner from '../../components/loaders/Spinner';
 import { memo, useContext, useEffect, useState, useCallback } from 'react';
 import Context from '../../../context/context';

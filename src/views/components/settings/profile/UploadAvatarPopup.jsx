@@ -1,10 +1,10 @@
 import React, { memo, useState } from 'react';
 import ReactModal from '../../modalsV2';
 import { getInitials } from '../../../../helpers/index';
-import CloseSvg from '../../../../assets/svg/close.svg?react';
-import PlusSvg from '../../../../assets/svg/workspaceSettings/plus-button.svg?react';
-import PlusSvgColor from '../../../../assets/svg/Settings/Plus6055ec.svg?react';
-import PencilSvg from '../../../../assets/svg/Settings/pencilwhite.svg?react';
+import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
+import { ReactComponent as PlusSvg } from '../../../../assets/svg/workspaceSettings/plus-button.svg';
+import { ReactComponent as PlusSvgColor } from '../../../../assets/svg/Settings/Plus6055ec.svg';
+import { ReactComponent as PencilSvg } from '../../../../assets/svg/Settings/pencilwhite.svg';
 import { avatarColorList } from '../../../features/settings/indexConstant';
 import Dropzone from 'react-dropzone';
 import Cropper from 'react-easy-crop';

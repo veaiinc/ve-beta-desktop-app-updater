@@ -2,9 +2,9 @@ import React, { memo, useContext, useEffect, useState, useMemo, useCallback, use
 import { default as ReactMarkdown } from 'react-markdown';
 import '../assets/scss/markdown.scss';
 import '../assets/scss/markdownHelper.scss';
-import PencilSparkleIcon from '../assets/svg/notes/pencilSparkle.svg?react';
-import TickSvg from '../assets/svg/tick.svg?react';
-import CopyIcon from '../assets/svg/ai_agents/copy.svg?react';
+import { ReactComponent as PencilSparkleIcon } from '../assets/svg/notes/pencilSparkle.svg';
+import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
+import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
 import Context from '../context/context';
 import { Tooltip } from 'antd';
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, memo } from 'react';
-import LaptopLogo from '../../../../assets/svg/gallery/laptop.svg?react';
+import { ReactComponent as LaptopLogo } from '../../../../assets/svg/gallery/laptop.svg';
 import mobile from '../../../../assets/svg/gallery/mobile.png';
-import CrossSvg from '../../../../assets/svg/gallery/cross.svg?react';
+import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import Cropper from 'react-easy-crop';
 import ReactModal from '../../modalsV2/index';
 import { FocusedImage, FocusPicker } from 'image-focus';

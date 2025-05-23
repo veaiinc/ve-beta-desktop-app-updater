@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import '../../../assets/scss/dynamicWidget/dynamicWidget.scss';
-import BinocularsIcon from '../../../assets/svg/dynamicWidget/Binoculars.svg?react';
-import FileMagnifyingGlassIcon from '../../../assets/svg/dynamicWidget/FileMagnifyingGlass.svg?react';
-import SpinnerGapIcon from '../../../assets/svg/dynamicWidget/SpinnerGap.svg?react';
-import TreeStructureIcon from '../../../assets/svg/dynamicWidget/TreeStructure.svg?react';
+import { ReactComponent as BinocularsIcon } from '../../../assets/svg/dynamicWidget/Binoculars.svg';
+import { ReactComponent as FileMagnifyingGlassIcon } from '../../../assets/svg/dynamicWidget/FileMagnifyingGlass.svg';
+import { ReactComponent as SpinnerGapIcon } from '../../../assets/svg/dynamicWidget/SpinnerGap.svg';
+import { ReactComponent as TreeStructureIcon } from '../../../assets/svg/dynamicWidget/TreeStructure.svg';
 
 const DynamicWidget = () => {
 	const prompts = [

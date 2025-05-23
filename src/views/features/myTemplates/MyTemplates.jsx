@@ -1,12 +1,12 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/my_templates/myTemplates.scss';
-import Stars from '../../../assets/svg/my_templates/stars.svg?react';
-import Plus from '../../../assets/svg/my_templates/plus.svg?react';
-import Search from '../../../assets/svg/my_templates/search.svg?react';
-import UpDownArrow from '../../../assets/svg/my_templates/up-down-arrow.svg?react';
-import Filter from '../../../assets/svg/my_templates/filter.svg?react';
-import ThreeDots from '../../../assets/svg/my_templates/three-dots.svg?react';
+import { ReactComponent as Stars } from '../../../assets/svg/my_templates/stars.svg';
+import { ReactComponent as Plus } from '../../../assets/svg/my_templates/plus.svg';
+import { ReactComponent as Search } from '../../../assets/svg/my_templates/search.svg';
+import { ReactComponent as UpDownArrow } from '../../../assets/svg/my_templates/up-down-arrow.svg';
+import { ReactComponent as Filter } from '../../../assets/svg/my_templates/filter.svg';
+import { ReactComponent as ThreeDots } from '../../../assets/svg/my_templates/three-dots.svg';
 import { fetchOriginSelection } from '../../../helpers';
 import TemplateCards from '../../components/myTemplate/TemplateCards';
 import Context from '../../../context/context';
@@ -16,7 +16,7 @@ import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
 import UpDownArrowSvg from '../../../assets/svg/my_templates/UpDownArrowSvg';
 import ThreeDotsSvg from '../../../assets/svg/my_templates/ThreeDotsSvg';
 import FilterSvg from '../../../assets/svg/my_templates/FilterSvg';
-import Cross from '../../../assets/svg/docs/cross.svg?react';
+import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import Spinner from '../../components/loaders/Spinner';
 import { message } from '../../components/globalComponents/CustomToast';
 

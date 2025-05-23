@@ -1,6 +1,6 @@
 import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
-import Plus from '../../../assets/svg/files/Plus.svg?react';
+import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import { useNavigate } from 'react-router-dom';
 import { memo, useContext, useEffect, useState } from 'react';
 import Context from '../../../context/context';

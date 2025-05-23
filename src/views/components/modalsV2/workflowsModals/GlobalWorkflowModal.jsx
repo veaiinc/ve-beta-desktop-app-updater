@@ -1,18 +1,18 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
-import Close from '../../../../assets/svg/close.svg?react';
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import '../../../../assets/scss/sales/globalWorkflowModal.scss';
-import EditSvg from '../../../../assets/svg/worflow_builder/edit.svg?react';
+import { ReactComponent as EditSvg } from '../../../../assets/svg/worflow_builder/edit.svg';
 import { useNavigate } from 'react-router-dom';
 import ConnectorSvg from '../../../../assets/svg/worflow_builder/connector';
-import EmailSvg from '../../../../assets/svg/worflow_builder/email.svg?react';
+import { ReactComponent as EmailSvg } from '../../../../assets/svg/worflow_builder/email.svg';
 import Context from '../../../../context/context';
 import Spinner from '../../../components/loaders/Spinner';
 import { Drawer } from 'antd';
 import GlobalWorkflowDesignModalLoader from './GlobalWorkflowDesignModalLoader';
 import GlobalWorkflowAutomationLoader from './GlobalWorkflowAutomationLoader';
 import { fetchOriginSelection } from '../../../../helpers';
-import DoubleBackArrow from '../../../../assets/svg/sales/doubleBackArrow.svg?react';
-import ArrowsOut from '../../../../assets/svg/sales/arrowsOut.svg?react';
+import { ReactComponent as DoubleBackArrow } from '../../../../assets/svg/sales/doubleBackArrow.svg';
+import { ReactComponent as ArrowsOut } from '../../../../assets/svg/sales/arrowsOut.svg';
 let origin = fetchOriginSelection();
 const initialState = {
 	activeTab: 'design', //design,automation

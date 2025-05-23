@@ -2,7 +2,7 @@ import React, { memo, useCallback, useContext } from 'react';
 import '../../../../assets/scss/subscriptions/exoiredSubscriptionModal.scss';
 import ReactModal from '../index';
 import Context from '../../../../context/context';
-import Close from '../../../../assets/svg/close.svg?react';
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import Spinner from '../../loaders/Spinner';
 import useLogout from '../../../hooks/useLogout';
 const ExpiredTokenModal = () => {

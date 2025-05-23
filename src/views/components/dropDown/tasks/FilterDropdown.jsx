@@ -1,8 +1,8 @@
 import { memo, useMemo, useState } from 'react';
 import '../../../../assets/scss/dropdown/tasks/filterDropdown.scss';
-import PlusIcon from '../../../../assets/svg/tasks/plus.svg?react';
-import SearchSvg from '../../../../assets/svg/workflow/search.svg?react';
-import Tick from '../../../../assets/svg/tasks/tick.svg?react';
+import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';
+import { ReactComponent as SearchSvg } from '../../../../assets/svg/workflow/search.svg';
+import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
 import { Tooltip } from 'antd';
 import TextFilter from './TextFilter';
 import StatusDropdown from './StatusDropdown';

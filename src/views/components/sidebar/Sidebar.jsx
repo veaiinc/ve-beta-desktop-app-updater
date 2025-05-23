@@ -5,7 +5,7 @@ import Intercom from '@intercom/messenger-js-sdk';
 import OpenedSidebar from './OpenedSidebar';
 import Context from '../../../context/context';
 import { styles } from './sidebarindex';
-import SidebarClosingSvg from '../../../assets/svg/sidebar/SidebarClosing.svg?react';
+import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { veAiModulesItemsList } from './sidebarindex';
 import { Tooltip } from 'antd';
 import Notifications from './notifications/Notifications';

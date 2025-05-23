@@ -1,9 +1,9 @@
 import { memo, useCallback, useState, useRef, useEffect } from 'react';
 import '../../../assets/scss/calendar/calendarCategories.scss';
-import PencilSvg from '../../../assets/svg/calendar/pencil.svg?react';
+import { ReactComponent as PencilSvg } from '../../../assets/svg/calendar/pencil.svg';
 import UpdateCategoryModal from '../modalsV2/calendar/UpdateCategoryModal';
 import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
-import DownSvg from '../../../assets/svg/calendar/down.svg?react';
+import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 
 const CalendarCategories = ({
 	categoryList,

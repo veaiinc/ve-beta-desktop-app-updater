@@ -1,8 +1,8 @@
 import React, { memo, useCallback } from 'react';
 import '../../../assets/scss/calendar/calendarHeader.scss';
-// import Down from '../../../assets/svg/activity/down.svg?react';
-import Right from '../../../assets/svg/activity/right.svg?react';
-import Left from '../../../assets/svg/activity/left.svg?react';
+// import { ReactComponent as Down } from '../../../assets/svg/activity/down.svg';
+import { ReactComponent as Right } from '../../../assets/svg/activity/right.svg';
+import { ReactComponent as Left } from '../../../assets/svg/activity/left.svg';
 import WorkflowDropDown from './WorkflowDropDown';
 import WeekHeader from './WeekHeader';
 import DayHeader from './DaysHeader';

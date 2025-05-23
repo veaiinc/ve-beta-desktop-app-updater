@@ -1,6 +1,6 @@
 import React, { memo, useCallback } from 'react';
 import '../../../assets/scss/automation_builder/workflowBuilderCard.scss';
-import EmailSvg from '../../../assets/svg/worflow_builder/email.svg?react';
+import { ReactComponent as EmailSvg } from '../../../assets/svg/worflow_builder/email.svg';
 import { fetchOriginSelection } from '../../../helpers';
 let origin = fetchOriginSelection();
 const FirstWorkflowCard = ({ openPreviewModal, editOnClickHandler, templateData }) => {

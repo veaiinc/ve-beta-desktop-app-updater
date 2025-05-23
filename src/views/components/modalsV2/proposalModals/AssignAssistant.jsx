@@ -1,13 +1,12 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useContext, useState, useEffect, useCallback } from 'react';
 import '../../../../assets/scss/sales/smartFile/assisstantModal.scss';
 import ReactModal from '../../modalsV2/index';
-import Close from '../../../../assets/svg/close.svg?react';
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import { useNavigate, useParams } from 'react-router-dom';
 import Context from '../../../../context/context';
-import Robot from '../../../../assets/svg/Settings/robot.svg?react';
-import LinkGrey from '../../../../assets/svg/Settings/link-grey-color.svg?react';
-import Tick from '../../../../assets/svg/sales/smartFile/tick.svg?react';
+import { ReactComponent as Robot } from '../../../../assets/svg/Settings/robot.svg';
+import { ReactComponent as LinkGrey } from '../../../../assets/svg/Settings/link-grey-color.svg';
+import { ReactComponent as Tick } from '../../../../assets/svg/sales/smartFile/tick.svg';
 import { message } from '../../globalComponents/CustomToast';
 import Spinner from '../../loaders/Spinner';
 const AssignAssistantModal = ({ modalIsOpen, closeModal, selectedAssistant }) => {

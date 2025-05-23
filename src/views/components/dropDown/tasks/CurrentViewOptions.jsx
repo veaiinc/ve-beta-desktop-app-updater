@@ -1,15 +1,15 @@
 import { memo, useEffect, useState, useRef, useContext, useMemo, useCallback } from 'react';
 import { Tooltip } from 'antd';
-import SortIcon from '../../../../assets/svg/tasks/newSort.svg?react';
+import { ReactComponent as SortIcon } from '../../../../assets/svg/tasks/newSort.svg';
 import '../../../../assets/scss/dropdown/tasks/currentViewOptions.scss';
-import ListViewIcon from '../../../../assets/svg/tasks/list.svg?react';
-import BoardViewIcon from '../../../../assets/svg/tasks/board.svg?react';
-import TableViewIcon from '../../../../assets/svg/tasks/grid.svg?react';
-import GalleryViewIcon from '../../../../assets/svg/tasks/blocks.svg?react';
-import ChevronSvg from '../../../../assets/svg/tasks/chevronRightThin.svg?react';
-import PieSvg from '../../../../assets/svg/tasks/ChartDonut.svg?react';
-import PrioritySvg from '../../../../assets/svg/tasks/ChartBar.svg?react';
-import Tick from '../../../../assets/svg/tasks/tick.svg?react';
+import { ReactComponent as ListViewIcon } from '../../../../assets/svg/tasks/list.svg';
+import { ReactComponent as BoardViewIcon } from '../../../../assets/svg/tasks/board.svg';
+import { ReactComponent as TableViewIcon } from '../../../../assets/svg/tasks/grid.svg';
+import { ReactComponent as GalleryViewIcon } from '../../../../assets/svg/tasks/blocks.svg';
+import { ReactComponent as ChevronSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as PieSvg } from '../../../../assets/svg/tasks/ChartDonut.svg';
+import { ReactComponent as PrioritySvg } from '../../../../assets/svg/tasks/ChartBar.svg';
+import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
 
 import Context from '../../../../context/context';
 import StatusEditDropDown from './StatusEditDropDown';

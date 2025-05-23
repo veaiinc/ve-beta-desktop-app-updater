@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../../assets/scss/sales/moveToStageModal.scss';
 import ReactModal from '../../modalsV2/index';
-import Close from '../../../../assets/svg/close.svg?react';
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 
 const options = [

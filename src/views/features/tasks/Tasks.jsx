@@ -1,11 +1,10 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import PieSvg from '../../../assets/svg/tasks/ChartDonut.svg?react';
-import PrioritySvg from '../../../assets/svg/tasks/ChartBar.svg?react';
-import WorkflowSvg from '../../../assets/svg/tasks/workflow.svg?react';
-import PersonSvg from '../../../assets/svg/tasks/person.svg?react';
-import CalendarSvg from '../../../assets/svg/tasks/CalendarBlank.svg?react';
-import textSvg from '../../../assets/svg/tasks/letterA.svg?react';
+import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/ChartDonut.svg';
+import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/ChartBar.svg';
+import { ReactComponent as WorkflowSvg } from '../../../assets/svg/tasks/workflow.svg';
+import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
+import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/CalendarBlank.svg';
+import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Context from '../../../context/context';
 import { message } from '../../components/globalComponents/CustomToast';
 import jwtDecode from 'jwt-decode';

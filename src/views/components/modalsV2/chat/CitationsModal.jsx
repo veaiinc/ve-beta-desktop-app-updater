@@ -1,6 +1,6 @@
 import { Drawer } from 'antd';
 import '../../../../assets/scss/chat/modal/citationsModal.scss';
-import CitationCloseIcon from '../../../../assets/svg/ai_agents/expand-chat-icon.svg?react';
+import { ReactComponent as CitationCloseIcon } from '../../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import { useContext, useEffect, useState } from 'react';
 import Context from '../../../../context/context';
 import { CitationsTooltip } from './CitationsTooltip';

@@ -1,8 +1,8 @@
 import React, { memo, useContext } from 'react';
 import '../../../assets/scss/sales/activity/activityComponents.scss';
-import ClockSvg from '../../../assets/svg/activity/clock.svg?react';
-import HandTapSvg from '../../../assets/svg/activity/handTap.svg?react';
-import EyeSvg from '../../../assets/svg/activity/eye.svg?react';
+import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
+import { ReactComponent as HandTapSvg } from '../../../assets/svg/activity/handTap.svg';
+import { ReactComponent as EyeSvg } from '../../../assets/svg/activity/eye.svg';
 import Context from '../../../context/context';
 import Spinner from '../loaders/Spinner.jsx';
 

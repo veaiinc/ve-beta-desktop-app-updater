@@ -1,8 +1,8 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../../assets/scss/sales/copyModal.scss';
 import ReactModal from '../../modalsV2/index';
-import Circled from '../../../../assets/svg/workflow/circled.svg?react';
-import RightArrow from '../../../../assets/svg/workflow/rightArrow.svg?react';
+import { ReactComponent as Circled } from '../../../../assets/svg/workflow/circled.svg';
+import { ReactComponent as RightArrow } from '../../../../assets/svg/workflow/rightArrow.svg';
 
 const PublicLinkGeneratedModal = ({ open, closeModal, modules, copyLink = '' }) => {
 	const handleCopy = useCallback(async () => {

@@ -1,8 +1,8 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
-import Close from '../../../../assets/svg/close.svg?react';
-import Dustbin from '../../../../assets/svg/worflow_builder/dustbin.svg?react';
-import Ai from '../../../../assets/svg/workflow/ai.svg?react';
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
+import { ReactComponent as Dustbin } from '../../../../assets/svg/worflow_builder/dustbin.svg';
+import { ReactComponent as Ai } from '../../../../assets/svg/workflow/ai.svg';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import Context from '../../../../context/context';
 import ToggleSlider from '../../input/slider';

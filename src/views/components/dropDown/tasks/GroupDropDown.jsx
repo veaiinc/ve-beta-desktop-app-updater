@@ -1,12 +1,12 @@
 import { memo, useEffect, useState } from 'react';
-import OpenEye from '../../../../assets/svg/gallery/open-eye.svg?react';
-import CrossedOpenEye from '../../../../assets/svg/gallery/crossedOpenEye.svg?react';
-import CrossSvg from '../../../../assets/svg/gallery/cross.svg?react';
-import ChevronRightThinSvg from '../../../../assets/svg/tasks/chevronRightThin.svg?react';
-import SixDotsSvg from '../../../../assets/svg/tasks/sixDots.svg?react';
-import ArrowLeftSvg from '../../../../assets/svg/tasks/arrowLeft.svg?react';
-import DustbinOutlined from '../../../../assets/svg/tasks/dustBin.svg?react';
-import CheckSvg from '../../../../assets/svg/tasks/checkmark.svg?react';
+import { ReactComponent as OpenEye } from '../../../../assets/svg/gallery/open-eye.svg';
+import { ReactComponent as CrossedOpenEye } from '../../../../assets/svg/gallery/crossedOpenEye.svg';
+import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
+import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as SixDotsSvg } from '../../../../assets/svg/tasks/sixDots.svg';
+import { ReactComponent as ArrowLeftSvg } from '../../../../assets/svg/tasks/arrowLeft.svg';
+import { ReactComponent as DustbinOutlined } from '../../../../assets/svg/tasks/dustBin.svg';
+import { ReactComponent as CheckSvg } from '../../../../assets/svg/tasks/checkmark.svg';
 import ToggleSwitch from '../../../../views/components/input/slider';
 
 import '../../../../assets/scss/dropdown/tasks/groupDropDown.scss';

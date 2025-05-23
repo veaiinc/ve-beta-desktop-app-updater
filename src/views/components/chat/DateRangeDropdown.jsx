@@ -3,7 +3,7 @@ import moment from 'moment';
 import '../../../assets/scss/chat/dateRangeDropdown.scss';
 import DropDown from '../dropDown/tasks/DropDown';
 import { DatePicker, Tooltip } from 'antd';
-import ChevronSvg from '../../../assets/svg/tasks/chevronRightThin.svg?react';
+import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 const DateRangeDropdown = ({
 	value,
 	startDate,

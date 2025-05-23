@@ -1,6 +1,6 @@
 import React, { memo, useState, useContext, useEffect } from 'react';
 import Context from '../../../../context/context';
-import DividerLineVerticalWhite from '../../../../assets/svg/Settings/divider-line-vertical-white.svg?react';
+import { ReactComponent as DividerLineVerticalWhite } from '../../../../assets/svg/Settings/divider-line-vertical-white.svg';
 import '../../../../assets/scss/settings/aiSetupPage.scss';
 import Skeleton from 'react-loading-skeleton';
 import Spinner from '../../loaders/Spinner';

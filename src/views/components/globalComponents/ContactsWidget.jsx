@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useCallback, useState } from 'react';
 import '../../../assets/scss/globalComponents/contactsWidget.scss';
-import AddIcon from '../../../assets/svg/calendar/add.svg?react';
-import ArrowViewIcon from '../../../assets/svg/calendar/arrowview.svg?react';
+import { ReactComponent as AddIcon } from '../../../assets/svg/calendar/add.svg';
+import { ReactComponent as ArrowViewIcon } from '../../../assets/svg/calendar/arrowview.svg';
 import Context from '../../../context/context';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';

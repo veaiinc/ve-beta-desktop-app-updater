@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import '../../../../assets/scss/workflowBuilder/duplicateIndicator.scss';
-import Close from '../../../../assets/svg/close.svg?react';
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import ReactModal from '../../modalsV2/index';
 import Spinner from '../../loaders/Spinner';
 const DuplicateIndicatorModal = ({ open, closeModal }) => {

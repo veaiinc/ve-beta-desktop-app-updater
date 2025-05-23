@@ -5,7 +5,7 @@ import 'react-phone-number-input/style.css';
 import PhoneInput from 'react-phone-number-input';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import Calendar from '../../../assets/svg/calendar-icon.svg?react';
+import { ReactComponent as Calendar } from '../../../assets/svg/calendar-icon.svg';
 
 const InputForModules = ({
 	label,

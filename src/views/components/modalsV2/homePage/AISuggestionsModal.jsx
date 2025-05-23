@@ -1,11 +1,11 @@
 import { memo, useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import '../../../../assets/scss/home_page/modals/aiSuggestionsModal.scss';
-import ChevronRightThinSvg from '../../../../assets/svg/tasks/chevronRightThin.svg?react';
-import ArrowRightSvg from '../../../../assets/svg/home_page/arrow-right.svg?react';
-import DeleteSvg from '../../../../assets/svg/delete.svg?react';
-import CalendarSvg from '../../../../assets/svg/home_page/calendar.svg?react';
+import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as ArrowRightSvg } from '../../../../assets/svg/home_page/arrow-right.svg';
+import { ReactComponent as DeleteSvg } from '../../../../assets/svg/delete.svg';
+import { ReactComponent as CalendarSvg } from '../../../../assets/svg/home_page/calendar.svg';
 
-import ArrowUpRightSvg from '../../../../assets/svg/sidebar/arrowupright.svg?react';
+import { ReactComponent as ArrowUpRightSvg } from '../../../../assets/svg/sidebar/arrowupright.svg';
 import { handleCombinedChainOfThought } from '../../../../helpers/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
@@ -22,11 +22,11 @@ import {
 	redirectTo,
 	redirectTypeMapper,
 } from '../../../../helpers';
-import ArrowRightIcon from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg?react';
+import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import PromptPopup from '../../homePage/PromptPopup';
 import CreditCoinImage from '../../../../assets/images/creditCoin.png';
-import BulbSvg from '../../../../assets/svg/home_page/bulb.svg?react';
-import RocketSvg from '../../../../assets/svg/home_page/rocket.svg?react';
+import { ReactComponent as BulbSvg } from '../../../../assets/svg/home_page/bulb.svg';
+import { ReactComponent as RocketSvg } from '../../../../assets/svg/home_page/rocket.svg';
 const { Panel } = Collapse;
 
 const AISuggestionsModal = ({

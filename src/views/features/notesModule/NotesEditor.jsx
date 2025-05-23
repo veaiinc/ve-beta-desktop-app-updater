@@ -13,21 +13,21 @@ import moment from 'moment';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
 import MoreOptions from '../../components/notes/MoreOptions';
 import { StarSvg } from '../../../assets/svg/notes/Star';
-import DangerSvg from '../../../assets/svg/notes/danger.svg?react';
-import CrossIcon from '../../../assets/svg/notes/cross.svg?react';
+import { ReactComponent as DangerSvg } from '../../../assets/svg/notes/danger.svg';
+import { ReactComponent as CrossIcon } from '../../../assets/svg/notes/cross.svg';
 import { message } from '../../components/globalComponents/CustomToast';
 import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
 import useChatStream from '../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
 import jwtDecode from 'jwt-decode';
-import DustBinIcon from '../../../assets/svg/tasks/dustBin.svg?react';
-import RestoreIcon from '../../../assets/svg/notes/restore.svg?react';
+import { ReactComponent as DustBinIcon } from '../../../assets/svg/tasks/dustBin.svg';
+import { ReactComponent as RestoreIcon } from '../../../assets/svg/notes/restore.svg';
 import { Tooltip } from 'antd';
 import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
-import BackArrowSvg from '../../../assets/svg/workflow/backarrow.svg?react';
+import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts

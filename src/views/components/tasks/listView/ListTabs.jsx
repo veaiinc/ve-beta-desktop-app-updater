@@ -2,7 +2,7 @@ import React, { useState, memo, useRef, useEffect, useCallback } from 'react';
 import '../../../../assets/scss/tasks/listTabs.scss';
 import { Tooltip } from 'antd';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import SixDotsSvg from '../../../../assets/svg/tasks/sixDots.svg?react';
+import { ReactComponent as SixDotsSvg } from '../../../../assets/svg/tasks/sixDots.svg';
 
 const ListTabs = ({ tabs, defaultActiveTab }) => {
 	const containerRef = useRef(null);

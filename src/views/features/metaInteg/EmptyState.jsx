@@ -1,10 +1,10 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/chat/empty.scss';
-import Instagram from '../../../assets/svg/chat/emptyStateInstagram.svg?react';
-import EmptySvg from '../../../assets/svg/chat/EmptyState.svg?react';
-import StarSvg from '../../../assets/svg/chat/star.svg?react';
-import SubmitSvg from '../../../assets/svg/chat/submitBtn.svg?react';
-import SearchSvg from '../../../assets/svg/chat/search.svg?react';
+import { ReactComponent as Instagram } from '../../../assets/svg/chat/emptyStateInstagram.svg';
+import { ReactComponent as EmptySvg } from '../../../assets/svg/chat/EmptyState.svg';
+import { ReactComponent as StarSvg } from '../../../assets/svg/chat/star.svg';
+import { ReactComponent as SubmitSvg } from '../../../assets/svg/chat/submitBtn.svg';
+import { ReactComponent as SearchSvg } from '../../../assets/svg/chat/search.svg';
 import { useNavigate } from 'react-router-dom';
 const NotIntegratedComponent = ({ type }) => {
 	const navigate = useNavigate();

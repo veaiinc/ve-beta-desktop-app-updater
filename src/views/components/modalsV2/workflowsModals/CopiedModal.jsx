@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
 import '../../../../assets/scss/sales/copyModal.scss';
 import ReactModal from '../../modalsV2/index';
-import Circled from '../../../../assets/svg/workflow/circled.svg?react';
-import RightArrow from '../../../../assets/svg/workflow/rightArrow.svg?react';
+import { ReactComponent as Circled } from '../../../../assets/svg/workflow/circled.svg';
+import { ReactComponent as RightArrow } from '../../../../assets/svg/workflow/rightArrow.svg';
 
 const CopiedModal = ({ open, closeModal, modules, copyLink, pin }) => {
 	const customStyles = {

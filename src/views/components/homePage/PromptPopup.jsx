@@ -1,13 +1,13 @@
 import { useState, memo, useEffect, useCallback, useContext } from 'react';
 import ReactModal from '../modalsV2';
-import CrossSvg from '../../../assets/svg/gallery/cross.svg?react';
+import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import '../../../assets/scss/home_page/promptPopup.scss';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
-import ThumbsUp from '../../../assets/svg/thumbsUpPrimaryFont.svg?react';
-import ThumbsDown from '../../../assets/svg/thumbsDown.svg?react';
-import ArrowUpRight from '../../../assets/svg/sidebar/arrowupright.svg?react';
+import { ReactComponent as ThumbsUp } from '../../../assets/svg/thumbsUpPrimaryFont.svg';
+import { ReactComponent as ThumbsDown } from '../../../assets/svg/thumbsDown.svg';
+import { ReactComponent as ArrowUpRight } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { message } from '../globalComponents/CustomToast';
 
 const customStyles = {

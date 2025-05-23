@@ -1,10 +1,10 @@
 import React, { useState, memo } from 'react';
 import '../../../../assets/scss/gallery/sharePopup.scss';
-import SearchIcon from '../../../../assets/svg/workflow/search.svg?react';
-import ClientIcon from '../../../../assets/svg/gallery/client.svg?react';
-import GuestIcon from '../../../../assets/svg/gallery/guest.svg?react';
-import NewCopyIcon from '../../../../assets/svg/gallery/newCopyIcon.svg?react';
-import InfoIcon from '../../../../assets/svg/gallery/info.svg?react';
+import { ReactComponent as SearchIcon } from '../../../../assets/svg/workflow/search.svg';
+import { ReactComponent as ClientIcon } from '../../../../assets/svg/gallery/client.svg';
+import { ReactComponent as GuestIcon } from '../../../../assets/svg/gallery/guest.svg';
+import { ReactComponent as NewCopyIcon } from '../../../../assets/svg/gallery/newCopyIcon.svg';
+import { ReactComponent as InfoIcon } from '../../../../assets/svg/gallery/info.svg';
 
 const data = [
 	{

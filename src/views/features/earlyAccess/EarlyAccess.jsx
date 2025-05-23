@@ -1,13 +1,12 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/earlyAccess/earlyAccess.scss';
-import VeAiLogo from '../../../assets/svg/landingScreen/veai-logo.svg?react';
-import LinkedIn from '../../../assets/svg/earlyAccess/linkedIn.svg?react';
-import Instagram from '../../../assets/svg/earlyAccess/instagram.svg?react';
-import Twitter from '../../../assets/svg/earlyAccess/twitter.svg?react';
-import CopyIcon from '../../../assets/svg/shareAndEarn/copy.svg?react';
-import MailIcon from '../../../assets/svg/earlyAccess/Email.svg?react';
-import Arrowback from '../../../assets/svg/gallery/back-gray.svg?react';
+import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
+import { ReactComponent as LinkedIn } from '../../../assets/svg/earlyAccess/linkedIn.svg';
+import { ReactComponent as Instagram } from '../../../assets/svg/earlyAccess/instagram.svg';
+import { ReactComponent as Twitter } from '../../../assets/svg/earlyAccess/twitter.svg';
+import { ReactComponent as CopyIcon } from '../../../assets/svg/shareAndEarn/copy.svg';
+import { ReactComponent as MailIcon } from '../../../assets/svg/earlyAccess/Email.svg';
+import { ReactComponent as Arrowback } from '../../../assets/svg/gallery/back-gray.svg';
 import {
 	CHANGELOG_URL,
 	LINKEDIN_URL,

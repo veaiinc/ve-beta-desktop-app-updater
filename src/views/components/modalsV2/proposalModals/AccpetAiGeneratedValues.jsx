@@ -1,6 +1,6 @@
 import React, { memo, useCallback } from 'react';
 
-import Warning from '../../../../assets/svg/worflow_builder/warning.svg?react';
+import { ReactComponent as Warning } from '../../../../assets/svg/worflow_builder/warning.svg';
 import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/sales/smartFile/acceptAiGeneratedValues.scss';
 

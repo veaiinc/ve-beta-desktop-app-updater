@@ -1,9 +1,9 @@
 import { memo, useContext } from 'react';
 import RecentChat from '../chat/RecentChat';
 import '../../../assets/scss/public_chat/publicChat.scss';
-import VeLogo from '../../../assets/svg/veLogo.svg?react';
-import MoonSvg from '../../../assets/svg/moon.svg?react';
-import SunSvg from '../../../assets/svg/sun.svg?react';
+import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
+import { ReactComponent as MoonSvg } from '../../../assets/svg/moon.svg';
+import { ReactComponent as SunSvg } from '../../../assets/svg/sun.svg';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 const routeType = 'public';

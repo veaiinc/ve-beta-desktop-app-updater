@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/aiInstructions.scss';
 import InstructionModal from '../modalsV2/ai_assistant/InstructionModal';
-import Edit from '../../../assets/svg/ai_agents/edit.svg?react';
+import { ReactComponent as Edit } from '../../../assets/svg/ai_agents/edit.svg';
 import Context from '../../../context/context';
 import { useParams } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';

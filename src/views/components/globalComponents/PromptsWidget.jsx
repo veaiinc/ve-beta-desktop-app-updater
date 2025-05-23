@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { PromptData } from '../homePage/PromptData';
 import '../../../assets/scss/globalComponents/promptWidget.scss';
-import AutomationIcon from '../../../assets/svg/contacts/automation.svg?react';
-import DeepSearchIcon from '../../../assets/svg/contacts/deepsearch.svg?react';
-import TaskSuggestionIcon from '../../../assets/svg/contacts/tasksuggestion.svg?react';
-import CalendarIcon from '../../../assets/svg/contacts/calendar.svg?react';
-import ContactsIcon from '../../../assets/svg/contacts/contact.svg?react';
+import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
+import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
+import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
+import { ReactComponent as CalendarIcon } from '../../../assets/svg/contacts/calendar.svg';
+import { ReactComponent as ContactsIcon } from '../../../assets/svg/contacts/contact.svg';
 import PromptPopup from '../homePage/PromptPopup';
 
 const iconMap = {

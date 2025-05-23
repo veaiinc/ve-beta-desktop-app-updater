@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import '../../../../../../assets/scss/home_page/workflows/workflowCard.scss';
-import ChevronRightThinIcon from '../../../../../../assets/svg/tasks/chevronRightThin.svg?react';
+import { ReactComponent as ChevronRightThinIcon } from '../../../../../../assets/svg/tasks/chevronRightThin.svg';
 import Context from '../../../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../../../helpers';
 import { useNavigate } from 'react-router-dom';

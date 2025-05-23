@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import DownArrow from '../../../assets/svg/chat/downArrow.svg?react';
+import { ReactComponent as DownArrow } from '../../../assets/svg/chat/downArrow.svg';
 import Spinner from '../../components/loaders/Spinner';
 
 const ReusableButtonSettings = ({

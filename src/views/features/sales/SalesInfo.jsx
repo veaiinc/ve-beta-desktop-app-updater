@@ -1,9 +1,9 @@
 import React, { useContext, useRef, useEffect, useState, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import Gradient from '../../../assets/svg/sales/gradient.svg?react';
-import CardDiv from '../../../assets/svg/sales/card-div.svg?react';
-import HeaderImage from '../../../assets/svg/sales/welcomeHeader.svg?react';
+import { ReactComponent as Gradient } from '../../../assets/svg/sales/gradient.svg';
+import { ReactComponent as CardDiv } from '../../../assets/svg/sales/card-div.svg';
+import { ReactComponent as HeaderImage } from '../../../assets/svg/sales/welcomeHeader.svg';
 import moment from 'moment';
 import HeaderInfo from './HeaderInfo';
 import RequiredActionsLoader from '../../components/sales/RequiredActionsLoader';

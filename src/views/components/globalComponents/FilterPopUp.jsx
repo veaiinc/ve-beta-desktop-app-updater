@@ -1,7 +1,7 @@
 import React, { memo, useState } from 'react';
 import '../../../assets/scss/globalComponents/filterPopup.scss';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import Tick from '../../../assets/svg/tasks/checkmark.svg?react';
+import { ReactComponent as Tick } from '../../../assets/svg/tasks/checkmark.svg';
 
 const FilterPopUp = ({
 	filter,

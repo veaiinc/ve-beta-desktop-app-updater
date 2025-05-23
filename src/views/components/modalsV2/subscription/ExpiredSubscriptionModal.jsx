@@ -2,8 +2,8 @@ import React, { memo, useCallback, useContext, useState } from 'react';
 import '../../../../assets/scss/subscriptions/exoiredSubscriptionModal.scss';
 import ReactModal from '../index';
 import Context from '../../../../context/context';
-import Close from '../../../../assets/svg/close.svg?react';
-import Arrow from '../../../../assets/svg/subscription/diagonalArrow.svg?react';
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
+import { ReactComponent as Arrow } from '../../../../assets/svg/subscription/diagonalArrow.svg';
 import AddOnCards from '../../settings/planbilling/addOnCards';
 
 const customStyles = {

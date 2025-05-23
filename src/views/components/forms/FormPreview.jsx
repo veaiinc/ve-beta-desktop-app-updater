@@ -1,6 +1,6 @@
 import { useState, memo, useCallback } from 'react';
 import { Modal } from 'antd';
-import CloseIcon from '../../../assets/svg/close.svg?react';
+import { ReactComponent as CloseIcon } from '../../../assets/svg/close.svg';
 import '../../../assets/scss/forms/formPreview.scss';
 import CustomHeader from './CustomHeader';
 const FormPreview = ({ file, onClose }) => {

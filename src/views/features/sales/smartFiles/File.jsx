@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import '../.././../../assets/scss/sales/smartFile.scss';
 import Events from '../../../components/smartFileComponets/Events';
@@ -7,8 +6,8 @@ import PaymentSchedule from '../../../components/smartFileComponets/PaymentSched
 import Variables from '../../../components/smartFileComponets/Variables';
 import Context from '../../../../context/context';
 import AcceptedStageSmartFileBlocks from '../../../components/smartFileComponets/AcceptedStageSmartFileBlocks';
-import EditSvg from '../.././../../assets/svg/worflow_builder/edit.svg?react';
-import Ai from '../.././../../assets/svg/sales/smartFile/coloredAi.svg?react';
+import { ReactComponent as EditSvg } from '../.././../../assets/svg/worflow_builder/edit.svg';
+import { ReactComponent as Ai } from '../.././../../assets/svg/sales/smartFile/coloredAi.svg';
 import Spinner from '../../../components/loaders/Spinner';
 import { useParams } from 'react-router-dom';
 import moment from 'moment';

@@ -1,18 +1,17 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/modules/workflow/sendProposal.scss';
 import Context from '../../../../context/context';
-import Close from '../../../../assets/svg/close.svg?react';
-import Edit from '../../../../assets/svg/workflow/edit.svg?react';
-import Clock from '../../../../assets/svg/workflow/clock.svg?react';
-import QuestionMark from '../../../../assets/svg/workflow/questionMark.svg?react';
-import Ai from '../../../../assets/svg/workflow/ai.svg?react';
-import Message from '../../../../assets/svg/workflow/message.svg?react';
-import Security from '../../../../assets/svg/workflow/security.svg?react';
-import Profile from '../../../../assets/svg/workflow/profile.svg?react';
-import Settings from '../../../../assets/svg/workflow/settings.svg?react';
-import DownArrow from '../../../../assets/svg/workflow/smallDownArrow.svg?react';
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
+import { ReactComponent as Edit } from '../../../../assets/svg/workflow/edit.svg';
+import { ReactComponent as Clock } from '../../../../assets/svg/workflow/clock.svg';
+import { ReactComponent as QuestionMark } from '../../../../assets/svg/workflow/questionMark.svg';
+import { ReactComponent as Ai } from '../../../../assets/svg/workflow/ai.svg';
+import { ReactComponent as Message } from '../../../../assets/svg/workflow/message.svg';
+import { ReactComponent as Security } from '../../../../assets/svg/workflow/security.svg';
+import { ReactComponent as Profile } from '../../../../assets/svg/workflow/profile.svg';
+import { ReactComponent as Settings } from '../../../../assets/svg/workflow/settings.svg';
+import { ReactComponent as DownArrow } from '../../../../assets/svg/workflow/smallDownArrow.svg';
 import ToggleSlider from '../../../components/input/slider';
 import JoditEditor from 'jodit-react';
 import { message } from '../../globalComponents/CustomToast';

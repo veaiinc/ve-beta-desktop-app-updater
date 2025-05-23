@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import AiStars from '../../../../assets/svg/tasks/AiStars.svg?react';
+import { ReactComponent as AiStars } from '../../../../assets/svg/tasks/AiStars.svg';
 import '../../../../assets/scss/tasks/listItems.scss';
 
 const CreatedWithAi = () => {

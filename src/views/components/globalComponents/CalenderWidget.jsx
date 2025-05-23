@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect, useCallback, useRef } from 'react';
 import '../../../assets/scss/globalComponents/calenderWidget.scss';
-import ArrowViewIcon from '../../../assets/svg/calendar/arrowview.svg?react';
-import AddIcon from '../../../assets/svg/calendar/add.svg?react';
+import { ReactComponent as ArrowViewIcon } from '../../../assets/svg/calendar/arrowview.svg';
+import { ReactComponent as AddIcon } from '../../../assets/svg/calendar/add.svg';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';

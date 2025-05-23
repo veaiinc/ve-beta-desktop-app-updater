@@ -1,9 +1,9 @@
 import { memo, useState, useEffect } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
 import Spinner from '../loaders/Spinner';
-import DownArrow from '../../../assets/svg/onboarding/down-arrow.svg?react';
+import { ReactComponent as DownArrow } from '../../../assets/svg/onboarding/down-arrow.svg';
 import WorkspaceTypeOptions from './WorkspaceTypeOptions';
-import UploadIcon from '../../../assets/svg/onboarding/upload-icon.svg?react';
+import { ReactComponent as UploadIcon } from '../../../assets/svg/onboarding/upload-icon.svg';
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../popover/ToolTipContainer';
 import { customContainerStyle, contentStyling } from './UserDetailsForm';

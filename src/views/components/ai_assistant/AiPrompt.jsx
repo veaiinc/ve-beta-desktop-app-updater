@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/aiPrompt.scss';
-import Question from '../../../assets/svg/ai_assistant/question.svg?react';
-import DownSvg from '../../../assets/svg/activity/down.svg?react';
+import { ReactComponent as Question } from '../../../assets/svg/ai_assistant/question.svg';
+import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
 import { Tooltip } from 'antd';
 import Context from '../../../context/context';

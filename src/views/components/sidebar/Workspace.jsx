@@ -1,14 +1,12 @@
 import React, { memo, useCallback, useContext, useState, useEffect } from 'react';
-import ArrowLeftSvg from '../../../assets/svg/sidebar/singleRightArrow.svg?react';
-import SearchSvg from '../../../assets/svg/sidebar/SearchSvg?react';
+import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
 // import LogoutRedSvg from '../../../assets/svg/sidebar/logout_red.svg';
 // import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import Cookies from 'js-cookie';
-import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 // import useLogout from '../../hooks/useLogout';
 import { fetchDomainName } from '../../../helpers';
-import TickSvg from '../../../assets/svg/tick.svg?react';
+import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 // import LogoutRedSvg from '../../../assets/svg/sidebar/logout_red.svg';
 // import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 

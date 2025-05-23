@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
-import DoubleArrow from '../../../../assets/svg/worflow_builder/doubleArrow.svg?react';
+import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/doubleArrow.svg';
 import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
 import {
 	actionOptions,

@@ -1,11 +1,11 @@
 import { memo, useState, useContext, useCallback } from 'react';
 import '../../../../assets/scss/settings/aiSetup.scss';
-import CrossGrey from '../../../../assets/svg/Settings/cross-grey.svg?react';
-import LinkGrey from '../../../../assets/svg/Settings/link-grey-color.svg?react';
-import UploadIcon from '../../../../assets/svg/Settings/CloudUpload.svg?react';
-import TIcon from '../../../../assets/svg/ai_assistant/tIcon.svg?react';
-import URLIcon from '../../../../assets/svg/ai_assistant/url.svg?react';
-import FolderIcon from '../../../../assets/svg/ai_assistant/folder.svg?react';
+import { ReactComponent as CrossGrey } from '../../../../assets/svg/Settings/cross-grey.svg';
+import { ReactComponent as LinkGrey } from '../../../../assets/svg/Settings/link-grey-color.svg';
+import { ReactComponent as UploadIcon } from '../../../../assets/svg/Settings/CloudUpload.svg';
+import { ReactComponent as TIcon } from '../../../../assets/svg/ai_assistant/tIcon.svg';
+import { ReactComponent as URLIcon } from '../../../../assets/svg/ai_assistant/url.svg';
+import { ReactComponent as FolderIcon } from '../../../../assets/svg/ai_assistant/folder.svg';
 import Modal from '../';
 import { message } from '../../globalComponents/CustomToast';
 import Context from '../../../../context/context';

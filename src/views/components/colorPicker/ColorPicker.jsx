@@ -4,7 +4,7 @@ import 'react-color-palette/css';
 import '../../../assets/scss/ColorPicker/colorpicker.scss';
 import _ from 'lodash';
 import ReactModal from '../modalsV2';
-import CrossIcon from '../../../assets/svg/workspaceSettings/cross.svg?react';
+import { ReactComponent as CrossIcon } from '../../../assets/svg/workspaceSettings/cross.svg';
 
 const colors = [
 	{

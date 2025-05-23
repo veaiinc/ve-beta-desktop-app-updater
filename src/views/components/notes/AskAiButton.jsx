@@ -3,9 +3,9 @@ import '@blocknote/mantine/style.css';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Tooltip } from 'antd';
 import '../../../assets/scss/notes/askAiButton.scss';
-import ArrowSvg from '../../../assets/svg/file/arrow.svg?react';
-import LensSvg from '../../../assets/svg/notes/lens.svg?react';
-import VeSvg from '../../../assets/svg/ve.svg?react';
+import { ReactComponent as ArrowSvg } from '../../../assets/svg/file/arrow.svg';
+import { ReactComponent as LensSvg } from '../../../assets/svg/notes/lens.svg';
+import { ReactComponent as VeSvg } from '../../../assets/svg/ve.svg';
 import Spinner from '../loaders/Spinner';
 
 const buttonStyle = {
