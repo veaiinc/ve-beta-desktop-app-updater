@@ -14,6 +14,9 @@ import ToggleSwitch from '../../components/input/slider';
 import Context from '../../../context/context';
 import moment from 'moment/moment';
 import ReactModal from '../modalsV2';
+import { Tooltip } from 'antd';
+import PhoneInput from 'react-phone-number-input';
+import { isURL } from '../../../helpers';
 
 const initialState = {
 	title: '',
@@ -42,6 +45,14 @@ const initialState = {
 	endDate: '',
 	endTime: '',
 	addCategory: false,
+	locationTypeOpen: false,
+	meetLinkTypeOpen: false,
+	locationType: 'In Person',
+	meetLinkType: 'Video Call',
+	sessionTypeOpen: false,
+	sessionType: 'In Person',
+	phoneNumber: null,
+	meetingLink: null,
 };
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -75,6 +86,29 @@ const formatTimeAndDateForInput = (timeObj) => {
 	return { date, time };
 };
 
+const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
+
+const sessionTypeInputConfig = {
+	'In Person': {
+		value: 'location',
+		tag: 'Location',
+		type: 'text',
+		placeholder: 'Add location',
+	},
+	'Phone Call': {
+		value: 'phoneNumber',
+		tag: 'Phone Number',
+		type: 'tel',
+		placeholder: 'Add phone number',
+	},
+	'Video Call': {
+		value: 'meetingLink',
+		tag: 'Platform Link',
+		type: 'url',
+		placeholder: 'Add meeting link',
+	},
+};
+
 const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selectedSlot }) => {
 	const {
 		calendarInfo: {
@@ -97,27 +131,32 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 	});
 
 	useEffect(() => {
-		if (!calendarCategoriesList && open) {
-			getCalendarCategories();
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				...(!calendarCategoriesList?.error && {
-					categories: [...(calendarCategoriesList || [])],
-				}),
-			}));
+		if (open) {
+			if (!calendarCategoriesList) {
+				getCalendarCategories();
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					...(!calendarCategoriesList?.error && {
+						categories: [...calendarCategoriesList],
+					}),
+				}));
+			}
 		}
-	}, [calendarCategoriesList, open]);
+	}, [open, calendarCategoriesList, getCalendarCategories]);
 
 	useEffect(() => {
-		if (selectedSlot) {
-			const { date, time } = formatTimeAndDateForInput(selectedSlot);
+		if (selectedSlot && selectedSlot.start && selectedSlot.end) {
+			const { date: startDate, time: startTime } = formatTimeAndDateForInput(
+				selectedSlot.start,
+			);
+			const { date: endDate, time: endTime } = formatTimeAndDateForInput(selectedSlot.end);
 			setInfo((prev) => ({
 				...prev,
-				startDate: date,
-				startTime: time,
-				endDate: date,
-				endTime: time,
+				startDate,
+				startTime,
+				endDate,
+				endTime,
 			}));
 		}
 	}, [selectedSlot]);
@@ -333,6 +372,89 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		setInfo(initialState);
 	}, [closeModal, info?.isSubmitting]);
 
+	const handleSessionTypeChange = useCallback(
+		(type) => {
+			if (type === info?.sessionType) return;
+			setInfo((prev) => ({
+				...prev,
+				sessionType: type,
+				sessionTypeOpen: false,
+				location: type === 'In Person' ? prev.location : '',
+				phone: type === 'Phone Call' ? prev.phoneNumber : '',
+				meeting: type === 'Video Call' ? prev.meetingLink : '',
+				phoneNumber: type === 'Phone Call' ? prev.phoneNumber : '',
+				meetingLink: type === 'Video Call' ? prev.meetingLink : '',
+			}));
+		},
+		[info?.sessionType],
+	);
+
+	const renderSessionTypeInput = () => {
+		const config = sessionTypeInputConfig[info.sessionType];
+		const value = info[config.value];
+
+		const validateInput = (value) => {
+			if (config.value === 'meetingLink') {
+				const err = !isURL(value);
+				setInfo((prev) => ({
+					...prev,
+					submissionError: err ? 'Invalid meeting link' : null,
+				}));
+			}
+			return true;
+		};
+
+		const handleChange = (val) => {
+			setInfo((prev) => ({
+				...prev,
+				[config.value]: val,
+				[config.value === 'phoneNumber'
+					? 'phone'
+					: config.value === 'meetingLink'
+					? 'meeting'
+					: 'location']: val,
+				submissionError: null,
+			}));
+			validateInput(val);
+		};
+
+		if (config.value === 'phoneNumber') {
+			return (
+				<PhoneInput
+					placeholder="Enter phone number"
+					value={info[config.value]}
+					onChange={handleChange}
+					defaultCountry={(() => {
+						try {
+							const locationDetails = JSON.parse(
+								localStorage.getItem('locationDetails'),
+							);
+							return locationDetails?.countryCode || 'US';
+						} catch {
+							return 'US';
+						}
+					})()}
+					className="phoneInputNumber"
+					countryCallingCodeEditable={true}
+					autoComplete="tel"
+					style={{ backgroundColor: 'var(--popup)', border: '1px solid var(--stroke)' }}
+				/>
+			);
+		}
+
+		return (
+			<input
+				type={config.type}
+				value={info[config.value] || ''}
+				onChange={(e) => handleChange(e.target.value)}
+				placeholder={config.placeholder}
+				className={`inputHeight${
+					info.submissionError && config.value === 'meetingLink' ? ' error' : ''
+				}`}
+			/>
+		);
+	};
+
 	if (!open) return null;
 
 	return (
@@ -350,7 +472,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 				)}
 				<div className="events-popup-body">
 					<div className="events-popup-agenda-container">
-						<span className="events-popup-agenda-label">Agenda</span>
+						<span className="events-popup-agenda-label">Event name</span>
 						<input
 							type="text"
 							name="title"
@@ -358,6 +480,13 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 							placeholder="E.g. Meeting"
 							value={info?.title}
 							onChange={(e) => updateEventInfo('title', e.target.value)}
+							style={{
+								display: 'flex',
+								padding: '12px 14px',
+								alignItems: 'center',
+								gap: '16px',
+								alignSelf: 'stretch',
+							}}
 						/>
 						<span className="events-popup-agenda-label">Description</span>
 						<input
@@ -367,71 +496,127 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 							placeholder="Description of the event"
 							value={info?.description}
 							onChange={(e) => updateEventInfo('description', e.target.value)}
+							autoComplete="off"
+							autofill="off"
 						/>
+					</div>
+					<div
+						className="sessionOptionContainer"
+						style={{
+							marginTop: '-4px',
+						}}
+					>
+						<div className="sessionTypeWrapper">
+							<span>Session Type</span>
+							<div
+								className="typeOfSession-lable"
+								style={{
+									backgroundColor: 'var(--popup)',
+								}}
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										sessionTypeOpen: !prev.sessionTypeOpen,
+									}))
+								}
+							>
+								{info?.sessionType}
+								<DownSvg className={`${info?.sessionTypeOpen ? 'open' : ''}`} />
+							</div>
+							{info?.sessionTypeOpen && (
+								<div className="sessionType-dropdown">
+									{sessionTypeOptions?.map((option) => (
+										<div
+											key={option}
+											className="sessionType-dropdown-item"
+											onClick={() => handleSessionTypeChange(option)}
+										>
+											{option}
+										</div>
+									))}
+								</div>
+							)}
+						</div>
+						<div className="sessionTypeWrapper">
+							<span>{sessionTypeInputConfig[info?.sessionType]?.tag}</span>
+							{renderSessionTypeInput()}
+						</div>
 					</div>
 
 					<div className="events-popup-details-container">
-						<div className="events-popup-details-wrapper">
+						{/* <div className="events-popup-details-wrapper">
 							<Clock className="events-popup-details-icon" />
 							<span className="events-popup-details-label">Details</span>
-						</div>
+						</div> */}
 						<div className={`${info?.allDay ? `` : `events-popup-time-wrapper`}`}>
-							<input
-								type="date"
-								placeholder="Wed, September 22 2024"
-								className="events-popup-date-input"
-								value={info?.startDate}
-								onChange={(e) => {
-									updateEventInfo('startDate', e.target.value);
-									updateEventInfo('submissionError', null);
-								}}
-							/>
-							{info?.allDay ? (
-								''
-							) : (
+							<div className="events-popup-time-label">Start Date & Time</div>
+							<div className="events-popup-time-wrapper">
 								<input
-									type="time"
-									placeholder="12:00PM"
-									className="events-popup-time-input"
-									value={info?.startTime}
+									type="date"
+									placeholder={moment().format('DD MMM YYYY')}
+									className="events-popup-date-input"
+									value={info?.startDate}
 									onChange={(e) => {
-										updateEventInfo('startTime', e.target.value);
+										updateEventInfo('startDate', e.target.value);
 										updateEventInfo('submissionError', null);
 									}}
 								/>
-							)}
+								{info?.allDay ? (
+									''
+								) : (
+									<>
+										<div className="events-time-date-divider"></div>
+										<input
+											type="time"
+											placeholder="12:00PM"
+											className="events-popup-time-input"
+											value={info?.startTime}
+											onChange={(e) => {
+												updateEventInfo('startTime', e.target.value);
+												updateEventInfo('submissionError', null);
+											}}
+										/>
+									</>
+								)}
+							</div>
 						</div>
 						<div className={`${info?.allDay ? `` : `events-popup-time-wrapper`}`}>
-							<input
-								type="date"
-								placeholder="Wed, September 22 2024"
-								className="events-popup-date-input"
-								value={info?.endDate}
-								onChange={(e) => {
-									updateEventInfo('endDate', e.target.value);
-									updateEventInfo('submissionError', null);
-								}}
-							/>
-							{info?.allDay ? (
-								''
-							) : (
+							<div className="events-popup-time-label">End Date & Time</div>
+							<div className="events-popup-time-wrapper">
 								<input
-									type="time"
-									placeholder="12:30AM"
-									className="events-popup-time-input"
-									value={info?.endTime}
+									type="date"
+									placeholder={moment().format('DD MMM YYYY')}
+									className="events-popup-date-input"
+									value={info?.endDate}
 									onChange={(e) => {
-										updateEventInfo('endTime', e.target.value);
+										updateEventInfo('endDate', e.target.value);
 										updateEventInfo('submissionError', null);
 									}}
 								/>
-							)}
+								{info?.allDay ? (
+									''
+								) : (
+									<>
+										<div className="events-time-date-divider"></div>
+										<input
+											type="time"
+											placeholder="12:30AM"
+											className="events-popup-time-input"
+											value={info?.endTime}
+											onChange={(e) => {
+												updateEventInfo('endTime', e.target.value);
+												updateEventInfo('submissionError', null);
+											}}
+										/>
+									</>
+								)}
+							</div>
 						</div>
 						<div className="events-popup-all-day-wrapper">
-							<span className="events-popup-all-day-label">All Day Event</span>
 							<ToggleSwitch
 								onChange={() => updateEventInfo('allDay', !info?.allDay)}
 							/>
+							<span className="events-popup-all-day-label">All Day Event</span>
 						</div>
 					</div>
 
@@ -477,34 +662,16 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 											{item?.name}
 										</div>
 									))}
-									<div
+									{/* <div
 										className="events-popup-category-dropdown-item events-popup-add-category"
 										onClick={() =>
 											setInfo((prev) => ({ ...prev, addCategory: true }))
 										}
 									>
 										+ Add new
-									</div>
+									</div> */}
 								</div>
 							)}
-						</div>
-						<div className="events-popup-additional-options">
-							<input
-								type="text"
-								placeholder="Add location"
-								value={info?.location}
-								onChange={(e) => updateEventInfo('location', e.target.value)}
-							/>
-							<Location />
-						</div>
-						<div className="events-popup-additional-options">
-							<Meeting />
-							<input
-								type="text"
-								placeholder="Add meeting link"
-								value={info?.meeting}
-								onChange={(e) => updateEventInfo('meeting', e.target.value)}
-							/>
 						</div>
 					</div>
 
@@ -611,17 +778,21 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 						</div>
 					</div>
 				</div>
-				<button
-					className="events-popup-submit-button"
-					onClick={handleEventSubmission}
-					disabled={info?.isSubmitting}
-				>
-					{info?.isSubmitting ? (
-						<Spinner width={'20px'} height={'20px'} />
-					) : (
-						'Add to calendar'
-					)}
-				</button>
+				<div className="events-popup-actions-container">
+					<div
+						className="events-popup-action-button events-popup-action-button--secondary"
+						onClick={handleClose}
+					>
+						Discard
+					</div>
+					<div
+						className="events-popup-action-button events-popup-action-button--primary"
+						onClick={handleEventSubmission}
+						disabled={info?.isSubmitting}
+					>
+						{info?.isSubmitting ? <Spinner width={'20px'} height={'20px'} /> : 'Create'}
+					</div>
+				</div>
 				<UpdateCategoryModal
 					show={info?.addCategory}
 					handleClose={() => setInfo((prev) => ({ ...prev, addCategory: false }))}
