@@ -532,3 +532,20 @@ export const updateDatabaseRowMutation = gql`
 		}
 	}
 `;
+
+export const addDatabaseFieldMutation = gql`
+	mutation AddDatabaseField($pageId: ID!, $databaseId: ID!, $input: DatabaseFieldInput!) {
+		addDatabaseField(pageId: $pageId, databaseId: $databaseId, input: $input) {
+			_id
+			name
+			type
+			config
+			isRequired
+			isUnique
+			createdAt
+			updatedAt
+			createdBy
+			updatedBy
+		}
+	}
+`;

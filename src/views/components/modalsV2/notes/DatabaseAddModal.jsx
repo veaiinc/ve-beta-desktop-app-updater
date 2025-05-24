@@ -17,14 +17,18 @@ const DatabaseAddModal = ({ isOpen, onClose, blockId, pageId, databaseId, fields
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
 
-	const preparePayload = useCallback((values) => {
-		return Object.entries(values).reduce((acc, [key, value]) => {
-			if (value !== null && value !== undefined && value !== '') {
-				acc[key] = value;
-			}
-			return acc;
-		}, {});
-	}, []);
+	const preparePayload = useCallback(
+		(values) => {
+			return Object.entries(values).reduce((acc, [key, value]) => {
+				if (value !== null && value !== undefined && value !== '') {
+					const field = fields.find((f) => f._id === key);
+					acc[key] = field?.type === 'number' ? Number(value) : value;
+				}
+				return acc;
+			}, {});
+		},
+		[fields],
+	);
 
 	const handleSubmit = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, loading: true }));
@@ -55,6 +59,9 @@ const DatabaseAddModal = ({ isOpen, onClose, blockId, pageId, databaseId, fields
 			}}
 		>
 			<div className={s.databaseAddModalContainer}>
+				<div className={s.databaseAddModalHeader}>
+					<h3>Add Row</h3>
+				</div>
 				<div className={s.databaseAddModalBody}>
 					{fields?.map((field) => (
 						<div className={s.databaseAddModalBodyRow} key={field?._id}>

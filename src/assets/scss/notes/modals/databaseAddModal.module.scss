@@ -6,9 +6,22 @@
 	border-radius: 24px;
 	border: 1px solid var(--stroke, #2c2d2e);
 	width: 400px;
-	max-height: 400px;
+	max-height: 440px;
 	padding: 20px;
 	gap: 20px;
+
+	.databaseAddModalHeader {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		width: 100%;
+		gap: 10px;
+		h3 {
+			font-size: 16px;
+			font-weight: 600;
+			color: var(--primary-font, #f2f2f3);
+		}
+	}
 
 	.databaseAddModalBody {
 		display: flex;
@@ -16,6 +29,7 @@
 		align-items: flex-start;
 		width: 100%;
 		gap: 10px;
+		overflow-y: auto;
 		.databaseAddModalBodyRow {
 			display: flex;
 			flex-direction: column;

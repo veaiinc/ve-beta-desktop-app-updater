@@ -11,5 +11,23 @@
 		justify-content: space-between;
 		align-items: center;
 		padding-bottom: 10px;
+
+		.notesDatabaseHeaderButtons {
+			display: flex;
+			gap: 10px;
+
+			button {
+				background-color: var(--card, #18191b);
+				border-radius: 10px;
+				padding: 4px 10px;
+				border: none;
+				cursor: pointer;
+				color: var(--text-primary, #fff);
+				font-size: 14px;
+				font-weight: 500;
+				line-height: 20px;
+				letter-spacing: 0.01em;
+			}
+		}
 	}
 }

@@ -8,6 +8,7 @@ import Context from '../../../context/context';
 import { useParams } from 'react-router-dom';
 import { NotesRefContext } from '../../features/notesModule/NotesEditor';
 import DatabaseAddModal from '../modalsV2/notes/DatabaseAddModal';
+import DatabaseAddFieldModal from '../modalsV2/notes/DatabaseAddFieldModal';
 
 const DatabaseComponent = memo(({ block, editor }) => {
 	const {
@@ -31,6 +32,7 @@ const DatabaseComponent = memo(({ block, editor }) => {
 
 	const [info, setInfo] = useState({
 		addRowModalOpen: false,
+		addFieldModalOpen: false,
 	});
 
 	useEffect(() => {
@@ -126,7 +128,14 @@ const DatabaseComponent = memo(({ block, editor }) => {
 		<div className={s.notesDatabaseContainer}>
 			<div className={s.notesDatabaseHeader}>
 				<h3>{databaseName}</h3>
-				<button onClick={() => handleInfoChange({ addRowModalOpen: true })}>Add Row</button>
+				<div className={s.notesDatabaseHeaderButtons}>
+					<button onClick={() => handleInfoChange({ addRowModalOpen: true })}>
+						Add Row
+					</button>
+					<button onClick={() => handleInfoChange({ addFieldModalOpen: true })}>
+						Add Field
+					</button>
+				</div>
 			</div>
 			<table>
 				<thead>
@@ -153,6 +162,13 @@ const DatabaseComponent = memo(({ block, editor }) => {
 				pageId={pageId}
 				databaseId={databaseId}
 				fields={fields}
+			/>
+
+			<DatabaseAddFieldModal
+				isOpen={info?.addFieldModalOpen}
+				onClose={() => handleInfoChange({ addFieldModalOpen: false })}
+				databaseId={databaseId}
+				pageId={pageId}
 			/>
 		</div>
 	);

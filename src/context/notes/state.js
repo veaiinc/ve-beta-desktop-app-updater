@@ -32,6 +32,7 @@ import {
 	getDatabaseQuery,
 	addDatabaseRowMutation,
 	updateDatabaseRowMutation,
+	addDatabaseFieldMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -845,6 +846,71 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const updateDatabaseRow = async (payload, blockId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateDatabaseRowMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_DATABASE_ROWS,
+					payload: {
+						[blockId]: {
+							...(state?.rowData?.[blockId] || {}),
+							data: [
+								...(state?.rowData?.[blockId]?.data || []),
+								response?.[1]?.data?.updateDatabaseRow,
+							],
+						},
+					},
+				});
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.error('error==>updateDatabaseRow', error);
+		}
+	};
+
+	const addDatabaseField = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				addDatabaseFieldMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				const newField = response?.[1]?.data?.addDatabaseField;
+				const database = state?.database?.[payload?.databaseId];
+				dispatch({
+					type: Actions.UPDATE_DATABASE,
+					payload: {
+						[payload?.databaseId]: {
+							...database,
+							databaseMetadata: {
+								...database?.databaseMetadata,
+								fields: [...(database?.databaseMetadata?.fields || []), newField],
+							},
+						},
+					},
+				});
+			}
+		} catch (error) {
+			console.error('error==>addDatabaseField', error);
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -878,5 +944,6 @@ export const NotesState = (props) => {
 		getDatabaseRows,
 		getDatabase,
 		addDatabaseRow,
+		addDatabaseField,
 	};
 };
