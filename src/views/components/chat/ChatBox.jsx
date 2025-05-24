@@ -1665,9 +1665,9 @@ const ChatBox = ({
 														{!isPublicChat && chatInfo?.build && (
 															<BuildTooltip>
 																<div
-																	className={`chat-box-icon-container`}
+																	className={`chat-box-icon-container build-icon-container`}
 																>
-																	<div className="icon">
+																	<div className="icon build-icon-arrow">
 																		<ArrowDownSvg fill="var(--secondary-font)" />
 																	</div>
 																</div>

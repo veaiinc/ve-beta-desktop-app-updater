@@ -3,7 +3,10 @@ import '../../../assets/scss/chat/buildTooltip.scss';
 import { Tooltip } from 'antd';
 import Context from '../../../context/context';
 
-const buildOptions = [{ id: 1, title: 'Create form', chatText: 'Create a form for ' }];
+const buildOptions = [
+	{ id: 1, title: 'Create form', chatText: 'Create a form for ' },
+	{ id: 2, title: 'Create contract', chatText: 'Create a contract for ' },
+];
 
 const BuildTooltip = ({ children }) => {
 	const {
