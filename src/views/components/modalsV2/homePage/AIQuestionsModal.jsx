@@ -20,6 +20,7 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 		submittingAnswers: false,
 		questions: [],
 		independentQuestions: [],
+		independentQuestionsAnswered: [],
 	});
 
 	const {
@@ -30,10 +31,24 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 		if (data?.questions?.length > 0) {
 			const questions = data?.questions || [];
 			let independentQuestions = [];
+			let independentQuestionsAnswered = [];
 			if (data?.type === 'userPersona' && data?.independentQuestions?.length) {
 				independentQuestions = data?.independentQuestions;
+
+				independentQuestions?.forEach((item) => {
+					if (item?.answer?.length > 0) {
+						independentQuestionsAnswered?.push(true);
+					} else {
+						independentQuestionsAnswered?.push(false);
+					}
+				});
 			}
-			setInfo((prev) => ({ ...prev, questions, independentQuestions }));
+			setInfo((prev) => ({
+				...prev,
+				questions,
+				independentQuestions,
+				independentQuestionsAnswered,
+			}));
 		}
 	}, [data]);
 
@@ -191,6 +206,7 @@ const AIQuestionsModal = ({ open, onClose, data }) => {
 											className="answer-input"
 											placeholder="Type your answer"
 											value={question?.answer || ''}
+											readOnly={info?.independentQuestionsAnswered?.[index]}
 											onChange={(e) =>
 												handleIndependentQuestionInputChange(e, index)
 											}
