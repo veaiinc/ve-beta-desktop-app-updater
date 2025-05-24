@@ -1,9 +1,8 @@
-import React, { memo, useState, useCallback, useContext, useEffect, useRef } from 'react';
+import { memo, useState, useCallback, useContext, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../../../assets/scss/scheduler/editScheduler.scss';
 import { ReactComponent as Back } from '../../../assets/svg/gallery/back-gray.svg';
 import { ReactComponent as DateSvg } from '../../../assets/svg/calendar/date.svg';
-import { ReactComponent as DownArrow } from '../../../assets/svg/activity/down.svg';
 import { ReactComponent as Down } from '../../../assets/svg/calendar/down.svg';
 import SessionInfoCard from '../../components/scheduler/SessionInfoCard';
 import { Tooltip, DatePicker } from 'antd';
@@ -645,7 +644,6 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 				value={info[config?.value] || ''}
 				onChange={(e) => handleDebouncedSessionTypeInput(config?.value, e.target.value)}
 				placeholder={config?.placeholder}
-				backgroundColor={config?.backgroundColor}
 				className="inputHeight"
 			/>
 		);

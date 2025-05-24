@@ -3,7 +3,7 @@ import ReactModal from '../../modalsV2';
 import { getInitials } from '../../../../helpers/index';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/workspaceSettings/plus-button.svg';
-import { ReactComponent as PlusSvgColor } from '../../../../assets/svg/Settings/Plus#6055ec.svg';
+import { ReactComponent as PlusSvgColor } from '../../../../assets/svg/Settings/Plus6055ec.svg';
 import { ReactComponent as PencilSvg } from '../../../../assets/svg/Settings/pencilwhite.svg';
 import { avatarColorList } from '../../../features/settings/indexConstant';
 import Dropzone from 'react-dropzone';

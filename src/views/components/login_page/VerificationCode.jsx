@@ -65,9 +65,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			} else if (emailVerified) {
 				if (response?.[1]?.hasWorkspaces) {
 					if (response?.[1]?.isOnboard) {
-						const locationDetails = JSON.parse(
-							localStorage?.getItem('locationDetails'),
-						);
+						let locationDetails = JSON.parse(localStorage?.getItem('locationDetails'));
 						if (!locationDetails) {
 							locationDetails = await getLocationsDetails();
 						}

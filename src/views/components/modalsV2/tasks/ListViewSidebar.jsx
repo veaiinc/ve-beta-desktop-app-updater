@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import { Drawer } from 'antd';
 import React, { memo, useCallback, useEffect, useState, useRef, useContext } from 'react';

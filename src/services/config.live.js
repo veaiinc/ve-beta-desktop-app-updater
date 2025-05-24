@@ -1,0 +1,40 @@
+// India region
+export const tenant_api = 'https://ap.api.ve.ai/tenants/1.0';
+export const tenant_users_api = 'https://ap.api.ve.ai/tenant-users/1.0';
+export const ve_conversations_api = 'https://api.ve.co/ve-conversations/1.0';
+export const proposals_api = 'https://ap.api.ve.ai/proposals/1.0';
+export const workflows_Api = 'https://ap.api.ve.ai/workflows/1.0';
+export const auth_Api = 'https://auth.ve.ai';
+export const activity_api = 'https://ap.api.ve.ai/workflow-user-analytics/1.0';
+export const galleries = 'https://ap.api.ve.ai/galleries/1.0';
+export const ai_assistant_api = 'https://api.ap-south-1.ve.ai';
+export const ai_predictions = 'https://ai.ap-south-1.ve.ai';
+export const calendar_api = 'https://ap.api.ve.ai/google/1.0';
+export const third_party_integrations_api = 'https://ap.api.ve.ai/third-party-integrations/1.0';
+export const slack_api = 'https://slack.com/api';
+export const automation_builder_api = 'https://ap.api.ve.ai/automations/1.0/automation';
+// export const multi_agent_chat = 'ws://ai.ap-south-1.ve.ai';
+export const page_notes_api = 'https://ap.api.ve.ai/block-notes/1.0';
+export const elastic_search_api = 'https://ap.api.ve.ai/elastic-search/1.0';
+export const workspace_images_api = 'https://ap.api.ve.ai/images/1.0/';
+
+// US region
+export const auth_Api_US = 'https://auth.ve.ai';
+export const tenant_api_US = 'https://us.api.ve.ai/tenants/1.0';
+export const tenant_users_api_US = 'https://us.api.ve.ai/tenant-users/1.0';
+export const ve_conversations_api_US = 'https://us.api.ve.ai/ve-conversations/1.0';
+export const proposals_api_US = 'https://us.api.ve.ai/proposals/1.0';
+export const workflows_Api_US = 'https://us.api.ve.ai/workflows/1.0';
+export const ai_assistant_api_US = 'https://api.us-east-1.ve.ai';
+export const activity_api_US = 'https://ap.api.ve.ai/workflow-user-analytics/1.0';
+export const galleries_api_US = 'https://us.api.ve.ai/galleries/1.0';
+export const ai_predictions_US = 'https://ai.us-east-1.ve.ai';
+export const calendar_api_US = 'https://us.api.ve.ai/google/1.0';
+export const third_party_integrations_api_US = 'https://us.api.ve.ai/third-party-integrations/1.0';
+export const slack_api_US = 'https://slack.com/api';
+export const automation_builder_api_US = 'https://us.api.ve.ai/automations/1.0/automation';
+// export const multi_agent_chat_US = 'ws://api.us-east-1.ve.ai';
+export const automations_api_US = 'https://ap.api.ve.ai/automations/1.0/automation';
+export const page_notes_api_US = 'https://us.api.ve.ai/block-notes/1.0';
+export const elastic_search_api_US = 'https://ap.api.ve.ai/elastic-search/1.0';
+export const workspace_images_api_US = 'https://us.api.ve.ai/images/1.0/';

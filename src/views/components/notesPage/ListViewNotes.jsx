@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/notesPage/notesPage.scss';
 import moment from 'moment';
 
-// icons
+//icons
 import { ReactComponent as NoteIcon } from '../../../assets/svg/notesPage/note-icon.svg';
 import { ReactComponent as LockIcon } from '../../../assets/svg/notesPage/lock-icon.svg';
 
@@ -13,7 +13,7 @@ import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
 
 //constants
-const infiniteScrollHeight = 'calc(100vh - 114px)';
+const infiniteScrollHeight = 'calc(100vh - 142px)';
 
 const ListViewNotes = ({ notes, fetchMoreNotes }) => {
 	const navigate = useNavigate();
@@ -40,33 +40,30 @@ const ListViewNotes = ({ notes, fetchMoreNotes }) => {
 		>
 			<CreateNewNote viewMode="list" />
 			{notesList.map((note) => {
-				const { updatedAt, title, iconImage, coverImage, _id, permissions } = note;
-				const parsedIconImage = JSON.parse(JSON.parse(iconImage))?.native;
+				const { updatedAt, title, iconImage, _id, permissions } = note;
+				let parsedIconImage;
+				try {
+					parsedIconImage = JSON.parse(JSON.parse(iconImage))?.native;
+				} catch {
+					parsedIconImage = null;
+				}
 				const isLocked = permissions?.private;
+
 				return (
-					<div key={_id} onClick={() => navigate(`/note/${_id}`)} className="noteCard">
-						{coverImage ? (
-							<div className="coverImageContainer">
-								<img src={coverImage} alt={title} />
-							</div>
-						) : (
-							<div className="coverImageContainer"></div>
-						)}
-						{iconImage ? (
-							<div className="iconImageContainer">
-								{parsedIconImage ?? <NoteIcon />}
-							</div>
-						) : (
-							<div className="iconImageContainer">
-								<NoteIcon />
-							</div>
-						)}
+					<div
+						key={_id}
+						onClick={() => navigate(`/note/${_id}`)}
+						className="noteListItem"
+					>
+						<div className="iconImageContainer">
+							{parsedIconImage ? parsedIconImage : <NoteIcon />}
+						</div>
 						<header className="noteCardHeader">
+							{isLocked && <LockIcon />}
 							<h3 className="noteCardTitle">{title}</h3>
 						</header>
 						<footer className="noteCardFooter">
 							<span className="updatedAt">{moment.unix(updatedAt).fromNow()}</span>
-							{isLocked && <LockIcon />}
 						</footer>
 					</div>
 				);

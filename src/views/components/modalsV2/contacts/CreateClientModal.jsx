@@ -47,7 +47,7 @@ const dropDownTextStyling = {
 	lineHeight: 'normal',
 };
 
-const validator = require('validator');
+import validator from 'validator';
 const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = false }) => {
 	let {
 		contacts: { createClient, updateStateValues },

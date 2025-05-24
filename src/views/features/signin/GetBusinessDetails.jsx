@@ -139,7 +139,7 @@ const GetBusinessDetails = ({ errorStates, setLoading, setErrorState, isLoading 
 				/>
 			</div>
 			<div className="businessTypeDropDown">
-				<label for="workspaceSelect">What’s your Business Type?</label>
+				<label htmlFor="workspaceSelect">What’s your Business Type?</label>
 				<HeadersDropDownComp
 					showIcon={false}
 					options={options}

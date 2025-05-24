@@ -1,35 +1,44 @@
-.modalContent {
-	width: 353px;
-	display: inline-flex;
-	padding: 32px;
-	align-items: center;
-	gap: 10px;
-	border-radius: 24px;
-	border: 1px solid #272727;
-	background: var(--background-color);
+.update-category-modal-content {
+	display: flex;
+	width: 620px;
+	flex-direction: column;
+	align-items: flex-start;
+	border-radius: 15px;
+	background: var(--card, #18191b);
+	border: 1px solid var(--stroke);
 
 	.modalBody {
 		display: flex;
-		width: 289px;
+		padding: 20px 24px;
 		flex-direction: column;
-		align-items: flex-end;
-		gap: 32px;
+		justify-content: center;
+		align-items: flex-start;
+		gap: 12px;
+		align-self: stretch;
+		border-radius: 0 0 15px 15px;
+		border-top: none;
+		width: 100%;
+		background-color: var(--card);
 
 		.warningContainer {
 			display: flex;
 			flex-direction: column;
 			align-items: flex-start;
-			gap: 8px;
+			gap: 4px;
 			align-self: stretch;
+			padding: 10px 12px;
+			background-color: rgba(255, 193, 7, 0.1);
+			border-left: 4px solid #ffc107;
+			border-radius: 4px;
 
 			h2 {
 				color: var(--primary-font);
-				text-align: center;
 				font-family: var(--primary-font-family);
-				font-size: 16px;
+				font-size: 14px;
 				font-style: normal;
 				font-weight: 600;
 				line-height: normal;
+				margin: 0;
 			}
 
 			p {
@@ -38,7 +47,8 @@
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
-				line-height: normal;
+				line-height: 1.4;
+				margin: 0;
 			}
 		}
 
@@ -49,11 +59,20 @@
 			gap: var(--Spacing-space-7, 12px);
 			align-self: stretch;
 			width: 100%;
+			.categoryName {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+				text-overflow: ellipsis;
+			}
 			.inputWrapper {
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
-				gap: 8px;
+				gap: 12px;
 				width: 100%;
 
 				label {
@@ -107,7 +126,6 @@
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
-				gap: 8px;
 				align-self: stretch;
 				h3 {
 					color: var(--primary-font);
@@ -200,30 +218,80 @@
 		}
 		.actionsContainer {
 			display: flex;
-			gap: 8px;
+			justify-content: flex-end;
+			align-items: center;
+			gap: 6px;
+			align-self: stretch;
+			margin-top: 12px;
 			button {
 				display: flex;
-				width: 100px;
-				padding: var(--Spacing-space-7, 12px);
+				padding: 12px 20px;
 				justify-content: center;
 				align-items: center;
-				gap: var(--Spacing-space-3, 4px);
-				border-radius: 100px;
-				color: var(--secondary-font);
-				text-align: center;
+				gap: 8px;
+				border-radius: 24px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background-color: transparent;
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
-				border: none;
-				background-color: transparent;
 				cursor: pointer;
 			}
 			.primaryButton {
-				background: #6055ec;
-				color: var(--Miscellaneous-Kit-Section-Fill, #f5f5f5);
+				display: flex;
+				padding: 12px 20px;
+				justify-content: center;
+				align-items: center;
+				gap: 8px;
+				border-radius: 24px;
+				background: var(--primary-button, #79ecc9);
+				color: var(--primary-button-font, #000000);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				cursor: pointer;
 			}
+		}
+	}
+}
+
+.update-category-modal-header {
+	display: flex;
+	height: 60px;
+	padding: 20px 24px;
+	justify-content: space-between;
+	align-items: center;
+	align-self: stretch;
+	border-bottom: 1px solid var(--stroke);
+	border-radius: 15px 15px 0 0;
+
+	.update-category-modal-header-text {
+		color: var(--primary-font);
+		text-align: center;
+		font-family: var(--primary-font-family);
+		font-size: 16px;
+		text-overflow: ellipsis;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	> svg {
+		cursor: pointer;
+		width: 16px;
+		height: 16px;
+		opacity: 0.5;
+		transition: all 0.3s ease-in-out;
+		color: var(--primary-font);
+
+		&:hover {
+			opacity: 1;
+			transform: rotate(90deg);
 		}
 	}
 }

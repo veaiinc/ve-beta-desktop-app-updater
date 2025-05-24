@@ -3,6 +3,7 @@ import '../../../assets/scss/notesPage/notesPage.scss';
 
 // icons
 import { ReactComponent as PlusIcon } from '../../../assets/svg/notesPage/plus-icon.svg';
+import { ReactComponent as NoteIcon } from '../../../assets/svg/notesPage/note-icon.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 
@@ -57,7 +58,20 @@ const CreateNewNote = ({ viewMode }) => {
 			aria-label="Create New Note"
 			onClick={handleNewNotes}
 			className="createNewNoteContainer"
-		></button>
+		>
+			<NoteIcon />
+			<div className="titleAndDescriptionContainer">
+				<h1 className="title">Add a New Note</h1>
+				<p className="description">
+					Just start typing and let your next big idea flow out!
+				</p>
+			</div>
+			<footer className="footerContainer">
+				<div className="iconContainer">
+					<PlusIcon />
+				</div>
+			</footer>
+		</button>
 	) : null;
 };
 

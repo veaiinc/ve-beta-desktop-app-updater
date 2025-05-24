@@ -1,13 +1,10 @@
-import React, { memo, useState, useCallback } from 'react';
+import { memo, useState, useCallback } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSelector from '../../components/calendar/CalendarSelector';
 import CalendarCategories from '../../components/calendar/CalendarCategories';
-import MeetingDetails from '../../components/calendar/MeetingDetails';
 import CalendarAiChat from '../../components/calendar/CalendarAiChat';
 import GoogleCalendar from '../../components/calendar/GoogleCalendar';
-import CalendarChatBox from '../../components/calendar/CalendarChatBox';
 import moment from 'moment';
-import ConnectIntegrationWidget from '../../components/globalComponents/ConnectIntegrationWidget.jsx';
 import SessionCard from '../../components/calendar/SessionCard.jsx';
 
 const CalendarSidebar = ({
@@ -22,6 +19,8 @@ const CalendarSidebar = ({
 	schedulerList,
 	selectedSession,
 	sessionFilter,
+	connectedCalendars,
+	selectedCalendar,
 }) => {
 	const [info, setInfo] = useState({
 		askAi: false,
@@ -58,7 +57,11 @@ const CalendarSidebar = ({
 							categoryFilter={categoryFilter}
 							updateCalendarInfo={updateCalendarInfo}
 						/>
-						<GoogleCalendar />
+						<GoogleCalendar
+							connectedCalendars={connectedCalendars}
+							selectedCalendar={selectedCalendar}
+							updateCalendarInfo={updateCalendarInfo}
+						/>
 						<SessionCard
 							schedulerList={schedulerList}
 							selectedSession={selectedSession}
