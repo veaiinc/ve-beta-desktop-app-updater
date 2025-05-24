@@ -7,6 +7,7 @@ import DeleteWorkpsaceComponent from '../../components/settings/workspace/Delete
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../../components/popover/ToolTipContainer';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/Settings/question_circle.svg';
+
 import PublicInformation from './PublicInformation';
 import BrandSetup from './BrandSetup';
 import { message } from '../../components/globalComponents/CustomToast';

@@ -3,9 +3,6 @@ import '../../../assets/scss/settings/branding.scss';
 import validator from 'validator';
 import Context from '../../../context/context';
 import SocialMediaLinksComponent from '../../components/settings/brandsetup/SocialMediaLinks';
-import BrandColorComponent from '../../components/settings/brandsetup/BrandColor';
-import ClientPortalComponent from '../../components/settings/brandsetup/ClientPortal';
-import BrandFontsComponent from '../../components/settings/brandsetup/BrandFonts';
 import { message } from '../../components/globalComponents/CustomToast';
 
 const BrandingSetup = () => {

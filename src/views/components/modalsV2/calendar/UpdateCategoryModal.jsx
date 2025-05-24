@@ -1,8 +1,9 @@
-import React, { memo, useContext, useState, useEffect, useCallback } from 'react';
+import { memo, useContext, useState, useEffect, useCallback } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/calendar/modal/updateCategoryModal.scss';
 import Context from '../../../../context/context';
 import Spinner from '../../loaders/Spinner';
+import { ReactComponent as CloseSvg } from '../../../../assets/svg/calendar/close.svg';
 
 const UpdateCategoryModal = ({ show, handleClose, isCategoryEditable, selectedCategory }) => {
 	const {
@@ -147,7 +148,13 @@ const UpdateCategoryModal = ({ show, handleClose, isCategoryEditable, selectedCa
 			modalType={'center'}
 			customStyles={{ content: { borderRadius: '15px' } }}
 		>
-			<div className="modalContent">
+			<div className="update-category-modal-content">
+				<div className="update-category-modal-header">
+					<div className="update-category-modal-header-text">Category</div>
+					{!info?.submiting && (
+						<CloseSvg onClick={handleClose} style={{ cursor: 'pointer' }} />
+					)}
+				</div>
 				<div className="modalBody">
 					{info?.error && (
 						<div style={{ textAlign: 'center', width: '100%', color: '#ff6230' }}>
@@ -167,12 +174,13 @@ const UpdateCategoryModal = ({ show, handleClose, isCategoryEditable, selectedCa
 
 					<div className="inputContainer">
 						<div className="inputWrapper">
-							<label htmlFor="categoryName">Name</label>
+							<div className="categoryName">Category</div>
 							<input
 								id="categoryName"
 								type="text"
-								placeholder="Enter Category Name"
+								placeholder="Category Name"
 								value={info?.name}
+								autoComplete="off"
 								onChange={(e) =>
 									setInfo((prev) => ({
 										...prev,
@@ -180,6 +188,24 @@ const UpdateCategoryModal = ({ show, handleClose, isCategoryEditable, selectedCa
 										error: null,
 									}))
 								}
+								style={{
+									display: 'flex',
+									padding: '12px 14px',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									alignSelf: 'stretch',
+									backgroundColor: 'var(--popup)',
+									borderRadius: '8px',
+									border: '1px solid var(--stroke, #2C2D2E)',
+									background: 'var(--popup, #202123)',
+									color: 'var(--primary-font)',
+									textOverflow: 'ellipsis',
+									fontFamily: 'var(--primary-font-family)',
+									fontSize: '14px',
+									fontStyle: 'normal',
+									fontWeight: '500',
+									lineHeight: 'normal',
+								}}
 							/>
 						</div>
 					</div>
@@ -220,7 +246,7 @@ const UpdateCategoryModal = ({ show, handleClose, isCategoryEditable, selectedCa
 						</div>
 					</div>
 					<div className="actionsContainer">
-						<button onClick={handleClose}>Go back</button>
+						<button onClick={handleClose}>Discard</button>
 						<button
 							className="primaryButton"
 							onClick={handleCategorySubmit}

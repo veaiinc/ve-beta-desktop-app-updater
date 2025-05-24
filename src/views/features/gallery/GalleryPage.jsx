@@ -277,7 +277,6 @@ const GalleryPage = () => {
 		isPublished: tenantAlbums?.albums?.[0]?.isPublished,
 		showDragIconOfAlbum: null,
 		isOnline: true,
-		isDragging: false,
 		dragPosition: { x: 0, y: 0 },
 		stackOffset: 3,
 		dropIndex: null,
@@ -305,14 +304,13 @@ const GalleryPage = () => {
 		lightroomCopyList: [],
 		isAlbumCover: false,
 		coverType: null,
-		showDeleteAlbum: false,
 		isAlbumHidden: false,
 		showGalleryStyles: false,
 		themeMode: 'dark',
 		showCoverButton: false,
 		showAlbumOptionsMenu: false,
 		showAlbumSettings: false,
-		currentWorkspaceId: null,
+
 		galleryLink: null,
 		clientSubscriptionOptions: false,
 		imageProcessingStatus: {
@@ -628,12 +626,10 @@ const GalleryPage = () => {
 				galleryCredentials: null,
 				albumDetails: null,
 				imagesList: null,
-				albumImagesCount: null,
-				albumDetails: null,
-				imagesList: null,
+
 				imageDetail: null,
 				galleryGuestAccess: null,
-				albumImagesCount: null,
+
 				clientSelectionsData: null,
 				clientSelectionImages: null,
 				aiFace: null,

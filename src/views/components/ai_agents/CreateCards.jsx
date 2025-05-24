@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_agents/customCards.scss';
 import { ReactComponent as Loader } from '../../../assets/svg/ai_agents/loader.svg';

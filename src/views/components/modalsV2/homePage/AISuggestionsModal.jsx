@@ -2,8 +2,6 @@ import { memo, useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import '../../../../assets/scss/home_page/modals/aiSuggestionsModal.scss';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../../assets/svg/home_page/arrow-right.svg';
-import { ReactComponent as ShareSvg } from '../../../../assets/svg/files/share.svg';
-import { ReactComponent as DownloadSvg } from '../../../../assets/svg/download.svg';
 import { ReactComponent as DeleteSvg } from '../../../../assets/svg/delete.svg';
 import { ReactComponent as CalendarSvg } from '../../../../assets/svg/home_page/calendar.svg';
 import { ReactComponent as AgentsSvg } from '../../../../assets/svg/sidebar/agentsIcon.svg';
