@@ -321,12 +321,18 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 										? dayjs(info.scheduleFrom).format('YYYY-MM-DD')
 										: ''
 								}
+								min={dayjs().format('YYYY-MM-DD')}
 								onChange={(e) => {
 									const newDate = e.target.value;
 									const currentTime = info?.scheduleFrom
 										? dayjs(info.scheduleFrom).format('HH:mm')
-										: '00:00';
+										: dayjs().format('HH:mm');
 									const newDateTime = dayjs(`${newDate} ${currentTime}`);
+
+									if (newDateTime.isBefore(dayjs(), 'minute')) {
+										return;
+									}
+
 									setInfo((prev) => ({
 										...prev,
 										scheduleFrom: newDateTime,
@@ -349,6 +355,12 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 										? dayjs(info.scheduleFrom).format('YYYY-MM-DD')
 										: dayjs().format('YYYY-MM-DD');
 									const newDateTime = dayjs(`${currentDate} ${newTime}`);
+
+									// Validate that the selected time is not in the past
+									if (newDateTime.isBefore(dayjs(), 'minute')) {
+										return;
+									}
+
 									setInfo((prev) => ({
 										...prev,
 										scheduleFrom: newDateTime,
@@ -369,12 +381,23 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 										? dayjs(info.scheduleTo).format('YYYY-MM-DD')
 										: ''
 								}
+								min={
+									info?.scheduleFrom
+										? dayjs(info.scheduleFrom).format('YYYY-MM-DD')
+										: dayjs().format('YYYY-MM-DD')
+								}
 								onChange={(e) => {
 									const newDate = e.target.value;
 									const currentTime = info?.scheduleTo
 										? dayjs(info.scheduleTo).format('HH:mm')
-										: '00:00';
+										: dayjs().format('HH:mm');
 									const newDateTime = dayjs(`${newDate} ${currentTime}`);
+
+									// Validate that the selected date is not in the past
+									if (newDateTime.isBefore(dayjs(), 'minute')) {
+										return;
+									}
+
 									setInfo((prev) => ({
 										...prev,
 										scheduleTo: newDateTime,
@@ -395,6 +418,12 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 										? dayjs(info.scheduleTo).format('YYYY-MM-DD')
 										: dayjs().format('YYYY-MM-DD');
 									const newDateTime = dayjs(`${currentDate} ${newTime}`);
+
+									// Validate that the selected time is not in the past
+									if (newDateTime.isBefore(dayjs(), 'minute')) {
+										return;
+									}
+
 									setInfo((prev) => ({
 										...prev,
 										scheduleTo: newDateTime,
