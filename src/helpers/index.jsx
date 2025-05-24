@@ -223,6 +223,7 @@ let urlMapper = {
 	've.co': 'https://builder.ve.co',
 	'www.ve.ai': 'https://builder.ve.ai',
 	'www.ve.co': 'https://builder.ve.co',
+	'vite.ve.co': 'https://builder.ve.co',
 };
 
 let hostNameMapper = {
@@ -231,6 +232,7 @@ let hostNameMapper = {
 	've.co': 've.co',
 	'www.ve.co': 've.co',
 	'www.ve.ai': 've.ai',
+	'www.vite.ve.co': 'vite.ve.co',
 };
 export const fetchOriginSelection = () => {
 	const hostname = window.location.hostname;
