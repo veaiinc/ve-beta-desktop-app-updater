@@ -87,7 +87,7 @@ const DeepSearchChainOfThought = ({ data, showLastIndicatorLine = false, streamE
 														{sources?.length > 0 && (
 															<div className="sources-container">
 																<div className="source-text">
-																	Sources
+																	Reading
 																</div>
 																<Sources sources={sources} />
 															</div>

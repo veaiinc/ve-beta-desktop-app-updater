@@ -294,7 +294,6 @@
 		.left-container {
 			.btns-container {
 				display: flex;
-				height: 36px;
 				padding: 4px;
 				align-items: center;
 				gap: 2px;
@@ -309,7 +308,7 @@
 					border-radius: 6px;
 					cursor: pointer;
 					.icon-container {
-						height: 18px;
+						height: 16px;
 					}
 
 					.text-container {
