@@ -107,6 +107,8 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			elastic_search_api_US,
 			workspace_images_api,
 			workspace_images_api_US,
+			custom_domain_api,
+			custom_domain_api_US,
 		} = config;
 
 		const apiEndpoints = {
