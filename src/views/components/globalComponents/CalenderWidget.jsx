@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect, useCallback, useRef } from 'react';
 import '../../../assets/scss/globalComponents/calenderWidget.scss';
-import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
 import { ReactComponent as ArrowViewIcon } from '../../../assets/svg/calendar/arrowview.svg';
 import { ReactComponent as AddIcon } from '../../../assets/svg/calendar/add.svg';
 import { useNavigate, useLocation } from 'react-router-dom';

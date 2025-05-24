@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback } from 'react';
 import '../../../../assets/scss/tasks/listView.scss';
 import { FetchMoreLoaderComp } from '../../../../helpers';

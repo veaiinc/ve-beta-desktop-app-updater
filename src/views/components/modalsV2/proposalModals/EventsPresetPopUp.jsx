@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import AddPresetModal from './AddPresetModal';
 import Context from '../../../../context/context';

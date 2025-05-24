@@ -158,7 +158,7 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 			const payload = {
 				filters: {
 					limit: 20,
-					page: page,
+					page,
 					type: 'workspace',
 					sortBy,
 					sortType,
@@ -202,7 +202,6 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 				workflowTemplates,
 				currentPage,
 				hasNextPage,
-				loading: false,
 			}));
 			handleTotalChange(totalDocs);
 		},

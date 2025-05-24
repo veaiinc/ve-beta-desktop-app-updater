@@ -644,7 +644,6 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 				value={info[config?.value] || ''}
 				onChange={(e) => handleDebouncedSessionTypeInput(config?.value, e.target.value)}
 				placeholder={config?.placeholder}
-				backgroundColor={config?.backgroundColor}
 				className="inputHeight"
 			/>
 		);

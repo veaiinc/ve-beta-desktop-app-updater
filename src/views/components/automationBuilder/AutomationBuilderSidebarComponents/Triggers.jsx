@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/triggers.scss';
 import { ReactComponent as Search } from '../../../../assets/svg/worflow_builder/buildercard/search.svg';
