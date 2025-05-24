@@ -16,6 +16,7 @@ import { ReactComponent as TaskSvg } from '../../../assets/svg/home_page/tasks.s
 import { ReactComponent as ContactSvg } from '../../../assets/svg/home_page/contacts.svg';
 import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/automation.svg';
 import Suggestions from './Suggestions';
+import BuildOptions from './BuildOptions';
 
 const optionsList = [
 	{
@@ -182,7 +183,7 @@ const InitialHomePage = () => {
 		templates: { updateStateValues, currentSessionId },
 		profileInfo: { tenantUserAccessControls },
 		aiSetup: { getPromptsData, promptsData },
-		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions },
+		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions, chatInfo },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
@@ -476,6 +477,10 @@ const InitialHomePage = () => {
 					</div>
 				</div>
 
+				{chatInfo?.build && info?.chatQuery?.length === 0 && !info?.minimizedChatBox && (
+					<BuildOptions />
+				)}
+
 				{!info?.showSuggestions && (
 					<div className="options-container">{renderedOptions}</div>
 				)}
@@ -486,9 +491,7 @@ const InitialHomePage = () => {
 				</div>
 			)}
 
-			{info?.showSuggestions && info?.chatQuery?.length === 0 && (
-				<Suggestions data={suggestions} />
-			)}
+			{info?.showSuggestions && <Suggestions data={suggestions} />}
 		</div>
 	);
 };

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/actionDetailsBlock.scss';
-
+import Triggers from './Triggers';
 const ActionDetailsBlock = ({
 	actionLabel = '',
 	heading = 'Actions',
@@ -8,7 +8,9 @@ const ActionDetailsBlock = ({
 	description = '',
 	updaterFn,
 	type = 'action',
-	onChangeButtonClick = () => {},
+	onChangeButtonClick = () => {
+		<Triggers />;
+	},
 	showChangeButton = true,
 }) => {
 	return (

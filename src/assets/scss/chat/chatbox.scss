@@ -405,6 +405,16 @@
 		}
 	}
 }
+.build-icon-container {
+	position: relative;
+	left: -3px;
+
+	.build-icon-arrow {
+		svg {
+			fill: var(--primary-font);
+		}
+	}
+}
 .chat-box-icon-container {
 	display: flex;
 	height: 28px;
@@ -423,6 +433,14 @@
 
 	&.active {
 		border: 1px solid var(--primary-button);
+
+		.build-icon {
+			svg {
+				path {
+					fill: var(--primary-button);
+				}
+			}
+		}
 	}
 
 	.icon {

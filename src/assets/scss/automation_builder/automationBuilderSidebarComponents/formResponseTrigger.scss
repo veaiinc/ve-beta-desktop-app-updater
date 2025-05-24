@@ -1,0 +1,96 @@
+.chooseFromTemplateContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	overflow-y: auto;
+
+	.chooseFromTemplateFormContainer {
+		background-color: var(--card);
+		cursor: pointer;
+		transition: all 0.2s ease-in-out;
+		position: relative;
+
+		&:hover {
+			background-color: var(--card-over-card-hover);
+		}
+
+		&.selected {
+			background-color: var(--popup);
+			border: 1px solid var(--stroke-hover);
+		}
+
+		.templateDetails {
+			.templateName {
+				color: var(--primary-font);
+				font-size: 16px;
+				font-weight: 500;
+				margin-bottom: 4px;
+			}
+
+			.templateDescription {
+				color: var(--secondary-font);
+				font-size: 14px;
+				margin: 0;
+			}
+		}
+
+		.changeButton {
+			position: absolute;
+			top: 16px;
+			right: 16px;
+			background: var(--card);
+			color: var(--primary-font);
+			padding: 6px 12px;
+			border-radius: 4px;
+			cursor: pointer;
+			transition: all 0.2s ease-in-out;
+
+			&:hover {
+				background-color: var(--card-over-card-hover);
+			}
+		}
+	}
+}
+
+.formSelectionBlockContainer {
+	padding: 16px;
+
+	.formSelectionBlockHeading {
+		color: var(--primary-font);
+		font-size: 16px;
+		font-weight: 500;
+		margin-bottom: 16px;
+	}
+
+	.formSelectionBlockButton {
+		width: 100%;
+		padding: 12px;
+		background-color: var(--card);
+		border-radius: 8px;
+		color: var(--primary-font);
+		cursor: pointer;
+		transition: all 0.2s ease-in-out;
+
+		&:hover {
+			background-color: var(--card-hover);
+		}
+	}
+
+	.triggerSaveButtonContainer {
+		margin-top: 24px;
+
+		.triggerSaveButton {
+			width: 100%;
+			padding: 12px;
+			border: 1px solid var(--stroke);
+			color: var(--primary-font);
+			border-radius: 8px;
+			cursor: pointer;
+			transition: all 0.2s ease-in-out;
+
+			&:hover {
+				border-color: var(--stroke-hover);
+			}
+		}
+	}
+}

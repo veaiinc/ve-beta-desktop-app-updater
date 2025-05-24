@@ -226,7 +226,7 @@ const UserDetailsForm = ({
 								}}
 								disabled={verifyPhoneNumberLoading}
 							>
-								{verifyPhoneNumberLoading ? 'Verifying...' : 'Verify Phone Number'}
+								{verifyPhoneNumberLoading ? 'Verifying...' : 'Send OTP'}
 							</button>
 						)}
 					</div>
