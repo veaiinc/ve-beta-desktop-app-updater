@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/calendar/modal/createSessionModal.scss';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import Context from '../../../../context/context';
 import Spinner from '../../loaders/Spinner';
 import PhoneInput from 'react-phone-number-input';
+import { isURL } from '../../../../helpers';
 
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
 
@@ -18,7 +19,7 @@ const sessionTypeInputConfig = {
 		value: 'location',
 		tag: 'Location',
 		type: 'text',
-		placeholder: '',
+		placeholder: 'E.g. Office Conference Room',
 	},
 	'Phone Call': {
 		value: 'phoneNumber',
@@ -30,7 +31,7 @@ const sessionTypeInputConfig = {
 		value: 'meetingLink',
 		tag: 'Platform Link',
 		type: 'url',
-		placeholder: '',
+		placeholder: 'Meeting link',
 	},
 };
 
@@ -38,7 +39,6 @@ const initialInfo = {
 	creatingSessionLoading: false,
 	sessionName: null,
 	sessionDescription: null,
-	addDiscription: false,
 	sessionType: 'In Person',
 	sessionTypeOpen: false,
 	location: null,
@@ -144,28 +144,21 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 		const config = sessionTypeInputConfig[info.sessionType];
 
 		const validateInput = (value) => {
-			if (config.value === 'phoneNumber') {
+			//no need to validate phone number
+			// if (config.value === 'phoneNumber') {
+			// 	setInfo((prev) => ({
+			// 		...prev,
+			// 		errors: { ...prev.errors, phoneNumber: false },
+			// 	}));
+			// 	return true;
+			// } else
+			if (config.value === 'meetingLink') {
+				// Validate URL format
+				const err = !isURL(value);
 				setInfo((prev) => ({
 					...prev,
-					errors: { ...prev.errors, phoneNumber: false },
+					errors: { ...prev.errors, meetingLink: err },
 				}));
-				return true;
-			} else if (config.value === 'meetingLink') {
-				// Validate URL format
-				try {
-					new URL(value);
-					setInfo((prev) => ({
-						...prev,
-						errors: { ...prev.errors, meetingLink: false },
-					}));
-					return true;
-				} catch {
-					setInfo((prev) => ({
-						...prev,
-						errors: { ...prev.errors, meetingLink: true },
-					}));
-					return false;
-				}
 			}
 			return true;
 		};
@@ -206,14 +199,15 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 					className="phoneInputNumber"
 					countryCallingCodeEditable={true}
 					autoComplete="tel"
+					style={{ backgroundColor: 'var(--popup)', border: '1px solid var(--stroke)' }}
 				/>
 			);
 		}
 
 		return (
-			<InputComponent
+			<input
 				type={config.type}
-				value={info[config.value]}
+				value={info[config.value] || ''}
 				onChange={(e) => handleChange(e.target.value)}
 				placeholder={config.placeholder}
 				className={`inputHeight ${
@@ -233,16 +227,17 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 				overlay: { zIndex: 1002 },
 			}}
 		>
-			<div className="createSessionModalParentContainer">
-				<div className="sessionHeader">
-					<span>Create a Session</span>
-					<Close onClick={ModifyCloseModal} />
-				</div>
+			<header className="popup-header">
+				<span>Create a Session</span>
+				<Close onClick={ModifyCloseModal} />
+			</header>
+			<div className="container">
 				<div className="sessionNameContainer">
 					<div className="sessionNameLabel">Session Name</div>
-					<InputComponent
+					<input
+						type="text"
 						className={`inputHeight ${info.errors.sessionName ? 'error' : ''}`}
-						value={info?.sessionName}
+						value={info?.sessionName || ''}
 						onChange={(e) =>
 							setInfo((prev) => ({
 								...prev,
@@ -250,31 +245,25 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 								errors: { ...prev.errors, sessionName: false },
 							}))
 						}
-						placeholder={''}
+						placeholder={'E.g. Screening'}
+						autoComplete="off"
 					/>
-					<div
-						className={`addSessionDesc ${info?.addDiscription ? 'hidden' : ''}`}
-						onClick={() =>
-							setInfo((prev) => ({ ...prev, addDiscription: !prev.addDiscription }))
-						}
-					>
-						Add Instruction
-					</div>
 				</div>
 
-				<div
-					className={`sessionDescriptionWrapper ${info?.addDiscription ? 'visible' : ''}`}
-				>
-					<InputComponent
+				<div className="sessionDescriptionWrapper">
+					<div className="sessionDescriptionLabel">Description</div>
+					<input
+						type="text"
 						className="inputHeight"
-						value={info?.sessionDescription}
+						value={info?.sessionDescription || ''}
 						onChange={(e) =>
 							setInfo((prev) => ({
 								...prev,
 								sessionDescription: e.target.value,
 							}))
 						}
-						placeholder={'Session description'}
+						placeholder={'Add a description for the session'}
+						autoComplete="off"
 					/>
 				</div>
 
@@ -290,8 +279,9 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 								}))
 							}
 							placement="bottom"
+							distance={0}
 							title={
-								<div className="sessionType-dropdown">
+								<div className="createSession-sessionType-dropdown">
 									{sessionTypeOptions?.map((option) => (
 										<div
 											key={option}
@@ -303,10 +293,9 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 									))}
 								</div>
 							}
-							arrow={false}
 							trigger={'click'}
 							color={'transparent'}
-							overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+							overlayStyle={{ width: '100%', padding: '0' }}
 						>
 							<div className="typeOfSession-lable">
 								{info?.sessionType}
@@ -320,51 +309,100 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 					</div>
 				</div>
 
-				<div className="sessionOptionContainer">
+				<div className="sessionDateTimeContainer">
 					<div className="sessionTypeWrapper">
-						<span>From</span>
-						<DatePicker
-							format="DD MMM YYYY hh:mm A"
-							allowClear
-							showTime={true}
-							value={info?.scheduleFrom}
-							onChange={(value) => {
-								setInfo((prev) => ({
-									...prev,
-									scheduleFrom: value,
-									errors: { ...prev.errors, dateRange: false },
-								}));
-							}}
-							className="typeOfSession-lable"
-							suffixIcon={<DateSvg />}
-							disabledDate={(current) => {
-								return current && current < dayjs().startOf('day');
-							}}
-						/>
+						<span>Start Date & Time</span>
+						<div className="events-popup-time-wrapper">
+							<input
+								type="date"
+								className="events-popup-date-input"
+								value={
+									info?.scheduleFrom
+										? dayjs(info.scheduleFrom).format('YYYY-MM-DD')
+										: ''
+								}
+								onChange={(e) => {
+									const newDate = e.target.value;
+									const currentTime = info?.scheduleFrom
+										? dayjs(info.scheduleFrom).format('HH:mm')
+										: '00:00';
+									const newDateTime = dayjs(`${newDate} ${currentTime}`);
+									setInfo((prev) => ({
+										...prev,
+										scheduleFrom: newDateTime,
+										errors: { ...prev.errors, dateRange: false },
+									}));
+								}}
+							/>
+							<div className="time-date-divider"></div>
+							<input
+								type="time"
+								className="events-popup-time-input"
+								value={
+									info?.scheduleFrom
+										? dayjs(info.scheduleFrom).format('HH:mm')
+										: ''
+								}
+								onChange={(e) => {
+									const newTime = e.target.value;
+									const currentDate = info?.scheduleFrom
+										? dayjs(info.scheduleFrom).format('YYYY-MM-DD')
+										: dayjs().format('YYYY-MM-DD');
+									const newDateTime = dayjs(`${currentDate} ${newTime}`);
+									setInfo((prev) => ({
+										...prev,
+										scheduleFrom: newDateTime,
+										errors: { ...prev.errors, dateRange: false },
+									}));
+								}}
+							/>
+						</div>
 					</div>
 					<div className="sessionTypeWrapper">
-						<span>To</span>
-						<DatePicker
-							format="DD MMM YYYY hh:mm A"
-							allowClear
-							showTime={true}
-							value={info.scheduleTo}
-							onChange={(value) => {
-								setInfo((prev) => ({
-									...prev,
-									scheduleTo: value,
-									errors: { ...prev.errors, dateRange: false },
-								}));
-							}}
-							className="typeOfSession-lable"
-							suffixIcon={<DateSvg />}
-							disabledDate={(current) => {
-								return (
-									current &&
-									current < (info?.scheduleFrom || dayjs().startOf('day'))
-								);
-							}}
-						/>
+						<span>End Date & Time</span>
+						<div className="events-popup-time-wrapper">
+							<input
+								type="date"
+								className="events-popup-date-input"
+								value={
+									info?.scheduleTo
+										? dayjs(info.scheduleTo).format('YYYY-MM-DD')
+										: ''
+								}
+								onChange={(e) => {
+									const newDate = e.target.value;
+									const currentTime = info?.scheduleTo
+										? dayjs(info.scheduleTo).format('HH:mm')
+										: '00:00';
+									const newDateTime = dayjs(`${newDate} ${currentTime}`);
+									setInfo((prev) => ({
+										...prev,
+										scheduleTo: newDateTime,
+										errors: { ...prev.errors, dateRange: false },
+									}));
+								}}
+							/>
+							<div className="time-date-divider"></div>
+							<input
+								type="time"
+								className="events-popup-time-input"
+								value={
+									info?.scheduleTo ? dayjs(info.scheduleTo).format('HH:mm') : ''
+								}
+								onChange={(e) => {
+									const newTime = e.target.value;
+									const currentDate = info?.scheduleTo
+										? dayjs(info.scheduleTo).format('YYYY-MM-DD')
+										: dayjs().format('YYYY-MM-DD');
+									const newDateTime = dayjs(`${currentDate} ${newTime}`);
+									setInfo((prev) => ({
+										...prev,
+										scheduleTo: newDateTime,
+										errors: { ...prev.errors, dateRange: false },
+									}));
+								}}
+							/>
+						</div>
 					</div>
 				</div>
 
@@ -378,20 +416,28 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 				)}
 
 				<div className="scheduleBtnContainer">
-					<button
-						className={`scheduleBtn `}
-						style={info?.creatingSessionLoading ? { background: 'grey' } : {}}
+					<div
+						className="csm-action-button csm-action-button--secondary"
+						onClick={ModifyCloseModal}
+					>
+						Discard
+					</div>
+					<div
+						className={`csm-action-button csm-action-button--primary ${
+							info?.creatingSessionLoading ? 'csm-action-button--disabled' : ''
+						}`}
 						onClick={handleCreateSession}
+						disabled={info?.creatingSessionLoading}
 					>
 						{info?.creatingSessionLoading ? (
-							<span className="loading">
+							<>
 								<Spinner width="16px" height="16px" />
 								Creating...
-							</span>
+							</>
 						) : (
 							'Create'
 						)}
-					</button>
+					</div>
 				</div>
 			</div>
 		</ReactModal>
@@ -399,51 +445,3 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 };
 
 export default memo(CreateSessionModal);
-
-// Add styles for phone input
-const styles = `
-	.phoneInputNumber {
-		width: 100%;
-		height: 40px;
-		border: 1px solid var(--border);
-		border-radius: 8px;
-		padding: 0 12px;
-		font-size: 14px;
-		background: var(--card);
-		color: var(--primary-font);
-	}
-
-	.phoneInputNumber:focus {
-		outline: none;
-		border-color: var(--primary);
-	}
-
-	.phoneInputNumber.error {
-		border-color: red;
-	}
-
-	.phoneInputNumber input {
-		background: transparent;
-		border: none;
-		outline: none;
-		width: 100%;
-		height: 100%;
-		color: var(--primary-font);
-	}
-
-	.phoneInputNumber .PhoneInputCountry {
-		margin-right: 8px;
-	}
-
-	.phoneInputNumber .PhoneInputCountrySelect {
-		background: transparent;
-		border: none;
-		outline: none;
-		color: var(--primary-font);
-	}
-`;
-
-// Add styles to document
-const styleSheet = document.createElement('style');
-styleSheet.innerText = styles;
-document.head.appendChild(styleSheet);

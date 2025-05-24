@@ -60,6 +60,10 @@
 					gap: 4px;
 				}
 			}
+			// .calendarDateLeft {
+			// }
+			// .calendarDateRight {
+			// }
 
 			.calendarControlsRight {
 				display: flex;
@@ -182,11 +186,7 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
-						// padding: 0px 8px;
 					}
-					// .ant-select-selection-item {
-					// 	margin: 0px 8px;
-					// }
 
 					.ant-select-selection-placeholder {
 						color: rgba(var(--primary-font), 0.48);

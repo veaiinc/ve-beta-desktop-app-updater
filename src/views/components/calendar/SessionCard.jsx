@@ -134,7 +134,7 @@ const SessionCard = ({
 				className={`sessionCardContainer ${info?.expanded ? 'expanded' : ''}`}
 				ref={expandRef}
 			>
-				<div className="sessionHeader">
+				<div className="sessionsHeader">
 					<div className="headerContainer">
 						<span className="headLabel">Sessions</span>
 					</div>
