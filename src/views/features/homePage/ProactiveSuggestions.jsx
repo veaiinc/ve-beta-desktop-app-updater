@@ -411,7 +411,6 @@ const ProactiveSuggestions = () => {
 
 	const fetchMorePendingActions = async () => {
 		const nextPage = aiSuggestedPendingActions?.metaInfo?.currentPage + 1;
-
 		const payload = {
 			...newUpdatedPayload,
 			page: nextPage,
@@ -756,7 +755,9 @@ const ProactiveSuggestions = () => {
 							{info?.activeBtn === 'insights' && (
 								<InfiniteScroll
 									dataLength={info?.cards?.length || 0}
-									hasMore={aiSuggestedPendingActions?.metaInfo?.hasNextPage}
+									hasMore={
+										aiSuggestedPendingActions?.metaInfo?.hasNextPage || false
+									}
 									next={fetchMorePendingActions}
 									style={infiniteScrollStyle}
 									height={'100%'}
