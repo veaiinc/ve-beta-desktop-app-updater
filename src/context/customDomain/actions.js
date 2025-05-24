@@ -1,0 +1,4 @@
+export const Actions = {
+	SET_CUSTOM_DOMAIN_DATA: 'SET_CUSTOM_DOMAIN_DATA',
+	RESET_STATE: 'RESET_STATE',
+};

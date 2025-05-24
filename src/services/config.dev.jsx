@@ -19,6 +19,7 @@ module.exports = {
 	automation_builder_api: 'https://ap.api.ve.ai/automations/1.0/automation',
 	page_notes_api: 'https://ap.api.ve.ai/block-notes/1.0',
 	elastic_search_api: 'https://ap.api.ve.ai/elastic-search/1.0',
+	custom_domain_api: 'https://ap.api.ve.ai/custom-domain/1.0',
 
 	//outside India
 	auth_Api_US: 'https://auth.ve.ai',
@@ -38,4 +39,5 @@ module.exports = {
 	automation_builder_api_US: 'https://us.api.ve.ai/automations/1.0/automation',
 	page_notes_api_US: 'https://us.api.ve.ai/block-notes/1.0',
 	elastic_search_api_US: 'https://ap.api.ve.ai/elastic-search/1.0',
+	custom_domain_api_US: 'https://us.api.ve.ai/custom-domain/1.0',
 };

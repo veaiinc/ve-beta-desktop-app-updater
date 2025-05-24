@@ -1,22 +1,67 @@
-import { memo, useState } from 'react';
+import { memo, useContext, useEffect, useState } from 'react';
 import '../../../../assets/scss/settings/workspace/customDomain.scss';
 import { ReactComponent as InfoIcon } from '../../../../assets/svg/Settings/info-icon.svg';
-import { isURL } from '../../../../helpers/index';
+import Context from '../../../../context/context';
+import { message } from '../../globalComponents/CustomToast';
+
+const domainRegex =
+	/^(\*\.)?(((?!-)[A-Za-z0-9-]{1,62}[A-Za-z0-9])\.)+((?!-)[A-Za-z0-9-]{1,62}[A-Za-z0-9])$/;
 
 const CustomDomain = () => {
+	const {
+		customDomainInfo: {
+			customDomainData,
+			requestCustomDomainConnection,
+			getCustomDomainStatus,
+		},
+	} = useContext(Context);
+
+	const { domain, status, statusMessage, validationRecords } = customDomainData ?? {};
+	const { name, value, type } = validationRecords ?? {};
+
 	const [info, setInfo] = useState({
 		customDomain: '',
 		customDomainStatus: 'Connected',
 	});
 
+	useEffect(() => {
+		if (domain?.length > 0) {
+			getCustomDomainStatus(domain);
+		}
+	}, [domain]);
+
+	useEffect(() => {
+		if (statusMessage?.length > 0) {
+			message.info(statusMessage);
+		}
+	}, [statusMessage]);
+
 	const handleSetCustomDomain = (e) => {
 		const URL = e?.target?.value;
-		// const isURLValid = isURL(URL);
-		// if (!isURLValid) return;
 		setInfo({
 			...info,
 			customDomain: URL,
 		});
+	};
+
+	const handleRequestCustomDomainConnection = async (e) => {
+		if (e?.key === 'Enter') {
+			const domain = info?.customDomain?.trim();
+
+			if (domain) {
+				const isDomainUrlValid = domainRegex.test(domain);
+				if (!isDomainUrlValid) {
+					message.error('Invalid domain URL');
+					return;
+				}
+				const [success] = await requestCustomDomainConnection(domain);
+				if (success) {
+					message.success('Domain is valid');
+				} else {
+					message.error('Domain is invalid');
+				}
+			}
+		}
 	};
 
 	return (
@@ -30,6 +75,7 @@ const CustomDomain = () => {
 					className="domainInput"
 					value={info?.customDomain}
 					onChange={handleSetCustomDomain}
+					onKeyDown={handleRequestCustomDomainConnection}
 					type="text"
 					placeholder="https://www.mycustomdomain.com"
 				/>
@@ -44,19 +90,23 @@ const CustomDomain = () => {
 			<table className="DNSRecordsTable">
 				<thead className="tableHeader">
 					<tr>
-						<th>Name</th>
 						<th>Type</th>
+						<th>Name</th>
 						<th>Value</th>
+						<th>TTL</th>
+						<th>Status</th>
 					</tr>
 				</thead>
 				<tbody className="tableBody">
 					<tr>
-						<td>www</td>
+						<td>{type}</td>
 						<td>
-							<InfoIcon />
-							CNAME
+							{/* <InfoIcon /> */}
+							{name}
 						</td>
-						<td>hello.huemn.com</td>
+						<td>{value}</td>
+						<td>600 seconds</td>
+						<td>{status}</td>
 					</tr>
 				</tbody>
 			</table>
