@@ -1,0 +1,1059 @@
+// ! common animaitons for hover and click
+
+// easeIn transition
+.easeIn {
+	transition: all 1.3s ease-in;
+	transform: scale(0.8) !important;
+}
+
+// easeOut transition
+.easeOut {
+	transition: all 1.3s ease-out;
+	transform: scale(1.2) !important;
+}
+
+// skew transition
+.skew {
+	transition: all 1.3s ease-in-out;
+	transform: skewX(20deg) !important;
+}
+
+// rotate transition
+.rotate {
+	transition: all 4s ease-in-out;
+	animation: rotate 3s linear;
+}
+@keyframes rotate {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+// reverse rotate
+.reverseRotate {
+	transition: all 4s ease-in-out;
+	animation: reverseRotate 3s linear;
+}
+@keyframes reverseRotate {
+	from {
+		transform: rotate(360deg);
+	}
+	to {
+		transform: rotate(0deg);
+	}
+}
+
+// move transition
+.move {
+	transition: all 1.3s ease;
+	transform: translateX(50px) !important;
+}
+
+// appear transition
+.appear {
+	transition: all 1.3s ease;
+	animation: common-appear 3s ease-in;
+}
+
+@keyframes common-appear {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+//! classes for hover animations
+
+// easeIn transition
+.hover-easeIn {
+	transition: all 1.3s ease-in;
+
+	&:hover {
+		transform: scale(0.8) !important;
+	}
+}
+
+// easeOut transition
+.hover-easeOut {
+	transition: all 1.3s ease-out;
+
+	&:hover {
+		transform: scale(1.2) !important;
+	}
+}
+
+// skew transition
+.hover-skew {
+	transition: all 1.3s ease-in-out;
+
+	&:hover {
+		transform: skewX(20deg) !important;
+	}
+}
+
+// rotate transition
+.hover-rotate {
+	transition: all 4s ease-in-out;
+	&:hover {
+		animation: rotate 3s linear;
+	}
+}
+@keyframes rotate {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+// reverse rotate
+.hover-reverseRotate {
+	transition: all 4s ease-in-out;
+	animation: reverseRotate 3s linear;
+}
+@keyframes reverseRotate {
+	from {
+		transform: rotate(360deg);
+	}
+	to {
+		transform: rotate(0deg);
+	}
+}
+
+// move transition
+.hover-move {
+	transition: all 1.3s ease;
+	&:hover {
+		transform: translateX(50px) !important;
+	}
+}
+
+// appear transition
+.hover-appear {
+	transition: all 1.3s ease;
+	opacity: 0 !important;
+	&:hover {
+		opacity: 1 !important;
+	}
+}
+
+//! classes for press animations
+
+// easeOut press animation
+
+.press-easeOut {
+	transition: all 1.3s ease;
+	transform: scale(1.2) !important;
+}
+.press-out-easeOut {
+	transition: all 1.3s ease;
+	transform: scale(1) !important;
+}
+// easeIn press animation
+
+.press-easeIn {
+	transition: all 1.3s ease;
+	transform: scale(0.8) !important;
+}
+.press-out-easeIn {
+	transition: all 1.3s ease;
+	transform: scale(1) !important;
+}
+
+// skew press animation
+
+.press-skew {
+	transition: all 1.3s ease;
+	transform: skewX(20deg) !important;
+}
+.press-out-skew {
+	transition: all 1.3s ease;
+	transform: skewX(0deg) !important;
+}
+
+// rotate press animation
+
+.press-rotate {
+	transition: all 4s ease;
+	animation: rotate 2s linear;
+}
+.press-out-rotate {
+	transition: all 4s ease;
+	animation: reverseRotate 2s linear;
+}
+
+// move press animation
+
+.press-move {
+	transition: all 1.3s ease;
+	transform: translateX(50px) !important;
+}
+.press-out-move {
+	transition: all 1.3s ease;
+	transform: translateX(0px) !important;
+}
+
+// appear press animation
+
+.press-appear {
+	transition: all 1.3s ease;
+	opacity: 0 !important;
+}
+.press-out-appear {
+	transition: all 1.3s ease;
+	opacity: 1 !important;
+}
+
+//! classes for loop animations
+
+// ! new breathe animation for custom adjustments
+.loop-breathe {
+	--breathe-x-distance: 0px;
+	--breathe-y-distance: 10px;
+	animation: Breathe 3s linear infinite;
+}
+@keyframes Breathe {
+	0% {
+		transform: translate(
+			calc(var(--breathe-x-distance) * -1),
+			calc(var(--breathe-y-distance) * -1)
+		);
+	}
+	25% {
+		transform: translate(var(--breathe-x-distance), var(--breathe-y-distance));
+	}
+	50% {
+		transform: translate(
+			calc(var(--breathe-x-distance) * -1),
+			calc(var(--breathe-y-distance) * -1)
+		);
+	}
+	75% {
+		transform: translate(var(--breathe-x-distance), var(--breathe-y-distance));
+	}
+	100% {
+		transform: translate(0px, 0px);
+	}
+}
+.loop-breathe-center {
+	--breathe-scale-value: 2;
+	animation: Breathe-center 3s linear infinite;
+}
+@keyframes Breathe-center {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+
+	50% {
+		transform: scale(var(--breathe-scale-value));
+	}
+}
+
+// pulse animation with adjustments
+.loop-pulse {
+	--pulse-intensity-value: 0.5;
+	animation: Pulse 5s ease-in infinite;
+}
+
+@keyframes Pulse {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+	20% {
+		transform: scale(calc(1 - var(--pulse-intensity-value)));
+	}
+	40% {
+		transform: scale(calc(1 + var(--pulse-intensity-value)));
+	}
+
+	60% {
+		transform: scale(calc(1 - var(--pulse-intensity-value)));
+	}
+	80% {
+		transform: scale(calc(1 + var(--pulse-intensity-value)));
+	}
+}
+
+// spin animation
+.loop-spin {
+	--spin-end-angle: 360deg;
+	animation: Spin 3s linear infinite;
+}
+@keyframes Spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(var(--spin-end-angle));
+	}
+}
+
+// poke animation
+.loop-poke {
+	--poke-x-distance: 25px;
+	--poke-y-distance: 0px;
+	animation: Poke 3s ease-in infinite;
+}
+
+@keyframes Poke {
+	0%,
+	100% {
+		transform: translate(0px, 0px);
+	}
+	25% {
+		transform: translate(calc(var(--poke-x-distance) * 1), calc(var(--poke-y-distance) * 1));
+	}
+	50% {
+		transform: translate(
+			calc(var(--poke-x-distance) * 1 / 2),
+			calc(var(--poke-y-distance) * 1 / 2)
+		);
+	}
+
+	75% {
+		transform: translate(calc(var(--poke-x-distance) * 1), calc(var(--poke-y-distance) * 1));
+	}
+}
+
+// flash animation
+.loop-flash {
+	animation: Flash 2.5s ease-in-out infinite;
+}
+
+@keyframes Flash {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0;
+	}
+}
+
+/* Swing animations */
+.loop-swing {
+	--swing-value: 15deg;
+	animation: Swing 2s linear infinite;
+	transform-origin: 50% 0%;
+}
+
+@keyframes Swing {
+	0%,
+	100% {
+		transform: rotate(0deg);
+	}
+	25% {
+		transform: rotate(calc(var(--swing-value) * 1));
+	}
+	50% {
+		transform: rotate(calc(var(--swing-value) * -1));
+	}
+	75% {
+		transform: rotate(calc(var(--swing-value) * 0.7));
+	}
+}
+
+/* Flip animation */
+.loop-flip {
+	--flip-Name: Flip;
+	animation: var(--flip-Name) 3s ease-in-out infinite;
+	transform-style: preserve-3d;
+}
+
+@keyframes Flip {
+	0% {
+		transform: rotateY(0deg);
+	}
+	50% {
+		transform: rotateY(180deg);
+	}
+	100% {
+		transform: rotateY(0deg);
+	}
+}
+@keyframes FlipX {
+	0% {
+		transform: rotateX(0deg);
+	}
+	50% {
+		transform: rotateX(180deg);
+	}
+	100% {
+		transform: rotateX(0deg);
+	}
+}
+
+/* Rubber Animation */
+.loop-rubber {
+	--rubber-intensity-value: 1;
+	animation: Rubber 2s ease-in-out infinite;
+}
+
+@keyframes Rubber {
+	0%,
+	100% {
+		transform: scaleX(1);
+	}
+	30% {
+		transform: scaleX(calc(var(--rubber-intensity-value) * 1.25))
+			scaleY(calc(var(--rubber-intensity-value) * 0.75));
+	}
+	40% {
+		transform: scaleX(calc(var(--rubber-intensity-value) * 0.75))
+			scaleY(calc(var(--rubber-intensity-value) * 1.25));
+	}
+	60% {
+		transform: scaleX(calc(var(--rubber-intensity-value) * 1.15))
+			scaleY(calc(var(--rubber-intensity-value) * 0.85));
+	}
+}
+
+//  jello animation
+.loop-jello {
+	--jello-skew-value: 25deg;
+	animation: Jello 2s ease-in-out infinite;
+}
+
+@keyframes Jello {
+	0%,
+	100% {
+		transform: skewX(0deg) skewY(0deg);
+	}
+	30% {
+		transform: skewX(calc(var(--jello-skew-value) * 1)) skewY(calc(var(--jello-skew-value) * 1));
+	}
+	40% {
+		transform: skewX(calc(var(--jello-skew-value) * -1 / 2))
+			skewY(calc(var(--jello-skew-value) * -1 / 2));
+	}
+	50% {
+		transform: skewX(calc(var(--jello-skew-value) * 1 / 2))
+			skewY(calc(var(--jello-skew-value) * 1 / 2));
+	}
+	65% {
+		transform: skewX(calc(var(--jello-skew-value) * -1 / 4))
+			skewY(calc(var(--jello-skew-value) * -1 / 4));
+	}
+	75% {
+		transform: skewX(calc(var(--jello-skew-value) * 1 / 4))
+			skewY(calc(var(--jello-skew-value) * 1 / 4));
+	}
+}
+
+/* Bounce animation */
+.loop-bounce {
+	--bounce-value: 30px;
+	animation: Bounce 1s ease-in-out infinite;
+}
+
+@keyframes Bounce {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	20% {
+		transform: translateY(calc(var(--bounce-value) * -1));
+	}
+	40% {
+		transform: translateY(calc(var(--bounce-value) * 1 / 2));
+	}
+	60% {
+		transform: translateY(calc(var(--bounce-value) * -1 / 2));
+	}
+	80% {
+		transform: translateY(calc(var(--bounce-value) * 1 / 3));
+	}
+}
+
+/* Wiggle animation */
+.loop-wiggle {
+	--wiggle-value: 15deg;
+	animation: Wiggle 1s linear infinite;
+}
+
+@keyframes Wiggle {
+	0%,
+	100% {
+		transform: rotate(0deg);
+	}
+	20% {
+		transform: rotate(calc(var(--wiggle-value) * 1));
+	}
+	40% {
+		transform: rotate(calc(var(--wiggle-value) * -1));
+	}
+	60% {
+		transform: rotate(calc(var(--wiggle-value) * 0.7));
+	}
+	80% {
+		transform: rotate(calc(var(--wiggle-value) * -0.7));
+	}
+}
+
+// flap Animation
+//? origin values
+// 50% 0% = top
+// 50% 100% = bottom
+// 0% 50% = left
+// 100% 50% =  right
+
+.loop-flap {
+	--flap-name: FlapY;
+	--flap-origin-value: 50% 0%;
+	--flap-perspective: 800px;
+	--flap-intensity-value: 22.7deg;
+	transform-origin: var(--flap-origin-value);
+	animation: var(--flap-name) 2s ease-in-out infinite alternate;
+}
+
+@keyframes FlapY {
+	0% {
+		transform: rotateZ(0deg) translateX(0%) perspective(var(--flap-perspective))
+			rotateX(calc(var(--flap-intensity-value) * 1));
+	}
+	50% {
+		transform: rotateZ(0deg) translateX(0%) perspective(var(--flap-perspective))
+			rotateX(calc(var(--flap-intensity-value) * -1));
+	}
+	100% {
+		transform: rotateZ(0deg) translateX(0%) perspective(var(--flap-perspective)) rotateX(0);
+	}
+}
+@keyframes FlapX {
+	0% {
+		transform: perspective(var(--flap-perspective))
+			rotateY(calc(var(--flap-intensity-value) * 1));
+	}
+	50% {
+		transform: perspective(var(--flap-perspective))
+			rotateY(calc(var(--flap-intensity-value) * -1));
+	}
+	100% {
+		transform: perspective(var(--flap-perspective)) rotateY(0);
+	}
+}
+
+// cross Animation
+.loop-cross {
+	// animation: Cross 10s linear infinite;
+	--cross-x-distance: 200px;
+	--cross-y-distance: 0px;
+	animation: Cross 5s linear infinite;
+}
+
+@keyframes Cross {
+	// ! old way
+	// from {
+	// 	transform: translateX(-100%);
+	// }
+	// to {
+	// 	transform: translateX(100%);
+	// }
+	// ! new way
+	0%,
+	70%,
+	100% {
+		transform: translate(0, 0);
+		opacity: 1;
+	}
+	30% {
+		opacity: 0;
+		transform: translate(calc(var(--cross-x-distance) * 1), calc(var(--cross-y-distance) * 1));
+	}
+	50% {
+		transform: translate(
+			calc(var(--cross-x-distance) * -1),
+			calc(var(--cross-y-distance) * -1)
+		);
+		opacity: 0;
+	}
+}
+
+//! scroll animations
+
+//scroll fade animation
+.scroll-fade {
+	animation-delay: 0.5s;
+	animation: ScrollFade 4s ease-out forwards;
+	--starting-opacity: 0;
+}
+@keyframes ScrollFade {
+	0% {
+		opacity: var(--starting-opacity);
+	}
+	100% {
+		opacity: 1;
+	}
+}
+//Scroll Move Animation
+
+.scroll-move {
+	--breathe-x-distance: 0px;
+	--breathe-y-distance: 0px;
+	animation: ScrollMove 2s ease-out forwards;
+	animation-delay: 0.5s;
+}
+
+@keyframes ScrollMove {
+	0% {
+		transform: translate(var(--breathe-x-distance), var(--breathe-y-distance));
+		opacity: 0;
+	}
+	100% {
+		transform: translate(0, 0);
+		opacity: 1;
+	}
+}
+
+//Scroll Expand Animation
+.scroll-expand {
+	animation: ScrollExpand var(--expand-speed, 3s) ease-out forwards;
+	--expand-x: 0px;
+	--expand-y: 0px;
+	--expand-scale: 1;
+}
+
+@keyframes ScrollExpand {
+	0% {
+		transform: translate(var(--expand-x), var(--expand-y)) scale(var(--expand-scale));
+	}
+	100% {
+		transform: translate(0, 0) scale(1);
+	}
+}
+
+//Shrink animation on div
+.scroll-shrink {
+	animation: ScrollShrink var(--shrink-speed, 2s) ease-out forwards;
+	--shrink-x: 0px;
+	--shrink-y: 0px;
+	--shrink-scale: 1;
+}
+
+@keyframes ScrollShrink {
+	0% {
+		transform: translate(var(--shrink-x), var(--shrink-y)) scale(var(--shrink-scale));
+		opacity: 1;
+	}
+	100% {
+		transform: translate(0, 0) scale(1);
+		opacity: 1;
+	}
+}
+
+// Spin animation on div
+.scroll-spin {
+	animation: ScrollSpin 3s ease-in-out forwards;
+	--spin-rotate: 360deg;
+	--spin-scale: 1;
+}
+
+@keyframes ScrollSpin {
+	0% {
+		transform: scale(var(--spin-scale)) rotate(calc(var(--spin-rotate) * 0.5));
+	}
+	100% {
+		transform: scale(1) rotate(var(--spin-rotate));
+	}
+}
+
+// Slide animation on div
+.scroll-slide {
+	animation: ScrollSlide 2s ease-out forwards;
+}
+
+@keyframes ScrollSlide {
+	0% {
+		transform: var(--slide-translate, translateY(100%));
+	}
+	100% {
+		transform: translate(0, 0);
+	}
+}
+
+// blurIn Animation in div
+.scroll-blur {
+	animation: ScrollBlurIn 3s ease-out forwards;
+}
+
+@keyframes ScrollBlurIn {
+	0% {
+		filter: blur(var(--blur-intensity, 5px));
+	}
+	100% {
+		filter: blur(0px);
+	}
+}
+
+// reveal Animation on div
+.scroll-reveal {
+	--clip-start: inset(100% 0 0 0);
+	animation: scrollReveal 2s ease-out forwards;
+}
+
+@keyframes scrollReveal {
+	0% {
+		clip-path: var(--clip-start);
+		opacity: 0;
+	}
+	100% {
+		clip-path: inset(0 0 0 0);
+		opacity: 1;
+	}
+}
+
+// 3dspin animations on div
+.scroll-3dspin {
+	opacity: 1;
+	animation-name: scroll3dspin;
+	animation-timing-function: ease-out;
+	animation-fill-mode: forwards;
+}
+
+@keyframes scroll3dspin {
+	0% {
+		transform: perspective(1000px) rotate3d(1, 1, 0, var(--spin-angle, 150deg))
+			scale3d(0.2, 0.2, 0.2);
+	}
+	50% {
+		transform: perspective(1000px) rotate3d(1, 1, 0, calc(var(--spin-angle, 150deg) * 0.5))
+			scale3d(0.6, 0.6, 0.6);
+	}
+	100% {
+		transform: perspective(1000px) rotate3d(1, 1, 0, 0deg) scale3d(1, 1, 1);
+	}
+}
+
+//fly Animations on div
+.scroll-fly {
+	opacity: 1;
+	animation: ScrollFly 3s ease-out forwards;
+}
+
+@keyframes ScrollFly {
+	0% {
+		transform: var(--fly-translate) var(--fly-skew);
+		opacity: 1;
+	}
+	100% {
+		transform: translate(0, 0);
+		opacity: 1;
+	}
+}
+
+//turn Animations on div
+.scroll-turn {
+	opacity: 1;
+	animation: ScrollTurn 3s ease-out forwards;
+}
+
+@keyframes ScrollTurn {
+	0% {
+		transform: translate3d(var(--turn-x), 0, -200px) rotateZ(var(--turn-rotate))
+			scale3d(var(--turn-scale), var(--turn-scale), var(--turn-scale));
+	}
+	100% {
+		transform: translate3d(0, 0, 0) rotateZ(0deg) scale3d(1, 1, 1);
+	}
+}
+
+// tilt animation
+.scroll-tilt {
+	opacity: 1;
+	animation: ScrollTilt var(--tilt-speed, 3s) ease-out forwards;
+	--rotate-y: -25deg;
+	--rotate: 25deg;
+}
+
+@keyframes ScrollTilt {
+	0% {
+		transform: perspective(400px) translateY(0px) translateZ(-50px) rotateX(-10deg)
+			rotateY(var(--rotate-y)) rotate(var(--rotate)) scale3d(0.95, 0.95, 0.95);
+		opacity: 1;
+	}
+
+	100% {
+		transform: perspective(400px) translateY(0px) translateZ(0) rotateX(0deg) rotateY(0deg)
+			rotate(0deg) scale3d(1, 1, 1);
+		opacity: 1;
+	}
+}
+
+// stretch animation
+.scroll-stretch {
+	animation: scrollStretch 2s ease-out forwards;
+}
+
+@keyframes scrollStretch {
+	0% {
+		transform: perspective(400px) scaleX(calc(2 - var(--stretch-scale, 1)))
+			scaleY(var(--stretch-scale, 1)) translateY(calc((1 - var(--stretch-scale, 1)) * 100%));
+		opacity: 1;
+	}
+	100% {
+		transform: perspective(400px) scaleX(1) scaleY(1) translateY(0);
+		opacity: 1;
+	}
+}
+
+// flip animation
+.scroll-flip {
+	animation: ScrollFlip 3s ease-in-out forwards;
+	--flip-rotate: rotateY(-240deg);
+}
+
+@keyframes ScrollFlip {
+	0% {
+		transform: perspective(800px) var(--flip-rotate) scale3d(0.95, 0.95, 0.95);
+		opacity: 1;
+	}
+
+	100% {
+		transform: perspective(800px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1);
+		opacity: 1;
+	}
+}
+
+//scroll parallax animation
+.scroll-parallax {
+	animation: ScrollParallax 4s ease-out forwards;
+	opacity: 1;
+	--parallax-intensity: -1;
+}
+@keyframes ScrollParallax {
+	0% {
+		transform: translateY(calc(var(--parallax-intensity) * 259.524px));
+	}
+
+	10% {
+		transform: translateY(calc(var(--parallax-intensity) * 153.465px));
+	}
+
+	80% {
+		transform: translateY(calc(var(--parallax-intensity) * 25.4561px));
+	}
+
+	100% {
+		transform: translateY(0px);
+	}
+}
+
+.scroll-arc {
+	opacity: 1;
+	animation: ScrollArc 6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+	--arc-direction: vertical;
+}
+
+@keyframes ScrollArc {
+	0% {
+		transform: perspective(3000px) translateZ(-800px) rotateX(var(--arc-rotate-x, -55deg))
+			rotateY(var(--arc-rotate-y, 0deg)) translateZ(800px) scale3d(1.3, 1.3, 1.3);
+		opacity: 1;
+	}
+
+	100% {
+		transform: perspective(3000px) translateZ(0px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1);
+		opacity: 1;
+	}
+}
+
+// shape animation
+.scroll-shape {
+	animation: ScrollShape 3s ease-out forwards;
+	clip-path: var(--shape-clip-start);
+}
+
+@keyframes ScrollShape {
+	0% {
+		clip-path: var(--shape-clip-start);
+	}
+	50% {
+		clip-path: var(--shape-clip-mid);
+	}
+	100% {
+		clip-path: var(--shape-clip-end);
+	}
+}
+
+// .scroll-shutters {
+// 	animation: ScrollShutters 3s ease-out;
+// }
+
+// @keyframes ScrollShutters {
+// 	0% {
+// 		clip-path: polygon(
+// 			0% 0%,
+// 			0% 100%,
+// 			0% 100%,
+// 			0% 0%,
+// 			8% 0%,
+// 			8% 100%,
+// 			8% 100%,
+// 			8% 0%,
+// 			16% 0%,
+// 			16% 100%,
+// 			16% 100%,
+// 			16% 0%,
+// 			25% 0%,
+// 			25% 100%,
+// 			25% 100%,
+// 			25% 0%,
+// 			33% 0%,
+// 			33% 100%,
+// 			33% 100%,
+// 			33% 0%,
+// 			41% 0%,
+// 			41% 100%,
+// 			41% 100%,
+// 			41% 0%,
+// 			50% 0%,
+// 			50% 100%,
+// 			50% 100%,
+// 			50% 0%
+// 		);
+// 	}
+
+// 	50% {
+// 		clip-path: polygon(
+// 			0% 0%,
+// 			0% 100%,
+// 			2.08% 100%,
+// 			2.08% 0%,
+// 			8% 0%,
+// 			8% 100%,
+// 			10.61% 100%,
+// 			10.61% 0%,
+// 			16% 0%,
+// 			16% 100%,
+// 			19.39% 100%,
+// 			19.39% 0%,
+// 			25% 0%,
+// 			25% 100%,
+// 			29.17% 100%,
+// 			29.17% 0%,
+// 			33% 0%,
+// 			33% 100%,
+// 			38.74% 100%,
+// 			38.74% 0%,
+// 			41% 0%,
+// 			41% 100%,
+// 			48.57% 100%,
+// 			48.57% 0%
+// 		);
+// 	}
+
+// 	100% {
+// 		clip-path: polygon(
+// 			0% 0%,
+// 			0% 100%,
+// 			7.96% 100%,
+// 			7.96% 0%,
+// 			8% 0%,
+// 			8% 100%,
+// 			17.96% 100%,
+// 			17.96% 0%,
+// 			16% 0%,
+// 			16% 100%,
+// 			28.94% 100%,
+// 			28.94% 0%,
+// 			25% 0%,
+// 			25% 100%,
+// 			40.93% 100%,
+// 			40.93% 0%,
+// 			33% 0%,
+// 			33% 100%,
+// 			54.91% 100%,
+// 			54.91% 0%,
+// 			41% 0%,
+// 			41% 100%,
+// 			69.88% 100%,
+// 			69.88% 0%
+// 		);
+// 	}
+// }
+
+.scroll-shutters {
+	clip-path: polygon(
+		0% 0%,
+		20% 0%,
+		20% 100%,
+		20% 100%,
+		20% 0%,
+		40% 0%,
+		40% 100%,
+		40% 100%,
+		40% 0%,
+		60% 0%,
+		60% 100%,
+		60% 100%,
+		60% 0%,
+		80% 0%,
+		80% 100%,
+		80% 100%,
+		80% 0%,
+		100% 0%,
+		100% 100%,
+		0% 100%
+	);
+	animation: shutters 1s forwards;
+	background: transparent;
+}
+
+@keyframes shutters {
+	0% {
+		clip-path: polygon(
+			0% 0%,
+			20% 0%,
+			20% 100%,
+			20% 100%,
+			20% 0%,
+			40% 0%,
+			40% 100%,
+			40% 100%,
+			40% 0%,
+			60% 0%,
+			60% 100%,
+			60% 100%,
+			60% 0%,
+			80% 0%,
+			80% 100%,
+			80% 100%,
+			80% 0%,
+			100% 0%,
+			100% 100%,
+			0% 100%
+		);
+	}
+	100% {
+		clip-path: polygon(
+			20% 0%,
+			20% 0%,
+			20% 100%,
+			40% 100%,
+			40% 0%,
+			40% 0%,
+			40% 100%,
+			60% 100%,
+			60% 0%,
+			60% 0%,
+			60% 100%,
+			80% 100%,
+			80% 0%,
+			80% 0%,
+			80% 100%,
+			100% 100%,
+			100% 0%,
+			100% 0%,
+			100% 100%,
+			20% 100%
+		);
+	}
+}

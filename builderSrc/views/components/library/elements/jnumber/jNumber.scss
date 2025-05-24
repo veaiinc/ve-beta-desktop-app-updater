@@ -1,0 +1,24 @@
+.j-number-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 85px;
+	height: 85px;
+	border-radius: 67px;
+	
+	// border-color: greenyellow;
+	span {
+		width: 80px;
+		height: 80px;
+		border-radius: 67px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		color: #fff;
+		font-family: Lato;
+		font-size: 40px;
+		font-style: normal;
+		font-weight: 600;
+		line-height: 110%; /* 44px */
+	}
+}

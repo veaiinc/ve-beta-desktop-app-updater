@@ -1,0 +1,345 @@
+import React, { Component } from 'react';
+import '../../../assets/scss/header.scss';
+import { ReactComponent as Back } from '../../../assets/svg/back.svg';
+import PageIcon from '../library/svgs/header/PagesComponent';
+import { ReactComponent as Desktop } from '../../../assets/svg/smartFile/Desktop.svg';
+import { ReactComponent as Mobile } from '../../../assets/svg/smartFile/Mobile.svg';
+import { ReactComponent as Divider } from '../../../assets/svg/smartFile/Divider.svg';
+import { ReactComponent as Settings } from '../../../assets/svg/Settings/Settings.svg';
+import { withRouter } from '../../../services/withRouter';
+import Title from './title';
+import { Tooltip } from 'antd';
+import { Threedots } from '../builder_client_common';
+
+class Header extends Component {
+	constructor(props) {
+		super();
+		this.state = {
+			title: props.title,
+			preview: props.preview,
+			previewType: props.previewType,
+			isSaveLoading: props.isSaveLoading,
+			isPublishLoading: props.isPublishLoading,
+			modules: props.modules,
+			module: props.module,
+			activeModuleId: props.activeModuleId,
+			mobileViewLocked: props.mobileViewLocked,
+			showHeaderPopup: false,
+			isWorkflow: props.isWorkflow,
+			isShare: false,
+			isEmbed: false,
+			isThreeDotsDropdown: false,
+			isFormTemplate: props.isFormTemplate,
+		};
+		this.threeDotsDropdownRef = React.createRef();
+	}
+	componentDidMount() {
+		const queryString = window.location.search;
+		const urlParams = new URLSearchParams(queryString);
+		const isEmbed = urlParams?.get('isEmbed');
+		if (isEmbed) {
+			this.setState({ isEmbed: true });
+		}
+		document.addEventListener('mousedown', this.handleClickOutside);
+	}
+	componentWillReceiveProps = (nextProps) => {
+		if (this.state.title !== nextProps.title) {
+			this.setState({
+				title: nextProps.title,
+			});
+		}
+		if (this.state.isFormTemplate !== nextProps.isFormTemplate) {
+			this.setState({
+				isFormTemplate: nextProps.isFormTemplate,
+			});
+		}
+		if (this.state.activeModuleId !== nextProps.activeModuleId) {
+			this.setState({
+				activeModuleId: nextProps.activeModuleId,
+			});
+		}
+		if (this.state.mobileViewLocked !== nextProps.mobileViewLocked) {
+			this.setState({
+				mobileViewLocked: nextProps.mobileViewLocked,
+			});
+		}
+		if (this.state.preview !== nextProps.preview) {
+			this.setState({
+				preview: nextProps.preview,
+			});
+		}
+		if (this.state.previewType !== nextProps.previewType) {
+			this.setState({
+				previewType: nextProps.previewType,
+			});
+		}
+		if (this.state.isSaveLoading !== nextProps.isSaveLoading) {
+			this.setState({
+				isSaveLoading: nextProps.isSaveLoading,
+			});
+		}
+		if (this.state.isPublishLoading !== nextProps.isPublishLoading) {
+			this.setState({
+				isPublishLoading: nextProps.isPublishLoading,
+			});
+		}
+		if (this.state.modules !== nextProps.modules) {
+			this.setState({
+				modules: nextProps.modules,
+			});
+		}
+		if (this.state.module !== nextProps.module) {
+			this.setState({
+				module: nextProps.module,
+			});
+		}
+		if (this.state.isWorkflow !== nextProps.isWorkflow) {
+			this.setState({
+				isWorkflow: nextProps.isWorkflow,
+			});
+		}
+	};
+	componentWillUnmount() {
+		document.removeEventListener('mousedown', this.handleClickOutside);
+	}
+	handleClickOutside = (event) => {
+		if (
+			this.threeDotsDropdownRef.current &&
+			!this.threeDotsDropdownRef.current.contains(event.target)
+		) {
+			this.setState({ isThreeDotsDropdown: false });
+		}
+	};
+	handlePreview = (type, e) => {
+		if (e === 'd') {
+			this.setState(
+				{
+					previewType: 'd',
+					preview: false,
+				},
+				() => {
+					this.props.setPreview('d', false);
+				},
+			);
+		} else {
+			this.setState(
+				{
+					preview: true,
+					previewType: e,
+				},
+				() => {
+					this.props.setPreview(e, type);
+				},
+			);
+		}
+	};
+	handleShare = () => {
+		this.setState({ isShare: true }, () => {
+			this.props.handleShare(this.state.isShare);
+		});
+	};
+	// togglePreview = (type, e) => {
+	// 	this.setState({
+	// 		preview: type,
+	// 		previewType: this.state.previewType === 'ml' ? 'm' : 'ml',
+	// 	})
+	// }
+
+	handleSettingEnabled = () => {
+		this.setState(
+			{
+				settingEnabled: true,
+			},
+			() => {
+				this.props.setSettingEnabled();
+			},
+		);
+	};
+
+	handlePublish = async (e) => {
+		this.setState({ isLoader: true });
+		await this.props.publish(e);
+		// window.history.back();
+	};
+
+	render() {
+		return (
+			<div className="template-header">
+				<div className="h-left">
+					<span
+						style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
+						className="tooltip"
+						onClick={(e) => {
+							if (this.state.preview) {
+								this.handlePreview(false, 'd');
+							} else {
+								window.history.back();
+							}
+						}}
+					>
+						<>
+							<Tooltip title="Back" placement="bottom">
+								<Back />
+							</Tooltip>
+
+							<span>
+								{this.state.isWorkflow ? (
+									<div className="document-name">Document</div>
+								) : this.state.isFormTemplate ? (
+									<div className="template-name">Form</div>
+								) : (
+									<div className="template-name">Template</div>
+								)}
+							</span>
+						</>
+					</span>
+
+					<Title
+						title={this.state.title}
+						updatePublishedTemplate={this.props.updatePublishedTemplate}
+						isWorkflow={this.state.isWorkflow}
+					/>
+				</div>
+
+				{/* <div className="h-center">{this.renderModules()}</div> */}
+
+				<div className="h-right">
+					<div className="device-view">
+						<Tooltip title="Desktop View" placement="bottom">
+							<span
+								onClick={() => this.handlePreview(false, 'd')}
+								className={`tooltip ${
+									this.state.previewType === 'd' ? 'active' : ''
+								}`}
+								style={{ cursor: 'pointer' }}
+							>
+								<Desktop />
+							</span>
+						</Tooltip>
+						<Tooltip title="Mobile View" placement="bottom">
+							<span
+								onClick={() => this.handlePreview(true, 'm')}
+								className={`tooltip ${
+									this.state.previewType === 'm' && this.state.preview
+										? 'active'
+										: ''
+								}`}
+								style={{ cursor: 'pointer' }}
+							>
+								<Mobile />
+							</span>
+						</Tooltip>
+					</div>
+
+					{this.state.previewType === 'm' ? null : (
+						<>
+							<Divider />
+							<div className="page-settings">
+								<span className="h-right-icons">
+									<Tooltip title="Manage Pages" placement="bottom">
+										<span
+											className="h-right-pages no-path-fill"
+											onClick={(e) => {
+												this.setState({ isLoader: true }, () => {
+													this.props.managePages(e);
+												});
+											}}
+										>
+											<PageIcon />
+											<span className="page-count">
+												{this.props.duplicateModules?.length}
+											</span>
+										</span>
+									</Tooltip>
+								</span>
+								<span className="h-right-icons">
+									<Tooltip title="Theme Settings" placement="bottom">
+										<span
+											className="h-right-pages no-path-fill"
+											onClick={this.props?.showThemeSettings}
+										>
+											<Settings />
+										</span>
+									</Tooltip>
+								</span>
+							</div>
+							{!this.state.isEmbed && <Divider />}
+						</>
+					)}
+
+					{this.props.isWorkflow && this.state.previewType === 'm' ? (
+						<>
+							<span
+								className="h-right-publish"
+								style={{ textTransform: 'capitalize' }}
+							>
+								Edit Details
+							</span>
+							<span
+								className="h-right-publish"
+								onClick={() => this.handleShare()}
+								style={{ textTransform: 'capitalize' }}
+							>
+								Share
+							</span>
+						</>
+					) : this.state.previewType === 'm' ? null : !this.state.isEmbed ? (
+						<>
+							<span
+								className="h-right-publish"
+								onClick={(e) => {
+									this.setState({ isLoader: true }, () => {
+										this.props.publish(e);
+									});
+								}}
+								style={{ textTransform: 'capitalize' }}
+							>
+								{this.state.isPublishLoading ? 'Saving...' : 'Save'}
+							</span>
+							<span
+								onClick={(e) => {
+									e.stopPropagation();
+									this.setState({
+										isThreeDotsDropdown: !this.state.isThreeDotsDropdown,
+									});
+								}}
+								className="three-dots-svg"
+							>
+								<Threedots />
+								{this.state.isThreeDotsDropdown && (
+									<div
+										ref={this.threeDotsDropdownRef}
+										className="three-dots-svg-dropdown"
+									>
+										{['Duplicate', 'Delete'].map((item) => (
+											<span
+												className="three-dots-svg-dropdown-item"
+												onClick={(e) => {
+													e.stopPropagation();
+													if (item === 'Delete') {
+														this.props?.handleDeleteOpen(true);
+													} else {
+														this.props?.handleDuplicateTemplate();
+													}
+												}}
+												style={{
+													color:
+														item === 'Delete' ? '#C03744' : '#E4E5E6',
+												}}
+												key={item}
+											>
+												{item}
+											</span>
+										))}
+									</div>
+								)}
+							</span>
+						</>
+					) : null}
+				</div>
+			</div>
+		);
+	}
+}
+
+export default withRouter(Header);

@@ -1,0 +1,1000 @@
+import React, { memo, useState, useCallback, useEffect, useContext, useMemo } from 'react';
+import '../../../assets/scss/document/index.scss';
+import '../../../assets/scss/document/clientSelection.scss';
+import withRouter from '../../../hooks';
+import { Tooltip, message } from 'antd';
+import Context from '../../../context/context';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/UpdateClient/Search.svg';
+import { ReactComponent as VerifiedSvg } from '../../../assets/svg/Vector.svg';
+import Spinner from '../../components/loaders/Spinner';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ReactComponent as MailIcon } from '../../../views/components/library/svgs/logicform/email.svg';
+import { ReactComponent as PhoneIcon } from '../../../assets/svg/questionTypes/phoneNumber.svg';
+import { ReactComponent as Plus } from '../../../assets/svg/document/plus.svg';
+import { ReactComponent as DocumentPreview } from '../../../assets/svg/document/documentrightside.svg';
+// ClientSelectionTooltip Component
+const ClientSelectionTooltip = ({ handleOptionSelection, clientsList, getClientList }) => {
+	const [searchQuery, setSearchQuery] = useState('');
+	const [searchTimeout, setSearchTimeout] = useState(null);
+	const filteredClients = useMemo(() => {
+		return clientsList || [];
+	}, [clientsList]);
+
+	const handleSearchChange = (e) => {
+		const value = e.target.value;
+		setSearchQuery(value);
+
+		// Clear previous timeout
+		if (searchTimeout) {
+			clearTimeout(searchTimeout);
+		}
+
+		// Set new timeout for debounced API call
+		const timeout = setTimeout(() => {
+			getClientList({
+				filters: {
+					page: 1,
+					limit: 100,
+					name: value.trim() || undefined, // Pass search term to API, undefined if empty
+				},
+			});
+		}, 300);
+
+		setSearchTimeout(timeout);
+	};
+
+	// Cleanup timeout on component unmount
+	useEffect(() => {
+		return () => {
+			if (searchTimeout) {
+				clearTimeout(searchTimeout);
+			}
+		};
+	}, [searchTimeout]);
+
+	return (
+		<div className="clientSelectionTooltipContainer">
+			<div className="clientSearch">
+				<SearchIcon />
+				<input
+					type="text"
+					placeholder="Search client here"
+					value={searchQuery}
+					onChange={handleSearchChange}
+					onClick={(e) => e.stopPropagation()}
+				/>
+			</div>
+
+			<div className="createAddClientOption" onClick={() => handleOptionSelection('addNew')}>
+				<Plus /> Add Client
+			</div>
+
+			<div className="existingClientContainer">
+				{filteredClients.length > 0 ? (
+					filteredClients.map((client) => {
+						const clientData = JSON.parse(client.value);
+						return (
+							<div
+								className="clientDetailsCard"
+								key={client._id}
+								onClick={() => handleOptionSelection('existing', clientData)}
+							>
+								<div className="clientDetailsContainer">
+									<span className="clientDetailsNameText">{clientData.name}</span>
+									{clientData.email && (
+										<span className="clientEmailText">{clientData.email}</span>
+									)}
+									{clientData.phoneNumber && (
+										<span className="clientPhoneNumberText">
+											{clientData.phoneNumber}
+										</span>
+									)}
+								</div>
+							</div>
+						);
+					})
+				) : (
+					<div className="noResultsContainer">No clients found</div>
+				)}
+			</div>
+		</div>
+	);
+};
+
+const CreateDocument = () => {
+	const navigate = useNavigate();
+	const [searchParams] = useSearchParams();
+	const formResponseIdfromParams = searchParams.get('formResponseId');
+	const {
+		templates: {
+			getClientList,
+			clientList,
+			getMyWorkflows,
+			myWorkflows,
+			createSmartfile,
+			createLeadfromTemplates,
+		},
+	} = useContext(Context);
+
+	const [stageInfo, setStageInfo] = useState({
+		clientDetails: { name: '', email: '', phoneNumber: '' },
+		clientEditable: false,
+		isNewClient: false,
+		clientSelection: false,
+		showClientSelectionToolTip: false,
+		showTemplateList: false,
+		selectedTemplate: null,
+		showDocumentName: false,
+		documentName: '',
+		searchQuery: '',
+		searchChanged: false,
+		selectedFilter: 'All',
+		loading: false,
+		templates: [],
+		clientData: [],
+		isCreating: false,
+		completedSteps: [],
+		currentStep: 1,
+		isCreateButtonActive: false,
+		isNewClientFromUrl: false,
+	});
+
+	const steps = [
+		{ id: 1, title: 'Step 1', description: 'Fill client details' },
+		{ id: 2, title: 'Step 2', description: 'Select Template' },
+		{ id: 3, title: 'Step 3', description: 'Create Document' },
+		{ id: 4, title: 'Step 4', description: 'Fill Document Details' },
+		{ id: 5, title: 'Step 5', description: 'Share Document' },
+	];
+
+	// Check URL parameters and set initial client details
+	useEffect(() => {
+		const name = searchParams.get('name') || '';
+		const email = searchParams.get('email') || '';
+		const phoneNumber = searchParams.get('phoneNumber') || '';
+		if (name || email || phoneNumber) {
+			setStageInfo((prev) => ({
+				...prev,
+				clientDetails: { name, email, phoneNumber },
+				clientEditable: false,
+				isNewClient: true,
+				isNewClientFromUrl: true,
+				clientSelection: true,
+			}));
+		}
+	}, [searchParams]);
+
+	// Fetch client list and templates
+	useEffect(() => {
+		getClientList({
+			filters: { page: 1, limit: 100 },
+		});
+		getTemplatesData(1);
+	}, []);
+
+	useEffect(() => {
+		if (clientList?.data) {
+			const clientData = clientList.data.map((client) => ({
+				label: client.name,
+				value: JSON.stringify(client),
+				_id: client._id,
+			}));
+			setStageInfo((prev) => ({ ...prev, clientData }));
+		}
+	}, [clientList]);
+
+	useEffect(() => {
+		if (myWorkflows?.data) {
+			setStageInfo((prev) => ({
+				...prev,
+				templates: myWorkflows.data,
+				loading: false,
+			}));
+		}
+	}, [myWorkflows]);
+
+	useEffect(() => {
+		if (stageInfo.searchChanged) {
+			handleDebounceFetchSearchResults();
+		}
+	}, [stageInfo.searchQuery, stageInfo.searchChanged, stageInfo.selectedFilter]);
+
+	// Step progression logic
+	useEffect(() => {
+		// Step 1: Client Details
+		if (
+			stageInfo.clientSelection &&
+			stageInfo.clientDetails.name &&
+			(stageInfo.clientDetails.email || stageInfo.clientDetails.phoneNumber)
+		) {
+			markStepAsCompleted(1);
+			if (stageInfo.currentStep === 1) {
+				moveToNextStep();
+			}
+		}
+
+		// Step 2: Template Selection
+		if (stageInfo.selectedTemplate) {
+			markStepAsCompleted(2);
+			if (stageInfo.currentStep === 2) {
+				moveToNextStep();
+			}
+			setStageInfo((prev) => ({ ...prev, isCreateButtonActive: true }));
+		}
+	}, [
+		stageInfo.clientSelection,
+		stageInfo.clientDetails,
+		stageInfo.selectedTemplate,
+		stageInfo.currentStep,
+	]);
+
+	const isStepCompleted = (stepId) => {
+		return stageInfo.completedSteps.includes(stepId);
+	};
+
+	const markStepAsCompleted = (stepId) => {
+		if (!isStepCompleted(stepId)) {
+			setStageInfo((prev) => ({
+				...prev,
+				completedSteps: [...prev.completedSteps, stepId],
+			}));
+		}
+	};
+
+	const moveToNextStep = () => {
+		if (stageInfo.currentStep < 5) {
+			setStageInfo((prev) => ({
+				...prev,
+				currentStep: prev.currentStep + 1,
+			}));
+		}
+	};
+
+	const getTemplatesData = useCallback(
+		(page) => {
+			const payload = {
+				filters: {
+					limit: 100,
+					page: page,
+					type: 'workspace',
+					status: 'published',
+					sortBy: 'createdAt',
+					sortType: -1,
+				},
+			};
+			if (stageInfo.searchChanged) {
+				payload.filters.title = stageInfo.searchQuery || '';
+			}
+			if (stageInfo.selectedFilter !== 'All') {
+				payload.filters.action = stageInfo.selectedFilter;
+			}
+			getMyWorkflows(payload);
+		},
+		[stageInfo.searchQuery, stageInfo.searchChanged, stageInfo.selectedFilter],
+	);
+
+	const handleDebounceFetchSearchResults = useCallback(() => {
+		clearTimeout(stageInfo.timeout);
+		const timeout = setTimeout(() => {
+			getTemplatesData(1);
+		}, 500);
+		setStageInfo((prev) => ({ ...prev, timeout }));
+	}, [stageInfo]);
+
+	const closeToolTip = useCallback(() => {
+		setStageInfo((prev) => ({
+			...prev,
+			showClientSelectionToolTip: !prev.showClientSelectionToolTip,
+		}));
+	}, []);
+
+	const handleOptionSelection = useCallback((type, data) => {
+		let obj = {};
+		if (type === 'addNew') {
+			obj = {
+				clientDetails: { name: '', email: '', phoneNumber: '' },
+				clientEditable: true,
+				isNewClient: true,
+				clientSelection: true,
+			};
+		} else {
+			obj = {
+				clientDetails: {
+					name: data.name || '',
+					email: data.email || '',
+					phoneNumber: data.phoneNumber || '',
+				},
+				clientEditable: false,
+				isNewClient: false,
+				clientSelection: true,
+			};
+		}
+		setStageInfo((prev) => ({
+			...prev,
+			...obj,
+			showClientSelectionToolTip: false,
+		}));
+	}, []);
+
+	const handleInputChange = useCallback((e, type) => {
+		const value = e.target.value;
+		setStageInfo((prev) => ({
+			...prev,
+			clientDetails: { ...prev.clientDetails, [type]: value },
+		}));
+	}, []);
+
+	const handleTemplateSearch = useCallback((e) => {
+		setStageInfo((prev) => ({
+			...prev,
+			searchQuery: e.target.value,
+			searchChanged: true,
+			loading: true,
+		}));
+	}, []);
+
+	const handleTemplateSelect = useCallback((template) => {
+		setStageInfo((prev) => ({
+			...prev,
+			selectedTemplate: template,
+			showTemplateList: false,
+			showDocumentName: true,
+			documentName: `${template.title} for ${prev.clientDetails?.name || ''}`,
+		}));
+	}, []);
+
+	const handleDocumentNameChange = useCallback((e) => {
+		setStageInfo((prev) => ({ ...prev, documentName: e.target.value }));
+	}, []);
+
+	const toggleTemplateList = useCallback((e) => {
+		if (e) e.stopPropagation();
+		setStageInfo((prev) => ({
+			...prev,
+			showTemplateList: !prev.showTemplateList,
+		}));
+	}, []);
+
+	const handleDisabledTemplateClick = useCallback(() => {
+		message.info('Please fill in client details before selecting a template.');
+	}, []);
+
+	const handleCreate = useCallback(async () => {
+		if (stageInfo.isCreating) return;
+		try {
+			setStageInfo((prev) => ({ ...prev, isCreating: true }));
+			if (stageInfo.isNewClientFromUrl) {
+				// Always treat as new client, call createLeadfromTemplates
+				const clientDetails = {};
+				if (stageInfo.clientDetails.name) clientDetails.name = stageInfo.clientDetails.name;
+				if (stageInfo.clientDetails.email)
+					clientDetails.email = stageInfo.clientDetails.email;
+				if (stageInfo.clientDetails.phoneNumber) {
+					let phone = (stageInfo.clientDetails.phoneNumber || '').trim();
+					if (phone && !phone.startsWith('+')) phone = '+' + phone;
+					clientDetails.phoneNumber = phone;
+				}
+				// Validate required fields
+				if (!clientDetails.name) {
+					message.error('Client name is required');
+					return;
+				}
+				if (!clientDetails.email && !clientDetails.phoneNumber) {
+					message.error('Either email or phone number is required');
+					return;
+				}
+				if (clientDetails.email) {
+					const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+					if (!emailRegex.test(clientDetails.email)) {
+						message.error('Please enter a valid email address');
+						return;
+					}
+				}
+				if (!stageInfo.selectedTemplate?._id || !stageInfo.documentName) {
+					message.error('Please select a template and provide a document title');
+					return;
+				}
+				const payload = {
+					workflowInput: {
+						clientDetails,
+						templateId: stageInfo.selectedTemplate?._id,
+						title: stageInfo.documentName,
+						formResponseId: formResponseIdfromParams,
+					},
+				};
+				const response = await createLeadfromTemplates(payload);
+				if (response?.[0]) {
+					message.success('Document created successfully for new client');
+					markStepAsCompleted(3);
+					navigate(`/document/edit/${response[1]}?workflow=true`);
+				} else {
+					message.error('Failed to create document for new client');
+				}
+				return;
+			}
+			if (stageInfo.isNewClient) {
+				message.info('Creating new client...');
+				const clientDetails = {};
+				if (stageInfo.clientDetails.name) clientDetails.name = stageInfo.clientDetails.name;
+				if (stageInfo.clientDetails.email)
+					clientDetails.email = stageInfo.clientDetails.email;
+				if (stageInfo.clientDetails.phoneNumber)
+					clientDetails.phoneNumber = stageInfo.clientDetails.phoneNumber;
+				// Validate required fields
+				if (!clientDetails.name) {
+					message.error('Client name is required');
+					return;
+				}
+				if (!clientDetails.email && !clientDetails.phoneNumber) {
+					message.error('Either email or phone number is required');
+					return;
+				}
+				if (clientDetails.email) {
+					const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+					if (!emailRegex.test(clientDetails.email)) {
+						message.error('Please enter a valid email address');
+						return;
+					}
+				}
+				if (clientDetails.phoneNumber) {
+					const phone = (clientDetails.phoneNumber || '').trim();
+					const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+					if (!phoneRegex.test(phone)) {
+						message.error('Please enter a valid phone number');
+						return;
+					}
+				}
+				if (!stageInfo.selectedTemplate?._id || !stageInfo.documentName) {
+					message.error('Please select a template and provide a document title');
+					return;
+				}
+				const payload = {
+					workflowInput: {
+						clientDetails,
+						templateId: stageInfo.selectedTemplate?._id,
+						title: stageInfo.documentName,
+						formResponseId: formResponseIdfromParams,
+					},
+				};
+				const response = await createLeadfromTemplates(payload);
+				if (response?.[0]) {
+					message.success('Document created successfully for new client');
+					markStepAsCompleted(3);
+					navigate(`/document/edit/${response[1]}?workflow=true`);
+				} else {
+					message.error('Failed to create document for new client');
+				}
+			} else {
+				message.info('Creating document for existing client...');
+				const selectedClient = stageInfo.clientData?.find(
+					(client) => JSON.parse(client.value).name === stageInfo.clientDetails.name,
+				);
+				if (!selectedClient) {
+					// Treat as new client if not found in list
+					const clientDetails = {};
+					if (stageInfo.clientDetails.name)
+						clientDetails.name = stageInfo.clientDetails.name;
+					if (stageInfo.clientDetails.email)
+						clientDetails.email = stageInfo.clientDetails.email;
+					if (stageInfo.clientDetails.phoneNumber) {
+						let phone = (stageInfo.clientDetails.phoneNumber || '').trim();
+						if (phone && !phone.startsWith('+')) phone = '+' + phone;
+						clientDetails.phoneNumber = phone;
+					}
+					// Validate required fields
+					if (!clientDetails.name) {
+						message.error('Client name is required');
+						return;
+					}
+					if (!clientDetails.email && !clientDetails.phoneNumber) {
+						message.error('Either email or phone number is required');
+						return;
+					}
+					if (clientDetails.email) {
+						const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+						if (!emailRegex.test(clientDetails.email)) {
+							message.error('Please enter a valid email address');
+							return;
+						}
+					}
+					if (clientDetails.phoneNumber) {
+						const phone = (clientDetails.phoneNumber || '').trim();
+						const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+						if (!phoneRegex.test(phone)) {
+							message.error('Please enter a valid phone number');
+							return;
+						}
+					}
+					if (!stageInfo.selectedTemplate?._id || !stageInfo.documentName) {
+						message.error('Please select a template and provide a document title');
+						return;
+					}
+					const payload = {
+						workflowInput: {
+							clientDetails,
+							templateId: stageInfo.selectedTemplate?._id,
+							title: stageInfo.documentName,
+							formResponseId: formResponseIdfromParams,
+						},
+					};
+					const response = await createLeadfromTemplates(payload);
+					if (response?.[0]) {
+						message.success('Document created successfully for new client');
+						markStepAsCompleted(3);
+						navigate(`/document/edit/${response[1]}?workflow=true`);
+					} else {
+						message.error('Failed to create document for new client');
+					}
+					return;
+				}
+				const clientData = JSON.parse(selectedClient.value);
+				const payload = {
+					smartFileInput: {
+						clientId: clientData._id,
+						templateId: stageInfo.selectedTemplate?._id,
+						title: stageInfo.documentName,
+					},
+				};
+				if (
+					!payload.smartFileInput.clientId ||
+					!payload.smartFileInput.templateId ||
+					!payload.smartFileInput.title
+				) {
+					message.error('Missing required fields');
+					return;
+				}
+				const response = await createSmartfile(payload);
+				if (response?.[0]) {
+					message.success('Document created successfully');
+					navigate(`/document/edit/${response[1]._id}?workflow=true`);
+				} else {
+					message.error('Failed to create document');
+				}
+			}
+		} catch (error) {
+			message.error(error.message || 'Failed to create document');
+			setStageInfo((prev) => ({
+				...prev,
+				completedSteps: prev.completedSteps.filter((step) => step !== 3),
+			}));
+		} finally {
+			setStageInfo((prev) => ({ ...prev, isCreating: false }));
+		}
+	}, [stageInfo, createSmartfile, createLeadfromTemplates, navigate]);
+
+	const filterOptions = [
+		{ id: 1, title: 'All', value: 'All' },
+		{ id: 3, title: 'Proposal', value: 'proposal' },
+		{ id: 4, title: 'Presentation', value: 'presentation' },
+		{ id: 5, title: 'Invoice', value: 'invoice' },
+		{ id: 6, title: 'Contract', value: 'contract' },
+	];
+
+	const canCreate =
+		stageInfo.selectedTemplate &&
+		stageInfo.clientSelection &&
+		stageInfo.clientDetails.name &&
+		(stageInfo.clientDetails.email || stageInfo.clientDetails.phoneNumber) &&
+		stageInfo.documentName &&
+		!stageInfo.isCreating;
+
+	return (
+		<div className="createDocumentParentContainer">
+			<div className="createDocumentContentContainer">
+				<div className="createDocumentHeader">
+					<span
+						className="createDocumentTitle"
+						onClick={() => navigate('/files?activeTab=Documents')}
+					>
+						<span style={{ cursor: 'pointer' }}>&#8592;</span> Back to Files
+					</span>
+				</div>
+				<div className="createInnerContentContainer">
+					<span className="createDocumentTitle">Create a document</span>
+					<div className="stage1Container">
+						{stageInfo.clientSelection ? (
+							<>
+								{stageInfo.isNewClientFromUrl ? (
+									<div className="clientDetailsSummary">
+										<div className="clientSummaryItem">
+											<span className="inputLabel">Client Name</span>
+											<div className="clientSummaryValue">
+												{stageInfo.clientDetails.name}
+											</div>
+										</div>
+										<div className="clientSummaryItem">
+											<span className="inputLabel">Client Email</span>
+											<div className="clientSummaryValue">
+												{stageInfo.clientDetails.email}
+											</div>
+										</div>
+										<div className="clientSummaryItem">
+											<span className="inputLabel">Client Phone</span>
+											<div className="clientSummaryValue">
+												{stageInfo.clientDetails.phoneNumber}
+											</div>
+										</div>
+									</div>
+								) : stageInfo.isNewClient ? (
+									<>
+										<div className="newClientHeader">
+											<div className="newClientHeading">
+												<span>Adding New Client</span>
+											</div>
+											<button
+												className="backButton"
+												onClick={() =>
+													setStageInfo((prev) => ({
+														...prev,
+														clientSelection: false,
+														showClientSelectionToolTip: true,
+													}))
+												}
+											>
+												Back
+											</button>
+										</div>
+										<div className="inputFieldContainer">
+											<label className="inputLabel">Client Name *</label>
+											<input
+												className="inputBoxContainer"
+												placeholder="Enter client name"
+												value={stageInfo.clientDetails.name}
+												onChange={(e) => handleInputChange(e, 'name')}
+												required
+											/>
+										</div>
+										<div className="inputFieldContainer">
+											<label className="inputLabel">Client Email</label>
+											<div className="inputWithIconContainer">
+												<input
+													className="inputBoxContainer withIcon"
+													placeholder="Enter client email"
+													value={stageInfo.clientDetails.email}
+													onChange={(e) => handleInputChange(e, 'email')}
+												/>
+												<Tooltip title="Email" placement="top">
+													<div className="inputIcon">
+														<MailIcon />
+													</div>
+												</Tooltip>
+											</div>
+										</div>
+										<div className="inputFieldContainer">
+											<label className="inputLabel">Client Phone</label>
+											<div className="inputWithIconContainer">
+												<input
+													className="inputBoxContainer withIcon"
+													placeholder="Enter client phone number"
+													value={stageInfo.clientDetails.phoneNumber}
+													pattern="^\+?[1-9]\d{1,14}$"
+													onChange={(e) =>
+														handleInputChange(e, 'phoneNumber')
+													}
+													type="number"
+												/>
+												<Tooltip title="Phone Number" placement="top">
+													<div className="inputIcon">
+														<PhoneIcon />
+													</div>
+												</Tooltip>
+											</div>
+										</div>
+									</>
+								) : (
+									<>
+										{/* <div className="clientDetailsHeader">
+											<span>Client Details</span>
+										</div> */}
+										<span className="inputLabel">Client Name</span>
+										<Tooltip
+											placement="bottomLeft"
+											title={
+												<ClientSelectionTooltip
+													handleOptionSelection={handleOptionSelection}
+													clientsList={stageInfo.clientData}
+													getClientList={getClientList}
+												/>
+											}
+											color={'var(--right-bar, #161618)'}
+											arrow={false}
+											trigger="click"
+											overlayClassName="toolTipContainer"
+											open={stageInfo.showClientSelectionToolTip}
+											onOpenChange={() => closeToolTip()}
+										>
+											<div className="chooseClientTriggerContainer">
+												<span>
+													{stageInfo.clientDetails.name || 'Client Name'}
+												</span>
+												<div className="clientSelectorBox">Client</div>
+											</div>
+										</Tooltip>
+										<div className="inputWithIconContainer">
+											<span className="inputLabel">Client Email</span>
+											<input
+												className="inputBoxContainer withIcon"
+												placeholder="Client Email"
+												value={stageInfo.clientDetails.email}
+												disabled={!stageInfo.clientEditable}
+												onChange={(e) => handleInputChange(e, 'email')}
+											/>
+											<Tooltip title="Email" placement="top">
+												<div className="inputIcon">
+													<MailIcon />
+												</div>
+											</Tooltip>
+										</div>
+										<div className="inputWithIconContainer">
+											<span className="inputLabel">Client Phone</span>
+											<input
+												className="inputBoxContainer withIcon"
+												placeholder="Client Phone"
+												value={stageInfo.clientDetails.phoneNumber}
+												disabled={!stageInfo.clientEditable}
+												onChange={(e) =>
+													handleInputChange(e, 'phoneNumber')
+												}
+												type="text"
+											/>
+											<Tooltip title="Phone Number" placement="top">
+												<div className="inputIcon">
+													<PhoneIcon />
+												</div>
+											</Tooltip>
+										</div>
+									</>
+								)}
+								<div className="templateSelectionSection">
+									<span className="sectionTitle">Start with template</span>
+									<Tooltip
+										title={
+											!(
+												stageInfo.clientDetails.name &&
+												(stageInfo.clientDetails.email ||
+													stageInfo.clientDetails.phoneNumber)
+											)
+												? 'Please fill in client details before selecting a template.'
+												: ''
+										}
+										placement="top"
+									>
+										<div
+											className="selectedTemplate"
+											onClick={
+												stageInfo.clientDetails.name &&
+												(stageInfo.clientDetails.email ||
+													stageInfo.clientDetails.phoneNumber)
+													? toggleTemplateList
+													: handleDisabledTemplateClick
+											}
+											style={{
+												opacity:
+													stageInfo.clientDetails.name &&
+													(stageInfo.clientDetails.email ||
+														stageInfo.clientDetails.phoneNumber)
+														? 1
+														: 0.5,
+												pointerEvents: 'auto',
+											}}
+										>
+											{stageInfo.selectedTemplate ? (
+												<>
+													<div className="templateInfo">
+														<span className="templateName">
+															{stageInfo.selectedTemplate.title}
+														</span>
+														<span className="templateMeta">
+															{stageInfo.selectedTemplate.workflows}{' '}
+															workflow
+															{stageInfo.selectedTemplate
+																.workflows !== 1
+																? 's'
+																: ''}
+														</span>
+													</div>
+													<div className="verifiedIconWrapper">
+														<VerifiedSvg className="verifiedIcon" />
+													</div>
+												</>
+											) : (
+												<>
+													<div className="templateInfo">
+														<span className="templateName">
+															Select template
+														</span>
+													</div>
+													<button className="changeButton">Change</button>
+												</>
+											)}
+										</div>
+									</Tooltip>
+									{stageInfo.showTemplateList && (
+										<div
+											className={`templateListContainer ${
+												stageInfo.searchQuery ? 'has-search' : ''
+											}`}
+										>
+											<div className="templateSearch">
+												<div className="searchContainer">
+													<SearchIcon />
+													<input
+														type="text"
+														placeholder="Search template here"
+														value={stageInfo.searchQuery}
+														onChange={handleTemplateSearch}
+														onClick={(e) => e.stopPropagation()}
+													/>
+												</div>
+												<div className="filterContainer">
+													<div className="filterTitle">Filter</div>
+													<div className="filterOptionsContainer">
+														{filterOptions.map((option) => (
+															<div
+																key={option.id}
+																className={`filterOption ${
+																	stageInfo.selectedFilter ===
+																	option.value
+																		? 'selected'
+																		: ''
+																}`}
+																onClick={(e) => {
+																	e.stopPropagation();
+																	setStageInfo((prev) => ({
+																		...prev,
+																		selectedFilter:
+																			option.value,
+																		searchChanged: true,
+																		loading: true,
+																	}));
+																}}
+															>
+																{option.title}
+															</div>
+														))}
+													</div>
+												</div>
+											</div>
+											<div className="templateList">
+												{stageInfo.loading ? (
+													<div className="loadingContainer">
+														<Spinner height="32px" width="32px" />
+													</div>
+												) : stageInfo.templates.length > 0 ? (
+													stageInfo.templates.map((template) => (
+														<div
+															key={template._id}
+															className={`templateItem ${
+																stageInfo.selectedTemplate?._id ===
+																template._id
+																	? 'selected'
+																	: ''
+															}`}
+															onClick={() =>
+																handleTemplateSelect(template)
+															}
+														>
+															<div className="templateInfo">
+																<span className="templateName">
+																	{template.title}
+																</span>
+																<span className="templateMeta">
+																	{template.workflows} workflow
+																	{template.workflows !== 1
+																		? 's'
+																		: ''}
+																</span>
+															</div>
+															{stageInfo.selectedTemplate?._id ===
+																template._id && (
+																<div className="verifiedIconWrapper">
+																	<VerifiedSvg className="verifiedIcon" />
+																</div>
+															)}
+														</div>
+													))
+												) : (
+													<div className="noResultsContainer">
+														No templates found
+													</div>
+												)}
+											</div>
+										</div>
+									)}
+								</div>
+								{stageInfo.showDocumentName && (
+									<div className="documentNameSection">
+										<span className="sectionTitle">Document name</span>
+										<input
+											type="text"
+											className="documentNameInput"
+											placeholder="Document name"
+											value={stageInfo.documentName}
+											onChange={handleDocumentNameChange}
+										/>
+									</div>
+								)}
+							</>
+						) : (
+							<Tooltip
+								placement="bottomLeft"
+								title={
+									<ClientSelectionTooltip
+										handleOptionSelection={handleOptionSelection}
+										clientsList={stageInfo.clientData}
+										getClientList={getClientList}
+									/>
+								}
+								color={'#202020'}
+								arrow={false}
+								trigger="click"
+								overlayClassName="toolTipContainer"
+								open={stageInfo.showClientSelectionToolTip}
+								onOpenChange={() => closeToolTip()}
+							>
+								<div className="chooseClientTriggerContainer">
+									<span>Client Name</span>
+									<div className="clientSelectorBox">Select Client</div>
+								</div>
+							</Tooltip>
+						)}
+					</div>
+					<div className="createDocumentFooter">
+						<button
+							className="createDocumentButton"
+							onClick={handleCreate}
+							style={{
+								opacity: canCreate ? 1 : 0.7,
+								cursor: canCreate ? 'pointer' : 'not-allowed',
+							}}
+							disabled={!canCreate}
+						>
+							{stageInfo.isCreating ? (
+								<>
+									<Spinner height="16px" width="16px" />
+									<span style={{ marginLeft: '8px' }}>
+										{stageInfo.isNewClient
+											? 'Creating new client...'
+											: 'Creating document...'}
+									</span>
+								</>
+							) : (
+								'Create'
+							)}
+						</button>
+					</div>
+				</div>
+			</div>
+			<div className="previewContentContainer">
+				<div className="documentPreviewContainer">
+					<div className="documentPreviewHeader">
+						<p className="documentPreviewTitle">Every Great Outcome Starts Here.</p>
+						<span className="documentPreviewSubtitle">
+							Every doc is a blueprint for action. Start from scratch or Let VEAI help
+							structure your thinking.
+						</span>
+					</div>
+					<DocumentPreview />
+					<div className="documentPreviewContent">
+						<div className="steps-container">
+							{steps.map((step) => (
+								<div
+									key={step.id}
+									className={`step ${
+										isStepCompleted(step.id) ? 'completed' : ''
+									} ${step.id === stageInfo.currentStep ? 'active' : ''}`}
+								>
+									<div className="step-number"></div>
+									<div className="step-title">{step.title}</div>
+									<div className="step-description">{step.description}</div>
+								</div>
+							))}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+};
+
+export default memo(withRouter(CreateDocument));

@@ -1,0 +1,667 @@
+@media only screen and (max-width: 430px) {
+	.summary-wrapper {
+	}
+}
+
+.summary-wrapper {
+	div,
+	span {
+		background: inherit !important;
+		font-size: inherit !important;
+		font-family: inherit !important;
+		color: inherit !important;
+	}
+
+	display: flex;
+	flex-direction: column;
+	gap: 36px;
+	background: transparent;
+	// box-shadow: -93px 163px 53px 0px rgba(0, 0, 0, 0), -59px 104px 48px 0px rgba(0, 0, 0, 0.01),
+	// 	-33px 59px 41px 0px rgba(0, 0, 0, 0.05), -15px 26px 30px 0px rgba(0, 0, 0, 0.09),
+	// 	-4px 7px 17px 0px rgba(0, 0, 0, 0.1);
+	// max-width: 792px;
+	// // min-height: 842px;
+	// margin: 50px auto;
+	width: 100%;
+	padding: 64px;
+	word-break: break-word;
+	.proposal-name {
+		color: #262626;
+		font-family: Inter;
+		font-size: 18px;
+		font-style: normal;
+		font-weight: 600;
+		line-height: normal;
+		text-transform: uppercase;
+	}
+	.service-div {
+		display: flex;
+		gap: 36px;
+		flex-direction: column;
+
+		.sub-total {
+			display: flex;
+			justify-content: space-between;
+			.sub-total-title {
+				color: #111;
+				font-family: Inter;
+				font-size: 18px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+			.sub-total-value {
+				color: #111;
+				text-align: center;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+		}
+
+		.service-div {
+			display: flex;
+			flex-direction: column;
+			gap: 18px;
+		}
+		.wedding-div-main {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			.delete-icon {
+			}
+			.wedding-text {
+				color: #111;
+				font-family: Inter;
+				font-size: 18px;
+				font-weight: 600;
+				line-height: normal;
+			}
+			.wedding-price {
+				color: #111;
+				text-align: center;
+				font-family: Inter;
+				font-size: 14px;
+				font-weight: 600;
+				line-height: normal;
+			}
+		}
+
+		.wedding-div {
+			display: flex;
+			justify-content: space-between;
+			gap: 12px;
+
+			.wedding-text {
+				color: #111;
+				font-family: Inter;
+				font-size: 18px;
+				font-weight: 600;
+				line-height: normal;
+			}
+
+			.wedding-price {
+				color: #111;
+				text-align: center;
+				font-family: Inter;
+				font-size: 14px;
+				font-weight: 600;
+				line-height: normal;
+			}
+		}
+
+		.web-live {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			width: 100%;
+			.led-text-div {
+				display: flex;
+				justify-content: space-between;
+			}
+			.web-text {
+				color: #111;
+				font-family: Inter;
+				font-size: 14px;
+				font-weight: 600;
+				line-height: normal;
+			}
+
+			.web-para {
+				color: rgba(17, 17, 17, 0.5);
+				font-family: Inter;
+				font-size: 12px;
+				font-weight: 400;
+				line-height: normal;
+			}
+			.cart-items {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-end;
+				gap: 4px;
+				.count-cart {
+					display: flex;
+					gap: 12px;
+
+					justify-content: space-between;
+					align-items: center;
+					.quality-cart {
+						display: flex;
+						width: 87px;
+						padding: 8px;
+						justify-content: space-between;
+						align-items: center;
+						border-radius: 7px;
+						border: 1px solid rgba(38, 38, 38, 0.1);
+					}
+					.count-num {
+						color: #262626;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+
+						line-height: normal;
+						text-transform: uppercase;
+					}
+				}
+				.cart-price {
+					color: rgba(17, 17, 17, 0.5);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+			}
+
+			.quality-items {
+				display: flex;
+				align-items: center;
+				justify-content: flex-end;
+				width: 100%;
+				gap: 10px;
+
+				.quality-text {
+					display: flex;
+					align-items: center;
+					color: #000;
+					font-family: Inter;
+					font-size: 12px;
+					font-weight: 400;
+					line-height: normal;
+				}
+
+				.quality-count {
+					color: #262626;
+					font-family: Inter;
+					font-size: 14px;
+
+					line-height: normal;
+					text-transform: uppercase;
+				}
+
+				.quality-price {
+					color: rgba(17, 17, 17, 0.5);
+					font-family: Inter;
+					font-size: 12px;
+					font-weight: 400;
+					line-height: normal;
+				}
+
+				.items-price {
+					color: #000;
+					font-family: Inter;
+					font-size: 12px;
+					font-weight: 400;
+					line-height: normal;
+				}
+
+				.items-money {
+					color: #111;
+					text-align: center;
+					font-family: Inter;
+					font-size: 14px;
+
+					line-height: normal;
+				}
+			}
+		}
+		.summary-image {
+			border-radius: 4px;
+			height: 46px;
+			width: 46px;
+		}
+
+		.events-block {
+			div {
+				display: inherit !important;
+			}
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+
+			.event-name {
+				color: #262626;
+				font-family: Inter;
+				font-size: 18px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+				text-transform: capitalize;
+			}
+
+			.event-table {
+				display: flex;
+				gap: 12px;
+				// background: red;
+				background-color: #f5f5f5;
+				padding: 12px;
+				border-radius: 7px;
+				.event-details {
+					display: flex;
+					flex-direction: column;
+					gap: 10px;
+					width: 100%;
+
+					.event-date {
+						color: #262626;
+						font-family: Avenir;
+						font-size: 10px;
+						font-style: normal;
+
+						line-height: normal;
+						letter-spacing: 0.5px;
+						text-transform: capitalize;
+					}
+					.event-type {
+						color: #333;
+						font-family: 'Times New Roman';
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 700;
+						line-height: normal;
+					}
+					.event-details {
+						color: #262626;
+						font-family: Avenir;
+						font-size: 10px;
+						font-style: normal;
+
+						line-height: normal;
+						letter-spacing: 0.5px;
+					}
+				}
+			}
+		}
+	}
+	.propsal-summary-main {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+
+		.propsal-summary {
+			display: flex;
+			flex-direction: column;
+			gap: 18px;
+
+			.led-text {
+				color: #111;
+				font-family: Inter;
+				font-size: 14px;
+				font-weight: 600;
+				line-height: normal;
+			}
+			.wedding-div-main {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				.delete-icon {
+				}
+				.wedding-text {
+					color: #111;
+					font-family: Inter;
+					font-size: 18px;
+					font-weight: 600;
+					line-height: normal;
+				}
+				.wedding-price {
+					color: #111;
+					text-align: center;
+					font-family: Inter;
+					font-size: 14px;
+					font-weight: 600;
+					line-height: normal;
+				}
+			}
+
+			.wedding-div {
+				display: flex;
+				justify-content: space-between;
+				gap: 12px;
+
+				.wedding-text {
+					color: #111;
+					font-family: Inter;
+					font-size: 18px;
+					font-weight: 600;
+					line-height: normal;
+				}
+
+				.wedding-price {
+					color: #111;
+					text-align: center;
+					font-family: Inter;
+					font-size: 14px;
+					font-weight: 600;
+					line-height: normal;
+				}
+			}
+
+			.web-live {
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				width: 100%;
+				.led-text-div {
+					display: flex;
+					justify-content: space-between;
+				}
+				.web-text {
+					color: #111;
+					font-family: Inter;
+					font-size: 14px;
+					font-weight: 600;
+					line-height: normal;
+				}
+
+				.web-para {
+					color: rgba(17, 17, 17, 0.5);
+					font-family: Inter;
+					font-size: 12px;
+					font-weight: 400;
+					line-height: normal;
+				}
+				.cart-items {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-end;
+					gap: 4px;
+					.count-cart {
+						display: flex;
+						gap: 12px;
+
+						justify-content: space-between;
+						align-items: center;
+						.quality-cart {
+							display: flex;
+							width: 87px;
+							padding: 8px;
+							justify-content: space-between;
+							align-items: center;
+							border-radius: 7px;
+							border: 1px solid rgba(38, 38, 38, 0.1);
+						}
+						.count-num {
+							color: #262626;
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+
+							line-height: normal;
+							text-transform: uppercase;
+						}
+					}
+					.cart-price {
+						color: rgba(17, 17, 17, 0.5);
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+					}
+				}
+
+				.quality-items {
+					display: flex;
+					align-items: center;
+					justify-content: flex-end;
+					width: 100%;
+					gap: 10px;
+
+					.quality-text {
+						display: flex;
+						align-items: center;
+						color: #000;
+						font-family: Inter;
+						font-size: 12px;
+						font-weight: 400;
+						line-height: normal;
+					}
+
+					.quality-count {
+						color: #262626;
+						font-family: Inter;
+						font-size: 14px;
+
+						line-height: normal;
+						text-transform: uppercase;
+					}
+
+					.quality-price {
+						color: rgba(17, 17, 17, 0.5);
+						font-family: Inter;
+						font-size: 12px;
+						font-weight: 400;
+						line-height: normal;
+					}
+
+					.items-price {
+						color: #000;
+						font-family: Inter;
+						font-size: 12px;
+						font-weight: 400;
+						line-height: normal;
+					}
+
+					.items-money {
+						color: #111;
+						text-align: center;
+						font-family: Inter;
+						font-size: 14px;
+
+						line-height: normal;
+					}
+				}
+			}
+		}
+
+		.total-div {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+
+			.tax-div {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+			.tax-name {
+				color: #000;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+			.tax-percent {
+				color: rgba(17, 17, 17, 0.5);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+			.tax-dollor {
+				color: rgba(17, 17, 17, 0.5);
+				text-align: center;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+			.total-cost {
+				color: #000;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+
+				line-height: normal;
+			}
+			.total-amount {
+				color: #000;
+				text-align: center;
+				font-family: Inter;
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+		}
+	}
+	.payment-schedule {
+		div {
+			display: inherit !important;
+		}
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		.payment-heading {
+			color: #262626;
+			// text-align: center;
+			font-family: Inter;
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: normal;
+			text-transform: capitalize;
+		}
+		.payment-table {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
+		.table-heading {
+			display: flex;
+			justify-content: space-between;
+			color: #7d7d7d;
+			font-family: Inter;
+			font-size: 11px;
+			font-style: normal;
+
+			line-height: normal;
+			text-transform: capitalize;
+		}
+
+		.table-upcoming,
+		.table-due {
+			display: flex;
+			justify-content: space-between;
+			color: #262626;
+			font-family: Avenir;
+			font-size: 11px;
+			font-style: normal;
+
+			line-height: normal;
+			text-transform: capitalize;
+			width: 100%;
+		}
+	}
+	hr {
+		border-style: solid;
+	}
+
+	.grand-total {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 12px;
+		font-weight: 700;
+	}
+}
+
+.section-div {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.subblock-div {
+	display: flex;
+	gap: 12px;
+
+	.image-div {
+		border-radius: 4px;
+	}
+
+	.subblock-content {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		width: 100%;
+
+		.subblock-title {
+			color: #111;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: normal;
+		}
+		.subblock-discription {
+			color: rgba(17, 17, 17, 0.5);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+		}
+		.subblock-quantity {
+			display: flex;
+			gap: 10px;
+			justify-content: flex-end;
+			.quantity {
+				color: #262626;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-transform: uppercase;
+			}
+		}
+		.subblock-price {
+			display: flex;
+			gap: 10px;
+			justify-content: flex-end;
+			.price-subblock {
+				color: #111;
+				text-align: center;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.curreny-subblock {
+				color: #000;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+	}
+}

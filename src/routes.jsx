@@ -65,6 +65,7 @@ import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
 import EditScheduler from './views/features/calendar/EditScheduler';
 import Contacts from './views/features/contacts/Contacts';
 import NotesPage from './views/features/notesPage/NotesPage';
+import BuilderApp from '../builderSrc/App';
 const routes = [
 	{
 		path: '/',
@@ -645,6 +646,19 @@ const routes = [
 		component: (
 			<AuthWrapper title="Files">
 				<Files />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/builder/*',
+		component: (
+			<AuthWrapper
+				title="Builder"
+				outerContainerStyle={{ padding: '0px' }}
+				childrenContainerStyles={{ maxWidth: '100%' }}
+				showSidebar={false}
+			>
+				<BuilderApp />
 			</AuthWrapper>
 		),
 	},

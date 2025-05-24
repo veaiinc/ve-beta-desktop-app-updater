@@ -1,0 +1,20 @@
+.divider-container{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    .divider-line{
+        width: 100%;
+        border: 1px solid #121314;
+    }
+    .diamond-box{
+        width: 6px;
+        height: 6px;
+        position: absolute;
+        rotate: 45deg;
+    }
+}

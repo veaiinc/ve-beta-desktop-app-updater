@@ -1,0 +1,31 @@
+.house {
+	height: 537px;
+
+	width: 444px;
+	border-radius: 1000px 1000px 0px 0px;
+	background: #f4f4f4;
+}
+.circle {
+	border-radius: 100%;
+}
+.rectangle {
+	border-radius: 500px 500px 0% 0%;
+}
+.hRectangle {
+}
+.vRectangle {
+}
+.square {
+}
+
+.capsule,
+.vcapsule {
+	border-radius: 500px;
+}
+
+.arcRight {
+	border-radius: 0px 150px;
+}
+.arcLeft {
+	border-radius: 150px 0px;
+}

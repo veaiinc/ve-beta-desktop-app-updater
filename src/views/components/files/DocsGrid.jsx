@@ -195,8 +195,8 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 		if (doc) {
 			const version = doc?.version;
 			version === 0 || version === null
-				? navigate(`/smart-file/${doc?.templateId}/${doc?._id}`)
-				: (window.location.href = `${origin}/document/view/${doc?._id}?workflow=true`);
+				? navigate(`/builder/smart-file/${doc?.templateId}/${doc?._id}`)
+				: navigate(`/builder/document/view/${doc?._id}?workflow=true`);
 		}
 	}, []);
 

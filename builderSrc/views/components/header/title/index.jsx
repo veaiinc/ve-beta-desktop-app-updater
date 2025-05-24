@@ -1,0 +1,62 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { Tooltip } from 'antd';
+import { ReactComponent as Edit } from '../../../../assets/svg/edit.svg';
+import '../../../../assets/scss/title.scss';
+import { message } from 'antd';
+
+const Title = ({ title: initialTitle, updatePublishedTemplate }) => {
+	const [isEditing, setIsEditing] = useState(false);
+	const [title, setTitle] = useState(initialTitle);
+	const inputRef = useRef(null);
+	const debounceTimeout = useRef(null);
+
+	useEffect(() => {
+		setTitle(initialTitle);
+	}, [initialTitle]);
+
+	const handleTitleChange = async (e) => {
+		const value = e.target.value;
+		setTitle(value);
+
+		if (debounceTimeout.current) {
+			clearTimeout(debounceTimeout.current);
+		}
+
+		debounceTimeout.current = setTimeout(async () => {
+			if (value || value !== '') {
+				const response = await updatePublishedTemplate(value);
+			} else {
+				message.error('Title cannot be empty');
+			}
+		}, 1000);
+	};
+
+	return (
+		<div className="title-container">
+			{isEditing ? (
+				<input
+					className="title-input"
+					ref={inputRef}
+					type="text"
+					value={title}
+					onChange={handleTitleChange}
+					onBlur={() => setIsEditing(false)}
+					autoFocus
+				/>
+			) : (
+				<span className="title-value" onClick={() => setIsEditing((prev) => !prev)}>
+					{title}
+				</span>
+			)}
+			<span className="tooltip">
+				<Tooltip title="Edit">
+					<Edit
+						className={`edit-icon  ${isEditing ? 'active-icon' : ''}`}
+						onClick={() => setIsEditing((prev) => !prev)}
+					/>
+				</Tooltip>
+			</span>
+		</div>
+	);
+};
+export default Title;
