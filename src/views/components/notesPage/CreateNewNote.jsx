@@ -1,5 +1,5 @@
 import { memo, useContext, useState } from 'react';
-import s from '../../../assets/scss/notesPage/notesPage.module.scss';
+import '../../../assets/scss/notesPage/notesPage.scss';
 
 // icons
 import { ReactComponent as PlusIcon } from '../../../assets/svg/notesPage/plus-icon.svg';
@@ -37,16 +37,16 @@ const CreateNewNote = ({ viewMode }) => {
 			disabled={info?.creatingNoteLoader}
 			aria-label="Create New Note"
 			onClick={handleNewNotes}
-			className={s.createNewNoteContainer}
+			className="createNewNoteContainer"
 		>
-			<div className={s.titleAndDescriptionContainer}>
-				<h3 className={s.title}>Add a New Note</h3>
-				<p className={s.description}>
+			<div className="titleAndDescriptionContainer">
+				<h3 className="title">Add a New Note</h3>
+				<p className="description">
 					Just start typing and let your next big idea flow out!
 				</p>
 			</div>
-			<footer className={s.footerContainer}>
-				<div className={s.iconContainer}>
+			<footer className="footerContainer">
+				<div className="iconContainer">
 					<PlusIcon />
 				</div>
 			</footer>
@@ -56,7 +56,7 @@ const CreateNewNote = ({ viewMode }) => {
 			disabled={info?.creatingNoteLoader}
 			aria-label="Create New Note"
 			onClick={handleNewNotes}
-			className={s.createNewNoteContainer}
+			className="createNewNoteContainer"
 		></button>
 	) : null;
 };

@@ -208,7 +208,8 @@ const GalleryPage = () => {
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		albumContains: 'All',
+		albumName: '',
+		albumContains: '',
 		showOptions: false,
 		showGalleryOptions: false,
 		shareModal: false,
@@ -756,9 +757,6 @@ const GalleryPage = () => {
 		if (albumDetails) {
 			setInfo((prev) => ({
 				...prev,
-				albumContains: albumDetails?.tags?.[0]?.displayName,
-				albumTagId: albumDetails?.tags?.[0]?._id,
-				sortType: albumDetails?.tags?.[0]?.sortType,
 				albumTags: albumDetails?.tags,
 			}));
 		}
@@ -805,17 +803,24 @@ const GalleryPage = () => {
 	}, [imagesList]);
 
 	useEffect(() => {
+		if (!albumDetails) return;
 		if (albumDetails) {
 			setInfo((prev) => ({
 				...prev,
-				albumContains: albumDetails?.tags?.[0]?.displayName,
-				albumTagId: albumDetails?.tags?.[0]?._id,
-				sortType: albumDetails?.tags?.[0]?.sortType,
 				albumTags: albumDetails?.tags,
 			}));
 		}
 	}, [albumDetails]);
 
+	useEffect(() => {
+		if (!info.albumTags) return;
+		setInfo((prev) => ({
+			...prev,
+			albumContains: info?.albumTags?.[0]?.displayName,
+			albumTagId: info?.albumTags?.[0]?._id,
+			sortType: info?.albumTags?.[0]?.sortType,
+		}));
+	}, [info?.albumTags]);
 	useEffect(() => {
 		const imageSearchKey = searchkeys.get('uploadImageId') || null;
 
@@ -3586,6 +3591,7 @@ const GalleryPage = () => {
 		setInfo((prev) => ({
 			...prev,
 			activeAlbumId: null,
+			albumContains: '',
 		}));
 		navigate(-1);
 	};
