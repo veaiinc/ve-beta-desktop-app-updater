@@ -9,9 +9,10 @@ import { ReactComponent as MdSvg } from '../assets/svg/ai_agents/md.svg';
 import { ReactComponent as ExcelSvg } from '../assets/svg/ai_agents/excel.svg';
 import { ReactComponent as GmailSvg } from '../assets/svg/login_page/gmail.svg';
 import { ReactComponent as SlackSvg } from '../assets/svg/slack.svg';
-import { ReactComponent as DriveSvg } from '../assets/svg/drive.svg';
 import { ReactComponent as NotionSvg } from '../assets/svg/notion.svg';
 import { ReactComponent as VeLogoSvg } from '../assets/svg/veLogo.svg';
+import { ReactComponent as DriveSvg } from '../assets/svg/drive.svg';
+
 import axios from 'axios';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -222,6 +223,7 @@ let urlMapper = {
 	've.co': 'https://builder.ve.co',
 	'www.ve.ai': 'https://builder.ve.ai',
 	'www.ve.co': 'https://builder.ve.co',
+	'vite.ve.co': 'https://builder.ve.co',
 };
 
 let hostNameMapper = {
@@ -230,6 +232,7 @@ let hostNameMapper = {
 	've.co': 've.co',
 	'www.ve.co': 've.co',
 	'www.ve.ai': 've.ai',
+	'www.vite.ve.co': 'vite.ve.co',
 };
 export const fetchOriginSelection = () => {
 	const hostname = window.location.hostname;

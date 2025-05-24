@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useMemo } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/inAppTriggers.scss';
 import TaskTriggers from './TaskTriggers';

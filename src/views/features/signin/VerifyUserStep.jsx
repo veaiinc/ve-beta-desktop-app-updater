@@ -7,7 +7,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getLocationsDetails } from '../../../helpers';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
-var validator = require('validator');
+import validator from 'validator';
 
 const VerifyUserStep = ({
 	handleInput,

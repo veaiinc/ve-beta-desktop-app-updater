@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/select.scss';
 import { Tooltip } from 'antd';

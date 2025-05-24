@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { memo } from 'react';
 import '../../../../assets/scss/tasks/select.scss';
 import { ReactComponent as TickIcon } from '../../../../assets/svg/tasks/tick.svg';

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import '../../../../assets/scss/sales/myWorkflowModals.scss';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
@@ -313,7 +312,6 @@ const MyWorkflowsModals = ({
 								showIcon={false}
 								options={timeOptions}
 								containerStyle={{
-									padding: '12px 24px',
 									height: ' 26px',
 									padding: '4px 8px',
 									color: '#E4E5E6',
@@ -392,7 +390,6 @@ const MyWorkflowsModals = ({
 								showIcon={false}
 								options={sortOptions}
 								containerStyle={{
-									padding: '12px 24px',
 									height: ' 26px',
 									padding: '4px 8px',
 									color: '#E4E5E6',

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import '../.././../../assets/scss/sales/smartFile.scss';
 import Events from '../../../components/smartFileComponets/Events';

@@ -415,7 +415,6 @@ const WorkflowCardEditModal = ({
 										containerStyle={{
 											padding: '12px 24px',
 											height: '48px',
-											padding: '12px 24px',
 											color: 'var(--primary-font)',
 											// width: 'inherit',
 											flex: 1,
@@ -479,7 +478,6 @@ const WorkflowCardEditModal = ({
 										containerStyle={{
 											padding: '12px 24px',
 											height: '48px',
-											padding: '12px 24px',
 											color: 'var(--primary-font)',
 											width: 'inherit',
 											flex: 1,
@@ -516,7 +514,6 @@ const WorkflowCardEditModal = ({
 									containerStyle={{
 										padding: '12px 24px',
 										height: '48px',
-										padding: '12px 24px',
 										color: 'var(--primary-font)',
 										width: 'inherit',
 										flex: 1,

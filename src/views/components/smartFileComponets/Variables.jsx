@@ -20,7 +20,6 @@ const Variables = ({
 		timeout: null,
 		workflowexpiryInDays: 0,
 		workflowexpiryInDaysChanged: false,
-		timeout: null,
 	});
 
 	//useEffects

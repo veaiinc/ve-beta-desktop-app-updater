@@ -8,7 +8,7 @@ import { ReactComponent as StatusCircle } from '../../../assets/svg/docs/status-
 import { ReactComponent as CrossPurple } from '../../../assets/svg/docs/cross-purple.svg';
 import { ReactComponent as Sync } from '../../../assets/svg/docs/sync.svg';
 
-import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers/index.js';
+import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers/index.jsx';
 import Context from '../../../context/context.js';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Sidebar from '../../components/docs/Sidebar.jsx';
