@@ -27,13 +27,13 @@ const ViewModeSortFilter = ({ viewMode, setViewMode, setSelectedFilter, setSelec
 					>
 						<CardsViewIcon active={viewMode === 'cards'} />
 					</button>
-					{/* <button
+					<button
 						onClick={() => setViewMode('list')}
 						aria-label="Switch to list view"
 						className={`viewModeIcon ${viewMode === 'list' ? 'active' : ''}`}
 					>
 						<ListViewIcon active={viewMode === 'list'} />
-					</button> */}
+					</button>
 				</div>
 				<div className="sortContainer">
 					<SortAndFilterTooltip

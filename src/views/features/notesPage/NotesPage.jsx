@@ -23,7 +23,7 @@ const NotesPage = () => {
 		fetchNotes({ page: 1 });
 	}, [info?.selectedFilter?.value, info?.selectedSort]);
 
-	const fetchNotes = async ({ page = 1, limit = 20, append = false }) => {
+	const fetchNotes = async ({ page = 1, limit = 30, append = false }) => {
 		try {
 			const { value: sortBy, sortType: sortOrder } = info?.selectedSort;
 			const payload = {
