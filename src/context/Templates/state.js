@@ -113,6 +113,7 @@ export const intialState = {
 		selectedLLMModel: null,
 		agentType: null,
 		assistantId: null,
+		build: false,
 		ask: {
 			workspaceSearch: true,
 			webSearch: false,

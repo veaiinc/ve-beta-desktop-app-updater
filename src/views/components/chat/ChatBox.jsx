@@ -7,6 +7,7 @@ import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.s
 import { ReactComponent as PlusSvg } from '../../../assets/svg/ai_assistant/plus.svg';
 import { ReactComponent as AudioSvg } from '../../../assets/svg/ai_agents/audio.svg';
 import { ReactComponent as AtomSvg } from '../../../assets/svg/ai_agents/atom.svg';
+import { ReactComponent as SparkSvg } from '../../../assets/svg/spark.svg';
 import { ReactComponent as ArrowDownSvg } from '../../../assets/svg/ai_agents/arrow-down.svg';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import Context from '../../../context/context';
@@ -27,6 +28,7 @@ import { message } from '../globalComponents/CustomToast';
 import SearchTypeTooltip from './SearchTypeTooltip';
 import ChatBoxPlaceholder from './ChatBoxPlaceholder';
 import { fileTypeIcons } from '../../../helpers';
+import BuildTooltip from './BuildTooltip';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -154,6 +156,7 @@ const ChatBox = ({
 	const [info, setInfo] = useState({
 		bigToolbarIsOpen: false,
 		chatQuery: '',
+		widgetQuery: '',
 		position: { x: window?.innerWidth / 2 - 900, y: 0 },
 		addQuickAction: false,
 		chatSessionId: null,
@@ -181,7 +184,7 @@ const ChatBox = ({
 	const [previewImage, setPreviewImage] = useState('');
 	const uploadedImagesRef = useRef(info?.uploadedImages || []);
 	const recentFilesRef = useRef(info?.recentFiles || []);
-	const showPlaceholder = info?.chatQuery?.length === 0;
+	const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
 	const placeholderIntervalId = useRef(null);
 
 	useEffect(() => {
@@ -992,7 +995,7 @@ const ChatBox = ({
 
 	const handleTextAreaChange = (e) => {
 		const textArea = textAreaRef?.current;
-		const query = e.target.value;
+		const query = e?.target?.value;
 		const lastChar = query?.trim()?.slice(-1);
 
 		if (textArea) {
@@ -1070,6 +1073,15 @@ const ChatBox = ({
 			chatInfo: {
 				...chatInfo,
 				agentType,
+			},
+		});
+	};
+
+	const handleBuildClick = () => {
+		updateStateValues({
+			chatInfo: {
+				...chatInfo,
+				build: !chatInfo?.build,
 			},
 		});
 	};
@@ -1226,6 +1238,7 @@ const ChatBox = ({
 														: ''
 												}
 											/>
+
 											{showPlaceholder && animatePlaceholder && (
 												<ChatBoxPlaceholder
 													activePlaceholderIndex={
@@ -1609,6 +1622,56 @@ const ChatBox = ({
 																	</div>
 																</Tooltip>
 															</SearchTypeTooltip>
+														)}
+
+														{!isPublicChat && (
+															<Tooltip
+																title={
+																	<div className="chatbox-icon-tooltip-container">
+																		Build
+																	</div>
+																}
+																color="transparent"
+																arrow={false}
+																rootClassName="chatbox-tooltip"
+															>
+																<div
+																	className={`chat-box-icon-container ${
+																		chatInfo?.build
+																			? 'active'
+																			: ''
+																	}`}
+																	onClick={handleBuildClick}
+																>
+																	<div className="icon build-icon">
+																		<SparkSvg />
+																		{showIconText && (
+																			<div
+																				className="icon-text"
+																				style={{
+																					color: chatInfo?.build
+																						? 'var(--primary-button)'
+																						: 'var(--secondary-font)',
+																				}}
+																			>
+																				Build
+																			</div>
+																		)}
+																	</div>
+																</div>
+															</Tooltip>
+														)}
+
+														{!isPublicChat && chatInfo?.build && (
+															<BuildTooltip>
+																<div
+																	className={`chat-box-icon-container`}
+																>
+																	<div className="icon">
+																		<ArrowDownSvg fill="var(--secondary-font)" />
+																	</div>
+																</div>
+															</BuildTooltip>
 														)}
 
 														{/* <Tooltip title={'Add Filters'}>
