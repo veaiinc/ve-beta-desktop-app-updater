@@ -437,3 +437,19 @@ export const createDatabaseMutation = gql`
 		}
 	}
 `;
+
+export const createDatabaseViewMutation = gql`
+	mutation Mutation($pageId: ID!, $input: CreateDatabaseViewInput!) {
+		createDatabaseView(pageId: $pageId, input: $input) {
+			_id
+			databaseId
+			createdAt
+			updatedAt
+			createdBy
+			updatedBy
+			blockId
+			pageId
+			viewConfig
+		}
+	}
+`;

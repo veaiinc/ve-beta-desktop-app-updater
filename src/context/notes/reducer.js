@@ -23,6 +23,10 @@ const actionHandlers = {
 		database: { ...state.database, ...action?.payload },
 	}),
 	SET_BLOCK_MAPPER: (state, action) => ({ ...state, blockMapper: action?.payload }),
+	CREATE_DATABASE_VIEW: (state, action) => ({
+		...state,
+		views: { ...state.views, ...action?.payload },
+	}),
 	RESET_STATE: () => intialState,
 };
 

@@ -27,6 +27,7 @@ import {
 	updateBlockMutation,
 	deleteBlockMutation,
 	createDatabaseMutation,
+	createDatabaseViewMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -40,6 +41,7 @@ export const intialState = {
 	globalAccess: null,
 	blocks: null,
 	database: null,
+	views: null,
 };
 
 export const NotesState = (props) => {
@@ -707,14 +709,45 @@ export const NotesState = (props) => {
 				'page_notes_api',
 			);
 			if (response?.[0]) {
-				console.log('response==>createDatabase', response?.[1]);
+				const databaseMetadata = response?.[1]?.data?.createDatabase;
 				dispatch({
 					type: Actions.ADD_DATABASE,
-					payload: response?.[1],
+					payload: {
+						[databaseMetadata?._id]: {
+							databaseMetadata,
+						},
+					},
 				});
+				return databaseMetadata;
 			}
 		} catch (error) {
 			console.error('error==>createDatabase', error);
+		}
+	};
+
+	const createDatabaseView = async (payload, blockId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				createDatabaseViewMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				const databaseView = response?.[1]?.data?.createDatabaseView;
+				dispatch({
+					type: Actions.CREATE_DATABASE_VIEW,
+					payload: {
+						[blockId]: { databaseView },
+					},
+				});
+				return databaseView;
+			}
+		} catch (error) {
+			console.error('error==>createDatabaseView', error);
 		}
 	};
 
@@ -747,5 +780,6 @@ export const NotesState = (props) => {
 		updateBlock,
 		deleteBlock,
 		createDatabase,
+		createDatabaseView,
 	};
 };

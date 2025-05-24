@@ -6,34 +6,66 @@ import '../../../assets/scss/notes/database.scss';
 import { memo, useContext, useEffect } from 'react';
 import Context from '../../../context/context';
 import { useParams } from 'react-router-dom';
+import { NotesRefContext } from '../../features/notesModule/NotesEditor';
 
 const DatabaseComponent = memo(({ block, editor }) => {
-	const { noteId: pageId } = useParams();
 	const {
-		notes: { createDatabase, database },
+		notes: { createDatabase, database, createDatabaseView },
 	} = useContext(Context);
 
-	const { databaseId, databaseViewId } = block?.props;
+	const { previousBlocksRef, pageId } = useContext(NotesRefContext);
 
-	console.log('database==>', database);
+	const { databaseId, databaseViewId } = block?.props;
+	const sourceBlockId = previousBlocksRef?.current?.get(block?.id)?._id;
 
 	useEffect(() => {
-		if (!databaseId) {
-			createDatabase({
+		if (!databaseId && sourceBlockId) {
+			initializeDatabase();
+		}
+	}, [databaseId, sourceBlockId]);
+
+	const initializeDatabase = async () => {
+		const database = await createDatabase({
+			pageId: pageId,
+			input: {
+				name: 'Database',
+				fields: [
+					{
+						name: 'Name',
+						type: 'text',
+					},
+				],
+				sourceBlockId,
+			},
+		});
+
+		let databaseView = null;
+
+		if (database) {
+			databaseView = await createDatabaseView({
 				pageId: pageId,
 				input: {
-					name: 'Database',
-					fields: [
+					blockId: sourceBlockId,
+					databaseId: database?._id,
+					viewConfig: [
 						{
-							name: 'Name',
-							type: 'text',
+							title: 'table',
+							type: 'table',
 						},
 					],
-					sourceBlockId: block?.id,
 				},
 			});
 		}
-	}, [databaseId]);
+
+		if (databaseView && databaseView) {
+			editor.updateBlock(block?.id, {
+				props: {
+					databaseId: database?._id,
+					databaseViewId: databaseView?._id,
+				},
+			});
+		}
+	};
 
 	return <div className="notes-database-container"></div>;
 });
