@@ -231,7 +231,7 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 				<span>Create a Session</span>
 				<Close onClick={ModifyCloseModal} />
 			</header>
-			<div className="container">
+			<div className="calendar-create-session-modal-container">
 				<div className="sessionNameContainer">
 					<div className="sessionNameLabel">Session Name</div>
 					<input
