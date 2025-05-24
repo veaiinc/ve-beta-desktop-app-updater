@@ -453,3 +453,82 @@ export const createDatabaseViewMutation = gql`
 		}
 	}
 `;
+
+export const getDatabaseQuery = gql`
+	query GetDatabase($databaseId: ID!, $pageId: ID!) {
+		database(id: $databaseId, pageId: $pageId) {
+			_id
+			name
+			description
+			icon
+			fields {
+				_id
+				name
+				type
+				config
+				isRequired
+				isUnique
+			}
+			sourceBlockId
+			createdAt
+			updatedAt
+			createdBy
+			updatedBy
+		}
+	}
+`;
+
+export const getDatabaseRowsQuery = gql`
+	query ListDatabaseRow($pageId: ID!, $input: DatabaseRowsInput!) {
+		databaseRows(pageId: $pageId, input: $input) {
+			totalPages
+			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
+			prevPage
+			nextPage
+			data {
+				_id
+				values
+				createdAt
+				updatedAt
+				createdBy
+				updatedBy
+				databaseId
+			}
+		}
+	}
+`;
+
+export const addDatabaseRowMutation = gql`
+	mutation CreateDatabaseRow($pageId: ID!, $input: CreateDatabaseRowInput!) {
+		createDatabaseRow(pageId: $pageId, input: $input) {
+			_id
+			values
+			createdAt
+			updatedAt
+			createdBy
+			updatedBy
+		}
+	}
+`;
+
+export const updateDatabaseRowMutation = gql`
+	mutation UpdateDatabaseRow(
+		$updateDatabaseRowId: ID!
+		$input: UpdateDatabaseRowInput!
+		$pageId: ID!
+	) {
+		updateDatabaseRow(id: $updateDatabaseRowId, input: $input, pageId: $pageId) {
+			_id
+			values
+			createdAt
+			updatedAt
+			createdBy
+			updatedBy
+			databaseId
+		}
+	}
+`;

@@ -28,6 +28,10 @@ import {
 	deleteBlockMutation,
 	createDatabaseMutation,
 	createDatabaseViewMutation,
+	getDatabaseRowsQuery,
+	getDatabaseQuery,
+	addDatabaseRowMutation,
+	updateDatabaseRowMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -42,6 +46,7 @@ export const intialState = {
 	blocks: null,
 	database: null,
 	views: null,
+	rowData: null,
 };
 
 export const NotesState = (props) => {
@@ -711,7 +716,7 @@ export const NotesState = (props) => {
 			if (response?.[0]) {
 				const databaseMetadata = response?.[1]?.data?.createDatabase;
 				dispatch({
-					type: Actions.ADD_DATABASE,
+					type: Actions.UPDATE_DATABASE,
 					payload: {
 						[databaseMetadata?._id]: {
 							databaseMetadata,
@@ -751,6 +756,95 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const getDatabase = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getDatabaseQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_DATABASE,
+					payload: {
+						[payload?.databaseId]: {
+							databaseMetadata: response?.[1]?.data?.database,
+						},
+					},
+				});
+			} else {
+				return null;
+			}
+		} catch (error) {
+			console.error('error==>getDatabase', error);
+		}
+	};
+
+	const getDatabaseRows = async (payload, blockId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getDatabaseRowsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_DATABASE_ROWS,
+					payload: {
+						[blockId]: {
+							...(state?.rowData?.[blockId] || {}),
+							...response?.[1]?.data?.databaseRows,
+						},
+					},
+				});
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.error('error==>getDatabaseRows', error);
+		}
+	};
+
+	const addDatabaseRow = async (payload, blockId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				addDatabaseRowMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_DATABASE_ROWS,
+					payload: {
+						[blockId]: {
+							...(state?.rowData?.[blockId] || {}),
+							data: [
+								...(state?.rowData?.[blockId]?.data || []),
+								response?.[1]?.data?.createDatabaseRow,
+							],
+						},
+					},
+				});
+			}
+		} catch (error) {
+			console.error('error==>addDatabaseRow', error);
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -781,5 +875,8 @@ export const NotesState = (props) => {
 		deleteBlock,
 		createDatabase,
 		createDatabaseView,
+		getDatabaseRows,
+		getDatabase,
+		addDatabaseRow,
 	};
 };

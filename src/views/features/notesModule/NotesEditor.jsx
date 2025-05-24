@@ -427,7 +427,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const loadNotesContent = useCallback(
 		(data) => {
 			if (data?.length) {
-				editor.replaceBlocks(editor.document, data);
+				queueMicrotask(() => {
+					editor.replaceBlocks(editor.document, data);
+				});
 			}
 			setInfo((prev) => ({ ...prev, loading: false }));
 		},

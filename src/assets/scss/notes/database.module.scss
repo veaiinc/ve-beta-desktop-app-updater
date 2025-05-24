@@ -1,0 +1,15 @@
+.notesDatabaseContainer {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: fit-content;
+	overflow-x: scroll;
+	padding-bottom: 20px;
+
+	.notesDatabaseHeader {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding-bottom: 10px;
+	}
+}

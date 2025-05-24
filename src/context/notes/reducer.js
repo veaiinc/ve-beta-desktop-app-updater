@@ -10,7 +10,7 @@ const actionHandlers = {
 	SET_GLOBAL_ACCESS: (state, action) => ({ ...state, globalAccess: action?.payload }),
 	SET_BLOCKS: (state, action) => ({ ...state, blocks: action?.payload }),
 	UPDATE_NOTES_STATE: (state, action) => ({ ...state, ...action?.payload }),
-	ADD_DATABASE: (state, action) => ({
+	UPDATE_DATABASE: (state, action) => ({
 		...state,
 		database: { ...state.database, ...action?.payload },
 	}),
@@ -18,14 +18,14 @@ const actionHandlers = {
 		const { [action?.payload?.databaseId]: _, ...newDatabase } = state.database;
 		return { ...state, database: newDatabase };
 	},
-	UPDATE_DATABASE: (state, action) => ({
-		...state,
-		database: { ...state.database, ...action?.payload },
-	}),
 	SET_BLOCK_MAPPER: (state, action) => ({ ...state, blockMapper: action?.payload }),
 	CREATE_DATABASE_VIEW: (state, action) => ({
 		...state,
 		views: { ...state.views, ...action?.payload },
+	}),
+	UPDATE_DATABASE_ROWS: (state, action) => ({
+		...state,
+		rowData: { ...state.rowData, ...action?.payload },
 	}),
 	RESET_STATE: () => intialState,
 };
