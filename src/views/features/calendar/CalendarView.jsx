@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState, useContext, useEffect, useCallback } from 'react';
+import { memo, useMemo, useState, useContext, useEffect, useCallback } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
 import '../../../assets/scss/calendar/calendarView.scss';
 import CalendarWrapper from '../../components/calendar/CalendarWrapper';
@@ -10,7 +10,7 @@ import MonthEventWrapper from '../../components/calendar/MonthEventWrapper';
 import Context from '../../../context/context';
 import moment from 'moment';
 import EventDetailsModal from '../../components/modalsV2/calendar/EventDetailsModal';
-// import EventsPopUp from '../../components/calendar/EventsPopUp';
+import EventsPopUp from '../../components/calendar/EventsPopUp';
 import { message } from '../../components/globalComponents/CustomToast';
 
 const initialState = {
@@ -243,7 +243,7 @@ const CalendarView = ({
 		setInfo((prev) => ({
 			...prev,
 			isCreateEventOpen: true,
-			selectedSlot: event?.start,
+			selectedSlot: event,
 		}));
 	}, []);
 
@@ -289,13 +289,13 @@ const CalendarView = ({
 					filterDeletedEvent={filterDeletedEvent}
 					onClose={onClose}
 				/>
-				{/* <EventsPopUp
+				<EventsPopUp
 					open={info?.isCreateEventOpen}
 					closeModal={handleCloseEventPopup}
 					categoryList={categoryList}
 					selectedCategory={selectedCategory}
 					selectedSlot={info?.selectedSlot}
-				/> */}
+				/>
 			</div>
 		</>
 	);

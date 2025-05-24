@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import '../../../assets/scss/subscriptions/subscriptionsCard.scss';
 import { ReactComponent as Tasks } from '../../../assets/svg/subscription/tasks.svg';

@@ -103,7 +103,6 @@ const MoveStageModal = ({
 						dropDownStyle={{
 							top: '50px',
 							left: 'unset',
-							width: 'auto',
 							height: 'auto',
 							width: '100%',
 						}}

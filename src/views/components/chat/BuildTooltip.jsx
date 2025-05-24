@@ -1,4 +1,4 @@
-import React, { memo, useContext } from 'react';
+import { memo, useContext } from 'react';
 import '../../../assets/scss/chat/buildTooltip.scss';
 import { Tooltip } from 'antd';
 import Context from '../../../context/context';
@@ -26,17 +26,15 @@ const BuildTooltip = ({ children }) => {
 			color="transparent"
 			title={
 				<div className="build-tooltip-container">
-					{buildOptions?.map((option) => {
-						return (
-							<div
-								className="option"
-								key={option?.id}
-								onClick={() => handleOptionClick(option)}
-							>
-								{option?.title || ''}
-							</div>
-						);
-					})}
+					{buildOptions?.map((option) => (
+						<div
+							className="option"
+							key={option?.id}
+							onClick={() => handleOptionClick(option)}
+						>
+							{option?.title || ''}
+						</div>
+					))}
 				</div>
 			}
 		>

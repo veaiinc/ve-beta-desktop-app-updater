@@ -6,7 +6,6 @@ import { FetchMoreLoaderComp } from '../../../../helpers';
 import InfiniteScroll from '../../../components/globalComponents/InfiniteScroll';
 import moment from 'moment';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ReactComponent as Search } from '../../../../assets/svg/sidebar/notifications/search.svg';
 import debounce from 'lodash/debounce';
 import ObjectID from 'bson-objectid';
 const infiniteScrollStyle = {

@@ -40,7 +40,6 @@ import {
 	createBlankWorkflowQuery,
 	createBlankTemplateQuery,
 	getFormResponseQuery,
-	getFormResponseSummaryQuery,
 	getFormResponseAnalyticsQuery,
 	updateWorkflowTemplateQuery,
 	duplicateSmartFileQuery,

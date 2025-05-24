@@ -24,7 +24,7 @@ const Stages = () => {
 	}
 	const usertoken = localStorage.getItem('usertoken');
 	const stageFromLocalStorage = Number(localStorage.getItem('stage') ?? 1);
-	const isUserOnboard = localStorage?.getItem('isOnboard') === 'true' ?? false;
+	const isUserOnboard = localStorage?.getItem('isOnboard') === 'true';
 
 	const {
 		authInfo: {

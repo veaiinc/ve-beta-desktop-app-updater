@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useEffect, useState } from 'react';
 import DropDown from '../../dropDown/tasks/DropDown';
 import '../../../../assets/scss/tasks/listItems.scss';
