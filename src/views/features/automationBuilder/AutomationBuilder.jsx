@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import '../../../assets/scss/automation_builder/automationBuilder.scss';
 import Context from '../../../context/context';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -64,6 +64,46 @@ const AutomationBuilder = () => {
 
 	const navigate = useNavigate();
 	const { automationId } = useParams();
+	const reactFlowWrapper = useRef(null);
+
+	// Add state for viewport dimensions
+	const [viewport, setViewport] = useState({
+		width: window.innerWidth,
+		height: window.innerHeight,
+	});
+
+	// Add resize handler
+	useEffect(() => {
+		const handleResize = () => {
+			setViewport({
+				width: window.innerWidth,
+				height: window.innerHeight,
+			});
+		};
+
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	}, []);
+
+	// Update node positions when viewport changes
+	useEffect(() => {
+		if (nodes.length > 0) {
+			const centerX = viewport.width / 2;
+			const centerY = viewport.height / 2;
+
+			const updatedNodes = nodes.map((node) => {
+				if (node.type === 'startStep') {
+					return {
+						...node,
+						position: { x: centerX - 125, y: centerY - 50 },
+					};
+				}
+				return node;
+			});
+
+			setNodes(updatedNodes);
+		}
+	}, [viewport]);
 
 	const [info, setInfo] = useState({
 		data: null,
@@ -118,10 +158,12 @@ const AutomationBuilder = () => {
 				const steps = [...(incomingData?.steps || [])];
 				getNodesAndEdges(steps);
 			} else {
+				const centerX = viewport.width / 2;
+				const centerY = viewport.height / 2;
 				setNodes([
 					{
 						id: '1',
-						position: { x: 250, y: 0 },
+						position: { x: centerX - 125, y: centerY - 30 },
 						type: 'startStep',
 						data: {
 							onToolBarOpen: handleToolBarOpen,
@@ -131,7 +173,7 @@ const AutomationBuilder = () => {
 			}
 			setInfo((prev) => ({ ...prev, loading: false }));
 		}
-	}, [specificAutomationInfo]);
+	}, [specificAutomationInfo, viewport]);
 
 	useEffect(() => {
 		if (!allEmailTemplates) {
@@ -217,23 +259,20 @@ const AutomationBuilder = () => {
 
 	const getNodesAndEdges = useCallback(
 		(steps) => {
-			// Initialize collections
 			const stepsMapper = {};
-
 			for (let i = 0; i < steps?.length; i++) {
 				stepsMapper[steps[i]._id] = { data: steps[i], nodesMapped: false };
 			}
 			const nodes = [];
 			const edges = [];
 
-			// Track parent positions to align children
 			const parentPositions = new Map();
-			let currentY = 100; // Starting Y position
+			let currentY = 200; // Starting Y position
 
 			// Recursive function to generate nodes and edges
 			const generateNodesAndEdges = (
 				stepId,
-				parentX = 400,
+				parentX = 900,
 				parentY = currentY,
 				branchType = null,
 				isFirstBranch = true,
@@ -535,7 +574,7 @@ const AutomationBuilder = () => {
 			setEdges(edges);
 			setInfo((prev) => ({ ...prev, loading: false, stepsMapper }));
 		},
-		[automationId, changePipelineVisibility, duplicateStep, setEdges, setNodes],
+		[automationId, changePipelineVisibility, duplicateStep, setEdges, setNodes, viewport],
 	);
 
 	const handleToolBarClose = useCallback(() => {
@@ -651,7 +690,7 @@ const AutomationBuilder = () => {
 				<UpdatedPageLoader />
 			) : (
 				<div className="updatedWorkflowBuilderContainer">
-					<div className="reactFlowContainer">
+					<div className="reactFlowContainer" ref={reactFlowWrapper}>
 						<ReactFlowProvider>
 							{info?.sidebarType === 'run' && (
 								<div className="runHistoryNameContainer">{`Run #1`}</div>
@@ -666,7 +705,7 @@ const AutomationBuilder = () => {
 								nodeTypes={nodeTypes}
 								edgeTypes={edgeTypes}
 								fitView
-								defaultViewport={{ x: 0, y: 0, zoom: 0 }}
+								defaultViewport={{ x: 0, y: 0, zoom: 3 }}
 								proOptions={{ hideAttribution: true }}
 							>
 								<Background variant="dots" gap={12} size={0.5} />

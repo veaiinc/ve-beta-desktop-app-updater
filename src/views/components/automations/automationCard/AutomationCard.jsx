@@ -98,9 +98,6 @@ const AutomationCard = ({
 					) : (
 						<>
 							<h1 className="automationTitle">{info?.automationTitle}</h1>
-							<h2 className="automationStatus">
-								{automationStatus === 'published' && 'Live'}
-							</h2>
 						</>
 					)}
 				</div>
@@ -112,7 +109,12 @@ const AutomationCard = ({
 					enableAutomationTitleEditMode={enableAutomationTitleEditMode}
 					handleDeleteAutomation={handleDeleteAutomation}
 				>
-					<ThreeDotsVerticalIcon />
+					<div className="automationStatusContainer">
+						<h2 className="automationStatus">
+							{automationStatus === 'published' && 'Live'}
+						</h2>
+						<ThreeDotsVerticalIcon />
+					</div>
 				</AutomationMenu>
 			</header>
 			<ul className="automationOptions">

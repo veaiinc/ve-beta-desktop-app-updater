@@ -52,21 +52,26 @@
 				padding: 4px 0;
 				border: none;
 			}
-
-			.automationStatus {
-				color: var(--success, #00ff99);
-				font-family: var(--primary-font-family);
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: normal;
-			}
 		}
 
 		.automationMenu {
 			cursor: pointer;
 			background: none;
 			border: none;
+		}
+	}
+	.automationStatusContainer {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		cursor: pointer;
+		.automationStatus {
+			color: var(--success, #00ff99);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
 		}
 	}
 
