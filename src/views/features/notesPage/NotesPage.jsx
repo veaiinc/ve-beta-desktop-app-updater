@@ -1,5 +1,5 @@
 import { memo, useContext, useEffect, useState } from 'react';
-import s from '../../../assets/scss/notesPage/notesPage.module.scss';
+import '../../../assets/scss/notesPage/notesPage.scss';
 import QuickActions from '../../components/globalComponents/QuickActions';
 
 // Components
@@ -7,22 +7,6 @@ import ViewModeSortFilter from '../../components/notesPage/ViewModeSortFilter';
 import CardsViewNotes from '../../components/notesPage/CardsViewNotes';
 import ListViewNotes from '../../components/notesPage/ListViewNotes';
 import Context from '../../../context/context';
-
-// Constants
-const filterOptions = [
-	{ label: 'All', value: 'all' },
-	{ label: 'Private', value: 'private' },
-	{ label: 'Shared', value: 'shared' },
-	{ label: 'Favorite', value: 'favorite' },
-	{ label: 'Published', value: 'published' },
-	{ label: 'Trashed', value: 'trashed' },
-];
-
-const sortOptions = [
-	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
-	{ label: 'Recently Created', value: 'createdAt', sortType: -1 },
-	{ label: 'A-Z', value: 'title', sortType: 1 },
-];
 
 const NotesPage = () => {
 	const {
@@ -57,25 +41,45 @@ const NotesPage = () => {
 		}
 	};
 
+	const setSelectedFilter = (filter) => {
+		setInfo((prev) => ({ ...prev, selectedFilter: filter }));
+	};
+
+	const setSelectedSort = (sort) => {
+		setInfo((prev) => ({ ...prev, selectedSort: sort }));
+	};
+
 	return (
-		<div className={s.notesPageContainer}>
+		<div className="notesPageContainer">
 			<ViewModeSortFilter
 				viewMode={info.viewMode}
 				setViewMode={(viewMode) => setInfo((prev) => ({ ...prev, viewMode }))}
+				setSelectedFilter={setSelectedFilter}
+				setSelectedSort={setSelectedSort}
 			/>
 			<div
-				className={`${s.notesContainer} ${
+				className={`notesContainer ${
 					info.viewMode === 'cards'
-						? s.cardsView
+						? 'cardsView'
 						: info.viewMode === 'list'
-						? s.listView
+						? 'listView'
 						: ''
 				}`}
 			>
 				{info.viewMode === 'cards' ? (
-					<CardsViewNotes notes={notes} fetchMoreNotes={fetchNotes} />
+					<CardsViewNotes
+						notes={notes}
+						fetchMoreNotes={fetchNotes}
+						setSelectedFilter={setSelectedFilter}
+						setSelectedSort={setSelectedSort}
+					/>
 				) : info.viewMode === 'list' ? (
-					<ListViewNotes notes={notes} fetchMoreNotes={fetchNotes} />
+					<ListViewNotes
+						notes={notes}
+						fetchMoreNotes={fetchNotes}
+						setSelectedFilter={setSelectedFilter}
+						setSelectedSort={setSelectedSort}
+					/>
 				) : null}
 			</div>
 			<QuickActions />

@@ -89,13 +89,17 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 					{messageData?.deepResearch && (
 						<DeepResearchChainOfThought
 							data={messageData?.deepResearch}
-							streamEnd={messageData?.message?.length > 0 || messageData?.stream_end}
+							streamEnd={
+								messageData?.message?.length > 0 || messageData?.stream_end || false
+							}
 						/>
 					)}
 					{messageData?.deepSearch && (
 						<DeepSearchChainOfThought
 							data={messageData?.deepSearch}
-							streamEnd={messageData?.message?.length > 0 || messageData?.stream_end}
+							streamEnd={
+								messageData?.message?.length > 0 || messageData?.stream_end || false
+							}
 						/>
 					)}
 				</div>

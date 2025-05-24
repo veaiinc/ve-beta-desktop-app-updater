@@ -50,7 +50,7 @@ const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false, strea
 
 									{item?.sources?.length > 0 && (
 										<div className="sources-container">
-											<div className="text-container">Sources</div>
+											<div className="text-container">Reading</div>
 											<Sources sources={item?.sources} />
 										</div>
 									)}
@@ -169,7 +169,7 @@ const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false, strea
 																	{sources?.length > 0 && (
 																		<div className="sources-container">
 																			<div className="source-text">
-																				Sources
+																				Reading
 																			</div>
 																			<Sources
 																				sources={sources}
@@ -298,7 +298,7 @@ const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false, strea
 																	{sources?.length > 0 && (
 																		<div className="sources-container">
 																			<div className="source-text">
-																				Sources
+																				Reading
 																			</div>
 																			<Sources
 																				sources={sources}

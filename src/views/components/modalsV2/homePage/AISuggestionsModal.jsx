@@ -4,7 +4,12 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/ta
 import { ReactComponent as ArrowRightSvg } from '../../../../assets/svg/home_page/arrow-right.svg';
 import { ReactComponent as DeleteSvg } from '../../../../assets/svg/delete.svg';
 import { ReactComponent as CalendarSvg } from '../../../../assets/svg/home_page/calendar.svg';
-
+import { ReactComponent as AgentsSvg } from '../../../../assets/svg/sidebar/agentsIcon.svg';
+import { ReactComponent as RocketSvg } from '../../../../assets/svg/home_page/rocket.svg';
+import { ReactComponent as BulbSvg } from '../../../../assets/svg/home_page/bulb.svg';
+import { ReactComponent as ThumbsUpSvg } from '../../../../assets/svg/thumbsUp.svg';
+import { ReactComponent as ThumbsDownSvg } from '../../../../assets/svg/thumbsDown.svg';
+import CreditCoinImage from '../../../../assets/images/creditCoin.png';
 import { ReactComponent as ArrowUpRightSvg } from '../../../../assets/svg/sidebar/arrowupright.svg';
 import { handleCombinedChainOfThought } from '../../../../helpers/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
@@ -24,9 +29,7 @@ import {
 } from '../../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import PromptPopup from '../../homePage/PromptPopup';
-import CreditCoinImage from '../../../../assets/images/creditCoin.png';
-import { ReactComponent as BulbSvg } from '../../../../assets/svg/home_page/bulb.svg';
-import { ReactComponent as RocketSvg } from '../../../../assets/svg/home_page/rocket.svg';
+import ShareWidget from '../../globalComponents/ShareWidget';
 const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
@@ -51,6 +54,7 @@ const AISuggestionsModal = ({
 			hasChainOfThought: false,
 		},
 		feedbackPopupOpen: false,
+		sharePopupOpen: false,
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -215,6 +219,27 @@ const AISuggestionsModal = ({
 		}
 	}, [data?._id, getAISuggestedPendingActions, onClose, pendingActionsUpdate]);
 
+	const handleShareClick = () => {
+		setInfo((prev) => ({
+			...prev,
+			sharePopupOpen: true,
+		}));
+	};
+
+	const handleCloseSharePopup = () => {
+		setInfo((prev) => ({
+			...prev,
+			sharePopupOpen: false,
+		}));
+	};
+
+	const handleOpenFeedbackPopup = () => {
+		setInfo((prev) => ({
+			...prev,
+			feedbackPopupOpen: true,
+		}));
+	};
+
 	const {
 		title,
 		description,
@@ -254,17 +279,6 @@ const AISuggestionsModal = ({
 			bodyStyle={{ padding: '0px' }}
 			rootClassName="ai-suggestions-drawer"
 		>
-			{info?.feedbackPopupOpen && (
-				<PromptPopup
-					messageId={data?._id}
-					liked={info?.selectedFeedback}
-					open={info?.feedbackPopupOpen}
-					feedbackPopupOpen={info?.feedbackPopupOpen}
-					closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
-					feedbackType="pendingActionFeedback"
-					setLiked={(liked) => setInfo((prev) => ({ ...prev, selectedFeedback: liked }))}
-				/>
-			)}
 			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
 				<div className="drag-handler" onMouseDown={handleMouseDown} />
 
@@ -286,9 +300,21 @@ const AISuggestionsModal = ({
 							</div>
 
 							<div className="right-container">
-								{/* <div className="btn share-btn">
-									<ShareSvg />
-								</div> */}
+								<div className="btn teach-me-btn" onClick={handleOpenFeedbackPopup}>
+									<AgentsSvg style={{ color: 'var(--primary-button)' }} /> Teach
+									me
+								</div>
+								{/* <Tooltip
+									title={<div className="tooltipOption">Share</div>}
+									placement="bottom"
+									color="transparent"
+									arrow={false}
+								>
+									<div className="btn share-btn" onClick={handleShareClick}>
+										<ShareSvg />
+									</div>
+								</Tooltip> */}
+
 								{/* <div className="btn download-btn">
 									<DownloadSvg />
 								</div> */}
@@ -874,6 +900,18 @@ const AISuggestionsModal = ({
 					</div>
 				</div>
 			</div>
+
+			<ShareWidget isOpen={info?.sharePopupOpen} onClose={handleCloseSharePopup} />
+
+			<PromptPopup
+				messageId={data?._id}
+				liked={info?.selectedFeedback}
+				open={info?.feedbackPopupOpen}
+				feedbackPopupOpen={info?.feedbackPopupOpen}
+				closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
+				feedbackType="pendingActionFeedback"
+				setLiked={(liked) => setInfo((prev) => ({ ...prev, selectedFeedback: liked }))}
+			/>
 		</Drawer>
 	);
 };
