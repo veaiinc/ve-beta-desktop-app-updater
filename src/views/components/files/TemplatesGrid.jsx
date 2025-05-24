@@ -12,6 +12,7 @@ import { message } from '../globalComponents/CustomToast';
 import moment from 'moment';
 import EmptyState from './EmptyState';
 import { Tooltip } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 const filterOptions = [
 	{ label: 'All', value: '' },
@@ -32,6 +33,8 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 	const {
 		templates: { myWorkflows, getMyWorkflows, createBlankTemplate },
 	} = useContext(Context);
+
+	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		workflowTemplates: [],
@@ -220,7 +223,7 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 	};
 
 	const handleCardClick = (templateId) => {
-		window.location.href = `${origin}/${templateId}`;
+		navigate(`/builder/${templateId}`);
 	};
 
 	const handleCreateBlankTemplate = async () => {
