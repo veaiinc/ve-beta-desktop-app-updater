@@ -5,6 +5,7 @@ import { Actions } from './actions';
 
 export const initialState = {
 	customDomainData: null,
+	customDomainStatus: null,
 };
 
 export const CustomDomainState = () => {
@@ -55,7 +56,7 @@ export const CustomDomainState = () => {
 			const success = response?.[0];
 			if (success) {
 				const data = response?.[1];
-				dispatch({ type: Actions.SET_CUSTOM_DOMAIN_DATA, payload: data });
+				dispatch({ type: Actions.SET_CUSTOM_DOMAIN_STATUS, payload: data });
 				return [true];
 			} else {
 				return [false];
