@@ -15,7 +15,7 @@
 		gap: 12px;
 
 		.slackActionsContainerBodyItemHeader {
-			color: #f2f2f3;
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
@@ -42,7 +42,7 @@
 				align-self: stretch;
 
 				.inputLabel {
-					color: #7a7e85;
+					color: var(--secondary-font);
 					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
@@ -58,7 +58,7 @@
 					align-self: stretch;
 					border-radius: 12px;
 					border: 1px solid #2c2d2e;
-					color: #f2f2f3;
+					color: var(--primary-font);
 					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
@@ -67,7 +67,7 @@
 					background-color: transparent;
 
 					&::placeholder {
-						color: #7a7e85;
+						color: var(--secondary-font);
 					}
 				}
 			}
@@ -75,12 +75,11 @@
 		.actionsSaveButton {
 			display: flex;
 			padding: 12px;
-			background-color: #202123;
+			background-color: var(--card);
 			justify-content: center;
 			align-items: center;
 			cursor: pointer;
-			color: #f2f2f3;
-			color: color(display-p3 0.949 0.949 0.9529);
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
@@ -119,6 +118,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
+		width: 100%;
 
 		.messageLineWrapper {
 			display: flex;

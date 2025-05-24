@@ -122,6 +122,10 @@
 				border-radius: 12px;
 				border: 1px solid var(--stroke);
 				cursor: pointer;
+				transition: all 0.3s ease;
+				&:hover {
+					background: var(--card-over-card-hover);
+				}
 
 				.integrationIcon {
 					display: flex;
@@ -370,7 +374,7 @@
 			transition: all 0.3s ease;
 
 			&:hover {
-				background: var(--card);
+				background: var(--card-over-card-hover);
 			}
 		}
 	}
