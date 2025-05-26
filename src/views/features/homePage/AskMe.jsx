@@ -38,7 +38,7 @@ const AskMe = () => {
 					<ChatBox
 						onSend={handleCustomOnSendFunction}
 						customChatActions={true}
-						autoFocus={false}
+						autoFocus={true}
 						animatePlaceholder={true}
 						onChatQueryChange={handleChatQueryChange}
 					/>
