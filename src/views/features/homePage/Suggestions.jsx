@@ -20,7 +20,7 @@ const Suggestions = ({ data }) => {
 		navigate(`/chat/${sessionId}`);
 	};
 	return (
-		<div className="suggestions-container">
+		<div className="suggestions-wrapper">
 			{data?.map((suggestion, index) => (
 				<div
 					className="suggestion-container"
