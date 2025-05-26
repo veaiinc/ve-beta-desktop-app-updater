@@ -731,7 +731,7 @@
 					border-radius: 12px;
 
 					&:hover {
-						background: var(--background-color, #2f3336);
+						background: var(--card-hover, #2f3336);
 					}
 					.file-type-icon {
 						display: flex;
@@ -787,7 +787,7 @@
 			cursor: pointer;
 
 			&:hover {
-				background: var(--background-color, #2f3336);
+				background: var(--card-hover, #2f3336);
 			}
 
 			.upload-file-text {
