@@ -1,7 +1,7 @@
 import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import validator from 'validator';
 import '../../../assets/scss/login_page/index.scss';
-import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
+import GoogleLogo from '../../../assets/svg/login_page/GmailIcon';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import Context from '../../../context/context';
