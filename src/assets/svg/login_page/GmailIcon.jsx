@@ -9,7 +9,7 @@ const GmailIcon = ({ width = 24, height = 20 }) => {
 			viewBox="0 0 24 20"
 			fill="none"
 		>
-			<g clip-path="url(#clip0_9289_90404)">
+			<g clipPath="url(#clip0_9289_90404)">
 				<path
 					d="M5.45456 18.9574V9.68462L2.57878 7.05372L0 5.59375V17.321C0 18.2265 0.733594 18.9574 1.63641 18.9574H5.45456Z"
 					fill="#4285F4"

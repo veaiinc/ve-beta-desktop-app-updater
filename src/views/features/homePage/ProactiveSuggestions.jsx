@@ -728,7 +728,7 @@ const ProactiveSuggestions = () => {
 			</>
 			{info?.isListView ? (
 				<div className="proactiveSuggestionsContainer">
-					{info?.loading && aiSuggestedPendingActions?.pendingActions?.length === 0 ? (
+					{info?.loading && !aiSuggestedPendingActions?.pendingActions?.length ? (
 						<div className="skeleton-container">
 							{skeletonLoaders?.map((_, index) => (
 								<Skeleton
@@ -755,7 +755,9 @@ const ProactiveSuggestions = () => {
 								<InfiniteScroll
 									dataLength={info?.cards?.length || 0}
 									hasMore={
-										aiSuggestedPendingActions?.metaInfo?.hasNextPage || false
+										(aiSuggestedPendingActions?.metaInfo?.hasNextPage &&
+											info?.cards?.length) ||
+										false
 									}
 									next={fetchMorePendingActions}
 									style={infiniteScrollStyle}

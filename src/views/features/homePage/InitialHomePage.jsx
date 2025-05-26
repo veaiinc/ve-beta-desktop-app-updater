@@ -6,7 +6,6 @@ import ProactiveSuggestions from './ProactiveSuggestions';
 import ChatPrompts from './ChatPrompts';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
-import ChatBox from '../../components/chat/ChatBox';
 import { message } from '../../components/globalComponents/CustomToast';
 import { Tooltip } from 'antd';
 import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
@@ -15,10 +14,18 @@ import { ReactComponent as CalendarSvg } from '../../../assets/svg/home_page/cal
 import { ReactComponent as TaskSvg } from '../../../assets/svg/home_page/tasks.svg';
 import { ReactComponent as ContactSvg } from '../../../assets/svg/home_page/contacts.svg';
 import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/automation.svg';
-import Suggestions from './Suggestions';
-import BuildOptions from './BuildOptions';
+import VeSvg from '../../../assets/svg/veSvg';
+import AskMe from './AskMe';
 
 const optionsList = [
+	{
+		id: 0,
+		label: 'Ask',
+		value: 'ask',
+		tooltip: 'Ask anything',
+		showOption: true,
+		icon: VeSvg,
+	},
 	{
 		id: 1,
 		label: 'Proactive',
@@ -140,50 +147,12 @@ const SuggestedOptions = [
 	},
 ];
 
-const suggestions = [
-	{
-		id: 1,
-		text: 'Use a task management system to prioritize tasks based on urgency and importance.',
-	},
-	{
-		id: 2,
-		text: 'Draft and send a follow-up email to a client',
-	},
-	{
-		id: 3,
-		text: 'Deep research “latest industry trends” with sources',
-	},
-	{
-		id: 4,
-		text: 'Generate a professional-looking form in seconds',
-	},
-	{
-		id: 5,
-		text: 'Search across Gmail, Drive, and Notion for “invoice”',
-	},
-	{
-		id: 6,
-		text: 'Summarize all emails from today',
-	},
-	{
-		id: 7,
-		text: 'Schedule a meeting for next week',
-	},
-	{
-		id: 8,
-		text: 'Create a new contact',
-	},
-	{
-		id: 9,
-		text: 'Create a new automation',
-	},
-];
 const InitialHomePage = () => {
 	const {
-		templates: { updateStateValues, currentSessionId },
+		templates: { updateStateValues },
 		profileInfo: { tenantUserAccessControls },
 		aiSetup: { getPromptsData, promptsData },
-		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions, chatInfo },
+		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
@@ -197,10 +166,6 @@ const InitialHomePage = () => {
 			acc[option.value] = false;
 			return acc;
 		}, {}),
-		minimizedChatBox: true,
-		minimizedChatBoxState: true,
-		showSuggestions: false,
-		chatQuery: '',
 	});
 
 	useEffect(() => {
@@ -288,22 +253,6 @@ const InitialHomePage = () => {
 		}
 	}, [info?.selectedOption]);
 
-	const handleContainerClick = useCallback(() => {
-		if (info?.minimizedChatBox) return;
-
-		setInfo((prev) => ({
-			...prev,
-			minimizedChatBox: true,
-			showSuggestions: false,
-		}));
-		timeoutIdRef.current = setTimeout(() => {
-			setInfo((prev) => ({
-				...prev,
-				minimizedChatBoxState: true,
-			}));
-		}, 300);
-	}, [info?.minimizedChatBox]);
-
 	const handleUpdateOptions = (value) => {
 		let updatedOptions = info?.options;
 		updatedOptions = updatedOptions?.map((option) => {
@@ -319,13 +268,6 @@ const InitialHomePage = () => {
 			...prev,
 			options: updatedOptions,
 			selectedOption,
-		}));
-	};
-
-	const handleChatQueryChange = (query) => {
-		setInfo((prev) => ({
-			...prev,
-			chatQuery: query,
 		}));
 	};
 
@@ -374,10 +316,23 @@ const InitialHomePage = () => {
 						}`}
 						onClick={() => handleOptionSelection(option)}
 					>
-						<div className="option-label">
-							<Icon />
-							{option?.label}
-						</div>
+						{option?.id === 0 ? (
+							<div className="option-label">
+								{option?.label}
+								<Icon
+									fill={
+										info?.selectedOption === option?.value
+											? 'var(--primary-button)'
+											: 'var(--secondary-font)'
+									}
+								/>
+							</div>
+						) : (
+							<div className="option-label">
+								<Icon />
+								{option?.label}
+							</div>
+						)}
 					</div>
 				</Tooltip>
 			);
@@ -390,29 +345,10 @@ const InitialHomePage = () => {
 		handleOptionSelection, // make sure this is stable (e.g., memoized if needed)
 	]);
 
-	const handleCustomOnSendFunction = useCallback(
-		(data) => {
-			updateStateValues({ activePayloadForChat: data });
-			navigate(`/chat/${currentSessionId}`);
-		},
-		[currentSessionId],
-	);
-
 	const updatePromptsCategory = (value) => {
 		setInfo((prev) => ({
 			...prev,
 			promptsCategory: value,
-		}));
-	};
-
-	const handleCustomChatBoxClick = (e) => {
-		e?.stopPropagation();
-		if (!info?.minimizedChatBox) return;
-		setInfo((prev) => ({
-			...prev,
-			minimizedChatBox: false,
-			minimizedChatBoxState: false,
-			showSuggestions: true,
 		}));
 	};
 
@@ -424,6 +360,7 @@ const InitialHomePage = () => {
 			task: <GlobalWidget option={'task'} />,
 			automation: <GlobalWidget option={'automation'} />,
 			contact: <GlobalWidget option={'contacts'} />,
+			ask: <AskMe />,
 		}),
 		[info?.promptsCategory],
 	);
@@ -436,7 +373,6 @@ const InitialHomePage = () => {
 	return (
 		<div
 			className={`initial-home-page-container`}
-			onClick={handleContainerClick}
 			style={{
 				...(options?.length === 0 && { justifyContent: 'center' }),
 			}}
@@ -459,27 +395,6 @@ const InitialHomePage = () => {
 					</div>
 					{/* <div className="sub-text">Answers before you Ask!</div> */}
 				</div>
-				<div
-					className={`chatbox-wrapper ${
-						!info?.minimizedChatBox ? 'expanded' : 'minimized'
-					}`}
-				>
-					<div className={`chatbox-container `}>
-						<ChatBox
-							onSend={handleCustomOnSendFunction}
-							customChatActions={true}
-							autoFocus={false}
-							animatePlaceholder={true}
-							startPage={info?.minimizedChatBoxState}
-							customChatBoxClick={handleCustomChatBoxClick}
-							onChatQueryChange={handleChatQueryChange}
-						/>
-					</div>
-				</div>
-
-				{chatInfo?.build && info?.chatQuery?.length === 0 && !info?.minimizedChatBox && (
-					<BuildOptions />
-				)}
 
 				{!info?.showSuggestions && (
 					<div className="options-container">{renderedOptions}</div>
@@ -490,8 +405,6 @@ const InitialHomePage = () => {
 					{componentMapper[info?.selectedOption]}
 				</div>
 			)}
-
-			{info?.showSuggestions && <Suggestions data={suggestions} />}
 		</div>
 	);
 };
