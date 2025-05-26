@@ -411,6 +411,8 @@
 
 	.build-icon-arrow {
 		svg {
+			width: 16px;
+			height: 16px;
 			fill: var(--primary-font);
 		}
 	}
@@ -448,11 +450,6 @@
 		align-items: center;
 		justify-content: center;
 		gap: 6px;
-
-		svg {
-			width: 16px;
-			height: 16px;
-		}
 
 		.icon-text {
 			overflow: hidden;
