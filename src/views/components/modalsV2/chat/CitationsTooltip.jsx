@@ -22,7 +22,7 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 		},
 	} = useContext(Context);
 	const [citationData, setCitationData] = useState(null);
-	const [citationInfo, setCitationInfo] = useState({});
+	const [citationInfo, setCitationInfo] = useState(null);
 	const number = citationId?.slice(1);
 
 	useEffect(() => {
@@ -100,7 +100,7 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 							{citationInfo?.source ? (
 								<Markdown>{processedCitationData}</Markdown>
 							) : (
-								citationInfo?.snippet
+								citationInfo?.snippet || ''
 							)}
 						</div>
 					)}

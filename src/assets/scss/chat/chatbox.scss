@@ -408,14 +408,6 @@
 .build-icon-container {
 	position: relative;
 	left: -3px;
-
-	.build-icon-arrow {
-		svg {
-			width: 16px;
-			height: 16px;
-			fill: var(--primary-font);
-		}
-	}
 }
 .chat-box-icon-container {
 	display: flex;
@@ -451,6 +443,12 @@
 		justify-content: center;
 		gap: 6px;
 
+		.icon-arrow {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
 		.icon-text {
 			overflow: hidden;
 			text-overflow: ellipsis;
@@ -463,13 +461,6 @@
 
 			&:hover {
 				color: var(--primary-font);
-			}
-		}
-
-		.icon-arrow {
-			svg {
-				width: 12px;
-				height: 12px;
 			}
 		}
 	}
