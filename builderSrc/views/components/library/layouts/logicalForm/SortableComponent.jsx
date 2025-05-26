@@ -4777,7 +4777,7 @@ const SortableComponent = ({
 						>
 							<button
 								ref={addButtonRef}
-								className="action-button"
+								className="builder__action-button"
 								onClick={(e) => {
 									e.preventDefault();
 									setShowInlineDropdown(!showInlineDropdown);
@@ -4798,7 +4798,7 @@ const SortableComponent = ({
 									trigger="hover"
 								>
 									<button
-										className="action-button condition-button"
+										className="builder__action-button condition-button"
 										onClick={(e) => {
 											e.preventDefault();
 											setShowConditions(!showConditions);
@@ -4817,7 +4817,7 @@ const SortableComponent = ({
 							trigger="hover"
 						>
 							<button
-								className="action-button"
+								className="builder__action-button"
 								onClick={(e) => {
 									e.preventDefault();
 									onDuplicate(field, _id);
@@ -4835,7 +4835,7 @@ const SortableComponent = ({
 								trigger="hover"
 							>
 								<button
-									className="action-button"
+									className="builder__action-button"
 									onClick={(e) => {
 										e.preventDefault();
 										onDelete(field.id, _id);
@@ -4857,7 +4857,7 @@ const SortableComponent = ({
 									trigger="hover"
 								>
 									<button
-										className="action-button"
+										className="builder__action-button"
 										onClick={(e) => {
 											e.preventDefault();
 											e.stopPropagation();
@@ -5696,7 +5696,7 @@ const SortableComponent = ({
 							<When /> When
 						</span>
 						<button
-							className="action-button"
+							className="builder__action-button"
 							onClick={(e) => {
 								e.preventDefault();
 								setShowConditions(false);
@@ -5928,7 +5928,7 @@ const SortableComponent = ({
 									</div>
 								)}
 							<button
-								className="action-button remove-condition"
+								className="builder__action-button remove-condition"
 								onClick={(e) => {
 									e.preventDefault();
 									onRemoveCondition(field.id, index, 'actions', _id);

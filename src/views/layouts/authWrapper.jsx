@@ -37,6 +37,9 @@ const AuthWrapper = ({
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
 	const accessControls = useAccessControls();
+
+	const builderActive = !location.pathname.includes('/builder');
+
 	useEffect(() => {
 		checkAuth();
 	}, []);
@@ -65,19 +68,21 @@ const AuthWrapper = ({
 					className="auth-wrapper-container"
 				>
 					<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
-						<div
-							style={{
-								...sidebarContainerStyles,
-								height: 'fit-content',
-								position: 'relative',
-							}}
-							className={sidebarContainerClassName}
-						>
-							<Sidebar
-								setActiveWorkspaceId={setActiveWorkspaceId}
-								activeWorkspaceId={workspaceId}
-							/>
-						</div>
+						{builderActive && (
+							<div
+								style={{
+									...sidebarContainerStyles,
+									height: 'fit-content',
+									position: 'relative',
+								}}
+								className={sidebarContainerClassName}
+							>
+								<Sidebar
+									setActiveWorkspaceId={setActiveWorkspaceId}
+									activeWorkspaceId={workspaceId}
+								/>
+							</div>
+						)}
 
 						<div
 							style={{
