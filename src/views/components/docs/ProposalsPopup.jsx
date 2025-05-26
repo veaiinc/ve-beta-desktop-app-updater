@@ -112,7 +112,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 					`/builder/workflow/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`,
 				);
 			} else {
-				navigate(`/builder/smart-file/${info?.activeTemplateData?._id}/${smartfile?._id}`);
+				navigate(`/smart-file/${info?.activeTemplateData?._id}/${smartfile?._id}`);
 			}
 		}
 	}, [smartfile]);

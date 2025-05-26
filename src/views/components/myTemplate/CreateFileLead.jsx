@@ -352,7 +352,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 						`/builder/workflow/${response?.[1]?._id}?workflow=true&templateId=${workflow?._id}`,
 					);
 				} else {
-					navigate(`/builder/smart-file/${workflow?._id}/${response?.[1]?._id}`);
+					navigate(`/smart-file/${workflow?._id}/${response?.[1]?._id}`);
 				}
 			} else {
 				setInfo((prev) => ({
