@@ -28,6 +28,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import FormPreview from './FormPreview';
 import moment from 'moment';
 import { fetchOriginSelection } from '../../../helpers';
+import { useNavigate } from 'react-router-dom';
 
 const origin = fetchOriginSelection();
 const iconsForQuestions = {
@@ -382,6 +383,7 @@ const FormDescriptionSkeleton = () => {
 };
 
 const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
+	const navigate = useNavigate();
 	const getName = (response) => {
 		if (!response?.response) return 'No Name';
 		const nameField = response?.response.find(
@@ -505,13 +507,15 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 					<>
 						<span
 							className="createDocumentButton"
-							onClick={() => {
-								window.location.href = `${origin}/create-document?formResponseId=${
-									response?._id
-								}&name=${getName(response)}&email=${getEmail(
-									response,
-								)}&phoneNumber=${getPhone(response)}`;
-							}}
+							onClick={() =>
+								navigate(
+									`/builder/create-document?formResponseId=${
+										response?._id
+									}&name=${getName(response)}&email=${getEmail(
+										response,
+									)}&phoneNumber=${getPhone(response)}`,
+								)
+							}
 						>
 							Create Document
 						</span>

@@ -266,7 +266,7 @@ const GlobalWorkflows = () => {
 			if (info?.activeTab !== 'design') {
 				return navigate(`/workflow_builder/${response?.[1]?._id}`);
 			} else {
-				window.location.href = `${origin}/${response?.[1]?._id}`;
+				navigate(`/builder/${response?.[1]?._id}`);
 				return;
 			}
 		}
