@@ -20,11 +20,12 @@ const CardsViewNotes = ({ notes, fetchMoreNotes }) => {
 	const notesList = notes?.data ?? [];
 	const hasNextPage = notes?.hasNextPage ?? false;
 	const currentPage = notes?.currentPage ?? 1;
+	const nextPage = currentPage + 1;
 	const dataLength = notesList.length;
 
 	return (
 		<InfiniteScroll
-			next={() => fetchMoreNotes({ page: currentPage + 1, append: true })}
+			next={() => fetchMoreNotes({ page: nextPage, append: true })}
 			hasMore={hasNextPage}
 			dataLength={dataLength}
 			loader={<FetchMoreLoaderComp />}

@@ -7,10 +7,11 @@ import BuildOptions from './BuildOptions';
 import Suggestions from './Suggestions';
 
 const AskMe = () => {
+	const navigate = useNavigate();
+
 	const {
 		templates: { currentSessionId, chatInfo },
 	} = useContext(Context);
-	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		chatQuery: '',
@@ -44,9 +45,7 @@ const AskMe = () => {
 					/>
 				</div>
 			</div>
-
 			{chatInfo?.build && info?.chatQuery?.length === 0 && <BuildOptions />}
-
 			{info?.showSuggestions && <Suggestions />}
 		</div>
 	);
