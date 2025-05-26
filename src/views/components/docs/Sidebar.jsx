@@ -396,7 +396,9 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 				? navigate(
 						`/smart-file/${info?.activeFileData?.templateId}/${info?.activeFileData?._id}`,
 				  )
-				: (window.location.href = `${origin}/workflow/${info?.activeFileData?._id}?workflow=true&templateId=${info?.activeFileData?.templateId}`);
+				: navigate(
+						`/builder/workflow/${info?.activeFileData?._id}?workflow=true&templateId=${info?.activeFileData?.templateId}`,
+				  );
 		}
 	}, [info?.activeFileData]);
 

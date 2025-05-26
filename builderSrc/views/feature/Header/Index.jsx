@@ -1,20 +1,16 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
-import { ReactComponent as SideIcon } from '../../../assets/svg/smartFile/SideIcon.svg';
 import { ReactComponent as LeftArrow } from '../../../assets/svg/smartFile/Leftarrow.svg';
 import { ReactComponent as Edit } from '../../../assets/svg/smartFile/Edit.svg';
 import { ReactComponent as Status } from '../../../assets/svg/smartFile/Status.svg';
-import { ReactComponent as Pages } from '../../../assets/svg/smartFile/Pages.svg';
 import { ReactComponent as Divider } from '../../../assets/svg/smartFile/Divider.svg';
 import { ReactComponent as Settings } from '../../../assets/svg/smartFile/Setting.svg';
 import { ReactComponent as Threedot } from '../../../assets/svg/smartFile/Threedot.svg';
 import { ReactComponent as Desktop } from '../../../assets/svg/smartFile/Desktop.svg';
 import { ReactComponent as Mobile } from '../../../assets/svg/smartFile/Mobile.svg';
-import { ReactComponent as MobileLock } from '../../../assets/svg/smartFile/MobileLock.svg';
-import { ReactComponent as MobileUnlock } from '../../../assets/svg/smartFile/MobileUnlock.svg';
 import { ReactComponent as Eye } from '../../../assets/svg/smartFile/Eye.svg';
 import { ReactComponent as Share } from '../../../assets/svg/smartFile/Share.svg';
 import '../../../assets/scss/smart-file-components/header.scss';
-import { message, Tooltip, Dropdown } from 'antd';
+import { message, Tooltip } from 'antd';
 import Context from '../../../context/context';
 import MoveStageModal from '../../components/SmartFileDetails/MoveStageModal';
 import DeleteLeadModal from '../../components/SmartFileDetails/DeleteLeadModal';
@@ -23,6 +19,7 @@ import SharePopup from '../../components/HomePopups/SharePopup';
 import moment from 'moment';
 import Title from '../../components/header/title/index';
 import SendEmailModal from '../../components/SmartFileDetails/SendEmailModal';
+import { useNavigate } from 'react-router-dom';
 
 const options = [
 	// { label: 'Edit' },
@@ -67,6 +64,8 @@ const Header = ({
 			updateSmartFileData,
 		},
 	} = useContext(Context);
+
+	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		moveToStageModal: false,
@@ -523,7 +522,7 @@ const Header = ({
 
 	return (
 		<div>
-			<div className="header-wrapper">
+			<div className="builder__header-wrapper">
 				<div className="header-left">
 					{/* <div>
 						<SideIcon />
@@ -531,9 +530,7 @@ const Header = ({
 					<div className="input-wrapper">
 						{/* <LeftArrow onClick={() => navigate(-1)} style={{ cursor: 'pointer' }} /> */}
 						<LeftArrow
-							onClick={() =>
-								(window.location.href = 'https://www.ve.ai/my-templates')
-							}
+							onClick={() => navigate('/my-templates')}
 							style={{ cursor: 'pointer' }}
 						/>
 

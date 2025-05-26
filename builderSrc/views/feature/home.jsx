@@ -3558,7 +3558,7 @@ class Home extends Proposals {
 				_.has(this.state.template, 'version') &&
 				!this.state.template.actions?.includes('form-submission')
 			) {
-				return (window.location.href = `https://ve.ai/my-templates`);
+				return navigate('/my-templates');
 			} else if (this.state.template.actions?.includes('form-submission')) {
 				return this.props.navigate(-1);
 			} else {

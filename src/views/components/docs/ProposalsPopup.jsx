@@ -108,16 +108,20 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 	useEffect(() => {
 		if (smartfile?._id && info?.activeTemplateData?._id) {
 			if (info?.activeTemplateData?.version) {
-				window.location.href = `${origin}/workflow/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+				navigate(
+					`/builder/workflow/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`,
+				);
 			} else {
-				navigate(`/smart-file/${info?.activeTemplateData?._id}/${smartfile?._id}`);
+				navigate(`/builder/smart-file/${info?.activeTemplateData?._id}/${smartfile?._id}`);
 			}
 		}
 	}, [smartfile]);
 
 	useEffect(() => {
 		if (info?.smartfileIdFromExistingClient) {
-			window.location.href = `${origin}/workflow/${info?.smartfileIdFromExistingClient}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+			navigate(
+				`/builder/workflow/${info?.smartfileIdFromExistingClient}?workflow=true&templateId=${info?.activeTemplateData?._id}`,
+			);
 		}
 	}, [info?.smartfileIdFromExistingClient]);
 
@@ -187,7 +191,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 				} else {
 					const res = await duplicateGlobalWorkflowTemplate(payload);
 					if (res?.[0]) {
-						window.location.href = `${origin}/${res?.[1]?._id}`;
+						navigate(`/builder/${res?.[1]?._id}`);
 					}
 				}
 			}

@@ -238,7 +238,7 @@ const MyTemplates = () => {
 		} else if (card?.id === 4) {
 			handleCreateBlankTemplate();
 		} else if (card?.id === 1) {
-			window.location.href = `${origin}/design-builder`;
+			navigate(`/builder/design-builder`);
 		}
 	};
 	const handleCreateBlankTemplate = async () => {
