@@ -227,8 +227,8 @@
 											position: relative;
 											border: 1px solid var(--stroke);
 											z-index: 10;
+											overflow: hidden;
 											.chat-box-icon-container {
-												border: 1px solid transparent;
 												display: flex;
 												justify-content: center;
 												align-items: center;
@@ -268,6 +268,7 @@
 														border-radius: 0px 6px 6px 0px;
 														position: relative;
 														left: -1px;
+														border: 1px solid transparent;
 
 														svg {
 															width: 12px;
