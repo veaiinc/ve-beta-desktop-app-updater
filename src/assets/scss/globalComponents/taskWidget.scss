@@ -134,8 +134,10 @@
 							align-self: stretch;
 							border-radius: 8px;
 							background: var(--popup, #202123);
+							border: 1px solid transparent;
+							transition: all 0.2s ease-in-out;
 							&:hover {
-								background: var(--card-over-card-hover);
+								border: 1px solid var(--stroke-hover);
 							}
 							.taskWidgetSelectOption {
 								width: 14px;

@@ -119,8 +119,10 @@
 				align-self: stretch;
 				border-radius: 8px;
 				background: var(--popup, #202123);
+				transition: all 0.2s ease-in-out;
+				border: 1px solid transparent;
 				&:hover {
-					background: var(--card-over-card-hover);
+					border: 1px solid var(--stroke-hover);
 				}
 				.contactDetails {
 					display: flex;
@@ -153,10 +155,6 @@
 					align-items: center;
 					gap: 10px;
 					border-radius: 24px;
-					background: var(--card-over-card-hover, #2e2f33);
-				}
-
-				&:hover {
 					background: var(--card-over-card-hover, #2e2f33);
 				}
 			}

@@ -87,6 +87,9 @@
 			line-height: normal;
 			border: none;
 			outline: none;
+			&:hover {
+				background-color: var(--card-over-card-hover);
+			}
 		}
 	}
 
