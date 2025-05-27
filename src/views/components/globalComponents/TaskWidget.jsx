@@ -12,6 +12,7 @@ import '../../../assets/scss/globalComponents/taskWidget.scss';
 import { ReactComponent as DownArrowIcon } from '../../../assets/svg/chat/downArrow.svg';
 import { ReactComponent as FiltersIcon } from '../../../assets/svg/tasks/filterLines.svg';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/add.svg';
+import { ReactComponent as ArrowViewIcon } from '../../../assets/svg/calendar/arrowview.svg';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
@@ -820,7 +821,10 @@ const TaskWidget = ({ width, height }) => {
 					navigate('/tasks');
 				}}
 			>
-				<div className="taskWidgetFooterTitle">View Tasks</div>
+				<div className="taskWidgetFooterTitle">
+					<ArrowViewIcon />
+					View Tasks
+				</div>
 				<div className="taskWidgetFooterAdd">
 					<PlusIcon
 						onClick={(e) => {
