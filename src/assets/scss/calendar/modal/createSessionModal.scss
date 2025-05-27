@@ -310,6 +310,30 @@
 		}
 	}
 }
+.rightDrawerInputHeight {
+	// height: 10px !important;
+	border-radius: 8px !important;
+	// border: 1px solid var(--stroke) !important;
+	outline: none !important;
+	border: none !important;
+	background: inherit !important;
+	width: 100%;
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: normal;
+	padding: 2px 8px;
+
+	&.error {
+		border-color: var(--error) !important;
+
+		&:focus {
+			box-shadow: 0 0 0 2px var(--error);
+		}
+	}
+}
 
 .typeOfSession-lable {
 	.ant-picker-input > input {

@@ -16,6 +16,7 @@ import PhoneInput from 'react-phone-number-input';
 import dayjs from 'dayjs';
 import Spinner from '../loaders/Spinner';
 import { isURL } from '../../../helpers';
+import AvailabilitySection from './AvailabilitySection';
 
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
 const sessionTypeInputConfig = {
@@ -57,126 +58,61 @@ const initialInfo = {
 		meetingLink: false,
 		dateRange: false,
 	},
+	bufferEnabled: false,
+	bufferValue: 60,
+	bufferUnit: 'Minutes',
+	maxBookingsEnabled: false,
+	maxBookings: 60,
+	guestPermission: false,
+	durationValue: 12,
+	durationUnit: 'hrs',
+	allDayEvent: false,
+	timeZone: 'India, Sri Lanka Time',
 };
 
 const COLLAPSE_CONFIG = {
 	'one-on-one': [
-		{
-			key: 'duration',
-			icon: <ClockIcon className="collapse-icon" />,
-			label: 'Duration',
-			value: '12 Hrs',
-			description: 'Duration details here.',
-		},
+		{ key: 'duration', icon: <ClockIcon className="collapse-icon" />, label: 'Duration' },
 		{
 			key: 'mode',
 			icon: <VideoIcon className="collapse-icon" />,
 			label: 'Mode of Interaction',
-			value: 'Choose a platform',
-			description: 'Choose a platform for the meeting.',
 		},
 		{
 			key: 'availability',
 			icon: <CalendarIcon className="collapse-icon" />,
 			label: 'Availability',
-			value: 'Weekdays, 9 AM - 5 AM',
-			description: 'Set your available days and times.',
 		},
-		{
-			key: 'settings',
-			icon: <SettingsIcon className="collapse-icon" />,
-			label: 'Booked appointment settings',
-			value: 'No buffer time - No max booking per day - No guest permission',
-			description: 'Appointment settings details.',
-		},
-		{
-			key: 'host',
-			icon: <UserIcon className="collapse-icon" />,
-			label: 'Host',
-			value: 'Avinash (you)',
-			description: 'Host details.',
-		},
+		{ key: 'host', icon: <UserIcon className="collapse-icon" />, label: 'Host' },
 	],
 	group: [
-		{
-			key: 'duration',
-			icon: <ClockIcon className="collapse-icon" />,
-			label: 'Duration',
-			value: '12 Hrs',
-			description: 'Duration details here.',
-		},
+		{ key: 'duration', icon: <ClockIcon className="collapse-icon" />, label: 'Duration' },
 		{
 			key: 'mode',
 			icon: <VideoIcon className="collapse-icon" />,
 			label: 'Mode of Interaction',
-			value: 'Choose a platform',
-			description: 'Choose a platform for the meeting.',
 		},
 		{
 			key: 'availability',
 			icon: <CalendarIcon className="collapse-icon" />,
 			label: 'Availability',
-			value: 'Weekdays, 9 AM - 5 AM',
-			description: 'Set your available days and times.',
 		},
-		{
-			key: 'invitee',
-			icon: <UserIcon className="collapse-icon" />,
-			label: 'Invitee limit',
-			value: '2 Invitees',
-			description: 'Set the maximum number of invitees.',
-		},
-		{
-			key: 'settings',
-			icon: <SettingsIcon className="collapse-icon" />,
-			label: 'Booked appointment settings',
-			value: 'No buffer time - No max booking per day - No guest permission',
-			description: 'Appointment settings details.',
-		},
-		{
-			key: 'host',
-			icon: <UserIcon className="collapse-icon" />,
-			label: 'Host',
-			value: 'Avinash (you)',
-			description: 'Host details.',
-		},
+		{ key: 'invitee', icon: <UserIcon className="collapse-icon" />, label: 'Invitee limit' },
+		{ key: 'host', icon: <UserIcon className="collapse-icon" />, label: 'Host' },
 	],
 	'round-robin': [
-		{
-			key: 'duration',
-			icon: <ClockIcon className="collapse-icon" />,
-			label: 'Duration',
-			value: '12 Hrs',
-			description: 'Duration details here.',
-		},
+		{ key: 'duration', icon: <ClockIcon className="collapse-icon" />, label: 'Duration' },
 		{
 			key: 'mode',
 			icon: <VideoIcon className="collapse-icon" />,
 			label: 'Mode of Interaction',
-			value: 'Choose a platform',
-			description: 'Choose a platform for the meeting.',
 		},
 		{
 			key: 'availability',
 			icon: <CalendarIcon className="collapse-icon" />,
 			label: 'Availability',
-			value: 'Weekdays, 9 AM - 5 AM',
-			description: 'Set your available days and times.',
 		},
-		{
-			key: 'settings',
-			icon: <SettingsIcon className="collapse-icon" />,
-			label: 'Booked appointment settings',
-			value: 'No buffer time - No max booking per day - No guest permission',
-			description: 'Appointment settings details.',
-		},
-		{
-			key: 'host',
-			icon: <UserIcon className="collapse-icon" />,
-			label: 'Host',
-			value: 'Avinash (you)',
-			description: 'Host details.',
-		},
+		{ key: 'host', icon: <UserIcon className="collapse-icon" />, label: 'Host' },
 	],
 };
 
@@ -194,6 +130,7 @@ const SchedulerRightDrawer = ({
 
 	const [info, setInfo] = useState({ ...initialInfo });
 	const [activeTab, setActiveTab] = useState('one-on-one');
+	const [availabilitySummary, setAvailabilitySummary] = useState('');
 
 	useEffect(() => {
 		if (mode === 'edit' && sessionData) {
@@ -219,12 +156,24 @@ const SchedulerRightDrawer = ({
 		}
 	}, [createdSession]);
 
+	useEffect(() => {
+		if (mode === 'create' && open) {
+			setInfo((prev) => ({
+				...prev,
+				sessionName: prev.sessionName || 'Add Title',
+				sessionDescription: prev.sessionDescription || 'Add a description for the session',
+			}));
+		}
+	}, [mode, open]);
+
 	const handleClose = useCallback(() => {
 		setInfo({ ...initialInfo });
 		onClose();
 	}, [onClose]);
 
 	const handleCreateOrUpdate = useCallback(() => {
+		// Log all form data for debugging, including duration and all fields
+		console.log('Scheduler Form Data:', info);
 		// Validate date range
 		if (info?.scheduleFrom && info?.scheduleTo && info?.scheduleTo <= info?.scheduleFrom) {
 			setInfo((prev) => ({
@@ -349,6 +298,19 @@ const SchedulerRightDrawer = ({
 		{ id: 'round-robin', label: 'Round Robin' },
 	];
 
+	const handleBufferEnabledChange = (e) =>
+		setInfo((prev) => ({ ...prev, bufferEnabled: e.target.checked }));
+	const handleBufferValueChange = (e) =>
+		setInfo((prev) => ({ ...prev, bufferValue: e.target.value }));
+	const handleBufferUnitChange = (e) =>
+		setInfo((prev) => ({ ...prev, bufferUnit: e.target.value }));
+	const handleMaxBookingsEnabledChange = (e) =>
+		setInfo((prev) => ({ ...prev, maxBookingsEnabled: e.target.checked }));
+	const handleMaxBookingsChange = (e) =>
+		setInfo((prev) => ({ ...prev, maxBookings: e.target.value }));
+	const handleGuestPermissionChange = (e) =>
+		setInfo((prev) => ({ ...prev, guestPermission: e.target.checked }));
+
 	return (
 		<Drawer
 			open={open}
@@ -370,8 +332,15 @@ const SchedulerRightDrawer = ({
 				<div className="scheduler-right-drawer-header">
 					<input
 						type="text"
-						className="scheduler-right-drawer-title inputHeight"
+						className="scheduler-right-drawer-title rightDrawerInputHeight"
 						value={info.sessionName}
+						onFocus={(e) => {
+							if (e.target.value === 'Add Title')
+								setInfo((prev) => ({ ...prev, sessionName: '' }));
+						}}
+						onBlur={(e) => {
+							if (!e.target.value) setInfo((prev) => ({ ...prev, sessionName: '' }));
+						}}
 						onChange={(e) =>
 							setInfo((prev) => ({
 								...prev,
@@ -379,19 +348,25 @@ const SchedulerRightDrawer = ({
 								errors: { ...prev.errors, sessionName: false },
 							}))
 						}
-						placeholder="Add title"
 						disabled={mode === 'edit' && !info.sessionName}
 						autoComplete="off"
 					/>
 					<p className="scheduler-description">
 						<input
 							type="text"
-							className="inputHeight"
+							className="rightDrawerInputHeight"
 							value={info.sessionDescription}
+							onFocus={(e) => {
+								if (e.target.value === 'Add a description for the session')
+									setInfo((prev) => ({ ...prev, sessionDescription: '' }));
+							}}
+							onBlur={(e) => {
+								if (!e.target.value)
+									setInfo((prev) => ({ ...prev, sessionDescription: '' }));
+							}}
 							onChange={(e) =>
 								setInfo((prev) => ({ ...prev, sessionDescription: e.target.value }))
 							}
-							placeholder="Join us for a brief tech meeting where we'll discuss the latest innovations and strategies in our field."
 							autoComplete="off"
 						/>
 					</p>
@@ -411,239 +386,364 @@ const SchedulerRightDrawer = ({
 						</div>
 					</div>
 				)}
-				<div className="sessionOptionContainer">
-					<div className="sessionTypeWrapper">
-						<span>Session Type</span>
-						<Tooltip
-							open={info?.sessionTypeOpen}
-							onOpenChange={(visible) =>
-								setInfo((prev) => ({ ...prev, sessionTypeOpen: visible }))
-							}
-							placement="bottom"
-							distance={0}
-							title={
-								<div className="createSession-sessionType-dropdown">
-									{sessionTypeOptions?.map((option) => (
-										<div
-											key={option}
-											className="sessionType-dropdown-item"
-											onClick={() => handleSessionTypeChange(option)}
-										>
-											{option}
-										</div>
-									))}
-								</div>
-							}
-							trigger={'click'}
-							color={'transparent'}
-							overlayStyle={{ width: '100%', padding: '0' }}
-						>
-							<div className="typeOfSession-lable">
-								{info?.sessionType}
-								{/* Down arrow icon */}
-							</div>
-						</Tooltip>
-					</div>
-					<div className="sessionTypeWrapper">
-						<span>{sessionTypeInputConfig[info?.sessionType]?.tag}</span>
-						{renderSessionTypeInput()}
-					</div>
-				</div>
-				<div className="sessionDateTimeContainer">
-					<div className="sessionTypeWrapper">
-						<span>Start Date & Time</span>
-						<div className="events-popup-time-wrapper">
-							<input
-								type="date"
-								className="events-popup-date-input"
-								value={
-									info?.scheduleFrom
-										? dayjs(info.scheduleFrom).format('YYYY-MM-DD')
-										: ''
-								}
-								min={dayjs().format('YYYY-MM-DD')}
-								onChange={(e) => {
-									const newDate = e.target.value;
-									const currentTime = info?.scheduleFrom
-										? dayjs(info.scheduleFrom).format('HH:mm')
-										: dayjs().format('HH:mm');
-									const newDateTime = dayjs(`${newDate} ${currentTime}`);
-									if (newDateTime.isBefore(dayjs(), 'minute')) return;
-									setInfo((prev) => ({
-										...prev,
-										scheduleFrom: newDateTime,
-										errors: { ...prev.errors, dateRange: false },
-									}));
-								}}
-							/>
-							<div className="time-date-divider"></div>
-							<input
-								type="time"
-								className="events-popup-time-input"
-								value={
-									info?.scheduleFrom
-										? dayjs(info.scheduleFrom).format('HH:mm')
-										: ''
-								}
-								onChange={(e) => {
-									const newTime = e.target.value;
-									const currentDate = info?.scheduleFrom
-										? dayjs(info.scheduleFrom).format('YYYY-MM-DD')
-										: dayjs().format('YYYY-MM-DD');
-									const newDateTime = dayjs(`${currentDate} ${newTime}`);
-									if (newDateTime.isBefore(dayjs(), 'minute')) return;
-									setInfo((prev) => ({
-										...prev,
-										scheduleFrom: newDateTime,
-										errors: { ...prev.errors, dateRange: false },
-									}));
-								}}
-							/>
-						</div>
-					</div>
-					<div className="sessionTypeWrapper">
-						<span>End Date & Time</span>
-						<div className="events-popup-time-wrapper">
-							<input
-								type="date"
-								className="events-popup-date-input"
-								value={
-									info?.scheduleTo
-										? dayjs(info.scheduleTo).format('YYYY-MM-DD')
-										: ''
-								}
-								min={
-									info?.scheduleFrom
-										? dayjs(info.scheduleFrom).format('YYYY-MM-DD')
-										: dayjs().format('YYYY-MM-DD')
-								}
-								onChange={(e) => {
-									const newDate = e.target.value;
-									const currentTime = info?.scheduleTo
-										? dayjs(info.scheduleTo).format('HH:mm')
-										: dayjs().format('HH:mm');
-									const newDateTime = dayjs(`${newDate} ${currentTime}`);
-									if (newDateTime.isBefore(dayjs(), 'minute')) return;
-									setInfo((prev) => ({
-										...prev,
-										scheduleTo: newDateTime,
-										errors: { ...prev.errors, dateRange: false },
-									}));
-								}}
-							/>
-							<div className="time-date-divider"></div>
-							<input
-								type="time"
-								className="events-popup-time-input"
-								value={
-									info?.scheduleTo ? dayjs(info.scheduleTo).format('HH:mm') : ''
-								}
-								onChange={(e) => {
-									const newTime = e.target.value;
-									const currentDate = info?.scheduleTo
-										? dayjs(info.scheduleTo).format('YYYY-MM-DD')
-										: dayjs().format('YYYY-MM-DD');
-									const newDateTime = dayjs(`${currentDate} ${newTime}`);
-									if (newDateTime.isBefore(dayjs(), 'minute')) return;
-									setInfo((prev) => ({
-										...prev,
-										scheduleTo: newDateTime,
-										errors: { ...prev.errors, dateRange: false },
-									}));
-								}}
-							/>
-						</div>
-					</div>
-				</div>
-				{info.errors.dateRange && (
-					<div
-						className="error-message"
-						style={{ color: 'red', marginTop: '5px', textAlign: 'center' }}
-					>
-						End date must be greater than start date
-					</div>
-				)}
 				<div className="scheduler-content">
-					<Collapse className="scheduler-collapse" defaultActiveKey={['duration']}>
-						<Collapse.Panel
-							header={
-								<div className="collapse-header">
-									<ClockIcon className="collapse-icon" />
-									<span>Duration</span>
-									<span className="collapse-value">
-										{info.scheduleFrom && info.scheduleTo
-											? dayjs(info.scheduleTo).diff(
-													dayjs(info.scheduleFrom),
-													'hour',
-											  ) + ' Hrs'
-											: ''}
-									</span>
-								</div>
+					<Collapse className="scheduler-collapse" defaultActiveKey={['']}>
+						{COLLAPSE_CONFIG[activeTab].map((section) => {
+							let dynamicValue = '';
+							switch (section.key) {
+								case 'duration':
+									if (info.scheduleFrom && info.scheduleTo) {
+										const hours = dayjs(info.scheduleTo).diff(
+											dayjs(info.scheduleFrom),
+											'hour',
+										);
+										dynamicValue = hours > 0 ? `${hours} Hrs` : '';
+									} else {
+										dynamicValue = '';
+									}
+									break;
+								case 'mode':
+									dynamicValue = info.sessionType || 'Choose a platform';
+									break;
+								case 'availability':
+									dynamicValue =
+										availabilitySummary || 'Set your available days and times.';
+									break;
+								case 'invitee':
+									dynamicValue = info.inviteeLimit
+										? `${info.inviteeLimit} Invitees`
+										: 'No limit';
+									break;
+								case 'host':
+									dynamicValue = info.hostName || 'Avinash (you)';
+									break;
+								default:
+									dynamicValue = '';
 							}
-							key="duration"
-						>
-							<div className="collapse-content">Duration details here.</div>
-						</Collapse.Panel>
-						<Collapse.Panel
-							header={
-								<div className="collapse-header">
-									<VideoIcon className="collapse-icon" />
-									<span>Mode of Interaction</span>
-									<span className="collapse-value">{info.sessionType}</span>
-								</div>
+							let content = null;
+							switch (section.key) {
+								case 'duration':
+									content = (
+										<div className="collapse-content duration-collapse-content">
+											<div className="duration-row">
+												<div className="duration-label">Time Zone</div>
+												<div className="duration-field">
+													<select
+														className="inputHeight duration-timezone-select"
+														value={info.timeZone}
+														onChange={(e) =>
+															setInfo((prev) => ({
+																...prev,
+																timeZone: e.target.value,
+															}))
+														}
+													>
+														<option>India, Sri Lanka Time</option>
+														<option>UTC</option>
+														<option>US Pacific Time</option>
+														<option>Europe Central Time</option>
+													</select>
+												</div>
+											</div>
+											<div className="duration-row">
+												<div className="duration-label">
+													Appointment duration
+												</div>
+												<div className="duration-field">
+													<input
+														className="inputHeight duration-appointment-input"
+														placeholder="Custom"
+													/>
+												</div>
+											</div>
+											<div className="duration-row duration-custom-row">
+												<div className="duration-number-input-container">
+													<input
+														className="inputHeight duration-number-input"
+														type="number"
+														min="1"
+														max="24"
+														value={info.durationValue}
+														onChange={(e) =>
+															setInfo((prev) => ({
+																...prev,
+																durationValue: e.target.value,
+															}))
+														}
+														placeholder="12"
+													/>
+												</div>
+												<select
+													className="inputHeight duration-unit-select"
+													value={info.durationUnit}
+													onChange={(e) =>
+														setInfo((prev) => ({
+															...prev,
+															durationUnit: e.target.value,
+														}))
+													}
+												>
+													<option>hrs</option>
+													<option>min</option>
+												</select>
+											</div>
+											<div className="duration-allday-row">
+												<input
+													type="checkbox"
+													id="allday-event"
+													className="duration-allday-checkbox"
+													checked={info.allDayEvent}
+													onChange={(e) =>
+														setInfo((prev) => ({
+															...prev,
+															allDayEvent: e.target.checked,
+														}))
+													}
+												/>
+												<label
+													htmlFor="allday-event"
+													className="duration-allday-label"
+												>
+													All Day Event
+												</label>
+											</div>
+										</div>
+									);
+									break;
+								case 'mode':
+									content = (
+										<div className="collapse-content mode-interaction-collapse-content">
+											<div className="mode-row">
+												<div className="mode-label">Type</div>
+												<div className="mode-field">
+													<Tooltip
+														open={info?.sessionTypeOpen}
+														onOpenChange={(visible) =>
+															setInfo((prev) => ({
+																...prev,
+																sessionTypeOpen: visible,
+															}))
+														}
+														placement="bottom"
+														distance={0}
+														title={
+															<div className="createSession-sessionType-dropdown">
+																{sessionTypeOptions?.map(
+																	(option) => (
+																		<div
+																			key={option}
+																			className="sessionType-dropdown-item"
+																			onClick={() =>
+																				handleSessionTypeChange(
+																					option,
+																				)
+																			}
+																		>
+																			{option}
+																		</div>
+																	),
+																)}
+															</div>
+														}
+														trigger={'click'}
+														color={'transparent'}
+														overlayStyle={{
+															width: '100%',
+															padding: '0',
+														}}
+													>
+														<div className="typeOfSession-lable">
+															{info?.sessionType}
+														</div>
+													</Tooltip>
+												</div>
+											</div>
+											<div className="mode-row">
+												<div className="mode-label">Location</div>
+												<div className="mode-field">
+													{renderSessionTypeInput()}
+												</div>
+											</div>
+										</div>
+									);
+									break;
+								case 'availability':
+									content = (
+										<div className="collapse-content availability-collapse-content">
+											<AvailabilitySection
+												value={info.availability}
+												onChange={(val) =>
+													setInfo((prev) => ({
+														...prev,
+														availability: val,
+													}))
+												}
+												onSummaryChange={setAvailabilitySummary}
+											/>
+										</div>
+									);
+									break;
+								case 'invitee':
+									content = (
+										<div className="collapse-content invitee-collapse-content">
+											<div className="invitee-row">
+												<div className="invitee-label">Invitee limit</div>
+												<input
+													className="inputHeight invitee-input"
+													type="number"
+													min="1"
+													value={info.inviteeLimit || ''}
+													onChange={(e) =>
+														setInfo((prev) => ({
+															...prev,
+															inviteeLimit: e.target.value,
+														}))
+													}
+													placeholder="Enter limit"
+												/>
+											</div>
+										</div>
+									);
+									break;
+								case 'host':
+									content = (
+										<div className="collapse-content host-collapse-content">
+											<div className="host-row">
+												<div className="host-label">Host</div>
+												<div className="host-value">
+													{info.hostName || 'Avinash (you)'}
+												</div>
+											</div>
+										</div>
+									);
+									break;
+								default:
+									content = null;
 							}
-							key="mode"
-						>
-							<div className="collapse-content">
-								Choose a platform for the meeting.
-							</div>
-						</Collapse.Panel>
-						<Collapse.Panel
-							header={
-								<div className="collapse-header">
-									<CalendarIcon className="collapse-icon" />
-									<span>Availability</span>
-									<span className="collapse-value">
-										{info.scheduleFrom && info.scheduleTo
-											? `${dayjs(info.scheduleFrom).format(
-													'dddd, h:mm A',
-											  )} - ${dayjs(info.scheduleTo).format('dddd, h:mm A')}`
-											: ''}
-									</span>
-								</div>
-							}
-							key="availability"
-						>
-							<div className="collapse-content">
-								Set your available days and times.
-							</div>
-						</Collapse.Panel>
+							return (
+								<Collapse.Panel
+									header={
+										<div className="collapse-header">
+											{section.icon}
+											<div className="collapse-header-title-container">
+												<span className="collapse-header-title">
+													{section.label}
+												</span>
+												<span className="collapse-value">
+													{dynamicValue}
+												</span>
+											</div>
+										</div>
+									}
+									key={section.key}
+								>
+									{content}
+								</Collapse.Panel>
+							);
+						})}
+						{/* Booked appointment settings collapse here, using info state and handlers */}
 						<Collapse.Panel
 							header={
 								<div className="collapse-header">
 									<SettingsIcon className="collapse-icon" />
-									<span>Booked appointment settings</span>
-									<span className="collapse-value">
-										No buffer time - No max booking per day - No guest
-										permission
-									</span>
+									<div className="collapse-header-title-container">
+										<span className="collapse-header-title">
+											Booked appointment settings
+										</span>
+										<span className="collapse-value">
+											{`${
+												info.bufferEnabled
+													? `Buffer: ${
+															info.bufferValue
+													  } ${info.bufferUnit.toLowerCase()}`
+													: 'No buffer time'
+											} - ${
+												info.maxBookingsEnabled
+													? `Maximum bookings per day: ${info.maxBookings}`
+													: 'No max booking per day'
+											} - ${
+												info.guestPermission
+													? 'Guests can invite others'
+													: 'No guest permission'
+											}`}
+										</span>
+									</div>
 								</div>
 							}
 							key="settings"
 						>
-							<div className="collapse-content">Appointment settings details.</div>
-						</Collapse.Panel>
-						<Collapse.Panel
-							header={
-								<div className="collapse-header">
-									<UserIcon className="collapse-icon" />
-									<span>Host</span>
-									<span className="collapse-value">Avinash (you)</span>
+							<div className="collapse-content booked-settings-collapse-content">
+								<div className="settings-row">
+									<div className="settings-label">Buffer time</div>
+									<div className="settings-desc">
+										Add time between appointment slots
+									</div>
+									<div className="settings-control">
+										<input
+											type="checkbox"
+											checked={info.bufferEnabled}
+											onChange={handleBufferEnabledChange}
+										/>
+										<input
+											type="number"
+											className="settings-input"
+											value={info.bufferValue}
+											onChange={handleBufferValueChange}
+											disabled={!info.bufferEnabled}
+											min={1}
+											max={1440}
+										/>
+										<select
+											className="settings-select"
+											value={info.bufferUnit}
+											onChange={handleBufferUnitChange}
+											disabled={!info.bufferEnabled}
+										>
+											<option>Minutes</option>
+											<option>Hours</option>
+										</select>
+									</div>
 								</div>
-							}
-							key="host"
-						>
-							<div className="collapse-content">Host details.</div>
+								<div className="settings-row">
+									<div className="settings-label">Maximum bookings per day</div>
+									<div className="settings-desc">
+										Limit how many booked appointments to accept in a single day
+									</div>
+									<div className="settings-control">
+										<input
+											type="checkbox"
+											checked={info.maxBookingsEnabled}
+											onChange={handleMaxBookingsEnabledChange}
+										/>
+										<input
+											type="number"
+											className="settings-input"
+											value={info.maxBookings}
+											onChange={handleMaxBookingsChange}
+											disabled={!info.maxBookingsEnabled}
+											min={1}
+											max={1000}
+										/>
+									</div>
+								</div>
+								<div className="settings-row">
+									<div className="settings-label">Guest permissions</div>
+									<div className="settings-control">
+										<input
+											type="checkbox"
+											checked={info.guestPermission}
+											onChange={handleGuestPermissionChange}
+										/>
+										<span className="settings-checkbox-label">
+											Guests can invite others
+										</span>
+									</div>
+									<div className="settings-desc settings-desc-guest">
+										After booking an appointment guests can modify the calendar
+										event to invite others
+									</div>
+								</div>
+							</div>
 						</Collapse.Panel>
 					</Collapse>
 				</div>
