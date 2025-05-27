@@ -65,6 +65,8 @@ import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
 import EditScheduler from './views/features/calendar/EditScheduler';
 import Contacts from './views/features/contacts/Contacts';
 import NotesPage from './views/features/notesPage/NotesPage';
+import Agents from './views/features/agents/Agents';
+
 const routes = [
 	{
 		path: '/',
@@ -632,6 +634,18 @@ const routes = [
 		component: (
 			<AuthWrapper title="Files">
 				<Files />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/agents',
+		component: (
+			<AuthWrapper
+				title="Agents"
+				outerContainerStyle={{ padding: '0' }}
+				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
+			>
+				<Agents />
 			</AuthWrapper>
 		),
 	},
