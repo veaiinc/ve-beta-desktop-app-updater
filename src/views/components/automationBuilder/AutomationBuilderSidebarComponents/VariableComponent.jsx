@@ -46,6 +46,20 @@ const appMapper = {
 
 const variableRegex = /\{\{.*?\}\}/g;
 
+const removeHTMLTags = (text) => {
+	const decodeHTML = (html) => {
+		const txt = document.createElement('textarea');
+		txt.innerHTML = html;
+		return txt.value;
+	};
+	return decodeHTML(
+		text
+			?.replace(/<\/?[^>]+(>|$)/g, '')
+			?.replace(/ /g, ' ')
+			?.trim() || '',
+	);
+};
+
 const VariableComponent = ({
 	value,
 	onChange,
@@ -330,7 +344,7 @@ const VariableComponent = ({
 						{info?.inputText?.map((part, index) =>
 							part.type === 'variable' ? (
 								<div key={index} className="variableTag">
-									<span>{part.value.value}</span>
+									<span>{removeHTMLTags(part.value.value)}</span>
 									<CrossIcon
 										width={14}
 										height={14}
@@ -343,7 +357,7 @@ const VariableComponent = ({
 									key={index}
 									type={type}
 									placeholder="Enter something or select a variable"
-									value={part.value}
+									value={removeHTMLTags(part.value)}
 									onChange={handleTextChange}
 									className="variableInput"
 								/>
@@ -386,9 +400,9 @@ const VariableComponent = ({
 										? `Choose a step`
 										: info?.variablePath?.length === 1
 										? labelMapper[info?.selectedStep?.labelId] ||
-										  info?.selectedStep?.labelId ||
+										  removeHTMLTags(info?.selectedStep?.labelId) ||
 										  'Step id'
-										: info?.variablePath?.at(-1)}
+										: removeHTMLTags(info?.variablePath?.at(-1))}
 								</span>
 							</div>
 
@@ -403,7 +417,7 @@ const VariableComponent = ({
 													onClick={() => onOptionClick(option)}
 												>
 													<span className="variableListItemTitle">
-														{option?.name}
+														{removeHTMLTags(option?.name)}
 													</span>
 													{option?.type === 'Object' ? (
 														<span className="variableListRightContainer">
@@ -444,8 +458,11 @@ const VariableComponent = ({
 											}}
 										>
 											<span className="variableListItemTitle">
-												{(labelMapper[step?.stepName] || step?.stepName) +
-													` (${appMapper[step?.stepApp || 'inApp']})`}
+												{removeHTMLTags(
+													(labelMapper[step?.stepName] ||
+														step?.stepName) +
+														` (${appMapper[step?.stepApp || 'inApp']})`,
+												)}
 											</span>
 										</div>
 									))

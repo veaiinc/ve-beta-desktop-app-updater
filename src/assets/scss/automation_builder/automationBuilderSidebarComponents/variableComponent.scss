@@ -219,11 +219,11 @@
 			}
 
 			&:hover {
-				background-color: var(--card);
+				background-color: var(--card-over-card-hover);
 			}
 
 			&.selected {
-				background-color: #2c2e30;
+				background-color: var(--popup);
 			}
 		}
 	}

@@ -4,13 +4,13 @@ import Context from '../../../context/context';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import { ReactComponent as PencilSvg } from '../../../assets/svg/calendar/pencil.svg';
 import { ReactComponent as SettingsSvg } from '../../../assets/svg/calendar/settings.svg';
-import { ReactComponent as PlusSvg } from '../../../assets/svg/calendar/add.svg';
+import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
 import Spinner from '../loaders/Spinner';
 import { message } from '../../components/globalComponents/CustomToast';
 import ConnectIntegrationWidget from '../globalComponents/ConnectIntegrationWidget';
 import GoogleCalendarSettings from './GoogleCalenderSettings';
 
-const GoogleCalendar = () => {
+const GoogleCalendar = ({ showGoogleEvents, updateCalendarInfo }) => {
 	const {
 		templates: { getConnectedThirdParties, connectThirdParties },
 		calendarInfo: {
@@ -25,6 +25,7 @@ const GoogleCalendar = () => {
 
 			getGoogleCalendarEvents,
 			googleCalendarEvents,
+			deleteCalendarEvent,
 		},
 	} = useContext(Context);
 
@@ -39,7 +40,9 @@ const GoogleCalendar = () => {
 		selectedCalendars: [],
 		showSettings: false,
 		showConnectWidget: false,
+		deletingEvent: false,
 	});
+
 	// Auto expand when there are items to display
 	useEffect(() => {
 		const hasItems =
@@ -154,49 +157,9 @@ const GoogleCalendar = () => {
 		}
 	}, [connectThirdParties]);
 
-	// const handleCalendarSelect = async (calendar) => {
-	// 	if (!calendar?.id) {
-	// 		message.error('Invalid calendar selection. Please try again.');
-	// 		return;
-	// 	}
-
-	// 	setInfo((prev) => ({
-	// 		...prev,
-	// 		selectedCalendar: calendar.id,
-	// 		watchLoading: true,
-	// 		watchRequested: true,
-	// 	}));
-
-	// 	try {
-	// 		const watchResponse = await watchGoogleCalendar(calendar.id);
-
-	// 		if (!watchResponse) {
-	// 			throw new Error('No response from watch request');
-	// 		}
-
-	// 		if (watchResponse[0] !== true) {
-	// 			throw new Error(watchResponse[1]?.error || 'Failed to watch calendar');
-	// 		}
-	// 	} catch (error) {
-	// 		// Handle API call errors
-	// 		console.error('Error in calendar selection process:', error);
-	// 		message.error('Failed to watch the selected Google Calendar. Please try again.');
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			watchLoading: false,
-	// 			watchRequested: false,
-	// 			selectedCalendar: null,
-	// 		}));
-
-	// 		setTimeout(async () => {
-	// 			try {
-	// 				await watchGoogleCalendar(calendar.id);
-	// 			} catch (retryError) {
-	// 				message.error('Failed to watch calendar after retry. Please refresh the page.');
-	// 			}
-	// 		}, 5000);
-	// 	}
-	// };
+	const handleCheckboxChange = useCallback(() => {
+		updateCalendarInfo('showGoogleEvents', !showGoogleEvents);
+	}, [showGoogleEvents, updateCalendarInfo]);
 
 	const toggleExpand = useCallback(() => {
 		setInfo((prev) => ({
@@ -228,13 +191,37 @@ const GoogleCalendar = () => {
 		getConnectedGoogleCalendars();
 	}, [getConnectedGoogleCalendars]);
 
+	const handleDeleteEvent = useCallback(
+		async (eventId) => {
+			if (!eventId) {
+				message.error('Invalid event ID');
+				return;
+			}
+
+			setInfo((prev) => ({ ...prev, deletingEvent: true }));
+			try {
+				await deleteCalendarEvent(eventId);
+				message.success('Event deleted successfully');
+				// Refresh the events list
+				await getGoogleCalendarEvents();
+				// Update the calendar view to reflect the deletion
+				updateCalendarInfo('updateEventsList', true);
+			} catch (error) {
+				message.error('Failed to delete event. Please try again.');
+				console.error('Error deleting event:', error);
+			} finally {
+				setInfo((prev) => ({ ...prev, deletingEvent: false }));
+			}
+		},
+		[deleteCalendarEvent, getGoogleCalendarEvents, updateCalendarInfo],
+	);
+
 	return (
 		<>
 			{connectThirdParties != null && connectThirdParties?.googleCalendar?.length > 0 ? (
 				<div className={`google-bar ${info?.expanded ? 'expanded' : ''}`}>
 					<div className="header">
 						<div className="google-logo">Google Calendar</div>
-						{/* add this */}
 						<div className="controls">
 							{/* <div className="addCategoryButton" onClick={toggleSettings}>
 								<SettingsSvg />
@@ -271,36 +258,14 @@ const GoogleCalendar = () => {
 												className="typeLabel"
 											>
 												{calendarId}
-												<button className="editButton" onClick={() => {}}>
-													<PencilSvg />
-												</button>
 											</label>
 											<input
 												type="checkbox"
 												className="checkBox"
 												id={`${calendarId}-checkbox`}
-												checked={info.selectedCalendars.includes(
-													calendarId,
-												)}
-												onChange={() => {
-													setInfo((prev) => ({
-														...prev,
-														selectedCalendars:
-															prev.selectedCalendars.includes(
-																calendarId,
-															)
-																? prev.selectedCalendars.filter(
-																		(id) => id !== calendarId,
-																  )
-																: [
-																		...prev.selectedCalendars,
-																		calendarId,
-																  ],
-													}));
-												}}
-												aria-checked={info.selectedCalendars.includes(
-													calendarId,
-												)}
+												checked={showGoogleEvents}
+												onChange={handleCheckboxChange}
+												aria-checked={showGoogleEvents}
 												aria-label={`${calendarId} calendar`}
 											/>
 										</div>
@@ -332,37 +297,17 @@ const GoogleCalendar = () => {
 												className="typeLabel"
 											>
 												{calendar.summary}
-												<button className="editButton" onClick={() => {}}>
-													<PencilSvg />
-												</button>
 											</label>
 											<input
 												type="checkbox"
 												className="checkBox"
 												id={`${calendar.id}-checkbox`}
-												checked={info.selectedCalendars.includes(
-													calendar.id,
-												)}
+												checked={showGoogleEvents}
 												onChange={(e) => {
 													e.stopPropagation();
-													setInfo((prev) => ({
-														...prev,
-														selectedCalendars:
-															prev.selectedCalendars.includes(
-																calendar.id,
-															)
-																? prev.selectedCalendars.filter(
-																		(id) => id !== calendar.id,
-																  )
-																: [
-																		...prev.selectedCalendars,
-																		calendar.id,
-																  ],
-													}));
+													handleCheckboxChange();
 												}}
-												aria-checked={info.selectedCalendars.includes(
-													calendar.id,
-												)}
+												aria-checked={showGoogleEvents}
 												aria-label={`${calendar.summary} calendar`}
 											/>
 										</div>
@@ -409,6 +354,8 @@ const GoogleCalendar = () => {
 				isOpen={info.showSettings}
 				onClose={toggleSettings}
 				connectedCalendars={info.alreadyConnectedGoogleCalendars}
+				onToggleShowEvents={(val) => updateCalendarInfo('showGoogleEvents', val)}
+				showGoogleEvents={showGoogleEvents}
 			/>
 		</>
 	);
