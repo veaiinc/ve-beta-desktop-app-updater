@@ -14,6 +14,7 @@ import { ReactComponent as SettingsIcon } from '../../../assets/svg/calendar/set
 import { ReactComponent as UserIcon } from '../../../assets/svg/chat/UserSound.svg';
 import PhoneInput from 'react-phone-number-input';
 import dayjs from 'dayjs';
+import moment from 'moment-timezone';
 import Spinner from '../loaders/Spinner';
 import { isURL } from '../../../helpers';
 import AvailabilitySection from './AvailabilitySection';
@@ -69,7 +70,7 @@ const initialInfo = {
 	durationUnit: 'hrs',
 	durationUnitOpen: false,
 	allDayEvent: false,
-	timeZone: 'India, Sri Lanka Time',
+	timeZone: moment.tz.guess(), // Default to user's timezone
 	timeZoneOpen: false,
 };
 
@@ -123,6 +124,36 @@ const durationUnitOptions = ['hrs', 'min'];
 const bufferUnitOptions = ['Minutes', 'Hours'];
 const timeZoneOptions = ['India, Sri Lanka Time', 'UTC', 'US Pacific Time', 'Europe Central Time'];
 
+// Get all timezones with their offsets
+const getTimezonesWithOffsets = () => {
+	// List of valid IANA timezone regions
+	const validRegions = [
+		'Africa', 'America', 'Antarctica', 'Asia', 'Atlantic', 'Australia', 
+		'Europe', 'Indian', 'Pacific'
+	];
+
+	// Filter and map timezones
+	return moment.tz.names()
+		.filter(name => {
+			// Only include timezones that start with valid regions
+			return validRegions.some(region => name.startsWith(region));
+		})
+		.map(name => {
+			const offset = moment.tz(name).format('Z');
+			const formattedName = `${name} (UTC${offset})`;
+			return {
+				value: name,
+				label: formattedName
+			};
+		})
+		.sort((a, b) => {
+			// Sort by UTC offset
+			const offsetA = moment.tz(a.value).utcOffset();
+			const offsetB = moment.tz(b.value).utcOffset();
+			return offsetB - offsetA;
+		});
+};
+
 const SchedulerRightDrawer = ({
 	open,
 	onClose,
@@ -160,10 +191,18 @@ const SchedulerRightDrawer = ({
 	// Populate form with fetched session details
 	useEffect(() => {
 		if (mode === 'edit' && sessionDetail && sessionDetail._id === sessionId) {
+			// Determine session type based on the data
+			let sessionType = 'In Person';
+			if (sessionDetail.sessionTypeInfo?.meetingLink) {
+				sessionType = 'Video Call';
+			} else if (sessionDetail.sessionTypeInfo?.phone) {
+				sessionType = 'Phone Call';
+			}
+
 			setInfo({
 				...initialInfo,
 				...sessionDetail,
-				sessionType: backendToUiSessionType(sessionDetail.sessionTypeInfo?.sessionType),
+				sessionType: sessionType,
 				location: sessionDetail.sessionTypeInfo?.location || '',
 				phoneNumber: sessionDetail.sessionTypeInfo?.phone || '',
 				meetingLink: sessionDetail.sessionTypeInfo?.meetingLink || '',
@@ -177,6 +216,8 @@ const SchedulerRightDrawer = ({
 					sessionDetail.bufferTime?.after?.unitType === 'Hours' ? 'Hours' : 'Minutes',
 				// Invitee mapping
 				inviteeLimit: sessionDetail.sessionMetadata?.maxParticipants || '',
+				// Timezone mapping
+				timeZone: sessionDetail.sessionTimezone || moment.tz.guess(),
 			});
 			setActiveTab(sessionDetail.sessionTypeInfo?.sessionType || 'one-on-one');
 			setOriginalData(sessionDetail);
@@ -223,6 +264,129 @@ const SchedulerRightDrawer = ({
 		setInfo({ ...initialInfo });
 		onClose();
 	}, [onClose]);
+
+	const buildUpdatePayload = (currentInfo, originalData) => {
+		const payload = {};
+
+		// Compare and add changed fields
+		if (currentInfo.sessionName !== originalData.sessionName) {
+			payload.sessionName = currentInfo.sessionName;
+		}
+
+		if (currentInfo.sessionDescription !== originalData.sessionDescription) {
+			payload.sessionDescription = currentInfo.sessionDescription;
+		}
+
+		// Compare session type info individually
+		const sessionTypeInfo = {
+			sessionType: activeTab // Always include sessionType
+		};
+		if (currentInfo.location !== originalData.sessionTypeInfo?.location) {
+			sessionTypeInfo.location = currentInfo.location;
+		}
+		if (currentInfo.phoneNumber !== originalData.sessionTypeInfo?.phone) {
+			sessionTypeInfo.phone = currentInfo.phoneNumber;
+		}
+		if (currentInfo.meetingLink !== originalData.sessionTypeInfo?.meetingLink) {
+			sessionTypeInfo.meetingLink = currentInfo.meetingLink;
+		}
+
+		// Only add sessionTypeInfo if there are changes
+		if (Object.keys(sessionTypeInfo).length > 1) { // More than just sessionType
+			payload.sessionTypeInfo = sessionTypeInfo;
+		}
+
+		// Compare timezone - ensure it's a valid IANA timezone
+		const currentTimezone = currentInfo.timeZone;
+		if (currentTimezone && currentTimezone !== originalData.sessionTimezone) {
+			// Validate that it's a proper IANA timezone
+			const validRegions = [
+				'Africa', 'America', 'Antarctica', 'Asia', 'Atlantic', 'Australia', 
+				'Europe', 'Indian', 'Pacific'
+			];
+			
+			const isValidTimezone = validRegions.some(region => 
+				currentTimezone.startsWith(region)
+			);
+
+			if (isValidTimezone) {
+				payload.sessionTimezone = currentTimezone;
+			} else {
+				// If invalid, default to a safe timezone
+				payload.sessionTimezone = 'Asia/Kolkata';
+			}
+		}
+
+		// Compare duration
+		const currentDuration = currentInfo.durationUnit === 'hrs' ? currentInfo.durationValue * 60 : currentInfo.durationValue;
+		const originalDuration = originalData.sessionDuration?.unitCount;
+
+		if (currentDuration !== originalDuration) {
+			payload.sessionDuration = {
+				unitCount: currentDuration,
+				unitType: 'minutes',
+			};
+		}
+
+		// Compare buffer time
+		const currentBufferValue = parseInt(currentInfo.bufferValue) || 15;
+		const originalBufferValue = originalData.bufferTime?.after?.unitCount;
+
+		if (currentBufferValue !== originalBufferValue) {
+			payload.bufferTime = {
+				before: {
+					unitCount: 5,
+					unitType: 'minutes',
+				},
+				after: {
+					unitCount: currentBufferValue,
+					unitType: 'minutes',
+				},
+			};
+		}
+
+		// Compare max participants
+		const currentMaxParticipants = activeTab === 'one-on-one' ? 1 : currentInfo.inviteeLimit || 5;
+		const originalMaxParticipants = originalData.sessionMetadata?.maxParticipants;
+
+		if (currentMaxParticipants !== originalMaxParticipants) {
+			payload.sessionMetadata = {
+				maxParticipants: currentMaxParticipants,
+			};
+		}
+
+		// Compare availability
+		if (currentInfo.availability?.mode === 'weekly') {
+			const validSlots = currentInfo.availability.weekly
+				.filter((day) => day.slots.length > 0)
+				.map((day) => ({
+					dayOfWeek: day.day,
+					timeRanges: day.slots.map((slot) => ({
+						startTime: slot.from,
+						endTime: slot.to,
+					})),
+				}));
+
+			if (validSlots.length > 0) {
+				payload.availabilitySlots = validSlots;
+			}
+		} else if (currentInfo.availability?.mode === 'custom') {
+			payload.customExceptions = [
+				{
+					date: currentInfo.availability.custom.start,
+					overrideAvailability: true,
+					customTimeRanges: [
+						{
+							startTime: '09:00',
+							endTime: '17:00',
+						},
+					],
+				},
+			];
+		}
+
+		return payload;
+	};
 
 	const handleCreateOrUpdate = useCallback(() => {
 		// Log all form data for debugging, including duration and all fields
@@ -616,31 +780,25 @@ const SchedulerRightDrawer = ({
 														<Tooltip
 															open={info.timeZoneOpen}
 															onOpenChange={(visible) =>
-																handleFieldChange(
-																	'timeZoneOpen',
-																	visible,
-																)
+																handleFieldChange('timeZoneOpen', visible)
 															}
 															placement="bottom"
 															distance={0}
 															title={
-																<div className="createSession-sessionType-dropdown">
-																	{timeZoneOptions.map(
-																		(option) => (
-																			<div
-																				key={option}
-																				className="sessionType-dropdown-item"
-																				onClick={() =>
-																					handleFieldChange(
-																						'timeZone',
-																						option,
-																					)
-																				}
-																			>
-																				{option}
-																			</div>
-																		),
-																	)}
+																<div className="createSession-sessionType-dropdown timezone-dropdown">
+																	{getTimezonesWithOffsets().map((option) => (
+																		<div
+																			key={option.value}
+																			className="sessionType-dropdown-item"
+																			onClick={(e) => {
+																				e.stopPropagation();
+																				handleFieldChange('timeZone', option.value);
+																				setInfo(prev => ({ ...prev, timeZoneOpen: false }));
+																			}}
+																		>
+																			{option.label}
+																		</div>
+																	))}
 																</div>
 															}
 															trigger={'click'}
@@ -648,10 +806,12 @@ const SchedulerRightDrawer = ({
 															overlayStyle={{
 																width: '100%',
 																padding: '0',
+																maxHeight: '300px',
+																overflow: 'hidden'
 															}}
 														>
 															<div className="typeOfSession-lable">
-																{info.timeZone}
+																{moment.tz(info.timeZone).format('z')} ({info.timeZone})
 															</div>
 														</Tooltip>
 													</div>
@@ -732,18 +892,43 @@ const SchedulerRightDrawer = ({
 												</div>
 											</div>
 											<div className="duration-allday-row">
-												<input
-													type="checkbox"
-													id="allday-event"
-													className="duration-allday-checkbox"
-													checked={info.allDayEvent}
-													onChange={(e) =>
-														handleFieldChange(
-															'allDayEvent',
-															e.target.checked,
-														)
-													}
-												/>
+												<div className="custom-checkbox">
+													<input
+														type="checkbox"
+														id="allday-event"
+														checked={info.allDayEvent}
+														onChange={(e) =>
+															handleFieldChange(
+																'allDayEvent',
+																e.target.checked,
+															)
+														}
+													/>
+													<label
+														htmlFor="allday-event"
+														className="checkbox-label"
+													>
+														<svg
+															xmlns="http://www.w3.org/2000/svg"
+															width="12"
+															height="10"
+															viewBox="0 0 12 10"
+															fill="none"
+														>
+															<path
+																d="M0.959839 5.86677L4.15976 8.7467L11.0396 1.54688"
+																stroke="#E8E8E8"
+																style={{
+																	stroke: 'color(display-p3 0.9097 0.9096 0.9096)',
+																	strokeOpacity: 1,
+																}}
+																strokeWidth="1.19997"
+																strokeLinecap="round"
+																strokeLinejoin="round"
+															/>
+														</svg>
+													</label>
+												</div>
 												<label
 													htmlFor="allday-event"
 													className="duration-allday-label"
