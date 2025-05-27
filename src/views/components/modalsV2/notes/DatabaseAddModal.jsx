@@ -63,26 +63,29 @@ const DatabaseAddModal = ({ isOpen, onClose, blockId, pageId, databaseId, fields
 					<h3>Add Row</h3>
 				</div>
 				<div className={s.databaseAddModalBody}>
-					{fields?.map((field) => (
-						<div className={s.databaseAddModalBodyRow} key={field?._id}>
-							<div className={s.databaseAddModalBodyRowField}>
-								<label htmlFor={field?._id}>{field?.name}</label>
-								<input
-									type={field?.type}
-									name={field?._id}
-									value={info?.values?.[field?._id]}
-									onChange={(e) =>
-										handleInfoChange({
-											values: {
-												...info?.values,
-												[field?._id]: e.target.value,
-											},
-										})
-									}
-								/>
-							</div>
-						</div>
-					))}
+					{fields?.map(
+						(field) =>
+							!field?.isReadOnly && (
+								<div className={s.databaseAddModalBodyRow} key={field?._id}>
+									<div className={s.databaseAddModalBodyRowField}>
+										<label htmlFor={field?._id}>{field?.name}</label>
+										<input
+											type={field?.type}
+											name={field?._id}
+											value={info?.values?.[field?._id]}
+											onChange={(e) =>
+												handleInfoChange({
+													values: {
+														...info?.values,
+														[field?._id]: e.target.value,
+													},
+												})
+											}
+										/>
+									</div>
+								</div>
+							),
+					)}
 				</div>
 				<div className={s.databaseAddModalFooter}>
 					<button

@@ -33,6 +33,9 @@ import {
 	addDatabaseRowMutation,
 	updateDatabaseRowMutation,
 	addDatabaseFieldMutation,
+	updateDatabaseFieldMutation,
+	updateDatabaseMutation,
+	listAvailableDatabasesQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -48,6 +51,11 @@ export const intialState = {
 	database: null,
 	views: null,
 	rowData: null,
+	availableDatabases: null,
+	databaseSidebar: {
+		stack: [],
+		open: false,
+	},
 };
 
 export const NotesState = (props) => {
@@ -777,6 +785,7 @@ export const NotesState = (props) => {
 						},
 					},
 				});
+				return response?.[1]?.data?.database;
 			} else {
 				return null;
 			}
@@ -798,7 +807,7 @@ export const NotesState = (props) => {
 			);
 			if (response?.[0]) {
 				dispatch({
-					type: Actions.UPDATE_DATABASE_ROWS,
+					type: Actions.ADD_DATABASE_ROWS,
 					payload: {
 						[blockId]: {
 							...(state?.rowData?.[blockId] || {}),
@@ -828,15 +837,13 @@ export const NotesState = (props) => {
 			);
 
 			if (response?.[0]) {
+				const newRow = response?.[1]?.data?.createDatabaseRow;
 				dispatch({
-					type: Actions.UPDATE_DATABASE_ROWS,
+					type: Actions.ADD_DATABASE_ROWS,
 					payload: {
 						[blockId]: {
 							...(state?.rowData?.[blockId] || {}),
-							data: [
-								...(state?.rowData?.[blockId]?.data || []),
-								response?.[1]?.data?.createDatabaseRow,
-							],
+							data: [...(state?.rowData?.[blockId]?.data || []), newRow],
 						},
 					},
 				});
@@ -858,16 +865,13 @@ export const NotesState = (props) => {
 				'page_notes_api',
 			);
 			if (response?.[0]) {
+				const updatedRow = response?.[1]?.data?.updateDatabaseRow;
 				dispatch({
 					type: Actions.UPDATE_DATABASE_ROWS,
 					payload: {
-						[blockId]: {
-							...(state?.rowData?.[blockId] || {}),
-							data: [
-								...(state?.rowData?.[blockId]?.data || []),
-								response?.[1]?.data?.updateDatabaseRow,
-							],
-						},
+						blockId,
+						rowId: payload?.updateDatabaseRowId,
+						updatedRow,
 					},
 				});
 				return [true, response?.[1]];
@@ -911,6 +915,115 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const updateDatabaseField = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateDatabaseFieldMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+
+			if (response?.[0]) {
+				const updatedField = response?.[1]?.data?.updateDatabaseField;
+				const database = state?.database?.[payload?.databaseId];
+				dispatch({
+					type: Actions.UPDATE_DATABASE,
+					payload: {
+						[payload?.databaseId]: {
+							...database,
+							databaseMetadata: {
+								...database?.databaseMetadata,
+								fields: database?.databaseMetadata?.fields?.map((field) =>
+									field?._id === updatedField?._id ? updatedField : field,
+								),
+							},
+						},
+					},
+				});
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.error('error==>updateDatabaseField', error);
+		}
+	};
+
+	const updateDatabase = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateDatabaseMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_DATABASE,
+					payload: {
+						[payload?.updateDatabaseId]: {
+							databaseMetadata: response?.[1]?.data?.updateDatabase,
+						},
+					},
+				});
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.error('error==>updateDatabase', error);
+		}
+	};
+
+	const listAvailableDatabases = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				listAvailableDatabasesQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_AVAILABLE_DATABASES,
+					payload: response?.[1]?.data?.listDatabases,
+				});
+			}
+		} catch (error) {
+			console.error('error==>listAvailableDatabases', error);
+		}
+	};
+
+	const updateDatabaseSidebar = ({ data, open, replace = false }) => {
+		let newStack = [...(state?.databaseSidebar?.stack || [])];
+		if (data) {
+			if (replace) {
+				newStack = [data];
+			} else if (data === -1) {
+				newStack.pop();
+			} else {
+				newStack.push(data);
+			}
+		}
+		dispatch({
+			type: Actions.UPDATE_DATABASE_SIDEBAR,
+			payload: {
+				stack: newStack,
+				open: open ?? state?.databaseSidebar?.open,
+			},
+		});
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -945,5 +1058,10 @@ export const NotesState = (props) => {
 		getDatabase,
 		addDatabaseRow,
 		addDatabaseField,
+		updateDatabaseField,
+		updateDatabaseSidebar,
+		updateDatabaseRow,
+		updateDatabase,
+		listAvailableDatabases,
 	};
 };

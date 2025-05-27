@@ -428,6 +428,7 @@ export const createDatabaseMutation = gql`
 				config
 				isRequired
 				isUnique
+				isReadOnly
 			}
 			createdAt
 			updatedAt
@@ -468,6 +469,7 @@ export const getDatabaseQuery = gql`
 				config
 				isRequired
 				isUnique
+				isReadOnly
 			}
 			sourceBlockId
 			createdAt
@@ -521,15 +523,7 @@ export const updateDatabaseRowMutation = gql`
 		$input: UpdateDatabaseRowInput!
 		$pageId: ID!
 	) {
-		updateDatabaseRow(id: $updateDatabaseRowId, input: $input, pageId: $pageId) {
-			_id
-			values
-			createdAt
-			updatedAt
-			createdBy
-			updatedBy
-			databaseId
-		}
+		updateDatabaseRow(id: $updateDatabaseRowId, input: $input, pageId: $pageId)
 	}
 `;
 
@@ -542,10 +536,72 @@ export const addDatabaseFieldMutation = gql`
 			config
 			isRequired
 			isUnique
+			isReadOnly
 			createdAt
 			updatedAt
 			createdBy
 			updatedBy
+		}
+	}
+`;
+
+export const updateDatabaseFieldMutation = gql`
+	mutation UpdateDatabaseField(
+		$pageId: ID!
+		$databaseId: ID!
+		$fieldId: ID!
+		$input: UpdateDatabaseFieldInput!
+	) {
+		updateDatabaseField(
+			pageId: $pageId
+			databaseId: $databaseId
+			fieldId: $fieldId
+			input: $input
+		) {
+			_id
+			name
+			type
+			config
+			isRequired
+			isUnique
+			isReadOnly
+			createdAt
+			updatedAt
+			createdBy
+			updatedBy
+		}
+	}
+`;
+
+export const updateDatabaseMutation = gql`
+	mutation UpdateDatabase($updateDatabaseId: ID!, $pageId: ID!, $input: UpdateDatabaseInput!) {
+		updateDatabase(id: $updateDatabaseId, pageId: $pageId, input: $input) {
+			_id
+			name
+			description
+			icon
+			fields {
+				_id
+				name
+				type
+				config
+				isRequired
+				isUnique
+			}
+			createdAt
+			updatedAt
+			createdBy
+			updatedBy
+		}
+	}
+`;
+
+export const listAvailableDatabasesQuery = gql`
+	query Query($pageId: ID!) {
+		listDatabases(pageId: $pageId) {
+			_id
+			name
+			sourceBlockId
 		}
 	}
 `;

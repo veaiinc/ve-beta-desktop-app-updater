@@ -23,9 +23,47 @@ const actionHandlers = {
 		...state,
 		views: { ...state.views, ...action?.payload },
 	}),
-	UPDATE_DATABASE_ROWS: (state, action) => ({
+	ADD_DATABASE_ROWS: (state, action) => ({
 		...state,
 		rowData: { ...state.rowData, ...action?.payload },
+	}),
+	UPDATE_DATABASE_ROWS: (state, action) => {
+		const { blockId, rowId, updatedRow } = action.payload;
+
+		const currentBlockData = state?.rowData?.[blockId] || {};
+		const currentRows = currentBlockData.data || [];
+
+		const updatedRows = currentRows.map((row) =>
+			row._id === rowId
+				? {
+						...row,
+						...updatedRow,
+						values: {
+							...row.values,
+							...updatedRow,
+						},
+				  }
+				: row,
+		);
+
+		return {
+			...state,
+			rowData: {
+				...state.rowData,
+				[blockId]: {
+					...currentBlockData,
+					data: updatedRows,
+				},
+			},
+		};
+	},
+	UPDATE_DATABASE_SIDEBAR: (state, action) => ({
+		...state,
+		databaseSidebar: { ...state.databaseSidebar, ...action?.payload },
+	}),
+	SET_AVAILABLE_DATABASES: (state, action) => ({
+		...state,
+		availableDatabases: action?.payload,
 	}),
 	RESET_STATE: () => intialState,
 };
