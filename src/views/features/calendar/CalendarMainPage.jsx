@@ -201,6 +201,7 @@ const Calendar = () => {
 					<SchedulerMainPage
 						onBackToCalendar={handleBackToCalendar}
 						schedulerList={info?.schedulerList}
+						sessionId={info?.selectedSession?._id}
 					/>
 				) : (
 					<CalendarView

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
 import { ReactComponent as RemoveIcon } from '../../../assets/svg/calendar/bin.svg';
+import { Tooltip } from 'antd';
 import dayjs from 'dayjs';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const REPEAT_OPTIONS = [
 	{ value: 'weekly', label: 'Repeat weekly' },
-	{ value: 'none', label: 'Does not repeat' },
+	// { value: 'none', label: 'Does not repeat' },
 	{ value: 'custom', label: 'Custom' },
 ];
 const defaultWeekly = () =>
@@ -14,6 +15,7 @@ const defaultWeekly = () =>
 
 export default function AvailabilitySection({ value, onChange, onSummaryChange }) {
 	const [mode, setMode] = useState('weekly');
+	const [modeOpen, setModeOpen] = useState(false);
 	const [weekly, setWeekly] = useState(defaultWeekly());
 	const [dates, setDates] = useState([
 		{ date: dayjs().format('YYYY-MM-DD'), slots: [{ from: '09:00', to: '17:00' }] },
@@ -317,17 +319,36 @@ export default function AvailabilitySection({ value, onChange, onSummaryChange }
 		<div>
 			<div className="availability-dropdown">
 				<div className="typeOfSession-lable" style={{ marginBottom: 12 }}>
-					<select
-						value={mode}
-						onChange={(e) => handleModeChange(e.target.value)}
-						style={{ background: 'transparent', border: 'none', width: '100%' }}
+					<Tooltip
+						open={modeOpen}
+						onOpenChange={setModeOpen}
+						placement="bottom"
+						distance={0}
+						title={
+							<div className="createSession-sessionType-dropdown">
+								{REPEAT_OPTIONS.map((opt) => (
+									<div
+										key={opt.value}
+										className="sessionType-dropdown-item"
+										onClick={() => {
+											setMode(opt.value);
+											setModeOpen(false);
+											emitChange({ mode: opt.value });
+										}}
+									>
+										{opt.label}
+									</div>
+								))}
+							</div>
+						}
+						trigger={'click'}
+						color={'transparent'}
+						overlayStyle={{ width: '100%', padding: '0' }}
 					>
-						{REPEAT_OPTIONS.map((opt) => (
-							<option key={opt.value} value={opt.value}>
-								{opt.label}
-							</option>
-						))}
-					</select>
+						<div className="typeOfSession-lable">
+							{REPEAT_OPTIONS.find((opt) => opt.value === mode)?.label}
+						</div>
+					</Tooltip>
 				</div>
 			</div>
 			{mode === 'weekly' && renderWeekly()}

@@ -4,8 +4,33 @@ import { ReactComponent as BackSvg } from '../../../assets/svg/calendar/CaretLef
 import '../../../assets/scss/calendar/SchedulerMainPage.scss';
 import { ReactComponent as CaretRightSvg } from '../../../assets/svg/calendar/CaretLeft.svg';
 import SchedulerRightDrawer from './SchedulerRightDrawer';
+
 const SchedulerMainPage = ({ onBackToCalendar, schedulerList = [], onCreateScheduler }) => {
 	const [open, setOpen] = useState(false);
+	const [drawerMode, setDrawerMode] = useState('create');
+	const [selectedSessionId, setSelectedSessionId] = useState(null);
+	const [initialTab, setInitialTab] = useState('one-on-one');
+
+	const handleOpenCreate = (tab) => {
+		setDrawerMode('create');
+		setSelectedSessionId(null);
+		setInitialTab(tab);
+		setOpen(true);
+	};
+
+	const handleOpenEdit = (session) => {
+		setDrawerMode('edit');
+		setSelectedSessionId(session._id);
+		setInitialTab(session.sessionTypeInfo?.sessionType || 'one-on-one');
+		setOpen(true);
+	};
+
+	const handleCloseDrawer = () => {
+		setOpen(false);
+		setSelectedSessionId(null);
+		setDrawerMode('create');
+	};
+
 	return (
 		<div className="schedulerMainPageContainer">
 			<div className="header">
@@ -19,30 +44,16 @@ const SchedulerMainPage = ({ onBackToCalendar, schedulerList = [], onCreateSched
 				{/* Left: Create Scheduler */}
 				<div className="createSchedulerCard">
 					<div className="create-title">Create Scheduler</div>
-					<div
-						className="option"
-						onClick={() => {
-							onCreateScheduler?.('one-on-one');
-							setOpen(true);
-						}}
-					>
+					<div className="option" onClick={() => handleOpenCreate('one-on-one')}>
 						<div className="option-content">
-							<div className="option-title">
-								One-on-One
-							</div>
+							<div className="option-title">One-on-One</div>
 							<div className="option-desc">1 host 1 invitee</div>
 						</div>
 						<div className="option-icon">
 							<CaretRightSvg />
 						</div>
 					</div>
-					<div
-						className="option"
-						onClick={() => {
-							onCreateScheduler?.('group');
-							setOpen(true);
-						}}
-					>
+					<div className="option" onClick={() => handleOpenCreate('group')}>
 						<div className="option-content">
 							<div className="option-title">Group</div>
 							<div className="option-desc">Host multiple invitees</div>
@@ -51,12 +62,9 @@ const SchedulerMainPage = ({ onBackToCalendar, schedulerList = [], onCreateSched
 							<CaretRightSvg />
 						</div>
 					</div>
-					<div
+					{/* <div
 						className="option"
-						onClick={() => {
-							onCreateScheduler?.('round-robin');
-							setOpen(true);
-						}}
+						onClick={() => handleOpenCreate('round-robin')}
 					>
 						<div className="option-content">
 							<div className="option-title">Round Robin</div>
@@ -65,12 +73,16 @@ const SchedulerMainPage = ({ onBackToCalendar, schedulerList = [], onCreateSched
 						<div className="option-icon">
 							<CaretRightSvg />
 						</div>
-					</div>
+					</div> */}
 				</div>
 				{/* Right: List of Schedulers */}
 				<div className="schedulerListCards">
 					{schedulerList.map((session, idx) => (
-						<div className="sessionCard" key={session._id || idx}>
+						<div
+							className="sessionCard"
+							key={session._id || idx}
+							onClick={() => handleOpenEdit(session)}
+						>
 							<div className="session-content">
 								<div className="session-title">
 									{session.sessionName || 'Untitled'}
@@ -95,7 +107,10 @@ const SchedulerMainPage = ({ onBackToCalendar, schedulerList = [], onCreateSched
 			</div>
 			<SchedulerRightDrawer
 				open={open}
-				onClose={() => setOpen(false)}
+				onClose={handleCloseDrawer}
+				mode={drawerMode}
+				sessionId={selectedSessionId}
+				initialTab={initialTab}
 			/>
 		</div>
 	);

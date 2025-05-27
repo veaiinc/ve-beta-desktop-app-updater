@@ -1,4 +1,4 @@
-import { memo, useCallback, useState, useEffect, useContext } from 'react';
+import { memo, useCallback, useState, useEffect, useContext, useRef } from 'react';
 import '../../../assets/scss/calendar/schedulerRightDrawer.scss';
 import { Collapse, Drawer, Tooltip } from 'antd';
 import Context from '../../../context/context';
@@ -61,13 +61,16 @@ const initialInfo = {
 	bufferEnabled: false,
 	bufferValue: 60,
 	bufferUnit: 'Minutes',
+	bufferUnitOpen: false,
 	maxBookingsEnabled: false,
 	maxBookings: 60,
 	guestPermission: false,
 	durationValue: 12,
 	durationUnit: 'hrs',
+	durationUnitOpen: false,
 	allDayEvent: false,
 	timeZone: 'India, Sri Lanka Time',
+	timeZoneOpen: false,
 };
 
 const COLLAPSE_CONFIG = {
@@ -83,7 +86,7 @@ const COLLAPSE_CONFIG = {
 			icon: <CalendarIcon className="collapse-icon" />,
 			label: 'Availability',
 		},
-		{ key: 'host', icon: <UserIcon className="collapse-icon" />, label: 'Host' },
+		// { key: 'host', icon: <UserIcon className="collapse-icon" />, label: 'Host' },
 	],
 	group: [
 		{ key: 'duration', icon: <ClockIcon className="collapse-icon" />, label: 'Duration' },
@@ -98,7 +101,7 @@ const COLLAPSE_CONFIG = {
 			label: 'Availability',
 		},
 		{ key: 'invitee', icon: <UserIcon className="collapse-icon" />, label: 'Invitee limit' },
-		{ key: 'host', icon: <UserIcon className="collapse-icon" />, label: 'Host' },
+		// { key: 'host', icon: <UserIcon className="collapse-icon" />, label: 'Host' },
 	],
 	'round-robin': [
 		{ key: 'duration', icon: <ClockIcon className="collapse-icon" />, label: 'Duration' },
@@ -116,6 +119,10 @@ const COLLAPSE_CONFIG = {
 	],
 };
 
+const durationUnitOptions = ['hrs', 'min'];
+const bufferUnitOptions = ['Minutes', 'Hours'];
+const timeZoneOptions = ['India, Sri Lanka Time', 'UTC', 'US Pacific Time', 'Europe Central Time'];
+
 const SchedulerRightDrawer = ({
 	open,
 	onClose,
@@ -123,34 +130,80 @@ const SchedulerRightDrawer = ({
 	sessionData,
 	onSessionCreated,
 	onSessionUpdated,
+	initialTab = 'one-on-one',
+	sessionId,
 }) => {
 	const {
-		calendarInfo: { createdSession, createSchedulerSession },
+		calendarInfo: {
+			createdSession,
+			createSchedulerSession,
+			getSchedulerSessionDetail,
+			updateSchedulerSession,
+			sessionDetail,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({ ...initialInfo });
-	const [activeTab, setActiveTab] = useState('one-on-one');
+	const [activeTab, setActiveTab] = useState(initialTab);
 	const [availabilitySummary, setAvailabilitySummary] = useState('');
+	const [originalData, setOriginalData] = useState(null);
+	const [updating, setUpdating] = useState(false);
+	const updateTimer = useRef(null);
 
+	// Fetch session details in edit mode
 	useEffect(() => {
-		if (mode === 'edit' && sessionData) {
+		if (mode === 'edit' && sessionId && open) {
+			getSchedulerSessionDetail(sessionId);
+		}
+	}, [mode, sessionId, open]);
+
+	// Populate form with fetched session details
+	useEffect(() => {
+		if (mode === 'edit' && sessionDetail && sessionDetail._id === sessionId) {
 			setInfo({
 				...initialInfo,
-				...sessionData,
-				sessionType: sessionData.sessionTypeInfo?.sessionType || 'In Person',
-				location: sessionData.sessionTypeInfo?.location || '',
-				phoneNumber: sessionData.sessionTypeInfo?.phone || '',
-				meetingLink: sessionData.sessionTypeInfo?.meetingLink || '',
-				scheduleFrom: sessionData.sessionWindow?.startDate || null,
-				scheduleTo: sessionData.sessionWindow?.endDate || null,
+				...sessionDetail,
+				sessionType: backendToUiSessionType(sessionDetail.sessionTypeInfo?.sessionType),
+				location: sessionDetail.sessionTypeInfo?.location || '',
+				phoneNumber: sessionDetail.sessionTypeInfo?.phone || '',
+				meetingLink: sessionDetail.sessionTypeInfo?.meetingLink || '',
+				scheduleFrom: sessionDetail.sessionWindow?.startDate || null,
+				scheduleTo: sessionDetail.sessionWindow?.endDate || null,
+				availability: sessionDetail.availability || {},
+				// Buffer mapping
+				bufferEnabled: !!sessionDetail.bufferTime?.after?.unitCount,
+				bufferValue: sessionDetail.bufferTime?.after?.unitCount || 60,
+				bufferUnit:
+					sessionDetail.bufferTime?.after?.unitType === 'Hours' ? 'Hours' : 'Minutes',
+				// Invitee mapping
+				inviteeLimit: sessionDetail.sessionMetadata?.maxParticipants || '',
 			});
-		} else if (mode === 'create') {
-			setInfo({ ...initialInfo });
+			setActiveTab(sessionDetail.sessionTypeInfo?.sessionType || 'one-on-one');
+			setOriginalData(sessionDetail);
 		}
-	}, [mode, sessionData, open]);
+	}, [mode, sessionDetail, sessionId]);
+
+	// Add mapping function
+	const backendToUiSessionType = (backendType) => {
+		if (backendType === 'one-on-one') return 'In Person';
+		if (backendType === 'group') return 'In Person'; // Adjust if needed
+		if (backendType === 'round-robin') return 'In Person'; // Adjust if needed
+		return 'In Person'; // fallback
+	};
+
+	// On field change, only update local state
+	const handleFieldChange = (field, value) => {
+		setInfo((prev) => ({ ...prev, [field]: value }));
+	};
+
+	const handleAvailabilityChange = (val) => {
+		setInfo((prev) => ({ ...prev, availability: val }));
+	};
 
 	useEffect(() => {
 		if (createdSession && mode === 'create') {
+			message.success('Session created successfully!');
+			setInfo({ ...initialInfo });
 			handleClose();
 			onSessionCreated?.(createdSession);
 		}
@@ -173,9 +226,23 @@ const SchedulerRightDrawer = ({
 
 	const handleCreateOrUpdate = useCallback(() => {
 		// Log all form data for debugging, including duration and all fields
-		console.log('Scheduler Form Data:', info);
-		// Validate date range
-		if (info?.scheduleFrom && info?.scheduleTo && info?.scheduleTo <= info?.scheduleFrom) {
+		// Validate date range only if custom availability
+		if (
+			info.availability?.mode === 'custom' &&
+			(!info.availability?.custom?.start ||
+				(!info.availability?.custom?.never && !info.availability?.custom?.end))
+		) {
+			setInfo((prev) => ({
+				...prev,
+				errors: { ...prev.errors, dateRange: true },
+			}));
+			return;
+		}
+		if (
+			info.availability?.mode === 'custom' &&
+			!info.availability?.custom?.never &&
+			info.availability?.custom?.end <= info.availability?.custom?.start
+		) {
 			setInfo((prev) => ({
 				...prev,
 				errors: { ...prev.errors, dateRange: true },
@@ -199,30 +266,144 @@ const SchedulerRightDrawer = ({
 			creatingSessionLoading: true,
 			errors: { ...prev.errors, dateRange: false },
 		}));
+
+		// Convert duration to minutes
+		const durationInMinutes =
+			info.durationUnit === 'hrs' ? info.durationValue * 60 : info.durationValue;
+
+		// Map abbreviated days to full names
+		const dayMap = {
+			Sun: 'Sunday',
+			Mon: 'Monday',
+			Tue: 'Tuesday',
+			Wed: 'Wednesday',
+			Thu: 'Thursday',
+			Fri: 'Friday',
+			Sat: 'Saturday',
+		};
+
+		// Prepare availability data based on mode
+		let availabilityData = {};
+		if (info.availability?.mode === 'weekly') {
+			const validSlots = info.availability.weekly
+				.filter((day) => day.slots.length > 0)
+				.map((day) => ({
+					dayOfWeek: dayMap[day.day],
+					timeRanges: day.slots.map((slot) => ({
+						startTime: slot.from,
+						endTime: slot.to,
+					})),
+				}));
+
+			if (validSlots.length > 0) {
+				availabilityData = {
+					availabilitySlots: validSlots,
+				};
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					creatingSessionLoading: false,
+					errors: { ...prev.errors, availability: true },
+				}));
+				return;
+			}
+		} else if (info.availability?.mode === 'custom') {
+			availabilityData = {
+				customExceptions: [
+					{
+						date: info.availability.custom.start,
+						overrideAvailability: true,
+						customTimeRanges: [
+							{
+								startTime: '09:00',
+								endTime: '17:00',
+							},
+						],
+					},
+				],
+			};
+		}
+
+		// Always include sessionWindow: for custom use custom dates, otherwise use today + 2 weeks
+		let sessionWindow;
+		if (info.availability?.mode === 'custom') {
+			sessionWindow = {
+				type: 'fixed_date_range',
+				startDate: info.availability.custom.start,
+				endDate: info.availability.custom.never ? null : info.availability.custom.end,
+			};
+		} else {
+			sessionWindow = {
+				type: 'fixed_date_range',
+				startDate: dayjs().format('YYYY-MM-DD'),
+				endDate: dayjs().add(13, 'day').format('YYYY-MM-DD'),
+			};
+		}
+
 		const sessionPayload = {
 			sessionName: info?.sessionName,
 			sessionDescription: info?.sessionDescription,
 			sessionTypeInfo: {
-				sessionType: info?.sessionType,
+				sessionType: activeTab, // Use activeTab instead of info.sessionType
 				location: info?.location,
 				phone: info?.phoneNumber,
 				meetingLink: info?.meetingLink,
 			},
-			sessionWindow: {
-				type: 'fixed_date_range',
-				startDate: info?.scheduleFrom,
-				endDate: info?.scheduleTo,
-			},
+			sessionWindow,
 			sessionTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+			sessionColor: '#4287F5', // Default for now
+			sessionDuration: {
+				unitCount: durationInMinutes,
+				unitType: 'minutes',
+			},
+			bufferTime: {
+				before: {
+					unitCount: 5,
+					unitType: 'minutes',
+				},
+				after: {
+					unitCount: parseInt(info.bufferValue) || 15,
+					unitType: 'minutes',
+				},
+			},
+			sessionMetadata: {
+				maxParticipants: activeTab === 'one-on-one' ? 1 : info.inviteeLimit || 5,
+			},
+			...availabilityData,
 		};
+
 		if (mode === 'create') {
 			createSchedulerSession(sessionPayload);
 		} else if (mode === 'edit') {
-			onSessionUpdated?.(sessionPayload);
-			setInfo((prev) => ({ ...prev, creatingSessionLoading: false }));
-			handleClose();
+			const payload = buildUpdatePayload(info, originalData);
+			if (Object.keys(payload).length === 0) {
+				message.info('No changes to update.');
+				setInfo((prev) => ({ ...prev, creatingSessionLoading: false }));
+				return;
+			}
+			setInfo((prev) => ({ ...prev, creatingSessionLoading: true }));
+			updateSchedulerSession(sessionId, payload)
+				.then(() => {
+					message.success('Session updated successfully!');
+					getSchedulerSessionDetail(sessionId);
+				})
+				.catch(() => {
+					message.error('Failed to update session.');
+				})
+				.finally(() => setInfo((prev) => ({ ...prev, creatingSessionLoading: false })));
 		}
-	}, [info, mode, createSchedulerSession, onSessionUpdated, handleClose]);
+	}, [
+		info,
+		mode,
+		createSchedulerSession,
+		onSessionUpdated,
+		handleClose,
+		activeTab,
+		originalData,
+		sessionId,
+		updateSchedulerSession,
+		getSchedulerSessionDetail,
+	]);
 
 	const handleSessionTypeChange = useCallback((type) => {
 		setInfo((prev) => ({
@@ -295,7 +476,7 @@ const SchedulerRightDrawer = ({
 	const tabs = [
 		{ id: 'one-on-one', label: 'One-on-One' },
 		{ id: 'group', label: 'Group' },
-		{ id: 'round-robin', label: 'Round Robin' },
+		// { id: 'round-robin', label: 'Round Robin' },
 	];
 
 	const handleBufferEnabledChange = (e) =>
@@ -334,21 +515,7 @@ const SchedulerRightDrawer = ({
 						type="text"
 						className="scheduler-right-drawer-title rightDrawerInputHeight"
 						value={info.sessionName}
-						onFocus={(e) => {
-							if (e.target.value === 'Add Title')
-								setInfo((prev) => ({ ...prev, sessionName: '' }));
-						}}
-						onBlur={(e) => {
-							if (!e.target.value) setInfo((prev) => ({ ...prev, sessionName: '' }));
-						}}
-						onChange={(e) =>
-							setInfo((prev) => ({
-								...prev,
-								sessionName: e.target.value,
-								errors: { ...prev.errors, sessionName: false },
-							}))
-						}
-						disabled={mode === 'edit' && !info.sessionName}
+						onChange={(e) => handleFieldChange('sessionName', e.target.value)}
 						autoComplete="off"
 					/>
 					<p className="scheduler-description">
@@ -358,14 +525,13 @@ const SchedulerRightDrawer = ({
 							value={info.sessionDescription}
 							onFocus={(e) => {
 								if (e.target.value === 'Add a description for the session')
-									setInfo((prev) => ({ ...prev, sessionDescription: '' }));
+									handleFieldChange('sessionDescription', '');
 							}}
 							onBlur={(e) => {
-								if (!e.target.value)
-									setInfo((prev) => ({ ...prev, sessionDescription: '' }));
+								if (!e.target.value) handleFieldChange('sessionDescription', '');
 							}}
 							onChange={(e) =>
-								setInfo((prev) => ({ ...prev, sessionDescription: e.target.value }))
+								handleFieldChange('sessionDescription', e.target.value)
 							}
 							autoComplete="off"
 						/>
@@ -379,6 +545,24 @@ const SchedulerRightDrawer = ({
 									key={tab.id}
 									className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
 									onClick={() => setActiveTab(tab.id)}
+								>
+									{tab.label}
+								</button>
+							))}
+						</div>
+					</div>
+				)}
+				{mode === 'edit' && (
+					<div className="scheduler-tabs">
+						<div className="tabs-container">
+							{tabs.map((tab) => (
+								<button
+									key={tab.id}
+									className={`tab-button ${
+										activeTab === tab.id ? 'active' : ''
+									} disabled`}
+									disabled
+									style={{ cursor: 'not-allowed', opacity: 0.5 }}
 								>
 									{tab.label}
 								</button>
@@ -428,21 +612,49 @@ const SchedulerRightDrawer = ({
 											<div className="duration-row">
 												<div className="duration-label">Time Zone</div>
 												<div className="duration-field">
-													<select
-														className="inputHeight duration-timezone-select"
-														value={info.timeZone}
-														onChange={(e) =>
-															setInfo((prev) => ({
-																...prev,
-																timeZone: e.target.value,
-															}))
-														}
-													>
-														<option>India, Sri Lanka Time</option>
-														<option>UTC</option>
-														<option>US Pacific Time</option>
-														<option>Europe Central Time</option>
-													</select>
+													<div className="typeOfSession-lable">
+														<Tooltip
+															open={info.timeZoneOpen}
+															onOpenChange={(visible) =>
+																handleFieldChange(
+																	'timeZoneOpen',
+																	visible,
+																)
+															}
+															placement="bottom"
+															distance={0}
+															title={
+																<div className="createSession-sessionType-dropdown">
+																	{timeZoneOptions.map(
+																		(option) => (
+																			<div
+																				key={option}
+																				className="sessionType-dropdown-item"
+																				onClick={() =>
+																					handleFieldChange(
+																						'timeZone',
+																						option,
+																					)
+																				}
+																			>
+																				{option}
+																			</div>
+																		),
+																	)}
+																</div>
+															}
+															trigger={'click'}
+															color={'transparent'}
+															overlayStyle={{
+																width: '100%',
+																padding: '0',
+															}}
+														>
+															<div className="typeOfSession-lable">
+																{info.timeZone}
+															</div>
+														</Tooltip>
+													</div>
 												</div>
 											</div>
 											<div className="duration-row">
@@ -465,27 +677,59 @@ const SchedulerRightDrawer = ({
 														max="24"
 														value={info.durationValue}
 														onChange={(e) =>
-															setInfo((prev) => ({
-																...prev,
-																durationValue: e.target.value,
-															}))
+															handleFieldChange(
+																'durationValue',
+																e.target.value,
+															)
 														}
 														placeholder="12"
 													/>
 												</div>
-												<select
-													className="inputHeight duration-unit-select"
-													value={info.durationUnit}
-													onChange={(e) =>
-														setInfo((prev) => ({
-															...prev,
-															durationUnit: e.target.value,
-														}))
-													}
-												>
-													<option>hrs</option>
-													<option>min</option>
-												</select>
+												<div className="duration-field">
+													<div className="typeOfSession-lable">
+														<Tooltip
+															open={info.durationUnitOpen}
+															onOpenChange={(visible) =>
+																handleFieldChange(
+																	'durationUnitOpen',
+																	visible,
+																)
+															}
+															placement="bottom"
+															distance={0}
+															title={
+																<div className="createSession-sessionType-dropdown">
+																	{durationUnitOptions.map(
+																		(option) => (
+																			<div
+																				key={option}
+																				className="sessionType-dropdown-item"
+																				onClick={() =>
+																					handleFieldChange(
+																						'durationUnit',
+																						option,
+																					)
+																				}
+																			>
+																				{option}
+																			</div>
+																		),
+																	)}
+																</div>
+															}
+															trigger={'click'}
+															color={'transparent'}
+															overlayStyle={{
+																width: '100%',
+																padding: '0',
+															}}
+														>
+															<div className="typeOfSession-lable">
+																{info.durationUnit}
+															</div>
+														</Tooltip>
+													</div>
+												</div>
 											</div>
 											<div className="duration-allday-row">
 												<input
@@ -494,10 +738,10 @@ const SchedulerRightDrawer = ({
 													className="duration-allday-checkbox"
 													checked={info.allDayEvent}
 													onChange={(e) =>
-														setInfo((prev) => ({
-															...prev,
-															allDayEvent: e.target.checked,
-														}))
+														handleFieldChange(
+															'allDayEvent',
+															e.target.checked,
+														)
 													}
 												/>
 												<label
@@ -519,10 +763,10 @@ const SchedulerRightDrawer = ({
 													<Tooltip
 														open={info?.sessionTypeOpen}
 														onOpenChange={(visible) =>
-															setInfo((prev) => ({
-																...prev,
-																sessionTypeOpen: visible,
-															}))
+															handleFieldChange(
+																'sessionTypeOpen',
+																visible,
+															)
 														}
 														placement="bottom"
 														distance={0}
@@ -572,12 +816,7 @@ const SchedulerRightDrawer = ({
 										<div className="collapse-content availability-collapse-content">
 											<AvailabilitySection
 												value={info.availability}
-												onChange={(val) =>
-													setInfo((prev) => ({
-														...prev,
-														availability: val,
-													}))
-												}
+												onChange={handleAvailabilityChange}
 												onSummaryChange={setAvailabilitySummary}
 											/>
 										</div>
@@ -587,17 +826,19 @@ const SchedulerRightDrawer = ({
 									content = (
 										<div className="collapse-content invitee-collapse-content">
 											<div className="invitee-row">
-												<div className="invitee-label">Invitee limit</div>
+												<div className="invitee-label">
+													Set max invitees for groups
+												</div>
 												<input
 													className="inputHeight invitee-input"
 													type="number"
 													min="1"
 													value={info.inviteeLimit || ''}
 													onChange={(e) =>
-														setInfo((prev) => ({
-															...prev,
-															inviteeLimit: e.target.value,
-														}))
+														handleFieldChange(
+															'inviteeLimit',
+															e.target.value,
+														)
 													}
 													placeholder="Enter limit"
 												/>
@@ -679,29 +920,89 @@ const SchedulerRightDrawer = ({
 										Add time between appointment slots
 									</div>
 									<div className="settings-control">
-										<input
-											type="checkbox"
-											checked={info.bufferEnabled}
-											onChange={handleBufferEnabledChange}
-										/>
+										<div className="custom-checkbox">
+											<input
+												type="checkbox"
+												id="bufferEnabled"
+												checked={info.bufferEnabled}
+												onChange={(e) =>
+													handleFieldChange(
+														'bufferEnabled',
+														e.target.checked,
+													)
+												}
+											/>
+											<label
+												htmlFor="bufferEnabled"
+												className="checkbox-label"
+											>
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													width="12"
+													height="10"
+													viewBox="0 0 12 10"
+													fill="none"
+												>
+													<path
+														d="M0.959839 5.86677L4.15976 8.7467L11.0396 1.54688"
+														stroke="#E8E8E8"
+														style={{
+															stroke: 'color(display-p3 0.9097 0.9096 0.9096)',
+															strokeOpacity: 1,
+														}}
+														strokeWidth="1.19997"
+														strokeLinecap="round"
+														strokeLinejoin="round"
+													/>
+												</svg>
+											</label>
+										</div>
 										<input
 											type="number"
 											className="settings-input"
 											value={info.bufferValue}
-											onChange={handleBufferValueChange}
+											onChange={(e) =>
+												handleFieldChange('bufferValue', e.target.value)
+											}
 											disabled={!info.bufferEnabled}
 											min={1}
 											max={1440}
 										/>
-										<select
-											className="settings-select"
-											value={info.bufferUnit}
-											onChange={handleBufferUnitChange}
-											disabled={!info.bufferEnabled}
-										>
-											<option>Minutes</option>
-											<option>Hours</option>
-										</select>
+										<div className="typeOfSession-lable">
+											<Tooltip
+												open={info.bufferUnitOpen}
+												onOpenChange={(visible) =>
+													handleFieldChange('bufferUnitOpen', visible)
+												}
+												placement="bottom"
+												distance={0}
+												title={
+													<div className="createSession-sessionType-dropdown">
+														{bufferUnitOptions.map((option) => (
+															<div
+																key={option}
+																className="sessionType-dropdown-item"
+																onClick={() =>
+																	handleFieldChange(
+																		'bufferUnit',
+																		option,
+																	)
+																}
+															>
+																{option}
+															</div>
+														))}
+													</div>
+												}
+												trigger={'click'}
+												color={'transparent'}
+												overlayStyle={{ width: '100%', padding: '0' }}
+											>
+												<div className="typeOfSession-lable">
+													{info.bufferUnit}
+												</div>
+											</Tooltip>
+										</div>
 									</div>
 								</div>
 								<div className="settings-row">
@@ -710,11 +1011,43 @@ const SchedulerRightDrawer = ({
 										Limit how many booked appointments to accept in a single day
 									</div>
 									<div className="settings-control">
-										<input
-											type="checkbox"
-											checked={info.maxBookingsEnabled}
-											onChange={handleMaxBookingsEnabledChange}
-										/>
+										<div className="custom-checkbox">
+											<input
+												type="checkbox"
+												id="maxBookingsEnabled"
+												checked={info.maxBookingsEnabled}
+												onChange={(e) =>
+													handleFieldChange(
+														'maxBookingsEnabled',
+														e.target.checked,
+													)
+												}
+											/>
+											<label
+												htmlFor="maxBookingsEnabled"
+												className="checkbox-label"
+											>
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													width="12"
+													height="10"
+													viewBox="0 0 12 10"
+													fill="none"
+												>
+													<path
+														d="M0.959839 5.86677L4.15976 8.7467L11.0396 1.54688"
+														stroke="#E8E8E8"
+														style={{
+															stroke: 'color(display-p3 0.9097 0.9096 0.9096)',
+															strokeOpacity: 1,
+														}}
+														strokeWidth="1.19997"
+														strokeLinecap="round"
+														strokeLinejoin="round"
+													/>
+												</svg>
+											</label>
+										</div>
 										<input
 											type="number"
 											className="settings-input"
@@ -726,7 +1059,7 @@ const SchedulerRightDrawer = ({
 										/>
 									</div>
 								</div>
-								<div className="settings-row">
+								{/* <div className="settings-row">
 									<div className="settings-label">Guest permissions</div>
 									<div className="settings-control">
 										<input
@@ -742,7 +1075,7 @@ const SchedulerRightDrawer = ({
 										After booking an appointment guests can modify the calendar
 										event to invite others
 									</div>
-								</div>
+								</div> */}
 							</div>
 						</Collapse.Panel>
 					</Collapse>
