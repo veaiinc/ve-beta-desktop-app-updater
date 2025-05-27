@@ -105,15 +105,15 @@ export const photographerModules = [
 
 export const veAiModulesItemsList = [
 	{ id: 0, name: 'Home', route: '/home', icon: HomeSvg },
-	{ id: 1, name: 'Files', route: '/files', icon: FilesSvg },
 	// { id: 2, name: 'Search', route: '/search', icon: SearchIcon },
-	{ id: 2, name: 'Agents', route: '/knowledge-agent', icon: AgentsSvg },
+	{ id: 1, name: 'Agents', route: '/knowledge-agent', icon: AgentsSvg },
 	{
-		id: 3,
+		id: 2,
 		name: 'Notes',
 		route: '/notes',
 		icon: NotesIcon,
 	},
+	{ id: 3, name: 'Files', route: '/files', icon: FilesSvg },
 ];
 
 export const veAiModules = [

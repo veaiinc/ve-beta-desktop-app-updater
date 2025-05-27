@@ -5,7 +5,7 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks
 import { ReactComponent as FilterIcon } from '../../../assets/svg/tasks/newFiltersIcon.svg';
 import { ReactComponent as TickIcon } from '../../../assets/svg/tick.svg';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/close.svg';
-import { ReactComponent as EmailIcon } from '../../../assets/svg/login_page/gmail.svg';
+import EmailIcon from '../../../assets/svg/login_page/GmailIcon';
 import { ReactComponent as QuestionSvg } from '../../../assets/svg/home_page/question.svg';
 import { ReactComponent as ListDashesSvg } from '../../../assets/svg/home_page/listDashes.svg';
 import Skeleton from 'react-loading-skeleton';
@@ -728,7 +728,7 @@ const ProactiveSuggestions = () => {
 			</>
 			{info?.isListView ? (
 				<div className="proactiveSuggestionsContainer">
-					{info?.loading && aiSuggestedPendingActions?.pendingActions?.length === 0 ? (
+					{info?.loading && !aiSuggestedPendingActions?.pendingActions?.length ? (
 						<div className="skeleton-container">
 							{skeletonLoaders?.map((_, index) => (
 								<Skeleton
@@ -755,7 +755,9 @@ const ProactiveSuggestions = () => {
 								<InfiniteScroll
 									dataLength={info?.cards?.length || 0}
 									hasMore={
-										aiSuggestedPendingActions?.metaInfo?.hasNextPage || false
+										(aiSuggestedPendingActions?.metaInfo?.hasNextPage &&
+											info?.cards?.length) ||
+										false
 									}
 									next={fetchMorePendingActions}
 									style={infiniteScrollStyle}
