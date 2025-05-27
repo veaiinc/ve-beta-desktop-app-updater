@@ -519,6 +519,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}, []);
 
 	const customSendMessage = useCallback((query) => {
+		const location = localStorage?.getItem('locationDetails') || {};
+		const locationData = JSON?.parse(location);
 		sendMessage({
 			date: [],
 			deep_research: false,
@@ -527,6 +529,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			query,
 			timezone: 'Asia/Calcutta',
 			web_search: true,
+			location: locationData,
 		});
 	}, []);
 
