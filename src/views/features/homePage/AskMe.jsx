@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import BuildOptions from './BuildOptions';
 import Suggestions from './Suggestions';
 
-const AskMe = () => {
+const AskMe = ({ landingPage = false }) => {
 	const navigate = useNavigate();
 
 	const {
@@ -46,7 +46,7 @@ const AskMe = () => {
 				</div>
 			</div>
 			{chatInfo?.build && info?.chatQuery?.length === 0 && <BuildOptions />}
-			{info?.showSuggestions && <Suggestions />}
+			{!landingPage && info?.showSuggestions && <Suggestions />}
 		</div>
 	);
 };

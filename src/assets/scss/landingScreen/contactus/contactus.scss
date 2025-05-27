@@ -2,7 +2,7 @@
 	background-color: var(--background-color);
 	color: var(--primary-font);
 
-	font-family: var(--primary-font-family);
+	font-family: var(--secondary-font-family);
 	display: flex;
 	width: 100%;
 	flex-direction: column;
@@ -47,7 +47,6 @@
 			flex-direction: column;
 			font-size: 0.85rem;
 			color: var(--primary-font, #f2f2f3);
-			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -81,7 +80,7 @@
 				align-self: stretch;
 				resize: none;
 				color: var(--primary-font, #f2f2f3);
-				font-family: var(--primary-font-family);
+
 				font-size: 14px;
 				font-style: italic;
 				font-weight: 400;
@@ -142,7 +141,6 @@
 			}
 
 			p {
-				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -154,7 +152,6 @@
 					}
 					span:last-child {
 						color: var(--primary-button, #a5d9ff);
-						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 600;
@@ -193,7 +190,6 @@
 			border-radius: 100px;
 			border: 1px solid var(--primary-button, #cfff48);
 			color: var(--primary-button);
-			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -349,7 +345,6 @@
 
 			&.selected {
 				background-color: var(--primary-button);
-				color: var(--primary-button-font);
 			}
 		}
 
