@@ -26,6 +26,7 @@ const initialState = {
 	selectedSession: null,
 	sessionFilter: [],
 	showEditScheduler: false,
+	showGoogleEvents: true,
 };
 
 const aiSuggestions = [
@@ -144,18 +145,22 @@ const Calendar = () => {
 			...prevInfo,
 			showEditScheduler: false,
 			selectedSession: null,
-			isEventSelected: false,
-			selectedSlot: null,
 		}));
 	}, []);
 
 	const updateCategoryList = useCallback(() => {
-		if (calendarCategoriesList) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				categoryList: [...calendarCategoriesList],
-			}));
-		}
+		const categories = calendarCategoriesList?.map((category) => ({
+			...category,
+			_id: category?._id,
+			name: category?.name,
+			color: category?.color,
+			type: category?.type,
+		}));
+
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			categoryList: categories,
+		}));
 	}, [calendarCategoriesList]);
 
 	// Get Week Days array for <WeekDayHeader /> component
@@ -194,6 +199,7 @@ const Calendar = () => {
 						schedulerList={info?.schedulerList}
 						selectedSession={info?.selectedSession}
 						sessionFilter={info?.sessionFilter}
+						showGoogleEvents={info?.showGoogleEvents}
 					/>
 				</ChatLeftBarComponent>
 
@@ -218,6 +224,7 @@ const Calendar = () => {
 						updateCalendarInfo={updateCalendarInfo}
 						selectedWorkflowId={info?.selectedWorkflowId}
 						selectedSlot={info?.selectedSlot}
+						showGoogleEvents={info?.showGoogleEvents}
 					/>
 				)}
 			</div>
