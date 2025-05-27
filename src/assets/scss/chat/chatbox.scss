@@ -227,8 +227,8 @@
 											position: relative;
 											border: 1px solid var(--stroke);
 											z-index: 10;
+											overflow: hidden;
 											.chat-box-icon-container {
-												border: 1px solid transparent;
 												display: flex;
 												justify-content: center;
 												align-items: center;
