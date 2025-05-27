@@ -16,6 +16,7 @@ import { ReactComponent as ContactSvg } from '../../../assets/svg/home_page/cont
 import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/automation.svg';
 import VeSvg from '../../../assets/svg/veSvg';
 import AskMe from './AskMe';
+import jwtDecode from 'jwt-decode';
 
 const optionsList = [
 	{
@@ -147,12 +148,38 @@ const SuggestedOptions = [
 	},
 ];
 
+const homePageTextContent = {
+	ask: {
+		title: 'What are you curious about today',
+		subText: 'Your enterprise knowledge hub for instant answers.',
+	},
+	proactiveSuggestions: {
+		title: 'Answers before you ask',
+		subText: 'Insights delivered before you even think to ask. the power of proactive memory.',
+	},
+	calendar: {
+		title: 'Let’s make every moment count',
+		subText: 'More that a schedule - It’s your daily mission control',
+	},
+	task: {
+		title: 'Transform goals into actionable tasks',
+		subText: 'Clear steps. Smart prioritisation. No more to-do overwhelm',
+	},
+	contact: {
+		title: 'Stay connected with who matters',
+		subText: 'Your most relevant contacts, surfaced when you need them most.',
+	},
+	automation: {
+		title: 'Automate the routine, focus on what matters',
+		subText: 'Trigger workflows, reduce busywork, and stay in flow.',
+	},
+};
+
 const InitialHomePage = () => {
 	const {
-		templates: { updateStateValues },
-		profileInfo: { tenantUserAccessControls },
+		templates: { updateStateValues, aiSuggestedPendingActions, getAISuggestedPendingActions },
+		profileInfo: { tenantUserAccessControls, userDetailsData },
 		aiSetup: { getPromptsData, promptsData },
-		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
@@ -370,6 +397,13 @@ const InitialHomePage = () => {
 		[info?.options],
 	);
 
+	const title = homePageTextContent[info?.selectedOption]?.title || '';
+	const subText = homePageTextContent[info?.selectedOption]?.subText || '';
+	const userName =
+		jwtDecode(localStorage.getItem('usertoken'))?.userName?.split(' ')[0] ||
+		userDetailsData?.firstName ||
+		'User';
+
 	return (
 		<div
 			className={`initial-home-page-container`}
@@ -388,12 +422,12 @@ const InitialHomePage = () => {
 			>
 				<div className={`title-container `}>
 					<div className="title-text">
-						<h2 className="title-two">PROACTIVE</h2>
-						<span className="title-one">Answers before you Ask!</span>
+						<h2 className="title-one">Hey, {userName || ''}</h2>
+						<span className="title-two">{title}</span>
 
 						{/* <span className="title-two">truly yours</span> */}
 					</div>
-					{/* <div className="sub-text">Answers before you Ask!</div> */}
+					<div className="sub-text">{subText}</div>
 				</div>
 
 				{!info?.showSuggestions && (
