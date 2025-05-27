@@ -436,6 +436,7 @@
 								background: var(--popup, #202123);
 								cursor: pointer;
 								word-break: break-word;
+								overflow-wrap: anywhere;
 								transition: background 0.2s ease-in-out, border 0.2s ease-in-out;
 
 								&:hover {
