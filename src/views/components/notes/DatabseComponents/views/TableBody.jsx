@@ -50,12 +50,13 @@ const TableBody = ({ data, columns, handleUpdate, colors, pageId, blockId }) => 
 					onChange={(value) => handleUpdateRow(row?._id, key, value)}
 					colors={colors}
 					readOnly
-					showTitle={true}
 					showLabel={true}
 					style={{ background: 'transparent', padding: 0 }}
 					disabled={property.isReadOnly}
 					timestamp={property.isReadOnly}
 					maxWidth={false}
+					options={property.config?.options}
+					labelField={'label'}
 				/>
 			);
 		},

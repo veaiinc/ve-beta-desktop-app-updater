@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useState } from 'react';
 import ReactModal from '../index';
 import s from '../../../../assets/scss/notes/modals/databaseAddModal.module.scss';
 import Context from '../../../../context/context';
+import { rowTypes } from '../../notes/Database';
 
 const DatabaseAddModal = ({ isOpen, onClose, blockId, pageId, databaseId, fields }) => {
 	const {
@@ -44,6 +45,88 @@ const DatabaseAddModal = ({ isOpen, onClose, blockId, pageId, databaseId, fields
 		onClose();
 	}, [info?.values]);
 
+	const handleOptionSelect = useCallback(
+		(fieldId, value) => {
+			handleInfoChange({
+				values: {
+					...info?.values,
+					[fieldId]: value,
+				},
+			});
+		},
+		[info?.values, handleInfoChange],
+	);
+
+	const renderFieldInput = useCallback(
+		(field) => {
+			// Handle basic input types first
+			if (['text', 'title', 'number'].includes(field.type)) {
+				return (
+					<input
+						type={field.type === 'number' ? 'number' : 'text'}
+						name={field._id}
+						value={info?.values?.[field._id] || ''}
+						onChange={(e) =>
+							handleInfoChange({
+								values: {
+									...info?.values,
+									[field._id]: e.target.value,
+								},
+							})
+						}
+						disabled={field.isReadOnly}
+						placeholder={`Enter ${field.name}`}
+					/>
+				);
+			}
+
+			// Handle other types using rowTypes components
+			const Component = rowTypes[field.type];
+			if (Component) {
+				return (
+					<Component
+						value={info?.values?.[field._id] || ''}
+						title={field?.name}
+						onChange={(value) =>
+							handleInfoChange({
+								values: {
+									...info?.values,
+									[field._id]: value,
+								},
+							})
+						}
+						onOptionClick={(value) => handleOptionSelect(field._id, value)}
+						options={field.config?.options}
+						showTitle={true}
+						showLabel={true}
+						style={{ background: 'transparent', padding: 0 }}
+						disabled={field.isReadOnly}
+					/>
+				);
+			}
+
+			// Fallback to text input for unknown types
+			return (
+				<input
+					type="text"
+					name={field._id}
+					value={info?.values?.[field._id] || ''}
+					onChange={(e) =>
+						handleInfoChange({
+							values: {
+								...info?.values,
+								[field._id]: e.target.value,
+							},
+						})
+					}
+					disabled={field.isReadOnly}
+					placeholder={`Enter ${field.name}`}
+				/>
+			);
+		},
+		[info?.values, handleInfoChange, handleOptionSelect],
+	);
+
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -69,19 +152,7 @@ const DatabaseAddModal = ({ isOpen, onClose, blockId, pageId, databaseId, fields
 								<div className={s.databaseAddModalBodyRow} key={field?._id}>
 									<div className={s.databaseAddModalBodyRowField}>
 										<label htmlFor={field?._id}>{field?.name}</label>
-										<input
-											type={field?.type}
-											name={field?._id}
-											value={info?.values?.[field?._id]}
-											onChange={(e) =>
-												handleInfoChange({
-													values: {
-														...info?.values,
-														[field?._id]: e.target.value,
-													},
-												})
-											}
-										/>
+										{renderFieldInput(field)}
 									</div>
 								</div>
 							),

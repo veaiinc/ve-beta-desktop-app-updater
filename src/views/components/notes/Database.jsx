@@ -36,7 +36,7 @@ export const rowTypes = {
 	text: TextField,
 	select: Select,
 	person: Person,
-	'multi-select': MultiSelect,
+	multi_select: MultiSelect,
 	date: DateView,
 	id: TaskId,
 	status: Status,

@@ -42,8 +42,8 @@ const DatabaseSidebar = ({ databaseId, pageId, databaseName, fields }) => {
 					<div className={s.notesDatabaseSidebarHeaderTitle}>{databaseName}</div>
 				</div>
 				<div className={s.notesDatabaseSidebarContent}>
-					{fields.map((field) => (
-						<div className={s.notesDatabaseSidebarField}>
+					{fields?.map((field) => (
+						<div className={s.notesDatabaseSidebarField} key={field?._id}>
 							<div className={s.notesDatabaseSidebarFieldLabel}>{field.name}</div>
 							{renderRowData(field, rowData?.[field._id])}
 						</div>
