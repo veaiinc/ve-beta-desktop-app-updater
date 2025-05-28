@@ -830,12 +830,14 @@ const TaskWidget = ({ width, height }) => {
 					<ArrowViewIcon />
 					View Tasks
 				</div>
-				<div className="taskWidgetFooterAdd">
+				<div
+					onClick={(e) => {
+						e.stopPropagation();
+						handleCreateTaskPopup();
+					}}
+					className="taskWidgetFooterAdd"
+				>
 					<PlusIcon
-						onClick={(e) => {
-							e.stopPropagation();
-							handleCreateTaskPopup();
-						}}
 						style={{
 							width: '18px',
 							height: '18px',
