@@ -394,6 +394,8 @@ const ChatBox = ({
 				chatInfo: {
 					...chatInfo,
 					deepResearch: true,
+					ask: false,
+					build: false,
 				},
 			});
 			setInfo((prev) => ({
@@ -409,6 +411,8 @@ const ChatBox = ({
 				chatInfo: {
 					...chatInfo,
 					deepResearch: false,
+					ask: true,
+					build: false,
 				},
 			});
 		}
@@ -536,13 +540,9 @@ const ChatBox = ({
 					const payload = {
 						query,
 						timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-						web_search: chatInfo?.deepResearch
-							? chatInfo?.reason?.webSearch
-							: chatInfo?.webSearch,
+						web_search: chatInfo?.webSearch,
 						...(!isPublicChat && {
-							knowledge_base_search: chatInfo?.deepResearch
-								? chatInfo?.reason?.workspaceSearch
-								: chatInfo?.workspaceSearch,
+							knowledge_base_search: chatInfo?.workspaceSearch,
 						}),
 						...(!isPublicChat && { modules: Object?.keys(info?.chatFilters?.modules) }),
 						...(!isPublicChat && { date: date }),
@@ -1466,83 +1466,71 @@ const ChatBox = ({
 															)}
 
 															{!isPublicChat && (
-																<SearchTypeTooltip
-																	isOpen={
-																		info?.searchTypeOpenForReason
+																// <SearchTypeTooltip
+																// 	isOpen={
+																// 		info?.searchTypeOpenForReason
+																// 	}
+																// 	searchType={chatInfo?.reason}
+																// 	onSearchTypeChange={
+																// 		handleSearchTypeChangeForReason
+																// 	}
+																// 	onOpenChange={(value) => {
+																// 		setInfo((prev) => ({
+																// 			...prev,
+																// 			searchTypeOpenForReason:
+																// 				value,
+																// 		}));
+																// 	}}
+																// 	searchTypeOptions={
+																// 		searchTypeOptionsForReason
+																// 	}
+																// >
+																<Tooltip
+																	title={
+																		<div className="chatbox-icon-tooltip-container">
+																			Unlock in-depth
+																			reasoning on any subject
+																		</div>
 																	}
-																	searchType={chatInfo?.reason}
-																	onSearchTypeChange={
-																		handleSearchTypeChangeForReason
-																	}
-																	onOpenChange={(value) => {
-																		setInfo((prev) => ({
-																			...prev,
-																			searchTypeOpenForReason:
-																				value,
-																		}));
-																	}}
-																	searchTypeOptions={
-																		searchTypeOptionsForReason
-																	}
+																	color="transparent"
+																	arrow={false}
+																	rootClassName="chatbox-tooltip"
 																>
-																	<Tooltip
-																		title={
-																			<div className="chatbox-icon-tooltip-container">
-																				Unlock in-depth
-																				reasoning on any
-																				subject
-																			</div>
+																	<div
+																		className={`chat-box-icon-container ${
+																			chatInfo?.deepResearch
+																				? 'active'
+																				: ''
+																		}`}
+																		onClick={
+																			handleDeepResearchClick
 																		}
-																		color="transparent"
-																		arrow={false}
-																		rootClassName="chatbox-tooltip"
 																	>
-																		<div
-																			className={`chat-box-icon-container ${
-																				chatInfo?.reason
-																					?.webSearch ||
-																				chatInfo?.reason
-																					?.workspaceSearch
-																					? 'active'
-																					: ''
-																			}`}
-																		>
-																			<div className="icon">
-																				<div className="text-wrapper deep-research-text-wrapper">
-																					<AtomSvg
-																						fill={
-																							chatInfo
-																								?.reason
-																								?.webSearch ||
-																							chatInfo
-																								?.reason
-																								?.workspaceSearch
-																								? 'var(--primary-button)'
-																								: 'var(--secondary-font)'
-																						}
-																					/>
+																		<div className="icon">
+																			<div className="text-wrapper deep-research-text-wrapper">
+																				<AtomSvg
+																					fill={
+																						chatInfo?.deepResearch
+																							? 'var(--primary-button)'
+																							: 'var(--secondary-font)'
+																					}
+																				/>
 
-																					<div
-																						className="icon-text"
-																						style={{
-																							color:
-																								chatInfo
-																									?.reason
-																									?.webSearch ||
-																								chatInfo
-																									?.reason
-																									?.workspaceSearch
-																									? 'var(--primary-button)'
-																									: 'var(--secondary-font)',
-																						}}
-																					>
-																						Research
-																					</div>
+																				<div
+																					className="icon-text"
+																					style={{
+																						color: chatInfo?.deepResearch
+																							? 'var(--primary-button)'
+																							: 'var(--secondary-font)',
+																					}}
+																				>
+																					Research
 																				</div>
 																			</div>
 																		</div>
-																	</Tooltip>
-																</SearchTypeTooltip>
+																	</div>
+																</Tooltip>
+																// </SearchTypeTooltip>
 															)}
 
 															{!isPublicChat && (
