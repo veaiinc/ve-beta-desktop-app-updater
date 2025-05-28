@@ -1,12 +1,55 @@
-import { memo, useState } from 'react';
+import { memo, useState, useContext } from 'react';
 import '../../../assets/scss/calendar/GoogleCalenderSettings.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
-import { ReactComponent as PlusSvg } from '../../../assets/svg/calendar/add.svg';
+import Context from '../../../context/context';
+import { message } from '../../components/globalComponents/CustomToast';
 
-const GoogleCalendarSettings = ({ isOpen, onClose, connectedCalendars }) => {
+const GoogleCalendarSettings = ({
+	isOpen,
+	onClose,
+	connectedCalendars,
+	onToggleShowEvents,
+	showGoogleEvents,
+}) => {
 	const [isSharingEnabled, setIsSharingEnabled] = useState(false);
+	const [disconnecting, setDisconnecting] = useState(false);
+
+	const {
+		templates: { disconnectThirdParty },
+		calendarInfo: { getConnectedGoogleCalendars },
+	} = useContext(Context);
 
 	if (!isOpen) return null;
+
+	const handleToggleGoogleEvents = () => {
+		onToggleShowEvents?.(!showGoogleEvents);
+	};
+
+	const handleDisconnect = async (calendarId) => {
+		if (!calendarId) {
+			message.error('Invalid calendar ID');
+			return;
+		}
+
+		setDisconnecting(true);
+		try {
+			await disconnectThirdParty('google-calendar', calendarId);
+			message.success('Calendar disconnected successfully');
+			// Refresh the connected calendars list
+			await getConnectedGoogleCalendars();
+			onClose();
+		} catch (error) {
+			message.error('Failed to disconnect calendar. Please try again.');
+			console.error('Error disconnecting calendar:', error);
+		} finally {
+			setDisconnecting(false);
+		}
+	};
+
+	const handleSave = () => {
+		// Close the settings modal
+		onClose();
+	};
 
 	return (
 		<div className="google-calendar-settings_overlay" onClick={onClose}>
@@ -27,8 +70,12 @@ const GoogleCalendarSettings = ({ isOpen, onClose, connectedCalendars }) => {
 										{calendar}
 									</span>
 								</div>
-								<div className="google-calendar-settings_disconnect">
-									Disconnect
+								<div
+									className="google-calendar-settings_disconnect"
+									onClick={() => handleDisconnect(calendar)}
+									style={{ cursor: disconnecting ? 'not-allowed' : 'pointer' }}
+								>
+									{disconnecting ? 'Disconnecting...' : 'Disconnect'}
 								</div>
 							</div>
 						))}
@@ -38,10 +85,11 @@ const GoogleCalendarSettings = ({ isOpen, onClose, connectedCalendars }) => {
 						<div className="google-calendar-settings_account">
 							<div className="google-calendar-settings_account-info">
 								<h4 className="google-calendar-settings_account-heading">
-									Share VE calendar events
+									Share {connectedCalendars[0]} events to Google calendar
 								</h4>
 								<span className="google-calendar-settings_account-description">
-									Share your VE calendar events to other Google calendar
+									Share your {connectedCalendars[0]} calendar events to Google
+									calendar
 								</span>
 							</div>
 							<div
@@ -64,7 +112,7 @@ const GoogleCalendarSettings = ({ isOpen, onClose, connectedCalendars }) => {
 						<div className="google-calendar-settings_account">
 							<div className="google-calendar-settings_account-info">
 								<h4 className="google-calendar-settings_account-heading">
-									Show Google calendar events in my VE calendar
+									Show Google calendar events in {connectedCalendars[0]} calendar
 								</h4>
 								<span className="google-calendar-settings_account-description">
 									The status of imported calendar events (busy/free) stays the
@@ -73,11 +121,11 @@ const GoogleCalendarSettings = ({ isOpen, onClose, connectedCalendars }) => {
 							</div>
 							<div
 								className={`google-calendar-settings_toggle ${
-									isSharingEnabled
+									showGoogleEvents
 										? 'google-calendar-settings_toggle--active'
 										: ''
 								}`}
-								onClick={() => setIsSharingEnabled(!isSharingEnabled)}
+								onClick={handleToggleGoogleEvents}
 							>
 								<div className="google-calendar-settings_toggle-slider"></div>
 							</div>
@@ -90,7 +138,10 @@ const GoogleCalendarSettings = ({ isOpen, onClose, connectedCalendars }) => {
 						>
 							Cancel
 						</button>
-						<button className="google-calendar-settings_button google-calendar-settings_button--save">
+						<button
+							className="google-calendar-settings_button google-calendar-settings_button--save"
+							onClick={handleSave}
+						>
 							Create
 						</button>
 					</div>

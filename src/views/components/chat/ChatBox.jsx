@@ -1619,7 +1619,6 @@ const ChatBox = ({
 																				<div className="build-icon">
 																					<SparkSvg />
 																				</div>
-
 																				{showIconText && (
 																					<div
 																						className="icon-text"

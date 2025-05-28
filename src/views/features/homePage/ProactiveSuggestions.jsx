@@ -134,7 +134,7 @@ const ProactiveSuggestions = () => {
 		selectedFilters: [],
 		selectedCardNumber: null,
 		hoveredCard: null,
-		isListView: true,
+		isListView: false,
 		isApiLoading: false,
 		sortBy: 'createdAt',
 		activeBtn: 'insights',
@@ -853,12 +853,7 @@ const ProactiveSuggestions = () => {
 																</div>
 																{/* </Tooltip> */}
 																<div
-																	className={`cardOptionsMainContainer ${
-																		info?.hoveredCard?._id ===
-																		card?._id
-																			? 'linearBorder'
-																			: ''
-																	}`}
+																	className={`cardOptionsMainContainer`}
 																>
 																	<div className="cardOptionsContainer">
 																		<Tooltip

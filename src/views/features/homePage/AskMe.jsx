@@ -8,9 +8,8 @@ import Suggestions from './Suggestions';
 
 const AskMe = ({ landingPage = false }) => {
 	const navigate = useNavigate();
-
 	const {
-		templates: { currentSessionId, chatInfo },
+		templates: { currentSessionId, chatInfo, updateStateValues },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
