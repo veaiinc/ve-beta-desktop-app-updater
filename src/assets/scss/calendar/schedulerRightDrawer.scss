@@ -240,6 +240,15 @@
 						display: flex;
 						align-items: center;
 						gap: 8px;
+						.typeOfSession-lable {
+							width: 100%;
+							display: flex;
+							padding: 14px 12px;
+							justify-content: space-between;
+							align-items: center;
+							align-self: stretch;
+							border-radius: 8px;
+						}
 					}
 					.duration-timezone-select {
 						width: 100%;
@@ -268,6 +277,7 @@
 						margin-top: 0;
 						display: grid;
 						grid-template-columns: 1fr 1fr;
+						align-items: center;
 						.duration-number-input-container {
 							width: 100%;
 							.duration-number-input {
@@ -354,7 +364,6 @@
 							align-items: center;
 							align-self: stretch;
 							border-radius: 8px;
-							border: 1px solid var(--stroke);
 							background: var(--popup);
 							color: var(--primary-font);
 							font-family: var(--primary-font-family);
@@ -526,9 +535,8 @@
 		flex-direction: column;
 		gap: 12px;
 	}
-	
-	.availability-day-row,
 
+	.availability-day-row,
 	.availability-date-row {
 		display: flex;
 		align-items: center;
@@ -556,7 +564,7 @@
 			font-weight: 500;
 		}
 		.slot-input {
-			width: 110px;
+			width: 135px;
 			height: 36px;
 			background: var(--popup, #202123);
 			color: var(--primary-font, #f2f2f3);
@@ -590,7 +598,6 @@
 			}
 		}
 	}
-
 
 	.add-date-btn {
 		margin-top: 8px;
@@ -803,7 +810,7 @@
 		overflow-y: auto;
 		scrollbar-width: thin;
 		scrollbar-color: var(--stroke) var(--popup);
-
+		padding-top: 40px;
 		&::-webkit-scrollbar {
 			width: 6px;
 		}

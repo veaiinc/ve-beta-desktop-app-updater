@@ -128,22 +128,30 @@ const timeZoneOptions = ['India, Sri Lanka Time', 'UTC', 'US Pacific Time', 'Eur
 const getTimezonesWithOffsets = () => {
 	// List of valid IANA timezone regions
 	const validRegions = [
-		'Africa', 'America', 'Antarctica', 'Asia', 'Atlantic', 'Australia', 
-		'Europe', 'Indian', 'Pacific'
+		'Africa',
+		'America',
+		'Antarctica',
+		'Asia',
+		'Atlantic',
+		'Australia',
+		'Europe',
+		'Indian',
+		'Pacific',
 	];
 
 	// Filter and map timezones
-	return moment.tz.names()
-		.filter(name => {
+	return moment.tz
+		.names()
+		.filter((name) => {
 			// Only include timezones that start with valid regions
-			return validRegions.some(region => name.startsWith(region));
+			return validRegions.some((region) => name.startsWith(region));
 		})
-		.map(name => {
+		.map((name) => {
 			const offset = moment.tz(name).format('Z');
 			const formattedName = `${name} (UTC${offset})`;
 			return {
 				value: name,
-				label: formattedName
+				label: formattedName,
 			};
 		})
 		.sort((a, b) => {
@@ -199,6 +207,12 @@ const SchedulerRightDrawer = ({
 				sessionType = 'Phone Call';
 			}
 
+			// Convert duration from minutes to appropriate unit
+			const durationInMinutes = sessionDetail.sessionDuration?.unitCount || 0;
+			const durationValue =
+				durationInMinutes >= 60 ? Math.floor(durationInMinutes / 60) : durationInMinutes;
+			const durationUnit = durationInMinutes >= 60 ? 'hrs' : 'min';
+
 			setInfo({
 				...initialInfo,
 				...sessionDetail,
@@ -209,6 +223,9 @@ const SchedulerRightDrawer = ({
 				scheduleFrom: sessionDetail.sessionWindow?.startDate || null,
 				scheduleTo: sessionDetail.sessionWindow?.endDate || null,
 				availability: sessionDetail.availability || {},
+				// Duration mapping
+				durationValue: durationValue,
+				durationUnit: durationUnit,
 				// Buffer mapping
 				bufferEnabled: !!sessionDetail.bufferTime?.after?.unitCount,
 				bufferValue: sessionDetail.bufferTime?.after?.unitCount || 60,
@@ -279,7 +296,7 @@ const SchedulerRightDrawer = ({
 
 		// Compare session type info individually
 		const sessionTypeInfo = {
-			sessionType: activeTab // Always include sessionType
+			sessionType: activeTab, // Always include sessionType
 		};
 		if (currentInfo.location !== originalData.sessionTypeInfo?.location) {
 			sessionTypeInfo.location = currentInfo.location;
@@ -292,7 +309,8 @@ const SchedulerRightDrawer = ({
 		}
 
 		// Only add sessionTypeInfo if there are changes
-		if (Object.keys(sessionTypeInfo).length > 1) { // More than just sessionType
+		if (Object.keys(sessionTypeInfo).length > 1) {
+			// More than just sessionType
 			payload.sessionTypeInfo = sessionTypeInfo;
 		}
 
@@ -301,12 +319,19 @@ const SchedulerRightDrawer = ({
 		if (currentTimezone && currentTimezone !== originalData.sessionTimezone) {
 			// Validate that it's a proper IANA timezone
 			const validRegions = [
-				'Africa', 'America', 'Antarctica', 'Asia', 'Atlantic', 'Australia', 
-				'Europe', 'Indian', 'Pacific'
+				'Africa',
+				'America',
+				'Antarctica',
+				'Asia',
+				'Atlantic',
+				'Australia',
+				'Europe',
+				'Indian',
+				'Pacific',
 			];
-			
-			const isValidTimezone = validRegions.some(region => 
-				currentTimezone.startsWith(region)
+
+			const isValidTimezone = validRegions.some((region) =>
+				currentTimezone.startsWith(region),
 			);
 
 			if (isValidTimezone) {
@@ -318,7 +343,8 @@ const SchedulerRightDrawer = ({
 		}
 
 		// Compare duration
-		const currentDuration = currentInfo.durationUnit === 'hrs' ? currentInfo.durationValue * 60 : currentInfo.durationValue;
+		const currentDuration =
+			info.durationUnit === 'hrs' ? info.durationValue * 60 : info.durationValue;
 		const originalDuration = originalData.sessionDuration?.unitCount;
 
 		if (currentDuration !== originalDuration) {
@@ -346,7 +372,8 @@ const SchedulerRightDrawer = ({
 		}
 
 		// Compare max participants
-		const currentMaxParticipants = activeTab === 'one-on-one' ? 1 : currentInfo.inviteeLimit || 5;
+		const currentMaxParticipants =
+			activeTab === 'one-on-one' ? 1 : currentInfo.inviteeLimit || 5;
 		const originalMaxParticipants = originalData.sessionMetadata?.maxParticipants;
 
 		if (currentMaxParticipants !== originalMaxParticipants) {
@@ -780,25 +807,41 @@ const SchedulerRightDrawer = ({
 														<Tooltip
 															open={info.timeZoneOpen}
 															onOpenChange={(visible) =>
-																handleFieldChange('timeZoneOpen', visible)
+																handleFieldChange(
+																	'timeZoneOpen',
+																	visible,
+																)
 															}
 															placement="bottom"
 															distance={0}
+															arrowContent={null}
+															arrow={true}
+															borderRadius={8}
 															title={
 																<div className="createSession-sessionType-dropdown timezone-dropdown">
-																	{getTimezonesWithOffsets().map((option) => (
-																		<div
-																			key={option.value}
-																			className="sessionType-dropdown-item"
-																			onClick={(e) => {
-																				e.stopPropagation();
-																				handleFieldChange('timeZone', option.value);
-																				setInfo(prev => ({ ...prev, timeZoneOpen: false }));
-																			}}
-																		>
-																			{option.label}
-																		</div>
-																	))}
+																	{getTimezonesWithOffsets().map(
+																		(option) => (
+																			<div
+																				key={option.value}
+																				className="sessionType-dropdown-item"
+																				onClick={(e) => {
+																					e.stopPropagation();
+																					handleFieldChange(
+																						'timeZone',
+																						option.value,
+																					);
+																					setInfo(
+																						(prev) => ({
+																							...prev,
+																							timeZoneOpen: false,
+																						}),
+																					);
+																				}}
+																			>
+																				{option.label}
+																			</div>
+																		),
+																	)}
 																</div>
 															}
 															trigger={'click'}
@@ -806,12 +849,24 @@ const SchedulerRightDrawer = ({
 															overlayStyle={{
 																width: '100%',
 																padding: '0',
-																maxHeight: '300px',
-																overflow: 'hidden'
+																overflow: 'hidden',
+																border: '1px solid var(--stroke)',
+																borderRadius: 8,
 															}}
 														>
-															<div className="typeOfSession-lable">
-																{moment.tz(info.timeZone).format('z')} ({info.timeZone})
+															<div
+																className="typeOfSession-lable"
+																style={{
+																	border: '1px solid var(--stroke)',
+																	borderRadius: 8,
+																	cursor: 'pointer',
+																	padding: '12px',
+																}}
+															>
+																{moment
+																	.tz(info.timeZone)
+																	.format('z')}{' '}
+																({info.timeZone})
 															</div>
 														</Tooltip>
 													</div>
@@ -821,12 +876,12 @@ const SchedulerRightDrawer = ({
 												<div className="duration-label">
 													Appointment duration
 												</div>
-												<div className="duration-field">
+												{/* <div className="duration-field">
 													<input
 														className="inputHeight duration-appointment-input"
 														placeholder="Custom"
 													/>
-												</div>
+												</div> */}
 											</div>
 											<div className="duration-row duration-custom-row">
 												<div className="duration-number-input-container">
@@ -846,7 +901,7 @@ const SchedulerRightDrawer = ({
 													/>
 												</div>
 												<div className="duration-field">
-													<div className="typeOfSession-lable">
+													<div className="">
 														<Tooltip
 															open={info.durationUnitOpen}
 															onOpenChange={(visible) =>
