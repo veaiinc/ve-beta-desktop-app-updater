@@ -45,6 +45,7 @@
 		align-items: flex-start;
 		gap: 10px;
 		border-radius: 16px;
+		background-color: var(--card-over-card);
 		border: 1px solid var(--stroke, #2c2e31);
 		.title-text {
 			color: var(--secondary-font, #95989d);
