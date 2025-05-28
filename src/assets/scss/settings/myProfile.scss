@@ -197,7 +197,7 @@
 							border: 1px solid #7871c030;
 							box-shadow: 2px 2px 8px 0px rgba(74, 40, 210, 0.06),
 								4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
-							backdrop-filter: blur(8px);
+							background-color: var(--backdrop);
 						}
 					}
 

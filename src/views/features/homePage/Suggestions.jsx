@@ -45,7 +45,7 @@ const data = [
 	},
 ];
 
-const Suggestions = ({ landingPage = false }) => {
+const Suggestions = () => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
@@ -59,10 +59,7 @@ const Suggestions = ({ landingPage = false }) => {
 		navigate(`/chat/${sessionId}`);
 	};
 	return (
-		<div
-			className="suggestions-wrapper"
-			style={{ height: landingPage ? '250px' : '100%', overflow: 'hidden' }}
-		>
+		<div className="suggestions-wrapper">
 			{data?.map((suggestion, index) => (
 				<div
 					className="suggestion-container"

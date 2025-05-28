@@ -10,7 +10,7 @@
 	transition: all 0.3s ease-out;
 	background: var(--card);
 	// box-shadow: -6px 6px 40px 0px rgba(0, 0, 0, 0.05);
-	backdrop-filter: blur(50px);
+	background-color: var(--backdrop);
 	width: 100%;
 	cursor: pointer;
 
@@ -308,9 +308,9 @@
 	border: 1px solid var(--stroke);
 	color: var(--primary-font);
 	transition: all 0.3s ease-out;
-	background: var(--card);
+	// background: var(--card);
 	// box-shadow: -6px 6px 40px 0px rgba(0, 0, 0, 0.05);
-	backdrop-filter: blur(50px);
+	background-color: var(--backdrop);
 	width: 100%;
 	cursor: pointer;
 

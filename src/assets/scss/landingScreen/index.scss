@@ -6,8 +6,7 @@
 		position: fixed;
 		inset: 0;
 		z-index: 988; // just below the tabNavigation z-index
-		backdrop-filter: blur(6px);
-		background-color: var(--background-color);
+		background-color: var(--backdrop);
 		transition: opacity 0.3s ease;
 		opacity: 0;
 		pointer-events: none;
@@ -230,6 +229,12 @@
 			align-items: center;
 			gap: 32px;
 			width: 100%;
+			.chatbox-container {
+				width: 100%;
+				max-width: 750px;
+				height: 114px;
+				position: relative;
+			}
 			.title-text {
 				display: flex;
 				flex-direction: column;

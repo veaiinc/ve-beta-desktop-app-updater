@@ -690,7 +690,9 @@ const TaskWidget = ({ width, height }) => {
 				<div className="taskWidgetBody">
 					<div className="taskWidgetBodyHeader">
 						<div className="taskWidgetBodyHeaderLeft">
-							<span className="taskWidgetDay">{listTasks?.analytics?.allTasks}</span>
+							<span className="taskWidgetDay">
+								{listTasks?.analytics?.allPending || 0}
+							</span>
 							<span className="taskWidgetRemainder">Pending Tasks</span>
 						</div>
 						{/* <div className="taskWidgetBodyHeaderRight">
@@ -828,12 +830,14 @@ const TaskWidget = ({ width, height }) => {
 					<ArrowViewIcon />
 					View Tasks
 				</div>
-				<div className="taskWidgetFooterAdd">
+				<div
+					onClick={(e) => {
+						e.stopPropagation();
+						handleCreateTaskPopup();
+					}}
+					className="taskWidgetFooterAdd"
+				>
 					<PlusIcon
-						onClick={(e) => {
-							e.stopPropagation();
-							handleCreateTaskPopup();
-						}}
 						style={{
 							width: '18px',
 							height: '18px',
