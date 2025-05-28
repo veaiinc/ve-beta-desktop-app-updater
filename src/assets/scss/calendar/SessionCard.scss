@@ -23,6 +23,7 @@
 			display: flex;
 			align-items: center;
 			gap: 12px;
+			cursor: pointer;
 
 			.headLabel {
 				color: var(--primary-font);
@@ -31,6 +32,7 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				cursor: pointer;
 			}
 		}
 
@@ -77,6 +79,7 @@
 		overflow-y: auto;
 		padding-right: 4px;
 		max-height: 300px;
+		cursor: pointer;
 
 		&::-webkit-scrollbar {
 			width: 4px;
@@ -115,9 +118,9 @@
 
 				.sessionLabel {
 					flex: 1;
-					color: var(--primary-font);
+					color: var(--primary-font, #f2f2f3);
 					font-family: var(--primary-font-family);
-					font-size: 12px;
+					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
