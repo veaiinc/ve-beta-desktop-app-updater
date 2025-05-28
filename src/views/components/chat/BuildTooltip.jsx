@@ -6,13 +6,19 @@ import Context from '../../../context/context';
 const buildOptions = [
 	{ id: 1, title: 'Create form', chatText: 'Create a form for ' },
 	{ id: 2, title: 'Create contract', chatText: 'Create a contract for ' },
+	{
+		id: 3,
+		title: 'Create invoice',
+		chatText: 'Create an invoice for ',
+	},
 ];
 
 const BuildTooltip = ({ children }) => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
-	const handleOptionClick = (option) => {
+	const handleOptionClick = (e, option) => {
+		e?.stopPropagation();
 		updateStateValues({
 			activeInputForChat: option?.chatText,
 		});
@@ -30,7 +36,7 @@ const BuildTooltip = ({ children }) => {
 						<div
 							className="option"
 							key={option?.id}
-							onClick={() => handleOptionClick(option)}
+							onClick={(e) => handleOptionClick(e, option)}
 						>
 							{option?.title || ''}
 						</div>

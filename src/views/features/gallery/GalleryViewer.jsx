@@ -298,7 +298,7 @@ const GalleryViewer = ({
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} customStyles={customStyles}>
 			<div className="closeGallery">
-				<CrossWhite onClick={handleCloseGallery} />
+				<CrossWhite width="32px" height="32px" onClick={handleCloseGallery} />
 
 				{info?.imageDetailId && (
 					<p onClick={handleCloseGallery}>{imageDetail?.displayName}</p>

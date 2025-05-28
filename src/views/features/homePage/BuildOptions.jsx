@@ -13,6 +13,11 @@ const buildOptions = [
 		title: 'Create contract',
 		chatText: 'Create a contract for ',
 	},
+	{
+		id: 3,
+		title: 'Create invoice',
+		chatText: 'Create an invoice for ',
+	},
 ];
 const BuildOptions = () => {
 	const {
