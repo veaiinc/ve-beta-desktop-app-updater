@@ -129,7 +129,7 @@ const LandingPage = () => {
 			{/* <div className={`mobile-tabs-wrapper`} onClick={handleOutsideClick} /> */}
 			<div className="page-header">
 				<div className="left-container">
-					<VeLogo />
+					<VeLogo className="ve-logo" />
 					{/* <button
 						onClick={() => setIsSidebarOpen((prev) => !prev)}
 						className="sidebar-button"
