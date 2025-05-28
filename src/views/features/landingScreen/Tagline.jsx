@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import s from '../../../assets/scss/landingScreen/tagline.module.scss';
+import HeroImage from '../../../assets/images/heroImage.png';
 
 const Tagline = () => {
 	return (
@@ -15,12 +16,13 @@ const Tagline = () => {
 						acts without being told
 					</div>
 				</div>
-				<div className={s.bottom}>
+				{/* <div className={s.bottom}>
 					<div className={s.buttonsContainer}>
 						<button className={`${s.button} ${s.readMore}`}>Read More</button>
 						<button className={`${s.button} ${s.tryOurApi}`}>Try our API</button>
 					</div>
-				</div>
+				</div> */}
+				<img src={HeroImage} alt="homepage" className="homepageImage" />
 			</div>
 		</div>
 	);

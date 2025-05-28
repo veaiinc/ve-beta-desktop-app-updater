@@ -15,7 +15,6 @@ import AskMe from '../homePage/AskMe';
 import Tagline from './Tagline';
 import EarlyAccess from './EarlyAccess';
 import Footer from './Footer';
-import HeroImage from '../../../assets/images/heroImage.png';
 import HowItWorks from './HowItWorks';
 import ChatBox from '../../components/chat/ChatBox';
 const routeType = 'public';
@@ -118,7 +117,6 @@ const LandingPage = () => {
 						</div>
 					</div>
 					<Tagline />
-					<img src={HeroImage} alt="homepage" className="homepageImage" />
 					<HowItWorks />
 					<EarlyAccess />
 					<Footer />
@@ -167,7 +165,9 @@ const LandingPage = () => {
 					<button className="login-btn-text" onClick={handleLoginBtnClick}>
 						Login
 					</button>
-					<button className="login-btn">Get VE Free</button>
+					<button className="login-btn" onClick={handleLoginBtnClick}>
+						Get VE Free
+					</button>
 				</div>
 			</div>
 			{/* Simple tab content rendering */}
