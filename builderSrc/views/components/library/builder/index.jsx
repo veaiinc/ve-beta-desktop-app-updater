@@ -429,7 +429,6 @@ class Builder extends Component {
 		}
 	};
 	componentDidMount() {
-		document.documentElement.setAttribute('theme', 'light');
 		this.setItemHeight();
 		//adding eventListner
 		let builderElement = document.querySelector('.builder');

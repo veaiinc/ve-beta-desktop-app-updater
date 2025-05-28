@@ -236,7 +236,7 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 		});
 
 		if (response?.[0]) {
-			window.location.href = `${origin}/${response?.[1]?.data?.createBlankTemplate?._id}`;
+			navigate(`/builder/${response?.[1]?.data?.createBlankTemplate?._id}`);
 			setInfo((prev) => ({ ...prev, blankTemplateLoading: false }));
 		} else {
 			setInfo((prev) => ({ ...prev, blankTemplateLoading: false }));
