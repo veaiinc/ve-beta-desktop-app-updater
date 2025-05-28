@@ -17,6 +17,7 @@ import EarlyAccess from './EarlyAccess';
 import Footer from './Footer';
 import HeroImage from '../../../assets/images/heroImage.png';
 import HowItWorks from './HowItWorks';
+import Features from './Features';
 const routeType = 'public';
 
 const LandingPage = () => {
@@ -111,6 +112,7 @@ const LandingPage = () => {
 					<Tagline />
 					<img src={HeroImage} alt="homepage" className="homepageImage" />
 					<HowItWorks />
+					<Features />
 					<EarlyAccess />
 					<Footer />
 				</div>
