@@ -112,7 +112,7 @@ const OverviewContact = () => {
 							) : (
 								<span className="profile-name" onClick={() => handleEdit('name')}>
 									<UserSvg className="field-icon" />
-									{info?.contact?.name}
+									{info?.contact?.name || 'Add name'}
 								</span>
 							)}
 						</div>
