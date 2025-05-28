@@ -261,6 +261,9 @@ const SchedulerRightDrawer = ({
 				inviteeLimit: sessionDetail.sessionMetadata?.maxParticipants || '',
 				// Timezone mapping
 				timeZone: sessionDetail.sessionTimezone || moment.tz.guess(),
+				// Max bookings per day
+				maxBookingsEnabled: sessionDetail.availabilityRules?.maxBookingsPerSession != null,
+				maxBookings: sessionDetail.availabilityRules?.maxBookingsPerSession || 1,
 			});
 			setActiveTab(sessionDetail.sessionTypeInfo?.sessionType || initialTab);
 			setOriginalData(sessionDetail);
@@ -453,6 +456,14 @@ const SchedulerRightDrawer = ({
 				},
 			];
 		}
+
+		payload.availabilityRules = {
+			allowBookingOverlappingSessions: false, // or use info if you want to make it dynamic
+			maxBookingsPerSession: currentInfo.maxBookingsEnabled
+				? Number(currentInfo.maxBookings)
+				: null,
+			// ...add other rules if needed
+		};
 
 		return payload;
 	};
@@ -1457,13 +1468,25 @@ const SchedulerRightDrawer = ({
 					<div className="discard-button" onClick={handleClose}>
 						Discard
 					</div>
-					<div
+					<button
 						className="update-button"
 						onClick={handleCreateOrUpdate}
 						disabled={
 							info?.creatingSessionLoading ||
 							(activeTab === 'group' && info.errors.inviteeLimit)
 						}
+						style={{
+							cursor:
+								info?.creatingSessionLoading ||
+								(activeTab === 'group' && info.errors.inviteeLimit)
+									? 'not-allowed'
+									: 'pointer',
+							opacity:
+								info?.creatingSessionLoading ||
+								(activeTab === 'group' && info.errors.inviteeLimit)
+									? 0.6
+									: 1,
+						}}
 					>
 						{info?.creatingSessionLoading ? (
 							<>
@@ -1475,7 +1498,7 @@ const SchedulerRightDrawer = ({
 						) : (
 							'Update'
 						)}
-					</div>
+					</button>
 				</div>
 
 				{info.showColorPicker && (
