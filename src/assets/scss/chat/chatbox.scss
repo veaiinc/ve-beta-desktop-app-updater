@@ -233,7 +233,6 @@
 												justify-content: center;
 												align-items: center;
 												background: var(--popup);
-												transition: background 200ms ease-in-out;
 
 												.icon {
 													display: flex;
@@ -257,6 +256,17 @@
 														.build-icon {
 															height: 16px;
 														}
+													}
+													.deep-research-text-wrapper {
+														border-radius: 6px;
+													}
+													.icon-arrow-wrapper {
+														width: 0px;
+														height: 100%;
+														transition: width 200ms ease-in-out;
+													}
+													.icon-arrow-wrapper-active {
+														width: 22px;
 													}
 
 													.icon-arrow {
@@ -294,6 +304,9 @@
 														&:hover {
 															color: var(--primary-font);
 														}
+													}
+													.ask-icon-text {
+														border-radius: 6px;
 													}
 												}
 											}
@@ -968,9 +981,9 @@
 
 .click-btn {
 	display: flex;
-	width: 36px;
-	height: 36px;
-	padding: 2px 11px;
+	width: 32px;
+	height: 32px;
+	padding: 6px;
 	justify-content: center;
 	align-items: center;
 	gap: 6px;
