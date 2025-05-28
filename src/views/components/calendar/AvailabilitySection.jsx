@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment, memo } from 'react';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
 import { ReactComponent as RemoveIcon } from '../../../assets/svg/calendar/bin.svg';
 import { Tooltip } from 'antd';
@@ -13,7 +13,7 @@ const REPEAT_OPTIONS = [
 const defaultWeekly = () =>
 	WEEKDAYS.map((d) => ({ day: d, slots: d === 'Sun' ? [] : [{ from: '09:00', to: '17:00' }] }));
 
-export default function AvailabilitySection({ value, onChange, onSummaryChange }) {
+const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 	const [mode, setMode] = useState('weekly');
 	const [modeOpen, setModeOpen] = useState(false);
 	const [weekly, setWeekly] = useState(defaultWeekly());
@@ -191,7 +191,7 @@ export default function AvailabilitySection({ value, onChange, onSummaryChange }
 						<span className="unavailable-label">Unavailable</span>
 					) : (
 						day.slots.map((slot, idx) => (
-							<React.Fragment key={idx}>
+							<Fragment key={idx}>
 								<input
 									className="slot-input"
 									type="time"
@@ -212,7 +212,7 @@ export default function AvailabilitySection({ value, onChange, onSummaryChange }
 								>
 									<RemoveIcon />
 								</button>
-							</React.Fragment>
+							</Fragment>
 						))
 					)}
 					<button className="icon-btn add" onClick={() => handleAddSlot(i)}>
@@ -236,7 +236,7 @@ export default function AvailabilitySection({ value, onChange, onSummaryChange }
 						<span className="unavailable-label">Unavailable</span>
 					) : (
 						date.slots.map((slot, idx) => (
-							<React.Fragment key={idx}>
+							<Fragment key={idx}>
 								<input
 									className="slot-input"
 									type="time"
@@ -259,7 +259,7 @@ export default function AvailabilitySection({ value, onChange, onSummaryChange }
 								>
 									<RemoveIcon />
 								</button>
-							</React.Fragment>
+							</Fragment>
 						))
 					)}
 					<button className="icon-btn add" onClick={() => handleAddDateSlot(i)}>
@@ -356,4 +356,6 @@ export default function AvailabilitySection({ value, onChange, onSummaryChange }
 			{mode === 'custom' && renderCustom()}
 		</div>
 	);
-}
+};
+
+export default memo(AvailabilitySection);

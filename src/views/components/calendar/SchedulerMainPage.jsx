@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, memo } from 'react';
 import QuickActions from '../globalComponents/QuickActions';
 import { ReactComponent as BackSvg } from '../../../assets/svg/calendar/CaretLeft.svg';
 import '../../../assets/scss/calendar/SchedulerMainPage.scss';
@@ -116,4 +116,4 @@ const SchedulerMainPage = ({ onBackToCalendar, schedulerList = [], onCreateSched
 	);
 };
 
-export default SchedulerMainPage;
+export default memo(SchedulerMainPage);

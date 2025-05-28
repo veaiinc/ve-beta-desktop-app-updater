@@ -255,12 +255,12 @@ const SchedulerRightDrawer = ({
 	}, [mode, sessionDetail, sessionId]);
 
 	// Add mapping function
-	const backendToUiSessionType = (backendType) => {
-		if (backendType === 'one-on-one') return 'In Person';
-		if (backendType === 'group') return 'In Person'; // Adjust if needed
-		if (backendType === 'round-robin') return 'In Person'; // Adjust if needed
-		return 'In Person'; // fallback
-	};
+	// const backendToUiSessionType = (backendType) => {
+	// 	if (backendType === 'one-on-one') return 'In Person';
+	// 	if (backendType === 'group') return 'In Person'; // Adjust if needed
+	// 	if (backendType === 'round-robin') return 'In Person'; // Adjust if needed
+	// 	return 'In Person'; // fallback
+	// };
 
 	// On field change, only update local state
 	const handleFieldChange = (field, value) => {
@@ -734,33 +734,33 @@ const SchedulerRightDrawer = ({
 							style={{ backgroundColor: info.sessionColor }}
 							onClick={() => setInfo((prev) => ({ ...prev, showColorPicker: true }))}
 						/>
-					<input
-						type="text"
-						className="scheduler-right-drawer-title rightDrawerInputHeight"
-						value={info.sessionName}
-						onChange={(e) => handleFieldChange('sessionName', e.target.value)}
-						autoComplete="off"
-					/>
-					</div>
-					<div className="scheduler-right-drawer-title-container">
-
-					<p className="scheduler-description">
 						<input
 							type="text"
-							className="rightDrawerInputHeight"
-							value={info.sessionDescription}
-							onFocus={(e) => {
-								if (e.target.value === 'Add a description for the session')
-									handleFieldChange('sessionDescription', '');
-							}}
-							onBlur={(e) => {
-								if (!e.target.value) handleFieldChange('sessionDescription', '');
-							}}
-							onChange={(e) =>
-								handleFieldChange('sessionDescription', e.target.value)
-							}
+							className="scheduler-right-drawer-title rightDrawerInputHeight"
+							value={info.sessionName}
+							onChange={(e) => handleFieldChange('sessionName', e.target.value)}
 							autoComplete="off"
 						/>
+					</div>
+					<div className="scheduler-right-drawer-title-container">
+						<p className="scheduler-description">
+							<input
+								type="text"
+								className="rightDrawerInputHeight"
+								value={info.sessionDescription}
+								onFocus={(e) => {
+									if (e.target.value === 'Add a description for the session')
+										handleFieldChange('sessionDescription', '');
+								}}
+								onBlur={(e) => {
+									if (!e.target.value)
+										handleFieldChange('sessionDescription', '');
+								}}
+								onChange={(e) =>
+									handleFieldChange('sessionDescription', e.target.value)
+								}
+								autoComplete="off"
+							/>
 						</p>
 					</div>
 				</div>
