@@ -1,0 +1,105 @@
+.tagLine {
+	display: flex;
+	width: 100%;
+	padding: 21px 0px;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 100px;
+	font-family: var(--secondary-font-family);
+	color: var(--primary-font);
+	background: var(--card, #18191b);
+
+	.container {
+		display: flex;
+		flex-direction: column;
+		gap: 42px;
+		align-items: center;
+		justify-content: center;
+		.top {
+			display: flex;
+			flex-direction: column;
+			gap: 22px;
+			align-items: center;
+			justify-content: center;
+
+			.poweredBy {
+				color: var(--primary-button, #79ecc9);
+				text-align: center;
+				font-size: 18px;
+				font-weight: 500;
+			}
+
+			.heading {
+				color: var(--primary-font, #f2f2f3);
+				text-align: center;
+				font-size: 55px;
+
+				@media screen and (max-width: 550px) {
+					font-size: 47px;
+				}
+
+				font-weight: 600;
+				line-height: 66px; /* 120% */
+				max-width: 1030px;
+				width: 100%;
+			}
+
+			.subHeading {
+				color: var(--secondary-font, #7a7e85);
+				text-align: center;
+				font-family: Manrope;
+				font-size: 24px;
+
+				font-weight: 400;
+				line-height: 35px; /* 145.833% */
+				max-width: 670px;
+				width: 100%;
+
+				@media screen and (max-width: 550px) {
+					font-size: 18px;
+				}
+			}
+		}
+
+		.bottom {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 100%;
+			.buttonsContainer {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				align-content: center;
+				gap: 8px;
+				align-self: stretch;
+				flex-wrap: wrap;
+
+				.button {
+					display: flex;
+					padding: 12px 20px;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 100px;
+					cursor: pointer;
+					border: none;
+					outline: none;
+				}
+
+				.readMore {
+					border: 1px solid var(--primary-button, #79ecc9);
+					color: var(--primary-button, #79ecc9);
+					background-color: transparent;
+				}
+
+				.tryOurApi {
+					border-radius: 100px;
+					background: var(--primary-button, #79ecc9);
+					color: var(--primary-button-font);
+				}
+			}
+		}
+	}
+}
