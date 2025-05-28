@@ -20,6 +20,7 @@ export const CALENDAR = {
 	createSchedulerSession: '/scheduler/createsession',
 	getSchedulerSessionDetail: '/get-session',
 	updateSchedulerSession: '/update',
+	deleteSchedulerSession: '/delete',
 	resetSchedulerState: 'RESET_SCHEDULER_STATE',
 
 	// Google Calendar Apis ================================>

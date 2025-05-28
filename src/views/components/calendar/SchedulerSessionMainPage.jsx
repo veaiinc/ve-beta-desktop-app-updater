@@ -5,30 +5,48 @@ import '../../../assets/scss/calendar/SchedulerMainPage.scss';
 import { ReactComponent as CaretRightSvg } from '../../../assets/svg/calendar/CaretLeft.svg';
 import SchedulerRightDrawer from './SchedulerRightDrawer';
 
-const SchedulerMainPage = ({ onBackToCalendar, schedulerList = [], onCreateScheduler }) => {
-	const [open, setOpen] = useState(false);
+const SchedulerSessionMainPage = ({
+	onBackToCalendar,
+	schedulerList: initialSchedulerList = [],
+	onCreateScheduler,
+}) => {
+	const [schedulerList, setSchedulerList] = useState(initialSchedulerList);
+	const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
+	const [rightDrawerSession, setRightDrawerSession] = useState(null);
 	const [drawerMode, setDrawerMode] = useState('create');
-	const [selectedSessionId, setSelectedSessionId] = useState(null);
 	const [initialTab, setInitialTab] = useState('one-on-one');
 
 	const handleOpenCreate = (tab) => {
 		setDrawerMode('create');
-		setSelectedSessionId(null);
+		setRightDrawerSession(null);
 		setInitialTab(tab);
-		setOpen(true);
+		setRightDrawerOpen(true);
 	};
 
 	const handleOpenEdit = (session) => {
 		setDrawerMode('edit');
-		setSelectedSessionId(session._id);
+		setRightDrawerSession(session);
 		setInitialTab(session.sessionTypeInfo?.sessionType || 'one-on-one');
-		setOpen(true);
+		setRightDrawerOpen(true);
 	};
 
 	const handleCloseDrawer = () => {
-		setOpen(false);
-		setSelectedSessionId(null);
+		setRightDrawerOpen(false);
+		setRightDrawerSession(null);
 		setDrawerMode('create');
+	};
+
+	const handleSessionUpdated = (updatedSession) => {
+		setSchedulerList((prev) =>
+			prev.map((s) => (s._id === updatedSession._id ? updatedSession : s)),
+		);
+		setRightDrawerSession(updatedSession);
+	};
+
+	const handleSessionDeleted = (deletedSessionId) => {
+		setSchedulerList((prev) => prev.filter((s) => s._id !== deletedSessionId));
+		setRightDrawerOpen(false);
+		setRightDrawerSession(null);
 	};
 
 	return (
@@ -106,14 +124,17 @@ const SchedulerMainPage = ({ onBackToCalendar, schedulerList = [], onCreateSched
 				</div>
 			</div>
 			<SchedulerRightDrawer
-				open={open}
+				open={rightDrawerOpen}
 				onClose={handleCloseDrawer}
 				mode={drawerMode}
-				sessionId={selectedSessionId}
+				sessionId={rightDrawerSession?._id}
+				sessionData={rightDrawerSession}
+				onSessionUpdated={handleSessionUpdated}
+				onSessionDeleted={handleSessionDeleted}
 				initialTab={initialTab}
 			/>
 		</div>
 	);
 };
 
-export default memo(SchedulerMainPage);
+export default memo(SchedulerSessionMainPage);

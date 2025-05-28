@@ -488,16 +488,31 @@ export const Calendar = () => {
 					type: Actions.UPDATE_SCHEDULER_SESSION,
 					payload: response?.[1]?.data,
 				});
+				return response?.[1]?.session;
 			} else {
 				console.log('API failed ==> updateSchedulerSession', response);
+				throw new Error(response?.[1]?.message || 'Update failed');
 			}
 		} catch (error) {
 			console.log('error==>updateSchedulerSession', error);
+			throw error;
 		}
 	};
 
 	const resetSchedulerState = () => {
 		dispatch({ type: Actions.RESET_SCHEDULER_STATE });
+	};
+
+	const deleteSchedulerSession = async (sessionId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/scheduler/${sessionId}${API.CALENDAR.deleteSchedulerSession}`;
+			console.log('url==>deleteSchedulerSession', url);
+			const response = await service.fetchDelete(url, usertoken, null, 'calendar_api');
+		} catch (error) {
+			console.log('error==>deleteSchedulerSession', error);
+		}
 	};
 
 	// Google Calendar Apis =============>
@@ -691,6 +706,7 @@ export const Calendar = () => {
 		createSchedulerSession,
 		getSchedulerSessionDetail,
 		updateSchedulerSession,
+		deleteSchedulerSession,
 		resetSchedulerState,
 
 		getConnectedGoogleCalendars,

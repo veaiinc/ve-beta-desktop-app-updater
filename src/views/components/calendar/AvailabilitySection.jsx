@@ -186,7 +186,8 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 		<div className="availability-days">
 			{weekly.map((day, i) => (
 				<div className="availability-day-row" key={day.day}>
-					<span>{day.day}</span>
+					<span className="day-label">{day.day}</span>
+					<div className="availability-day-row-content">
 					{day.slots.length === 0 ? (
 						<span className="unavailable-label">Unavailable</span>
 					) : (
@@ -214,7 +215,8 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 								</button>
 							</Fragment>
 						))
-					)}
+						)}
+					</div>
 					<button className="icon-btn add" onClick={() => handleAddSlot(i)}>
 						<PlusIcon />
 					</button>
@@ -291,26 +293,56 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 				</span>
 			</div>
 			<div className="custom-date-row">
-				<span className="date-label">Starts</span>
-				<input
-					className="date-input"
-					type="date"
-					value={custom.start}
-					onChange={(e) => handleCustomChange('start', e.target.value)}
-				/>
-				<span className="date-label">Ends</span>
-				<input
-					className="date-input"
-					type="date"
-					value={custom.end}
-					onChange={(e) => handleCustomEnd(e.target.value)}
-					disabled={custom.never}
-					required={!custom.never}
-				/>
-				<label className="radio">
-					<input type="checkbox" checked={custom.never} onChange={handleCustomNever} />
-					Never
-				</label>
+				<div className="date-row-item">
+					<span className="date-label">Starts</span>
+					<input
+						className="date-input"
+						type="date"
+						value={custom.start}
+						onChange={(e) => handleCustomChange('start', e.target.value)}
+					/>
+					<span className="date-label">Ends</span>
+					<input
+						className="date-input"
+						type="date"
+						value={custom.end}
+						onChange={(e) => handleCustomEnd(e.target.value)}
+						disabled={custom.never}
+						required={!custom.never}
+					/>
+				</div>
+				<div className="never-checkbox">
+					<div className="custom-checkbox ">
+						<input
+							type="checkbox"
+							id="never"
+							checked={custom.never}
+							onChange={handleCustomNever}
+						/>
+						<label htmlFor="never" className="checkbox-label">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="12"
+								height="10"
+								viewBox="0 0 12 10"
+								fill="none"
+							>
+								<path
+									d="M0.959839 5.86677L4.15976 8.7467L11.0396 1.54688"
+									stroke="#E8E8E8"
+									style={{
+										stroke: 'color(display-p3 0.9097 0.9096 0.9096)',
+										strokeOpacity: 1,
+									}}
+									strokeWidth="1.19997"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								/>
+							</svg>
+						</label>
+					</div>
+					<span>Never</span>
+				</div>
 			</div>
 		</>
 	);
@@ -318,12 +350,16 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 	return (
 		<div>
 			<div className="availability-dropdown">
-				<div className="typeOfSession-lable" style={{ marginBottom: 12 }}>
+				<div
+					className="typeOfSession-lable"
+					style={{ border: '1px solid var(--stroke)', borderRadius: '8px' }}
+				>
 					<Tooltip
 						open={modeOpen}
 						onOpenChange={setModeOpen}
 						placement="bottom"
 						distance={0}
+						arrow={true}
 						title={
 							<div className="createSession-sessionType-dropdown">
 								{REPEAT_OPTIONS.map((opt) => (

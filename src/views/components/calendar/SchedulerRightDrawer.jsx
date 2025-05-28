@@ -12,6 +12,7 @@ import { ReactComponent as VideoIcon } from '../../../assets/svg/calendar/eye.sv
 import { ReactComponent as CalendarIcon } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as SettingsIcon } from '../../../assets/svg/calendar/settings.svg';
 import { ReactComponent as UserIcon } from '../../../assets/svg/chat/UserSound.svg';
+import { ReactComponent as GlobalIcon } from '../../../assets/svg/calendar/Globe.svg';
 import PhoneInput from 'react-phone-number-input';
 import dayjs from 'dayjs';
 import moment from 'moment-timezone';
@@ -135,7 +136,6 @@ const COLLAPSE_CONFIG = {
 
 const durationUnitOptions = ['hrs', 'min'];
 const bufferUnitOptions = ['Minutes', 'Hours'];
-const timeZoneOptions = ['India, Sri Lanka Time', 'UTC', 'US Pacific Time', 'Europe Central Time'];
 
 // Get all timezones with their offsets
 const getTimezonesWithOffsets = () => {
@@ -182,6 +182,7 @@ const SchedulerRightDrawer = ({
 	sessionData,
 	onSessionCreated,
 	onSessionUpdated,
+	onSessionDeleted,
 	initialTab = 'one-on-one',
 	sessionId,
 }) => {
@@ -191,10 +192,10 @@ const SchedulerRightDrawer = ({
 			createSchedulerSession,
 			getSchedulerSessionDetail,
 			updateSchedulerSession,
+			deleteSchedulerSession,
 			sessionDetail,
 		},
 	} = useContext(Context);
-
 	const [info, setInfo] = useState({ ...initialInfo });
 	const [activeTab, setActiveTab] = useState(initialTab);
 	const [availabilitySummary, setAvailabilitySummary] = useState('');
@@ -202,12 +203,21 @@ const SchedulerRightDrawer = ({
 	const [updating, setUpdating] = useState(false);
 	const updateTimer = useRef(null);
 
+	// Update activeTab when initialTab changes
+	useEffect(() => {
+		if (mode === 'create') {
+			setActiveTab(initialTab);
+		}
+	}, [initialTab, mode]);
+
 	// Fetch session details in edit mode
 	useEffect(() => {
 		if (mode === 'edit' && sessionId && open) {
-			getSchedulerSessionDetail(sessionId);
+			if (!sessionDetail || sessionDetail._id !== sessionId) {
+				getSchedulerSessionDetail(sessionId);
+			}
 		}
-	}, [mode, sessionId, open]);
+	}, [mode, sessionId, open, sessionDetail, getSchedulerSessionDetail]);
 
 	// Populate form with fetched session details
 	useEffect(() => {
@@ -249,10 +259,10 @@ const SchedulerRightDrawer = ({
 				// Timezone mapping
 				timeZone: sessionDetail.sessionTimezone || moment.tz.guess(),
 			});
-			setActiveTab(sessionDetail.sessionTypeInfo?.sessionType || 'one-on-one');
+			setActiveTab(sessionDetail.sessionTypeInfo?.sessionType || initialTab);
 			setOriginalData(sessionDetail);
 		}
-	}, [mode, sessionDetail, sessionId]);
+	}, [mode, sessionDetail, sessionId, initialTab]);
 
 	// Add mapping function
 	// const backendToUiSessionType = (backendType) => {
@@ -470,6 +480,17 @@ const SchedulerRightDrawer = ({
 			}));
 			return;
 		}
+
+		// Group invitee validation
+		if (activeTab === 'group' && (!info.inviteeLimit || info.inviteeLimit < 2)) {
+			setInfo((prev) => ({
+				...prev,
+				errors: { ...prev.errors, inviteeLimit: true },
+			}));
+			message.error('Group sessions must have at least 2 invitees.');
+			return;
+		}
+
 		setInfo((prev) => ({
 			...prev,
 			creatingSessionLoading: true,
@@ -592,14 +613,16 @@ const SchedulerRightDrawer = ({
 			}
 			setInfo((prev) => ({ ...prev, creatingSessionLoading: true }));
 			updateSchedulerSession(sessionId, payload)
-				.then(() => {
+				.then((updatedSession) => {
 					message.success('Session updated successfully!');
-					getSchedulerSessionDetail(sessionId);
+					onSessionUpdated?.(updatedSession);
+					setInfo((prev) => ({ ...prev, creatingSessionLoading: false }));
 				})
-				.catch(() => {
-					message.error('Failed to update session.');
-				})
-				.finally(() => setInfo((prev) => ({ ...prev, creatingSessionLoading: false })));
+				.catch((err) => {
+					const errorMsg = err?.response?.data?.message || 'Failed to update session.';
+					message.error(errorMsg);
+					setInfo((prev) => ({ ...prev, creatingSessionLoading: false }));
+				});
 		}
 	}, [
 		info,
@@ -611,7 +634,6 @@ const SchedulerRightDrawer = ({
 		originalData,
 		sessionId,
 		updateSchedulerSession,
-		getSchedulerSessionDetail,
 	]);
 
 	const handleSessionTypeChange = useCallback((type) => {
@@ -709,6 +731,18 @@ const SchedulerRightDrawer = ({
 		}));
 	};
 
+	// DELETE HANDLER
+	const handleDelete = async () => {
+		try {
+			await deleteSchedulerSession(sessionId);
+			message.success('Session deleted successfully');
+			onSessionDeleted?.(sessionId);
+			handleClose();
+		} catch (err) {
+			message.error('Failed to delete session.');
+		}
+	};
+
 	return (
 		<Drawer
 			open={open}
@@ -724,7 +758,7 @@ const SchedulerRightDrawer = ({
 					<div className="scheduler-right-drawer-header-title-container">
 						<EyeIcon className="eye-icon" />
 						<ShareIcon className="share-icon" />
-						<BinIcon className="bin-icon" />
+						<BinIcon className="bin-icon" onClick={handleDelete} />
 					</div>
 				</div>
 				<div className="scheduler-right-drawer-header">
@@ -839,7 +873,8 @@ const SchedulerRightDrawer = ({
 											<div className="duration-row">
 												<div className="duration-label">Time Zone</div>
 												<div className="duration-field">
-													<div className="typeOfSession-lable">
+													<div className="timeZone-container">
+														<GlobalIcon />
 														<Tooltip
 															open={info.timeZoneOpen}
 															onOpenChange={(visible) =>
@@ -891,18 +926,38 @@ const SchedulerRightDrawer = ({
 															}}
 														>
 															<div
-																className="typeOfSession-lable"
+																className="typeOfSession-lable timezone-select"
 																style={{
-																	border: '1px solid var(--stroke)',
-																	borderRadius: 8,
+																	width: '100%',
 																	cursor: 'pointer',
 																	padding: '12px',
+																	display: 'flex',
+																	alignItems: 'center',
+																	justifyContent: 'space-between',
+																	gap: '8px',
 																}}
 															>
-																{moment
-																	.tz(info.timeZone)
-																	.format('z')}{' '}
-																({info.timeZone})
+																<span>
+																	{moment
+																		.tz(info.timeZone)
+																		.format('z')}{' '}
+																	({info.timeZone})
+																</span>
+																<svg
+																	width="12"
+																	height="12"
+																	viewBox="0 0 12 12"
+																	fill="none"
+																	xmlns="http://www.w3.org/2000/svg"
+																>
+																	<path
+																		d="M3 4.5L6 7.5L9 4.5"
+																		stroke="currentColor"
+																		strokeWidth="1.5"
+																		strokeLinecap="round"
+																		strokeLinejoin="round"
+																	/>
+																</svg>
 															</div>
 														</Tooltip>
 													</div>
@@ -936,8 +991,15 @@ const SchedulerRightDrawer = ({
 														placeholder="12"
 													/>
 												</div>
-												<div className="duration-field">
-													<div className="">
+												<div
+													className="duration-field"
+													style={{
+														border: '1px solid var(--stroke)',
+														borderRadius: 8,
+														padding: 12,
+													}}
+												>
+													<div className="duration-unit-container">
 														<Tooltip
 															open={info.durationUnitOpen}
 															onOpenChange={(visible) =>
@@ -982,7 +1044,7 @@ const SchedulerRightDrawer = ({
 													</div>
 												</div>
 											</div>
-											<div className="duration-allday-row">
+											{/* <div className="duration-allday-row">
 												<div className="custom-checkbox">
 													<input
 														type="checkbox"
@@ -1026,7 +1088,7 @@ const SchedulerRightDrawer = ({
 												>
 													All Day Event
 												</label>
-											</div>
+											</div> */}
 										</div>
 									);
 									break;
@@ -1106,19 +1168,39 @@ const SchedulerRightDrawer = ({
 													Set max invitees for groups
 												</div>
 												<input
-													className="inputHeight invitee-input"
+													className={`inputHeight invitee-input${
+														info.errors.inviteeLimit ? ' error' : ''
+													}`}
 													type="number"
 													min="1"
 													value={info.inviteeLimit || ''}
-													onChange={(e) =>
+													onChange={(e) => {
 														handleFieldChange(
 															'inviteeLimit',
 															e.target.value,
-														)
-													}
+														);
+														setInfo((prev) => ({
+															...prev,
+															errors: {
+																...prev.errors,
+																inviteeLimit: false,
+															},
+														}));
+													}}
 													placeholder="Enter limit"
 												/>
 											</div>
+											{info.errors.inviteeLimit && (
+												<div
+													style={{
+														color: '#ff4d4f',
+														fontSize: 12,
+														marginTop: 4,
+													}}
+												>
+													Group sessions must have at least 2 invitees.
+												</div>
+											)}
 										</div>
 									);
 									break;
@@ -1363,7 +1445,10 @@ const SchedulerRightDrawer = ({
 					<div
 						className="update-button"
 						onClick={handleCreateOrUpdate}
-						disabled={info?.creatingSessionLoading}
+						disabled={
+							info?.creatingSessionLoading ||
+							(activeTab === 'group' && info.errors.inviteeLimit)
+						}
 					>
 						{info?.creatingSessionLoading ? (
 							<>
