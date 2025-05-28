@@ -113,10 +113,9 @@ export const intialState = {
 		agentType: null,
 		assistantId: null,
 		build: false,
-		ask: {
-			workspaceSearch: true,
-			webSearch: false,
-		},
+		webSearch: true,
+		workspaceSearch: true,
+		ask: true,
 		reason: {
 			workspaceSearch: false,
 			webSearch: false,

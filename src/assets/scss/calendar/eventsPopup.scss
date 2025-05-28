@@ -8,6 +8,8 @@
 	border-radius: 24px;
 	border: 1px solid var(--stroke);
 	background: var(--card);
+	max-height: 90vh;
+	overflow: hidden;
 
 	.events-popup-header {
 		display: flex;
@@ -18,6 +20,7 @@
 		align-self: stretch;
 		border-radius: 24px 24px 0px 0px;
 		border-bottom: 1px solid var(--stroke);
+		flex-shrink: 0;
 		> svg {
 			cursor: pointer;
 			width: 16px;
@@ -56,8 +59,23 @@
 	}
 	.events-popup-body {
 		flex-grow: 1;
-		overflow: auto;
+		overflow-y: auto;
 		padding: 0 24px;
+		scrollbar-width: thin;
+		scrollbar-color: var(--stroke) transparent;
+
+		&::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		&::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background: var(--stroke);
+			border-radius: 3px;
+		}
 
 		.events-popup-agenda-container {
 			padding: 16px 0;
@@ -196,6 +214,8 @@
 					align-items: flex-start;
 					border-radius: 10px;
 					background: var(--popup);
+					max-height: 100px;
+					overflow: auto;
 
 					.events-popup-category-dropdown-item {
 						display: flex;
@@ -514,8 +534,9 @@
 		align-items: center;
 		gap: 6px;
 		align-self: stretch;
-		padding: 16px 24px;
+		padding: 12px 24px;
 		margin-top: 8px;
+		flex-shrink: 0;
 
 		.events-popup-action-button {
 			display: flex;
@@ -595,16 +616,37 @@
 		width: 90%;
 		max-width: 650px;
 		margin: 0 auto;
-		height: calc(100vh - 100px);
+		height: 90vh;
+		font-size: 12px;
+
+		.events-popup-header {
+			padding: 16px 20px;
+			height: auto;
+		}
+
+		.events-popup-body {
+			padding: 0 20px;
+		}
+
+		.events-popup-actions-container {
+			padding: 12px 20px;
+		}
+
+		.sessionOptionContainer {
+			flex-direction: column;
+			gap: 12px;
+		}
 	}
 
 	@media screen and (max-width: 480px) {
 		width: 95%;
-		height: calc(100vh - 80px);
+		height: 95vh;
 		font-size: 11px;
+		border-radius: 16px;
 
 		.events-popup-header {
 			padding: 12px 16px;
+			border-radius: 16px 16px 0 0;
 		}
 
 		.events-popup-body {
@@ -612,10 +654,13 @@
 		}
 
 		.events-popup-actions-container {
-			padding: 12px 20px;
-			margin: 16px;
-			margin-top: 0;
-			font-size: 14px;
+			padding: 12px 16px;
+			flex-direction: column;
+			gap: 8px;
+
+			.events-popup-action-button {
+				width: 100%;
+			}
 		}
 
 		input[type='text'],
@@ -623,6 +668,17 @@
 		input[type='date'] {
 			padding: 8px 10px;
 			font-size: 10px;
+		}
+
+		.events-popup-details-container {
+			padding: 12px;
+			gap: 12px;
+		}
+
+		.events-popup-attendees-container {
+			.events-popup-attendees-list {
+				max-height: 200px;
+			}
 		}
 	}
 }

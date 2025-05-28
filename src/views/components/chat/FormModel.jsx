@@ -31,7 +31,7 @@ const FormModel = ({
 	const origin = fetchOriginSelection();
 
 	useEffect(() => {
-		if (showViewDocument) return;
+		if (showViewDocument || isExpanded) return;
 		setTimeout(() => {
 			let isExpanded =
 				messageData?.stream_end && isLastMessage && !messageData?.isOldMessage

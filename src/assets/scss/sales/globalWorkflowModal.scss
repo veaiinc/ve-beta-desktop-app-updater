@@ -11,8 +11,7 @@
 		align-self: stretch;
 		border-radius: 32px;
 		border: 1px solid rgba(255, 255, 255, 0.2);
-		background: #151515;
-		backdrop-filter: blur(10px);
+		background-color: var(--backdrop);
 		.innerContainerHeader {
 			display: flex;
 			flex-direction: column;

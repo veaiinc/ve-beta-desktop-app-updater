@@ -33,6 +33,7 @@ import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { Tooltip } from 'antd';
+import ChildTaskComponent from '../tasks/listView/ChildTaskComponent';
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
@@ -81,6 +82,8 @@ const TaskWidget = ({ width, height }) => {
 			refetchTasks,
 			getListTaskWithGroup,
 			updateTaskPreferences,
+			updateSideBarData,
+			sideBarData,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -93,8 +96,6 @@ const TaskWidget = ({ width, height }) => {
 		loading: true,
 		promptPopupOpen: false,
 		selectedCard: null,
-		isModalOpen: false,
-		selectedRow: null,
 		tenantUsers: [],
 		taskMetadata: null,
 		createTaskPopup: false,
@@ -389,18 +390,11 @@ const TaskWidget = ({ width, height }) => {
 	};
 
 	const handleTaskClick = (tasks) => {
-		setInfo((prev) => ({
-			...prev,
-			selectedRow: tasks,
-			isModalOpen: true,
-		}));
+		updateSideBarData({ data: tasks, open: true, replace: true });
 	};
 
 	const handleModalClose = () => {
-		setInfo((prev) => ({
-			...prev,
-			isModalOpen: false,
-		}));
+		updateSideBarData({ open: false });
 	};
 	const handleCreateTaskPopup = () => {
 		setInfo((prev) => ({
@@ -681,13 +675,24 @@ const TaskWidget = ({ width, height }) => {
 		[info?.selectedSubTask?._id, removeSubTask],
 	);
 
+	const handleCreateSubTaskClick = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			createTaskPopup: true,
+			isCreatingSubtask: true,
+		}));
+		updateSideBarData({ open: false });
+	}, []);
+
 	return (
 		<div className="task-main-container" style={{ width: width, height: height }}>
 			<div className="taskWidgetContainer">
 				<div className="taskWidgetBody">
 					<div className="taskWidgetBodyHeader">
 						<div className="taskWidgetBodyHeaderLeft">
-							<span className="taskWidgetDay">{listTasks?.analytics?.allTasks}</span>
+							<span className="taskWidgetDay">
+								{listTasks?.analytics?.allPending || 0}
+							</span>
 							<span className="taskWidgetRemainder">Pending Tasks</span>
 						</div>
 						{/* <div className="taskWidgetBodyHeaderRight">
@@ -825,12 +830,14 @@ const TaskWidget = ({ width, height }) => {
 					<ArrowViewIcon />
 					View Tasks
 				</div>
-				<div className="taskWidgetFooterAdd">
+				<div
+					onClick={(e) => {
+						e.stopPropagation();
+						handleCreateTaskPopup();
+					}}
+					className="taskWidgetFooterAdd"
+				>
 					<PlusIcon
-						onClick={(e) => {
-							e.stopPropagation();
-							handleCreateTaskPopup();
-						}}
 						style={{
 							width: '18px',
 							height: '18px',
@@ -839,9 +846,6 @@ const TaskWidget = ({ width, height }) => {
 				</div>
 			</div>
 			<ListViewSidebar
-				selectedRow={info?.selectedRow}
-				sidebarIsOpen={info?.isModalOpen}
-				closeSidebar={handleModalClose}
 				handleUpdate={updatePropertyValue}
 				deleteTask={deleteTask}
 				rowTypes={rowTypes}
@@ -852,28 +856,19 @@ const TaskWidget = ({ width, height }) => {
 					updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
 				}
 				isSidebarExpanded={info?.isSidebarExpanded}
-				headerText={
-					`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
-					(info?.selectedRow?.taskSlNo || '')
+				prefix={info?.taskMetadata?.prefix}
+				groupBy={info?.group}
+				sidebarChildren={
+					<ChildTaskComponent
+						completedStatus={info?.taskMetadata?.completedGroupLabels}
+						rowTypes={rowTypes}
+						responseMetadata={responseMetadata}
+						colors={colors}
+						properties={info?.properties}
+						onAddButtonClick={handleCreateSubTaskClick}
+						handleUpdate={(...args) => updatePropertyValue(...args, true)}
+					/>
 				}
-				breadCrumbs={info?.breadCrumbs}
-				handleBreadCrumbsClick={() => {}}
-				// sidebarChildren={
-				// 	info?.selectedRow ? (
-				// 		<ChildTaskComponent
-				// 			parentTaskId={info?.selectedRow?._id}
-				// 			childTasks={info?.selectedRow?.childTasks}
-				// 			completedStatus={info?.taskMetadata?.completedGroupLabels}
-				// 			rowTypes={rowTypes}
-				// 			responseMetadata={responseMetadata}
-				// 			colors={colors}
-				// 			properties={info?.properties}
-				// 			onAddButtonClick={handleCreateSubTaskClick}
-				// 			handleUpdate={(...args) => updatePropertyValue(...args, true)}
-				// 			handleRowClick={handleSubTaskClick}
-				// 		/>
-				// 	) : null
-				// }
 			/>
 			<CreateTaskPopup
 				isOpen={info?.createTaskPopup}
@@ -881,6 +876,7 @@ const TaskWidget = ({ width, height }) => {
 				responseMetadata={responseMetadata}
 				colors={colors}
 				addNewTask={addNewTask}
+				isSubTask={info?.isCreatingSubtask}
 			/>
 		</div>
 	);

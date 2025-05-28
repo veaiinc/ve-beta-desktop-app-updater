@@ -6,7 +6,14 @@ export default defineConfig({
 	build: {
 		outDir: 'build', // Change output directory from 'dist' to 'build'
 	},
-	plugins: [react(), svgr()],
+	plugins: [
+		react(),
+		svgr({
+			svgoConfig: {
+				plugins: [],
+			},
+		}),
+	],
 	css: {
 		devSourcemap: true,
 	},

@@ -102,6 +102,10 @@ const CreateTaskPopup = ({
 
 	const handleAddTask = useCallback(async () => {
 		try {
+			if (info?.title?.trim() === '') {
+				message.error('Task title is required');
+				return;
+			}
 			setInfo((prevInfo) => ({ ...prevInfo, isLoading: true }));
 			const payload = preparePayload(info);
 			await addNewTask(payload);
@@ -422,7 +426,7 @@ const CreateTaskPopup = ({
 							<button
 								className="btn-createIssue"
 								onClick={handleAddTask}
-								disabled={info?.isLoading || info?.title.trim() === ''}
+								disabled={info?.isLoading}
 							>
 								{info?.isLoading ? (
 									<Spinner width={'20px'} height={'20px'} />
