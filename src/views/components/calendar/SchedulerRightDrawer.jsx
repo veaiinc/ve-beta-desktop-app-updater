@@ -412,10 +412,10 @@ const SchedulerRightDrawer = ({
 				maxParticipants: currentMaxParticipants,
 			};
 		}
-
+		const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 		// Compare availability
-		if (currentInfo.availability?.mode === 'weekly') {
-			// Map abbreviated days to full names
+		if (currentInfo.availability && Array.isArray(currentInfo.availability.weekly)) {
+			// Always include all 7 days
 			const dayMap = {
 				Sun: 'Sunday',
 				Mon: 'Monday',
@@ -426,19 +426,19 @@ const SchedulerRightDrawer = ({
 				Sat: 'Saturday',
 			};
 
-			const validSlots = currentInfo.availability.weekly
-				.filter((day) => day.slots.length > 0)
-				.map((day) => ({
-					dayOfWeek: dayMap[day.day], // Convert abbreviated day to full name
-					timeRanges: day.slots.map((slot) => ({
-						startTime: slot.from,
-						endTime: slot.to,
-					})),
-				}));
-
-			if (validSlots.length > 0) {
-				payload.availabilitySlots = validSlots;
-			}
+			payload.availabilitySlots = WEEKDAYS.map((d) => {
+				const day = currentInfo.availability.weekly.find((w) => w.day === d);
+				return {
+					dayOfWeek: dayMap[d],
+					timeRanges:
+						day && day.slots.length > 0
+							? day.slots.map((slot) => ({
+									startTime: slot.from,
+									endTime: slot.to,
+							  }))
+							: [],
+				};
+			});
 		} else if (currentInfo.availability?.mode === 'custom') {
 			payload.customExceptions = [
 				{
