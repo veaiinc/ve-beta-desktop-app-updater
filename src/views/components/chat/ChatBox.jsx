@@ -614,16 +614,15 @@ const ChatBox = ({
 						location_details = await getLocationsDetails();
 					}
 
-					payload.location = location_details || {};
-
 					//this payload props are for public chat
 					if (isPublicChat) {
 						const user_id = localStorage?.getItem('user_id');
 						const ip_address = localStorage?.getItem('ipAddress');
-
 						payload.user_id = user_id ?? null;
 						payload.location_details = location_details || {};
 						payload.ip_address = ip_address ?? null;
+					} else {
+						payload.location = location_details || {};
 					}
 
 					setInfo((prev) => ({

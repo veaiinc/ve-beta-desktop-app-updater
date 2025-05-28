@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import BuildOptions from './BuildOptions';
 import Suggestions from './Suggestions';
 
-const AskMe = ({ landingPage = false }) => {
+const AskMe = () => {
 	const navigate = useNavigate();
 	const {
 		templates: { currentSessionId, chatInfo, updateStateValues },
@@ -47,7 +47,7 @@ const AskMe = ({ landingPage = false }) => {
 				</div>
 			</div>
 			{chatInfo?.build && info?.chatQuery?.length === 0 && <BuildOptions />}
-			{(landingPage || info?.showSuggestions) && <Suggestions landingPage={landingPage} />}
+			{info?.showSuggestions && <Suggestions />}
 		</div>
 	);
 };
