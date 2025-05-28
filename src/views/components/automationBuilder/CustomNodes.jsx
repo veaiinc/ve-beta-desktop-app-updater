@@ -160,6 +160,7 @@ export const ActionNode = ({ data }) => {
 	}, [data]);
 
 	const onActionNodeClick = useCallback(() => {
+		if (data?.currentStep?.isHidden) return; // Prevent click if hidden
 		if (data?.onToolBarOpen) {
 			data.onToolBarOpen({
 				toolBarOpen: true,
@@ -192,7 +193,14 @@ export const ActionNode = ({ data }) => {
 			arrow={false}
 			rootClassName="customNodesToolTip"
 		>
-			<div className="action-node" onClick={onActionNodeClick}>
+			<div
+				className={`action-node ${data?.currentStep?.isHidden ? 'hidden-node' : ''}`}
+				onClick={onActionNodeClick}
+				style={{
+					opacity: data?.currentStep?.isHidden ? 0.2 : 1,
+					cursor: data?.currentStep?.isHidden ? 'not-allowed' : 'pointer',
+				}}
+			>
 				<div className="upper-action-node-container">
 					<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 						{
@@ -236,6 +244,7 @@ export const ConditionNode = ({ data }) => {
 	}, [data]);
 
 	const onConditionNodeClick = useCallback(() => {
+		if (data?.currentStep?.isHidden) return; // Prevent click if hidden
 		if (data?.onToolBarOpen) {
 			data.onToolBarOpen({
 				toolBarOpen: true,
@@ -268,7 +277,14 @@ export const ConditionNode = ({ data }) => {
 			arrow={false}
 			rootClassName="customNodesToolTip"
 		>
-			<div className="action-node" onClick={onConditionNodeClick}>
+			<div
+				className={`action-node ${data?.currentStep?.isHidden ? 'hidden-node' : ''}`}
+				onClick={onConditionNodeClick}
+				style={{
+					opacity: data?.currentStep?.isHidden ? 0.2 : 1,
+					cursor: data?.currentStep?.isHidden ? 'not-allowed' : 'pointer',
+				}}
+			>
 				<div className="upper-action-node-container">
 					<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 						<IfElse />
@@ -280,7 +296,6 @@ export const ConditionNode = ({ data }) => {
 					<span className="lower-action-node-title">
 						{data?.currentStep?.title || 'Steps Title'}
 					</span>
-
 					<span className="lower-action-node-subtitle">
 						{data?.currentStep?.description || 'Steps Description'}
 					</span>
@@ -314,15 +329,21 @@ const HoverComponentForNodes = ({
 }) => {
 	const hideTimeoutRef = useRef();
 	const duplicateTimeoutRef = useRef();
+	const [localIsHidden, setLocalIsHidden] = useState(isHidden);
+
+	useEffect(() => {
+		setLocalIsHidden(isHidden);
+	}, [isHidden]);
 
 	const handleDebouncedHide = useCallback(() => {
 		if (hideTimeoutRef.current) {
 			clearTimeout(hideTimeoutRef.current);
 		}
+		setLocalIsHidden(!localIsHidden);
 		hideTimeoutRef.current = setTimeout(() => {
 			onHideClick();
-		}, 500);
-	}, [onHideClick]);
+		}, 300);
+	}, [onHideClick, localIsHidden]);
 
 	const handleDebouncedDuplicate = useCallback(() => {
 		if (duplicateTimeoutRef.current) {
@@ -330,26 +351,32 @@ const HoverComponentForNodes = ({
 		}
 		duplicateTimeoutRef.current = setTimeout(() => {
 			onDuplicateClick();
-		}, 500);
+		}, 300);
 	}, [onDuplicateClick]);
 
 	return (
 		<div className="rightNodeToolBar">
-			<span>
-				{isHidden ? (
-					<CrossedOpenEye onClick={handleDebouncedHide} />
-				) : (
-					<OpenEye onClick={handleDebouncedHide} />
-				)}
-			</span>
-			{showDuplicate && (
-				<span onClick={handleDebouncedDuplicate}>
-					<Copy />
+			<Tooltip title={localIsHidden ? 'Show node' : 'Hide node'} placement="right">
+				<span className="eye-icon-wrapper" onClick={handleDebouncedHide}>
+					{localIsHidden ? (
+						<CrossedOpenEye style={{ cursor: 'pointer' }} />
+					) : (
+						<OpenEye style={{ cursor: 'pointer' }} />
+					)}
 				</span>
+			</Tooltip>
+			{showDuplicate && (
+				<Tooltip title="Duplicate node" placement="right">
+					<span onClick={handleDebouncedDuplicate}>
+						<Copy style={{ cursor: 'pointer' }} />
+					</span>
+				</Tooltip>
 			)}
-			<span onClick={openDeleteModal}>
-				<Dustbin />
-			</span>
+			<Tooltip title="Delete node" placement="right">
+				<span onClick={openDeleteModal}>
+					<Dustbin style={{ cursor: 'pointer' }} />
+				</span>
+			</Tooltip>
 		</div>
 	);
 };
@@ -365,6 +392,7 @@ export const SwitchNode = ({ data }) => {
 	}, [data]);
 
 	const onSwitchNodeClick = useCallback(() => {
+		if (data?.currentStep?.isHidden) return; // Prevent click if hidden
 		if (data?.onToolBarOpen) {
 			data.onToolBarOpen({
 				toolBarOpen: true,
@@ -397,7 +425,14 @@ export const SwitchNode = ({ data }) => {
 			arrow={false}
 			rootClassName="customNodesToolTip"
 		>
-			<div className="action-node" onClick={onSwitchNodeClick}>
+			<div
+				className={`action-node ${data?.currentStep?.isHidden ? 'hidden-node' : ''}`}
+				onClick={onSwitchNodeClick}
+				style={{
+					opacity: data?.currentStep?.isHidden ? 0.2 : 1,
+					cursor: data?.currentStep?.isHidden ? 'not-allowed' : 'pointer',
+				}}
+			>
 				<div className="upper-action-node-container">
 					<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 						<SwitchIcon />
@@ -431,6 +466,7 @@ export const DelayNode = ({ data }) => {
 	}, [data]);
 
 	const onDelayNodeClick = useCallback(() => {
+		if (data?.currentStep?.isHidden) return; // Prevent click if hidden
 		if (data?.onToolBarOpen) {
 			data.onToolBarOpen({
 				toolBarOpen: true,
@@ -462,7 +498,14 @@ export const DelayNode = ({ data }) => {
 			arrow={false}
 			rootClassName="customNodesToolTip"
 		>
-			<div className="action-node" onClick={onDelayNodeClick}>
+			<div
+				className={`action-node ${data?.currentStep?.isHidden ? 'hidden-node' : ''}`}
+				onClick={onDelayNodeClick}
+				style={{
+					opacity: data?.currentStep?.isHidden ? 0.2 : 1,
+					cursor: data?.currentStep?.isHidden ? 'not-allowed' : 'pointer',
+				}}
+			>
 				<div className="upper-action-node-container">
 					<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 						<ClockSvg />
