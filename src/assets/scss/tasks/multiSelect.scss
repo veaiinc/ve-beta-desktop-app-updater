@@ -89,19 +89,3 @@
 		}
 	}
 }
-
-// Override Antd Tooltip styles
-.ant-tooltip {
-	.ant-tooltip-inner {
-		background-color: var(--popup, #202123);
-		border-radius: 12px;
-		border: 1px solid var(--stroke, #2c2d2e);
-		padding: 0;
-	}
-
-	.ant-tooltip-arrow {
-		&::before {
-			background-color: var(--popup, #202123);
-		}
-	}
-}

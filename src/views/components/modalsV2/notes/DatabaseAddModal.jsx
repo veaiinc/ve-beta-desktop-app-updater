@@ -101,6 +101,7 @@ const DatabaseAddModal = ({ isOpen, onClose, blockId, pageId, databaseId, fields
 						showLabel={true}
 						style={{ background: 'transparent', padding: 0 }}
 						disabled={field.isReadOnly}
+						labelField={'label'}
 					/>
 				);
 			}

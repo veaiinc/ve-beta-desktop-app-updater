@@ -54,6 +54,9 @@ export const rowTypes = {
 	created_time: DateView,
 	last_edited_by: Person,
 	created_by: Person,
+	url: LinkText,
+	email: LinkText,
+	phone: LinkText,
 };
 
 const DatabaseComponent = memo(({ block, editor }) => {

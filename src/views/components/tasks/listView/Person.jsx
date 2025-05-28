@@ -11,6 +11,7 @@ const Person = ({
 	multiSelect = false,
 	disabled = false,
 	showTitle = false,
+	selectionLimit = -1,
 }) => {
 	const [info, setInfo] = useState({
 		open: false,
@@ -40,6 +41,10 @@ const Person = ({
 						{ name: option?.name, _id: option?._id },
 					];
 				}
+				// If selectionLimit is >= 1, take the last N elements for both state and callback
+				if (selectionLimit >= 1) {
+					newSelected = newSelected.slice(-selectionLimit);
+				}
 				onOptionClick?.(newSelected);
 			} else {
 				newSelected = isSelected ? [] : [{ name: option?.name, _id: option?._id }];
@@ -48,7 +53,7 @@ const Person = ({
 
 			setInfo((prev) => ({ ...prev, selected: newSelected }));
 		},
-		[info?.selected],
+		[info?.selected, selectionLimit],
 	);
 
 	return (
@@ -90,6 +95,7 @@ const Person = ({
 				color="transparent"
 				overlayStyle={{ minWidth: 'fit-content' }}
 				destroyTooltipOnHide
+				overlayClassName="person-dropdown-wrapper"
 			>
 				<div
 					className="person-multi-select-selected filter-wrapper"

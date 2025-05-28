@@ -23,6 +23,47 @@ const fieldTypes = [
 		value: 'multi_select',
 		hasOptions: true,
 	},
+	{
+		label: 'Date',
+		value: 'date',
+	},
+	{
+		label: 'Email',
+		value: 'email',
+	},
+	{
+		label: 'Phone',
+		value: 'phone',
+	},
+	{
+		label: 'Url',
+		value: 'url',
+	},
+	{
+		label: 'Person',
+		value: 'person',
+		hasLimit: true,
+	},
+	{
+		label: 'Checkbox',
+		value: 'checkbox',
+	},
+	{
+		label: 'Created by',
+		value: 'created_by',
+	},
+	{
+		label: 'Created time',
+		value: 'created_time',
+	},
+	{
+		label: 'Last edited by',
+		value: 'last_edited_by',
+	},
+	{
+		label: 'Last edited time',
+		value: 'last_edited_time',
+	},
 ];
 
 const DatabaseAddFieldModal = ({ isOpen, onClose, databaseId, pageId }) => {
@@ -34,12 +75,26 @@ const DatabaseAddFieldModal = ({ isOpen, onClose, databaseId, pageId }) => {
 		name: '',
 		type: 'text',
 		options: [],
+		selectionLimit: -1,
 	});
 
 	const [info, setInfo] = useState({
 		loading: false,
 		optionName: '',
 	});
+
+	const resetStates = () => {
+		setFieldInfo({
+			name: '',
+			type: 'text',
+			options: [],
+			selectionLimit: -1,
+		});
+		setInfo({
+			loading: false,
+			optionName: '',
+		});
+	};
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -85,39 +140,55 @@ const DatabaseAddFieldModal = ({ isOpen, onClose, databaseId, pageId }) => {
 		}));
 	};
 
+	const preparePayload = ({ selectedType, fieldInfo }) => {
+		const input = { type: selectedType?.value, name: fieldInfo.name };
+		if (['multi_select', 'select'].includes(selectedType?.value)) {
+			if (selectedType?.hasOptions && fieldInfo.options.length === 0) {
+				message('Please add at least one option');
+				return false;
+			}
+
+			input.config = {
+				options: fieldInfo.options.map((option) => ({
+					label: option.label,
+					color: option.color.toString(),
+				})),
+			};
+		}
+
+		if (selectedType?.value === 'person') {
+			input.selectionLimit = Number(fieldInfo.selectionLimit);
+		}
+		return input;
+	};
+
 	const handleAddField = async () => {
 		if (!fieldInfo.name?.trim()) {
 			message('Please enter a valid field name');
 			return;
 		}
-
-		const selectedType = fieldTypes.find((type) => type.value === fieldInfo.type);
-		if (selectedType?.hasOptions && fieldInfo.options.length === 0) {
-			message('Please add at least one option');
-			return;
-		}
+		const input = preparePayload({
+			selectedType: fieldTypes.find((type) => type.value === fieldInfo.type),
+			fieldInfo,
+		});
+		if (!input) return;
 
 		setInfo((prev) => ({ ...prev, loading: true }));
 
 		const payload = {
 			pageId: pageId,
 			databaseId: databaseId,
-			input: {
-				name: fieldInfo.name,
-				type: fieldInfo.type,
-				...(selectedType?.hasOptions && {
-					config: {
-						options: fieldInfo.options.map((option) => ({
-							label: option.label,
-							color: option.color.toString(),
-						})),
-					},
-				}),
-			},
+			input,
 		};
 
 		await addDatabaseField(payload);
 		setInfo((prev) => ({ ...prev, loading: false }));
+		resetStates();
+		onClose();
+	};
+
+	const handleClose = () => {
+		resetStates();
 		onClose();
 	};
 
@@ -126,7 +197,7 @@ const DatabaseAddFieldModal = ({ isOpen, onClose, databaseId, pageId }) => {
 	return (
 		<ReactModal
 			isOpen={isOpen}
-			closeModal={info.loading ? null : onClose}
+			closeModal={info.loading ? null : handleClose}
 			modalType={'center'}
 			customStyles={{
 				content: {
@@ -199,6 +270,19 @@ const DatabaseAddFieldModal = ({ isOpen, onClose, databaseId, pageId }) => {
 								</div>
 							)}
 						</>
+					)}
+					{selectedType?.hasLimit && (
+						<div className={s.fieldRow}>
+							<label>Selection Limit</label>
+							<select
+								value={fieldInfo.selectionLimit}
+								onChange={handleChange}
+								name="selectionLimit"
+							>
+								<option value={-1}>No Limit</option>
+								<option value={1}>1 Person</option>
+							</select>
+						</div>
 					)}
 				</div>
 				<div className={s.databaseAddFieldModalFooter}>

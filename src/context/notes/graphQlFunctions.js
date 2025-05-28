@@ -429,6 +429,7 @@ export const createDatabaseMutation = gql`
 				isRequired
 				isUnique
 				isReadOnly
+				selectionLimit
 			}
 			createdAt
 			updatedAt
@@ -470,6 +471,7 @@ export const getDatabaseQuery = gql`
 				isRequired
 				isUnique
 				isReadOnly
+				selectionLimit
 			}
 			sourceBlockId
 			createdAt
@@ -587,6 +589,7 @@ export const updateDatabaseMutation = gql`
 				config
 				isRequired
 				isUnique
+				selectionLimit
 			}
 			createdAt
 			updatedAt
