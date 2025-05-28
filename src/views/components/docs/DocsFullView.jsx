@@ -285,7 +285,9 @@ const DocsFullView = () => {
 			const templateId = fileData?.modules?.[0]?.templateId;
 			version === 0 || version === null
 				? navigate(`/smart-file/${fileData?.templateId}/${fileData?._id}`)
-				: (window.location.href = `${origin}/workflow/${fileData?._id}?workflow=true&templateId=${templateId}`);
+				: navigate(
+						`/builder/workflow/${fileData?._id}?workflow=true&templateId=${templateId}`,
+				  );
 		}
 	};
 

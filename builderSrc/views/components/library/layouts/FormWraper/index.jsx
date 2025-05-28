@@ -519,6 +519,7 @@ class FormWrapper extends Component {
 
 						zIndex: 1,
 						justifyContent: 'center',
+						backgroundColor: '#f5f5f5',
 					}}
 				>
 					{this.state.showBlockActions &&
