@@ -115,7 +115,7 @@ const ContactUs = ({ type }) => {
 						<input
 							type="text"
 							name="firstName"
-							placeholder="Selected State"
+							placeholder="Enter your First name"
 							value={formData.firstName}
 							onChange={handleChange}
 						/>
@@ -157,7 +157,7 @@ const ContactUs = ({ type }) => {
 
 				<div className="grid">
 					<label>
-						Employees
+						<span className="dropdownText">Employees</span>
 						<CustomDropdown
 							options={platformOptions}
 							value={formData.platformUsers}
@@ -166,7 +166,7 @@ const ContactUs = ({ type }) => {
 						/>
 					</label>
 					<label>
-						Company headquarters
+						<span className="dropdownText">Company headquarters</span>
 						<CustomDropdown
 							options={headquartersOptions}
 							value={formData.headquarters}
@@ -180,7 +180,7 @@ const ContactUs = ({ type }) => {
 					Tell us more about how you want to use VE.AI
 					<textarea
 						name="message"
-						placeholder="Ex - We want to use VE.AI to make our video editing faster..."
+						placeholder="Ex - We want to use VE.AI to make our video editing faster and easier. We’re also interested in trying out AI tools to improve our content and save time."
 						value={formData.message}
 						onChange={handleChange}
 					></textarea>

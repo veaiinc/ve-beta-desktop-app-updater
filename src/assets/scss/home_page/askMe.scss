@@ -11,13 +11,19 @@
 		height: 114px;
 		border-radius: 16px;
 		transition: height 0.3s ease-in-out;
+		/* text-align: center; */
+		display: flex;
+		align-items: center;
+		justify-content: center;
 
 		@media screen and (max-width: 425px) {
 			width: 350px;
+			margin: auto;
 		}
 		.chatbox-container {
 			height: 100%;
 			position: relative;
+			width: 100%;
 
 			.chatParentWrapper {
 				max-width: unset;
