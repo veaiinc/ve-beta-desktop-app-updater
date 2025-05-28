@@ -45,7 +45,7 @@ const AskMe = ({ landingPage = false }) => {
 				</div>
 			</div>
 			{chatInfo?.build && info?.chatQuery?.length === 0 && <BuildOptions />}
-			{!landingPage && info?.showSuggestions && <Suggestions />}
+			{info?.showSuggestions && <Suggestions landingPage={landingPage} />}
 		</div>
 	);
 };

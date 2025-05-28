@@ -106,7 +106,7 @@ const LandingPage = () => {
 							<span className="title-one">The World's First</span>
 							<span className="title-two">proactive AI OS</span>
 						</div>
-						<AskMe />
+						<AskMe landingPage />
 					</div>
 					<Tagline />
 					<img src={HeroImage} alt="homepage" className="homepageImage" />

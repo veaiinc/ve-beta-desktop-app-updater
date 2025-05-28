@@ -45,6 +45,9 @@ const Footer = () => {
 								<li>
 									<Link to="/forenterprise">For Enterprise</Link>
 								</li>
+								<li>
+									<Link to="/forenterprise">Investor Updates</Link>
+								</li>
 							</ul>
 						</div>
 						<div className={s.about}>
