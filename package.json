@@ -2,6 +2,7 @@
 	"name": "ve-dashboard-v1",
 	"version": "0.1.0",
 	"private": true,
+	"type": "module",
 	"dependencies": {
 		"@apollo/client": "^3.13.5",
 		"@babel/preset-react": "^7.27.1",

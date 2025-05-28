@@ -50,7 +50,7 @@ const AuthWrapper = ({
 					<meta charSet="utf-8" />
 					<title>{title}</title>
 				</Helmet>
-
+F
 				{/* {workspaceIds?.includes(workspaceId) && !location?.pathname?.includes('/chat') && (
 					<DynamicWidget />
 				)} */}
