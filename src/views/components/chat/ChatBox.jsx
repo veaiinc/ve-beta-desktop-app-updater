@@ -1640,6 +1640,11 @@ const ChatBox = ({
 																								? 'icon-active'
 																								: ''
 																						}`}
+																						onClick={(
+																							e,
+																						) =>
+																							e?.stopPropagation()
+																						}
 																					>
 																						<ArrowDownSvg fill="var(--secondary-font)" />
 																					</div>
