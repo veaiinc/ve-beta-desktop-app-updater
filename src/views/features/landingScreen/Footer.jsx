@@ -21,9 +21,9 @@ const Footer = () => {
 						<span className={s.heading}>From the Founder&apos;s Desk</span>
 						<p>
 							Hi, I&apos;m Vijay. I&apos;m building Ve.ai — the world&apos;s first
-							Proactive AI OS. If you want a front-row seat to how memory, cognition,
-							and reasoning are being redefined, subscribe below. No spam. Just raw,
-							early insights as we build.
+							Proactive AI OS. If you want a front-row seat to see how memory,
+							cognition, and reasoning are being redefined, subscribe below. No spam.
+							Just raw, early insights as we build.
 						</p>
 						<div className={s.emailInput}>
 							<input type="text" placeholder="example@gmail.com" />
