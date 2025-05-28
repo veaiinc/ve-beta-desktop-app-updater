@@ -229,6 +229,12 @@
 			align-items: center;
 			gap: 32px;
 			width: 100%;
+			.chatbox-container {
+				width: 100%;
+				max-width: 750px;
+				height: 114px;
+				position: relative;
+			}
 			.title-text {
 				display: flex;
 				flex-direction: column;

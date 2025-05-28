@@ -9,15 +9,8 @@ export default defineConfig({
 	plugins: [
 		react(),
 		svgr({
-			icon: true,
-			svgo: true,
 			svgoConfig: {
-				plugins: [
-					{
-						name: 'removeDimensions',
-						active: true,
-					},
-				],
+				plugins: [],
 			},
 		}),
 	],
