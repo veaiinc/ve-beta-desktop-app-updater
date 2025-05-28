@@ -14,7 +14,7 @@ const AskMe = () => {
 
 	const [info, setInfo] = useState({
 		chatQuery: '',
-		showSuggestions: true,
+		showSuggestions: false,
 	});
 
 	const handleCustomOnSendFunction = useCallback(
@@ -29,8 +29,10 @@ const AskMe = () => {
 		setInfo((prev) => ({
 			...prev,
 			chatQuery: query,
+			showSuggestions: query?.length > 0,
 		}));
 	};
+
 	return (
 		<div className="ask-me-container">
 			<div className="chatbox-wrapper">
