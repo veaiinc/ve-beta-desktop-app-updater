@@ -154,9 +154,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 						/> */}
 						<div
 							className="editLabel"
-							onClick={() =>
-								(window.location.href = `${origin}/${activeTemplate?._id} `)
-							}
+							onClick={() => navigate(`/builder/${activeTemplate?._id}`)}
 						>
 							Edit
 						</div>

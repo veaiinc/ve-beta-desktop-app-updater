@@ -223,6 +223,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 							columnGap: '10px',
 							width: '100%',
 							overflowX: 'hidden',
+							overflowY: 'auto',
 						}}
 						className="tetsing"
 						height="calc(100vh - 340px)"
@@ -267,7 +268,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 											<button
 												className="eachOption"
 												onClick={(e) => {
-													e.stopPropagation();
+													// e.stopPropagation();
 													navigate(
 														`/builder/${info?.hoverTemplateData?._id} `,
 													);

@@ -455,7 +455,9 @@ const DocsFullView = () => {
 		const workflowId = response?.[1]?.data?.duplicateSmartFile?._id;
 		if (workflowId) {
 			setInfo((prev) => ({ ...prev, duplicateLoading: false }));
-			window.location.href = `${origin}/workflow/${info?.activeFileData?._id}?workflow=true&templateId=${workflowId}`;
+			navigate(
+				`/builder/workflow/${info?.activeFileData?._id}?workflow=true&templateId=${workflowId}`,
+			);
 		} else {
 			message.error(response?.[1]?.message);
 			setInfo((prev) => ({ ...prev, duplicateLoading: false }));
