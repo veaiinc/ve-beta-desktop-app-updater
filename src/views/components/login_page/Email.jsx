@@ -238,31 +238,31 @@ const Email = ({
 				<h2 className="login-page-subtitle">Answers before you Ask!</h2>
 			</div>
 			<div className="login-button-container">
-				{/* {info?.isHostnameVeDotAi && ( */}
-				<>
-					<button
-						disabled={info?.googleLoading}
-						className="google-login-button"
-						onClick={handleContinueWithGoogle}
-					>
-						<GoogleLogo />
-						<p>Continue with Google</p>
-						{info?.googleLoading && (
-							<Spinner
-								width="20px"
-								height="20px"
-								color="var(--background-color)"
-								borderTopColor="transparent"
-							/>
-						)}
-					</button>
-					<div className="or-divider">
-						<div className="line"></div>
-						<span>Or</span>
-						<div className="line"></div>
-					</div>
-				</>
-				{/* )} */}
+				{info?.isHostnameVeDotAi && (
+					<>
+						<button
+							disabled={info?.googleLoading}
+							className="google-login-button"
+							onClick={handleContinueWithGoogle}
+						>
+							<GoogleLogo />
+							<p>Continue with Google</p>
+							{info?.googleLoading && (
+								<Spinner
+									width="20px"
+									height="20px"
+									color="var(--background-color)"
+									borderTopColor="transparent"
+								/>
+							)}
+						</button>
+						<div className="or-divider">
+							<div className="line"></div>
+							<span>Or</span>
+							<div className="line"></div>
+						</div>
+					</>
+				)}
 				<div className="email-input-container">
 					<input
 						value={email}
