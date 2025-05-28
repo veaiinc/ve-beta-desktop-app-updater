@@ -245,7 +245,10 @@ const SchedulerRightDrawer = ({
 				meetingLink: sessionDetail.sessionTypeInfo?.meetingLink || '',
 				scheduleFrom: sessionDetail.sessionWindow?.startDate || null,
 				scheduleTo: sessionDetail.sessionWindow?.endDate || null,
-				availability: sessionDetail.availability || {},
+				availability: {
+					availabilitySlots: sessionDetail.availabilitySlots || [],
+					customExceptions: sessionDetail.customExceptions || [],
+				},
 				// Duration mapping
 				durationValue: durationValue,
 				durationUnit: durationUnit,
@@ -412,10 +415,21 @@ const SchedulerRightDrawer = ({
 
 		// Compare availability
 		if (currentInfo.availability?.mode === 'weekly') {
+			// Map abbreviated days to full names
+			const dayMap = {
+				Sun: 'Sunday',
+				Mon: 'Monday',
+				Tue: 'Tuesday',
+				Wed: 'Wednesday',
+				Thu: 'Thursday',
+				Fri: 'Friday',
+				Sat: 'Saturday',
+			};
+
 			const validSlots = currentInfo.availability.weekly
 				.filter((day) => day.slots.length > 0)
 				.map((day) => ({
-					dayOfWeek: day.day,
+					dayOfWeek: dayMap[day.day], // Convert abbreviated day to full name
 					timeRanges: day.slots.map((slot) => ({
 						startTime: slot.from,
 						endTime: slot.to,
@@ -1153,6 +1167,7 @@ const SchedulerRightDrawer = ({
 									content = (
 										<div className="collapse-content availability-collapse-content">
 											<AvailabilitySection
+												key={sessionId}
 												value={info.availability}
 												onChange={handleAvailabilityChange}
 												onSummaryChange={setAvailabilitySummary}

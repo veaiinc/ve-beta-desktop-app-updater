@@ -49,6 +49,12 @@ const SchedulerSessionMainPage = ({
 		setRightDrawerSession(null);
 	};
 
+	const handleSessionCreated = (newSession) => {
+		setSchedulerList((prev) => [...prev, newSession]);
+		setRightDrawerOpen(false);
+		setRightDrawerSession(null);
+	};
+
 	return (
 		<div className="schedulerMainPageContainer">
 			<div className="header">
@@ -131,6 +137,7 @@ const SchedulerSessionMainPage = ({
 				sessionData={rightDrawerSession}
 				onSessionUpdated={handleSessionUpdated}
 				onSessionDeleted={handleSessionDeleted}
+				onSessionCreated={handleSessionCreated}
 				initialTab={initialTab}
 			/>
 		</div>

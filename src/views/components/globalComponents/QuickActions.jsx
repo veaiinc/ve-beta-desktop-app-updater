@@ -37,27 +37,27 @@ const buildAiOptions = [
 			navigate(`/chat/${sessionId}`);
 		},
 	},
-	// {
-	// 	id: 2,
-	// 	title: 'Task',
-	// 	value: 'task',
-	// 	action: ({ updateStateValues, navigate }) => {
-	// 		const sessionId = ObjectID()?.toString();
-	// 		updateStateValues({ activeInputForChat: 'Create a task for' });
-	// 		navigate(`/chat/${sessionId}`);
-	// 	},
-	// },
-	// {
-	// 	id: 3,
-	// 	title: 'Event',
-	// 	value: 'event',
-	// 	controlValue: 'event',
-	// 	action: ({ updateStateValues, navigate }) => {
-	// 		const sessionId = ObjectID()?.toString();
-	// 		updateStateValues({ activeInputForChat: 'Create a meeting for' });
-	// 		navigate(`/chat/${sessionId}`);
-	// 	},
-	// },
+	{
+		id: 2,
+		title: 'Invoice',
+		value: 'invoice',
+		action: ({ updateStateValues, navigate }) => {
+			const sessionId = ObjectID()?.toString();
+			updateStateValues({ activeInputForChat: 'Create an invoice for' });
+			navigate(`/chat/${sessionId}`);
+		},
+	},
+	{
+		id: 3,
+		title: 'Contract',
+		value: 'contract',
+		controlValue: 'contract',
+		action: ({ updateStateValues, navigate }) => {
+			const sessionId = ObjectID()?.toString();
+			updateStateValues({ activeInputForChat: 'Create a contract for' });
+			navigate(`/chat/${sessionId}`);
+		},
+	},
 ];
 
 const createOptions = [

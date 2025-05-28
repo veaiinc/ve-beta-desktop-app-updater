@@ -13,6 +13,14 @@ const REPEAT_OPTIONS = [
 const defaultWeekly = () =>
 	WEEKDAYS.map((d) => ({ day: d, slots: d === 'Sun' ? [] : [{ from: '09:00', to: '17:00' }] }));
 
+const validateTimeRange = (startTime, endTime) => {
+	const [startHour, startMinute] = startTime.split(':').map(Number);
+	const [endHour, endMinute] = endTime.split(':').map(Number);
+	const startTotal = startHour * 60 + startMinute;
+	const endTotal = endHour * 60 + endMinute;
+	return endTotal > startTotal;
+};
+
 const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 	const [mode, setMode] = useState('weekly');
 	const [modeOpen, setModeOpen] = useState(false);
@@ -27,6 +35,7 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 		end: dayjs().add(1, 'month').format('YYYY-MM-DD'),
 		never: false,
 	});
+	const [slotErrors, setSlotErrors] = useState({});
 
 	// Compute summary
 	useEffect(() => {
@@ -88,6 +97,18 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 		setWeekly((prev) => {
 			const updated = [...prev];
 			updated[dayIdx].slots[slotIdx][field] = val;
+			// Validate slot
+			const slot = updated[dayIdx].slots[slotIdx];
+			const key = `${updated[dayIdx].day}-${slotIdx}`;
+			if (!validateTimeRange(slot.from, slot.to)) {
+				setSlotErrors((prevErrs) => ({ ...prevErrs, [key]: true }));
+			} else {
+				setSlotErrors((prevErrs) => {
+					const newErrs = { ...prevErrs };
+					delete newErrs[key];
+					return newErrs;
+				});
+			}
 			emitChange({ weekly: updated });
 			return updated;
 		});
@@ -188,33 +209,50 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 				<div className="availability-day-row" key={day.day}>
 					<span className="day-label">{day.day}</span>
 					<div className="availability-day-row-content">
-					{day.slots.length === 0 ? (
-						<span className="unavailable-label">Unavailable</span>
-					) : (
-						day.slots.map((slot, idx) => (
-							<Fragment key={idx}>
-								<input
-									className="slot-input"
-									type="time"
-									value={slot.from}
-									onChange={(e) =>
-										handleSlotChange(i, idx, 'from', e.target.value)
-									}
-								/>
-								<input
-									className="slot-input"
-									type="time"
-									value={slot.to}
-									onChange={(e) => handleSlotChange(i, idx, 'to', e.target.value)}
-								/>
-								<button
-									className="icon-btn remove"
-									onClick={() => handleRemoveSlot(i, idx)}
-								>
-									<RemoveIcon />
-								</button>
-							</Fragment>
-						))
+						{day.slots.length === 0 ? (
+							<span className="unavailable-label">Unavailable</span>
+						) : (
+							day.slots.map((slot, idx) => {
+								const key = `${day.day}-${idx}`;
+								const error = slotErrors[key];
+								return (
+									<Fragment key={idx}>
+										<input
+											className={`slot-input${error ? ' error' : ''}`}
+											type="time"
+											value={slot.from}
+											onChange={(e) =>
+												handleSlotChange(i, idx, 'from', e.target.value)
+											}
+										/>
+										<input
+											className={`slot-input${error ? ' error' : ''}`}
+											type="time"
+											value={slot.to}
+											onChange={(e) =>
+												handleSlotChange(i, idx, 'to', e.target.value)
+											}
+										/>
+										<button
+											className="icon-btn remove"
+											onClick={() => handleRemoveSlot(i, idx)}
+										>
+											<RemoveIcon />
+										</button>
+										{error && (
+											<div
+												style={{
+													color: '#ff4d4f',
+													fontSize: 12,
+													marginTop: 2,
+												}}
+											>
+												End time must be after start time
+											</div>
+										)}
+									</Fragment>
+								);
+							})
 						)}
 					</div>
 					<button className="icon-btn add" onClick={() => handleAddSlot(i)}>
@@ -346,6 +384,36 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 			</div>
 		</>
 	);
+
+	useEffect(() => {
+		if (value && Array.isArray(value.availabilitySlots)) {
+			const apiSlots = value.availabilitySlots;
+			const fullToShort = {
+				Sunday: 'Sun',
+				Monday: 'Mon',
+				Tuesday: 'Tue',
+				Wednesday: 'Wed',
+				Thursday: 'Thu',
+				Friday: 'Fri',
+				Saturday: 'Sat',
+			};
+			const newWeekly = WEEKDAYS.map((d) => {
+				const apiDay = apiSlots.find((slot) => fullToShort[slot.dayOfWeek] === d);
+				if (apiDay) {
+					return {
+						day: d,
+						slots: apiDay.timeRanges.map((tr) => ({
+							from: tr.startTime,
+							to: tr.endTime,
+						})),
+					};
+				} else {
+					return { day: d, slots: [] };
+				}
+			});
+			setWeekly(newWeekly);
+		}
+	}, [value]);
 
 	return (
 		<div>

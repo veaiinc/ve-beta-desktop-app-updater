@@ -378,9 +378,14 @@ const Files = () => {
 	}, [info.isFocused]);
 
 	const handleNavigateGallery = (gallery) => {
-		navigate(`/galleries/${gallery?._id}`, { state: { galleryData: gallery } });
+		if (activeTab === 'Lite Gallery') {
+			navigate(`/galleries/${gallery?._id}?lite-gallery=true`, {
+				state: { galleryData: gallery },
+			});
+		} else {
+			navigate(`/galleries/${gallery?._id}`, { state: { galleryData: gallery } });
+		}
 	};
-
 	const handleCreateNewGallery = () => {
 		setInfo({
 			...info,
