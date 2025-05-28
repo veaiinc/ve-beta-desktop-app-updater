@@ -457,18 +457,24 @@ const SchedulerRightDrawer = ({
 			];
 		}
 
-		payload.availabilityRules = {
-			allowBookingOverlappingSessions: false, // or use info if you want to make it dynamic
-			maxBookingsPerSession: currentInfo.maxBookingsEnabled
-				? Number(currentInfo.maxBookings)
-				: null,
-			// ...add other rules if needed
+		// Only include maxBookingsPerSession if enabled and a valid number
+		const availabilityRules = {
+			allowBookingOverlappingSessions: false,
 		};
+		if (
+			currentInfo.maxBookingsEnabled &&
+			currentInfo.maxBookings &&
+			!isNaN(Number(currentInfo.maxBookings))
+		) {
+			availabilityRules.maxBookingsPerSession = Number(currentInfo.maxBookings);
+		}
+		payload.availabilityRules = availabilityRules;
 
 		return payload;
 	};
 
 	const handleCreateOrUpdate = useCallback(() => {
+		if (info.creatingSessionLoading) return; // Prevent multiple rapid clicks
 		// Log all form data for debugging, including duration and all fields
 		// Validate date range only if custom availability
 		if (
