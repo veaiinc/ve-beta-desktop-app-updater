@@ -61,7 +61,7 @@ const Suggestions = ({ landingPage = false }) => {
 	return (
 		<div
 			className="suggestions-wrapper"
-			style={{ height: landingPage ? '250px' : '100%', overflowY: 'auto' }}
+			style={{ height: landingPage ? '250px' : '100%', overflow: 'hidden' }}
 		>
 			{data?.map((suggestion, index) => (
 				<div
