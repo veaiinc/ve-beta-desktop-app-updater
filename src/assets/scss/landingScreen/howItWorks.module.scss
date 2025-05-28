@@ -1,8 +1,8 @@
 .howItWorks {
 	display: flex;
-	max-width: 1440px;
+	max-width: 1200px;
 	width: 100%;
-	padding: 120px;
+	padding: 120px 0px;
 	flex-direction: column;
 	align-items: center;
 	gap: 80px;
@@ -44,6 +44,10 @@
 				display: flex;
 				flex-direction: column;
 
+				@media screen and (max-width: 550px) {
+					font-size: 47px;
+				}
+
 				.learnsFast {
 					color: var(--primary-button, #79ecc9);
 				}
@@ -58,6 +62,11 @@
 			font-weight: 500;
 			line-height: 32px; /* 177.778% */
 			width: 100%;
+			max-width: 830px;
+
+			@media screen and (max-width: 550px) {
+				font-size: 15px;
+			}
 		}
 	}
 
@@ -73,6 +82,7 @@
 		justify-content: center;
 		gap: 30px;
 		align-items: center;
+		// flex-wrap: wrap;
 
 		.feature {
 			display: flex;
@@ -154,8 +164,17 @@
 
 @media screen and (max-width: 900px) {
 	.howItWorks {
+		padding-inline: 30px;
 		.bottom {
 			flex-direction: column;
+		}
+	}
+}
+
+@media screen and (max-width: 1260px) {
+	.howItWorks {
+		.bottom {
+			flex-wrap: wrap;
 		}
 	}
 }

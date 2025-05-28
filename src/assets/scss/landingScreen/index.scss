@@ -56,6 +56,12 @@
 			gap: 4px;
 			margin: 0;
 
+			@media screen and (max-width: 500px) {
+				& {
+					display: none;
+				}
+			}
+
 			li {
 				display: flex;
 				height: 41px;
@@ -137,6 +143,16 @@
 			cursor: pointer;
 			border: none;
 		}
+
+		.login-btn-text {
+			color: var(--primary-font, #f2f2f3);
+			font-size: 14px;
+			font-weight: 500;
+			outline: none;
+			border: none;
+			background-color: transparent;
+			cursor: pointer;
+		}
 	}
 
 	@media screen and (max-width: 500px) {
@@ -212,7 +228,7 @@
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			gap: 12px;
+			gap: 32px;
 			width: 100%;
 			.title-text {
 				display: flex;
@@ -251,7 +267,7 @@
 
 		.chatbox-container {
 			width: 100%;
-			max-width: 700px;
+			max-width: 750px;
 			height: 110px;
 			position: relative;
 		}
@@ -326,13 +342,25 @@
 	}
 }
 
-@media screen and (max-width: 500px) {
+// @media screen and (max-width: 500px) {
+// 	.landing-page-container {
+// 		.page-body {
+// 			padding-top: 80px; // Add padding to account for fixed header
+// 			.title-one,
+// 			.title-two {
+// 				font-size: 30px !important;
+// 			}
+// 		}
+// 	}
+// }
+
+@media screen and (max-width: 600px) {
 	.landing-page-container {
-		.page-body {
-			padding-top: 80px; // Add padding to account for fixed header
-			.title-one,
-			.title-two {
-				font-size: 30px !important;
+		.page-header {
+			.middle-container {
+				.tabNavigation {
+					display: none;
+				}
 			}
 		}
 	}

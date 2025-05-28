@@ -149,15 +149,16 @@ const LandingPage = () => {
 				</div>
 				<div className="right-container">
 					{/* ${isSidebarOpen ? 'hidden-on-mobile' : ''} */}
-					<button
+					{/* <button
 						className={`theme-btn `}
 						onClick={() => updateTheme(newThemeValue, routeType)}
 					>
 						{resolvedTheme === 'dark' ? <SunSvg /> : <MoonSvg />}
-					</button>
-					<button className="login-btn" onClick={handleLoginBtnClick}>
+					</button> */}
+					<button className="login-btn-text" onClick={handleLoginBtnClick}>
 						Login
 					</button>
+					<button className="login-btn">Get VE Free</button>
 				</div>
 			</div>
 			{/* Simple tab content rendering */}

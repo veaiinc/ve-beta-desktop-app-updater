@@ -25,7 +25,7 @@ const Footer = () => {
 							early insights as we build.
 						</p>
 						<div className={s.emailInput}>
-							<input type="text" placeholder="Example@gmail.com" />
+							<input type="text" placeholder="example@gmail.com" />
 							<button className={s.subscribeButton}>Subscribe</button>
 							<p className={s.terms}>
 								By submitting, you allow Ve.ai to store and process your information
