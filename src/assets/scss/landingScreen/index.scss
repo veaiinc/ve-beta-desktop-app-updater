@@ -6,8 +6,7 @@
 		position: fixed;
 		inset: 0;
 		z-index: 988; // just below the tabNavigation z-index
-		backdrop-filter: blur(6px);
-		background-color: var(--background-color);
+		background-color: var(--backdrop);
 		transition: opacity 0.3s ease;
 		opacity: 0;
 		pointer-events: none;

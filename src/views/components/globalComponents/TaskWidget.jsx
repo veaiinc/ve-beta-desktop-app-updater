@@ -690,7 +690,9 @@ const TaskWidget = ({ width, height }) => {
 				<div className="taskWidgetBody">
 					<div className="taskWidgetBodyHeader">
 						<div className="taskWidgetBodyHeaderLeft">
-							<span className="taskWidgetDay">{listTasks?.analytics?.allTasks}</span>
+							<span className="taskWidgetDay">
+								{listTasks?.analytics?.allPending || 0}
+							</span>
 							<span className="taskWidgetRemainder">Pending Tasks</span>
 						</div>
 						{/* <div className="taskWidgetBodyHeaderRight">

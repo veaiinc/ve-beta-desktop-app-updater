@@ -117,58 +117,54 @@ const OverviewContact = () => {
 							)}
 						</div>
 						<div className="sub-details-container">
-							{info?.contact?.email && (
-								<div className="profile-contact-row">
-									{editField === 'email' ? (
-										<div className="edit-field-container">
-											<EmailIcon className="field-icon" />
-											<input
-												type="email"
-												value={editValue}
-												onChange={handleEditChange}
-												onBlur={handleBlur}
-												autoFocus
-												className="edit-input"
-												placeholder="Enter email"
-											/>
-										</div>
-									) : (
-										<span
-											className="profile-email"
-											onClick={() => handleEdit('email')}
-										>
-											<EmailIcon className="field-icon" />
-											{info?.contact?.email}
-										</span>
-									)}
-								</div>
-							)}
-							{info?.contact?.phoneNumber && (
-								<div className="profile-contact-row">
-									{editField === 'phoneNumber' ? (
-										<div className="edit-field-container">
-											<PhoneIcon className="field-icon" />
-											<input
-												type="text"
-												value={editValue}
-												onChange={handleEditChange}
-												onBlur={handleBlur}
-												autoFocus
-												className="edit-input"
-												placeholder="Enter phone number"
-											/>
-										</div>
-									) : (
-										<span
-											className="profile-phone"
-											onClick={() => handleEdit('phoneNumber')}
-										>
-											<PhoneIcon className="field-icon" />
-											{info?.contact?.phoneNumber}
-										</span>
-									)}
-								</div>
-							)}
+							<div className="profile-contact-row">
+								{editField === 'email' ? (
+									<div className="edit-field-container">
+										<EmailIcon className="field-icon" />
+										<input
+											type="email"
+											value={editValue}
+											onChange={handleEditChange}
+											onBlur={handleBlur}
+											autoFocus
+											className="edit-input"
+											placeholder="Enter email"
+										/>
+									</div>
+								) : (
+									<span
+										className="profile-email"
+										onClick={() => handleEdit('email')}
+									>
+										<EmailIcon className="field-icon" />
+										{info?.contact?.email || 'Add email'}
+									</span>
+								)}
+							</div>
+							<div className="profile-contact-row">
+								{editField === 'phoneNumber' ? (
+									<div className="edit-field-container">
+										<PhoneIcon className="field-icon" />
+										<input
+											type="text"
+											value={editValue}
+											onChange={handleEditChange}
+											onBlur={handleBlur}
+											autoFocus
+											className="edit-input"
+											placeholder="Enter phone number"
+										/>
+									</div>
+								) : (
+									<span
+										className="profile-phone"
+										onClick={() => handleEdit('phoneNumber')}
+									>
+										<PhoneIcon className="field-icon" />
+										{info?.contact?.phoneNumber || 'Add phone number'}
+									</span>
+								)}
+							</div>
 						</div>
 
 						<div className="profile-actions">

@@ -150,6 +150,7 @@ const AIMessage = memo(
 									arrow={false}
 									trigger={'hover'}
 									title={'Edit'}
+									overlayInnerStyle={{ color: 'var(--primary-font)' }}
 								>
 									<PencilSparkleIcon onClick={handlePencilClick} />
 								</Tooltip>
@@ -161,6 +162,7 @@ const AIMessage = memo(
 									arrow={false}
 									trigger={'hover'}
 									title={info?.isCopiedToClipboard ? 'Copied' : 'Copy'}
+									overlayInnerStyle={{ color: 'var(--primary-font)' }}
 								>
 									{info?.isCopiedToClipboard ? (
 										<TickSvg />
@@ -189,6 +191,7 @@ const AIMessage = memo(
 									arrow={false}
 									trigger={'hover'}
 									title={'Like'}
+									overlayInnerStyle={{ color: 'var(--primary-font)' }}
 								>
 									<ThumpsUpSvg
 										fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
@@ -203,6 +206,7 @@ const AIMessage = memo(
 									arrow={false}
 									trigger={'hover'}
 									title={'Dislike'}
+									overlayInnerStyle={{ color: 'var(--primary-font)' }}
 								>
 									<ThumpsDownSvg
 										fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
