@@ -70,8 +70,21 @@ const initialInfo = {
 	durationUnit: 'hrs',
 	durationUnitOpen: false,
 	allDayEvent: false,
-	timeZone: moment.tz.guess(), // Default to user's timezone
+	timeZone: moment.tz.guess(),
 	timeZoneOpen: false,
+	sessionColor: '#4287F5',
+	colorsArray: [
+		'#8BC34A',
+		'#E91E63',
+		'#08B6DE',
+		'#887fff',
+		'#0158ff',
+		'#00fad8',
+		'#ff9fd3',
+		'#ff2727',
+		'#2196F3',
+		'#964444',
+	],
 };
 
 const COLLAPSE_CONFIG = {
@@ -292,6 +305,11 @@ const SchedulerRightDrawer = ({
 
 		if (currentInfo.sessionDescription !== originalData.sessionDescription) {
 			payload.sessionDescription = currentInfo.sessionDescription;
+		}
+
+		// Add color change to payload
+		if (currentInfo.sessionColor !== originalData.sessionColor) {
+			payload.sessionColor = currentInfo.sessionColor;
 		}
 
 		// Compare session type info individually
@@ -542,7 +560,7 @@ const SchedulerRightDrawer = ({
 			},
 			sessionWindow,
 			sessionTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-			sessionColor: '#4287F5', // Default for now
+			sessionColor: info.sessionColor,
 			sessionDuration: {
 				unitCount: durationInMinutes,
 				unitType: 'minutes',
@@ -568,7 +586,7 @@ const SchedulerRightDrawer = ({
 		} else if (mode === 'edit') {
 			const payload = buildUpdatePayload(info, originalData);
 			if (Object.keys(payload).length === 0) {
-				message.info('No changes to update.');
+				message.success('No changes to update.');
 				setInfo((prev) => ({ ...prev, creatingSessionLoading: false }));
 				return;
 			}
@@ -683,6 +701,14 @@ const SchedulerRightDrawer = ({
 	const handleGuestPermissionChange = (e) =>
 		setInfo((prev) => ({ ...prev, guestPermission: e.target.checked }));
 
+	const handleColorChange = (color) => {
+		setInfo((prev) => ({
+			...prev,
+			sessionColor: color,
+			showColorPicker: false,
+		}));
+	};
+
 	return (
 		<Drawer
 			open={open}
@@ -702,6 +728,12 @@ const SchedulerRightDrawer = ({
 					</div>
 				</div>
 				<div className="scheduler-right-drawer-header">
+					<div className="session-color-picker">
+						<div
+							className="color-preview"
+							style={{ backgroundColor: info.sessionColor }}
+							onClick={() => setInfo((prev) => ({ ...prev, showColorPicker: true }))}
+						/>
 					<input
 						type="text"
 						className="scheduler-right-drawer-title rightDrawerInputHeight"
@@ -709,6 +741,9 @@ const SchedulerRightDrawer = ({
 						onChange={(e) => handleFieldChange('sessionName', e.target.value)}
 						autoComplete="off"
 					/>
+					</div>
+					<div className="scheduler-right-drawer-title-container">
+
 					<p className="scheduler-description">
 						<input
 							type="text"
@@ -726,7 +761,8 @@ const SchedulerRightDrawer = ({
 							}
 							autoComplete="off"
 						/>
-					</p>
+						</p>
+					</div>
 				</div>
 				{mode === 'create' && (
 					<div className="scheduler-tabs">
@@ -1341,6 +1377,48 @@ const SchedulerRightDrawer = ({
 						)}
 					</div>
 				</div>
+
+				{info.showColorPicker && (
+					<div className="color-picker-modal">
+						<div className="color-picker-content">
+							<div className="color-picker-header">
+								<h3>Pick a color</h3>
+								<CloseIcon
+									className="close-icon"
+									onClick={() =>
+										setInfo((prev) => ({ ...prev, showColorPicker: false }))
+									}
+								/>
+							</div>
+							<div className="colorPicker">
+								{info.colorsArray.map((colorCode) => (
+									<label
+										htmlFor={colorCode}
+										className="colorCircle"
+										style={{ backgroundColor: colorCode }}
+										key={colorCode}
+									>
+										<input
+											type="radio"
+											name="color"
+											value={colorCode}
+											id={colorCode}
+											checked={colorCode === info.sessionColor}
+											onChange={(e) => {
+												setInfo((prev) => ({
+													...prev,
+													sessionColor: e.target.value,
+													showColorPicker: false,
+												}));
+											}}
+										/>
+										<div className="innerCircle"></div>
+									</label>
+								))}
+							</div>
+						</div>
+					</div>
+				)}
 			</div>
 		</Drawer>
 	);

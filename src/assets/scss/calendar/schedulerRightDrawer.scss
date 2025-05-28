@@ -3,6 +3,7 @@
 		background-color: var(--backdrop);
 	}
 	.ant-drawer-content-wrapper {
+		z-index: 1000;
 		.ant-drawer-header {
 			.ant-drawer-header-close-only {
 				display: none;
@@ -17,6 +18,82 @@
 			align-items: flex-start;
 			flex-shrink: 0;
 			background: var(--background, #1a1b1e);
+		}
+	}
+
+	.color-picker-modal {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		background: var(--popup, #202123);
+		border-radius: 15px;
+		padding: 24px;
+		z-index: 1100;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+		min-width: 300px;
+
+		.color-picker-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+
+			h3 {
+				color: var(--primary-font, #f2f2f3);
+				font-size: 18px;
+				font-weight: 500;
+				margin: 0;
+			}
+
+			.close-icon {
+				cursor: pointer;
+				width: 24px;
+				height: 24px;
+			}
+		}
+
+		.colorPicker {
+			display: grid;
+			grid-template-columns: repeat(5, 1fr);
+			gap: 12px;
+			padding: 8px 0;
+
+			.colorCircle {
+				position: relative;
+				width: 40px;
+				height: 40px;
+				border-radius: 50%;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transition: transform 0.2s ease;
+
+				&:hover {
+					transform: scale(1.1);
+				}
+
+				input[type='radio'] {
+					position: absolute;
+					opacity: 0;
+					width: 0;
+					height: 0;
+
+					&:checked + .innerCircle {
+						opacity: 1;
+					}
+				}
+
+				.innerCircle {
+					width: 16px;
+					height: 16px;
+					border-radius: 50%;
+					background: white;
+					opacity: 0;
+					transition: opacity 0.2s ease;
+				}
+			}
 		}
 	}
 
@@ -69,6 +146,7 @@
 			width: 100%;
 			margin-bottom: 12px;
 
+
 			.scheduler-right-drawer-title {
 				color: var(--primary-font, #f2f2f3);
 				font-family: var(--primary-font-family);
@@ -98,6 +176,22 @@
 				font-style: normal;
 				font-weight: 400;
 				line-height: 22px; /* 157.143% */
+			}
+
+			.session-color-picker {
+				display: flex;
+				.color-preview {
+					width: 32px;
+					height: 32px;
+					border-radius: 6px;
+					cursor: pointer;
+					border: 2px solid #2a2a2a;
+					transition: all 0.2s ease;
+
+					&:hover {
+						transform: scale(1.05);
+					}
+				}
 			}
 		}
 
