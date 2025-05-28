@@ -159,7 +159,7 @@ const homePageTextContent = {
 	},
 	calendar: {
 		title: 'Let’s make every moment count',
-		subText: 'More that a schedule - It’s your daily mission control',
+		subText: 'More than a schedule - It’s your daily mission control',
 	},
 	task: {
 		title: 'Transform goals into actionable tasks',
