@@ -43,9 +43,7 @@ const FormResCard = ({
 	const [hasNextPage, setHasNextPage] = useState(true);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [expandedCard, setExpandedCard] = useState(null);
-	const [info, setInfo] = useState({
-		dropdown: false,
-	});
+	const [delFormResLoading, setDelFormResLoading] = useState(false);
 
 	useEffect(() => {
 		fetchInitialResponses();
@@ -282,9 +280,10 @@ const FormResCard = ({
 		document.body.removeChild(link);
 	};
 
-	const handleDeleteResponse = async (responseId, e) => {
-		e.stopPropagation();
+	const handleDeleteResponse = async (responseId) => {
 		try {
+			if (delFormResLoading) return;
+			setDelFormResLoading(true);
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 
@@ -310,6 +309,8 @@ const FormResCard = ({
 		} catch (err) {
 			console.error('Error deleting response:', err);
 			message.error('Failed to delete response');
+		} finally {
+			setDelFormResLoading(false);
 		}
 	};
 
@@ -483,7 +484,7 @@ const FormResCard = ({
 										</div>
 										<div
 											className="deleteButton"
-											onClick={(e) => handleDeleteResponse(response._id, e)}
+											onClick={() => handleDeleteResponse(response._id)}
 										>
 											<Delete />
 										</div>
