@@ -119,10 +119,9 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 		if (listTasks) {
 			if (listTasks?.data) {
 				setInfo((prevInfo) => {
-					const existingTaskIds = new Set(prevInfo?.listItems?.map((task) => task._id));
-					const newTasks = listTasks?.data?.filter(
-						(task) => !existingTaskIds.has(task._id),
-					);
+					// Reset listItems when clientId changes or on first load
+					const shouldReset = prevInfo?.page === 1 || !prevInfo?.listItems?.length;
+					const newTasks = shouldReset ? listTasks?.data : prevInfo?.listItems;
 
 					// Calculate client-specific pending tasks only for contact page
 					if (isContactPage && onTaskCountUpdate) {
@@ -137,10 +136,7 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 
 					return {
 						...prevInfo,
-						listItems:
-							info?.page === 1
-								? listTasks?.data
-								: [...prevInfo?.listItems, ...newTasks],
+						listItems: newTasks,
 						hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
 						loading: false,
 						infinityLoading: false,
@@ -372,6 +368,7 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 
 	const getTasksList = async (page) => {
 		try {
+			setInfo((prev) => ({ ...prev, loading: true }));
 			const response = await getListItems({
 				taskFilterInput: {
 					limit: 20,
@@ -419,6 +416,21 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 		}
 	};
 
+	// Add useEffect to reset and refetch tasks when clientId changes
+	useEffect(() => {
+		if (clientId) {
+			setInfo((prev) => ({
+				...prev,
+				loading: true,
+				page: 1,
+				listItems: [], // Reset listItems when clientId changes
+				hasNextPage: false,
+			}));
+			getTasksList(1);
+		}
+	}, [clientId]);
+
+	// Update fetchMoreData to handle client filtering
 	const fetchMoreData = useCallback(() => {
 		if (info?.hasNextPage && !info?.loading && !info?.infinityLoading) {
 			setInfo((prev) => ({ ...prev, infinityLoading: true }));

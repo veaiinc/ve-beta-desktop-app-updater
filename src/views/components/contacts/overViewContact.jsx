@@ -36,6 +36,7 @@ const OverviewContact = () => {
 
 	useEffect(() => {
 		getClient({ getClientId: contactId }).then((res) => {
+			console.log('Contact ID:', contactId);
 			setInfo((prev) => ({ ...prev, contact: res }));
 		});
 	}, [contactId]);
