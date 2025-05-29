@@ -85,8 +85,6 @@ const SchedulerSessionMainPage = ({
 
 	const handleUpdateSession = useCallback(
 		(updatedSession) => {
-			console.log('updatedSession', updatedSession);
-			// Send customExceptions as the payload
 			const payload = {
 				customExceptions: updatedSession.customExceptions,
 			};
