@@ -7,14 +7,16 @@ import ViewModeSortFilter from '../../components/notesPage/ViewModeSortFilter';
 import CardsViewNotes from '../../components/notesPage/CardsViewNotes';
 import ListViewNotes from '../../components/notesPage/ListViewNotes';
 import Context from '../../../context/context';
+import { useSearchParams } from 'react-router-dom';
 
 const NotesPage = () => {
 	const {
 		notes: { getNotesList, notes },
 	} = useContext(Context);
+	const [searchParams, setSearchParams] = useSearchParams();
 
 	const [info, setInfo] = useState({
-		viewMode: 'list', // cards, list
+		viewMode: searchParams?.get('viewMode') || 'list', // cards, list
 		selectedFilter: { label: 'All', value: 'all' },
 		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 	});
@@ -22,6 +24,10 @@ const NotesPage = () => {
 	useEffect(() => {
 		fetchNotes({ page: 1 });
 	}, [info?.selectedFilter?.value, info?.selectedSort]);
+
+	useEffect(() => {
+		setSearchParams({ viewMode: info?.viewMode });
+	}, [info?.viewMode]);
 
 	const fetchNotes = async ({ page = 1, limit = 30, append = false }) => {
 		try {

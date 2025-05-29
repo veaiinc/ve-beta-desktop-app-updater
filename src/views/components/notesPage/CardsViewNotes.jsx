@@ -35,7 +35,7 @@ const CardsViewNotes = ({ notes, fetchMoreNotes }) => {
 				flexWrap: 'wrap',
 				gap: '18px',
 				marginBottom: '18px',
-				alignContent: 'flex-start',
+				justifyContent: dataLength > 0 ? 'center' : 'flex-start',
 				alignItems: 'flex-start',
 			}}
 		>
