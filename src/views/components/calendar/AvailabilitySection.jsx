@@ -386,35 +386,56 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 	);
 
 	useEffect(() => {
-		if (value && Array.isArray(value.availabilitySlots)) {
-			const apiSlots = value.availabilitySlots;
-			const fullToShort = {
-				Sunday: 'Sun',
-				Monday: 'Mon',
-				Tuesday: 'Tue',
-				Wednesday: 'Wed',
-				Thursday: 'Thu',
-				Friday: 'Fri',
-				Saturday: 'Sat',
-			};
-			const newWeekly = WEEKDAYS.map((d) => {
-				const apiDay = apiSlots.find((slot) => fullToShort[slot.dayOfWeek] === d);
-				if (apiDay) {
-					return {
-						day: d,
-						slots: apiDay.timeRanges.map((tr) => ({
-							from: tr.startTime,
-							to: tr.endTime,
-						})),
-					};
-				} else {
-					return { day: d, slots: [] };
-				}
-			});
-			setWeekly(newWeekly);
+		if (value) {
+			// Always set weekly slots if present
+			if (Array.isArray(value.availabilitySlots)) {
+				const apiSlots = value.availabilitySlots;
+				const fullToShort = {
+					Sunday: 'Sun',
+					Monday: 'Mon',
+					Tuesday: 'Tue',
+					Wednesday: 'Wed',
+					Thursday: 'Thu',
+					Friday: 'Fri',
+					Saturday: 'Sat',
+				};
+				const newWeekly = WEEKDAYS.map((d) => {
+					const apiDay = apiSlots.find((slot) => fullToShort[slot.dayOfWeek] === d);
+					if (apiDay) {
+						return {
+							day: d,
+							slots: apiDay.timeRanges.map((tr) => ({
+								from: tr.startTime,
+								to: tr.endTime,
+							})),
+						};
+					} else {
+						return { day: d, slots: [] };
+					}
+				});
+				setWeekly(newWeekly);
+			}
+	
+			// Always set custom exception if present
+			if (Array.isArray(value.customExceptions) && value.customExceptions.length > 0) {
+				const exception = value.customExceptions[0];
+				setCustom((prev) => ({
+					...prev,
+					start: exception.date ? exception.date.slice(0, 10) : dayjs().format('YYYY-MM-DD'),
+					end: exception.date ? exception.date.slice(0, 10) : dayjs().add(1, 'month').format('YYYY-MM-DD'),
+					never: false, // You can infer this if you store it in the backend
+					// Optionally, handle customTimeRanges here
+				}));
+			}
+	
+			// Set mode based on value.mode, fallback to 'weekly'
+			if (value.mode) {
+				setMode(value.mode);
+			} else {
+				setMode('weekly');
+			}
 		}
 	}, [value]);
-
 	return (
 		<div>
 			<div className="availability-dropdown">
