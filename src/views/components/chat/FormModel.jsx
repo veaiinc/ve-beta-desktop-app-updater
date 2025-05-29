@@ -114,12 +114,7 @@ const Section1 = ({
 	toggleLatestStreamMessage,
 }) => {
 	const {
-		templates: {
-			globalChatMessages,
-			globalLoadingMesssage,
-			updateStateValues,
-			updateAiChatMessageRating,
-		},
+		templates: { globalChatMessages, updateStateValues, updateAiChatMessageRating },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		lastQuery: '',
@@ -127,9 +122,22 @@ const Section1 = ({
 	});
 	const chatContentRef = useRef(null);
 	const chatMessagesRef = useRef(globalChatMessages || []);
+	const scrollToBottomRef = useRef(true);
 
 	useEffect(() => {
-		smoothScrollToBottom();
+		const lastMessage = globalChatMessages[globalChatMessages?.length - 1];
+		if (scrollToBottomRef.current && lastMessage?.contentType === 'loading') {
+			smoothScrollToBottom();
+			scrollToBottomRef.current = false;
+		} else {
+			if (
+				!scrollToBottomRef.current &&
+				lastMessage?.type?.toLowerCase() === 'ai' &&
+				lastMessage?.stream_end
+			) {
+				scrollToBottomRef.current = true;
+			}
+		}
 	}, [globalChatMessages]);
 
 	const smoothScrollToBottom = useCallback(
