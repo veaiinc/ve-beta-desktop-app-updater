@@ -1,20 +1,31 @@
-import { useState, memo } from 'react';
+import { useState, memo, useCallback, useContext } from 'react';
 import QuickActions from '../globalComponents/QuickActions';
 import { ReactComponent as BackSvg } from '../../../assets/svg/calendar/CaretLeft.svg';
 import '../../../assets/scss/calendar/SchedulerMainPage.scss';
 import { ReactComponent as CaretRightSvg } from '../../../assets/svg/calendar/CaretLeft.svg';
 import SchedulerRightDrawer from './SchedulerRightDrawer';
-
+import SchedulerAvailability from '../scheduler/SchedulerAvailability';
+import UpdateSessionSlot from '../modalsV2/calendar/UpdateSessionSlot';
+import Context from '../../../context/context';
 const SchedulerSessionMainPage = ({
 	onBackToCalendar,
 	schedulerList: initialSchedulerList = [],
 	onCreateScheduler,
 }) => {
-	const [schedulerList, setSchedulerList] = useState(initialSchedulerList);
+	const {
+		calendarInfo: { updateSchedulerSession },
+	} = useContext(Context);
 	const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
 	const [rightDrawerSession, setRightDrawerSession] = useState(null);
 	const [drawerMode, setDrawerMode] = useState('create');
 	const [initialTab, setInitialTab] = useState('one-on-one');
+
+	const [info, setInfo] = useState({
+		updateSlotModal: false,
+		selectedSlotData: null,
+		schedulerList: initialSchedulerList,
+		createSessionModal: false,
+	});
 
 	const handleOpenCreate = (tab) => {
 		setDrawerMode('create');
@@ -37,23 +48,79 @@ const SchedulerSessionMainPage = ({
 	};
 
 	const handleSessionUpdated = (updatedSession) => {
-		setSchedulerList((prev) =>
-			prev.map((s) => (s._id === updatedSession._id ? updatedSession : s)),
-		);
+		setInfo((prev) => ({
+			...prev,
+			schedulerList: prev.schedulerList.map((s) =>
+				s._id === updatedSession._id ? updatedSession : s,
+			),
+		}));
 		setRightDrawerSession(updatedSession);
 	};
 
 	const handleSessionDeleted = (deletedSessionId) => {
-		setSchedulerList((prev) => prev.filter((s) => s._id !== deletedSessionId));
+		setInfo((prev) => ({
+			...prev,
+			schedulerList: prev.schedulerList.filter((s) => s._id !== deletedSessionId),
+		}));
 		setRightDrawerOpen(false);
 		setRightDrawerSession(null);
 	};
 
 	const handleSessionCreated = (newSession) => {
-		setSchedulerList((prev) => [...prev, newSession]);
+		setInfo((prev) => ({
+			...prev,
+			schedulerList: [...prev.schedulerList, newSession],
+		}));
 		setRightDrawerOpen(false);
 		setRightDrawerSession(null);
 	};
+
+	const toggleUpdateSlotModal = useCallback((slotData) => {
+		setInfo((prev) => ({
+			...prev,
+			updateSlotModal: !prev.updateSlotModal,
+			selectedSlotData: slotData || null,
+		}));
+	}, []);
+
+	const handleUpdateSession = useCallback(
+		(updatedSession) => {
+			const payload = {
+				customExceptions: updatedSession.customExceptions,
+			};
+
+			// Call the API to update the session
+			updateSchedulerSession(updatedSession._id, payload)
+				.then((response) => {
+					// Update local state after successful API call
+					setInfo((prev) => {
+						// Find the session in the list and update it with the response data
+						const updatedSchedulerList = prev.schedulerList.map((session) => {
+							if (session._id === updatedSession._id) {
+								// Merge the existing session with the response data
+								return {
+									...session,
+									customExceptions:
+										response.customExceptions || session.customExceptions,
+								};
+							}
+							return session;
+						});
+
+						return {
+							...prev,
+							schedulerList: updatedSchedulerList,
+							updateSlotModal: false,
+							selectedSlotData: null,
+						};
+					});
+				})
+				.catch((error) => {
+					console.error('Error updating session:', error);
+				});
+		},
+		[updateSchedulerSession],
+	);
 
 	return (
 		<div className="schedulerMainPageContainer">
@@ -101,7 +168,7 @@ const SchedulerSessionMainPage = ({
 				</div>
 				{/* Right: List of Schedulers */}
 				<div className="schedulerListCards">
-					{schedulerList.map((session, idx) => (
+					{info.schedulerList.map((session, idx) => (
 						<div
 							className="sessionCard"
 							key={session._id || idx}
@@ -129,6 +196,19 @@ const SchedulerSessionMainPage = ({
 					))}
 				</div>
 			</div>
+			<SchedulerAvailability
+				updateSlotModal={info?.updateSlotModal}
+				toggleUpdateSlotModal={toggleUpdateSlotModal}
+				schedulerList={info.schedulerList}
+			/>
+
+			<UpdateSessionSlot
+				open={info?.updateSlotModal}
+				closeModal={toggleUpdateSlotModal}
+				schedulerList={info.schedulerList}
+				selectedSlotData={info?.selectedSlotData}
+				updateCalendarInfo={handleUpdateSession}
+			/>
 			<SchedulerRightDrawer
 				open={rightDrawerOpen}
 				onClose={handleCloseDrawer}

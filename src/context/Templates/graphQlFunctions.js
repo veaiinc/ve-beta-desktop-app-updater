@@ -548,3 +548,9 @@ export const duplicateSmartFileQuery = gql`
 		}
 	}
 `;
+
+export const deleteFormResponseMutation = gql`
+	mutation DeleteFormResponse($responseId: ID!) {
+		deleteFormResponse(responseId: $responseId)
+	}
+`;
