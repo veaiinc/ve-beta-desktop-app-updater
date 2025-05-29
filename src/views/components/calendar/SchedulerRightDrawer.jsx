@@ -781,7 +781,7 @@ const SchedulerRightDrawer = ({
 			placement="right"
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
-			rootClassName="ai-suggestions-drawer"
+			rootClassName="scheduler-right-drawer-wrapper"
 		>
 			<div className="scheduler-right-drawer-container">
 				<div className="scheduler-right-drawer-header-container">
