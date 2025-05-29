@@ -202,11 +202,11 @@
 				&.connect-another-account {
 					cursor: pointer;
 					color: var(--info, #5089f9);
+					padding: 4px 12px;
+					border-radius: 12px;
 
 					&:hover {
 						background-color: var(--card-over-card-hover);
-						padding: 4px 12px;
-						border-radius: 12px;
 					}
 
 					.typeWrapper {
