@@ -7,6 +7,7 @@ import Context from '../../../context/context';
 import ObjectId from 'bson-objectid';
 import moment from 'moment';
 import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
+import SchedulerSessionMainPage from '../../components/calendar/SchedulerSessionMainPage';
 const initialState = {
 	selectedWeek: [],
 	isCreateEventOpen: false,
@@ -203,8 +204,9 @@ const Calendar = () => {
 				</ChatLeftBarComponent>
 
 				{info?.showEditScheduler ? (
-					<EditScheduler
-						onBack={handleBackToCalendar}
+					<SchedulerSessionMainPage
+						onBackToCalendar={handleBackToCalendar}
+						schedulerList={info?.schedulerList}
 						sessionId={info?.selectedSession?._id}
 					/>
 				) : (

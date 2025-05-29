@@ -15,6 +15,12 @@
 		gap: 8px;
 		align-self: stretch;
 		cursor: pointer;
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+		color: var(--primary-font);
 
 		&:hover {
 			background: var(--card-hover, #202123);

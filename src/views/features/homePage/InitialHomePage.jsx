@@ -157,6 +157,10 @@ const homePageTextContent = {
 		title: 'Answers before you ask',
 		subText: 'Insights delivered before you even think to ask. the power of proactive memory.',
 	},
+	prompts: {
+		title: 'Ask anything from the prompts library',
+		subText: 'Your enterprise knowledge hub for instant answers.',
+	},
 	calendar: {
 		title: 'Let’s make every moment count',
 		subText: 'More than a schedule - It’s your daily mission control',
