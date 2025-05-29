@@ -20,6 +20,8 @@ const UpdateSessionSlot = ({
 	selectedSlotData,
 	updateCalendarInfo,
 }) => {
+	console.log('selectedSlotData', selectedSlotData);
+	console.log('schedulerList', schedulerList);
 	const [info, setInfo] = useState({
 		repeat: false,
 		slots: [{ from: moment().startOf('day'), to: moment().startOf('day').add(1, 'hours') }],
@@ -124,35 +126,53 @@ const UpdateSessionSlot = ({
 	const handleSave = useCallback(() => {
 		if (!info.selectedSession) return;
 
-		// Get the selected day and date from selectedSlotData
-		const selectedDay = selectedSlotData?.selectedDay || 'Monday';
+		// Get the selected date from selectedSlotData
 		const selectedDate = selectedSlotData?.selectedDate;
+		if (!selectedDate) return;
 
-		// Get the week range for the selected date
-		const selectedMoment = moment(selectedDate, 'D/M');
-		const weekStart = selectedMoment.clone().startOf('isoWeek');
-		const weekEnd = selectedMoment.clone().endOf('isoWeek');
+		// Convert the date to the required format
+		const formattedDate = moment(selectedDate, 'D/M').format('YYYY-MM-DD[T]00:00:00.000[Z]');
 
-		// Format the slots data to match SchedulerAvailability structure
-		const formattedSlots = [
-			{
-				dayOfWeek: selectedDay,
-				timeRanges: info.slots.map((slot) => ({
-					startTime: slot.from.format('HH:mm'),
-					endTime: slot.to.format('HH:mm'),
-				})),
-			},
-		];
+		// Format the time ranges
+		const timeRanges = info.slots.map((slot) => ({
+			startTime: slot.from.format('HH:mm'),
+			endTime: slot.to.format('HH:mm'),
+		}));
 
-		// Create the updated session object with only availabilitySlots and correct date range
+		// Get existing customExceptions
+		const existingExceptions = info.selectedSession.customExceptions || [];
+
+		// Find if there's an existing exception for this date
+		const existingExceptionIndex = existingExceptions.findIndex(
+			(exception) =>
+				moment(exception.date).format('YYYY-MM-DD') ===
+				moment(formattedDate).format('YYYY-MM-DD'),
+		);
+
+		let updatedExceptions;
+		if (existingExceptionIndex >= 0) {
+			// Update existing exception
+			updatedExceptions = [...existingExceptions];
+			updatedExceptions[existingExceptionIndex] = {
+				...updatedExceptions[existingExceptionIndex],
+				customTimeRanges: timeRanges,
+			};
+		} else {
+			// Add new exception
+			updatedExceptions = [
+				...existingExceptions,
+				{
+					date: formattedDate,
+					overrideAvailability: true,
+					customTimeRanges: timeRanges,
+				},
+			];
+		}
+
+		// Create the updated session object with customExceptions
 		const updatedSession = {
 			...info.selectedSession,
-			availabilitySlots: formattedSlots,
-			sessionWindow: {
-				type: 'fixed_date_range',
-				startDate: weekStart.format('YYYY-MM-DD'),
-				endDate: weekEnd.format('YYYY-MM-DD'),
-			},
+			customExceptions: updatedExceptions,
 		};
 
 		// Update the session in the parent component

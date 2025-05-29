@@ -317,7 +317,7 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 	);
 	const renderCustom = () => (
 		<>
-			<div className="repeat-custom-row">
+			{/* <div className="repeat-custom-row">
 				<span className="repeat-label">Repeat every</span>
 				<input
 					className="repeat-input"
@@ -329,7 +329,7 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 				<span className="repeat-label" style={{ marginLeft: 8 }}>
 					weeks
 				</span>
-			</div>
+			</div> */}
 			<div className="custom-date-row">
 				<div className="date-row-item">
 					<span className="date-label">Starts</span>
@@ -415,19 +415,23 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 				});
 				setWeekly(newWeekly);
 			}
-	
+
 			// Always set custom exception if present
 			if (Array.isArray(value.customExceptions) && value.customExceptions.length > 0) {
 				const exception = value.customExceptions[value.customExceptions.length - 1];
 				setCustom((prev) => ({
 					...prev,
-					start: exception.date ? exception.date.slice(0, 10) : dayjs().format('YYYY-MM-DD'),
-					end: exception.date ? exception.date.slice(0, 10) : dayjs().add(1, 'month').format('YYYY-MM-DD'),
+					start: exception.date
+						? exception.date.slice(0, 10)
+						: dayjs().format('YYYY-MM-DD'),
+					end: exception.date
+						? exception.date.slice(0, 10)
+						: dayjs().add(1, 'month').format('YYYY-MM-DD'),
 					never: false, // You can infer this if you store it in the backend
 					// Optionally, handle customTimeRanges here
 				}));
 			}
-	
+
 			// Set mode based on value.mode, fallback to 'weekly'
 			if (value.mode) {
 				setMode(value.mode);

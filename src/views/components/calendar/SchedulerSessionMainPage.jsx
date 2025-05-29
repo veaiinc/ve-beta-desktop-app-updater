@@ -7,7 +7,6 @@ import SchedulerRightDrawer from './SchedulerRightDrawer';
 import SchedulerAvailability from '../scheduler/SchedulerAvailability';
 import UpdateSessionSlot from '../modalsV2/calendar/UpdateSessionSlot';
 import Context from '../../../context/context';
-
 const SchedulerSessionMainPage = ({
 	onBackToCalendar,
 	schedulerList: initialSchedulerList = [],
@@ -20,7 +19,6 @@ const SchedulerSessionMainPage = ({
 	const [rightDrawerSession, setRightDrawerSession] = useState(null);
 	const [drawerMode, setDrawerMode] = useState('create');
 	const [initialTab, setInitialTab] = useState('one-on-one');
-	const [isLoading, setIsLoading] = useState(false);
 
 	const [info, setInfo] = useState({
 		updateSlotModal: false,
@@ -36,23 +34,12 @@ const SchedulerSessionMainPage = ({
 		setRightDrawerOpen(true);
 	};
 
-	const handleOpenEdit = useCallback(
-		(session) => {
-			if (isLoading) return; // Prevent multiple clicks while loading
-
-			setIsLoading(true);
-			setDrawerMode('edit');
-			setRightDrawerSession(session);
-			setInitialTab(session.sessionTypeInfo?.sessionType || 'one-on-one');
-			setRightDrawerOpen(true);
-
-			// Reset loading state after a short delay to prevent rapid clicks
-			setTimeout(() => {
-				setIsLoading(false);
-			}, 1000);
-		},
-		[isLoading],
-	);
+	const handleOpenEdit = (session) => {
+		setDrawerMode('edit');
+		setRightDrawerSession(session);
+		setInitialTab(session.sessionTypeInfo?.sessionType || 'one-on-one');
+		setRightDrawerOpen(true);
+	};
 
 	const handleCloseDrawer = () => {
 		setRightDrawerOpen(false);
@@ -98,13 +85,10 @@ const SchedulerSessionMainPage = ({
 
 	const handleUpdateSession = useCallback(
 		(updatedSession) => {
-			if (isLoading) return; // Prevent multiple updates while loading
-
-			setIsLoading(true);
 			console.log('updatedSession', updatedSession);
-			// Only send availabilitySlots as the payload
+			// Send customExceptions as the payload
 			const payload = {
-				availabilitySlots: updatedSession.availabilitySlots,
+				customExceptions: updatedSession.customExceptions,
 			};
 
 			// Call the API to update the session
@@ -118,8 +102,8 @@ const SchedulerSessionMainPage = ({
 								// Merge the existing session with the response data
 								return {
 									...session,
-									availabilitySlots:
-										response.availabilitySlots || session.availabilitySlots,
+									customExceptions:
+										response.customExceptions || session.customExceptions,
 								};
 							}
 							return session;
@@ -135,12 +119,9 @@ const SchedulerSessionMainPage = ({
 				})
 				.catch((error) => {
 					console.error('Error updating session:', error);
-				})
-				.finally(() => {
-					setIsLoading(false);
 				});
 		},
-		[updateSchedulerSession, isLoading],
+		[updateSchedulerSession],
 	);
 
 	return (
@@ -191,13 +172,9 @@ const SchedulerSessionMainPage = ({
 				<div className="schedulerListCards">
 					{info.schedulerList.map((session, idx) => (
 						<div
-							className={`sessionCard ${isLoading ? 'disabled' : ''}`}
+							className="sessionCard"
 							key={session._id || idx}
 							onClick={() => handleOpenEdit(session)}
-							style={{
-								opacity: isLoading ? 0.6 : 1,
-								cursor: isLoading ? 'not-allowed' : 'pointer',
-							}}
 						>
 							<div className="session-content">
 								<div className="session-title">
