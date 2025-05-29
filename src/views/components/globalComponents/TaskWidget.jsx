@@ -368,7 +368,10 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 
 	const getTasksList = async (page) => {
 		try {
-			setInfo((prev) => ({ ...prev, loading: true }));
+			// Only set loading to true if it's the first page
+			if (page === 1) {
+				setInfo((prev) => ({ ...prev, loading: true }));
+			}
 			const response = await getListItems({
 				taskFilterInput: {
 					limit: 20,
