@@ -726,7 +726,7 @@ const SchedulerRightDrawer = ({
 					className="phoneInputNumber"
 					countryCallingCodeEditable={true}
 					autoComplete="tel"
-					style={{ backgroundColor: 'var(--popup)', border: '1px solid var(--stroke)' }}
+					style={{ backgroundColor: 'var(--popup)' }}
 				/>
 			);
 		}

@@ -12,7 +12,6 @@ import AIMessage from './AIMessage';
 const FormModel = ({
 	workflowTemplateId,
 	moduleTemplateId,
-	ByDefaultExpanded = false,
 	handleSendWebsocketMessage,
 	latestStreamMesage,
 	lastQuery,
@@ -22,10 +21,6 @@ const FormModel = ({
 	messageData,
 	isLastMessage = false,
 }) => {
-	const {
-		templates: { globalChatMessages },
-	} = useContext(Context);
-
 	const [isExpanded, setIsExpanded] = useState(false);
 	const formRef = useRef(null);
 	const origin = fetchOriginSelection();
@@ -249,7 +244,6 @@ const Section2 = ({ workflowTemplateId: workflowTemplateIdFromProps }) => {
 	const [showIframe, setShowIframe] = useState(false);
 	workflowTemplateIdFromProps = workflowTemplateId || workflowTemplateIdFromProps;
 	const origin = fetchOriginSelection();
-	console.log(origin, workflowTemplateIdFromProps, 'origin');
 	useEffect(() => {
 		// Delay iframe loading to wait for expansion animation
 		const timer = setTimeout(() => {
