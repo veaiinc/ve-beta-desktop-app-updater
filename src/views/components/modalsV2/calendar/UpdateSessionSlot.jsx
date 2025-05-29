@@ -124,10 +124,19 @@ const UpdateSessionSlot = ({
 	const handleSave = useCallback(() => {
 		if (!info.selectedSession) return;
 
+		// Get the selected day and date from selectedSlotData
+		const selectedDay = selectedSlotData?.selectedDay || 'Monday';
+		const selectedDate = selectedSlotData?.selectedDate;
+
+		// Get the week range for the selected date
+		const selectedMoment = moment(selectedDate, 'D/M');
+		const weekStart = selectedMoment.clone().startOf('isoWeek');
+		const weekEnd = selectedMoment.clone().endOf('isoWeek');
+
 		// Format the slots data to match SchedulerAvailability structure
 		const formattedSlots = [
 			{
-				dayOfWeek: 'monday', // Default to monday, can be made dynamic if needed
+				dayOfWeek: selectedDay,
 				timeRanges: info.slots.map((slot) => ({
 					startTime: slot.from.format('HH:mm'),
 					endTime: slot.to.format('HH:mm'),
@@ -135,24 +144,24 @@ const UpdateSessionSlot = ({
 			},
 		];
 
-		// Create the updated session object with all required properties
+		// Create the updated session object with only availabilitySlots and correct date range
 		const updatedSession = {
 			...info.selectedSession,
 			availabilitySlots: formattedSlots,
-			sessionWindow: info.sessionWindow,
-			repeat: info.repeat,
-			sessionName: info.selectedSession.sessionName,
-			sessionColor: info.selectedSession.sessionColor || '#6366F1',
-			sessionTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+			sessionWindow: {
+				type: 'fixed_date_range',
+				startDate: weekStart.format('YYYY-MM-DD'),
+				endDate: weekEnd.format('YYYY-MM-DD'),
+			},
 		};
 
 		// Update the session in the parent component
 		if (updateCalendarInfo) {
-			updateCalendarInfo('updateSession', updatedSession);
+			updateCalendarInfo(updatedSession);
 		}
 
 		ModifyCloseModal();
-	}, [info.selectedSession, info.slots, info.repeat, info.sessionWindow, updateCalendarInfo]);
+	}, [info.selectedSession, info.slots, updateCalendarInfo, selectedSlotData]);
 
 	const handleTimeChange = (value, index, type) => {
 		if (!value || !value.isValid()) return;

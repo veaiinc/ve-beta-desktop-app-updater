@@ -418,7 +418,7 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 	
 			// Always set custom exception if present
 			if (Array.isArray(value.customExceptions) && value.customExceptions.length > 0) {
-				const exception = value.customExceptions[0];
+				const exception = value.customExceptions[value.customExceptions.length - 1];
 				setCustom((prev) => ({
 					...prev,
 					start: exception.date ? exception.date.slice(0, 10) : dayjs().format('YYYY-MM-DD'),
