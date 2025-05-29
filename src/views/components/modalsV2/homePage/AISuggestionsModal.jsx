@@ -273,9 +273,13 @@ const AISuggestionsModal = ({
 			open={open}
 			onClose={onClose}
 			placement="right"
+			width={'fit-content'}
+			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			bodyStyle={{ padding: '0px', width: 'fit-content' }}
 			rootClassName="ai-suggestions-drawer"
+			destroyOnClose={true}
+			maskClassName="drawer-mask"
 		>
 			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
 				<div className="drag-handler" onMouseDown={handleMouseDown} />
