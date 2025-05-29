@@ -7,8 +7,6 @@ import { ReactComponent as CalendarSvg } from '../../../../assets/svg/home_page/
 import { ReactComponent as AgentsSvg } from '../../../../assets/svg/sidebar/agentsIcon.svg';
 import { ReactComponent as RocketSvg } from '../../../../assets/svg/home_page/rocket.svg';
 import { ReactComponent as BulbSvg } from '../../../../assets/svg/home_page/bulb.svg';
-import { ReactComponent as ThumbsUpSvg } from '../../../../assets/svg/thumbsUp.svg';
-import { ReactComponent as ThumbsDownSvg } from '../../../../assets/svg/thumbsDown.svg';
 import CreditCoinImage from '../../../../assets/images/creditCoin.png';
 import { ReactComponent as ArrowUpRightSvg } from '../../../../assets/svg/sidebar/arrowupright.svg';
 import { handleCombinedChainOfThought } from '../../../../helpers/chatHelpers';
@@ -333,11 +331,10 @@ const AISuggestionsModal = ({
 					</div>
 
 					<div className="body" ref={bodyRef}>
-						{/* <div className="header-title-text">{title || ''}</div> */}
+						<div className="header-title-text">{title || ''}</div>
 
 						<div className="body-header-wrapper">
 							<div className="body-header">
-								{/* <div className="title-text">{title || ''}</div> */}
 								<div className="description">{description || ''}</div>
 							</div>
 

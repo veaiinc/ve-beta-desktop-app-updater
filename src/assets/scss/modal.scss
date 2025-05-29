@@ -1,8 +1,8 @@
 @use './variables.scss';
 @use './mixins.scss';
 .centerModal {
-	background: rgba(0, 0, 0, 0.5);
-	backdrop-filter: blur(2px);
+	background-color: var(--backdrop);
+	// backdrop-filter: blur(2px);
 }
 .right-add-overlay {
 	z-index: 2147483003 !important;
@@ -34,8 +34,8 @@
 	left: 0;
 	//transition: opacity 0.3s ease-in-out;
 	//z-index: 10000;
-	backdrop-filter: blur(2px);
-	background: rgba(0, 0, 0, 0.6);
+	// backdrop-filter: blur(2px);
+	background-color: var(--backdrop);
 	@include theme-aware(background-color, rightModalBgFade);
 	.modal-body {
 		height: 100vh;
@@ -81,7 +81,7 @@
 	left: 0;
 	transition: opacity 0.3s cubic-bezier(0, 0.52, 0, 1);
 	z-index: 10000;
-	backdrop-filter: blur(3px);
+	background-color: var(--backdrop);
 
 	.modal-body {
 		height: 100vh;
@@ -387,7 +387,8 @@
 					right: -40px;
 					top: 1px;
 					@include theme-aware(background-color, watermarkSelectedDefaultBg);
-					backdrop-filter: blur(20px);
+					// backdrop-filter: blur(20px);
+					background-color: var(--backdrop);
 					border-radius: 20px;
 					@include os-aware-font(var(--primary-font-family));
 					font-style: normal;

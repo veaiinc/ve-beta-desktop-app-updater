@@ -2,7 +2,7 @@ import { useState, useEffect, memo } from 'react';
 import { ReactComponent as Call } from '../../../assets/svg/smartFiles/formResponse/call.svg';
 import { ReactComponent as Message } from '../../../assets/svg/smartFiles/formResponse/message.svg';
 import { ReactComponent as Calender } from '../../../assets/svg/smartFiles/formResponse/calendar.svg';
-import { ReactComponent as Download } from '../../../assets/svg/download.svg';
+import { ReactComponent as Download } from '../../../assets/svg/downloadd.svg';
 import moment from 'moment';
 import '../../../assets/scss/forms/FormresCard.scss';
 import service from '../../../services/graphQlServices';

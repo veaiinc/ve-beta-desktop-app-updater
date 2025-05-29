@@ -49,12 +49,12 @@
 
 				&:hover {
 					background: var(--card-over-card);
-					border: 0.445px solid var(--stroke-hover);
+					border: 0.445px solid var(--stroke);
 				}
 
 				&.open {
 					background: var(--card-over-card);
-					border: 0.445px solid var(--stroke-hover);
+					border: 0.445px solid var(--stroke);
 				}
 
 				.carddetails {
@@ -201,11 +201,11 @@
 							align-items: center;
 							gap: 8px;
 							border-radius: 8px;
-							border: 1px solid var(--stroke);
+							border: 1px solid var(--stroke-hover);
 							width: fit-content;
 							cursor: pointer;
 							&:hover {
-								border: 1px solid var(--stroke-hover);
+								background-color: var(--backdrop);
 							}
 
 							@media screen and (max-width: 768px) {

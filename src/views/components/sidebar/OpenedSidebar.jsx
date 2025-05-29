@@ -102,7 +102,7 @@ const OpenedSidebarModules = ({
 		if (name === 'Help') {
 			let iframe = document.getElementById('ve-ai-chat-iframe');
 			if (iframe) {
-				const requiredStyle = iframe.style.display === 'block' ? 'none' : 'block';
+				const requiredStyle = iframe.style.display === 'none' ? 'block' : 'none';
 				iframe.style.display = requiredStyle;
 			} else {
 				console.log('Iframe not found');
@@ -110,22 +110,10 @@ const OpenedSidebarModules = ({
 			return;
 		}
 
-		if (name === 'Notes') {
-			// setShowNotesDrawer((prev) => !prev);
-		} else {
-			setShowNotesDrawer(false);
-		}
-
 		if (name === 'Notifications') {
 			setShowNotificationsDrawer((prev) => !prev);
 		} else {
 			setShowNotificationsDrawer(false);
-		}
-		if (name === 'Chats') {
-			setShowChatsDrawer((prev) => !prev);
-			// setHideClosedSidebarIcon(true);
-		} else {
-			setShowChatsDrawer(false);
 		}
 
 		if (!subModules) {
