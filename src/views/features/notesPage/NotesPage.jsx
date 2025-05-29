@@ -14,7 +14,7 @@ const NotesPage = () => {
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		viewMode: 'cards', // cards, list
+		viewMode: 'list', // cards, list
 		selectedFilter: { label: 'All', value: 'all' },
 		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 	});

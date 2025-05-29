@@ -766,7 +766,10 @@ const Files = () => {
 								<SearchSvg /> Search
 							</div>
 							<div className="command-text">
-								<CommandIcon /> <span>+ K</span>
+								<div className="cmd-icon">
+									<CommandIcon />
+								</div>
+								<span className="cmd-text">K</span>
 							</div>
 						</div>
 					</div>
