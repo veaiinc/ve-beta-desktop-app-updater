@@ -781,6 +781,9 @@ const RecentChat = ({
 																handleViewDocument={
 																	handleViewDocument
 																}
+																showViewDocument={
+																	info?.showViewDocument
+																}
 																isPublicChat={isPublicChat}
 															/>
 														</div>

@@ -17,7 +17,7 @@ const FormModel = ({
 	lastQuery,
 	toggleLatestStreamMessage,
 	handleViewDocument,
-	showViewDocument,
+	showViewDocument = false,
 	messageData,
 	isLastMessage = false,
 }) => {
