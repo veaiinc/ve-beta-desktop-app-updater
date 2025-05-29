@@ -5,9 +5,9 @@
 	"dependencies": {
 		"@apollo/client": "^3.13.5",
 		"@babel/preset-react": "^7.27.1",
-		"@blocknote/core": "^0.30.0",
-		"@blocknote/mantine": "^0.30.0",
-		"@blocknote/react": "^0.30.0",
+		"@blocknote/core": "0.30.0",
+		"@blocknote/mantine": "0.30.0",
+		"@blocknote/react": "0.30.0",
 		"@emoji-mart/data": "^1.2.1",
 		"@emoji-mart/react": "^1.1.1",
 		"@intercom/messenger-js-sdk": "^0.0.14",

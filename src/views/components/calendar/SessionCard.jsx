@@ -5,6 +5,7 @@ import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import UpdateSessionSlot from '../../../views/components/modalsV2/calendar/UpdateSessionSlot';
 import CreateSessionModal from '../../../views/components/modalsV2/calendar/CreateSessionModal';
+import { ReactComponent as SchedulerSvg } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import dayjs from 'dayjs';
 
 const SessionCard = ({
@@ -123,9 +124,14 @@ const SessionCard = ({
 
 	const handleSessionCreated = useCallback(
 		(session) => {
+			// Update the schedulerList with the new session
+			if (session && Array.isArray(schedulerList)) {
+				const updatedSchedulerList = [...schedulerList, session];
+				updateCalendarInfo('schedulerList', updatedSchedulerList);
+			}
 			handleEditSession(session);
 		},
-		[handleEditSession],
+		[handleEditSession, schedulerList, updateCalendarInfo],
 	);
 
 	return (
@@ -135,8 +141,12 @@ const SessionCard = ({
 				ref={expandRef}
 			>
 				<div className="sessionsHeader">
-					<div className="headerContainer">
-						<span className="headLabel">Sessions</span>
+					<div
+						className="headerContainer"
+						onClick={() => updateCalendarInfo('showEditScheduler', true)}
+					>
+						<span className="headLabel">Scheduler</span>
+						<SchedulerSvg />
 					</div>
 					<div className="headerButtonsContainer">
 						<div className="addSessionButton" onClick={handleAddSessionClick}>
