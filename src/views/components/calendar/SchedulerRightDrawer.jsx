@@ -101,7 +101,7 @@ const COLLAPSE_CONFIG = {
 			icon: <CalendarIcon className="collapse-icon" />,
 			label: 'Availability',
 		},
-		// { key: 'host', icon: <UserIcon className="collapse-icon" />, label: 'Host' },
+		{ key: 'host', icon: <UserIcon className="collapse-icon" />, label: 'Host' },
 	],
 	group: [
 		{ key: 'duration', icon: <ClockIcon className="collapse-icon" />, label: 'Duration' },
@@ -116,7 +116,7 @@ const COLLAPSE_CONFIG = {
 			label: 'Availability',
 		},
 		{ key: 'invitee', icon: <UserIcon className="collapse-icon" />, label: 'Invitee limit' },
-		// { key: 'host', icon: <UserIcon className="collapse-icon" />, label: 'Host' },
+		{ key: 'host', icon: <UserIcon className="collapse-icon" />, label: 'Host' },
 	],
 	'round-robin': [
 		{ key: 'duration', icon: <ClockIcon className="collapse-icon" />, label: 'Duration' },
@@ -330,7 +330,7 @@ const SchedulerRightDrawer = ({
 
 		// Compare session type info individually
 		const sessionTypeInfo = {
-			sessionType: activeTab, // Always include sessionType
+			sessionType: activeTab,
 		};
 		if (currentInfo.location !== originalData.sessionTypeInfo?.location) {
 			sessionTypeInfo.location = currentInfo.location;
@@ -344,14 +344,12 @@ const SchedulerRightDrawer = ({
 
 		// Only add sessionTypeInfo if there are changes
 		if (Object.keys(sessionTypeInfo).length > 1) {
-			// More than just sessionType
 			payload.sessionTypeInfo = sessionTypeInfo;
 		}
 
-		// Compare timezone - ensure it's a valid IANA timezone
+		// Compare timezone
 		const currentTimezone = currentInfo.timeZone;
 		if (currentTimezone && currentTimezone !== originalData.sessionTimezone) {
-			// Validate that it's a proper IANA timezone
 			const validRegions = [
 				'Africa',
 				'America',
@@ -371,7 +369,6 @@ const SchedulerRightDrawer = ({
 			if (isValidTimezone) {
 				payload.sessionTimezone = currentTimezone;
 			} else {
-				// If invalid, default to a safe timezone
 				payload.sessionTimezone = 'Asia/Kolkata';
 			}
 		}
@@ -415,10 +412,25 @@ const SchedulerRightDrawer = ({
 				maxParticipants: currentMaxParticipants,
 			};
 		}
-		const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-		// Compare availability
-		if (currentInfo.availability && Array.isArray(currentInfo.availability.weekly)) {
-			// Always include all 7 days
+
+		// Handle availability based on mode
+		if (currentInfo.availability?.mode === 'custom') {
+			// For custom mode, only send customExceptions
+			payload.customExceptions = [
+				{
+					date: currentInfo.availability.custom.start,
+					overrideAvailability: true,
+					customTimeRanges: [
+						{
+							startTime: '09:00',
+							endTime: '17:00',
+						},
+					],
+				},
+			];
+		} else if (currentInfo.availability?.mode === 'weekly') {
+			// For weekly mode, only send availabilitySlots
+			const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 			const dayMap = {
 				Sun: 'Sunday',
 				Mon: 'Monday',
@@ -442,33 +454,30 @@ const SchedulerRightDrawer = ({
 							: [],
 				};
 			});
-		} else if (currentInfo.availability?.mode === 'custom') {
-			payload.customExceptions = [
-				{
-					date: currentInfo.availability.custom.start,
-					overrideAvailability: true,
-					customTimeRanges: [
-						{
-							startTime: '09:00',
-							endTime: '17:00',
-						},
-					],
-				},
-			];
 		}
 
-		// Only include maxBookingsPerSession if enabled and a valid number
-		const availabilityRules = {
-			allowBookingOverlappingSessions: false,
-		};
-		if (
-			currentInfo.maxBookingsEnabled &&
-			currentInfo.maxBookings &&
-			!isNaN(Number(currentInfo.maxBookings))
-		) {
-			availabilityRules.maxBookingsPerSession = Number(currentInfo.maxBookings);
+		// Only include availabilityRules if buffer or max bookings were changed
+		const hasBufferChanged = currentBufferValue !== originalBufferValue;
+		const hasMaxBookingsChanged =
+			(currentInfo.maxBookingsEnabled !==
+				originalData.availabilityRules?.maxBookingsPerSession) !=
+				null ||
+			(currentInfo.maxBookingsEnabled &&
+				currentInfo.maxBookings !== originalData.availabilityRules?.maxBookingsPerSession);
+
+		if (hasBufferChanged || hasMaxBookingsChanged) {
+			payload.availabilityRules = {
+				allowBookingOverlappingSessions: false,
+			};
+
+			if (
+				currentInfo.maxBookingsEnabled &&
+				currentInfo.maxBookings &&
+				!isNaN(Number(currentInfo.maxBookings))
+			) {
+				payload.availabilityRules.maxBookingsPerSession = Number(currentInfo.maxBookings);
+			}
 		}
-		payload.availabilityRules = availabilityRules;
 
 		return payload;
 	};
@@ -891,7 +900,7 @@ const SchedulerRightDrawer = ({
 										: 'No limit';
 									break;
 								case 'host':
-									dynamicValue = info.hostName || 'Avinash (you)';
+									dynamicValue = sessionData?.email || '(you)';
 									break;
 								default:
 									dynamicValue = '';
@@ -1242,7 +1251,7 @@ const SchedulerRightDrawer = ({
 											<div className="host-row">
 												<div className="host-label">Host</div>
 												<div className="host-value">
-													{info.hostName || 'Avinash (you)'}
+													{sessionData?.email || '(you)'}
 												</div>
 											</div>
 										</div>
