@@ -203,7 +203,7 @@ const SchedulerAvailability = ({ updateSlotModal, toggleUpdateSlotModal, schedul
 				<div className="headerLeftContainer">
 					<div className="headerTitle">Time Slots</div>
 					<div className="headerSubTitle">
-						Effortlessly manage your time with AI scheduling.
+					This overview shows your availability for all sessions. Events from your calendars (including synced) will override this and show you as unavailable.
 					</div>
 				</div>
 				<div className="headerRightContainer">
