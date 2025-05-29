@@ -36,6 +36,7 @@ import {
 	updateDatabaseFieldMutation,
 	updateDatabaseMutation,
 	listAvailableDatabasesQuery,
+	deleteDatabaseFieldMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -953,6 +954,43 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const deleteDatabaseField = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				deleteDatabaseFieldMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+
+			if (response?.[0]) {
+				const database = state?.database?.[payload?.databaseId];
+				dispatch({
+					type: Actions.UPDATE_DATABASE,
+					payload: {
+						[payload?.databaseId]: {
+							...database,
+							databaseMetadata: {
+								...database?.databaseMetadata,
+								fields: database?.databaseMetadata?.fields?.filter(
+									(field) => field?._id !== payload?.fieldId,
+								),
+							},
+						},
+					},
+				});
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.error('error==>deleteDatabaseField', error);
+		}
+	};
+
 	const updateDatabase = async (payload) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -1063,5 +1101,6 @@ export const NotesState = (props) => {
 		updateDatabaseRow,
 		updateDatabase,
 		listAvailableDatabases,
+		deleteDatabaseField,
 	};
 };

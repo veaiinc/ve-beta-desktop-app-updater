@@ -14,6 +14,10 @@ const fieldTypes = [
 		value: 'number',
 	},
 	{
+		label: 'Status',
+		value: 'status',
+	},
+	{
 		label: 'Select',
 		value: 'select',
 		hasOptions: true,
@@ -63,6 +67,11 @@ const fieldTypes = [
 	{
 		label: 'Last edited time',
 		value: 'last_edited_time',
+	},
+	{
+		label: 'ID',
+		value: 'serial_number',
+		hasPrefix: true,
 	},
 ];
 
@@ -142,8 +151,8 @@ const DatabaseAddFieldModal = ({ isOpen, onClose, databaseId, pageId }) => {
 
 	const preparePayload = ({ selectedType, fieldInfo }) => {
 		const input = { type: selectedType?.value, name: fieldInfo.name };
-		if (['multi_select', 'select'].includes(selectedType?.value)) {
-			if (selectedType?.hasOptions && fieldInfo.options.length === 0) {
+		if (selectedType?.hasOptions) {
+			if (fieldInfo.options.length === 0) {
 				message('Please add at least one option');
 				return false;
 			}
@@ -156,8 +165,14 @@ const DatabaseAddFieldModal = ({ isOpen, onClose, databaseId, pageId }) => {
 			};
 		}
 
-		if (selectedType?.value === 'person') {
+		if (selectedType?.hasLimit) {
 			input.selectionLimit = Number(fieldInfo.selectionLimit);
+		}
+
+		if (selectedType?.hasPrefix) {
+			input.config = {
+				prefix: fieldInfo.prefix,
+			};
 		}
 		return input;
 	};
@@ -282,6 +297,17 @@ const DatabaseAddFieldModal = ({ isOpen, onClose, databaseId, pageId }) => {
 								<option value={-1}>No Limit</option>
 								<option value={1}>1 Person</option>
 							</select>
+						</div>
+					)}
+					{selectedType?.hasPrefix && (
+						<div className={s.fieldRow}>
+							<label>Prefix</label>
+							<input
+								type="text"
+								name="prefix"
+								value={fieldInfo.prefix}
+								onChange={handleChange}
+							/>
 						</div>
 					)}
 				</div>

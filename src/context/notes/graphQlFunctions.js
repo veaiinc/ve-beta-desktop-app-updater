@@ -497,10 +497,17 @@ export const getDatabaseRowsQuery = gql`
 				_id
 				values
 				createdAt
-				updatedAt
-				createdBy
-				updatedBy
 				databaseId
+				updatedAt
+				serialNumber
+				createdBy {
+					_id
+					name
+				}
+				updatedBy {
+					_id
+					name
+				}
 			}
 		}
 	}
@@ -513,8 +520,16 @@ export const addDatabaseRowMutation = gql`
 			values
 			createdAt
 			updatedAt
-			createdBy
-			updatedBy
+			databaseId
+			serialNumber
+			createdBy {
+				_id
+				name
+			}
+			updatedBy {
+				_id
+				name
+			}
 		}
 	}
 `;
@@ -571,6 +586,15 @@ export const updateDatabaseFieldMutation = gql`
 			updatedAt
 			createdBy
 			updatedBy
+		}
+	}
+`;
+
+export const deleteDatabaseFieldMutation = gql`
+	mutation Mutation($pageId: ID!, $databaseId: ID!, $fieldId: ID!) {
+		deleteDatabaseField(pageId: $pageId, databaseId: $databaseId, fieldId: $fieldId) {
+			success
+			message
 		}
 	}
 `;

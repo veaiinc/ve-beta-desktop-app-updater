@@ -25,7 +25,15 @@ const TableBody = ({ data, columns, handleUpdate, colors, pageId, blockId }) => 
 	const generateCell = useCallback(
 		(row, property) => {
 			const key = property._id;
-			const value = row?.values?.[key];
+			const rowMetadataMapper = {
+				serial_number: row?.serialNumber,
+				created_by: row?.createdBy,
+				created_time: row?.createdAt,
+				last_edited_by: row?.updatedBy,
+				last_edited_time: row?.updatedAt,
+			};
+
+			const value = rowMetadataMapper?.[property?.type] || row?.values?.[key];
 
 			let type = property.type;
 
@@ -42,6 +50,9 @@ const TableBody = ({ data, columns, handleUpdate, colors, pageId, blockId }) => 
 				return null;
 			}
 
+			const options =
+				property?.type === 'status' ? property?.config?.status : property?.config?.options;
+
 			return (
 				<Component
 					value={value}
@@ -55,11 +66,12 @@ const TableBody = ({ data, columns, handleUpdate, colors, pageId, blockId }) => 
 					disabled={property?.isReadOnly}
 					timestamp={property?.isReadOnly}
 					maxWidth={false}
-					options={property?.config?.options}
+					options={options}
 					labelField={'label'}
 					linkType={property?.type}
 					selectionLimit={property?.selectionLimit}
 					multiSelect={true}
+					prefix={property?.config?.prefix}
 				/>
 			);
 		},

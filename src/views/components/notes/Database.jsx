@@ -38,7 +38,7 @@ export const rowTypes = {
 	person: Person,
 	multi_select: MultiSelect,
 	date: DateView,
-	id: TaskId,
+	serial_number: TaskId,
 	status: Status,
 	priority: Priority,
 	email: Email,
@@ -323,12 +323,12 @@ const DatabaseComponent = memo(({ block, editor }) => {
 						pageId={pageId}
 					/>
 
-					<DatabaseSidebar
+					{/* <DatabaseSidebar
 						databaseId={databaseId}
 						pageId={pageId}
 						databaseName={info?.databaseName}
 						fields={fields}
-					/>
+					/> */}
 				</>
 			)}
 		</div>
