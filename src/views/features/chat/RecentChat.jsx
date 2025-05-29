@@ -773,6 +773,10 @@ const RecentChat = ({
 																toggleLatestStreamMessage={
 																	toggleLatestStreamMessage
 																}
+																latestStreamMesage={
+																	info?.latestStreamMesage
+																}
+																lastQuery={info?.lastQuery}
 																handleViewDocument={
 																	handleViewDocument
 																}

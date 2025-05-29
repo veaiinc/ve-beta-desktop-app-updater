@@ -2649,7 +2649,7 @@ $duration: 15s;
 	.update-info-card {
 		border-radius: 12px;
 		position: relative;
-		
+
 		// background: url('../../../public//whatsnew/banner.png');
 		background-repeat: no-repeat;
 		background-size: cover;
@@ -3772,7 +3772,7 @@ input[type='number'] {
 }
 
 #ve-ai-chat-iframe {
-	display: none;
+	display: block;
 }
 
 body.ReactModal__Body--open {
