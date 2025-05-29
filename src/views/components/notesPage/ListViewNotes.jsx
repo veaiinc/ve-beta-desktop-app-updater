@@ -6,7 +6,7 @@ import moment from 'moment';
 //icons
 import { ReactComponent as NoteIcon } from '../../../assets/svg/notesPage/note-icon.svg';
 import { ReactComponent as LockIcon } from '../../../assets/svg/notesPage/lock-icon.svg';
-
+import { ReactComponent as StarSvg } from '../../../assets/svg/notesPage/star.svg';
 //components
 import CreateNewNote from './CreateNewNote';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
@@ -40,7 +40,7 @@ const ListViewNotes = ({ notes, fetchMoreNotes }) => {
 		>
 			<CreateNewNote viewMode="list" />
 			{notesList.map((note) => {
-				const { updatedAt, title, iconImage, _id, permissions } = note;
+				const { updatedAt, title, iconImage, _id, permissions, isFavourite } = note;
 				let parsedIconImage;
 				try {
 					parsedIconImage = JSON.parse(JSON.parse(iconImage))?.native;
@@ -59,10 +59,19 @@ const ListViewNotes = ({ notes, fetchMoreNotes }) => {
 							{parsedIconImage ? parsedIconImage : <NoteIcon />}
 						</div>
 						<header className="noteCardHeader">
-							{isLocked && <LockIcon />}
 							<h3 className="noteCardTitle">{title}</h3>
 						</header>
 						<footer className="noteCardFooter">
+							{isFavourite && (
+								<div className="icon">
+									<StarSvg className="favourite-icon" />
+								</div>
+							)}
+							{isLocked && (
+								<div className="icon">
+									<LockIcon className="lock-icon" />
+								</div>
+							)}
 							<span className="updatedAt">{moment.unix(updatedAt).fromNow()}</span>
 						</footer>
 					</div>
