@@ -54,7 +54,16 @@ const WeeklySlot = ({ day, date, slots, toggleUpdateSlotModal }) => {
 						</div>
 					</div>
 				))}
-				<div className="emptySlotItem newSlot">
+				<div
+					className="emptySlotItem newSlot"
+					onClick={() =>
+						toggleUpdateSlotModal({
+							selectedDate: date,
+							selectedDay: getFullDayName(day),
+							isNewSlot: true,
+						})
+					}
+				>
 					<div className="emptySlotContent">
 						<div className="plusIcon">+</div>
 						<div className="newSessionText">New Slot</div>
