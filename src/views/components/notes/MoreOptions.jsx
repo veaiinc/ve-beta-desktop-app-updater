@@ -97,12 +97,15 @@ const MoreOptions = ({ notesConfigs, onChange, onDelete, onDuplicate }) => {
 					</div>
 				}
 			>
-				<button
+				<div
 					className="notes-nav-button"
+					style={{
+						cursor: 'pointer',
+					}}
 					onClick={() => handleInfoChange({ openMoreOptions: !info.openMoreOptions })}
 				>
 					<DotsSvg />
-				</button>
+				</div>
 			</Tooltip>
 		</div>
 	);

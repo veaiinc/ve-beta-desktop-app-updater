@@ -201,14 +201,22 @@
 								height: 18px;
 							}
 						}
+						.teach-me-btn {
+							color: var(--primary-font, #f2f2f3);
+							font-family: var(--primary-font-family);
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
 						.delete-btn {
 							border: 1px solid var(--error);
 						}
 
 						.share-btn {
 							svg {
-								width: 15px;
-								height: 15px;
+								width: 18px;
+								height: 18px;
 								path {
 									fill: var(--primary-font, #f2f2f3);
 								}
@@ -243,8 +251,8 @@
 					top: 0;
 					background-color: var(--navbar);
 					padding-top: 20px;
-					padding-bottom: 10px;
-					z-index: 2;
+					padding-bottom: 8px;
+					z-index: 20;
 					color: var(--primary-font, #f2f2f3);
 					font-family: var(--primary-font-family);
 					font-size: 18px;
@@ -259,7 +267,8 @@
 					align-items: flex-start;
 					gap: 16px;
 					align-self: stretch;
-					margin-top: -20px;
+					position: relative;
+					top: -16px;
 
 					.body-header {
 						display: flex;
@@ -272,7 +281,7 @@
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 400;
-							line-height: 20px;
+							line-height: 22px;
 						}
 					}
 
@@ -282,6 +291,7 @@
 						align-items: flex-start;
 						gap: 8px;
 						align-self: stretch;
+						margin-bottom: 6px;
 
 						.info {
 							display: flex;
@@ -379,7 +389,7 @@
 								border: 1px solid var(--stroke, #424548);
 								background: #5769b7;
 
-								color: var(--primary-font, #f2f2f3);
+								color: #f2f2f3;
 								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
@@ -425,6 +435,8 @@
 								border: 1px solid var(--stroke, #2c2d2e);
 								background: var(--popup, #202123);
 								cursor: pointer;
+								word-break: break-word;
+								overflow-wrap: anywhere;
 								transition: background 0.2s ease-in-out, border 0.2s ease-in-out;
 
 								&:hover {
@@ -473,6 +485,7 @@
 								font-style: normal;
 								font-weight: 500;
 								line-height: normal;
+								margin-bottom: 8px;
 							}
 
 							.suggested-prompts {
@@ -495,7 +508,6 @@
 									cursor: pointer;
 									&:hover {
 										border: 1px solid #f3a067;
-										background: rgba(35, 159, 114, 0.05);
 									}
 
 									.logo {

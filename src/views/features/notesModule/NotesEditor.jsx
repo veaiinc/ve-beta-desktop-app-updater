@@ -475,7 +475,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			const [success] = await deletePage({ pageId: noteId, isPermanent: permanent });
 			if (success) {
 				message.success(`Page ${permanent ? 'permanently ' : ''}deleted successfully`);
-				navigate('/files');
+				navigate('/notes');
 			} else {
 				message.error('Failed to delete page');
 			}
@@ -519,6 +519,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}, []);
 
 	const customSendMessage = useCallback((query) => {
+		const location = localStorage?.getItem('locationDetails') || {};
+		const locationData = JSON?.parse(location);
 		sendMessage({
 			date: [],
 			deep_research: false,
@@ -527,6 +529,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			query,
 			timezone: 'Asia/Calcutta',
 			web_search: true,
+			location: locationData,
 		});
 	}, []);
 

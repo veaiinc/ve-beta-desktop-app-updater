@@ -25,6 +25,8 @@ const AIMessageRenderer = ({
 	index,
 	handleSendWebsocketMessage,
 	toggleLatestStreamMessage,
+	latestStreamMesage,
+	lastQuery,
 	handleViewDocument,
 	isPublicChat = false,
 	userMessageElement = null,
@@ -157,8 +159,8 @@ const AIMessageRenderer = ({
 						messageData={messageData}
 						isNewMessage={index === globalChatMessages?.length - 1}
 						handleSendWebsocketMessage={handleSendWebsocketMessage}
-						latestStreamMesage={info?.latestStreamMesage}
-						lastQuery={info?.lastQuery}
+						latestStreamMesage={latestStreamMesage}
+						lastQuery={lastQuery}
 						toggleLatestStreamMessage={toggleLatestStreamMessage}
 						handleViewDocument={handleViewDocument}
 						showViewDocument={info?.showViewDocument}
@@ -171,13 +173,17 @@ const AIMessageRenderer = ({
 					{messageData?.deepResearch && (
 						<DeepResearchChainOfThought
 							data={messageData?.deepResearch}
-							streamEnd={messageData?.stream_end}
+							streamEnd={
+								messageData?.message?.length > 0 || messageData?.stream_end || false
+							}
 						/>
 					)}
 					{messageData?.deepSearch && (
 						<DeepSearchChainOfThought
 							data={messageData?.deepSearch}
-							streamEnd={messageData?.stream_end}
+							streamEnd={
+								messageData?.message?.length > 0 || messageData?.stream_end || false
+							}
 						/>
 					)}
 					{messageData?.report && <CombinedChainOfThought data={messageData?.report} />}

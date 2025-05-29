@@ -24,10 +24,10 @@
 			border-radius: 8px;
 			position: relative;
 			z-index: 10;
-			border: 1px solid var(--stroke);
+			border: 1.5px solid var(--stroke);
 			background: transparent;
 			cursor: pointer;
-			margin: 0.5px;
+			margin: 0px;
 			@media screen and (max-width: 425px) {
 				width: 345px;
 			}
@@ -44,14 +44,13 @@
 				-webkit-box-orient: vertical;
 				-webkit-line-clamp: 2;
 				line-clamp: 2;
-				flex: 1 0 0;
 				overflow: hidden;
 				color: var(--primary-font, #f2f2f3);
 				text-overflow: ellipsis;
 				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
-				font-weight: 400;
+				font-weight: 500;
 				line-height: 22px;
 			}
 		}

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { Drawer } from 'antd';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/automation_builder/builderToolbar.scss';

@@ -75,6 +75,10 @@
 		border-radius: 16px;
 		border: 1px solid var(--stroke);
 		background: var(--card);
+		width: 100%;
+		.infinite-scroll-component__outerdiv {
+			width: 100%;
+		}
 	}
 	.dropdown-item {
 		cursor: pointer;

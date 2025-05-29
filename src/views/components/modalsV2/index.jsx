@@ -19,7 +19,7 @@ const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {}
 			zIndex: 1003,
 		},
 		overlay: {
-			backgroundColor: 'transparent',
+			backgroundColor: 'var(--backdrop)',
 			//transition: 'opacity 0.3s ease-in-out',
 			zIndex: 1002,
 		},

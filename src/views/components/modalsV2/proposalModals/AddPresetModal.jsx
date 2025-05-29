@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import ReactModal from '../../modalsV2/index';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';

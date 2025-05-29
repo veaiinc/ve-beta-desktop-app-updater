@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useContext, useState, useEffect, useCallback } from 'react';
 import '../../../../assets/scss/sales/smartFile/assisstantModal.scss';
 import ReactModal from '../../modalsV2/index';

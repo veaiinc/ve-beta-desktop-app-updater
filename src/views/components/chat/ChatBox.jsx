@@ -7,6 +7,7 @@ import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.s
 import { ReactComponent as PlusSvg } from '../../../assets/svg/ai_assistant/plus.svg';
 import { ReactComponent as AudioSvg } from '../../../assets/svg/ai_agents/audio.svg';
 import { ReactComponent as AtomSvg } from '../../../assets/svg/ai_agents/atom.svg';
+import { ReactComponent as SparkSvg } from '../../../assets/svg/spark.svg';
 import { ReactComponent as ArrowDownSvg } from '../../../assets/svg/ai_agents/arrow-down.svg';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import Context from '../../../context/context';
@@ -27,6 +28,7 @@ import { message } from '../globalComponents/CustomToast';
 import SearchTypeTooltip from './SearchTypeTooltip';
 import ChatBoxPlaceholder from './ChatBoxPlaceholder';
 import { fileTypeIcons } from '../../../helpers';
+import BuildTooltip from './BuildTooltip';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -154,6 +156,7 @@ const ChatBox = ({
 	const [info, setInfo] = useState({
 		bigToolbarIsOpen: false,
 		chatQuery: '',
+		widgetQuery: '',
 		position: { x: window?.innerWidth / 2 - 900, y: 0 },
 		addQuickAction: false,
 		chatSessionId: null,
@@ -173,7 +176,6 @@ const ChatBox = ({
 		isVoiceMuted: false,
 		isLLMModelOpen: false,
 		searchTypeOpenForReason: false,
-		searchTypeOpenForAsk: false,
 		activePlaceholderIndex: 0,
 	});
 
@@ -181,7 +183,7 @@ const ChatBox = ({
 	const [previewImage, setPreviewImage] = useState('');
 	const uploadedImagesRef = useRef(info?.uploadedImages || []);
 	const recentFilesRef = useRef(info?.recentFiles || []);
-	const showPlaceholder = info?.chatQuery?.length === 0;
+	const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
 	const placeholderIntervalId = useRef(null);
 
 	useEffect(() => {
@@ -309,10 +311,7 @@ const ChatBox = ({
 							webSearch: false,
 							workspaceSearch: false,
 						},
-						ask: {
-							webSearch: false,
-							workspaceSearch: true,
-						},
+						ask: true,
 					},
 				});
 			}
@@ -395,6 +394,8 @@ const ChatBox = ({
 				chatInfo: {
 					...chatInfo,
 					deepResearch: true,
+					ask: false,
+					build: false,
 				},
 			});
 			setInfo((prev) => ({
@@ -410,6 +411,8 @@ const ChatBox = ({
 				chatInfo: {
 					...chatInfo,
 					deepResearch: false,
+					ask: true,
+					build: false,
 				},
 			});
 		}
@@ -537,10 +540,9 @@ const ChatBox = ({
 					const payload = {
 						query,
 						timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-						web_search: chatInfo?.ask?.webSearch || chatInfo?.reason?.webSearch,
+						web_search: chatInfo?.webSearch,
 						...(!isPublicChat && {
-							knowledge_base_search:
-								chatInfo?.ask?.workspaceSearch || chatInfo?.reason?.workspaceSearch,
+							knowledge_base_search: chatInfo?.workspaceSearch,
 						}),
 						...(!isPublicChat && { modules: Object?.keys(info?.chatFilters?.modules) }),
 						...(!isPublicChat && { date: date }),
@@ -612,16 +614,15 @@ const ChatBox = ({
 						location_details = await getLocationsDetails();
 					}
 
-					payload.location = location_details || {};
-
 					//this payload props are for public chat
 					if (isPublicChat) {
 						const user_id = localStorage?.getItem('user_id');
 						const ip_address = localStorage?.getItem('ipAddress');
-
 						payload.user_id = user_id ?? null;
 						payload.location_details = location_details || {};
 						payload.ip_address = ip_address ?? null;
+					} else {
+						payload.location = location_details || {};
 					}
 
 					setInfo((prev) => ({
@@ -992,7 +993,7 @@ const ChatBox = ({
 
 	const handleTextAreaChange = (e) => {
 		const textArea = textAreaRef?.current;
-		const query = e.target.value;
+		const query = e?.target?.value;
 		const lastChar = query?.trim()?.slice(-1);
 
 		if (textArea) {
@@ -1074,55 +1075,53 @@ const ChatBox = ({
 		});
 	};
 
+	const handleBuildClick = () => {
+		if (chatInfo?.build) {
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					deepResearch: false,
+					reason: {
+						webSearch: false,
+						workspaceSearch: false,
+					},
+					build: false,
+					ask: true,
+				},
+			});
+		} else {
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					deepResearch: false,
+					reason: {
+						webSearch: false,
+						workspaceSearch: false,
+					},
+					build: true,
+					ask: false,
+				},
+			});
+		}
+	};
+
 	const handleSearchTypeChangeForReason = (type, value) => {
 		const reason = { ...chatInfo?.reason, [type]: value };
 		let deepResearch = chatInfo?.deepResearch;
-		let webSearch = chatInfo?.ask?.webSearch,
-			workspaceSearch = chatInfo?.ask?.workspaceSearch;
+
 		if (reason?.webSearch === false && reason?.workspaceSearch === false) {
 			deepResearch = false;
 		} else {
 			deepResearch = true;
 		}
-		workspaceSearch = !deepResearch ? true : workspaceSearch;
 
 		updateStateValues({
 			chatInfo: {
 				...chatInfo,
 				reason,
 				deepResearch,
-				ask: {
-					webSearch: deepResearch ? false : webSearch,
-					workspaceSearch: deepResearch ? false : workspaceSearch,
-				},
-			},
-		});
-	};
-
-	const handleSearchTypeChangeForAsk = (type, value) => {
-		let webSearch = chatInfo?.ask?.webSearch,
-			workspaceSearch = chatInfo?.ask?.workspaceSearch;
-		if (type === 'webSearch') {
-			webSearch = value;
-			if (value === false) {
-				workspaceSearch = true;
-			}
-		} else if (type === 'workspaceSearch') {
-			workspaceSearch = value;
-			if (value === false) {
-				webSearch = true;
-			}
-		}
-
-		const ask = {
-			webSearch,
-			workspaceSearch,
-		};
-
-		updateStateValues({
-			chatInfo: {
-				...chatInfo,
-				ask,
+				ask: deepResearch ? false : true,
+				build: false,
 			},
 		});
 	};
@@ -1131,6 +1130,25 @@ const ChatBox = ({
 		if (customChatBoxClick) {
 			customChatBoxClick?.(e);
 		}
+	};
+
+	const handleAskClick = () => {
+		if (chatInfo?.ask) {
+			return;
+		}
+
+		updateStateValues({
+			chatInfo: {
+				...chatInfo,
+				ask: true,
+				deepResearch: false,
+				reason: {
+					webSearch: false,
+					workspaceSearch: false,
+				},
+				build: false,
+			},
+		});
 	};
 
 	return (
@@ -1226,6 +1244,7 @@ const ChatBox = ({
 														: ''
 												}
 											/>
+
 											{showPlaceholder && animatePlaceholder && (
 												<ChatBoxPlaceholder
 													activePlaceholderIndex={
@@ -1380,14 +1399,13 @@ const ChatBox = ({
 																	rootClassName="chatbox-tooltip"
 																>
 																	<div
-																		className="chat-box-icon-container"
+																		className="upload-file-icon-container"
 																		style={{
 																			opacity: `${
 																				chatInfo?.deepResearch
 																					? '0.5'
 																					: '1'
 																			}`,
-																			padding: '6px 5px',
 																		}}
 																	>
 																		<div className="icon">
@@ -1401,25 +1419,8 @@ const ChatBox = ({
 															</UploadFileTooltip>
 														)}
 
-														{!isPublicChat && (
-															<SearchTypeTooltip
-																isOpen={info?.searchTypeOpenForAsk}
-																searchType={chatInfo?.ask}
-																onSearchTypeChange={
-																	handleSearchTypeChangeForAsk
-																}
-																onOpenChange={(value) => {
-																	if (chatInfo?.deepResearch)
-																		return;
-																	setInfo((prev) => ({
-																		...prev,
-																		searchTypeOpenForAsk: value,
-																	}));
-																}}
-																searchTypeOptions={
-																	searchTypeOptionsForAsk
-																}
-															>
+														<div className="combined-chat-options">
+															{!isPublicChat && (
 																<Tooltip
 																	title={
 																		<div className="chatbox-icon-tooltip-container">
@@ -1433,90 +1434,56 @@ const ChatBox = ({
 																	<div
 																		className={`chat-box-icon-container ${
 																			chatInfo?.ask
-																				?.webSearch ||
-																			chatInfo?.ask
-																				?.workspaceSearch
 																				? 'active'
 																				: ''
 																		}`}
-																		style={{
-																			opacity: `${
-																				chatInfo?.deepResearch
-																					? '0.5'
-																					: '1'
-																			}`,
-																		}}
+																		onClick={handleAskClick}
 																	>
 																		<div className="icon">
-																			{chatInfo?.ask
-																				?.webSearch && (
-																				<WebSvg
-																					active={true}
-																				/>
-																			)}
-																			{chatInfo?.ask
-																				?.workspaceSearch && (
-																				<BookSvg
-																					active={true}
-																				/>
-																			)}
-
 																			<div
-																				className="icon-text"
+																				className="icon-text ask-icon-text"
 																				style={{
-																					color:
-																						chatInfo
-																							?.ask
-																							?.webSearch ||
-																						chatInfo
-																							?.ask
-																							?.workspaceSearch
-																							? 'var(--primary-button)'
-																							: 'var(--primary-font)',
+																					color: chatInfo?.ask
+																						? 'var(--primary-button)'
+																						: 'var(--secondary-font)',
 																				}}
 																			>
 																				Ask
 																			</div>
-																			<div className="icon-arrow">
+																			{/* <div className="icon-arrow">
 																				<ArrowDownSvg
 																					fill={
-																						chatInfo
-																							?.ask
-																							?.webSearch ||
-																						chatInfo
-																							?.ask
-																							?.workspaceSearch
+																						chatInfo?.ask
 																							? 'var(--primary-button)'
 																							: 'var(--primary-font)'
 																					}
 																				/>
-																			</div>
+																			</div> */}
 																		</div>
 																	</div>
 																</Tooltip>
-															</SearchTypeTooltip>
-														)}
+															)}
 
-														{!isPublicChat && (
-															<SearchTypeTooltip
-																isOpen={
-																	info?.searchTypeOpenForReason
-																}
-																searchType={chatInfo?.reason}
-																onSearchTypeChange={
-																	handleSearchTypeChangeForReason
-																}
-																onOpenChange={(value) => {
-																	setInfo((prev) => ({
-																		...prev,
-																		searchTypeOpenForReason:
-																			value,
-																	}));
-																}}
-																searchTypeOptions={
-																	searchTypeOptionsForReason
-																}
-															>
+															{!isPublicChat && (
+																// <SearchTypeTooltip
+																// 	isOpen={
+																// 		info?.searchTypeOpenForReason
+																// 	}
+																// 	searchType={chatInfo?.reason}
+																// 	onSearchTypeChange={
+																// 		handleSearchTypeChangeForReason
+																// 	}
+																// 	onOpenChange={(value) => {
+																// 		setInfo((prev) => ({
+																// 			...prev,
+																// 			searchTypeOpenForReason:
+																// 				value,
+																// 		}));
+																// 	}}
+																// 	searchTypeOptions={
+																// 		searchTypeOptionsForReason
+																// 	}
+																// >
 																<Tooltip
 																	title={
 																		<div className="chatbox-icon-tooltip-container">
@@ -1530,86 +1497,109 @@ const ChatBox = ({
 																>
 																	<div
 																		className={`chat-box-icon-container ${
-																			chatInfo?.reason
-																				?.webSearch ||
-																			chatInfo?.reason
-																				?.workspaceSearch
+																			chatInfo?.deepResearch
 																				? 'active'
 																				: ''
 																		}`}
+																		onClick={
+																			handleDeepResearchClick
+																		}
 																	>
 																		<div className="icon">
-																			{chatInfo?.reason
-																				?.webSearch && (
-																				<WebSvg
-																					active={true}
-																				/>
-																			)}
-																			{chatInfo?.reason
-																				?.workspaceSearch && (
-																				<BookSvg
-																					active={true}
-																				/>
-																			)}
-																			{!(
-																				chatInfo?.reason
-																					?.webSearch ||
-																				chatInfo?.reason
-																					?.workspaceSearch
-																			) && (
+																			<div className="text-wrapper deep-research-text-wrapper">
 																				<AtomSvg
 																					fill={
-																						chatInfo
-																							?.reason
-																							?.webSearch ||
-																						chatInfo
-																							?.reason
-																							?.workspaceSearch
+																						chatInfo?.deepResearch
 																							? 'var(--primary-button)'
-																							: 'var(--primary-font)'
+																							: 'var(--secondary-font)'
 																					}
 																				/>
-																			)}
 
-																			{/* {showIconText && (
-																				<> */}
-																			<div
-																				className="icon-text"
-																				style={{
-																					color:
-																						chatInfo
-																							?.reason
-																							?.webSearch ||
-																						chatInfo
-																							?.reason
-																							?.workspaceSearch
+																				<div
+																					className="icon-text"
+																					style={{
+																						color: chatInfo?.deepResearch
 																							? 'var(--primary-button)'
-																							: 'var(--primary-font)',
-																				}}
-																			>
-																				Research
+																							: 'var(--secondary-font)',
+																					}}
+																				>
+																					Research
+																				</div>
 																			</div>
-																			<div className="icon-arrow">
-																				<ArrowDownSvg
-																					fill={
-																						chatInfo
-																							?.reason
-																							?.webSearch ||
-																						chatInfo
-																							?.reason
-																							?.workspaceSearch
-																							? 'var(--primary-button)'
-																							: 'var(--primary-font)'
-																					}
-																				/>
-																			</div>
-																			{/* </>
-																			)} */}
 																		</div>
 																	</div>
 																</Tooltip>
-															</SearchTypeTooltip>
-														)}
+																// </SearchTypeTooltip>
+															)}
+
+															{!isPublicChat && (
+																<Tooltip
+																	title={
+																		<div className="chatbox-icon-tooltip-container">
+																			Build
+																		</div>
+																	}
+																	color="transparent"
+																	arrow={false}
+																	rootClassName="chatbox-tooltip"
+																>
+																	<div
+																		className={`chat-box-icon-container ${
+																			chatInfo?.build
+																				? 'active'
+																				: ''
+																		}`}
+																		onClick={handleBuildClick}
+																	>
+																		<div className="icon">
+																			<div className="text-wrapper">
+																				<div className="build-icon">
+																					<SparkSvg />
+																				</div>
+																				<div
+																					className="icon-text"
+																					style={{
+																						color: chatInfo?.build
+																							? 'var(--primary-button)'
+																							: 'var(--secondary-font)',
+																					}}
+																				>
+																					Build
+																				</div>
+																			</div>
+																			<BuildTooltip>
+																				<div
+																					className={`icon-arrow-wrapper ${
+																						chatInfo?.build
+																							? 'icon-arrow-wrapper-active'
+																							: ''
+																					}`}
+																					onClick={(e) =>
+																						e?.stopPropagation()
+																					}
+																				>
+																					<div className="icon-arrow">
+																						<ArrowDownSvg fill="var(--secondary-font)" />
+																					</div>
+																				</div>
+																			</BuildTooltip>
+																		</div>
+																	</div>
+																</Tooltip>
+															)}
+														</div>
+
+														{/* {!isPublicChat && chatInfo?.build && (
+															<BuildTooltip>
+																<div
+																	className={`chat-box-icon-container build-icon-container`}
+																>
+																	<div className="icon build-icon-arrow">
+																		<ArrowDownSvg fill="var(--secondary-font)" />
+																	</div>
+																</div>
+															</BuildTooltip>
+														)} */}
 
 														{/* <Tooltip title={'Add Filters'}>
 														<div

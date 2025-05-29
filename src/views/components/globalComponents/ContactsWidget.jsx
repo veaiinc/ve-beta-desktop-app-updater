@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useCallback, useState } from 'react';
 import '../../../assets/scss/globalComponents/contactsWidget.scss';
-import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
 import { ReactComponent as AddIcon } from '../../../assets/svg/calendar/add.svg';
 import { ReactComponent as ArrowViewIcon } from '../../../assets/svg/calendar/arrowview.svg';
 import Context from '../../../context/context';
@@ -153,15 +152,17 @@ const ContactsWidget = ({ width, height }) => {
 						<ArrowViewIcon style={{ width: '18px', height: '18px' }} />
 						View Contacts
 					</div>
-					<div className="contactsWidgetFooterAdd">
+					<div
+						onClick={(e) => {
+							e.stopPropagation();
+							setInfo((prev) => ({
+								...prev,
+								createLeadPopup: true,
+							}));
+						}}
+						className="contactsWidgetFooterAdd"
+					>
 						<AddIcon
-							onClick={(e) => {
-								e.stopPropagation();
-								setInfo((prev) => ({
-									...prev,
-									createLeadPopup: true,
-								}));
-							}}
 							style={{
 								width: '18px',
 								height: '18px',

@@ -5,7 +5,7 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks
 import { ReactComponent as FilterIcon } from '../../../assets/svg/tasks/newFiltersIcon.svg';
 import { ReactComponent as TickIcon } from '../../../assets/svg/tick.svg';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/close.svg';
-import { ReactComponent as EmailIcon } from '../../../assets/svg/login_page/gmail.svg';
+import EmailIcon from '../../../assets/svg/login_page/GmailIcon';
 import { ReactComponent as QuestionSvg } from '../../../assets/svg/home_page/question.svg';
 import { ReactComponent as ListDashesSvg } from '../../../assets/svg/home_page/listDashes.svg';
 import Skeleton from 'react-loading-skeleton';
@@ -14,19 +14,18 @@ import { Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { getRelativeDayLabel } from '../../../helpers';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
-import { ReactComponent as AiSuggestionIcon } from '../../../assets/svg/home_page/aiSuggestion.svg';
 import { message } from '../../components/globalComponents/CustomToast';
 import ObjectID from 'bson-objectid';
 import { useNavigate } from 'react-router-dom';
 import { handleCombinedChainOfThought } from '../../../helpers/chatHelpers';
 import { ReactComponent as RelativeTimeSvg } from '../../../assets/svg/home_page/relativeTime.svg';
-import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
 import { ReactComponent as ListViewSvg } from '../../../assets/svg/home_page/listView.svg';
 import { ReactComponent as FocusViewSvg } from '../../../assets/svg/home_page/focusView.svg';
 import { ReactComponent as SortDescSvg } from '../../../assets/svg/home_page/sortDesc.svg';
 import { ReactComponent as SortAscSvg } from '../../../assets/svg/home_page/sortAsc.svg';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import AIQuestions from './AIQuestions';
+import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
 
 const payload = {
 	page: 1,
@@ -135,7 +134,7 @@ const ProactiveSuggestions = () => {
 		selectedFilters: [],
 		selectedCardNumber: null,
 		hoveredCard: null,
-		isListView: true,
+		isListView: false,
 		isApiLoading: false,
 		sortBy: 'createdAt',
 		activeBtn: 'insights',
@@ -411,7 +410,6 @@ const ProactiveSuggestions = () => {
 
 	const fetchMorePendingActions = async () => {
 		const nextPage = aiSuggestedPendingActions?.metaInfo?.currentPage + 1;
-
 		const payload = {
 			...newUpdatedPayload,
 			page: nextPage,
@@ -730,7 +728,7 @@ const ProactiveSuggestions = () => {
 			</>
 			{info?.isListView ? (
 				<div className="proactiveSuggestionsContainer">
-					{info?.loading && aiSuggestedPendingActions?.pendingActions?.length === 0 ? (
+					{info?.loading && !aiSuggestedPendingActions?.pendingActions?.length ? (
 						<div className="skeleton-container">
 							{skeletonLoaders?.map((_, index) => (
 								<Skeleton
@@ -756,7 +754,11 @@ const ProactiveSuggestions = () => {
 							{info?.activeBtn === 'insights' && (
 								<InfiniteScroll
 									dataLength={info?.cards?.length || 0}
-									hasMore={aiSuggestedPendingActions?.metaInfo?.hasNextPage}
+									hasMore={
+										(aiSuggestedPendingActions?.metaInfo?.hasNextPage &&
+											info?.cards?.length) ||
+										false
+									}
 									next={fetchMorePendingActions}
 									style={infiniteScrollStyle}
 									height={'100%'}
@@ -851,12 +853,7 @@ const ProactiveSuggestions = () => {
 																</div>
 																{/* </Tooltip> */}
 																<div
-																	className={`cardOptionsMainContainer ${
-																		info?.hoveredCard?._id ===
-																		card?._id
-																			? 'linearBorder'
-																			: ''
-																	}`}
+																	className={`cardOptionsMainContainer`}
 																>
 																	<div className="cardOptionsContainer">
 																		<Tooltip

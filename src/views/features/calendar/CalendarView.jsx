@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState, useContext, useEffect, useCallback } from 'react';
+import { memo, useMemo, useState, useContext, useEffect, useCallback } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
 import '../../../assets/scss/calendar/calendarView.scss';
 import CalendarWrapper from '../../components/calendar/CalendarWrapper';
@@ -10,7 +10,7 @@ import MonthEventWrapper from '../../components/calendar/MonthEventWrapper';
 import Context from '../../../context/context';
 import moment from 'moment';
 import EventDetailsModal from '../../components/modalsV2/calendar/EventDetailsModal';
-// import EventsPopUp from '../../components/calendar/EventsPopUp';
+import EventsPopUp from '../../components/calendar/EventsPopUp';
 import { message } from '../../components/globalComponents/CustomToast';
 
 const initialState = {
@@ -34,6 +34,7 @@ const CalendarView = ({
 	categoryFilter,
 	updateCalendarInfo,
 	selectedWorkflowId,
+	showGoogleEvents,
 }) => {
 	const {
 		calendarInfo: {
@@ -42,8 +43,9 @@ const CalendarView = ({
 			calendarEvent,
 			resetCalendarState,
 			sendEventToAi,
-
 			googleCalendarEvents,
+			deleteCalendarEvent,
+			getGoogleCalendarEvents,
 		},
 		// profileInfo: { userWorkSpaceList, userDetailsData },
 		companyInfo: { tenantsUserList, getTeamMembers },
@@ -53,6 +55,7 @@ const CalendarView = ({
 		...initialState,
 		googleEvents: [],
 		isCreateEventOpen: false,
+		deletingEvent: false,
 	});
 
 	useEffect(() => {
@@ -66,7 +69,6 @@ const CalendarView = ({
 				}));
 			}
 
-			// Map the googleCalendarEvents to the desired eventsList format
 			const mappedGoogleEvents = googleCalendarEvents?.map((event) => ({
 				id: event?._id,
 				start: moment(event?.startDateTime).local().toDate(),
@@ -143,8 +145,11 @@ const CalendarView = ({
 			(cat) => cat?.name?.toLowerCase() === 'all' || cat?.type?.toLowerCase() === 'all',
 		)?._id;
 
-		// Combine both event sources
-		const combinedEvents = [...(info?.eventsList || []), ...(info?.googleEvents || [])];
+		// Combine both event sources, respecting the showGoogleEvents setting
+		const combinedEvents = [
+			...(info?.eventsList || []),
+			...(showGoogleEvents ? info?.googleEvents || [] : []),
+		];
 
 		// If default category is selected, show all events
 		if (categoryFilter?.includes(defaultCategory)) {
@@ -158,7 +163,7 @@ const CalendarView = ({
 			return categoryFilter?.includes(eventCategory?._id);
 		});
 		setInfo((prev) => ({ ...prev, categoryBasedEventsList: filteredEvents }));
-	}, [categoryFilter, info?.eventsList, info?.googleEvents, categoryList]);
+	}, [categoryFilter, info?.eventsList, info?.googleEvents, categoryList, showGoogleEvents]);
 
 	const handleSendEventToAi = useCallback(async () => {
 		if (calendarEvent?._id) {
@@ -243,7 +248,7 @@ const CalendarView = ({
 		setInfo((prev) => ({
 			...prev,
 			isCreateEventOpen: true,
-			selectedSlot: event?.start,
+			selectedSlot: event,
 		}));
 	}, []);
 
@@ -259,6 +264,47 @@ const CalendarView = ({
 		updateCalendarInfo('isEventSelected', false);
 		setInfo((prev) => ({ ...prev, selectedEvent: null }));
 	}, [info, updateCalendarInfo]);
+
+	const handleDeleteEvent = useCallback(
+		async (eventId, isGoogleEvent = false) => {
+			if (!eventId) {
+				message.error('Invalid event ID');
+				return;
+			}
+
+			setInfo((prev) => ({ ...prev, deletingEvent: true }));
+			try {
+				await deleteCalendarEvent(eventId);
+				message.success('Event deleted successfully');
+
+				// Refresh the appropriate events list
+				if (isGoogleEvent) {
+					// For Google Calendar events, we need to refresh the Google events list
+					const updatedGoogleEvents = info.googleEvents.filter(
+						(event) => event.id !== eventId,
+					);
+					setInfo((prev) => ({ ...prev, googleEvents: updatedGoogleEvents }));
+					// Also refresh the Google Calendar events from the API
+					await getGoogleCalendarEvents();
+				} else {
+					// For regular calendar events, refresh the calendar events list
+					await getCalendarEventsList(selectedDate);
+				}
+			} catch (error) {
+				message.error('Failed to delete event. Please try again.');
+				console.error('Error deleting event:', error);
+			} finally {
+				setInfo((prev) => ({ ...prev, deletingEvent: false }));
+			}
+		},
+		[
+			deleteCalendarEvent,
+			getCalendarEventsList,
+			getGoogleCalendarEvents,
+			selectedDate,
+			info.googleEvents,
+		],
+	);
 
 	return (
 		<>
@@ -289,13 +335,13 @@ const CalendarView = ({
 					filterDeletedEvent={filterDeletedEvent}
 					onClose={onClose}
 				/>
-				{/* <EventsPopUp
+				<EventsPopUp
 					open={info?.isCreateEventOpen}
 					closeModal={handleCloseEventPopup}
 					categoryList={categoryList}
 					selectedCategory={selectedCategory}
 					selectedSlot={info?.selectedSlot}
-				/> */}
+				/>
 			</div>
 		</>
 	);

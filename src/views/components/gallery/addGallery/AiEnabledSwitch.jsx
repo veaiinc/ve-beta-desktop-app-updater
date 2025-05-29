@@ -13,7 +13,7 @@ const AiEnabledSwitch = ({ isAiEnabled, isProcessing, setinfo }) => {
 		if (
 			checked &&
 			(validateExpiryData?.liteImageLimitWithAiFace === 0 ||
-				validateExpiryData?.liteImagesLimit <= validateExpiryData?.liteImageUsed)
+				validateExpiryData?.liteImageLimit <= validateExpiryData?.liteImageUsed)
 		) {
 			updateSubscriptionState({ expiredSubscriptionModal: true });
 			return;
@@ -24,7 +24,7 @@ const AiEnabledSwitch = ({ isAiEnabled, isProcessing, setinfo }) => {
 	return (
 		<div className="duplicate_div" style={{ width: '100%' }}>
 			<div className="text_div">
-				<h1>AI Enabled</h1>
+				<h1>Enable AI Face Recognition</h1>
 			</div>
 			<Switch
 				checked={isAiEnabled || false}

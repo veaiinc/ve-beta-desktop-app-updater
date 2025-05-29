@@ -219,6 +219,141 @@
 										& > * {
 											cursor: pointer;
 										}
+
+										.combined-chat-options {
+											display: flex;
+											background-color: var(--popup);
+											border-radius: 6px;
+											position: relative;
+											border: 1px solid var(--stroke);
+											z-index: 10;
+											overflow: hidden;
+											.chat-box-icon-container {
+												display: flex;
+												justify-content: center;
+												align-items: center;
+												background: var(--popup);
+
+												.icon {
+													display: flex;
+													align-items: center;
+													justify-content: center;
+													height: 27px;
+
+													.text-wrapper {
+														display: flex;
+														align-items: center;
+														justify-content: center;
+														gap: 6px;
+														padding: 6px 8px;
+														border: 1px solid transparent;
+														border-radius: 6px 0 0 6px;
+														height: 27px;
+														.icon-text {
+															border: none !important;
+															padding: 0 !important;
+														}
+														.build-icon {
+															height: 16px;
+														}
+													}
+													.deep-research-text-wrapper {
+														border-radius: 6px;
+													}
+													.icon-arrow-wrapper {
+														width: 0px;
+														height: 100%;
+														transition: width 200ms ease-in-out;
+													}
+													.icon-arrow-wrapper-active {
+														width: 22px;
+													}
+
+													.icon-arrow {
+														display: flex;
+														align-items: center;
+														justify-content: center;
+														height: 100%;
+														padding: 6px 4px;
+														border-radius: 0px 6px 6px 0px;
+														position: relative;
+														left: -1px;
+														border: 1px solid transparent;
+
+														svg {
+															width: 12px;
+															height: 12px;
+														}
+													}
+
+													.icon-text {
+														height: 100%;
+														overflow: hidden;
+														text-overflow: ellipsis;
+														color: var(--secondary-font);
+														font-family: var(--primary-font-family);
+														font-size: 12px;
+														font-style: normal;
+														font-weight: 500;
+														line-height: normal;
+														padding: 6px 8px;
+														border-radius: 6px 0px 0px 6px;
+														box-sizing: border-box;
+														border: 1px solid transparent;
+
+														&:hover {
+															color: var(--primary-font);
+														}
+													}
+													.ask-icon-text {
+														border-radius: 6px;
+													}
+												}
+											}
+											.chat-box-icon-container.active {
+												background-color: inherit;
+												.icon {
+													.text-wrapper {
+														border: 1px solid var(--primary-button);
+														.build-icon {
+															svg {
+																path {
+																	stroke: var(--primary-button);
+																}
+															}
+														}
+													}
+													.icon-text {
+														color: var(--primary-button);
+														border: 1px solid var(--primary-button);
+														background-color: var(--popup);
+													}
+													.icon-arrow {
+														border: 1px solid var(--primary-button);
+														background-color: var(--popup);
+														svg {
+															fill: var(--primary-button);
+														}
+													}
+												}
+
+												.websearch-icon {
+													svg {
+														path {
+															stroke: var(--primary-button);
+														}
+													}
+												}
+
+												.workspace-search-icon {
+													svg {
+														path {
+															fill: var(--primary-button);
+														}
+													}
+												}
+											}
+										}
 									}
 
 									.right-container {
@@ -405,10 +540,14 @@
 		}
 	}
 }
-.chat-box-icon-container {
+.build-icon-container {
+	position: relative;
+	left: -3px;
+}
+.upload-file-icon-container {
 	display: flex;
 	height: 28px;
-	padding: 6px 8px;
+	padding: 6px 5px;
 	justify-content: center;
 	align-items: center;
 	gap: 18px;
@@ -421,81 +560,13 @@
 		border: 1px solid var(--stroke-hover);
 	}
 
-	&.active {
-		border: 1px solid var(--primary-button);
-	}
-
 	.icon {
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		gap: 6px;
-
-		svg {
-			width: 16px;
-			height: 16px;
-		}
-
-		.icon-text {
-			overflow: hidden;
-			text-overflow: ellipsis;
-			color: var(--secondary-font);
-			font-family: var(--primary-font-family);
-			font-size: 13px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-
-			&:hover {
-				color: var(--primary-font);
-			}
-		}
-
-		.icon-arrow {
-			svg {
-				width: 12px;
-				height: 12px;
-			}
-		}
-	}
-	.right-text {
-		color: var(--primary-font, #f2f2f3);
-		text-align: center;
-		font-family: var(--primary-font-family);
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
-		transition: 200ms ease-in-out;
 	}
 }
-.chat-box-icon-container.active {
-	border: 1px solid var(--primary-button, #404548);
-	background: var(--popup);
-
-	.icon {
-		.icon-text {
-			color: var(--primary-button);
-		}
-	}
-
-	.websearch-icon {
-		svg {
-			path {
-				stroke: var(--primary-button);
-			}
-		}
-	}
-
-	.workspace-search-icon {
-		svg {
-			path {
-				fill: var(--primary-button);
-			}
-		}
-	}
-}
-
 .start-page-icon {
 	border: unset !important;
 	padding: 0 2px 0 8px !important;
@@ -725,7 +796,7 @@
 					border-radius: 12px;
 
 					&:hover {
-						background: var(--background-color, #2f3336);
+						background: var(--card-hover, #2f3336);
 					}
 					.file-type-icon {
 						display: flex;
@@ -781,7 +852,7 @@
 			cursor: pointer;
 
 			&:hover {
-				background: var(--background-color, #2f3336);
+				background: var(--card-hover, #2f3336);
 			}
 
 			.upload-file-text {
@@ -910,9 +981,9 @@
 
 .click-btn {
 	display: flex;
-	width: 36px;
-	height: 36px;
-	padding: 8px;
+	width: 32px;
+	height: 32px;
+	padding: 6px;
 	justify-content: center;
 	align-items: center;
 	gap: 6px;

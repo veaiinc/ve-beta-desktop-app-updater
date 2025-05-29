@@ -102,7 +102,7 @@ const OpenedSidebarModules = ({
 		if (name === 'Help') {
 			let iframe = document.getElementById('ve-ai-chat-iframe');
 			if (iframe) {
-				const requiredStyle = iframe.style.display === 'block' ? 'none' : 'block';
+				const requiredStyle = iframe.style.display === 'none' ? 'block' : 'none';
 				iframe.style.display = requiredStyle;
 			} else {
 				console.log('Iframe not found');
@@ -110,22 +110,10 @@ const OpenedSidebarModules = ({
 			return;
 		}
 
-		if (name === 'Notes') {
-			setShowNotesDrawer((prev) => !prev);
-		} else {
-			setShowNotesDrawer(false);
-		}
-
 		if (name === 'Notifications') {
 			setShowNotificationsDrawer((prev) => !prev);
 		} else {
 			setShowNotificationsDrawer(false);
-		}
-		if (name === 'Chats') {
-			setShowChatsDrawer((prev) => !prev);
-			// setHideClosedSidebarIcon(true);
-		} else {
-			setShowChatsDrawer(false);
 		}
 
 		if (!subModules) {
@@ -189,7 +177,7 @@ const OpenedSidebarModules = ({
 						width: '100%',
 					}}
 				>
-					{Icon && <Icon fill={'var(--secondary-font)'} />}
+					{Icon && <Icon fill={name === 'Notes' ? 'none' : 'var(--secondary-font)'} />}
 					<p>{name}</p>
 					{isExactPathMatch() && <TickSvg />}
 				</div>
@@ -513,7 +501,7 @@ const OpenedSidebar = ({
 	const tooltipItems = [
 		{
 			key: 'theme',
-			label: (theme) => `Switch to ${theme === 'dark' ? 'white' : 'dark'} mode`,
+			label: (theme) => `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`,
 			icon: (theme) => (theme === 'dark' ? <SunIcon /> : <MoonIcon />),
 			onClick: (updateTheme, newThemeValue) => () => updateTheme(newThemeValue),
 		},

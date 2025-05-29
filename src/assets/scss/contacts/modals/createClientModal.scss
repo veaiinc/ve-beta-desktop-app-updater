@@ -7,6 +7,7 @@
 	gap: 24px;
 	border-radius: 32px;
 	background-color: var(--popup);
+	border: 1px solid var(--stroke);
 
 	.modalHeading {
 		display: flex;
@@ -69,6 +70,12 @@
 			border: 1px solid var(--stroke);
 			background: var(--card-over-card);
 			height: 44px;
+
+			/* Style the dropdown arrow */
+			.PhoneInputCountrySelectArrow {
+				color: var(--primary-font);
+				opacity: 1;
+			}
 		}
 
 		/* Target the country selector dropdown */
@@ -106,7 +113,6 @@
 			gap: 12px;
 			align-self: stretch;
 			flex: 1 0 0;
-			width: 100%;
 			border-radius: 14px;
 			.selectedPage {
 				color: var(--primary-font);
@@ -119,6 +125,21 @@
 			}
 		}
 	}
+
+	.phoneAndSourceContainer {
+		display: flex;
+		gap: 16px;
+		width: 100%;
+
+		.inputWrapper {
+			flex: 1;
+		}
+
+		.leadSourceContainer {
+			flex: 1;
+		}
+	}
+
 	.createClientFooter {
 		display: flex;
 		flex-direction: column;

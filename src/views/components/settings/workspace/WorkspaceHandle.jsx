@@ -40,8 +40,7 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 			: [];
 
 		if (doamins?.length > 0) {
-			let currentWorkspace =
-				tennantSettingsData?.workspaceIds[tennantSettingsData?.workspaceIds?.length - 1];
+			let currentWorkspace = doamins[0];
 			setdomainInput(currentWorkspace);
 
 			setdomainUpdate((prev) => ({ ...prev, activeWorkspace: currentWorkspace }));

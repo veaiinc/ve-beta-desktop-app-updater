@@ -55,39 +55,48 @@ const CalendarCategories = ({
 		const defaultCategory = categoryList?.find(
 			(cat) => cat?.name?.toLowerCase() === 'null' || cat?.type?.toLowerCase() === 'null',
 		)?._id;
+		const allCategory = categoryList?.find(
+			(cat) => cat?.name?.toLowerCase() === 'all' || cat?.type?.toLowerCase() === 'all',
+		)?._id;
 
-		// If selecting Default category
-		if (categoryId === defaultCategory) {
-			// If Default is already selected, keep it selected, otherwise select only Default
-			const updatedFilter = categoryFilter?.includes(defaultCategory)
-				? [defaultCategory]
-				: [defaultCategory];
+		let updatedFilter = [...(categoryFilter || [])];
+
+		if (categoryId === allCategory) {
+			// Selecting 'All' should deselect others
+			updatedFilter = [allCategory];
 			updateCalendarInfo('categoryFilter', updatedFilter);
 			updateCalendarInfo(
 				'selectedCategory',
-				categoryList?.find((cat) => cat?._id === defaultCategory),
+				categoryList?.find((cat) => cat?._id === allCategory),
 			);
 			return;
 		}
 
-		// If selecting a non-Default category
-		let updatedFilter;
-		if (categoryFilter?.includes(categoryId)) {
-			// Unselect the category if it's already selected
-			updatedFilter = categoryFilter?.filter((id) => id !== categoryId);
-			// If this would result in an empty filter, select the default category
-			if (updatedFilter.length === 0) {
+		// Remove 'all' if it's selected
+		updatedFilter = updatedFilter.filter((id) => id !== allCategory);
+
+		if (updatedFilter.includes(categoryId)) {
+			// Deselecting the category
+			updatedFilter = updatedFilter.filter((id) => id !== categoryId);
+		} else {
+			// Selecting the category
+			updatedFilter.push(categoryId);
+		}
+
+		if (updatedFilter.length === 0) {
+			// No filters selected — fallback to default (or just 'all' if needed)
+			if (defaultCategory) {
 				updatedFilter = [defaultCategory];
 				updateCalendarInfo(
 					'selectedCategory',
 					categoryList?.find((cat) => cat?._id === defaultCategory),
 				);
 			} else {
+				updatedFilter = [];
 				updateCalendarInfo('selectedCategory', null);
 			}
 		} else {
-			// Add the category and remove Default if it was selected
-			updatedFilter = [...categoryFilter?.filter((id) => id !== defaultCategory), categoryId];
+			// One or more categories selected
 			updateCalendarInfo(
 				'selectedCategory',
 				categoryList?.find((cat) => cat?._id === categoryId),
