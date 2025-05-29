@@ -210,7 +210,7 @@
 
 // Fix to prevent body content from shifting
 .landing-page-container {
-	height: 100vh; // Use vh instead of dvh for better compatibility
+	// height: 100vh; // Use vh instead of dvh for better compatibility
 	width: 100%;
 	background-color: var(--background-color, #202124);
 	display: flex;

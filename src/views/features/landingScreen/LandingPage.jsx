@@ -113,6 +113,7 @@ const LandingPage = () => {
 					<img src={HeroImage} alt="homepage" className="homepageImage" />
 					<HowItWorks />
 					<Features />
+					<div style={{ height: '3000px' }}></div>
 					<EarlyAccess />
 					<Footer />
 				</div>

@@ -2,72 +2,69 @@
 	display: flex;
 	max-width: 1440px;
 	width: 100%;
-	padding: 32px;
+	height: 100vh;
 	align-items: center;
-	gap: 10px;
+	justify-content: space-between;
+	padding: 0 64px;
+	position: relative;
+	overflow: hidden;
 
-	.leftPart {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		flex: 1 0 0;
-		align-self: stretch;
-		padding: clamp(48px, 6vw, 88px) clamp(32px, 4vw, 56px) clamp(100px, 12vw, 293.5px)
-			clamp(32px, 4vw, 57px);
-		gap: clamp(80px, 12vw, 186.5px);
-
-		.leftPart__topPart {
-		}
-
-		.leftPart__bottomPart {
-			display: flex;
-			width: min(100%, 575px);
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 20px;
-			// Removed visibility: hidden; to avoid GSAP bugs
-			// Use GSAP to control visibility if needed
-
-			.title {
-				color: var(--primary-button, #79ecc9);
-				font-family: 'Manrope', sans-serif;
-				font-size: 18px;
-				font-weight: 600;
-				text-transform: uppercase;
-			}
-
-			.subTitle {
-				color: var(--primary-font, #f2f2f3);
-				font-family: 'Manrope', sans-serif;
-				font-size: 20px;
-				font-weight: 500;
-				line-height: 1.7;
-			}
-		}
-	}
-
+	.leftPart,
 	.rightPart {
+		flex: 1;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
+		align-items: flex-start;
+		position: relative;
+		height: 100%;
+	}
+
+	.leftPart__bottomPart,
+	.image {
+		position: absolute;
+		top: 50%;
+		left: 0;
+		width: 100%;
+		opacity: 0;
+		transition: opacity 0.3s ease;
+		transform: translateY(-50%);
+		display: flex;
+		flex-direction: column;
 		align-items: center;
-		flex: 1 0 0;
-		align-self: stretch;
-		padding: clamp(80px, 10vw, 227px) 0;
+	}
 
-		.image {
-			max-width: 863.32px;
-			width: 100%;
-			height: 382px;
-			opacity: 0;
-			// Removed visibility to rely solely on GSAP
-			// Use gsap.set() to initialize if needed
+	.title {
+		color: var(--primary-button, #79ecc9);
+		font-family: 'Manrope', sans-serif;
+		font-size: 18px;
+		font-weight: 600;
+		text-transform: uppercase;
+		text-align: center;
+		max-width: 575px;
+		width: 100%;
+	}
 
-			img {
-				width: 100%;
-				height: 100%;
-				object-fit: contain;
-			}
+	.subTitle {
+		color: var(--primary-font, #f2f2f3);
+		font-family: 'Manrope', sans-serif;
+		font-size: 20px;
+		font-weight: 500;
+		line-height: 1.7;
+		max-width: 575px;
+		width: 100%;
+		text-align: center;
+	}
+
+	.image {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		img {
+			max-width: 100%;
+			height: auto;
+			object-fit: contain;
 		}
 	}
 }
