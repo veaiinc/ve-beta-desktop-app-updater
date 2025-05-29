@@ -82,8 +82,6 @@
 		"web-vitals": "^2.1.4"
 	},
 	"scripts": {
-		"dev": "webpack serve --open",
-		"win-start": "set \"PORT=8000\" && react-scripts start",
 		"start": "vite",
 		"build": "rm -rf build .vite node_modules/.vite && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build",
 		"preview": "vite preview",

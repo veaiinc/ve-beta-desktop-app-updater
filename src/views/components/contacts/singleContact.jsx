@@ -7,7 +7,9 @@ import QuickActions from '../globalComponents/QuickActions';
 import DocsGrid from '../files/DocsGrid';
 import ActivityContact from './ActivityContact';
 import OverviewContact from './overViewContact';
+import { useNavigate } from 'react-router-dom';
 const SingleContact = ({ selectedContact, selectedOptions }) => {
+	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		totalCount: null,
 	});
@@ -20,7 +22,11 @@ const SingleContact = ({ selectedContact, selectedOptions }) => {
 			{selectedOptions === 'Overview' && <OverviewContact />}
 			{selectedOptions === 'Activity' && <ActivityContact />}
 			{selectedOptions === 'Files' && (
-				<DocsGrid handleTotalChange={handleTotalChange} clientId={selectedContact?._id} />
+				<DocsGrid
+					handleTotalChange={handleTotalChange}
+					clientId={selectedContact?._id}
+					handleCreateDoc={() => navigate(`/builder/create-document`)}
+				/>
 			)}
 		</div>
 	);
