@@ -259,7 +259,7 @@ const routes = [
 	{
 		path: '/galleries/:galleryId',
 		component: (
-			<AuthWrapper title={'Gallery'}  showBottomToolbar={false}>
+			<AuthWrapper title={'Gallery'} showBottomToolbar={false}>
 				<GalleryPage />
 			</AuthWrapper>
 		),
