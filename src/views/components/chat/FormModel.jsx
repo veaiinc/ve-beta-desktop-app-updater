@@ -27,7 +27,7 @@ const FormModel = ({
 	const origin = fetchOriginSelection();
 
 	useEffect(() => {
-		if (showViewDocument || isExpanded) return;
+		if (showViewDocument || isExpanded || !isMessageActive) return;
 		setTimeout(() => {
 			let isExpanded =
 				messageData?.stream_end && isLastMessage && !messageData?.isOldMessage
@@ -38,7 +38,7 @@ const FormModel = ({
 				handleViewDocument(isExpanded);
 			}
 		}, 1000);
-	}, [showViewDocument, messageData?.stream_end, isLastMessage]);
+	}, [showViewDocument, messageData?.stream_end, isLastMessage, isMessageActive]);
 
 	const handleExpand = () => {
 		if (!isMessageActive) return;
