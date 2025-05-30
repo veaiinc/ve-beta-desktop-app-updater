@@ -20,14 +20,13 @@ const FormModel = ({
 	showViewDocument = false,
 	messageData,
 	isLastMessage = false,
-	isMessageActive = false,
 }) => {
 	const [isExpanded, setIsExpanded] = useState(false);
 	const formRef = useRef(null);
 	const origin = fetchOriginSelection();
 
 	useEffect(() => {
-		if (showViewDocument || isExpanded || !isMessageActive) return;
+		if (showViewDocument || isExpanded) return;
 		setTimeout(() => {
 			let isExpanded =
 				messageData?.stream_end && isLastMessage && !messageData?.isOldMessage
@@ -38,10 +37,9 @@ const FormModel = ({
 				handleViewDocument(isExpanded);
 			}
 		}, 1000);
-	}, [showViewDocument, messageData?.stream_end, isLastMessage, isMessageActive]);
+	}, [showViewDocument, messageData?.stream_end, isLastMessage]);
 
 	const handleExpand = () => {
-		if (!isMessageActive) return;
 		setIsExpanded(!isExpanded);
 		if (handleViewDocument) {
 			handleViewDocument(!isExpanded);

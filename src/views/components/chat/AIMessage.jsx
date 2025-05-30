@@ -33,7 +33,6 @@ const AIMessage = ({
 	handleViewDocument = null,
 	showViewDocument = false,
 	isNoteCanvas = false,
-	isMessageActive = false,
 }) => {
 	const {
 		documentPreview: { setNoteContent },
@@ -109,7 +108,6 @@ const AIMessage = ({
 						showViewDocument={showViewDocument}
 						isLastMessage={isLastMessage}
 						messageData={messageData}
-						isMessageActive={isMessageActive}
 					/>
 				) : (
 					<div
@@ -250,7 +248,6 @@ export default memo(AIMessage, (prevProps, nextProps) => {
 		prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
 		prevProps.isNewMessage === nextProps.isNewMessage &&
 		prevProps.lastQuery === nextProps.lastQuery &&
-		prevProps.latestStreamMesage === nextProps.latestStreamMesage &&
-		prevProps.isMessageActive === nextProps.isMessageActive
+		prevProps.latestStreamMesage === nextProps.latestStreamMesage
 	);
 });

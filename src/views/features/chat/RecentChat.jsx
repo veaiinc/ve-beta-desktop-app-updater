@@ -741,10 +741,6 @@ const RecentChat = ({
 																		index - 1
 																	]
 																}
-																isMessageActive={
-																	index ===
-																	info?.activeAIMessageIndex
-																}
 																chatContentElement={
 																	chatContentRef?.current
 																}
@@ -791,13 +787,16 @@ const RecentChat = ({
 															}}
 															data-index={index}
 															key={index}
+															style={{
+																opacity:
+																	index ===
+																	info?.activeUserMessageIndex
+																		? 1
+																		: 0.6,
+															}}
 														>
 															<UserMessageRenderer
 																messageData={chat}
-																activeUserMessageIndex={
-																	index ===
-																	info?.activeUserMessageIndex
-																}
 															/>
 														</div>
 													)}
