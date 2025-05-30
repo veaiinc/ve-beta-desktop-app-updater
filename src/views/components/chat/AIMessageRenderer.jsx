@@ -28,6 +28,7 @@ const AIMessageRenderer = ({
 	latestStreamMesage,
 	lastQuery,
 	handleViewDocument,
+	showViewDocument = false,
 	isPublicChat = false,
 	userMessageElement = null,
 	chatContentElement = null,
@@ -163,7 +164,7 @@ const AIMessageRenderer = ({
 						lastQuery={lastQuery}
 						toggleLatestStreamMessage={toggleLatestStreamMessage}
 						handleViewDocument={handleViewDocument}
-						showViewDocument={info?.showViewDocument}
+						showViewDocument={showViewDocument}
 						isLastMessage={index === globalChatMessages?.length - 1}
 						isPublicChat={isPublicChat}
 					/>

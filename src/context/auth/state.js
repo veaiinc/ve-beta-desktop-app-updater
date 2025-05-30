@@ -369,12 +369,12 @@ export const AuthState = () => {
 					locationDetails: encodedLocationDetails,
 			  })?.toString();
 
-		// if (userId) {
-		// 	params = new URLSearchParams({
-		// 		isVisitor: true,
-		// 		userId,
-		// 	})?.toString();
-		// }
+		if (userId) {
+			params = new URLSearchParams({
+				isVisitor: true,
+				userId,
+			})?.toString();
+		}
 
 		window.location.href = `${authBaseUrl}${path}?${params}`;
 	};
