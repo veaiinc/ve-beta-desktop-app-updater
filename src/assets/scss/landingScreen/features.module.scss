@@ -8,6 +8,7 @@
 	padding: 0 64px;
 	position: relative;
 	overflow: hidden;
+	font-family: var(--secondary-font-family);
 
 	.leftPart,
 	.rightPart {
@@ -15,23 +16,65 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		align-items: flex-start;
+		align-items: center;
 		position: relative;
 		height: 100%;
 	}
 
-	.leftPart__bottomPart,
-	.image {
+	.progressBarWrapper {
+		position: absolute;
+		top: 30%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 100%;
+		max-width: 260px;
+		height: 7px;
+		background: rgba(255, 255, 255, 0.2);
+		border-radius: 2px;
+		z-index: 20;
+		display: flex;
+		align-items: center;
+		opacity: 0; // initial state (can also be controlled by JS)
+
+		.stepNumberLeft,
+		.stepNumberRight {
+			color: var(--primary-font, #f2f2f3);
+			font-size: 14px;
+			font-weight: 500;
+			text-transform: uppercase;
+			position: absolute;
+			top: -7px;
+			z-index: 21;
+		}
+
+		.stepNumberLeft {
+			left: -20px;
+		}
+
+		.stepNumberRight {
+			right: -20px;
+		}
+	}
+
+	.progressBar {
+		width: 0%;
+		height: 100%;
+		background-color: #79ecc9;
+		border-radius: 2px;
+		z-index: 30;
+	}
+
+	.leftPart__bottomPart {
 		position: absolute;
 		top: 50%;
-		left: 0;
+		left: 50%;
+		transform: translate(-50%, -50%);
 		width: 100%;
-		opacity: 0;
-		transition: opacity 0.3s ease;
-		transform: translateY(-50%);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		text-align: center;
+		z-index: 10;
 	}
 
 	.title {
@@ -54,13 +97,21 @@
 		max-width: 575px;
 		width: 100%;
 		text-align: center;
+		margin-top: 12px;
 	}
 
 	.image {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		opacity: 0;
 		display: flex;
-		align-items: center;
 		justify-content: center;
-
+		align-items: center;
+		will-change: transform, opacity;
+		z-index: 0;
+		width: 100%;
 		img {
 			max-width: 100%;
 			height: auto;
