@@ -29,8 +29,6 @@ const AgentDetails = () => {
 	const agentName = activeKnowledgeAssistant?.data?.name ?? info.agentName;
 	const agentDescription = activeKnowledgeAssistant?.data?.description ?? info.agentDescription;
 
-	console.log(agentName, agentDescription);
-
 	useEffect(() => {
 		if (activeKnowledgeAssistant === null && agentId) getActiveKnowledgeAgentDetails(agentId);
 	}, []);
@@ -125,7 +123,7 @@ const AgentDetails = () => {
 						)}
 					</div>
 				</div>
-				<ConfigureAgent />
+				<ConfigureAgent agentId={agentId} />
 			</div>
 		</div>
 	);
