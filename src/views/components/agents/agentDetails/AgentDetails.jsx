@@ -1,5 +1,7 @@
-import { memo, useState } from 'react';
+import { memo, useState, useContext, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import s from './agentDetails.module.scss';
+import Context from '../../../../context/context';
 
 // images
 import CatIcon from './assets/cat.png';
@@ -8,13 +10,30 @@ import CatIcon from './assets/cat.png';
 import PencilIcon from './assets/PencilIcon';
 import ConfigureAgent from './configureAgent/ConfigureAgent';
 
-const AgentDetails = ({ agentName, agentDescription, setAgentDetails }) => {
+const AgentDetails = () => {
+	const { agentId } = useParams();
+
+	const {
+		knowledgeAgent: { getActiveKnowledgeAgentDetails, activeKnowledgeAssistant },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
+		agentName: 'Agent name',
+		agentDescription: 'Agent description',
 		editAgentDetails: {
 			agentName: false,
 			agentDescription: false,
 		},
 	});
+
+	const agentName = activeKnowledgeAssistant?.data?.name ?? info.agentName;
+	const agentDescription = activeKnowledgeAssistant?.data?.description ?? info.agentDescription;
+
+	console.log(agentName, agentDescription);
+
+	useEffect(() => {
+		if (activeKnowledgeAssistant === null && agentId) getActiveKnowledgeAgentDetails(agentId);
+	}, []);
 
 	const toggleEditAgentDetails = (type) => {
 		setInfo((prev) => ({
@@ -33,31 +52,35 @@ const AgentDetails = ({ agentName, agentDescription, setAgentDetails }) => {
 							<input
 								type="text"
 								autoFocus
-								onChange={(e) => setAgentDetails({ agentName: e.target.value })}
+								onChange={(e) =>
+									setInfo((prev) => ({ ...prev, agentName: e.target.value }))
+								}
 								onKeyDown={(e) => {
 									if (e.key === 'Enter') {
 										toggleEditAgentDetails('agentName');
 									}
 								}}
 								onBlur={() => toggleEditAgentDetails('agentName')}
-								value={agentName}
+								value={info.agentName}
 								aria-label="Edit agent name"
 								className={s.input}
 							/>
 						) : (
-							<span
-								onClick={() => toggleEditAgentDetails('agentName')}
-								role="button"
-								tabIndex={0}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter') {
-										toggleEditAgentDetails('agentName');
-									}
-								}}
-							>
-								{agentName}
+							<>
+								<span
+									onClick={() => toggleEditAgentDetails('agentName')}
+									role="button"
+									tabIndex={0}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter') {
+											toggleEditAgentDetails('agentName');
+										}
+									}}
+								>
+									{info.agentName}
+								</span>
 								<PencilIcon />
-							</span>
+							</>
 						)}
 					</div>
 					<div className={s.agentDescription}>
@@ -65,7 +88,10 @@ const AgentDetails = ({ agentName, agentDescription, setAgentDetails }) => {
 							<textarea
 								autoFocus
 								onChange={(e) =>
-									setAgentDetails({ agentDescription: e.target.value })
+									setInfo((prev) => ({
+										...prev,
+										agentDescription: e.target.value,
+									}))
 								}
 								onKeyDown={(e) => {
 									if (e.key === 'Enter') {
@@ -75,7 +101,7 @@ const AgentDetails = ({ agentName, agentDescription, setAgentDetails }) => {
 									}
 								}}
 								onBlur={() => toggleEditAgentDetails('agentDescription')}
-								value={agentDescription}
+								value={info.agentDescription}
 								aria-label="Edit agent description"
 								className={s.textarea}
 								rows={3}
@@ -92,7 +118,7 @@ const AgentDetails = ({ agentName, agentDescription, setAgentDetails }) => {
 										}
 									}}
 								>
-									{agentDescription}
+									{info.agentDescription}
 								</p>
 								<PencilIcon />
 							</>

@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import s from './configureAgent.module.scss';
 
 const navItems = [
@@ -25,12 +25,26 @@ const navItems = [
 ];
 
 const ConfigureAgent = () => {
+	const [info, setInfo] = useState({
+		activeNavItem: 1,
+	});
+
 	return (
-		<div>
+		<div className={s.container}>
 			<nav>
 				<ol>
 					{navItems.map((item) => (
-						<li key={item.id}>{item.label}</li>
+						<li
+							className={`${s.navItem} ${
+								item.id === info.activeNavItem ? s.active : ''
+							}`}
+							key={item.id}
+							onClick={() => setInfo((prev) => ({ ...prev, activeNavItem: item.id }))}
+							role="button"
+							tabIndex={0}
+						>
+							{item.label}
+						</li>
 					))}
 				</ol>
 			</nav>

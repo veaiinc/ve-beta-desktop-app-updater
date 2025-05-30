@@ -29,6 +29,10 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: 30px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 8px;
 
 				span {
 					width: 100%;
@@ -38,18 +42,18 @@
 					align-items: center;
 					gap: 8px;
 					position: relative;
+				}
 
+				svg {
+					opacity: 0;
+					transform: translateX(10px);
+					transition: all 0.2s ease-in-out;
+				}
+
+				&:hover {
 					svg {
-						opacity: 0;
-						transform: translateX(10px);
-						transition: all 0.2s ease-in-out;
-					}
-
-					&:hover {
-						svg {
-							opacity: 1;
-							transform: translateX(0);
-						}
+						opacity: 1;
+						transform: translateX(0);
 					}
 				}
 
@@ -140,6 +144,11 @@
 						outline: none;
 						border-color: var(--primary-color, #4a9eff);
 					}
+				}
+
+				p {
+					width: 100%;
+					text-align: left;
 				}
 			}
 		}
