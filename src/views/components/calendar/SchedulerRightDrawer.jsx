@@ -236,6 +236,14 @@ const SchedulerRightDrawer = ({
 				durationInMinutes >= 60 ? Math.floor(durationInMinutes / 60) : durationInMinutes;
 			const durationUnit = durationInMinutes >= 60 ? 'hrs' : 'min';
 
+			// Format session window dates only in edit mode
+			const startDate = sessionDetail.sessionWindow?.startDate
+				? dayjs(sessionDetail.sessionWindow.startDate).format('YYYY-MM-DD')
+				: null;
+			const endDate = sessionDetail.sessionWindow?.endDate
+				? dayjs(sessionDetail.sessionWindow.endDate).format('YYYY-MM-DD')
+				: null;
+
 			setInfo({
 				...initialInfo,
 				...sessionDetail,
@@ -243,8 +251,8 @@ const SchedulerRightDrawer = ({
 				location: sessionDetail.sessionTypeInfo?.location || '',
 				phoneNumber: sessionDetail.sessionTypeInfo?.phone || '',
 				meetingLink: sessionDetail.sessionTypeInfo?.meetingLink || '',
-				scheduleFrom: sessionDetail.sessionWindow?.startDate || null,
-				scheduleTo: sessionDetail.sessionWindow?.endDate || null,
+				schedulerWindowStart: startDate,
+				schedulerWindowEnd: endDate,
 				availability: {
 					availabilitySlots: sessionDetail.availabilitySlots || [],
 					customExceptions: sessionDetail.customExceptions || [],
@@ -267,6 +275,13 @@ const SchedulerRightDrawer = ({
 			});
 			setActiveTab(sessionDetail.sessionTypeInfo?.sessionType || initialTab);
 			setOriginalData(sessionDetail);
+		} else if (mode === 'create') {
+			// In create mode, set default values without API data
+			setInfo({
+				...initialInfo,
+				schedulerWindowStart: dayjs().format('YYYY-MM-DD'),
+				schedulerWindowEnd: dayjs().add(13, 'day').format('YYYY-MM-DD'),
+			});
 		}
 	}, [mode, sessionDetail, sessionId, initialTab]);
 
@@ -482,7 +497,7 @@ const SchedulerRightDrawer = ({
 		return payload;
 	};
 
-	const handleCreateOrUpdate = useCallback(() => {
+	const handleCreateOrUpdate = useCallback(async () => {
 		if (info.creatingSessionLoading) return; // Prevent multiple rapid clicks
 		// Log all form data for debugging, including duration and all fields
 		// Validate date range only if custom availability
@@ -594,13 +609,13 @@ const SchedulerRightDrawer = ({
 			};
 		}
 
-		// Always include sessionWindow: for custom use custom dates, otherwise use today + 2 weeks
+		// Always include session window: for custom use custom dates, otherwise use today + 2 weeks
 		let sessionWindow;
-		if (info.availability?.mode === 'custom') {
+		if (info.schedulerWindowStart && info.schedulerWindowEnd) {
 			sessionWindow = {
 				type: 'fixed_date_range',
-				startDate: info.availability.custom.start,
-				endDate: info.availability.custom.never ? null : info.availability.custom.end,
+				startDate: info.schedulerWindowStart,
+				endDate: info.schedulerWindowEnd,
 			};
 		} else {
 			sessionWindow = {
@@ -643,7 +658,7 @@ const SchedulerRightDrawer = ({
 		};
 
 		if (mode === 'create') {
-			createSchedulerSession(sessionPayload);
+			await createSchedulerSession(sessionPayload);
 		} else if (mode === 'edit') {
 			const payload = buildUpdatePayload(info, originalData);
 			if (Object.keys(payload).length === 0) {
@@ -911,6 +926,45 @@ const SchedulerRightDrawer = ({
 									content = (
 										<div className="collapse-content duration-collapse-content">
 											<div className="duration-row">
+												<div className="duration-label">
+													Scheduler Window
+												</div>
+												<div className="scheduler-window-container">
+													<div className="scheduler-window-row">
+														<div className="scheduler-window-label">
+															Start Date
+														</div>
+														<input
+															type="date"
+															className="scheduler-window-input"
+															value={info.schedulerWindowStart}
+															onChange={(e) =>
+																handleFieldChange(
+																	'schedulerWindowStart',
+																	e.target.value,
+																)
+															}
+														/>
+													</div>
+													<div className="scheduler-window-row">
+														<div className="scheduler-window-label">
+															End Date
+														</div>
+														<input
+															type="date"
+															className="scheduler-window-input"
+															value={info.schedulerWindowEnd}
+															onChange={(e) =>
+																handleFieldChange(
+																	'schedulerWindowEnd',
+																	e.target.value,
+																)
+															}
+														/>
+													</div>
+												</div>
+											</div>
+											<div className="duration-row">
 												<div className="duration-label">Time Zone</div>
 												<div className="duration-field">
 													<div className="timeZone-container">
@@ -1084,6 +1138,7 @@ const SchedulerRightDrawer = ({
 													</div>
 												</div>
 											</div>
+
 											{/* <div className="duration-allday-row">
 												<div className="custom-checkbox">
 													<input
