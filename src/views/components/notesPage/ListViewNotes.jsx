@@ -15,7 +15,7 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 //constants
 const infiniteScrollHeight = 'calc(100vh - 142px)';
 
-const ListViewNotes = ({ notes, fetchMoreNotes }) => {
+const ListViewNotes = ({ notes, fetchMoreNotes, userId }) => {
 	const navigate = useNavigate();
 	const notesList = notes?.data ?? [];
 	const hasNextPage = notes?.hasNextPage ?? false;
@@ -40,7 +40,8 @@ const ListViewNotes = ({ notes, fetchMoreNotes }) => {
 		>
 			<CreateNewNote viewMode="list" />
 			{notesList.map((note) => {
-				const { updatedAt, title, iconImage, _id, permissions, isFavourite } = note;
+				const { updatedAt, title, iconImage, _id, permissions, favorites } = note;
+				const isFavourite = favorites?.includes(userId);
 				let parsedIconImage;
 				try {
 					parsedIconImage = JSON.parse(JSON.parse(iconImage))?.native;

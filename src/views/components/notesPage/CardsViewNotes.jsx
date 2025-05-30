@@ -15,7 +15,7 @@ import { ReactComponent as StarSvg } from '../../../assets/svg/notesPage/star.sv
 //constants
 const infiniteScrollHeight = 'calc(100vh - 142px)';
 
-const CardsViewNotes = ({ notes, fetchMoreNotes }) => {
+const CardsViewNotes = ({ notes, fetchMoreNotes, userId }) => {
 	const navigate = useNavigate();
 	const notesList = notes?.data ?? [];
 	const hasNextPage = notes?.hasNextPage ?? false;
@@ -41,9 +41,10 @@ const CardsViewNotes = ({ notes, fetchMoreNotes }) => {
 		>
 			<CreateNewNote viewMode="cards" />
 			{notesList.map((note) => {
-				const { updatedAt, title, iconImage, coverImage, _id, permissions, isFavourite } =
+				const { updatedAt, title, iconImage, coverImage, _id, permissions, favorites } =
 					note;
 				let parsedIconImage;
+				const isFavourite = favorites?.includes(userId);
 				try {
 					parsedIconImage = JSON.parse(JSON.parse(iconImage))?.native;
 				} catch {
