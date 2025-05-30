@@ -9,6 +9,17 @@ import { ReactComponent as LinkLightSvg } from '../../../assets/svg/notes/loop-l
 import { ReactComponent as LinkDarkSvg } from '../../../assets/svg/notes/loop-dark.svg';
 import { useParams, useSearchParams } from 'react-router-dom';
 import AIMessage from './AIMessage';
+const builderAgentMapper = {
+	formBuilderAgent: {
+		label: 'Form',
+	},
+	invoiceBuilderAgent: {
+		label: 'Invoice',
+	},
+	contractBuilderAgent: {
+		label: 'Contract',
+	},
+};
 const FormModel = ({
 	workflowTemplateId,
 	moduleTemplateId,
