@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useContext } from 'react';
 import s from './createNewAgentCard.module.scss';
 
 // icons
@@ -6,8 +6,32 @@ import { ReactComponent as CarretRight } from './assets/carret-right.svg';
 
 // images
 import AgentsIcons from './assets/agents-icons.png';
+import Context from '../../../../context/context';
 
-const CreateNewAgentCard = ({ handleCreateAgent }) => {
+// utils
+import { generateRandomAIAgentName } from './utils';
+import { message } from '../../globalComponents/CustomToast';
+import { useNavigate } from 'react-router-dom';
+
+const CreateNewAgentCard = () => {
+	const navigate = useNavigate();
+
+	const {
+		knowledgeAgent: { createNewKnowledgeAgent },
+	} = useContext(Context);
+
+	const handleCreateAgent = async () => {
+		const agentName = generateRandomAIAgentName();
+		console.log('agentName', agentName);
+		const [success, data] = await createNewKnowledgeAgent(agentName);
+		if (success) {
+			const assistantId = data?.insertedId;
+			navigate(`/agent/${assistantId}`);
+		} else {
+			message.error(data?.message);
+		}
+	};
+
 	return (
 		<div className={s.agentIntroCard}>
 			<h1 className={s.title}>Every Agent is truly Proactive AI</h1>

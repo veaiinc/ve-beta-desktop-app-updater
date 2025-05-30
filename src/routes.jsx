@@ -66,6 +66,7 @@ import EditScheduler from './views/features/calendar/EditScheduler';
 import Contacts from './views/features/contacts/Contacts';
 import NotesPage from './views/features/notesPage/NotesPage';
 import Agents from './views/features/agents/Agents';
+import Agent from './views/features/agents/agent/Agent';
 
 const routes = [
 	{
@@ -646,6 +647,14 @@ const routes = [
 				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
 			>
 				<Agents />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/agent/:agentId',
+		component: (
+			<AuthWrapper title="Agent">
+				<Agent />
 			</AuthWrapper>
 		),
 	},
