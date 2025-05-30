@@ -167,12 +167,14 @@ const AutomationWidget = ({ width, height }) => {
 						<ArrowViewIcon style={{ width: '18px', height: '18px' }} />
 						View Automations
 					</div>
-					<div className="automationWidgetFooterAdd">
+					<div
+						onClick={(e) => {
+							e.stopPropagation();
+							handleCreateAutomation();
+						}}
+						className="automationWidgetFooterAdd"
+					>
 						<AddIcon
-							onClick={(e) => {
-								e.stopPropagation();
-								handleCreateAutomation();
-							}}
 							style={{
 								width: '18px',
 								height: '18px',

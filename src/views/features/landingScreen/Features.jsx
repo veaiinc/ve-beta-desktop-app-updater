@@ -124,7 +124,7 @@ const Features = () => {
 			onUpdate: (self) => {
 				const step = Math.min(3, Math.max(1, Math.ceil(self.progress * 3)));
 				if (stepLeftRef.current) {
-					stepLeftRef.current.textContent = step.toString();
+					stepLeftRef.current.textContent = `0${step}`;
 				}
 			},
 		});
@@ -157,10 +157,10 @@ const Features = () => {
 			<div className={s.leftPart}>
 				<div className={s.progressBarWrapper}>
 					<div className={s.stepNumberLeft} ref={stepLeftRef}>
-						1
+						01
 					</div>
 					<div className={s.progressBar} ref={progressRef}></div>
-					<div className={s.stepNumberRight}>3</div>
+					<div className={s.stepNumberRight}>03</div>
 				</div>
 
 				{titles.map((text, i) => (

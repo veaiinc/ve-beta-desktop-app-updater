@@ -25,7 +25,10 @@ const AIMessageRenderer = ({
 	index,
 	handleSendWebsocketMessage,
 	toggleLatestStreamMessage,
+	latestStreamMesage,
+	lastQuery,
 	handleViewDocument,
+	showViewDocument = false,
 	isPublicChat = false,
 	userMessageElement = null,
 	chatContentElement = null,
@@ -157,11 +160,11 @@ const AIMessageRenderer = ({
 						messageData={messageData}
 						isNewMessage={index === globalChatMessages?.length - 1}
 						handleSendWebsocketMessage={handleSendWebsocketMessage}
-						latestStreamMesage={info?.latestStreamMesage}
-						lastQuery={info?.lastQuery}
+						latestStreamMesage={latestStreamMesage}
+						lastQuery={lastQuery}
 						toggleLatestStreamMessage={toggleLatestStreamMessage}
 						handleViewDocument={handleViewDocument}
-						showViewDocument={info?.showViewDocument}
+						showViewDocument={showViewDocument}
 						isLastMessage={index === globalChatMessages?.length - 1}
 						isPublicChat={isPublicChat}
 					/>

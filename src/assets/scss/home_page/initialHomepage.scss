@@ -7,9 +7,10 @@
 	position: relative;
 
 	.quick-actions-container {
-		position: absolute;
-		top: 0px;
-		right: 0px;
+		position: fixed;
+		top: 32px;
+		right: 32px;
+		z-index: 1000;
 	}
 
 	.home-page-container-header {
@@ -124,8 +125,7 @@
 	.home-page-container-content {
 		width: 100%;
 		padding-top: 50px;
-		overflow-y: auto;
-		overflow-x: hidden;
+		overflow: hidden;
 		flex-grow: 1;
 	}
 }

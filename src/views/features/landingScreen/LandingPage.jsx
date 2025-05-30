@@ -15,14 +15,14 @@ import AskMe from '../homePage/AskMe';
 import Tagline from './Tagline';
 import EarlyAccess from './EarlyAccess';
 import Footer from './Footer';
-import HeroImage from '../../../assets/images/heroImage.png';
 import HowItWorks from './HowItWorks';
+import ChatBox from '../../components/chat/ChatBox';
 import Features from './Features';
 const routeType = 'public';
 
 const LandingPage = () => {
 	const {
-		themeInfo: { theme, updateTheme },
+		themeInfo: { theme },
 		templates: { updateStateValues, currentSessionId },
 	} = useContext(Context);
 
@@ -107,10 +107,17 @@ const LandingPage = () => {
 							<span className="title-one">The World's First</span>
 							<span className="title-two">proactive AI OS</span>
 						</div>
-						<AskMe landingPage />
+						<div className="chatbox-container">
+							<ChatBox
+								customChatActions={true}
+								autoFocus={true}
+								isPublicChat={true}
+								animatePlaceholder={true}
+								onSend={handleCustomOnSendFunction}
+							/>
+						</div>
 					</div>
 					<Tagline />
-					<img src={HeroImage} alt="homepage" className="homepageImage" />
 					<HowItWorks />
 					<Features />
 					<div style={{ height: '4300px' }}></div>

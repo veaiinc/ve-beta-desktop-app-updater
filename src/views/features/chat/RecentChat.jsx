@@ -404,6 +404,7 @@ const RecentChat = ({
 					moduleTemplateId,
 					followUpQuery,
 					chainOfThought,
+					rating,
 				} = data?.[i] || {};
 
 				if (firstTimeApiCall) {
@@ -439,7 +440,7 @@ const RecentChat = ({
 						message: response,
 						type: 'AI',
 						messageId,
-						rating: null,
+						rating: rating || null,
 						citations,
 						follow_up_query: followUpQuery || [],
 						workflow_template_id: workflowTemplateId || null,
@@ -773,8 +774,15 @@ const RecentChat = ({
 																toggleLatestStreamMessage={
 																	toggleLatestStreamMessage
 																}
+																latestStreamMesage={
+																	info?.latestStreamMesage
+																}
+																lastQuery={info?.lastQuery}
 																handleViewDocument={
 																	handleViewDocument
+																}
+																showViewDocument={
+																	info?.showViewDocument
 																}
 																isPublicChat={isPublicChat}
 															/>

@@ -54,7 +54,7 @@
 		border-radius: 8px;
 		border: 1px solid var(--stroke);
 		background: var(--card);
-		backdrop-filter: blur(25px);
+		// backdrop-filter: blur(25px);
 
 		input {
 			flex: 1; /* Makes the input take the available width */

@@ -61,7 +61,7 @@ const defaultPreference = {
 	updatedAt: { show: false, order: 15 },
 };
 
-const TaskWidget = ({ width, height }) => {
+const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 	const location = useLocation();
 	const isContactPage = location?.pathname?.includes('contact');
 	const navigate = useNavigate();
@@ -113,23 +113,30 @@ const TaskWidget = ({ width, height }) => {
 	useEffect(() => {
 		setInfo((prev) => ({ ...prev, loading: true }));
 		getTasksList(1);
-	}, [location.pathname]);
+	}, [location.pathname, clientId]);
 
 	useEffect(() => {
 		if (listTasks) {
 			if (listTasks?.data) {
 				setInfo((prevInfo) => {
-					const existingTaskIds = new Set(prevInfo?.listItems?.map((task) => task._id));
-					const newTasks = listTasks?.data?.filter(
-						(task) => !existingTaskIds.has(task._id),
-					);
+					// Reset listItems when clientId changes or on first load
+					const shouldReset = prevInfo?.page === 1 || !prevInfo?.listItems?.length;
+					const newTasks = shouldReset ? listTasks?.data : prevInfo?.listItems;
+
+					// Calculate client-specific pending tasks only for contact page
+					if (isContactPage && onTaskCountUpdate) {
+						const clientPendingTasks =
+							listTasks?.data?.filter(
+								(task) =>
+									task?.clients?.some((client) => client?._id === clientId) &&
+									!task?.status?.includes('completed'),
+							).length || 0;
+						onTaskCountUpdate(clientPendingTasks);
+					}
 
 					return {
 						...prevInfo,
-						listItems:
-							info?.page === 1
-								? listTasks?.data
-								: [...prevInfo?.listItems, ...newTasks],
+						listItems: newTasks,
 						hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
 						loading: false,
 						infinityLoading: false,
@@ -146,7 +153,7 @@ const TaskWidget = ({ width, height }) => {
 				hasMore: false,
 			}));
 		}
-	}, [listTasks]);
+	}, [listTasks, clientId, onTaskCountUpdate, isContactPage]);
 
 	const responseMetadata = useMemo(
 		() => ({
@@ -361,29 +368,78 @@ const TaskWidget = ({ width, height }) => {
 
 	const getTasksList = async (page) => {
 		try {
+			// Only set loading to true if it's the first page
+			if (page === 1) {
+				setInfo((prev) => ({ ...prev, loading: true }));
+			}
 			const response = await getListItems({
 				taskFilterInput: {
 					limit: 20,
 					page,
+					filters: clientId
+						? [
+								{
+									key: 'clients',
+									value: clientId,
+								},
+						  ]
+						: [],
 				},
 			});
-			const nextPage = response?.[1]?.data?.listTasks?.currentPage + 1;
-			const hasNextPage = response?.[1]?.data?.listTasks?.hasNextPage;
+
+			if (response?.[0]) {
+				const taskData = response?.[1]?.data?.listTasks;
+				setInfo((prev) => ({
+					...prev,
+					listItems:
+						page === 1
+							? taskData?.data || []
+							: [...prev.listItems, ...(taskData?.data || [])],
+					hasNextPage: taskData?.hasNextPage || false,
+					page: taskData?.currentPage + 1,
+					loading: false,
+					infinityLoading: false,
+					error: null,
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					loading: false,
+					infinityLoading: false,
+					error: 'Failed to fetch tasks',
+				}));
+			}
+		} catch (error) {
 			setInfo((prev) => ({
 				...prev,
-				page: nextPage,
-				hasNextPage,
+				loading: false,
+				infinityLoading: false,
+				error: error.message,
 			}));
-		} catch (error) {
-			setInfo((prev) => ({ ...prev, loading: false, error: error.message }));
 		}
 	};
 
-	const fetchMoreData = () => {
-		if (info?.hasNextPage) {
+	// Add useEffect to reset and refetch tasks when clientId changes
+	useEffect(() => {
+		if (clientId) {
+			setInfo((prev) => ({
+				...prev,
+				loading: true,
+				page: 1,
+				listItems: [], // Reset listItems when clientId changes
+				hasNextPage: false,
+			}));
+			getTasksList(1);
+		}
+	}, [clientId]);
+
+	// Update fetchMoreData to handle client filtering
+	const fetchMoreData = useCallback(() => {
+		if (info?.hasNextPage && !info?.loading && !info?.infinityLoading) {
+			setInfo((prev) => ({ ...prev, infinityLoading: true }));
 			getTasksList(info?.page);
 		}
-	};
+	}, [info?.hasNextPage, info?.loading, info?.infinityLoading, info?.page]);
 
 	const handlePromptPopup = (item) => {
 		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
@@ -423,7 +479,10 @@ const TaskWidget = ({ width, height }) => {
 										sortType: item?.sortType,
 								  }))
 								: [{ sortBy: 'createdAt', sortType: 1 }],
-						filters: mapFiltersPayload(info?.filters),
+						filters: [
+							...(info?.filters || []),
+							...(clientId ? [{ key: 'clients', value: clientId }] : []),
+						],
 						search: info?.searchValue,
 						group: info?.group,
 					},
@@ -440,7 +499,10 @@ const TaskWidget = ({ width, height }) => {
 										sortType: item?.sortType,
 								  }))
 								: [{ sortBy: 'createdAt', sortType: 1 }],
-						filters: mapFiltersPayload(info?.filters),
+						filters: [
+							...(info?.filters || []),
+							...(clientId ? [{ key: 'clients', value: clientId }] : []),
+						],
 						search: info?.searchValue,
 					},
 				});
@@ -450,7 +512,7 @@ const TaskWidget = ({ width, height }) => {
 				page: page,
 			}));
 		},
-		[info?.sort, info?.filters, info?.searchValue, info?.group],
+		[info?.sort, info?.filters, info?.searchValue, info?.group, clientId],
 	);
 
 	const debouncedUpdateTask = useCallback(
@@ -690,7 +752,13 @@ const TaskWidget = ({ width, height }) => {
 				<div className="taskWidgetBody">
 					<div className="taskWidgetBodyHeader">
 						<div className="taskWidgetBodyHeaderLeft">
-							<span className="taskWidgetDay">{listTasks?.analytics?.allTasks}</span>
+							<span className="taskWidgetDay">
+								{isContactPage
+									? info?.listItems?.filter(
+											(task) => !task?.status?.includes('completed'),
+									  ).length
+									: listTasks?.analytics?.allPending || 0}
+							</span>
 							<span className="taskWidgetRemainder">Pending Tasks</span>
 						</div>
 						{/* <div className="taskWidgetBodyHeaderRight">
@@ -732,7 +800,15 @@ const TaskWidget = ({ width, height }) => {
 								next={fetchMoreData}
 								loader={<FetchMoreLoaderComp />}
 								scrollableTarget="taskWidgetBodyContainer"
-								scrollThreshold="90%"
+								scrollThreshold={0.8}
+								// endMessage={
+								// 	<div
+								// 		className="taskWidgetEmptyState"
+								// 		style={{ fontSize: '12px', alignSelf: 'center' }}
+								// 	>
+								// 		No more tasks to load
+								// 	</div>
+								// }
 							>
 								<div className="taskWidgetOptionsContainer">
 									{info?.listItems
@@ -828,12 +904,14 @@ const TaskWidget = ({ width, height }) => {
 					<ArrowViewIcon />
 					View Tasks
 				</div>
-				<div className="taskWidgetFooterAdd">
+				<div
+					onClick={(e) => {
+						e.stopPropagation();
+						handleCreateTaskPopup();
+					}}
+					className="taskWidgetFooterAdd"
+				>
 					<PlusIcon
-						onClick={(e) => {
-							e.stopPropagation();
-							handleCreateTaskPopup();
-						}}
 						style={{
 							width: '18px',
 							height: '18px',

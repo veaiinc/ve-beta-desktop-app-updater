@@ -95,7 +95,11 @@ const ChatPrompts = ({ promptsCategory }) => {
 	};
 
 	const handlePromptCardClick = (card) => {
-		setInfo((prev) => ({ ...prev, selectedCard: card, promptPopupOpen: true }));
+		const transformedCard = {
+			...card,
+			prompt: card.prompt?.replace(/\{{([^{}}]+)\}\}/g, '[$1]'),
+		};
+		setInfo((prev) => ({ ...prev, selectedCard: transformedCard, promptPopupOpen: true }));
 	};
 
 	// const handlePromptCategoryClick = (value) => {

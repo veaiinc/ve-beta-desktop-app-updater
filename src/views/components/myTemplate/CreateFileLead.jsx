@@ -487,7 +487,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 									{ label: 'Reference', value: 'reference' },
 									{ label: 'None', value: 'null' },
 								]}
-								selectedValue={info?.leadDetails?.source || 'Select Source'}
+								selectedValue={'Select Source'}
 								containerStyle={{ ...headerDropdownStyles }}
 								dropDownStyle={{
 									right: 0,
@@ -525,7 +525,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 							<HeadersDropDownComp
 								showIcon={false}
 								options={info?.clientData || []}
-								selectedValue={info?.leadDetails?.name || 'Select Contact'}
+								selectedValue={'Select Contact'}
 								containerStyle={{ ...headerDropdownStyles }}
 								dropDownStyle={{
 									right: 0,
@@ -535,7 +535,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 								}}
 								onChangeFunc={handleDropdownChange}
 								dropDownTextStyling={{ ...dropdownTextStylings }}
-								showSelectedValueTick={true}
+								// showSelectedValueTick={true}
 								uniqueIdentifierForTickIcon={'_id'}
 								selectedValueObj={info?.selectedLead}
 								fetchMoreData={getMoreClientData}

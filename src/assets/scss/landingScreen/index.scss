@@ -6,8 +6,7 @@
 		position: fixed;
 		inset: 0;
 		z-index: 988; // just below the tabNavigation z-index
-		backdrop-filter: blur(6px);
-		background-color: var(--background-color);
+		background-color: var(--backdrop);
 		transition: opacity 0.3s ease;
 		opacity: 0;
 		pointer-events: none;
@@ -21,12 +20,13 @@
 
 .page-header {
 	display: flex;
-	padding: 32px 32px 20px 32px;
+	padding: 16px;
 	justify-content: space-between;
 	align-items: center;
-	border-radius: 8px;
 	background: var(--background-color, #0c0c0d);
 	font-family: var(--secondary-font-family);
+	position: fixed;
+	width: 100%;
 
 	.left-container {
 		display: flex;
@@ -226,7 +226,7 @@
 		justify-content: center;
 		gap: 30px;
 		background: var(--background-color, #0c0c0d);
-		padding-top: 91px;
+		padding-top: 150px;
 		// overflow-y: auto; // Allow vertical scrolling if needed
 
 		.title-container {
@@ -235,6 +235,12 @@
 			align-items: center;
 			gap: 32px;
 			width: 100%;
+			.chatbox-container {
+				width: 100%;
+				max-width: 750px;
+				height: 114px;
+				position: relative;
+			}
 			.title-text {
 				display: flex;
 				flex-direction: column;
@@ -310,7 +316,6 @@
 			width: 100%;
 			display: flex;
 			max-width: 1440px;
-			padding: 100px 32px 32px 32px;
 			flex-direction: column;
 			align-items: center;
 			gap: 100px;
