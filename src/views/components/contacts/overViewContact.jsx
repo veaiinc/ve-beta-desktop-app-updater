@@ -20,6 +20,7 @@ const OverviewContact = () => {
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		contact: null,
+		pendingTaskCount: 0,
 	});
 	const [editField, setEditField] = useState(null);
 	const [editValue, setEditValue] = useState('');
@@ -70,6 +71,10 @@ const OverviewContact = () => {
 		if (!info?.contact?._id) return;
 		await deleteClient({ deleteClientId: info.contact._id });
 		navigate('/contacts');
+	};
+
+	const handleTaskCountUpdate = (count) => {
+		setInfo((prev) => ({ ...prev, pendingTaskCount: count }));
 	};
 
 	return (
@@ -185,7 +190,12 @@ const OverviewContact = () => {
 				</div>
 				<div className="parent-widget-container">
 					<div>
-						<TaskWidget width={'100%'} height={'520px'} />
+						<TaskWidget
+							width={'100%'}
+							height={'520px'}
+							clientId={contactId}
+							onTaskCountUpdate={handleTaskCountUpdate}
+						/>
 					</div>
 					{/* <div>
 						<AutomationWidget width={'100%'} height={'520px'} />

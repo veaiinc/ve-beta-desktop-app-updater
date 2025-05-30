@@ -102,6 +102,48 @@
 							font-size: 11px;
 						}
 					}
+
+					.deleteButton {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						width: 32px;
+						height: 32px;
+						border-radius: 8px;
+						cursor: pointer;
+						opacity: 0;
+						transition: all 0.3s ease;
+						background: var(--card-over-card);
+						border: 1px solid var(--stroke);
+
+						&:hover {
+							border-color: var(--error);
+						}
+
+						svg {
+							width: 16px;
+							height: 16px;
+						}
+
+						@media screen and (max-width: 768px) {
+							opacity: 1;
+							width: 28px;
+							height: 28px;
+
+							svg {
+								width: 14px;
+								height: 14px;
+							}
+						}
+					}
+
+					&:hover .deleteButton {
+						opacity: 1;
+					}
+				}
+
+				&.open .deleteButton {
+					opacity: 1;
 				}
 
 				.download {

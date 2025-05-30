@@ -80,6 +80,7 @@ const SchedulerMainPage = () => {
 	}, []);
 
 	const handleUpdateSession = useCallback((updatedSession) => {
+		console.log('updatedSession', updatedSession);
 		setInfo((prev) => ({
 			...prev,
 			schedulerList: prev.schedulerList.map((session) =>

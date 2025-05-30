@@ -159,8 +159,11 @@
 			gap: 8px;
 			border-radius: 8px;
 			border: 1px solid var(--error);
-			background: rgba(199, 27, 58, 0.06);
 			cursor: pointer;
+
+			&:hover {
+				background: rgba(199, 27, 58, 0.06);
+			}
 
 			.delete-button-text {
 				color: var(--error);
