@@ -20,6 +20,7 @@ const FormModel = ({
 	showViewDocument = false,
 	messageData,
 	isLastMessage = false,
+	isMessageActive = false,
 }) => {
 	const [isExpanded, setIsExpanded] = useState(false);
 	const formRef = useRef(null);
@@ -40,6 +41,7 @@ const FormModel = ({
 	}, [showViewDocument, messageData?.stream_end, isLastMessage]);
 
 	const handleExpand = () => {
+		if (!isMessageActive) return;
 		setIsExpanded(!isExpanded);
 		if (handleViewDocument) {
 			handleViewDocument(!isExpanded);

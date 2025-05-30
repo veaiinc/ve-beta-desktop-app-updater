@@ -32,6 +32,7 @@ const AIMessageRenderer = ({
 	isPublicChat = false,
 	userMessageElement = null,
 	chatContentElement = null,
+	isMessageActive = false,
 }) => {
 	const {
 		templates: { globalChatMessages },
@@ -167,6 +168,7 @@ const AIMessageRenderer = ({
 						showViewDocument={showViewDocument}
 						isLastMessage={index === globalChatMessages?.length - 1}
 						isPublicChat={isPublicChat}
+						isMessageActive={isMessageActive}
 					/>
 				</>
 			) : info?.activeTab === 'cot' ? (
