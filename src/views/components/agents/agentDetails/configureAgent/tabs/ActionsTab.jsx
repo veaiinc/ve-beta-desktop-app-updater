@@ -73,12 +73,26 @@ const ActionsTab = ({ agentId }) => {
 
 	return (
 		<div className={s?.actionsTabContainer}>
-			<div className={s?.searchInputContainer}>
-				<div className={s?.searchIcon}>
-					<SearchSvg />
+			<div className={s?.actionsHeader}>
+				<div className={s?.searchInputContainer}>
+					<div className={s?.searchIcon}>
+						<SearchSvg />
+					</div>
+					<input type="text" placeholder="Browse tools" className={s?.searchInput} />
 				</div>
-				<input type="text" placeholder="Browse tools" className={s?.searchInput} />
+				<div
+					className={s?.addActionButton}
+					onClick={() =>
+						setInfo((prevStates) => ({
+							...prevStates,
+							actionModalOpen: true,
+						}))
+					}
+				>
+					Add action
+				</div>
 			</div>
+
 			<div className={s?.actionsContainer}>
 				{info?.aiActionList?.map((action) => {
 					const {
