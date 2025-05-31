@@ -1,0 +1,61 @@
+.proactiveDropdown__container {
+	// width: 100%;
+	background: var(--card, #18191b);
+	padding: 50px 120px 80px 120px;
+	border-bottom: 1px solid var(--stroke, #2c2d2e);
+	display: flex;
+	gap: 200px;
+
+	.left .heading,
+	.right .heading {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		color: var(--primary-button, #79ecc9);
+		font-size: 16px;
+		font-weight: 500;
+
+		svg {
+			width: 18px;
+			height: 18px;
+			color: var(--primary-button, #79ecc9);
+		}
+	}
+
+	.left .listContainer .list,
+	.right .list {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+
+		span {
+			* {
+				color: var(--primary-font, #f2f2f3);
+				font-size: 20px;
+				transition: text-decoration 0.3s ease;
+				text-underline-offset: 3px;
+
+				&:hover {
+					text-decoration: underline;
+				}
+			}
+		}
+	}
+
+	.left {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+
+		.listContainer {
+			display: flex;
+			gap: 100px;
+		}
+	}
+
+	.right {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+	}
+}

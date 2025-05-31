@@ -45,7 +45,9 @@ const data = [
 	},
 ];
 
-const Suggestions = () => {
+const landingPageSuggestionsLength = 5;
+
+const Suggestions = ({ landingPage = false }) => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
@@ -59,22 +61,27 @@ const Suggestions = () => {
 		navigate(`/chat/${sessionId}`);
 	};
 	return (
-		<div className="suggestions-wrapper">
-			{data?.map((suggestion, index) => (
-				<div
-					className="suggestion-container"
-					key={index}
-					onClick={() => handleSuggestionClick(suggestion)}
-				>
-					<div className="icon-container">
-						<SearchSvg />
+		<div
+			className="suggestions-wrapper"
+			style={{ height: landingPage ? '250px' : '100%', overflow: 'hidden' }}
+		>
+			{data
+				.slice(0, landingPage ? landingPageSuggestionsLength : data.length)
+				?.map((suggestion, index) => (
+					<div
+						className="suggestion-container"
+						key={index}
+						onClick={() => handleSuggestionClick(suggestion)}
+					>
+						<div className="icon-container">
+							<SearchSvg />
+						</div>
+						<div className="suggestion-text">{suggestion?.text}</div>
+						<div className="arrow-icon">
+							<ArrowRightSvg />
+						</div>
 					</div>
-					<div className="suggestion-text">{suggestion?.text}</div>
-					<div className="arrow-icon">
-						<ArrowRightSvg />
-					</div>
-				</div>
-			))}
+				))}
 		</div>
 	);
 };

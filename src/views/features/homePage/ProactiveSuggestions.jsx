@@ -516,32 +516,30 @@ const ProactiveSuggestions = () => {
 		<div className="proactive-suggestions-container">
 			<div className="action-container">
 				<div className="left-container">
-					{info?.isListView && (
-						<div className="btns-container">
+					{/* {info?.isListView && ( */}
+					<div className="btns-container">
+						<div
+							className={`btn ${info?.activeBtn === 'insights' ? 'active' : ''}`}
+							onClick={() => handleBtnClick('insights')}
+						>
+							<div className="icon-container">
+								<ListDashesSvg />
+							</div>
+							<div className="text-container">Insights</div>
+						</div>
+						{aiQuestions?.data?.length > 0 && (
 							<div
-								className={`btn ${info?.activeBtn === 'insights' ? 'active' : ''}`}
-								onClick={() => handleBtnClick('insights')}
+								className={`btn ${info?.activeBtn === 'questions' ? 'active' : ''}`}
+								onClick={() => handleBtnClick('questions')}
 							>
 								<div className="icon-container">
-									<ListDashesSvg />
+									<QuestionSvg />
 								</div>
-								<div className="text-container">Insights</div>
+								<div className="text-container">Questions</div>
 							</div>
-							{aiQuestions?.data?.length > 0 && (
-								<div
-									className={`btn ${
-										info?.activeBtn === 'questions' ? 'active' : ''
-									}`}
-									onClick={() => handleBtnClick('questions')}
-								>
-									<div className="icon-container">
-										<QuestionSvg />
-									</div>
-									<div className="text-container">Questions</div>
-								</div>
-							)}
-						</div>
-					)}
+						)}
+					</div>
+					{/* )} */}
 				</div>
 				<div className="right-container">
 					<div className="viewSelectionContainer">
@@ -726,7 +724,12 @@ const ProactiveSuggestions = () => {
 					</div>
 				)}
 			</>
-			{info?.isListView ? (
+			{info?.activeBtn === 'questions' && (
+				<div className="ai-questions-wrapper">
+					<AIQuestions />
+				</div>
+			)}
+			{info?.isListView && info?.activeBtn === 'insights' ? (
 				<div className="proactiveSuggestionsContainer">
 					{info?.loading && !aiSuggestedPendingActions?.pendingActions?.length ? (
 						<div className="skeleton-container">
@@ -1093,119 +1096,118 @@ const ProactiveSuggestions = () => {
 									</div>
 								</InfiniteScroll>
 							)}
-							{info?.activeBtn === 'questions' && (
-								<div className="ai-questions-wrapper">
-									<AIQuestions />
-								</div>
-							)}
 						</div>
 					)}
 				</div>
 			) : (
-				<>
-					<div className="cards-container">
-						{info?.loading ? (
-							[
-								{ position: 0 },
-								{ position: 1 },
-								{ position: 2 },
-								{ position: -1 },
-								{ position: -2 },
-							]?.map((item, index) => {
-								const classList = [
-									'card',
-									'skeleton',
-									positionClassMap[item.position],
-								];
-								return (
-									<div key={index} className={classList.join(' ')}>
+				info?.activeBtn === 'insights' && (
+					<>
+						<div className="cards-container">
+							{info?.loading ? (
+								[
+									{ position: 0 },
+									{ position: 1 },
+									{ position: 2 },
+									{ position: -1 },
+									{ position: -2 },
+								]?.map((item, index) => {
+									const classList = [
+										'card',
+										'skeleton',
+										positionClassMap[item.position],
+									];
+									return (
+										<div key={index} className={classList.join(' ')}>
+											<div
+												className="skeleton-container"
+												style={{
+													width: '100%',
+													height: '100%',
+													borderRadius: '10px',
+												}}
+											>
+												<Skeleton height={'100%'} width={'100%'} />
+											</div>
+										</div>
+									);
+								})
+							) : info?.cards?.length === 0 ? (
+								<div className="no-data" style={{ color: 'var(--primary-font)' }}>
+									No data available
+								</div>
+							) : (
+								info?.cards?.map((card, index) => {
+									if (card?.position === null) return null;
+									const classList = ['card', positionClassMap[card?.position]];
+									return (
 										<div
-											className="skeleton-container"
-											style={{
-												width: '100%',
-												height: '100%',
-												borderRadius: '10px',
-											}}
+											key={card?._id}
+											className={classList?.join(' ')}
+											onClick={() => handleCardClick(card, index)}
 										>
-											<Skeleton height={'100%'} width={'100%'} />
-										</div>
-									</div>
-								);
-							})
-						) : info?.cards?.length === 0 ? (
-							<div className="no-data" style={{ color: 'var(--primary-font)' }}>
-								No data available
-							</div>
-						) : (
-							info?.cards?.map((card, index) => {
-								if (card?.position === null) return null;
-								const classList = ['card', positionClassMap[card?.position]];
-								return (
-									<div
-										key={card?._id}
-										className={classList?.join(' ')}
-										onClick={() => handleCardClick(card, index)}
-									>
-										<div className="header">
-											<div className="card-description">{card?.title}</div>
-										</div>
-										{classList?.[1] === 'selected' && (
-											<div className="footer">
-												<div className="module-type">
-													{card?.moduleType}
-												</div>
-												<div className="module-priority">
-													<span
-														style={{
-															backgroundColor:
-																PriorityLevel[card?.priority],
-														}}
-													></span>
-													<div className="module-priority-text">
-														<div>{card?.priority}</div>
-														{card?.priority && card?.updatedAt && (
-															<div
-																style={{
-																	color: 'var(--secondary-font)',
-																}}
-															>
-																|
-															</div>
-														)}
-														<Tooltip
-															title={dayjs(
-																card?.updatedAt * 1000,
-															).format('MMMM D, YYYY h:mm A')}
-														>
-															<div>
-																{dayjs(
-																	card?.updatedAt * 1000,
-																)?.fromNow()}
-															</div>
-														</Tooltip>
-													</div>
+											<div className="header">
+												<div className="card-description">
+													{card?.title}
 												</div>
 											</div>
-										)}
-									</div>
-								);
-							})
-						)}
-					</div>
-
-					<div className="action-right">
-						<button className="card-change-btn" onClick={handleLeft}>
-							<ChevronRightThinSvg className="left-chevron" />
-						</button>
-						<div className="card-number">
-							<span>{currentIndexRef?.current + 1}</span>/
-							<span>{aiSuggestedPendingActions?.metaInfo?.totalDocs}</span>
+											{classList?.[1] === 'selected' && (
+												<div className="footer">
+													<div className="module-type">
+														{card?.moduleType}
+													</div>
+													<div className="module-priority">
+														<span
+															style={{
+																backgroundColor:
+																	PriorityLevel[card?.priority],
+															}}
+														></span>
+														<div className="module-priority-text">
+															<div>{card?.priority}</div>
+															{card?.priority && card?.updatedAt && (
+																<div
+																	style={{
+																		color: 'var(--secondary-font)',
+																	}}
+																>
+																	|
+																</div>
+															)}
+															<Tooltip
+																title={dayjs(
+																	card?.updatedAt * 1000,
+																).format('MMMM D, YYYY h:mm A')}
+															>
+																<div>
+																	{dayjs(
+																		card?.updatedAt * 1000,
+																	)?.fromNow()}
+																</div>
+															</Tooltip>
+														</div>
+													</div>
+												</div>
+											)}
+										</div>
+									);
+								})
+							)}
 						</div>
-						<button className="card-change-btn" onClick={handleRight}>
-							<ChevronRightThinSvg />
-						</button>
-					</div>
-				</>
+
+						<div className="action-right">
+							<button className="card-change-btn" onClick={handleLeft}>
+								<ChevronRightThinSvg className="left-chevron" />
+							</button>
+							<div className="card-number">
+								<span>{currentIndexRef?.current + 1}</span>/
+								<span>{aiSuggestedPendingActions?.metaInfo?.totalDocs}</span>
+							</div>
+							<button className="card-change-btn" onClick={handleRight}>
+								<ChevronRightThinSvg />
+							</button>
+						</div>
+					</>
+				)
 			)}
 			<AISuggestionsModal
 				open={info?.openModal}

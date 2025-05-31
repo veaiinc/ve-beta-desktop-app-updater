@@ -270,7 +270,7 @@ export const Markdown = memo(NonMemoizedMarkdown, (prevProps, nextProps) => {
 	return prevProps.children === nextProps.children && citationsEqual;
 });
 
-export const UserMessageRenderer = memo(({ messageData, activeUserMessageIndex }) => {
+export const UserMessageRenderer = memo(({ messageData }) => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
@@ -370,7 +370,6 @@ export const UserMessageRenderer = memo(({ messageData, activeUserMessageIndex }
 						<div>
 							<div
 								style={{
-									// opacity: activeUserMessageIndex ? 1 : 0.6,
 									maxHeight: info?.isExpanded
 										? `${textRef.current?.scrollHeight}px`
 										: '147px',
