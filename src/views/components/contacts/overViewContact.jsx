@@ -4,7 +4,7 @@ import AutomationWidget from '../globalComponents/AutomationWidget';
 import CalenderWidget from '../globalComponents/CalenderWidget';
 import '../../../assets/scss/contacts/overViewContact.scss';
 import Context from '../../../context/context';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ReactComponent as EditIcon } from '../../../assets/svg/workflow/edit.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/svg/delete.svg';
@@ -73,9 +73,14 @@ const OverviewContact = () => {
 		navigate('/contacts');
 	};
 
-	const handleTaskCountUpdate = (count) => {
-		setInfo((prev) => ({ ...prev, pendingTaskCount: count }));
-	};
+	const handleTaskCountUpdate = useCallback(
+		(count) => {
+			if (info.pendingTaskCount !== count) {
+				setInfo((prev) => ({ ...prev, pendingTaskCount: count }));
+			}
+		},
+		[info.pendingTaskCount],
+	);
 
 	return (
 		<div className="about-container">
