@@ -7,6 +7,10 @@ import { FetchMoreLoaderComp } from '../../../../../../helpers';
 import { message, Switch } from 'antd';
 import AddKnowledgeModal from '../../../../modalsV2/knowledgeAgent/AddKnowledgeModal';
 import { fileTypeIcons } from '../../../../../../helpers';
+
+const page = 1;
+const limit = 10;
+
 const KnowledgeBaseTab = ({ agentId }) => {
 	const {
 		aiSetup: { updateKnowledgeBaseFile },
@@ -22,12 +26,10 @@ const KnowledgeBaseTab = ({ agentId }) => {
 	});
 
 	useEffect(() => {
-		if (agentId) {
-			const page = 1,
-				limit = 10;
+		if ((knowledgeBaseInfo?.data ?? [])?.length === 0) {
 			getKnowledgeBaseInfo(agentId, page, limit);
 		}
-	}, [agentId]);
+	}, []);
 
 	useEffect(() => {
 		if (knowledgeBaseInfo) {
@@ -45,28 +47,31 @@ const KnowledgeBaseTab = ({ agentId }) => {
 
 	const fetchMoreKnowledgeBaseFiles = () => {
 		const page = info?.currentPage + 1;
-		const limit = 10;
-		getKnowledgeBaseInfo(agentId, page, limit);
+		const append = true;
+		getKnowledgeBaseInfo(agentId, page, limit, append);
 	};
 
 	const handleToggleChange = useCallback(
 		async (knowledgeId, value) => {
 			try {
+				const knowledgeBaseFilesCopy = [...info?.knowledgeBaseFiles]; // In case of error, revert to the original state
+				const updatedKnowledgeFiles = info?.knowledgeBaseFiles?.map((item) =>
+					item?._id === knowledgeId ? { ...item, isActive: !item?.isActive } : item,
+				);
+				setInfo((prev) => ({
+					...prev,
+					knowledgeBaseFiles: updatedKnowledgeFiles,
+				}));
 				const response = await updateKnowledgeBaseFile(knowledgeId, {
 					isActive: value,
 				});
 
-				if (response?.[0]) {
-					message?.success('Knowledge base file updated successfully');
-					const updatedKnowledgeFiles = info?.knowledgeBaseFiles?.map((item) =>
-						item?._id === knowledgeId ? { ...item, isActive: !item?.isActive } : item,
-					);
+				if (!response?.[0]) {
+					message?.error('Failed to update knowledge base file');
 					setInfo((prev) => ({
 						...prev,
-						knowledgeBaseFiles: updatedKnowledgeFiles,
+						knowledgeBaseFiles: knowledgeBaseFilesCopy,
 					}));
-				} else {
-					message?.error('Failed to update knowledge base file');
 				}
 			} catch (error) {
 				console.log(error);

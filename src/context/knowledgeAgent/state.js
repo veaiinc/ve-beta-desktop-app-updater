@@ -280,7 +280,7 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
-	const getKnowledgeBaseInfo = async (agentId, page = 1, limit = 20) => {
+	const getKnowledgeBaseInfo = async (agentId, page = 1, limit = 20, append = false) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const path = `/${workspaceId}/knowledge-bases?page=${page}&limit=${limit}&knowledgeAgentId=${agentId}`;
@@ -291,7 +291,15 @@ export const KnowledgeAgentState = () => {
 			if (success) {
 				dispatch({
 					type: Actions?.SET_KNOWLEDGE_BASE_INFO,
-					payload: response?.[1],
+					payload: {
+						...response?.[1],
+						data: append
+							? [
+									...(state?.knowledgeBaseInfo?.data || []),
+									...(response?.[1]?.data || []),
+							  ]
+							: [...(response?.[1]?.data || [])],
+					},
 				});
 			}
 		} catch (error) {
