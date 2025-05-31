@@ -1,14 +1,19 @@
-import { memo, useContext, useEffect } from 'react';
+import { memo, useContext, useEffect, useState } from 'react';
 import s from './knowledgeBaseTab.module.scss';
 import Context from '../../../../../../context/context';
 import { ReactComponent as PlusSvg } from '../../../../../../assets/svg/ai_assistant/plus.svg';
 import InfiniteScroll from '../../../../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../../../../helpers';
 import { Switch } from 'antd';
+import AddKnowledgeModal from '../../../../modalsV2/knowledgeAgent/AddKnowledgeModal';
 const KnowledgeBaseTab = ({ agentId }) => {
 	let {
 		aiSetup: { getKnowledgeBaseFiles, knowledgeBaseFiles },
 	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		knowledgeModalOpen: false,
+	});
 
 	useEffect(() => {
 		if (agentId) {
@@ -18,6 +23,8 @@ const KnowledgeBaseTab = ({ agentId }) => {
 			getKnowledgeBaseFiles(agentId, page, limit, fetchMore);
 		}
 	}, [agentId]);
+
+	console.log(knowledgeBaseFiles);
 
 	const fetchMoreKnowledgeBaseFiles = () => {
 		const page = knowledgeBaseFiles?.currentPage + 1;
@@ -54,12 +61,12 @@ const KnowledgeBaseTab = ({ agentId }) => {
 						knowledge for chats.
 					</div>
 				</div>
-				<div className={s?.addKnowledgeBaseContainer}>
+				<button className={s?.addKnowledgeBaseButton}>
 					<div className={s?.iconContainer}>
 						<PlusSvg />
 					</div>
-					<button className={s?.addKnowledgeBaseButton}>Knowledge</button>
-				</div>
+					Knowledge
+				</button>
 			</div>
 			<div className={s?.assistantsListContainer}>
 				<div className={s?.listHeader}>
@@ -106,6 +113,13 @@ const KnowledgeBaseTab = ({ agentId }) => {
 					</InfiniteScroll>
 				</div>
 			</div>
+			<AddKnowledgeModal
+				isOpen={info?.knowledgeModalOpen}
+				assistantId={agentId}
+				toggleModal={() => {
+					setInfo((prev) => ({ ...prev, knowledgeModalOpen: false }));
+				}}
+			/>
 		</div>
 	);
 };

@@ -1,4 +1,5 @@
-import { memo, useMemo, useState } from 'react';
+import { memo, useMemo, useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import s from './configureAgent.module.scss';
 import KnowledgeBaseTab from './tabs/KnowledgeBaseTab';
 
@@ -26,9 +27,26 @@ const navItems = [
 ];
 
 const ConfigureAgent = ({ agentId }) => {
+	const [searchParams, setSearchParams] = useSearchParams();
+
+	const configParam = searchParams.get('config');
+	const initialNavItem = navItems.find((item) => item.value === configParam)?.id || 1;
+
 	const [info, setInfo] = useState({
-		activeNavItem: 1,
+		activeNavItem: initialNavItem,
 	});
+
+	useEffect(() => {
+		if (!configParam) {
+			setSearchParams({ config: 'instructions' });
+		}
+		setInfo((prev) => ({ ...prev, activeNavItem: initialNavItem }));
+	}, []);
+
+	const handleNavItemClick = (item) => {
+		setInfo((prev) => ({ ...prev, activeNavItem: item.id }));
+		setSearchParams({ config: item.value });
+	};
 
 	const componentMapper = useMemo(() => {
 		return {
@@ -46,7 +64,7 @@ const ConfigureAgent = ({ agentId }) => {
 								item.id === info.activeNavItem ? s.active : ''
 							}`}
 							key={item.id}
-							onClick={() => setInfo((prev) => ({ ...prev, activeNavItem: item.id }))}
+							onClick={() => handleNavItemClick(item)}
 							role="button"
 							tabIndex={0}
 						>

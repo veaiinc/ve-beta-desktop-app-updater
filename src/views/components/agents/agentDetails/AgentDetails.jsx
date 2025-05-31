@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import s from './agentDetails.module.scss';
 import Context from '../../../../context/context';
 import { message } from '../../../components/globalComponents/CustomToast';
+import RunAndBuildToggle from '../runBuildToggle/RunAndBuildToggle';
+// import RecentChat from '../../../features/chat/RecentChat';
 
 // images
 import CatIcon from './assets/cat.png';
@@ -93,7 +95,11 @@ const AgentDetails = () => {
 
 	return (
 		<div className={s.container}>
+			{/* <div className={s.recentChatContainer}>
+				<RecentChat />
+			</div> */}
 			<div className={s.agentDetailsContainer}>
+				<RunAndBuildToggle />
 				<img src={CatIcon} alt="agent icon" className={s.agentIcon} />
 				<div className={s.agentDetails}>
 					<div className={s.agentName}>

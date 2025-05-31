@@ -3,6 +3,18 @@
 	height: 100vh;
 	padding: 32px;
 
+	.title {
+		height: 41px;
+		display: flex;
+		align-items: center;
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 20px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 26px;
+	}
+
 	.stepLabel {
 		height: 40px;
 		display: flex;
