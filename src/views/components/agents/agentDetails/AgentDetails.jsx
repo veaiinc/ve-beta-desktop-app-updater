@@ -1,7 +1,8 @@
-import { memo, useState, useContext, useEffect } from 'react';
+import { memo, useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import s from './agentDetails.module.scss';
 import Context from '../../../../context/context';
+import { message } from '../../../components/globalComponents/CustomToast';
 
 // images
 import CatIcon from './assets/cat.png';
@@ -11,10 +12,15 @@ import PencilIcon from './assets/PencilIcon';
 import ConfigureAgent from './configureAgent/ConfigureAgent';
 
 const AgentDetails = () => {
+	const timeoutId = useRef(null);
 	const { agentId } = useParams();
 
 	const {
-		knowledgeAgent: { getActiveKnowledgeAgentDetails, activeKnowledgeAssistant },
+		knowledgeAgent: {
+			activeKnowledgeAssistant,
+			getActiveKnowledgeAgentDetails,
+			updateKnowledgeAgent,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -26,14 +32,57 @@ const AgentDetails = () => {
 		},
 	});
 
-	const agentName = activeKnowledgeAssistant?.data?.name ?? info.agentName;
-	const agentDescription = activeKnowledgeAssistant?.data?.description ?? info.agentDescription;
-
-	console.log(agentName, agentDescription);
-
 	useEffect(() => {
 		if (activeKnowledgeAssistant === null && agentId) getActiveKnowledgeAgentDetails(agentId);
 	}, []);
+
+	useEffect(() => {
+		if (activeKnowledgeAssistant?.data?.name?.length > 0) {
+			setInfo((prev) => ({
+				...prev,
+				agentName: activeKnowledgeAssistant?.data?.name,
+			}));
+		}
+		if (activeKnowledgeAssistant?.data?.description?.length > 0) {
+			setInfo((prev) => ({
+				...prev,
+				agentDescription: activeKnowledgeAssistant?.data?.description,
+			}));
+		}
+	}, [activeKnowledgeAssistant?.data?.name, activeKnowledgeAssistant?.data?.description]);
+
+	const updateAgentDetails = useCallback(() => {
+		const { agentName, agentDescription } = info;
+		if (agentName.length === 0) {
+			message.error('Agent name cannot be empty');
+			return;
+		}
+		if (agentDescription.length === 0) {
+			message.error('Agent description cannot be empty');
+			return;
+		}
+		const agentDetails = {
+			name: agentName,
+			description: agentDescription,
+		};
+		updateKnowledgeAgent(agentId, agentDetails);
+	}, [info.agentName, info.agentDescription]);
+
+	useEffect(() => {
+		clearTimeout(timeoutId.current);
+		timeoutId.current = setTimeout(() => {
+			updateAgentDetails();
+		}, 1000);
+		return () => clearTimeout(timeoutId.current);
+	}, [info.agentName, info.agentDescription]);
+
+	const handleNameChange = (e) => {
+		setInfo((prev) => ({ ...prev, agentName: e.target.value }));
+	};
+
+	const handleDescriptionChange = (e) => {
+		setInfo((prev) => ({ ...prev, agentDescription: e.target.value }));
+	};
 
 	const toggleEditAgentDetails = (type) => {
 		setInfo((prev) => ({
@@ -52,9 +101,7 @@ const AgentDetails = () => {
 							<input
 								type="text"
 								autoFocus
-								onChange={(e) =>
-									setInfo((prev) => ({ ...prev, agentName: e.target.value }))
-								}
+								onChange={handleNameChange}
 								onKeyDown={(e) => {
 									if (e.key === 'Enter') {
 										toggleEditAgentDetails('agentName');
@@ -87,12 +134,7 @@ const AgentDetails = () => {
 						{info.editAgentDetails.agentDescription ? (
 							<textarea
 								autoFocus
-								onChange={(e) =>
-									setInfo((prev) => ({
-										...prev,
-										agentDescription: e.target.value,
-									}))
-								}
+								onChange={handleDescriptionChange}
 								onKeyDown={(e) => {
 									if (e.key === 'Enter') {
 										if (e.shiftKey) return;
