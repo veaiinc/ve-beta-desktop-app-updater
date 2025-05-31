@@ -97,7 +97,7 @@ const LandingPage = () => {
 					<Tagline />
 					<HowItWorks />
 					<Features />
-					<div style={{ height: '3200px' }}></div>
+					<div className="responsive-spacer"></div>
 					<EarlyAccess />
 					<Footer />
 				</div>
