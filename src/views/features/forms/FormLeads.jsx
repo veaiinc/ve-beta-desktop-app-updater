@@ -695,7 +695,7 @@ const FormLeads = () => {
 													}))
 												}
 											>
-												<Copylink />
+												<Copylink className="copy-link" />
 												<div className="edit">Share</div>
 											</div>
 											<div

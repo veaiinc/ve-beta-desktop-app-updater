@@ -1,56 +1,81 @@
-import { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState, useCallback } from 'react';
 import s from './knowledgeBaseTab.module.scss';
 import Context from '../../../../../../context/context';
 import { ReactComponent as PlusSvg } from '../../../../../../assets/svg/ai_assistant/plus.svg';
 import InfiniteScroll from '../../../../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../../../../helpers';
-import { Switch } from 'antd';
+import { message, Switch } from 'antd';
 import AddKnowledgeModal from '../../../../modalsV2/knowledgeAgent/AddKnowledgeModal';
+import { fileTypeIcons } from '../../../../../../helpers';
 const KnowledgeBaseTab = ({ agentId }) => {
-	let {
-		aiSetup: { getKnowledgeBaseFiles, knowledgeBaseFiles },
+	const {
+		aiSetup: { updateKnowledgeBaseFile },
+		knowledgeAgent: { getKnowledgeBaseInfo, knowledgeBaseInfo },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		knowledgeModalOpen: false,
+		knowledgeBaseFiles: [],
+		hasNextPage: false,
+		currentPage: 1,
+		loading: true,
 	});
 
 	useEffect(() => {
 		if (agentId) {
 			const page = 1,
-				limit = 5,
-				fetchMore = false;
-			getKnowledgeBaseFiles(agentId, page, limit, fetchMore);
+				limit = 4;
+			getKnowledgeBaseInfo(agentId, page, limit);
 		}
 	}, [agentId]);
 
-	console.log(knowledgeBaseFiles);
+	useEffect(() => {
+		if (knowledgeBaseInfo) {
+			const { data = [], currentPage, hasNextPage } = knowledgeBaseInfo || {};
+			setInfo((prev) => ({
+				...prev,
+				knowledgeBaseFiles:
+					currentPage === 1 ? data : [...prev?.knowledgeBaseFiles, ...data],
+				hasNextPage: hasNextPage,
+				currentPage: currentPage,
+				loading: false,
+			}));
+		}
+	}, [knowledgeBaseInfo]);
 
 	const fetchMoreKnowledgeBaseFiles = () => {
-		const page = knowledgeBaseFiles?.currentPage + 1;
-		const limit = 5;
-		const fetchMore = true;
-		getKnowledgeBaseFiles(agentId, page, limit, fetchMore);
+		const page = info?.currentPage + 1;
+		const limit = 4;
+		getKnowledgeBaseInfo(agentId, page, limit);
 	};
 
-	knowledgeBaseFiles = {
-		data: [
-			{
-				_id: '1',
-				name: 'File 1',
-				updatedAt: '2021-01-01',
-				active: true,
-			},
-			{
-				_id: '2',
-				name: 'File 2',
-				updatedAt: '2021-01-01',
-				active: false,
-			},
-		],
-		hasNextPage: true,
-		currentPage: 1,
-	};
+	const handleToggleChange = useCallback(
+		async (knowledgeId, value) => {
+			try {
+				const response = await updateKnowledgeBaseFile(knowledgeId, {
+					isActive: value,
+				});
+
+				if (response?.[0]) {
+					message?.success('Knowledge base file updated successfully');
+					const updatedKnowledgeFiles = info?.knowledgeBaseFiles?.map((item) =>
+						item?._id === knowledgeId ? { ...item, isActive: !item?.isActive } : item,
+					);
+					setInfo((prev) => ({
+						...prev,
+						knowledgeBaseFiles: updatedKnowledgeFiles,
+					}));
+				} else {
+					message?.error('Failed to update knowledge base file');
+				}
+			} catch (error) {
+				console.log(error);
+				message?.error('Failed to update knowledge base file');
+			}
+		},
+		[info?.knowledgeBaseFiles],
+	);
+
 	return (
 		<div className={s?.knowledgeBaseContainer}>
 			<div className={s?.knowledgeBaseHeader}>
@@ -61,7 +86,12 @@ const KnowledgeBaseTab = ({ agentId }) => {
 						knowledge for chats.
 					</div>
 				</div>
-				<button className={s?.addKnowledgeBaseButton}>
+				<button
+					onClick={() => {
+						setInfo((prev) => ({ ...prev, knowledgeModalOpen: true }));
+					}}
+					className={s?.addKnowledgeBaseButton}
+				>
 					<div className={s?.iconContainer}>
 						<PlusSvg />
 					</div>
@@ -76,40 +106,57 @@ const KnowledgeBaseTab = ({ agentId }) => {
 				</div>
 				<div className={s?.assistantsList}>
 					<InfiniteScroll
-						dataLength={knowledgeBaseFiles?.data?.length || 0}
+						dataLength={info?.knowledgeBaseFiles?.length || 0}
 						next={fetchMoreKnowledgeBaseFiles}
-						hasMore={knowledgeBaseFiles?.hasNextPage || false}
+						hasMore={info?.hasNextPage || false}
 						loader={<FetchMoreLoaderComp />}
 						height={'100%'}
 						style={{
 							width: '100%',
 						}}
 					>
-						{knowledgeBaseFiles?.data?.map((file) => (
-							<div className={s?.assistantItem} key={file?._id}>
-								<div className={s?.assistantItemTitle}>{file?.name || ''}</div>
-								<div className={s?.assistantItemLastEdit}>
-									{file?.updatedAt || ''}
+						{info?.knowledgeBaseFiles?.map((file) => {
+							const { _id, isActive, name, sourceType, updatedAt } = file;
+							const formattedUpdatedAt = `${new Date(updatedAt * 1000)
+								?.toLocaleDateString('en-US', {
+									month: 'short',
+									day: '2-digit',
+									year: 'numeric',
+								})
+								?.replace(',', '')
+								?.replace(/^(\w+) (\d+) (\d+)$/, '$1, $2 $3')}`;
+
+							return (
+								<div className={s?.assistantItem} key={_id}>
+									<div className={s?.assistantItemTitle}>
+										<div className={s?.fileIcon}>
+											{fileTypeIcons[sourceType] || ''}
+										</div>
+										<div className={s?.fileName}>{name || ''}</div>
+									</div>
+									<div className={s?.assistantItemLastEdit}>
+										{formattedUpdatedAt || ''}
+									</div>
+									<div className={s?.assistantItemActive}>
+										<Switch
+											checked={isActive || false}
+											onChange={(checked) => {
+												handleToggleChange(_id, checked);
+											}}
+											size="small"
+											style={{
+												background: `${
+													isActive
+														? 'var(--primary-font)'
+														: 'var(--secondary-font)'
+												}`,
+											}}
+											className={s?.agentSwitch}
+										/>
+									</div>
 								</div>
-								<div className={s?.assistantItemActive}>
-									<Switch
-										checked={file?.active || false}
-										onChange={(checked) => {
-											console.log(checked);
-										}}
-										size="small"
-										style={{
-											background: `${
-												file?.active
-													? 'var(--primary-font)'
-													: 'var(--secondary-font)'
-											}`,
-										}}
-										className={s?.agentSwitch}
-									/>
-								</div>
-							</div>
-						))}
+							);
+						})}
 					</InfiniteScroll>
 				</div>
 			</div>

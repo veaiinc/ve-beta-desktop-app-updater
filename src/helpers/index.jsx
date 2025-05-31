@@ -12,7 +12,7 @@ import { ReactComponent as SlackSvg } from '../assets/svg/slack.svg';
 import { ReactComponent as NotionSvg } from '../assets/svg/notion.svg';
 import { ReactComponent as VeLogoSvg } from '../assets/svg/veLogo.svg';
 import { ReactComponent as DriveSvg } from '../assets/svg/drive.svg';
-
+import { ReactComponent as LinkSvg } from '../assets/svg/link.svg';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -333,6 +333,7 @@ export const fileTypeIcons = {
 	pdf: <PdfSvg />,
 	jpg: <JpgSvg />,
 	json: <JsonSvg />,
+	url: <LinkSvg />,
 	md: <MdSvg />,
 	jpeg: <JpgSvg />,
 	xlsx: <ExcelSvg />,
