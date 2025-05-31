@@ -31,6 +31,7 @@ const FormModel = ({
 	showViewDocument = false,
 	messageData,
 	isLastMessage = false,
+	agent = null,
 }) => {
 	const [isExpanded, setIsExpanded] = useState(false);
 	const formRef = useRef(null);
@@ -71,7 +72,9 @@ const FormModel = ({
 				}}
 			>
 				<div className="form-model-header">
-					<span className="form-model-header-title">VE.AI Form</span>
+					<span className="form-model-header-title">
+						VE.AI {builderAgentMapper[agent]?.label || 'Form'}
+					</span>
 					<ExpandIcon
 						className={`expand-icon ${isExpanded ? 'expanded' : ''}`}
 						onClick={handleExpand}
@@ -249,6 +252,7 @@ const Section1 = ({
 					latestStreamMesage={latestStreamMesage}
 					lastQuery={lastQuery}
 					toggleLatestStreamMessage={toggleLatestStreamMessage}
+					autoFocus={true}
 				/>
 			</div>
 		</div>

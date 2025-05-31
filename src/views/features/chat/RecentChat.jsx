@@ -389,6 +389,7 @@ const RecentChat = ({
 					followUpQuery,
 					chainOfThought,
 					rating,
+					designAgentsUsed,
 				} = data?.[i] || {};
 
 				if (firstTimeApiCall) {
@@ -432,6 +433,7 @@ const RecentChat = ({
 						isOldMessage: true,
 						stream_end: true,
 						processing,
+						used_agents: designAgentsUsed || [],
 						...(processing === 'Deep Search' && { deepSearch }),
 						...(processing === 'Deep Research' && { deepResearch }),
 					},
