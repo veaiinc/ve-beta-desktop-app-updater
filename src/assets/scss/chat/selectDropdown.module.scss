@@ -1,0 +1,65 @@
+.selectDropdown {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 14px 16px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--card, #181a1b);
+	border-radius: 8px;
+	color: var(--primary-font, #f2f2f3);
+	cursor: pointer;
+}
+
+.selectedValue {
+	color: var(--primary-font);
+	font-size: 14px;
+}
+
+.inlineSearchInput {
+	all: unset;
+	flex: 1;
+	font-size: 14px;
+	color: var(--primary-font);
+	background: transparent;
+	margin: 0;
+}
+
+.buildTooltipContainer {
+	display: flex;
+	flex-direction: column;
+	max-height: 200px;
+	overflow-y: auto;
+	background: var(--card, #181a1b);
+	border: 1px solid var(--stroke, #2c2d2e);
+	border-radius: 8px;
+	padding: 8px;
+	box-sizing: border-box;
+	width: 323px;
+}
+
+.searchInput {
+	padding: 8px;
+	margin-bottom: 8px;
+	background: var(--background-color, #1a1a1a);
+	border: 1px solid var(--stroke, #2c2d2e);
+	border-radius: 4px;
+	color: var(--primary-font);
+	font-size: 14px;
+}
+
+.option {
+	padding: 10px;
+	cursor: pointer;
+	transition: background 0.2s ease;
+	color: var(--primary-font);
+	border-radius: 4px;
+
+	&:hover {
+		background: var(--stroke);
+	}
+}
+
+.noOptions {
+	padding: 10px;
+	color: var(--secondary-font);
+}

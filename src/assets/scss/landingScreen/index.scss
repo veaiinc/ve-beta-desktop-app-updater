@@ -65,10 +65,10 @@
 
 			.proactiveDropdown {
 				cursor: pointer;
-				font-weight: 500;
 				color: var(--primary-font);
 				padding: 10px 16px;
 				transition: color 0.3s ease;
+				font-weight: 500;
 
 				&:hover {
 					color: var(--primary-button, #79ecc9);
@@ -114,6 +114,7 @@
 				position: relative;
 				cursor: pointer;
 				font-size: 14px;
+				font-weight: 500;
 
 				&::after {
 					content: '';
@@ -173,17 +174,17 @@
 
 		.login-btn {
 			display: flex;
-			padding: 14px 24px;
+			padding: 12px 24px;
 			justify-content: center;
 			align-items: center;
-			gap: 10px;
+			gap: 6px;
 			border-radius: 100px;
 			background: var(--primary-button, #cfff48);
 			color: var(--primary-button-font, #0c0c0d);
 			cursor: pointer;
 			border: none;
 			svg {
-				width: 20px !important;
+				width: 18px;
 				color: var(--primary-button-font);
 			}
 		}

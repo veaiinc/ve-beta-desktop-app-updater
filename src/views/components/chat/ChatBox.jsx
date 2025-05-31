@@ -1532,61 +1532,61 @@ const ChatBox = ({
 																// </SearchTypeTooltip>
 															)}
 
-															{!isPublicChat && (
-																<Tooltip
-																	title={
-																		<div className="chatbox-icon-tooltip-container">
-																			Build
-																		</div>
-																	}
-																	color="transparent"
-																	arrow={false}
-																	rootClassName="chatbox-tooltip"
+															{/* {!isPublicChat && ( */}
+															<Tooltip
+																title={
+																	<div className="chatbox-icon-tooltip-container">
+																		Build
+																	</div>
+																}
+																color="transparent"
+																arrow={false}
+																rootClassName="chatbox-tooltip"
+															>
+																<div
+																	className={`chat-box-icon-container ${
+																		chatInfo?.build
+																			? 'active'
+																			: ''
+																	}`}
+																	onClick={handleBuildClick}
 																>
-																	<div
-																		className={`chat-box-icon-container ${
-																			chatInfo?.build
-																				? 'active'
-																				: ''
-																		}`}
-																		onClick={handleBuildClick}
-																	>
-																		<div className="icon">
-																			<div className="text-wrapper">
-																				<div className="build-icon">
-																					<SparkSvg />
-																				</div>
-																				<div
-																					className="icon-text"
-																					style={{
-																						color: chatInfo?.build
-																							? 'var(--primary-button)'
-																							: 'var(--secondary-font)',
-																					}}
-																				>
-																					Build
+																	<div className="icon">
+																		<div className="text-wrapper">
+																			<div className="build-icon">
+																				<SparkSvg />
+																			</div>
+																			<div
+																				className="icon-text"
+																				style={{
+																					color: chatInfo?.build
+																						? 'var(--primary-button)'
+																						: 'var(--secondary-font)',
+																				}}
+																			>
+																				Build
+																			</div>
+																		</div>
+																		<BuildTooltip>
+																			<div
+																				className={`icon-arrow-wrapper ${
+																					chatInfo?.build
+																						? 'icon-arrow-wrapper-active'
+																						: ''
+																				}`}
+																				onClick={(e) =>
+																					e?.stopPropagation()
+																				}
+																			>
+																				<div className="icon-arrow">
+																					<ArrowDownSvg fill="var(--secondary-font)" />
 																				</div>
 																			</div>
-																			<BuildTooltip>
-																				<div
-																					className={`icon-arrow-wrapper ${
-																						chatInfo?.build
-																							? 'icon-arrow-wrapper-active'
-																							: ''
-																					}`}
-																					onClick={(e) =>
-																						e?.stopPropagation()
-																					}
-																				>
-																					<div className="icon-arrow">
-																						<ArrowDownSvg fill="var(--secondary-font)" />
-																					</div>
-																				</div>
-																			</BuildTooltip>
-																		</div>
+																		</BuildTooltip>
 																	</div>
-																</Tooltip>
-															)}
+																</div>
+															</Tooltip>
+															{/* )} */}
 														</div>
 
 														{/* {!isPublicChat && chatInfo?.build && (
