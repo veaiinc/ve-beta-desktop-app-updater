@@ -167,7 +167,7 @@ const AgentDetails = () => {
 						)}
 					</div>
 				</div>
-				<ConfigureAgent />
+				<ConfigureAgent agentId={agentId} />
 			</div>
 		</div>
 	);

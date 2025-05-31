@@ -1,0 +1,431 @@
+.modal1Wrapper {
+	display: flex;
+	width: 480px;
+	padding: 24px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	border-radius: 16px;
+	background: var(--Popup, #202123);
+
+	.modal1Header {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		width: 100%;
+		gap: 24px;
+		.backButtonWrapper {
+			display: flex;
+			padding: 2px;
+			align-items: center;
+			gap: 6px;
+			cursor: pointer;
+			.backButton {
+				color: var(--secondary-font, #7a7e85);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px;
+			}
+		}
+		.modalSteps {
+			display: grid;
+			width: 100%;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 12px;
+			.modalStepItem {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: flex-start;
+				gap: 8px;
+				flex: 1 0 0;
+
+				.modalStepItemLabel {
+					display: flex;
+					padding: 4px;
+					align-items: center;
+					gap: 6px;
+
+					.modalStepItemLabelTitle {
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+					.modalStepItemLabelCount {
+						width: 15px;
+						height: 15px;
+						border-radius: 50%;
+
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						font-family: var(--primary-font-family);
+						font-size: 10px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+				.modalStepStatus {
+					width: 100%;
+					height: 4px;
+					align-self: stretch;
+					border-radius: 20px;
+				}
+			}
+		}
+	}
+
+	.modal1Content {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+
+		.stepContent {
+			width: 100%;
+			.step1HeaderWrapper {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 16px;
+				align-self: stretch;
+				.step1Header {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 20px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+				.radioButtonGroup {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 16px;
+					align-self: stretch;
+					.radioButtonItem {
+						display: flex;
+						align-items: flex-start;
+						gap: 8px;
+						align-self: stretch;
+						position: relative;
+						.radioButtonInput[type='radio'] {
+							appearance: none;
+							width: 16px;
+							height: 16px;
+							border-radius: 50%;
+							border: 1px solid var(--primary-color, #79ecc9);
+							background: #363738;
+							display: flex;
+							align-items: center;
+							justify-content: center;
+							position: relative;
+							cursor: pointer;
+							transition: border-color 0.2s;
+						}
+
+						.radioButtonInput[type='radio']:checked {
+							border: 1px solid var(--primary-color, #79ecc9);
+						}
+
+						.radioButtonInput[type='radio']::after {
+							content: '';
+							display: block;
+							width: 8px;
+							height: 8px;
+							border-radius: 50%;
+							background: var(--primary-color, #79ecc9);
+							position: absolute;
+							top: 50%;
+							left: 50%;
+							transform: translate(-50%, -50%) scale(0);
+							transition: transform 0.2s;
+						}
+
+						.radioButtonInput[type='radio']:checked::after {
+							transform: translate(-50%, -50%) scale(1);
+						}
+						.radioButtonLabel {
+							display: flex;
+							flex-direction: column;
+							justify-content: center;
+							align-items: flex-start;
+							gap: 2px;
+
+							.radioButtonLabelTitle {
+								color: var(--primary-font, #f2f2f3);
+								font-family: var(--primary-font-family);
+								font-size: 14px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: 20px;
+							}
+							.radioButtonLabelDescription {
+								color: var(--secondary-font, #7a7e85);
+								font-family: var(--primary-font-family);
+								font-size: 13px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: 19px;
+							}
+						}
+					}
+				}
+				.step1Separator {
+					width: 432px;
+					height: 2px;
+					background: var(--stroke, #2b2e31);
+				}
+				.additionalFilters {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 6px;
+					align-self: stretch;
+					.additionalFilterLabel {
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+					.additionalFilterDescription {
+						color: var(--secondary-font, #7a7e85);
+						font-family: var(--primary-font-family);
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 19px;
+					}
+				}
+				.filterInfo {
+					display: flex;
+					padding: 8px;
+					align-items: flex-start;
+					gap: 8px;
+					align-self: stretch;
+					border-radius: 6px;
+					background: var(--card-over-card-hover, #27282b);
+					.filterInfoTitle {
+						color: var(--secondary-font, #7a7e85);
+						font-family: var(--primary-font-family);
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 19px;
+					}
+				}
+				.filterInput {
+					display: flex;
+					height: 40px;
+					padding: 8px 12px;
+					align-items: center;
+					gap: 8px;
+					align-self: stretch;
+					border-radius: 10px;
+					border: 1px solid var(--stroke-hover, #424548);
+
+					.filterInputItem {
+						outline: none;
+						border: none;
+						width: 100%;
+						height: 100%;
+						background: none;
+						color: var(--primary-font, #f2f2f3);
+					}
+				}
+				.continueButton {
+					display: flex;
+					height: 40px;
+					padding: 8px 12px;
+					justify-content: center;
+					align-items: center;
+					gap: 8px;
+					align-self: stretch;
+					border-radius: 10px;
+					background: var(--primary-font, #f2f2f3);
+					color: var(--background-color, #111113);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: 20px;
+					cursor: pointer;
+				}
+			}
+
+			// step 2 styles
+			.step2HeaderWrapper {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 24px;
+				.step2Header {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 20px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+				.workHours {
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					align-items: flex-start;
+					gap: 12px;
+					flex: 1 0 0;
+
+					.workHoursTitle {
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 20px;
+					}
+					.workHoursDescription {
+						color: var(--secondary-font, #7a7e85);
+						font-family: var(--primary-font-family);
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 19px;
+					}
+					.workHoursCheckbox {
+						display: flex;
+						align-items: center;
+						gap: 8px;
+						position: relative;
+
+						.workHoursCheckboxInput {
+							appearance: none;
+							width: 17px;
+							height: 17px;
+							border: 1px solid var(--primary-color, #79ecc9);
+							border-radius: 6px;
+							background: transparent;
+							cursor: pointer;
+							position: relative;
+							transition: border-color 0.2s;
+							display: flex;
+							align-items: center;
+							justify-content: center;
+						}
+
+						// Show SVG only when checked
+						.workHoursCheckboxInput:checked {
+							border: 1px solid var(--primary-color, #79ecc9);
+						}
+
+						// Hide the SVG by default
+						svg {
+							display: none;
+							position: absolute;
+							left: 6.5px;
+							pointer-events: none;
+						}
+
+						// Show the SVG when checked
+						.workHoursCheckboxInput:checked + svg {
+							display: block;
+						}
+						.workHoursCheckboxLabel {
+							color: var(--primary-font, #f2f2f3);
+							font-family: var(--primary-font-family);
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 18px;
+							cursor: pointer;
+						}
+					}
+				}
+
+				.timeZone {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 6px;
+					align-self: stretch;
+
+					.timeZoneTitle {
+						color: var(--secondary-font, #7a7e85);
+						font-family: var(--primary-font-family);
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 19px;
+					}
+
+					.timeZoneSelect {
+						width: 100%;
+						background: var(--popup, #202123);
+						color: var(--primary-font, #f2f2f3);
+						border: 1px solid var(--stroke, #2c2d2e);
+						border-radius: 8px;
+						font-size: 13px;
+						font-family: var(--primary-font-family);
+						padding: 0 12px;
+						height: 40px;
+						display: flex;
+						align-items: center;
+						cursor: pointer;
+					}
+
+					.timeZoneDropdown {
+						overflow-y: auto;
+						background: var(--popup, #202123);
+						border: 1px solid var(--stroke, #2c2d2e);
+						border-radius: 8px;
+						width: 100%;
+						
+					}
+
+					.timeZoneDropdownItem {
+						padding: 10px 12px;
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 13px;
+						font-weight: 500;
+						cursor: pointer;
+						transition: background 0.2s;
+						&:hover {
+							background: rgba(121, 236, 201, 0.08);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+.active {
+	color: var(--primary-font, #f2f2f3);
+}
+
+.inactive {
+	color: var(--secondary-font, #7a7e85);
+}
+.modalStepItemLabelCount.active {
+	background-color: var(--secondary-font, #202123);
+	border: 1px solid var(--primary-font, #f2f2f3);
+}
+.modalStepItemLabelCount.inactive {
+	color: var(--secondary-font, #7a7e85);
+	border: 1px solid var(--secondary-font, #7a7e85);
+}
+
+.modalStepStatus.active {
+	background: var(--primary-color, #79ecc9);
+}
+
+.modalStepStatus.inactive {
+	background: var(--secondary-font, #202123);
+}

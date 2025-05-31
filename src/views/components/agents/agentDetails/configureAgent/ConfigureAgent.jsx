@@ -1,5 +1,6 @@
-import { memo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import s from './configureAgent.module.scss';
+import KnowledgeBaseTab from './tabs/KnowledgeBaseTab';
 
 const navItems = [
 	{
@@ -24,10 +25,16 @@ const navItems = [
 	},
 ];
 
-const ConfigureAgent = () => {
+const ConfigureAgent = ({ agentId }) => {
 	const [info, setInfo] = useState({
 		activeNavItem: 1,
 	});
+
+	const componentMapper = useMemo(() => {
+		return {
+			2: <KnowledgeBaseTab agentId={agentId} />,
+		};
+	}, []);
 
 	return (
 		<div className={s.container}>
@@ -48,6 +55,7 @@ const ConfigureAgent = () => {
 					))}
 				</ol>
 			</nav>
+			<div className={s.contentContainer}>{componentMapper[info.activeNavItem]}</div>
 		</div>
 	);
 };
