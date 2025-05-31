@@ -293,7 +293,6 @@ const GalleryPage = () => {
 		expiryDate: '',
 		showDeletePopup: false,
 		showUploadCover: false,
-		// activeAlbumId: null,
 		albumName: '',
 		showShareAlbum: false,
 		showDownloadAlbum: false,
