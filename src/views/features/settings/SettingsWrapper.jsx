@@ -8,6 +8,7 @@ import PublicInformation from './PublicInformation';
 import TeamSettings from './TeamSettings';
 import PlanBilling from './PlanBilling';
 import AiSetup from '../aiSetup/AiSetup';
+import PricingPage from '../pricingPlans/pricingPage';
 import Integrations from '../integrationsList/Integrations';
 const mapper = {
 	'my-profile': <MyProfile />,
@@ -17,6 +18,7 @@ const mapper = {
 	integrations: <Integrations />,
 	'team-members': <TeamSettings />,
 	'plan-billing': <PlanBilling />,
+	'pricing': <PricingPage />,
 	'ai-setup': <AiSetup />,
 };
 
@@ -43,7 +45,7 @@ const SettingsWrapper = (props) => {
 	return (
 		<div
 			className={`${
-				type === 'integrations' || type === 'ai-setup' ? '' : 'accountSettingsMainWrapper'
+				type === 'integrations' || type === 'ai-setup' || type === 'pricing' ? '' : 'accountSettingsMainWrapper'
 			}`}
 			style={{
 				height: '100%',
