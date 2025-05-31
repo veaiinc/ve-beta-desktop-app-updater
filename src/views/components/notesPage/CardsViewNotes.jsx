@@ -2,7 +2,6 @@ import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/notesPage/notesPage.scss';
 import moment from 'moment';
-
 //components
 import { FetchMoreLoaderComp } from '../../../helpers';
 import CreateNewNote from './CreateNewNote';
@@ -11,11 +10,12 @@ import InfiniteScroll from '../globalComponents/InfiniteScroll';
 // icons
 import { ReactComponent as NoteIcon } from '../../../assets/svg/notesPage/note-icon.svg';
 import { ReactComponent as LockIcon } from '../../../assets/svg/notesPage/lock-icon.svg';
+import { ReactComponent as StarSvg } from '../../../assets/svg/notesPage/star.svg';
 
 //constants
 const infiniteScrollHeight = 'calc(100vh - 142px)';
 
-const CardsViewNotes = ({ notes, fetchMoreNotes }) => {
+const CardsViewNotes = ({ notes, fetchMoreNotes, userId }) => {
 	const navigate = useNavigate();
 	const notesList = notes?.data ?? [];
 	const hasNextPage = notes?.hasNextPage ?? false;
@@ -35,14 +35,16 @@ const CardsViewNotes = ({ notes, fetchMoreNotes }) => {
 				flexWrap: 'wrap',
 				gap: '18px',
 				marginBottom: '18px',
-				alignContent: 'flex-start',
+				justifyContent: 'flex-start',
 				alignItems: 'flex-start',
 			}}
 		>
 			<CreateNewNote viewMode="cards" />
 			{notesList.map((note) => {
-				const { updatedAt, title, iconImage, coverImage, _id, permissions } = note;
+				const { updatedAt, title, iconImage, coverImage, _id, permissions, favorites } =
+					note;
 				let parsedIconImage;
+				const isFavourite = favorites?.includes(userId);
 				try {
 					parsedIconImage = JSON.parse(JSON.parse(iconImage))?.native;
 				} catch {
@@ -63,7 +65,19 @@ const CardsViewNotes = ({ notes, fetchMoreNotes }) => {
 						</header>
 						<footer className="noteCardFooter">
 							<span className="updatedAt">{moment.unix(updatedAt).fromNow()}</span>
-							{isLocked && <LockIcon />}
+
+							<div className="footer-right">
+								{isFavourite && (
+									<div className="icon">
+										<StarSvg className="favourite-icon" />
+									</div>
+								)}
+								{isLocked && (
+									<div className="icon">
+										<LockIcon className="lock-icon" />
+									</div>
+								)}
+							</div>
 						</footer>
 					</div>
 				);

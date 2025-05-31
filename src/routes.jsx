@@ -156,15 +156,6 @@ const routes = [
 		),
 		exact: true,
 	},
-	// {
-	// 	path: '/sales',
-	// 	component: (
-	// 		<AuthWrapper title={'Sales'}>
-	// 			<Sales />
-	// 		</AuthWrapper>
-	// 	),
-	// 	exact: true,
-	// },
 
 	{
 		path: '/playbook',
