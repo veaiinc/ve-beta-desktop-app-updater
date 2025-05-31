@@ -93,22 +93,23 @@ const AIMessage = ({
 					closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
 				/>
 			)}
-			{messageData?.workflow_template_id &&
+			{messageData?.used_agents?.length > 0 &&
 				(showCanvas && !isNoteCanvas ? (
-					<FormModel
-						workflowTemplateId={messageData?.workflow_template_id}
-						moduleTemplateId={messageData?.module_template_id}
-						ByDefaultExpanded={true}
-						handleSendWebsocketMessage={handleSendWebsocketMessage}
-						latestStreamMesage={latestStreamMesage}
-						lastQuery={lastQuery}
-						toggleLatestStreamMessage={toggleLatestStreamMessage}
-						messageId={messageData?.messageId}
-						handleViewDocument={handleViewDocument}
-						showViewDocument={showViewDocument}
-						isLastMessage={isLastMessage}
-						messageData={messageData}
-					/>
+					messageData?.used_agents?.map((agent) => (
+						<FormModel
+							workflowTemplateId={messageData?.workflow_template_id}
+							moduleTemplateId={messageData?.module_template_id}
+							handleSendWebsocketMessage={handleSendWebsocketMessage}
+							latestStreamMesage={latestStreamMesage}
+							lastQuery={lastQuery}
+							toggleLatestStreamMessage={toggleLatestStreamMessage}
+							handleViewDocument={handleViewDocument}
+							showViewDocument={showViewDocument}
+							isLastMessage={isLastMessage}
+							messageData={messageData}
+							agent={agent}
+						/>
+					))
 				) : (
 					<div
 						className="view-document-container"
