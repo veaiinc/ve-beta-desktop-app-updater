@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { ReactComponent as SparkleSvg } from '../../../assets/svg/ai_agents/sparkle.svg';
-import { ReactComponent as BinocularsSvg } from '../../../assets/svg/landingScreen/Binoculars.svg';
+import { ReactComponent as BinocularsSvg } from '../../../assets/svg/landingScreen/binocularsSvg.svg';
 import s from '../../../assets/scss/landingScreen/proactiveDropdown.module.scss';
 import { Link } from 'react-router-dom';
 
