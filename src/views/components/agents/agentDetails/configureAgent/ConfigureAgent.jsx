@@ -2,6 +2,7 @@ import { memo, useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import s from './configureAgent.module.scss';
 import KnowledgeBaseTab from './tabs/KnowledgeBaseTab';
+import ActionsTab from './tabs/ActionsTab';
 
 const navItems = [
 	{
@@ -51,6 +52,7 @@ const ConfigureAgent = ({ agentId }) => {
 	const componentMapper = useMemo(() => {
 		return {
 			2: <KnowledgeBaseTab agentId={agentId} />,
+			4: <ActionsTab />,
 		};
 	}, []);
 
