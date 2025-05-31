@@ -1,6 +1,7 @@
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/landingScreen/index.scss';
-import { ReactComponent as VeLogo } from '../../../assets/svg/veLogoBlack.svg';
+import { ReactComponent as VeLogoBlack } from '../../../assets/svg/veLogoBlack.svg';
+import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 // import { ReactComponent as SidebarClosing } from '../../../assets/svg/sidebar/SidebarClosing.svg';
@@ -167,7 +168,7 @@ const LandingPage = () => {
 						Login
 					</button>
 					<button className="login-btn">
-						Get <VeLogo /> Free
+						Get <VeLogoBlack /> Free
 					</button>
 				</div>
 			</div>
