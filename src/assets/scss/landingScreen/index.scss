@@ -318,6 +318,18 @@
 			}
 		}
 
+		/* Add to your CSS file */
+		.responsive-spacer {
+			height: 3200px;
+			display: none;
+		}
+
+		@media (min-width: 1141px) {
+			.responsive-spacer {
+				display: block;
+			}
+		}
+
 		.chatbox-container {
 			width: 100%;
 			max-width: 750px;
