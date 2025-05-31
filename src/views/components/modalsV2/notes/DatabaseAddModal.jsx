@@ -4,7 +4,7 @@ import s from '../../../../assets/scss/notes/modals/databaseAddModal.module.scss
 import Context from '../../../../context/context';
 import { rowTypes } from '../../notes/Database';
 
-const DatabaseAddModal = ({ isOpen, onClose, blockId, pageId, databaseId, fields }) => {
+const DatabaseAddModal = ({ isOpen, onClose, viewId, pageId, databaseId, fields }) => {
 	const {
 		notes: { addDatabaseRow },
 	} = useContext(Context);
@@ -38,7 +38,7 @@ const DatabaseAddModal = ({ isOpen, onClose, blockId, pageId, databaseId, fields
 				pageId,
 				input: { databaseId, values: preparePayload(info?.values) },
 			},
-			blockId,
+			viewId,
 		);
 		setInfo((prev) => ({ ...prev, loading: false }));
 		handleInfoChange({ values: {}, loading: false });

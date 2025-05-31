@@ -19,7 +19,7 @@ const actionHandlers = {
 		return { ...state, database: newDatabase };
 	},
 	SET_BLOCK_MAPPER: (state, action) => ({ ...state, blockMapper: action?.payload }),
-	CREATE_DATABASE_VIEW: (state, action) => ({
+	UPDATE_DATABASE_VIEWS: (state, action) => ({
 		...state,
 		views: { ...state.views, ...action?.payload },
 	}),
@@ -28,19 +28,19 @@ const actionHandlers = {
 		rowData: { ...state.rowData, ...action?.payload },
 	}),
 	UPDATE_DATABASE_ROWS: (state, action) => {
-		const { blockId, rowId, updatedRow } = action.payload;
+		const { viewId, rowId, updatedRow } = action.payload;
 
-		const currentBlockData = state?.rowData?.[blockId] || {};
+		const currentBlockData = state?.rowData?.[viewId] || {};
 		const currentRows = currentBlockData.data || [];
 
 		const updatedRows = currentRows.map((row) =>
 			row._id === rowId
 				? {
-						...row,
-						...updatedRow,
+						...(row || {}),
+						...(updatedRow || {}),
 						values: {
-							...row.values,
-							...updatedRow,
+							...(row?.values || {}),
+							...(updatedRow?.values || {}),
 						},
 				  }
 				: row,
@@ -50,7 +50,7 @@ const actionHandlers = {
 			...state,
 			rowData: {
 				...state.rowData,
-				[blockId]: {
+				[viewId]: {
 					...currentBlockData,
 					data: updatedRows,
 				},

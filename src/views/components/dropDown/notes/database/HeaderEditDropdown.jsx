@@ -29,28 +29,13 @@ const HeaderEditDropdown = ({ field, pageId, databaseId }) => {
 			newOption: '',
 			showColorPicker: null,
 			editedValue: '',
+			prefix: field?.config?.prefix || null,
 		});
 	}, [field]);
 
 	const handleInfoChange = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
 	};
-
-	const getRandomColor = () => {
-		return Math.floor(Math.random() * 7) + 1;
-	};
-
-	// {
-	//     "pageId": "68303ca4d6bd82266428d1fa",
-	//     "databaseId": "6831c6f517c387da626a4aac",
-	//     "fieldId": "6831ccef5df390c90adb30bb",
-	//     "input": {
-	//       "type": "text",
-	//       "name": null,
-	//       "isUnique": null,
-	//       "isRequired": null
-	//     }
-	//   }
 	const handleUpdateField = async () => {
 		if (info?.loading) {
 			return;
@@ -81,95 +66,14 @@ const HeaderEditDropdown = ({ field, pageId, databaseId }) => {
 		});
 	};
 
-	const handleAddOption = async () => {
-		if (!info.newOption?.trim()) {
-			message('Please enter a valid option name');
-			return;
-		}
-
-		const newOptions = [
-			...field?.config?.options,
-			{ label: info.newOption.trim(), color: getRandomColor().toString() },
-		];
-
-		handleInfoChange({ loading: true });
+	const updateSerialNumberPrefix = async () => {
 		await updateDatabaseField({
 			pageId: pageId,
 			databaseId: databaseId,
 			fieldId: field?._id,
-			input: {
-				type: field?.type,
-				config: { options: newOptions },
-			},
-		});
-		handleInfoChange({ loading: false, newOption: '' });
-	};
-
-	const handleUpdateOption = async (index, newLabel) => {
-		if (!newLabel?.trim()) {
-			message('Option name cannot be empty');
-			return;
-		}
-
-		const newOptions = [...field?.config?.options];
-		newOptions[index] = { ...newOptions[index], label: newLabel.trim() };
-
-		handleInfoChange({ loading: true });
-		await updateDatabaseField({
-			pageId: pageId,
-			databaseId: databaseId,
-			fieldId: field?._id,
-			input: {
-				type: field?.type,
-				config: { options: newOptions },
-			},
-		});
-		handleInfoChange({
-			loading: false,
-			editingOption: null,
-			showColorPicker: null,
-			editedValue: '',
+			input: { type: field?.type, config: { prefix: info?.prefix?.trim() || null } },
 		});
 	};
-
-	const handleDeleteOption = async (index) => {
-		const newOptions = field?.config?.options.filter((_, i) => i !== index);
-
-		handleInfoChange({ loading: true });
-		await updateDatabaseField({
-			pageId: pageId,
-			databaseId: databaseId,
-			fieldId: field?._id,
-			input: {
-				type: field?.type,
-				config: { options: newOptions },
-			},
-		});
-		handleInfoChange({ loading: false });
-	};
-
-	const handleColorSelect = async (index, colorNumber) => {
-		const newOptions = [...field?.config?.options];
-		newOptions[index] = { ...newOptions[index], color: colorNumber.toString() };
-
-		handleInfoChange({ loading: true });
-		await updateDatabaseField({
-			pageId: pageId,
-			databaseId: databaseId,
-			fieldId: field?._id,
-			input: {
-				type: field?.type,
-				config: { options: newOptions },
-			},
-		});
-		handleInfoChange({ loading: false, showColorPicker: null });
-	};
-
-	const colorOptions = Object.entries(colors).map(([number, color]) => ({
-		number,
-		...color,
-	}));
-
 	return (
 		<div className={s.headerEditDropdownContainer}>
 			<div className={s.headerEditDropdownItem}>
@@ -207,6 +111,27 @@ const HeaderEditDropdown = ({ field, pageId, databaseId }) => {
 					<div className={s.headerEditDropdownOptionsAreaItem}>
 						<div className={s.headerEditDropdownOptionsAreaItemText}>Edit Options</div>
 						<StatusEdit field={field} pageId={pageId} databaseId={databaseId} />
+					</div>
+				</div>
+			)}
+
+			{field?.type === 'serial_number' && (
+				<div className={s.headerEditDropdownOptionsArea}>
+					<div className={s.headerEditDropdownOptionsAreaItem}>
+						<div className={s.headerEditDropdownOptionsAreaItemText}>Edit Prefix</div>
+						<input
+							type="text"
+							className={s.prefixEditInput}
+							value={info?.prefix}
+							onChange={(e) => handleInfoChange({ prefix: e.target.value })}
+							onBlur={updateSerialNumberPrefix}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter') {
+									e.preventDefault();
+									e.target.blur();
+								}
+							}}
+						/>
 					</div>
 				</div>
 			)}

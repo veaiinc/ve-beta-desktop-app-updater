@@ -37,6 +37,7 @@ import {
 	updateDatabaseMutation,
 	listAvailableDatabasesQuery,
 	deleteDatabaseFieldMutation,
+	getDatabaseViewsQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -754,15 +755,38 @@ export const NotesState = (props) => {
 			if (response?.[0]) {
 				const databaseView = response?.[1]?.data?.createDatabaseView;
 				dispatch({
-					type: Actions.CREATE_DATABASE_VIEW,
+					type: Actions.UPDATE_DATABASE_VIEWS,
 					payload: {
-						[blockId]: { databaseView },
+						[blockId]: [...(state?.views?.[blockId] || []), databaseView],
 					},
 				});
 				return databaseView;
 			}
 		} catch (error) {
 			console.error('error==>createDatabaseView', error);
+		}
+	};
+
+	const getDatabaseViews = async (payload, blockId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getDatabaseViewsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				const databaseViews = response?.[1]?.data?.databaseViews;
+				dispatch({
+					type: Actions.UPDATE_DATABASE_VIEWS,
+					payload: { [blockId]: databaseViews },
+				});
+			}
+		} catch (error) {
+			console.error('error==>getDatabaseViews', error);
 		}
 	};
 
@@ -795,7 +819,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const getDatabaseRows = async (payload, blockId) => {
+	const getDatabaseRows = async (payload, viewId) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -810,8 +834,8 @@ export const NotesState = (props) => {
 				dispatch({
 					type: Actions.ADD_DATABASE_ROWS,
 					payload: {
-						[blockId]: {
-							...(state?.rowData?.[blockId] || {}),
+						[viewId]: {
+							...(state?.rowData?.[viewId] || {}),
 							...response?.[1]?.data?.databaseRows,
 						},
 					},
@@ -825,7 +849,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const addDatabaseRow = async (payload, blockId) => {
+	const addDatabaseRow = async (payload, viewId) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -842,9 +866,9 @@ export const NotesState = (props) => {
 				dispatch({
 					type: Actions.ADD_DATABASE_ROWS,
 					payload: {
-						[blockId]: {
-							...(state?.rowData?.[blockId] || {}),
-							data: [...(state?.rowData?.[blockId]?.data || []), newRow],
+						[viewId]: {
+							...(state?.rowData?.[viewId] || {}),
+							data: [...(state?.rowData?.[viewId]?.data || []), newRow],
 						},
 					},
 				});
@@ -854,7 +878,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const updateDatabaseRow = async (payload, blockId) => {
+	const updateDatabaseRow = async (payload, viewId) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -870,7 +894,7 @@ export const NotesState = (props) => {
 				dispatch({
 					type: Actions.UPDATE_DATABASE_ROWS,
 					payload: {
-						blockId,
+						viewId,
 						rowId: payload?.updateDatabaseRowId,
 						updatedRow,
 					},
@@ -1062,6 +1086,13 @@ export const NotesState = (props) => {
 		});
 	};
 
+	const updateRelatedViews = async ({ updatedRow, updatedField, viewId, databaseId }) => {
+		try {
+			// TODO: update related views
+			//get all the views with same databseId
+		} catch (error) {}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -1102,5 +1133,6 @@ export const NotesState = (props) => {
 		updateDatabase,
 		listAvailableDatabases,
 		deleteDatabaseField,
+		getDatabaseViews,
 	};
 };

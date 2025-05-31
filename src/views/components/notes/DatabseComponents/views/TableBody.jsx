@@ -1,12 +1,18 @@
-import React, { memo, useCallback, useContext } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
 import Context from '../../../../../context/context';
 import s from '../../../../../assets/scss/notes/databaseComponents/tableView.module.scss';
 import { rowTypes } from '../../Database';
 
-const TableBody = ({ data, columns, handleUpdate, colors, pageId, blockId }) => {
+const TableBody = ({ data, columns, handleUpdate, colors, pageId, viewId }) => {
 	const {
 		notes: { updateDatabaseSidebar, updateDatabaseRow },
 	} = useContext(Context);
+
+	const viewIdRef = useRef(viewId);
+
+	useEffect(() => {
+		viewIdRef.current = viewId;
+	}, [viewId]);
 
 	const handleUpdateRow = useCallback(
 		(rowId, key, value) => {
@@ -17,9 +23,9 @@ const TableBody = ({ data, columns, handleUpdate, colors, pageId, blockId }) => 
 				},
 				pageId,
 			};
-			updateDatabaseRow(payload, blockId);
+			updateDatabaseRow(payload, viewIdRef.current);
 		},
-		[updateDatabaseRow, blockId],
+		[pageId, updateDatabaseRow],
 	);
 
 	const generateCell = useCallback(

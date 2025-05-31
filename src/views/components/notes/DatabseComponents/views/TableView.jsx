@@ -5,7 +5,7 @@ import TableBody from './TableBody';
 import s from '../../../../../assets/scss/notes/databaseComponents/tableView.module.scss';
 import { DragDropContext } from 'react-beautiful-dnd';
 
-const TableView = ({ data, columns, colors, databaseId, pageId, blockId }) => {
+const TableView = ({ data, columns, colors, databaseId, pageId, viewId }) => {
 	const [resizingColumn, setResizingColumn] = useState(null);
 	const [resizeStartX, setResizeStartX] = useState(0);
 	const [resizeStartWidth, setResizeStartWidth] = useState(0);
@@ -94,7 +94,7 @@ const TableView = ({ data, columns, colors, databaseId, pageId, blockId }) => {
 							columns={localColumns}
 							colors={colors}
 							pageId={pageId}
-							blockId={blockId}
+							viewId={viewId}
 						/>
 					</div>
 				</div>

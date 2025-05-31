@@ -441,17 +441,36 @@ export const createDatabaseMutation = gql`
 `;
 
 export const createDatabaseViewMutation = gql`
-	mutation Mutation($pageId: ID!, $input: CreateDatabaseViewInput!) {
+	mutation CreateDatabaseView($pageId: ID!, $input: CreateDatabaseViewInput!) {
 		createDatabaseView(pageId: $pageId, input: $input) {
 			_id
 			databaseId
+			pageId
+			blockId
+			title
+			cardSize
+			sortBy {
+				fieldId
+				direction
+			}
+			filterBy {
+				fieldId
+				operator
+				value
+			}
+			groupBy {
+				fieldId
+				collapsed
+			}
+			visibleFields
+			type
+			columnWidths
 			createdAt
 			updatedAt
 			createdBy
 			updatedBy
-			blockId
-			pageId
-			viewConfig
+			order
+			aggregations
 		}
 	}
 `;
@@ -629,6 +648,41 @@ export const listAvailableDatabasesQuery = gql`
 			_id
 			name
 			sourceBlockId
+		}
+	}
+`;
+
+export const getDatabaseViewsQuery = gql`
+	query DatabaseViews($pageId: ID!, $blockId: ID!) {
+		databaseViews(pageId: $pageId, blockId: $blockId) {
+			_id
+			databaseId
+			pageId
+			blockId
+			title
+			cardSize
+			sortBy {
+				fieldId
+				direction
+			}
+			filterBy {
+				fieldId
+				operator
+				value
+			}
+			groupBy {
+				fieldId
+				collapsed
+			}
+			visibleFields
+			type
+			columnWidths
+			aggregations
+			order
+			createdAt
+			updatedAt
+			createdBy
+			updatedBy
 		}
 	}
 `;

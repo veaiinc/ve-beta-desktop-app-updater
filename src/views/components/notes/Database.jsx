@@ -72,32 +72,64 @@ const DatabaseComponent = memo(({ block, editor }) => {
 			updateDatabase,
 			listAvailableDatabases,
 			availableDatabases,
+			views,
+			getDatabaseViews,
 		},
 	} = useContext(Context);
 
 	const { previousBlocksRef, pageId } = useContext(NotesRefContext);
 	const timeoutRef = useRef(null);
 
-	const { databaseId, databaseViewId } = block?.props;
+	const { databaseId } = block?.props;
 	const sourceBlockId = previousBlocksRef?.current?.get(block?.id)?._id;
-
-	const currentDatabase = useMemo(() => database?.[databaseId], [database, databaseId]);
-	const currentDatabaseRows = useMemo(() => rowData?.[block?.id], [rowData, block?.id]);
 
 	const [info, setInfo] = useState({
 		addRowModalOpen: false,
 		addFieldModalOpen: false,
-		databaseName: currentDatabase?.databaseMetadata?.name || 'Database',
+		databaseName: 'Database',
 		newDatabase: null,
 		selectedDatabaseId: false,
 		databaseListLoading: false,
+		selectedViewId: null,
 	});
 
+	const currentDatabase = useMemo(() => database?.[databaseId], [database, databaseId]);
+	const currentDatabaseRows = useMemo(
+		() => rowData?.[info?.selectedViewId],
+		[rowData, info?.selectedViewId],
+	);
+	const currentDatabaseViews = useMemo(() => views?.[block?.id], [views, block?.id]);
+
+	const selectedDatabaseView = useMemo(() => {
+		return currentDatabaseViews?.find((view) => view?._id === info?.selectedViewId);
+	}, [currentDatabaseViews, info?.selectedViewId]);
+
 	useEffect(() => {
-		if (!databaseId && sourceBlockId && info?.newDatabase !== null) {
-			// initializeDatabase(info?.newDatabase);
+		if (currentDatabaseViews?.length > 0 && !info?.selectedViewId) {
+			const firstViewId = currentDatabaseViews[0]?._id;
+
+			// Set the view and fetch data in one go
+			setInfo((prev) => ({
+				...prev,
+				selectedViewId: firstViewId,
+			}));
+
+			// Fetch data immediately with the first view ID
+			if (databaseId && pageId) {
+				getDatabaseRows(
+					{
+						pageId,
+						input: {
+							page: 1,
+							limit: 50,
+							databaseId: databaseId,
+						},
+					},
+					firstViewId,
+				);
+			}
 		}
-	}, [databaseId, sourceBlockId, info?.newDatabase]);
+	}, [currentDatabaseViews, databaseId, pageId, getDatabaseRows]);
 
 	useEffect(() => {
 		if (info?.newDatabase === false) {
@@ -122,20 +154,33 @@ const DatabaseComponent = memo(({ block, editor }) => {
 	}, [databaseId, currentDatabase, pageId]);
 
 	useEffect(() => {
-		if (currentDatabase?.databaseMetadata?._id) {
-			getDatabaseRows(
-				{
-					pageId,
-					input: {
-						page: 1,
-						limit: 10,
-						databaseId: databaseId,
+		// Only fetch when selectedViewId changes and we have all required data
+		const hasRequiredData = info?.selectedViewId && databaseId && pageId;
+
+		if (hasRequiredData) {
+			// Only fetch if we don't have data for this specific view
+			const viewData = currentDatabaseRows?.data;
+			if (!viewData) {
+				getDatabaseRows(
+					{
+						pageId,
+						input: {
+							page: 1,
+							limit: 50,
+							databaseId: databaseId,
+						},
 					},
-				},
-				block?.id,
-			);
+					info?.selectedViewId,
+				);
+			}
 		}
-	}, [currentDatabase?.databaseMetadata?._id, block?.id, pageId]);
+	}, [info?.selectedViewId, pageId, databaseId, getDatabaseRows, currentDatabaseRows]);
+
+	useEffect(() => {
+		if (databaseId && !currentDatabaseViews) {
+			getDatabaseViews({ pageId, blockId: sourceBlockId }, block?.id);
+		}
+	}, [databaseId, currentDatabaseViews]);
 
 	// Cleanup timeout on unmount
 	useEffect(() => {
@@ -170,29 +215,35 @@ const DatabaseComponent = memo(({ block, editor }) => {
 		let databaseView = null;
 
 		if (database) {
-			databaseView = await createDatabaseView({
-				pageId: pageId,
-				input: {
-					blockId: sourceBlockId,
-					databaseId: database?._id,
-					viewConfig: [
-						{
-							title: 'table',
-							type: 'table',
-						},
-					],
-				},
-			});
+			databaseView = await handleCreateDatabaseView(database?._id);
 		}
 
-		if (databaseView && databaseView) {
+		if (databaseView) {
 			editor.updateBlock(block?.id, {
 				props: {
 					databaseId: database?._id,
-					databaseViewId: databaseView?._id,
 				},
 			});
 		}
+	};
+
+	const handleCreateDatabaseView = async (databaseId) => {
+		const order = (currentDatabaseViews?.length ?? 0) + 1;
+		const databaseView = await createDatabaseView(
+			{
+				pageId: pageId,
+				input: {
+					blockId: sourceBlockId,
+					databaseId,
+					title: 'Table',
+					type: 'table',
+					order,
+				},
+			},
+			block?.id,
+		);
+
+		return databaseView;
 	};
 
 	const handleDebouncedDatabaseNameUpdate = useCallback(
@@ -286,18 +337,43 @@ const DatabaseComponent = memo(({ block, editor }) => {
 			) : (
 				<>
 					<div className={s.notesDatabaseHeader}>
-						<CustomTextArea
-							value={info?.databaseName}
-							onChange={(e) => handleInfoChange({ databaseName: e.target.value })}
-							className={s.notesDatabaseHeaderTitle}
-						/>
-						<div className={s.notesDatabaseHeaderButtons}>
-							<button onClick={() => handleInfoChange({ addRowModalOpen: true })}>
-								Add Row
-							</button>
-							<button onClick={() => handleInfoChange({ addFieldModalOpen: true })}>
-								Add Field
-							</button>
+						<div className={s.databaseTopContainer}>
+							<div className={s.viewsContainer}>
+								{currentDatabaseViews?.map((view) => (
+									<div
+										key={view._id}
+										className={`${s.viewWrapper} ${
+											info?.selectedViewId === view?._id ? s.active : ''
+										}`}
+										onClick={() =>
+											handleInfoChange({ selectedViewId: view?._id })
+										}
+									>
+										<div className={s.viewIcon}>{/* <TableViewIcon /> */}</div>
+										<div className={s.viewLabel}>{view?.title}</div>
+									</div>
+								))}
+								<button onClick={() => handleCreateDatabaseView(databaseId)}>
+									+
+								</button>
+							</div>
+							<div className={s.notesDatabaseHeaderButtons}>
+								<button onClick={() => handleInfoChange({ addRowModalOpen: true })}>
+									Add Row
+								</button>
+								<button
+									onClick={() => handleInfoChange({ addFieldModalOpen: true })}
+								>
+									Add Field
+								</button>
+							</div>
+						</div>
+						<div className={s.notesDatabaseHeaderTitleContainer}>
+							<CustomTextArea
+								value={info?.databaseName}
+								onChange={(e) => handleInfoChange({ databaseName: e.target.value })}
+								className={s.notesDatabaseHeaderTitle}
+							/>
 						</div>
 					</div>
 					<TableView
@@ -305,12 +381,12 @@ const DatabaseComponent = memo(({ block, editor }) => {
 						columns={columns}
 						databaseId={databaseId}
 						pageId={pageId}
-						blockId={block?.id}
+						viewId={info?.selectedViewId}
 					/>
 					<DatabaseAddModal
 						isOpen={info?.addRowModalOpen}
 						onClose={() => handleInfoChange({ addRowModalOpen: false })}
-						blockId={block?.id}
+						viewId={info?.selectedViewId}
 						pageId={pageId}
 						databaseId={databaseId}
 						fields={fields}

@@ -95,7 +95,7 @@ const Select = ({
 							handleDropdown(!info?.open);
 						}}
 					>
-						{value ? (
+						{info?.selectedOption ? (
 							<div className="select-option-item">
 								<div
 									className="select-option-dot"
