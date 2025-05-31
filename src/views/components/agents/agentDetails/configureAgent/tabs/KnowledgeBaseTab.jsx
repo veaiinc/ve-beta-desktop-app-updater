@@ -24,7 +24,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 	useEffect(() => {
 		if (agentId) {
 			const page = 1,
-				limit = 4;
+				limit = 10;
 			getKnowledgeBaseInfo(agentId, page, limit);
 		}
 	}, [agentId]);
@@ -45,7 +45,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 
 	const fetchMoreKnowledgeBaseFiles = () => {
 		const page = info?.currentPage + 1;
-		const limit = 4;
+		const limit = 10;
 		getKnowledgeBaseInfo(agentId, page, limit);
 	};
 

@@ -52,9 +52,9 @@ const ConfigureAgent = ({ agentId }) => {
 	const componentMapper = useMemo(() => {
 		return {
 			2: <KnowledgeBaseTab agentId={agentId} />,
-			4: <ActionsTab />,
+			4: <ActionsTab agentId={agentId} />,
 		};
-	}, []);
+	}, [agentId]);
 
 	return (
 		<div className={s.container}>
