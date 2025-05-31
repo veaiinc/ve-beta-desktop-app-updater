@@ -208,7 +208,6 @@ const GalleryPage = () => {
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		albumName: '',
 		albumContains: '',
 		showOptions: false,
 		showGalleryOptions: false,
@@ -293,7 +292,6 @@ const GalleryPage = () => {
 		expiryDate: '',
 		showDeletePopup: false,
 		showUploadCover: false,
-		// activeAlbumId: null,
 		albumName: '',
 		showShareAlbum: false,
 		showDownloadAlbum: false,
@@ -310,7 +308,6 @@ const GalleryPage = () => {
 		showCoverButton: false,
 		showAlbumOptionsMenu: false,
 		showAlbumSettings: false,
-
 		galleryLink: null,
 		clientSubscriptionOptions: false,
 		imageProcessingStatus: {
