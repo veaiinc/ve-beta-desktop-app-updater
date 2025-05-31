@@ -35,7 +35,7 @@ const Features = () => {
 			scrollTrigger: {
 				trigger: featuresRef.current,
 				start: 'top top',
-				end: '+=4500',
+				end: '+=3500',
 				scrub: 1,
 				pin: true,
 				pinSpacing: false,
@@ -77,25 +77,25 @@ const Features = () => {
 			timeline
 				.to([titleRefs[i].current, subtitleRefs[i].current], {
 					autoAlpha: 1,
-					duration: 1,
+					duration: 0.7,
 					stagger: 0.2,
 				})
 				.fromTo(
 					imageRefs[i].current,
 					{ scale: 0.5, autoAlpha: 0 },
-					{ scale: 1, autoAlpha: 1, duration: 1, ease: 'power2.out' },
+					{ scale: 1, autoAlpha: 1, duration: 0.7, ease: 'power2.out' },
 				);
 
 			if (i < 2) {
 				timeline
 					.to(
 						[titleRefs[i].current, subtitleRefs[i].current],
-						{ autoAlpha: 0, duration: 1, stagger: 0.2 },
+						{ autoAlpha: 0, duration: 0.5, stagger: 0.2 },
 						'+=0.5',
 					)
 					.to(
 						imageRefs[i].current,
-						{ scale: 0.5, autoAlpha: 0, duration: 1, ease: 'power2.in' },
+						{ scale: 0.5, autoAlpha: 0, duration: 0.5, ease: 'power2.in' },
 						'-=0.5',
 					);
 			} else {
@@ -110,7 +110,7 @@ const Features = () => {
 			scrollTrigger: {
 				trigger: featuresRef.current,
 				start: 'top top',
-				end: '+=4500',
+				end: '+=3000',
 				scrub: true,
 			},
 		});
@@ -119,7 +119,7 @@ const Features = () => {
 		ScrollTrigger.create({
 			trigger: featuresRef.current,
 			start: 'top top',
-			end: '+=4500',
+			end: '+=3000',
 			scrub: true,
 			onUpdate: (self) => {
 				const step = Math.min(3, Math.max(1, Math.ceil(self.progress * 3)));

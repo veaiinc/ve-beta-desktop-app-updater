@@ -1,8 +1,6 @@
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/landingScreen/index.scss';
-import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
-import { ReactComponent as MoonSvg } from '../../../assets/svg/moon.svg';
-import { ReactComponent as SunSvg } from '../../../assets/svg/sun.svg';
+import { ReactComponent as VeLogo } from '../../../assets/svg/veLogoBlack.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 // import { ReactComponent as SidebarClosing } from '../../../assets/svg/sidebar/SidebarClosing.svg';
@@ -11,7 +9,6 @@ import TabNavigation from '../../components/landing_screen/TabNavigation';
 // import ChatBox from '../../../views/components/chat/ChatBox';
 import OurMission from './OurMission';
 import { useLocation } from 'react-router-dom';
-import AskMe from '../homePage/AskMe';
 import Tagline from './Tagline';
 import EarlyAccess from './EarlyAccess';
 import Footer from './Footer';
@@ -30,6 +27,7 @@ const LandingPage = () => {
 	const location = useLocation();
 
 	const [tab, setTab] = useState(0);
+	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	// const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
 	useEffect(() => {
@@ -120,7 +118,7 @@ const LandingPage = () => {
 					<Tagline />
 					<HowItWorks />
 					<Features />
-					<div style={{ height: '4300px' }}></div>
+					<div style={{ height: '3200px' }}></div>
 					<EarlyAccess />
 					<Footer />
 				</div>
@@ -168,7 +166,9 @@ const LandingPage = () => {
 					<button className="login-btn-text" onClick={handleLoginBtnClick}>
 						Login
 					</button>
-					<button className="login-btn">Get VE Free</button>
+					<button className="login-btn">
+						Get <VeLogo /> Free
+					</button>
 				</div>
 			</div>
 			{/* Simple tab content rendering */}
