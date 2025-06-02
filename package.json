@@ -10,6 +10,7 @@
 		"@blocknote/react": "0.30.0",
 		"@emoji-mart/data": "^1.2.1",
 		"@emoji-mart/react": "^1.1.1",
+		"@gsap/react": "^2.1.2",
 		"@intercom/messenger-js-sdk": "^0.0.14",
 		"@livekit/components-react": "^2.8.1",
 		"@livekit/krisp-noise-filter": "^0.2.16",

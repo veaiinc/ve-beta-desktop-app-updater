@@ -107,7 +107,6 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 			preferences: defaultPreference,
 		},
 		group: null,
-		page: 1,
 	});
 
 	useEffect(() => {
