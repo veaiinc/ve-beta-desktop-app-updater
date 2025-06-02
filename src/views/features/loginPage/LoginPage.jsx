@@ -5,8 +5,6 @@ import VerificationCode from '../../components/login_page/VerificationCode';
 import CookiesImg from '../../../assets/images/login_page/cookies.png';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
-import { ReactComponent as DarkModeGradient } from '../../../assets/svg/onboarding/dark-mode-gradient.svg';
-import { ReactComponent as LightModeGradient } from '../../../assets/svg/onboarding/light-mode-gradient.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 
 const LoginPage = () => {
@@ -31,6 +29,18 @@ const LoginPage = () => {
 					: theme === 'dark',
 		}));
 	}, []);
+
+	useEffect(() => {
+		const usertoken = localStorage.getItem('usertoken');
+		const region = localStorage.getItem('region');
+		const workspaceId = localStorage.getItem('workspaceId');
+		const isLoggedIn = localStorage.getItem('usertoken');
+		if (usertoken && region && workspaceId) {
+			if (isLoggedIn) return navigate('/home');
+			else return navigate('/');
+		}
+	}, []);
+
 
 	useEffect(() => {
 		const cookiesAccepted = Cookies?.get('cookiesAccepted');
@@ -123,9 +133,9 @@ const LoginPage = () => {
 					<VeLogo />
 				</div>
 			</div>
-			<div className="gradient-container">
+			{/* <div className="gradient-container">
 				{info?.isDarkMode ? <DarkModeGradient /> : <LightModeGradient />}
-			</div>
+			</div> */}
 			{!info?.cookiesAccepted && (
 				<div className="cookies-notice">
 					<div className="cookie-container">
