@@ -398,12 +398,11 @@
 
 		.plan-boxes-row {
 			position: sticky;
-			top: 0;
+			top: -50px;
 			z-index: 100;
 			display: flex;
 			max-width: 1200px;
 			margin: 0 auto;
-			padding: 24px 0px;
 			justify-content: center;
 			align-items: flex-start;
 			gap: 16px;

@@ -344,7 +344,7 @@ const PricingPage = () => {
 	const [billing, setBilling] = useState('monthly');
 
 	return (
-		<div className="pricing-page">
+		<div className="pricing-page" id="pricing-page-scroll">
 			<QuickActions />
 			<div className="pricing-header">
 				<h1 className="pricing-header-title">Get world's first AI Memory OS</h1>
