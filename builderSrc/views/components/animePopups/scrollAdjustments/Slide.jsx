@@ -18,10 +18,10 @@ const Slide = ({ activeComponent, adjustAnimation }) => {
 	};
 
 	const directions = [
-		{ key: 'top', label: 'top', rotate: 270 },
-		{ key: 'right', label: 'right', rotate: 360 },
-		{ key: 'down', label: 'down', rotate: 90 },
-		{ key: 'left', label: 'left', rotate: 180 },
+		{ key: 'down', label: 'down', rotate: 270 },
+		{ key: 'left', label: 'left', rotate: 360 },
+		{ key: 'top', label: 'top', rotate: 90 },
+		{ key: 'right', label: 'right', rotate: 180 },
 	];
 
 	return (

@@ -245,7 +245,20 @@ const HeadingComponent = () => {
 							style={{ width: '100%' }}
 							placeholder="Select Font"
 							options={fontOptions}
-							optionRender={(option, index) => {
+							open={selectStates.fontFamily}
+							onDropdownVisibleChange={(open) =>
+								handleDropdownVisibleChange(open, 'fontFamily')
+							}
+							dropdownRender={(menu) => (
+								<div
+									onMouseDown={handleMouseDown}
+									onMouseUp={handleMouseDown}
+									onClick={handleMouseDown}
+								>
+									{menu}
+								</div>
+							)}
+							optionRender={(option) => {
 								let allFonts = Object.values(fonts).flat();
 								let fontStyle = _.find(allFonts, {
 									_id: option.value,
@@ -268,6 +281,15 @@ const HeadingComponent = () => {
 							}
 							onSelect={(value) => {
 								handleSelectHandler('fontFamily', value);
+								setSelectStates((prev) => ({ ...prev, fontFamily: true }));
+							}}
+							showSearch
+							filterOption={(input, option) =>
+								(option?.label || '')?.toLowerCase().includes(input?.toLowerCase())
+							}
+							onBlur={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
 							}}
 						/>
 					</div>

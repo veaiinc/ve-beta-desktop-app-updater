@@ -8,7 +8,7 @@ import { ReactComponent as SearchIcon } from '../../../assets/svg/UpdateClient/S
 import { ReactComponent as VerifiedSvg } from '../../../assets/svg/Vector.svg';
 import Spinner from '../../components/loaders/Spinner';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ReactComponent as MailIcon } from '../../../views/components/library/svgs/logicform/email.svg';
+import { ReactComponent as MailIcon } from '../../components/library/svgs/logicform/email.svg';
 import { ReactComponent as PhoneIcon } from '../../../assets/svg/questionTypes/phoneNumber.svg';
 import { ReactComponent as Plus } from '../../../assets/svg/document/plus.svg';
 import { ReactComponent as DocumentPreview } from '../../../assets/svg/document/documentrightside.svg';

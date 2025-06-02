@@ -1,5 +1,5 @@
 import React, { memo, useState, useEffect, useContext, useMemo } from 'react';
-import ReactModal from '../../components/ui-components/modal';
+import ReactModal from '../ui-components/modal';
 import { Collapse } from 'antd';
 import '../../../assets/scss/document/acceptModel.scss';
 import Spinner from '../loaders/Spinner';

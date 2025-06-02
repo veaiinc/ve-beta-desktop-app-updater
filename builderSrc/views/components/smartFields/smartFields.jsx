@@ -5,7 +5,7 @@ import { ReactComponent as DropDown } from '../../../assets/svg/dropDown.svg';
 import { ReactComponent as QuestionMark } from './smartFields/questionMark.svg';
 import { ReactComponent as Search } from './smartFields/search.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
-import Modal from '../../components/library/modals/index';
+import Modal from '../library/modals/index';
 import { ReactComponent as Delete } from '../../../assets/svg/delete.svg';
 import { ReactComponent as Edit } from '../../../assets/svg/edit.svg';
 

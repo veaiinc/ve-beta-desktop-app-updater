@@ -165,6 +165,8 @@ class BuilderPreview extends Proposals {
 			currencySymbol2: '',
 			socialMediaLinks: {},
 			themes: null,
+			globalTables: [],
+			clientGrandTotal: 0,
 			// template_ID: null,
 		};
 		this.parentRef = createRef();
@@ -291,6 +293,9 @@ class BuilderPreview extends Proposals {
 
 		if (prevState.isLoading && !this.state.isLoading) {
 			this.attachClickListeners();
+		}
+		if (prevState.previewModuleSections !== this.state.previewModuleSections) {
+			this.computeGrandTotal();
 		}
 	}
 
@@ -482,7 +487,9 @@ class BuilderPreview extends Proposals {
 			});
 		});
 
-		this.setState({ previewModuleSections: updatedModuleSections });
+		this.setState({ previewModuleSections: updatedModuleSections }, () => {
+			this.computeGrandTotal();
+		});
 	};
 
 	udpateEventsTable = (updatedEventsData) => {
@@ -532,7 +539,9 @@ class BuilderPreview extends Proposals {
 			});
 		});
 
-		this.setState({ previewModuleSections: updatedModuleSections });
+		this.setState({ previewModuleSections: updatedModuleSections }, () => {
+			this.computeGrandTotal();
+		});
 	};
 
 	scrollAndHighlightElement = (id) => {
@@ -591,6 +600,22 @@ class BuilderPreview extends Proposals {
 				dataArray?.[i]?.value || dataArray?.[i]?.defaultValue,
 			);
 		}
+	};
+
+	computeGrandTotal = (sections = this.state.previewModuleSections) => {
+		let total = 0;
+		sections?.forEach((module) => {
+			module?.sections?.forEach((section) => {
+				if (section?.type === 'services') {
+					const val = (section?.style?.subTotalValue + '')
+						.replace(/&nbsp;/g, ' ')
+						.replace(/<\/?[^>]+(>|$)/g, '')
+						.replace(/"/g, '');
+					total += parseFloat(val) || 0;
+				}
+			});
+		});
+		this.setState({ clientGrandTotal: total });
 	};
 
 	getRandomText(array) {
@@ -1032,11 +1057,15 @@ class BuilderPreview extends Proposals {
 														currencySymbol2={
 															this.state?.currencySymbol2
 														}
+														clientGrandTotal={
+															this.state.clientGrandTotal
+														}
 														themes={this.state?.themes}
 														globalSummaryData={
 															this.state.globalSummaryData
 														}
 														isSummaryPreview={true}
+														globalTables={this.state?.globalTables}
 													/>
 												</div>
 											</div>

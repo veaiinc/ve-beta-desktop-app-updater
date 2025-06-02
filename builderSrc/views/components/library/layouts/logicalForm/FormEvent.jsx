@@ -401,7 +401,7 @@ class FormEvent extends Component {
 						fontSize: '16px',
 						fontWeight: '500',
 						color: '#FFFFFF',
-						backgroundColor: '#000000',
+						backgroundColor: this.props?.buttonProps?.btStyles?.background || '#333',
 						border: 'none',
 						borderRadius: '8px',
 						cursor: 'pointer',
@@ -585,7 +585,7 @@ class FormEvent extends Component {
 																this.state.date,
 																'YYYYMMDD',
 														  ).format('DD/MM/YYYY')
-														: '' // Empty string when no date is selected
+														: ''
 												}
 												ref={this.datePickerRef}
 												selected={this.state.calenderStartdate}
@@ -596,10 +596,32 @@ class FormEvent extends Component {
 													});
 												}}
 												dateFormat="dd/MM/yyyy"
-												onFocus={() => this.setState({ dateFocused: true })}
+												onFocus={() => {
+													this.setState({ dateFocused: true });
+													this.datePickerRef.current?.setOpen(true);
+												}}
 												onBlur={() => this.setState({ dateFocused: false })}
 												className="floating-select"
 												onKeyDown={(e) => e.preventDefault()}
+												showPopperArrow={false}
+												popperPlacement="bottom"
+												customInput={
+													<input
+														type="button"
+														style={{
+															textAlign: 'left',
+															paddingLeft: '12px',
+															width: '100%',
+														}}
+													/>
+												}
+												popperModifiers={{
+													preventOverflow: {
+														enabled: true,
+														escapeWithReference: false,
+														boundariesElement: 'viewport',
+													},
+												}}
 											/>
 											<span className="calendarsvgIcon">
 												<CalendarSvg

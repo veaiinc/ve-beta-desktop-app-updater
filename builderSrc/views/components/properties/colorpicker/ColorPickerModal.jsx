@@ -3,7 +3,7 @@ import { SliderPicker } from 'react-color';
 import 'react-color-palette/css';
 import '../../../../assets/scss/color-picker-modal.scss';
 import _ from 'lodash';
-import ReactModal from '../../../components/ui-components/modal';
+import ReactModal from '../../ui-components/modal';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/close.svg';
 
 const colors = [

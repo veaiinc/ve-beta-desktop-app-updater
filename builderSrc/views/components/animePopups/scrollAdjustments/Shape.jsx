@@ -141,14 +141,17 @@ const Shape = ({ activeComponent, adjustAnimation }) => {
 					<div className="adj-slider-container">
 						<input
 							type="range"
-							min="0"
+							min="0.1"
 							max="1"
-							step="0.01"
+							step="0.1"
 							value={
 								activeComponent?.animations?.adjustments?.animeIntensity ||
 								intensity
 							}
-							onChange={(e) => setIntensity(e.target.value)}
+							onChange={(e) => {
+								setIntensity(e.target.value);
+								adjustAnimation('animeIntensity', e.target.value);
+							}}
 						/>
 					</div>
 					<div className="adj-slider-value">

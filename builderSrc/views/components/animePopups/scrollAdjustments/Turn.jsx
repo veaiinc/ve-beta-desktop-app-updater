@@ -74,12 +74,12 @@ const Turn = ({ activeComponent, adjustAnimation }) => {
 				<div className="adj-directions-container">
 					<button
 						className={`adj-arrow-button ${
-							activeComponent?.animations?.adjustments?.direction === 'right'
+							activeComponent?.animations?.adjustments?.direction === 'left'
 								? 'adj-active'
 								: ''
 						}`}
 						onClick={() => {
-							adjustAnimation('direction', 'right');
+							adjustAnimation('direction', 'left');
 							setDirection('right');
 						}}
 					>
@@ -90,12 +90,12 @@ const Turn = ({ activeComponent, adjustAnimation }) => {
 					</button>
 					<button
 						className={`adj-arrow-button ${
-							activeComponent?.animations?.adjustments?.direction === 'left'
+							activeComponent?.animations?.adjustments?.direction === 'right'
 								? 'adj-active'
 								: ''
 						}`}
 						onClick={() => {
-							adjustAnimation('direction', 'left');
+							adjustAnimation('direction', 'right');
 							setDirection('left');
 						}}
 					>

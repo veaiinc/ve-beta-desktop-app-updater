@@ -3,7 +3,7 @@ import '../../../assets/scss/smart-file-components/uploadContractSignature.scss'
 import ReactModal from '../ui-components/modal.jsx';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import SignaturePad from 'react-signature-canvas';
-import Context from '../../../context/context';
+import Context from '../../../context/context.js';
 import moment from 'moment';
 
 const customStyles = {

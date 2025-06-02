@@ -7,6 +7,7 @@ import FormCardPopup from '../library/elementPopups/blockPopups/formCardPopup';
 import TextPopup from '../library/elementPopups/textPopup';
 import ImagePopup from '../library/elementPopups/imagePopup';
 import ButtonPopup from '../library/elementPopups/buttonPopup';
+import InvoiceCardPopup from '../library/elementPopups/blockPopups/InvoiceCardPopup';
 
 class BlockSidebar extends Component {
 	constructor(props) {
@@ -199,6 +200,27 @@ class BlockSidebar extends Component {
 							previewType={this.props.previewType}
 							activeSectionID={this.props.activeSectionID}
 							isLogicalFormText={this.props?.isLogicalFormText || false}
+						/>
+					)}
+
+					{/* invoice card popup */}
+					{this.state?.activeType === 'invoice' && (
+						<InvoiceCardPopup
+							activeComponent={this.props?.section}
+							brandColors={this.props?.brandColors}
+							modules={this.props?.modules}
+							getModuleSections={(e) => this.props?.getModuleSections(e)}
+							activeModuleSections={this.props?.activeModuleSections}
+							setModalRef={(e) => this.props?.setModalRef(e)}
+							isWorkflow={this.props.isWorkflow}
+							previewType={this.props.previewType}
+							handleCardPopupProps={this.props.handleCardPopupProps}
+							style={this.state?.activePopupComponent?.style}
+							activeWorkflowModuleId={this.props?.activeWorkflowModuleId}
+							activeModuleId={this.props?.activeModuleId}
+							handleIsValidBgVideoURL={this.props.handleIsValidBgVideoURL}
+							currencySymbol={this.props?.currencySymbol}
+							currencySymbol2={this.props?.currencySymbol2}
 						/>
 					)}
 				</div>

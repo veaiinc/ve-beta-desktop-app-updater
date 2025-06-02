@@ -14,7 +14,7 @@ import { ReactComponent as LinkInteractionSvg } from '../../../assets/svg/docume
 import { ReactComponent as BlockUnfoldSvg } from '../../../assets/svg/document/blockUnfold.svg';
 import { ReactComponent as QuoteChangedSvg } from '../../../assets/svg/document/quoteChanged.svg';
 import { ReactComponent as ButtonInteractionSvg } from '../../../assets/svg/document/buttonInteraction.svg';
-import DoughnutChart from './doughnutChart';
+import DoughnutChart from './doughnutChart.jsx';
 import Skeleton from 'react-loading-skeleton';
 import Spinner from '../loaders/Spinner.jsx';
 
@@ -137,21 +137,25 @@ const SessionMetric = ({
 						<Spinner width={'50px'} height={'50px'} />
 					</div>
 				) : (
-					!info?.labelsData?.length === 0 && (
-						<DoughnutChart
-							scrollClass={
-								title === 'Interactions' ? 'interactionChart' : 'timeSpentChart'
-							}
-							statsData={
-								!info?.isLabelSelected
-									? info?.labelsData
-									: transformLabelItemsData(info?.labelItemsData)
-							}
-							title={title}
-							COLORS={info?.COLORS}
-							showToolTip={showChartToolTip}
-						/>
-					)
+					<DoughnutChart
+						scrollClass={
+							title === 'Interactions' ? 'interactionChart' : 'timeSpentChart'
+						}
+						statsData={
+							!info?.isLabelSelected
+								? info?.labelsData?.map((item) => ({
+										name: item.moduleType,
+										percentage: item.percentage,
+								  }))
+								: transformLabelItemsData(info?.labelItemsData)?.map((item) => ({
+										name: item.content,
+										percentage: item.percentage,
+								  }))
+						}
+						title={title}
+						COLORS={info?.COLORS}
+						showToolTip={showChartToolTip}
+					/>
 				)}
 			</div>
 

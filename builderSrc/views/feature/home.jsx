@@ -328,6 +328,11 @@ const updateNavBar_Theme_File_Query = gql`
 		themes
 	}
 `;
+const updateNavBarWorkflowQuery = gql`
+	mutation UpdateWorkflow($updateWorkflowId: ID!, $updateWorkflowInput: UpdateWorkflowInput) {
+		updateWorkflow(id: $updateWorkflowId, updateWorkflowInput: $updateWorkflowInput)
+	}
+`;
 
 const duplicateTemplateQuery = gql`
 	mutation DuplicateWorkflowTemplate($templateId: ID!, $title: String!) {
@@ -2131,9 +2136,26 @@ class Home extends Proposals {
 						},
 						isAutoSaving: true,
 				  },
-			() => {
-				this.debounceFuncForImage(() => {
-					this.handleSaveSections(
+			async () => {
+				// !previous logic
+				// setTimeout(
+				// 	function () {
+				// 		this.handleSaveSections(
+				// 			true,
+				// 			this.state.module === 'form' && this.state.isHeader,
+				// 			'handleSetImageSettings',
+				// 		);
+				// 		// setTimeout(()=>{
+				// 		// 	localStorage.removeItem(`${this.state.activeImageURL}::zoom`);
+				// 		// 	console.log('deleted zoom',localStorage.getItem(`${this.state.activeImageURL}::zoom`))
+				// 		// },1000)
+				// 	}.bind(this),
+				// 	1000,
+				// );
+
+				// !new logic
+				this.debounceFuncForImage(async () => {
+					await this.handleSaveSections(
 						true,
 						this.state.module === 'form' && this.state.isHeader,
 						'handleSetImageSettings',
@@ -3558,7 +3580,8 @@ class Home extends Proposals {
 				_.has(this.state.template, 'version') &&
 				!this.state.template.actions?.includes('form-submission')
 			) {
-				return navigate('/my-templates');
+				// return (window.location.href = `https://ve.ai/my-templates`);
+				return this.props.navigate(-1);
 			} else if (this.state.template.actions?.includes('form-submission')) {
 				return this.props.navigate(-1);
 			} else {
@@ -5362,7 +5385,7 @@ class Home extends Proposals {
 	// ! global function for handling navbar updates
 	handleNavbarUpdate = (json) => {
 		if (this.state.isWorkflow) {
-			this.updateWorkflowNavbar(updateNavBar_Theme_File_Query, {
+			this.updateWorkflowNavbar(updateNavBarWorkflowQuery, {
 				updateWorkflowId: this.state.workflow_id,
 				updateWorkflowInput: {
 					navBar: json,
@@ -5482,7 +5505,7 @@ class Home extends Proposals {
 
 	handleCreateNavBar = async () => {
 		if (this.state.isWorkflow) {
-			this.updateWorkflowNavbar(updateNavBar_Theme_File_Query, {
+			this.updateWorkflowNavbar(updateNavBarWorkflowQuery, {
 				updateWorkflowId: this.state.workflow_id,
 				updateWorkflowInput: {
 					navBar: {
@@ -5641,10 +5664,11 @@ class Home extends Proposals {
 			displayName: name,
 			inputType: selectedOption,
 			isRequired: false,
-			templateId: templateId,
+			templateId: this.state.template?._id,
 			workflowId: this.state?.workflow_id,
 		};
 		if (this.state.isWorkflow) {
+			console.log(isworkflowjson, this.state.template?._id, 'jeevan');
 			this.handlePostIndividulVariables(isworkflowjson);
 		} else {
 			this.postVariables(json, this.props?.params?.templateID);
@@ -5684,7 +5708,16 @@ class Home extends Proposals {
 			return navigate('');
 		}
 	};
-
+	updateTablesForTaxes = (tables) => {
+		this.setState(
+			{
+				sectionTables: tables,
+			},
+			() => {
+				this.handleSaveSections();
+			},
+		);
+	};
 	render() {
 		if (this.componentRef.current) {
 			const data = [
@@ -6978,6 +7011,9 @@ class Home extends Proposals {
 												crop={this.state.crop}
 												zoom={this.state.zoom}
 												sections={this.state.sections}
+												isFormV1={this.state.sections.every(
+													(section) => section.type === 'form-v1',
+												)}
 												activeSectionID={this.state.activeSectionID}
 												activeTextBlock={this.state.activeTextBlock}
 												handledeleteSection={(e) => this.deleteSection(e)}
@@ -7452,6 +7488,7 @@ class Home extends Proposals {
 												addManualInvoiceBlock={(id, order) => {
 													this.addManualInvoiceBlock(id, order);
 												}}
+												updateTablesForTaxes={this?.updateTablesForTaxes}
 											/>
 										)}
 

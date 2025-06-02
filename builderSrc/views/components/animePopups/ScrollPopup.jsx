@@ -315,7 +315,7 @@ const ScrollPopup = ({ activeElementAnimeName, handleElementAnimationsValue }) =
 					</div>
 					<span>Shape</span>
 				</div>
-				<div className="anime-hw-popup-content-item">
+				{/* <div className="anime-hw-popup-content-item">
 					<div
 						className="a-h-p-i-icon"
 						style={{
@@ -331,7 +331,7 @@ const ScrollPopup = ({ activeElementAnimeName, handleElementAnimationsValue }) =
 						<div className="a-h-p-c-i-box  a-h-p-c-i-scroll-shutters-box"></div>
 					</div>
 					<span>Shutters</span>
-				</div>
+				</div> */}
 			</div>
 		</>
 	);

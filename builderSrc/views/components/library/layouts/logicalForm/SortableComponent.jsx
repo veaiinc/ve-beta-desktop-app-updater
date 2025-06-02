@@ -57,6 +57,7 @@ import FontSelectordescription from './FontSelectordescription';
 import ImageItem from '../../elements/shape/index';
 
 const SortableComponent = ({
+	buttonProps,
 	review,
 	previewType,
 	setTriggerFont,
@@ -642,6 +643,7 @@ const SortableComponent = ({
 			return (
 				<div>
 					<FormEvent
+						buttonProps={buttonProps} // Pass the buttonProps received from props
 						client={client}
 						saveSections={saveSections}
 						sections={sections}
@@ -882,22 +884,6 @@ const SortableComponent = ({
 			AU: '+61 ',
 		};
 		// Effect to handle country change
-		React.useEffect(() => {
-			if (field.type === 'phone' && field.defaultCountryCode && field.selectedCountry) {
-				const newCountryCode = countryCodeMap[field.selectedCountry];
-				// If there's an existing number, preserve only the number part and add new country code
-				if (localAnswer) {
-					const existingNumber = localAnswer.replace(/[^0-9]/g, '');
-					const newValue = newCountryCode + existingNumber;
-					setLocalAnswer(newValue);
-					debouncedAnswerChange(field.id, newValue, _id);
-				} else {
-					// If no number exists, just set the country code
-					setLocalAnswer(newCountryCode);
-					debouncedAnswerChange(field.id, newCountryCode, _id);
-				}
-			}
-		}, [field.selectedCountry]); // Dependency on selectedCountry change
 
 		const baseProps = {
 			value: (() => {
@@ -1019,7 +1005,7 @@ const SortableComponent = ({
 					: {
 							border: '1.5px solid #D0D0D0',
 							borderRadius: '6px',
-							background: '#FFF',
+							background: 'transparent',
 							...newTheme?.colors?.form?.inputAnswer,
 							...newTheme?.fonts?.form?.inputAnswer,
 					  }),
@@ -1065,6 +1051,22 @@ const SortableComponent = ({
 
 		return baseProps;
 	};
+	useEffect(() => {
+		if (field.type === 'phone' && field.defaultCountryCode && field.selectedCountry) {
+			const newCountryCode = countryCodeMap[field.selectedCountry];
+			// If there's an existing number, preserve only the number part and add new country code
+			if (localAnswer) {
+				const existingNumber = localAnswer.replace(/[^0-9]/g, '');
+				const newValue = newCountryCode + existingNumber;
+				setLocalAnswer(newValue);
+				debouncedAnswerChange(field.id, newValue, _id);
+			} else {
+				// If no number exists, just set the country code
+				setLocalAnswer(newCountryCode);
+				debouncedAnswerChange(field.id, newCountryCode, _id);
+			}
+		}
+	}, [field.selectedCountry]); // Dependency on selectedCountry change
 
 	// Handle dropdown changes
 	const handleDropdownChange = (e) => {
@@ -1637,6 +1639,15 @@ const SortableComponent = ({
 			setShuffledOptions(field.options || []);
 		}
 	}, [field.options, field.randomizeOptions, client, isPreview, instanceKey]);
+	const [optionFont, setOptionFont] = useState('Inter');
+
+	// Add this useEffect to watch for font changes
+	useEffect(() => {
+		if (field?.question) {
+			const fontMatch = field.question.match(/font-family:\s*['"]?(.*?)['"]?[;}"]/);
+			setOptionFont(fontMatch?.[1] || triggerFont || 'Inter');
+		}
+	}, [field.question, triggerFont]);
 
 	// Use this for rendering options
 	const displayOptions =
@@ -1861,7 +1872,7 @@ const SortableComponent = ({
 										fontFamily: `"${
 											field.questionFont || 'Inter'
 										}", sans-serif`,
-										fontWeight: '800',
+										// fontWeight: '800',
 										color: field.textColor || 'black',
 										width: windowWidth <= 768 ? '385px' : 'auto', // Add width constraint for mobile
 										display: 'flex', // Ensure it takes the full width
@@ -1900,6 +1911,7 @@ const SortableComponent = ({
 									marginTop: '8px',
 									marginBottom: '16px',
 									width: '100%',
+									maxWidth: '712px',
 								}}
 							>
 								<Popover
@@ -2145,6 +2157,146 @@ const SortableComponent = ({
 										{/* Question Settings */}
 										{field.type !== 'image' ? (
 											<>
+												<div
+													className="setting-item"
+													style={{ marginBottom: '16px' }}
+												>
+													<label
+														style={{
+															display: 'flex',
+															justifyContent: 'space-between',
+															alignItems: 'center',
+															marginBottom: '8px',
+															color: '#F1F1F1',
+															fontFamily:
+																'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+															fontSize: '12px',
+															fontWeight: 500,
+														}}
+													>
+														Field Type
+													</label>
+													<select
+														value={field.type}
+														onChange={(e) => {
+															const newType = e.target.value;
+
+															// Generate default question text based on field type
+															const getDefaultQuestion = (type) => {
+																switch (type) {
+																	case 'shortanswer':
+																		return 'Enter a short answer';
+																	case 'longanswer':
+																		return 'Enter your detailed response';
+																	case 'singlechoice':
+																		return 'Select one option';
+																	case 'multiplechoice':
+																		return 'Select all that apply';
+																	case 'dropdown':
+																		return 'Choose from dropdown';
+																	case 'email':
+																		return 'Enter your email address';
+																	case 'phone':
+																		return 'Enter your phone number';
+																	case 'link':
+																		return 'Enter a URL';
+																	case 'number':
+																		return 'Enter a number';
+																	case 'date':
+																		return 'Select a date';
+																	case 'time':
+																		return 'Select a time';
+																	case 'fileupload':
+																		return 'Upload your file';
+																	case 'rating':
+																		return 'Rate this';
+																	case 'signature':
+																		return 'Sign here';
+																	default:
+																		return 'Enter your response';
+																}
+															};
+
+															const updateBlocks = blocks.map((f) => {
+																if (f.id === field.id) {
+																	return {
+																		...f,
+																		type: newType,
+																		question:
+																			getDefaultQuestion(
+																				newType,
+																			),
+																		// Reset type-specific properties
+																		options: [
+																			'Option 1',
+																			'Option 2',
+																		],
+																		answer: '',
+																		hasOtherOption: false,
+																		allowMultiple: false,
+																		useBadges: false,
+																		badgeType: 'letters',
+																		minChars: undefined,
+																		maxChars: undefined,
+																		defaultAnswer: undefined,
+																		// Preserve common properties
+																		description: f.description,
+																		required: f.required,
+																		placeholder: f.placeholder,
+																	};
+																}
+																return f;
+															});
+
+															const updateSections = sections.map(
+																(section) => {
+																	if (section._id === _id) {
+																		return {
+																			...section,
+																			blocks: updateBlocks,
+																		};
+																	}
+																	return section;
+																},
+															);
+															saveSections(updateSections);
+														}}
+														style={{
+															width: '100%',
+															padding: '8px',
+															background: '#2C2C2C',
+															border: '1px solid #333',
+															borderRadius: '4px',
+															color: '#fff',
+															marginTop: '8px',
+														}}
+													>
+														<option value="shortanswer">
+															Short Answer
+														</option>
+														<option value="longanswer">
+															Long Answer
+														</option>
+														<option value="singlechoice">
+															Single Choice
+														</option>
+														<option value="multiplechoice">
+															Multiple Choice
+														</option>
+														<option value="dropdown">Dropdown</option>
+														<option value="email">Email</option>
+														<option value="phone">Phone</option>
+														<option value="link">Link</option>
+														<option value="number">Number</option>
+														<option value="date">Date</option>
+														<option value="time">Time</option>
+														<option value="fileupload">
+															File Upload
+														</option>
+														<option value="rating">Rating</option>
+														<option value="signature">Signature</option>
+													</select>
+												</div>
 												{/* {field.description && (
                                                     <div className="description">
                                                         {field.description}
@@ -5389,6 +5541,9 @@ const SortableComponent = ({
 											justifyContent: 'center',
 											width: '28px',
 											height: '28px',
+											minWidth: '28px',
+											minHeight: '28px',
+											flexShrink: 0,
 											borderRadius: '6px',
 											backgroundColor: client
 												? (
@@ -5411,18 +5566,118 @@ const SortableComponent = ({
 										{String.fromCharCode(65 + index)}
 									</span>
 
-									{/* Option text */}
-									<span
-										style={{
-											color:
-												field?.question?.match(/color:\s*(.*?)[;"]/)?.[1] ||
-												'#1A1A1A',
-											flexGrow: 1,
-											fontSize: '14px',
-										}}
-									>
-										{option.replace(/^[A-Z]\.\s*/, '')}
-									</span>
+									{/* Option text with edit functionality */}
+									{!client && !isPreview ? (
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												width: '100%',
+												gap: '8px',
+											}}
+										>
+											<input
+												type="text"
+												defaultValue={option.replace(/^[A-Z]\.\s*/, '')}
+												onBlur={(e) => {
+													const newValue = e.target.value;
+													const updateBlocks = blocks.map((f) => {
+														if (f.id === field.id) {
+															const updatedOptions = [...f.options];
+															updatedOptions[
+																index
+															] = `${String.fromCharCode(
+																65 + index,
+															)}. ${newValue}`;
+															return {
+																...f,
+																options: updatedOptions,
+															};
+														}
+														return f;
+													});
+													const updateSections = sections.map(
+														(section) => {
+															if (section._id === _id) {
+																return {
+																	...section,
+																	blocks: updateBlocks,
+																};
+															}
+															return section;
+														},
+													);
+													saveSections(updateSections);
+												}}
+												onKeyDown={(e) => {
+													if (e.key === 'Enter') {
+														e.target.blur();
+													}
+												}}
+												onFocus={(e) => {
+													e.stopPropagation();
+												}}
+												onClick={(e) => {
+													e.stopPropagation();
+												}}
+												style={{
+													border: 'none',
+													background: 'transparent',
+													color:
+														field?.question?.match(
+															/color:\s*(.*?)[;"]/,
+														)?.[1] || '#1A1A1A',
+													fontSize:
+														field?.question?.match(
+															/font-size:\s*(.*?)[;"]/,
+														)?.[1] || '14px',
+													width: '100%',
+													outline: 'none',
+													cursor: 'text',
+													padding: '0',
+													margin: '0',
+													minWidth: '150px',
+													display: 'block',
+													fontFamily: optionFont,
+												}}
+											/>
+											<svg
+												width="14"
+												height="14"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="#666"
+												strokeWidth="2"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												style={{
+													flexShrink: 0,
+													cursor: 'pointer',
+													opacity: 0.7,
+												}}
+											>
+												<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+												<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+											</svg>
+										</div>
+									) : (
+										<span
+											style={{
+												color:
+													field?.question?.match(
+														/color:\s*(.*?)[;"]/,
+													)?.[1] || '#1A1A1A',
+												flexGrow: 1,
+												fontSize:
+													field?.question?.match(
+														/font-size:\s*(.*?)[;"]/,
+													)?.[1] || '14px',
+												fontFamily: optionFont,
+											}}
+										>
+											{option.replace(/^[A-Z]\.\s*/, '')}
+										</span>
+									)}
 								</label>
 							</div>
 						))
@@ -5567,20 +5822,27 @@ const SortableComponent = ({
 										const input = e.target;
 										const placeholderText = input.placeholder;
 
+										// Hide the original input's placeholder
+										input.placeholder = '';
+
 										// Create an editable input for the placeholder
 										const placeholderInput = document.createElement('input');
 										placeholderInput.value =
 											field.placeholder || placeholderText;
 										placeholderInput.style.position = 'absolute';
-										placeholderInput.style.left = '0';
-										placeholderInput.style.top = '0';
+										placeholderInput.style.bottom = '13px';
+
+										placeholderInput.style.left = '10px';
 										placeholderInput.style.width = '100%';
 										placeholderInput.style.padding = input.style.padding;
 										placeholderInput.style.fontSize = input.style.fontSize;
-										placeholderInput.style.backgroundColor = '#fff';
+										placeholderInput.style.backgroundColor = 'transparent';
 										placeholderInput.style.border = 'transparent';
-
-										placeholderInput.style.color = '#000';
+										placeholderInput.style.color = '#a2a2b0';
+										placeholderInput.style.fontWeight = '600';
+										placeholderInput.style.fontSize = '13.58px';
+										placeholderInput.style.lineHeight = '19.012px';
+										placeholderInput.style.fontFamily = 'Inter';
 
 										// Handle placeholder edit
 										placeholderInput.onblur = () => {
@@ -5590,6 +5852,8 @@ const SortableComponent = ({
 												_id,
 											);
 											placeholderInput.remove();
+											// Restore the original input's placeholder
+											input.placeholder = placeholderInput.value;
 										};
 
 										placeholderInput.onkeydown = (e) => {

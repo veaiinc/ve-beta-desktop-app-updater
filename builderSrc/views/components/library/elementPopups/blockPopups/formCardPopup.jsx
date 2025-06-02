@@ -50,11 +50,11 @@ export default class FormCardPopup extends Images {
 	}
 
 	componentDidMount() {
-		document.addEventListener('mousedown', this.handleClickOutside);
+		// document.addEventListener('mousedown', this.handleClickOutside);
 	}
 
 	componentWillUnmount() {
-		document.removeEventListener('mousedown', this.handleClickOutside);
+		// document.removeEventListener('mousedown', this.handleClickOutside);
 	}
 
 	handleClickOutside = (event) => {
@@ -301,6 +301,21 @@ export default class FormCardPopup extends Images {
 			this.props?.handleCardPopupProps(newComponent, true, false);
 		});
 	};
+
+	handleFormPadding = (value) => {
+		let newComponent = { ...this.state.activeComponent };
+		newComponent = {
+			...newComponent,
+			style: {
+				...newComponent?.style,
+				padding: value,
+			},
+		};
+		this.setState({ activeComponent: newComponent }, () => {
+			this.props?.handleCardPopupProps(newComponent);
+		});
+	};
+
 	render() {
 		return (
 			<div
@@ -415,6 +430,53 @@ export default class FormCardPopup extends Images {
 									/>
 									<span className="slider-round round"></span>
 								</label>
+							</div>
+							<div className="line"></div>
+							<div className="padding-options-wrapper">
+								<div
+									className="padding-options-header"
+									style={{
+										color: '#e8e8e8',
+										fontSize: '14px',
+										fontWeight: '500',
+										lineHeight: '24px',
+									}}
+								>
+									Horizontal Padding
+								</div>
+								<div className="padding-options-item">
+									<div
+										className={`padding-one ${
+											!_.has(this.props?.activeComponent?.style, 'padding') ||
+											this.props?.activeComponent?.style?.padding === 0
+												? 'active'
+												: ''
+										}`}
+										onClick={() => this.handleFormPadding(0)}
+									>
+										S
+									</div>
+									<div
+										className={`padding-one ${
+											this.props?.activeComponent?.style?.padding == 2
+												? 'active'
+												: ''
+										}`}
+										onClick={() => this.handleFormPadding(2)}
+									>
+										M
+									</div>
+									<div
+										className={`padding-one ${
+											this.props?.activeComponent?.style?.padding == 4
+												? 'active'
+												: ''
+										}`}
+										onClick={() => this.handleFormPadding(4)}
+									>
+										L
+									</div>
+								</div>
 							</div>
 							{/* <div className="line"></div>
 							<div

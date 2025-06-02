@@ -1,12 +1,19 @@
 import React from 'react';
-import ProposalsController from '../../controllers/proposals';
-import useChatStreamHook from '../../hooks/useChatStream';
+// hello
+const IconIndexBaseClass =
+	typeof window !== 'undefined' && !window.__NEXT_DATA__
+		? require('../../controllers/proposals.jsx').default
+		: React.Component;
 
-const isClientWithoutNextData = typeof window !== 'undefined' && !window.__NEXT_DATA__;
+const ImageIndexBaseClass =
+	typeof window !== 'undefined' && !window.__NEXT_DATA__
+		? require('../../controllers/proposals.jsx').default
+		: React.Component;
 
-const IconIndexBaseClass = isClientWithoutNextData ? ProposalsController : React.Component;
-const ImageIndexBaseClass = isClientWithoutNextData ? ProposalsController : React.Component;
-const TextIndexBaseClass = isClientWithoutNextData ? ProposalsController : React.Component;
+const TextIndexBaseClass =
+	typeof window !== 'undefined' && !window.__NEXT_DATA__
+		? require('../../controllers/proposals.jsx').default
+		: React.Component;
 
 const useChatStream = isClientWithoutNextData
 	? useChatStreamHook

@@ -1,5 +1,5 @@
 import React, { memo, useState, useCallback } from 'react';
-import ReactModal from '../../components/ui-components/modal';
+import ReactModal from '../ui-components/modal';
 import { ReactComponent as Warning } from '../../../assets/svg/smartFile/red-warning.svg';
 import '../../../assets/scss/smart-file-components/deleteLeadModal.scss';
 import { Spin } from 'antd';

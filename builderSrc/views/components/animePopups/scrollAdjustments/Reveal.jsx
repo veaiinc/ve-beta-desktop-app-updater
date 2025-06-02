@@ -19,9 +19,9 @@ const Reveal = ({ activeComponent, adjustAnimation }) => {
 	};
 	const directions = [
 		{ name: 'top', angle: 270 },
-		{ name: 'right', angle: 0 },
+		{ name: 'left', angle: 0 },
 		{ name: 'bottom', angle: 90 },
-		{ name: 'left', angle: 180 },
+		{ name: 'right', angle: 180 },
 	];
 
 	return (

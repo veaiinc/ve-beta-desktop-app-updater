@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Cart from '../../../library/svgs/Navbar/Cart';
+import Cart from '../../svgs/Navbar/Cart';
 import {
 	HandBurger,
 	Divider,

@@ -579,9 +579,12 @@
 					}
 				}
 				hr {
-					background-color: #eeeff1;
+					background-color: #a5a6a7;
 					height: 1px;
 					width: 100%;
+					margin: 4px 0px;
+					border: none;
+					opacity: 0.7;
 				}
 				.add-extras {
 					span {
@@ -592,6 +595,14 @@
 						font-weight: 500;
 						line-height: normal;
 						cursor: pointer;
+					}
+					.disc-perc-span {
+						background-color: #989898;
+						padding: 2px 4px;
+						margin: 2px;
+						border-radius: 5px;
+						color: white;
+						font-size: smaller;
 					}
 				}
 				.total {
@@ -616,6 +627,13 @@
 						line-height: normal;
 					}
 				}
+			}
+			.add-extras {
+				width: 100%;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				gap: 5px;
 			}
 		}
 		.manual-invoice-container {

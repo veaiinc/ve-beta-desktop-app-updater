@@ -110,7 +110,7 @@ import Shape18 from '../library/svgs/fluidShapes/shape18';
 import Shape19 from '../library/svgs/fluidShapes/shape19';
 
 import ColorPicker from '../properties/colorpicker';
-import Modal from '../../components/library/modals/index';
+import Modal from '../library/modals/index';
 import Slider from 'rc-slider';
 import Cropper from 'react-easy-crop';
 import moment from 'moment';
@@ -5217,11 +5217,11 @@ class Sidebar extends Images {
 											}}
 										>
 											<option value="none">None</option>
-											<option value="items">Items</option>
-											<option value="hours">Hours</option>
-											<option value="days">Days</option>
-											<option value="weeks">Weeks</option>
-											<option value="months">Months</option>
+											<option value="item">Item</option>
+											<option value="hour">Hour</option>
+											<option value="day">Day</option>
+											<option value="week">Week</option>
+											<option value="month">Month</option>
 											{this.state?.customUnits?.map((unit) => (
 												<option key={unit} value={unit}>
 													{unit}

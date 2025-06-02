@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Edit from '../actions/edit.jsx';
 import Deleted from '../actions/delete.jsx';
 import _ from 'lodash';
-import { RadioSVG, SelectDownSVG } from '../../../builder_client_common';
+import { RadioSVG, SelectDownSVG } from '../../../builder_client_common.jsx';
 
 class MultiOptionInputs extends Component {
 	constructor(props) {

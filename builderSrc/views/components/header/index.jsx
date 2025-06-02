@@ -207,24 +207,30 @@ class Header extends Component {
 					<div className="device-view">
 						<Tooltip title="Desktop View" placement="bottom">
 							<span
-								onClick={() => this.handlePreview(false, 'd')}
-								className={`tooltip ${
+								onClick={(e) => this.handlePreview(false, 'd')}
+								className={` tooltip ${
 									this.state.previewType === 'd' ? 'active' : ''
-								}`}
-								style={{ cursor: 'pointer' }}
+								} `}
+								style={{
+									cursor: 'pointer',
+									// display: this.state.previewType === 'd' ? 'none' : 'block',
+								}}
 							>
 								<Desktop />
 							</span>
 						</Tooltip>
 						<Tooltip title="Mobile View" placement="bottom">
 							<span
-								onClick={() => this.handlePreview(true, 'm')}
+								onClick={(e) => this.handlePreview(true, 'm')}
 								className={`tooltip ${
 									this.state.previewType === 'm' && this.state.preview
 										? 'active'
 										: ''
 								}`}
-								style={{ cursor: 'pointer' }}
+								style={{
+									cursor: 'pointer',
+									// display: this.state.previewType === 'm' ? 'none' : 'block',
+								}}
 							>
 								<Mobile />
 							</span>
@@ -244,6 +250,7 @@ class Header extends Component {
 													this.props.managePages(e);
 												});
 											}}
+											// style={{ textTransform: 'capitalize', background: 'none' }}
 										>
 											<PageIcon />
 											<span className="page-count">
@@ -267,75 +274,152 @@ class Header extends Component {
 						</>
 					)}
 
-					{this.props.isWorkflow && this.state.previewType === 'm' ? (
-						<>
-							<span
-								className="h-right-publish"
-								style={{ textTransform: 'capitalize' }}
-							>
-								Edit Details
-							</span>
-							<span
-								className="h-right-publish"
-								onClick={() => this.handleShare()}
-								style={{ textTransform: 'capitalize' }}
-							>
-								Share
-							</span>
-						</>
-					) : this.state.previewType === 'm' ? null : !this.state.isEmbed ? (
-						<>
-							<span
-								className="h-right-publish"
-								onClick={(e) => {
-									this.setState({ isLoader: true }, () => {
-										this.props.publish(e);
-									});
-								}}
-								style={{ textTransform: 'capitalize' }}
-							>
-								{this.state.isPublishLoading ? 'Saving...' : 'Save'}
-							</span>
-							<span
-								onClick={(e) => {
-									e.stopPropagation();
-									this.setState({
-										isThreeDotsDropdown: !this.state.isThreeDotsDropdown,
-									});
-								}}
-								className="three-dots-svg"
-							>
-								<Threedots />
-								{this.state.isThreeDotsDropdown && (
-									<div
-										ref={this.threeDotsDropdownRef}
-										className="three-dots-svg-dropdown"
+					{/* <span
+						onClick={(e) => this.handlePreview(true, 'd')}
+					<span
+						onClick={(e) => this.handlePreview(false, 'd')}
+						className={` tooltip ${this.state.previewType === 'd' && this.state.preview ? 'active ' : ''
+							}`}
+					>
+						<Desktop />
+						<label className="tooltip-text">Desktop&nbsp;View</label>
+					</span> */}
+					{/* <span
+						onClick={(e) => this.handlePreview(true, 'm')}
+						className={`tooltip ${this.state.previewType === 'm' && this.state.preview ? 'active' : ''
+							}`}
+					>
+						<Mobile />
+						<label className="tooltip-text">Mobile&nbsp;View</label>
+					</span> */}
+
+					{/* <span
+						onClick={(e) => this.handlePreview(true, 'ml')}
+						className={`tooltip ${this.state.previewType === 'ml' && this.state.preview ? 'active' : ''
+							}`}
+					>
+					
+						{this.state.mobileViewLocked ? <Locked /> : <Unlocked />}
+						<label className="tooltip-text">Mobile View Lock</label>
+					</span> */}
+
+					{/* {this.props.params?.type &&
+					this.props.params.type === 'customize' ? (
+						<a onClick={(e) => this.props.saveSections(e)}>
+							{this.state.isSaveLoading
+								? 'Saving...'
+								: 'Use this Template'}
+						</a>
+					) : (
+						<a
+							onClick={(e) => this.props.saveSections(e)}
+							style={{ textTransform: 'capitalize' }}
+						>
+							{this.state.isSaveLoading
+								? 'Saving...'
+								: `Save ${this.state.module}`}
+						</a>
+					)} */}
+					{/* {this.state.preview ? ( */}
+					{/* <a
+							onClick={() => {
+								this.handlePreview(false, 'd');
+							}}
+							style={{ textTransform: 'capitalize' }}
+						>
+							Exit Preview
+						</a> */}
+					{/* // ) : ( */}
+					<>
+						{this.props.isWorkflow && this.state.previewType === 'm' ? (
+							<>
+								<span
+									className="h-right-publish"
+									// getting props error
+									// onClick={(e) => {
+									// 	this.props?.toggleSideBar();
+									// }}
+									style={{ textTransform: 'capitalize' }}
+								>
+									Edit Details
+								</span>
+								<span
+									className="h-right-publish"
+									onClick={(e) => {
+										this.handleShare();
+									}}
+									style={{ textTransform: 'capitalize' }}
+								>
+									Share
+								</span>
+							</>
+						) : this.state.previewType === 'm' ? (
+							''
+						) : !this.state.isEmbed ? (
+							<>
+								<span
+									className="h-right-publish"
+									onClick={(e) => {
+										this.setState({ isLoader: true }, () => {
+											this.props.publish(e);
+										});
+									}}
+									style={{ textTransform: 'capitalize' }}
+								>
+									{this.state.isPublishLoading ? 'Saving...' : `Save`}
+								</span>
+								{!this.state.isWorkflow && (
+									<span
+										onClick={(e) => {
+											e.stopPropagation();
+											this.setState({
+												isThreeDotsDropdown:
+													!this.state.isThreeDotsDropdown,
+											});
+										}}
+										className="three-dots-svg"
 									>
-										{['Duplicate', 'Delete'].map((item) => (
-											<span
-												className="three-dots-svg-dropdown-item"
-												onClick={(e) => {
-													e.stopPropagation();
-													if (item === 'Delete') {
-														this.props?.handleDeleteOpen(true);
-													} else {
-														this.props?.handleDuplicateTemplate();
-													}
-												}}
-												style={{
-													color:
-														item === 'Delete' ? '#C03744' : '#E4E5E6',
-												}}
-												key={item}
+										<Threedots />
+
+										{this.state.isThreeDotsDropdown && (
+											<div
+												ref={this.threeDotsDropdownRef}
+												className="three-dots-svg-dropdown"
 											>
-												{item}
-											</span>
-										))}
-									</div>
+												{['Duplicate', 'Delete'].map((item) => {
+													return (
+														<span
+															className="three-dots-svg-dropdown-item"
+															onClick={(e) => {
+																e.stopPropagation();
+																if (item === 'Delete') {
+																	this.props?.handleDeleteOpen(
+																		true,
+																	);
+																} else {
+																	this.props?.handleDuplicateTemplate();
+																}
+															}}
+															style={{
+																color:
+																	item === 'Delete'
+																		? '#C03744'
+																		: '#E4E5E6',
+															}}
+														>
+															{item}
+														</span>
+													);
+												})}
+											</div>
+										)}
+									</span>
 								)}
-							</span>
-						</>
-					) : null}
+							</>
+						) : (
+							<></>
+						)}
+					</>
 				</div>
 			</div>
 		);

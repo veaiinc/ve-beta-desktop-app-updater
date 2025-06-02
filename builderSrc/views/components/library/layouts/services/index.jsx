@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import Text from '../../elements/text';
-import ImageItem from '../../elements/image';
+import Text from '../../elements/text/index.jsx';
+import ImageItem from '../../elements/image/index.jsx';
 import _ from 'lodash';
 import '../index.scss';
-import Button from '../../elements/button';
+import Button from '../../elements/button/index.jsx';
 // import { ReactComponent as Edit } from '../actions/edit.svg';
 // import { ReactComponent as Copy } from '../actions/copy.svg';
 import Down from '../actions/down.jsx';
@@ -886,9 +886,8 @@ class Layout1 extends Component {
 						<div
 							onClick={(e) => {
 								e.stopPropagation();
-								this.hanldeAddBlock(e)
+								this.hanldeAddBlock(e);
 							}}
-						
 							className="addBlankContainer"
 						>
 							<AddBlock />

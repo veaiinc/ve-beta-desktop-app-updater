@@ -705,7 +705,7 @@
 		opacity: 0;
 	}
 	100% {
-		clip-path: inset(0 0 0 0);
+		clip-path: inset(0% 0% 0% 0%);
 		opacity: 1;
 	}
 }
@@ -751,7 +751,6 @@
 
 //turn Animations on div
 .scroll-turn {
-	opacity: 1;
 	animation: ScrollTurn 3s ease-out forwards;
 }
 
@@ -759,9 +758,11 @@
 	0% {
 		transform: translate3d(var(--turn-x), 0, -200px) rotateZ(var(--turn-rotate))
 			scale3d(var(--turn-scale), var(--turn-scale), var(--turn-scale));
+		opacity: 0;
 	}
 	100% {
 		transform: translate3d(0, 0, 0) rotateZ(0deg) scale3d(1, 1, 1);
+		opacity: 1;
 	}
 }
 
@@ -866,6 +867,18 @@
 }
 
 // shape animation
+// circle shape
+// clipPath: 'circle(0% at center)', //start point
+// clipPath: 'circle(150% at center)',//endpoint
+// square shape
+// clipPath: 'inset(50% round 0%)', //start point
+// clipPath: 'inset(0% round 0%)'',//endpoint
+// ellipse shape
+// clipPath: 'ellipse(0% 0% at center)', //start point
+// clipPath: 'ellipse(100% 60% at center )'',//endpoint
+// diamond shape
+// clipPath: 'polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)', //start point
+// clipPath: 'polygon(50% -50%, 150% 50%, 50% 150%, -50% 50%)',//endpoint
 .scroll-shape {
 	animation: ScrollShape 3s ease-out forwards;
 	clip-path: var(--shape-clip-start);

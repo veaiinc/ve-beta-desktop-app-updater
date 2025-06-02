@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { ReactComponent as Cart1 } from '../../library/svgs/Navbar/Cart/Cart1.svg';
-import { ReactComponent as Cart2 } from '../../library/svgs/Navbar/Cart/Catrt2.svg';
-import { ReactComponent as Cart3 } from '../../library/svgs/Navbar/Cart/Cart3.svg';
-import { ReactComponent as Cart4 } from '../../library/svgs/Navbar/Cart/Cart4.svg';
-import { ReactComponent as Cart5 } from '../../library/svgs/Navbar/Cart/Cart5.svg';
-import { ReactComponent as Cart6 } from '../../library/svgs/Navbar/Cart/Cart6.svg';
-import { ReactComponent as Cart7 } from '../../library/svgs/Navbar/Cart/Cart7.svg';
+import { ReactComponent as Cart1 } from '../svgs/Navbar/Cart/Cart1.svg';
+import { ReactComponent as Cart2 } from '../svgs/Navbar/Cart/Catrt2.svg';
+import { ReactComponent as Cart3 } from '../svgs/Navbar/Cart/Cart3.svg';
+import { ReactComponent as Cart4 } from '../svgs/Navbar/Cart/Cart4.svg';
+import { ReactComponent as Cart5 } from '../svgs/Navbar/Cart/Cart5.svg';
+import { ReactComponent as Cart6 } from '../svgs/Navbar/Cart/Cart6.svg';
+import { ReactComponent as Cart7 } from '../svgs/Navbar/Cart/Cart7.svg';
 
 // ToggleSwitch remains a functional component since it's simple
 const ToggleSwitch = ({ isOn, handleToggle }) => (

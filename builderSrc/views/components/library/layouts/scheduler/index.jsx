@@ -16,6 +16,8 @@ const timezones = [
 	'Central European Time (CET): UTC+1:00',
 ];
 
+import ScrollMagic from 'scrollmagic';
+import { gsap } from 'gsap';
 class Scheduler extends React.Component {
 	constructor(props) {
 		super(props);
@@ -81,11 +83,44 @@ class Scheduler extends React.Component {
 	componentDidMount() {
 		// Add click event listener to document
 		document.addEventListener('mousedown', this.handleClickOutside);
+		this.controller = new ScrollMagic.Controller();
+
+		// Create a GSAP tween (paused so we can manually control it)
+		const spinTween = gsap.fromTo(
+			this.box,
+			{
+				rotate: -360,
+				// y: -200,
+				x: -300,
+				duration: 10,
+				ease: 'ease',
+			},
+			{
+				rotation: 0,
+				// y: 500,
+				x: 0,
+				paused: true,
+			},
+		);
+
+		// Create ScrollMagic scene
+		this.scene = new ScrollMagic.Scene({
+			triggerElement: this.containerRef.current,
+			triggerHook: 0.7,
+			duration: 300, // Scroll distance over which the animation should happen
+		})
+			.on('progress', (event) => {
+				// Update tween based on scroll progress
+				spinTween.progress(event.progress);
+			})
+			.addTo(this.controller);
 	}
 
 	componentWillUnmount() {
 		// Remove event listener when component unmounts
 		document.removeEventListener('mousedown', this.handleClickOutside);
+		this.scene?.destroy(true);
+		this.controller?.destroy(true);
 	}
 	componentWillReceiveProps(nextProps) {
 		if (this.state.section !== nextProps?.section) {
@@ -659,7 +694,9 @@ class Scheduler extends React.Component {
 									{this.state.section?.blocks?.[0]?.selectedSessionName}
 								</div>
 
-								<div className="service-time">{this.getSessionDurationText()}</div>
+								<div className="service-time" ref={(el) => (this.box = el)}>
+									{this.getSessionDurationText()}
+								</div>
 							</div>
 						</div>
 

@@ -1,6 +1,6 @@
 import React, { memo, useState, useCallback, useMemo, useContext, useEffect } from 'react';
 import '../../../assets/scss/document/activitySessionModal.scss';
-import { ReactComponent as CloseSvg } from '../../../assets/svg/close.svg';
+import { ReactComponent as CloseSvg } from '../../../assets/svg/smartFile/close.svg';
 import { ReactComponent as ActivitySvg } from '../../../assets/svg/document/activity.svg';
 import { ReactComponent as LinkedinSvg } from '../../../assets/svg/document/linkedIn.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/document/down.svg';
@@ -13,7 +13,7 @@ import { ReactComponent as PhoneSvg } from '../../../assets/svg/document/phone.s
 import { ReactComponent as WebSvg } from '../../../assets/svg/document/web.svg';
 import { Drawer } from 'antd';
 import { useParams } from 'react-router-dom';
-import Context from '../../../context/context';
+import Context from '../../../context/context.js';
 import SessionMetric from './sessionMetric.jsx';
 import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
@@ -25,7 +25,7 @@ const SessionActivityModal = ({
 	formatTime,
 	workflowData,
 }) => {
-	const { workflowId } = useParams();
+	const { templateID: workflowId } = useParams();
 
 	const {
 		templates: { getViewersSessionDetails, viewerSessionDetails },
@@ -55,7 +55,10 @@ const SessionActivityModal = ({
 
 	useEffect(() => {
 		if (info?.currentSessionId) {
-			getViewersSessionDetails();
+			getViewersSessionDetails({
+				workflowId: workflowId || workflowData?._id,
+				getSessionSummaryId: info?.currentSessionId,
+			});
 		}
 	}, [info?.currentSessionId, selectedViewer]);
 
@@ -179,14 +182,7 @@ const SessionActivityModal = ({
 				<div className="innerContainer">
 					{!viewerSessionDetails ? (
 						Array.from({ length: 9 }).map((ele, index) => (
-							<div className="spinnerWrapper" key={index}>
-								<Skeleton
-									width={'418px'}
-									height={'59px'}
-									style={{ borderRadius: '16px' }}
-									key={index}
-								/>
-							</div>
+							<div className="spinnerWrapper" key={index}></div>
 						))
 					) : (
 						<>
@@ -201,7 +197,7 @@ const SessionActivityModal = ({
 											className="headerTitle"
 											style={{ textTransform: 'capitalize' }}
 										>
-											{workflowData?.name || workflowData?.title || ''} -
+											{workflowData?.name || workflowData?.title || ''}
 											Smart File
 										</span>
 									</div>
@@ -326,27 +322,29 @@ const SessionActivityModal = ({
 													</spna>
 												</div>
 											</div>
-											<div className="sessionInfoLabel">
-												<div className="labelKey">Device</div>
-												<div className="labelValue">
-													<PhoneSvg />
-													<spna className="labelDescription">
-														{viewerSessionDetails?.clientDetails?.device
-															? `${
+											{viewerSessionDetails?.clientDetails?.device &&
+												viewerSessionDetails?.clientDetails?.device !==
+													'{}' && (
+													<div className="sessionInfoLabel">
+														<div className="labelKey">Device</div>
+														<div className="labelValue">
+															<PhoneSvg />
+															<spna className="labelDescription">
+																{`${
 																	JSON.parse(
 																		viewerSessionDetails
 																			.clientDetails.device,
 																	).vendor
-															  } ${
+																} ${
 																	JSON.parse(
 																		viewerSessionDetails
 																			.clientDetails.device,
 																	).model
-															  }`
-															: ''}
-													</spna>
-												</div>
-											</div>
+																}`}
+															</spna>
+														</div>
+													</div>
+												)}
 											<div className="sessionInfoLabel">
 												<div className="labelKey">IP Address</div>
 												<div className="labelValue">

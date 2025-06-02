@@ -55,6 +55,7 @@ class InvoiceWrapper extends Component {
 			backgroundType: props.backgroundType,
 			backgroundImageURL: props?.backgroundImageURL,
 			backgroundVideoURL: props.backgroundVideoURL,
+			showCardPopup: false,
 		};
 		this.blockRef = React.createRef();
 		this.boxRefs = [];
@@ -216,7 +217,8 @@ class InvoiceWrapper extends Component {
 		this.props.deleteSection(this.props._id);
 	};
 	handleBlock = (e) => {
-		this.props.selectBlock('b');
+		// this.props.selectBlock('b');
+		this.setState({ showCardPopup: true });
 	};
 
 	handleDuplicate = () => {
@@ -523,6 +525,12 @@ class InvoiceWrapper extends Component {
 							imgSettingData={(e) => this.props?.imgSettingData(e)}
 							setActiveSection={(e) => this.props?.setActiveSection(e)}
 							addManualInvoiceBlock={this.props?.addManualInvoiceBlock}
+							activeWorkflowModuleId={this.props?.activeWorkflowModuleId}
+							activeModuleId={this.props?.activeModuleId}
+							brandColors={this.props?.brandColors}
+							modules={this.props?.modules}
+							updateTablesForTaxes={this.props?.updateTablesForTaxes}
+							showCardPopup={this.state.showCardPopup}
 						/>
 					</div>
 				</div>

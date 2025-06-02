@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import ImageItem from '../../elements/image';
-import Text from '../../elements/text';
+import ImageItem from '../../elements/image/index.jsx';
+import Text from '../../elements/text/index.jsx';
 import Down from '../actions/down.jsx';
 import Up from '../actions/up.jsx';
 import Delete from '../actions/delete.jsx';
@@ -514,71 +514,84 @@ class ServiceItem extends Component {
 										}}
 									>
 										{(this.state.preview && this.props.client) ||
-										this.props.isWorkflow ? (
-											<a
-												style={{
-													background: `${
-														this.state.block?.pricingFontColor
-													}${Math.round(0.12 * 255).toString(16)}`,
-													border: `1px solid ${this.state.block?.pricingFontColor}`,
-													display: this.props.returnDisplayItemSub(
-														'quantity',
-														this.state.block._id,
-													),
-												}}
-											>
-												{this.state.block.canClientCustomiseQuantity &&
-												this.state.block.canClientCustomiseQuantity ==
-													true ? (
-													<span
-														onClick={() => {
-															if (
-																this.props.preview ||
-																this.props.isWorkflow
-															) {
-																this.props.handleServiceSelect(
-																	this.state.block._id,
+										this.props.isWorkflow
+											? this.state.block.subBlocks[0]?.unit !== 'none' && (
+													<a
+														style={{
+															background: `${
+																this.state.block?.pricingFontColor
+															}${Math.round(0.12 * 255).toString(
+																16,
+															)}`,
+															border: `1px solid ${this.state.block?.pricingFontColor}`,
+															display:
+																this.props.returnDisplayItemSub(
 																	'quantity',
-																	'decrease',
-																);
-															}
+																	this.state.block._id,
+																),
 														}}
 													>
-														-
-													</span>
-												) : (
-													''
-												)}
-												{this.state.block.subBlocks[0]?.unit === 'none'
-													? ' '
-													: this.state.block.subBlocks[0].quantity}
+														{this.state.block
+															.canClientCustomiseQuantity &&
+														this.state.block
+															.canClientCustomiseQuantity == true ? (
+															<span
+																onClick={() => {
+																	if (
+																		this.props.preview ||
+																		this.props.isWorkflow
+																	) {
+																		this.props.handleServiceSelect(
+																			this.state.block._id,
+																			'quantity',
+																			'decrease',
+																		);
+																	}
+																}}
+															>
+																-
+															</span>
+														) : (
+															''
+														)}
+														{this.state.block.subBlocks[0]?.unit ===
+														'none'
+															? ' '
+															: window?.location?.pathname?.includes(
+																	'/workflow',
+															  )
+															? this.state.block.subBlocks[0].quantity
+															: this.props.getRowValue(
+																	'quantity',
+																	this.state.block._id,
+															  )}
 
-												{this.state.block.canClientCustomiseQuantity &&
-												this.state.block.canClientCustomiseQuantity ==
-													true ? (
-													<span
-														onClick={() => {
-															if (
-																this.props.preview ||
-																this.props.isWorkflow
-															) {
-																this.props.handleServiceSelect(
-																	this.state.block._id,
-																	'quantity',
-																	'increase',
-																);
-															}
-														}}
-													>
-														+
-													</span>
-												) : (
-													''
-												)}
-											</a>
-										) : (
-											1
-										)}
+														{this.state.block
+															.canClientCustomiseQuantity &&
+														this.state.block
+															.canClientCustomiseQuantity == true ? (
+															<span
+																onClick={() => {
+																	if (
+																		this.props.preview ||
+																		this.props.isWorkflow
+																	) {
+																		this.props.handleServiceSelect(
+																			this.state.block._id,
+																			'quantity',
+																			'increase',
+																		);
+																	}
+																}}
+															>
+																+
+															</span>
+														) : (
+															''
+														)}
+													</a>
+											  )
+											: 1}
 										<span
 											style={{
 												display: this.props.returnDisplayItemSub(
@@ -588,16 +601,30 @@ class ServiceItem extends Component {
 											}}
 										>
 											{this.state.block.subBlocks[0]?.unit === 'none'
-												? `Quantity: ${this.state.block.subBlocks[0]?.quantity}`
-												: this.state.block.subBlocks[0].unit}
-											{this.props.showUnitPrice &&
-											this.state.block.subBlocks[0].unit !== 'none'
-												? ', ' +
-												  (this.state.block.subBlocks[0]?.amount || '') +
-												  (this.state.block.subBlocks[0].unit ? '/' : '') +
-												  (this.state.block.subBlocks[0]?.unit || '')
-												: ''}
+												? `Quantity: ${
+														window?.location?.pathname?.includes(
+															'/workflow',
+														)
+															? this.state.block.subBlocks[0].quantity
+															: this.props.getRowValue(
+																	'quantity',
+																	this.state.block._id,
+															  )
+												  }`
+												: this.state.block.subBlocks[0].unit + '(s),'}
 										</span>
+										{/* {this.props.showUnitPrice
+											? ', ' +
+											  (this.state.block.subBlocks[0]?.amount || '') +
+											  (this.state.block.subBlocks[0].unit ? '/' : '') +
+											  (this.state.block.subBlocks[0]?.unit || '')
+											: ''} */}
+										{this.props.showUnitPrice &&
+										this.state.block.subBlocks[0].unit !== 'none'
+											? (this.state.block.subBlocks[0]?.amount || '0') +
+											  (this.state.block.subBlocks[0].unit ? '/' : '') +
+											  (this.state.block.subBlocks[0]?.unit || '')
+											: ''}
 									</div>
 
 									<div

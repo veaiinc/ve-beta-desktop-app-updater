@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import Text from '../elements/text';
-import ImageItem from '../elements/image';
-import Shape from '../elements/shape';
+import Text from '../elements/text/index.jsx';
+import ImageItem from '../elements/image/index.jsx';
+import Shape from '../elements/shape/index.jsx';
 import './index.scss';
 import _ from 'lodash';
 import { gsap } from 'gsap';
-import Button from '../elements/button';
-import Sticker from '../elements/sticker';
+import Button from '../elements/button/index.jsx';
+import Sticker from '../elements/sticker/index.jsx';
 import Loader from '../elements/loader/index.jsx';
 import CircleText from '../elements/circletext/CircleText.jsx';
 import Icon from '../elements/icons/index.jsx';
@@ -17,8 +17,8 @@ import Video from '../elements/video/index.jsx';
 import ReactPlayer from 'react-player';
 import ScrollText from '../elements/scrolltext/index.jsx';
 import IframeItem from '../elements/iframe/index.jsx';
-import JNumber from '../elements/jnumber';
-import JIcon from '../elements/jicon';
+import JNumber from '../elements/jnumber/index.jsx';
+import JIcon from '../elements/jicon/index.jsx';
 import Up from './actions/up.jsx';
 
 //import Proposals from "../../../controllers/proposals";

@@ -6,7 +6,7 @@ import CircleSticker from '../../svgs/fluidShapes/circle.jsx';
 import Preview from '../../svgs/preview.jsx';
 import CloseButton from '../../svgs/addEventModal/Close.jsx';
 import { Helmet } from 'react-helmet';
-import { ImageIndexBaseClass } from '../../../builder_client_common';
+import { ImageIndexBaseClass } from '../../../builder_client_common.jsx';
 import _ from 'lodash';
 // Remove the Proposals import if in client mode
 const BaseClass = ImageIndexBaseClass;

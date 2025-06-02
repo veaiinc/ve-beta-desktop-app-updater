@@ -8,7 +8,7 @@ import { ReactComponent as AddBlock } from '../../svgs/LeftBar/Addblock.svg';
 import { ReactComponent as AddBlank } from '../../svgs/LeftBar/AddBlank.svg';
 const padding = ['0px', '20px', '40px', '60px', '80px'];
 const paddingHorizontal = ['0px', '70px', '140px', '210px', '280px'];
-import LogicalForm from '../logicalForm/LogicalForm';
+import LogicalForm from '../logicalForm/LogicalForm.jsx';
 import { BlockSidebar } from '../../../builder_client_common.jsx';
 import ReactPlayer from 'react-player';
 
@@ -446,6 +446,7 @@ class FormWrapper extends Component {
 						this.props.client && this.state?.section?.isSinglePage
 							? 'fit-content'
 							: '100%',
+					minHeight: '418.5px',
 				}}
 				onClick={(e) => {
 					if (this.state.preview !== true) {
@@ -494,7 +495,6 @@ class FormWrapper extends Component {
 					)}
 				<div
 					style={{
-						height: this.state.client ? '100% !important' : 'auto !important',
 						display: 'flex',
 
 						padding: this.state.style?.noPadding
@@ -519,6 +519,8 @@ class FormWrapper extends Component {
 
 						zIndex: 1,
 						justifyContent: 'center',
+						alignItems: 'center',
+						height: '100%',
 						backgroundColor: '#f5f5f5',
 					}}
 				>

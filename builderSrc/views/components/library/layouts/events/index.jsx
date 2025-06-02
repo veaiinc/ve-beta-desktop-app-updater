@@ -5,7 +5,7 @@ import '../index.scss';
 import Delete from '../actions/delete.jsx';
 import moment from 'moment';
 import ReactPlayer from 'react-player';
-import { DeleteRole } from '../../../builder_client_common';
+import { DeleteRole } from '../../../builder_client_common.jsx';
 import AddBlankComp from '../../addBlock/add-blank-comp.jsx';
 import 'react-datepicker/dist/react-datepicker.css';
 

@@ -62,6 +62,7 @@ export const questionTypes = [
 	{ label: 'Time', icon: <Time />, type: 'time' },
 	{ label: 'Rating', icon: <Rating />, type: 'rating' },
 	{ label: 'Signature', icon: <Signature />, type: 'signature' },
+	//hello
 ];
 
 export const embedFields = [
@@ -2381,6 +2382,11 @@ function LogicalForm(props) {
 			// Submit the form
 			await props.submitLogicalForm(e, props._id, finalAnswers);
 			setIsSubmitted(true);
+			if (isSubmitted) {
+				setTimeout(() => {
+					window.open(props?.buttonProps?.linkUrl, '_blank');
+				}, 5000);
+			}
 		} catch (error) {
 			console.error('Error submitting form:', error);
 			// Optionally show an error message to the user
@@ -2471,9 +2477,8 @@ function LogicalForm(props) {
             background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(128,0,128,0.4) 100%);
             padding: 20px;
             color: white;
-            position: fixed;
-            top: 0;
-            left: 0;
+            position: absolute;
+            
             margin: 0;
             overflow-y: hidden;
             overflow-x: hidden;
@@ -4517,8 +4522,8 @@ function LogicalForm(props) {
         border-radius: 16px !important;
         border: 1.5px solid #D0D0D0 !important;
         border: 1.5px solid color(display-p3 0.8155 0.8155 0.8155) !important;
-        background: #FFF ;
-        background: color(display-p3 1 1 1);
+        background: transparent ;
+       
         color: black ;
         font-family: Inter ;
         ...(props?.newTheme?.colors?.form?.inputAnswer || {}),
@@ -4643,8 +4648,7 @@ function LogicalForm(props) {
        
         border-radius: 16px !important;
         border: 1.5px solid #D0D0D0 !important;
-        background: #FFF !important;
-        background: color(display-p3 1 1 1) !important;
+        background: transparent !important;
         color: #96969F !important;
         font-family: Inter !important;
 		font-size: 14px !important;
@@ -4767,8 +4771,8 @@ function LogicalForm(props) {
         border-radius: 16px !important;
         border: 1.5px solid #D0D0D0 !important;
         border: 1.5px solid color(display-p3 0.8155 0.8155 0.8155) !important;
-        background: #FFF ;
-        background: color(display-p3 1 1 1) ;
+        background: transparent ;
+        
         ...(props?.newTheme?.colors?.form?.inputAnswer || {}),
 		...(props?.newTheme?.fonts?.form?.inputAnswer || {}),
     }
@@ -5844,7 +5848,8 @@ function LogicalForm(props) {
 							</div>
 						</Popover>
 					) : (
-						props?.section?.logoProps?.imageURL && (
+						props?.section?.logoProps?.imageURL &&
+						props?.style?.showFormLogo !== false && (
 							<div
 								style={{
 									...formHeaderStyles?.logoContainer,
@@ -5932,36 +5937,36 @@ function LogicalForm(props) {
 								placeholder="Enter form title"
 							/> */}
 							{/* ! new logic with jodit -abdullah */}
-							<Text
-								isWorkflow={props?.isWorkflow}
-								setTriggerFont={(e) =>
-									props?.client ? '' : props?.setTriggerFont(e)
-								}
-								triggerFont={props?.triggerFont}
-								text={`${
-									props?.style?.showFormTitle === false
-										? ''
-										: props?.section?.formTitle ||
-										  `<p style=\"font-size:;\" data-font-size=\"\"><span style=\"font-size: 45px;\">Enter Form Title</span></p>`
-								}`}
-								setContent={(e) => handleJoditChanges(e, 'formTitle')}
-								setTab={(e) => props?.handleSetTab(e)}
-								handleSelection={(e, activeTextBlock) => {
-									props?.handleBSelection(e, activeTextBlock);
-								}}
-								actionType={props?.actionType}
-								actionValue={props?.actionValue}
-								preview={props?.preview}
-								refID={props?.section?._id + 'formTitle'}
-								reference={'formTitle' + props?.section?._id}
-								subBlockID={props?.section?._id + 'formTitle'}
-								clearStyling={() => props?.clearStyle()}
-								openColorPicker={(e, tab) => {
-									props?.handleElementEdit('text', tab, 'formTitle');
-								}}
-								isLogicalForm={true}
-								sectionBg={props?.section?.sectionBackgroundColor}
-							/>
+							{props?.style?.showFormTitle !== false && (
+								<Text
+									isWorkflow={props?.isWorkflow}
+									setTriggerFont={(e) =>
+										props?.client ? '' : props?.setTriggerFont(e)
+									}
+									triggerFont={props?.triggerFont}
+									text={
+										props?.section?.formTitle ||
+										`<p style="font-size:;" data-font-size=""><span style="font-size: 45px;">Enter Form Title</span></p>`
+									}
+									setContent={(e) => handleJoditChanges(e, 'formTitle')}
+									setTab={(e) => props?.handleSetTab(e)}
+									handleSelection={(e, activeTextBlock) => {
+										props?.handleBSelection(e, activeTextBlock);
+									}}
+									actionType={props?.actionType}
+									actionValue={props?.actionValue}
+									preview={props?.preview}
+									refID={props?.section?._id + 'formTitle'}
+									reference={'formTitle' + props?.section?._id}
+									subBlockID={props?.section?._id + 'formTitle'}
+									clearStyling={() => props?.clearStyle()}
+									openColorPicker={(e, tab) => {
+										props?.handleElementEdit('text', tab, 'formTitle');
+									}}
+									isLogicalForm={true}
+									sectionBg={props?.section?.sectionBackgroundColor}
+								/>
+							)}
 						</Popover>
 					) : (
 						<h1
@@ -6033,35 +6038,66 @@ function LogicalForm(props) {
 								rows="3" // Start with one row and expand as needed
 							/> */}
 						{/* ! new logic with jodit -abdullah */}
-						<Text
-							isWorkflow={props?.isWorkflow}
-							setTriggerFont={(e) => (props?.client ? '' : props?.setTriggerFont(e))}
-							triggerFont={props?.triggerFont}
-							text={`${
-								props?.style?.showFormDescription === false
-									? ''
-									: props?.section?.formDescription ||
-									  '<p>Enter Your Description</p>'
-							}`}
-							setContent={(e) => handleJoditChanges(e, 'formDescription')}
-							setTab={(e) => props?.handleSetTab(e)}
-							handleSelection={(e, activeTextBlock) => {
-								props?.handleBSelection(e, activeTextBlock);
-							}}
-							actionType={props?.actionType}
-							actionValue={props?.actionValue}
-							preview={props?.preview}
-							refID={props?.section?._id + 'formDescription'}
-							reference={'formDescription' + props?.section?._id}
-							subBlockID={props?.section?._id + 'formDescription'}
-							clearStyling={() => props?.clearStyle()}
-							openColorPicker={(e, tab) => {
-								// props?.handleElementEdit(tab, 'formTitle');
-								props?.handleElementEdit('text', tab, 'formDescription');
-							}}
-							isLogicalForm={true}
-							sectionBg={props?.section?.sectionBackgroundColor}
-						/>
+						{props?.style?.showFormDescription !== false && (
+							<Text
+								isWorkflow={props?.isWorkflow}
+								setTriggerFont={(e) =>
+									props?.client ? '' : props?.setTriggerFont(e)
+								}
+								triggerFont={props?.triggerFont}
+								text={
+									// Only show actual content or empty paragraph
+									props?.section?.formDescription &&
+									props?.section?.formDescription !==
+										'<p>Description (optional)</p>' &&
+									props?.section?.formDescription !== '<p></p>'
+										? props?.section?.formDescription
+										: '<p>Description (optional)</p>'
+								}
+								setContent={(e) => {
+									// Only update if there's actual content and it's different from placeholder
+									if (
+										e &&
+										e !== '<p>Description (optional)</p>' &&
+										e !== '<p></p>' &&
+										e !== props?.section?.formDescription // Only update if content actually changed
+									) {
+										handleJoditChanges(e, 'formDescription');
+									}
+								}}
+								setTab={(e) => props?.handleSetTab(e)}
+								handleSelection={(e, activeTextBlock) => {
+									// Only handle selection if there's actual content
+									if (
+										e &&
+										e !== '<p>Description (optional)</p>' &&
+										e !== '<p></p>'
+									) {
+										props?.handleBSelection(e, activeTextBlock);
+									}
+								}}
+								actionType={props?.actionType}
+								actionValue={props?.actionValue}
+								preview={props?.preview}
+								refID={props?.section?._id + 'formDescription'}
+								reference={'formDescription' + props?.section?._id}
+								subBlockID={props?.section?._id + 'formDescription'}
+								clearStyling={() => props?.clearStyle()}
+								openColorPicker={(e, tab) => {
+									// Only open color picker if there's actual content
+									if (
+										props?.section?.formDescription &&
+										props?.section?.formDescription !==
+											'<p>Description (optional)</p>' &&
+										props?.section?.formDescription !== '<p></p>'
+									) {
+										props?.handleElementEdit('text', tab, 'formDescription');
+									}
+								}}
+								isLogicalForm={true}
+								sectionBg={props?.section?.sectionBackgroundColor}
+							/>
+						)}
 					</Popover>
 					{/* // ) : ( */}
 					{/* <p
@@ -6242,6 +6278,13 @@ function LogicalForm(props) {
 												actionValue={props?.actionValue}
 												showPopup={props?.showPopup}
 												activeSubBlockId={props?.activeSubBlockId}
+												buttonProps={{
+													btStyles: {
+														background:
+															props?.buttonProps?.btStyles
+																?.background || '#333',
+													},
+												}}
 											/>
 										</>
 									))}

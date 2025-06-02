@@ -1,5 +1,5 @@
 import React, { memo, useState, useCallback } from 'react';
-import ReactModal from '../../components/ui-components/modal';
+import ReactModal from '../ui-components/modal';
 import { ReactComponent as Warning } from '../../../assets/svg/smartFile/warning.svg';
 import '../../../assets/scss/document/deleteModel.scss';
 import Spinner from '../loaders/Spinner';
@@ -38,8 +38,8 @@ const DuplicateLeadModal = ({ open, closeModal, duplicateLeadFunc }) => {
 				<div className="deleteLeadTextContainer">
 					<span className="deleteLeadHeaderText">Duplicate Document</span>
 					<span className="deleteLeadSubtext">
-						Are you sure you want to duplicate this Document?<br></br> All data will be lost,
-						you cannot undo this operation.
+						Are you sure you want to duplicate this Document?<br></br> All data will be
+						lost, you cannot undo this operation.
 					</span>
 				</div>
 

@@ -5,7 +5,7 @@ import { ReactComponent as Close } from '../../../assets/svg/Settings/CloseSetti
 // import { ReactComponent as Tick } from '../../../assets/svg/CreateClient/Tick.svg';
 import { ReactComponent as DropSet } from '../../../assets/svg/CreateClient/Drop.svg';
 import PhoneInput from 'react-phone-number-input';
-import '../HomePopups/HomePagePopup.scss';
+import './HomePagePopup.scss';
 import { Spin } from 'antd';
 
 class CreateClient extends React.Component {

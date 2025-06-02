@@ -4,7 +4,7 @@ import '../../../../assets/scss/theme-settings/color-section.scss';
 import Context from '../../../../context/context';
 import { ReactComponent as ColorPicker } from '../../../../assets/svg/themeSettings/color-picker.svg';
 import _ from 'lodash';
-import ColorPickerModal from '../../../../views/components/properties/colorpicker/ColorPickerModal';
+import ColorPickerModal from '../../properties/colorpicker/ColorPickerModal';
 
 const propertyNames = {
 	h1: 'Heading 1',

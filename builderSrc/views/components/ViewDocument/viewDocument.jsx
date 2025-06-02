@@ -19,7 +19,7 @@ import DeleteLeadModal from './DeletedocumentModel';
 import DuplicateLeadModal from './DuplicatedocumentModel';
 import AcceptDocumentModel from './AcceptDoc';
 import moment from 'moment';
-import MoveStageModal from '../../components/SmartFileDetails/MoveStageModal';
+import MoveStageModal from '../SmartFileDetails/MoveStageModal';
 
 const MainDocumentSection = ({ workflowId, templateID }) => {
 	const navigate = useNavigate();

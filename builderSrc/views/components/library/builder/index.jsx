@@ -110,6 +110,7 @@ class Builder extends Component {
 			showReverceAnimation: false,
 			grandTotal: 0,
 			blurBuilder: false,
+			isformv1: false,
 		};
 		this.ref = createRef();
 		this.blockRefs = React.createRef(); // Create a ref
@@ -677,8 +678,7 @@ class Builder extends Component {
 						this.props.module === 'contract' ? 'contractPage' : ''
 					} ${this.props.module === 'invoice' ? 'invoicePage' : ''}`}
 					style={{
-						paddingBottom: this.props.client ? '45px' : '', // Added padding-bottom when client is true
-
+						paddingBottom: this.props.client && this.state.isformv1 ? '45px' : '0',
 						opacity: this.getMoveClass() ? 0.5 : isDragging ? 0.52 : 1,
 						// height: item.height,
 						transition: this.getMoveClass() ? 'transform 0.5s, opacity 0.5s' : 'none',
@@ -729,91 +729,104 @@ class Builder extends Component {
 					}}
 				>
 					{/* navigationBar */}
-					{/* conert lower case if want to display */}
+					{/* convert lower case if want to display */}
 					{this.props?.navBar?.type === 'navbar' &&
-						this.props?.navBar?.style?.navigationBar && (
-							<div
-								style={{
-									backgroundColor:
-										this.props?.navBar.style?.sectionBackgroundColor ||
-										'#ffffff',
-									position: this.props?.navBar?.style?.position
-										? 'sticky'
-										: 'static',
-									zIndex: 99999999999999,
-								}}
-								className="builder-navbar-wrapper"
-							>
-								{this.state.previewType === 'm' ? (
-									<MobileNavbarComponent
-										showMobileMenu={this.props?.showMobileMenu}
-										showReverceAnimation={this.state?.showReverceAnimation}
-										navBar={this.props?.navBar}
-										finalTotalCost={this.props?.finalTotalCost}
-										handleNavbarHamburger={this.handleNavbarHamburger}
-										client={this.props?.client}
-										clientPortalModules={this.props?.clientPortalModules}
-										renderClientModulesClickFunction={
-											this?.props?.renderClientModulesClickFunction
-										}
-										duplicateModules={this.state?.duplicateModules}
-										getModuleInfo={this.props?.getModuleInfo}
-										returnCartValue={this.props?.returnCartValue}
-										currencySymbol={
-											this.props?.client
-												? this.props?.currencySymbol
-												: this.props?.currencySymbol2
-										}
-										handleDownload={this.props?.handleDownload}
-										setShowPopupInMobile={(e, type, component) =>
-											this.props?.setShowPopupInMobile(e, type, component)
-										}
-										setEditMobileNavFunction={(e) => {
-											this.props?.setEditMobileNavFunction(e);
-											this.setState({ blurBuilder: e });
-										}}
-										navbarMobileEdit={this.props.navbarMobileEdit}
-										activeModuleId={this.props?.activeModuleId}
-										selectedLabelId={this.props?.selectedLabelId}
-									/>
-								) : (
-									<NavbarWrapper
-										globalTables={this.props.globalTables}
-										// blocks={this.props.navBar.blocks}
-										// style={this.props.navBar.style}
-										section={this.props?.navBar}
-										getModuleInfo={(id, type) =>
-											this.props.getModuleInfo(id, type)
-										}
-										duplicateModules={this.props.duplicateModules}
-										modules={this.state.modules}
-										handleOpenSideBar={this.props.handleOpenSideBar}
-										preview={this.state.preview}
-										previewType={this.state.previewType}
-										managePages={(e) => this.props.managePages(e)}
-										client={this.props.client}
-										setActiveSection={(value) =>
-											this.props?.setActiveSection(value)
-										}
-										handleNavbarUpdate={this.props.handleNavbarUpdate}
-										activeModuleId={this.props?.activeModuleId}
-										finalTotalCost={this.props?.finalTotalCost}
-										clientPortalModules={this.props?.clientPortalModules}
-										renderClientModulesClickFunction={
-											this.props?.renderClientModulesClickFunction
-										}
-										currencySymbol={
-											this.props?.client
-												? this.props?.currencySymbol
-												: this.props?.currencySymbol2
-										}
-										returnCartValue={this.props?.returnCartValue}
-										selectedLabelId={this.props?.selectedLabelId}
-										handleDownload={this.props?.handleDownload}
-									/>
-								)}
-							</div>
-						)}
+						this.props?.navBar?.style?.navigationBar &&
+						(() => {
+							// Check if sections array has only one section and it's form-v1
+							const onlyFormV1 =
+								this.state?.sections?.length === 1 &&
+								this.state?.sections[0]?.type === 'form-v1';
+
+							// Don't render navbar if only form-v1 is present
+							if (onlyFormV1) {
+								return null;
+							}
+
+							return (
+								<div
+									style={{
+										backgroundColor:
+											this.props?.navBar.style?.sectionBackgroundColor ||
+											'#ffffff',
+										position: this.props?.navBar?.style?.position
+											? 'sticky'
+											: 'static',
+										zIndex: 99999999999999,
+									}}
+									className="builder-navbar-wrapper"
+								>
+									{this.state.previewType === 'm' ? (
+										<MobileNavbarComponent
+											showMobileMenu={this.props?.showMobileMenu}
+											showReverceAnimation={this.state?.showReverceAnimation}
+											navBar={this.props?.navBar}
+											finalTotalCost={this.props?.finalTotalCost}
+											handleNavbarHamburger={this.handleNavbarHamburger}
+											client={this.props?.client}
+											clientPortalModules={this.props?.clientPortalModules}
+											renderClientModulesClickFunction={
+												this?.props?.renderClientModulesClickFunction
+											}
+											duplicateModules={this.state?.duplicateModules}
+											getModuleInfo={this.props?.getModuleInfo}
+											returnCartValue={this.props?.returnCartValue}
+											currencySymbol={
+												this.props?.client
+													? this.props?.currencySymbol
+													: this.props?.currencySymbol2
+											}
+											handleDownload={this.props?.handleDownload}
+											setShowPopupInMobile={(e, type, component) =>
+												this.props?.setShowPopupInMobile(e, type, component)
+											}
+											setEditMobileNavFunction={(e) => {
+												this.props?.setEditMobileNavFunction(e);
+												this.setState({ blurBuilder: e });
+											}}
+											navbarMobileEdit={this.props.navbarMobileEdit}
+											activeModuleId={this.props?.activeModuleId}
+											selectedLabelId={this.props?.selectedLabelId}
+										/>
+									) : (
+										<NavbarWrapper
+											globalTables={this.props.globalTables}
+											// blocks={this.props.navBar.blocks}
+											// style={this.props.navBar.style}
+											section={this.props?.navBar}
+											getModuleInfo={(id, type) =>
+												this.props.getModuleInfo(id, type)
+											}
+											duplicateModules={this.props.duplicateModules}
+											modules={this.state.modules}
+											handleOpenSideBar={this.props.handleOpenSideBar}
+											preview={this.state.preview}
+											previewType={this.state.previewType}
+											managePages={(e) => this.props.managePages(e)}
+											client={this.props.client}
+											setActiveSection={(value) =>
+												this.props?.setActiveSection(value)
+											}
+											handleNavbarUpdate={this.props.handleNavbarUpdate}
+											activeModuleId={this.props?.activeModuleId}
+											finalTotalCost={this.props?.finalTotalCost}
+											clientPortalModules={this.props?.clientPortalModules}
+											renderClientModulesClickFunction={
+												this.props?.renderClientModulesClickFunction
+											}
+											currencySymbol={
+												this.props?.client
+													? this.props?.currencySymbol
+													: this.props?.currencySymbol2
+											}
+											returnCartValue={this.props?.returnCartValue}
+											selectedLabelId={this.props?.selectedLabelId}
+											handleDownload={this.props?.handleDownload}
+										/>
+									)}
+								</div>
+							);
+						})()}
 
 					{this.props.module === 'contract' &&
 						this.props.client &&
@@ -1674,12 +1687,14 @@ class Builder extends Component {
 													tenantLogo={this.props?.tenantLogo}
 													isTenantLogo={this.state?.isTenantLogo}
 													tables={
-														this.props.globalTables ||
-														this.state?.tables
+														this.props.globalTables?.length > 0
+															? this.props?.globalTables
+															: this.state?.tables
 													}
 													sections={
-														this.props?.globalSections ||
-														this.state?.sections
+														this.props?.globalSections?.length > 0
+															? this.props?.globalSections
+															: this.state?.sections
 													}
 													invoiceDetails={this.props?.invoiceDetails}
 													paymentSchedule={this.state?.paymentSchedule}
@@ -1706,20 +1721,26 @@ class Builder extends Component {
 													imgSettingData={(e) =>
 														this.props.imgSettingData(e)
 													}
-													setActiveSection={(e) =>
-														this.props.setActiveSection(e)
-													}
+													setActiveSection={(e) => {
+														if (this.props.setActiveSection) {
+															this.props.setActiveSection(e);
+														}
+													}}
 													addManualInvoiceBlock={(order) => {
 														this.props?.addManualInvoiceBlock(
 															section?._id,
 															section?.blocks.length + 1,
 														);
-														// console.log(
-														// 	section?.blocks,
-														// 	'ranja',
-														// 	section?.blocks.length + 1,
-														// );
 													}}
+													activeWorkflowModuleId={
+														this.props?.activeWorkflowModuleId
+													}
+													activeModuleId={this.props?.activeModuleId}
+													brandColors={this.props?.brandColors}
+													modules={this.props?.modules}
+													updateTablesForTaxes={
+														this.props?.updateTablesForTaxes
+													}
 												/>
 											</div>
 										);
@@ -2079,8 +2100,8 @@ class Builder extends Component {
 												}}
 												key={index}
 												style={{
-													height: this.props.client ? '100%' : 'auto',
-
+													height: this.props.client ? 'auto' : 'auto',
+													minHeight: '418.5px',
 													display: 'block',
 												}}
 												data-section-id={sectionId}

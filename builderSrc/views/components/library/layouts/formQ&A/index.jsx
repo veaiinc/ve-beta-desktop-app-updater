@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './forms.scss';
-import FormElement from './formElement';
-import Button from '../../elements/button';
+import FormElement from './formElement.jsx';
+import Button from '../../elements/button/index.jsx';
 import Down from '../actions/down.jsx';
 import Up from '../actions/up.jsx';
 import Delete from '../actions/delete.jsx';
@@ -195,10 +195,11 @@ class Form extends Component {
 			<div
 				className={`layout ${this.state.showBlockOptions ? 'borderedBlock' : ''}`}
 				style={{
-					padding: `${this.state.sections[0].style.padding
-						? padding[this.state.sections[0].style.padding]
-						: '0px'
-						} ${this.state.previewType === 'm' && this.state.preview ? '14px' : '56px'}`,
+					padding: `${
+						this.state.sections[0].style.padding
+							? padding[this.state.sections[0].style.padding]
+							: '0px'
+					} ${this.state.previewType === 'm' && this.state.preview ? '14px' : '56px'}`,
 					backgroundColor: this.state.sections[0].style.sectionBackgroundColor,
 
 					display: 'flex',
@@ -370,14 +371,18 @@ class Form extends Component {
 								this.props.addQues(this.state.sections[0]._id, newOrder);
 							}}
 							addOptionForForm={(e) => {
-								this.props.addOptionForm(e)
-							}
-							}
+								this.props.addOptionForm(e);
+							}}
 							preview={this.state.preview}
 							previewType={this.state.previewType}
 							setAnswer={(e) => {
 								this.props.client
-									? this.props.handleFormAnswer(e, key + 1, block.order, this.props?._id,)
+									? this.props.handleFormAnswer(
+											e,
+											key + 1,
+											block.order,
+											this.props?._id,
+									  )
 									: '';
 							}}
 							answer={block?.answer}

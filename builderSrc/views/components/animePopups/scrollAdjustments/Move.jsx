@@ -67,38 +67,6 @@ const Move = ({ activeComponent, adjustAnimation }) => {
 				<div className="adj-directions-container">
 					<button
 						className={`adj-arrow-button  ${
-							activeComponent?.animations?.adjustments?.direction === 'top'
-								? 'adj-active'
-								: ''
-						}`}
-						onClick={() => {
-							adjustAnimation('direction', 'top');
-							setDirection('right');
-						}}
-					>
-						<p className="adj-dropdown-arrow" style={{ paddingRight: '0px' }}>
-							{/*top*/}
-							<Arrow style={{ transform: 'rotate(270deg)' }} color="#8A8A8A" />
-						</p>
-					</button>
-					<button
-						className={`adj-arrow-button ${
-							activeComponent?.animations?.adjustments?.direction === 'right'
-								? 'adj-active'
-								: ''
-						}`}
-						onClick={() => {
-							adjustAnimation('direction', 'right');
-							setDirection('right');
-						}}
-					>
-						<p className="adj-dropdown-arrow" style={{ paddingRight: '0px' }}>
-							{/*right*/}
-							<Arrow style={{ transform: 'rotate(360deg)' }} color="#8A8A8A" />
-						</p>
-					</button>
-					<button
-						className={`adj-arrow-button  ${
 							activeComponent?.animations?.adjustments?.direction === 'bottom'
 								? 'adj-active'
 								: ''
@@ -109,18 +77,50 @@ const Move = ({ activeComponent, adjustAnimation }) => {
 						}}
 					>
 						<p className="adj-dropdown-arrow" style={{ paddingRight: '0px' }}>
-							{/*down*/}
-							<Arrow style={{ transform: 'rotate(90deg)' }} color="#8A8A8A" />
+							{/*top*/}
+							<Arrow style={{ transform: 'rotate(270deg)' }} color="#8A8A8A" />
 						</p>
 					</button>
 					<button
-						className={`adj-arrow-button  ${
+						className={`adj-arrow-button ${
 							activeComponent?.animations?.adjustments?.direction === 'left'
 								? 'adj-active'
 								: ''
 						}`}
 						onClick={() => {
 							adjustAnimation('direction', 'left');
+							setDirection('right');
+						}}
+					>
+						<p className="adj-dropdown-arrow" style={{ paddingRight: '0px' }}>
+							{/*right*/}
+							<Arrow style={{ transform: 'rotate(360deg)' }} color="#8A8A8A" />
+						</p>
+					</button>
+					<button
+						className={`adj-arrow-button  ${
+							activeComponent?.animations?.adjustments?.direction === 'top'
+								? 'adj-active'
+								: ''
+						}`}
+						onClick={() => {
+							adjustAnimation('direction', 'top');
+							setDirection('right');
+						}}
+					>
+						<p className="adj-dropdown-arrow" style={{ paddingRight: '0px' }}>
+							{/*down*/}
+							<Arrow style={{ transform: 'rotate(90deg)' }} color="#8A8A8A" />
+						</p>
+					</button>
+					<button
+						className={`adj-arrow-button  ${
+							activeComponent?.animations?.adjustments?.direction === 'right'
+								? 'adj-active'
+								: ''
+						}`}
+						onClick={() => {
+							adjustAnimation('direction', 'right');
 							setDirection('right');
 						}}
 					>

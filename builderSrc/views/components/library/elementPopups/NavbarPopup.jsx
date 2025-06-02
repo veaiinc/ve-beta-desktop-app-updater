@@ -2,12 +2,12 @@ import React from 'react';
 import './elementPopup.scss';
 import ColorPicker from '../../properties/colorpicker';
 import { Switch } from 'antd/lib';
-import { ReactComponent as Option1 } from '../../library/svgs/Navbar/FirstActive.svg';
-import { ReactComponent as Option2 } from '../../library/svgs/Navbar/SecondOption.svg';
-import { ReactComponent as Option3 } from '../../library/svgs/Navbar/ThirdOption.svg';
-import { ReactComponent as Option4 } from '../../library/svgs/Navbar/ForthOption.svg';
-import { ReactComponent as Cart } from '../../library/svgs/Navbar/Cart/Cart1.svg';
-import { ReactComponent as Hamburger } from '../../library/svgs/Navbar/Hamburger/Hamberger4.svg';
+import { ReactComponent as Option1 } from '../svgs/Navbar/FirstActive.svg';
+import { ReactComponent as Option2 } from '../svgs/Navbar/SecondOption.svg';
+import { ReactComponent as Option3 } from '../svgs/Navbar/ThirdOption.svg';
+import { ReactComponent as Option4 } from '../svgs/Navbar/ForthOption.svg';
+import { ReactComponent as Cart } from '../svgs/Navbar/Cart/Cart1.svg';
+import { ReactComponent as Hamburger } from '../svgs/Navbar/Hamburger/Hamberger4.svg';
 import _ from 'lodash';
 class NavbarPopup extends React.Component {
 	constructor(props) {

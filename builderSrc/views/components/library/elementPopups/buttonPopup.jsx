@@ -1022,6 +1022,30 @@ export default class ButtonPopup extends Component {
 													</div>
 												</>
 											)}
+											<div className="line"></div>
+											<b style={{ textTransform: 'capitalize' }}>
+												Paste Your Link Here
+											</b>
+											{this.props?.isLogicalFormText && (
+												<>
+													<div
+														className="element_input"
+														style={{ cursor: 'pointer' }}
+													>
+														<input
+															type="text"
+															name="link"
+															placeholder="Link to URL"
+															value={
+																this.state.activeComponent.linkUrl
+															}
+															onChange={(e) =>
+																this.handleDebounceProps('link', e)
+															}
+														/>
+													</div>
+												</>
+											)}
 										</div>
 									</div>
 								</div>

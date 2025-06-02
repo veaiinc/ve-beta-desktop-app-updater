@@ -1,19 +1,19 @@
 import _, { transform } from 'lodash';
 import React, { Component } from 'react';
-import Button from '../elements/button';
+import Button from '../elements/button/index.jsx';
 import CircleText from '../elements/circletext/CircleText.jsx';
 import Icon from '../elements/icons/index.jsx';
-import ImageItem from '../elements/image';
+import ImageItem from '../elements/image/index.jsx';
 import ListIcon from '../elements/listicon/index.jsx';
 import Loader from '../elements/loader/index.jsx';
-import Shape from '../elements/shape';
-import Sticker from '../elements/sticker';
-import Text from '../elements/text';
+import Shape from '../elements/shape/index.jsx';
+import Sticker from '../elements/sticker/index.jsx';
+import Text from '../elements/text/index.jsx';
 import ScrollText from '../elements/scrolltext/index.jsx';
 import IframeItem from '../elements/iframe/index.jsx';
 
-import JNumber from '../elements/jnumber';
-import JIcon from '../elements/jicon';
+import JNumber from '../elements/jnumber/index.jsx';
+import JIcon from '../elements/jicon/index.jsx';
 import Divider from '../elements/divider/index.jsx';
 
 import './index.scss';
@@ -81,6 +81,7 @@ const elements = [
 ];
 
 import gsap from 'gsap';
+import ScrollMagic from 'scrollmagic';
 import ObjectID from 'bson-objectid';
 
 class Layout extends Component {
@@ -302,7 +303,7 @@ class Layout extends Component {
 		this.placeholderRef = React.createRef();
 		this.elementSidebarRef = React.createRef();
 	}
-	componentDidMount = () => {
+	componentDidMount = async () => {
 		this.setState({
 			layoutHeight: this.props.blocks?.[0]?.divStyles?.layoutHeight || 600,
 			gridRows: _.has(this.props.blocks?.[0]?.divStyles, 'gridRows')
@@ -384,6 +385,12 @@ class Layout extends Component {
 		this.observers = new Map();
 	};
 	componentWillUnmount() {
+		if (this.controller) {
+			this.controller.destroy(true);
+		}
+		if (this.scene) {
+			this.scene.destroy(true);
+		}
 		document.removeEventListener('mousedown', this.handleClickOutside);
 		document.removeEventListener('keydown', this.handleKeyDown);
 		//window.removeEventListener('resize', this.updateLayoutDimensions);
@@ -4570,6 +4577,8 @@ class Layout extends Component {
 				this.boxRefs[component?._id]?.classList.remove('reverseRotate');
 				this.boxRefs[component?._id]?.classList.add('rotate');
 			}, 2000);
+		} else {
+			this.handleHoverNPressAnimations(component, this.boxRefs[component?._id], 'remove');
 		}
 	};
 
@@ -4577,7 +4586,8 @@ class Layout extends Component {
 	onHoverAnime = (component) => {
 		const animations = component?.animations || {};
 		if (animations?.animeType == 'hover' && animations?.adjust == true) {
-			this.triggerAnimationAdjustments(component, this.boxRefs[component?._id]);
+			// this.triggerAnimationAdjustments(component, this.boxRefs[component?._id]);
+			this.handleHoverNPressAnimations(component, this.boxRefs[component?._id], 'add');
 		}
 	};
 
@@ -4659,12 +4669,15 @@ class Layout extends Component {
 
 	// ! function for returning animation classes
 	returnAnimationClasses = (component) => {
+		// return '';
 		if (!component?.animations) return '';
-		if (this.state?.preview == true && this.props?.client == true) {
-			if (component?.animations?.animeType === 'scroll') return '';
-		}
-		// if (this.state?.preview == true && this.props?.client == true) {
-		if (component?.animations?.animePreview == true) {
+
+		// if (component?.animations?.animeType === 'scroll') {
+		// 	this.handleScrollAnimations(component, this.boxRefs[component?._id]);
+		// }
+		// return '';
+
+		if (component?.animations?.animePreview == true && !this.props?.client) {
 			if (component?.animations?.adjust == true) {
 				this.triggerAnimationAdjustments(component, this.boxRefs[component?._id]);
 			} else {
@@ -4682,11 +4695,13 @@ class Layout extends Component {
 					if (component?.animations?.adjust == true) {
 						this.handleLoopAnimations(component, this.boxRefs[component?._id]);
 					} else {
-						return `${
-							component?.animations?.animeType == 'loop'
-								? `loop-${component?.animations?.animeName}`
-								: ''
-						}`;
+						return `${`loop-${component?.animations?.animeName}`}`;
+					}
+				} else if (component?.animations?.animeType == 'scroll') {
+					if (component?.animations?.adjust == true) {
+						this.handleScrollAnimations(component, this.boxRefs[component?._id]);
+					} else {
+						return `${`scroll-${component?.animations?.animeName}`}`;
 					}
 				} else if (component?.animations?.animeType == 'hover') {
 					return component?.animations?.adjust == true &&
@@ -4737,51 +4752,37 @@ class Layout extends Component {
 	handleBoxRef = (component, element) => {
 		// Store the ref in boxRefs
 		this.boxRefs[component?._id] = element;
+		//! If it's a scroll animation, initialize the observer
+		// if (this.state?.preview == true && this.props?.client == true) {
+		// 	if (element && component?.animations?.animeType === 'scroll') {
+		// 		// Cleanup any existing observer for this component
+		// 		if (this.observers?.has(component?._id)) {
+		// 			this.observers?.get(component?._id)?.disconnect();
+		// 		}
 
-		// If it's a scroll animation, initialize the observer
-		if (this.state?.preview == true && this.props?.client == true) {
-			if (element && component?.animations?.animeType === 'scroll') {
-				// Cleanup any existing observer for this component
-				if (this.observers?.has(component?._id)) {
-					this.observers?.get(component?._id)?.disconnect();
-				}
-
-				// Create new observer
-				const observer = this.initScrollObserver(component, element);
-				this.observers?.set(component?._id, observer);
-			}
-		}
+		// 		// Create new observer
+		// 		const observer = this.initScrollObserver(component, element);
+		// 		this.observers?.set(component?._id, observer);
+		// 	}
+		// }
 	};
 	initScrollObserver = (component, element) => {
 		if (!element || component?.animations?.animeType !== 'scroll') return;
-
 		const observer = new IntersectionObserver(
 			(entries) => {
 				entries.forEach((entry) => {
 					if (entry.isIntersecting) {
-						// this.triggerScrollAnimation(component, element);
-						// gsap.killTweensOf(element);
-						// !  old logic for normal animations
-						// element.classList.add('animate-in');
-						// !  new logic for adjusted animations
-						// element.classList.add(`scroll-${component.animations.animeName}`);
-						this.handleScrollAnimations(component, element, 'add');
-					} else {
-						// Reset element state when it leaves viewport
-						// This ensures animation can play again when element re-enters
-						// gsap.set(element, {
-						//     clearProps: "all"  // Clear all GSAP-applied properties
-						// });
-						// !  old logic for normal animations
-						// element.classList.remove(`scroll-${component.animations.animeName}`);
-						// !  new logic for adjusted animations
-						this.handleScrollAnimations(component, element, 'remove');
+						// Trigger the animation only once
+						// this.handleScrollAnimations(component, element, 'add');
+
+						// Disconnect the observer so it doesn't trigger again
+						observer.unobserve(entry.target);
+						this.observers?.delete(component?._id);
 					}
 				});
 			},
 			{ threshold: 0.2, rootMargin: '50px' },
 		);
-
 		observer.observe(element);
 		return observer;
 	};
@@ -4831,7 +4832,9 @@ class Layout extends Component {
 			if (animations?.animeType == 'loop') {
 				this.handleLoopAnimations(component, element);
 			} else if (animations?.animeType == 'scroll') {
-				this.handleScrollAnimations(component, element, '', true);
+				this.handleScrollAnimations(component, element);
+			} else if (animations?.animeType == 'hover') {
+				this.handleHoverNPressAnimations(component, element, 'add');
 			} else {
 				const transition = `all ${adjustments?.animeDuration || 2}s ${
 					adjustments?.animeEase || 'ease-in'
@@ -5047,36 +5050,6 @@ class Layout extends Component {
 		}
 
 		return '';
-		// gsap.killTweensOf(element);
-
-		// if (!element || !element.nodeType) {
-		// 	console.warn('Invalid element for GSAP animation');
-		// 	return;
-		// }
-		// // Set initial state explicitly
-		// gsap.set(element, {
-		// 	backgroundColor: 'red',
-		// 	opacity: 1,
-		// });
-		// // Create the animation
-		// gsap.fromTo(
-		// 	element,
-		// 	{
-		// 		scale: 1,
-		// 		delay: 1,
-		// 		duration: 2,
-		// 		ease: 'power2.out',
-		// 		onComplete: () => console.log('Animation completedadjsut adjust'),
-		// 	},
-		// 	{
-		// 		scale: 2,
-		// 		delay: 1,
-		// 		duration: 2,
-		// 		ease: 'power2.out',
-		// 		onComplete: () => console.log('Animation completedadjsut adjust'),
-		// 	},
-		// );
-		// return '';
 	};
 
 	//? main loop animation function
@@ -5106,9 +5079,9 @@ class Layout extends Component {
 			console.warn(`Unknown animation: ${animations?.animeName}`);
 		}
 	};
-	//? main scroll animation function
+	//? main function for scroll animation
 
-	handleScrollAnimations = (component, element, action = '', preview = false) => {
+	handleScrollAnimations = (component, element) => {
 		const adjustments = component?.animations?.adjustments || {};
 		const animations = component?.animations || {};
 		const animationHandlers = {
@@ -5132,31 +5105,263 @@ class Layout extends Component {
 			shutters: this.handleScrollShutters,
 		};
 		const handler = animationHandlers[animations?.animeName];
-		if (action == 'add' && this.props?.client) {
-			if (animations?.adjust == true) {
-				if (handler) {
-					handler.call(this, element, adjustments, 'add');
-				}
-			} else {
-				element.classList.add(`scroll-${animations?.animeName}`);
-			}
-		} else if (action == 'remove' && this.props?.client) {
-			if (animations?.adjust == true) {
-				if (handler) {
-					handler.call(this, element, adjustments, 'remove');
-				}
-			} else {
-				element.classList.remove(`scroll-${animations?.animeName}`);
-			}
-		} else {
-			if (handler) {
-				handler.call(this, element, adjustments, '', preview);
-			} else if (animations?.animeName) {
-				console.warn(`Unknown animation: ${animations?.animeName}`);
-			}
+
+		// ! new logic
+		if (typeof window !== 'undefined' && handler && element) {
+			handler.call(this, element, adjustments, animations?.animePreview);
+		} else if (animations?.animeName) {
+			console.warn(`Unknown animation: ${animations?.animeName}`);
+		}
+		// !previouse logic
+		// if (action == 'add' && this.props?.client) {
+		// 	if (animations?.adjust == true) {
+		// 		if (handler) {
+		// 			handler.call(this, element, adjustments, 'add');
+		// 		}
+		// 	} else {
+		// 		element.classList.add(`scroll-${animations?.animeName}`);
+		// 	}
+		// } else if (action == 'remove' && this.props?.client) {
+		// 	if (animations?.adjust == true) {
+		// 		if (handler) {
+		// 			handler.call(this, element, adjustments, 'remove');
+		// 		}
+		// 	} else {
+		// 		element.classList.remove(`scroll-${animations?.animeName}`);
+		// 	}
+		// } else {
+		// 	if (handler) {
+		// 		handler.call(this, element, adjustments, '', preview);
+		// 	} else if (animations?.animeName) {
+		// 		console.warn(`Unknown animation: ${animations?.animeName}`);
+		// 	}
+		// }
+	};
+	handleHoverNPressAnimations = (component, element, action = 'add') => {
+		const animations = component?.animations || {};
+		const animationHandlers = {
+			easeOut: this.handleEaseInOutAnime,
+			easeIn: this.handleEaseInOutAnime,
+			skew: this.handleSkewAnime,
+			rotate: this.handleRotateAnime,
+			move: this.handleMoveAnime,
+			appear: this.handleAppearAnime,
+		};
+		const handler = animationHandlers[animations?.animeName];
+		// ! new logic
+		if (typeof window !== 'undefined' && handler && element) {
+			handler.call(this, element, component, action, animations?.animePreview);
+			// handler.call(this, element, component,action, animations?.animePreview);
+		} else if (animations?.animeName) {
+			console.warn(`Unknown animation: ${animations?.animeName}`);
 		}
 	};
-
+	//* various functions for Hover and Press animations
+	// ! EaseIn and EaseOut animation function
+	handleEaseInOutAnime = (element, component, action = 'add', preview = false) => {
+		// !function to add and remove animation properties
+		const { animations = {} } = component || {};
+		const { adjustments = {} } = animations || {};
+		const add = () => {
+			const scaleValue =
+				animations?.animeName == 'easeOut'
+					? parseFloat(adjustments?.scale || 1.3)
+					: parseFloat((adjustments?.scale || 1) / 10);
+			gsap.to(element, {
+				scale: scaleValue,
+				overwrite: true,
+				duration: adjustments?.animeDuration || 3,
+				ease: 'power3.out',
+			});
+		};
+		const remove = () => {
+			gsap.to(element, {
+				scale: 1,
+				overwrite: true,
+				duration: 2,
+				ease: 'power2.Out',
+			});
+		};
+		if (this.state?.preview && this.props?.client) {
+			if (action == 'add') {
+				add();
+			} else if (action == 'remove') {
+				remove();
+			}
+		} else if (action == 'add' && preview) {
+			add();
+			const timeout = parseFloat(adjustments?.animeDuration || 1);
+			setTimeout(() => {
+				remove();
+			}, timeout * 1000);
+			return '';
+		} else {
+			return '';
+		}
+	};
+	// ! Skew animation function
+	handleSkewAnime = (element, component, action = 'add', preview = false) => {
+		// !function to add and remove animation properties
+		const { animations = {} } = component || {};
+		const { adjustments = {} } = animations || {};
+		const add = () => {
+			const skewValue = parseFloat(adjustments?.skew || 20);
+			gsap.to(element, {
+				skewX: skewValue,
+				overwrite: true,
+				duration: adjustments?.animeDuration || 3,
+				ease: 'power3.out',
+			});
+		};
+		const remove = () => {
+			gsap.to(element, {
+				skewX: 0,
+				overwrite: true,
+				duration: 2,
+				ease: 'power2.Out',
+			});
+		};
+		if (this.state?.preview && this.props?.client) {
+			if (action == 'add') {
+				add();
+			} else if (action == 'remove') {
+				remove();
+			}
+		} else if (action == 'add' && preview) {
+			add();
+			const timeout = parseFloat(adjustments?.animeDuration || 1);
+			setTimeout(() => {
+				remove();
+			}, timeout * 1000);
+			return '';
+		} else {
+			return '';
+		}
+	};
+	// ! Rotate animation function
+	handleRotateAnime = (element, component, action = 'add', preview = false) => {
+		// !function to add and remove animation properties
+		const { animations = {} } = component || {};
+		const { adjustments = {} } = animations || {};
+		const add = () => {
+			const rotateValue = parseFloat(adjustments?.rotate || 360);
+			gsap.to(element, {
+				rotation: rotateValue,
+				overwrite: true,
+				duration: adjustments?.animeDuration || 3,
+				ease: 'power3.out',
+			});
+		};
+		const remove = () => {
+			gsap.to(element, {
+				rotation: 0,
+				overwrite: true,
+				duration: 2,
+				ease: 'power2.Out',
+			});
+		};
+		if (this.state?.preview && this.props?.client) {
+			if (action == 'add') {
+				add();
+			} else if (action == 'remove') {
+				remove();
+			}
+		} else if (action == 'add' && preview) {
+			add();
+			const timeout = parseFloat(adjustments?.animeDuration || 1);
+			setTimeout(() => {
+				remove();
+			}, timeout * 1000);
+			return '';
+		} else {
+			return '';
+		}
+	};
+	// ! Move animation function
+	handleMoveAnime = (element, component, action = 'add', preview = false) => {
+		// !function to add and remove animation properties
+		const { animations = {} } = component || {};
+		const { adjustments = {} } = animations || {};
+		const add = () => {
+			const { animeDistance = 150, mDirection = 'top' } = adjustments || {};
+			const returnDistance = (direction) => {
+				if (direction == 'top' || direction == 'left') {
+					return `-${parseFloat(animeDistance || 100)}px`;
+				}
+				return `${parseFloat(animeDistance || 100)}px`;
+			};
+			gsap.to(element, {
+				y: mDirection == 'top' || mDirection == 'down' ? returnDistance(mDirection) : 0,
+				x: mDirection == 'left' || mDirection == 'right' ? returnDistance(mDirection) : 0,
+				overwrite: true,
+				duration: adjustments?.animeDuration || 3,
+				ease: 'power3.out',
+			});
+		};
+		const remove = () => {
+			gsap.to(element, {
+				x: 0,
+				y: 0,
+				overwrite: true,
+				duration: 2,
+				ease: 'power2.Out',
+			});
+		};
+		if (this.state?.preview && this.props?.client) {
+			if (action == 'add') {
+				add();
+			} else if (action == 'remove') {
+				remove();
+			}
+		} else if (action == 'add' && preview) {
+			add();
+			const timeout = parseFloat(adjustments?.animeDuration || 1);
+			setTimeout(() => {
+				remove();
+			}, timeout * 1000);
+			return '';
+		} else {
+			return '';
+		}
+	};
+	// ! Appear animation function
+	handleAppearAnime = (element, component, action = 'add', preview = false) => {
+		// !function to add and remove animation properties
+		const { animations = {} } = component || {};
+		const { adjustments = {} } = animations || {};
+		const add = () => {
+			gsap.to(element, {
+				autoAlpha: 0,
+				overwrite: true,
+				duration: adjustments?.opacityDelay || 3,
+				ease: 'power3.out',
+			});
+		};
+		const remove = () => {
+			gsap.to(element, {
+				autoAlpha: 1,
+				overwrite: true,
+				duration: 2,
+				ease: 'power2.Out',
+			});
+		};
+		if (this.state?.preview && this.props?.client) {
+			if (action == 'add') {
+				add();
+			} else if (action == 'remove') {
+				remove();
+			}
+		} else if (action == 'add' && preview) {
+			add();
+			const timeout = parseFloat(adjustments?.opacityDelay || 1);
+			setTimeout(() => {
+				remove();
+			}, timeout * 1000);
+			return '';
+		} else {
+			return '';
+		}
+	};
 	//* various functions for loop animations
 	// ! breathe loop animation function
 	handleLoopBreathe = (element, adjustments) => {
@@ -5583,7 +5788,8 @@ class Layout extends Component {
 	// * various functions for scroll animations
 
 	// ! scroll fade animation function
-	handleScrollFade = (element, adjustments, action = 'add', preview = false) => {
+	handleScrollFade = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
 		const add = () => {
 			element.classList.add('scroll-fade');
 			element.style.setProperty(
@@ -5595,23 +5801,54 @@ class Layout extends Component {
 			element.classList.remove('scroll-fade');
 			element.style.removeProperty('--starting-opacity');
 		};
-		if (preview) {
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+				element.style.willChange = 'opacity, transform';
+				const fadeTween = gsap.fromTo(
+					element,
+					{
+						autoAlpha: parseFloat(adjustments?.opacity / 100) || 0,
+						force3D: 'auto',
+						backfaceVisibility: 'hidden',
+					},
+					{
+						autoAlpha: 1,
+						duration: 1,
+						ease: 'none',
+						paused: true,
+						immediateRender: false,
+						overwrite: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.7,
+					duration: 500,
+				})
+					.on('progress', (event) => {
+						fadeTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
-			const timeout = parseFloat(4);
 
 			setTimeout(() => {
 				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-		} else if (action == 'remove' && this.props?.client) {
-			remove();
+			}, 4000);
+			return '';
+		} else {
+			return '';
 		}
 	};
 
 	// ! scroll move animation function
 
-	handleScrollMove = (element, adjustments, action = 'add', preview = false) => {
+	handleScrollMove = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
 		const add = () => {
 			element.classList.add('scroll-move');
 
@@ -5644,47 +5881,72 @@ class Layout extends Component {
 			element.style.removeProperty('--breathe-x-distance');
 			element.style.removeProperty('--breathe-y-distance');
 		};
-		if (preview) {
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+				const direction = adjustments?.direction || 'top';
+				const returnDistance = (direction) => {
+					if (direction == 'top' || direction == 'left') {
+						return `-${parseFloat(adjustments?.animeDistance || 100)}px`;
+					}
+					return `${parseFloat(adjustments?.animeDistance || 100)}px`;
+				};
+				element.style.willChange = 'opacity, transform';
+				const moveTween = gsap.fromTo(
+					element,
+					{
+						y:
+							direction == 'top' || direction == 'bottom'
+								? returnDistance(direction)
+								: 0,
+						x:
+							direction == 'left' || direction == 'right'
+								? returnDistance(direction)
+								: 0,
+						autoAlpha: 0,
+						force3D: true,
+						backfaceVisibility: 'hidden',
+					},
+					{
+						y: 0,
+						x: 0,
+						autoAlpha: 1,
+						duration: 3,
+						ease: 'power2.inOut',
+						paused: true,
+						immediateRender: false,
+						overwrite: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.7,
+					duration: 900,
+				})
+					.on('progress', (event) => {
+						moveTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
-			const timeout = parseFloat(4);
 
 			setTimeout(() => {
 				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-		} else if (action == 'remove' && this.props?.client) {
-			remove();
+			}, 4000);
+			return '';
+		} else {
+			return '';
 		}
 	};
 
 	// ! scroll Expand animation function
-	handleScrollExpand = (element, adjustments, action = 'add', preview = false) => {
-		const getDirectionOffset = (direction, intensity = 600) => {
-			switch (direction) {
-				case 'From Top':
-					return { x: 0, y: -intensity };
-				case 'From Bottom':
-					return { x: 0, y: intensity };
-				case 'From Left':
-					return { x: -intensity, y: 0 };
-				case 'From Right':
-					return { x: intensity, y: 0 };
-				case 'From Top Left':
-					return { x: -intensity, y: -intensity };
-				case 'From Top Right':
-					return { x: intensity, y: -intensity };
-				case 'From Bottom Left':
-					return { x: -intensity, y: intensity };
-				case 'From Bottom Right':
-					return { x: intensity, y: intensity };
-				default:
-					return { x: 0, y: 0 };
-			}
-		};
+	handleScrollExpand = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
+		const { direction = 'center', scale = 1, speed = 1, intensity } = adjustments || {};
 		const add = () => {
-			const { direction = 'center', scale = 1, speed = 1, intensity } = adjustments || {};
-
 			const offset = getDirectionOffset(direction, intensity);
 
 			element.style.setProperty('--expand-x', `${offset.x}px`);
@@ -5701,24 +5963,6 @@ class Layout extends Component {
 			element.style.removeProperty('--expand-scale');
 			element.style.removeProperty('--expand-speed');
 		};
-		if (preview) {
-			add();
-			const timeout = parseFloat(4);
-
-			setTimeout(() => {
-				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-			setTimeout(() => {
-				remove();
-			}, 4000);
-		} else if (action == 'remove' && this.props?.client) {
-			// remove();
-		}
-	};
-	// ! scroll shrink animation function
-	handleScrollShrink = (element, adjustments, action = 'add', preview = false) => {
 		const getDirectionOffset = (direction, intensity = 600) => {
 			switch (direction) {
 				case 'From Top':
@@ -5741,9 +5985,61 @@ class Layout extends Component {
 					return { x: 0, y: 0 };
 			}
 		};
-		const add = () => {
-			const { direction = 'center', scale = 2, speed = 1, intensity } = adjustments || {};
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+				element.style.willChange = 'opacity, transform';
+				const expandTween = gsap.fromTo(
+					element,
+					{
+						y: parseFloat(getDirectionOffset(direction, intensity).y) || 100,
+						x: parseFloat(getDirectionOffset(direction, intensity).x) || 100,
+						autoAlpha: 0,
+						scale: parseFloat(scale / 100),
 
+						force3D: true,
+						backfaceVisibility: 'hidden',
+					},
+					{
+						y: 0,
+						x: 0,
+						autoAlpha: 1,
+						scale: 1,
+						duration: speed || 3,
+						ease: 'power2.inOut',
+						paused: true,
+						immediateRender: false,
+						overwrite: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.5,
+					duration: 1200,
+				})
+					.on('progress', (event) => {
+						expandTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
+			add();
+
+			setTimeout(() => {
+				remove();
+			}, 4000);
+			return '';
+		} else {
+			return '';
+		}
+	};
+	// ! scroll shrink animation function
+	handleScrollShrink = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
+		const { direction = 'center', scale = 2, speed = 1, intensity } = adjustments || {};
+		const add = () => {
 			const offset = getDirectionOffset(direction, intensity);
 
 			element.style.setProperty('--shrink-x', `${offset.x}px`);
@@ -5760,33 +6056,89 @@ class Layout extends Component {
 			element.style.removeProperty('--shrink-scale');
 			element.style.removeProperty('--shrink-speed');
 		};
-		if (preview) {
+		const getDirectionOffset = (direction, intensity = 600) => {
+			switch (direction) {
+				case 'From Top':
+					return { x: 0, y: -intensity };
+				case 'From Bottom':
+					return { x: 0, y: intensity };
+				case 'From Left':
+					return { x: -intensity, y: 0 };
+				case 'From Right':
+					return { x: intensity, y: 0 };
+				case 'From Top Left':
+					return { x: -intensity, y: -intensity };
+				case 'From Top Right':
+					return { x: intensity, y: -intensity };
+				case 'From Bottom Left':
+					return { x: -intensity, y: intensity };
+				case 'From Bottom Right':
+					return { x: intensity, y: intensity };
+				default:
+					return { x: 0, y: 0 };
+			}
+		};
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+				element.style.willChange = 'opacity, transform';
+				const shrinkTween = gsap.fromTo(
+					element,
+					{
+						y: parseFloat(getDirectionOffset(direction, intensity).y) || 100,
+						x: parseFloat(getDirectionOffset(direction, intensity).x) || 100,
+						autoAlpha: 0,
+						scale: parseFloat(scale),
+
+						force3D: 'auto',
+						backfaceVisibility: 'hidden',
+					},
+					{
+						y: 0,
+						x: 0,
+						scale: 1,
+						autoAlpha: 1,
+						duration: speed || 3,
+						ease: 'power2.inOut',
+						paused: true,
+						immediateRender: false,
+						overwrite: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.7,
+					duration: 1800,
+				})
+					.on('progress', (event) => {
+						shrinkTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
-			const timeout = parseFloat(4);
 
 			setTimeout(() => {
 				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-			setTimeout(() => {
-				remove();
 			}, 4000);
-		} else if (action == 'remove' && this.props?.client) {
-			// remove();
+			return '';
+		} else {
+			return '';
 		}
 	};
 
 	// !scroll spin animation function
-	handleScrollSpin = (element, adjustments, action = 'add', preview = false) => {
+	handleScrollSpin = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
+		const spinCount = adjustments?.spin || 1;
+		const scale = adjustments?.scale / 100;
+		const direction = adjustments?.direction === 'counter-clockwise' ? -1 : 1;
+
+		const spinDegrees = 360 * spinCount * direction;
 		const add = () => {
 			element.classList.add('scroll-spin');
-
-			const spinCount = adjustments?.spin || 1;
-			const scale = adjustments?.scale / 100;
-			const direction = adjustments?.direction === 'counter-clockwise' ? -1 : 1;
-
-			const spinDegrees = 360 * spinCount * direction;
 
 			element.style.setProperty('--spin-rotate', `${spinDegrees}deg`);
 			element.style.setProperty('--spin-scale', scale);
@@ -5796,21 +6148,51 @@ class Layout extends Component {
 			element.style.removeProperty('--spin-rotate');
 			element.style.removeProperty('--spin-scale');
 		};
-		if (preview) {
+
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+
+				const spinTween = gsap.fromTo(
+					element,
+					{
+						rotation: spinDegrees || 360,
+						scale: scale,
+					},
+					{
+						rotate: 0,
+						scale: 1,
+						duration: 3,
+						ease: 'none',
+						paused: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.9,
+					duration: 500,
+				})
+					.on('progress', (event) => {
+						spinTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
-			const timeout = parseFloat(4);
 
 			setTimeout(() => {
 				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-		} else if (action == 'remove' && this.props?.client) {
-			remove();
+			}, 4000);
+			return '';
+		} else {
+			return '';
 		}
 	};
 	// ! scroll slide animation function
-	handleScrollSlide = (element, adjustments, action = 'add', preview = false) => {
+	handleScrollSlide = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
 		const add = () => {
 			const { direction = '' } = adjustments;
 
@@ -5839,22 +6221,64 @@ class Layout extends Component {
 			element.classList.remove('scroll-slide');
 			element.style.removeProperty('--slide-translate');
 		};
-		if (preview) {
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+				const direction = adjustments?.direction || 'top';
+				const returnDistance = (direction) => {
+					if (direction == 'top' || direction == 'left') {
+						return `-${parseFloat(adjustments?.animeDistance || 100)}px`;
+					}
+					return `${parseFloat(adjustments?.animeDistance || 100)}px`;
+				};
+				const slideTween = gsap.fromTo(
+					element,
+					{
+						y:
+							direction == 'top' || direction == 'down'
+								? returnDistance(direction)
+								: 0,
+						x:
+							direction == 'left' || direction == 'right'
+								? returnDistance(direction)
+								: 0,
+					},
+					{
+						y: 0,
+						x: 0,
+						duration: 3,
+						ease: 'power2.inOut',
+						paused: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.7,
+					duration: 900,
+				})
+					.on('progress', (event) => {
+						slideTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
-			const timeout = parseFloat(4);
 
 			setTimeout(() => {
 				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-		} else if (action == 'remove' && this.props?.client) {
-			remove();
+			}, 4000);
+			return '';
+		} else {
+			return '';
 		}
 	};
 
 	// ! scroll blur animation function
-	handleScrollBlur = (element, adjustments, action = 'add', preview = false) => {
+	handleScrollBlur = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
+
 		const add = () => {
 			element.classList.add('scroll-blur');
 			element.style.setProperty('--blur-intensity', `${adjustments?.blur}px`);
@@ -5863,34 +6287,58 @@ class Layout extends Component {
 			element.classList.remove('scroll-blur');
 			element.style.removeProperty('--blur-intensity');
 		};
-		if (preview) {
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+
+				const blurTween = gsap.fromTo(
+					element,
+					{
+						filter: `blur(${parseFloat(adjustments?.blur || 10)}px)`,
+					},
+					{
+						filter: 'blur(0px)',
+						duration: 1,
+						ease: 'none',
+						paused: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.5,
+					duration: 300,
+				})
+					.on('progress', (event) => {
+						blurTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
-			const timeout = parseFloat(4);
 
 			setTimeout(() => {
 				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-		} else if (action == 'remove' && this.props?.client) {
-			remove();
+			}, 4000);
+			return '';
+		} else {
+			return '';
 		}
 	};
 
 	// ! scroll reveal animation function
-	handleScrollReveal = (element, adjustments, action = 'add', preview = false) => {
+	handleScrollReveal = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
+		const clipMap = {
+			top: 'inset(100% 0 0 0)',
+			bottom: 'inset(0 0 100% 0)',
+			left: 'inset(0 100% 0 0)',
+			right: 'inset(0 0 0 100%)',
+		};
+
+		const clipStart = clipMap[adjustments?.direction || 'top'] || clipMap.top;
 		const add = () => {
-			const { direction = 'top' } = adjustments;
-
-			const clipMap = {
-				top: 'inset(100% 0 0 0)',
-				bottom: 'inset(0 0 100% 0)',
-				left: 'inset(0 100% 0 0)',
-				right: 'inset(0 0 0 100%)',
-			};
-
-			const clipStart = clipMap[direction] || clipMap.top;
-
 			element.style.setProperty('--clip-start', clipStart);
 			element.classList.add('scroll-reveal');
 		};
@@ -5898,28 +6346,51 @@ class Layout extends Component {
 			element.classList.remove('scroll-reveal');
 			element.style.removeProperty('--clip-start');
 		};
-		if (preview) {
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+				const revealTween = gsap.fromTo(
+					element,
+					{
+						clipPath: clipStart,
+					},
+					{
+						clipPath: 'inset(0% 0% 0% 0%)',
+						duration: 2,
+						ease: 'none',
+						paused: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.5,
+					duration: 300,
+				})
+					.on('progress', (event) => {
+						revealTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
-			const timeout = parseFloat(4);
 
 			setTimeout(() => {
 				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-			setTimeout(() => {
-				remove();
 			}, 4000);
-		} else if (action == 'remove' && this.props?.client) {
-			// remove();
+			return '';
+		} else {
+			return '';
 		}
 	};
 
 	// ! scroll 3dspin animation function
-	handleScroll3dSpin = (element, adjustments, action = 'add', preview = false) => {
-		const add = () => {
-			const { rotate = 150, speed = 2 } = adjustments;
+	handleScroll3dSpin = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
 
+		const { rotate = 150, speed = 2 } = adjustments;
+		const add = () => {
 			element.style.setProperty('--spin-angle', `${rotate}deg`);
 
 			element.classList.add('scroll-3dspin');
@@ -5930,28 +6401,66 @@ class Layout extends Component {
 			element.style.removeProperty('--spin-angle');
 			element.style.animationDuration = '';
 		};
-		if (preview) {
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+
+				const tl = gsap.timeline({ paused: true });
+				tl.fromTo(
+					element,
+					{
+						transformPerspective: 1000,
+						rotateX: rotate || 360,
+						rotateY: rotate || 360,
+						scale: 0.2,
+					},
+					{
+						transformPerspective: 1000,
+						rotateX: rotate / 2 || 180,
+						rotateY: rotate / 2 || 180,
+						scale: 0.6,
+						duration: speed || 2,
+					},
+				).to(element, {
+					rotateX: 0,
+					rotateY: 0,
+					autoAlpha: 1,
+					scale: 1,
+					duration: speed || 1,
+				});
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.5,
+					duration: 300,
+				})
+					.on('progress', (event) => {
+						tl.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
-			const timeout = parseFloat(4);
 
 			setTimeout(() => {
 				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-		} else if (action == 'remove' && this.props?.client) {
-			remove();
+			}, 4000);
+			return '';
+		} else {
+			return '';
 		}
 	};
 
 	// ! scroll fly animation function
-	handleScrollFly = (element, adjustments, action = 'add', preview = false) => {
+	handleScrollFly = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
+
+		const distance = adjustments?.distance || 100;
+		const angle = adjustments?.angle || 17;
+		const direction = adjustments?.direction || 'right';
 		const add = () => {
 			element.classList.add('scroll-fly');
-
-			const distance = adjustments?.distance || 100;
-			const angle = adjustments?.angle || 17;
-			const direction = adjustments?.direction || 'right';
 
 			const translate =
 				direction === 'left' ? `translateX(-${distance}%)` : `translateX(${distance}%)`;
@@ -5966,33 +6475,64 @@ class Layout extends Component {
 			element.style.removeProperty('--fly-translate');
 			element.style.removeProperty('--fly-skew');
 		};
-		if (preview) {
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+
+				const translate = direction === 'left' ? -200 : 200;
+
+				const skew = direction === 'left' ? angle : -angle;
+				const flyTween = gsap.fromTo(
+					element,
+					{
+						x: translate,
+						skewX: skew,
+					},
+					{
+						x: 0,
+						skewX: 0,
+						duration: 1,
+						ease: 'none',
+						paused: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.5,
+					duration: 600,
+				})
+					.on('progress', (event) => {
+						flyTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
-			const timeout = parseFloat(4);
 
 			setTimeout(() => {
 				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-		} else if (action == 'remove' && this.props?.client) {
-			remove();
+			}, 4000);
+			return '';
+		} else {
+			return '';
 		}
 	};
 	// ! scroll Turn animation function
 
-	handleScrollTurn = (element, adjustments, action = 'add', preview = false) => {
+	handleScrollTurn = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
+
+		const {
+			direction = '',
+			orientation = '',
+			scale = 0.5,
+			intensity = 600,
+		} = adjustments || {};
+		let translateX = direction === 'right' ? intensity : -intensity;
 		const add = () => {
 			element.classList.add('scroll-turn');
-
-			const {
-				direction = '',
-				orientation = '',
-				scale = 0.5,
-				intensity = 600,
-			} = adjustments || {};
-
-			let translateX = direction === 'right' ? intensity : -intensity;
 
 			let rotateZ = orientation === 'Clockwise' ? '-180deg' : '180deg';
 
@@ -6006,33 +6546,72 @@ class Layout extends Component {
 			element.style.removeProperty('--turn-rotate');
 			element.style.removeProperty('--turn-scale');
 		};
-		if (preview) {
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+				element.style.willChange = 'opacity, transform';
+
+				let rotateZ = orientation === 'Clockwise' ? -180 : 180;
+				const turnTween = gsap.fromTo(
+					element,
+					{
+						x: translateX,
+						z: -200,
+						rotationZ: rotateZ,
+						scale: parseFloat(scale),
+						autoAlpha: 0,
+						force3D: 'auto',
+						backfaceVisibility: 'hidden',
+						transformStyle: 'preserve-3d',
+						transformPerspective: 1000,
+					},
+					{
+						x: 0,
+						z: 0,
+						rotationZ: 0,
+						scale: 1,
+						autoAlpha: 1,
+						duration: 3,
+						ease: 'none',
+						paused: true,
+						immediateRender: false,
+						overwrite: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.7,
+					duration: 1000,
+				})
+					.on('progress', (event) => {
+						turnTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
-			const timeout = parseFloat(4);
 
 			setTimeout(() => {
 				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-			setTimeout(() => {
-				remove();
 			}, 4000);
-		} else if (action == 'remove' && this.props?.client) {
-			// remove();
+			return '';
+		} else {
+			return '';
 		}
 	};
 
 	// ! scroll tilt animation function
 
-	handleScrollTilt = (element, adjustments, action = 'add', preview = false) => {
+	handleScrollTilt = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
+		const { speed = 1, direction = 'left' } = adjustments || {};
 		const add = () => {
 			element.classList.add('scroll-tilt');
-
-			const { speed = 1 } = adjustments;
 			element.style.setProperty('--tilt-speed', `${speed}s`);
 
-			if (adjustments?.direction === 'left') {
+			if (direction === 'left') {
 				element.style.setProperty('--rotate-y', '25deg');
 				element.style.setProperty('--rotate', '-25deg');
 			} else {
@@ -6046,25 +6625,66 @@ class Layout extends Component {
 			element.style.removeProperty('--rotate-y');
 			element.style.removeProperty('--rotate');
 		};
-		if (preview) {
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+				const rotateX = direction === 'left' ? -15 : 15;
+				const rotateY = direction === 'left' ? 25 : -25;
+				const rotate = direction === 'left' ? -25 : 25;
+				const zValue = direction === 'left' ? 50 : -50;
+
+				const tiltTween = gsap.fromTo(
+					element,
+					{
+						z: zValue,
+						rotationX: rotateX,
+						rotationY: rotateY,
+						rotation: rotate,
+						scale: 0.95,
+						duration: speed,
+						transformStyle: 'preserve-3d',
+						transformPerspective: 400,
+					},
+					{
+						z: 0,
+						rotationX: 0,
+						rotationY: 0,
+						rotation: 0,
+						scale: 1,
+						duration: 2,
+						ease: 'none',
+						paused: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.7,
+					duration: 500,
+				})
+					.on('progress', (event) => {
+						tiltTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
-			const timeout = parseFloat(4);
 
 			setTimeout(() => {
 				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-		} else if (action == 'remove' && this.props?.client) {
-			remove();
+			}, 4000);
+			return '';
+		} else {
+			return '';
 		}
 	};
 
 	// ! scroll stretch animation function
-	handleScrollStretch = (element, adjustments, action = 'add', preview = false) => {
+	handleScrollStretch = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
+		const scale = parseFloat((adjustments?.scale || 20) / 100);
 		const add = () => {
-			const percentScale = adjustments?.scale || 20;
-			const scale = percentScale / 100;
 			element.style.setProperty('--stretch-scale', scale);
 
 			element.classList.add('scroll-stretch');
@@ -6073,28 +6693,60 @@ class Layout extends Component {
 			element.classList.remove('scroll-stretch');
 			element.style.removeProperty('--stretch-scale');
 		};
-		if (preview) {
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+
+				const stretchTween = gsap.fromTo(
+					element,
+					{
+						scaleX: 2 - scale,
+						scaleY: 1 - scale,
+						y: '40%',
+						duration: 2,
+						transformStyle: 'preserve-3d',
+						transformPerspective: 400,
+					},
+					{
+						scaleX: 1,
+						scaleY: 1,
+						y: 0,
+						duration: 2,
+						ease: 'none',
+						paused: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.7,
+					duration: 500,
+				})
+					.on('progress', (event) => {
+						stretchTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
-			const timeout = parseFloat(4);
 
 			setTimeout(() => {
 				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-		} else if (action == 'remove' && this.props?.client) {
-			remove();
+			}, 4000);
+			return '';
+		} else {
+			return '';
 		}
 	};
 
 	// ! scroll flip animation function
-	handleScrollFlip = (element, adjustments, action = 'add', preview = false) => {
+	handleScrollFlip = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
+		const { angle = -360, direction = 'horizontal' } = adjustments || {};
+
 		const add = () => {
 			element.classList.add('scroll-flip');
-
-			const angle = adjustments?.angle || 240;
-
-			const direction = adjustments?.direction || 'horizontal';
 
 			element.style.setProperty('--flip-angle', `${angle}deg`);
 
@@ -6109,27 +6761,64 @@ class Layout extends Component {
 			element.style.removeProperty('--flip-angle');
 			element.style.removeProperty('--flip-rotate');
 		};
-		if (preview) {
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+				const rotateX = direction == 'vertical' ? angle : 0;
+				const rotateY = direction == 'horizontal' ? angle : 0;
+
+				const flipTween = gsap.fromTo(
+					element,
+					{
+						rotationY: rotateY,
+						rotationX: rotateX,
+						scale: 0.95,
+						duration: 2,
+						transformStyle: 'preserve-3d',
+						transformPerspective: 400,
+					},
+					{
+						rotationY: 0,
+						rotationX: 0,
+						scale: 1,
+						duration: 4,
+						ease: 'none',
+						paused: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.7,
+					duration: 500,
+				})
+					.on('progress', (event) => {
+						flipTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
-			const timeout = parseFloat(4);
 
 			setTimeout(() => {
 				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-		} else if (action == 'remove' && this.props?.client) {
-			remove();
+			}, 4000);
+			return '';
+		} else {
+			return '';
 		}
 	};
 
 	// !  scroll parallax animation function
 
-	handleScrollParallax = (element, adjustments, action = 'add', preview = false) => {
+	handleScrollParallax = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
+
 		const add = () => {
 			element.classList.add('scroll-parallax');
 
-			const intensity = adjustments?.animeIntensity || 100;
+			const intensity = adjustments?.animeIntensity || 1;
 
 			element.style.setProperty('--parallax-intensity', intensity * -1);
 		};
@@ -6137,27 +6826,55 @@ class Layout extends Component {
 			element.classList.remove('scroll-parallax');
 			element.style.removeProperty('--parallax-intensity');
 		};
-		if (preview) {
-			add();
-			const timeout = parseFloat(4);
-
+		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
+				this.controller = new ScrollMagic.Controller();
+				const intensity = parseFloat((adjustments?.animeIntensity || 1) * -1);
+
+				const parallaxTween = gsap.fromTo(
+					element,
+					{
+						y: 259.524 * intensity,
+						opacity: 1,
+						duration: 2,
+						transformStyle: 'preserve-3d',
+						transformPerspective: 400,
+					},
+					{
+						y: 0,
+						duration: 4,
+						ease: 'none',
+						paused: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.9,
+					duration: 1200,
+				})
+					.on('progress', (event) => {
+						parallaxTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
+
 			setTimeout(() => {
 				remove();
 			}, 4000);
-		} else if (action == 'remove' && this.props?.client) {
-			// remove();
+			return '';
+		} else {
+			return '';
 		}
 	};
 	// ! scroll arc animation
-	handleScrollArc = (element, adjustments, action = 'add', preview = false) => {
+	handleScrollArc = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
+		const { direction = 'vertical', speed = 6 } = adjustments;
 		const add = () => {
-			const { direction = 'vertical', speed = 6 } = adjustments;
-
 			let rotateY = '0deg';
 			let rotateX = '0deg';
 
@@ -6178,25 +6895,61 @@ class Layout extends Component {
 			element.style.removeProperty('--arc-rotate-x');
 			element.style.removeProperty('--arc-rotate-y');
 		};
-		if (preview) {
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+				const arcTween = gsap.fromTo(
+					element,
+					{
+						z: 400,
+						rotationX: direction === 'horizontal' ? 0 : -65,
+						rotationY: direction === 'horizontal' ? -55 : 0,
+						y: direction === 'horizontal' ? 0 : 200,
+						x: direction === 'horizontal' ? -200 : 0,
+						scale: 1.3,
+					},
+					{
+						z: 0,
+						y: 0,
+						x: 0,
+						rotationX: 0,
+						rotationY: 0,
+						scale: 1,
+						duration: speed || 2,
+						ease: 'none',
+						paused: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.7,
+					duration: 1200,
+				})
+					.on('progress', (event) => {
+						arcTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
-			const timeout = parseFloat(4);
 
 			setTimeout(() => {
 				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-		} else if (action == 'remove' && this.props?.client) {
-			remove();
+			}, 4000);
+			return '';
+		} else {
+			return '';
 		}
 	};
 
 	// ! scroll shape animation
-	handleScrollShape = (element, adjustments, action = 'add', preview = false) => {
-		const add = () => {
-			const { direction = 'circle', intensity = 1 } = adjustments;
+	handleScrollShape = (element, adjustments, preview = false) => {
+		// !function to add and remove animation properties
 
+		const { direction = 'circle', animeIntensity = 1 } = adjustments;
+		const add = () => {
 			const shapeMap = {
 				circle: (int) => ({
 					start: 'circle(0% at center)',
@@ -6227,8 +6980,7 @@ class Layout extends Component {
 				},
 			};
 
-			const def = shapeMap[direction]?.(intensity) || shapeMap.circle(intensity);
-
+			const def = shapeMap[direction]?.(animeIntensity) || shapeMap.circle(animeIntensity);
 			element.style.setProperty('--shape-clip-start', def.start);
 			element.style.setProperty('--shape-clip-mid', def.mid);
 			element.style.setProperty('--shape-clip-end', def.end);
@@ -6241,25 +6993,68 @@ class Layout extends Component {
 			element.style.removeProperty('--shape-clip-mid');
 			element.style.removeProperty('--shape-clip-end');
 		};
-		if (preview) {
+		if (this.state?.preview == true && this.props?.client == true) {
+			setTimeout(() => {
+				this.controller = new ScrollMagic.Controller();
+				const shapeMap = {
+					circle: {
+						start: 'circle(0% at center)',
+						end: `circle(150% at center)`,
+					},
+					square: {
+						start: `inset(50% round 0%)`,
+						end: `inset(0% round 0%)`,
+					},
+					oval: {
+						start: `ellipse(0% 0% at center)`,
+						end: `ellipse(100% 60% at center )`,
+					},
+					diamond: {
+						start: `polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)`,
+						end: `polygon(50% -50%, 150% 50%, 50% 150%, -50% 50%)`,
+					},
+				};
+				const shapeTween = gsap.fromTo(
+					element,
+					{
+						clipPath: shapeMap[direction]?.start || 'circle(0% at center)',
+					},
+					{
+						clipPath: shapeMap[direction]?.end || `circle(150% at center)`,
+						duration: 2,
+						ease: 'none',
+						paused: true,
+					},
+				);
+
+				this.scene = new ScrollMagic.Scene({
+					triggerElement: this.blockRef.current,
+					triggerHook: 0.5,
+					duration: 900,
+				})
+					.on('progress', (event) => {
+						shapeTween.progress(event.progress);
+					})
+					.addTo(this.controller);
+			}, 0);
+			return '';
+		} else if (preview) {
 			add();
-			const timeout = parseFloat(4);
 
 			setTimeout(() => {
 				remove();
-			}, timeout * 1000);
-		} else if (action == 'add') {
-			add();
-			setTimeout(() => {
-				remove();
 			}, 4000);
-		} else if (action == 'remove' && this.props?.client) {
-			// remove();
+			return '';
+		} else {
+			return '';
 		}
 	};
 
 	//! scroll shutters animation
-	handleScrollShutters = (element, adjustments, action = 'add', preview = false) => {
+	handleScrollShutters = (element, adjustments, preview = false, action = 'add') => {
+		if (element._hasPlayedShutterAnimation && action === 'add') {
+			return;
+		}
 		const add = () => {
 			const { direction = 'left', parts = 6, stagger = false } = adjustments;
 			const animationName = `shutters_${direction}_${parts}_${stagger}`.replace(
@@ -6343,9 +7138,10 @@ class Layout extends Component {
 			}, timeout * 1000);
 		} else if (action == 'add') {
 			add();
+			element._hasPlayedShutterAnimation = true;
 			setTimeout(() => {
 				remove();
-			}, 3500);
+			}, 4500);
 		} else if (action == 'remove' && this.props?.client) {
 			remove();
 		}
@@ -7249,22 +8045,20 @@ class Layout extends Component {
 												<div
 													onMouseEnter={() => {
 														if (
-															this.state?.preview == true ||
-															this.props?.client == true
+															(this.state?.preview == true ||
+																this.props?.client == true) &&
+															component?.animations?.animeType ==
+																'hover'
 														) {
 															this.onHoverAnime(component);
 														}
 													}}
 													onMouseLeave={() => {
 														if (
-															this.state?.preview == true ||
-															this.props?.client == true
-														) {
-															this.onMouseLeaveAnime(component);
-														}
-														if (
-															this.state?.preview == true ||
-															this.props?.client == true
+															(this.state?.preview == true ||
+																this.props?.client == true) &&
+															component?.animations?.animeType ==
+																'hover'
 														) {
 															this.onMouseLeaveAnime(component);
 														}
