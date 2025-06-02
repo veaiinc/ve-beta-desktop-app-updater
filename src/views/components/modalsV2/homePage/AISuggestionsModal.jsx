@@ -9,7 +9,10 @@ import { ReactComponent as RocketSvg } from '../../../../assets/svg/home_page/ro
 import { ReactComponent as BulbSvg } from '../../../../assets/svg/home_page/bulb.svg';
 import CreditCoinImage from '../../../../assets/images/creditCoin.png';
 import { ReactComponent as ArrowUpRightSvg } from '../../../../assets/svg/sidebar/arrowupright.svg';
-import { handleCombinedChainOfThought } from '../../../../helpers/chatHelpers';
+import {
+	handleCombinedChainOfThought,
+	updateCitationIdsWithCitations,
+} from '../../../../helpers/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
@@ -201,28 +204,6 @@ const AISuggestionsModal = ({
 			}));
 		}
 	};
-
-	const updateCitations = useCallback((input, citations = []) => {
-		const regex = /\[C\d+\]/g;
-		const parts = input?.split(regex);
-		const matches = input?.match(regex) || [];
-
-		const result = [];
-
-		parts?.forEach((part, index) => {
-			result?.push(<span key={`text-${index}`}>{part}</span>);
-
-			const match = matches[index];
-			if (match) {
-				const id = match?.slice(1, -1);
-				result?.push(
-					<CitationsTooltip key={index} citationId={id} citations={citations} />,
-				);
-			}
-		});
-
-		return result;
-	}, []);
 
 	const handleThumbsClick = (thumbs) => {
 		setInfo((prev) => ({ ...prev, selectedFeedback: thumbs, feedbackPopupOpen: true }));
@@ -546,7 +527,7 @@ const AISuggestionsModal = ({
 																onClick={() => handleClickRun(item)}
 															>
 																<div className="result-text">
-																	{updateCitations(
+																	{updateCitationIdsWithCitations(
 																		item,
 																		thinker_sources || [],
 																	)}
@@ -569,7 +550,7 @@ const AISuggestionsModal = ({
 																onClick={() => handleClickRun(item)}
 															>
 																<div className="result-text">
-																	{updateCitations(
+																	{updateCitationIdsWithCitations(
 																		item,
 																		thinker_sources || [],
 																	)}
@@ -609,7 +590,7 @@ const AISuggestionsModal = ({
 																				<ArrowRightSvg />
 																			</div>
 																			<div className="item-text">
-																				{updateCitations(
+																				{updateCitationIdsWithCitations(
 																					item,
 																					thinker_sources ||
 																						[],
