@@ -1,20 +1,16 @@
 .mobile-tabs-wrapper {
-	display: none; // hidden by default on larger screens
+	display: none;
+	position: fixed;
+	inset: 0;
+	z-index: 988;
+	background-color: var(--backdrop);
+	transition: opacity 0.3s ease;
+	opacity: 0;
+	pointer-events: none;
 
-	@media screen and (max-width: 500px) {
-		display: block;
-		position: fixed;
-		inset: 0;
-		z-index: 988; // just below the tabNavigation z-index
-		background-color: var(--backdrop);
-		transition: opacity 0.3s ease;
-		opacity: 0;
-		pointer-events: none;
-
-		&.open {
-			opacity: 1;
-			pointer-events: auto;
-		}
+	&.open {
+		opacity: 1;
+		pointer-events: auto;
 	}
 }
 
@@ -45,8 +41,6 @@
 			outline: none;
 			border: none;
 			cursor: pointer;
-
-			// Fixed position to maintain consistency
 			position: relative;
 			display: flex;
 			justify-content: center;
@@ -96,12 +90,6 @@
 				}
 			}
 
-			@media screen and (max-width: 500px) {
-				& {
-					display: none;
-				}
-			}
-
 			li {
 				display: flex;
 				height: 41px;
@@ -118,10 +106,10 @@
 				&::after {
 					content: '';
 					position: absolute;
-					bottom: 0; // at the bottom of li
+					bottom: 0;
 					left: 50%;
 					transform: translateX(-50%);
-					width: 40%; // adjust as needed for the "short" border
+					width: 40%;
 					height: 2px;
 					background-color: var(--primary-button, rgba(121, 236, 201, 1));
 					opacity: 0;
@@ -152,9 +140,7 @@
 		gap: 10px;
 
 		&.hidden-on-mobile {
-			@media screen and (max-width: 500px) {
-				display: none; // Hide theme and login buttons on mobile when sidebar is open
-			}
+			// Empty rule for media query
 		}
 
 		.theme-btn {
@@ -199,65 +185,15 @@
 			height: 47px;
 		}
 	}
-
-	@media screen and (max-width: 500px) {
-		padding: 20px;
-		position: relative;
-		// Set a fixed height to prevent layout shifts
-		height: 80px;
-
-		.left-container {
-			gap: 16px;
-			flex: 1; // Allow left-container to take available space
-			justify-content: space-between; // Push sidebar-button to the right when needed
-			position: relative; // Added for positioning context
-
-			.sidebar-button {
-				order: 2; // Move sidebar-button to the end (right side)
-				// Apply fixed position relative to the container
-				position: absolute;
-				right: 0;
-				top: 50%;
-				transform: translateY(-50%);
-			}
-
-			// Ensure VeLogo stays on the left
-			svg:first-child {
-				order: 1;
-			}
-		}
-
-		// Ensure z-index remains high for sidebar button when open
-		.sidebar-button {
-			z-index: 1000;
-		}
-
-		.tabNavigation {
-			width: 100%;
-			padding-top: 80px; // Adjust top padding for mobile screens
-		}
-
-		.right-container {
-			.theme-btn {
-				display: none;
-			}
-			.login-btn {
-				margin-left: 8px;
-			}
-		}
-	}
 }
 
-// Fix to prevent body content from shifting
 .landing-page-container {
-	// height: 100vh; // Use vh instead of dvh for better compatibility
 	width: 100%;
 	background-color: var(--background-color, #202124);
 	display: flex;
 	flex-direction: column;
-	overflow-x: hidden; // Prevent horizontal scroll
+	overflow-x: hidden;
 	color: var(--primary-font);
-	// height: 100%;
 
 	.page-body {
 		display: flex;
@@ -267,8 +203,7 @@
 		justify-content: center;
 		gap: 30px;
 		background: var(--background-color, #0c0c0d);
-		padding-top: 150px;
-		// overflow-y: auto; // Allow vertical scrolling if needed
+		padding: 150px 0 0;
 
 		.title-container {
 			display: flex;
@@ -276,12 +211,14 @@
 			align-items: center;
 			gap: 32px;
 			width: 100%;
+
 			.chatbox-container {
 				width: 100%;
 				max-width: 750px;
 				height: 114px;
 				position: relative;
 			}
+
 			.title-text {
 				display: flex;
 				flex-direction: column;
@@ -295,6 +232,7 @@
 					line-height: normal;
 					text-transform: capitalize;
 				}
+
 				.title-two {
 					color: var(--primary-button, #79ecc9);
 					text-align: center;
@@ -302,10 +240,11 @@
 					font-size: 59px;
 					font-style: normal;
 					font-weight: 600;
-					line-height: 65px; /* 110.169% */
+					line-height: 65px;
 					text-transform: capitalize;
 				}
 			}
+
 			.subtext {
 				color: var(--secondary-font, #7a7e85);
 				text-align: center;
@@ -317,16 +256,9 @@
 			}
 		}
 
-		/* Add to your CSS file */
 		.responsive-spacer {
 			height: 3200px;
 			display: none;
-		}
-
-		@media (min-width: 1141px) {
-			.responsive-spacer {
-				display: block;
-			}
 		}
 
 		.chatbox-container {
@@ -405,26 +337,95 @@
 	}
 }
 
-// @media screen and (max-width: 500px) {
-// 	.landing-page-container {
-// 		.page-body {
-// 			padding-top: 80px; // Add padding to account for fixed header
-// 			.title-one,
-// 			.title-two {
-// 				font-size: 30px !important;
-// 			}
-// 		}
-// 	}
-// }
+// Media Queries
+@media screen and (max-width: 500px) {
+	.mobile-tabs-wrapper {
+		display: block;
+	}
 
-@media screen and (max-width: 600px) {
-	.landing-page-container {
-		.page-header {
-			.middle-container {
-				.tabNavigation {
-					display: none;
-				}
+	.page-header {
+		padding: 20px;
+		position: relative;
+		height: 80px;
+
+		.left-container {
+			gap: 16px;
+			flex: 1;
+			justify-content: space-between;
+			position: relative;
+
+			.sidebar-button {
+				order: 2;
+				position: absolute;
+				right: 0;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+
+			svg:first-child {
+				order: 1;
 			}
 		}
+
+		.sidebar-button {
+			z-index: 1000;
+		}
+
+		.tabNavigation {
+			width: 100%;
+			padding-top: 80px;
+		}
+
+		.right-container {
+			.theme-btn {
+				display: none;
+			}
+			.login-btn {
+				margin-left: 8px;
+			}
+		}
+	}
+
+	.landing-page-container .page-body {
+		padding-top: 80px;
+	}
+
+	.landing-page-container .page-body .title-container {
+		padding: 0 16px;
+	}
+
+	.landing-page-container .page-body .title-container .title-text .title-one {
+		font-size: 26px;
+	}
+
+	.landing-page-container .page-body .title-container .title-text .title-two {
+		font-size: 40px;
+	}
+
+	.landing-page-container .page-body .title-container .subtext {
+		font-size: 20px;
+	}
+
+	.landing-page-container .page-body .homepageImage {
+		padding: 16px;
+	}
+}
+
+@media screen and (max-width: 600px) {
+	.page-header .middle-container .tabNavigation {
+		display: none;
+	}
+}
+
+@media screen and (max-width: 768px) {
+	.landing-page-container .page-body {
+		padding: 80px 0px 0px;
+		gap: 24px;
+	}
+}
+
+@media (min-width: 1141px) {
+	.landing-page-container .page-body .responsive-spacer {
+		display: block;
 	}
 }

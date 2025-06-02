@@ -1,8 +1,5 @@
 import { memo, useRef } from 'react';
 import s from '../../../assets/scss/landingScreen/features.module.scss';
-import feature1 from '../../../assets/images/feature1Image.png';
-import feature2 from '../../../assets/images/feature2Image.png';
-import feature3 from '../../../assets/images/feature3Image.png';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -22,10 +19,10 @@ const Features = () => {
 		gsap.set(allRefs, { autoAlpha: 0 });
 		gsap.set(progressRef.current?.parentElement, { autoAlpha: 0 }); // hide progress bar initially
 
+		// Reset initial transform for images
 		imageRefs.forEach((ref) => {
 			gsap.set(ref.current, {
-				xPercent: -50,
-				yPercent: -50,
+				transform: 'translate(-50%, -50%)',
 				scale: 0.5,
 				autoAlpha: 0,
 			});
@@ -82,8 +79,18 @@ const Features = () => {
 				})
 				.fromTo(
 					imageRefs[i].current,
-					{ scale: 0.5, autoAlpha: 0 },
-					{ scale: 1, autoAlpha: 1, duration: 0.7, ease: 'power2.out' },
+					{
+						scale: 0.5,
+						autoAlpha: 0,
+						transform: 'translate(-50%, -50%)',
+					},
+					{
+						scale: 1,
+						autoAlpha: 1,
+						duration: 0.7,
+						ease: 'power2.out',
+						transform: 'translate(-50%, -50%)',
+					},
 				);
 
 			if (i < 2) {
@@ -95,7 +102,13 @@ const Features = () => {
 					)
 					.to(
 						imageRefs[i].current,
-						{ scale: 0.5, autoAlpha: 0, duration: 0.5, ease: 'power2.in' },
+						{
+							scale: 0.5,
+							autoAlpha: 0,
+							duration: 0.5,
+							ease: 'power2.in',
+							transform: 'translate(-50%, -50%)',
+						},
 						'-=0.5',
 					);
 			} else {
@@ -150,7 +163,11 @@ const Features = () => {
 		},
 	];
 
-	const images = [feature1, feature2, feature3];
+	const images = [
+		'https://ap.images.ve.ai/public/dashboard/proactive-cards.png',
+		'https://ap.images.ve.ai/public/dashboard/proactive-view.png',
+		'https://ap.images.ve.ai/public/dashboard/chat.png',
+	];
 
 	return (
 		<div className={s.featuresContainer} ref={featuresRef}>
