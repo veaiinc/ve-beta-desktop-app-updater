@@ -27,6 +27,11 @@ const actionHandlers = {
 		...state,
 		rowData: { ...state.rowData, ...action?.payload },
 	}),
+	DELETE_DATABASE_ROWS: (state, action) => {
+		const { viewId } = action.payload;
+		const { [viewId]: _, ...newRowData } = state.rowData;
+		return { ...state, rowData: newRowData };
+	},
 	UPDATE_DATABASE_ROWS: (state, action) => {
 		const { viewId, rowId, updatedRow } = action.payload;
 
@@ -65,6 +70,48 @@ const actionHandlers = {
 		...state,
 		availableDatabases: action?.payload,
 	}),
+	UPDATE_RELATED_VIEWS: (state, action) => {
+		const { updatedRow, viewId, databaseId, rowId } = action.payload;
+
+		const affectedViews = Object.values(state?.views)
+			.flat()
+			.filter((item) => item.databaseId === databaseId && item._id !== viewId);
+
+		if (!affectedViews.length) return state;
+
+		const updatedRowData = {};
+
+		for (const view of affectedViews) {
+			const rowData = state?.rowData?.[view._id];
+			if (!rowData) continue;
+
+			const rowIndex = rowData.data?.findIndex((row) => row._id === rowId);
+			if (rowIndex === -1) continue;
+
+			updatedRowData[view._id] = {
+				...rowData,
+				data: [
+					...rowData.data.slice(0, rowIndex),
+					{
+						...rowData.data[rowIndex],
+						...updatedRow,
+						values: { ...rowData.data[rowIndex]?.values, ...updatedRow?.values },
+					},
+					...rowData.data.slice(rowIndex + 1),
+				],
+			};
+		}
+
+		if (!Object.keys(updatedRowData).length) return state;
+
+		return {
+			...state,
+			rowData: {
+				...state.rowData,
+				...updatedRowData,
+			},
+		};
+	},
 	RESET_STATE: () => intialState,
 };
 

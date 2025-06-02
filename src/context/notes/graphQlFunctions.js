@@ -447,7 +447,7 @@ export const createDatabaseViewMutation = gql`
 			databaseId
 			pageId
 			blockId
-			title
+			label
 			cardSize
 			sortBy {
 				fieldId
@@ -659,7 +659,7 @@ export const getDatabaseViewsQuery = gql`
 			databaseId
 			pageId
 			blockId
-			title
+			label
 			cardSize
 			sortBy {
 				fieldId
@@ -683,6 +683,15 @@ export const getDatabaseViewsQuery = gql`
 			updatedAt
 			createdBy
 			updatedBy
+		}
+	}
+`;
+
+export const deleteDatabaseViewMutation = gql`
+	mutation DeleteDatabaseView($pageId: ID!, $deleteDatabaseViewId: ID!) {
+		deleteDatabaseView(pageId: $pageId, id: $deleteDatabaseViewId) {
+			success
+			message
 		}
 	}
 `;

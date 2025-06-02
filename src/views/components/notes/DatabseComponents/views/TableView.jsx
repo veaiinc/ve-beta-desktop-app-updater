@@ -95,6 +95,7 @@ const TableView = ({ data, columns, colors, databaseId, pageId, viewId }) => {
 							colors={colors}
 							pageId={pageId}
 							viewId={viewId}
+							databaseId={databaseId}
 						/>
 					</div>
 				</div>

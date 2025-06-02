@@ -38,6 +38,7 @@ import {
 	listAvailableDatabasesQuery,
 	deleteDatabaseFieldMutation,
 	getDatabaseViewsQuery,
+	deleteDatabaseViewMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -878,7 +879,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const updateDatabaseRow = async (payload, viewId) => {
+	const updateDatabaseRow = async (payload, viewId, databaseId) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -898,6 +899,12 @@ export const NotesState = (props) => {
 						rowId: payload?.updateDatabaseRowId,
 						updatedRow,
 					},
+				});
+				updateRelatedViews({
+					updatedRow,
+					viewId,
+					databaseId,
+					rowId: payload?.updateDatabaseRowId,
 				});
 				return [true, response?.[1]];
 			} else {
@@ -1086,10 +1093,65 @@ export const NotesState = (props) => {
 		});
 	};
 
-	const updateRelatedViews = async ({ updatedRow, updatedField, viewId, databaseId }) => {
+	const deleteDatabaseView = async (payload, blockId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				deleteDatabaseViewMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_DATABASE_VIEWS,
+					payload: {
+						[blockId]: state?.views?.[blockId]?.filter(
+							(view) => view?._id !== payload?.deleteDatabaseViewId,
+						),
+					},
+				});
+
+				dispatch({
+					type: Actions.DELETE_DATABASE_ROWS,
+					payload: {
+						viewId: payload?.deleteDatabaseViewId,
+					},
+				});
+			}
+		} catch (error) {
+			console.error('error==>deleteDatabaseView', error);
+		}
+	};
+
+	const updateRelatedViews = async ({ updatedRow, updatedField, viewId, databaseId, rowId }) => {
 		try {
 			// TODO: update related views
 			//get all the views with same databseId
+
+			// const views = state?.views?.[databaseId];
+			// console.log('views', state?.views);
+
+			dispatch({
+				type: Actions.UPDATE_RELATED_VIEWS,
+				payload: { updatedRow, viewId, databaseId, rowId },
+			});
+			// views?.forEach((view) => {
+			// 	if (view?._id !== viewId) {
+			// 		const row = state?.rowData?.[view?._id]?.data?.find(
+			// 			(row) => row?._id === updatedRow?._id,
+			// 		);
+			// 		if (row) {
+			// 			row.values = { ...row?.values, ...updatedRow?.values };
+			// 			dispatch({
+			// 				type: Actions.UPDATE_DATABASE_ROWS,
+			// 				payload: { viewId: view?._id, rowId: updatedRow?._id, updatedRow: row },
+			// 			});
+			// 		}
+			// 	}
+			// });
 		} catch (error) {}
 	};
 
@@ -1134,5 +1196,6 @@ export const NotesState = (props) => {
 		listAvailableDatabases,
 		deleteDatabaseField,
 		getDatabaseViews,
+		deleteDatabaseView,
 	};
 };

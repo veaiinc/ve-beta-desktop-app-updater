@@ -33,7 +33,7 @@ export const layouts = {
 };
 
 const TaskHeader = ({
-	tabs,
+	tabArray,
 	activeTab,
 	handleTabChange,
 	handleAddTab,
@@ -51,7 +51,7 @@ const TaskHeader = ({
 		}));
 	};
 
-	const tabArray = useMemo(() => Object?.values(tabs || {}), [tabs]);
+	// const tabArray = useMemo(() => Object?.values(tabs || {}), [tabs]);
 
 	const onDragEnd = (result) => {
 		if (!result.destination) return;

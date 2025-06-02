@@ -93,7 +93,7 @@ const TabEditDropdown = ({
 				// 	handleStateChange({ showEditViewDropDown: !info?.showEditViewDropDown });
 				// }}
 			>
-				<div className="tab-icon">{layouts[tab?.viewType]?.Icon}</div>
+				<div className="tab-icon">{layouts[tab?.viewType || tab?.type]?.Icon}</div>
 				<div className="tab-title">{tab?.label}</div>
 			</div>
 		</Tooltip>

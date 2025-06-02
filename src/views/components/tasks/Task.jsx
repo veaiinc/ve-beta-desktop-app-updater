@@ -380,7 +380,7 @@ const Task = ({
 				<div className="task-container">
 					<div className="task-header-container">
 						<TaskHeader
-							tabs={taskInfo?.tabs}
+							tabArray={Object?.values(taskInfo?.tabs || {})}
 							activeTab={taskInfo?.activeTab}
 							handleTabChange={handleTabChange}
 							handleAddTab={handleAddTab}

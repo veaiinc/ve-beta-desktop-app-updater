@@ -31,6 +31,7 @@ import LinkText from '../tasks/listView/LinkText';
 import PersonMultiSelect from '../tasks/listView/PersonMultiSelect';
 import CreatedWithAi from '../tasks/listView/CreatedWithAi';
 import CustomTextArea from '../globalComponents/CustomTextArea';
+import TaskHeader from '../tasks/listView/TaskHeader';
 
 export const rowTypes = {
 	text: TextField,
@@ -74,6 +75,7 @@ const DatabaseComponent = memo(({ block, editor }) => {
 			availableDatabases,
 			views,
 			getDatabaseViews,
+			deleteDatabaseView,
 		},
 	} = useContext(Context);
 
@@ -235,7 +237,7 @@ const DatabaseComponent = memo(({ block, editor }) => {
 				input: {
 					blockId: sourceBlockId,
 					databaseId,
-					title: 'Table',
+					label: 'Table',
 					type: 'table',
 					order,
 				},
@@ -301,6 +303,32 @@ const DatabaseComponent = memo(({ block, editor }) => {
 		return availableDatabases || [];
 	}, [availableDatabases]);
 
+	const handleDeleteDatabaseView = useCallback(
+		async (viewId) => {
+			const deletedViewIndex = currentDatabaseViews?.findIndex(
+				(view) => view?._id === viewId,
+			);
+
+			const newSelectedViewId =
+				deletedViewIndex === 0
+					? currentDatabaseViews?.[0]?.id
+					: currentDatabaseViews?.[deletedViewIndex - 1]?.id;
+
+			await deleteDatabaseView({ pageId, deleteDatabaseViewId: viewId }, block?.id);
+			handleInfoChange({ selectedViewId: newSelectedViewId });
+		},
+		[pageId, deleteDatabaseView, block?.id, currentDatabaseViews],
+	);
+
+	const handleTabDropdownClick = useCallback(
+		(data) => {
+			if (data?.value === 'delete') {
+				handleDeleteDatabaseView(data?.tabId);
+			}
+		},
+		[handleDeleteDatabaseView],
+	);
+
 	return (
 		<div className={s.notesDatabaseContainer}>
 			{!databaseId ? (
@@ -338,25 +366,15 @@ const DatabaseComponent = memo(({ block, editor }) => {
 				<>
 					<div className={s.notesDatabaseHeader}>
 						<div className={s.databaseTopContainer}>
-							<div className={s.viewsContainer}>
-								{currentDatabaseViews?.map((view) => (
-									<div
-										key={view._id}
-										className={`${s.viewWrapper} ${
-											info?.selectedViewId === view?._id ? s.active : ''
-										}`}
-										onClick={() =>
-											handleInfoChange({ selectedViewId: view?._id })
-										}
-									>
-										<div className={s.viewIcon}>{/* <TableViewIcon /> */}</div>
-										<div className={s.viewLabel}>{view?.title}</div>
-									</div>
-								))}
-								<button onClick={() => handleCreateDatabaseView(databaseId)}>
-									+
-								</button>
-							</div>
+							<TaskHeader
+								tabArray={currentDatabaseViews}
+								activeTab={info?.selectedViewId}
+								handleTabChange={(view) =>
+									handleInfoChange({ selectedViewId: view?._id })
+								}
+								handleAddTab={() => handleCreateDatabaseView(databaseId)}
+								handleTabDropdownClick={handleTabDropdownClick}
+							/>
 							<div className={s.notesDatabaseHeaderButtons}>
 								<button onClick={() => handleInfoChange({ addRowModalOpen: true })}>
 									Add Row
