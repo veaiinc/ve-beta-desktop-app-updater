@@ -365,7 +365,7 @@ export const redirectTo = (type, id) => {
 		slack: `https://app.slack.com/client/${id}`,
 		s3_key: id,
 		drive: `https://drive.google.com/file/d/${id}/view`,
-		notes: `${origin}/note/${id}`,
+		notes: `https://ve.ai/note/${id}`,
 	};
 
 	const url = urls?.[type];
