@@ -31,7 +31,6 @@ import {
 import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import PromptPopup from '../../homePage/PromptPopup';
 import ShareWidget from '../../globalComponents/ShareWidget';
-import { CitationsTooltip } from '../chat/CitationsTooltip';
 const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
@@ -517,7 +516,10 @@ const AISuggestionsModal = ({
 										}
 										key="1"
 									>
-										<div className="ai-results-wrapper">
+										<div
+											className="ai-results-wrapper"
+											onClick={(e) => e?.stopPropagation()}
+										>
 											<div className="results-container">
 												{Array?.isArray(solutions)
 													? solutions?.map((item, index) => (
@@ -799,7 +801,10 @@ const AISuggestionsModal = ({
 							<div className="cot">
 								<div className="chain-of-thought-container">
 									<div className="chain-of-thought-content">
-										<CombinedChainOfThought data={info?.chainOfThoughtData} />
+										<CombinedChainOfThought
+											data={info?.chainOfThoughtData}
+											citations={thinker_sources || []}
+										/>
 									</div>
 								</div>
 							</div>
