@@ -45,21 +45,25 @@ const Features = () => {
 					});
 				},
 				onLeave: () => {
-					// Hide progress bar when leaving the section
 					gsap.to(progressRef.current?.parentElement, {
 						autoAlpha: 0,
 						duration: 0.4,
 					});
+					// Fade out the last image when leaving the section
+					gsap.to(imageRefs[2].current, {
+						autoAlpha: 0,
+						scale: 0.5,
+						duration: 0.5,
+						ease: 'power2.in',
+					});
 				},
 				onEnterBack: () => {
-					// Show progress bar when coming back to the section
 					gsap.to(progressRef.current?.parentElement, {
 						autoAlpha: 1,
 						duration: 0.4,
 					});
 				},
 				onLeaveBack: () => {
-					// Hide progress bar when leaving back from the section
 					gsap.to(progressRef.current?.parentElement, {
 						autoAlpha: 0,
 						duration: 0.4,
@@ -89,7 +93,7 @@ const Features = () => {
 						autoAlpha: 1,
 						duration: 0.7,
 						ease: 'power2.out',
-						transform: 'translate(-50%, -50%)',
+						transform: 'translate(-50%, -35%)',
 					},
 				);
 
