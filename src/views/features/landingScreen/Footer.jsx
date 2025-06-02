@@ -11,7 +11,7 @@ import { LINKEDIN_URL, INSTAGRAM_URL, CHANGELOG_URL } from '../../../helpers/Con
 
 import { Link } from 'react-router-dom';
 
-const Footer = () => {
+const Footer = ({BackTop}) => {
 	return (
 		<div className={s.footer}>
 			<div className={s.container}>

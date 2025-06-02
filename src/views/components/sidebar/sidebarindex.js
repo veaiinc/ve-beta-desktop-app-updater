@@ -156,7 +156,6 @@ export const SETTINGS_OPTIONS = {
 		{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
 		{ name: 'Integration', route: '/settings/integrations', icon: IntegrationsIcon },
 		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
-		{ name: 'Pricing', route: '/settings/pricing', icon: PricingIcon },
 
 	],
 };

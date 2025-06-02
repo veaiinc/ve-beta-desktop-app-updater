@@ -18,7 +18,6 @@ const mapper = {
 	integrations: <Integrations />,
 	'team-members': <TeamSettings />,
 	'plan-billing': <PlanBilling />,
-	'pricing': <PricingPage />,
 	'ai-setup': <AiSetup />,
 };
 
@@ -45,7 +44,7 @@ const SettingsWrapper = (props) => {
 	return (
 		<div
 			className={`${
-				type === 'integrations' || type === 'ai-setup' || type === 'pricing' ? '' : 'accountSettingsMainWrapper'
+				type === 'integrations' || type === 'ai-setup' ? '' : 'accountSettingsMainWrapper'
 			}`}
 			style={{
 				height: '100%',
@@ -55,13 +54,13 @@ const SettingsWrapper = (props) => {
 				mapper?.[type]
 			) : (
 				<div
-					className={`${type !== 'integrations' ? 'accountSettingsWrapper' : ''}`}
+					className={`${type !== 'integrations'  ? 'accountSettingsWrapper' : ''}`}
 					style={{
 						height: '100%',
 					}}
 				>
 					<div
-						className={`${type !== 'integrations' ? 'accountSettingsMapper' : ''}`}
+						className={`${type !== 'integrations'  ? 'accountSettingsMapper' : ''}`}
 						style={{
 							height: '100%',
 						}}
