@@ -1,7 +1,6 @@
 .contact-form-wrapper {
 	background-color: var(--background-color);
 	color: var(--primary-font);
-
 	font-family: var(--secondary-font-family);
 	display: flex;
 	width: 100%;
@@ -10,6 +9,7 @@
 	gap: 40px;
 	max-width: 670px;
 	margin: 0 auto;
+	min-height: 100vh;
 
 	.contact-form-wrapper {
 		width: 100%;

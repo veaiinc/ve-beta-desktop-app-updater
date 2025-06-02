@@ -21,6 +21,7 @@ import { gql } from '@apollo/client';
 // 						userId
 // 					}
 // 				}
+// 				favorites
 // 				isDeleted
 // 				tenantId
 // 				createdAt

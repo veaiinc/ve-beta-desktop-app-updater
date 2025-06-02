@@ -44,7 +44,7 @@ const Footer = () => {
 									<Link to="/mission">Mission</Link>
 								</li>
 								<li>
-									<Link to="/forenterprise">For Enterprise</Link>
+									<Link to="/contact-us">For Enterprise</Link>
 								</li>
 								<li>
 									<Link to="/forenterprise">Investor Updates</Link>
@@ -113,7 +113,7 @@ const Footer = () => {
 							</div>
 						</div>
 						<div className={s.bottom__topPart_rightPart}>
-							<div>
+							<div onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
 								<span>Back top </span>
 								<ArrowUp />
 							</div>

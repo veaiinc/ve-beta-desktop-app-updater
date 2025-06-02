@@ -4,7 +4,7 @@ import AutomationWidget from '../globalComponents/AutomationWidget';
 import CalenderWidget from '../globalComponents/CalenderWidget';
 import '../../../assets/scss/contacts/overViewContact.scss';
 import Context from '../../../context/context';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ReactComponent as EditIcon } from '../../../assets/svg/workflow/edit.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/svg/delete.svg';
@@ -20,6 +20,7 @@ const OverviewContact = () => {
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		contact: null,
+		pendingTaskCount: 0,
 	});
 	const [editField, setEditField] = useState(null);
 	const [editValue, setEditValue] = useState('');
@@ -71,6 +72,15 @@ const OverviewContact = () => {
 		await deleteClient({ deleteClientId: info.contact._id });
 		navigate('/contacts');
 	};
+
+	const handleTaskCountUpdate = useCallback(
+		(count) => {
+			if (info.pendingTaskCount !== count) {
+				setInfo((prev) => ({ ...prev, pendingTaskCount: count }));
+			}
+		},
+		[info.pendingTaskCount],
+	);
 
 	return (
 		<div className="about-container">
@@ -185,7 +195,12 @@ const OverviewContact = () => {
 				</div>
 				<div className="parent-widget-container">
 					<div>
-						<TaskWidget width={'100%'} height={'520px'} />
+						<TaskWidget
+							width={'100%'}
+							height={'520px'}
+							clientId={contactId}
+							onTaskCountUpdate={handleTaskCountUpdate}
+						/>
 					</div>
 					{/* <div>
 						<AutomationWidget width={'100%'} height={'520px'} />
