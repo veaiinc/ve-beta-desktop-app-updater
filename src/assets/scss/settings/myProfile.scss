@@ -963,12 +963,21 @@
 	}
 }
 
-.ant-switch {
-	background-color: var(--stroke);
-}
-.ant-switch-checked {
-	background-color: var(--primary-button);
-}
-.ant-switch.ant-switch-checked .ant-switch-handle::before {
-	background-color: var(--primary-font);
+.notification-switch {
+	&.ant-switch {
+		background-color: var(--stroke);
+	}
+
+	&.ant-switch-checked {
+		background-color: var(--primary-button);
+	}
+
+	&.ant-switch.ant-switch-checked .ant-switch-handle::before {
+		background-color: var(--background-color);
+		opacity: 0.9;
+	}
+	&.ant-switch.ant-switch-checked:hover {
+		background-color: var(--primary-button);
+		opacity: 0.8;
+	}
 }
