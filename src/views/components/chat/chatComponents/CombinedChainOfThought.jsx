@@ -26,7 +26,7 @@ const CombinedChainOfThought = ({ data }) => {
 					);
 				})}
 			</div>
-			{deepResearches?.length > 0 && (
+			{deepSearches?.length > 0 && (
 				<div className="deep-searches-container">
 					{(deepSearches || [])?.map((deepSearch, index) => {
 						return (

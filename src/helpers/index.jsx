@@ -218,7 +218,7 @@ export const isURL = (url) => {
 };
 
 let urlMapper = {
-	localhost: 'http://localhost:3000',
+	localhost: 'http://localhost:5173',
 	've.ai': 'https://builder.ve.ai',
 	've.co': 'https://builder.ve.co',
 	'www.ve.ai': 'https://builder.ve.ai',
@@ -361,11 +361,11 @@ export const redirectTo = (type, id) => {
 		gmail: `https://mail.google.com/mail/u/0/#inbox/${id}`,
 		notion: id,
 		url: id,
-		workflowId: `https://builder.ve.ai/workflow/${id}`,
+		workflowId: `${origin}/workflow/${id}`,
 		slack: `https://app.slack.com/client/${id}`,
 		s3_key: id,
 		drive: `https://drive.google.com/file/d/${id}/view`,
-		note: `https://ve.ai/note/${id}`,
+		notes: `${origin}/note/${id}`,
 	};
 
 	const url = urls?.[type];
@@ -382,5 +382,7 @@ export const redirectTypeMapper = {
 	slack: 'channel_id',
 	s3_key: 's3_key',
 	drive: 'drive_id',
-	note: 'note_id',
+	notes: 'note_id',
 };
+
+const origin = fetchOriginSelection();
