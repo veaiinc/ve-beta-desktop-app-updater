@@ -28,6 +28,7 @@ import {
 import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import PromptPopup from '../../homePage/PromptPopup';
 import ShareWidget from '../../globalComponents/ShareWidget';
+import { CitationsTooltip } from '../chat/CitationsTooltip';
 const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
@@ -200,6 +201,28 @@ const AISuggestionsModal = ({
 			}));
 		}
 	};
+
+	const updateCitations = useCallback((input, citations = []) => {
+		const regex = /\[C\d+\]/g;
+		const parts = input?.split(regex);
+		const matches = input?.match(regex) || [];
+
+		const result = [];
+
+		parts?.forEach((part, index) => {
+			result?.push(<span key={`text-${index}`}>{part}</span>);
+
+			const match = matches[index];
+			if (match) {
+				const id = match?.slice(1, -1);
+				result?.push(
+					<CitationsTooltip key={index} citationId={id} citations={citations} />,
+				);
+			}
+		});
+
+		return result;
+	}, []);
 
 	const handleThumbsClick = (thumbs) => {
 		setInfo((prev) => ({ ...prev, selectedFeedback: thumbs, feedbackPopupOpen: true }));
@@ -523,7 +546,10 @@ const AISuggestionsModal = ({
 																onClick={() => handleClickRun(item)}
 															>
 																<div className="result-text">
-																	{item}
+																	{updateCitations(
+																		item,
+																		thinker_sources || [],
+																	)}
 																</div>
 																<div className="logo-container">
 																	<BulbSvg />
@@ -543,7 +569,10 @@ const AISuggestionsModal = ({
 																onClick={() => handleClickRun(item)}
 															>
 																<div className="result-text">
-																	{item}
+																	{updateCitations(
+																		item,
+																		thinker_sources || [],
+																	)}
 																</div>
 
 																<div className="logo-container">
@@ -580,7 +609,11 @@ const AISuggestionsModal = ({
 																				<ArrowRightSvg />
 																			</div>
 																			<div className="item-text">
-																				{item}
+																				{updateCitations(
+																					item,
+																					thinker_sources ||
+																						[],
+																				)}
 																			</div>
 																		</div>
 																	),
