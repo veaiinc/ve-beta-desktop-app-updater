@@ -65,6 +65,7 @@ import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
 import EditScheduler from './views/features/calendar/EditScheduler';
 import Contacts from './views/features/contacts/Contacts';
 import NotesPage from './views/features/notesPage/NotesPage';
+import ProactiveAi from './views/features/proactiveAi';
 const routes = [
 	{
 		path: '/',
@@ -623,6 +624,14 @@ const routes = [
 		component: (
 			<AuthWrapper title="Files" maxWidth={'100%'}>
 				<Files />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/proactiveai/:proactiveAiId',
+		component: (
+			<AuthWrapper title="Proactive AI" childrenContainerStyles={{ maxWidth: '100%' }}>
+				<ProactiveAi />
 			</AuthWrapper>
 		),
 	},

@@ -184,10 +184,12 @@ const AISuggestionsModal = ({
 		const clampedWidth = Math?.min(Math?.max(newWidth, minWidth), maxWidth);
 
 		resizableContainerRef.current.style.width = `${clampedWidth}px`;
+		resizableContainerRef.current.style.userSelect = 'none';
 		mouseXPosition.current = e?.clientX;
 	};
 
 	const handleMouseUp = () => {
+		resizableContainerRef.current.style.userSelect = 'auto';
 		document?.removeEventListener('mousemove', handleMouseMove);
 		document?.removeEventListener('mouseup', handleMouseUp);
 	};
@@ -794,9 +796,8 @@ const AISuggestionsModal = ({
 						{info?.activeTab === 'sources' && (
 							<div className="source-content">
 								{(thinker_sources || [])?.map((citation, idx) => (
-									<>
+									<div key={citation?.id || idx}>
 										<div
-											key={citation?.id || idx}
 											className="citation-item"
 											onClick={() =>
 												redirectTo?.(
@@ -859,7 +860,7 @@ const AISuggestionsModal = ({
 											</div>
 										</div>
 										<div className="citation-divider" />
-									</>
+									</div>
 								))}
 							</div>
 						)}
