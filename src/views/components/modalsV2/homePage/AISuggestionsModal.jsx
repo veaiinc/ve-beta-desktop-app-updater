@@ -272,7 +272,7 @@ const AISuggestionsModal = ({
 		suggested_prompts,
 		usages,
 		informationRequests,
-		category,
+		categories,
 		crux,
 		createdAt,
 		thinker_sources,
@@ -483,8 +483,8 @@ const AISuggestionsModal = ({
 											</div>
 										</Tooltip>
 									)}
-									{category?.length > 0 &&
-										category?.map((category, idx) => (
+									{categories?.length > 0 &&
+										categories?.map((category, idx) => (
 											<div key={idx} className="category">
 												{category}
 											</div>
