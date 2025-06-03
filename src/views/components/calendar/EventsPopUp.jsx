@@ -49,9 +49,11 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const customStyles = {
 	overlay: {
 		zIndex: 9999,
-		background: 'rgba(0, 0, 0, 0.3)',
-		backdropFilter: 'blur(8px)',
-		WebkitBackdropFilter: 'blur(8px)',
+		background: 'var(--backdrop)',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		padding: '20px',
 	},
 	content: {
 		overflow: 'unset',
@@ -64,6 +66,9 @@ const customStyles = {
 		bottom: 'auto',
 		marginRight: '-50%',
 		transform: 'translate(-50%, -50%)',
+		width: '100%',
+		maxWidth: '620px',
+		maxHeight: '90vh',
 	},
 };
 

@@ -19,10 +19,10 @@
 }
 
 // rotate transition
-.rotate {
-	transition: all 4s ease-in-out;
-	animation: rotate 3s linear;
-}
+// .rotate {
+// 	transition: all 4s ease-in-out;
+// 	animation: rotate 3s linear;
+// }
 @keyframes rotate {
 	from {
 		transform: rotate(0deg);

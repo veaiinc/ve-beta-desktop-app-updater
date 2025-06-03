@@ -136,10 +136,6 @@ html {
 // 	}
 // }
 
-#root {
-	overflow: hidden;
-}
-
 .pb-60 {
 	margin-bottom: 60px;
 	min-height: 250px;
@@ -2649,11 +2645,12 @@ $duration: 15s;
 	.update-info-card {
 		border-radius: 12px;
 		position: relative;
-		background-color: #7a70a3;
+
 		// background: url('../../../public//whatsnew/banner.png');
 		background-repeat: no-repeat;
 		background-size: cover;
-		backdrop-filter: blur(20px);
+		// backdrop-filter: blur(20px);
+		background-color: var(--backdrop);
 		padding: 24px;
 
 		width: 100%;
@@ -3253,11 +3250,12 @@ $duration: 15s;
 	height: fit-content;
 	z-index: 99;
 
-	background: rgba(0, 0, 0, 0.75);
+	// background: rgba(0, 0, 0, 0.75);
 	border-radius: 16px;
-	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-	backdrop-filter: blur(5.5px);
-	-webkit-backdrop-filter: blur(5.5px);
+	// box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+	// backdrop-filter: blur(5.5px);
+	// -webkit-backdrop-filter: blur(5.5px);
+	background-color: var(--backdrop);
 	border: 1px solid rgba(255, 255, 255, 0.2);
 	border-radius: 8px;
 	display: flex;
@@ -3770,7 +3768,7 @@ input[type='number'] {
 }
 
 #ve-ai-chat-iframe {
-	display: none;
+	display: block;
 }
 
 body.ReactModal__Body--open {

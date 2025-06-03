@@ -6,6 +6,7 @@ import { ReactComponent as DeleteSvg } from '../../../../assets/svg/delete.svg';
 import { ReactComponent as CalendarSvg } from '../../../../assets/svg/home_page/calendar.svg';
 import { ReactComponent as AgentsSvg } from '../../../../assets/svg/sidebar/agentsIcon.svg';
 import { ReactComponent as RocketSvg } from '../../../../assets/svg/home_page/rocket.svg';
+import { ReactComponent as BulbSvg } from '../../../../assets/svg/home_page/bulb.svg';
 import CreditCoinImage from '../../../../assets/images/creditCoin.png';
 import { ReactComponent as ArrowUpRightSvg } from '../../../../assets/svg/sidebar/arrowupright.svg';
 import { handleCombinedChainOfThought } from '../../../../helpers/chatHelpers';
@@ -27,7 +28,6 @@ import {
 import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import PromptPopup from '../../homePage/PromptPopup';
 import ShareWidget from '../../globalComponents/ShareWidget';
-import { ReactComponent as BulbSvg } from '../../../../assets/svg/home_page/bulb.svg';
 const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
@@ -249,11 +249,10 @@ const AISuggestionsModal = ({
 		suggested_prompts,
 		usages,
 		informationRequests,
-		web_sources,
-		knowledge_base_sources,
 		category,
 		crux,
 		createdAt,
+		thinker_sources,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -262,9 +261,6 @@ const AISuggestionsModal = ({
 		month: 'short',
 		day: 'numeric',
 	});
-	const reportCitations = useMemo(() => {
-		return [...(web_sources || []), ...(knowledge_base_sources || [])];
-	}, [web_sources, knowledge_base_sources]);
 
 	if (!data) return null;
 
@@ -273,9 +269,13 @@ const AISuggestionsModal = ({
 			open={open}
 			onClose={onClose}
 			placement="right"
+			width={'fit-content'}
+			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			bodyStyle={{ padding: '0px', width: 'fit-content' }}
 			rootClassName="ai-suggestions-drawer"
+			destroyOnClose={true}
+			maskClassName="drawer-mask"
 		>
 			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
 				<div className="drag-handler" onMouseDown={handleMouseDown} />
@@ -331,11 +331,10 @@ const AISuggestionsModal = ({
 					</div>
 
 					<div className="body" ref={bodyRef}>
-						{/* <div className="header-title-text">{title || ''}</div> */}
+						<div className="header-title-text">{title || ''}</div>
 
 						<div className="body-header-wrapper">
 							<div className="body-header">
-								{/* <div className="title-text">{title || ''}</div> */}
 								<div className="description">{description || ''}</div>
 							</div>
 
@@ -616,7 +615,7 @@ const AISuggestionsModal = ({
 									</div>
 								)}
 
-								{reportCitations?.length > 0 && (
+								{thinker_sources?.length > 0 && (
 									<div
 										className={`tab-btn ${
 											info?.activeTab === 'sources' ? 'active' : ''
@@ -676,7 +675,7 @@ const AISuggestionsModal = ({
 													className="report-description"
 													onClick={(e) => e.stopPropagation()}
 												>
-													<Markdown citations={reportCitations}>
+													<Markdown citations={thinker_sources || []}>
 														{research_report || ''}
 													</Markdown>
 												</div>
@@ -794,7 +793,7 @@ const AISuggestionsModal = ({
 
 						{info?.activeTab === 'sources' && (
 							<div className="source-content">
-								{(reportCitations || [])?.map((citation, idx) => (
+								{(thinker_sources || [])?.map((citation, idx) => (
 									<>
 										<div
 											key={citation?.id || idx}

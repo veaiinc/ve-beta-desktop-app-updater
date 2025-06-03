@@ -1,5 +1,6 @@
 .ReactModal__Overlay {
-	backdrop-filter: blur(3px);
+	// backdrop-filter: blur(3px);
+	background-color: var(--backdrop);
 }
 
 .access-denied-popup-container {

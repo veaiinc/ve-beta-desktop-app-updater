@@ -1,27 +1,34 @@
 import React from 'react';
 // hello
+import ProposalsController from '../../controllers/proposals.jsx';
+
 const IconIndexBaseClass =
-	typeof window !== 'undefined' && !window.__NEXT_DATA__
-		? require('../../controllers/proposals.jsx').default
-		: React.Component;
+	typeof window !== 'undefined' && !window.__NEXT_DATA__ ? ProposalsController : React.Component;
 
 const ImageIndexBaseClass =
-	typeof window !== 'undefined' && !window.__NEXT_DATA__
-		? require('../../controllers/proposals.jsx').default
-		: React.Component;
+	typeof window !== 'undefined' && !window.__NEXT_DATA__ ? ProposalsController : React.Component;
 
 const TextIndexBaseClass =
-	typeof window !== 'undefined' && !window.__NEXT_DATA__
-		? require('../../controllers/proposals.jsx').default
-		: React.Component;
+	typeof window !== 'undefined' && !window.__NEXT_DATA__ ? ProposalsController : React.Component;
 
-const useChatStream = isClientWithoutNextData
-	? useChatStreamHook
-	: () => ({
-			socketRef: null,
-			createWebSocketConnection: () => {},
-			sendMessage: () => {},
-	  });
+const useChatStream =
+	typeof window !== 'undefined' && !window.__NEXT_DATA__
+		? (() => {
+				try {
+					return require('../../hooks/useChatStream').default;
+				} catch {
+					return () => ({
+						socketRef: null,
+						createWebSocketConnection: () => {},
+						sendMessage: () => {},
+					});
+				}
+		  })()
+		: () => ({
+				socketRef: null,
+				createWebSocketConnection: () => {},
+				sendMessage: () => {},
+		  });
 
 import { ReactComponent as SelectDownSVG } from './library/svgs/formQuestionTypes/selectDown.svg';
 import { ReactComponent as StarSVG } from './library/svgs/formQuestionTypes/star.svg';

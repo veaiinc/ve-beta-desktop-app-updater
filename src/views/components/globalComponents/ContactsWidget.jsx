@@ -152,15 +152,17 @@ const ContactsWidget = ({ width, height }) => {
 						<ArrowViewIcon style={{ width: '18px', height: '18px' }} />
 						View Contacts
 					</div>
-					<div className="contactsWidgetFooterAdd">
+					<div
+						onClick={(e) => {
+							e.stopPropagation();
+							setInfo((prev) => ({
+								...prev,
+								createLeadPopup: true,
+							}));
+						}}
+						className="contactsWidgetFooterAdd"
+					>
 						<AddIcon
-							onClick={(e) => {
-								e.stopPropagation();
-								setInfo((prev) => ({
-									...prev,
-									createLeadPopup: true,
-								}));
-							}}
 							style={{
 								width: '18px',
 								height: '18px',

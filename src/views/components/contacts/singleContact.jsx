@@ -1,4 +1,5 @@
-import { memo, useState } from 'react';
+import { memo, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/contacts/singleContact.scss';
 import TaskWidget from '../globalComponents/TaskWidget';
 import AutomationWidget from '../globalComponents/AutomationWidget';
@@ -7,7 +8,10 @@ import QuickActions from '../globalComponents/QuickActions';
 import DocsGrid from '../files/DocsGrid';
 import ActivityContact from './ActivityContact';
 import OverviewContact from './overViewContact';
-import { useNavigate } from 'react-router-dom';
+import { fetchOriginSelection } from '../../../helpers';
+
+const origin = fetchOriginSelection();
+
 const SingleContact = ({ selectedContact, selectedOptions }) => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -17,6 +21,22 @@ const SingleContact = ({ selectedContact, selectedOptions }) => {
 		setInfo((prevInfo) => ({ ...prevInfo, totalCount: data }));
 	};
 
+	const handleCreateDoc = useCallback(() => {
+		window.location.href = `${origin}/create-document`;
+	}, []);
+
+	const handleDocClick = useCallback(
+		(doc) => {
+			if (doc) {
+				const version = doc?.version;
+				version === 0 || version === null
+					? navigate(`/smart-file/${doc?.templateId}/${doc?._id}`)
+					: (window.location.href = `${origin}/document/view/${doc?._id}?workflow=true`);
+			}
+		},
+		[navigate],
+	);
+
 	return (
 		<div className="right-section" style={{ width: '100%', alignItems: 'center' }}>
 			{selectedOptions === 'Overview' && <OverviewContact />}
@@ -25,7 +45,8 @@ const SingleContact = ({ selectedContact, selectedOptions }) => {
 				<DocsGrid
 					handleTotalChange={handleTotalChange}
 					clientId={selectedContact?._id}
-					handleCreateDoc={() => navigate(`/builder/create-document`)}
+					handleDocClick={handleDocClick}
+					handleCreateDoc={handleCreateDoc}
 				/>
 			)}
 		</div>

@@ -22,6 +22,9 @@ const CalendarSidebar = ({
 	schedulerList,
 	selectedSession,
 	sessionFilter,
+	connectedCalendars,
+	selectedCalendar,
+	showGoogleEvents,
 }) => {
 	const [info, setInfo] = useState({
 		askAi: false,
@@ -58,7 +61,12 @@ const CalendarSidebar = ({
 							categoryFilter={categoryFilter}
 							updateCalendarInfo={updateCalendarInfo}
 						/>
-						<GoogleCalendar />
+						<GoogleCalendar
+							connectedCalendars={connectedCalendars}
+							selectedCalendar={selectedCalendar}
+							updateCalendarInfo={updateCalendarInfo}
+							showGoogleEvents={showGoogleEvents}
+						/>
 						<SessionCard
 							schedulerList={schedulerList}
 							selectedSession={selectedSession}

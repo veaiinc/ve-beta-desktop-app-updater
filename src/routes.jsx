@@ -154,15 +154,6 @@ const routes = [
 		),
 		exact: true,
 	},
-	// {
-	// 	path: '/sales',
-	// 	component: (
-	// 		<AuthWrapper title={'Sales'}>
-	// 			<Sales />
-	// 		</AuthWrapper>
-	// 	),
-	// 	exact: true,
-	// },
 
 	{
 		path: '/playbook',
@@ -258,7 +249,7 @@ const routes = [
 	{
 		path: '/galleries/:galleryId',
 		component: (
-			<AuthWrapper title={'Gallery'} maxWidth={'1200px'} showBottomToolbar={false}>
+			<AuthWrapper title={'Gallery'} showBottomToolbar={false}>
 				<GalleryPage />
 			</AuthWrapper>
 		),
@@ -644,7 +635,7 @@ const routes = [
 	{
 		path: '/files',
 		component: (
-			<AuthWrapper title="Files">
+			<AuthWrapper title="Files" maxWidth={'100%'}>
 				<Files />
 			</AuthWrapper>
 		),

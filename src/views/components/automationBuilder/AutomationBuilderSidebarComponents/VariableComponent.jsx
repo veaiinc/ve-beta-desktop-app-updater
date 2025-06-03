@@ -44,7 +44,21 @@ const appMapper = {
 	inApp: 'In App',
 };
 
-const variableRegex = /^\{\{.*\}\}$/;
+const variableRegex = /\{\{.*?\}\}/g;
+
+const removeHTMLTags = (text) => {
+	const decodeHTML = (html) => {
+		const txt = document.createElement('textarea');
+		txt.innerHTML = html;
+		return txt.value;
+	};
+	return decodeHTML(
+		text
+			?.replace(/<\/?[^>]+(>|$)/g, '')
+			?.replace(/ /g, ' ')
+			?.trim() || '',
+	);
+};
 
 const VariableComponent = ({
 	value,
@@ -255,132 +269,155 @@ const VariableComponent = ({
 						</div>
 					</Tooltip>
 				) : (
-					<input
-						type={type}
-						placeholder="Enter something or select a variable"
-						value={value}
-						onChange={(e) => onChange(e.target.value)}
-					/>
+					<div className="variableInputContainer">
+						{info?.inputText?.map((part, index) =>
+							part.type === 'variable' ? (
+								<div key={index} className="variableTag">
+									<span>{removeHTMLTags(part.value.value)}</span>
+									<CrossIcon
+										width={14}
+										height={14}
+										style={{ cursor: 'pointer', marginLeft: '4px' }}
+										onClick={() => handleDeleteVariable(index)}
+									/>
+								</div>
+							) : (
+								<input
+									key={index}
+									type={type}
+									placeholder="Enter something or select a variable"
+									value={removeHTMLTags(part.value)}
+									onChange={handleTextChange}
+									className="variableInput"
+								/>
+							),
+						)}
+					</div>
 				)}
 			</div>
-			<Tooltip
-				open={info?.variableDropdownOpen}
-				onOpenChange={(open) => {
-					if (!open) {
-						handleInfo({
-							variableDropdownOpen: false,
-						});
-					}
-				}}
-				trigger="click"
-				title={
-					<div className="variableTooltipContainer">
-						<div
-							className="variableTooltipHeader"
-							onClick={
-								info?.options?.length > 0
-									? () => {
-											handleInfo({
-												options: info?.options?.slice(0, -1),
-												variablePath: info?.variablePath?.slice(0, -1),
-											});
-									  }
-									: () => {}
-							}
-						>
-							{info?.options?.length > 0 ? (
-								<ChevronRightThinSvg style={{ rotate: '180deg' }} />
-							) : null}
-							<span className="variableTooltipHeaderTitle">
-								{info?.variablePath?.length === 0
-									? `Choose a step`
-									: info?.variablePath?.length === 1
-									? labelMapper[info?.selectedStep?.labelId] ||
-									  info?.selectedStep?.labelId ||
-									  'Step id'
-									: info?.variablePath?.at(-1)}
-							</span>
-						</div>
+			{type !== 'dropdown' && (
+				<Tooltip
+					open={info?.variableDropdownOpen}
+					onOpenChange={(open) => {
+						if (!open) {
+							handleInfo({
+								variableDropdownOpen: false,
+							});
+						}
+					}}
+					trigger="click"
+					title={
+						<div className="variableTooltipContainer">
+							<div
+								className="variableTooltipHeader"
+								onClick={
+									info?.options?.length > 0
+										? () => {
+												handleInfo({
+													options: info?.options?.slice(0, -1),
+													variablePath: info?.variablePath?.slice(0, -1),
+												});
+										  }
+										: () => {}
+								}
+							>
+								{info?.options?.length > 0 ? (
+									<ChevronRightThinSvg style={{ rotate: '180deg' }} />
+								) : null}
+								<span className="variableTooltipHeaderTitle">
+									{info?.variablePath?.length === 0
+										? `Choose a step`
+										: info?.variablePath?.length === 1
+										? labelMapper[info?.selectedStep?.labelId] ||
+										  removeHTMLTags(info?.selectedStep?.labelId) ||
+										  'Step id'
+										: removeHTMLTags(info?.variablePath?.at(-1))}
+								</span>
+							</div>
 
-						<div className="variableTooltipBody">
-							{info?.options?.length > 0 ? (
-								<>
-									{info?.options?.at(-1)?.length > 0 ? (
-										info?.options?.at(-1)?.map((option, idx) => (
-											<div
-												className="variableListItem"
-												key={idx}
-												onClick={() => onOptionClick(option)}
-											>
-												<span className="variableListItemTitle">
-													{option?.name}
-												</span>
-												{option?.type === 'Object' ? (
-													<span className="variableListRightContainer">
-														{option?.values?.length}
-														<ChevronRightThinSvg />
+							<div className="variableTooltipBody">
+								{info?.options?.length > 0 ? (
+									<>
+										{info?.options?.at(-1)?.length > 0 ? (
+											info?.options?.at(-1)?.map((option, idx) => (
+												<div
+													className="variableListItem"
+													key={idx}
+													onClick={() => onOptionClick(option)}
+												>
+													<span className="variableListItemTitle">
+														{removeHTMLTags(option?.name)}
 													</span>
-												) : null}
-											</div>
-										))
-									) : (
-										<span
-											className="variableTooltipBody"
-											style={{ color: '#808080' }}
+													{option?.type === 'Object' ? (
+														<span className="variableListRightContainer">
+															{option?.values?.length}
+															<ChevronRightThinSvg />
+														</span>
+													) : null}
+												</div>
+											))
+										) : (
+											<span
+												className="variableTooltipBody"
+												style={{ color: '#808080' }}
+											>
+												No variables found for this step
+											</span>
+										)}
+									</>
+								) : (
+									info?.variables?.map((step) => (
+										<div
+											key={step?.stepId}
+											className="variableListItem"
+											onClick={() => {
+												onOptionClick({
+													values: step?.variables,
+													name: step?.stepId,
+													type: 'Object',
+												});
+												handleInfo({
+													selectedStep: {
+														stepId: step?.stepId,
+														app: step?.stepApp,
+														labelId: step?.stepName,
+														isFormResponse: step?.isFormResponse,
+													},
+												});
+											}}
 										>
-											No variables found for this step
-										</span>
-									)}
-								</>
-							) : (
-								info?.variables?.map((step) => (
-									<div
-										key={step?.stepId}
-										className="variableListItem"
-										onClick={() => {
-											onOptionClick({
-												values: step?.variables,
-												name: step?.stepId,
-												type: 'Object',
-											});
-											handleInfo({
-												selectedStep: {
-													stepId: step?.stepId,
-													app: step?.stepApp,
-													labelId: step?.stepName,
-													isFormResponse: step?.isFormResponse,
-												},
-											});
-										}}
-									>
-										<span className="variableListItemTitle">
-											{(labelMapper[step?.stepName] || step?.stepName) +
-												` (${appMapper[step?.stepApp || 'inApp']})`}
-										</span>
-									</div>
-								))
-							)}
+											<span className="variableListItemTitle">
+												{removeHTMLTags(
+													(labelMapper[step?.stepName] ||
+														step?.stepName) +
+														` (${appMapper[step?.stepApp || 'inApp']})`,
+												)}
+											</span>
+										</div>
+									))
+								)}
+							</div>
 						</div>
-					</div>
-				}
-				placement="bottom"
-				arrow={false}
-				color="transparent"
-				overlayStyle={{
-					minWidth: 'fit-content',
-				}}
-			>
-				<button
-					className="insertVariableButton"
-					onClick={() => {
-						handleInfo({
-							variableDropdownOpen: !info?.variableDropdownOpen,
-						});
+					}
+					placement="bottom"
+					arrow={false}
+					color="transparent"
+					overlayStyle={{
+						minWidth: 'fit-content',
 					}}
 				>
-					Insert variable
-				</button>
-			</Tooltip>
+					<button
+						className="insertVariableButton"
+						onClick={() => {
+							handleInfo({
+								variableDropdownOpen: !info?.variableDropdownOpen,
+							});
+						}}
+					>
+						Insert variable
+					</button>
+				</Tooltip>
+			)}
 		</div>
 	);
 };

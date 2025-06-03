@@ -11,7 +11,7 @@ import {
 	redirectTypeMapper,
 } from '../../../../helpers';
 
-export const CitationsTooltip = memo(({ citationId, citations, placement = 'topLeft' }) => {
+export const CitationsTooltip = memo(({ citationId, citations = [], placement = 'topLeft' }) => {
 	const {
 		templates: {
 			getCitationData,
@@ -26,11 +26,9 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 	const number = citationId?.slice(1);
 
 	useEffect(() => {
-		if (citations?.length > 0) {
-			const citation = citations?.find((citation) => citation?.id === citationId);
-			setCitationInfo(citation);
-			fetchCitationData(citation);
-		}
+		const citation = citations?.find((citation) => citation?.id === citationId);
+		setCitationInfo(citation);
+		fetchCitationData(citation);
 	}, [citationId]);
 
 	useEffect(() => {
@@ -100,7 +98,7 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 							{citationInfo?.source ? (
 								<Markdown>{processedCitationData}</Markdown>
 							) : (
-								citationInfo?.snippet
+								citationInfo?.snippet || ''
 							)}
 						</div>
 					)}

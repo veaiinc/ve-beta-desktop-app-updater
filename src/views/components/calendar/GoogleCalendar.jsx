@@ -2,10 +2,15 @@ import { memo, useState, useCallback, useEffect, useContext } from 'react';
 import '../../../assets/scss/calendar/googleCalendar.scss';
 import Context from '../../../context/context';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
+import { ReactComponent as PencilSvg } from '../../../assets/svg/calendar/pencil.svg';
+import { ReactComponent as SettingsSvg } from '../../../assets/svg/calendar/settings.svg';
+import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
 import Spinner from '../loaders/Spinner';
 import { message } from '../../components/globalComponents/CustomToast';
 import ConnectIntegrationWidget from '../globalComponents/ConnectIntegrationWidget';
-const GoogleCalendar = () => {
+import GoogleCalendarSettings from './GoogleCalenderSettings';
+
+const GoogleCalendar = ({ showGoogleEvents, updateCalendarInfo }) => {
 	const {
 		templates: { getConnectedThirdParties, connectThirdParties },
 		calendarInfo: {
@@ -20,6 +25,7 @@ const GoogleCalendar = () => {
 
 			getGoogleCalendarEvents,
 			googleCalendarEvents,
+			deleteCalendarEvent,
 		},
 	} = useContext(Context);
 
@@ -31,7 +37,12 @@ const GoogleCalendar = () => {
 		eventsLoading: false,
 		alreadyConnectedGoogleCalendars: [],
 		watchRequested: false,
+		selectedCalendars: [],
+		showSettings: false,
+		showConnectWidget: false,
+		deletingEvent: false,
 	});
+
 	// Auto expand when there are items to display
 	useEffect(() => {
 		const hasItems =
@@ -146,57 +157,64 @@ const GoogleCalendar = () => {
 		}
 	}, [connectThirdParties]);
 
-	const handleCalendarSelect = async (calendar) => {
-		if (!calendar?.id) {
-			message.error('Invalid calendar selection. Please try again.');
-			return;
-		}
-
-		setInfo((prev) => ({
-			...prev,
-			selectedCalendar: calendar.id,
-			watchLoading: true,
-			watchRequested: true,
-		}));
-
-		try {
-			const watchResponse = await watchGoogleCalendar(calendar.id);
-
-			if (!watchResponse) {
-				throw new Error('No response from watch request');
-			}
-
-			if (watchResponse[0] !== true) {
-				throw new Error(watchResponse[1]?.error || 'Failed to watch calendar');
-			}
-		} catch (error) {
-			message.error(
-				error.message || 'Failed to watch the selected Google Calendar. Please try again.',
-			);
-
-			setInfo((prev) => ({
-				...prev,
-				watchLoading: false,
-				watchRequested: false,
-				selectedCalendar: null,
-			}));
-
-			setTimeout(async () => {
-				try {
-					await watchGoogleCalendar(calendar.id);
-				} catch (retryError) {
-					message.error('Failed to watch calendar after retry. Please refresh the page.');
-				}
-			}, 5000);
-		}
-	};
+	const handleCheckboxChange = useCallback(() => {
+		updateCalendarInfo('showGoogleEvents', !showGoogleEvents);
+	}, [showGoogleEvents, updateCalendarInfo]);
 
 	const toggleExpand = useCallback(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			expanded: !prevInfo?.expanded,
+		setInfo((prev) => ({
+			...prev,
+			expanded: !prev.expanded,
 		}));
 	}, []);
+
+	const toggleSettings = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			showSettings: !prev.showSettings,
+		}));
+	}, []);
+
+	const handleConnectAnother = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			showConnectWidget: true,
+		}));
+	}, []);
+
+	const handleConnectSuccess = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			showConnectWidget: false,
+		}));
+		// Refresh the connected calendars list
+		getConnectedGoogleCalendars();
+	}, [getConnectedGoogleCalendars]);
+
+	const handleDeleteEvent = useCallback(
+		async (eventId) => {
+			if (!eventId) {
+				message.error('Invalid event ID');
+				return;
+			}
+
+			setInfo((prev) => ({ ...prev, deletingEvent: true }));
+			try {
+				await deleteCalendarEvent(eventId);
+				message.success('Event deleted successfully');
+				// Refresh the events list
+				await getGoogleCalendarEvents();
+				// Update the calendar view to reflect the deletion
+				updateCalendarInfo('updateEventsList', true);
+			} catch (error) {
+				message.error('Failed to delete event. Please try again.');
+				console.error('Error deleting event:', error);
+			} finally {
+				setInfo((prev) => ({ ...prev, deletingEvent: false }));
+			}
+		},
+		[deleteCalendarEvent, getGoogleCalendarEvents, updateCalendarInfo],
+	);
 
 	return (
 		<>
@@ -205,9 +223,12 @@ const GoogleCalendar = () => {
 					<div className="header">
 						<div className="google-logo">Google Calendar</div>
 						<div className="controls">
-							<span className="expand-icon" onClick={toggleExpand}>
+							{/* <div className="addCategoryButton" onClick={toggleSettings}>
+								<SettingsSvg />
+							</div> */}
+							<div className="expandIcon" onClick={toggleExpand}>
 								<DownSvg />
-							</span>
+							</div>
 						</div>
 					</div>
 					<div className="content">
@@ -227,38 +248,81 @@ const GoogleCalendar = () => {
 								<span>Fetching calendar events...</span>
 							</div>
 						) : info?.alreadyConnectedGoogleCalendars?.length > 0 ? (
-							info?.alreadyConnectedGoogleCalendars?.map((calendarId) => (
-								<div key={calendarId} className="connected-calendar">
-									<div className="green-dot"></div>
-									<span className="calendar-name">{calendarId}</span>
-								</div>
-							))
-						) : googleCalendarList && !info?.selectedCalendar ? (
-							<>
-								<div className="calendar-list-header">
-									Select Calendar to Connect
-								</div>
-								{googleCalendarList?.map((calendar) => (
-									<div
-										key={calendar.id}
-										className="item"
-										onClick={() => handleCalendarSelect(calendar)}
-									>
-										<div className="item-left">
-											<div
-												className="circle"
-												style={{
-													backgroundColor: calendar.backgroundColor,
-													borderColor: calendar.backgroundColor,
-												}}
+							<div className="categoriesContainer">
+								{info?.alreadyConnectedGoogleCalendars?.map((calendarId) => (
+									<div key={calendarId} className="categoryTypeContainer">
+										<div className="typeWrapper">
+											<span className="statusIndicator"></span>
+											<label
+												htmlFor={`${calendarId}-checkbox`}
+												className="typeLabel"
+											>
+												{calendarId}
+											</label>
+											<input
+												type="checkbox"
+												className="checkBox"
+												id={`${calendarId}-checkbox`}
+												checked={showGoogleEvents}
+												onChange={handleCheckboxChange}
+												aria-checked={showGoogleEvents}
+												aria-label={`${calendarId} calendar`}
 											/>
-											<span className="calendar-name">
-												{calendar.summary}
-											</span>
 										</div>
 									</div>
 								))}
-							</>
+								<div
+									className="categoryTypeContainer connect-another-account"
+									onClick={handleConnectAnother}
+								>
+									<div className="typeWrapper">
+										<PlusSvg />
+										<span>Connect Another Account</span>
+									</div>
+								</div>
+							</div>
+						) : googleCalendarList && !info?.selectedCalendar ? (
+							<div className="categoriesContainer">
+								{googleCalendarList?.map((calendar) => (
+									<div key={calendar.id} className="categoryTypeContainer">
+										<div className="typeWrapper">
+											<span
+												className="statusIndicator"
+												style={{
+													backgroundColor: calendar.backgroundColor,
+												}}
+											></span>
+											<label
+												htmlFor={`${calendar.id}-checkbox`}
+												className="typeLabel"
+											>
+												{calendar.summary}
+											</label>
+											<input
+												type="checkbox"
+												className="checkBox"
+												id={`${calendar.id}-checkbox`}
+												checked={showGoogleEvents}
+												onChange={(e) => {
+													e.stopPropagation();
+													handleCheckboxChange();
+												}}
+												aria-checked={showGoogleEvents}
+												aria-label={`${calendar.summary} calendar`}
+											/>
+										</div>
+									</div>
+								))}
+								<div
+									className="categoryTypeContainer connect-another-account"
+									onClick={handleConnectAnother}
+								>
+									<div className="typeWrapper">
+										<PlusSvg />
+										<span>Connect Another Account</span>
+									</div>
+								</div>
+							</div>
 						) : (
 							info?.selectedCalendar && (
 								<div className="selected-calendar">
@@ -273,8 +337,26 @@ const GoogleCalendar = () => {
 					</div>
 				</div>
 			) : (
-				<ConnectIntegrationWidget integrationType="google-calendar" buttonText="Connect" />
+				<ConnectIntegrationWidget
+					integrationType="google-calendar"
+					buttonText="Connect"
+					onSuccess={handleConnectSuccess}
+				/>
 			)}
+			{info.showConnectWidget && (
+				<ConnectIntegrationWidget
+					integrationType="google-calendar"
+					buttonText="Connect Another Account"
+					onSuccess={handleConnectSuccess}
+				/>
+			)}
+			<GoogleCalendarSettings
+				isOpen={info.showSettings}
+				onClose={toggleSettings}
+				connectedCalendars={info.alreadyConnectedGoogleCalendars}
+				onToggleShowEvents={(val) => updateCalendarInfo('showGoogleEvents', val)}
+				showGoogleEvents={showGoogleEvents}
+			/>
 		</>
 	);
 };

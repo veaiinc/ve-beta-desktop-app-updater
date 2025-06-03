@@ -1,29 +1,44 @@
 import { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/notesPage/notesPage.scss';
 import QuickActions from '../../components/globalComponents/QuickActions';
-
+import jwtDecode from 'jwt-decode';
 // Components
 import ViewModeSortFilter from '../../components/notesPage/ViewModeSortFilter';
 import CardsViewNotes from '../../components/notesPage/CardsViewNotes';
 import ListViewNotes from '../../components/notesPage/ListViewNotes';
 import Context from '../../../context/context';
+import { useSearchParams } from 'react-router-dom';
 
 const NotesPage = () => {
 	const {
 		notes: { getNotesList, notes },
 	} = useContext(Context);
+	const [searchParams, setSearchParams] = useSearchParams();
 
 	const [info, setInfo] = useState({
-		viewMode: 'cards', // cards, list
+		viewMode: searchParams?.get('viewMode') || 'list', // cards, list
 		selectedFilter: { label: 'All', value: 'all' },
 		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
+		userId: null,
 	});
 
 	useEffect(() => {
 		fetchNotes({ page: 1 });
 	}, [info?.selectedFilter?.value, info?.selectedSort]);
 
-	const fetchNotes = async ({ page = 1, limit = 20, append = false }) => {
+	useEffect(() => {
+		setSearchParams({ viewMode: info?.viewMode });
+	}, [info?.viewMode]);
+
+	useEffect(() => {
+		const token = localStorage.getItem('usertoken');
+		if (token) {
+			const { user_id } = jwtDecode(token);
+			setInfo((prev) => ({ ...prev, userId: user_id }));
+		}
+	}, []);
+
+	const fetchNotes = async ({ page = 1, limit = 30, append = false }) => {
 		try {
 			const { value: sortBy, sortType: sortOrder } = info?.selectedSort;
 			const payload = {
@@ -72,6 +87,7 @@ const NotesPage = () => {
 						fetchMoreNotes={fetchNotes}
 						setSelectedFilter={setSelectedFilter}
 						setSelectedSort={setSelectedSort}
+						userId={info?.userId}
 					/>
 				) : info.viewMode === 'list' ? (
 					<ListViewNotes
@@ -79,6 +95,7 @@ const NotesPage = () => {
 						fetchMoreNotes={fetchNotes}
 						setSelectedFilter={setSelectedFilter}
 						setSelectedSort={setSelectedSort}
+						userId={info?.userId}
 					/>
 				) : null}
 			</div>

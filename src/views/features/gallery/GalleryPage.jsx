@@ -208,7 +208,6 @@ const GalleryPage = () => {
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		albumName: '',
 		albumContains: '',
 		showOptions: false,
 		showGalleryOptions: false,
@@ -293,7 +292,6 @@ const GalleryPage = () => {
 		expiryDate: '',
 		showDeletePopup: false,
 		showUploadCover: false,
-		// activeAlbumId: null,
 		albumName: '',
 		showShareAlbum: false,
 		showDownloadAlbum: false,
@@ -310,7 +308,6 @@ const GalleryPage = () => {
 		showCoverButton: false,
 		showAlbumOptionsMenu: false,
 		showAlbumSettings: false,
-
 		galleryLink: null,
 		clientSubscriptionOptions: false,
 		imageProcessingStatus: {
@@ -3362,7 +3359,6 @@ const GalleryPage = () => {
 	// };
 
 	// ... existing code ...
-
 	const handleDownload = async () => {
 		if (
 			validateExpiryData &&
@@ -4171,13 +4167,17 @@ const GalleryPage = () => {
 						</div>
 					</div>
 				)}
-				{/* {info?.scrolledTillEnd && (
+				{info?.scrolledTillEnd && (
 					<div className="galleryTitleWhenScrolled">
-						<span className="galleryTitle">{info?.activeGallery?.title}</span>
-						<span style={{ color: 'white' }}>/</span>
-						<span className="albumTitle">{info?.activeAlbum?.title}</span>
+						{sortByCustomIndex(albumImagesCount?.albums)?.map((album, index) => {
+							return (
+								<div key={index} className="albumTitle">
+									{album?.title} <span>{album?.imagesCount}</span>
+								</div>
+							);
+						})}
 					</div>
-				)}{' '} */}
+				)}
 				{info.activeTab === 'Albums' &&
 					(albumImagesCount?.albums?.length === 0 ? (
 						<div className="noAlbumContainer">
@@ -5193,17 +5193,19 @@ const GalleryPage = () => {
 								title="Albums Not Found"
 								subTitle="It's quiet for now... You haven't missed anything yet! Create your first album to start organizing your memories"
 								extra={
-									<button
-										className="create-album-button"
-										onClick={() =>
-											setInfo((prevData) => ({
-												...prevData,
-												showCreateAlbum: true,
-											}))
-										}
-									>
-										<p>Create Album</p>
-									</button>
+									info.activeTab !== 'Client Selections' && (
+										<button
+											className="create-album-button"
+											onClick={() =>
+												setInfo((prevData) => ({
+													...prevData,
+													showCreateAlbum: true,
+												}))
+											}
+										>
+											<p>Create Album</p>
+										</button>
+									)
 								}
 							/>
 						</div>
@@ -5676,22 +5678,24 @@ const GalleryPage = () => {
 										</div>
 									)}
 								</div>
-								<div style={{ position: 'relative' }} ref={optionsIconRef}>
+								{/* <div style={{ position: 'relative' }} ref={optionsIconRef}>
 									<OptionsIcon onClick={handleOptionsIcon} />
 									{info.showAlbumOptionsMenu && (
 										<div className="optionsContainer" ref={optionsContainerRef}>
 											<li onClick={handleDownload}>Download</li>
-											<li
-												style={{
-													cursor:
-														info?.selectedImages.length === 1
-															? 'pointer'
-															: 'not-allowed',
-												}}
-												onClick={() => handleSetAlbumCover()}
-											>
-												Set Album cover
-											</li>
+											{info?.activeTab !== 'Client Selections' && (
+												<li
+													style={{
+														cursor:
+															info?.selectedImages.length === 1
+																? 'pointer'
+																: 'not-allowed',
+													}}
+													onClick={() => handleSetAlbumCover()}
+												>
+													Set Album cover
+												</li>
+											)}
 											<li
 												style={{
 													cursor:
@@ -5703,20 +5707,75 @@ const GalleryPage = () => {
 											>
 												Set Gallery cover
 											</li>
-											{/* <li>Share</li> */}
-											<li
-												onClick={() =>
-													setInfo((prev) => ({
-														...prev,
-														showImageDeletePopup: true,
-													}))
-												}
-											>
-												Delete
-											</li>
+
+											{info?.activeTab !== 'Client Selections' && (
+												<li
+													onClick={() =>
+														setInfo((prev) => ({
+															...prev,
+															showImageDeletePopup: true,
+														}))
+													}
+												>
+													Delete
+												</li>
+											)}
 										</div>
 									)}
-								</div>
+								</div> */}
+								<Tooltip
+									title={
+										<div
+											className="optionsContainer"
+											ref={optionsContainerRef}
+											style={{ marginBottom: '15px' }}
+										>
+											<li onClick={handleDownload}>Download</li>
+											{info?.activeTab !== 'Client Selections' && (
+												<li
+													style={{
+														cursor:
+															info?.selectedImages.length === 1
+																? 'pointer'
+																: 'not-allowed',
+													}}
+													onClick={() => handleSetAlbumCover()}
+												>
+													Set Album cover
+												</li>
+											)}
+											<li
+												style={{
+													cursor:
+														info?.selectedImages.length === 1
+															? 'pointer'
+															: 'not-allowed',
+												}}
+												onClick={() => handleSetGalleryCover()}
+											>
+												Set Gallery cover
+											</li>
+
+											{info?.activeTab !== 'Client Selections' && (
+												<li
+													onClick={() =>
+														setInfo((prev) => ({
+															...prev,
+															showImageDeletePopup: true,
+														}))
+													}
+												>
+													Delete
+												</li>
+											)}
+										</div>
+									}
+									placement="top"
+									trigger={'click'}
+									arrow={false}
+								>
+									<OptionsIcon />
+								</Tooltip>
 							</div>
 						)}
 					</div>

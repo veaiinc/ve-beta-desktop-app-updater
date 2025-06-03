@@ -224,6 +224,7 @@ const Notifications = () => {
 									checked={info?.[appType]}
 									onChange={() => handleNotificationMethodChange(appType)}
 									size="small"
+									className="notification-switch"
 								/>
 							</div>
 						</div>

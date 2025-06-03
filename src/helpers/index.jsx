@@ -7,7 +7,7 @@ import { ReactComponent as JpgSvg } from '../assets/svg/ai_agents/jpg.svg';
 import { ReactComponent as PngSvg } from '../assets/svg/ai_agents/png.svg';
 import { ReactComponent as MdSvg } from '../assets/svg/ai_agents/md.svg';
 import { ReactComponent as ExcelSvg } from '../assets/svg/ai_agents/excel.svg';
-import { ReactComponent as GmailSvg } from '../assets/svg/login_page/gmail.svg';
+import GmailSvg from '../assets/svg/login_page/GmailIcon';
 import { ReactComponent as SlackSvg } from '../assets/svg/slack.svg';
 import { ReactComponent as NotionSvg } from '../assets/svg/notion.svg';
 import { ReactComponent as VeLogoSvg } from '../assets/svg/veLogo.svg';

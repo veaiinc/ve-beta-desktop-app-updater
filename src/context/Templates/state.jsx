@@ -112,10 +112,10 @@ export const intialState = {
 		selectedLLMModel: null,
 		agentType: null,
 		assistantId: null,
-		ask: {
-			workspaceSearch: true,
-			webSearch: false,
-		},
+		build: false,
+		webSearch: true,
+		workspaceSearch: true,
+		ask: true,
 		reason: {
 			workspaceSearch: false,
 			webSearch: false,

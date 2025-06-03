@@ -15,7 +15,7 @@ import '../elementPopup.scss';
 // Image for Api
 
 import Images from '../../../../../controllers/images';
-var randomize = require('randomatic');
+import randomize from 'randomatic';
 
 // modal for library
 
@@ -25,8 +25,7 @@ import ImageLibrary from '../../../imageLibrary';
 // cropper for image
 import Cropper from 'react-easy-crop';
 import { ReactComponent as Delete } from '../../svgs/delete.svg';
-
-var ObjectID = require('bson-objectid');
+import ObjectID from 'bson-objectid';
 export default class InvoiceCardPopup extends Images {
 	constructor(props) {
 		super(props);

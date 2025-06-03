@@ -21,19 +21,19 @@ const ViewModeSortFilter = ({ viewMode, setViewMode, setSelectedFilter, setSelec
 			<div className="viewModeAndFilters">
 				<div className="viewMode">
 					<button
+						onClick={() => setViewMode('list')}
+						aria-label="Switch to list view"
+						className={`viewModeIcon ${viewMode === 'list' ? 'active' : ''}`}
+					>
+						<ListViewIcon active={viewMode === 'list'} />
+					</button>
+					<button
 						onClick={() => setViewMode('cards')}
 						aria-label="Switch to card view"
 						className={`viewModeIcon ${viewMode === 'cards' ? 'active' : ''}`}
 					>
 						<CardsViewIcon active={viewMode === 'cards'} />
 					</button>
-					{/* <button
-						onClick={() => setViewMode('list')}
-						aria-label="Switch to list view"
-						className={`viewModeIcon ${viewMode === 'list' ? 'active' : ''}`}
-					>
-						<ListViewIcon active={viewMode === 'list'} />
-					</button> */}
 				</div>
 				<div className="sortContainer">
 					<SortAndFilterTooltip

@@ -25,7 +25,6 @@
 		background: var(--card-over-card-hover);
 		// box-shadow: 2px 2px 8px 0px rgba(74, 40, 210, 0.06),
 		// 4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
-		backdrop-filter: blur(8px);
 
 		.subscriptionDiv {
 			display: flex;
@@ -54,7 +53,6 @@
 				border-radius: 16px;
 				border: 0.2px solid var(--stroke);
 				background: var(--card-over-card-hover);
-				backdrop-filter: blur(18px);
 				position: relative;
 
 				.pricingDiv {
@@ -521,7 +519,6 @@
 					flex: 1;
 					border-radius: 32px;
 					background: var(--card-over-card-hover);
-					backdrop-filter: blur(8px);
 
 					flex: 1 1 calc(50% - 10px); // 50% width minus half of the gap
 					// min-width: 280px; // Minimum card width/
@@ -746,7 +743,7 @@
 			flex: 1 0 0;
 			border-radius: 24px;
 			background: var(--card-over-card-hover);
-			backdrop-filter: blur(8px);
+
 			user-select: none;
 			.addOnsCardsHeader {
 				display: flex;
