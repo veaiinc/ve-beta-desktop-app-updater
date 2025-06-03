@@ -25,7 +25,6 @@ const SelectDropdown = ({
 	);
 
 	const handleSelect = (option) => {
-		console.log('Selected option:', option); // Debug: Confirm selection
 		setOption(option);
 		setVisible(false);
 		setSearchValue('');
@@ -33,7 +32,6 @@ const SelectDropdown = ({
 
 	const handleClickOutside = (event) => {
 		if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-			console.log('Clicked outside, closing dropdown'); // Debug: Confirm outside click
 			setVisible(false);
 		}
 	};
@@ -54,20 +52,35 @@ const SelectDropdown = ({
 	return (
 		<div className={s.selectDropdownContainer} ref={dropdownRef}>
 			<Tooltip
-				trigger="click"
+				trigger={[]}
 				placement="bottomLeft"
 				color="transparent"
-				visible={visible}
-				onVisibleChange={(v) => {
-					console.log('Tooltip visibility:', v); // Debug: Confirm tooltip toggle
-					setVisible(v);
+				open={visible}
+				onOpenChange={() => {}}
+				overlayInnerStyle={{
+					padding: 0,
+					backgroundColor: 'var(--card, #181a1b)',
+					border: '1px solid var(--stroke, #2c2d2e)',
+					borderRadius: '8px',
 				}}
-				overlayInnerStyle={{ padding: 0 }}
+				overlayClassName={s.buildTooltipWrapper}
 				title={
 					<div
 						className={s.buildTooltipContainer}
-						onClick={(e) => e.stopPropagation()} // Prevent clicks inside tooltip from closing it
+						onMouseDown={(e) => e.preventDefault()}
 					>
+						{searchable && (
+							<input
+								type="text"
+								className={s.searchInput}
+								placeholder="Search..."
+								value={searchValue}
+								onChange={(e) => setSearchValue(e.target.value)}
+								onClick={(e) => e.stopPropagation()}
+								onMouseDown={(e) => e.stopPropagation()}
+								autoFocus
+							/>
+						)}
 						{filteredOptions.length > 0 ? (
 							filteredOptions
 								.filter((option) => !option.disabled)
@@ -75,12 +88,11 @@ const SelectDropdown = ({
 									<div
 										className={s.option}
 										key={option.value}
-										onClick={(e) => {
-											// e.stopPropagation(); // Prevent click from bubbling to tooltip
-											console.log('Option clicked:', option); // Debug: Confirm option click
+										onMouseDown={(e) => {
+											e.preventDefault();
+											e.stopPropagation();
 											handleSelect(option);
 										}}
-										style={{ cursor: 'pointer', padding: '8px' }} // Ensure clickable
 									>
 										{option.label}
 									</div>
@@ -95,9 +107,8 @@ const SelectDropdown = ({
 					className={s.selectDropdown}
 					style={visible && searchable ? customStyles : {}}
 					onClick={(e) => {
-						e.stopPropagation(); // Prevent double toggling
-						console.log('Dropdown clicked, opening'); // Debug: Confirm dropdown click
-						setVisible(true);
+						e.stopPropagation();
+						setVisible(!visible);
 					}}
 				>
 					{children}
@@ -109,7 +120,8 @@ const SelectDropdown = ({
 							value={searchValue}
 							onChange={(e) => setSearchValue(e.target.value)}
 							autoFocus
-							onClick={(e) => e.stopPropagation()} // Prevent input click from toggling
+							onClick={(e) => e.stopPropagation()}
+							onMouseDown={(e) => e.stopPropagation()}
 							style={inputCustomStyles}
 						/>
 					) : (
