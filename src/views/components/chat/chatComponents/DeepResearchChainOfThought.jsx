@@ -1,12 +1,12 @@
 import { memo } from 'react';
 import '../../../../assets/scss/chat/chatComponents/deepResearchChainOfThought.scss';
-import { Markdown } from '../../../../helpers/markdownHelper';
 import { ReactComponent as HashTagSvg } from '../../../../assets/svg/ai_agents/hash-tag.svg';
 import { ReactComponent as CurveSvg } from '../../../../assets/svg/ai_agents/curve.svg';
 import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
 import Sources from './Sources';
 import SmoothExpand from './SmoothExpand';
+import { updateCitationIdsWithCitations } from '../../../../helpers/chatHelpers';
 
 const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false, streamEnd = true }) => {
 	return (
@@ -23,9 +23,10 @@ const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false, strea
 									data?.sections?.length > 0 ||
 									showLastIndicatorLine) && <div className="line" />}
 								<div className="step">
-									<Markdown citations={item?.citations || []}>
-										{item?.step || ''}
-									</Markdown>
+									{updateCitationIdsWithCitations(
+										item?.step || '',
+										item?.citations || [],
+									)}
 
 									{item?.tool && (
 										<div className="tool-container">
@@ -91,7 +92,10 @@ const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false, strea
 														const { tool, queries, sources } =
 															reading?.reading || {};
 														return (
-															<SmoothExpand animate={!streamEnd}>
+															<SmoothExpand
+																animate={!streamEnd}
+																key={idx}
+															>
 																<div className="reading" key={idx}>
 																	{queries?.length > 0 && (
 																		<div className="queries-wrapper">
@@ -220,8 +224,11 @@ const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false, strea
 														const { tool, queries, sources } =
 															reading?.reading || {};
 														return (
-															<SmoothExpand animate={!streamEnd}>
-																<div className="reading" key={idx}>
+															<SmoothExpand
+																animate={!streamEnd}
+																key={idx}
+															>
+																<div className="reading">
 																	{queries?.length > 0 && (
 																		<div className="queries-wrapper">
 																			<div className="tool-container">

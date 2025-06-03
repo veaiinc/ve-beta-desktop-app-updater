@@ -3,7 +3,7 @@
 		.cot-container {
 			display: flex;
 			flex-direction: column;
-			gap: 8px;
+			gap: 24px;
 
 			.cot {
 				display: flex;
@@ -101,7 +101,6 @@
 							flex-direction: column;
 							gap: 8px;
 							margin-top: 8px;
-							margin-bottom: 16px;
 							.text-container {
 								color: var(--secondary-font, #95989d);
 								font-family: var(--chat-primary-font-family);
