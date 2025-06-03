@@ -9,7 +9,10 @@ import { ReactComponent as RocketSvg } from '../../../../assets/svg/home_page/ro
 import { ReactComponent as BulbSvg } from '../../../../assets/svg/home_page/bulb.svg';
 import CreditCoinImage from '../../../../assets/images/creditCoin.png';
 import { ReactComponent as ArrowUpRightSvg } from '../../../../assets/svg/sidebar/arrowupright.svg';
-import { handleCombinedChainOfThought } from '../../../../helpers/chatHelpers';
+import {
+	handleCombinedChainOfThought,
+	updateCitationIdsWithCitations,
+} from '../../../../helpers/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
@@ -262,7 +265,7 @@ const AISuggestionsModal = ({
 		suggested_prompts,
 		usages,
 		informationRequests,
-		category,
+		categories,
 		crux,
 		createdAt,
 		thinker_sources,
@@ -282,10 +285,10 @@ const AISuggestionsModal = ({
 			open={open}
 			onClose={onClose}
 			placement="right"
-			width={'fit-content'}
+			width={'auto'}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px', width: 'fit-content' }}
+			bodyStyle={{ padding: '0px', width: 'auto' }}
 			rootClassName="ai-suggestions-drawer"
 			destroyOnClose={true}
 			maskClassName="drawer-mask"
@@ -473,8 +476,8 @@ const AISuggestionsModal = ({
 											</div>
 										</Tooltip>
 									)}
-									{category?.length > 0 &&
-										category?.map((category, idx) => (
+									{categories?.length > 0 &&
+										categories?.map((category, idx) => (
 											<div key={idx} className="category">
 												{category}
 											</div>
@@ -526,7 +529,10 @@ const AISuggestionsModal = ({
 										}
 										key="1"
 									>
-										<div className="ai-results-wrapper">
+										<div
+											className="ai-results-wrapper"
+											onClick={(e) => e?.stopPropagation()}
+										>
 											<div className="results-container">
 												{Array?.isArray(solutions)
 													? solutions?.map((item, index) => (
@@ -536,7 +542,10 @@ const AISuggestionsModal = ({
 																onClick={() => handleClickRun(item)}
 															>
 																<div className="result-text">
-																	{item}
+																	{updateCitationIdsWithCitations(
+																		item,
+																		thinker_sources || [],
+																	)}
 																</div>
 																<div className="logo-container">
 																	<BulbSvg />
@@ -556,7 +565,10 @@ const AISuggestionsModal = ({
 																onClick={() => handleClickRun(item)}
 															>
 																<div className="result-text">
-																	{item}
+																	{updateCitationIdsWithCitations(
+																		item,
+																		thinker_sources || [],
+																	)}
 																</div>
 
 																<div className="logo-container">
@@ -593,7 +605,11 @@ const AISuggestionsModal = ({
 																				<ArrowRightSvg />
 																			</div>
 																			<div className="item-text">
-																				{item}
+																				{updateCitationIdsWithCitations(
+																					item,
+																					thinker_sources ||
+																						[],
+																				)}
 																			</div>
 																		</div>
 																	),
@@ -798,7 +814,10 @@ const AISuggestionsModal = ({
 							<div className="cot">
 								<div className="chain-of-thought-container">
 									<div className="chain-of-thought-content">
-										<CombinedChainOfThought data={info?.chainOfThoughtData} />
+										<CombinedChainOfThought
+											data={info?.chainOfThoughtData}
+											citations={thinker_sources || []}
+										/>
 									</div>
 								</div>
 							</div>
