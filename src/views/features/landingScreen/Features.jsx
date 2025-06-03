@@ -1,8 +1,6 @@
 import { memo, useRef } from 'react';
 import s from '../../../assets/scss/landingScreen/features.module.scss';
-import feature1 from '../../../assets/images/feature1Image.png';
 import feature2 from '../../../assets/images/feature2Image.png';
-import feature3 from '../../../assets/images/feature3Image.png';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -150,7 +148,11 @@ const Features = () => {
 		},
 	];
 
-	const images = [feature1, feature2, feature3];
+	const images = [
+		'https://ap.images.ve.ai/public/dashboard/proactive-cards.png',
+		feature2,
+		'https://ap.images.ve.ai/public/dashboard/chat.png',
+	];
 
 	return (
 		<div className={s.featuresContainer} ref={featuresRef}>
