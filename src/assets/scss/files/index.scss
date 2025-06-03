@@ -142,7 +142,7 @@
 
 	.card-item-style {
 		position: relative;
-		background-color: var(--card, #171819);
+		// background-color: var(--card, #171819);
 		background-size: 'fit';
 		background-position: center;
 		background-repeat: no-repeat;
@@ -454,7 +454,7 @@
 		justify-content: center;
 		align-items: center;
 		gap: 10px;
-		background-color: var(--card, #171819);
+		// background-color: var(--card, #171819);
 		border: 1px solid var(--stroke);
 		.card-btn {
 			display: flex;

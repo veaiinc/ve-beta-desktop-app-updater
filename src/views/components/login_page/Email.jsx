@@ -232,10 +232,10 @@ const Email = ({
 					</h1>
 				)}
 				<h1 className="login-page-title">
-					<span className="title-one">AI.&nbsp; </span>
-					<span className="title-two">truly yours</span>
+					{/* <span className="title-one">AI.&nbsp; </span> */}
+					<span className="title-two">Own your memory</span>
 				</h1>
-				<h2 className="login-page-subtitle">Answers before you Ask!</h2>
+				<h2 className="login-page-subtitle">AI Memory OS</h2>
 			</div>
 			<div className="login-button-container">
 				{info?.isHostnameVeDotAi ? (
@@ -245,13 +245,16 @@ const Email = ({
 							className="google-login-button"
 							onClick={handleContinueWithGoogle}
 						>
+							<div className="google-logo-container">
+
 							<GoogleLogo />
 							<p>Continue with Google</p>
+							</div>
 							{info?.googleLoading && (
 								<Spinner
-									width="20px"
-									height="20px"
-									color="var(--background-color)"
+									width="18px"
+									height="18px"
+									color="var(--primary-button)"
 									borderTopColor="transparent"
 								/>
 							)}
@@ -310,26 +313,10 @@ const Email = ({
 								</span>
 							)}
 						</button>
-						
 					</div>
 				)}
 
-				<p className="disclaimer">
-					By continuing, you accept our
-					<br />
-					<b onClick={() => navigate('/terms-of-service')} className="link">
-						Terms of Service
-					</b>
-					,{' '}
-					<b onClick={() => navigate('/privacy-policy')} className="link">
-						Privacy Policy
-					</b>{' '}
-					and{' '}
-					<b onClick={() => navigate('/cookie-policy')} className="link">
-						Cookie Policy
-					</b>
-					.
-				</p>
+
 			</div>
 		</>
 	);

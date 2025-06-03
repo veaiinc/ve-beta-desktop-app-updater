@@ -5,6 +5,7 @@ import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import BuildOptions from './BuildOptions';
 import Suggestions from './Suggestions';
+import Sintegrations from './suggestedIntegrations/Sintegrations';
 
 const AskMe = () => {
 	const navigate = useNavigate();
@@ -48,6 +49,9 @@ const AskMe = () => {
 			</div>
 			{chatInfo?.build && info?.chatQuery?.length === 0 && <BuildOptions />}
 			{info?.showSuggestions && <Suggestions />}
+			<div className="home-page-container-footer">
+				<Sintegrations />
+			</div>
 		</div>
 	);
 };

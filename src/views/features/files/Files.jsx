@@ -707,6 +707,7 @@ const Files = () => {
 						<div className="beta-text">File Flow Inspired by Your Mind</div> */}
 					</span>
 					<div className="storage-header-items">
+						<div>Shiva</div>
 						<QuickActions suggestedOptions={suggestedOptions} />
 					</div>
 				</div>
@@ -726,9 +727,9 @@ const Files = () => {
 											}`}
 											onClick={() => handleDropdownOptionClick(option?.label)}
 										>
-											{info?.selectedView === option?.label && (
+											{/* {info?.selectedView === option?.label && (
 												<span className="sidebar-option-active-indicator"></span>
-											)}
+											)} */}
 											<div
 												style={{
 													display: 'flex',
