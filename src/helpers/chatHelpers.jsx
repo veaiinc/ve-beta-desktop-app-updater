@@ -1,3 +1,5 @@
+import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
+
 export const handleDeepSearchChainOfThought = (chainOfThought) => {
 	const cot = [];
 
@@ -9,6 +11,26 @@ export const handleDeepSearchChainOfThought = (chainOfThought) => {
 	}
 
 	return { cot };
+};
+
+export const updateCitationIdsWithCitations = (input, citations = []) => {
+	const regex = /\[C\d+\]/g;
+	const parts = input?.split(regex);
+	const matches = input?.match(regex) || [];
+
+	const result = [];
+
+	parts?.forEach((part, index) => {
+		result?.push(<span key={`text-${index}`}>{part}</span>);
+
+		const match = matches[index];
+		if (match) {
+			const id = match?.slice(1, -1);
+			result?.push(<CitationsTooltip key={index} citationId={id} citations={citations} />);
+		}
+	});
+
+	return result;
 };
 
 export const handleDeepResearchChainOfThought = (chainOfThought) => {
