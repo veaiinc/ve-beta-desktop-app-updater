@@ -98,7 +98,6 @@ const LandingPage = () => {
 					<HowItWorks />
 					<Features />
 					<div className="responsive-spacer"></div>
-
 					<EarlyAccess />
 					<Footer />
 				</div>
