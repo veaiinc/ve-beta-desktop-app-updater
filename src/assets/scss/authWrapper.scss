@@ -11,11 +11,6 @@
 		flex-direction: column;
 		position: relative;
 
-		.auth-wrapper-container {
-			transition: padding-left 0.3s cubic-bezier(0.2, 0, 0, 1);
-			transform-origin: left center;
-		}
-
 		.childrenContainer {
 			flex: 1;
 			// padding: 1.5rem 6rem 3rem 6rem;

@@ -157,54 +157,62 @@
 @media screen and (max-width: 768px) {
 	.howItWorks {
 		padding: 0px 16px;
-	}
 
-	.howItWorks .top {
-		gap: 16px;
-	}
+		.top {
+			gap: 16px;
 
-	.howItWorks .top .titleContainer .secondaryText span {
-		font-size: 12px;
-		line-height: 16px;
-	}
+			.titleContainer {
+				.secondaryText span {
+					font-size: 12px;
+					line-height: 16px;
+				}
 
-	.howItWorks .top .titleContainer .title {
-		font-size: 32px;
-		line-height: 36px;
-	}
+				.title {
+					font-size: 32px;
+					line-height: 36px;
+				}
+			}
 
-	.howItWorks .top .subTitle {
-		font-size: 14px;
-		line-height: 24px;
-	}
+			.subTitle {
+				font-size: 14px;
+				line-height: 24px;
+			}
+		}
 
-	.howItWorks .bottom .feature .image {
-		height: 240px;
-	}
+		.bottom {
+			.feature {
+				.image {
+					height: 240px;
+				}
 
-	.howItWorks .bottom .feature .textContainer .feature__title {
-		font-size: 18px;
-		line-height: 24px;
-	}
+				.textContainer {
+					.feature__title {
+						font-size: 18px;
+						line-height: 24px;
+					}
 
-	.howItWorks .bottom .feature .textContainer .feature__description {
-		font-size: 14px;
-		line-height: 24px;
+					.feature__description {
+						font-size: 14px;
+						line-height: 24px;
+					}
+				}
+			}
+		}
 	}
 }
 
 @media screen and (max-width: 900px) {
 	.howItWorks {
 		gap: 8px;
-	}
 
-	.howItWorks .bottom {
-		flex-direction: column;
+		.bottom {
+			flex-direction: column;
+		}
 	}
 }
 
 @media screen and (max-width: 1260px) {
-	.howItWorks .bottom {
+	.howItWorks {
 		flex-wrap: wrap;
 	}
 }

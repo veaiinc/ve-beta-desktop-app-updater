@@ -98,20 +98,22 @@
 @media screen and (max-width: 768px) {
 	.tagLine {
 		padding: 32px 0px;
-	}
 
-	.tagLine .container .top {
-		gap: 16px;
-		padding: 0 6px;
-	}
+		.container {
+			.top {
+				gap: 16px;
+				padding: 0 6px;
 
-	.tagLine .container .top .heading {
-		font-size: 26px;
-		line-height: 36px;
-	}
+				.heading {
+					font-size: 26px;
+					line-height: 36px;
+				}
 
-	.tagLine .container .top .subHeading {
-		font-size: 14px;
-		line-height: 18px;
+				.subHeading {
+					font-size: 14px;
+					line-height: 18px;
+				}
+			}
+		}
 	}
 }

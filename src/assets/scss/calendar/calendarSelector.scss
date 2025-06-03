@@ -213,6 +213,10 @@
 				background: var(--card-over-card);
 			}
 
+			&.unselectedRow {
+				border: 1px solid transparent;
+			}
+
 			.calendarDay {
 				color: var(--primary-font);
 				font-family: var(--primary-font-family);

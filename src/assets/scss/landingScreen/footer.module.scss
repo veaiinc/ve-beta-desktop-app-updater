@@ -282,124 +282,134 @@
 	.footer {
 		padding: 30px 20px;
 		gap: 50px;
-	}
 
-	.footer .container .top .top__leftPart {
-		gap: 24px;
-		align-items: center;
-		text-align: center;
-	}
+		.container {
+			.top {
+				.top__leftPart {
+					gap: 24px;
+					align-items: center;
+					text-align: center;
 
-	.footer .container .top .top__leftPart p {
-		font-size: 14px;
-		line-height: 1.5;
-	}
+					p {
+						font-size: 14px;
+						line-height: 1.5;
+					}
 
-	.footer .container .top .top__leftPart .emailInput {
-		gap: 12px;
-	}
+					.emailInput {
+						gap: 12px;
 
-	.footer .container .top .top__leftPart .emailInput .subscribeButton {
-		padding: 10px 20px;
-	}
+						.subscribeButton {
+							padding: 10px 20px;
+						}
+					}
+				}
 
-	.footer .container .top .top__rightPart {
-		flex-direction: row;
-		gap: 111px;
-		align-items: flex-start;
-		padding: 0;
-		width: 100%;
-		justify-content: space-between;
-		margin-left: -44px;
-	}
+				.top__rightPart {
+					flex-direction: row;
+					gap: 111px;
+					align-items: flex-start;
+					padding: 0;
+					width: 100%;
+					justify-content: space-between;
+					margin-left: -44px;
 
-	.footer .container .top .top__rightPart .about {
-		flex: 1;
-		display: flex;
-		justify-content: flex-start;
-	}
+					.about {
+						flex: 1;
+						display: flex;
+						justify-content: flex-start;
 
-	.footer .container .top .top__rightPart .about ul {
-		align-items: flex-start;
-		gap: 8px;
-		width: 100%;
-	}
+						ul {
+							align-items: flex-start;
+							gap: 8px;
+							width: 100%;
 
-	.footer .container .top .top__rightPart .about ul .listHeading {
-		font-size: 16px;
-		line-height: 24px;
-	}
+							.listHeading {
+								font-size: 16px;
+								line-height: 24px;
+							}
 
-	.footer .container .top .top__rightPart .about ul li * {
-		font-size: 14px;
-		line-height: 20px;
-	}
+							li * {
+								font-size: 14px;
+								line-height: 20px;
+							}
+						}
 
-	.footer .container .top .top__rightPart .about:last-child {
-		justify-content: flex-end;
-	}
+						&:last-child {
+							justify-content: flex-end;
+						}
+					}
+				}
+			}
 
-	.footer .container .bottom {
-		align-items: center;
-	}
+			.bottom {
+				align-items: center;
 
-	.footer .container .bottom .bottom__bottomPart_leftPart {
-		flex-direction: column;
-		gap: 12px;
-	}
+				.bottom__bottomPart {
+					&_leftPart {
+						flex-direction: column;
+						gap: 12px;
 
-	.footer .container .bottom .bottom__bottomPart_leftPart .linksContainer * {
-		font-size: 12px;
-		line-height: 18px;
-		padding: 8px 10px;
-	}
+						.linksContainer * {
+							font-size: 12px;
+							line-height: 18px;
+							padding: 8px 10px;
+						}
+					}
 
-	.footer .container .bottom .bottom__bottomPart_rightPart {
-		flex-direction: column;
-		gap: 8px;
-		text-align: center;
-	}
+					&_rightPart {
+						flex-direction: column;
+						gap: 8px;
+						text-align: center;
 
-	.footer .container .bottom .bottom__bottomPart_rightPart div {
-		font-size: 12px;
-		line-height: 18px;
-	}
+						div {
+							font-size: 12px;
+							line-height: 18px;
+						}
 
-	.footer .container .bottom .bottom__bottomPart_rightPart span {
-		font-size: 12px;
-		line-height: 18px;
+						span {
+							font-size: 12px;
+							line-height: 18px;
+						}
+					}
+				}
+			}
+		}
 	}
 }
 
 @media screen and (max-width: 900px) {
-	.footer .container {
-		align-items: center;
-		justify-content: center;
-		gap: 30px;
-	}
+	.footer {
+		.container {
+			align-items: center;
+			justify-content: center;
+			gap: 30px;
 
-	.footer .container .top {
-		flex-direction: column;
-		gap: 50px;
-		align-items: center;
-		justify-content: center;
-	}
+			.top {
+				flex-direction: column;
+				gap: 50px;
+				align-items: center;
+				justify-content: center;
 
-	.footer .container .top .top__rightPart {
-		gap: 50px;
-		width: 100%;
-		justify-content: space-between;
-	}
+				.top__rightPart {
+					gap: 50px;
+					width: 100%;
+					justify-content: space-between;
+				}
+			}
 
-	.footer .container .bottom .bottom__topPart {
-		flex-direction: column;
-		gap: 20px;
-		align-items: center;
-	}
+			.bottom {
+				.bottom__topPart {
+					flex-direction: column;
+					gap: 20px;
+					align-items: center;
+				}
 
-	.footer .container .bottom .bottom__bottomPart {
-		flex-direction: column;
-		gap: 20px;
-		align-items: center;
+				.bottom__bottomPart {
+					flex-direction: column;
+					gap: 20px;
+					align-items: center;
+				}
+			}
+		}
 	}
 }
