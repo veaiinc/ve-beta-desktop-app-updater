@@ -86,7 +86,8 @@ export const CitationsTooltip = memo(({ citationId, citations = [], placement = 
 			title={
 				<div
 					className="citation-tooltip-container"
-					onClick={() => {
+					onClick={(e) => {
+						e?.stopPropagation();
 						redirectTo?.(
 							citationInfo?.type,
 							citationInfo?.[redirectTypeMapper?.[citationInfo?.type]],

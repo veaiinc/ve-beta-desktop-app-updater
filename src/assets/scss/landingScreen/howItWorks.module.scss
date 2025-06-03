@@ -40,13 +40,9 @@
 				font-size: 55px;
 				font-style: normal;
 				font-weight: 600;
-				line-height: 65px; /* 118.182% */
+				line-height: 65px;
 				display: flex;
 				flex-direction: column;
-
-				@media screen and (max-width: 550px) {
-					font-size: 47px;
-				}
 
 				.learnsFast {
 					color: var(--primary-button, #79ecc9);
@@ -60,13 +56,9 @@
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
-			line-height: 32px; /* 177.778% */
+			line-height: 32px;
 			width: 100%;
 			max-width: 830px;
-
-			@media screen and (max-width: 550px) {
-				font-size: 15px;
-			}
 		}
 	}
 
@@ -75,14 +67,13 @@
 		font-size: 18px;
 		font-style: normal;
 		font-weight: 500;
-		line-height: 32px; /* 177.778% */
+		line-height: 32px;
 		display: flex;
 		max-width: 1200px;
 		width: 100%;
 		justify-content: center;
 		gap: 30px;
 		align-items: center;
-		// flex-wrap: wrap;
 
 		.feature {
 			display: flex;
@@ -128,7 +119,7 @@
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
-					line-height: 26px; /* 162.5% */
+					line-height: 26px;
 					margin: 0;
 				}
 			}
@@ -162,9 +153,58 @@
 	}
 }
 
+// Media Queries
+@media screen and (max-width: 768px) {
+	.howItWorks {
+		padding: 0px 16px;
+
+		.top {
+			gap: 16px;
+
+			.titleContainer {
+				.secondaryText span {
+					font-size: 12px;
+					line-height: 16px;
+				}
+
+				.title {
+					font-size: 32px;
+					line-height: 36px;
+				}
+			}
+
+			.subTitle {
+				font-size: 14px;
+				line-height: 24px;
+			}
+		}
+
+		.bottom {
+			.feature {
+				.image {
+					height: 240px;
+				}
+
+				.textContainer {
+					.feature__title {
+						font-size: 18px;
+						line-height: 24px;
+					}
+
+					.feature__description {
+						font-size: 14px;
+						line-height: 24px;
+					}
+				}
+			}
+		}
+	}
+}
+
 @media screen and (max-width: 900px) {
 	.howItWorks {
-		padding-inline: 30px;
+		gap: 8px;
+
 		.bottom {
 			flex-direction: column;
 		}
@@ -173,8 +213,6 @@
 
 @media screen and (max-width: 1260px) {
 	.howItWorks {
-		.bottom {
-			flex-wrap: wrap;
-		}
+		flex-wrap: wrap;
 	}
 }

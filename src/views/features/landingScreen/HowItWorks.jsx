@@ -1,8 +1,5 @@
 import { memo } from 'react';
 import s from '../../../assets/scss/landingScreen/howItWorks.module.scss';
-import feature1 from '../../../assets/images/feature1.png';
-import feature2 from '../../../assets/images/feature2.png';
-import feature3 from '../../../assets/images/feature3.png';
 
 const HowItWorks = () => {
 	return (
@@ -28,7 +25,10 @@ const HowItWorks = () => {
 			<div className={s.bottom}>
 				<div className={`${s.feature} ${s.feature1}`}>
 					<div className={s.image}>
-						<img src={feature1} alt="feature 1" />
+						<img
+							src="https://ap.images.ve.ai/public/dashboard/suggestion.png"
+							alt="feature 1"
+						/>
 					</div>
 					<div className={s.textContainer}>
 						<h1 className={s.feature__title}>Senses</h1>
@@ -39,7 +39,10 @@ const HowItWorks = () => {
 				</div>
 				<div className={`${s.feature} ${s.feature2}`}>
 					<div className={s.image}>
-						<img src={feature2} alt="feature 2" />
+						<img
+							src="https://ap.images.ve.ai/public/dashboard/chain-of-taught.png"
+							alt="feature 2"
+						/>
 					</div>
 					<div className={s.textContainer}>
 						<h1 className={s.feature__title}>Thinks</h1>
@@ -51,7 +54,10 @@ const HowItWorks = () => {
 				</div>
 				<div className={`${s.feature} ${s.feature3}`}>
 					<div className={s.image}>
-						<img src={feature3} alt="feature 3" />
+						<img
+							src="https://ap.images.ve.ai/public/dashboard/task.png"
+							alt="feature 3"
+						/>
 					</div>
 					<div className={s.textContainer}>
 						<h1 className={s.feature__title}>Acts</h1>
