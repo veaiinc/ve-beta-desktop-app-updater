@@ -49,8 +49,6 @@ const ContactUs = ({ type }) => {
 		errors: {},
 	});
 
-	console.log(info.formData.companyHeadquarters, info.formData.employees);
-
 	const {
 		templates: { sendContactFormData },
 	} = useContext(Context);
@@ -112,8 +110,6 @@ const ContactUs = ({ type }) => {
 
 		sendContactFormData(info.formData);
 	};
-
-	console.log(info.formData);
 
 	return (
 		<div className="contact-form-wrapper">

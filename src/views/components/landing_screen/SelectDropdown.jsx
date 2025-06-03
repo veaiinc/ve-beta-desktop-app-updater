@@ -52,7 +52,7 @@ const SelectDropdown = ({
 	}, [visible]);
 
 	return (
-		<div ref={dropdownRef}>
+		<div className={s.selectDropdownContainer} ref={dropdownRef}>
 			<Tooltip
 				trigger="click"
 				placement="bottomLeft"
