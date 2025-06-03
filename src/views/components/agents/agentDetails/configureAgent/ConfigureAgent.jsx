@@ -43,7 +43,7 @@ const ConfigureAgent = ({ agentId }) => {
 
 	useEffect(() => {
 		if (!configParam) {
-			setSearchParams({ config: 'instructions' });
+			setSearchParams({ config: 'prompt' });
 		}
 		setInfo((prev) => ({ ...prev, activeNavItem: initialNavItem }));
 	}, []);

@@ -23,7 +23,6 @@ const CreateNewAgentCard = ({ agents = [] }) => {
 
 	const handleCreateAgent = async () => {
 		const agentName = generateRandomAIAgentName();
-		console.log('agentName', agentName);
 		const [success, data] = await createNewKnowledgeAgent(agentName);
 		if (success) {
 			const assistantId = data?.insertedId;
@@ -42,8 +41,12 @@ const CreateNewAgentCard = ({ agents = [] }) => {
 				<div className={s.name}>Create New Agent</div>
 			</div>
 
-			{agents.map((agent, index) => (
-				<div key={agent._id || index} className={s.agentIntroCard}>
+			{agents.map((agent) => (
+				<div
+					onClick={() => navigate(`/agent/${agent._id}?config=prompt`)}
+					key={agent._id}
+					className={s.agentIntroCard}
+				>
 					<div className={s.addIcon}>
 						<div className={s.profileIcon}></div>
 					</div>

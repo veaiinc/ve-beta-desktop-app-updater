@@ -5,6 +5,7 @@ import { getFaviconUrl } from '../../../../../../../helpers';
 
 // components
 import ActionsModal from '../../../../../modalsV2/ai_assistant/ActionsModal';
+import EditAgentTool from '../../../../modals/editAgentTool/EditAgentTool';
 
 // svgs
 import { ReactComponent as SearchSvg } from '../assets/search-icon.svg';
@@ -23,6 +24,7 @@ const ToolsTab = ({ agentId }) => {
 		aiActionList: [],
 		actionsLoading: true,
 		selectedAction: null,
+		editAgentToolOpen: false,
 	});
 
 	useEffect(() => {
@@ -99,12 +101,16 @@ const ToolsTab = ({ agentId }) => {
 			</div>
 
 			<div className={s?.actionsContainer}>
-				<div className={s.gmailTool}>
+				<div
+					onClick={() => setInfo((prev) => ({ ...prev, editAgentToolOpen: true }))}
+					className={s.gmailTool}
+				>
 					<div className={s.gmailIcon}>
 						<GmailIcon />
 					</div>
-					<div className="titleSubtile">
-						<h1 className="title"></h1>
+					<div className={s.titleSubtile}>
+						<h1 className={s.title}>Get Email Thread Content</h1>
+						<p className={s.subTitle}>Let the agent use all shared integrations.</p>
 					</div>
 				</div>
 				{/* {info?.aiActionList?.map((action) => {
@@ -162,6 +168,10 @@ const ToolsTab = ({ agentId }) => {
 				onActionAdded={handleActionAdded}
 				onActionUpdated={handleActionUpdated}
 				selectedAction={info?.selectedAction}
+			/>
+			<EditAgentTool
+				isOpen={info?.editAgentToolOpen}
+				onClose={() => setInfo((prev) => ({ ...prev, editAgentToolOpen: false }))}
 			/>
 		</div>
 	);
