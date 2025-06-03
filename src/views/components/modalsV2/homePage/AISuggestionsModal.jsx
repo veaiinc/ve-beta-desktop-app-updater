@@ -56,6 +56,8 @@ const AISuggestionsModal = ({
 	});
 
 	const resizableContainerRef = useRef(null);
+	const widthRef = useRef(null);
+	const animationFrameId = useRef(null);
 	const mouseXPosition = useRef(null);
 	const navigate = useNavigate();
 	const bodyRef = useRef(null);
@@ -165,33 +167,42 @@ const AISuggestionsModal = ({
 	};
 
 	const handleMouseDown = (e) => {
-		mouseXPosition.current = e?.clientX;
-		document?.addEventListener('mousemove', handleMouseMove);
-		document?.addEventListener('mouseup', handleMouseUp);
+		if (!resizableContainerRef.current) return;
+
+		mouseXPosition.current = e.clientX;
+		widthRef.current = resizableContainerRef.current.offsetWidth;
+
+		document.addEventListener('mousemove', handleMouseMove);
+		document.addEventListener('mouseup', handleMouseUp);
 	};
 
 	const handleMouseMove = (e) => {
-		if (!resizableContainerRef?.current) return;
+		if (!resizableContainerRef.current || widthRef.current == null) return;
+		if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
 
-		const deltaX = mouseXPosition?.current - e?.clientX;
-		const currentWidth = resizableContainerRef?.current?.offsetWidth;
-		const newWidth = currentWidth + deltaX;
+		animationFrameId.current = requestAnimationFrame(() => {
+			const deltaX = mouseXPosition.current - e.clientX;
+			const newWidth = widthRef.current + deltaX;
 
-		const minWidth = 600;
-		const maxWidth = window?.innerWidth * 0.8 || 1000; // 80vw
+			const minWidth = 600;
+			const maxWidth = window.innerWidth * 0.8 || 1000;
+			const clampedWidth = Math.max(minWidth, Math.min(newWidth, maxWidth));
 
-		// Clamp the new width within min and max bounds
-		const clampedWidth = Math?.min(Math?.max(newWidth, minWidth), maxWidth);
+			resizableContainerRef.current.style.width = `${clampedWidth}px`;
+			resizableContainerRef.current.style.userSelect = 'none';
 
-		resizableContainerRef.current.style.width = `${clampedWidth}px`;
-		resizableContainerRef.current.style.userSelect = 'none';
-		mouseXPosition.current = e?.clientX;
+			widthRef.current = clampedWidth;
+			mouseXPosition.current = e.clientX;
+		});
 	};
 
 	const handleMouseUp = () => {
-		resizableContainerRef.current.style.userSelect = 'auto';
-		document?.removeEventListener('mousemove', handleMouseMove);
-		document?.removeEventListener('mouseup', handleMouseUp);
+		if (animationFrameId.current) {
+			cancelAnimationFrame(animationFrameId.current);
+			animationFrameId.current = null;
+		}
+		document.removeEventListener('mousemove', handleMouseMove);
+		document.removeEventListener('mouseup', handleMouseUp);
 	};
 
 	const handleTabClick = (tab) => {
