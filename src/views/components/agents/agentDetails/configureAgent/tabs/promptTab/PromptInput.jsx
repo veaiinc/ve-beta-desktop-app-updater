@@ -6,11 +6,21 @@ import s from './promptInput.module.scss';
 import { useEffect, memo, useContext, useCallback, useState } from 'react';
 import NoteToolbar from '../../../../../notes/NoteToolbar';
 
-const PromptInput = ({ onInputChange }) => {
+const PromptInput = ({ onInputChange, initialContent = '' }) => {
 	const editor = useCreateBlockNote();
 
+	useEffect(() => {
+		if (initialContent) {
+			loadInitialContent();
+		}
+	}, [initialContent]);
+
+	const loadInitialContent = async () => {
+		const blocks = await editor?.tryParseMarkdownToBlocks(initialContent);
+		editor?.replaceBlocks(editor?.document, blocks);
+	};
 	const handleContentChange = async () => {
-		const markdown = await editor.blocksToMarkdownLossy(editor.document);
+		const markdown = await editor?.blocksToMarkdownLossy(editor?.document);
 		onInputChange(markdown);
 	};
 
