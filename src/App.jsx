@@ -9,12 +9,18 @@ import AccessDeniedPopup from './views/components/accessPopups/accessDeniedPopup
 import VoiceWrapper from './views/layouts/VoiceWrapper';
 import CustomToast from './views/components/globalComponents/CustomToast';
 function App() {
+	const currentRoute = window.location.pathname;
+
 	const {
 		themeInfo: { theme },
 	} = useContext(Context);
 
+	// If route is exactly '/' - landing page, force dark theme, otherwise use normal theme logic
 	const themePreference =
-		theme || localStorage?.getItem('theme') || Cookies.get('theme') || 'dark'; // TODO: change this to systemDefault after light theme is good
+		currentRoute === '/'
+			? 'dark'
+			: theme || localStorage?.getItem('theme') || Cookies.get('theme') || 'dark';
+
 	let themeAttribute = themePreference;
 	if (themePreference === 'systemDefault') {
 		themeAttribute = window.matchMedia('(prefers-color-scheme: dark)').matches

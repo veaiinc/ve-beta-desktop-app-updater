@@ -17,7 +17,6 @@ import Features from './Features';
 
 const LandingPage = () => {
 	const {
-		themeInfo: { theme, updateTheme },
 		templates: { updateStateValues, currentSessionId },
 	} = useContext(Context);
 
@@ -47,10 +46,6 @@ const LandingPage = () => {
 			if (isOnboard) return navigate('/home');
 		}
 	}, []);
-
-	useEffect(() => {
-		updateTheme('dark');
-	}, [theme]);
 
 	const handleLoginBtnClick = () => {
 		navigate('/verify-user');
