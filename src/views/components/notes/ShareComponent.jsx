@@ -1,9 +1,12 @@
-import { memo, useState, useEffect, useContext, useRef, useCallback } from 'react';
+import { memo, useState, useEffect, useContext, useRef } from 'react';
 import { message } from '../../components/globalComponents/CustomToast';
 import '../../../assets/scss/notes/shareComponent.scss';
+import '../../../assets/scss/notes/modals/shareModal.scss';
 import Context from '../../../context/context';
 import slugify from 'slugify';
-import ShareModal from '../modalsV2/notes/ShareModal';
+import ShareModal from '../../components/globalComponents/globalShareModal';
+import jwtDecode from 'jwt-decode';
+import moment from 'moment';
 
 const ShareComponent = ({ pageId, makeApiCall = true }) => {
 	const {
@@ -21,18 +24,18 @@ const ShareComponent = ({ pageId, makeApiCall = true }) => {
 			globalAccess,
 			updateGlobalAccess,
 		},
+		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		isOpen: false,
-		tenantUsers: [],
+		activeTab: 'share',
 		inputFocused: false,
-		selectedUsers: [],
-		membersWithAccess: [],
-		accessType: 'full',
-		btnLoading: false,
 		search: '',
-		tenantUserLoading: true,
-		isPublishOpen: false,
+		accessType: 'full',
+		selectedMembers: [],
+		btnLoading: false,
+		globalAccessDropdown: false,
 		isPublished: false,
 		slug: '',
 		expiresAt: null,
@@ -43,6 +46,14 @@ const ShareComponent = ({ pageId, makeApiCall = true }) => {
 
 	const debounceRef = useRef(null);
 	const dateInputRef = useRef(null);
+	const [currentUserId, setCurrentUserId] = useState(null);
+
+	useEffect(() => {
+		const token = localStorage.getItem('usertoken');
+		const { user_id } = jwtDecode(token);
+		setCurrentUserId(user_id);
+	}, []);
+
 	useEffect(() => {
 		if (pageId && makeApiCall) {
 			getNotesPageData({ pageId });
@@ -119,23 +130,40 @@ const ShareComponent = ({ pageId, makeApiCall = true }) => {
 			?.sort((a, b) => a?.fullName?.localeCompare(b?.fullName));
 	};
 
+	const getFilteredTenantUsers = () => {
+		if (!info.search.trim()) {
+			return info.tenantUsers || [];
+		}
+		const searchLower = info.search.toLowerCase();
+		return (info.tenantUsers || []).filter(
+			(user) =>
+				user.fullName.toLowerCase().includes(searchLower) ||
+				user.email.toLowerCase().includes(searchLower),
+		);
+	};
+
 	const handleAddMembers = async (selectedMembers, access) => {
-		const usersPermissionInput = selectedMembers?.map((user) => ({
+		if (!Array.isArray(selectedMembers) || selectedMembers.length === 0) {
+			return false;
+		}
+
+		const usersPermissionInput = selectedMembers.map((user) => ({
 			userId: user?.userId,
 			access,
 		}));
+
 		const response = await addNotesAccess({
 			pageId,
 			usersPermissionInput,
 		});
 
 		if (response?.[0]) {
-			const selectedUserWithAccess = selectedMembers?.map((user) => ({
+			const selectedUserWithAccess = selectedMembers.map((user) => ({
 				...user,
 				access,
 			}));
 			updateNotesState({
-				notesAccess: [...info?.membersWithAccess, ...selectedUserWithAccess],
+				notesAccess: [...(info?.membersWithAccess || []), ...selectedUserWithAccess],
 			});
 
 			message.success(response?.[1]?.message);
@@ -184,38 +212,35 @@ const ShareComponent = ({ pageId, makeApiCall = true }) => {
 		}
 	};
 
-	const handlePublishPage = useCallback(
-		async ({ isPublished, slug, expiresAt }) => {
-			handleInfoChange({ publishLoading: true });
-			const [success, data] = await updatePage({
-				pageId: pageId,
-				input: {
-					isPublished,
-					...(slug && { slug }),
-					expiresAt,
-				},
+	const handlePublishPage = async ({ isPublished, slug, expiresAt }) => {
+		handleInfoChange({ publishLoading: true });
+		const [success, data] = await updatePage({
+			pageId: pageId,
+			input: {
+				isPublished,
+				...(slug && { slug }),
+				expiresAt,
+			},
+		});
+		if (success) {
+			handleInfoChange({
+				isPublished,
+				slug,
+				slugError: '',
+				...(expiresAt && { expiresAt }),
+				prevSlug: slug,
 			});
-			if (success) {
+		} else {
+			if (data?.message?.includes('Slug already exists')) {
 				handleInfoChange({
-					isPublished,
-					slug,
-					slugError: '',
-					...(expiresAt && { expiresAt }),
-					prevSlug: slug,
+					slugError: 'Slug already exists',
 				});
 			} else {
-				if (data?.message?.includes('Slug already exists')) {
-					handleInfoChange({
-						slugError: 'Slug already exists',
-					});
-				} else {
-					message.error(data?.message);
-				}
+				message.error(data?.message);
 			}
-			handleInfoChange({ publishLoading: false });
-		},
-		[pageId],
-	);
+		}
+		handleInfoChange({ publishLoading: false });
+	};
 
 	const handleSlugChange = (e) => {
 		const newSlug = e?.target?.value;
@@ -244,7 +269,10 @@ const ShareComponent = ({ pageId, makeApiCall = true }) => {
 	const handleGlobalAccessUpdate = async (input) => {
 		const payload = {
 			pageId,
-			input,
+			input: {
+				isEnabled: input,
+				access: globalAccess?.access || 'view',
+			},
 		};
 		const response = await updateGlobalAccess(payload);
 		if (response?.[0]) {
@@ -254,26 +282,164 @@ const ShareComponent = ({ pageId, makeApiCall = true }) => {
 		}
 	};
 
+	const handleCopyLink = () => {
+		if (!info?.slug?.trim()) {
+			message.error('Please enter a slug');
+			return;
+		}
+		const domain =
+			tennantSettingsData?.customDomain || `${localStorage.getItem('workspaceId')}.ve.ai`;
+		navigator.clipboard.writeText(`https://${domain}/page/${info?.prevSlug}`);
+		message.success('Link copied to clipboard');
+	};
+
+	const handleViewSite = () => {
+		const domain =
+			tennantSettingsData?.customDomain || `${localStorage.getItem('workspaceId')}.ve.ai`;
+		window.open(`https://${domain}/page/${info?.prevSlug}`, '_blank');
+	};
+
+	const handleDateChange = (e) => {
+		const date = e?.target?.value;
+		const unixDate = date ? moment(date).unix() : null;
+		handlePublishPage({ isPublished: true, expiresAt: unixDate });
+	};
+
+	const openDatePicker = () => {
+		if (document.activeElement === dateInputRef.current) {
+			dateInputRef.current.blur();
+		} else {
+			if (dateInputRef.current?.showPicker) {
+				dateInputRef.current.showPicker();
+			} else {
+				dateInputRef.current.focus();
+			}
+		}
+	};
+
+	const today = new Date();
+	today.setDate(today.getDate() + 1);
+	const minDate = today.toISOString().split('T')[0];
+
 	return (
 		<div className="notes-nav-menu-item-share">
 			<button onClick={() => handleInfoChange({ isOpen: !info.isOpen })}>Share</button>
 			<ShareModal
 				isOpen={info.isOpen}
 				onClose={() => handleInfoChange({ isOpen: false })}
+				// Tabs
+				tabs={[
+					{ value: 'share', label: 'Share' },
+					{ value: 'publish', label: 'Publish' },
+				]}
+				activeTab={info.activeTab}
+				onTabChange={(tab) => handleInfoChange({ activeTab: tab })}
+				showShareTab={true}
+				// Share tab
+				selectedMembers={info.selectedMembers}
+				onMemberSelect={(user) => {
+					if (
+						info?.selectedMembers?.some(
+							(selectedUser) => selectedUser?.userId === user?.userId,
+						)
+					) {
+						handleInfoChange({
+							selectedMembers: info?.selectedMembers?.filter(
+								(selectedUser) => selectedUser?.userId !== user?.userId,
+							),
+						});
+					} else {
+						handleInfoChange({ selectedMembers: [...info?.selectedMembers, user] });
+					}
+				}}
+				onMemberRemove={(user) => {
+					handleInfoChange({
+						selectedMembers: info?.selectedMembers?.filter(
+							(selectedUser) => selectedUser?.userId !== user?.userId,
+						),
+					});
+				}}
+				searchValue={info.search}
+				onSearchChange={(value) => handleInfoChange({ search: value })}
+				onSearchFocus={() => handleInfoChange({ inputFocused: true })}
+				isInputFocused={info.inputFocused}
+				onInputFocusChange={(value) => handleInfoChange({ inputFocused: value })}
+				inviteButtonText="Invite"
+				isInviteLoading={info.btnLoading}
+				onInviteClick={() => handleAddMembers(info.selectedMembers, info.accessType)}
+				accessType={info.accessType}
+				onAccessTypeChange={(value) => handleInfoChange({ accessType: value })}
+				// Members list
 				membersWithAccess={info?.membersWithAccess}
-				allMembers={info?.tenantUsers}
-				onActionClick={handleAddMembers}
-				updateAccess={handleChangeAccess}
+				onAccessChange={handleChangeAccess}
+				currentUserId={currentUserId}
+				// Global access
+				showGlobalAccess={true}
 				globalAccess={globalAccess}
-				handleGlobalAccessUpdate={handleGlobalAccessUpdate}
-				isPublished={info?.isPublished}
-				slug={info?.slug}
-				prevSlug={info?.prevSlug}
-				slugError={info?.slugError}
-				handleSlugChange={handleSlugChange}
-				handlePublishPage={handlePublishPage}
-				expiresAt={info?.expiresAt}
-				publishLoading={info?.publishLoading}
+				onGlobalAccessChange={handleGlobalAccessUpdate}
+				isGlobalAccessDropdownOpen={info.globalAccessDropdown}
+				onGlobalAccessDropdownChange={(value) =>
+					handleInfoChange({ globalAccessDropdown: value })
+				}
+				workspaceImage={tennantSettingsData?.logo_s3_500w_key}
+				businessName={tennantSettingsData?.businessName}
+				// Copy link
+				showCopyLink={true}
+				onCopyLink={handleCopyLink}
+				copyLinkText="Copy Link"
+				// Customization props
+				showAccessControl={true}
+				translations={{
+					invite: 'Invite People',
+					accessControl: 'Access Control',
+					generalAccess: 'General access',
+					publish: 'Publish',
+					unpublish: 'Unpublish',
+					viewSite: 'View Site',
+					linkExpires: 'Link Expires',
+					never: 'Never',
+					onlyPeopleInvited: 'Only People Invited',
+					everyoneInWorkspace: 'Everyone in this workspace',
+					everyoneAtBusiness: 'Everyone at {businessName}',
+					noUserFound: 'No users found',
+					publishToWeb: 'Publish to web',
+					enterEmail: 'Enter Email, separate by commas',
+					suggested: 'Suggested People',
+					you: '(You)',
+				}}
+				// Publish tab
+				showPublishTab={true}
+				isPublished={info.isPublished}
+				slug={info.slug}
+				onSlugChange={handleSlugChange}
+				slugError={info.slugError}
+				domain={
+					tennantSettingsData?.customDomain ||
+					`${localStorage.getItem('workspaceId')}.ve.ai/page/`
+				}
+				onPublishClick={() =>
+					handlePublishPage({
+						isPublished: true,
+						slug: info.slug,
+						expiresAt: info.expiresAt,
+					})
+				}
+				onUnpublishClick={() => handlePublishPage({ isPublished: false })}
+				onViewSiteClick={handleViewSite}
+				publishButtonText="Publish"
+				unpublishButtonText="Unpublish"
+				viewSiteButtonText="View Site"
+				isPublishLoading={info.publishLoading}
+				// Expiration
+				showExpiration={true}
+				expiresAt={info.expiresAt}
+				onExpirationChange={handleDateChange}
+				onDatePickerClick={openDatePicker}
+				dateInputRef={dateInputRef}
+				minDate={minDate}
+				filteredMembers={getFilteredTenantUsers()}
+				// cusotm styles
+				customStyles={{ overflow: 'hidden' }}
 			/>
 		</div>
 	);
