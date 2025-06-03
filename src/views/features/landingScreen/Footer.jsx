@@ -112,7 +112,7 @@ const Footer = () => {
 								))}
 							</div>
 						</div>
-						<button
+						<div
 							className={s.bottom__topPart_rightPart}
 							onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
 							aria-label="Back to top"
@@ -121,7 +121,7 @@ const Footer = () => {
 								<span>Back top </span>
 								<ArrowUp />
 							</div>
-						</button>
+						</div>
 					</div>
 					<div className={s.bottom__bottomPart}>
 						<div className={s.bottom__bottomPart_leftPart}>

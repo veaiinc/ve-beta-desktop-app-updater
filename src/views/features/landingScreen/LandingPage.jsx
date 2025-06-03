@@ -1,4 +1,4 @@
- import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/landingScreen/index.scss';
 import { ReactComponent as VeLogoBlack } from '../../../assets/svg/veLogoBlack.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';

@@ -1,5 +1,6 @@
 import { memo, useRef } from 'react';
 import s from '../../../assets/scss/landingScreen/features.module.scss';
+import feature2 from '../../../assets/images/feature2Image.png';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -19,10 +20,10 @@ const Features = () => {
 		gsap.set(allRefs, { autoAlpha: 0 });
 		gsap.set(progressRef.current?.parentElement, { autoAlpha: 0 }); // hide progress bar initially
 
-		// Reset initial transform for images
 		imageRefs.forEach((ref) => {
 			gsap.set(ref.current, {
-				transform: 'translate(-50%, -50%)',
+				xPercent: -50,
+				yPercent: -50,
 				scale: 0.5,
 				autoAlpha: 0,
 			});
@@ -45,25 +46,21 @@ const Features = () => {
 					});
 				},
 				onLeave: () => {
+					// Hide progress bar when leaving the section
 					gsap.to(progressRef.current?.parentElement, {
 						autoAlpha: 0,
 						duration: 0.4,
 					});
-					// Fade out the last image when leaving the section
-					gsap.to(imageRefs[2].current, {
-						autoAlpha: 0,
-						scale: 0.5,
-						duration: 0.5,
-						ease: 'power2.in',
-					});
 				},
 				onEnterBack: () => {
+					// Show progress bar when coming back to the section
 					gsap.to(progressRef.current?.parentElement, {
 						autoAlpha: 1,
 						duration: 0.4,
 					});
 				},
 				onLeaveBack: () => {
+					// Hide progress bar when leaving back from the section
 					gsap.to(progressRef.current?.parentElement, {
 						autoAlpha: 0,
 						duration: 0.4,
@@ -83,18 +80,8 @@ const Features = () => {
 				})
 				.fromTo(
 					imageRefs[i].current,
-					{
-						scale: 0.5,
-						autoAlpha: 0,
-						transform: 'translate(-50%, -50%)',
-					},
-					{
-						scale: 1,
-						autoAlpha: 1,
-						duration: 0.7,
-						ease: 'power2.out',
-						transform: 'translate(-50%, -35%)',
-					},
+					{ scale: 0.5, autoAlpha: 0 },
+					{ scale: 1, autoAlpha: 1, duration: 0.7, ease: 'power2.out' },
 				);
 
 			if (i < 2) {
@@ -106,13 +93,7 @@ const Features = () => {
 					)
 					.to(
 						imageRefs[i].current,
-						{
-							scale: 0.5,
-							autoAlpha: 0,
-							duration: 0.5,
-							ease: 'power2.in',
-							transform: 'translate(-50%, -50%)',
-						},
+						{ scale: 0.5, autoAlpha: 0, duration: 0.5, ease: 'power2.in' },
 						'-=0.5',
 					);
 			} else {
@@ -169,7 +150,7 @@ const Features = () => {
 
 	const images = [
 		'https://ap.images.ve.ai/public/dashboard/proactive-cards.png',
-		'https://ap.images.ve.ai/public/dashboard/proactive-view.png',
+		feature2,
 		'https://ap.images.ve.ai/public/dashboard/chat.png',
 	];
 
