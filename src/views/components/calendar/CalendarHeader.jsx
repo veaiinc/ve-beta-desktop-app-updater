@@ -32,6 +32,13 @@ const CalendarHeader = ({
 		day: <DayHeader />,
 	};
 
+	const handleToday = useCallback(() => {
+		const today = moment();
+		updateCalendarInfo('currentCalendarDate', today.toDate());
+		updateCalendarInfo('selectedDate', today.toDate());
+		updateCalendarInfo('selectedMonth', today.month());
+	}, [updateCalendarInfo]);
+
 	const handleNavigation = useCallback(
 		(direction) => {
 			const current = moment(selectedDate || currentCalendarDate);
@@ -112,6 +119,9 @@ const CalendarHeader = ({
 				<div className="calendarHeaderContainer">
 					<div className="calendarControls">
 						<div className="calendarDate">
+							<div className="todayButton" onClick={handleToday}>
+								Today
+							</div>
 							<Left
 								onClick={() => goToPrevious(label)}
 								className="calendarDateLeft"

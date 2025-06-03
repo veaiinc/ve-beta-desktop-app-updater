@@ -16,7 +16,7 @@ import UserSvg from '../../../assets/svg/Settings/UserSvg';
 const OverviewContact = () => {
 	const { contactId } = useParams();
 	const {
-		contacts: { getClient, updateClient, deleteClient },
+		contacts: { getClient, updateClient, deleteClient, updateStateValues },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		contact: null,
@@ -70,6 +70,7 @@ const OverviewContact = () => {
 	const handleDelete = async () => {
 		if (!info?.contact?._id) return;
 		await deleteClient({ deleteClientId: info.contact._id });
+		updateStateValues({ clientList: null });
 		navigate('/contacts');
 	};
 
