@@ -158,6 +158,7 @@
 						line-height: 18px;
 					}
 				}
+
 				.footerContainer {
 					width: 100%;
 					display: flex;
@@ -328,7 +329,73 @@
 			flex-direction: column;
 			gap: 12px;
 
-			.noteCard {
+			.createNewNoteContainer {
+				width: 100%;
+				height: 76px;
+				border-radius: 8px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background-color: var(--background-color);
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 20px;
+				cursor: pointer;
+				transition: all 0.2s ease-in-out;
+
+				&:hover {
+					background-color: var(--card);
+					border: 1px solid var(--stroke-hover);
+				}
+
+				.titleAndDescriptionContainer {
+					width: 94%;
+					display: flex;
+					flex-direction: column;
+					justify-content: space-between;
+
+					.title {
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 24px;
+						margin: 0;
+						text-align: left;
+					}
+
+					.description {
+						color: var(--secondary-font, #7a7e85);
+						font-family: var(--primary-font-family);
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 18px;
+						text-align: left;
+					}
+				}
+
+				.footerContainer {
+					width: fit-content;
+					height: 100%;
+					display: flex;
+					justify-content: flex-end;
+					align-items: center;
+
+					.iconContainer {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						padding: 6px;
+						border-radius: 6px;
+						background: var(--primary-button, #79ecc9);
+					}
+				}
+			}
+
+			.noteListItem {
+				width: 100%;
+				height: 56px;
 				display: flex;
 				justify-content: flex-start;
 				align-items: center;

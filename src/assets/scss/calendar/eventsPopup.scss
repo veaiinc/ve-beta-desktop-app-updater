@@ -141,6 +141,10 @@
 				.events-popup-date-input {
 					flex-grow: 1;
 					height: 100%;
+					color: var(--primary-font);
+					&::placeholder {
+						color: var(--primary-font);
+					}
 				}
 
 				.events-popup-time-input {
