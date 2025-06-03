@@ -4,12 +4,13 @@ import s from './configureAgent.module.scss';
 import KnowledgeBaseTab from './tabs/KnowledgeBaseTab';
 import ActionsTab from './tabs/ActionsTab';
 import TriggersTab from './tabs/TriggersTab';
+import PromptTab from './tabs/PromptTab';
 
 const navItems = [
 	{
 		id: 1,
-		label: 'Instructions',
-		value: 'instructions',
+		label: 'Prompt',
+		value: 'prompt',
 	},
 	{
 		id: 2,
@@ -52,6 +53,7 @@ const ConfigureAgent = ({ agentId }) => {
 
 	const componentMapper = useMemo(() => {
 		return {
+			1: <PromptTab />,
 			2: <KnowledgeBaseTab agentId={agentId} />,
 			3: <TriggersTab />,
 			4: <ActionsTab />,
@@ -59,7 +61,7 @@ const ConfigureAgent = ({ agentId }) => {
 	}, [agentId]);
 
 	return (
-		<div className={s.container}>
+		<div className={s.configureAgentContainer}>
 			<nav>
 				<ol>
 					{navItems.map((item) => (

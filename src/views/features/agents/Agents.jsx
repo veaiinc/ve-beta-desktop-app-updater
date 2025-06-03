@@ -1,16 +1,22 @@
-import { memo, useState } from 'react';
+import { memo, useContext, useEffect } from 'react';
 import s from './agents.module.scss';
+import Context from '../../../context/context';
 
 // components
 import QuickActions from '../../components/globalComponents/QuickActions';
 import CreateNewAgentCard from '../../components/agents/createNewAgentCard/CreateNewAgentCard';
-// import AgentDetails from '../../components/agents/agentName/AgentDetails';
-// import RunAndBuildToggle from '../../components/agents/runBuildToggle/RunAndBuildToggle';
-
-// svgs
-import { ReactComponent as LeftCaret } from './assets/left-caret.svg';
 
 const Agents = () => {
+	const {
+		knowledgeAgent: { knowledgeAssistantsList, getKnowledgeAssistantsList },
+	} = useContext(Context);
+
+	useEffect(() => {
+		if (knowledgeAssistantsList === null) {
+			getKnowledgeAssistantsList();
+		}
+	}, []);
+
 	return (
 		<div className={s.agentsContainer}>
 			<h1 className={s.title}>Workflow Agents</h1>

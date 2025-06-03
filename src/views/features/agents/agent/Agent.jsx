@@ -4,7 +4,7 @@ import AgentDetails from '../../../components/agents/agentDetails/AgentDetails';
 
 const Agent = () => {
 	return (
-		<div className={s.container}>
+		<div className={s.agentContainer}>
 			<AgentDetails />
 		</div>
 	);
