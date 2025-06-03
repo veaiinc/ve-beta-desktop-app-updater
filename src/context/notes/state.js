@@ -39,6 +39,9 @@ import {
 	deleteDatabaseFieldMutation,
 	getDatabaseViewsQuery,
 	deleteDatabaseViewMutation,
+	updateFilterMutation,
+	removeFilterMutation,
+	addFilterMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -837,7 +840,7 @@ export const NotesState = (props) => {
 					payload: {
 						[viewId]: {
 							...(state?.rowData?.[viewId] || {}),
-							...response?.[1]?.data?.databaseRows,
+							...response?.[1]?.data?.listDatabaseRows,
 						},
 					},
 				});
@@ -1126,33 +1129,121 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const addFilter = async (payload, blockId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				addFilterMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				const view = state?.views?.[blockId] || [];
+				const newView = view?.map((view) => {
+					if (view?._id === payload?.databaseViewId) {
+						return {
+							...view,
+							filterBy: [...(view?.filterBy || []), response?.[1]?.data?.addFilter],
+						};
+					}
+					return view;
+				});
+
+				console.log('newView', newView);
+
+				dispatch({
+					type: Actions.UPDATE_DATABASE_VIEWS,
+					payload: { [blockId]: newView },
+				});
+			}
+		} catch (error) {
+			console.error('error==>addFilter', error);
+		}
+	};
+
+	const updateFilter = async (payload, blockId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateFilterMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				const view = state?.views?.[blockId] || [];
+				const newView = view?.map((view) => {
+					if (view?._id === payload?.databaseViewId) {
+						return {
+							...view,
+							filterBy: view?.filterBy?.map((filter) =>
+								filter?._id === payload?.filterId
+									? response?.[1]?.data?.updateFilter
+									: filter,
+							),
+						};
+					}
+					return view;
+				});
+				dispatch({
+					type: Actions.UPDATE_DATABASE_VIEWS,
+					payload: { [blockId]: newView },
+				});
+			}
+		} catch (error) {
+			console.error('error==>updateFilter', error);
+		}
+	};
+
+	const removeFilter = async (payload, blockId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				removeFilterMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+
+			if (response?.[0]) {
+				const view = state?.views?.[blockId] || [];
+				const newView = view?.map((view) => {
+					if (view?._id === payload?.databaseViewId) {
+						return {
+							...view,
+							filterBy: view?.filterBy?.filter(
+								(filter) => filter?._id !== payload?.filterId,
+							),
+						};
+					}
+					return view;
+				});
+				dispatch({
+					type: Actions.UPDATE_DATABASE_VIEWS,
+					payload: { [blockId]: newView },
+				});
+			}
+		} catch (error) {
+			console.error('error==>removeFilter', error);
+		}
+	};
+
 	const updateRelatedViews = async ({ updatedRow, updatedField, viewId, databaseId, rowId }) => {
 		try {
-			// TODO: update related views
-			//get all the views with same databseId
-
-			// const views = state?.views?.[databaseId];
-			// console.log('views', state?.views);
-
 			dispatch({
 				type: Actions.UPDATE_RELATED_VIEWS,
 				payload: { updatedRow, viewId, databaseId, rowId },
 			});
-			// views?.forEach((view) => {
-			// 	if (view?._id !== viewId) {
-			// 		const row = state?.rowData?.[view?._id]?.data?.find(
-			// 			(row) => row?._id === updatedRow?._id,
-			// 		);
-			// 		if (row) {
-			// 			row.values = { ...row?.values, ...updatedRow?.values };
-			// 			dispatch({
-			// 				type: Actions.UPDATE_DATABASE_ROWS,
-			// 				payload: { viewId: view?._id, rowId: updatedRow?._id, updatedRow: row },
-			// 			});
-			// 		}
-			// 	}
-			// });
-		} catch (error) {}
+		} catch (error) {
+			console.error('error==>updateRelatedViews', error);
+		}
 	};
 
 	return {
@@ -1197,5 +1288,8 @@ export const NotesState = (props) => {
 		deleteDatabaseField,
 		getDatabaseViews,
 		deleteDatabaseView,
+		addFilter,
+		updateFilter,
+		removeFilter,
 	};
 };

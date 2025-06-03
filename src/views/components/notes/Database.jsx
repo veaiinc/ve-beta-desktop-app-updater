@@ -32,6 +32,7 @@ import PersonMultiSelect from '../tasks/listView/PersonMultiSelect';
 import CreatedWithAi from '../tasks/listView/CreatedWithAi';
 import CustomTextArea from '../globalComponents/CustomTextArea';
 import TaskHeader from '../tasks/listView/TaskHeader';
+import FilterComponent from './DatabseComponents/FilterComponent';
 
 export const rowTypes = {
 	text: TextField,
@@ -69,7 +70,6 @@ const DatabaseComponent = memo(({ block, editor }) => {
 			getDatabase,
 			getDatabaseRows,
 			rowData,
-			updateDatabaseSidebar,
 			updateDatabase,
 			listAvailableDatabases,
 			availableDatabases,
@@ -81,6 +81,8 @@ const DatabaseComponent = memo(({ block, editor }) => {
 
 	const { previousBlocksRef, pageId } = useContext(NotesRefContext);
 	const timeoutRef = useRef(null);
+	const isInitialMount = useRef(true);
+	const lastFetchParams = useRef(null);
 
 	const { databaseId } = block?.props;
 	const sourceBlockId = previousBlocksRef?.current?.get(block?.id)?._id;
@@ -96,95 +98,133 @@ const DatabaseComponent = memo(({ block, editor }) => {
 	});
 
 	const currentDatabase = useMemo(() => database?.[databaseId], [database, databaseId]);
+	const currentDatabaseViews = useMemo(() => views?.[block?.id], [views, block?.id]);
+
 	const currentDatabaseRows = useMemo(
 		() => rowData?.[info?.selectedViewId],
 		[rowData, info?.selectedViewId],
 	);
-	const currentDatabaseViews = useMemo(() => views?.[block?.id], [views, block?.id]);
 
 	const selectedDatabaseView = useMemo(() => {
-		return currentDatabaseViews?.find((view) => view?._id === info?.selectedViewId);
+		if (!currentDatabaseViews?.length) return null;
+
+		// If no selectedViewId, return first view
+		if (!info?.selectedViewId) {
+			return currentDatabaseViews[0];
+		}
+
+		// Find the selected view
+		return (
+			currentDatabaseViews.find((view) => view?._id === info?.selectedViewId) ||
+			currentDatabaseViews[0]
+		);
 	}, [currentDatabaseViews, info?.selectedViewId]);
 
-	useEffect(() => {
-		if (currentDatabaseViews?.length > 0 && !info?.selectedViewId) {
-			const firstViewId = currentDatabaseViews[0]?._id;
+	// Optimized fetch function with duplicate call prevention
+	const fetchDatabaseRows = useCallback(
+		(viewId, filters = null) => {
+			if (!databaseId || !pageId || !viewId) return;
 
-			// Set the view and fetch data in one go
-			setInfo((prev) => ({
-				...prev,
-				selectedViewId: firstViewId,
-			}));
-
-			// Fetch data immediately with the first view ID
-			if (databaseId && pageId) {
-				getDatabaseRows(
-					{
-						pageId,
-						input: {
-							page: 1,
-							limit: 50,
-							databaseId: databaseId,
-						},
-					},
-					firstViewId,
-				);
-			}
-		}
-	}, [currentDatabaseViews, databaseId, pageId, getDatabaseRows]);
-
-	useEffect(() => {
-		if (info?.newDatabase === false) {
-			setInfo({
-				...info,
-				databaseListLoading: true,
+			// Create a unique key for this fetch request
+			const fetchKey = JSON.stringify({
+				databaseId,
+				pageId,
+				viewId,
+				filters: filters || selectedDatabaseView?.filterBy,
 			});
 
+			// Prevent duplicate calls
+			if (lastFetchParams.current === fetchKey) {
+				return;
+			}
+
+			lastFetchParams.current = fetchKey;
+
+			getDatabaseRows(
+				{
+					pageId,
+					databaseId,
+					databaseViewId: viewId,
+					input: {
+						page: 1,
+						limit: 50,
+					},
+				},
+				viewId,
+			);
+		},
+		[databaseId, pageId, getDatabaseRows, selectedDatabaseView?.filterBy],
+	);
+
+	// Initialize view selection effect
+	useEffect(() => {
+		if (!currentDatabaseViews?.length || info?.selectedViewId) return;
+
+		const firstView = currentDatabaseViews[0];
+		if (firstView?._id) {
+			setInfo((prev) => ({
+				...prev,
+				selectedViewId: firstView._id,
+			}));
+		}
+	}, [currentDatabaseViews, info?.selectedViewId]);
+
+	// Fetch rows when view or filters change
+	useEffect(() => {
+		if (!info?.selectedViewId || !selectedDatabaseView) return;
+
+		// Skip initial mount to prevent immediate fetch
+		if (isInitialMount.current) {
+			isInitialMount.current = false;
+			// But still fetch data on initial mount if we don't have any
+			if (!currentDatabaseRows?.data) {
+				fetchDatabaseRows(info.selectedViewId);
+			}
+			return;
+		}
+
+		// Always fetch when filters change or when we don't have data
+		fetchDatabaseRows(info.selectedViewId);
+	}, [
+		info?.selectedViewId,
+		selectedDatabaseView?.filterBy,
+		fetchDatabaseRows,
+		currentDatabaseRows?.data,
+	]);
+
+	// Handle database import list loading
+	useEffect(() => {
+		if (info?.newDatabase === false && !info?.databaseListLoading) {
+			setInfo((prev) => ({ ...prev, databaseListLoading: true }));
 			getAllAvailableDatabases();
 		}
 	}, [info?.newDatabase]);
 
+	// Load database data
 	useEffect(() => {
-		if (pageId && databaseId && !currentDatabase) {
+		if (!pageId || !databaseId) return;
+
+		if (!currentDatabase) {
 			getDatabase({ pageId, databaseId });
-		} else {
-			setInfo({
-				...info,
-				databaseName: currentDatabase?.databaseMetadata?.name || 'Database',
-			});
+		} else if (
+			currentDatabase?.databaseMetadata?.name &&
+			info?.databaseName !== currentDatabase.databaseMetadata.name
+		) {
+			setInfo((prev) => ({
+				...prev,
+				databaseName: currentDatabase.databaseMetadata.name,
+			}));
 		}
-	}, [databaseId, currentDatabase, pageId]);
+	}, [databaseId, currentDatabase, pageId, getDatabase, info?.databaseName]);
 
+	// Load database views
 	useEffect(() => {
-		// Only fetch when selectedViewId changes and we have all required data
-		const hasRequiredData = info?.selectedViewId && databaseId && pageId;
-
-		if (hasRequiredData) {
-			// Only fetch if we don't have data for this specific view
-			const viewData = currentDatabaseRows?.data;
-			if (!viewData) {
-				getDatabaseRows(
-					{
-						pageId,
-						input: {
-							page: 1,
-							limit: 50,
-							databaseId: databaseId,
-						},
-					},
-					info?.selectedViewId,
-				);
-			}
-		}
-	}, [info?.selectedViewId, pageId, databaseId, getDatabaseRows, currentDatabaseRows]);
-
-	useEffect(() => {
-		if (databaseId && !currentDatabaseViews) {
+		if (databaseId && sourceBlockId && !currentDatabaseViews) {
 			getDatabaseViews({ pageId, blockId: sourceBlockId }, block?.id);
 		}
-	}, [databaseId, currentDatabaseViews]);
+	}, [databaseId, sourceBlockId, currentDatabaseViews, getDatabaseViews, pageId, block?.id]);
 
-	// Cleanup timeout on unmount
+	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
 			if (timeoutRef.current) {
@@ -193,60 +233,73 @@ const DatabaseComponent = memo(({ block, editor }) => {
 		};
 	}, []);
 
-	const initializeDatabase = async (databaseId = null) => {
-		let database = null;
+	const initializeDatabase = useCallback(
+		async (selectedDatabaseId = null) => {
+			try {
+				let databaseResult = null;
 
-		if (databaseId) {
-			database = await getDatabase({ pageId, databaseId });
-		} else {
-			database = await createDatabase({
-				pageId: pageId,
-				input: {
-					name: 'Database',
-					fields: [
-						{
-							name: 'Name',
-							type: 'text',
+				if (selectedDatabaseId) {
+					databaseResult = await getDatabase({ pageId, databaseId: selectedDatabaseId });
+				} else {
+					databaseResult = await createDatabase({
+						pageId,
+						input: {
+							name: 'Database',
+							fields: [
+								{
+									name: 'Name',
+									type: 'text',
+								},
+							],
+							sourceBlockId,
 						},
-					],
-					sourceBlockId,
-				},
-			});
-		}
+					});
+				}
 
-		let databaseView = null;
+				if (databaseResult) {
+					const databaseView = await handleCreateDatabaseView(databaseResult._id);
 
-		if (database) {
-			databaseView = await handleCreateDatabaseView(database?._id);
-		}
+					if (databaseView) {
+						editor.updateBlock(block?.id, {
+							props: {
+								databaseId: databaseResult._id,
+							},
+						});
+					}
+				}
+			} catch (error) {
+				console.error('Error initializing database:', error);
+			}
+		},
+		[pageId, sourceBlockId, getDatabase, createDatabase, editor, block?.id],
+	);
 
-		if (databaseView) {
-			editor.updateBlock(block?.id, {
-				props: {
-					databaseId: database?._id,
-				},
-			});
-		}
-	};
+	const handleCreateDatabaseView = useCallback(
+		async (targetDatabaseId) => {
+			try {
+				const order = (currentDatabaseViews?.length ?? 0) + 1;
+				const databaseView = await createDatabaseView(
+					{
+						pageId,
+						input: {
+							blockId: sourceBlockId,
+							databaseId: targetDatabaseId,
+							label: 'Table',
+							type: 'table',
+							order,
+						},
+					},
+					block?.id,
+				);
 
-	const handleCreateDatabaseView = async (databaseId) => {
-		const order = (currentDatabaseViews?.length ?? 0) + 1;
-		const databaseView = await createDatabaseView(
-			{
-				pageId: pageId,
-				input: {
-					blockId: sourceBlockId,
-					databaseId,
-					label: 'Table',
-					type: 'table',
-					order,
-				},
-			},
-			block?.id,
-		);
-
-		return databaseView;
-	};
+				return databaseView;
+			} catch (error) {
+				console.error('Error creating database view:', error);
+				return null;
+			}
+		},
+		[currentDatabaseViews?.length, pageId, sourceBlockId, createDatabaseView, block?.id],
+	);
 
 	const handleDebouncedDatabaseNameUpdate = useCallback(
 		(newName) => {
@@ -255,17 +308,17 @@ const DatabaseComponent = memo(({ block, editor }) => {
 			}
 
 			timeoutRef.current = setTimeout(() => {
-				// Don't make API call if the name is empty or unchanged
-				if (!newName?.trim() || newName === currentDatabase?.databaseMetadata?.name) {
+				const trimmedName = newName?.trim();
+				if (!trimmedName || trimmedName === currentDatabase?.databaseMetadata?.name) {
 					return;
 				}
 
-				if (databaseId) {
+				if (databaseId && pageId) {
 					updateDatabase({
 						pageId,
 						updateDatabaseId: databaseId,
 						input: {
-							name: newName,
+							name: trimmedName,
 						},
 					});
 				}
@@ -277,57 +330,87 @@ const DatabaseComponent = memo(({ block, editor }) => {
 	const handleInfoChange = useCallback(
 		(data = {}) => {
 			setInfo((prev) => ({ ...prev, ...data }));
+
 			if (data.databaseName !== undefined) {
 				handleDebouncedDatabaseNameUpdate(data.databaseName);
 			}
+
+			// Handle view change and fetch rows if needed
+			if (data.selectedViewId && data.selectedViewId !== info?.selectedViewId) {
+				// Reset fetch params when view changes
+				lastFetchParams.current = null;
+			}
 		},
-		[handleDebouncedDatabaseNameUpdate],
+		[handleDebouncedDatabaseNameUpdate, info?.selectedViewId],
 	);
 
 	const getAllAvailableDatabases = useCallback(async () => {
-		await listAvailableDatabases({ pageId });
-		setInfo((prev) => ({ ...prev, databaseListLoading: false }));
-	}, [pageId, info?.databaseListLoading, listAvailableDatabases]);
-
-	const fields = currentDatabase?.databaseMetadata?.fields || [];
-	const rows = currentDatabaseRows?.data || [];
-
-	const columns = useMemo(() => {
-		return fields.map((field) => ({
-			...field,
-			width: 180,
-		}));
-	}, [fields]);
-
-	const allDatabases = useMemo(() => {
-		return availableDatabases || [];
-	}, [availableDatabases]);
+		try {
+			await listAvailableDatabases({ pageId });
+		} catch (error) {
+			console.error('Error fetching available databases:', error);
+		} finally {
+			setInfo((prev) => ({ ...prev, databaseListLoading: false }));
+		}
+	}, [pageId, listAvailableDatabases]);
 
 	const handleDeleteDatabaseView = useCallback(
 		async (viewId) => {
-			const deletedViewIndex = currentDatabaseViews?.findIndex(
-				(view) => view?._id === viewId,
-			);
+			if (!currentDatabaseViews?.length) return;
 
-			const newSelectedViewId =
-				deletedViewIndex === 0
-					? currentDatabaseViews?.[0]?.id
-					: currentDatabaseViews?.[deletedViewIndex - 1]?.id;
+			try {
+				const deletedViewIndex = currentDatabaseViews.findIndex(
+					(view) => view?._id === viewId,
+				);
 
-			await deleteDatabaseView({ pageId, deleteDatabaseViewId: viewId }, block?.id);
-			handleInfoChange({ selectedViewId: newSelectedViewId });
+				if (deletedViewIndex === -1) return;
+
+				// Determine new selected view
+				let newSelectedViewId = null;
+				if (currentDatabaseViews.length > 1) {
+					if (deletedViewIndex === 0) {
+						newSelectedViewId = currentDatabaseViews[1]?._id;
+					} else {
+						newSelectedViewId = currentDatabaseViews[deletedViewIndex - 1]?._id;
+					}
+				}
+
+				await deleteDatabaseView({ pageId, deleteDatabaseViewId: viewId }, block?.id);
+
+				if (newSelectedViewId) {
+					handleInfoChange({ selectedViewId: newSelectedViewId });
+				}
+			} catch (error) {
+				console.error('Error deleting database view:', error);
+			}
 		},
-		[pageId, deleteDatabaseView, block?.id, currentDatabaseViews],
+		[pageId, deleteDatabaseView, block?.id, currentDatabaseViews, handleInfoChange],
 	);
 
 	const handleTabDropdownClick = useCallback(
 		(data) => {
-			if (data?.value === 'delete') {
-				handleDeleteDatabaseView(data?.tabId);
+			if (data?.value === 'delete' && data?.tabId) {
+				handleDeleteDatabaseView(data.tabId);
 			}
 		},
 		[handleDeleteDatabaseView],
 	);
+
+	// Memoized derived values
+	const fields = useMemo(
+		() => currentDatabase?.databaseMetadata?.fields || [],
+		[currentDatabase],
+	);
+	const rows = useMemo(() => currentDatabaseRows?.data || [], [currentDatabaseRows]);
+	const columns = useMemo(
+		() =>
+			fields.map((field) => ({
+				...field,
+				width: 180,
+			})),
+		[fields],
+	);
+	const allDatabases = useMemo(() => availableDatabases || [], [availableDatabases]);
 
 	return (
 		<div className={s.notesDatabaseContainer}>
@@ -349,15 +432,19 @@ const DatabaseComponent = memo(({ block, editor }) => {
 								</div>
 							</div>
 							<div className={s.showDatabaseContainerBody}>
-								{allDatabases?.map((database) => (
-									<div
-										className={s.showDatabaseContainerBodyItem}
-										key={database?._id}
-										onClick={() => initializeDatabase(database?._id)}
-									>
-										{database?.name}
-									</div>
-								))}
+								{info?.databaseListLoading ? (
+									<div>Loading databases...</div>
+								) : (
+									allDatabases.map((database) => (
+										<div
+											className={s.showDatabaseContainerBodyItem}
+											key={database?._id}
+											onClick={() => initializeDatabase(database?._id)}
+										>
+											{database?.name}
+										</div>
+									))
+								)}
 							</div>
 						</div>
 					)}
@@ -377,6 +464,9 @@ const DatabaseComponent = memo(({ block, editor }) => {
 							/>
 							<div className={s.notesDatabaseHeaderButtons}>
 								<button onClick={() => handleInfoChange({ addRowModalOpen: true })}>
+									F
+								</button>
+								<button onClick={() => handleInfoChange({ addRowModalOpen: true })}>
 									Add Row
 								</button>
 								<button
@@ -393,6 +483,13 @@ const DatabaseComponent = memo(({ block, editor }) => {
 								className={s.notesDatabaseHeaderTitle}
 							/>
 						</div>
+						<FilterComponent
+							databaseId={databaseId}
+							view={selectedDatabaseView}
+							fields={fields}
+							pageId={pageId}
+							blockId={block?.id}
+						/>
 					</div>
 					<TableView
 						data={rows}
@@ -401,6 +498,11 @@ const DatabaseComponent = memo(({ block, editor }) => {
 						pageId={pageId}
 						viewId={info?.selectedViewId}
 					/>
+					{currentDatabaseRows?.hasNextPage && (
+						<button className={s.loadMoreButton} onClick={() => {}}>
+							Load More
+						</button>
+					)}
 					<DatabaseAddModal
 						isOpen={info?.addRowModalOpen}
 						onClose={() => handleInfoChange({ addRowModalOpen: false })}
@@ -409,20 +511,12 @@ const DatabaseComponent = memo(({ block, editor }) => {
 						databaseId={databaseId}
 						fields={fields}
 					/>
-
 					<DatabaseAddFieldModal
 						isOpen={info?.addFieldModalOpen}
 						onClose={() => handleInfoChange({ addFieldModalOpen: false })}
 						databaseId={databaseId}
 						pageId={pageId}
 					/>
-
-					{/* <DatabaseSidebar
-						databaseId={databaseId}
-						pageId={pageId}
-						databaseName={info?.databaseName}
-						fields={fields}
-					/> */}
 				</>
 			)}
 		</div>

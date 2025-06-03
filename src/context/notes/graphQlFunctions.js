@@ -455,9 +455,11 @@ export const createDatabaseViewMutation = gql`
 				direction
 			}
 			filterBy {
+				_id
 				fieldId
 				operator
 				value
+				fieldType
 			}
 			groupBy {
 				fieldId
@@ -503,30 +505,39 @@ export const getDatabaseQuery = gql`
 `;
 
 export const getDatabaseRowsQuery = gql`
-	query ListDatabaseRow($pageId: ID!, $input: DatabaseRowsInput!) {
-		databaseRows(pageId: $pageId, input: $input) {
+	query ListDatabaseRows(
+		$pageId: ID!
+		$databaseId: ID!
+		$input: DatabaseRowsInput!
+		$databaseViewId: ID
+	) {
+		listDatabaseRows(
+			pageId: $pageId
+			databaseId: $databaseId
+			input: $input
+			databaseViewId: $databaseViewId
+		) {
 			totalPages
 			totalDocs
 			limit
 			currentPage
 			hasNextPage
-			hasPrevPage
-			prevPage
-			nextPage
 			data {
 				_id
 				values
-				createdAt
 				databaseId
-				updatedAt
 				serialNumber
+				createdAt
+				updatedAt
 				createdBy {
 					_id
 					name
+					email
 				}
 				updatedBy {
 					_id
 					name
+					email
 				}
 			}
 		}
@@ -667,9 +678,11 @@ export const getDatabaseViewsQuery = gql`
 				direction
 			}
 			filterBy {
+				_id
 				fieldId
 				operator
 				value
+				fieldType
 			}
 			groupBy {
 				fieldId
@@ -693,6 +706,68 @@ export const deleteDatabaseViewMutation = gql`
 		deleteDatabaseView(pageId: $pageId, id: $deleteDatabaseViewId) {
 			success
 			message
+		}
+	}
+`;
+
+export const addFilterMutation = gql`
+	mutation AddFilter(
+		$pageId: ID!
+		$databaseViewId: ID!
+		$databaseId: ID!
+		$input: DatabaseFilterInput!
+	) {
+		addFilter(
+			pageId: $pageId
+			databaseViewId: $databaseViewId
+			databaseId: $databaseId
+			input: $input
+		) {
+			fieldId
+			operator
+			value
+			_id
+			filter
+			fieldType
+		}
+	}
+`;
+
+export const removeFilterMutation = gql`
+	mutation DeleteFilter($pageId: ID!, $databaseViewId: ID!, $databaseId: ID!, $filterId: ID!) {
+		deleteFilter(
+			pageId: $pageId
+			databaseViewId: $databaseViewId
+			databaseId: $databaseId
+			filterId: $filterId
+		) {
+			success
+			message
+		}
+	}
+`;
+
+export const updateFilterMutation = gql`
+	mutation UpdateFilter(
+		$pageId: ID!
+		$databaseViewId: ID!
+		$databaseId: ID!
+		$filterId: ID!
+		$input: DatabaseFilterInput!
+	) {
+		updateFilter(
+			pageId: $pageId
+			databaseViewId: $databaseViewId
+			databaseId: $databaseId
+			filterId: $filterId
+			input: $input
+		) {
+			fieldId
+			operator
+			value
+			_id
+			filter
+			fieldType
 		}
 	}
 `;

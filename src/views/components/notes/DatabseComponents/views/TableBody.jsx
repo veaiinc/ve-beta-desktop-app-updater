@@ -86,11 +86,11 @@ const TableBody = ({ data, columns, handleUpdate, colors, pageId, viewId, databa
 
 	return (
 		<div className={s.tableBody}>
-			{data.map((row, rowIndex) => (
-				<div key={rowIndex} className={s.tableRow}>
-					{columns.map((column, colIndex) => (
+			{data.map((row) => (
+				<div key={row?._id} className={s.tableRow}>
+					{columns.map((column) => (
 						<div
-							key={`${rowIndex}-${column._id}`}
+							key={`${row?._id}-${column._id}`}
 							className={`${s.tableCell} ${column.userResized ? s.userResized : ''}`}
 							style={{
 								'--width': `${column?.width}px`,
