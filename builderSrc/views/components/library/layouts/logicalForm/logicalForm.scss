@@ -299,15 +299,15 @@ h3 {
 }
 
 /* Override react-beautiful-dnd default styles */
-[data-rbd-draggable-context-id] {
-	width: 100% !important;
-	left: 0 !important;
-	transform: none !important;
-}
+// [data-rbd-draggable-context-id] {
+// 	width: 100% !important;
+// 	left: 0 !important;
+// 	transform: none !important;
+// }
 
-[data-rbd-drag-handle-draggable-id] {
-	width: 100% !important;
-}
+// [data-rbd-drag-handle-draggable-id] {
+// 	width: 100% !important;
+// }
 
 .form-field[data-rbd-dragging-state='true'] {
 	background: white;
@@ -600,16 +600,16 @@ h3 {
 	display: block;
 }
 
-.input-container {
-	position: relative;
-	width: 712px;
-	display: flex;
-	align-items: center;
+// .input-container {
+// 	position: relative;
+// 	width: 712px;
+// 	display: flex;
+// 	align-items: center;
 
-	@media only screen and (max-width: 768px) {
-		width: 380px !important;
-	}
-}
+// 	@media only screen and (max-width: 768px) {
+// 		width: 380px !important;
+// 	}
+// }
 
 .input-container.required::after {
 	content: '*';
@@ -1643,11 +1643,11 @@ input::placeholder {
 	gap: 20px;
 }
 
-input[type='date']::-webkit-calendar-picker-indicator,
-input[type='time']::-webkit-calendar-picker-indicator {
-	filter: invert(1);
-	cursor: pointer;
-}
+// input[type='date']::-webkit-calendar-picker-indicator,
+// input[type='time']::-webkit-calendar-picker-indicator {
+// 	filter: invert(1);
+// 	cursor: pointer;
+// }
 
 .embed-anything-container {
 	width: 100%;
@@ -1987,19 +1987,19 @@ input[type='time'] {
 	background-color: white;
 	border: 1.5px solid #d0d0d0 !important;
 	border-radius: 16px;
-	color: black;
+	color: var(--primary-font, #f2f2f3);
 	font-size: 14px;
 	cursor: pointer;
 	width: 100%;
 	padding: 12px;
 
-	&::-webkit-calendar-picker-indicator {
-		background: none;
-		display: none;
-	}
+	// &::-webkit-calendar-picker-indicator {
+	// 	background: none;
+	// 	display: none;
+	// }
 
 	&::-webkit-datetime-edit {
-		color: black;
+		color: var(--primary-font);
 	}
 
 	&::-webkit-inner-spin-button {
@@ -2022,7 +2022,7 @@ input[type='time'] {
 	input[type='time'] {
 		font-size: 14px;
 		background-color: transparent !important;
-		color: black !important;
+		color: var(--primary-font, #f2f2f3);
 		margin-top: 8px !important;
 	}
 }

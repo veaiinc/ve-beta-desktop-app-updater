@@ -484,7 +484,10 @@ const ViewDocument = ({ workflowId, templateID }) => {
 	return (
 		<div className="viewDocumentContainer">
 			<div className="back-to-files" onClick={() => navigate(`/files?activeTab=Documents`)}>
-				<span className="back-arrow">&#8592;</span> Back to Files
+				<span style={{ cursor: 'pointer' }} className="back-arrow">
+					&#8592;
+				</span>{' '}
+				Back to Files
 			</div>
 			<MainDocumentSection workflowId={workflowId} templateID={templateID} />
 		</div>

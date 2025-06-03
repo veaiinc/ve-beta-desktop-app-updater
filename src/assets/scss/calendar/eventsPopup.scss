@@ -1,4 +1,4 @@
-.events-popup-container {
+.dashboard__events-popup-container {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
@@ -50,12 +50,14 @@
 	.events-popup-date-input::-webkit-calendar-picker-indicator {
 		filter: invert(48%) sepia(13%) saturate(3207%) hue-rotate(130deg) brightness(95%)
 			contrast(80%); /* Example: Green tint */
+		cursor: pointer;
 	}
 
 	/* Style for the time input icon */
 	.events-popup-time-input::-webkit-calendar-picker-indicator {
 		filter: invert(75%) sepia(85%) saturate(3500%) hue-rotate(340deg) brightness(100%)
 			contrast(100%); /* Example: Red tint */
+		cursor: pointer;
 	}
 	.events-popup-body {
 		flex-grow: 1;
@@ -134,7 +136,7 @@
 
 				.events-popup-time-label {
 					font-size: 14px;
-					color: var(--text);
+					color: var(--primary-font);
 					min-width: 120px;
 				}
 
@@ -320,7 +322,6 @@
 							border-radius: 8px !important;
 							border: 1px solid var(--stroke) !important;
 							padding: 12px;
-							background: var(--card);
 							color: var(--primary-font);
 							font-family: var(--primary-font-family);
 							font-size: 12px;
@@ -787,7 +788,6 @@
 			border-radius: 8px !important;
 			border: 1px solid var(--stroke) !important;
 			padding: 12px;
-			background: var(--card);
 			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 12px;

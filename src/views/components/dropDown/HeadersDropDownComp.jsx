@@ -88,7 +88,7 @@ const HeadersDropDownComp = ({
 		}
 	};
 	return (
-		<div className="dropdown" style={outerContainerStyle || {}}>
+		<div className="builder-dropdown" style={outerContainerStyle || {}}>
 			<div
 				className={`dropdown-header ${containerClassName} ${
 					isOpen ? containerClassName + '-open' : 'close'

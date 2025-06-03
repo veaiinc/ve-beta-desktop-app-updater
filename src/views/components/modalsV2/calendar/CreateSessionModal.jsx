@@ -250,7 +250,7 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 								errors: { ...prev.errors, sessionName: false },
 							}))
 						}
-						placeholder={''}
+						placeholder={'Session Name'}
 					/>
 					<div
 						className={`addSessionDesc ${info?.addDiscription ? 'hidden' : ''}`}

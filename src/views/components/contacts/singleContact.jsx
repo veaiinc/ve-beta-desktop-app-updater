@@ -22,7 +22,7 @@ const SingleContact = ({ selectedContact, selectedOptions }) => {
 	};
 
 	const handleCreateDoc = useCallback(() => {
-		window.location.href = `${origin}/create-document`;
+		navigate(`/builder/create-document`);
 	}, []);
 
 	const handleDocClick = useCallback(
@@ -31,7 +31,7 @@ const SingleContact = ({ selectedContact, selectedOptions }) => {
 				const version = doc?.version;
 				version === 0 || version === null
 					? navigate(`/smart-file/${doc?.templateId}/${doc?._id}`)
-					: (window.location.href = `${origin}/document/view/${doc?._id}?workflow=true`);
+					: navigate(`/builder/document/view/${doc?._id}?workflow=true`);
 			}
 		},
 		[navigate],

@@ -2,10 +2,7 @@ import { memo, useCallback, useState, useContext, useEffect } from 'react';
 import '../../../assets/scss/calendar/eventsPopup.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
-import { ReactComponent as Clock } from '../../../assets/svg/activity/duration.svg';
 import { ReactComponent as Category } from '../../../assets/svg/calendar/category.svg';
-import { ReactComponent as Location } from '../../../assets/svg/calendar/locationPin.svg';
-import { ReactComponent as Meeting } from '../../../assets/svg/calendar/meeting.svg';
 import { ReactComponent as Avtar } from '../../../assets/svg/calendar/calendarEllipse.svg';
 import { ReactComponent as Close } from '../../../assets/svg/activity/close.svg';
 import UpdateCategoryModal from '../modalsV2/calendar/UpdateCategoryModal';
@@ -14,7 +11,6 @@ import ToggleSwitch from '../../components/input/slider';
 import Context from '../../../context/context';
 import moment from 'moment/moment';
 import ReactModal from '../modalsV2';
-import { Tooltip } from 'antd';
 import PhoneInput from 'react-phone-number-input';
 import { isURL } from '../../../helpers';
 
@@ -464,7 +460,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 
 	return (
 		<ReactModal isOpen={open} closeModal={handleClose} customStyles={customStyles}>
-			<div className="events-popup-container">
+			<div className="dashboard__events-popup-container">
 				<div className="events-popup-header">
 					<div className="events-popup-header-text">Create Event</div>
 					<CloseSvg onClick={handleClose} style={{ cursor: 'pointer' }} />
@@ -565,6 +561,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 										updateEventInfo('startDate', e.target.value);
 										updateEventInfo('submissionError', null);
 									}}
+									style={{ color: 'var(--primary-font)' }}
 								/>
 								{info?.allDay ? (
 									''
@@ -580,6 +577,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 												updateEventInfo('startTime', e.target.value);
 												updateEventInfo('submissionError', null);
 											}}
+											style={{ color: 'var(--primary-font)' }}
 										/>
 									</>
 								)}
