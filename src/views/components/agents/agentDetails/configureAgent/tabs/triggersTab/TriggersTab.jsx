@@ -2,10 +2,10 @@ import { memo } from 'react';
 import s from './triggersTab.module.scss';
 
 // icons
-import GmailIcon from '../../../../../../assets/svg/login_page/GmailIcon';
-import { ReactComponent as GoogleMeetIcon } from './assets/google-meet-icon.svg';
-import { ReactComponent as CustomWebhookIcon } from './assets/custom-webhook.svg';
-import { ReactComponent as RedirectIcon } from './assets/redirect-icon.svg';
+import GmailIcon from '../../../../../../../assets/svg/login_page/GmailIcon';
+import { ReactComponent as GoogleMeetIcon } from '../assets/google-meet-icon.svg';
+import { ReactComponent as CustomWebhookIcon } from '../assets/custom-webhook.svg';
+import { ReactComponent as RedirectIcon } from '../assets/redirect-icon.svg';
 
 const customTriggers = [
 	{

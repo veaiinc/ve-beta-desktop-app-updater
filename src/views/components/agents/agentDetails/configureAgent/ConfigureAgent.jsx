@@ -1,10 +1,12 @@
 import { memo, useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import s from './configureAgent.module.scss';
-import KnowledgeBaseTab from './tabs/KnowledgeBaseTab';
-import ActionsTab from './tabs/ActionsTab';
-import TriggersTab from './tabs/TriggersTab';
-import PromptTab from './tabs/PromptTab';
+
+// components
+import KnowledgeBaseTab from './tabs/knowledgeBaseTab/KnowledgeBaseTab';
+import ToolsTab from './tabs/toolsTab/ToolsTab';
+import TriggersTab from './tabs/triggersTab/TriggersTab';
+import PromptTab from './tabs/promptTab/PromptTab';
 
 const navItems = [
 	{
@@ -24,8 +26,8 @@ const navItems = [
 	},
 	{
 		id: 4,
-		label: 'Actions',
-		value: 'actions',
+		label: 'Tools',
+		value: 'tools',
 	},
 ];
 
@@ -56,7 +58,7 @@ const ConfigureAgent = ({ agentId }) => {
 			1: <PromptTab />,
 			2: <KnowledgeBaseTab agentId={agentId} />,
 			3: <TriggersTab />,
-			4: <ActionsTab />,
+			4: <ToolsTab agentId={agentId} />,
 		};
 	}, [agentId]);
 

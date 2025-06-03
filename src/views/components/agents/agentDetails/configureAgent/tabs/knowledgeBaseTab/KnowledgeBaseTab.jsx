@@ -1,12 +1,12 @@
 import { memo, useContext, useEffect, useState, useCallback } from 'react';
 import s from './knowledgeBaseTab.module.scss';
-import Context from '../../../../../../context/context';
-import { ReactComponent as PlusSvg } from '../../../../../../assets/svg/ai_assistant/plus.svg';
-import InfiniteScroll from '../../../../../components/globalComponents/InfiniteScroll';
-import { FetchMoreLoaderComp } from '../../../../../../helpers';
-import { message, Switch } from 'antd';
-import AddKnowledgeModal from '../../../../modalsV2/knowledgeAgent/AddKnowledgeModal';
-import { fileTypeIcons } from '../../../../../../helpers';
+import Context from '../../../../../../../context/context';
+import { ReactComponent as PlusSvg } from '../assets/plus-icon.svg';
+import { Switch } from 'antd';
+import { message } from '../../../../../globalComponents/CustomToast';
+import AddKnowledgeModal from '../../../../../../components/modalsV2/knowledgeAgent/AddKnowledgeModal';
+import InfiniteScroll from '../../../../../../components/globalComponents/InfiniteScroll';
+import { FetchMoreLoaderComp, fileTypeIcons } from '../../../../../../../helpers';
 
 const page = 1;
 const limit = 10;

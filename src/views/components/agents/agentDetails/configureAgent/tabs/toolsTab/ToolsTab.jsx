@@ -1,17 +1,21 @@
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
-import s from './actionsTab.module.scss';
-import { ReactComponent as SearchSvg } from '../../../../../../assets/svg/searc.svg';
-import { ReactComponent as DeleteSvg } from '../../../../../../assets/svg/delete.svg';
-import { ReactComponent as EditSvg } from '../../../../../../assets/svg/ai_agents/edit.svg';
-import { ReactComponent as PlusSvg } from '../../../../../../assets/svg/ai_assistant/plus.svg';
-import ActionsModal from '../../../../modalsV2/ai_assistant/ActionsModal';
-import Context from '../../../../../../context/context';
-import { getFaviconUrl } from '../../../../../../helpers';
+import s from './toolsTab.module.scss';
+import Context from '../../../../../../../context/context';
+import { getFaviconUrl } from '../../../../../../../helpers';
 
-const ActionsTab = ({ agentId }) => {
+// components
+import ActionsModal from '../../../../../modalsV2/ai_assistant/ActionsModal';
+
+// svgs
+import { ReactComponent as SearchSvg } from '../assets/search-icon.svg';
+import { ReactComponent as DeleteSvg } from '../assets/delete-icon.svg';
+import { ReactComponent as EditSvg } from '../assets/edit-icon.svg';
+import { ReactComponent as PlusSvg } from '../assets/plus-icon.svg';
+import { ReactComponent as GmailIcon } from '../assets/gmail-icon.svg';
+
+const ToolsTab = ({ agentId }) => {
 	const {
-		aiSetup: { updateAiAction },
-		knowledgeAgent: { getActionsForKnowledgeAgent, actionsInfo, deleteActionOfKnowledgeAgent },
+		knowledgeAgent: { getActionsForKnowledgeAgent, actionsInfo },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -89,12 +93,21 @@ const ActionsTab = ({ agentId }) => {
 						}))
 					}
 				>
-					Add action
+					<PlusSvg />
+					<span>Add tool</span>
 				</div>
 			</div>
 
 			<div className={s?.actionsContainer}>
-				{info?.aiActionList?.map((action) => {
+				<div className={s.gmailTool}>
+					<div className={s.gmailIcon}>
+						<GmailIcon />
+					</div>
+					<div className="titleSubtile">
+						<h1 className="title"></h1>
+					</div>
+				</div>
+				{/* {info?.aiActionList?.map((action) => {
 					const {
 						status,
 						_id,
@@ -139,7 +152,7 @@ const ActionsTab = ({ agentId }) => {
 							</div>
 						</div>
 					);
-				})}
+				})} */}
 			</div>
 			<ActionsModal
 				isOpen={info?.actionModalOpen}
@@ -154,4 +167,4 @@ const ActionsTab = ({ agentId }) => {
 	);
 };
 
-export default memo(ActionsTab);
+export default memo(ToolsTab);
