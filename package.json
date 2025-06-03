@@ -114,10 +114,11 @@
 		]
 	},
 	"devDependencies": {
-		"@babel/core": "^7.26.10",
+		"@babel/core": "^7.27.4",
 		"@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-		"@babel/preset-env": "^7.26.9",
+		"@babel/preset-env": "^7.27.2",
 		"@babel/preset-react": "^7.26.3",
+		"@babel/register": "^7.27.1",
 		"@eslint/js": "^9.27.0",
 		"@svgr/rollup": "^8.1.0",
 		"@svgr/webpack": "^8.1.0",
