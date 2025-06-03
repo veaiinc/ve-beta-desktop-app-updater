@@ -15,6 +15,7 @@ import MultiSelectDropdown from '../../tasks/MultiSelectDropdown';
 const filterMapperTypes = {
 	text: TextFilter,
 	select: MultiSelectDropdown,
+	multi_select: MultiSelectDropdown,
 	person: TeamMembersDropdown,
 	created_by: TeamMembersDropdown,
 	last_edited_by: TeamMembersDropdown,

@@ -463,9 +463,9 @@ const DatabaseComponent = memo(({ block, editor }) => {
 								handleTabDropdownClick={handleTabDropdownClick}
 							/>
 							<div className={s.notesDatabaseHeaderButtons}>
-								<button onClick={() => handleInfoChange({ addRowModalOpen: true })}>
-									F
-								</button>
+								{/* <button >
+									Filter button goes here
+								</button> */}
 								<button onClick={() => handleInfoChange({ addRowModalOpen: true })}>
 									Add Row
 								</button>

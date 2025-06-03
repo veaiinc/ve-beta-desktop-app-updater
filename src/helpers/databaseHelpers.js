@@ -35,9 +35,9 @@ const COMMON_CONDITIONS = {
 
 const baseConditions = {
 	text: [
+		COMMON_CONDITIONS.contains,
 		COMMON_CONDITIONS.is,
 		COMMON_CONDITIONS.isNot,
-		COMMON_CONDITIONS.contains,
 		COMMON_CONDITIONS.doesNotContain,
 		COMMON_CONDITIONS.startsWith,
 		COMMON_CONDITIONS.endsWith,

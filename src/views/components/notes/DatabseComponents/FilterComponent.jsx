@@ -107,32 +107,37 @@ const FilterComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 									</FilterConditionDropdown>
 
 									<div className={s.filterComponentBodyItemValue}>
-										{Component && (
-											<Component
-												value={filter?.value}
-												options={options}
-												labelField={'label'}
-												title={field?.name}
-												showLabel={true}
-												multiSelect={true}
-												onOptionClick={(value) => {
-													handleFilterChange(
-														filter?.fieldId,
-														value,
-														field?.type,
-														filter?.operator,
-													);
-												}}
-												onChange={(value) => {
-													handleFilterChange(
-														filter?.fieldId,
-														value,
-														field?.type,
-														filter?.operator,
-													);
-												}}
-											/>
-										)}
+										{Component &&
+											!filterConditions?.find(
+												(condition) =>
+													condition?.value === filter?.operator,
+											)?.noValue && (
+												<Component
+													value={filter?.value}
+													options={options}
+													labelField={'label'}
+													title={field?.name}
+													showLabel={true}
+													multiSelect={true}
+													onOptionClick={(value) => {
+														handleFilterChange(
+															filter?.fieldId,
+															value,
+															field?.type,
+															filter?.operator,
+														);
+													}}
+													onChange={(value) => {
+														handleFilterChange(
+															filter?.fieldId,
+															value,
+															field?.type,
+															filter?.operator,
+														);
+													}}
+													linkType={field?.type}
+												/>
+											)}
 									</div>
 									<button
 										className={s.filterComponentBodyItemDelete}
