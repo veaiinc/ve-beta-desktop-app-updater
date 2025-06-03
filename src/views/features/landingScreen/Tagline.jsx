@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import s from '../../../assets/scss/landingScreen/tagline.module.scss';
-import HeroImage from '../../../assets/images/heroImage.png';
+import HeroImage from '../../../assets/svg/landingScreen/hero.svg';
 
 const Tagline = () => {
 	return (
@@ -22,11 +22,7 @@ const Tagline = () => {
 						<button className={`${s.button} ${s.tryOurApi}`}>Try our API</button>
 					</div>
 				</div> */}
-				<img
-					src="https://ap.images.ve.ai/public/dashboard/homepage.png"
-					alt="homepage"
-					className="homepageImage"
-				/>
+				<img src={HeroImage} alt="homepage" className="homepageImage" />
 			</div>
 		</div>
 	);
