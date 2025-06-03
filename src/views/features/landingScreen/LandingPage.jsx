@@ -91,19 +91,6 @@ const LandingPage = () => {
 								isPublicChat={true}
 								animatePlaceholder={true}
 								onSend={handleCustomOnSendFunction}
-								style={{
-									'.chatInputContainer .chatInputParentContainer .chat-input-container .placeholderContainer':
-										{
-											top: '6px !important',
-										},
-									'.chatInputContainer .chatInputParentContainer .chat-input-container .placeholderContainer .textArea':
-										{
-											height: '0px !important',
-											marginTop: '-16px !important',
-											minHeight: '0px !important',
-											maxHeight: '0px !important',
-										},
-								}}
 							/>
 						</div>
 					</div>
