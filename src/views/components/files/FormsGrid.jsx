@@ -286,11 +286,11 @@ const FormsGrid = ({
 						height={'100%'}
 					>
 						<div className="card-container">
-							<div className="card-item" onClick={handleCreateForm}>
+							<div className="card-item create" onClick={handleCreateForm}>
 								<div className="card-item-style card-item-style-btn">
 									<button className="card-btn">
 										<Plus />
-										New Form
+										Create Form
 									</button>
 								</div>
 							</div>
