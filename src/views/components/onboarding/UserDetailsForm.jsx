@@ -153,7 +153,7 @@ const UserDetailsForm = ({
 						<input
 							className={`otpInput ${otpSent && 'animate'}`}
 							value={otp}
-							placeholder="000000"
+							placeholder="0000"
 							onChange={handleSetOTP}
 							type="text"
 						/>
