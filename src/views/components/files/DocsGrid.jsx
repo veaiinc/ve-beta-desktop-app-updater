@@ -196,7 +196,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 			const version = doc?.version;
 			version === 0 || version === null
 				? navigate(`/smart-file/${doc?.templateId}/${doc?._id}`)
-				: (window.location.href = `${origin}/document/view/${doc?._id}?workflow=true`);
+				: navigate(`/builder/document/view/${doc?._id}?workflow=true`);
 		}
 	}, []);
 
@@ -235,7 +235,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 								className="card-item"
 								// onClick={handleCreateDoc}
 								onClick={() => {
-									window.location.href = `${origin}/create-document`;
+									navigate(`/builder/create-document`);
 								}}
 							>
 								<div className="card-item-style card-item-style-btn">
