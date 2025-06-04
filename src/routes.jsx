@@ -66,6 +66,9 @@ import EditScheduler from './views/features/calendar/EditScheduler';
 import Contacts from './views/features/contacts/Contacts';
 import NotesPage from './views/features/notesPage/NotesPage';
 import PricingPage from './views/features/pricingPlans/pricingPage';
+import Agents from './views/features/agents/Agents';
+import Agent from './views/features/agents/agent/Agent';
+
 const routes = [
 	{
 		path: '/',
