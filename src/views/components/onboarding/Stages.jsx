@@ -199,7 +199,7 @@ const Stages = () => {
 	}, [info?.companyName]);
 
 	useEffect(() => {
-		if (info?.otp?.length === 6) {
+		if (info?.otp?.length === 4) {
 			handleVerifyMobileOtpCode();
 		}
 	}, [info?.otp]);
@@ -331,7 +331,7 @@ const Stages = () => {
 	const handleSetOTP = useCallback(
 		(e) => {
 			let otp = e?.target?.value?.replace(/[^0-9]/g, '') ?? '';
-			if (otp?.length > 6) otp = otp?.slice(0, 6);
+			if (otp?.length > 4) otp = otp?.slice(0, 4);
 			setInfo((prev) => ({ ...prev, otp }));
 		},
 		[info?.otp],
