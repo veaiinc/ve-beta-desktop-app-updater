@@ -58,6 +58,9 @@ const ShareModal = ({
 	onCopyLink,
 	copyLinkText = 'Copy Link',
 
+	// Handle invite section
+	showInviteSection = false,
+
 	// Publish tab
 	isPublished = false,
 	slug = '',
@@ -230,72 +233,78 @@ const ShareModal = ({
 					<>
 						{activeTab === 'share' && showShareTab ? (
 							<div className={getClassName('notes-share-modal-body')}>
-								<div className={getClassName('note-share-input-area')}>
-									<div className={getClassName('input-container')}>
-										{selectedMembers?.length > 0 && (
-											<div
-												className={getClassName('selected-user-container')}
-											>
+								{showInviteSection && (
+									<div className={getClassName('note-share-input-area')}>
+										<div className={getClassName('input-container')}>
+											{selectedMembers?.length > 0 && (
 												<div
 													className={getClassName(
-														'selected-user-wrapper',
+														'selected-user-container',
 													)}
 												>
-													{selectedMembers?.map((user) => (
-														<div
-															className={getClassName(
-																'selected-user-list-item',
-															)}
-															key={user?.userId}
-														>
+													<div
+														className={getClassName(
+															'selected-user-wrapper',
+														)}
+													>
+														{selectedMembers?.map((user) => (
 															<div
 																className={getClassName(
-																	'selected-user-avatar',
+																	'selected-user-list-item',
 																)}
+																key={user?.userId}
 															>
-																{user?.fullName?.charAt(0)}
+																<div
+																	className={getClassName(
+																		'selected-user-avatar',
+																	)}
+																>
+																	{user?.fullName?.charAt(0)}
+																</div>
+																<div
+																	className={getClassName(
+																		'selected-user-name',
+																	)}
+																>
+																	{user?.fullName}
+																</div>
+																<CloseIcon
+																	onClick={() =>
+																		onMemberRemove(user)
+																	}
+																	className="cursor-pointer"
+																/>
 															</div>
-															<div
-																className={getClassName(
-																	'selected-user-name',
-																)}
-															>
-																{user?.fullName}
-															</div>
-															<CloseIcon
-																onClick={() => onMemberRemove(user)}
-																className="cursor-pointer"
-															/>
-														</div>
-													))}
+														))}
+													</div>
+													<AccessDropdown
+														selectedAccess={accessType}
+														onChange={onAccessTypeChange}
+														showRemoveButton={false}
+														accessTypes={accessTypes}
+														accessTypeLabels={accessTypeLabels}
+													/>
 												</div>
-												<AccessDropdown
-													selectedAccess={accessType}
-													onChange={onAccessTypeChange}
-													showRemoveButton={false}
-													accessTypes={accessTypes}
-													accessTypeLabels={accessTypeLabels}
-												/>
-											</div>
-										)}
-										<input
-											type="text"
-											className={getClassName('invite-user-input')}
-											placeholder={getTranslation('enterEmail')}
-											onFocus={() => onSearchFocus()}
-											onChange={(e) => onSearchChange(e?.target?.value)}
-											onKeyDown={onSearchKeyDown}
-											value={searchValue}
-										/>
+											)}
+											<input
+												type="text"
+												className={getClassName('invite-user-input')}
+												placeholder={getTranslation('enterEmail')}
+												onFocus={() => onSearchFocus()}
+												onChange={(e) => onSearchChange(e?.target?.value)}
+												onKeyDown={onSearchKeyDown}
+												value={searchValue}
+											/>
+										</div>
+										<button
+											className={getClassName('notes-share-invite-btn')}
+											disabled={isInviteLoading}
+											onClick={onInviteClick}
+										>
+											{!isInviteLoading ? inviteButtonText : 'Inviting...'}
+										</button>
 									</div>
-									<button
-										className={getClassName('notes-share-invite-btn')}
-										disabled={isInviteLoading}
-										onClick={onInviteClick}
-									>
-										{!isInviteLoading ? inviteButtonText : 'Inviting...'}
-									</button>
-								</div>
+								)}
 
 								<div
 									className={getClassName('note-share-access-control-container')}

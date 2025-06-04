@@ -19,6 +19,7 @@ import moment from 'moment-timezone';
 import Spinner from '../loaders/Spinner';
 import { isURL } from '../../../helpers';
 import AvailabilitySection from './AvailabilitySection';
+import ShareModal from '../globalComponents/globalShareModal';
 
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
 const sessionTypeInputConfig = {
@@ -195,8 +196,17 @@ const SchedulerRightDrawer = ({
 			deleteSchedulerSession,
 			sessionDetail,
 		},
+		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
-	const [info, setInfo] = useState({ ...initialInfo });
+	const [info, setInfo] = useState({
+		...initialInfo,
+		isShareModalOpen: false,
+		isPublished: false,
+		slug: sessionId || '',
+		prevSlug: sessionId || '',
+		slugError: '',
+		publishLoading: false,
+	});
 	const [activeTab, setActiveTab] = useState(initialTab);
 	const [availabilitySummary, setAvailabilitySummary] = useState('');
 	const [originalData, setOriginalData] = useState(null);
@@ -272,6 +282,10 @@ const SchedulerRightDrawer = ({
 				// Max bookings per day
 				maxBookingsEnabled: sessionDetail.availabilityRules?.maxBookingsPerSession != null,
 				maxBookings: sessionDetail.availabilityRules?.maxBookingsPerSession || 1,
+				// Slug mapping
+				slug: sessionDetail.slug || sessionId,
+				prevSlug: sessionDetail.slug || sessionId,
+				isPublished: sessionDetail.isPublished || false,
 			});
 			setActiveTab(sessionDetail.sessionTypeInfo?.sessionType || initialTab);
 			setOriginalData(sessionDetail);
@@ -281,17 +295,11 @@ const SchedulerRightDrawer = ({
 				...initialInfo,
 				schedulerWindowStart: dayjs().format('YYYY-MM-DD'),
 				schedulerWindowEnd: dayjs().add(13, 'day').format('YYYY-MM-DD'),
+				slug: sessionId || '',
+				prevSlug: sessionId || '',
 			});
 		}
 	}, [mode, sessionDetail, sessionId, initialTab]);
-
-	// Add mapping function
-	// const backendToUiSessionType = (backendType) => {
-	// 	if (backendType === 'one-on-one') return 'In Person';
-	// 	if (backendType === 'group') return 'In Person'; // Adjust if needed
-	// 	if (backendType === 'round-robin') return 'In Person'; // Adjust if needed
-	// 	return 'In Person'; // fallback
-	// };
 
 	// On field change, only update local state
 	const handleFieldChange = (field, value) => {
@@ -341,6 +349,20 @@ const SchedulerRightDrawer = ({
 		// Add color change to payload
 		if (currentInfo.sessionColor !== originalData.sessionColor) {
 			payload.sessionColor = currentInfo.sessionColor;
+		}
+
+		// Compare session window
+		const currentStartDate = currentInfo.schedulerWindowStart;
+		const currentEndDate = currentInfo.schedulerWindowEnd;
+		const originalStartDate = originalData.sessionWindow?.startDate;
+		const originalEndDate = originalData.sessionWindow?.endDate;
+
+		if (currentStartDate !== originalStartDate || currentEndDate !== originalEndDate) {
+			payload.sessionWindow = {
+				type: 'fixed_date_range',
+				startDate: currentStartDate,
+				endDate: currentEndDate,
+			};
 		}
 
 		// Compare session type info individually
@@ -481,9 +503,7 @@ const SchedulerRightDrawer = ({
 				currentInfo.maxBookings !== originalData.availabilityRules?.maxBookingsPerSession);
 
 		if (hasBufferChanged || hasMaxBookingsChanged) {
-			payload.availabilityRules = {
-				allowBookingOverlappingSessions: false,
-			};
+			payload.availabilityRules = {};
 
 			if (
 				currentInfo.maxBookingsEnabled &&
@@ -798,6 +818,57 @@ const SchedulerRightDrawer = ({
 		}
 	};
 
+	const handlePublishPage = async ({ isPublished, slug, expiresAt }) => {
+		console.log('handlePublishPage', { isPublished, slug, expiresAt });
+		if (isPublished && !slug) {
+			message.error('Please enter a slug');
+			return;
+		}
+		setInfo((prev) => ({ ...prev, publishLoading: true }));
+		// const [success, data] = await updateSchedulerSession(sessionId, {
+		// 	isPublished,
+		// 	...(slug && { slug }),
+		// 	expiresAt,
+		// });
+		if (success) {
+			setInfo((prev) => ({
+				...prev,
+				isPublished,
+				slug: slug || prev.slug,
+				slugError: '',
+				...(expiresAt && { expiresAt }),
+				prevSlug: slug || prev.slug,
+			}));
+		} else {
+			if (data?.message?.includes('Slug already exists')) {
+				setInfo((prev) => ({
+					...prev,
+					slugError: 'Slug already exists',
+				}));
+			} else {
+				message.error(data?.message);
+			}
+		}
+		setInfo((prev) => ({ ...prev, publishLoading: false }));
+	};
+
+	const handleCopyLink = () => {
+		if (!info?.slug?.trim()) {
+			message.error('Please enter a slug');
+			return;
+		}
+		const domain =
+			tennantSettingsData?.customDomain || `${localStorage.getItem('workspaceId')}.ve.ai`;
+		navigator.clipboard.writeText(`https://${domain}/meet/${info?.prevSlug}`);
+		message.success('Link copied to clipboard');
+	};
+
+	const handleViewSite = () => {
+		const domain =
+			tennantSettingsData?.customDomain || `${localStorage.getItem('workspaceId')}.ve.ai`;
+		window.open(`https://${domain}/meet/${info?.prevSlug}`, '_blank');
+	};
+
 	return (
 		<Drawer
 			open={open}
@@ -811,8 +882,11 @@ const SchedulerRightDrawer = ({
 				<div className="scheduler-right-drawer-header-container">
 					<CloseIcon className="close-icon" onClick={handleClose} />
 					<div className="scheduler-right-drawer-header-title-container">
-						<EyeIcon className="eye-icon" />
-						<ShareIcon className="share-icon" />
+						<EyeIcon className="eye-icon" onClick={() => handleViewSite()} />
+						<ShareIcon
+							className="share-icon"
+							onClick={() => setInfo((prev) => ({ ...prev, isShareModalOpen: true }))}
+						/>
 						<BinIcon className="bin-icon" onClick={handleDelete} />
 					</div>
 				</div>
@@ -938,6 +1012,7 @@ const SchedulerRightDrawer = ({
 															type="date"
 															className="scheduler-window-input"
 															value={info.schedulerWindowStart}
+															min={dayjs().format('YYYY-MM-DD')}
 															onChange={(e) =>
 																handleFieldChange(
 																	'schedulerWindowStart',
@@ -953,6 +1028,7 @@ const SchedulerRightDrawer = ({
 														<input
 															type="date"
 															className="scheduler-window-input"
+															min={dayjs().format('YYYY-MM-DD')}
 															value={info.schedulerWindowEnd}
 															onChange={(e) =>
 																handleFieldChange(
@@ -1613,6 +1689,43 @@ const SchedulerRightDrawer = ({
 					</div>
 				)}
 			</div>
+
+			<ShareModal
+				isOpen={info?.isShareModalOpen}
+				onClose={() => setInfo((prev) => ({ ...prev, isShareModalOpen: false }))}
+				// Tabs
+				tabs={[{ value: 'share', label: 'Share' }]}
+				activeTab="share"
+				onTabChange={() => {}}
+				showShareTab={true}
+				showPublishTab={false}
+				// Share tab
+				selectedMembers={[]}
+				onMemberSelect={() => {}}
+				onMemberRemove={() => {}}
+				searchValue=""
+				onSearchChange={() => {}}
+				onSearchFocus={() => {}}
+				isInputFocused={false}
+				onInputFocusChange={() => {}}
+				inviteButtonText="Invite"
+				isInviteLoading={false}
+				onInviteClick={() => {}}
+				accessType="full"
+				onAccessTypeChange={() => {}}
+				// Members list
+				membersWithAccess={[]}
+				onAccessChange={() => {}}
+				currentUserId={null}
+				// Copy link
+				showCopyLink={true}
+				onCopyLink={handleCopyLink}
+				copyLinkText="Copy Link"
+				// Hide invite section
+				showInviteSection={false}
+				// Custom styles
+				customStyles={{ overflow: 'hidden' }}
+			/>
 		</Drawer>
 	);
 };

@@ -20,8 +20,6 @@ const UpdateSessionSlot = ({
 	selectedSlotData,
 	updateCalendarInfo,
 }) => {
-	console.log('selectedSlotData', selectedSlotData);
-	console.log('schedulerList', schedulerList);
 	const [info, setInfo] = useState({
 		repeat: false,
 		slots: [{ from: moment().startOf('day'), to: moment().startOf('day').add(1, 'hours') }],
