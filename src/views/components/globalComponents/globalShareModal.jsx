@@ -59,7 +59,7 @@ const ShareModal = ({
 	copyLinkText = 'Copy Link',
 
 	// Handle invite section
-	showInviteSection = false,
+	showInviteSection = true,
 
 	// Publish tab
 	isPublished = false,
@@ -141,6 +141,10 @@ const ShareModal = ({
 	// Modal Size
 	modalWidth = '',
 	modalHeight = 'auto',
+
+	// Slug field
+	showSlugField = false,
+	copySlug='',
 }) => {
 	// Get custom icons or use defaults
 	const CloseIcon = customIcons.close || CrossWhite;
@@ -305,7 +309,14 @@ const ShareModal = ({
 										</button>
 									</div>
 								)}
-
+								{showSlugField && (
+									<input
+										type="text"
+										className={getClassName('invite-user-input')}
+										value={copySlug}
+										readOnly
+									/>
+								)}
 								<div
 									className={getClassName('note-share-access-control-container')}
 								>

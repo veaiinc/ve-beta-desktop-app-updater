@@ -1662,12 +1662,15 @@ const SchedulerRightDrawer = ({
 				// Tabs
 				tabs={[{ value: 'share', label: 'Share' }]}
 				activeTab="share"
+				showSlugField={true}
+				copySlug={`${tennantSettingsData?.customDomain || `${localStorage.getItem('workspaceId')}.ve.ai`}/meet/${info?.prevSlug}`}
 				showShareTab={true}
 				showPublishTab={false}
 				showCopyLink={true}
 				onCopyLink={handleCopyLink}
 				copyLinkText="Copy Link"
 				customStyles={{ overflow: 'hidden' }}
+				showInviteSection={false}
 			/>
 		</Drawer>
 	);
