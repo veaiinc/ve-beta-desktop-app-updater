@@ -818,40 +818,6 @@ const SchedulerRightDrawer = ({
 		}
 	};
 
-	const handlePublishPage = async ({ isPublished, slug, expiresAt }) => {
-		console.log('handlePublishPage', { isPublished, slug, expiresAt });
-		if (isPublished && !slug) {
-			message.error('Please enter a slug');
-			return;
-		}
-		setInfo((prev) => ({ ...prev, publishLoading: true }));
-		// const [success, data] = await updateSchedulerSession(sessionId, {
-		// 	isPublished,
-		// 	...(slug && { slug }),
-		// 	expiresAt,
-		// });
-		if (success) {
-			setInfo((prev) => ({
-				...prev,
-				isPublished,
-				slug: slug || prev.slug,
-				slugError: '',
-				...(expiresAt && { expiresAt }),
-				prevSlug: slug || prev.slug,
-			}));
-		} else {
-			if (data?.message?.includes('Slug already exists')) {
-				setInfo((prev) => ({
-					...prev,
-					slugError: 'Slug already exists',
-				}));
-			} else {
-				message.error(data?.message);
-			}
-		}
-		setInfo((prev) => ({ ...prev, publishLoading: false }));
-	};
-
 	const handleCopyLink = () => {
 		if (!info?.slug?.trim()) {
 			message.error('Please enter a slug');
