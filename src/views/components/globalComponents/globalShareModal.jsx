@@ -58,6 +58,9 @@ const ShareModal = ({
 	onCopyLink,
 	copyLinkText = 'Copy Link',
 
+	// Handle invite section
+	showInviteSection = true,
+
 	// Publish tab
 	isPublished = false,
 	slug = '',
@@ -138,6 +141,10 @@ const ShareModal = ({
 	// Modal Size
 	modalWidth = '',
 	modalHeight = 'auto',
+
+	// Slug field
+	showSlugField = false,
+	copySlug='',
 }) => {
 	// Get custom icons or use defaults
 	const CloseIcon = customIcons.close || CrossWhite;
@@ -230,73 +237,86 @@ const ShareModal = ({
 					<>
 						{activeTab === 'share' && showShareTab ? (
 							<div className={getClassName('notes-share-modal-body')}>
-								<div className={getClassName('note-share-input-area')}>
-									<div className={getClassName('input-container')}>
-										{selectedMembers?.length > 0 && (
-											<div
-												className={getClassName('selected-user-container')}
-											>
+								{showInviteSection && (
+									<div className={getClassName('note-share-input-area')}>
+										<div className={getClassName('input-container')}>
+											{selectedMembers?.length > 0 && (
 												<div
 													className={getClassName(
-														'selected-user-wrapper',
+														'selected-user-container',
 													)}
 												>
-													{selectedMembers?.map((user) => (
-														<div
-															className={getClassName(
-																'selected-user-list-item',
-															)}
-															key={user?.userId}
-														>
+													<div
+														className={getClassName(
+															'selected-user-wrapper',
+														)}
+													>
+														{selectedMembers?.map((user) => (
 															<div
 																className={getClassName(
-																	'selected-user-avatar',
+																	'selected-user-list-item',
 																)}
+																key={user?.userId}
 															>
-																{user?.fullName?.charAt(0)}
+																<div
+																	className={getClassName(
+																		'selected-user-avatar',
+																	)}
+																>
+																	{user?.fullName?.charAt(0)}
+																</div>
+																<div
+																	className={getClassName(
+																		'selected-user-name',
+																	)}
+																>
+																	{user?.fullName}
+																</div>
+																<CloseIcon
+																	onClick={() =>
+																		onMemberRemove(user)
+																	}
+																	className="cursor-pointer"
+																/>
 															</div>
-															<div
-																className={getClassName(
-																	'selected-user-name',
-																)}
-															>
-																{user?.fullName}
-															</div>
-															<CloseIcon
-																onClick={() => onMemberRemove(user)}
-																className="cursor-pointer"
-															/>
-														</div>
-													))}
+														))}
+													</div>
+													<AccessDropdown
+														selectedAccess={accessType}
+														onChange={onAccessTypeChange}
+														showRemoveButton={false}
+														accessTypes={accessTypes}
+														accessTypeLabels={accessTypeLabels}
+													/>
 												</div>
-												<AccessDropdown
-													selectedAccess={accessType}
-													onChange={onAccessTypeChange}
-													showRemoveButton={false}
-													accessTypes={accessTypes}
-													accessTypeLabels={accessTypeLabels}
-												/>
-											</div>
-										)}
-										<input
-											type="text"
-											className={getClassName('invite-user-input')}
-											placeholder={getTranslation('enterEmail')}
-											onFocus={() => onSearchFocus()}
-											onChange={(e) => onSearchChange(e?.target?.value)}
-											onKeyDown={onSearchKeyDown}
-											value={searchValue}
-										/>
+											)}
+											<input
+												type="text"
+												className={getClassName('invite-user-input')}
+												placeholder={getTranslation('enterEmail')}
+												onFocus={() => onSearchFocus()}
+												onChange={(e) => onSearchChange(e?.target?.value)}
+												onKeyDown={onSearchKeyDown}
+												value={searchValue}
+											/>
+										</div>
+										<button
+											className={getClassName('notes-share-invite-btn')}
+											disabled={isInviteLoading}
+											onClick={onInviteClick}
+										>
+											{!isInviteLoading ? inviteButtonText : 'Inviting...'}
+										</button>
 									</div>
-									<button
-										className={getClassName('notes-share-invite-btn')}
-										disabled={isInviteLoading}
-										onClick={onInviteClick}
-									>
-										{!isInviteLoading ? inviteButtonText : 'Inviting...'}
-									</button>
-								</div>
-
+								)}
+								{showSlugField && (
+									<input
+										type="text"
+										className={getClassName('invite-user-input')}
+										value={copySlug}
+										readOnly
+									/>
+								)}
 								<div
 									className={getClassName('note-share-access-control-container')}
 								>
