@@ -275,7 +275,7 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 						height={'100%'}
 					>
 						<div className={`card-container`}>
-							<div className="card-item" onClick={handleCreateBlankTemplate}>
+							<div className="card-item create" onClick={handleCreateBlankTemplate}>
 								<div className="card-item-style card-item-style-btn">
 									<button className="card-btn">
 										<Plus />

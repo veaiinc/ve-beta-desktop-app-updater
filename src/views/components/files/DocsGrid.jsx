@@ -232,7 +232,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 					>
 						<div className={`card-container`}>
 							<div
-								className="card-item"
+								className="card-item create"
 								// onClick={handleCreateDoc}
 								onClick={() => {
 									navigate(`/builder/create-document`);
@@ -247,7 +247,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 							</div>
 							{info?.docs?.map((doc, index) => (
 								<div
-									className="card-item"
+									className="card-item "
 									key={index}
 									onClick={() => handleDocClick(doc)}
 								>

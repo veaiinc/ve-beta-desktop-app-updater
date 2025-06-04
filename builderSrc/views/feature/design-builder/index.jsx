@@ -13,6 +13,7 @@ import WidgetContainer from './WidgetContainer';
 import WidgetForFiles from './WidgetForFiles';
 import SavePopup from './SavePopup';
 import DesignCanvas from './DesignCanvas';
+import { useNavigate } from 'react-router-dom';
 
 const DesignBuilder = () => {
 	const {
@@ -22,6 +23,8 @@ const DesignBuilder = () => {
 			updateStateValues,
 		},
 	} = useContext(Context);
+
+	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		chatQuery: '',
@@ -331,7 +334,7 @@ const DesignBuilder = () => {
 			<div className="designBuilderHeaderContainer">
 				<SidebarIcon />
 				<div className="designBuilderInnerHeaderContainer">
-					<div className="designBackButtonContainer">
+					<div className="designBackButtonContainer" onClick={() => navigate(-1)}>
 						<BackIcon />
 						<span>Back to Document</span>
 					</div>

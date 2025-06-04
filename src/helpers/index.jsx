@@ -218,7 +218,7 @@ export const isURL = (url) => {
 };
 
 let urlMapper = {
-	localhost: 'http://localhost:3000',
+	localhost: 'http://localhost:5173',
 	've.ai': 'https://builder.ve.ai',
 	've.co': 'https://builder.ve.co',
 	'www.ve.ai': 'https://builder.ve.ai',
@@ -359,7 +359,7 @@ export const redirectTo = (type, id) => {
 		gmail: `https://mail.google.com/mail/u/0/#inbox/${id}`,
 		notion: id,
 		url: id,
-		workflowId: `${origin}/workflow/${id}`,
+		workflowId: `/builder/workflow/${id}`,
 		slack: `https://app.slack.com/client/${id}`,
 		s3_key: id,
 		drive: `https://drive.google.com/file/d/${id}/view`,

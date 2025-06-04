@@ -251,7 +251,7 @@ const MyTemplates = () => {
 		});
 
 		if (response?.[0]) {
-			window.location.href = `${origin}/${response?.[1]?.data?.createBlankTemplate?._id}`;
+			window.location.href = `/builder/${response?.[1]?.data?.createBlankTemplate?._id}`;
 			setInfo((prev) => ({ ...prev, blankTemplateLoading: false }));
 		} else {
 			setInfo((prev) => ({ ...prev, blankTemplateLoading: false }));

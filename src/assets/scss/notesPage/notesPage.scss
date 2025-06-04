@@ -122,7 +122,6 @@
 				background-color: var(--background-color);
 				cursor: pointer;
 				transition: all 0.2s ease-in-out;
-				gap: 10px;
 
 				&:hover {
 					border: 1px solid var(--stroke-hover, #424548);
@@ -342,7 +341,6 @@
 				padding: 20px;
 				cursor: pointer;
 				transition: all 0.2s ease-in-out;
-				gap: 10px;
 
 				&:hover {
 					background-color: var(--card);

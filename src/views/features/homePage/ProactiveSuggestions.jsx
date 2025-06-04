@@ -418,7 +418,6 @@ const ProactiveSuggestions = () => {
 
 	const fetchMorePendingActions = async () => {
 		const nextPage = aiSuggestedPendingActions?.metaInfo?.currentPage + 1;
-
 		const payload = {
 			...newUpdatedPayload,
 			page: nextPage,

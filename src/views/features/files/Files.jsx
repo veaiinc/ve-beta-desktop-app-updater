@@ -525,6 +525,10 @@ const Files = () => {
 				}, 10);
 			}
 		}
+		if ((e.key === 'h' || e.key === 'H') && (e.metaKey || e.ctrlKey)) {
+			e.preventDefault();
+			navigate('/');
+		}
 		if (e.key === 'Escape') {
 			handleCloseSearch(e);
 		}
@@ -698,6 +702,15 @@ const Files = () => {
 		),
 	};
 
+	const triggerCmdH = () => {
+		const event = new KeyboardEvent('keydown', {
+			key: 'h',
+			metaKey: true, // For macOS; use ctrlKey for Windows
+			bubbles: true,
+		});
+		document.dispatchEvent(event);
+	};
+
 	return (
 		<div className="files-container">
 			<div className="storage-main-container">
@@ -707,13 +720,25 @@ const Files = () => {
 						<div className="beta-text">File Flow Inspired by Your Mind</div> */}
 					</span>
 					<div className="storage-header-items">
+						<div>Shiva</div>
 						<QuickActions suggestedOptions={suggestedOptions} />
 					</div>
 				</div>
 				<div className="card-container-wrapper">
 					<div className="card-sub-container">
 						<div className="card-sub-container-left">
-							<div className="left-sidebar-header"></div>
+							<div className="left-sidebar-header">
+								{/* <div
+									className={`command-h-container`}
+									onClick={() => navigate('/')}
+								>
+									<div className="command-h-icon">Home</div>
+									<div className="command-h-text">
+										<CommandIcon className="command-icon" />
+										<span className="command-h-text-bold">H</span>
+									</div>
+								</div> */}
+							</div>
 						</div>
 						{info?.search ? <SearchResults /> : tabsMapper?.[info?.selectedView]}
 						<div className="card-sub-container-right">
@@ -726,9 +751,9 @@ const Files = () => {
 											}`}
 											onClick={() => handleDropdownOptionClick(option?.label)}
 										>
-											{info?.selectedView === option?.label && (
+											{/* {info?.selectedView === option?.label && (
 												<span className="sidebar-option-active-indicator"></span>
-											)}
+											)} */}
 											<div
 												style={{
 													display: 'flex',
