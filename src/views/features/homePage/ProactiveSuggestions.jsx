@@ -144,6 +144,14 @@ const ProactiveSuggestions = () => {
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
 			updateCardsData();
+			if (info?.activeCardContent) {
+				setInfo((prev) => ({
+					...prev,
+					activeCardContent: aiSuggestedPendingActions?.pendingActions?.find(
+						(c) => c?._id === info?.activeCardContent?._id,
+					),
+				}));
+			}
 		}
 	}, [aiSuggestedPendingActions]);
 
@@ -419,20 +427,19 @@ const ProactiveSuggestions = () => {
 		await getAISuggestedPendingActions(payload, false);
 	};
 
-	const handleThumbClick = async (id) => {
+	const handleFavouriteClick = async (id) => {
 		const card = info?.cards?.find((c) => c?._id === id);
-		if (card?.isFavourite === true) return;
-		const res = await pendingActionsUpdate(id, { isFavourite: true });
+		const res = await pendingActionsUpdate(id, { isFavourite: !card?.isFavourite });
 		if (res?.[0] === true) {
 			getAISuggestedPendingActions(
 				{
-					isFavourite: true,
+					isFavourite: !card?.isFavourite,
 				},
 				false,
 				'update',
 				id,
 			);
-			message.success('Added to favourites ');
+			message.success(!card?.isFavourite ? 'Added to favourites' : 'Removed from favourites');
 		} else {
 			message.error('Failed to update');
 		}
@@ -883,7 +890,7 @@ const ProactiveSuggestions = () => {
 																				}`}
 																				onClick={(e) => {
 																					e?.stopPropagation();
-																					handleThumbClick(
+																					handleFavouriteClick(
 																						card?._id,
 																					);
 																				}}
@@ -1218,6 +1225,7 @@ const ProactiveSuggestions = () => {
 				onPrevCardClick={handleLeft}
 				totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
 				selectedCardNumber={currentIndexRef?.current + 1}
+				onFavouriteClick={handleFavouriteClick}
 			/>
 		</div>
 	);

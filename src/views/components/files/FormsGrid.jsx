@@ -18,7 +18,6 @@ import { ReactComponent as TrendUp } from '../../../assets/svg/files/trend-up.sv
 import { message } from '../globalComponents/CustomToast';
 import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
-import { useNavigate } from 'react-router-dom';
 
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
@@ -52,7 +51,6 @@ const FormsGrid = ({
 }) => {
 	const activeWorkspaceId = localStorage.getItem('workspaceId');
 	const origin = fetchOriginSelection();
-	const navigate = useNavigate();
 
 	const {
 		templates: {
@@ -251,7 +249,7 @@ const FormsGrid = ({
 				const response = await duplicateGlobalWorkflowTemplate(payload);
 				if (response?.[0]) {
 					message?.success('Form duplicated successfully');
-					navigate(`/builder/${response?.[1]?._id}`);
+					window.open(`${origin}/${response?.[1]?._id}`, '_blank', 'noopener,noreferrer');
 				} else {
 					message?.error('Failed to duplicate form. Please try again.');
 				}

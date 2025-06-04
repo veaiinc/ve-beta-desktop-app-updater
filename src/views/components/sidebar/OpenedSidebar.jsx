@@ -501,7 +501,7 @@ const OpenedSidebar = ({
 	const tooltipItems = [
 		{
 			key: 'theme',
-			label: (theme) => `Switch to ${theme === 'dark' ? 'white' : 'dark'} mode`,
+			label: (theme) => `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`,
 			icon: (theme) => (theme === 'dark' ? <SunIcon /> : <MoonIcon />),
 			onClick: (updateTheme, newThemeValue) => () => updateTheme(newThemeValue),
 		},

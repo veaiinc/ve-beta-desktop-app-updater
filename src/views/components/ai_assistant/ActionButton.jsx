@@ -1,9 +1,9 @@
 import React, { memo } from 'react';
-import styles from '../../../assets/scss/ai_assistant/actionButton.module.scss';
+import '../../../assets/scss/ai_assistant/actionButton.scss';
 
 const ActionButton = ({ children, ...props }) => {
 	return (
-		<button {...props} className={styles.actionButton}>
+		<button {...props} className="action-button">
 			{children}
 		</button>
 	);

@@ -359,10 +359,11 @@ export const redirectTo = (type, id) => {
 		gmail: `https://mail.google.com/mail/u/0/#inbox/${id}`,
 		notion: id,
 		url: id,
-		workflowId: `https://builder.ve.ai/workflow/${id}`,
+		workflowId: `${origin}/workflow/${id}`,
 		slack: `https://app.slack.com/client/${id}`,
 		s3_key: id,
 		drive: `https://drive.google.com/file/d/${id}/view`,
+		notes: `https://ve.ai/note/${id}`,
 	};
 
 	const url = urls?.[type];
@@ -379,4 +380,7 @@ export const redirectTypeMapper = {
 	slack: 'channel_id',
 	s3_key: 's3_key',
 	drive: 'drive_id',
+	notes: 'note_id',
 };
+
+const origin = fetchOriginSelection();

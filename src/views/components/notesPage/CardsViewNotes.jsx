@@ -51,24 +51,15 @@ const CardsViewNotes = ({ notes, fetchMoreNotes, userId }) => {
 					parsedIconImage = null;
 				}
 				const isLocked = permissions?.private;
+
 				return (
 					<div key={_id} onClick={() => navigate(`/note/${_id}`)} className="noteCard">
-						{coverImage ? (
-							<div className="coverImageContainer">
-								<img src={coverImage} alt={title} />
-							</div>
-						) : (
-							<div className="coverImageContainer"></div>
-						)}
-						{iconImage ? (
-							<div className="iconImageContainer">
-								{parsedIconImage ?? <NoteIcon />}
-							</div>
-						) : (
-							<div className="iconImageContainer">
-								<NoteIcon />
-							</div>
-						)}
+						<div className="coverImageContainer">
+							{coverImage && <img src={coverImage} alt={title} />}
+						</div>
+						<div className="iconImageContainer">
+							{parsedIconImage ? parsedIconImage : <NoteIcon />}
+						</div>
 						<header className="noteCardHeader">
 							<h3 className="noteCardTitle">{title}</h3>
 						</header>

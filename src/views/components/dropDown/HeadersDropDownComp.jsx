@@ -1,4 +1,4 @@
-import { useState, memo, useCallback } from 'react';
+import { useState, memo, useCallback, useEffect } from 'react';
 import '../../../assets/scss/dropdown/headerDropdown.scss';
 import { ReactComponent as DownArrow } from '../../../assets/svg/chat/downArrow.svg';
 import { ReactComponent as Tick } from '../../../assets/svg/tick.svg';
@@ -60,6 +60,10 @@ const HeadersDropDownComp = ({
 	const toggleDropdown = () => setIsOpen((prev) => !prev);
 	const [searchValue, setSearchValue] = useState('');
 
+	useEffect(() => {
+		setSearchValue('');
+	}, [selectedValue]);
+
 	const handleOptionClick = (option) => {
 		if (onChangeFunc) {
 			onChangeFunc(option);
@@ -88,7 +92,7 @@ const HeadersDropDownComp = ({
 		}
 	};
 	return (
-		<div className="builder-dropdown" style={outerContainerStyle || {}}>
+		<div className="dropdown" style={outerContainerStyle || {}}>
 			<div
 				className={`dropdown-header ${containerClassName} ${
 					isOpen ? containerClassName + '-open' : 'close'
@@ -123,7 +127,9 @@ const HeadersDropDownComp = ({
 					value={searchValue}
 					onChange={handleInputChange}
 					className="selectedPage"
-					placeholder="Type here to search"
+					placeholder={
+						isOpen ? 'Type here to search' : selectedValue || 'Type here to search'
+					}
 				/>
 
 				{showArrow ? <DownArrow /> : ''}

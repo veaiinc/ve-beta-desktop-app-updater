@@ -79,30 +79,9 @@ const VariableComponent = ({
 		selectedStep: null,
 		error: '',
 		loading: false,
+		multipleVariables: [],
+		inputText: [{ type: 'text', value: '' }],
 	});
-
-	useEffect(() => {
-		if (variables) {
-			if (value) {
-				parseValue(value);
-			}
-
-			setInfo((prev) => ({
-				...prev,
-				variables: variables?.variables,
-				loading: false,
-			}));
-		}
-	}, [variables]);
-
-	useEffect(() => {
-		if (value && variables && !info?.value) {
-			parseValue(value);
-		}
-		if (variableRegex?.test(value) && !info?.value) {
-			setInfo((prev) => ({ ...prev, loading: true }));
-		}
-	}, [value]);
 
 	const handleInfo = (updateInfo) => {
 		setInfo((prevInfo) => ({
@@ -111,40 +90,107 @@ const VariableComponent = ({
 		}));
 	};
 
+	useEffect(() => {
+		if (type === 'dropdown' && options) {
+			handleInfo({
+				options: options,
+				loading: false,
+			});
+		}
+	}, [type, options]);
+
+	useEffect(() => {
+		if (variables) {
+			if (value && type !== 'dropdown') {
+				parseValue(value);
+			} else {
+				handleInfo({
+					inputText: [{ type: 'text', value: '' }],
+				});
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				variables: variables?.variables,
+				loading: false,
+			}));
+		}
+	}, [variables, value, type]);
+
 	const parseValue = useCallback(
 		(value) => {
-			if (variableRegex?.test(value)) {
-				const newValueArray = value?.slice(2, -2)?.split('.');
+			if (!value || typeof value !== 'string') {
+				handleInfo({
+					error: 'Invalid value type',
+					inputText: [{ type: 'text', value: '' }],
+				});
+				return;
+			}
 
-				let selectedStep =
-					variables?.variables?.find((step) => step?.stepId === newValueArray[0]) || null;
+			const matches = value.match(variableRegex);
+			if (matches) {
+				const parsedVariables = matches
+					.map((match) => {
+						const newValueArray = match?.slice(2, -2)?.split('.');
+						let selectedStep =
+							variables?.variables?.find(
+								(step) => step?.stepId === newValueArray[0],
+							) || null;
 
-				if (selectedStep) {
-					newValueArray[0] = labelMapper[selectedStep?.stepName];
+						if (selectedStep) {
+							newValueArray[0] = labelMapper[selectedStep?.stepName];
 
-					if (newValueArray[2] === 'answer') {
-						newValueArray[1] = selectedStep?.variables?.find(
-							(variable) => variable?._id === newValueArray[1],
-						)?.name;
+							if (newValueArray[2] === 'answer') {
+								newValueArray[1] = selectedStep?.variables?.find(
+									(variable) => variable?._id === newValueArray[1],
+								)?.name;
+							}
+
+							return {
+								value: newValueArray?.join('.'),
+								raw: match,
+								selectedStep: {
+									stepId: selectedStep?.stepId,
+									app: selectedStep?.stepApp,
+									labelId: selectedStep?.stepName,
+									isFormResponse: selectedStep?.isFormResponse,
+								},
+							};
+						}
+						return null;
+					})
+					.filter(Boolean);
+
+				// Extract text between variables
+				const textParts = value.split(variableRegex);
+				const combinedParts = [];
+				for (let i = 0; i < textParts.length; i++) {
+					if (textParts[i]) {
+						combinedParts.push({ type: 'text', value: textParts[i] });
 					}
-
-					const newValue = newValueArray?.join('.');
-
-					handleInfo({
-						value: newValue,
-						selectedStep: {
-							stepId: selectedStep?.stepId,
-							app: selectedStep?.stepApp,
-							labelId: selectedStep?.stepName,
-							isFormResponse: selectedStep?.isFormResponse,
-						},
-						options: [],
-						variablePath: [],
-						error: '',
-					});
-				} else {
-					handleInfo({ error: 'Invalid variable' });
+					if (parsedVariables[i]) {
+						combinedParts.push({ type: 'variable', value: parsedVariables[i] });
+					}
 				}
+
+				// Ensure we always have at least one text part
+				if (combinedParts.length === 0) {
+					combinedParts.push({ type: 'text', value: '' });
+				}
+
+				handleInfo({
+					multipleVariables: parsedVariables,
+					value: parsedVariables.map((v) => v.value).join(', '),
+					error: '',
+					inputText: combinedParts,
+				});
+			} else {
+				handleInfo({
+					multipleVariables: [],
+					value: value,
+					error: '',
+					inputText: [{ type: 'text', value: value || '' }],
+				});
 			}
 		},
 		[variables?.variables],
@@ -154,7 +200,6 @@ const VariableComponent = ({
 		(option) => {
 			if (option?.type === 'Object') {
 				const newOptions = [...(info?.options || []), option?.values];
-
 				const newVariablePath = [...(info?.variablePath || []), option?.name];
 
 				handleInfo({
@@ -174,16 +219,56 @@ const VariableComponent = ({
 					parsedValue[1] = `${option?.name}`;
 				}
 
+				const newVariable = `{{${value}}}`;
+				const currentValue = info?.multipleVariables?.map((v) => v.raw).join('') || '';
+				const newValue = currentValue + newVariable;
+
 				handleInfo({
 					variableDropdownOpen: false,
 					value: parsedValue?.join('.'),
 					error: '',
 				});
 
-				onChange(`{{${value}}}`);
+				onChange(newValue);
 			}
 		},
-		[info?.options, info?.variablePath, info?.selectedStep],
+		[info?.options, info?.variablePath, info?.selectedStep, info?.multipleVariables],
+	);
+
+	const handleDeleteVariable = useCallback(
+		(index) => {
+			const newInputText = [...(info.inputText || [])];
+			newInputText.splice(index, 1);
+
+			// Ensure we always have at least one text part
+			if (newInputText.length === 0) {
+				newInputText.push({ type: 'text', value: '' });
+			}
+
+			// Reconstruct the value without the deleted variable
+			const newValue = newInputText
+				.map((part) => (part.type === 'variable' ? part.value.raw : part.value))
+				.join('');
+
+			handleInfo({
+				inputText: newInputText,
+				error: '',
+			});
+			onChange(newValue);
+		},
+		[info.inputText, onChange],
+	);
+
+	const handleTextChange = useCallback(
+		(e) => {
+			const newValue = e.target.value;
+			handleInfo({
+				inputText: [{ type: 'text', value: newValue }],
+				error: '',
+			});
+			onChange(newValue);
+		},
+		[onChange],
 	);
 
 	return (
@@ -193,20 +278,6 @@ const VariableComponent = ({
 					<p className="selectedVariable">Loading...</p>
 				) : info?.error ? (
 					<p className="selectedVariable errorMessage">&#9888; {info?.error}</p>
-				) : info?.value ? (
-					<p className="selectedVariable">
-						{`{ ${info?.value}}`}
-
-						<CrossIcon
-							width={14}
-							height={14}
-							style={{ cursor: 'pointer' }}
-							onClick={() => {
-								handleInfo({ value: '' });
-								onChange('');
-							}}
-						/>
-					</p>
 				) : type === 'dropdown' ? (
 					<Tooltip
 						placement="bottom"

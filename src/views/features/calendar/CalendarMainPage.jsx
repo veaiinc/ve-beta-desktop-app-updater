@@ -6,7 +6,6 @@ import EditScheduler from './EditScheduler';
 import Context from '../../../context/context';
 import ObjectId from 'bson-objectid';
 import moment from 'moment';
-import CreateSessionModal from '../../components/modalsV2/calendar/CreateSessionModal';
 import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 import SchedulerSessionMainPage from '../../components/calendar/SchedulerSessionMainPage';
 const initialState = {

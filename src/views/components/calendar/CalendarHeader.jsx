@@ -1,15 +1,12 @@
-import React, { memo, useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import '../../../assets/scss/calendar/calendarHeader.scss';
 // import { ReactComponent as Down } from '../../../assets/svg/activity/down.svg';
 import { ReactComponent as Right } from '../../../assets/svg/activity/right.svg';
 import { ReactComponent as Left } from '../../../assets/svg/activity/left.svg';
-import WorkflowDropDown from './WorkflowDropDown';
 import WeekHeader from './WeekHeader';
 import DayHeader from './DaysHeader';
 import WeekDayHeader from './WeekDayHeader';
 import moment from 'moment';
-import LeftSvg from '../../../assets/svg/activity/LeftSvg';
-import RightSvg from '../../../assets/svg/activity/RightSvg';
 import QuickActions from '../globalComponents/QuickActions';
 
 const MIN_YEAR = 1990;
@@ -34,6 +31,13 @@ const CalendarHeader = ({
 		week: <WeekDayHeader selectedWeek={selectedWeek} selectedDate={selectedDate} />,
 		day: <DayHeader />,
 	};
+
+	const handleToday = useCallback(() => {
+		const today = moment();
+		updateCalendarInfo('currentCalendarDate', today.toDate());
+		updateCalendarInfo('selectedDate', today.toDate());
+		updateCalendarInfo('selectedMonth', today.month());
+	}, [updateCalendarInfo]);
 
 	const handleNavigation = useCallback(
 		(direction) => {
@@ -115,9 +119,15 @@ const CalendarHeader = ({
 				<div className="calendarHeaderContainer">
 					<div className="calendarControls">
 						<div className="calendarDate">
-							<Left onClick={() => goToPrevious(label)} />
+							<div className="todayButton" onClick={handleToday}>
+								Today
+							</div>
+							<Left
+								onClick={() => goToPrevious(label)}
+								className="calendarDateLeft"
+							/>
+							<Right onClick={() => goToNext(label)} className="calendarDateRight" />
 							{label}
-							<Right onClick={() => goToNext(label)} />
 							{/* <LeftSvg onClick={() => goToPrevious(label)} /> */}
 							{/* <RightSvg onClick={() => goToNext(label)} /> */}
 						</div>

@@ -357,19 +357,6 @@ const routes = [
 		),
 		exact: true,
 	},
-	// {
-	// 	path: '/notes',
-	// 	component: (
-	// 		<AuthWrapper
-	// 			title={'Notes'}
-	// 			outerContainerStyle={{ padding: '0 0 0 32px', backgroundColor: '#1e1e1e' }}
-	// 			maxWidth={'100%'}
-	// 		>
-	// 			<Notes />
-	// 		</AuthWrapper>
-	// 	),
-	// 	exact: true,
-	// },
 	{
 		path: '/notes',
 		component: (
