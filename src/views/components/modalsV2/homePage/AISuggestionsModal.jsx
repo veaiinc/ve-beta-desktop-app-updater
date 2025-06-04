@@ -83,13 +83,21 @@ const AISuggestionsModal = ({
 		}
 	}, [data]);
 
-	const handleClickRun = useCallback((prompt) => {
-		if (typeof updateStateValues === 'function') {
-			updateStateValues({ activePromptForChat: prompt });
-		}
-		onClose?.();
-		navigate(`/chat/${ObjectID()?.toString()}`);
-	}, []);
+	const handlePromptClick = useCallback(
+		(prompt) => {
+			let chatPrompt = 'Proactive AI\n\n';
+			chatPrompt += `Title : ${data?.title}\n\n`;
+			chatPrompt += `Description : ${data?.description}\n\n`;
+			chatPrompt += `Prompt : ${prompt}`;
+
+			if (typeof updateStateValues === 'function') {
+				updateStateValues({ activePromptForChat: chatPrompt });
+			}
+			onClose?.();
+			navigate(`/chat/${ObjectID()?.toString()}`);
+		},
+		[data],
+	);
 
 	const handleViewReportClick = useCallback(
 		(data) => {
@@ -538,7 +546,9 @@ const AISuggestionsModal = ({
 															<div
 																className="result-item"
 																key={index}
-																onClick={() => handleClickRun(item)}
+																onClick={() =>
+																	handlePromptClick(item)
+																}
 															>
 																<div className="result-text">
 																	{updateCitationIdsWithCitations(
@@ -561,7 +571,9 @@ const AISuggestionsModal = ({
 															<div
 																className="result-item"
 																key={index}
-																onClick={() => handleClickRun(item)}
+																onClick={() =>
+																	handlePromptClick(item)
+																}
 															>
 																<div className="result-text">
 																	{updateCitationIdsWithCitations(
@@ -597,7 +609,9 @@ const AISuggestionsModal = ({
 																			className="prompt-item"
 																			key={index}
 																			onClick={() =>
-																				handleClickRun(item)
+																				handlePromptClick(
+																					item,
+																				)
 																			}
 																		>
 																			<div className="logo">
