@@ -65,6 +65,7 @@ import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
 import EditScheduler from './views/features/calendar/EditScheduler';
 import Contacts from './views/features/contacts/Contacts';
 import NotesPage from './views/features/notesPage/NotesPage';
+import PricingPage from './views/features/pricingPlans/pricingPage';
 const routes = [
 	{
 		path: '/',
@@ -355,6 +356,14 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+	},
+	{
+		path: '/pricing',
+		component: (
+			<AuthWrapper title={'Pricing'}>
+				<PricingPage />
+			</AuthWrapper>
+		),
 	},
 	{
 		path: '/notes',

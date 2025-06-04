@@ -11,7 +11,7 @@ import { LINKEDIN_URL, INSTAGRAM_URL, CHANGELOG_URL } from '../../../helpers/Con
 
 import { Link } from 'react-router-dom';
 
-const Footer = () => {
+const Footer = ({ BackTop }) => {
 	return (
 		<div className={s.footer}>
 			<div className={s.container}>
@@ -112,12 +112,17 @@ const Footer = () => {
 								))}
 							</div>
 						</div>
-						<div
-							className={s.bottom__topPart_rightPart}
-							onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-							aria-label="Back to top"
-						>
-							<div>
+						<div className={s.bottom__topPart_rightPart}>
+							<div
+								onClick={() => {
+									const el = document.getElementById('pricing-page-scroll');
+									if (el) {
+										el.scrollTo({ top: 0, behavior: 'smooth' });
+									} else {
+										window.scrollTo({ top: 0, behavior: 'smooth' });
+									}
+								}}
+							>
 								<span>Back top </span>
 								<ArrowUp />
 							</div>
