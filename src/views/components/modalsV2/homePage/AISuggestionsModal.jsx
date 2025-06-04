@@ -20,6 +20,7 @@ import { Collapse, Drawer, Tooltip } from 'antd';
 import Context from '../../../../context/context';
 import { useContext } from 'react';
 import { message } from '../../globalComponents/CustomToast';
+import { ReactComponent as StarSvg } from '../../../../assets/svg/home_page/star.svg';
 import CombinedChainOfThought from '../../chat/chatComponents/CombinedChainOfThought';
 import {
 	getFaviconUrl,
@@ -41,6 +42,7 @@ const AISuggestionsModal = ({
 	onPrevCardClick,
 	totalDocs,
 	selectedCardNumber,
+	onFavouriteClick,
 }) => {
 	const {
 		templates: { updateStateValues, pendingActionsUpdate, getAISuggestedPendingActions },
@@ -301,6 +303,16 @@ const AISuggestionsModal = ({
 							</div>
 
 							<div className="right-container">
+								<div
+									className={`starLogoContainer ${
+										data?.isFavourite === true ? 'active' : ''
+									}`}
+									onClick={(e) => {
+										onFavouriteClick(data?._id);
+									}}
+								>
+									<StarSvg />
+								</div>
 								<div className="btn teach-me-btn" onClick={handleOpenFeedbackPopup}>
 									<AgentsSvg style={{ color: 'var(--primary-button)' }} /> Teach
 									me
