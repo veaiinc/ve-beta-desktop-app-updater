@@ -1662,34 +1662,11 @@ const SchedulerRightDrawer = ({
 				// Tabs
 				tabs={[{ value: 'share', label: 'Share' }]}
 				activeTab="share"
-				onTabChange={() => {}}
 				showShareTab={true}
 				showPublishTab={false}
-				// Share tab
-				selectedMembers={[]}
-				onMemberSelect={() => {}}
-				onMemberRemove={() => {}}
-				searchValue=""
-				onSearchChange={() => {}}
-				onSearchFocus={() => {}}
-				isInputFocused={false}
-				onInputFocusChange={() => {}}
-				inviteButtonText="Invite"
-				isInviteLoading={false}
-				onInviteClick={() => {}}
-				accessType="full"
-				onAccessTypeChange={() => {}}
-				// Members list
-				membersWithAccess={[]}
-				onAccessChange={() => {}}
-				currentUserId={null}
-				// Copy link
 				showCopyLink={true}
 				onCopyLink={handleCopyLink}
 				copyLinkText="Copy Link"
-				// Hide invite section
-				showInviteSection={false}
-				// Custom styles
 				customStyles={{ overflow: 'hidden' }}
 			/>
 		</Drawer>
