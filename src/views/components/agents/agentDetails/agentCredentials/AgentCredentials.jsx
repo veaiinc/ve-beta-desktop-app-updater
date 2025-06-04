@@ -45,11 +45,11 @@ const AgentCredentials = ({ agentId }) => {
 
 	const updateAgentDetails = useCallback(() => {
 		const { agentName, agentDescription } = info;
-		if (agentName.length === 0) {
+		if (agentName?.length === 0) {
 			message.error('Agent name cannot be empty');
 			return;
 		}
-		if (agentDescription.length === 0) {
+		if (agentDescription?.length === 0) {
 			message.error('Agent description cannot be empty');
 			return;
 		}
