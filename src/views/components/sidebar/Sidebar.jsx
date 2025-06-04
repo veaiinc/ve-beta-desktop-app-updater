@@ -127,6 +127,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	};
 	const handleClose = () => {
 		setIsClosing(true);
+		setShowNotificationsDrawer(false); // Close notifications drawer
 		setTimeout(() => {
 			setIsOpen(false); // Sidebar disappears
 			setIsClosing(false);

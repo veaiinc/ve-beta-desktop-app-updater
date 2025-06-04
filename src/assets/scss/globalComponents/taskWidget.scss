@@ -167,6 +167,12 @@
 									font-style: normal;
 									font-weight: 600;
 									line-height: normal;
+									max-width: 200px;
+									white-space: normal;
+									word-wrap: break-word;
+									overflow-wrap: break-word;
+									-webkit-line-clamp: 1;
+									-webkit-box-orient: vertical;
 								}
 								.taskWidgetOptionName {
 									color: var(--Secondary-Font, #787e87);
