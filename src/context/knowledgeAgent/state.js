@@ -576,6 +576,44 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
+	const uploadAgentProfilePic = async ({ agentId, file }) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path =
+				'/' + workspaceId + '/knowledge-agents/' + agentId + '/upload-profile-picture';
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+
+			const signedURLResponse = await service?.fetchPost(path, file, token, type);
+
+			if (!signedURLResponse?.[0]) {
+				throw new Error('Failed to get signed URL for upload');
+			}
+
+			const signedUrl = signedURLResponse?.[1]?.signedUrl?.signedUrl;
+			if (!signedUrl) {
+				throw new Error('Signed URL not found!');
+			}
+
+			const uploadResponse = await fetch(signedUrl, {
+				method: 'PUT',
+				body: file,
+				headers: {
+					'Content-Type': file.type,
+				},
+			});
+
+			if (!uploadResponse.ok) {
+				throw new Error('Failed to upload file to S3');
+			}
+
+			return [true];
+		} catch (error) {
+			console.log('error==>uploadAgentProfilePic', error);
+			return [false, error];
+		}
+	};
+
 	const updateContextValues = (data) => {
 		dispatch({ type: Actions?.UPDATE_CONTEXT_VALUES, payload: data });
 	};
@@ -608,5 +646,6 @@ export const KnowledgeAgentState = () => {
 		updateVisibilityOfKnowledgeAgent,
 		removeVisibilityOfKnowledgeAgent,
 		deleteActionOfKnowledgeAgent,
+		uploadAgentProfilePic,
 	};
 };

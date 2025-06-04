@@ -8,12 +8,13 @@ import CatIcon from '../assets/cat.png';
 const AgentCredentials = ({ agentId }) => {
 	const timeoutId = useRef(null);
 	const {
-		knowledgeAgent: { activeKnowledgeAssistant, updateKnowledgeAgent },
+		knowledgeAgent: { activeKnowledgeAssistant, updateKnowledgeAgent, uploadAgentProfilePic },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		agentName: 'Agent name',
-		agentDescription: 'Agent description',
+		agentName: null,
+		agentDescription: null,
+		agentProfilePic: null,
 		editAgentDetails: {
 			agentName: false,
 			agentDescription: false,
@@ -31,6 +32,13 @@ const AgentCredentials = ({ agentId }) => {
 			setInfo((prev) => ({
 				...prev,
 				agentDescription: activeKnowledgeAssistant?.data?.description,
+			}));
+		}
+		if (activeKnowledgeAssistant?.data?.knowledgeAgent_profile_picture_s3Key?.length > 0) {
+			setInfo((prev) => ({
+				...prev,
+				agentProfilePic:
+					activeKnowledgeAssistant?.data?.knowledgeAgent_profile_picture_s3Key,
 			}));
 		}
 	}, [activeKnowledgeAssistant?.data?.name, activeKnowledgeAssistant?.data?.description]);
@@ -51,6 +59,32 @@ const AgentCredentials = ({ agentId }) => {
 		};
 		updateKnowledgeAgent(agentId, agentDetails);
 	}, [info.agentName, info.agentDescription]);
+
+	const handleUploadAgentProfilePic = async (e) => {
+		try {
+			const agentProfilePic = e.target.files[0];
+			if (!agentProfilePic) return;
+
+			const [success, error] = await uploadAgentProfilePic({
+				agentId,
+				file: agentProfilePic,
+			});
+
+			if (success) {
+				message.success('Profile picture uploaded successfully');
+				setInfo((prev) => ({
+					...prev,
+					agentProfilePic: URL.createObjectURL(agentProfilePic),
+				}));
+			} else {
+				message.error(error?.message || 'Failed to upload profile picture');
+			}
+		} catch (err) {
+			message.error(
+				err?.message || 'An unexpected error occurred while uploading the profile picture',
+			);
+		}
+	};
 
 	useEffect(() => {
 		clearTimeout(timeoutId.current);
@@ -77,7 +111,18 @@ const AgentCredentials = ({ agentId }) => {
 
 	return (
 		<div className={s.agentCredentialsContainer}>
-			<img src={CatIcon} alt="agent icon" className={s.agentIcon} />
+			<div className={s.agentProfilePicContainer}>
+				<img
+					src={info.agentProfilePic ?? CatIcon}
+					alt="agent icon"
+					className={s.agentIcon}
+				/>
+				<input
+					type="file"
+					onChange={handleUploadAgentProfilePic}
+					accept="image/png,image/jpeg,image/jpg"
+				/>
+			</div>
 			<div className={s.agentDetails}>
 				<div className={s.agentName}>
 					{info.editAgentDetails.agentName ? (
