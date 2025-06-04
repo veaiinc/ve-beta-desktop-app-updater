@@ -14,6 +14,7 @@ import Footer from './Footer';
 import HowItWorks from './HowItWorks';
 import ChatBox from '../../components/chat/ChatBox';
 import Features from './Features';
+import { Helmet } from 'react-helmet';
 
 const LandingPage = () => {
 	const {
@@ -98,25 +99,30 @@ const LandingPage = () => {
 	};
 
 	return (
-		<main className="landing-page-container">
-			<header className="page-header">
-				<div className="left-container">
-					<VeLogo className="ve-logo" />
-				</div>
-				<div className="middle-container">
-					<TabNavigation tab={tab} handleSetTab={handleSetTab} />
-				</div>
-				<div className="right-container">
-					<button className="login-btn-text" onClick={handleLoginBtnClick}>
-						Login
-					</button>
-					<button className="login-btn">
-						Get <VeLogoBlack /> Free
-					</button>
-				</div>
-			</header>
-			{tabComponents[tab]}
-		</main>
+		<>
+			<Helmet>
+				<title>Ve - The World's First Proactive AI OS</title>
+			</Helmet>
+			<main className="landing-page-container">
+				<header className="page-header">
+					<div className="left-container">
+						<VeLogo className="ve-logo" />
+					</div>
+					<div className="middle-container">
+						<TabNavigation tab={tab} handleSetTab={handleSetTab} />
+					</div>
+					<div className="right-container">
+						<button className="login-btn-text" onClick={handleLoginBtnClick}>
+							Login
+						</button>
+						<button className="login-btn">
+							Get <VeLogoBlack /> Free
+						</button>
+					</div>
+				</header>
+				{tabComponents[tab]}
+			</main>
+		</>
 	);
 };
 
