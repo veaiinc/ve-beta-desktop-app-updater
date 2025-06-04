@@ -238,7 +238,7 @@ const Email = ({
 				<h2 className="login-page-subtitle">AI Memory OS</h2>
 			</div>
 			<div className="login-button-container">
-				{info?.isHostnameVeDotAi ? (
+				{info?.isHostnameVeDotAi && (
 					<>
 						<button
 							disabled={info?.googleLoading}
@@ -246,9 +246,8 @@ const Email = ({
 							onClick={handleContinueWithGoogle}
 						>
 							<div className="google-logo-container">
-
-							<GoogleLogo />
-							<p>Continue with Google</p>
+								<GoogleLogo />
+								<p>Continue with Google</p>
 							</div>
 							{info?.googleLoading && (
 								<Spinner
@@ -266,58 +265,53 @@ const Email = ({
 							{/* <div className="line"></div> */}
 						</div>
 					</>
-				) : (
-					<div className="email-input-container">
-						<input
-							value={email}
-							onChange={handleSetEmail}
-							onKeyDown={handleContinueWithEmail}
-							autoFocus
-							type="email"
-							placeholder="example@acme.com"
-						/>
-						<button
-							disabled={!info.isEmailValid || info.isLoading}
-							style={{
-								cursor:
-									!info.isEmailValid || info.isLoading
-										? 'not-allowed'
-										: 'pointer',
-								background: !info.isEmailValid
-									? 'var(--card-hover)'
-									: 'var(--primary-button)',
-							}}
-							onClick={() => handleContinueWithEmail(null, 'click')}
-						>
-							{info.isLoading ? (
-								<Spinner
-									width="20px"
-									height="20px"
-									borderTopColor="transparent"
-									color="var(--background-color)"
-								/>
-							) : info?.isEmailValid ? (
-								<span ref={arrowRef}>
-									<UpArrowBlackHover
-										style={{
-											stroke: 'var(--primary-font)',
-										}}
-									/>
-								</span>
-							) : (
-								<span ref={arrowRef}>
-									<UpArrowGrey
-										style={{
-											stroke: 'var(--card-over-card)',
-										}}
-									/>
-								</span>
-							)}
-						</button>
-					</div>
 				)}
-
-
+				<div className="email-input-container">
+					<input
+						value={email}
+						onChange={handleSetEmail}
+						onKeyDown={handleContinueWithEmail}
+						autoFocus
+						type="email"
+						placeholder="example@acme.com"
+					/>
+					<button
+						disabled={!info.isEmailValid || info.isLoading}
+						style={{
+							cursor:
+								!info.isEmailValid || info.isLoading ? 'not-allowed' : 'pointer',
+							background: !info.isEmailValid
+								? 'var(--card-hover)'
+								: 'var(--primary-button)',
+						}}
+						onClick={() => handleContinueWithEmail(null, 'click')}
+					>
+						{info.isLoading ? (
+							<Spinner
+								width="20px"
+								height="20px"
+								borderTopColor="transparent"
+								color="var(--background-color)"
+							/>
+						) : info?.isEmailValid ? (
+							<span ref={arrowRef}>
+								<UpArrowBlackHover
+									style={{
+										stroke: 'var(--primary-font)',
+									}}
+								/>
+							</span>
+						) : (
+							<span ref={arrowRef}>
+								<UpArrowGrey
+									style={{
+										stroke: 'var(--card-over-card)',
+									}}
+								/>
+							</span>
+						)}
+					</button>
+				</div>
 			</div>
 		</>
 	);

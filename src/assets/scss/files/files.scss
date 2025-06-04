@@ -739,6 +739,7 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: 26px; /* 162.5% */
+				cursor: pointer;
 				&:hover {
 					color: var(--primary-font);
 					background: var(--card-hover);

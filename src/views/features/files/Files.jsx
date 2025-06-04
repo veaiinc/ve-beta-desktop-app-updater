@@ -728,7 +728,7 @@ const Files = () => {
 					<div className="card-sub-container">
 						<div className="card-sub-container-left">
 							<div className="left-sidebar-header">
-								<div
+								{/* <div
 									className={`command-h-container`}
 									onClick={() => navigate('/')}
 								>
@@ -737,7 +737,7 @@ const Files = () => {
 										<CommandIcon className="command-icon" />
 										<span className="command-h-text-bold">H</span>
 									</div>
-								</div>
+								</div> */}
 							</div>
 						</div>
 						{info?.search ? <SearchResults /> : tabsMapper?.[info?.selectedView]}
