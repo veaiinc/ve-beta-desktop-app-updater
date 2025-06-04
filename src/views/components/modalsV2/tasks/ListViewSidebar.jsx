@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+ 
 import { Drawer } from 'antd';
 import React, { memo, useCallback, useEffect, useState, useRef, useContext } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
@@ -157,7 +157,8 @@ const ListViewSidebar = ({
 			...prevInfo,
 			deleteLoading: false,
 		}));
-	}, [deleteTask, selectedRow?._id]);
+		updateSideBarData({ open: false });
+	}, [deleteTask, selectedRow?._id, updateSideBarData]);
 
 	const generateRow = useCallback(
 		(row) => {
