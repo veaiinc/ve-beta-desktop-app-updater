@@ -18,8 +18,6 @@
 		}
 	}
 
-
-
 	.disclaimer-container {
 		display: flex;
 		flex-direction: column;
@@ -133,7 +131,7 @@
 					border-radius: 100px;
 					background: var(--primary-button, #79ecc9);
 					color: #0c0c0d;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -210,7 +208,7 @@
 					.title-two {
 						color: var(--primary-button);
 						text-align: center;
-						font-family: Manrope;
+						font-family: var(--secondary-font-family);
 						font-size: 64px;
 						font-style: normal;
 						font-weight: 600;
@@ -222,7 +220,7 @@
 				.login-page-subtitle {
 					color: var(--primary-font, #fafafa);
 					text-align: center;
-					font-family: Manrope;
+					font-family: var(--secondary-font-family);
 					font-size: 32px;
 					font-style: normal;
 					font-weight: 500;
@@ -251,7 +249,7 @@
 					background: var(--background-color, #1a1b1e);
 					color: var(--primary-font, #f2f2f3);
 					text-align: center;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -264,7 +262,7 @@
 						background: var(--primary-font);
 						color: var(--background-color);
 					}
-					.google-logo-container{
+					.google-logo-container {
 						display: flex;
 						align-items: center;
 						gap: 12px;
@@ -520,8 +518,6 @@
 	}
 }
 
-
-
 @media screen and (max-width: 1200px) {
 	.login-page-container {
 		.left-container {
@@ -547,8 +543,6 @@
 						line-height: 38px;
 					}
 				}
-
-	
 			}
 		}
 	}
@@ -584,7 +578,6 @@
 					.google-login-button {
 						width: 280px;
 					}
-
 				}
 			}
 		}

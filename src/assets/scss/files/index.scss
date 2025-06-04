@@ -139,6 +139,8 @@
 	align-items: center;
 	gap: 6px;
 	cursor: pointer;
+	width: 200px;
+	height: 160px;
 
 	.card-item-style {
 		position: relative;
@@ -448,14 +450,13 @@
 	// }
 	.card-item-style-btn {
 		display: flex;
-		width: 200px;
-		height: 160px;
+		width: 100%;
+		height: 100%;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
 		gap: 10px;
 		// background-color: var(--card, #171819);
-		border: 1px solid var(--stroke);
 		.card-btn {
 			display: flex;
 			justify-content: space-around;
