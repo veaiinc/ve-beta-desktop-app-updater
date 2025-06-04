@@ -2,11 +2,15 @@ import { useState, useEffect, memo } from 'react';
 import { ReactComponent as Call } from '../../../assets/svg/smartFiles/formResponse/call.svg';
 import { ReactComponent as Message } from '../../../assets/svg/smartFiles/formResponse/message.svg';
 import { ReactComponent as Calender } from '../../../assets/svg/smartFiles/formResponse/calendar.svg';
-import { ReactComponent as Download } from '../../../assets/svg/download.svg';
+import { ReactComponent as Download } from '../../../assets/svg/downloadd.svg';
+import { ReactComponent as Delete } from '../../../assets/svg/delete.svg';
 import moment from 'moment';
 import '../../../assets/scss/forms/FormresCard.scss';
 import service from '../../../services/graphQlServices';
-import { getFormResponsesListQuery } from '../../../context/Templates/graphQlFunctions';
+import {
+	getFormResponsesListQuery,
+	deleteFormResponseMutation,
+} from '../../../context/Templates/graphQlFunctions';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import QuickActions from '../globalComponents/QuickActions';
@@ -15,6 +19,7 @@ import { removeQuotes } from './FormDescription';
 import { useParams } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { message } from '../globalComponents/CustomToast';
 
 const removeHTMLTags = (text) =>
 	text
@@ -38,9 +43,7 @@ const FormResCard = ({
 	const [hasNextPage, setHasNextPage] = useState(true);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [expandedCard, setExpandedCard] = useState(null);
-	const [info, setInfo] = useState({
-		dropdown: false,
-	});
+	const [delFormResLoading, setDelFormResLoading] = useState(false);
 
 	useEffect(() => {
 		fetchInitialResponses();
@@ -77,7 +80,7 @@ const FormResCard = ({
 					filters: {
 						workflowTemplateId: formId,
 						page: 1,
-						limit: 20,
+						limit: 50,
 					},
 				},
 				workspaceId,
@@ -115,7 +118,7 @@ const FormResCard = ({
 					filters: {
 						workflowTemplateId: formId,
 						page: nextPage,
-						limit: 20,
+						limit: 50,
 					},
 				},
 				workspaceId,
@@ -131,6 +134,7 @@ const FormResCard = ({
 			}
 		} catch (err) {
 			console.error('Error fetching more form responses:', err);
+			setError('Failed to fetch more responses');
 		}
 	};
 
@@ -274,6 +278,40 @@ const FormResCard = ({
 		document.body.appendChild(link);
 		link.click();
 		document.body.removeChild(link);
+	};
+
+	const handleDeleteResponse = async (responseId) => {
+		try {
+			if (delFormResLoading) return;
+			setDelFormResLoading(true);
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+
+			const response = await service.mutation(
+				deleteFormResponseMutation,
+				{
+					responseId: responseId,
+				},
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				message.success('Response deleted successfully');
+				// Remove the deleted response from the state
+				setResponses((prev) => prev.filter((r) => r._id !== responseId));
+				// Update total submissions count
+				updateTotalSubmissions(responses.length - 1, null);
+			} else {
+				message.error('Failed to delete response');
+			}
+		} catch (err) {
+			console.error('Error deleting response:', err);
+			message.error('Failed to delete response');
+		} finally {
+			setDelFormResLoading(false);
+		}
 	};
 
 	const sortResponses = (responses) => {
@@ -424,6 +462,7 @@ const FormResCard = ({
 							flexDirection: 'column',
 							width: '100%',
 						}}
+						scrollThreshold="90%"
 					>
 						{sortResponses(responses).map((response, index) => {
 							const resumeInfo = getResumeInfo(response);
@@ -431,7 +470,7 @@ const FormResCard = ({
 
 							return (
 								<div
-									key={index}
+									key={response._id || index}
 									className={`resWrapper ${isExpanded ? 'open' : ''}`}
 									onClick={() => {
 										setExpandedCard(expandedCard === index ? null : index);
@@ -443,8 +482,13 @@ const FormResCard = ({
 											<h1 className="name">{getName(response)}</h1>
 											<h1 className="time">{getTimeAgo(response)}</h1>
 										</div>
+										<div
+											className="deleteButton"
+											onClick={() => handleDeleteResponse(response._id)}
+										>
+											<Delete />
+										</div>
 									</div>
-
 									{isExpanded && (
 										<div className="incard">
 											<h3 className="options">Actions</h3>

@@ -1,4 +1,4 @@
-import { memo, useState, useContext, useEffect } from 'react';
+import { memo, useState, useContext, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import '../../../assets/scss/notes/uploadPopup.scss';
 import Context from '../../../context/context';
@@ -9,18 +9,20 @@ import { ReactComponent as LinkIcon } from '../../../assets/svg/notes/link.svg';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/notes/search.svg';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import Skeleton from 'react-loading-skeleton';
+import Spinner from '../loaders/Spinner';
 
 const initialState = {
 	selectedUploadCategory: 'images',
 	link: '',
 	isLinkValid: false,
 	workspaceImagesLoading: false,
+	unsplashSearchQuery: 'fall',
+	spinnerLoading: false,
 };
 
 const page = 1;
 const limit = 16;
 const append = true;
-const query = 'fall';
 
 const skeletonLoaders = Array.from({ length: 16 }, (_, index) => index + 1);
 
@@ -47,8 +49,9 @@ const uploadCategoryOptions = [
 	},
 ];
 
-const UploadPopup = ({ closePopup, setLocalCoverImage }) => {
+const UploadPopup = ({ closePopup, setLocalCoverImage, uploadType }) => {
 	const { noteId } = useParams();
+	const unsplashSearchTimeout = useRef(null);
 	const {
 		notes: { notesCoverImageLinkUpload, notesCoverImageFileUpload },
 		workspaceAssets: {
@@ -73,16 +76,16 @@ const UploadPopup = ({ closePopup, setLocalCoverImage }) => {
 	const unsplashImagesEmpty = unsplashImagesLength === 0 && !unsplashImagesLoading;
 	const unsplashImagesHasNextPage = Boolean(unsplashImagesData?.hasNextPage);
 	const unsplashImagesCurrentPage = Number(unsplashImagesData?.currentPage) || 1;
+	const unsplashQuery = info?.unsplashSearchQuery;
 
 	useEffect(() => {
 		if (!workspaceImagesData && info?.selectedUploadCategory === 'images') {
 			getWorkspaceImages(page, limit);
 		}
 		if (!unsplashImagesData && info?.selectedUploadCategory === 'unsplash') {
-			const query = 'fall';
 			const page = 1;
 			const limit = 16;
-			getUnsplashImages(query, page, limit);
+			getUnsplashImages(unsplashQuery, page, limit);
 		}
 	}, [info?.selectedUploadCategory]);
 
@@ -96,7 +99,7 @@ const UploadPopup = ({ closePopup, setLocalCoverImage }) => {
 	const fetchNextUnsplashImages = async () => {
 		if (unsplashImagesHasNextPage) {
 			const page = unsplashImagesCurrentPage + 1;
-			getUnsplashImages(query, page, limit, append);
+			getUnsplashImages(unsplashQuery, page, limit, append);
 		}
 	};
 
@@ -156,10 +159,23 @@ const UploadPopup = ({ closePopup, setLocalCoverImage }) => {
 		}
 	};
 
-	// const handleImageSearch = (e) => {
-	// 	const search = e.target.value;
-	// 	console.log(search);
-	// };
+	const handleUnsplashImageSearch = (e) => {
+		const search = e.target.value;
+		setInfo((prev) => ({
+			...prev,
+			unsplashSearchQuery: search,
+			spinnerLoading: true,
+		}));
+
+		clearTimeout(unsplashSearchTimeout.current);
+
+		unsplashSearchTimeout.current = setTimeout(() => {
+			if (search.length > 2) {
+				getUnsplashImages(search, page, limit);
+			}
+			setInfo((prev) => ({ ...prev, spinnerLoading: false }));
+		}, 1500);
+	};
 
 	const uploadCategoryOptionsUI = {
 		images: (
@@ -266,48 +282,50 @@ const UploadPopup = ({ closePopup, setLocalCoverImage }) => {
 							/>
 						))}
 					</div>
-				) : unsplashImagesEmpty ? (
-					<div className="noUnsplashImagesFound">
-						<h1 className="emptyUnsplashImagesMessage">
-							Oops! No Unsplash images found!
-						</h1>
-					</div>
 				) : (
-					<div>
+					<div className="unsplashImagesContainer">
 						<div className="imagesSearchContainer">
-							{/* <SearchIcon />
+							<SearchIcon />
 							<input
 								className="imagesSearchInput"
 								autoFocus
 								type="text"
-								// onChange={handleImageSearch}
-								placeholder="Search workspace images"
-							/> */}
+								onChange={handleUnsplashImageSearch}
+								placeholder="Search unsplash images"
+							/>
+							{info?.spinnerLoading && <Spinner width="16px" height="16px" />}
 						</div>
-
-						<InfiniteScroll
-							dataLength={unsplashImagesLength}
-							next={fetchNextUnsplashImages}
-							hasMore={unsplashImagesHasNextPage}
-							loader={<FetchMoreLoaderComp />}
-							height={'364px'}
-						>
-							<div className="unsplashImagesListContainer">
-								{unsplashImagesList?.map((image) => (
-									<img
-										key={image.id}
-										className="unsplashImage"
-										onClick={() => handleImageClick(image.uploadImageUrl)}
-										src={image.previewImageUrl}
-										alt={
-											image.alt_description ||
-											image.description ||
-											'Unsplash Image'
-										}
-									/>
-								))}
+						{unsplashImagesEmpty ? (
+							<div className="noUnsplashImagesFound">
+								<h1 className="emptyUnsplashImagesMessage">
+									Oops! No Unsplash images found!
+								</h1>
 							</div>
-						</InfiniteScroll>
+						) : (
+							<InfiniteScroll
+								dataLength={unsplashImagesLength}
+								next={fetchNextUnsplashImages}
+								hasMore={unsplashImagesHasNextPage}
+								loader={<FetchMoreLoaderComp />}
+								height={'364px'}
+							>
+								<div className="unsplashImagesListContainer">
+									{unsplashImagesList?.map((image) => (
+										<img
+											key={image.id}
+											className="unsplashImage"
+											onClick={() => handleImageClick(image.uploadImageUrl)}
+											src={image.previewImageUrl}
+											alt={
+												image.alt_description ||
+												image.description ||
+												'Unsplash Image'
+											}
+										/>
+									))}
+								</div>
+							</InfiniteScroll>
+						)}
 					</div>
 				)}
 			</div>

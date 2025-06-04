@@ -10,7 +10,7 @@ import '../../../assets/scss/sales/createLeadModal.scss';
 import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash/debounce';
 import { fetchOriginSelection } from '../../../helpers';
-const validator = require('validator');
+import validator from 'validator';
 
 let origin = fetchOriginSelection();
 
@@ -34,7 +34,6 @@ const selectedWorkflowStyles = {
 const headerDropdownStyles = {
 	padding: '12px 24px',
 	height: '48px',
-	padding: '12px 14px',
 	color: 'var(--primary-font)',
 	width: 'inherit',
 	flex: 1,
@@ -488,7 +487,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 									{ label: 'Reference', value: 'reference' },
 									{ label: 'None', value: 'null' },
 								]}
-								selectedValue={info?.leadDetails?.source || 'Select Source'}
+								selectedValue={'Select Source'}
 								containerStyle={{ ...headerDropdownStyles }}
 								dropDownStyle={{
 									right: 0,
@@ -526,7 +525,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 							<HeadersDropDownComp
 								showIcon={false}
 								options={info?.clientData || []}
-								selectedValue={info?.leadDetails?.name || 'Select Contact'}
+								selectedValue={'Select Contact'}
 								containerStyle={{ ...headerDropdownStyles }}
 								dropDownStyle={{
 									right: 0,
@@ -536,7 +535,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 								}}
 								onChangeFunc={handleDropdownChange}
 								dropDownTextStyling={{ ...dropdownTextStylings }}
-								showSelectedValueTick={true}
+								// showSelectedValueTick={true}
 								uniqueIdentifierForTickIcon={'_id'}
 								selectedValueObj={info?.selectedLead}
 								fetchMoreData={getMoreClientData}

@@ -16,6 +16,7 @@ import {
 import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import AIMessage from './AIMessage';
 import CombinedChainOfThought from './chatComponents/CombinedChainOfThought';
+import ChainOfThoughtWidget from './chatComponents/ChainOfThoughtWidget';
 const AIMessageRenderer = ({
 	messageData,
 	handleNoteComponentModalOpen,
@@ -24,7 +25,10 @@ const AIMessageRenderer = ({
 	index,
 	handleSendWebsocketMessage,
 	toggleLatestStreamMessage,
+	latestStreamMesage,
+	lastQuery,
 	handleViewDocument,
+	showViewDocument = false,
 	isPublicChat = false,
 	userMessageElement = null,
 	chatContentElement = null,
@@ -47,13 +51,6 @@ const AIMessageRenderer = ({
 					setInfo((prev) => ({
 						...prev,
 						activeTab: 'response',
-					}));
-				}
-			} else {
-				if (info?.activeTab !== 'cot') {
-					setInfo((prev) => ({
-						...prev,
-						activeTab: 'cot',
 					}));
 				}
 			}
@@ -127,8 +124,7 @@ const AIMessageRenderer = ({
 							Chain of Thought
 							{!messageData?.report && (
 								<span className="citation-badge">
-									{messageData?.deepSearch?.cot?.length +
-										messageData?.deepSearch?.cot_refined?.length ||
+									{messageData?.deepSearch?.cot?.length ||
 										messageData?.deepResearch?.cot?.length +
 											messageData?.deepResearch?.sections?.length ||
 										0}
@@ -148,33 +144,47 @@ const AIMessageRenderer = ({
 				</div>
 			</div>
 			{info?.activeTab == 'response' ? (
-				<AIMessage
-					text={messageData?.message}
-					messageId={messageData?.messageId}
-					customePencilClickFunc={handleNoteComponentModalOpen}
-					handleRatingClick={handleRatingClick}
-					rating={messageData?.rating}
-					citations={messageData?.citations}
-					messageData={messageData}
-					isNewMessage={index === globalChatMessages?.length - 1}
-					handleSendWebsocketMessage={handleSendWebsocketMessage}
-					latestStreamMesage={info?.latestStreamMesage}
-					lastQuery={info?.lastQuery}
-					toggleLatestStreamMessage={toggleLatestStreamMessage}
-					handleViewDocument={handleViewDocument}
-					showViewDocument={info?.showViewDocument}
-					isLastMessage={index === globalChatMessages?.length - 1}
-					isPublicChat={isPublicChat}
-				/>
+				<>
+					{(messageData?.processing === 'Deep Search' ||
+						messageData?.processing === 'Deep Research') && (
+						<ChainOfThoughtWidget messageData={messageData} />
+					)}
+
+					<AIMessage
+						text={messageData?.message}
+						messageId={messageData?.messageId}
+						customePencilClickFunc={handleNoteComponentModalOpen}
+						handleRatingClick={handleRatingClick}
+						rating={messageData?.rating}
+						citations={messageData?.citations}
+						messageData={messageData}
+						isNewMessage={index === globalChatMessages?.length - 1}
+						handleSendWebsocketMessage={handleSendWebsocketMessage}
+						latestStreamMesage={latestStreamMesage}
+						lastQuery={lastQuery}
+						toggleLatestStreamMessage={toggleLatestStreamMessage}
+						handleViewDocument={handleViewDocument}
+						showViewDocument={showViewDocument}
+						isLastMessage={index === globalChatMessages?.length - 1}
+						isPublicChat={isPublicChat}
+					/>
+				</>
 			) : info?.activeTab === 'cot' ? (
 				<div className="div">
 					{messageData?.deepResearch && (
-						<DeepResearchChainOfThought data={messageData?.deepResearch} />
+						<DeepResearchChainOfThought
+							data={messageData?.deepResearch}
+							streamEnd={
+								messageData?.message?.length > 0 || messageData?.stream_end || false
+							}
+						/>
 					)}
 					{messageData?.deepSearch && (
 						<DeepSearchChainOfThought
 							data={messageData?.deepSearch}
-							stream_end={messageData?.stream_end}
+							streamEnd={
+								messageData?.message?.length > 0 || messageData?.stream_end || false
+							}
 						/>
 					)}
 					{messageData?.report && <CombinedChainOfThought data={messageData?.report} />}

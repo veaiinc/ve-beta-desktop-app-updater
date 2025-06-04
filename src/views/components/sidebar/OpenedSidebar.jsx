@@ -52,11 +52,13 @@ const MODULE_NAME_MAP = {
 	automation: 'automation',
 	// notes: 'notes',
 	agents: 'knowledgeAgent',
+	'ai assistant': 'conversationalAgent',
+	'knowledge agent': 'knowledgeAgent',
 };
 
 const routeType = 'public';
 
-const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+const isMac = navigator?.platform?.toUpperCase()?.indexOf('MAC') >= 0;
 
 const OpenedSidebarModules = ({
 	name,
@@ -100,7 +102,7 @@ const OpenedSidebarModules = ({
 		if (name === 'Help') {
 			let iframe = document.getElementById('ve-ai-chat-iframe');
 			if (iframe) {
-				const requiredStyle = iframe.style.display === 'block' ? 'none' : 'block';
+				const requiredStyle = iframe.style.display === 'none' ? 'block' : 'none';
 				iframe.style.display = requiredStyle;
 			} else {
 				console.log('Iframe not found');
@@ -108,22 +110,10 @@ const OpenedSidebarModules = ({
 			return;
 		}
 
-		if (name === 'Notes') {
-			setShowNotesDrawer((prev) => !prev);
-		} else {
-			setShowNotesDrawer(false);
-		}
-
 		if (name === 'Notifications') {
 			setShowNotificationsDrawer((prev) => !prev);
 		} else {
 			setShowNotificationsDrawer(false);
-		}
-		if (name === 'Chats') {
-			setShowChatsDrawer((prev) => !prev);
-			// setHideClosedSidebarIcon(true);
-		} else {
-			setShowChatsDrawer(false);
 		}
 
 		if (!subModules) {
@@ -138,8 +128,15 @@ const OpenedSidebarModules = ({
 	const isExactPathMatch = useCallback(() => {
 		const currentPath = location.pathname.replace(/\/$/, '');
 		const routePath = route?.replace(/\/$/, '');
+
+		if (name === 'Agents') {
+			return (
+				currentPath.includes('/knowledge-agent') || currentPath.includes('/ai-assistant')
+			);
+		}
+
 		return currentPath === routePath;
-	}, [location.pathname, route]);
+	}, [location.pathname, route, name]);
 
 	return (
 		<div
@@ -180,7 +177,7 @@ const OpenedSidebarModules = ({
 						width: '100%',
 					}}
 				>
-					{Icon && <Icon fill={'var(--secondary-font)'} />}
+					{Icon && <Icon fill={name === 'Notes' ? 'none' : 'var(--secondary-font)'} />}
 					<p>{name}</p>
 					{isExactPathMatch() && <TickSvg />}
 				</div>
@@ -456,9 +453,17 @@ const OpenedSidebar = ({
 			: filterModules(veAiModules, tenantUserAccessControls?.accessControls, allPossibleApps);
 
 	const isExactPathMatch = useCallback(
-		(route) => {
+		(currentRoute, moduleName) => {
 			const currentPath = location.pathname.replace(/\/$/, '');
-			const routePath = route?.replace(/\/$/, '');
+			const routePath = currentRoute?.replace(/\/$/, '');
+
+			if (moduleName === 'Agents') {
+				return (
+					currentPath.includes('/knowledge-agent') ||
+					currentPath.includes('/ai-assistant')
+				);
+			}
+
 			return currentPath === routePath;
 		},
 		[location.pathname],
@@ -496,7 +501,7 @@ const OpenedSidebar = ({
 	const tooltipItems = [
 		{
 			key: 'theme',
-			label: (theme) => `Switch to ${theme === 'dark' ? 'white' : 'dark'} mode`,
+			label: (theme) => `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`,
 			icon: (theme) => (theme === 'dark' ? <SunIcon /> : <MoonIcon />),
 			onClick: (updateTheme, newThemeValue) => () => updateTheme(newThemeValue),
 		},
@@ -651,10 +656,10 @@ const OpenedSidebar = ({
 																	selectedOption ===
 																	singleItem.name
 																}
-																isActive={
-																	location.pathname ===
-																	singleItem.route
-																}
+																isActive={isExactPathMatch(
+																	singleItem.route,
+																	singleItem.name,
+																)}
 																subModules={singleItem.subModules}
 																isDropdownVisible={
 																	activeDropdown ===
@@ -776,7 +781,7 @@ const OpenedSidebar = ({
 																		</span>
 																	</span>
 																	<span className="workspaceId">
-																		{tennantSettingsData?.businessName.toUpperCase()}
+																		{tennantSettingsData?.businessName?.toUpperCase()}
 																	</span>
 																</div>
 															</div>
@@ -978,7 +983,10 @@ const OpenedSidebar = ({
 											handleNavigateFunction(route, singleItem)
 										}
 										isSelected={selectedOption === singleItem.name}
-										isActive={location.pathname === singleItem.route}
+										isActive={isExactPathMatch(
+											singleItem.route,
+											singleItem.name,
+										)}
 										subModules={singleItem.subModules}
 										isDropdownVisible={activeDropdown === singleItem.name}
 										onDropdownToggle={() =>
@@ -1076,7 +1084,7 @@ const OpenedSidebar = ({
 												</span>
 											</span>
 											<span className="workspaceId">
-												{tennantSettingsData?.businessName.toUpperCase()}
+												{tennantSettingsData?.businessName?.toUpperCase()}
 											</span>
 										</div>
 									</div>

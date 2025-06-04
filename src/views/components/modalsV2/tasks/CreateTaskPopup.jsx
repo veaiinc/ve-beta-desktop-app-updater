@@ -52,8 +52,8 @@ const CreateTaskPopup = ({
 	useEffect(() => {
 		setInfo({
 			...initialState,
-			status: responseMetadata?.status?.props?.options?.[0]?._id,
-			subTaskStatus: responseMetadata?.status?.props?.options?.[0]?._id,
+			// status: responseMetadata?.status?.props?.options?.[0]?._id,
+			// subTaskStatus: responseMetadata?.status?.props?.options?.[0]?._id,
 		});
 	}, [isOpen, responseMetadata]);
 
@@ -102,6 +102,10 @@ const CreateTaskPopup = ({
 
 	const handleAddTask = useCallback(async () => {
 		try {
+			if (info?.title?.trim() === '') {
+				message.error('Task title is required');
+				return;
+			}
 			setInfo((prevInfo) => ({ ...prevInfo, isLoading: true }));
 			const payload = preparePayload(info);
 			await addNewTask(payload);
@@ -170,20 +174,23 @@ const CreateTaskPopup = ({
 		}));
 	}, []);
 
-	const handleEditSubTask = useCallback((index) => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			isSubTaskEditing: true,
-			showSubTaskCreate: true,
-			editingSubTaskIndex: index, // Store the index being edited
-			subTaskTitle: prevInfo?.childTasks[index]?.title,
-			subTaskDescription: prevInfo?.childTasks[index]?.description,
-			subTaskAssignedTo: prevInfo?.childTasks[index]?.assignedTo || [],
-			subTaskDueDate: prevInfo?.childTasks[index]?.dueDate,
-			subTaskPriority: prevInfo?.childTasks[index]?.priority,
-			subTaskStatus: prevInfo?.childTasks[index]?.status,
-		}));
-	}, []);
+	const handleEditSubTask = useCallback(
+		(index) => {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				isSubTaskEditing: true,
+				showSubTaskCreate: true,
+				editingSubTaskIndex: index, // Store the index being edited
+				subTaskTitle: prevInfo?.childTasks[index]?.title,
+				subTaskDescription: prevInfo?.childTasks[index]?.description,
+				subTaskAssignedTo: prevInfo?.childTasks[index]?.assignedTo || [],
+				subTaskDueDate: prevInfo?.childTasks[index]?.dueDate,
+				subTaskPriority: prevInfo?.childTasks[index]?.priority,
+				subTaskStatus: prevInfo?.childTasks[index]?.status,
+			}));
+		},
+		[info?.childTasks],
+	);
 
 	return (
 		<ReactModal
@@ -226,6 +233,7 @@ const CreateTaskPopup = ({
 						title={'Status'}
 						options={responseMetadata?.status?.props?.options}
 						colors={colors}
+						setDefault={true}
 					/>
 					<Select
 						value={info?.priority}
@@ -259,7 +267,7 @@ const CreateTaskPopup = ({
 						parseValue={true}
 						removeBtn={true}
 					/>
-					{!isSubTask ? (
+					{!isSubTask && info?.childTasks?.length < 1 ? (
 						<div
 							className="task-icon-wrapper"
 							onClick={() => updateModalInfo('showSubTaskCreate', true)}
@@ -305,6 +313,7 @@ const CreateTaskPopup = ({
 								onOptionClick={(value) => updateModalInfo('subTaskStatus', value)}
 								title={'Status'}
 								colors={colors}
+								setDefault={info?.isSubTaskEditing ? false : true}
 							/>
 							<Select
 								value={info?.subTaskPriority}
@@ -417,7 +426,7 @@ const CreateTaskPopup = ({
 							<button
 								className="btn-createIssue"
 								onClick={handleAddTask}
-								disabled={info?.isLoading || info?.title.trim() === ''}
+								disabled={info?.isLoading}
 							>
 								{info?.isLoading ? (
 									<Spinner width={'20px'} height={'20px'} />

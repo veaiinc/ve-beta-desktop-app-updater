@@ -7,7 +7,7 @@
 	gap: 24px;
 	border-radius: 24px;
 	background: var(--card, #18191b);
-	box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.04);
+	border: 1px solid var(--stroke);
 
 	.promptPopupContainerHeader {
 		display: flex;

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { Drawer } from 'antd';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/automation_builder/builderToolbar.scss';
@@ -120,7 +119,12 @@ const BuilderToolbar = ({
 			onClose={onClose}
 			open={open}
 			width={360}
-			style={{ padding: '0px', backgroundColor: '#141415', borderLeft: '1px solid #2c2d2e' }}
+			style={{
+				padding: '0px',
+				backgroundColor: 'var(--card)',
+				borderLeft: '1px solid var(--stroke)',
+				color: 'var(--primary-font)',
+			}}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
 			mask={false}

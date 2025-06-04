@@ -1,0 +1,72 @@
+.suggestions-wrapper {
+	max-width: 750px;
+	width: 100%;
+	display: flex;
+	padding: 10px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+	align-self: stretch;
+	border-radius: 8px;
+	background-color: var(--background-color);
+	transition: background-color 0.1s ease-out;
+
+	.suggestion-container {
+		display: flex;
+		width: 100%;
+		padding: 10px;
+		align-items: center;
+		gap: 8px;
+		border-radius: 6px;
+		border: 1px solid transparent;
+		cursor: pointer;
+		&:hover {
+			background-color: var(--card);
+			border: 1px solid var(--stroke);
+			.suggestion-text {
+				color: var(--primary-font);
+			}
+			.arrow-icon {
+				svg {
+					path {
+						fill: var(--primary-button);
+					}
+				}
+			}
+		}
+		.icon-container {
+			height: 18px;
+			position: relative;
+			top: 1px;
+			svg {
+				width: 18px;
+				height: 18px;
+				circle,
+				path {
+					stroke: var(--secondary-font);
+				}
+			}
+		}
+		.suggestion-text {
+			flex-grow: 1;
+			color: var(--secondary-font, #7a7e85);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+			transition: color 0.1s ease-out;
+		}
+		.arrow-icon {
+			height: 18px;
+			svg {
+				width: 16px;
+				height: 16px;
+				path {
+					transition: fill 0.1s ease-out !important;
+					fill: var(--background-color);
+				}
+			}
+		}
+	}
+}

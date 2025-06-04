@@ -25,11 +25,30 @@
 			justify-content: space-between;
 			align-items: center;
 			align-self: stretch;
+			gap: 10px;
+			.todayButton {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				cursor: pointer;
+				border-radius: 25px;
+				border: 1.5px solid var(--stroke);
+				padding: 6px 12px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 4px;
+				&:hover {
+					background-color: var(--card-over-card-hover);
+				}
+			}
 
 			.calendarDate {
 				display: flex;
 				align-items: center;
-				gap: 8px;
+				gap: 12px;
 				cursor: pointer;
 
 				color: var(--primary-font);
@@ -60,6 +79,10 @@
 					gap: 4px;
 				}
 			}
+			// .calendarDateLeft {
+			// }
+			// .calendarDateRight {
+			// }
 
 			.calendarControlsRight {
 				display: flex;
@@ -182,11 +205,7 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
-						// padding: 0px 8px;
 					}
-					// .ant-select-selection-item {
-					// 	margin: 0px 8px;
-					// }
 
 					.ant-select-selection-placeholder {
 						color: rgba(var(--primary-font), 0.48);

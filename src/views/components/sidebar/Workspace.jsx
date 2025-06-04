@@ -1,15 +1,13 @@
 import React, { memo, useCallback, useContext, useState, useEffect } from 'react';
-import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/singleRightArrow.svg';
 import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
-// import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
+// import LogoutRedSvg from '../../../assets/svg/sidebar/logout_red.svg';
 // import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import Cookies from 'js-cookie';
-import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 // import useLogout from '../../hooks/useLogout';
 import { fetchDomainName } from '../../../helpers';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
-// import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
+// import LogoutRedSvg from '../../../assets/svg/sidebar/logout_red.svg';
 // import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 
 const workspaceOpenStyle = {
@@ -35,6 +33,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 	const [searchWorkspace, setSearchWorkspace] = useState('');
 	const [focusedIndex, setFocusedIndex] = useState(0);
 
+	const currentId = info?.activeBusniessName?.activeWorkspaceId;
 	useEffect(() => {
 		if (userWorkSpaceList && info?.activeBusniessName?.activeWorkspaceId) {
 			const activeIndex = userWorkSpaceList.findIndex(
@@ -51,9 +50,16 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 		setsidebarStates({ ...sidebarStates, workSpaceOpen: false, navStyle: 'open' });
 	};
 
-	const filteredWorkspaces = userWorkSpaceList?.filter((workspace) =>
-		workspace?.businessName?.toLowerCase()?.includes(searchWorkspace?.toLowerCase()),
-	);
+	const filteredWorkspaces =
+		userWorkSpaceList
+			?.filter((ws) =>
+				ws?.businessName?.toLowerCase()?.includes(searchWorkspace?.toLowerCase()),
+			)
+			.sort((a, b) => {
+				if (a?.activeWorkspaceId === currentId) return -1;
+				if (b?.activeWorkspaceId === currentId) return 1;
+				return 0;
+			}) ?? [];
 
 	useEffect(() => {
 		const handleKeyDown = (e) => {
@@ -75,6 +81,12 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 		window?.addEventListener('keydown', handleKeyDown);
 		return () => window?.removeEventListener('keydown', handleKeyDown);
 	}, [filteredWorkspaces, focusedIndex]);
+	useEffect(() => {
+		const el = document.querySelector(`.singleWorkspace[data-index="${focusedIndex}"]`);
+		if (el) {
+			el.scrollIntoView({ block: 'nearest' });
+		}
+	}, [focusedIndex]);
 
 	const handleSwitchWorkSpaceLogic = useCallback(
 		(data) => {
@@ -157,6 +169,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 						{filteredWorkspaces?.map((singleWorkspace, index) => (
 							<div
 								key={singleWorkspace?.activeWorkspaceId}
+								data-index={index}
 								className={`singleWorkspace ${
 									singleWorkspace?.activeWorkspaceId ===
 									info?.activeBusniessName?.activeWorkspaceId

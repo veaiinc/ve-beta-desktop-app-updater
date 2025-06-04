@@ -1,7 +1,6 @@
 import { memo, useState } from 'react';
 import { Flex, Rate } from 'antd';
 import '../../../assets/scss/forms/FormDescription.scss';
-import { ReactComponent as CrossSvg } from '../../../assets/svg/doubleBack.svg';
 import { ReactComponent as BiDash } from '../../../assets/svg/smartFiles/formResponse/bi-dash.svg';
 import { ReactComponent as Email } from '../../../assets/svg/smartFiles/formResponse/email.svg';
 import { ReactComponent as Phone } from '../../../assets/svg/smartFiles/formResponse/phone.svg';
@@ -17,7 +16,6 @@ import { ReactComponent as Clock } from '../../../assets/svg/smartFiles/formResp
 import { ReactComponent as Signature } from '../../../assets/svg/smartFiles/formResponse/signature.svg';
 import { ReactComponent as Star } from '../../../assets/svg/smartFiles/formResponse/star.svg';
 import { ReactComponent as TimeDivider } from '../../../assets/svg/smartFiles/formResponse/time-divider.svg';
-import FormAnalytics from './FormAnalytics';
 import {
 	FilePdfOutlined,
 	FileTextOutlined,
@@ -251,77 +249,71 @@ const FileUploadAnswer = ({ answer }) => {
 		files = [];
 	}
 
+	if (!files?.length) return null;
+
 	return (
 		<>
-			{files?.length > 0 && (
-				<div className="fileUploadContainer">
-					{files.map((file, index) => {
-						const fileName =
-							typeof file === 'string' ? file : file?.name || file?.fileName || '';
-						const fileUrl =
-							typeof file === 'string'
-								? file
-								: file?.fileURL ||
-								  file?.url ||
-								  file?.previewUrl ||
-								  file?.fileUrl ||
-								  '';
-						const fileExtension = fileName?.split('.').pop()?.toLowerCase();
-						const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(
-							fileExtension,
-						);
-						const isPDF = fileExtension === 'pdf';
-						const isDocument = ['doc', 'docx', 'txt', 'rtf'].includes(fileExtension);
-						const isSpreadsheet = ['xls', 'xlsx', 'csv'].includes(fileExtension);
-						const isPresentation = ['ppt', 'pptx'].includes(fileExtension);
+			<div className="fileUploadContainer">
+				{files.map((file, index) => {
+					const fileName =
+						typeof file === 'string' ? file : file?.name || file?.fileName || '';
+					const fileUrl =
+						typeof file === 'string'
+							? file
+							: file?.fileURL || file?.url || file?.previewUrl || file?.fileUrl || '';
+					const fileExtension = fileName?.split('.').pop()?.toLowerCase();
+					const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension);
+					const isPDF = fileExtension === 'pdf';
+					const isDocument = ['doc', 'docx', 'txt', 'rtf'].includes(fileExtension);
+					const isSpreadsheet = ['xls', 'xlsx', 'csv'].includes(fileExtension);
+					const isPresentation = ['ppt', 'pptx'].includes(fileExtension);
 
-						return (
-							<div key={index} className="fileItem">
-								{isImage ? (
-									<div
-										className="imagePreview"
-										onClick={() =>
-											setSelectedFile({
-												name: fileName,
-												fileURL: fileUrl,
-												type: 'image',
-											})
-										}
-										style={{ cursor: 'pointer' }}
-									>
-										<img src={fileUrl} alt={fileName} />
-										<span className="fileName">{fileName}</span>
+					return (
+						<div key={index} className="fileItem">
+							{isImage ? (
+								<div
+									className="imagePreview"
+									onClick={() =>
+										setSelectedFile({
+											name: fileName,
+											fileURL: fileUrl,
+											type: 'image',
+										})
+									}
+									style={{ cursor: 'pointer' }}
+								>
+									<img src={fileUrl} alt={fileName} />
+									<span className="fileName">{fileName}</span>
+								</div>
+							) : (
+								<div
+									className="filePreview"
+									onClick={() =>
+										setSelectedFile({
+											name: fileName,
+											fileURL: fileUrl,
+											type: 'document',
+										})
+									}
+									style={{ cursor: 'pointer' }}
+								>
+									<div className="fileIcon">
+										{isPDF && <FilePdfOutlined />}
+										{isDocument && <FileTextOutlined />}
+										{isSpreadsheet && <FileExcelOutlined />}
+										{isPresentation && <FilePptOutlined />}
+										{!isPDF &&
+											!isDocument &&
+											!isSpreadsheet &&
+											!isPresentation && <FileOutlined />}
 									</div>
-								) : (
-									<div
-										className="filePreview"
-										onClick={() =>
-											setSelectedFile({
-												name: fileName,
-												fileURL: fileUrl,
-												type: 'document',
-											})
-										}
-										style={{ cursor: 'pointer' }}
-									>
-										<div className="fileIcon">
-											{isPDF && <FilePdfOutlined />}
-											{isDocument && <FileTextOutlined />}
-											{isSpreadsheet && <FileExcelOutlined />}
-											{isPresentation && <FilePptOutlined />}
-											{!isPDF &&
-												!isDocument &&
-												!isSpreadsheet &&
-												!isPresentation && <FileOutlined />}
-										</div>
-										<span className="fileName">{fileName}</span>
-									</div>
-								)}
-							</div>
-						);
-					})}
-				</div>
-			)}
+									<span className="fileName">{fileName}</span>
+								</div>
+							)}
+						</div>
+					);
+				})}
+			</div>
 			{selectedFile && (
 				<FormPreview file={selectedFile} onClose={() => setSelectedFile(null)} />
 			)}
@@ -392,16 +384,16 @@ const FormDescriptionSkeleton = () => {
 const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	const getName = (response) => {
 		if (!response?.response) return 'No Name';
-		const nameField = response?.response.find((item) =>
-			item?.question?.toLowerCase().includes('name'),
+		const nameField = response?.response.find(
+			(item) => item?.variableId === '619f75683f381fd66dac4b65',
 		);
 		return nameField?.answer || 'No Name';
 	};
 
 	const getEmail = (response) => {
 		if (!response?.response) return '';
-		const emailField = response?.response.find((item) =>
-			item?.question?.toLowerCase().includes('email'),
+		const emailField = response?.response.find(
+			(item) => item?.variableId === '6311efc4911e0f82be7e2b2d',
 		);
 		return emailField?.answer || '';
 	};
@@ -409,66 +401,44 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	const getPhone = (response) => {
 		if (!response?.response) return '';
 		const phoneField = response.response.find(
-			(item) =>
-				item?.question?.toLowerCase().includes('phone') ||
-				item?.question?.toLowerCase().includes('mobile') ||
-				item?.question?.toLowerCase().includes('contact'),
+			(item) => item?.variableId === '6311ee8f8e7c108259cf96e6',
 		);
 		return phoneField?.answer || '';
 	};
 
 	const getBasicInfo = (response) => {
 		if (!response?.response) return [];
-		const basicInfoFields = [
-			'first name',
-			'last name',
-			'name',
-			'email',
-			'phone',
-			'mobile',
-			'contact',
-			'address',
-			'location',
-			'company',
-			'organization',
-			'position',
-			'title',
+
+		const basicInfo = [
+			{
+				question: 'Name',
+				answer: getName(response),
+			},
+			{
+				question: 'Email',
+				answer: getEmail(response),
+			},
+			{
+				question: 'Phone',
+				answer: getPhone(response),
+			},
 		];
-		return response.response.filter((item) => {
-			const question = item?.question?.toLowerCase() || '';
-			return basicInfoFields.some((field) => question.includes(field));
-		});
+
+		// Filter out entries where answer is empty or 'No Name'
+		return basicInfo.filter((info) => info.answer && info.answer !== 'No Name');
 	};
 
 	const getTimeAgo = (response) => {
 		if (!response?.createdAt) return '';
-		return new Date(response.createdAt * 1000).toLocaleString();
-	};
-
-	const formatLabel = (question) => {
-		const lowerQuestion = question?.toLowerCase();
-		if (lowerQuestion?.includes('first name')) return 'First Name';
-		if (lowerQuestion?.includes('last name')) return 'Last Name';
-		if (
-			lowerQuestion?.includes('name') &&
-			!lowerQuestion?.includes('first') &&
-			!lowerQuestion?.includes('last')
-		)
-			return 'Name';
-		if (lowerQuestion?.includes('email')) return 'Email';
-		if (
-			lowerQuestion?.includes('phone') ||
-			lowerQuestion?.includes('mobile') ||
-			lowerQuestion?.includes('contact')
-		)
-			return 'Phone';
-		if (lowerQuestion?.includes('address')) return 'Address';
-		if (lowerQuestion?.includes('location')) return 'Location';
-		if (lowerQuestion?.includes('company') || lowerQuestion?.includes('organization'))
-			return 'Company';
-		if (lowerQuestion?.includes('position') || lowerQuestion?.includes('title'))
-			return 'Position';
-		return question;
+		return new Date(response.createdAt * 1000).toLocaleString('en-US', {
+			hour: 'numeric',
+			minute: 'numeric',
+			second: 'numeric',
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+			hour12: true, // Enables AM/PM format
+		});
 	};
 
 	const formAnswer = (type, answer) => {
@@ -533,36 +503,36 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 					</div>
 				) : (
 					<>
+						<span
+							className="createDocumentButton"
+							onClick={() => {
+								window.location.href = `${origin}/create-document?formResponseId=${
+									response?._id
+								}&name=${getName(response)}&email=${getEmail(
+									response,
+								)}&phoneNumber=${getPhone(response)}`;
+							}}
+						>
+							Create Document
+						</span>
 						<div className="descriptionSection">
-							<div className="infoRow">
-								<h3 className="sectionTitle">Basic Information</h3>
-								<span
-									className="createDocumentButton"
-									onClick={() => {
-										window.location.href = `${origin}/create-document?formResponseId=${
-											response?._id
-										}&name=${getName(response)}&email=${getEmail(
-											response,
-										)}&phoneNumber=${getPhone(response)}`;
-									}}
-								>
-									Create Document
-								</span>
-							</div>
-							{getBasicInfo(response).map((field, index) => (
-								<div key={index} className="infoRow">
-									<span className="infoLabel">
-										{formatLabel(field?.question)}:
-									</span>
-									<span className="infoValue">
-										{field?.answer || 'Not provided'}
-									</span>
-								</div>
-							))}
-							<div className="infoRow">
-								<span className="infoLabel">Submitted:</span>
-								<span className="infoValue">{getTimeAgo(response)}</span>
-							</div>
+							{getBasicInfo(response).length > 0 && (
+								<>
+									<div className="infoRow">
+										<h3 className="sectionTitle">Basic Information</h3>
+									</div>
+									{getBasicInfo(response).map((field, index) => (
+										<div key={index} className="infoRow">
+											<span className="infoLabel">{field?.question}:</span>
+											<span className="infoValue">{field?.answer}</span>
+										</div>
+									))}
+									<div className="infoRow">
+										<span className="infoLabel">Submitted:</span>
+										<span className="infoValue">{getTimeAgo(response)}</span>
+									</div>
+								</>
+							)}
 						</div>
 						<div className="descriptionSection">
 							<h3 className="sectionTitle">Form Responses</h3>

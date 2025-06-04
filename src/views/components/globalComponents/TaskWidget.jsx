@@ -11,7 +11,8 @@ import {
 import '../../../assets/scss/globalComponents/taskWidget.scss';
 import { ReactComponent as DownArrowIcon } from '../../../assets/svg/chat/downArrow.svg';
 import { ReactComponent as FiltersIcon } from '../../../assets/svg/tasks/filterLines.svg';
-import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
+import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/add.svg';
+import { ReactComponent as ArrowViewIcon } from '../../../assets/svg/calendar/arrowview.svg';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
@@ -32,6 +33,7 @@ import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { Tooltip } from 'antd';
+import ChildTaskComponent from '../tasks/listView/ChildTaskComponent';
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
@@ -59,7 +61,7 @@ const defaultPreference = {
 	updatedAt: { show: false, order: 15 },
 };
 
-const TaskWidget = ({ width, height }) => {
+const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 	const location = useLocation();
 	const isContactPage = location?.pathname?.includes('contact');
 	const navigate = useNavigate();
@@ -80,6 +82,8 @@ const TaskWidget = ({ width, height }) => {
 			refetchTasks,
 			getListTaskWithGroup,
 			updateTaskPreferences,
+			updateSideBarData,
+			sideBarData,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -92,8 +96,6 @@ const TaskWidget = ({ width, height }) => {
 		loading: true,
 		promptPopupOpen: false,
 		selectedCard: null,
-		isModalOpen: false,
-		selectedRow: null,
 		tenantUsers: [],
 		taskMetadata: null,
 		createTaskPopup: false,
@@ -105,27 +107,40 @@ const TaskWidget = ({ width, height }) => {
 			preferences: defaultPreference,
 		},
 		group: null,
-		page: 1,
 	});
 
 	useEffect(() => {
 		setInfo((prev) => ({ ...prev, loading: true }));
 		getTasksList(1);
-	}, [location.pathname]);
+	}, [location.pathname, clientId]);
 
 	useEffect(() => {
 		if (listTasks) {
 			if (listTasks?.data) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					listItems:
-						info?.page === 1
-							? listTasks?.data
-							: [...prevInfo?.listItems, ...listTasks?.data],
-					hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
-					loading: false,
-					infinityLoading: false,
-				}));
+				setInfo((prevInfo) => {
+					// Reset listItems when clientId changes or on first load
+					const shouldReset = prevInfo?.page === 1 || !prevInfo?.listItems?.length;
+					const newTasks = shouldReset ? listTasks?.data : prevInfo?.listItems;
+
+					// Calculate client-specific pending tasks only for contact page
+					if (isContactPage && onTaskCountUpdate) {
+						const clientPendingTasks =
+							listTasks?.data?.filter(
+								(task) =>
+									task?.clients?.some((client) => client?._id === clientId) &&
+									!task?.status?.includes('completed'),
+							).length || 0;
+						onTaskCountUpdate(clientPendingTasks);
+					}
+
+					return {
+						...prevInfo,
+						listItems: newTasks,
+						hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
+						loading: false,
+						infinityLoading: false,
+					};
+				});
 			}
 		}
 		if (listTasks?.error) {
@@ -137,7 +152,7 @@ const TaskWidget = ({ width, height }) => {
 				hasMore: false,
 			}));
 		}
-	}, [listTasks]);
+	}, [listTasks, clientId, onTaskCountUpdate, isContactPage]);
 
 	const responseMetadata = useMemo(
 		() => ({
@@ -352,47 +367,89 @@ const TaskWidget = ({ width, height }) => {
 
 	const getTasksList = async (page) => {
 		try {
+			// Only set loading to true if it's the first page
+			if (page === 1) {
+				setInfo((prev) => ({ ...prev, loading: true }));
+			}
 			const response = await getListItems({
 				taskFilterInput: {
 					limit: 20,
 					page,
+					filters: clientId
+						? [
+								{
+									key: 'clients',
+									value: clientId,
+								},
+						  ]
+						: [],
 				},
 			});
-			const nextPage = response?.[1]?.data?.listTasks?.currentPage + 1;
-			const hasNextPage = response?.[1]?.data?.listTasks?.hasNextPage;
+
+			if (response?.[0]) {
+				const taskData = response?.[1]?.data?.listTasks;
+				setInfo((prev) => ({
+					...prev,
+					listItems:
+						page === 1
+							? taskData?.data || []
+							: [...prev.listItems, ...(taskData?.data || [])],
+					hasNextPage: taskData?.hasNextPage || false,
+					page: taskData?.currentPage + 1,
+					loading: false,
+					infinityLoading: false,
+					error: null,
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					loading: false,
+					infinityLoading: false,
+					error: 'Failed to fetch tasks',
+				}));
+			}
+		} catch (error) {
 			setInfo((prev) => ({
 				...prev,
-				page: nextPage,
-				hasNextPage,
+				loading: false,
+				infinityLoading: false,
+				error: error.message,
 			}));
-		} catch (error) {
-			setInfo((prev) => ({ ...prev, loading: false, error: error.message }));
 		}
 	};
 
-	const fetchMoreData = () => {
-		if (info?.hasNextPage) {
+	// Add useEffect to reset and refetch tasks when clientId changes
+	useEffect(() => {
+		if (clientId) {
+			setInfo((prev) => ({
+				...prev,
+				loading: true,
+				page: 1,
+				listItems: [], // Reset listItems when clientId changes
+				hasNextPage: false,
+			}));
+			getTasksList(1);
+		}
+	}, [clientId]);
+
+	// Update fetchMoreData to handle client filtering
+	const fetchMoreData = useCallback(() => {
+		if (info?.hasNextPage && !info?.loading && !info?.infinityLoading) {
+			setInfo((prev) => ({ ...prev, infinityLoading: true }));
 			getTasksList(info?.page);
 		}
-	};
+	}, [info?.hasNextPage, info?.loading, info?.infinityLoading, info?.page]);
 
 	const handlePromptPopup = (item) => {
 		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
 	};
 
 	const handleTaskClick = (tasks) => {
-		setInfo((prev) => ({
-			...prev,
-			selectedRow: tasks,
-			isModalOpen: true,
-		}));
+		updateSideBarData({ data: tasks, open: true, replace: true });
 	};
 
 	const handleModalClose = () => {
-		setInfo((prev) => ({
-			...prev,
-			isModalOpen: false,
-		}));
+		updateSideBarData({ open: false });
 	};
 	const handleCreateTaskPopup = () => {
 		setInfo((prev) => ({
@@ -421,7 +478,10 @@ const TaskWidget = ({ width, height }) => {
 										sortType: item?.sortType,
 								  }))
 								: [{ sortBy: 'createdAt', sortType: 1 }],
-						filters: mapFiltersPayload(info?.filters),
+						filters: [
+							...(info?.filters || []),
+							...(clientId ? [{ key: 'clients', value: clientId }] : []),
+						],
 						search: info?.searchValue,
 						group: info?.group,
 					},
@@ -438,7 +498,10 @@ const TaskWidget = ({ width, height }) => {
 										sortType: item?.sortType,
 								  }))
 								: [{ sortBy: 'createdAt', sortType: 1 }],
-						filters: mapFiltersPayload(info?.filters),
+						filters: [
+							...(info?.filters || []),
+							...(clientId ? [{ key: 'clients', value: clientId }] : []),
+						],
 						search: info?.searchValue,
 					},
 				});
@@ -448,7 +511,7 @@ const TaskWidget = ({ width, height }) => {
 				page: page,
 			}));
 		},
-		[info?.sort, info?.filters, info?.searchValue, info?.group],
+		[info?.sort, info?.filters, info?.searchValue, info?.group, clientId],
 	);
 
 	const debouncedUpdateTask = useCallback(
@@ -673,13 +736,28 @@ const TaskWidget = ({ width, height }) => {
 		[info?.selectedSubTask?._id, removeSubTask],
 	);
 
+	const handleCreateSubTaskClick = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			createTaskPopup: true,
+			isCreatingSubtask: true,
+		}));
+		updateSideBarData({ open: false });
+	}, []);
+
 	return (
 		<div className="task-main-container" style={{ width: width, height: height }}>
 			<div className="taskWidgetContainer">
 				<div className="taskWidgetBody">
 					<div className="taskWidgetBodyHeader">
 						<div className="taskWidgetBodyHeaderLeft">
-							<span className="taskWidgetDay">{listTasks?.analytics?.allTasks}</span>
+							<span className="taskWidgetDay">
+								{isContactPage
+									? info?.listItems?.filter(
+											(task) => !task?.status?.includes('completed'),
+									  ).length
+									: listTasks?.analytics?.allPending || 0}
+							</span>
 							<span className="taskWidgetRemainder">Pending Tasks</span>
 						</div>
 						{/* <div className="taskWidgetBodyHeaderRight">
@@ -721,64 +799,126 @@ const TaskWidget = ({ width, height }) => {
 								next={fetchMoreData}
 								loader={<FetchMoreLoaderComp />}
 								scrollableTarget="taskWidgetBodyContainer"
-								scrollThreshold="90%"
+								scrollThreshold={0.8}
+								// endMessage={
+								// 	<div
+								// 		className="taskWidgetEmptyState"
+								// 		style={{ fontSize: '12px', alignSelf: 'center' }}
+								// 	>
+								// 		No more tasks to load
+								// 	</div>
+								// }
 							>
-								{info?.listItems?.map((eachOption, index) => (
-									<Fragment key={index}>
-										{eachOption?.status === 'Overdue' && (
-											<div className="taskWidgetStatusContainer">
-												<div className="taskWidgetStatusTitle">
-													{eachOption?.status}
+								<div className="taskWidgetOptionsContainer">
+									{info?.listItems
+										?.sort((a, b) => {
+											// Sort overdue tasks first
+											const aIsOverdue =
+												a?.dueDate &&
+												moment.unix(a.dueDate).isBefore(moment(), 'day');
+											const bIsOverdue =
+												b?.dueDate &&
+												moment.unix(b.dueDate).isBefore(moment(), 'day');
+											if (aIsOverdue && !bIsOverdue) return -1;
+											if (!aIsOverdue && bIsOverdue) return 1;
+
+											// Then sort today's tasks
+											const aIsToday =
+												a?.dueDate &&
+												moment.unix(a.dueDate).isSame(moment(), 'day');
+											const bIsToday =
+												b?.dueDate &&
+												moment.unix(b.dueDate).isSame(moment(), 'day');
+											if (aIsToday && !bIsToday) return -1;
+											if (!aIsToday && bIsToday) return 1;
+
+											return 0;
+										})
+										?.map((eachOption, index) => (
+											<Fragment key={index}>
+												{index === 0 &&
+													eachOption?.dueDate &&
+													moment
+														.unix(eachOption.dueDate)
+														.isSame(moment(), 'day') && (
+														<div className="taskWidgetStatusContainer">
+															<div className="taskWidgetStatusTitle">
+																Today
+															</div>
+															<hr className="taskWidgetHr" />
+														</div>
+													)}
+												<div
+													className="taskWidgetOption"
+													onClick={() => handleTaskClick(eachOption)}
+												>
+													<div className="taskWidgetOptionDetails">
+														<div className="taskWidgetOptionTitle">
+															{eachOption?.title}
+														</div>
+														<div className="taskWidgetOptionName">
+															<Tooltip
+																title={`Assigned By: ${eachOption?.assignedBy?.name}`}
+															>
+																<span className="taskWidgetOptionNameText">
+																	{eachOption?.assignedBy?.name}
+																</span>
+															</Tooltip>
+														</div>
+													</div>
+													{eachOption?.dueDate && (
+														<>
+															{moment
+																.unix(eachOption.dueDate)
+																.isBefore(moment(), 'day') && (
+																<div className="taskWidgetDueNow overdue">
+																	Over Due
+																</div>
+															)}
+															{moment
+																.unix(eachOption.dueDate)
+																.isSame(moment(), 'day') && (
+																<div className="taskWidgetDueNow">
+																	Due Now
+																</div>
+															)}
+														</>
+													)}
 												</div>
-												<hr className="taskWidgetHr" />
-											</div>
-										)}
-										<div
-											className="taskWidgetOption"
-											onClick={() => handleTaskClick(eachOption)}
-										>
-											{/* <div className="taskWidgetSelectOption"></div> */}
-											<div className="taskWidgetOptionDetails">
-												<div className="taskWidgetOptionTitle">
-													{eachOption?.title}
-												</div>
-												<div className="taskWidgetOptionName">
-													<Tooltip
-														title={`Assigned By: ${eachOption?.assignedBy?.name}`}
-													>
-														<span className="taskWidgetOptionNameText">
-															{eachOption?.assignedBy?.name}
-														</span>
-													</Tooltip>
-												</div>
-											</div>
-										</div>
-									</Fragment>
-								))}
+											</Fragment>
+										))}
+								</div>
 							</InfiniteScroll>
 						)}
 					</div>
 				</div>
+			</div>
+			<div
+				className="taskWidgetFooter"
+				onClick={() => {
+					navigate('/tasks');
+				}}
+			>
+				<div className="taskWidgetFooterTitle">
+					<ArrowViewIcon />
+					View Tasks
+				</div>
 				<div
-					className="taskWidgetFooter"
-					onClick={() => {
-						navigate('/tasks');
+					onClick={(e) => {
+						e.stopPropagation();
+						handleCreateTaskPopup();
 					}}
-					style={{ cursor: 'pointer' }}
+					className="taskWidgetFooterAdd"
 				>
-					<div className="taskWidgetFooterTitle">View All Tasks</div>
 					<PlusIcon
-						onClick={(e) => {
-							e.stopPropagation();
-							handleCreateTaskPopup();
+						style={{
+							width: '18px',
+							height: '18px',
 						}}
 					/>
 				</div>
 			</div>
 			<ListViewSidebar
-				selectedRow={info?.selectedRow}
-				sidebarIsOpen={info?.isModalOpen}
-				closeSidebar={handleModalClose}
 				handleUpdate={updatePropertyValue}
 				deleteTask={deleteTask}
 				rowTypes={rowTypes}
@@ -789,28 +929,19 @@ const TaskWidget = ({ width, height }) => {
 					updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
 				}
 				isSidebarExpanded={info?.isSidebarExpanded}
-				headerText={
-					`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
-					(info?.selectedRow?.taskSlNo || '')
+				prefix={info?.taskMetadata?.prefix}
+				groupBy={info?.group}
+				sidebarChildren={
+					<ChildTaskComponent
+						completedStatus={info?.taskMetadata?.completedGroupLabels}
+						rowTypes={rowTypes}
+						responseMetadata={responseMetadata}
+						colors={colors}
+						properties={info?.properties}
+						onAddButtonClick={handleCreateSubTaskClick}
+						handleUpdate={(...args) => updatePropertyValue(...args, true)}
+					/>
 				}
-				breadCrumbs={info?.breadCrumbs}
-				handleBreadCrumbsClick={() => {}}
-				// sidebarChildren={
-				// 	info?.selectedRow ? (
-				// 		<ChildTaskComponent
-				// 			parentTaskId={info?.selectedRow?._id}
-				// 			childTasks={info?.selectedRow?.childTasks}
-				// 			completedStatus={info?.taskMetadata?.completedGroupLabels}
-				// 			rowTypes={rowTypes}
-				// 			responseMetadata={responseMetadata}
-				// 			colors={colors}
-				// 			properties={info?.properties}
-				// 			onAddButtonClick={handleCreateSubTaskClick}
-				// 			handleUpdate={(...args) => updatePropertyValue(...args, true)}
-				// 			handleRowClick={handleSubTaskClick}
-				// 		/>
-				// 	) : null
-				// }
 			/>
 			<CreateTaskPopup
 				isOpen={info?.createTaskPopup}
@@ -818,6 +949,7 @@ const TaskWidget = ({ width, height }) => {
 				responseMetadata={responseMetadata}
 				colors={colors}
 				addNewTask={addNewTask}
+				isSubTask={info?.isCreatingSubtask}
 			/>
 		</div>
 	);

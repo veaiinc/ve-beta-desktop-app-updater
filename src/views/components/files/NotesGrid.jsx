@@ -1,7 +1,6 @@
 import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
-import { ReactComponent as NotesIcon } from '../../../assets/svg/files/notes-icon.svg';
 import { useNavigate } from 'react-router-dom';
 import { memo, useContext, useEffect, useState } from 'react';
 import Context from '../../../context/context';
@@ -227,14 +226,14 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 								>
 									<div className="card-item-style content-wrapper note-card-content">
 										<div className="title-container">
-											<NotesIcon />
+											{/* <NotesIcon /> */}
+											<span></span>
 											<span className="item-title">
 												{note?.title || 'Untitled Note'}
 											</span>
 										</div>
 										<div className="note-footer-container">
 											<span className="note-sub-heading">
-												{console.log(info?.selectedSort?.value)}
 												{info?.selectedSort?.value === 'updatedAt' ? (
 													<Tooltip title="Updated On">
 														{moment.unix(note?.updatedAt).fromNow()}

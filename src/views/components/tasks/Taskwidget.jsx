@@ -1,17 +1,14 @@
-import { memo, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/tasks/taskwidget.scss';
 import { ReactComponent as Warn } from '../../../assets/svg/tasks/warn.svg';
 import { ReactComponent as Check } from '../../../assets/svg/tasks/check.svg';
 import { ReactComponent as Pending } from '../../../assets/svg/tasks/time.svg';
 import { ReactComponent as Calendar } from '../../../assets/svg/tasks/calender.svg';
-import { ReactComponent as Calendar1 } from '../../../assets/svg/tasks/Calender1.svg';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/tasks/newFilter.svg';
 import { ReactComponent as SortIcon } from '../../../assets/svg/tasks/newSort.svg';
 import { ReactComponent as SortDownIcon } from '../../../assets/svg/tasks/sortDown.svg';
 import { ReactComponent as SortUpIcon } from '../../../assets/svg/tasks/sortUp.svg';
-import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
-import { ReactComponent as PlusIcon } from '../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as CrossIcon } from '../../../assets/svg/tasks/cross.svg';
 
 import Context from '../../../context/context';
@@ -20,6 +17,7 @@ import CurrentViewOptions from '../dropDown/tasks/CurrentViewOptions';
 import SortDropdown from '../dropDown/tasks/SortDropdown';
 import { rowTypes } from '../../features/tasks/Tasks';
 import TextField from './listView/TextField';
+import Spinner from '../loaders/Spinner';
 
 const Taskwidget = ({
 	properties,
@@ -32,6 +30,7 @@ const Taskwidget = ({
 	showEditViewDropDown,
 	handleEditViewDropDown,
 	taskPreferences,
+	searchLoader,
 }) => {
 	const {
 		tasks: { listTasks },
@@ -111,10 +110,20 @@ const Taskwidget = ({
 		}
 
 		const filteredWidgets = newFilters?.filter((filter) => {
-			if (key === 'overDue' && filter?.key === 'dueToday') {
-				return false;
-			} else if (key === 'dueToday' && filter?.key === 'overDue') {
-				return false;
+			if (key === 'status' && Array.isArray(value)) {
+				return !['dueToday', 'overDue'].includes(filter?.key);
+			}
+			if (key === 'dueToday') {
+				return (
+					filter?.key !== 'overDue' &&
+					!(filter?.key === 'status' && Array.isArray(filter?.value))
+				);
+			}
+			if (key === 'overDue') {
+				return (
+					filter?.key !== 'dueToday' &&
+					!(filter?.key === 'status' && Array.isArray(filter?.value))
+				);
 			}
 			return true;
 		});
@@ -136,8 +145,8 @@ const Taskwidget = ({
 		updateViewInfo(viewData?._id, { filters: [] });
 	};
 
-	const handleRemoveFilter = (index) => {
-		const newFilters = info?.filters?.filter((_, i) => i !== index);
+	const handleRemoveFilter = (key) => {
+		const newFilters = info?.filters?.filter((filter) => filter?.key !== key);
 
 		setInfo((prevInfo) => ({
 			...prevInfo,
@@ -198,13 +207,9 @@ const Taskwidget = ({
 		}
 		if (filter?.key === 'status' && Array.isArray(filter?.value)) {
 			const { todo, inProgress, completed } = statusOptions;
-			if (filter?.value?.length === [...todo, ...inProgress]?.length) {
-				pendingWidget = true;
-			}
-			if (filter?.value?.length === completed?.length) {
-				completedWidget = true;
-			}
-
+			const statusMap = new Map(filter?.value?.map((item) => [item, true]));
+			pendingWidget = [...todo, ...inProgress]?.every((item) => statusMap?.get(item?._id));
+			completedWidget = completed?.every((item) => statusMap?.get(item?._id));
 			return false;
 		}
 		return true;
@@ -221,15 +226,16 @@ const Taskwidget = ({
 						placeholder="Search"
 						className="task-widget-search-input"
 						value={searchValue}
-						onChange={(e) => updateTaskInfo({ searchValue: e.target?.value })}
+						onChange={(e) =>
+							updateTaskInfo({ searchValue: e.target?.value, searchLoader: true })
+						}
 					/>
+					{searchLoader && (
+						<div className="task-widget-search-spinner">
+							<Spinner width="20px" height="20px" />
+						</div>
+					)}
 				</div>
-				{/* <FilterDropdown
-					properties={properties}
-					colors={colors}
-					responseMetadata={responseMetadata}
-				/>
-				<CurrentViewOptions /> */}
 
 				<button
 					className="filter-icon-btn"
@@ -318,11 +324,55 @@ const Taskwidget = ({
 							)}
 						</div>
 						<div className="sort-filter-values-container">
-							{cleanedFilters?.length > 0 ? (
+							{overDueWidget && (
+								<div className="sort-filter-value-item">
+									<div className="widget-filter-title">Overdue</div>
+									<button
+										className="filter-remove-btn"
+										onClick={() => handleRemoveWidgetFilter('overDue')}
+									>
+										<CrossIcon />
+									</button>
+								</div>
+							)}
+							{pendingWidget && (
+								<div className="sort-filter-value-item">
+									<div className="widget-filter-title">Pending</div>
+									<button
+										className="filter-remove-btn"
+										onClick={() => handleRemoveWidgetFilter('status')}
+									>
+										<CrossIcon />
+									</button>
+								</div>
+							)}
+							{completedWidget && (
+								<div className="sort-filter-value-item">
+									<div className="widget-filter-title">Completed</div>
+									<button
+										className="filter-remove-btn"
+										onClick={() => handleRemoveWidgetFilter('status')}
+									>
+										<CrossIcon />
+									</button>
+								</div>
+							)}
+							{dueTodayWidget && (
+								<div className="sort-filter-value-item">
+									<div className="widget-filter-title">Due Today</div>
+									<button
+										className="filter-remove-btn"
+										onClick={() => handleRemoveWidgetFilter('dueToday')}
+									>
+										<CrossIcon />
+									</button>
+								</div>
+							)}
+							{info?.filters?.length > 0 ? (
 								cleanedFilters?.map((filter, index) => {
 									const { type, props, name } = responseMetadata?.[filter?.key];
 									let Component = null;
-									if (type === 'text') {
+									if (type === 'text' || type === 'id') {
 										Component = TextField;
 									} else {
 										Component = rowTypes?.[type];
@@ -350,10 +400,11 @@ const Taskwidget = ({
 													handleFilterChange(filter?.key, value);
 												}}
 												hideRemove={true}
+												prefix={props?.prefix}
 											/>
 											<button
 												className="filter-remove-btn"
-												onClick={() => handleRemoveFilter(index)}
+												onClick={() => handleRemoveFilter(filter?.key)}
 											>
 												<CrossIcon />
 											</button>

@@ -15,7 +15,6 @@ const origin = fetchOriginSelection();
 
 const initialState = {
 	search: '',
-	loading: true,
 	workflowTemplates: [],
 	activeTemplateData: null,
 	hasNextPage: false,

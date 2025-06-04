@@ -19,12 +19,10 @@ const Status = ({
 	showLabel = true,
 	customListItemStyle = {},
 	onOptionClick,
-	setDefault = true,
-	defaultValue = 'todo',
+	setDefault = false,
 	options = { todo: [], inProgress: [], completed: [] },
 	labelField = 'label',
 	valueField = 'value',
-	// colors,
 	title = 'Status',
 	showTitle = false,
 	disabled = false,
@@ -32,45 +30,42 @@ const Status = ({
 	const [info, setInfo] = useState({
 		selected: null,
 		open: false,
+		allOptions: [],
+		defaultStatus: null,
 	});
 
 	useEffect(() => {
-		setInfo((prevInfo) => {
-			const allOptions = [
-				...(options.todo || []),
-				...(options.inProgress || []),
-				...(options.completed || []),
-			];
+		const allOptions = [
+			...(options.todo || []),
+			...(options.inProgress || []),
+			...(options.completed || []),
+		];
+		const defaultStatus = allOptions.find((item) => item?.isDefault);
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			allOptions,
+			defaultStatus,
+		}));
+	}, [options]);
 
-			const selectedOption = allOptions.find((item) => item?._id === value);
-			if (selectedOption) {
-				return { ...prevInfo, selected: selectedOption };
+	useEffect(() => {
+		const selectedOption = info?.allOptions?.find((item) => item?._id === value);
+		if (selectedOption) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				selected: selectedOption,
+			}));
+		} else {
+			if (setDefault) {
+				onOptionClick?.(info?.defaultStatus?._id);
+			} else {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					selected: info?.defaultStatus,
+				}));
 			}
-
-			if (value) {
-				const defaultStatus = allOptions.find((item) => item?.isDefault);
-				if (defaultStatus && defaultStatus._id !== prevInfo.selected?._id) {
-					onOptionClick?.(defaultStatus._id); // ✅ Safe to update since it's different
-					return { ...prevInfo, selected: defaultStatus };
-				}
-			}
-
-			if (setDefault && !value) {
-				const defaultStatus = allOptions.find((item) => item?.isDefault);
-				if (defaultStatus && defaultStatus._id !== prevInfo.selected?._id) {
-					onOptionClick?.(defaultStatus._id);
-					return { ...prevInfo, selected: defaultStatus };
-				}
-
-				if (options.todo?.length > 0 && options.todo[0]._id !== prevInfo.selected?._id) {
-					onOptionClick?.(options.todo[0]._id);
-					return { ...prevInfo, selected: options.todo[0] };
-				}
-			}
-
-			return prevInfo;
-		});
-	}, [value, options, setDefault, onOptionClick]);
+		}
+	}, [value, info?.allOptions]);
 
 	const customOnOptionClick = (value) => {
 		setInfo((prevInfo) => ({

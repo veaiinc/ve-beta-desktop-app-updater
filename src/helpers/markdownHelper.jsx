@@ -186,6 +186,34 @@ const baseComponents = {
 	},
 };
 
+const MarkdownTable = memo(({ children, node, markdown }) => {
+	const [isCopied, setIsCopied] = useState(false);
+
+	const end = node?.position?.end?.offset;
+	const start = node?.position?.start?.offset;
+	const table = markdown?.slice(start, end);
+
+	const handleCopyTable = useCallback((table) => {
+		navigator?.clipboard?.writeText(table);
+		setIsCopied(true);
+		setTimeout(() => {
+			setIsCopied(false);
+		}, 1000);
+	}, []);
+	return (
+		<div className="table-wrapper">
+			<button className="copy-table-btn" onClick={() => handleCopyTable(table || '')}>
+				<Tooltip title={isCopied ? 'Copied Table' : 'Copy Table'} placement="bottom">
+					{isCopied ? <TickSvg /> : <CopyIcon />}
+				</Tooltip>
+			</button>
+			<div className="table-container">
+				<table className="table">{children}</table>
+			</div>
+		</div>
+	);
+});
+
 // Memoize citation-specific components
 const createCitationComponents = (citations, markdown) => ({
 	span: ({ children, citationId, ...props }) => {
@@ -200,8 +228,10 @@ const createCitationComponents = (citations, markdown) => ({
 		);
 	},
 });
+
 const remarkPlugins = [remarkGfm, remarkMath];
 const rehypePlugins = [rehypeKatex, rehypeCITPlugin, rehypeRaw];
+
 const NonMemoizedMarkdown = ({ children, citations }) => {
 	const markdown = children
 		?.replace(/(?<!\\)\$/g, '\\$')
@@ -240,35 +270,7 @@ export const Markdown = memo(NonMemoizedMarkdown, (prevProps, nextProps) => {
 	return prevProps.children === nextProps.children && citationsEqual;
 });
 
-const MarkdownTable = memo(({ children, node, markdown }) => {
-	const [isCopied, setIsCopied] = useState(false);
-
-	const end = node?.position?.end?.offset;
-	const start = node?.position?.start?.offset;
-	const table = markdown?.slice(start, end);
-
-	const handleCopyTable = useCallback((table) => {
-		navigator?.clipboard?.writeText(table);
-		setIsCopied(true);
-		setTimeout(() => {
-			setIsCopied(false);
-		}, 1000);
-	}, []);
-	return (
-		<div className="table-wrapper">
-			<button className="copy-table-btn" onClick={() => handleCopyTable(table || '')}>
-				<Tooltip title={isCopied ? 'Copied Table' : 'Copy Table'} placement="bottom">
-					{isCopied ? <TickSvg /> : <CopyIcon />}
-				</Tooltip>
-			</button>
-			<div className="table-container">
-				<table className="table">{children}</table>
-			</div>
-		</div>
-	);
-});
-
-export const UserMessageRenderer = memo(({ messageData, activeUserMessageIndex }) => {
+export const UserMessageRenderer = memo(({ messageData }) => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
@@ -368,7 +370,6 @@ export const UserMessageRenderer = memo(({ messageData, activeUserMessageIndex }
 						<div>
 							<div
 								style={{
-									// opacity: activeUserMessageIndex ? 1 : 0.6,
 									maxHeight: info?.isExpanded
 										? `${textRef.current?.scrollHeight}px`
 										: '147px',

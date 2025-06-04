@@ -8,7 +8,7 @@ import InputForModules from '../../input/inputForModules';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import '../../../../assets/scss/sales/createLeadModal.scss';
 import { message } from '../../globalComponents/CustomToast';
-const validator = require('validator');
+import validator from 'validator';
 const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	let {
 		templates: {

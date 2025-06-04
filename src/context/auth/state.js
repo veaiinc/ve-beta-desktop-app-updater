@@ -5,7 +5,7 @@ import service from '../../services/';
 import Cookies from 'js-cookie';
 import { fetchDomainName } from '../../helpers';
 import { NEWSLETTER_SUBSCRIPTION_URL } from '../../helpers/ConstantUrls';
-const { auth_Api: authBaseUrl } = require('../../services/config.live');
+import { auth_Api as authBaseUrl } from '../../services/config.live';
 
 export const initialState = {
 	currentPlanAddOns: null,
@@ -369,12 +369,12 @@ export const AuthState = () => {
 					locationDetails: encodedLocationDetails,
 			  })?.toString();
 
-		// if (userId) {
-		// 	params = new URLSearchParams({
-		// 		isVisitor: true,
-		// 		userId,
-		// 	})?.toString();
-		// }
+		if (userId) {
+			params = new URLSearchParams({
+				isVisitor: true,
+				userId,
+			})?.toString();
+		}
 
 		window.location.href = `${authBaseUrl}${path}?${params}`;
 	};

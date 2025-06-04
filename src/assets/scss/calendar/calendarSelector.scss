@@ -76,7 +76,7 @@
 			.monthSelectorContainer,
 			.yearSelectorContainer {
 				position: absolute;
-				top: 100%;
+				top: -50%;
 				left: 0;
 				margin-top: 4px;
 				background: var(--card);
@@ -117,7 +117,7 @@
 					font-weight: 400;
 					color: var(--secondary-font);
 					cursor: pointer;
-					padding: 8px 12px;
+					padding: 14px 12px;
 					border-radius: 6px;
 					transition: all 0.2s ease;
 					text-align: center;
@@ -213,6 +213,10 @@
 				background: var(--card-over-card);
 			}
 
+			&.unselectedRow {
+				border: 1px solid transparent;
+			}
+
 			.calendarDay {
 				color: var(--primary-font);
 				font-family: var(--primary-font-family);
@@ -242,15 +246,18 @@
 				}
 
 				&.selectedDay {
-					background: var(--primary-button);
-					color: var(--card);
+					border: 1px solid var(--primary-button);
+					color: var(--primary-button);
+					background-color: var(--primary-button-font);
 					font-weight: bold;
 					border-radius: 4px;
 				}
 
 				&.currentDay {
 					border-radius: 4px;
-					border: 1px solid var(--primary-button);
+					// border: 1px solid var(--primary-button);
+					background-color: var(--primary-button);
+					color: var(--primary-button-font);
 				}
 			}
 		}

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import { Drawer } from 'antd';
 import React, { memo, useCallback, useEffect, useState, useRef, useContext } from 'react';
@@ -41,9 +40,11 @@ const ListViewSidebar = ({
 	isSidebarExpanded = false,
 	showQuickActions = true,
 	prefix,
+	groupBy = null,
 }) => {
 	const {
-		tasks: { sideBarData, updateSideBarData },
+		tasks: { sideBarData, updateSideBarData, linkToTaskModule },
+		notes: { createNotesList },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		subTasks: [],
@@ -151,7 +152,7 @@ const ListViewSidebar = ({
 			...prevInfo,
 			deleteLoading: true,
 		}));
-		await deleteTask({ taskId: selectedRow?._id });
+		await deleteTask({ taskId: selectedRow?._id }, selectedRow?.[groupBy] || null);
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			deleteLoading: false,
@@ -286,6 +287,41 @@ const ListViewSidebar = ({
 
 	const sideBarOpen = sideBarData?.open;
 
+	const handleNoteSubmit = useCallback(
+		async (noteText) => {
+			if (!noteText.trim() || !selectedRow?._id) return;
+
+			try {
+				// First create the note
+				const [success, noteData] = await createNotesList({
+					input: {
+						title: noteText,
+						blocks: [
+							{
+								type: 'paragraph',
+								content: noteText,
+							},
+						],
+					},
+				});
+
+				if (success && noteData?._id) {
+					// Then link it to the task
+					await linkToTaskModule({
+						taskId: selectedRow._id,
+						linkToModuleInput: {
+							moduleType: 'pages',
+							docId: noteData._id,
+						},
+					});
+				}
+			} catch (error) {
+				console.error('Failed to create/link note:', error);
+			}
+		},
+		[selectedRow?._id, linkToTaskModule, createNotesList],
+	);
+
 	return (
 		<Drawer
 			onClose={() => updateSideBarData({ open: false })}
@@ -402,6 +438,26 @@ const ListViewSidebar = ({
 						{sidebarChildren}
 						<div className="sidebar-timestamp-container">
 							{generateTimestampDiv(selectedRow)}
+						</div>
+						<div className="task-notetaker">
+							<div className="task-notetaker-header">
+								<div className="task-note-title">Add a note</div>
+								<div className="task-add-icon">+</div>
+							</div>
+							<div className="task-note-textarea">
+								<CustomTextArea
+									placeholder="Add notes for this task"
+									className="task-note-textarea-input"
+									autoResize={false}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' && !e.shiftKey) {
+											e.preventDefault();
+											handleNoteSubmit(e.target.value);
+											e.target.value = '';
+										}
+									}}
+								/>
+							</div>
 						</div>
 					</div>
 				</div>

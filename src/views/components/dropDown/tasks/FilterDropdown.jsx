@@ -3,7 +3,6 @@ import '../../../../assets/scss/dropdown/tasks/filterDropdown.scss';
 import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/workflow/search.svg';
 import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
-
 import { Tooltip } from 'antd';
 import TextFilter from './TextFilter';
 import StatusDropdown from './StatusDropdown';
@@ -11,20 +10,6 @@ import SelectDropdown from './SelectDropdown';
 import PersonDropdown from './PersonDropdown';
 import TeamMembersDropdown from './TeamMembersDropdown';
 import DateViewDropdown from './DateViewDropdown';
-// const filterMapper = {
-// 	status: StatusDropdown,
-// 	priority: SelectDropdown,
-// 	clients: PersonDropdown,
-// 	title: TextFilter,
-// 	description: TextFilter,
-// 	taskSlNo: TextFilter,
-// 	assignedTo: TeamMembersDropdown,
-// 	assignedBy: TeamMembersDropdown,
-// 	createdBy: TeamMembersDropdown,
-// 	updatedBy: TeamMembersDropdown,
-// 	dueDate: DateViewDropdown,
-// 	assign,
-// };
 
 const filterMapperTypes = {
 	text: TextFilter,
@@ -98,6 +83,9 @@ const FilterDropdown = ({ properties, colors, filters, responseMetadata, handleF
 													onChange={(option) => {
 														handleFilterChange(property?.value, option);
 													}}
+													prefix={
+														responseMetadata?.taskSlNo?.props?.prefix
+													}
 													labelField="label"
 													title={property?.label}
 													selected={
@@ -107,6 +95,7 @@ const FilterDropdown = ({ properties, colors, filters, responseMetadata, handleF
 															'createdBy',
 															'updatedBy',
 															'clients',
+															'statusUpdatedBy',
 														].includes(property?.value)
 															? [
 																	selectedFilters?.get(

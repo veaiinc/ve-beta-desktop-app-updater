@@ -21,7 +21,7 @@ import { DocsStatusButton, statusTextmapper } from '../../features/docs/Docs.jsx
 import Context from '../../../context/context.js';
 import SendProposalModal from '../modalsV2/proposalModals/SendProposalModal.jsx';
 import CopiedModal from '../modalsV2/workflowsModals/CopiedModal.jsx';
-import { fetchOriginSelection } from '../../../helpers/index.js';
+import { fetchOriginSelection } from '../../../helpers/index.jsx';
 import { useNavigate } from 'react-router-dom';
 import DuplicateSvg from '../../../assets/svg/tasks/DuplicateSvg.jsx';
 import { message } from '../globalComponents/CustomToast.jsx';

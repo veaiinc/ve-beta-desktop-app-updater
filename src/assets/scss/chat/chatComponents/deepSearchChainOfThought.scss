@@ -7,7 +7,7 @@
 	.cot-container {
 		display: flex;
 		flex-direction: column;
-		gap: 24px;
+		gap: 16px;
 		.cot {
 			display: flex;
 			gap: 16px;
@@ -181,7 +181,6 @@
 							flex-direction: column;
 							gap: 8px;
 							padding-top: 16px;
-							padding-left: 41px;
 							.source-text {
 								display: flex;
 								align-items: center;
@@ -215,11 +214,26 @@
 	}
 }
 
+.animate-fade-in {
+	animation: fadeIn 0.3s ease-in-out forwards;
+}
+
 @keyframes animate-background {
 	0% {
 		background-position: 100% 50%;
 	}
 	100% {
 		background-position: 0% 50%;
+	}
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0.5;
+		transform: translateY(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
 	}
 }

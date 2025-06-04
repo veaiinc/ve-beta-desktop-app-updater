@@ -3,7 +3,7 @@ import React, { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/linkText.scss';
 import CustomTextArea from '../../globalComponents/CustomTextArea';
 import { message } from '../../globalComponents/CustomToast';
-const validator = require('validator');
+import validator from 'validator';
 
 const typeMapper = {
 	link: '',

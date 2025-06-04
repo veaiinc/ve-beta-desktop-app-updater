@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useCallback, useState } from 'react';
 import '../../../assets/scss/globalComponents/contactsWidget.scss';
-import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
+import { ReactComponent as AddIcon } from '../../../assets/svg/calendar/add.svg';
+import { ReactComponent as ArrowViewIcon } from '../../../assets/svg/calendar/arrowview.svg';
 import Context from '../../../context/context';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
@@ -80,6 +81,9 @@ const ContactsWidget = ({ width, height }) => {
 	return (
 		<div className="contactsWidgetContainer" style={{ width: width, height: height }}>
 			<div className="contactsWidgetSection1">
+				<div className="contactsWidgetBodyHeaderLeft">
+					<span className="contactsWidgetRemainder">Contacts</span>
+				</div>
 				<div className="contactsWidgetBody">
 					{/* <div className="contactsWidgetBodyMainContainer">
 					<div className="contactsWidgetBodyHeader">
@@ -143,10 +147,12 @@ const ContactsWidget = ({ width, height }) => {
 					onClick={() => {
 						navigate('/contacts');
 					}}
-					style={{ cursor: 'pointer' }}
 				>
-					<div className="contactsWidgetFooterTitle">View Contacts</div>
-					<PlusIcon
+					<div className="contactsWidgetFooterTitle">
+						<ArrowViewIcon style={{ width: '18px', height: '18px' }} />
+						View Contacts
+					</div>
+					<div
 						onClick={(e) => {
 							e.stopPropagation();
 							setInfo((prev) => ({
@@ -154,7 +160,15 @@ const ContactsWidget = ({ width, height }) => {
 								createLeadPopup: true,
 							}));
 						}}
-					/>
+						className="contactsWidgetFooterAdd"
+					>
+						<AddIcon
+							style={{
+								width: '18px',
+								height: '18px',
+							}}
+						/>
+					</div>
 				</div>
 			</div>
 			<CreateClientModal

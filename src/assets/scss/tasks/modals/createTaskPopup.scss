@@ -12,6 +12,7 @@
 	background-color: var(--card);
 	overflow: visible;
 	transition: all 0.9ms ease;
+	border: 1px solid var(--stroke);
 
 	.header-wrapper {
 		display: flex;
@@ -64,7 +65,7 @@
 			line-height: normal;
 			color: var(--primary-font);
 			&::placeholder {
-				color: rgba(var(--primary-font), 0.38);
+				color: var(--secondary-font);
 			}
 		}
 		textarea {
@@ -80,7 +81,7 @@
 			border: none;
 
 			&::placeholder {
-				color: rgba(var(--primary-font), 0.38);
+				color: var(--secondary-font);
 			}
 		}
 	}
@@ -203,7 +204,7 @@
 				font-weight: 400;
 				line-height: normal;
 				&::placeholder {
-					color: rgba(var(--primary-font), 0.38);
+					color: var(--secondary-font);
 				}
 			}
 		}

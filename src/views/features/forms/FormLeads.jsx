@@ -1,36 +1,26 @@
 import { memo, useCallback, useEffect, useMemo, useState, useContext, useRef } from 'react';
 import '../../../assets/scss/forms/formLeads.scss';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
-import { ReactComponent as CurlyBracesSvg } from '../../../assets/svg/docs/curly-bracess.svg';
-import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
-import { ReactComponent as UpDownArrow } from '../../../assets/svg/my_templates/up-down-arrow.svg';
 import { ReactComponent as Edit } from '../../../assets/svg/my_templates/edit.svg';
 import { ReactComponent as Duplicate } from '../../../assets/svg/my_templates/duplicate.svg';
 import { ReactComponent as GreenDot } from '../../../assets/svg/files/green-dot.svg';
 import { ReactComponent as GreyDot } from '../../../assets/svg/files/grey-dot.svg';
-import { ReactComponent as Vector } from '../../../assets/svg/vector.svg';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import FormResCard from '../../components/forms/FormResCard';
-import FormModal from '../../components/forms/FormModal';
 import { message } from '../../components/globalComponents/CustomToast';
 import { fetchOriginSelection } from '../../../helpers';
 import QuickActions from '../../components/globalComponents/QuickActions';
-import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
 import { Input } from 'antd';
-import FormResponsesMenuItem from './FormResponsesMenuItem';
 import FormSummary from '../../../views/components/forms/FormSummary';
-import FormAnalytics from '../../../views/components/forms/FormAnalytics';
 import FormDescription from '../../components/forms/FormDescription';
 import moment from 'moment';
-import { DocsStatusButton, statusTextmapper } from '../docs/Docs';
 import { ReactComponent as Copylink } from '../../../assets/svg/link.svg';
 import { ReactComponent as Delete } from '../../../assets/svg/delete.svg';
 import { ReactComponent as Download } from '../../../assets/svg/download.svg';
-import FilterPopUp from '../../components/globalComponents/FilterPopUp';
-import DropDown from '../../components/dropDown/tasks/DropDown';
 import Context from '../../../context/context';
+import ShareWidget from '../../components/globalComponents/ShareWidget';
 
 const FormLeads = () => {
 	const origin = fetchOriginSelection();
@@ -70,7 +60,7 @@ const FormLeads = () => {
 
 	const [formData, setFormData] = useState(() => {
 		const initialData = location?.state?.formData;
-		if (!initialData || !initialData._id) {
+		if (!initialData?._id) {
 			return null;
 		}
 		return initialData;
@@ -84,6 +74,10 @@ const FormLeads = () => {
 			return `https://${activeWorkspaceId}.ve.ai/${formData?.slug}`;
 		}
 	}, [activeWorkspaceId, formData?.slug, tennantSettingsData?.customDomain]);
+	const embeddedCode = useMemo(() => {
+		if (!copyLinkUrl) return '';
+		return `<iframe src="${copyLinkUrl}" height="100%" width="100%" title="VEAI Form"></iframe>`;
+	}, [copyLinkUrl]);
 	const [expandedCard, setExpandedCard] = useState(null);
 	const [selectedResponse, setSelectedResponse] = useState(null);
 	const [sortOrder, setSortOrder] = useState('date-desc');
@@ -366,11 +360,11 @@ const FormLeads = () => {
 			.trim() || '';
 
 	const handleDownload = useCallback(() => {
-		if (info.activeTab === 'responses') {
+		if (info?.activeTab === 'responses') {
 			const { formData, questions } = summaryData;
 			const responses = formData?.responses || [];
 
-			if (!responses.length) {
+			if (!responses?.length) {
 				message.warning('No responses to download');
 				return;
 			}
@@ -380,79 +374,79 @@ const FormLeads = () => {
 				'Submission ID',
 				'Submission Date',
 				'Submission Time',
-				...questions.map((q) => removeHTMLTags(q?.question || 'Untitled Question')),
+				...questions?.map((q) => removeHTMLTags(q?.question || 'Untitled Question')),
 			];
 			const csvRows = [headers];
 
 			// Process each response
-			responses.forEach((response) => {
+			responses?.forEach((response) => {
 				const row = [];
 
 				// Add submission details
-				row.push(response._id || 'N/A');
-				const submissionDate = new Date(response.createdAt * 1000);
+				row.push(response?._id || 'N/A');
+				const submissionDate = new Date(response?.createdAt * 1000);
 				row.push(submissionDate.toLocaleDateString());
 				row.push(submissionDate.toLocaleTimeString());
 
 				// Add answers for each question
-				questions.forEach((question) => {
+				questions?.forEach((question) => {
 					const answerItem = response?.response?.find((item) => {
 						if (!item || !question) return false;
-						const itemQuestion = item.question?.toLowerCase() || '';
-						const questionText = question.question?.toLowerCase() || '';
+						const itemQuestion = item?.question?.toLowerCase() || '';
+						const questionText = question?.question?.toLowerCase() || '';
 						return itemQuestion === questionText;
 					});
 					let answer = '';
 
 					if (answerItem) {
 						// Handle different types of answers
-						switch (answerItem.type) {
+						switch (answerItem?.type) {
 							case 'fileupload':
-								answer = answerItem.answer?.name || 'No file uploaded';
+								answer = answerItem?.answer?.name || 'No file uploaded';
 								break;
 							case 'rating':
-								answer = `${answerItem.answer} stars`;
+								answer = `${answerItem?.answer} stars`;
 								break;
 							case 'events':
 								try {
-									const events = JSON.parse(answerItem.answer);
+									const events = JSON.parse(answerItem?.answer);
 									answer = events
-										.map(
+										?.map(
 											(event) =>
-												`${event.name} (${event.date}${
-													event.location ? ', ' + event.location : ''
+												`${event?.name} (${event?.date}${
+													event?.location ? ', ' + event?.location : ''
 												}${
-													event.noOfGuests
-														? ', ' + event.noOfGuests + ' guests'
+													event?.noOfGuests
+														? ', ' + event?.noOfGuests + ' guests'
 														: ''
 												})`,
 										)
-										.join('; ');
+										?.join('; ');
 								} catch (e) {
-									answer = answerItem.answer;
+									answer = answerItem?.answer;
 								}
 								break;
 							case 'time':
-								answer = answerItem.answer;
+								answer = answerItem?.answer;
 								break;
 							case 'singleChoice':
 							case 'multipleChoice':
 								try {
-									const choices = JSON.parse(answerItem.answer);
-									answer = Array.isArray(choices) ? choices.join(', ') : choices;
+									const choices = JSON.parse(answerItem?.answer);
+									answer = Array.isArray(choices) ? choices?.join(', ') : choices;
 								} catch (e) {
-									answer = answerItem.answer;
+									answer = answerItem?.answer;
 								}
 								break;
 							default:
-								answer = answerItem.answer;
+								answer = answerItem?.answer;
 						}
 					}
 
 					// Clean the answer
 					const cleanAnswer = removeHTMLTags(
 						typeof answer === 'string'
-							? answer.replace(/^['"]|['"]$/g, '')
+							? answer?.replace(/^['"]|['"]$/g, '')
 							: answer !== undefined && answer !== null
 							? String(answer)
 							: 'No answer',
@@ -466,8 +460,8 @@ const FormLeads = () => {
 
 			// Convert to CSV string
 			const csvContent = csvRows
-				.map((row) => row.map((cell) => `"${cell}"`).join(','))
-				.join('\n');
+				?.map((row) => row?.map((cell) => `"${cell}"`).join(','))
+				?.join('\n');
 
 			// Create and trigger download
 			const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -482,7 +476,7 @@ const FormLeads = () => {
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link);
-		} else if (info.activeTab === 'analytics') {
+		} else if (info?.activeTab === 'analytics') {
 			const { formData, questions } = summaryData;
 
 			const summaryData = [
@@ -500,7 +494,7 @@ const FormLeads = () => {
 			];
 
 			// Add form questions
-			questions.forEach((question, index) => {
+			questions?.forEach((question, index) => {
 				summaryData.push([
 					`Question ${index + 1}`,
 					question?.question || 'N/A',
@@ -509,8 +503,8 @@ const FormLeads = () => {
 			});
 
 			const csvContent = summaryData
-				.map((row) => row.map((cell) => `"${cell}"`).join(','))
-				.join('\n');
+				?.map((row) => row?.map((cell) => `"${cell}"`).join(','))
+				?.join('\n');
 			const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
 			const link = document.createElement('a');
 			const url = URL.createObjectURL(blob);
@@ -533,8 +527,28 @@ const FormLeads = () => {
 				setInfo((prev) => ({ ...prev, loading: true }));
 				try {
 					const response = await getFormResponse({ formId: id });
-					if (isMounted && response && response._id) {
-						setFormData(response);
+					if (isMounted && response?._id) {
+						// Ensure we're not storing any invalid objects
+						const sanitizedResponse = {
+							...response,
+							title: response?.title || '',
+							status: response?.status || '',
+							slug: response?.slug || '',
+							response: Array.isArray(response?.response)
+								? response?.response.map((item) => ({
+										...item,
+										question: item?.question || '',
+										answer:
+											typeof item?.answer === 'object'
+												? JSON.stringify(item?.answer)
+												: item?.answer || '',
+										type: item?.type || '',
+										id: item?.id || '',
+										variableId: item?.variableId || '',
+								  }))
+								: [],
+						};
+						setFormData(sanitizedResponse);
 						setInfo((prev) => ({ ...prev, error: '' }));
 					} else {
 						setInfo((prev) => ({ ...prev, error: 'Form not found.' }));
@@ -552,12 +566,38 @@ const FormLeads = () => {
 		};
 	}, [id, getFormResponse]);
 
+	const [shareModalInfo, setShareModalInfo] = useState({
+		isOpen: false,
+	});
+
+	const handleShareModalClose = useCallback(() => {
+		setShareModalInfo((prev) => ({ ...prev, isOpen: false }));
+	}, []);
+
+	const handleCopyLink = useCallback(() => {
+		if (!copyLinkUrl) {
+			message.error('Form link is not available');
+			return;
+		}
+		navigator.clipboard.writeText(copyLinkUrl);
+		message.success('Form link copied to clipboard');
+	}, [copyLinkUrl]);
+
+	const handleCopyEmbedded = useCallback(() => {
+		if (!embeddedCode) {
+			message.error('Embedded code is not available');
+			return;
+		}
+		navigator.clipboard.writeText(embeddedCode);
+		message.success('Embedded code copied to clipboard');
+	}, [embeddedCode]);
+
 	return (
 		<div className="formLeadsParentContainer" role="main">
-			{info.loading ? (
+			{info?.loading ? (
 				<p className="loaderContainer">Loading...</p>
-			) : info.error ? (
-				<div className="errState">{info.error}</div>
+			) : info?.error ? (
+				<div className="errState">{info?.error}</div>
 			) : !formData ? (
 				<div className="noFormFound">Form not found or failed to load.</div>
 			) : (
@@ -581,10 +621,10 @@ const FormLeads = () => {
 								<div className="detailsContainer">
 									<div className="headerContainer">
 										<div className="header-left">
-											{info.isEditingTitle ? (
+											{info?.isEditingTitle ? (
 												<Input
 													className="title-input"
-													value={info.editTitleValue}
+													value={info?.editTitleValue || ''}
 													onChange={handleTitleChange}
 													onBlur={handleTitleBlur}
 													onKeyDown={handleTitleKeyDown}
@@ -595,7 +635,7 @@ const FormLeads = () => {
 													className="headerTitle"
 													onClick={handleTitleClick}
 												>
-													{formTitle}
+													{formTitle || 'Untitled Form'}
 												</h1>
 											)}
 										</div>
@@ -616,8 +656,16 @@ const FormLeads = () => {
 											)}
 										</div>
 										<h1 className="time">
-											Updated{' '}
-											{getTimeAgo({ createdAt: info.latestUpdateTime })}
+											{info?.totalSubmissions === 0 ? (
+												'No responses'
+											) : (
+												<>
+													Updated{' '}
+													{getTimeAgo({
+														createdAt: info?.latestUpdateTime,
+													})}
+												</>
+											)}
 										</h1>
 									</div>
 									<div className="button-space">
@@ -640,10 +688,15 @@ const FormLeads = () => {
 										<div className="button-con">
 											<div
 												className="edit-button"
-												onClick={() => handleFormResponsesMenu('copyLink')}
+												onClick={() =>
+													setShareModalInfo((prev) => ({
+														...prev,
+														isOpen: true,
+													}))
+												}
 											>
 												<Copylink />
-												<div className="edit">Copy Link</div>
+												<div className="edit">Share</div>
 											</div>
 											<div
 												className="delete-button"
@@ -660,11 +713,11 @@ const FormLeads = () => {
 								<div className="formDetailsContainer">
 									<div className="headerContainer">
 										<div className="formViewTabsContainer">
-											{Object.keys(tabs).map((tab) => (
+											{Object.keys(tabs)?.map((tab) => (
 												<div key={tab} className="tabContainer">
 													<div
 														className={`formViewTab ${
-															info.activeTab === tab ? 'active' : ''
+															info?.activeTab === tab ? 'active' : ''
 														}`}
 														onClick={() =>
 															setInfo((prev) => ({
@@ -674,26 +727,26 @@ const FormLeads = () => {
 														}
 														style={{
 															fontWeight:
-																info.activeTab === tab
+																info?.activeTab === tab
 																	? '500'
 																	: '400',
 															fontFamily:
-																info.activeTab === tab
+																info?.activeTab === tab
 																	? 'var(--primary-font)'
 																	: 'var(--secondary-font)',
 														}}
 													>
-														{tabs[tab].label}
+														{tabs[tab]?.label || ''}
 													</div>
 													<div
 														className={`divider ${
-															info.activeTab === tab ? 'active' : ''
+															info?.activeTab === tab ? 'active' : ''
 														}`}
 													/>
 												</div>
 											))}
 										</div>
-										{info.activeTab !== 'analytics' && (
+										{info?.activeTab !== 'analytics' && (
 											<div className="downloadButton">
 												<div
 													className="searchContainer"
@@ -729,12 +782,12 @@ const FormLeads = () => {
 															<input
 																className="searchInputTag"
 																placeholder="Search"
-																value={info?.searchValue}
+																value={info?.searchValue || ''}
 																onChange={(e) =>
 																	setInfo((prev) => ({
 																		...prev,
 																		searchValue:
-																			e?.target?.value,
+																			e?.target?.value || '',
 																	}))
 																}
 																autoFocus={info?.searchExpand}
@@ -766,16 +819,16 @@ const FormLeads = () => {
 										className="tabContent"
 										style={{
 											height:
-												info.activeTab === 'responses'
+												info?.activeTab === 'responses'
 													? 'calc(100vh - 500px)'
-													: info.activeTab === 'analytics'
-													? 'calc(100vh - 350px)'
+													: info?.activeTab === 'analytics'
+													? 'calc(100vh - 150px)'
 													: 'calc(100vh - 100px)',
 											overflowY: 'auto',
 											position: 'relative',
 										}}
 									>
-										{tabs[info.activeTab].Component}
+										{tabs[info?.activeTab]?.Component || null}
 									</div>
 								</div>
 							</div>
@@ -787,7 +840,7 @@ const FormLeads = () => {
 								setExpandedCard(null);
 							}}
 							formId={formData?._id}
-							activeTab={info.activeTab}
+							activeTab={info?.activeTab}
 							className="formDescription"
 						/>
 					</div>
@@ -800,6 +853,17 @@ const FormLeads = () => {
 					</div>
 				</>
 			)}
+
+			{/* Update ShareWidget implementation */}
+			<ShareWidget
+				isOpen={shareModalInfo?.isOpen}
+				onClose={handleShareModalClose}
+				shareUrl={copyLinkUrl}
+				title="Share Form"
+				onCopyLink={handleCopyLink}
+				onCopyEmbedded={handleCopyEmbedded}
+				embeddedCode={embeddedCode}
+			/>
 		</div>
 	);
 };

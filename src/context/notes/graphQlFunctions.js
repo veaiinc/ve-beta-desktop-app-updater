@@ -14,6 +14,7 @@ export const getNotesListQuery = gql`
 				_id
 				title
 				coverImage
+				iconImage
 				permissions {
 					private
 					sharedWith {
@@ -21,6 +22,7 @@ export const getNotesListQuery = gql`
 						userId
 					}
 				}
+				favorites
 				isDeleted
 				tenantId
 				createdAt
@@ -44,6 +46,7 @@ export const getPageQuery = gql`
 			_id
 			title
 			coverImage
+			iconImage
 			permissions {
 				private
 				sharedWith {
@@ -240,6 +243,23 @@ export const notesCoverImageFileUploadMutation = gql`
 		uploadPageImage(pageId: $pageId, imageType: $imageType) {
 			imageUrl
 			signedUrl
+		}
+	}
+`;
+
+export const notesIconUploadMutation = gql`
+	mutation UpdatePage($pageId: ID!, $input: UpdatePageInput!) {
+		updatePage(pageId: $pageId, input: $input) {
+			iconImage
+		}
+	}
+`;
+
+export const notesDeleteCoverImageMutation = gql`
+	mutation DeletePageImage($pageId: ID!, $imageInput: ImageInput!) {
+		deletePageImage(pageId: $pageId, imageInput: $imageInput) {
+			success
+			message
 		}
 	}
 `;

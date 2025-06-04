@@ -17,14 +17,14 @@ import { Tooltip } from 'antd';
 
 const origin = fetchOriginSelection();
 
-const filterOptions = [
-	{ label: 'All', value: '' },
-	{ label: 'Form', value: 'form-submission' },
-	{ label: 'Proposal', value: 'proposal' },
-	{ label: 'Presentation', value: 'presentation' },
-	{ label: 'Invoice', value: 'invoice' },
-	{ label: 'Contract', value: 'contract' },
-];
+// const filterOptions = [
+// 	{ label: 'All', value: '' },
+// 	{ label: 'Form', value: 'form-submission' },
+// 	{ label: 'Proposal', value: 'proposal' },
+// 	{ label: 'Presentation', value: 'presentation' },
+// 	{ label: 'Invoice', value: 'invoice' },
+// 	{ label: 'Contract', value: 'contract' },
+// ];
 
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
@@ -285,13 +285,13 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 				) : (
 					<div className="spinner-container">
 						<EmptyState
-							title={'No documents here'}
+							title={'No documents found!'}
 							subtitle={
-								'Start by adding documents, images, or media to keep everything in one place.'
+								'Start by creating a document, image, or media to keep everything in one place.'
 							}
 							buttonOnClick={handleCreateDoc}
-							buttonText={'Upload Files'}
-							showUpload={true}
+							buttonText={'Create Document'}
+							showUpload={false}
 						/>
 					</div>
 				)}

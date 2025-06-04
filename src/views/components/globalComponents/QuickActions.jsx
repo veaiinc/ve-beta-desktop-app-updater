@@ -16,7 +16,6 @@ import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.sv
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import { colors } from '../../../helpers/taskHelpers';
-import jwtDecode from 'jwt-decode';
 import EventsPopup from '../calendar/EventsPopUp';
 import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
 import { ReactComponent as Flash } from '../../../assets/svg/flash.svg';
@@ -40,22 +39,22 @@ const buildAiOptions = [
 	},
 	{
 		id: 2,
-		title: 'Task',
-		value: 'task',
+		title: 'Invoice',
+		value: 'invoice',
 		action: ({ updateStateValues, navigate }) => {
 			const sessionId = ObjectID()?.toString();
-			updateStateValues({ activeInputForChat: 'Create a task for' });
+			updateStateValues({ activeInputForChat: 'Create an invoice for' });
 			navigate(`/chat/${sessionId}`);
 		},
 	},
 	{
 		id: 3,
-		title: 'Event',
-		value: 'event',
-		controlValue: 'event',
+		title: 'Contract',
+		value: 'contract',
+		controlValue: 'contract',
 		action: ({ updateStateValues, navigate }) => {
 			const sessionId = ObjectID()?.toString();
-			updateStateValues({ activeInputForChat: 'Create a meeting for' });
+			updateStateValues({ activeInputForChat: 'Create a contract for' });
 			navigate(`/chat/${sessionId}`);
 		},
 	},
@@ -167,8 +166,11 @@ const createOptions = [
 			}));
 		},
 	},
+];
+
+const launchOptions = [
 	{
-		id: 10,
+		id: 1,
 		title: 'Automation',
 		value: 'automation',
 		controlValue: 'automation',
@@ -204,7 +206,7 @@ const createOptions = [
 		},
 	},
 	{
-		id: 11,
+		id: 2,
 		title: 'Conversational Agent',
 		value: 'ai-assistant',
 		controlValue: 'conversationalAgent',
@@ -323,12 +325,14 @@ const QuickActions = ({
 			buildAi: buildAiOptions,
 			create: createOptions,
 			upload: uploadOptions,
+			launch: launchOptions,
 		},
 		filteredOptions: {
 			suggestedOptions: propSuggestedOptions.length ? propSuggestedOptions : suggestedOptions,
 			buildAi: buildAiOptions,
 			create: createOptions,
 			upload: uploadOptions,
+			launch: launchOptions,
 		},
 		isAutomationLoading: false,
 		commonState: 'All',
@@ -861,7 +865,7 @@ const QuickActions = ({
 		let filteredBuildAi = buildAiOptions;
 		let filteredCreate = createOptions;
 		let filteredUpload = uploadOptions;
-
+		let filteredLaunch = launchOptions;
 		if (isAdmin) {
 			filteredUpload = uploadOptions;
 		} else if (tenantUserAccessControls?.accessControls) {
@@ -888,6 +892,9 @@ const QuickActions = ({
 			filteredUpload = uploadOptions?.filter((option) =>
 				option?.controlValue ? enabledApps.has(option?.controlValue) : true,
 			);
+			filteredLaunch = launchOptions?.filter((option) =>
+				option?.controlValue ? enabledApps.has(option?.controlValue) : true,
+			);
 		}
 
 		setInfo((prevInfo) => ({
@@ -897,12 +904,14 @@ const QuickActions = ({
 				buildAi: filteredBuildAi,
 				create: filteredCreate,
 				upload: filteredUpload,
+				launch: filteredLaunch,
 			},
 			filteredOptions: {
 				suggestedOptions: filteredSuggested,
 				buildAi: filteredBuildAi,
 				create: filteredCreate,
 				upload: filteredUpload,
+				launch: filteredLaunch,
 			},
 		}));
 	}, [tenantUserAccessControls, isAdmin, liteGalleryPaidPlan, location.pathname]);
@@ -1077,7 +1086,7 @@ const QuickActions = ({
 	const filtereOptions = useCallback(
 		(searchKey = '') => {
 			if (!info?.options)
-				return { suggestedOptions: [], buildAi: [], create: [], upload: [] };
+				return { suggestedOptions: [], buildAi: [], create: [], upload: [], launch: [] };
 
 			const searchTerm = searchKey.toLowerCase();
 
@@ -1105,13 +1114,19 @@ const QuickActions = ({
 				  )
 				: info?.options?.upload;
 
+			let launch = searchKey
+				? info?.options?.launch?.filter((option) =>
+						option?.title.toLowerCase().includes(searchTerm),
+				  )
+				: info?.options?.launch;
+
 			// Filter by access control
 			suggestedOptions = accessibleOptions(suggestedOptions);
 			buildAi = accessibleOptions(buildAi);
 			create = accessibleOptions(create);
 			upload = accessibleOptions(upload);
-
-			return { suggestedOptions, buildAi, create, upload };
+			launch = accessibleOptions(launch);
+			return { suggestedOptions, buildAi, create, upload, launch };
 		},
 		[info?.options, tenantUserAccessControls, accessibleOptions],
 	);
@@ -1125,10 +1140,10 @@ const QuickActions = ({
 		const fetchTaskMetadata = async () => {
 			await getTaskMetadata();
 		};
-		if (!taskMetadata) {
+		if (!taskMetadata && info?.dropdown) {
 			fetchTaskMetadata();
 		}
-	}, []);
+	}, [info?.dropdown]);
 
 	useEffect(() => {
 		if (taskMetadata) {
@@ -1146,7 +1161,7 @@ const QuickActions = ({
 	}, [info?.taskPreferences?.preferences, mapPropertyType]);
 
 	useEffect(() => {
-		if (!tenantsUserList) {
+		if (!tenantsUserList && info?.dropdown) {
 			getTeamMembers();
 		} else {
 			const formattedUsers = tenantsUserList?.map(({ firstName, lastName, _id }) => ({
@@ -1159,7 +1174,7 @@ const QuickActions = ({
 				tenantUsers: formattedUsers,
 			}));
 		}
-	}, [tenantsUserList]);
+	}, [tenantsUserList, info?.dropdown]);
 
 	useEffect(() => {
 		if (!info?.dropdown) {
@@ -1173,7 +1188,7 @@ const QuickActions = ({
 	}, [info.dropdown, filtereOptions]);
 
 	useEffect(() => {
-		if (!taskPreference) {
+		if (!taskPreference && info?.dropdown) {
 			getTaskPreferences({ preferences: 'taskPreference' });
 			return;
 		}
@@ -1201,7 +1216,7 @@ const QuickActions = ({
 				preferences: taskPreference?.data,
 			},
 		}));
-	}, []);
+	}, [info?.dropdown]);
 
 	useEffect(() => {
 		if (location.pathname.includes('knowledge-agent') || location.pathname.includes('files')) {
@@ -1222,39 +1237,16 @@ const QuickActions = ({
 			) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			} else {
-				if (info?.isCreatingSubtask) {
-					payload.parentTaskId = info?.selectedRow?._id;
-				}
 				const response = await addListItem({ input: payload });
 
 				if (response) {
 					const task = response?.createTask;
 
 					if (task) {
-						const token = localStorage.getItem('usertoken');
-						const { user_id, userName } = jwtDecode(token);
-
-						const newTask = { ...task };
-						newTask.createdBy = { _id: user_id, name: userName };
-						newTask.updatedBy = { _id: user_id, name: userName };
-						if (info?.isCreatingSubtask) {
-							newTask.parentTask = {
-								title: info?.selectedRow?.title,
-								_id: info?.selectedRow?._id,
-							};
-							addSubTask(newTask);
-						}
 						message.success('Task added successfully');
-						if (!info?.isCreatingSubtask) {
-							if (payload?.assignedTo || payload?.dueDate) {
-								updateTaskState({
-									refetchTasksForDue: true,
-									listTasksForToday: null,
-									listTasksForOverdue: null,
-									listTasksDueTillToday: null,
-								});
-							}
-						}
+						updateTaskState({
+							refetchTasks: true,
+						});
 					}
 				} else {
 					throw new Error('Failed to add new task');
@@ -1343,7 +1335,7 @@ const QuickActions = ({
 						onChange={handleSearch}
 					/>
 				</div>
-				<div className="search-divider" />
+
 				<div className="content-container">
 					{info?.filteredOptions?.suggestedOptions?.length > 0 && (
 						<div className="suggested-modules-container">
@@ -1370,6 +1362,7 @@ const QuickActions = ({
 									</div>
 								))}
 							</div>
+							<hr className="horizontal-divider" />
 						</div>
 					)}
 					{info?.filteredOptions?.buildAi?.length > 0 && (
@@ -1392,12 +1385,40 @@ const QuickActions = ({
 									</div>
 								))}
 							</div>
+							<hr className="horizontal-divider" />
+						</div>
+					)}
+
+					{info?.filteredOptions?.launch?.length > 0 && (
+						<div className="suggested-modules-container">
+							<div className="suggested-modules-container-header">Launch</div>
+							<div className="suggested-modules-container-options">
+								{info?.filteredOptions?.launch?.map((option) => (
+									<div
+										key={option?.id}
+										className="dropdown-option"
+										onClick={() =>
+											option?.action({
+												setInfo,
+												navigate,
+												createNewAiAssistant,
+												createAutomation,
+												createNewKnowledgeAgent,
+											})
+										}
+									>
+										{option?.icon && <img src={option?.icon} alt="icon" />}
+										<div className="dropdown-option-title">{option?.title}</div>
+									</div>
+								))}
+							</div>
+							<hr className="horizontal-divider" />
 						</div>
 					)}
 					{info?.filteredOptions?.create?.length > 0 && (
-						<div className="modules-container">
-							<div className="modules-container-header">Create</div>
-							<div className="modules-container-options">
+						<div className="suggested-modules-container">
+							<div className="suggested-modules-container-header">Create</div>
+							<div className="suggested-modules-container-options">
 								{info?.filteredOptions?.create?.map((option) => (
 									<div
 										key={option?.id}
@@ -1417,6 +1438,7 @@ const QuickActions = ({
 									</div>
 								))}
 							</div>
+							<hr className="horizontal-divider" />
 						</div>
 					)}
 					{info?.filteredOptions?.upload?.length > 0 && (

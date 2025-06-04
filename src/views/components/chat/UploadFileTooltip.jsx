@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback, memo, useMemo } from 'react';
+import { useState, useEffect, useContext, useCallback, memo, useMemo } from 'react';
 import { ReactComponent as UploadSvg } from '../../../assets/svg/ai_agents/upload.svg';
 import { Tooltip, Upload } from 'antd';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
@@ -26,11 +26,11 @@ const UploadFileTooltip = ({
 	});
 
 	useEffect(() => {
-		if (!filesUploadedInAiChat || info?.isSearchQueryChanged) {
+		if (isUploadFileOpen && (!filesUploadedInAiChat || info?.isSearchQueryChanged)) {
 			fetchFilesUploadedInAiChat(1);
 			setInfo((prev) => ({ ...prev, isSearchQueryChanged: false }));
 		}
-	}, [info?.isSearchQueryChanged]);
+	}, [info?.isSearchQueryChanged, isUploadFileOpen]);
 
 	const fetchFilesUploadedInAiChat = async (page = 1) => {
 		const payload = {

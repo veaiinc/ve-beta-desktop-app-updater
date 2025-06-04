@@ -2,15 +2,17 @@ import { memo, useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import '../../../../assets/scss/home_page/modals/aiSuggestionsModal.scss';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../../assets/svg/home_page/arrow-right.svg';
-import { ReactComponent as ShareSvg } from '../../../../assets/svg/files/share.svg';
-import { ReactComponent as DownloadSvg } from '../../../../assets/svg/download.svg';
 import { ReactComponent as DeleteSvg } from '../../../../assets/svg/delete.svg';
-import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
-import { ReactComponent as ThumbsUpSvg } from '../../../../assets/svg/thumbsUp.svg';
-import { ReactComponent as ThumbsDownSvg } from '../../../../assets/svg/thumbsDown.svg';
-import { ReactComponent as CoinSvg } from '../../../../assets/svg/ai_agents/coin.svg';
+import { ReactComponent as CalendarSvg } from '../../../../assets/svg/home_page/calendar.svg';
+import { ReactComponent as AgentsSvg } from '../../../../assets/svg/sidebar/agentsIcon.svg';
+import { ReactComponent as RocketSvg } from '../../../../assets/svg/home_page/rocket.svg';
+import { ReactComponent as BulbSvg } from '../../../../assets/svg/home_page/bulb.svg';
+import CreditCoinImage from '../../../../assets/images/creditCoin.png';
 import { ReactComponent as ArrowUpRightSvg } from '../../../../assets/svg/sidebar/arrowupright.svg';
-import { handleCombinedChainOfThought } from '../../../../helpers/chatHelpers';
+import {
+	handleCombinedChainOfThought,
+	updateCitationIdsWithCitations,
+} from '../../../../helpers/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
@@ -18,6 +20,7 @@ import { Collapse, Drawer, Tooltip } from 'antd';
 import Context from '../../../../context/context';
 import { useContext } from 'react';
 import { message } from '../../globalComponents/CustomToast';
+import { ReactComponent as StarSvg } from '../../../../assets/svg/home_page/star.svg';
 import CombinedChainOfThought from '../../chat/chatComponents/CombinedChainOfThought';
 import {
 	getFaviconUrl,
@@ -28,6 +31,7 @@ import {
 } from '../../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import PromptPopup from '../../homePage/PromptPopup';
+import ShareWidget from '../../globalComponents/ShareWidget';
 const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
@@ -38,16 +42,14 @@ const AISuggestionsModal = ({
 	onPrevCardClick,
 	totalDocs,
 	selectedCardNumber,
+	onFavouriteClick,
 }) => {
 	const {
 		templates: { updateStateValues, pendingActionsUpdate, getAISuggestedPendingActions },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		isExpanded: false,
-		isSolutionsExpanded: true,
-		isActionsExpanded: false,
-		isPromptsExpanded: false,
-		isReportExpanded: true,
+		isAIResultsExpanded: true,
+		isReportExpanded: false,
 		isQuestionsExpanded: false,
 		questionsAnswers: {},
 		activeTab: 'situation',
@@ -55,6 +57,7 @@ const AISuggestionsModal = ({
 			hasChainOfThought: false,
 		},
 		feedbackPopupOpen: false,
+		sharePopupOpen: false,
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -219,6 +222,27 @@ const AISuggestionsModal = ({
 		}
 	}, [data?._id, getAISuggestedPendingActions, onClose, pendingActionsUpdate]);
 
+	const handleShareClick = () => {
+		setInfo((prev) => ({
+			...prev,
+			sharePopupOpen: true,
+		}));
+	};
+
+	const handleCloseSharePopup = () => {
+		setInfo((prev) => ({
+			...prev,
+			sharePopupOpen: false,
+		}));
+	};
+
+	const handleOpenFeedbackPopup = () => {
+		setInfo((prev) => ({
+			...prev,
+			feedbackPopupOpen: true,
+		}));
+	};
+
 	const {
 		title,
 		description,
@@ -230,11 +254,10 @@ const AISuggestionsModal = ({
 		suggested_prompts,
 		usages,
 		informationRequests,
-		web_sources,
-		knowledge_base_sources,
-		category,
+		categories,
 		crux,
 		createdAt,
+		thinker_sources,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -243,9 +266,6 @@ const AISuggestionsModal = ({
 		month: 'short',
 		day: 'numeric',
 	});
-	const reportCitations = useMemo(() => {
-		return [...(web_sources || []), ...(knowledge_base_sources || [])];
-	}, [web_sources, knowledge_base_sources]);
 
 	if (!data) return null;
 
@@ -254,21 +274,14 @@ const AISuggestionsModal = ({
 			open={open}
 			onClose={onClose}
 			placement="right"
+			width={'auto'}
+			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			bodyStyle={{ padding: '0px', width: 'auto' }}
 			rootClassName="ai-suggestions-drawer"
+			destroyOnClose={true}
+			maskClassName="drawer-mask"
 		>
-			{info?.feedbackPopupOpen && (
-				<PromptPopup
-					messageId={data?._id}
-					liked={info?.selectedFeedback}
-					open={info?.feedbackPopupOpen}
-					feedbackPopupOpen={info?.feedbackPopupOpen}
-					closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
-					feedbackType="pendingActionFeedback"
-					setLiked={(liked) => setInfo((prev) => ({ ...prev, selectedFeedback: liked }))}
-				/>
-			)}
 			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
 				<div className="drag-handler" onMouseDown={handleMouseDown} />
 
@@ -290,15 +303,44 @@ const AISuggestionsModal = ({
 							</div>
 
 							<div className="right-container">
-								{/* <div className="btn share-btn">
-									<ShareSvg />
-								</div> */}
+								<div
+									className={`starLogoContainer ${
+										data?.isFavourite === true ? 'active' : ''
+									}`}
+									onClick={(e) => {
+										onFavouriteClick(data?._id);
+									}}
+								>
+									<StarSvg />
+								</div>
+								<div className="btn teach-me-btn" onClick={handleOpenFeedbackPopup}>
+									<AgentsSvg style={{ color: 'var(--primary-button)' }} /> Teach
+									me
+								</div>
+								{/* <Tooltip
+									title={<div className="tooltipOption">Share</div>}
+									placement="bottom"
+									color="transparent"
+									arrow={false}
+								>
+									<div className="btn share-btn" onClick={handleShareClick}>
+										<ShareSvg />
+									</div>
+								</Tooltip> */}
+
 								{/* <div className="btn download-btn">
 									<DownloadSvg />
 								</div> */}
-								<div className="btn delete-btn" onClick={handleDeleteCard}>
-									<DeleteSvg />
-								</div>
+								<Tooltip
+									title={<div className="tooltipOption">Delete</div>}
+									placement="bottom"
+									color="transparent"
+									arrow={false}
+								>
+									<div className="btn delete-btn" onClick={handleDeleteCard}>
+										<DeleteSvg />
+									</div>
+								</Tooltip>
 							</div>
 						</div>
 					</div>
@@ -308,7 +350,6 @@ const AISuggestionsModal = ({
 
 						<div className="body-header-wrapper">
 							<div className="body-header">
-								{/* <div className="title-text">{title || ''}</div> */}
 								<div className="description">{description || ''}</div>
 							</div>
 
@@ -371,7 +412,12 @@ const AISuggestionsModal = ({
 										>
 											<div className="priority">
 												<div className="icon">
-													<CoinSvg />
+													<img
+														src={CreditCoinImage}
+														width={16}
+														height={16}
+														alt="credit-coin"
+													/>
 												</div>
 												<div className="priority-text">{`${creditUsed} C`}</div>
 											</div>
@@ -429,8 +475,8 @@ const AISuggestionsModal = ({
 											</div>
 										</Tooltip>
 									)}
-									{category?.length > 0 &&
-										category?.map((category, idx) => (
+									{categories?.length > 0 &&
+										categories?.map((category, idx) => (
 											<div key={idx} className="category">
 												{category}
 											</div>
@@ -438,22 +484,24 @@ const AISuggestionsModal = ({
 								</div>
 							</div>
 						</div>
-						{solutions?.length > 0 && (
+						{(solutions?.length > 0 ||
+							suggested_prompts?.length > 0 ||
+							suggested_actions?.length > 0) && (
 							<div
-								className={`solutions-container`}
+								className={`ai-results-container`}
 								onClick={() =>
 									setInfo((prev) => ({
 										...prev,
-										isSolutionsExpanded: !prev?.isSolutionsExpanded,
+										isAIResultsExpanded: !prev?.isAIResultsExpanded,
 									}))
 								}
 							>
 								<Collapse
-									activeKey={info?.isSolutionsExpanded ? ['1'] : []}
+									activeKey={info?.isAIResultsExpanded ? ['1'] : []}
 									onChange={(key) =>
 										setInfo((prev) => ({
 											...prev,
-											isSolutionsExpanded: key.length > 0,
+											isAIResultsExpanded: key.length > 0,
 										}))
 									}
 									expandIcon={() => {
@@ -469,10 +517,11 @@ const AISuggestionsModal = ({
 											<div className="cot-header">
 												<div className="cot-text">
 													<div className="title-text">
-														Suggested Solutions
+														What you can do now
 													</div>
 													<div className="description-text">
-														Quick questions to dig deeper or explore.
+														AI-curated solutions and recommended actions
+														and prompts based on the current context.
 													</div>
 												</div>
 											</div>
@@ -480,20 +529,94 @@ const AISuggestionsModal = ({
 										key="1"
 									>
 										<div
-											className="solutions"
-											onClick={(e) => e.stopPropagation()}
+											className="ai-results-wrapper"
+											onClick={(e) => e?.stopPropagation()}
 										>
-											{Array?.isArray(solutions)
-												? solutions?.map((item, index) => (
-														<div
-															className="solution-item"
-															key={index}
-															onClick={() => handleClickRun(item)}
-														>
-															<div className="item-text">{item}</div>
-														</div>
-												  ))
-												: solutions}
+											<div className="results-container">
+												{Array?.isArray(solutions)
+													? solutions?.map((item, index) => (
+															<div
+																className="result-item"
+																key={index}
+																onClick={() => handleClickRun(item)}
+															>
+																<div className="result-text">
+																	{updateCitationIdsWithCitations(
+																		item,
+																		thinker_sources || [],
+																	)}
+																</div>
+																<div className="logo-container">
+																	<BulbSvg />
+																	<div className="logo-text">
+																		Solution
+																	</div>
+																</div>
+															</div>
+													  ))
+													: solutions}
+
+												{Array?.isArray(suggested_actions)
+													? suggested_actions?.map((item, index) => (
+															<div
+																className="result-item"
+																key={index}
+																onClick={() => handleClickRun(item)}
+															>
+																<div className="result-text">
+																	{updateCitationIdsWithCitations(
+																		item,
+																		thinker_sources || [],
+																	)}
+																</div>
+
+																<div className="logo-container">
+																	<RocketSvg />
+																	<div className="logo-text">
+																		Action
+																	</div>
+																</div>
+															</div>
+													  ))
+													: suggested_actions}
+											</div>
+
+											{suggested_prompts?.length > 0 && (
+												<div className="suggested-prompts-container">
+													<div className="suggested-prompts-title">
+														Recommended Prompts
+													</div>
+													<div
+														className="suggested-prompts"
+														onClick={(e) => e.stopPropagation()}
+													>
+														{Array?.isArray(suggested_prompts)
+															? suggested_prompts?.map(
+																	(item, index) => (
+																		<div
+																			className="prompt-item"
+																			key={index}
+																			onClick={() =>
+																				handleClickRun(item)
+																			}
+																		>
+																			<div className="logo">
+																				<ArrowRightSvg />
+																			</div>
+																			<div className="item-text">
+																				{updateCitationIdsWithCitations(
+																					item,
+																					thinker_sources ||
+																						[],
+																				)}
+																			</div>
+																		</div>
+																	),
+															  )
+															: suggested_prompts}
+													</div>
+												</div>
+											)}
 										</div>
 									</Panel>
 								</Collapse>
@@ -520,7 +643,7 @@ const AISuggestionsModal = ({
 									</div>
 								)}
 
-								{reportCitations?.length > 0 && (
+								{thinker_sources?.length > 0 && (
 									<div
 										className={`tab-btn ${
 											info?.activeTab === 'sources' ? 'active' : ''
@@ -568,7 +691,8 @@ const AISuggestionsModal = ({
 														<div className="cot-text">
 															<div className="title-text">Report</div>
 															<div className="description-text">
-																{crux || ''}
+																{crux ||
+																	'Summary of key insights and outcomes.'}
 															</div>
 														</div>
 													</div>
@@ -579,7 +703,7 @@ const AISuggestionsModal = ({
 													className="report-description"
 													onClick={(e) => e.stopPropagation()}
 												>
-													<Markdown citations={reportCitations}>
+													<Markdown citations={thinker_sources || []}>
 														{research_report || ''}
 													</Markdown>
 												</div>
@@ -588,147 +712,6 @@ const AISuggestionsModal = ({
 									</div>
 								)}
 
-								{suggested_actions?.length > 0 && (
-									<div
-										className={`suggested-actions-container ${
-											info?.isActionsExpanded ? 'active' : ''
-										}`}
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												isActionsExpanded: !prev?.isActionsExpanded,
-											}))
-										}
-									>
-										<Collapse
-											activeKey={info?.isActionsExpanded ? ['1'] : []}
-											onChange={(key) =>
-												setInfo((prev) => ({
-													...prev,
-													isActionsExpanded: key.length > 0,
-												}))
-											}
-											expandIcon={() => {
-												return (
-													<div className="expand-icon">
-														<ChevronRightThinSvg />
-													</div>
-												);
-											}}
-										>
-											<Panel
-												header={
-													<div className="cot-header">
-														<div className="cot-text">
-															<div className="title-text">
-																Recommended Actions
-															</div>
-															<div className="description-text">
-																AI-curated next steps to resolve
-																issues.
-															</div>
-														</div>
-													</div>
-												}
-												key="1"
-											>
-												<div
-													className="suggested-actions"
-													onClick={(e) => e.stopPropagation()}
-												>
-													{Array.isArray(suggested_actions)
-														? suggested_actions.map((item, index) => (
-																<div
-																	className="action-item"
-																	key={index}
-																	onClick={() =>
-																		handleClickRun(item)
-																	}
-																>
-																	<div className="logo">
-																		<ArrowRightSvg />
-																	</div>
-																	<div className="item-text">
-																		{item}
-																	</div>
-																</div>
-														  ))
-														: suggested_actions}
-												</div>
-											</Panel>
-										</Collapse>
-									</div>
-								)}
-								{suggested_prompts?.length > 0 && (
-									<div
-										className={`suggested-prompts-container ${
-											info?.isPromptsExpanded ? 'active' : ''
-										}`}
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												isPromptsExpanded: !prev?.isPromptsExpanded,
-											}))
-										}
-									>
-										<Collapse
-											activeKey={info?.isPromptsExpanded ? ['1'] : []}
-											onChange={(key) =>
-												setInfo((prev) => ({
-													...prev,
-													isPromptsExpanded: key.length > 0,
-												}))
-											}
-											expandIcon={() => {
-												return (
-													<div className="expand-icon">
-														<ChevronRightThinSvg />
-													</div>
-												);
-											}}
-										>
-											<Panel
-												header={
-													<div className="cot-header">
-														<div className="cot-text">
-															<div className="title-text">
-																Suggested Prompts
-															</div>
-															<div className="description-text">
-																Explore more with these prompts.
-															</div>
-														</div>
-													</div>
-												}
-												key="1"
-											>
-												<div
-													className="suggested-prompts"
-													onClick={(e) => e.stopPropagation()}
-												>
-													{Array?.isArray(suggested_prompts)
-														? suggested_prompts?.map((item, index) => (
-																<div
-																	className="prompt-item"
-																	key={index}
-																	onClick={() =>
-																		handleClickRun(item)
-																	}
-																>
-																	<div className="logo">
-																		<ArrowRightSvg />
-																	</div>
-																	<div className="item-text">
-																		{item}
-																	</div>
-																</div>
-														  ))
-														: suggested_prompts}
-												</div>
-											</Panel>
-										</Collapse>
-									</div>
-								)}
 								{informationRequests?.length > 0 && (
 									<div
 										className={`questions-wrapper ${
@@ -828,20 +811,12 @@ const AISuggestionsModal = ({
 
 						{info?.activeTab === 'chainOfThought' && (
 							<div className="cot">
-								<div
-									className="chain-of-thought-container"
-									onClick={() =>
-										setInfo((prev) => ({
-											...prev,
-											isExpanded: !prev?.isExpanded,
-										}))
-									}
-								>
-									<div
-										className="chain-of-thought-content"
-										onClick={(e) => e.stopPropagation()}
-									>
-										<CombinedChainOfThought data={info?.chainOfThoughtData} />
+								<div className="chain-of-thought-container">
+									<div className="chain-of-thought-content">
+										<CombinedChainOfThought
+											data={info?.chainOfThoughtData}
+											citations={thinker_sources || []}
+										/>
 									</div>
 								</div>
 							</div>
@@ -849,7 +824,7 @@ const AISuggestionsModal = ({
 
 						{info?.activeTab === 'sources' && (
 							<div className="source-content">
-								{(reportCitations || [])?.map((citation, idx) => (
+								{(thinker_sources || [])?.map((citation, idx) => (
 									<>
 										<div
 											key={citation?.id || idx}
@@ -953,6 +928,18 @@ const AISuggestionsModal = ({
 					</div>
 				</div>
 			</div>
+
+			<ShareWidget isOpen={info?.sharePopupOpen} onClose={handleCloseSharePopup} />
+
+			<PromptPopup
+				messageId={data?._id}
+				liked={info?.selectedFeedback}
+				open={info?.feedbackPopupOpen}
+				feedbackPopupOpen={info?.feedbackPopupOpen}
+				closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
+				feedbackType="pendingActionFeedback"
+				setLiked={(liked) => setInfo((prev) => ({ ...prev, selectedFeedback: liked }))}
+			/>
 		</Drawer>
 	);
 };

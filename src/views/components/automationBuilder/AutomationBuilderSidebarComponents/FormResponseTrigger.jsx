@@ -6,7 +6,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import ActionDetailsBlock from './ActionDetailsBlock';
 import Spinner from '../../loaders/Spinner';
-
+import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/formResponseTrigger.scss';
 const FormResponseTrigger = ({
 	onClose,
 	onSave,
@@ -205,9 +205,9 @@ const FormResponseTrigger = ({
 									})
 								}
 							>
-								<div className="templatePreview"></div>
+								{/* <div className="templatePreview"></div> */}
 								<div className="templateDetails">
-									<h2 className="templateName">{template?.title}</h2>
+									<div className="templateName">{template?.title}</div>
 									<p className="templateDescription">
 										{template?.description || 'Enquiry Form'}
 									</p>
@@ -235,7 +235,7 @@ const FormResponseTrigger = ({
 									className="chooseFromTemplateFormContainer"
 									onClick={() => updateStateInfo({ chooseFromTemplate: true })}
 								>
-									<div className="templatePreview"></div>
+									{/* <div className="templatePreview"></div> */}
 									<div className="templateDetails">
 										<h2 className="templateName">
 											{info.selectedTemplate.title}
@@ -264,21 +264,21 @@ const FormResponseTrigger = ({
 								>
 									Choose from Template
 								</button>
-								<div className="formSelectionBlockButtonAiWrapper">
+								{/* <div className="formSelectionBlockButtonAiWrapper">
 									<button className="formSelectionBlockButtonAi">
 										<span>Generate with AI</span>
 									</button>
-								</div>
+								</div> */}
 							</>
 						)}
 						<div className="triggerSaveButtonContainer">
-							<button
+							<div
 								className="triggerSaveButton"
 								onClick={customSaveFn}
 								disabled={addTriggerLoading}
 							>
 								{addTriggerLoading ? 'Saving...' : 'Save'}
-							</button>
+							</div>
 						</div>
 					</div>
 				</>

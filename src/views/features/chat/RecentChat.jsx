@@ -193,19 +193,13 @@ const RecentChat = ({
 	}, [sessionId, searchParams]);
 
 	useEffect(() => {
-		if (globalChatMessages?.length > 4 && !info?.scrollExecuted) {
+		if (globalChatMessages?.length > 2 && !info?.scrollExecuted) {
 			setTimeout(() => {
-				let lastMessageSelector = globalChatMessages?.length - 1;
-				const lastMessage = document.querySelector(`.chat-${lastMessageSelector}`);
-				if (lastMessage) {
-					lastMessage?.scrollIntoView({
-						behavior: 'smooth',
-					});
-				}
-			}, 500);
+				smoothScrollToLastMessage();
+			}, 0);
 			setInfo((prev) => ({ ...prev, scrollExecuted: true }));
 		}
-	}, [globalChatMessages, chatContentRef, info?.scrollExecuted]);
+	}, [globalChatMessages]);
 
 	useEffect(() => {
 		if (!chatContentRef?.current || !tabsRefs?.current) return;
@@ -245,80 +239,62 @@ const RecentChat = ({
 
 	useEffect(() => {
 		chatMessagesRef.current = [...(globalChatMessages || [])];
-		// chatMessagesRef.current?.forEach((message) => {
-		// 	if (message?.type?.toLowerCase() === 'ai') {
-		// 		const messageId = message?.messageId;
-		// 		if (message?.citations && !aiCitationsByIdRef.current[messageId]) {
-		// 			aiCitationsByIdRef.current[messageId] = message?.citations;
-		// 		}
-		// 	}
-		// });
 
-		// if (aiMessagesRef?.current?.length === 0) return;
+		const container = chatContentRef.current;
+		if (!container) return;
+		const visibleUserMessagesSet = new Set();
 
-		// previousAiMessagesRef.current = [...aiMessagesRef.current];
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries?.forEach((entry) => {
+					const bounding = entry?.boundingClientRect;
+					const rootBounds = entry?.rootBounds;
 
-		// const visibleMessagesSet = new Set();
-		// const observer = new IntersectionObserver(
-		// 	(entries) => {
-		// 		entries.forEach((entry) => {
-		// 			if (entry.isIntersecting) {
-		// 				visibleMessagesSet.add(entry.target);
-		// 			} else {
-		// 				visibleMessagesSet.delete(entry.target);
-		// 			}
-		// 		});
-		// 		const visibleMessages = Array.from(visibleMessagesSet).sort(
-		// 			(a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top,
-		// 		);
+					// Check if it is entering the top half
+					if (entry?.isIntersecting) {
+						visibleUserMessagesSet?.add(entry?.target);
+					} else {
+						// If it scrolled past the top (i.e. fully out of view and above)
+						const isAboveTop = bounding?.bottom < rootBounds?.top;
 
-		// 		// Change to get the first visible message instead of the last
-		// 		if (visibleMessages.length > 0) {
-		// 			const firstVisibleMessage = visibleMessages[0]; // Get the first visible message
+						if (isAboveTop) {
+							visibleUserMessagesSet?.add(entry?.target);
+						} else {
+							visibleUserMessagesSet?.delete(entry?.target);
+						}
+					}
+				});
 
-		// 			let activeAIMessageIndex = firstVisibleMessage.dataset.index;
-		// 			let activeUserMessageIndex = null;
+				const visibleUserMessages = [...visibleUserMessagesSet]?.map(
+					(m) => m?.dataset?.index,
+				);
+				if (visibleUserMessages?.length > 0) {
+					const activeUserMessageIndex = Number(
+						visibleUserMessages?.[visibleUserMessages?.length - 1],
+					);
+					const activeAIMessageIndex = activeUserMessageIndex + 1;
+					setInfo((prev) => ({
+						...prev,
+						activeUserMessageIndex,
+						activeAIMessageIndex,
+					}));
+				}
+			},
+			{
+				root: container,
+				rootMargin: '-10% 0px -50% 0px',
+				threshold: 0,
+			},
+		);
 
-		// 			if (activeAIMessageIndex > 0) {
-		// 				activeUserMessageIndex = activeAIMessageIndex - 1;
-		// 				while (activeUserMessageIndex) {
-		// 					if (
-		// 						chatMessagesRef.current[
-		// 							activeUserMessageIndex
-		// 						]?.type?.toLowerCase() === 'user'
-		// 					) {
-		// 						break;
-		// 					}
-		// 					activeUserMessageIndex--;
-		// 				}
-
-		// 				if (
-		// 					chatMessagesRef.current[activeUserMessageIndex]?.type?.toLowerCase() !==
-		// 					'user'
-		// 				) {
-		// 					activeUserMessageIndex = null;
-		// 				}
-		// 			}
-		// 			setInfo((prev) => ({
-		// 				...prev,
-		// 				activeAIMessageIndex: parseInt(activeAIMessageIndex),
-		// 				activeAIMessageId: firstVisibleMessage.dataset.messageId,
-		// 				activeUserMessageIndex,
-		// 			}));
-		// 		}
-		// 	},
-		// 	{
-		// 		root: chatContentRef.current,
-		// 		threshold: 0.01,
-		// 	},
-		// );
-		// aiMessagesRef.current.forEach((msg) => observer.observe(msg));
-
-		// smoothScrollToBottom();
-		// return () => {
-		// 	previousAiMessagesRef.current.forEach((msg) => observer.unobserve(msg));
-		// 	visibleMessagesSet.clear();
-		// };
+		// Observe each user message element
+		Object?.values(userMessagesRefs.current)?.forEach((el) => {
+			observer.observe(el);
+		});
+		return () => {
+			visibleUserMessagesSet?.clear();
+			observer.disconnect();
+		};
 	}, [globalChatMessages]);
 
 	// useEffect(() => {
@@ -344,7 +320,9 @@ const RecentChat = ({
 	}, [moreRecentChatStorage]);
 
 	const handleScroll = useCallback(() => {
-		if (!chatContentRef.current) return;
+		if (!chatContentRef?.current) return;
+
+		//logic related to scroll button
 		const { scrollTop, scrollHeight, clientHeight } = chatContentRef.current;
 		const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
 		const isNearBottom = distanceFromBottom < 5;
@@ -404,6 +382,8 @@ const RecentChat = ({
 					moduleTemplateId,
 					followUpQuery,
 					chainOfThought,
+					rating,
+					designAgentsUsed,
 				} = data?.[i] || {};
 
 				if (firstTimeApiCall) {
@@ -439,7 +419,7 @@ const RecentChat = ({
 						message: response,
 						type: 'AI',
 						messageId,
-						rating: null,
+						rating: rating || null,
 						citations,
 						follow_up_query: followUpQuery || [],
 						workflow_template_id: workflowTemplateId || null,
@@ -447,6 +427,7 @@ const RecentChat = ({
 						isOldMessage: true,
 						stream_end: true,
 						processing,
+						used_agents: designAgentsUsed || [],
 						...(processing === 'Deep Search' && { deepSearch }),
 						...(processing === 'Deep Research' && { deepResearch }),
 					},
@@ -547,6 +528,23 @@ const RecentChat = ({
 		[chatContentRef?.current, info?.initialRendering],
 	);
 
+	const smoothScrollToLastMessage = useCallback(() => {
+		const scrollElement = chatContentRef?.current;
+		const lastUserMessage = Object?.values(userMessagesRefs.current)?.[
+			Object?.values(userMessagesRefs.current)?.length - 1
+		];
+
+		if (!scrollElement || !lastUserMessage) return;
+
+		const lastUserMessageTop = lastUserMessage?.getBoundingClientRect()?.top;
+		const scrollElementTop = scrollElement?.getBoundingClientRect()?.top;
+		const scrollOffset = lastUserMessageTop - scrollElementTop;
+		scrollElement?.scrollBy({
+			top: scrollOffset,
+			behavior: 'smooth',
+		});
+	}, []);
+
 	const fetchMoreData = useCallback(
 		debounce(async () => {
 			if (!info?.hasNextPage || info?.chatLoading) {
@@ -608,14 +606,14 @@ const RecentChat = ({
 		async (data, lastQuery) => {
 			try {
 				await sendMessage(data);
-				smoothScrollToBottom();
+				smoothScrollToLastMessage();
 				setInfo((prev) => ({ ...prev, lastQuery: lastQuery }));
 			} catch (error) {
 				console.error('Failed to send message:', error);
 				// Handle error appropriately (show notification, etc.)
 			}
 		},
-		[sendMessage, setInfo],
+		[sendMessage],
 	);
 
 	const toggleLatestStreamMessage = useCallback(() => {
@@ -773,8 +771,15 @@ const RecentChat = ({
 																toggleLatestStreamMessage={
 																	toggleLatestStreamMessage
 																}
+																latestStreamMesage={
+																	info?.latestStreamMesage
+																}
+																lastQuery={info?.lastQuery}
 																handleViewDocument={
 																	handleViewDocument
+																}
+																showViewDocument={
+																	info?.showViewDocument
 																}
 																isPublicChat={isPublicChat}
 															/>
@@ -793,14 +798,18 @@ const RecentChat = ({
 																	] = el;
 																}
 															}}
+															data-index={index}
 															key={index}
+															// style={{
+															// 	opacity:
+															// 		index ===
+															// 		info?.activeUserMessageIndex
+															// 			? 1
+															// 			: 0.6,
+															// }}
 														>
 															<UserMessageRenderer
 																messageData={chat}
-																// activeUserMessageIndex={
-																// 	index ===
-																// 	info?.activeUserMessageIndex
-																// }
 															/>
 														</div>
 													)}

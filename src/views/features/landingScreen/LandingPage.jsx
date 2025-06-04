@@ -1,25 +1,22 @@
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/landingScreen/index.scss';
+import { ReactComponent as VeLogoBlack } from '../../../assets/svg/veLogoBlack.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
-import { ReactComponent as MoonSvg } from '../../../assets/svg/moon.svg';
-import { ReactComponent as SunSvg } from '../../../assets/svg/sun.svg';
-import { ReactComponent as FileSearch } from '../../../assets/svg/filesearch.svg';
-import { ReactComponent as HeadCircuit } from '../../../assets/svg/headcircuit.svg';
-import { ReactComponent as Chats } from '../../../assets/svg/chats.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-// import { ReactComponent as SidebarClosing } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import ContactUs from '../../components/landing_screen/ContactUs';
-import SidebarIcon from '../../../assets/svg/SidebarIcon';
 import TabNavigation from '../../components/landing_screen/TabNavigation';
-import ChatBox from '../../components/chat/ChatBox';
 import OurMission from './OurMission';
 import { useLocation } from 'react-router-dom';
-const routeType = 'public';
+import Tagline from './Tagline';
+import EarlyAccess from './EarlyAccess';
+import Footer from './Footer';
+import HowItWorks from './HowItWorks';
+import ChatBox from '../../components/chat/ChatBox';
+import Features from './Features';
 
 const LandingPage = () => {
 	const {
-		themeInfo: { theme, updateTheme },
 		templates: { updateStateValues, currentSessionId },
 	} = useContext(Context);
 
@@ -27,7 +24,6 @@ const LandingPage = () => {
 	const location = useLocation();
 
 	const [tab, setTab] = useState(0);
-	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
 	useEffect(() => {
 		const path = location.pathname;
@@ -63,146 +59,65 @@ const LandingPage = () => {
 		[currentSessionId],
 	);
 
-	const handleCloseSidebar = () => {
-		setIsSidebarOpen(false);
-	};
-
-	// Add this function to handle clicking outside the sidebar to close it
-	const handleOutsideClick = (e) => {
-		if (isSidebarOpen && e.target.classList.contains('mobile-tabs-wrapper')) {
-			handleCloseSidebar();
-		}
-	};
-
 	const handleSetTab = (tabVal) => {
 		setTab(tabVal);
-
-		if (window.innerWidth < 768) {
-			handleCloseSidebar();
-		}
-
 		const tabRoutes = ['/', '/mission', '/contact-us'];
 		navigate(tabRoutes[tabVal]);
 	};
 
-	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
-
-	// Simple tab-to-component mapping
 	const tabComponents = {
 		0: (
 			<>
 				<div className="page-body">
 					<div className="title-container">
 						<div className="title-text">
-							<span className="title-one">Answers before you ask!</span>
+							<span className="title-one">The World's First</span>
+							<span className="title-two">proactive AI OS</span>
+						</div>
+						<div className="chatbox-container">
+							<ChatBox
+								customChatActions={true}
+								autoFocus={true}
+								isPublicChat={true}
+								animatePlaceholder={true}
+								onSend={handleCustomOnSendFunction}
+							/>
 						</div>
 					</div>
-					<div className="chatbox-container">
-						<ChatBox
-							onSend={handleCustomOnSendFunction}
-							customChatActions={true}
-							isPublicChat={true}
-						/>
-					</div>
-					<div className="buttons-container">
-						<button
-							onClick={() =>
-								updateStateValues({
-									activePromptForChat: 'What is knowledge search',
-								})
-							}
-						>
-							<FileSearch /> Knowledge search
-						</button>
-						<button
-							onClick={() =>
-								updateStateValues({
-									activePromptForChat: 'What is deep reason',
-								})
-							}
-						>
-							<HeadCircuit /> Deep Reason
-						</button>
-						<button
-							onClick={() =>
-								updateStateValues({
-									activePromptForChat: 'What is your goals',
-								})
-							}
-						>
-							<Chats />
-							Tell me goals you have
-						</button>
-					</div>
-				</div>
-				<div className="page-footer">
-					<span>
-						By messaging Ve.ai, you agree to our{' '}
-						<span className="terms" onClick={() => navigate('/terms-of-service')}>
-							Terms
-						</span>{' '}
-						and have read our{' '}
-						<span
-							className="privacy-policy"
-							onClick={() => navigate('/privacy-policy')}
-						>
-							Privacy Policy.
-						</span>
-					</span>
+					<Tagline />
+					<HowItWorks />
+					<Features />
+					<div className="responsive-spacer"></div>
+					<EarlyAccess />
+					<Footer />
 				</div>
 			</>
 		),
-
-		// 1: <ContactUs type="Investor" />,
 		1: <OurMission />,
 		2: <ContactUs type="Enterprise" />,
 	};
 
 	return (
 		<main className="landing-page-container">
-			{/* Add a mobile-tabs-wrapper div that serves as overlay when sidebar is open */}
-			<div
-				className={`mobile-tabs-wrapper ${isSidebarOpen ? 'open' : ''}`}
-				onClick={handleOutsideClick}
-			/>
-
-			<div className="page-header">
+			<header className="page-header">
 				<div className="left-container">
-					<VeLogo />
-					<button
-						onClick={() => setIsSidebarOpen((prev) => !prev)}
-						className="sidebar-button"
-					>
-						{/* Use the original isActive prop approach */}
-						<SidebarIcon isActive={isSidebarOpen} setIsActive={setIsSidebarOpen} />
-					</button>
+					<VeLogo className="ve-logo" />
+				</div>
+				<div className="middle-container">
+					<TabNavigation tab={tab} handleSetTab={handleSetTab} />
 				</div>
 				<div className="right-container">
-					<button
-						className={`theme-btn ${isSidebarOpen ? 'hidden-on-mobile' : ''}`}
-						onClick={() => updateTheme(newThemeValue, routeType)}
-					>
-						{theme === 'dark' ? <MoonSvg /> : <SunSvg />}
-					</button>
-					<button className="login-btn" onClick={handleLoginBtnClick}>
+					<button className="login-btn-text" onClick={handleLoginBtnClick}>
 						Login
 					</button>
+					<button className="login-btn">
+						Get <VeLogoBlack /> Free
+					</button>
 				</div>
-				<TabNavigation
-					tab={tab}
-					handleSetTab={handleSetTab}
-					isVisible={isSidebarOpen}
-					handleCloseSidebar={handleCloseSidebar}
-					setIsSidebarOpen={setIsSidebarOpen}
-				/>
-			</div>
-
-			{/* Simple tab content rendering */}
+			</header>
 			{tabComponents[tab]}
 		</main>
 	);
 };
-
-// Keep TabsNavigation component unchanged
 
 export default memo(LandingPage);

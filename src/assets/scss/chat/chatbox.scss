@@ -4,6 +4,7 @@
 	bottom: 0;
 	width: 100%;
 	max-width: 700px;
+	z-index: 20;
 
 	.chatWrapper {
 		// overflow: hidden;
@@ -79,9 +80,9 @@
 							display: flex;
 							max-height: 400px;
 							width: 100%;
-							padding: 4px 12px 18px 16px;
+							padding: 4px 12px 14px 16px;
 							flex-direction: column;
-							gap: 12px;
+							gap: 8px;
 							align-self: center;
 							border-radius: 16px;
 							background-color: var(--card);
@@ -89,39 +90,21 @@
 							transition: border 200ms ease-in-out;
 							overflow: hidden;
 							&.startPageContainer {
-								padding: 12px 12px 12px 16px;
+								padding: 12px;
 							}
 							.chat-input-container {
 								display: flex;
 								align-items: center;
 								gap: 14px;
 
-								.active-search-types {
-									display: flex;
-									padding: 3px;
-									flex-direction: row;
-									align-items: flex-start;
-									.search-type {
-										display: flex;
-										width: 24px;
-										height: 24px;
-										justify-content: center;
-										align-items: center;
-										gap: 10px;
-										flex-shrink: 0;
-										border-radius: 100px;
-										background: var(--primary-button, #cfff48);
-									}
-									.knowledge-search-type {
-										margin-left: -4px;
-										box-shadow: -1px 0px 4px 0px rgba(0, 0, 0, 0.3);
-									}
-								}
 								.placeholderContainer {
 									position: relative;
 									width: 100%;
-									top: -3px;
+									top: 2px;
 
+									&.startPagePlaceholderContainer {
+										top: -3px;
+									}
 									.textArea {
 										width: 100%;
 										min-height: 34px;
@@ -131,7 +114,7 @@
 										background: transparent;
 										color: var(--primary-font);
 										font-family: var(--primary-font-family);
-										font-size: 14px;
+										font-size: 16px;
 										font-style: normal;
 										font-weight: 400;
 										line-height: normal;
@@ -154,7 +137,6 @@
 
 							.options-container {
 								width: 100%;
-								height: 32px;
 								overflow-y: auto;
 								flex-shrink: 0;
 								.filters-parent-container {
@@ -238,84 +220,136 @@
 											cursor: pointer;
 										}
 
-										.chat-box-icon-container {
+										.combined-chat-options {
 											display: flex;
-											height: 28px;
-											padding: 6px 8px;
-											justify-content: center;
-											align-items: center;
-											gap: 18px;
+											background-color: var(--popup);
 											border-radius: 6px;
-											border: 1px solid var(--stroke, #2c2d2e);
-											&.reason-container {
-												background-color: var(--popup);
-											}
-
-											.icon {
+											position: relative;
+											border: 1px solid var(--stroke);
+											z-index: 10;
+											overflow: hidden;
+											.chat-box-icon-container {
 												display: flex;
-												align-items: center;
 												justify-content: center;
-												gap: 6px;
+												align-items: center;
+												background: var(--popup);
 
-												svg {
-													width: 16px;
-													height: 16px;
+												.icon {
+													display: flex;
+													align-items: center;
+													justify-content: center;
+													height: 27px;
+
+													.text-wrapper {
+														display: flex;
+														align-items: center;
+														justify-content: center;
+														gap: 6px;
+														padding: 6px 8px;
+														border: 1px solid transparent;
+														border-radius: 6px 0 0 6px;
+														height: 27px;
+														.icon-text {
+															border: none !important;
+															padding: 0 !important;
+														}
+														.build-icon {
+															height: 16px;
+														}
+													}
+													.deep-research-text-wrapper {
+														border-radius: 6px;
+													}
+													.icon-arrow-wrapper {
+														width: 0px;
+														height: 100%;
+														transition: width 200ms ease-in-out;
+													}
+													.icon-arrow-wrapper-active {
+														width: 22px;
+													}
+
+													.icon-arrow {
+														display: flex;
+														align-items: center;
+														justify-content: center;
+														height: 100%;
+														padding: 6px 4px;
+														border-radius: 0px 6px 6px 0px;
+														position: relative;
+														left: -1px;
+														border: 1px solid transparent;
+
+														svg {
+															width: 12px;
+															height: 12px;
+														}
+													}
+
+													.icon-text {
+														height: 100%;
+														overflow: hidden;
+														text-overflow: ellipsis;
+														color: var(--secondary-font);
+														font-family: var(--primary-font-family);
+														font-size: 12px;
+														font-style: normal;
+														font-weight: 500;
+														line-height: normal;
+														padding: 6px 8px;
+														border-radius: 6px 0px 0px 6px;
+														box-sizing: border-box;
+														border: 1px solid transparent;
+
+														&:hover {
+															color: var(--primary-font);
+														}
+													}
+													.ask-icon-text {
+														border-radius: 6px;
+													}
 												}
-
-												.icon-text {
-													overflow: hidden;
-													text-overflow: ellipsis;
-													color: var(--secondary-font);
-													font-family: var(--primary-font-family);
-													font-size: 13px;
-													font-style: normal;
-													font-weight: 500;
-													line-height: normal;
-
-													&:hover {
-														color: var(--primary-font);
+											}
+											.chat-box-icon-container.active {
+												background-color: inherit;
+												.icon {
+													.text-wrapper {
+														border: 1px solid var(--primary-button);
+														.build-icon {
+															svg {
+																path {
+																	stroke: var(--primary-button);
+																}
+															}
+														}
+													}
+													.icon-text {
+														color: var(--primary-button);
+														border: 1px solid var(--primary-button);
+														background-color: var(--popup);
+													}
+													.icon-arrow {
+														border: 1px solid var(--primary-button);
+														background-color: var(--popup);
+														svg {
+															fill: var(--primary-button);
+														}
 													}
 												}
 
-												.icon-arrow {
+												.websearch-icon {
 													svg {
-														width: 12px;
-														height: 12px;
+														path {
+															stroke: var(--primary-button);
+														}
 													}
 												}
-											}
-											.right-text {
-												color: var(--primary-font, #f2f2f3);
-												text-align: center;
-												font-family: var(--primary-font-family);
-												font-size: 14px;
-												font-style: normal;
-												font-weight: 500;
-												line-height: normal;
-												transition: 200ms ease-in-out;
-											}
-										}
-										.chat-box-icon-container.active {
-											border: 1px solid var(--primary-button, #404548);
 
-											.icon {
-												.icon-text {
-													color: var(--primary-button);
-												}
-											}
-
-											.websearch-icon {
-												svg {
-													path {
-														stroke: var(--primary-button);
-													}
-												}
-											}
-
-											.workspace-search-icon {
-												svg {
-													path {
-														fill: var(--primary-button);
+												.workspace-search-icon {
+													svg {
+														path {
+															fill: var(--primary-button);
+														}
 													}
 												}
 											}
@@ -390,7 +424,7 @@
 				width: 40px;
 				height: 40px;
 				border-radius: 50%;
-				background-color: var(--card-over-card, #202123);
+				background-color: var(--card);
 				border: 1px solid var(--stroke, #333334);
 				color: var(--primary-font, #f2f2f3);
 				cursor: pointer;
@@ -400,7 +434,6 @@
 				font-size: 20px;
 				transition: all 0.3s ease;
 				z-index: 999;
-				box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 				margin-bottom: 10px;
 			}
 		}
@@ -505,6 +538,41 @@
 				}
 			}
 		}
+	}
+}
+.build-icon-container {
+	position: relative;
+	left: -3px;
+}
+.upload-file-icon-container {
+	display: flex;
+	height: 28px;
+	padding: 6px 5px;
+	justify-content: center;
+	align-items: center;
+	gap: 18px;
+	border-radius: 6px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--popup);
+	transition: background 200ms ease-in-out;
+
+	&:hover {
+		border: 1px solid var(--stroke-hover);
+	}
+
+	.icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+	}
+}
+.start-page-icon {
+	border: unset !important;
+	padding: 0 2px 0 8px !important;
+	svg {
+		width: 20px !important;
+		height: 20px !important;
 	}
 }
 .llm-model-container {
@@ -660,6 +728,12 @@
 		align-self: stretch;
 		border-radius: 24px;
 		background: var(--card-hover);
+		svg {
+			path,
+			circle {
+				stroke: var(--secondary-font);
+			}
+		}
 		input {
 			flex: 1 0 0;
 			width: 100%;
@@ -722,7 +796,7 @@
 					border-radius: 12px;
 
 					&:hover {
-						background: var(--backgroung-color, #2f3336);
+						background: var(--card-hover, #2f3336);
 					}
 					.file-type-icon {
 						display: flex;
@@ -778,7 +852,7 @@
 			cursor: pointer;
 
 			&:hover {
-				background: var(--backgroung-color, #2f3336);
+				background: var(--card-hover, #2f3336);
 			}
 
 			.upload-file-text {
@@ -798,30 +872,31 @@
 }
 
 .search-type-container {
-	display: inline-flex;
-	padding: 8px;
+	display: flex;
+	padding: 8px 0px;
+	width: 280px;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 4px;
-	border-radius: 16px;
-	border: 1px solid var(--stroke, #333334);
-	background: var(--card-over-card, #26282a);
-	box-shadow: 4px 4px 13px 0px rgba(23, 24, 25, 0.4);
+	border-radius: 12px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--popup, #202123);
 	.items-container {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 8px;
 		align-self: stretch;
 		.item {
 			display: flex;
-			align-items: flex-start;
-			gap: 4px;
-			padding: 4px;
+			padding: 8px 16px;
+			justify-content: space-between;
+			align-items: center;
+			align-self: stretch;
 			.icon {
 				display: flex;
 				align-items: center;
-				padding: 2px 4px;
+				padding-top: 1px;
+				margin-right: 8px;
+				align-self: flex-start;
 				svg {
 					width: 20px;
 					height: 20px;
@@ -834,7 +909,7 @@
 				justify-content: center;
 				align-items: flex-start;
 				flex-grow: 1;
-				gap: 2px;
+				gap: 4px;
 				.title-text {
 					font-family: var(--primary-font-family);
 					font-size: 14px;
@@ -862,6 +937,9 @@
 	}
 }
 .custom-switch .ant-switch-handle::before {
+	background-color: var(--secondary-button) !important; /* Default white handle */
+}
+.custom-switch.ant-switch-checked .ant-switch-handle::before {
 	background-color: var(--background-color) !important; /* Default white handle */
 }
 
@@ -873,16 +951,17 @@
 
 .chatbox-icon-tooltip-container {
 	display: inline-flex;
-	padding: 8px 10px;
-	justify-content: center;
-	align-items: center;
-	gap: 10px;
-	border-radius: 111px;
-	background: var(--primary-font, #f2f2f3);
-
-	color: var(--background-color, #0c0c0d);
+	padding: 10px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	border-radius: 8px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--popup, #202123);
+	box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
+	color: var(--primary-font, #f2f2f3);
 	font-family: var(--primary-font-family);
-	font-size: 12px;
+	font-size: 11px;
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
@@ -902,16 +981,19 @@
 
 .click-btn {
 	display: flex;
-	width: 40px;
+	width: 32px;
 	height: 32px;
-	padding: 10px;
+	padding: 6px;
 	justify-content: center;
 	align-items: center;
 	gap: 6px;
 	border-radius: 8px;
 	background: var(--primary-button, #79ecc9);
+	cursor: pointer;
 
 	svg {
+		width: 20px !important;
+		height: 20px !important;
 		path {
 			stroke: var(--primary-button-font) !important;
 		}

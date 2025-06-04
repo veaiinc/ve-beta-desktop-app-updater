@@ -17,13 +17,13 @@ const containerStyles = {
 	alignSelf: 'stretch',
 	borderRadius: '14px',
 	height: '44px',
-	width: '448px',
 	border: '1px solid var(--stroke)',
 	fontFamily: 'var(--primary-font-family)',
 	fontSize: '12px',
 	fontStyle: 'normal',
 	fontWeight: '500',
 	lineHeight: 'normal',
+	width: 'fit-content',
 };
 
 const dropdownStyles = {
@@ -36,7 +36,6 @@ const dropdownStyles = {
 	alignSelf: 'stretch',
 	borderRadius: '14px',
 	border: '1px solid var(--stroke)',
-	background: 'var(--card-over-card)',
 };
 
 const dropDownTextStyling = {
@@ -48,7 +47,7 @@ const dropDownTextStyling = {
 	lineHeight: 'normal',
 };
 
-const validator = require('validator');
+import validator from 'validator';
 const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = false }) => {
 	let {
 		contacts: { createClient, updateStateValues },
@@ -60,20 +59,24 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 		name: '',
 		emailId: '',
 		phoneNumber: '',
-		source: 'instagram',
+		source: '',
 	});
 	const [createButtonActiveState, setCreateButtonActiveState] = useState(false);
 
 	useEffect(() => {
 		const isValidEmail = leadDetails['emailId'] && validator?.isEmail(leadDetails['emailId']);
 		const isValidName = leadDetails['name']?.trim()?.length > 0;
-		const isValidSource = leadDetails['source']?.trim()?.length > 0;
+		const isValidSource =
+			leadDetails['source'] &&
+			leadDetails['source'] !== 'null' &&
+			leadDetails['source'] !== 'Select Source';
 		const isValidPhoneNumber =
 			leadDetails['phoneNumber']?.trim()?.length > 0 &&
 			validator?.isMobilePhone(leadDetails['phoneNumber']);
-		setCreateButtonActiveState(
-			(isValidEmail || isValidPhoneNumber) && isValidName && isValidSource ? true : false,
-		);
+
+		const shouldEnableButton =
+			(isValidEmail || isValidPhoneNumber) && isValidName && isValidSource;
+		setCreateButtonActiveState(shouldEnableButton);
 	}, [leadDetails]);
 
 	const closeModalFunc = useCallback(() => {
@@ -82,7 +85,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 			isError: false,
 			errorMessage: '',
 		}));
-		setLeadDetails({ name: '', emailId: '', source: 'instagram' });
+		setLeadDetails({ name: '', emailId: '', source: '' });
 		setCreateButtonActiveState(false);
 		closeModal();
 	}, [closeModal]);
@@ -106,7 +109,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 	const onChangeSelectedSource = useCallback(async (data) => {
 		setLeadDetails((prevState) => ({
 			...prevState,
-			source: data?.searchValue,
+			source: data?.searchValue || data?.value,
 		}));
 	}, []);
 
@@ -262,44 +265,48 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 							)}
 						</div>
 
-						<div className="inputWrapper">
-							<PhoneInput
-								defaultCountry={'IN'}
-								placeholder={'Phone Number'}
-								value={leadDetails['phoneNumber']}
-								onChange={(e) =>
-									handleInputChange({ target: { name: 'phoneNumber', value: e } })
-								}
-								disabled={false}
-								style={{
-									backgroundColor: 'inherit',
-								}}
-							/>
-							{errorState['isphoneNumberError'] && (
-								<span className="errorMessage">
-									{errorState['phoneNumberErrorMessage']}
-								</span>
-							)}
-						</div>
-						<div className="leadSourceContainer">
-							<HeadersDropDownComp
-								showIcon={false}
-								options={[
-									{ label: 'Instagram', value: 'instagram' },
-									{ label: 'Website', value: 'website' },
-									{ label: 'Facebook', value: 'facebook' },
-									{ label: 'Reference', value: 'reference' },
-									{ label: 'None', value: 'null' },
-								]}
-								selectedValue={leadDetails['source'] || 'Select Source'}
-								containerStyle={{ ...containerStyles }}
-								dropDownStyle={{ ...dropdownStyles }}
-								onChangeFunc={(e) => onChangeSelectedSource(e)}
-								dropDownTextStyling={{ ...dropDownTextStyling }}
-								showSelectedValueTick={true}
-								uniqueIdentifierForTickIcon={'value'}
-								selectedValueObj={{ value: leadDetails?.['source'] }}
-							/>
+						<div className="phoneAndSourceContainer">
+							<div className="inputWrapper">
+								<PhoneInput
+									defaultCountry={'IN'}
+									placeholder={'Phone Number'}
+									value={leadDetails['phoneNumber']}
+									onChange={(e) =>
+										handleInputChange({
+											target: { name: 'phoneNumber', value: e },
+										})
+									}
+									disabled={false}
+									style={{
+										backgroundColor: 'inherit',
+									}}
+								/>
+								{errorState['isphoneNumberError'] && (
+									<span className="errorMessage">
+										{errorState['phoneNumberErrorMessage']}
+									</span>
+								)}
+							</div>
+							<div className="leadSourceContainer">
+								<HeadersDropDownComp
+									showIcon={false}
+									options={[
+										{ label: 'Instagram', value: 'instagram' },
+										{ label: 'Website', value: 'website' },
+										{ label: 'Facebook', value: 'facebook' },
+										{ label: 'Reference', value: 'reference' },
+										{ label: 'None', value: 'null' },
+									]}
+									selectedValue={leadDetails['source'] || 'Select Source'}
+									containerStyle={{ ...containerStyles }}
+									dropDownStyle={{ ...dropdownStyles }}
+									onChangeFunc={(e) => onChangeSelectedSource(e)}
+									dropDownTextStyling={{ ...dropDownTextStyling }}
+									showSelectedValueTick={true}
+									uniqueIdentifierForTickIcon={'value'}
+									selectedValueObj={{ value: leadDetails?.['source'] }}
+								/>
+							</div>
 						</div>
 					</div>
 					<div className="createClientFooter">

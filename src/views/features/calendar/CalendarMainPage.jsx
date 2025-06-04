@@ -6,8 +6,8 @@ import EditScheduler from './EditScheduler';
 import Context from '../../../context/context';
 import ObjectId from 'bson-objectid';
 import moment from 'moment';
-import CreateSessionModal from '../../components/modalsV2/calendar/CreateSessionModal';
 import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
+import SchedulerSessionMainPage from '../../components/calendar/SchedulerSessionMainPage';
 const initialState = {
 	selectedWeek: [],
 	isCreateEventOpen: false,
@@ -26,6 +26,7 @@ const initialState = {
 	selectedSession: null,
 	sessionFilter: [],
 	showEditScheduler: false,
+	showGoogleEvents: true,
 };
 
 const aiSuggestions = [
@@ -144,18 +145,22 @@ const Calendar = () => {
 			...prevInfo,
 			showEditScheduler: false,
 			selectedSession: null,
-			isEventSelected: false,
-			selectedSlot: null,
 		}));
 	}, []);
 
 	const updateCategoryList = useCallback(() => {
-		if (calendarCategoriesList) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				categoryList: [...calendarCategoriesList],
-			}));
-		}
+		const categories = calendarCategoriesList?.map((category) => ({
+			...category,
+			_id: category?._id,
+			name: category?.name,
+			color: category?.color,
+			type: category?.type,
+		}));
+
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			categoryList: categories,
+		}));
 	}, [calendarCategoriesList]);
 
 	// Get Week Days array for <WeekDayHeader /> component
@@ -194,12 +199,14 @@ const Calendar = () => {
 						schedulerList={info?.schedulerList}
 						selectedSession={info?.selectedSession}
 						sessionFilter={info?.sessionFilter}
+						showGoogleEvents={info?.showGoogleEvents}
 					/>
 				</ChatLeftBarComponent>
 
 				{info?.showEditScheduler ? (
-					<EditScheduler
-						onBack={handleBackToCalendar}
+					<SchedulerSessionMainPage
+						onBackToCalendar={handleBackToCalendar}
+						schedulerList={info?.schedulerList}
 						sessionId={info?.selectedSession?._id}
 					/>
 				) : (
@@ -217,6 +224,7 @@ const Calendar = () => {
 						updateCalendarInfo={updateCalendarInfo}
 						selectedWorkflowId={info?.selectedWorkflowId}
 						selectedSlot={info?.selectedSlot}
+						showGoogleEvents={info?.showGoogleEvents}
 					/>
 				)}
 			</div>

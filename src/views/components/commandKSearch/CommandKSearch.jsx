@@ -44,6 +44,7 @@ const CommandKSearch = () => {
 	const elasticSearchTimeoutRef = useRef(null);
 	const modalRef = useRef(null);
 	const inputRef = useRef(null);
+	const latestSearchInputRef = useRef('');
 
 	const {
 		elasticSearch: { elasticSearchResults, performElasticSearch },
@@ -107,10 +108,12 @@ const CommandKSearch = () => {
 		clearTimeout(elasticSearchTimeoutRef.current);
 		const searchInput = e.target.value;
 		const emptySearchInput = searchInput === '';
+		latestSearchInputRef.current = searchInput;
 
 		if (emptySearchInput) {
 			setInfo((prev) => ({
 				...prev,
+				isLoading: false,
 				elasticSearchLoading: false,
 				showElasticSearchResults: false,
 			}));
@@ -120,6 +123,9 @@ const CommandKSearch = () => {
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 
 		elasticSearchTimeoutRef.current = setTimeout(async () => {
+			// ⛔ Ignore outdated timeout if input has changed
+			if (latestSearchInputRef.current !== searchInput) return;
+
 			setInfo((prev) => ({
 				...prev,
 				elasticSearchLoading: true,
@@ -133,6 +139,9 @@ const CommandKSearch = () => {
 				const errMsg = response[1];
 				message.error(errMsg);
 			}
+
+			// ⛔ Again check if input is still the same
+			if (latestSearchInputRef.current !== searchInput) return;
 
 			setInfo((prev) => ({
 				...prev,
@@ -152,26 +161,19 @@ const CommandKSearch = () => {
 	return (
 		<div className={`command-k-search-container ${info.isOpen ? 'open' : ''}`}>
 			<div className="command-k-search" ref={modalRef}>
-				<div className={`search-output-container ${noResults ? 'noResultsContainer' : ''}`}>
-					{noResults || !info.showElasticSearchResults ? (
-						<p className="noResults">No results found</p>
-					) : (
-						<ElasticSearchResults handleCloseSearchModal={handleCloseModal} />
-					)}
-				</div>
 				<div className="search-input-container">
 					<div className="search-input">
 						<input
 							type="text"
-							placeholder="Search any file or documents"
+							placeholder="Search"
 							onChange={handleSearch}
 							ref={inputRef}
 						/>
 						<div className="spinner-wrapper">
 							{info.isLoading ? (
 								<Spinner
-									width={'16px'}
-									height={'16px'}
+									width={'14px'}
+									height={'14px'}
 									color={'var(--primary-font)'}
 								/>
 							) : (
@@ -213,6 +215,13 @@ const CommandKSearch = () => {
 							</div>
 						</div> */}
 					</div>
+				</div>
+				<div className={`search-output-container ${noResults ? 'noResultsContainer' : ''}`}>
+					{noResults || !info.showElasticSearchResults ? (
+						<p className="noResults">No results found</p>
+					) : (
+						<ElasticSearchResults handleCloseSearchModal={handleCloseModal} />
+					)}
 				</div>
 			</div>
 		</div>

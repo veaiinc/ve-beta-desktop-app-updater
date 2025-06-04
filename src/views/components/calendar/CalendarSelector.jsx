@@ -233,7 +233,9 @@ const CalendarSelector = ({
 						return (
 							<div
 								key={weekIndex}
-								className={`dateRow ${isSelectedWeek ? 'highlightedRow' : ''}`}
+								className={`dateRow ${
+									isSelectedWeek ? 'highlightedRow' : 'unselectedRow'
+								}`}
 							>
 								{week?.map((date, dateIndex) => {
 									const isSelected = moment(date)?.isSame(selectedDate, 'day');
