@@ -256,6 +256,7 @@ const Email = ({
 									height="18px"
 									color="var(--primary-button)"
 									borderTopColor="transparent"
+									borderWidth={1.5}
 								/>
 							)}
 						</button>
