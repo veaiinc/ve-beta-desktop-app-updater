@@ -544,13 +544,10 @@ const AISuggestionsModal = ({
 												{Array?.isArray(solutions)
 													? solutions?.map((item, index) => (
 															<div
-																className="result-item"
+																className="solution-item"
 																key={index}
-																onClick={() =>
-																	handlePromptClick(item)
-																}
 															>
-																<div className="result-text">
+																<div className="solution-text">
 																	{updateCitationIdsWithCitations(
 																		item,
 																		thinker_sources || [],
