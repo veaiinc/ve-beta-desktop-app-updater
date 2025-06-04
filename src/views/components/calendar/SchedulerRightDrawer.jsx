@@ -19,6 +19,7 @@ import moment from 'moment-timezone';
 import Spinner from '../loaders/Spinner';
 import { isURL } from '../../../helpers';
 import AvailabilitySection from './AvailabilitySection';
+import ShareModal from '../globalComponents/globalShareModal';
 
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
 const sessionTypeInputConfig = {
@@ -195,8 +196,17 @@ const SchedulerRightDrawer = ({
 			deleteSchedulerSession,
 			sessionDetail,
 		},
+		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
-	const [info, setInfo] = useState({ ...initialInfo });
+	const [info, setInfo] = useState({
+		...initialInfo,
+		isShareModalOpen: false,
+		isPublished: false,
+		slug: sessionId || '',
+		prevSlug: sessionId || '',
+		slugError: '',
+		publishLoading: false,
+	});
 	const [activeTab, setActiveTab] = useState(initialTab);
 	const [availabilitySummary, setAvailabilitySummary] = useState('');
 	const [originalData, setOriginalData] = useState(null);
@@ -236,6 +246,14 @@ const SchedulerRightDrawer = ({
 				durationInMinutes >= 60 ? Math.floor(durationInMinutes / 60) : durationInMinutes;
 			const durationUnit = durationInMinutes >= 60 ? 'hrs' : 'min';
 
+			// Format session window dates only in edit mode
+			const startDate = sessionDetail.sessionWindow?.startDate
+				? dayjs(sessionDetail.sessionWindow.startDate).format('YYYY-MM-DD')
+				: null;
+			const endDate = sessionDetail.sessionWindow?.endDate
+				? dayjs(sessionDetail.sessionWindow.endDate).format('YYYY-MM-DD')
+				: null;
+
 			setInfo({
 				...initialInfo,
 				...sessionDetail,
@@ -243,8 +261,8 @@ const SchedulerRightDrawer = ({
 				location: sessionDetail.sessionTypeInfo?.location || '',
 				phoneNumber: sessionDetail.sessionTypeInfo?.phone || '',
 				meetingLink: sessionDetail.sessionTypeInfo?.meetingLink || '',
-				scheduleFrom: sessionDetail.sessionWindow?.startDate || null,
-				scheduleTo: sessionDetail.sessionWindow?.endDate || null,
+				schedulerWindowStart: startDate,
+				schedulerWindowEnd: endDate,
 				availability: {
 					availabilitySlots: sessionDetail.availabilitySlots || [],
 					customExceptions: sessionDetail.customExceptions || [],
@@ -264,19 +282,24 @@ const SchedulerRightDrawer = ({
 				// Max bookings per day
 				maxBookingsEnabled: sessionDetail.availabilityRules?.maxBookingsPerSession != null,
 				maxBookings: sessionDetail.availabilityRules?.maxBookingsPerSession || 1,
+				// Slug mapping
+				slug: sessionDetail.slug || sessionId,
+				prevSlug: sessionDetail.slug || sessionId,
+				isPublished: sessionDetail.isPublished || false,
 			});
 			setActiveTab(sessionDetail.sessionTypeInfo?.sessionType || initialTab);
 			setOriginalData(sessionDetail);
+		} else if (mode === 'create') {
+			// In create mode, set default values without API data
+			setInfo({
+				...initialInfo,
+				schedulerWindowStart: dayjs().format('YYYY-MM-DD'),
+				schedulerWindowEnd: dayjs().add(13, 'day').format('YYYY-MM-DD'),
+				slug: sessionId || '',
+				prevSlug: sessionId || '',
+			});
 		}
 	}, [mode, sessionDetail, sessionId, initialTab]);
-
-	// Add mapping function
-	// const backendToUiSessionType = (backendType) => {
-	// 	if (backendType === 'one-on-one') return 'In Person';
-	// 	if (backendType === 'group') return 'In Person'; // Adjust if needed
-	// 	if (backendType === 'round-robin') return 'In Person'; // Adjust if needed
-	// 	return 'In Person'; // fallback
-	// };
 
 	// On field change, only update local state
 	const handleFieldChange = (field, value) => {
@@ -326,6 +349,20 @@ const SchedulerRightDrawer = ({
 		// Add color change to payload
 		if (currentInfo.sessionColor !== originalData.sessionColor) {
 			payload.sessionColor = currentInfo.sessionColor;
+		}
+
+		// Compare session window
+		const currentStartDate = currentInfo.schedulerWindowStart;
+		const currentEndDate = currentInfo.schedulerWindowEnd;
+		const originalStartDate = originalData.sessionWindow?.startDate;
+		const originalEndDate = originalData.sessionWindow?.endDate;
+
+		if (currentStartDate !== originalStartDate || currentEndDate !== originalEndDate) {
+			payload.sessionWindow = {
+				type: 'fixed_date_range',
+				startDate: currentStartDate,
+				endDate: currentEndDate,
+			};
 		}
 
 		// Compare session type info individually
@@ -466,9 +503,7 @@ const SchedulerRightDrawer = ({
 				currentInfo.maxBookings !== originalData.availabilityRules?.maxBookingsPerSession);
 
 		if (hasBufferChanged || hasMaxBookingsChanged) {
-			payload.availabilityRules = {
-				allowBookingOverlappingSessions: false,
-			};
+			payload.availabilityRules = {};
 
 			if (
 				currentInfo.maxBookingsEnabled &&
@@ -482,7 +517,7 @@ const SchedulerRightDrawer = ({
 		return payload;
 	};
 
-	const handleCreateOrUpdate = useCallback(() => {
+	const handleCreateOrUpdate = useCallback(async () => {
 		if (info.creatingSessionLoading) return; // Prevent multiple rapid clicks
 		// Log all form data for debugging, including duration and all fields
 		// Validate date range only if custom availability
@@ -594,13 +629,13 @@ const SchedulerRightDrawer = ({
 			};
 		}
 
-		// Always include sessionWindow: for custom use custom dates, otherwise use today + 2 weeks
+		// Always include session window: for custom use custom dates, otherwise use today + 2 weeks
 		let sessionWindow;
-		if (info.availability?.mode === 'custom') {
+		if (info.schedulerWindowStart && info.schedulerWindowEnd) {
 			sessionWindow = {
 				type: 'fixed_date_range',
-				startDate: info.availability.custom.start,
-				endDate: info.availability.custom.never ? null : info.availability.custom.end,
+				startDate: info.schedulerWindowStart,
+				endDate: info.schedulerWindowEnd,
 			};
 		} else {
 			sessionWindow = {
@@ -643,7 +678,7 @@ const SchedulerRightDrawer = ({
 		};
 
 		if (mode === 'create') {
-			createSchedulerSession(sessionPayload);
+			await createSchedulerSession(sessionPayload);
 		} else if (mode === 'edit') {
 			const payload = buildUpdatePayload(info, originalData);
 			if (Object.keys(payload).length === 0) {
@@ -783,6 +818,23 @@ const SchedulerRightDrawer = ({
 		}
 	};
 
+	const handleCopyLink = () => {
+		if (!info?.slug?.trim()) {
+			message.error('Please enter a slug');
+			return;
+		}
+		const domain =
+			tennantSettingsData?.customDomain || `${localStorage.getItem('workspaceId')}.ve.ai`;
+		navigator.clipboard.writeText(`https://${domain}/meet/${info?.prevSlug}`);
+		message.success('Link copied to clipboard');
+	};
+
+	const handleViewSite = () => {
+		const domain =
+			tennantSettingsData?.customDomain || `${localStorage.getItem('workspaceId')}.ve.ai`;
+		window.open(`https://${domain}/meet/${info?.prevSlug}`, '_blank');
+	};
+
 	return (
 		<Drawer
 			open={open}
@@ -796,8 +848,11 @@ const SchedulerRightDrawer = ({
 				<div className="scheduler-right-drawer-header-container">
 					<CloseIcon className="close-icon" onClick={handleClose} />
 					<div className="scheduler-right-drawer-header-title-container">
-						<EyeIcon className="eye-icon" />
-						<ShareIcon className="share-icon" />
+						<EyeIcon className="eye-icon" onClick={() => handleViewSite()} />
+						<ShareIcon
+							className="share-icon"
+							onClick={() => setInfo((prev) => ({ ...prev, isShareModalOpen: true }))}
+						/>
 						<BinIcon className="bin-icon" onClick={handleDelete} />
 					</div>
 				</div>
@@ -910,6 +965,47 @@ const SchedulerRightDrawer = ({
 								case 'duration':
 									content = (
 										<div className="collapse-content duration-collapse-content">
+											<div className="duration-row">
+												<div className="duration-label">
+													Scheduler Window
+												</div>
+												<div className="scheduler-window-container">
+													<div className="scheduler-window-row">
+														<div className="scheduler-window-label">
+															Start Date
+														</div>
+														<input
+															type="date"
+															className="scheduler-window-input"
+															value={info.schedulerWindowStart}
+															min={dayjs().format('YYYY-MM-DD')}
+															onChange={(e) =>
+																handleFieldChange(
+																	'schedulerWindowStart',
+																	e.target.value,
+																)
+															}
+														/>
+													</div>
+													<div className="scheduler-window-row">
+														<div className="scheduler-window-label">
+															End Date
+														</div>
+														<input
+															type="date"
+															className="scheduler-window-input"
+															min={dayjs().format('YYYY-MM-DD')}
+															value={info.schedulerWindowEnd}
+															onChange={(e) =>
+																handleFieldChange(
+																	'schedulerWindowEnd',
+																	e.target.value,
+																)
+															}
+														/>
+													</div>
+												</div>
+											</div>
 											<div className="duration-row">
 												<div className="duration-label">Time Zone</div>
 												<div className="duration-field">
@@ -1084,6 +1180,7 @@ const SchedulerRightDrawer = ({
 													</div>
 												</div>
 											</div>
+
 											{/* <div className="duration-allday-row">
 												<div className="custom-checkbox">
 													<input
@@ -1558,6 +1655,23 @@ const SchedulerRightDrawer = ({
 					</div>
 				)}
 			</div>
+
+			<ShareModal
+				isOpen={info?.isShareModalOpen}
+				onClose={() => setInfo((prev) => ({ ...prev, isShareModalOpen: false }))}
+				// Tabs
+				tabs={[{ value: 'share', label: 'Share' }]}
+				activeTab="share"
+				showSlugField={true}
+				copySlug={`${tennantSettingsData?.customDomain || `${localStorage.getItem('workspaceId')}.ve.ai`}/meet/${info?.prevSlug}`}
+				showShareTab={true}
+				showPublishTab={false}
+				showCopyLink={true}
+				onCopyLink={handleCopyLink}
+				copyLinkText="Copy Link"
+				customStyles={{ overflow: 'hidden' }}
+				showInviteSection={false}
+			/>
 		</Drawer>
 	);
 };

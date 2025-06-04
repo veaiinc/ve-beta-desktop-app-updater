@@ -8,7 +8,7 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const REPEAT_OPTIONS = [
 	{ value: 'weekly', label: 'Repeat weekly' },
 	// { value: 'none', label: 'Does not repeat' },
-	{ value: 'custom', label: 'Custom' },
+	// { value: 'custom', label: 'Custom' },
 ];
 const defaultWeekly = () =>
 	WEEKDAYS.map((d) => ({ day: d, slots: d === 'Sun' ? [] : [{ from: '09:00', to: '17:00' }] }));
