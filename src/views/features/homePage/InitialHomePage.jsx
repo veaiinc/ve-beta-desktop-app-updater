@@ -17,6 +17,7 @@ import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/
 import VeSvg from '../../../assets/svg/veSvg';
 import AskMe from './AskMe';
 import jwtDecode from 'jwt-decode';
+import Sintegrations from './suggestedIntegrations/Sintegrations';
 
 const optionsList = [
 	{
@@ -37,7 +38,7 @@ const optionsList = [
 	},
 	{
 		id: 2,
-		label: 'Ask Me',
+		label: 'Suggested prompts',
 		value: 'prompts',
 		tooltip: 'Ask anything from the prompts library',
 		showOption: false,
@@ -150,8 +151,9 @@ const SuggestedOptions = [
 
 const homePageTextContent = {
 	ask: {
-		title: 'What are you curious about today',
-		subText: 'Your enterprise knowledge hub for instant answers.',
+		title: 'Own your memory',
+		subText:
+			'Use any Ai models.  Connect to all your data across apps and systems.  Take your full context everywhere with MCP — and export your memory securely, anytime.',
 	},
 	proactiveSuggestions: {
 		title: 'Answers before you ask',
@@ -443,6 +445,7 @@ const InitialHomePage = () => {
 					{componentMapper[info?.selectedOption]}
 				</div>
 			)}
+
 		</div>
 	);
 };
