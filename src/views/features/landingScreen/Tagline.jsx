@@ -22,7 +22,11 @@ const Tagline = () => {
 						<button className={`${s.button} ${s.tryOurApi}`}>Try our API</button>
 					</div>
 				</div> */}
-				<img src={HeroImage} alt="homepage" className="homepageImage" />
+				<img
+					src="https://ap.images.ve.ai/public/dashboard/homepage.png"
+					alt="homepage"
+					className="homepageImage"
+				/>
 			</div>
 		</div>
 	);

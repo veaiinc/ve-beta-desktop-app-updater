@@ -17,7 +17,6 @@ import Features from './Features';
 
 const LandingPage = () => {
 	const {
-		themeInfo: { theme },
 		templates: { updateStateValues, currentSessionId },
 	} = useContext(Context);
 
@@ -65,15 +64,6 @@ const LandingPage = () => {
 		const tabRoutes = ['/', '/mission', '/contact-us'];
 		navigate(tabRoutes[tabVal]);
 	};
-
-	const resolvedTheme =
-		theme === 'systemDefault'
-			? window.matchMedia('(prefers-color-scheme: dark)').matches
-				? 'dark'
-				: 'light'
-			: theme;
-
-	const newThemeValue = resolvedTheme === 'dark' ? 'light' : 'dark';
 
 	const tabComponents = {
 		0: (

@@ -9,7 +9,10 @@ import { ReactComponent as RocketSvg } from '../../../../assets/svg/home_page/ro
 import { ReactComponent as BulbSvg } from '../../../../assets/svg/home_page/bulb.svg';
 import CreditCoinImage from '../../../../assets/images/creditCoin.png';
 import { ReactComponent as ArrowUpRightSvg } from '../../../../assets/svg/sidebar/arrowupright.svg';
-import { handleCombinedChainOfThought } from '../../../../helpers/chatHelpers';
+import {
+	handleCombinedChainOfThought,
+	updateCitationIdsWithCitations,
+} from '../../../../helpers/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
@@ -17,6 +20,7 @@ import { Collapse, Drawer, Tooltip } from 'antd';
 import Context from '../../../../context/context';
 import { useContext } from 'react';
 import { message } from '../../globalComponents/CustomToast';
+import { ReactComponent as StarSvg } from '../../../../assets/svg/home_page/star.svg';
 import CombinedChainOfThought from '../../chat/chatComponents/CombinedChainOfThought';
 import {
 	getFaviconUrl,
@@ -38,6 +42,7 @@ const AISuggestionsModal = ({
 	onPrevCardClick,
 	totalDocs,
 	selectedCardNumber,
+	onFavouriteClick,
 }) => {
 	const {
 		templates: { updateStateValues, pendingActionsUpdate, getAISuggestedPendingActions },
@@ -249,7 +254,7 @@ const AISuggestionsModal = ({
 		suggested_prompts,
 		usages,
 		informationRequests,
-		category,
+		categories,
 		crux,
 		createdAt,
 		thinker_sources,
@@ -269,10 +274,10 @@ const AISuggestionsModal = ({
 			open={open}
 			onClose={onClose}
 			placement="right"
-			width={'fit-content'}
+			width={'auto'}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px', width: 'fit-content' }}
+			bodyStyle={{ padding: '0px', width: 'auto' }}
 			rootClassName="ai-suggestions-drawer"
 			destroyOnClose={true}
 			maskClassName="drawer-mask"
@@ -298,6 +303,16 @@ const AISuggestionsModal = ({
 							</div>
 
 							<div className="right-container">
+								<div
+									className={`starLogoContainer ${
+										data?.isFavourite === true ? 'active' : ''
+									}`}
+									onClick={(e) => {
+										onFavouriteClick(data?._id);
+									}}
+								>
+									<StarSvg />
+								</div>
 								<div className="btn teach-me-btn" onClick={handleOpenFeedbackPopup}>
 									<AgentsSvg style={{ color: 'var(--primary-button)' }} /> Teach
 									me
@@ -460,8 +475,8 @@ const AISuggestionsModal = ({
 											</div>
 										</Tooltip>
 									)}
-									{category?.length > 0 &&
-										category?.map((category, idx) => (
+									{categories?.length > 0 &&
+										categories?.map((category, idx) => (
 											<div key={idx} className="category">
 												{category}
 											</div>
@@ -513,7 +528,10 @@ const AISuggestionsModal = ({
 										}
 										key="1"
 									>
-										<div className="ai-results-wrapper">
+										<div
+											className="ai-results-wrapper"
+											onClick={(e) => e?.stopPropagation()}
+										>
 											<div className="results-container">
 												{Array?.isArray(solutions)
 													? solutions?.map((item, index) => (
@@ -523,7 +541,10 @@ const AISuggestionsModal = ({
 																onClick={() => handleClickRun(item)}
 															>
 																<div className="result-text">
-																	{item}
+																	{updateCitationIdsWithCitations(
+																		item,
+																		thinker_sources || [],
+																	)}
 																</div>
 																<div className="logo-container">
 																	<BulbSvg />
@@ -543,7 +564,10 @@ const AISuggestionsModal = ({
 																onClick={() => handleClickRun(item)}
 															>
 																<div className="result-text">
-																	{item}
+																	{updateCitationIdsWithCitations(
+																		item,
+																		thinker_sources || [],
+																	)}
 																</div>
 
 																<div className="logo-container">
@@ -580,7 +604,11 @@ const AISuggestionsModal = ({
 																				<ArrowRightSvg />
 																			</div>
 																			<div className="item-text">
-																				{item}
+																				{updateCitationIdsWithCitations(
+																					item,
+																					thinker_sources ||
+																						[],
+																				)}
 																			</div>
 																		</div>
 																	),
@@ -785,7 +813,10 @@ const AISuggestionsModal = ({
 							<div className="cot">
 								<div className="chain-of-thought-container">
 									<div className="chain-of-thought-content">
-										<CombinedChainOfThought data={info?.chainOfThoughtData} />
+										<CombinedChainOfThought
+											data={info?.chainOfThoughtData}
+											citations={thinker_sources || []}
+										/>
 									</div>
 								</div>
 							</div>

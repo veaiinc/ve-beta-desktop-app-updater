@@ -11,8 +11,11 @@ import { ReactComponent as CloseIcon } from '../../../../assets/svg/sidebar/Cros
 import { useInView } from 'react-intersection-observer';
 import { debounce } from 'lodash';
 const filterOptions = ['Today', 'Last Week', 'Last Month', 'Last Year'];
+import { useLocation } from 'react-router-dom';
 
 const Insights = () => {
+	const location = useLocation();
+	const query = new URLSearchParams(location.search);
 	const {
 		galleryInfo: {
 			tenantAlbums,
@@ -37,7 +40,7 @@ const Insights = () => {
 	const { ref, inView } = useInView({
 		threshold: 0.5,
 	});
-
+	const isLiteGallery = query.get('lite-gallery');
 	const loadMore = async () => {
 		if (inView && !isLoading && insightsVisitors?.hasNextPage) {
 			setIsLoading(true);
@@ -183,7 +186,9 @@ const Insights = () => {
 	const data = [
 		{
 			name: 'Number of images',
-			count: tenantAlbums?.storageDetails?.imagesCountWithVersions,
+			count: isLiteGallery
+				? tenantAlbums?.storageDetails?.cumulativeLiteImages
+				: tenantAlbums?.storageDetails?.imagesCountWithVersions,
 		},
 		{
 			name: 'People',
@@ -191,7 +196,9 @@ const Insights = () => {
 		},
 		{
 			name: 'Storage',
-			count: bytesToGigabytes(tenantAlbums?.storageDetails?.storage),
+			count: isLiteGallery
+				? bytesToGigabytes(tenantAlbums?.storageDetails?.cumulativeLiteStorage)
+				: bytesToGigabytes(tenantAlbums?.storageDetails?.storage),
 		},
 	];
 

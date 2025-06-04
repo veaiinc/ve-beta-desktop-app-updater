@@ -2,8 +2,9 @@ import { memo } from 'react';
 import '../../../../assets/scss/chat/chatComponents/combinedChainOfThought.scss';
 import DeepSearchChainOfThought from './DeepSearchChainOfThought';
 import DeepResearchChainOfThought from './DeepResearchChainOfThought';
+import { updateCitationIdsWithCitations } from '../../../../helpers/chatHelpers';
 
-const CombinedChainOfThought = ({ data }) => {
+const CombinedChainOfThought = ({ data, citations = [] }) => {
 	const { thoughts, deepSearches, deepResearches } = data;
 
 	return (
@@ -20,13 +21,13 @@ const CombinedChainOfThought = ({ data }) => {
 								{(index !== thoughts?.length - 1 ||
 									deepSearches?.length > 0 ||
 									deepResearches?.length > 0) && <div className="line" />}
-								{thought}
+								{updateCitationIdsWithCitations(thought, citations)}
 							</div>
 						</div>
 					);
 				})}
 			</div>
-			{deepResearches?.length > 0 && (
+			{deepSearches?.length > 0 && (
 				<div className="deep-searches-container">
 					{(deepSearches || [])?.map((deepSearch, index) => {
 						return (

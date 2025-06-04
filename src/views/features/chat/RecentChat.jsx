@@ -193,19 +193,13 @@ const RecentChat = ({
 	}, [sessionId, searchParams]);
 
 	useEffect(() => {
-		if (globalChatMessages?.length > 4 && !info?.scrollExecuted) {
+		if (globalChatMessages?.length > 2 && !info?.scrollExecuted) {
 			setTimeout(() => {
-				let lastMessageSelector = globalChatMessages?.length - 1;
-				const lastMessage = document.querySelector(`.chat-${lastMessageSelector}`);
-				if (lastMessage) {
-					lastMessage?.scrollIntoView({
-						behavior: 'smooth',
-					});
-				}
-			}, 500);
+				smoothScrollToLastMessage();
+			}, 0);
 			setInfo((prev) => ({ ...prev, scrollExecuted: true }));
 		}
-	}, [globalChatMessages, chatContentRef, info?.scrollExecuted]);
+	}, [globalChatMessages]);
 
 	useEffect(() => {
 		if (!chatContentRef?.current || !tabsRefs?.current) return;
@@ -534,6 +528,23 @@ const RecentChat = ({
 		[chatContentRef?.current, info?.initialRendering],
 	);
 
+	const smoothScrollToLastMessage = useCallback(() => {
+		const scrollElement = chatContentRef?.current;
+		const lastUserMessage = Object?.values(userMessagesRefs.current)?.[
+			Object?.values(userMessagesRefs.current)?.length - 1
+		];
+
+		if (!scrollElement || !lastUserMessage) return;
+
+		const lastUserMessageTop = lastUserMessage?.getBoundingClientRect()?.top;
+		const scrollElementTop = scrollElement?.getBoundingClientRect()?.top;
+		const scrollOffset = lastUserMessageTop - scrollElementTop;
+		scrollElement?.scrollBy({
+			top: scrollOffset,
+			behavior: 'smooth',
+		});
+	}, []);
+
 	const fetchMoreData = useCallback(
 		debounce(async () => {
 			if (!info?.hasNextPage || info?.chatLoading) {
@@ -595,14 +606,14 @@ const RecentChat = ({
 		async (data, lastQuery) => {
 			try {
 				await sendMessage(data);
-				smoothScrollToBottom();
+				smoothScrollToLastMessage();
 				setInfo((prev) => ({ ...prev, lastQuery: lastQuery }));
 			} catch (error) {
 				console.error('Failed to send message:', error);
 				// Handle error appropriately (show notification, etc.)
 			}
 		},
-		[sendMessage, setInfo],
+		[sendMessage],
 	);
 
 	const toggleLatestStreamMessage = useCallback(() => {

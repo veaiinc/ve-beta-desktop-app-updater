@@ -80,7 +80,6 @@
 		position: relative;
 		background: var(--navbar, #202123);
 		position: relative;
-		transition: all 200ms ease;
 
 		.drag-handler {
 			position: absolute;
@@ -183,6 +182,26 @@
 						align-items: center;
 						gap: 6px;
 
+						.starLogoContainer {
+							height: 18px;
+							cursor: pointer;
+							&:hover {
+								svg {
+									path {
+										stroke: var(--primary-font);
+									}
+								}
+							}
+							&.active {
+								svg {
+									fill: #79ecc9;
+									path {
+										stroke: #79ecc9;
+									}
+								}
+							}
+						}
+
 						.btn {
 							display: flex;
 							padding: 6px;
@@ -263,8 +282,7 @@
 					align-items: flex-start;
 					gap: 16px;
 					align-self: stretch;
-					position: relative;
-					top: -16px;
+					margin-top: -16px;
 
 					.body-header {
 						display: flex;
