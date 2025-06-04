@@ -7,7 +7,7 @@ import ToolInfo from '../../agentDetails/configureAgent/tabs/toolsTab/ToolInfo';
 
 const EditAgentTool = ({ isOpen, onClose }) => {
 	const [info, setInfo] = useState({
-		addTool: true,
+		addTool: false,
 		selectedTool: null,
 	});
 	const handleAddTool = (tool) => {
@@ -47,26 +47,16 @@ const EditAgentTool = ({ isOpen, onClose }) => {
 						<div className={s.toolsListContainer}>
 							<div className={s.toolType}>Gmail</div>
 							<div className={s.toolList}>
-								<div className={s.toolItem}>
-									<div className={s.itemIconContainer}></div>
-									<div className={s.titleContainer}>
-										<div className={s.title}>Gmail</div>
-										<div className={s.addedContainer}>
-											<TickSvg className={s.tickIcon} />
-											<div className={s.addedText}>Added</div>
-										</div>
-									</div>
-								</div>
 								<div className={s.toolItem} onClick={() => handleAddTool()}>
 									<div className={s.itemIconContainer}></div>
 									<div className={s.titleContainer}>
 										<div className={s.title}>
 											Create Meet Event In Google Calendar
 										</div>
-										{/* <div className={s.addedContainer}>
-									<TickSvg className={s.tickIcon} />
-									<div className={s.addedText}>Added</div>
-								</div> */}
+										<div className={s.addedContainer}>
+											<TickSvg className={s.tickIcon} />
+											<div className={s.addedText}>Added</div>
+										</div>
 									</div>
 								</div>
 							</div>
