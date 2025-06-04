@@ -2,6 +2,10 @@ import React from 'react';
 import { Tooltip } from 'antd';
 import CheckBoxFilterDropdown from '../../dropDown/notes/database/CheckBoxFilterDropdown';
 
+const inlineStyle = {
+	cursor: 'pointer',
+};
+
 const CheckBoxFilter = ({ value, title, onChange }) => {
 	return (
 		<Tooltip
@@ -11,7 +15,9 @@ const CheckBoxFilter = ({ value, title, onChange }) => {
 			color="transparent"
 			trigger={['click']}
 		>
-			<div className="filter-wrapper">{value ? 'Checked' : 'Unchecked'}</div>
+			<div className="filter-wrapper" style={inlineStyle}>
+				{value ? 'Checked' : 'Unchecked'}
+			</div>
 		</Tooltip>
 	);
 };
