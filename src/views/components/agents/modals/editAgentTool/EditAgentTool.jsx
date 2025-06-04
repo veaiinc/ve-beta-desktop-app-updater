@@ -19,7 +19,7 @@ const EditAgentTool = ({ isOpen, onClose }) => {
 	};
 	return (
 		<ReactModal
-			isOpen={isOpen || true}
+			isOpen={isOpen}
 			closeModal={onClose}
 			modalType={'center'}
 			customStyles={{
