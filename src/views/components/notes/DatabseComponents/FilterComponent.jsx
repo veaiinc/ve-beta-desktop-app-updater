@@ -68,7 +68,13 @@ const FilterComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 							const field = fields?.find((field) => field?._id === filter?.fieldId);
 							const filterConditions = getFilterConditions(field?.type);
 							const componentType =
-								field?.type === 'select' ? 'multi_select' : field?.type;
+								field?.type === 'select'
+									? 'multi_select'
+									: field?.type === 'status'
+									? 'statusFilter'
+									: field?.type === 'checkbox'
+									? 'checkboxFilter'
+									: field?.type;
 							const Component = rowTypes?.[componentType] || null;
 							const currentField = fields?.find(
 								(field) => field?._id === filter?.fieldId,
@@ -76,7 +82,7 @@ const FilterComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 
 							const options =
 								currentField?.type === 'status'
-									? currentField?.config?.select
+									? currentField?.config?.status
 									: currentField?.config?.options;
 
 							return (

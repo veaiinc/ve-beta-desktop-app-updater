@@ -33,9 +33,9 @@ const TableBody = ({ data, columns, handleUpdate, colors, pageId, viewId, databa
 			const key = property._id;
 			const rowMetadataMapper = {
 				serial_number: row?.serialNumber,
-				created_by: row?.createdBy,
+				created_by: [row?.createdBy],
 				created_time: row?.createdAt,
-				last_edited_by: row?.updatedBy,
+				last_edited_by: [row?.updatedBy],
 				last_edited_time: row?.updatedAt,
 			};
 

@@ -29,8 +29,6 @@ const COMMON_CONDITIONS = {
 	isOnOrAfter: { label: 'is on or after', value: 'is_on_or_after' },
 	isBetween: { label: 'is between', value: 'is_between' },
 	relativeToToday: { label: 'relative to today', value: 'relative_to_today' },
-	checked: { label: 'is checked', value: 'checked' },
-	unchecked: { label: 'is unchecked', value: 'unchecked' },
 };
 
 const baseConditions = {
@@ -60,7 +58,7 @@ const baseConditions = {
 		COMMON_CONDITIONS.isBetween,
 		COMMON_CONDITIONS.relativeToToday,
 	],
-	checkbox: [COMMON_CONDITIONS.checked, COMMON_CONDITIONS.unchecked],
+	checkbox: [COMMON_CONDITIONS.is, COMMON_CONDITIONS.isNot],
 	person: [
 		COMMON_CONDITIONS.contains,
 		COMMON_CONDITIONS.doesNotContain,

@@ -11,6 +11,8 @@ import PersonDropdown from '../../tasks/PersonDropdown';
 import TeamMembersDropdown from '../../tasks/TeamMembersDropdown';
 import DateViewDropdown from '../../tasks/DateViewDropdown';
 import MultiSelectDropdown from '../../tasks/MultiSelectDropdown';
+import StatusFilterDropdown from './StatusFilterDropdown';
+import CheckBoxFilterDropdown from './CheckBoxFilterDropdown';
 
 const filterMapperTypes = {
 	text: TextFilter,
@@ -21,8 +23,9 @@ const filterMapperTypes = {
 	last_edited_by: TeamMembersDropdown,
 	date: DateViewDropdown,
 	id: TextFilter,
-	status: StatusDropdown,
+	status: StatusFilterDropdown,
 	personMultiSelect: PersonDropdown,
+	checkbox: CheckBoxFilterDropdown,
 };
 
 const FilterDropdown = ({ fields, colors, filters, handleFilterChange }) => {

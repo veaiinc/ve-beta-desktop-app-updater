@@ -33,6 +33,8 @@ import CreatedWithAi from '../tasks/listView/CreatedWithAi';
 import CustomTextArea from '../globalComponents/CustomTextArea';
 import TaskHeader from '../tasks/listView/TaskHeader';
 import FilterComponent from './DatabseComponents/FilterComponent';
+import StatusFilter from './DatabseComponents/StatusFilter';
+import CheckBoxFilter from './DatabseComponents/CheckBoxFilter';
 
 export const rowTypes = {
 	text: TextField,
@@ -59,6 +61,8 @@ export const rowTypes = {
 	url: LinkText,
 	email: LinkText,
 	phone: LinkText,
+	statusFilter: StatusFilter,
+	checkboxFilter: CheckBoxFilter,
 };
 
 const DatabaseComponent = memo(({ block, editor }) => {

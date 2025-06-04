@@ -1152,8 +1152,6 @@ export const NotesState = (props) => {
 					return view;
 				});
 
-				console.log('newView', newView);
-
 				dispatch({
 					type: Actions.UPDATE_DATABASE_VIEWS,
 					payload: { [blockId]: newView },
