@@ -423,6 +423,40 @@
 							padding: 0 12px;
 						}
 					}
+					.scheduler-window-container {
+						display: flex;
+						gap: 8px;
+						align-items: flex-start;
+
+						.scheduler-window-row {
+							display: flex;
+							gap: 8px;
+							align-items: center;
+							.scheduler-window-label {
+								color: var(--secondary-font, #7A7E85);
+								font-family: var(--primary-font-family);
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: normal;
+							}
+							.scheduler-window-input {
+								width: 140px;
+								height: 36px;
+								background: var(--popup, #202123);
+								color: var(--primary-font, #f2f2f3);
+								border: 1px solid var(--stroke, #2c2d2e);
+								border-radius: 8px;
+								font-size: 14px;
+								padding: 0 10px;
+							}
+							.scheduler-window-input[type='date']::-webkit-calendar-picker-indicator {
+
+								filter: brightness(0) saturate(100%) invert(81%) sepia(24%) saturate(625%) hue-rotate(109deg) brightness(99%) contrast(94%);
+							}
+						}
+					}
+
 
 					.duration-allday-row {
 						display: flex;
@@ -686,6 +720,11 @@
 			font-size: 14px;
 			padding: 0 10px;
 		}
+		.slot-input[type='time']::-webkit-calendar-picker-indicator {
+			filter: brightness(0) saturate(100%) invert(81%) sepia(24%) saturate(625%) hue-rotate(109deg) brightness(99%) contrast(94%);
+		}
+		
+		
 		.icon-btn {
 			background: none;
 			border: none;
@@ -883,6 +922,11 @@
 			font-size: 14px;
 			padding: 0 10px;
 		}
+		.date-input[type='date']::-webkit-calendar-picker-indicator {
+			filter: brightness(0) saturate(100%) invert(81%) sepia(24%) saturate(625%) hue-rotate(109deg) brightness(99%) contrast(94%);
+		}
+		
+		
 		.never-checkbox {
 			display: flex;
 			width: 100%;
