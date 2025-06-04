@@ -48,7 +48,10 @@ const CreateNewAgentCard = ({ agents = [] }) => {
 					className={s.agentIntroCard}
 				>
 					<div className={s.addIcon}>
-						<div className={s.profileIcon}></div>
+						<img
+							src={agent.knowledgeAgent_profile_picture_s3Key || CatIcon}
+							className={s.profileIcon}
+						/>
 					</div>
 					<div className={s.agentInfo}>
 						<div className={s.agentName}>{agent.name || 'Untitled Agent'}</div>
