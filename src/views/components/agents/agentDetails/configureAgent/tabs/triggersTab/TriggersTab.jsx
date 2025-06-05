@@ -55,10 +55,23 @@ const TriggersTab = () => {
 		ListEmailsModalOpen: false,
 	});
 
-	const connectedTriggers = triggers?.data ?? [];
-	const emptyConnectedTriggers = connectedTriggers.length === 0;
+	const connectedTriggers =
+		triggers?.data?.map((trigger) => {
+			const { app, action, connectedEmail } = trigger;
+			const icon = app === 'gmail' ? <GmailIcon /> : <GoogleMeetIcon />;
+			const title = app === 'gmail' ? 'Gmail' : 'Google Meet';
+			const description = action === 'replyEmail' ? 'Reply to emails' : 'Google Meet';
+			const triggerType = app === 'gmail' ? 'gmail' : 'googleMeet';
 
-	console.log(triggers);
+			return {
+				icon,
+				title,
+				triggerType,
+				description,
+				connectedEmail,
+			};
+		}) ?? [];
+	const emptyConnectedTriggers = connectedTriggers.length === 0;
 
 	useEffect(() => {
 		getTriggers();
@@ -91,22 +104,21 @@ const TriggersTab = () => {
 
 			<div className={s.connectedTriggersContainer}>
 				<h1 className={s.title}>Connected Triggers</h1>
-				{!emptyConnectedTriggers ? (
+				{emptyConnectedTriggers ? (
 					<p className={s.emptyTriggersMessage}>{emptyConnectedTriggersMessage}</p>
 				) : (
-					<InfiniteScroll>
-						<ul className={s.triggersListContainer}>
-							{/* {connectedTriggers.map((trigger) => (
-						<li key={trigger.title}>
-							{trigger.icon}
-							<div className={s.triggerItemContent}>
-								<h3>{connectedEmail}</h3>
-								<p>{trigger.description}</p>
-							</div>
-						</li>
-					))} */}
-						</ul>
-					</InfiniteScroll>
+					// TODO: add infinite scroll
+					<ul className={s.triggersListContainer}>
+						{connectedTriggers.map((trigger) => (
+							<li key={trigger.title}>
+								{trigger.icon}
+								<div className={s.triggerItemContent}>
+									<h3>{trigger.connectedEmail}</h3>
+									<p>{trigger.description}</p>
+								</div>
+							</li>
+						))}
+					</ul>
 				)}
 			</div>
 			<div className={s.divider}></div>
