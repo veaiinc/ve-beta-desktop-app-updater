@@ -8,16 +8,34 @@ import { message } from '../../../../../../components/globalComponents/CustomToa
 const PromptTab = () => {
 	const { agentId } = useParams();
 	const {
-		knowledgeAgent: { addInstructionToKnowledgeAgent },
+		knowledgeAgent: { activeKnowledgeAssistant, addInstructionToKnowledgeAgent },
 	} = useContext(Context);
 
+	console.log(activeKnowledgeAssistant);
+
 	const [info, setInfo] = useState({
+		title: '',
 		prompt: '',
 		initialContent: '',
 	});
+
+	// useEffect(() => {
+	// 	setInfo({
+	// 		title: activeKnowledgeAssistant?.title,
+	// 		prompt: activeKnowledgeAssistant?.instruction,
+	// 		initialContent: activeKnowledgeAssistant?.instruction,
+	// 	});
+	// }, [activeKnowledgeAssistant?.data?.instructions]);
+
 	const handleSubmit = async () => {
-		const instructions = JSON.stringify(info.prompt);
-		const response = await addInstructionToKnowledgeAgent(agentId, instructions);
+		const instruction = info.prompt;
+		const title = info.title;
+		const payload = {
+			title,
+			instruction,
+		};
+
+		const response = await addInstructionToKnowledgeAgent(agentId, payload);
 		if (response?.[0]) {
 			message.success('Instruction added successfully');
 		} else {
@@ -30,10 +48,23 @@ const PromptTab = () => {
 
 	return (
 		<div className={s.promptTabContainer}>
-			<PromptInput onInputChange={handleInputChange} initialContent={info?.initialContent} />
-			<button className={s.submitBtn} onClick={handleSubmit}>
-				Submit
-			</button>
+			<div className={s.titleInputContainer}>
+				<input
+					type="text"
+					placeholder="Title"
+					value={info.title}
+					onChange={(e) => setInfo({ ...info, title: e.target.value })}
+				/>
+			</div>
+			<div className={s.promptInputContainer}>
+				<PromptInput
+					onInputChange={handleInputChange}
+					initialContent={info?.initialContent}
+				/>
+				<button className={s.submitBtn} onClick={handleSubmit}>
+					Submit
+				</button>
+			</div>
 		</div>
 	);
 };

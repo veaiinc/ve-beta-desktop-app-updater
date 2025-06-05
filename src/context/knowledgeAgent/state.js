@@ -9,6 +9,7 @@ export const initialState = {
 	allAiPrompts: null,
 	knowledgeBaseInfo: null,
 	actionsInfo: null,
+	triggers: null,
 };
 
 export const KnowledgeAgentState = () => {
@@ -614,6 +615,52 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
+	const getTriggers = async () => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = '/' + workspaceId + '/ai-assistant-triggers/ai-triggers';
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions?.GET_TRIGGERS,
+					payload: response?.[1],
+				});
+				return [true];
+			}
+			return [false];
+		} catch (error) {
+			console.log('error==>getTriggers', error);
+		}
+	};
+
+	const connectTrigger = async ({ triggerApp, triggerData }) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = '/' + workspaceId + '/ai-assistant-triggers/ai-trigger';
+
+			// triggerApp: 'gmail' | 'googleMeet'
+			switch (triggerApp) {
+				case 'gmail':
+					const response = await service?.fetchPost(
+						url,
+						triggerData, // { email: 'user@gmail.com' }
+						usertoken,
+						'ai_assistant_api',
+					);
+					if (response?.[0] === true) {
+						return [true];
+					}
+					return [false];
+				case 'googleMeet':
+					return [false]; // TODO: implement google meet trigger
+			}
+		} catch (error) {
+			console.log('error==>connectTrigger', error);
+		}
+	};
+
 	const updateContextValues = (data) => {
 		dispatch({ type: Actions?.UPDATE_CONTEXT_VALUES, payload: data });
 	};
@@ -647,5 +694,7 @@ export const KnowledgeAgentState = () => {
 		removeVisibilityOfKnowledgeAgent,
 		deleteActionOfKnowledgeAgent,
 		uploadAgentProfilePic,
+		getTriggers,
+		connectTrigger,
 	};
 };

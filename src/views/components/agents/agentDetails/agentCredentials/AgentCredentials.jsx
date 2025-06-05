@@ -86,20 +86,22 @@ const AgentCredentials = ({ agentId }) => {
 		}
 	};
 
-	useEffect(() => {
+	const handleNameChange = (e) => {
+		setInfo((prev) => ({ ...prev, agentName: e.target.value }));
 		clearTimeout(timeoutId.current);
 		timeoutId.current = setTimeout(() => {
 			updateAgentDetails();
 		}, 1000);
 		return () => clearTimeout(timeoutId.current);
-	}, [info.agentName, info.agentDescription]);
-
-	const handleNameChange = (e) => {
-		setInfo((prev) => ({ ...prev, agentName: e.target.value }));
 	};
 
 	const handleDescriptionChange = (e) => {
 		setInfo((prev) => ({ ...prev, agentDescription: e.target.value }));
+		clearTimeout(timeoutId.current);
+		timeoutId.current = setTimeout(() => {
+			updateAgentDetails();
+		}, 1000);
+		return () => clearTimeout(timeoutId.current);
 	};
 
 	const toggleEditAgentDetails = (type) => {

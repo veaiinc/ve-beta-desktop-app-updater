@@ -4,7 +4,7 @@
 	display: flex;
 	flex-direction: column;
 	overflow: auto;
-	gap: 36px;
+	gap: 34px;
 
 	.titleSubtitleContainer {
 		display: flex;
@@ -131,6 +131,7 @@
 				flex-wrap: wrap;
 				border-radius: 8px;
 				background: var(--new-card, #1a1b1e);
+				cursor: pointer;
 
 				.iconContainer {
 					display: flex;

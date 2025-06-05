@@ -3,7 +3,6 @@
 	margin-top: 12px;
 	display: flex;
 	flex-direction: column;
-	gap: 48px;
 	overflow: auto;
 	height: calc(100vh - 330px);
 
@@ -24,7 +23,7 @@
 			counter-reset: item;
 			width: 100%;
 			border-bottom: 1px solid var(--stroke, #2b2e31);
-			padding-bottom: 16px;
+			padding: 2px 0 16px;
 			margin-bottom: 16px;
 
 			.navItem {
@@ -33,7 +32,7 @@
 				font-size: 14px;
 				transition: color 0.2s ease-in-out;
 				position: relative;
-				padding-left: 28px;
+				padding-left: 22px;
 
 				&::before {
 					counter-increment: item;
@@ -42,8 +41,8 @@
 					left: 0;
 					top: 50%;
 					transform: translateY(-50%);
-					width: 16px;
-					height: 16px;
+					width: 18px;
+					height: 18px;
 					border-radius: 50%;
 					background: rgba(var(--secondary-font-rgb), 0.2);
 					border: 1px solid var(--secondary-font);
