@@ -2257,10 +2257,10 @@ const GalleryPage = () => {
 			message.destroy();
 			showMessage('success', 'Gallery deleted successfully');
 			if (!info?.isLightGallery) {
-				navigate('/galleries');
+				navigate('/files?activeTab=Gallery');
 				await getGalleries({}, true);
 			} else {
-				navigate(`/lite-gallery`);
+				navigate(`/files?activeTab=Lite+Gallery`);
 				await getGalleries({ isLightGallery: true }, true);
 			}
 		} else {
