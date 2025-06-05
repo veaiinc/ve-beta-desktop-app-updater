@@ -149,9 +149,9 @@ const SessionCard = ({
 						<SchedulerSvg />
 					</div>
 					<div className="headerButtonsContainer">
-						<div className="addSessionButton" onClick={handleAddSessionClick}>
+						{/* <div className="addSessionButton" onClick={handleAddSessionClick}>
 							<PlusSvg />
-						</div>
+						</div> */}
 						<div className="expandIcon" onClick={handleSessionExpand}>
 							<DownSvg />
 						</div>
