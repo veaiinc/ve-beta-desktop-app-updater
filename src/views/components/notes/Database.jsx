@@ -1,47 +1,45 @@
 import { defaultProps, insertOrUpdateBlock } from '@blocknote/core';
 import { createReactBlockSpec } from '@blocknote/react';
-import ObjectID from 'bson-objectid';
-import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
+import moment from 'moment';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import s from '../../../assets/scss/notes/database.module.scss';
-import { memo, useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react';
+import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
 import Context from '../../../context/context';
-import { useParams } from 'react-router-dom';
 import { NotesRefContext } from '../../features/notesModule/NotesEditor';
-import DatabaseAddModal from '../modalsV2/notes/DatabaseAddModal';
-import DatabaseAddFieldModal from '../modalsV2/notes/DatabaseAddFieldModal';
-import { Tooltip } from 'antd';
-import HeaderEditDropdown from '../dropDown/notes/database/HeaderEditDropdown';
-import DatabaseSidebar from '../modalsV2/notes/DatabaseSidebar';
-import TableView from './DatabseComponents/views/TableView';
-import TextField from '../tasks/listView/TextField';
-import Select from '../tasks/listView/Select';
-import Person from '../tasks/listView/Person';
-import MultiSelect from '../tasks/listView/MultiSelect';
-import DateView from '../tasks/listView/DateView';
-import TaskId from '../tasks/listView/TaskId';
-import Status from '../tasks/listView/Status';
-import Priority from '../tasks/listView/Priority';
-import Email from '../tasks/listView/Email';
-import Phone from '../tasks/listView/Phone';
-import Url from '../tasks/listView/Url';
-import CheckBox from '../tasks/listView/CheckBox';
-import ParentTaskComponent from '../tasks/listView/ParentTaskComponent';
-import ChildTaskProgress from '../tasks/listView/ChildTaskProgress';
-import LinkText from '../tasks/listView/LinkText';
-import PersonMultiSelect from '../tasks/listView/PersonMultiSelect';
-import CreatedWithAi from '../tasks/listView/CreatedWithAi';
 import CustomTextArea from '../globalComponents/CustomTextArea';
+import DatabaseAddFieldModal from '../modalsV2/notes/DatabaseAddFieldModal';
+import DatabaseAddModal from '../modalsV2/notes/DatabaseAddModal';
+import CheckBox from '../tasks/listView/CheckBox';
+import ChildTaskProgress from '../tasks/listView/ChildTaskProgress';
+import CreatedWithAi from '../tasks/listView/CreatedWithAi';
+import DateView from '../tasks/listView/DateView';
+import Email from '../tasks/listView/Email';
+import LinkText from '../tasks/listView/LinkText';
+import MultiSelect from '../tasks/listView/MultiSelect';
+import ParentTaskComponent from '../tasks/listView/ParentTaskComponent';
+import Person from '../tasks/listView/Person';
+import PersonMultiSelect from '../tasks/listView/PersonMultiSelect';
+import Phone from '../tasks/listView/Phone';
+import Priority from '../tasks/listView/Priority';
+import Select from '../tasks/listView/Select';
+import Status from '../tasks/listView/Status';
 import TaskHeader from '../tasks/listView/TaskHeader';
+import TaskId from '../tasks/listView/TaskId';
+import TextField from '../tasks/listView/TextField';
+import Url from '../tasks/listView/Url';
+import CalendarPicker from './DatabseComponents/CalendarPicker';
+import CheckBoxFilter from './DatabseComponents/CheckBoxFilter';
+import DateComponent from './DatabseComponents/DateComponent';
 import FilterComponent from './DatabseComponents/FilterComponent';
 import StatusFilter from './DatabseComponents/StatusFilter';
-import CheckBoxFilter from './DatabseComponents/CheckBoxFilter';
+import TableView from './DatabseComponents/views/TableView';
 
 export const rowTypes = {
 	text: TextField,
 	select: Select,
 	person: Person,
 	multi_select: MultiSelect,
-	date: DateView,
+	date: DateComponent,
 	serial_number: TaskId,
 	status: Status,
 	priority: Priority,
@@ -507,6 +505,7 @@ const DatabaseComponent = memo(({ block, editor }) => {
 							Load More
 						</button>
 					)}
+
 					<DatabaseAddModal
 						isOpen={info?.addRowModalOpen}
 						onClose={() => handleInfoChange({ addRowModalOpen: false })}

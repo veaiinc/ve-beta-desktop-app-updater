@@ -1,0 +1,28 @@
+import { Tooltip } from 'antd';
+import { memo } from 'react';
+import DateDropdown from '../../dropDown/notes/database/DateDropdown';
+import moment from 'moment';
+
+const DateComponent = ({ value, onChange }) => {
+	const dateValue = value?.startDate
+		? `${moment.unix(value?.startDate).format('DD/MM/YYYY')}${
+				value?.isEndDateEnabled
+					? ` → ${moment.unix(value?.endDate).format('DD/MM/YYYY')}`
+					: ''
+		  }`
+		: null;
+	return (
+		<Tooltip
+			title={<DateDropdown value={value} onChange={onChange} />}
+			placement="bottomLeft"
+			overlayClassName="status-dropdown"
+			color="transparent"
+			trigger={['click']}
+			destroyOnHide={true}
+		>
+			<div>{value ? dateValue : 'No date'}</div>
+		</Tooltip>
+	);
+};
+
+export default memo(DateComponent);
