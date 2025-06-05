@@ -12,8 +12,6 @@ import CustomToast from './views/components/globalComponents/CustomToast';
 function App() {
 	const currentRoute = window.location.pathname;
 
-	const currentRoute = window.location.pathname;
-
 	const {
 		themeInfo: { theme },
 	} = useContext(Context);

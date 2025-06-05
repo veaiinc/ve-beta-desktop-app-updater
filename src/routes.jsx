@@ -251,7 +251,6 @@ const routes = [
 		path: '/galleries/:galleryId',
 		component: (
 			<AuthWrapper title={'Gallery'} showBottomToolbar={false}>
-			<AuthWrapper title={'Gallery'} showBottomToolbar={false}>
 				<GalleryPage />
 			</AuthWrapper>
 		),
@@ -640,7 +639,6 @@ const routes = [
 	{
 		path: '/files',
 		component: (
-			<AuthWrapper title="Files" maxWidth={'100%'}>
 			<AuthWrapper title="Files" maxWidth={'100%'}>
 				<Files />
 			</AuthWrapper>

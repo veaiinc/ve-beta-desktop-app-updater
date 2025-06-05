@@ -387,5 +387,3 @@ export const redirectTypeMapper = {
 };
 
 const origin = fetchOriginSelection();
-
-const origin = fetchOriginSelection();
