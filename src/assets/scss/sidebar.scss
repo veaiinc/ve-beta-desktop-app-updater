@@ -1,4 +1,7 @@
 .FullScreenSidebar {
+	margin-left: 0px;
+	margin-right: 0px;
+
 	&.opened {
 		height: 100dvh;
 		position: relative;
@@ -6,9 +9,14 @@
 		margin-top: -32px;
 		padding: 0 !important;
 		margin-right: 10px !important;
-		transition: height, width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 		z-index: 1000;
+		animation: expandWidth 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 	}
+	&.closed {
+		animation: delayMargin 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards,
+			adjustWidth 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+	}
+
 	&.contacts-sidebar {
 		position: absolute;
 		top: 0px;
@@ -49,22 +57,32 @@
 			display: none;
 		}
 		width: 100% !important;
-		&.open {
-			border-radius: 0px !important;
-			// height: 100dvh !important;
-			width: 280px !important;
-			transform: translateX(-100%);
-			animation: slideInAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-			position: relative;
-		}
-		&.closing {
-			width: 100% !important;
-			transform: translateX(0%);
-			animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-		}
 
 		&.padding-48 {
 			padding: 0px;
+		}
+
+		.sidebar-open {
+			&.active {
+				display: block;
+				animation: slideInAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+			}
+			&.inactive {
+				animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+			}
+
+			&.inactive-no-animation {
+				display: none;
+			}
+		}
+
+		.sidebar-close {
+			&.active {
+				display: block;
+			}
+			&.inactive {
+				display: none;
+			}
 		}
 
 		.openSideBarComponent {
@@ -1366,6 +1384,43 @@
 		transform: translateX(0);
 	}
 	100% {
+		display: none;
 		transform: translateX(-100%);
+	}
+}
+
+@keyframes delayMargin {
+	0% {
+		margin-left: -32px;
+		margin-top: -32px;
+	}
+	99% {
+		margin-left: -32px;
+		margin-top: -32px;
+	}
+	100% {
+		margin-left: 0;
+		margin-top: 0;
+	}
+}
+
+@keyframes adjustWidth {
+	0% {
+		width: 280px;
+	}
+	99% {
+		width: 52px;
+	}
+	100% {
+		width: 20px;
+	}
+}
+
+@keyframes expandWidth {
+	0% {
+		width: 20px;
+	}
+	100% {
+		width: 280px;
 	}
 }

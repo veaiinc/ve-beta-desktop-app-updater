@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect, memo } from 'react';
+import { useState, useContext, useEffect, memo, useRef } from 'react';
 import '../../../assets/scss/sidebar.scss';
 import { useLocation } from 'react-router-dom';
 import Intercom from '@intercom/messenger-js-sdk';
@@ -19,6 +19,8 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 	const location = useLocation();
+	const sidebarRef = useRef(null);
+	const sidebarOpenRef = useRef(null);
 	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
 	const [showNotesDrawer, setShowNotesDrawer] = useState(false);
 	const [showChatsDrawer, setShowChatsDrawer] = useState(false);
@@ -31,7 +33,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const [isOpen, setIsOpen] = useState(() => {
 		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
 	});
-	const [isClosing, setIsClosing] = useState(false);
 	// conditional margin top for home page
 	const isHome = location?.pathname?.includes('home');
 
@@ -40,9 +41,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		location?.pathname?.includes('tasks') ||
 		location?.pathname?.includes('contact');
 
-	useEffect(() => {
-		localStorage.setItem('isOpen', JSON.stringify(isOpen));
-	}, [isOpen]);
 	const [info, setInfo] = useState({
 		switchWorkspaceModal: false,
 		activeBusniessName: '',
@@ -51,6 +49,10 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		activeRoute: '/' + location.pathname.split('/')[1],
 		selectedModule: null,
 	});
+
+	useEffect(() => {
+		localStorage.setItem('isOpen', JSON.stringify(isOpen));
+	}, [isOpen]);
 
 	useEffect(() => {
 		if (leftSidebarState === 'open') {
@@ -126,16 +128,18 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		setIsOpen(true); // Sidebar comes into view
 	};
 	const handleClose = () => {
-		setIsClosing(true);
-		setTimeout(() => {
-			setIsOpen(false); // Sidebar disappears
-			setIsClosing(false);
-		}, 400); // Match this with the SCSS transition duration
+		setIsOpen(false); // Sidebar disappears
 	};
 	return (
 		<>
 			<div
-				className={`FullScreenSidebar ${isOpen ? 'opened' : ''} ${
+				className={`FullScreenSidebar ${
+					isOpen
+						? 'opened'
+						: sidebarRef.current?.classList?.contains('opened')
+						? 'closed'
+						: ''
+				} ${
 					sidebarStates.selectedModule &&
 					veAiModulesItemsList.find(
 						(module) => module.name === sidebarStates.selectedModule,
@@ -158,14 +162,22 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					marginLeft: isChatSidebarRoute ? '0' : '',
 					// top: isOpen ? '' : renewBanner ? '105px' : '',
 				}}
+				ref={sidebarRef}
 			>
 				<nav
-					className={`sidebarComponent ${isOpen && !isClosing ? 'open' : ''} ${
-						isClosing ? 'closing' : ''
-					} ${!isOpen && isHome && 'padding-48'}`}
+					className={`sidebarComponent ${!isOpen && isHome && 'padding-48'}`}
 					style={styles[sidebarStates?.navStyle]}
 				>
-					{isOpen ? (
+					<div
+						className={`sidebar-open ${
+							isOpen
+								? 'active'
+								: sidebarOpenRef.current?.classList?.contains('active')
+								? 'inactive'
+								: 'inactive-no-animation'
+						}`}
+						ref={sidebarOpenRef}
+					>
 						<OpenedSidebar
 							setsidebarStates={setsidebarStates}
 							sidebarStates={sidebarStates}
@@ -180,7 +192,9 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							setHideClosedSidebarIcon={setHideClosedSidebarIcon}
 							// renewBanner={renewBanner}
 						/>
-					) : (
+					</div>
+
+					<div className={`sidebar-close ${isOpen ? 'inactive' : 'active'}`}>
 						<SidebarTooltip
 							label="Open Sidebar"
 							icon={
@@ -190,7 +204,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 								/>
 							}
 						/>
-					)}
+					</div>
 				</nav>
 				<Notifications
 					showNotificationsDrawer={showNotificationsDrawer}
