@@ -44,6 +44,16 @@
 			line-height: normal;
 		}
 
+		.emptyTriggersMessage {
+			margin: 0;
+			color: var(--secondary-font);
+			font-family: var(--font-family-inter);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 20px;
+		}
+
 		.triggersListContainer {
 			margin: 0;
 			display: flex;

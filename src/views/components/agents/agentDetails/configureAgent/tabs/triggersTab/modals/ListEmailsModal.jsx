@@ -14,7 +14,7 @@ const isValidEmail = (email) => {
 	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
-const ListEmailsModal = ({ isOpen, onClose, setTriggerEmail }) => {
+const ListEmailsModal = ({ isOpen, onClose, setTriggerEmail, handleConnectToGmailTrigger }) => {
 	const {
 		profileInfo: { userDetailsData },
 	} = useContext(Context);
@@ -25,8 +25,9 @@ const ListEmailsModal = ({ isOpen, onClose, setTriggerEmail }) => {
 
 	const handleKeyDown = (e) => {
 		if (e.key === 'Enter') {
-			if (isValidEmail(e.target.value)) {
-				setTriggerEmail(e.target.value);
+			const email = e.target.value;
+			if (isValidEmail(email)) {
+				handleConnectToGmailTrigger(email);
 				onClose();
 			} else {
 				message.error('Please enter a valid email');
@@ -35,7 +36,7 @@ const ListEmailsModal = ({ isOpen, onClose, setTriggerEmail }) => {
 	};
 
 	const handleClick = () => {
-		setTriggerEmail(userEmail);
+		handleConnectToGmailTrigger(userEmail);
 		onClose();
 	};
 

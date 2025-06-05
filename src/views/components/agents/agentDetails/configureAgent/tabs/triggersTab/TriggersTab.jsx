@@ -2,14 +2,17 @@ import { memo, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import s from './triggersTab.module.scss';
 import { message } from '../../../../../../components/globalComponents/CustomToast';
+import Context from '../../../../../../../context/context';
 
 // icons
 import GmailIcon from '../../../../../../../assets/svg/login_page/GmailIcon';
 import { ReactComponent as GoogleMeetIcon } from '../assets/google-meet-icon.svg';
 import { ReactComponent as CustomWebhookIcon } from '../assets/custom-webhook.svg';
 import { ReactComponent as RedirectIcon } from '../assets/redirect-icon.svg';
-import Context from '../../../../../../../context/context';
+
+// components
 import ListEmailsModal from './modals/ListEmailsModal';
+import InfiniteScroll from '../../../../../../components/globalComponents/InfiniteScroll';
 
 const customTriggers = [
 	{
@@ -22,7 +25,7 @@ const customTriggers = [
 	},
 ];
 
-const connectedTriggers = [
+const connectableTriggers = [
 	{
 		icon: <GmailIcon />,
 		title: 'Gmail',
@@ -33,10 +36,14 @@ const connectedTriggers = [
 	// 	icon: <GoogleMeetIcon />,
 	// 	title: 'Google Meet',
 	// 	triggerType: 'googleMeet',
-	// 	email: 'sheshant@ve.ai',
+
 	// 	description: 'Google (Gmail, Calendar, Docs, & API)',
 	// },
 ];
+
+const emptyConnectedTriggersMessage =
+	'No connected triggers yet! Your connected triggers will appear here! Choose a trigger to connect to your agent from below.';
+
 const TriggersTab = () => {
 	const { agentId } = useParams();
 
@@ -46,16 +53,19 @@ const TriggersTab = () => {
 
 	const [info, setInfo] = useState({
 		ListEmailsModalOpen: false,
-		triggerEmail: null,
 	});
 
-	const connectedEmail = triggers?.data?.[0]?.connectedEmail;
+	const connectedTriggers = triggers?.data ?? [];
+	const emptyConnectedTriggers = connectedTriggers.length === 0;
+
+	console.log(triggers);
 
 	useEffect(() => {
 		getTriggers();
 	}, []);
 
-	const handleConnectTrigger = async ({ triggerApp, email }) => {
+	const handleConnectToGmailTrigger = async (email) => {
+		const triggerApp = 'gmail';
 		const triggerData = {
 			app: triggerApp,
 			action: 'replyEmail',
@@ -70,10 +80,6 @@ const TriggersTab = () => {
 		}
 	};
 
-	const setTriggerEmail = (email) => {
-		setInfo((prev) => ({ ...prev, triggerEmail: email }));
-	};
-
 	return (
 		<div className={s.container}>
 			<header className={s.titleSubtitleContainer}>
@@ -82,10 +88,15 @@ const TriggersTab = () => {
 					Triggers are events that can be used to trigger actions.
 				</h2>
 			</header>
+
 			<div className={s.connectedTriggersContainer}>
 				<h1 className={s.title}>Connected Triggers</h1>
-				<ul className={s.triggersListContainer}>
-					{connectedTriggers.map((trigger) => (
+				{!emptyConnectedTriggers ? (
+					<p className={s.emptyTriggersMessage}>{emptyConnectedTriggersMessage}</p>
+				) : (
+					<InfiniteScroll>
+						<ul className={s.triggersListContainer}>
+							{/* {connectedTriggers.map((trigger) => (
 						<li key={trigger.title}>
 							{trigger.icon}
 							<div className={s.triggerItemContent}>
@@ -93,14 +104,16 @@ const TriggersTab = () => {
 								<p>{trigger.description}</p>
 							</div>
 						</li>
-					))}
-				</ul>
+					))} */}
+						</ul>
+					</InfiniteScroll>
+				)}
 			</div>
 			<div className={s.divider}></div>
 			<div className={s.connectAppsContainer}>
 				<h1 className={s.title}>Connect</h1>
 				<ul className={s.connectAppsListContainer}>
-					{connectedTriggers.map((trigger) => (
+					{connectableTriggers.map((trigger) => (
 						<li
 							key={trigger.title}
 							onClick={() =>
@@ -130,8 +143,8 @@ const TriggersTab = () => {
 			</div>
 			<ListEmailsModal
 				isOpen={info.ListEmailsModalOpen}
-				setTriggerEmail={setTriggerEmail}
 				onClose={() => setInfo({ ...info, ListEmailsModalOpen: false })}
+				handleConnectToGmailTrigger={handleConnectToGmailTrigger}
 			/>
 		</div>
 	);
