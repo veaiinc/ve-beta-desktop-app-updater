@@ -18,7 +18,6 @@ const WeeklySlot = ({ day, date, slots, toggleUpdateSlotModal }) => {
 		};
 		return dayMap[shortDay] || shortDay;
 	};
-
 	return (
 		<div className="daySlotContainer">
 			<div className="dayHeader">
@@ -37,6 +36,7 @@ const WeeklySlot = ({ day, date, slots, toggleUpdateSlotModal }) => {
 									selectedDate: date,
 									selectedDay: getFullDayName(day),
 									selectedSlot: slot,
+									_id: slot._id,
 								});
 							}}
 						>
@@ -61,6 +61,7 @@ const WeeklySlot = ({ day, date, slots, toggleUpdateSlotModal }) => {
 							selectedDate: date,
 							selectedDay: getFullDayName(day),
 							isNewSlot: true,
+							_id: slots[0]?._id,
 						})
 					}
 				>
@@ -203,7 +204,8 @@ const SchedulerAvailability = ({ updateSlotModal, toggleUpdateSlotModal, schedul
 				<div className="headerLeftContainer">
 					<div className="headerTitle">Time Slots</div>
 					<div className="headerSubTitle">
-					This overview shows your availability for all sessions. Events from your calendars (including synced) will override this and show you as unavailable.
+						This overview shows your availability for all sessions. Events from your
+						calendars (including synced) will override this and show you as unavailable.
 					</div>
 				</div>
 				<div className="headerRightContainer">
@@ -221,8 +223,10 @@ const SchedulerAvailability = ({ updateSlotModal, toggleUpdateSlotModal, schedul
 			<div className="weeklySlotsContainer">
 				{weeklySlots?.map((dayData, index) => (
 					<WeeklySlot
-						key={index}
-						{...dayData}
+						key={dayData.date}
+						day={dayData.day}
+						date={dayData.date}
+						slots={dayData.slots}
 						toggleUpdateSlotModal={toggleUpdateSlotModal}
 					/>
 				))}
