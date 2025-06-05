@@ -4,9 +4,9 @@ import ReactModal from '../index';
 import { ReactComponent as Delete } from '../../../../assets/svg/ai_assistant/delete.svg';
 import { ReactComponent as Down } from '../../../../assets/svg/calendar/down.svg';
 import { ReactComponent as Clock } from '../../../../assets/svg/workflow/clock.svg';
-import { Tooltip, DatePicker } from 'antd';
 import moment from 'moment';
 import ToggleSwitch from '../../../components/input/slider';
+import { Tooltip } from 'antd';
 
 const customStyles = {
 	content: { zIndex: 1003, borderRadius: '24px' },
@@ -20,205 +20,113 @@ const UpdateSessionSlot = ({
 	selectedSlotData,
 	updateCalendarInfo,
 }) => {
-	const [info, setInfo] = useState({
-		repeat: false,
-		slots: [{ from: moment().startOf('day'), to: moment().startOf('day').add(1, 'hours') }],
-		selectedSession: null,
-		sessionTypeOpen: false,
-		sessionWindow: {
-			startDate: moment().format('YYYY-MM-DD'),
-			endDate: moment().add(1, 'week').format('YYYY-MM-DD'),
-		},
-	});
+	const [slots, setSlots] = useState([]);
+	const [selectedSession, setSelectedSession] = useState(null);
+	const [sessionTypeOpen, setSessionTypeOpen] = useState(false);
 
+	// When modal opens or selectedSlotData changes, set selectedSession
 	useEffect(() => {
-		if (selectedSlotData) {
-			// If editing an existing session
-			const session = schedulerList?.find((s) => s._id === selectedSlotData._id);
-			if (session) {
-				// Get the first availability slot's time ranges
-				const firstAvailabilitySlot = session.availabilitySlots?.[0];
-				const timeRanges = firstAvailabilitySlot?.timeRanges || [];
+		if (!open || !selectedSlotData || !schedulerList) return;
+		const s = schedulerList.find((ss) => ss._id === selectedSlotData._id) || schedulerList[0];
+		setSelectedSession(s);
+	}, [open, selectedSlotData, schedulerList]);
 
-				const slots = timeRanges.map((range) => ({
-					from: moment(range.startTime, 'HH:mm').isValid()
-						? moment(range.startTime, 'HH:mm')
-						: moment().startOf('day'),
-					to: moment(range.endTime, 'HH:mm').isValid()
-						? moment(range.endTime, 'HH:mm')
-						: moment().startOf('day').add(1, 'hours'),
-				}));
+	// When selectedSession or selectedSlotData changes, update slots
+	useEffect(() => {
+		if (!open || !selectedSlotData || !selectedSession) return;
+		// Get selected date and day name
+		const selectedDate = selectedSlotData.selectedDate
+			? moment(selectedSlotData.selectedDate, [
+					'YYYY-MM-DD',
+					'D/M',
+					'YYYY-MM-DDTHH:mm:ss.SSSZ',
+			  ]).format('YYYY-MM-DD')
+			: null;
+		const selectedDayName =
+			selectedSlotData.selectedDay ||
+			(selectedDate ? moment(selectedDate).format('dddd') : null);
 
-				setInfo((prev) => ({
-					...prev,
-					selectedSession: session,
-					slots:
-						slots.length > 0
-							? slots
-							: [
-									{
-										from: moment().startOf('day'),
-										to: moment().startOf('day').add(1, 'hours'),
-									},
-							  ],
-					sessionWindow: {
-						startDate:
-							session.sessionWindow?.startDate || moment().format('YYYY-MM-DD'),
-						endDate:
-							session.sessionWindow?.endDate ||
-							moment().add(1, 'week').format('YYYY-MM-DD'),
-					},
-				}));
-			}
-		} else if (schedulerList?.length > 0) {
-			// If creating a new session
-			setInfo((prev) => ({
-				...prev,
-				selectedSession: schedulerList[0],
-				slots: [
-					{ from: moment().startOf('day'), to: moment().startOf('day').add(1, 'hours') },
-				],
-				sessionWindow: {
-					startDate: moment().format('YYYY-MM-DD'),
-					endDate: moment().add(1, 'week').format('YYYY-MM-DD'),
-				},
-			}));
+		// 1. Check for custom exception for this day
+		const exception = (selectedSession.customExceptions || []).find((e) => {
+			const exceptionDate = moment(e.date).format('YYYY-MM-DD');
+			return exceptionDate === selectedDate;
+		});
+		if (exception && exception.customTimeRanges?.length > 0) {
+			setSlots(exception.customTimeRanges.map((r) => ({ from: r.startTime, to: r.endTime })));
+			return;
 		}
-	}, [schedulerList, selectedSlotData]);
+
+		// 2. Else, check for default weekly availability for this day
+		const avail = (selectedSession.availabilitySlots || []).find((a) => {
+			return a.dayOfWeek === selectedDayName;
+		});
+		if (avail && avail.timeRanges?.length > 0) {
+			setSlots(avail.timeRanges.map((r) => ({ from: r.startTime, to: r.endTime })));
+			return;
+		}
+
+		// 3. No slots for this day
+		setSlots([]);
+	}, [open, selectedSlotData, selectedSession]);
+
+	const handleSlotChange = (idx, field, value) => {
+		setSlots((prev) => prev.map((slot, i) => (i === idx ? { ...slot, [field]: value } : slot)));
+	};
 
 	const addSlot = () => {
-		setInfo((prev) => ({
-			...prev,
-			slots: [
-				...prev.slots,
-				{
-					from: moment().startOf('day'),
-					to: moment().startOf('day').add(1, 'hours'),
-				},
-			],
-		}));
+		setSlots((prev) => [...prev, { from: '09:00', to: '10:00' }]);
 	};
 
-	const removeSlot = (index) => {
-		setInfo((prev) => ({
-			...prev,
-			slots: prev.slots.filter((_, i) => i !== index),
-		}));
-	};
-
-	const ModifyCloseModal = () => {
-		closeModal();
-		setInfo((prev) => ({
-			...prev,
-			repeat: false,
-			slots: [{ from: moment().startOf('day'), to: moment().startOf('day').add(1, 'hours') }],
-			selectedSession: schedulerList[0] || null,
-			sessionTypeOpen: false,
-			sessionWindow: {
-				startDate: moment().format('YYYY-MM-DD'),
-				endDate: moment().add(1, 'week').format('YYYY-MM-DD'),
-			},
-		}));
+	const removeSlot = (idx) => {
+		setSlots((prev) => prev.filter((_, i) => i !== idx));
 	};
 
 	const handleSave = useCallback(() => {
-		if (!info.selectedSession) return;
-
-		// Get the selected date from selectedSlotData
-		const selectedDate = selectedSlotData?.selectedDate;
-		if (!selectedDate) return;
-
-		// Convert the date to the required format
-		const formattedDate = moment(selectedDate, 'D/M').format('YYYY-MM-DD[T]00:00:00.000[Z]');
-
-		// Format the time ranges
-		const timeRanges = info.slots.map((slot) => ({
-			startTime: slot.from.format('HH:mm'),
-			endTime: slot.to.format('HH:mm'),
-		}));
-
-		// Get existing customExceptions
-		const existingExceptions = info.selectedSession.customExceptions || [];
-
-		// Find if there's an existing exception for this date
-		const existingExceptionIndex = existingExceptions.findIndex(
-			(exception) =>
-				moment(exception.date).format('YYYY-MM-DD') ===
-				moment(formattedDate).format('YYYY-MM-DD'),
-		);
-
-		let updatedExceptions;
-		if (existingExceptionIndex >= 0) {
-			// Update existing exception
-			updatedExceptions = [...existingExceptions];
-			updatedExceptions[existingExceptionIndex] = {
-				...updatedExceptions[existingExceptionIndex],
-				customTimeRanges: timeRanges,
-			};
-		} else {
-			// Add new exception
-			updatedExceptions = [
-				...existingExceptions,
-				{
-					date: formattedDate,
-					overrideAvailability: true,
-					customTimeRanges: timeRanges,
-				},
-			];
-		}
-
-		// Create the updated session object with customExceptions
-		const updatedSession = {
-			...info.selectedSession,
-			customExceptions: updatedExceptions,
+		if (!selectedSession || !selectedSlotData?.selectedDate) return;
+		const selectedDate = moment(selectedSlotData.selectedDate, [
+			'YYYY-MM-DD',
+			'D/M',
+			'YYYY-MM-DDTHH:mm:ss.SSSZ',
+		]).format('YYYY-MM-DD');
+		let updatedSession = { ...selectedSession };
+		const newException = {
+			date: moment(selectedDate).format('YYYY-MM-DD[T]00:00:00.000[Z]'),
+			overrideAvailability: true,
+			customTimeRanges: slots.map((s) => ({ startTime: s.from, endTime: s.to })),
 		};
-
-		// Update the session in the parent component
-		if (updateCalendarInfo) {
-			updateCalendarInfo(updatedSession);
+		// Remove any existing exception for this day
+		let customExceptions = (selectedSession.customExceptions || []).filter(
+			(e) => moment(e.date).format('YYYY-MM-DD') !== selectedDate,
+		);
+		// Only add if slots exist
+		if (slots.length > 0) {
+			customExceptions = [...customExceptions, newException];
 		}
+		updatedSession.customExceptions = customExceptions;
+		if (updateCalendarInfo) updateCalendarInfo(updatedSession);
+		closeModal();
+	}, [selectedSession, selectedSlotData, slots, updateCalendarInfo, closeModal]);
 
-		ModifyCloseModal();
-	}, [info.selectedSession, info.slots, updateCalendarInfo, selectedSlotData]);
-
-	const handleTimeChange = (value, index, type) => {
-		if (!value || !value.isValid()) return;
-
-		setInfo((prev) => ({
-			...prev,
-			slots: prev.slots.map((slot, i) => {
-				if (i === index) {
-					const newTime = moment().startOf('day').set({
-						hour: value.hour(),
-						minute: value.minute(),
-					});
-					return {
-						...slot,
-						[type]: newTime,
-					};
-				}
-				return slot;
-			}),
-		}));
+	const ModifyCloseModal = () => {
+		closeModal();
+		setSlots([]);
+		setSelectedSession(null);
+		setSessionTypeOpen(false);
 	};
 
 	return (
 		<ReactModal
 			isOpen={open}
+			onRequestClose={ModifyCloseModal}
 			closeModal={ModifyCloseModal}
-			modalType={'center'}
-			customStyles={customStyles}
+			style={customStyles}
+			className="update-session-slot-modal"
 		>
 			<div className="updateSessionSlotContainer">
 				<div className="sessionHeader">
 					<Tooltip
-						open={info?.sessionTypeOpen}
-						onOpenChange={(visible) =>
-							setInfo((prev) => ({
-								...prev,
-								sessionTypeOpen: visible,
-							}))
-						}
+						open={sessionTypeOpen}
+						onOpenChange={(visible) => setSessionTypeOpen(visible)}
 						placement="bottom"
 						title={
 							<div className="sessionName-dropdown">
@@ -227,11 +135,8 @@ const UpdateSessionSlot = ({
 										key={option._id}
 										className="sessionName-dropdown-item"
 										onClick={() => {
-											setInfo((prev) => ({
-												...prev,
-												selectedSession: option,
-												sessionTypeOpen: false,
-											}));
+											setSelectedSession(option);
+											setSessionTypeOpen(false);
 										}}
 									>
 										{option.sessionName}
@@ -245,53 +150,50 @@ const UpdateSessionSlot = ({
 						overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
 					>
 						<div className="selectedSession-lable">
-							{info?.selectedSession?.sessionName}
-							<Down className={`${info?.sessionTypeOpen ? 'open' : ''}`} />
+							{selectedSession?.sessionName}
+							<Down className={`${sessionTypeOpen ? 'open' : ''}`} />
 						</div>
 					</Tooltip>
 				</div>
-
-				{info?.slots?.map((slot, index) => (
-					<div key={index} className="timeSlot">
-						<DatePicker
-							showTime
-							format="hh:mm A"
-							picker="time"
-							className="timePicker"
-							value={slot.from}
-							onChange={(value) => handleTimeChange(value, index, 'from')}
-							suffixIcon={<Clock />}
-						/>
-						<span>to</span>
-						<DatePicker
-							showTime
-							format="hh:mm A"
-							picker="time"
-							className="timePicker"
-							value={slot.to}
-							onChange={(value) => handleTimeChange(value, index, 'to')}
-							suffixIcon={<Clock />}
-						/>
-						<Delete onClick={() => removeSlot(index)} />
-					</div>
-				))}
-
+				<h3 style={{ color: '#e4e5e6', fontWeight: 500, fontSize: 14 }}>
+					{selectedSlotData?.selectedDate
+						? `Slots for ${selectedSlotData.selectedDate}`
+						: 'No day selected'}
+				</h3>
+				{slots.length === 0 ? (
+					<div style={{ color: '#888', margin: '16px 0' }}>No slots for this day.</div>
+				) : (
+					slots.map((slot, idx) => (
+						<div key={idx} className="timeSlot">
+							<input
+								type="time"
+								className="slot-input"
+								value={slot.from}
+								onChange={(e) => handleSlotChange(idx, 'from', e.target.value)}
+							/>
+							<span>to</span>
+							<input
+								type="time"
+								className="slot-input"
+								value={slot.to}
+								onChange={(e) => handleSlotChange(idx, 'to', e.target.value)}
+							/>
+							<Delete
+								width={8}
+								height={8}
+								onClick={() => removeSlot(idx)}
+								style={{ cursor: 'pointer' }}
+							/>
+						</div>
+					))
+				)}
 				<div className="addSlot" onClick={addSlot}>
-					+ Add Another Time
+					+ Add Time Slot
 				</div>
-
-				<div className="disableAvailability">Disable Availability</div>
-
-				<div className="repeatToggle">
-					<span>Repeat Every day</span>
-					<ToggleSwitch
-						onChange={(value) => setInfo((prev) => ({ ...prev, repeat: value }))}
-						value={info.repeat}
-					/>
-				</div>
-
 				<div className="saveButton">
-					<button onClick={handleSave}>Save</button>
+					<div className="saveButton-text" onClick={handleSave}>
+						Save Changes
+					</div>
 				</div>
 			</div>
 		</ReactModal>
