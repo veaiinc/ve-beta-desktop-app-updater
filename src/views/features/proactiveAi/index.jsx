@@ -60,10 +60,16 @@ const ProactiveAi = () => {
 	const navigate = useNavigate();
 	const bodyRef = useRef(null);
 
-	// useEffect(() => {
-	// 	if (!proactiveAiId) return;
-	// 	getProactiveAiData(proactiveAiId);
-	// }, [proactiveAiId]);
+	useEffect(() => {
+		if (!proactiveAiId) return;
+		getProactiveAiData(proactiveAiId);
+	}, [proactiveAiId]);
+
+	useEffect(() => {
+		return () => {
+			updateStateValues({ proactiveAiData: null });
+		};
+	}, []);
 
 	useEffect(() => {
 		if (!proactiveAiData) return;
@@ -205,14 +211,11 @@ const ProactiveAi = () => {
 	const handleFavouriteClick = async (id, isFavourite = false) => {
 		const res = await pendingActionsUpdate(id, { isFavourite: !isFavourite });
 		if (res?.[0] === true) {
-			// getAISuggestedPendingActions(
-			// 	{
-			// 		isFavourite: !isFavourite,
-			// 	},
-			// 	false,
-			// 	'update',
-			// 	id,
-			// );
+			const data = {
+				...(proactiveAiData || {}),
+				isFavourite: !isFavourite,
+			};
+			updateStateValues({ proactiveAiData: data });
 			message.success(!isFavourite ? 'Added to favourites' : 'Removed from favourites');
 		} else {
 			message.error('Failed to update');
