@@ -377,14 +377,7 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 								className="user-message-renderer-container"
 								ref={textRef}
 							>
-								{(messageData?.message || '').split('\n').map((line, index) => (
-									<span key={index}>
-										{line}
-										{index < messageData?.message.split('\n').length - 1 && (
-											<br />
-										)}
-									</span>
-								))}
+								{messageData?.message || ''}
 							</div>
 							{info?.isOverflowing && (
 								<div className="expand-btn">
