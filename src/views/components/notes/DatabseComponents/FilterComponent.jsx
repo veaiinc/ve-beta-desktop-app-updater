@@ -74,6 +74,8 @@ const FilterComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 									? 'statusFilter'
 									: field?.type === 'checkbox'
 									? 'checkboxFilter'
+									: field?.type === 'date'
+									? 'dateFilter'
 									: field?.type;
 							const Component = rowTypes?.[componentType] || null;
 							const currentField = fields?.find(

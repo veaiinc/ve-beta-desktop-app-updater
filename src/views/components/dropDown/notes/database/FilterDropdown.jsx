@@ -13,6 +13,7 @@ import DateViewDropdown from '../../tasks/DateViewDropdown';
 import MultiSelectDropdown from '../../tasks/MultiSelectDropdown';
 import StatusFilterDropdown from './StatusFilterDropdown';
 import CheckBoxFilterDropdown from './CheckBoxFilterDropdown';
+import DateFilterDropdown from './DateFilterDropdown';
 
 const filterMapperTypes = {
 	text: TextFilter,
@@ -21,11 +22,11 @@ const filterMapperTypes = {
 	person: TeamMembersDropdown,
 	created_by: TeamMembersDropdown,
 	last_edited_by: TeamMembersDropdown,
-	date: DateViewDropdown,
 	id: TextFilter,
 	status: StatusFilterDropdown,
 	personMultiSelect: PersonDropdown,
 	checkbox: CheckBoxFilterDropdown,
+	date: DateFilterDropdown,
 };
 
 const FilterDropdown = ({ fields, colors, filters, handleFilterChange }) => {

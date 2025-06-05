@@ -33,6 +33,7 @@ import DateComponent from './DatabseComponents/DateComponent';
 import FilterComponent from './DatabseComponents/FilterComponent';
 import StatusFilter from './DatabseComponents/StatusFilter';
 import TableView from './DatabseComponents/views/TableView';
+import DateFilterComponent from './DatabseComponents/DateFilterComponent';
 
 export const rowTypes = {
 	text: TextField,
@@ -61,6 +62,7 @@ export const rowTypes = {
 	phone: LinkText,
 	statusFilter: StatusFilter,
 	checkboxFilter: CheckBoxFilter,
+	dateFilter: DateFilterComponent,
 };
 
 const DatabaseComponent = memo(({ block, editor }) => {

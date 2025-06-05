@@ -2,6 +2,12 @@ import { Tooltip } from 'antd';
 import { memo } from 'react';
 import DateDropdown from '../../dropDown/notes/database/DateDropdown';
 import moment from 'moment';
+const inlineStyle = {
+	fontSize: '12px',
+	fontWeight: '500',
+	color: 'var(--primary-font)',
+	cursor: 'pointer',
+};
 
 const DateComponent = ({ value, onChange }) => {
 	const dateValue = value?.startDate
@@ -20,7 +26,7 @@ const DateComponent = ({ value, onChange }) => {
 			trigger={['click']}
 			destroyOnHide={true}
 		>
-			<div>{value ? dateValue : 'No date'}</div>
+			<div style={inlineStyle}>{value ? dateValue : 'No date'}</div>
 		</Tooltip>
 	);
 };

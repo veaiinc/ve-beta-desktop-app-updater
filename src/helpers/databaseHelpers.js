@@ -28,7 +28,7 @@ const COMMON_CONDITIONS = {
 	isOnOrBefore: { label: 'is on or before', value: 'is_on_or_before' },
 	isOnOrAfter: { label: 'is on or after', value: 'is_on_or_after' },
 	isBetween: { label: 'is between', value: 'is_between' },
-	relativeToToday: { label: 'relative to today', value: 'relative_to_today' },
+	relativeToToday: { label: 'relative to today', value: 'relative_to_today', noValue: true },
 };
 
 const baseConditions = {
@@ -51,11 +51,13 @@ const baseConditions = {
 		COMMON_CONDITIONS.isNotEmpty,
 	],
 	date: [
+		COMMON_CONDITIONS.is,
+		COMMON_CONDITIONS.isNot,
 		COMMON_CONDITIONS.isBefore,
 		COMMON_CONDITIONS.isAfter,
 		COMMON_CONDITIONS.isOnOrBefore,
 		COMMON_CONDITIONS.isOnOrAfter,
-		COMMON_CONDITIONS.isBetween,
+		// COMMON_CONDITIONS.isBetween,
 		COMMON_CONDITIONS.relativeToToday,
 	],
 	checkbox: [COMMON_CONDITIONS.is, COMMON_CONDITIONS.isNot],
