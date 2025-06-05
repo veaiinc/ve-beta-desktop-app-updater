@@ -12,6 +12,7 @@ import { message } from '../globalComponents/CustomToast';
 import moment from 'moment';
 import EmptyState from './EmptyState';
 import { Tooltip } from 'antd';
+import { ReactComponent as Search } from '../../../assets/svg/search.svg';
 
 const filterOptions = [
 	{ label: 'All', value: '' },
@@ -38,14 +39,25 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 		currentPage: 1,
 		hasNextPage: false,
 		loading: true,
+		searchLoading: false,
 		selectedFilter: { label: 'All', value: '' },
 		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
 		blankTemplateLoading: false,
+		searchQuery: '',
 	});
 
 	useEffect(() => {
-		getMyWorkflowTemplatesData(1);
-	}, [info?.selectedFilter?.value, info?.selectedSort?.value, info?.selectedSort?.sortType]);
+		const timeout = setTimeout(() => {
+			getMyWorkflowTemplatesData(1);
+		}, 1000);
+
+		return () => clearTimeout(timeout);
+	}, [
+		info?.searchQuery,
+		info?.selectedFilter?.value,
+		info?.selectedSort?.value,
+		info?.selectedSort?.sortType,
+	]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -154,21 +166,27 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 
 	const getMyWorkflowTemplatesData = useCallback(
 		(page, fetchMore = false) => {
-			const { value: sortBy, sortType } = info?.selectedSort;
-			const payload = {
-				filters: {
-					limit: 20,
-					page,
-					type: 'workspace',
-					sortBy,
-					sortType,
-					action: info?.selectedFilter?.value,
-				},
-			};
-			if (info?.searchChanged) {
-				payload.filters.title = info?.searchValue || '';
+			try {
+				if (page === 1) {
+					handleStateUpdate({ searchLoading: true, loading: true });
+				}
+				const { value: sortBy, sortType } = info?.selectedSort;
+				const payload = {
+					filters: {
+						limit: 20,
+						page,
+						type: 'workspace',
+						sortBy,
+						sortType,
+						action: info?.selectedFilter?.value,
+						title: info?.searchQuery || undefined,
+					},
+				};
+				getMyWorkflows(payload, fetchMore);
+			} catch (error) {
+				console.error('Error fetching templates:', error);
+				handleStateUpdate({ searchLoading: false, loading: false });
 			}
-			getMyWorkflows(payload, fetchMore);
 		},
 		[info, info?.selectedFilter?.value],
 	);
@@ -199,6 +217,7 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
+				searchLoading: false,
 				workflowTemplates,
 				currentPage,
 				hasNextPage,
@@ -258,6 +277,27 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 					width="180px"
 					hideOnOptionClick={false}
 				/>
+				<div className="filter-container-search">
+					<Search width={16} height={16} />
+					<input
+						type="text"
+						placeholder="Search"
+						value={info?.searchQuery}
+						onChange={(e) => handleStateUpdate({ searchQuery: e.target.value })}
+						className="search-input"
+					/>
+					{info?.searchLoading && (
+						<div className="search-spinner">
+							<Spinner
+								size="small"
+								width={16}
+								height={16}
+								borderWidth={1.5}
+								color="var(--primary-button)"
+							/>
+						</div>
+					)}
+				</div>
 			</div>
 			<div className="center-container-content">
 				{info?.loading ? (

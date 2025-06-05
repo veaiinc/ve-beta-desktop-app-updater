@@ -687,6 +687,7 @@ export const TemplatesState = (props) => {
 		limit = 10,
 		fetchMore = false,
 		options = { sortBy: 'createdAt', sortType: -1 },
+		filterTitle = '',
 	) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -701,6 +702,7 @@ export const TemplatesState = (props) => {
 				sortBy,
 				sortType,
 				action: 'form-submission',
+				title: filterTitle,
 			},
 		};
 		const response = await service.query(
