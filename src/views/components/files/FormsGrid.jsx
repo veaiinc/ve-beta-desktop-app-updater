@@ -15,6 +15,7 @@ import { ReactComponent as Share } from '../../../assets/svg/files/share.svg';
 import { ReactComponent as GreenDot } from '../../../assets/svg/files/green-dot.svg';
 import { ReactComponent as GreyDot } from '../../../assets/svg/files/grey-dot.svg';
 import { ReactComponent as TrendUp } from '../../../assets/svg/files/trend-up.svg';
+import { ReactComponent as Search } from '../../../assets/svg/search.svg';
 import { message } from '../globalComponents/CustomToast';
 import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
@@ -69,7 +70,9 @@ const FormsGrid = ({
 		hasNextPage: false,
 		currentPage: 1,
 		loading: true,
+		searchLoading: false,
 		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
+		searchQuery: '',
 	});
 
 	useEffect(() => {
@@ -160,8 +163,12 @@ const FormsGrid = ({
 	}, [info?.forms?.length]);
 
 	useEffect(() => {
-		fetchForms({ page: 1 });
-	}, [info?.selectedSort?.value, info?.selectedSort?.sortType]);
+		const timeout = setTimeout(() => {
+			fetchForms({ page: 1 });
+		}, 1000);
+
+		return () => clearTimeout(timeout);
+	}, [info?.searchQuery, info?.selectedSort?.value, info?.selectedSort?.sortType]);
 
 	useEffect(() => {
 		if (formsTemplatesList) {
@@ -173,17 +180,27 @@ const FormsGrid = ({
 			} = formsTemplatesList || {};
 			const newForms = currentPage === 1 ? [...data] : [...info?.forms, ...(data || [])];
 
-			handleStateUpdate({ forms: newForms, currentPage, hasNextPage, loading: false });
+			handleStateUpdate({
+				forms: newForms,
+				currentPage,
+				hasNextPage,
+				loading: false,
+				searchLoading: false,
+			});
 			handleTotalChange(totalDocs);
 		}
 	}, [formsTemplatesList]);
 
 	const fetchForms = ({ page = 1, limit = 20 }) => {
 		try {
+			if (page === 1) {
+				handleStateUpdate({ searchLoading: true, loading: true });
+			}
 			const { value: sortBy, sortType } = info?.selectedSort;
-			getTemplatesListForForms(page, limit, false, { sortBy, sortType });
+			getTemplatesListForForms(page, limit, false, { sortBy, sortType }, info?.searchQuery);
 		} catch (error) {
 			console.error('Error fetching forms:', error);
+			handleStateUpdate({ searchLoading: false, loading: false });
 		}
 	};
 
@@ -275,6 +292,27 @@ const FormsGrid = ({
 					width="180px"
 					hideOnOptionClick={false}
 				/>
+				<div className="filter-container-search">
+					<Search width={16} height={16} />
+					<input
+						type="text"
+						placeholder="Search"
+						value={info?.searchQuery}
+						onChange={(e) => handleStateUpdate({ searchQuery: e.target.value })}
+						className="search-input"
+					/>
+					{info?.searchLoading && (
+						<div className="search-spinner">
+							<Spinner
+								size="small"
+								width={16}
+								height={16}
+								borderWidth={1.5}
+								color="var(--primary-button)"
+							/>
+						</div>
+					)}
+				</div>
 			</div>
 			<div className="center-container-content">
 				{info?.loading ? (

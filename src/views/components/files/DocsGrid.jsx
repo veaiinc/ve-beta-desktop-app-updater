@@ -14,6 +14,7 @@ import FilterDropdown from '../dropDown/file/FilterDropdown';
 import EmptyState from './EmptyState';
 import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
+import { ReactComponent as Search } from '../../../assets/svg/search.svg';
 
 const origin = fetchOriginSelection();
 
@@ -44,8 +45,10 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 		hasNextPage: false,
 		currentPage: 1,
 		loading: true,
+		searchLoading: false,
 		selectedFilter: { label: 'All', value: '' },
 		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
+		searchQuery: '',
 	});
 
 	useEffect(() => {
@@ -150,8 +153,12 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 	}, [docsFilesList]);
 
 	useEffect(() => {
-		fetchDocs({ page: 1 });
-	}, [info?.selectedSort?.value, info?.selectedSort?.sortType]);
+		const timeout = setTimeout(() => {
+			fetchDocs({ page: 1 });
+		}, 1000);
+
+		return () => clearTimeout(timeout);
+	}, [info?.searchQuery, info?.selectedSort?.value, info?.selectedSort?.sortType]);
 
 	const handleStateUpdate = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
@@ -159,6 +166,9 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 
 	const fetchDocs = async ({ page = 1, limit = 20 }) => {
 		try {
+			if (page === 1) {
+				handleStateUpdate({ searchLoading: true });
+			}
 			const { value: sortBy, sortType } = info?.selectedSort;
 			const payload = {
 				filters: {
@@ -166,6 +176,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 					page,
 					sortBy,
 					sortType,
+					title: info?.searchQuery,
 					// action: info?.selectedFilter?.value,
 				},
 			};
@@ -173,8 +184,10 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 				payload.filters.clientId = clientId;
 			}
 			await getDocsFilesList(payload, false);
+			handleStateUpdate({ searchLoading: false });
 		} catch (error) {
 			console.error('Error fetching docs:', error);
+			handleStateUpdate({ searchLoading: false });
 		}
 	};
 
@@ -217,9 +230,24 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 					width="180px"
 					hideOnOptionClick={false}
 				/>
+				<div className="filter-container-search">
+					<Search width={16} height={16} />
+					<input
+						type="text"
+						placeholder="Search"
+						value={info?.searchQuery}
+						onChange={(e) => handleStateUpdate({ searchQuery: e.target.value })}
+						className="search-input"
+					/>
+					{info?.searchLoading && (
+						<div className="search-spinner">
+							<Spinner size="small" width={16} height={16} borderWidth={1.5} color="var(--primary-button)" />
+						</div>
+					)}
+				</div>
 			</div>
-			<div className="center-container-content">
-				{info?.loading ? (
+				<div className="center-container-content">
+					{info?.loading ? (
 					<div className="spinner-container">
 						<Spinner />
 					</div>

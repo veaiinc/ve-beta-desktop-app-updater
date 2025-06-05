@@ -219,6 +219,7 @@ export const isURL = (url) => {
 
 let urlMapper = {
 	localhost: 'http://localhost:5173',
+	localhost: 'http://localhost:5173',
 	've.ai': 'https://builder.ve.ai',
 	've.co': 'https://builder.ve.co',
 	'www.ve.ai': 'https://builder.ve.ai',
@@ -364,6 +365,7 @@ export const redirectTo = (type, id) => {
 		s3_key: id,
 		drive: `https://drive.google.com/file/d/${id}/view`,
 		notes: `https://ve.ai/note/${id}`,
+		notes: `https://ve.ai/note/${id}`,
 	};
 
 	const url = urls?.[type];
@@ -381,6 +383,9 @@ export const redirectTypeMapper = {
 	s3_key: 's3_key',
 	drive: 'drive_id',
 	notes: 'note_id',
+	notes: 'note_id',
 };
+
+const origin = fetchOriginSelection();
 
 const origin = fetchOriginSelection();
