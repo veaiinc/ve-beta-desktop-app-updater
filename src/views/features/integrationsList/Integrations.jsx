@@ -1,5 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { memo } from 'react';
+import { useState, useContext, useEffect, memo } from 'react';
 import '../../../assets/scss/integrations/integrations.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
 import slack from '../../../assets/svg/Settings/slack.svg';
@@ -256,42 +255,42 @@ const Integrations = () => {
 				'Easily connect with Gmail to sync your emails and streamline communication.',
 			isConnected: false,
 		},
-		{
-			id: 2,
-			icon: notion,
-			title: 'Notion',
-			connectType: 'notion',
-			description:
-				'Effortlessly connect to Notion to manage tasks, organize projects, and centralize your work—all in one place.',
-			isConnected: false,
-		},
-		{
-			id: 3,
-			icon: slack,
-			title: 'Slack',
-			connectType: 'slack',
-			description:
-				'Stay connected and streamline communication by integrating with Slack. Receive updates, share insights, and collaborate seamlessly.',
-			isConnected: false,
-			onlyShowIn: 'shared',
-		},
-		{
-			id: 4,
-			icon: googleDrive,
-			title: 'Google Drive',
-			connectType: 'google-drive',
-			description:
-				'Easily connect with Google Drive to sync your files and streamline communication.',
-			isConnected: false,
-		},
-		{
-			id: 5,
-			icon: googleCalendar,
-			title: 'Google Calendar',
-			connectType: 'google-calendar',
-			description: 'Easily connect with Google Calendar to sync your calendar.',
-			isConnected: false,
-		},
+		// {
+		// 	id: 2,
+		// 	icon: notion,
+		// 	title: 'Notion',
+		// 	connectType: 'notion',
+		// 	description:
+		// 		'Effortlessly connect to Notion to manage tasks, organize projects, and centralize your work—all in one place.',
+		// 	isConnected: false,
+		// },
+		// {
+		// 	id: 3,
+		// 	icon: slack,
+		// 	title: 'Slack',
+		// 	connectType: 'slack',
+		// 	description:
+		// 		'Stay connected and streamline communication by integrating with Slack. Receive updates, share insights, and collaborate seamlessly.',
+		// 	isConnected: false,
+		// 	onlyShowIn: 'shared',
+		// },
+		// {
+		// 	id: 4,
+		// 	icon: googleDrive,
+		// 	title: 'Google Drive',
+		// 	connectType: 'google-drive',
+		// 	description:
+		// 		'Easily connect with Google Drive to sync your files and streamline communication.',
+		// 	isConnected: false,
+		// },
+		// {
+		// 	id: 5,
+		// 	icon: googleCalendar,
+		// 	title: 'Google Calendar',
+		// 	connectType: 'google-calendar',
+		// 	description: 'Easily connect with Google Calendar to sync your calendar.',
+		// 	isConnected: false,
+		// },
 		// {
 		// 	id: 6,
 		// 	icon: zoho,
@@ -445,8 +444,11 @@ const Integrations = () => {
 		loader: false,
 	});
 	const {
-		templates: { connectUrl, connectThirdParty, getConnectedThirdParties },
+		templates: { connectUrl, connectedThirdParties, getConnectedThirdParties },
 	} = useContext(Context);
+
+	const connectedApps = connectedThirdParties?.data?.map((appInfo) => appInfo.app);
+
 	useEffect(() => {
 		if (connectUrl?.[0] === true) {
 			window.location.href = connectUrl?.[1];
@@ -598,7 +600,6 @@ const Integrations = () => {
 						<input type="text" placeholder="Search" className="search-input" />
 					</div>
 				</div>
-
 				<div className="tabs-wrapper">
 					<button
 						className={`tab-button ${activeTab === 'private' ? 'active' : ''}`}
@@ -615,10 +616,9 @@ const Integrations = () => {
 						</button>
 					)}
 				</div>
-
 				{/* {activeTab === 'private' ? (
 					<> */}
-				{connectedPlatforms.length !== 0 ? (
+				{connectedPlatforms.length !== 0 && (
 					<section className="connected-integrations">
 						<h2>Connected Integrations</h2>
 
@@ -632,10 +632,7 @@ const Integrations = () => {
 							))}
 						</div>
 					</section>
-				) : (
-					''
 				)}
-
 				<section className="available-integrations">
 					<h2>Available Integrations</h2>
 					<div className="integrations-grid">
@@ -649,7 +646,6 @@ const Integrations = () => {
 						))}
 					</div>
 				</section>
-
 				<section className="request-integrations">
 					<h2>Which integrations you would like to connect?</h2>
 					<div className="request-integrations-grid">
