@@ -20,20 +20,22 @@ const UpdateSessionSlot = ({
 	selectedSlotData,
 	updateCalendarInfo,
 }) => {
-	const [slots, setSlots] = useState([]);
-	const [selectedSession, setSelectedSession] = useState(null);
-	const [sessionTypeOpen, setSessionTypeOpen] = useState(false);
+	const [info, setInfo] = useState({
+		slots: [],
+		selectedSession: null,
+		sessionTypeOpen: false,
+	});
 
 	// When modal opens or selectedSlotData changes, set selectedSession
 	useEffect(() => {
 		if (!open || !selectedSlotData || !schedulerList) return;
 		const s = schedulerList.find((ss) => ss._id === selectedSlotData._id) || schedulerList[0];
-		setSelectedSession(s);
+		setInfo((prev) => ({ ...prev, selectedSession: s }));
 	}, [open, selectedSlotData, schedulerList]);
 
 	// When selectedSession or selectedSlotData changes, update slots
 	useEffect(() => {
-		if (!open || !selectedSlotData || !selectedSession) return;
+		if (!open || !selectedSlotData || !info.selectedSession) return;
 		// Get selected date and day name
 		const selectedDate = selectedSlotData.selectedDate
 			? moment(selectedSlotData.selectedDate, [
@@ -47,71 +49,85 @@ const UpdateSessionSlot = ({
 			(selectedDate ? moment(selectedDate).format('dddd') : null);
 
 		// 1. Check for custom exception for this day
-		const exception = (selectedSession.customExceptions || []).find((e) => {
+		const exception = (info.selectedSession.customExceptions || []).find((e) => {
 			const exceptionDate = moment(e.date).format('YYYY-MM-DD');
 			return exceptionDate === selectedDate;
 		});
 		if (exception && exception.customTimeRanges?.length > 0) {
-			setSlots(exception.customTimeRanges.map((r) => ({ from: r.startTime, to: r.endTime })));
+			setInfo((prev) => ({
+				...prev,
+				slots: exception.customTimeRanges.map((r) => ({
+					from: r.startTime,
+					to: r.endTime,
+				})),
+			}));
 			return;
 		}
 
 		// 2. Else, check for default weekly availability for this day
-		const avail = (selectedSession.availabilitySlots || []).find((a) => {
+		const avail = (info.selectedSession.availabilitySlots || []).find((a) => {
 			return a.dayOfWeek === selectedDayName;
 		});
 		if (avail && avail.timeRanges?.length > 0) {
-			setSlots(avail.timeRanges.map((r) => ({ from: r.startTime, to: r.endTime })));
+			setInfo((prev) => ({
+				...prev,
+				slots: avail.timeRanges.map((r) => ({ from: r.startTime, to: r.endTime })),
+			}));
 			return;
 		}
 
 		// 3. No slots for this day
-		setSlots([]);
-	}, [open, selectedSlotData, selectedSession]);
+		setInfo((prev) => ({ ...prev, slots: [] }));
+	}, [open, selectedSlotData, info.selectedSession]);
 
 	const handleSlotChange = (idx, field, value) => {
-		setSlots((prev) => prev.map((slot, i) => (i === idx ? { ...slot, [field]: value } : slot)));
+		setInfo((prev) => ({
+			...prev,
+			slots: prev.slots.map((slot, i) => (i === idx ? { ...slot, [field]: value } : slot)),
+		}));
 	};
 
 	const addSlot = () => {
-		setSlots((prev) => [...prev, { from: '09:00', to: '10:00' }]);
+		setInfo((prev) => ({ ...prev, slots: [...prev.slots, { from: '09:00', to: '10:00' }] }));
 	};
 
 	const removeSlot = (idx) => {
-		setSlots((prev) => prev.filter((_, i) => i !== idx));
+		setInfo((prev) => ({ ...prev, slots: prev.slots.filter((_, i) => i !== idx) }));
 	};
 
 	const handleSave = useCallback(() => {
-		if (!selectedSession || !selectedSlotData?.selectedDate) return;
+		if (!info.selectedSession || !selectedSlotData?.selectedDate) return;
 		const selectedDate = moment(selectedSlotData.selectedDate, [
 			'YYYY-MM-DD',
 			'D/M',
 			'YYYY-MM-DDTHH:mm:ss.SSSZ',
 		]).format('YYYY-MM-DD');
-		let updatedSession = { ...selectedSession };
+		let updatedSession = { ...info.selectedSession };
 		const newException = {
 			date: moment(selectedDate).format('YYYY-MM-DD[T]00:00:00.000[Z]'),
 			overrideAvailability: true,
-			customTimeRanges: slots.map((s) => ({ startTime: s.from, endTime: s.to })),
+			customTimeRanges: info.slots.map((s) => ({ startTime: s.from, endTime: s.to })),
 		};
 		// Remove any existing exception for this day
-		let customExceptions = (selectedSession.customExceptions || []).filter(
+		let customExceptions = (info.selectedSession.customExceptions || []).filter(
 			(e) => moment(e.date).format('YYYY-MM-DD') !== selectedDate,
 		);
 		// Only add if slots exist
-		if (slots.length > 0) {
+		if (info.slots.length > 0) {
 			customExceptions = [...customExceptions, newException];
 		}
 		updatedSession.customExceptions = customExceptions;
 		if (updateCalendarInfo) updateCalendarInfo(updatedSession);
 		closeModal();
-	}, [selectedSession, selectedSlotData, slots, updateCalendarInfo, closeModal]);
+	}, [info.selectedSession, info.slots, selectedSlotData, updateCalendarInfo, closeModal]);
 
 	const ModifyCloseModal = () => {
 		closeModal();
-		setSlots([]);
-		setSelectedSession(null);
-		setSessionTypeOpen(false);
+		setInfo({
+			slots: [],
+			selectedSession: null,
+			sessionTypeOpen: false,
+		});
 	};
 
 	return (
@@ -125,8 +141,10 @@ const UpdateSessionSlot = ({
 			<div className="updateSessionSlotContainer">
 				<div className="sessionHeader">
 					<Tooltip
-						open={sessionTypeOpen}
-						onOpenChange={(visible) => setSessionTypeOpen(visible)}
+						open={info.sessionTypeOpen}
+						onOpenChange={(visible) =>
+							setInfo((prev) => ({ ...prev, sessionTypeOpen: visible }))
+						}
 						placement="bottom"
 						title={
 							<div className="sessionName-dropdown">
@@ -135,8 +153,11 @@ const UpdateSessionSlot = ({
 										key={option._id}
 										className="sessionName-dropdown-item"
 										onClick={() => {
-											setSelectedSession(option);
-											setSessionTypeOpen(false);
+											setInfo((prev) => ({
+												...prev,
+												selectedSession: option,
+												sessionTypeOpen: false,
+											}));
 										}}
 									>
 										{option.sessionName}
@@ -150,8 +171,8 @@ const UpdateSessionSlot = ({
 						overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
 					>
 						<div className="selectedSession-lable">
-							{selectedSession?.sessionName}
-							<Down className={`${sessionTypeOpen ? 'open' : ''}`} />
+							{info.selectedSession?.sessionName}
+							<Down className={`${info.sessionTypeOpen ? 'open' : ''}`} />
 						</div>
 					</Tooltip>
 				</div>
@@ -160,10 +181,10 @@ const UpdateSessionSlot = ({
 						? `Slots for ${selectedSlotData.selectedDate}`
 						: 'No day selected'}
 				</h3>
-				{slots.length === 0 ? (
+				{info.slots.length === 0 ? (
 					<div style={{ color: '#888', margin: '16px 0' }}>No slots for this day.</div>
 				) : (
-					slots.map((slot, idx) => (
+					info.slots.map((slot, idx) => (
 						<div key={idx} className="timeSlot">
 							<input
 								type="time"
