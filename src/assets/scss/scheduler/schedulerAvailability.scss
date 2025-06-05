@@ -4,7 +4,8 @@
 	gap: 2.5px;
 
 	.daySlotContainer {
-		min-height: 100px;
+		height: 400px;
+		overflow-y: auto;
 		display: flex;
 		flex-direction: column;
 		gap: 4px;

@@ -182,6 +182,26 @@
 						align-items: center;
 						gap: 6px;
 
+						.starLogoContainer {
+							height: 18px;
+							cursor: pointer;
+							&:hover {
+								svg {
+									path {
+										stroke: var(--primary-font);
+									}
+								}
+							}
+							&.active {
+								svg {
+									fill: #79ecc9;
+									path {
+										stroke: #79ecc9;
+									}
+								}
+							}
+						}
+
 						.btn {
 							display: flex;
 							padding: 6px;
