@@ -224,7 +224,9 @@ const GalleryGrid = ({
 			selectedSort: { ...value, sortType },
 		}));
 
-		setDefaultSort({ sort: `${sortType === -1 ? `-` : ''}${value?.value}` });
+		const storeOriginals = selectedOption === 'Gallery';
+
+		setDefaultSort({ sort: `${sortType === -1 ? '-' : ''}${value?.value}` }, storeOriginals);
 	};
 
 	return (

@@ -2289,6 +2289,17 @@
 	line-height: 22px;
 	letter-spacing: -0.28px;
 }
+
+.albumsWrapper {
+	max-height: 160px !important; /* show *exactly* one row of albums */
+	overflow: hidden; /* hide anything that overflows */
+	transition: max-height 0.4s ease; /* animate changes to max-height */
+}
+
+.albumsWrapper.expanded {
+	overflow: auto;
+	max-height: 320px; /* or any value ≥ total height of two rows */
+}
 @media screen and (max-width: 1500px) {
 	.galleryTitle {
 		p {

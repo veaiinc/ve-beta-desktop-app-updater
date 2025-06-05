@@ -857,7 +857,6 @@ const GalleryPage = () => {
 
 		if (info?.albumFullScreen) {
 			gsap.to('.albums', {
-				height: dynamicHeightFunc(),
 				flexWrap: 'wrap',
 				duration: 0.3,
 				ease: 'power2.out',
@@ -3867,11 +3866,17 @@ const GalleryPage = () => {
 										// height: '160px',
 									}}
 									id="droppableAlblumId"
+									className={`albumsWrapper ${
+										info.albumFullScreen ? 'expanded' : ''
+									}`}
 								>
 									<DragDropContext onDragEnd={handleAlbumDragEnd}>
 										<Droppable
 											droppableId="droppableAlblumId"
 											direction="horizontal"
+											style={{
+												height: '100%',
+											}}
 										>
 											{(provided) => (
 												<div

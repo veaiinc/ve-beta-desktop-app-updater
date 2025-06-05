@@ -54,12 +54,13 @@
 					align-items: center;
 					cursor: pointer;
 					border-top: 1px solid #262626;
+					border-radius: 8px;
 					&:hover {
 						background-color: var(--background-color);
 					}
-				}
-				.active {
-					background-color: var(--background-color);
+					&.active {
+						background-color: var(--card-over-card-hover);
+					}
 				}
 			}
 		}
