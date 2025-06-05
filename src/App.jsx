@@ -42,13 +42,22 @@ function App() {
 	}
 
 	useEffect(() => {
+		const htmlElement = document.documentElement;
+
 		if (window.navigator.appVersion.indexOf('Mac') !== -1) {
-			document.getElementsByTagName('html')[0].classList.add('macos');
+			htmlElement.classList.add('macos');
 		} else {
-			document.getElementsByTagName('html')[0].classList.add('otheros');
+			htmlElement.classList.add('otheros');
 		}
-		document.documentElement.setAttribute('theme', themeAttribute);
-	}, [theme, currentRoute]); // Added currentRoute to dependency array
+
+		if (currentRoute.startsWith('/builder')) {
+			// Remove theme attribute for builder routes
+			htmlElement.removeAttribute('theme');
+		} else {
+			// Set theme attribute normally
+			htmlElement.setAttribute('theme', themeAttribute);
+		}
+	}, [theme, currentRoute]); // Still keep dependencie
 
 	return (
 		<>
