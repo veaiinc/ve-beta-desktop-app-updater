@@ -7,6 +7,7 @@ import { ReactComponent as CalendarSvg } from '../../../assets/svg/home_page/cal
 import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import { ReactComponent as RocketSvg } from '../../../assets/svg/home_page/rocket.svg';
 import { ReactComponent as BulbSvg } from '../../../assets/svg/home_page/bulb.svg';
+import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
@@ -14,7 +15,10 @@ import { Collapse, Tooltip } from 'antd';
 import ShareWidget from '../../components/globalComponents/ShareWidget';
 import { message } from '../../components/globalComponents/CustomToast';
 import CreditCoinImage from '../../../assets/images/creditCoin.png';
-import { handleCombinedChainOfThought } from '../../../helpers/chatHelpers';
+import {
+	handleCombinedChainOfThought,
+	updateCitationIdsWithCitations,
+} from '../../../helpers/chatHelpers';
 import { Markdown } from '../../../helpers/markdownHelper';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
@@ -29,109 +33,6 @@ import {
 import CombinedChainOfThought from '../../components/chat/chatComponents/CombinedChainOfThought';
 const { Panel } = Collapse;
 
-const proactiveAiData = {
-	_id: '680a7d0a070e45c6749f2627',
-	itemId: '680a32e2f73d34a7e8881507',
-	tenantId: '66ed1b6a18efa436e3ae3b70',
-	userId: '66ed1b5c18efa436e3ae3b6f',
-	moduleType: 'gmail',
-	title: 'AI Integration Task Prioritization & Process Optimization',
-	description:
-		"I've analyzed your two high-priority tasks - Document Review for AI Agent Integration Patterns and Change Validation Checklist Implementation. These align with recurring themes in team communications about scaling AI tooling while maintaining compliance.",
-	chain_of_thought: [
-		'1. Identified recurring integration challenges in task context',
-		'2. Cross-referenced with recent project management system patterns',
-		'3. Verified alignment with Q2 engineering priorities from meeting notes',
-		'4. Evaluated opportunity for automation using existing API infrastructure',
-		'5. Structured phased rollout based on task dependencies',
-	],
-	solutions: [
-		'Create cross-functional review team for integration patterns (include ML engineers + security)',
-		'Map existing checklists to new AI validation requirements using knowledge graph relationships',
-		'Implement ClickUp automation for task tracking with AI-driven deadline predictions',
-		'Develop lightweight validation framework prototype using existing Slack/Drive APIs',
-		'Schedule biweekly syncs between documentation and compliance teams',
-	],
-	suggested_actions: null,
-	suggested_prompts: null,
-	confidence_score: 0.7,
-	priority: null,
-	web_sources: [],
-	informationRequests: [],
-	research_report:
-		'**AI Integration Task Analysis Report**\n\n**Key Findings**\n1. Task Synergy: Both tasks address complementary aspects of AI system reliability (design patterns + validation)\n2. Contextual Alignment: Matches Q2 priorities from 4/15/25 engineering summit notes (ref: KB::680892da46399e11f243b8a3::0)\n3. Resource Leverage: Existing API integrations with Slack/Drive can accelerate checklist automation\n\n**Recommendations**\n- Immediate: Prioritize document review to unblock 3 ongoing integration projects\n- 30-Day: Implement AI-powered task dependency mapping in ClickUp\n- 60-Day: Create validation dashboard showing checklist compliance metrics',
-	read: true,
-	createdAt: 1745517834,
-	updatedAt: 1747210798,
-	zepEpisodeIds: null,
-	isFavourite: true,
-	formResponse: [],
-	task: [],
-	calendarEvent: [],
-	knowledgeBase: [
-		{
-			_id: '680a32e2f73d34a7e8881507',
-			metadata: {
-				identifier: '19667d50495326cb',
-				connectedEmail: 'swaroop@ve.ai',
-				tenantUserId: '66ed1b5c18efa436e3ae3b6f',
-				messages: [
-					{
-						id: '19667d50495326cb',
-						messagedAt: 1745498735,
-						participants: {
-							from: ['noreply@ve.co'],
-							to: ['swaroop@ve.ai'],
-							cc: [],
-							bcc: [],
-						},
-					},
-					{
-						id: '19668f6b46a1fa6a',
-						messagedAt: 1745517720,
-						participants: {
-							from: ['noreply@ve.co'],
-							to: ['swaroop@ve.ai'],
-							cc: [],
-							bcc: [],
-						},
-					},
-				],
-			},
-			tenant_id: '66ed1b6a18efa436e3ae3b70',
-			createdAt: 1745498850,
-			createdBy: null,
-			description: null,
-			isActive: true,
-			isGmailWatch: true,
-			name: 'For you in  swaroop : task',
-			originalFileName: null,
-			platform: 'gmail',
-			relatedAssistants: [],
-			s3_original: {
-				key: null,
-				eTag: null,
-				size: null,
-				bucket: null,
-			},
-			sessionId: null,
-			sourceType: 'gmail',
-			status: 'ready',
-			tags: [],
-			updatedAt: 1745517780,
-			uploadBatchId: null,
-			url: null,
-			vectorDb_ids: ['680a32e2f73d34a7e8881507::0', '680a32e2f73d34a7e8881507::1'],
-			workflowId: null,
-			zep_episode_uuid: [
-				'15fc97a5-1a90-4fe7-9699-52691f3749f8',
-				'6650b470-191b-4bd3-b7a6-5d8713a77c64',
-			],
-			isGmailWatch2: true,
-		},
-	],
-	position: 0,
-};
 const ProactiveAi = () => {
 	const { proactiveAiId } = useParams();
 	const {
@@ -139,8 +40,8 @@ const ProactiveAi = () => {
 			updateStateValues,
 			pendingActionsUpdate,
 			getAISuggestedPendingActions,
-			// getProactiveAiData,
-			// proactiveAiData,
+			getProactiveAiData,
+			proactiveAiData,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -174,20 +75,20 @@ const ProactiveAi = () => {
 			selectedFeedback: proactiveAiData?.rating,
 			chainOfThoughtData,
 		}));
-		if (bodyRef?.current) {
-			bodyRef?.current?.scrollTo({
-				top: 0,
-				behavior: 'smooth',
-			});
-		}
 	}, [proactiveAiData]);
 
-	const handleClickRun = useCallback((prompt) => {
-		if (typeof updateStateValues === 'function') {
-			updateStateValues({ activePromptForChat: prompt });
-		}
-		navigate(`/chat/${ObjectID()?.toString()}`);
-	}, []);
+	const handlePromptClick = useCallback(
+		(prompt) => {
+			let chatPrompt = 'Proactive AI\n\n';
+			chatPrompt += `Title : ${proactiveAiData?.title}\n\n`;
+			chatPrompt += `Description : ${proactiveAiData?.description}\n\n`;
+			chatPrompt += `Prompt : ${prompt}`;
+
+			updateStateValues({ activePromptForChat: chatPrompt });
+			navigate(`/chat/${ObjectID()?.toString()}`);
+		},
+		[proactiveAiData, updateStateValues, navigate],
+	);
 
 	const handleViewReportClick = useCallback(
 		(data) => {
@@ -273,7 +174,7 @@ const ProactiveAi = () => {
 		const type = 'delete';
 		const res = await pendingActionsUpdate(proactiveAiData?._id, { isDeleted: true }, type);
 		if (res?.[0] === true) {
-			getAISuggestedPendingActions(null, false, 'delete', proactiveAiData?._id);
+			// getAISuggestedPendingActions(null, false, 'delete', proactiveAiData?._id);
 			navigate('/home');
 		} else {
 			message.error('Failed to delete pending action');
@@ -301,6 +202,23 @@ const ProactiveAi = () => {
 		}));
 	};
 
+	const handleFavouriteClick = async (id, isFavourite = false) => {
+		const res = await pendingActionsUpdate(id, { isFavourite: !isFavourite });
+		if (res?.[0] === true) {
+			// getAISuggestedPendingActions(
+			// 	{
+			// 		isFavourite: !isFavourite,
+			// 	},
+			// 	false,
+			// 	'update',
+			// 	id,
+			// );
+			message.success(!isFavourite ? 'Added to favourites' : 'Removed from favourites');
+		} else {
+			message.error('Failed to update');
+		}
+	};
+
 	const {
 		title,
 		description,
@@ -312,7 +230,7 @@ const ProactiveAi = () => {
 		suggested_prompts,
 		usages,
 		informationRequests,
-		category,
+		categories,
 		crux,
 		createdAt,
 		thinker_sources,
@@ -334,23 +252,36 @@ const ProactiveAi = () => {
 					<div className="left-container"></div>
 
 					<div className="right-container">
+						<div
+							className={`starLogoContainer ${
+								proactiveAiData?.isFavourite === true ? 'active' : ''
+							}`}
+							onClick={(e) => {
+								handleFavouriteClick(
+									proactiveAiData?._id,
+									proactiveAiData?.isFavourite,
+								);
+							}}
+						>
+							<StarSvg />
+						</div>
 						<div className="btn teach-me-btn" onClick={handleOpenFeedbackPopup}>
 							<AgentsSvg style={{ color: 'var(--primary-button)' }} /> Teach me
 						</div>
 						{/* <Tooltip
-                    title={<div className="tooltipOption">Share</div>}
-                    placement="bottom"
-                    color="transparent"
-                    arrow={false}
-                >
-                    <div className="btn share-btn" onClick={handleShareClick}>
-                        <ShareSvg />
-                    </div>
-                </Tooltip> */}
+							title={<div className="tooltipOption">Share</div>}
+							placement="bottom"
+							color="transparent"
+							arrow={false}
+						>
+							<div className="btn share-btn" onClick={handleShareClick}>
+								<ShareSvg />
+							</div>
+						</Tooltip> */}
 
 						{/* <div className="btn download-btn">
-                    <DownloadSvg />
-                </div> */}
+							<DownloadSvg />
+						</div> */}
 						<Tooltip
 							title={<div className="tooltipOption">Delete</div>}
 							placement="bottom"
@@ -487,8 +418,8 @@ const ProactiveAi = () => {
 									</div>
 								</Tooltip>
 							)}
-							{category?.length > 0 &&
-								category?.map((category, idx) => (
+							{categories?.length > 0 &&
+								categories?.map((category, idx) => (
 									<div key={idx} className="category">
 										{category}
 									</div>
@@ -538,16 +469,20 @@ const ProactiveAi = () => {
 								}
 								key="1"
 							>
-								<div className="ai-results-wrapper">
+								<div
+									className="ai-results-wrapper"
+									onClick={(e) => e?.stopPropagation()}
+								>
 									<div className="results-container">
 										{Array?.isArray(solutions)
 											? solutions?.map((item, index) => (
-													<div
-														className="result-item"
-														key={index}
-														onClick={() => handleClickRun(item)}
-													>
-														<div className="result-text">{item}</div>
+													<div className="solution-item" key={index}>
+														<div className="solution-text">
+															{updateCitationIdsWithCitations(
+																item,
+																thinker_sources || [],
+															)}
+														</div>
 														<div className="logo-container">
 															<BulbSvg />
 															<div className="logo-text">
@@ -563,9 +498,14 @@ const ProactiveAi = () => {
 													<div
 														className="result-item"
 														key={index}
-														onClick={() => handleClickRun(item)}
+														onClick={() => handlePromptClick(item)}
 													>
-														<div className="result-text">{item}</div>
+														<div className="result-text">
+															{updateCitationIdsWithCitations(
+																item,
+																thinker_sources || [],
+															)}
+														</div>
 
 														<div className="logo-container">
 															<RocketSvg />
@@ -583,20 +523,25 @@ const ProactiveAi = () => {
 											</div>
 											<div
 												className="suggested-prompts"
-												onClick={(e) => e.stopPropagation()}
+												onClick={(e) => e?.stopPropagation()}
 											>
 												{Array?.isArray(suggested_prompts)
 													? suggested_prompts?.map((item, index) => (
 															<div
 																className="prompt-item"
 																key={index}
-																onClick={() => handleClickRun(item)}
+																onClick={() =>
+																	handlePromptClick(item)
+																}
 															>
 																<div className="logo">
 																	<ArrowRightSvg />
 																</div>
 																<div className="item-text">
-																	{item}
+																	{updateCitationIdsWithCitations(
+																		item,
+																		thinker_sources || [],
+																	)}
 																</div>
 															</div>
 													  ))
@@ -790,7 +735,10 @@ const ProactiveAi = () => {
 					<div className="cot">
 						<div className="chain-of-thought-container">
 							<div className="chain-of-thought-content">
-								<CombinedChainOfThought data={info?.chainOfThoughtData} />
+								<CombinedChainOfThought
+									data={info?.chainOfThoughtData}
+									citations={thinker_sources || []}
+								/>
 							</div>
 						</div>
 					</div>
@@ -866,23 +814,23 @@ const ProactiveAi = () => {
 			<div className="footer">
 				<div className="footer-content">
 					{/* <div className="footer-left">
-                <div
-                    className={`thumbs-up-container ${
-                        feedback === 'thumbsup' ? 'selected-thumb' : ''
-                    }`}
-                    onClick={() => handleThumbsClick('thumbsup')}
-                >
-                    <ThumbsUpSvg />
-                </div>
-                <div
-                    className={`thumbs-up-container ${
-                        feedback === 'thumbsdown' ? 'selected-thumb' : ''
-                    }`}
-                    onClick={() => handleThumbsClick('thumbsdown')}
-                >
-                    <ThumbsDownSvg />
-                </div>
-            </div> */}
+						<div
+							className={`thumbs-up-container ${
+								feedback === 'thumbsup' ? 'selected-thumb' : ''
+							}`}
+							onClick={() => handleThumbsClick('thumbsup')}
+						>
+							<ThumbsUpSvg />
+						</div>
+						<div
+							className={`thumbs-up-container ${
+								feedback === 'thumbsdown' ? 'selected-thumb' : ''
+							}`}
+							onClick={() => handleThumbsClick('thumbsdown')}
+						>
+							<ThumbsDownSvg />
+						</div>
+					</div> */}
 					<div className="btns-container">
 						<button
 							className="report-btn"
