@@ -19,7 +19,7 @@ const ShareModal = ({
 	// Tabs configuration
 	tabs = [],
 	activeTab,
-	onTabChange,
+	onTabChange = () => {},
 	showShareTab = true,
 	showPublishTab = false,
 
@@ -144,7 +144,7 @@ const ShareModal = ({
 
 	// Slug field
 	showSlugField = false,
-	copySlug='',
+	copySlug = '',
 }) => {
 	// Get custom icons or use defaults
 	const CloseIcon = customIcons.close || CrossWhite;
