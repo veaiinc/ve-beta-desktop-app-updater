@@ -255,7 +255,7 @@ class NavbarPopup extends React.Component {
 										type="checkbox"
 										checked={
 											this.state.activeComponent?.style?.downloadIcon ||
-											!_w.has(
+											!_.has(
 												this.state.activeComponent?.style,
 												'downloadIcon',
 											)
