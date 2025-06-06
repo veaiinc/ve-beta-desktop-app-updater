@@ -1,6 +1,7 @@
 import { memo, useRef } from 'react';
 import s from '../../../assets/scss/landingScreen/features.module.scss';
 import feature2 from '../../../assets/images/feature2Image.png';
+import feature3 from '../../../assets/svg/feature3.svg';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -151,7 +152,7 @@ const Features = () => {
 	const images = [
 		'https://ap.images.ve.ai/public/dashboard/proactive-cards.png',
 		feature2,
-		'https://ap.images.ve.ai/public/dashboard/chat.png',
+		feature3
 	];
 
 	return (
@@ -179,7 +180,11 @@ const Features = () => {
 
 			<div className={s.rightPart}>
 				{images.map((img, i) => (
-					<div className={`${s.image} ${i === 0 ? s.card : ''}`} ref={imageRefs[i]} key={`image-${i}`}>
+					<div
+						className={`${s.image} ${i === 0 ? s.card : ''}`}
+						ref={imageRefs[i]}
+						key={`image-${i}`}
+					>
 						<img src={img} alt={`feature ${i + 1}`} />
 					</div>
 				))}
