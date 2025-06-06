@@ -649,7 +649,7 @@ const routes = [
 		component: (
 			<AuthWrapper
 				title="Builder"
-				outerContainerStyle={{ padding: '0px' }}
+				outerContainerStyle={{ padding: '0px', backgroundColor: '#fff' }}
 				childrenContainerStyles={{ maxWidth: '100%' }}
 				showSidebar={false}
 			>
