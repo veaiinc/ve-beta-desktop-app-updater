@@ -179,7 +179,7 @@ const Features = () => {
 
 			<div className={s.rightPart}>
 				{images.map((img, i) => (
-					<div className={s.image} ref={imageRefs[i]} key={`image-${i}`}>
+					<div className={`${s.image} ${i === 0 ? s.card : ''}`} ref={imageRefs[i]} key={`image-${i}`}>
 						<img src={img} alt={`feature ${i + 1}`} />
 					</div>
 				))}

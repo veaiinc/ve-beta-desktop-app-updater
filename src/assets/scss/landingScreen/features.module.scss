@@ -24,7 +24,7 @@
 	.progressBarWrapper {
 		position: absolute;
 		top: 30%;
-		left: 50%;
+		// left: 50%;
 		transform: translate(-50%, -50%);
 		width: 100%;
 		max-width: 260px;
@@ -59,6 +59,7 @@
 	.progressBar {
 		width: 0%;
 		height: 100%;
+		text-align: start;
 		background-color: #79ecc9;
 		border-radius: 2px;
 		z-index: 30;
@@ -83,7 +84,7 @@
 		font-size: 18px;
 		font-weight: 600;
 		text-transform: uppercase;
-		text-align: center;
+		text-align: start;
 		max-width: 575px;
 		width: 100%;
 		margin: 0;
@@ -97,7 +98,7 @@
 		line-height: 1.7;
 		max-width: 575px;
 		width: 100%;
-		text-align: center;
+		text-align: start;
 		margin-top: 12px;
 	}
 
@@ -116,6 +117,13 @@
 		max-width: 500px; // ✅ Constrain image container size
 		height: auto;
 		aspect-ratio: 1; // ✅ Optional: enforce consistent shape
+
+		&.card{
+			padding: 227px 0px;
+			border-radius: 24px;
+			background: var(--card, #18191b);
+		}
+
 
 		img {
 			width: 100%; // ✅ Fill container

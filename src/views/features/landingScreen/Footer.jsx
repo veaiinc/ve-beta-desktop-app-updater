@@ -19,7 +19,7 @@ const Footer = ({ BackTop }) => {
 					<div className={s.top__leftPart}>
 						<VeLogo />
 						<span className={s.heading}>From the Founder&apos;s Desk</span>
-						<p>
+						<p className={s.description}>
 							Hi, I&apos;m Vijay. I&apos;m building Ve.ai — the world&apos;s first
 							Proactive AI OS. If you want a front-row seat to see how memory,
 							cognition, and reasoning are being redefined, subscribe below. No spam.
