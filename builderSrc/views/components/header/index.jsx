@@ -178,7 +178,7 @@ class Header extends Component {
 						}}
 					>
 						<>
-							<Tooltip title="Back" placement="bottom">
+							<Tooltip title="Back" placement="rightTop">
 								<Back />
 							</Tooltip>
 

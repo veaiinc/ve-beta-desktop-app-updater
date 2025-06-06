@@ -31,6 +31,8 @@
 		align-items: flex-start;
 		gap: 10px;
 		border-bottom: 1px solid var(--card-over-card, #27282b);
+		cursor: pointer;
+		z-index: 1;
 		.createDocumentTitle {
 			cursor: pointer;
 			color: var(--primary-font, #f2f2f3);
@@ -68,7 +70,8 @@
 	.sidebarContent {
 		flex: 1;
 		overflow-y: auto;
-		padding-bottom: 100px; // Add space for footer
+		// padding-bottom: 100px; // Add space for footer
+		padding-top: 100px;
 		position: relative;
 
 		/* Hide scrollbar for Chrome, Safari and Opera */
@@ -193,7 +196,6 @@
 		padding: 24px;
 		background-color: #171819;
 		border-top: 1px solid #333334;
-		margin: 0 -5rem; // Compensate for parent padding
 
 		.goBackButton {
 			padding: 8px 16px;
