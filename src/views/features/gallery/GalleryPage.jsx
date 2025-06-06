@@ -855,34 +855,23 @@ const GalleryPage = () => {
 	useEffect(() => {
 		if (!document.querySelector('.albums')) return;
 
-		if (info?.albumFullScreen) {
+		if (info.albumFullScreen) {
+			// Open: wrap into multiple rows over 0.3s
 			gsap.to('.albums', {
 				flexWrap: 'wrap',
 				duration: 0.3,
 				ease: 'power2.out',
 			});
-		} else if (tenantAlbums) {
-			const t1 = gsap.timeline();
-			t1.to('.album', {
-				opacity: '0.7',
-			});
-			t1.to('.albums', {
+		} else {
+			// Close: remove wrap (back to single row) over 0.3s, without that extra 0.4s delay
+			gsap.to('.albums', {
+				flexWrap: 'nowrap',
 				duration: 0.3,
 				ease: 'power2.out',
 			});
-
-			t1.to('.album', {
-				opacity: 1,
-				ease: 'power2.out',
-			});
-			t1.to('.albums', {
-				flexWrap: 'nowrap',
-				opacity: 1,
-				delay: 0.4,
-				ease: 'power2.out',
-			});
 		}
-	}, [info?.albumFullScreen]);
+	}, [info.albumFullScreen]);
+
 	useEffect(() => {
 		if (location?.state?.from === 'albumSettings') {
 			const activeAlbum = tenantAlbums?.albums?.find(
@@ -4173,16 +4162,25 @@ const GalleryPage = () => {
 					</div>
 				)}
 				{info?.scrolledTillEnd && (
-					<div className="galleryTitleWhenScrolled">
-						{sortByCustomIndex(albumImagesCount?.albums)?.map((album, index) => {
+					<div className="galleryTitleWhenScrolled" style={{ gap: '24px' }}>
+						{sortByCustomIndex(albumImagesCount?.albums)?.map((album) => {
+							const isActive = album._id === info.activeAlbumId;
 							return (
-								<div key={index} className="albumTitle">
-									{album?.title} <span>{album?.imagesCount}</span>
-								</div>
+								<span
+									key={album._id}
+									className={`albumTabs ${isActive ? 'activeTab' : ''}`}
+									onClick={() => handleClickAlbum(album, 'albumName')}
+								>
+									{album.title}
+									<span className={`count ${isActive ? 'active' : ''}`}>
+										{album.imagesCount}
+									</span>
+								</span>
 							);
 						})}
 					</div>
 				)}
+
 				{info.activeTab === 'Albums' &&
 					(albumImagesCount?.albums?.length === 0 ? (
 						<div className="noAlbumContainer">
