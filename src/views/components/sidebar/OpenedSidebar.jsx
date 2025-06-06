@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
 	veAiModulesItemsList,
 	veAiModules,
-	photographerModules,
 	SETTINGS_OPTIONS,
 } from './sidebarindex';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
@@ -432,11 +431,7 @@ const OpenedSidebar = ({
 	};
 	const allPossibleApps = Object.values(MODULE_NAME_MAP);
 
-	const tenantModules =
-		tennantSettingsData?.businessType === 'photography' ||
-		tennantSettingsData?.businessType === 'photographer'
-			? photographerModules
-			: veAiModulesItemsList;
+	const tenantModules = veAiModulesItemsList;
 
 	const filteredModules =
 		tenantUserAccessControls?.role === 'admin'
