@@ -406,7 +406,7 @@ const CreateDocument = () => {
 				if (response?.[0]) {
 					message.success('Document created successfully for new client');
 					markStepAsCompleted(3);
-					navigate(`/document/edit/${response[1]}?workflow=true`);
+					navigate(`/builder/document/edit/${response[1]}?workflow=true`);
 				} else {
 					message.error('Failed to create document for new client');
 				}
@@ -546,7 +546,7 @@ const CreateDocument = () => {
 				const response = await createSmartfile(payload);
 				if (response?.[0]) {
 					message.success('Document created successfully');
-					navigate(`/document/edit/${response[1]._id}?workflow=true`);
+					navigate(`/builder/document/edit/${response[1]._id}?workflow=true`);
 				} else {
 					message.error('Failed to create document');
 				}
