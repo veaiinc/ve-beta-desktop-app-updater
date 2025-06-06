@@ -82,7 +82,7 @@ export const intialState = {
 	sendSmartFileSettings: null,
 	aiPredictedData: null,
 	connectUrl: null,
-	connectThirdParties: null,
+	connectedThirdParties: null,
 	activityLogs: null,
 	moreActivityLogs: null,
 	draftStateWorkflowtemplates: null,
@@ -1595,44 +1595,35 @@ export const TemplatesState = (props) => {
 
 	const connectThirdParty = async (connectType, integrationType) => {
 		try {
-			let usertoken = localStorage.getItem('usertoken');
-			let workspaceId = localStorage.getItem('workspaceId');
-			const path = `/${connectType}/${workspaceId}/auth`;
-			const params = integrationType ? { access: integrationType } : {};
-			const type = 'third_party_integrations_api';
+			const token = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const type = 'calendar_api';
 
-			const response = await Service?.fetchGet(path, usertoken, type, params);
-
-			if (response?.[0] === true) {
-				dispatch({
-					type: Actions?.SET_CONNECT_URL,
-					payload: [true, response?.[1]?.connectUrl || response?.[1]?.url],
-				});
-			} else {
-				dispatch({
-					type: Actions?.SET_CONNECT_URL,
-					payload: [
-						false,
-						{
-							message: 'An unexpected error occured. Please try again!',
-							error: response?.[1],
-						},
-					],
-				});
+			switch (connectType) {
+				case 'gmail':
+					const path = `/auth/gmail/${workspaceId}`;
+					const response = await Service?.fetchGet(path, token, type);
+					const success = response?.[0] === true;
+					if (success) {
+						const connectUrl = response?.[1]?.connectUrl;
+						window.location.href = connectUrl;
+					} else {
+						return [false];
+					}
 			}
 		} catch (error) {
 			console.log('error==>connectZoho', error);
 		}
 	};
 
-	const getConnectedThirdParties = async (integrationType) => {
+	const getConnectedThirdParties = async () => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
-			const path = `/connect-account/${workspaceId}`;
+			const path = `/connected-accounts-v2/${workspaceId}`;
 			const usertoken = localStorage.getItem('usertoken');
 			const type = 'third_party_integrations_api';
-			const params = integrationType ? { access: integrationType } : {};
-			const response = await Service?.fetchGet(path, usertoken, type, params);
+
+			const response = await Service?.fetchGet(path, usertoken, type);
 
 			if (response?.[0] === true) {
 				dispatch({
