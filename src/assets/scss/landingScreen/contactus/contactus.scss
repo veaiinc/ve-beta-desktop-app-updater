@@ -118,6 +118,25 @@
 				.contact-us-dropdown {
 					width: 100%;
 				}
+				.selectDropdown {
+					display: flex;
+					justify-content: space-between;
+					border: 1px solid var(--stroke, #2c2d2e);
+					padding: 14px 16px;
+					border-radius: 8px;
+					background-color: var(--card, #181a1b);
+				}
+				.selectDropdown input.dropdown-search-input {
+					border: none;
+					background: transparent;
+					color: var(--primary-font, #f2f2f3);
+					font-size: 14px;
+					width: 100%;
+					outline: none;
+				}
+				span.tellUsMoreLabel {
+					margin-bottom: 10px;
+				}
 			}
 
 			@media (max-width: 600px) {
@@ -201,10 +220,10 @@
 			background-color: transparent;
 			cursor: pointer;
 			transition: background 0.3s ease, color 0.3s ease;
-			&:hover {
-				background-color: var(--primary-button, #a5d9ff);
-				color: var(--primary-button-font);
-			}
+			// &:hover {
+			// 	background-color: var(--primary-button, #a5d9ff);
+			// 	color: var(--primary-button-font);
+			// }
 		}
 	}
 }

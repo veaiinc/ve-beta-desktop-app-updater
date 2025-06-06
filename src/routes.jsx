@@ -81,6 +81,14 @@ const routes = [
 		component: <Landing_screen />,
 	},
 	{
+		path: '/pricing',
+		component: <Landing_screen/>,
+	},
+	{
+		path: '/api',
+		component: <Landing_screen />,
+	},
+	{
 		path: '/onboarding',
 		component: <Onboarding />,
 	},
@@ -358,14 +366,14 @@ const routes = [
 		),
 		exact: true,
 	},
-	{
-		path: '/pricing',
-		component: (
-			<AuthWrapper title={'Pricing'}>
-				<PricingPage />
-			</AuthWrapper>
-		),
-	},
+	// {
+	// 	path: '/pricing',
+	// 	component: (
+	// 		<AuthWrapper title={'Pricing'}>
+	// 			<PricingPage />
+	// 		</AuthWrapper>
+	// 	),
+	// },
 	{
 		path: '/notes',
 		component: (
