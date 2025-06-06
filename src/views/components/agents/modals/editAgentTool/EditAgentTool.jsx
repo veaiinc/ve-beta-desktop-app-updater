@@ -1,5 +1,5 @@
 import { memo, useState } from 'react';
-import s from './EditAgentTool.module.scss';
+import s from './editAgentTool.module.scss';
 import ReactModal from '../../../modalsV2';
 import { ReactComponent as SearchSvg } from '../../agentDetails/configureAgent/tabs/assets/search-icon.svg';
 import { ReactComponent as TickSvg } from '../../../../../assets/svg/tick.svg';

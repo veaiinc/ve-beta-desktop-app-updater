@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import s from './triggersTab.module.scss';
 import { message } from '../../../../../../components/globalComponents/CustomToast';
@@ -13,6 +13,7 @@ import { ReactComponent as RedirectIcon } from '../assets/redirect-icon.svg';
 // components
 import ListEmailsModal from './modals/ListEmailsModal';
 import InfiniteScroll from '../../../../../../components/globalComponents/InfiniteScroll';
+import { FetchMoreLoaderComp } from '../../../../../../../../src/helpers/';
 
 const customTriggers = [
 	{
@@ -53,43 +54,83 @@ const TriggersTab = () => {
 
 	const [info, setInfo] = useState({
 		ListEmailsModalOpen: false,
+		localConnectedTriggers: null,
 	});
 
-	const connectedTriggers =
-		triggers?.data?.map((trigger) => {
-			const { app, action, connectedEmail } = trigger;
-			const icon = app === 'gmail' ? <GmailIcon /> : <GoogleMeetIcon />;
-			const title = app === 'gmail' ? 'Gmail' : 'Google Meet';
-			const description = action === 'replyEmail' ? 'Reply to emails' : 'Google Meet';
-			const triggerType = app === 'gmail' ? 'gmail' : 'googleMeet';
+	const connectedTriggers = useMemo(() => {
+		return [
+			...(info?.localConnectedTriggers ?? []),
+			...(triggers?.data?.map((trigger) => {
+				const { app, action, connectedEmail } = trigger;
+				const icon = app === 'gmail' ? <GmailIcon /> : <GoogleMeetIcon />;
+				const title = app === 'gmail' ? 'Gmail' : 'Google Meet';
+				const description = action === 'replyEmail' ? 'Reply to emails' : 'Google Meet';
+				const triggerType = app === 'gmail' ? 'gmail' : 'googleMeet';
 
-			return {
-				icon,
-				title,
-				triggerType,
-				description,
-				connectedEmail,
-			};
-		}) ?? [];
-	const emptyConnectedTriggers = connectedTriggers.length === 0;
+				return {
+					icon,
+					title,
+					triggerType,
+					description,
+					connectedEmail,
+				};
+			}) ?? []),
+		];
+	}, [info?.localConnectedTriggers, triggers?.data]);
+
+	console.log(triggers);
+	console.log(connectedTriggers);
+
+	const currentPage = triggers?.currentPage ?? 1;
+	const hasNextPage = triggers?.hasNextPage ?? false;
+	const dataLength = connectedTriggers.length;
+	const emptyConnectedTriggers = dataLength === 0;
 
 	useEffect(() => {
 		getTriggers();
 	}, []);
 
+	const fetchNextTriggers = ({ limit = 10 }) => {
+		const page = currentPage + 1;
+		getTriggers({ page, limit });
+	};
+
 	const handleConnectToGmailTrigger = async (email) => {
-		const triggerApp = 'gmail';
-		const triggerData = {
-			app: triggerApp,
-			action: 'replyEmail',
-			connectedEmail: email,
-			assistantId: agentId,
-		};
-		const response = await connectTrigger({ triggerApp, triggerData });
-		if (response?.[0] === true) {
-			message.success('Trigger connected successfully');
-		} else {
-			message.error('Failed to connect trigger');
+		try {
+			const triggerApp = 'gmail';
+			const triggerData = {
+				app: triggerApp,
+				action: 'replyEmail',
+				connectedEmail: email,
+				assistantId: agentId,
+			};
+
+			const response = await connectTrigger({ triggerApp, triggerData });
+
+			if (response?.[0] === true) {
+				message.success('Trigger connected successfully');
+
+				const newLocalTrigger = {
+					icon: <GmailIcon />,
+					title: 'Gmail',
+					description: 'Reply to emails',
+					triggerType: 'gmail',
+					connectedEmail: email,
+				};
+
+				setInfo((prev) => ({
+					...prev,
+					localConnectedTriggers: [
+						newLocalTrigger,
+						...(prev.localConnectedTriggers ?? []),
+					],
+				}));
+			} else {
+				message.error(response[1].message);
+			}
+		} catch (error) {
+			const errorMsg = error?.message || 'An unexpected error occurred';
+			message.error(errorMsg);
 		}
 	};
 
@@ -107,18 +148,25 @@ const TriggersTab = () => {
 				{emptyConnectedTriggers ? (
 					<p className={s.emptyTriggersMessage}>{emptyConnectedTriggersMessage}</p>
 				) : (
-					// TODO: add infinite scroll
-					<ul className={s.triggersListContainer}>
-						{connectedTriggers.map((trigger) => (
-							<li key={trigger.title}>
-								{trigger.icon}
-								<div className={s.triggerItemContent}>
-									<h3>{trigger.connectedEmail}</h3>
-									<p>{trigger.description}</p>
-								</div>
-							</li>
-						))}
-					</ul>
+					<InfiniteScroll
+						dataLength={connectedTriggers?.length ?? 0}
+						next={fetchNextTriggers}
+						hasMore={hasNextPage}
+						height={'400px'}
+						loader={<FetchMoreLoaderComp />}
+					>
+						<ul className={s.triggersListContainer}>
+							{connectedTriggers.map((trigger) => (
+								<li key={trigger.title}>
+									{trigger.icon}
+									<div className={s.triggerItemContent}>
+										<h3>{trigger.connectedEmail}</h3>
+										<p>{trigger.description}</p>
+									</div>
+								</li>
+							))}
+						</ul>
+					</InfiniteScroll>
 				)}
 			</div>
 			<div className={s.divider}></div>
@@ -141,7 +189,7 @@ const TriggersTab = () => {
 					))}
 				</ul>
 			</div>
-			<div className={s.divider}></div>
+			{/* <div className={s.divider}></div>
 			<div className={s.connectAppsContainer}>
 				<h1 className={s.title}>Build your own triggers</h1>
 				<ul className={s.connectAppsListContainer}>
@@ -152,7 +200,7 @@ const TriggersTab = () => {
 						</li>
 					))}
 				</ul>
-			</div>
+			</div> */}
 			<ListEmailsModal
 				isOpen={info.ListEmailsModalOpen}
 				onClose={() => setInfo({ ...info, ListEmailsModalOpen: false })}

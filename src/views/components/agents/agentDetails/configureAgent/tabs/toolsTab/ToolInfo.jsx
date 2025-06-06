@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import s from './ToolInfo.module.scss';
+import s from './toolInfo.module.scss';
 import { ReactComponent as ArrowRightSvg } from '../../../../../../../assets/svg/home_page/arrow-right.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as SettingsSvg } from '../assets/settings.svg';

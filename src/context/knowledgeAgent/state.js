@@ -652,7 +652,7 @@ export const KnowledgeAgentState = () => {
 					if (response?.[0] === true) {
 						return [true];
 					}
-					return [false];
+					return [false, response?.[1]];
 				case 'googleMeet':
 					return [false]; // TODO: implement google meet trigger
 			}

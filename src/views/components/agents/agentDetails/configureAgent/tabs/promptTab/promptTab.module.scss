@@ -4,6 +4,24 @@
 	height: calc(50vh - 60px);
 	gap: 24px;
 
+	.systemPromptTextArea {
+		display: flex;
+		padding: 24px;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 14px;
+		border: 1px solid var(--stroke);
+
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 20px;
+	}
+
 	.titleInputContainer {
 		display: flex;
 		flex-direction: column;

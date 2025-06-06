@@ -1,14 +1,15 @@
-import { memo, useContext, useState } from 'react';
+import { memo, useContext, useEffect, useState } from 'react';
 import s from './promptTab.module.scss';
 import PromptInput from './PromptInput';
 import Context from '../../../../../../../context/context';
 import { useParams } from 'react-router-dom';
 import { message } from '../../../../../../components/globalComponents/CustomToast';
+import KnowledgeAgentPrompt from '../../../../../knowledgeAgent/KnowledgeAgentPrompt';
 
 const PromptTab = () => {
 	const { agentId } = useParams();
 	const {
-		knowledgeAgent: { activeKnowledgeAssistant, addInstructionToKnowledgeAgent },
+		knowledgeAgent: { activeKnowledgeAssistant, getActiveKnowledgeAgentDetails },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -16,6 +17,14 @@ const PromptTab = () => {
 		prompt: '',
 		initialContent: '',
 	});
+
+	useEffect(() => {
+		if (agentId) {
+			getActiveKnowledgeAgentDetails(agentId);
+		}
+	}, [agentId]);
+
+	const agentData = activeKnowledgeAssistant?.data;
 
 	// useEffect(() => {
 	// 	setInfo({
@@ -46,7 +55,7 @@ const PromptTab = () => {
 
 	return (
 		<div className={s.promptTabContainer}>
-			<div className={s.titleInputContainer}>
+			{/* <div className={s.titleInputContainer}>
 				<input
 					type="text"
 					placeholder="Title"
@@ -62,7 +71,8 @@ const PromptTab = () => {
 				<button className={s.submitBtn} onClick={handleSubmit}>
 					Submit
 				</button>
-			</div>
+			</div> */}
+			<KnowledgeAgentPrompt assistant={agentData} />
 		</div>
 	);
 };
