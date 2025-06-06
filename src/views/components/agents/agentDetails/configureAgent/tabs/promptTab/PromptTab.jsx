@@ -11,8 +11,6 @@ const PromptTab = () => {
 		knowledgeAgent: { activeKnowledgeAssistant, addInstructionToKnowledgeAgent },
 	} = useContext(Context);
 
-	console.log(activeKnowledgeAssistant);
-
 	const [info, setInfo] = useState({
 		title: '',
 		prompt: '',
