@@ -436,7 +436,8 @@
 							gap: 8px;
 							width: 100%;
 
-							.result-item {
+							.result-item,
+							.solution-item {
 								display: flex;
 								min-height: 150px;
 								padding: 14px 16px;
@@ -458,7 +459,8 @@
 									background: rgba(121, 236, 201, 0.05);
 								}
 
-								.result-text {
+								.result-text,
+								.solution-text {
 									color: var(--primary-font, #f2f2f3);
 									font-family: var(--primary-font-family);
 									font-size: 13px;
@@ -481,6 +483,16 @@
 										font-weight: 500;
 										line-height: normal;
 									}
+								}
+							}
+
+							.solution-item {
+								cursor: default;
+								background: transparent;
+
+								&:hover {
+									border: 1px solid var(--stroke, #2c2d2e);
+									background: transparent;
 								}
 							}
 						}

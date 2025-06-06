@@ -468,6 +468,10 @@ const actionHandlers = {
 		...state,
 		aiQuestions: action?.payload,
 	}),
+	GET_PROACTIVE_AI_DATA_SUCCESS: (state, action) => ({
+		...state,
+		proactiveAiData: action?.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 
