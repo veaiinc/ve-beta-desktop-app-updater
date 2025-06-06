@@ -27,6 +27,7 @@ const AuthWrapper = ({
 	showDynamicWidget = true,
 	sidebarContainerClassName = '',
 	childrenContainerStyles = {},
+	showSidebar = true,
 }) => {
 	// const {
 	// 	subscriptionInfo: { renewBanner },
@@ -37,8 +38,6 @@ const AuthWrapper = ({
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
 	const accessControls = useAccessControls();
-
-	const builderActive = !location.pathname.includes('/builder');
 
 	useEffect(() => {
 		checkAuth();
@@ -67,7 +66,7 @@ const AuthWrapper = ({
 					className="auth-wrapper-container"
 				>
 					<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
-						{builderActive && (
+						{showSidebar && (
 							<div
 								style={{
 									...sidebarContainerStyles,
