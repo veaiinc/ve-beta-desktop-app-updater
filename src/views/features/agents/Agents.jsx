@@ -1,6 +1,8 @@
 import { memo, useContext, useEffect } from 'react';
 import s from './agents.module.scss';
 import Context from '../../../context/context';
+
+// icons
 import { ReactComponent as SearchIcon } from '../../../assets/svg/agents/search.svg';
 import { ReactComponent as SortIcon } from '../../../assets/svg/agents/sort.svg';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/agents/filter.svg';

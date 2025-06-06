@@ -135,8 +135,8 @@ const TriggersTab = () => {
 								}))
 							}
 						>
-							<div className={s.iconContainer}>{trigger.icon}</div>
-							<span>{trigger.title}</span>
+							<span className={s.iconContainer}>{trigger.icon}</span>
+							<h3>{trigger.title}</h3>
 						</li>
 					))}
 				</ul>
@@ -147,8 +147,8 @@ const TriggersTab = () => {
 				<ul className={s.connectAppsListContainer}>
 					{customTriggers.map((trigger) => (
 						<li key={trigger.title}>
-							{trigger.icon}
-							<span>{trigger.title}</span>
+							<span>{trigger.icon}</span>
+							<h3>{trigger.title}</h3>
 						</li>
 					))}
 				</ul>

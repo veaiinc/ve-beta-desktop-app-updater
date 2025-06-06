@@ -5,30 +5,30 @@ import s from './runAndBuildToggle.module.scss';
 import Andriod from './assets/Andriod';
 import Build from './assets/Build';
 
-const RunAndBuildToggle = ({ activeToggle, setActiveToggle }) => {
+const RunAndBuildToggle = ({ agentAction, setAgentAction }) => {
 	return (
 		<div className={s.container}>
 			<div className={s.runAndBuildToggle}>
 				<button
 					className={
-						activeToggle === 'runAgent' ? `${s.toogleBtn} ${s.active}` : s.toogleBtn
+						agentAction === 'runAgent' ? `${s.toogleBtn} ${s.active}` : s.toogleBtn
 					}
-					onClick={() => setActiveToggle('runAgent')}
+					onClick={() => setAgentAction('runAgent')}
 				>
-					<Andriod active={activeToggle === 'runAgent'} />
-					<span className={activeToggle === 'runAgent' ? `${s.btnText} ${s.active}` : ''}>
+					<Andriod active={agentAction === 'runAgent'} />
+					<span className={agentAction === 'runAgent' ? `${s.btnText} ${s.active}` : ''}>
 						Run agent
 					</span>
 				</button>
 				<button
 					className={
-						activeToggle === 'buildAgent' ? `${s.toogleBtn} ${s.active}` : s.toogleBtn
+						agentAction === 'buildAgent' ? `${s.toogleBtn} ${s.active}` : s.toogleBtn
 					}
-					onClick={() => setActiveToggle('buildAgent')}
+					onClick={() => setAgentAction('buildAgent')}
 				>
-					<Build active={activeToggle === 'buildAgent'} />
+					<Build active={agentAction === 'buildAgent'} />
 					<span
-						className={activeToggle === 'buildAgent' ? `${s.btnText} ${s.active}` : ''}
+						className={agentAction === 'buildAgent' ? `${s.btnText} ${s.active}` : ''}
 					>
 						Build
 					</span>
