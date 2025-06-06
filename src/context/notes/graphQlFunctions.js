@@ -575,6 +575,12 @@ export const updateDatabaseRowMutation = gql`
 	}
 `;
 
+export const deleteDatabaseRowMutation = gql`
+	mutation DeleteDatabaseRow($deleteDatabaseRowId: ID!, $pageId: ID!) {
+		deleteDatabaseRow(id: $deleteDatabaseRowId, pageId: $pageId)
+	}
+`;
+
 export const addDatabaseFieldMutation = gql`
 	mutation AddDatabaseField($pageId: ID!, $databaseId: ID!, $input: DatabaseFieldInput!) {
 		addDatabaseField(pageId: $pageId, databaseId: $databaseId, input: $input) {

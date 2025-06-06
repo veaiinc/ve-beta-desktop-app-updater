@@ -9,6 +9,7 @@ import { NotesRefContext } from '../../features/notesModule/NotesEditor';
 import CustomTextArea from '../globalComponents/CustomTextArea';
 import DatabaseAddFieldModal from '../modalsV2/notes/DatabaseAddFieldModal';
 import DatabaseAddModal from '../modalsV2/notes/DatabaseAddModal';
+import DatabaseSidebar from '../modalsV2/notes/DatabaseSidebar';
 import CheckBox from '../tasks/listView/CheckBox';
 import ChildTaskProgress from '../tasks/listView/ChildTaskProgress';
 import CreatedWithAi from '../tasks/listView/CreatedWithAi';
@@ -35,6 +36,7 @@ import StatusFilter from './DatabseComponents/StatusFilter';
 import TableView from './DatabseComponents/views/TableView';
 import DateFilterComponent from './DatabseComponents/DateFilterComponent';
 import NumberComponent from './DatabseComponents/NumberComponent';
+import { ReactComponent as ChevronIcon } from '../../../assets/svg/tasks/chevronRightThin.svg';
 
 export const rowTypes = {
 	text: TextField,
@@ -438,6 +440,14 @@ const DatabaseComponent = memo(({ block, editor }) => {
 					{info?.newDatabase === false && (
 						<div className={s.showDatabaseContainer}>
 							<div className={s.showDatabaseContainerHeader}>
+								<button
+									className={s.showDatabaseContainerHeaderBackButton}
+									onClick={() => handleInfoChange({ newDatabase: null })}
+								>
+									<ChevronIcon
+										className={s.showDatabaseContainerHeaderBackButtonIcon}
+									/>
+								</button>
 								<div className={s.showDatabaseContainerHeaderTitle}>
 									Select Database
 								</div>
@@ -528,6 +538,12 @@ const DatabaseComponent = memo(({ block, editor }) => {
 						onClose={() => handleInfoChange({ addFieldModalOpen: false })}
 						databaseId={databaseId}
 						pageId={pageId}
+					/>
+					<DatabaseSidebar
+						databaseId={databaseId}
+						pageId={pageId}
+						databaseName={info?.databaseName}
+						fields={fields}
 					/>
 				</>
 			)}

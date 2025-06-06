@@ -28,9 +28,17 @@ const actionHandlers = {
 		rowData: { ...state.rowData, ...action?.payload },
 	}),
 	DELETE_DATABASE_ROWS: (state, action) => {
-		const { viewId } = action.payload;
-		const { [viewId]: _, ...newRowData } = state.rowData;
-		return { ...state, rowData: newRowData };
+		const { viewId, rowId } = action.payload;
+		return {
+			...state,
+			rowData: {
+				...state.rowData,
+				[viewId]: {
+					...state.rowData[viewId],
+					data: state.rowData[viewId]?.data?.filter((row) => row._id !== rowId),
+				},
+			},
+		};
 	},
 	UPDATE_DATABASE_ROWS: (state, action) => {
 		const { viewId, rowId, updatedRow } = action.payload;
@@ -71,7 +79,7 @@ const actionHandlers = {
 		availableDatabases: action?.payload,
 	}),
 	UPDATE_RELATED_VIEWS: (state, action) => {
-		const { updatedRow, viewId, databaseId, rowId } = action.payload;
+		const { updatedRow, viewId, databaseId, rowId, actionType = 'update' } = action.payload;
 
 		const affectedViews = Object.values(state?.views)
 			.flat()
@@ -86,20 +94,52 @@ const actionHandlers = {
 			if (!rowData) continue;
 
 			const rowIndex = rowData.data?.findIndex((row) => row._id === rowId);
-			if (rowIndex === -1) continue;
 
-			updatedRowData[view._id] = {
-				...rowData,
-				data: [
-					...rowData.data.slice(0, rowIndex),
-					{
-						...rowData.data[rowIndex],
-						...updatedRow,
-						values: { ...rowData.data[rowIndex]?.values, ...updatedRow?.values },
-					},
-					...rowData.data.slice(rowIndex + 1),
-				],
-			};
+			// Handle different action types
+			switch (actionType) {
+				case 'add':
+					// Add new row to the data array
+					updatedRowData[view._id] = {
+						...rowData,
+						data: [...rowData.data, updatedRow],
+					};
+					break;
+
+				case 'delete':
+					// Remove row from the data array if it exists
+					if (rowIndex !== -1) {
+						updatedRowData[view._id] = {
+							...rowData,
+							data: [
+								...rowData.data.slice(0, rowIndex),
+								...rowData.data.slice(rowIndex + 1),
+							],
+						};
+					}
+					break;
+
+				case 'update':
+				default:
+					// Update existing row if it exists
+					if (rowIndex !== -1) {
+						updatedRowData[view._id] = {
+							...rowData,
+							data: [
+								...rowData.data.slice(0, rowIndex),
+								{
+									...rowData.data[rowIndex],
+									...updatedRow,
+									values: {
+										...rowData.data[rowIndex]?.values,
+										...updatedRow?.values,
+									},
+								},
+								...rowData.data.slice(rowIndex + 1),
+							],
+						};
+					}
+					break;
+			}
 		}
 
 		if (!Object.keys(updatedRowData).length) return state;

@@ -42,6 +42,7 @@ import {
 	updateFilterMutation,
 	removeFilterMutation,
 	addFilterMutation,
+	deleteDatabaseRowMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -876,6 +877,14 @@ export const NotesState = (props) => {
 						},
 					},
 				});
+
+				updateRelatedViews({
+					updatedRow: newRow,
+					viewId,
+					databaseId: payload?.input?.databaseId,
+					rowId: newRow?._id,
+					actionType: 'add',
+				});
 			}
 		} catch (error) {
 			console.error('error==>addDatabaseRow', error);
@@ -915,6 +924,35 @@ export const NotesState = (props) => {
 			}
 		} catch (error) {
 			console.error('error==>updateDatabaseRow', error);
+		}
+	};
+
+	const deleteDatabaseRow = async (payload, viewId, databaseId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				deleteDatabaseRowMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.DELETE_DATABASE_ROWS,
+					payload: { viewId },
+				});
+
+				updateRelatedViews({
+					viewId,
+					databaseId,
+					rowId: payload?.deleteDatabaseRowId,
+					actionType: 'delete',
+				});
+			}
+		} catch (error) {
+			console.error('error==>deleteDatabaseRow', error);
 		}
 	};
 
@@ -1233,11 +1271,20 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const updateRelatedViews = async ({ updatedRow, updatedField, viewId, databaseId, rowId }) => {
+	const updateRelatedViews = async ({
+		updatedRow,
+		updatedField,
+		viewId,
+		databaseId,
+		rowId,
+		actionType = 'update',
+	}) => {
 		try {
+			console.log(updatedRow, viewId, databaseId, rowId, actionType);
+
 			dispatch({
 				type: Actions.UPDATE_RELATED_VIEWS,
-				payload: { updatedRow, viewId, databaseId, rowId },
+				payload: { updatedRow, viewId, databaseId, rowId, actionType },
 			});
 		} catch (error) {
 			console.error('error==>updateRelatedViews', error);
@@ -1281,6 +1328,7 @@ export const NotesState = (props) => {
 		updateDatabaseField,
 		updateDatabaseSidebar,
 		updateDatabaseRow,
+		deleteDatabaseRow,
 		updateDatabase,
 		listAvailableDatabases,
 		deleteDatabaseField,

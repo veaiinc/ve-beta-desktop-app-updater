@@ -3,9 +3,10 @@ import Context from '../../../../context/context';
 import { Drawer } from 'antd';
 import s from '../../../../assets/scss/notes/modals/databaseSidebar.module.scss';
 import { rowTypes } from '../../notes/Database';
-const DatabaseSidebar = ({ databaseId, pageId, databaseName, fields }) => {
+
+const DatabaseSidebar = ({ databaseId, pageId, databaseName, fields, viewId }) => {
 	const {
-		notes: { databaseSidebar, updateDatabaseSidebar },
+		notes: { databaseSidebar, updateDatabaseSidebar, deleteDatabaseRow, updateDatabaseRow },
 	} = useContext(Context);
 
 	const sideBarOpen = databaseSidebar?.open;
@@ -14,15 +15,73 @@ const DatabaseSidebar = ({ databaseId, pageId, databaseName, fields }) => {
 	const renderRowData = (field, value) => {
 		let type = field?.type;
 
+		const rowMetadataMapper = {
+			serial_number: rowData?.serialNumber,
+			created_by: [rowData?.createdBy],
+			created_time: {
+				startDate: rowData?.createdAt,
+				endDate: rowData?.createdAt,
+				isEndDateEnabled: false,
+			},
+			last_edited_by: [rowData?.updatedBy],
+			last_edited_time: {
+				startDate: rowData?.updatedAt,
+				endDate: rowData?.updatedAt,
+				isEndDateEnabled: false,
+			},
+		};
+
+		// Get value from metadata mapper if it's a metadata field
+		const metadataValue = rowMetadataMapper?.[field?.type];
+		const finalValue = metadataValue || value;
+
 		const Component = rowTypes?.[type] || null;
-		return Component ? (
+		if (!Component) return finalValue;
+
+		const options = field?.type === 'status' ? field?.config?.status : field?.config?.options;
+
+		return (
 			<Component
-				value={value}
+				value={finalValue}
+				title={field?.name}
+				onOptionClick={(value) => handleUpdateRow(rowData?._id, field._id, value)}
+				onChange={(value) => handleUpdateRow(rowData?._id, field._id, value)}
+				showLabel={true}
+				defaultLabel={'Not selected'}
+				options={options}
+				multiSelect={true}
+				parseValue={field?.config?.parseValue}
 				disabled={field?.isReadOnly}
 				timestamp={field?.isReadOnly}
-				showLabel={true}
+				takeFullspace={true}
+				className={field?.type === 'date' ? 'database-date-picker' : ''}
+				prefix={field?.config?.prefix}
+				labelField={'label'}
 			/>
-		) : null;
+		);
+	};
+
+	const handleUpdateRow = (rowId, key, value) => {
+		const payload = {
+			updateDatabaseRowId: rowId,
+			input: {
+				values: { [key]: value },
+			},
+			pageId,
+		};
+		updateDatabaseRow(payload, viewId, databaseId);
+	};
+
+	const handleDeleteRow = () => {
+		deleteDatabaseRow(
+			{
+				deleteDatabaseRowId: rowData?._id,
+				pageId,
+			},
+			viewId,
+			databaseId,
+		);
+		updateDatabaseSidebar({ open: false });
 	};
 
 	return (
@@ -40,12 +99,17 @@ const DatabaseSidebar = ({ databaseId, pageId, databaseName, fields }) => {
 			<div className={s.notesDatabaseSidebar}>
 				<div className={s.notesDatabaseSidebarHeader}>
 					<div className={s.notesDatabaseSidebarHeaderTitle}>{databaseName}</div>
+					<button onClick={handleDeleteRow} className={s.deleteButton}>
+						Delete
+					</button>
 				</div>
 				<div className={s.notesDatabaseSidebarContent}>
 					{fields?.map((field) => (
 						<div className={s.notesDatabaseSidebarField} key={field?._id}>
 							<div className={s.notesDatabaseSidebarFieldLabel}>{field.name}</div>
-							{renderRowData(field, rowData?.[field._id])}
+							<div className={s.notesDatabaseSidebarFieldValue}>
+								{renderRowData(field, rowData?.values?.[field._id])}
+							</div>
 						</div>
 					))}
 				</div>

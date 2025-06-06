@@ -73,7 +73,6 @@ const TableBody = ({ data, columns, handleUpdate, colors, pageId, viewId, databa
 					title={property?.name}
 					onOptionClick={(value) => handleUpdateRow(row?._id, key, value)}
 					onChange={(value) => handleUpdateRow(row?._id, key, value)}
-					colors={colors}
 					showTitle={true}
 					showLabel={true}
 					style={{ background: 'transparent', padding: 0 }}
@@ -107,7 +106,7 @@ const TableBody = ({ data, columns, handleUpdate, colors, pageId, viewId, databa
 							}}
 							onClick={() =>
 								updateDatabaseSidebar({
-									data: row?.values,
+									data: row,
 									open: true,
 									replace: true,
 								})

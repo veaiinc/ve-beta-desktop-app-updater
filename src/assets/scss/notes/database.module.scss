@@ -335,10 +335,30 @@
 			padding: 8px;
 			.showDatabaseContainerHeader {
 				display: flex;
-				justify-content: space-between;
 				align-items: center;
+				gap: 8px;
 				border-bottom: 1px solid var(--stroke);
 				padding-bottom: 8px;
+
+				.showDatabaseContainerHeaderBackButton {
+					padding: 4px;
+					border-radius: 4px;
+					border: 1px solid var(--stroke);
+					background: var(--card);
+					cursor: pointer;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					width: 24px;
+					height: 24px;
+					transition: all 0.2s ease;
+
+					.showDatabaseContainerHeaderBackButtonIcon {
+						width: 16px;
+						height: 16px;
+						transform: rotate(180deg);
+					}
+				}
 
 				.showDatabaseContainerHeaderTitle {
 					color: var(--primary-font);

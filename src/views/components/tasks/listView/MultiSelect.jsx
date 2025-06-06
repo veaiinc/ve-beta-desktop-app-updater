@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/multiSelect.scss';
 import { Tooltip } from 'antd';
 import MultiSelectDropdown from '../../dropDown/tasks/MultiSelectDropdown';
@@ -24,6 +24,10 @@ const MultiSelect = ({
 }) => {
 	const [selectedOptions, setSelectedOptions] = useState(Array.isArray(value) ? value : []);
 	const [isOpen, setIsOpen] = useState(false);
+
+	useEffect(() => {
+		setSelectedOptions(Array.isArray(value) ? value : []);
+	}, [JSON.stringify(value)]);
 
 	const handleOptionClick = (optionId) => {
 		if (!optionId) return;
