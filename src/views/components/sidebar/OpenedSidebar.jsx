@@ -694,13 +694,7 @@ const OpenedSidebar = ({
 													))}
 
 													<div>
-														<hr
-															className={`${
-																isOpen
-																	? 'horizontal-line-sidebar'
-																	: ''
-															}`}
-														/>
+														<hr className={'horizontal-line-sidebar'} />
 													</div>
 													<ChatHistory />
 													<div

@@ -95,7 +95,7 @@ const AIMessage = ({
 			)}
 			{messageData?.used_agents?.length > 0 &&
 				(showCanvas && !isNoteCanvas ? (
-					messageData?.used_agents?.map((agent) => (
+					messageData?.used_agents?.map((agent, index) => (
 						<FormModel
 							workflowTemplateId={messageData?.workflow_template_id}
 							moduleTemplateId={messageData?.module_template_id}
@@ -108,6 +108,7 @@ const AIMessage = ({
 							isLastMessage={isLastMessage}
 							messageData={messageData}
 							agent={agent}
+							key={index}
 						/>
 					))
 				) : (
@@ -221,7 +222,7 @@ const AIMessage = ({
 					<div className="suggested-prompts">
 						<div className="title-text">Suggested Prompts</div>
 						<div className="prompts-container">
-							{(messageData?.['follow_up_query'] || []).map((query, index) => (
+							{(messageData?.['follow_up_query'] || [])?.map((query, index) => (
 								<div
 									className="prompt-container"
 									key={index}

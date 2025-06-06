@@ -137,6 +137,7 @@ export const intialState = {
 	},
 	refetchChatHistoryList: false,
 	aiQuestions: null,
+	proactiveAiData: null,
 };
 
 export const TemplatesState = (props) => {
@@ -2529,6 +2530,25 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getProactiveAiData = async (id) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-bases/pending-actions/${id}/pending-action`;
+			const response = await Service.fetchGet(url, usertoken, 'tenant');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_PROACTIVE_AI_DATA_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				console.log('error==>getProactiveAiData', response);
+			}
+		} catch (error) {
+			console.log('error==>getProactiveAiData', error);
+		}
+	};
+
 	const updateAiQuestions = async (payload, id = null) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -2637,5 +2657,6 @@ export const TemplatesState = (props) => {
 		pendingActionsFeedback,
 		getAiQuestions,
 		updateAiQuestions,
+		getProactiveAiData,
 	};
 };
