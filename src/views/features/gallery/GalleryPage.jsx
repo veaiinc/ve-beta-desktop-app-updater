@@ -855,35 +855,23 @@ const GalleryPage = () => {
 	useEffect(() => {
 		if (!document.querySelector('.albums')) return;
 
-		if (info?.albumFullScreen) {
+		if (info.albumFullScreen) {
+			// Open: wrap into multiple rows over 0.3s
 			gsap.to('.albums', {
-				height: dynamicHeightFunc(),
 				flexWrap: 'wrap',
 				duration: 0.3,
 				ease: 'power2.out',
 			});
-		} else if (tenantAlbums) {
-			const t1 = gsap.timeline();
-			t1.to('.album', {
-				opacity: '0.7',
-			});
-			t1.to('.albums', {
+		} else {
+			// Close: remove wrap (back to single row) over 0.3s, without that extra 0.4s delay
+			gsap.to('.albums', {
+				flexWrap: 'nowrap',
 				duration: 0.3,
 				ease: 'power2.out',
 			});
-
-			t1.to('.album', {
-				opacity: 1,
-				ease: 'power2.out',
-			});
-			t1.to('.albums', {
-				flexWrap: 'nowrap',
-				opacity: 1,
-				delay: 0.4,
-				ease: 'power2.out',
-			});
 		}
-	}, [info?.albumFullScreen]);
+	}, [info.albumFullScreen]);
+
 	useEffect(() => {
 		if (location?.state?.from === 'albumSettings') {
 			const activeAlbum = tenantAlbums?.albums?.find(
@@ -2257,10 +2245,10 @@ const GalleryPage = () => {
 			message.destroy();
 			showMessage('success', 'Gallery deleted successfully');
 			if (!info?.isLightGallery) {
-				navigate('/galleries');
+				navigate('/files?activeTab=Gallery');
 				await getGalleries({}, true);
 			} else {
-				navigate(`/lite-gallery`);
+				navigate(`/files?activeTab=Lite+Gallery`);
 				await getGalleries({ isLightGallery: true }, true);
 			}
 		} else {
@@ -3867,11 +3855,17 @@ const GalleryPage = () => {
 										// height: '160px',
 									}}
 									id="droppableAlblumId"
+									className={`albumsWrapper ${
+										info.albumFullScreen ? 'expanded' : ''
+									}`}
 								>
 									<DragDropContext onDragEnd={handleAlbumDragEnd}>
 										<Droppable
 											droppableId="droppableAlblumId"
 											direction="horizontal"
+											style={{
+												height: '100%',
+											}}
 										>
 											{(provided) => (
 												<div
@@ -4168,16 +4162,25 @@ const GalleryPage = () => {
 					</div>
 				)}
 				{info?.scrolledTillEnd && (
-					<div className="galleryTitleWhenScrolled">
-						{sortByCustomIndex(albumImagesCount?.albums)?.map((album, index) => {
+					<div className="galleryTitleWhenScrolled" style={{ gap: '24px' }}>
+						{sortByCustomIndex(albumImagesCount?.albums)?.map((album) => {
+							const isActive = album._id === info.activeAlbumId;
 							return (
-								<div key={index} className="albumTitle">
-									{album?.title} <span>{album?.imagesCount}</span>
-								</div>
+								<span
+									key={album._id}
+									className={`albumTabs ${isActive ? 'activeTab' : ''}`}
+									onClick={() => handleClickAlbum(album, 'albumName')}
+								>
+									{album.title}
+									<span className={`count ${isActive ? 'active' : ''}`}>
+										{album.imagesCount}
+									</span>
+								</span>
 							);
 						})}
 					</div>
 				)}
+
 				{info.activeTab === 'Albums' &&
 					(albumImagesCount?.albums?.length === 0 ? (
 						<div className="noAlbumContainer">
