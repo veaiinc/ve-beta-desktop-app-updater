@@ -34,6 +34,7 @@ import FilterComponent from './DatabseComponents/FilterComponent';
 import StatusFilter from './DatabseComponents/StatusFilter';
 import TableView from './DatabseComponents/views/TableView';
 import DateFilterComponent from './DatabseComponents/DateFilterComponent';
+import NumberComponent from './DatabseComponents/NumberComponent';
 
 export const rowTypes = {
 	text: TextField,
@@ -53,13 +54,14 @@ export const rowTypes = {
 	linkText: LinkText,
 	personMultiSelect: PersonMultiSelect,
 	createdWithAi: CreatedWithAi,
-	last_edited_time: DateView,
-	created_time: DateView,
+	last_edited_time: DateComponent,
+	created_time: DateComponent,
 	last_edited_by: Person,
 	created_by: Person,
 	url: LinkText,
 	email: LinkText,
 	phone: LinkText,
+	number: NumberComponent,
 	statusFilter: StatusFilter,
 	checkboxFilter: CheckBoxFilter,
 	dateFilter: DateFilterComponent,
@@ -212,14 +214,14 @@ const DatabaseComponent = memo(({ block, editor }) => {
 			getDatabase({ pageId, databaseId });
 		} else if (
 			currentDatabase?.databaseMetadata?.name &&
-			info?.databaseName !== currentDatabase.databaseMetadata.name
+			info?.databaseName === 'Database' // Only update if it's the default name
 		) {
 			setInfo((prev) => ({
 				...prev,
 				databaseName: currentDatabase.databaseMetadata.name,
 			}));
 		}
-	}, [databaseId, currentDatabase, pageId, getDatabase, info?.databaseName]);
+	}, [databaseId, currentDatabase, pageId, getDatabase]);
 
 	// Load database views
 	useEffect(() => {
@@ -333,19 +335,24 @@ const DatabaseComponent = memo(({ block, editor }) => {
 
 	const handleInfoChange = useCallback(
 		(data = {}) => {
-			setInfo((prev) => ({ ...prev, ...data }));
+			setInfo((prev) => {
+				const newState = { ...prev, ...data };
 
-			if (data.databaseName !== undefined) {
-				handleDebouncedDatabaseNameUpdate(data.databaseName);
-			}
+				// If databaseName is being updated, trigger the debounced update
+				if (data.databaseName !== undefined) {
+					handleDebouncedDatabaseNameUpdate(data.databaseName);
+				}
 
-			// Handle view change and fetch rows if needed
-			if (data.selectedViewId && data.selectedViewId !== info?.selectedViewId) {
-				// Reset fetch params when view changes
-				lastFetchParams.current = null;
-			}
+				// Handle view change and fetch rows if needed
+				if (data.selectedViewId && data.selectedViewId !== prev.selectedViewId) {
+					// Reset fetch params when view changes
+					lastFetchParams.current = null;
+				}
+
+				return newState;
+			});
 		},
-		[handleDebouncedDatabaseNameUpdate, info?.selectedViewId],
+		[handleDebouncedDatabaseNameUpdate],
 	);
 
 	const getAllAvailableDatabases = useCallback(async () => {

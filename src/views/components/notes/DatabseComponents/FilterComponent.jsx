@@ -144,6 +144,7 @@ const FilterComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 														);
 													}}
 													linkType={field?.type}
+													showStartEnd={field?.type === 'date'}
 												/>
 											)}
 									</div>

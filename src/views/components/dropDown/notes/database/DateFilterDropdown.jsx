@@ -3,25 +3,57 @@ import moment from 'moment';
 import CalendarPicker from '../../../notes/DatabseComponents/CalendarPicker';
 import s from '../../../../../assets/scss/notes/dropdown/dateFilterDropdown.module.scss';
 
-const DateFilterDropdown = ({ selected, onChange, title }) => {
-	const [dateType, setDateType] = useState(selected?.dateType || 'startDate');
+const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = true }) => {
+	const [dateType, setDateType] = useState(
+		typeof selected === 'object' ? selected?.dateType || 'startDate' : 'startDate',
+	);
 
 	const handleDateTypeChange = (e) => {
 		const newDateType = e.target.value;
 		setDateType(newDateType);
-		if (selected?.date) {
-			onChange({
-				date: selected.date,
-				dateType: newDateType,
-			});
+		if (showStartEnd) {
+			if (typeof selected === 'object' && selected?.date) {
+				onChange({
+					date: selected.date,
+					dateType: newDateType,
+				});
+			} else if (typeof selected === 'number') {
+				onChange({
+					date: selected,
+					dateType: newDateType,
+				});
+			}
 		}
 	};
 
 	const handleDateSelect = (date) => {
-		onChange({
-			date: moment(date).unix(),
-			dateType: dateType,
-		});
+		const timestamp = moment(date).unix();
+		if (showStartEnd) {
+			onChange({
+				date: timestamp,
+				dateType: dateType,
+			});
+		} else {
+			onChange(timestamp);
+		}
+	};
+
+	const getDisplayDate = () => {
+		if (typeof selected === 'object' && selected?.date) {
+			return moment.unix(selected.date).format('MMM DD, YYYY');
+		} else if (typeof selected === 'number') {
+			return moment.unix(selected).format('MMM DD, YYYY');
+		}
+		return '';
+	};
+
+	const getCalendarDate = () => {
+		if (typeof selected === 'object' && selected?.date) {
+			return moment.unix(selected.date);
+		} else if (typeof selected === 'number') {
+			return moment.unix(selected);
+		}
+		return null;
 	};
 
 	return (
@@ -30,24 +62,21 @@ const DateFilterDropdown = ({ selected, onChange, title }) => {
 				<div className={s.topSectionTitle}>{title}</div>
 			</div>
 			<div className={s.bodySection}>
-				<select
-					className={s.dateTypeSelect}
-					value={dateType}
-					onChange={handleDateTypeChange}
-				>
-					<option value="startDate">Start Date</option>
-					<option value="endDate">End Date</option>
-				</select>
-				<input
-					type="text"
-					placeholder="Select Date"
-					value={selected?.date ? moment.unix(selected.date).format('MMM DD, YYYY') : ''}
-					readOnly
-				/>
+				{showStartEnd && (
+					<select
+						className={s.dateTypeSelect}
+						value={dateType}
+						onChange={handleDateTypeChange}
+					>
+						<option value="startDate">Start Date</option>
+						<option value="endDate">End Date</option>
+					</select>
+				)}
+				<input type="text" placeholder="Select Date" value={getDisplayDate()} readOnly />
 			</div>
 			<CalendarPicker
-				startDate={selected?.date ? moment.unix(selected.date) : null}
-				endDate={selected?.date ? moment.unix(selected.date) : null}
+				startDate={getCalendarDate()}
+				endDate={getCalendarDate()}
 				onDateSelect={handleDateSelect}
 			/>
 		</div>

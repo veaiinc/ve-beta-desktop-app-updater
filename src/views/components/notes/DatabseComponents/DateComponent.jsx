@@ -9,7 +9,7 @@ const inlineStyle = {
 	cursor: 'pointer',
 };
 
-const DateComponent = ({ value, onChange }) => {
+const DateComponent = ({ value, onChange, disabled = false }) => {
 	const dateValue = value?.startDate
 		? `${moment.unix(value?.startDate).format('DD/MM/YYYY')}${
 				value?.isEndDateEnabled
@@ -19,7 +19,7 @@ const DateComponent = ({ value, onChange }) => {
 		: null;
 	return (
 		<Tooltip
-			title={<DateDropdown value={value} onChange={onChange} />}
+			title={disabled ? null : <DateDropdown value={value} onChange={onChange} />}
 			placement="bottomLeft"
 			overlayClassName="status-dropdown"
 			color="transparent"

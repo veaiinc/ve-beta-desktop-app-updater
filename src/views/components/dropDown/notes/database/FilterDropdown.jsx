@@ -14,9 +14,11 @@ import MultiSelectDropdown from '../../tasks/MultiSelectDropdown';
 import StatusFilterDropdown from './StatusFilterDropdown';
 import CheckBoxFilterDropdown from './CheckBoxFilterDropdown';
 import DateFilterDropdown from './DateFilterDropdown';
+import NumberFilterDropdown from './NumberFilterDropdown';
 
 const filterMapperTypes = {
 	text: TextFilter,
+	number: NumberFilterDropdown,
 	select: MultiSelectDropdown,
 	multi_select: MultiSelectDropdown,
 	person: TeamMembersDropdown,
@@ -27,6 +29,8 @@ const filterMapperTypes = {
 	personMultiSelect: PersonDropdown,
 	checkbox: CheckBoxFilterDropdown,
 	date: DateFilterDropdown,
+	created_time: DateFilterDropdown,
+	last_edited_time: DateFilterDropdown,
 };
 
 const FilterDropdown = ({ fields, colors, filters, handleFilterChange }) => {
@@ -116,6 +120,7 @@ const FilterDropdown = ({ fields, colors, filters, handleFilterChange }) => {
 														selectedFilters?.get(property?._id)?.value
 													}
 													multiSelect={true}
+													showStartEnd={property?.type === 'date'}
 												/>
 											</div>
 										}

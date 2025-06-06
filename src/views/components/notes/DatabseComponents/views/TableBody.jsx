@@ -34,9 +34,17 @@ const TableBody = ({ data, columns, handleUpdate, colors, pageId, viewId, databa
 			const rowMetadataMapper = {
 				serial_number: row?.serialNumber,
 				created_by: [row?.createdBy],
-				created_time: row?.createdAt,
+				created_time: {
+					startDate: row?.createdAt,
+					endDate: row?.createdAt,
+					isEndDateEnabled: false,
+				},
 				last_edited_by: [row?.updatedBy],
-				last_edited_time: row?.updatedAt,
+				last_edited_time: {
+					startDate: row?.updatedAt,
+					endDate: row?.updatedAt,
+					isEndDateEnabled: false,
+				},
 			};
 
 			const value = rowMetadataMapper?.[property?.type] || row?.values?.[key];
