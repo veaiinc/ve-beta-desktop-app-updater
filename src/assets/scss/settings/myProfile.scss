@@ -968,6 +968,10 @@
 		background-color: var(--stroke);
 	}
 
+	&.ant-switch:hover {
+		background-color: var(--stroke);
+	}
+
 	&.ant-switch-checked {
 		background-color: var(--primary-button);
 	}
@@ -978,6 +982,5 @@
 	}
 	&.ant-switch.ant-switch-checked:hover {
 		background-color: var(--primary-button);
-		opacity: 0.8;
 	}
 }

@@ -15,6 +15,7 @@
 		transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
 		font-size: 1.5rem;
 		font-family: var(--chat-primary-font-family);
+		white-space: pre-wrap;
 		span {
 			line-height: 1.5;
 			font-weight: 500 !important;

@@ -366,6 +366,7 @@ export const redirectTo = (type, id) => {
 		s3_key: id,
 		drive: `https://drive.google.com/file/d/${id}/view`,
 		notes: `https://ve.ai/note/${id}`,
+		proactiveai: `https://ve.ai/proactiveai/${id}`,
 	};
 
 	const url = urls?.[type];
@@ -383,6 +384,7 @@ export const redirectTypeMapper = {
 	s3_key: 's3_key',
 	drive: 'drive_id',
 	notes: 'note_id',
+	proactiveai: 'proactiveai_id',
 };
 
 const origin = fetchOriginSelection();

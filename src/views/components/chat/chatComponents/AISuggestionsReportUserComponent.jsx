@@ -4,7 +4,6 @@ import '../../../../assets/scss/chat/chatComponents/aiSuggestionsReportUserCompo
 const AISuggestionsReportUserComponent = ({ data }) => {
 	if (!data) return null;
 	const { title, description, confidence_score, priority } = data;
-	console.log('priority', priority);
 	return (
 		<div className="report-user-component">
 			<div className="report-header">

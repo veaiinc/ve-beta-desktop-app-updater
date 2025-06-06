@@ -1148,7 +1148,7 @@ const ProactiveSuggestions = () => {
 									const classList = ['card', positionClassMap[card?.position]];
 									return (
 										<div
-											key={card?._id}
+											key={index}
 											className={classList?.join(' ')}
 											onClick={() => handleCardClick(card, index)}
 										>
