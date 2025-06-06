@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { memo, useState } from 'react';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 import { ReactComponent as Sparkle } from '../../../assets/svg/sparkle.svg';
 import { ReactComponent as CaretDonw } from '../../../assets/svg/left.svg';
@@ -41,13 +41,17 @@ const menuData = [
 ];
 
 const MobileMenu = ({ open, onClose, onLogin, onGetFree }) => {
-	const [activeMenu, setActiveMenu] = useState('main');
-	const [submenu, setSubmenu] = useState(null);
 	const navigate = useNavigate();
+	const [info, setInfo] = useState({
+		activeMenu: 'main',
+		submenu: null,
+	});
 	const handleMenuClick = (item) => {
 		if (item.submenu) {
-			setSubmenu(item);
-			setActiveMenu('submenu');
+			setInfo({
+				activeMenu: 'submenu',
+				submenu: item,
+			});
 		} else {
 			// handle navigation here
 			onClose();
@@ -55,8 +59,10 @@ const MobileMenu = ({ open, onClose, onLogin, onGetFree }) => {
 	};
 
 	const handleBack = () => {
-		setActiveMenu('main');
-		setSubmenu(null);
+		setInfo({
+			activeMenu: 'main',
+			submenu: null,
+		});
 	};
 
 	return (
@@ -75,7 +81,7 @@ const MobileMenu = ({ open, onClose, onLogin, onGetFree }) => {
 				</div>
 			</div>
 			<div className="mobile-menu-content">
-				{activeMenu === 'main' && (
+				{info.activeMenu === 'main' && (
 					<ul className="mobile-menu-list">
 						{menuData.map((item, idx) => (
 							<li key={idx} onClick={() => handleMenuClick(item)}>
@@ -89,7 +95,7 @@ const MobileMenu = ({ open, onClose, onLogin, onGetFree }) => {
 						))}
 					</ul>
 				)}
-				{activeMenu === 'submenu' && submenu && (
+				{info.activeMenu === 'submenu' && info.submenu && (
 					<div className="mobile-submenu">
 						<button className="back-btn" onClick={handleBack}>
 							<CaretDonw style={{ transform: 'rotate(180deg)' }} /> <span>Back</span>
@@ -100,7 +106,7 @@ const MobileMenu = ({ open, onClose, onLogin, onGetFree }) => {
 								<Sparkle /> <span className="submenu-section-title">Features</span>
 							</div>
 							<ul className="submenu-list">
-								{submenu?.submenu?.features?.map((sub, idx) => (
+								{info.submenu?.submenu?.features?.map((sub, idx) => (
 									<li key={idx} className="submenu-item" onClick={onClose}>
 										{sub.label}
 										<span className="submenu-arrow">
@@ -110,7 +116,7 @@ const MobileMenu = ({ open, onClose, onLogin, onGetFree }) => {
 								))}
 							</ul>
 						</div>
-                        <div className="divider"></div>
+						<div className="divider"></div>
 						{/* Search Section with gap */}
 						<div className="submenu-section-container">
 							<div
@@ -120,7 +126,7 @@ const MobileMenu = ({ open, onClose, onLogin, onGetFree }) => {
 								<Binoculars /> <span className="submenu-section-title">Search</span>
 							</div>
 							<ul className="submenu-list">
-								{submenu?.submenu?.search?.map((sub, idx) => (
+								{info.submenu?.submenu?.search?.map((sub, idx) => (
 									<li key={idx} className="submenu-item" onClick={onClose}>
 										{sub.label}
 										<span className="submenu-arrow">
@@ -142,4 +148,4 @@ const MobileMenu = ({ open, onClose, onLogin, onGetFree }) => {
 	);
 };
 
-export default MobileMenu;
+export default memo(MobileMenu);

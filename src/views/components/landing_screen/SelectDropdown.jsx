@@ -24,17 +24,7 @@ const SelectDropdown = ({
 		option.label?.toLowerCase().includes(searchValue.toLowerCase()),
 	);
 
-	const handleSelect = (option) => {
-		setOption(option);
-		setVisible(false);
-		setSearchValue('');
-	};
-
-	const handleClickOutside = (event) => {
-		if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-			setVisible(false);
-		}
-	};
+	
 
 	useEffect(() => {
 		document.addEventListener('mousedown', handleClickOutside);
@@ -48,6 +38,18 @@ const SelectDropdown = ({
 			setSearchValue('');
 		}
 	}, [visible]);
+	
+	const handleSelect = (option) => {
+		setOption(option);
+		setVisible(false);
+		setSearchValue('');
+	};
+
+	const handleClickOutside = (event) => {
+		if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+			setVisible(false);
+		}
+	};
 
 	return (
 		<div className={s.selectDropdownContainer} ref={dropdownRef}>

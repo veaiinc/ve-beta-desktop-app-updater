@@ -19,6 +19,14 @@ import Suggestions from '../homePage/Suggestions';
 import MobileMenu from '../../components/landing_screen/MobileMenu';
 import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
 import PricingPage from '../pricingPlans/pricingPage';
+
+const pathToTabMap = {
+	'/mission': 1,
+	'/contact-us': 2,
+	'/api': 3,
+	'/pricing': 4,
+};
+
 const LandingPage = () => {
 	const {
 		templates: { updateStateValues, currentSessionId },
@@ -35,20 +43,8 @@ const LandingPage = () => {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
 	useEffect(() => {
-		const path = location.pathname;
-		if (path === '/mission') {
-			setTab(1);
-		} else if (path === '/contact-us') {
-			setTab(2);
-		} else if (path === '/api') {
-			setTab(3);
-		}
-		 else if (path === '/pricing') {
-			setTab(4);
-		}
-		 else {
-			setTab(0);
-		}
+		const currentTab = pathToTabMap[location.pathname] ?? 0;
+		setTab((prevTab) => (prevTab !== currentTab ? currentTab : prevTab));
 	}, [location.pathname]);
 
 	useEffect(() => {
@@ -83,7 +79,7 @@ const LandingPage = () => {
 
 	const handleSetTab = (tabVal) => {
 		setTab(tabVal);
-		const tabRoutes = ['/', '/mission', '/contact-us', '/api', '/pricing'];
+		const tabRoutes = ['/', '/mission', '/contact-us', '/api'];
 		navigate(tabRoutes[tabVal]);
 	};
 
