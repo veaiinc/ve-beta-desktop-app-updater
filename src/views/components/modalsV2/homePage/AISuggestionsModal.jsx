@@ -335,7 +335,7 @@ const AISuggestionsModal = ({
 									me
 								</div>
 
-								<ProactiveAIShare proactiveAiId={data?._id} />
+								{/* <ProactiveAIShare proactiveAiId={data?._id} /> */}
 
 								{/* <div className="btn download-btn">
 									<DownloadSvg />
