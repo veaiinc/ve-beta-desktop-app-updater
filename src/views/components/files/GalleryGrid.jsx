@@ -76,25 +76,51 @@ const GalleryGrid = ({
 	}, [selectedOption]);
 
 	useEffect(() => {
-		if (tenantGalleries) {
+		if (!tenantGalleries) return;
+
+		setInfo((prev) => {
 			const {
 				currentPage = 1,
 				hasNextPage = false,
 				galleries = [],
 				totalDocs = 0,
-			} = tenantGalleries || {};
-			const newGalleries =
-				currentPage === 1 ? [...galleries] : [...info?.galleries, ...(galleries || [])];
+				sort: serverSort = null, // e.g. "-imagesCount"
+			} = tenantGalleries;
 
-			handleStateUpdate({
+			// 1) Build new gallery array
+			const newGalleries = currentPage === 1 ? galleries : [...prev.galleries, ...galleries];
+
+			// 2) Parse serverSort (if present) into our sortOptions shape
+			let parsedSort = prev.selectedSort;
+			if (serverSort) {
+				const isDescending = serverSort.startsWith('-');
+				const field = isDescending ? serverSort.slice(1) : serverSort;
+
+				const match = sortOptions.find((opt) => opt.value === field);
+				if (match) {
+					parsedSort = {
+						label: match.label,
+						value: match.value,
+						sortType: isDescending ? -1 : 1,
+					};
+				}
+			}
+
+			// 3) Return the new state all at once
+			return {
+				...prev,
 				galleries: newGalleries,
 				currentPage,
 				hasNextPage,
 				loading: false,
-			});
-			handleTotalChange(totalDocs);
-		}
+				selectedSort: parsedSort,
+			};
+		});
+
+		// still call handleTotalChange outside of setInfo(), since it’s a side‐effect
+		handleTotalChange(tenantGalleries.totalDocs || 0);
 	}, [tenantGalleries]);
+
 	useEffect(() => {
 		const delay =
 			info.selectedView === 'Gallery' || info.selectedView === 'Lite Gallery' ? 100 : 0;
@@ -224,7 +250,9 @@ const GalleryGrid = ({
 			selectedSort: { ...value, sortType },
 		}));
 
-		setDefaultSort({ sort: `${sortType === -1 ? `-` : ''}${value?.value}` });
+		const storeOriginals = selectedOption === 'Gallery';
+
+		setDefaultSort({ sort: `${sortType === -1 ? '-' : ''}${value?.value}` }, storeOriginals);
 	};
 
 	return (
@@ -258,7 +286,7 @@ const GalleryGrid = ({
 						height={'100%'}
 					>
 						<div className={`card-container`}>
-							<div className="card-item" onClick={handleCreateNewGallery}>
+							<div className="card-item create" onClick={handleCreateNewGallery}>
 								<div className="card-item-style card-item-style-btn">
 									<button className="card-btn">
 										<Plus />

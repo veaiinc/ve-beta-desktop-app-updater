@@ -11,7 +11,6 @@ import DocsGrid from '../../components/files/DocsGrid';
 import FormsGrid from '../../components/files/FormsGrid';
 import GalleryGrid from '../../components/files/GalleryGrid';
 import MostUsedEntries from '../../components/files/MostUsedEntries';
-import NotesGrid from '../../components/files/NotesGrid';
 import TemplatesGrid from '../../components/files/TemplatesGrid';
 import { message } from '../../components/globalComponents/CustomToast';
 import QuickActions from '../../components/globalComponents/QuickActions';
@@ -44,14 +43,10 @@ const customDropdownStyle = {
 };
 
 const options = [
-	// 'All',
 	{
 		label: 'Documents',
 		value: 'workflow',
 	},
-	// {
-	// 	label:"Notes",value:"workflow"
-	// },
 	{
 		label: 'Forms',
 		value: 'form',
@@ -173,37 +168,6 @@ const suggestedOptions = [
 	},
 	{
 		id: 2,
-		title: 'Note',
-		value: 'note',
-		action: async ({ setInfo, navigate, createNotesList }) => {
-			try {
-				setInfo((prev) => ({
-					...prev,
-					showLoader: true,
-					loaderMessage: 'Creating note...',
-				}));
-				const payload = {
-					input: {
-						title: 'New Note',
-					},
-				};
-				const response = await createNotesList(payload);
-				if (response?.[1]?._id) {
-					navigate(`/note/${response[1]._id}`);
-				}
-			} catch (error) {
-				message.error('Failed to create note');
-			} finally {
-				setInfo((prev) => ({
-					...prev,
-					showLoader: false,
-					loaderMessage: '',
-				}));
-			}
-		},
-	},
-	{
-		id: 3,
 		title: 'Form',
 		value: 'form-submission',
 		controlValue: 'form',
@@ -216,7 +180,7 @@ const suggestedOptions = [
 		},
 	},
 	{
-		id: 4,
+		id: 3,
 		title: 'Proposal',
 		value: 'proposal',
 		controlValue: 'workflow',
@@ -225,7 +189,7 @@ const suggestedOptions = [
 		},
 	},
 	{
-		id: 5,
+		id: 4,
 		title: 'Invoice',
 		value: 'invoice',
 		controlValue: 'workflow',
@@ -234,7 +198,7 @@ const suggestedOptions = [
 		},
 	},
 	{
-		id: 6,
+		id: 5,
 		title: 'Contract',
 		value: 'contract',
 		controlValue: 'workflow',
@@ -243,7 +207,7 @@ const suggestedOptions = [
 		},
 	},
 	{
-		id: 7,
+		id: 6,
 		title: 'Presentation',
 		value: 'presentation',
 		controlValue: 'workflow',
@@ -252,7 +216,7 @@ const suggestedOptions = [
 		},
 	},
 	{
-		id: 8,
+		id: 7,
 		title: 'Gallery',
 		value: 'galleries',
 		controlValue: 'classicGallery',
@@ -261,7 +225,7 @@ const suggestedOptions = [
 		},
 	},
 	{
-		id: 9,
+		id: 8,
 		title: 'Lite Gallery',
 		value: 'lite-gallery',
 		controlValue: 'liteGallery',
@@ -273,7 +237,7 @@ const suggestedOptions = [
 
 const Files = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const activeTab = searchParams.get('activeTab') || 'Notes';
+	const activeTab = searchParams.get('activeTab') || 'Documents';
 	const cardItems = useRef(null);
 	const elasticSearchTimeoutRef = useRef(null);
 	const navigate = useNavigate();
@@ -285,7 +249,6 @@ const Files = () => {
 		galleryInfo: { tenantGalleries },
 		elasticSearch: { elasticSearchResults, performElasticSearch, resetElasticSearchState },
 		templates: { formsTemplatesList, updateStateValues: updateTemplateStateValues },
-		notes: { createNotesList },
 		profileInfo: { tenantUserAccessControls },
 		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
@@ -307,7 +270,7 @@ const Files = () => {
 		openProposalPopup: false,
 		initialDataFetched: false,
 		commonState: 'All',
-		options: [{ label: 'Notes', value: 'notes' }],
+		options: [],
 		totalCount: null,
 		showElasticSearchResults: false,
 		isFocused: false,
@@ -375,7 +338,7 @@ const Files = () => {
 
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				options: [{ label: 'Notes', value: 'notes' }, ...filteredOptions],
+				options: [...filteredOptions],
 			}));
 		}
 	}, [tenantUserAccessControls]);
@@ -415,9 +378,14 @@ const Files = () => {
 	}, [info.isFocused]);
 
 	const handleNavigateGallery = (gallery) => {
-		navigate(`/galleries/${gallery?._id}`, { state: { galleryData: gallery } });
+		if (activeTab === 'Lite Gallery') {
+			navigate(`/galleries/${gallery?._id}?lite-gallery=true`, {
+				state: { galleryData: gallery },
+			});
+		} else {
+			navigate(`/galleries/${gallery?._id}`, { state: { galleryData: gallery } });
+		}
 	};
-
 	const handleCreateNewGallery = () => {
 		setInfo({
 			...info,
@@ -430,20 +398,6 @@ const Files = () => {
 			...info,
 			createNewGalleryModal: false,
 		});
-	};
-
-	const handleNewNotes = async () => {
-		const payload = {
-			input: {
-				title: 'New Note',
-			},
-		};
-		setInfo((prev) => ({ ...prev, creatingNoteLoader: true }));
-		const response = await createNotesList(payload);
-		if (response?.[1]?._id) {
-			const newNoteId = response[1]?._id;
-			navigate(`/note/${newNoteId}`);
-		}
 	};
 
 	const handleDropdownOptionClick = async (option) => {
@@ -570,6 +524,10 @@ const Files = () => {
 					}
 				}, 10);
 			}
+		}
+		if ((e.key === 'h' || e.key === 'H') && (e.metaKey || e.ctrlKey)) {
+			e.preventDefault();
+			navigate('/');
 		}
 		if (e.key === 'Escape') {
 			handleCloseSearch(e);
@@ -704,12 +662,6 @@ const Files = () => {
 				handleTotalChange={(value) => handleTotalChange({ workflow: value })}
 			/>
 		),
-		Notes: (
-			<NotesGrid
-				handleNewNotes={handleNewNotes}
-				handleTotalChange={(value) => handleTotalChange({ notes: value })}
-			/>
-		),
 		Forms: (
 			<FormsGrid
 				statusTextmapper={statusTextmapper}
@@ -750,6 +702,15 @@ const Files = () => {
 		),
 	};
 
+	const triggerCmdH = () => {
+		const event = new KeyboardEvent('keydown', {
+			key: 'h',
+			metaKey: true, // For macOS; use ctrlKey for Windows
+			bubbles: true,
+		});
+		document.dispatchEvent(event);
+	};
+
 	return (
 		<div className="files-container">
 			<div className="storage-main-container">
@@ -759,13 +720,25 @@ const Files = () => {
 						<div className="beta-text">File Flow Inspired by Your Mind</div> */}
 					</span>
 					<div className="storage-header-items">
+						<div>Shiva</div>
 						<QuickActions suggestedOptions={suggestedOptions} />
 					</div>
 				</div>
 				<div className="card-container-wrapper">
 					<div className="card-sub-container">
 						<div className="card-sub-container-left">
-							<div className="left-sidebar-header"></div>
+							<div className="left-sidebar-header">
+								{/* <div
+									className={`command-h-container`}
+									onClick={() => navigate('/')}
+								>
+									<div className="command-h-icon">Home</div>
+									<div className="command-h-text">
+										<CommandIcon className="command-icon" />
+										<span className="command-h-text-bold">H</span>
+									</div>
+								</div> */}
+							</div>
 						</div>
 						{info?.search ? <SearchResults /> : tabsMapper?.[info?.selectedView]}
 						<div className="card-sub-container-right">
@@ -778,9 +751,9 @@ const Files = () => {
 											}`}
 											onClick={() => handleDropdownOptionClick(option?.label)}
 										>
-											{info?.selectedView === option?.label && (
+											{/* {info?.selectedView === option?.label && (
 												<span className="sidebar-option-active-indicator"></span>
-											)}
+											)} */}
 											<div
 												style={{
 													display: 'flex',
@@ -818,7 +791,10 @@ const Files = () => {
 								<SearchSvg /> Search
 							</div>
 							<div className="command-text">
-								<CommandIcon /> <span>+ K</span>
+								<div className="cmd-icon">
+									<CommandIcon />
+								</div>
+								<span className="cmd-text">K</span>
 							</div>
 						</div>
 					</div>

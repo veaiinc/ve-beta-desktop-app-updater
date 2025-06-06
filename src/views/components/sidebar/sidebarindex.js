@@ -13,112 +13,25 @@ import { ReactComponent as IntegrationsIcon } from '../../../assets/svg/sidebar/
 import { ReactComponent as PlanBillingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
 import { ReactComponent as NotesIcon } from '../../../assets/svg/sidebar/notes-icon.svg';
 
-export const photographerModules = [
+export const veAiModulesItemsList = [
 	{
 		id: 0,
 		name: 'Home',
 		moduleRoute: '/home',
 		route: '/home',
-		icon: '',
+		icon: HomeSvg,
 	},
-	// {
-	// 	id: 3,
-	// 	name: 'Search',
-	// 	moduleRoute: '/search',
-	// 	route: '/search',
-	// 	icon: '',
-	// },
-	// {
-	// 	id: 2,
-	// 	name: 'Conversational Agent',
-	// 	moduleRoute: '/ai-assistant',
-	// 	route: '/ai-assistant',
-	// 	icon: '',
-	// },
-	{ id: 1, name: 'Files', route: '/files' },
+	{ id: 1, name: 'Agents', route: '/knowledge-agent', icon: AgentsSvg },
 	{
 		id: 2,
-		name: 'Notes',
-		moduleRoute: '/notes',
-		route: '/notes',
-		icon: '',
-	},
-	{
-		id: 3,
-		name: 'Agents',
-		moduleRoute: '/knowledge-agent',
-		route: '/knowledge-agent',
-		icon: '',
-	},
-	{
-		id: 4,
-		name: 'Design Builder',
-		moduleRoute: '/',
-		route: null,
-		icon: '',
-		subModules: [
-			{ id: 0, icon: '', name: 'Documents', route: '/docs' },
-			{ id: 1, icon: '', name: 'My Templates', route: '/my-templates' },
-			{ id: 2, icon: '', name: 'Forms', route: '/form' },
-		],
-	},
-	// { id: 4, name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
-	// { id: 5, name: 'Contacts', moduleRoute: '/contacts', route: '/contacts', icon: '' },
-	// {
-	// 	id: 6,
-	// 	name: 'Calendar',
-	// 	moduleRoute: '/calendar',
-	// 	route: '/calendar',
-	// 	icon: '',
-	// },
-	// {
-	// 	id: 7,
-	// 	name: 'Automations',
-	// 	moduleRoute: '/automations',
-	// 	route: '/automations',
-	// 	icon: '',
-	// },
-	// {
-	// 	id: 9,
-	// 	name: 'Storage',
-	// 	moduleRoute: '',
-	// 	route: '',
-	// 	icon: '',
-	// 	subModules: [
-	// 		{
-	// 			id: 0,
-	// 			name: 'Classic Gallery',
-	// 			moduleRoute: '/galleries',
-	// 			route: '/galleries',
-	// 			icon: '',
-	// 		},
-	// 		{
-	// 			id: 1,
-	// 			name: 'Lite Gallery',
-	// 			moduleRoute: '/lite-gallery',
-	// 			route: '/lite-gallery',
-	// 			icon: '',
-	// 		},
-	// 	],
-	// },
-];
-
-export const veAiModulesItemsList = [
-	{ id: 0, name: 'Home', route: '/home', icon: HomeSvg },
-	{ id: 1, name: 'Files', route: '/files', icon: FilesSvg },
-	// { id: 2, name: 'Search', route: '/search', icon: SearchIcon },
-	{ id: 2, name: 'Agents', route: '/knowledge-agent', icon: AgentsSvg },
-	{
-		id: 3,
 		name: 'Notes',
 		route: '/notes',
 		icon: NotesIcon,
 	},
+	{ id: 3, name: 'Files', route: '/files', icon: FilesSvg },
 ];
 
 export const veAiModules = [
-	// { icon: OrchestratorSvg, name: 'Chats', route: null },
-	// { icon: NotificationSvg, name: 'Trash', route: '/trash' },
 	{ id: 1, icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
 	{ id: 2, icon: NotificationSvg, name: 'Notifications', route: null },
 	{ id: 3, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
@@ -154,5 +67,6 @@ export const SETTINGS_OPTIONS = {
 		{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
 		{ name: 'Integration', route: '/settings/integrations', icon: IntegrationsIcon },
 		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
+
 	],
 };

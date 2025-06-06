@@ -101,7 +101,7 @@ const SlackActions = ({
 
 	const customSave = useCallback(
 		(inputBody) => {
-			const variableRegex = /^\{\{.*\}\}$/;
+			const variableRegex = /\{\{.*?\}\}/g;
 			const variables = {};
 
 			if (!info?.title?.trim()) {
@@ -112,10 +112,15 @@ const SlackActions = ({
 			}
 
 			for (const key in inputBody) {
-				if (variableRegex.test(inputBody[key])) {
-					variables[key] = [inputBody[key].slice(2, -2)];
+				const value = inputBody[key];
+				if (typeof value === 'string' && variableRegex.test(value)) {
+					const matches = value.match(variableRegex);
+					if (matches && matches.length > 0) {
+						variables[key] = matches.map((match) => match.slice(2, -2));
+					}
 				}
 			}
+
 			onSave({
 				title: info?.title?.trim(),
 				description: info?.description?.trim(),
@@ -382,16 +387,47 @@ const SendMessage = memo(
 	}) => {
 		const [info, setInfo] = useState({
 			message: '',
+			messageLines: [],
 		});
 
 		useEffect(() => {
 			if (inputBody) {
-				updateStateInfo({ message: inputBody?.message });
+				const lines = inputBody?.message?.split('\n') || [''];
+				updateStateInfo({
+					message: inputBody?.message,
+					messageLines: lines,
+				});
 			}
 		}, [inputBody]);
 
 		const updateStateInfo = (data) => {
 			setInfo((prev) => ({ ...prev, ...data }));
+		};
+
+		const handleAddLine = () => {
+			updateStateInfo({
+				messageLines: [...info.messageLines, ''],
+				message: info.messageLines.join('\n') + '\n',
+			});
+		};
+
+		const handleLineChange = (index, value) => {
+			const newLines = [...info.messageLines];
+			newLines[index] = value;
+			const newMessage = newLines.join('\n');
+			updateStateInfo({
+				messageLines: newLines,
+				message: newMessage,
+			});
+		};
+
+		const handleDeleteLine = (index) => {
+			const newLines = info.messageLines.filter((_, i) => i !== index);
+			const newMessage = newLines.join('\n');
+			updateStateInfo({
+				messageLines: newLines,
+				message: newMessage,
+			});
 		};
 
 		const handleSave = useCallback(() => {
@@ -411,6 +447,7 @@ const SendMessage = memo(
 				connectedTeamId: selectedTeam?.value,
 			});
 		}, [customSave, info, selectedChannel, selectedTeam]);
+
 		return (
 			<>
 				<h3 className="slackActionsContainerBodyItemHeader">Inputs</h3>
@@ -459,12 +496,31 @@ const SendMessage = memo(
 						/>
 					</div>
 					<div className="inputWrapper">
-						<span className="inputLabel">Message</span>
-						<VariableComponent
-							variables={variables?.data}
-							value={info?.message}
-							onChange={(value) => updateStateInfo({ message: value })}
-						/>
+						<div className="messageHeader">
+							<span className="inputLabel">Message</span>
+							<button className="addLineButton" onClick={handleAddLine}>
+								Add Line
+							</button>
+						</div>
+						<div className="messageLinesContainer">
+							{info.messageLines.map((line, index) => (
+								<div key={index} className="messageLineWrapper">
+									<VariableComponent
+										variables={variables?.data}
+										value={line}
+										onChange={(value) => handleLineChange(index, value)}
+									/>
+									{info.messageLines.length > 1 && (
+										<button
+											className="deleteLineButton"
+											onClick={() => handleDeleteLine(index)}
+										>
+											×
+										</button>
+									)}
+								</div>
+							))}
+						</div>
 					</div>
 				</div>
 				<button className="actionsSaveButton" disabled={loading} onClick={handleSave}>

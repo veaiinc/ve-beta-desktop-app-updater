@@ -519,6 +519,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}, []);
 
 	const customSendMessage = useCallback((query) => {
+		const location = localStorage?.getItem('locationDetails') || {};
+		const locationData = JSON?.parse(location);
 		sendMessage({
 			date: [],
 			deep_research: false,
@@ -527,6 +529,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			query,
 			timezone: 'Asia/Calcutta',
 			web_search: true,
+			location: locationData,
 		});
 	}, []);
 
@@ -555,6 +558,15 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		setInfo((prev) => ({ ...prev, coverImageError: true }));
 	};
 
+	const checkImage = (url) => {
+		return new Promise((resolve) => {
+			const img = new Image();
+			img.onload = () => resolve(true);
+			img.onerror = () => resolve(false);
+			img.src = url + '?cache_bust=' + Date?.now(); // avoid caching
+		});
+	};
+
 	async function uploadFile(file) {
 		const response = await uploadNotesImageBlock(
 			{
@@ -568,8 +580,20 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		);
 
 		if (response?.[0]) {
-			await new Promise((resolve) => setTimeout(resolve, 5000));
-			return response?.[1];
+			const url = response?.[1];
+			let attempt = 0;
+			const maxAttempts = 10;
+			let isValid = false;
+
+			while (attempt < maxAttempts) {
+				isValid = await checkImage(url);
+				if (isValid) {
+					break;
+				}
+				attempt++;
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+			}
+			return url;
 		}
 
 		return undefined;

@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
 	veAiModulesItemsList,
 	veAiModules,
-	photographerModules,
 	SETTINGS_OPTIONS,
 } from './sidebarindex';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
@@ -102,7 +101,7 @@ const OpenedSidebarModules = ({
 		if (name === 'Help') {
 			let iframe = document.getElementById('ve-ai-chat-iframe');
 			if (iframe) {
-				const requiredStyle = iframe.style.display === 'block' ? 'none' : 'block';
+				const requiredStyle = iframe.style.display === 'none' ? 'block' : 'none';
 				iframe.style.display = requiredStyle;
 			} else {
 				console.log('Iframe not found');
@@ -110,22 +109,10 @@ const OpenedSidebarModules = ({
 			return;
 		}
 
-		if (name === 'Notes') {
-			// setShowNotesDrawer((prev) => !prev);
-		} else {
-			setShowNotesDrawer(false);
-		}
-
 		if (name === 'Notifications') {
 			setShowNotificationsDrawer((prev) => !prev);
 		} else {
 			setShowNotificationsDrawer(false);
-		}
-		if (name === 'Chats') {
-			setShowChatsDrawer((prev) => !prev);
-			// setHideClosedSidebarIcon(true);
-		} else {
-			setShowChatsDrawer(false);
 		}
 
 		if (!subModules) {
@@ -444,11 +431,7 @@ const OpenedSidebar = ({
 	};
 	const allPossibleApps = Object.values(MODULE_NAME_MAP);
 
-	const tenantModules =
-		tennantSettingsData?.businessType === 'photography' ||
-		tennantSettingsData?.businessType === 'photographer'
-			? photographerModules
-			: veAiModulesItemsList;
+	const tenantModules = veAiModulesItemsList;
 
 	const filteredModules =
 		tenantUserAccessControls?.role === 'admin'
@@ -513,7 +496,7 @@ const OpenedSidebar = ({
 	const tooltipItems = [
 		{
 			key: 'theme',
-			label: (theme) => `Switch to ${theme === 'dark' ? 'white' : 'dark'} mode`,
+			label: (theme) => `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`,
 			icon: (theme) => (theme === 'dark' ? <SunIcon /> : <MoonIcon />),
 			onClick: (updateTheme, newThemeValue) => () => updateTheme(newThemeValue),
 		},
@@ -706,13 +689,7 @@ const OpenedSidebar = ({
 													))}
 
 													<div>
-														<hr
-															className={`${
-																isOpen
-																	? 'horizontal-line-sidebar'
-																	: ''
-															}`}
-														/>
+														<hr className={'horizontal-line-sidebar'} />
 													</div>
 													<ChatHistory />
 													<div

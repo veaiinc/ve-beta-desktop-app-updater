@@ -7,11 +7,12 @@ import { ReactComponent as CalendarSvg } from '../../../../assets/svg/home_page/
 import { ReactComponent as AgentsSvg } from '../../../../assets/svg/sidebar/agentsIcon.svg';
 import { ReactComponent as RocketSvg } from '../../../../assets/svg/home_page/rocket.svg';
 import { ReactComponent as BulbSvg } from '../../../../assets/svg/home_page/bulb.svg';
-import { ReactComponent as ThumbsUpSvg } from '../../../../assets/svg/thumbsUp.svg';
-import { ReactComponent as ThumbsDownSvg } from '../../../../assets/svg/thumbsDown.svg';
 import CreditCoinImage from '../../../../assets/images/creditCoin.png';
 import { ReactComponent as ArrowUpRightSvg } from '../../../../assets/svg/sidebar/arrowupright.svg';
-import { handleCombinedChainOfThought } from '../../../../helpers/chatHelpers';
+import {
+	handleCombinedChainOfThought,
+	updateCitationIdsWithCitations,
+} from '../../../../helpers/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
@@ -19,6 +20,7 @@ import { Collapse, Drawer, Tooltip } from 'antd';
 import Context from '../../../../context/context';
 import { useContext } from 'react';
 import { message } from '../../globalComponents/CustomToast';
+import { ReactComponent as StarSvg } from '../../../../assets/svg/home_page/star.svg';
 import CombinedChainOfThought from '../../chat/chatComponents/CombinedChainOfThought';
 import {
 	getFaviconUrl,
@@ -29,7 +31,8 @@ import {
 } from '../../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import PromptPopup from '../../homePage/PromptPopup';
-import ShareWidget from '../../globalComponents/ShareWidget';
+import ProactiveAIShare from '../../../features/homePage/proactiveai/ProactiveAIShare';
+import jwtDecode from 'jwt-decode';
 const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
@@ -40,6 +43,7 @@ const AISuggestionsModal = ({
 	onPrevCardClick,
 	totalDocs,
 	selectedCardNumber,
+	onFavouriteClick,
 }) => {
 	const {
 		templates: { updateStateValues, pendingActionsUpdate, getAISuggestedPendingActions },
@@ -54,23 +58,34 @@ const AISuggestionsModal = ({
 			hasChainOfThought: false,
 		},
 		feedbackPopupOpen: false,
-		sharePopupOpen: false,
 	});
 
 	const resizableContainerRef = useRef(null);
+	const widthRef = useRef(null);
+	const animationFrameId = useRef(null);
 	const mouseXPosition = useRef(null);
 	const navigate = useNavigate();
 	const bodyRef = useRef(null);
+
+	useEffect(() => {
+		const token = localStorage.getItem('usertoken');
+		const { user_id } = jwtDecode(token);
+		setInfo((prev) => ({ ...prev, currentUserId: user_id }));
+	}, []);
 
 	useEffect(() => {
 		if (!data) return;
 
 		const { chain_of_thought } = data;
 		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || []);
+		const accessType = (data?.permissions?.sharedWith || [])?.filter(
+			(eachItem) => eachItem?.userId === info?.currentUserId,
+		)?.[0]?.access;
 		setInfo((prev) => ({
 			...prev,
 			selectedFeedback: data?.rating,
 			chainOfThoughtData,
+			accessType,
 		}));
 		if (bodyRef?.current) {
 			bodyRef?.current?.scrollTo({
@@ -80,13 +95,21 @@ const AISuggestionsModal = ({
 		}
 	}, [data]);
 
-	const handleClickRun = useCallback((prompt) => {
-		if (typeof updateStateValues === 'function') {
-			updateStateValues({ activePromptForChat: prompt });
-		}
-		onClose?.();
-		navigate(`/chat/${ObjectID()?.toString()}`);
-	}, []);
+	const handlePromptClick = useCallback(
+		(prompt) => {
+			let chatPrompt = 'Proactive AI\n\n';
+			chatPrompt += `Title : ${data?.title}\n\n`;
+			chatPrompt += `Description : ${data?.description}\n\n`;
+			chatPrompt += `Prompt : ${prompt}`;
+
+			if (typeof updateStateValues === 'function') {
+				updateStateValues({ activePromptForChat: chatPrompt });
+			}
+			onClose?.();
+			navigate(`/chat/${ObjectID()?.toString()}`);
+		},
+		[data],
+	);
 
 	const handleViewReportClick = useCallback(
 		(data) => {
@@ -167,31 +190,42 @@ const AISuggestionsModal = ({
 	};
 
 	const handleMouseDown = (e) => {
-		mouseXPosition.current = e?.clientX;
-		document?.addEventListener('mousemove', handleMouseMove);
-		document?.addEventListener('mouseup', handleMouseUp);
+		if (!resizableContainerRef.current) return;
+
+		mouseXPosition.current = e.clientX;
+		widthRef.current = resizableContainerRef.current.offsetWidth;
+
+		document.addEventListener('mousemove', handleMouseMove);
+		document.addEventListener('mouseup', handleMouseUp);
 	};
 
 	const handleMouseMove = (e) => {
-		if (!resizableContainerRef?.current) return;
+		if (!resizableContainerRef.current || widthRef.current == null) return;
+		if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
 
-		const deltaX = mouseXPosition?.current - e?.clientX;
-		const currentWidth = resizableContainerRef?.current?.offsetWidth;
-		const newWidth = currentWidth + deltaX;
+		animationFrameId.current = requestAnimationFrame(() => {
+			const deltaX = mouseXPosition.current - e.clientX;
+			const newWidth = widthRef.current + deltaX;
 
-		const minWidth = 600;
-		const maxWidth = window?.innerWidth * 0.8 || 1000; // 80vw
+			const minWidth = 600;
+			const maxWidth = window.innerWidth * 0.8 || 1000;
+			const clampedWidth = Math.max(minWidth, Math.min(newWidth, maxWidth));
 
-		// Clamp the new width within min and max bounds
-		const clampedWidth = Math?.min(Math?.max(newWidth, minWidth), maxWidth);
+			resizableContainerRef.current.style.width = `${clampedWidth}px`;
+			resizableContainerRef.current.style.userSelect = 'none';
 
-		resizableContainerRef.current.style.width = `${clampedWidth}px`;
-		mouseXPosition.current = e?.clientX;
+			widthRef.current = clampedWidth;
+			mouseXPosition.current = e.clientX;
+		});
 	};
 
 	const handleMouseUp = () => {
-		document?.removeEventListener('mousemove', handleMouseMove);
-		document?.removeEventListener('mouseup', handleMouseUp);
+		if (animationFrameId.current) {
+			cancelAnimationFrame(animationFrameId.current);
+			animationFrameId.current = null;
+		}
+		document.removeEventListener('mousemove', handleMouseMove);
+		document.removeEventListener('mouseup', handleMouseUp);
 	};
 
 	const handleTabClick = (tab) => {
@@ -219,20 +253,6 @@ const AISuggestionsModal = ({
 		}
 	}, [data?._id, getAISuggestedPendingActions, onClose, pendingActionsUpdate]);
 
-	const handleShareClick = () => {
-		setInfo((prev) => ({
-			...prev,
-			sharePopupOpen: true,
-		}));
-	};
-
-	const handleCloseSharePopup = () => {
-		setInfo((prev) => ({
-			...prev,
-			sharePopupOpen: false,
-		}));
-	};
-
 	const handleOpenFeedbackPopup = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -251,11 +271,10 @@ const AISuggestionsModal = ({
 		suggested_prompts,
 		usages,
 		informationRequests,
-		web_sources,
-		knowledge_base_sources,
-		category,
+		categories,
 		crux,
 		createdAt,
+		thinker_sources,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -264,9 +283,6 @@ const AISuggestionsModal = ({
 		month: 'short',
 		day: 'numeric',
 	});
-	const reportCitations = useMemo(() => {
-		return [...(web_sources || []), ...(knowledge_base_sources || [])];
-	}, [web_sources, knowledge_base_sources]);
 
 	if (!data) return null;
 
@@ -275,9 +291,13 @@ const AISuggestionsModal = ({
 			open={open}
 			onClose={onClose}
 			placement="right"
+			width={'auto'}
+			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			bodyStyle={{ padding: '0px', width: 'auto' }}
 			rootClassName="ai-suggestions-drawer"
+			destroyOnClose={true}
+			maskClassName="drawer-mask"
 		>
 			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
 				<div className="drag-handler" onMouseDown={handleMouseDown} />
@@ -300,20 +320,22 @@ const AISuggestionsModal = ({
 							</div>
 
 							<div className="right-container">
+								<div
+									className={`starLogoContainer ${
+										data?.isFavourite === true ? 'active' : ''
+									}`}
+									onClick={(e) => {
+										onFavouriteClick(data?._id);
+									}}
+								>
+									<StarSvg />
+								</div>
 								<div className="btn teach-me-btn" onClick={handleOpenFeedbackPopup}>
 									<AgentsSvg style={{ color: 'var(--primary-button)' }} /> Teach
 									me
 								</div>
-								{/* <Tooltip
-									title={<div className="tooltipOption">Share</div>}
-									placement="bottom"
-									color="transparent"
-									arrow={false}
-								>
-									<div className="btn share-btn" onClick={handleShareClick}>
-										<ShareSvg />
-									</div>
-								</Tooltip> */}
+
+								{/* <ProactiveAIShare proactiveAiId={data?._id} /> */}
 
 								{/* <div className="btn download-btn">
 									<DownloadSvg />
@@ -333,11 +355,10 @@ const AISuggestionsModal = ({
 					</div>
 
 					<div className="body" ref={bodyRef}>
-						{/* <div className="header-title-text">{title || ''}</div> */}
+						<div className="header-title-text">{title || ''}</div>
 
 						<div className="body-header-wrapper">
 							<div className="body-header">
-								{/* <div className="title-text">{title || ''}</div> */}
 								<div className="description">{description || ''}</div>
 							</div>
 
@@ -463,8 +484,8 @@ const AISuggestionsModal = ({
 											</div>
 										</Tooltip>
 									)}
-									{category?.length > 0 &&
-										category?.map((category, idx) => (
+									{categories?.length > 0 &&
+										categories?.map((category, idx) => (
 											<div key={idx} className="category">
 												{category}
 											</div>
@@ -516,17 +537,22 @@ const AISuggestionsModal = ({
 										}
 										key="1"
 									>
-										<div className="ai-results-wrapper">
+										<div
+											className="ai-results-wrapper"
+											onClick={(e) => e?.stopPropagation()}
+										>
 											<div className="results-container">
 												{Array?.isArray(solutions)
 													? solutions?.map((item, index) => (
 															<div
-																className="result-item"
+																className="solution-item"
 																key={index}
-																onClick={() => handleClickRun(item)}
 															>
-																<div className="result-text">
-																	{item}
+																<div className="solution-text">
+																	{updateCitationIdsWithCitations(
+																		item,
+																		thinker_sources || [],
+																	)}
 																</div>
 																<div className="logo-container">
 																	<BulbSvg />
@@ -543,10 +569,15 @@ const AISuggestionsModal = ({
 															<div
 																className="result-item"
 																key={index}
-																onClick={() => handleClickRun(item)}
+																onClick={() =>
+																	handlePromptClick(item)
+																}
 															>
 																<div className="result-text">
-																	{item}
+																	{updateCitationIdsWithCitations(
+																		item,
+																		thinker_sources || [],
+																	)}
 																</div>
 
 																<div className="logo-container">
@@ -576,14 +607,20 @@ const AISuggestionsModal = ({
 																			className="prompt-item"
 																			key={index}
 																			onClick={() =>
-																				handleClickRun(item)
+																				handlePromptClick(
+																					item,
+																				)
 																			}
 																		>
 																			<div className="logo">
 																				<ArrowRightSvg />
 																			</div>
 																			<div className="item-text">
-																				{item}
+																				{updateCitationIdsWithCitations(
+																					item,
+																					thinker_sources ||
+																						[],
+																				)}
 																			</div>
 																		</div>
 																	),
@@ -618,7 +655,7 @@ const AISuggestionsModal = ({
 									</div>
 								)}
 
-								{reportCitations?.length > 0 && (
+								{thinker_sources?.length > 0 && (
 									<div
 										className={`tab-btn ${
 											info?.activeTab === 'sources' ? 'active' : ''
@@ -678,7 +715,7 @@ const AISuggestionsModal = ({
 													className="report-description"
 													onClick={(e) => e.stopPropagation()}
 												>
-													<Markdown citations={reportCitations}>
+													<Markdown citations={thinker_sources || []}>
 														{research_report || ''}
 													</Markdown>
 												</div>
@@ -788,7 +825,10 @@ const AISuggestionsModal = ({
 							<div className="cot">
 								<div className="chain-of-thought-container">
 									<div className="chain-of-thought-content">
-										<CombinedChainOfThought data={info?.chainOfThoughtData} />
+										<CombinedChainOfThought
+											data={info?.chainOfThoughtData}
+											citations={thinker_sources || []}
+										/>
 									</div>
 								</div>
 							</div>
@@ -796,10 +836,9 @@ const AISuggestionsModal = ({
 
 						{info?.activeTab === 'sources' && (
 							<div className="source-content">
-								{(reportCitations || [])?.map((citation, idx) => (
-									<>
+								{(thinker_sources || [])?.map((citation, idx) => (
+									<div key={citation?.id || idx}>
 										<div
-											key={citation?.id || idx}
 											className="citation-item"
 											onClick={() =>
 												redirectTo?.(
@@ -862,7 +901,7 @@ const AISuggestionsModal = ({
 											</div>
 										</div>
 										<div className="citation-divider" />
-									</>
+									</div>
 								))}
 							</div>
 						)}
@@ -900,8 +939,6 @@ const AISuggestionsModal = ({
 					</div>
 				</div>
 			</div>
-
-			<ShareWidget isOpen={info?.sharePopupOpen} onClose={handleCloseSharePopup} />
 
 			<PromptPopup
 				messageId={data?._id}

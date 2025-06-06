@@ -97,6 +97,7 @@
 				}
 				.infinite-scroll-component__outerdiv {
 					width: 100%;
+					margin: 4px 0;
 					.taskWidgetOptionsContainer {
 						display: flex;
 						flex-direction: column;
@@ -134,8 +135,12 @@
 							align-self: stretch;
 							border-radius: 8px;
 							background: var(--popup, #202123);
+							border: 1px solid transparent;
+							transition: all 0.2s ease-in-out;
+							cursor: pointer;
+
 							&:hover {
-								background: var(--card-over-card-hover);
+								border: 1px solid var(--stroke-hover);
 							}
 							.taskWidgetSelectOption {
 								width: 14px;
@@ -217,15 +222,6 @@
 			display: flex;
 			align-items: center;
 			gap: 8px;
-			&::before {
-				content: '';
-				display: inline-block;
-				width: 18px;
-				height: 18px;
-				background-image: url('../../../assets/svg/calendar/arrowview.svg');
-				background-repeat: no-repeat;
-				background-position: center;
-			}
 		}
 
 		.taskWidgetFooterAdd {

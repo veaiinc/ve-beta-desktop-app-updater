@@ -4,6 +4,7 @@ import SessionCards from '../../components/scheduler/SessionCard';
 import SchedulerAvailability from '../../components/scheduler/SchedulerAvailability';
 import CreateSessionModal from '../../components/modalsV2/calendar/CreateSessionModal';
 import UpdateSessionSlot from '../../components/modalsV2/calendar/UpdateSessionSlot';
+import SchedulerRightDrawer from '../../components/calendar/SchedulerRightDrawer';
 import Context from '../../../context/context';
 
 const SchedulerMainPage = () => {
@@ -18,6 +19,8 @@ const SchedulerMainPage = () => {
 		schedulerList: null,
 		createdSession: null,
 		selectedSlotData: null,
+		rightDrawerOpen: false,
+		rightDrawerSession: null,
 	});
 
 	useEffect(() => {
@@ -55,6 +58,8 @@ const SchedulerMainPage = () => {
 				schedulerList: null,
 				createdSession: null,
 				selectedSlotData: null,
+				rightDrawerOpen: false,
+				rightDrawerSession: null,
 			});
 		};
 	}, []);
@@ -75,6 +80,7 @@ const SchedulerMainPage = () => {
 	}, []);
 
 	const handleUpdateSession = useCallback((updatedSession) => {
+		console.log('updatedSession', updatedSession);
 		setInfo((prev) => ({
 			...prev,
 			schedulerList: prev.schedulerList.map((session) =>
@@ -84,6 +90,40 @@ const SchedulerMainPage = () => {
 			selectedSlotData: null,
 		}));
 	}, []);
+
+	// --- NEW: Handle right drawer open/close and session selection ---
+	const openRightDrawer = (sessionId) => {
+		const session = info.schedulerList?.find((s) => s._id === sessionId);
+		if (session) {
+			setInfo((prev) => ({
+				...prev,
+				rightDrawerOpen: true,
+				rightDrawerSession: session,
+			}));
+		}
+	};
+	const closeRightDrawer = () => {
+		setInfo((prev) => ({ ...prev, rightDrawerOpen: false, rightDrawerSession: null }));
+	};
+
+	// --- Handle update and delete callbacks from drawer ---
+	const handleSessionUpdated = (updatedSession) => {
+		setInfo((prev) => ({
+			...prev,
+			schedulerList: prev.schedulerList.map((s) =>
+				s._id === updatedSession._id ? updatedSession : s,
+			),
+			rightDrawerSession: updatedSession,
+		}));
+	};
+	const handleSessionDeleted = (deletedSessionId) => {
+		setInfo((prev) => ({
+			...prev,
+			schedulerList: prev.schedulerList.filter((s) => s._id !== deletedSessionId),
+			rightDrawerOpen: false,
+			rightDrawerSession: null,
+		}));
+	};
 
 	return (
 		<>
@@ -113,7 +153,7 @@ const SchedulerMainPage = () => {
 								<SessionCards
 									key={item._id}
 									item={item}
-									onEditClick={() => toggleUpdateSlotModal(item)}
+									onEditClick={() => openRightDrawer(item._id)}
 								/>
 							))
 						)}
@@ -137,11 +177,24 @@ const SchedulerMainPage = () => {
 				selectedSlotData={info?.selectedSlotData}
 				updateCalendarInfo={handleUpdateSession}
 			/>
+
+			{/* --- Right Drawer for editing session --- */}
+			{info.rightDrawerOpen && (
+				<SchedulerRightDrawer
+					open={info.rightDrawerOpen}
+					onClose={closeRightDrawer}
+					mode="edit"
+					sessionId={info.rightDrawerSession?._id}
+					sessionData={info.rightDrawerSession}
+					onSessionUpdated={handleSessionUpdated}
+					onSessionDeleted={handleSessionDeleted}
+				/>
+			)}
 		</>
 	);
 };
 
-export default memo(SchedulerMainPage);
+export default SchedulerMainPage;
 
 export const SessionCardSkeleton = () => {
 	return (

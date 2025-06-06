@@ -38,14 +38,39 @@
 			display: flex;
 			gap: 18px;
 			flex-direction: column;
+
 			height: calc(100vh - 100px);
 
 			.center-container-header {
 				height: 41px;
 				flex-shrink: 0;
 				display: flex;
+				align-items: center;
 				gap: 12px;
 				padding: 0 10px;
+				.filter-container-search {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					background-color: var(--popup);
+					border-radius: 100px;
+					padding: 0 10px;
+					height: 100%;
+					border: 1px solid var(--stroke);
+
+					.search-input {
+						width: 100%;
+						height: 100%;
+						outline: none;
+						border: none;
+						background: none;
+						color: var(--primary-font);
+						font-size: 14px;
+						font-weight: 400;
+						appearance: none;
+					}
+
+				}
 			}
 			.center-container-content {
 				flex-grow: 1;
@@ -139,10 +164,12 @@
 	align-items: center;
 	gap: 6px;
 	cursor: pointer;
+	width: 200px;
+	height: 160px;
 
 	.card-item-style {
 		position: relative;
-		background-color: var(--card, #171819);
+		// background-color: var(--card, #171819);
 		background-size: 'fit';
 		background-position: center;
 		background-repeat: no-repeat;
@@ -448,14 +475,13 @@
 	// }
 	.card-item-style-btn {
 		display: flex;
-		width: 200px;
-		height: 160px;
+		width: 100%;
+		height: 100%;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
 		gap: 10px;
-		background-color: var(--card, #171819);
-		border: 1px solid var(--stroke);
+		// background-color: var(--card, #171819);
 		.card-btn {
 			display: flex;
 			justify-content: space-around;

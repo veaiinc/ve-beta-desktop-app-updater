@@ -39,22 +39,22 @@ const buildAiOptions = [
 	},
 	{
 		id: 2,
-		title: 'Task',
-		value: 'task',
+		title: 'Invoice',
+		value: 'invoice',
 		action: ({ updateStateValues, navigate }) => {
 			const sessionId = ObjectID()?.toString();
-			updateStateValues({ activeInputForChat: 'Create a task for' });
+			updateStateValues({ activeInputForChat: 'Create an invoice for' });
 			navigate(`/chat/${sessionId}`);
 		},
 	},
 	{
 		id: 3,
-		title: 'Event',
-		value: 'event',
-		controlValue: 'event',
+		title: 'Contract',
+		value: 'contract',
+		controlValue: 'contract',
 		action: ({ updateStateValues, navigate }) => {
 			const sessionId = ObjectID()?.toString();
-			updateStateValues({ activeInputForChat: 'Create a meeting for' });
+			updateStateValues({ activeInputForChat: 'Create a contract for' });
 			navigate(`/chat/${sessionId}`);
 		},
 	},

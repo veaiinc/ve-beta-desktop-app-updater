@@ -5,8 +5,6 @@ import VerificationCode from '../../components/login_page/VerificationCode';
 import CookiesImg from '../../../assets/images/login_page/cookies.png';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
-import { ReactComponent as DarkModeGradient } from '../../../assets/svg/onboarding/dark-mode-gradient.svg';
-import { ReactComponent as LightModeGradient } from '../../../assets/svg/onboarding/light-mode-gradient.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 
 const LoginPage = () => {
@@ -19,6 +17,7 @@ const LoginPage = () => {
 		cookiesAccepted: false,
 		isDarkMode: false,
 		lastOtpEmail: '',
+		showCookiesNotice: true,
 	});
 
 	useEffect(() => {
@@ -33,13 +32,36 @@ const LoginPage = () => {
 	}, []);
 
 	useEffect(() => {
+		const usertoken = localStorage.getItem('usertoken');
+		const region = localStorage.getItem('region');
+		const workspaceId = localStorage.getItem('workspaceId');
+		const isLoggedIn = localStorage.getItem('usertoken');
+		if (usertoken && region && workspaceId) {
+			if (isLoggedIn) return navigate('/home');
+			else return navigate('/');
+		}
+	}, []);
+
+	useEffect(() => {
 		const cookiesAccepted = Cookies?.get('cookiesAccepted');
-		if (cookiesAccepted === 'true') setInfo({ ...info, cookiesAccepted: true });
-		else setInfo({ ...info, cookiesAccepted: false });
-	}, [info?.cookiesAccepted]);
+		if (cookiesAccepted === 'true') {
+			setInfo((prev) => ({ ...prev, cookiesAccepted: true, showCookiesNotice: false }));
+		} else {
+			setInfo((prev) => ({ ...prev, cookiesAccepted: false, showCookiesNotice: true }));
+		}
+	}, []);
+
+	const handleDeclineCookies = () => {
+		setInfo((prev) => ({ ...prev, cookiesAccepted: false, showCookiesNotice: false }));
+		Cookies?.set('cookiesAccepted', 'false');
+		// // Remove the cookie after a short delay to ensure it's not persisted
+		// setTimeout(() => {
+		// 	Cookies?.remove('cookiesAccepted');
+		// }, 100);
+	};
 
 	const handleAcceptCookies = () => {
-		setInfo({ ...info, cookiesAccepted: true });
+		setInfo((prev) => ({ ...prev, cookiesAccepted: true, showCookiesNotice: false }));
 		Cookies?.set('cookiesAccepted', 'true');
 	};
 
@@ -123,44 +145,68 @@ const LoginPage = () => {
 					<VeLogo />
 				</div>
 			</div>
-			<div className="gradient-container">
+			{/* <div className="gradient-container">
 				{info?.isDarkMode ? <DarkModeGradient /> : <LightModeGradient />}
-			</div>
-			{!info?.cookiesAccepted && (
-				<div className="cookies-notice">
-					<div className="cookie-container">
-						<span className="cookie-icon">
-							<img src={CookiesImg} />
-						</span>
-						<p>
-							This site uses cookies to provide you with a personalized experience.
-							Check our{' '}
-							<b onClick={() => navigate('/cookie-policy')}>
-								<u>cookie policy</u>
-							</b>{' '}
-							for more details.
-						</p>
-					</div>
-					<button className="accept-button" onClick={handleAcceptCookies}>
-						Accept
-					</button>
-				</div>
-			)}
+			</div> */}
 			<div className="left-container">
 				<div className="stages-container">
 					{/* <div className="logo-container">
 						<VeAiLogo />
-					</div> */}
+						</div> */}
 					{stages?.[info?.activeStage]}
 				</div>
 			</div>
-			<footer className="login-footer-container">
+			<div className="disclaimer-container">
+				<div className="disclaimer">
+					<span className="disclaimer-text">By continuing, you accept our</span>
+					<div className="disclaimer-links">
+						<b onClick={() => navigate('/terms-of-service')} className="link">
+							Terms of Service
+						</b>
+						<span>,</span>
+						<b onClick={() => navigate('/privacy-policy')} className="link">
+							Privacy Policy
+						</b>{' '}
+						<span className="disclaimer-text">and</span>
+						<b onClick={() => navigate('/cookie-policy')} className="link">
+							Cookie Policy
+						</b>
+						.
+					</div>
+				</div>
+				{!info?.cookiesAccepted && info?.showCookiesNotice && (
+					<div className="cookies-notice">
+						<div className="cookie-container">
+							<span className="cookie-icon">
+								<img src={CookiesImg} />
+							</span>
+							<p>
+								This site uses cookies to provide you with a personalized
+								experience. Check our{' '}
+								<b onClick={() => navigate('/cookie-policy')}>
+									<u>cookie policy</u>
+								</b>{' '}
+								for more details.
+							</p>
+						</div>
+						<div className="buttons-container">
+							<div className="decline-button" onClick={handleDeclineCookies}>
+								Decline all
+							</div>
+							<div className="accept-button" onClick={handleAcceptCookies}>
+								Accept
+							</div>
+						</div>
+					</div>
+				)}
+			</div>
+			{/* <footer className="login-footer-container">
 				{footerLinks?.map((link) => (
 					<a className="footer-link" key={link?.id} onClick={link?.handleClick}>
 						{link?.label}
 					</a>
 				))}
-			</footer>
+			</footer> */}
 		</div>
 	);
 };

@@ -92,6 +92,8 @@
 				width: fit-content;
 				background-color: transparent;
 				cursor: pointer;
+				background: none;
+				outline: none;
 			}
 		}
 	}
@@ -595,4 +597,17 @@
 			width: 100%;
 		}
 	}
+}
+
+.bn-add-file-button {
+	background: none !important;
+	border: 1px solid var(--stroke) !important;
+
+	&:hover {
+		background-color: var(--card-over-card-hover) !important;
+	}
+}
+
+.mantine-LoadingOverlay-overlay {
+	--overlay-bg: var(--backdrop) !important;
 }

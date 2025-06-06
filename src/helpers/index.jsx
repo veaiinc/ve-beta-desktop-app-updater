@@ -7,7 +7,7 @@ import { ReactComponent as JpgSvg } from '../assets/svg/ai_agents/jpg.svg';
 import { ReactComponent as PngSvg } from '../assets/svg/ai_agents/png.svg';
 import { ReactComponent as MdSvg } from '../assets/svg/ai_agents/md.svg';
 import { ReactComponent as ExcelSvg } from '../assets/svg/ai_agents/excel.svg';
-import { ReactComponent as GmailSvg } from '../assets/svg/login_page/gmail.svg';
+import GmailSvg from '../assets/svg/login_page/GmailIcon';
 import { ReactComponent as SlackSvg } from '../assets/svg/slack.svg';
 import { ReactComponent as NotionSvg } from '../assets/svg/notion.svg';
 import { ReactComponent as VeLogoSvg } from '../assets/svg/veLogo.svg';
@@ -218,7 +218,7 @@ export const isURL = (url) => {
 };
 
 let urlMapper = {
-	localhost: 'http://localhost:3000',
+	localhost: 'http://localhost:5173',
 	've.ai': 'https://builder.ve.ai',
 	've.co': 'https://builder.ve.co',
 	'www.ve.ai': 'https://builder.ve.ai',
@@ -361,10 +361,12 @@ export const redirectTo = (type, id) => {
 		gmail: `https://mail.google.com/mail/u/0/#inbox/${id}`,
 		notion: id,
 		url: id,
-		workflowId: `https://builder.ve.ai/workflow/${id}`,
+		workflowId: `${origin}/workflow/${id}`,
 		slack: `https://app.slack.com/client/${id}`,
 		s3_key: id,
 		drive: `https://drive.google.com/file/d/${id}/view`,
+		notes: `https://ve.ai/note/${id}`,
+		proactiveai: `https://ve.ai/proactiveai/${id}`,
 	};
 
 	const url = urls?.[type];
@@ -381,4 +383,8 @@ export const redirectTypeMapper = {
 	slack: 'channel_id',
 	s3_key: 's3_key',
 	drive: 'drive_id',
+	notes: 'note_id',
+	proactiveai: 'proactiveai_id',
 };
+
+const origin = fetchOriginSelection();

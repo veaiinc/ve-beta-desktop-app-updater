@@ -197,7 +197,7 @@
 							border: 1px solid #7871c030;
 							box-shadow: 2px 2px 8px 0px rgba(74, 40, 210, 0.06),
 								4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
-							backdrop-filter: blur(8px);
+							background-color: var(--backdrop);
 						}
 					}
 
@@ -963,12 +963,24 @@
 	}
 }
 
-.ant-switch {
-	background-color: var(--stroke);
-}
-.ant-switch-checked {
-	background-color: var(--primary-button);
-}
-.ant-switch.ant-switch-checked .ant-switch-handle::before {
-	background-color: var(--primary-font);
+.notification-switch {
+	&.ant-switch {
+		background-color: var(--stroke);
+	}
+
+	&.ant-switch:hover {
+		background-color: var(--stroke);
+	}
+
+	&.ant-switch-checked {
+		background-color: var(--primary-button);
+	}
+
+	&.ant-switch.ant-switch-checked .ant-switch-handle::before {
+		background-color: var(--background-color);
+		opacity: 0.9;
+	}
+	&.ant-switch.ant-switch-checked:hover {
+		background-color: var(--primary-button);
+	}
 }

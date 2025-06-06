@@ -65,6 +65,8 @@ import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
 import EditScheduler from './views/features/calendar/EditScheduler';
 import Contacts from './views/features/contacts/Contacts';
 import NotesPage from './views/features/notesPage/NotesPage';
+import PricingPage from './views/features/pricingPlans/pricingPage';
+import ProactiveAi from './views/features/proactiveAi/ProactiveAi';
 const routes = [
 	{
 		path: '/',
@@ -153,15 +155,6 @@ const routes = [
 		),
 		exact: true,
 	},
-	// {
-	// 	path: '/sales',
-	// 	component: (
-	// 		<AuthWrapper title={'Sales'}>
-	// 			<Sales />
-	// 		</AuthWrapper>
-	// 	),
-	// 	exact: true,
-	// },
 
 	{
 		path: '/playbook',
@@ -257,7 +250,7 @@ const routes = [
 	{
 		path: '/galleries/:galleryId',
 		component: (
-			<AuthWrapper title={'Gallery'} maxWidth={'1200px'} showBottomToolbar={false}>
+			<AuthWrapper title={'Gallery'} showBottomToolbar={false}>
 				<GalleryPage />
 			</AuthWrapper>
 		),
@@ -365,19 +358,14 @@ const routes = [
 		),
 		exact: true,
 	},
-	// {
-	// 	path: '/notes',
-	// 	component: (
-	// 		<AuthWrapper
-	// 			title={'Notes'}
-	// 			outerContainerStyle={{ padding: '0 0 0 32px', backgroundColor: '#1e1e1e' }}
-	// 			maxWidth={'100%'}
-	// 		>
-	// 			<Notes />
-	// 		</AuthWrapper>
-	// 	),
-	// 	exact: true,
-	// },
+	{
+		path: '/pricing',
+		component: (
+			<AuthWrapper title={'Pricing'}>
+				<PricingPage />
+			</AuthWrapper>
+		),
+	},
 	{
 		path: '/notes',
 		component: (
@@ -643,8 +631,16 @@ const routes = [
 	{
 		path: '/files',
 		component: (
-			<AuthWrapper title="Files">
+			<AuthWrapper title="Files" maxWidth={'100%'}>
 				<Files />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/proactiveai/:proactiveAiId',
+		component: (
+			<AuthWrapper title="Proactive AI" childrenContainerStyles={{ maxWidth: '100%' }}>
+				<ProactiveAi />
 			</AuthWrapper>
 		),
 	},

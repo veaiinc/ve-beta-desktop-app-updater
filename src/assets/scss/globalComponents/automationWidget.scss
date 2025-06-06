@@ -72,8 +72,10 @@
 					align-self: stretch;
 					border-radius: 8px;
 					background: var(--popup, #202123);
+					transition: all 0.2s ease-in-out;
+					border: 1px solid transparent;
 					&:hover {
-						background: var(--card-over-card-hover);
+						border: 1px solid var(--stroke-hover);
 					}
 
 					.automationWidgetOptionDetailsTitle {

@@ -9,29 +9,36 @@ import { ReactComponent as LinkLightSvg } from '../../../assets/svg/notes/loop-l
 import { ReactComponent as LinkDarkSvg } from '../../../assets/svg/notes/loop-dark.svg';
 import { useParams, useSearchParams } from 'react-router-dom';
 import AIMessage from './AIMessage';
+const builderAgentMapper = {
+	formBuilderAgent: {
+		label: 'Form',
+	},
+	invoiceBuilderAgent: {
+		label: 'Invoice',
+	},
+	contractBuilderAgent: {
+		label: 'Contract',
+	},
+};
 const FormModel = ({
 	workflowTemplateId,
 	moduleTemplateId,
-	ByDefaultExpanded = false,
 	handleSendWebsocketMessage,
 	latestStreamMesage,
 	lastQuery,
 	toggleLatestStreamMessage,
 	handleViewDocument,
-	showViewDocument,
+	showViewDocument = false,
 	messageData,
 	isLastMessage = false,
+	agent = null,
 }) => {
-	const {
-		templates: { globalChatMessages },
-	} = useContext(Context);
-
 	const [isExpanded, setIsExpanded] = useState(false);
 	const formRef = useRef(null);
 	const origin = fetchOriginSelection();
 
 	useEffect(() => {
-		if (showViewDocument) return;
+		if (showViewDocument || isExpanded) return;
 		setTimeout(() => {
 			let isExpanded =
 				messageData?.stream_end && isLastMessage && !messageData?.isOldMessage
@@ -65,7 +72,9 @@ const FormModel = ({
 				}}
 			>
 				<div className="form-model-header">
-					<span className="form-model-header-title">VE.AI Form</span>
+					<span className="form-model-header-title">
+						VE.AI {builderAgentMapper[agent]?.label || 'Form'}
+					</span>
 					<ExpandIcon
 						className={`expand-icon ${isExpanded ? 'expanded' : ''}`}
 						onClick={handleExpand}
@@ -119,12 +128,7 @@ const Section1 = ({
 	toggleLatestStreamMessage,
 }) => {
 	const {
-		templates: {
-			globalChatMessages,
-			globalLoadingMesssage,
-			updateStateValues,
-			updateAiChatMessageRating,
-		},
+		templates: { globalChatMessages, updateStateValues, updateAiChatMessageRating },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		lastQuery: '',
@@ -132,9 +136,22 @@ const Section1 = ({
 	});
 	const chatContentRef = useRef(null);
 	const chatMessagesRef = useRef(globalChatMessages || []);
+	const scrollToBottomRef = useRef(true);
 
 	useEffect(() => {
-		smoothScrollToBottom();
+		const lastMessage = globalChatMessages[globalChatMessages?.length - 1];
+		if (scrollToBottomRef.current && lastMessage?.contentType === 'loading') {
+			smoothScrollToBottom();
+			scrollToBottomRef.current = false;
+		} else {
+			if (
+				!scrollToBottomRef.current &&
+				lastMessage?.type?.toLowerCase() === 'ai' &&
+				lastMessage?.stream_end
+			) {
+				scrollToBottomRef.current = true;
+			}
+		}
 	}, [globalChatMessages]);
 
 	const smoothScrollToBottom = useCallback(
@@ -235,6 +252,7 @@ const Section1 = ({
 					latestStreamMesage={latestStreamMesage}
 					lastQuery={lastQuery}
 					toggleLatestStreamMessage={toggleLatestStreamMessage}
+					autoFocus={true}
 				/>
 			</div>
 		</div>
@@ -249,7 +267,6 @@ const Section2 = ({ workflowTemplateId: workflowTemplateIdFromProps }) => {
 	const [showIframe, setShowIframe] = useState(false);
 	workflowTemplateIdFromProps = workflowTemplateId || workflowTemplateIdFromProps;
 	const origin = fetchOriginSelection();
-	console.log(origin, workflowTemplateIdFromProps, 'origin');
 	useEffect(() => {
 		// Delay iframe loading to wait for expansion animation
 		const timer = setTimeout(() => {

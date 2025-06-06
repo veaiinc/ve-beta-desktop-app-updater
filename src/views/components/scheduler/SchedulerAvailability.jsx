@@ -1,10 +1,23 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo, useEffect } from 'react';
 import moment from 'moment';
 import '../../../assets/scss/scheduler/schedulerAvailability.scss';
 import { ReactComponent as Right } from '../../../assets/svg/activity/right.svg';
 import { ReactComponent as Left } from '../../../assets/svg/activity/left.svg';
 
 const WeeklySlot = ({ day, date, slots, toggleUpdateSlotModal }) => {
+	// Convert short day name to full day name
+	const getFullDayName = (shortDay) => {
+		const dayMap = {
+			Mon: 'Monday',
+			Tue: 'Tuesday',
+			Wed: 'Wednesday',
+			Thu: 'Thursday',
+			Fri: 'Friday',
+			Sat: 'Saturday',
+			Sun: 'Sunday',
+		};
+		return dayMap[shortDay] || shortDay;
+	};
 	return (
 		<div className="daySlotContainer">
 			<div className="dayHeader">
@@ -21,8 +34,9 @@ const WeeklySlot = ({ day, date, slots, toggleUpdateSlotModal }) => {
 								event.stopPropagation();
 								toggleUpdateSlotModal({
 									selectedDate: date,
-									selectedDay: day,
+									selectedDay: getFullDayName(day),
 									selectedSlot: slot,
+									_id: slot._id,
 								});
 							}}
 						>
@@ -40,7 +54,17 @@ const WeeklySlot = ({ day, date, slots, toggleUpdateSlotModal }) => {
 						</div>
 					</div>
 				))}
-				<div className="emptySlotItem newSlot">
+				<div
+					className="emptySlotItem newSlot"
+					onClick={() =>
+						toggleUpdateSlotModal({
+							selectedDate: date,
+							selectedDay: getFullDayName(day),
+							isNewSlot: true,
+							_id: slots[0]?._id,
+						})
+					}
+				>
 					<div className="emptySlotContent">
 						<div className="plusIcon">+</div>
 						<div className="newSessionText">New Slot</div>
@@ -55,6 +79,12 @@ const SchedulerAvailability = ({ updateSlotModal, toggleUpdateSlotModal, schedul
 	const [info, setInfo] = useState({
 		currentDate: moment(),
 	});
+
+	// Add effect to handle schedulerList updates
+	useEffect(() => {
+		// Force re-render when schedulerList changes
+		setInfo((prev) => ({ ...prev }));
+	}, [schedulerList]);
 
 	const getWeekDuration = useMemo(() => {
 		const startOfWeek = moment(info?.currentDate).startOf('isoWeek');
@@ -98,36 +128,46 @@ const SchedulerAvailability = ({ updateSlotModal, toggleUpdateSlotModal, schedul
 							customException.customTimeRanges
 						) {
 							customException.customTimeRanges?.forEach((range) => {
-								slots?.push({
+								slots.push({
 									sessionName: session.sessionName,
 									startTime: range.startTime,
 									endTime: range.endTime,
-									sessionColor: session.sessionColor,
+									sessionColor: session.sessionColor || '#6366F1',
+									_id: session._id,
 								});
 							});
 						}
-						// If overrideAvailability is false, skip this day
 					} else {
 						// Check regular availability slots
 						const dayAvailability = session.availabilitySlots?.find(
 							(slot) => slot.dayOfWeek === dayName,
 						);
 
-						if (dayAvailability) {
+						if (dayAvailability && dayAvailability.timeRanges.length > 0) {
 							dayAvailability.timeRanges.forEach((range) => {
-								slots.push({
-									sessionName: session.sessionName,
-									startTime: range.startTime,
-									endTime: range.endTime,
-									sessionColor: session.sessionColor,
-								});
+								// Only add slots that have valid time ranges
+								if (
+									range.startTime &&
+									range.endTime &&
+									range.startTime !== range.endTime &&
+									range.startTime !== '00:00' &&
+									range.endTime !== '00:00'
+								) {
+									slots.push({
+										sessionName: session.sessionName,
+										startTime: range.startTime,
+										endTime: range.endTime,
+										sessionColor: session.sessionColor || '#6366F1',
+										_id: session._id,
+									});
+								}
 							});
 						}
 					}
 				}
 			});
 
-			weekDays?.push({
+			weekDays.push({
 				day: currentDay.format('ddd'),
 				date: currentDay.format('D/M'),
 				slots: slots.sort((a, b) =>
@@ -164,7 +204,8 @@ const SchedulerAvailability = ({ updateSlotModal, toggleUpdateSlotModal, schedul
 				<div className="headerLeftContainer">
 					<div className="headerTitle">Time Slots</div>
 					<div className="headerSubTitle">
-						Effortlessly manage your time with AI scheduling.
+						This overview shows your availability for all sessions. Events from your
+						calendars (including synced) will override this and show you as unavailable.
 					</div>
 				</div>
 				<div className="headerRightContainer">
@@ -182,8 +223,10 @@ const SchedulerAvailability = ({ updateSlotModal, toggleUpdateSlotModal, schedul
 			<div className="weeklySlotsContainer">
 				{weeklySlots?.map((dayData, index) => (
 					<WeeklySlot
-						key={index}
-						{...dayData}
+						key={dayData.date}
+						day={dayData.day}
+						date={dayData.date}
+						slots={dayData.slots}
 						toggleUpdateSlotModal={toggleUpdateSlotModal}
 					/>
 				))}

@@ -129,6 +129,7 @@ const ShareModal = ({
 					tenantPreferences?.canGuestDownloadOptimized
 						? false
 						: true,
+				ctaLink: tenantPreferences?.ctaPreferences?.link,
 			}));
 		}
 	}, [tenantPreferences]);
@@ -154,7 +155,6 @@ const ShareModal = ({
 			getTenantSettings();
 		}
 	}, [tennantSettingsData]);
-
 	useEffect(() => {
 		if (info?.currentWorkspaceId && tennantSettingsData) {
 			let galleryLink = `https://${info?.currentWorkspaceId}.ve.ai/gallery/${activeGallery?.slug}`;
@@ -699,7 +699,7 @@ const ShareModal = ({
 					{data?.callToAction && (
 						<input
 							placeholder="your CTA link eg: https://yourwebsite.com"
-							value={data?.callToAction?.link}
+							value={info?.ctaLink}
 							onChange={handleLinkChange}
 						/>
 					)}

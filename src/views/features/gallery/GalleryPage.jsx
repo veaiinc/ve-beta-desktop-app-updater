@@ -208,7 +208,6 @@ const GalleryPage = () => {
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		albumName: '',
 		albumContains: '',
 		showOptions: false,
 		showGalleryOptions: false,
@@ -293,7 +292,6 @@ const GalleryPage = () => {
 		expiryDate: '',
 		showDeletePopup: false,
 		showUploadCover: false,
-		// activeAlbumId: null,
 		albumName: '',
 		showShareAlbum: false,
 		showDownloadAlbum: false,
@@ -310,7 +308,6 @@ const GalleryPage = () => {
 		showCoverButton: false,
 		showAlbumOptionsMenu: false,
 		showAlbumSettings: false,
-
 		galleryLink: null,
 		clientSubscriptionOptions: false,
 		imageProcessingStatus: {
@@ -858,35 +855,23 @@ const GalleryPage = () => {
 	useEffect(() => {
 		if (!document.querySelector('.albums')) return;
 
-		if (info?.albumFullScreen) {
+		if (info.albumFullScreen) {
+			// Open: wrap into multiple rows over 0.3s
 			gsap.to('.albums', {
-				height: dynamicHeightFunc(),
 				flexWrap: 'wrap',
 				duration: 0.3,
 				ease: 'power2.out',
 			});
-		} else if (tenantAlbums) {
-			const t1 = gsap.timeline();
-			t1.to('.album', {
-				opacity: '0.7',
-			});
-			t1.to('.albums', {
+		} else {
+			// Close: remove wrap (back to single row) over 0.3s, without that extra 0.4s delay
+			gsap.to('.albums', {
+				flexWrap: 'nowrap',
 				duration: 0.3,
 				ease: 'power2.out',
 			});
-
-			t1.to('.album', {
-				opacity: 1,
-				ease: 'power2.out',
-			});
-			t1.to('.albums', {
-				flexWrap: 'nowrap',
-				opacity: 1,
-				delay: 0.4,
-				ease: 'power2.out',
-			});
 		}
-	}, [info?.albumFullScreen]);
+	}, [info.albumFullScreen]);
+
 	useEffect(() => {
 		if (location?.state?.from === 'albumSettings') {
 			const activeAlbum = tenantAlbums?.albums?.find(
@@ -2260,10 +2245,10 @@ const GalleryPage = () => {
 			message.destroy();
 			showMessage('success', 'Gallery deleted successfully');
 			if (!info?.isLightGallery) {
-				navigate('/galleries');
+				navigate('/files?activeTab=Gallery');
 				await getGalleries({}, true);
 			} else {
-				navigate(`/lite-gallery`);
+				navigate(`/files?activeTab=Lite+Gallery`);
 				await getGalleries({ isLightGallery: true }, true);
 			}
 		} else {
@@ -3362,7 +3347,6 @@ const GalleryPage = () => {
 	// };
 
 	// ... existing code ...
-
 	const handleDownload = async () => {
 		if (
 			validateExpiryData &&
@@ -3871,11 +3855,17 @@ const GalleryPage = () => {
 										// height: '160px',
 									}}
 									id="droppableAlblumId"
+									className={`albumsWrapper ${
+										info.albumFullScreen ? 'expanded' : ''
+									}`}
 								>
 									<DragDropContext onDragEnd={handleAlbumDragEnd}>
 										<Droppable
 											droppableId="droppableAlblumId"
 											direction="horizontal"
+											style={{
+												height: '100%',
+											}}
 										>
 											{(provided) => (
 												<div
@@ -4171,13 +4161,26 @@ const GalleryPage = () => {
 						</div>
 					</div>
 				)}
-				{/* {info?.scrolledTillEnd && (
-					<div className="galleryTitleWhenScrolled">
-						<span className="galleryTitle">{info?.activeGallery?.title}</span>
-						<span style={{ color: 'white' }}>/</span>
-						<span className="albumTitle">{info?.activeAlbum?.title}</span>
+				{info?.scrolledTillEnd && (
+					<div className="galleryTitleWhenScrolled" style={{ gap: '24px' }}>
+						{sortByCustomIndex(albumImagesCount?.albums)?.map((album) => {
+							const isActive = album._id === info.activeAlbumId;
+							return (
+								<span
+									key={album._id}
+									className={`albumTabs ${isActive ? 'activeTab' : ''}`}
+									onClick={() => handleClickAlbum(album, 'albumName')}
+								>
+									{album.title}
+									<span className={`count ${isActive ? 'active' : ''}`}>
+										{album.imagesCount}
+									</span>
+								</span>
+							);
+						})}
 					</div>
-				)}{' '} */}
+				)}
+
 				{info.activeTab === 'Albums' &&
 					(albumImagesCount?.albums?.length === 0 ? (
 						<div className="noAlbumContainer">
@@ -5193,17 +5196,19 @@ const GalleryPage = () => {
 								title="Albums Not Found"
 								subTitle="It's quiet for now... You haven't missed anything yet! Create your first album to start organizing your memories"
 								extra={
-									<button
-										className="create-album-button"
-										onClick={() =>
-											setInfo((prevData) => ({
-												...prevData,
-												showCreateAlbum: true,
-											}))
-										}
-									>
-										<p>Create Album</p>
-									</button>
+									info.activeTab !== 'Client Selections' && (
+										<button
+											className="create-album-button"
+											onClick={() =>
+												setInfo((prevData) => ({
+													...prevData,
+													showCreateAlbum: true,
+												}))
+											}
+										>
+											<p>Create Album</p>
+										</button>
+									)
 								}
 							/>
 						</div>
@@ -5676,22 +5681,24 @@ const GalleryPage = () => {
 										</div>
 									)}
 								</div>
-								<div style={{ position: 'relative' }} ref={optionsIconRef}>
+								{/* <div style={{ position: 'relative' }} ref={optionsIconRef}>
 									<OptionsIcon onClick={handleOptionsIcon} />
 									{info.showAlbumOptionsMenu && (
 										<div className="optionsContainer" ref={optionsContainerRef}>
 											<li onClick={handleDownload}>Download</li>
-											<li
-												style={{
-													cursor:
-														info?.selectedImages.length === 1
-															? 'pointer'
-															: 'not-allowed',
-												}}
-												onClick={() => handleSetAlbumCover()}
-											>
-												Set Album cover
-											</li>
+											{info?.activeTab !== 'Client Selections' && (
+												<li
+													style={{
+														cursor:
+															info?.selectedImages.length === 1
+																? 'pointer'
+																: 'not-allowed',
+													}}
+													onClick={() => handleSetAlbumCover()}
+												>
+													Set Album cover
+												</li>
+											)}
 											<li
 												style={{
 													cursor:
@@ -5703,20 +5710,75 @@ const GalleryPage = () => {
 											>
 												Set Gallery cover
 											</li>
-											{/* <li>Share</li> */}
-											<li
-												onClick={() =>
-													setInfo((prev) => ({
-														...prev,
-														showImageDeletePopup: true,
-													}))
-												}
-											>
-												Delete
-											</li>
+
+											{info?.activeTab !== 'Client Selections' && (
+												<li
+													onClick={() =>
+														setInfo((prev) => ({
+															...prev,
+															showImageDeletePopup: true,
+														}))
+													}
+												>
+													Delete
+												</li>
+											)}
 										</div>
 									)}
-								</div>
+								</div> */}
+								<Tooltip
+									title={
+										<div
+											className="optionsContainer"
+											ref={optionsContainerRef}
+											style={{ marginBottom: '15px' }}
+										>
+											<li onClick={handleDownload}>Download</li>
+											{info?.activeTab !== 'Client Selections' && (
+												<li
+													style={{
+														cursor:
+															info?.selectedImages.length === 1
+																? 'pointer'
+																: 'not-allowed',
+													}}
+													onClick={() => handleSetAlbumCover()}
+												>
+													Set Album cover
+												</li>
+											)}
+											<li
+												style={{
+													cursor:
+														info?.selectedImages.length === 1
+															? 'pointer'
+															: 'not-allowed',
+												}}
+												onClick={() => handleSetGalleryCover()}
+											>
+												Set Gallery cover
+											</li>
+
+											{info?.activeTab !== 'Client Selections' && (
+												<li
+													onClick={() =>
+														setInfo((prev) => ({
+															...prev,
+															showImageDeletePopup: true,
+														}))
+													}
+												>
+													Delete
+												</li>
+											)}
+										</div>
+									}
+									placement="top"
+									trigger={'click'}
+									arrow={false}
+								>
+									<OptionsIcon />
+								</Tooltip>
 							</div>
 						)}
 					</div>

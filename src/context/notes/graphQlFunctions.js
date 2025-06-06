@@ -22,6 +22,7 @@ export const getNotesListQuery = gql`
 						userId
 					}
 				}
+				favorites
 				isDeleted
 				tenantId
 				createdAt

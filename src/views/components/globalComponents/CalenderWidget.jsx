@@ -395,12 +395,14 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 						<ArrowViewIcon style={{ width: '18px', height: '18px' }} />
 						View Calendar
 					</div>
-					<div className="calenderWidgetFooterAdd">
+					<div
+						onClick={(e) => {
+							e.stopPropagation();
+							EventCreatePopup();
+						}}
+						className="calenderWidgetFooterAdd"
+					>
 						<AddIcon
-							onClick={(e) => {
-								e.stopPropagation();
-								EventCreatePopup();
-							}}
 							style={{
 								width: '18px',
 								height: '18px',

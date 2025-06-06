@@ -89,7 +89,7 @@
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
-		margin-bottom: calc(var(--font-size) * 1);
+		margin: 0 0 calc(var(--font-size) * 1) 0;
 	}
 
 	.pre {
@@ -98,7 +98,7 @@
 		font-size: calc(var(--font-size) * 0.85);
 		line-height: 1.45;
 		background-color: var(--card);
-		border-radius: calc(var(--font-size) * 0.375); /* 6px */
+		border-radius: calc(var(--font-size) * 0.375);
 		font-family: var(--chat-primary-font-family);
 	}
 
@@ -111,7 +111,7 @@
 	.ol,
 	.ul {
 		list-style-position: outside;
-		margin-bottom: calc(var(--font-size) * 0.0625); /* 1px likely a typo? */
+		margin-bottom: calc(var(--font-size) * 0.0625);
 		font-size: calc(var(--font-size) * 0.9375);
 		line-height: calc(var(--font-size) * 1.5);
 		letter-spacing: calc(var(--font-size) * 0.0125);

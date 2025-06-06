@@ -221,6 +221,26 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 		}
 	}, [sessionDetail]);
 
+	// Separate function to handle availability updates
+	const handleAvailabilityUpdate = useCallback(() => {
+		if (availabilityUpdateTimeoutRef.current) {
+			clearTimeout(availabilityUpdateTimeoutRef.current);
+		}
+		const timeout = setTimeout(() => {
+			if (sessionId && info.sessionDetail) {
+				const availabilitySlots = transformWeeklyAvailabilityToApi(info.weeklyAvailability);
+				// Only call API if there are enabled slots
+				if (availabilitySlots.length > 0) {
+					const payload = {
+						availabilitySlots,
+					};
+					updateSchedulerSession(sessionId, payload);
+				}
+			}
+		}, 800);
+		availabilityUpdateTimeoutRef.current = timeout;
+	}, [sessionId, info?.weeklyAvailability, updateSchedulerSession]);
+
 	// Update effect to trigger availability update
 	useEffect(() => {
 		// Only trigger update if there are actual changes in weeklyAvailability
@@ -230,7 +250,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 		});
 
 		if (hasChanges) {
-			// handleAvailabilityUpdate();
+			handleAvailabilityUpdate();
 			previousStateRef.current = { ...info };
 		}
 
@@ -239,7 +259,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 				clearTimeout(availabilityUpdateTimeoutRef.current);
 			}
 		};
-	}, [info.weeklyAvailability]);
+	}, [info.weeklyAvailability, handleAvailabilityUpdate]);
 
 	useEffect(() => {
 		return () => {
@@ -741,26 +761,6 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 				: [],
 		}));
 	};
-
-	// Separate function to handle availability updates
-	// const handleAvailabilityUpdate = useCallback(() => {
-	// 	if (availabilityUpdateTimeoutRef.current) {
-	// 		clearTimeout(availabilityUpdateTimeoutRef.current);
-	// 	}
-	// 	const timeout = setTimeout(() => {
-	// 		if (sessionId && info.sessionDetail) {
-	// 			const availabilitySlots = transformWeeklyAvailabilityToApi(info.weeklyAvailability);
-	// 			// Only call API if there are enabled slots
-	// 			if (availabilitySlots.length > 0) {
-	// 				const payload = {
-	// 					availabilitySlots,
-	// 				};
-	// 				updateSchedulerSession(sessionId, payload);
-	// 			}
-	// 		}
-	// 	}, 800);
-	// 	availabilityUpdateTimeoutRef.current = timeout;
-	// }, [sessionId, info?.weeklyAvailability]);
 
 	// Modify the weekly availability handlers to work with both new and existing sessions
 	const handleWeeklyAvailabilityChange = useCallback((day, enabled) => {
