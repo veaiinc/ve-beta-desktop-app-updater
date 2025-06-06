@@ -452,7 +452,7 @@ const actionHandlers = {
 	}),
 	SET_CONNECTED_THIRDPARTIES: (state, action) => ({
 		...state,
-		connectThirdParties: action?.payload,
+		connectedThirdParties: action?.payload,
 	}),
 	UPDATE_CITATION_CHUNKS: (state, action) => {
 		const sourceId = Object?.keys(action?.payload)?.[0];
