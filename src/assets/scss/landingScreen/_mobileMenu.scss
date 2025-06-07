@@ -39,12 +39,19 @@
 			color: var(--primary-button-font, #0c0c0d);
 			border: none;
 			border-radius: 100px;
-			padding: 10px 24px;
+			padding: 12px 24px;
 			font-family: var(--primary-font-family);
 			font-weight: 500;
 			font-size: 14px;
 			cursor: pointer;
 			margin-right: 12px;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			.ve-logo-black {
+				width: 20px !important;
+				color: var(--primary-button-font);
+			}
 		}
 		.close-btn {
 			background: transparent;
@@ -212,6 +219,7 @@
 			font-weight: 500;
 			line-height: normal;
 			cursor: pointer;
+			width: 100%;
 		}
 	}
 }
