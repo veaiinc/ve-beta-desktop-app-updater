@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect, useContext } from 'react';
 import { ReactComponent as EmailIcon } from '../../../../assets/svg/notification/email.svg';
 import { ReactComponent as WhatsappIcon } from '../../../../assets/svg/notification/whatsApp.svg';
 import { ReactComponent as SlackIcon } from '../../../../assets/svg/notification/slack.svg';
-import { Switch } from 'antd';
+import { Switch, Checkbox } from 'antd';
 import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';
 
@@ -263,27 +263,38 @@ const Notifications = () => {
 											{appTypes
 												?.filter(({ appType }) => info?.[appType])
 												?.map(({ id, appType }) => (
-													<input
+													<div
 														key={id}
-														type="checkbox"
 														style={{
 															width:
 																appType === 'whatsapp'
 																	? '70px'
 																	: '36px',
+															display: 'flex',
+															alignItems: 'center',
+															justifyContent: 'center',
 														}}
-														checked={
-															info?.moduleAppTypeSelectAll?.[
-																module
-															]?.[appType]
-														}
-														onChange={() =>
-															handleSetModuleAppTypeSelectAll(
-																module,
-																appType,
-															)
-														}
-													/>
+													>
+														<Checkbox
+															key={id}
+															className="custom-notification-checkbox"
+															checked={
+																info?.moduleAppTypeSelectAll?.[
+																	module
+																]?.[appType]
+															}
+															style={{
+																width: 'fit-content',
+																height: '16px',
+															}}
+															onChange={() =>
+																handleSetModuleAppTypeSelectAll(
+																	module,
+																	appType,
+																)
+															}
+														/>
+													</div>
 												))}
 										</div>
 									</div>
@@ -303,28 +314,38 @@ const Notifications = () => {
 													{appTypes
 														?.filter(({ appType }) => info?.[appType])
 														?.map(({ id, appType }) => (
-															<input
+															<div
 																key={id}
-																type="checkbox"
 																style={{
 																	width:
 																		appType === 'whatsapp'
 																			? '70px'
 																			: '36px',
+																	display: 'flex',
+																	alignItems: 'center',
+																	justifyContent: 'center',
 																}}
-																checked={
-																	info?.selectedOptions?.[
-																		module
-																	]?.[action]?.[appType]
-																}
-																onChange={() =>
-																	handleModuleNotificationPreference(
-																		module,
-																		action,
-																		appType,
-																	)
-																}
-															/>
+															>
+																<Checkbox
+																	className="custom-notification-checkbox"
+																	checked={
+																		info?.selectedOptions?.[
+																			module
+																		]?.[action]?.[appType]
+																	}
+																	style={{
+																		width: 'fit-content',
+																		height: '16px',
+																	}}
+																	onChange={() =>
+																		handleModuleNotificationPreference(
+																			module,
+																			action,
+																			appType,
+																		)
+																	}
+																/>
+															</div>
 														))}
 												</div>
 											</div>
