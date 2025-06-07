@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback, useMemo, useContext, useEffect } from 'react';
+import React, { memo, useState, useCallback, useMemo, useContext, useEffect, useRef } from 'react';
 import '../../../../assets/scss/theme-settings/font-section.scss';
 import Context from '../../../../context/context';
 import { Select, Slider } from 'antd/lib';
@@ -42,6 +42,26 @@ const headingTypeProperties = {
 	heading6_component: 'h6',
 };
 
+const useClickOutside = (handler) => {
+	const ref = useRef();
+
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (ref.current instanceof HTMLElement && !ref.current.contains(event.target)) {
+				handler();
+			}
+		};
+
+		document.addEventListener('click', handleClickOutside, true);
+
+		return () => {
+			document.removeEventListener('click', handleClickOutside, true);
+		};
+	}, [handler]);
+
+	return ref;
+};
+
 const HeadingComponent = () => {
 	const {
 		themeSettings: {
@@ -58,6 +78,20 @@ const HeadingComponent = () => {
 	const [info, setInfo] = useState({
 		selectedFont: [],
 	});
+	const [selectStates, setSelectStates] = useState({
+		fontFamily: false,
+		transform: false,
+		weight: false,
+	});
+	const fontFamilyRef = useClickOutside(() => {
+		setSelectStates((prev) => ({ ...prev, fontFamily: false }));
+	});
+	const transformRef = useClickOutside(() => {
+		setSelectStates((prev) => ({ ...prev, transform: false }));
+	});
+	const weightRef = useClickOutside(() => {
+		setSelectStates((prev) => ({ ...prev, weight: false }));
+	});
 
 	useEffect(() => {
 		let updateState = {};
@@ -73,6 +107,25 @@ const HeadingComponent = () => {
 			...prev,
 			...updateState,
 		}));
+	}, []);
+
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (fontFamilyRef.current && !fontFamilyRef.current.contains(event.target)) {
+				setSelectStates((prev) => ({ ...prev, fontFamily: false }));
+			}
+			if (transformRef.current && !transformRef.current.contains(event.target)) {
+				setSelectStates((prev) => ({ ...prev, transform: false }));
+			}
+			if (weightRef.current && !weightRef.current.contains(event.target)) {
+				setSelectStates((prev) => ({ ...prev, weight: false }));
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
 	}, []);
 
 	const fontOptions = useMemo(() => {
@@ -229,20 +282,34 @@ const HeadingComponent = () => {
 		[newTheme?.isDesktopMobileFontLinked, fontStyles, mobileFontStyles],
 	);
 
+	const handleMouseDown = useCallback((e) => {
+		e.preventDefault();
+		e.stopPropagation();
+	}, []);
+
+	const handleDropdownVisibleChange = useCallback((open, type) => {
+		if (!open) {
+			return;
+		}
+		setSelectStates((prev) => ({ ...prev, [type]: open }));
+	}, []);
+
 	return (
 		<div className="FontheadingContainer">
 			<div
 				className="gridBoxContainer"
 				style={{ marginTop: '32px', gridTemplateColumns: '1fr' }}
 			>
-				<div className="gridBox fontFamilyContainer">
+				<div className="gridBox fontFamilyContainer" ref={fontFamilyRef}>
 					<div className="fontFamily_div">
 						<p>Font</p>
 					</div>
 
 					<div className="fontFamilyOptionsContainer">
 						<Select
-							style={{ width: '100%' }}
+							style={{
+								width: '100%',
+							}}
 							placeholder="Select Font"
 							options={fontOptions}
 							open={selectStates.fontFamily}
@@ -274,12 +341,7 @@ const HeadingComponent = () => {
 									headingTypeProperties[activeSection?.currentSectionComponent]
 								]?.activeFontID
 							}
-							onChange={(value) => handleSelectHandler('fontFamily', value)}
-							showSearch
-							filterOption={(input, option) =>
-								(option?.label || '')?.toLowerCase().includes(input?.toLowerCase())
-							}
-							onSelect={(value) => {
+							onChange={(value) => {
 								handleSelectHandler('fontFamily', value);
 								setSelectStates((prev) => ({ ...prev, fontFamily: true }));
 							}}
@@ -297,7 +359,7 @@ const HeadingComponent = () => {
 			</div>
 
 			<div className="gridBoxContainer">
-				<div className="gridBox fontFamilyContainer">
+				<div className="gridBox fontFamilyContainer" ref={transformRef}>
 					<div className="fontFamily_div">
 						<p>Transform</p>
 					</div>
@@ -307,17 +369,37 @@ const HeadingComponent = () => {
 							style={{ width: '100%' }}
 							placeholder="Select Transform"
 							options={textTransformOptions}
+							open={selectStates.transform}
+							onDropdownVisibleChange={(open) =>
+								handleDropdownVisibleChange(open, 'transform')
+							}
+							dropdownRender={(menu) => (
+								<div
+									onMouseDown={handleMouseDown}
+									onMouseUp={handleMouseDown}
+									onClick={handleMouseDown}
+								>
+									{menu}
+								</div>
+							)}
 							value={
 								newTheme?.fonts?.[
 									headingTypeProperties[activeSection?.currentSectionComponent]
 								]?.textTransform || 'none'
 							}
-							onChange={(value) => handleSelectHandler('textTransform', value)}
+							onChange={(value) => {
+								handleSelectHandler('textTransform', value);
+								setSelectStates((prev) => ({ ...prev, transform: true }));
+							}}
+							onBlur={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+							}}
 						/>
 					</div>
 				</div>
 
-				<div className="gridBox fontWeightContainer">
+				<div className="gridBox fontWeightContainer" ref={weightRef}>
 					<div className="fontFamily_div">
 						<p>Weight</p>
 					</div>
@@ -327,12 +409,32 @@ const HeadingComponent = () => {
 							style={{ width: '100%' }}
 							placeholder="Select Weight"
 							options={fontWeightOptions}
+							open={selectStates.weight}
+							onDropdownVisibleChange={(open) =>
+								handleDropdownVisibleChange(open, 'weight')
+							}
+							dropdownRender={(menu) => (
+								<div
+									onMouseDown={handleMouseDown}
+									onMouseUp={handleMouseDown}
+									onClick={handleMouseDown}
+								>
+									{menu}
+								</div>
+							)}
 							value={
 								newTheme?.fonts?.[
 									headingTypeProperties[activeSection?.currentSectionComponent]
 								]?.activeVariant
 							}
-							onChange={(value) => handleSelectHandler('fontWeight', value)}
+							onChange={(value) => {
+								handleSelectHandler('fontWeight', value);
+								setSelectStates((prev) => ({ ...prev, weight: true }));
+							}}
+							onBlur={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+							}}
 						/>
 					</div>
 				</div>
