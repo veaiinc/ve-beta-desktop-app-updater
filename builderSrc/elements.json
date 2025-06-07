@@ -1,0 +1,242 @@
+{
+	"text": {
+		"type": "text",
+		"content": "<p></p>",
+		"divStyles": {
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "3 / 3 / 4/ 10"
+		}
+	},
+	"sticker": {
+		"type": "image",
+		"imageURL": "",
+		"divStyles": {
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "5/1/8/4"
+		},
+		"image_settings": {
+			"aspect": 1.5,
+			"crop": {
+				"x": 0,
+				"y": 0
+			},
+			"zoom": 1
+		}
+	},
+	"button": {
+		"type": "button",
+		"content": "<p style='color: #fff;text-align:center;'>Click me</p>",
+		"shape": "rt",
+		"divStyles": {
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "5/1/6/5"
+		},
+		"btStyles": {
+			"background": "#000",
+			"borderColor": "#000",
+			"borderWidth": 1
+		},
+		"styles": {
+			"padding": "12px 35px",
+			"display": "flex",
+			"alignItems": "center",
+			"justifyContent": "center"
+		}
+	},
+	"shape": {
+		"type": "sticker",
+		"isSticker": "circle",
+		"textStyles": {},
+		"divStyles": {
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "5/1/8/5"
+		},
+		"stickerFill": "#d7d7d7",
+		"stickerStroke": "#ECECEC"
+	},
+	"image": {
+		"type": "shape",
+		"shape": "vRectangle",
+		"width": "",
+		"height": "",
+		"mShapeSize": {
+			"width": "",
+			"height": ""
+		},
+		"divStyles": {
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "5/1/8/4"
+		},
+		"image_settings": {
+			"aspect": 1.5,
+			"crop": {
+				"x": 0,
+				"y": 0
+			},
+			"zoom": 1
+		},
+		"imageURL": ""
+	},
+	"circleText": {
+		"type": "circleText",
+		"label": "circleText",
+		"text": "DO WITH VE •DO WITH VE •DO WITH VE•",
+		"radius": 45,
+		"width": "260px",
+		"divStyles": {
+			"width": "fit-content",
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "5/1/8/4"
+		},
+		"style": {
+			"color": "#C84040",
+			"fontSize": "10px",
+			"fontWeight": "bold"
+		}
+	},
+	"socialicon": {
+		"type": "icon",
+		"iconName": "Facebook",
+		"fillColor": "",
+		"iconBgColor": "",
+		"iconType": "",
+		"iconSize": "",
+		"divStyles": {
+			"width": "fit-content",
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "5/1/8/4"
+		}
+	},
+	"scrollText": {
+		"type": "scrollText",
+		"text": "Click me",
+		"itemSpacing": "",
+		"scrollSymbol": "",
+		"width": "",
+		"scrollStyles": {
+			"intensity": 0,
+			"direction": "",
+			"speed": "",
+			"spacing": 0,
+			"blur": false,
+			"blurType": "background",
+			"blurAmount": 10,
+			"fade": true,
+			"pauseOnHover": false
+		},
+		"fontStyles": {
+			"fontSize": 40,
+			"color": "#fff",
+			"fontWeight": "bold",
+			"fontFamily": "Roboto, sans-serif"
+		},
+		"divStyles": {
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "5/1/6/4"
+		}
+	},
+	"listIcon": {
+		"type": "listIcon",
+		"color": "",
+		"shape": "Circle",
+		"size": "small",
+		"listCount": 1,
+		"divStyles": {
+			"width": "fit-content",
+			"height": "fit-content",
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "5/1/6/4"
+		}
+	},
+	"logoSticker": {
+		"type": "logoSticker",
+		"label": "sticker",
+		"fillColor": "#B8793E",
+		"divStyles": {
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "5/1/6/4"
+		}
+	},
+	"iframe": {
+		"type": "iframe",
+		"source": "",
+		"height": "",
+		"divStyles": {
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "5/1/12/10"
+		}
+	},
+	"video": {
+		"type": "video",
+		"videoURL": "",
+		"loop": false,
+		"autoplay": false,
+		"fillVideoBlock": false,
+		"divStyles": {
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "3/1/8/10"
+		}
+	},
+	"icon": {
+		"type": "jIcon",
+		"cardColor": "",
+		"icon": "globe",
+		"color": "#d9d9d9",
+		"size": "36",
+		"mSize": "32",
+		"divStyles": {
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "5/1/7/4"
+		}
+	},
+	"jNumber": {
+		"type": "jNumber",
+		"cardColor": "",
+		"cardBorder": "",
+		"color": "",
+		"value": "",
+		"divStyles": {
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "5/1/6/4"
+		}
+	},
+	"divider": {
+		"type": "divider",
+		"borderColor": "#121314",
+		"borderWidth": 1,
+		"borderStyle": "solid",
+		"align": "center",
+		"isHorizontal": true,
+		"divStyles": {
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "3 / 3 / 10 / 10"
+		}
+	},
+	"menubar": {
+		"type": "menubar",
+		"cardColor": "",
+		"cardBorder": "",
+		"color": "",
+		"size": "",
+		"divStyles": {
+			"dragX": 0,
+			"dragY": 0,
+			"gridArea": "5/1/6/4"
+		}
+	}
+}

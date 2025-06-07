@@ -181,8 +181,8 @@ const FormLeads = () => {
 	);
 
 	const handleEditDesign = useCallback(() => {
-		window.location.href = `${origin}/${formData?._id}?form=true`;
-	}, [origin, formData?._id]);
+		navigate(`/builder/${formData?._id}?form=true`);
+	}, [formData?._id]);
 
 	const handleThreeDotsClick = useCallback(() => {
 		setInfo((prev) => ({ ...prev, tooltipVisible: !prev.tooltipVisible }));
@@ -231,7 +231,7 @@ const FormLeads = () => {
 			const response = await duplicateGlobalWorkflowTemplate(payload);
 			if (response?.[0]) {
 				message.success('Form duplicated successfully');
-				window.location.href = `${origin}/${response?.[1]?._id}`;
+				navigate(`/builder/${response?.[1]?._id}`);
 			} else {
 				message.error('Failed to duplicate form. Please try again.');
 			}

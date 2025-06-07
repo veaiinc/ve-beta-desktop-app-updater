@@ -19,6 +19,7 @@ import { ReactComponent as Search } from '../../../assets/svg/search.svg';
 import { message } from '../globalComponents/CustomToast';
 import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
@@ -61,6 +62,8 @@ const FormsGrid = ({
 		},
 		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
+
+	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		forms: [],
@@ -266,7 +269,7 @@ const FormsGrid = ({
 				const response = await duplicateGlobalWorkflowTemplate(payload);
 				if (response?.[0]) {
 					message?.success('Form duplicated successfully');
-					window.open(`${origin}/${response?.[1]?._id}`, '_blank', 'noopener,noreferrer');
+					navigate(`/builder/${response?.[1]?._id}`);
 				} else {
 					message?.error('Failed to duplicate form. Please try again.');
 				}

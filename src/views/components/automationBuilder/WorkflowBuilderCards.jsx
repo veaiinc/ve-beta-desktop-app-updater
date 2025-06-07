@@ -2,6 +2,7 @@ import React, { memo, useCallback } from 'react';
 import '../../../assets/scss/automation_builder/workflowBuilderCard.scss';
 import { ReactComponent as EmailSvg } from '../../../assets/svg/worflow_builder/email.svg';
 import { fetchOriginSelection } from '../../../helpers';
+import { Navigate, useNavigate } from 'react-router-dom';
 let origin = fetchOriginSelection();
 const FirstWorkflowCard = ({ openPreviewModal, editOnClickHandler, templateData }) => {
 	const data = templateData?.moduleTemplates?.filter((e) => e?.isPublic);
@@ -105,8 +106,10 @@ const WorkflowBuilderCards = ({
 		preview: <PreviewCard templateData={templateData} openPreviewModal={openPreviewModal} />,
 	};
 
+	const navigate = useNavigate();
+
 	const editOnClickHandler = useCallback(() => {
-		window.location.href = `${origin}/${templateData?._id}`;
+		navigate(`/builder/${templateData?._id}`);
 	}, [templateData]);
 
 	return (

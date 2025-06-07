@@ -1,0 +1,374 @@
+.sign-block-container {
+	border-radius: 12px;
+	background: #fff;
+	box-shadow: 0px 4px 40px 0px rgba(0, 0, 0, 0.12);
+
+	display: flex;
+	width: 520px;
+	height: 629px;
+
+	flex-direction: row;
+	gap: 80;
+	flex-direction: column;
+	.header {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+		p {
+			color: #111;
+			text-align: center;
+			font-size: 24px;
+			font-weight: 500;
+			margin-top: 32px;
+			font-family: 'Inter';
+		}
+		.close-modal {
+			position: absolute;
+			right: 32px;
+			top: 32px;
+			cursor: pointer;
+		}
+	}
+	.body {
+		padding: 24px;
+		display: flex;
+		flex-direction: column;
+
+		.sign-details {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+			align-items: center;
+			margin-top: 24px;
+
+			input {
+				outline: none;
+				border: none;
+				width: 350px;
+				border-bottom: 0.5px solid rgba(17, 17, 17, 0.4);
+				margin-top: 24px;
+
+				&::placeholder {
+					color: rgba(17, 17, 17, 0.4);
+					font-size: 12px;
+					font-weight: 500;
+				}
+			}
+		}
+
+		.e-sign-date {
+			width: 350px;
+			margin: auto;
+			margin-top: 32px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			color: #111;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.select {
+			display: flex;
+			gap: 8px;
+			width: 350px;
+			margin: auto;
+			margin-top: 32px;
+			position: relative;
+			span,
+			.clear {
+				width: 41px;
+				padding-bottom: 13px;
+				cursor: pointer;
+				color: rgba(17, 17, 17, 0.4);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-align: center;
+			}
+			span.active {
+				color: #111;
+			}
+			.clear {
+				cursor: pointer;
+				position: absolute;
+				right: 0;
+				top: 0;
+			}
+
+			.border-bottom-container {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				width: 100%;
+				height: 2px;
+
+				.border-bottom {
+					width: 41px;
+					height: 2px;
+					background-color: black;
+					position: absolute;
+					top: 0;
+					left: 0;
+					transition: transform 0.3s ease-in-out;
+				}
+			}
+		}
+		.sign-box {
+			margin: auto;
+			height: 100px;
+			width: 350px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background: #f6f7f8;
+
+			input {
+				outline: none;
+				border: none;
+				padding: 16px;
+				width: 70%;
+				background: #f6f7f8;
+				color: rgba(17, 17, 17, 0.5);
+				font-family: Fasthand;
+				font-size: 24px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				border-bottom: 1px solid rgba(17, 17, 17, 0.5);
+				height: 24px;
+			}
+			.singature-pad {
+				// display: flex;
+				// height: 300px;
+				// min-width: 100%;
+				// flex-direction: column;
+				// align-items: center;
+				// justify-content: center;
+				// gap: 32px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				position: relative;
+
+				canvas {
+					width: 350px;
+					height: 100px;
+
+					//height: 100%;
+					background-color: #fff;
+					box-shadow: 0px 4px 40px 0px rgba(0, 0, 0, 0.12);
+				}
+				button {
+					cursor: pointer;
+					font-family: 'Inter';
+					font-size: 12px;
+					border: 1px solid #333;
+					background-color: #333;
+					color: #fff;
+					width: 80px;
+					border-radius: 8px;
+					height: 40px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				}
+			}
+			.sign-upload {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 350px;
+				height: 100px;
+				background-color: #f1f1f1;
+				border-radius: 6px;
+				cursor: pointer;
+				margin: auto;
+
+				img {
+					width: 100%;
+					height: 100%;
+					object-fit: contain;
+				}
+
+				input {
+					display: none;
+
+					&::placeholder {
+						color: rgba(17, 17, 17, 0.4);
+						font-size: 12px;
+						font-weight: 500;
+					}
+				}
+
+				label {
+					font-size: 12px;
+					font-weight: 500;
+					font-family: Inter;
+					text-align: center;
+					border: 1px dashed rgba(17, 17, 17, 0.4);
+					padding: 24px 60px;
+					cursor: pointer;
+					border-radius: 6px;
+					position: relative;
+					&::before {
+						content: 'Must be a .png or .jpg file';
+						color: rgba(17, 17, 17, 0.4);
+						font-size: 8px;
+						font-weight: 500;
+						font-family: Inter;
+						position: absolute;
+						top: 70%;
+						left: 50%;
+						transform: translate(-50%, -50%);
+					}
+				}
+			}
+		}
+		.sign-loading {
+			font-family: 'Inter';
+			font-size: 14px;
+			height: 200px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 80%;
+		}
+		.terms-and-submit {
+			display: flex;
+			align-items: center;
+			flex-direction: column;
+			width: 350px;
+			margin: auto;
+			.terms {
+				display: flex;
+				width: 350px;
+				margin: 32px auto;
+
+				p {
+					color: rgba(17, 17, 17, 0.4);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+					width: 332px;
+				}
+				/* The container */
+				.container {
+					display: block;
+					position: relative;
+					padding-left: 35px;
+					//margin-bottom: 12px;
+					cursor: pointer;
+					font-size: 22px;
+					-webkit-user-select: none;
+					-moz-user-select: none;
+					-ms-user-select: none;
+					user-select: none;
+					zoom: 0.8;
+				}
+
+				/* Hide the browser's default checkbox */
+				.container input {
+					position: absolute;
+					opacity: 0;
+					cursor: pointer;
+					height: 0;
+					width: 0;
+				}
+
+				/* Create a custom checkbox */
+				.checkmark {
+					position: absolute;
+					top: 0;
+					left: 0;
+					border-radius: 2px;
+					border: 2px solid rgba(0, 0, 0, 0);
+					background: rgba(17, 17, 17, 0.1);
+					width: 16px;
+					height: 16px;
+					padding: 4px;
+				}
+
+				/* On mouse-over, add a grey background color */
+				.container:hover input ~ .checkmark {
+					background-color: #ccc;
+				}
+
+				/* When the checkbox is checked, add a blue background */
+				.container input:checked ~ .checkmark {
+					background-color: #2196f3;
+				}
+
+				/* Create the checkmark/indicator (hidden when not checked) */
+				.checkmark:after {
+					content: '';
+					position: absolute;
+					display: none;
+				}
+
+				/* Show the checkmark when checked */
+				.container input:checked ~ .checkmark:after {
+					display: block;
+				}
+
+				/* Style the checkmark/indicator */
+				.container .checkmark:after {
+					left: 9px;
+					top: 5px;
+					width: 5px;
+					height: 10px;
+					border: solid white;
+					border-width: 0 3px 3px 0;
+					-webkit-transform: rotate(45deg);
+					-ms-transform: rotate(45deg);
+					transform: rotate(45deg);
+				}
+			}
+			button.submit {
+				width: 100%;
+				height: 48px;
+				padding: 12px 32px;
+				border-radius: 8px;
+				background: #8b75ba;
+				border: none;
+				color: white;
+			}
+			button.submit-disabled {
+				background: #8b75bab0;
+			}
+		}
+		.secured-by-ve {
+			display: flex;
+			padding: 6px var(--Spacing-space-7, 12px);
+			align-items: center;
+			gap: 4px;
+			border-radius: 100px;
+			border: 1px solid rgba(0, 0, 0, 0.1);
+			color: rgba(17, 17, 17, 0.4);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			width: fit-content;
+			margin: 12px auto;
+			transition: all 0.3s ease-in-out;
+
+			&:hover {
+				border-radius: 100px;
+				border: 1px solid rgba(17, 17, 17, 0.4);
+				background: #f6f6f6;
+				box-shadow: 0px 88px 25px 0px rgba(0, 0, 0, 0),
+					0px 56px 23px 0px rgba(0, 0, 0, 0.01), 0px 32px 19px 0px rgba(0, 0, 0, 0.05),
+					0px 14px 14px 0px rgba(0, 0, 0, 0.09), 0px 4px 8px 0px rgba(0, 0, 0, 0.1);
+			}
+		}
+	}
+}

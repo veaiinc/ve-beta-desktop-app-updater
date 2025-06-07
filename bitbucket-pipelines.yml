@@ -1,60 +1,61 @@
 image: atlassian/default-image:3
 
 clone:
-    depth: full
-# Option 1: Run on all branches (current active configuration)
-# pipelines:
-#     default:
-#         - step:
-#               name: Build and Test
-#               script:
-#                   - echo 'Running tests...'
-#                   - echo 'Building...'
+  depth: full
 
-#         - step:
-#               name: Sync to GitHub
-#               script:
-#                   - echo 'Starting GitHub sync...'
-#                   - git config --global user.name 'Bitbucket-GitHub Sync'
-#                   - git config --global user.email 'noreply@bitbucket.org'
-#                   - git remote add github https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${BITBUCKET_REPO_SLUG}.git
-#                   - git push github --all --force
-#                   - git push github --tags --force
+# Option 1: Run on all branches (current active configuration)
+pipelines:
+    default:
+        - step:
+              name: Build and Test
+              script:
+                  - echo 'Running tests for sample-website...'
+                  - echo 'Building website...'
+
+        - step:
+              name: Sync to GitHub
+              script:
+                  - echo 'Starting GitHub sync...'
+                  - git config --global user.name 'Bitbucket-GitHub Sync'
+                  - git config --global user.email 'noreply@bitbucket.org'
+                  - git remote add github https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${BITBUCKET_REPO_SLUG}.git
+                  - git push github --all --force
+                  - git push github --tags --force
 # Alternative pipeline configurations:
 
 # Option 2: Run on specific branches only
-pipelines:
-    branches:
-        master:
-            - step:
-                  name: Build and Test
-                  script:
-                      - echo 'Running tests...'
-                      - echo 'Building...'
-            - step:
-                  name: Sync to GitHub
-                  script:
-                      - echo 'Starting GitHub sync...'
-                      - git config --global user.name 'Bitbucket-GitHub Sync'
-                      - git config --global user.email 'noreply@bitbucket.org'
-                      - git remote add github https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${BITBUCKET_REPO_SLUG}.git
-                      - git push github --all --force
-                      - git push github --tags --force
-        development:
-            - step:
-                  name: Build and Test
-                  script:
-                      - echo 'Running tests...'
-                      - echo 'Building...'
-            - step:
-                  name: Sync to GitHub
-                  script:
-                      - echo 'Starting GitHub sync...'
-                      - git config --global user.name 'Bitbucket-GitHub Sync'
-                      - git config --global user.email 'noreply@bitbucket.org'
-                      - git remote add github https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${BITBUCKET_REPO_SLUG}.git
-                      - git push github --all --force
-                      - git push github --tags --force
+# pipelines:
+#   branches:
+#     main:
+#       - step:
+#           name: Build and Test
+#           script:
+#             - echo 'Running tests...'
+#             - echo 'Building...'
+#       - step:
+#           name: Sync to GitHub
+#           script:
+#             - echo 'Starting GitHub sync...'
+#             - git config --global user.name 'Bitbucket-GitHub Sync'
+#             - git config --global user.email 'noreply@bitbucket.org'
+#             - git remote add github https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${BITBUCKET_REPO_SLUG}.git
+#             - git push github --all --force
+#             - git push github --tags --force
+#     develop:
+#       - step:
+#           name: Build and Test
+#           script:
+#             - echo 'Running tests...'
+#             - echo 'Building...'
+#       - step:
+#           name: Sync to GitHub
+#           script:
+#             - echo 'Starting GitHub sync...'
+#             - git config --global user.name 'Bitbucket-GitHub Sync'
+#             - git config --global user.email 'noreply@bitbucket.org'
+#             - git remote add github https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${BITBUCKET_REPO_SLUG}.git
+#             - git push github --all --force
+#             - git push github --tags --force
 #     'feature/*':
 #       - step:
 #           name: Build and Test

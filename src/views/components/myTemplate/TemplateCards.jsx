@@ -267,8 +267,10 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 											<button
 												className="eachOption"
 												onClick={(e) => {
-													e.stopPropagation();
-													window.location.href = `${origin}/${info?.hoverTemplateData?._id} `;
+													// e.stopPropagation();
+													navigate(
+														`/builder/${info?.hoverTemplateData?._id} `,
+													);
 												}}
 											>
 												Edit Template

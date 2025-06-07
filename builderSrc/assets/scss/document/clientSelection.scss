@@ -1,0 +1,137 @@
+.clientSelectionTooltipContainer {
+	display: flex;
+	// width: 577px;
+	padding: 12px;
+	flex-direction: column;
+	cursor: pointer;
+	align-items: flex-start;
+	gap: 10px;
+	border-radius: 12px;
+	height: 300px;
+	overflow: auto;
+	background: var(--Popup, #202123);
+	// background: var(--Popup, color(display-p3 0.1255 0.1294 0.1373));
+	&::-webkit-scrollbar {
+		display: none;
+	}
+	.clientSearch {
+		display: flex;
+		padding: 8px 12px;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+		border-radius: 8px;
+		background: var(--input-background, #2a2b2e);
+		margin-bottom: 8px;
+
+		svg {
+			width: 16px;
+			height: 16px;
+			flex-shrink: 0;
+		}
+
+		input {
+			background: transparent;
+			border: none;
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+			width: 100%;
+			outline: none;
+
+			&::placeholder {
+				color: var(--secondary-font, #787e87);
+			}
+		}
+	}
+
+	.createAddClientOption {
+		display: flex;
+		padding: 4px 0px;
+		align-items: center;
+		gap: 2px;
+
+		color: var(--primary-button);
+		color: color(display-p3 0.8118 1 0.2824);
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 18px; /* 150% */
+		cursor: pointer;
+	}
+
+	.existingClientContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		width: 100%;
+		overflow-y: auto;
+
+		.noResultsContainer {
+			display: flex;
+			padding: 12px;
+			justify-content: center;
+			align-items: center;
+			color: var(--secondary-font, #787e87);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+		}
+
+		.clientDetailsCard {
+			display: flex;
+			padding: 8px 12px;
+			align-items: center;
+			gap: 8px;
+			align-self: stretch;
+			border-radius: 8px;
+
+			&:hover {
+				background: var(--hover-background, #2a2b2e);
+			}
+
+			.clientImageCard {
+				width: 24px;
+				height: 24px;
+				border-radius: 75px;
+				background-color: #111;
+			}
+			.clientDetailsContainer {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				flex: 1;
+				cursor: pointer;
+
+				.clientDetailsNameText {
+					overflow: hidden;
+					color: var(--primary-font, #f2f2f3);
+					color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+					text-overflow: ellipsis;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+				.clientEmailText {
+					overflow: hidden;
+					color: var(--secondary-font, #787e87);
+					color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
+					text-overflow: ellipsis;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+			}
+		}
+	}
+}

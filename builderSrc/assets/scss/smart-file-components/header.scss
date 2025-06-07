@@ -1,0 +1,219 @@
+:root {
+	--navbar-bg: #202123;
+	--primary-font: #f2f2f3;
+	--card-over-card-hover: #27282b;
+}
+.builder__header-wrapper {
+	display: flex;
+	height: 74px;
+	padding: 16px 24px;
+	justify-content: space-between;
+	align-items: center;
+	flex-shrink: 0;
+	align-self: stretch;
+	background: var(--navbar-bg);
+	box-shadow: 0px 4px 40px 0px rgba(0, 0, 0, 0.12);
+	position: fixed;
+	width: 100%;
+	z-index: 100;
+	.header-left {
+		display: flex;
+		align-items: center;
+		gap: 24px;
+		.input-wrapper {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+
+			.template-name {
+				display: flex;
+				padding: 4px 6px;
+				align-items: center;
+				border-radius: 4px;
+				color: #ddb8ff;
+				text-overflow: ellipsis;
+				font-family: Inter;
+				font-size: 10px;
+				font-weight: 500;
+				border: 1px solid #ddb8ff;
+			}
+			.file-name {
+				display: flex;
+				padding: 4px 6px;
+				align-items: center;
+				border-radius: 4px;
+				color: #dbef4b;
+				text-overflow: ellipsis;
+				font-family: Inter;
+				font-size: 10px;
+				font-weight: 500;
+				border: 1px solid #dbef4b;
+			}
+			.input-title {
+				color: var(--primary-font);
+				font-family: Inter;
+				font-size: 14px;
+				font-weight: 500;
+			}
+			.template-name-container {
+				color: #7c7c84;
+				font-family: Inter;
+				font-size: 12px;
+				font-weight: 500;
+			}
+		}
+	}
+	.header-right {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		.header-status {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			.status-text {
+				color: var(--primary-font);
+				font-family: Inter;
+				font-size: 12px;
+				font-weight: 500;
+				text-transform: uppercase;
+			}
+		}
+		.header-preview-mode {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+
+			span {
+				display: flex;
+				width: 36px;
+				height: 36px;
+
+				justify-content: center;
+				align-items: center;
+				border-radius: 8px;
+				border: 1px solid var(--stroke, #333334);
+				&:hover {
+					border: 1px solid #f5f5f5;
+					svg {
+						path {
+							fill: #f5f5f5 !important;
+						}
+					}
+				}
+
+				&.active {
+					background: #f2f2f3;
+					svg {
+						path {
+							// fill: #202123;
+							stroke: #202123 !important;
+						}
+					}
+				}
+			}
+		}
+		.page-settings {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			span {
+				display: flex;
+				height: 36px;
+				padding: 8px 12px;
+				justify-content: center;
+				align-items: center;
+				gap: 12px;
+				border-radius: 10px;
+				border: 1px solid #333334;
+
+				&:hover {
+					border: 1px solid #f5f5f5;
+					svg {
+						path {
+							fill: #f5f5f5 !important;
+							stroke: #000 !important;
+						}
+					}
+				}
+
+				position: relative;
+				.page-count {
+					width: 18px;
+					height: 18px;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					position: absolute;
+					bottom: -10px;
+					right: -10px;
+					background: #2c2d31;
+					border-radius: 50%;
+
+					color: var(--primary-font);
+					font-family: Inter;
+					font-size: 11px;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+		.edit-details {
+			display: flex;
+			height: 36px;
+			padding: 8px 16px;
+			justify-content: center;
+			align-items: center;
+			border-radius: 10px;
+			// border: 1px solid var(--primary-font);
+			background: #2c2d31;
+			color: var(--primary-font);
+			font-family: Inter;
+			font-size: 12px;
+			font-weight: 500;
+			cursor: pointer;
+		}
+		.share {
+			display: flex;
+			height: 36px;
+			padding: 8px 16px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 10px;
+			border: 1px solid var(--primary-font);
+			background: var(--card-over-card-hover);
+			color: var(--primary-font);
+			font-family: Inter;
+			font-size: 12px;
+			font-weight: 500;
+			cursor: pointer;
+		}
+	}
+}
+
+.threeDotsContainerModal {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+
+	span {
+		cursor: pointer;
+	}
+}
+
+.sendSmartFileBtn {
+	color: var(--primary-font);
+	font-family: Inter;
+	font-size: 14px;
+	font-weight: 500;
+	display: flex;
+	height: 36px;
+	padding: 8px 16px;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	border-radius: 10px;
+	border: 1px solid var(--primary-font);
+	background: var(--card-over-card-hover);
+}

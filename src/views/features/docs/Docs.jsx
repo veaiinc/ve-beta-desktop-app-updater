@@ -500,7 +500,7 @@ const Docs = () => {
 	);
 
 	const onGenerateAIFunc = () => {
-		window.location.href = `${origin}/design-builder`;
+		navigate(`/builder/design-builder`);
 	};
 
 	const getDocsFilesListFunc = useCallback(
@@ -636,7 +636,9 @@ const Docs = () => {
 			},
 		});
 		if (response?.[0]) {
-			window.location.href = `${origin}/workflow/${response?.[1]?.data?.createBlankWorkflow?._id}?workflow=true&templateId=${response?.[1]?.data?.createBlankWorkflow?.templateId}`;
+			navigate(
+				`/builder/workflow/${response?.[1]?.data?.createBlankWorkflow?._id}?workflow=true&templateId=${response?.[1]?.data?.createBlankWorkflow?.templateId}`,
+			);
 
 			setInfo((prev) => ({ ...prev, blankWorkflowLoading: false }));
 		} else {
