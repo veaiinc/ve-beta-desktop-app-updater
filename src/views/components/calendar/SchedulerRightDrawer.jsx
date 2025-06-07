@@ -206,12 +206,14 @@ const SchedulerRightDrawer = ({
 		prevSlug: sessionId || '',
 		slugError: '',
 		publishLoading: false,
+		slugValue: '',
 	});
 	const [activeTab, setActiveTab] = useState(initialTab);
 	const [availabilitySummary, setAvailabilitySummary] = useState('');
 	const [originalData, setOriginalData] = useState(null);
 	const [updating, setUpdating] = useState(false);
 	const updateTimer = useRef(null);
+	const slugDebounceRef = useRef(null);
 
 	// Update activeTab when initialTab changes
 	useEffect(() => {
@@ -254,6 +256,11 @@ const SchedulerRightDrawer = ({
 				? dayjs(sessionDetail.sessionWindow.endDate).format('YYYY-MM-DD')
 				: null;
 
+			// Set initial slugValue
+			const domain =
+				tennantSettingsData?.customDomain || `${localStorage.getItem('workspaceId')}.ve.ai`;
+			const initialSlugValue = `${domain}/meet/${sessionDetail.slug || sessionId}`;
+
 			setInfo({
 				...initialInfo,
 				...sessionDetail,
@@ -286,6 +293,7 @@ const SchedulerRightDrawer = ({
 				slug: sessionDetail.slug || sessionId,
 				prevSlug: sessionDetail.slug || sessionId,
 				isPublished: sessionDetail.isPublished || false,
+				slugValue: initialSlugValue,
 			});
 			setActiveTab(sessionDetail.sessionTypeInfo?.sessionType || initialTab);
 			setOriginalData(sessionDetail);
@@ -299,7 +307,7 @@ const SchedulerRightDrawer = ({
 				prevSlug: sessionId || '',
 			});
 		}
-	}, [mode, sessionDetail, sessionId, initialTab]);
+	}, [mode, sessionDetail, sessionId, initialTab, tennantSettingsData]);
 
 	// On field change, only update local state
 	const handleFieldChange = (field, value) => {
@@ -519,7 +527,7 @@ const SchedulerRightDrawer = ({
 
 	const handleCreateOrUpdate = useCallback(async () => {
 		if (info.creatingSessionLoading) return; // Prevent multiple rapid clicks
-		// Log all form data for debugging, including duration and all fields
+
 		// Validate date range only if custom availability
 		if (
 			info.availability?.mode === 'custom' &&
@@ -543,6 +551,7 @@ const SchedulerRightDrawer = ({
 			}));
 			return;
 		}
+
 		// Validate required fields
 		const errors = {
 			sessionName: !info?.sessionName,
@@ -591,7 +600,7 @@ const SchedulerRightDrawer = ({
 		let availabilityData = {};
 		if (info.availability?.mode === 'weekly') {
 			const validSlots = info.availability.weekly
-				.filter((day) => day.slots.length > 0)
+				.filter((day) => day.slots.length > 0) // Only include days with slots
 				.map((day) => ({
 					dayOfWeek: dayMap[day.day],
 					timeRanges: day.slots.map((slot) => ({
@@ -605,12 +614,31 @@ const SchedulerRightDrawer = ({
 					availabilitySlots: validSlots,
 				};
 			} else {
-				setInfo((prev) => ({
-					...prev,
-					creatingSessionLoading: false,
-					errors: { ...prev.errors, availability: true },
-				}));
-				return;
+				// Default availability: Monday to Friday, 9 AM to 5 PM
+				availabilityData = {
+					availabilitySlots: [
+						{
+							dayOfWeek: 'Monday',
+							timeRanges: [{ startTime: '09:00', endTime: '17:00' }],
+						},
+						{
+							dayOfWeek: 'Tuesday',
+							timeRanges: [{ startTime: '09:00', endTime: '17:00' }],
+						},
+						{
+							dayOfWeek: 'Wednesday',
+							timeRanges: [{ startTime: '09:00', endTime: '17:00' }],
+						},
+						{
+							dayOfWeek: 'Thursday',
+							timeRanges: [{ startTime: '09:00', endTime: '17:00' }],
+						},
+						{
+							dayOfWeek: 'Friday',
+							timeRanges: [{ startTime: '09:00', endTime: '17:00' }],
+						},
+					],
+				};
 			}
 		} else if (info.availability?.mode === 'custom') {
 			availabilityData = {
@@ -625,6 +653,26 @@ const SchedulerRightDrawer = ({
 							},
 						],
 					},
+				],
+			};
+		} else {
+			// Default availability for when no mode is selected: Monday to Friday, 9 AM to 5 PM
+			availabilityData = {
+				availabilitySlots: [
+					{ dayOfWeek: 'Monday', timeRanges: [{ startTime: '09:00', endTime: '17:00' }] },
+					{
+						dayOfWeek: 'Tuesday',
+						timeRanges: [{ startTime: '09:00', endTime: '17:00' }],
+					},
+					{
+						dayOfWeek: 'Wednesday',
+						timeRanges: [{ startTime: '09:00', endTime: '17:00' }],
+					},
+					{
+						dayOfWeek: 'Thursday',
+						timeRanges: [{ startTime: '09:00', endTime: '17:00' }],
+					},
+					{ dayOfWeek: 'Friday', timeRanges: [{ startTime: '09:00', endTime: '17:00' }] },
 				],
 			};
 		}
@@ -649,7 +697,7 @@ const SchedulerRightDrawer = ({
 			sessionName: info?.sessionName,
 			sessionDescription: info?.sessionDescription,
 			sessionTypeInfo: {
-				sessionType: activeTab, // Use activeTab instead of info.sessionType
+				sessionType: activeTab,
 				location: info?.location,
 				phone: info?.phoneNumber,
 				meetingLink: info?.meetingLink,
@@ -678,7 +726,14 @@ const SchedulerRightDrawer = ({
 		};
 
 		if (mode === 'create') {
-			await createSchedulerSession(sessionPayload);
+			try {
+				await createSchedulerSession(sessionPayload);
+			} catch (err) {
+				const errorMsg = err?.response?.data?.message || 'Failed to create session.';
+				message.error(errorMsg);
+				setInfo((prev) => ({ ...prev, creatingSessionLoading: false }));
+				return;
+			}
 		} else if (mode === 'edit') {
 			const payload = buildUpdatePayload(info, originalData);
 			if (Object.keys(payload).length === 0) {
@@ -835,6 +890,44 @@ const SchedulerRightDrawer = ({
 		window.open(`https://${domain}/meet/${info?.prevSlug}`, '_blank');
 	};
 
+	const handleSlugChange = (value) => {
+		// Update local state with the full URL
+		const domain =
+			tennantSettingsData?.customDomain || `${localStorage.getItem('workspaceId')}.ve.ai`;
+		const fullValue = `${domain}/meet/${value}`;
+		setInfo((prev) => ({ ...prev, slugValue: fullValue }));
+
+		// Clear any existing timeout
+		if (slugDebounceRef.current) {
+			clearTimeout(slugDebounceRef.current);
+		}
+
+		// Set new timeout for API call
+		slugDebounceRef.current = setTimeout(async () => {
+			try {
+				const response = await updateSchedulerSession(sessionId, {
+					slug: value,
+				});
+
+				if (response?.data?.success) {
+					setInfo((prev) => ({
+						...prev,
+						slug: value,
+						prevSlug: value,
+						slugError: '',
+					}));
+					message.success('Slug updated successfully');
+				}
+			} catch (error) {
+				setInfo((prev) => ({
+					...prev,
+					slugError: error?.response?.data?.message || 'Failed to update slug',
+				}));
+				message.error(error?.response?.data?.message || 'Failed to update slug');
+			}
+		}, 1000);
+	};
+
 	return (
 		<Drawer
 			open={open}
@@ -847,14 +940,18 @@ const SchedulerRightDrawer = ({
 			<div className="scheduler-right-drawer-container">
 				<div className="scheduler-right-drawer-header-container">
 					<CloseIcon className="close-icon" onClick={handleClose} />
-					<div className="scheduler-right-drawer-header-title-container">
-						<EyeIcon className="eye-icon" onClick={() => handleViewSite()} />
-						<ShareIcon
-							className="share-icon"
-							onClick={() => setInfo((prev) => ({ ...prev, isShareModalOpen: true }))}
-						/>
-						<BinIcon className="bin-icon" onClick={handleDelete} />
-					</div>
+					{mode === 'edit' && (
+						<div className="scheduler-right-drawer-header-title-container">
+							<EyeIcon className="eye-icon" onClick={() => handleViewSite()} />
+							<ShareIcon
+								className="share-icon"
+								onClick={() =>
+									setInfo((prev) => ({ ...prev, isShareModalOpen: true }))
+								}
+							/>
+							<BinIcon className="bin-icon" onClick={handleDelete} />
+						</div>
+					)}
 				</div>
 				<div className="scheduler-right-drawer-header">
 					<div className="session-color-picker">
@@ -1663,7 +1760,11 @@ const SchedulerRightDrawer = ({
 				tabs={[{ value: 'share', label: 'Share' }]}
 				activeTab="share"
 				showSlugField={true}
-				copySlug={`${tennantSettingsData?.customDomain || `${localStorage.getItem('workspaceId')}.ve.ai`}/meet/${info?.prevSlug}`}
+				copySlug={`${
+					tennantSettingsData?.customDomain ||
+					`${localStorage.getItem('workspaceId')}.ve.ai`
+				}/meet/${info?.prevSlug}`}
+				slugValue={info?.slugValue}
 				showShareTab={true}
 				showPublishTab={false}
 				showCopyLink={true}
@@ -1671,6 +1772,9 @@ const SchedulerRightDrawer = ({
 				copyLinkText="Copy Link"
 				customStyles={{ overflow: 'hidden' }}
 				showInviteSection={false}
+				onSlugChange={handleSlugChange}
+				slugError={info.slugError}
+				tennantSettingsData={tennantSettingsData}
 			/>
 		</Drawer>
 	);

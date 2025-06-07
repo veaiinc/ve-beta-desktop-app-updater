@@ -747,12 +747,262 @@
 	}
 }
 
+@media (max-width: 1200px) {
+	.pricing-page {
+		padding: 32px 16px 0 16px;
+
+		.pricing-features-table-section {
+			.features-table-wrapper {
+				width: 100%;
+				overflow-x: auto;
+			}
+		}
+	}
+}
+
 @media (max-width: 1000px) {
 	.pricing-page {
 		.pricing-cards {
 			flex-direction: column;
 			align-items: center;
 			gap: 40px;
+			width: 100%;
+			max-width: 500px;
+			margin: 0 auto;
+		}
+
+		.pricing-features-table-section {
+			.plan-boxes-row {
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: 12px;
+
+				.plan-table-box {
+					width: calc(50% - 12px);
+					min-width: 200px;
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 768px) {
+	.pricing-page {
+		.pricing-header {
+			.pricing-header-title {
+				font-size: 24px;
+			}
+			.pricing-header-description {
+				font-size: 14px;
+			}
+		}
+
+		.pricing-video-section {
+			.video-description {
+				.video-description-text,
+				.video-description-sub-text {
+					font-size: 16px;
+				}
+			}
+		}
+
+		.pricing-features-table-section {
+			.features-table-title {
+				font-size: 24px;
+			}
+
+			.plan-boxes-row {
+				.plan-table-box {
+					width: 100%;
+					max-width: 400px;
+				}
+			}
+		}
+
+		.faq-section {
+			.faq-title {
+				font-size: 24px;
+			}
+		}
+	}
+}
+
+@media (max-width: 480px) {
+	.pricing-page {
+		padding: 24px 12px 0 12px;
+		gap: 32px;
+
+		.pricing-header {
+			.pricing-header-title {
+				font-size: 20px;
+			}
+		}
+
+		.pricing-toggle-container {
+			.pricing-toggle-row {
+				.toggle-group {
+					.toggle-btn {
+						width: 80px;
+						font-size: 12px;
+					}
+				}
+			}
+		}
+
+		.pricing-video-section {
+			.video-title {
+				font-size: 16px;
+			}
+			.video-description {
+				.video-description-text,
+				.video-description-sub-text {
+					font-size: 14px;
+				}
+			}
+			.vide-button {
+				font-size: 14px;
+				padding: 10px 16px;
+			}
+		}
+
+		.pricing-features-table-section {
+			.features-table-title {
+				font-size: 20px;
+			}
+
+			.features-table {
+				th,
+				td {
+					padding: 12px 8px;
+					font-size: 12px;
+				}
+			}
+		}
+
+		.faq-section {
+			.faq-title {
+				font-size: 20px;
+			}
+			.custom-faq-collapse {
+				.ant-collapse-item {
+					.ant-collapse-header {
+						font-size: 14px;
+						padding: 12px 8px 6px 8px;
+					}
+					.ant-collapse-content {
+						.ant-collapse-content-box {
+							font-size: 14px;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 320px) {
+	.pricing-page {
+		padding: 16px 8px 0 8px;
+		gap: 24px;
+
+		.pricing-header {
+			.pricing-header-title {
+				font-size: 18px;
+			}
+			.pricing-header-description {
+				font-size: 12px;
+			}
+		}
+
+		.pricing-toggle-container {
+			.pricing-toggle-row {
+				.toggle-group {
+					.toggle-btn {
+						width: 70px;
+						font-size: 11px;
+						padding: 6px;
+					}
+				}
+			}
+		}
+
+		.pricing-cards {
+			.pricing-card {
+				padding: 16px;
+				min-width: 280px;
+
+				.card-header-container {
+					.card-header {
+						.price-container {
+							.price {
+								font-size: 20px;
+							}
+							.user-info {
+								font-size: 11px;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.pricing-video-section {
+			.video-title {
+				font-size: 14px;
+			}
+			.video-description {
+				.video-description-text,
+				.video-description-sub-text {
+					font-size: 12px;
+				}
+			}
+		}
+
+		.pricing-features-table-section {
+			.features-table-title {
+				font-size: 18px;
+			}
+
+			.plan-boxes-row {
+				.plan-table-box {
+					padding: 8px;
+
+					.plan-table-name-container {
+						.plan-table-name {
+							font-size: 13px;
+						}
+						.plan-table-content {
+							.plan-table-price {
+								font-size: 14px;
+							}
+							.plan-table-user {
+								font-size: 12px;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.faq-section {
+			.faq-title {
+				font-size: 18px;
+			}
+			.custom-faq-collapse {
+				padding: 8px;
+				.ant-collapse-item {
+					.ant-collapse-header {
+						font-size: 13px;
+						padding: 10px 6px 4px 6px;
+					}
+					.ant-collapse-content {
+						.ant-collapse-content-box {
+							font-size: 12px;
+							padding: 0 0 16px 0;
+						}
+					}
+				}
+			}
 		}
 	}
 }

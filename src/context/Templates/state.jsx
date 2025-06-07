@@ -138,6 +138,7 @@ export const intialState = {
 	refetchChatHistoryList: false,
 	aiQuestions: null,
 	proactiveAiData: null,
+	chatBoxSuggestions: null,
 };
 
 export const TemplatesState = (props) => {
@@ -2573,6 +2574,25 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getChatBoxSuggestions = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/suggestions`;
+			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_CHAT_BOX_SUGGESTIONS_SUCCESS,
+					payload: response?.[1]?.suggestions || [],
+				});
+			} else {
+				console.log('error==>getChatBoxSuggestions', response);
+			}
+		} catch (error) {
+			console.log('error==>getChatBoxSuggestions', error);
+		}
+	};
+
 	const updateCitationChunks = async (payload) => {
 		try {
 			dispatch({ type: Actions?.UPDATE_CITATION_CHUNKS, payload });
@@ -2671,5 +2691,6 @@ export const TemplatesState = (props) => {
 		updateAiQuestions,
 		getProactiveAiData,
 		addProactiveAiAccess,
+		getChatBoxSuggestions,
 	};
 };

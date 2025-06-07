@@ -148,33 +148,58 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 
 	return (
 		<div className="verification-code-container">
-			<div className="back-btn-container" onClick={() => setActiveStage('email')}>
-				<LeftArrowBackBtn />
-				<span>Back</span>
+			<div className="verification-code-header-container">
+				<div className="verification-code-title-container">
+					<h1 className="verification-code-title">We sent you a code</h1>
+					<p className="verification-code-subtitle">
+						A 4-digit verification code has been sent to {email}.
+					</p>
+				</div>
+				<div className="verification-code-input-container-wrapper">
+					<div className="verification-code-input-container" ref={otpContainerRef}>
+						<CustomOtp
+							otp={otpArray}
+							setOtp={setOtpArray}
+							onComplete={(otpStr) => setInfo((prev) => ({ ...prev, otp: otpStr }))}
+							error={info?.otpError}
+						/>
+						{info?.isLoading && <Spinner />}
+					</div>
+					<p
+						className={`resend-code-text ${!info?.canResend ? 'disabled' : ''}`}
+						onClick={handleResendCode}
+						style={{
+							cursor: info?.canResend ? 'pointer' : 'not-allowed',
+							opacity: info?.canResend ? 1 : 0.5,
+						}}
+					>
+						{!info?.canResend
+							? `Resend code in ${info?.resendTimer} seconds`
+							: 'Resend code'}
+					</p>
+					<div className="back-btn-container" onClick={() => setActiveStage('email')}>
+						<span>Change Email ?</span>
+					</div>
+				</div>
 			</div>
-			<h1 className="verification-code-title">We sent you a code</h1>
-			<p className="verification-code-subtitle">
-				A 4-digit verification code has been sent to {email}.
-			</p>
-			<div className="verification-code-input-container" ref={otpContainerRef}>
-				<CustomOtp
-					otp={otpArray}
-					setOtp={setOtpArray}
-					onComplete={(otpStr) => setInfo((prev) => ({ ...prev, otp: otpStr }))}
-					error={info?.otpError}
-				/>
-				{info?.isLoading && <Spinner />}
+			<div className="acknowledge-container">
+				<span className="acknowledge-text">
+					By continuing, you acknowledge that you understand and agree to the{' '}
+				</span>
+				<span
+					className="acknowledge-text-link"
+					onClick={() => window.open('/terms-of-service', '_blank')}
+				>
+					Terms & Conditions
+				</span>{' '}
+				<span className="acknowledge-text">and</span>{' '}
+				<span
+					className="acknowledge-text-link"
+					onClick={() => window.open('/privacy-policy', '_blank')}
+				>
+					Privacy Policy
+				</span>
 			</div>
-			<p
-				className={`resend-code-text ${!info?.canResend ? 'disabled' : ''}`}
-				onClick={handleResendCode}
-				style={{
-					cursor: info?.canResend ? 'pointer' : 'not-allowed',
-					opacity: info?.canResend ? 1 : 0.5,
-				}}
-			>
-				{!info?.canResend ? `Resend code in ${info?.resendTimer} seconds` : 'Resend code'}
-			</p>
 		</div>
 	);
 };

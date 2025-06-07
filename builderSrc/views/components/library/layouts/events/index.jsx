@@ -730,13 +730,13 @@ class Events extends Component {
 								url={this.state.style.backgroundVideoURL}
 								width="100%"
 								height="100%"
-								loop={true}
+								loop={this.state.style?.videoProps?.loop ?? false}
 								onError={(e) => {
 									this.props.handleIsValidBgVideoURL(false);
 								}}
 								onReady={(e) => this.props.handleIsValidBgVideoURL(true)}
 								playing={true}
-								muted
+								muted={this.state.style?.videoProps?.muteVideo ?? false}
 								controls={false}
 							/>
 						</div>
@@ -1242,6 +1242,25 @@ class Events extends Component {
 						</div>
 					)}
 				</div>
+				{this.state.showEventPopup && (
+					<BlockSidebar
+						ref={this.elementSidebarRef}
+						activePopupComponent={this.state.section}
+						setActivePopupComponent={(e) =>
+							this.setState({ section: e, style: e?.style })
+						}
+						activeType={'event'}
+						elementEndPosition={{ x: 0, y: 0 }}
+						setActiveSection={(e) => {
+							this.setState({ section: e });
+							this.props.setActiveSection(e);
+						}}
+						activeModuleId={this.props?.activeModuleId}
+						setModalRef={(e) => {
+							this.setState({ showImageModal: true });
+						}}
+					/>
+				)}
 			</div>
 		);
 	}

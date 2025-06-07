@@ -1,4 +1,4 @@
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import ReactModal from '../modalsV2/index';
 import { ReactComponent as CrossWhite } from '../../../assets/svg/Settings/CrossWhite.svg';
 import AccessDropdown from '../notes/AccessDropDown';
@@ -10,7 +10,6 @@ import { Tooltip } from 'antd';
 import { ReactComponent as LockIconSvg } from '../../../assets/svg/workspaceSettings/lock-big.svg';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import moment from 'moment';
-
 const ShareModal = ({
 	// Modal control
 	isOpen,
@@ -145,6 +144,8 @@ const ShareModal = ({
 	// Slug field
 	showSlugField = false,
 	copySlug = '',
+	tennantSettingsData = null,
+	slugValue = '',
 }) => {
 	// Get custom icons or use defaults
 	const CloseIcon = customIcons.close || CrossWhite;
@@ -173,7 +174,6 @@ const ShareModal = ({
 			onTabChange('share');
 		}
 	}, [showShareTab, showPublishTab, activeTab]);
-
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -310,12 +310,22 @@ const ShareModal = ({
 									</div>
 								)}
 								{showSlugField && (
-									<input
-										type="text"
-										className={getClassName('invite-user-input')}
-										value={copySlug}
-										readOnly
-									/>
+									<div className={getClassName('slug-input-container')}>
+										<div className={getClassName('slug-prefix')}>
+											{`${
+												tennantSettingsData?.customDomain ||
+												`${localStorage.getItem('workspaceId')}.ve.ai`
+											}/meet/`}
+										</div>
+										<input
+											type="text"
+											className={`${getClassName(
+												'invite-user-input',
+											)} ${getClassName('slug-input')}`}
+											value={slugValue.split('meet/')[1] || ''}
+											onChange={(e) => onSlugChange(e.target.value)}
+										/>
+									</div>
 								)}
 								<div
 									className={getClassName('note-share-access-control-container')}

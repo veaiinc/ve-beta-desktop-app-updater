@@ -79,7 +79,7 @@ const LandingPage = () => {
 
 	const handleSetTab = (tabVal) => {
 		setTab(tabVal);
-		const tabRoutes = ['/', '/mission', '/contact-us', '/api'];
+		const tabRoutes = ['/', '/mission', '/contact-us', '/pricing'];
 		navigate(tabRoutes[tabVal]);
 	};
 
@@ -110,6 +110,7 @@ const LandingPage = () => {
 								animatePlaceholder={true}
 								onSend={handleCustomOnSendFunction}
 								onChatQueryChange={handleChatQueryChange}
+								isBuildEnbled={false}
 							/>
 						</div>
 						{info.showSuggestions && (
@@ -141,7 +142,7 @@ const LandingPage = () => {
 			<main className="landing-page-container">
 				<header className="page-header">
 					<div className="left-container">
-						<VeLogo className="ve-logo" />
+						<VeLogo className="ve-logo" onClick={() => navigate('/')} />
 					</div>
 					<div className="middle-container">
 						{!mobileMenuOpen && <TabNavigation tab={tab} handleSetTab={handleSetTab} />}
@@ -154,7 +155,7 @@ const LandingPage = () => {
 							Login
 						</button>
 						<div className="login-container">
-							<button className="login-btn">
+							<button className="login-btn" onClick={() => navigate('/verify-user')}>
 								Get <VeLogoBlack /> Free
 							</button>
 							<button

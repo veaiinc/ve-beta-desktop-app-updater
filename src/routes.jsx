@@ -13,6 +13,7 @@ import EarlyAccess from './views/features/earlyAccess/EarlyAccess';
 import SettingsWrapper from './views/features/settings/SettingsWrapper';
 import AiSetupPage from './views/features/settings/aiSettings/AiSetupPage';
 import PrivacyPolicy from './views/features/signin/PrivacyPolicy';
+import ChageLog from './views/features/signin/ChageLog';
 import Landing_screen from './views/features/landingScreen/LandingPage';
 import AddGallery from './views/features/gallery/AddGallery';
 import GalleryPage from './views/features/gallery/GalleryPage';
@@ -143,6 +144,10 @@ const routes = [
 	{
 		path: '/cookie-policy',
 		component: <CookiePolicy />,
+	},
+	{
+		path: '/changelog',
+		component: <ChageLog />,
 	},
 	// {
 	// 	path: '/inbox',

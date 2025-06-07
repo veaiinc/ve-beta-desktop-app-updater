@@ -1083,7 +1083,7 @@ const OpenedSidebar = ({
 					style={{
 						...workspaceStyles,
 						animation: `${
-							sidebarStates?.workSpaceOpen ? 'slideUp' : 'slideDown'
+							sidebarStates?.workSpaceOpen ? 'slideUpSidebar' : 'slideDown'
 						} 0.3s ease-out`,
 						top: `${isThisEarlyAccessPage ? '40px' : ''}`,
 						transformOrigin: `${isThisEarlyAccessPage ? 'top' : 'bottom'}`,
