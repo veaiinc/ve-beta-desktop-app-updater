@@ -2289,10 +2289,80 @@
 	line-height: 22px;
 	letter-spacing: -0.28px;
 }
+
+.albumsWrapper {
+	max-height: 160px !important; /* show *exactly* one row of albums */
+	overflow: hidden; /* hide anything that overflows */
+	transition: max-height 0.4s ease; /* animate changes to max-height */
+}
+
+.albumsWrapper.expanded {
+	overflow: auto;
+	max-height: 320px; /* or any value ≥ total height of two rows */
+}
 @media screen and (max-width: 1500px) {
 	.galleryTitle {
 		p {
 			width: 150px !important;
 		}
 	}
+}
+
+.albumTabs {
+	flex-shrink: 0; /* prevent it from shrinking */
+	color: var(--secondary-font);
+	cursor: pointer;
+	position: relative;
+	padding: 4px;
+	border-radius: 6px;
+	&:hover {
+		background: var(--card-over-card-hover);
+	}
+}
+
+.albumTabs::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -2px;
+	height: 3px;
+	transform-origin: left center;
+	transform: scaleX(0);
+	transition: transform 0.3s ease;
+	background: var(--primary-font);
+}
+.galleryTitleWhenScrolled {
+	bottom: -10px;
+	display: flex;
+	flex-direction: row;
+	overflow-x: auto;
+	overflow-y: hidden;
+	flex-shrink: 0;
+	scrollbar-width: none !important;
+}
+.albumTabs.activeTab {
+	color: var(--primary-font);
+	font-weight: bold;
+}
+.albumTabs.activeTab::after {
+	transform: scaleX(1);
+}
+
+.albumTabs .count {
+	margin-left: 6px;
+	font-size: 12px;
+	color: var(--secondary-font);
+	padding: 6px;
+	border-radius: 6px;
+	&.active {
+		background: var(--card-over-card-hover);
+		color: var(--primary-font);
+	}
+}
+.albumTabsContainer {
+	display: flex;
+	gap: 24px;
+	padding: 8px 16px;
+	width: 100%;
 }

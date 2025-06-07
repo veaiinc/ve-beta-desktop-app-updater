@@ -2561,6 +2561,18 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const addProactiveAiAccess = async (payload, id) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-bases/pending-actions/${id}/invite-user`;
+			const response = await Service.fetchPut(url, payload, usertoken, 'tenant');
+			return response;
+		} catch (error) {
+			console.log('error==>addProactiveAiAccess', error);
+		}
+	};
+
 	const updateCitationChunks = async (payload) => {
 		try {
 			dispatch({ type: Actions?.UPDATE_CITATION_CHUNKS, payload });
@@ -2658,5 +2670,6 @@ export const TemplatesState = (props) => {
 		getAiQuestions,
 		updateAiQuestions,
 		getProactiveAiData,
+		addProactiveAiAccess,
 	};
 };

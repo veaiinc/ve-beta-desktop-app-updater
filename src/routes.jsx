@@ -66,7 +66,7 @@ import EditScheduler from './views/features/calendar/EditScheduler';
 import Contacts from './views/features/contacts/Contacts';
 import NotesPage from './views/features/notesPage/NotesPage';
 import PricingPage from './views/features/pricingPlans/pricingPage';
-import ProactiveAi from './views/features/proactiveAi';
+import ProactiveAi from './views/features/proactiveAi/ProactiveAi';
 const routes = [
 	{
 		path: '/',
@@ -78,6 +78,14 @@ const routes = [
 	},
 	{
 		path: '/contact-us',
+		component: <Landing_screen />,
+	},
+	{
+		path: '/pricing',
+		component: <Landing_screen/>,
+	},
+	{
+		path: '/api',
 		component: <Landing_screen />,
 	},
 	{
@@ -358,14 +366,14 @@ const routes = [
 		),
 		exact: true,
 	},
-	{
-		path: '/pricing',
-		component: (
-			<AuthWrapper title={'Pricing'}>
-				<PricingPage />
-			</AuthWrapper>
-		),
-	},
+	// {
+	// 	path: '/pricing',
+	// 	component: (
+	// 		<AuthWrapper title={'Pricing'}>
+	// 			<PricingPage />
+	// 		</AuthWrapper>
+	// 	),
+	// },
 	{
 		path: '/notes',
 		component: (

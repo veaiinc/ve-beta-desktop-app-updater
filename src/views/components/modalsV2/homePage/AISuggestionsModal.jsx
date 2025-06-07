@@ -31,7 +31,8 @@ import {
 } from '../../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import PromptPopup from '../../homePage/PromptPopup';
-import ShareWidget from '../../globalComponents/ShareWidget';
+import ProactiveAIShare from '../../../features/homePage/proactiveai/ProactiveAIShare';
+import jwtDecode from 'jwt-decode';
 const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
@@ -57,7 +58,6 @@ const AISuggestionsModal = ({
 			hasChainOfThought: false,
 		},
 		feedbackPopupOpen: false,
-		sharePopupOpen: false,
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -68,14 +68,24 @@ const AISuggestionsModal = ({
 	const bodyRef = useRef(null);
 
 	useEffect(() => {
+		const token = localStorage.getItem('usertoken');
+		const { user_id } = jwtDecode(token);
+		setInfo((prev) => ({ ...prev, currentUserId: user_id }));
+	}, []);
+
+	useEffect(() => {
 		if (!data) return;
 
 		const { chain_of_thought } = data;
 		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || []);
+		const accessType = (data?.permissions?.sharedWith || [])?.filter(
+			(eachItem) => eachItem?.userId === info?.currentUserId,
+		)?.[0]?.access;
 		setInfo((prev) => ({
 			...prev,
 			selectedFeedback: data?.rating,
 			chainOfThoughtData,
+			accessType,
 		}));
 		if (bodyRef?.current) {
 			bodyRef?.current?.scrollTo({
@@ -243,20 +253,6 @@ const AISuggestionsModal = ({
 		}
 	}, [data?._id, getAISuggestedPendingActions, onClose, pendingActionsUpdate]);
 
-	const handleShareClick = () => {
-		setInfo((prev) => ({
-			...prev,
-			sharePopupOpen: true,
-		}));
-	};
-
-	const handleCloseSharePopup = () => {
-		setInfo((prev) => ({
-			...prev,
-			sharePopupOpen: false,
-		}));
-	};
-
 	const handleOpenFeedbackPopup = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -338,16 +334,8 @@ const AISuggestionsModal = ({
 									<AgentsSvg style={{ color: 'var(--primary-button)' }} /> Teach
 									me
 								</div>
-								{/* <Tooltip
-									title={<div className="tooltipOption">Share</div>}
-									placement="bottom"
-									color="transparent"
-									arrow={false}
-								>
-									<div className="btn share-btn" onClick={handleShareClick}>
-										<ShareSvg />
-									</div>
-								</Tooltip> */}
+
+								{/* <ProactiveAIShare proactiveAiId={data?._id} /> */}
 
 								{/* <div className="btn download-btn">
 									<DownloadSvg />
@@ -951,8 +939,6 @@ const AISuggestionsModal = ({
 					</div>
 				</div>
 			</div>
-
-			<ShareWidget isOpen={info?.sharePopupOpen} onClose={handleCloseSharePopup} />
 
 			<PromptPopup
 				messageId={data?._id}

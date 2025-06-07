@@ -1405,7 +1405,6 @@ export const Galleries = () => {
 				payload: null,
 			});
 
-			console.log('payload==>setDefaultSort', state.tenantAlbums);
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchPut(

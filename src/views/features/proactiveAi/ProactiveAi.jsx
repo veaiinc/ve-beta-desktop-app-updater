@@ -61,15 +61,9 @@ const ProactiveAi = () => {
 	const bodyRef = useRef(null);
 
 	useEffect(() => {
-		if (!proactiveAiId) return;
+		if (!proactiveAiId || proactiveAiData) return;
 		getProactiveAiData(proactiveAiId);
 	}, [proactiveAiId]);
-
-	useEffect(() => {
-		return () => {
-			updateStateValues({ proactiveAiData: null });
-		};
-	}, []);
 
 	useEffect(() => {
 		if (!proactiveAiData) return;
