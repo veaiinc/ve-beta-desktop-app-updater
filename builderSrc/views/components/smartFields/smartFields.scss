@@ -1,0 +1,315 @@
+.smart-fields-container {
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	gap: 24px;
+	flex-direction: column;
+	padding: 50px 120px;
+	background: #111;
+	color: white;
+
+	.smart-fields-navbar {
+		display: flex;
+		justify-content: space-between;
+
+		.smart-field-title {
+			display: flex;
+			align-self: center;
+			gap: 12px;
+
+			p {
+				color: #f5f5f5;
+				font-size: 20px;
+				font-weight: 600;
+			}
+
+			.smart-field-education-icon {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				position: relative;
+				cursor: pointer;
+
+				.tooltip {
+					display: flex;
+					flex-direction: column;
+					gap: 8px;
+					width: 250px;
+					padding: 16px;
+					position: absolute;
+					top: -100%;
+					left: 20px;
+					border-radius: 8px;
+					border: 1px solid rgba(228, 229, 230, 0.05);
+					background: #151515;
+					box-shadow: 4px 4px 8px 0px rgba(0, 0, 0, 0.3);
+					z-index: 1000;
+
+					.heading {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 13px;
+						font-weight: 600;
+					}
+
+					.subTitle {
+						color: rgba(228, 229, 230, 0.7);
+						font-family: Inter;
+						font-size: 12px;
+						font-weight: 400;
+					}
+				}
+			}
+
+			.smart-field-back-button {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				cursor: pointer;
+
+				svg {
+					path {
+						fill: white;
+					}
+				}
+			}
+		}
+
+		.smart-field-search-container {
+			display: flex;
+			gap: 16px;
+
+			.smart-field-search-input-container {
+				display: flex;
+				gap: 12px;
+				align-items: center;
+				width: 230px;
+				padding: 12px 16px;
+				border-radius: 100px;
+				background: #171717;
+
+				input {
+					width: 100%;
+					background: none;
+					border: none;
+					color: #fff;
+				}
+			}
+
+			.smart-field-add-button {
+				display: flex;
+				height: 100%;
+				align-items: center;
+				border-radius: 100px;
+				padding: 16px 24px;
+				background: #6055ec;
+				cursor: pointer;
+			}
+		}
+	}
+
+	.smart-fields-table-container {
+		max-height: 80vh;
+		overflow-y: auto;
+
+		.smart-fields-table {
+			width: 100%;
+			border-radius: 16px;
+			border-collapse: collapse;
+
+			.smart-fields-thead {
+				background: #1d1d1d;
+				position: sticky;
+				top: 0px;
+				.smart-fields-tr {
+					background: #1d1d1d;
+
+					th {
+						border: none;
+						text-align: left;
+						width: 25%;
+						padding: 12px 24px;
+						color: #e4e5e6;
+						font-size: 12px;
+						font-weight: 500;
+					}
+					.smart-fields-default-value-column {
+						display: flex;
+						.default-education-container {
+							position: relative;
+							.tooltip {
+								display: flex;
+								flex-direction: column;
+								gap: 8px;
+								width: 250px;
+								padding: 16px;
+								position: absolute;
+								top: 100%;
+								left: -80px;
+								border-radius: 8px;
+
+								border: 1px solid rgba(228, 229, 230, 0.05);
+								background: #151515;
+								box-shadow: 4px 4px 8px 0px rgba(0, 0, 0, 0.3);
+
+								.heading {
+									color: #e4e5e6;
+									font-family: Inter;
+									font-size: 13px;
+									font-weight: 600;
+								}
+
+								.subTitle {
+									color: rgba(228, 229, 230, 0.7);
+									font-family: Inter;
+									font-size: 12px;
+									font-weight: 400;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			.smart-fields-tbody {
+				.smart-fields-tr {
+					td {
+						padding: 12px 24px;
+						border: none;
+						height: 40px;
+						width: 25%;
+						color: #e4e5e6;
+						font-size: 12px;
+						font-weight: 500;
+					}
+
+					.input-type-column {
+						display: flex;
+						gap: 5px;
+						align-items: center;
+						// padding: 0px
+					}
+					.default-value-column {
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						width: 100%;
+						p {
+							display: flex;
+							align-items: center;
+							gap: 5px;
+						}
+						.smart-file-options {
+							display: none;
+							gap: 10px;
+						}
+					}
+					&:hover {
+						border: 1px solid rgba(228, 229, 230, 0.05);
+						background: #171717;
+						border-radius: 4px;
+						.smart-file-options {
+							display: flex;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+.create-smart-field-container {
+	display: flex;
+	width: 545px;
+	padding: 32px;
+	flex-direction: column;
+	gap: 30px;
+	border-radius: 32px;
+	background: #151515;
+	.create-smart-field-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		p {
+			color: #e4e5e6;
+			font-size: 20px;
+			font-weight: 500;
+		}
+	}
+	.create-smart-field-body {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		div {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			p {
+				color: #e4e5e6;
+				font-size: 12px;
+				font-weight: 500;
+			}
+		}
+		input {
+			padding: 16px;
+			background: none;
+			width: 100%;
+			border-radius: 10px;
+			border: 1px solid rgba(36, 36, 36, 0.64);
+			color: #e4e5e6;
+		}
+		.dropdown-container {
+			display: flex;
+			flex-direction: column;
+			position: relative;
+			.dropdown {
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				align-items: center;
+				padding: 16px;
+				background: none;
+				width: 100%;
+				border-radius: 10px;
+				border: 1px solid rgba(36, 36, 36, 0.64);
+				color: #e4e5e6;
+			}
+			.dropdown-options-container {
+				border-radius: 12px;
+				border: 1px solid rgba(228, 229, 230, 0.05);
+				background: #151515;
+				padding: 4px;
+				position: absolute;
+				top: 80px;
+				height: 21vh;
+				z-index: 100;
+				overflow: auto;
+				width: 100%;
+				.dropdown-option {
+					display: flex;
+					flex-direction: row;
+					padding: 12px 16px;
+
+					.options {
+						color: #e4e5e6;
+						font-size: 12px;
+						font-weight: 400;
+					}
+				}
+			}
+		}
+	}
+	.create-smart-field-footer {
+		display: flex;
+		justify-content: flex-end;
+		p {
+			padding: 16px 24px;
+			border-radius: 100px;
+			background: #6055ec;
+			color: #e4e5e6;
+			font-size: 13px;
+			font-weight: 500;
+			line-height: 16px;
+			cursor: pointer;
+		}
+	}
+}

@@ -1,0 +1,15 @@
+export const Templates = {
+	url: '/templates',
+	urlParam: '/',
+	createProposal: '/create-proposal',
+	layouts: '/layouts',
+	sections: '/sections',
+	blocks: '/blocks',
+	subBlocks: '/sub-blocks',
+	imageUploadStatus: '/stock-images/image-upload-status',
+	uploadBatchID: '?uploadBatchId=',
+	duplicateTemplate: '/duplicate',
+	modules: '/modules',
+	versions: '/versions',
+	tenants: '/tenants',
+};

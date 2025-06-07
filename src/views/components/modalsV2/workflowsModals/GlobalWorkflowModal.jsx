@@ -235,7 +235,7 @@ const GlobalWorkflowModal = ({
 				if (info?.activeTab !== 'design') {
 					return navigate(`/workflow_builder/${response?.[1]?._id}`);
 				} else {
-					window.location.href = `${origin}/${response?.[1]?._id}`;
+					navigate(`/builder/${response?.[1]?._id}`);
 					return;
 				}
 			}
@@ -251,7 +251,7 @@ const GlobalWorkflowModal = ({
 			setInfo((prev) => ({ ...prev, duplicateApiLoading: false }));
 
 			if (response?.[0]) {
-				window.location.href = `${origin}/${response?.[1]?._id}`;
+				navigate(`/builder/${response?.[1]?._id}`);
 			}
 		}
 	}, [info?.activeTemplateData, info?.activeTab, info?.duplicateApiLoading, isProposal]);

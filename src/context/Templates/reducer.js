@@ -452,7 +452,7 @@ const actionHandlers = {
 	}),
 	SET_CONNECTED_THIRDPARTIES: (state, action) => ({
 		...state,
-		connectThirdParties: action?.payload,
+		connectedThirdParties: action?.payload,
 	}),
 	UPDATE_CITATION_CHUNKS: (state, action) => {
 		const sourceId = Object?.keys(action?.payload)?.[0];
@@ -467,6 +467,10 @@ const actionHandlers = {
 	GET_AI_QUESTIONS_SUCCESS: (state, action) => ({
 		...state,
 		aiQuestions: action?.payload,
+	}),
+	GET_PROACTIVE_AI_DATA_SUCCESS: (state, action) => ({
+		...state,
+		proactiveAiData: action?.payload,
 	}),
 	RESET_STATE: () => intialState,
 };

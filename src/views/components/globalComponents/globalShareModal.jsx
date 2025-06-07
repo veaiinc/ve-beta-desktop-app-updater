@@ -18,7 +18,7 @@ const ShareModal = ({
 	// Tabs configuration
 	tabs = [],
 	activeTab,
-	onTabChange,
+	onTabChange = () => {},
 	showShareTab = true,
 	showPublishTab = false,
 

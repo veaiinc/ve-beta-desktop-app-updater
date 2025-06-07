@@ -158,7 +158,7 @@ const VerifyEmailCode = ({
 						<input
 							type="text"
 							placeholder="0000"
-							maxlength="4"
+							maxLength="4"
 							pattern="[0-9]*"
 							onChange={handleInput}
 							name="verifyCode"
