@@ -276,7 +276,6 @@ const Notifications = () => {
 														}}
 													>
 														<Checkbox
-															key={id}
 															className="custom-notification-checkbox"
 															checked={
 																info?.moduleAppTypeSelectAll?.[
