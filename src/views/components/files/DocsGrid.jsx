@@ -15,6 +15,7 @@ import EmptyState from './EmptyState';
 import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
 import { ReactComponent as Search } from '../../../assets/svg/search.svg';
+import TemplateShortPreview from '../../../../builderSrc/views/feature/TemplateShortPreview';
 
 const origin = fetchOriginSelection();
 
@@ -241,13 +242,19 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 					/>
 					{info?.searchLoading && (
 						<div className="search-spinner">
-							<Spinner size="small" width={16} height={16} borderWidth={1.5} color="var(--primary-button)" />
+							<Spinner
+								size="small"
+								width={16}
+								height={16}
+								borderWidth={1.5}
+								color="var(--primary-button)"
+							/>
 						</div>
 					)}
 				</div>
 			</div>
-				<div className="center-container-content">
-					{info?.loading ? (
+			<div className="center-container-content">
+				{info?.loading ? (
 					<div className="spinner-container">
 						<Spinner />
 					</div>
@@ -280,11 +287,9 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 									onClick={() => handleDocClick(doc)}
 								>
 									<div className="card-item-style content-wrapper docs">
-										<img
-											className="docs-card-bg"
-											src={DocsCardBg}
-											alt="Docs Card Background"
-										/>
+										<div className="docs-card-bg">
+											<TemplateShortPreview doc={doc} />
+										</div>
 										<div className="docs-preview"></div>
 										<DocsStatusButton
 											content={statusTextmapper?.[doc?.status]?.text}
