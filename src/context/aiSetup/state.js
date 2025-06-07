@@ -521,7 +521,13 @@ export const AiSetupState = () => {
 	const updateKnowledgeBaseFile = async (knowledgeId, data) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
-		const url = '/' + workspaceId + KNOWLEDGE_BASE?.updateKnowledgeBaseFile + '/' + knowledgeId;
+		const url =
+			'/' +
+			workspaceId +
+			KNOWLEDGE_BASE?.updateKnowledgeBaseFile +
+			'/' +
+			knowledgeId +
+			'/update-status-of-file';
 		try {
 			const response = await service?.fetchPut(url, data, usertoken, 'ai_assistant_api');
 			return response;

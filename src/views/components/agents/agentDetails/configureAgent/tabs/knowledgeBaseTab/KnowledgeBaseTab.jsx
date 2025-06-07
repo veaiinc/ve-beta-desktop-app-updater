@@ -64,6 +64,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 				}));
 				const response = await updateKnowledgeBaseFile(knowledgeId, {
 					isActive: value,
+					agent: 'knowledgeAgent',
 				});
 
 				if (!response?.[0]) {
@@ -122,6 +123,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 					>
 						{info?.knowledgeBaseFiles?.map((file) => {
 							const { _id, isActive, name, sourceType, updatedAt } = file;
+
 							const formattedUpdatedAt = `${new Date(updatedAt * 1000)
 								?.toLocaleDateString('en-US', {
 									month: 'short',
