@@ -7,7 +7,7 @@ import { ReactComponent as InstagramLogo } from '../../../assets/svg/landingScre
 import { ReactComponent as FacebookLogo } from '../../../assets/svg/landingScreen/facebookLogo.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 import GoldenGateImage from '../../../assets/images/goldenGate.png';
-import { LINKEDIN_URL, INSTAGRAM_URL, CHANGELOG_URL } from '../../../helpers/ConstantUrls';
+import { LINKEDIN_URL, INSTAGRAM_URL } from '../../../helpers/ConstantUrls';
 
 import { Link } from 'react-router-dom';
 
@@ -61,7 +61,7 @@ const Footer = ({ BackTop }) => {
 									<Link to="/cookie-policy">Cookie</Link>
 								</li>
 								<li>
-									<Link to={CHANGELOG_URL}>Changelog</Link>
+									<Link to="/changelog">Changelog</Link>
 								</li>
 							</ul>
 						</div>
