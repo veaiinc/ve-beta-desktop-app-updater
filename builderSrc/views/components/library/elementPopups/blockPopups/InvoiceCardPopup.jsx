@@ -458,26 +458,36 @@ export default class InvoiceCardPopup extends Images {
 					height: '425px',
 				}}
 			>
-				<div className="elementPopupHeader">
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						padding: '12px 0px',
+					}}
+					className="elementPopupHeader"
+				>
 					{/* <p
 						className={this.state.active === 'c' ? 'active' : ''}
 						onClick={() => this.handleActive('c')}
 					>
 						Card
-					</p>
+					</p>*/}
 					<p
+						style={{ fontSize: '12px' }}
 						className={this.state.active === 'b' ? 'active' : ''}
 						onClick={() => this.handleActive('b')}
 					>
 						Background
-					</p> */}
+					</p>
 					<p
+						style={{ fontSize: '12px' }}
 						className={this.state.active === 'i' ? 'active' : ''}
 						onClick={() => this.handleActive('i')}
 					>
 						Tax & Payment
 					</p>
 					<p
+						style={{ fontSize: '12px' }}
 						className={this.state.active === 'd' ? 'active' : ''}
 						onClick={() => this.handleActive('d')}
 					>
@@ -1100,6 +1110,200 @@ export default class InvoiceCardPopup extends Images {
 									/>
 									<span className="slider-round round"></span>
 								</label>
+							</div>
+							<div className="element_image">
+								<div className="element_pasteURL" style={{ gap: '15px' }}>
+									<div className="block_styles pad-color-p-imp">
+										<ColorPicker
+											title={'box 1 Background Color'}
+											color={this.props?.activeComponent?.style?.Card1Color}
+											handleColor={(e) =>
+												this.handleInvoiceCardStyles('Card1Color', e)
+											}
+											brandColors={this.props?.brandColors}
+											zoom={0.8}
+											isDarkBg={true}
+										/>
+									</div>
+								</div>
+							</div>
+							<div className="element_image">
+								<div className="element_pasteURL" style={{ gap: '15px' }}>
+									<div className="block_styles pad-color-p-imp">
+										<ColorPicker
+											title={'box 2 Background Color'}
+											color={this.props?.activeComponent?.style?.Card2Color}
+											handleColor={(e) =>
+												this.handleInvoiceCardStyles('Card2Color', e)
+											}
+											brandColors={this.props?.brandColors}
+											zoom={0.8}
+											isDarkBg={true}
+										/>
+									</div>
+								</div>
+							</div>
+							<div className="element_image">
+								<div className="element_pasteURL" style={{ gap: '15px' }}>
+									<div className="block_styles pad-color-p-imp">
+										<ColorPicker
+											title={'Primary Text Color'}
+											color={this.props?.activeComponent?.style?.titleColor}
+											handleColor={(e) =>
+												this.handleInvoiceCardStyles('titleColor', e)
+											}
+											brandColors={this.props?.brandColors}
+											zoom={0.8}
+											isDarkBg={true}
+										/>
+									</div>
+								</div>
+							</div>
+							<div className="element_image">
+								<div className="element_pasteURL" style={{ gap: '15px' }}>
+									<div className="block_styles pad-color-p-imp">
+										<ColorPicker
+											title={'Secondary Text Color'}
+											color={this.props?.activeComponent?.style?.valueColor}
+											handleColor={(e) =>
+												this.handleInvoiceCardStyles('valueColor', e)
+											}
+											brandColors={this.props?.brandColors}
+											zoom={0.8}
+											isDarkBg={true}
+										/>
+									</div>
+								</div>
+							</div>
+							<div className="padding-options-wrapper">
+								<div className="padding-options-header">Vertical Padding</div>
+								<div className="padding-options-item">
+									<div
+										className={`padding-one ${
+											!_.has(this.props?.activeComponent?.style, 'padding') ||
+											this.props?.activeComponent?.style?.padding === 0
+												? 'active'
+												: ''
+										}`}
+										onClick={() => this.handleInvoiceCardStyles('padding', 0)}
+									>
+										null
+									</div>
+									<div
+										className={`padding-one ${
+											this.props?.activeComponent?.style?.padding == 1
+												? 'active'
+												: ''
+										}`}
+										onClick={() => this.handleInvoiceCardStyles('padding', 1)}
+									>
+										S
+									</div>
+									<div
+										className={`padding-one ${
+											this.props?.activeComponent?.style?.padding == 2
+												? 'active'
+												: ''
+										}`}
+										onClick={() => this.handleInvoiceCardStyles('padding', 2)}
+									>
+										M
+									</div>
+									<div
+										className={`padding-one ${
+											this.props?.activeComponent?.style?.padding == 3
+												? 'active'
+												: ''
+										}`}
+										onClick={() => this.handleInvoiceCardStyles('padding', 3)}
+									>
+										L
+									</div>
+									<div
+										className={`padding-one ${
+											this.props?.activeComponent?.style?.padding == 4
+												? 'active'
+												: ''
+										}`}
+										onClick={() => this.handleInvoiceCardStyles('padding', 4)}
+									>
+										XL
+									</div>
+								</div>
+							</div>
+							<div className="padding-options-wrapper">
+								<div className="padding-options-header">Horizontal Padding</div>
+								<div className="padding-options-item">
+									<div
+										className={`padding-one ${
+											!_.has(
+												this.props?.activeComponent?.style,
+												'paddingHorizontal',
+											) ||
+											this.props?.activeComponent?.style
+												?.paddingHorizontal === 0
+												? 'active'
+												: ''
+										}`}
+										onClick={() =>
+											this.handleInvoiceCardStyles('paddingHorizontal', 0)
+										}
+									>
+										null
+									</div>
+									<div
+										className={`padding-one ${
+											this.props?.activeComponent?.style?.paddingHorizontal ==
+											1
+												? 'active'
+												: ''
+										}`}
+										onClick={() =>
+											this.handleInvoiceCardStyles('paddingHorizontal', 1)
+										}
+									>
+										S
+									</div>
+									<div
+										className={`padding-one ${
+											this.props?.activeComponent?.style?.paddingHorizontal ==
+											2
+												? 'active'
+												: ''
+										}`}
+										onClick={() =>
+											this.handleInvoiceCardStyles('paddingHorizontal', 2)
+										}
+									>
+										M
+									</div>
+									<div
+										className={`padding-one ${
+											this.props?.activeComponent?.style?.paddingHorizontal ==
+											3
+												? 'active'
+												: ''
+										}`}
+										onClick={() =>
+											this.handleInvoiceCardStyles('paddingHorizontal', 3)
+										}
+									>
+										L
+									</div>
+									<div
+										className={`padding-one ${
+											this.props?.activeComponent?.style?.paddingHorizontal ==
+											4
+												? 'active'
+												: ''
+										}`}
+										onClick={() =>
+											this.handleInvoiceCardStyles('paddingHorizontal', 4)
+										}
+									>
+										XL
+									</div>
+								</div>
 							</div>
 						</div>
 					) : (

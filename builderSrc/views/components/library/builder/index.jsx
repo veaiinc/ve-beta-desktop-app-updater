@@ -1041,6 +1041,7 @@ class Builder extends Component {
 													builderCurrencySymbol={
 														this.props?.currencySymbol2
 													}
+													clientGrandTotal={this.props.clientGrandTotal}
 													handleAddLayout={(e, isFluid, isService) =>
 														this.props.handleAddLayout(
 															e,
@@ -1093,9 +1094,6 @@ class Builder extends Component {
 													style={section.style}
 													actionType={this.state.actionType}
 													actionValue={this.state.actionValue}
-													handleSideBar={(e, _id) =>
-														this.props.handleOpenSideBar(e, _id, false)
-													}
 													showAddBlock={(e) =>
 														this.toggleAddBlock(
 															e,
@@ -1192,6 +1190,15 @@ class Builder extends Component {
 													editingWorflow={
 														this.props?.editingWorflow || false
 													}
+													handleSideBar={(e, _id) => {
+														this.props.handleOpenSideBar(
+															e,
+															_id,
+															false,
+															true,
+														);
+													}}
+													activeModuleId={this.props?.activeModuleId}
 												/>
 											</div>
 										);
@@ -1412,9 +1419,17 @@ class Builder extends Component {
 													contractBg={this.state.contractBg}
 													previewType={this.state.previewType}
 													signatures={this.state.signatures}
-													handleSideBar={(e, _id) =>
-														this.props.handleOpenSideBar(e, _id)
-													}
+													// handleSideBar={(e, _id) =>
+													// 	this.props.handleOpenSideBar(e, _id)
+													// }
+													handleSideBar={(e, _id) => {
+														this.props.handleOpenSideBar(
+															e,
+															_id,
+															false,
+															true,
+														);
+													}}
 													showAddBlock={(e) =>
 														this.toggleAddBlock(e, section.order, index)
 													}
@@ -1435,6 +1450,18 @@ class Builder extends Component {
 														})
 													}
 													version={this.props.version}
+													setActiveSection={(e) => {
+														this.props.setActiveSection(e);
+													}}
+													section={section}
+													activeModuleId={this.props?.activeModuleId}
+													handleAddLayout={(e, isFluid, isService) =>
+														this.props.handleAddLayout(
+															e,
+															isFluid,
+															isService,
+														)
+													}
 												/>
 											</div>
 										);
@@ -1456,9 +1483,9 @@ class Builder extends Component {
 													_id={section?._id}
 													blocks={section?.blocks}
 													style={section?.style}
-													handleSideBar={(e, _id) =>
-														this.props.handleOpenSideBar(e, _id)
-													}
+													// handleSideBar={(e, _id) =>
+													// 	this.props.handleOpenSideBar(e, _id)
+													// }
 													showAddBlock={(e) => {
 														this.toggleAddBlock(
 															e,
@@ -1527,6 +1554,26 @@ class Builder extends Component {
 														)
 													}
 													clientGrandTotal={this.props?.clientGrandTotal}
+													section={section}
+													setActiveSection={(e) => {
+														this.props.setActiveSection(e);
+													}}
+													handleSideBar={(e, _id) => {
+														this.props.handleOpenSideBar(
+															e,
+															_id,
+															false,
+															true,
+														);
+													}}
+													activeModuleId={this.props?.activeModuleId}
+													handleAddLayout={(e, isFluid, isService) =>
+														this.props.handleAddLayout(
+															e,
+															isFluid,
+															isService,
+														)
+													}
 												/>
 											</div>
 										);
@@ -1567,9 +1614,12 @@ class Builder extends Component {
 													actionValue={this.state?.actionValue}
 													triggerFont={this.state?.triggerFont}
 													handleSideBar={(e, _id) => {
-														this.props.client
-															? ''
-															: this.props.handleOpenSideBar(e, _id);
+														this.props.handleOpenSideBar(
+															e,
+															_id,
+															false,
+															true,
+														);
 													}}
 													showAddBlock={(e) =>
 														this.toggleAddBlock(
@@ -1994,9 +2044,17 @@ class Builder extends Component {
 													_id={section?._id}
 													blocks={section?.blocks}
 													style={section?.style}
-													handleSideBar={(e, _id) =>
-														this.props.handleOpenSideBar(e, _id)
-													}
+													// handleSideBar={(e, _id) =>
+													// 	this.props.handleOpenSideBar(e, _id)
+													// }
+													handleSideBar={(e, _id) => {
+														this.props.handleOpenSideBar(
+															e,
+															_id,
+															false,
+															true,
+														);
+													}}
 													showAddBlock={(e) =>
 														this.toggleAddBlock(
 															e,
@@ -2086,6 +2144,12 @@ class Builder extends Component {
 														this.props.handleAddLayout(e, type)
 													}
 													isSummaryPreview={this.props.isSummaryPreview}
+													setActiveSection={(e) => {
+														this.props.setActiveSection(e);
+													}}
+													section={section}
+													fonts={this.props?.fonts}
+													activeModuleId={this.props?.activeModuleId}
 												/>
 											</div>
 										);
