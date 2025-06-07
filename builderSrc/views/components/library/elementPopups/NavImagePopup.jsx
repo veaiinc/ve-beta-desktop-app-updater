@@ -1,0 +1,412 @@
+import React from 'react';
+import './elementPopup.scss';
+import randomize from 'randomatic';
+import { ReactComponent as Upload } from '../svgs/Navbar/Upload.svg';
+import { ReactComponent as Delete } from '../svgs/delete.svg';
+import Modal from '../modals/index';
+import ImageLibrary from '../../imageLibrary';
+
+import Images from '../../../../controllers/images';
+class NavImagePopup extends Images {
+	constructor(props) {
+		super(props);
+		this.state = {
+			image: props.image,
+			siteTitle: this.props.activeComponent?.style?.siteTitle || '',
+			desktopLogo: null,
+			mobileLogo: null,
+			activeComponent: this.props.activeComponent,
+			showImageProgressBar: false,
+			uploadBatchID: randomize('Aa0', 10),
+			uploadedImageURL: null,
+			interval: null,
+			progressCount: 0,
+			showImageModalLibrary: false,
+			debounceInterval: null,
+		};
+
+		this.desktopLogoRef = React.createRef();
+		this.mobileLogoRef = React.createRef();
+	}
+
+	componentWillReceiveProps = (nextProps) => {
+		if (this.state.activeComponent !== nextProps.activeComponent) {
+			this.setState({ activeComponent: nextProps.activeComponent });
+		}
+	};
+	debounceFunction = (func, delay) => {
+		if (this.state.debounceInterval) {
+			clearInterval(this.state.debounceInterval);
+		}
+		let debounceIntervalFunc = setTimeout(() => {
+			func();
+		}, delay);
+		this.setState({ debounceInterval: debounceIntervalFunc });
+	};
+
+	handleTitleChange = (e) => {
+		this.setState({ siteTitle: e.target.value }, () => {
+			this.debounceFunction(() => {
+				this.handleActiveImageStyles('siteTitle', this.state.siteTitle);
+			}, 1000);
+		});
+	};
+
+	//! file upload functions
+	handleDivClick = (e) => {
+		if (this.desktopLogoRef.current) {
+			this.desktopLogoRef.current.click();
+		} else if (this.mobileLogoRef.current) {
+			this.mobileLogoRef.current.click();
+		}
+	};
+
+	handleFileChange = async (event, uploadAIImage = false) => {
+		let file;
+		if (uploadAIImage) {
+			this.setState({
+				activeImageURL: null,
+				isImage: null,
+			});
+			try {
+				// Handle both full data URL and raw base64 string
+				const base64Data = event.includes('data:') ? event.split(';base64,').pop() : event;
+
+				// Validate base64 string
+				if (!base64Data || !/^[A-Za-z0-9+/=]+$/.test(base64Data)) {
+					throw new Error('Invalid base64 string');
+				}
+
+				const byteCharacters = atob(base64Data);
+				const byteArrays = [];
+
+				for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+					const slice = byteCharacters.slice(offset, offset + 512);
+					const byteNumbers = new Array(slice.length);
+
+					for (let i = 0; i < slice.length; i++) {
+						byteNumbers[i] = slice.charCodeAt(i);
+					}
+
+					const byteArray = new Uint8Array(byteNumbers);
+					byteArrays.push(byteArray);
+				}
+
+				const blob = new Blob(byteArrays, { type: 'image/jpeg' });
+				file = new File([blob], 'ai-generated-image.jpg', { type: 'image/jpeg' });
+			} catch (error) {
+				console.error('Error processing base64 image:', error);
+				return;
+			}
+		} else {
+			file = event.target.files[0];
+		}
+
+		if (file) {
+			this.setState({ showImageProgressBar: true }, () => {
+				this.startCounting();
+			});
+
+			let json = {
+				uploadBatchId: this.state.uploadBatchID,
+				originalFileName: uploadAIImage ? 'ai-generated-image.jpg' : file?.name,
+				originalDateTime: uploadAIImage ? moment().unix() : file?.lastModified,
+			};
+
+			let res = null;
+
+			if (this.props?.isWorkflow) {
+				res = await this.uploadImageWorkflow(json, file, {
+					module: this.props.module,
+					activeWorkflowModuleId: this.props.activeWorkflowModuleId,
+				});
+			} else {
+				res = await this.uploadImage(json, file, this.props.activeModuleId);
+			}
+
+			this.setState({
+				uploadedImageURL: res[1],
+			});
+
+			let interval = setInterval(() => this.getUploadStatus(res[0]), 3000);
+			this.setState({
+				interval: interval,
+			});
+		}
+	};
+	getUploadStatus = async (imageID) => {
+		let res = await this.getImageUploadStatus(this.state.uploadBatchID);
+		if (res.processedCount === 1 && res.uploadedCount === 1) {
+			clearInterval(this.state.interval);
+			//this.props.getImages();
+			//this.props.saveImage(imageID, this.state.originalHeight, this.state.originalWidth);
+			this.setState(
+				{
+					interval: null,
+					progressCount: 0,
+					showImageProgressBar: false,
+					activeImageURL: this.state.uploadedImageURL,
+					uploadBatchID: randomize('Aa0', 10),
+				},
+				() => {
+					// this.props.setImage(this.state.uploadedImageURL);
+					this.handleActiveImageStyles('imageURL', this.state.uploadedImageURL);
+				},
+			);
+		}
+	};
+	startCounting = () => {
+		const duration = 2000; // 2 seconds
+		const targetCount = 99;
+		const interval = 10; // milliseconds
+		const increment = targetCount / (duration / interval);
+
+		this.intervalId = setInterval(() => {
+			this.setState((prevState) => {
+				const newCount = prevState.progressCount + increment;
+				if (newCount >= targetCount) {
+					clearInterval(this.intervalId);
+					return { progressCount: targetCount };
+				}
+				return { progressCount: newCount };
+			});
+		}, interval);
+	};
+
+	handleActiveImageStyles = (type, value) => {
+		let newComponent = { ...this.state.activeComponent };
+		let image_settings = {
+			crop: { x: 0, y: 0 },
+			zoom: 1,
+			aspect: 3 / 2,
+		};
+		if (type == 'imageURL') {
+			if (this.props.isMobileNavbar) {
+				newComponent = {
+					...newComponent,
+					blocks: [
+						{
+							...newComponent.blocks[0],
+							subBlocks: [
+								{
+									...newComponent.blocks[0].subBlocks[0],
+									imageURL: value,
+								},
+							],
+						},
+					],
+				};
+			} else {
+				newComponent = {
+					...newComponent,
+					[type]: value,
+					image_settings: newComponent?.image_settings || image_settings,
+				};
+			}
+		} else if (type == 'remove') {
+			if (this.props.isMobileNavbar) {
+				newComponent = {
+					...newComponent,
+					blocks: [
+						{
+							...newComponent.blocks[0],
+							subBlocks: [
+								{
+									...newComponent.blocks[0].subBlocks[0],
+									imageURL: '',
+								},
+							],
+						},
+					],
+				};
+			} else {
+				newComponent = {
+					...newComponent,
+					imageURL: '',
+					image_settings: newComponent?.image_settings || image_settings,
+				};
+			}
+		} else if (type == 'siteTitle') {
+			newComponent.style = newComponent.style || {};
+			newComponent.style.siteTitle = value;
+		} else if (type == 'imgLibrary') {
+			if (this.props.isMobileNavbar) {
+				newComponent = {
+					...newComponent,
+					blocks: [
+						{
+							...newComponent.blocks[0],
+							subBlocks: [
+								{
+									...newComponent.blocks[0].subBlocks[0],
+									imageURL: value,
+								},
+							],
+						},
+					],
+				};
+			} else {
+				newComponent = {
+					...newComponent,
+					imageURL: value,
+				};
+			}
+		}
+
+		this.setState(
+			{
+				activeComponent: newComponent,
+			},
+			() => {
+				this.props?.setActivePopupComponent(newComponent);
+			},
+		);
+	};
+	render() {
+		let isImage = this.props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.imageURL;
+		return (
+			<>
+				<div className="upload-container">
+					<div className="upload-header">
+						<div className="upload-header-title">Image</div>
+					</div>
+
+					{!this.props.isMobileNavbar ? (
+						<div className="upload-section">
+							<label className="upload-label">Site title</label>
+							<input
+								type="text"
+								className="title-input"
+								placeholder="Add Site title"
+								value={this.state.siteTitle}
+								onChange={this.handleTitleChange}
+							/>
+						</div>
+					) : null}
+					<div className="upload-section">
+						<label className="upload-label">Logo for desktop</label>
+						<div onClick={this.handleDivClick}>
+							{isImage ? (
+								<div
+									style={{
+										display: 'flex',
+										gap: '5px',
+										justifyContent: 'space-between',
+										cursor: 'pointer',
+									}}
+								>
+									<img src={isImage} alt="logo" height={120} width={226} />
+									{/* <input
+                            type="file"
+                            id="desktop-logo"
+                            className="file-input"
+                            accept="image/*"
+							ref={this.desktopLogoRef}
+                            onChange={(e) => this.handleFileChange(e)}
+							onClick={(e) => {
+								e.stopPropagation();
+							}}
+                        /> */}
+									<span
+										onClick={(e) => this.handleActiveImageStyles('remove', e)}
+									>
+										<Delete />
+									</span>
+								</div>
+							) : this.state.showImageProgressBar ? (
+								<div
+									className="image_progress_bar"
+									style={{
+										width: '226px',
+										height: '120px',
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+										border: '1px solid #e8e8e8',
+									}}
+								>
+									<div
+										className="count"
+										style={{
+											color: '#7c7c84',
+										}}
+									>
+										{parseInt(this.state?.progressCount)}%
+									</div>
+									<div className="progress">
+										<span
+											className="progress-b"
+											style={{
+												width: `${parseInt(this.state?.progressCount)}%`,
+											}}
+										></span>
+										<span></span>
+									</div>
+								</div>
+							) : (
+								<div className="upload-box">
+									<input
+										type="file"
+										id="desktop-logo"
+										className="file-input"
+										accept="image/*"
+										ref={this.desktopLogoRef}
+										onChange={(e) => this.handleFileChange(e)}
+										onClick={(e) => {
+											e.stopPropagation();
+										}}
+									/>
+									<label htmlFor="desktop-logo" className="upload-placeholder">
+										<span className="upload-img">
+											<Upload />
+										</span>
+										<span className="text-upload">Add Image (20 MB max)</span>
+									</label>
+								</div>
+							)}
+						</div>
+					</div>
+					<div className="element_or">
+						<div className="ortext">Or</div>
+						<div className="line"></div>
+					</div>
+					<div className="element_button_main">
+						<div
+							className="element_button"
+							onClick={() =>
+								this.setState({ showImageModalLibrary: true }, () => {
+									this.props?.setModalRef(this.state.showImageModalLibrary);
+								})
+							}
+							style={{ cursor: 'pointer' }}
+						>
+							<span className="subheading"> Select an Image from Library</span>
+						</div>
+					</div>
+				</div>
+				<Modal
+					show={this.state.showImageModalLibrary}
+					handleClose={(e) => {
+						this.setState({ showImageModalLibrary: false }, () => {
+							this.props?.setModalRef(this.state.showImageModalLibrary);
+						});
+					}}
+					modalType={'center'}
+				>
+					<ImageLibrary
+						close={(e) => {
+							this.setState({ showImageModalLibrary: false }, () => {
+								this.props?.setModalRef(this.state.showImageModalLibrary);
+							});
+						}}
+						setLibraryImage={(e) => {
+							this.handleActiveImageStyles('imgLibrary', e);
+						}}
+					/>
+				</Modal>
+			</>
+		);
+	}
+}
+
+export default NavImagePopup;

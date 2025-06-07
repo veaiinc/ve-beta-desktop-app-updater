@@ -265,7 +265,7 @@ const WorkflowBuilder = () => {
 		};
 		const response = await duplicateGlobalWorkflowTemplate(payload);
 		if (response?.[0]) {
-			window.location.href = `${origin}/${response?.[1]?._id}`;
+			navigate(`/builder/${response?.[1]?._id}`);
 		}
 		closeDuplicateWorkflowModal();
 	}, [info?.incomingTemplateData, closeDuplicateWorkflowModal]);
