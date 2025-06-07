@@ -4,7 +4,7 @@ import { ReactComponent as Sparkle } from '../../../assets/svg/sparkle.svg';
 import { ReactComponent as CaretDonw } from '../../../assets/svg/left.svg';
 import { ReactComponent as Binoculars } from '../../../assets/svg/landingScreen/binocularsSvg.svg';
 import { useNavigate } from 'react-router-dom';
-
+import { ReactComponent as VeLogoBlack } from '../../../assets/svg/veLogoBlack.svg';
 const featuresList = [
 	{ label: 'Proactive AI' },
 	{ label: 'Enterprise Search' },
@@ -33,11 +33,9 @@ const menuData = [
 		section: 'Features',
 	},
 	{ label: 'Home' },
-	{ label: 'Mission' },
-	{ label: 'For Enterprise' },
-	{ label: 'API' },
-	{ label: 'Pricing' },
-	{ label: 'Career' },
+	{ label: 'Mission' , path : '/mission' },
+	{ label: 'For Enterprise' , path : '/contact-us' },
+	{ label: 'Pricing' , path : '/pricing' },
 ];
 
 const MobileMenu = ({ open, onClose, onLogin, onGetFree }) => {
@@ -53,7 +51,9 @@ const MobileMenu = ({ open, onClose, onLogin, onGetFree }) => {
 				submenu: item,
 			});
 		} else {
-			// handle navigation here
+			if (item.path) {
+				navigate(item.path);
+			}
 			onClose();
 		}
 	};
@@ -72,8 +72,8 @@ const MobileMenu = ({ open, onClose, onLogin, onGetFree }) => {
 			<div className="mobile-menu-header">
 				<VeLogo className="ve-logo" />
 				<div className="mobile-menu-header-right">
-					<button className="get-ve-free-btn" onClick={onGetFree}>
-						Get VE Free
+					<button className="get-ve-free-btn" onClick={() => navigate('/verify-user')}>
+						Get <VeLogoBlack className="ve-logo-black" /> Free
 					</button>
 					<button className="close-btn" onClick={onClose}>
 						&times;

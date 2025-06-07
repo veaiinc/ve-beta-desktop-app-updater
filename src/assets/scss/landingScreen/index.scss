@@ -27,7 +27,7 @@
 			gap: 32px;
 			align-items: center;
 			z-index: 1000;
-
+			cursor: pointer;
 			.ve-logo {
 				width: 36px;
 				height: 19px;
@@ -176,8 +176,14 @@
 					color: var(--primary-button-font, #0c0c0d);
 					cursor: pointer;
 					border: none;
+					color: var(--background-color, #0C0C0D);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
 					svg {
-						width: 20px !important;
+						width: 18px !important;
 						color: var(--primary-button-font);
 					}
 				}
@@ -445,6 +451,7 @@
 	.page-header {
 		display: flex !important;
 		justify-content: space-between;
+		padding: 20px !important;
 	}
 
 	.hide-on-mobile {
