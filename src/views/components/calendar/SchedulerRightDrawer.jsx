@@ -925,7 +925,7 @@ const SchedulerRightDrawer = ({
 				}));
 				message.error(error?.response?.data?.message || 'Failed to update slug');
 			}
-		}, 500);
+		}, 1000);
 	};
 
 	return (
