@@ -256,17 +256,6 @@
 }
 
 @media screen and (max-width: 500px) {
-	.auth-wrapper-container {
-		padding: 16px 0 0 0 !important;
-	}
-	.FullScreenSidebar.opened {
-		margin-top: -16px !important;
-		margin-left: 0 !important;
-	}
-	.FullScreenSidebar {
-		top: 0 !important;
-	}
-
 	.chat-container {
 		height: calc(100% - 20px);
 
