@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+ 
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../.././../../assets/scss/sales/smartFile.scss';
 import SmartFileHeader from '../../../components/smartFileComponets/SmartFileHeader';
