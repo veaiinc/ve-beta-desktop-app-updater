@@ -11,6 +11,7 @@ import Copy from '../actions/copy.jsx';
 import { ReactComponent as AddBlock } from '../../svgs/LeftBar/Addblock.svg';
 import { ReactComponent as AddBlank } from '../../svgs/LeftBar/AddBlank.svg';
 import '../index.scss';
+import { BlockSidebar } from '../../../builder_client_common.jsx';
 
 const disabledModules = ['contract', 'invoice', 'thankyou'];
 const padding = ['0px', '20px', '40px', '60px', '80px'];
@@ -48,9 +49,11 @@ class SummaryWarpper extends Component {
 			backgroundType: props.backgroundType,
 			backgroundImageURL: props?.backgroundImageURL,
 			backgroundVideoURL: props.backgroundVideoURL,
+			showSummaryPopup: false,
 		};
 		this.blockRef = React.createRef();
 		this.boxRefs = [];
+		this.blockSidebarRef = React.createRef();
 	}
 	componentWillReceiveProps = (nextProps) => {
 		if (this.state.triggerFont !== nextProps.triggerFont) {
@@ -205,6 +208,16 @@ class SummaryWarpper extends Component {
 				});
 			}
 		}
+		if (
+			this.blockSidebarRef.current &&
+			this.blockSidebarRef.current.getSidebarNode && // check if method exists
+			!this.blockSidebarRef.current.getSidebarNode().contains(event.target) &&
+			!this.state.showImageModal
+		) {
+			this.setState({
+				showSummaryPopup: false,
+			});
+		}
 	};
 	toggleSideBar = (e) => {
 		this.setState(
@@ -220,7 +233,9 @@ class SummaryWarpper extends Component {
 		this.props.deleteSection(this.props._id);
 	};
 	handleBlock = (e) => {
-		this.props.selectBlock('b');
+		// this.props.selectBlock('b');
+		this.setState({ showSummaryPopup: true });
+
 	};
 	handleDuplicate = () => {
 		this.props.duplicateBlock(this.props._id);
@@ -232,13 +247,12 @@ class SummaryWarpper extends Component {
 	render() {
 		return (
 			<div
-				className={`block  invoice-wrapper-container ${
-					!this.state.preview &&
+				className={`block  invoice-wrapper-container ${!this.state.preview &&
 					this.state.showBlockOptions &&
 					!disabledModules.includes(this.props.module)
-						? 'borderedBlock '
-						: ''
-				} `}
+					? 'borderedBlock '
+					: ''
+					} `}
 				style={{
 					flexDirection: 'column',
 					backgroundColor:
@@ -272,8 +286,8 @@ class SummaryWarpper extends Component {
 				}}
 				ref={this.blockRef}
 			>
-				{this.state.style?.backgroundType == 'video' ||
-					(this.state.style?.backgroundType == 'image' && (
+				{(this.state.style?.backgroundType == 'video' ||
+					this.state.style?.backgroundType == 'image') && (
 						<div
 							className="bg-overlay"
 							style={{
@@ -281,7 +295,7 @@ class SummaryWarpper extends Component {
 								opacity: this.state.style?.bgOverlayOpacity / 100,
 							}}
 						></div>
-					))}
+					)}
 				{this.state.style?.backgroundType == 'video' &&
 					this.state.style?.backgroundVideoURL && (
 						<div className="bg-video-player">
@@ -289,13 +303,13 @@ class SummaryWarpper extends Component {
 								url={this.state.style.backgroundVideoURL}
 								width="100%"
 								height="100%"
-								loop={true}
+								loop={this.state.style?.videoProps?.loop ?? false}
 								onError={(e) => {
 									this.props.handleIsValidBgVideoURL(false);
 								}}
 								onReady={(e) => this.props.handleIsValidBgVideoURL(true)}
 								playing={true}
-								muted
+								muted={this.state.style?.videoProps?.muteVideo ?? false}
 								controls={false}
 							/>
 						</div>
@@ -305,28 +319,28 @@ class SummaryWarpper extends Component {
 						display: 'flex',
 						padding: this.state.style?.noPadding
 							? ''
-							: `${
-									this.state?.style?.padding
-										? this.state.previewType === 'm'
-											? '20px'
-											: padding[this.state?.style?.padding]
-										: '0px'
-							  } ${
-									(this.state.previewType === 'm' ||
-										this.state.previewType === 'ml') &&
-									this.state.preview
-										? this.state?.style?.noMPadding
-											? '0px'
-											: paddingHorizontal[this.state?.style?.padding]
-										: ''
-							  }`,
+							: `${this.state?.style?.padding
+								? this.state.previewType === 'm'
+									? '20px'
+									: padding[this.state?.style?.padding]
+								: '0px'
+							} ${(this.state.previewType === 'm' ||
+								this.state.previewType === 'ml') &&
+								this.state.preview
+								? this.state?.style?.noMPadding
+									? '0px'
+									: '0px'
+								: this.state.style?.paddingHorizontal
+									? paddingHorizontal[this.state.style.paddingHorizontal]
+									: '0px'
+							}`,
 						zIndex: 1,
 						justifyContent: 'center',
 					}}
 				>
 					{this.state.showBlockActions &&
-					this.state.preview == false &&
-					!disabledModules.includes(this.props.module) ? (
+						this.state.preview == false &&
+						!disabledModules.includes(this.props.module) ? (
 						<div className="block-action-bar">
 							<span className="tooltip" onClick={(e) => this.handleBlock(e)}>
 								<Edit />
@@ -358,7 +372,7 @@ class SummaryWarpper extends Component {
 										style={{
 											cursor:
 												this.props.sortedIndex ===
-												this.props.itemsLength - 1
+													this.props.itemsLength - 1
 													? 'not-allowed'
 													: 'pointer',
 										}}
@@ -406,10 +420,10 @@ class SummaryWarpper extends Component {
 						''
 					)}
 					{this.state.preview == false &&
-					this.state.showBlockOptions &&
-					this.props.module !== 'form' &&
-					!this.props?.activeModule?.showAsSlide &&
-					!disabledModules.includes(this.props.module) ? (
+						this.state.showBlockOptions &&
+						this.props.module !== 'form' &&
+						!this.props?.activeModule?.showAsSlide &&
+						!disabledModules.includes(this.props.module) ? (
 						<div className="add-block-new-container">
 							<div
 								onClick={(e) => this.hanldeAddBlock(e)}
@@ -424,11 +438,10 @@ class SummaryWarpper extends Component {
 							<div className="addBlankContainer">
 								{this.state.isElement !== true ? (
 									<div
-										className={`addBlank ${
-											this.state.activeTab === 'fluid' ? 'active' : ''
-										}`}
+										className={`addBlank ${this.state.activeTab === 'fluid' ? 'active' : ''
+											}`}
 										onClick={(e) => this.props.handleAddLayout(null, true)}
-										//onMouseEnter={(e) => this.setActiveTab('fluid')}
+									//onMouseEnter={(e) => this.setActiveTab('fluid')}
 									>
 										<AddBlank />
 									</div>
@@ -485,6 +498,36 @@ class SummaryWarpper extends Component {
 						/>
 					</div>
 				</div>
+				{this.state.showSummaryPopup && !this.props?.client && (
+					<>
+						<BlockSidebar
+							ref={this.blockSidebarRef}
+							elementEndPosition={
+								this.state.elementEndPosition || { x: 450, y: 100 }
+							}
+							activeType={'summary'}
+							activePopupComponent={this.props.section}
+							brandColors={this.props?.brandColors}
+							style={this.props.section?.style}
+
+							setModalRef={(e) => {
+								this.setState({
+									showImageModal: e,
+								});
+							}}
+							setActiveSection={(e) => {
+								this.setState({
+									section: e,
+									style: e?.style,
+								}, () => {
+									this.props.setActiveSection(e);
+								})
+							}}
+							fonts={this.props?.fonts}
+							activeModuleId={this.props?.activeModuleId}
+						/>
+					</>
+				)}
 			</div>
 		);
 	}

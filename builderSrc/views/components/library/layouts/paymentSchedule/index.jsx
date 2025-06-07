@@ -3,10 +3,13 @@ import moment from 'moment';
 import { ReactComponent as UpDown } from '../../svgs/dropDown.svg';
 import _ from 'lodash';
 import '../invoices/inovice.scss';
-
+import { BlockSidebar } from '../../../builder_client_common';
 // avtions
 
 import ReactPlayer from 'react-player';
+
+import { ReactComponent as AddBlock } from '../../svgs/LeftBar/Addblock.svg';
+import { ReactComponent as AddBlank } from '../../svgs/LeftBar/AddBlank.svg';
 
 //new lefrbar
 import { ReactComponent as NewDelete } from '../../svgs/LeftBar/NewDelete.svg';
@@ -14,6 +17,8 @@ import { ReactComponent as NewDown } from '../../svgs/LeftBar/NewDown.svg';
 import { ReactComponent as NewEdit } from '../../svgs/LeftBar/NewEdit.svg';
 import { ReactComponent as NewCopy } from '../../svgs/LeftBar/NewCopy.svg';
 import { ReactComponent as NewUp } from '../../svgs/LeftBar/NewUp.svg';
+
+const disabledModules = ['contract', 'invoice', 'thankyou'];
 
 const padding = ['0px', '20px', '40px', '60px', '80px'];
 const paddingHorizontal = ['0px', '70px', '140px', '210px', '280px'];
@@ -46,9 +51,11 @@ class PaymentSchedule extends Component {
 			backgroundImageURL: props?.backgroundImageURL,
 			backgroundVideoURL: props.backgroundVideoURL,
 			debounceInterval: null,
+			showPaymentScheduleModal: false,
 		};
 		this.blockRef = React.createRef();
 		this.updatePaymentStatuses = this.updatePaymentStatuses.bind(this);
+		this.blockSidebarRef = React.createRef();
 	}
 	componentWillReceiveProps = (nextProps) => {
 		if (this.state.preview !== nextProps.preview) {
@@ -131,6 +138,16 @@ class PaymentSchedule extends Component {
 				showBlockActions: false,
 			});
 		}
+		if (
+			this.blockSidebarRef.current &&
+			this.blockSidebarRef.current.getSidebarNode && // check if method exists
+			!this.blockSidebarRef.current.getSidebarNode().contains(event.target) &&
+			!this.state.showImageModal
+		) {
+			this.setState({
+				showPaymentScheduleModal: false,
+			});
+		}
 	};
 
 	toggleSideBar = (e) => {
@@ -148,7 +165,10 @@ class PaymentSchedule extends Component {
 		this.props.showAddBlock(e);
 	};
 	handleBlock = (e) => {
-		this.props.selectBlock('b');
+		// this.props.selectBlock('b');
+		this.setState({
+			showPaymentScheduleModal: true,
+		});
 	};
 
 	handleDeleteSection = (e) => {
@@ -361,14 +381,14 @@ class PaymentSchedule extends Component {
 								subBlocks:
 									payment?.subBlocks?.length > 0
 										? [
-												{
-													...payment.subBlocks[0],
-													dueDate: e,
-													type: 'smart file sent',
-													status:
-														payment?.subBlocks[0]?.status || 'upcoming', // Fallback to 'upcoming' if status is undefined
-												},
-										  ]
+											{
+												...payment.subBlocks[0],
+												dueDate: e,
+												type: 'smart file sent',
+												status:
+													payment?.subBlocks[0]?.status || 'upcoming', // Fallback to 'upcoming' if status is undefined
+											},
+										]
 										: [],
 							};
 						}
@@ -501,12 +521,12 @@ class PaymentSchedule extends Component {
 					subBlocks:
 						data?.subBlocks?.length > 0
 							? [
-									// Check if subBlocks exists and has elements
-									{
-										...data.subBlocks[0],
-										equalValue: newEqualValue,
-									},
-							  ]
+								// Check if subBlocks exists and has elements
+								{
+									...data.subBlocks[0],
+									equalValue: newEqualValue,
+								},
+							]
 							: [],
 				})),
 			}),
@@ -574,12 +594,12 @@ class PaymentSchedule extends Component {
 			subBlocks:
 				data?.subBlocks?.length > 0
 					? [
-							// Check if subBlocks exists and has elements
-							{
-								...data.subBlocks[0],
-								equalValue: newEqualValue,
-							},
-					  ]
+						// Check if subBlocks exists and has elements
+						{
+							...data.subBlocks[0],
+							equalValue: newEqualValue,
+						},
+					]
 					: [],
 		}));
 
@@ -600,9 +620,9 @@ class PaymentSchedule extends Component {
 						this.props?.module === 'thankyou'
 							? ''
 							: this.state.style?.backgroundType !== 'video' &&
-							  this.state.style?.backgroundType !== 'image'
-							? this.state.style?.sectionBackgroundColor
-							: '',
+								this.state.style?.backgroundType !== 'image'
+								? this.state.style?.sectionBackgroundColor
+								: '',
 					backgroundImage:
 						this.state?.style?.backgroundType == 'image' &&
 						`url(${this.state?.style?.backgroundImageURL})`,
@@ -617,29 +637,26 @@ class PaymentSchedule extends Component {
 					padding:
 						this.props?.module === 'invoice'
 							? '0px'
-							: `${
-									this.state?.style?.padding
-										? padding[this.state?.style?.padding]
-										: '0px'
-							  } ${
-									(this.state.previewType === 'm' ||
-										this.state.previewType === 'ml') &&
-									this.state.preview
-										? this.state?.style?.noMPadding
-											? '0px'
-											: '14px'
-										: this.state.style?.paddingHorizontal
-										? paddingHorizontal[this.state.style.paddingHorizontal]
-										: '0px'
-							  }`,
+							: `${this.state?.style?.padding
+								? padding[this.state?.style?.padding]
+								: '0px'
+							} ${(this.state.previewType === 'm' ||
+								this.state.previewType === 'ml') &&
+								this.state.preview
+								? this.state?.style?.noMPadding
+									? '0px'
+									: '14px'
+								: this.state.style?.paddingHorizontal
+									? paddingHorizontal[this.state.style.paddingHorizontal]
+									: '0px'
+							}`,
 					justifyContent: 'center',
 				}}
 				ref={this.blockRef}
-				className={`block invoice-wrapper ${
-					this.state?.showBlockOptions && this.props?.module !== 'invoice'
-						? 'borderedBlock'
-						: ''
-				}`}
+				className={`block invoice-wrapper ${this.state?.showBlockOptions && this.props?.module !== 'invoice'
+					? 'borderedBlock'
+					: ''
+					}`}
 				onClick={(e) => {
 					if (this.state?.preview !== true) {
 						this.toggleSideBar(e);
@@ -656,17 +673,17 @@ class PaymentSchedule extends Component {
 					}
 				}}
 			>
-				{this.state?.style?.backgroundType == 'video' ||
-					(this.state?.style?.backgroundType == 'image' &&
-						this.props?.module !== 'invoice' && (
-							<div
-								className="bg-overlay"
-								style={{
-									backgroundColor: this.state?.style?.bgOverlayColor,
-									opacity: this.state?.style?.bgOverlayOpacity / 100,
-								}}
-							></div>
-						))}
+				{(this.state?.style?.backgroundType == 'video' ||
+					this.state?.style?.backgroundType == 'image') &&
+					this.props?.module !== 'invoice' && (
+						<div
+							className="bg-overlay"
+							style={{
+								backgroundColor: this.state?.style?.bgOverlayColor,
+								opacity: this.state?.style?.bgOverlayOpacity / 100,
+							}}
+						></div>
+					)}
 				{this.state?.style?.backgroundType == 'video' &&
 					this.state?.style?.backgroundVideoURL &&
 					this.props?.module != 'invoice' && (
@@ -675,21 +692,22 @@ class PaymentSchedule extends Component {
 								url={this.state?.style?.backgroundVideoURL}
 								width="100%"
 								height="100%"
-								loop={true}
+								loop={this.state.style?.videoProps?.loop ?? false}
+
 								onError={(e) => {
 									this.props.handleIsValidBgVideoURL(false);
 								}}
 								onReady={(e) => this.props.handleIsValidBgVideoURL(true)}
 								playing={true}
-								muted
+								muted={this.state.style?.videoProps?.muteVideo ?? false}
 								controls={false}
 							/>
 						</div>
 					)}
 				{/* {this.state.showSchedule && ( */}
 				{this.props?.module !== 'invoice' &&
-				this.state?.showBlockActions &&
-				this.state?.preview == false ? (
+					this.state?.showBlockActions &&
+					this.state?.preview == false ? (
 					<div className="block-action-bar">
 						<span className="tooltip" onClick={(e) => this.handleBlock(e)}>
 							<NewEdit />
@@ -750,12 +768,39 @@ class PaymentSchedule extends Component {
 				) : (
 					''
 				)}
-				{this.props?.module !== 'invoice' &&
-				!this.props?.activeModule?.showAsSlide &&
-				this.state.showBlockOptions ? (
-					<a className="add-block" onClick={(e) => this.hanldeAddBlock(e)}>
-						Add Block
-					</a>
+				{this.state.preview == false &&
+					this.state.showBlockOptions &&
+					this.props.module !== 'form' &&
+					!this.props?.activeModule?.showAsSlide &&
+					!disabledModules.includes(this.props.module) ? (
+					<div className="add-block-new-container">
+						<div
+							onClick={(e) => this.hanldeAddBlock(e)}
+							className="addBlankContainer"
+						>
+							<AddBlock />
+							<label className="tooltip-text">Add Block</label>
+						</div>
+						<div className="addBlockDividerContainer">
+							<div className="addBlockDivider"></div>
+						</div>
+						<div className="addBlankContainer">
+							{this.state.isElement !== true ? (
+								<div
+									className={`addBlank ${this.state.activeTab === 'fluid' ? 'active' : ''
+										}`}
+									onClick={(e) => this.props.handleAddLayout(null, true)}
+								//onMouseEnter={(e) => this.setActiveTab('fluid')}
+								>
+									<AddBlank />
+								</div>
+							) : (
+								''
+							)}
+
+							<label className="tooltip-text">Add Blank</label>
+						</div>
+					</div>
 				) : (
 					''
 				)}
@@ -769,24 +814,24 @@ class PaymentSchedule extends Component {
 						margin: this.props?.module === 'invoice' ? '0px' : '30px 0px',
 						background: this.state?.style?.paymentCardColor || '#fff',
 					}}
-					// onClick={() => this.handleInvClick()}
+				// onClick={() => this.handleInvClick()}
 				>
 					<div
 						className="payment-show"
-						// onClick={() => {
-						// 	this.setState({
-						//         showAnimation:!this.state.showAnimation,
-						//     });
+					// onClick={() => {
+					// 	this.setState({
+					//         showAnimation:!this.state.showAnimation,
+					//     });
 
-						// 	setTimeout(() => {
-						// 		this.setState({
-						// 			showSchedule: !this.state.showSchedule,
-						// 			showAnimation:!this.state?.showAnimation,
-						// 		});
-						// 	}, 1000)
-						// }
-						// }
-						// onClick={this.toggleScheduleContainer}
+					// 	setTimeout(() => {
+					// 		this.setState({
+					// 			showSchedule: !this.state.showSchedule,
+					// 			showAnimation:!this.state?.showAnimation,
+					// 		});
+					// 	}, 1000)
+					// }
+					// }
+					// onClick={this.toggleScheduleContainer}
 					>
 						<p
 							className="heading"
@@ -956,9 +1001,9 @@ class PaymentSchedule extends Component {
 													{this.props?.style?.isEqualPercentage
 														? this?.getPercentage(data?.equalValue)
 														: (
-																(data?.amountPercentage / 100) *
-																this.props?.clientGrandTotal
-														  ).toFixed(2)}
+															(data?.amountPercentage / 100) *
+															this.props?.clientGrandTotal
+														).toFixed(2)}
 												</p>
 											</>
 										) : (
@@ -978,11 +1023,10 @@ class PaymentSchedule extends Component {
 															this.state?.style?.paymentFontColor ||
 															'#000',
 													}}
-													value={`${
-														this.state?.activePayment === 'percentage'
-															? data?.amountPercentage
-															: this.getPercentage()
-													}`}
+													value={`${this.state?.activePayment === 'percentage'
+														? data?.amountPercentage
+														: this.getPercentage()
+														}`}
 													// defaultValue={`${
 													// 	this.state?.activePayment === 'percentage'
 													// 		? data?.amountPercentage
@@ -996,12 +1040,12 @@ class PaymentSchedule extends Component {
 													}}
 													disabled={
 														this.state?.activePayment !==
-															'percentage' ||
+														'percentage' ||
 														this.state?.preview ||
 														this.state?.previewType?.includes('m') ||
 														this.props?.client
 													}
-													// type='number'
+												// type='number'
 												/>
 											</>
 										)}
@@ -1079,10 +1123,10 @@ class PaymentSchedule extends Component {
 										{data?.status}
 									</p>
 									{!this.state?.preview &&
-									!this.state?.previewType?.includes('m') &&
-									!this.props?.client &&
-									this.state.showDelete &&
-									this.state.activeId === index ? (
+										!this.state?.previewType?.includes('m') &&
+										!this.props?.client &&
+										this.state.showDelete &&
+										this.state.activeId === index ? (
 										<div
 											className="delete-payment"
 											onClick={(e) => {
@@ -1123,7 +1167,35 @@ class PaymentSchedule extends Component {
 						</div>
 					)}
 				</div>
-				{/* )} */}
+				{this.state.showPaymentScheduleModal && !this.props?.client && (
+					<>
+						<BlockSidebar
+							ref={this.blockSidebarRef}
+							elementEndPosition={
+								this.state.elementEndPosition || { x: 450, y: 100 }
+							}
+							activeType={'paymentSchedule'}
+							activePopupComponent={this.props.section}
+							brandColors={this.props?.brandColors}
+							style={this.props.section?.style}
+							setModalRef={(e) => {
+								this.setState({
+									showImageModal: e,
+								});
+							}}
+							setActiveSection={(e) => {
+								this.setState({
+									section: e,
+									style: e?.style,
+								}, () => {
+									this.props.setActiveSection(e);
+								})
+							}}
+							fonts={this.props?.fonts}
+							activeModuleId={this.props?.activeModuleId}
+						/>
+					</>
+				)}
 			</div>
 		);
 	}

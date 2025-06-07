@@ -56,11 +56,22 @@ const Variables = ({
 				}
 			}
 
-			setInfo((prev) => ({
-				...prev,
-				variablesData: Object?.values(variableMapper),
-				loading: false,
-			}));
+			setInfo((prev) => {
+				const prevVars = prev.variablesData || [];
+				const mergedVars = Object.values(variableMapper).map((newVar) => {
+					const prevVar = prevVars.find((v) => v._id === newVar._id);
+					// Only overwrite if backend value is different from local value
+					if (prevVar && prevVar.value !== undefined && prevVar.value !== newVar.value) {
+						return { ...newVar, value: prevVar.value };
+					}
+					return newVar;
+				});
+				return {
+					...prev,
+					variablesData: mergedVars,
+					loading: false,
+				};
+			});
 		}
 	}, [data, clientDetails]);
 
@@ -94,9 +105,21 @@ const Variables = ({
 				};
 				const response = await updateClientVariablesData(payload);
 				if (response?.[0]) {
+					// Optimistically update local state
+					setInfo((prev) => ({
+						...prev,
+						variablesData: prev.variablesData.map((v) =>
+							v._id === updatedVariablesData._id
+								? { ...v, value: updatedVariablesData.value }
+								: v,
+						),
+					}));
 					updateLocalStateData({
 						clientDetails: { ...(response?.[1] || {}) },
 					});
+					if (onVariableUpdate) {
+						onVariableUpdate();
+					}
 				}
 			} else {
 				const variableId = updatedVariablesData?._id;
@@ -107,6 +130,15 @@ const Variables = ({
 				if (!response?.[0]) {
 					message.error('Something went wrong, while updating variable');
 				} else {
+					// Optimistically update local state
+					setInfo((prev) => ({
+						...prev,
+						variablesData: prev.variablesData.map((v) =>
+							v._id === updatedVariablesData._id
+								? { ...v, value: updatedVariablesData.value }
+								: v,
+						),
+					}));
 					if (onVariableUpdate) {
 						onVariableUpdate();
 					}
@@ -155,88 +187,78 @@ const Variables = ({
 
 	return (
 		<div className="variablesParentContainer">
-			{info?.variablesData
-				.filter(
-					(ele) =>
-						ele.displayName !== 'Grand Total' &&
-						ele.displayName !== 'Grand Total In Words',
-				)
-
-				.map((ele, index) => (
-					<div
-						className="inputWithLabelContainer"
-						key={index}
-						style={{ position: 'relative' }}
-					>
-						<span className="labelName">
-							{ele?.displayName?.length ? ele?.displayName : ele?.code || ''}
-						</span>
-						<div className="variableInputWithPopoverWrapper">
-							<input
-								className={`custominputContainer`}
-								placeholder="Variable Name"
-								value={ele?.value || ele?.defaultValue || ''}
-								onChange={(e) => onChangeVariablesData(e, index)}
-								id={'sidebar-' + ele?._id}
-							/>
-							{formResponses.length > 0 && (
-								<span
-									className="variableSuggestionIcon"
-									onClick={() => setPopoverIndex(index)}
-								>
-									<DocumentToForm />
-								</span>
-							)}
-							{popoverIndex === index && (
-								<div
-									className="eventsPresetsParentContainer variableSuggestionsPopover"
-									ref={popoverRef}
-								>
-									<div className="definedPresetContainer">
-										{variableSuggestions.length === 0 ? (
-											<div className="noSuggestionsMsg">No suggestions</div>
-										) : (
-											variableSuggestions.map((sug, sugIdx) => (
-												<div
-													key={sug._id || sugIdx}
-													className="varPresetCard"
-													onClick={() =>
-														onChangeVariablesData(
-															null,
-															index,
-															// If answer is array/object, don't pass it directly
-															typeof sug.answer === 'string'
-																? sug.answer
-																: '',
-														)
-													}
-												>
-													<span
-														className="varPresetTitle"
-														style={{ fontSize: '14px' }}
-													>
-														{(sug.question || '').replace(
-															/<[^>]+>/g,
-															'',
-														)}
-													</span>
-													<span
-														className="varPresetSubTitle"
-														style={{ fontSize: '14px' }}
-													>
-														{typeof sug.answer === 'string'
+			{info?.variablesData.map((ele, index) => (
+				<div
+					className="inputWithLabelContainer"
+					key={index}
+					style={{ position: 'relative' }}
+				>
+					<span className="labelName">
+						{ele?.displayName?.length ? ele?.displayName : ele?.code || ''}
+					</span>
+					<div className="variableInputWithPopoverWrapper">
+						<input
+							className={`custominputContainer`}
+							placeholder="Variable Name"
+							value={ele?.value || ele?.defaultValue || ''}
+							onChange={(e) => onChangeVariablesData(e, index)}
+							id={'sidebar-' + ele?._id}
+						/>
+						{formResponses.length > 0 && (
+							<span
+								className="variableSuggestionIcon"
+								onClick={() => setPopoverIndex(index)}
+							>
+								<DocumentToForm />
+							</span>
+						)}
+						{popoverIndex === index && (
+							<div
+								className="eventsPresetsParentContainer variableSuggestionsPopover"
+								ref={popoverRef}
+							>
+								<div className="definedPresetContainer">
+									{variableSuggestions.length === 0 ? (
+										<div className="noSuggestionsMsg">No suggestions</div>
+									) : (
+										variableSuggestions.map((sug, sugIdx) => (
+											<div
+												key={sug._id || sugIdx}
+												className="varPresetCard"
+												onClick={() =>
+													onChangeVariablesData(
+														null,
+														index,
+														// If answer is array/object, don't pass it directly
+														typeof sug.answer === 'string'
 															? sug.answer
-															: ''}
-													</span>
-												</div>
-											))
-										)}
-									</div>
+															: '',
+													)
+												}
+											>
+												<span
+													className="varPresetTitle"
+													style={{ fontSize: '14px' }}
+												>
+													{(sug.question || '').replace(/<[^>]+>/g, '')}
+												</span>
+												<span
+													className="varPresetSubTitle"
+													style={{ fontSize: '14px' }}
+												>
+													{typeof sug.answer === 'string'
+														? sug.answer
+														: ''}
+												</span>
+											</div>
+										))
+									)}
 								</div>
-							)}
-						</div>
+							</div>
+						)}
 					</div>
-				))}
+				</div>
+			))}
 		</div>
 	);
 };
