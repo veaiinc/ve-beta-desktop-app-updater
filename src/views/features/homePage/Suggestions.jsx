@@ -45,7 +45,7 @@ const data = [
 	},
 ];
 
-const landingPageSuggestionsLength = 5;
+const landingPageSuggestionsLength = data.length;
 
 const Suggestions = ({ landingPage = false }) => {
 	const {
@@ -58,12 +58,19 @@ const Suggestions = ({ landingPage = false }) => {
 		updateStateValues({
 			activePromptForChat: suggestion?.text,
 		});
-		navigate(`/chat/${sessionId}`);
+		if (landingPage) {
+			navigate(`/c/${sessionId}`);
+		} else {
+			navigate(`/chat/${sessionId}`);
+		}
 	};
 	return (
 		<div
 			className="suggestions-wrapper"
-			style={{ height: landingPage ? '250px' : '100%', overflow: 'hidden' }}
+			style={{
+				height: landingPage ? '250px' : '100%',
+				overflow: landingPage ? 'auto' : 'hidden',
+			}}
 		>
 			{data
 				.slice(0, landingPage ? landingPageSuggestionsLength : data.length)
