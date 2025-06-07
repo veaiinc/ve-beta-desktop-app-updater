@@ -23,7 +23,7 @@ export const ProfileState = () => {
 	const getTenantSettings = async () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
-			let workspaceId = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(`/${workspaceId}`, usertoken, 'tenant');
 			if (response?.[0]) {
 				dispatch({
