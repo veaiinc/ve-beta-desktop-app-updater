@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
+    <path
+        d="M8.75 2.49056C7.3625 2.35306 5.96667 2.28223 4.575 2.28223C3.75 2.28223 2.925 2.32389 2.1 2.40723L1.25 2.49056"
+        stroke="#EA3F4F"
+        style="stroke:#EA3F4F;stroke:color(display-p3 0.9179 0.2470 0.3106);stroke-opacity:1;"
+        stroke-width="0.625" stroke-linecap="round" stroke-linejoin="round" />
+    <path
+        d="M3.54352 2.07148L3.63518 1.52565C3.70185 1.12982 3.75185 0.833984 4.45602 0.833984H5.54768C6.25185 0.833984 6.30602 1.14648 6.36852 1.52982L6.46018 2.07148"
+        stroke="#EA3F4F"
+        style="stroke:#EA3F4F;stroke:color(display-p3 0.9179 0.2470 0.3106);stroke-opacity:1;"
+        stroke-width="0.625" stroke-linecap="round" stroke-linejoin="round" />
+    <path
+        d="M7.85399 3.80859L7.58316 8.00443C7.53733 8.65859 7.49983 9.16693 6.33733 9.16693H3.66233C2.49983 9.16693 2.46233 8.65859 2.41649 8.00443L2.14566 3.80859"
+        stroke="#EA3F4F"
+        style="stroke:#EA3F4F;stroke:color(display-p3 0.9179 0.2470 0.3106);stroke-opacity:1;"
+        stroke-width="0.625" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M4.30524 6.875H5.69274" stroke="#EA3F4F"
+        style="stroke:#EA3F4F;stroke:color(display-p3 0.9179 0.2470 0.3106);stroke-opacity:1;"
+        stroke-width="0.625" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M3.95648 5.20898H6.03982" stroke="#EA3F4F"
+        style="stroke:#EA3F4F;stroke:color(display-p3 0.9179 0.2470 0.3106);stroke-opacity:1;"
+        stroke-width="0.625" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

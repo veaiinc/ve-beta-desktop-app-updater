@@ -1,0 +1,80 @@
+.scroll-text-contianer {
+	width: 100%;
+	// height: 250px;
+	height: fit-content;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	overflow: hidden;
+	.blur-bg {
+		width: 100%;
+		height: 100%;
+		background-color: #929191; // Choose a contrasting color for the blur effect to stand out
+		position: absolute;
+		z-index: 0;
+
+		opacity: 0.5;
+		transition: opacity 0.5s ease-in-out;
+	}
+
+	@media (max-width : 768px) {
+	.fading {
+		--mask: linear-gradient(
+			to right,
+			rgba(0, 0, 0, 0) 0%,
+			/* Fully transparent at the left edge */ rgba(0, 0, 0, 1) 15%,
+			/* Fade to solid at 30% */ rgba(0, 0, 0, 1) 85%,
+			/* Solid until 70% */ rgba(0, 0, 0, 0) 100% /* Fade to transparent at the right edge */
+		);
+
+		-webkit-mask: var(--mask);
+		mask: var(--mask);
+	}
+	}
+	@media (min-width: 1850px) {
+		.fading {
+			--mask: linear-gradient(
+				to right,
+				rgba(0, 0, 0, 0) 0%,
+				/* Fully transparent at the left edge */ rgba(0, 0, 0, 0.9) 15%,
+				/* Fade to solid at 20% */ rgba(0, 0, 0, 1) 80%,
+				/* Solid until 80% */ rgba(0, 0, 0, 0) 100%
+					/* Fade to transparent at the right edge */
+			);
+
+			-webkit-mask: var(--mask);
+			mask: var(--mask);
+		}
+	}
+	@media (min-width: 1400px) and (max-width: 1850px) {
+		.fading {
+			--mask: linear-gradient(
+				to right,
+				rgba(0, 0, 0, 0) 0%,
+				/* Fully transparent at the left edge */ rgba(0, 0, 0, 0.8) 30%,
+				/* Fade to solid at 20% */ rgba(0, 0, 0, 1) 70%,
+				/* Solid until 80% */ rgba(0, 0, 0, 0) 100%
+					/* Fade to transparent at the right edge */
+			);
+
+			-webkit-mask: var(--mask);
+			mask: var(--mask);
+		}
+	}
+	@media (min-width: 1000px) and (max-width: 1400px) {
+		.fading {
+			--mask: linear-gradient(
+				to right,
+				rgba(0, 0, 0, 0) 0%,
+				/* Fully transparent at the left edge */ rgba(0, 0, 0, 1) 40%,
+				/* Fade to solid at 20% */ rgba(0, 0, 0, 0.7) 80%,
+				/* Solid until 80% */ rgba(0, 0, 0, 0) 100%
+					/* Fade to transparent at the right edge */
+			);
+
+			-webkit-mask: var(--mask);
+			mask: var(--mask);
+		}
+	}
+}

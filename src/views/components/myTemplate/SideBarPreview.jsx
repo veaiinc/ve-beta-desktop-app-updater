@@ -39,7 +39,9 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 
 	useEffect(() => {
 		if (smartfile?._id && info?.activeTemplateData?._id) {
-			window.location.href = `${origin}/workflow/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+			navigate(
+				`/builder/workflow/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`,
+			);
 		}
 	}, [smartfile]);
 
@@ -154,9 +156,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 						/> */}
 						<div
 							className="editLabel"
-							onClick={() =>
-								(window.location.href = `${origin}/${activeTemplate?._id} `)
-							}
+							onClick={() => navigate(`/builder/${activeTemplate?._id}`)}
 						>
 							Edit
 						</div>

@@ -1,0 +1,448 @@
+.add-block-container {
+	border-radius: 12px;
+	background: #fff;
+	box-shadow: 0px 4px 40px 0px rgba(0, 0, 0, 0.12);
+	padding: 80px;
+	display: flex;
+	width: 100%;
+	width: 1040px;
+	flex-direction: row;
+	gap: 80;
+	height: 90vh;
+
+	.abc-left {
+		display: flex;
+		flex-direction: column;
+		gap: 4;
+		flex: 0 0 280px;
+		height: 100%;
+
+		h3 {
+			color: #000;
+
+			font-family: 'Inter Medium';
+			font-size: 24px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 28px;
+			margin-bottom: 64px;
+		}
+
+		a {
+			color: #9b9290;
+
+			font-family: 'Inter';
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 28px;
+			cursor: pointer;
+		}
+
+		a.active {
+			color: #000;
+		}
+	}
+
+	.abc-right {
+		display: flex;
+		height: 100%;
+		flex: 1 1 auto;
+		overflow-y: auto;
+
+		div {
+			width: 100%;
+		}
+
+		span {
+			border: 1px solid rgba(0, 0, 0, 0);
+			transition: all 0.3s ease-in-out;
+			cursor: pointer;
+
+			img {
+				width: 100%;
+				height: 100%;
+			}
+
+			&:hover {
+				border: 1px solid #000;
+			}
+		}
+	}
+}
+
+//add block v2
+
+.add_block_v2 {
+	display: flex;
+	height: 100%;
+	background: #202123;
+	// padding: 24px 0px;
+	// .ab-l {
+	// 	display: flex;
+	// 	padding: 0px 11px;
+	// 	width: 220px;
+	// 	border-right: 1px solid #232323;
+	// 	overflow-y: scroll;
+
+	// 	background: #151515;
+	// 	flex-direction: column;
+	// 	gap: 8px;
+	// 	justify-content: flex-start;
+	// 	overflow-y: scroll;
+	// 	h4 {
+	// 		color: #6f6f6f;
+
+	// 		font-family: 'Inter Medium';
+	// 		font-size: 12px;
+	// 		font-style: normal;
+	// 		font-weight: 500;
+	// 		line-height: normal;
+	// 	}
+	// 	span {
+	// 		padding: 8px 12px;
+	// 		color: #797979;
+	// 		width: 100%;
+	// 		font-family: 'Inter Medium';
+	// 		font-size: 12px;
+	// 		font-style: normal;
+	// 		font-weight: 500;
+	// 		line-height: normal;
+	// 		display: flex;
+	// 		align-items: center;
+	// 		b {
+	// 			border-radius: 5px;
+	// 			background: #3d3d40;
+	// 			width: 24px;
+	// 			height: 24px;
+	// 			display: flex;
+	// 			justify-content: center;
+	// 			align-items: center;
+	// 			margin-right: 8px;
+	// 		}
+	// 		label {
+	// 			margin-left: auto;
+	// 		}
+	// 		cursor: pointer;
+	// 		transition: all 0.3s ease-in-out;
+	// 		&:hover {
+	// 			color: #e8e8e8;
+	// 			label {
+	// 				svg {
+	// 					path {
+	// 						fill: #e8e8e8;
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	span.active {
+	// 		color: #e8e8e8;
+	// 		background-color: #2c2c2e;
+	// 		border-radius: 8px;
+	// 		label {
+	// 			svg {
+	// 				path {
+	// 					fill: #e8e8e8;
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
+	//new left bar
+	.ab-l {
+		height: 100%;
+		padding: 20px 16px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		background: #202123;
+		box-shadow: 5px 0px 16px 0px rgba(23, 24, 25, 0.56) !important;
+		justify-content: space-between;
+		overflow-y: scroll;
+		scrollbar-width: none;
+
+		.ab-l-top {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+			align-items: center;
+		}
+
+		.ab-l-bottom {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+			align-items: center;
+		}
+
+		.addBlank {
+			position: relative;
+			display: flex;
+			width: 32px;
+			height: 32px;
+			justify-content: center;
+			align-items: center;
+			border-radius: 6px;
+			background: #27282b;
+			cursor: pointer;
+
+			.addBlank-text {
+				visibility: hidden;
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 12px;
+				font-weight: 400;
+				height: 32px;
+				width: 70px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				position: absolute;
+				left: 35px; // Fixed position
+				top: 0;
+				z-index: 99999;
+				border-radius: 8px;
+				background: #202123;
+				box-shadow: 1.914px 1.914px 7.275px 0px rgba(0, 0, 0, 0.24);
+				pointer-events: none;
+			}
+
+			&.active {
+				background: #E3FB4E;
+
+				svg {
+					path {
+						stroke: #000 !important;
+					}
+				}
+			}
+
+
+
+
+			&:hover {
+				border-radius: 8px;
+				border: 1px solid #404548;
+				background: #0C0C0D;
+
+
+				.addBlank-text {
+					visibility: visible;
+				}
+
+				svg {
+					path {
+						stroke: #E3FB4E !important;
+					}
+				}
+			}
+		}
+	}
+
+	// .ab-r {
+	// 	display: flex;
+	// 	width: 300px;
+	// 	padding: 0px 11px;
+	// 	display: flex;
+	// 	flex-direction: column;
+	// 	gap: 14px;
+	// 	height: 100%;
+	// 	overflow-y: scroll;
+	// 	span {
+	// 		display: table; /* Ensure span behaves like a block-level element */
+	// 		width: 269px;
+	// 		height: 188px;
+	// 		border-radius: 7px;
+	// 		cursor: pointer;
+	// 		overflow: hidden; /* Hide overflow to keep the zoom effect contained */
+	// 		position: relative; /* Ensure relative positioning for absolute positioning if needed */
+	// 	}
+
+	// 	span img {
+	// 		width: 100%;
+	// 		height: 100%;
+	// 		border-radius: 7px;
+	// 		transition: transform 1s; /* Smooth zoom effect */
+	// 	}
+
+	// 	span:hover img {
+	// 		transform: scale(1.05); /* Zoom effect on hover */
+	// 		.hover-add {
+	// 			display: flex;
+	// 		}
+	// 	}
+	// }
+	.ab-r {
+		display: none;
+		display: flex;
+		flex-direction: column;
+		// gap: 12px;
+		height: 100%;
+		background: #202123;
+
+		.ab-r-top {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 10px;
+			align-self: stretch;
+			color: #f2f2f3;
+			text-align: center;
+			padding: 12px 0px;
+			font-family: Inter;
+			font-size: 14px;
+			font-weight: 500;
+			text-transform: capitalize;
+			// margin-top: 30px;
+
+			.divider {
+				width: 100%;
+				height: 1px;
+				background: #404548;
+			}
+		}
+
+		.ab-r-bottom {
+			display: flex;
+			width: 193px;
+			padding: 12px 12px 467px 12px;
+			flex-direction: column;
+			align-items: center;
+			background: #202123;
+			height: 100%;
+			gap: 12px;
+			overflow-y: scroll;
+
+			span {
+				display: table;
+				/* Ensure span behaves like a block-level element */
+				width: 169px;
+				height: 96px;
+				border-radius: 7px;
+				cursor: pointer;
+				overflow: hidden;
+				/* Hide overflow to keep the zoom effect contained */
+				position: relative;
+				/* Ensure relative positioning for absolute positioning if needed */
+
+				background: #fff;
+			}
+
+			span img {
+				width: 100%;
+				height: 100%;
+				border-radius: 7px;
+				transition: transform 1s;
+				object-fit: contain;
+				/* Smooth zoom effect */
+			}
+
+			span:hover img {
+				transform: scale(1.05);
+
+				/* Zoom effect on hover */
+				.hover-add {
+					display: flex;
+				}
+			}
+
+			&::-webkit-scrollbar {
+				display: none;
+			}
+		}
+	}
+}
+
+.hover-add {
+	opacity: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+	background: rgba(0, 0, 0, 0.3);
+
+	&:hover {
+		opacity: 1;
+
+		p {
+			transform: translate(0%, 70%);
+		}
+	}
+
+	p {
+		transform: translate(0px, 0px);
+		transition: transform 0.3s ease-in-out;
+
+		svg {
+			path {
+				stroke: #e8e8e8 !important;
+			}
+		}
+	}
+
+	// p {
+	// 	// color: #000;
+	// 	// position: absolute;
+	// 	// z-index: 10;
+	// 	// font-family: 'Inter Medium';
+	// 	// font-size: 14px;
+	// 	// font-style: normal;
+	// 	// font-weight: 500;
+	// 	// line-height: normal;
+	// 	// border-radius: 8px;
+	// 	// background: #f1f1f1;
+	// 	// padding: 9px 18px;
+	// }
+}
+
+.hovered-image-preview {
+	position: absolute;
+	right: -360px;
+	top: 60px;
+	width: 360px;
+	height: 213px;
+	padding: 0px 15.526px 14.543px 15.526px;
+	border-radius: 10px;
+	overflow: visible;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+		transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+	z-index: 1000;
+	pointer-events: none;
+	transform-origin: left center;
+
+	&.visible {
+		opacity: 1;
+		transform: translateX(0) scale(1);
+	}
+}
+
+.hovered-image-preview img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	// border-radius: 12px;
+	border: 1px solid rgba(206, 206, 206);
+	box-shadow: 2px 2px 16px 0px rgba(0, 0, 0, 0.25);
+	background: white;
+	transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+	display: block;
+
+	&.loaded {
+		transform: scale(1);
+	}
+}
+
+.headers-list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
