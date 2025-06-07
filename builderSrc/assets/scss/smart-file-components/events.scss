@@ -1,0 +1,486 @@
+.eventsParentContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	align-self: stretch;
+
+	.eventsBlockTitle {
+		color: var(--secondary-font, #787e87);
+		color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
+		font-family: Inter;
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	.eventsBlockContainer {
+		display: flex;
+		min-height: 314px;
+		padding: 24px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 20px;
+		//background: var(--Popup, #202123);
+		// background: var(--Popup, color(display-p3 0.1255 0.1294 0.1373));
+		border: 1px solid var(--stroke);
+
+		.deleteEventsContainer {
+			display: flex;
+			width: 85px;
+			height: 22px;
+			padding: 0px 8px 0px 9px;
+			justify-content: center;
+			align-items: center;
+			align-self: flex-end;
+			gap: 9px;
+			border-radius: 8px;
+			opacity: 0.5;
+			background: rgba(204, 87, 86, 0);
+			cursor: pointer;
+			color: #cc5756;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 22px; /* 157.143% */
+			letter-spacing: 0.28px;
+			text-transform: capitalize;
+		}
+		.eventsDetailsContainer {
+			display: flex;
+			align-items: flex-start;
+			flex-wrap: wrap;
+			align-self: stretch;
+			gap: 16px;
+		}
+	}
+}
+
+.inputWithLabelContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+	flex: 1 0 0;
+	.labelName {
+		color: #b0b0b0;
+		font-family: Inter;
+		font-size: 11px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 16px; /* 145.455% */
+		margin-left: 14px;
+		text-transform: capitalize;
+	}
+	.customproposalInputContainer {
+		border: 1px solid rgba(255, 255, 255, 0.05);
+		span {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 26px; /* 185.714% */
+		}
+	}
+	.customproposalInputContainer:focus {
+		border: 1px solid rgba(255, 255, 255, 0.4);
+	}
+	.customproposalInputContainer:hover {
+		border: 1px solid rgba(255, 255, 255, 0.2);
+	}
+	// .customproposalInputContainer.edit:focus {
+	// 	border: 1px solid rgba(255, 255, 255, 0.4);
+	// }
+	// .customproposalInputContainer.edit:hover {
+	// 	border: 1px solid rgba(255, 255, 255, 0.2);
+	// }
+	.proposalInputCustomContainer {
+		padding: 11px 14px;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 10px;
+		border: none;
+		// border: 1px solid rgba(255, 255, 255, 0.05);
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 26px; /* 185.714% */
+		background-color: transparent;
+	}
+	.custominputContainer {
+		padding: 11px 14px;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 10px;
+		border: 1px solid rgba(255, 255, 255, 0.05);
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 26px; /* 185.714% */
+		background-color: transparent;
+		box-shadow: none !important;
+		.anticon-calendar svg {
+			fill: #fff;
+		}
+		input::placeholder {
+			color: #fff;
+		}
+	}
+	.custominputContainer.ant-picker-disabled .ant-picker-input input {
+		color: #e4e5e6 !important;
+	}
+	.custominputContainer.edit:focus {
+		border: 1px solid rgba(255, 255, 255, 0.4);
+	}
+	.custominputContainer.edit.ant-picker-focused {
+		.anticon-calendar svg {
+			fill: #fff;
+		}
+	}
+	.custominputContainer.edit:hover {
+		border: 1px solid var(--primary-font, #f2f2f3);
+	}
+	.custominputContainer.edit:focus {
+		border: 1px solid var(--primary-font, #f2f2f3);
+	}
+
+	.inputwithSumbols {
+		display: flex;
+		flex: 1;
+		align-items: center;
+		border-radius: 10px;
+		border: 1px solid rgba(36, 36, 36, 0.64);
+		padding-left: 11px;
+		color: rgba(228, 229, 230, 0.48);
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 26px; /* 185.714% */
+
+		.custominputContainer {
+			border: none;
+		}
+	}
+}
+
+.servicesContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	flex: 1 0 0;
+	align-self: stretch;
+
+	.serviceContainerTitle {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+
+		.serviceContainerTitleStyling {
+			color: rgba(228, 229, 230, 0.48);
+			font-family: Inter;
+			font-size: 10px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 14px; /* 140% */
+			letter-spacing: 0.2px;
+			text-transform: capitalize;
+		}
+		.addFromPreset {
+			color: #6055ec;
+			font-family: Inter;
+			font-size: 11px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+		}
+		.eventsPresetsContainer {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			cursor: pointer;
+			.eventsPresetsStyling {
+				color: #6055ec;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 14px; /* 116.667% */
+				text-transform: capitalize;
+			}
+		}
+	}
+	.serviceRoleContainer {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 16px;
+		align-self: stretch;
+
+		.customInputWithoutLabel {
+			padding: 11px 14px;
+			align-items: center;
+			gap: 10px;
+			flex: 1 0 0;
+			align-self: stretch;
+			border-radius: 10px;
+			border: 1px solid rgba(255, 255, 255, 0.05);
+			background-color: transparent;
+			color: #b0b0b0;
+			font-family: Inter;
+			font-size: 11px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 16px; /* 145.455% */
+		}
+		.customInputWithoutLabel.edit:focus {
+			border: 1px solid rgba(255, 255, 255, 0.4);
+		}
+		.customInputWithoutLabel.edit:hover {
+			border: 1px solid rgba(255, 255, 255, 0.2);
+		}
+		.customInputWithoutLabel.ai_generated {
+			border: 1px solid var(--Color-Code-AI, #c39df8);
+		}
+		.incrementDecrementContainer {
+			display: flex;
+			padding: 4px;
+			align-items: center;
+			gap: 4px;
+			border-radius: 10px;
+			border: 1px solid var(--stroke, #333334);
+			border: 1px solid var(--stroke, color(display-p3 0.2 0.2 0.2039));
+
+			.incrementDecrementinput {
+				width: 50px;
+				border: none;
+				outline: none;
+				background-color: transparent;
+				color: #e8e8e8;
+				font-family: Inter;
+				font-size: 14px;
+				font-weight: 500;
+				text-align: center;
+				padding: 0 8px;
+
+				&::-webkit-inner-spin-button,
+				&::-webkit-outer-spin-button {
+					-webkit-appearance: none;
+					margin: 0;
+				}
+			}
+			.incrementorBtns {
+				display: flex;
+				width: 32px;
+				height: 32px;
+				justify-content: center;
+				align-items: center;
+				border-radius: 6px;
+				background: var(--card-over-card-hover, #27282b);
+				background: var(--card-over-card-hover, color(display-p3 0.1529 0.1569 0.1686));
+				color: #e8e8e8;
+				font-family: Inter;
+				font-size: 14px;
+				font-weight: 500;
+				cursor: pointer;
+				user-select: none;
+
+				&:hover {
+					background: #2a2a2a;
+				}
+			}
+		}
+		.incrementDecrementContainer.ai_generated {
+			border: 1px solid var(--Color-Code-AI, #c39df8);
+		}
+		.removeRoleContainer {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			cursor: pointer;
+		}
+	}
+	.addMoreRoleBtn {
+		color: #6055ec;
+		font-family: Inter;
+		font-size: 11px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		cursor: pointer;
+	}
+}
+
+.addEventBtn {
+	display: flex;
+	padding: 8px var(--cartCount, 0px);
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	align-self: stretch;
+	border-radius: 8px;
+	border: 1px dashed rgba(36, 36, 36, 0.64);
+	background: rgba(42, 42, 42, 0.2);
+	color: rgba(228, 229, 230, 0.48);
+	font-family: Inter;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 24px; /* 171.429% */
+	cursor: pointer;
+}
+
+.eventsHeaderRow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	width: 100%;
+	margin-bottom: 8px;
+}
+
+.connectWithFormBtn {
+	background: #c2ff00;
+	border: none;
+	border-radius: 6px;
+	padding: 5px 9px;
+	font-weight: 500;
+	font-size: 14px;
+	cursor: pointer;
+	color: black;
+	margin-left: 16px;
+	transition: background 0.2s;
+	&:hover {
+		background: #b6e600;
+	}
+}
+
+// Responsive styles
+@media (max-width: 1024px) {
+	.eventsParentContainer {
+		gap: 6px;
+		.eventsBlockContainer {
+			padding: 12px;
+			gap: 6px;
+		}
+	}
+}
+
+@media (max-width: 600px) {
+	.eventsParentContainer {
+		gap: 3px;
+		.eventsBlockContainer {
+			padding: 4px;
+			gap: 3px;
+		}
+	}
+}
+
+@media (max-width: 610px) {
+	.eventsParentContainer {
+		.eventsBlockContainer {
+			padding: 12px 6px;
+		}
+	}
+}
+
+@media (max-width: 378px) {
+	.servicesContainer {
+		.serviceRoleContainer {
+			flex-direction: column;
+			align-items: stretch;
+			gap: 6px;
+			.incrementDecrementContainer {
+				width: 100%;
+				justify-content: flex-start;
+			}
+			.customInputWithoutLabel {
+				width: 100%;
+				min-width: 0;
+			}
+		}
+	}
+}
+
+.connectPopover {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: #232323;
+	border-radius: 12px;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+	padding: 32px 24px 20px 24px;
+	z-index: 2000;
+	min-width: 320px;
+	max-width: 90vw;
+	color: #fff;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.popoverTitle {
+	font-size: 18px;
+	font-weight: 600;
+	margin-bottom: 18px;
+	color: #c2ff00;
+}
+
+.connectPopover ul {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 18px 0;
+	width: 100%;
+}
+
+.popoverOption {
+	padding: 10px 16px;
+	margin-bottom: 8px;
+	border-radius: 6px;
+	background: #292929;
+	color: #fff;
+	font-size: 15px;
+	cursor: pointer;
+	transition: background 0.18s;
+	text-align: left;
+}
+.popoverOption:hover {
+	background: #c2ff00;
+	color: #232323;
+}
+
+.popoverCancelBtn {
+	background: transparent;
+	border: 1px solid #c2ff00;
+	color: #c2ff00;
+	border-radius: 6px;
+	padding: 6px 18px;
+	font-size: 15px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background 0.18s, color 0.18s;
+}
+.popoverCancelBtn:hover {
+	background: #c2ff00;
+	color: #232323;
+}
+
+.connectPopoverDropdown {
+	border: 1px solid var(--primary-font) !important;
+	position: absolute;
+	right: 0;
+	z-index: 1001;
+	transform: translateY(10%);
+}

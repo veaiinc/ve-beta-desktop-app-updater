@@ -508,7 +508,7 @@ const QuickActions = ({
 					value: '',
 					controlValue: 'workflow',
 					action: () => {
-						window.location.href = `${origin}/create-document`;
+						navigate(`/builder/create-document`);
 					},
 				},
 				{

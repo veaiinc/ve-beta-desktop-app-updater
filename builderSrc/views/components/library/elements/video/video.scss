@@ -1,0 +1,59 @@
+.video-block {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+	.video-block-bg {
+		width: 700px;
+		height: 360px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: #d9d9d9;
+	}
+	.video-overlay {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: transparent;
+		position: absolute;
+		z-index: 1;
+		top: 0px;
+		left: 0px;
+	}
+	.react-player-container {
+		background-color: transparent;
+		width: 100%;
+		left: 0%;
+		padding: 56.25% 5px 5px;
+		border-radius: 0px;
+		margin-top: 0%;
+		margin-bottom: 0%;
+		overflow: hidden;
+		position: relative;
+		// max-width: 1024px;
+
+		.react-player {
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+	}
+	span {
+		width: 90%;
+		color: #606970;
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 18px;
+		// align-self: flex-start;
+		// margin-top: 10px;
+		position: absolute;
+		top: 60%;
+	}
+}

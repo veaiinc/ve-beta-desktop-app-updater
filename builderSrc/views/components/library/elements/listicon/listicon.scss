@@ -1,0 +1,31 @@
+.listicon {
+	// height: fit-content;
+	// width: fit-content;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+	padding: 2px;
+
+	// icon size classes
+}
+.small {
+	height: 12px;
+	width: 12px;
+}
+.medium {
+	height: 20px;
+	width: 20px;
+}
+.large {
+	height: 28px;
+	width: 28px;
+}
+.xlarge {
+	height: 80px;
+	width: 80px;
+}
+.xxlarge {
+	height: 120px;
+	width: 120px;
+}

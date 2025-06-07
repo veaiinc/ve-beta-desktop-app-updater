@@ -66,6 +66,7 @@ import EditScheduler from './views/features/calendar/EditScheduler';
 import Contacts from './views/features/contacts/Contacts';
 import NotesPage from './views/features/notesPage/NotesPage';
 import PricingPage from './views/features/pricingPlans/pricingPage';
+import BuilderApp from '../builderSrc/App';
 import ProactiveAi from './views/features/proactiveAi/ProactiveAi';
 const routes = [
 	{
@@ -375,6 +376,14 @@ const routes = [
 	// 	),
 	// },
 	{
+		path: '/pricing',
+		component: (
+			<AuthWrapper title={'Pricing'}>
+				<PricingPage />
+			</AuthWrapper>
+		),
+	},
+	{
 		path: '/notes',
 		component: (
 			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '32px 32px 0px' }}>
@@ -649,6 +658,19 @@ const routes = [
 		component: (
 			<AuthWrapper title="Proactive AI" childrenContainerStyles={{ maxWidth: '100%' }}>
 				<ProactiveAi />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/builder/*',
+		component: (
+			<AuthWrapper
+				title="Builder"
+				outerContainerStyle={{ padding: '0px', backgroundColor: '#fff' }}
+				childrenContainerStyles={{ maxWidth: '100%' }}
+				showSidebar={false}
+			>
+				<BuilderApp />
 			</AuthWrapper>
 		),
 	},
