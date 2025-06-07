@@ -1,6 +1,6 @@
 export const DEMO_FORM_URL = 'https://veai.ve.ai/get-ve-ai-demo';
 
-export const CHANGELOG_URL = 'https://veai.ve.ai/portal/changelog';
+export const CHANGELOG_URL = 'https://veai.ve.ai/page/changelog';
 
 export const BLOGS_URL = 'https://ve.ai/blogs';
 
