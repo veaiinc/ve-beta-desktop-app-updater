@@ -69,7 +69,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 			const response = await deleteLead({ deleteWorkflowId: workflowId });
 			if (response?.[0] === true) {
 				message.success('Lead deleted successfully');
-				navigate('/builder/create-document');
+				navigate('/files?activeTab=Documents');
 			} else {
 				message.error(response?.[1] || 'Failed to delete lead');
 			}
