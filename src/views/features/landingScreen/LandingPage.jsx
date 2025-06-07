@@ -142,7 +142,7 @@ const LandingPage = () => {
 			<main className="landing-page-container">
 				<header className="page-header">
 					<div className="left-container">
-						<VeLogo className="ve-logo" />
+						<VeLogo className="ve-logo" onClick={() => navigate('/')} />
 					</div>
 					<div className="middle-container">
 						{!mobileMenuOpen && <TabNavigation tab={tab} handleSetTab={handleSetTab} />}
