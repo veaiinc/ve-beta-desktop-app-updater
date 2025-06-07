@@ -4098,8 +4098,8 @@ class Layout extends Component {
 				if (selectedComponents.includes(subBlock._id)) {
 					let newSubBlock = { ...subBlock };
 					newSubBlock._id = ObjectID().toString();
-
-					block.subBlocks.push(newSubBlock);
+					let blockdata = _.omit(newSubBlock, ['divStyles.mGridArea']);
+					block.subBlocks.push(blockdata);
 				}
 			});
 		});

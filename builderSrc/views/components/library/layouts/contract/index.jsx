@@ -7,8 +7,14 @@ import Delete from '../actions/delete.jsx';
 import Edit from '../actions/edit.jsx';
 import Copy from '../actions/copy.jsx';
 import { message } from 'antd/lib';
+import { BlockSidebar } from '../../../builder_client_common.jsx';
+import ReactPlayer from 'react-player';
+import { ReactComponent as AddBlock } from '../../svgs/LeftBar/Addblock.svg';
+import { ReactComponent as AddBlank } from '../../svgs/LeftBar/AddBlank.svg';
 
 const disabledModules = ['contract', 'invoice', 'thankyou'];
+const padding = ['0px', '20px', '40px', '60px', '80px'];
+const paddingHorizontal = ['0px', '70px', '140px', '210px', '280px'];
 
 export default class Signature extends Component {
 	constructor(props) {
@@ -48,9 +54,11 @@ export default class Signature extends Component {
 			setTriggerFontSize: props?.setTriggerFontSize,
 			activeCurrentSignatureSubBlock: null,
 			activeTableData: null,
+			showImageModal: false,
 		};
 		this.blockRef = React.createRef();
 		this.boxRefs = [];
+		this.blockSidebarRef = React.createRef();
 	}
 	componentDidMount = () => {
 		document.addEventListener('mousedown', this.handleClickOutside);
@@ -212,6 +220,16 @@ export default class Signature extends Component {
 					}
 				});
 			}
+		}
+		if (
+			this.blockSidebarRef.current &&
+			this.blockSidebarRef.current.getSidebarNode && // check if method exists
+			!this.blockSidebarRef.current.getSidebarNode().contains(event.target) &&
+			!this.state.showImageModal
+		) {
+			this.setState({
+				showContractSingatureModal: false,
+			});
 		}
 	};
 	reanimateSection = () => {
@@ -398,7 +416,10 @@ export default class Signature extends Component {
 	//     }
 	// };
 	handleBlock = (e) => {
-		this.props.selectBlock('b');
+		// this.props.selectBlock('b');
+		this.setState({
+			showContractSingatureModal: true,
+		})
 	};
 	handleDuplicate = () => {
 		this.props.duplicateBlock(this.props._id);
@@ -452,13 +473,12 @@ export default class Signature extends Component {
 	render() {
 		return (
 			<div
-				className={`block ${
-					!this.state.preview &&
+				className={`block ${!this.state.preview &&
 					this.state.showBlockOptions &&
 					!disabledModules.includes(this.props.module)
-						? 'borderedBlock '
-						: ''
-				} `}
+					? 'borderedBlock '
+					: ''
+					} `}
 				style={{
 					flexDirection: 'column',
 					backgroundColor:
@@ -491,8 +511,8 @@ export default class Signature extends Component {
 				}}
 				ref={this.blockRef}
 			>
-				{this.state.style?.backgroundType == 'video' ||
-					(this.state.style?.backgroundType == 'image' && (
+				{(this.state.style?.backgroundType == 'video' ||
+					this.state.style?.backgroundType == 'image') && (
 						<div
 							className="bg-overlay"
 							style={{
@@ -500,7 +520,7 @@ export default class Signature extends Component {
 								opacity: this.state.style?.bgOverlayOpacity / 100,
 							}}
 						></div>
-					))}
+					)}
 				{this.state.style?.backgroundType == 'video' &&
 					this.state.style?.backgroundVideoURL && (
 						<div className="bg-video-player">
@@ -508,9 +528,9 @@ export default class Signature extends Component {
 								url={this.state.style.backgroundVideoURL}
 								width="100%"
 								height="100%"
-								loop={true}
+								loop={this.state.style?.videoProps?.loop ?? false}
 								playing={true}
-								muted
+								muted={this.state.style?.videoProps?.muteVideo ?? false}
 								controls={false}
 								onError={(e) => {
 									this.props.handleIsValidBgVideoURL(false);
@@ -519,241 +539,316 @@ export default class Signature extends Component {
 							/>
 						</div>
 					)}
+				<div
+					style={{
 
-				{this.state.showBlockActions &&
-				this.state.preview == false &&
-				!disabledModules.includes(this.props.module) ? (
-					<div className="block-action-bar">
-						{/* <span>
+						padding: this.state.style?.noPadding
+							? ''
+							: `${this.state?.style?.padding
+								? this.state.previewType === 'm'
+									? '20px'
+									: padding[this.state?.style?.padding]
+								: '0px'
+							} ${(this.state.previewType === 'm' ||
+								this.state.previewType === 'ml') &&
+								this.state.preview
+								? this.state?.style?.noMPadding
+									? '0px'
+									: '0px'
+								: this.state.style?.paddingHorizontal
+									? paddingHorizontal[this.state.style.paddingHorizontal]
+									: '0px'
+							}`,
+
+					}}
+				>
+
+					{this.state.showBlockActions &&
+						this.state.preview == false &&
+						!disabledModules.includes(this.props.module) ? (
+						<div className="block-action-bar">
+							{/* <span>
 <Edit />
 </span>
 <span>
 <Copy />
 </span> */}
-						<span className="tooltip" onClick={(e) => this.handleBlock(e)}>
-							<Edit />
-							<label className="tooltip-text">Block&nbsp;Settings</label>
-						</span>
-						{!this.props?.activeModule?.showAsSlide && (
-							<>
-								<span className="tooltip" onClick={(e) => this.handleDuplicate(e)}>
-									<Copy />
-									<label className="tooltip-text">Duplicate</label>
-								</span>
-
-								<span
-									className="tooltip"
-									onClick={() => {
-										this.props.moveItem(
-											this.props.index,
-											this.props.index + 1,
-											this.state.activeSectionID,
-											'down',
-										);
-									}}
-									disabled={this.props.sortedIndex === this.props.itemsLength - 1}
-									style={{
-										cursor:
-											this.props.sortedIndex === this.props.itemsLength - 1
-												? 'not-allowed'
-												: 'pointer',
-									}}
-								>
-									<Down />
-									<label className="tooltip-text">Down</label>
-								</span>
-
-								<span
-									className="tooltip"
-									onClick={() => {
-										this.props.moveItem(
-											this.props.index,
-											this.props.index - 1,
-											this.state.activeSectionID,
-											'up',
-										);
-									}}
-									disabled={this.props.sortedIndex === 0}
-									style={{
-										cursor:
-											this.props.sortedIndex === 0
-												? 'not-allowed'
-												: 'pointer',
-									}}
-								>
-									<Up />
-									<label className="tooltip-text">Up</label>
-								</span>
-							</>
-						)}
-						{this.props.module === 'form' ? (
-							''
-						) : (
-							<span className="tooltip" onClick={(e) => this.handleDeleteSection(e)}>
-								<Delete />
-								<label className="tooltip-text">Delete</label>
+							<span className="tooltip" onClick={(e) => this.handleBlock(e)}>
+								<Edit />
+								<label className="tooltip-text">Block&nbsp;Settings</label>
 							</span>
-						)}
-					</div>
-				) : (
-					''
-				)}
-				{this.state.preview == false &&
-				this.state.showBlockOptions &&
-				this.props.module !== 'form' &&
-				!this.props?.activeModule?.showAsSlide &&
-				!disabledModules.includes(this.props.module) ? (
-					<a className="add-block" onClick={(e) => this.hanldeAddBlock(e)}>
-						Add Block
-					</a>
-				) : (
-					''
-				)}
+							{!this.props?.activeModule?.showAsSlide && (
+								<>
+									<span className="tooltip" onClick={(e) => this.handleDuplicate(e)}>
+										<Copy />
+										<label className="tooltip-text">Duplicate</label>
+									</span>
 
-				<div>
-					<div
-						className="contract_signature"
-						style={{
-							backgroundColor: this.state?.contractBg,
-							padding: this.state?.previewType === 'm' && '0px 24px',
-						}}
-					>
-						{this.state.activeTableData?.values[1]?.value ? (
-							<>
-								<div
-									className="sign_box sign_box_text"
-									style={{
-										display: 'flex',
-										flexDirection: 'column',
-										gap: 10,
-										alignItems: 'center',
-										height: 'auto',
-									}}
-								>
-									{!this.state.activeTableData?.values[1]?.isImage ? (
-										<label>
-											{' '}
-											{this.state.activeTableData?.values[1]?.value}
-										</label>
-									) : (
-										<a
-											style={{
-												backgroundColor: '#fff',
-												boxShadow: '0px 4px 40px 0px rgba(0, 0, 0, 0.12)',
-												width: 'auto',
-												minHeight: '80px',
-												height: '100%',
-											}}
-										>
-											<img
-												src={this.state.activeTableData?.values[1]?.value}
+									<span
+										className="tooltip"
+										onClick={() => {
+											this.props.moveItem(
+												this.props.index,
+												this.props.index + 1,
+												this.state.activeSectionID,
+												'down',
+											);
+										}}
+										disabled={this.props.sortedIndex === this.props.itemsLength - 1}
+										style={{
+											cursor:
+												this.props.sortedIndex === this.props.itemsLength - 1
+													? 'not-allowed'
+													: 'pointer',
+										}}
+									>
+										<Down />
+										<label className="tooltip-text">Down</label>
+									</span>
+
+									<span
+										className="tooltip"
+										onClick={() => {
+											this.props.moveItem(
+												this.props.index,
+												this.props.index - 1,
+												this.state.activeSectionID,
+												'up',
+											);
+										}}
+										disabled={this.props.sortedIndex === 0}
+										style={{
+											cursor:
+												this.props.sortedIndex === 0
+													? 'not-allowed'
+													: 'pointer',
+										}}
+									>
+										<Up />
+										<label className="tooltip-text">Up</label>
+									</span>
+								</>
+							)}
+							{this.props.module === 'form' ? (
+								''
+							) : (
+								<span className="tooltip" onClick={(e) => this.handleDeleteSection(e)}>
+									<Delete />
+									<label className="tooltip-text">Delete</label>
+								</span>
+							)}
+						</div>
+					) : (
+						''
+					)}
+					{this.state.preview == false &&
+						this.state.showBlockOptions &&
+						this.props.module !== 'form' &&
+						!this.props?.activeModule?.showAsSlide &&
+						!disabledModules.includes(this.props.module) ? (
+						<div className="add-block-new-container">
+							<div
+								onClick={(e) => this.hanldeAddBlock(e)}
+								className="addBlankContainer"
+							>
+								<AddBlock />
+								<label className="tooltip-text">Add Block</label>
+							</div>
+							<div className="addBlockDividerContainer">
+								<div className="addBlockDivider"></div>
+							</div>
+							<div className="addBlankContainer">
+								{this.state.isElement !== true ? (
+									<div
+										className={`addBlank ${this.state.activeTab === 'fluid' ? 'active' : ''
+											}`}
+										onClick={(e) => this.props.handleAddLayout(null, true)}
+									//onMouseEnter={(e) => this.setActiveTab('fluid')}
+									>
+										<AddBlank />
+									</div>
+								) : (
+									''
+								)}
+
+								<label className="tooltip-text">Add Blank</label>
+							</div>
+						</div>
+					) : (
+						''
+					)}
+
+					<div>
+						<div
+							className="contract_signature"
+							style={{
+								backgroundColor: this.state?.contractBg,
+								padding: this.state?.previewType === 'm' && '0px 24px',
+							}}
+						>
+							{this.state.activeTableData?.values[1]?.value ? (
+								<>
+									<div
+										className="sign_box sign_box_text"
+										style={{
+											display: 'flex',
+											flexDirection: 'column',
+											gap: 10,
+											alignItems: 'center',
+											height: 'auto',
+										}}
+									>
+										{!this.state.activeTableData?.values[1]?.isImage ? (
+											<label>
+												{' '}
+												{this.state.activeTableData?.values[1]?.value}
+											</label>
+										) : (
+											<a
 												style={{
-													width: '100%',
+													backgroundColor: '#fff',
+													boxShadow: '0px 4px 40px 0px rgba(0, 0, 0, 0.12)',
+													width: 'auto',
+													minHeight: '80px',
 													height: '100%',
 												}}
-											/>
-										</a>
-									)}
-								</div>
-								<div>
-									<div className="cs_name">
-										<span>Tennant Signature</span>
+											>
+												<img
+													src={this.state.activeTableData?.values[1]?.value}
+													style={{
+														width: '100%',
+														height: '100%',
+													}}
+												/>
+											</a>
+										)}
 									</div>
-								</div>
-							</>
-						) : (
-							<>
-								<div
-									className="sign_box"
+									<div>
+										<div className="cs_name">
+											<span>Tennant Signature</span>
+										</div>
+									</div>
+								</>
+							) : (
+								<>
+									<div
+										className="sign_box"
 									// onClick={this.openTeamMemberSignatureModal}
-									
-								>
-								<span className='signature-title'>{this.props?.client ? 'To be signed in the Dashboard after you have signed.' :""}</span>	
-								</div>
-								<div>
-									<div className="cs_name">
-										<span>(Company Representative)</span>
-									</div>
-									<label>*Signature required</label>
-									{/* <a>Signer details</a> */}
-								</div>
-							</>
-						)}
-					</div>
-				</div>
 
-				<div>
-					<div
-						className="contract_signature"
-						style={{
-							backgroundColor: this.state?.contractBg,
-							padding: this.state?.previewType === 'm' && '0px 24px',
-						}}
-					>
-						{this.state.activeTableData?.values[0]?.value ? (
-							<>
-								<div
-									className="sign_box sign_box_text"
-									style={{
-										display: 'flex',
-										flexDirection: 'column',
-										gap: 10,
-										alignItems: 'center',
-										height: 'auto',
-									}}
-								>
-									{!this.state.activeTableData?.values[0]?.isImage ? (
-										<label>
-											{' '}
-											{this.state.activeTableData?.values[0]?.value}
-										</label>
-									) : (
-										<a
-											style={{
-												backgroundColor: '#fff',
-												boxShadow: '0px 4px 40px 0px rgba(0, 0, 0, 0.12)',
-												width: 'auto',
-												minHeight: '80px',
-												height: '100%',
-											}}
-										>
-											<img
-												src={this.state.activeTableData?.values[0]?.value}
-												onError={this.onErrorLoadingImage}
+									>
+										<span className='signature-title'>{this.props?.client ? 'To be signed in the Dashboard after you have signed.' : ""}</span>
+									</div>
+									<div>
+										<div className="cs_name">
+											<span>(Company Representative)</span>
+										</div>
+										<label>*Signature required</label>
+										{/* <a>Signer details</a> */}
+									</div>
+								</>
+							)}
+						</div>
+					</div>
+
+					<div>
+						<div
+							className="contract_signature"
+							style={{
+								backgroundColor: this.state?.contractBg,
+								padding: this.state?.previewType === 'm' && '0px 24px',
+							}}
+						>
+							{this.state.activeTableData?.values[0]?.value ? (
+								<>
+									<div
+										className="sign_box sign_box_text"
+										style={{
+											display: 'flex',
+											flexDirection: 'column',
+											gap: 10,
+											alignItems: 'center',
+											height: 'auto',
+										}}
+									>
+										{!this.state.activeTableData?.values[0]?.isImage ? (
+											<label>
+												{' '}
+												{this.state.activeTableData?.values[0]?.value}
+											</label>
+										) : (
+											<a
 												style={{
-													width: '100%',
+													backgroundColor: '#fff',
+													boxShadow: '0px 4px 40px 0px rgba(0, 0, 0, 0.12)',
+													width: 'auto',
+													minHeight: '80px',
 													height: '100%',
 												}}
-											/>
-										</a>
-									)}
-								</div>
-								<div>
-									<div className="cs_name">
-										<div>Client Signature</div>
+											>
+												<img
+													src={this.state.activeTableData?.values[0]?.value}
+													onError={this.onErrorLoadingImage}
+													style={{
+														width: '100%',
+														height: '100%',
+													}}
+												/>
+											</a>
+										)}
 									</div>
-								</div>
-							</>
-						) : (
-							<>
-								<div
-									className="sign_box"
-									style={{ cursor: 'pointer' }}
-									onClick={this.openClientSignatureModal}
-								>
-									<span className='signature-title'>{this.props?.client ? 'Click to type, draw or upload your signature' : ''}</span>	
-								</div>
-								<div>
-									<div className="cs_name">
-										<div>(Client Name)</div>
+									<div>
+										<div className="cs_name">
+											<div>Client Signature</div>
+										</div>
 									</div>
-									<label>*Signature required</label>
-									{/* <a>Signer details</a> */}
-								</div>
-							</>
-						)}
+								</>
+							) : (
+								<>
+									<div
+										className="sign_box"
+										style={{ cursor: 'pointer' }}
+										onClick={this.openClientSignatureModal}
+									>
+										<span className='signature-title'>{this.props?.client ? 'Click to type, draw or upload your signature' : ''}</span>
+									</div>
+									<div>
+										<div className="cs_name">
+											<div>(Client Name)</div>
+										</div>
+										<label>*Signature required</label>
+										{/* <a>Signer details</a> */}
+									</div>
+								</>
+							)}
+						</div>
 					</div>
 				</div>
+				{
+					this.state.showContractSingatureModal && (
+						<BlockSidebar
+							ref={this.blockSidebarRef}
+							activeType="signature"
+							elementEndPosition={
+								this.state.elementEndPosition || { x: 450, y: 100 }
+							}
+							activePopupComponent={this.props.section}
+							setActiveSection={(e) => this.setState({
+								section: e,
+								style: e?.style
+							}, () => {
+								this.props.setActiveSection(e)
+							})}
+							setModalRef={(e) => {
+								this.setState({
+									showImageModal: e,
+								});
+							}}
+							showImageModal={this.state.showImageModal}
+							activeModuleId={this.props?.activeModuleId}
+
+						/>
+					)
+				}
 			</div>
 		);
 	}
