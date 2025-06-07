@@ -10,7 +10,7 @@ import withRouter from './hooks'; // Import the withRouter HOC
 import EditWorkflow from './views/feature/EditWorkflow';
 import DesignBuilder from './views/feature/design-builder';
 import { handleCookieSetupOnMounting } from './helper';
-import ShortBuilderPreview from './views/feature/TemplateShortPreview';
+import ShortBuilderPreview from './views/feature/DocumentShortPreview';
 import './assets/scss/globalColorsAndTheme.scss';
 import CreatedDocument from './views/feature/document/newIndex';
 import ViewHomePage from './views/feature/document/viewHomePage';

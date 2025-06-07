@@ -324,6 +324,7 @@ class TemplateShortPreview extends NewProposals {
 						_.map(
 							_.sortBy(this.state.previewModuleSections, ['order']),
 							(module, key) => {
+								console.log(module);
 								if (
 									this.state.displayModules === '' ||
 									this.state.displayModules === module.id
