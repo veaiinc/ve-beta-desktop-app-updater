@@ -1,4 +1,4 @@
-import { memo, useState, useEffect, useCallback, useRef, useContext } from 'react';
+import { memo, useState, useEffect, useContext } from 'react';
 import s from './agentCredentials.module.scss';
 import Context from '../../../../../context/context';
 import { message } from '../../../../components/globalComponents/CustomToast';
@@ -6,14 +6,13 @@ import PencilIcon from '../assets/PencilIcon';
 import CatIcon from '../assets/cat.png';
 
 const AgentCredentials = ({ agentId }) => {
-	const timeoutId = useRef(null);
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, updateKnowledgeAgent, uploadAgentProfilePic },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		agentName: null,
-		agentDescription: null,
+		agentName: '',
+		agentDescription: '',
 		agentProfilePic: null,
 		editAgentDetails: {
 			agentName: false,
@@ -22,43 +21,18 @@ const AgentCredentials = ({ agentId }) => {
 	});
 
 	useEffect(() => {
-		if (activeKnowledgeAssistant?.data?.name?.length > 0) {
-			setInfo((prev) => ({
-				...prev,
-				agentName: activeKnowledgeAssistant?.data?.name,
-			}));
-		}
-		if (activeKnowledgeAssistant?.data?.description?.length > 0) {
-			setInfo((prev) => ({
-				...prev,
-				agentDescription: activeKnowledgeAssistant?.data?.description,
-			}));
-		}
-		if (activeKnowledgeAssistant?.data?.knowledgeAgent_profile_picture_s3Key?.length > 0) {
-			setInfo((prev) => ({
-				...prev,
-				agentProfilePic:
-					activeKnowledgeAssistant?.data?.knowledgeAgent_profile_picture_s3Key,
-			}));
-		}
-	}, [activeKnowledgeAssistant?.data?.name, activeKnowledgeAssistant?.data?.description]);
+		const name = activeKnowledgeAssistant?.data?.name ?? '';
+		const description = activeKnowledgeAssistant?.data?.description ?? '';
+		const profilePic =
+			activeKnowledgeAssistant?.data?.knowledgeAgent_profile_picture_s3Key ?? null;
 
-	const updateAgentDetails = useCallback(() => {
-		const { agentName, agentDescription } = info;
-		if (agentName?.length === 0) {
-			message.error('Agent name cannot be empty');
-			return;
-		}
-		if (agentDescription?.length === 0) {
-			message.error('Agent description cannot be empty');
-			return;
-		}
-		const agentDetails = {
-			name: agentName,
-			description: agentDescription,
-		};
-		updateKnowledgeAgent(agentId, agentDetails);
-	}, [info.agentName, info.agentDescription]);
+		setInfo((prev) => ({
+			...prev,
+			agentName: name,
+			agentDescription: description,
+			agentProfilePic: profilePic,
+		}));
+	}, [activeKnowledgeAssistant]);
 
 	const handleUploadAgentProfilePic = async (e) => {
 		try {
@@ -86,28 +60,44 @@ const AgentCredentials = ({ agentId }) => {
 		}
 	};
 
-	const handleNameChange = (e) => {
-		setInfo((prev) => ({ ...prev, agentName: e.target.value }));
-		clearTimeout(timeoutId.current);
-		timeoutId.current = setTimeout(() => {
-			updateAgentDetails();
-		}, 1000);
-		return () => clearTimeout(timeoutId.current);
-	};
+	const handleAgentUpdate = (type) => {
+		const currentValue = info[type];
+		if (!currentValue.trim()) {
+			message.error(`${type === 'agentName' ? 'Name' : 'Description'} cannot be empty!`);
+			setInfo((prev) => ({
+				...prev,
+				[type]: activeKnowledgeAssistant?.data?.[
+					type === 'agentName' ? 'name' : 'description'
+				],
+				editAgentDetails: {
+					...prev.editAgentDetails,
+					[type]: false,
+				},
+			}));
+			return;
+		}
 
-	const handleDescriptionChange = (e) => {
-		setInfo((prev) => ({ ...prev, agentDescription: e.target.value }));
-		clearTimeout(timeoutId.current);
-		timeoutId.current = setTimeout(() => {
-			updateAgentDetails();
-		}, 1000);
-		return () => clearTimeout(timeoutId.current);
+		updateKnowledgeAgent(agentId, {
+			...(type === 'agentName' && { name: currentValue }),
+			...(type === 'agentDescription' && { description: currentValue }),
+		});
+
+		setInfo((prev) => ({
+			...prev,
+			editAgentDetails: {
+				...prev.editAgentDetails,
+				[type]: false,
+			},
+		}));
 	};
 
 	const toggleEditAgentDetails = (type) => {
 		setInfo((prev) => ({
 			...prev,
-			editAgentDetails: { ...prev.editAgentDetails, [type]: !prev.editAgentDetails[type] },
+			editAgentDetails: {
+				...prev.editAgentDetails,
+				[type]: !prev.editAgentDetails[type],
+			},
 		}));
 	};
 
@@ -125,22 +115,26 @@ const AgentCredentials = ({ agentId }) => {
 					accept="image/png,image/jpeg,image/jpg"
 				/>
 			</div>
+
 			<div className={s.agentDetails}>
 				<div className={s.agentName}>
 					{info.editAgentDetails.agentName ? (
 						<input
 							type="text"
 							autoFocus
-							onChange={handleNameChange}
+							value={info.agentName}
+							onChange={(e) =>
+								setInfo((prev) => ({ ...prev, agentName: e.target.value }))
+							}
 							onKeyDown={(e) => {
 								if (e.key === 'Enter') {
-									toggleEditAgentDetails('agentName');
+									handleAgentUpdate('agentName');
 								}
 							}}
 							onBlur={() => toggleEditAgentDetails('agentName')}
-							value={info.agentName}
 							aria-label="Edit agent name"
 							className={s.input}
+							placeholder="Give a name to your agent and hit enter!"
 						/>
 					) : (
 						<>
@@ -154,26 +148,32 @@ const AgentCredentials = ({ agentId }) => {
 									}
 								}}
 							>
-								{info.agentName}
+								{info.agentName || activeKnowledgeAssistant?.data?.name}
 							</span>
 							<PencilIcon />
 						</>
 					)}
 				</div>
+
 				<div className={s.agentDescription}>
 					{info.editAgentDetails.agentDescription ? (
 						<textarea
+							placeholder="Give a description to your agent and hit enter!"
 							autoFocus
-							onChange={handleDescriptionChange}
+							value={info.agentDescription}
+							onChange={(e) =>
+								setInfo((prev) => ({
+									...prev,
+									agentDescription: e.target.value,
+								}))
+							}
 							onKeyDown={(e) => {
-								if (e.key === 'Enter') {
-									if (e.shiftKey) return;
+								if (e.key === 'Enter' && !e.shiftKey) {
 									e.preventDefault();
-									toggleEditAgentDetails('agentDescription');
+									handleAgentUpdate('agentDescription');
 								}
 							}}
 							onBlur={() => toggleEditAgentDetails('agentDescription')}
-							value={info.agentDescription}
 							aria-label="Edit agent description"
 							className={s.textarea}
 							rows={3}
@@ -190,7 +190,8 @@ const AgentCredentials = ({ agentId }) => {
 									}
 								}}
 							>
-								{info.agentDescription}
+								{info.agentDescription ||
+									activeKnowledgeAssistant?.data?.description}
 							</p>
 							<PencilIcon />
 						</>
