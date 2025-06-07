@@ -1,10 +1,6 @@
 import { createElement, useState, useCallback, useEffect, useContext, memo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import {
-	veAiModulesItemsList,
-	veAiModules,
-	SETTINGS_OPTIONS,
-} from './sidebarindex';
+import { veAiModulesItemsList, veAiModules, SETTINGS_OPTIONS } from './sidebarindex';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg.svg';
@@ -129,9 +125,7 @@ const OpenedSidebarModules = ({
 		const routePath = route?.replace(/\/$/, '');
 
 		if (name === 'Agents') {
-			return (
-				currentPath.includes('/knowledge-agent') || currentPath.includes('/ai-assistant')
-			);
+			return currentPath.includes('/agents') || currentPath.includes('/ai-assistant');
 		}
 
 		return currentPath === routePath;
@@ -453,10 +447,7 @@ const OpenedSidebar = ({
 			const routePath = currentRoute?.replace(/\/$/, '');
 
 			if (moduleName === 'Agents') {
-				return (
-					currentPath.includes('/knowledge-agent') ||
-					currentPath.includes('/ai-assistant')
-				);
+				return currentPath.includes('/agents') || currentPath.includes('/ai-assistant');
 			}
 
 			return currentPath === routePath;
