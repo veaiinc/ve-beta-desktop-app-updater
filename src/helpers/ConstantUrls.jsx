@@ -1,6 +1,6 @@
 export const DEMO_FORM_URL = 'https://veai.ve.ai/get-ve-ai-demo';
 
-export const CHANGELOG_URL = 'https://veai.ve.ai/portal/changelog';
+export const CHANGELOG_URL = 'https://veai.ve.ai/page/changelog';
 
 export const BLOGS_URL = 'https://ve.ai/blogs';
 
@@ -20,14 +20,11 @@ export const NEWSLETTER_SUBSCRIPTION_URL =
 export const PRIVACY_POLICY_URL_DIRECT_DOWNLOAD =
 	'https://drive.google.com/uc?export=download&id=1ktST1T5uBCs-LlPvLTKmpVBKe09HhxOj';
 
-export const COOKIE_POLICY_URL =
-	'https://drive.google.com/file/d/1O0mu1uW-KZkYfGFy1RgBAzDd55RigIRJ/preview';
+export const COOKIE_POLICY_URL = 'https://veai.ve.ai/page/cookie-policy';
 
-export const TERMS_OF_SERVICE_URL =
-	'https://drive.google.com/file/d/1eGn06UUp0CnLbBdL-KZDEB9S9dl0PBhJ/preview';
+export const TERMS_OF_SERVICE_URL = 'https://veai.ve.ai/page/terms-of-use';
 
-export const PRIVACY_POLICY_URL_PREVIEW =
-	'https://drive.google.com/file/d/1ktST1T5uBCs-LlPvLTKmpVBKe09HhxOj/preview';
+export const PRIVACY_POLICY_URL_PREVIEW = 'https://veai.ve.ai/page/privacy-policy';
 
 export const createEmailBody = (referrerDiscount, referralLink) => `
 <html>

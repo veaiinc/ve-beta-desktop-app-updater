@@ -122,6 +122,7 @@ const ChatBox = ({
 	smoothScrollToBottom = null,
 	startPage = false,
 	onChatQueryChange = null,
+	isBuildEnbled = true,
 }) => {
 	const textAreaRef = useRef(null);
 	const location = useLocation();
@@ -1533,7 +1534,7 @@ const ChatBox = ({
 															)}
 
 															{/* {!isPublicChat && ( */}
-															<Tooltip
+															{isBuildEnbled && <Tooltip
 																title={
 																	<div className="chatbox-icon-tooltip-container">
 																		Build
@@ -1585,7 +1586,7 @@ const ChatBox = ({
 																		</BuildTooltip>
 																	</div>
 																</div>
-															</Tooltip>
+															</Tooltip>}
 															{/* )} */}
 														</div>
 

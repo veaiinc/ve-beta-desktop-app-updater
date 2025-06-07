@@ -3,11 +3,11 @@ import '../../../assets/scss/privacyPolicy.scss';
 import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { ReactComponent as Back } from '../../../assets/svg/privacyPolicyBack.svg';
 import { useNavigate } from 'react-router-dom';
-import { PRIVACY_POLICY_URL_PREVIEW } from '../../../helpers/ConstantUrls';
+import { CHANGELOG_URL } from '../../../helpers/ConstantUrls';
 
-const PrivacyPolicy = () => {
+const ChageLog = () => {
 	const navigate = useNavigate();
-	const pdfUrl = PRIVACY_POLICY_URL_PREVIEW;
+	const pdfUrl = CHANGELOG_URL;
 
 	return (
 		<div className="privacyPolicyMainContainer">
@@ -22,7 +22,7 @@ const PrivacyPolicy = () => {
 							<Back />
 						</span>
 
-						<span className="privacyPolicyText">Privacy Policy</span>
+						<span className="privacyPolicyText">Changelog</span>
 					</div>
 				</div>
 			</div> */}
@@ -31,7 +31,7 @@ const PrivacyPolicy = () => {
 			<div className="pdfViewer">
 				<iframe
 					src={pdfUrl}
-					title="Privacy Policy"
+					title="Changelog"
 					width="100%"
 					height="600px"
 					style={{ border: 'none' }}
@@ -43,4 +43,4 @@ const PrivacyPolicy = () => {
 	);
 };
 
-export default memo(PrivacyPolicy);
+export default memo(ChageLog);
