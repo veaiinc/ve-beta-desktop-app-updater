@@ -19,6 +19,7 @@
 	height: 100%;
 	padding: 24px 24px 36px 24px;
 	overflow-y: auto;
+	width: 360px !important;
 
 	.themeSettingsHeader {
 		display: flex;
@@ -210,6 +211,7 @@
 		}
 	}
 }
-:where(.css-dev-only-do-not-override-1hpnbz2).ant-select-single.ant-select-open .ant-select-selection-item {
-    color: white;
+:where(.css-dev-only-do-not-override-1hpnbz2).ant-select-single.ant-select-open
+	.ant-select-selection-item {
+	color: white;
 }
