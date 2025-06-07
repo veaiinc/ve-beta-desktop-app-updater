@@ -21,3 +21,9 @@
 		}
 	}
 }
+
+@media screen and (max-width: 500px) {
+	.auth-wrapper-container {
+		padding: 16px 0 0 0 !important;
+	}
+}
