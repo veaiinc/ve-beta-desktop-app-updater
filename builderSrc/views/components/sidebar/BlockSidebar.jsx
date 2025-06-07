@@ -8,6 +8,10 @@ import TextPopup from '../library/elementPopups/textPopup';
 import ImagePopup from '../library/elementPopups/imagePopup';
 import ButtonPopup from '../library/elementPopups/buttonPopup';
 import InvoiceCardPopup from '../library/elementPopups/blockPopups/InvoiceCardPopup';
+import SignaturePopup from '../library/elementPopups/blockPopups/SignaturePopup';
+import PaymentSchedulePopup from '../library/elementPopups/blockPopups/PaymentSchedule';
+import SummaryPopup from '../library/elementPopups/blockPopups/SummaryPopup';
+import EventPopup from '../library/elementPopups/blockPopups/EventPopup';
 
 class BlockSidebar extends Component {
 	constructor(props) {
@@ -221,6 +225,64 @@ class BlockSidebar extends Component {
 							handleIsValidBgVideoURL={this.props.handleIsValidBgVideoURL}
 							currencySymbol={this.props?.currencySymbol}
 							currencySymbol2={this.props?.currencySymbol2}
+						/>
+					)}
+					{this.state?.activeType === 'signature' && (
+						<SignaturePopup
+							activeComponent={this.state?.activePopupComponent}
+							setModalRef={(e) => this.props?.setModalRef(e)}
+							activeModuleId={this.props?.activeModuleId}
+							setActiveSection={(e) =>
+								this.setState({ activePopupComponent: e }, () => {
+									this.props?.setActiveSection(e);
+								})
+							}
+						/>
+					)}
+					{this.state?.activeType === 'paymentSchedule' && (
+						<PaymentSchedulePopup
+							activeComponent={this.state?.activePopupComponent}
+							setModalRef={(e) => this.props?.setModalRef(e)}
+							setActiveSection={(e) => {
+								this.setState({
+									activeComponent: e,
+								});
+								this.props.setActiveSection(e);
+							}}
+							activeModuleId={this.props?.activeModuleId}
+						/>
+					)}
+					{this.state?.activeType === 'summary' && (
+						<SummaryPopup
+							activeComponent={this.state?.activePopupComponent}
+							brandColors={this.props?.brandColors}
+							setModalRef={(e) => this.props?.setModalRef(e)}
+							style={this.state?.activePopupComponent?.style}
+							activeModuleId={this.props?.activeModuleId}
+							handleIsValidBgVideoURL={this.props.handleIsValidBgVideoURL}
+							setActiveSection={(e) => {
+								this.setState({
+									activeComponent: e,
+								});
+								this.props.setActiveSection(e);
+							}}
+							fonts={this.props?.fonts}
+						/>
+					)}
+
+					{/* event popup */}
+					{this.state.activeType === 'event' && (
+						<EventPopup
+							activeComponent={this.state?.activePopupComponent}
+							activeModule={this.props?.isServiceItem ? 'serviceItem' : 'block'}
+							setActiveSection={(newComponent) => {
+								this.setState({ activePopupComponent: newComponent }, () => {
+									this.props?.setActiveSection(newComponent);
+								});
+							}}
+							activeModuleId={this.props?.activeModuleId}
+							setModalRef={(e) => this.props?.setModalRef(e)}
+							showImageModal={this.props.showImageModal}
 						/>
 					)}
 				</div>
