@@ -6147,7 +6147,7 @@ function LogicalForm(props) {
 									transition: 'background-color 0.2sease',
 								}}
 							>
-								{isSinglePage ? 'Multi Page View' : 'Single Page View'}
+								{isSinglePage ? 'Single Page View' : 'Multi Page View'}
 							</button>
 						</div>
 					</>
@@ -6176,7 +6176,7 @@ function LogicalForm(props) {
 									className="menu-item"
 									onClick={() => handleAddField(item.type)}
 								>
-									:<span className="logical-form-icon">{item.icon}</span>
+									<span className="logical-form-icon">{item.icon}</span>
 									<span style={{ color: '#fff' }}>{item.label}</span>
 								</div>
 							))}
