@@ -18,6 +18,7 @@
 		gap: 12px;
 		transition: all 0.2s ease-in;
 		border-radius: 12px;
+		max-height: 74px;
 
 		&:hover {
 			background: var(--card-over-card-hover);

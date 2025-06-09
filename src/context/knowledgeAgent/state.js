@@ -15,7 +15,7 @@ export const initialState = {
 export const KnowledgeAgentState = () => {
 	const [state, dispatch] = useReducer(Reducer, initialState);
 
-	const getKnowledgeAssistantsList = async (page = 1, limit = 20) => {
+	const getKnowledgeAssistantsList = async (page = 1, limit = 10) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const path = `/${workspaceId}/knowledge-agents?page=${page}&limit=${limit}`;
@@ -24,9 +24,18 @@ export const KnowledgeAgentState = () => {
 			const response = await service?.fetchGet(path, token, type);
 			const success = response?.[0] === true;
 			if (success) {
+				const data = [
+					...(state?.knowledgeAssistantsList?.data || []),
+					...(response?.[1]?.data || []),
+				];
+				const payload = {
+					data,
+					currentPage: response?.[1]?.currentPage ?? 1,
+					hasNextPage: response?.[1]?.hasNextPage ?? false,
+				};
 				dispatch({
 					type: Actions?.SET_KNOWLEDGE_ASSISTANTS_LIST,
-					payload: response?.[1],
+					payload,
 				});
 			} else {
 				dispatch({
