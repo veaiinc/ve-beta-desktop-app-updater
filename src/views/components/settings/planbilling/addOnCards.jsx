@@ -355,7 +355,7 @@ const AddOnPlans = ({
 			isOpen={isOpen}
 			closeModal={closeModal}
 			contentLabel="AddOns Modal"
-			style={customStyles}
+			customStyles={customStyles}
 			ariaHideApp={false}
 		>
 			{info?.mappableData && (
