@@ -13,6 +13,10 @@ const UploadFileTooltip = ({
 }) => {
 	const [info, setInfo] = useState({});
 
+	const handleConnect = () => {
+		console.log('connect');
+	};
+
 	return (
 		<div className="upload-file-wrapper">
 			<Tooltip
@@ -25,10 +29,10 @@ const UploadFileTooltip = ({
 				rootClassName="upload-file-tooltip-container"
 				title={
 					<div className="upload-file-container">
-						<div className="connectors-container">
-							<div className="connector">
-								<div className="connector-icon">{fileTypeIcons?.drive}</div>
-								<div className="connector-title">Connect Google Drive</div>
+						<div className="chat-integrations-container">
+							<div className="integration" onClick={handleConnect}>
+								<div className="integration-icon">{fileTypeIcons?.gmail}</div>
+								<div className="integration-title">Connect Gmail</div>
 							</div>
 						</div>
 						<div className="horizontal-line" />

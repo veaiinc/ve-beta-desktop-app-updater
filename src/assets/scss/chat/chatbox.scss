@@ -735,29 +735,30 @@
 		background: var(--stroke);
 	}
 
-	.connectors-container {
+	.chat-integrations-container {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 2px;
 		align-self: stretch;
 
-		.connector {
+		.integration {
 			display: flex;
 			height: 36px;
 			padding: 0px 16px;
 			align-items: center;
 			gap: 12px;
 			align-self: stretch;
+			cursor: pointer;
 
-			.connector-icon {
+			.integration-icon {
 				height: 16px;
 				svg {
 					width: 18px;
 					height: 16px;
 				}
 			}
-			.connector-title {
+			.integration-title {
 				display: -webkit-box;
 				-webkit-line-clamp: 1;
 				line-clamp: 1;
