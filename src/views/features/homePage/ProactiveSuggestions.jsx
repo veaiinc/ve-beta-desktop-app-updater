@@ -26,6 +26,7 @@ import { ReactComponent as SortAscSvg } from '../../../assets/svg/home_page/sort
 import { ReactComponent as AgentIcon } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import AIQuestions from './AIQuestions';
 import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
+import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
 
 const payload = {
 	page: 1,
@@ -111,6 +112,7 @@ const ProactiveSuggestions = () => {
 	const currentIndexRef = useRef(0);
 	const totalCardsDataRef = useRef([]);
 	const isMountedRef = useRef(true);
+	const timeoutIdRef = useRef(null);
 
 	const {
 		templates: {
@@ -139,6 +141,7 @@ const ProactiveSuggestions = () => {
 		sortBy: 'createdAt',
 		activeBtn: 'insights',
 		sortOptions,
+		searchQuery: '',
 	});
 
 	useEffect(() => {
@@ -193,9 +196,19 @@ const ProactiveSuggestions = () => {
 			isMountedRef.current = false;
 			return;
 		}
-		const reset = true;
-		getAISuggestedPendingActions(newUpdatedPayload, reset);
+		fetchPendingActions();
 	}, [info?.selectedFilters, info?.sortOptions, info?.sortBy]);
+
+	useEffect(() => {
+		if (info?.searchQuery) {
+			if (timeoutIdRef.current) {
+				clearTimeout(timeoutIdRef.current);
+			}
+			timeoutIdRef.current = setTimeout(() => {
+				fetchPendingActions();
+			}, 1000);
+		}
+	}, [info?.searchQuery]);
 
 	const getDateRangeFromFilters = (filters) => {
 		const selectedDateFilter = filters?.find((f) => f?.group === 'Date');
@@ -249,7 +262,7 @@ const ProactiveSuggestions = () => {
 			sortBy: info?.sortBy,
 			...(favourite && { isFavourited: favourite }),
 		};
-	}, [payload, info?.selectedFilters, info?.sortOptions, info?.sortBy]);
+	}, [payload, info?.selectedFilters, info?.sortOptions, info?.sortBy, info?.searchQuery]);
 
 	const updateCardsData = () => {
 		const cards = aiSuggestedPendingActions?.pendingActions;
@@ -416,6 +429,11 @@ const ProactiveSuggestions = () => {
 		});
 	};
 
+	const fetchPendingActions = async () => {
+		const reset = true;
+		getAISuggestedPendingActions(newUpdatedPayload, reset);
+	};
+
 	const fetchMorePendingActions = async () => {
 		const nextPage = aiSuggestedPendingActions?.metaInfo?.currentPage + 1;
 		const payload = {
@@ -504,6 +522,13 @@ const ProactiveSuggestions = () => {
 		setInfo((prev) => ({
 			...prev,
 			activeBtn: btn,
+		}));
+	};
+
+	const handleSearchQueryChange = (e) => {
+		setInfo((prev) => ({
+			...prev,
+			searchQuery: e.target?.value,
 		}));
 	};
 
@@ -702,6 +727,17 @@ const ProactiveSuggestions = () => {
 								</button>
 							</div>
 						</Tooltip>
+
+						<div className="search-wrapper" data-tooltip="Search">
+							<div className="search-icon">
+								<SearchSvg />
+							</div>
+							<input
+								className="search-input"
+								placeholder="Search"
+								onChange={handleSearchQueryChange}
+							/>
+						</div>
 					</div>
 				</div>
 
