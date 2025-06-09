@@ -94,6 +94,8 @@ const AIMessage = ({
 				/>
 			)}
 			{messageData?.used_agents?.length > 0 &&
+				messageData?.workflow_template_id &&
+				messageData?.module_template_id &&
 				(showCanvas && !isNoteCanvas ? (
 					messageData?.used_agents?.map((agent, index) => (
 						<FormModel
