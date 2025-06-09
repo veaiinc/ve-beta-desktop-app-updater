@@ -129,7 +129,7 @@ const DateDropdown = ({ value, onChange }) => {
 	};
 
 	return (
-		<div className={s.dateDropdown}>
+		<div className={s.dateDropdown} onClick={(e) => e.stopPropagation()}>
 			<div className={s.inputSection}>
 				<input
 					type="text"

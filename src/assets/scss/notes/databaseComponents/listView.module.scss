@@ -1,0 +1,31 @@
+.listViewContainer {
+	width: 100%;
+	// background-color: #f0f0f0;
+	border-radius: 10px;
+	padding: 10px 0;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	.listItem {
+		display: flex;
+		align-items: center;
+		flex-direction: row;
+		gap: 10px;
+		overflow: auto;
+		height: 39px;
+		border-radius: 8px;
+		cursor: pointer;
+		padding: 0 16px;
+		.listItemField {
+			&:first-child {
+				flex-grow: 1;
+			}
+		}
+
+		&:hover {
+			background-color: var(--card-hover);
+		}
+	}
+}

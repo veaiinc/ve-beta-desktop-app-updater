@@ -1,16 +1,23 @@
-import { memo, useContext } from 'react';
+import { memo, useContext, useEffect, useMemo } from 'react';
 import Context from '../../../../context/context';
 import { Drawer } from 'antd';
 import s from '../../../../assets/scss/notes/modals/databaseSidebar.module.scss';
 import { rowTypes } from '../../notes/Database';
 
-const DatabaseSidebar = ({ databaseId, pageId, databaseName, fields, viewId }) => {
+const DatabaseSidebar = ({ pageId }) => {
 	const {
-		notes: { databaseSidebar, updateDatabaseSidebar, deleteDatabaseRow, updateDatabaseRow },
+		notes: {
+			databaseSidebar,
+			updateDatabaseSidebar,
+			deleteDatabaseRow,
+			updateDatabaseRow,
+			database,
+		},
 	} = useContext(Context);
 
 	const sideBarOpen = databaseSidebar?.open;
-	const rowData = databaseSidebar?.stack?.at(-1);
+	const { rowData = {}, viewId = '', databaseId = '' } = databaseSidebar?.stack?.at(-1) || {};
+	const currentDatabase = useMemo(() => database?.[databaseId], [database, databaseId]);
 
 	const renderRowData = (field, value) => {
 		let type = field?.type;
@@ -98,13 +105,15 @@ const DatabaseSidebar = ({ databaseId, pageId, databaseName, fields, viewId }) =
 		>
 			<div className={s.notesDatabaseSidebar}>
 				<div className={s.notesDatabaseSidebarHeader}>
-					<div className={s.notesDatabaseSidebarHeaderTitle}>{databaseName}</div>
+					<div className={s.notesDatabaseSidebarHeaderTitle}>
+						{currentDatabase?.databaseMetadata?.name}
+					</div>
 					<button onClick={handleDeleteRow} className={s.deleteButton}>
 						Delete
 					</button>
 				</div>
 				<div className={s.notesDatabaseSidebarContent}>
-					{fields?.map((field) => (
+					{currentDatabase?.databaseMetadata?.fields?.map((field) => (
 						<div className={s.notesDatabaseSidebarField} key={field?._id}>
 							<div className={s.notesDatabaseSidebarFieldLabel}>{field.name}</div>
 							<div className={s.notesDatabaseSidebarFieldValue}>

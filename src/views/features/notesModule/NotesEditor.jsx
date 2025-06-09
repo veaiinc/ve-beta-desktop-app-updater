@@ -44,6 +44,7 @@ import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/bac
 import { isEqual } from 'lodash';
 import { Database, insertDatabase } from '../../components/notes/Database';
 import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
+import DatabaseSidebar from '../../components/modalsV2/notes/DatabaseSidebar';
 
 export const NotesRefContext = createContext(null);
 
@@ -1208,6 +1209,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 					)}
 				</div>
 			</div>
+			<DatabaseSidebar pageId={noteId} />
 		</NotesRefContext.Provider>
 	);
 };

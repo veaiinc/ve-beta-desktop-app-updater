@@ -37,6 +37,7 @@ import TableView from './DatabseComponents/views/TableView';
 import DateFilterComponent from './DatabseComponents/DateFilterComponent';
 import NumberComponent from './DatabseComponents/NumberComponent';
 import { ReactComponent as ChevronIcon } from '../../../assets/svg/tasks/chevronRightThin.svg';
+import ListView from './DatabseComponents/views/ListView';
 
 export const rowTypes = {
 	text: TextField,
@@ -134,19 +135,19 @@ const DatabaseComponent = memo(({ block, editor }) => {
 			if (!databaseId || !pageId || !viewId) return;
 
 			// Create a unique key for this fetch request
-			const fetchKey = JSON.stringify({
-				databaseId,
-				pageId,
-				viewId,
-				filters: filters || selectedDatabaseView?.filterBy,
-			});
+			// const fetchKey = JSON.stringify({
+			// 	databaseId,
+			// 	pageId,
+			// 	viewId,
+			// 	filters: filters || selectedDatabaseView?.filterBy,
+			// });
 
 			// Prevent duplicate calls
-			if (lastFetchParams.current === fetchKey) {
-				return;
-			}
+			// if (lastFetchParams.current === fetchKey) {
+			// 	return;
+			// }
 
-			lastFetchParams.current = fetchKey;
+			// lastFetchParams.current = fetchKey;
 
 			getDatabaseRows(
 				{
@@ -159,6 +160,7 @@ const DatabaseComponent = memo(({ block, editor }) => {
 					},
 				},
 				viewId,
+				filters || selectedDatabaseView?.filterBy,
 			);
 		},
 		[databaseId, pageId, getDatabaseRows, selectedDatabaseView?.filterBy],
@@ -181,6 +183,16 @@ const DatabaseComponent = memo(({ block, editor }) => {
 	useEffect(() => {
 		if (!info?.selectedViewId || !selectedDatabaseView) return;
 
+		const currentRow = rowData?.[info?.selectedViewId];
+		// console.log('currentRow', currentRow);
+		const filterHasChanged =
+			JSON.stringify(currentRow?.filters) !== JSON.stringify(selectedDatabaseView?.filterBy);
+		// console.log(currentRow?.filters, selectedDatabaseView?.filterBy);
+
+		if (!filterHasChanged && currentRow?.data) {
+			return;
+		}
+
 		// Skip initial mount to prevent immediate fetch
 		if (isInitialMount.current) {
 			isInitialMount.current = false;
@@ -191,14 +203,9 @@ const DatabaseComponent = memo(({ block, editor }) => {
 			return;
 		}
 
-		// Always fetch when filters change or when we don't have data
+		// // Always fetch when filters change or when we don't have data
 		fetchDatabaseRows(info.selectedViewId);
-	}, [
-		info?.selectedViewId,
-		selectedDatabaseView?.filterBy,
-		fetchDatabaseRows,
-		currentDatabaseRows?.data,
-	]);
+	}, [info?.selectedViewId, selectedDatabaseView?.filterBy]);
 
 	// Handle database import list loading
 	useEffect(() => {
@@ -283,7 +290,14 @@ const DatabaseComponent = memo(({ block, editor }) => {
 	);
 
 	const handleCreateDatabaseView = useCallback(
-		async (targetDatabaseId) => {
+		async (targetDatabaseId, viewType) => {
+			const labelMapper = {
+				table: 'Table',
+				list: 'List',
+				kanban: 'Kanban',
+				calendar: 'Calendar',
+				gallery: 'Gallery',
+			};
 			try {
 				const order = (currentDatabaseViews?.length ?? 0) + 1;
 				const databaseView = await createDatabaseView(
@@ -292,8 +306,8 @@ const DatabaseComponent = memo(({ block, editor }) => {
 						input: {
 							blockId: sourceBlockId,
 							databaseId: targetDatabaseId,
-							label: 'Table',
-							type: 'table',
+							label: labelMapper?.[viewType],
+							type: viewType,
 							order,
 						},
 					},
@@ -480,7 +494,9 @@ const DatabaseComponent = memo(({ block, editor }) => {
 								handleTabChange={(view) =>
 									handleInfoChange({ selectedViewId: view?._id })
 								}
-								handleAddTab={() => handleCreateDatabaseView(databaseId)}
+								handleAddTab={(viewType) =>
+									handleCreateDatabaseView(databaseId, viewType)
+								}
 								handleTabDropdownClick={handleTabDropdownClick}
 							/>
 							<div className={s.notesDatabaseHeaderButtons}>
@@ -512,13 +528,24 @@ const DatabaseComponent = memo(({ block, editor }) => {
 							blockId={block?.id}
 						/>
 					</div>
-					<TableView
-						data={rows}
-						columns={columns}
-						databaseId={databaseId}
-						pageId={pageId}
-						viewId={info?.selectedViewId}
-					/>
+					{selectedDatabaseView?.type === 'table' && (
+						<TableView
+							data={rows}
+							columns={columns}
+							databaseId={databaseId}
+							pageId={pageId}
+							viewId={info?.selectedViewId}
+						/>
+					)}
+					{selectedDatabaseView?.type === 'list' && (
+						<ListView
+							data={rows}
+							columns={columns}
+							databaseId={databaseId}
+							pageId={pageId}
+							viewId={info?.selectedViewId}
+						/>
+					)}
 					{currentDatabaseRows?.hasNextPage && (
 						<button className={s.loadMoreButton} onClick={() => {}}>
 							Load More
@@ -538,12 +565,6 @@ const DatabaseComponent = memo(({ block, editor }) => {
 						onClose={() => handleInfoChange({ addFieldModalOpen: false })}
 						databaseId={databaseId}
 						pageId={pageId}
-					/>
-					<DatabaseSidebar
-						databaseId={databaseId}
-						pageId={pageId}
-						databaseName={info?.databaseName}
-						fields={fields}
 					/>
 				</>
 			)}

@@ -106,7 +106,11 @@ const TableBody = ({ data, columns, handleUpdate, colors, pageId, viewId, databa
 							}}
 							onClick={() =>
 								updateDatabaseSidebar({
-									data: row,
+									data: {
+										rowData: row,
+										viewId,
+										databaseId,
+									},
 									open: true,
 									replace: true,
 								})

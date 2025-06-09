@@ -824,7 +824,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const getDatabaseRows = async (payload, viewId) => {
+	const getDatabaseRows = async (payload, viewId, filters) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -842,6 +842,7 @@ export const NotesState = (props) => {
 						[viewId]: {
 							...(state?.rowData?.[viewId] || {}),
 							...response?.[1]?.data?.listDatabaseRows,
+							filters,
 						},
 					},
 				});
@@ -1280,8 +1281,6 @@ export const NotesState = (props) => {
 		actionType = 'update',
 	}) => {
 		try {
-			console.log(updatedRow, viewId, databaseId, rowId, actionType);
-
 			dispatch({
 				type: Actions.UPDATE_RELATED_VIEWS,
 				payload: { updatedRow, viewId, databaseId, rowId, actionType },

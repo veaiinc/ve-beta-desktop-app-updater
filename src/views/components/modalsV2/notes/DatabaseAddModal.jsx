@@ -80,6 +80,9 @@ const DatabaseAddModal = ({ isOpen, onClose, viewId, pageId, databaseId, fields 
 				);
 			}
 
+			const options =
+				field?.type === 'status' ? field?.config?.status : field?.config?.options;
+
 			// Handle other types using rowTypes components
 			const Component = rowTypes[field.type];
 			if (Component) {
@@ -96,7 +99,7 @@ const DatabaseAddModal = ({ isOpen, onClose, viewId, pageId, databaseId, fields 
 							})
 						}
 						onOptionClick={(value) => handleOptionSelect(field._id, value)}
-						options={field.config?.options}
+						options={options}
 						showTitle={true}
 						showLabel={true}
 						style={{ background: 'transparent', padding: 0 }}

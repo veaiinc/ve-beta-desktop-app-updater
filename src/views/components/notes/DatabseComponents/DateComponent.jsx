@@ -26,7 +26,9 @@ const DateComponent = ({ value, onChange, disabled = false }) => {
 			trigger={['click']}
 			destroyOnHide={true}
 		>
-			<div style={inlineStyle}>{value ? dateValue : 'No date'}</div>
+			<div style={inlineStyle} onClick={(e) => e.stopPropagation()}>
+				{value ? dateValue : 'No date'}
+			</div>
 		</Tooltip>
 	);
 };
