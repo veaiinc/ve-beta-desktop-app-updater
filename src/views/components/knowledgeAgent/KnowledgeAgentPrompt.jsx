@@ -7,6 +7,14 @@ import { Tooltip } from 'antd';
 import Context from '../../../context/context';
 import Skeleton from 'react-loading-skeleton';
 
+const customPromptItem = {
+	_id: 'custom',
+	label: 'Custom',
+	prompt: '',
+	tag: 'custom',
+	isDefault: false,
+};
+
 const KnowledgeAgentPrompt = ({ assistant }) => {
 	const {
 		knowledgeAgent: { allAiPrompts, getAiPrompts, selectAiPrompt, resetAiPrompt, editAiPrompt },
@@ -26,33 +34,40 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 		promptLoading: true,
 	});
 
+	console.log(allAiPrompts);
+
 	useEffect(() => {
 		if (allAiPrompts) {
+			// Append "Custom" to the end
+			const allPromptsWithCustom = [...allAiPrompts, customPromptItem];
+
 			let selectedSystemPrompt;
 			let systemPrompt;
+
 			if (assistant?.prompt?.customEditedPrompt) {
 				selectedSystemPrompt = 'Custom';
 				systemPrompt = assistant?.prompt?.customEditedPrompt;
 			} else if (assistant?.prompt?.promptId) {
-				const selectedPrompt = allAiPrompts?.find(
-					(prompt) => prompt?._id === assistant?.prompt?.promptId,
+				const selectedPrompt = allPromptsWithCustom.find(
+					(prompt) => prompt._id === assistant.prompt.promptId,
 				);
 				selectedSystemPrompt = selectedPrompt?.label;
 				systemPrompt = selectedPrompt?.prompt;
 			} else {
-				const defaultPrompt = allAiPrompts?.find((prompt) => prompt?.isDefault);
+				const defaultPrompt = allPromptsWithCustom.find((prompt) => prompt.isDefault);
 				selectedSystemPrompt = defaultPrompt?.label;
 				systemPrompt = defaultPrompt?.prompt;
 			}
+
 			setInfo((prev) => ({
 				...prev,
-				systemPromptOptions: allAiPrompts || [],
+				systemPromptOptions: allPromptsWithCustom,
 				selectedSystemPrompt,
 				systemPrompt,
 				promptLoading: false,
 			}));
 		} else if (assistant?._id) {
-			getAiPrompts(assistant?._id);
+			getAiPrompts(assistant._id);
 		}
 	}, [allAiPrompts, assistant?._id]);
 

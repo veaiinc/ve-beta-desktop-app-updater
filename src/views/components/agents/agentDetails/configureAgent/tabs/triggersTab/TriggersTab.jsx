@@ -31,7 +31,7 @@ const connectableTriggers = [
 		icon: <GmailIcon />,
 		title: 'Gmail',
 		triggerType: 'gmail',
-		description: 'Reply to emails',
+		description: 'Incoming mails',
 	},
 	// {
 	// 	icon: <GoogleMeetIcon />,
@@ -64,7 +64,7 @@ const TriggersTab = () => {
 				const { app, action, connectedEmail } = trigger;
 				const icon = app === 'gmail' ? <GmailIcon /> : <GoogleMeetIcon />;
 				const title = app === 'gmail' ? 'Gmail' : 'Google Meet';
-				const description = action === 'replyEmail' ? 'Reply to emails' : 'Google Meet';
+				const description = action === 'replyEmail' ? 'Incoming emails' : 'Google Meet';
 				const triggerType = app === 'gmail' ? 'gmail' : 'googleMeet';
 
 				return {
@@ -77,9 +77,6 @@ const TriggersTab = () => {
 			}) ?? []),
 		];
 	}, [info?.localConnectedTriggers, triggers?.data]);
-
-	console.log(triggers);
-	console.log(connectedTriggers);
 
 	const currentPage = triggers?.currentPage ?? 1;
 	const hasNextPage = triggers?.hasNextPage ?? false;
