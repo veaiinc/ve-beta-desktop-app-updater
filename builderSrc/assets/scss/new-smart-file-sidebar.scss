@@ -31,6 +31,8 @@
 		align-items: flex-start;
 		gap: 10px;
 		border-bottom: 1px solid var(--card-over-card, #27282b);
+		z-index: 3;
+		background-color: var(--card);
 		.createDocumentTitle {
 			cursor: pointer;
 			color: var(--primary-font, #f2f2f3);
@@ -94,7 +96,7 @@
 		.smartFileTabsBar {
 			display: flex;
 			margin: 16px 0 8px 0;
-			position: sticky;
+			// position: sticky;
 			top: 0;
 			z-index: 1000;
 			width: fit-content;
@@ -182,7 +184,7 @@
 	}
 
 	.smartFileSidebarFooter {
-		position: sticky;
+		// position: sticky;
 		bottom: 0;
 		left: 0;
 		right: 0;
@@ -193,7 +195,7 @@
 		padding: 24px;
 		background-color: #171819;
 		border-top: 1px solid #333334;
-		margin: 0 -5rem; // Compensate for parent padding
+		// margin: 0 -5rem; // Compensate for parent padding
 
 		.goBackButton {
 			padding: 8px 16px;
