@@ -3,6 +3,33 @@
 	margin: 24px 0;
 	display: flex;
 	justify-content: center;
+	position: relative;
+
+	.backBtn {
+		border: none;
+		outline: none;
+		background-color: inherit;
+		width: fit-content;
+		height: 100%;
+		cursor: pointer;
+		position: absolute;
+		top: 0;
+		left: 32px;
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		transition: all 0.2s ease;
+		display: flex;
+		align-items: center;
+		gap: 6px;
+
+		&:hover {
+			color: var(--primary-font);
+		}
+	}
 
 	.runAndBuildToggle {
 		width: fit-content;

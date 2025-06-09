@@ -1,13 +1,20 @@
 import { memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import s from './runAndBuildToggle.module.scss';
 
 // svgs
 import Andriod from './assets/Andriod';
 import Build from './assets/Build';
+import { ReactComponent as BackIcon } from './assets/back.svg';
 
 const RunAndBuildToggle = ({ agentAction, setAgentAction }) => {
+	const navigate = useNavigate();
 	return (
 		<div className={s.container}>
+			<button onClick={() => navigate('/agents')} className={s.backBtn}>
+				<BackIcon />
+				<span>Back to Agents</span>
+			</button>
 			<div className={s.runAndBuildToggle}>
 				<button
 					className={
