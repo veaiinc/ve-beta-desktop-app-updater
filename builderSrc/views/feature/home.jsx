@@ -15,6 +15,7 @@ import ManagePages from '../components/managePages';
 import Modal from '../components/library/modals';
 import { ToWords } from 'to-words';
 import { ReactComponent as AddBlock } from '../../assets/svg/plus.svg';
+import { fetchOriginSelection } from '../../helper/index';
 
 import getSymbolFromCurrency from 'currency-symbol-map';
 import moment from 'moment';
@@ -5695,7 +5696,9 @@ class Home extends Proposals {
 		}
 	};
 	handleDuplicateTemplateRoute = (templateId) => {
-		return navigate(`/builder/${templateId}`);
+		const origin = fetchOriginSelection();
+		console.log(`${origin}/builder/${templateId}`, 'jeevan');
+		window.location.href = `${origin}/builder/${templateId}`;
 	};
 	handleDeleteTemplate = async (e) => {
 		let response = await this.handleDeleteTemplateFunction(deleteTemplateQuery, {
@@ -5705,7 +5708,8 @@ class Home extends Proposals {
 		if (response[0] === true) {
 			// let from = window.location.origin;
 
-			return navigate('');
+			const origin = fetchOriginSelection();
+			window.location.href = `${origin}`;
 		}
 	};
 	updateTablesForTaxes = (tables) => {
