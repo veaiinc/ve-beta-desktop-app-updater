@@ -8,7 +8,7 @@ import { ReactComponent as AddBlock } from '../../svgs/LeftBar/Addblock.svg';
 import { ReactComponent as AddBlank } from '../../svgs/LeftBar/AddBlank.svg';
 const padding = ['0px', '20px', '40px', '60px', '80px'];
 const paddingHorizontal = ['0px', '70px', '140px', '210px', '280px'];
-import LogicalForm from '../logicalForm/LogicalForm.jsx';
+import LogicalForm from '../logicalForm/LogicalForm';
 import { BlockSidebar } from '../../../builder_client_common.jsx';
 import ReactPlayer from 'react-player';
 
@@ -521,7 +521,6 @@ class FormWrapper extends Component {
 						justifyContent: 'center',
 						alignItems: 'center',
 						height: '100%',
-						backgroundColor: '#f5f5f5',
 					}}
 				>
 					{this.state.showBlockActions &&
@@ -660,6 +659,7 @@ class FormWrapper extends Component {
 						}}
 					>
 						<LogicalForm
+							isActiveSection={this.props?.isActiveSection}
 							deleteSection={this.handleDeleteSection}
 							submitLogicalForm={this.props.submitLogicalForm}
 							submitFormLoading={this.state.submitFormLoading}
