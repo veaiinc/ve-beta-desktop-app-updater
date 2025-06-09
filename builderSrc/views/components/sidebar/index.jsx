@@ -10789,7 +10789,7 @@ else{
 									className={`tooltip ${this.state.justifyleft ? 'active' : ''}`}
 								>
 									<Left />
-									<label className="tooltip-text">Left</label>
+									{/* <label className="tooltip-text">Left</label> */}
 								</span>
 								<span
 									onClick={(e) => this.changeTextAlign(e, 'justifycenter')}
@@ -10798,7 +10798,7 @@ else{
 									}`}
 								>
 									<Center />
-									<label className="tooltip-text">center</label>
+									{/* <label className="tooltip-text">center</label> */}
 								</span>
 
 								<span
@@ -10806,14 +10806,14 @@ else{
 									className={`tooltip ${this.state.justifyright ? 'active' : ''}`}
 								>
 									<Right />
-									<label className="tooltip-text">right</label>
+									{/* <label className="tooltip-text">right</label> */}
 								</span>
 								<span
 									onClick={(e) => this.changeTextAlign(e, 'justifyfull')}
 									className={`tooltip ${this.state.justifyfull ? 'active' : ''}`}
 								>
 									<Justify />
-									<label className="tooltip-text">justify</label>
+									{/* <label className="tooltip-text">justify</label> */}
 								</span>
 							</div>
 						</div>

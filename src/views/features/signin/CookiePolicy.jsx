@@ -11,7 +11,7 @@ const CookiePolicy = () => {
 	return (
 		<div className="privacyPolicyMainContainer">
 			{/* header section */}
-			<div className="privacypolicyHeader">
+			{/* <div className="privacypolicyHeader">
 				<div className="privacypolicyHeaderLogo">
 					<VE />
 				</div>
@@ -24,7 +24,7 @@ const CookiePolicy = () => {
 						<span className="privacyPolicyText">Cookie Policy</span>
 					</div>
 				</div>
-			</div>
+			</div> */}
 
 			{/* PDF viewer */}
 			<div className="pdfViewer">
