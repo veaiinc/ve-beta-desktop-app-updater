@@ -261,6 +261,7 @@ const ProactiveSuggestions = () => {
 			sortType: info?.sortOptions[info?.sortBy]?.sortType,
 			sortBy: info?.sortBy,
 			...(favourite && { isFavourited: favourite }),
+			search: info?.searchQuery,
 		};
 	}, [payload, info?.selectedFilters, info?.sortOptions, info?.sortBy, info?.searchQuery]);
 
