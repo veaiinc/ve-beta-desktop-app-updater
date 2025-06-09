@@ -38,6 +38,7 @@ import DateFilterComponent from './DatabseComponents/DateFilterComponent';
 import NumberComponent from './DatabseComponents/NumberComponent';
 import { ReactComponent as ChevronIcon } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import ListView from './DatabseComponents/views/ListView';
+import Spinner from '../loaders/Spinner';
 
 export const rowTypes = {
 	text: TextField,
@@ -90,8 +91,6 @@ const DatabaseComponent = memo(({ block, editor }) => {
 
 	const { previousBlocksRef, pageId } = useContext(NotesRefContext);
 	const timeoutRef = useRef(null);
-	const isInitialMount = useRef(true);
-	const lastFetchParams = useRef(null);
 
 	const { databaseId } = block?.props;
 	const sourceBlockId = previousBlocksRef?.current?.get(block?.id)?._id;
@@ -104,6 +103,8 @@ const DatabaseComponent = memo(({ block, editor }) => {
 		selectedDatabaseId: false,
 		databaseListLoading: false,
 		selectedViewId: null,
+		rowsLoading: false,
+		viewsLoading: false,
 	});
 
 	const currentDatabase = useMemo(() => database?.[databaseId], [database, databaseId]);
@@ -131,25 +132,11 @@ const DatabaseComponent = memo(({ block, editor }) => {
 
 	// Optimized fetch function with duplicate call prevention
 	const fetchDatabaseRows = useCallback(
-		(viewId, filters = null) => {
+		async (viewId, filters = null) => {
 			if (!databaseId || !pageId || !viewId) return;
-
-			// Create a unique key for this fetch request
-			// const fetchKey = JSON.stringify({
-			// 	databaseId,
-			// 	pageId,
-			// 	viewId,
-			// 	filters: filters || selectedDatabaseView?.filterBy,
-			// });
-
-			// Prevent duplicate calls
-			// if (lastFetchParams.current === fetchKey) {
-			// 	return;
-			// }
-
-			// lastFetchParams.current = fetchKey;
-
-			getDatabaseRows(
+			if (info?.rowsLoading) return;
+			setInfo((prev) => ({ ...prev, rowsLoading: true }));
+			await getDatabaseRows(
 				{
 					pageId,
 					databaseId,
@@ -162,6 +149,7 @@ const DatabaseComponent = memo(({ block, editor }) => {
 				viewId,
 				filters || selectedDatabaseView?.filterBy,
 			);
+			setInfo((prev) => ({ ...prev, rowsLoading: false }));
 		},
 		[databaseId, pageId, getDatabaseRows, selectedDatabaseView?.filterBy],
 	);
@@ -181,29 +169,12 @@ const DatabaseComponent = memo(({ block, editor }) => {
 
 	// Fetch rows when view or filters change
 	useEffect(() => {
-		if (!info?.selectedViewId || !selectedDatabaseView) return;
-
 		const currentRow = rowData?.[info?.selectedViewId];
-		// console.log('currentRow', currentRow);
 		const filterHasChanged =
 			JSON.stringify(currentRow?.filters) !== JSON.stringify(selectedDatabaseView?.filterBy);
-		// console.log(currentRow?.filters, selectedDatabaseView?.filterBy);
-
 		if (!filterHasChanged && currentRow?.data) {
 			return;
 		}
-
-		// Skip initial mount to prevent immediate fetch
-		if (isInitialMount.current) {
-			isInitialMount.current = false;
-			// But still fetch data on initial mount if we don't have any
-			if (!currentDatabaseRows?.data) {
-				fetchDatabaseRows(info.selectedViewId);
-			}
-			return;
-		}
-
-		// // Always fetch when filters change or when we don't have data
 		fetchDatabaseRows(info.selectedViewId);
 	}, [info?.selectedViewId, selectedDatabaseView?.filterBy]);
 
@@ -218,26 +189,22 @@ const DatabaseComponent = memo(({ block, editor }) => {
 	// Load database data
 	useEffect(() => {
 		if (!pageId || !databaseId) return;
-
 		if (!currentDatabase) {
 			getDatabase({ pageId, databaseId });
-		} else if (
-			currentDatabase?.databaseMetadata?.name &&
-			info?.databaseName === 'Database' // Only update if it's the default name
-		) {
+		} else {
 			setInfo((prev) => ({
 				...prev,
 				databaseName: currentDatabase.databaseMetadata.name,
 			}));
 		}
-	}, [databaseId, currentDatabase, pageId, getDatabase]);
+	}, [databaseId, currentDatabase?.databaseMetadata?._id]);
 
 	// Load database views
 	useEffect(() => {
 		if (databaseId && sourceBlockId && !currentDatabaseViews) {
 			getDatabaseViews({ pageId, blockId: sourceBlockId }, block?.id);
 		}
-	}, [databaseId, sourceBlockId, currentDatabaseViews, getDatabaseViews, pageId, block?.id]);
+	}, [sourceBlockId]);
 
 	// Cleanup on unmount
 	useEffect(() => {
@@ -357,12 +324,6 @@ const DatabaseComponent = memo(({ block, editor }) => {
 				// If databaseName is being updated, trigger the debounced update
 				if (data.databaseName !== undefined) {
 					handleDebouncedDatabaseNameUpdate(data.databaseName);
-				}
-
-				// Handle view change and fetch rows if needed
-				if (data.selectedViewId && data.selectedViewId !== prev.selectedViewId) {
-					// Reset fetch params when view changes
-					lastFetchParams.current = null;
 				}
 
 				return newState;
@@ -528,23 +489,31 @@ const DatabaseComponent = memo(({ block, editor }) => {
 							blockId={block?.id}
 						/>
 					</div>
-					{selectedDatabaseView?.type === 'table' && (
-						<TableView
-							data={rows}
-							columns={columns}
-							databaseId={databaseId}
-							pageId={pageId}
-							viewId={info?.selectedViewId}
-						/>
-					)}
-					{selectedDatabaseView?.type === 'list' && (
-						<ListView
-							data={rows}
-							columns={columns}
-							databaseId={databaseId}
-							pageId={pageId}
-							viewId={info?.selectedViewId}
-						/>
+					{info?.rowsLoading ? (
+						<div className={s.loadingContainer}>
+							<Spinner />
+						</div>
+					) : (
+						<>
+							{selectedDatabaseView?.type === 'table' && (
+								<TableView
+									data={rows}
+									columns={columns}
+									databaseId={databaseId}
+									pageId={pageId}
+									viewId={info?.selectedViewId}
+								/>
+							)}
+							{selectedDatabaseView?.type === 'list' && (
+								<ListView
+									data={rows}
+									columns={columns}
+									databaseId={databaseId}
+									pageId={pageId}
+									viewId={info?.selectedViewId}
+								/>
+							)}
+						</>
 					)}
 					{currentDatabaseRows?.hasNextPage && (
 						<button className={s.loadMoreButton} onClick={() => {}}>

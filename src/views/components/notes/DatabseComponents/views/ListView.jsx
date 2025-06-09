@@ -72,6 +72,7 @@ const ListView = ({ data, columns, databaseId, pageId, viewId }) => {
 		return (
 			<div
 				className={s.listItem}
+				key={row?._id}
 				onClick={() =>
 					updateDatabaseSidebar({
 						data: {
@@ -84,7 +85,7 @@ const ListView = ({ data, columns, databaseId, pageId, viewId }) => {
 					})
 				}
 			>
-				{renderData.map((item) => item)}
+				{renderData}
 			</div>
 		);
 	}, []);
