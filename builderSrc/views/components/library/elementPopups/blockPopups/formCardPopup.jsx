@@ -1,5 +1,6 @@
 import React from 'react';
 import { ReactComponent as UploadFile } from '../../svgs/uploadFile.svg';
+import _ from 'lodash';
 
 import { ReactComponent as GridGap } from '../../svgs/gridGap.svg';
 import { ReactComponent as GridNoGap } from '../../svgs/gridNoGap.svg';

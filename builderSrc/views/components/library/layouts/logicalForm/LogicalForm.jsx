@@ -5946,7 +5946,7 @@ function LogicalForm(props) {
 									triggerFont={props?.triggerFont}
 									text={
 										props?.section?.formTitle ||
-										`<p style="font-size:;" data-font-size=""><span style="font-size: 45px;">Enter Form Title</span></p>`
+										`<p style="color: #000;"><span style="font-size: 45px; color: #000;">Enter Form Title</span></p>`
 									}
 									setContent={(e) => handleJoditChanges(e, 'formTitle')}
 									setTab={(e) => props?.handleSetTab(e)}
@@ -6049,10 +6049,11 @@ function LogicalForm(props) {
 									// Only show actual content or empty paragraph
 									props?.section?.formDescription &&
 									props?.section?.formDescription !==
-										'<p>Description (optional)</p>' &&
-									props?.section?.formDescription !== '<p></p>'
+										'<p style="color: #000;">Description (optional)</p>' &&
+									props?.section?.formDescription !==
+										'<p style="color: #000;"></p>'
 										? props?.section?.formDescription
-										: '<p>Description (optional)</p>'
+										: '<p style="color: #000;">Description (optional)</p>'
 								}
 								setContent={(e) => {
 									// Only update if there's actual content and it's different from placeholder
