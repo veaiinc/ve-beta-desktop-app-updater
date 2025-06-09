@@ -468,6 +468,15 @@ const actionHandlers = {
 		...state,
 		aiQuestions: action?.payload,
 	}),
+	GET_PROACTIVE_AI_DATA_SUCCESS: (state, action) => ({
+		...state,
+		proactiveAiData: action?.payload,
+	}),
+	GET_CHAT_BOX_SUGGESTIONS_SUCCESS: (state, action) => ({
+		...state,
+		chatBoxSuggestions: action?.payload,
+	}),
+
 	RESET_STATE: () => intialState,
 };
 

@@ -1,0 +1,169 @@
+.variablesParentContainer {
+	display: flex;
+	padding: 24px;
+	align-items: flex-start;
+	gap: 12px;
+	align-self: stretch;
+	// background: var(--background-color);
+	// background: color(display-p3 0.1098 0.1137 0.1216);
+	// border-radius: 24px;
+	// background: var(--Popup, #202123);
+	// background: var(--Popup, color(display-p3 0.1255 0.1294 0.1373));
+	// flex-wrap: wrap;
+	// justify-content: space-around;
+
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(calc(50% - 12px), 1fr));
+	gap: 24px;
+	row-gap: 32px;
+
+	.input-field-container {
+		position: relative;
+		width: 100%;
+	}
+
+	.custominputContainer {
+		width: 100%;
+		padding: 13px 30px 14px 14px;
+		border-radius: 10px;
+		border: 1px solid #333334;
+		border: 1px solid color(display-p3 0.2 0.2 0.2039);
+		background-color: transparent;
+		outline: none;
+		font-size: 14px;
+		color: #e4e5e6;
+		transition: border-color 0.2s ease;
+
+		&:focus {
+			border-color: var(--primary-font, #f2f2f3);
+		}
+		&:hover {
+			border-color: var(--primary-font, #f2f2f3);
+		}
+		&::placeholder {
+			color: transparent;
+		}
+
+		&:focus + .floating-label,
+		&:not(:placeholder-shown) + .floating-label {
+			transform: translateY(-32px) scale(0.85);
+			color: var(--Dark-Theme-Secondary-Color, #939393);
+
+			color: var(--Dark-Theme-Secondary-Color, color(display-p3 0.5755 0.5755 0.5755));
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.floating-label {
+		position: absolute;
+		left: 14px;
+		top: 50%;
+		transform: translateY(-50%);
+		font-size: 14px;
+		color: var(--Dark-Theme-Secondary-Color, #939393);
+		color: var(--Dark-Theme-Secondary-Color, color(display-p3 0.5755 0.5755 0.5755));
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		pointer-events: none;
+		transition: transform 0.2s ease, color 0.2s ease;
+		transform-origin: left top;
+		background: var(--card, #171819);
+		padding: 0 4px;
+	}
+}
+
+// Add margin below the update/manage document section
+.smartFileFormSubHeader {
+	margin-bottom: 24px;
+}
+
+// Responsive styles
+@media (max-width: 1024px) {
+	.variablesParentContainer {
+		grid-template-columns: 1fr;
+		padding: 12px;
+		gap: 20px;
+		row-gap: 24px;
+	}
+	.smartFileFormSubHeader {
+		margin-bottom: 18px;
+	}
+}
+
+@media (max-width: 600px) {
+	.variablesParentContainer {
+		padding: 6px;
+		gap: 10px;
+		row-gap: 14px;
+	}
+	.smartFileFormSubHeader {
+		margin-bottom: 12px;
+	}
+}
+
+.variableInputWithPopoverWrapper {
+	position: relative;
+	width: 100%;
+}
+
+.variableSuggestionIcon {
+	position: absolute;
+	top: 50%;
+	right: 8px;
+	z-index: 2;
+	cursor: pointer;
+	transform: translateY(-50%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.variableSuggestionsPopover {
+	color: var(--primary-font);
+	position: absolute;
+	top: 110%;
+	right: 10;
+	z-index: 2000;
+	max-width: fit-content;
+	background: var(--popover-bg, #151515);
+	border-radius: 12px;
+	border: 1px solid rgba(228, 229, 230, 0.05);
+	padding: 0;
+	overflow-x: auto;
+
+	.varPresetCard {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+		padding: 12px;
+	}
+
+	.varPresetTitle {
+		font-size: 14px;
+		font-weight: 500;
+		line-height: normal;
+		color:var(--primary-font);
+	}
+
+	.varPresetSubTitle {
+		font-size: 12px;
+		font-weight: 400;
+		line-height: normal;
+		color:var(--secondary-font);
+	}
+}
+
+.noSuggestionsMsg {
+	color: #888;
+	padding: 16px;
+	font-size: 13px;
+	text-align: center;
+}

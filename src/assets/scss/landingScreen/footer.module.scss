@@ -38,8 +38,13 @@
 					line-height: 26px;
 				}
 
-				p {
-					// Empty rule for media query
+				.description {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--secondary-font-family);
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 26px;
 				}
 
 				.emailInput {
@@ -67,6 +72,12 @@
 						gap: 10px;
 						align-self: stretch;
 						border-radius: 100px;
+						color: var(--background-color, #0c0c0d);
+						font-family: var(--secondary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
 						background: var(--primary-button, #79ecc9);
 						cursor: pointer;
 						border: none;
@@ -320,7 +331,7 @@
 
 						ul {
 							align-items: flex-start;
-							gap: 8px;
+							gap: 20px;
 							width: 100%;
 
 							.listHeading {
@@ -357,7 +368,7 @@
 					}
 
 					&_rightPart {
-						flex-direction: column;
+						// flex-direction: column;
 						gap: 8px;
 						text-align: center;
 
@@ -391,15 +402,16 @@
 				justify-content: center;
 
 				.top__rightPart {
-					gap: 50px;
+					gap: 0px;
 					width: 100%;
-					justify-content: space-between;
+					// justify-content: space-between;
+					margin: 0 auto;
 				}
 			}
 
 			.bottom {
 				.bottom__topPart {
-					flex-direction: column;
+					// flex-direction: column;
 					gap: 20px;
 					align-items: center;
 				}

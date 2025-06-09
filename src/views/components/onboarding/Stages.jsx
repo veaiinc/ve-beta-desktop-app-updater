@@ -39,6 +39,7 @@ const Stages = () => {
 			getUserDetailsFromTenantAPI,
 			updateUserLogo,
 			getUserWorkSpaceList,
+			getTenantSettings,
 		},
 		companyInfo: { uploadTenantLogo },
 		themeInfo: { updateTheme },
@@ -439,6 +440,9 @@ const Stages = () => {
 		});
 		const success = response?.[0] === true;
 		if (success) {
+			const workspaceId = response?.[1]?.workspaceId;
+			localStorage.setItem('workspaceId', workspaceId);
+			getTenantSettings();
 			await getUserWorkSpaceList();
 			if (companyLogoFile) {
 				const isCompanyLogoUploaded = await handleUploadCompanyLogo();

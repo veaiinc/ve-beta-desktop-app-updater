@@ -29,6 +29,7 @@ import SearchTypeTooltip from './SearchTypeTooltip';
 import ChatBoxPlaceholder from './ChatBoxPlaceholder';
 import { fileTypeIcons } from '../../../helpers';
 import BuildTooltip from './BuildTooltip';
+import RecentFileTooltip from './RecentFileTooltip';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -122,6 +123,7 @@ const ChatBox = ({
 	smoothScrollToBottom = null,
 	startPage = false,
 	onChatQueryChange = null,
+	isBuildEnbled = true,
 }) => {
 	const textAreaRef = useRef(null);
 	const location = useLocation();
@@ -168,6 +170,7 @@ const ChatBox = ({
 		citationsModalIsOpen: false,
 		filtersEnabled: false,
 		isUploadFileOpen: false,
+		isRecentFileOpen: false,
 		showFilters: false,
 		chatFilters: initialChatFilters,
 		isIntegrationsDropdownOpen: false,
@@ -1001,11 +1004,11 @@ const ChatBox = ({
 			textArea.style.height = textArea.scrollHeight + 'px';
 		}
 
-		let isUploadFileOpen = false;
+		let isRecentFileOpen = false;
 		if (lastChar === '@') {
-			isUploadFileOpen = true;
+			isRecentFileOpen = true;
 		} else {
-			isUploadFileOpen = false;
+			isRecentFileOpen = false;
 		}
 
 		onChatQueryChange?.(query);
@@ -1013,7 +1016,7 @@ const ChatBox = ({
 		setInfo((prev) => ({
 			...prev,
 			chatQuery: query,
-			isUploadFileOpen,
+			isRecentFileOpen,
 		}));
 	};
 
@@ -1170,6 +1173,20 @@ const ChatBox = ({
 										startPage ? ' startPageContainer' : ''
 									}`}
 								>
+									<RecentFileTooltip
+										fileTypeIcons={fileTypeIcons}
+										handleRecentFileClick={handleRecentFileClick}
+										recentFiles={recentFilesRef.current || []}
+										isRecentFileOpen={info?.isRecentFileOpen}
+										setIsRecentFileOpen={(value) => {
+											setInfo((prev) => ({
+												...prev,
+												isRecentFileOpen: value,
+											}));
+										}}
+									>
+										<div className="recent-file-wrapper" />
+									</RecentFileTooltip>
 									<div className="chat-input-container">
 										{startPage && !isPublicChat && (
 											<>
@@ -1532,7 +1549,8 @@ const ChatBox = ({
 																// </SearchTypeTooltip>
 															)}
 
-															{!isPublicChat && (
+															{/* {!isPublicChat && ( */}
+															{isBuildEnbled && (
 																<Tooltip
 																	title={
 																		<div className="chatbox-icon-tooltip-container">
@@ -1587,6 +1605,7 @@ const ChatBox = ({
 																	</div>
 																</Tooltip>
 															)}
+															{/* )} */}
 														</div>
 
 														{/* {!isPublicChat && chatInfo?.build && (

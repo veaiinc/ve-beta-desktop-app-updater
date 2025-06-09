@@ -187,13 +187,12 @@
 		margin: calc(var(--font-size) * 0.625) 0;
 
 		.copy-table-btn {
-			width: fit-content;
 			background-color: transparent;
 			border: none;
 			cursor: pointer;
 			height: 18px;
-			width: 100%;
-			text-align: right;
+			padding: 0;
+			align-self: flex-end;
 		}
 		.table-container {
 			max-width: 100%;

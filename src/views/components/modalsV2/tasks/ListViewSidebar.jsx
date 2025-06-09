@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+ 
 import { Drawer } from 'antd';
 import React, { memo, useCallback, useEffect, useState, useRef, useContext } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';

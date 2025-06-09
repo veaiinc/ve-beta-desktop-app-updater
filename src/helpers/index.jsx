@@ -219,11 +219,11 @@ export const isURL = (url) => {
 
 let urlMapper = {
 	localhost: 'http://localhost:5173',
+	localhost: 'http://localhost:5173',
 	've.ai': 'https://builder.ve.ai',
 	've.co': 'https://builder.ve.co',
 	'www.ve.ai': 'https://builder.ve.ai',
 	'www.ve.co': 'https://builder.ve.co',
-	'vite.ve.co': 'https://builder.ve.co',
 };
 
 let hostNameMapper = {
@@ -232,7 +232,6 @@ let hostNameMapper = {
 	've.co': 've.co',
 	'www.ve.co': 've.co',
 	'www.ve.ai': 've.ai',
-	'www.vite.ve.co': 'vite.ve.co',
 };
 export const fetchOriginSelection = () => {
 	const hostname = window.location.hostname;
@@ -361,10 +360,12 @@ export const redirectTo = (type, id) => {
 		gmail: `https://mail.google.com/mail/u/0/#inbox/${id}`,
 		notion: id,
 		url: id,
-		workflowId: `${origin}/workflow/${id}`,
+		workflowId: `/builder/workflow/${id}`,
 		slack: `https://app.slack.com/client/${id}`,
 		s3_key: id,
 		drive: `https://drive.google.com/file/d/${id}/view`,
+		notes: `https://ve.ai/note/${id}`,
+		proactiveai: `https://ve.ai/proactiveai/${id}`,
 		notes: `https://ve.ai/note/${id}`,
 	};
 
@@ -383,6 +384,7 @@ export const redirectTypeMapper = {
 	s3_key: 's3_key',
 	drive: 'drive_id',
 	notes: 'note_id',
+	proactiveai: 'proactiveai_id',
 };
 
 const origin = fetchOriginSelection();

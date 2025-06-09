@@ -238,7 +238,7 @@ const MyTemplates = () => {
 		} else if (card?.id === 4) {
 			handleCreateBlankTemplate();
 		} else if (card?.id === 1) {
-			window.location.href = `${origin}/design-builder`;
+			navigate(`/builder/design-builder`);
 		}
 	};
 	const handleCreateBlankTemplate = async () => {
@@ -251,7 +251,7 @@ const MyTemplates = () => {
 		});
 
 		if (response?.[0]) {
-			window.location.href = `${origin}/${response?.[1]?.data?.createBlankTemplate?._id}`;
+			window.location.href = `/builder/${response?.[1]?.data?.createBlankTemplate?._id}`;
 			setInfo((prev) => ({ ...prev, blankTemplateLoading: false }));
 		} else {
 			setInfo((prev) => ({ ...prev, blankTemplateLoading: false }));

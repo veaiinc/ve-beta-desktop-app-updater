@@ -18,6 +18,7 @@ export const page_notes_api = 'https://ap.api.ve.ai/page-notes/1.0';
 // export const page_notes_api = 'https://gazelle-ruling-monster.ngrok-free.app';
 export const elastic_search_api = 'https://ap.api.ve.ai/elastic-search/1.0';
 export const workspace_images_api = 'https://ap.api.ve.ai/images/1.0/';
+export const custom_domain_api= 'https://ap.api.ve.ai/custom-domain/1.0';
 
 // US region
 export const auth_Api_US = 'https://auth.ve.ai';
@@ -39,3 +40,4 @@ export const automations_api_US = 'https://ap.api.ve.ai/automations/1.0/automati
 export const page_notes_api_US = 'https://us.api.ve.ai/block-notes/1.0';
 export const elastic_search_api_US = 'https://ap.api.ve.ai/elastic-search/1.0';
 export const workspace_images_api_US = 'https://us.api.ve.ai/images/1.0/';
+export const custom_domain_api_US = 'https://ap.api.ve.ai/custom-domain/1.0';

@@ -36,7 +36,7 @@
 				align-items: center;
 				gap: 2px;
 				.title-one {
-					color: var(--primary-font, #f2f2f3);
+					color: var(--primary-button, #f2f2f3);
 					font-family: Manrope;
 					font-size: 20px;
 					font-style: normal;
@@ -48,7 +48,7 @@
 					}
 				}
 				.title-two {
-					color: var(--primary-button, #79ecc9);
+					color: var(--primary-font, #79ecc9);
 					text-align: center;
 					font-family: Manrope;
 					font-size: 40px;
@@ -67,7 +67,6 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
-				max-width: 530px;
 			}
 		}
 		.options-container {
@@ -127,7 +126,6 @@
 	.home-page-container-content {
 		width: 100%;
 		padding-top: 50px;
-		overflow: hidden;
 		// flex-grow: 1;
 	}
 }

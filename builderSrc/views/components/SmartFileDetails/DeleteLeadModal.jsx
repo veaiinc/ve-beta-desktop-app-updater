@@ -1,0 +1,59 @@
+import React, { memo, useState, useCallback } from 'react';
+import ReactModal from '../ui-components/modal';
+import { ReactComponent as Warning } from '../../../assets/svg/smartFile/red-warning.svg';
+import '../../../assets/scss/smart-file-components/deleteLeadModal.scss';
+import { Spin } from 'antd';
+const DeleteLeadModal = ({ open, closeModal, deleteLeadFunc }) => {
+	const [info, setInfo] = useState({
+		loader: false,
+	});
+
+	const deleteOnClick = useCallback(async () => {
+		try {
+			setInfo((prev) => ({ ...prev, loader: true }));
+			await deleteLeadFunc();
+		} finally {
+			modyfyClose();
+		}
+	}, [deleteLeadFunc]);
+
+	const modyfyClose = useCallback(() => {
+		setInfo((prev) => ({ ...prev, loader: false }));
+		closeModal();
+	}, [closeModal]);
+
+	return (
+		<ReactModal
+			isOpen={open}
+			closeModal={modyfyClose}
+			modalType={'center'}
+			customStyles={{
+				overlay: { zIndex: 1001 },
+				content: { borderRadius: '15px', zIndex: 1002 },
+			}}
+		>
+			<div className="deleteLeadModalParentContainer">
+				<Warning />
+				<div className="deleteLeadTextContainer">
+					<span className="deleteLeadHeaderText">Delete Lead</span>
+					<span className="deleteLeadSubtext">
+						Are you sure you want to delete this Lead?<br></br> All data will be lost,
+						you cannot undo this operation.
+					</span>
+				</div>
+
+				<div className="deleteLeadFooterContainer">
+					<div className="cancelBtn" onClick={modyfyClose}>
+						Cancel
+					</div>
+					<div className="deleteBtn" onClick={deleteOnClick}>
+						{info?.loader ? 'Deleting... ' : 'Delete'}
+						{info?.loader ? <Spin /> : ''}
+					</div>
+				</div>
+			</div>
+		</ReactModal>
+	);
+};
+
+export default memo(DeleteLeadModal);

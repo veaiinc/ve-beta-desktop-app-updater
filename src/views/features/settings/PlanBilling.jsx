@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, memo, useCallback } from 'react';
+import { useContext, useEffect, useState, memo, useCallback } from 'react';
 import '../../../assets/scss/settings/planBilling.scss';
 import '../../../assets/scss/settings/notifications.scss';
 import Context from '../../../context/context';
@@ -6,15 +6,14 @@ import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import { Spin } from 'antd';
 import AddOnPlans from '../../components/settings/planbilling/addOnCards';
-import AICreditsUsage from './AICreditsUsage';
 import { message } from '../../components/globalComponents/CustomToast';
 // const features = [
-// 	'Form Management Assistant',
-// 	'Proposal Builder',
-// 	'Sales Performance Tracker',
-// 	'Workflow Automation',
-// 	'Business Insights Dashboard',
-// 	'10 Team Members',
+//  'Form Management Assistant',
+//  'Proposal Builder',
+//  'Sales Performance Tracker',
+//  'Workflow Automation',
+//  'Business Insights Dashboard',
+//  '10 Team Members',
 // ];
 
 const menuItems = [
@@ -90,20 +89,20 @@ const PlanBilling = () => {
 				aiCreditsLimit: currentPlan?.aiCreditsLimit,
 			}));
 			// if (!tierStatus) {
-			// 	handleAddOnsForCurrentPlan();
+			//  handleAddOnsForCurrentPlan();
 			// }
 		}
 	}, [currentPlan]);
 
 	// const handleAddOnsForCurrentPlan = useCallback(async () => {
-	// 	setInfo((prev) => ({ ...prev, addOnsLoading: true }));
-	// 	const response = await getAddOnsForCurrentPlan();
-	// 	if (response?.[0]) {
-	// 		setInfo((prev) => ({ ...prev, addOnsLoading: false }));
-	// 	} else {
-	// 		message?.error(response?.[1]?.message);
-	// 		setInfo((prev) => ({ ...prev, addOnsLoading: false }));
-	// 	}
+	//  setInfo((prev) => ({ ...prev, addOnsLoading: true }));
+	//  const response = await getAddOnsForCurrentPlan();
+	//  if (response?.[0]) {
+	//      setInfo((prev) => ({ ...prev, addOnsLoading: false }));
+	//  } else {
+	//      message?.error(response?.[1]?.message);
+	//      setInfo((prev) => ({ ...prev, addOnsLoading: false }));
+	//  }
 	// }, []);
 
 	return (
@@ -127,28 +126,28 @@ const PlanBilling = () => {
 			)}
 
 			{/* <div className="notifications-main-container">
-				<div className="notifications-container">
-					<h1 className="notifications-header-title">Approximate Credit Charges Menu</h1>
-					<div className="row">
-						{ApproximateCreditsRowData?.map((item) => (
-							<div key={item?.id} className="column">
-								{item?.label}
-							</div>
-						))}
-					</div>
-					<div className="divider"></div>
-					<ul className="menu-items">
-						{menuItems?.map((item) => (
-							<li key={item?.id}>
-								<div className="row">
-									<div className="column">{item?.label}</div>
-									<div className="column">{item?.approximateCredits}</div>
-								</div>
-							</li>
-						))}
-					</ul>
-				</div>
-			</div> */}
+                <div className="notifications-container">
+                    <h1 className="notifications-header-title">Approximate Credit Charges Menu</h1>
+                    <div className="row">
+                        {ApproximateCreditsRowData?.map((item) => (
+                            <div key={item?.id} className="column">
+                                {item?.label}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="divider"></div>
+                    <ul className="menu-items">
+                        {menuItems?.map((item) => (
+                            <li key={item?.id}>
+                                <div className="row">
+                                    <div className="column">{item?.label}</div>
+                                    <div className="column">{item?.approximateCredits}</div>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div> */}
 		</div>
 	);
 };
@@ -178,7 +177,8 @@ const SubscribedUserPlanCard = ({
 		authInfo: { getAddOnsForCurrentPlan, currentPlanAddOns },
 	} = useContext(Context);
 
-	const subscriptionPlansExists = subscriptionPlans?.length > 0;
+	const addOnPlansExists = currentPlanAddOns?.length > 0 ?? false;
+	const subscriptionPlansExists = subscriptionPlans?.length > 0 ?? false;
 
 	const [info, setInfo] = useState({
 		manageSubscriptionLoader: false,
@@ -210,14 +210,14 @@ const SubscribedUserPlanCard = ({
 			id: 3,
 			title: 'Team Members',
 			usedValue: data?.tenantUsers,
-			totalValue: data?.tenantUsersLimit,
+			totalValue: data?.tenantUsersLimit === '*' ? 'Unlimited' : data?.tenantUsersLimit,
 			barGraph: true,
 		},
 		// {
-		// 	id: 4,
-		// 	title: 'AI Credits',
-		// 	usedValue: data?.freeAiCreditLimit?.aiCredits,
-		// 	totalValue: aiCreditsLimit,
+		//  id: 4,
+		//  title: 'AI Credits',
+		//  usedValue: data?.freeAiCreditLimit?.aiCredits,
+		//  totalValue: aiCreditsLimit,
 		// },
 		{
 			id: 5,
@@ -264,15 +264,15 @@ const SubscribedUserPlanCard = ({
 	}, []);
 
 	// const handleAddOnsClick = useCallback(async () => {
-	// 	if (subscriptionPlansExists) {
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			subscriptionState: 'addOnPlans',
-	// 			isOpen: true,
-	// 		}));
-	// 	} else {
-	// 		message?.error('No Add-on Plans found!');
-	// 	}
+	//  if (subscriptionPlansExists) {
+	//      setInfo((prev) => ({
+	//          ...prev,
+	//          subscriptionState: 'addOnPlans',
+	//          isOpen: true,
+	//      }));
+	//  } else {
+	//      message?.error('No Add-on Plans found!');
+	//  }
 	// }, [currentPlanAddOns]);
 
 	const handleUpgradeSubscriptionClick = useCallback(async () => {
@@ -296,37 +296,34 @@ const SubscribedUserPlanCard = ({
 			<div className="subscriptionUpdatedPlanCard">
 				<div className="subscriptionPlanHeaderContainer">
 					<span className="subscriptionPlanHeader">Current Perks</span>
-					{/* {data?.isPaidTenant ? (
-						<button
-							className="manageSubscriptionButton"
-							onClick={handleManageSubscriptionClick}
-						>
-							{info?.manageSubscriptionLoader ? <Spin /> : `	Manage Subscription`}
-						</button>
-					) : (
-						''
-					)} */}
+
+					<button
+						className="manageSubscriptionButton"
+						onClick={handleManageSubscriptionClick}
+					>
+						{info?.manageSubscriptionLoader ? <Spin /> : `  Manage Billing`}
+					</button>
 				</div>
 				<div className="subscriptionPlanContent">
 					<div className="subscriptionPlanPricingDetails">
 						<span className="subscriptionPlanPricing">
 							{/* {currency === 'INR' ? '₹ ' : '$ '}
-							{data?.totalPrice
-								? data?.totalPrice?.toLocaleString('en-IN', {
-										currency: currency,
-								  })
-								: '0'} */}
+                            {data?.totalPrice
+                                ? data?.totalPrice?.toLocaleString('en-IN', {
+                                        currency: currency,
+                                  })
+                                : '0'} */}
 						</span>
 						<span className="subscritptionPlanPeriod"></span>
 					</div>
 					{/* <div className="subscritptionFeaturesContainer">
-						{info?.features?.map((ele, index) => (
-							<div className="subscriptionFeature" key={index}>
-								<Tick />
-								<span className="subscriptionFeatureContent">{ele}</span>
-							</div>
-						))}
-					</div> */}
+                        {info?.features?.map((ele, index) => (
+                            <div className="subscriptionFeature" key={index}>
+                                <Tick />
+                                <span className="subscriptionFeatureContent">{ele}</span>
+                            </div>
+                        ))}
+                    </div> */}
 					{data?.addOns && Object.values(data?.addOns)?.length ? (
 						<div className="addOnContianer">
 							<span className="addOnStates">Current Add-on's</span>
@@ -352,9 +349,9 @@ const SubscribedUserPlanCard = ({
 						''
 					)}
 					<div className="storageContainer">
-						{progressData?.map((item) => {
+						{progressData?.map((item, index) => {
 							return (
-								<>
+								<div key={index}>
 									{(item?.totalValue > 0 || item?.usedValue > 0) && (
 										<div className="storageContainerHolder">
 											<div className="storageContainerHeader">
@@ -411,24 +408,24 @@ const SubscribedUserPlanCard = ({
 											</div>
 										</div>
 									)}
-								</>
+								</div>
 							);
 						})}
 					</div>
 				</div>
 				<span className="planbilling-separator"></span>
 				{/* {data?.addOnPlan && Object.values(data?.addOnPlan)?.length ? (
-					<div className="subscriptionSeperator"></div>
-				) : (
-					''
-				)} */}
+                    <div className="subscriptionSeperator"></div>
+                ) : (
+                    ''
+                )} */}
 				<div className="subscriptionActionContainer">
 					{data?.isPaidTenant ? (
 						<button
 							className="manageSubscriptionButton"
 							onClick={handleManageSubscriptionClick}
 						>
-							{info?.manageSubscriptionLoader ? <Spin /> : `	Manage Billing`}
+							{info?.manageSubscriptionLoader ? <Spin /> : `  Manage Billing`}
 						</button>
 					) : (
 						''
@@ -436,17 +433,22 @@ const SubscribedUserPlanCard = ({
 					<button
 						className="manageSubscriptionButton"
 						onClick={handleUpgradeSubscriptionClick}
+						disabled={!subscriptionPlansExists || info?.subscriptionLoading}
 					>
-						{info?.subscriptionLoading ? <Spin /> : 'Upgrade'}
+						{!subscriptionPlansExists || info?.subscriptionLoading ? (
+							<Spin />
+						) : (
+							'Upgrade'
+						)}
 					</button>
 					{/* <button className="manageSubscriptionButton" onClick={handleAddOnsClick}>
-						{info?.addOnsLoading ? <Spin /> : 'Upgrade'}
-					</button> */}
+                        {info?.addOnsLoading ? <Spin /> : 'Upgrade'}
+                    </button> */}
 
 					{/* <div className="expiringText">
-						{moment().unix() < +expiresAt ? 'Expiring' : 'Expired'} on{' '}
-						{moment.unix(`${expiresAt}`)?.format('DD MMM YYYY')}
-					</div> */}
+                        {moment().unix() < +expiresAt ? 'Expiring' : 'Expired'} on{' '}
+                        {moment.unix(`${expiresAt}`)?.format('DD MMM YYYY')}
+                    </div> */}
 				</div>
 			</div>
 			{/* <AICreditsUsage /> */}
@@ -461,48 +463,48 @@ const SubscribedUserPlanCard = ({
 };
 
 // const FreeTierPlanCard = ({ expiresAt, addOnsLoading }) => {
-// 	const [isOpen, setIsOpen] = useState(false);
-// 	const navigate = useNavigate();
-// 	return (
-// 		<>
-// 			<div className="freePlanCardContainer">
-// 				<span className="subscriptionPlanHeader">Free trial</span>
-// 				<div className="subscriptionPlanContent">
-// 					<div className="subscriptionPlanPricingDetails">
-// 						<span className="subscriptionPlanPricing">$0</span>
-// 					</div>
+//  const [isOpen, setIsOpen] = useState(false);
+//  const navigate = useNavigate();
+//  return (
+//      <>
+//          <div className="freePlanCardContainer">
+//              <span className="subscriptionPlanHeader">Free trial</span>
+//              <div className="subscriptionPlanContent">
+//                  <div className="subscriptionPlanPricingDetails">
+//                      <span className="subscriptionPlanPricing">$0</span>
+//                  </div>
 
-// 					{/* <div className="subscritptionFeaturesContainer">
-// 						{features?.map((ele, index) => (
-// 							<div className="subscriptionFeature" key={index}>
-// 								<Tick />
-// 								<span className="subscriptionFeatureContent">{ele}</span>
-// 							</div>
-// 						))}
-// 					</div> */}
-// 				</div>
-// 				<div className="subscriptionSeperator"></div>
-// 				<div className="freePlanSubscriptionCardContainer">
-// 					<span className="freeTrialText">
-// 						Your free trial expires at {moment.unix(expiresAt).format('DD MMM YYYY')} !
-// 						Don't miss out - upgrade now to keep enjoying premium features.
-// 					</span>
+//                  {/* <div className="subscritptionFeaturesContainer">
+//                      {features?.map((ele, index) => (
+//                          <div className="subscriptionFeature" key={index}>
+//                              <Tick />
+//                              <span className="subscriptionFeatureContent">{ele}</span>
+//                          </div>
+//                      ))}
+//                  </div> */}
+//              </div>
+//              <div className="subscriptionSeperator"></div>
+//              <div className="freePlanSubscriptionCardContainer">
+//                  <span className="freeTrialText">
+//                      Your free trial expires at {moment.unix(expiresAt).format('DD MMM YYYY')} !
+//                      Don't miss out - upgrade now to keep enjoying premium features.
+//                  </span>
 
-// 					<div
-// 						className="manageSubscriptionButton"
-// 						// onClick={() => navigate('/subscription')}
-// 						onClick={() => setIsOpen(true)}
-// 					>
-// 						Upgrade Subscription
-// 					</div>
-// 				</div>
-// 			</div>
-// 			<AddOnPlans
-// 				addOnsLoading={addOnsLoading}
-// 				isOpen={isOpen}
-// 				closeModal={() => setIsOpen(false)}
-// 				subscriptionState={'upgradeSubscription'}
-// 			/>
-// 		</>
-// 	);
+//                  <div
+//                      className="manageSubscriptionButton"
+//                      // onClick={() => navigate('/subscription')}
+//                      onClick={() => setIsOpen(true)}
+//                  >
+//                      Upgrade Subscription
+//                  </div>
+//              </div>
+//          </div>
+//          <AddOnPlans
+//              addOnsLoading={addOnsLoading}
+//              isOpen={isOpen}
+//              closeModal={() => setIsOpen(false)}
+//              subscriptionState={'upgradeSubscription'}
+//          />
+//      </>
+//  );
 // };

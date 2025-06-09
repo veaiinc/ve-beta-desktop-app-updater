@@ -3,7 +3,7 @@ import { memo } from 'react';
 import ProactiveDropdown from './ProactiveDropdown';
 
 const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
-	const tabs = ['Home', 'Mission', 'For Enterprise'];
+	const tabs = ['Home', 'Mission', 'For Enterprise', 'Pricing'];
 	// ${isVisible ? 'slide-in' : 'slide-out'}
 	return (
 		<ul className={`tabNavigation`}>

@@ -13,6 +13,7 @@ import EarlyAccess from './views/features/earlyAccess/EarlyAccess';
 import SettingsWrapper from './views/features/settings/SettingsWrapper';
 import AiSetupPage from './views/features/settings/aiSettings/AiSetupPage';
 import PrivacyPolicy from './views/features/signin/PrivacyPolicy';
+import ChageLog from './views/features/signin/ChageLog';
 import Landing_screen from './views/features/landingScreen/LandingPage';
 import AddGallery from './views/features/gallery/AddGallery';
 import GalleryPage from './views/features/gallery/GalleryPage';
@@ -66,6 +67,8 @@ import EditScheduler from './views/features/calendar/EditScheduler';
 import Contacts from './views/features/contacts/Contacts';
 import NotesPage from './views/features/notesPage/NotesPage';
 import PricingPage from './views/features/pricingPlans/pricingPage';
+import BuilderApp from '../builderSrc/App';
+import ProactiveAi from './views/features/proactiveAi/ProactiveAi';
 const routes = [
 	{
 		path: '/',
@@ -77,6 +80,14 @@ const routes = [
 	},
 	{
 		path: '/contact-us',
+		component: <Landing_screen />,
+	},
+	{
+		path: '/pricing',
+		component: <Landing_screen/>,
+	},
+	{
+		path: '/api',
 		component: <Landing_screen />,
 	},
 	{
@@ -130,6 +141,10 @@ const routes = [
 	{
 		path: '/cookie-policy',
 		component: <CookiePolicy />,
+	},
+	{
+		path: '/changelog',
+		component: <ChageLog />,
 	},
 	// {
 	// 	path: '/inbox',
@@ -357,6 +372,14 @@ const routes = [
 		),
 		exact: true,
 	},
+	// {
+	// 	path: '/pricing',
+	// 	component: (
+	// 		<AuthWrapper title={'Pricing'}>
+	// 			<PricingPage />
+	// 		</AuthWrapper>
+	// 	),
+	// },
 	{
 		path: '/pricing',
 		component: (
@@ -632,6 +655,27 @@ const routes = [
 		component: (
 			<AuthWrapper title="Files" maxWidth={'100%'}>
 				<Files />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/proactiveai/:proactiveAiId',
+		component: (
+			<AuthWrapper title="Proactive AI" childrenContainerStyles={{ maxWidth: '100%' }}>
+				<ProactiveAi />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/builder/*',
+		component: (
+			<AuthWrapper
+				title="Builder"
+				outerContainerStyle={{ padding: '0px', backgroundColor: '#fff' }}
+				childrenContainerStyles={{ maxWidth: '100%' }}
+				showSidebar={false}
+			>
+				<BuilderApp />
 			</AuthWrapper>
 		),
 	},

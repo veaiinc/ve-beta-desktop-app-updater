@@ -137,6 +137,8 @@ export const intialState = {
 	},
 	refetchChatHistoryList: false,
 	aiQuestions: null,
+	proactiveAiData: null,
+	chatBoxSuggestions: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1592,7 +1594,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const connectThirdParty = async (connectType, integrationType) => {
+	const connectThirdParty = async (connectType) => {
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -2529,6 +2531,25 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getProactiveAiData = async (id) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-bases/pending-actions/${id}/pending-action`;
+			const response = await Service.fetchGet(url, usertoken, 'tenant');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_PROACTIVE_AI_DATA_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				console.log('error==>getProactiveAiData', response);
+			}
+		} catch (error) {
+			console.log('error==>getProactiveAiData', error);
+		}
+	};
+
 	const updateAiQuestions = async (payload, id = null) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -2538,6 +2559,37 @@ export const TemplatesState = (props) => {
 			return response;
 		} catch (error) {
 			console.log('error==>updateAiQuestions', error);
+		}
+	};
+
+	const addProactiveAiAccess = async (payload, id) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-bases/pending-actions/${id}/invite-user`;
+			const response = await Service.fetchPut(url, payload, usertoken, 'tenant');
+			return response;
+		} catch (error) {
+			console.log('error==>addProactiveAiAccess', error);
+		}
+	};
+
+	const getChatBoxSuggestions = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/suggestions`;
+			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_CHAT_BOX_SUGGESTIONS_SUCCESS,
+					payload: response?.[1]?.suggestions || [],
+				});
+			} else {
+				console.log('error==>getChatBoxSuggestions', response);
+			}
+		} catch (error) {
+			console.log('error==>getChatBoxSuggestions', error);
 		}
 	};
 
@@ -2637,5 +2689,8 @@ export const TemplatesState = (props) => {
 		pendingActionsFeedback,
 		getAiQuestions,
 		updateAiQuestions,
+		getProactiveAiData,
+		addProactiveAiAccess,
+		getChatBoxSuggestions,
 	};
 };

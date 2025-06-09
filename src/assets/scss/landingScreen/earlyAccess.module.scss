@@ -1,33 +1,40 @@
 .earlyAccess {
 	display: flex;
-	max-width: 1440px;
-	width: 100%;
-	padding: 32px;
+	// max-width: 1440px;
 	justify-content: center;
+	height: 100%;
+	width: 100%;
 	align-items: center;
-	gap: 10px;
 	color: var(--primary-font);
 	@media screen and (max-width: 768px) {
 		padding: 0 16px;
+		height: 500px;
 	}
 
 	.container {
 		display: flex;
-		max-width: 1200px;
-		width: 100%;
-		padding: 170px 0 150px 0;
+		// max-width: 1200px;
+		// padding: 170px 0 150px 0;
+		// max-width: 1700px;
+
+		// padding: 170px 471px 150px 471px;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
 		gap: 16px;
+		max-width: 1200px;
+		width: 100%;
 		flex: 1 0 0;
+		height: 785px;
+		margin: 0 50px;
 		align-self: stretch;
 		border-radius: 16px;
 		background: var(--primary-button, #79ecc9);
 
 		@media screen and (max-width: 768px) {
-			padding: 35px;
-			gap: 10px;
+				gap: 10px;
+				height: 100%;
+				margin: 0;
 		}
 
 		.subHeading {
@@ -68,6 +75,7 @@
 			color: var(--primary-font);
 			border: none;
 			outline: none;
+			cursor: pointer;
 		}
 	}
 }

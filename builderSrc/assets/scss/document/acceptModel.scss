@@ -1,0 +1,320 @@
+.acceptDocumentModalParentContainer {
+	display: inline-flex;
+	padding: 38px 50px;
+	flex-direction: column;
+	align-items: center;
+	gap: 24px;
+	border-radius: 22px;
+	background: #18191b;
+	max-height: 80vh;
+	min-width: 600px;
+	width: 1000px;
+
+	.acceptDocumentModalHeader {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		width: 100%;
+
+		.acceptDocumentModalTitle {
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 20px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 26px; /* 130% */
+		}
+		.acceptDocumentModalSubtitle {
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 18px; /* 150% */
+		}
+	}
+
+	.acceptDocumentModalScrollableContent {
+		flex: 1 1 auto;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		min-height: 0;
+		width: 100%;
+		min-width: 0;
+
+		.acceptDocumentModalSection {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			width: 100%;
+
+			.acceptDocumentModalSectioncheckbox {
+				display: flex;
+				justify-content: space-between;
+				.acceptDocumentModalSectionTitle {
+					color: var(--primary-font, #f2f2f3);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 20px; /* 142.857% */
+					width: fit-content;
+				}
+				.allcheckbox {
+					color: var(--primary-font);
+				}
+			}
+
+			.acceptDocumentModalCard {
+				border-radius: 12px;
+				background: #1f2023;
+				border-radius: 12px;
+				margin-bottom: 10px;
+				display: flex;
+				flex-direction: column;
+				color: var(--primary-font, #f2f2f3);
+				width: 100%;
+				min-width: 0;
+
+				.acceptDocumentModalCardHeader {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+
+					.acceptDocumentModalCardTitle {
+						color: var(--primary-font, #f2f2f3);
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 20px; /* 142.857% */
+					}
+					.acceptDocumentModalCheckbox {
+						display: flex;
+						width: 15px;
+						height: 15px;
+					}
+				}
+
+				.acceptDocumentModalCardDetails {
+					display: flex;
+					justify-content: space-between;
+					align-items: flex-start;
+					gap: 24px;
+
+					.acceptDocumentModalCardMeta {
+						display: flex;
+						gap: 18px;
+						font-size: 0.95rem;
+						color: var(--secondary-font, #b0b0b0);
+						margin-bottom: 8px;
+
+						.acceptDocumentModalCardMetaLabel {
+							color: var(--secondary-font, #b0b0b0);
+							font-size: 0.85rem;
+							margin-right: 4px;
+							font-weight: 600;
+						}
+					}
+					.acceptDocumentModalCardDescription {
+						color: var(--secondary-font, #b0b0b0);
+						font-size: 0.98rem;
+						margin-bottom: 0;
+						width: 100%;
+					}
+					.acceptDocumentModalCardPrice {
+						display: flex;
+						flex-direction: column;
+						gap: 4px;
+						align-items: flex-end;
+						font-size: 0.98rem;
+						color: var(--primary-font, #f2f2f3);
+
+						.acceptDocumentModalCardMetaLabel {
+							color: var(--secondary-font, #b0b0b0);
+							font-size: 0.85rem;
+							margin-right: 4px;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.acceptDocumentModalFooter {
+		display: flex;
+		gap: 18px;
+		justify-content: flex-end;
+		width: 100%;
+
+		.acceptDocumentModalBackBtn {
+			display: flex;
+			height: 38px;
+			padding: 8px 14px;
+			justify-content: center;
+			align-items: center;
+			border-radius: 100px;
+			background: var(--card-over-card-hover, #27282b);
+			border: none;
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 21px; /* 150% */
+		}
+		.acceptDocumentModalAcceptBtn {
+			display: flex;
+			height: 38px;
+			padding: 8px 14px;
+			justify-content: center;
+			align-items: center;
+			gap: 4px;
+			border-radius: 100px;
+			background: #cfff48;
+			color: var(--background-color, #0c0c0d);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 21px; /* 150% */
+			border: none;
+			cursor: pointer;
+			transition: background 0.2s;
+		}
+	}
+
+	.acceptDocumentModalCardSimple {
+		background: #232428;
+		border-radius: 12px;
+		color: #fff;
+		font-size: 1rem;
+		margin-bottom: 10px;
+		width: 100%;
+	}
+
+	// Add expand/collapse icon styles
+	.acceptDocumentModalCollapseExpandIcon {
+		display: inline-block;
+		width: 8px;
+		height: 4px;
+		flex-shrink: 0;
+		margin-right: 8px;
+		border: solid #b0b0b0;
+		border-width: 0 2px 2px 0;
+		padding: 3px;
+		transform: rotate(45deg);
+		transition: transform 0.2s;
+		vertical-align: middle;
+		background: transparent;
+		content: '';
+	}
+	.acceptDocumentModalCollapseExpandIcon.active {
+		transform: rotate(-45deg);
+		border-color: #b6ff6c;
+	}
+}
+
+.acceptDocumentModalEventList {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.acceptDocumentModalEventItem {
+	background: #232428;
+	border-radius: 10px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	color: #fff;
+	font-size: 1rem;
+}
+.acceptDocumentModalEventItem input[type='checkbox'] {
+	accent-color: #b6ff6c;
+	width: 18px;
+	height: 18px;
+}
+
+// Responsive styles for Accept Document Modal
+@media (max-width: 900px) {
+	.acceptDocumentModalParentContainer {
+		min-width: 0;
+		width: 95vw;
+		max-width: 98vw;
+		padding: 24px 10px;
+	}
+}
+
+@media (max-width: 600px) {
+	.acceptDocumentModalParentContainer {
+		min-width: 0;
+		width: 100vw;
+		max-width: 100vw;
+		padding: 12px 2vw;
+		border-radius: 12px;
+	}
+	.acceptDocumentModalHeader {
+		gap: 4px;
+		.acceptDocumentModalTitle {
+			font-size: 16px;
+			line-height: 22px;
+		}
+		.acceptDocumentModalSubtitle {
+			font-size: 11px;
+			line-height: 16px;
+		}
+	}
+	.acceptDocumentModalScrollableContent {
+		gap: 12px;
+		.acceptDocumentModalSection {
+			gap: 8px;
+			.acceptDocumentModalSectioncheckbox {
+				// flex-direction: column;
+				// align-items: flex-start;
+				.acceptDocumentModalSectionTitle {
+					font-size: 13px;
+				}
+				.allcheckbox {
+					font-size: 13px;
+				}
+			}
+			.acceptDocumentModalCard {
+				font-size: 13px;
+				.acceptDocumentModalCardHeader {
+					.acceptDocumentModalCardTitle {
+						font-size: 13px;
+					}
+				}
+				.acceptDocumentModalCardDetails {
+					gap: 10px;
+					.acceptDocumentModalCardDescription {
+						font-size: 12px;
+					}
+				}
+			}
+		}
+	}
+	.acceptDocumentModalFooter {
+		flex-direction: column;
+		gap: 10px;
+		.acceptDocumentModalBackBtn,
+		.acceptDocumentModalAcceptBtn {
+			width: 100%;
+			font-size: 13px;
+			height: 34px;
+			padding: 6px 0;
+		}
+	}
+}
+
+@media (max-width: 400px) {
+	.acceptDocumentModalParentContainer {
+		padding: 4px 0;
+		border-radius: 6px;
+	}
+	.acceptDocumentModalHeader .acceptDocumentModalTitle {
+		font-size: 14px;
+	}
+}

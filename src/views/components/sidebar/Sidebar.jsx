@@ -1,48 +1,49 @@
-import { useState, useContext, useEffect, memo } from 'react';
-import '../../../assets/scss/sidebar.scss';
+import { useState, useContext, useEffect, memo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import Intercom from '@intercom/messenger-js-sdk';
-import OpenedSidebar from './OpenedSidebar';
-import Context from '../../../context/context';
-import { styles } from './sidebarindex';
-import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
-import { veAiModulesItemsList } from './sidebarindex';
 import { Tooltip } from 'antd';
+
+import '../../../assets/scss/sidebar.scss';
+import { veAiModulesItemsList } from './sidebarindex';
+import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
+
+import OpenedSidebar from './OpenedSidebar';
 import Notifications from './notifications/Notifications';
 import Notes from './notes/Notes';
 import SidebarTooltip from './SidebarTooltip';
+import Context from '../../../context/context';
 
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
-		// subscriptionInfo: { renewBanner },
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
+
 	const location = useLocation();
+	const sidebarRef = useRef(null);
+	const sidebarOpenRef = useRef(null);
+
 	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
 	const [showNotesDrawer, setShowNotesDrawer] = useState(false);
 	const [showChatsDrawer, setShowChatsDrawer] = useState(false);
+	const [hideClosedSidebarIcon, setHideClosedSidebarIcon] = useState(false);
+
+	const [isOpen, setIsOpen] = useState(() => {
+		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
+	});
+
 	const [sidebarStates, setsidebarStates] = useState({
 		workSpaceOpen: false,
 		navStyle: 'close',
 		selectedModule: null,
 	});
-	const [hideClosedSidebarIcon, setHideClosedSidebarIcon] = useState(false);
-	const [isOpen, setIsOpen] = useState(() => {
-		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
-	});
-	const [isClosing, setIsClosing] = useState(false);
-	// conditional margin top for home page
-	const isHome = location?.pathname?.includes('home');
 
+	const isHome = location?.pathname?.includes('home');
 	const isChatSidebarRoute =
 		location?.pathname?.includes('calendar') ||
 		location?.pathname?.includes('tasks') ||
 		location?.pathname?.includes('contact');
 
-	useEffect(() => {
-		localStorage.setItem('isOpen', JSON.stringify(isOpen));
-	}, [isOpen]);
 	const [info, setInfo] = useState({
 		switchWorkspaceModal: false,
 		activeBusniessName: '',
@@ -52,35 +53,35 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		selectedModule: null,
 	});
 
+	// Sync isOpen to localStorage
+	useEffect(() => {
+		localStorage.setItem('isOpen', JSON.stringify(isOpen));
+	}, [isOpen]);
+
+	// Listen for template-triggered sidebar state changes
 	useEffect(() => {
 		if (leftSidebarState === 'open') {
-			if (!isOpen) {
-				setIsOpen(true);
-			}
+			if (!isOpen) setIsOpen(true);
 			updateStateValues({ leftSidebarState: null });
 		} else if (leftSidebarState === 'close') {
-			if (isOpen) {
-				setIsOpen(false);
-			}
+			if (isOpen) setIsOpen(false);
 			updateStateValues({ leftSidebarState: null });
 		}
 	}, [leftSidebarState]);
 
+	// Fetch workspace and user info
 	useEffect(() => {
-		if (!userWorkSpaceList) {
-			getUserWorkSpaceList();
-		}
-		if (!userDetailsData) {
-			getUserDetails();
-		}
+		if (!userWorkSpaceList) getUserWorkSpaceList();
+		if (!userDetailsData) getUserDetails();
 	}, []);
 
+	// Configure Intercom
 	useEffect(() => {
 		if (userDetailsData && info) {
 			Intercom({
 				app_id: 'vmvweabd',
 				user_id: userDetailsData?._id,
-				name: userDetailsData?.firstName + ' ' + userDetailsData?.lastName,
+				name: `${userDetailsData?.firstName} ${userDetailsData?.lastName}`,
 				email: userDetailsData?.email,
 				company: {
 					name:
@@ -93,23 +94,22 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		}
 	}, [userDetailsData, info]);
 
+	// Set active business name
 	useEffect(() => {
 		if (userWorkSpaceList) {
-			const activeBusniessName = userWorkSpaceList?.find(
+			const activeBusniessName = userWorkSpaceList.find(
 				(item) => item.activeWorkspaceId === activeWorkspaceId,
 			);
 			setInfo((prev) => ({ ...prev, activeBusniessName }));
 		}
 	}, [userWorkSpaceList]);
 
-	useEffect(() => {
-		if (location?.pathname) {
-			setInfo((prev) => ({ ...prev, activeRoute: '/' + location.pathname.split('/')[1] }));
-		}
-	}, [location?.pathname]);
+	// Track route change for route-based module
 	useEffect(() => {
 		if (location?.pathname) {
 			const currentPath = '/' + location.pathname.split('/')[1];
+			setInfo((prev) => ({ ...prev, activeRoute: currentPath }));
+
 			const currentModule = veAiModulesItemsList.find(
 				(module) => module.moduleRoute === currentPath,
 			);
@@ -122,50 +122,45 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		}
 	}, [location?.pathname]);
 
-	const handleOpen = () => {
-		setIsOpen(true); // Sidebar comes into view
-	};
-	const handleClose = () => {
-		setIsClosing(true);
-		setTimeout(() => {
-			setIsOpen(false); // Sidebar disappears
-			setIsClosing(false);
-		}, 400); // Match this with the SCSS transition duration
-	};
+	const handleOpen = () => setIsOpen(true);
+	const handleClose = () => setIsOpen(false);
+
 	return (
 		<>
 			<div
-				className={`FullScreenSidebar ${isOpen ? 'opened' : ''} ${
-					sidebarStates.selectedModule &&
-					veAiModulesItemsList.find(
-						(module) => module.name === sidebarStates.selectedModule,
-					)?.subModules?.length > 0
-						? 'has-submodules'
-						: 'no-submodules'
-				} ${isChatSidebarRoute ? 'contacts-sidebar' : ''}`}
+				className={`FullScreenSidebar
+					${isOpen ? 'opened' : sidebarRef.current?.classList?.contains('opened') ? 'closed' : ''}
+					${
+						sidebarStates.selectedModule &&
+						veAiModulesItemsList.find(
+							(module) => module.name === sidebarStates.selectedModule,
+						)?.subModules?.length > 0
+							? 'has-submodules'
+							: 'no-submodules'
+					}
+					${isChatSidebarRoute ? 'contacts-sidebar' : ''}`}
 				style={{
-					// height: isOpen
-					// 	? renewBanner
-					// 		? 'calc(100dvh - 58px)'
-					// 		: '100dvh'
-					// 	: 'fit-content',
 					height: isOpen ? '100dvh' : 'fit-content',
-					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
+					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : '',
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
 					marginTop: isChatSidebarRoute ? '0' : '',
 					display: hideClosedSidebarIcon ? 'none' : '',
 					marginLeft: isChatSidebarRoute ? '0' : '',
-					// top: isOpen ? '' : renewBanner ? '105px' : '',
 				}}
+				ref={sidebarRef}
 			>
-				<nav
-					className={`sidebarComponent ${isOpen && !isClosing ? 'open' : ''} ${
-						isClosing ? 'closing' : ''
-					} ${!isOpen && isHome && 'padding-48'}`}
-					style={styles[sidebarStates?.navStyle]}
-				>
-					{isOpen ? (
+				<nav className={`sidebarComponent ${!isOpen && isHome ? 'padding-48' : ''}`}>
+					<div
+						className={`sidebar-open ${
+							isOpen
+								? 'active'
+								: sidebarOpenRef.current?.classList?.contains('active')
+								? 'inactive'
+								: 'inactive-no-animation'
+						}`}
+						ref={sidebarOpenRef}
+					>
 						<OpenedSidebar
 							setsidebarStates={setsidebarStates}
 							sidebarStates={sidebarStates}
@@ -178,9 +173,10 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							setShowNotificationsDrawer={setShowNotificationsDrawer}
 							setShowNotesDrawer={setShowNotesDrawer}
 							setHideClosedSidebarIcon={setHideClosedSidebarIcon}
-							// renewBanner={renewBanner}
 						/>
-					) : (
+					</div>
+
+					<div className={`sidebar-close ${isOpen ? 'inactive' : 'active'}`}>
 						<SidebarTooltip
 							label="Open Sidebar"
 							icon={
@@ -190,8 +186,9 @@ const Sidebar = ({ activeWorkspaceId }) => {
 								/>
 							}
 						/>
-					)}
+					</div>
 				</nav>
+
 				<Notifications
 					showNotificationsDrawer={showNotificationsDrawer}
 					setShowNotificationsDrawer={setShowNotificationsDrawer}
