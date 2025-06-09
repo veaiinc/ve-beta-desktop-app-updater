@@ -7,6 +7,7 @@ import { message } from '../../../../../globalComponents/CustomToast';
 import AddKnowledgeModal from '../../../../../../components/modalsV2/knowledgeAgent/AddKnowledgeModal';
 import InfiniteScroll from '../../../../../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp, fileTypeIcons } from '../../../../../../../helpers';
+import ToggleSwitch from '../../../../../../components/input/slider';
 
 const page = 1;
 const limit = 10;
@@ -14,7 +15,7 @@ const limit = 10;
 const KnowledgeBaseTab = ({ agentId }) => {
 	const {
 		aiSetup: { updateKnowledgeBaseFile },
-		knowledgeAgent: { getKnowledgeBaseInfo, knowledgeBaseInfo },
+		knowledgeAgent: { getKnowledgeBaseInfo, knowledgeBaseInfo, activeKnowledgeAssistant },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -24,6 +25,8 @@ const KnowledgeBaseTab = ({ agentId }) => {
 		currentPage: 1,
 		loading: true,
 	});
+
+	const fullWorkspaceAccess = activeKnowledgeAssistant?.data?.fullWorkspaceAccess;
 
 	useEffect(() => {
 		if ((knowledgeBaseInfo?.data ?? [])?.length === 0) {
@@ -49,6 +52,11 @@ const KnowledgeBaseTab = ({ agentId }) => {
 		const page = info?.currentPage + 1;
 		const append = true;
 		getKnowledgeBaseInfo(agentId, page, limit, append);
+	};
+
+	const handleSearchWebOrFullAccessChange = async (data) => {
+		const response = await updateKnowledgeAgent(assistant?._id, data);
+		if (!response?.[0]) return;
 	};
 
 	const handleToggleChange = useCallback(
@@ -165,6 +173,42 @@ const KnowledgeBaseTab = ({ agentId }) => {
 							);
 						})}
 					</InfiniteScroll>
+				</div>
+			</div>
+			<div>
+				<div className="knowledgeToggleContainer">
+					<div className="knowledgeToggleTextWrapper">
+						<h2>Add all workspace content</h2>
+						<p>
+							Let the agent use all shared integrations, files, and other assets in
+							this workspace.
+						</p>
+					</div>
+					<span className="toggleSwitchContainer">
+						<ToggleSwitch
+							value={fullWorkspaceAccess}
+							onChange={(value) =>
+								handleSearchWebOrFullAccessChange({ fullWorkspaceAccess: value })
+							}
+						/>
+					</span>
+				</div>
+				<div className="knowledgeToggleContainer">
+					<div className="knowledgeToggleTextWrapper">
+						<h2>Search the web for information</h2>
+						<p>
+							Let the agent search and reference information found on websites in
+							answers.
+						</p>
+					</div>
+					<span className="toggleSwitchContainer">
+						<ToggleSwitch
+							value={info?.websearch}
+							onChange={(value) =>
+								handleSearchWebOrFullAccessChange({ websearch: value })
+							}
+						/>
+					</span>
 				</div>
 			</div>
 			<AddKnowledgeModal

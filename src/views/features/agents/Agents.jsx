@@ -21,7 +21,9 @@ const Agents = () => {
 
 	useEffect(() => {
 		if (knowledgeAssistantsList === null) {
-			getKnowledgeAssistantsList();
+			const page = 1,
+				limit = 20;
+			getKnowledgeAssistantsList(page, limit);
 		}
 	}, []);
 
