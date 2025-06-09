@@ -319,6 +319,62 @@ export const SubscriptionState = (props) => {
 			console.log('error==>updateStateValues', error);
 		}
 	};
+	// https://us.api.ve.ai/auth/dev/subscription/:worksapceId/update-base-subscription
+	const updateBaseSubscription = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const path = `/subscription/${workspaceId}/update-base-subscription`;
+			const type = 'auth';
+			const response = await Service.fetchPut(path, payload, usertoken, type);
+			return response;
+		} catch (error) {
+			console.log('errror ==>updateBaseSubscription', error);
+		}
+	};
+
+	// https://us.api.ve.ai/auth/dev/subscription/:workspaceId/cancel-scheduled-downgrade
+
+	const cancelScheduledDowngrade = async () => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const path = `/subscription/${workspaceId}/cancel-scheduled-downgrade`;
+			const type = 'auth';
+			const response = await Service.fetchPut(path, {}, usertoken, type);
+			return response;
+		} catch (error) {
+			console.log('errror ==>cancelScheduledDowngrade', error);
+		}
+	};
+
+	// https://us.api.ve.ai/auth/dev/subscription/:workSpaceId/cancel-subscription
+	const cancelCurrentSubscription = async () => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const path = `/subscription/${workspaceId}/cancel-subscription`;
+			const type = 'auth';
+			const response = await Service.fetchPut(path, {}, usertoken, type);
+			return response;
+		} catch (error) {
+			console.log('errror ==>cancelCurrentSubscription', error);
+		}
+	};
+	// https://us.api.ve.ai/auth/dev/subscription/:workSpaceId/resume-subscription
+	const resumeSubscription = async () => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const path = `/subscription/${workspaceId}/resume-subscription`;
+			const type = 'auth';
+			const response = await Service.fetchPut(path, {}, usertoken, type);
+			return response;
+		} catch (error) {
+			console.log('errror ==>resumeSubscription', error);
+		}
+	};
+
 	return {
 		...state,
 		getAllSubscriptionPlan,
@@ -337,5 +393,9 @@ export const SubscriptionState = (props) => {
 		purchaseSubscriptionPlan,
 		updateStateValues,
 		updateRenewBanner,
+		updateBaseSubscription,
+		cancelScheduledDowngrade,
+		cancelCurrentSubscription,
+		resumeSubscription,
 	};
 };
