@@ -63,11 +63,6 @@ const AgentCredentials = ({ agentId }) => {
 	const handleAgentUpdate = (type) => {
 		const currentValue = info[type];
 		if (currentValue === activeKnowledgeAssistant?.data?.name && type === 'agentName') return;
-		console.log(
-			currentValue,
-			activeKnowledgeAssistant?.data?.description,
-			activeKnowledgeAssistant?.data?.description === currentValue,
-		);
 		if (
 			currentValue === activeKnowledgeAssistant?.data?.description &&
 			type === 'agentDescription'
