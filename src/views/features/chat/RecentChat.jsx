@@ -397,11 +397,16 @@ const RecentChat = ({
 					deepResearch = {};
 
 				if (chainOfThought?.length > 0) {
-					processing = chainOfThought?.[0]?.deep_search
-						? 'Deep Search'
-						: chainOfThought?.[0]?.deep_research
-						? 'Deep Research'
-						: null;
+					for (let i = 0; i < chainOfThought?.length; i++) {
+						const { deep_search, deep_research } = chainOfThought?.[i] || {};
+						if (deep_search) {
+							processing = 'Deep Search';
+							break;
+						} else if (deep_research) {
+							processing = 'Deep Research';
+							break;
+						}
+					}
 
 					if (processing === 'Deep Search') {
 						deepSearch = handleDeepSearchChainOfThought(chainOfThought);
@@ -570,6 +575,10 @@ const RecentChat = ({
 			loadingMessageRef.current = loadingMessageRef?.current || '';
 			loadingMessageRef.current += data?.intermediate_response || '';
 			updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
+			return;
+		}
+		if (data?.memory_thinking) {
+			updateStateValues({ globalLoadingMesssage: data?.memory_thinking });
 			return;
 		}
 		if (data?.type === 'variableRequirement') {
