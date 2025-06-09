@@ -577,6 +577,10 @@ const RecentChat = ({
 			updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
 			return;
 		}
+		if (data?.memory_thinking) {
+			updateStateValues({ globalLoadingMesssage: data?.memory_thinking });
+			return;
+		}
 		if (data?.type === 'variableRequirement') {
 			loadingMessageRef.current = null;
 		}
