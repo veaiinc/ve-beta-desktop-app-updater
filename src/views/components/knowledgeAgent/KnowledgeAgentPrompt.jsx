@@ -34,8 +34,6 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 		promptLoading: true,
 	});
 
-	console.log(allAiPrompts);
-
 	useEffect(() => {
 		if (allAiPrompts) {
 			// Append "Custom" to the end
