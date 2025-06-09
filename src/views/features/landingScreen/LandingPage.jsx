@@ -70,13 +70,6 @@ const LandingPage = () => {
 		[currentSessionId],
 	);
 
-	const handleChatQueryChange = (query) => {
-		setInfo((prev) => ({
-			...prev,
-			showSuggestions: query?.length > 0,
-		}));
-	};
-
 	const handleSetTab = (tabVal) => {
 		setTab(tabVal);
 		const tabRoutes = ['/', '/mission', '/contact-us', '/pricing'];
@@ -109,7 +102,6 @@ const LandingPage = () => {
 								isPublicChat={true}
 								animatePlaceholder={true}
 								onSend={handleCustomOnSendFunction}
-								onChatQueryChange={handleChatQueryChange}
 								isBuildEnbled={false}
 							/>
 						</div>
