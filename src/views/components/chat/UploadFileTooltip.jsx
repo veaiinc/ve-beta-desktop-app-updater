@@ -1,20 +1,24 @@
 import { useState, useEffect, useContext, useCallback, memo, useMemo } from 'react';
 import { ReactComponent as UploadSvg } from '../../../assets/svg/ai_agents/upload.svg';
 import { Tooltip, Upload } from 'antd';
-import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
 import Context from '../../../context/context';
+import GmailSvg from '../../../assets/svg/login_page/GmailIcon';
 
-const UploadFileTooltip = ({
-	children,
-	handleChange,
-	isUploadFileOpen,
-	setIsUploadFileOpen,
-	fileTypeIcons = {},
-}) => {
-	const [info, setInfo] = useState({});
+const UploadFileTooltip = ({ children, handleChange, isUploadFileOpen, setIsUploadFileOpen }) => {
+	const {
+		templates: { connectThirdParty, connectedThirdParties, getConnectedThirdParties },
+	} = useContext(Context);
+	const connectedApps = connectedThirdParties?.data?.map((appInfo) => appInfo.app);
+	const gmailConnected = connectedApps?.includes('gmail');
 
-	const handleConnect = () => {
-		console.log('connect');
+	useEffect(() => {
+		if (isUploadFileOpen && !connectedThirdParties) {
+			getConnectedThirdParties();
+		}
+	}, [isUploadFileOpen]);
+
+	const handleConnect = async (connectType) => {
+		connectThirdParty(connectType);
 	};
 
 	return (
@@ -30,9 +34,16 @@ const UploadFileTooltip = ({
 				title={
 					<div className="upload-file-container">
 						<div className="chat-integrations-container">
-							<div className="integration" onClick={handleConnect}>
-								<div className="integration-icon">{fileTypeIcons?.gmail}</div>
-								<div className="integration-title">Connect Gmail</div>
+							<div
+								className="integration"
+								onClick={() => !gmailConnected && handleConnect('gmail')}
+							>
+								<div className="integration-icon">
+									<GmailSvg width={18} height={16} />
+								</div>
+								<div className="integration-title">
+									{gmailConnected ? `Connected Gmail` : `Connect Gmail`}
+								</div>
 							</div>
 						</div>
 						<div className="horizontal-line" />
