@@ -152,8 +152,7 @@ const SuggestedOptions = [
 const homePageTextContent = {
 	ask: {
 		title: 'Own your memory',
-		subText:
-			'Use any Ai models.  Connect to all your data across apps and systems.  Take your full context everywhere with MCP — and export your memory securely, anytime.',
+		subText: 'Your enterprise knowledge hub for instant answers.',
 	},
 	proactiveSuggestions: {
 		title: 'Answers before you ask',
@@ -445,7 +444,6 @@ const InitialHomePage = () => {
 					{componentMapper[info?.selectedOption]}
 				</div>
 			)}
-
 		</div>
 	);
 };

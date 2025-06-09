@@ -1,36 +1,26 @@
 import React from 'react';
 import { ReactComponent as UploadFile } from '../../svgs/uploadFile.svg';
-import _ from 'lodash';
-
-import { ReactComponent as GridGap } from '../../svgs/gridGap.svg';
-import { ReactComponent as GridNoGap } from '../../svgs/gridNoGap.svg';
-import { ReactComponent as RowGap } from '../../svgs/rowHeight.svg';
-import { ReactComponent as ColumnGap } from '../../svgs/coloumGap.svg';
-import { ReactComponent as Positive } from '../../svgs/positive.svg';
-import { ReactComponent as Negative } from '../../svgs/negative.svg';
-
 import { ReactComponent as RightArrow } from '../../svgs/dropDown.svg';
 import ColorPicker from '../../../properties/colorpicker';
 import '../elementPopup.scss';
-
 // Image for Api
-
 import Images from '../../../../../controllers/images';
 import randomize from 'randomatic';
 
 // modal for library
-
 import Modal from '../../modals/index';
 import ImageLibrary from '../../../imageLibrary';
-
 // cropper for image
 import Cropper from 'react-easy-crop';
 import { ReactComponent as Delete } from '../../svgs/delete.svg';
-export default class FormCardPopup extends Images {
+import { ReactComponent as Dropdown } from '../../svgs/dropDown.svg';
+import { ReactComponent as SearchIcon } from '../../svgs/search.svg';
+import { ReactComponent as ActiveTick } from '../../svgs/tick.svg';
+export default class PaymentSchedulePopup extends Images {
 	constructor(props) {
 		super(props);
 		this.state = {
-			active: 'c',
+			active: 'b',
 			overlayEffect: false,
 			activeComponent: props?.activeComponent || {},
 			showImageProgressBar: false,
@@ -41,64 +31,137 @@ export default class FormCardPopup extends Images {
 			showImageModal: false,
 			debounceCropperValues: null,
 			activeModuleId: props?.activeModuleId,
-
-			activeBgtype: props?.activeComponent?.style?.backgroundType || 'image',
+			isCustomGrid: false, // Add this new state
+			activeBgtype: props?.activeComponent?.style?.backgroundType || 'background',
+			showTaxes: true,
+			showDiscounts: false,
+			debounceStateForInputs: null,
+			showFontsDropDown: false,
+			activeFont: props?.activeComponent?.style?.summaryPrimaryFontFamily || '',
+			activeFontSize: props?.activeComponent?.style?.summaryPrimaryFontSize || 16,
 		};
-
 		this.fileInputRef = React.createRef();
 		this.cropperRef = React.createRef();
-		this.popupRef = React.createRef();
+		this.fontDivRef = React.createRef();
+		// this.handleFileChange = this.handleFileChange.bind(this);
 	}
-
 	componentDidMount() {
-		// document.addEventListener('mousedown', this.handleClickOutside);
+		document.addEventListener('mousedown', this.handleClickOutside);
 	}
-
 	componentWillUnmount() {
-		// document.removeEventListener('mousedown', this.handleClickOutside);
+		document.removeEventListener('mousedown', this.handleClickOutside);
 	}
-
-	handleClickOutside = (event) => {
-		// Don't close if clicking on the draggable handle
-		if (event.target.closest('.draggerPoint')) {
-			return;
-		}
-
-		if (this.popupRef.current && !this.popupRef.current.contains(event.target)) {
-			const updatedComponent = {
-				...this.state.activeComponent,
-				shouldClose: true,
-			};
-			this.props.handleCardPopupProps(updatedComponent);
+	handleClickOutside = (e) => {
+		if (this.fontDivRef.current && !this.fontDivRef.current.contains(e.target)) {
+			this.setState({ showFontsDropDown: false });
 		}
 	};
-
-	componentWillReceiveProps(nextProps) {
-		if (nextProps.activeComponent !== this.state.activeComponent) {
-			this.setState({
-				activeComponent: nextProps.activeComponent,
-				activeBgtype: nextProps?.activeComponent?.style?.backgroundType,
-			});
-		}
+	componentWillReceiveProps = (nextProps) => {
+		// if (nextProps.activeComponent !== this.state.activeComponent) {
+		//     this.setState({
+		//         activeComponent: nextProps.activeComponent,
+		//         activeBgtype: nextProps?.activeComponent?.style?.backgroundType,
+		//     });
+		// }
 		if (nextProps?.activeModuleId !== this.state?.activeModuleId) {
 			this.setState({
 				activeModuleId: nextProps?.activeModuleId,
 			});
 		}
-	}
+	};
 	handleActive = (type) => {
-		this.setState({
-			active: type,
+		// this.setState({
+		// 	active: type,
+		// });
+		this.setState(
+			{
+				active: type,
+				activeBgtype: type === 'b' ? 'background' : this.state.activeBgtype,
+			},
+			() => {
+				if (type === 'b') {
+					this.handleActiveCardStyles('backgroundType', 'background');
+				}
+			},
+		);
+	};
+	// ! background related functions
+	handleActiveCardStyles = (type, value, taxId = '') => {
+		let newComponent = { ...this.state.activeComponent };
+		if (
+			type == 'sectionBackgroundColor' ||
+			type == 'backgroundImageURL' ||
+			type == 'backgroundVideoURL' ||
+			type == 'backgroundType' ||
+			type == 'showDescription' ||
+			type == 'showImage'
+		) {
+			if (type == 'sectionBackgroundColor') {
+				newComponent = {
+					...newComponent,
+					style: {
+						...newComponent?.style,
+						sectionBackgroundColor: value,
+					},
+				};
+			} else if (type == 'backgroundImageURL') {
+				newComponent = {
+					...newComponent,
+					style: {
+						...newComponent?.style,
+						backgroundImageURL: value,
+						backgroundType: 'image',
+					},
+				};
+			} else if (type == 'backgroundVideoURL') {
+				newComponent = {
+					...newComponent,
+					style: {
+						...newComponent?.style,
+						backgroundVideoURL: value,
+						backgroundType: 'video',
+					},
+				};
+			} else if (type == 'showDescription' || type == 'showImage') {
+				newComponent = {
+					...newComponent,
+					style: {
+						...newComponent?.style,
+						labels: {
+							...newComponent?.style?.labels,
+							[type]: value,
+						},
+					},
+				};
+			} else {
+				newComponent = {
+					...newComponent,
+					style: {
+						...newComponent?.style,
+						backgroundType: value,
+						sectionBackgroundColor: newComponent?.style?.sectionBackgroundColor || '',
+					},
+				};
+			}
+		} else {
+			newComponent = {
+				...newComponent,
+				style: {
+					...newComponent?.style,
+					[type]: value,
+				},
+			};
+		}
+		this.setState({ activeComponent: newComponent }, () => {
+			this.props.setActiveSection(newComponent);
 		});
 	};
-
 	//! file/image upload functions
 	handleDivClick = (e) => {
 		if (this.fileInputRef.current) {
 			this.fileInputRef.current.click();
 		}
 	};
-
 	handleFileChange = async (event, uploadAIImage = false) => {
 		let file;
 		if (uploadAIImage) {
@@ -158,7 +221,7 @@ export default class FormCardPopup extends Images {
 					activeWorkflowModuleId: this.props.activeWorkflowModuleId,
 				});
 			} else {
-				res = await this.uploadImage(json, file);
+				res = await this.uploadImage(json, file, this.props.activeModuleId);
 			}
 
 			this.setState({
@@ -209,84 +272,9 @@ export default class FormCardPopup extends Images {
 			});
 		}, interval);
 	};
-
-	//! grid layout related functions
-
-	// ! background related functions
-	handleActiveCardStyles = (type, value) => {
-		let newComponent = { ...this.state.activeComponent };
-		if (
-			type == 'sectionBackgroundColor' ||
-			type == 'backgroundImageURL' ||
-			type == 'backgroundVideoURL' ||
-			type == 'backgroundType'
-		) {
-			if (type == 'sectionBackgroundColor') {
-				newComponent = {
-					...newComponent,
-					style: {
-						...newComponent?.style,
-						sectionBackgroundColor: value,
-						backgroundType: 'color',
-					},
-				};
-			} else if (type == 'backgroundImageURL') {
-				newComponent = {
-					...newComponent,
-					style: {
-						...newComponent?.style,
-						backgroundImageURL: value,
-						backgroundType: 'image',
-					},
-				};
-			} else if (type == 'backgroundVideoURL') {
-				newComponent = {
-					...newComponent,
-					style: {
-						...newComponent?.style,
-						backgroundVideoURL: value,
-						backgroundType: 'video',
-					},
-				};
-			} else {
-				newComponent = {
-					...newComponent,
-					style: {
-						...newComponent?.style,
-						backgroundType: value,
-					},
-				};
-			}
-		} else {
-			newComponent = {
-				...newComponent,
-				style: {
-					...newComponent?.style,
-
-					[type]: value,
-				},
-			};
-		}
-		this.setState(
-			{ activeComponent: newComponent, activeBgtype: newComponent?.style?.backgroundType },
-			() => {
-				this?.props?.handleCardPopupProps(
-					newComponent,
-					type == 'bgOverlayOpacity' ||
-						type == 'verticalPadding' ||
-						type == 'backgroundVideoURL'
-						? true
-						: false,
-					type == 'verticalPadding' ? true : false,
-				);
-			},
-		);
-	};
-
 	// ! bgvideo related functions
 	handleVideoProps = (type, value) => {
 		let newComponent = { ...this.state.activeComponent };
-
 		newComponent = {
 			...newComponent,
 			style: {
@@ -297,26 +285,51 @@ export default class FormCardPopup extends Images {
 				},
 			},
 		};
-
 		this.setState({ activeComponent: newComponent }, () => {
-			this.props?.handleCardPopupProps(newComponent, true, false);
+			this.props?.setActiveSection(newComponent);
 		});
 	};
-
-	handleFormPadding = (value) => {
+	handleSummaryStyles = (e, type, value) => {
+		console.log('type', type, value);
 		let newComponent = { ...this.state.activeComponent };
 		newComponent = {
 			...newComponent,
 			style: {
 				...newComponent?.style,
-				padding: value,
+				[type]: value,
 			},
 		};
-		this.setState({ activeComponent: newComponent }, () => {
-			this.props?.handleCardPopupProps(newComponent);
-		});
+		this.setState(
+			{
+				activeComponent: newComponent,
+				...(type === 'summaryPrimaryFontFamily' ? { activeFont: value } : {}),
+				...(type === 'summaryPrimaryFontSize' ? { activeFontSize: value } : {}),
+			},
+			() => {
+				if (
+					type === 'summaryPrimaryFontSize' ||
+					type === 'padding' ||
+					type === 'paddingHorizontal'
+				) {
+					this.debounceFuncForInputs(() => {
+						this.props?.setActiveSection(newComponent);
+					}, 500);
+				} else {
+					this.props?.setActiveSection(newComponent);
+				}
+			},
+		);
 	};
-
+	// debouncing function for inputs
+	debounceFuncForInputs = (func, delay = 800) => {
+		if (this.state?.debounceStateForInputs) {
+			clearTimeout(this.state?.debounceStateForInputs);
+		}
+		const debounceFunc = setTimeout(() => {
+			func();
+		}, delay);
+		this.setState({ debounceStateForInputs: debounceFunc });
+	};
 	render() {
 		return (
 			<div
@@ -324,250 +337,252 @@ export default class FormCardPopup extends Images {
 				style={{
 					height: '425px',
 				}}
-				ref={this.popupRef}
 			>
 				<div className="elementPopupHeader">
-					<p
+					{/* <p
 						className={this.state.active === 'c' ? 'active' : ''}
 						onClick={() => this.handleActive('c')}
 					>
 						Card
 					</p>
+                    */}
 					<p
 						className={this.state.active === 'b' ? 'active' : ''}
 						onClick={() => this.handleActive('b')}
 					>
 						Background
 					</p>
-					{/* <p
-						className={this.state.active === 's' ? 'active' : ''}
-						onClick={() => this.handleActive('s')}
+					<p
+						className={this.state.active === 'd' ? 'active' : ''}
+						onClick={() => this.handleActive('d')}
 					>
-						Animation
-					</p> */}
+						Design
+					</p>
 				</div>
 				<div className="element_image_container_main element-shapes-container">
-					{this.state?.active == 'c' ? (
-						<div className="card-tab-wrapper">
-							<div
-								className="bs-item bs-item-row animated-item"
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-								}}
-							>
-								<b>Show Form Logo</b>
-								<label
-									className="switch"
-									onClick={() => {
-										this.handleActiveCardStyles(
-											'showFormLogo',
-											!this.state?.activeComponent?.style?.showFormLogo,
-										);
-									}}
-								>
-									<input
-										type="checkbox"
-										checked={
-											this.state?.activeComponent?.style?.showFormLogo ?? true
-										}
-									/>
-									<span className="slider-round round"></span>
-								</label>
-							</div>
-							<div className="line"></div>
-							<div
-								className="bs-item bs-item-row animated-item"
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-								}}
-							>
-								<b>Show Form Title</b>
-								<label
-									className="switch"
-									onClick={() => {
-										this.handleActiveCardStyles(
-											'showFormTitle',
-											!this.state?.activeComponent?.style?.showFormTitle,
-										);
-									}}
-								>
-									<input
-										type="checkbox"
-										checked={
-											this.state?.activeComponent?.style?.showFormTitle ??
-											true
-										}
-									/>
-									<span className="slider-round round"></span>
-								</label>
-							</div>
-							<div className="line"></div>
-							<div
-								className="bs-item bs-item-row animated-item"
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-								}}
-							>
-								<b>Show Form Description</b>
-								<label
-									className="switch"
-									onClick={() => {
-										this.handleActiveCardStyles(
-											'showFormDescription',
-											!this.state?.activeComponent?.style
-												?.showFormDescription,
-										);
-									}}
-								>
-									<input
-										type="checkbox"
-										checked={
-											this.state?.activeComponent?.style
-												?.showFormDescription ?? true
-										}
-									/>
-									<span className="slider-round round"></span>
-								</label>
-							</div>
-							<div className="line"></div>
-							<div className="padding-options-wrapper">
-								<div
-									className="padding-options-header"
-									style={{
-										color: '#e8e8e8',
-										fontSize: '14px',
-										fontWeight: '500',
-										lineHeight: '24px',
-									}}
-								>
-									Horizontal Padding
-								</div>
-								<div className="padding-options-item">
-									<div
-										className={`padding-one ${
-											!_.has(this.props?.activeComponent?.style, 'padding') ||
-											this.props?.activeComponent?.style?.padding === 0
-												? 'active'
-												: ''
-										}`}
-										onClick={() => this.handleFormPadding(0)}
-									>
-										S
-									</div>
-									<div
-										className={`padding-one ${
-											this.props?.activeComponent?.style?.padding == 2
-												? 'active'
-												: ''
-										}`}
-										onClick={() => this.handleFormPadding(2)}
-									>
-										M
-									</div>
-									<div
-										className={`padding-one ${
-											this.props?.activeComponent?.style?.padding == 4
-												? 'active'
-												: ''
-										}`}
-										onClick={() => this.handleFormPadding(4)}
-									>
-										L
+					{this.state?.active === 'd' ? (
+						// <div className="card-tab-wrapper">
+						//     <div style={{ color: '#e8e8e8', fontSize: '14px', fontWeight: 'bold' }}>
+						//         Labels
+						//     </div>
+						//     <div
+						//         className=" bs-item bs-item-row animated-item"
+						//         style={{
+						//             display: 'flex',
+						//             justifyContent: 'space-between',
+						//             // margin: '20px 0px',
+						//         }}
+						//     >
+						//         <b
+						//         // style={{ textTransform: 'capitalize' }}
+						//         >
+						//             Description
+						//         </b>
+						//         <label
+						//             className="switch"
+						//             onClick={() => {
+						//                 this.handleActiveCardStyles(
+						//                     'showDescription',
+						//                     !this.state?.activeComponent?.style?.labels
+						//                         ?.showDescription,
+						//                 );
+						//             }}
+						//         >
+						//             <input
+						//                 type="checkbox"
+						//                 // onChange={(e) => {
+						//                 // 	e.preventDefault();
+						//                 // 	this.handleActiveStickerStyles(
+						//                 // 		'stretch',
+						//                 // 		e.target.checked,
+						//                 // 	);
+						//                 // }}
+						//                 checked={
+						//                     this.state?.activeComponent?.style?.labels
+						//                         ?.showDescription ?? false
+						//                 }
+						//             />
+						//             <span className="slider-round round"></span>
+						//         </label>
+						//     </div>
+						//     <div
+						//         className=" bs-item bs-item-row animated-item"
+						//         style={{
+						//             display: 'flex',
+						//             justifyContent: 'space-between',
+						//             // margin: '20px 0px',
+						//         }}
+						//     >
+						//         <b
+						//         // style={{ textTransform: 'capitalize' }}
+						//         >
+						//             Image
+						//         </b>
+						//         <label
+						//             className="switch"
+						//             onClick={() => {
+						//                 this.handleActiveCardStyles(
+						//                     'showImage',
+						//                     !this.state?.activeComponent?.style?.labels?.showImage,
+						//                 );
+						//             }}
+						//         >
+						//             <input
+						//                 type="checkbox"
+						//                 // onChange={(e) => {
+						//                 // 	e.preventDefault();
+						//                 // 	this.handleActiveStickerStyles(
+						//                 // 		'stretch',
+						//                 // 		e.target.checked,
+						//                 // 	);
+						//                 // }}
+						//                 checked={
+						//                     this.state?.activeComponent?.style?.labels?.showImage ??
+						//                     false
+						//                 }
+						//             />
+						//             <span className="slider-round round"></span>
+						//         </label>
+						//     </div>
+						// </div>
+						<div className="element_image">
+							<div className="element_pasteURL">
+								<div className="element_image">
+									<div className="element_pasteURL" style={{ gap: '15px' }}>
+										<div
+											className="block_styles pad-color-p-imp"
+											style={{ padding: '12px 0px' }}
+										>
+											<ColorPicker
+												title={'Font Color'}
+												color={
+													this.state?.activeComponent?.style
+														?.paymentFontColor
+												}
+												handleColor={(e) =>
+													this.handleActiveCardStyles(
+														'paymentFontColor',
+														e,
+													)
+												}
+												brandColors={this.props?.brandColors}
+												zoom={0.8}
+												isDarkBg={true}
+											/>
+										</div>
 									</div>
 								</div>
-							</div>
-							{/* <div className="line"></div>
-							<div
-								className="bs-item bs-item-row animated-item"
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-								}}
-							>
-								<b>Single Page View</b>
-								<label
-									className="switch"
-									onClick={() => {
-										this.handleActiveCardStyles('isSinglePage', true);
-									}}
-								>
-									<input
-										type="checkbox"
-										checked={
-											this.state?.activeComponent?.style?.isSinglePage ===
-											true
-										}
-									/>
-									<span className="slider-round round"></span>
-								</label>
-							</div>
-							<div className="line"></div>
-							<div
-								className="bs-item bs-item-row animated-item"
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-								}}
-							>
-								<b>Multi Page View</b>
-								<label
-									className="switch"
-									onClick={() => {
-										this.handleActiveCardStyles('isSinglePage', false);
-									}}
-								>
-									<input
-										type="checkbox"
-										checked={
-											this.state?.activeComponent?.style?.isSinglePage ===
-											false
-										}
-									/>
-									<span className="slider-round round"></span>
-								</label>
-							</div> */}
+								<div className="element_image">
+									<div className="element_pasteURL" style={{ gap: '15px' }}>
+										<div
+											className="block_styles pad-color-p-imp"
+											style={{ padding: '12px 0px' }}
+										>
+											<ColorPicker
+												title={'Block background Color'}
+												color={
+													this.state?.activeComponent?.style
+														?.paymentCardColor
+												}
+												handleColor={(e) =>
+													this.handleActiveCardStyles(
+														'paymentCardColor',
+														e,
+													)
+												}
+												brandColors={this.props?.brandColors}
+												zoom={0.8}
+												isDarkBg={true}
+											/>
+										</div>
+									</div>
+								</div>
+								<div className="line"></div>
 
-							{/* <div className="popup-shapes-range-wrapper">
-								<b>Vertical Padding</b>
-								<div className="popup-range-div">
-									<div
-										style={{
-											display: 'flex',
-											maxWidth: 170,
-										}}
-									>
-										<input
-											type="range"
-											min={0}
-											max={100}
-											step={1}
-											value={
-												this.state?.activeComponent?.style?.verticalPadding
+								<div className="padding-options-wrapper">
+									<div className="padding-options-header">horizontal Padding</div>
+									<div className="padding-options-item">
+										<div
+											className={`padding-one ${
+												!_.has(
+													this.props?.activeComponent?.style,
+													'padding',
+												) ||
+												this.props?.activeComponent?.style?.padding === 0
+													? 'active'
+													: ''
+											}`}
+											onClick={() =>
+												this.handleSummaryStyles(null, 'padding', 0)
 											}
-											onChange={(e) =>
-												this.handleActiveCardStyles(
-													'verticalPadding',
-													parseInt(e.target.value),
-												)
+										>
+											Null
+										</div>
+										<div
+											className={`padding-one ${
+												this.props?.activeComponent?.style?.padding == 1
+													? 'active'
+													: ''
+											}`}
+											onClick={() =>
+												this.handleSummaryStyles(null, 'padding', 1)
 											}
-										/>
+										>
+											S
+										</div>
+										<div
+											className={`padding-one ${
+												this.props?.activeComponent?.style?.padding == 2
+													? 'active'
+													: ''
+											}`}
+											onClick={() =>
+												this.handleSummaryStyles(null, 'padding', 2)
+											}
+										>
+											M
+										</div>
+										<div
+											className={`padding-one ${
+												this.props?.activeComponent?.style?.padding == 3
+													? 'active'
+													: ''
+											}`}
+											onClick={() =>
+												this.handleSummaryStyles(null, 'padding', 3)
+											}
+										>
+											L
+										</div>
+										<div
+											className={`padding-one ${
+												this.props?.activeComponent?.style?.padding == 4
+													? 'active'
+													: ''
+											}`}
+											onClick={() =>
+												this.handleSummaryStyles(null, 'padding', 4)
+											}
+										>
+											XL
+										</div>
 									</div>
-									<p
-										style={{
-											textAlign: 'center',
-										}}
-									>
-										{this.state?.activeComponent?.style?.verticalPadding}px
-									</p>
 								</div>
-							</div> */}
+								{/* <div className="padding-options-wrapper">
+                                    <div className="padding-options-header">
+                                        Horizontal Padding
+                                    </div>
+                                    <div className="padding-options-item">
+                                        <div className={`padding-one ${!_.has(this.props?.activeComponent?.style, 'paddingHorizontal') || this.props?.activeComponent?.style?.paddingHorizontal === 0 ? 'active' : ''}`} onClick={() => this.handleSummaryStyles(null, 'paddingHorizontal', 0)}>S</div>
+                                        <div className={`padding-one ${this.props?.activeComponent?.style?.paddingHorizontal == 2 ? 'active' : ''}`} onClick={() => this.handleSummaryStyles(null, 'paddingHorizontal', 2)}>M</div>
+                                        <div className={`padding-one ${this.props?.activeComponent?.style?.paddingHorizontal == 4 ? 'active' : ''}`} onClick={() => this.handleSummaryStyles(null, 'paddingHorizontal', 4)}>L</div>
+                                    </div>
+                                </div> */}
+							</div>
 						</div>
-					) : (
+					) : this.state.active === 'b' ? (
 						<div className="card-tab-wrapper">
-							<div
+							{/* <div
 								className="block_styles pad-color-p-imp"
 								style={{ padding: '12px 0px' }}
 							>
@@ -583,12 +598,30 @@ export default class FormCardPopup extends Images {
 									zoom={0.8}
 									isDarkBg={true}
 								/>
-							</div>
+							</div> */}
 							<div className="line"></div>
 							<div
 								className="bg-types-container"
 								style={{ justifyContent: 'space-evenly' }}
 							>
+								<span
+									className={
+										`bg-item ` +
+										(this.state.activeBgtype === 'background'
+											? ' active-bg-type'
+											: '')
+									}
+									onClick={() =>
+										this.setState({ activeBgtype: 'background' }, () => {
+											this.handleActiveCardStyles(
+												'backgroundType',
+												'background',
+											);
+										})
+									}
+								>
+									Color
+								</span>
 								<span
 									className={
 										`bg-item ` +
@@ -619,19 +652,34 @@ export default class FormCardPopup extends Images {
 								>
 									Video
 								</span>
-								{/* <span
-									className={
-										`bg-item` +
-										(this.state.activeBgtype === 'custom'
-											? ' active-bg-type'
-											: '')
-									}
-									onClick={() => this.setState({ activeBgtype: 'custom' })}
-								>
-									Custom
-								</span> */}
 							</div>
-							{this.state?.activeBgtype == 'image' ? (
+							{this.state?.activeBgtype == 'background' ? (
+								<div className="element_image">
+									<div className="element_pasteURL" style={{ gap: '15px' }}>
+										<div
+											className="block_styles pad-color-p-imp"
+											style={{ padding: '12px 0px' }}
+										>
+											<ColorPicker
+												title={'Background Color'}
+												color={
+													this.state?.activeComponent?.style
+														?.sectionBackgroundColor
+												}
+												handleColor={(e) =>
+													this.handleActiveCardStyles(
+														'sectionBackgroundColor',
+														e,
+													)
+												}
+												brandColors={this.props?.brandColors}
+												zoom={0.8}
+												isDarkBg={true}
+											/>
+										</div>
+									</div>
+								</div>
+							) : this.state?.activeBgtype == 'image' ? (
 								<>
 									{this.state?.activeComponent?.style?.backgroundImageURL ? (
 										<div
@@ -693,7 +741,6 @@ export default class FormCardPopup extends Images {
 														}}
 													/>
 												</div>
-
 												<div
 													className=""
 													onClick={(e) => this.handleDivClick(e)}
@@ -772,7 +819,6 @@ export default class FormCardPopup extends Images {
 											Paste the URL link of your YouTube or Vimeo hosted
 											video.
 										</p>
-
 										<div
 											className="element_input"
 											style={{ flexDirection: 'row', alignItems: 'center' }}
@@ -813,7 +859,6 @@ export default class FormCardPopup extends Images {
 											>
 												Mute video
 											</b>
-
 											<label
 												className="switch"
 												onClick={() => {
@@ -854,7 +899,6 @@ export default class FormCardPopup extends Images {
 											>
 												Video loop
 											</b>
-
 											<label
 												className="switch"
 												onClick={() => {
@@ -942,7 +986,6 @@ export default class FormCardPopup extends Images {
 																isDarkBg={true}
 															/>
 														</div>
-
 														<div className="popup-shapes-range-wrapper">
 															<b>Opacity</b>
 															<div className="popup-range-div">
@@ -995,6 +1038,8 @@ export default class FormCardPopup extends Images {
 								''
 							)}
 						</div>
+					) : (
+						''
 					)}
 				</div>
 				<Modal

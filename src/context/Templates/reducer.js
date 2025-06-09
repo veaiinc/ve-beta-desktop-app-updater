@@ -472,6 +472,11 @@ const actionHandlers = {
 		...state,
 		proactiveAiData: action?.payload,
 	}),
+	GET_CHAT_BOX_SUGGESTIONS_SUCCESS: (state, action) => ({
+		...state,
+		chatBoxSuggestions: action?.payload,
+	}),
+
 	RESET_STATE: () => intialState,
 };
 

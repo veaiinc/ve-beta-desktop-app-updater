@@ -1,36 +1,15 @@
-import React from 'react';
-import { ReactComponent as UploadFile } from '../../svgs/uploadFile.svg';
-import _ from 'lodash';
-
-import { ReactComponent as GridGap } from '../../svgs/gridGap.svg';
-import { ReactComponent as GridNoGap } from '../../svgs/gridNoGap.svg';
-import { ReactComponent as RowGap } from '../../svgs/rowHeight.svg';
-import { ReactComponent as ColumnGap } from '../../svgs/coloumGap.svg';
-import { ReactComponent as Positive } from '../../svgs/positive.svg';
-import { ReactComponent as Negative } from '../../svgs/negative.svg';
-
-import { ReactComponent as RightArrow } from '../../svgs/dropDown.svg';
+import React, { Component } from 'react';
+import { ActionDropDown, UploadFileSVG, Delete } from '../../../builder_client_common';
 import ColorPicker from '../../../properties/colorpicker';
-import '../elementPopup.scss';
-
-// Image for Api
-
-import Images from '../../../../../controllers/images';
 import randomize from 'randomatic';
-
-// modal for library
-
+import ImageLibrary from '../../../imageLibrary/';
 import Modal from '../../modals/index';
-import ImageLibrary from '../../../imageLibrary';
-
-// cropper for image
+import Images from '../../../../../controllers/images';
 import Cropper from 'react-easy-crop';
-import { ReactComponent as Delete } from '../../svgs/delete.svg';
-export default class FormCardPopup extends Images {
+export default class EventPopup extends Images {
 	constructor(props) {
 		super(props);
 		this.state = {
-			active: 'c',
 			overlayEffect: false,
 			activeComponent: props?.activeComponent || {},
 			showImageProgressBar: false,
@@ -38,180 +17,25 @@ export default class FormCardPopup extends Images {
 			interval: null,
 			progressCount: 0,
 			uploadedImageURL: null,
-			showImageModal: false,
+			showImageModal: props?.showImageModal,
 			debounceCropperValues: null,
-			activeModuleId: props?.activeModuleId,
-
-			activeBgtype: props?.activeComponent?.style?.backgroundType || 'image',
+			activeModule: props?.activeModule ?? 'block',
+			activeComponent: this.props?.activeComponent,
+			activeBgtype: props?.activeComponent?.style?.backgroundType || 'background',
+			debounceInterval: null,
 		};
-
 		this.fileInputRef = React.createRef();
-		this.cropperRef = React.createRef();
-		this.popupRef = React.createRef();
 	}
-
-	componentDidMount() {
-		// document.addEventListener('mousedown', this.handleClickOutside);
-	}
-
-	componentWillUnmount() {
-		// document.removeEventListener('mousedown', this.handleClickOutside);
-	}
-
-	handleClickOutside = (event) => {
-		// Don't close if clicking on the draggable handle
-		if (event.target.closest('.draggerPoint')) {
-			return;
-		}
-
-		if (this.popupRef.current && !this.popupRef.current.contains(event.target)) {
-			const updatedComponent = {
-				...this.state.activeComponent,
-				shouldClose: true,
-			};
-			this.props.handleCardPopupProps(updatedComponent);
+	componentWillReceiveProps = (nextProps) => {
+		if (nextProps.activeComponent) {
+			this.setState({ activeComponent: nextProps.activeComponent });
 		}
 	};
-
-	componentWillReceiveProps(nextProps) {
-		if (nextProps.activeComponent !== this.state.activeComponent) {
-			this.setState({
-				activeComponent: nextProps.activeComponent,
-				activeBgtype: nextProps?.activeComponent?.style?.backgroundType,
-			});
-		}
-		if (nextProps?.activeModuleId !== this.state?.activeModuleId) {
-			this.setState({
-				activeModuleId: nextProps?.activeModuleId,
-			});
-		}
-	}
-	handleActive = (type) => {
+	handleSetEventModule = (e) => {
 		this.setState({
-			active: type,
+			activeModule: e,
 		});
 	};
-
-	//! file/image upload functions
-	handleDivClick = (e) => {
-		if (this.fileInputRef.current) {
-			this.fileInputRef.current.click();
-		}
-	};
-
-	handleFileChange = async (event, uploadAIImage = false) => {
-		let file;
-		if (uploadAIImage) {
-			this.setState({
-				activeImageURL: null,
-			});
-			try {
-				// Handle both full data URL and raw base64 string
-				const base64Data = event.includes('data:') ? event.split(';base64,').pop() : event;
-
-				// Validate base64 string
-				if (!base64Data || !/^[A-Za-z0-9+/=]+$/.test(base64Data)) {
-					throw new Error('Invalid base64 string');
-				}
-
-				const byteCharacters = atob(base64Data);
-				const byteArrays = [];
-
-				for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-					const slice = byteCharacters.slice(offset, offset + 512);
-					const byteNumbers = new Array(slice.length);
-
-					for (let i = 0; i < slice.length; i++) {
-						byteNumbers[i] = slice.charCodeAt(i);
-					}
-
-					const byteArray = new Uint8Array(byteNumbers);
-					byteArrays.push(byteArray);
-				}
-
-				const blob = new Blob(byteArrays, { type: 'image/jpeg' });
-				file = new File([blob], 'ai-generated-image.jpg', { type: 'image/jpeg' });
-			} catch (error) {
-				console.error('Error processing base64 image:', error);
-				return;
-			}
-		} else {
-			file = event.target.files[0];
-		}
-
-		if (file) {
-			this.setState({ showImageProgressBar: true }, () => {
-				this.startCounting();
-			});
-
-			let json = {
-				uploadBatchId: this.state.uploadBatchID,
-				originalFileName: uploadAIImage ? 'ai-generated-image.jpg' : file?.name,
-				originalDateTime: uploadAIImage ? moment().unix() : file?.lastModified,
-			};
-
-			let res = null;
-
-			if (this.props?.isWorkflow) {
-				res = await this.uploadImageWorkflow(json, file, {
-					module: this.props.module,
-					activeWorkflowModuleId: this.props.activeWorkflowModuleId,
-				});
-			} else {
-				res = await this.uploadImage(json, file);
-			}
-
-			this.setState({
-				uploadedImageURL: res[1],
-			});
-
-			let interval = setInterval(() => this.getUploadStatus(res[0]), 3000);
-			this.setState({
-				interval: interval,
-			});
-		}
-	};
-	getUploadStatus = async (imageID) => {
-		let res = await this.getImageUploadStatus(this.state.uploadBatchID);
-		if (res.processedCount === 1 && res.uploadedCount === 1) {
-			clearInterval(this.state.interval);
-			//this.props.getImages();
-			//this.props.saveImage(imageID, this.state.originalHeight, this.state.originalWidth);
-			this.setState(
-				{
-					interval: null,
-					progressCount: 0,
-					showImageProgressBar: false,
-					activeImageURL: this.state.uploadedImageURL,
-					uploadBatchID: randomize('Aa0', 10),
-				},
-				() => {
-					// this.props.setImage(this.state.uploadedImageURL);
-					this.handleActiveCardStyles('backgroundImageURL', this.state.uploadedImageURL);
-				},
-			);
-		}
-	};
-	startCounting = () => {
-		const duration = 2000; // 2 seconds
-		const targetCount = 99;
-		const interval = 10; // milliseconds
-		const increment = targetCount / (duration / interval);
-
-		this.intervalId = setInterval(() => {
-			this.setState((prevState) => {
-				const newCount = prevState.progressCount + increment;
-				if (newCount >= targetCount) {
-					clearInterval(this.intervalId);
-					return { progressCount: targetCount };
-				}
-				return { progressCount: newCount };
-			});
-		}, interval);
-	};
-
-	//! grid layout related functions
-
 	// ! background related functions
 	handleActiveCardStyles = (type, value) => {
 		let newComponent = { ...this.state.activeComponent };
@@ -227,7 +51,7 @@ export default class FormCardPopup extends Images {
 					style: {
 						...newComponent?.style,
 						sectionBackgroundColor: value,
-						backgroundType: 'color',
+						backgroundType: 'background',
 					},
 				};
 			} else if (type == 'backgroundImageURL') {
@@ -254,6 +78,7 @@ export default class FormCardPopup extends Images {
 					style: {
 						...newComponent?.style,
 						backgroundType: value,
+						sectionBackgroundColor: newComponent?.style?.sectionBackgroundColor || '',
 					},
 				};
 			}
@@ -262,7 +87,6 @@ export default class FormCardPopup extends Images {
 				...newComponent,
 				style: {
 					...newComponent?.style,
-
 					[type]: value,
 				},
 			};
@@ -270,23 +94,22 @@ export default class FormCardPopup extends Images {
 		this.setState(
 			{ activeComponent: newComponent, activeBgtype: newComponent?.style?.backgroundType },
 			() => {
-				this?.props?.handleCardPopupProps(
-					newComponent,
-					type == 'bgOverlayOpacity' ||
-						type == 'verticalPadding' ||
-						type == 'backgroundVideoURL'
-						? true
-						: false,
-					type == 'verticalPadding' ? true : false,
-				);
+				// this.props?.setBgType(newComponent?.style?.backgroundType);
+				this.props?.setActiveSection(newComponent);
 			},
 		);
 	};
-
-	// ! bgvideo related functions
-	handleVideoProps = (type, value) => {
+	handleEventCardStyles = (type, value) => {
 		let newComponent = { ...this.state.activeComponent };
-
+		newComponent = {
+			...newComponent,
+			style: { ...newComponent?.style, [type]: value },
+		};
+		this.setState({ activeComponent: newComponent });
+		this.props?.setActiveSection(newComponent);
+	};
+	handleVideoProps = (type, value) => {
+		let newComponent = { ...this.props?.activeComponent };
 		newComponent = {
 			...newComponent,
 			style: {
@@ -297,154 +120,189 @@ export default class FormCardPopup extends Images {
 				},
 			},
 		};
-
 		this.setState({ activeComponent: newComponent }, () => {
-			this.props?.handleCardPopupProps(newComponent, true, false);
+			this.props?.setActiveSection(newComponent);
 		});
 	};
-
-	handleFormPadding = (value) => {
-		let newComponent = { ...this.state.activeComponent };
-		newComponent = {
-			...newComponent,
-			style: {
-				...newComponent?.style,
-				padding: value,
-			},
-		};
-		this.setState({ activeComponent: newComponent }, () => {
-			this.props?.handleCardPopupProps(newComponent);
-		});
+	//! file/image upload functions
+	handleDivClick = (e) => {
+		if (this.fileInputRef.current) {
+			this.fileInputRef.current.click();
+		}
 	};
-
+	handleFileChange = async (event, uploadAIImage = false) => {
+		let file;
+		if (uploadAIImage) {
+			this.setState({
+				activeImageURL: null,
+			});
+			try {
+				// Handle both full data URL and raw base64 string
+				const base64Data = event.includes('data:') ? event.split(';base64,').pop() : event;
+				// Validate base64 string
+				if (!base64Data || !/^[A-Za-z0-9+/=]+$/.test(base64Data)) {
+					throw new Error('Invalid base64 string');
+				}
+				const byteCharacters = atob(base64Data);
+				const byteArrays = [];
+				for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+					const slice = byteCharacters.slice(offset, offset + 512);
+					const byteNumbers = new Array(slice.length);
+					for (let i = 0; i < slice.length; i++) {
+						byteNumbers[i] = slice.charCodeAt(i);
+					}
+					const byteArray = new Uint8Array(byteNumbers);
+					byteArrays.push(byteArray);
+				}
+				const blob = new Blob(byteArrays, { type: 'image/jpeg' });
+				file = new File([blob], 'ai-generated-image.jpg', { type: 'image/jpeg' });
+			} catch (error) {
+				console.error('Error processing base64 image:', error);
+				return;
+			}
+		} else {
+			file = event.target.files[0];
+		}
+		if (file) {
+			this.setState({ showImageProgressBar: true }, () => {
+				this.startCounting();
+			});
+			let json = {
+				uploadBatchId: this.state.uploadBatchID,
+				originalFileName: uploadAIImage ? 'ai-generated-image.jpg' : file?.name,
+				originalDateTime: uploadAIImage ? moment().unix() : file?.lastModified,
+			};
+			let res = null;
+			if (this.props?.isWorkflow) {
+				res = await this.uploadImageWorkflow(json, file, {
+					module: this.props.module,
+					activeWorkflowModuleId: this.props.activeWorkflowModuleId,
+				});
+			} else {
+				res = await this.uploadImage(json, file, this.props?.activeModuleId);
+			}
+			this.setState({
+				uploadedImageURL: res[1],
+			});
+			let interval = setInterval(() => this.getUploadStatus(res[0]), 3000);
+			this.setState({
+				interval: interval,
+			});
+		}
+	};
+	handleBlockItemImage = (imageURL) => {
+		let newActiveBlock = { ...this.props?.activeBlock };
+		newActiveBlock.subBlocks[0].imageURL = imageURL;
+		this.setState({
+			activeBlock: newActiveBlock,
+		});
+		this.props?.setActiveBlock(newActiveBlock);
+	};
+	getUploadStatus = async (imageID) => {
+		let res = await this.getImageUploadStatus(this.state.uploadBatchID);
+		if (res.processedCount === 1 && res.uploadedCount === 1) {
+			clearInterval(this.state.interval);
+			//this.props.getImages();
+			//this.props.saveImage(imageID, this.state.originalHeight, this.state.originalWidth);
+			this.setState(
+				{
+					interval: null,
+					progressCount: 0,
+					showImageProgressBar: false,
+					activeImageURL: this.state.uploadedImageURL,
+					uploadBatchID: randomize('Aa0', 10),
+				},
+				() => {
+					// this.props.setImage(this.state.uploadedImageURL);
+					if (!this.props?.isServiceItem) {
+						this.handleActiveCardStyles(
+							'backgroundImageURL',
+							this.state.uploadedImageURL,
+						);
+					} else {
+						this.handleBlockItemImage(this.state.uploadedImageURL);
+					}
+				},
+			);
+		}
+	};
+	startCounting = () => {
+		const duration = 2000; // 2 seconds
+		const targetCount = 99;
+		const interval = 10; // milliseconds
+		const increment = targetCount / (duration / interval);
+		this.intervalId = setInterval(() => {
+			this.setState((prevState) => {
+				const newCount = prevState.progressCount + increment;
+				if (newCount >= targetCount) {
+					clearInterval(this.intervalId);
+					return { progressCount: targetCount };
+				}
+				return { progressCount: newCount };
+			});
+		}, interval);
+	};
 	render() {
 		return (
-			<div
-				className="elementPopupContainer"
-				style={{
-					height: '425px',
-				}}
-				ref={this.popupRef}
-			>
-				<div className="elementPopupHeader">
-					<p
-						className={this.state.active === 'c' ? 'active' : ''}
-						onClick={() => this.handleActive('c')}
+			<div className="service-popup-container element_image_container_main element-shapes-container">
+				<div className="service-popup-header">
+					<div
+						onClick={() => this.handleSetEventModule('block')}
+						className={`service-popup-header-title ${
+							this.state.activeModule === 'block' ? 'active' : ''
+						}`}
 					>
-						Card
-					</p>
-					<p
-						className={this.state.active === 'b' ? 'active' : ''}
-						onClick={() => this.handleActive('b')}
+						Block
+					</div>
+					<div
+						onClick={() => this.handleSetEventModule('design')}
+						className={`service-popup-header-title ${
+							this.state.activeModule === 'design' ? 'active' : ''
+						}`}
 					>
-						Background
-					</p>
-					{/* <p
-						className={this.state.active === 's' ? 'active' : ''}
-						onClick={() => this.handleActive('s')}
-					>
-						Animation
-					</p> */}
+						Design
+					</div>
 				</div>
-				<div className="element_image_container_main element-shapes-container">
-					{this.state?.active == 'c' ? (
-						<div className="card-tab-wrapper">
-							<div
-								className="bs-item bs-item-row animated-item"
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-								}}
-							>
-								<b>Show Form Logo</b>
-								<label
-									className="switch"
-									onClick={() => {
-										this.handleActiveCardStyles(
-											'showFormLogo',
-											!this.state?.activeComponent?.style?.showFormLogo,
-										);
-									}}
-								>
-									<input
-										type="checkbox"
-										checked={
-											this.state?.activeComponent?.style?.showFormLogo ?? true
-										}
-									/>
-									<span className="slider-round round"></span>
-								</label>
-							</div>
-							<div className="line"></div>
-							<div
-								className="bs-item bs-item-row animated-item"
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-								}}
-							>
-								<b>Show Form Title</b>
-								<label
-									className="switch"
-									onClick={() => {
-										this.handleActiveCardStyles(
-											'showFormTitle',
-											!this.state?.activeComponent?.style?.showFormTitle,
-										);
-									}}
-								>
-									<input
-										type="checkbox"
-										checked={
-											this.state?.activeComponent?.style?.showFormTitle ??
-											true
-										}
-									/>
-									<span className="slider-round round"></span>
-								</label>
-							</div>
-							<div className="line"></div>
-							<div
-								className="bs-item bs-item-row animated-item"
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-								}}
-							>
-								<b>Show Form Description</b>
-								<label
-									className="switch"
-									onClick={() => {
-										this.handleActiveCardStyles(
-											'showFormDescription',
-											!this.state?.activeComponent?.style
-												?.showFormDescription,
-										);
-									}}
-								>
-									<input
-										type="checkbox"
-										checked={
-											this.state?.activeComponent?.style
-												?.showFormDescription ?? true
-										}
-									/>
-									<span className="slider-round round"></span>
-								</label>
-							</div>
-							<div className="line"></div>
-							<div className="padding-options-wrapper">
-								<div
-									className="padding-options-header"
-									style={{
-										color: '#e8e8e8',
-										fontSize: '14px',
-										fontWeight: '500',
-										lineHeight: '24px',
-									}}
-								>
-									Horizontal Padding
+				<div className="service-popup-body element_image_container_main element-shapes-container">
+					{this.state.activeModule === 'block' && (
+						<>
+							<div className="element_image">
+								<div className="element_pasteURL" style={{ gap: '15px' }}>
+									<div className="block_styles pad-color-p-imp">
+										<ColorPicker
+											title={'Event Card Background Color'}
+											color={
+												this.props?.activeComponent?.style
+													?.cardBackgroundColor
+											}
+											handleColor={(e) =>
+												this.handleEventCardStyles('cardBackgroundColor', e)
+											}
+											brandColors={this.props?.brandColors}
+											zoom={0.8}
+											isDarkBg={true}
+										/>
+									</div>
 								</div>
+							</div>
+							<div className="element_image">
+								<div className="element_pasteURL" style={{ gap: '15px' }}>
+									<div className="block_styles pad-color-p-imp">
+										<ColorPicker
+											title={'Event Card Font Color'}
+											color={this.props?.activeComponent?.style?.fontColor}
+											handleColor={(e) =>
+												this.handleEventCardStyles('fontColor', e)
+											}
+											brandColors={this.props?.brandColors}
+											zoom={0.8}
+											isDarkBg={true}
+										/>
+									</div>
+								</div>
+							</div>
+							<div className="padding-options-wrapper">
+								<div className="padding-options-header">Vertical Padding</div>
 								<div className="padding-options-item">
 									<div
 										className={`padding-one ${
@@ -453,7 +311,17 @@ export default class FormCardPopup extends Images {
 												? 'active'
 												: ''
 										}`}
-										onClick={() => this.handleFormPadding(0)}
+										onClick={() => this.handleEventCardStyles('padding', 0)}
+									>
+										null
+									</div>
+									<div
+										className={`padding-one ${
+											this.props?.activeComponent?.style?.padding == 1
+												? 'active'
+												: ''
+										}`}
+										onClick={() => this.handleEventCardStyles('padding', 1)}
 									>
 										S
 									</div>
@@ -463,9 +331,19 @@ export default class FormCardPopup extends Images {
 												? 'active'
 												: ''
 										}`}
-										onClick={() => this.handleFormPadding(2)}
+										onClick={() => this.handleEventCardStyles('padding', 2)}
 									>
 										M
+									</div>
+									<div
+										className={`padding-one ${
+											this.props?.activeComponent?.style?.padding == 3
+												? 'active'
+												: ''
+										}`}
+										onClick={() => this.handleEventCardStyles('padding', 3)}
+									>
+										L
 									</div>
 									<div
 										className={`padding-one ${
@@ -473,122 +351,69 @@ export default class FormCardPopup extends Images {
 												? 'active'
 												: ''
 										}`}
-										onClick={() => this.handleFormPadding(4)}
+										onClick={() => this.handleEventCardStyles('padding', 4)}
 									>
-										L
+										XL
 									</div>
 								</div>
 							</div>
-							{/* <div className="line"></div>
-							<div
-								className="bs-item bs-item-row animated-item"
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-								}}
-							>
-								<b>Single Page View</b>
-								<label
-									className="switch"
-									onClick={() => {
-										this.handleActiveCardStyles('isSinglePage', true);
-									}}
-								>
-									<input
-										type="checkbox"
-										checked={
-											this.state?.activeComponent?.style?.isSinglePage ===
-											true
-										}
-									/>
-									<span className="slider-round round"></span>
-								</label>
-							</div>
-							<div className="line"></div>
-							<div
-								className="bs-item bs-item-row animated-item"
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-								}}
-							>
-								<b>Multi Page View</b>
-								<label
-									className="switch"
-									onClick={() => {
-										this.handleActiveCardStyles('isSinglePage', false);
-									}}
-								>
-									<input
-										type="checkbox"
-										checked={
-											this.state?.activeComponent?.style?.isSinglePage ===
-											false
-										}
-									/>
-									<span className="slider-round round"></span>
-								</label>
-							</div> */}
-
-							{/* <div className="popup-shapes-range-wrapper">
-								<b>Vertical Padding</b>
-								<div className="popup-range-div">
-									<div
-										style={{
-											display: 'flex',
-											maxWidth: 170,
-										}}
-									>
-										<input
-											type="range"
-											min={0}
-											max={100}
-											step={1}
-											value={
-												this.state?.activeComponent?.style?.verticalPadding
-											}
-											onChange={(e) =>
-												this.handleActiveCardStyles(
-													'verticalPadding',
-													parseInt(e.target.value),
-												)
-											}
-										/>
-									</div>
-									<p
-										style={{
-											textAlign: 'center',
-										}}
-									>
-										{this.state?.activeComponent?.style?.verticalPadding}px
-									</p>
-								</div>
-							</div> */}
-						</div>
-					) : (
+							{/* <div className="padding-options-wrapper">
+                                <div className="padding-options-header">
+                                    Horizontal Padding
+                                </div>
+                                <div className="padding-options-item">
+                                    <div className={`padding-one ${!_.has(this.props?.activeComponent?.style, 'paddingHorizontal') || this.props?.activeComponent?.style?.paddingHorizontal === 0 ? 'active' : ''}`} onClick={() => this.handleEventCardStyles('paddingHorizontal', 0)}>null</div>
+                                    <div className={`padding-one ${this.props?.activeComponent?.style?.paddingHorizontal == 1 ? 'active' : ''}`} onClick={() => this.handleEventCardStyles('paddingHorizontal', 1)}>S</div>
+                                    <div className={`padding-one ${this.props?.activeComponent?.style?.paddingHorizontal == 2 ? 'active' : ''}`} onClick={() => this.handleEventCardStyles('paddingHorizontal', 2)}>M</div>
+                                    <div className={`padding-one ${this.props?.activeComponent?.style?.paddingHorizontal == 3 ? 'active' : ''}`} onClick={() => this.handleEventCardStyles('paddingHorizontal', 3)}>L</div>
+                                    <div className={`padding-one ${this.props?.activeComponent?.style?.paddingHorizontal == 4 ? 'active' : ''}`} onClick={() => this.handleEventCardStyles('paddingHorizontal', 4)}>XL</div>
+                                </div>
+                            </div> */}
+						</>
+					)}
+					{this.state.activeModule === 'design' && (
 						<div className="card-tab-wrapper">
-							<div
-								className="block_styles pad-color-p-imp"
-								style={{ padding: '12px 0px' }}
-							>
-								<ColorPicker
-									title={'Background Color'}
-									color={
-										this.state?.activeComponent?.style?.sectionBackgroundColor
-									}
-									handleColor={(e) =>
-										this.handleActiveCardStyles('sectionBackgroundColor', e)
-									}
-									brandColors={this.props?.brandColors}
-									zoom={0.8}
-									isDarkBg={true}
-								/>
-							</div>
+							{/* <div
+                          className="block_styles pad-color-p-imp"
+                          style={{ padding: '12px 0px' }}
+                      >
+                          <ColorPicker
+                              title={'Background Color'}
+                              color={
+                                  this.state?.activeComponent?.style?.sectionBackgroundColor
+                              }
+                              handleColor={(e) =>
+                                  this.handleActiveCardStyles('sectionBackgroundColor', e)
+                              }
+                              brandColors={this.props?.brandColors}
+                              zoom={0.8}
+                              isDarkBg={true}
+                          />
+                      </div> */}
 							<div className="line"></div>
 							<div
 								className="bg-types-container"
 								style={{ justifyContent: 'space-evenly' }}
 							>
+								<span
+									className={
+										`bg-item ` +
+										(this.props?.activeComponent?.style?.backgroundType ===
+										'background'
+											? ' active-bg-type'
+											: '')
+									}
+									onClick={() =>
+										this.setState({ activeBgtype: 'background' }, () => {
+											this.handleActiveCardStyles(
+												'backgroundType',
+												'background',
+											);
+										})
+									}
+								>
+									Color
+								</span>
 								<span
 									className={
 										`bg-item ` +
@@ -619,19 +444,34 @@ export default class FormCardPopup extends Images {
 								>
 									Video
 								</span>
-								{/* <span
-									className={
-										`bg-item` +
-										(this.state.activeBgtype === 'custom'
-											? ' active-bg-type'
-											: '')
-									}
-									onClick={() => this.setState({ activeBgtype: 'custom' })}
-								>
-									Custom
-								</span> */}
 							</div>
-							{this.state?.activeBgtype == 'image' ? (
+							{this.state.activeBgtype == 'background' ? (
+								<div className="element_image">
+									<div className="element_pasteURL" style={{ gap: '15px' }}>
+										<div
+											className="block_styles pad-color-p-imp"
+											style={{ padding: '12px 0px' }}
+										>
+											<ColorPicker
+												title={'Background Color'}
+												color={
+													this.state?.activeComponent?.style
+														?.sectionBackgroundColor
+												}
+												handleColor={(e) =>
+													this.handleActiveCardStyles(
+														'sectionBackgroundColor',
+														e,
+													)
+												}
+												brandColors={this.props?.brandColors}
+												zoom={0.8}
+												isDarkBg={true}
+											/>
+										</div>
+									</div>
+								</div>
+							) : this.state?.activeBgtype == 'image' ? (
 								<>
 									{this.state?.activeComponent?.style?.backgroundImageURL ? (
 										<div
@@ -693,7 +533,6 @@ export default class FormCardPopup extends Images {
 														}}
 													/>
 												</div>
-
 												<div
 													className=""
 													onClick={(e) => this.handleDivClick(e)}
@@ -728,7 +567,7 @@ export default class FormCardPopup extends Images {
 															style={{ gap: '10px' }}
 														>
 															<div className="">
-																<UploadFile />
+																<UploadFileSVG />
 															</div>
 															<div className="title">
 																{' '}
@@ -760,7 +599,17 @@ export default class FormCardPopup extends Images {
 											}
 											style={{ cursor: 'pointer' }}
 										>
-											<span className="subheading"> Select from Library</span>
+											<span
+												style={{
+													color: '#7c7c84',
+													fontSize: '12px',
+													fontWeight: '500',
+													fontFamily: 'Inter',
+												}}
+											>
+												{' '}
+												Selects from Library
+											</span>
 										</div>
 									</div>
 								</>
@@ -772,7 +621,6 @@ export default class FormCardPopup extends Images {
 											Paste the URL link of your YouTube or Vimeo hosted
 											video.
 										</p>
-
 										<div
 											className="element_input"
 											style={{ flexDirection: 'row', alignItems: 'center' }}
@@ -813,7 +661,6 @@ export default class FormCardPopup extends Images {
 											>
 												Mute video
 											</b>
-
 											<label
 												className="switch"
 												onClick={() => {
@@ -854,7 +701,6 @@ export default class FormCardPopup extends Images {
 											>
 												Video loop
 											</b>
-
 											<label
 												className="switch"
 												onClick={() => {
@@ -906,7 +752,7 @@ export default class FormCardPopup extends Images {
 													}
 												>
 													<p className="heading">Overlay effect</p>
-													<RightArrow
+													<ActionDropDown
 														style={{
 															transform: this.state.overlayEffect
 																? 'rotate(180deg)'
@@ -915,77 +761,79 @@ export default class FormCardPopup extends Images {
 													/>
 												</div>
 												{this.state.overlayEffect && (
-													<div
-														className="overlayEffectContent"
-														style={{ marginTop: '10px' }}
-													>
+													<>
 														<div
-															className="block_styles pad-color-p-imp"
-															style={{ padding: '12px 0px' }}
+															className="overlayEffectContent"
+															style={{ marginTop: '10px' }}
 														>
-															<ColorPicker
-																title={' Color'}
-																color={
-																	this.state?.activeComponent
-																		?.style?.bgOverlayColor
-																}
-																handleColor={(e) =>
-																	this.handleActiveCardStyles(
-																		'bgOverlayColor',
-																		e,
-																	)
-																}
-																brandColors={
-																	this.props?.brandColors
-																}
-																zoom={0.8}
-																isDarkBg={true}
-															/>
-														</div>
-
-														<div className="popup-shapes-range-wrapper">
-															<b>Opacity</b>
-															<div className="popup-range-div">
-																<div
-																	style={{
-																		display: 'flex',
-																		maxWidth: 170,
-																	}}
-																>
-																	<input
-																		type="range"
-																		min={0}
-																		max={100}
-																		step={5}
-																		value={
+															<div
+																className="block_styles pad-color-p-imp"
+																style={{ padding: '12px 0px' }}
+															>
+																<ColorPicker
+																	title={' Color'}
+																	color={
+																		this.state?.activeComponent
+																			?.style?.bgOverlayColor
+																	}
+																	handleColor={(e) =>
+																		this.handleActiveCardStyles(
+																			'bgOverlayColor',
+																			e,
+																		)
+																	}
+																	brandColors={
+																		this.props?.brandColors
+																	}
+																	zoom={0.8}
+																	isDarkBg={true}
+																/>
+															</div>
+															<div className="popup-shapes-range-wrapper">
+																<b>Opacity</b>
+																<div className="popup-range-div">
+																	<div
+																		style={{
+																			display: 'flex',
+																			maxWidth: 170,
+																		}}
+																	>
+																		<input
+																			type="range"
+																			min={0}
+																			max={100}
+																			step={5}
+																			value={
+																				this.state
+																					?.activeComponent
+																					?.style
+																					?.bgOverlayOpacity
+																			}
+																			onChange={(e) =>
+																				this.handleActiveCardStyles(
+																					'bgOverlayOpacity',
+																					e.target.value,
+																				)
+																			}
+																		/>
+																	</div>
+																	<p
+																		style={{
+																			textAlign: 'center',
+																		}}
+																	>
+																		{
 																			this.state
 																				?.activeComponent
 																				?.style
 																				?.bgOverlayOpacity
 																		}
-																		onChange={(e) =>
-																			this.handleActiveCardStyles(
-																				'bgOverlayOpacity',
-																				e.target.value,
-																			)
-																		}
-																	/>
+																		%
+																	</p>
 																</div>
-																<p
-																	style={{
-																		textAlign: 'center',
-																	}}
-																>
-																	{
-																		this.state?.activeComponent
-																			?.style
-																			?.bgOverlayOpacity
-																	}
-																	%
-																</p>
 															</div>
 														</div>
-													</div>
+													</>
 												)}
 											</div>
 										</div>
@@ -1013,7 +861,11 @@ export default class FormCardPopup extends Images {
 							});
 						}}
 						setLibraryImage={(e) => {
-							this.handleActiveCardStyles('backgroundImageURL', e);
+							if (!this.props?.isServiceItem) {
+								this.handleActiveCardStyles('backgroundImageURL', e);
+							} else {
+								this.handleBlockItemImage(e);
+							}
 						}}
 					/>
 				</Modal>

@@ -48,7 +48,7 @@ const AskMe = () => {
 				</div>
 			</div>
 			{chatInfo?.build && info?.chatQuery?.length === 0 && <BuildOptions />}
-			{info?.showSuggestions && <Suggestions />}
+			{info?.showSuggestions && <Suggestions chatQuery={info?.chatQuery} />}
 			{/* <div className="home-page-container-footer">
 				<Sintegrations />
 			</div> */}

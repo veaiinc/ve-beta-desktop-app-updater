@@ -148,16 +148,14 @@ const LoginPage = () => {
 			{/* <div className="gradient-container">
 				{info?.isDarkMode ? <DarkModeGradient /> : <LightModeGradient />}
 			</div> */}
-			<div className="left-container">
 				<div className="stages-container">
 					{/* <div className="logo-container">
 						<VeAiLogo />
 						</div> */}
 					{stages?.[info?.activeStage]}
 				</div>
-			</div>
 			<div className="disclaimer-container">
-				<div className="disclaimer">
+				{/* <div className="disclaimer">
 					<span className="disclaimer-text">By continuing, you accept our</span>
 					<div className="disclaimer-links">
 						<b onClick={() => navigate('/terms-of-service')} className="link">
@@ -173,7 +171,7 @@ const LoginPage = () => {
 						</b>
 						.
 					</div>
-				</div>
+				</div> */}
 				{!info?.cookiesAccepted && info?.showCookiesNotice && (
 					<div className="cookies-notice">
 						<div className="cookie-container">
@@ -183,7 +181,7 @@ const LoginPage = () => {
 							<p>
 								This site uses cookies to provide you with a personalized
 								experience. Check our{' '}
-								<b onClick={() => navigate('/cookie-policy')}>
+								<b onClick={() => window.open('/cookie-policy', '_blank')}>
 									<u>cookie policy</u>
 								</b>{' '}
 								for more details.

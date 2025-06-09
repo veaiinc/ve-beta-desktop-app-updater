@@ -234,6 +234,7 @@
 		padding: 20px;
 
 		.title-section {
+			margin-top: 70px;
 			h1 {
 				font-size: 1.5rem;
 			}
@@ -282,11 +283,12 @@
 	}
 }
 
-@media (max-width: 480px) {
+@media (max-width: 300px) {
 	.contact-form-wrapper {
 		padding: 16px;
 
 		.title-section {
+			margin-top: 70px;
 			h1 {
 				font-size: 1.3rem;
 			}

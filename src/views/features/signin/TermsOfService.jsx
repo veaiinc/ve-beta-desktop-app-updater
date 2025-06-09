@@ -12,7 +12,7 @@ const TermsOfService = () => {
 	return (
 		<div className="privacyPolicyMainContainer">
 			{/* header section */}
-			<div className="privacypolicyHeader">
+			{/* <div className="privacypolicyHeader">
 				<div className="privacypolicyHeaderLogo">
 					<VE />
 				</div>
@@ -25,7 +25,7 @@ const TermsOfService = () => {
 						<span className="privacyPolicyText">Terms of Service</span>
 					</div>
 				</div>
-			</div>
+			</div> */}
 
 			{/* PDF viewer */}
 			<div className="pdfViewer">

@@ -1964,7 +1964,7 @@ input:checked + .slider-round-white:before {
 	transform: translateX(-50%);
 	height: 80px;
 	display: flex;
-	align-items: center;
+	// align-items: center;
 	.image-zoom-div {
 		display: flex;
 		flex-direction: row;
