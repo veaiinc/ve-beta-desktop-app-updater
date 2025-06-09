@@ -31,56 +31,51 @@ const Agents = () => {
 				<div className={s.titleOne}>Every Agent is</div>
 				<div className={s.titleTwo}>Truly Proactive AI</div>
 			</div>
-			<div className={s.agentActionsContainer}>
-				<div className={s.header}>
-					<div className={s.headerActions}>
-						<div className={s.headerTitle}>Your Agents</div>
-						<div className={s.headerActionsContainer}>
-							<div className={s.searchContainer}>
-								<SearchIcon />
-								<input type="text" placeholder="Search your agent" />
-							</div>
-							<div className={s.actionsContainer}>
-								<SortIcon />
-							</div>
-							<div className={s.actionsContainer}>
-								<FilterIcon />
-							</div>
-							<div className={s.viewContainer}>
-								<div className={`${s.viewIcon} ${s.active}`}>
-									<CardIcon />
+			<div className={s.agentsListAndSuggestedAgentsContainer}>
+				<div className={s.agentActionsContainer}>
+					<div className={s.header}>
+						<div className={s.headerActions}>
+							<div className={s.headerTitle}>Your Agents</div>
+							<div className={s.headerActionsContainer}>
+								<div className={s.searchContainer}>
+									<SearchIcon />
+									<input type="text" placeholder="Search your agent" />
 								</div>
-								<div className={s.viewIcon}>
-									<ListIcon />
+								<div className={s.actionsContainer}>
+									<SortIcon />
+								</div>
+								<div className={s.actionsContainer}>
+									<FilterIcon />
+								</div>
+								<div className={s.viewContainer}>
+									<div className={`${s.viewIcon} ${s.active}`}>
+										<CardIcon />
+									</div>
+									<div className={s.viewIcon}>
+										<ListIcon />
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
+					<div className={s.body}>
+						<CreateNewAgentCard agents={knowledgeAssistantsList?.data || []} />
+					</div>
 				</div>
-				<div className={s.body}>
-					<CreateNewAgentCard agents={knowledgeAssistantsList?.data || []} />
-				</div>
-			</div>
-			<div className={s.suggestionsContainer}>
-				<div className={s.suggestionsHeader}>Suggested for you</div>
-				<div className={s.suggestionsBody}>
-					<AgentSuggestion
-						isAiCreated={false}
-						title={'Monthly Report'}
-						description={'Detected from : 6 past meeting notes + transcript uploads'}
-					/>
-					<AgentSuggestion />
-					<AgentSuggestion />
-					<AgentSuggestion />
-					<AgentSuggestion />
-					<AgentSuggestion />
-					<AgentSuggestion />
-					<AgentSuggestion />
-					<AgentSuggestion />
-					<AgentSuggestion />
-					<AgentSuggestion />
-					<AgentSuggestion />
-					<AgentSuggestion />
+				<div className={s.suggestionsContainer}>
+					<div className={s.suggestionsHeader}>Suggested for you</div>
+					<div className={s.suggestionsBody}>
+						<AgentSuggestion
+							isAiCreated={false}
+							title={'Monthly Report'}
+							description={
+								'Detected from : 6 past meeting notes + transcript uploads'
+							}
+						/>
+						<AgentSuggestion />
+						<AgentSuggestion />
+						<AgentSuggestion />
+					</div>
 				</div>
 			</div>
 			<QuickActions />

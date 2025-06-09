@@ -44,7 +44,7 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
-	const createNewKnowledgeAgent = async (name) => {
+	const createNewKnowledgeAgent = async (name, description) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const path = '/' + workspaceId + '/knowledge-agents';
@@ -52,6 +52,7 @@ export const KnowledgeAgentState = () => {
 			const type = 'ai_assistant_api';
 			const body = {
 				name,
+				description,
 			};
 			const response = await service?.fetchPost(path, body, token, type);
 			const success = response?.[0] === true;

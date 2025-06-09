@@ -10,7 +10,7 @@ import CatIcon from './assets/cat.png';
 import Context from '../../../../context/context';
 
 // utils
-import { generateRandomAIAgentName } from './utils';
+import { generateRandomAIAgentDetails } from './utils';
 import { message } from '../../globalComponents/CustomToast';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,8 +22,8 @@ const CreateNewAgentCard = ({ agents = [] }) => {
 	} = useContext(Context);
 
 	const handleCreateAgent = async () => {
-		const agentName = generateRandomAIAgentName();
-		const [success, data] = await createNewKnowledgeAgent(agentName);
+		const { agentName, agentDescription } = generateRandomAIAgentDetails();
+		const [success, data] = await createNewKnowledgeAgent(agentName, agentDescription);
 		if (success) {
 			const assistantId = data?.insertedId;
 			navigate(`/agent/${assistantId}`);
@@ -54,10 +54,8 @@ const CreateNewAgentCard = ({ agents = [] }) => {
 						/>
 					</div>
 					<div className={s.agentInfo}>
-						<div className={s.agentName}>{agent.name || 'Untitled Agent'}</div>
-						<div className={s.agentDescription}>
-							{agent.description || 'No description available'}
-						</div>
+						<div className={s.agentName}>{agent.name}</div>
+						<div className={s.agentDescription}>{agent.description}</div>
 					</div>
 				</div>
 			))}
