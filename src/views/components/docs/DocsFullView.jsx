@@ -285,7 +285,9 @@ const DocsFullView = () => {
 			const templateId = fileData?.modules?.[0]?.templateId;
 			version === 0 || version === null
 				? navigate(`/smart-file/${fileData?.templateId}/${fileData?._id}`)
-				: (window.location.href = `${origin}/workflow/${fileData?._id}?workflow=true&templateId=${templateId}`);
+				: navigate(
+						`/builder/workflow/${fileData?._id}?workflow=true&templateId=${templateId}`,
+				  );
 		}
 	};
 
@@ -453,7 +455,9 @@ const DocsFullView = () => {
 		const workflowId = response?.[1]?.data?.duplicateSmartFile?._id;
 		if (workflowId) {
 			setInfo((prev) => ({ ...prev, duplicateLoading: false }));
-			window.location.href = `${origin}/workflow/${info?.activeFileData?._id}?workflow=true&templateId=${workflowId}`;
+			navigate(
+				`/builder/workflow/${info?.activeFileData?._id}?workflow=true&templateId=${workflowId}`,
+			);
 		} else {
 			message.error(response?.[1]?.message);
 			setInfo((prev) => ({ ...prev, duplicateLoading: false }));

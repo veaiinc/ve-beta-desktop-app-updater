@@ -27,6 +27,7 @@ const AuthWrapper = ({
 	showDynamicWidget = true,
 	sidebarContainerClassName = '',
 	childrenContainerStyles = {},
+	showSidebar = true,
 }) => {
 	// const {
 	// 	subscriptionInfo: { renewBanner },
@@ -37,6 +38,7 @@ const AuthWrapper = ({
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
 	const accessControls = useAccessControls();
+
 	useEffect(() => {
 		checkAuth();
 	}, []);
@@ -64,19 +66,21 @@ const AuthWrapper = ({
 					className="auth-wrapper-container"
 				>
 					<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
-						<div
-							style={{
-								...sidebarContainerStyles,
-								height: 'fit-content',
-								position: 'relative',
-							}}
-							className={sidebarContainerClassName}
-						>
-							<Sidebar
-								setActiveWorkspaceId={setActiveWorkspaceId}
-								activeWorkspaceId={workspaceId}
-							/>
-						</div>
+						{showSidebar && (
+							<div
+								style={{
+									...sidebarContainerStyles,
+									height: 'fit-content',
+									position: 'relative',
+								}}
+								className={sidebarContainerClassName}
+							>
+								<Sidebar
+									setActiveWorkspaceId={setActiveWorkspaceId}
+									activeWorkspaceId={workspaceId}
+								/>
+							</div>
+						)}
 
 						<div
 							style={{

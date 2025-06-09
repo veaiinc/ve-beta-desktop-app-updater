@@ -1,0 +1,128 @@
+.commonButtonParentContainer {
+	display: flex;
+	height: 100px;
+	padding: 0px 16px;
+	justify-content: center;
+	align-items: center;
+	gap: 12px;
+	margin-top: 5px;
+	align-self: stretch;
+	flex-direction: row;
+	border-radius: 12px;
+	border: 1px solid var(--stroke, #333334);
+	border: 1px solid var(--stroke, color(display-p3 0.2 0.2 0.2039));
+}
+
+.activeThemeSection {
+	.theme-font {
+		color: #fff;
+		color: color(display-p3 1 1 1);
+		font-family: Inter;
+		font-size: 36px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 25px; /* 69.444% */
+	}
+
+	.theme-colorPalletDiv {
+		display: flex;
+		align-items: center;
+		border-radius: 5.147px;
+		height: 51.467px;
+
+		.primary-color {
+			width: 38.6px;
+			height: 100%;
+			background: #333a41;
+			background: color(display-p3 0.2039 0.2275 0.251);
+			border-radius: inherit;
+			border-top-right-radius: 0px;
+			border-bottom-right-radius: 0px;
+		}
+
+		.secondary-color {
+			width: 38.6px;
+			height: 100%;
+			background: #abb5be;
+			background: color(display-p3 0.6784 0.7098 0.7412);
+		}
+
+		.tertiary-color {
+			width: 38.6px;
+			height: 100%;
+			background: #f8f9fa;
+			background: color(display-p3 0.9725 0.9765 0.9804);
+			border-radius: inherit;
+			border-top-left-radius: 0px;
+			border-bottom-left-radius: 0px;
+		}
+	}
+
+	.theme-button {
+		display: flex;
+		height: 40px;
+		padding: 12px 16px;
+		justify-content: center;
+		align-items: center;
+		border-radius: 125px;
+		background: var(--primary-font, #f2f2f3);
+		background: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+	}
+}
+
+.themeListContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+
+	.currentThemeSection {
+		margin-top: 16px;
+		background: rgba(44, 45, 46, 0.5);
+	}
+
+	.themesListMainContainer {
+		display: flex;
+		flex-direction: column;
+		align-self: stretch;
+		gap: 16px;
+
+		.mainContainerDiv {
+			display: flex;
+			flex-direction: column;
+			align-self: stretch;
+			gap: 16px;
+
+			.categoryName {
+				color: var(--primary-font, #f2f2f3);
+				color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				padding: 0;
+				margin: 0;
+			}
+
+			.commonButtonParentContainer {
+				border: none;
+				transition: all 0.5s ease;
+				cursor: pointer;
+
+				&:hover {
+					border-radius: 12px;
+					background: var(--card-over-card-hover, #27282b);
+					background: var(--card-over-card-hover, color(display-p3 0.1529 0.1569 0.1686));
+					transform: scale(0.94);
+				}
+			}
+
+			.bottom-line {
+				height: 1px;
+				flex-shrink: 0;
+				align-self: stretch;
+				background: var(--stroke, #333334);
+				background: var(--stroke, color(display-p3 0.2 0.2 0.2039));
+			}
+		}
+	}
+}

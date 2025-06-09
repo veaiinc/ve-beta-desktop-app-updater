@@ -1,11 +1,6 @@
 import { createElement, useState, useCallback, useEffect, useContext, memo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import {
-	veAiModulesItemsList,
-	veAiModules,
-	photographerModules,
-	SETTINGS_OPTIONS,
-} from './sidebarindex';
+import { veAiModulesItemsList, veAiModules, SETTINGS_OPTIONS } from './sidebarindex';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg.svg';
@@ -432,11 +427,7 @@ const OpenedSidebar = ({
 	};
 	const allPossibleApps = Object.values(MODULE_NAME_MAP);
 
-	const tenantModules =
-		tennantSettingsData?.businessType === 'photography' ||
-		tennantSettingsData?.businessType === 'photographer'
-			? photographerModules
-			: veAiModulesItemsList;
+	const tenantModules = veAiModulesItemsList;
 
 	const filteredModules =
 		tenantUserAccessControls?.role === 'admin'
@@ -694,13 +685,7 @@ const OpenedSidebar = ({
 													))}
 
 													<div>
-														<hr
-															className={`${
-																isOpen
-																	? 'horizontal-line-sidebar'
-																	: ''
-															}`}
-														/>
+														<hr className={'horizontal-line-sidebar'} />
 													</div>
 													<ChatHistory />
 													<div
@@ -1103,7 +1088,7 @@ const OpenedSidebar = ({
 					style={{
 						...workspaceStyles,
 						animation: `${
-							sidebarStates?.workSpaceOpen ? 'slideUp' : 'slideDown'
+							sidebarStates?.workSpaceOpen ? 'slideUpSidebar' : 'slideDown'
 						} 0.3s ease-out`,
 						top: `${isThisEarlyAccessPage ? '40px' : ''}`,
 						transformOrigin: `${isThisEarlyAccessPage ? 'top' : 'bottom'}`,

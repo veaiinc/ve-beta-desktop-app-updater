@@ -2,6 +2,8 @@ import { memo, useCallback, useContext, useEffect, useRef, useState } from 'reac
 import validator from 'validator';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
+import { ReactComponent as AppleLogo } from '../../../assets/svg/apple.svg';
+import { ReactComponent as MicrosoftLogo } from '../../../assets/svg/microsoft.svg';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import Context from '../../../context/context';
@@ -223,7 +225,7 @@ const Email = ({
 	};
 
 	return (
-		<>
+		<div className="verify-user-container">
 			<div className="login-page-content">
 				{info?.referrerUserDetails?.isValidReferralCode && (
 					<h1 className="referral-message">
@@ -234,13 +236,13 @@ const Email = ({
 				<h1 className="login-page-title">
 					{/* <span className="title-one">AI.&nbsp; </span> */}
 					<span className="title-two">Own your memory</span>
+					<h2 className="login-page-subtitle">AI Memory OS</h2>
 				</h1>
-				<h2 className="login-page-subtitle">AI Memory OS</h2>
 			</div>
-			<div className="login-button-container">
-				{info?.isHostnameVeDotAi && (
-					<>
-						<button
+			{info?.isHostnameVeDotAi && (
+				<>
+					<div className="service-container">
+						<div
 							disabled={info?.googleLoading}
 							className="google-login-button"
 							onClick={handleContinueWithGoogle}
@@ -258,14 +260,20 @@ const Email = ({
 									borderWidth={1.5}
 								/>
 							)}
-						</button>
-						<div className="or-divider">
-							{/* <div className="line"></div> */}
-							{/* <span>Or</span> */}
-							{/* <div className="line"></div> */}
 						</div>
-					</>
-				)}
+					</div>
+					<div className="or-divider">
+						<div className="line"></div>
+						<span>OR</span>
+						<div className="line"></div>
+					</div>
+				</>
+			)}
+
+			<div className="login-button-container">
+				<div className="email-input-container-title">
+					<span>Email</span>
+				</div>
 				<div className="email-input-container">
 					<input
 						value={email}
@@ -274,8 +282,9 @@ const Email = ({
 						autoFocus
 						type="email"
 						placeholder="example@acme.com"
+						className="email-input"
 					/>
-					<button
+					<div
 						disabled={!info.isEmailValid || info.isLoading}
 						style={{
 							cursor:
@@ -285,6 +294,7 @@ const Email = ({
 								: 'var(--primary-button)',
 						}}
 						onClick={() => handleContinueWithEmail(null, 'click')}
+						className="email-input-button"
 					>
 						{info.isLoading ? (
 							<Spinner
@@ -310,10 +320,28 @@ const Email = ({
 								/>
 							</span>
 						)}
-					</button>
+					</div>
 				</div>
 			</div>
-		</>
+			<div className="acknowledge-container">
+				<span className="acknowledge-text">
+					By continuing, you acknowledge that you understand and agree to the{' '}
+				</span>
+				<span
+					className="acknowledge-text-link"
+					onClick={() => window.open('/terms-of-service', '_blank')}
+				>
+					Terms & Conditions
+				</span>{' '}
+				<span className="acknowledge-text">and</span>{' '}
+				<span
+					className="acknowledge-text-link"
+					onClick={() => window.open('/privacy-policy', '_blank')}
+				>
+					Privacy Policy
+				</span>
+			</div>
+		</div>
 	);
 };
 

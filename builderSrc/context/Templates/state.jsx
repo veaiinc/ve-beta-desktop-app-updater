@@ -1,0 +1,2109 @@
+import service from '../../services/graphQlServices';
+import { message } from 'antd';
+// import { ReactComponent as AiSparkel } from '../../assets/svg/calendar/aiSparkel.svg';
+import {
+	getTemmplatesQuery,
+	duplicateTemplateQuery,
+	getClientListQuery,
+	getAllEmailTemplatesQuery,
+	addEmailTriggersInWorkflowQuery,
+	getSpecificWorkflowTemplateDetailsQuery,
+	deleteWorkflowStepQuery,
+	updateWorkflowStepsQuery,
+	getSmartFileDataQuery,
+	updateThankYouQuery,
+	updateFormQuery,
+	updateInvoiceQuery,
+	updateContractQuery,
+	updateProposalQuery,
+	getWorkflowListQuery,
+	getTemplatesListForCreateLeadQuery,
+	createLeadfromTemplatesQuery,
+	formResponsesQuery,
+	changeWorkflowStatusQuery,
+	getSignedUrlForContractsQuery,
+	moveWorkflowStatusQuery,
+	getSpecifiTemplatesInfoQuery,
+	getSendSmartFileTemplateQuery,
+	sendSmartFileMutation,
+	checkSmartFileSlugExistsQuery,
+	updateSmartFileSlugMutation,
+	deleteLeadMutation,
+	deleteWorkflowTemplatesMutation,
+	getTabItemCountQuery,
+	getRequiredActionDetailsQuery,
+	updateSendSmartFileSettingsMutation,
+	getLatestSendSmartFileSettingsQuery,
+	getActivityLogsQuery,
+	addNewStepsQuery,
+	updateStepsQuery,
+	getFormResponsesListQuery,
+	updateFiledataQuery,
+	getSmartFileDataVariablesDataQuery,
+	updateClientVariableDataMutation,
+	sendCustomMailMutation,
+	createSmartfileQuery,
+	getWorkflowInfoQuery,
+	getSmartFileActivityQuery,
+	getSmartFileViewersQuery,
+	getViewersSessionDetailsQuery,
+	duplicateSmartFileQuery,
+	getFormResponseQuery,
+} from './graphQlFunctions';
+import { useReducer } from 'react';
+import Reducer from './reducer';
+import { Actions } from './Actions';
+import Service from '../../services/index';
+import { handleParams } from '../../helper';
+
+// import { getBase64 } from '../../helpers';
+
+export const intialState = {
+	workflowslist: null,
+	moreWorkList: null,
+	clientList: null,
+	workflowInfo: null,
+	clientListForDocs: null,
+	templatesListForDocs: null,
+	allEmailTemplates: null,
+	myWorkflows: null,
+	workflowslistForFiles: null,
+	myMoreWorkflows: null,
+	globalWorkflows: null,
+	globalMoreWorkflows: null,
+	smartFileInfo: null,
+	templatesListForCreateLead: null,
+	salePageRefresh: null,
+	formResponseData: null,
+	generatePublicLinkData: null,
+	contractSignedLocalState: null,
+	specificTemplatesInfo: null,
+	smartFileEmailTemplateData: null,
+	requiredActions: null,
+	requiredActionsForTemplate: null,
+	tabItemCount: null,
+	eventsPresetData: null,
+	sendSmartFileSettings: null,
+	aiPredictedData: null,
+	connectUrl: null,
+	activityLogs: null,
+	moreActivityLogs: null,
+	draftStateWorkflowtemplates: null,
+	moreDraftStateWorkflowtemplates: null,
+	createLeadModalContextState: false,
+	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
+	docsFilesList: null,
+	moreDocsFilesList: null,
+	smartFileRefetch: false,
+	activeWorkflowSlugForSmartFile: null,
+	slackChannels: null,
+	formsTemplatesList: null,
+	moreFormsTemplatesList: null,
+	formResponsesList: null,
+	moreFormResponsesList: null,
+	activePromptForChat: null,
+	smartFileRefetch: false,
+	activeWorkflowSlugForSmartFile: null,
+	smartFileVariablesData: null,
+	myWorkflowsForProposalPopup: null,
+	myMoreWorkflowsForProposalPopup: null,
+	smartFileActivity: null,
+	viewersList: null,
+	viewerSessionDetails: null,
+	workflowInfoDetails: null,
+};
+
+export const TemplatesState = (props) => {
+	const [state, dispatch] = useReducer(Reducer, intialState);
+
+	const getMyWorkflows = async (payload, fetchMore = false) => {
+		let workspaceID = localStorage.getItem('workspaceID');
+		let usertoken = localStorage.getItem('usertoken');
+		const response = await service.query(
+			getTemmplatesQuery,
+			payload,
+			workspaceID,
+			null,
+			usertoken,
+			'graphql_server',
+		);
+		if (response?.[0]) {
+			const selectedvariable = fetchMore ? 'myMoreWorkflows' : 'myWorkflows';
+			dispatch({
+				type: Actions.GET_MY_WORKFLOWS_TEMPLATES_INFO_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+				selectedvariable,
+			});
+		} else {
+			console.log('api failed ==>getTemplates', response);
+		}
+	};
+
+	const getGlobalWorkflows = async (payload, fetchMore = false) => {
+		let workspaceID = localStorage.getItem('workspaceID');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const response = await service.query(
+			getTemmplatesQuery,
+			payload,
+			workspaceID,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response[0]) {
+			const selectedvariable = fetchMore ? 'globalMoreWorkflows' : 'globalWorkflows';
+			dispatch({
+				type: Actions.GET_GLOBAL_WORKFLOWS_TEMPLATES_INFO_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+				selectedvariable,
+			});
+		} else {
+			console.log('api failed ==>getTemplates', response);
+		}
+	};
+
+	const getClientList = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getClientListQuery,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'graphql_server',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_ALL_CLIENT_LIST_SUCCESS,
+					payload: response?.[1]?.data?.clientsList,
+				});
+			}
+		} catch (error) {
+			console.error('Error==>getClientList', error);
+		}
+	};
+
+	const getClientListForDocs = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getClientListQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_ALL_CLIENT_LIST_FOR_DOCS_SUCCESS,
+					payload: response?.[1]?.data?.clientsList,
+				});
+			}
+		} catch (error) {
+			console.error('Error==>getClientList', error);
+		}
+	};
+
+	const duplicateGlobalWorkflowTemplate = async (payload) => {
+		let workspaceID = localStorage.getItem('workspaceID');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const response = await service.query(
+			duplicateTemplateQuery,
+			payload,
+			workspaceID,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			return [true, response?.[1]?.data?.duplicateWorkflowTemplate];
+		} else {
+			return [false, response?.[1]?.message];
+		}
+	};
+
+	const resetTemplateState = async () => {
+		try {
+			dispatch({ type: Actions.RESET_STATE });
+		} catch (error) {
+			console.log('error==>resetPropsalState', error);
+		}
+	};
+
+	const updateStateValues = async (updatedVaribaleValuesObj) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+				payload: updatedVaribaleValuesObj,
+			});
+		} catch (error) {
+			console.log('error==>updateStateValues', error);
+		}
+	};
+
+	const getAllEmailTemplates = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getAllEmailTemplatesQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const data = response?.[1]?.data?.emailTemplatesList;
+				dispatch({ type: Actions.GET_ALL_EMAIL_TEMPLATES_SUCCESS, payload: data });
+			} else {
+				console.log('api failed==>getAllEmailTemplates', response);
+			}
+		} catch (error) {
+			console.log('error==>getAllEmailTemplates', error);
+		}
+	};
+
+	const addEmailTriggersInWorkflow = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				addEmailTriggersInWorkflowQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const dataResponse = response?.[1]?.data?.updateWorkflowTemplate;
+				return [true, dataResponse];
+			} else {
+				console.log('Api failed ==>addEmailTriggersInWorkflow', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>addEmailTriggersInWorkflow', error);
+		}
+	};
+
+	const getSpecificWorkflowTemplateDetails = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getSpecificWorkflowTemplateDetailsQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.getEmailTemplate];
+			} else {
+				console.log('api failed==>getSpecificWorkflowTemplateDetails', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>getSpecificWorkflowTemplateDetails', error);
+		}
+	};
+
+	const deleteWorkflowStep = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				deleteWorkflowStepQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				console.log('Api failed==>deleteWorkflowStep', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>deleteWorkflowStep', error);
+		}
+	};
+
+	const updateWorkflowSteps = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateWorkflowStepsQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				console.log('Api failed==>updateWorkflowSteps', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateWorkflowSteps', error);
+		}
+	};
+
+	const getSmartFileData = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getSmartFileDataQuery,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				const payload = response?.[1]?.data?.getWorkflowWithModules;
+				dispatch({
+					type: Actions.SMART_FILE_INFO_SUCCESS,
+					payload,
+				});
+			} else {
+				console.log('Api failed==>getSmartFileData', response);
+			}
+		} catch (error) {
+			console.log('error==>getSmartFileData', error);
+		}
+	};
+	const updateSmartFileData = async (payload = {}) => {
+		try {
+			const updatedData = { ...state.smartFileInfo, ...payload };
+			dispatch({
+				type: Actions.SMART_FILE_INFO_SUCCESS,
+				payload: { ...updatedData },
+			});
+		} catch (error) {
+			console.log('error==>updateSmartFileData', error);
+		}
+	};
+
+	const updateProposal = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateProposalQuery,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'graphql_server',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				console.log('Api failed==>updateProposal', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateProposal', error);
+		}
+	};
+
+	const updateContracts = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateContractQuery,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				console.log('Api failed==>updateContracts', response);
+			}
+		} catch (error) {
+			console.log('error==>updateContracts', error);
+		}
+	};
+
+	const updateInvoice = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateInvoiceQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				console.log('Api failed==>updateInvoice', response);
+			}
+		} catch (error) {
+			console.log('error==>updateInvoice', error);
+		}
+	};
+
+	const updateForm = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateFormQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				console.log('Api failed==>updateForm', response);
+			}
+		} catch (error) {
+			console.log('error==>updateForm', error);
+		}
+	};
+
+	const updateThankyou = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateThankYouQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				console.log('Api failed==>updateThankyou', response);
+			}
+		} catch (error) {
+			console.log('error==>updateThankyou', error);
+		}
+	};
+	const getWorkflowsListForFiles = async (payload, fetchMore = false) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getWorkflowListQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const templateId = payload?.filters?.templateId;
+				const { data, currentPage, hasNextPage } = response?.[1]?.data?.workflows;
+				let dispatchPayload;
+				if (!state?.workflowslistForFiles?.[templateId]) {
+					dispatchPayload = {
+						...state?.workflowslistForFiles,
+						[templateId]: {
+							data,
+							currentPage,
+							hasNextPage,
+						},
+					};
+				} else {
+					dispatchPayload = {
+						...state?.workflowslistForFiles,
+						[templateId]: {
+							data: [
+								...(state?.workflowslistForFiles?.[templateId]?.data || []),
+								...data,
+							],
+							currentPage,
+							hasNextPage,
+						},
+					};
+				}
+
+				dispatch({
+					type: Actions?.GET_WORKFLOW_DETAILS_FOR_FILES_SUCCESS,
+					payload: dispatchPayload,
+					selectedvariable: 'workflowslistForFiles',
+				});
+			} else {
+				console.log('Api failed==>getWorkflowsList', response);
+			}
+		} catch (error) {
+			console.log('error==>getWorkflowsList', error);
+		}
+	};
+
+	const getWorkflowsList = async (payload, fetchMore = false) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getWorkflowListQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const selectedvariable = fetchMore ? 'moreWorkList' : 'workflowslist';
+				dispatch({
+					type: Actions?.GET_WORKFLOW_DETAILS_SUCCESS,
+					payload: response?.[1]?.data?.workflows,
+					selectedvariable,
+				});
+			} else {
+				console.log('Api failed==>getWorkflowsList', response);
+			}
+		} catch (error) {
+			console.log('error==>getWorkflowsList', error);
+		}
+	};
+
+	const getTemplatesListForCreateLead = async () => {
+		let workspaceID = localStorage.getItem('workspaceID');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const payload = {
+			filters: {
+				limit: 30,
+				page: 1,
+				type: 'workspace',
+				status: 'published',
+			},
+		};
+		const response = await service.query(
+			getTemplatesListForCreateLeadQuery,
+			payload,
+			workspaceID,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			dispatch({
+				type: Actions.GET_TEMPLATES_LIST_FOR_CREATE_LEAD_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+			});
+		} else {
+			console.log('api failed ==>getTemplatesListForCreateLead', response);
+		}
+	};
+
+	const getTemplatesListForDocs = async (page = 1, limit = 10, searchValue = '') => {
+		let workspaceID = localStorage.getItem('workspaceID');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const payload = {
+			filters: {
+				limit,
+				page,
+				type: 'workspace',
+				status: 'published',
+				title: searchValue,
+			},
+		};
+		const response = await service.query(
+			getTemplatesListForCreateLeadQuery,
+			payload,
+			workspaceID,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			dispatch({
+				type: Actions.GET_TEMPLATES_LIST_FOR_DOCS_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+			});
+		} else {
+			console.log('api failed ==>getTemplatesListForDocs', response);
+		}
+	};
+	const getTemplatesListForForms = async (page = 1, limit = 10, fetchMore = false) => {
+		let workspaceID = localStorage.getItem('workspaceID');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const payload = {
+			filters: {
+				limit,
+				page,
+				type: 'workspace',
+				status: 'published',
+				sortBy: 'createdAt',
+				sortType: -1,
+				action: 'form-submission',
+			},
+		};
+		const response = await service.query(
+			getTemplatesListForCreateLeadQuery,
+			payload,
+			workspaceID,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			const selectedvariable = fetchMore ? 'moreFormsTemplatesList' : 'formsTemplatesList';
+			dispatch({
+				type: Actions.GET_TEMPLATES_LIST_FOR_FORMS_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+				selectedvariable,
+			});
+		} else {
+			console.log('api failed ==>getTemplatesListForForms', response);
+		}
+	};
+
+	const getFormResponsesList = async (formId, page = 1, limit = 10, fetchMore = false) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const payload = {
+				filters: {
+					workflowTemplateId: formId,
+					page,
+					limit,
+				},
+			};
+			const response = await service.query(
+				getFormResponsesListQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				const selectedvariable = fetchMore ? 'moreFormResponsesList' : 'formResponsesList';
+				dispatch({
+					type: Actions.GET_FORM_RESPONSES_LIST_SUCCESS,
+					payload: response?.[1]?.data?.formResponsesList,
+					selectedvariable,
+				});
+			} else {
+				console.log('api failed ==>getFormResponsesList', response);
+			}
+		} catch (error) {
+			console.log('api failed ==>getFormResponsesList', error);
+		}
+	};
+
+	const createLeadfromTemplates = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				createLeadfromTemplatesQuery,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'graphql_server',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.createWorkflowFromTemplate?._id];
+			} else {
+				return [false, response?.[1]?.message || 'Something went Worng'];
+			}
+		} catch (error) {
+			console.log('api failed ==>createLeadfromTemplates', error);
+		}
+	};
+
+	const sendSmartFile = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				sendSmartFileMutation,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				message.success('Email Sent Successfully');
+				return [true];
+			} else {
+				message.error('Something Went wrong, try again');
+				return [false, response?.[1]?.message || 'Something went Worng'];
+			}
+		} catch (error) {
+			console.log('api failed ==>sendSmartFile', error);
+		}
+	};
+
+	const getformResponses = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				formResponsesQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_FORM_RESPONSES_SUCCESS,
+					payload: response?.[1]?.data?.formResponse,
+				});
+			} else {
+				console.log('handle the error getformResponses', response);
+			}
+		} catch (error) {
+			console.log('api failed ==>getformResponses', error);
+		}
+	};
+
+	const chnageWorkflowStats = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				changeWorkflowStatusQuery,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'graphql_server',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				console.log('handle the error getformResponses', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>chnageWorkflowStatsu', error);
+		}
+	};
+
+	const getSignedUrlForContracts = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getSignedUrlForContractsQuery,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.uploadContractSignedUrl];
+			} else {
+				console.log('handle the error getSignedUrlForContracts', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>getSignedUrlForContracts', error);
+		}
+	};
+
+	const dataURLToBlob = async (dataURL) => {
+		const byteString = atob(dataURL.split(',')[1]);
+		const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+
+		const buffer = new ArrayBuffer(byteString?.length);
+		const dataView = new Uint8Array(buffer);
+
+		for (let i = 0; i < byteString?.length; i++) {
+			dataView[i] = byteString.charCodeAt(i);
+		}
+
+		return new Blob([buffer], { type: mimeString });
+	};
+
+	const uploadContractSignature = async (payload) => {
+		try {
+			const { dataURL, signedUrl } = payload;
+			const blob = await dataURLToBlob(dataURL);
+			const response = await fetch(signedUrl, {
+				method: 'PUT',
+				body: blob,
+				headers: {
+					'Content-Type': 'image/png', // Ensure the content type matches the image format
+				},
+			});
+
+			if (response.ok) {
+				console.log('Image uploaded successfully');
+				return [true];
+			} else {
+				console.error('Upload failed', response.status, response.statusText);
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>uploadContractSignature', error);
+		}
+	};
+
+	const moveWorkflowStatus = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				moveWorkflowStatusQuery,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'graphql_server',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				console.log('handle the error moveWorkflowStatus', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>moveWorkflowStatus', error);
+		}
+	};
+
+	const getSpecificTemplatesInfo = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getSpecifiTemplatesInfoQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SPECIFIC_TEMPLATE_INFO_SUCCESS,
+					payload: response?.[1]?.data?.templateInfo,
+				});
+			} else {
+				console.log('handle the error getSpecificTemplatesInfo', response);
+			}
+		} catch (error) {
+			console.log('api failed ==>getSpecificTemplatesInfo', error);
+		}
+	};
+
+	const getSendSmartFileEmailTemplate = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getSendSmartFileTemplateQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SMART_FILE_EMAIL_TEMPLATE_SUCCESS,
+					payload: response?.[1]?.data?.getWorflowEmailTemplate,
+				});
+			} else {
+				console.log('handle the error getSendSmartFileEmailTemplate', response);
+			}
+		} catch (error) {
+			console.log('api failed ==>getSendSmartFileEmailTemplate', error);
+		}
+	};
+
+	const checkSmartFileSlugExists = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				checkSmartFileSlugExistsQuery,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const { isSlugAvailable } = response?.[1]?.data;
+				return [isSlugAvailable];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>checkSmartFileSlugExists', error);
+		}
+	};
+
+	const updateSmartFileSlug = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateSmartFileSlugMutation,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.updateSlug?.slug];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>updateSmartFileSlug', error);
+		}
+	};
+
+	const deleteLead = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				deleteLeadMutation,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'graphql_server',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false, response?.[1]?.message];
+			}
+		} catch (error) {
+			console.log('api failed ==>deleteLead', error);
+		}
+	};
+	const deleteWorkflowTemplates = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				deleteWorkflowTemplatesMutation,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>deleteLead', error);
+		}
+	};
+
+	// Sheshant
+	const getTabItemCount = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getTabItemCountQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const requiredActions = response?.[1]?.data?.getNumberOfRequiredActions;
+				dispatch({
+					type: Actions.GET_TAB_ITEM_COUNT_SUCCESS,
+					payload: requiredActions,
+				});
+			} else {
+				console.log('api failed ==>getTabItemCount', response);
+			}
+		} catch (error) {
+			console.log('api failed ==>getTabItemCount', error);
+		}
+	};
+
+	const getRequiredActions = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const { resetRequiredActions, ...queryPayload } = payload;
+
+			const response = await service.query(
+				getRequiredActionDetailsQuery,
+				queryPayload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_REQUIRED_ACTIONS_SUCCESS,
+					payload: {
+						...state?.requiredActions,
+						hasNextPage: response?.[1]?.data?.listRequiredActions?.hasNextPage,
+						actions: resetRequiredActions
+							? response?.[1]?.data?.listRequiredActions?.data
+							: state?.requiredActions?.actions?.concat(
+									response?.[1]?.data?.listRequiredActions?.data,
+							  ),
+					},
+				});
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>getRequiredActionDetails', error);
+		}
+	};
+
+	const getRequiredActionsForTemplate = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const { resetRequiredActions, ...queryPayload } = payload;
+			const response = await service.query(
+				getRequiredActionDetailsQuery,
+				queryPayload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+			const workflowTemplateId = queryPayload?.filters?.workflowTemplateId;
+			if (response?.[0]) {
+				const data = response?.[1]?.data?.listRequiredActions?.data;
+				dispatch({
+					type: Actions.GET_REQUIRED_ACTIONS_FOR_TEMPLATE_SUCCESS,
+					payload: {
+						...state?.requiredActionsForTemplate,
+						[workflowTemplateId]: {
+							...response?.[1]?.data?.listRequiredActions,
+							data: state?.requiredActionsForTemplate?.[workflowTemplateId]
+								? [
+										...(Array?.isArray(
+											state?.requiredActionsForTemplate?.[workflowTemplateId]
+												?.data,
+										)
+											? state.requiredActionsForTemplate[workflowTemplateId]
+													?.data
+											: []),
+										...data,
+								  ]
+								: data,
+						},
+					},
+				});
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>getRequiredActionDetailsForTemplate', error);
+		}
+	};
+
+	const updateSendSmartFileSettings = async (payload) => {
+		console.log('yes im the one');
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateSendSmartFileSettingsMutation,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>updateSendSmartFileSettings', error);
+		}
+	};
+
+	//events presets
+	const getEventsPresets = async (params) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+
+			let url = `/${workspaceID}/variables/list`;
+			let completeUrl = url;
+			if (Object.keys(params)?.length) {
+				completeUrl += handleParams(params);
+			}
+			const response = await Service.fetchGet(completeUrl, usertoken, 'proposal');
+			if (response?.[0] === true) {
+				dispatch({ type: Actions.GET_EVENTS_PRESETDATA_SUCCESS, payload: response?.[1] });
+			} else {
+				message.error('Unable to fetch events presets');
+				console.log('api failed ==>getEventsPresets', response);
+			}
+		} catch (error) {
+			console.log('errror ==>getEventsPresets', error);
+		}
+	};
+
+	const addEventsPresets = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchPost(
+				`/${workspaceID}/variables`,
+				payload,
+				usertoken,
+				'proposal',
+			);
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			} else {
+				console.log('api failed ==>addEventsPresets', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>addEventsPresets', error);
+		}
+	};
+
+	const editEventsPresets = async (payload, varaibleId) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchPut(
+				`/${workspaceID}/variables/${varaibleId}`,
+				payload,
+				usertoken,
+				'proposal',
+			);
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			} else {
+				console.log('api failed ==>editEventsPresets', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>editEventsPresets', error);
+		}
+	};
+
+	const deleteEventsPreset = async (varaibleId) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchDelete(
+				`/${workspaceID}/variables/${varaibleId}`,
+				usertoken,
+				null,
+				'proposal',
+			);
+			if (response?.[0] === true) {
+				return [true];
+			} else {
+				console.log('api failed ==>editEventsPresets', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>editEventsPresets', error);
+		}
+	};
+
+	const getLatestSendSmartFileSettings = async () => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getLatestSendSmartFileSettingsQuery,
+				null,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SEND_SMART_FILE_SETTINGS_SUCCESS,
+					payload: response?.[1]?.data?.getLatestWorkflowSettings,
+				});
+			} else {
+				console.log('api failed==>getLatestSendSmartFileSettings', response);
+			}
+		} catch (error) {
+			console.log('errror ==>getLatestSendSmartFileSettings', error);
+		}
+	};
+
+	//Ai predictions
+	const getAiPredictionForSmartFile = async (workflowSlug) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceID}/${workflowSlug}/predict`;
+			const response = await Service.fetchGet(url, usertoken, 'ai_predictions');
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_AI_PREDICTED_DATA_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				console.log('api failed==>getAiPredictionForSmartFile', response);
+			}
+		} catch (error) {
+			console.log('errror ==>getAiPredictionForSmartFile', error);
+		}
+	};
+
+	//leaveWorkspace
+	const leaveWorkspace = async () => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchDelete(
+				`/tenant/${workspaceID}/tenant-users/leave-workspace`,
+				usertoken,
+				null,
+				'auth',
+			);
+			if (response?.[0] === 200 || response?.[0] === true) {
+				return [true];
+			} else {
+				console.log('api failed==>leaveWorkspace', response);
+				message.error(response?.[1]?.message || 'Unable to perform this operation');
+				return [false, response?.[1]?.message];
+			}
+		} catch (error) {
+			console.log('errror ==>getAiPredictionForSmartFile', error);
+		}
+	};
+
+	const sendCustomEmailToClients = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const response = await service.query(
+				sendCustomMailMutation,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				message.error('Error sending Email');
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>sendCustomEmailToClients', error);
+		}
+	};
+
+	const connectThirdParty = async (connectType) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceID = localStorage.getItem('workspaceID');
+			const path = `/${connectType}/${workspaceID}/auth`;
+
+			const response = await Service?.fetchGet(
+				path,
+				usertoken,
+				'third_party_integrations_api',
+			);
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions?.SET_CONNECT_URL,
+					payload: [true, response?.[1]?.connectUrl || response?.[1]?.url],
+				});
+			} else {
+				dispatch({
+					type: Actions?.SET_CONNECT_URL,
+					payload: [
+						false,
+						{
+							message: 'An unexpected error occured. Please try again!',
+							error: response?.[1],
+						},
+					],
+				});
+			}
+		} catch (error) {
+			console.log('error==>connectZoho', error);
+		}
+	};
+
+	const getActivityLogs = async (payload, fetchMore = false) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getActivityLogsQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: fetchMore
+						? Actions.GET_MORE_ACTIVITY_LOGS_SUCCESS
+						: Actions.GET_ACTIVITY_LOGS_SUCCESS,
+					payload: response?.[1]?.data?.activityLogs,
+				});
+			} else {
+				message.error('Error fetching activity logs');
+			}
+		} catch (error) {
+			console.log('errror ==>getActivityLogs', error);
+		}
+	};
+
+	const getDrafStateWorkflowtemplates = async (payload, fetchMore = false) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getTemmplatesQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+
+			// console.log('response==>getDrafStateWorkflowtemplates', response);
+
+			if (response?.[0]) {
+				dispatch({
+					type: fetchMore
+						? Actions.GET_MORE_DRAFT_STATE_WORKFLOW_TEMPLATE_SUCCESS
+						: Actions.GET_DRAFT_STATE_WORKFLOW_TEMPLATE_SUCCESS,
+					payload: response?.[1]?.data?.templates,
+				});
+			} else {
+				message.error('Error fetching activity logs');
+			}
+		} catch (error) {
+			console.log('errror ==>getDrafStateWorkflowtemplates', error);
+		}
+	};
+
+	const toggleCreateLeadModal = (payload) => {
+		dispatch({ type: Actions.TOGGLE_CREATE_LEAD_MODAL_SUCCESS, payload });
+	};
+
+	//AI chat in smart file
+
+	const smartFileAiChat = async (payload, sessionId) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceID}/${sessionId}/multi_agent_chat`;
+			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
+			if (response?.[0]) {
+				return [true, response?.[1]];
+			}
+		} catch (error) {
+			console.log('errror ==>smartFileAiChat', error);
+		}
+	};
+
+	const uploadImageInSmartFileAi = async (file, slug) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `https://ai.ap-south-1.ve.ai/${workspaceID}/${slug}/data_extraction`;
+
+			const base64 = await getBase64(file);
+			// Convert base64 to blob
+			const response = await fetch(base64);
+			const blob = await response.blob();
+
+			const formData = new FormData();
+			formData.append('file', blob, file.name);
+
+			const result = await fetch(url, {
+				method: 'POST',
+				body: formData,
+				headers: {
+					Authorization: `Bearer ${usertoken}`,
+				},
+			});
+
+			if (!result.ok) {
+				return [false, `Failed to upload: ${result.statusText}`];
+			}
+
+			return [true, 'We made the changes accordingly'];
+		} catch (error) {}
+	};
+
+	// const handleGlobalChatMessages = async (payload, sessionId, localPayload) => {
+	// 	try {
+	// 		let workspaceID = localStorage.getItem('workspaceID');
+	// 		let usertoken = localStorage.getItem('usertoken');
+	// 		const url = `/${workspaceID}/${sessionId}/multi_agent_chat`;
+
+	// 		let updatedGlobalChatMessages = [];
+
+	// 		if (localPayload.showCustomChatOptions) {
+	// 			updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
+	// 		} else if (payload.files) {
+	// 			let str = '  ';
+	// 			for (let i = 0; i < localPayload?.files?.length; i++) {
+	// 				str += localPayload?.files?.[i]?.name || '' + ' ,';
+	// 			}
+
+	// 			updatedGlobalChatMessages = [
+	// 				{
+	// 					type: 'user',
+	// 					content: (
+	// 						<div
+	// 							className="uploadedImagesContainer"
+	// 							style={{
+	// 								display: 'flex',
+	// 								flexDirection: 'column',
+	// 								gap: '2px',
+	// 								alignItems: 'flex-end',
+	// 							}}
+	// 						>
+	// 							{localPayload?.files?.map((ele, index) => (
+	// 								<img
+	// 									src={ele.preview}
+	// 									alt="filetochat"
+	// 									width={'50px'}
+	// 									onClick={() => localPayload?.handlePreview(ele)}
+	// 									style={{ cursor: 'pointer' }}
+	// 								/>
+	// 							))}
+
+	// 							<div className="message-content-user" style={{ marginTop: '8px' }}>
+	// 								<span>{payload?.query}</span>
+	// 							</div>
+	// 						</div>
+	// 					),
+	// 				},
+	// 				{
+	// 					type: 'AI',
+	// 					message: 'loading....',
+	// 					content: (
+	// 						<div className="aiMessageWrapper">
+	// 							<AiSparkel />
+	// 							<div className="aiMessage">
+	// 								<span>Thinking...</span>
+	// 							</div>
+	// 						</div>
+	// 					),
+	// 					contentType: 'loading',
+	// 				},
+	// 			];
+
+	// 			payload.query += str;
+	// 		} else {
+	// 			updatedGlobalChatMessages = [
+	// 				{ type: 'user', message: payload?.query || '' },
+	// 				{
+	// 					type: 'AI',
+	// 					message: 'loading....',
+	// 					content: (
+	// 						<div className="aiMessageWrapper">
+	// 							<AiSparkel />
+	// 							<div className="aiMessage">
+	// 								<span>Thinking...</span>
+	// 							</div>
+	// 						</div>
+	// 					),
+	// 					contentType: 'loading',
+	// 				},
+	// 			];
+	// 		}
+
+	// 		dispatch({
+	// 			type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
+	// 			payload: updatedGlobalChatMessages,
+	// 		});
+	// 		const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
+	// 		if (response?.[0]) {
+	// 			const updatedGlobalChatMessages = {
+	// 				type: 'AI',
+	// 				message: response?.[1]?.answer,
+	// 			};
+	// 			dispatch({
+	// 				type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,
+	// 				payload: updatedGlobalChatMessages,
+	// 			});
+	// 			return [true, response?.[1]];
+	// 		}
+	// 	} catch (error) {
+	// 		console.log('errror ==>handleGlobalChatMessages', error);
+	// 	}
+	// };
+
+	// const handleGlobalUploadImage = async (file, payload) => {
+	// 	try {
+	// 		let workspaceID = localStorage.getItem('workspaceID');
+	// 		let usertoken = localStorage.getItem('usertoken');
+
+	// 		const response = await Service.fetchPost(
+	// 			`/${workspaceID}/knowledge-bases/upload-file`,
+	// 			payload,
+	// 			usertoken,
+	// 			'ai_assistant_api',
+	// 		);
+
+	// 		if (response?.[0]) {
+	// 			const base64 = await getBase64(file);
+
+	// 			const newResponse = await fetch(base64);
+	// 			const blob = await newResponse.blob();
+
+	// 			const { signedUrl } = response?.[1];
+
+	// 			const uploadResponse = await fetch(signedUrl, {
+	// 				method: 'PUT',
+	// 				body: blob,
+	// 				headers: {
+	// 					'Content-Type': file.type, // Set the content type based on the file type
+	// 				},
+	// 			});
+
+	// 			if (!uploadResponse.ok) {
+	// 				return [false, 'Failed to upload image'];
+	// 			}
+
+	// 			return [true, response?.[1]];
+	// 		}
+
+	// 		return [false, 'Failed to upload image'];
+	// 	} catch (error) {
+	// 		console.log('error==>handleGlobalUploadImage', error);
+	// 		return [false, 'Failed to upload image'];
+	// 	}
+	// };
+
+	// const deleteUploadedImageThroughChat = async (fileId) => {
+	// 	try {
+	// 		let workspaceID = localStorage.getItem('workspaceID');
+	// 		let usertoken = localStorage.getItem('usertoken');
+	// 		const response = await Service.fetchDelete(
+	// 			`/${workspaceID}/ai-chat/delete-file/${fileId}`,
+	// 			usertoken,
+	// 			null,
+	// 			'ai_assistant_api',
+	// 		);
+	// 		if (response?.[0]) {
+	// 			return [true];
+	// 		} else {
+	// 			return [false];
+	// 		}
+	// 	} catch (error) {
+	// 		console.log('error==>deleteUploadedImageThroughChat', error);
+	// 		return [false];
+	// 	}
+	// };
+
+	const checkIndividualImageUploadedStatus = async (uploadBatchId) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceID}/knowledge-bases/file-upload-status/${uploadBatchId}`;
+			const response = await Service.fetchGet(url, usertoken, 'ai_assistant_api');
+			return response;
+		} catch (error) {
+			message.error('Error checking image upload status');
+			return [false, 'Error checking image upload status'];
+		}
+	};
+
+	//docs
+
+	const getDocsFilesList = async (payload, fetchMore = false) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getWorkflowListQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const selectedvariable = fetchMore ? 'moreDocsFilesList' : 'docsFilesList';
+				dispatch({
+					type: Actions?.GET_DOCS_FILES_LIST_SUCCESS,
+					payload: response?.[1]?.data?.workflows,
+					selectedvariable,
+				});
+			} else {
+				console.log('Api failed==>getDocsFilesList', response);
+			}
+		} catch (error) {
+			console.log('error==>getDocsFilesList', error);
+		}
+	};
+
+	const updateApplicationChat = (payload) => {
+		dispatch({ type: Actions.UPDATE_APPLICATION_CHAT, payload });
+	};
+	//updated steps functions
+	const addNewSteps = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				addNewStepsQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const dataResponse = response?.[1];
+				return [true, dataResponse?.data?.addStep];
+			} else {
+				console.log('Api failed ==>addNewSteps', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>addNewSteps', error);
+		}
+	};
+
+	const updateSteps = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateStepsQuery,
+				payload,
+				workspaceID,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateSteps', error);
+		}
+	};
+	//slack Apis
+	const getAllSlackChannels = async (slackAccessToken) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/slack/${workspaceID}/channels`,
+				usertoken,
+				'third_party_integrations_api',
+				{
+					exclude_archived: true,
+					limit: 1000,
+				},
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SLACK_CHANNEL_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				message.error('Unable to fetch Slack Channels');
+			}
+		} catch (error) {
+			console.log('error==>getAllSlackChannels', error);
+		}
+	};
+
+	const updateFiles = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateFiledataQuery,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				message.success('Files updated successfully');
+			} else {
+				message.error('Failed to update files');
+			}
+		} catch (error) {
+			console.log('error==>updateFiles', error);
+		}
+	};
+
+	const getSmartFileVariablesData = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getSmartFileDataVariablesDataQuery,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SMART_FILE_VARIABLES_DATA_SUCCESS,
+					payload: response?.[1]?.data?.getSmartFileVariables,
+				});
+			}
+		} catch (error) {
+			console.log('error==>updateFiles', error);
+		}
+	};
+
+	const updateClientVariablesData = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateClientVariableDataMutation,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				message.success('Client variables updated successfully');
+				return [true, response?.[1]?.data?.updateClient || {}];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateClientVariablesData', error);
+		}
+	};
+
+	const updateCustomVariabledata = async (payload, varaibleId) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchPut(
+				`/${workspaceID}/variables/${varaibleId}`,
+				payload,
+				usertoken,
+				'proposal',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateCustomVariabledata', error);
+		}
+	};
+	const createSmartfile = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service?.query(
+				createSmartfileQuery,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'graphql_server',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.CREATE_SMARTFILE_SUCCESS,
+					payload: response?.[1]?.data?.createSmartFile,
+				});
+				return [true, response?.[1]?.data?.createSmartFile];
+			} else {
+				console.log('API failed ==> createSmartfile', response);
+			}
+		} catch (error) {
+			console.log('API Error ==> createSmartfile', error);
+		}
+	};
+
+	const getWorkflowInfo = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getWorkflowInfoQuery,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'graphql_server',
+			);
+			if (response?.[0]) {
+				const workflowInfo = response?.[1]?.data?.workflowInfo;
+				dispatch({
+					type: Actions.GET_WORKFLOW_INFO_SUCCESS,
+					payload: workflowInfo,
+				});
+				return workflowInfo;
+			} else {
+				return null;
+			}
+		} catch (error) {
+			console.log('error==>getDetailedWorkflowInfo', error);
+			return null;
+		}
+	};
+
+	const getSmartFileActivity = async (payload) => {
+		try {
+			let workspaceID = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getSmartFileActivityQuery,
+				payload,
+				workspaceID,
+				null,
+				usertoken,
+				'activity_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SMART_FILE_ACTIVITY_SUCCESS,
+					payload: response?.[1]?.data?.getSmartFileSummary,
+				});
+			} else {
+				console.log('API failed ==> getSmartFileActivity', response);
+			}
+			return response;
+		} catch (error) {
+			console.log('API Error ==> getSmartFileActivity', error);
+		}
+	};
+
+	const getSmartFileViewers = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getSmartFileViewersQuery,
+				payload,
+				workspaceId,
+				null,
+				usertoken,
+				'activity_api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SMART_FILE_VIEWERS_SUCCESS,
+					payload: response?.[1]?.data?.getSmartFileViewers,
+				});
+			} else {
+				console.log('API failed ==> getSmartFileViewers', response);
+			}
+			return response;
+		} catch (error) {
+			console.log('API Error ==> getSmartFileViewers', error);
+		}
+	};
+
+	const duplicateSmartFile = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceID');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				duplicateSmartFileQuery,
+				payload,
+				workspaceId,
+				null,
+				usertoken,
+				'graphql_server',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>duplicateSmartFile', error);
+		}
+	};
+
+	const getViewersSessionDetails = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getViewersSessionDetailsQuery,
+				payload,
+				workspaceId,
+				null,
+				usertoken,
+				'activity_api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_VIEWERS_SESSION_DETAILS_SUCCESS,
+					payload: response?.[1]?.data?.getSessionSummary,
+				});
+			} else {
+				console.log('API failed ==> getViewersSessionDetails', response);
+			}
+		} catch (error) {
+			console.log('API Error ==> getViewersSessionDetails', error);
+		}
+	};
+
+	const getFormResponse = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceID');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getFormResponseQuery,
+				payload,
+				workspaceId,
+				null,
+				usertoken,
+				'graphql_server',
+			);
+			if (response?.[0]) {
+				return response?.[1]?.data?.formResponse;
+			} else {
+				console.log('error ==> getFormResponse', response);
+				return null;
+			}
+		} catch (error) {
+			console.log('error ==> getFormResponse', error);
+		}
+	};
+	return {
+		...state,
+		getMyWorkflows,
+		resetTemplateState,
+		getClientList,
+		getClientListForDocs,
+		getTemplatesListForDocs,
+		updateStateValues,
+		getAllEmailTemplates,
+		addEmailTriggersInWorkflow,
+		getSpecificWorkflowTemplateDetails,
+		deleteWorkflowStep,
+		updateWorkflowSteps,
+		getGlobalWorkflows,
+		duplicateGlobalWorkflowTemplate,
+		getSmartFileData,
+		updateSmartFileData,
+		updateProposal,
+		updateContracts,
+		updateInvoice,
+		updateForm,
+		updateThankyou,
+		getWorkflowsList,
+		getWorkflowsListForFiles,
+		getTemplatesListForCreateLead,
+		createLeadfromTemplates,
+		sendSmartFile,
+		getformResponses,
+		chnageWorkflowStats,
+		getSignedUrlForContracts,
+		uploadContractSignature,
+		moveWorkflowStatus,
+		getSpecificTemplatesInfo,
+		getSendSmartFileEmailTemplate,
+		checkSmartFileSlugExists,
+		updateSmartFileSlug,
+		deleteLead,
+		deleteWorkflowTemplates,
+		getTabItemCount,
+		getRequiredActions,
+		getRequiredActionsForTemplate,
+		updateSendSmartFileSettings,
+		getEventsPresets,
+		addEventsPresets,
+		editEventsPresets,
+		deleteEventsPreset,
+		getLatestSendSmartFileSettings,
+		getAiPredictionForSmartFile,
+		leaveWorkspace,
+		sendCustomEmailToClients,
+		connectThirdParty,
+		getActivityLogs,
+		getDrafStateWorkflowtemplates,
+		toggleCreateLeadModal,
+		smartFileAiChat,
+		uploadImageInSmartFileAi,
+		// handleGlobalChatMessages,
+		getDocsFilesList,
+		// handleGlobalUploadImage,
+		checkIndividualImageUploadedStatus,
+		// deleteUploadedImageThroughChat,
+		updateApplicationChat,
+		addNewSteps,
+		getAllSlackChannels,
+		updateSteps,
+		getTemplatesListForForms,
+		getFormResponsesList,
+		updateFiles,
+		getSmartFileVariablesData,
+		updateClientVariablesData,
+		updateCustomVariabledata,
+		createSmartfile,
+		getWorkflowInfo,
+		getSmartFileActivity,
+		getSmartFileViewers,
+		duplicateSmartFile,
+		getFormResponse,
+		getViewersSessionDetails,
+	};
+};

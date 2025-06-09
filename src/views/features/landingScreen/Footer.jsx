@@ -7,7 +7,7 @@ import { ReactComponent as InstagramLogo } from '../../../assets/svg/landingScre
 import { ReactComponent as FacebookLogo } from '../../../assets/svg/landingScreen/facebookLogo.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 import GoldenGateImage from '../../../assets/images/goldenGate.png';
-import { LINKEDIN_URL, INSTAGRAM_URL, CHANGELOG_URL } from '../../../helpers/ConstantUrls';
+import { LINKEDIN_URL, INSTAGRAM_URL } from '../../../helpers/ConstantUrls';
 
 import { Link } from 'react-router-dom';
 
@@ -19,7 +19,7 @@ const Footer = ({ BackTop }) => {
 					<div className={s.top__leftPart}>
 						<VeLogo />
 						<span className={s.heading}>From the Founder&apos;s Desk</span>
-						<p>
+						<p className={s.description}>
 							Hi, I&apos;m Vijay. I&apos;m building Ve.ai — the world&apos;s first
 							Proactive AI OS. If you want a front-row seat to see how memory,
 							cognition, and reasoning are being redefined, subscribe below. No spam.
@@ -61,7 +61,7 @@ const Footer = ({ BackTop }) => {
 									<Link to="/cookie-policy">Cookie</Link>
 								</li>
 								<li>
-									<Link to={CHANGELOG_URL}>Changelog</Link>
+									<Link to="/changelog">Changelog</Link>
 								</li>
 							</ul>
 						</div>

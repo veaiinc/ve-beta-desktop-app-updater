@@ -396,7 +396,9 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 				? navigate(
 						`/smart-file/${info?.activeFileData?.templateId}/${info?.activeFileData?._id}`,
 				  )
-				: (window.location.href = `${origin}/workflow/${info?.activeFileData?._id}?workflow=true&templateId=${info?.activeFileData?.templateId}`);
+				: navigate(
+						`/builder/workflow/${info?.activeFileData?._id}?workflow=true&templateId=${info?.activeFileData?.templateId}`,
+				  );
 		}
 	}, [info?.activeFileData]);
 
@@ -422,7 +424,9 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 		const workflowId = response?.[1]?.data?.duplicateSmartFile?._id;
 		if (workflowId) {
 			setInfo((prev) => ({ ...prev, duplicateLoading: false }));
-			window.location.href = `${origin}/workflow/${info?.activeFileData?._id}?workflow=true&templateId=${workflowId}`;
+			navigate(
+				`/builder/workflow/${info?.activeFileData?._id}?workflow=true&templateId=${workflowId}`,
+			);
 		} else {
 			message.error(response?.[1]?.message);
 			setInfo((prev) => ({ ...prev, duplicateLoading: false }));

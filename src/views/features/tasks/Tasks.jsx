@@ -274,9 +274,6 @@ const Tasks = () => {
 	);
 	useEffect(() => {
 		updateSidebarState({ leftSidebarState: 'close' });
-		return () => {
-			updateSidebarState({ leftSidebarState: null });
-		};
 	}, []);
 
 	useEffect(() => {

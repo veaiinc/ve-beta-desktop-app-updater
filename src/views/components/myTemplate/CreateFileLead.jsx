@@ -348,7 +348,9 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 				updateStateValues({ salePageRefresh: true });
 				closeModalFunc();
 				if (response?.[1]?.version) {
-					window.location.href = `${origin}/workflow/${response?.[1]?._id}?workflow=true&templateId=${workflow?._id}`;
+					navigate(
+						`/builder/workflow/${response?.[1]?._id}?workflow=true&templateId=${workflow?._id}`,
+					);
 				} else {
 					navigate(`/smart-file/${workflow?._id}/${response?.[1]?._id}`);
 				}

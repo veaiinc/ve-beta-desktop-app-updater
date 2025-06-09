@@ -1,0 +1,170 @@
+// @import '../../../../../assets/scss/sidebar.scss';
+
+$dark-bg: #131314;
+$semi-dark-bg: #202123;
+$primary-font-color: #e8e8e8;
+$primarylt-font-color: #939393;
+$active-color: #6254f5;
+$hr-line-color: #333334;
+$white-color: #ffffff;
+$feild-stroke: #2c2d2e;
+$dark-333: #333;
+$alert-color: #d1243f;
+$bg-ccc: #ccc;
+$p-border-color: #e7ff52;
+
+.presentation_container {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	.left-layouts-bar {
+		width: 15%;
+		min-width: 185px;
+		height: 100%;
+		background-color: $semi-dark-bg;
+		padding: 24px 16px;
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		align-items: center;
+		justify-content: space-between;
+		.sections-thumbnail-container {
+			width: 100%;
+			height: 90%;
+			// background-color: #b35a34;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			padding: 24px 16px;
+			overflow-y: auto;
+			gap: 24px;
+			.section-thumbnail-row {
+				width: 100%;
+				// height: 118px;
+				display: flex;
+				justify-content: center;
+				gap: 13px;
+				// overflow-y: hidden;
+				// overflow-x: hidden;
+				cursor: pointer;
+				transition: transform 0.2s ease;
+				position: relative;
+				z-index: 1;
+				transition: all 0.2s ease;
+				will-change: transform; // Hint to browser for performance
+				backface-visibility: hidden;
+				transform-style: preserve-3d;
+				// When being dragged
+
+				&.dragging {
+					z-index: 10;
+					position: absolute;
+					width: 100%;
+					top: 0; /* Dynamically updated by React-Beautiful-DnD */
+					left: 0; /* Dynamically updated by React-Beautiful-DnD */
+					transform: translate(0, 0); /* Avoid any residual transform offsets */
+					pointer-events: none; /* Prevent interference with other elements */
+					// background-color: red;
+				}
+				.line-div {
+					width: 3px;
+					height: 16px;
+					background-color: transparent;
+					margin-top: 27px;
+				}
+				.active-p-line {
+					background-color: $p-border-color;
+				}
+				.active-section-thumbnail {
+					border: 2px solid $p-border-color !important;
+				}
+				.section-number {
+					text-align: center;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 12px;
+					color: $primary-font-color;
+					margin-top: 30px;
+				}
+				.section-thumbnail {
+					width: 118px;
+					// max-height: 100%;
+					// height: 100px;
+					// background-color: #a234b3;
+					border-radius: 9px;
+					border: 2px solid transparent;
+					overflow: hidden;
+					div {
+						border-radius: 9px;
+					}
+				}
+			}
+		}
+		.add-section-button {
+			width: 100%;
+			height: 5%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			button {
+				padding: 12px 39px;
+				text-align: center;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				color: $primary-font-color;
+				background-color: $feild-stroke;
+				cursor: pointer;
+				outline: none;
+				border-radius: 12px;
+				border: 1px solid $primary-font-color;
+			}
+		}
+	}
+	.p-layouts-wrapper {
+		width: 85%;
+		height: 100%;
+		// background-color: #3434b3;
+		overflow-y: scroll;
+		.p-h-row-container {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+
+			.p-h-row {
+				display: flex;
+				gap: 10px;
+				justify-content: center;
+				// align-items: center;
+				padding: 2px;
+				&::-webkit-scrollbar {
+					display: none;
+				}
+				padding-top: 30px;
+				.p-h-row-item {
+					display: flex;
+					flex-direction: column;
+					gap: 6px;
+					align-items: center;
+					cursor: pointer;
+					height: 100px;
+					.p-h-row-line {
+						// width: 60px;
+						// width: 100%;
+						height: 2px;
+						border-radius: 20px;
+						background-color: #20212333;
+					}
+				}
+			}
+		}
+	}
+}

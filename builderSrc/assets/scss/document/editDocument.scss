@@ -1,0 +1,57 @@
+.editDocumentContainer {
+	display: flex;
+	width: 100%;
+	height: 100vh;
+	.section1-main-container {
+		width: 40%;
+		height: 100%;
+	}
+	.section2-main-container {
+		background: var(--background-color);
+		width: 60%;
+		height: 100%;
+		overflow: auto;
+		.previewHeader {
+			display: flex;
+			justify-content: end;
+			position: sticky;
+			top: 0;
+			align-items: center;
+			width: 100%;
+			gap: 16px;
+			padding: 16px 24px;
+			background-color: var(--background-color);
+			z-index: 100;
+			.editButton {
+				color: var(--primary-font);
+				display: flex;
+				padding: 6px 8px;
+				align-items: center;
+				gap: 6px;
+				border-radius: 6px;
+				border: 1px solid var(--stroke-hover, #424548);
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 18px; /* 150% */
+				cursor: pointer;
+			}
+		}
+		.previewBody {
+			// padding: 0 5rem 0 5rem;
+		}
+	}
+}
+
+@media (max-width: 1024px) {
+	.editDocumentContainer {
+		.section2-main-container {
+			display: none !important;
+		}
+		.section1-main-container {
+			width: 100% !important;
+		}
+	}
+}
