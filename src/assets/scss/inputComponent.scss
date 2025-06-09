@@ -103,6 +103,24 @@
 			height: 100%;
 			border: 0;
 			width: 100%;
+
+			&:-webkit-autofill,
+			&:-webkit-autofill:hover,
+			&:-webkit-autofill:focus,
+			&:-webkit-autofill:active {
+				-webkit-text-fill-color: var(--primary-font) !important;
+				transition: background-color 5000s ease-in-out 0s;
+				caret-color: var(--primary-font);
+			}
+
+			&:focus {
+				outline: none;
+				caret-color: var(--primary-font);
+			}
+
+			&::placeholder {
+				color: var(--secondary-font);
+			}
 		}
 
 		.PhoneInput {

@@ -7,7 +7,7 @@ import Service from '../../services';
 export const initialState = {
 	specificAutomationInfo: null,
 	connectedIntegrations: null,
-	executionHistory: null,
+	executionHistory: {},
 	variables: null,
 	automationsList: null,
 };
@@ -221,28 +221,70 @@ export const AutomationBuilderState = () => {
 		}
 	};
 
-	const getExecutionHistory = async (automationId) => {
+	const getExecutionHistory = async (automationId, { page = 1, limit = 10 } = {}) => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
+			const query = { page, limit };
+			// console.log(
+			// 	`Fetching execution history for automation ${automationId}, page ${page}, limit ${limit}`,
+			// );
+
+			// Initialize or update loading state for this automation
+			dispatch({
+				type: Actions.SET_EXECUTION_HISTORY,
+				payload: {
+					automationId,
+					loading: true,
+					error: null,
+				},
+			});
+
 			const response = await restService.fetchGet(
 				`/${workspaceId}/${automationId}/execution/list`,
 				usertoken,
 				'automation_builder_api',
+				query,
 			);
+
 			if (response?.[0]) {
+				const payload = {
+					automationId,
+					data: response?.[1]?.data || [],
+					hasNextPage: response?.[1]?.hasNextPage || false,
+					totalDocs: response?.[1]?.totalDocs || 0,
+					totalPages: response?.[1]?.totalPages || 1,
+					page: response?.[1]?.page || page,
+					loading: false,
+					error: null,
+				};
+				// console.log('Execution history payload for automation', automationId, ':', payload);
+
 				dispatch({
 					type: Actions.SET_EXECUTION_HISTORY,
-					payload: { data: response?.[1] },
+					payload,
 				});
 			} else {
+				console.error('Execution history error:', response?.[1]?.message);
 				dispatch({
 					type: Actions.SET_EXECUTION_HISTORY,
-					payload: { error: response?.[1]?.message },
+					payload: {
+						automationId,
+						error: response?.[1]?.message || 'Failed to fetch execution history',
+						loading: false,
+					},
 				});
 			}
 		} catch (error) {
-			console.log('API failed ==> getExecutionHistory', error);
+			console.error('API failed ==> getExecutionHistory', error);
+			dispatch({
+				type: Actions.SET_EXECUTION_HISTORY,
+				payload: {
+					automationId,
+					error: error.message,
+					loading: false,
+				},
+			});
 		}
 	};
 
@@ -258,7 +300,6 @@ export const AutomationBuilderState = () => {
 
 			if (response?.[0] === true) {
 				const variables = payload?.editMode ? response?.[1]?.slice(0, -1) : response?.[1];
-
 				dispatch({
 					type: Actions.SET_VARIABLES,
 					payload: {

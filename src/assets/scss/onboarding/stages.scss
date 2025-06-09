@@ -50,6 +50,7 @@
 			.nameInputContainer,
 			.phoneInputContainer,
 			.otpInputContainer,
+			.phoneInputContain,
 			.themeInputContainer {
 				width: 100%;
 				display: flex;
@@ -295,6 +296,46 @@
 						&.active {
 							border: 1px solid var(--primary-font, #f2f2f3);
 						}
+					}
+				}
+			}
+
+			.phoneInputContain {
+				width: 100%;
+				display: flex;
+				gap: 8px;
+				align-items: center;
+				position: relative;
+
+				.PhoneInput {
+					flex: 1;
+				}
+
+				.verifyPhoneNumberBtn {
+					position: static;
+					width: fit-content;
+					height: 41px;
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					border: none;
+					outline: none;
+					background: transparent;
+					cursor: pointer;
+					padding: 8px 16px;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					white-space: nowrap;
+					&:hover {
+						border: 1px solid var(--stroke, #2c2d2e);
+						border-radius: 12px;
+						padding: 8px;
+						background: var(--card);
+						color: var(--primary-font);
 					}
 				}
 			}
