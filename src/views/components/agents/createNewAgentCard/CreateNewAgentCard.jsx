@@ -73,7 +73,7 @@ const CreateNewAgentCard = ({ agents = [] }) => {
 					<div className={s.addIcon} style={{ background: '#79ecc9' }}>
 						<AddIcon />
 					</div>
-					<div className={s.name}>Create New Agent</div>
+					<h1 className={s.name}>Create New Agent</h1>
 				</div>
 				{agents.map((agent) => (
 					<div

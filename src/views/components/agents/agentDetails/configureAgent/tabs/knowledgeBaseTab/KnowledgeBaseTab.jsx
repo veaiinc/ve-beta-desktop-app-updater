@@ -15,7 +15,12 @@ const limit = 10;
 const KnowledgeBaseTab = ({ agentId }) => {
 	const {
 		aiSetup: { updateKnowledgeBaseFile },
-		knowledgeAgent: { getKnowledgeBaseInfo, knowledgeBaseInfo, activeKnowledgeAssistant },
+		knowledgeAgent: {
+			getKnowledgeBaseInfo,
+			knowledgeBaseInfo,
+			activeKnowledgeAssistant,
+			updateKnowledgeAgent,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -55,7 +60,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 	};
 
 	const handleSearchWebOrFullAccessChange = async (data) => {
-		const response = await updateKnowledgeAgent(assistant?._id, data);
+		const response = await updateKnowledgeAgent(agentId, data);
 		if (!response?.[0]) return;
 	};
 
@@ -175,16 +180,17 @@ const KnowledgeBaseTab = ({ agentId }) => {
 					</InfiniteScroll>
 				</div>
 			</div>
-			<div>
-				<div className="knowledgeToggleContainer">
-					<div className="knowledgeToggleTextWrapper">
+			<div className={s.knowledgeSettingsContainer}>
+				<div className={s.knowledgeToggleContainer}>
+					<div className={s.knowledgeToggleTextWrapper}>
 						<h2>Add all workspace content</h2>
 						<p>
 							Let the agent use all shared integrations, files, and other assets in
 							this workspace.
 						</p>
 					</div>
-					<span className="toggleSwitchContainer">
+					<span className={s.toggleSwitchContainer}>
+						{console.log(fullWorkspaceAccess)}
 						<ToggleSwitch
 							value={fullWorkspaceAccess}
 							onChange={(value) =>
@@ -193,15 +199,16 @@ const KnowledgeBaseTab = ({ agentId }) => {
 						/>
 					</span>
 				</div>
-				<div className="knowledgeToggleContainer">
-					<div className="knowledgeToggleTextWrapper">
+
+				<div className={s.knowledgeToggleContainer}>
+					<div className={s.knowledgeToggleTextWrapper}>
 						<h2>Search the web for information</h2>
 						<p>
 							Let the agent search and reference information found on websites in
 							answers.
 						</p>
 					</div>
-					<span className="toggleSwitchContainer">
+					<span className={s.toggleSwitchContainer}>
 						<ToggleSwitch
 							value={info?.websearch}
 							onChange={(value) =>
@@ -211,6 +218,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 					</span>
 				</div>
 			</div>
+
 			<AddKnowledgeModal
 				isOpen={info?.knowledgeModalOpen}
 				assistantId={agentId}

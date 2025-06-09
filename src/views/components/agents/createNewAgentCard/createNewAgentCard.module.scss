@@ -25,6 +25,15 @@
 			transition: all 0.2s ease-in;
 		}
 
+		.name {
+			color: var(--primary-font, #111113);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
 		.addIcon {
 			display: flex;
 			min-width: 74px;
