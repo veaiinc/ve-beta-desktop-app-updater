@@ -89,8 +89,17 @@
 							border: 1px solid var(--stroke);
 							transition: border 200ms ease-in-out;
 							overflow: hidden;
+							position: relative;
 							&.startPageContainer {
 								padding: 12px;
+							}
+							.recent-file-wrapper {
+								position: absolute;
+								width: 1px;
+								height: 20px;
+								bottom: 18px;
+								left: 16px;
+								background: transparent;
 							}
 							.chat-input-container {
 								display: flex;
@@ -871,6 +880,128 @@
 	}
 }
 
+.recent-file-container {
+	display: flex;
+	width: 320px;
+	padding-bottom: 6px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+	border-radius: 12px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background-color: var(--navbar);
+	position: relative;
+	top: -45px;
+	.input-container {
+		display: flex;
+		padding: 14px;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+		border-bottom: 1px solid var(--stroke, #2c2d2e);
+		svg {
+			path,
+			circle {
+				stroke: var(--secondary-font);
+			}
+		}
+		input {
+			flex: 1 0 0;
+			width: 100%;
+			height: 100%;
+			border: none;
+			outline: none;
+			color: var(--secondary-font);
+			background-color: transparent;
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.recent-files-wrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 2px;
+		align-self: stretch;
+		.header {
+			display: flex;
+			padding: 8px 16px 6px 16px;
+			align-items: center;
+			gap: 10px;
+			align-self: stretch;
+			color: var(--secondary-font, #7a7e85);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.recent-files {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 2px;
+			align-self: stretch;
+			width: 100%;
+			overflow-y: auto;
+			.recent-file {
+				display: flex;
+				padding: 8px 16px;
+				align-items: center;
+				gap: 8px;
+				align-self: stretch;
+				cursor: pointer;
+
+				&:hover {
+					background: var(--card-hover, #2f3336);
+				}
+				.file-type-icon {
+					display: flex;
+					width: 34px;
+					height: 34px;
+					padding: 7px;
+					justify-content: center;
+					align-items: center;
+					border-radius: 4px;
+					border: 1px solid var(--stroke, #2c2d2e);
+					background: var(--popup, #202123);
+					box-sizing: border-box;
+
+					svg {
+						width: 20px;
+						height: 20px;
+					}
+				}
+				.file-name {
+					overflow: hidden;
+					color: var(--primary-font);
+					text-overflow: ellipsis;
+					white-space: nowrap;
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					width: 230px;
+				}
+				.selected-icon {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					padding: 6px;
+				}
+			}
+			.recent-file.selected {
+				background: var(--backgroung-color, #2f3336);
+			}
+		}
+	}
+}
+
 .search-type-container {
 	display: flex;
 	padding: 8px 0px;
@@ -976,6 +1107,10 @@
 }
 
 .upload-file-tooltip-container {
+	max-width: unset;
+}
+
+.recent-file-tooltip-container {
 	max-width: unset;
 }
 
