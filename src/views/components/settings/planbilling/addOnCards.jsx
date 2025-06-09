@@ -160,6 +160,10 @@ const AddOnPlans = ({
 		try {
 			let response;
 			if (subscriptionState === 'upgradeSubscription') {
+				if (data?.[0]?.quantity < currentPlan?.tenantUsers) {
+					message.error('You cannot purchase less than tenant users');
+					return;
+				}
 				response = await purchaseSubscriptionPlan(payload);
 			} else {
 				response = await purchaseAddOnPlan(payload);
