@@ -239,9 +239,9 @@ const Email = ({
 					<h2 className="login-page-subtitle">AI Memory OS</h2>
 				</h1>
 			</div>
-			<div className="service-container">
-				{!info?.isHostnameVeDotAi && (
-					<>
+			{info?.isHostnameVeDotAi && (
+				<>
+					<div className="service-container">
 						<div
 							disabled={info?.googleLoading}
 							className="google-login-button"
@@ -261,22 +261,15 @@ const Email = ({
 								/>
 							)}
 						</div>
-					</>
-				)}
-				{/* <span>
-					<AppleLogo />
-					Apple
-				</span>
-				<span>
-					<MicrosoftLogo />
-					Micro Soft
-				</span> */}
-			</div>
-			<div className="or-divider">
-				<div className="line"></div>
-				<span>OR</span>
-				<div className="line"></div>
-			</div>
+					</div>
+					<div className="or-divider">
+						<div className="line"></div>
+						<span>OR</span>
+						<div className="line"></div>
+					</div>
+				</>
+			)}
+
 			<div className="login-button-container">
 				<div className="email-input-container-title">
 					<span>Email</span>
