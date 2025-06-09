@@ -11,12 +11,19 @@
 	.agentIntroCard {
 		display: flex;
 		align-items: center;
-		gap: 24px;
 		cursor: pointer;
 		display: flex;
 		min-width: 341.333px;
 		align-items: center;
-		gap: 24px;
+		gap: 12px;
+		transition: all 0.2s ease-in;
+		border-radius: 12px;
+
+		&:hover {
+			background: var(--card-over-card-hover);
+			transition: all 0.2s ease-in;
+		}
+
 		.addIcon {
 			display: flex;
 			min-width: 74px;

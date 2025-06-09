@@ -62,6 +62,18 @@ const AgentCredentials = ({ agentId }) => {
 
 	const handleAgentUpdate = (type) => {
 		const currentValue = info[type];
+		if (currentValue === activeKnowledgeAssistant?.data?.name && type === 'agentName') return;
+		console.log(
+			currentValue,
+			activeKnowledgeAssistant?.data?.description,
+			activeKnowledgeAssistant?.data?.description === currentValue,
+		);
+		if (
+			currentValue === activeKnowledgeAssistant?.data?.description &&
+			type === 'agentDescription'
+		)
+			return;
+
 		if (!currentValue.trim()) {
 			message.error(`${type === 'agentName' ? 'Name' : 'Description'} cannot be empty!`);
 			setInfo((prev) => ({
@@ -131,7 +143,10 @@ const AgentCredentials = ({ agentId }) => {
 									handleAgentUpdate('agentName');
 								}
 							}}
-							onBlur={() => toggleEditAgentDetails('agentName')}
+							onBlur={() => {
+								toggleEditAgentDetails('agentName');
+								handleAgentUpdate('agentName');
+							}}
 							aria-label="Edit agent name"
 							className={s.input}
 							placeholder="Give a name to your agent and hit enter!"
@@ -173,7 +188,10 @@ const AgentCredentials = ({ agentId }) => {
 									handleAgentUpdate('agentDescription');
 								}
 							}}
-							onBlur={() => toggleEditAgentDetails('agentDescription')}
+							onBlur={() => {
+								toggleEditAgentDetails('agentDescription');
+								handleAgentUpdate('agentDescription');
+							}}
 							aria-label="Edit agent description"
 							className={s.textarea}
 							rows={3}
