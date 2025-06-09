@@ -1594,7 +1594,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const connectThirdParty = async (connectType, integrationType) => {
+	const connectThirdParty = async (connectType) => {
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
