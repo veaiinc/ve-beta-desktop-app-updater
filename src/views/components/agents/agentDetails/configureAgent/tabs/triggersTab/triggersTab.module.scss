@@ -156,7 +156,8 @@
 					background: var(--card-over-card, #27282b);
 				}
 
-				span {
+				span,
+				h3 {
 					color: var(--primary-font);
 					font-family: var(--font-family-inter);
 					font-size: 14px;

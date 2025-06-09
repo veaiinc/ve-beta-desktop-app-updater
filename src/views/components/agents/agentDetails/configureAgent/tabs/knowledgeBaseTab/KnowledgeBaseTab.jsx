@@ -190,7 +190,6 @@ const KnowledgeBaseTab = ({ agentId }) => {
 						</p>
 					</div>
 					<span className={s.toggleSwitchContainer}>
-						{console.log(fullWorkspaceAccess)}
 						<ToggleSwitch
 							value={fullWorkspaceAccess}
 							onChange={(value) =>

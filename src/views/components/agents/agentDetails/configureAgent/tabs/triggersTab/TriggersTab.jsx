@@ -110,7 +110,7 @@ const TriggersTab = () => {
 				const newLocalTrigger = {
 					icon: <GmailIcon />,
 					title: 'Gmail',
-					description: 'Reply to emails',
+					description: 'Incoming emails',
 					triggerType: 'gmail',
 					connectedEmail: email,
 				};
