@@ -1,20 +1,20 @@
-import { useEffect, memo, useContext, useRef, useState } from 'react';
-import '../../assets/scss/authWrapper.scss';
+import { useEffect, memo, useContext, useRef, useState, Suspense } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import useActiveWorkspace from '../hooks/useActiveWorkspace';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+
+import useActiveWorkspace from '../hooks/useActiveWorkspace';
 import Sidebar from '../components/sidebar/Sidebar';
 import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
-// import BottomToolbar from '../components/ai_agents/BottomToolbar';
+
 import useAccessControls from '../hooks/useAccessControls';
-// import RenewBanner from '../components/globalComponents/RenewBanner';
-// import Context from '../../context/context';
-// import DynamicWidget from '../features/DynamicWidget/dynamicWidget';
-import { useLocation } from 'react-router-dom';
 import CommandKSearch from '../components/commandKSearch/CommandKSearch';
+import Spinner from '../components/loaders/Spinner';
+
+import '../../assets/scss/authWrapper.scss';
 
 const AuthWrapper = ({
 	title,
@@ -95,7 +95,7 @@ const AuthWrapper = ({
 								className="childrenContainer"
 								style={{ maxWidth: maxWidth || '', ...childrenContainerStyles }}
 							>
-								{children}
+								<Suspense fallback={<div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Spinner /></div>}>{children}</Suspense>
 							</div>
 						</div>
 					</SkeletonTheme>

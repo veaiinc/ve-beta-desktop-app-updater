@@ -152,7 +152,7 @@ const Features = () => {
 	const images = [
 		'https://ap.images.ve.ai/public/dashboard/proactive-cards.png',
 		feature2,
-		feature3
+		feature3,
 	];
 
 	return (
@@ -185,7 +185,7 @@ const Features = () => {
 						ref={imageRefs[i]}
 						key={`image-${i}`}
 					>
-						<img src={img} alt={`feature ${i + 1}`} />
+						<img src={img} alt={`feature ${i + 1}`} loading="lazy" />
 					</div>
 				))}
 			</div>
