@@ -1,19 +1,19 @@
-import { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useState } from 'react';
 import { Flex, Rate } from 'antd';
 import '../../../assets/scss/document/FormDescription.scss';
 import { ReactComponent as BiDash } from '../../../assets/svg/smartFile/formResponse/bi-dash.svg';
-import { ReactComponent as Email } from '../../../assets/svg/smartFile/formResponse/email.svg';
-import { ReactComponent as Phone } from '../../../assets/svg/smartFile/formResponse/phone.svg';
+import { ReactComponent as EmailIcon } from '../../../assets/svg/smartFile/formResponse/email.svg';
+import { ReactComponent as PhoneIcon } from '../../../assets/svg/smartFile/formResponse/phone.svg';
 import { ReactComponent as DownnArrow } from '../../../assets/svg/smartFile/formResponse/down-arrow.svg';
 import { ReactComponent as Tick } from '../../../assets/svg/smartFile/formResponse/tick.svg';
 import { ReactComponent as Hamburger } from '../../../assets/svg/smartFile/formResponse/hamburger.svg';
 import { ReactComponent as Hash } from '../../../assets/svg/smartFile/formResponse/hash.svg';
-import { ReactComponent as Link } from '../../../assets/svg/smartFile/formResponse/link.svg';
-import { ReactComponent as FileUpload } from '../../../assets/svg/smartFile/formResponse/file-upload.svg';
+import { ReactComponent as LinkIcon } from '../../../assets/svg/smartFile/formResponse/link.svg';
+import { ReactComponent as FileUploadIcon } from '../../../assets/svg/smartFile/formResponse/file-upload.svg';
 import { ReactComponent as Calendar } from '../../../assets/svg/smartFile/formResponse/calendar.svg';
-import { ReactComponent as Events } from '../../../assets/svg/smartFile/formResponse/events.svg';
+import { ReactComponent as EventsIcon } from '../../../assets/svg/smartFile/formResponse/events.svg';
 import { ReactComponent as Clock } from '../../../assets/svg/smartFile/formResponse/clock.svg';
-import { ReactComponent as Signature } from '../../../assets/svg/smartFile/formResponse/signature.svg';
+import { ReactComponent as SignatureIcon } from '../../../assets/svg/smartFile/formResponse/signature.svg';
 import { ReactComponent as Star } from '../../../assets/svg/smartFile/formResponse/star.svg';
 import { ReactComponent as TimeDivider } from '../../../assets/svg/smartFile/formResponse/time-divider.svg';
 import {
@@ -28,72 +28,185 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import moment from 'moment';
 import Context from '../../../context/context';
 
-const iconsForQuestions = {
-	shortText: <BiDash />,
-	longText: <Hamburger />,
-	email: <Email />,
-	phoneNumber: <Phone />,
-	singleChoice: <Tick />,
-	multipleChoice: <Tick />,
-	date: <Calendar />,
-	time: <Clock />,
-	events: <Events />,
-	signature: <Signature />,
-	dropdown: <DownnArrow />,
-	fileUpload: <FileUpload />,
-	rating: <Star />,
-	link: <Link />,
-	number: <Hash />,
-};
-
-const suggestedOptions = [
-	{
-		id: 1,
-		title: 'Document',
-		value: 'all',
-		controlValue: 'all',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: '' }));
-		},
-	},
-];
-
-const eventsTableHeaderData = [
-	{ id: 1, label: 'Event Name' },
-	{ id: 2, label: 'Date' },
-	{ id: 3, label: 'Location' },
-	{ id: 4, label: 'Guests' },
-];
-
-const removeHTMLTagsAndnbsp = (text) => text?.replace(/<\/?[^>]+(>|$)/g, '')?.replace(/ /g, ' ');
-
-const removeQuotes = (text) => {
-	if (!text) {
-		return '';
-	}
-	if (typeof text !== 'string') {
-		return text || '';
-	}
-	return text?.replace(/^["']|["']$/g, '');
-};
-
-export { removeQuotes };
-
-const DropdownAnswer = ({ answer }) => {
-	if (!answer) {
-		return '';
-	}
-	let text = answer;
-
+// Generic safe renderer to prevent invalid React children
+const safe = (value) => {
 	try {
-		const parsed = JSON.parse(text);
-		text = parsed;
-	} catch (e) {
-		text = answer;
-		if (typeof text === 'string') {
-			text = text?.replace(/^["']|["']$/g, '');
-		}
+		if (React.isValidElement(value)) return value;
+		if (value === null || value === undefined) return '';
+		if (typeof value === 'object') return JSON.stringify(value);
+		return String(value);
+	} catch {
+		return '';
 	}
+};
+
+// Strip HTML tags from strings
+const stripHtml = (html) => {
+	if (!html) return '';
+	return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
+};
+
+// Simple text answer (short, long, email, phone)
+const TextAnswer = ({ answer }) => (
+	<>
+		<p className="answer">{safe(answer) || 'No answer provided'}</p>
+		<div className="divider"></div>
+	</>
+);
+
+// EventsAnswer with try/catch per row
+const EventsAnswer = ({ answer }) => {
+	if (!answer) return null;
+	let events;
+	try {
+		events = typeof answer === 'string' ? JSON.parse(answer) : answer;
+		events = Array.isArray(events) ? events : [events];
+	} catch (e) {
+		console.error('Error parsing events:', e);
+		return null;
+	}
+	if (events.length === 0) return null;
+
+	return (
+		<>
+			<table className="eventsContainer">
+				<thead className="eventsTableHeader">
+					<tr>
+						<th>Event Name</th>
+						<th>Date</th>
+						<th>Location</th>
+						<th>Guests</th>
+					</tr>
+				</thead>
+				<tbody>
+					{events.map((evt, idx) => {
+						try {
+							const name = evt.nameReactSelect?.label || evt.name;
+							const dateRaw = evt.date;
+							const dateFormatted = dateRaw
+								? moment(dateRaw, 'YYYYMMDD').format('DD MMM YYYY')
+								: '';
+							return (
+								<tr key={idx} className="eventCard">
+									<td className="eventName">{safe(name)}</td>
+									<td className="eventDate">{safe(dateFormatted)}</td>
+									<td className="eventLocation">{safe(evt.location)}</td>
+									<td className="eventGuests">{safe(evt.noOfGuests)}</td>
+								</tr>
+							);
+						} catch (rowError) {
+							console.error('Error rendering event row:', rowError);
+							return null;
+						}
+					})}
+				</tbody>
+			</table>
+			<div className="divider"></div>
+		</>
+	);
+};
+
+// Single choice
+const SingleChoiceAnswer = ({ answer }) => (
+	<>
+		<p className="answer">
+			<span className="selectedOption">{safe(answer)}</span>
+		</p>
+		<div className="divider"></div>
+	</>
+);
+
+// RatingAnswer
+const RatingAnswer = ({ answer }) => {
+	if (answer == null) return null;
+	const value = parseInt(answer, 10) || 0;
+	return (
+		<>
+			<Flex gap="middle" vertical>
+				<Rate disabled defaultValue={value} />
+			</Flex>
+			<div className="divider"></div>
+		</>
+	);
+};
+
+// TimeAnswer
+const TimeAnswer = ({ answer }) => {
+	if (!answer) return null;
+	const [hours, minutes] = answer.split(':');
+	return (
+		<>
+			<p className="answer timeContainer">
+				<span className="time">{safe(hours)}</span>
+				<TimeDivider />
+				<span className="time">{safe(minutes)}</span>
+			</p>
+			<div className="divider"></div>
+		</>
+	);
+};
+
+// LinkAnswer
+const LinkAnswer = ({ answer }) => {
+	if (!answer) return null;
+	const url = safe(answer).replace(/^['"]|['"]$/g, '');
+	return (
+		<>
+			<p className="answer link">
+				<a href={url} target="_blank" rel="noopener noreferrer">
+					{url}
+				</a>
+			</p>
+			<div className="divider"></div>
+		</>
+	);
+};
+
+// FileUploadAnswer
+const FileUploadAnswer = ({ answer }) => {
+	try {
+		const files =
+			typeof answer === 'string'
+				? JSON.parse(answer)
+				: Array.isArray(answer)
+				? answer
+				: [answer];
+		return (
+			<>
+				{files.map((file, i) => {
+					const name = safe(file.name || file.fileName || file);
+					const ext = name.split('.').pop().toLowerCase();
+					let IconComp = FileOutlined;
+					if (ext === 'pdf') IconComp = FilePdfOutlined;
+					else if (['doc', 'docx', 'txt', 'rtf'].includes(ext))
+						IconComp = FileTextOutlined;
+					else if (['xls', 'xlsx', 'csv'].includes(ext)) IconComp = FileExcelOutlined;
+					else if (['ppt', 'pptx'].includes(ext)) IconComp = FilePptOutlined;
+					return (
+						<div key={i} className="fileItem">
+							<IconComp /> <span className="fileName">{name}</span>
+						</div>
+					);
+				})}
+				<div className="divider"></div>
+			</>
+		);
+	} catch (e) {
+		console.error('Error parsing file uploads:', e);
+		return null;
+	}
+};
+
+// DropdownAnswer
+const DropdownAnswer = ({ answer }) => {
+	if (!answer) return null;
+	let val;
+	try {
+		val = JSON.parse(answer);
+	} catch {
+		val = answer;
+	}
+	const text = typeof val === 'string' ? val.replace(/^['"]|['"]$/g, '') : safe(val);
 	return (
 		<>
 			<p className="answer">
@@ -104,316 +217,61 @@ const DropdownAnswer = ({ answer }) => {
 	);
 };
 
-export const EventsAnswer = ({ answer }) => {
-	if (!answer) return '';
-
-	// Ensure answer is an array, parse if it's a string
-	let events;
-	try {
-		events = typeof answer === 'string' ? JSON.parse(answer) : answer;
-		events = Array.isArray(events) ? events : [events];
-	} catch (e) {
-		console.error('Error parsing events:', e);
-		return '';
+// Main switch to pick correct renderer
+const formAnswer = (type, answer) => {
+	const t = String(type || '').toLowerCase();
+	switch (t) {
+		case 'shortanswer':
+		case 'longanswer':
+		case 'email':
+		case 'phone':
+			return <TextAnswer answer={answer} />;
+		case 'singlechoice':
+			return <SingleChoiceAnswer answer={answer} />;
+		case 'multiplechoice':
+			return <SingleChoiceAnswer answer={answer} />;
+		case 'dropdown':
+			return <DropdownAnswer answer={answer} />;
+		case 'events':
+			return <EventsAnswer answer={answer} />;
+		case 'rating':
+			return <RatingAnswer answer={answer} />;
+		case 'time':
+			return <TimeAnswer answer={answer} />;
+		case 'link':
+			return <LinkAnswer answer={answer} />;
+		case 'fileupload':
+			return <FileUploadAnswer answer={answer} />;
+		case 'signature':
+			return <TextAnswer answer={answer} />;
+		default:
+			return <TextAnswer answer={answer} />;
 	}
-
-	return events.length > 0 ? (
-		<>
-			<table className="eventsContainer">
-				<thead className="eventsTableHeader">
-					<tr className="eventsTableHeaderRow">
-						{eventsTableHeaderData.map((headerData) => (
-							<th key={headerData.id} className="eventsTableHeaderLabel">
-								{headerData.label}
-							</th>
-						))}
-					</tr>
-				</thead>
-				<tbody>
-					{events.map((event, index) => {
-						const eventName =
-							typeof event === 'string'
-								? event.trim()
-								: (
-										event?.nameReactSelect?.label ||
-										event?.name ||
-										event?.eventName ||
-										''
-								  ).trim();
-						const eventDate =
-							typeof event === 'string'
-								? ''
-								: (event?.date || event?.eventDate || '').trim();
-						const eventLocation =
-							typeof event === 'string'
-								? ''
-								: (event?.location || event?.eventLocation || '').trim();
-						const eventGuests =
-							typeof event === 'string'
-								? ''
-								: (event?.noOfGuests || event?.guests || '').trim();
-
-						return (
-							<tr key={index} className="eventCard">
-								<td className="eventName">{eventName}</td>
-								<td className="eventDate">
-									{moment(eventDate).format('DD MMM YYYY')}
-								</td>
-								<td className="eventLocation">{eventLocation}</td>
-								<td className="eventGuests">{eventGuests}</td>
-							</tr>
-						);
-					})}
-				</tbody>
-			</table>
-			<div className="divider"></div>
-		</>
-	) : (
-		''
-	);
-};
-
-const RatingAnswer = ({ answer }) => {
-	if (!answer) {
-		return '';
-	}
-	return (
-		<>
-			<Flex gap="middle" vertical>
-				<Rate
-					className="rating-from-form-response"
-					disabled
-					defaultValue={parseInt(answer)}
-				/>
-			</Flex>
-			<div className="divider"></div>
-		</>
-	);
-};
-
-const TimeAnswer = ({ answer }) => {
-	const hours = answer?.split(':')[0];
-	const minutes = answer?.split(':')[1];
-	return (
-		<>
-			<p className="answer timeContainer">
-				<span className="time">{hours}</span>
-				<TimeDivider />
-				<span className="time">{minutes}</span>
-			</p>
-			<div className="divider"></div>
-		</>
-	);
-};
-
-const SingleChoiceAnswer = ({ answer }) => {
-	if (!answer) {
-		return '';
-	}
-	return (
-		<>
-			<p className="answer">
-				<span className="selectedOption">
-					{JSON.parse(answer || '[]')[0] || 'No answer'}
-				</span>
-			</p>
-		</>
-	);
-};
-
-const LinkAnswer = ({ answer }) => {
-	if (!answer) {
-		return '';
-	}
-	return (
-		<>
-			<p className="answer link">
-				<a href={removeQuotes(answer)} target="_blank" rel="noopener noreferrer">
-					{removeQuotes(answer) ?? 'No answer'}
-				</a>
-			</p>
-			<div className="divider"></div>
-		</>
-	);
-};
-
-const FileUploadAnswer = ({ answer }) => {
-	const [selectedFile, setSelectedFile] = useState(null);
-	// Ensure answer is an array and parse if it's a string
-	let files;
-	try {
-		if (typeof answer === 'string') {
-			files = JSON.parse(answer);
-		} else {
-			files = Array.isArray(answer) ? answer : [answer].filter(Boolean);
-		}
-	} catch (e) {
-		console.error('Error parsing files:', e);
-		files = [];
-	}
-
-	return (
-		<>
-			{files?.length > 0 && (
-				<div className="fileUploadContainer">
-					{files.map((file, index) => {
-						const fileName =
-							typeof file === 'string' ? file : file?.name || file?.fileName || '';
-						const fileUrl =
-							typeof file === 'string'
-								? file
-								: file?.fileURL ||
-								  file?.url ||
-								  file?.previewUrl ||
-								  file?.fileUrl ||
-								  '';
-						const fileExtension = fileName?.split('.').pop()?.toLowerCase();
-						const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(
-							fileExtension,
-						);
-						const isPDF = fileExtension === 'pdf';
-						const isDocument = ['doc', 'docx', 'txt', 'rtf'].includes(fileExtension);
-						const isSpreadsheet = ['xls', 'xlsx', 'csv'].includes(fileExtension);
-						const isPresentation = ['ppt', 'pptx'].includes(fileExtension);
-
-						return (
-							<div key={index} className="fileItem">
-								{isImage ? (
-									<div
-										className="imagePreview"
-										onClick={() =>
-											setSelectedFile({
-												name: fileName,
-												fileURL: fileUrl,
-												type: 'image',
-											})
-										}
-										style={{ cursor: 'pointer' }}
-									>
-										<img src={fileUrl} alt={fileName} />
-										<span className="fileName">{fileName}</span>
-									</div>
-								) : (
-									<div
-										className="filePreview"
-										onClick={() =>
-											setSelectedFile({
-												name: fileName,
-												fileURL: fileUrl,
-												type: 'document',
-											})
-										}
-										style={{ cursor: 'pointer' }}
-									>
-										<div className="fileIcon">
-											{isPDF && <FilePdfOutlined />}
-											{isDocument && <FileTextOutlined />}
-											{isSpreadsheet && <FileExcelOutlined />}
-											{isPresentation && <FilePptOutlined />}
-											{!isPDF &&
-												!isDocument &&
-												!isSpreadsheet &&
-												!isPresentation && <FileOutlined />}
-										</div>
-										<span className="fileName">{fileName}</span>
-									</div>
-								)}
-							</div>
-						);
-					})}
-				</div>
-			)}
-			{/* {selectedFile && (
-				<FormPreview file={selectedFile} onClose={() => setSelectedFile(null)} />
-			)} */}
-			<div className="divider"></div>
-		</>
-	);
-};
-
-const SignatureAnswer = ({ answer }) => {
-	if (!answer) {
-		return '';
-	}
-	return (
-		<>
-			<p className="answer">
-				<span className="selectedOption">
-					{JSON.parse(answer || '[]')[0] || 'No answer'}
-				</span>
-			</p>
-		</>
-	);
-};
-
-const FormDescriptionSkeleton = () => {
-	return (
-		<div className="formDescription">
-			<div className="descriptionContent">
-				<div className="descriptionSection">
-					<h3 className="sectionTitle">
-						<Skeleton width={150} height={24} />
-					</h3>
-					{[1, 2, 3, 4].map((index) => (
-						<div key={index} className="infoRow">
-							<span className="infoLabel">
-								<Skeleton width={100} height={20} />
-							</span>
-							<span className="infoValue">
-								<Skeleton width={200} height={20} />
-							</span>
-						</div>
-					))}
-				</div>
-				<div className="descriptionSection">
-					<h3 className="sectionTitle">
-						<Skeleton width={150} height={24} />
-					</h3>
-					<div className="formResponsesParentContainer">
-						{[1, 2, 3].map((index) => (
-							<div key={index} className="formResponseContainer">
-								<div className="questionContainer">
-									<Skeleton width={24} height={24} circle />
-									<p className="question">
-										<Skeleton width={200} height={20} />
-									</p>
-								</div>
-								<div className="answer">
-									<Skeleton width="100%" height={40} />
-								</div>
-							</div>
-						))}
-					</div>
-				</div>
-			</div>
-		</div>
-	);
 };
 
 const FormDescription = ({ formResponseId }) => {
 	const {
 		templates: { getFormResponse },
 	} = useContext(Context);
-	const formId = formResponseId;
-	const [info, setInfo] = useState({
-		formResponse: null,
-		loading: true,
-		response: null,
-	});
+	const [info, setInfo] = useState({ formResponse: null, loading: true });
+
 	useEffect(() => {
-		if (!info.formResponse) {
-			const fetchResponse = async () => {
-				const data = await getFormResponse({ formId });
-				setInfo((prev) => ({ ...prev, formResponse: data, loading: false }));
-			};
-			fetchResponse();
-		}
-	}, [info.formResponse, getFormResponse, setInfo, formId]);
+		const fetchResponse = async () => {
+			try {
+				const res = await getFormResponse({ formId: formResponseId });
+				const payload = res.data?.formResponse || res.formResponse || res;
+				setInfo({ formResponse: payload, loading: false });
+			} catch (err) {
+				console.error('Failed to load form response:', err);
+				setInfo({ formResponse: null, loading: false });
+			}
+		};
+		fetchResponse();
+	}, [formResponseId, getFormResponse]);
 
-	if (info.loading) return <FormDescriptionSkeleton />;
+	if (info.loading) return <Skeleton count={5} />;
 	const response = info.formResponse;
-
-	if (!response || !response.response || response.response.length === 0) {
+	if (!response || !Array.isArray(response.response) || response.response.length === 0) {
 		return (
 			<div className="formDescription">
 				<div className="emptyState">
@@ -423,210 +281,57 @@ const FormDescription = ({ formResponseId }) => {
 		);
 	}
 
-	const getName = (response) => {
-		if (!response?.response) return 'No Name';
-		const nameField = response?.response.find((item) =>
-			item?.question?.toLowerCase().includes('name'),
-		);
-		return nameField?.answer || 'No Name';
-	};
-
-	const getEmail = (response) => {
-		if (!response?.response) return '';
-		const emailField = response?.response.find((item) =>
-			item?.question?.toLowerCase().includes('email'),
-		);
-		return emailField?.answer || '';
-	};
-
-	const getPhone = (response) => {
-		if (!response?.response) return '';
-		const phoneField = response.response.find(
-			(item) =>
-				item?.question?.toLowerCase().includes('phone') ||
-				item?.question?.toLowerCase().includes('mobile') ||
-				item?.question?.toLowerCase().includes('contact'),
-		);
-		return phoneField?.answer || '';
-	};
-
-	const getBasicInfo = (response) => {
-		if (!response?.response) return [];
-		const basicInfoFields = [
-			'first name',
-			'last name',
-			'name',
-			'email',
-			'phone',
-			'mobile',
-			'contact',
-			'address',
-			'location',
-			'company',
-			'organization',
-			'position',
-			'title',
-		];
-		return response.response.filter((item) => {
-			const question = item?.question?.toLowerCase() || '';
-			return basicInfoFields.some((field) => question.includes(field));
-		});
-	};
-
-	const getTimeAgo = (response) => {
-		if (!response?.createdAt) return '';
-		return new Date(response.createdAt * 1000).toLocaleString();
-	};
-
-	const formatLabel = (question) => {
-		const lowerQuestion = question?.toLowerCase();
-		if (lowerQuestion?.includes('first name')) return 'First Name';
-		if (lowerQuestion?.includes('last name')) return 'Last Name';
-		if (
-			lowerQuestion?.includes('name') &&
-			!lowerQuestion?.includes('first') &&
-			!lowerQuestion?.includes('last')
-		)
-			return 'Name';
-		if (lowerQuestion?.includes('email')) return 'Email';
-		if (
-			lowerQuestion?.includes('phone') ||
-			lowerQuestion?.includes('mobile') ||
-			lowerQuestion?.includes('contact')
-		)
-			return 'Phone';
-		if (lowerQuestion?.includes('address')) return 'Address';
-		if (lowerQuestion?.includes('location')) return 'Location';
-		if (lowerQuestion?.includes('company') || lowerQuestion?.includes('organization'))
-			return 'Company';
-		if (lowerQuestion?.includes('position') || lowerQuestion?.includes('title'))
-			return 'Position';
-		return question;
-	};
-
-	const formAnswer = (type, answer) => {
-		if (!answer && answer !== 0) {
-			return (
-				<>
-					<p className="answer">No answer provided</p>
-					<div className="divider"></div>
-				</>
-			);
-		}
-
-		// Handle object inputs by converting them to strings if needed
-		let processedAnswer = answer;
-		if (typeof answer === 'object') {
-			if (type === 'events') {
-				// For events, we want to keep the object structure
-				processedAnswer = answer;
-			} else {
-				// For other types, convert to string
-				processedAnswer = JSON.stringify(answer);
-			}
-		}
-
-		const answerComponentMapper = {
-			dropdown: <DropdownAnswer answer={processedAnswer} />,
-			events: <EventsAnswer answer={processedAnswer} />,
-			rating: <RatingAnswer answer={processedAnswer} />,
-			time: <TimeAnswer answer={processedAnswer} />,
-			singleChoice: <SingleChoiceAnswer answer={processedAnswer} />,
-			link: <LinkAnswer answer={processedAnswer} />,
-			fileupload: <FileUploadAnswer answer={processedAnswer} />,
-			signature: <SignatureAnswer answer={processedAnswer} />,
-		};
-
-		return (
-			answerComponentMapper[type] ?? (
-				<>
-					<p className="answer">
-						{typeof processedAnswer === 'string'
-							? removeQuotes(processedAnswer)
-							: 'No answer provided'}
-					</p>
-					<div className="divider"></div>
-				</>
-			)
-		);
-	};
+	const basicFields = response.response.filter((item) =>
+		/name|email|phone|address|location|company|position/i.test(item.question),
+	);
+	const submittedAt = response.createdAt
+		? new Date(response.createdAt * 1000).toLocaleString()
+		: '';
 
 	return (
 		<div className="formDescription">
 			<div className="descriptionContent">
-				{response ? (
-					<>
-						{/* <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-							<QuickActions suggestedOptions={suggestedOptions} isFromForms={true} />
-						</div> */}
-						<div className="descriptionSection">
-							{/* Basic Information fields in single line style, no divider */}
-							{getBasicInfo(response).map((field, index) => (
-								<div className="formResponseRow" key={index}>
-									<div className="formResponseLine">
+				{/* <div className="descriptionSection">
+					{basicFields.map((field) => (
+						<div className="formResponseRow" key={field._id}>
+							<div className="formResponseLine">
+								<div className="questionLeft">{stripHtml(field.question)}</div>
+								<div className="answerRight">{safe(field.answer)}</div>
+							</div>
+						</div>
+					))}
+					<div className="formResponseRow">
+						<div className="formResponseLine">
+							<div className="questionLeft">Submitted:</div>
+							<div className="answerRight">{submittedAt}</div>
+						</div>
+					</div>
+				</div> */}
+				<div className="descriptionSection">
+					<h3 className="sectionTitle">Form Response</h3>
+					<div className="formResponsesParentContainer">
+						{response.response.map((item) => (
+							<div className="formResponseRow" key={item._id}>
+								<div className="formResponseLine">
+									{item.type !== 'events' && (
 										<div className="questionLeft">
-											{formatLabel(field?.question)}:
+											{stripHtml(item.question)}
 										</div>
-										<div className="answerRight">
-											{field?.answer || 'Not provided'}
-										</div>
+									)}
+									<div
+										className={
+											item.type === 'events'
+												? 'answerRight fullWidth'
+												: 'answerRight'
+										}
+									>
+										{formAnswer(item.type, item.answer)}
 									</div>
 								</div>
-							))}
-							{/* Submitted field, no divider */}
-							<div className="formResponseRow">
-								<div className="formResponseLine">
-									<div className="questionLeft">Submitted:</div>
-									<div className="answerRight">{getTimeAgo(response)}</div>
-								</div>
 							</div>
-						</div>
-						<div className="descriptionSection">
-							<h3 className="sectionTitle">Form Response</h3>
-							<div className="formResponsesParentContainer">
-								{response?.response?.map(
-									(formData, idx) =>
-										formData?.type !== 'signature' &&
-										!getBasicInfo(response).some(
-											(field) => field?.question === formData?.question,
-										) && (
-											<div
-												className="formResponseRow"
-												key={formData?.id || idx}
-											>
-												<div className="formResponseLine">
-													{formData?.type !== 'events' && (
-														<div className="questionLeft">
-															{removeHTMLTagsAndnbsp(
-																formData?.question,
-															)}
-														</div>
-													)}
-													<div
-														className={
-															formData?.type === 'events'
-																? 'answerRight fullWidth'
-																: 'answerRight'
-														}
-													>
-														{formAnswer(
-															formData?.type,
-															formData?.answer,
-														)}
-													</div>
-												</div>
-												<div className="divider"></div>
-											</div>
-										),
-								)}
-							</div>
-						</div>
-					</>
-				) : (
-					<div className="emptyState">
-						<p>Select a form response to view details</p>
+						))}
 					</div>
-				)}
+				</div>
 			</div>
 		</div>
 	);
