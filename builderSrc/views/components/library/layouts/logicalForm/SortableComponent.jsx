@@ -2280,6 +2280,7 @@ const SortableComponent = ({
 															borderRadius: '4px',
 															color: '#fff',
 															marginTop: '8px',
+															fontSize: '14px',
 														}}
 													>
 														<option value="shortanswer">
