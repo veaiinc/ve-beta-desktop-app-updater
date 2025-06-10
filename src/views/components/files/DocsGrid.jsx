@@ -332,7 +332,6 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 										</div>
 									</div> */}
 									<div className="docsCardContainer">
-										{console.log(doc, 'testing')}
 										<div className="docsCardPreview">
 											{doc?.firstModule[0]?._id && (
 												<DocumentShortPreview doc={doc} />
