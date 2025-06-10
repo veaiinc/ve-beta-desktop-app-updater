@@ -5693,7 +5693,6 @@ class Home extends Proposals {
 	handleDeleteVariable = (variableId) => {
 		this.deleteVariable(this.props.params.templateID || this.templateId, variableId);
 	};
-
 	handleDuplicateTemplate = async () => {
 		let response = await this.handleDuplicateTemplateFunction(duplicateTemplateQuery, {
 			templateId: this.props.params.templateID || this.templateId,
@@ -5704,7 +5703,7 @@ class Home extends Proposals {
 		}
 	};
 	handleDuplicateTemplateRoute = (templateId) => {
-		return navigate(`/builder/${templateId}`);
+		window.location.replace(`/builder/${templateId}`);
 	};
 	handleDeleteTemplate = async (e) => {
 		let response = await this.handleDeleteTemplateFunction(deleteTemplateQuery, {
@@ -5712,9 +5711,7 @@ class Home extends Proposals {
 			isDeleted: e,
 		});
 		if (response[0] === true) {
-			// let from = window.location.origin;
-
-			return navigate('');
+			return window.location.replace(`${window.location.origin}/files?activeTab=Designs`);
 		}
 	};
 	updateTablesForTaxes = (tables) => {
