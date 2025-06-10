@@ -250,19 +250,6 @@ export const AutomationBuilderState = () => {
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
 			const query = { page, limit };
-			// console.log(
-			// 	`Fetching execution history for automation ${automationId}, page ${page}, limit ${limit}`,
-			// );
-
-			// Initialize or update loading state for this automation
-			dispatch({
-				type: Actions.SET_EXECUTION_HISTORY,
-				payload: {
-					automationId,
-					loading: true,
-					error: null,
-				},
-			});
 
 			const response = await restService.fetchGet(
 				`/${workspaceId}/${automationId}/execution/list`,
@@ -273,42 +260,22 @@ export const AutomationBuilderState = () => {
 
 			if (response?.[0]) {
 				const payload = {
-					automationId,
-					data: response?.[1]?.data || [],
-					hasNextPage: response?.[1]?.hasNextPage || false,
-					totalDocs: response?.[1]?.totalDocs || 0,
-					totalPages: response?.[1]?.totalPages || 1,
-					page: response?.[1]?.page || page,
-					loading: false,
-					error: null,
+					[automationId]: {
+						data: response?.[1]?.data || [],
+						hasNextPage: response?.[1]?.hasNextPage || false,
+						totalDocs: response?.[1]?.totalDocs || 0,
+						totalPages: response?.[1]?.totalPages || 1,
+						page: response?.[1]?.page || page,
+					},
 				};
-				// console.log('Execution history payload for automation', automationId, ':', payload);
 
 				dispatch({
 					type: Actions.SET_EXECUTION_HISTORY,
 					payload,
 				});
-			} else {
-				console.error('Execution history error:', response?.[1]?.message);
-				dispatch({
-					type: Actions.SET_EXECUTION_HISTORY,
-					payload: {
-						automationId,
-						error: response?.[1]?.message || 'Failed to fetch execution history',
-						loading: false,
-					},
-				});
 			}
 		} catch (error) {
 			console.error('API failed ==> getExecutionHistory', error);
-			dispatch({
-				type: Actions.SET_EXECUTION_HISTORY,
-				payload: {
-					automationId,
-					error: error.message,
-					loading: false,
-				},
-			});
 		}
 	};
 

@@ -26,16 +26,9 @@ const actionHandlers = {
 	}),
 
 	SET_EXECUTION_HISTORY: (state, action) => {
-		const { automationId, ...payload } = action.payload;
 		return {
 			...state,
-			executionHistory: {
-				...state.executionHistory,
-				[automationId]: {
-					...state.executionHistory?.[automationId],
-					...payload,
-				},
-			},
+			executionHistory: action.payload,
 		};
 	},
 
