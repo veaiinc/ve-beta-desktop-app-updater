@@ -180,55 +180,59 @@ const UserDetailsForm = ({
 				) : (
 					<div className="phoneInputContainer">
 						<p className="question">Enter your phone number</p>
-						{userDetailsLoading ? (
-							<Skeleton
-								width="100%"
-								height="41px"
-								style={{
-									'--highlight-color': 'gray',
-									'--base-color': 'transparent',
-								}}
-							/>
-						) : (
-							<PhoneInput
-								placeholder="Enter phone number"
-								value={phoneNumber}
-								onChange={handleSetPhoneNumber}
-								defaultCountry={(() => {
-									try {
-										const locationDetails = JSON.parse(
-											localStorage.getItem('locationDetails'),
-										);
-										return locationDetails?.countryCode || 'US';
-									} catch {
-										return 'US';
-									}
-								})()}
-								className="phoneInputNumber"
-								countryCallingCodeEditable={true}
-								onKeyDown={handleVerifyPhoneNumberOnEnter}
-								autoFocus={true}
-								autoComplete="tel"
-								disabled={isPhoneNumberVerified}
-							/>
-						)}
-						{isPhoneNumberVerified ? (
-							<div className="phoneNumberVerifiedContainer">
-								<GreenTick />
-							</div>
-						) : (
-							<button
-								onClick={handleVerifyPhoneNumber}
-								className="verifyPhoneNumberBtn"
-								style={{
-									opacity: verifyPhoneNumberLoading ? 0.5 : 1,
-									cursor: verifyPhoneNumberLoading ? 'not-allowed' : 'pointer',
-								}}
-								disabled={verifyPhoneNumberLoading}
-							>
-								{verifyPhoneNumberLoading ? 'Verifying...' : 'Send OTP'}
-							</button>
-						)}
+						<div className="phoneInputContain">
+							{userDetailsLoading ? (
+								<Skeleton
+									width="100%"
+									height="41px"
+									style={{
+										'--highlight-color': 'gray',
+										'--base-color': 'transparent',
+									}}
+								/>
+							) : (
+								<PhoneInput
+									placeholder="Enter phone number"
+									value={phoneNumber}
+									onChange={handleSetPhoneNumber}
+									defaultCountry={(() => {
+										try {
+											const locationDetails = JSON.parse(
+												localStorage.getItem('locationDetails'),
+											);
+											return locationDetails?.countryCode || 'US';
+										} catch {
+											return 'US';
+										}
+									})()}
+									className="phoneInputNumber"
+									countryCallingCodeEditable={true}
+									onKeyDown={handleVerifyPhoneNumberOnEnter}
+									autoFocus={true}
+									autoComplete="tel"
+									disabled={isPhoneNumberVerified}
+								/>
+							)}
+							{isPhoneNumberVerified ? (
+								<div className="phoneNumberVerifiedContainer">
+									<GreenTick />
+								</div>
+							) : (
+								<button
+									onClick={handleVerifyPhoneNumber}
+									className="verifyPhoneNumberBtn"
+									style={{
+										opacity: verifyPhoneNumberLoading ? 0.5 : 1,
+										cursor: verifyPhoneNumberLoading
+											? 'not-allowed'
+											: 'pointer',
+									}}
+									disabled={verifyPhoneNumberLoading}
+								>
+									{verifyPhoneNumberLoading ? 'Verifying...' : 'Send OTP'}
+								</button>
+							)}
+						</div>
 					</div>
 				)}
 				<div className="themeInputContainer">

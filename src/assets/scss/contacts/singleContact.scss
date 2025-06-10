@@ -9,6 +9,54 @@
 	padding: 24px;
 	height: 100%;
 	overflow: auto;
+
+	.center-container-header {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		max-width: 1200px;
+		margin-bottom: 16px;
+		gap: 16px;
+
+		.filter-container-search {
+			display: flex;
+			align-items: center;
+			padding: 8px 16px;
+			gap: 8px;
+			border-radius: 100px;
+			border: 1px solid var(--stroke);
+			background-color: var(--popup);
+			flex: 1;
+			max-width: 250px;
+
+			svg {
+				width: 16px;
+				height: 16px;
+				color: var(--secondary-font);
+			}
+
+			.search-input {
+				background: none;
+				border: none;
+				color: var(--primary-font);
+				font-size: 14px;
+				font-weight: 400;
+				line-height: 20px;
+				width: 100%;
+				outline: none;
+
+				&::placeholder {
+					color: var(--secondary-font);
+				}
+			}
+
+			.search-spinner {
+				display: flex;
+				align-items: center;
+			}
+		}
+	}
+
 	.titleContainer {
 		display: flex;
 		padding-bottom: 24px;

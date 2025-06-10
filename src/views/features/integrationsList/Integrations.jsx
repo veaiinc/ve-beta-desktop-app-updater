@@ -332,6 +332,7 @@ const Integrations = () => {
 	const [connectedAccountsModel, setConnectedAccountsModel] = useState(false);
 	const [activeTab, setActiveTab] = useState('private');
 	const [connectLoader, setConnectLoader] = useState(false);
+	const [searchQuery, setSearchQuery] = useState('');
 	const {
 		profileInfo: { tenantUserAccessControls, tennantSettingsData },
 	} = useContext(Context);
@@ -602,6 +603,18 @@ const Integrations = () => {
 		return true;
 	});
 
+	const filteredConnectedPlatforms = connectedPlatforms.filter((platform) =>
+		platform.title.toLowerCase().includes(searchQuery.toLowerCase()),
+	);
+
+	const filteredAvailableIntegrations = filteredIntegrations.filter((integration) =>
+		integration.title.toLowerCase().includes(searchQuery.toLowerCase()),
+	);
+
+	const filteredRequestIntegrations = requestIntegrations.filter((integration) =>
+		integration.title.toLowerCase().includes(searchQuery.toLowerCase()),
+	);
+
 	return (
 		<>
 			<div className="integrations-container">
@@ -609,7 +622,13 @@ const Integrations = () => {
 					<h1 className="integrations-title">Integrations</h1>
 					<div className="search-container">
 						<img src={Search} alt="search" className="search-image" />
-						<input type="text" placeholder="Search" className="search-input" />
+						<input
+							type="text"
+							placeholder="Search"
+							className="search-input"
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+						/>
 					</div>
 				</div>
 				<div className="tabs-wrapper">
@@ -628,14 +647,12 @@ const Integrations = () => {
 						</button>
 					)}
 				</div>
-				{/* {activeTab === 'private' ? (
-					<> */}
-				{connectedPlatforms.length !== 0 && (
+				{filteredConnectedPlatforms.length !== 0 && (
 					<section className="connected-integrations">
 						<h2>Connected Integrations</h2>
 
 						<div className="connected-integrations-list">
-							{connectedPlatforms.map((integration) => (
+							{filteredConnectedPlatforms.map((integration) => (
 								<ConnectedIntegrationCard
 									key={integration?.id}
 									{...integration}
@@ -652,7 +669,7 @@ const Integrations = () => {
 							: 'Available Integrations'}
 					</h2>
 					<div className="integrations-grid">
-						{filteredIntegrations?.map((integration) => (
+						{filteredAvailableIntegrations?.map((integration) => (
 							<AvailableIntegrationCard
 								connectedApps={connectedApps}
 								key={integration?.id}
@@ -666,7 +683,7 @@ const Integrations = () => {
 				<section className="request-integrations">
 					<h2>Which integrations you would like to connect?</h2>
 					<div className="request-integrations-grid">
-						{requestIntegrations?.map((integration, index) => (
+						{filteredRequestIntegrations?.map((integration, index) => (
 							<IntegrationRequestCard
 								key={index}
 								{...integration}

@@ -111,6 +111,11 @@ const PublicInformation = () => {
 					return { error: true, message: 'Invalid Email' };
 				}
 				break;
+			case 'businessName':
+				if (validator.isEmpty(Value)) {
+					return { error: true, message: 'Business Name is required' };
+				}
+				break;
 			case 'phoneNumber':
 				if (
 					!validator.isMobilePhone(Value, 'any', { strictMode: true }) &&
@@ -357,8 +362,8 @@ const PublicInformation = () => {
 							placeholder: 'Enter your Business Name',
 							name: 'businessName',
 							value: overviewState?.businessName,
-							isError: false,
-							errorMessage: '',
+							isError: error?.errorbusinessName?.error || false,
+							errorMessage: error?.errorbusinessName?.message || '',
 							key: 'businessname',
 						},
 						{

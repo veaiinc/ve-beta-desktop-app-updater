@@ -522,15 +522,31 @@
 					background: var(--card, #18191b);
 					flex-grow: 1;
 
+					input {
+						all: unset;
+						background: none;
+						color: var(--primary-font);
+						border: none;
+						outline: none;
+						box-shadow: none;
+						transition: none;
+						color: var(--primary-font);
+						cursor: text;
+						&:focus {
+							outline: none;
+						}
+					}
+
 					.domain-section {
 						overflow: hidden;
-						color: var(--primary-font, #f2f2f3);
+						color: var(--secondary-font, #7a7e85);
 						text-overflow: ellipsis;
 						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+						cursor: pointer;
 					}
 					.slug-input-container {
 						display: flex;

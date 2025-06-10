@@ -313,14 +313,16 @@ const EarlyAccess = () => {
 											className="icon-button"
 											onClick={() => setShowEmailInput(true)}
 										>
-											<MailIcon fill="white" />
+											<MailIcon fill="var(--primary-font)" />
 										</div>
 										<div
 											className="icon-button"
 											onClick={handleCopyReferralLink}
 										>
 											{isCopied ? (
-												<span style={{ color: 'white' }}>Copied!</span>
+												<span style={{ color: 'var(--primary-font)' }}>
+													Copied!
+												</span>
 											) : (
 												<CopyIcon />
 											)}
@@ -331,7 +333,7 @@ const EarlyAccess = () => {
 										<div
 											style={{
 												display: 'flex',
-												flexDirection: 'row',
+												flexDirection: 'column',
 												justifyContent: 'center',
 											}}
 										>
@@ -343,6 +345,16 @@ const EarlyAccess = () => {
 												onChange={handleInputChange}
 												onKeyPress={handleInputKeyPress}
 											/>
+											<div
+												style={{
+													fontSize: '12px',
+													color: 'var(--secondary-font)',
+													marginTop: '8px',
+													textAlign: 'center',
+												}}
+											>
+												Press Enter to add emails
+											</div>
 										</div>
 
 										<div className="email-tags" style={{ marginTop: '10px' }}>
