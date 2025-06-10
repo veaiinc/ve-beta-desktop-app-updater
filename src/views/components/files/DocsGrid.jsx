@@ -29,6 +29,23 @@ const origin = fetchOriginSelection();
 // 	{ label: 'Contract', value: 'contract' },
 // ];
 
+const docsStatusButtonStyles = {
+	display: 'flex',
+	height: '20px',
+	padding: '2px 8px',
+	justifyContent: 'center',
+	alignItems: 'center',
+	gap: '4px',
+	borderRadius: '100px',
+	border: '1px solid var(--stroke, #2B2E31)',
+	// background: 'var(--card-over-card, #27282B)',
+	color: 'var(--primary-font, #F2F2F3)',
+	fontFamily: 'Inter',
+	fontSize: '10px',
+	fontStyle: 'normal',
+	fontWeight: '500',
+	lineHeight: '14px',
+};
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
 	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
@@ -323,6 +340,17 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 										</div>
 										<div className="docsTitleContainer">
 											<div className="docsTitle">{doc?.title}</div>
+											<div className="docsSubtitleContainer">
+												<DocsStatusButton
+													content={statusTextmapper?.[doc?.status]?.text}
+													style={{
+														...statusTextmapper?.[doc?.status]?.style,
+														...docsStatusButtonStyles,
+													}}
+													dotStyle={
+														statusTextmapper?.[doc?.status]?.dotStyle
+													}
+												/>
 												<div className="docsSubtitle">
 													{info?.selectedSort?.value === 'updatedAt' ? (
 														<Tooltip title="Updated On">
@@ -334,6 +362,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 														</Tooltip>
 													)}
 												</div>
+											</div>
 										</div>
 									</div>
 								</div>

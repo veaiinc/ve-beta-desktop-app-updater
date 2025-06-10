@@ -190,7 +190,7 @@
 			display: flex;
 			flex-direction: column;
 			align-items: flex-start;
-			gap: 4px;
+			gap: 12px;
 			align-self: stretch;
 			padding: 0px 10px;
 			.docsTitle {
@@ -205,14 +205,19 @@
 				font-weight: 500;
 				line-height: 15px; /* 125% */
 			}
-			.docsSubtitle {
-				width: 112px;
-				color: var(--secondary-font, #7a7e85);
-				font-family: Inter;
-				font-size: 10px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 10px; /* 100% */
+			.docsSubtitleContainer {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				align-self: stretch;
+				.docsSubtitle {
+					color: var(--secondary-font, #7a7e85);
+					font-family: Inter;
+					font-size: 10px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 10px; /* 100% */
+				}
 			}
 		}
 	}
