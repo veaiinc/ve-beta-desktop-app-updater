@@ -287,7 +287,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 									key={index}
 									onClick={() => handleDocClick(doc)}
 								>
-									<div className="card-item-style content-wrapper docs">
+									{/* <div className="card-item-style content-wrapper docs">
 										<div className="docs-card-bg">
 											{doc.firstModule[0]?._id && (
 												<DocumentShortPreview doc={doc} />
@@ -312,6 +312,28 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 													</Tooltip>
 												)}
 											</span>
+										</div>
+									</div> */}
+									<div className="docsCardContainer">
+										{console.log(doc, 'testing')}
+										<div className="docsCardPreview">
+											{doc?.firstModule[0]?._id && (
+												<DocumentShortPreview doc={doc} />
+											)}
+										</div>
+										<div className="docsTitleContainer">
+											<div className="docsTitle">{doc?.title}</div>
+												<div className="docsSubtitle">
+													{info?.selectedSort?.value === 'updatedAt' ? (
+														<Tooltip title="Updated On">
+															{moment.unix(doc?.updatedAt).fromNow()}
+														</Tooltip>
+													) : (
+														<Tooltip title="Created On">
+															{moment.unix(doc?.createdAt).fromNow()}
+														</Tooltip>
+													)}
+												</div>
 										</div>
 									</div>
 								</div>
