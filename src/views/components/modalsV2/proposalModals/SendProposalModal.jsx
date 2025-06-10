@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { lazy, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/modules/workflow/sendProposal.scss';
 import Context from '../../../../context/context';
@@ -13,7 +13,7 @@ import { ReactComponent as Profile } from '../../../../assets/svg/workflow/profi
 import { ReactComponent as Settings } from '../../../../assets/svg/workflow/settings.svg';
 import { ReactComponent as DownArrow } from '../../../../assets/svg/workflow/smallDownArrow.svg';
 import ToggleSlider from '../../../components/input/slider';
-import JoditEditor from 'jodit-react';
+const JoditEditor = lazy(() => import('jodit-react'));
 import { message } from '../../globalComponents/CustomToast';
 import moment from 'moment';
 import { Tooltip } from 'antd';
