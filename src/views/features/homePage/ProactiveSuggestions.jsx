@@ -212,15 +212,15 @@ const ProactiveSuggestions = () => {
 	const handleRight = useCallback(async () => {
 		if (info?.isApiLoading) return;
 		const isLastCard = currentIndexRef.current === totalCardsDataRef.current.length - 2;
+		const totalCards = totalCardsDataRef.current.length;
 
 		if (isLastCard) {
-			setInfo((prev) => ({
-				...prev,
-				isApiLoading: true,
-			}));
 			if (aiSuggestedPendingActions?.metaInfo?.hasNextPage) {
+				setInfo((prev) => ({
+					...prev,
+					isApiLoading: true,
+				}));
 				const nextPage = aiSuggestedPendingActions.metaInfo.currentPage + 1;
-
 				const payload = {
 					...newUpdatedPayload,
 					page: nextPage,
@@ -232,21 +232,11 @@ const ProactiveSuggestions = () => {
 					isApiLoading: false,
 				}));
 				return;
-			} else {
-				const index = 0;
-				setInfo((prev) => ({
-					...prev,
-					currentIndex: index,
-					activeCardContent: totalCardsDataRef.current[index],
-					isApiLoading: false,
-				}));
-				currentIndexRef.current = index;
-				return;
 			}
 		}
 
 		// Normal forward movement
-		const index = currentIndexRef.current + 1;
+		const index = (currentIndexRef.current + 1) % totalCards;
 		setInfo((prev) => ({
 			...prev,
 			currentIndex: index,
