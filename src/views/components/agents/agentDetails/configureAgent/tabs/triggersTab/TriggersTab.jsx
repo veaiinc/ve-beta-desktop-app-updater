@@ -9,6 +9,7 @@ import GmailIcon from '../../../../../../../assets/svg/login_page/GmailIcon';
 import { ReactComponent as GoogleMeetIcon } from '../assets/google-meet-icon.svg';
 import { ReactComponent as CustomWebhookIcon } from '../assets/custom-webhook.svg';
 import { ReactComponent as RedirectIcon } from '../assets/redirect-icon.svg';
+import { ReactComponent as DustbinIcon } from '../assets/dustbin-icon.svg';
 
 // components
 import ListEmailsModal from './modals/ListEmailsModal';
@@ -49,25 +50,24 @@ const TriggersTab = () => {
 	const { agentId } = useParams();
 
 	const {
-		knowledgeAgent: { triggers, getTriggers, connectTrigger },
+		knowledgeAgent: { triggers, getTriggers, connectTrigger, disconnectTrigger },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		ListEmailsModalOpen: false,
-		localConnectedTriggers: null,
 	});
 
 	const connectedTriggers = useMemo(() => {
 		return [
-			...(info?.localConnectedTriggers ?? []),
 			...(triggers?.data?.map((trigger) => {
-				const { app, action, connectedEmail } = trigger;
+				const { _id, app, action, connectedEmail } = trigger;
 				const icon = app === 'gmail' ? <GmailIcon /> : <GoogleMeetIcon />;
 				const title = app === 'gmail' ? 'Gmail' : 'Google Meet';
 				const description = action === 'replyEmail' ? 'Incoming emails' : 'Google Meet';
 				const triggerType = app === 'gmail' ? 'gmail' : 'googleMeet';
 
 				return {
+					_id,
 					icon,
 					title,
 					triggerType,
@@ -76,7 +76,7 @@ const TriggersTab = () => {
 				};
 			}) ?? []),
 		];
-	}, [info?.localConnectedTriggers, triggers?.data]);
+	}, [triggers?.data]);
 
 	const currentPage = triggers?.currentPage ?? 1;
 	const hasNextPage = triggers?.hasNextPage ?? false;
@@ -101,33 +101,45 @@ const TriggersTab = () => {
 				connectedEmail: email,
 				assistantId: agentId,
 			};
-
 			const response = await connectTrigger({ triggerApp, triggerData });
 
 			if (response?.[0] === true) {
 				message.success('Trigger connected successfully');
-
-				const newLocalTrigger = {
-					icon: <GmailIcon />,
-					title: 'Gmail',
-					description: 'Incoming emails',
-					triggerType: 'gmail',
-					connectedEmail: email,
-				};
-
-				setInfo((prev) => ({
-					...prev,
-					localConnectedTriggers: [
-						newLocalTrigger,
-						...(prev.localConnectedTriggers ?? []),
-					],
-				}));
 			} else {
 				message.error(response[1].message);
 			}
 		} catch (error) {
 			const errorMsg = error?.message || 'An unexpected error occurred';
 			message.error(errorMsg);
+		}
+	};
+
+	const handleDisconnectTrigger = async (triggerId) => {
+		try {
+			const response = await disconnectTrigger(triggerId);
+			const success = response[0] === true;
+
+			if (success) {
+				const localDisconnectedTrigger =
+					(info?.localConnectedTriggers || []).filter(
+						(trigger) => trigger._id === triggerId,
+					).length > 0;
+
+				if (localDisconnectedTrigger) {
+					setInfo((prev) => ({
+						...prev,
+						localConnectedTriggers: (prev.localConnectedTriggers || []).filter(
+							(trigger) => trigger._id !== triggerId,
+						),
+					}));
+				}
+				message.success('Trigger disconnected successfully!');
+			} else {
+				message.error('Failed to disconnect trigger!');
+			}
+		} catch (error) {
+			console.error('Error during trigger disconnection:', error);
+			message.error('An error occurred while disconnecting the trigger.');
 		}
 	};
 
@@ -154,12 +166,18 @@ const TriggersTab = () => {
 					>
 						<ul className={s.triggersListContainer}>
 							{connectedTriggers.map((trigger) => (
-								<li key={trigger.title}>
+								<li key={trigger._id}>
 									{trigger.icon}
 									<div className={s.triggerItemContent}>
 										<h3>{trigger.connectedEmail}</h3>
 										<p>{trigger.description}</p>
 									</div>
+									<button
+										onClick={() => handleDisconnectTrigger(trigger._id)}
+										className={s.disconnectTrigger}
+									>
+										<DustbinIcon />
+									</button>
 								</li>
 							))}
 						</ul>

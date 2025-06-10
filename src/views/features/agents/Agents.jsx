@@ -38,7 +38,7 @@ const Agents = () => {
 					<div className={s.header}>
 						<div className={s.headerActions}>
 							<div className={s.headerTitle}>Your Agents</div>
-							<div className={s.headerActionsContainer}>
+							{/* <div className={s.headerActionsContainer}>
 								<div className={s.searchContainer}>
 									<SearchIcon />
 									<input type="text" placeholder="Search your agent" />
@@ -57,7 +57,7 @@ const Agents = () => {
 										<ListIcon />
 									</div>
 								</div>
-							</div>
+							</div> */}
 						</div>
 					</div>
 					<div className={s.body}>

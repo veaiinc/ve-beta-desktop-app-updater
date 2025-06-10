@@ -660,6 +660,16 @@ export const KnowledgeAgentState = () => {
 						'ai_assistant_api',
 					);
 					if (response?.[0] === true) {
+						const newTrigger = response[1];
+						const data = [newTrigger, ...(state.triggers.data || [])];
+						const payload = {
+							...state.triggers,
+							data: [newTrigger, ...(state.triggers.data || [])],
+						};
+						dispatch({
+							type: Actions.CONNECT_TRIGGER,
+							payload,
+						});
 						return [true];
 					}
 					return [false, response?.[1]];
@@ -668,6 +678,37 @@ export const KnowledgeAgentState = () => {
 			}
 		} catch (error) {
 			console.log('error==>connectTrigger', error);
+		}
+	};
+
+	const disconnectTrigger = async (triggerId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/ai-assistant-triggers/${triggerId}/ai-trigger`;
+			const type = 'ai_assistant_api';
+
+			const response = await service.fetchDelete(url, usertoken, null, type);
+			const success = response[0] === true;
+			if (success) {
+				const updatedTriggers = {
+					...state.triggers,
+					data: ([...state?.triggers?.data] || []).filter(
+						(trigger) => trigger._id !== triggerId,
+					),
+				};
+				dispatch({
+					type: Actions.DELETE_TRIGGER,
+					payload: updatedTriggers,
+				});
+				return [true];
+			} else {
+				console.error('Failed to delete trigger:', response);
+				return [false];
+			}
+		} catch (error) {
+			console.error('Error disconnecting trigger:', error);
+			return [false];
 		}
 	};
 
@@ -706,5 +747,6 @@ export const KnowledgeAgentState = () => {
 		uploadAgentProfilePic,
 		getTriggers,
 		connectTrigger,
+		disconnectTrigger,
 	};
 };

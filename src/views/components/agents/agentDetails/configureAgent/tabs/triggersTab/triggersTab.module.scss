@@ -73,6 +73,7 @@
 				border-radius: 12px;
 				border: 1px solid var(--stroke);
 				background: var(--card);
+				position: relative;
 
 				.triggerItemContent {
 					display: flex;
@@ -95,6 +96,27 @@
 						font-style: normal;
 						font-weight: 400;
 						line-height: 18px;
+					}
+				}
+
+				.disconnectTrigger {
+					position: absolute;
+					right: 18px;
+					top: 50%;
+					transform: translateY(-50%);
+					width: 24px;
+					height: 24px;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					border: none;
+					outline: none;
+					background: inherit;
+					cursor: pointer;
+					transition: all 0.2s ease-in;
+
+					&:hover {
+						transform: translateY(-50%) scale(1.1);
 					}
 				}
 			}
