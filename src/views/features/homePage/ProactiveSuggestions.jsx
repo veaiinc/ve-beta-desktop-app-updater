@@ -193,7 +193,7 @@ const ProactiveSuggestions = () => {
 		}
 		timeoutIdRef.current = setTimeout(() => {
 			fetchPendingActions();
-		}, 1000);
+		}, 500);
 	}, [info?.searchQuery]);
 
 	const handleLeft = useCallback(() => {
