@@ -5402,6 +5402,7 @@ const SortableComponent = ({
 													? '#3D3D3D'
 													: 'transparent',
 												borderRadius: '30px',
+												//
 											}}
 										>
 											{field.useBadges && (
