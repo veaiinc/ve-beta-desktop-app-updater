@@ -1,5 +1,6 @@
 .sidebar-notifications-drawer {
-	left: 250px;
+	left: 0;
+	z-index: 1;
 
 	.ant-drawer-content-wrapper {
 		.ant-drawer-header {
@@ -16,7 +17,7 @@
 			padding: 0px;
 
 			.notifications-drawer-container {
-				border-left: 1px solid var(--stroke);
+				border-left: 28px solid var(--stroke);
 				color: var(--primary-font);
 
 				.header {
@@ -83,6 +84,11 @@
 							font-weight: 500;
 							line-height: normal;
 							width: 224px;
+							display: -webkit-box;
+							-webkit-line-clamp: 2;
+							-webkit-box-orient: vertical;
+							overflow: hidden;
+							text-overflow: ellipsis;
 
 							.action {
 								color: var(--secondary-font);

@@ -36,29 +36,31 @@ const UploadAvatarPopupComponent = ({
 					</span>
 				</div>
 
-				{openTheme ? (
+				{!userDetails?.logoURL && openTheme ? (
 					<div className="avatarColorContainer">
 						<h4>Avatar color</h4>
 						<div className="colorList">
 							{avatarColorList?.map((singleColor) => (
 								<div
+									key={singleColor}
 									style={{ background: singleColor }}
 									className="colorCircleDiv"
 									onClick={() => updateDpThemeHandler(singleColor)}
 								></div>
 							))}
 						</div>
-
 						<br />
-
 						<br />
 					</div>
 				) : (
-					<div className="imageCircleDiv" onClick={() => setopenTheme(true)} z>
+					<div
+						className="imageCircleDiv"
+						onClick={() => !userDetails?.logoURL && setopenTheme(true)}
+					>
 						{userDetails?.logoURL ? (
 							<div className="crop-container">
 								<Cropper
-									image={userDetails?.logoURL} // Image URL to crop
+									image={userDetails?.logoURL}
 									crop={userDetails?.cropSettings?.crop}
 									zoom={userDetails?.cropSettings?.zoom}
 									showGrid={false}
@@ -74,26 +76,19 @@ const UploadAvatarPopupComponent = ({
 									background: userDetails?.cropSettings?.profileDpColor || '',
 								}}
 							>
-								{getInitials(
-									userDetailsData?.firstName,
-
-									userDetailsData?.lastName,
-								)}
+								{getInitials(userDetailsData?.firstName, userDetailsData?.lastName)}
 							</div>
 						)}
 
-						<div className="editImage">
-							<PencilSvg />
-						</div>
+						{!userDetails?.logoURL && (
+							<div className="editImage">
+								<PencilSvg />
+							</div>
+						)}
 					</div>
 				)}
 
-				<Dropzone
-					onDrop={handleImageChange}
-					accept={'image/png'}
-					multiple={false}
-					// disabled={!isAdmin}
-				>
+				<Dropzone onDrop={handleImageChange} accept={'image/png'} multiple={false}>
 					{({ getRootProps, getInputProps }) => (
 						<div
 							className="customAvatarButton"
@@ -102,7 +97,6 @@ const UploadAvatarPopupComponent = ({
 							onMouseLeave={() => sethover(false)}
 						>
 							<input {...getInputProps()} />
-
 							<span className="addIcon">
 								{hover ? <PlusSvgColor /> : <PlusSvg />}
 							</span>
