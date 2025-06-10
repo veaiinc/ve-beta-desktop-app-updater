@@ -1,7 +1,7 @@
 import { Fragment, createRef } from 'react';
 import '../../assets/scss/home.scss';
 import Header from '../components/header';
-import Builder from '../components/library/builder';
+import Builder from '../components/library/builder/index';
 import Sidebar from '../components/sidebar';
 import Proposals from '../../controllers/proposals';
 import { withRouter } from '../../services/withRouter';
