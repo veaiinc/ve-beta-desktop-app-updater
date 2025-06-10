@@ -10,6 +10,15 @@ import { ReactComponent as Close } from '../../../assets/svg/smartFile/close.svg
 import EventsPresetsPopOverComponent from './EventsPresetPopup';
 import Context from '../../../context/context';
 
+const stripHtml = (html) => {
+	if (!html) return '';
+	return html
+	  .replace(/<[^>]*>/g, '')   // remove all tags
+	  .replace(/&nbsp;/g, ' ')   // replace non-breaking spaces with regular spaces
+	  .replace(/&amp;/g, '');    // remove any “&amp;” entities
+  };
+  
+
 const Events = ({
 	eventsData,
 	editable = true,
@@ -329,12 +338,14 @@ const Events = ({
 		setShowConnectPopover(false);
 	};
 
+	const handleShowPopover = () => setShowConnectPopover(prev => !prev);
+
 	return allEvents.length > 0 ? (
 		<div className="eventsParentContainer">
 			<div className="eventsHeaderRow">
 				<span className="eventsBlockTitle">Events {allEvents.length}</span>
 				{editable && formResponses && formResponses.length > 0 && (
-					<div className="connectWithFormBtn" onClick={handleConnectWithForm}>
+					<div className="connectWithFormBtn" onClick={handleConnectWithForm} onMouseEnter={handleShowPopover} onMouseLeave={handleShowPopover}>
 						Connect with Form
 						{showConnectPopover && (
 							<div
@@ -350,7 +361,7 @@ const Events = ({
 										>
 											<div className="presetCardContentContainer">
 												<span className="presetTitle">
-													{item.question || `Events ${idx + 1}`}
+													{stripHtml(item.question) || `Events ${idx + 1}`}
 												</span>
 												<span className="presetSubTitle">
 													{Array.isArray(item.answer)

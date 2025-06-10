@@ -154,12 +154,10 @@
 								flex-direction: column;
 								align-items: flex-start;
 								gap: 4px;
-								flex: 1 0 0;
 								.taskWidgetOptionTitle {
 									display: flex;
 									flex-direction: column;
 									justify-content: center;
-									flex: 1 0 0;
 									align-self: stretch;
 									color: var(--primary-font, #f2f2f3);
 									font-family: var(--primary-font-family);
@@ -167,6 +165,10 @@
 									font-style: normal;
 									font-weight: 600;
 									line-height: normal;
+									width: 251px;
+									white-space: nowrap;
+									text-overflow: ellipsis;
+									overflow: hidden;
 								}
 								.taskWidgetOptionName {
 									color: var(--Secondary-Font, #787e87);

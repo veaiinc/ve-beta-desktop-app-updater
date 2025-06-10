@@ -561,6 +561,8 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 									placeholder={moment().format('DD MMM YYYY')}
 									className="events-popup-date-input"
 									value={info?.startDate}
+									min="1900-01-01"
+									max="9999-12-31"
 									onChange={(e) => {
 										updateEventInfo('startDate', e.target.value);
 										updateEventInfo('submissionError', null);
@@ -593,6 +595,8 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 									placeholder={moment().format('DD MMM YYYY')}
 									className="events-popup-date-input"
 									value={info?.endDate}
+									min="0000-00-00"
+									max="9999-12-31"
 									onChange={(e) => {
 										updateEventInfo('endDate', e.target.value);
 										updateEventInfo('submissionError', null);
