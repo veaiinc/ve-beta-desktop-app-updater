@@ -113,6 +113,7 @@ const ProactiveSuggestions = () => {
 	const totalCardsDataRef = useRef([]);
 	const isMountedRef = useRef(true);
 	const timeoutIdRef = useRef(null);
+	const searchFocusedRef = useRef(false);
 
 	const {
 		templates: {
@@ -164,22 +165,6 @@ const ProactiveSuggestions = () => {
 		}
 	}, []);
 
-	const handleKeyDown = (e) => {
-		if (e?.key === 'ArrowUp' || e?.key === 'ArrowLeft') {
-			handleLeft();
-		} else if (e?.key === 'ArrowDown' || e?.key === 'ArrowRight') {
-			handleRight();
-		}
-	};
-	useEffect(() => {
-		window?.addEventListener('keydown', handleKeyDown);
-
-		// Clean up on unmount
-		return () => {
-			window?.removeEventListener('keydown', handleKeyDown);
-		};
-	}, [handleKeyDown]);
-
 	useEffect(() => {
 		if (info?.totalCardsData?.length > 0) {
 			updateWindow(info?.currentIndex);
@@ -193,122 +178,25 @@ const ProactiveSuggestions = () => {
 			info?.selectedFilters?.length === 0 &&
 			isMountedRef.current
 		) {
-			isMountedRef.current = false;
 			return;
 		}
 		fetchPendingActions();
 	}, [info?.selectedFilters, info?.sortOptions, info?.sortBy]);
 
 	useEffect(() => {
-		if (info?.searchQuery) {
-			if (timeoutIdRef.current) {
-				clearTimeout(timeoutIdRef.current);
-			}
-			timeoutIdRef.current = setTimeout(() => {
-				fetchPendingActions();
-			}, 1000);
+		if (isMountedRef.current) {
+			isMountedRef.current = false;
+			return;
 		}
+		if (timeoutIdRef.current) {
+			clearTimeout(timeoutIdRef.current);
+		}
+		timeoutIdRef.current = setTimeout(() => {
+			fetchPendingActions();
+		}, 1000);
 	}, [info?.searchQuery]);
 
-	const getDateRangeFromFilters = (filters) => {
-		const selectedDateFilter = filters?.find((f) => f?.group === 'Date');
-
-		if (!selectedDateFilter?.value) return {};
-
-		const SECONDS_IN_DAY = 86400; // 24 * 60 * 60 seconds
-		const todayStart = new Date();
-		todayStart.setHours(0, 0, 0, 0);
-		const startTime = Math.floor(todayStart.getTime() / 1000);
-		const endTime = startTime + SECONDS_IN_DAY;
-
-		let from;
-		let to = endTime;
-		switch (selectedDateFilter?.value) {
-			case 'today':
-				from = startTime;
-				break;
-			case 'last7days':
-				from = startTime - SECONDS_IN_DAY * 6;
-				break;
-			case 'last30days':
-				from = startTime - SECONDS_IN_DAY * 29;
-				break;
-			default:
-				return {};
-		}
-
-		return { from, to };
-	};
-
-	const newUpdatedPayload = useMemo(() => {
-		const getFilterValues = (group, excludeTitle = null) =>
-			info?.selectedFilters
-				?.filter((f) => f?.group === group && (!excludeTitle || f?.title !== excludeTitle))
-				.map((f) => f?.value) || [];
-
-		const selectedPriority = getFilterValues('Priority Level');
-		const selectedReadStatus = getFilterValues('Read Status', 'All');
-		const selectedConfidenceScore = getFilterValues('Confidence level');
-		const [favourite] = getFilterValues('Other');
-		const { from, to } = getDateRangeFromFilters(info?.selectedFilters);
-
-		return {
-			...payload,
-			...(selectedPriority.length && { priority: selectedPriority }),
-			...(selectedReadStatus.length && { read: selectedReadStatus }),
-			...(selectedConfidenceScore.length && { confidenceScore: selectedConfidenceScore }),
-			...(from !== undefined && to !== undefined && { from, to }),
-			sortType: info?.sortOptions[info?.sortBy]?.sortType,
-			sortBy: info?.sortBy,
-			...(favourite && { isFavourited: favourite }),
-			search: info?.searchQuery,
-		};
-	}, [payload, info?.selectedFilters, info?.sortOptions, info?.sortBy, info?.searchQuery]);
-
-	const updateCardsData = () => {
-		const cards = aiSuggestedPendingActions?.pendingActions;
-
-		if (cards?.length > 0) {
-			totalCardsDataRef.current = cards;
-
-			setInfo((prev) => ({
-				...prev,
-				totalCardsData: cards,
-				loading: false,
-			}));
-		} else {
-			totalCardsDataRef.current = [];
-			setInfo((prev) => ({
-				...prev,
-				loading: false,
-				totalCardsData: [],
-				cards: [],
-			}));
-		}
-	};
-
-	const updateWindow = (index) => {
-		const length = info?.totalCardsData?.length;
-
-		const cards = info?.totalCardsData?.map((card, i) => {
-			let diff = i - index;
-
-			if (diff > length / 2) diff -= length;
-			if (diff < -length / 2) diff += length;
-
-			return {
-				...card,
-				position: Math.abs(diff) <= 2 ? diff : null,
-			};
-		});
-
-		setInfo((prev) => ({
-			...prev,
-			cards,
-		}));
-	};
-
-	const handleLeft = () => {
+	const handleLeft = useCallback(() => {
 		const index =
 			(currentIndexRef.current - 1 + totalCardsDataRef.current?.length) %
 			totalCardsDataRef.current?.length;
@@ -319,9 +207,9 @@ const ProactiveSuggestions = () => {
 			selectedCardNumber: index,
 		}));
 		currentIndexRef.current = index;
-	};
+	}, []);
 
-	const handleRight = async () => {
+	const handleRight = useCallback(async () => {
 		if (info?.isApiLoading) return;
 		const isLastCard = currentIndexRef.current === totalCardsDataRef.current.length - 2;
 
@@ -366,6 +254,98 @@ const ProactiveSuggestions = () => {
 			selectedCardNumber: index + 1,
 		}));
 		currentIndexRef.current = index;
+	}, [info?.isApiLoading, aiSuggestedPendingActions, getAISuggestedPendingActions]);
+
+	const handleKeyDown = useCallback(
+		(e) => {
+			if (searchFocusedRef.current) return;
+			if (e?.key === 'ArrowUp' || e?.key === 'ArrowLeft') {
+				handleLeft();
+			} else if (e?.key === 'ArrowDown' || e?.key === 'ArrowRight') {
+				handleRight();
+			}
+		},
+		[handleLeft, handleRight],
+	);
+	useEffect(() => {
+		window?.addEventListener('keydown', handleKeyDown);
+		// Clean up on unmount
+		return () => {
+			window?.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [handleKeyDown]);
+
+	const getDateRangeFromFilters = (filters) => {
+		const selectedDateFilter = filters?.find((f) => f?.group === 'Date');
+
+		if (!selectedDateFilter?.value) return {};
+
+		const SECONDS_IN_DAY = 86400; // 24 * 60 * 60 seconds
+		const todayStart = new Date();
+		todayStart.setHours(0, 0, 0, 0);
+		const startTime = Math.floor(todayStart.getTime() / 1000);
+		const endTime = startTime + SECONDS_IN_DAY;
+
+		let from;
+		let to = endTime;
+		switch (selectedDateFilter?.value) {
+			case 'today':
+				from = startTime;
+				break;
+			case 'last7days':
+				from = startTime - SECONDS_IN_DAY * 6;
+				break;
+			case 'last30days':
+				from = startTime - SECONDS_IN_DAY * 29;
+				break;
+			default:
+				return {};
+		}
+
+		return { from, to };
+	};
+
+	const updateCardsData = () => {
+		const cards = aiSuggestedPendingActions?.pendingActions;
+
+		if (cards?.length > 0) {
+			totalCardsDataRef.current = cards;
+
+			setInfo((prev) => ({
+				...prev,
+				totalCardsData: cards,
+				loading: false,
+			}));
+		} else {
+			totalCardsDataRef.current = [];
+			setInfo((prev) => ({
+				...prev,
+				loading: false,
+				totalCardsData: [],
+				cards: [],
+			}));
+		}
+	};
+
+	const updateWindow = (index) => {
+		const length = info?.totalCardsData?.length;
+
+		const cards = info?.totalCardsData?.map((card, i) => {
+			let diff = i - index;
+
+			if (diff > length / 2) diff -= length;
+			if (diff < -length / 2) diff += length;
+
+			return {
+				...card,
+				position: Math.abs(diff) <= 2 ? diff : null,
+			};
+		});
+
+		setInfo((prev) => ({
+			...prev,
+			cards,
+		}));
 	};
 
 	const handleCardClick = async (card, index) => {
@@ -532,6 +512,31 @@ const ProactiveSuggestions = () => {
 			searchQuery: e.target?.value,
 		}));
 	};
+
+	const newUpdatedPayload = useMemo(() => {
+		const getFilterValues = (group, excludeTitle = null) =>
+			info?.selectedFilters
+				?.filter((f) => f?.group === group && (!excludeTitle || f?.title !== excludeTitle))
+				.map((f) => f?.value) || [];
+
+		const selectedPriority = getFilterValues('Priority Level');
+		const selectedReadStatus = getFilterValues('Read Status', 'All');
+		const selectedConfidenceScore = getFilterValues('Confidence level');
+		const [favourite] = getFilterValues('Other');
+		const { from, to } = getDateRangeFromFilters(info?.selectedFilters);
+
+		return {
+			...payload,
+			...(selectedPriority.length && { priority: selectedPriority }),
+			...(selectedReadStatus.length && { read: selectedReadStatus }),
+			...(selectedConfidenceScore.length && { confidenceScore: selectedConfidenceScore }),
+			...(from !== undefined && to !== undefined && { from, to }),
+			sortType: info?.sortOptions[info?.sortBy]?.sortType,
+			sortBy: info?.sortBy,
+			...(favourite && { isFavourited: favourite }),
+			search: info?.searchQuery,
+		};
+	}, [payload, info?.selectedFilters, info?.sortOptions, info?.sortBy, info?.searchQuery]);
 
 	const groupedCards = useMemo(() => {
 		const groups = {};
@@ -737,6 +742,8 @@ const ProactiveSuggestions = () => {
 								className="search-input"
 								placeholder="Search"
 								onChange={handleSearchQueryChange}
+								onFocus={() => (searchFocusedRef.current = true)}
+								onBlur={() => (searchFocusedRef.current = false)}
 							/>
 						</div>
 					</div>
