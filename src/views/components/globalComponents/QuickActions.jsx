@@ -101,13 +101,33 @@ const createOptions = [
 		title: 'Form',
 		value: 'form-submission',
 		controlValue: 'form',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({
-				...prev,
-				openProposalPopup: true,
-				commonState: 'form-submission',
-				dropdown: false,
-			}));
+		action: async ({ setInfo }) => {
+			try {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: true,
+					loaderMessage: 'Creating form...',
+					dropdown: false,
+				}));
+				const response = await createBlankTemplate({
+					templateInput: {
+						title: 'Untitled Form',
+					},
+				});
+				if (response?.[0]) {
+					window.location.href = `${origin}/${response?.[1]?.data?.createBlankTemplate?._id}`;
+				} else {
+					message.error('Failed to create form');
+				}
+			} catch (error) {
+				message.error('Failed to create form');
+			} finally {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: false,
+					loaderMessage: '',
+				}));
+			}
 		},
 	},
 	{

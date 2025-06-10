@@ -136,6 +136,30 @@ export const AutomationBuilderState = () => {
 		}
 	};
 
+	const updateTrigger = async (automationId, stepId, payload) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const response = await restService.fetchPut(
+				`/${workspaceId}/${automationId}/updateTrigger/${stepId}`,
+				payload,
+				usertoken,
+				'automation_builder_api',
+			);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.SET_AUTOMATION,
+					payload: response?.[1]?.updatedAutomation,
+				});
+				return [true, response?.[1]?.updatedTrigger];
+			}
+			return [false, response?.[1]?.message];
+		} catch (error) {
+			console.log('API failed ==> updateTrigger', error);
+			return [false, null];
+		}
+	};
+
 	const addStep = async (automationId, payload) => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
@@ -365,6 +389,7 @@ export const AutomationBuilderState = () => {
 		getAutomationsList,
 		updateStateValues,
 		addTrigger,
+		updateTrigger,
 		addStep,
 		resetAutomationBuilderState,
 		getConnectionDetails,
