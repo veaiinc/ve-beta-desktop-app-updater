@@ -1,5 +1,5 @@
 import jwtDecode from 'jwt-decode';
-import { memo, useContext, useState, useEffect, useCallback, useMemo, useRef, lazy } from 'react';
+import { memo, useContext, useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from 'react';
 import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,6 +22,7 @@ import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/
 import VeSvg from '../../../assets/svg/veSvg';
 
 import '../../../assets/scss/home_page/initialHomepage.scss';
+import Spinner from '../../components/loaders/Spinner';
 
 const optionsList = [
 	{
@@ -445,7 +446,11 @@ const InitialHomePage = () => {
 			</div>
 			{options?.length > 0 && !info?.showSuggestions && (
 				<div className="home-page-container-content">
+					<Suspense fallback={<div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%'}}>
+					<Spinner />
+					</div>}>
 					{componentMapper[info?.selectedOption]}
+					</Suspense>
 				</div>
 			)}
 		</div>
