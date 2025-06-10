@@ -6162,7 +6162,7 @@ function LogicalForm(props) {
 					{showDropdown && (
 						<div className="dropdown-menu" ref={dropdownRef}>
 							<div className="dropdown-header">
-								<h3>Question Types</h3>
+								<h4 style={{ color: '#fff' }}>Question Types</h4>
 								<button
 									className="close-button"
 									onClick={() => setShowDropdown(false)}
@@ -6181,7 +6181,7 @@ function LogicalForm(props) {
 								</div>
 							))}
 							<div className="embed-fields">
-								<h3>Embed fields</h3>
+								<h4 style={{ color: '#fff' }}>Embed fields</h4>
 								{embedFields.map((item, index) => (
 									<div
 										key={`embed-${index}`}

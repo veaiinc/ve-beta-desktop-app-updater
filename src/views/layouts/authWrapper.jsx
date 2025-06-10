@@ -101,7 +101,7 @@ const AuthWrapper = ({
 					</SkeletonTheme>
 				</div>
 				{/* {showBottomToolbar ? <BottomToolbar outerContainerStyle={{ bottom: '10px' }} /> : ''} */}
-				<CommandKSearch />
+				{/* <CommandKSearch /> */}
 			</div>
 		</main>
 	);

@@ -8,6 +8,10 @@ export const handleDeepSearchChainOfThought = (chainOfThought) => {
 		if (data?.step) {
 			cot?.push({ step: data?.step, readings: data?.reading || [] });
 		}
+
+		if (data?.memory_thinking) {
+			cot?.push({ step: data?.memory_thinking });
+		}
 	}
 
 	return { cot };
@@ -43,6 +47,10 @@ export const handleDeepResearchChainOfThought = (chainOfThought) => {
 
 		if (data?.responded) {
 			cot?.push({ step: data?.responded });
+		}
+
+		if (data?.memory_thinking) {
+			cot?.push({ step: data?.memory_thinking });
 		}
 
 		if (data?.intermediate_step) {
