@@ -5,6 +5,56 @@
 	align-items: flex-start;
 	gap: 24px;
 	flex-shrink: 0;
+	.instructionItem {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		padding: 12px;
+		align-items: center;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 6px;
+
+		span {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+
+			svg {
+				width: 12px;
+				height: 12px;
+				margin-top: 4px;
+				cursor: pointer;
+				opacity: 0;
+			}
+
+			&:hover {
+				svg {
+					opacity: 1;
+				}
+			}
+		}
+
+		span:nth-child(2) {
+			justify-self: center;
+			justify-content: center;
+		}
+
+		span:last-child,
+		.aiToggleSwitch {
+			justify-self: end;
+			justify-content: flex-end;
+			width: 100%;
+		}
+
+		overflow: hidden;
+		color: var(--primary-font);
+		text-overflow: ellipsis;
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
 	.actionsHeader {
 		display: flex;
 		align-items: center;

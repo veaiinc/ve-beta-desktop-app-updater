@@ -6,6 +6,7 @@ import { getFaviconUrl } from '../../../../../../../helpers';
 // components
 import ActionsModal from '../../../../../modalsV2/ai_assistant/ActionsModal';
 import EditAgentTool from '../../../../modals/editAgentTool/EditAgentTool';
+import ToggleSwitch from '../../../../../../components/input/slider';
 
 // svgs
 import { ReactComponent as SearchSvg } from '../assets/search-icon.svg';
@@ -13,10 +14,14 @@ import { ReactComponent as DeleteSvg } from '../assets/delete-icon.svg';
 import { ReactComponent as EditSvg } from '../assets/edit-icon.svg';
 import { ReactComponent as PlusSvg } from '../assets/plus-icon.svg';
 import { ReactComponent as GmailIcon } from '../assets/gmail-icon.svg';
+import { ReactComponent as Delete } from '../assets/delete.svg';
+import moment from 'moment';
+import { message } from '../../../../../globalComponents/CustomToast';
 
 const ToolsTab = ({ agentId }) => {
 	const {
-		knowledgeAgent: { getActionsForKnowledgeAgent, actionsInfo },
+		aiSetup: { updateAiAction },
+		knowledgeAgent: { getActionsForKnowledgeAgent, deleteActionOfKnowledgeAgent, actionsInfo },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -77,6 +82,62 @@ const ToolsTab = ({ agentId }) => {
 		}));
 	}, []);
 
+	const handleDeleteAction = useCallback(
+		async (actionId) => {
+			const response = await deleteActionOfKnowledgeAgent(agentId, actionId);
+			if (response) {
+				message.success('Action deleted successfully');
+				setInfo((prev) => ({
+					...prev,
+					aiActionList: prev?.aiActionList?.filter((action) => action?._id !== actionId),
+				}));
+			} else {
+				message.error('Failed to delete action');
+			}
+		},
+		[info?.assistantId],
+	);
+
+	const handleToggleChange = useCallback(
+		async (actionId, currentStatus, actionType) => {
+			try {
+				const updatedActions = info?.aiActionList?.map((action) =>
+					action?._id === actionId ? { ...action, status: !currentStatus } : action,
+				);
+
+				setInfo((prev) => ({
+					...prev,
+					aiActionList: updatedActions,
+				}));
+
+				const response = await updateAiAction(agentId, actionId, {
+					status: !currentStatus,
+					type: actionType,
+				});
+
+				if (response) {
+					message.success('Action status updated successfully');
+				} else {
+					// Revert the state if API call fails
+					setInfo((prev) => ({
+						...prev,
+						aiActionList: info?.aiActionList,
+					}));
+					message.error('Failed to update action status');
+				}
+			} catch (error) {
+				// Revert the state if API call fails
+				setInfo((prev) => ({
+					...prev,
+					aiActionList: info?.aiActionList,
+				}));
+				console.log(error);
+				message.error('Failed to update action status', error);
+			}
+		},
+		[info?.aiActionList, info?.assistantId],
+	);
+
 	return (
 		<div className={s?.actionsTabContainer}>
 			<div className={s?.actionsHeader}>
@@ -101,65 +162,44 @@ const ToolsTab = ({ agentId }) => {
 			</div>
 
 			<div className={s?.actionsContainer}>
-				<div
-					onClick={() => setInfo((prev) => ({ ...prev, editAgentToolOpen: true }))}
-					className={s.gmailTool}
-				>
-					<div className={s.gmailIcon}>
-						<GmailIcon />
+				{info?.aiActionList?.map((item) => (
+					<div
+						key={item?._id}
+						className={s.instructionItem}
+						onClick={() => handleActionClick(item)}
+						style={{ cursor: 'pointer' }}
+					>
+						<span className={s.actionNameContainer}>
+							<p>{item?.typeDependencies?.name}</p>
+							<Delete
+								className={s.deleteKnowledge}
+								onClick={(e) => {
+									e.stopPropagation();
+									handleDeleteAction(item?._id);
+								}}
+							/>
+						</span>
+						<span className={s.actionDate}>
+							{moment.unix(item?.createdAt).format('MMM DD, YYYY')}
+						</span>
+						<span
+							className={s.aiToggleSwitch}
+							onClick={(e) => {
+								e.stopPropagation();
+							}}
+						>
+							<ToggleSwitch
+								id={item?._id}
+								value={item?.status}
+								onChange={() =>
+									handleToggleChange(item?._id, item?.status, item?.type)
+								}
+							/>
+						</span>
 					</div>
-					<div className={s.titleSubtile}>
-						<h1 className={s.title}>Get Email Thread Content</h1>
-						<p className={s.subTitle}>Let the agent use all shared integrations.</p>
-					</div>
-				</div>
-				{/* {info?.aiActionList?.map((action) => {
-					const {
-						status,
-						_id,
-						typeDependencies: { name, description, url },
-					} = action;
-					const iconUrl = getFaviconUrl(url) || null;
-
-					return (
-						<div className={s?.actionItem} key={_id}>
-							<div className={s?.leftContainer}>
-								<div className={s?.actionIcon}>
-									{iconUrl ? (
-										<img width={16} height={16} src={iconUrl} alt="icon" />
-									) : null}
-								</div>
-								<div className={s?.titleContainer}>
-									<p className={s?.title}>{name || ''}</p>
-									<p className={s?.description}>{description || ''}</p>
-								</div>
-							</div>
-							<div className={s?.rightContainer}>
-								<div className={s?.connectAction}>
-									<div className={s?.connectActionIcon}>
-										<PlusSvg />
-									</div>
-									<p className={s?.connectActionText}>Add</p>
-								</div>
-								<div
-									className={s?.editSvgContainer}
-									onClick={() => handleActionClick(action)}
-								>
-									<EditSvg />
-								</div>
-								<div className={s?.deleteSvgContainer}>
-									<DeleteSvg />
-								</div>
-
-								<div className={s?.statusContainer}>
-									<div className={s?.indicator}></div>
-									<p className={s?.status}>Connected</p>
-								</div>
-							</div>
-						</div>
-					);
-				})} */}
+				))}
 			</div>
+
 			<ActionsModal
 				isOpen={info?.actionModalOpen}
 				onClose={closeActionModal}

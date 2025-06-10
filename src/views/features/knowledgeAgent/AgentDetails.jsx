@@ -86,7 +86,7 @@ const KnowledgeAgentDetails = () => {
 
 	return (
 		<div style={{ width: '100%', paddingRight: 10 }} className="agent-details-container">
-			{/* <CreateAgentHeader
+			<CreateAgentHeader
 				backText="Back to Knowledge Agents"
 				agentIcon={<AgentIcon width={16} height={16} />}
 				name={info?.loading ? 'Loading...' : info?.activeAiAssistant?.name}
@@ -101,7 +101,7 @@ const KnowledgeAgentDetails = () => {
 				}
 				assistant={info?.activeAiAssistant}
 				showActionButton={info?.access === 'edit' || info?.access === 'owner'}
-			/> */}
+			/>
 			<div className="agent-details-wrapper">
 				<div className="agent-details-content">
 					{/* <div className="member-access">
