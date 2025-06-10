@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
-import CalenderWidget from './CalenderWidget';
-import PromptsWidget from './PromptsWidget';
-import TaskWidget from './TaskWidget';
-import AutomationWidget from './AutomationWidget';
-import ContactsWidget from './ContactsWidget';
+import React, { lazy, memo, useMemo } from 'react';
+const CalenderWidget = lazy(() => import('./CalenderWidget'));
+const PromptsWidget = lazy(() => import('./PromptsWidget'));
+const TaskWidget = lazy(() => import('./TaskWidget'));
+const AutomationWidget = lazy(() => import('./AutomationWidget'));
+const ContactsWidget = lazy(() => import('./ContactsWidget'));
 
 const divStyles = {
 	display: 'flex',
@@ -29,4 +29,4 @@ const GlobalWidget = ({ option = '' }) => {
 		</div>
 	);
 };
-export default GlobalWidget;
+export default memo(GlobalWidget);

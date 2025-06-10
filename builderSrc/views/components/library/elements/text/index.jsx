@@ -567,7 +567,7 @@ class App extends BaseClass {
 			// );
 			// this.initializeWebSocket(this.state.sessionId, this.state.agentType);
 		} else {
-			console.warn('No sessionId or agentType found in URL parameters');
+			// console.warn('No sessionId or agentType found in URL parameters');
 		}
 
 		//! for text smart field

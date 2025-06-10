@@ -1,13 +1,18 @@
-import { memo, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import '../../../assets/scss/home_page/initialHomepage.scss';
-import Context from '../../../context/context';
-import { useNavigate } from 'react-router-dom';
-import ProactiveSuggestions from './ProactiveSuggestions';
-import ChatPrompts from './ChatPrompts';
-import QuickActions from '../../components/globalComponents/QuickActions';
-import GlobalWidget from '../../components/globalComponents/GlobalWidget';
-import { message } from '../../components/globalComponents/CustomToast';
+import jwtDecode from 'jwt-decode';
+import { memo, useContext, useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from 'react';
 import { Tooltip } from 'antd';
+import { useNavigate } from 'react-router-dom';
+
+import Context from '../../../context/context';
+import QuickActions from '../../components/globalComponents/QuickActions';
+import { message } from '../../components/globalComponents/CustomToast';
+import AskMe from './AskMe';
+
+
+const GlobalWidget = lazy(() => import('../../components/globalComponents/GlobalWidget'));
+const ChatPrompts = lazy(() => import('./ChatPrompts'));
+const ProactiveSuggestions = lazy(() => import('./ProactiveSuggestions'));
+
 import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import { ReactComponent as PromptsSvg } from '../../../assets/svg/home_page/prompts.svg';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/home_page/calendar.svg';
@@ -15,9 +20,9 @@ import { ReactComponent as TaskSvg } from '../../../assets/svg/home_page/tasks.s
 import { ReactComponent as ContactSvg } from '../../../assets/svg/home_page/contacts.svg';
 import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/automation.svg';
 import VeSvg from '../../../assets/svg/veSvg';
-import AskMe from './AskMe';
-import jwtDecode from 'jwt-decode';
-import Sintegrations from './suggestedIntegrations/Sintegrations';
+
+import '../../../assets/scss/home_page/initialHomepage.scss';
+import Spinner from '../../components/loaders/Spinner';
 
 const optionsList = [
 	{
@@ -441,7 +446,11 @@ const InitialHomePage = () => {
 			</div>
 			{options?.length > 0 && !info?.showSuggestions && (
 				<div className="home-page-container-content">
+					<Suspense fallback={<div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%'}}>
+					<Spinner />
+					</div>}>
 					{componentMapper[info?.selectedOption]}
+					</Suspense>
 				</div>
 			)}
 		</div>
