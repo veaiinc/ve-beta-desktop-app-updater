@@ -39,6 +39,9 @@
 							border: none !important; /* Removes the crop area border */
 							display: none !important;
 						}
+						.reactEasyCrop_Container {
+							top: -18px !important;
+						}
 					}
 					img {
 						width: 100%;
@@ -532,11 +535,15 @@
 		border: 1px solid rgba(151, 151, 151, 0.36);
 		position: relative;
 		margin: auto;
+		overflow: hidden;
 
 		.crop-container {
 			.reactEasyCrop_CropArea {
 				border: none !important; /* Removes the crop area border */
 				display: none !important;
+			}
+			.reactEasyCrop_Container {
+				top: -18px !important;
 			}
 		}
 

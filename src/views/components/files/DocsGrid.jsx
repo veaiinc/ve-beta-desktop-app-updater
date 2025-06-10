@@ -15,6 +15,8 @@ import EmptyState from './EmptyState';
 import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
 import { ReactComponent as Search } from '../../../assets/svg/search.svg';
+import TemplateShortPreview from '../../../../builderSrc/views/feature/TemplateShortPreview';
+import DocumentShortPreview from '../../../../builderSrc/views/feature/DocumentShortPreview';
 
 const origin = fetchOriginSelection();
 
@@ -27,6 +29,23 @@ const origin = fetchOriginSelection();
 // 	{ label: 'Contract', value: 'contract' },
 // ];
 
+const docsStatusButtonStyles = {
+	display: 'flex',
+	height: '20px',
+	padding: '2px 8px',
+	justifyContent: 'center',
+	alignItems: 'center',
+	gap: '4px',
+	borderRadius: '100px',
+	border: '1px solid var(--stroke, #2B2E31)',
+	// background: 'var(--card-over-card, #27282B)',
+	color: 'var(--primary-font, #F2F2F3)',
+	fontFamily: 'Inter',
+	fontSize: '10px',
+	fontStyle: 'normal',
+	fontWeight: '500',
+	lineHeight: '14px',
+};
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
 	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
@@ -241,13 +260,19 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 					/>
 					{info?.searchLoading && (
 						<div className="search-spinner">
-							<Spinner size="small" width={16} height={16} borderWidth={1.5} color="var(--primary-button)" />
+							<Spinner
+								size="small"
+								width={16}
+								height={16}
+								borderWidth={1.5}
+								color="var(--primary-button)"
+							/>
 						</div>
 					)}
 				</div>
 			</div>
-				<div className="center-container-content">
-					{info?.loading ? (
+			<div className="center-container-content">
+				{info?.loading ? (
 					<div className="spinner-container">
 						<Spinner />
 					</div>
@@ -279,12 +304,12 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 									key={index}
 									onClick={() => handleDocClick(doc)}
 								>
-									<div className="card-item-style content-wrapper docs">
-										<img
-											className="docs-card-bg"
-											src={DocsCardBg}
-											alt="Docs Card Background"
-										/>
+									{/* <div className="card-item-style content-wrapper docs">
+										<div className="docs-card-bg">
+											{doc.firstModule[0]?._id && (
+												<DocumentShortPreview doc={doc} />
+											)}
+										</div>
 										<div className="docs-preview"></div>
 										<DocsStatusButton
 											content={statusTextmapper?.[doc?.status]?.text}
@@ -304,6 +329,39 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 													</Tooltip>
 												)}
 											</span>
+										</div>
+									</div> */}
+									<div className="docsCardContainer">
+										<div className="docsCardPreview">
+											{doc?.firstModule[0]?._id && (
+												<DocumentShortPreview doc={doc} />
+											)}
+										</div>
+										<div className="docsTitleContainer">
+											<div className="docsTitle">{doc?.title}</div>
+											<div className="docsSubtitleContainer">
+												<DocsStatusButton
+													content={statusTextmapper?.[doc?.status]?.text}
+													style={{
+														...statusTextmapper?.[doc?.status]?.style,
+														...docsStatusButtonStyles,
+													}}
+													dotStyle={
+														statusTextmapper?.[doc?.status]?.dotStyle
+													}
+												/>
+												<div className="docsSubtitle">
+													{info?.selectedSort?.value === 'updatedAt' ? (
+														<Tooltip title="Updated On">
+															{moment.unix(doc?.updatedAt).fromNow()}
+														</Tooltip>
+													) : (
+														<Tooltip title="Created On">
+															{moment.unix(doc?.createdAt).fromNow()}
+														</Tooltip>
+													)}
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>

@@ -166,16 +166,18 @@ const FormResponseTrigger = ({
 		});
 	}, [info?.selectedTemplate, info?.title, info?.description, triggerData, onSave]);
 
+	const handleOnClose = useCallback(() => {
+		if (info?.chooseFromTemplate) {
+			updateStateInfo({ chooseFromTemplate: false });
+		} else {
+			onClose();
+		}
+	}, [info?.chooseFromTemplate, onClose, updateStateInfo]);
+
 	return (
 		<>
 			<HeaderComponent
-				onBack={() => {
-					if (info?.chooseFromTemplate) {
-						updateStateInfo({ chooseFromTemplate: false });
-					} else {
-						onClose();
-					}
-				}}
+				onBack={handleOnClose}
 				heading={info?.chooseFromTemplate ? 'Choose from Template' : 'Form Submitted'}
 			/>
 			{info.chooseFromTemplate ? (
