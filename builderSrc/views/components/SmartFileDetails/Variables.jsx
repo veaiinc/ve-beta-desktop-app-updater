@@ -187,13 +187,15 @@ const Variables = ({
 
 	return (
 		<div className="variablesParentContainer">
-			{info?.variablesData
-				.filter((ele) => {
-					const displayName = (ele?.displayName || '').toLowerCase();
-					const code = (ele?.code || '').toLowerCase();
-					return !displayName.includes('grand total') && !code.includes('grand total');
-				})
-				.map((ele, index) => (
+			{info?.variablesData.map((ele, index) => {
+				// Skip rendering if it's a Grand total field
+				if (
+					ele?.displayName?.toLowerCase().includes('grand total') ||
+					ele?.code?.toLowerCase().includes('grand total')
+				) {
+					return null;
+				}
+				return (
 					<div
 						className="inputWithLabelContainer"
 						key={index}
@@ -267,7 +269,8 @@ const Variables = ({
 							)}
 						</div>
 					</div>
-				))}
+				);
+			})}
 		</div>
 	);
 };
