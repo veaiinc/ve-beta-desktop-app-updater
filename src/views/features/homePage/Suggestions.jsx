@@ -14,9 +14,7 @@ const Suggestions = ({ landingPage = false, chatQuery = '' }) => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (chatQuery?.length > 0) {
-			handleDebounceChatQueryChange(chatQuery);
-		}
+		handleDebounceChatQueryChange(chatQuery);
 	}, [chatQuery]);
 
 	useEffect(() => {
@@ -29,9 +27,11 @@ const Suggestions = ({ landingPage = false, chatQuery = '' }) => {
 		if (timeoutIdRef.current) {
 			clearTimeout(timeoutIdRef.current);
 		}
-		timeoutIdRef.current = setTimeout(() => {
-			getChatBoxSuggestions({ partial_query: query });
-		}, 400);
+		if (query?.length > 0) {
+			timeoutIdRef.current = setTimeout(() => {
+				getChatBoxSuggestions({ partial_query: query });
+			}, 400);
+		}
 	}, []);
 
 	const handleSuggestionClick = (suggestion) => {
