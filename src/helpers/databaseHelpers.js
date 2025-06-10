@@ -57,7 +57,7 @@ const baseConditions = {
 		COMMON_CONDITIONS.isAfter,
 		COMMON_CONDITIONS.isOnOrBefore,
 		COMMON_CONDITIONS.isOnOrAfter,
-		// COMMON_CONDITIONS.isBetween,
+		COMMON_CONDITIONS.isBetween,
 		COMMON_CONDITIONS.relativeToToday,
 	],
 	checkbox: [COMMON_CONDITIONS.is, COMMON_CONDITIONS.isNot],
@@ -83,7 +83,7 @@ const aliasMap = {
 	person: ['created_by', 'last_edited_by', 'multi_select'],
 };
 
-function resolveBaseType(fieldType) {
+const resolveBaseType = (fieldType) => {
 	if (baseConditions[fieldType]) return fieldType;
 
 	const matchedEntry = Object.entries(aliasMap).find(([_, aliases]) =>
@@ -91,9 +91,168 @@ function resolveBaseType(fieldType) {
 	);
 
 	return matchedEntry?.[0] || null;
-}
+};
 
-export function getFilterConditions(fieldType) {
+export const getFilterConditions = (fieldType) => {
 	const resolved = resolveBaseType(fieldType);
 	return resolved ? baseConditions[resolved] : [];
-}
+};
+
+const filterHelper = {
+	contains: (filterValue, dataValue, type = 'primitive') => {
+		if (type === 'arrayOfStrings') {
+			return filterValue.some((item) => dataValue.includes(item));
+		}
+		return dataValue?.toLowerCase()?.includes(filterValue?.toLowerCase());
+	},
+	does_not_contain: (filterValue, dataValue, type = 'primitive') => {
+		if (type === 'arrayOfStrings') {
+			return !filterValue.some((item) => dataValue.includes(item));
+		}
+		return !dataValue?.toLowerCase()?.includes(filterValue?.toLowerCase());
+	},
+	is_empty: (_, dataValue) => {
+		if (Array.isArray(dataValue)) {
+			return dataValue.length === 0;
+		}
+		return !dataValue;
+	},
+	is_not_empty: (_, dataValue) => {
+		if (Array.isArray(dataValue)) {
+			return dataValue.length > 0;
+		}
+		return Boolean(dataValue);
+	},
+	is: (filterValue, dataValue, type = 'primitive', statusOptions = null) => {
+		if (type === 'arrayOfStrings') {
+			return filterValue.some((item) => dataValue.includes(item));
+		}
+		if (type === 'date') {
+			const { dateType, date } = filterValue;
+
+			return dataValue[dateType] === date;
+		}
+
+		if (type === 'status') {
+			const allLabels = filterValue?.groups?.reduce(
+				(acc, item) => {
+					acc.push(...statusOptions?.[item]?.map((item) => item?._id));
+					return acc;
+				},
+				[...(filterValue?.labels || [])],
+			);
+			return allLabels?.includes(dataValue);
+		}
+
+		if (typeof dataValue === 'string') {
+			return dataValue?.toLowerCase() === filterValue?.toLowerCase();
+		}
+		return dataValue === filterValue;
+	},
+	is_not: (filterValue, dataValue, type = 'primitive') => {
+		if (type === 'arrayOfStrings') {
+			return !filterValue.some((item) => dataValue.includes(item));
+		}
+		if (type === 'date') {
+			const { dateType, date } = filterValue;
+
+			return dataValue[dateType] !== date;
+		}
+
+		if (type === 'status') {
+			const allLabels = filterValue?.groups?.reduce(
+				(acc, item) => {
+					acc.push(...statusOptions?.[item]?.map((item) => item?._id));
+					return acc;
+				},
+				[...(filterValue?.labels || [])],
+			);
+			return !allLabels?.includes(dataValue);
+		}
+
+		if (typeof dataValue === 'string') {
+			return dataValue?.toLowerCase() !== filterValue?.toLowerCase();
+		}
+		return dataValue !== filterValue;
+	},
+	starts_with: (filterValue, dataValue, type = 'primitive') => {
+		if (type === 'arrayOfStrings') {
+			return dataValue.some((item) => item.startsWith(filterValue));
+		}
+		return dataValue?.toLowerCase()?.startsWith(filterValue?.toLowerCase());
+	},
+	ends_with: (filterValue, dataValue, type = 'primitive') => {
+		if (type === 'arrayOfStrings') {
+			return dataValue.some((item) => item.endsWith(filterValue));
+		}
+		return dataValue?.toLowerCase()?.endsWith(filterValue?.toLowerCase());
+	},
+	is_before: (filterValue, dataValue, type = 'primitive') => {
+		if (type === 'date') {
+			const { dateType, date } = filterValue;
+
+			return dataValue[dateType] < date;
+		}
+	},
+	is_after: (filterValue, dataValue, type = 'primitive') => {
+		if (type === 'date') {
+			const { dateType, date } = filterValue;
+
+			return dataValue[dateType] > date;
+		}
+	},
+	is_on_or_before: (filterValue, dataValue, type = 'primitive') => {
+		if (type === 'date') {
+			const { dateType, date } = filterValue;
+
+			return dataValue[dateType] <= date;
+		}
+	},
+	is_on_or_after: (filterValue, dataValue, type = 'primitive') => {
+		if (type === 'date') {
+			const { dateType, date } = filterValue;
+
+			return dataValue[dateType] >= date;
+		}
+	},
+	is_between: (filterValue, dataValue, type = 'primitive') => {
+		//need to implement this
+		if (type === 'date') {
+		}
+	},
+	is_relative_to_today: (filterValue, dataValue, type = 'primitive') => {
+		if (type === 'date') {
+			const { dateType, date } = filterValue;
+
+			return dataValue[dateType] === date;
+		}
+	},
+};
+
+const typeMap = {
+	primitive: ['text', 'number', 'email', 'url', 'phone', 'checkbox'],
+	arrayOfStrings: ['multi_select', 'select'],
+	arrayOfObjects: ['person', 'created_by', 'last_edited_by'],
+	getType: (fieldType) => {
+		if (typeMap.primitive.includes(fieldType)) return 'primitive';
+		if (typeMap.arrayOfStrings.includes(fieldType)) return 'arrayOfStrings';
+		if (typeMap.arrayOfObjects.includes(fieldType)) return 'arrayOfObjects';
+		return fieldType;
+	},
+};
+
+export const applyFilter = (filters, row, statusOptions = null) => {
+	let include = true;
+	for (const filter of filters) {
+		const { fieldId, value, operator, fieldType } = filter;
+		const data = row?.values?.[fieldId];
+		include = filterHelper?.[operator]?.(
+			value,
+			data,
+			typeMap.getType(fieldType),
+			statusOptions,
+		);
+		if (!include) break;
+	}
+	return include;
+};

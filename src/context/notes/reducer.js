@@ -1,3 +1,4 @@
+import { applyFilter } from '../../helpers/databaseHelpers';
 import { intialState } from './state';
 const actionHandlers = {
 	GET_NOTES_SUCCESS: (state, action) => ({ ...state, notes: action?.payload }),
@@ -87,10 +88,12 @@ const actionHandlers = {
 
 		if (!affectedViews.length) return state;
 
-		const updatedRowData = {};
+		const updatedRowData = state?.rowData?.[viewId]?.data?.find((row) => row._id === rowId);
 
 		for (const view of affectedViews) {
 			const rowData = state?.rowData?.[view._id];
+			const filterBy = view?.filterBy;
+
 			if (!rowData) continue;
 
 			const rowIndex = rowData.data?.findIndex((row) => row._id === rowId);
@@ -121,21 +124,46 @@ const actionHandlers = {
 				case 'update':
 				default:
 					// Update existing row if it exists
+					const updatedData = Object.entries(updatedRow?.values)?.[0];
+
+					const includesInFilter = filterBy?.some(
+						(item) => item?.fieldId === updatedData?.[0],
+					);
+					let include = true;
+					if (includesInFilter) {
+						const updatedField = state.database?.[
+							databaseId
+						]?.databaseMetadata?.fields?.find((item) => item?._id === updatedData?.[0]);
+						const statusOptions =
+							updatedField?.type === 'status' ? updatedField?.config?.status : null;
+						include = applyFilter(filterBy, updatedRowData, statusOptions);
+					}
+
 					if (rowIndex !== -1) {
+						if (include) {
+							updatedRowData[view._id] = {
+								...rowData,
+								data: [
+									...rowData.data.slice(0, rowIndex),
+									{
+										...updatedRowData,
+									},
+									...rowData.data.slice(rowIndex + 1),
+								],
+							};
+						} else {
+							updatedRowData[view._id] = {
+								...rowData,
+								data: [
+									...rowData.data.slice(0, rowIndex),
+									...rowData.data.slice(rowIndex + 1),
+								],
+							};
+						}
+					} else if (include) {
 						updatedRowData[view._id] = {
 							...rowData,
-							data: [
-								...rowData.data.slice(0, rowIndex),
-								{
-									...rowData.data[rowIndex],
-									...updatedRow,
-									values: {
-										...rowData.data[rowIndex]?.values,
-										...updatedRow?.values,
-									},
-								},
-								...rowData.data.slice(rowIndex + 1),
-							],
+							data: [...rowData.data, updatedRowData],
 						};
 					}
 					break;

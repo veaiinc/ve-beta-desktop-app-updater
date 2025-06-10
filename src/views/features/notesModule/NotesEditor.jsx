@@ -525,7 +525,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			type: newBlock?.type,
 			props: newBlock?.props,
 			children: newBlock?.children,
-			content: newBlock?.content,
+			content: newBlock?.type === 'database' ? [] : newBlock?.content,
 		};
 
 		if (oldBlock?.type !== newBlockFormatted?.type) {

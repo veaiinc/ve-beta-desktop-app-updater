@@ -28,7 +28,6 @@ import TaskHeader from '../tasks/listView/TaskHeader';
 import TaskId from '../tasks/listView/TaskId';
 import TextField from '../tasks/listView/TextField';
 import Url from '../tasks/listView/Url';
-import CalendarPicker from './DatabseComponents/CalendarPicker';
 import CheckBoxFilter from './DatabseComponents/CheckBoxFilter';
 import DateComponent from './DatabseComponents/DateComponent';
 import FilterComponent from './DatabseComponents/FilterComponent';
