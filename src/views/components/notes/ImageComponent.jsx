@@ -14,7 +14,15 @@ const ImageComponent = memo(({ block, editor }) => {
 
 	return (
 		<div className="custom-image-block">
-			<img src={block.props.url} alt={block.props.caption} />
+			{
+				block.props.url ? (
+					<img src={block.props.url} alt={block.props.caption} />
+				) : (
+					<div className="custom-image-block-placeholder">
+						<p>Image</p>
+					</div>
+				)
+			}
 		</div>
 	);
 });
