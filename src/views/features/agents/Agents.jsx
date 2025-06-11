@@ -14,6 +14,10 @@ import QuickActions from '../../components/globalComponents/QuickActions';
 import CreateNewAgentCard from '../../components/agents/createNewAgentCard/CreateNewAgentCard';
 import AgentSuggestion from '../../components/agents/suggestedCard/agentSuggestion';
 
+// constants
+const page = 1,
+	limit = 10;
+
 const Agents = () => {
 	const {
 		knowledgeAgent: { knowledgeAssistantsList, getKnowledgeAssistantsList },
@@ -21,8 +25,6 @@ const Agents = () => {
 
 	useEffect(() => {
 		if (knowledgeAssistantsList === null) {
-			const page = 1,
-				limit = 20;
 			getKnowledgeAssistantsList(page, limit);
 		}
 	}, []);

@@ -20,6 +20,9 @@ import { FetchMoreLoaderComp } from '../../../../helpers';
 const infiniteScrollHeight = 'calc(100vh - 550px)';
 const infiniteScrollStyle = {
 	display: 'flex',
+	justifyContent: 'flex-start',
+	alignItems: 'flex-start',
+	maxHeight: 'fit-content',
 	width: '100%',
 	flexWrap: 'wrap',
 	gap: '24px',

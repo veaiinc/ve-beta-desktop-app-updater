@@ -70,45 +70,53 @@
 		border-radius: 16px;
 		overflow: auto;
 		height: calc(100vh - 670px);
-
 		border: 1px solid var(--stroke, #2b2e31);
-		.listHeader {
-			display: flex;
-			padding: 14px 20px 16px 20px;
-			align-items: center;
-			gap: 58px;
-			align-self: stretch;
-			border-bottom: 1px solid var(--stroke, #2b2e31);
-			background: var(--right-bar, #161618);
 
-			.title {
-				width: 233px;
-				flex-shrink: 0;
-				overflow: hidden;
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 22px;
-			}
-			.lastEdit {
-				flex-grow: 1;
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-			}
+		thead {
+			width: 100%;
+			height: fit-content;
 
-			.active {
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
+			.listHeader {
+				display: flex;
+				padding: 14px 20px 16px 20px;
+				align-items: center;
+				gap: 58px;
+				align-self: stretch;
+				border-bottom: 1px solid var(--stroke, #2b2e31);
+				background: var(--right-bar, #161618);
+
+				.title {
+					width: 233px;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 22px;
+					text-align: left;
+				}
+				.lastEdit {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					text-align: left;
+					width: 479px;
+				}
+
+				.active {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					width: 100%;
+					text-align: right;
+					width: fit-content;
+				}
 			}
 		}
 	}

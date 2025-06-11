@@ -25,13 +25,19 @@ const KnowledgeBaseTab = ({ agentId }) => {
 
 	const [info, setInfo] = useState({
 		knowledgeModalOpen: false,
-		knowledgeBaseFiles: [],
-		hasNextPage: false,
-		currentPage: 1,
-		loading: true,
+		isActive: null,
 	});
 
 	const fullWorkspaceAccess = activeKnowledgeAssistant?.data?.fullWorkspaceAccess;
+	const knowledgeBaseFiles = knowledgeBaseInfo?.data ?? [];
+	const dataLength = knowledgeBaseFiles.length;
+	const knowledgeBaseFilesActiveStatus =
+		activeKnowledgeAssistant?.data?.knowledgeBase_ids?.reduce((acc, item) => {
+			acc[item._id] = item.isActive;
+			return acc;
+		}, {});
+	const currentPage = knowledgeBaseInfo?.currentPage ?? 1;
+	const hasNextPage = knowledgeBaseInfo?.hasNextPage ?? false;
 
 	useEffect(() => {
 		if ((knowledgeBaseInfo?.data ?? [])?.length === 0) {
@@ -39,41 +45,26 @@ const KnowledgeBaseTab = ({ agentId }) => {
 		}
 	}, []);
 
-	useEffect(() => {
-		if (knowledgeBaseInfo) {
-			const { data = [], currentPage, hasNextPage } = knowledgeBaseInfo || {};
-			setInfo((prev) => ({
-				...prev,
-				knowledgeBaseFiles:
-					currentPage === 1 ? data : [...prev?.knowledgeBaseFiles, ...data],
-				hasNextPage: hasNextPage,
-				currentPage: currentPage,
-				loading: false,
-			}));
-		}
-	}, [knowledgeBaseInfo]);
-
 	const fetchMoreKnowledgeBaseFiles = () => {
-		const page = info?.currentPage + 1;
+		const page = currentPage + 1;
 		const append = true;
 		getKnowledgeBaseInfo(agentId, page, limit, append);
 	};
 
 	const handleSearchWebOrFullAccessChange = async (data) => {
 		const response = await updateKnowledgeAgent(agentId, data);
-		if (!response?.[0]) return;
+		if (!response?.[0]) message.error('An unexpected error occured!');
 	};
 
 	const handleToggleChange = useCallback(
 		async (knowledgeId, value) => {
 			try {
-				const knowledgeBaseFilesCopy = [...info?.knowledgeBaseFiles]; // In case of error, revert to the original state
-				const updatedKnowledgeFiles = info?.knowledgeBaseFiles?.map((item) =>
-					item?._id === knowledgeId ? { ...item, isActive: !item?.isActive } : item,
-				);
-				setInfo((prev) => ({
-					...prev,
-					knowledgeBaseFiles: updatedKnowledgeFiles,
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					isActive: {
+						...(prevInfo.isActive || {}),
+						[knowledgeId]: value,
+					},
 				}));
 				const response = await updateKnowledgeBaseFile(knowledgeId, {
 					isActive: value,
@@ -82,13 +73,8 @@ const KnowledgeBaseTab = ({ agentId }) => {
 
 				if (!response?.[0]) {
 					message?.error('Failed to update knowledge base file');
-					setInfo((prev) => ({
-						...prev,
-						knowledgeBaseFiles: knowledgeBaseFilesCopy,
-					}));
 				}
 			} catch (error) {
-				console.log(error);
 				message?.error('Failed to update knowledge base file');
 			}
 		},
@@ -117,69 +103,68 @@ const KnowledgeBaseTab = ({ agentId }) => {
 					Knowledge
 				</button>
 			</div>
-			<div className={s?.assistantsListContainer}>
-				<div className={s?.listHeader}>
-					<div className={s?.title}>Title</div>
-					<div className={s?.lastEdit}>Last edit</div>
-					<div className={s?.active}>Active</div>
-				</div>
-				<div className={s?.assistantsList}>
+			<table className={s?.assistantsListContainer} role="table">
+				<thead role="rowgroup">
+					<tr className={s.listHeader} role="row">
+						<th className={s?.title}>Knowledge File</th>
+						<th className={s?.lastEdit}>Last Updated</th>
+						<th className={s?.active}>Active</th>
+					</tr>
+				</thead>
+				<tbody className={s?.assistantsList} role="rowgroup">
 					<InfiniteScroll
-						dataLength={info?.knowledgeBaseFiles?.length || 0}
+						dataLength={dataLength}
 						next={fetchMoreKnowledgeBaseFiles}
-						hasMore={info?.hasNextPage || false}
+						hasMore={hasNextPage}
 						loader={<FetchMoreLoaderComp />}
 						height={'100%'}
-						style={{
-							width: '100%',
-						}}
+						style={{ width: '100%' }}
 					>
-						{info?.knowledgeBaseFiles?.map((file) => {
-							const { _id, isActive, name, sourceType, updatedAt } = file;
+						{knowledgeBaseFiles?.map((file) => {
+							const { _id, name, sourceType, updatedAt } = file;
 
 							const formattedUpdatedAt = `${new Date(updatedAt * 1000)
-								?.toLocaleDateString('en-US', {
+								.toLocaleDateString('en-US', {
 									month: 'short',
 									day: '2-digit',
 									year: 'numeric',
 								})
-								?.replace(',', '')
-								?.replace(/^(\w+) (\d+) (\d+)$/, '$1, $2 $3')}`;
+								.replace(',', '')
+								.replace(/^(\w+) (\d+) (\d+)$/, '$1, $2 $3')}`;
+
+							const isActive =
+								info.isActive?.[_id] ?? knowledgeBaseFilesActiveStatus?.[_id];
 
 							return (
-								<div className={s?.assistantItem} key={_id}>
-									<div className={s?.assistantItemTitle}>
+								<tr className={s?.assistantItem} key={_id} role="row">
+									<td className={s?.assistantItemTitle} role="cell">
 										<div className={s?.fileIcon}>
 											{fileTypeIcons[sourceType] || ''}
 										</div>
 										<div className={s?.fileName}>{name || ''}</div>
-									</div>
-									<div className={s?.assistantItemLastEdit}>
+									</td>
+									<td className={s?.assistantItemLastEdit} role="cell">
 										{formattedUpdatedAt || ''}
-									</div>
-									<div className={s?.assistantItemActive}>
+									</td>
+									<td className={s?.assistantItemActive} role="cell">
 										<Switch
 											checked={isActive || false}
-											onChange={(checked) => {
-												handleToggleChange(_id, checked);
-											}}
+											onChange={(checked) => handleToggleChange(_id, checked)}
 											size="small"
 											style={{
-												background: `${
-													isActive
-														? 'var(--primary-font)'
-														: 'var(--secondary-font)'
-												}`,
+												background: isActive
+													? 'var(--primary-font)'
+													: 'var(--secondary-font)',
 											}}
 											className={s?.agentSwitch}
 										/>
-									</div>
-								</div>
+									</td>
+								</tr>
 							);
 						})}
 					</InfiniteScroll>
-				</div>
-			</div>
+				</tbody>
+			</table>
 			<div className={s.knowledgeSettingsContainer}>
 				<div className={s.knowledgeToggleContainer}>
 					<div className={s.knowledgeToggleTextWrapper}>

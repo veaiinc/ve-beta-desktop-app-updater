@@ -517,18 +517,17 @@ export const AiSetupState = () => {
 		}
 	};
 
-	//from herer
 	const updateKnowledgeBaseFile = async (knowledgeId, data) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-		const url =
-			'/' +
-			workspaceId +
-			KNOWLEDGE_BASE?.updateKnowledgeBaseFile +
-			'/' +
-			knowledgeId +
-			'/update-status-of-file';
 		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url =
+				'/' +
+				workspaceId +
+				KNOWLEDGE_BASE?.updateKnowledgeBaseFile +
+				'/' +
+				knowledgeId +
+				'/update-status-of-file';
 			const response = await service?.fetchPut(url, data, usertoken, 'ai_assistant_api');
 			return response;
 		} catch (error) {
@@ -790,10 +789,14 @@ export const AiSetupState = () => {
 	};
 
 	const addAiAction = async (assistantId, data) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-		const url = '/' + workspaceId + '/ai-assistants/' + assistantId + AI_ACTIONS?.aiActions;
 		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = '/' + workspaceId + '/ai-assistants/' + assistantId + AI_ACTIONS?.aiActions;
+			const body = {
+				...data,
+				agent: 'knowledgeAgent',
+			};
 			const response = await service?.fetchPost(url, data, usertoken, 'ai_assistant_api');
 			if (response?.[0]) {
 				dispatch({
@@ -808,18 +811,22 @@ export const AiSetupState = () => {
 	};
 
 	const updateAiAction = async (assistantId, actionId, data) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-		const url =
-			'/' +
-			workspaceId +
-			'/ai-assistants/' +
-			assistantId +
-			AI_ACTIONS?.aiActions +
-			'/' +
-			actionId;
 		try {
-			const response = await service?.fetchPut(url, data, usertoken, 'ai_assistant_api');
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url =
+				'/' +
+				workspaceId +
+				'/ai-assistants/' +
+				assistantId +
+				AI_ACTIONS?.aiActions +
+				'/' +
+				actionId;
+			const body = {
+				...data,
+				agent: 'knowledgeAgent',
+			};
+			const response = await service?.fetchPut(url, body, usertoken, 'ai_assistant_api');
 			if (response?.[0]) {
 				dispatch({
 					type: Actions?.UPDATE_AI_ACTION,
@@ -833,17 +840,17 @@ export const AiSetupState = () => {
 	};
 
 	const deleteAiAction = async (assistantId, actionId) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-		const url =
-			'/' +
-			workspaceId +
-			'/ai-assistants/' +
-			assistantId +
-			AI_ACTIONS?.aiActions +
-			'/' +
-			actionId;
 		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url =
+				'/' +
+				workspaceId +
+				'/ai-assistants/' +
+				assistantId +
+				AI_ACTIONS?.aiActions +
+				'/' +
+				actionId;
 			const response = await service?.fetchDelete(url, usertoken, {}, 'ai_assistant_api');
 			if (response?.[0]) {
 				dispatch({
@@ -881,10 +888,11 @@ export const AiSetupState = () => {
 	};
 
 	const getAiChatLogs = async (assistantId, page = 1, limit = 20, fetchMore = false) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-		const url = '/' + workspaceId + '/ai-assistants/' + assistantId + AI_CHAT_LOGS?.aiChatLogs;
 		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url =
+				'/' + workspaceId + '/ai-assistants/' + assistantId + AI_CHAT_LOGS?.aiChatLogs;
 			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
 			if (response?.[0]) {
 				const selectedVariable = fetchMore ? 'moreAiChatLogs' : 'aiChatLogs';
@@ -901,10 +909,10 @@ export const AiSetupState = () => {
 	};
 
 	const crawlAiAssistant = async (data) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-		const url = '/' + workspaceId + AI_ACTIONS?.aiCrawl;
 		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = '/' + workspaceId + AI_ACTIONS?.aiCrawl;
 			const response = await service?.fetchPost(url, data, usertoken, 'ai_predictions');
 			if (response?.[0]) {
 				dispatch({
@@ -918,12 +926,11 @@ export const AiSetupState = () => {
 		}
 	};
 
-	// https://api.ap-south-1.ve.ai/businessconsultant/ai-suggested-prompts
 	const getPromptsData = async (queryParams = {}) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-		const url = '/' + workspaceId + '/ai-suggested-prompts';
 		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = '/' + workspaceId + '/ai-suggested-prompts';
 			const response = await service?.fetchGet(
 				url,
 				usertoken,
@@ -943,10 +950,10 @@ export const AiSetupState = () => {
 	};
 
 	const getFilesUploadedInAiChat = async (payload, isSearchQueryChanged = false) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-		const url = '/' + workspaceId + '/ai-chat/list-ai-chat-file-uploads';
 		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = '/' + workspaceId + '/ai-chat/list-ai-chat-file-uploads';
 			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api', payload);
 
 			if (response?.[0]) {

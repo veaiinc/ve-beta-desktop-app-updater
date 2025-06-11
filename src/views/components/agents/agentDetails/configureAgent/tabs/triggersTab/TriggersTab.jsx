@@ -57,25 +57,40 @@ const TriggersTab = () => {
 		ListEmailsModalOpen: false,
 	});
 
-	const connectedTriggers = useMemo(() => {
-		return [
-			...(triggers?.data?.map((trigger) => {
-				const { _id, app, action, connectedEmail } = trigger;
-				const icon = app === 'gmail' ? <GmailIcon /> : <GoogleMeetIcon />;
-				const title = app === 'gmail' ? 'Gmail' : 'Google Meet';
-				const description = action === 'replyEmail' ? 'Incoming emails' : 'Google Meet';
-				const triggerType = app === 'gmail' ? 'gmail' : 'googleMeet';
+	const { connectedTriggers, connectedEmails } = useMemo(() => {
+		if (!triggers?.data || !Array.isArray(triggers.data)) {
+			return { connectedTriggers: [], connectedEmails: [] };
+		}
 
-				return {
-					_id,
-					icon,
-					title,
-					triggerType,
-					description,
-					connectedEmail,
-				};
-			}) ?? []),
-		];
+		const triggersList = [];
+		const emailsSet = new Set();
+
+		for (const trigger of triggers.data) {
+			const { _id, app, action, connectedEmail } = trigger;
+
+			const icon = app === 'gmail' ? <GmailIcon /> : <GoogleMeetIcon />;
+			const title = app === 'gmail' ? 'Gmail' : 'Google Meet';
+			const description = action === 'replyEmail' ? 'Incoming emails' : 'Google Meet';
+			const triggerType = app === 'gmail' ? 'gmail' : 'googleMeet';
+
+			triggersList.push({
+				_id,
+				icon,
+				title,
+				triggerType,
+				description,
+				connectedEmail,
+			});
+
+			if (connectedEmail) {
+				emailsSet.add(connectedEmail);
+			}
+		}
+
+		return {
+			connectedTriggers: triggersList,
+			connectedEmails: Array.from(emailsSet),
+		};
 	}, [triggers?.data]);
 
 	const currentPage = triggers?.currentPage ?? 1;
@@ -138,7 +153,6 @@ const TriggersTab = () => {
 				message.error('Failed to disconnect trigger!');
 			}
 		} catch (error) {
-			console.error('Error during trigger disconnection:', error);
 			message.error('An error occurred while disconnecting the trigger.');
 		}
 	};
@@ -220,6 +234,7 @@ const TriggersTab = () => {
 				isOpen={info.ListEmailsModalOpen}
 				onClose={() => setInfo({ ...info, ListEmailsModalOpen: false })}
 				handleConnectToGmailTrigger={handleConnectToGmailTrigger}
+				connectedEmails={connectedEmails}
 			/>
 		</div>
 	);

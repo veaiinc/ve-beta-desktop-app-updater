@@ -14,7 +14,13 @@ const isValidEmail = (email) => {
 	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
-const ListEmailsModal = ({ isOpen, onClose, setTriggerEmail, handleConnectToGmailTrigger }) => {
+const ListEmailsModal = ({
+	isOpen,
+	onClose,
+	setTriggerEmail,
+	handleConnectToGmailTrigger,
+	connectedEmails,
+}) => {
 	const {
 		profileInfo: { userDetailsData },
 	} = useContext(Context);
@@ -27,6 +33,10 @@ const ListEmailsModal = ({ isOpen, onClose, setTriggerEmail, handleConnectToGmai
 		if (e.key === 'Enter') {
 			const email = e.target.value;
 			if (isValidEmail(email)) {
+				if (connectedEmails?.includes(email)) {
+					message.error(`Email ${email} is already in use!`);
+					return;
+				}
 				handleConnectToGmailTrigger(email);
 				onClose();
 			} else {
@@ -36,6 +46,10 @@ const ListEmailsModal = ({ isOpen, onClose, setTriggerEmail, handleConnectToGmai
 	};
 
 	const handleClick = () => {
+		if (connectedEmails?.includes(userEmail)) {
+			message.error(`Email ${userEmail} is already in use!`);
+			return;
+		}
 		handleConnectToGmailTrigger(userEmail);
 		onClose();
 	};
@@ -76,7 +90,7 @@ const ListEmailsModal = ({ isOpen, onClose, setTriggerEmail, handleConnectToGmai
 						<input
 							type="email"
 							onKeyDown={handleKeyDown}
-							placeholder="Enter email"
+							placeholder="Enter your email and hit enter ↵"
 							autoFocus
 						/>
 					</li>
