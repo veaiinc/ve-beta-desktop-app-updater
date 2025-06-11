@@ -3,17 +3,17 @@
 	"name": "VE.AI",
 	"icons": [
 		{
-			"src": "favicon.ico",
+			"src": "ve-black-circle-logo.png",
 			"sizes": "64x64 32x32 24x24 16x16",
 			"type": "image/x-icon"
 		},
 		{
-			"src": "ve.png",
+			"src": "ve-black-circle-logo.png",
 			"type": "image/png",
 			"sizes": "100x50"
 		},
 		{
-			"src": "ve.png",
+			"src": "ve-black-circle-logo.png",
 			"type": "image/png",
 			"sizes": "100x50"
 		}

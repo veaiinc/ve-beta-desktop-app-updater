@@ -84,7 +84,7 @@ const routes = [
 	},
 	{
 		path: '/pricing',
-		component: <Landing_screen/>,
+		component: <Landing_screen />,
 	},
 	{
 		path: '/api',

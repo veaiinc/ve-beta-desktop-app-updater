@@ -1320,7 +1320,18 @@ const SortableComponent = ({
 		saveSections(updateSections);
 	};
 	const [localDropdownState, setLocalDropdownState] = useState(false);
-	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+	const dropdownRef = useRef(null);
+
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+				setLocalDropdownState(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => document.removeEventListener('mousedown', handleClickOutside);
+	}, []);
 
 	const renderMediaField = (field, type) => {
 		const [mediaType, setMediaType] = useState('url');
@@ -2269,6 +2280,7 @@ const SortableComponent = ({
 															borderRadius: '4px',
 															color: '#fff',
 															marginTop: '8px',
+															fontSize: '14px',
 														}}
 													>
 														<option value="shortanswer">
@@ -5162,6 +5174,7 @@ const SortableComponent = ({
 					{field.type === 'dropdown' ? (
 						<div
 							className="dropdown-container"
+							ref={dropdownRef}
 							style={{
 								width: '100%',
 								position: 'relative',
@@ -5295,6 +5308,7 @@ const SortableComponent = ({
 															(section) => section._id === _id,
 													  )?.buttonProps?.btStyles?.background || '#333'
 													: 'transparent',
+												borderRadius: '30px',
 											}}
 										>
 											<div
@@ -5388,6 +5402,8 @@ const SortableComponent = ({
 													: field.answer === 'Other'
 													? '#3D3D3D'
 													: 'transparent',
+												borderRadius: '30px',
+												//
 											}}
 										>
 											{field.useBadges && (
