@@ -1235,18 +1235,20 @@ const ProactiveSuggestions = () => {
 							)}
 						</div>
 
-						<div className="action-right">
-							<button className="card-change-btn" onClick={handleLeft}>
-								<ChevronRightThinSvg className="left-chevron" />
-							</button>
-							<div className="card-number">
-								<span>{currentIndexRef?.current + 1}</span>/
-								<span>{aiSuggestedPendingActions?.metaInfo?.totalDocs}</span>
+						{info?.cards?.length && (
+							<div className="action-right">
+								<button className="card-change-btn" onClick={handleLeft}>
+									<ChevronRightThinSvg className="left-chevron" />
+								</button>
+								<div className="card-number">
+									<span>{currentIndexRef?.current + 1}</span>/
+									<span>{aiSuggestedPendingActions?.metaInfo?.totalDocs}</span>
+								</div>
+								<button className="card-change-btn" onClick={handleRight}>
+									<ChevronRightThinSvg />
+								</button>
 							</div>
-							<button className="card-change-btn" onClick={handleRight}>
-								<ChevronRightThinSvg />
-							</button>
-						</div>
+						)}
 					</>
 				)
 			)}
