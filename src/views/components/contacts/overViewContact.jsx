@@ -16,7 +16,7 @@ import UserSvg from '../../../assets/svg/Settings/UserSvg';
 const OverviewContact = () => {
 	const { contactId } = useParams();
 	const {
-		contacts: { getClient, updateClient, deleteClient, updateStateValues },
+		contacts: { getClient, updateClient, deleteClient, updateStateValues, getClients },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		contact: null,
@@ -24,6 +24,11 @@ const OverviewContact = () => {
 	});
 	const [editField, setEditField] = useState(null);
 	const [editValue, setEditValue] = useState('');
+	const [errors, setErrors] = useState({
+		name: '',
+		email: '',
+		phoneNumber: '',
+	});
 	const navigate = useNavigate();
 	const [isEditMode, setIsEditMode] = useState(false);
 
@@ -46,12 +51,55 @@ const OverviewContact = () => {
 		setEditValue(info?.contact?.[field] || '');
 	};
 
+	const validateField = (field, value) => {
+		let error = '';
+		switch (field) {
+			case 'name':
+				if (!value.trim()) {
+					error = 'Name is required';
+				}
+				break;
+			case 'email':
+				if (!value) {
+					error = 'Email is required';
+				} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+					error = 'Invalid email format';
+				}
+				break;
+			case 'phoneNumber':
+				if (!value) {
+					error = 'Phone number is required';
+				} else if (!/^\+?[1-9]\d{1,14}$/.test(value.replace(/\s|-/g, ''))) {
+					error = 'Invalid phone number format';
+				}
+				break;
+
+			default:
+				break;
+		}
+		return error;
+	};
+
 	const handleEditChange = async (e) => {
 		const newValue = e.target.value;
 		setEditValue(newValue);
+
+		// Validate the field
+		const error = validateField(editField, newValue);
+		setErrors((prev) => ({ ...prev, [editField]: error }));
+
+		// If there's a validation error, don't proceed with the update
+		if (error) {
+			return;
+		}
+
 		if (!info?.contact) return;
-		const updated = { ...info.contact, [editField]: newValue };
-		await updateClient({
+
+		const updated = {
+			...info.contact,
+			[editField]: newValue.trim() === '' ? 'Unnamed' : newValue,
+		};
+		const [success, errorMessage] = await updateClient({
 			updateClientId: info.contact._id,
 			updateClientInput: {
 				name: updated.name,
@@ -59,12 +107,40 @@ const OverviewContact = () => {
 				phoneNumber: updated.phoneNumber,
 			},
 		});
+
+		if (!success) {
+			// Handle API error
+			if (errorMessage?.includes('phone number already exists')) {
+				setErrors((prev) => ({ ...prev, phoneNumber: 'Phone number already exists' }));
+			} else if (errorMessage?.includes('email already exists')) {
+				setErrors((prev) => ({ ...prev, email: 'Email already exists' }));
+			} else {
+				setErrors((prev) => ({ ...prev, [editField]: errorMessage || 'Failed to update' }));
+			}
+			return;
+		}
+
 		setInfo((prev) => ({ ...prev, contact: updated }));
+
+		// Trigger contacts list refresh
+		updateStateValues({ clientList: null });
+		getClients(
+			{
+				clientFilterInput: {
+					limit: 15,
+					page: 1,
+					sort: [{ sortBy: 'createdAt', sortType: 1 }],
+				},
+			},
+			true,
+		);
 	};
 
 	const handleBlur = () => {
-		setEditField(null);
-		setIsEditMode(false);
+		if (!errors[editField]) {
+			setEditField(null);
+			setIsEditMode(false);
+		}
 	};
 
 	const handleDelete = async () => {
@@ -116,9 +192,13 @@ const OverviewContact = () => {
 										onChange={handleEditChange}
 										onBlur={handleBlur}
 										autoFocus
-										className="edit-input"
-										placeholder="Enter name"
+										required
+										className={`edit-input ${errors.name ? 'error' : ''}`}
+										placeholder="Enter name *"
 									/>
+									{errors.name && (
+										<span className="error-message">{errors.name}</span>
+									)}
 								</div>
 							) : (
 								<span className="profile-name" onClick={() => handleEdit('name')}>
@@ -138,9 +218,13 @@ const OverviewContact = () => {
 											onChange={handleEditChange}
 											onBlur={handleBlur}
 											autoFocus
-											className="edit-input"
-											placeholder="Enter email"
+											required
+											className={`edit-input ${errors.email ? 'error' : ''}`}
+											placeholder="Enter Email"
 										/>
+										{errors.email && (
+											<span className="error-message">{errors.email}</span>
+										)}
 									</div>
 								) : (
 									<span
@@ -162,9 +246,17 @@ const OverviewContact = () => {
 											onChange={handleEditChange}
 											onBlur={handleBlur}
 											autoFocus
-											className="edit-input"
+											required
+											className={`edit-input ${
+												errors.phoneNumber ? 'error' : ''
+											}`}
 											placeholder="Enter phone number"
 										/>
+										{errors.phoneNumber && (
+											<span className="error-message">
+												{errors.phoneNumber}
+											</span>
+										)}
 									</div>
 								) : (
 									<span
@@ -179,18 +271,22 @@ const OverviewContact = () => {
 						</div>
 
 						<div className="profile-actions">
-							{info?.contact?.email && (
-								<div onClick={handleEmailClick} className="profile-action-btn">
-									<EmailIcon />
-									<span>Email</span>
-								</div>
-							)}
-							{info?.contact?.phoneNumber && (
-								<div onClick={handlePhoneClick} className="profile-action-btn">
-									<PhoneIcon />
-									<span>Call</span>
-								</div>
-							)}
+							{info?.contact?.email &&
+								/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(info.contact.email) && (
+									<div onClick={handleEmailClick} className="profile-action-btn">
+										<EmailIcon />
+										<span>Email</span>
+									</div>
+								)}
+							{info?.contact?.phoneNumber &&
+								/^\+?[1-9]\d{1,14}$/.test(
+									info.contact.phoneNumber.replace(/[\s-]/g, ''),
+								) && (
+									<div onClick={handlePhoneClick} className="profile-action-btn">
+										<PhoneIcon />
+										<span>Call</span>
+									</div>
+								)}
 						</div>
 					</div>
 				</div>
