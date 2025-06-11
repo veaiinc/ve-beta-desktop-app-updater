@@ -111,6 +111,8 @@ const ProfileDetailsComponent = ({
 										value={userDetails?.fullName}
 										name="fullName"
 										className="role-input"
+										autoComplete="off"
+										autofill="off"
 										onChange={(e) =>
 											handleUsernameAndPhoneNumberUpdate({
 												type: 'fullName',

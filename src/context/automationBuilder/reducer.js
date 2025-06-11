@@ -25,10 +25,12 @@ const actionHandlers = {
 		specificAutomationInfo: action.payload,
 	}),
 
-	SET_EXECUTION_HISTORY: (state, action) => ({
-		...state,
-		executionHistory: action.payload,
-	}),
+	SET_EXECUTION_HISTORY: (state, action) => {
+		return {
+			...state,
+			executionHistory: action.payload,
+		};
+	},
 
 	SET_VARIABLES: (state, action) => ({
 		...state,
