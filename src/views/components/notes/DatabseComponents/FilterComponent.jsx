@@ -15,6 +15,21 @@ const FilterComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 		const defaultOperator =
 			operator ||
 			getFilterConditions(fields?.find((field) => field?._id === key)?.type)?.[0]?.value;
+
+		if (['date', 'created_time', 'last_edited_time'].includes(fieldType)) {
+			if (operator === 'is_between' && typeof value?.date === 'number') {
+				value = {
+					...value,
+					date: [value?.date, value?.date],
+				};
+			} else if (operator !== 'is_between' && value?.date && Array.isArray(value?.date)) {
+				value = {
+					...value,
+					date: value?.date[0],
+				};
+			}
+		}
+
 		const payload = {
 			pageId: pageId,
 			databaseViewId: view?._id,
@@ -74,7 +89,9 @@ const FilterComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 									? 'statusFilter'
 									: field?.type === 'checkbox'
 									? 'checkboxFilter'
-									: field?.type === 'date'
+									: ['date', 'created_time', 'last_edited_time'].includes(
+											field?.type,
+									  )
 									? 'dateFilter'
 									: field?.type;
 							const Component = rowTypes?.[componentType] || null;

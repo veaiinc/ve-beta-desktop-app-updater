@@ -227,6 +227,24 @@ const filterHelper = {
 			return dataValue[dateType] === date;
 		}
 	},
+	equals: (filterValue, dataValue, type = 'primitive') => {
+		return filterValue === dataValue;
+	},
+	not_equals: (filterValue, dataValue, type = 'primitive') => {
+		return filterValue !== dataValue;
+	},
+	greater_than: (filterValue, dataValue, type = 'primitive') => {
+		return filterValue > dataValue;
+	},
+	less_than: (filterValue, dataValue, type = 'primitive') => {
+		return filterValue < dataValue;
+	},
+	greater_than_or_equal: (filterValue, dataValue, type = 'primitive') => {
+		return filterValue >= dataValue;
+	},
+	less_than_or_equal: (filterValue, dataValue, type = 'primitive') => {
+		return filterValue <= dataValue;
+	},
 };
 
 const typeMap = {

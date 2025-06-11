@@ -238,7 +238,10 @@ const DatabaseComponent = memo(({ block, editor }) => {
 				}
 
 				if (databaseResult) {
-					const databaseView = await handleCreateDatabaseView(databaseResult._id);
+					const databaseView = await handleCreateDatabaseView(
+						databaseResult._id,
+						'table',
+					);
 
 					if (databaseView) {
 						editor.updateBlock(block?.id, {

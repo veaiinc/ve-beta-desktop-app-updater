@@ -14,11 +14,11 @@ export const third_party_integrations_api = 'https://ap.api.ve.ai/third-party-in
 export const slack_api = 'https://slack.com/api';
 export const automation_builder_api = 'https://ap.api.ve.ai/automations/1.0/automation';
 // export const multi_agent_chat = 'ws://ai.ap-south-1.ve.ai';
-export const page_notes_api = 'https://ap.api.ve.ai/page-notes/1.0';
-// export const page_notes_api = 'https://gazelle-ruling-monster.ngrok-free.app';
+// export const page_notes_api = 'https://ap.api.ve.ai/page-notes/1.0';
+export const page_notes_api = 'https://gazelle-ruling-monster.ngrok-free.app';
 export const elastic_search_api = 'https://ap.api.ve.ai/elastic-search/1.0';
 export const workspace_images_api = 'https://ap.api.ve.ai/images/1.0/';
-export const custom_domain_api= 'https://ap.api.ve.ai/custom-domain/1.0';
+export const custom_domain_api = 'https://ap.api.ve.ai/custom-domain/1.0';
 
 // US region
 export const auth_Api_US = 'https://auth.ve.ai';
