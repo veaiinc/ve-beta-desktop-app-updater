@@ -40,16 +40,33 @@ export const ContactsState = () => {
 			);
 
 			if (response?.[0]) {
-				const data = reset
-					? response?.[1]?.data?.clients?.data
-					: [
-							...(state?.clientList?.data || []),
-							...(response?.[1]?.data?.clients?.data || []),
-					  ];
+				const newData = response?.[1]?.data?.clients?.data || [];
+				let combinedData;
+
+				if (reset) {
+					combinedData = newData;
+				} else {
+					// Ensure uniqueness using Map by _id
+					const uniqueMap = new Map();
+
+					// Add existing data
+					(state?.clientList?.data || []).forEach((item) => {
+						if (item?._id) uniqueMap.set(item._id, item);
+					});
+
+					// Add new data, replacing duplicates
+					newData.forEach((item) => {
+						if (item?._id) uniqueMap.set(item._id, item);
+					});
+
+					combinedData = Array.from(uniqueMap.values());
+				}
+
 				const payload = {
-					...response?.[1]?.data?.clients, // includes hasNextPage, currentPage, totalPages, totalItems
-					data,
+					...response?.[1]?.data?.clients,
+					data: combinedData,
 				};
+
 				dispatch({
 					type: Actions.SET_CLIENT_LIST,
 					payload,
