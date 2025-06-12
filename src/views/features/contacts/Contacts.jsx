@@ -47,7 +47,7 @@ const Contacts = () => {
 
 	useEffect(() => {
 		updateStateValues({ leftSidebarState: 'close' });
-
+		fetchClientList();
 		return () => {
 			if (searchValueRef.current !== '') {
 				updateContactState({ clientList: null });
@@ -56,13 +56,16 @@ const Contacts = () => {
 	}, []);
 
 	useEffect(() => {
+		if (info?.searchValue === '') return;
 		if (isMountedRef.current && clientList?.data) {
 			isMountedRef.current = false;
 			return;
 		}
 		timeoutIdRef.current = setTimeout(() => {
+			const page = 1;
+			const limit = 15;
 			const reset = true;
-			fetchClientList(1, reset);
+			fetchClientList({ page, limit, reset });
 			pageRef.current = 1;
 		}, 500);
 		return () => {

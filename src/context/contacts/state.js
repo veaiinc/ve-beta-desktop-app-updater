@@ -31,14 +31,14 @@ export const ContactsState = () => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
+			// sort: [
+			// 	{
+			// 		sortBy: null,
+			// 		sortType: null,
+			// 	},
+			// ],
 			const payload = {
 				clientFilterInput: {
-					// sort: [
-					// 	{
-					// 		sortBy: null,
-					// 		sortType: null,
-					// 	},
-					// ],
 					limit,
 					page,
 					search,
@@ -51,7 +51,7 @@ export const ContactsState = () => {
 				usertoken,
 				'workflows_Api',
 			);
-
+			console.log(response);
 			if (response?.[0]) {
 				const data = reset
 					? response?.[1]?.data?.clients?.data
