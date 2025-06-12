@@ -8,7 +8,7 @@ import { ReactComponent as Settings } from '../../../assets/svg/Settings/Setting
 import { withRouter } from '../../../services/withRouter';
 import Title from './title';
 import { Tooltip } from 'antd';
-import { Threedots } from '../builder_client_common';
+import { Threedots, BackArrow } from '../builder_client_common';
 
 class Header extends Component {
 	constructor(props) {
@@ -178,7 +178,7 @@ class Header extends Component {
 					>
 						<>
 							<Tooltip title="Back" placement="bottom">
-								<Back />
+								<BackArrow />
 							</Tooltip>
 
 							<span>
@@ -206,8 +206,9 @@ class Header extends Component {
 						<Tooltip title="Desktop View" placement="bottom">
 							<span
 								onClick={(e) => this.handlePreview(false, 'd')}
-								className={` tooltip ${this.state.previewType === 'd' ? 'active' : ''
-									} `}
+								className={` tooltip ${
+									this.state.previewType === 'd' ? 'active' : ''
+								} `}
 								style={{
 									cursor: 'pointer',
 									// display: this.state.previewType === 'd' ? 'none' : 'block',
@@ -219,10 +220,11 @@ class Header extends Component {
 						<Tooltip title="Mobile View" placement="bottom">
 							<span
 								onClick={(e) => this.handlePreview(true, 'm')}
-								className={`tooltip ${this.state.previewType === 'm' && this.state.preview
-									? 'active'
-									: ''
-									}`}
+								className={`tooltip ${
+									this.state.previewType === 'm' && this.state.preview
+										? 'active'
+										: ''
+								}`}
 								style={{
 									cursor: 'pointer',
 									// display: this.state.previewType === 'm' ? 'none' : 'block',
@@ -262,7 +264,7 @@ class Header extends Component {
 													this.props.managePages(e);
 												});
 											}}
-										// style={{ textTransform: 'capitalize', background: 'none' }}
+											// style={{ textTransform: 'capitalize', background: 'none' }}
 										>
 											<PageIcon />
 											<span className="page-count">
@@ -295,12 +297,13 @@ class Header extends Component {
 								>
 									{this.state.isPublishLoading ? 'Saving...' : `Save`}
 								</span>
-								{!this.state.isWorkflow &&
+								{!this.state.isWorkflow && (
 									<span
 										onClick={(e) => {
 											e.stopPropagation();
 											this.setState({
-												isThreeDotsDropdown: !this.state.isThreeDotsDropdown,
+												isThreeDotsDropdown:
+													!this.state.isThreeDotsDropdown,
 											});
 										}}
 										className="three-dots-svg"
@@ -319,7 +322,9 @@ class Header extends Component {
 															onClick={(e) => {
 																e.stopPropagation();
 																if (item === 'Delete') {
-																	this.props?.handleDeleteOpen(true);
+																	this.props?.handleDeleteOpen(
+																		true,
+																	);
 																} else {
 																	this.props?.handleDuplicateTemplate();
 																}
@@ -338,7 +343,7 @@ class Header extends Component {
 											</div>
 										)}
 									</span>
-								}
+								)}
 							</>
 						</>
 					)}
@@ -400,7 +405,9 @@ class Header extends Component {
 						</a> */}
 					{/* // ) : ( */}
 					<>
-						{this.props.isWorkflow && this.state.previewType !== 'm' && !this.state.isEmbed ? (
+						{this.props.isWorkflow &&
+						this.state.previewType !== 'm' &&
+						!this.state.isEmbed ? (
 							<>
 								{/* <span
 									className="h-right-publish"
@@ -479,7 +486,6 @@ class Header extends Component {
 										</span>
 									}
 								</> */}
-
 							</>
 						) : this.state.previewType === 'm' ? (
 							''
