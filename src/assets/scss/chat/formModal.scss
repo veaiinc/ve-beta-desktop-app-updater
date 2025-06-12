@@ -20,28 +20,7 @@
 			flex-shrink: 0;
 			width: 100%;
 			will-change: transform;
-
-			.chat-to-note-link-container {
-				display: flex;
-				justify-content: space-between;
-				width: 100%;
-				padding: 12px 20px;
-				gap: 24px;
-				background-color: var(--card-over-card-hover);
-
-				.title {
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					color: var(--primary-font, #f2f2f3);
-					text-align: center;
-					font-family: var(--primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-				}
-			}
+			padding-top: 20px;
 
 			.chat-box-wrapper {
 				margin: 0 12px 24px 12px;
@@ -65,24 +44,7 @@
 					flex-direction: column;
 					gap: 24px;
 					width: 100%;
-					padding-bottom: calc(100vh - 290px);
-
-					.aiMessageWrapper {
-						.text-container {
-							color: var(--secondary-font, #787e87);
-							font-family: var(--primary-font-family);
-							font-size: 15px;
-							font-weight: 400;
-							line-height: 24px;
-							.char {
-								transition: color 0.2s ease-in-out;
-							}
-
-							.highlight-char {
-								color: #f2f2f3;
-							}
-						}
-					}
+					padding-bottom: calc(100vh - 340px);
 
 					.chat-message {
 						display: flex;
