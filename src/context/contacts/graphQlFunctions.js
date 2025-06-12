@@ -9,16 +9,17 @@ export const getClientsQuery = gql`
 				name
 				email
 				phoneNumber
-				tenantId
-				workflows
-				templateDetails
-				createdBy
-				updatedBy
 				createdAt
 				updatedAt
-				pages
 			}
 			hasNextPage
+			totalPages
+			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
+			nextPage
 		}
 	}
 `;
