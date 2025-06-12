@@ -28,6 +28,13 @@
 				}
 
 				.chat-title {
+					display: -webkit-box;
+					-webkit-line-clamp: 1;
+					line-clamp: 1;
+					-webkit-box-orient: vertical;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					word-break: break-all;
 					color: var(--primary-font, #f2f2f3);
 					font-family: var(--chat-primary-font-family);
 					font-size: 14px;
