@@ -1,24 +1,28 @@
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
-import '../../../assets/scss/landingScreen/index.scss';
-import { ReactComponent as VeLogoBlack } from '../../../assets/svg/veLogoBlack.svg';
-import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
-import { useNavigate } from 'react-router-dom';
-import Context from '../../../context/context';
-import ContactUs from '../../components/landing_screen/ContactUs';
-import TabNavigation from '../../components/landing_screen/TabNavigation';
-import OurMission from './OurMission';
 import { useLocation } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
+import { Link, useNavigate } from 'react-router-dom';
+
+import Context from '../../../context/context';
+import TabNavigation from '../../components/landing_screen/TabNavigation';
 import Tagline from './Tagline';
-import EarlyAccess from './EarlyAccess';
 import Footer from './Footer';
 import HowItWorks from './HowItWorks';
 import ChatBox from '../../components/chat/ChatBox';
 import Features from './Features';
-import { Helmet } from 'react-helmet';
 import Suggestions from '../homePage/Suggestions';
 import MobileMenu from '../../components/landing_screen/MobileMenu';
-import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
+
+import ContactUs from '../../components/landing_screen/ContactUs';
 import PricingPage from '../pricingPlans/pricingPage';
+import OurMission from './OurMission';
+import EarlyAccess from './EarlyAccess';
+
+import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
+import { ReactComponent as VeLogoBlack } from '../../../assets/svg/veLogoBlack.svg';
+import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
+
+import '../../../assets/scss/landingScreen/index.scss';
 
 const pathToTabMap = {
 	'/mission': 1,
@@ -70,13 +74,6 @@ const LandingPage = () => {
 		[currentSessionId],
 	);
 
-	const handleChatQueryChange = (query) => {
-		setInfo((prev) => ({
-			...prev,
-			showSuggestions: query?.length > 0,
-		}));
-	};
-
 	const handleSetTab = (tabVal) => {
 		setTab(tabVal);
 		const tabRoutes = ['/', '/mission', '/contact-us', '/pricing'];
@@ -109,7 +106,6 @@ const LandingPage = () => {
 								isPublicChat={true}
 								animatePlaceholder={true}
 								onSend={handleCustomOnSendFunction}
-								onChatQueryChange={handleChatQueryChange}
 								isBuildEnbled={false}
 							/>
 						</div>
@@ -148,12 +144,9 @@ const LandingPage = () => {
 						{!mobileMenuOpen && <TabNavigation tab={tab} handleSetTab={handleSetTab} />}
 					</div>
 					<div className="right-container">
-						<button
-							className="login-btn-text hide-on-mobile"
-							onClick={handleLoginBtnClick}
-						>
+						<Link className="login-btn-text hide-on-mobile" to="/verify-user">
 							Login
-						</button>
+						</Link>
 						<div className="login-container">
 							<button className="login-btn" onClick={() => navigate('/verify-user')}>
 								Get <VeLogoBlack /> Free

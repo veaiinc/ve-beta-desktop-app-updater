@@ -157,7 +157,8 @@ const ListViewSidebar = ({
 			...prevInfo,
 			deleteLoading: false,
 		}));
-	}, [deleteTask, selectedRow?._id]);
+		updateSideBarData({ open: false });
+	}, [deleteTask, selectedRow?._id, updateSideBarData]);
 
 	const generateRow = useCallback(
 		(row) => {

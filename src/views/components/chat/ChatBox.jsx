@@ -29,6 +29,7 @@ import SearchTypeTooltip from './SearchTypeTooltip';
 import ChatBoxPlaceholder from './ChatBoxPlaceholder';
 import { fileTypeIcons } from '../../../helpers';
 import BuildTooltip from './BuildTooltip';
+import RecentFileTooltip from './RecentFileTooltip';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -149,6 +150,7 @@ const ChatBox = ({
 			galleryFile,
 			chatPayload,
 		},
+		subscriptionInfo: { currentPlan, updateSubscriptionState },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 		aiSetup: { voiceIntegrationData },
@@ -169,6 +171,7 @@ const ChatBox = ({
 		citationsModalIsOpen: false,
 		filtersEnabled: false,
 		isUploadFileOpen: false,
+		isRecentFileOpen: false,
 		showFilters: false,
 		chatFilters: initialChatFilters,
 		isIntegrationsDropdownOpen: false,
@@ -515,6 +518,16 @@ const ChatBox = ({
 				// Prevent default to avoid unwanted new line
 				e?.preventDefault();
 
+				if (!isPublicChat) {
+					const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
+						totalCreditsLimit = currentPlan?.totalAiCreditLimit || 0;
+					if (totalCreditsUsed >= totalCreditsLimit) {
+						return updateSubscriptionState({
+							expiredSubscriptionModal: true,
+						});
+					}
+				}
+
 				if (aiChatLoading || info?.chatLoading) {
 					return message.error('Please wait for the AI response');
 				}
@@ -663,6 +676,7 @@ const ChatBox = ({
 			uploadedImagesRef?.current,
 			location,
 			params,
+			currentPlan,
 		],
 	);
 
@@ -1002,11 +1016,11 @@ const ChatBox = ({
 			textArea.style.height = textArea.scrollHeight + 'px';
 		}
 
-		let isUploadFileOpen = false;
+		let isRecentFileOpen = false;
 		if (lastChar === '@') {
-			isUploadFileOpen = true;
+			isRecentFileOpen = true;
 		} else {
-			isUploadFileOpen = false;
+			isRecentFileOpen = false;
 		}
 
 		onChatQueryChange?.(query);
@@ -1014,7 +1028,7 @@ const ChatBox = ({
 		setInfo((prev) => ({
 			...prev,
 			chatQuery: query,
-			isUploadFileOpen,
+			isRecentFileOpen,
 		}));
 	};
 
@@ -1171,6 +1185,20 @@ const ChatBox = ({
 										startPage ? ' startPageContainer' : ''
 									}`}
 								>
+									<RecentFileTooltip
+										fileTypeIcons={fileTypeIcons}
+										handleRecentFileClick={handleRecentFileClick}
+										recentFiles={recentFilesRef.current || []}
+										isRecentFileOpen={info?.isRecentFileOpen}
+										setIsRecentFileOpen={(value) => {
+											setInfo((prev) => ({
+												...prev,
+												isRecentFileOpen: value,
+											}));
+										}}
+									>
+										<div className="recent-file-wrapper" />
+									</RecentFileTooltip>
 									<div className="chat-input-container">
 										{startPage && !isPublicChat && (
 											<>
@@ -1534,59 +1562,61 @@ const ChatBox = ({
 															)}
 
 															{/* {!isPublicChat && ( */}
-															{isBuildEnbled && <Tooltip
-																title={
-																	<div className="chatbox-icon-tooltip-container">
-																		Build
-																	</div>
-																}
-																color="transparent"
-																arrow={false}
-																rootClassName="chatbox-tooltip"
-															>
-																<div
-																	className={`chat-box-icon-container ${
-																		chatInfo?.build
-																			? 'active'
-																			: ''
-																	}`}
-																	onClick={handleBuildClick}
-																>
-																	<div className="icon">
-																		<div className="text-wrapper">
-																			<div className="build-icon">
-																				<SparkSvg />
-																			</div>
-																			<div
-																				className="icon-text"
-																				style={{
-																					color: chatInfo?.build
-																						? 'var(--primary-button)'
-																						: 'var(--secondary-font)',
-																				}}
-																			>
-																				Build
-																			</div>
+															{isBuildEnbled && (
+																<Tooltip
+																	title={
+																		<div className="chatbox-icon-tooltip-container">
+																			Build
 																		</div>
-																		<BuildTooltip>
-																			<div
-																				className={`icon-arrow-wrapper ${
-																					chatInfo?.build
-																						? 'icon-arrow-wrapper-active'
-																						: ''
-																				}`}
-																				onClick={(e) =>
-																					e?.stopPropagation()
-																				}
-																			>
-																				<div className="icon-arrow">
-																					<ArrowDownSvg fill="var(--secondary-font)" />
+																	}
+																	color="transparent"
+																	arrow={false}
+																	rootClassName="chatbox-tooltip"
+																>
+																	<div
+																		className={`chat-box-icon-container ${
+																			chatInfo?.build
+																				? 'active'
+																				: ''
+																		}`}
+																		onClick={handleBuildClick}
+																	>
+																		<div className="icon">
+																			<div className="text-wrapper">
+																				<div className="build-icon">
+																					<SparkSvg />
+																				</div>
+																				<div
+																					className="icon-text"
+																					style={{
+																						color: chatInfo?.build
+																							? 'var(--primary-button)'
+																							: 'var(--secondary-font)',
+																					}}
+																				>
+																					Build
 																				</div>
 																			</div>
-																		</BuildTooltip>
+																			<BuildTooltip>
+																				<div
+																					className={`icon-arrow-wrapper ${
+																						chatInfo?.build
+																							? 'icon-arrow-wrapper-active'
+																							: ''
+																					}`}
+																					onClick={(e) =>
+																						e?.stopPropagation()
+																					}
+																				>
+																					<div className="icon-arrow">
+																						<ArrowDownSvg fill="var(--secondary-font)" />
+																					</div>
+																				</div>
+																			</BuildTooltip>
+																		</div>
 																	</div>
-																</div>
-															</Tooltip>}
+																</Tooltip>
+															)}
 															{/* )} */}
 														</div>
 

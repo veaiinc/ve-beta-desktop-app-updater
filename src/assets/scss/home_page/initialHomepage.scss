@@ -67,7 +67,6 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
-				max-width: 530px;
 			}
 		}
 		.options-container {
@@ -127,7 +126,8 @@
 	.home-page-container-content {
 		width: 100%;
 		padding-top: 50px;
-		// flex-grow: 1;
+		flex-grow: 1;
+		overflow-y: auto;
 	}
 }
 

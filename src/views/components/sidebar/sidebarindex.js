@@ -39,22 +39,6 @@ export const veAiModules = [
 	{ id: 4, icon: HelpSvg, name: 'Help' },
 ];
 
-export const styles = {
-	open: {
-		width: '230px',
-		borderRadius: '14px',
-	},
-	close: {
-		width: '56px',
-	},
-	workspace: {
-		width: '230px',
-		borderRadius: '14px',
-		minHeight: '20vh',
-		height: 'fit-content',
-	},
-};
-
 export const SETTINGS_OPTIONS = {
 	admin: [
 		{ name: 'My Profile', route: '/settings/my-profile', icon: FilesSvg },
@@ -69,6 +53,5 @@ export const SETTINGS_OPTIONS = {
 		{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
 		{ name: 'Integration', route: '/settings/integrations', icon: IntegrationsIcon },
 		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
-
 	],
 };

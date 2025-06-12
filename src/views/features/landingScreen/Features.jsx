@@ -152,7 +152,7 @@ const Features = () => {
 	const images = [
 		'https://ap.images.ve.ai/public/dashboard/proactive-cards.png',
 		feature2,
-		feature3
+		feature3,
 	];
 
 	return (

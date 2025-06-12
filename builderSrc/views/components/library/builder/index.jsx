@@ -1190,14 +1190,17 @@ class Builder extends Component {
 													editingWorflow={
 														this.props?.editingWorflow || false
 													}
-													handleSideBar={(e, _id) => {
-														this.props.handleOpenSideBar(
-															e,
-															_id,
-															false,
-															true,
-														);
-													}}
+													// handleSideBar={(e, _id) => {
+													// 	this.props.handleOpenSideBar(
+													// 		e,
+													// 		_id,
+													// 		false,
+													// 		true,
+													// 	);
+													// }}
+													handleSideBar={(e, _id) =>
+														this.props.handleOpenSideBar(e, _id)
+													}
 													activeModuleId={this.props?.activeModuleId}
 												/>
 											</div>

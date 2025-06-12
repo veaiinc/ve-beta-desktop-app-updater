@@ -133,7 +133,13 @@ const availableIntegrations = [
 
 const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) => {
 	const {
-		automationBuilder: { connectedIntegrations, addTrigger, getAutomation, updateStep },
+		automationBuilder: {
+			connectedIntegrations,
+			addTrigger,
+			getAutomation,
+			updateStep,
+			updateTrigger,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		activeStage: `stage${step || 1}`, //stage1, stage2, stage3
@@ -169,20 +175,33 @@ const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) =>
 			const response = await addTrigger(automationId, data);
 			updateTriggerInfo({ saveLoader: false });
 			if (response?.[0]) {
+				message.success('Trigger added successfully');
 				onClose();
 			} else {
-				message?.error(response?.[1] || 'Failed to add trigger');
+				message.error(response?.[1] || 'Failed to add trigger');
 			}
 		},
 		[connectedIntegrations, addTrigger, automationId, getAutomation],
 	);
 
-	const updateTrigger = useCallback(
+	const handleUpdateTrigger = useCallback(
 		async (data) => {
-			message?.error('Could not update trigger');
-			onClose();
+			updateTriggerInfo({ saveLoader: true });
+			const response = await updateTrigger(automationId, activeStepsData?._id, {
+				...data,
+				app: activeStepsData?.app,
+				triggerType: activeStepsData?.triggerType,
+				type: 'trigger',
+			});
+			updateTriggerInfo({ saveLoader: false });
+			if (response?.[0]) {
+				message.success('Trigger updated successfully');
+				onClose();
+			} else {
+				message.error(response?.[1] || 'Failed to update trigger');
+			}
 		},
-		[updateTriggerInfo],
+		[automationId, activeStepsData, updateTriggerInfo, updateTrigger],
 	);
 
 	useEffect(() => {
@@ -215,12 +234,16 @@ const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) =>
 	const onSave = useCallback(
 		(data) => {
 			if (activeStepsData) {
-				updateTrigger(data);
+				handleUpdateTrigger({
+					...data,
+					app: activeStepsData?.app,
+					triggerType: activeStepsData?.triggerType,
+				});
 			} else {
 				addNewTrigger(data);
 			}
 		},
-		[activeStepsData, updateTrigger, addNewTrigger],
+		[activeStepsData, handleUpdateTrigger, addNewTrigger],
 	);
 
 	const handleOnClose = useCallback(() => {

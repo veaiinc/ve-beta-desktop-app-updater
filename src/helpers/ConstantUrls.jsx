@@ -8,7 +8,7 @@ export const LINKEDIN_URL = 'https://www.linkedin.com/company/veai';
 
 export const INSTAGRAM_URL = 'https://www.instagram.com/veaihq';
 
-export const SHARE_AND_EARN_KIT_URL = 'https://veai.ve.ai/portal/affiliate';
+export const SHARE_AND_EARN_KIT_URL = 'https://veai.ve.ai/page/affiliate';
 
 export const TWITTER_POST_URL = 'https://x.com/intent/post?text=';
 

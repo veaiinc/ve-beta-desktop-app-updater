@@ -162,8 +162,8 @@ const suggestedOptions = [
 		title: 'Document',
 		value: '',
 		controlValue: 'workflow',
-		action: () => {
-			window.location.href = `${origin}/create-document`;
+		action: navigate => {
+			navigate(`/builder/create-document`);
 		},
 	},
 	{
@@ -720,7 +720,6 @@ const Files = () => {
 						<div className="beta-text">File Flow Inspired by Your Mind</div> */}
 					</span>
 					<div className="storage-header-items">
-						<div>Shiva</div>
 						<QuickActions suggestedOptions={suggestedOptions} />
 					</div>
 				</div>

@@ -1,7 +1,7 @@
 .childrenContainer {
 	height: 100%;
 	overflow-y: hidden;
-	color: var(--primary-font);
+	color: #000;
 
 	.files-container {
 		position: relative;
@@ -594,6 +594,7 @@
 		margin-bottom: 25px;
 		width: 200px;
 		height: 160px;
+		overflow: hidden;
 	}
 
 	.status-badge {

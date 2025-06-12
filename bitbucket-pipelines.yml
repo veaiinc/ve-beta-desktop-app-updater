@@ -5,12 +5,12 @@ clone:
 
 definitions:
     steps:
-        - step: &build-and-test-step
+        - step: &build-and-test
               name: Build and Test
               script:
                   - echo 'Running tests...'
                   - echo 'Building...'
-        - step: &sync-to-github-step
+        - step: &sync-to-github
               name: Sync to GitHub
               script:
                   - echo 'Starting GitHub sync...'
@@ -23,5 +23,11 @@ definitions:
 pipelines:
     branches:
         master:
-            - step: *build-and-test-step
-            - step: *sync-to-github-step
+            - step: *build-and-test
+            - step: *sync-to-github
+        development:
+            - step: *build-and-test
+            - step: *sync-to-github
+        feature/change-iframe:
+            - step: *build-and-test
+            - step: *sync-to-github

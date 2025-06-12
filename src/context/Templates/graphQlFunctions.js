@@ -253,6 +253,7 @@ export const getWorkflowListQuery = gql`
 				version
 				createdAt
 				updatedAt
+				firstModule
 			}
 		}
 	}

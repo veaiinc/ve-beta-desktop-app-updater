@@ -17,6 +17,8 @@ const InputComponent = ({
 				{...props}
 				id={generatedId}
 				autoFocus={autoFocus}
+				autoComplete="off"
+				autofill="off"
 			/>
 			<label htmlFor={generatedId} style={placeholderStyles}>
 				{placeholder}

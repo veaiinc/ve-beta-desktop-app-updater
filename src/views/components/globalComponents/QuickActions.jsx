@@ -1,13 +1,23 @@
+import ObjectID from 'bson-objectid';
 import { useContext, useState, useCallback, useEffect, memo, useMemo, useRef } from 'react';
-import '../../../assets/scss/globalComponents/quickActions.scss';
-import LoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
 import { useNavigate, useLocation } from 'react-router-dom';
+
 import Context from '../../../context/context';
+
+import LoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
+import EventsPopup from '../calendar/EventsPopUp';
+import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
 import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
 import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
 import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
 import CreateTaskPopup from '../modalsV2/tasks/CreateTaskPopup';
+
 import { message } from '../globalComponents/CustomToast';
+import { colors } from '../../../helpers/taskHelpers';
+import { fetchOriginSelection } from '../../../helpers';
+
+import Search from '../../../assets/svg/searc.svg';
+import { ReactComponent as Flash } from '../../../assets/svg/flash.svg';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
 import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
@@ -15,13 +25,8 @@ import { ReactComponent as WorkflowSvg } from '../../../assets/svg/tasks/workflo
 import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
-import { colors } from '../../../helpers/taskHelpers';
-import EventsPopup from '../calendar/EventsPopUp';
-import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
-import { ReactComponent as Flash } from '../../../assets/svg/flash.svg';
-import Search from '../../../assets/svg/searc.svg';
-import { fetchOriginSelection } from '../../../helpers';
-import ObjectID from 'bson-objectid';
+
+import '../../../assets/scss/globalComponents/quickActions.scss';
 
 const suggestedOptions = [];
 
@@ -101,13 +106,33 @@ const createOptions = [
 		title: 'Form',
 		value: 'form-submission',
 		controlValue: 'form',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({
-				...prev,
-				openProposalPopup: true,
-				commonState: 'form-submission',
-				dropdown: false,
-			}));
+		action: async ({ setInfo }) => {
+			try {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: true,
+					loaderMessage: 'Creating form...',
+					dropdown: false,
+				}));
+				const response = await createBlankTemplate({
+					templateInput: {
+						title: 'Untitled Form',
+					},
+				});
+				if (response?.[0]) {
+					window.location.href = `${origin}/${response?.[1]?.data?.createBlankTemplate?._id}`;
+				} else {
+					message.error('Failed to create form');
+				}
+			} catch (error) {
+				message.error('Failed to create form');
+			} finally {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: false,
+					loaderMessage: '',
+				}));
+			}
 		},
 	},
 	{

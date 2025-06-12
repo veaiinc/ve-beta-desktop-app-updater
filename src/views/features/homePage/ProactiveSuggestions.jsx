@@ -26,6 +26,7 @@ import { ReactComponent as SortAscSvg } from '../../../assets/svg/home_page/sort
 import { ReactComponent as AgentIcon } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import AIQuestions from './AIQuestions';
 import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
+import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
 
 const payload = {
 	page: 1,
@@ -111,6 +112,8 @@ const ProactiveSuggestions = () => {
 	const currentIndexRef = useRef(0);
 	const totalCardsDataRef = useRef([]);
 	const isMountedRef = useRef(true);
+	const timeoutIdRef = useRef(null);
+	const searchFocusedRef = useRef(false);
 
 	const {
 		templates: {
@@ -139,6 +142,7 @@ const ProactiveSuggestions = () => {
 		sortBy: 'createdAt',
 		activeBtn: 'insights',
 		sortOptions,
+		searchQuery: '',
 	});
 
 	useEffect(() => {
@@ -161,22 +165,6 @@ const ProactiveSuggestions = () => {
 		}
 	}, []);
 
-	const handleKeyDown = (e) => {
-		if (e?.key === 'ArrowUp' || e?.key === 'ArrowLeft') {
-			handleLeft();
-		} else if (e?.key === 'ArrowDown' || e?.key === 'ArrowRight') {
-			handleRight();
-		}
-	};
-	useEffect(() => {
-		window?.addEventListener('keydown', handleKeyDown);
-
-		// Clean up on unmount
-		return () => {
-			window?.removeEventListener('keydown', handleKeyDown);
-		};
-	}, [handleKeyDown]);
-
 	useEffect(() => {
 		if (info?.totalCardsData?.length > 0) {
 			updateWindow(info?.currentIndex);
@@ -190,12 +178,92 @@ const ProactiveSuggestions = () => {
 			info?.selectedFilters?.length === 0 &&
 			isMountedRef.current
 		) {
+			return;
+		}
+		fetchPendingActions();
+	}, [info?.selectedFilters, info?.sortOptions, info?.sortBy]);
+
+	useEffect(() => {
+		if (isMountedRef.current) {
 			isMountedRef.current = false;
 			return;
 		}
-		const reset = true;
-		getAISuggestedPendingActions(newUpdatedPayload, reset);
-	}, [info?.selectedFilters, info?.sortOptions, info?.sortBy]);
+		if (timeoutIdRef.current) {
+			clearTimeout(timeoutIdRef.current);
+		}
+		timeoutIdRef.current = setTimeout(() => {
+			fetchPendingActions();
+		}, 500);
+	}, [info?.searchQuery]);
+
+	const handleLeft = useCallback(() => {
+		const index =
+			(currentIndexRef.current - 1 + totalCardsDataRef.current?.length) %
+			totalCardsDataRef.current?.length;
+		setInfo((prev) => ({
+			...prev,
+			currentIndex: index,
+			activeCardContent: totalCardsDataRef.current[index],
+			selectedCardNumber: index,
+		}));
+		currentIndexRef.current = index;
+	}, []);
+
+	const handleRight = useCallback(async () => {
+		if (info?.isApiLoading) return;
+		const isLastCard = currentIndexRef.current === totalCardsDataRef.current.length - 2;
+		const totalCards = totalCardsDataRef.current.length;
+
+		if (isLastCard) {
+			if (aiSuggestedPendingActions?.metaInfo?.hasNextPage) {
+				setInfo((prev) => ({
+					...prev,
+					isApiLoading: true,
+				}));
+				const nextPage = aiSuggestedPendingActions.metaInfo.currentPage + 1;
+				const payload = {
+					...newUpdatedPayload,
+					page: nextPage,
+				};
+
+				await getAISuggestedPendingActions(payload, false);
+				setInfo((prev) => ({
+					...prev,
+					isApiLoading: false,
+				}));
+				return;
+			}
+		}
+
+		// Normal forward movement
+		const index = (currentIndexRef.current + 1) % totalCards;
+		setInfo((prev) => ({
+			...prev,
+			currentIndex: index,
+			activeCardContent: totalCardsDataRef.current[index],
+			selectedCardNumber: index + 1,
+		}));
+		currentIndexRef.current = index;
+	}, [info?.isApiLoading, aiSuggestedPendingActions, getAISuggestedPendingActions]);
+
+	const handleKeyDown = useCallback(
+		(e) => {
+			if (searchFocusedRef.current) return;
+			if (e?.key === 'ArrowUp' || e?.key === 'ArrowLeft') {
+				handleLeft();
+			} else if (e?.key === 'ArrowDown' || e?.key === 'ArrowRight') {
+				handleRight();
+			}
+		},
+		[handleLeft, handleRight],
+	);
+	useEffect(() => {
+		window?.addEventListener('keydown', handleKeyDown);
+		// Clean up on unmount
+		return () => {
+			window?.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [handleKeyDown]);
 
 	const getDateRangeFromFilters = (filters) => {
 		const selectedDateFilter = filters?.find((f) => f?.group === 'Date');
@@ -226,30 +294,6 @@ const ProactiveSuggestions = () => {
 
 		return { from, to };
 	};
-
-	const newUpdatedPayload = useMemo(() => {
-		const getFilterValues = (group, excludeTitle = null) =>
-			info?.selectedFilters
-				?.filter((f) => f?.group === group && (!excludeTitle || f?.title !== excludeTitle))
-				.map((f) => f?.value) || [];
-
-		const selectedPriority = getFilterValues('Priority Level');
-		const selectedReadStatus = getFilterValues('Read Status', 'All');
-		const selectedConfidenceScore = getFilterValues('Confidence level');
-		const [favourite] = getFilterValues('Other');
-		const { from, to } = getDateRangeFromFilters(info?.selectedFilters);
-
-		return {
-			...payload,
-			...(selectedPriority.length && { priority: selectedPriority }),
-			...(selectedReadStatus.length && { read: selectedReadStatus }),
-			...(selectedConfidenceScore.length && { confidenceScore: selectedConfidenceScore }),
-			...(from !== undefined && to !== undefined && { from, to }),
-			sortType: info?.sortOptions[info?.sortBy]?.sortType,
-			sortBy: info?.sortBy,
-			...(favourite && { isFavourited: favourite }),
-		};
-	}, [payload, info?.selectedFilters, info?.sortOptions, info?.sortBy]);
 
 	const updateCardsData = () => {
 		const cards = aiSuggestedPendingActions?.pendingActions;
@@ -292,66 +336,6 @@ const ProactiveSuggestions = () => {
 			...prev,
 			cards,
 		}));
-	};
-
-	const handleLeft = () => {
-		const index =
-			(currentIndexRef.current - 1 + totalCardsDataRef.current?.length) %
-			totalCardsDataRef.current?.length;
-		setInfo((prev) => ({
-			...prev,
-			currentIndex: index,
-			activeCardContent: totalCardsDataRef.current[index],
-			selectedCardNumber: index,
-		}));
-		currentIndexRef.current = index;
-	};
-
-	const handleRight = async () => {
-		if (info?.isApiLoading) return;
-		const isLastCard = currentIndexRef.current === totalCardsDataRef.current.length - 2;
-
-		if (isLastCard) {
-			setInfo((prev) => ({
-				...prev,
-				isApiLoading: true,
-			}));
-			if (aiSuggestedPendingActions?.metaInfo?.hasNextPage) {
-				const nextPage = aiSuggestedPendingActions.metaInfo.currentPage + 1;
-
-				const payload = {
-					...newUpdatedPayload,
-					page: nextPage,
-				};
-
-				await getAISuggestedPendingActions(payload, false);
-				setInfo((prev) => ({
-					...prev,
-					isApiLoading: false,
-				}));
-				return;
-			} else {
-				const index = 0;
-				setInfo((prev) => ({
-					...prev,
-					currentIndex: index,
-					activeCardContent: totalCardsDataRef.current[index],
-					isApiLoading: false,
-				}));
-				currentIndexRef.current = index;
-				return;
-			}
-		}
-
-		// Normal forward movement
-		const index = currentIndexRef.current + 1;
-		setInfo((prev) => ({
-			...prev,
-			currentIndex: index,
-			activeCardContent: totalCardsDataRef.current[index],
-			selectedCardNumber: index + 1,
-		}));
-		currentIndexRef.current = index;
 	};
 
 	const handleCardClick = async (card, index) => {
@@ -414,6 +398,11 @@ const ProactiveSuggestions = () => {
 				selectedFilters: updatedFilters,
 			};
 		});
+	};
+
+	const fetchPendingActions = async () => {
+		const reset = true;
+		getAISuggestedPendingActions(newUpdatedPayload, reset);
 	};
 
 	const fetchMorePendingActions = async () => {
@@ -506,6 +495,38 @@ const ProactiveSuggestions = () => {
 			activeBtn: btn,
 		}));
 	};
+
+	const handleSearchQueryChange = (e) => {
+		setInfo((prev) => ({
+			...prev,
+			searchQuery: e.target?.value,
+		}));
+	};
+
+	const newUpdatedPayload = useMemo(() => {
+		const getFilterValues = (group, excludeTitle = null) =>
+			info?.selectedFilters
+				?.filter((f) => f?.group === group && (!excludeTitle || f?.title !== excludeTitle))
+				.map((f) => f?.value) || [];
+
+		const selectedPriority = getFilterValues('Priority Level');
+		const selectedReadStatus = getFilterValues('Read Status', 'All');
+		const selectedConfidenceScore = getFilterValues('Confidence level');
+		const [favourite] = getFilterValues('Other');
+		const { from, to } = getDateRangeFromFilters(info?.selectedFilters);
+
+		return {
+			...payload,
+			...(selectedPriority.length && { priority: selectedPriority }),
+			...(selectedReadStatus.length && { read: selectedReadStatus }),
+			...(selectedConfidenceScore.length && { confidenceScore: selectedConfidenceScore }),
+			...(from !== undefined && to !== undefined && { from, to }),
+			sortType: info?.sortOptions[info?.sortBy]?.sortType,
+			sortBy: info?.sortBy,
+			...(favourite && { isFavourited: favourite }),
+			search: info?.searchQuery,
+		};
+	}, [payload, info?.selectedFilters, info?.sortOptions, info?.sortBy, info?.searchQuery]);
 
 	const groupedCards = useMemo(() => {
 		const groups = {};
@@ -702,6 +723,19 @@ const ProactiveSuggestions = () => {
 								</button>
 							</div>
 						</Tooltip>
+
+						<div className="search-wrapper" data-tooltip="Search">
+							<div className="search-icon">
+								<SearchSvg />
+							</div>
+							<input
+								className="search-input"
+								placeholder="Search"
+								onChange={handleSearchQueryChange}
+								onFocus={() => (searchFocusedRef.current = true)}
+								onBlur={() => (searchFocusedRef.current = false)}
+							/>
+						</div>
 					</div>
 				</div>
 
@@ -1201,18 +1235,20 @@ const ProactiveSuggestions = () => {
 							)}
 						</div>
 
-						<div className="action-right">
-							<button className="card-change-btn" onClick={handleLeft}>
-								<ChevronRightThinSvg className="left-chevron" />
-							</button>
-							<div className="card-number">
-								<span>{currentIndexRef?.current + 1}</span>/
-								<span>{aiSuggestedPendingActions?.metaInfo?.totalDocs}</span>
+						{info?.cards?.length && (
+							<div className="action-right">
+								<button className="card-change-btn" onClick={handleLeft}>
+									<ChevronRightThinSvg className="left-chevron" />
+								</button>
+								<div className="card-number">
+									<span>{currentIndexRef?.current + 1}</span>/
+									<span>{aiSuggestedPendingActions?.metaInfo?.totalDocs}</span>
+								</div>
+								<button className="card-change-btn" onClick={handleRight}>
+									<ChevronRightThinSvg />
+								</button>
 							</div>
-							<button className="card-change-btn" onClick={handleRight}>
-								<ChevronRightThinSvg />
-							</button>
-						</div>
+						)}
 					</>
 				)
 			)}

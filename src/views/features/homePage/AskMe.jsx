@@ -15,7 +15,6 @@ const AskMe = () => {
 
 	const [info, setInfo] = useState({
 		chatQuery: '',
-		showSuggestions: false,
 	});
 
 	const handleCustomOnSendFunction = useCallback(
@@ -30,8 +29,11 @@ const AskMe = () => {
 		setInfo((prev) => ({
 			...prev,
 			chatQuery: query,
-			showSuggestions: query?.length > 0,
 		}));
+
+		if (query?.length === 0) {
+			updateStateValues({ chatBoxSuggestions: null });
+		}
 	};
 
 	return (
@@ -48,7 +50,7 @@ const AskMe = () => {
 				</div>
 			</div>
 			{chatInfo?.build && info?.chatQuery?.length === 0 && <BuildOptions />}
-			{info?.showSuggestions && <Suggestions />}
+			<Suggestions chatQuery={info?.chatQuery} />
 			{/* <div className="home-page-container-footer">
 				<Sintegrations />
 			</div> */}

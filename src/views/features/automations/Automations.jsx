@@ -2,7 +2,7 @@ import { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/automations/index.scss';
 import Context from '../../../context/context';
 import AutomationCard from '../../components/automations/automationCard/AutomationCard';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import { message } from '../../components/globalComponents/CustomToast';

@@ -9,6 +9,7 @@ import { ReactComponent as LinkLightSvg } from '../../../assets/svg/notes/loop-l
 import { ReactComponent as LinkDarkSvg } from '../../../assets/svg/notes/loop-dark.svg';
 import { useParams, useSearchParams } from 'react-router-dom';
 import AIMessage from './AIMessage';
+import Template from '../../../../builderSrc/views/feature/home';
 const builderAgentMapper = {
 	formBuilderAgent: {
 		label: 'Form',
@@ -278,26 +279,44 @@ const Section2 = ({ workflowTemplateId: workflowTemplateIdFromProps }) => {
 
 	return (
 		<div className="section-content">
-			{showIframe && (
-				<iframe
-					src={`${origin}/${workflowTemplateIdFromProps}?isEmbed=true`} //dont change to fixed url only use origin
-					title="Builder Preview"
-					onClick={(e) => e.stopPropagation()}
-					onMouseDown={(e) => e.stopPropagation()}
-					onMouseUp={(e) => e.stopPropagation()}
-					style={{
-						backgroundColor: '#fff',
-						opacity: 0,
-						animation: 'fadeIn 0.3s ease forwards',
-						transform: 'translate3d(0, 0, 0)',
-						willChange: 'transform, opacity',
-					}}
-					width="100%"
-					height="100%"
-				/>
-			)}
+			{/* {showIframe && <Template templateId={workflowTemplateId} />} */}
+			<iframe
+				src={`/builder/${workflowTemplateIdFromProps}?isEmbed=true`} //dont change to fixed url only use origin
+				title="Builder Preview"
+				onClick={(e) => e.stopPropagation()}
+				onMouseDown={(e) => e.stopPropagation()}
+				onMouseUp={(e) => e.stopPropagation()}
+				style={{
+					backgroundColor: '#fff',
+					opacity: 0,
+					animation: 'fadeIn 0.3s ease forwards',
+					transform: 'translate3d(0, 0, 0)',
+					willChange: 'transform, opacity',
+				}}
+				width="100%"
+				height="100%"
+			/>
 		</div>
 	);
 };
 
 export default FormModel;
+
+{
+	/* <iframe
+	src={`/builder/${workflowTemplateIdFromProps}?isEmbed=true`} //dont change to fixed url only use origin
+	title="Builder Preview"
+	onClick={(e) => e.stopPropagation()}
+	onMouseDown={(e) => e.stopPropagation()}
+	onMouseUp={(e) => e.stopPropagation()}
+	style={{
+		backgroundColor: '#fff',
+		opacity: 0,
+		animation: 'fadeIn 0.3s ease forwards',
+		transform: 'translate3d(0, 0, 0)',
+		willChange: 'transform, opacity',
+	}}
+	width="100%"
+	height="100%"
+/> */
+}

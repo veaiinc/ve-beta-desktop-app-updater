@@ -4,7 +4,7 @@ import Intercom from '@intercom/messenger-js-sdk';
 import { Tooltip } from 'antd';
 
 import '../../../assets/scss/sidebar.scss';
-import { styles, veAiModulesItemsList } from './sidebarindex';
+import { veAiModulesItemsList } from './sidebarindex';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 
 import OpenedSidebar from './OpenedSidebar';
@@ -150,10 +150,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 				}}
 				ref={sidebarRef}
 			>
-				<nav
-					className={`sidebarComponent ${!isOpen && isHome ? 'padding-48' : ''}`}
-					style={styles[sidebarStates?.navStyle]}
-				>
+				<nav className={`sidebarComponent ${!isOpen && isHome ? 'padding-48' : ''}`}>
 					<div
 						className={`sidebar-open ${
 							isOpen
