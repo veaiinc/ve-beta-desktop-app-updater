@@ -39,6 +39,7 @@ const Contacts = () => {
 		selectedContactOption: null,
 		activeView: 'listView',
 	});
+	console.log(clientList);
 	const listItems = clientList?.data || [];
 	const isMountedRef = useRef(true);
 	const pageRef = useRef(1);
@@ -81,27 +82,8 @@ const Contacts = () => {
 	}, [clientList]);
 
 	const fetchClientList = useCallback(
-		(page = 1, reset = false) => {
-			const payload = {
-				clientFilterInput: {
-					limit: 15,
-					page: page,
-					sort:
-						info?.sort?.length > 0
-							? info?.sort
-							: [{ sortBy: 'createdAt', sortType: 1 }],
-					...(info?.searchValue && {
-						search: info?.searchValue,
-					}),
-					...(info?.filters?.length > 0 && {
-						filters: info?.filters?.map((filter) => ({
-							key: filter.key,
-							value: filter.value?._id || filter.value,
-						})),
-					}),
-				},
-			};
-			getClients(payload, reset);
+		(page = 1, limit = 15, reset = false) => {
+			getClients({ page, limit, reset });
 		},
 		[info?.searchValue, info?.filters, info?.sort, getClients],
 	);

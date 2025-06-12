@@ -27,10 +27,23 @@ export const intialState = {
 export const ContactsState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
-	const getClients = async (payload, reset = false) => {
+	const getClients = async ({ page = 1, limit = 15, search = '', reset = false }) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
+			const payload = {
+				clientFilterInput: {
+					// sort: [
+					// 	{
+					// 		sortBy: null,
+					// 		sortType: null,
+					// 	},
+					// ],
+					limit,
+					page,
+					search,
+				},
+			};
 			const response = await service.query(
 				getClientsQuery,
 				payload,
@@ -40,33 +53,19 @@ export const ContactsState = () => {
 			);
 
 			if (response?.[0]) {
-				const newData = response?.[1]?.data?.clients?.data || [];
-				let combinedData;
-
-				if (reset) {
-					combinedData = newData;
-				} else {
-					// Ensure uniqueness using Map by _id
-					const uniqueMap = new Map();
-
-					// Add existing data
-					(state?.clientList?.data || []).forEach((item) => {
-						if (item?._id) uniqueMap.set(item._id, item);
-					});
-
-					// Add new data, replacing duplicates
-					newData.forEach((item) => {
-						if (item?._id) uniqueMap.set(item._id, item);
-					});
-
-					combinedData = Array.from(uniqueMap.values());
-				}
-
+				const data = reset
+					? response?.[1]?.data?.clients?.data
+					: [
+							...(state?.clientList?.data || []),
+							...(response?.[1]?.data?.clients?.data || []),
+					  ];
+				const currentPage = response[1].currentPage;
+				const hasNextPage = response[1].hasNextPage;
 				const payload = {
-					...response?.[1]?.data?.clients,
-					data: combinedData,
+					data,
+					currentPage,
+					hasNextPage,
 				};
-
 				dispatch({
 					type: Actions.SET_CLIENT_LIST,
 					payload,
