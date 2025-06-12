@@ -42,7 +42,7 @@ const FormWidget = ({
 				handleViewDocument(isExpanded);
 			}
 		}, 1000);
-	}, [showViewDocument, messageData?.stream_end, isLastMessage]);
+	}, [messageData?.stream_end, isLastMessage]);
 
 	const handleExpand = () => {
 		setIsExpanded(!isExpanded);
