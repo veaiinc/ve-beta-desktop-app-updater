@@ -55,7 +55,6 @@ const RecentChat = ({
 			currentChatData,
 			chatHistoryDrawerIsOpen,
 			currentSessionId,
-			documentPreviewIds,
 		},
 	} = useContext(Context);
 
@@ -134,6 +133,18 @@ const RecentChat = ({
 			updateStateValues({ currentSessionId: ObjectID()?.toString() });
 		};
 	}, []);
+
+	useEffect(() => {
+		const { workflow_template_id, module_template_id } = info?.latestStreamMesage || {};
+		if (workflow_template_id && module_template_id && info?.showViewDocument) {
+			updateStateValues({
+				documentPreviewIds: {
+					workflowTemplateId: workflow_template_id,
+					moduleTemplateId: module_template_id,
+				},
+			});
+		}
+	}, [info?.latestStreamMesage]);
 
 	useEffect(() => {
 		if (sessionId) {
@@ -562,64 +573,53 @@ const RecentChat = ({
 	);
 
 	// stream chat
-	const onMessageFunc = useCallback(
-		(event) => {
-			let { data = '' } = event || {};
-			data = JSON?.parse(data);
+	const onMessageFunc = useCallback((event) => {
+		let { data = '' } = event || {};
+		data = JSON?.parse(data);
 
-			if (data?.hasOwnProperty('intermediate_response')) {
-				if (data?.intermediate_response_done === true) {
-					loadingMessageRef.current = null;
-					return;
-				}
-
-				loadingMessageRef.current = loadingMessageRef?.current || '';
-				loadingMessageRef.current += data?.intermediate_response || '';
-				updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
-				return;
-			}
-			if (data?.memory_thinking) {
-				updateStateValues({ globalLoadingMesssage: data?.memory_thinking });
-				return;
-			}
-			if (data?.type === 'variableRequirement') {
+		if (data?.hasOwnProperty('intermediate_response')) {
+			if (data?.intermediate_response_done === true) {
 				loadingMessageRef.current = null;
+				return;
 			}
-			if (data?.user_id) {
-				localStorage?.setItem('user_id', data?.user_id);
-			}
-			let chatPayload = null;
-			if (data?.stream_end) {
-				const { workflow_template_id, module_template_id } = data;
-				if (workflow_template_id || module_template_id) {
-					chatPayload = {
-						workflowTemplateId: workflow_template_id,
-						moduleTemplateId: module_template_id,
-					};
-				}
-				updateStateValues({
-					globalLoadingMesssage: null,
-					...(chatPayload && { chatPayload }),
-					...(chatMessagesRef?.current?.length === 2 && { refetchChatHistoryList: true }),
-					...(info?.showViewDocument &&
-						module_template_id &&
-						workflow_template_id && {
-							documentPreviewIds: {
-								workflowTemplateId: workflow_template_id,
-								moduleTemplateId: module_template_id,
-							},
-						}),
-				});
-				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
-			}
-			const { message_chunk_id } = data;
 
-			if (message_chunk_id) {
-				handleStreamMessageChunk(data, message_chunk_id);
+			loadingMessageRef.current = loadingMessageRef?.current || '';
+			loadingMessageRef.current += data?.intermediate_response || '';
+			updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
+			return;
+		}
+		if (data?.memory_thinking) {
+			updateStateValues({ globalLoadingMesssage: data?.memory_thinking });
+			return;
+		}
+		if (data?.type === 'variableRequirement') {
+			loadingMessageRef.current = null;
+		}
+		if (data?.user_id) {
+			localStorage?.setItem('user_id', data?.user_id);
+		}
+		let chatPayload = null;
+		if (data?.stream_end) {
+			const { workflow_template_id, module_template_id } = data;
+			if (workflow_template_id || module_template_id) {
+				chatPayload = {
+					workflowTemplateId: workflow_template_id,
+					moduleTemplateId: module_template_id,
+				};
 			}
-		},
-		[info?.showViewDocument],
-	);
+			updateStateValues({
+				globalLoadingMesssage: null,
+				...(chatPayload && { chatPayload }),
+				...(chatMessagesRef?.current?.length === 2 && { refetchChatHistoryList: true }),
+			});
+			setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
+		}
+		const { message_chunk_id } = data;
+
+		if (message_chunk_id) {
+			handleStreamMessageChunk(data, message_chunk_id);
+		}
+	}, []);
 
 	const handleSendWebsocketMessage = useCallback(
 		async (data, lastQuery) => {
