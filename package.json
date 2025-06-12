@@ -28,7 +28,6 @@
 		"google-fonts-complete": "^2.2.3",
 		"graphql": "^16.10.0",
 		"gsap": "^3.12.5",
-		"hast-util-to-mdast": "^10.1.2",
 		"history": "^5.3.0",
 		"image-focus": "^1.2.1",
 		"jodit-pro-react": "^4.1.18",
@@ -84,8 +83,6 @@
 		"web-vitals": "^2.1.4"
 	},
 	"scripts": {
-		"dev": "webpack serve --open",
-		"win-start": "set \"PORT=8000\" && react-scripts start",
 		"start": "vite",
 		"build": "rm -rf build .vite node_modules/.vite && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build",
 		"preview": "vite preview",
@@ -135,33 +132,21 @@
 		]
 	},
 	"devDependencies": {
-		"@babel/core": "^7.27.4",
-		"@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-		"@babel/preset-env": "^7.27.2",
-		"@babel/preset-react": "^7.26.3",
-		"@babel/register": "^7.27.1",
 		"@eslint/js": "^9.27.0",
 		"@svgr/rollup": "^8.1.0",
-		"@svgr/webpack": "^8.1.0",
 		"@vitejs/plugin-react": "^4.4.1",
-		"babel-loader": "^10.0.0",
 		"css-loader": "^7.1.2",
 		"eslint": "^9.27.0",
 		"eslint-config-prettier": "^6.15.0",
 		"eslint-plugin-prettier": "^3.2.0",
 		"eslint-plugin-react": "^7.37.5",
 		"globals": "^16.1.0",
-		"html-webpack-plugin": "^5.6.3",
 		"husky": "^4.3.0",
 		"lint-staged": "^10.5.2",
 		"prettier": "^2.2.1",
 		"sass": "^1.77.5",
 		"sass-loader": "^16.0.5",
 		"style-loader": "^4.0.0",
-		"vite": "^6.3.5",
-		"vite-plugin-svgr": "^4.3.0",
-		"webpack": "^5.99.7",
-		"webpack-cli": "^6.0.1",
-		"webpack-dev-server": "^5.2.1"
+		"vite": "^6.3.5"
 	}
 }

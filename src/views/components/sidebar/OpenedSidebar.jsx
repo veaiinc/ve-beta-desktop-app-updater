@@ -171,7 +171,7 @@ const OpenedSidebarModules = ({
 					}}
 				>
 					{Icon && <Icon fill={name === 'Notes' ? 'none' : 'var(--secondary-font)'} />}
-					<p>{name}</p>
+					<p style={{ margin: 0 }}>{name}</p>
 					{isExactPathMatch() && <TickSvg />}
 				</div>
 				{isDropdownVisible && subModules?.length > 0 && (
