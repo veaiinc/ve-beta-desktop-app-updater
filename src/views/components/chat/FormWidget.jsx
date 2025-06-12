@@ -79,7 +79,7 @@ const FormWidget = ({
 							onMouseDown={(e) => e.stopPropagation()}
 							onMouseUp={(e) => e.stopPropagation()}
 							style={{
-								backgroundColor: 'var(--primary-font)',
+								backgroundColor: '#fff',
 								transition: 'opacity 0.3s ease',
 								transform: 'translate3d(0, 0, 0)',
 								willChange: 'transform, opacity',
