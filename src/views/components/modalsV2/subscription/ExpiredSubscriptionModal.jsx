@@ -33,6 +33,7 @@ const ExpiredSubscriptionModal = () => {
 		dataUsed: null,
 		dataLimit: null,
 		subscriptionState: 'upgradeSubscription',
+		loading: false,
 	});
 
 	// // Mapper for subscription types to dataUsed and dataLimit
@@ -70,11 +71,14 @@ const ExpiredSubscriptionModal = () => {
 	}, []);
 
 	const handleRenewSubscirption = useCallback(async () => {
+		if (info?.loading) return;
+		setInfo((prev) => ({ ...prev, loading: true }));
 		await getAllSubscriptionPlan();
 		closeModal();
 		setInfo((prev) => ({
 			...prev,
 			isAddOnOpen: true,
+			loading: false,
 		}));
 	}, [closeModal, getAllSubscriptionPlan]);
 
@@ -144,8 +148,9 @@ const ExpiredSubscriptionModal = () => {
 							<div
 								className="renewSubscriptionContainer"
 								onClick={handleRenewSubscirption}
+								disabled={info?.loading}
 							>
-								Upgrade Now
+								{info?.loading ? 'Loading...' : 'Upgrade Now'}
 								<Arrow />
 							</div>
 							<div
