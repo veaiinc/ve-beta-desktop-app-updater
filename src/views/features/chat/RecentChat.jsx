@@ -49,13 +49,13 @@ const RecentChat = ({
 			getRecentChatMessages,
 			recentChatStorage,
 			moreRecentChatStorage,
-			handleStreamIncomingMessage,
 			handleStreamMessageChunk,
 			globalLoadingMesssage,
 			chatInfo,
 			currentChatData,
 			chatHistoryDrawerIsOpen,
 			currentSessionId,
+			documentPreviewIds,
 		},
 	} = useContext(Context);
 
@@ -562,54 +562,64 @@ const RecentChat = ({
 	);
 
 	// stream chat
-	const onMessageFunc = useCallback((event) => {
-		let { data = '' } = event || {};
-		data = JSON?.parse(data);
+	const onMessageFunc = useCallback(
+		(event) => {
+			let { data = '' } = event || {};
+			data = JSON?.parse(data);
 
-		if (data?.hasOwnProperty('intermediate_response')) {
-			if (data?.intermediate_response_done === true) {
-				loadingMessageRef.current = null;
+			if (data?.hasOwnProperty('intermediate_response')) {
+				if (data?.intermediate_response_done === true) {
+					loadingMessageRef.current = null;
+					return;
+				}
+
+				loadingMessageRef.current = loadingMessageRef?.current || '';
+				loadingMessageRef.current += data?.intermediate_response || '';
+				updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
 				return;
 			}
-
-			loadingMessageRef.current = loadingMessageRef?.current || '';
-			loadingMessageRef.current += data?.intermediate_response || '';
-			updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
-			return;
-		}
-		if (data?.memory_thinking) {
-			updateStateValues({ globalLoadingMesssage: data?.memory_thinking });
-			return;
-		}
-		if (data?.type === 'variableRequirement') {
-			loadingMessageRef.current = null;
-		}
-		if (data?.user_id) {
-			localStorage?.setItem('user_id', data?.user_id);
-		}
-		let chatPayload = null;
-		if (data?.stream_end) {
-			const { workflow_template_id, module_template_id } = data;
-			if (workflow_template_id || module_template_id) {
-				chatPayload = {
-					workflowTemplateId: workflow_template_id,
-					moduleTemplateId: module_template_id,
-				};
+			if (data?.memory_thinking) {
+				updateStateValues({ globalLoadingMesssage: data?.memory_thinking });
+				return;
 			}
-			handleStreamIncomingMessage(data);
-			updateStateValues({
-				globalLoadingMesssage: null,
-				...(chatPayload && { chatPayload }),
-				...(chatMessagesRef?.current?.length === 2 && { refetchChatHistoryList: true }),
-			});
-			setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
-		}
-		const { message_chunk_id } = data;
+			if (data?.type === 'variableRequirement') {
+				loadingMessageRef.current = null;
+			}
+			if (data?.user_id) {
+				localStorage?.setItem('user_id', data?.user_id);
+			}
+			let chatPayload = null;
+			if (data?.stream_end) {
+				const { workflow_template_id, module_template_id } = data;
+				if (workflow_template_id || module_template_id) {
+					chatPayload = {
+						workflowTemplateId: workflow_template_id,
+						moduleTemplateId: module_template_id,
+					};
+				}
+				updateStateValues({
+					globalLoadingMesssage: null,
+					...(chatPayload && { chatPayload }),
+					...(chatMessagesRef?.current?.length === 2 && { refetchChatHistoryList: true }),
+					...(info?.showViewDocument &&
+						module_template_id &&
+						workflow_template_id && {
+							documentPreviewIds: {
+								workflowTemplateId: workflow_template_id,
+								moduleTemplateId: module_template_id,
+							},
+						}),
+				});
+				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
+			}
+			const { message_chunk_id } = data;
 
-		if (message_chunk_id) {
-			handleStreamMessageChunk(data, message_chunk_id);
-		}
-	}, []);
+			if (message_chunk_id) {
+				handleStreamMessageChunk(data, message_chunk_id);
+			}
+		},
+		[info?.showViewDocument],
+	);
 
 	const handleSendWebsocketMessage = useCallback(
 		async (data, lastQuery) => {

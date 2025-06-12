@@ -145,7 +145,6 @@ const Section1 = ({
 												smoothScrollToBottom={smoothScrollToBottom}
 												handleRatingClick={handleRatingClick}
 												messageId={chat?.messageId}
-												showTypingEffect={chat?.typingEffect}
 												rating={chat?.rating}
 												messageData={chat}
 												citations={chat?.citations}
@@ -184,22 +183,11 @@ const Section2 = ({
 	const {
 		templates: { documentPreviewIds },
 	} = useContext(Context);
-	const { workflowTemplateId, moduleTemplateId } = documentPreviewIds;
-	const [showIframe, setShowIframe] = useState(false);
+	const { workflowTemplateId } = documentPreviewIds;
 	workflowTemplateIdFromProps = workflowTemplateId || workflowTemplateIdFromProps;
-	const origin = fetchOriginSelection();
-	useEffect(() => {
-		// Delay iframe loading to wait for expansion animation
-		const timer = setTimeout(() => {
-			setShowIframe(true);
-		}, 300); // Match the expansion animation duration
-
-		return () => clearTimeout(timer);
-	}, []);
 
 	return (
 		<div className="section-content">
-			{/* {showIframe && <Template templateId={workflowTemplateId} />} */}
 			<div className="form-modal-header">
 				<span className="form-modal-header-title">
 					VE.AI {builderAgentMapper[agent]?.label || 'Form'}
