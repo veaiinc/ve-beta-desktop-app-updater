@@ -17,7 +17,6 @@ const loadingTexts = [
 class DocumentShortPreview extends NewProposals {
 	constructor(props) {
 		super(props);
-		console.log(this.props.doc.firstModule[0]);
 		this.state = {
 			showRemovableText: true,
 			spanText: 'Remove this text',
