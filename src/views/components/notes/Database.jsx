@@ -104,6 +104,8 @@ const DatabaseComponent = memo(({ block, editor }) => {
 		selectedViewId: null,
 		rowsLoading: false,
 		viewsLoading: false,
+		searchQuery: '',
+		debouncedSearchQuery: '',
 	});
 
 	const currentDatabase = useMemo(() => database?.[databaseId], [database, databaseId]);
@@ -129,6 +131,49 @@ const DatabaseComponent = memo(({ block, editor }) => {
 		);
 	}, [currentDatabaseViews, info?.selectedViewId]);
 
+	const handleSearchChange = useCallback((value) => {
+		setInfo((prev) => ({ ...prev, searchQuery: value }));
+
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
+
+		timeoutRef.current = setTimeout(() => {
+			setInfo((prev) => ({ ...prev, debouncedSearchQuery: value }));
+		}, 500);
+	}, []);
+
+	const handleTabChange = useCallback((view) => {
+		// Clear search states without triggering the fetch effect
+		setInfo((prev) => ({
+			...prev,
+			selectedViewId: view?._id,
+			searchQuery: '',
+			debouncedSearchQuery: '', // Keep the same value to prevent effect trigger
+		}));
+	}, []);
+
+	// Reset search when switching tabs
+	useEffect(() => {
+		if (info?.selectedViewId) {
+			// Only clear the search input value, keep debounced value to prevent effect trigger
+			setInfo((prev) => ({ ...prev, searchQuery: '' }));
+		}
+	}, [info?.selectedViewId]);
+
+	// Fetch rows when view, filters, or debounced search changes
+	useEffect(() => {
+		const currentRow = rowData?.[info?.selectedViewId];
+		const filterHasChanged =
+			JSON.stringify(currentRow?.filters) !== JSON.stringify(selectedDatabaseView?.filterBy);
+		const searchHasChanged = currentRow?.searchQuery !== info?.debouncedSearchQuery;
+
+		if (!filterHasChanged && !searchHasChanged && currentRow?.data) {
+			return;
+		}
+		fetchDatabaseRows(info.selectedViewId);
+	}, [info?.selectedViewId, selectedDatabaseView?.filterBy, info?.debouncedSearchQuery]);
+
 	// Optimized fetch function with duplicate call prevention
 	const fetchDatabaseRows = useCallback(
 		async (viewId, filters = null) => {
@@ -143,6 +188,7 @@ const DatabaseComponent = memo(({ block, editor }) => {
 					input: {
 						page: 1,
 						limit: 50,
+						search: info?.debouncedSearchQuery,
 					},
 				},
 				viewId,
@@ -150,7 +196,13 @@ const DatabaseComponent = memo(({ block, editor }) => {
 			);
 			setInfo((prev) => ({ ...prev, rowsLoading: false }));
 		},
-		[databaseId, pageId, getDatabaseRows, selectedDatabaseView?.filterBy],
+		[
+			databaseId,
+			pageId,
+			getDatabaseRows,
+			selectedDatabaseView?.filterBy,
+			info?.debouncedSearchQuery,
+		],
 	);
 
 	// Initialize view selection effect
@@ -165,17 +217,6 @@ const DatabaseComponent = memo(({ block, editor }) => {
 			}));
 		}
 	}, [currentDatabaseViews, info?.selectedViewId]);
-
-	// Fetch rows when view or filters change
-	useEffect(() => {
-		const currentRow = rowData?.[info?.selectedViewId];
-		const filterHasChanged =
-			JSON.stringify(currentRow?.filters) !== JSON.stringify(selectedDatabaseView?.filterBy);
-		if (!filterHasChanged && currentRow?.data) {
-			return;
-		}
-		fetchDatabaseRows(info.selectedViewId);
-	}, [info?.selectedViewId, selectedDatabaseView?.filterBy]);
 
 	// Handle database import list loading
 	useEffect(() => {
@@ -454,15 +495,20 @@ const DatabaseComponent = memo(({ block, editor }) => {
 							<TaskHeader
 								tabArray={currentDatabaseViews}
 								activeTab={info?.selectedViewId}
-								handleTabChange={(view) =>
-									handleInfoChange({ selectedViewId: view?._id })
-								}
+								handleTabChange={handleTabChange}
 								handleAddTab={(viewType) =>
 									handleCreateDatabaseView(databaseId, viewType)
 								}
 								handleTabDropdownClick={handleTabDropdownClick}
 							/>
 							<div className={s.notesDatabaseHeaderButtons}>
+								<input
+									type="text"
+									placeholder="Search"
+									className={s.notesDatabaseHeaderSearchInput}
+									value={info?.searchQuery}
+									onChange={(e) => handleSearchChange(e.target.value)}
+								/>
 								{/* <button >
 									Filter button goes here
 								</button> */}

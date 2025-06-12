@@ -843,6 +843,7 @@ export const NotesState = (props) => {
 							...(state?.rowData?.[viewId] || {}),
 							...response?.[1]?.data?.listDatabaseRows,
 							filters,
+							searchQuery: payload?.search,
 						},
 					},
 				});
