@@ -1993,28 +1993,28 @@ input[type='time'] {
 	width: 100%;
 	padding: 12px;
 
-	// &::-webkit-calendar-picker-indicator {
-	// 	background: none;
-	// 	display: none;
-	// }
+// 	// &::-webkit-calendar-picker-indicator {
+// 	// 	background: none;
+// 	// 	display: none;
+// 	// }
 
-	&::-webkit-datetime-edit {
-		color: var(--primary-font);
-	}
+// 	&::-webkit-datetime-edit {
+// 		color: var(--primary-font);
+// 	}
 
-	&::-webkit-inner-spin-button {
-		display: none;
-	}
+// 	&::-webkit-inner-spin-button {
+// 		display: none;
+// 	}
 
-	&::-webkit-clear-button {
-		display: none;
-	}
+// 	&::-webkit-clear-button {
+// 		display: none;
+// 	}
 
-	@media screen and (max-width: 768px) {
-		-webkit-appearance: none;
-		color-scheme: light;
-	}
-}
+// 	@media screen and (max-width: 768px) {
+// 		-webkit-appearance: none;
+// 		color-scheme: light;
+// 	}
+// }
 
 // Override any mobile-specific styling
 @media screen and (max-width: 768px) {

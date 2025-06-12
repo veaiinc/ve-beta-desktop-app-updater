@@ -150,6 +150,7 @@ const ChatBox = ({
 			galleryFile,
 			chatPayload,
 		},
+		subscriptionInfo: { currentPlan, updateSubscriptionState },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 		aiSetup: { voiceIntegrationData },
@@ -517,6 +518,16 @@ const ChatBox = ({
 				// Prevent default to avoid unwanted new line
 				e?.preventDefault();
 
+				if (!isPublicChat) {
+					const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
+						totalCreditsLimit = currentPlan?.totalAiCreditLimit || 0;
+					if (totalCreditsUsed >= totalCreditsLimit) {
+						return updateSubscriptionState({
+							expiredSubscriptionModal: true,
+						});
+					}
+				}
+
 				if (aiChatLoading || info?.chatLoading) {
 					return message.error('Please wait for the AI response');
 				}
@@ -665,6 +676,7 @@ const ChatBox = ({
 			uploadedImagesRef?.current,
 			location,
 			params,
+			currentPlan,
 		],
 	);
 

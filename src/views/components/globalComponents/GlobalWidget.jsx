@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import CalenderWidget from './CalenderWidget';
 import PromptsWidget from './PromptsWidget';
 import TaskWidget from './TaskWidget';
@@ -29,4 +29,4 @@ const GlobalWidget = ({ option = '' }) => {
 		</div>
 	);
 };
-export default GlobalWidget;
+export default memo(GlobalWidget);

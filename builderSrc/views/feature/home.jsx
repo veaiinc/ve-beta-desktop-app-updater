@@ -676,7 +676,7 @@ class Home extends Proposals {
 
 		const sessionId = urlParams?.get('sessionId');
 		if (!sessionId) {
-			console.warn('No sessionId found in URL parameters');
+			// console.warn('No sessionId found in URL parameters');
 		}
 
 		const workflow = urlParams?.get('workflow') || this.state.isWorkflow;
