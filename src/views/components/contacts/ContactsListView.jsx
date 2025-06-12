@@ -27,7 +27,9 @@ const ContactsListView = ({ data, hasMore, fetchMore, onSort, sortType }) => {
 				<div className="column strength"></div>
 				<div className="column interaction">
 					<div className="interaction-header">
-						Last Interaction <ClockSvg />
+						{/* <ClockSvg /> */}
+						{/* Last Interaction */}
+						Created At
 						<Tooltip
 							placement="bottom"
 							// title={<div className="tooltipTitle">Sort by created at</div>}
@@ -82,14 +84,14 @@ const ContactsListView = ({ data, hasMore, fetchMore, onSort, sortType }) => {
                     <span className="text">{contact.strength}</span> */}
 										</div>
 										<div className="interaction">
-											{contact?.updatedAt ? (
+											{contact?.createdAt ? (
 												<Tooltip
 													title={`Last Interacted on: ${dayjs
-														?.unix(contact?.updatedAt)
+														?.unix(contact?.createdAt)
 														?.format('DD MMM YYYY')}`}
 												>
 													<span>
-														{dayjs?.unix(contact?.updatedAt)?.fromNow()}
+														{dayjs?.unix(contact?.createdAt)?.fromNow()}
 													</span>
 												</Tooltip>
 											) : (
