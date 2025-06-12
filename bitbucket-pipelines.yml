@@ -31,3 +31,6 @@ pipelines:
         feature/change-iframe:
             - step: *build-and-test
             - step: *sync-to-github
+        feature/vite-dashboard-builder:
+            - step: *build-and-test
+            - step: *sync-to-github
