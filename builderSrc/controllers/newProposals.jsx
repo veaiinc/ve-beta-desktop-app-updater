@@ -1371,7 +1371,7 @@ class NewProposals extends Component {
 			this.setState({
 				isPromptLoading: false,
 			});
-			this.props.navigate(`/generate/templates/${workflowID}`);
+			this.props.navigate(`/builder/generate/templates/${workflowID}`);
 		}
 	};
 
@@ -1888,7 +1888,9 @@ class NewProposals extends Component {
 						),
 					);
 
-					this.props.navigate(`/generate/templates/${this.props.params.templateID}`);
+					this.props.navigate(
+						`/builder/generate/templates/${this.props.params.templateID}`,
+					);
 				},
 			);
 		}

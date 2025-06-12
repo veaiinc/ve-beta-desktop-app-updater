@@ -365,7 +365,7 @@ const SmartFileSidebar = ({
 	}
 
 	const handleNavigateToDocumentView = () => {
-		navigate(`/document/view/${workflowId}?workflow=true`);
+		navigate(`/builder/document/view/${workflowId}?workflow=true`);
 	};
 
 	const handleShareModal = () => {
@@ -556,14 +556,14 @@ const SmartFileSidebar = ({
 								{info?.variablesData?.filter(
 									(ele) =>
 										ele?.displayName !== 'Grand Total' &&
-										ele?.displayName !== 'Grand Total In Words'
+										ele?.displayName !== 'Grand Total In Words',
 								)?.length > 0 && (
 									<Variables
 										data={
 											info?.variablesData?.filter(
 												(ele) =>
 													ele?.displayName !== 'Grand Total' &&
-													ele?.displayName !== 'Grand Total In Words'
+													ele?.displayName !== 'Grand Total In Words',
 											) || []
 										}
 										clientDetails={info?.clientDetails || {}}
@@ -661,14 +661,14 @@ const SmartFileSidebar = ({
 						{info?.variablesData?.filter(
 							(ele) =>
 								ele?.displayName !== 'Grand Total' &&
-								ele?.displayName !== 'Grand Total In Words'
+								ele?.displayName !== 'Grand Total In Words',
 						)?.length > 0 && (
 							<Variables
 								data={
 									info?.variablesData?.filter(
 										(ele) =>
 											ele?.displayName !== 'Grand Total' &&
-											ele?.displayName !== 'Grand Total In Words'
+											ele?.displayName !== 'Grand Total In Words',
 									) || []
 								}
 								clientDetails={info?.clientDetails || {}}

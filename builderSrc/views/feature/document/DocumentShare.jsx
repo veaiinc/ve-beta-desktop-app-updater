@@ -218,7 +218,7 @@ const DocumentShare = ({
 				}
 				// Navigate to the view route after copying
 				if (smartFileInfo?._id) {
-					navigate(`/document/view/${smartFileInfo._id}?workflow=true`);
+					navigate(`/builder/document/view/${smartFileInfo._id}?workflow=true`);
 				}
 				onClose();
 			} else {

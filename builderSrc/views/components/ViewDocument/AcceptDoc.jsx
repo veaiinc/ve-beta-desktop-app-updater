@@ -284,7 +284,7 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 			);
 			if (tenantUser && !tenantUser.value) {
 				navigate(
-					`/document/edit/${workflowInfoDetails?._id}?workflow=true&openSignature=true`,
+					`/builder/document/edit/${workflowInfoDetails?._id}?workflow=true&openSignature=true`,
 				);
 				return;
 			}

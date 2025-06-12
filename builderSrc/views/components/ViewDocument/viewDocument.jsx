@@ -51,7 +51,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 
 	// Section1 logic
 	const handleEditClick = () => {
-		navigate(`/document/edit/${workflowId}?workflow=true`);
+		navigate(`/builder/document/edit/${workflowId}?workflow=true`);
 	};
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -69,7 +69,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 			const response = await deleteLead({ deleteWorkflowId: workflowId });
 			if (response?.[0] === true) {
 				message.success('Lead deleted successfully');
-				navigate('/create-document');
+				navigate('/builder/create-document');
 			} else {
 				message.error(response?.[1] || 'Failed to delete lead');
 			}
@@ -110,7 +110,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 		const smartFileworkflowId = response?.[1]?.data?.duplicateSmartFile?._id;
 		if (smartFileworkflowId) {
 			setInfo((prev) => ({ ...prev, duplicateLoading: false }));
-			navigate(`/document/edit/${smartFileworkflowId}?workflow=true`);
+			navigate(`/builder/document/edit/${smartFileworkflowId}?workflow=true`);
 		} else {
 			message.error(response?.[1]?.message);
 			setInfo((prev) => ({ ...prev, duplicateLoading: false }));
@@ -268,7 +268,8 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 					disabled={info?.workflowInfo?.status === 'confirmed'}
 					style={{
 						opacity: info?.workflowInfo?.status === 'confirmed' ? 0.7 : 1,
-						cursor: info?.workflowInfo?.status === 'confirmed' ? 'not-allowed' : 'pointer',
+						cursor:
+							info?.workflowInfo?.status === 'confirmed' ? 'not-allowed' : 'pointer',
 					}}
 					onClick={() => {
 						if (info?.workflowInfo?.status !== 'confirmed') {
@@ -429,11 +430,10 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 							onDuplicate={handleDuplicate}
 						/>
 					)}
-					{info.showAcceptDocumentModal &&
-						info?.workflowInfo?.status !== 'confirmed' && (
-							<AcceptDocumentModel
-								isOpen={info.showAcceptDocumentModal}
-								onClose={() =>
+					{info.showAcceptDocumentModal && info?.workflowInfo?.status !== 'confirmed' && (
+						<AcceptDocumentModel
+							isOpen={info.showAcceptDocumentModal}
+							onClose={() =>
 								setInfo((prev) => ({ ...prev, showAcceptDocumentModal: false }))
 							}
 							// acceptDocumentFunc={handleAccept}
@@ -491,7 +491,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 const ViewDocument = ({ workflowId, templateID }) => {
 	const navigate = useNavigate();
 	const handleBackToEdit = () => {
-		navigate(`/document/edit/${workflowId}/${templateID}`);
+		navigate(`/builder/document/edit/${workflowId}/${templateID}`);
 	};
 	const origin = fetchOriginSelection();
 

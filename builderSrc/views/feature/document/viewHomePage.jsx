@@ -14,7 +14,7 @@ import DocumentShare from './DocumentShare';
 const EditButton = ({ workflowId, templateID }) => {
 	const navigate = useNavigate();
 	const handleEditClick = () => {
-		navigate(`/${workflowId}?workflow=true`);
+		navigate(`/builder/${workflowId}?workflow=true`);
 	};
 
 	return (

@@ -10,7 +10,7 @@ import TempBuilderPreview from '../../feature/temp-prev';
 const EditButton = ({ workflowId, templateId }) => {
 	const navigate = useNavigate();
 	const handleEditClick = () => {
-		navigate(`/${workflowId}?workflow=true`);
+		navigate(`/builder/${workflowId}?workflow=true`);
 	};
 
 	return (
@@ -128,8 +128,10 @@ const EditDocument = () => {
 					handleReplaceMultipleInput={info.previewCallbacks.handleReplaceMultipleInput}
 					clientDetails={info.clientDetails}
 					previewReady={info.previewDomReady}
-					onGoBack={() => navigate('/create-document')}
-					onGetSummery={() => navigate(`/document/view/${workflowId}/${templateId}`)}
+					onGoBack={() => navigate('/builder/create-document')}
+					onGetSummery={() =>
+						navigate(`/builder/document/view/${workflowId}/${templateId}`)
+					}
 					showSignatureModal={info.showSignatureModal}
 					onCloseSignatureModal={() =>
 						setInfo((prev) => ({ ...prev, showSignatureModal: false }))
