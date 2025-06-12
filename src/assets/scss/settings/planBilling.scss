@@ -131,7 +131,7 @@
 					border: 1px solid var(--stroke);
 					background: var(--card-over-card-hover);
 					// box-shadow: 0px 4px 4.6px 0px rgba(0, 0, 0, 0.15) inset,
-					// 	0px 2px 4px 0px rgba(0, 0, 0, 0.18);
+					//  0px 2px 4px 0px rgba(0, 0, 0, 0.18);
 					cursor: pointer;
 
 					p {
@@ -313,10 +313,14 @@
 
 				.addOnContianer {
 					display: flex;
+					width: 800px;
+					height: 650px;
+					max-width: 100%;
+					max-height: 90vh;
 					flex-direction: column;
 					align-items: flex-start;
-					gap: 8px;
-					align-self: stretch;
+					border-radius: 24px;
+					border: 1px solid var(--stroke, #2c2d2e);
 
 					.addOnStates {
 						color: var(--primary-font);
@@ -666,132 +670,249 @@
 		}
 	}
 }
-.addOnsContainer {
-	width: 60vw;
-	height: 80vh;
+.addOnsHeader {
 	display: flex;
-	padding: 0 32px 32px;
-	flex-direction: column;
+	height: auto;
+	min-height: 60px;
+	padding: 20px 24px;
+	justify-content: space-between;
 	align-items: center;
-	gap: 24px;
-	border-radius: 32px;
-	background: var(--card);
-	overflow-y: auto;
-	border: 1px solid var(--stroke);
-	.addOnsHeader {
+	flex-shrink: 0;
+	align-self: stretch;
+	border-radius: 24px 24px 0px 0px;
+	border-bottom: 1px solid var(--stroke, #2c2d2e);
+	background: var(--popup, #202123);
+	width: 100%;
+
+	.subscriptionTypeContainer {
 		display: flex;
-		height: 45px;
 		justify-content: space-between;
 		align-items: center;
-		flex-shrink: 0;
 		align-self: stretch;
-		position: sticky;
-		left: 0;
-		top: 0;
-		z-index: 1;
-		background: inherit;
-		padding: 32px 0;
-		.title {
-			color: var(--primary-font);
-			font-family: var(--primary-font-family);
-			font-size: 20px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-		}
-		.checkoutContainer {
+		width: 100%;
+
+		.subscriptionTypeWrapper {
 			display: flex;
-			align-items: center;
-			gap: 24px;
-			.total {
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 16px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-			}
-			.checkout {
+			align-items: flex-start;
+			gap: 6px;
+			width: 100%;
+			justify-content: space-between;
+
+			.subscriptionButtons {
 				display: flex;
-				padding: 14px 24px;
-				justify-content: center;
+				align-items: flex-start;
+				gap: 6px;
+
+				.subscriptionType {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 100px;
+					cursor: pointer;
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+
+					&.subscription {
+						padding: 8px 12px;
+						border: 1px solid var(--stroke, #2c2d2e);
+						background: var(--popup, #202123);
+						color: var(--primary-font);
+
+						&.active {
+							border: 1px solid var(--primary-button, #79ecc9);
+							color: var(--primary-button);
+						}
+					}
+
+					&.addOns {
+						padding: 8px 14px;
+						border: 1px solid var(--stroke, #2c2d2e);
+						background: var(--popup, #202123);
+						color: var(--primary-font);
+
+						&.active {
+							border: 1px solid var(--primary-button, #79ecc9);
+							color: var(--primary-button);
+						}
+					}
+				}
+			}
+
+			.priceCheckoutWrapper {
+				display: flex;
 				align-items: center;
 				gap: 6px;
-				border-radius: 59px;
-				background: var(--primary-font);
-				color: var(--background-color);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				cursor: pointer;
+
+				.checkoutContainer {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					border-radius: 8px;
+					gap: 12px;
+
+					.total {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+
+					.checkout {
+						display: flex;
+						padding: 8px 12px;
+						justify-content: center;
+						align-items: center;
+						gap: 6px;
+						border-radius: 100px;
+						background: var(--primary-button, #79ecc9);
+						color: var(--primary-button-font, #0c0c0d);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+
+						&:hover {
+							opacity: 0.9;
+						}
+
+						&:disabled {
+							cursor: not-allowed;
+							opacity: 0.7;
+						}
+					}
+				}
 			}
 		}
 	}
-	.addOnsTabs {
+}
+.addOnsContainer {
+	width: 100%;
+	height: 650px;
+	max-width: 1000px;
+	max-height: 650px;
+	overflow-y: auto;
+	border: 1px solid var(--stroke);
+	border-top: none;
+	display: flex;
+	padding: 20px 24px;
+	flex-direction: column;
+	align-items: center;
+	gap: 32px;
+	flex: 1 0 0;
+	align-self: stretch;
+	border-radius: 0px 0px 24px 24px;
+	background: var(--popup, #202123);
+
+	.tabs-wrapper {
 		display: flex;
-		padding: 6px;
+		height: 36px;
+		padding: 4px;
 		align-items: center;
-		gap: 8px;
-		border-radius: 12px;
-		border: 1px solid var(--Stroke, #333334);
+		gap: 2px;
+		border-radius: 8px;
+		border: 1px solid var(--stroke, #2c2d2e);
+		justify-content: center;
+		width: fit-content;
+		margin: 0 auto;
+
 		.addOnsTabsTime {
 			display: flex;
-			min-width: 100px;
-			padding: 8px;
+			padding: 6px 8px;
 			justify-content: center;
 			align-items: center;
-			border-radius: 8px;
-			color: var(--primary-font, #f2f2f3);
+			gap: 18px;
+			border-radius: 6px;
+			color: var(--secondary-font);
 			font-family: var(--primary-font-family);
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
 			cursor: pointer;
-			flex-shrink: 0;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+
 			&.active {
-				border-radius: 8px;
-				background: var(--primary-button, #b0ff00);
-				color: var(--background-color, #0c0c0d);
+				color: var(--primary-button-font);
 				font-family: var(--primary-font-family);
-				font-size: 14px;
+				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				background: var(--primary-button);
+				border-radius: 6px;
+				padding: 6px 8px;
 			}
 		}
 	}
+
 	.addOnsCardsContainer {
 		width: 100%;
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		align-items: center;
-		gap: 16px;
+		gap: 24px;
+		align-items: flex-start;
+		align-self: stretch;
+		height: calc(100% - 100px);
+		overflow-y: auto;
+		padding-top: 24px;
+		min-height: 400px;
+		min-width: 900px;
+		max-width: 900px;
+		max-height: 600px;
+		@media screen and (max-width: 500px) {
+			width: 100%;
+			max-width: 300px;
+			min-width: 300px;
+			margin-bottom: 120px;
+		}
+
+		&::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		&::-webkit-scrollbar-track {
+			background: var(--card-over-card-hover);
+			border-radius: 3px;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background: var(--stroke);
+			border-radius: 3px;
+
+			&:hover {
+				background: var(--primary-font);
+			}
+		}
+
 		.addOnsCards {
 			display: flex;
-			height: 300px;
-			min-width: 300px;
-			max-width: 300px;
-			width: 300px;
+			height: 260px;
+			width: calc((100% - 48px) / 3); // 48px accounts for the two gaps between 3 cards
+			max-width: 260px;
+			min-width: 260px;
 			padding: 24px;
 			flex-direction: column;
 			justify-content: space-between;
 			align-items: flex-start;
 			flex: 1 0 0;
 			border-radius: 24px;
-			background: var(--card-over-card-hover);
+			background: var(--card);
 			backdrop-filter: blur(8px);
 			user-select: none;
 			position: relative;
 			.currentPlanBadge {
 				position: absolute;
-				height: 310px;
-				width: 302px;
+				height: 275px;
+				width: 260px;
 				bottom: -1px;
-				left: -1px;
+				left: 2px;
 				border-radius: 24px;
 				box-shadow: inset 0 32px 0 0 var(--primary-button),
 					inset 0 -1px 0 0 var(--primary-button), inset 1px 0 0 0 var(--primary-button),
@@ -807,7 +928,7 @@
 					justify-content: center;
 					flex-shrink: 0;
 					align-self: stretch;
-					color: var(--background-color, #0c0c0d);
+					color: var(--popup, #0c0c0d);
 					text-align: center;
 					font-family: Inter;
 					font-size: 12px;
@@ -821,16 +942,15 @@
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
-				gap: 16px;
+				gap: 8px;
 				align-self: stretch;
 				.addOnPlanName {
-					text-transform: capitalize;
+					color: var(--primary-font, #f2f2f3);
 					font-family: var(--primary-font-family);
-					font-size: 14px;
+					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
-					color: var(--primary-font);
 				}
 
 				.priceContainer {
@@ -838,20 +958,26 @@
 					align-items: center;
 					gap: 4px;
 
-					.currencySymbol,
-					.priceValue {
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
-						font-size: 18px;
-						font-style: normal;
-						font-weight: 600;
-						line-height: normal;
+					.priceWrapper {
+						display: flex;
+						align-items: center;
+						gap: 4px;
+
+						.currencySymbol,
+						.priceValue {
+							color: var(--primary-button);
+							font-family: var(--primary-font-family);
+							font-size: 18px;
+							font-style: normal;
+							font-weight: 600;
+							line-height: normal;
+						}
 					}
 
 					.priceDuration {
-						color: var(--secondary-font);
+						color: var(--secondary-font, #7a7e85);
 						font-family: var(--primary-font-family);
-						font-size: 12px;
+						font-size: 13px;
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
@@ -876,14 +1002,15 @@
 			}
 			.addOnsButton {
 				display: flex;
-				padding: 12px 16px;
+				height: 41px;
+				padding: 14px;
 				justify-content: center;
 				align-items: center;
-				gap: 16px;
+				gap: 8px;
 				align-self: stretch;
 				border-radius: 100px;
-				background: var(--card-over-card-hover);
-				border: 1px solid var(--stroke);
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: var(--popup, #202123);
 				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
@@ -891,6 +1018,7 @@
 				font-weight: 500;
 				line-height: normal;
 				cursor: pointer;
+				width: 100%;
 				&:hover {
 					background: var(--card-over-card);
 				}
@@ -915,87 +1043,278 @@
 			}
 			.buttonContainer {
 				display: flex;
-				flex-direction: column;
 				gap: 8px;
 				width: 100%;
+				align-items: center;
 				.addOnsQuantityContainer {
 					display: flex;
-					align-items: flex-start;
-					gap: 12px;
-					align-self: stretch;
-					.minusIcon {
+					height: 41px;
+					padding: 14px;
+					justify-content: space-around;
+					align-items: center;
+					gap: 20px;
+					border-radius: 8px;
+					border: 1px solid var(--stroke, #2c2d2e);
+					background: var(--popup, #202123);
+					width: 100%;
+					align-items: center;
+					cursor: pointer;
+					.minussIcon {
+						padding: 6px 8px;
+						align-items: center;
 						display: flex;
-						padding: 12px 16px;
 						justify-content: center;
 						align-items: center;
-						gap: 16px;
-						border-radius: 100px;
-						border: 1px solid var(--stroke);
-						background: var(--card-over-card-hover);
-						cursor: pointer;
+						&:hover {
+							background: var(--card-over-card-hover);
+							border-radius: 8px;
+							padding: 6px 8px;
+						}
 					}
+
 					.countIndicators {
-						display: flex;
-						padding: 12px 16px;
-						justify-content: center;
-						align-items: center;
-						gap: 16px;
-						flex: 1 0 0;
-						align-self: stretch;
-						background: var(--card-over-card-hover);
-						border-radius: 100px;
-						border: 1px solid var(--stroke);
-						color: var(--primary-font);
+						color: var(--primary-font, #f2f2f3);
 						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
-						user-select: none;
 					}
 				}
-			}
-		}
-	}
-	.tabs-wrapper {
-		display: flex;
-		align-items: center;
-		gap: 16px;
-		margin-top: 24px;
-		// align-self: stretch;
-		.tab-button {
-			display: flex;
-			padding: 12px 16px;
-			justify-content: center;
-			align-items: center;
-			gap: 16px;
-			border-radius: 100px;
-			background: var(--card-over-card-hover);
-			border: 1px solid var(--stroke);
-			color: var(--primary-font);
-			font-family: var(--primary-font-family);
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			cursor: pointer;
-			&.active {
-				background: var(--primary-button);
-				color: var(--primary-button-font);
+				.userCount {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
 			}
 		}
 	}
 }
 .seatBasedWarning {
-	color: var(--primary-font);
+	color: var(--secondary-font);
 	font-family: var(--primary-font-family);
+	margin: 2px;
+	margin-top: 70px;
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 400;
 	line-height: normal;
 }
+.addOnsButtonContainer {
+	display: flex;
+	gap: 8px;
+	width: 100%;
+	flex-direction: column;
+	align-items: center;
+}
 @media screen and (max-width: 500px) {
 	.addOnsContainer {
-		width: 100vw;
+		width: 100%;
+		padding: 12px;
+		height: calc(100% - 120px);
 	}
+
+	.addOnsHeader {
+		padding: 12px;
+		height: auto;
+		min-height: 120px;
+		width: 100%;
+
+		.subscriptionTypeContainer {
+			width: 100%;
+
+			.subscriptionTypeWrapper {
+				flex-direction: column;
+				gap: 12px;
+				width: 100%;
+
+				.subscriptionButtons {
+					width: 100%;
+					justify-content: center;
+					display: flex;
+					gap: 8px;
+
+					.subscriptionType {
+						flex: 1;
+						text-align: center;
+						padding: 8px;
+						font-size: 12px;
+					}
+				}
+
+				.priceCheckoutWrapper {
+					width: 100%;
+					justify-content: center;
+
+					.checkoutContainer {
+						width: 100%;
+						flex-direction: row;
+						gap: 8px;
+						align-items: center;
+						padding: 8px;
+
+						.total {
+							font-size: 12px;
+						}
+
+						.checkout {
+							width: auto;
+							padding: 8px 12px;
+							font-size: 12px;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.addOnsCardsContainer {
+		padding-top: 16px;
+		gap: 16px;
+		height: calc(100% - 60px);
+		overflow-y: auto;
+
+		.addOnsCards {
+			width: 100%;
+			min-width: unset;
+			max-width: unset;
+			height: auto;
+			min-height: 260px;
+			margin: 0;
+		}
+	}
+
+	.tabs-wrapper {
+		width: 100%;
+		height: 44px;
+		padding: 4px;
+		margin: 0;
+		justify-content: center;
+
+		.addOnsTabsTime {
+			flex: 1;
+			text-align: center;
+			font-size: 11px;
+			padding: 6px 4px;
+		}
+	}
+
+	.planBillingContianer {
+		gap: 24px;
+
+		.planBillingTitle {
+			font-size: 24px;
+		}
+
+		.subscriptionDetailsComponent {
+			padding: 16px;
+
+			.subscriptionDiv {
+				.title {
+					width: 100%;
+				}
+
+				.planDetailsContainer {
+					width: 100%;
+					padding: 16px;
+				}
+			}
+		}
+
+		.subscriptionWrapperContainer {
+			.subscriptionUpdatedPlanCard {
+				.subscriptionPlanHeaderContainer {
+					padding: 16px;
+					flex-direction: column;
+					gap: 12px;
+					align-items: flex-start;
+				}
+
+				.subscriptionPlanContent {
+					padding: 16px;
+
+					.subscriptionPlanPricingDetails {
+						.subscriptionPlanPricing {
+							font-size: 32px;
+						}
+					}
+
+					.addOnContianer {
+						width: 100%;
+						height: auto;
+					}
+				}
+
+				.subscriptionActionContainer {
+					padding: 16px;
+					flex-direction: column;
+					align-items: stretch;
+					gap: 12px;
+
+					.manageSubscriptionButton {
+						width: 100%;
+					}
+				}
+			}
+
+			.updateSubscriptionPlanContainer {
+				.updatePlansCardHolder {
+					.updatePlansCardContainer {
+						flex: 1 1 100%;
+					}
+				}
+			}
+		}
+
+		.freePlanCardContainer {
+			padding: 24px;
+		}
+	}
+}
+
+@media screen and (max-width: 768px) {
+	.addOnsContainer {
+		width: 100%;
+		height: calc(100% - 120px);
+		padding: 12px;
+	}
+
+	.addOnsHeader {
+		width: 100%;
+		padding: 12px;
+		height: auto;
+		min-height: 120px;
+	}
+
+	.addOnsCardsContainer {
+		height: calc(100% - 60px);
+		padding: 12px;
+	}
+}
+
+.checkoutContainer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.total {
+	font-size: 16px;
+	font-weight: 500;
+}
+
+.checkout {
+	padding: 8px 24px;
+	background: var(--primary-color);
+	color: var(--background-color);
+	border-radius: 4px;
+	cursor: pointer;
+	transition: opacity 0.2s;
+}
+
+.checkout:hover {
+	opacity: 0.9;
 }
