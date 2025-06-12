@@ -96,6 +96,32 @@
 						width: 15px;
 						height: 15px;
 					}
+
+					.acceptDocumentModalCardActions {
+						display: flex;
+						align-items: center;
+						gap: 12px;
+					}
+
+					.acceptDocumentModalEditBtn {
+						display: flex;
+						padding: 4px 10px;
+						justify-content: center;
+						align-items: center;
+						border-radius: 100px;
+						background: #27282b;
+						border: none;
+						color: var(--primary-font);
+						font-family: Inter;
+						font-size: 12px;
+						font-weight: 500;
+						cursor: pointer;
+						transition: background 0.2s;
+
+						&:hover {
+							background: #323438;
+						}
+					}
 				}
 
 				.acceptDocumentModalCardDetails {
@@ -137,6 +163,85 @@
 							font-size: 0.85rem;
 							margin-right: 4px;
 						}
+					}
+				}
+
+				.acceptDocumentModalEditInput {
+					background: #27282b;
+					border: 1px solid #323438;
+					border-radius: 8px;
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 14px;
+					padding: 8px 12px;
+					width: 100%;
+					margin-right: 12px;
+
+					&:focus {
+						border-color: #cfff48;
+						box-shadow: 0 0 0 2px rgba(207, 255, 72, 0.2);
+					}
+
+					&.ant-input-textarea {
+						margin-top: 8px;
+						margin-bottom: 8px;
+					}
+				}
+
+				.acceptDocumentModalEditFields {
+					display: flex;
+					flex-direction: column;
+					gap: 12px;
+					margin-top: 8px;
+				}
+				.acceptDocumentModalEditRow {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					margin-bottom: 4px;
+					label {
+						min-width: 80px;
+						color: #b0b0b0;
+						font-size: 13px;
+						font-weight: 500;
+					}
+					input[type='number'],
+					input[type='text'],
+					input[type='date'] {
+						background: #232428;
+						border: 1px solid #323438;
+						border-radius: 6px;
+						color: var(--primary-font);
+						font-family: Inter;
+						font-size: 13px;
+						padding: 4px 8px;
+						outline: none;
+						transition: border 0.2s;
+						z-index: 2000;
+					}
+					input[type='number']:focus,
+					input[type='text']:focus,
+					input[type='date']:focus {
+						border-color: #cfff48;
+					}
+					button {
+						background: #232428;
+						border: 1px solid #323438;
+						color: #b6ff6c;
+						border-radius: 4px;
+						width: 24px;
+						height: 24px;
+						font-size: 16px;
+						font-weight: bold;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						cursor: pointer;
+						transition: background 0.2s;
+						padding: 0;
+					}
+					button:hover {
+						background: #323438;
 					}
 				}
 			}
@@ -291,6 +396,41 @@
 					gap: 10px;
 					.acceptDocumentModalCardDescription {
 						font-size: 12px;
+					}
+				}
+				.acceptDocumentModalCardHeader {
+					.acceptDocumentModalEditBtn {
+						padding: 3px 8px;
+						font-size: 11px;
+					}
+
+					.acceptDocumentModalCardActions {
+						gap: 8px;
+					}
+				}
+				.acceptDocumentModalEditInput {
+					font-size: 13px;
+					padding: 6px 10px;
+				}
+				.acceptDocumentModalEditFields {
+					gap: 8px;
+				}
+				.acceptDocumentModalEditRow {
+					gap: 4px;
+					label {
+						min-width: 60px;
+						font-size: 12px;
+					}
+					input[type='number'],
+					input[type='text'],
+					input[type='date'] {
+						font-size: 12px;
+						padding: 3px 6px;
+					}
+					button {
+						width: 20px;
+						height: 20px;
+						font-size: 14px;
 					}
 				}
 			}

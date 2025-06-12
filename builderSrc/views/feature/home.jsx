@@ -1,7 +1,7 @@
 import { Fragment, createRef } from 'react';
 import '../../assets/scss/home.scss';
 import Header from '../components/header';
-import Builder from '../components/library/builder/index';
+import Builder from '../components/library/builder';
 import Sidebar from '../components/sidebar';
 import Proposals from '../../controllers/proposals';
 import { withRouter } from '../../services/withRouter';
@@ -49,6 +49,9 @@ import ThemeSettings from '../components/HomePopups/ThemeSettings';
 import { initialThemeState } from '../components/themeSettings/themeconstants';
 import DeleteTemplatePopup from '../components/HomePopups/DeleteTemplatePopup';
 import ObjectID from 'bson-objectid';
+import { fetchOriginSelection } from '../../helper';
+
+const origin = fetchOriginSelection();
 
 const query = gql`
 	query Query($getDetailedTemplateInfoId: ID!) {
@@ -597,7 +600,7 @@ class Home extends Proposals {
 			isFluidLayout: false,
 
 			showThemeSettings: false,
-			template_ID: this.templateId,
+			template_ID: null,
 			titleName: '',
 			showEditDesignModal: false,
 			navBar: {},
@@ -659,7 +662,7 @@ class Home extends Proposals {
 
 		window.isClient = this.state.client;
 
-		//await this.getTemplate(this.props.params.templateID || this.templateId);
+		//await this.getTemplate(this.props.params.templateID);
 
 		await this.getFonts();
 		await this.getTenantsData();
@@ -668,7 +671,7 @@ class Home extends Proposals {
 		// let json ={};
 		// this.createLayout(json);
 		this.setState({
-			activeModuleId: this.props.params.templateID || this.templateId,
+			activeModuleId: this.props.params.templateID,
 		});
 
 		const queryString = window.location.search;
@@ -685,7 +688,7 @@ class Home extends Proposals {
 
 		if (workflow) {
 			let response = await this.getWorkflowWithModules(workflowQueryWithModules, {
-				getWorkflowWithModulesId: this.props.params.templateID || this.templateId,
+				getWorkflowWithModulesId: this.props.params.templateID,
 			});
 
 			// if (response?.[1]?.data?.getWorkflowWithModules === null) {
@@ -695,7 +698,7 @@ class Home extends Proposals {
 			// } else if (response?.[1]?.networkError?.result?.message === 'Workspace not found') {
 			// 	return this.props.navigate('/not-found?messageText=workspaceNotFound');
 			// }
-			await this.getVariables(this.props.params.templateID || this.templateId);
+			await this.getVariables(this.props.params.templateID);
 		}
 		this.setState(
 			{
@@ -703,7 +706,7 @@ class Home extends Proposals {
 				isModule: module,
 				moduleType,
 				closeWorkFlowPopup: localStorage.getItem(
-					`${this.props.params.templateID || this.templateId}::closeWorkFlowPopup`,
+					`${this.props.params.templateID}::closeWorkFlowPopup`,
 				),
 			},
 			async () => {
@@ -944,7 +947,7 @@ class Home extends Proposals {
 							if (subBlock?._id == this.state?.activeSubBlockID) {
 								if (
 									subBlock?.animations?.animeType !=
-										this.state?.activeElementAnimeType &&
+									this.state?.activeElementAnimeType &&
 									subBlock?.animations
 								) {
 									this.setState({
@@ -954,7 +957,7 @@ class Home extends Proposals {
 								}
 								if (
 									subBlock?.animations?.animeName !=
-										this.state?.activeElementAnimeName &&
+									this.state?.activeElementAnimeName &&
 									subBlock?.animations?.animeName
 								) {
 									this.setState({
@@ -1786,14 +1789,14 @@ class Home extends Proposals {
 		this.setState(
 			this.state.module === 'form' && this.state.isHeader && headerID
 				? {
-						headerSection: arr[0],
-						isAutoSaving: true,
-				  }
+					headerSection: arr[0],
+					isAutoSaving: true,
+				}
 				: {
-						sections: arr,
-						isAutoSaving: true,
-						//activeBlock: _.filter(arr, { _id: this.state.activeSectionID })[0],
-				  },
+					sections: arr,
+					isAutoSaving: true,
+					//activeBlock: _.filter(arr, { _id: this.state.activeSectionID })[0],
+				},
 			async () => {
 				await this.handleSaveSections(
 					null,
@@ -1992,15 +1995,15 @@ class Home extends Proposals {
 		this.setState(
 			this.state.module === 'form' && this.state.isHeader && headerID
 				? {
-						headerSection: arr[0],
-						activeSubBlockType: 'f',
-						isAutoSaving: true,
-				  }
+					headerSection: arr[0],
+					activeSubBlockType: 'f',
+					isAutoSaving: true,
+				}
 				: {
-						sections: arr,
-						activeSubBlockType: 'f',
-						isAutoSaving: true,
-				  },
+					sections: arr,
+					activeSubBlockType: 'f',
+					isAutoSaving: true,
+				},
 			async () => {
 				await this.handleSaveSections(
 					true,
@@ -2119,23 +2122,23 @@ class Home extends Proposals {
 		this.setState(
 			this.state.module === 'form' && this.state.isHeader
 				? {
-						headerSection: arr[0],
-						imgSettingData: {
-							...this.state.imgSettingData,
-							crop: crop,
-							zoom: zoom,
-						},
-						isAutoSaving: true,
-				  }
+					headerSection: arr[0],
+					imgSettingData: {
+						...this.state.imgSettingData,
+						crop: crop,
+						zoom: zoom,
+					},
+					isAutoSaving: true,
+				}
 				: {
-						sections: arr,
-						imgSettingData: {
-							...this.state.imgSettingData,
-							crop: crop,
-							zoom: zoom,
-						},
-						isAutoSaving: true,
-				  },
+					sections: arr,
+					imgSettingData: {
+						...this.state.imgSettingData,
+						crop: crop,
+						zoom: zoom,
+					},
+					isAutoSaving: true,
+				},
 			async () => {
 				// !previous logic
 				// setTimeout(
@@ -2281,21 +2284,21 @@ class Home extends Proposals {
 		this.setState(
 			this.state.module === 'form' && this.state.isHeader
 				? {
-						headerSection: arr[0],
-						activeImageURL: e,
-						isAutoSaving: true,
-						activeSection: _.filter(arr, { _id: activeSectionID })[0],
-						base64: null,
-						uploadAIImage: null,
-				  }
+					headerSection: arr[0],
+					activeImageURL: e,
+					isAutoSaving: true,
+					activeSection: _.filter(arr, { _id: activeSectionID })[0],
+					base64: null,
+					uploadAIImage: null,
+				}
 				: {
-						sections: arr,
-						activeImageURL: e,
-						isAutoSaving: true,
-						activeSection: _.filter(arr, { _id: activeSectionID })[0],
-						base64: null,
-						uploadAIImage: null,
-				  },
+					sections: arr,
+					activeImageURL: e,
+					isAutoSaving: true,
+					activeSection: _.filter(arr, { _id: activeSectionID })[0],
+					base64: null,
+					uploadAIImage: null,
+				},
 			async () => {
 				this.handleSaveSections(
 					null,
@@ -2689,7 +2692,7 @@ class Home extends Proposals {
 									...varDetails,
 									value: this.state.isWorkflow
 										? _.filter(this.state.sectionVariables, { _id: varb })[0]
-												?.value
+											?.value
 										: varDetails?.defaultValue,
 								});
 							} else {
@@ -2700,7 +2703,7 @@ class Home extends Proposals {
 									type: varDetails?.type,
 									value: this.state.isWorkflow
 										? _.filter(this.state.sectionVariables, { _id: varb })[0]
-												?.value
+											?.value
 										: varDetails?.defaultValue,
 									_id: varb,
 									defaultValue: varDetails?.defaultValue,
@@ -2733,7 +2736,7 @@ class Home extends Proposals {
 		if (
 			_.size(_.filter(sections, { type: 'services' })) > 0 &&
 			_.size(_.filter(this.state?.variables?.custom || [], { displayName: 'Grand Total' })) >
-				0
+			0
 		) {
 			let grandTotalInWords = 'Zero';
 			if (grandTotal) {
@@ -3316,15 +3319,15 @@ class Home extends Proposals {
 			this.setState(
 				this.state.module === 'form' && this.state.isHeader && headerID
 					? {
-							headerSection: sectionsArr[0],
-							activeBlock: e,
-							isAutoSaving: true,
-					  }
+						headerSection: sectionsArr[0],
+						activeBlock: e,
+						isAutoSaving: true,
+					}
 					: {
-							sections: sectionsArr,
-							activeBlock: e,
-							isAutoSaving: true,
-					  },
+						sections: sectionsArr,
+						activeBlock: e,
+						isAutoSaving: true,
+					},
 				async () => {
 					if (debounce) {
 						this.debounceFuncForElementProps(async () => {
@@ -3369,15 +3372,15 @@ class Home extends Proposals {
 		this.setState(
 			this.state.module === 'form' && this.state.isHeader && headerID
 				? {
-						headerSection: sectionsarr[0],
-						activeBlock: e,
-						isAutoSaving: true,
-				  }
+					headerSection: sectionsarr[0],
+					activeBlock: e,
+					isAutoSaving: true,
+				}
 				: {
-						sections: sectionsarr,
-						activeBlock: e,
-						isAutoSaving: true,
-				  },
+					sections: sectionsarr,
+					activeBlock: e,
+					isAutoSaving: true,
+				},
 			async () => {
 				await this.handleSaveSections(
 					true,
@@ -3552,6 +3555,8 @@ class Home extends Proposals {
 	};
 
 	handlePublish = async (e) => {
+		window.dispatchEvent(new CustomEvent('suppressWarning', { detail: true }));
+		message.info('Changes Saved Sucessfully..!');
 		const queryString = window.location.search;
 		const urlParams = new URLSearchParams(queryString);
 
@@ -3566,7 +3571,7 @@ class Home extends Proposals {
 		});
 
 		const response = await this.publishWorkflow(updateWorkflowTemplate, {
-			templateId: this.props.params.templateID || this.templateId,
+			templateId: this.props.params.templateID,
 			updateObj: {
 				status: 'published',
 			},
@@ -3582,12 +3587,11 @@ class Home extends Proposals {
 			) {
 				// return (window.location.href = `https://ve.ai/my-templates`);
 				return this.props.navigate(-1);
+
 			} else if (this.state.template.actions?.includes('form-submission')) {
 				return this.props.navigate(-1);
 			} else {
-				return (window.location.href = `https://ve.ai/workflow_builder/${
-					this.props.params.templateID || this.templateId
-				}`);
+				return (window.location.href = `${origin}/workflow_builder/${this.props.params.templateID}`);
 			}
 		}
 	};
@@ -3671,25 +3675,25 @@ class Home extends Proposals {
 		this.setState(
 			this.state.module === 'form' && this.state.isHeader
 				? {
-						headerSection: arr[0],
-						imgSettingData: {
-							...this.state.imgSettingData,
-							crop: crop,
-							zoom: zoom,
-							imageWidth: imageWidth,
-							isAutoSaving: true,
-						},
-				  }
+					headerSection: arr[0],
+					imgSettingData: {
+						...this.state.imgSettingData,
+						crop: crop,
+						zoom: zoom,
+						imageWidth: imageWidth,
+						isAutoSaving: true,
+					},
+				}
 				: {
-						sections: arr,
-						imgSettingData: {
-							...this.state.imgSettingData,
-							crop: crop,
-							zoom: zoom,
-							imageWidth: imageWidth,
-							isAutoSaving: true,
-						},
-				  },
+					sections: arr,
+					imgSettingData: {
+						...this.state.imgSettingData,
+						crop: crop,
+						zoom: zoom,
+						imageWidth: imageWidth,
+						isAutoSaving: true,
+					},
+				},
 			async () => {
 				setTimeout(
 					function () {
@@ -3811,10 +3815,10 @@ class Home extends Proposals {
 					json?.type === 'shape' || json?.type === 'sticker'
 						? `${rowStart} / ${colStart} / ${rowEnd + 3} / ${colEnd + 2}`
 						: json?.type === 'button'
-						? `${rowStart} / ${colStart} / ${rowStart + 2} / ${colEnd}`
-						: json?.type === 'video'
-						? `${rowStart} / ${colStart} / ${rowEnd + 10} / ${colEnd + 8}`
-						: json?.divStyles?.gridArea,
+							? `${rowStart} / ${colStart} / ${rowStart + 2} / ${colEnd}`
+							: json?.type === 'video'
+								? `${rowStart} / ${colStart} / ${rowEnd + 10} / ${colEnd + 8}`
+								: json?.divStyles?.gridArea,
 			},
 			order: order + 1,
 		};
@@ -3961,7 +3965,7 @@ class Home extends Proposals {
 
 		if (this.state.isWorkflow) {
 			response = await this.updatepublishedWorkflow(updateIndividualWorkflowTitle, {
-				updateWorkflowId: this.props.params.templateID || this.templateId,
+				updateWorkflowId: this.props.params.templateID,
 				updateWorkflowInput: {
 					title: title,
 				},
@@ -3973,7 +3977,7 @@ class Home extends Proposals {
 			}
 		} else {
 			response = await this.updatepublishedWorkflow(updateWorkflowTemplateTitleNew, {
-				templateId: this.props.params.templateID || this.templateId,
+				templateId: this.props.params.templateID,
 				updateObj: {
 					title: title,
 				},
@@ -4121,7 +4125,7 @@ class Home extends Proposals {
 			mobileViewLocked: !this.state.mobileViewLocked,
 		});
 		await this.updatepublishedWorkflow(updateWorkflowTemplateTitle, {
-			updateWorkflowId: this.props.params.templateID || this.templateId,
+			updateWorkflowId: this.props.params.templateID,
 			updateWorkflowInput: {
 				mobileViewLocked: !this.state.mobileViewLocked,
 			},
@@ -4267,14 +4271,14 @@ class Home extends Proposals {
 						return updatedModule;
 					});
 					await this.updateModules(updateIndividualModules, {
-						updateWorkflowId: this.props.params.templateID || this.templateId,
+						updateWorkflowId: this.props.params.templateID,
 						updateWorkflowInput: {
 							modules: changeModules,
 						},
 					});
 				} else {
 					await this.updateModules(updateModules, {
-						templateId: this.props.params.templateID || this.templateId,
+						templateId: this.props.params.templateID,
 						updateObj: {
 							moduleTemplates: updatedItems,
 						},
@@ -4308,7 +4312,7 @@ class Home extends Proposals {
 					await this.updateModules(
 						updateIndividualModules,
 						{
-							updateWorkflowId: this.props.params.templateID || this.templateId,
+							updateWorkflowId: this.props.params.templateID,
 							updateWorkflowInput: {
 								modules: changeModules,
 							},
@@ -4320,7 +4324,7 @@ class Home extends Proposals {
 					);
 				} else {
 					await this.updateModules(updateModules, {
-						templateId: this.props.params.templateID || this.templateId,
+						templateId: this.props.params.templateID,
 						updateObj: {
 							moduleTemplates: e,
 						},
@@ -4550,8 +4554,8 @@ class Home extends Proposals {
 							position == 'last' && section.blocks.length >= 2
 								? block.subBlocks?.slice(0, -1)
 								: block.subBlocks?.length >= 2
-								? block.subBlocks?.filter((_, i) => i !== index)
-								: block.subBlocks,
+									? block.subBlocks?.filter((_, i) => i !== index)
+									: block.subBlocks,
 					}));
 				}
 				sectionsArr.push(section);
@@ -4565,7 +4569,7 @@ class Home extends Proposals {
 		await this.updateModules(
 			duplicateModule,
 			{
-				templateId: this.props.params.templateID || this.templateId,
+				templateId: this.props.params.templateID,
 				moduleId: e,
 				order: _.size(this.state.duplicateModules) + 1,
 				isTemplate: !this.state.isWorkflow,
@@ -4579,7 +4583,7 @@ class Home extends Proposals {
 		await this.updateModules(
 			this.state.isWorkflow ? deleteModulesInWorkflow : deleteModule,
 			{
-				templateId: this.props.params.templateID || this.templateId,
+				templateId: this.props.params.templateID,
 				moduleId: e,
 				isTemplate: !this.state.isWorkflow,
 			},
@@ -4592,7 +4596,7 @@ class Home extends Proposals {
 		await this.updateModules(
 			addModule,
 			{
-				templateId: this.props.params.templateID || this.templateId,
+				templateId: this.props.params.templateID,
 				moduleTemplateInput: {
 					order: _.size(this.state.modules) + 1,
 					label: module.label || 'Page',
@@ -4610,16 +4614,16 @@ class Home extends Proposals {
 		let type = this.state.isWorkflow;
 		this.state.isWorkflow
 			? (filters = {
-					page: page,
-					limit: 30,
-					version: 1,
-			  })
+				page: page,
+				limit: 30,
+				version: 1,
+			})
 			: (filters = {
-					page: page,
-					limit: 30,
-					type: 'workspace',
-					version: 1,
-			  });
+				page: page,
+				limit: 30,
+				type: 'workspace',
+				version: 1,
+			});
 		await this.getTemplateList(
 			this.state.isWorkflow ? WorkflowsList : templateList,
 			{
@@ -4774,7 +4778,7 @@ class Home extends Proposals {
 		this.setState({ endUrl: valueWithoutSpaces });
 		const variables = { slug: valueWithoutSpaces, moduleType: 'workflows' };
 		const updateSlugVariables = {
-			updateSlugId: this.props.params.templateID || this.templateId,
+			updateSlugId: this.props.params.templateID,
 			slug: valueWithoutSpaces,
 			moduleType: 'workflows',
 		};
@@ -4808,7 +4812,7 @@ class Home extends Proposals {
 
 						this.handleDebouceFunctionCall(async () => {
 							let response = await this.updateWorkflow(customExpiryQuery, {
-								updateWorkflowId: this.props.params.templateID || this.templateId,
+								updateWorkflowId: this.props.params.templateID,
 								updateWorkflowInput: {
 									expiresAt: newExpiryTimestamp,
 								},
@@ -4830,7 +4834,7 @@ class Home extends Proposals {
 
 				this.handleDebouceFunctionCall(async () => {
 					let response = await this.updateWorkflow(customExpiryQuery, {
-						updateWorkflowId: this.props.params.templateID || this.templateId,
+						updateWorkflowId: this.props.params.templateID,
 						updateWorkflowInput: {
 							expiresAt: newExpiryTimestamp,
 						},
@@ -4850,7 +4854,7 @@ class Home extends Proposals {
 		if (type === 'name') {
 			this.setState({ settingName: !this.state.settingName }, async () => {
 				let response = await this.updateWorkflow(customExpiryQuery, {
-					updateWorkflowId: this.props.params.templateID || this.templateId,
+					updateWorkflowId: this.props.params.templateID,
 					updateWorkflowInput: {
 						userIdentification: { name: this.state.settingName },
 					},
@@ -4865,7 +4869,7 @@ class Home extends Proposals {
 		if (type === 'email') {
 			this.setState({ settingEmail: !this.state.settingEmail }, async () => {
 				let response = await this.updateWorkflow(customExpiryQuery, {
-					updateWorkflowId: this.props.params.templateID || this.templateId,
+					updateWorkflowId: this.props.params.templateID,
 					updateWorkflowInput: {
 						userIdentification: { email: this.state.settingEmail },
 					},
@@ -4880,7 +4884,7 @@ class Home extends Proposals {
 		if (type === 'phone') {
 			this.setState({ settingPhone: !this.state.settingPhone }, async () => {
 				let response = await this.updateWorkflow(customExpiryQuery, {
-					updateWorkflowId: this.props.params.templateID || this.templateId,
+					updateWorkflowId: this.props.params.templateID,
 					updateWorkflowInput: {
 						userIdentification: { phone: this.state.settingPhone },
 					},
@@ -4895,7 +4899,7 @@ class Home extends Proposals {
 		if (type === 'no') {
 			this.setState({ isEnable: true }, async () => {
 				let response = await this.updateWorkflow(customExpiryQuery, {
-					updateWorkflowId: this.props.params.templateID || this.templateId,
+					updateWorkflowId: this.props.params.templateID,
 					updateWorkflowInput: {
 						isPublic: true,
 					},
@@ -4910,7 +4914,7 @@ class Home extends Proposals {
 		if (type === 'otp') {
 			this.setState({ isEnable: false }, async () => {
 				let response = await this.updateWorkflow(customExpiryQuery, {
-					updateWorkflowId: this.props.params.templateID || this.templateId,
+					updateWorkflowId: this.props.params.templateID,
 					updateWorkflowInput: {
 						isPublic: false,
 					},
@@ -4938,7 +4942,7 @@ class Home extends Proposals {
 
 		this.state.copyStatus &&
 			(await this.copyStatus(updateHittingCount, {
-				fileSentStatusId: this.props.params.templateID || this.templateId,
+				fileSentStatusId: this.props.params.templateID,
 			}));
 	};
 	fluidGrid = (e) => {
@@ -4967,7 +4971,7 @@ class Home extends Proposals {
 	};
 	handleAddClient = async (id) => {
 		let response = await this.updateClientSmartFile(SmartFileClientUpdate, {
-			addClientToSmartFileId: this.props.params.templateID || this.templateId,
+			addClientToSmartFileId: this.props.params.templateID,
 			clientId: id,
 		});
 
@@ -5008,7 +5012,7 @@ class Home extends Proposals {
 	};
 	handleAiAssistant = async (e) => {
 		let response = await this.updateWorkflow(customExpiryQuery, {
-			updateWorkflowId: this.props.params.templateID || this.templateId,
+			updateWorkflowId: this.props.params.templateID,
 			updateWorkflowInput: {
 				isAlChatEnabled: e.target.checked,
 			},
@@ -5025,7 +5029,7 @@ class Home extends Proposals {
 		});
 	};
 	handleBackgroundWidth = (value) => {
-		this.setState({ activeBackgroundWidth: value }, () => {});
+		this.setState({ activeBackgroundWidth: value }, () => { });
 	};
 	getModuleSections = async (module) => {
 		let responce;
@@ -5043,13 +5047,10 @@ class Home extends Proposals {
 		this.setState({ activeModuleSections: responce });
 	};
 	handleCloseWorkflowPopup = () => {
-		localStorage.setItem(
-			`${this.props.params.templateID || this.templateId}::closeWorkFlowPopup`,
-			true,
-		);
+		localStorage.setItem(`${this.props.params.templateID}::closeWorkFlowPopup`, true);
 		this.setState({
 			closeWorkFlowPopup: localStorage.getItem(
-				`${this.props.params.templateID || this.templateId}::closeWorkFlowPopup`,
+				`${this.props.params.templateID}::closeWorkFlowPopup`,
 			),
 		});
 	};
@@ -5274,7 +5275,7 @@ class Home extends Proposals {
 
 	handleAddBlankPage = async () => {
 		let response = await this.addModuleBlankTemplate(addBlankPage, {
-			templateId: this.props.params.templateID || this.templateId,
+			templateId: this.props.params.templateID,
 			moduleTemplateInput: {
 				isTemplate: this.state.isWorkflow ? false : true,
 				order: _.size(this.state.duplicateModules) + 1,
@@ -5318,9 +5319,8 @@ class Home extends Proposals {
 					<Fragment key={module._id}>
 						<span
 							onClick={() => this.props.getModuleInfo(module._id, moduleType)}
-							className={`navbar-module-item ${
-								this.state.activeModuleId === module._id ? 'active' : ''
-							}`}
+							className={`navbar-module-item ${this.state.activeModuleId === module._id ? 'active' : ''
+								}`}
 						>
 							{module.label}
 						</span>
@@ -5398,7 +5398,7 @@ class Home extends Proposals {
 			});
 		} else {
 			this.updateWorkflowTemplate(updateWorkflowTemplateQuery, {
-				templateId: this.props.params.templateID || this.templateId,
+				templateId: this.props.params.templateID,
 				updateObj: {
 					navBar: json,
 				},
@@ -5490,7 +5490,7 @@ class Home extends Proposals {
 			});
 		} else {
 			await this.updateWorkflowThemeSettings(updateWorkflowTemplate, {
-				templateId: this.props.params.templateID || this.templateId,
+				templateId: this.props.params.templateID,
 				updateObj: {
 					themes: themeJson,
 					navBar: this.state.navBar,
@@ -5555,7 +5555,7 @@ class Home extends Proposals {
 			});
 		} else {
 			this.updateWorkflowTemplate(updateWorkflowTemplateQuery, {
-				templateId: this.props.params.templateID || this.templateId,
+				templateId: this.props.params.templateID,
 				updateObj: {
 					navBar: {
 						type: 'navbar',
@@ -5634,11 +5634,7 @@ class Home extends Proposals {
 		}
 
 		if (!_.isEqual(referanceJson, json)) {
-			this.updateVariables(
-				json,
-				this.props.params.templateID || this.templateId,
-				activeSmartFieldData?._id,
-			);
+			this.updateVariables(json, this.props.params.templateID, activeSmartFieldData?._id);
 			this.setState({
 				showSmartFieldModal: false,
 			});
@@ -5691,11 +5687,12 @@ class Home extends Proposals {
 	};
 
 	handleDeleteVariable = (variableId) => {
-		this.deleteVariable(this.props.params.templateID || this.templateId, variableId);
+		this.deleteVariable(this.props.params.templateID, variableId);
 	};
+
 	handleDuplicateTemplate = async () => {
 		let response = await this.handleDuplicateTemplateFunction(duplicateTemplateQuery, {
-			templateId: this.props.params.templateID || this.templateId,
+			templateId: this.props.params.templateID,
 			title: `Copy of ${this.state.title}`,
 		});
 		if (response[0] === true) {
@@ -5703,15 +5700,17 @@ class Home extends Proposals {
 		}
 	};
 	handleDuplicateTemplateRoute = (templateId) => {
-		window.location.replace(`/builder/${templateId}`);
+		return (window.location.href = `${window.location.origin}/${templateId}`);
 	};
 	handleDeleteTemplate = async (e) => {
 		let response = await this.handleDeleteTemplateFunction(deleteTemplateQuery, {
-			deleteTemplateId: this.props.params.templateID || this.templateId,
+			deleteTemplateId: this.props.params.templateID,
 			isDeleted: e,
 		});
 		if (response[0] === true) {
-			return window.location.replace(`${window.location.origin}/files?activeTab=Designs`);
+			// let from = window.location.origin;
+
+			return (window.location.href = `${origin}/files?activeTab=Designs`);
 		}
 	};
 	updateTablesForTaxes = (tables) => {
@@ -5932,7 +5931,7 @@ class Home extends Proposals {
 										})
 									}
 									modules={this.state.modules}
-									handleSave={this.props?.handleSave || (() => {})}
+									handleSave={this.props?.handleSave || (() => { })}
 									isWorkflow={true}
 									updatePublishedTemplate={(e) => this.handlePublishUpdate(e)}
 									handleAddClientInShare={(e) => this.handleAddClientInShare(e)}
@@ -6051,9 +6050,9 @@ class Home extends Proposals {
 									style={{
 										paddingRight:
 											!this.state?.isFluidLayout &&
-											this.state?.showSideBar &&
-											!this.state?.showAddBlock &&
-											!this.state?.previewType?.includes('m')
+												this.state?.showSideBar &&
+												!this.state?.showAddBlock &&
+												!this.state?.previewType?.includes('m')
 												? '360px'
 												: '0px',
 										paddingLeft:
@@ -6068,13 +6067,13 @@ class Home extends Proposals {
 										// 		: 1,
 										justifyContent:
 											this.state?.activeModule?.showType == 'a4' &&
-											this.state?.activeModule?.showAsA4
+												this.state?.activeModule?.showAsA4
 												? 'center'
 												: '',
 										backgroundColor:
 											this.state?.activeModule?.showType == 'a4' &&
-											this.state?.activeModule?.showAsA4 &&
-											this.state?.activeModule?.a4BgColor
+												this.state?.activeModule?.showAsA4 &&
+												this.state?.activeModule?.a4BgColor
 												? this.state?.activeModule?.a4BgColor
 												: '',
 									}}
@@ -6082,7 +6081,7 @@ class Home extends Proposals {
 									{this.state.previewType === 'm' ? (
 										<div
 											className="desktop-view-for-mobile"
-											// style={{ maxWidth: 600, display: 'flex' }}
+										// style={{ maxWidth: 600, display: 'flex' }}
 										>
 											<div className="desktop-view-for-mobile-wrapper">
 												<div className="preview-heading">
@@ -6162,13 +6161,13 @@ class Home extends Proposals {
 														deleteFQBlock={(blockID, sectionID) =>
 															this.state.isWorkflow
 																? this.handleWorkflowDeleteBlock(
-																		blockID,
-																		sectionID,
-																  )
+																	blockID,
+																	sectionID,
+																)
 																: this.handleDeleteBlock(
-																		blockID,
-																		sectionID,
-																  )
+																	blockID,
+																	sectionID,
+																)
 														}
 														handleOpenSideBar={(
 															e,
@@ -6203,9 +6202,9 @@ class Home extends Proposals {
 															this.state.client == true
 																? ''
 																: this.handleFontStyles(
-																		e,
-																		activeTextBlock,
-																  )
+																	e,
+																	activeTextBlock,
+																)
 														}
 														crop={this.state.crop}
 														zoom={this.state.zoom}
@@ -6254,26 +6253,26 @@ class Home extends Proposals {
 															ImgSubBlock,
 															isFluid = null,
 														) => [
-															this.activeImage(
-																sectionID,
-																blockID,
-																subBlockID,
-																imageURL,
-																dimensions,
-																ImgSubBlock,
-															),
-															isFluid
-																? this.setState({
+																this.activeImage(
+																	sectionID,
+																	blockID,
+																	subBlockID,
+																	imageURL,
+																	dimensions,
+																	ImgSubBlock,
+																),
+																isFluid
+																	? this.setState({
 																		showSideBar: true,
-																  })
-																: '',
-														]}
+																	})
+																	: '',
+															]}
 														setSections={(e, restrict = null) =>
 															this.setState({ sections: e }, () => {
 																this.handleSaveSections(
 																	restrict,
 																	this.state.module === 'form' &&
-																		this.state.isHeader,
+																	this.state.isHeader,
 																	'tables',
 																);
 															})
@@ -6310,15 +6309,15 @@ class Home extends Proposals {
 														) =>
 															this.state.isWorkflow
 																? this.addWorkflowServiceTableBlock(
-																		e,
-																		order,
-																		services_style,
-																  )
+																	e,
+																	order,
+																	services_style,
+																)
 																: this.addServiceTableBlock(
-																		e,
-																		order,
-																		services_style,
-																  )
+																	e,
+																	order,
+																	services_style,
+																)
 														}
 														variables={this.state.sectionVariables}
 														tables={this.state.sectionTables}
@@ -6349,13 +6348,13 @@ class Home extends Proposals {
 														addFormQuestion={(sectionID, blockOrder) =>
 															this.state.isWorkflow
 																? this.addWorkflowQuestionForForm(
-																		sectionID,
-																		blockOrder,
-																  )
+																	sectionID,
+																	blockOrder,
+																)
 																: this.addQuestionForForm(
-																		sectionID,
-																		blockOrder,
-																  )
+																	sectionID,
+																	blockOrder,
+																)
 														}
 														setActiveFormQuestion={(e, blockID) =>
 															this.setState({
@@ -6411,9 +6410,9 @@ class Home extends Proposals {
 																				true,
 																				this.state
 																					.module ===
-																					'form' &&
-																					this.state
-																						.isHeader,
+																				'form' &&
+																				this.state
+																					.isHeader,
 																				'tables',
 																			),
 																		300,
@@ -6456,9 +6455,9 @@ class Home extends Proposals {
 														deleteServiceBlock={(e, f) =>
 															this.state.isWorkflow
 																? this.handleWorkflowDeleteBlock(
-																		e,
-																		f,
-																  )
+																	e,
+																	f,
+																)
 																: this.handleDeleteBlock(e, f)
 														}
 														setServiceBlockContent={(e, f, g, h) =>
@@ -6624,13 +6623,13 @@ class Home extends Proposals {
 														addPaymentScheduleBlock={(id, order) => {
 															this.state?.isWorkflow
 																? this.addWorkflowPaymentScheduleBlock(
-																		id,
-																		order,
-																  )
+																	id,
+																	order,
+																)
 																: this.addPaymentScheduleBlock(
-																		id,
-																		order,
-																  );
+																	id,
+																	order,
+																);
 														}}
 														addEventBlock={(e, sectionID) =>
 															this.addEventBlock(e, sectionID)
@@ -6756,10 +6755,10 @@ class Home extends Proposals {
 												elementEndPosition={{ x: 950, y: 150 }}
 												activePopupComponent={
 													this.state?.activePopupType == 'navbar' ||
-													this.state?.activePopupType ==
+														this.state?.activePopupType ==
 														'mNavbarHamburger' ||
-													this.state?.activePopupType == 'mNavbarCart' ||
-													this.state?.activePopupType == 'navImage'
+														this.state?.activePopupType == 'mNavbarCart' ||
+														this.state?.activePopupType == 'navImage'
 														? this.state?.navBar
 														: this.state?.activePopupComponent
 												}
@@ -6784,10 +6783,10 @@ class Home extends Proposals {
 												}
 												setActivePopupComponent={(value) => {
 													this.state?.activePopupType == 'navbar' ||
-													this.state?.activePopupType ==
+														this.state?.activePopupType ==
 														'mNavbarHamburger' ||
-													this.state?.activePopupType == 'mNavbarCart' ||
-													this.state?.activePopupType == 'navImage'
+														this.state?.activePopupType == 'mNavbarCart' ||
+														this.state?.activePopupType == 'navImage'
 														? this.handleNavbarUpdate(value)
 														: this.setActiveMPopupComponent(value);
 												}}
@@ -6815,7 +6814,7 @@ class Home extends Proposals {
 												}
 												isMobileNavbar={
 													this.state.activePopupType == 'navbar' ||
-													this.state.activePopupType == 'navImage'
+														this.state.activePopupType == 'navImage'
 														? true
 														: false
 												}
@@ -6825,25 +6824,24 @@ class Home extends Proposals {
 											/>
 										)}
 									<div
-										className={`hwb_left ${
-											(this.state.preview &&
-												(this.state.previewType === 'm' ||
-													this.state.previewType === 'ml')) ||
+										className={`hwb_left ${(this.state.preview &&
+											(this.state.previewType === 'm' ||
+												this.state.previewType === 'ml')) ||
 											this.state.previewMode === 'm' ||
 											this.state.previewMode === 'ml'
-												? 'hwb_left-mobile'
-												: ''
-										}`}
+											? 'hwb_left-mobile'
+											: ''
+											}`}
 										ref={this.componentRef}
 										style={{
 											width:
 												this.state.previewType === 'm' ||
-												this.state.previewType === 'ml'
+													this.state.previewType === 'ml'
 													? '420px'
 													: this.state?.activeModule?.showType == 'a4' &&
-													  this.state?.activeModule?.showAsA4
-													? '780px'
-													: '',
+														this.state?.activeModule?.showAsA4
+														? '780px'
+														: '',
 											boxShadow: this.state?.activeModule?.showAsA4
 												? `
 											-93px 163px 53px 0px rgba(0, 0, 0, 0),
@@ -6856,8 +6854,8 @@ class Home extends Proposals {
 										}}
 									>
 										{this.state.preview &&
-										this.state.client == false &&
-										this.state.previewType === 'ml' ? (
+											this.state.client == false &&
+											this.state.previewType === 'ml' ? (
 											<div className="hw_top hw_top_preview">
 												Lock this preview for mobile view{' '}
 												<span
@@ -6880,8 +6878,8 @@ class Home extends Proposals {
 											''
 										)}
 										{_.size(this.state.sections) == 0 &&
-										(this.state.module === 'proposal' ||
-											this.state.module === '*') ? (
+											(this.state.module === 'proposal' ||
+												this.state.module === '*') ? (
 											<div className="empty_builder">
 												<span
 													onClick={(e) =>
@@ -6909,6 +6907,7 @@ class Home extends Proposals {
 											</div>
 										) : (
 											<Builder
+												suppressWarning={this.state.isPublishing}
 												fluidGrid={() => this.fluidGrid()}
 												fluidShowGrid={this.state.fluidShowGrid}
 												invoiceTables={this.state.invoiceTables}
@@ -6966,9 +6965,9 @@ class Home extends Proposals {
 												deleteFQBlock={(blockID, sectionID) =>
 													this.state.isWorkflow
 														? this.handleWorkflowDeleteBlock(
-																blockID,
-																sectionID,
-														  )
+															blockID,
+															sectionID,
+														)
 														: this.handleDeleteBlock(blockID, sectionID)
 												}
 												handleOpenSideBar={(
@@ -6982,8 +6981,8 @@ class Home extends Proposals {
 															showSideBar: isFluid
 																? false
 																: _.has(e, 'showSidebar')
-																? false
-																: true,
+																	? false
+																	: true,
 															// !this.state.showSideBar,
 															activeSectionID: _id,
 															isServiceBlock: service,
@@ -7062,24 +7061,24 @@ class Home extends Proposals {
 													ImgSubBlock,
 													isFluid = null,
 												) => [
-													this.activeImage(
-														sectionID,
-														blockID,
-														subBlockID,
-														imageURL,
-														dimensions,
-														ImgSubBlock,
-													),
-													isFluid
-														? this.setState({ showSideBar: true })
-														: '',
-												]}
+														this.activeImage(
+															sectionID,
+															blockID,
+															subBlockID,
+															imageURL,
+															dimensions,
+															ImgSubBlock,
+														),
+														isFluid
+															? this.setState({ showSideBar: true })
+															: '',
+													]}
 												setSections={(e, restrict = null) =>
 													this.setState({ sections: e }, () => {
 														this.handleSaveSections(
 															restrict,
 															this.state.module === 'form' &&
-																this.state.isHeader,
+															this.state.isHeader,
 															'tables',
 														);
 													})
@@ -7108,15 +7107,15 @@ class Home extends Proposals {
 												handleAddServiceBlock={(e, order, services_style) =>
 													this.state.isWorkflow
 														? this.addWorkflowServiceTableBlock(
-																e,
-																order,
-																services_style,
-														  )
+															e,
+															order,
+															services_style,
+														)
 														: this.addServiceTableBlock(
-																e,
-																order,
-																services_style,
-														  )
+															e,
+															order,
+															services_style,
+														)
 												}
 												variables={this.state.sectionVariables}
 												tables={this.state.sectionTables}
@@ -7142,13 +7141,13 @@ class Home extends Proposals {
 												addFormQuestion={(sectionID, blockOrder) =>
 													this.state.isWorkflow
 														? this.addWorkflowQuestionForForm(
-																sectionID,
-																blockOrder,
-														  )
+															sectionID,
+															blockOrder,
+														)
 														: this.addQuestionForForm(
-																sectionID,
-																blockOrder,
-														  )
+															sectionID,
+															blockOrder,
+														)
 												}
 												setActiveFormQuestion={(e, blockID) =>
 													this.setState({
@@ -7203,8 +7202,8 @@ class Home extends Proposals {
 																	this.handleSaveSections(
 																		true,
 																		this.state.module ===
-																			'form' &&
-																			this.state.isHeader,
+																		'form' &&
+																		this.state.isHeader,
 																		'tables',
 																	),
 																300,
@@ -7304,15 +7303,15 @@ class Home extends Proposals {
 												duplicateSubBlock={(json, subBlockId, sectionId) =>
 													this.state.isWorkflow
 														? this.duplicateWorkflowSubBlock(
-																json,
-																subBlockId,
-																sectionId,
-														  )
+															json,
+															subBlockId,
+															sectionId,
+														)
 														: this.duplicateSubBlock(
-																json,
-																subBlockId,
-																sectionId,
-														  )
+															json,
+															subBlockId,
+															sectionId,
+														)
 												}
 												eventsLabel={this.state?.eventsLabel}
 												paymentsLabel={this.state?.paymentsLabel}
@@ -7382,9 +7381,9 @@ class Home extends Proposals {
 												addPaymentScheduleBlock={(id, order) => {
 													this.state?.isWorkflow
 														? this.addWorkflowPaymentScheduleBlock(
-																id,
-																order,
-														  )
+															id,
+															order,
+														)
 														: this.addPaymentScheduleBlock(id, order);
 												}}
 												addEventBlock={(e, sectionID) =>
@@ -7431,7 +7430,7 @@ class Home extends Proposals {
 															showSideBar: true,
 															isFluidLayout: false,
 														},
-														() => {},
+														() => { },
 													)
 												}
 												fonts={this.state.fonts}
@@ -7447,9 +7446,7 @@ class Home extends Proposals {
 												letterSpacing={this.state.letterSpacing}
 												allSchedules={this.state.allSchedules}
 												smartVariables={this.state.variables}
-												paramsTemplateID={
-													this.props.params.templateID || this.templateId
-												}
+												paramsTemplateID={this.props.params.templateID}
 												navBar={this.state.navBar}
 												handleShowNavbar={this.handleNavbarUpdate}
 												handleNavbarUpdate={this.handleNavbarUpdate}
@@ -7497,6 +7494,10 @@ class Home extends Proposals {
 													this.addManualInvoiceBlock(id, order);
 												}}
 												updateTablesForTaxes={this?.updateTablesForTaxes}
+												//for actionblock
+												setServiceTable={(e, value) => {
+													this.setServiceTableSection(e, value);
+												}}
 											/>
 										)}
 
@@ -7513,7 +7514,7 @@ class Home extends Proposals {
 												</div>
 												<div className="anime-hw-popup-content">
 													{this.state?.activeElementAnimeType ==
-													'loop' ? (
+														'loop' ? (
 														<LoopPopup
 															activeElementAnimeName={
 																this.state?.activeElementAnimeName
@@ -7549,11 +7550,10 @@ class Home extends Proposals {
 										''
 									) : (
 										<div
-											className={`hwb_right ${
-												this.state.showSideBar && !this.state.isFluidLayout
-													? ''
-													: 'hwb_right_no_padding'
-											}`}
+											className={`hwb_right ${this.state.showSideBar && !this.state.isFluidLayout
+												? ''
+												: 'hwb_right_no_padding'
+												}`}
 										>
 											<Sidebar
 												activeModule={this.state.activeModule}
@@ -7969,21 +7969,18 @@ class Home extends Proposals {
 												postVariables={(json) =>
 													this.postVariables(
 														json,
-														this.props.params.templateID ||
-															this.templateId,
+														this.props.params.templateID,
 													)
 												}
 												updateVariables={(json) =>
 													this.updateVariables(
 														json,
-														this.props.params.templateID ||
-															this.templateId,
+														this.props.params.templateID,
 													)
 												}
 												deleteVariables={(json) =>
 													this.deleteVariables(
-														this.props.params.templateID ||
-															this.templateId,
+														this.props.params.templateID,
 													)
 												}
 												activeWorkflowModuleId={
@@ -8070,11 +8067,10 @@ class Home extends Proposals {
 									{this.state.preview ? (
 										''
 									) : this.state.module === 'proposal' ||
-									  this.state.module === '*' ? (
+										this.state.module === '*' ? (
 										<div
-											className={`hwb_r ${
-												this.state.showAddBlock ? '' : 'hwb_r_no_padding'
-											}`}
+											className={`hwb_r ${this.state.showAddBlock ? '' : 'hwb_r_no_padding'
+												}`}
 											ref={this.addBlockRef}
 										>
 											<AddBlockV2

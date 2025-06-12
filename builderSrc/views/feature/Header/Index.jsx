@@ -20,6 +20,8 @@ import moment from 'moment';
 import Title from '../../components/header/title/index';
 import SendEmailModal from '../../components/SmartFileDetails/SendEmailModal';
 import { useNavigate } from 'react-router-dom';
+import { fetchOriginSelection } from '../../../helper';
+const origin = fetchOriginSelection()
 
 const options = [
 	// { label: 'Edit' },
@@ -530,7 +532,9 @@ const Header = ({
 					<div className="input-wrapper">
 						{/* <LeftArrow onClick={() => navigate(-1)} style={{ cursor: 'pointer' }} /> */}
 						<LeftArrow
-							onClick={() => navigate('/my-templates')}
+							onClick={() =>
+								window.location.href = `${origin}/files?activeTab=Designs`
+							}
 							style={{ cursor: 'pointer' }}
 						/>
 

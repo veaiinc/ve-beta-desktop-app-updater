@@ -674,9 +674,8 @@ class Builder extends Component {
 				<div
 					ref={this.ref}
 					id={'builder'}
-					className={`builder draggable-item ${this.getMoveClass()} ${
-						this.props.module === 'contract' ? 'contractPage' : ''
-					} ${this.props.module === 'invoice' ? 'invoicePage' : ''}`}
+					className={`builder draggable-item ${this.getMoveClass()} ${this.props.module === 'contract' ? 'contractPage' : ''
+						} ${this.props.module === 'invoice' ? 'invoicePage' : ''}`}
 					style={{
 						paddingBottom: this.props.client && this.state.isformv1 ? '45px' : '0',
 						opacity: this.getMoveClass() ? 0.5 : isDragging ? 0.52 : 1,
@@ -687,30 +686,30 @@ class Builder extends Component {
 								? this.state?.isTheme
 									? this.state?.setActiveTheme?.backgroundColor
 									: this.state?.formBgColor
-									? this.state?.formBgColor
-									: ''
+										? this.state?.formBgColor
+										: ''
 								: this.props.module === 'contract'
-								? this.props.sections[0]?.style?.sectionBackgroundColor
-								: '#fff',
+									? this.props.sections[0]?.style?.sectionBackgroundColor
+									: '#fff',
 						background:
 							this.state?.activeModule?.showType == 'a4' &&
-							this.state?.activeModule?.showAsA4 &&
-							this.state?.activeModule?.a4BgColor
+								this.state?.activeModule?.showAsA4 &&
+								this.state?.activeModule?.a4BgColor
 								? this.state?.activeModule?.a4BgColor
 								: '',
 						transform:
 							this.getMoveClass() === 'move-up'
 								? `translateY(-${item.height}px)`
 								: this.getMoveClass() === 'move-down'
-								? `translateY(${item.height}px)`
-								: 'translateY(0)',
+									? `translateY(${item.height}px)`
+									: 'translateY(0)',
 						maxWidth:
 							this.props.client && this.state.previewType === 'm'
 								? '100vw'
 								: this.props.module === 'contract' ||
-								  this.props.module === 'invoice'
-								? 792
-								: '',
+									this.props.module === 'invoice'
+									? 792
+									: '',
 						margin:
 							this.props.module === 'contract' || this.props.module === 'invoice'
 								? '0px auto'
@@ -848,500 +847,1967 @@ class Builder extends Component {
 						this.props?.activeModule?.actions || [],
 						(item) => item === 'contract-signature',
 					) && (
-						<div
-							className="contract_info"
-							style={{
-								width: '350px',
-								margin: '10px auto',
-								display:
-									this.props?.status !== 'confirmed' &&
-									this.props?.status !== 'contractSigned'
-										? 'block'
-										: 'none',
-							}}
-						>
-							<span>You're all Set! Please Sign Contract</span>
-						</div>
-					)}
+							<div
+								className="contract_info"
+								style={{
+									width: '350px',
+									margin: '10px auto',
+									display:
+										this.props?.status !== 'confirmed' &&
+											this.props?.status !== 'contractSigned'
+											? 'block'
+											: 'none',
+								}}
+							>
+								<span>You're all Set! Please Sign Contract</span>
+							</div>
+						)}
 
 					{this.props.module !== 'summary' &&
-					(_.has(this.state?.activeModule, 'showAsSlide') == false ||
-						(_.has(this.state?.activeModule, 'showAsSlide') == true &&
-							this.state?.activeModule?.showAsSlide == false))
+						(_.has(this.state?.activeModule, 'showAsSlide') == false ||
+							(_.has(this.state?.activeModule, 'showAsSlide') == true &&
+								this.state?.activeModule?.showAsSlide == false))
 						? _.map(
-								_.sortBy(
-									this.props.module === 'form' && this.state.isHeader
-										? [this.state.headerSection]
-										: sectionsArr,
-									['order'],
-								),
-								(section, index, arr) => {
-									let sectionId = section?._id;
+							_.sortBy(
+								this.props.module === 'form' && this.state.isHeader
+									? [this.state.headerSection]
+									: sectionsArr,
+								['order'],
+							),
+							(section, index, arr) => {
+								let sectionId = section?._id;
 
-									if (section?.type === 'services') {
-										return (
-											<div
-												key={index}
-												data-section-id={sectionId}
-												data-block-id={section?.type}
-												ref={(el) => (this.blockRefsStore[index] = el)}
-												onClick={() => {
-													if (this.props?.editingWorflow) {
-														this.props?.handleSpanClick(sectionId);
-													}
-												}}
-											>
-												<ServicesLayout
-													socialMediaLinks={this.state?.socialMediaLinks}
-													isWorkflow={this.state.isWorkflow}
-													setTriggerFont={(e) =>
-														this.props.setTriggerFont(e)
-													}
-													triggerFont={this.state.triggerFont}
-													key={index}
-													_id={section._id}
-													blocks={section.blocks}
-													style={section.style}
-													actionType={this.state.actionType}
-													actionValue={this.state.actionValue}
-													addServiceBlock={(services_style) =>
-														this.props.handleAddServiceBlock(
-															section._id,
-															_.size(section.blocks) + 1,
-															services_style,
-														)
-													}
-													handleSideBar={(e, _id) =>
-														this.props.handleOpenSideBar(e, _id, true)
-													}
-													showAddBlock={(e) =>
-														this.toggleAddBlock(
-															e,
-															section.order,
-															index,
-															null,
-														)
-													}
-													index={section.order}
-													moveItem={this.moveItem}
-													itemsLength={arr.length}
-													moveDirection={moveDirection}
-													handleBSelection={(e, activeTextBlock) =>
-														this.props.handleHSelection(
-															e,
-															activeTextBlock,
-														)
-													}
-													activeSectionID={this.state.activeSectionID}
-													activeTextBlock={this.state.activeTextBlock}
-													deleteSection={(e) =>
-														this.props.handledeleteSection(e)
-													}
-													preview={this.state.preview}
-													previewType={this.state.previewType}
-													activeImage={(
-														sectionID,
-														blockID,
-														subBlockID,
-														imageURL,
-														e,
-														ImgSubBlock,
-													) =>
-														this.props.handleActiveImage(
-															sectionID,
-															blockID,
-															subBlockID,
-															imageURL,
-															e,
-															ImgSubBlock,
-														)
-													}
-													handleSetTab={(e) => this.props.setActiveTab(e)}
-													activeVariableID={this.state.activeVariableID}
-													activeVariableName={
-														this.state.activeVariableName
-													}
-													subBlockID={this.state.subBlockID}
-													variables={this.state.variables}
-													client={this.props.client}
-													tables={this.state.tables}
-													handleServiceSelect={(block, type, value) =>
-														this.props.serviceSelect(
-															block,
-															type,
-															value,
-															sectionId,
-														)
-													}
-													setTable={(e) => this.props.setTables(e)}
-													imgSettingData={(e) =>
-														this.props.imgSettingData(e)
-													}
-													selectBlock={(e) => this.props.selectBlock(e)}
-													activeSection={this.props.activeSection}
-													setActiveSection={(e) =>
-														this.props.setActiveSection(e, true)
-													}
-													activeSubBlockId={this.state.activeSubBlockId}
-													serviceTableSubBlock={(e) =>
-														this.props.setServiceSubBlock(e)
-													}
-													handleDeleteServiceBlock={(e, f) =>
-														this.props.deleteServiceBlock(e, f)
-													}
-													setServiceBlock={(e, f, g, h) =>
-														this.props.setServiceBlockContent(
-															e,
-															f,
-															g,
-															h,
-														)
-													}
-													duplicateBlock={(e) =>
-														this.props.duplicateBlock(e)
-													}
-													duplicateServiceBlock={(e, f, g) =>
-														this.props.duplicateServiceBlock(e, f, g)
-													}
-													section={section}
-													isActiveSection={
-														this.state.activeSectionID == section._id
-													}
-													activeAnimation={section?.style?.isAnimation}
-													animationSpeed={section?.style?.animationSpeed}
-													animationDirection={
-														section?.style?.animationDirection
-													}
-													animationType={section?.style?.animationType}
-													handleUpdateSectionData={
-														this.props?.handleUpdateSectionData
-													}
-													restrictServiceSelection={
-														this.state?.restrictServiceSelection
-													}
-													clearStyle={() => this.props.clearFontStyles()}
-													backgroundType={
-														this.props.activeSection?.style
-															?.backgroundType
-													}
-													backgroundImageURL={
-														this.props?.activeSection?.style
-															?.backgroundImageURL
-													}
-													backgroundVideoURL={
-														this.state.backgroundVideoURL
-													}
-													handleIsValidBgVideoURL={(e) => {
-														this.props.client
-															? ''
-															: this.props?.setIsValidBgVideoURL(e);
-													}}
-													status={this.props?.status}
-													currencySymbol={this.props?.currencySymbol}
-													builderCurrencySymbol={
-														this.props?.currencySymbol2
-													}
-													clientGrandTotal={this.props.clientGrandTotal}
-													handleAddLayout={(e, isFluid, isService) =>
-														this.props.handleAddLayout(
-															e,
-															isFluid,
-															isService,
-														)
-													}
-													handleSpanClick={
-														this.props?.handleSpanClick || {}
-													}
-													editingWorflow={
-														this.props?.editingWorflow || false
-													}
-													themes={this.props.themes}
-													activeModule={this.props.activeModule}
-												/>
-											</div>
-										);
-									} else if (section?.type === 'events') {
-										return (
-											<div
-												key={index}
-												id={
-													this.props?.mobile_preview_builder
-														? 'preview_section_' + sectionId
-														: sectionId
+								if (section?.type === 'services') {
+									return (
+										<div
+											key={index}
+											data-section-id={sectionId}
+											data-block-id={section?.type}
+											ref={(el) => (this.blockRefsStore[index] = el)}
+											onClick={() => {
+												if (this.props?.editingWorflow) {
+													this.props?.handleSpanClick(sectionId);
 												}
-												data-section-id={sectionId}
-												data-block-id={section?.type}
-												ref={(el) => (this.blockRefsStore[index] = el)}
-												onClick={() => {
-													if (this.props?.editingWorflow) {
-														this.props?.handleSpanClick(sectionId);
-													}
-												}}
-											>
-												<Events
-													themes={this.props.themes}
-													isWorkflow={this.state.isWorkflow}
-													setActiveSection={(e) =>
-														this.props.setActiveSection(e, true)
-													}
-													setTriggerFont={(e) =>
-														this.props.setTriggerFont(e)
-													}
-													key={index}
-													section={section}
-													_id={section._id}
-													blocks={section.blocks}
-													style={section.style}
-													actionType={this.state.actionType}
-													actionValue={this.state.actionValue}
-													showAddBlock={(e) =>
-														this.toggleAddBlock(
-															e,
-															section.order,
-															index,
-															null,
-														)
-													}
-													index={section.order}
-													moveItem={this.moveItem}
-													itemsLength={arr.length}
-													moveDirection={moveDirection}
-													handleBSelection={(e, activeTextBlock) =>
-														this.props.handleHSelection(
-															e,
-															activeTextBlock,
-														)
-													}
-													activeSectionID={this.state.activeSectionID}
-													activeTextBlock={this.state.activeTextBlock}
-													deleteSection={(e) =>
-														this.props.handledeleteSection(e)
-													}
-													preview={this.state.preview}
-													previewType={this.state.previewType}
-													activeImage={(
-														sectionID,
-														blockID,
-														subBlockID,
-														imageURL,
-														e,
-														ImgSubBlock,
-													) =>
-														this.props.handleActiveImage(
-															sectionID,
-															blockID,
-															subBlockID,
-															imageURL,
-															e,
-															ImgSubBlock,
-														)
-													}
-													handleSetTab={(e) => this.props.setActiveTab(e)}
-													setTable={(e) => this.props.setTables(e)}
-													client={this.props.client}
-													tables={this.state.tables}
-													selectBlock={(e) => this.props.selectBlock(e)}
-													isActiveSection={
-														this.state.activeSectionID == section._id
-													}
-													tablesValuesforClient={
-														this.state.tablesValuesforClient
-													}
-													activeAnimation={section?.style?.isAnimation}
-													animationSpeed={section?.style?.animationSpeed}
-													animationDirection={
-														section?.style?.animationDirection
-													}
-													animationType={section?.style?.animationType}
-													backgroundType={
-														this.props.activeSection?.style
-															?.backgroundType
-													}
-													backgroundImageURL={
-														this.props?.activeSection?.style
-															?.backgroundImageURL
-													}
-													backgroundVideoURL={
-														this.state.backgroundVideoURL
-													}
-													handleIsValidBgVideoURL={(e) => {
-														this.props.client
-															? ''
-															: this.props?.setIsValidBgVideoURL(e);
-													}}
-													addEventBlock={(e) =>
-														this.props.addEventBlock(e, section._id)
-													}
-													handleDeleteServiceBlock={(e, f) =>
-														this.props.deleteServiceBlock(e, f)
-													}
-													duplicateBlock={this.props?.duplicateBlock}
-													smartFilePreview={this.props?.smartFilePreview}
-													handleAddLayout={(e, isFluid, isService) =>
-														this.props.handleAddLayout(
-															e,
-															isFluid,
-															isService,
-														)
-													}
-													handleSpanClick={
-														this.props?.handleSpanClick || {}
-													}
-													editingWorflow={
-														this.props?.editingWorflow || false
-													}
-													// handleSideBar={(e, _id) => {
-													// 	this.props.handleOpenSideBar(
-													// 		e,
-													// 		_id,
-													// 		false,
-													// 		true,
-													// 	);
-													// }}
-													handleSideBar={(e, _id) =>
-														this.props.handleOpenSideBar(e, _id)
-													}
-													activeModuleId={this.props?.activeModuleId}
-												/>
-											</div>
-										);
-									} else if (section?.type === 'form-q&a') {
-										return (
-											<FormQandA
+											}}
+										>
+											<ServicesLayout
+												socialMediaLinks={this.state?.socialMediaLinks}
 												isWorkflow={this.state.isWorkflow}
-												key={index}
-												_id={
-													this.props?.mobile_preview_builder
-														? 'preview_section_' + sectionId
-														: section._id
+												setTriggerFont={(e) =>
+													this.props.setTriggerFont(e)
 												}
-												sections={[section]}
-												showAddBlock={(e) =>
-													this.toggleAddBlock(e, section.order, index)
-												}
-												style={section.style}
-												submitFormLoading={this.state.submitFormLoading}
-												clearStyle={() => this.props.clearFontStyles()}
-												setTriggerFont={(e) => this.props.setTriggerFont(e)}
 												triggerFont={this.state.triggerFont}
-												setFSections={(e, restrict = null) =>
-													this.props.setSections(e, restrict)
+												key={index}
+												_id={section._id}
+												blocks={section.blocks}
+												style={section.style}
+												actionType={this.state.actionType}
+												actionValue={this.state.actionValue}
+												addServiceBlock={(services_style) =>
+													this.props.handleAddServiceBlock(
+														section._id,
+														_.size(section.blocks) + 1,
+														services_style,
+													)
 												}
-												deleteFBlock={(blockID, sectionID) =>
-													this.props.deleteFQBlock(blockID, sectionID)
+												handleSideBar={(e, _id) =>
+													this.props.handleOpenSideBar(e, _id, true)
+												}
+												showAddBlock={(e) =>
+													this.toggleAddBlock(
+														e,
+														section.order,
+														index,
+														null,
+													)
+												}
+												index={section.order}
+												moveItem={this.moveItem}
+												itemsLength={arr.length}
+												moveDirection={moveDirection}
+												handleBSelection={(e, activeTextBlock) =>
+													this.props.handleHSelection(
+														e,
+														activeTextBlock,
+													)
+												}
+												activeSectionID={this.state.activeSectionID}
+												activeTextBlock={this.state.activeTextBlock}
+												deleteSection={(e) =>
+													this.props.handledeleteSection(e)
+												}
+												preview={this.state.preview}
+												previewType={this.state.previewType}
+												activeImage={(
+													sectionID,
+													blockID,
+													subBlockID,
+													imageURL,
+													e,
+													ImgSubBlock,
+												) =>
+													this.props.handleActiveImage(
+														sectionID,
+														blockID,
+														subBlockID,
+														imageURL,
+														e,
+														ImgSubBlock,
+													)
+												}
+												handleSetTab={(e) => this.props.setActiveTab(e)}
+												activeVariableID={this.state.activeVariableID}
+												activeVariableName={
+													this.state.activeVariableName
+												}
+												subBlockID={this.state.subBlockID}
+												variables={this.state.variables}
+												client={this.props.client}
+												tables={this.state.tables}
+												handleServiceSelect={(block, type, value) =>
+													this.props.serviceSelect(
+														block,
+														type,
+														value,
+														sectionId,
+													)
+												}
+												setTable={(e) => this.props.setTables(e)}
+												imgSettingData={(e) =>
+													this.props.imgSettingData(e)
+												}
+												selectBlock={(e) => this.props.selectBlock(e)}
+												activeSection={this.props.activeSection}
+												setActiveSection={(e) =>
+													this.props.setActiveSection(e, true)
+												}
+												activeSubBlockId={this.state.activeSubBlockId}
+												serviceTableSubBlock={(e) =>
+													this.props.setServiceSubBlock(e)
+												}
+												handleDeleteServiceBlock={(e, f) =>
+													this.props.deleteServiceBlock(e, f)
+												}
+												setServiceBlock={(e, f, g, h) =>
+													this.props.setServiceBlockContent(
+														e,
+														f,
+														g,
+														h,
+													)
+												}
+												duplicateBlock={(e) =>
+													this.props.duplicateBlock(e)
+												}
+												duplicateServiceBlock={(e, f, g) =>
+													this.props.duplicateServiceBlock(e, f, g)
+												}
+												section={section}
+												isActiveSection={
+													this.state.activeSectionID == section._id
+												}
+												activeAnimation={section?.style?.isAnimation}
+												animationSpeed={section?.style?.animationSpeed}
+												animationDirection={
+													section?.style?.animationDirection
+												}
+												animationType={section?.style?.animationType}
+												handleUpdateSectionData={
+													this.props?.handleUpdateSectionData
+												}
+												restrictServiceSelection={
+													this.state?.restrictServiceSelection
+												}
+												clearStyle={() => this.props.clearFontStyles()}
+												backgroundType={
+													this.props.activeSection?.style
+														?.backgroundType
+												}
+												backgroundImageURL={
+													this.props?.activeSection?.style
+														?.backgroundImageURL
+												}
+												backgroundVideoURL={
+													this.state.backgroundVideoURL
+												}
+												handleIsValidBgVideoURL={(e) => {
+													this.props.client
+														? ''
+														: this.props?.setIsValidBgVideoURL(e);
+												}}
+												status={this.props?.status}
+												currencySymbol={this.props?.currencySymbol}
+												builderCurrencySymbol={
+													this.props?.currencySymbol2
+												}
+												clientGrandTotal={this.props.clientGrandTotal}
+												handleAddLayout={(e, isFluid, isService) =>
+													this.props.handleAddLayout(
+														e,
+														isFluid,
+														isService,
+													)
+												}
+												handleSpanClick={
+													this.props?.handleSpanClick || {}
+												}
+												editingWorflow={
+													this.props?.editingWorflow || false
+												}
+												themes={this.props.themes}
+												activeModule={this.props.activeModule}
+											/>
+										</div>
+									);
+								} else if (section?.type === 'events') {
+									return (
+										<div
+											key={index}
+											id={
+												this.props?.mobile_preview_builder
+													? 'preview_section_' + sectionId
+													: sectionId
+											}
+											data-section-id={sectionId}
+											data-block-id={section?.type}
+											ref={(el) => (this.blockRefsStore[index] = el)}
+											onClick={() => {
+												if (this.props?.editingWorflow) {
+													this.props?.handleSpanClick(sectionId);
+												}
+											}}
+										>
+											<Events
+												themes={this.props.themes}
+												isWorkflow={this.state.isWorkflow}
+												setActiveSection={(e) =>
+													this.props.setActiveSection(e, true)
+												}
+												setTriggerFont={(e) =>
+													this.props.setTriggerFont(e)
+												}
+												key={index}
+												section={section}
+												_id={section._id}
+												blocks={section.blocks}
+												style={section.style}
+												actionType={this.state.actionType}
+												actionValue={this.state.actionValue}
+												showAddBlock={(e) =>
+													this.toggleAddBlock(
+														e,
+														section.order,
+														index,
+														null,
+													)
+												}
+												index={section.order}
+												moveItem={this.moveItem}
+												itemsLength={arr.length}
+												moveDirection={moveDirection}
+												handleBSelection={(e, activeTextBlock) =>
+													this.props.handleHSelection(
+														e,
+														activeTextBlock,
+													)
+												}
+												activeSectionID={this.state.activeSectionID}
+												activeTextBlock={this.state.activeTextBlock}
+												deleteSection={(e) =>
+													this.props.handledeleteSection(e)
+												}
+												preview={this.state.preview}
+												previewType={this.state.previewType}
+												activeImage={(
+													sectionID,
+													blockID,
+													subBlockID,
+													imageURL,
+													e,
+													ImgSubBlock,
+												) =>
+													this.props.handleActiveImage(
+														sectionID,
+														blockID,
+														subBlockID,
+														imageURL,
+														e,
+														ImgSubBlock,
+													)
+												}
+												handleSetTab={(e) => this.props.setActiveTab(e)}
+												setTable={(e) => this.props.setTables(e)}
+												client={this.props.client}
+												tables={this.state.tables}
+												selectBlock={(e) => this.props.selectBlock(e)}
+												isActiveSection={
+													this.state.activeSectionID == section._id
+												}
+												tablesValuesforClient={
+													this.state.tablesValuesforClient
+												}
+												activeAnimation={section?.style?.isAnimation}
+												animationSpeed={section?.style?.animationSpeed}
+												animationDirection={
+													section?.style?.animationDirection
+												}
+												animationType={section?.style?.animationType}
+												backgroundType={
+													this.props.activeSection?.style
+														?.backgroundType
+												}
+												backgroundImageURL={
+													this.props?.activeSection?.style
+														?.backgroundImageURL
+												}
+												backgroundVideoURL={
+													this.state.backgroundVideoURL
+												}
+												handleIsValidBgVideoURL={(e) => {
+													this.props.client
+														? ''
+														: this.props?.setIsValidBgVideoURL(e);
+												}}
+												addEventBlock={(e) =>
+													this.props.addEventBlock(e, section._id)
+												}
+												handleDeleteServiceBlock={(e, f) =>
+													this.props.deleteServiceBlock(e, f)
+												}
+												duplicateBlock={this.props?.duplicateBlock}
+												smartFilePreview={this.props?.smartFilePreview}
+												handleAddLayout={(e, isFluid, isService) =>
+													this.props.handleAddLayout(
+														e,
+														isFluid,
+														isService,
+													)
+												}
+												handleSpanClick={
+													this.props?.handleSpanClick || {}
+												}
+												editingWorflow={
+													this.props?.editingWorflow || false
+												}
+												handleSideBar={(e, _id) => {
+													this.props.handleOpenSideBar(
+														e,
+														_id,
+														false,
+														true,
+													);
+												}}
+												activeModuleId={this.props?.activeModuleId}
+											/>
+										</div>
+									);
+								} else if (section?.type === 'form-q&a') {
+									return (
+										<FormQandA
+											isWorkflow={this.state.isWorkflow}
+											key={index}
+											_id={
+												this.props?.mobile_preview_builder
+													? 'preview_section_' + sectionId
+													: section._id
+											}
+											sections={[section]}
+											showAddBlock={(e) =>
+												this.toggleAddBlock(e, section.order, index)
+											}
+											style={section.style}
+											submitFormLoading={this.state.submitFormLoading}
+											clearStyle={() => this.props.clearFontStyles()}
+											setTriggerFont={(e) => this.props.setTriggerFont(e)}
+											triggerFont={this.state.triggerFont}
+											setFSections={(e, restrict = null) =>
+												this.props.setSections(e, restrict)
+											}
+											deleteFBlock={(blockID, sectionID) =>
+												this.props.deleteFQBlock(blockID, sectionID)
+											}
+											handleSetTab={(e, subBlockID, blockID) =>
+												this.state.preview
+													? ''
+													: this.props.setActiveTab(
+														e,
+														subBlockID,
+														blockID,
+													)
+											}
+											handleBSelection={(e, activeTextBlock) =>
+												this.props.handleHSelection(e, activeTextBlock)
+											}
+											handleSideBar={(e, _id) =>
+												this.props.handleOpenSideBar(e, _id)
+											}
+											setBlockContent={(content, sectionID, blockID) =>
+												this.props.handleSetBlockContent(
+													content,
+													sectionID,
+													blockID,
+												)
+											}
+											actionType={this.state.actionType}
+											actionValue={this.state.actionValue}
+											addQues={(sectionID, blockOrder) =>
+												this.props.addFormQuestion(
+													sectionID,
+													blockOrder,
+												)
+											}
+											preview={this.state.preview}
+											previewType={this.state.previewType}
+											handleSetFSideBar={(e, blockID) =>
+												this.props.setActiveFormQuestion(e, blockID)
+											}
+											addOptionForm={(e) =>
+												this.props.handleAddFormOption(e)
+											}
+											handleFormAnswer={(answer, key, order, sectionID) =>
+												this.props.setFormAnswer(
+													answer,
+													key,
+													order,
+													sectionID,
+												)
+											}
+											client={this.props.client}
+											submitForm={(e, sectionId) =>
+												this.props.handleSubmitForm(e, sectionId)
+											}
+											moveItem={this.moveItem}
+											deleteSection={(e) =>
+												this.props.handledeleteSection(e)
+											}
+											selectBlock={(e) => this.props.selectBlock(e)}
+											duplicateBlock={(e) => this.props.duplicateBlock(e)}
+											activeFormQuestion={this.props?.activeFormQuestion}
+										/>
+									);
+								} else if (section?.type === 'contract-with-signature') {
+									return (
+										<div
+											key={index}
+											style={{ display: 'block' }}
+											data-section-id={sectionId}
+											data-block-id={section?.type}
+											ref={(el) => (this.blockRefsStore[index] = el)}
+										>
+											<Signature
+												isWorkflow={this.props.isWorkflow}
+												setTriggerFont={(e) =>
+													this.props.setTriggerFont(e)
+												}
+												setTriggeredFont={(e) =>
+													this.setState({ triggeredFont: e })
+												}
+												activeImage={(
+													sectionID,
+													blockID,
+													subBlockID,
+													imageURL,
+													e,
+													ImgSubBlock,
+												) =>
+													this.props.handleActiveImage(
+														sectionID,
+														blockID,
+														subBlockID,
+														imageURL,
+														e,
+														ImgSubBlock,
+													)
+												}
+												handleTab={(e, subBlockID, blockID) =>
+													this.props.setActiveTab(
+														e,
+														subBlockID,
+														blockID,
+													)
+												}
+												activeVariableID={this.state.activeVariableID}
+												activeVariableName={
+													this.state.activeVariableName
+												}
+												subBlockID={this.state.subBlockID}
+												variables={this.state.variables}
+												client={this.props.client}
+												tables={this.state.tables}
+												setContractActiveVariable={(e) =>
+													this.props.client == true
+														? ''
+														: this.props.contractActiveVariable(e)
+												}
+												handlesetActiveShape={(e) =>
+													this.props.setShape(e)
+												}
+												setButtonLink={(e) =>
+													this.props.handleSetButtonLink(e)
+												}
+												setNewTab={(e) =>
+													this.props.handleSetOpenNewtab(e)
+												}
+												setButtonStyles={(e) =>
+													this.props.setBtStyles(e)
+												}
+												btShape={(e) => this.props.btShape(e)}
+												imgSettingData={(e) =>
+													this.props.imgSettingData(e)
+												}
+												selectBlock={(e) => this.props.selectBlock(e)}
+												activeSubBlockId={this.state.activeSubBlockId}
+												handleDuplicate={() =>
+													this.props.duplicateBlock(this.props._id)
+												}
+												handleDeleteSection={(e) =>
+													this.props.deleteSection(e)
+												}
+												handleSetBlockTab={(e) =>
+													this.props.setBlockTab(e)
 												}
 												handleSetTab={(e, subBlockID, blockID) =>
 													this.state.preview
 														? ''
 														: this.props.setActiveTab(
-																e,
-																subBlockID,
-																blockID,
-														  )
+															e,
+															subBlockID,
+															blockID,
+														)
 												}
-												handleBSelection={(e, activeTextBlock) =>
-													this.props.handleHSelection(e, activeTextBlock)
+												backgroundType={
+													this.props.activeSection?.style
+														?.backgroundType
 												}
-												handleSideBar={(e, _id) =>
-													this.props.handleOpenSideBar(e, _id)
+												backgroundImageURL={
+													this.props?.activeSection?.style
+														?.backgroundImageURL
 												}
-												setBlockContent={(content, sectionID, blockID) =>
-													this.props.handleSetBlockContent(
-														content,
-														sectionID,
+												backgroundVideoURL={
+													this.state.backgroundVideoURL
+												}
+												handleIsValidBgVideoURL={(e) => {
+													this.props.client
+														? ''
+														: this.props?.setIsValidBgVideoURL(e);
+												}}
+												tenantLogo={this.props?.tenantLogo}
+												isTenantLogo={this.state.isTenantLogo}
+												contractVariables={this.state.contractVariables}
+												uploadImageBase64={(e) =>
+													this.props.uploadImageBase64(e)
+												}
+												generateAIImages={(e) =>
+													this.props.generateAIImages(e)
+												}
+												generateAIText={(e) =>
+													this.props.generateAIText(e)
+												}
+												sections={this.state.sections}
+												socialMediaLinks={this.state?.socialMediaLinks}
+												handleSetIconLink={(e, subBlockID, blockID) =>
+													this.props.handleSetIconLink(
+														e,
+														subBlockID,
 														blockID,
 													)
 												}
+												iframeScroll={this.state.iframeScroll}
+												preview={this.state.preview}
+												module={this.props.module}
+												contractBg={this.state.contractBg}
+												previewType={this.state.previewType}
+												signatures={this.state.signatures}
+												// handleSideBar={(e, _id) =>
+												// 	this.props.handleOpenSideBar(e, _id)
+												// }
+												handleSideBar={(e, _id) => {
+													this.props.handleOpenSideBar(
+														e,
+														_id,
+														false,
+														true,
+													);
+												}}
+												showAddBlock={(e) =>
+													this.toggleAddBlock(e, section.order, index)
+												}
+												key={index}
+												_id={section?._id}
+												blocks={section?.blocks}
+												style={section?.style}
+												deleteSection={(e) =>
+													this.props.handledeleteSection(e)
+												}
+												hanldeAddBlock={(e) =>
+													this.props.handleAddBlock(e)
+												}
+												toggleSignatureModal={this.toggleSignatureModal}
+												handleActiveCurrentSignatureSubBlock={(e) =>
+													this.setState({
+														activeCurrentSignatureSubBlock: e,
+													})
+												}
+												version={this.props.version}
+												setActiveSection={(e) => {
+													this.props.setActiveSection(e)
+												}}
+												section={section}
+												activeModuleId={this.props?.activeModuleId}
+												handleAddLayout={(e, isFluid, isService) =>
+													this.props.handleAddLayout(
+														e,
+														isFluid,
+														isService,
+													)
+												}
+											/>
+										</div>
+									);
+								} else if (section?.type === 'invoice-with-payment') {
+									return (
+										<div
+											key={index}
+											data-section-id={sectionId}
+											data-block-id={section?.type}
+											ref={(el) => (this.blockRefsStore[index] = el)}
+										>
+											<PaymentSchedule
+												isWorkflow={this.props.isWorkflow}
+												tables={this.state.tables}
+												paymentSchedule={section?.blocks}
+												activeSubBlockId={this.state.activeSubBlockId}
+												key={index}
+												module={this.props.module}
+												_id={section?._id}
+												blocks={section?.blocks}
+												style={section?.style}
+												// handleSideBar={(e, _id) =>
+												// 	this.props.handleOpenSideBar(e, _id)
+												// }
+												showAddBlock={(e) => {
+													this.toggleAddBlock(
+														e,
+														section?.order,
+														index,
+													);
+												}}
+												isActiveSection={
+													this.props.client
+														? false
+														: this.state.activeSectionID ==
+														section._id
+												}
+												index={section?.order}
+												moveItem={this.moveItem}
+												itemsLength={arr.length}
+												moveDirection={moveDirection}
+												deleteSection={(e) =>
+													this.props.handledeleteSection(e)
+												}
+												preview={this.state.preview}
+												previewType={this.state.previewType}
+												handleSetTab={(e) => this.props.setActiveTab(e)}
+												selectBlock={(e) => this.props.selectBlock(e)}
+												client={this.props.client}
+												sectionType={section?.type}
+												setTab={(e) =>
+													this.state.preview
+														? ''
+														: this.props.setActiveTab(e)
+												}
+												backgroundType={
+													this.props.activeSection?.style
+														?.backgroundType
+												}
+												backgroundImageURL={
+													this.props?.activeSection?.style
+														?.backgroundImageURL
+												}
+												backgroundVideoURL={
+													this.state?.backgroundVideoURL
+												}
+												handleIsValidBgVideoURL={(e) => {
+													this.props.client
+														? ''
+														: this.props?.setIsValidBgVideoURL(e);
+												}}
+												setPaymentSchedule={(e, styles = null) => {
+													if (this.props?.setPaymentSchedule) {
+														this.props?.setPaymentSchedule(
+															e,
+															section?._id,
+															null,
+															styles,
+														);
+													}
+												}}
+												activeModule={this.state.activeModule}
+												duplicateBlock={(e) =>
+													this.props.duplicateBlock(e)
+												}
+												addPaymentScheduleBlock={(id, order) =>
+													this.props.addPaymentScheduleBlock(
+														id,
+														order,
+													)
+												}
+												clientGrandTotal={this.props?.clientGrandTotal}
+												section={section}
+												setActiveSection={(e) => {
+													this.props.setActiveSection(e);
+												}}
+												handleSideBar={(e, _id) => {
+													this.props.handleOpenSideBar(
+														e,
+														_id,
+														false,
+														true,
+													);
+												}}
+												activeModuleId={this.props?.activeModuleId}
+												handleAddLayout={(e, isFluid, isService) =>
+													this.props.handleAddLayout(
+														e,
+														isFluid,
+														isService,
+													)
+												}
+											/>
+										</div>
+									);
+								} else if (section?.type === 'invoice') {
+									return (
+										<div
+											ref={(el) => {
+												if (el) {
+													this.blockRefs.current[index] = el; // Assign DOM element to the ref array
+													this.blockRefsStore[index] = el;
+												}
+											}}
+											key={index}
+											style={{ display: 'block' }}
+											data-section-id={sectionId}
+											data-block-id={section?.type}
+										>
+											<InvoiceWrapper
+												setTriggerFont={(e) =>
+													this.props?.client
+														? ''
+														: this.props?.setTriggerFont(e)
+												}
+												setTriggeredFont={(e) =>
+													this.setState({
+														triggeredFont: e,
+													})
+												}
+												triggeredFont={this.state?.triggeredFont}
+												activeSubBlockId={this.state?.activeSubBlockId}
+												key={index}
+												module={this.props?.module}
+												_id={section?._id}
+												blocks={section?.blocks}
+												section={section}
+												style={section?.style}
+												actionType={this.state?.actionType}
+												actionValue={this.state?.actionValue}
+												triggerFont={this.state?.triggerFont}
+												handleSideBar={(e, _id) => {
+													this.props.handleOpenSideBar(
+														e,
+														_id,
+														false,
+														true,
+													);
+												}}
+												showAddBlock={(e) =>
+													this.toggleAddBlock(
+														e,
+														section?.order,
+														index,
+													)
+												}
+												isActiveSection={
+													this.props?.client
+														? false
+														: this.state?.activeSectionID ==
+														section._id
+												}
+												index={section?.order}
+												moveItem={this.moveItem}
+												itemsLength={arr.length}
+												moveDirection={moveDirection}
+												handleBSelection={(e, activeTextBlock) => {
+													this.props.handleHSelection(
+														e,
+														activeTextBlock,
+													);
+												}}
+												activeSectionID={this.state?.activeSectionID}
+												activeTextBlock={this.state?.activeTextBlock}
+												deleteSection={(e) =>
+													this.props?.handledeleteSection(e)
+												}
+												setSubBlockContent={(
+													content,
+													sectionID,
+													blockID,
+													id,
+												) =>
+													this.props?.handleSetSubBlockContent(
+														content,
+														sectionID,
+														blockID,
+														id,
+													)
+												}
+												preview={this.state?.preview}
+												previewType={this.state?.previewType}
+												activeImage={(
+													sectionID,
+													blockID,
+													subBlockID,
+													imageURL,
+													dimensions,
+													ImgSubBlock,
+												) =>
+													this.props?.handleActiveImage(
+														sectionID,
+														blockID,
+														subBlockID,
+														imageURL,
+														dimensions,
+														ImgSubBlock,
+													)
+												}
+												handleSetTab={(e, subBlockID, blockID) =>
+													this.state?.preview
+														? ''
+														: this.props?.setActiveTab(
+															e,
+															subBlockID,
+															blockID,
+														)
+												}
+												activeVariableID={this.state?.activeVariableID}
+												activeVariableName={
+													this.state?.activeVariableName
+												}
+												subBlockID={this.state?.subBlockID}
+												variables={this.state?.variables}
+												client={this.props?.client}
+												setNewTab={(e) =>
+													this.props?.handleSetOpenNewtab(e)
+												}
+												selectBlock={(e) => this.props?.selectBlock(e)}
+												duplicateBlock={(e) =>
+													this.props?.duplicateBlock(e)
+												}
+												handleSetBlockTab={(e) =>
+													this.props?.setBlockTab(e)
+												}
+												sectionType={section?.type}
+												setTab={(e) =>
+													this.state?.preview
+														? ''
+														: this.props?.setActiveTab(e)
+												}
+												activeAnimation={section?.style?.isAnimation}
+												animationSpeed={section?.style?.animationSpeed}
+												animationDirection={
+													section?.style?.animationDirection
+												}
+												animationType={section?.style?.animationType}
+												clearStyle={() => this.props?.clearFontStyles()}
+												backgroundType={
+													this.props.activeSection?.style
+														?.backgroundType
+												}
+												backgroundImageURL={
+													this.props?.activeSection?.style
+														?.backgroundImageURL
+												}
+												backgroundVideoURL={
+													this.state?.backgroundVideoURL
+												}
+												handleIsValidBgVideoURL={(e) => {
+													this.props?.setIsValidBgVideoURL(e);
+												}}
+												tenantLogo={this.props?.tenantLogo}
+												isTenantLogo={this.state?.isTenantLogo}
+												tables={
+													this.props.globalTables?.length > 0
+														? this.props?.globalTables
+														: this.state?.tables
+												}
+												sections={
+													this.props?.globalSections?.length > 0
+														? this.props?.globalSections
+														: this.state?.sections
+												}
+												invoiceDetails={this.props?.invoiceDetails}
+												paymentSchedule={this.state?.paymentSchedule}
+												setPaymentSchedule={(e) => {
+													if (this.props?.setPaymentSchedule) {
+														this.props?.setPaymentSchedule(e);
+													}
+												}}
+												showSchedule={this.state?.showSchedule}
+												invoiceClientVariables={
+													this.state?.invoiceClientVariables
+												}
+												invoiceNumber={this.state?.invoiceNumber}
+												handleInvoiceNumber={(e) =>
+													this.props?.handleInvoiceNumber(e)
+												}
+												currencySymbol={this.props?.currencySymbol}
+												activeFontColor={this.state?.activeFontColor}
+												currencySymbol2={this.props?.currencySymbol2}
+												isWorkflow={this.state.isWorkflow}
+												clientGrandTotal={
+													this.props?.clientGrandTotal || 0
+												}
+												imgSettingData={(e) =>
+													this.props.imgSettingData(e)
+												}
+												setActiveSection={(e) => {
+													if (this.props.setActiveSection) {
+														this.props.setActiveSection(e);
+													}
+												}}
+												addManualInvoiceBlock={(order) => {
+													this.props?.addManualInvoiceBlock(
+														section?._id,
+														section?.blocks.length + 1,
+													);
+												}}
+												activeWorkflowModuleId={
+													this.props?.activeWorkflowModuleId
+												}
+												activeModuleId={this.props?.activeModuleId}
+												brandColors={this.props?.brandColors}
+												modules={this.props?.modules}
+												updateTablesForTaxes={
+													this.props?.updateTablesForTaxes
+												}
+											/>
+										</div>
+									);
+								} else if (section?.type === 'table') {
+									return (
+										<div
+											ref={(el) => {
+												if (el) {
+													this.blockRefs.current[index] = el; // Assign DOM element to the ref array
+													this.blockRefsStore[index] = el;
+												}
+											}}
+											key={index}
+											style={{ display: 'block' }}
+											data-section-id={sectionId}
+											data-block-id={section?.type}
+										>
+											<Table
+												setTriggerFont={(e) =>
+													this.props.setTriggerFont(e)
+												}
+												setTriggeredFont={(e) =>
+													this.setState({
+														triggeredFont: e,
+													})
+												}
+												triggeredFont={this.state.triggeredFont}
+												activeSubBlockId={this.state.activeSubBlockId}
+												key={index}
+												module={this.props.module}
+												_id={section?._id}
+												blocks={section?.blocks}
+												style={section?.style}
 												actionType={this.state.actionType}
 												actionValue={this.state.actionValue}
-												addQues={(sectionID, blockOrder) =>
-													this.props.addFormQuestion(
+												triggerFont={this.state.triggerFont}
+												handleSideBar={(e, _id) =>
+													this.props.handleOpenSideBar(e, _id)
+												}
+												showAddBlock={(e) =>
+													this.toggleAddBlock(
+														e,
+														section?.order,
+														index,
+													)
+												}
+												isActiveSection={
+													this.props.client
+														? false
+														: this.state.activeSectionID ==
+														section._id
+												}
+												index={section?.order}
+												moveItem={this.moveItem}
+												itemsLength={arr.length}
+												moveDirection={moveDirection}
+												handleBSelection={(e, activeTextBlock) =>
+													this.props.handleHSelection(
+														e,
+														activeTextBlock,
+													)
+												}
+												activeSectionID={this.state.activeSectionID}
+												activeTextBlock={this.state.activeTextBlock}
+												deleteSection={(e) =>
+													this.props.handledeleteSection(e)
+												}
+												setSubBlockContent={(
+													content,
+													sectionID,
+													blockID,
+													id,
+												) =>
+													this.props.handleSetSubBlockContent(
+														content,
 														sectionID,
-														blockOrder,
+														blockID,
+														id,
 													)
 												}
 												preview={this.state.preview}
 												previewType={this.state.previewType}
-												handleSetFSideBar={(e, blockID) =>
-													this.props.setActiveFormQuestion(e, blockID)
-												}
-												addOptionForm={(e) =>
-													this.props.handleAddFormOption(e)
-												}
-												handleFormAnswer={(answer, key, order, sectionID) =>
-													this.props.setFormAnswer(
-														answer,
-														key,
-														order,
+												activeImage={(
+													sectionID,
+													blockID,
+													subBlockID,
+													imageURL,
+													dimensions,
+													ImgSubBlock,
+												) =>
+													this.props.handleActiveImage(
 														sectionID,
+														blockID,
+														subBlockID,
+														imageURL,
+														dimensions,
+														ImgSubBlock,
 													)
 												}
-												client={this.props.client}
-												submitForm={(e, sectionId) =>
-													this.props.handleSubmitForm(e, sectionId)
+												handleSetTab={(e, subBlockID, blockID) =>
+													this.state.preview
+														? ''
+														: this.props.setActiveTab(
+															e,
+															subBlockID,
+															blockID,
+														)
 												}
+												activeVariableID={this.state.activeVariableID}
+												activeVariableName={
+													this.state.activeVariableName
+												}
+												subBlockID={this.state.subBlockID}
+												variables={this.state.variables}
+												client={this.props.client}
+												setContractActiveVariable={(e) =>
+													this.props.client == true
+														? ''
+														: this.props.contractActiveVariable(e)
+												}
+												handlesetActiveShape={(e) =>
+													this.props.client
+														? ''
+														: this.props.setShape(e)
+												}
+												setButtonLink={(e) =>
+													this.props.handleSetButtonLink(e)
+												}
+												setNewTab={(e) =>
+													this.props.handleSetOpenNewtab(e)
+												}
+												setButtonStyles={(e) =>
+													this.props.setBtStyles(e)
+												}
+												btShape={(e) => this.props.btShape(e)}
+												imgSettingData={(e) =>
+													this.props.imgSettingData(e)
+												}
+												selectBlock={(e) => this.props.selectBlock(e)}
+												duplicateBlock={(e) =>
+													this.props.duplicateBlock(e)
+												}
+												handleSetBlockTab={(e) =>
+													this.props.setBlockTab(e)
+												}
+												sectionType={section?.type}
+												setTab={(e) =>
+													this.state.preview
+														? ''
+														: this.props.setActiveTab(e)
+												}
+												circleTextData={(e) =>
+													this.props.circleTextData(e)
+												}
+												activeAnimation={section?.style?.isAnimation}
+												animationSpeed={section?.style?.animationSpeed}
+												animationDirection={
+													section?.style?.animationDirection
+												}
+												animationType={section?.style?.animationType}
+												clearStyle={() => this.props.clearFontStyles()}
+												handleIsValidURL={(e) => {
+													this.props.client
+														? ''
+														: this.props.setIsValidURL(e);
+												}}
+												backgroundType={
+													this.props.activeSection?.style
+														?.backgroundType
+												}
+												backgroundImageURL={
+													this.props?.activeSection?.style
+														?.backgroundImageURL
+												}
+												backgroundVideoURL={
+													this.state.backgroundVideoURL
+												}
+												handleIsValidBgVideoURL={(e) => {
+													this.props.setIsValidBgVideoURL(e);
+												}}
+												tenantLogo={this.props?.tenantLogo}
+												isTenantLogo={this.state.isTenantLogo}
+												contractVariables={this.state.contractVariables}
+												uploadImageBase64={(e) =>
+													this.props.uploadImageBase64(e)
+												}
+												generateAIImages={(e) =>
+													this.props.generateAIImages(e)
+												}
+												generateAIText={(e) =>
+													this.props.generateAIText(e)
+												}
+												tables={this.state.tables}
+												sections={this.state.sections}
+												socialMediaLinks={this.state?.socialMediaLinks}
+												handleSetIconLink={(e, subBlockID, blockID) =>
+													this.props.handleSetIconLink(
+														e,
+														subBlockID,
+														blockID,
+													)
+												}
+												setActiveSection={(e) =>
+													this.props.setActiveSection(e)
+												}
+												section={section}
+												DeleteInTable={(type, index) =>
+													this.props?.handleDeleteInTable(type, index)
+												}
+												AddInTable={(
+													type,
+													index,
+													position,
+													length = 0,
+												) =>
+													this.props?.handleAddInTable(
+														type,
+														index,
+														position,
+														length,
+													)
+												}
+												DuplicateInTable={(type, index) =>
+													this.props?.handleDuplicateInTable(
+														type,
+														index,
+													)
+												}
+												isWorkflow={this.state.isWorkflow}
+											/>
+										</div>
+									);
+								} else if (section?.type === 'summary') {
+									return (
+										<div
+											ref={(el) => {
+												if (el) {
+													this.blockRefs.current[index] = el; // Assign DOM element to the ref array
+													this.blockRefsStore[index] = el;
+												}
+											}}
+											key={index}
+											style={{ display: 'block' }}
+											data-section-id={sectionId}
+											data-block-id={section?.type}
+										>
+											<SummaryWrapper
+												activeSubBlockId={this.state.activeSubBlockId}
+												key={index}
+												module={this.props.module}
+												_id={section?._id}
+												blocks={section?.blocks}
+												style={section?.style}
+												// handleSideBar={(e, _id) =>
+												// 	this.props.handleOpenSideBar(e, _id)
+												// }
+												handleSideBar={(e, _id) => {
+													this.props.handleOpenSideBar(
+														e,
+														_id,
+														false,
+														true,
+													);
+												}}
+												showAddBlock={(e) =>
+													this.toggleAddBlock(
+														e,
+														section?.order,
+														index,
+													)
+												}
+												isActiveSection={
+													this.props.client
+														? false
+														: this.state.activeSectionID ==
+														section._id
+												}
+												index={section?.order}
 												moveItem={this.moveItem}
+												itemsLength={arr.length}
+												moveDirection={moveDirection}
+												isWorkflow={this.state.isWorkflow}
+												sections={sectionsArr}
+												tables={this.state.tables}
+												eventsLabel={this.state?.eventsLabel}
+												paymentsLabel={this.state?.paymentsLabel}
+												summaryBg={this.state?.summaryBg}
+												summaryFont={this.state?.summaryFont}
+												summaryFontColor={this.state?.summaryFontColor}
+												summaryFontSize={this.state?.summaryFontSize}
+												summaryBlock={this.state?.summaryBlock}
+												preview={this.state.preview}
+												previewType={this.state.previewType}
+												setTab={(e) => this.props.setActiveTab(e)}
+												currencySymbol={this.props?.currencySymbol}
+												currencySymbol2={this.props?.currencySymbol2}
+												globalSummaryData={
+													this.props?.globalSummaryData
+												}
+												selectBlock={(e) => this.props.selectBlock(e)}
+												duplicateBlock={(e) =>
+													this.props.duplicateBlock(e)
+												}
+												handleBlock={(e) => this.props.handleBlock(e)}
+												handleDeleteSection={(e) =>
+													this.props.deleteSection(e)
+												}
+												handleSetBlockTab={(e) =>
+													this.props.setBlockTab(e)
+												}
+												handleSetIconLink={(e, subBlockID, blockID) =>
+													this.props.handleSetIconLink(
+														e,
+														subBlockID,
+														blockID,
+													)
+												}
+												activeSectionID={this.state.activeSectionID}
 												deleteSection={(e) =>
 													this.props.handledeleteSection(e)
 												}
-												selectBlock={(e) => this.props.selectBlock(e)}
-												duplicateBlock={(e) => this.props.duplicateBlock(e)}
-												activeFormQuestion={this.props?.activeFormQuestion}
+												handleSetTab={(e, subBlockID, blockID) =>
+													this.state.preview
+														? ''
+														: this.props.setActiveTab(
+															e,
+															subBlockID,
+															blockID,
+														)
+												}
+												sectionType={section?.type}
+												backgroundType={
+													this.props.activeSection?.style
+														?.backgroundType
+												}
+												backgroundImageURL={
+													this.props?.activeSection?.style
+														?.backgroundImageURL
+												}
+												backgroundVideoURL={
+													this.state.backgroundVideoURL
+												}
+												handleIsValidBgVideoURL={(e) => {
+													this.props.setIsValidBgVideoURL(e);
+												}}
+												client={this.props?.client}
+												clientGrandTotal={
+													this.props?.clientGrandTotal || 0
+												}
+												handleAddLayout={(e, type) =>
+													this.props.handleAddLayout(e, type)
+												}
+												isSummaryPreview={this.props.isSummaryPreview}
+												setActiveSection={(e) => {
+													this.props.setActiveSection(e)
+												}}
+												section={section}
+												fonts={this.props?.fonts}
+												activeModuleId={this.props?.activeModuleId}
 											/>
-										);
-									} else if (section?.type === 'contract-with-signature') {
-										return (
-											<div
+										</div>
+									);
+								} else if (section?.type === 'form-v1') {
+									return (
+										<div
+											ref={(el) => {
+												if (el) {
+													this.blockRefs.current[index] = el;
+													this.blockRefsStore[index] = el;
+												}
+											}}
+											key={index}
+											style={{
+												height: this.props.client ? 'auto' : 'auto',
+												minHeight: '418.5px',
+												display: 'block',
+											}}
+											data-section-id={sectionId}
+											data-block-id={section?.type}
+										>
+											<FormWrapper
+												handleAddLayout={(e, type) =>
+													this.props.handleAddLayout(e, type)
+												}
+												style={section?.style}
+												moveItem={this.moveItem}
+												// Add your props here
+												handleDeleteSection={(e) =>
+													this.props.deleteSection(e)
+												}
+												deleteSection={(e) =>
+													this.props.handledeleteSection(e)
+												}
+												duplicateBlock={(e) =>
+													this.props.duplicateBlock(e)
+												}
+												submitLogicalForm={this.props.submitLogicalForm}
+												submitFormLoading={this.state.submitFormLoading}
+												showFormError={this.state.showFormError}
+												showSuccessMessage={
+													this.state.showSuccessMessage
+												}
+												errorMessage={this.state.errorMessage}
+												successMessage={this.state.successMessage}
+												// client={this.props?.client}
+
+												isTheme={this.props.isTheme}
+												setActiveTheme={this.props.setActiveTheme}
+												_id={section?._id}
+												activeModule={this.state.activeModule}
+												showAddBlock={(e) =>
+													this.toggleAddBlock(
+														e,
+														section.order,
+														index,
+														null,
+													)
+												}
+												selectBlock={(e) => this.props.selectBlock(e)}
+												handleSideBar={(e, _id) =>
+													this.props.handleOpenSideBar(
+														e,
+														_id,
+														false,
+														true,
+													)
+												}
+												preview={this.state?.preview}
+												sections={this.state.sections}
+												blocks={section?.blocks}
+												section={section}
+												activeSectionID={this.state?.activeSectionID}
+												setState={(e) => {
+													this.setState({ ...e });
+												}}
+												index={index}
+												saveSections={(e, restrict = null) =>
+													this.props.setSections(e, restrict)
+												}
+												addBlock={(e) => {
+													this.toggleAddBlock(
+														e,
+														section?.order,
+														index,
+													);
+												}}
+												client={this.props?.client}
+												setActiveSection={(value) => {
+													this.props?.setActiveSection(value);
+												}}
+												// themes={this.props?.themes}
+												theme={{}}
+												handleLogicalFormAnswer={
+													this.props.handleLogicalFormAnswer
+												}
+												setTriggerFont={(e) =>
+													this.props.client
+														? ''
+														: this.props.setTriggerFont(e)
+												}
+												setTriggeredFont={(e) =>
+													this.setState({
+														triggeredFont: e,
+													})
+												}
+												triggeredFont={this.state.triggeredFont}
+												handleBSelection={(e, activeTextBlock) =>
+													this.props.handleHSelection(
+														e,
+														activeTextBlock,
+													)
+												}
+												handleSetTab={(e, subBlockID, blockID) =>
+													this.state.preview
+														? ''
+														: this.props.setActiveTab(
+															e,
+															subBlockID,
+															blockID,
+														)
+												}
+												changeFontColor={(e, f) =>
+													this.props?.changeFontColor(e, f)
+												}
+												actionType={this.state.actionType}
+												actionValue={this.state.actionValue}
+												triggerFont={this.state.triggerFont}
+												fonts={this.props?.fonts}
+												fontFamily={this.props?.fontFamily}
+												fontColor={this.props.fontColor}
+												fontSize={this.props.fontSize}
+												justifyleft={this.state.justifyleft}
+												justifyright={this.state.justifyright}
+												justifycenter={this.state.justifycenter}
+												justifyfull={this.state.justifyfull}
+												lineHeight={this.props.lineHeight}
+												letterSpacing={this.props.letterSpacing}
+												activeWorkflowModuleId={
+													this.props?.activeWorkflowModuleId
+												}
+												activeModuleId={this.props?.activeModuleId}
+												previewType={this.state?.previewType}
+												module={this.props.module}
+												activeSubBlockId={this.state.activeSubBlockId}
+												buttonProps={section?.buttonProps}
+												handleIsValidBgVideoURL={
+													this.props.setIsValidBgVideoURL
+												}
+											/>
+										</div>
+									);
+								} else if (section?.type === 'navbar') {
+									return (
+										<div
+											ref={(el) => {
+												if (el) {
+													this.blockRefs.current[index] = el; // Assign DOM element to the ref array
+													this.blockRefsStore[index] = el;
+												}
+											}}
+											key={index}
+											style={{ display: 'block' }}
+											data-section-id={sectionId}
+											data-block-id={section?.type}
+										>
+											<NavbarWrapper
+												getModuleInfo={(id, type) =>
+													this.props.getModuleInfo(id, type)
+												}
+												imgURL={section?.style?.imgURL}
+												activeSubBlockId={this.state.activeSubBlockId}
 												key={index}
-												style={{ display: 'block' }}
-												data-section-id={sectionId}
-												data-block-id={section?.type}
-												ref={(el) => (this.blockRefsStore[index] = el)}
-											>
-												<Signature
-													isWorkflow={this.props.isWorkflow}
+												module={this.props.module}
+												_id={section?._id}
+												blocks={section?.blocks}
+												style={section?.style}
+												handleSideBar={
+													(e, _id) => ''
+													// this.props.handleOpenSideBar(e, _id,
+													// 	false,
+													// 		false,
+													// )
+												}
+												showAddBlock={(e) =>
+													this.toggleAddBlock(
+														e,
+														section?.order,
+														index,
+													)
+												}
+												isActiveSection={
+													this.props.client
+														? false
+														: this.state.activeSectionID ==
+														section._id
+												}
+												index={section?.order}
+												moveItem={this.moveItem}
+												itemsLength={arr.length}
+												moveDirection={moveDirection}
+												isWorkflow={this.state.isWorkflow}
+												sections={sectionsArr}
+												section={section}
+												tables={this.state.tables}
+												preview={this.state.preview}
+												previewType={this.state.previewType}
+												setTab={(e) => this.props.setActiveTab(e)}
+												selectBlock={(e) => this.props.selectBlock(e)}
+												duplicateBlock={(e) =>
+													this.props.duplicateBlock(e)
+												}
+												handleBlock={(e) => this.props.handleBlock(e)}
+												handleDeleteSection={(e) =>
+													this.props.deleteSection(e)
+												}
+												handleSetBlockTab={(e) =>
+													this.props.setBlockTab(e)
+												}
+												handleSetIconLink={(e, subBlockID, blockID) =>
+													this.props.handleSetIconLink(
+														e,
+														subBlockID,
+														blockID,
+													)
+												}
+												activeSectionID={this.state.activeSectionID}
+												deleteSection={(e) =>
+													this.props.handledeleteSection(e)
+												}
+												handleSetTab={(e, subBlockID, blockID) =>
+													this.state.preview
+														? ''
+														: this.props.setActiveTab(
+															e,
+															subBlockID,
+															blockID,
+														)
+												}
+												sectionType={section?.type}
+												backgroundType={
+													this.props.activeSection?.style
+														?.backgroundType
+												}
+												backgroundImageURL={
+													this.props?.activeSection?.style
+														?.backgroundImageURL
+												}
+												backgroundVideoURL={
+													this.state.backgroundVideoURL
+												}
+												handleIsValidBgVideoURL={(e) => {
+													this.props.setIsValidBgVideoURL(e);
+												}}
+												client={this.props?.client}
+												clientGrandTotal={
+													this.props?.clientGrandTotal || 0
+												}
+												activeImage={(
+													sectionID,
+													blockID,
+													subBlockID,
+													imageURL,
+													dimensions,
+													ImgSubBlock,
+												) =>
+													this.props?.handleActiveImage(
+														sectionID,
+														blockID,
+														subBlockID,
+														imageURL,
+														dimensions,
+														ImgSubBlock,
+													)
+												}
+												imgSettingData={(e) =>
+													this.props.imgSettingData(e)
+												}
+												modules={this.state.modules}
+												setActiveTab={(e) => this.props.setActiveTab(e)}
+												duplicateModules={this.state.duplicateModules}
+												renderModules={() =>
+													this.props.renderModules
+														? this.props.renderModules()
+														: ''
+												}
+												setActiveSection={(e) =>
+													this.props.setActiveSection(e)
+												}
+												activeModuleId={this.props.activeModuleId}
+												managePages={(e) => this.props.managePages(e)}
+											/>
+										</div>
+									);
+								} else if (section?.type === 'scheduler') {
+									return (
+										<div
+											ref={(el) => {
+												if (el) {
+													this.blockRefs.current[index] = el;
+													this.blockRefsStore[index] = el;
+												}
+											}}
+											key={index}
+											style={{ display: 'block' }}
+											data-section-id={sectionId}
+											data-block-id={section?.type}
+										>
+											<SchedulerWrapper
+												handleAddLayout={(e, type) =>
+													this.props.handleAddLayout(e, type)
+												}
+												handleScheduleStyles={(data) =>
+													this.props.handleScheduleStyles(data)
+												}
+												actionType={this.state.actionType}
+												activeSubBlockId={this.state.activeSubBlockId}
+												key={index}
+												module={this.props.module}
+												section={section}
+												_id={section?._id}
+												blocks={section?.blocks}
+												style={section?.style}
+												handleSideBar={(e, _id) =>
+													this.props.handleOpenSideBar(e, _id)
+												}
+												showAddBlock={(e) =>
+													this.toggleAddBlock(
+														e,
+														section?.order,
+														index,
+													)
+												}
+												isActiveSection={
+													this.props.client
+														? false
+														: this.state.activeSectionID ==
+														section._id
+												}
+												index={section?.order}
+												moveItem={this.moveItem}
+												itemsLength={arr.length}
+												moveDirection={moveDirection}
+												isWorkflow={this.state.isWorkflow}
+												sections={sectionsArr}
+												tables={this.state.tables}
+												eventsLabel={this.state?.eventsLabel}
+												paymentsLabel={this.state?.paymentsLabel}
+												summaryBg={this.state?.summaryBg}
+												summaryFont={this.state?.summaryFont}
+												summaryFontColor={this.state?.summaryFontColor}
+												summaryFontSize={this.state?.summaryFontSize}
+												preview={this.state.preview}
+												previewType={this.state.previewType}
+												setTab={(e) => this.props.setActiveTab(e)}
+												selectBlock={(e) => this.props.selectBlock(e)}
+												duplicateBlock={(e) =>
+													this.props.duplicateBlock(e)
+												}
+												handleBlock={(e) => this.props.handleBlock(e)}
+												handleDeleteSection={(e) =>
+													this.props.deleteSection(e)
+												}
+												handleSetBlockTab={(e) =>
+													this.props.setBlockTab(e)
+												}
+												handleSetIconLink={(e, subBlockID, blockID) =>
+													this.props.handleSetIconLink(
+														e,
+														subBlockID,
+														blockID,
+													)
+												}
+												activeSectionID={this.state.activeSectionID}
+												deleteSection={(e) =>
+													this.props.handledeleteSection(e)
+												}
+												handleSetTabP={(e, subBlockID, blockID) =>
+													this.state.preview
+														? ''
+														: this.props.setActiveTab(
+															e,
+															subBlockID,
+															blockID,
+														)
+												}
+												setSubBlockContent={(
+													content,
+													sectionID,
+													blockID,
+													id,
+													mContent = false,
+												) =>
+													this.props.handleSetSubBlockContent(
+														content,
+														sectionID,
+														blockID,
+														id,
+														mContent,
+														section._id,
+													)
+												}
+												sectionType={section?.type}
+												backgroundType={
+													this.props.activeSection?.style
+														?.backgroundType
+												}
+												backgroundImageURL={
+													this.props?.activeSection?.style
+														?.backgroundImageURL
+												}
+												backgroundVideoURL={
+													this.state.backgroundVideoURL
+												}
+												handleIsValidBgVideoURL={(e) => {
+													this.props.setIsValidBgVideoURL(e);
+												}}
+												client={this.props?.client}
+												setContent={(e, sid, bid, id) =>
+													this.props.setSubBlockContent(
+														e,
+														sid,
+														bid,
+														id,
+													)
+												}
+												allSchedules={this.props?.allSchedules}
+												fonts={this.props?.fonts}
+												saveSections={(e, restrict = null) =>
+													this.props.setSections(e, restrict)
+												}
+											/>
+										</div>
+									);
+								} else {
+									return (
+										<div
+											ref={(el) => {
+												if (el) {
+													this.blockRefs.current[index] = el; // Assign DOM element to the ref array
+													this.blockRefsStore[index] = el;
+												}
+											}}
+											key={index}
+											style={{
+												display: 'block',
+												minHeight: section?.isFluidSection
+													? _.has(section, 'style') &&
+														_.has(section?.style, 'minHeight')
+														? section?.style?.minHeight
+														: 'auto'
+													: 'auto',
+											}}
+											data-section-id={sectionId}
+											data-block-id={section?.type}
+											id={
+												this.props?.mobile_preview_builder
+													? 'preview_section_' + sectionId
+													: sectionId
+											}
+											onMouseEnter={
+												!this.props.mobile_preview_builder &&
+													this.state.previewType === 'm'
+													? () => {
+														let sectionToScroll =
+															document.getElementById(
+																'preview_section_' +
+																sectionId,
+															);
+														sectionToScroll?.scrollIntoView({
+															behavior: 'smooth',
+															block: 'start',
+														});
+													}
+													: null
+											}
+										>
+											{section?.isFluidSection ? (
+												<FluidLayout
+													mobile_preview_builder={
+														this.props?.mobile_preview_builder
+													}
+													clientDetails={this.props?.clientDetails}
+													currencySymbol={this.props?.currencySymbol}
+													isLastSection={
+														index === sectionsArr.length - 1
+													}
+													activeSectionID={this.state.activeSectionID}
+													isWorkflow={this.state.isWorkflow}
+													fluidShowGrid={this.state.fluidShowGrid}
+													duplicateSubBlock={(json, subBlockId) =>
+														this.props.duplicateSubBlock(
+															json,
+															subBlockId,
+															section?._id,
+														)
+													}
+													saveSections={(e, restrict = null) =>
+														this.props.setSections(e, restrict)
+													}
+													previewMode={this.state.previewMode}
+													handleAddElement={(e, zIndex, order) =>
+														this.props.handleAddElement(
+															e,
+															zIndex,
+															order,
+														)
+													}
+													setLastClick={(e) =>
+														this.props.setLastClick(e)
+													}
+													handleSaveblocks={(e, layoutHeight) =>
+														this.props.handleSaveblocks(
+															e,
+															section._id,
+															layoutHeight,
+														)
+													}
+													handleSaveSingleBlock={(e) =>
+														this.props.handleSaveSingleBlock(
+															e,
+															section._id,
+														)
+													}
 													setTriggerFont={(e) =>
 														this.props.setTriggerFont(e)
 													}
 													setTriggeredFont={(e) =>
-														this.setState({ triggeredFont: e })
+														this.setState({
+															triggeredFont: e,
+														})
 													}
+													triggeredFont={this.state.triggeredFont}
+													activeSubBlockId={
+														this.state.activeSubBlockId
+													}
+													key={index}
+													module={this.props.module}
+													_id={section?._id}
+													blocks={section?.blocks}
+													intialGridRows={
+														section?.blocks[0]?.divStyles?.gridRows
+													}
+													mIntialGridRows={
+														section?.blocks[0]?.divStyles
+															?.mGridRows || 0
+													}
+													style={section?.style}
+													actionType={this.state.actionType}
+													actionValue={this.state.actionValue}
+													triggerFont={this.state.triggerFont}
+													handleSideBar={(e, _id) => {
+														this.props.handleOpenSideBar(
+															e,
+															_id,
+															false,
+															true,
+														);
+													}}
+													showAddBlock={(e) =>
+														this.toggleAddBlock(
+															e,
+															section?.order,
+															index,
+															null,
+															section._id,
+														)
+													}
+													showAddElement={(e) =>
+														this.toggleAddBlock(
+															e,
+															section?.order,
+															index,
+															true,
+															section._id,
+														)
+													}
+													isActiveSection={
+														this.props.client
+															? false
+															: this.state.activeSectionID ==
+															section._id
+													}
+													index={section?.order}
+													moveItem={this.moveItem}
+													itemsLength={arr.length}
+													moveDirection={moveDirection}
+													handleBSelection={(e, activeTextBlock) =>
+														this.props.handleHSelection(
+															e,
+															activeTextBlock,
+														)
+													}
+													activeTextBlock={this.state.activeTextBlock}
+													deleteSection={(e) =>
+														this.props.handledeleteSection(e)
+													}
+													setSubBlockContent={(
+														content,
+														sectionID,
+														blockID,
+														id,
+														mContent = false,
+													) =>
+														this.props.handleSetSubBlockContent(
+															content,
+															sectionID,
+															blockID,
+															id,
+															mContent,
+															section._id,
+														)
+													}
+													preview={this.state.preview}
+													previewType={this.state.previewType}
 													activeImage={(
 														sectionID,
 														blockID,
 														subBlockID,
 														imageURL,
-														e,
+														dimensions,
 														ImgSubBlock,
-													) =>
+													) => {
 														this.props.handleActiveImage(
 															sectionID,
 															blockID,
 															subBlockID,
 															imageURL,
-															e,
+															dimensions,
 															ImgSubBlock,
-														)
+														);
+													}}
+													handleSetTab={(e, subBlockID, blockID) =>
+														this.state.preview
+															? ''
+															: this.props.setActiveTab(
+																e,
+																subBlockID,
+																blockID,
+															)
 													}
-													handleTab={(e, subBlockID, blockID) =>
-														this.props.setActiveTab(
-															e,
-															subBlockID,
-															blockID,
-														)
+													activeVariableID={
+														this.state.activeVariableID
 													}
-													activeVariableID={this.state.activeVariableID}
 													activeVariableName={
 														this.state.activeVariableName
 													}
 													subBlockID={this.state.subBlockID}
-													variables={this.state.variables}
+													smartVariables={this.props?.smartVariables}
+													paramsTemplateID={
+														this.props?.paramsTemplateID
+													}
 													client={this.props.client}
-													tables={this.state.tables}
 													setContractActiveVariable={(e) =>
 														this.props.client == true
 															? ''
-															: this.props.contractActiveVariable(e)
+															: this.props.contractActiveVariable(
+																e,
+															)
 													}
 													handlesetActiveShape={(e) =>
 														this.props.setShape(e)
@@ -1359,26 +2825,44 @@ class Builder extends Component {
 													imgSettingData={(e) =>
 														this.props.imgSettingData(e)
 													}
-													selectBlock={(e) => this.props.selectBlock(e)}
-													activeSubBlockId={this.state.activeSubBlockId}
-													handleDuplicate={() =>
-														this.props.duplicateBlock(this.props._id)
+													selectBlock={(e) =>
+														this.props.selectBlock(e)
 													}
-													handleDeleteSection={(e) =>
-														this.props.deleteSection(e)
+													duplicateBlock={(e) =>
+														this.props.duplicateBlock(e)
 													}
 													handleSetBlockTab={(e) =>
 														this.props.setBlockTab(e)
 													}
-													handleSetTab={(e, subBlockID, blockID) =>
+													sectionType={section?.type}
+													setTab={(e) =>
 														this.state.preview
 															? ''
-															: this.props.setActiveTab(
-																	e,
-																	subBlockID,
-																	blockID,
-															  )
+															: this.props.setActiveTab(e)
 													}
+													circleTextData={(e) =>
+														this.props.circleTextData(e)
+													}
+													activeAnimation={
+														section?.style?.isAnimation
+													}
+													animationSpeed={
+														section?.style?.animationSpeed
+													}
+													animationDirection={
+														section?.style?.animationDirection
+													}
+													animationType={
+														section?.style?.animationType
+													}
+													clearStyle={() =>
+														this.props.clearFontStyles()
+													}
+													handleIsValidURL={(e) => {
+														this.props.client
+															? ''
+															: this.props.setIsValidURL(e);
+													}}
 													backgroundType={
 														this.props.activeSection?.style
 															?.backgroundType
@@ -1393,11 +2877,15 @@ class Builder extends Component {
 													handleIsValidBgVideoURL={(e) => {
 														this.props.client
 															? ''
-															: this.props?.setIsValidBgVideoURL(e);
+															: this.props?.setIsValidBgVideoURL(
+																e,
+															);
 													}}
 													tenantLogo={this.props?.tenantLogo}
 													isTenantLogo={this.state.isTenantLogo}
-													contractVariables={this.state.contractVariables}
+													contractVariables={
+														this.state.contractVariables
+													}
 													uploadImageBase64={(e) =>
 														this.props.uploadImageBase64(e)
 													}
@@ -1407,57 +2895,33 @@ class Builder extends Component {
 													generateAIText={(e) =>
 														this.props.generateAIText(e)
 													}
+													tables={this.state.tables}
 													sections={this.state.sections}
-													socialMediaLinks={this.state?.socialMediaLinks}
-													handleSetIconLink={(e, subBlockID, blockID) =>
+													socialMediaLinks={
+														this.state?.socialMediaLinks
+													}
+													handleSetIconLink={(
+														e,
+														subBlockID,
+														blockID,
+													) =>
 														this.props.handleSetIconLink(
 															e,
 															subBlockID,
 															blockID,
 														)
 													}
-													iframeScroll={this.state.iframeScroll}
-													preview={this.state.preview}
-													module={this.props.module}
-													contractBg={this.state.contractBg}
-													previewType={this.state.previewType}
-													signatures={this.state.signatures}
-													// handleSideBar={(e, _id) =>
-													// 	this.props.handleOpenSideBar(e, _id)
-													// }
-													handleSideBar={(e, _id) => {
-														this.props.handleOpenSideBar(
-															e,
-															_id,
-															false,
-															true,
-														);
-													}}
-													showAddBlock={(e) =>
-														this.toggleAddBlock(e, section.order, index)
+													getModuleInfo={(id, type) =>
+														this.props.getModuleInfo(id, type)
 													}
-													key={index}
-													_id={section?._id}
-													blocks={section?.blocks}
-													style={section?.style}
-													deleteSection={(e) =>
-														this.props.handledeleteSection(e)
+													scrollToSection={(id) =>
+														this.scrollToSection(id)
 													}
-													hanldeAddBlock={(e) =>
-														this.props.handleAddBlock(e)
+													fluidGrid={() =>
+														this.props.client
+															? ''
+															: this.props.fluidGrid()
 													}
-													toggleSignatureModal={this.toggleSignatureModal}
-													handleActiveCurrentSignatureSubBlock={(e) =>
-														this.setState({
-															activeCurrentSignatureSubBlock: e,
-														})
-													}
-													version={this.props.version}
-													setActiveSection={(e) => {
-														this.props.setActiveSection(e);
-													}}
-													section={section}
-													activeModuleId={this.props?.activeModuleId}
 													handleAddLayout={(e, isFluid, isService) =>
 														this.props.handleAddLayout(
 															e,
@@ -1465,355 +2929,76 @@ class Builder extends Component {
 															isService,
 														)
 													}
-												/>
-											</div>
-										);
-									} else if (section?.type === 'invoice-with-payment') {
-										return (
-											<div
-												key={index}
-												data-section-id={sectionId}
-												data-block-id={section?.type}
-												ref={(el) => (this.blockRefsStore[index] = el)}
-											>
-												<PaymentSchedule
-													isWorkflow={this.props.isWorkflow}
-													tables={this.state.tables}
-													paymentSchedule={section?.blocks}
-													activeSubBlockId={this.state.activeSubBlockId}
-													key={index}
-													module={this.props.module}
-													_id={section?._id}
-													blocks={section?.blocks}
-													style={section?.style}
-													// handleSideBar={(e, _id) =>
-													// 	this.props.handleOpenSideBar(e, _id)
-													// }
-													showAddBlock={(e) => {
-														this.toggleAddBlock(
-															e,
-															section?.order,
-															index,
-														);
-													}}
-													isActiveSection={
-														this.props.client
-															? false
-															: this.state.activeSectionID ==
-															  section._id
+													brandColors={this.props?.brandColors}
+													modules={this.props?.modules}
+													getModuleSections={(e) =>
+														this.props?.getModuleSections(e)
 													}
-													index={section?.order}
-													moveItem={this.moveItem}
-													itemsLength={arr.length}
-													moveDirection={moveDirection}
-													deleteSection={(e) =>
-														this.props.handledeleteSection(e)
+													activeModuleSections={
+														this.props?.activeModuleSections
 													}
-													preview={this.state.preview}
-													previewType={this.state.previewType}
-													handleSetTab={(e) => this.props.setActiveTab(e)}
-													selectBlock={(e) => this.props.selectBlock(e)}
-													client={this.props.client}
-													sectionType={section?.type}
-													setTab={(e) =>
-														this.state.preview
-															? ''
-															: this.props.setActiveTab(e)
-													}
-													backgroundType={
-														this.props.activeSection?.style
-															?.backgroundType
-													}
-													backgroundImageURL={
-														this.props?.activeSection?.style
-															?.backgroundImageURL
-													}
-													backgroundVideoURL={
-														this.state?.backgroundVideoURL
-													}
-													handleIsValidBgVideoURL={(e) => {
-														this.props.client
-															? ''
-															: this.props?.setIsValidBgVideoURL(e);
-													}}
-													setPaymentSchedule={(e, styles = null) => {
-														if (this.props?.setPaymentSchedule) {
-															this.props?.setPaymentSchedule(
-																e,
-																section?._id,
-																null,
-																styles,
-															);
-														}
-													}}
-													activeModule={this.state.activeModule}
-													duplicateBlock={(e) =>
-														this.props.duplicateBlock(e)
-													}
-													addPaymentScheduleBlock={(id, order) =>
-														this.props.addPaymentScheduleBlock(
-															id,
-															order,
-														)
-													}
-													clientGrandTotal={this.props?.clientGrandTotal}
-													section={section}
-													setActiveSection={(e) => {
-														this.props.setActiveSection(e);
-													}}
-													handleSideBar={(e, _id) => {
-														this.props.handleOpenSideBar(
-															e,
-															_id,
-															false,
-															true,
-														);
-													}}
-													activeModuleId={this.props?.activeModuleId}
-													handleAddLayout={(e, isFluid, isService) =>
-														this.props.handleAddLayout(
-															e,
-															isFluid,
-															isService,
-														)
-													}
-												/>
-											</div>
-										);
-									} else if (section?.type === 'invoice') {
-										return (
-											<div
-												ref={(el) => {
-													if (el) {
-														this.blockRefs.current[index] = el; // Assign DOM element to the ref array
-														this.blockRefsStore[index] = el;
-													}
-												}}
-												key={index}
-												style={{ display: 'block' }}
-												data-section-id={sectionId}
-												data-block-id={section?.type}
-											>
-												<InvoiceWrapper
-													setTriggerFont={(e) =>
-														this.props?.client
-															? ''
-															: this.props?.setTriggerFont(e)
-													}
-													setTriggeredFont={(e) =>
-														this.setState({
-															triggeredFont: e,
-														})
-													}
-													triggeredFont={this.state?.triggeredFont}
-													activeSubBlockId={this.state?.activeSubBlockId}
-													key={index}
-													module={this.props?.module}
-													_id={section?._id}
-													blocks={section?.blocks}
-													section={section}
-													style={section?.style}
-													actionType={this.state?.actionType}
-													actionValue={this.state?.actionValue}
-													triggerFont={this.state?.triggerFont}
-													handleSideBar={(e, _id) => {
-														this.props.handleOpenSideBar(
-															e,
-															_id,
-															false,
-															true,
-														);
-													}}
-													showAddBlock={(e) =>
-														this.toggleAddBlock(
-															e,
-															section?.order,
-															index,
-														)
-													}
-													isActiveSection={
-														this.props?.client
-															? false
-															: this.state?.activeSectionID ==
-															  section._id
-													}
-													index={section?.order}
-													moveItem={this.moveItem}
-													itemsLength={arr.length}
-													moveDirection={moveDirection}
-													handleBSelection={(e, activeTextBlock) => {
-														this.props.handleHSelection(
-															e,
-															activeTextBlock,
-														);
-													}}
-													activeSectionID={this.state?.activeSectionID}
-													activeTextBlock={this.state?.activeTextBlock}
-													deleteSection={(e) =>
-														this.props?.handledeleteSection(e)
-													}
-													setSubBlockContent={(
-														content,
-														sectionID,
-														blockID,
-														id,
-													) =>
-														this.props?.handleSetSubBlockContent(
-															content,
-															sectionID,
-															blockID,
-															id,
-														)
-													}
-													preview={this.state?.preview}
-													previewType={this.state?.previewType}
-													activeImage={(
-														sectionID,
-														blockID,
-														subBlockID,
-														imageURL,
-														dimensions,
-														ImgSubBlock,
-													) =>
-														this.props?.handleActiveImage(
-															sectionID,
-															blockID,
-															subBlockID,
-															imageURL,
-															dimensions,
-															ImgSubBlock,
-														)
-													}
-													handleSetTab={(e, subBlockID, blockID) =>
-														this.state?.preview
-															? ''
-															: this.props?.setActiveTab(
-																	e,
-																	subBlockID,
-																	blockID,
-															  )
-													}
-													activeVariableID={this.state?.activeVariableID}
-													activeVariableName={
-														this.state?.activeVariableName
-													}
-													subBlockID={this.state?.subBlockID}
-													variables={this.state?.variables}
-													client={this.props?.client}
-													setNewTab={(e) =>
-														this.props?.handleSetOpenNewtab(e)
-													}
-													selectBlock={(e) => this.props?.selectBlock(e)}
-													duplicateBlock={(e) =>
-														this.props?.duplicateBlock(e)
-													}
-													handleSetBlockTab={(e) =>
-														this.props?.setBlockTab(e)
-													}
-													sectionType={section?.type}
-													setTab={(e) =>
-														this.state?.preview
-															? ''
-															: this.props?.setActiveTab(e)
-													}
-													activeAnimation={section?.style?.isAnimation}
-													animationSpeed={section?.style?.animationSpeed}
-													animationDirection={
-														section?.style?.animationDirection
-													}
-													animationType={section?.style?.animationType}
-													clearStyle={() => this.props?.clearFontStyles()}
-													backgroundType={
-														this.props.activeSection?.style
-															?.backgroundType
-													}
-													backgroundImageURL={
-														this.props?.activeSection?.style
-															?.backgroundImageURL
-													}
-													backgroundVideoURL={
-														this.state?.backgroundVideoURL
-													}
-													handleIsValidBgVideoURL={(e) => {
-														this.props?.setIsValidBgVideoURL(e);
-													}}
-													tenantLogo={this.props?.tenantLogo}
-													isTenantLogo={this.state?.isTenantLogo}
-													tables={
-														this.props.globalTables?.length > 0
-															? this.props?.globalTables
-															: this.state?.tables
-													}
-													sections={
-														this.props?.globalSections?.length > 0
-															? this.props?.globalSections
-															: this.state?.sections
-													}
-													invoiceDetails={this.props?.invoiceDetails}
-													paymentSchedule={this.state?.paymentSchedule}
-													setPaymentSchedule={(e) => {
-														if (this.props?.setPaymentSchedule) {
-															this.props?.setPaymentSchedule(e);
-														}
-													}}
-													showSchedule={this.state?.showSchedule}
-													invoiceClientVariables={
-														this.state?.invoiceClientVariables
-													}
-													invoiceNumber={this.state?.invoiceNumber}
-													handleInvoiceNumber={(e) =>
-														this.props?.handleInvoiceNumber(e)
-													}
-													currencySymbol={this.props?.currencySymbol}
-													activeFontColor={this.state?.activeFontColor}
-													currencySymbol2={this.props?.currencySymbol2}
-													isWorkflow={this.state.isWorkflow}
-													clientGrandTotal={
-														this.props?.clientGrandTotal || 0
-													}
-													imgSettingData={(e) =>
-														this.props.imgSettingData(e)
-													}
-													setActiveSection={(e) => {
-														if (this.props.setActiveSection) {
-															this.props.setActiveSection(e);
-														}
-													}}
-													addManualInvoiceBlock={(order) => {
-														this.props?.addManualInvoiceBlock(
-															section?._id,
-															section?.blocks.length + 1,
-														);
-													}}
 													activeWorkflowModuleId={
 														this.props?.activeWorkflowModuleId
 													}
 													activeModuleId={this.props?.activeModuleId}
-													brandColors={this.props?.brandColors}
-													modules={this.props?.modules}
-													updateTablesForTaxes={
-														this.props?.updateTablesForTaxes
+													setShowPopupInMobile={(
+														e,
+														type,
+														component,
+													) =>
+														this.props?.setShowPopupInMobile(
+															e,
+															type,
+															component,
+														)
+													}
+													clientGrandTotal={
+														this.props?.clientGrandTotal || 0
+													}
+													section={section}
+													setActiveSection={(e) =>
+														this.props.setActiveSection(e)
+													}
+													fonts={this.props?.fonts}
+													fontFamily={this.props?.fontFamily}
+													changeFontColor={(e, f) =>
+														this.props?.changeFontColor(e, f)
+													}
+													fontColor={this.props.fontColor}
+													fontSize={this.props.fontSize}
+													justifyleft={this.state.justifyleft}
+													justifyright={this.state.justifyright}
+													justifycenter={this.state.justifycenter}
+													justifyfull={this.state.justifyfull}
+													lineHeight={this.props.lineHeight}
+													letterSpacing={this.props.letterSpacing}
+													variables={this.state.variables}
+													navBar={this.props.navBar}
+													themes={this.props?.themes}
+													debounceFuncForElementProps={
+														this.props?.debounceFuncForElementProps
+													}
+													handleShowSmartModal={
+														this.props?.handleShowSmartModal
+													}
+													handleDeleteVariable={
+														this.props?.handleDeleteVariable
+													}
+													handleEditVariable={
+														this.props?.handleEditVariable
+													}
+													handleVerticleAlign={
+														this.props?.handleVerticleAlign
 													}
 												/>
-											</div>
-										);
-									} else if (section?.type === 'table') {
-										return (
-											<div
-												ref={(el) => {
-													if (el) {
-														this.blockRefs.current[index] = el; // Assign DOM element to the ref array
-														this.blockRefsStore[index] = el;
-													}
-												}}
-												key={index}
-												style={{ display: 'block' }}
-												data-section-id={sectionId}
-												data-block-id={section?.type}
-											>
-												<Table
+											) : (
+												<Layout
+													clientDetails={this.props?.clientDetails}
+													currencySymbol={this.props?.currencySymbol}
 													setTriggerFont={(e) =>
-														this.props.setTriggerFont(e)
+														this.props.client
+															? ''
+															: this.props.setTriggerFont(e)
 													}
 													setTriggeredFont={(e) =>
 														this.setState({
@@ -1821,7 +3006,9 @@ class Builder extends Component {
 														})
 													}
 													triggeredFont={this.state.triggeredFont}
-													activeSubBlockId={this.state.activeSubBlockId}
+													activeSubBlockId={
+														this.state.activeSubBlockId
+													}
 													key={index}
 													module={this.props.module}
 													_id={section?._id}
@@ -1844,7 +3031,7 @@ class Builder extends Component {
 														this.props.client
 															? false
 															: this.state.activeSectionID ==
-															  section._id
+															section._id
 													}
 													index={section?.order}
 													moveItem={this.moveItem}
@@ -1897,12 +3084,14 @@ class Builder extends Component {
 														this.state.preview
 															? ''
 															: this.props.setActiveTab(
-																	e,
-																	subBlockID,
-																	blockID,
-															  )
+																e,
+																subBlockID,
+																blockID,
+															)
 													}
-													activeVariableID={this.state.activeVariableID}
+													activeVariableID={
+														this.state.activeVariableID
+													}
 													activeVariableName={
 														this.state.activeVariableName
 													}
@@ -1912,7 +3101,9 @@ class Builder extends Component {
 													setContractActiveVariable={(e) =>
 														this.props.client == true
 															? ''
-															: this.props.contractActiveVariable(e)
+															: this.props.contractActiveVariable(
+																e,
+															)
 													}
 													handlesetActiveShape={(e) =>
 														this.props.client
@@ -1932,7 +3123,9 @@ class Builder extends Component {
 													imgSettingData={(e) =>
 														this.props.imgSettingData(e)
 													}
-													selectBlock={(e) => this.props.selectBlock(e)}
+													selectBlock={(e) =>
+														this.props.selectBlock(e)
+													}
 													duplicateBlock={(e) =>
 														this.props.duplicateBlock(e)
 													}
@@ -1948,13 +3141,21 @@ class Builder extends Component {
 													circleTextData={(e) =>
 														this.props.circleTextData(e)
 													}
-													activeAnimation={section?.style?.isAnimation}
-													animationSpeed={section?.style?.animationSpeed}
+													activeAnimation={
+														section?.style?.isAnimation
+													}
+													animationSpeed={
+														section?.style?.animationSpeed
+													}
 													animationDirection={
 														section?.style?.animationDirection
 													}
-													animationType={section?.style?.animationType}
-													clearStyle={() => this.props.clearFontStyles()}
+													animationType={
+														section?.style?.animationType
+													}
+													clearStyle={() =>
+														this.props.clearFontStyles()
+													}
 													handleIsValidURL={(e) => {
 														this.props.client
 															? ''
@@ -1972,11 +3173,17 @@ class Builder extends Component {
 														this.state.backgroundVideoURL
 													}
 													handleIsValidBgVideoURL={(e) => {
-														this.props.setIsValidBgVideoURL(e);
+														this.props.client
+															? ''
+															: this.props?.setIsValidBgVideoURL(
+																e,
+															);
 													}}
 													tenantLogo={this.props?.tenantLogo}
 													isTenantLogo={this.state.isTenantLogo}
-													contractVariables={this.state.contractVariables}
+													contractVariables={
+														this.state.contractVariables
+													}
 													uploadImageBase64={(e) =>
 														this.props.uploadImageBase64(e)
 													}
@@ -1988,1265 +3195,54 @@ class Builder extends Component {
 													}
 													tables={this.state.tables}
 													sections={this.state.sections}
-													socialMediaLinks={this.state?.socialMediaLinks}
-													handleSetIconLink={(e, subBlockID, blockID) =>
-														this.props.handleSetIconLink(
-															e,
-															subBlockID,
-															blockID,
-														)
+													socialMediaLinks={
+														this.state?.socialMediaLinks
 													}
-													setActiveSection={(e) =>
-														this.props.setActiveSection(e)
-													}
-													section={section}
-													DeleteInTable={(type, index) =>
-														this.props?.handleDeleteInTable(type, index)
-													}
-													AddInTable={(
-														type,
-														index,
-														position,
-														length = 0,
+													handleSetIconLink={(
+														e,
+														subBlockID,
+														blockID,
 													) =>
-														this.props?.handleAddInTable(
-															type,
-															index,
-															position,
-															length,
-														)
-													}
-													DuplicateInTable={(type, index) =>
-														this.props?.handleDuplicateInTable(
-															type,
-															index,
-														)
-													}
-													isWorkflow={this.state.isWorkflow}
-												/>
-											</div>
-										);
-									} else if (section?.type === 'summary') {
-										return (
-											<div
-												ref={(el) => {
-													if (el) {
-														this.blockRefs.current[index] = el; // Assign DOM element to the ref array
-														this.blockRefsStore[index] = el;
-													}
-												}}
-												key={index}
-												style={{ display: 'block' }}
-												data-section-id={sectionId}
-												data-block-id={section?.type}
-											>
-												<SummaryWrapper
-													activeSubBlockId={this.state.activeSubBlockId}
-													key={index}
-													module={this.props.module}
-													_id={section?._id}
-													blocks={section?.blocks}
-													style={section?.style}
-													// handleSideBar={(e, _id) =>
-													// 	this.props.handleOpenSideBar(e, _id)
-													// }
-													handleSideBar={(e, _id) => {
-														this.props.handleOpenSideBar(
-															e,
-															_id,
-															false,
-															true,
-														);
-													}}
-													showAddBlock={(e) =>
-														this.toggleAddBlock(
-															e,
-															section?.order,
-															index,
-														)
-													}
-													isActiveSection={
-														this.props.client
-															? false
-															: this.state.activeSectionID ==
-															  section._id
-													}
-													index={section?.order}
-													moveItem={this.moveItem}
-													itemsLength={arr.length}
-													moveDirection={moveDirection}
-													isWorkflow={this.state.isWorkflow}
-													sections={sectionsArr}
-													tables={this.state.tables}
-													eventsLabel={this.state?.eventsLabel}
-													paymentsLabel={this.state?.paymentsLabel}
-													summaryBg={this.state?.summaryBg}
-													summaryFont={this.state?.summaryFont}
-													summaryFontColor={this.state?.summaryFontColor}
-													summaryFontSize={this.state?.summaryFontSize}
-													summaryBlock={this.state?.summaryBlock}
-													preview={this.state.preview}
-													previewType={this.state.previewType}
-													setTab={(e) => this.props.setActiveTab(e)}
-													currencySymbol={this.props?.currencySymbol}
-													currencySymbol2={this.props?.currencySymbol2}
-													globalSummaryData={
-														this.props?.globalSummaryData
-													}
-													selectBlock={(e) => this.props.selectBlock(e)}
-													duplicateBlock={(e) =>
-														this.props.duplicateBlock(e)
-													}
-													handleBlock={(e) => this.props.handleBlock(e)}
-													handleDeleteSection={(e) =>
-														this.props.deleteSection(e)
-													}
-													handleSetBlockTab={(e) =>
-														this.props.setBlockTab(e)
-													}
-													handleSetIconLink={(e, subBlockID, blockID) =>
 														this.props.handleSetIconLink(
 															e,
 															subBlockID,
 															blockID,
 														)
 													}
-													activeSectionID={this.state.activeSectionID}
-													deleteSection={(e) =>
-														this.props.handledeleteSection(e)
-													}
-													handleSetTab={(e, subBlockID, blockID) =>
-														this.state.preview
-															? ''
-															: this.props.setActiveTab(
-																	e,
-																	subBlockID,
-																	blockID,
-															  )
-													}
-													sectionType={section?.type}
-													backgroundType={
-														this.props.activeSection?.style
-															?.backgroundType
-													}
-													backgroundImageURL={
-														this.props?.activeSection?.style
-															?.backgroundImageURL
-													}
-													backgroundVideoURL={
-														this.state.backgroundVideoURL
-													}
-													handleIsValidBgVideoURL={(e) => {
-														this.props.setIsValidBgVideoURL(e);
-													}}
-													client={this.props?.client}
-													clientGrandTotal={
-														this.props?.clientGrandTotal || 0
-													}
-													handleAddLayout={(e, type) =>
-														this.props.handleAddLayout(e, type)
-													}
-													isSummaryPreview={this.props.isSummaryPreview}
-													setActiveSection={(e) => {
-														this.props.setActiveSection(e);
-													}}
-													section={section}
-													fonts={this.props?.fonts}
-													activeModuleId={this.props?.activeModuleId}
-												/>
-											</div>
-										);
-									} else if (section?.type === 'form-v1') {
-										return (
-											<div
-												ref={(el) => {
-													if (el) {
-														this.blockRefs.current[index] = el;
-														this.blockRefsStore[index] = el;
-													}
-												}}
-												key={index}
-												style={{
-													height: this.props.client ? 'auto' : 'auto',
-													minHeight: '418.5px',
-													display: 'block',
-												}}
-												data-section-id={sectionId}
-												data-block-id={section?.type}
-											>
-												<FormWrapper
-													handleAddLayout={(e, type) =>
-														this.props.handleAddLayout(e, type)
-													}
-													style={section?.style}
-													moveItem={this.moveItem}
-													// Add your props here
-													handleDeleteSection={(e) =>
-														this.props.deleteSection(e)
-													}
-													deleteSection={(e) =>
-														this.props.handledeleteSection(e)
-													}
-													duplicateBlock={(e) =>
-														this.props.duplicateBlock(e)
-													}
-													submitLogicalForm={this.props.submitLogicalForm}
-													submitFormLoading={this.state.submitFormLoading}
-													showFormError={this.state.showFormError}
-													showSuccessMessage={
-														this.state.showSuccessMessage
-													}
-													errorMessage={this.state.errorMessage}
-													successMessage={this.state.successMessage}
-													// client={this.props?.client}
-
-													isTheme={this.props.isTheme}
-													setActiveTheme={this.props.setActiveTheme}
-													_id={section?._id}
-													activeModule={this.state.activeModule}
-													showAddBlock={(e) =>
-														this.toggleAddBlock(
-															e,
-															section.order,
-															index,
-															null,
-														)
-													}
-													selectBlock={(e) => this.props.selectBlock(e)}
-													handleSideBar={(e, _id) =>
-														this.props.handleOpenSideBar(
-															e,
-															_id,
-															false,
-															true,
-														)
-													}
-													preview={this.state?.preview}
-													sections={this.state.sections}
-													blocks={section?.blocks}
-													section={section}
-													activeSectionID={this.state?.activeSectionID}
-													setState={(e) => {
-														this.setState({ ...e });
-													}}
-													index={index}
-													saveSections={(e, restrict = null) =>
-														this.props.setSections(e, restrict)
-													}
-													addBlock={(e) => {
-														this.toggleAddBlock(
-															e,
-															section?.order,
-															index,
-														);
-													}}
-													client={this.props?.client}
-													setActiveSection={(value) => {
-														this.props?.setActiveSection(value);
-													}}
-													// themes={this.props?.themes}
-													theme={{}}
-													handleLogicalFormAnswer={
-														this.props.handleLogicalFormAnswer
-													}
-													setTriggerFont={(e) =>
-														this.props.client
-															? ''
-															: this.props.setTriggerFont(e)
-													}
-													setTriggeredFont={(e) =>
-														this.setState({
-															triggeredFont: e,
-														})
-													}
-													triggeredFont={this.state.triggeredFont}
-													handleBSelection={(e, activeTextBlock) =>
-														this.props.handleHSelection(
-															e,
-															activeTextBlock,
-														)
-													}
-													handleSetTab={(e, subBlockID, blockID) =>
-														this.state.preview
-															? ''
-															: this.props.setActiveTab(
-																	e,
-																	subBlockID,
-																	blockID,
-															  )
-													}
-													changeFontColor={(e, f) =>
-														this.props?.changeFontColor(e, f)
-													}
-													actionType={this.state.actionType}
-													actionValue={this.state.actionValue}
-													triggerFont={this.state.triggerFont}
-													fonts={this.props?.fonts}
-													fontFamily={this.props?.fontFamily}
-													fontColor={this.props.fontColor}
-													fontSize={this.props.fontSize}
-													justifyleft={this.state.justifyleft}
-													justifyright={this.state.justifyright}
-													justifycenter={this.state.justifycenter}
-													justifyfull={this.state.justifyfull}
-													lineHeight={this.props.lineHeight}
-													letterSpacing={this.props.letterSpacing}
-													activeWorkflowModuleId={
-														this.props?.activeWorkflowModuleId
-													}
-													activeModuleId={this.props?.activeModuleId}
-													previewType={this.state?.previewType}
-													module={this.props.module}
-													activeSubBlockId={this.state.activeSubBlockId}
-													buttonProps={section?.buttonProps}
-													handleIsValidBgVideoURL={
-														this.props.setIsValidBgVideoURL
-													}
-												/>
-											</div>
-										);
-									} else if (section?.type === 'navbar') {
-										return (
-											<div
-												ref={(el) => {
-													if (el) {
-														this.blockRefs.current[index] = el; // Assign DOM element to the ref array
-														this.blockRefsStore[index] = el;
-													}
-												}}
-												key={index}
-												style={{ display: 'block' }}
-												data-section-id={sectionId}
-												data-block-id={section?.type}
-											>
-												<NavbarWrapper
+													iframeScroll={this.state.iframeScroll}
 													getModuleInfo={(id, type) =>
 														this.props.getModuleInfo(id, type)
 													}
-													imgURL={section?.style?.imgURL}
-													activeSubBlockId={this.state.activeSubBlockId}
-													key={index}
-													module={this.props.module}
-													_id={section?._id}
-													blocks={section?.blocks}
-													style={section?.style}
-													handleSideBar={
-														(e, _id) => ''
-														// this.props.handleOpenSideBar(e, _id,
-														// 	false,
-														// 		false,
-														// )
+													scrollToSection={(id) =>
+														this.scrollToSection(id)
 													}
-													showAddBlock={(e) =>
-														this.toggleAddBlock(
-															e,
-															section?.order,
-															index,
-														)
-													}
-													isActiveSection={
-														this.props.client
-															? false
-															: this.state.activeSectionID ==
-															  section._id
-													}
-													index={section?.order}
-													moveItem={this.moveItem}
-													itemsLength={arr.length}
-													moveDirection={moveDirection}
-													isWorkflow={this.state.isWorkflow}
-													sections={sectionsArr}
-													section={section}
-													tables={this.state.tables}
-													preview={this.state.preview}
-													previewType={this.state.previewType}
-													setTab={(e) => this.props.setActiveTab(e)}
-													selectBlock={(e) => this.props.selectBlock(e)}
-													duplicateBlock={(e) =>
-														this.props.duplicateBlock(e)
-													}
-													handleBlock={(e) => this.props.handleBlock(e)}
-													handleDeleteSection={(e) =>
-														this.props.deleteSection(e)
-													}
-													handleSetBlockTab={(e) =>
-														this.props.setBlockTab(e)
-													}
-													handleSetIconLink={(e, subBlockID, blockID) =>
-														this.props.handleSetIconLink(
-															e,
-															subBlockID,
-															blockID,
-														)
-													}
-													activeSectionID={this.state.activeSectionID}
-													deleteSection={(e) =>
-														this.props.handledeleteSection(e)
-													}
-													handleSetTab={(e, subBlockID, blockID) =>
-														this.state.preview
-															? ''
-															: this.props.setActiveTab(
-																	e,
-																	subBlockID,
-																	blockID,
-															  )
-													}
-													sectionType={section?.type}
-													backgroundType={
-														this.props.activeSection?.style
-															?.backgroundType
-													}
-													backgroundImageURL={
-														this.props?.activeSection?.style
-															?.backgroundImageURL
-													}
-													backgroundVideoURL={
-														this.state.backgroundVideoURL
-													}
-													handleIsValidBgVideoURL={(e) => {
-														this.props.setIsValidBgVideoURL(e);
+													handleOpenAcceptProposalModal={() => {
+														this.setState({
+															showAcceptProposalModal: true,
+														});
 													}}
-													client={this.props?.client}
+													handleAddLayout={(e, isFluid, isService) =>
+														this.props.handleAddLayout(
+															e,
+															isFluid,
+															isService,
+														)
+													}
 													clientGrandTotal={
 														this.props?.clientGrandTotal || 0
 													}
-													activeImage={(
-														sectionID,
-														blockID,
-														subBlockID,
-														imageURL,
-														dimensions,
-														ImgSubBlock,
-													) =>
-														this.props?.handleActiveImage(
-															sectionID,
-															blockID,
-															subBlockID,
-															imageURL,
-															dimensions,
-															ImgSubBlock,
-														)
+													themes={this.props?.themes}
+													currencySymbol2={
+														this.props?.currencySymbol2
 													}
-													imgSettingData={(e) =>
-														this.props.imgSettingData(e)
-													}
-													modules={this.state.modules}
-													setActiveTab={(e) => this.props.setActiveTab(e)}
-													duplicateModules={this.state.duplicateModules}
-													renderModules={() =>
-														this.props.renderModules
-															? this.props.renderModules()
-															: ''
-													}
-													setActiveSection={(e) =>
-														this.props.setActiveSection(e)
-													}
-													activeModuleId={this.props.activeModuleId}
-													managePages={(e) => this.props.managePages(e)}
+													status={this.props.status}
 												/>
-											</div>
-										);
-									} else if (section?.type === 'scheduler') {
-										return (
-											<div
-												ref={(el) => {
-													if (el) {
-														this.blockRefs.current[index] = el;
-														this.blockRefsStore[index] = el;
-													}
-												}}
-												key={index}
-												style={{ display: 'block' }}
-												data-section-id={sectionId}
-												data-block-id={section?.type}
-											>
-												<SchedulerWrapper
-													handleAddLayout={(e, type) =>
-														this.props.handleAddLayout(e, type)
-													}
-													handleScheduleStyles={(data) =>
-														this.props.handleScheduleStyles(data)
-													}
-													actionType={this.state.actionType}
-													activeSubBlockId={this.state.activeSubBlockId}
-													key={index}
-													module={this.props.module}
-													section={section}
-													_id={section?._id}
-													blocks={section?.blocks}
-													style={section?.style}
-													handleSideBar={(e, _id) =>
-														this.props.handleOpenSideBar(e, _id)
-													}
-													showAddBlock={(e) =>
-														this.toggleAddBlock(
-															e,
-															section?.order,
-															index,
-														)
-													}
-													isActiveSection={
-														this.props.client
-															? false
-															: this.state.activeSectionID ==
-															  section._id
-													}
-													index={section?.order}
-													moveItem={this.moveItem}
-													itemsLength={arr.length}
-													moveDirection={moveDirection}
-													isWorkflow={this.state.isWorkflow}
-													sections={sectionsArr}
-													tables={this.state.tables}
-													eventsLabel={this.state?.eventsLabel}
-													paymentsLabel={this.state?.paymentsLabel}
-													summaryBg={this.state?.summaryBg}
-													summaryFont={this.state?.summaryFont}
-													summaryFontColor={this.state?.summaryFontColor}
-													summaryFontSize={this.state?.summaryFontSize}
-													preview={this.state.preview}
-													previewType={this.state.previewType}
-													setTab={(e) => this.props.setActiveTab(e)}
-													selectBlock={(e) => this.props.selectBlock(e)}
-													duplicateBlock={(e) =>
-														this.props.duplicateBlock(e)
-													}
-													handleBlock={(e) => this.props.handleBlock(e)}
-													handleDeleteSection={(e) =>
-														this.props.deleteSection(e)
-													}
-													handleSetBlockTab={(e) =>
-														this.props.setBlockTab(e)
-													}
-													handleSetIconLink={(e, subBlockID, blockID) =>
-														this.props.handleSetIconLink(
-															e,
-															subBlockID,
-															blockID,
-														)
-													}
-													activeSectionID={this.state.activeSectionID}
-													deleteSection={(e) =>
-														this.props.handledeleteSection(e)
-													}
-													handleSetTabP={(e, subBlockID, blockID) =>
-														this.state.preview
-															? ''
-															: this.props.setActiveTab(
-																	e,
-																	subBlockID,
-																	blockID,
-															  )
-													}
-													setSubBlockContent={(
-														content,
-														sectionID,
-														blockID,
-														id,
-														mContent = false,
-													) =>
-														this.props.handleSetSubBlockContent(
-															content,
-															sectionID,
-															blockID,
-															id,
-															mContent,
-															section._id,
-														)
-													}
-													sectionType={section?.type}
-													backgroundType={
-														this.props.activeSection?.style
-															?.backgroundType
-													}
-													backgroundImageURL={
-														this.props?.activeSection?.style
-															?.backgroundImageURL
-													}
-													backgroundVideoURL={
-														this.state.backgroundVideoURL
-													}
-													handleIsValidBgVideoURL={(e) => {
-														this.props.setIsValidBgVideoURL(e);
-													}}
-													client={this.props?.client}
-													setContent={(e, sid, bid, id) =>
-														this.props.setSubBlockContent(
-															e,
-															sid,
-															bid,
-															id,
-														)
-													}
-													allSchedules={this.props?.allSchedules}
-													fonts={this.props?.fonts}
-													saveSections={(e, restrict = null) =>
-														this.props.setSections(e, restrict)
-													}
-												/>
-											</div>
-										);
-									} else {
-										return (
-											<div
-												ref={(el) => {
-													if (el) {
-														this.blockRefs.current[index] = el; // Assign DOM element to the ref array
-														this.blockRefsStore[index] = el;
-													}
-												}}
-												key={index}
-												style={{
-													display: 'block',
-													minHeight: section?.isFluidSection
-														? _.has(section, 'style') &&
-														  _.has(section?.style, 'minHeight')
-															? section?.style?.minHeight
-															: 'auto'
-														: 'auto',
-												}}
-												data-section-id={sectionId}
-												data-block-id={section?.type}
-												id={
-													this.props?.mobile_preview_builder
-														? 'preview_section_' + sectionId
-														: sectionId
-												}
-												onMouseEnter={
-													!this.props.mobile_preview_builder &&
-													this.state.previewType === 'm'
-														? () => {
-																let sectionToScroll =
-																	document.getElementById(
-																		'preview_section_' +
-																			sectionId,
-																	);
-																sectionToScroll?.scrollIntoView({
-																	behavior: 'smooth',
-																	block: 'start',
-																});
-														  }
-														: null
-												}
-											>
-												{section?.isFluidSection ? (
-													<FluidLayout
-														mobile_preview_builder={
-															this.props?.mobile_preview_builder
-														}
-														clientDetails={this.props?.clientDetails}
-														currencySymbol={this.props?.currencySymbol}
-														isLastSection={
-															index === sectionsArr.length - 1
-														}
-														activeSectionID={this.state.activeSectionID}
-														isWorkflow={this.state.isWorkflow}
-														fluidShowGrid={this.state.fluidShowGrid}
-														duplicateSubBlock={(json, subBlockId) =>
-															this.props.duplicateSubBlock(
-																json,
-																subBlockId,
-																section?._id,
-															)
-														}
-														saveSections={(e, restrict = null) =>
-															this.props.setSections(e, restrict)
-														}
-														previewMode={this.state.previewMode}
-														handleAddElement={(e, zIndex, order) =>
-															this.props.handleAddElement(
-																e,
-																zIndex,
-																order,
-															)
-														}
-														setLastClick={(e) =>
-															this.props.setLastClick(e)
-														}
-														handleSaveblocks={(e, layoutHeight) =>
-															this.props.handleSaveblocks(
-																e,
-																section._id,
-																layoutHeight,
-															)
-														}
-														handleSaveSingleBlock={(e) =>
-															this.props.handleSaveSingleBlock(
-																e,
-																section._id,
-															)
-														}
-														setTriggerFont={(e) =>
-															this.props.setTriggerFont(e)
-														}
-														setTriggeredFont={(e) =>
-															this.setState({
-																triggeredFont: e,
-															})
-														}
-														triggeredFont={this.state.triggeredFont}
-														activeSubBlockId={
-															this.state.activeSubBlockId
-														}
-														key={index}
-														module={this.props.module}
-														_id={section?._id}
-														blocks={section?.blocks}
-														intialGridRows={
-															section?.blocks[0]?.divStyles?.gridRows
-														}
-														mIntialGridRows={
-															section?.blocks[0]?.divStyles
-																?.mGridRows || 0
-														}
-														style={section?.style}
-														actionType={this.state.actionType}
-														actionValue={this.state.actionValue}
-														triggerFont={this.state.triggerFont}
-														handleSideBar={(e, _id) => {
-															this.props.handleOpenSideBar(
-																e,
-																_id,
-																false,
-																true,
-															);
-														}}
-														showAddBlock={(e) =>
-															this.toggleAddBlock(
-																e,
-																section?.order,
-																index,
-																null,
-																section._id,
-															)
-														}
-														showAddElement={(e) =>
-															this.toggleAddBlock(
-																e,
-																section?.order,
-																index,
-																true,
-																section._id,
-															)
-														}
-														isActiveSection={
-															this.props.client
-																? false
-																: this.state.activeSectionID ==
-																  section._id
-														}
-														index={section?.order}
-														moveItem={this.moveItem}
-														itemsLength={arr.length}
-														moveDirection={moveDirection}
-														handleBSelection={(e, activeTextBlock) =>
-															this.props.handleHSelection(
-																e,
-																activeTextBlock,
-															)
-														}
-														activeTextBlock={this.state.activeTextBlock}
-														deleteSection={(e) =>
-															this.props.handledeleteSection(e)
-														}
-														setSubBlockContent={(
-															content,
-															sectionID,
-															blockID,
-															id,
-															mContent = false,
-														) =>
-															this.props.handleSetSubBlockContent(
-																content,
-																sectionID,
-																blockID,
-																id,
-																mContent,
-																section._id,
-															)
-														}
-														preview={this.state.preview}
-														previewType={this.state.previewType}
-														activeImage={(
-															sectionID,
-															blockID,
-															subBlockID,
-															imageURL,
-															dimensions,
-															ImgSubBlock,
-														) => {
-															this.props.handleActiveImage(
-																sectionID,
-																blockID,
-																subBlockID,
-																imageURL,
-																dimensions,
-																ImgSubBlock,
-															);
-														}}
-														handleSetTab={(e, subBlockID, blockID) =>
-															this.state.preview
-																? ''
-																: this.props.setActiveTab(
-																		e,
-																		subBlockID,
-																		blockID,
-																  )
-														}
-														activeVariableID={
-															this.state.activeVariableID
-														}
-														activeVariableName={
-															this.state.activeVariableName
-														}
-														subBlockID={this.state.subBlockID}
-														smartVariables={this.props?.smartVariables}
-														paramsTemplateID={
-															this.props?.paramsTemplateID
-														}
-														client={this.props.client}
-														setContractActiveVariable={(e) =>
-															this.props.client == true
-																? ''
-																: this.props.contractActiveVariable(
-																		e,
-																  )
-														}
-														handlesetActiveShape={(e) =>
-															this.props.setShape(e)
-														}
-														setButtonLink={(e) =>
-															this.props.handleSetButtonLink(e)
-														}
-														setNewTab={(e) =>
-															this.props.handleSetOpenNewtab(e)
-														}
-														setButtonStyles={(e) =>
-															this.props.setBtStyles(e)
-														}
-														btShape={(e) => this.props.btShape(e)}
-														imgSettingData={(e) =>
-															this.props.imgSettingData(e)
-														}
-														selectBlock={(e) =>
-															this.props.selectBlock(e)
-														}
-														duplicateBlock={(e) =>
-															this.props.duplicateBlock(e)
-														}
-														handleSetBlockTab={(e) =>
-															this.props.setBlockTab(e)
-														}
-														sectionType={section?.type}
-														setTab={(e) =>
-															this.state.preview
-																? ''
-																: this.props.setActiveTab(e)
-														}
-														circleTextData={(e) =>
-															this.props.circleTextData(e)
-														}
-														activeAnimation={
-															section?.style?.isAnimation
-														}
-														animationSpeed={
-															section?.style?.animationSpeed
-														}
-														animationDirection={
-															section?.style?.animationDirection
-														}
-														animationType={
-															section?.style?.animationType
-														}
-														clearStyle={() =>
-															this.props.clearFontStyles()
-														}
-														handleIsValidURL={(e) => {
-															this.props.client
-																? ''
-																: this.props.setIsValidURL(e);
-														}}
-														backgroundType={
-															this.props.activeSection?.style
-																?.backgroundType
-														}
-														backgroundImageURL={
-															this.props?.activeSection?.style
-																?.backgroundImageURL
-														}
-														backgroundVideoURL={
-															this.state.backgroundVideoURL
-														}
-														handleIsValidBgVideoURL={(e) => {
-															this.props.client
-																? ''
-																: this.props?.setIsValidBgVideoURL(
-																		e,
-																  );
-														}}
-														tenantLogo={this.props?.tenantLogo}
-														isTenantLogo={this.state.isTenantLogo}
-														contractVariables={
-															this.state.contractVariables
-														}
-														uploadImageBase64={(e) =>
-															this.props.uploadImageBase64(e)
-														}
-														generateAIImages={(e) =>
-															this.props.generateAIImages(e)
-														}
-														generateAIText={(e) =>
-															this.props.generateAIText(e)
-														}
-														tables={this.state.tables}
-														sections={this.state.sections}
-														socialMediaLinks={
-															this.state?.socialMediaLinks
-														}
-														handleSetIconLink={(
-															e,
-															subBlockID,
-															blockID,
-														) =>
-															this.props.handleSetIconLink(
-																e,
-																subBlockID,
-																blockID,
-															)
-														}
-														getModuleInfo={(id, type) =>
-															this.props.getModuleInfo(id, type)
-														}
-														scrollToSection={(id) =>
-															this.scrollToSection(id)
-														}
-														fluidGrid={() =>
-															this.props.client
-																? ''
-																: this.props.fluidGrid()
-														}
-														handleAddLayout={(e, isFluid, isService) =>
-															this.props.handleAddLayout(
-																e,
-																isFluid,
-																isService,
-															)
-														}
-														brandColors={this.props?.brandColors}
-														modules={this.props?.modules}
-														getModuleSections={(e) =>
-															this.props?.getModuleSections(e)
-														}
-														activeModuleSections={
-															this.props?.activeModuleSections
-														}
-														activeWorkflowModuleId={
-															this.props?.activeWorkflowModuleId
-														}
-														activeModuleId={this.props?.activeModuleId}
-														setShowPopupInMobile={(
-															e,
-															type,
-															component,
-														) =>
-															this.props?.setShowPopupInMobile(
-																e,
-																type,
-																component,
-															)
-														}
-														clientGrandTotal={
-															this.props?.clientGrandTotal || 0
-														}
-														section={section}
-														setActiveSection={(e) =>
-															this.props.setActiveSection(e)
-														}
-														fonts={this.props?.fonts}
-														fontFamily={this.props?.fontFamily}
-														changeFontColor={(e, f) =>
-															this.props?.changeFontColor(e, f)
-														}
-														fontColor={this.props.fontColor}
-														fontSize={this.props.fontSize}
-														justifyleft={this.state.justifyleft}
-														justifyright={this.state.justifyright}
-														justifycenter={this.state.justifycenter}
-														justifyfull={this.state.justifyfull}
-														lineHeight={this.props.lineHeight}
-														letterSpacing={this.props.letterSpacing}
-														variables={this.state.variables}
-														navBar={this.props.navBar}
-														themes={this.props?.themes}
-														debounceFuncForElementProps={
-															this.props?.debounceFuncForElementProps
-														}
-														handleShowSmartModal={
-															this.props?.handleShowSmartModal
-														}
-														handleDeleteVariable={
-															this.props?.handleDeleteVariable
-														}
-														handleEditVariable={
-															this.props?.handleEditVariable
-														}
-														handleVerticleAlign={
-															this.props?.handleVerticleAlign
-														}
-													/>
-												) : (
-													<Layout
-														clientDetails={this.props?.clientDetails}
-														currencySymbol={this.props?.currencySymbol}
-														setTriggerFont={(e) =>
-															this.props.client
-																? ''
-																: this.props.setTriggerFont(e)
-														}
-														setTriggeredFont={(e) =>
-															this.setState({
-																triggeredFont: e,
-															})
-														}
-														triggeredFont={this.state.triggeredFont}
-														activeSubBlockId={
-															this.state.activeSubBlockId
-														}
-														key={index}
-														module={this.props.module}
-														_id={section?._id}
-														blocks={section?.blocks}
-														style={section?.style}
-														actionType={this.state.actionType}
-														actionValue={this.state.actionValue}
-														triggerFont={this.state.triggerFont}
-														handleSideBar={(e, _id) =>
-															this.props.handleOpenSideBar(e, _id)
-														}
-														showAddBlock={(e) =>
-															this.toggleAddBlock(
-																e,
-																section?.order,
-																index,
-															)
-														}
-														isActiveSection={
-															this.props.client
-																? false
-																: this.state.activeSectionID ==
-																  section._id
-														}
-														index={section?.order}
-														moveItem={this.moveItem}
-														itemsLength={arr.length}
-														moveDirection={moveDirection}
-														handleBSelection={(e, activeTextBlock) =>
-															this.props.handleHSelection(
-																e,
-																activeTextBlock,
-															)
-														}
-														activeSectionID={this.state.activeSectionID}
-														activeTextBlock={this.state.activeTextBlock}
-														deleteSection={(e) =>
-															this.props.handledeleteSection(e)
-														}
-														setSubBlockContent={(
-															content,
-															sectionID,
-															blockID,
-															id,
-														) =>
-															this.props.handleSetSubBlockContent(
-																content,
-																sectionID,
-																blockID,
-																id,
-															)
-														}
-														preview={this.state.preview}
-														previewType={this.state.previewType}
-														activeImage={(
-															sectionID,
-															blockID,
-															subBlockID,
-															imageURL,
-															dimensions,
-															ImgSubBlock,
-														) =>
-															this.props.handleActiveImage(
-																sectionID,
-																blockID,
-																subBlockID,
-																imageURL,
-																dimensions,
-																ImgSubBlock,
-															)
-														}
-														handleSetTab={(e, subBlockID, blockID) =>
-															this.state.preview
-																? ''
-																: this.props.setActiveTab(
-																		e,
-																		subBlockID,
-																		blockID,
-																  )
-														}
-														activeVariableID={
-															this.state.activeVariableID
-														}
-														activeVariableName={
-															this.state.activeVariableName
-														}
-														subBlockID={this.state.subBlockID}
-														variables={this.state.variables}
-														client={this.props.client}
-														setContractActiveVariable={(e) =>
-															this.props.client == true
-																? ''
-																: this.props.contractActiveVariable(
-																		e,
-																  )
-														}
-														handlesetActiveShape={(e) =>
-															this.props.client
-																? ''
-																: this.props.setShape(e)
-														}
-														setButtonLink={(e) =>
-															this.props.handleSetButtonLink(e)
-														}
-														setNewTab={(e) =>
-															this.props.handleSetOpenNewtab(e)
-														}
-														setButtonStyles={(e) =>
-															this.props.setBtStyles(e)
-														}
-														btShape={(e) => this.props.btShape(e)}
-														imgSettingData={(e) =>
-															this.props.imgSettingData(e)
-														}
-														selectBlock={(e) =>
-															this.props.selectBlock(e)
-														}
-														duplicateBlock={(e) =>
-															this.props.duplicateBlock(e)
-														}
-														handleSetBlockTab={(e) =>
-															this.props.setBlockTab(e)
-														}
-														sectionType={section?.type}
-														setTab={(e) =>
-															this.state.preview
-																? ''
-																: this.props.setActiveTab(e)
-														}
-														circleTextData={(e) =>
-															this.props.circleTextData(e)
-														}
-														activeAnimation={
-															section?.style?.isAnimation
-														}
-														animationSpeed={
-															section?.style?.animationSpeed
-														}
-														animationDirection={
-															section?.style?.animationDirection
-														}
-														animationType={
-															section?.style?.animationType
-														}
-														clearStyle={() =>
-															this.props.clearFontStyles()
-														}
-														handleIsValidURL={(e) => {
-															this.props.client
-																? ''
-																: this.props.setIsValidURL(e);
-														}}
-														backgroundType={
-															this.props.activeSection?.style
-																?.backgroundType
-														}
-														backgroundImageURL={
-															this.props?.activeSection?.style
-																?.backgroundImageURL
-														}
-														backgroundVideoURL={
-															this.state.backgroundVideoURL
-														}
-														handleIsValidBgVideoURL={(e) => {
-															this.props.client
-																? ''
-																: this.props?.setIsValidBgVideoURL(
-																		e,
-																  );
-														}}
-														tenantLogo={this.props?.tenantLogo}
-														isTenantLogo={this.state.isTenantLogo}
-														contractVariables={
-															this.state.contractVariables
-														}
-														uploadImageBase64={(e) =>
-															this.props.uploadImageBase64(e)
-														}
-														generateAIImages={(e) =>
-															this.props.generateAIImages(e)
-														}
-														generateAIText={(e) =>
-															this.props.generateAIText(e)
-														}
-														tables={this.state.tables}
-														sections={this.state.sections}
-														socialMediaLinks={
-															this.state?.socialMediaLinks
-														}
-														handleSetIconLink={(
-															e,
-															subBlockID,
-															blockID,
-														) =>
-															this.props.handleSetIconLink(
-																e,
-																subBlockID,
-																blockID,
-															)
-														}
-														iframeScroll={this.state.iframeScroll}
-														getModuleInfo={(id, type) =>
-															this.props.getModuleInfo(id, type)
-														}
-														scrollToSection={(id) =>
-															this.scrollToSection(id)
-														}
-														handleOpenAcceptProposalModal={() => {
-															this.setState({
-																showAcceptProposalModal: true,
-															});
-														}}
-														handleAddLayout={(e, isFluid, isService) =>
-															this.props.handleAddLayout(
-																e,
-																isFluid,
-																isService,
-															)
-														}
-														clientGrandTotal={
-															this.props?.clientGrandTotal || 0
-														}
-														themes={this.props?.themes}
-														currencySymbol2={
-															this.props?.currencySymbol2
-														}
-														status={this.props.status}
-													/>
-												)}
-											</div>
-										);
-									}
-								},
-						  )
+											)}
+										</div>
+									);
+								}
+							},
+						)
 						: ''}
 					{this.props.module === 'form' ? (
 						<>
@@ -3355,8 +3351,8 @@ class Builder extends Component {
 						''
 					)}
 					{(this.props?.module === 'proposal' || this.props?.module === '*') &&
-					_.has(this.state?.activeModule, 'showAsSlide') &&
-					this.state?.activeModule?.showAsSlide === true ? (
+						_.has(this.state?.activeModule, 'showAsSlide') &&
+						this.state?.activeModule?.showAsSlide === true ? (
 						<Presentation
 							client={this.props.client}
 							setTriggerFontP={(e) => this.props.setTriggerFont(e)}
@@ -3429,8 +3425,8 @@ class Builder extends Component {
 								this.props.client
 									? ''
 									: this.props.client
-									? ''
-									: this.props?.setIsValidURL(e);
+										? ''
+										: this.props?.setIsValidURL(e);
 							}}
 							activeSection={this.props?.activeSection}
 							backgroundVideoURL={this.state?.backgroundVideoURL}

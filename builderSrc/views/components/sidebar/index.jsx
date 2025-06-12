@@ -110,7 +110,7 @@ import Shape18 from '../library/svgs/fluidShapes/shape18';
 import Shape19 from '../library/svgs/fluidShapes/shape19';
 
 import ColorPicker from '../properties/colorpicker';
-import Modal from '../library/modals/index';
+import Modal from '../../components/library/modals/index';
 import Slider from 'rc-slider';
 import Cropper from 'react-easy-crop';
 import moment from 'moment';
@@ -1011,8 +1011,8 @@ class Sidebar extends Images {
 			this.setState({
 				crop:
 					nextProps.imgSettingData &&
-					nextProps.imgSettingData.crop &&
-					Object.keys(nextProps.imgSettingData.crop).length > 0
+						nextProps.imgSettingData.crop &&
+						Object.keys(nextProps.imgSettingData.crop).length > 0
 						? nextProps.imgSettingData?.crop
 						: { x: 0, y: 0 },
 				zoom:
@@ -1339,8 +1339,8 @@ class Sidebar extends Images {
 						_id: this.state.activeContractVariable,
 					})[0]
 						? _.filter(this.state.variables, {
-								_id: this.state.activeContractVariable,
-						  })[0]
+							_id: this.state.activeContractVariable,
+						})[0]
 						: { clientAction: 0, placeholderText: '' };
 
 					let sectionVariable = _.filter(this.state.sectionVariables, {
@@ -1604,7 +1604,7 @@ class Sidebar extends Images {
 			{
 				clientInfo: clientInfoVariables,
 			},
-			() => {},
+			() => { },
 		);
 
 		// Separate user and company info variables
@@ -2115,7 +2115,7 @@ class Sidebar extends Images {
 		});
 	};
 
-	onCropComplete = (croppedArea, croppedAreaPixels) => {};
+	onCropComplete = (croppedArea, croppedAreaPixels) => { };
 
 	onZoomChange = (zoom) => {
 		localStorage.setItem(
@@ -2292,7 +2292,7 @@ class Sidebar extends Images {
 			});
 		}, interval);
 	};
-	setCroppedArea = (e) => {};
+	setCroppedArea = (e) => { };
 	handleRemoveImage = (e) => {
 		this.props.removeImage(e);
 	};
@@ -4102,9 +4102,8 @@ class Sidebar extends Images {
 
 					if (url.includes('airtable.com') && !url.includes('/embed')) {
 						const baseUrl = url.split('?')[0];
-						return `${baseUrl}/embed${
-							url.includes('?') ? '?' + url.split('?')[1] : ''
-						}`;
+						return `${baseUrl}/embed${url.includes('?') ? '?' + url.split('?')[1] : ''
+							}`;
 					}
 
 					if (url.includes('smartsheet.com')) {
@@ -4736,7 +4735,7 @@ class Sidebar extends Images {
 										style={{
 											justifyContent:
 												this.state.isServiceBlock &&
-												this.props.module !== 'summary'
+													this.props.module !== 'summary'
 													? ''
 													: 'center',
 										}}
@@ -4764,9 +4763,9 @@ class Sidebar extends Images {
 				)} */}
 
 											{this.state.hasImageBlock &&
-											this.props.module !== 'summary' &&
-											(this.state.activeTab === 'i' ||
-												this.state.isServiceBlock) ? (
+												this.props.module !== 'summary' &&
+												(this.state.activeTab === 'i' ||
+													this.state.isServiceBlock) ? (
 												<a
 													className={
 														this.state.activeTab === 'i' ? 'active' : ''
@@ -4805,7 +4804,7 @@ class Sidebar extends Images {
 											)}
 
 											{this.props.module === 'contract' &&
-											this.state.activeVariableInfo ? (
+												this.state.activeVariableInfo ? (
 												<a
 													className={
 														this.state.activeTab === 'v' ? 'active' : ''
@@ -4818,7 +4817,7 @@ class Sidebar extends Images {
 												''
 											)}
 											{this.props.module === 'form' ||
-											this.state.activeSection?.type === 'form-q&a' ? (
+												this.state.activeSection?.type === 'form-q&a' ? (
 												<a
 													className={
 														this.state.activeTab === 'q' ? 'active' : ''
@@ -4847,7 +4846,7 @@ class Sidebar extends Images {
 											)}
 
 											{this.props.hasSticker &&
-											this.state.activeTab === 'sticker' ? (
+												this.state.activeTab === 'sticker' ? (
 												<a
 													className={
 														this.state.activeTab === 'sticker'
@@ -4891,8 +4890,8 @@ class Sidebar extends Images {
 												''
 											)}
 											{this.props.hasListIcon &&
-											this.props.module !== 'summary' &&
-											this.state.activeTab !== 'p' ? (
+												this.props.module !== 'summary' &&
+												this.state.activeTab !== 'p' ? (
 												<a
 													className={
 														this.state.activeTab === 'li'
@@ -4907,7 +4906,7 @@ class Sidebar extends Images {
 												''
 											)}
 											{this.state.isServiceBlock &&
-											this.props.module !== 'summary' ? (
+												this.props.module !== 'summary' ? (
 												<a
 													className={
 														this.state.activeTab === 's' ? 'active' : ''
@@ -4934,7 +4933,7 @@ class Sidebar extends Images {
 												''
 											)}
 											{this.props.hasLogoSticker &&
-											this.state.activeTab === 'ls' ? (
+												this.state.activeTab === 'ls' ? (
 												<a
 													className={
 														this.state.activeTab === 'ls'
@@ -5088,9 +5087,9 @@ class Sidebar extends Images {
 					''
 				)}
 				{this.state.activeTab === 's' &&
-				this.state.isServiceBlock &&
-				this.state?.activeSection?.type !== 'form-v1' &&
-				this.state?.activeSection?.type !== 'scheduler' ? (
+					this.state.isServiceBlock &&
+					this.state?.activeSection?.type !== 'form-v1' &&
+					this.state?.activeSection?.type !== 'scheduler' ? (
 					<div className="block_styles">
 						{this.state?.services_selection !== 2 ? (
 							<div className="bs-item bs-item-row animated-item">
@@ -5241,7 +5240,7 @@ class Sidebar extends Images {
 										onChange={(e) =>
 											this.setServiceItemValue(e.target.value, 'amount')
 										}
-										// autoFocus={true}
+									// autoFocus={true}
 									/>
 								</div>
 							</div>
@@ -5261,9 +5260,9 @@ class Sidebar extends Images {
 						</div>
 
 						{this.state.showServiceSubBlock &&
-						_.filter(this.state?.activeSection?.blocks, {
-							_id: this.state?.activeServiceSubBlock,
-						})[0]?.labels ? (
+							_.filter(this.state?.activeSection?.blocks, {
+								_id: this.state?.activeServiceSubBlock,
+							})[0]?.labels ? (
 							<div className="bs-item ">
 								<hr></hr>
 								{_.filter(this.state?.activeSection?.blocks, {
@@ -5513,7 +5512,7 @@ class Sidebar extends Images {
 																	fontFamily: font.value,
 																	backgroundColor:
 																		this.state.summaryFont ===
-																		font?.value
+																			font?.value
 																			? '#171717'
 																			: '',
 																}}
@@ -5674,9 +5673,9 @@ else{
 					) : (
 						<div className="block_styles">
 							{this.state?.activeSection?.style?.hasTable ||
-							this.state?.activeSection?.style?.invoiceLayout ||
-							this.state?.activeSection?.type === 'form-v1' ||
-							this.state?.activeSection?.type === 'scheduler' ? (
+								this.state?.activeSection?.style?.invoiceLayout ||
+								this.state?.activeSection?.type === 'form-v1' ||
+								this.state?.activeSection?.type === 'scheduler' ? (
 								' '
 							) : (
 								<div
@@ -5791,7 +5790,7 @@ else{
 															}
 															className={
 																this.state.animationDirection ===
-																icon.name
+																	icon.name
 																	? 'active'
 																	: ''
 															}
@@ -5846,9 +5845,9 @@ else{
 								''
 							)}
 							{this.state?.activeSection?.style?.hasTable ||
-							this.state?.activeSection?.style?.invoiceLayout ||
-							this.state?.activeSection?.type === 'form-v1' ||
-							this.state?.activeSection?.type === 'scheduler' ? (
+								this.state?.activeSection?.style?.invoiceLayout ||
+								this.state?.activeSection?.type === 'form-v1' ||
+								this.state?.activeSection?.type === 'scheduler' ? (
 								''
 							) : (
 								<hr className="animated-item"></hr>
@@ -5866,9 +5865,9 @@ else{
 															'borderStyle',
 														)
 															? borders[
-																	this.state?.activeSection?.style
-																		?.borderStyle
-															  ]
+															this.state?.activeSection?.style
+																?.borderStyle
+															]
 															: 'solid',
 
 														borderWidth: '1px',
@@ -5981,7 +5980,7 @@ else{
 										/>
 									</div>
 									<div
-										className="sidebar-controls"
+										className="controls"
 										style={{
 											display: 'flex',
 											flexDirection: 'column',
@@ -6030,7 +6029,7 @@ else{
 										/>
 									</div>
 									<div
-										className="sidebar-controls"
+										className="controls"
 										style={{
 											display: 'flex',
 											flexDirection: 'column',
@@ -6107,8 +6106,8 @@ else{
 								''
 							)}
 							{this.state.isServiceBlock &&
-							this.state?.activeSection?.type !== 'form-v1' &&
-							this.state?.activeSection?.type !== 'scheduler' ? (
+								this.state?.activeSection?.type !== 'form-v1' &&
+								this.state?.activeSection?.type !== 'scheduler' ? (
 								<>
 									<div className="bs-item bs-item-row ">
 										<b>Service Selection</b>
@@ -6155,7 +6154,8 @@ else{
 										''
 									)}
 									<div className="bs-item ">
-										<hr></hr>
+										<hr>
+										</hr>
 
 										<div className="bs-item bs-item-row animated-item">
 											<b>Toast</b>
@@ -6282,7 +6282,7 @@ else{
 									</>
 									<>
 										<div
-											className="sidebar-controls"
+											className="controls"
 											style={{
 												display: 'flex',
 												flexDirection: 'column',
@@ -6413,7 +6413,7 @@ else{
 		  )
 		: ''} */}
 							{this.state?.activeSection?.type === 'list' ||
-							this.state?.activeSection?.type === 'text' ? (
+								this.state?.activeSection?.type === 'text' ? (
 								<>
 									<div
 										className="bt_styles2"
@@ -6633,7 +6633,7 @@ else{
 							)}
 
 							{this.props.module === 'form' ||
-							this.state?.activeSection?.style?.isFormLayout ? (
+								this.state?.activeSection?.style?.isFormLayout ? (
 								<>
 									{!this.state?.activeSection?.style?.isFormLayout && (
 										<>
@@ -6665,27 +6665,27 @@ else{
 									)}
 									{(this.state.isTheme ||
 										this.state?.activeSection?.style?.isFormLayout) && (
-										<div className="bs-item animated-item ">
-											<b>Theme</b>
-											<div className="bs-item bs-item-row animated-item">
-												<b
-													onClick={() =>
-														this.setState({
-															activeFormTab: 'solid',
-														})
-													}
-													style={{
-														borderBottom:
-															this.state.activeFormTab === 'solid'
-																? '1px solid white'
-																: '',
-														padding: '5px',
-														cursor: 'pointer',
-													}}
-												>
-													Solid
-												</b>
-												{/* <b
+											<div className="bs-item animated-item ">
+												<b>Theme</b>
+												<div className="bs-item bs-item-row animated-item">
+													<b
+														onClick={() =>
+															this.setState({
+																activeFormTab: 'solid',
+															})
+														}
+														style={{
+															borderBottom:
+																this.state.activeFormTab === 'solid'
+																	? '1px solid white'
+																	: '',
+															padding: '5px',
+															cursor: 'pointer',
+														}}
+													>
+														Solid
+													</b>
+													{/* <b
 						onClick={() =>
 							this.setState({
 								activeFormTab: 'animated',
@@ -6695,104 +6695,104 @@ else{
 						Animated
 					</b>
 					*/}
-												<b
-													onClick={() =>
-														this.setState({
-															activeFormTab: 'custom',
-														})
-													}
-													style={{
-														borderBottom:
-															this.state.activeFormTab === 'custom'
-																? '1px solid white'
-																: '',
-														padding: '5px',
-														cursor: 'pointer',
-													}}
-												>
-													Custom
-												</b>
-											</div>
-											{this.state.activeFormTab === 'solid' && (
-												<div
-													style={{
-														display: 'flex',
-														flexWrap: 'wrap',
-														width: '100%',
-														gap: '15px',
-													}}
-												>
-													{_.map(this.state.theme, (theme, index) => (
-														<div
-															key={index}
-															style={{
-																display: 'flex',
-																width: '28%',
-																height: '25px',
-																borderRadius: '50px',
-																overflow: 'hidden',
-																margin: '3px',
-																cursor: 'pointer',
-																border: _.isEqual(
-																	this.state.activeTheme,
-																	theme,
-																)
-																	? ' 2px solid #3F8AE2'
+													<b
+														onClick={() =>
+															this.setState({
+																activeFormTab: 'custom',
+															})
+														}
+														style={{
+															borderBottom:
+																this.state.activeFormTab === 'custom'
+																	? '1px solid white'
 																	: '',
-															}}
-															onClick={(e) =>
-																this.setActiveTheme(theme)
-															}
-														>
-															<span
-																style={{
-																	background: theme.text,
-																	width: '33.33%',
-																	height: '100%',
-																}}
-															></span>
-															<span
-																style={{
-																	background: theme.placeHolder,
-																	width: '33.33%',
-																	height: '100%',
-																}}
-															></span>
-															<span
-																style={{
-																	background:
-																		theme.backgroundColor,
-																	width: '33.33%',
-																	height: '100%',
-																}}
-															></span>
-														</div>
-													))}
+															padding: '5px',
+															cursor: 'pointer',
+														}}
+													>
+														Custom
+													</b>
 												</div>
-											)}
-											{this.state.activeFormTab === 'custom' && (
-												<div>
-													{_.map(this.state.activeTheme, (value, key) => (
-														<div
-															key={key}
-															className="custome-theme animated-item"
-														>
-															<ColorPicker
-																title={key}
-																color={value}
-																handleColor={(e) =>
-																	this.handleCustomTheme(key, e)
+												{this.state.activeFormTab === 'solid' && (
+													<div
+														style={{
+															display: 'flex',
+															flexWrap: 'wrap',
+															width: '100%',
+															gap: '15px',
+														}}
+													>
+														{_.map(this.state.theme, (theme, index) => (
+															<div
+																key={index}
+																style={{
+																	display: 'flex',
+																	width: '28%',
+																	height: '25px',
+																	borderRadius: '50px',
+																	overflow: 'hidden',
+																	margin: '3px',
+																	cursor: 'pointer',
+																	border: _.isEqual(
+																		this.state.activeTheme,
+																		theme,
+																	)
+																		? ' 2px solid #3F8AE2'
+																		: '',
+																}}
+																onClick={(e) =>
+																	this.setActiveTheme(theme)
 																}
-																brandColors={
-																	this.state?.brandColors
-																}
-															/>
-														</div>
-													))}
-												</div>
-											)}
-										</div>
-									)}
+															>
+																<span
+																	style={{
+																		background: theme.text,
+																		width: '33.33%',
+																		height: '100%',
+																	}}
+																></span>
+																<span
+																	style={{
+																		background: theme.placeHolder,
+																		width: '33.33%',
+																		height: '100%',
+																	}}
+																></span>
+																<span
+																	style={{
+																		background:
+																			theme.backgroundColor,
+																		width: '33.33%',
+																		height: '100%',
+																	}}
+																></span>
+															</div>
+														))}
+													</div>
+												)}
+												{this.state.activeFormTab === 'custom' && (
+													<div>
+														{_.map(this.state.activeTheme, (value, key) => (
+															<div
+																key={key}
+																className="custome-theme animated-item"
+															>
+																<ColorPicker
+																	title={key}
+																	color={value}
+																	handleColor={(e) =>
+																		this.handleCustomTheme(key, e)
+																	}
+																	brandColors={
+																		this.state?.brandColors
+																	}
+																/>
+															</div>
+														))}
+													</div>
+												)}
+											</div>
+										)}
 									{!this.state.isTheme &&
 										!_.has(
 											this.state?.activeSection?.style,
@@ -6817,100 +6817,100 @@ else{
 							{(this.state.activeSection?.style?.subBlocksBackground ||
 								this.state.activeSection?.style?.subBlocksBackgroundColor ||
 								this.state.activeSection?.style?.subBlocksBorderColor) && (
-								<>
-									<div
-										className="overlay-options animated-item"
-										onClick={() =>
-											this.setState({
-												showColorOptions: !this.state.showColorOptions,
-											})
-										}
-									>
-										<b>Color Options</b>
-										<UpDown
-											style={{
-												rotate: !this.state.showColorOptions && '180deg',
-											}}
-										/>
-									</div>
-									{this.state.activeSection?.style?.subBlocksBackground &&
-										this.state.showColorOptions &&
-										Object.keys(
-											this.state.activeSection.style.subBlocksBackground,
-										).map((key) => {
-											const color =
-												this.state.activeSection.style.subBlocksBackground[
+									<>
+										<div
+											className="overlay-options animated-item"
+											onClick={() =>
+												this.setState({
+													showColorOptions: !this.state.showColorOptions,
+												})
+											}
+										>
+											<b>Color Options</b>
+											<UpDown
+												style={{
+													rotate: !this.state.showColorOptions && '180deg',
+												}}
+											/>
+										</div>
+										{this.state.activeSection?.style?.subBlocksBackground &&
+											this.state.showColorOptions &&
+											Object.keys(
+												this.state.activeSection.style.subBlocksBackground,
+											).map((key) => {
+												const color =
+													this.state.activeSection.style.subBlocksBackground[
 													key
-												];
+													];
 
-											return (
-												<div key={key} className="animated-item">
-													<ColorPicker
-														title={key}
-														color={color}
-														handleColor={(e) =>
-															this.handleBlockBackground(key, e)
-														}
-														brandColors={this.state?.brandColors}
-													/>
-												</div>
-											);
-										})}
+												return (
+													<div key={key} className="animated-item">
+														<ColorPicker
+															title={key}
+															color={color}
+															handleColor={(e) =>
+																this.handleBlockBackground(key, e)
+															}
+															brandColors={this.state?.brandColors}
+														/>
+													</div>
+												);
+											})}
 
-									{/* for background of subblocks -Abdullah */}
-									{this.state.activeSection?.style?.subBlocksBackgroundColor &&
-										this.state.showColorOptions &&
-										Object.keys(
-											this.state.activeSection.style.subBlocksBackgroundColor,
-										).map((key) => {
-											const color =
-												this.state.activeSection.style
-													.subBlocksBackgroundColor[key];
+										{/* for background of subblocks -Abdullah */}
+										{this.state.activeSection?.style?.subBlocksBackgroundColor &&
+											this.state.showColorOptions &&
+											Object.keys(
+												this.state.activeSection.style.subBlocksBackgroundColor,
+											).map((key) => {
+												const color =
+													this.state.activeSection.style
+														.subBlocksBackgroundColor[key];
 
-											return (
-												<div key={key} className="animated-item">
-													<ColorPicker
-														title={key}
-														color={color}
-														handleColor={(e) =>
-															this.handleSubBlockBackgroundColor(
-																key,
-																e,
-															)
-														}
-														brandColors={this.state?.brandColors}
-													/>
-												</div>
-											);
-										})}
+												return (
+													<div key={key} className="animated-item">
+														<ColorPicker
+															title={key}
+															color={color}
+															handleColor={(e) =>
+																this.handleSubBlockBackgroundColor(
+																	key,
+																	e,
+																)
+															}
+															brandColors={this.state?.brandColors}
+														/>
+													</div>
+												);
+											})}
 
-									{/* for borderColor of subblocks -Abdullah */}
-									{this.state.activeSection?.style?.subBlocksBorderColor &&
-										this.state.showColorOptions &&
-										Object.keys(
-											this.state.activeSection.style.subBlocksBorderColor,
-										).map((key) => {
-											const color =
-												this.state.activeSection.style.subBlocksBorderColor[
+										{/* for borderColor of subblocks -Abdullah */}
+										{this.state.activeSection?.style?.subBlocksBorderColor &&
+											this.state.showColorOptions &&
+											Object.keys(
+												this.state.activeSection.style.subBlocksBorderColor,
+											).map((key) => {
+												const color =
+													this.state.activeSection.style.subBlocksBorderColor[
 													key
-												];
+													];
 
-											return (
-												<div key={key} className="animated-item">
-													<ColorPicker
-														title={key}
-														color={color}
-														handleColor={(e) =>
-															this.handleSubBlockBorderColor(key, e)
-														}
-														brandColors={this.state?.brandColors}
-													/>
-												</div>
-											);
-										})}
-									<hr className="animated-item"></hr>
-								</>
-							)}
+												return (
+													<div key={key} className="animated-item">
+														<ColorPicker
+															title={key}
+															color={color}
+															handleColor={(e) =>
+																this.handleSubBlockBorderColor(key, e)
+															}
+															brandColors={this.state?.brandColors}
+														/>
+													</div>
+												);
+											})}
+										<hr className="animated-item"></hr>
+									</>
+								)}
 							{/* {this.state.activeSection.style?.subBlocksBackground} */}
 
 							{/* {this.props.hasButton ? (
@@ -7058,31 +7058,28 @@ else{
 									<>
 										<div className="types">
 											<span
-												className={`${
-													this.state?.activeSection?.style
+												className={`${this.state?.activeSection?.style
 														?.backgroundType !== 'image' &&
-													this.state?.activeSection?.style
-														?.backgroundType !== 'video'
+														this.state?.activeSection?.style
+															?.backgroundType !== 'video'
 														? 'active'
 														: ''
-												}`}
+													}`}
 												style={{ backgroundColor: 'black' }}
 												onClick={() => this.handleBackgroundType('color')}
 											></span>
 											<span
-												className={` ${
-													this.state?.activeSection?.style
+												className={` ${this.state?.activeSection?.style
 														?.backgroundType == 'image' && 'active'
-												} `}
+													} `}
 												onClick={() => this.handleBackgroundType('image')}
 											>
 												<ImageSVG />
 											</span>
 											<span
-												className={` ${
-													this.state?.activeSection?.style
+												className={` ${this.state?.activeSection?.style
 														?.backgroundType == 'video' && 'active'
-												} `}
+													} `}
 												onClick={() => this.handleBackgroundType('video')}
 											>
 												<VideoSVG />
@@ -7092,7 +7089,7 @@ else{
 										{this.state?.activeSection?.style?.backgroundType !==
 											'image' &&
 											this.state.activeSection?.style?.backgroundType !==
-												'video' && (
+											'video' && (
 												<div className="animated-item">
 													<ColorPicker
 														title={'Block Background Color'}
@@ -7115,34 +7112,34 @@ else{
 												>
 													{this.state?.activeSection?.style
 														?.backgroundImageURL && (
-														<div className="bg-crop-container">
-															<Cropper
-																key={
-																	this.state.activeSection.style
-																		.backgroundImageURL
-																}
-																image={
-																	this.state.activeSection.style
-																		.backgroundImageURL
-																}
-																crop={{ x: 0, y: 0 }}
-																zoom={1}
-																aspect={this.state.aspect}
-																onCropChange={(e) => ''}
-																onCropComplete={(e) => ''}
-																onZoomChange={(e) => ''}
-																onCropAreaChange={(e) => ''}
-																restrictPosition={true}
-															/>
-															<span
-																onClick={() =>
-																	this.handleRemoveBgImage()
-																}
-															>
-																<label>x</label>
-															</span>
-														</div>
-													)}
+															<div className="bg-crop-container">
+																<Cropper
+																	key={
+																		this.state.activeSection.style
+																			.backgroundImageURL
+																	}
+																	image={
+																		this.state.activeSection.style
+																			.backgroundImageURL
+																	}
+																	crop={{ x: 0, y: 0 }}
+																	zoom={1}
+																	aspect={this.state.aspect}
+																	onCropChange={(e) => ''}
+																	onCropComplete={(e) => ''}
+																	onZoomChange={(e) => ''}
+																	onCropAreaChange={(e) => ''}
+																	restrictPosition={true}
+																/>
+																<span
+																	onClick={() =>
+																		this.handleRemoveBgImage()
+																	}
+																>
+																	<label>x</label>
+																</span>
+															</div>
+														)}
 												</div>
 											) : (
 												<>
@@ -7235,160 +7232,160 @@ else{
 
 										{this.state?.activeSection?.style?.backgroundType ==
 											'video' && (
-											<div className=" bs-item animated-item">
-												<b>Video URL</b>
-												<div
-													className="bg-item"
-													style={{
-														flexDirection: 'column',
-														gap: '12px',
-														alignItems: 'flex-start',
-													}}
-												>
-													<p
+												<div className=" bs-item animated-item">
+													<b>Video URL</b>
+													<div
+														className="bg-item"
 														style={{
-															color: '#e4e5e6cc',
-															fontSize: '10px',
-															fontWeight: 'lighter',
-															width: '100%',
+															flexDirection: 'column',
+															gap: '12px',
+															alignItems: 'flex-start',
 														}}
 													>
-														Paste the URL link of your YouTube or Vimeo
-														hosted video.
-													</p>
-
-													<div className="v-input-link">
-														<input
-															placeholder="Link"
-															type="text"
-															value={
-																this.state?.activeSection?.style
-																	?.backgroundVideoURL
-															}
-															onChange={(e) =>
-																this.setBgVideoURL(e.target.value)
-															}
-														/>
-													</div>
-													{!this.props.isValidBgVideoURL && (
-														<span
+														<p
 															style={{
-																color: '#D1243F',
-																fontSize: '13px',
+																color: '#e4e5e6cc',
+																fontSize: '10px',
+																fontWeight: 'lighter',
 																width: '100%',
 															}}
 														>
-															{' '}
-															invalid video URL{' '}
-														</span>
-													)}
+															Paste the URL link of your YouTube or Vimeo
+															hosted video.
+														</p>
+
+														<div className="v-input-link">
+															<input
+																placeholder="Link"
+																type="text"
+																value={
+																	this.state?.activeSection?.style
+																		?.backgroundVideoURL
+																}
+																onChange={(e) =>
+																	this.setBgVideoURL(e.target.value)
+																}
+															/>
+														</div>
+														{!this.props.isValidBgVideoURL && (
+															<span
+																style={{
+																	color: '#D1243F',
+																	fontSize: '13px',
+																	width: '100%',
+																}}
+															>
+																{' '}
+																invalid video URL{' '}
+															</span>
+														)}
+													</div>
 												</div>
-											</div>
-										)}
+											)}
 										{(this.state?.activeSection?.style?.backgroundType ==
 											'image' ||
 											this.state.activeSection?.style?.backgroundType ==
-												'video') && (
-											<>
-												<hr className="animated-item"></hr>
-												<div
-													className="bs-item animated-item"
-													style={{ gap: '24px' }}
-												>
+											'video') && (
+												<>
+													<hr className="animated-item"></hr>
 													<div
-														className="overlay-options animated-item"
-														onClick={() =>
-															this.setState({
-																showOverlayOptions:
-																	!this.state.showOverlayOptions,
-															})
-														}
+														className="bs-item animated-item"
+														style={{ gap: '24px' }}
 													>
-														<b>Overlay Effect</b>
-														<UpDown
-															style={{
-																rotate:
-																	!this.state
-																		.showOverlayOptions &&
-																	'180deg',
-															}}
-														/>
-													</div>
-													{this.state.showOverlayOptions && (
-														<>
-															<div className="animated-item">
-																<ColorPicker
-																	title={' Color'}
-																	color={
-																		this.state?.activeSection
-																			?.style?.bgOverlayColor
-																	}
-																	handleColor={(e) =>
-																		this.handleBgOverlay(
-																			e,
-																			'color',
-																		)
-																	}
-																	brandColors={
-																		this.state?.brandColors
-																	}
-																/>
-															</div>
-															<div className="bs-item animated-item">
-																<b>Opacity</b>
-																<div className="bg-item">
-																	<div
-																		style={{
-																			display: 'flex',
-																			maxWidth: 230,
-																			marginLeft: 6,
-																		}}
-																	>
-																		<input
-																			type="range"
-																			min={0}
-																			max={100}
-																			step={5}
-																			defaultValue={30}
-																			value={
+														<div
+															className="overlay-options animated-item"
+															onClick={() =>
+																this.setState({
+																	showOverlayOptions:
+																		!this.state.showOverlayOptions,
+																})
+															}
+														>
+															<b>Overlay Effect</b>
+															<UpDown
+																style={{
+																	rotate:
+																		!this.state
+																			.showOverlayOptions &&
+																		'180deg',
+																}}
+															/>
+														</div>
+														{this.state.showOverlayOptions && (
+															<>
+																<div className="animated-item">
+																	<ColorPicker
+																		title={' Color'}
+																		color={
+																			this.state?.activeSection
+																				?.style?.bgOverlayColor
+																		}
+																		handleColor={(e) =>
+																			this.handleBgOverlay(
+																				e,
+																				'color',
+																			)
+																		}
+																		brandColors={
+																			this.state?.brandColors
+																		}
+																	/>
+																</div>
+																<div className="bs-item animated-item">
+																	<b>Opacity</b>
+																	<div className="bg-item">
+																		<div
+																			style={{
+																				display: 'flex',
+																				maxWidth: 230,
+																				marginLeft: 6,
+																			}}
+																		>
+																			<input
+																				type="range"
+																				min={0}
+																				max={100}
+																				step={5}
+																				defaultValue={30}
+																				value={
+																					this.state
+																						?.activeSection
+																						?.style
+																						?.bgOverlayOpacity
+																				}
+																				onChange={(e) =>
+																					this.handleBgOverlay(
+																						e.target.value,
+																						'opacity',
+																					)
+																				}
+																				onMouseUp={() =>
+																					this.props.setActiveSection(
+																						this.state
+																							.activeSection,
+																						null,
+																					)
+																				}
+																				classes={{
+																					container: 'slider',
+																				}}
+																			/>
+																		</div>
+																		<p>
+																			{
 																				this.state
 																					?.activeSection
 																					?.style
 																					?.bgOverlayOpacity
 																			}
-																			onChange={(e) =>
-																				this.handleBgOverlay(
-																					e.target.value,
-																					'opacity',
-																				)
-																			}
-																			onMouseUp={() =>
-																				this.props.setActiveSection(
-																					this.state
-																						.activeSection,
-																					null,
-																				)
-																			}
-																			classes={{
-																				container: 'slider',
-																			}}
-																		/>
+																		</p>
 																	</div>
-																	<p>
-																		{
-																			this.state
-																				?.activeSection
-																				?.style
-																				?.bgOverlayOpacity
-																		}
-																	</p>
 																</div>
-															</div>
-														</>
-													)}
-												</div>
-											</>
-										)}
+															</>
+														)}
+													</div>
+												</>
+											)}
 									</>
 								)}
 							</div>
@@ -7440,7 +7437,7 @@ else{
 															{this.state?.activeSection?.style
 																?.summaryLayout
 																? this.state?.activeSection?.style
-																		?.summaryPrimaryFont
+																	?.summaryPrimaryFont
 																: this.state?.summaryFont}
 														</p>
 														<DropDown
@@ -7453,7 +7450,7 @@ else{
 																height: '12px',
 																transform:
 																	this.state.showFontsDropDown ===
-																	false
+																		false
 																		? 'rotate(0deg)'
 																		: 'rotate(180deg)',
 															}}
@@ -7495,7 +7492,7 @@ else{
 																		(font) =>
 																			this.state
 																				.searchFont ===
-																				'' ||
+																			'' ||
 																			(this.state.searchFont
 																				.length >= 1 &&
 																				font.fontName
@@ -7527,7 +7524,7 @@ else{
 																				backgroundColor:
 																					this.state
 																						.summaryFont ===
-																					font?.value
+																						font?.value
 																						? '#171717'
 																						: '',
 																			}}
@@ -7553,7 +7550,7 @@ else{
 												color={
 													this.state?.activeSection?.style?.summaryLayout
 														? this.state?.activeSection?.style
-																?.summaryPrimaryFontColor
+															?.summaryPrimaryFontColor
 														: this.state?.summaryFontColor
 												}
 												handleColor={(e) =>
@@ -7589,7 +7586,7 @@ else{
 															this.state?.activeSection?.style
 																?.summaryLayout
 																? this.state?.activeSection?.style
-																		?.summaryPrimaryFontSize
+																	?.summaryPrimaryFontSize
 																: this.state?.summaryFontSize
 														}
 														onChange={(e) =>
@@ -7608,7 +7605,7 @@ else{
 															this.state?.activeSection?.style
 																?.summaryLayout
 																? this.state?.activeSection?.style
-																		?.summaryPrimaryFontSize
+																	?.summaryPrimaryFontSize
 																: this.state?.summaryFontSize
 														}
 														onChange={(e) =>
@@ -7737,13 +7734,13 @@ else{
 													className="clickable-span"
 													onClick={(e) =>
 														this.state?.activeSection?.blocks?.length >=
-														2
+															2
 															? (e.stopPropagation(),
-															  this.props?.handleDeleteInTable(
+																this.props?.handleDeleteInTable(
 																	'row',
 																	1,
 																	'last',
-															  ))
+																))
 															: null
 													}
 												>
@@ -7874,24 +7871,24 @@ else{
 							{(_.has(this.state?.activeSection?.style, 'count') ||
 								(_.has(this.state.activeSection?.style, 'gap') &&
 									!_.has(this.state.activeSection?.style, 'iconsAlign'))) && (
-								<>
-									<div
-										className="overlay-options animated-item"
-										onClick={() =>
-											this.setState({
-												showListOptions: !this.state.showListOptions,
-											})
-										}
-									>
-										<b>List Options</b>
-										<UpDown
-											style={{
-												rotate: !this.state.showListOptions && '180deg',
-											}}
-										/>
-									</div>
-								</>
-							)}
+									<>
+										<div
+											className="overlay-options animated-item"
+											onClick={() =>
+												this.setState({
+													showListOptions: !this.state.showListOptions,
+												})
+											}
+										>
+											<b>List Options</b>
+											<UpDown
+												style={{
+													rotate: !this.state.showListOptions && '180deg',
+												}}
+											/>
+										</div>
+									</>
+								)}
 							{_.has(this.state?.activeSection?.style, 'count') &&
 								this.state.showListOptions && (
 									<div className="bs-item animated-item">
@@ -7965,7 +7962,7 @@ else{
 
 							{/* video block -Abdullah */}
 							{_.has(this.state.activeSection?.style, 'isVideoBlock') ||
-							this.state.showVideoBlock ? (
+								this.state.showVideoBlock ? (
 								<>
 									<div className=" bs-item animated-item">
 										<b>Video URL</b>
@@ -8080,7 +8077,7 @@ else{
 															<span
 																className={
 																	this.state?.alignVideoBlock ===
-																	'flex-start'
+																		'flex-start'
 																		? 'active'
 																		: ''
 																}
@@ -8095,7 +8092,7 @@ else{
 															<span
 																className={
 																	this.state?.alignVideoBlock ===
-																	'center'
+																		'center'
 																		? 'active'
 																		: ''
 																}
@@ -8110,7 +8107,7 @@ else{
 															<span
 																className={
 																	this.state?.alignVideoBlock ===
-																	'flex-end'
+																		'flex-end'
 																		? 'active'
 																		: ''
 																}
@@ -8443,7 +8440,7 @@ else{
 											<span
 												className={
 													this.state?.contentAlign ===
-													'justify-content-flex-start'
+														'justify-content-flex-start'
 														? 'active'
 														: ''
 												}
@@ -8458,7 +8455,7 @@ else{
 											<span
 												className={
 													this.state?.contentAlign ===
-													'justify-content-center'
+														'justify-content-center'
 														? 'active'
 														: ''
 												}
@@ -8473,7 +8470,7 @@ else{
 											<span
 												className={
 													this.state?.contentAlign ===
-													'justify-content-flex-end'
+														'justify-content-flex-end'
 														? 'active'
 														: ''
 												}
@@ -8498,90 +8495,86 @@ else{
 										<div className="image-items ">
 											{this.state.activeSection?.style?.imagePositionOptions
 												?.hflip && (
-												<>
-													<span
-														className={`tooltip
-														${
-															this.state.activeSection?.style
-																?.imagePositionStyles ===
-															'flex-direction-row-reverse-imp'
-																? 'active'
-																: ''
-														}`}
-														onClick={(e) =>
-															this.setImagePosition(
-																'flex-direction-row-reverse-imp',
-															)
-														}
-													>
-														<ImageLeft />
-														<label className="tooltip-text">Left</label>
-													</span>
-													<span
-														className={`tooltip
-														${
-															this.state.activeSection?.style
-																?.imagePositionStyles ===
-															'flex-direction-row-imp'
-																? 'active'
-																: ''
-														}`}
-														onClick={(e) =>
-															this.setImagePosition(
-																'flex-direction-row-imp',
-															)
-														}
-													>
-														<ImageRight />
-														<label className="tooltip-text">
-															Right
-														</label>
-													</span>
-												</>
-											)}
+													<>
+														<span
+															className={`tooltip
+														${this.state.activeSection?.style
+																	?.imagePositionStyles ===
+																	'flex-direction-row-reverse-imp'
+																	? 'active'
+																	: ''
+																}`}
+															onClick={(e) =>
+																this.setImagePosition(
+																	'flex-direction-row-reverse-imp',
+																)
+															}
+														>
+															<ImageLeft />
+															<label className="tooltip-text">Left</label>
+														</span>
+														<span
+															className={`tooltip
+														${this.state.activeSection?.style
+																	?.imagePositionStyles ===
+																	'flex-direction-row-imp'
+																	? 'active'
+																	: ''
+																}`}
+															onClick={(e) =>
+																this.setImagePosition(
+																	'flex-direction-row-imp',
+																)
+															}
+														>
+															<ImageRight />
+															<label className="tooltip-text">
+																Right
+															</label>
+														</span>
+													</>
+												)}
 											{this.state.activeSection?.style?.imagePositionOptions
 												?.vflip && (
-												<>
-													<span
-														className={`tooltip
-														${
-															this.state.activeSection?.style
-																?.imagePositionStyles ===
-															'flex-direction-column-imp'
-																? 'active'
-																: ''
-														}`}
-														onClick={(e) =>
-															this.setImagePosition(
-																'flex-direction-column-imp',
-															)
-														}
-													>
-														<ImageBottom />
-														<label className="tooltip-text">
-															Bottom
-														</label>
-													</span>
-													<span
-														className={`tooltip
-														${
-															this.state.activeSection?.style
-																?.imagePositionStyles ===
-															'flex-direction-column-reverse-imp'
-																? 'active'
-																: ''
-														}`}
-														onClick={(e) =>
-															this.setImagePosition(
-																'flex-direction-column-reverse-imp',
-															)
-														}
-													>
-														<ImageTop />
-														<label className="tooltip-text">Top</label>
-													</span>
-												</>
-											)}
+													<>
+														<span
+															className={`tooltip
+														${this.state.activeSection?.style
+																	?.imagePositionStyles ===
+																	'flex-direction-column-imp'
+																	? 'active'
+																	: ''
+																}`}
+															onClick={(e) =>
+																this.setImagePosition(
+																	'flex-direction-column-imp',
+																)
+															}
+														>
+															<ImageBottom />
+															<label className="tooltip-text">
+																Bottom
+															</label>
+														</span>
+														<span
+															className={`tooltip
+														${this.state.activeSection?.style
+																	?.imagePositionStyles ===
+																	'flex-direction-column-reverse-imp'
+																	? 'active'
+																	: ''
+																}`}
+															onClick={(e) =>
+																this.setImagePosition(
+																	'flex-direction-column-reverse-imp',
+																)
+															}
+														>
+															<ImageTop />
+															<label className="tooltip-text">Top</label>
+														</span>
+													</>
+												)}
 										</div>
 									</div>
 									{this.state?.activeSection?.style?.contentAlign && (
@@ -8687,43 +8680,40 @@ else{
 										<b className="animated-item">Grid Spacing</b>
 										<div className="grid-spacing-settings">
 											<p
-												className={`grid-settings-item ${
-													this.state.activeSection?.blocks?.[0]?.divStyles
+												className={`grid-settings-item ${this.state.activeSection?.blocks?.[0]?.divStyles
 														?.rowGap === 10 &&
-													this.state.activeSection?.blocks?.[0]?.divStyles
-														?.columnGap === 10
+														this.state.activeSection?.blocks?.[0]?.divStyles
+															?.columnGap === 10
 														? 'active'
 														: ''
-												}`}
+													}`}
 											>
 												<GridGap onClick={() => this.handleGridGap(10)} />
 											</p>
 											<p
-												className={`grid-settings-item ${
-													this.state.activeSection?.blocks?.[0]?.divStyles
+												className={`grid-settings-item ${this.state.activeSection?.blocks?.[0]?.divStyles
 														?.rowGap === 0 &&
-													this.state.activeSection?.blocks?.[0]?.divStyles
-														?.columnGap === 0
+														this.state.activeSection?.blocks?.[0]?.divStyles
+															?.columnGap === 0
 														? 'active'
 														: ''
-												}`}
+													}`}
 											>
 												<GridNoGap onClick={() => this.handleGridGap(0)} />
 											</p>
 
 											<p
-												className={`grid-Custom ${
-													(this.state.activeSection?.blocks?.[0]
+												className={`grid-Custom ${(this.state.activeSection?.blocks?.[0]
 														?.divStyles?.rowGap !== 0 &&
 														this.state.activeSection?.blocks?.[0]
 															?.divStyles?.rowGap !== 10) ||
-													(this.state.activeSection?.blocks?.[0]
-														?.divStyles?.columnGap !== 0 &&
-														this.state.activeSection?.blocks?.[0]
-															?.divStyles?.columnGap !== 10)
+														(this.state.activeSection?.blocks?.[0]
+															?.divStyles?.columnGap !== 0 &&
+															this.state.activeSection?.blocks?.[0]
+																?.divStyles?.columnGap !== 10)
 														? 'active'
 														: ''
-												}`}
+													}`}
 											>
 												Custom
 											</p>
@@ -8890,8 +8880,8 @@ else{
 									position: 'relative',
 									height:
 										this.props.hasShape &&
-										this.state.shape &&
-										!this.state.isLogo
+											this.state.shape &&
+											!this.state.isLogo
 											? `calc(100vh - 61px - 230px)`
 											: 'calc(100vh - 64px - 100px)',
 								}}
@@ -8914,7 +8904,7 @@ else{
 									</span>
 								</div>
 								<div
-									className="sidebar-controls"
+									className="controls"
 									style={{
 										display: 'flex',
 										flexDirection: 'column',
@@ -8952,7 +8942,7 @@ else{
 
 									{this.state.isLogo && (
 										<div
-											className="sidebar-controls"
+											className="controls"
 											style={{
 												display: 'flex',
 												flexDirection: 'column',
@@ -9226,7 +9216,7 @@ else{
 					this.state.activeTab === 'q' ? (
 						<div
 							className="block_styles"
-							//onClick={(e) => e.preventDefault()}
+						//onClick={(e) => e.preventDefault()}
 						>
 							<div className="bs-item bs-item-row">
 								<b>Question Type</b>
@@ -9241,8 +9231,8 @@ else{
 									>
 										{this.state.activeFormBlock !== null
 											? _.filter(this.state.questions, {
-													value: this.state.activeFormBlock.type,
-											  })[0]?.name
+												value: this.state.activeFormBlock.type,
+											})[0]?.name
 											: ''}
 									</label>
 									{this.state?.showQuestionTypeDropDown ? (
@@ -9275,8 +9265,8 @@ else{
 														</p>
 														{this.state?.activeFormBlock?.type ===
 															question?.value && (
-															<ActiveTick style={{ zoom: 1.5 }} />
-														)}
+																<ActiveTick style={{ zoom: 1.5 }} />
+															)}
 													</div>
 												);
 											})}
@@ -9305,7 +9295,7 @@ else{
 								</label>
 							</div>
 							{this.state?.activeFormBlock?.type === 'multipleChoice' &&
-							this.state?.activeFormBlock?.answerOptions ? (
+								this.state?.activeFormBlock?.answerOptions ? (
 								<div className="bs-item bs-item-row">
 									<b>Select Multiple Options</b>
 									<label className="switch">
@@ -9314,9 +9304,9 @@ else{
 											checked={
 												this.state.activeFormBlock !== null
 													? this.state?.activeFormBlock?.answerOptions
-															?.isMultiple
+														?.isMultiple
 														? this.state?.activeFormBlock?.answerOptions
-																?.isMultiple
+															?.isMultiple
 														: false
 													: false
 											}
@@ -9434,7 +9424,7 @@ else{
 											<div className="group-section">
 												<div className="group-title">Smart Field Info</div>
 												{this.state?.variables?.custom &&
-												this.state?.variables?.custom?.length > 0 ? (
+													this.state?.variables?.custom?.length > 0 ? (
 													this.state?.variables?.custom
 														?.filter(
 															(v) =>
@@ -9477,7 +9467,7 @@ else{
 											<div className="group-section">
 												<div className="group-title">Custom Info</div>
 												{this.state?.variables?.custom &&
-												this.state?.variables?.custom?.length > 0 ? (
+													this.state?.variables?.custom?.length > 0 ? (
 													this.state?.variables?.custom
 														?.filter(
 															(item) =>
@@ -9515,7 +9505,7 @@ else{
 											<div className="group-section">
 												<div className="group-title">Client Info</div>
 												{this.state.clientInfo &&
-												this.state.clientInfo?.length > 0 ? (
+													this.state.clientInfo?.length > 0 ? (
 													this.state.clientInfo
 														?.filter(
 															(item) =>
@@ -9553,7 +9543,7 @@ else{
 											<div className="group-section">
 												<div className="group-title">Company Info</div>
 												{this.state.companyInfo &&
-												this.state.companyInfo?.length > 0 ? (
+													this.state.companyInfo?.length > 0 ? (
 													this.state.companyInfo
 														?.filter(
 															(item) =>
@@ -9648,63 +9638,63 @@ else{
 
 						{(this.state?.showAnimationOptions ||
 							this.state?.activeElementAnimeType) && (
-							<div className="show-anime-options" style={{ padding: '0px' }}>
-								{this.state?.activeElementAnimeType && (
-									<div
-										className="active-anime-option"
-										onClick={(e) => {
-											e.stopPropagation();
-											this.handleElementAnimationsType(
-												this.state?.activeElementAnimeType,
-											);
-										}}
-									>
-										<span>{this.state?.activeElementAnimeType}</span>
-										<Plus
-											style={{ rotate: '45deg' }}
+								<div className="show-anime-options" style={{ padding: '0px' }}>
+									{this.state?.activeElementAnimeType && (
+										<div
+											className="active-anime-option"
 											onClick={(e) => {
-												this.handleRemoveElementAnimations(e);
+												e.stopPropagation();
+												this.handleElementAnimationsType(
+													this.state?.activeElementAnimeType,
+												);
 											}}
-										/>
-									</div>
-								)}
-								{this.state?.showAnimationOptions && (
-									<div className="anime-options-box">
-										<div
-											className="anime-options-box-item"
-											onClick={() =>
-												this.handleElementAnimationsType('hover')
-											}
 										>
-											<span>Hover</span>
-											{this.state?.activeElementAnimeType == 'hover' && (
-												<ActiveTick />
-											)}
+											<span>{this.state?.activeElementAnimeType}</span>
+											<Plus
+												style={{ rotate: '45deg' }}
+												onClick={(e) => {
+													this.handleRemoveElementAnimations(e);
+												}}
+											/>
 										</div>
-										<div
-											className="anime-options-box-item"
-											onClick={() =>
-												this.handleElementAnimationsType('press')
-											}
-										>
-											<span>Press</span>
-											{this.state?.activeElementAnimeType == 'press' && (
-												<ActiveTick />
-											)}
+									)}
+									{this.state?.showAnimationOptions && (
+										<div className="anime-options-box">
+											<div
+												className="anime-options-box-item"
+												onClick={() =>
+													this.handleElementAnimationsType('hover')
+												}
+											>
+												<span>Hover</span>
+												{this.state?.activeElementAnimeType == 'hover' && (
+													<ActiveTick />
+												)}
+											</div>
+											<div
+												className="anime-options-box-item"
+												onClick={() =>
+													this.handleElementAnimationsType('press')
+												}
+											>
+												<span>Press</span>
+												{this.state?.activeElementAnimeType == 'press' && (
+													<ActiveTick />
+												)}
+											</div>
+											<div
+												className="anime-options-box-item"
+												onClick={() => this.handleElementAnimationsType('loop')}
+											>
+												<span>Loop</span>
+												{this.state?.activeElementAnimeType == 'loop' && (
+													<ActiveTick />
+												)}
+											</div>
 										</div>
-										<div
-											className="anime-options-box-item"
-											onClick={() => this.handleElementAnimationsType('loop')}
-										>
-											<span>Loop</span>
-											{this.state?.activeElementAnimeType == 'loop' && (
-												<ActiveTick />
-											)}
-										</div>
-									</div>
-								)}
-							</div>
-						)}
+									)}
+								</div>
+							)}
 						<div className="bs-item">
 							<b>Insert Smart Field</b>
 							<div className="smart-main-input">
@@ -9923,23 +9913,23 @@ else{
 													this.state.searchSmartField &&
 														this.state.searchSmartField.length > 0
 														? this.state?.variables?.custom?.filter(
-																(variable) =>
-																	variable.templateId ===
-																		this.props.params
-																			.templateID &&
-																	variable.displayName
-																		?.toLowerCase()
-																		.includes(
-																			this.state.searchSmartField
-																				?.toLowerCase()
-																				?.substring(0, 2),
-																		),
-														  )
+															(variable) =>
+																variable.templateId ===
+																this.props.params
+																	.templateID &&
+																variable.displayName
+																	?.toLowerCase()
+																	.includes(
+																		this.state.searchSmartField
+																			?.toLowerCase()
+																			?.substring(0, 2),
+																	),
+														)
 														: this.state?.variables?.custom?.filter(
-																(variable) =>
-																	variable.templateId ===
-																	this.state.activeModuleId,
-														  ),
+															(variable) =>
+																variable.templateId ===
+																this.state.activeModuleId,
+														),
 													(variable, k) => (
 														<div
 															key={k}
@@ -9984,15 +9974,15 @@ else{
 													this.state?.searchSmartField &&
 														this.state.searchSmartField.length > 0
 														? this.state?.variables?.custom?.filter(
-																(item) =>
-																	item.displayName
-																		?.toLowerCase()
-																		.includes(
-																			this.state.searchSmartField
-																				?.toLowerCase()
-																				.substring(0, 2),
-																		),
-														  )
+															(item) =>
+																item.displayName
+																	?.toLowerCase()
+																	.includes(
+																		this.state.searchSmartField
+																			?.toLowerCase()
+																			.substring(0, 2),
+																	),
+														)
 														: this.state?.variables?.custom,
 
 													(variable, k) => {
@@ -10054,8 +10044,8 @@ else{
 																				/>
 																				{!variable?.isRequired &&
 																					variable?.workflowId !==
-																						this.props
-																							.workflow_id && (
+																					this.props
+																						.workflow_id && (
 																						<Delete
 																							style={{
 																								cursor: 'pointer',
@@ -10090,14 +10080,14 @@ else{
 													this.state?.searchSmartField &&
 														this.state.searchSmartField.length > 0
 														? this.state.clientInfo.filter((item) =>
-																item.displayName
-																	?.toLowerCase()
-																	.includes(
-																		this.state.searchSmartField
-																			?.toLowerCase()
-																			.substring(0, 2),
-																	),
-														  )
+															item.displayName
+																?.toLowerCase()
+																.includes(
+																	this.state.searchSmartField
+																		?.toLowerCase()
+																		.substring(0, 2),
+																),
+														)
 														: this.state.clientInfo,
 													(variable, k) => {
 														return (
@@ -10123,10 +10113,10 @@ else{
 																{this.state?.selectedVariables?.includes(
 																	variable?.displayName,
 																) && (
-																	<div>
-																		<ActiveTick />
-																	</div>
-																)}
+																		<div>
+																			<ActiveTick />
+																		</div>
+																	)}
 															</div>
 															// <p
 															// 	onClick={(e) =>
@@ -10156,14 +10146,14 @@ else{
 													this.state?.searchSmartField &&
 														this.state.searchSmartField.length > 0
 														? this.state.companyInfo.filter((item) =>
-																item.displayName
-																	?.toLowerCase()
-																	.includes(
-																		this.state.searchSmartField
-																			?.toLowerCase()
-																			.substring(0, 2),
-																	),
-														  )
+															item.displayName
+																?.toLowerCase()
+																.includes(
+																	this.state.searchSmartField
+																		?.toLowerCase()
+																		.substring(0, 2),
+																),
+														)
 														: this.state.companyInfo,
 													(variable, k) => {
 														return (
@@ -10189,10 +10179,10 @@ else{
 																{this.state?.selectedVariables?.includes(
 																	variable?.displayName,
 																) && (
-																	<div>
-																		<ActiveTick />
-																	</div>
-																)}
+																		<div>
+																			<ActiveTick />
+																		</div>
+																	)}
 															</div>
 															// <p
 															// 	onClick={(e) =>
@@ -10222,14 +10212,14 @@ else{
 													this.state?.searchSmartField &&
 														this.state.searchSmartField.length > 0
 														? this.state.userInfo.filter((item) =>
-																item.displayName
-																	?.toLowerCase()
-																	.includes(
-																		this.state.searchSmartField
-																			?.toLowerCase()
-																			.substring(0, 2),
-																	),
-														  )
+															item.displayName
+																?.toLowerCase()
+																.includes(
+																	this.state.searchSmartField
+																		?.toLowerCase()
+																		.substring(0, 2),
+																),
+														)
 														: this.state.userInfo,
 													(variable, k) => {
 														return (
@@ -10255,10 +10245,10 @@ else{
 																{this.state?.selectedVariables?.includes(
 																	variable?.displayName,
 																) && (
-																	<div>
-																		<ActiveTick />
-																	</div>
-																)}
+																		<div>
+																			<ActiveTick />
+																		</div>
+																	)}
 															</div>
 															// <p
 															// 	onClick={(e) =>
@@ -10562,15 +10552,15 @@ else{
 																					fontFamily:
 																						font?.value,
 																				}}
-																				// className={`font-item ${this.state.selectedFont === font.value ? 'active' : ''}`}
+																			// className={`font-item ${this.state.selectedFont === font.value ? 'active' : ''}`}
 																			>
 																				{font.fontName}
 																			</p>
 																			{this.state
 																				.activeFont ==
 																				font?.value && (
-																				<ActiveTick />
-																			)}
+																					<ActiveTick />
+																				)}
 																		</div>
 																	))}
 																</div>
@@ -10698,14 +10688,14 @@ else{
 											{!this.state.fonts?.some(
 												(font) =>
 													font?.value?.toLowerCase() ===
-														this.state.activeFont?.toLowerCase() ||
+													this.state.activeFont?.toLowerCase() ||
 													font?.fontName?.toLowerCase() ===
-														this.state.activeFont?.toLowerCase(),
+													this.state.activeFont?.toLowerCase(),
 											) && (
-												<div>
-													<p className="font-variant-item">No Weights</p>
-												</div>
-											)}
+													<div>
+														<p className="font-variant-item">No Weights</p>
+													</div>
+												)}
 											{/* {_.map(
     _.filter(this.state.fonts, {
         fontName: this.state.activeFont,
@@ -10789,16 +10779,15 @@ else{
 									className={`tooltip ${this.state.justifyleft ? 'active' : ''}`}
 								>
 									<Left />
-									{/* <label className="tooltip-text">Left</label> */}
+									<label className="tooltip-text">Left</label>
 								</span>
 								<span
 									onClick={(e) => this.changeTextAlign(e, 'justifycenter')}
-									className={`tooltip ${
-										this.state.justifycenter ? 'active' : ''
-									}`}
+									className={`tooltip ${this.state.justifycenter ? 'active' : ''
+										}`}
 								>
 									<Center />
-									{/* <label className="tooltip-text">center</label> */}
+									<label className="tooltip-text">center</label>
 								</span>
 
 								<span
@@ -10806,14 +10795,14 @@ else{
 									className={`tooltip ${this.state.justifyright ? 'active' : ''}`}
 								>
 									<Right />
-									{/* <label className="tooltip-text">right</label> */}
+									<label className="tooltip-text">right</label>
 								</span>
 								<span
 									onClick={(e) => this.changeTextAlign(e, 'justifyfull')}
 									className={`tooltip ${this.state.justifyfull ? 'active' : ''}`}
 								>
 									<Justify />
-									{/* <label className="tooltip-text">justify</label> */}
+									<label className="tooltip-text">justify</label>
 								</span>
 							</div>
 						</div>
@@ -10934,65 +10923,65 @@ else{
 
 							{(this.state?.showAnimationOptions ||
 								this.state?.activeElementAnimeType) && (
-								<div className="show-anime-options" style={{ padding: '0px 24px' }}>
-									{this.state?.activeElementAnimeType && (
-										<div
-											className="active-anime-option"
-											onClick={(e) => {
-												e.stopPropagation();
-												this.handleElementAnimationsType(
-													this.state?.activeElementAnimeType,
-												);
-											}}
-										>
-											<span>{this.state?.activeElementAnimeType}</span>
-											<Plus
-												style={{ rotate: '45deg' }}
+									<div className="show-anime-options" style={{ padding: '0px 24px' }}>
+										{this.state?.activeElementAnimeType && (
+											<div
+												className="active-anime-option"
 												onClick={(e) => {
-													this.handleRemoveElementAnimations(e);
+													e.stopPropagation();
+													this.handleElementAnimationsType(
+														this.state?.activeElementAnimeType,
+													);
 												}}
-											/>
-										</div>
-									)}
-									{this.state?.showAnimationOptions && (
-										<div className="anime-options-box">
-											<div
-												className="anime-options-box-item"
-												onClick={() =>
-													this.handleElementAnimationsType('hover')
-												}
 											>
-												<span>Hover</span>
-												{this.state?.activeElementAnimeType == 'hover' && (
-													<ActiveTick />
-												)}
+												<span>{this.state?.activeElementAnimeType}</span>
+												<Plus
+													style={{ rotate: '45deg' }}
+													onClick={(e) => {
+														this.handleRemoveElementAnimations(e);
+													}}
+												/>
 											</div>
-											<div
-												className="anime-options-box-item"
-												onClick={() =>
-													this.handleElementAnimationsType('press')
-												}
-											>
-												<span>Press</span>
-												{this.state?.activeElementAnimeType == 'press' && (
-													<ActiveTick />
-												)}
+										)}
+										{this.state?.showAnimationOptions && (
+											<div className="anime-options-box">
+												<div
+													className="anime-options-box-item"
+													onClick={() =>
+														this.handleElementAnimationsType('hover')
+													}
+												>
+													<span>Hover</span>
+													{this.state?.activeElementAnimeType == 'hover' && (
+														<ActiveTick />
+													)}
+												</div>
+												<div
+													className="anime-options-box-item"
+													onClick={() =>
+														this.handleElementAnimationsType('press')
+													}
+												>
+													<span>Press</span>
+													{this.state?.activeElementAnimeType == 'press' && (
+														<ActiveTick />
+													)}
+												</div>
+												<div
+													className="anime-options-box-item"
+													onClick={() =>
+														this.handleElementAnimationsType('loop')
+													}
+												>
+													<span>Loop</span>
+													{this.state?.activeElementAnimeType == 'loop' && (
+														<ActiveTick />
+													)}
+												</div>
 											</div>
-											<div
-												className="anime-options-box-item"
-												onClick={() =>
-													this.handleElementAnimationsType('loop')
-												}
-											>
-												<span>Loop</span>
-												{this.state?.activeElementAnimeType == 'loop' && (
-													<ActiveTick />
-												)}
-											</div>
-										</div>
-									)}
-								</div>
-							)}
+										)}
+									</div>
+								)}
 
 							{/* {this.state.activeSection?.blocks[0]?.subBlocks?.find(subBlock => subBlock.linkto) ? */}
 							<div className="link-container">
@@ -11289,7 +11278,7 @@ else{
 									<span
 										className={
 											this.state.activeSection?.style?.iconsAlign ===
-											'flex-start'
+												'flex-start'
 												? 'activePosition'
 												: ''
 										}
@@ -11310,7 +11299,7 @@ else{
 									<span
 										className={
 											this.state.activeSection?.style?.iconsAlign ===
-											'flex-end'
+												'flex-end'
 												? 'activePosition'
 												: ''
 										}
@@ -11371,100 +11360,100 @@ else{
 
 						{(this.state?.showAnimationOptions ||
 							this.state?.activeElementAnimeType) && (
-							<div className="show-anime-options" style={{ padding: '0px' }}>
-								{this.state?.activeElementAnimeType && (
-									<div
-										className="active-anime-option"
-										onClick={(e) => {
-											e.stopPropagation();
-											this.handleElementAnimationsType(
-												this.state?.activeElementAnimeType,
-											);
-										}}
-									>
-										<span>{this.state?.activeElementAnimeType}</span>
-										<Plus
-											style={{ rotate: '45deg' }}
+								<div className="show-anime-options" style={{ padding: '0px' }}>
+									{this.state?.activeElementAnimeType && (
+										<div
+											className="active-anime-option"
 											onClick={(e) => {
-												this.handleRemoveElementAnimations(e);
+												e.stopPropagation();
+												this.handleElementAnimationsType(
+													this.state?.activeElementAnimeType,
+												);
 											}}
-										/>
-									</div>
-								)}
-								{this.state?.showAnimationOptions && (
-									<div className="anime-options-box">
-										<div
-											className="anime-options-box-item"
-											onClick={() =>
-												this.handleElementAnimationsType('hover')
-											}
 										>
-											<span>Hover</span>
-											{this.state?.activeElementAnimeType == 'hover' && (
-												<ActiveTick />
-											)}
+											<span>{this.state?.activeElementAnimeType}</span>
+											<Plus
+												style={{ rotate: '45deg' }}
+												onClick={(e) => {
+													this.handleRemoveElementAnimations(e);
+												}}
+											/>
 										</div>
-										<div
-											className="anime-options-box-item"
-											onClick={() =>
-												this.handleElementAnimationsType('press')
-											}
-										>
-											<span>Press</span>
-											{this.state?.activeElementAnimeType == 'press' && (
-												<ActiveTick />
-											)}
+									)}
+									{this.state?.showAnimationOptions && (
+										<div className="anime-options-box">
+											<div
+												className="anime-options-box-item"
+												onClick={() =>
+													this.handleElementAnimationsType('hover')
+												}
+											>
+												<span>Hover</span>
+												{this.state?.activeElementAnimeType == 'hover' && (
+													<ActiveTick />
+												)}
+											</div>
+											<div
+												className="anime-options-box-item"
+												onClick={() =>
+													this.handleElementAnimationsType('press')
+												}
+											>
+												<span>Press</span>
+												{this.state?.activeElementAnimeType == 'press' && (
+													<ActiveTick />
+												)}
+											</div>
+											<div
+												className="anime-options-box-item"
+												onClick={() => this.handleElementAnimationsType('loop')}
+											>
+												<span>Loop</span>
+												{this.state?.activeElementAnimeType == 'loop' && (
+													<ActiveTick />
+												)}
+											</div>
 										</div>
-										<div
-											className="anime-options-box-item"
-											onClick={() => this.handleElementAnimationsType('loop')}
-										>
-											<span>Loop</span>
-											{this.state?.activeElementAnimeType == 'loop' && (
-												<ActiveTick />
-											)}
-										</div>
-									</div>
-								)}
-							</div>
-						)}
+									)}
+								</div>
+							)}
 
 						<div className="sticker">
 							<b>Styles</b>
 							<div className="sticker-icons">
 								{!_.has(this.state.activeSection, 'isFluidSection')
 									? this.state.stickers?.map((sticker) => {
-											const isActive =
-												this.state.activeSection?.stickerShape ===
-												sticker.name;
-											return (
-												<span
-													key={sticker.name}
-													className={isActive ? 'activeSticker' : ''}
-													onClick={() =>
-														this.setStickerShape(sticker.name)
-													}
-												>
-													{sticker.element}
-												</span>
-											);
-									  })
+										const isActive =
+											this.state.activeSection?.stickerShape ===
+											sticker.name;
+										return (
+											<span
+												key={sticker.name}
+												className={isActive ? 'activeSticker' : ''}
+												onClick={() =>
+													this.setStickerShape(sticker.name)
+												}
+											>
+												{sticker.element}
+											</span>
+										);
+									})
 									: this.state.fluidShapes?.map((sticker) => {
-											const isActive =
-												this.state.activeSection?.stickerShape ===
-												sticker.name;
-											return (
-												<span
-													key={sticker.name}
-													className={isActive ? 'activeSticker' : ''}
-													onClick={() =>
-														this.setStickerShape(sticker.name)
-													}
-												>
-													{sticker.element}
-												</span>
-											);
-									  })}
+										const isActive =
+											this.state.activeSection?.stickerShape ===
+											sticker.name;
+										return (
+											<span
+												key={sticker.name}
+												className={isActive ? 'activeSticker' : ''}
+												onClick={() =>
+													this.setStickerShape(sticker.name)
+												}
+											>
+												{sticker.element}
+											</span>
+										);
+									})}
 							</div>
 						</div>
 						<div className="divider"></div>
@@ -11562,63 +11551,63 @@ else{
 
 						{(this.state?.showAnimationOptions ||
 							this.state?.activeElementAnimeType) && (
-							<div className="show-anime-options" style={{ padding: '0px' }}>
-								{this.state?.activeElementAnimeType && (
-									<div
-										className="active-anime-option"
-										onClick={(e) => {
-											e.stopPropagation();
-											this.handleElementAnimationsType(
-												this.state?.activeElementAnimeType,
-											);
-										}}
-									>
-										<span>{this.state?.activeElementAnimeType}</span>
-										<Plus
-											style={{ rotate: '45deg' }}
+								<div className="show-anime-options" style={{ padding: '0px' }}>
+									{this.state?.activeElementAnimeType && (
+										<div
+											className="active-anime-option"
 											onClick={(e) => {
-												this.handleRemoveElementAnimations(e);
+												e.stopPropagation();
+												this.handleElementAnimationsType(
+													this.state?.activeElementAnimeType,
+												);
 											}}
-										/>
-									</div>
-								)}
-								{this.state?.showAnimationOptions && (
-									<div className="anime-options-box">
-										<div
-											className="anime-options-box-item"
-											onClick={() =>
-												this.handleElementAnimationsType('hover')
-											}
 										>
-											<span>Hover</span>
-											{this.state?.activeElementAnimeType == 'hover' && (
-												<ActiveTick />
-											)}
+											<span>{this.state?.activeElementAnimeType}</span>
+											<Plus
+												style={{ rotate: '45deg' }}
+												onClick={(e) => {
+													this.handleRemoveElementAnimations(e);
+												}}
+											/>
 										</div>
-										<div
-											className="anime-options-box-item"
-											onClick={() =>
-												this.handleElementAnimationsType('press')
-											}
-										>
-											<span>Press</span>
-											{this.state?.activeElementAnimeType == 'press' && (
-												<ActiveTick />
-											)}
+									)}
+									{this.state?.showAnimationOptions && (
+										<div className="anime-options-box">
+											<div
+												className="anime-options-box-item"
+												onClick={() =>
+													this.handleElementAnimationsType('hover')
+												}
+											>
+												<span>Hover</span>
+												{this.state?.activeElementAnimeType == 'hover' && (
+													<ActiveTick />
+												)}
+											</div>
+											<div
+												className="anime-options-box-item"
+												onClick={() =>
+													this.handleElementAnimationsType('press')
+												}
+											>
+												<span>Press</span>
+												{this.state?.activeElementAnimeType == 'press' && (
+													<ActiveTick />
+												)}
+											</div>
+											<div
+												className="anime-options-box-item"
+												onClick={() => this.handleElementAnimationsType('loop')}
+											>
+												<span>Loop</span>
+												{this.state?.activeElementAnimeType == 'loop' && (
+													<ActiveTick />
+												)}
+											</div>
 										</div>
-										<div
-											className="anime-options-box-item"
-											onClick={() => this.handleElementAnimationsType('loop')}
-										>
-											<span>Loop</span>
-											{this.state?.activeElementAnimeType == 'loop' && (
-												<ActiveTick />
-											)}
-										</div>
-									</div>
-								)}
-							</div>
-						)}
+									)}
+								</div>
+							)}
 						<b>Element</b>
 						<p style={{ color: '#939393', fontSize: '12px' }}>Maximum 30 letters.</p>
 						<div className="input-link">
@@ -11960,63 +11949,63 @@ else{
 
 						{(this.state?.showAnimationOptions ||
 							this.state?.activeElementAnimeType) && (
-							<div className="show-anime-options" style={{ padding: '0px' }}>
-								{this.state?.activeElementAnimeType && (
-									<div
-										className="active-anime-option"
-										onClick={(e) => {
-											e.stopPropagation();
-											this.handleElementAnimationsType(
-												this.state?.activeElementAnimeType,
-											);
-										}}
-									>
-										<span>{this.state?.activeElementAnimeType}</span>
-										<Plus
-											style={{ rotate: '45deg' }}
+								<div className="show-anime-options" style={{ padding: '0px' }}>
+									{this.state?.activeElementAnimeType && (
+										<div
+											className="active-anime-option"
 											onClick={(e) => {
-												this.handleRemoveElementAnimations(e);
+												e.stopPropagation();
+												this.handleElementAnimationsType(
+													this.state?.activeElementAnimeType,
+												);
 											}}
-										/>
-									</div>
-								)}
-								{this.state?.showAnimationOptions && (
-									<div className="anime-options-box">
-										<div
-											className="anime-options-box-item"
-											onClick={() =>
-												this.handleElementAnimationsType('hover')
-											}
 										>
-											<span>Hover</span>
-											{this.state?.activeElementAnimeType == 'hover' && (
-												<ActiveTick />
-											)}
+											<span>{this.state?.activeElementAnimeType}</span>
+											<Plus
+												style={{ rotate: '45deg' }}
+												onClick={(e) => {
+													this.handleRemoveElementAnimations(e);
+												}}
+											/>
 										</div>
-										<div
-											className="anime-options-box-item"
-											onClick={() =>
-												this.handleElementAnimationsType('press')
-											}
-										>
-											<span>Press</span>
-											{this.state?.activeElementAnimeType == 'press' && (
-												<ActiveTick />
-											)}
+									)}
+									{this.state?.showAnimationOptions && (
+										<div className="anime-options-box">
+											<div
+												className="anime-options-box-item"
+												onClick={() =>
+													this.handleElementAnimationsType('hover')
+												}
+											>
+												<span>Hover</span>
+												{this.state?.activeElementAnimeType == 'hover' && (
+													<ActiveTick />
+												)}
+											</div>
+											<div
+												className="anime-options-box-item"
+												onClick={() =>
+													this.handleElementAnimationsType('press')
+												}
+											>
+												<span>Press</span>
+												{this.state?.activeElementAnimeType == 'press' && (
+													<ActiveTick />
+												)}
+											</div>
+											<div
+												className="anime-options-box-item"
+												onClick={() => this.handleElementAnimationsType('loop')}
+											>
+												<span>Loop</span>
+												{this.state?.activeElementAnimeType == 'loop' && (
+													<ActiveTick />
+												)}
+											</div>
 										</div>
-										<div
-											className="anime-options-box-item"
-											onClick={() => this.handleElementAnimationsType('loop')}
-										>
-											<span>Loop</span>
-											{this.state?.activeElementAnimeType == 'loop' && (
-												<ActiveTick />
-											)}
-										</div>
-									</div>
-								)}
-							</div>
-						)}
+									)}
+								</div>
+							)}
 						<ColorPicker
 							title={'Fill Color'}
 							color={this.state?.logoStickerFill}
@@ -12131,8 +12120,8 @@ else{
 								<span
 									className={
 										this.state?.fontStyles?.fontSize !== 24 &&
-										this.state?.fontStyles?.fontSize !== 36 &&
-										this.state?.fontStyles?.fontSize !== 48
+											this.state?.fontStyles?.fontSize !== 36 &&
+											this.state?.fontStyles?.fontSize !== 48
 											? 'active'
 											: ''
 									}
@@ -12239,25 +12228,22 @@ else{
 							<b>Speed</b>
 							<div className="st-span-div st-gap-20px">
 								<span
-									className={`curved-span ${
-										this.state?.scrollStyles?.speed === 'slow' ? 'active' : ''
-									}`}
+									className={`curved-span ${this.state?.scrollStyles?.speed === 'slow' ? 'active' : ''
+										}`}
 									onClick={(e) => this.handleScrollStyles('speed', 'slow')}
 								>
 									Slow
 								</span>
 								<span
-									className={`curved-span ${
-										this.state?.scrollStyles?.speed === 'medium' ? 'active' : ''
-									}`}
+									className={`curved-span ${this.state?.scrollStyles?.speed === 'medium' ? 'active' : ''
+										}`}
 									onClick={(e) => this.handleScrollStyles('speed', 'medium')}
 								>
 									Med
 								</span>
 								<span
-									className={`curved-span ${
-										this.state?.scrollStyles?.speed === 'fast' ? 'active' : ''
-									}`}
+									className={`curved-span ${this.state?.scrollStyles?.speed === 'fast' ? 'active' : ''
+										}`}
 									onClick={(e) => this.handleScrollStyles('speed', 'fast')}
 								>
 									Fast
@@ -12340,11 +12326,10 @@ else{
 								<div className="st-item animated-item">
 									<div className="st-span-div st-gap-20px">
 										<span
-											className={`curved-span ${
-												this.state?.scrollStyles?.blurType === 'text'
+											className={`curved-span ${this.state?.scrollStyles?.blurType === 'text'
 													? 'active'
 													: ''
-											}`}
+												}`}
 											onClick={(e) =>
 												this.handleScrollStyles('blurType', 'text')
 											}
@@ -12353,11 +12338,10 @@ else{
 											Element
 										</span>
 										<span
-											className={`curved-span ${
-												this.state?.scrollStyles?.blurType === 'background'
+											className={`curved-span ${this.state?.scrollStyles?.blurType === 'background'
 													? 'active'
 													: ''
-											}`}
+												}`}
 											onClick={(e) =>
 												this.handleScrollStyles('blurType', 'background')
 											}
@@ -12538,8 +12522,8 @@ else{
 											style={shape.styles}
 											className={
 												shape.name ===
-												this.state?.activeSection?.style?.foldButtonStyles
-													?.btStyle
+													this.state?.activeSection?.style?.foldButtonStyles
+														?.btStyle
 													? 'activeButton'
 													: ''
 											}
@@ -12768,32 +12752,29 @@ else{
 										<div className="bg-width">
 											<span
 												onClick={() => this.handleBackgroundWidth('full')}
-												className={`bg-width-item ${
-													this.state.activeModule?.showType === 'full' ||
-													!this.state.activeModule?.showType
+												className={`bg-width-item ${this.state.activeModule?.showType === 'full' ||
+														!this.state.activeModule?.showType
 														? 'active'
 														: ''
-												}`}
+													}`}
 											>
 												Full
 											</span>
 											<span
 												onClick={() => this.handleBackgroundWidth('slide')}
-												className={`bg-width-item ${
-													this.state.activeModule?.showType === 'slide'
+												className={`bg-width-item ${this.state.activeModule?.showType === 'slide'
 														? 'active'
 														: ''
-												}`}
+													}`}
 											>
 												Slide
 											</span>
 											<span
 												onClick={() => this.handleBackgroundWidth('a4')}
-												className={`bg-width-item ${
-													this.state.activeModule?.showType === 'a4'
+												className={`bg-width-item ${this.state.activeModule?.showType === 'a4'
 														? 'active'
 														: ''
-												}`}
+													}`}
 											>
 												A4
 											</span>

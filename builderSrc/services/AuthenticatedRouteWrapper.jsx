@@ -1,5 +1,4 @@
 import { fetchOriginSelection } from '../helper';
-import { useNavigate } from 'react-router-dom';
 
 const isAuthenticated = () => {
 	const usertoken = localStorage.getItem('usertoken');
@@ -14,9 +13,8 @@ const isAuthenticated = () => {
 };
 
 const AuthenticatedRoute = ({ children }) => {
-	const navigate = useNavigate();
 	if (!isAuthenticated()) {
-		navigate(fetchOriginSelection());
+		window.location.href = fetchOriginSelection();
 		return null;
 	}
 

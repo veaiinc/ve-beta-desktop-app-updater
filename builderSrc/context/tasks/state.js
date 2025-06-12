@@ -356,7 +356,6 @@ export const TasksState = () => {
 				usertoken,
 				'graphql_server',
 			);
-			console.log(response);
 
 			if (response?.[0]) {
 				return response?.[1]?.data;

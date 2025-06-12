@@ -30,7 +30,7 @@ export default class InvoiceCardPopup extends Images {
 	constructor(props) {
 		super(props);
 		this.state = {
-			active: 'i',
+			active: 'b',
 			overlayEffect: false,
 			activeComponent: props?.activeComponent || {},
 			showImageProgressBar: false,
@@ -43,7 +43,7 @@ export default class InvoiceCardPopup extends Images {
 			activeModuleId: props?.activeModuleId,
 			isCustomGrid: false, // Add this new state
 
-			activeBgtype: props?.activeComponent?.style?.backgroundType,
+			activeBgtype: props?.activeComponent?.style?.backgroundType || 'background',
 			showTaxes: true,
 			showDiscounts: false,
 			debounceStateForInputs: null,
@@ -450,6 +450,20 @@ export default class InvoiceCardPopup extends Images {
 		}, delay);
 		this.setState({ debounceStateForInputs: debounceFunc });
 	};
+
+	handleInvoiceCardStyles = (type, value) => {
+		let newComponent = { ...this.state.activeComponent };
+		newComponent = {
+			...newComponent,
+			style: {
+				...newComponent?.style,
+				[type]: value,
+			}
+		}
+		this.setState({ activeComponent: newComponent }, () => {
+			this.props?.handleCardPopupProps(newComponent);
+		});
+	};
 	render() {
 		return (
 			<div
@@ -458,36 +472,26 @@ export default class InvoiceCardPopup extends Images {
 					height: '425px',
 				}}
 			>
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						padding: '12px 0px',
-					}}
-					className="elementPopupHeader"
-				>
+				<div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0px' }} className="elementPopupHeader">
 					{/* <p
 						className={this.state.active === 'c' ? 'active' : ''}
 						onClick={() => this.handleActive('c')}
 					>
 						Card
 					</p>*/}
-					<p
-						style={{ fontSize: '12px' }}
+					<p style={{ fontSize: '12px' }}
 						className={this.state.active === 'b' ? 'active' : ''}
 						onClick={() => this.handleActive('b')}
 					>
 						Background
 					</p>
-					<p
-						style={{ fontSize: '12px' }}
+					<p style={{ fontSize: '12px' }}
 						className={this.state.active === 'i' ? 'active' : ''}
 						onClick={() => this.handleActive('i')}
 					>
 						Tax & Payment
 					</p>
-					<p
-						style={{ fontSize: '12px' }}
+					<p style={{ fontSize: '12px' }}
 						className={this.state.active === 'd' ? 'active' : ''}
 						onClick={() => this.handleActive('d')}
 					>
@@ -518,9 +522,9 @@ export default class InvoiceCardPopup extends Images {
 									>
 										{this.props?.previewType == 'm'
 											? this.state?.activeComponent?.blocks?.[0]?.divStyles
-													?.mGridRows
+												?.mGridRows
 											: this.state?.activeComponent?.blocks?.[0]?.divStyles
-													?.gridRows}
+												?.gridRows}
 									</div>
 									<div
 										className="row-resizeButtons"
@@ -537,15 +541,14 @@ export default class InvoiceCardPopup extends Images {
 								<b className="heading">Grid Spacing</b>
 								<div className="grid-spacing-settings">
 									<p
-										className={`grid-settings-item ${
-											!this.state.isCustomGrid &&
+										className={`grid-settings-item ${!this.state.isCustomGrid &&
 											this.state.activeComponent?.blocks?.[0]?.divStyles
 												?.rowGap === 10 &&
 											this.state.activeComponent?.blocks?.[0]?.divStyles
 												?.columnGap === 10
-												? 'active'
-												: ''
-										}`}
+											? 'active'
+											: ''
+											}`}
 									>
 										<GridGap
 											onClick={() => {
@@ -555,15 +558,14 @@ export default class InvoiceCardPopup extends Images {
 										/>
 									</p>
 									<p
-										className={`grid-settings-item ${
-											!this.state.isCustomGrid &&
+										className={`grid-settings-item ${!this.state.isCustomGrid &&
 											this.state.activeComponent?.blocks?.[0]?.divStyles
 												?.rowGap === 0 &&
 											this.state.activeComponent?.blocks?.[0]?.divStyles
 												?.columnGap === 0
-												? 'active'
-												: ''
-										}`}
+											? 'active'
+											: ''
+											}`}
 									>
 										<GridNoGap
 											onClick={() => {
@@ -573,9 +575,8 @@ export default class InvoiceCardPopup extends Images {
 										/>
 									</p>
 									<p
-										className={`grid-Custom ${
-											this.state.isCustomGrid ? 'active' : ''
-										}`}
+										className={`grid-Custom ${this.state.isCustomGrid ? 'active' : ''
+											}`}
 										onClick={this.handleCustomGrid}
 									>
 										Custom
@@ -735,7 +736,7 @@ export default class InvoiceCardPopup extends Images {
 										<>
 											{_.map(
 												this.state?.activeComponent?.style?.taxes?.length >
-													0 && this.state?.activeComponent?.style?.taxes,
+												0 && this.state?.activeComponent?.style?.taxes,
 												(taxItem, index) => {
 													return (
 														<>
@@ -842,10 +843,10 @@ export default class InvoiceCardPopup extends Images {
 																	>
 																		{this.props?.currencySymbol
 																			? this.props
-																					?.currencySymbol
+																				?.currencySymbol
 																			: this.props
-																					?.currencySymbol2 ||
-																			  '$'}
+																				?.currencySymbol2 ||
+																			'$'}
 																	</span>
 																	|{' '}
 																	<span
@@ -873,25 +874,25 @@ export default class InvoiceCardPopup extends Images {
 											)}
 											{this.state?.activeComponent?.style?.taxes?.length !==
 												3 && (
-												<span
-													style={{
-														color: '#f1f1f1',
-														cursor: 'pointer',
-														fontSize: '14px',
-														// fontWeight: 'bold',
-														margin: '10px 0px',
-													}}
-													onClick={(e) => {
-														e.stopPropagation();
-														this.handleActiveCardStyles(
-															'addTax',
-															'add',
-														);
-													}}
-												>
-													+ Add Tax
-												</span>
-											)}
+													<span
+														style={{
+															color: '#f1f1f1',
+															cursor: 'pointer',
+															fontSize: '14px',
+															// fontWeight: 'bold',
+															margin: '10px 0px',
+														}}
+														onClick={(e) => {
+															e.stopPropagation();
+															this.handleActiveCardStyles(
+																'addTax',
+																'add',
+															);
+														}}
+													>
+														+ Add Tax
+													</span>
+												)}
 										</>
 									)}
 									<div
@@ -937,91 +938,91 @@ export default class InvoiceCardPopup extends Images {
 									</div>
 									{this.state?.activeComponent?.style?.discounts
 										?.showDiscount && (
-										<>
-											<div className="input-icon-div">
-												<div
-													className="element_input"
-													style={{
-														flexDirection: 'row',
-														alignItems: 'center',
-														width: '100%',
-													}}
-												>
-													<input
-														type="text"
-														inputMode="numeric"
-														pattern="[0-9]*"
-														placeholder="discount value"
-														value={
-															this.state?.activeComponent?.style
-																?.discounts?.discount
-														}
-														onChange={(e) => {
-															const value = e.target.value;
-															if (
-																value === '' ||
-																/^[0-9]*\.?[0-9]*$/.test(value)
-															) {
-																if (
-																	this.state?.activeComponent
-																		?.style?.discounts
-																		?.isDiscountInPerc &&
-																	value > 100
-																) {
-																	return;
-																} else {
-																	this.handleActiveCardStyles(
-																		'discount',
-																		value,
-																	);
-																}
+											<>
+												<div className="input-icon-div">
+													<div
+														className="element_input"
+														style={{
+															flexDirection: 'row',
+															alignItems: 'center',
+															width: '100%',
+														}}
+													>
+														<input
+															type="text"
+															inputMode="numeric"
+															pattern="[0-9]*"
+															placeholder="discount value"
+															value={
+																this.state?.activeComponent?.style
+																	?.discounts?.discount
 															}
-														}}
-														maxLength={10}
-													/>
+															onChange={(e) => {
+																const value = e.target.value;
+																if (
+																	value === '' ||
+																	/^[0-9]*\.?[0-9]*$/.test(value)
+																) {
+																	if (
+																		this.state?.activeComponent
+																			?.style?.discounts
+																			?.isDiscountInPerc &&
+																		value > 100
+																	) {
+																		return;
+																	} else {
+																		this.handleActiveCardStyles(
+																			'discount',
+																			value,
+																		);
+																	}
+																}
+															}}
+															maxLength={10}
+														/>
+													</div>
+													<div className="direct-perc-amount-span">
+														<span
+															className={
+																!this.state?.activeComponent?.style
+																	?.discounts?.isDiscountInPerc
+																	? 'direct-perc-amount-span-active'
+																	: ''
+															}
+															onClick={(e) => {
+																e.stopPropagation();
+																this.handleActiveCardStyles(
+																	'isDiscountInPerc',
+																	false,
+																);
+															}}
+														>
+															{this.props?.currencySymbol
+																? this.props?.currencySymbol
+																: this.props?.currencySymbol2 || '$'}
+														</span>
+														|{' '}
+														<span
+															className={
+																this.state?.activeComponent?.style
+																	?.discounts?.isDiscountInPerc
+																	? 'direct-perc-amount-span-active'
+																	: ''
+															}
+															onClick={(e) => {
+																e.stopPropagation();
+																this.handleActiveCardStyles(
+																	'isDiscountInPerc',
+																	true,
+																);
+															}}
+														>
+															%
+														</span>
+													</div>
 												</div>
-												<div className="direct-perc-amount-span">
-													<span
-														className={
-															!this.state?.activeComponent?.style
-																?.discounts?.isDiscountInPerc
-																? 'direct-perc-amount-span-active'
-																: ''
-														}
-														onClick={(e) => {
-															e.stopPropagation();
-															this.handleActiveCardStyles(
-																'isDiscountInPerc',
-																false,
-															);
-														}}
-													>
-														{this.props?.currencySymbol
-															? this.props?.currencySymbol
-															: this.props?.currencySymbol2 || '$'}
-													</span>
-													|{' '}
-													<span
-														className={
-															this.state?.activeComponent?.style
-																?.discounts?.isDiscountInPerc
-																? 'direct-perc-amount-span-active'
-																: ''
-														}
-														onClick={(e) => {
-															e.stopPropagation();
-															this.handleActiveCardStyles(
-																'isDiscountInPerc',
-																true,
-															);
-														}}
-													>
-														%
-													</span>
-												</div>
-											</div>
-										</>
-									)}
+											</>
+										)}
 								</div>
 							</div>
 						</div>
@@ -1065,7 +1066,7 @@ export default class InvoiceCardPopup extends Images {
 										// }}
 										checked={
 											this.state?.activeComponent?.style?.labels
-												?.showDescription ?? false
+												?.showDescription ?? true
 										}
 									/>
 									<span className="slider-round round"></span>
@@ -1105,7 +1106,7 @@ export default class InvoiceCardPopup extends Images {
 										// }}
 										checked={
 											this.state?.activeComponent?.style?.labels?.showImage ??
-											false
+											true
 										}
 									/>
 									<span className="slider-round round"></span>
@@ -1113,12 +1114,21 @@ export default class InvoiceCardPopup extends Images {
 							</div>
 							<div className="element_image">
 								<div className="element_pasteURL" style={{ gap: '15px' }}>
-									<div className="block_styles pad-color-p-imp">
+									<div
+										className="block_styles pad-color-p-imp"
+
+									>
 										<ColorPicker
 											title={'box 1 Background Color'}
-											color={this.props?.activeComponent?.style?.Card1Color}
+											color={
+												this.props?.activeComponent?.style
+													?.Card1Color
+											}
 											handleColor={(e) =>
-												this.handleInvoiceCardStyles('Card1Color', e)
+												this.handleInvoiceCardStyles(
+													'Card1Color',
+													e,
+												)
 											}
 											brandColors={this.props?.brandColors}
 											zoom={0.8}
@@ -1129,12 +1139,21 @@ export default class InvoiceCardPopup extends Images {
 							</div>
 							<div className="element_image">
 								<div className="element_pasteURL" style={{ gap: '15px' }}>
-									<div className="block_styles pad-color-p-imp">
+									<div
+										className="block_styles pad-color-p-imp"
+
+									>
 										<ColorPicker
 											title={'box 2 Background Color'}
-											color={this.props?.activeComponent?.style?.Card2Color}
+											color={
+												this.props?.activeComponent?.style
+													?.Card2Color
+											}
 											handleColor={(e) =>
-												this.handleInvoiceCardStyles('Card2Color', e)
+												this.handleInvoiceCardStyles(
+													'Card2Color',
+													e,
+												)
 											}
 											brandColors={this.props?.brandColors}
 											zoom={0.8}
@@ -1145,12 +1164,21 @@ export default class InvoiceCardPopup extends Images {
 							</div>
 							<div className="element_image">
 								<div className="element_pasteURL" style={{ gap: '15px' }}>
-									<div className="block_styles pad-color-p-imp">
+									<div
+										className="block_styles pad-color-p-imp"
+
+									>
 										<ColorPicker
 											title={'Primary Text Color'}
-											color={this.props?.activeComponent?.style?.titleColor}
+											color={
+												this.props?.activeComponent?.style
+													?.titleColor
+											}
 											handleColor={(e) =>
-												this.handleInvoiceCardStyles('titleColor', e)
+												this.handleInvoiceCardStyles(
+													'titleColor',
+													e,
+												)
 											}
 											brandColors={this.props?.brandColors}
 											zoom={0.8}
@@ -1161,12 +1189,21 @@ export default class InvoiceCardPopup extends Images {
 							</div>
 							<div className="element_image">
 								<div className="element_pasteURL" style={{ gap: '15px' }}>
-									<div className="block_styles pad-color-p-imp">
+									<div
+										className="block_styles pad-color-p-imp"
+
+									>
 										<ColorPicker
 											title={'Secondary Text Color'}
-											color={this.props?.activeComponent?.style?.valueColor}
+											color={
+												this.props?.activeComponent?.style
+													?.valueColor
+											}
 											handleColor={(e) =>
-												this.handleInvoiceCardStyles('valueColor', e)
+												this.handleInvoiceCardStyles(
+													'valueColor',
+													e,
+												)
 											}
 											brandColors={this.props?.brandColors}
 											zoom={0.8}
@@ -1176,133 +1213,28 @@ export default class InvoiceCardPopup extends Images {
 								</div>
 							</div>
 							<div className="padding-options-wrapper">
-								<div className="padding-options-header">Vertical Padding</div>
+								<div className="padding-options-header">
+									Vertical Padding
+								</div>
 								<div className="padding-options-item">
-									<div
-										className={`padding-one ${
-											!_.has(this.props?.activeComponent?.style, 'padding') ||
-											this.props?.activeComponent?.style?.padding === 0
-												? 'active'
-												: ''
-										}`}
-										onClick={() => this.handleInvoiceCardStyles('padding', 0)}
-									>
-										null
-									</div>
-									<div
-										className={`padding-one ${
-											this.props?.activeComponent?.style?.padding == 1
-												? 'active'
-												: ''
-										}`}
-										onClick={() => this.handleInvoiceCardStyles('padding', 1)}
-									>
-										S
-									</div>
-									<div
-										className={`padding-one ${
-											this.props?.activeComponent?.style?.padding == 2
-												? 'active'
-												: ''
-										}`}
-										onClick={() => this.handleInvoiceCardStyles('padding', 2)}
-									>
-										M
-									</div>
-									<div
-										className={`padding-one ${
-											this.props?.activeComponent?.style?.padding == 3
-												? 'active'
-												: ''
-										}`}
-										onClick={() => this.handleInvoiceCardStyles('padding', 3)}
-									>
-										L
-									</div>
-									<div
-										className={`padding-one ${
-											this.props?.activeComponent?.style?.padding == 4
-												? 'active'
-												: ''
-										}`}
-										onClick={() => this.handleInvoiceCardStyles('padding', 4)}
-									>
-										XL
-									</div>
+									<div className={`padding-one ${!_.has(this.props?.activeComponent?.style, 'padding') || this.props?.activeComponent?.style?.padding === 0 ? 'active' : ''}`} onClick={() => this.handleInvoiceCardStyles('padding', 0)}>null</div>
+									<div className={`padding-one ${this.props?.activeComponent?.style?.padding == 1 ? 'active' : ''}`} onClick={() => this.handleInvoiceCardStyles('padding', 1)}>S</div>
+									<div className={`padding-one ${this.props?.activeComponent?.style?.padding == 2 ? 'active' : ''}`} onClick={() => this.handleInvoiceCardStyles('padding', 2)}>M</div>
+									<div className={`padding-one ${this.props?.activeComponent?.style?.padding == 3 ? 'active' : ''}`} onClick={() => this.handleInvoiceCardStyles('padding', 3)}>L</div>
+									<div className={`padding-one ${this.props?.activeComponent?.style?.padding == 4 ? 'active' : ''}`} onClick={() => this.handleInvoiceCardStyles('padding', 4)}>XL</div>
+
 								</div>
 							</div>
 							<div className="padding-options-wrapper">
-								<div className="padding-options-header">Horizontal Padding</div>
+								<div className="padding-options-header">
+									Horizontal Padding
+								</div>
 								<div className="padding-options-item">
-									<div
-										className={`padding-one ${
-											!_.has(
-												this.props?.activeComponent?.style,
-												'paddingHorizontal',
-											) ||
-											this.props?.activeComponent?.style
-												?.paddingHorizontal === 0
-												? 'active'
-												: ''
-										}`}
-										onClick={() =>
-											this.handleInvoiceCardStyles('paddingHorizontal', 0)
-										}
-									>
-										null
-									</div>
-									<div
-										className={`padding-one ${
-											this.props?.activeComponent?.style?.paddingHorizontal ==
-											1
-												? 'active'
-												: ''
-										}`}
-										onClick={() =>
-											this.handleInvoiceCardStyles('paddingHorizontal', 1)
-										}
-									>
-										S
-									</div>
-									<div
-										className={`padding-one ${
-											this.props?.activeComponent?.style?.paddingHorizontal ==
-											2
-												? 'active'
-												: ''
-										}`}
-										onClick={() =>
-											this.handleInvoiceCardStyles('paddingHorizontal', 2)
-										}
-									>
-										M
-									</div>
-									<div
-										className={`padding-one ${
-											this.props?.activeComponent?.style?.paddingHorizontal ==
-											3
-												? 'active'
-												: ''
-										}`}
-										onClick={() =>
-											this.handleInvoiceCardStyles('paddingHorizontal', 3)
-										}
-									>
-										L
-									</div>
-									<div
-										className={`padding-one ${
-											this.props?.activeComponent?.style?.paddingHorizontal ==
-											4
-												? 'active'
-												: ''
-										}`}
-										onClick={() =>
-											this.handleInvoiceCardStyles('paddingHorizontal', 4)
-										}
-									>
-										XL
-									</div>
+									<div className={`padding-one ${!_.has(this.props?.activeComponent?.style, 'paddingHorizontal') || this.props?.activeComponent?.style?.paddingHorizontal === 0 ? 'active' : ''}`} onClick={() => this.handleInvoiceCardStyles('paddingHorizontal', 0)}>null</div>
+									<div className={`padding-one ${this.props?.activeComponent?.style?.paddingHorizontal == 1 ? 'active' : ''}`} onClick={() => this.handleInvoiceCardStyles('paddingHorizontal', 1)}>S</div>
+									<div className={`padding-one ${this.props?.activeComponent?.style?.paddingHorizontal == 2 ? 'active' : ''}`} onClick={() => this.handleInvoiceCardStyles('paddingHorizontal', 2)}>M</div>
+									<div className={`padding-one ${this.props?.activeComponent?.style?.paddingHorizontal == 3 ? 'active' : ''}`} onClick={() => this.handleInvoiceCardStyles('paddingHorizontal', 3)}>L</div>
+									<div className={`padding-one ${this.props?.activeComponent?.style?.paddingHorizontal == 4 ? 'active' : ''}`} onClick={() => this.handleInvoiceCardStyles('paddingHorizontal', 4)}>XL</div>
 								</div>
 							</div>
 						</div>
@@ -1662,7 +1594,7 @@ export default class InvoiceCardPopup extends Images {
 								<></>
 							)}
 							{this.state?.activeBgtype == 'video' ||
-							this.state?.activeBgtype == 'image' ? (
+								this.state?.activeBgtype == 'image' ? (
 								<>
 									<div className="element_image">
 										<div className="element_pasteURL" style={{ gap: '15px' }}>

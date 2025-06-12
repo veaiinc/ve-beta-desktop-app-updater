@@ -71,6 +71,7 @@
 	height: 100%;
 	overflow-y: auto;
 	overflow-x: hidden;
+	background-color: white;
 
 	.block {
 		display: flex;
@@ -839,44 +840,8 @@
 	box-shadow: -4px 0px 20px 0px rgba(0, 0, 0, 0.12);
 	z-index: 10000000;
 
-	.tooltip {
-		position: relative;
-		.tooltip-text {
-			visibility: hidden;
-			background-color: #333;
-			display: flex;
-			height: fit-content;
-			justify-content: center;
-			align-items: center;
-			width: fit-content;
-			font-size: 12px;
-			font-family: 'Inter Medium';
-			color: #fff;
-			text-align: center;
-			border-radius: 5px;
-			padding: 10px;
-			position: absolute;
-			top: 25px;
-			z-index: 12345;
-			bottom: -90%;
-			opacity: 0;
-			transition: opacity 0.3s;
-			text-transform: capitalize !important;
-			letter-spacing: normal;
-			line-height: normal;
-		}
-
-		&:hover {
-			.tooltip-text {
-				display: flex;
-				visibility: visible;
-				opacity: 1;
-			}
-		}
-	}
-
 	// Add a specific class to the span for delete button
-	.tooltip.delete-action {
+	span.tooltip.delete-action {
 		width: 34px;
 		height: 34px;
 		display: flex;
@@ -898,7 +863,7 @@
 	}
 
 	// Default hover for other actions
-	.tooltip:not(.delete-action) {
+	span.tooltip:not(.delete-action) {
 		width: 34px;
 		height: 34px;
 		display: flex;
@@ -1293,11 +1258,11 @@
 // 	opacity: 1;
 // 	transform: translateX(0);
 // }
-// .column {
-// 	width: 100%;
-// 	opacity: 1; // Default opacity is 1
-// 	transition: opacity 0.5s ease;
-// }
+.column {
+	width: 100%;
+	opacity: 1; // Default opacity is 1
+	transition: opacity 0.5s ease;
+}
 
 // .column.visibled {
 // 	animation: fadeIn 0.5s ease forwards;

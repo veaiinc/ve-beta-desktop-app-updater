@@ -224,7 +224,7 @@
 		"divStyles": {
 			"dragX": 0,
 			"dragY": 0,
-			"gridArea": "3 / 3 / 5 / 10"
+			"gridArea": "3 / 3 / 10 / 10"
 		}
 	},
 	"menubar": {

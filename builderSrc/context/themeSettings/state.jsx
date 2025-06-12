@@ -13,7 +13,7 @@ export const intialState = {
 	},
 	fonts: null,
 	sections: null,
-	navBar: null,
+	navBar:null,
 	applyTheme: false,
 	themeSettings: {
 		activeTheme: 'theme1',

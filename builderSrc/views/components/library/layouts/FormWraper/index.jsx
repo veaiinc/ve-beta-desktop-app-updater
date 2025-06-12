@@ -659,7 +659,6 @@ class FormWrapper extends Component {
 						}}
 					>
 						<LogicalForm
-							isActiveSection={this.props?.isActiveSection}
 							deleteSection={this.handleDeleteSection}
 							submitLogicalForm={this.props.submitLogicalForm}
 							submitFormLoading={this.state.submitFormLoading}

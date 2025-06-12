@@ -10,7 +10,7 @@ import TempBuilderPreview from '../../feature/temp-prev';
 const EditButton = ({ workflowId, templateId }) => {
 	const navigate = useNavigate();
 	const handleEditClick = () => {
-		navigate(`/builder/${workflowId}?workflow=true`);
+		navigate(`/${workflowId}?workflow=true`);
 	};
 
 	return (
@@ -27,10 +27,7 @@ const ViewButton = ({ workflowInfo, smartFileInfo }) => {
 		const region = localStorage.getItem('region');
 		const currentWorkspaceId = localStorage.getItem('workspaceID');
 		if (smartFileInfo?.slug) {
-			window.open(
-				`https://${currentWorkspaceId}.ve.ai/portal/${smartFileInfo.slug}/${region}/${usertoken}`,
-				'_blank',
-			);
+			window.location.href = `https://${currentWorkspaceId}.ve.ai/portal/${smartFileInfo.slug}/${region}/${usertoken}`;
 		}
 	};
 
@@ -122,7 +119,7 @@ const EditDocument = () => {
 			<div className="section1-main-container">
 				<SmartFileSidebar
 					workflowId={workflowId}
-					templateId={templateId}
+					templateId={info.workflowInfo?.template?._id}
 					showSmartFileSidebar={true}
 					serviceBlockChanges={info.previewCallbacks.serviceBlockChanges}
 					eventsBlockChanges={info.previewCallbacks.eventsBlockChanges}
@@ -131,10 +128,8 @@ const EditDocument = () => {
 					handleReplaceMultipleInput={info.previewCallbacks.handleReplaceMultipleInput}
 					clientDetails={info.clientDetails}
 					previewReady={info.previewDomReady}
-					onGoBack={() => navigate('/builder/create-document')}
-					onGetSummery={() =>
-						navigate(`/builder/document/view/${workflowId}/${templateId}`)
-					}
+					onGoBack={() => navigate('/create-document')}
+					onGetSummery={() => navigate(`/document/view/${workflowId}/${templateId}`)}
 					showSignatureModal={info.showSignatureModal}
 					onCloseSignatureModal={() =>
 						setInfo((prev) => ({ ...prev, showSignatureModal: false }))
@@ -157,6 +152,7 @@ const EditDocument = () => {
 						editingWorflow={true}
 						updateCallbacks={handleUpdateCallbacks}
 						onDomReady={handlePreviewDomReady}
+						clientDetails={info.clientDetails}
 					/>
 				</div>
 			</div>

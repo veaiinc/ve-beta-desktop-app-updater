@@ -163,6 +163,8 @@ export default class ImagePopup extends Images {
 			'animeDistance',
 			'direction',
 			'animeIntensity',
+			'animeArea',
+			'triggerPoint',
 		];
 		const innerAdjustmentsTypes = [
 			'scale',

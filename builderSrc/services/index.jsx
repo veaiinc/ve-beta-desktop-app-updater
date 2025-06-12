@@ -1,4 +1,6 @@
 import { createBrowserHistory } from 'history';
+const history = createBrowserHistory();
+
 import {
 	proposal_api_server,
 	tenant_api_server,
@@ -25,8 +27,6 @@ import {
 	activity_api_US,
 } from './config';
 
-const history = createBrowserHistory();
-
 const apiEndPointMapper = {
 	proposal: proposal_api_server,
 	tenant: tenant_api_server,
@@ -40,7 +40,6 @@ const apiEndPointMapper = {
 	ai_assistant_api,
 	activity_api,
 };
-
 const apiEndPointMapperUS = {
 	proposal: proposal_api_server_US,
 	tenant: tenant_api_server_US,
@@ -55,49 +54,47 @@ const apiEndPointMapperUS = {
 	activity_api: activity_api_US,
 };
 
-const onFailure = async (res, url) => {
-	// alert(res.type);
-};
-
-const onUserKickedOut = async (res, url) => {
-	// localStorage.removeItem('usertoken');
-	// window.location.reload();
-};
-
 const Service = {
 	fetchGet: async (url, token = null, type = null, body = null) => {
+		let URL;
 		const region = localStorage.getItem('region') || 'ap-south-1';
-		const URL =
-			(region === 'ap-south-1'
-				? apiEndPointMapper?.[type] || images_api_server
-				: apiEndPointMapperUS?.[type] || images_api_server_US) + url;
+		if (region === 'ap-south-1') {
+			URL = (apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server) + url;
+		} else {
+			URL =
+				(apiEndPointMapperUS?.[type] ? apiEndPointMapperUS?.[type] : images_api_server_US) +
+				url;
+		}
 
 		const headers = { 'Content-Type': 'application/json' };
 		if (token) {
-			headers[type === 'form' ? 'Authorization' : 'x-access-token'] =
-				type === 'form' ? `Bearer ${token}` : token;
+			if (type === 'form') {
+				headers['Authorization'] = `Bearer ${token}`;
+			} else {
+				headers['x-access-token'] = token;
+			}
 		}
 		if (body) {
 			headers['body'] = JSON.stringify(body);
 		}
-
 		try {
-			const res = await fetch(URL, { method: 'GET', headers });
+			const res = await fetch(URL, { method: 'GET', headers: headers });
 			const ress = await res.json();
 
-			if (res.status >= 200 && res.status < 400) return [true, ress];
-			if (res.status === 401) {
+			if (res.status >= 200 && res.status < 400) {
+				return [true, ress];
+			} else if (res.status === 401) {
 				onUserKickedOut();
 				return false;
-			}
-			if (res.status === 403) {
+			} else if (res.status === 403) {
 				history.replace(`/${history.location.pathname.split('/')[1]}/access-denied`);
 				return [false];
+			} else if (res.status >= 400) {
+				return [res.status, ress];
+			} else {
+				onFailure('server', url);
+				return false;
 			}
-			if (res.status >= 400) return [res.status, ress];
-
-			onFailure('server', url);
-			return false;
 		} catch (e) {
 			onFailure('network', url);
 			return false;
@@ -105,142 +102,187 @@ const Service = {
 	},
 
 	fetchPost: async (url, body, token = null, type = null) => {
+		let URL;
+
 		const region = localStorage.getItem('region') || 'ap-south-1';
-		const URL =
-			(region === 'ap-south-1'
-				? apiEndPointMapper?.[type] || images_api_server
-				: apiEndPointMapperUS?.[type] || images_api_server_US) + url;
+		if (region === 'ap-south-1') {
+			URL = (apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server) + url;
+		} else {
+			URL =
+				(apiEndPointMapperUS?.[type] ? apiEndPointMapperUS?.[type] : images_api_server_US) +
+				url;
+		}
 
 		const headers = { 'Content-Type': 'application/json' };
 		if (token) {
-			headers[
-				type === 'form' || type === 'design_builder_api_server'
-					? 'Authorization'
-					: 'x-access-token'
-			] = type === 'form' || type === 'design_builder_api_server' ? `Bearer ${token}` : token;
+			if (type === 'form' || type === 'design_builder_api_server') {
+				headers['Authorization'] = `Bearer ${token}`;
+			} else {
+				headers['x-access-token'] = token;
+			}
 		}
 
 		try {
 			const res = await fetch(URL, {
 				method: 'POST',
-				headers,
+				headers: headers,
 				body: JSON.stringify(body),
 			});
 			const ress = await res.json();
 
-			if (res.status >= 200 && res.status < 400) return [true, ress];
-			if (
-				(res.status === 401 || res.status === 403) &&
-				![
-					'/login-with-password',
-					'/request-password-reset',
-					'/verify-password-reset',
-					'/verify-email-address',
-				].includes(url)
+			if (res.status >= 200 && res.status < 400) {
+				return [true, ress];
+			} else if (
+				(res.status === 403 || res.status === 401) &&
+				url !== '/login-with-password' &&
+				url !== '/request-password-reset' &&
+				url !== '/verify-password-reset' &&
+				url !== '/verify-email-address'
 			) {
 				onUserKickedOut();
 				return false;
+			} else if (res.status >= 400) {
+				return [res.status, ress];
 			}
-			if (res.status >= 400) return [res.status, ress];
 		} catch (e) {
 			return false;
 		}
 	},
 
 	fetchPut: async (url, body, token = null, type = null) => {
+		let URL;
+
 		const region = localStorage.getItem('region') || 'ap-south-1';
-		const URL =
-			(region === 'ap-south-1'
-				? apiEndPointMapper?.[type] || images_api_server
-				: apiEndPointMapperUS?.[type] || images_api_server_US) + url;
+		if (region === 'ap-south-1') {
+			URL = (apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server) + url;
+		} else {
+			URL =
+				(apiEndPointMapperUS?.[type] ? apiEndPointMapperUS?.[type] : images_api_server_US) +
+				url;
+		}
 
 		const headers = { 'Content-Type': 'application/json' };
 		if (token) {
-			headers[type === 'form' ? 'Authorization' : 'x-access-token'] =
-				type === 'form' ? `Bearer ${token}` : token;
+			if (type === 'form') {
+				headers['Authorization'] = `Bearer ${token}`;
+			} else {
+				headers['x-access-token'] = token;
+			}
 		}
-
 		try {
 			const res = await fetch(URL, {
 				method: 'PUT',
-				headers,
+				headers: headers,
 				body: JSON.stringify(body),
 			});
 			const ress = await res.json();
-			if (res.status >= 200 && res.status < 400) return [true, ress];
-			if (res.status === 401) {
+			if (res.status >= 200 && res.status < 400) {
+				return [true, ress];
+			} else if (res.status === 401) {
 				onUserKickedOut();
 				return false;
+			} else if (res.status >= 400) {
+				return [res.status, ress];
 			}
-			if (res.status >= 400) return [res.status, ress];
 		} catch (e) {
 			return false;
 		}
 	},
 
 	fetchDelete: async (url, token = null, body = null, type = null) => {
-		const region = localStorage.getItem('region') || 'ap-south-1';
-		const URL =
-			(region === 'ap-south-1'
-				? apiEndPointMapper?.[type] || images_api_server
-				: apiEndPointMapperUS?.[type] || images_api_server_US) + url;
+		let URL;
 
+		const region = localStorage.getItem('region') || 'ap-south-1';
+		if (region === 'ap-south-1') {
+			URL = (apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server) + url;
+		} else {
+			URL =
+				(apiEndPointMapperUS?.[type] ? apiEndPointMapperUS?.[type] : images_api_server_US) +
+				url;
+		}
 		const headers = { 'Content-Type': 'application/json' };
 		if (token) {
-			headers[type === 'form' ? 'Authorization' : 'x-access-token'] =
-				type === 'form' ? `Bearer ${token}` : token;
+			if (type === 'form') {
+				headers['Authorization'] = `Bearer ${token}`;
+			} else {
+				headers['x-access-token'] = token;
+			}
 		}
 		if (type === 'proposal') {
 			headers['x-api-key'] = 'MEayJjUZQ9DedOGVbSBA6d5ovx6REAIh';
 		}
-
 		try {
-			const fetchOptions = {
+			let json = {
 				method: 'DELETE',
-				headers,
-				...(body ? { body: JSON.stringify(body) } : {}),
+				headers: headers,
 			};
 
-			const res = await fetch(URL, fetchOptions);
-			const ress = await res.json();
+			if (body != null) {
+				json = {
+					...json,
+					body: JSON.stringify(body),
+				};
+			}
 
-			if (res.status >= 200 && res.status < 400) return [true, ress];
-			if (res.status === 401) {
+			const res = await fetch(URL, json);
+			const ress = await res.json();
+			if (res.status >= 200 && res.status < 400) {
+				return [true, ress];
+			} else if (res.status === 401) {
 				onUserKickedOut();
 				return false;
+			} else if (res.status >= 400) {
+				return [res.status, ress];
 			}
-			if (res.status >= 400) return [res.status, ress];
 		} catch (e) {
 			return false;
 		}
 	},
 
 	fetchPostFiles: async (url, body, token = null, type = null) => {
-		const region = localStorage.getItem('region') || 'ap-south-1';
-		const URL =
-			(region === 'ap-south-1'
-				? apiEndPointMapper?.[type] || images_api_server
-				: apiEndPointMapperUS?.[type] || images_api_server_US) + url;
+		let URL;
 
+		const region = localStorage.getItem('region') || 'ap-south-1';
+		if (region === 'ap-south-1') {
+			URL = (apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server) + url;
+		} else {
+			URL =
+				(apiEndPointMapperUS?.[type] ? apiEndPointMapperUS?.[type] : images_api_server_US) +
+				url;
+		}
 		const headers = {};
 		if (token) {
-			headers[type === 'form' ? 'Authorization' : 'x-access-token'] =
-				type === 'form' ? `Bearer ${token}` : token;
+			if (type === 'form') {
+				headers['Authorization'] = `Bearer ${token}`;
+			} else {
+				headers['x-access-token'] = token;
+			}
 		}
-
 		try {
 			const res = await fetch(URL, {
 				method: 'POST',
-				headers,
-				body,
+				headers: headers,
+				body: body,
 			});
 			const ress = await res.json();
-			if (res.status >= 200 && res.status < 400) return [true, ress];
-			if (res.status >= 400) return [false, ress];
+			if (res.status >= 200 && res.status < 400) {
+				return [true, ress];
+			} else if (res.status >= 400) {
+				return [false, ress];
+			}
 		} catch (e) {
 			return false;
 		}
 	},
+};
+
+const onFailure = async (res, url) => {
+	//alert(res.type);
+};
+
+const onUserKickedOut = async (res, url) => {
+	// localStorage.removeItem('usertoken');
+	// window.location.reload();
 };
 
 export default Service;

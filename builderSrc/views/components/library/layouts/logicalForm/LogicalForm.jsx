@@ -1,5 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
+import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
+import { getCountryCallingCode } from 'react-phone-number-input';
+import Draggable from 'react-draggable';
+import * as GoogleFonts from 'google-fonts-complete';
 import Confetti from 'react-confetti';
 import { Popover } from 'antd';
 import SortableField from './SortableComponent';
@@ -24,6 +28,12 @@ import {
 	Audio,
 	LogicalEmbed as Embed,
 	Delete,
+	Duplicate,
+	DragandDrop,
+	ConditionalIcon,
+	Add,
+	When,
+	Then,
 	BackArrow,
 } from '../../../builder_client_common';
 
@@ -36,6 +46,7 @@ import {
 	useSensors,
 } from '@dnd-kit/core';
 import {
+	arrayMove,
 	SortableContext,
 	sortableKeyboardCoordinates,
 	verticalListSortingStrategy,
@@ -5946,7 +5957,7 @@ function LogicalForm(props) {
 									triggerFont={props?.triggerFont}
 									text={
 										props?.section?.formTitle ||
-										`<p style="color: #000;"><span style="font-size: 45px; color: #000;">Enter Form Title</span></p>`
+										`<p style="font-size:;" data-font-size=""><span style="font-size: 45px;">Enter Form Title</span></p>`
 									}
 									setContent={(e) => handleJoditChanges(e, 'formTitle')}
 									setTab={(e) => props?.handleSetTab(e)}
@@ -6049,11 +6060,10 @@ function LogicalForm(props) {
 									// Only show actual content or empty paragraph
 									props?.section?.formDescription &&
 									props?.section?.formDescription !==
-										'<p style="color: #000;">Description (optional)</p>' &&
-									props?.section?.formDescription !==
-										'<p style="color: #000;"></p>'
+										'<p>Description (optional)</p>' &&
+									props?.section?.formDescription !== '<p></p>'
 										? props?.section?.formDescription
-										: '<p style="color: #000;">Description (optional)</p>'
+										: '<p>Description (optional)</p>'
 								}
 								setContent={(e) => {
 									// Only update if there's actual content and it's different from placeholder
@@ -6147,7 +6157,7 @@ function LogicalForm(props) {
 									transition: 'background-color 0.2sease',
 								}}
 							>
-								{isSinglePage ? 'Single Page View' : 'Multi Page View'}
+								{isSinglePage ? 'Multi Page View' : 'Single Page View'}
 							</button>
 						</div>
 					</>
@@ -6162,7 +6172,7 @@ function LogicalForm(props) {
 					{showDropdown && (
 						<div className="dropdown-menu" ref={dropdownRef}>
 							<div className="dropdown-header">
-								<h4 style={{ color: '#fff' }}>Question Types</h4>
+								<h3>Question Types</h3>
 								<button
 									className="close-button"
 									onClick={() => setShowDropdown(false)}
@@ -6176,12 +6186,12 @@ function LogicalForm(props) {
 									className="menu-item"
 									onClick={() => handleAddField(item.type)}
 								>
-									<span className="logical-form-icon">{item.icon}</span>
+									:<span className="logical-form-icon">{item.icon}</span>
 									<span style={{ color: '#fff' }}>{item.label}</span>
 								</div>
 							))}
 							<div className="embed-fields">
-								<h4 style={{ color: '#fff' }}>Embed fields</h4>
+								<h3>Embed fields</h3>
 								{embedFields.map((item, index) => (
 									<div
 										key={`embed-${index}`}
@@ -6957,8 +6967,8 @@ function LogicalForm(props) {
 																	<path
 																		d="M9.84229 6.1579V10.8948"
 																		stroke="#96969F"
-																		strokeWidth="1.2"
-																		strokeLinecap="round"
+																		stroke-width="1.2"
+																		stroke-linecap="round"
 																	/>
 																	<path
 																		d="M9.84221 14.0526C10.2782 14.0526 10.6317 13.6992 10.6317 13.2632C10.6317 12.8272 10.2782 12.4737 9.84221 12.4737C9.40619 12.4737 9.05273 12.8272 9.05273 13.2632C9.05273 13.6992 9.40619 14.0526 9.84221 14.0526Z"
@@ -6967,8 +6977,8 @@ function LogicalForm(props) {
 																	<path
 																		d="M17.5789 9.84213C17.5789 5.56919 14.115 2.10529 9.84207 2.10529C5.56913 2.10529 2.10522 5.56919 2.10522 9.84213C2.10522 14.1151 5.56913 17.579 9.84207 17.579C14.115 17.579 17.5789 14.1151 17.5789 9.84213Z"
 																		stroke="#96969F"
-																		strokeWidth="1.2"
-																		strokeMiterlimit="10"
+																		stroke-width="1.2"
+																		stroke-miterlimit="10"
 																	/>
 																</svg>
 																<span
@@ -7156,7 +7166,7 @@ function LogicalForm(props) {
 												display: 'flex',
 												justifyContent: 'space-between', // Changed from flex-start to space-between
 												alignItems: 'center', // Added to align items vertically
-												marginBottom: '50px',
+												marginTop: '50px',
 												paddingBottom: '20px',
 												width: '100%', // Added to ensure full width
 											}}
@@ -7279,8 +7289,8 @@ function LogicalForm(props) {
 															<path
 																d="M9.84229 6.1579V10.8948"
 																stroke="#96969F"
-																strokeWidth="1.2"
-																strokeLinecap="round"
+																stroke-width="1.2"
+																stroke-linecap="round"
 															/>
 															<path
 																d="M9.84221 14.0526C10.2782 14.0526 10.6317 13.6992 10.6317 13.2632C10.6317 12.8272 10.2782 12.4737 9.84221 12.4737C9.40619 12.4737 9.05273 12.8272 9.05273 13.2632C9.05273 13.6992 9.40619 14.0526 9.84221 14.0526Z"
@@ -7289,8 +7299,8 @@ function LogicalForm(props) {
 															<path
 																d="M17.5789 9.84213C17.5789 5.56919 14.115 2.10529 9.84207 2.10529C5.56913 2.10529 2.10522 5.56919 2.10522 9.84213C2.10522 14.1151 5.56913 17.579 9.84207 17.579C14.115 17.579 17.5789 14.1151 17.5789 9.84213Z"
 																stroke="#96969F"
-																strokeWidth="1.2"
-																strokeMiterlimit="10"
+																stroke-width="1.2"
+																stroke-miterlimit="10"
 															/>
 														</svg>
 														<span

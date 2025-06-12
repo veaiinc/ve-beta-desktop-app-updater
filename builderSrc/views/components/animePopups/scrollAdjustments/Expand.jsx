@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import '../styles.scss';
 import { ReactComponent as DropdownArrow } from '../../library/svgs/logicform/backarrow.svg';
+import { Slider } from 'antd';
+import 'antd/dist/reset.css'; // For antd v5
 const Expand = ({ activeComponent, adjustAnimation }) => {
 	const [selectedOption, setSelectedOption] = useState('In');
 	const [direction, setDirection] = useState('Center');
@@ -8,7 +10,9 @@ const Expand = ({ activeComponent, adjustAnimation }) => {
 	const [isDirectionOpen, setIsDirectionOpen] = useState(false);
 	const [scale, setScale] = useState(0);
 	const [speed, setSpeed] = useState(2);
-	const [animation, setAnimation] = useState(50);
+	const [animeArea, setAnimeArea] = useState(
+		activeComponent?.animations?.adjustments?.animeArea || [10, 50],
+	);
 
 	const toggleDropdown = () => {
 		setIsOpen(!isOpen);
@@ -26,7 +30,10 @@ const Expand = ({ activeComponent, adjustAnimation }) => {
 		setDirection(dir);
 		setIsDirectionOpen(false);
 	};
-
+	const handleAnimeArea = (value) => {
+		setAnimeArea(value);
+		adjustAnimation('animeArea', value);
+	};
 	return (
 		<div className="adj-popup-container">
 			<div className="adj-anime-type">
@@ -35,7 +42,10 @@ const Expand = ({ activeComponent, adjustAnimation }) => {
 			<div className="adj-element-position">
 				<div className="adj-dropdown-container">
 					<div className="adj-dropdown-header" onClick={toggleDropdown}>
-						<div className="adj-select-position">{selectedOption}</div>
+						<div className="adj-select-position">
+							{activeComponent?.animations?.adjustments?.triggerPoint ||
+								selectedOption}
+						</div>
 						<div>
 							{' '}
 							<p className="adj-dropdown-arrow">
@@ -51,17 +61,27 @@ const Expand = ({ activeComponent, adjustAnimation }) => {
 						<div className="adj-dropdown-list">
 							<div
 								className={`adj-dropdown-item ${
-									selectedOption === 'In' ? 'adj-active-dropdown' : ''
+									activeComponent?.animations?.adjustments?.triggerPoint === 'In'
+										? 'adj-active-dropdown'
+										: ''
 								}`}
-								onClick={() => handleSelect('In')}
+								onClick={() => {
+									handleSelect('In');
+									adjustAnimation('triggerPoint', 'In');
+								}}
 							>
 								In
 							</div>
 							<div
 								className={`adj-dropdown-item ${
-									selectedOption === 'Out' ? 'adj-active-dropdown' : ''
+									activeComponent?.animations?.adjustments?.triggerPoint === 'Out'
+										? 'adj-active-dropdown'
+										: ''
 								}`}
-								onClick={() => handleSelect('Out')}
+								onClick={() => {
+									handleSelect('Out');
+									adjustAnimation('triggerPoint', 'Out');
+								}}
 							>
 								Out
 							</div>
@@ -173,18 +193,14 @@ const Expand = ({ activeComponent, adjustAnimation }) => {
 				<b className="adj-adjustment-title">Animation area</b>
 				<div className="adj-popup-range-div">
 					<div className="adj-slider-wrapper">
-						<input
-							type="range"
-							min="0"
-							max="100"
-							step="1"
-							value={activeComponent?.animations?.adjustments?.animeArea || animation}
-							onChange={(e) => {
-								setAnimation(e.target.value);
-								adjustAnimation('animeArea', e.target.value);
-							}}
+						<div
 							className="adj-animation-slider"
-						/>
+							style={{
+								width: '100%',
+							}}
+						>
+							<Slider range step={2} value={animeArea} onChange={handleAnimeArea} />{' '}
+						</div>
 						<div className="adj-slider-labels">
 							<span>0%</span>
 							<span>50%</span>

@@ -7,24 +7,24 @@ import { ReactComponent as Loader } from '../../assets/svg/generate-loader.svg';
 import { withRouter } from '../../services/withRouter';
 import Proposals from '../../controllers/proposals';
 import { gql, useMutation } from '@apollo/client';
-import _ from 'lodash';
 const query = gql`
 	query Query($getDetailedTemplateInfoId: ID!) {
 		getDetailedTemplateInfo(id: $getDetailedTemplateInfoId)
 	}
 `;
 const photographyPrompts = [
-	'Design an elegant wedding photography proposal with soft pastels, clear sections for team, awards, and portfolio. Use a clean, minimal layout with floral accents.',
-	'Create a sleek commercial photography portfolio template with bold typography, grids for product shots, and professional team photos. Include an awards section.',
-	'Design a stylish fashion photography lookbook with high-contrast black, white, and metallic accents. Use large image grids and clean text sections for the team and awards.',
-	'Create a modern real estate photography proposal with sleek, professional layouts. Include large property images, team introduction, and a section for client testimonials.',
-	'Design a nature photography portfolio template with earthy tones and large, high-quality image displays. Include sections for awards, about the photographer, and team intro.',
-	'Design a vibrant event photography proposal with dynamic layouts. Include sections for portfolio (event highlights), team, and awards. Use colorful accents to match event energy.',
-	'Create a high-energy sports photography portfolio with action-packed images and bold typography. Include a section for awards, about the photographer, and team.',
-	'Design a portrait photography proposal with soft lighting effects and warm tones. Include sections for team bios, portfolio (headshots), and awards in a clean, structured format.',
-	'Create a product photography proposal with a minimalist design, white background, and sharp product image grids. Include sections for team, awards, and client feedback.',
-	'Design a travel photography portfolio with a global theme. Use large, vibrant travel shots and sections for awards, team introduction, and client recommendations.',
+	"Design an elegant wedding photography proposal with soft pastels, clear sections for team, awards, and portfolio. Use a clean, minimal layout with floral accents.",
+	"Create a sleek commercial photography portfolio template with bold typography, grids for product shots, and professional team photos. Include an awards section.",
+	"Design a stylish fashion photography lookbook with high-contrast black, white, and metallic accents. Use large image grids and clean text sections for the team and awards.",
+	"Create a modern real estate photography proposal with sleek, professional layouts. Include large property images, team introduction, and a section for client testimonials.",
+	"Design a nature photography portfolio template with earthy tones and large, high-quality image displays. Include sections for awards, about the photographer, and team intro.",
+	"Design a vibrant event photography proposal with dynamic layouts. Include sections for portfolio (event highlights), team, and awards. Use colorful accents to match event energy.",
+	"Create a high-energy sports photography portfolio with action-packed images and bold typography. Include a section for awards, about the photographer, and team.",
+	"Design a portrait photography proposal with soft lighting effects and warm tones. Include sections for team bios, portfolio (headshots), and awards in a clean, structured format.",
+	"Create a product photography proposal with a minimalist design, white background, and sharp product image grids. Include sections for team, awards, and client feedback.",
+	"Design a travel photography portfolio with a global theme. Use large, vibrant travel shots and sections for awards, team introduction, and client recommendations."
 ];
+
 
 class Prompt extends Proposals {
 	constructor() {
@@ -66,7 +66,7 @@ class Prompt extends Proposals {
 		localStorage.setItem('title', this.state.title);
 		this.setState({ workflowLoading: false }, () => {
 			this.props.navigate(`/generate/templates/${this.props.params.templateID}`);
-		});
+		})
 		// 	this.setState({ workflowLoading: true });
 		// 	await this.duplicateWorkflow(duplicateWorkflowQuery,{
 		// 		"templateId": this.props.params.templateID,
@@ -99,7 +99,7 @@ class Prompt extends Proposals {
 		const shuffled = [...photographyPrompts].sort(() => 0.5 - Math.random());
 		const selected = shuffled.slice(0, 4);
 		this.setState({
-			visiblePrompts: selected,
+			visiblePrompts: selected
 		});
 	};
 	handleShuffle = () => {
@@ -146,22 +146,19 @@ class Prompt extends Proposals {
 					>
 						{_.map(this.state.visiblePrompts, (prompt, k) => {
 							return (
-								<a
-									key={k}
-									onClick={() => this.setState({ command: prompt })}
-									style={{ cursor: 'pointer' }}
-								>
+								<a key={k} onClick={() => this.setState({ command: prompt })} style={{ cursor: 'pointer' }}>
 									<Preview />
 									{prompt}
 								</a>
-							);
+							)
 						})}
+
 					</div>
 					<div
 						className="shuffle-btn"
 						style={{ opacity: this.state.workflowLoading ? 0 : 1 }}
 					>
-						<a onClick={this.handleShuffle} style={{ cursor: 'pointer' }}>
+						<a onClick={this.handleShuffle} style={{ cursor: 'pointer' }} >
 							<Shuffle /> Shuffle
 						</a>
 					</div>

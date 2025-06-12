@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import JoditEditor from 'jodit-react';
+const JoditEditor = React.lazy(() => import('jodit-react'));
 import _ from 'lodash';
 import rgbHex from 'rgb-hex';
 import Right from '../../layouts/actions/down';
@@ -1857,7 +1857,9 @@ class App extends BaseClass {
 					}
 				}
 
-				return `<span class="variable" style="${style}" ${dataId}>${variableValue}</span>`;
+				return `<span class="variable" style="${style}${
+					this.props.client ? '' : '; padding: 1px 10px'
+				}" ${dataId}>${variableValue}</span>`;
 			});
 
 			return newText;
@@ -2577,11 +2579,25 @@ class App extends BaseClass {
 							: {}),
 					}}
 					ref={this.textRef}
-					onClick={() => (this.state.preview !== true ? this.getStyles() : '')}
+					// onClick={() => (this.state.preview !== true ? this.getStyles() : '')}
+					onClick={(e) => {
+						this.handleInputClick(e);
+						this.state.preview !== true ? this.getStyles() : '';
+					}}
 					id="text_component_ID"
 				>
 					<Helmet>
-						<style>{`#text_component_ID ${themeStyles}`}</style>
+						<style>{`
+							${themeStyles}
+							#text_component_ID a:-webkit-any-link {
+								color: inherit !important;
+								text-decoration: none;
+							}
+							#text_component_ID a {
+								color: inherit !important;
+								text-decoration: none;
+							}
+						`}</style>
 					</Helmet>
 					{/* Custom toolbar */}
 

@@ -319,7 +319,7 @@ const Summary = () => {
 		(idx) => {
 			const workflowId = workflowInfoDetails?._id;
 			if (workflowId) {
-				navigate(`/builder/document/edit/${workflowId}?workflow=true&openSignature=true`);
+				navigate(`/document/edit/${workflowId}?workflow=true&openSignature=true`);
 			}
 		},
 		[workflowInfoDetails, navigate],

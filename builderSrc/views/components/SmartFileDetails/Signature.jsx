@@ -2,7 +2,7 @@ import React, { memo, useState, useContext, useEffect, useCallback } from 'react
 import '../../../assets/scss/smart-file-components/signature.scss';
 import { nameShortner } from '../../../helper';
 import Context from '../../../context/context';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 import UploadSignatureModal from './UploadSignatureModal';
 

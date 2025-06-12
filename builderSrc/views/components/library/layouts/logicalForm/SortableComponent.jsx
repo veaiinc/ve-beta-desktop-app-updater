@@ -349,7 +349,7 @@ const SortableComponent = ({
 
 				{/* Preview in builder mode */}
 				{embedType && (
-					<div className="embed-preview">
+					<div className="embed-preview" style={{ marginBottom: '40px' }}>
 						<h4 style={{ marginBottom: '8px', color: '#fff' }}>Preview:</h4>
 						{embedType === 'url' ? (
 							<iframe
@@ -1320,18 +1320,7 @@ const SortableComponent = ({
 		saveSections(updateSections);
 	};
 	const [localDropdownState, setLocalDropdownState] = useState(false);
-	const dropdownRef = useRef(null);
-
-	useEffect(() => {
-		const handleClickOutside = (event) => {
-			if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-				setLocalDropdownState(false);
-			}
-		};
-
-		document.addEventListener('mousedown', handleClickOutside);
-		return () => document.removeEventListener('mousedown', handleClickOutside);
-	}, []);
+	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
 	const renderMediaField = (field, type) => {
 		const [mediaType, setMediaType] = useState('url');
@@ -2280,7 +2269,6 @@ const SortableComponent = ({
 															borderRadius: '4px',
 															color: '#fff',
 															marginTop: '8px',
-															fontSize: '14px',
 														}}
 													>
 														<option value="shortanswer">
@@ -4941,7 +4929,7 @@ const SortableComponent = ({
 						>
 							<button
 								ref={addButtonRef}
-								className="builder__action-button"
+								className="action-button"
 								onClick={(e) => {
 									e.preventDefault();
 									setShowInlineDropdown(!showInlineDropdown);
@@ -4962,7 +4950,7 @@ const SortableComponent = ({
 									trigger="hover"
 								>
 									<button
-										className="builder__action-button condition-button"
+										className="action-button condition-button"
 										onClick={(e) => {
 											e.preventDefault();
 											setShowConditions(!showConditions);
@@ -4981,7 +4969,7 @@ const SortableComponent = ({
 							trigger="hover"
 						>
 							<button
-								className="builder__action-button"
+								className="action-button"
 								onClick={(e) => {
 									e.preventDefault();
 									onDuplicate(field, _id);
@@ -4999,7 +4987,7 @@ const SortableComponent = ({
 								trigger="hover"
 							>
 								<button
-									className="builder__action-button"
+									className="action-button"
 									onClick={(e) => {
 										e.preventDefault();
 										onDelete(field.id, _id);
@@ -5021,7 +5009,7 @@ const SortableComponent = ({
 									trigger="hover"
 								>
 									<button
-										className="builder__action-button"
+										className="action-button"
 										onClick={(e) => {
 											e.preventDefault();
 											e.stopPropagation();
@@ -5174,7 +5162,6 @@ const SortableComponent = ({
 					{field.type === 'dropdown' ? (
 						<div
 							className="dropdown-container"
-							ref={dropdownRef}
 							style={{
 								width: '100%',
 								position: 'relative',
@@ -5308,7 +5295,6 @@ const SortableComponent = ({
 															(section) => section._id === _id,
 													  )?.buttonProps?.btStyles?.background || '#333'
 													: 'transparent',
-												borderRadius: '30px',
 											}}
 										>
 											<div
@@ -5402,8 +5388,6 @@ const SortableComponent = ({
 													: field.answer === 'Other'
 													? '#3D3D3D'
 													: 'transparent',
-												borderRadius: '30px',
-												//
 											}}
 										>
 											{field.useBadges && (
@@ -5976,7 +5960,7 @@ const SortableComponent = ({
 							<When /> When
 						</span>
 						<button
-							className="builder__action-button"
+							className="action-button"
 							onClick={(e) => {
 								e.preventDefault();
 								setShowConditions(false);
@@ -6208,7 +6192,7 @@ const SortableComponent = ({
 									</div>
 								)}
 							<button
-								className="builder__action-button remove-condition"
+								className="action-button remove-condition"
 								onClick={(e) => {
 									e.preventDefault();
 									onRemoveCondition(field.id, index, 'actions', _id);
@@ -6234,7 +6218,7 @@ const SortableComponent = ({
 			{field.type === 'signature' && (
 				<div
 					style={{
-						width: client ? (window.innerWidth <= 768 ? '342px' : '422px') : '422px',
+						width: client ? (window.innerWidth <= 768 ? '305px' : '422px') : '422px',
 						marginLeft: '0',
 						marginBottom: '40px',
 					}}
@@ -6271,7 +6255,7 @@ const SortableComponent = ({
 						)}
 						<canvas
 							id={`signature-canvas-${field.id}`}
-							width={client ? (window.innerWidth <= 768 ? 342 : 422) : 422}
+							width={client ? (window.innerWidth <= 768 ? 305 : 422) : 422}
 							height={200}
 							style={{
 								width: '100%',
@@ -7162,6 +7146,7 @@ const SortableComponent = ({
 										frameBorder="0"
 										allowFullScreen=""
 										allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+										loading="lazy"
 										style={{ borderRadius: '8px' }}
 									/>
 								) : (

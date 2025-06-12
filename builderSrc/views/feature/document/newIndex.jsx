@@ -8,10 +8,13 @@ import { ReactComponent as SearchIcon } from '../../../assets/svg/UpdateClient/S
 import { ReactComponent as VerifiedSvg } from '../../../assets/svg/Vector.svg';
 import Spinner from '../../components/loaders/Spinner';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ReactComponent as MailIcon } from '../../components/library/svgs/logicform/email.svg';
+import { ReactComponent as MailIcon } from '../../../views/components/library/svgs/logicform/email.svg';
 import { ReactComponent as PhoneIcon } from '../../../assets/svg/questionTypes/phoneNumber.svg';
 import { ReactComponent as Plus } from '../../../assets/svg/document/plus.svg';
 import { ReactComponent as DocumentPreview } from '../../../assets/svg/document/documentrightside.svg';
+import { fetchOriginSelection } from '../../../helper';
+
+const origin = fetchOriginSelection()
 // ClientSelectionTooltip Component
 const ClientSelectionTooltip = ({ handleOptionSelection, clientsList, getClientList }) => {
 	const [searchQuery, setSearchQuery] = useState('');
@@ -406,7 +409,7 @@ const CreateDocument = () => {
 				if (response?.[0]) {
 					message.success('Document created successfully for new client');
 					markStepAsCompleted(3);
-					navigate(`/builder/document/edit/${response[1]}?workflow=true`);
+					navigate(`/document/edit/${response[1]}?workflow=true`);
 				} else {
 					message.error('Failed to create document for new client');
 				}
@@ -460,7 +463,7 @@ const CreateDocument = () => {
 				if (response?.[0]) {
 					message.success('Document created successfully for new client');
 					markStepAsCompleted(3);
-					navigate(`/builder/document/edit/${response[1]}?workflow=true`);
+					navigate(`/document/edit/${response[1]}?workflow=true`);
 				} else {
 					message.error('Failed to create document for new client');
 				}
@@ -521,7 +524,7 @@ const CreateDocument = () => {
 					if (response?.[0]) {
 						message.success('Document created successfully for new client');
 						markStepAsCompleted(3);
-						navigate(`/builder/document/edit/${response[1]}?workflow=true`);
+						navigate(`/document/edit/${response[1]}?workflow=true`);
 					} else {
 						message.error('Failed to create document for new client');
 					}
@@ -546,7 +549,7 @@ const CreateDocument = () => {
 				const response = await createSmartfile(payload);
 				if (response?.[0]) {
 					message.success('Document created successfully');
-					navigate(`/builder/document/edit/${response[1]._id}?workflow=true`);
+					navigate(`/document/edit/${response[1]._id}?workflow=true`);
 				} else {
 					message.error('Failed to create document');
 				}
@@ -584,7 +587,7 @@ const CreateDocument = () => {
 				<div className="createDocumentHeader">
 					<span
 						className="createDocumentTitle"
-						onClick={() => navigate('/files?activeTab=Documents')}
+						onClick={() => window.location.href = `${origin}/files?activeTab=Documents`}
 					>
 						<span style={{ cursor: 'pointer' }}>&#8592;</span> Back to Files
 					</span>

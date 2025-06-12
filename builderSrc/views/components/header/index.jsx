@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import '../../../assets/scss/header.scss';
-import { ReactComponent as Back } from '../../../assets/svg/back.svg';
 import PageIcon from '../library/svgs/header/PagesComponent';
 import { ReactComponent as Desktop } from '../../../assets/svg/smartFile/Desktop.svg';
 import { ReactComponent as Mobile } from '../../../assets/svg/smartFile/Mobile.svg';
@@ -164,7 +163,7 @@ class Header extends Component {
 
 	render() {
 		return (
-			<div className="template-header">
+			<div className="builder-header">
 				<div className="h-left">
 					<span
 						style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
@@ -178,7 +177,7 @@ class Header extends Component {
 						}}
 					>
 						<>
-							<Tooltip title="Back" placement="rightTop">
+							<Tooltip title="Back" placement="bottom">
 								<Back />
 							</Tooltip>
 
@@ -192,25 +191,23 @@ class Header extends Component {
 								)}
 							</span>
 						</>
-					</span>
-
-					<Title
-						title={this.state.title}
-						updatePublishedTemplate={this.props.updatePublishedTemplate}
-						isWorkflow={this.state.isWorkflow}
-					/>
+					</span>{' '}
+					<>
+						<Title
+							title={this.state.title}
+							updatePublishedTemplate={this.props.updatePublishedTemplate}
+							isWorkflow={this.state.isWorkflow}
+						/>
+					</>
 				</div>
-
 				{/* <div className="h-center">{this.renderModules()}</div> */}
-
 				<div className="h-right">
 					<div className="device-view">
 						<Tooltip title="Desktop View" placement="bottom">
 							<span
 								onClick={(e) => this.handlePreview(false, 'd')}
-								className={` tooltip ${
-									this.state.previewType === 'd' ? 'active' : ''
-								} `}
+								className={` tooltip ${this.state.previewType === 'd' ? 'active' : ''
+									} `}
 								style={{
 									cursor: 'pointer',
 									// display: this.state.previewType === 'd' ? 'none' : 'block',
@@ -222,11 +219,10 @@ class Header extends Component {
 						<Tooltip title="Mobile View" placement="bottom">
 							<span
 								onClick={(e) => this.handlePreview(true, 'm')}
-								className={`tooltip ${
-									this.state.previewType === 'm' && this.state.preview
-										? 'active'
-										: ''
-								}`}
+								className={`tooltip ${this.state.previewType === 'm' && this.state.preview
+									? 'active'
+									: ''
+									}`}
 								style={{
 									cursor: 'pointer',
 									// display: this.state.previewType === 'm' ? 'none' : 'block',
@@ -235,9 +231,25 @@ class Header extends Component {
 								<Mobile />
 							</span>
 						</Tooltip>
+						{/* <Tooltip title="Mobile Lock" placement="bottom">
+						<span
+							onClick={(e) => this.handlePreview(true, 'ml')}
+							className={`tooltip ${
+								this.state.previewType === 'ml' && this.state.preview
+									? 'active'
+									: ''
+							}`}
+							style={{
+								cursor: 'pointer',
+							}}
+						>
+							{this.state.mobileViewLocked ? <MobileLock /> : <MobileUnlock />}
+							</span>
+						</Tooltip> */}
 					</div>
-
-					{this.state.previewType === 'm' ? null : (
+					{this.state.previewType === 'm' ? (
+						''
+					) : (
 						<>
 							<Divider />
 							<div className="page-settings">
@@ -250,7 +262,7 @@ class Header extends Component {
 													this.props.managePages(e);
 												});
 											}}
-											// style={{ textTransform: 'capitalize', background: 'none' }}
+										// style={{ textTransform: 'capitalize', background: 'none' }}
 										>
 											<PageIcon />
 											<span className="page-count">
@@ -260,7 +272,7 @@ class Header extends Component {
 									</Tooltip>
 								</span>
 								<span className="h-right-icons">
-									<Tooltip title="Theme Settings" placement="bottom">
+									<Tooltip title="Theme Settings">
 										<span
 											className="h-right-pages no-path-fill"
 											onClick={this.props?.showThemeSettings}
@@ -271,6 +283,63 @@ class Header extends Component {
 								</span>
 							</div>
 							{!this.state.isEmbed && <Divider />}
+							<>
+								<span
+									className="h-right-publish"
+									onClick={(e) => {
+										this.setState({ isLoader: true }, () => {
+											this.props.publish(e);
+										});
+									}}
+									style={{ textTransform: 'capitalize' }}
+								>
+									{this.state.isPublishLoading ? 'Saving...' : `Save`}
+								</span>
+								{!this.state.isWorkflow &&
+									<span
+										onClick={(e) => {
+											e.stopPropagation();
+											this.setState({
+												isThreeDotsDropdown: !this.state.isThreeDotsDropdown,
+											});
+										}}
+										className="three-dots-svg"
+									>
+										<Threedots />
+
+										{this.state.isThreeDotsDropdown && (
+											<div
+												ref={this.threeDotsDropdownRef}
+												className="three-dots-svg-dropdown"
+											>
+												{['Duplicate', 'Delete'].map((item) => {
+													return (
+														<span
+															className="three-dots-svg-dropdown-item"
+															onClick={(e) => {
+																e.stopPropagation();
+																if (item === 'Delete') {
+																	this.props?.handleDeleteOpen(true);
+																} else {
+																	this.props?.handleDuplicateTemplate();
+																}
+															}}
+															style={{
+																color:
+																	item === 'Delete'
+																		? '#C03744'
+																		: '#E4E5E6',
+															}}
+														>
+															{item}
+														</span>
+													);
+												})}
+											</div>
+										)}
+									</span>
+								}
+							</>
 						</>
 					)}
 
@@ -331,9 +400,9 @@ class Header extends Component {
 						</a> */}
 					{/* // ) : ( */}
 					<>
-						{this.props.isWorkflow && this.state.previewType === 'm' ? (
+						{this.props.isWorkflow && this.state.previewType !== 'm' && !this.state.isEmbed ? (
 							<>
-								<span
+								{/* <span
 									className="h-right-publish"
 									// getting props error
 									// onClick={(e) => {
@@ -342,8 +411,8 @@ class Header extends Component {
 									style={{ textTransform: 'capitalize' }}
 								>
 									Edit Details
-								</span>
-								<span
+								</span> */}
+								{/* <span
 									className="h-right-publish"
 									onClick={(e) => {
 										this.handleShare();
@@ -351,71 +420,69 @@ class Header extends Component {
 									style={{ textTransform: 'capitalize' }}
 								>
 									Share
-								</span>
+								</span> */}
+
+								{/* <>
+									<span
+										className="h-right-publish"
+										onClick={(e) => {
+											this.setState({ isLoader: true }, () => {
+												this.props.publish(e);
+											});
+										}}
+										style={{ textTransform: 'capitalize' }}
+									>
+										{this.state.isPublishLoading ? 'Saving...' : `Save`}
+									</span>
+									{!this.state.isWorkflow &&
+										<span
+											onClick={(e) => {
+												e.stopPropagation();
+												this.setState({
+													isThreeDotsDropdown: !this.state.isThreeDotsDropdown,
+												});
+											}}
+											className="three-dots-svg"
+										>
+											<Threedots />
+
+											{this.state.isThreeDotsDropdown && (
+												<div
+													ref={this.threeDotsDropdownRef}
+													className="three-dots-svg-dropdown"
+												>
+													{['Duplicate', 'Delete'].map((item) => {
+														return (
+															<span
+																className="three-dots-svg-dropdown-item"
+																onClick={(e) => {
+																	e.stopPropagation();
+																	if (item === 'Delete') {
+																		this.props?.handleDeleteOpen(true);
+																	} else {
+																		this.props?.handleDuplicateTemplate();
+																	}
+																}}
+																style={{
+																	color:
+																		item === 'Delete'
+																			? '#C03744'
+																			: '#E4E5E6',
+																}}
+															>
+																{item}
+															</span>
+														);
+													})}
+												</div>
+											)}
+										</span>
+									}
+								</> */}
+
 							</>
 						) : this.state.previewType === 'm' ? (
 							''
-						) : !this.state.isEmbed ? (
-							<>
-								<span
-									className="h-right-publish"
-									onClick={(e) => {
-										this.setState({ isLoader: true }, () => {
-											this.props.publish(e);
-										});
-									}}
-									style={{ textTransform: 'capitalize' }}
-								>
-									{this.state.isPublishLoading ? 'Saving...' : `Save`}
-								</span>
-								{!this.state.isWorkflow && (
-									<span
-										onClick={(e) => {
-											e.stopPropagation();
-											this.setState({
-												isThreeDotsDropdown:
-													!this.state.isThreeDotsDropdown,
-											});
-										}}
-										className="three-dots-svg"
-									>
-										<Threedots />
-
-										{this.state.isThreeDotsDropdown && (
-											<div
-												ref={this.threeDotsDropdownRef}
-												className="three-dots-svg-dropdown"
-											>
-												{['Duplicate', 'Delete'].map((item) => {
-													return (
-														<span
-															className="three-dots-svg-dropdown-item"
-															onClick={(e) => {
-																e.stopPropagation();
-																if (item === 'Delete') {
-																	this.props?.handleDeleteOpen(
-																		true,
-																	);
-																} else {
-																	this.props?.handleDuplicateTemplate();
-																}
-															}}
-															style={{
-																color:
-																	item === 'Delete'
-																		? '#C03744'
-																		: '#E4E5E6',
-															}}
-														>
-															{item}
-														</span>
-													);
-												})}
-											</div>
-										)}
-									</span>
-								)}
-							</>
 						) : (
 							<></>
 						)}
