@@ -249,15 +249,21 @@ const filterHelper = {
 		}
 	},
 	is_between: (filterValue, dataValue, type = 'primitive') => {
-		//need to implement this
-		if (type === 'date') {
-		}
-	},
-	is_relative_to_today: (filterValue, dataValue, type = 'primitive') => {
 		if (type === 'date') {
 			const { dateType, date } = filterValue;
+			return date[0] <= dataValue[dateType] && date[1] >= dataValue[dateType];
+		}
+	},
+	relative_to_today: (filterValue, dataValue, type = 'primitive') => {
+		if (type === 'date') {
+			const { timeScope, timeFrame, timeFrameCount, dateType } = filterValue;
+			const [startDate, endDate] = getRelativeToTodayRange(
+				timeScope,
+				timeFrame,
+				timeFrameCount,
+			);
 
-			return dataValue[dateType] === date;
+			return dataValue[dateType] >= startDate.unix() && dataValue[dateType] <= endDate.unix();
 		}
 	},
 	equals: (filterValue, dataValue, type = 'primitive') => {
