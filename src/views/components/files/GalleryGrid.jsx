@@ -3,7 +3,7 @@ import '../../../assets/scss/files/files.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import Spinner from '../../components/loaders/Spinner';
 import { ReactComponent as Folder } from '../../../assets/svg/files/Folder.svg';
-import { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
@@ -11,6 +11,7 @@ import FilterDropdown from '../dropDown/file/FilterDropdown';
 import gsap from 'gsap';
 import EmptyState from './EmptyState';
 import { Tooltip } from 'antd';
+import { ReactComponent as Search } from '../../../assets/svg/search.svg';
 
 const filterOptions = [
 	{ label: 'All', value: 'all' },
@@ -62,7 +63,11 @@ const GalleryGrid = ({
 		currentPage: 1,
 		loading: true,
 		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
+		searchQuery: '',
+		searchLoading: false,
 	});
+
+	const debounceTimeout = useRef();
 
 	useEffect(() => {
 		handleStateUpdate({ loading: true, currentPage: 1, hasNextPage: false });
@@ -117,7 +122,7 @@ const GalleryGrid = ({
 			};
 		});
 
-		// still call handleTotalChange outside of setInfo(), since it’s a side‐effect
+		// still call handleTotalChange outside of setInfo(), since it's a side-effect
 		handleTotalChange(tenantGalleries.totalDocs || 0);
 	}, [tenantGalleries]);
 
@@ -206,6 +211,23 @@ const GalleryGrid = ({
 		return () => clearTimeout(timeout);
 	}, [info?.galleries?.length]);
 
+	// Debounce search effect
+	useEffect(() => {
+		if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+		debounceTimeout.current = setTimeout(() => {
+			handleStateUpdate({ loading: true, currentPage: 1, hasNextPage: false });
+			const options = {
+				page: 1,
+				limit: 20,
+				storeOriginals: selectedOption === 'Gallery',
+				...(info?.searchQuery && { title: info?.searchQuery }),
+			};
+			fetchGalleries(options);
+		}, 1000);
+		return () => clearTimeout(debounceTimeout.current);
+		// Only trigger when searchQuery or selectedOption changes
+	}, [info.searchQuery, selectedOption]);
+
 	const fetchGalleries = async ({ page = 1, limit = 20, storeOriginals }) => {
 		try {
 			getGalleries(
@@ -213,6 +235,7 @@ const GalleryGrid = ({
 					page,
 					limit,
 					storeOriginals: storeOriginals || selectedOption === 'Gallery',
+					...(info?.searchQuery && { title: info?.searchQuery }),
 				},
 				true,
 			);
@@ -230,6 +253,7 @@ const GalleryGrid = ({
 			page: info?.currentPage + 1,
 			limit: info.limit,
 			storeOriginals: selectedOption === 'Gallery',
+			...(info?.searchQuery && { title: info?.searchQuery }),
 		};
 		fetchGalleries(options);
 	};
@@ -272,6 +296,30 @@ const GalleryGrid = ({
 					hideOnOptionClick={false}
 					width="180px"
 				/>
+
+				<div className="filter-container-search">
+					<Search width={16} height={16} />
+					<input
+						type="text"
+						placeholder="Search"
+						value={info.searchQuery}
+						onChange={(e) => {
+							setInfo({ ...info, searchQuery: e.target.value });
+						}}
+						className="search-input"
+					/>
+					{info.searchLoading && (
+						<div className="search-spinner">
+							<Spinner
+								size="small"
+								width={16}
+								height={16}
+								borderWidth={1.5}
+								color="var(--primary-button)"
+							/>
+						</div>
+					)}
+				</div>
 			</div>
 			<div className="center-container-content">
 				{info?.loading ? (
