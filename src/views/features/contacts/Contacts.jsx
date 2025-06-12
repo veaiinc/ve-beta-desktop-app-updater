@@ -28,6 +28,7 @@ const Contacts = () => {
 		templates: { updateStateValues },
 		contacts: { clientList, getClients, updateStateValues: updateContactState },
 	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		loadingSkeleton: true,
 		error: null,
