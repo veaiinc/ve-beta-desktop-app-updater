@@ -106,7 +106,7 @@ const createOptions = [
 		title: 'Form',
 		value: 'form-submission',
 		controlValue: 'form',
-		action: async ({ setInfo }) => {
+		action: async ({ setInfo, navigate, createBlankTemplate }) => {
 			try {
 				setInfo((prev) => ({
 					...prev,
@@ -119,8 +119,8 @@ const createOptions = [
 						title: 'Untitled Form',
 					},
 				});
-				if (response?.[0]) {
-					window.location.href = `${origin}/${response?.[1]?.data?.createBlankTemplate?._id}`;
+				if (response?.[0] && response?.[1]?.data?.createBlankTemplate?._id) {
+					navigate(`/builder/${response[1].data.createBlankTemplate._id}`);
 				} else {
 					message.error('Failed to create form');
 				}
@@ -317,7 +317,7 @@ const QuickActions = ({
 	const location = useLocation();
 
 	const {
-		templates: { toggleCreateLeadModal, updateStateValues },
+		templates: { toggleCreateLeadModal, updateStateValues, createBlankTemplate },
 		profileInfo: { tenantUserAccessControls },
 		automationBuilder: { createAutomation },
 		aiSetup: { createNewAiAssistant },
@@ -1379,6 +1379,7 @@ const QuickActions = ({
 												createNewAiAssistant,
 												createAutomation,
 												createNewKnowledgeAgent,
+												createBlankTemplate,
 											})
 										}
 									>
@@ -1429,6 +1430,7 @@ const QuickActions = ({
 												createNewAiAssistant,
 												createAutomation,
 												createNewKnowledgeAgent,
+												createBlankTemplate,
 											})
 										}
 									>
@@ -1455,6 +1457,7 @@ const QuickActions = ({
 												createNewAiAssistant,
 												createAutomation,
 												createNewKnowledgeAgent,
+												createBlankTemplate,
 											})
 										}
 									>
@@ -1487,6 +1490,7 @@ const QuickActions = ({
 													createNewAiAssistant,
 													createAutomation,
 													createNewKnowledgeAgent,
+													createBlankTemplate,
 												})
 											}
 										>

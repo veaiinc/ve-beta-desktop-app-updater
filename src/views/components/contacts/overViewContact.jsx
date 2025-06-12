@@ -13,19 +13,23 @@ import { ReactComponent as EmailIcon } from '../../../assets/svg/footer/email.sv
 import { ReactComponent as PhoneIcon } from '../../../assets/svg/contacts/phone.svg';
 import { ReactComponent as AvatarIcon } from '../../../assets/svg/contacts/phone.svg';
 import UserSvg from '../../../assets/svg/Settings/UserSvg';
+import { message } from '../globalComponents/CustomToast';
+
 const OverviewContact = () => {
 	const { contactId } = useParams();
 	const {
-		contacts: { getClient, updateClient, deleteClient, updateStateValues },
+		contacts: { getClient, updateClient, deleteClient, updateStateValues, getClients },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		contact: null,
 		pendingTaskCount: 0,
+		editDetails: {
+			name: false,
+			email: false,
+			phoneNumber: false,
+		},
 	});
-	const [editField, setEditField] = useState(null);
-	const [editValue, setEditValue] = useState('');
 	const navigate = useNavigate();
-	const [isEditMode, setIsEditMode] = useState(false);
 
 	const handleEmailClick = () => {
 		window.location.href = `mailto:${info?.contact?.email}`;
@@ -40,38 +44,90 @@ const OverviewContact = () => {
 		});
 	}, [contactId]);
 
-	const handleEdit = (field) => {
-		setIsEditMode(true);
-		setEditField(field);
-		setEditValue(info?.contact?.[field] || '');
+	const toggleEditDetails = (field) => {
+		setInfo((prev) => ({
+			...prev,
+			editDetails: {
+				...prev.editDetails,
+				[field]: !prev.editDetails[field],
+			},
+		}));
 	};
 
-	const handleEditChange = async (e) => {
-		const newValue = e.target.value;
-		setEditValue(newValue);
-		if (!info?.contact) return;
-		const updated = { ...info.contact, [editField]: newValue };
-		await updateClient({
+	const validateField = (field, value) => {
+		let error = '';
+		switch (field) {
+			case 'name':
+				if (!value.trim()) {
+					error = 'Name is required';
+				}
+				break;
+			case 'email':
+				if (!value) {
+					error = 'Email is required';
+				} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+					error = 'Invalid email format';
+				}
+				break;
+			case 'phoneNumber':
+				if (!value) {
+					error = 'Phone number is required';
+				} else if (!/^\+?[1-9]\d{1,14}$/.test(value.replace(/\s|-/g, ''))) {
+					error = 'Invalid phone number format';
+				}
+				break;
+			default:
+				break;
+		}
+		return error;
+	};
+
+	const handleUpdate = async (field) => {
+		const currentValue = info.contact[field];
+		if (!currentValue.trim()) {
+			message.error(`${field === 'name' ? 'Name' : field} cannot be empty!`);
+			return;
+		}
+
+		const error = validateField(field, currentValue);
+		if (error) {
+			message.error(error);
+			return;
+		}
+
+		const [success, errorMessage] = await updateClient({
 			updateClientId: info.contact._id,
 			updateClientInput: {
-				name: updated.name,
-				email: updated.email,
-				phoneNumber: updated.phoneNumber,
+				[field]: currentValue,
 			},
 		});
-		setInfo((prev) => ({ ...prev, contact: updated }));
-	};
 
-	const handleBlur = () => {
-		setEditField(null);
-		setIsEditMode(false);
-	};
+		if (!success) {
+			message.error(errorMessage || 'Failed to update');
+			return;
+		}
 
-	const handleDelete = async () => {
-		if (!info?.contact?._id) return;
-		await deleteClient({ deleteClientId: info.contact._id });
+		message.success('Contact updated successfully');
+		setInfo((prev) => ({
+			...prev,
+			editDetails: {
+				...prev.editDetails,
+				[field]: false,
+			},
+		}));
+
+		// Refresh contacts list
 		updateStateValues({ clientList: null });
-		navigate('/contacts');
+		getClients(
+			{
+				clientFilterInput: {
+					limit: 15,
+					page: 1,
+					sort: [{ sortBy: 'createdAt', sortType: 1 }],
+				},
+			},
+			true,
+		);
 	};
 
 	const handleTaskCountUpdate = useCallback(
@@ -82,6 +138,21 @@ const OverviewContact = () => {
 		},
 		[info.pendingTaskCount],
 	);
+
+	const handleDelete = async () => {
+		if (!info?.contact?._id) return;
+		const loadingId = message.loading('Deleting contact...');
+		const [success, errorMessage] = await deleteClient({ deleteClientId: info.contact._id });
+		message.destroy(loadingId);
+
+		if (success) {
+			message.success('Contact deleted successfully');
+			updateStateValues({ clientList: null });
+			navigate('/contacts');
+		} else {
+			message.error(errorMessage || 'Failed to delete contact');
+		}
+	};
 
 	return (
 		<div className="about-container">
@@ -102,26 +173,46 @@ const OverviewContact = () => {
 			</div>
 			<div className="profile-container">
 				<div className="profile-header">
-					<div className="profile-icon" onClick={() => handleEdit('name')}>
+					<div className="profile-icon">
 						{info?.contact?.name ? info.contact.name.charAt(0).toUpperCase() : ''}
 					</div>
 					<div className="profile-details">
 						<div className="profile-name-row">
-							{editField === 'name' ? (
+							{info.editDetails.name ? (
 								<div className="edit-field-container">
 									<UserSvg className="field-icon" />
 									<input
 										type="text"
-										value={editValue}
-										onChange={handleEditChange}
-										onBlur={handleBlur}
+										value={info.contact.name}
+										onChange={(e) =>
+											setInfo((prev) => ({
+												...prev,
+												contact: { ...prev.contact, name: e.target.value },
+											}))
+										}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter') {
+												handleUpdate('name');
+											}
+										}}
+										onBlur={() => handleUpdate('name')}
 										autoFocus
 										className="edit-input"
 										placeholder="Enter name"
 									/>
 								</div>
 							) : (
-								<span className="profile-name" onClick={() => handleEdit('name')}>
+								<span
+									className="profile-name"
+									onClick={() => toggleEditDetails('name')}
+									role="button"
+									tabIndex={0}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter') {
+											toggleEditDetails('name');
+										}
+									}}
+								>
 									<UserSvg className="field-icon" />
 									{info?.contact?.name || 'Add name'}
 								</span>
@@ -129,14 +220,27 @@ const OverviewContact = () => {
 						</div>
 						<div className="sub-details-container">
 							<div className="profile-contact-row">
-								{editField === 'email' ? (
+								{info.editDetails.email ? (
 									<div className="edit-field-container">
 										<EmailIcon className="field-icon" />
 										<input
 											type="email"
-											value={editValue}
-											onChange={handleEditChange}
-											onBlur={handleBlur}
+											value={info.contact.email}
+											onChange={(e) =>
+												setInfo((prev) => ({
+													...prev,
+													contact: {
+														...prev.contact,
+														email: e.target.value,
+													},
+												}))
+											}
+											onKeyDown={(e) => {
+												if (e.key === 'Enter') {
+													handleUpdate('email');
+												}
+											}}
+											onBlur={() => handleUpdate('email')}
 											autoFocus
 											className="edit-input"
 											placeholder="Enter email"
@@ -145,7 +249,14 @@ const OverviewContact = () => {
 								) : (
 									<span
 										className="profile-email"
-										onClick={() => handleEdit('email')}
+										onClick={() => toggleEditDetails('email')}
+										role="button"
+										tabIndex={0}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter') {
+												toggleEditDetails('email');
+											}
+										}}
 									>
 										<EmailIcon className="field-icon" />
 										{info?.contact?.email || 'Add email'}
@@ -153,14 +264,27 @@ const OverviewContact = () => {
 								)}
 							</div>
 							<div className="profile-contact-row">
-								{editField === 'phoneNumber' ? (
+								{info.editDetails.phoneNumber ? (
 									<div className="edit-field-container">
 										<PhoneIcon className="field-icon" />
 										<input
 											type="text"
-											value={editValue}
-											onChange={handleEditChange}
-											onBlur={handleBlur}
+											value={info.contact.phoneNumber}
+											onChange={(e) =>
+												setInfo((prev) => ({
+													...prev,
+													contact: {
+														...prev.contact,
+														phoneNumber: e.target.value,
+													},
+												}))
+											}
+											onKeyDown={(e) => {
+												if (e.key === 'Enter') {
+													handleUpdate('phoneNumber');
+												}
+											}}
+											onBlur={() => handleUpdate('phoneNumber')}
 											autoFocus
 											className="edit-input"
 											placeholder="Enter phone number"
@@ -169,7 +293,14 @@ const OverviewContact = () => {
 								) : (
 									<span
 										className="profile-phone"
-										onClick={() => handleEdit('phoneNumber')}
+										onClick={() => toggleEditDetails('phoneNumber')}
+										role="button"
+										tabIndex={0}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter') {
+												toggleEditDetails('phoneNumber');
+											}
+										}}
 									>
 										<PhoneIcon className="field-icon" />
 										{info?.contact?.phoneNumber || 'Add phone number'}
@@ -179,18 +310,22 @@ const OverviewContact = () => {
 						</div>
 
 						<div className="profile-actions">
-							{info?.contact?.email && (
-								<div onClick={handleEmailClick} className="profile-action-btn">
-									<EmailIcon />
-									<span>Email</span>
-								</div>
-							)}
-							{info?.contact?.phoneNumber && (
-								<div onClick={handlePhoneClick} className="profile-action-btn">
-									<PhoneIcon />
-									<span>Call</span>
-								</div>
-							)}
+							{info?.contact?.email &&
+								/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(info.contact.email) && (
+									<div onClick={handleEmailClick} className="profile-action-btn">
+										<EmailIcon />
+										<span>Email</span>
+									</div>
+								)}
+							{info?.contact?.phoneNumber &&
+								/^\+?[1-9]\d{1,14}$/.test(
+									info.contact.phoneNumber.replace(/[\s-]/g, ''),
+								) && (
+									<div onClick={handlePhoneClick} className="profile-action-btn">
+										<PhoneIcon />
+										<span>Call</span>
+									</div>
+								)}
 						</div>
 					</div>
 				</div>

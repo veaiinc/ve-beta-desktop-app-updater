@@ -3,18 +3,23 @@ import { gql } from '@apollo/client';
 export const getClientsQuery = gql`
 	query Clients($clientFilterInput: ClientFilterInput) {
 		clients(clientFilterInput: $clientFilterInput) {
+			currentPage
 			data {
 				_id
 				name
 				email
 				phoneNumber
-				updatedAt
 				createdAt
-				workflows
+				updatedAt
 			}
 			hasNextPage
-			currentPage
+			totalPages
 			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
+			nextPage
 		}
 	}
 `;
