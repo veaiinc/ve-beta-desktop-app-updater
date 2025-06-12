@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 export const colors = {
 	1: { backgroundColor: '#62344B', color: '#A35A7E' },
 	2: { backgroundColor: '#373737', color: '#707070' },
@@ -95,6 +97,43 @@ const resolveBaseType = (fieldType) => {
 export const getFilterConditions = (fieldType) => {
 	const resolved = resolveBaseType(fieldType);
 	return resolved ? baseConditions[resolved] : [];
+};
+
+export const getRelativeToTodayRange = (timeScope, timeFrame, timeFrameCount) => {
+	const today = moment();
+	const count = timeFrameCount || 1;
+
+	const ranges = {
+		this: {
+			day: [today.clone().startOf('day'), today.clone().endOf('day')],
+			week: [today.clone().startOf('week'), today.clone().endOf('week')],
+			month: [today.clone().startOf('month'), today.clone().endOf('month')],
+			year: [today.clone().startOf('year'), today.clone().endOf('year')],
+		},
+		past: {
+			day: [today.clone().subtract(count, 'days').startOf('day'), today.clone().endOf('day')],
+			week: [
+				today.clone().subtract(count, 'weeks').startOf('day'),
+				today.clone().endOf('day'),
+			],
+			month: [
+				today.clone().subtract(count, 'months').startOf('day'),
+				today.clone().endOf('day'),
+			],
+			year: [
+				today.clone().subtract(count, 'years').startOf('day'),
+				today.clone().endOf('day'),
+			],
+		},
+		next: {
+			day: [today.clone().startOf('day'), today.clone().add(count, 'days').endOf('day')],
+			week: [today.clone().startOf('day'), today.clone().add(count, 'weeks').endOf('day')],
+			month: [today.clone().startOf('day'), today.clone().add(count, 'months').endOf('day')],
+			year: [today.clone().startOf('day'), today.clone().add(count, 'years').endOf('day')],
+		},
+	};
+
+	return ranges[timeScope]?.[timeFrame] || [null, null];
 };
 
 const filterHelper = {

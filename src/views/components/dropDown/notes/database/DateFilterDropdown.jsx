@@ -4,6 +4,7 @@ import CalendarPicker from '../../../notes/DatabseComponents/CalendarPicker';
 import s from '../../../../../assets/scss/notes/dropdown/dateFilterDropdown.module.scss';
 import FilterHelperDropdown from './FilterHelperDropdown';
 import {
+	getRelativeToTodayRange,
 	relativeTodayTimeFrames,
 	relativeTodayTimeFramesArray,
 	relativeTodayTimeScopes,
@@ -11,18 +12,27 @@ import {
 } from '../../../../../helpers/databaseHelpers';
 
 const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, filterType }) => {
-	const [dateType, setDateType] = useState(selected?.dateType || 'startDate');
-	const [activeInput, setActiveInput] = useState(0); // 0 for first input, 1 for second input
-	const [isSelectingRange, setIsSelectingRange] = useState(false);
-	const [hoverDate, setHoverDate] = useState(null);
-	const [timeScope, setTimeScope] = useState(selected?.timeScope || 'this');
-	const [timeFrame, setTimeFrame] = useState(selected?.timeFrame || 'day');
-	const [timeFrameCount, setTimeFrameCount] = useState(selected?.timeFrameCount || 1);
+	const [info, setInfo] = useState({
+		dateType: selected?.dateType || 'startDate',
+		activeInput: 0,
+		isSelectingRange: false,
+		hoverDate: null,
+		timeScope: selected?.timeScope || 'this',
+		timeFrame: selected?.timeFrame || 'day',
+		timeFrameCount: selected?.timeFrameCount || 1,
+	});
 
 	const handleDateTypeChange = (e) => {
 		const newDateType = e.target.value;
-		setDateType(newDateType);
-		if (showStartEnd && selected?.date) {
+		setInfo((prev) => ({ ...prev, dateType: newDateType }));
+		if (filterType === 'relative_to_today') {
+			onChange({
+				timeScope: info.timeScope,
+				timeFrame: info.timeFrame,
+				timeFrameCount: info.timeFrameCount,
+				dateType: newDateType,
+			});
+		} else if (showStartEnd && selected?.date) {
 			onChange({
 				date: selected.date,
 				dateType: newDateType,
@@ -32,123 +42,79 @@ const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, f
 
 	const calculateRelativeDates = useMemo(() => {
 		if (filterType !== 'relative_to_today') return null;
-
-		const today = moment();
-		const count = timeFrameCount || 1;
-
-		const ranges = {
-			this: {
-				day: [today.clone().startOf('day'), today.clone().endOf('day')],
-				week: [today.clone().startOf('week'), today.clone().endOf('week')],
-				month: [today.clone().startOf('month'), today.clone().endOf('month')],
-				year: [today.clone().startOf('year'), today.clone().endOf('year')],
-			},
-			past: {
-				day: [
-					today.clone().subtract(count, 'days').startOf('day'),
-					today.clone().endOf('day'),
-				],
-				week: [
-					today.clone().subtract(count, 'weeks').startOf('day'),
-					today.clone().endOf('day'),
-				],
-				month: [
-					today.clone().subtract(count, 'months').startOf('day'),
-					today.clone().endOf('day'),
-				],
-				year: [
-					today.clone().subtract(count, 'years').startOf('day'),
-					today.clone().endOf('day'),
-				],
-			},
-			next: {
-				day: [today.clone().startOf('day'), today.clone().add(count, 'days').endOf('day')],
-				week: [
-					today.clone().startOf('day'),
-					today.clone().add(count, 'weeks').endOf('day'),
-				],
-				month: [
-					today.clone().startOf('day'),
-					today.clone().add(count, 'months').endOf('day'),
-				],
-				year: [
-					today.clone().startOf('day'),
-					today.clone().add(count, 'years').endOf('day'),
-				],
-			},
-		};
-
-		const [startDate, endDate] = ranges[timeScope]?.[timeFrame] || [null, null];
-
+		const [startDate, endDate] = getRelativeToTodayRange(
+			info.timeScope,
+			info.timeFrame,
+			info.timeFrameCount,
+		);
 		return startDate && endDate
 			? {
 					startDate: startDate.toDate(),
 					endDate: endDate.toDate(),
 			  }
 			: null;
-	}, [filterType, timeScope, timeFrame, timeFrameCount]);
+	}, [filterType, info.timeScope, info.timeFrame, info.timeFrameCount]);
 
 	const handleDateSelect = (date) => {
 		if (filterType === 'relative_to_today') {
-			return; // Don't handle date selection for relative_to_today filter type
+			return;
 		}
 
 		const timestamp = moment(date).unix();
 
 		if (Array.isArray(selected?.date)) {
-			if (activeInput === 0) {
-				// When selecting first date
+			if (info.activeInput === 0) {
 				if (selected.date[1] && timestamp > selected.date[1]) {
-					// If selected date is after the end date, swap them
 					onChange({
 						date: [selected.date[1], timestamp],
-						dateType: dateType,
+						dateType: info.dateType,
 					});
 				} else {
-					// Normal case - update start date
 					onChange({
 						date: [timestamp, selected.date[1]],
-						dateType: dateType,
+						dateType: info.dateType,
 					});
 				}
-				setActiveInput(1); // Move to end date selection
-				setIsSelectingRange(true);
+				setInfo((prev) => ({
+					...prev,
+					activeInput: 1,
+					isSelectingRange: true,
+				}));
 			} else {
-				// When selecting second date
 				if (timestamp < selected.date[0]) {
-					// If selected date is before the start date, swap them
 					onChange({
 						date: [timestamp, selected.date[0]],
-						dateType: dateType,
+						dateType: info.dateType,
 					});
 				} else {
-					// Normal case - update end date
 					onChange({
 						date: [selected.date[0], timestamp],
-						dateType: dateType,
+						dateType: info.dateType,
 					});
 				}
-				setActiveInput(0); // Move back to start date selection
-				setIsSelectingRange(false);
+				setInfo((prev) => ({
+					...prev,
+					activeInput: 0,
+					isSelectingRange: false,
+				}));
 			}
 		} else {
-			// Single date selection
 			onChange({
 				date: timestamp,
-				dateType: dateType,
+				dateType: info.dateType,
 			});
 		}
-		setHoverDate(null);
+		setInfo((prev) => ({ ...prev, hoverDate: null }));
 	};
 
 	const handleDateHover = (date) => {
 		if (
 			Array.isArray(selected?.date) &&
-			isSelectingRange &&
+			info.isSelectingRange &&
 			selected.date[0] &&
 			!selected.date[1]
 		) {
-			setHoverDate(date);
+			setInfo((prev) => ({ ...prev, hoverDate: date }));
 		}
 	};
 
@@ -161,25 +127,18 @@ const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, f
 		return selected?.date ? moment.unix(selected.date).format('MMM DD, YYYY') : '';
 	};
 
-	const getCalendarDate = () => {
-		if (Array.isArray(selected?.date)) {
-			return selected.date[activeInput] ? moment.unix(selected.date[activeInput]) : null;
-		}
-		return selected?.date ? moment.unix(selected.date) : null;
-	};
-
 	const getStartDate = () => {
 		if (Array.isArray(selected?.date)) {
 			return selected.date[0] ? moment.unix(selected.date[0]) : null;
 		}
-		return null;
+		return selected?.date ? moment.unix(selected.date) : null;
 	};
 
 	const getEndDate = () => {
 		if (Array.isArray(selected?.date)) {
 			return selected.date[1] ? moment.unix(selected.date[1]) : null;
 		}
-		return null;
+		return selected?.date ? moment.unix(selected.date) : null;
 	};
 
 	const handleRelativeTimeChange = (newTimeScope, newTimeFrame, newTimeFrameCount) => {
@@ -187,7 +146,7 @@ const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, f
 			timeScope: newTimeScope,
 			timeFrame: newTimeFrame,
 			timeFrameCount: newTimeScope === 'this' ? 0 : newTimeFrameCount,
-			dateType: dateType,
+			dateType: info.dateType,
 		});
 	};
 
@@ -200,7 +159,7 @@ const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, f
 				{showStartEnd && (
 					<select
 						className={s.dateTypeSelect}
-						value={dateType}
+						value={info.dateType}
 						onChange={handleDateTypeChange}
 					>
 						<option value="startDate">Start Date</option>
@@ -212,34 +171,42 @@ const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, f
 						<div className={s.relativeToTodaySelectedWrapper}>
 							<FilterHelperDropdown
 								options={relativeTodayTimeScopesArray}
-								selectedOption={timeScope}
+								selectedOption={info.timeScope}
 								onChange={(value) => {
-									setTimeScope(value);
-									handleRelativeTimeChange(value, timeFrame, timeFrameCount);
+									setInfo((prev) => ({ ...prev, timeScope: value }));
+									handleRelativeTimeChange(
+										value,
+										info.timeFrame,
+										info.timeFrameCount,
+									);
 								}}
 							>
 								<div className={s.relativeToTodaySelected}>
-									{relativeTodayTimeScopes?.[timeScope]?.label}
+									{relativeTodayTimeScopes?.[info.timeScope]?.label}
 								</div>
 							</FilterHelperDropdown>
 						</div>
-						{timeScope !== 'this' && (
+						{info.timeScope !== 'this' && (
 							<div className={s.countInputWrapper}>
 								<input
 									type="number"
 									placeholder="Count"
 									min={1}
-									value={timeFrameCount}
+									value={info.timeFrameCount}
 									onChange={(e) => {
 										const value = e.target.value;
 										// Allow empty input
 										if (value === '') {
-											setTimeFrameCount('');
+											setInfo((prev) => ({ ...prev, timeFrameCount: '' }));
 											return;
 										}
 										const newCount = parseInt(value) || 1;
-										setTimeFrameCount(newCount);
-										handleRelativeTimeChange(timeScope, timeFrame, newCount);
+										setInfo((prev) => ({ ...prev, timeFrameCount: newCount }));
+										handleRelativeTimeChange(
+											info.timeScope,
+											info.timeFrame,
+											newCount,
+										);
 									}}
 								/>
 							</div>
@@ -247,14 +214,18 @@ const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, f
 						<div className={s.relativeToTodaySelectedWrapper}>
 							<FilterHelperDropdown
 								options={relativeTodayTimeFramesArray}
-								selectedOption={timeFrame}
+								selectedOption={info.timeFrame}
 								onChange={(value) => {
-									setTimeFrame(value);
-									handleRelativeTimeChange(timeScope, value, timeFrameCount);
+									setInfo((prev) => ({ ...prev, timeFrame: value }));
+									handleRelativeTimeChange(
+										info.timeScope,
+										value,
+										info.timeFrameCount,
+									);
 								}}
 							>
 								<div className={s.relativeToTodaySelected}>
-									{relativeTodayTimeFrames?.[timeFrame]?.label}
+									{relativeTodayTimeFrames?.[info.timeFrame]?.label}
 								</div>
 							</FilterHelperDropdown>
 						</div>
@@ -268,16 +239,16 @@ const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, f
 									placeholder="Start Date"
 									value={getDisplayDate(0)}
 									readOnly
-									onClick={() => setActiveInput(0)}
-									className={activeInput === 0 ? s.activeInput : ''}
+									onClick={() => setInfo((prev) => ({ ...prev, activeInput: 0 }))}
+									className={info.activeInput === 0 ? s.activeInput : ''}
 								/>
 								<input
 									type="text"
 									placeholder="End Date"
 									value={getDisplayDate(1)}
 									readOnly
-									onClick={() => setActiveInput(1)}
-									className={activeInput === 1 ? s.activeInput : ''}
+									onClick={() => setInfo((prev) => ({ ...prev, activeInput: 1 }))}
+									className={info.activeInput === 1 ? s.activeInput : ''}
 								/>
 							</>
 						) : (
@@ -302,7 +273,7 @@ const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, f
 						? calculateRelativeDates?.endDate
 						: getEndDate()
 				}
-				hoverDate={hoverDate}
+				hoverDate={info.hoverDate}
 				onDateSelect={handleDateSelect}
 				onHover={handleDateHover}
 			/>
