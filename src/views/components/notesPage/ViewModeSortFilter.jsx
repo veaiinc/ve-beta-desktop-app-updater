@@ -16,6 +16,7 @@ const ViewModeSortFilter = ({
 	setSelectedFilter,
 	setSelectedSort,
 	setSearchQuery,
+	loading,
 }) => {
 	const [info, setInfo] = useState({
 		sort: { label: 'Recently Updated', value: 'updatedAt' },
@@ -59,6 +60,12 @@ const ViewModeSortFilter = ({
 					<SortAndFilterTooltip
 						type="sort"
 						tooltipOpen={info.sortTooltipOpen}
+						toggleTooltipOpen={() =>
+							setInfo((prev) => ({
+								...prev,
+								sortTooltipOpen: !prev.sortTooltipOpen,
+							}))
+						}
 						selectedOption={info.sort}
 						handleOptionClick={({ type, value }) => {
 							setInfo((prev) => ({
@@ -78,6 +85,12 @@ const ViewModeSortFilter = ({
 					<SortAndFilterTooltip
 						type="filter"
 						tooltipOpen={info.filterTooltipOpen}
+						toggleTooltipOpen={() =>
+							setInfo((prev) => ({
+								...prev,
+								filterTooltipOpen: !prev.filterTooltipOpen,
+							}))
+						}
 						selectedOption={info.filter}
 						handleOptionClick={({ type, value }) => {
 							setInfo((prev) => ({
@@ -109,7 +122,7 @@ const ViewModeSortFilter = ({
 						}}
 						className="search-input"
 					/>
-					{info.searchLoading && (
+					{loading && (
 						<div className="search-spinner">
 							<Spinner
 								size="small"
