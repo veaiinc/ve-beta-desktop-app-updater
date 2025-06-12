@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
-import '../../../../assets/scss/subscriptions/exoiredSubscriptionModal.scss';
+import '../../../../assets/scss/subscriptions/exoiredSubscriptionModal.scss'; // Note: Typo 'exoired' should be 'expired'
 import ReactModal from '../index';
 import Context from '../../../../context/context';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
@@ -10,9 +10,11 @@ const customStyles = {
 	content: { zIndex: 99999 },
 	overlay: { zIndex: 99998 },
 };
+
 const BYTES_PER_GB = 1073741824;
+
 const ExpiredSubscriptionModal = () => {
-	let {
+	const {
 		profileInfo: { tenantUserAccessControls },
 		subscriptionInfo: {
 			validateExpiryData,
@@ -31,48 +33,52 @@ const ExpiredSubscriptionModal = () => {
 		dataUsed: null,
 		dataLimit: null,
 	});
+
+	// Mapper for subscription types to dataUsed and dataLimit
+	const subscriptionTypeConfig = {
+		'Classic-Gallery': {
+			dataUsed: currentPlan?.storageUsedInBytes
+				? Number((currentPlan.storageUsedInBytes / BYTES_PER_GB).toFixed(2))
+				: 0,
+			dataLimit: currentPlan?.storageLimitInBytes
+				? Number((currentPlan.storageLimitInBytes / BYTES_PER_GB).toFixed(2))
+				: 0,
+		},
+		'Lite-Gallery': {
+			dataUsed: currentPlan?.liteImageUsed ?? 0,
+			dataLimit: currentPlan?.liteImageLimit ?? 0,
+		},
+		Tenants: {
+			dataUsed: currentPlan?.tenantUsers ?? 0,
+			dataLimit: currentPlan?.tenantUsersLimit ?? 0,
+		},
+		'Knowledge-Agent': {
+			dataUsed: currentPlan?.knowledgeAgentUsed ?? 0,
+			dataLimit: currentPlan?.knowledgeAgentLimit ?? 0,
+		},
+		'Conversational-Agent': {
+			dataUsed: currentPlan?.conversationalAgentUsed ?? 0,
+			dataLimit: currentPlan?.conversationalAgentLimit ?? 0,
+		},
+	};
+
 	useEffect(() => {
-		if (expiredSubscriptionType === 'Classic-Gallery') {
-			setInfo((prev) => ({
-				...prev,
-				dataUsed: Number((storageUsedInBytes / BYTES_PER_GB).toFixed(2)),
-				dataLimit: Number((storageLimitInBytes / BYTES_PER_GB).toFixed(2)),
-			}));
-		} else if (expiredSubscriptionType === 'Lite-Gallery') {
-			setInfo((prev) => ({
-				...prev,
-				dataUsed: currentPlan?.liteImageUsed,
-				dataLimit: currentPlan?.liteImageLimit,
-			}));
-		} else if (expiredSubscriptionType === 'Tenants') {
-			setInfo((prev) => ({
-				...prev,
-				dataUsed: currentPlan?.tenantUsers,
-				dataLimit: currentPlan?.tenantUsersLimit,
-			}));
-		} else if (expiredSubscriptionType === 'Knowledge-Agent') {
-			setInfo((prev) => ({
-				...prev,
-				dataUsed: currentPlan?.knowledgeAgentUsed,
-				dataLimit: currentPlan?.knowledgeAgentLimit,
-			}));
-		} else if (expiredSubscriptionType === 'Conversational-Agent') {
-			setInfo((prev) => ({
-				...prev,
-				dataUsed: currentPlan?.conversationalAgentUsed,
-				dataLimit: currentPlan?.conversationalAgentLimit,
-			}));
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				dataUsed: null,
-				dataLimit: null,
-			}));
-		}
-	}, [expiredSubscriptionType]);
+		const config = subscriptionTypeConfig[expiredSubscriptionType] || {
+			dataUsed: null,
+			dataLimit: null,
+		};
+
+		setInfo((prev) => ({
+			...prev,
+			dataUsed: config.dataUsed,
+			dataLimit: config.dataLimit,
+		}));
+	}, [expiredSubscriptionType, currentPlan]);
+
 	const closeModal = useCallback(() => {
 		updateSubscriptionState({ expiredSubscriptionModal: false });
 	}, []);
+
 	const handleRenewSubscirption = useCallback(async () => {
 		closeModal();
 		getAllSubscriptionPlan();
@@ -80,7 +86,7 @@ const ExpiredSubscriptionModal = () => {
 			...prev,
 			isAddOnOpen: true,
 		}));
-	}, []);
+	}, [closeModal, getAllSubscriptionPlan]);
 
 	const handleCloseAddOn = useCallback(() => {
 		setInfo((prev) => ({
@@ -100,16 +106,15 @@ const ExpiredSubscriptionModal = () => {
 					<div className="expiredSubscriptionModalHeader">
 						{validateExpiryData?.isExpired ? (
 							<span className="expiredModalHeaderText">
-								Your Plan has been <br></br>Expired !
+								Your Plan has been <br />
+								Expired!
 							</span>
 						) : (
 							<span className="expiredModalHeaderText">
 								You have reached the limit of your{' '}
-								{`${
-									expiredSubscriptionType === 'Tenants'
-										? 'Tenants Users Count'
-										: expiredSubscriptionType
-								}`}
+								{expiredSubscriptionType === 'Tenants'
+									? 'Tenants Users Count'
+									: expiredSubscriptionType}
 								.
 							</span>
 						)}
@@ -126,10 +131,14 @@ const ExpiredSubscriptionModal = () => {
 								<div
 									className="progressBar"
 									style={{
-										width: `${Math.min(
-											(info?.dataUsed / info?.dataLimit) * 100,
-											100,
-										)}%`,
+										width: `${
+											info?.dataLimit
+												? Math.min(
+														(info.dataUsed / info.dataLimit) * 100,
+														100,
+												  )
+												: 0
+										}%`,
 									}}
 								/>
 							</div>
@@ -167,4 +176,5 @@ const ExpiredSubscriptionModal = () => {
 		</>
 	);
 };
+
 export default memo(ExpiredSubscriptionModal);
