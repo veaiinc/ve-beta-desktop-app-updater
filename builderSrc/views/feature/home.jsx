@@ -947,7 +947,7 @@ class Home extends Proposals {
 							if (subBlock?._id == this.state?.activeSubBlockID) {
 								if (
 									subBlock?.animations?.animeType !=
-									this.state?.activeElementAnimeType &&
+										this.state?.activeElementAnimeType &&
 									subBlock?.animations
 								) {
 									this.setState({
@@ -957,7 +957,7 @@ class Home extends Proposals {
 								}
 								if (
 									subBlock?.animations?.animeName !=
-									this.state?.activeElementAnimeName &&
+										this.state?.activeElementAnimeName &&
 									subBlock?.animations?.animeName
 								) {
 									this.setState({
@@ -1789,14 +1789,14 @@ class Home extends Proposals {
 		this.setState(
 			this.state.module === 'form' && this.state.isHeader && headerID
 				? {
-					headerSection: arr[0],
-					isAutoSaving: true,
-				}
+						headerSection: arr[0],
+						isAutoSaving: true,
+				  }
 				: {
-					sections: arr,
-					isAutoSaving: true,
-					//activeBlock: _.filter(arr, { _id: this.state.activeSectionID })[0],
-				},
+						sections: arr,
+						isAutoSaving: true,
+						//activeBlock: _.filter(arr, { _id: this.state.activeSectionID })[0],
+				  },
 			async () => {
 				await this.handleSaveSections(
 					null,
@@ -1995,15 +1995,15 @@ class Home extends Proposals {
 		this.setState(
 			this.state.module === 'form' && this.state.isHeader && headerID
 				? {
-					headerSection: arr[0],
-					activeSubBlockType: 'f',
-					isAutoSaving: true,
-				}
+						headerSection: arr[0],
+						activeSubBlockType: 'f',
+						isAutoSaving: true,
+				  }
 				: {
-					sections: arr,
-					activeSubBlockType: 'f',
-					isAutoSaving: true,
-				},
+						sections: arr,
+						activeSubBlockType: 'f',
+						isAutoSaving: true,
+				  },
 			async () => {
 				await this.handleSaveSections(
 					true,
@@ -2122,23 +2122,23 @@ class Home extends Proposals {
 		this.setState(
 			this.state.module === 'form' && this.state.isHeader
 				? {
-					headerSection: arr[0],
-					imgSettingData: {
-						...this.state.imgSettingData,
-						crop: crop,
-						zoom: zoom,
-					},
-					isAutoSaving: true,
-				}
+						headerSection: arr[0],
+						imgSettingData: {
+							...this.state.imgSettingData,
+							crop: crop,
+							zoom: zoom,
+						},
+						isAutoSaving: true,
+				  }
 				: {
-					sections: arr,
-					imgSettingData: {
-						...this.state.imgSettingData,
-						crop: crop,
-						zoom: zoom,
-					},
-					isAutoSaving: true,
-				},
+						sections: arr,
+						imgSettingData: {
+							...this.state.imgSettingData,
+							crop: crop,
+							zoom: zoom,
+						},
+						isAutoSaving: true,
+				  },
 			async () => {
 				// !previous logic
 				// setTimeout(
@@ -2284,21 +2284,21 @@ class Home extends Proposals {
 		this.setState(
 			this.state.module === 'form' && this.state.isHeader
 				? {
-					headerSection: arr[0],
-					activeImageURL: e,
-					isAutoSaving: true,
-					activeSection: _.filter(arr, { _id: activeSectionID })[0],
-					base64: null,
-					uploadAIImage: null,
-				}
+						headerSection: arr[0],
+						activeImageURL: e,
+						isAutoSaving: true,
+						activeSection: _.filter(arr, { _id: activeSectionID })[0],
+						base64: null,
+						uploadAIImage: null,
+				  }
 				: {
-					sections: arr,
-					activeImageURL: e,
-					isAutoSaving: true,
-					activeSection: _.filter(arr, { _id: activeSectionID })[0],
-					base64: null,
-					uploadAIImage: null,
-				},
+						sections: arr,
+						activeImageURL: e,
+						isAutoSaving: true,
+						activeSection: _.filter(arr, { _id: activeSectionID })[0],
+						base64: null,
+						uploadAIImage: null,
+				  },
 			async () => {
 				this.handleSaveSections(
 					null,
@@ -2692,7 +2692,7 @@ class Home extends Proposals {
 									...varDetails,
 									value: this.state.isWorkflow
 										? _.filter(this.state.sectionVariables, { _id: varb })[0]
-											?.value
+												?.value
 										: varDetails?.defaultValue,
 								});
 							} else {
@@ -2703,7 +2703,7 @@ class Home extends Proposals {
 									type: varDetails?.type,
 									value: this.state.isWorkflow
 										? _.filter(this.state.sectionVariables, { _id: varb })[0]
-											?.value
+												?.value
 										: varDetails?.defaultValue,
 									_id: varb,
 									defaultValue: varDetails?.defaultValue,
@@ -2736,7 +2736,7 @@ class Home extends Proposals {
 		if (
 			_.size(_.filter(sections, { type: 'services' })) > 0 &&
 			_.size(_.filter(this.state?.variables?.custom || [], { displayName: 'Grand Total' })) >
-			0
+				0
 		) {
 			let grandTotalInWords = 'Zero';
 			if (grandTotal) {
@@ -3319,15 +3319,15 @@ class Home extends Proposals {
 			this.setState(
 				this.state.module === 'form' && this.state.isHeader && headerID
 					? {
-						headerSection: sectionsArr[0],
-						activeBlock: e,
-						isAutoSaving: true,
-					}
+							headerSection: sectionsArr[0],
+							activeBlock: e,
+							isAutoSaving: true,
+					  }
 					: {
-						sections: sectionsArr,
-						activeBlock: e,
-						isAutoSaving: true,
-					},
+							sections: sectionsArr,
+							activeBlock: e,
+							isAutoSaving: true,
+					  },
 				async () => {
 					if (debounce) {
 						this.debounceFuncForElementProps(async () => {
@@ -3372,15 +3372,15 @@ class Home extends Proposals {
 		this.setState(
 			this.state.module === 'form' && this.state.isHeader && headerID
 				? {
-					headerSection: sectionsarr[0],
-					activeBlock: e,
-					isAutoSaving: true,
-				}
+						headerSection: sectionsarr[0],
+						activeBlock: e,
+						isAutoSaving: true,
+				  }
 				: {
-					sections: sectionsarr,
-					activeBlock: e,
-					isAutoSaving: true,
-				},
+						sections: sectionsarr,
+						activeBlock: e,
+						isAutoSaving: true,
+				  },
 			async () => {
 				await this.handleSaveSections(
 					true,
@@ -3587,7 +3587,6 @@ class Home extends Proposals {
 			) {
 				// return (window.location.href = `https://ve.ai/my-templates`);
 				return this.props.navigate(-1);
-
 			} else if (this.state.template.actions?.includes('form-submission')) {
 				return this.props.navigate(-1);
 			} else {
@@ -3675,25 +3674,25 @@ class Home extends Proposals {
 		this.setState(
 			this.state.module === 'form' && this.state.isHeader
 				? {
-					headerSection: arr[0],
-					imgSettingData: {
-						...this.state.imgSettingData,
-						crop: crop,
-						zoom: zoom,
-						imageWidth: imageWidth,
-						isAutoSaving: true,
-					},
-				}
+						headerSection: arr[0],
+						imgSettingData: {
+							...this.state.imgSettingData,
+							crop: crop,
+							zoom: zoom,
+							imageWidth: imageWidth,
+							isAutoSaving: true,
+						},
+				  }
 				: {
-					sections: arr,
-					imgSettingData: {
-						...this.state.imgSettingData,
-						crop: crop,
-						zoom: zoom,
-						imageWidth: imageWidth,
-						isAutoSaving: true,
-					},
-				},
+						sections: arr,
+						imgSettingData: {
+							...this.state.imgSettingData,
+							crop: crop,
+							zoom: zoom,
+							imageWidth: imageWidth,
+							isAutoSaving: true,
+						},
+				  },
 			async () => {
 				setTimeout(
 					function () {
@@ -3815,10 +3814,10 @@ class Home extends Proposals {
 					json?.type === 'shape' || json?.type === 'sticker'
 						? `${rowStart} / ${colStart} / ${rowEnd + 3} / ${colEnd + 2}`
 						: json?.type === 'button'
-							? `${rowStart} / ${colStart} / ${rowStart + 2} / ${colEnd}`
-							: json?.type === 'video'
-								? `${rowStart} / ${colStart} / ${rowEnd + 10} / ${colEnd + 8}`
-								: json?.divStyles?.gridArea,
+						? `${rowStart} / ${colStart} / ${rowStart + 2} / ${colEnd}`
+						: json?.type === 'video'
+						? `${rowStart} / ${colStart} / ${rowEnd + 10} / ${colEnd + 8}`
+						: json?.divStyles?.gridArea,
 			},
 			order: order + 1,
 		};
@@ -4554,8 +4553,8 @@ class Home extends Proposals {
 							position == 'last' && section.blocks.length >= 2
 								? block.subBlocks?.slice(0, -1)
 								: block.subBlocks?.length >= 2
-									? block.subBlocks?.filter((_, i) => i !== index)
-									: block.subBlocks,
+								? block.subBlocks?.filter((_, i) => i !== index)
+								: block.subBlocks,
 					}));
 				}
 				sectionsArr.push(section);
@@ -4614,16 +4613,16 @@ class Home extends Proposals {
 		let type = this.state.isWorkflow;
 		this.state.isWorkflow
 			? (filters = {
-				page: page,
-				limit: 30,
-				version: 1,
-			})
+					page: page,
+					limit: 30,
+					version: 1,
+			  })
 			: (filters = {
-				page: page,
-				limit: 30,
-				type: 'workspace',
-				version: 1,
-			});
+					page: page,
+					limit: 30,
+					type: 'workspace',
+					version: 1,
+			  });
 		await this.getTemplateList(
 			this.state.isWorkflow ? WorkflowsList : templateList,
 			{
@@ -5029,7 +5028,7 @@ class Home extends Proposals {
 		});
 	};
 	handleBackgroundWidth = (value) => {
-		this.setState({ activeBackgroundWidth: value }, () => { });
+		this.setState({ activeBackgroundWidth: value }, () => {});
 	};
 	getModuleSections = async (module) => {
 		let responce;
@@ -5319,8 +5318,9 @@ class Home extends Proposals {
 					<Fragment key={module._id}>
 						<span
 							onClick={() => this.props.getModuleInfo(module._id, moduleType)}
-							className={`navbar-module-item ${this.state.activeModuleId === module._id ? 'active' : ''
-								}`}
+							className={`navbar-module-item ${
+								this.state.activeModuleId === module._id ? 'active' : ''
+							}`}
 						>
 							{module.label}
 						</span>
@@ -5700,7 +5700,7 @@ class Home extends Proposals {
 		}
 	};
 	handleDuplicateTemplateRoute = (templateId) => {
-		return (window.location.href = `${window.location.origin}/${templateId}`);
+		return (window.location.href = `${window.location.origin}/builder/${templateId}`);
 	};
 	handleDeleteTemplate = async (e) => {
 		let response = await this.handleDeleteTemplateFunction(deleteTemplateQuery, {
@@ -5710,7 +5710,7 @@ class Home extends Proposals {
 		if (response[0] === true) {
 			// let from = window.location.origin;
 
-			return (window.location.href = `${origin}/files?activeTab=Designs`);
+			return navigate(`/files?activeTab=Designs`);
 		}
 	};
 	updateTablesForTaxes = (tables) => {
@@ -5931,7 +5931,7 @@ class Home extends Proposals {
 										})
 									}
 									modules={this.state.modules}
-									handleSave={this.props?.handleSave || (() => { })}
+									handleSave={this.props?.handleSave || (() => {})}
 									isWorkflow={true}
 									updatePublishedTemplate={(e) => this.handlePublishUpdate(e)}
 									handleAddClientInShare={(e) => this.handleAddClientInShare(e)}
@@ -6050,9 +6050,9 @@ class Home extends Proposals {
 									style={{
 										paddingRight:
 											!this.state?.isFluidLayout &&
-												this.state?.showSideBar &&
-												!this.state?.showAddBlock &&
-												!this.state?.previewType?.includes('m')
+											this.state?.showSideBar &&
+											!this.state?.showAddBlock &&
+											!this.state?.previewType?.includes('m')
 												? '360px'
 												: '0px',
 										paddingLeft:
@@ -6067,13 +6067,13 @@ class Home extends Proposals {
 										// 		: 1,
 										justifyContent:
 											this.state?.activeModule?.showType == 'a4' &&
-												this.state?.activeModule?.showAsA4
+											this.state?.activeModule?.showAsA4
 												? 'center'
 												: '',
 										backgroundColor:
 											this.state?.activeModule?.showType == 'a4' &&
-												this.state?.activeModule?.showAsA4 &&
-												this.state?.activeModule?.a4BgColor
+											this.state?.activeModule?.showAsA4 &&
+											this.state?.activeModule?.a4BgColor
 												? this.state?.activeModule?.a4BgColor
 												: '',
 									}}
@@ -6081,7 +6081,7 @@ class Home extends Proposals {
 									{this.state.previewType === 'm' ? (
 										<div
 											className="desktop-view-for-mobile"
-										// style={{ maxWidth: 600, display: 'flex' }}
+											// style={{ maxWidth: 600, display: 'flex' }}
 										>
 											<div className="desktop-view-for-mobile-wrapper">
 												<div className="preview-heading">
@@ -6161,13 +6161,13 @@ class Home extends Proposals {
 														deleteFQBlock={(blockID, sectionID) =>
 															this.state.isWorkflow
 																? this.handleWorkflowDeleteBlock(
-																	blockID,
-																	sectionID,
-																)
+																		blockID,
+																		sectionID,
+																  )
 																: this.handleDeleteBlock(
-																	blockID,
-																	sectionID,
-																)
+																		blockID,
+																		sectionID,
+																  )
 														}
 														handleOpenSideBar={(
 															e,
@@ -6202,9 +6202,9 @@ class Home extends Proposals {
 															this.state.client == true
 																? ''
 																: this.handleFontStyles(
-																	e,
-																	activeTextBlock,
-																)
+																		e,
+																		activeTextBlock,
+																  )
 														}
 														crop={this.state.crop}
 														zoom={this.state.zoom}
@@ -6253,26 +6253,26 @@ class Home extends Proposals {
 															ImgSubBlock,
 															isFluid = null,
 														) => [
-																this.activeImage(
-																	sectionID,
-																	blockID,
-																	subBlockID,
-																	imageURL,
-																	dimensions,
-																	ImgSubBlock,
-																),
-																isFluid
-																	? this.setState({
+															this.activeImage(
+																sectionID,
+																blockID,
+																subBlockID,
+																imageURL,
+																dimensions,
+																ImgSubBlock,
+															),
+															isFluid
+																? this.setState({
 																		showSideBar: true,
-																	})
-																	: '',
-															]}
+																  })
+																: '',
+														]}
 														setSections={(e, restrict = null) =>
 															this.setState({ sections: e }, () => {
 																this.handleSaveSections(
 																	restrict,
 																	this.state.module === 'form' &&
-																	this.state.isHeader,
+																		this.state.isHeader,
 																	'tables',
 																);
 															})
@@ -6309,15 +6309,15 @@ class Home extends Proposals {
 														) =>
 															this.state.isWorkflow
 																? this.addWorkflowServiceTableBlock(
-																	e,
-																	order,
-																	services_style,
-																)
+																		e,
+																		order,
+																		services_style,
+																  )
 																: this.addServiceTableBlock(
-																	e,
-																	order,
-																	services_style,
-																)
+																		e,
+																		order,
+																		services_style,
+																  )
 														}
 														variables={this.state.sectionVariables}
 														tables={this.state.sectionTables}
@@ -6348,13 +6348,13 @@ class Home extends Proposals {
 														addFormQuestion={(sectionID, blockOrder) =>
 															this.state.isWorkflow
 																? this.addWorkflowQuestionForForm(
-																	sectionID,
-																	blockOrder,
-																)
+																		sectionID,
+																		blockOrder,
+																  )
 																: this.addQuestionForForm(
-																	sectionID,
-																	blockOrder,
-																)
+																		sectionID,
+																		blockOrder,
+																  )
 														}
 														setActiveFormQuestion={(e, blockID) =>
 															this.setState({
@@ -6410,9 +6410,9 @@ class Home extends Proposals {
 																				true,
 																				this.state
 																					.module ===
-																				'form' &&
-																				this.state
-																					.isHeader,
+																					'form' &&
+																					this.state
+																						.isHeader,
 																				'tables',
 																			),
 																		300,
@@ -6455,9 +6455,9 @@ class Home extends Proposals {
 														deleteServiceBlock={(e, f) =>
 															this.state.isWorkflow
 																? this.handleWorkflowDeleteBlock(
-																	e,
-																	f,
-																)
+																		e,
+																		f,
+																  )
 																: this.handleDeleteBlock(e, f)
 														}
 														setServiceBlockContent={(e, f, g, h) =>
@@ -6623,13 +6623,13 @@ class Home extends Proposals {
 														addPaymentScheduleBlock={(id, order) => {
 															this.state?.isWorkflow
 																? this.addWorkflowPaymentScheduleBlock(
-																	id,
-																	order,
-																)
+																		id,
+																		order,
+																  )
 																: this.addPaymentScheduleBlock(
-																	id,
-																	order,
-																);
+																		id,
+																		order,
+																  );
 														}}
 														addEventBlock={(e, sectionID) =>
 															this.addEventBlock(e, sectionID)
@@ -6755,10 +6755,10 @@ class Home extends Proposals {
 												elementEndPosition={{ x: 950, y: 150 }}
 												activePopupComponent={
 													this.state?.activePopupType == 'navbar' ||
-														this.state?.activePopupType ==
+													this.state?.activePopupType ==
 														'mNavbarHamburger' ||
-														this.state?.activePopupType == 'mNavbarCart' ||
-														this.state?.activePopupType == 'navImage'
+													this.state?.activePopupType == 'mNavbarCart' ||
+													this.state?.activePopupType == 'navImage'
 														? this.state?.navBar
 														: this.state?.activePopupComponent
 												}
@@ -6783,10 +6783,10 @@ class Home extends Proposals {
 												}
 												setActivePopupComponent={(value) => {
 													this.state?.activePopupType == 'navbar' ||
-														this.state?.activePopupType ==
+													this.state?.activePopupType ==
 														'mNavbarHamburger' ||
-														this.state?.activePopupType == 'mNavbarCart' ||
-														this.state?.activePopupType == 'navImage'
+													this.state?.activePopupType == 'mNavbarCart' ||
+													this.state?.activePopupType == 'navImage'
 														? this.handleNavbarUpdate(value)
 														: this.setActiveMPopupComponent(value);
 												}}
@@ -6814,7 +6814,7 @@ class Home extends Proposals {
 												}
 												isMobileNavbar={
 													this.state.activePopupType == 'navbar' ||
-														this.state.activePopupType == 'navImage'
+													this.state.activePopupType == 'navImage'
 														? true
 														: false
 												}
@@ -6824,24 +6824,25 @@ class Home extends Proposals {
 											/>
 										)}
 									<div
-										className={`hwb_left ${(this.state.preview &&
-											(this.state.previewType === 'm' ||
-												this.state.previewType === 'ml')) ||
+										className={`hwb_left ${
+											(this.state.preview &&
+												(this.state.previewType === 'm' ||
+													this.state.previewType === 'ml')) ||
 											this.state.previewMode === 'm' ||
 											this.state.previewMode === 'ml'
-											? 'hwb_left-mobile'
-											: ''
-											}`}
+												? 'hwb_left-mobile'
+												: ''
+										}`}
 										ref={this.componentRef}
 										style={{
 											width:
 												this.state.previewType === 'm' ||
-													this.state.previewType === 'ml'
+												this.state.previewType === 'ml'
 													? '420px'
 													: this.state?.activeModule?.showType == 'a4' &&
-														this.state?.activeModule?.showAsA4
-														? '780px'
-														: '',
+													  this.state?.activeModule?.showAsA4
+													? '780px'
+													: '',
 											boxShadow: this.state?.activeModule?.showAsA4
 												? `
 											-93px 163px 53px 0px rgba(0, 0, 0, 0),
@@ -6854,8 +6855,8 @@ class Home extends Proposals {
 										}}
 									>
 										{this.state.preview &&
-											this.state.client == false &&
-											this.state.previewType === 'ml' ? (
+										this.state.client == false &&
+										this.state.previewType === 'ml' ? (
 											<div className="hw_top hw_top_preview">
 												Lock this preview for mobile view{' '}
 												<span
@@ -6878,8 +6879,8 @@ class Home extends Proposals {
 											''
 										)}
 										{_.size(this.state.sections) == 0 &&
-											(this.state.module === 'proposal' ||
-												this.state.module === '*') ? (
+										(this.state.module === 'proposal' ||
+											this.state.module === '*') ? (
 											<div className="empty_builder">
 												<span
 													onClick={(e) =>
@@ -6965,9 +6966,9 @@ class Home extends Proposals {
 												deleteFQBlock={(blockID, sectionID) =>
 													this.state.isWorkflow
 														? this.handleWorkflowDeleteBlock(
-															blockID,
-															sectionID,
-														)
+																blockID,
+																sectionID,
+														  )
 														: this.handleDeleteBlock(blockID, sectionID)
 												}
 												handleOpenSideBar={(
@@ -6981,8 +6982,8 @@ class Home extends Proposals {
 															showSideBar: isFluid
 																? false
 																: _.has(e, 'showSidebar')
-																	? false
-																	: true,
+																? false
+																: true,
 															// !this.state.showSideBar,
 															activeSectionID: _id,
 															isServiceBlock: service,
@@ -7061,24 +7062,24 @@ class Home extends Proposals {
 													ImgSubBlock,
 													isFluid = null,
 												) => [
-														this.activeImage(
-															sectionID,
-															blockID,
-															subBlockID,
-															imageURL,
-															dimensions,
-															ImgSubBlock,
-														),
-														isFluid
-															? this.setState({ showSideBar: true })
-															: '',
-													]}
+													this.activeImage(
+														sectionID,
+														blockID,
+														subBlockID,
+														imageURL,
+														dimensions,
+														ImgSubBlock,
+													),
+													isFluid
+														? this.setState({ showSideBar: true })
+														: '',
+												]}
 												setSections={(e, restrict = null) =>
 													this.setState({ sections: e }, () => {
 														this.handleSaveSections(
 															restrict,
 															this.state.module === 'form' &&
-															this.state.isHeader,
+																this.state.isHeader,
 															'tables',
 														);
 													})
@@ -7107,15 +7108,15 @@ class Home extends Proposals {
 												handleAddServiceBlock={(e, order, services_style) =>
 													this.state.isWorkflow
 														? this.addWorkflowServiceTableBlock(
-															e,
-															order,
-															services_style,
-														)
+																e,
+																order,
+																services_style,
+														  )
 														: this.addServiceTableBlock(
-															e,
-															order,
-															services_style,
-														)
+																e,
+																order,
+																services_style,
+														  )
 												}
 												variables={this.state.sectionVariables}
 												tables={this.state.sectionTables}
@@ -7141,13 +7142,13 @@ class Home extends Proposals {
 												addFormQuestion={(sectionID, blockOrder) =>
 													this.state.isWorkflow
 														? this.addWorkflowQuestionForForm(
-															sectionID,
-															blockOrder,
-														)
+																sectionID,
+																blockOrder,
+														  )
 														: this.addQuestionForForm(
-															sectionID,
-															blockOrder,
-														)
+																sectionID,
+																blockOrder,
+														  )
 												}
 												setActiveFormQuestion={(e, blockID) =>
 													this.setState({
@@ -7202,8 +7203,8 @@ class Home extends Proposals {
 																	this.handleSaveSections(
 																		true,
 																		this.state.module ===
-																		'form' &&
-																		this.state.isHeader,
+																			'form' &&
+																			this.state.isHeader,
 																		'tables',
 																	),
 																300,
@@ -7303,15 +7304,15 @@ class Home extends Proposals {
 												duplicateSubBlock={(json, subBlockId, sectionId) =>
 													this.state.isWorkflow
 														? this.duplicateWorkflowSubBlock(
-															json,
-															subBlockId,
-															sectionId,
-														)
+																json,
+																subBlockId,
+																sectionId,
+														  )
 														: this.duplicateSubBlock(
-															json,
-															subBlockId,
-															sectionId,
-														)
+																json,
+																subBlockId,
+																sectionId,
+														  )
 												}
 												eventsLabel={this.state?.eventsLabel}
 												paymentsLabel={this.state?.paymentsLabel}
@@ -7381,9 +7382,9 @@ class Home extends Proposals {
 												addPaymentScheduleBlock={(id, order) => {
 													this.state?.isWorkflow
 														? this.addWorkflowPaymentScheduleBlock(
-															id,
-															order,
-														)
+																id,
+																order,
+														  )
 														: this.addPaymentScheduleBlock(id, order);
 												}}
 												addEventBlock={(e, sectionID) =>
@@ -7430,7 +7431,7 @@ class Home extends Proposals {
 															showSideBar: true,
 															isFluidLayout: false,
 														},
-														() => { },
+														() => {},
 													)
 												}
 												fonts={this.state.fonts}
@@ -7514,7 +7515,7 @@ class Home extends Proposals {
 												</div>
 												<div className="anime-hw-popup-content">
 													{this.state?.activeElementAnimeType ==
-														'loop' ? (
+													'loop' ? (
 														<LoopPopup
 															activeElementAnimeName={
 																this.state?.activeElementAnimeName
@@ -7550,10 +7551,11 @@ class Home extends Proposals {
 										''
 									) : (
 										<div
-											className={`hwb_right ${this.state.showSideBar && !this.state.isFluidLayout
-												? ''
-												: 'hwb_right_no_padding'
-												}`}
+											className={`hwb_right ${
+												this.state.showSideBar && !this.state.isFluidLayout
+													? ''
+													: 'hwb_right_no_padding'
+											}`}
 										>
 											<Sidebar
 												activeModule={this.state.activeModule}
@@ -8067,10 +8069,11 @@ class Home extends Proposals {
 									{this.state.preview ? (
 										''
 									) : this.state.module === 'proposal' ||
-										this.state.module === '*' ? (
+									  this.state.module === '*' ? (
 										<div
-											className={`hwb_r ${this.state.showAddBlock ? '' : 'hwb_r_no_padding'
-												}`}
+											className={`hwb_r ${
+												this.state.showAddBlock ? '' : 'hwb_r_no_padding'
+											}`}
 											ref={this.addBlockRef}
 										>
 											<AddBlockV2
