@@ -41,33 +41,6 @@
 					font-weight: 500;
 					line-height: normal;
 				}
-				.link-icon-container {
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					height: 32px;
-					padding: 6px 14px;
-					gap: 6px;
-					border-radius: 24px;
-					background: var(--popup, #202123);
-					cursor: pointer;
-					transition: 100ms ease-in-out;
-
-					svg {
-						path {
-							stroke: var(--primary-font) !important;
-						}
-					}
-				}
-
-				.link-icon-container.active {
-					background-color: var(--primary-button);
-					svg {
-						path {
-							stroke: var(--primary-button-font) !important;
-						}
-					}
-				}
 			}
 
 			.chat-box-wrapper {
@@ -92,6 +65,7 @@
 					flex-direction: column;
 					gap: 24px;
 					width: 100%;
+					padding-bottom: calc(100vh - 290px);
 
 					.aiMessageWrapper {
 						.text-container {
