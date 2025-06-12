@@ -14,8 +14,136 @@ import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import AISuggestionsReportUserComponent from '../views/components/chat/chatComponents/AISuggestionsReportUserComponent';
+
+const codeColorTheme = {
+	'code[class*="language-"]': {
+		color: 'var(--primary-font) !important',
+		background: 'none',
+		fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
+		fontSize: '1em',
+		lineHeight: '1.5',
+		tabSize: '4',
+		hyphens: 'none',
+		whiteSpace: 'pre',
+		wordBreak: 'normal',
+		wordWrap: 'normal',
+		textAlign: 'left',
+		wordSpacing: 'normal',
+	},
+	'pre[class*="language-"]': {
+		color: 'var(--primary-font) !important',
+		background: '#1e1e1e',
+		fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
+		fontSize: '1em',
+		lineHeight: '1.5',
+		padding: '1em',
+		margin: '0.5em 0',
+		overflow: 'auto',
+		borderRadius: '5px',
+	},
+	comment: {
+		color: '#ffffff80', // Adjusted for better contrast
+		fontStyle: 'italic',
+	},
+	prolog: {
+		color: '#6a9955',
+		fontStyle: 'italic',
+	},
+	cdata: {
+		color: '#6a9955',
+		fontStyle: 'italic',
+	},
+	punctuation: {
+		color: 'var(--primary-font)',
+	},
+	property: {
+		color: '#df3079',
+	},
+	tag: {
+		color: 'var(--primary-font)',
+	},
+	boolean: {
+		color: '#b5cea8',
+	},
+	number: {
+		color: '#df3079',
+	},
+	constant: {
+		color: '#b5cea8',
+	},
+	symbol: {
+		color: 'var(--primary-font)',
+	},
+	deleted: {
+		color: '#d16969',
+	},
+	selector: {
+		color: '#df3079',
+	},
+	'attr-name': {
+		color: '#df3079',
+	},
+	string: {
+		color: '#00a67d',
+	},
+	char: {
+		color: '#ce9178',
+	},
+	builtin: {
+		color: '#e9950c',
+	},
+	inserted: {
+		color: '#b5cea8',
+	},
+	operator: {
+		color: 'var(--primary-font)',
+	},
+	entity: {
+		color: 'var(--primary-font)',
+	},
+	url: {
+		color: 'var(--primary-font)',
+	},
+	atrule: {
+		color: '#c586c0',
+	},
+	'attr-value': {
+		color: '#00a67d',
+	},
+	keyword: {
+		color: '#2e95d3',
+	},
+	function: {
+		color: '#f22c3d',
+	},
+	'class-name': {
+		color: '#df3079',
+	},
+	regex: {
+		color: '#d16969',
+	},
+	important: {
+		color: '#2e95d3',
+		fontWeight: 'bold',
+	},
+	variable: {
+		color: 'var(--primary-font)',
+	},
+	bold: {
+		fontWeight: 'bold',
+	},
+	italic: {
+		fontStyle: 'italic',
+	},
+	':not(pre) > code[class*="language-"]': {
+		background: '#1e1e1e',
+		color: 'var(--primary-font)',
+		padding: '0.1em',
+		borderRadius: '0.3em',
+		whiteSpace: 'normal',
+	},
+};
 
 const rehypeCITPlugin = () => {
 	return (tree) => {
@@ -78,13 +206,6 @@ const baseComponents = {
 			<ul {...props} className="ul">
 				{children}
 			</ul>
-		);
-	},
-	span: ({ children, ...props }) => {
-		return (
-			<span {...props} className="span">
-				{children}
-			</span>
 		);
 	},
 	strong: ({ children, ...props }) => {
@@ -177,14 +298,50 @@ const baseComponents = {
 	code({ node, inline, className, children, ...props }) {
 		const match = /language-(\w+)/?.exec(className || '');
 		return !inline && match ? (
-			<SyntaxHighlighter style={dracula} language={match[1]} PreTag="div">
-				{String(children)?.replace(/\n$/, '')}
-			</SyntaxHighlighter>
+			<MarkdownCode code={children} match={match} node={node} />
 		) : (
 			<code {...props}>{children}</code>
 		);
 	},
 };
+
+const MarkdownCode = memo(({ code, match }) => {
+	const [isCopied, setIsCopied] = useState(false);
+
+	const handleCopyCode = useCallback((code) => {
+		navigator?.clipboard?.writeText(code);
+		setIsCopied(true);
+		setTimeout(() => {
+			setIsCopied(false);
+		}, 1000);
+	}, []);
+	return (
+		<div className="markdown-code-wrapper">
+			<div className="code-header">
+				<div className="code-language">{match[1]}</div>
+				<button className="copy-code-btn" onClick={() => handleCopyCode(code || '')}>
+					<Tooltip title={isCopied ? 'Copied Code' : 'Copy Code'} placement="bottom">
+						{isCopied ? <TickSvg /> : <CopyIcon />}
+					</Tooltip>
+				</button>
+			</div>
+
+			<SyntaxHighlighter
+				style={codeColorTheme}
+				language={match[1]}
+				PreTag="div"
+				customStyle={{
+					backgroundColor: 'transparent',
+					margin: '0',
+					padding: '16px',
+					color: 'var(--primary-font)',
+				}}
+			>
+				{String(code)?.replace(/\n$/, '')}
+			</SyntaxHighlighter>
+		</div>
+	);
+});
 
 const MarkdownTable = memo(({ children, node, markdown }) => {
 	const [isCopied, setIsCopied] = useState(false);
@@ -218,7 +375,11 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 const createCitationComponents = (citations, markdown) => ({
 	span: ({ children, citationId, ...props }) => {
 		if (citationId) return <CitationsTooltip citationId={citationId} citations={citations} />;
-		return <span {...props}>{children}</span>;
+		return (
+			<span {...props} className="span">
+				{children}
+			</span>
+		);
 	},
 	table: ({ node, children }) => {
 		return (
@@ -236,8 +397,8 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 	const markdown = children
 		?.replace(/(?<!\\)\$/g, '\\$')
 		?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')
-		?.replace(/\\\((.*?)\\\)/g, '$$$1$$')
-		?.replace(/\\n/g, '\n');
+		?.replace(/\\\((.*?)\\\)/g, '$$$1$$');
+	// ?.replace(/\\n/g, '\n');
 
 	// Memoize the combined components object
 	const components = useMemo(
