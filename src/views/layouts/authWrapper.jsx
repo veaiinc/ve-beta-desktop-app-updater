@@ -1,4 +1,4 @@
-import { useEffect, memo, useContext, useRef, useState, Suspense } from 'react';
+import { useEffect, memo, useContext, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { SkeletonTheme } from 'react-loading-skeleton';
@@ -95,7 +95,7 @@ const AuthWrapper = ({
 								className="childrenContainer"
 								style={{ maxWidth: maxWidth || '', ...childrenContainerStyles }}
 							>
-								<Suspense fallback={<div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Spinner /></div>}>{children}</Suspense>
+								{children}
 							</div>
 						</div>
 					</SkeletonTheme>

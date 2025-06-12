@@ -1,4 +1,4 @@
-import { lazy, memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
@@ -13,11 +13,10 @@ import Features from './Features';
 import Suggestions from '../homePage/Suggestions';
 import MobileMenu from '../../components/landing_screen/MobileMenu';
 
-// Lazy load components
-const ContactUs = lazy(() => import('../../components/landing_screen/ContactUs'));
-const PricingPage = lazy(() => import('../pricingPlans/pricingPage'));
-const OurMission = lazy(() => import('./OurMission'));
-const EarlyAccess = lazy(() => import('./EarlyAccess'));
+import ContactUs from '../../components/landing_screen/ContactUs';
+import PricingPage from '../pricingPlans/pricingPage';
+import OurMission from './OurMission';
+import EarlyAccess from './EarlyAccess';
 
 import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
 import { ReactComponent as VeLogoBlack } from '../../../assets/svg/veLogoBlack.svg';
@@ -145,7 +144,9 @@ const LandingPage = () => {
 						{!mobileMenuOpen && <TabNavigation tab={tab} handleSetTab={handleSetTab} />}
 					</div>
 					<div className="right-container">
-						<Link className='login-btn-text hide-on-mobile' to='/verify-user'>Login</Link>
+						<Link className="login-btn-text hide-on-mobile" to="/verify-user">
+							Login
+						</Link>
 						<div className="login-container">
 							<button className="login-btn" onClick={() => navigate('/verify-user')}>
 								Get <VeLogoBlack /> Free

@@ -1,9 +1,9 @@
-import React, { lazy, memo, useMemo } from 'react';
-const CalenderWidget = lazy(() => import('./CalenderWidget'));
-const PromptsWidget = lazy(() => import('./PromptsWidget'));
-const TaskWidget = lazy(() => import('./TaskWidget'));
-const AutomationWidget = lazy(() => import('./AutomationWidget'));
-const ContactsWidget = lazy(() => import('./ContactsWidget'));
+import React, { memo, useMemo } from 'react';
+import CalenderWidget from './CalenderWidget';
+import PromptsWidget from './PromptsWidget';
+import TaskWidget from './TaskWidget';
+import AutomationWidget from './AutomationWidget';
+import ContactsWidget from './ContactsWidget';
 
 const divStyles = {
 	display: 'flex',
