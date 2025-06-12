@@ -15,8 +15,8 @@ const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, f
 	const [activeInput, setActiveInput] = useState(0); // 0 for first input, 1 for second input
 	const [isSelectingRange, setIsSelectingRange] = useState(false);
 	const [hoverDate, setHoverDate] = useState(null);
-	const [timeFrame, setTimeFrame] = useState(selected?.timeFrame || 'this');
-	const [timeScope, setTimeScope] = useState(selected?.timeScope || 'day');
+	const [timeScope, setTimeScope] = useState(selected?.timeScope || 'this');
+	const [timeFrame, setTimeFrame] = useState(selected?.timeFrame || 'day');
 	const [timeFrameCount, setTimeFrameCount] = useState(selected?.timeFrameCount || 1);
 
 	const handleDateTypeChange = (e) => {
@@ -78,7 +78,7 @@ const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, f
 			},
 		};
 
-		const [startDate, endDate] = ranges[timeFrame]?.[timeScope] || [null, null];
+		const [startDate, endDate] = ranges[timeScope]?.[timeFrame] || [null, null];
 
 		return startDate && endDate
 			? {
@@ -86,7 +86,7 @@ const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, f
 					endDate: endDate.toDate(),
 			  }
 			: null;
-	}, [filterType, timeFrame, timeScope, timeFrameCount]);
+	}, [filterType, timeScope, timeFrame, timeFrameCount]);
 
 	const handleDateSelect = (date) => {
 		if (filterType === 'relative_to_today') {
@@ -182,11 +182,11 @@ const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, f
 		return null;
 	};
 
-	const handleRelativeTimeChange = (newTimeFrame, newTimeScope, newTimeFrameCount) => {
+	const handleRelativeTimeChange = (newTimeScope, newTimeFrame, newTimeFrameCount) => {
 		onChange({
-			timeFrame: newTimeFrame,
 			timeScope: newTimeScope,
-			timeFrameCount: newTimeFrame === 'this' ? 0 : newTimeFrameCount,
+			timeFrame: newTimeFrame,
+			timeFrameCount: newTimeScope === 'this' ? 0 : newTimeFrameCount,
 			dateType: dateType,
 		});
 	};
@@ -211,18 +211,19 @@ const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, f
 					<div className={s.relativeToTodayContainer}>
 						<div className={s.relativeToTodaySelectedWrapper}>
 							<FilterHelperDropdown
-								options={relativeTodayTimeFramesArray}
+								options={relativeTodayTimeScopesArray}
+								selectedOption={timeScope}
 								onChange={(value) => {
-									setTimeFrame(value);
-									handleRelativeTimeChange(value, timeScope, timeFrameCount);
+									setTimeScope(value);
+									handleRelativeTimeChange(value, timeFrame, timeFrameCount);
 								}}
 							>
 								<div className={s.relativeToTodaySelected}>
-									{relativeTodayTimeFrames?.[timeFrame]?.label}
+									{relativeTodayTimeScopes?.[timeScope]?.label}
 								</div>
 							</FilterHelperDropdown>
 						</div>
-						{timeFrame !== 'this' && (
+						{timeScope !== 'this' && (
 							<div className={s.countInputWrapper}>
 								<input
 									type="number"
@@ -238,21 +239,22 @@ const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, f
 										}
 										const newCount = parseInt(value) || 1;
 										setTimeFrameCount(newCount);
-										handleRelativeTimeChange(timeFrame, timeScope, newCount);
+										handleRelativeTimeChange(timeScope, timeFrame, newCount);
 									}}
 								/>
 							</div>
 						)}
 						<div className={s.relativeToTodaySelectedWrapper}>
 							<FilterHelperDropdown
-								options={relativeTodayTimeScopesArray}
+								options={relativeTodayTimeFramesArray}
+								selectedOption={timeFrame}
 								onChange={(value) => {
-									setTimeScope(value);
-									handleRelativeTimeChange(timeFrame, value, timeFrameCount);
+									setTimeFrame(value);
+									handleRelativeTimeChange(timeScope, value, timeFrameCount);
 								}}
 							>
 								<div className={s.relativeToTodaySelected}>
-									{relativeTodayTimeScopes?.[timeScope]?.label}
+									{relativeTodayTimeFrames?.[timeFrame]?.label}
 								</div>
 							</FilterHelperDropdown>
 						</div>

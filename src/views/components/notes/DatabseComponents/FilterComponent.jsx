@@ -6,6 +6,7 @@ import Context from '../../../../context/context';
 import FilterDropdown from '../../dropDown/notes/database/FilterDropdown';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/tasks/cross.svg';
 import { rowTypes } from '../Database';
+import moment from 'moment';
 
 const FilterComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 	const {
@@ -17,6 +18,10 @@ const FilterComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 			getFilterConditions(fields?.find((field) => field?._id === key)?.type)?.[0]?.value;
 
 		if (['date', 'created_time', 'last_edited_time'].includes(fieldType)) {
+			if (operator !== 'relative_to_today') {
+				value.date = value?.date || moment().unix();
+				value.dateType = value?.dateType || 'startDate';
+			}
 			if (operator === 'is_between' && typeof value?.date === 'number') {
 				value = {
 					...value,
@@ -32,8 +37,8 @@ const FilterComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 			if (operator === 'relative_to_today') {
 				value = {
 					...value,
-					timeFrame: value?.timeFrame || 'this',
-					timeScope: value?.timeScope || 'day',
+					timeFrame: value?.timeFrame || 'day',
+					timeScope: value?.timeScope || 'this',
 					timeFrameCount: value?.timeFrameCount || 0,
 				};
 			}

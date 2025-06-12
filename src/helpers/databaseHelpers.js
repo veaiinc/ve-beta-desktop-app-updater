@@ -52,7 +52,6 @@ const baseConditions = {
 	],
 	date: [
 		COMMON_CONDITIONS.is,
-		COMMON_CONDITIONS.isNot,
 		COMMON_CONDITIONS.isBefore,
 		COMMON_CONDITIONS.isAfter,
 		COMMON_CONDITIONS.isOnOrBefore,
@@ -152,11 +151,6 @@ const filterHelper = {
 	is_not: (filterValue, dataValue, type = 'primitive') => {
 		if (type === 'arrayOfStrings') {
 			return !filterValue.some((item) => dataValue.includes(item));
-		}
-		if (type === 'date') {
-			const { dateType, date } = filterValue;
-
-			return dataValue[dateType] !== date;
 		}
 
 		if (type === 'status') {
@@ -275,19 +269,18 @@ export const applyFilter = (filters, row, statusOptions = null) => {
 	return include;
 };
 
-export const relativeTodayTimeFrames = {
-	past: { label: 'Past', value: 'past' },
+export const relativeTodayTimeScopes = {
 	this: { label: 'This', value: 'this' },
 	next: { label: 'Next', value: 'next' },
+	past: { label: 'Past', value: 'past' },
 };
 
-export const relativeTodayTimeScopes = {
+export const relativeTodayTimeFrames = {
 	day: { label: 'Day', value: 'day' },
 	week: { label: 'Week', value: 'week' },
 	month: { label: 'Month', value: 'month' },
 	year: { label: 'Year', value: 'year' },
 };
 
-export const relativeTodayTimeFramesArray = Object.values(relativeTodayTimeFrames);
-
 export const relativeTodayTimeScopesArray = Object.values(relativeTodayTimeScopes);
+export const relativeTodayTimeFramesArray = Object.values(relativeTodayTimeFrames);

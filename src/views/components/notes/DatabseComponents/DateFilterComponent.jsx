@@ -17,9 +17,9 @@ const getDisplayText = (value, showStartEnd, filterType) => {
 	if (!value) return 'Select Date';
 
 	if (filterType === 'relative_to_today') {
-		return `${relativeTodayTimeFrames?.[value?.timeFrame]?.label} ${
+		return `${relativeTodayTimeScopes?.[value?.timeScope]?.label} ${
 			value?.timeFrameCount !== 0 ? `${value?.timeFrameCount} ` : ``
-		}${relativeTodayTimeScopes?.[value?.timeScope]?.label}`;
+		}${relativeTodayTimeFrames?.[value?.timeFrame]?.label}`;
 	}
 
 	if (Array.isArray(value?.date)) {
