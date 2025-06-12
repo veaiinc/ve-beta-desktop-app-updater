@@ -20,11 +20,12 @@ const NotesPage = () => {
 		selectedFilter: { label: 'All', value: 'all' },
 		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 		userId: null,
+		searchQuery: '',
 	});
 
 	useEffect(() => {
 		fetchNotes({ page: 1 });
-	}, [info?.selectedFilter?.value, info?.selectedSort]);
+	}, [info?.selectedFilter?.value, info?.selectedSort, info?.searchQuery]);
 
 	useEffect(() => {
 		setSearchParams({ viewMode: info?.viewMode });
@@ -48,6 +49,7 @@ const NotesPage = () => {
 					pageType: info?.selectedFilter?.value,
 					sortBy,
 					sortOrder,
+					search: info?.searchQuery,
 				},
 			};
 			await getNotesList(payload, append);
@@ -71,6 +73,7 @@ const NotesPage = () => {
 				setViewMode={(viewMode) => setInfo((prev) => ({ ...prev, viewMode }))}
 				setSelectedFilter={setSelectedFilter}
 				setSelectedSort={setSelectedSort}
+				setSearchQuery={(searchQuery) => setInfo((prev) => ({ ...prev, searchQuery }))}
 			/>
 			<div
 				className={`notesContainer ${
