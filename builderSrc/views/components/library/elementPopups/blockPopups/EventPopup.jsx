@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { ActionDropDown, UploadFileSVG, Delete } from '../../../builder_client_common';
 import ColorPicker from '../../../properties/colorpicker';
-const randomize = require('randomatic');
+import randomize from 'randomatic';
 import ImageLibrary from '../../../imageLibrary/';
 import Modal from '../../modals/index';
 import Images from '../../../../../controllers/images';

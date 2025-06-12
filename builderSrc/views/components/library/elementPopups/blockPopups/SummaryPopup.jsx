@@ -23,7 +23,7 @@ import { ReactComponent as Dropdown } from '../../svgs/dropDown.svg';
 import { ReactComponent as SearchIcon } from '../../svgs/search.svg';
 import { ReactComponent as ActiveTick } from '../../svgs/tick.svg';
 
-var randomize = require('randomatic');
+import randomize from 'randomatic';
 
 export default class SummaryPopup extends Images {
     constructor(props) {

@@ -2,7 +2,7 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './actions';
 import * as API from './actionTypes';
-import { jwtDecode } from 'jwt-decode';
+import jwtDecode from 'jwt-decode';
 import service from '../../services/index';
 import axios from 'axios';
 export const intialState = {

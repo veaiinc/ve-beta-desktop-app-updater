@@ -5,7 +5,7 @@ import ColorPicker from '../../../properties/colorpicker';
 import '../elementPopup.scss';
 // Image for Api
 import Images from '../../../../../controllers/images';
-var randomize = require('randomatic');
+import randomize from 'randomatic';
 
 // modal for library
 import Modal from '../../modals/index';

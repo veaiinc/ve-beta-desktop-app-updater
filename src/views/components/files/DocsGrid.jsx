@@ -15,7 +15,6 @@ import EmptyState from './EmptyState';
 import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
 import { ReactComponent as Search } from '../../../assets/svg/search.svg';
-import TemplateShortPreview from '../../../../builderSrc/views/feature/TemplateShortPreview';
 import DocumentShortPreview from '../../../../builderSrc/views/feature/DocumentShortPreview';
 
 const origin = fetchOriginSelection();

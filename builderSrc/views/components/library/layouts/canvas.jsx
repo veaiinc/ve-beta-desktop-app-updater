@@ -2462,7 +2462,7 @@ class Layout extends Component {
 			}
 
 			// Calculate grid positions
-			const columnStart = Math.floor(relativeLeft / cellWidth) + 1;
+			let columnStart = Math.floor(relativeLeft / cellWidth) + 1;
 
 			const rowStart = Math.floor(relativeTop / cellHeight) + 1;
 
