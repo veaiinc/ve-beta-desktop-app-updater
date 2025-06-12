@@ -1984,10 +1984,10 @@ input[type='time'] {
 	appearance: none;
 	-webkit-appearance: none;
 	-moz-appearance: none;
-	background-color: white;
-	border: 1.5px solid #d0d0d0 !important;
+	background-color: var(--card);
+	border: 1.5px solid var(--stroke) !important;
 	border-radius: 16px;
-	color: var(--primary-font, #f2f2f3);
+	color: var(--primary-font);
 	font-size: 14px;
 	cursor: pointer;
 	width: 100%;
