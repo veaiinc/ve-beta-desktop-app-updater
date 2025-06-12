@@ -301,7 +301,7 @@ const FormsGrid = ({
 						onChange={(e) => handleStateUpdate({ searchQuery: e.target.value })}
 						className="search-input"
 					/>
-					{info?.searchLoading && (
+					{info?.searchLoading && info?.searchQuery?.length > 0 && (
 						<div className="search-spinner">
 							<Spinner
 								size="small"
