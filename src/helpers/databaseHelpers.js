@@ -28,7 +28,7 @@ const COMMON_CONDITIONS = {
 	isOnOrBefore: { label: 'is on or before', value: 'is_on_or_before' },
 	isOnOrAfter: { label: 'is on or after', value: 'is_on_or_after' },
 	isBetween: { label: 'is between', value: 'is_between' },
-	relativeToToday: { label: 'relative to today', value: 'relative_to_today', noValue: true },
+	relativeToToday: { label: 'relative to today', value: 'relative_to_today' },
 };
 
 const baseConditions = {
@@ -274,3 +274,20 @@ export const applyFilter = (filters, row, statusOptions = null) => {
 	}
 	return include;
 };
+
+export const relativeTodayTimeFrames = {
+	past: { label: 'Past', value: 'past' },
+	this: { label: 'This', value: 'this' },
+	next: { label: 'Next', value: 'next' },
+};
+
+export const relativeTodayTimeScopes = {
+	day: { label: 'Day', value: 'day' },
+	week: { label: 'Week', value: 'week' },
+	month: { label: 'Month', value: 'month' },
+	year: { label: 'Year', value: 'year' },
+};
+
+export const relativeTodayTimeFramesArray = Object.values(relativeTodayTimeFrames);
+
+export const relativeTodayTimeScopesArray = Object.values(relativeTodayTimeScopes);

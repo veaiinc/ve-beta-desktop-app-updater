@@ -1,6 +1,10 @@
 import { Tooltip } from 'antd';
 import moment from 'moment';
 import DateFilterDropdown from '../../dropDown/notes/database/DateFilterDropdown';
+import {
+	relativeTodayTimeFrames,
+	relativeTodayTimeScopes,
+} from '../../../../helpers/databaseHelpers';
 
 const inlineStyle = {
 	fontSize: '12px',
@@ -9,8 +13,14 @@ const inlineStyle = {
 	cursor: 'pointer',
 };
 
-const getDisplayText = (value, showStartEnd) => {
+const getDisplayText = (value, showStartEnd, filterType) => {
 	if (!value) return 'Select Date';
+
+	if (filterType === 'relative_to_today') {
+		return `${relativeTodayTimeFrames?.[value?.timeFrame]?.label} ${
+			value?.timeFrameCount !== 0 ? `${value?.timeFrameCount} ` : ``
+		}${relativeTodayTimeScopes?.[value?.timeScope]?.label}`;
+	}
 
 	if (Array.isArray(value?.date)) {
 		const startDate = value?.date[0] ? moment.unix(value.date[0]).format('MMM DD, YYYY') : null;
@@ -32,17 +42,25 @@ const getDisplayText = (value, showStartEnd) => {
 	}
 };
 
-const DateFilterComponent = ({ value, onChange, title, showStartEnd }) => {
+const DateFilterComponent = ({ value, onChange, title, showStartEnd, filterType }) => {
 	return (
 		<Tooltip
-			title={<DateFilterDropdown selected={value} onChange={onChange} title={title} />}
+			title={
+				<DateFilterDropdown
+					selected={value}
+					onChange={onChange}
+					title={title}
+					showStartEnd={showStartEnd}
+					filterType={filterType}
+				/>
+			}
 			placement="bottomLeft"
 			overlayClassName="status-dropdown"
 			color="transparent"
 			trigger={['click']}
 			destroyOnHide={true}
 		>
-			<div style={inlineStyle}>{getDisplayText(value, showStartEnd)}</div>
+			<div style={inlineStyle}>{getDisplayText(value, showStartEnd, filterType)}</div>
 		</Tooltip>
 	);
 };

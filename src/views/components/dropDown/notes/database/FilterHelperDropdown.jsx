@@ -1,21 +1,21 @@
 import { memo } from 'react';
-import s from '../../../../../assets/scss/notes/dropdown/filterConditionDropdown.module.scss';
+import s from '../../../../../assets/scss/notes/dropdown/filterHelperDropdown.module.scss';
 import { Tooltip } from 'antd';
 import { ReactComponent as Tick } from '../../../../../assets/svg/tasks/tick.svg';
 
-const FilterConditionDropdown = ({ conditions, selectedCondition, onChange, children }) => {
+const FilterHelperDropdown = ({ options, selectedOption, onChange, children }) => {
 	return (
 		<Tooltip
 			title={
 				<div className={s.filterConditionDropdown}>
-					{conditions?.map((condition) => (
+					{options?.map((option) => (
 						<div
-							key={condition.value}
+							key={option?.value}
 							className={s.filterConditionDropdownItem}
-							onClick={() => onChange(condition.value)}
+							onClick={() => onChange(option?.value)}
 						>
-							{condition.label}
-							{selectedCondition === condition.value && (
+							{option?.label}
+							{selectedOption === option?.value && (
 								<span className={s.filterConditionDropdownItemSelected}>
 									<Tick />
 								</span>
@@ -28,12 +28,12 @@ const FilterConditionDropdown = ({ conditions, selectedCondition, onChange, chil
 			trigger={'click'}
 			color={'transparent'}
 			placement={'bottomLeft'}
-			overlayStyle={{ minWidth: 'fit-content' }}
+			overlayStyle={{ minWidth: 'fit-content', zIndex: 50004 }}
 			destroyTooltipOnHide={true}
 		>
-			{children}
+			<div className={s.filterHelperDropdown}>{children}</div>
 		</Tooltip>
 	);
 };
 
-export default memo(FilterConditionDropdown);
+export default memo(FilterHelperDropdown);

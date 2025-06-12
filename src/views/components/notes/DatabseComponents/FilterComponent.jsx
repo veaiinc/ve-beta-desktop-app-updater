@@ -1,7 +1,7 @@
 import { memo, useContext } from 'react';
 import s from '../../../../assets/scss/notes/databaseComponents/filterComponent.module.scss';
 import { getFilterConditions } from '../../../../helpers/databaseHelpers';
-import FilterConditionDropdown from '../../dropDown/notes/database/FilterConditionDropdown';
+import FilterHelperDropdown from '../../dropDown/notes/database/FilterHelperDropdown';
 import Context from '../../../../context/context';
 import FilterDropdown from '../../dropDown/notes/database/FilterDropdown';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/tasks/cross.svg';
@@ -26,6 +26,15 @@ const FilterComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 				value = {
 					...value,
 					date: value?.date[0],
+				};
+			}
+
+			if (operator === 'relative_to_today') {
+				value = {
+					...value,
+					timeFrame: value?.timeFrame || 'this',
+					timeScope: value?.timeScope || 'day',
+					timeFrameCount: value?.timeFrameCount || 0,
 				};
 			}
 		}
@@ -109,9 +118,9 @@ const FilterComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 									<div className={s.filterComponentBodyItemTitle}>
 										{field?.name}
 									</div>
-									<FilterConditionDropdown
-										conditions={filterConditions}
-										selectedCondition={filter?.operator}
+									<FilterHelperDropdown
+										options={filterConditions}
+										selectedOption={filter?.operator}
 										onChange={(condition) => {
 											handleFilterChange(
 												filter?.fieldId,
@@ -129,7 +138,7 @@ const FilterComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 												)?.label
 											}
 										</div>
-									</FilterConditionDropdown>
+									</FilterHelperDropdown>
 
 									<div className={s.filterComponentBodyItemValue}>
 										{Component &&
@@ -162,6 +171,7 @@ const FilterComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 													}}
 													linkType={field?.type}
 													showStartEnd={field?.type === 'date'}
+													filterType={filter?.operator}
 												/>
 											)}
 									</div>
