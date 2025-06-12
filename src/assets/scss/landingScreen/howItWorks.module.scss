@@ -4,6 +4,9 @@
 	align-items: center;
 	width: 100%;
 	font-family: var(--secondary-font-family);
+	@media screen and (max-width: 768px) {
+		gap: 50px;
+	}
 	.howItWorks {
 		display: flex;
 		flex-direction: column;
@@ -303,7 +306,6 @@
 @media screen and (max-width: 768px) {
 	.howItWorks {
 		padding: 50px 20px;
-
 		.top {
 			.titleContainer {
 				.secondaryText {

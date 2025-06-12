@@ -8,7 +8,7 @@ const EarlyAccess = () => {
 		<div className={s.earlyAccess}>
 			<div className={s.container}>
 				{/* <p className={s.subHeading}>Explore.</p> */}
-				<p className={s.heading}>Own yor memory</p>
+				<p className={s.heading}>Own your memory</p>
 				<button className={s.ctaButton} onClick={() => navigate('/verify-user')}>Request Early Access</button>
 			</div>
 		</div>

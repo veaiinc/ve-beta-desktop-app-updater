@@ -17,7 +17,6 @@ import ContactUs from '../../components/landing_screen/ContactUs';
 import PricingPage from '../pricingPlans/pricingPage';
 import OurMission from './OurMission';
 import EarlyAccess from './EarlyAccess';
-
 import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
 import { ReactComponent as VeLogoBlack } from '../../../assets/svg/veLogoBlack.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';

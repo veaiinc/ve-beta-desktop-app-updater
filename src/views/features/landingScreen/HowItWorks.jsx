@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import s from '../../../assets/scss/landingScreen/howItWorks.module.scss';
 import HeroImage from '../../../assets/svg/landingScreen/howitworksbg.png';
+import FeatureCards from './FeatureCards';
 const HowItWorks = () => {
 	return (
 		<div className={s.howItWorksContainer}>
@@ -25,6 +26,7 @@ const HowItWorks = () => {
 					</p>
 				</div>
 			</div>
+			<FeatureCards />
 			<div className={s.howItWorksImageContainer}>
 				<div className={s.howItWorksImage}>
 					<video autoPlay muted loop className={s.videoContainer}>
