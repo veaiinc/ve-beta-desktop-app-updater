@@ -89,13 +89,11 @@ const GalleryGrid = ({
 				hasNextPage = false,
 				galleries = [],
 				totalDocs = 0,
-				sort: serverSort = null, // e.g. "-imagesCount"
+				sort: serverSort = null,
 			} = tenantGalleries;
 
-			// 1) Build new gallery array
 			const newGalleries = currentPage === 1 ? galleries : [...prev.galleries, ...galleries];
 
-			// 2) Parse serverSort (if present) into our sortOptions shape
 			let parsedSort = prev.selectedSort;
 			if (serverSort) {
 				const isDescending = serverSort.startsWith('-');
@@ -111,7 +109,6 @@ const GalleryGrid = ({
 				}
 			}
 
-			// 3) Return the new state all at once
 			return {
 				...prev,
 				galleries: newGalleries,
@@ -122,7 +119,6 @@ const GalleryGrid = ({
 			};
 		});
 
-		// still call handleTotalChange outside of setInfo(), since it's a side-effect
 		handleTotalChange(tenantGalleries.totalDocs || 0);
 	}, [tenantGalleries]);
 
@@ -230,7 +226,7 @@ const GalleryGrid = ({
 
 	const fetchGalleries = async ({ page = 1, limit = 20, storeOriginals }) => {
 		try {
-			getGalleries(
+			await getGalleries(
 				{
 					page,
 					limit,
@@ -243,6 +239,7 @@ const GalleryGrid = ({
 			setInfo((prevState) => ({
 				...prevState,
 				error: err.message || 'Failed to fetch galleries',
+				loading: false,
 			}));
 		}
 	};
@@ -308,7 +305,7 @@ const GalleryGrid = ({
 						}}
 						className="search-input"
 					/>
-					{info.searchLoading && (
+					{info.loading && (
 						<div className="search-spinner">
 							<Spinner
 								size="small"

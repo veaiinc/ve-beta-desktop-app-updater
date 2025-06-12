@@ -16,6 +16,7 @@ const ViewModeSortFilter = ({
 	setSelectedFilter,
 	setSelectedSort,
 	setSearchQuery,
+	loading,
 }) => {
 	const [info, setInfo] = useState({
 		sort: { label: 'Recently Updated', value: 'updatedAt' },
@@ -109,7 +110,7 @@ const ViewModeSortFilter = ({
 						}}
 						className="search-input"
 					/>
-					{info.searchLoading && (
+					{loading && (
 						<div className="search-spinner">
 							<Spinner
 								size="small"
