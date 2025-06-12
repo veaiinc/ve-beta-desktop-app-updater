@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import routes from './routes';
-import { memo, Suspense, useContext, useEffect } from 'react';
+import { memo, useContext, useEffect } from 'react';
 import ExpiredSubscriptionModal from './views/components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from './views/components/modalsV2/subscription/ExpiredTokenModal';
 import Cookies from 'js-cookie';
@@ -61,7 +61,7 @@ function App() {
 	}, [theme, currentRoute]); // Still keep dependencie
 
 	return (
-		<Suspense fallback={<div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Spinner /></div>}>
+		<>
 			<Routes>
 				{routes?.map((route, index) => (
 					<Route
@@ -77,7 +77,7 @@ function App() {
 			<AccessDeniedPopup />
 			<VoiceWrapper />
 			<CustomToast />
-		</Suspense>
+		</>
 	);
 }
 

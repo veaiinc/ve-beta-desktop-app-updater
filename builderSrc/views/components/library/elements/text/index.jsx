@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-const JoditEditor = React.lazy(() => import('jodit-react'));
+import JoditEditor from 'jodit-react';
 import _ from 'lodash';
 import rgbHex from 'rgb-hex';
 import Right from '../../layouts/actions/down';

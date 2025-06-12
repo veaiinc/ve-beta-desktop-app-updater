@@ -25,7 +25,7 @@ const HowItWorks = () => {
 					</p>
 				</div>
 			</div>
-			<img src={HeroImage} alt="homepage" className="homepageImage" loading="lazy" />
+			<img src={HeroImage} alt="homepage" className="homepageImage" />
 			{/* <div className={s.bottom}>
 				<div className={`${s.feature} ${s.feature1}`}>
 					<div className={s.image}>

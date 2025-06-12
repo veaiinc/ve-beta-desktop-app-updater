@@ -1,5 +1,5 @@
 import jwtDecode from 'jwt-decode';
-import { memo, useContext, useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from 'react';
+import { memo, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,10 +8,9 @@ import QuickActions from '../../components/globalComponents/QuickActions';
 import { message } from '../../components/globalComponents/CustomToast';
 import AskMe from './AskMe';
 
-
-const GlobalWidget = lazy(() => import('../../components/globalComponents/GlobalWidget'));
-const ChatPrompts = lazy(() => import('./ChatPrompts'));
-const ProactiveSuggestions = lazy(() => import('./ProactiveSuggestions'));
+import GlobalWidget from '../../components/globalComponents/GlobalWidget';
+import ChatPrompts from './ChatPrompts';
+import ProactiveSuggestions from './ProactiveSuggestions';
 
 import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import { ReactComponent as PromptsSvg } from '../../../assets/svg/home_page/prompts.svg';
@@ -446,11 +445,7 @@ const InitialHomePage = () => {
 			</div>
 			{options?.length > 0 && !info?.showSuggestions && (
 				<div className="home-page-container-content">
-					<Suspense fallback={<div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%'}}>
-					<Spinner />
-					</div>}>
 					{componentMapper[info?.selectedOption]}
-					</Suspense>
 				</div>
 			)}
 		</div>
