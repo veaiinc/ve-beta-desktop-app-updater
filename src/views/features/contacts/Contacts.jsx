@@ -39,7 +39,6 @@ const Contacts = () => {
 		selectedContactOption: null,
 		activeView: 'listView',
 	});
-	console.log(clientList);
 	const listItems = clientList?.data || [];
 	const isMountedRef = useRef(true);
 	const pageRef = useRef(1);

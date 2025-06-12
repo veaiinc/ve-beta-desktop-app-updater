@@ -40,7 +40,6 @@ export const ContactsState = () => {
 				usertoken,
 				'workflows_Api',
 			);
-			console.log(response);
 			if (response?.[0]) {
 				const data =
 					clientFilterInput.page === 1
