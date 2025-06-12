@@ -280,7 +280,10 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 				validateExpiryData?.restrictCalendar &&
 				validateExpiryData?.isExpired
 			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Event',
+				});
 			}
 			setInfo((prev) => ({
 				...prev,

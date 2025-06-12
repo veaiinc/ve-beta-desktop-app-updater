@@ -1260,7 +1260,10 @@ const QuickActions = ({
 				validateExpiryData?.restrictTasks &&
 				validateExpiryData?.isExpired
 			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Tasks',
+				});
 			} else {
 				const response = await addListItem({ input: payload });
 

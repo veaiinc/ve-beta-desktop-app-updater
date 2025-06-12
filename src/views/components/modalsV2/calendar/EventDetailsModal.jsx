@@ -202,7 +202,10 @@ const EventDetailsModal = ({
 						validateExpiryData?.restrictCalendar &&
 						validateExpiryData?.isExpired
 					) {
-						return updateSubscriptionState({ expiredSubscriptionModal: true });
+						return updateSubscriptionState({
+							expiredSubscriptionModal: true,
+							expiredSubscriptionType: 'Events',
+						});
 					}
 
 					const { eventId, field, value } = eventData;
@@ -275,7 +278,10 @@ const EventDetailsModal = ({
 				validateExpiryData?.isExpired
 			) {
 				message.info('Subscription expired. Please renew to delete events.');
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Events',
+				});
 			}
 
 			if (!selectedEvent?.id) {

@@ -595,7 +595,10 @@ const File = ({
 			validateExpiryData?.restrictWorkflows &&
 			validateExpiryData?.isExpired
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Workflows',
+			});
 		}
 		window.location.href = `${origin}/${workflowId}?workflow=true&templateId=${templateId}`;
 	}, [workflowId, templateId, validateExpiryData]);
@@ -861,7 +864,10 @@ const File = ({
 				validateExpiryData?.restrictWorkflows &&
 				validateExpiryData?.isExpired
 			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Workflows',
+				});
 			}
 			setInfo((prev) => ({ ...prev, useAiPredictions: value }));
 			if (value && aiPredictedData) {

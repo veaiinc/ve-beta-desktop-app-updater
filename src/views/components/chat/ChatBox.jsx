@@ -524,6 +524,7 @@ const ChatBox = ({
 					if (totalCreditsUsed >= totalCreditsLimit) {
 						return updateSubscriptionState({
 							expiredSubscriptionModal: true,
+							expiredSubscriptionType: 'Chat',
 						});
 					}
 				}
