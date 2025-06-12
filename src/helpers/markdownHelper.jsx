@@ -295,15 +295,18 @@ const baseComponents = {
 			</div>
 		);
 	},
+	code({ node, inline, className, children, ...props }) {
+		const match = /language-(\w+)/?.exec(className || '');
+		return !inline && match ? (
+			<MarkdownCode code={children} match={match} node={node} />
+		) : (
+			<code {...props}>{children}</code>
+		);
+	},
 };
 
-const MarkdownCode = memo(({ children, match, markdown, node }) => {
+const MarkdownCode = memo(({ code, match }) => {
 	const [isCopied, setIsCopied] = useState(false);
-
-	const end = node?.position?.end?.offset;
-	const start = node?.position?.start?.offset;
-	const codeText = markdown?.slice(start + 3, end - 3);
-	const code = codeText?.replace(match[1], '')?.replace(/\n/, '');
 
 	const handleCopyCode = useCallback((code) => {
 		navigator?.clipboard?.writeText(code);
@@ -334,7 +337,7 @@ const MarkdownCode = memo(({ children, match, markdown, node }) => {
 					color: 'var(--primary-font)',
 				}}
 			>
-				{String(children)?.replace(/\n$/, '')}
+				{String(code)?.replace(/\n$/, '')}
 			</SyntaxHighlighter>
 		</div>
 	);
@@ -383,14 +386,6 @@ const createCitationComponents = (citations, markdown) => ({
 			<MarkdownTable node={node} markdown={markdown}>
 				{children}
 			</MarkdownTable>
-		);
-	},
-	code({ node, inline, className, children, ...props }) {
-		const match = /language-(\w+)/?.exec(className || '');
-		return !inline && match ? (
-			<MarkdownCode children={children} match={match} markdown={markdown} node={node} />
-		) : (
-			<code {...props}>{children}</code>
 		);
 	},
 });
