@@ -402,8 +402,8 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 	const markdown = children
 		?.replace(/(?<!\\)\$/g, '\\$')
 		?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')
-		?.replace(/\\\((.*?)\\\)/g, '$$$1$$')
-		?.replace(/\\n/g, '\n');
+		?.replace(/\\\((.*?)\\\)/g, '$$$1$$');
+	// ?.replace(/\\n/g, '\n');
 
 	// Memoize the combined components object
 	const components = useMemo(
