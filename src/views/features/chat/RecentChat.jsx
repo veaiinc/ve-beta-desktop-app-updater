@@ -734,13 +734,13 @@ const RecentChat = ({
 													{chat?.type?.toLowerCase() === 'ai' ? (
 														<div
 															className="content"
-															// style={{
-															// 	opacity:
-															// 		index ===
-															// 		info?.activeAIMessageIndex
-															// 			? 1
-															// 			: 0.6,
-															// }}
+															style={{
+																opacity:
+																	index ===
+																	info?.activeAIMessageIndex
+																		? 1
+																		: 0.6,
+															}}
 															// ref={(el) => {
 															// 	if (
 															// 		el &&
@@ -809,13 +809,13 @@ const RecentChat = ({
 															}}
 															data-index={index}
 															key={index}
-															// style={{
-															// 	opacity:
-															// 		index ===
-															// 		info?.activeUserMessageIndex
-															// 			? 1
-															// 			: 0.6,
-															// }}
+															style={{
+																opacity:
+																	index ===
+																	info?.activeUserMessageIndex
+																		? 1
+																		: 0.6,
+															}}
 														>
 															<UserMessageRenderer
 																messageData={chat}
