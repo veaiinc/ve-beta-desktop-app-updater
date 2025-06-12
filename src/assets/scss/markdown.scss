@@ -123,12 +123,20 @@
 	.ol {
 		.li {
 			list-style-type: decimal;
+			&::marker {
+				font-size: calc(var(--font-size) * 0.9375);
+				color: var(--primary-font);
+			}
 		}
 	}
 
 	.ul {
 		.li {
 			list-style-type: disc;
+			&::marker {
+				font-size: calc(var(--font-size) * 1.25);
+				color: var(--chat-secondary-font);
+			}
 		}
 	}
 
@@ -140,10 +148,6 @@
 		line-height: calc(var(--font-size) * 1.5);
 		font-size: calc(var(--font-size) * 0.9375);
 		margin-bottom: calc(var(--font-size) * 0.625);
-	}
-
-	.li::marker {
-		font-size: calc(var(--font-size) * 1.25);
 	}
 
 	.strong {
