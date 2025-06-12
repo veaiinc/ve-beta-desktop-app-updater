@@ -185,7 +185,7 @@ const Features = () => {
 						ref={imageRefs[i]}
 						key={`image-${i}`}
 					>
-						<img src={img} alt={`feature ${i + 1}`} loading="lazy" />
+						<img src={img} alt={`feature ${i + 1}`} />
 					</div>
 				))}
 			</div>

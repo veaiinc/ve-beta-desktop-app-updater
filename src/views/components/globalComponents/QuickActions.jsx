@@ -1,21 +1,16 @@
 import ObjectID from 'bson-objectid';
-import { useContext, useState, useCallback, useEffect, memo, useMemo, useRef, lazy } from 'react';
+import { useContext, useState, useCallback, useEffect, memo, useMemo, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import Context from '../../../context/context';
 
-// Lazy load components
-const LoaderModal = lazy(() => import('../modalsV2/automationBuilder/AutomationLoaderModal'));
-const EventsPopup = lazy(() => import('../calendar/EventsPopUp'));
-const CreateSessionModal = lazy(() => import('../modalsV2/calendar/CreateSessionModal'));
-const ProposalsPopup = lazy(() => import('../../../views/components/docs/ProposalsPopup'));
-const CreateClientModal = lazy(() =>
-	import('../../../views/components/modalsV2/contacts/CreateClientModal'),
-);
-const CreateGallery = lazy(() =>
-	import('../../../views/components/modalsV2/gallery/CreateGallery'),
-);
-const CreateTaskPopup = lazy(() => import('../modalsV2/tasks/CreateTaskPopup'));
+import LoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
+import EventsPopup from '../calendar/EventsPopUp';
+import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
+import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
+import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
+import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
+import CreateTaskPopup from '../modalsV2/tasks/CreateTaskPopup';
 
 import { message } from '../globalComponents/CustomToast';
 import { colors } from '../../../helpers/taskHelpers';
