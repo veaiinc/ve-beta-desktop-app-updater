@@ -32,9 +32,10 @@ const ExpiredSubscriptionModal = () => {
 		isAddOnOpen: false,
 		dataUsed: null,
 		dataLimit: null,
+		subscriptionState: 'upgradeSubscription',
 	});
 
-	// Mapper for subscription types to dataUsed and dataLimit
+	// // Mapper for subscription types to dataUsed and dataLimit
 	const subscriptionTypeConfig = {
 		'Classic-Gallery': {
 			dataUsed: currentPlan?.storageUsedInBytes
@@ -62,26 +63,15 @@ const ExpiredSubscriptionModal = () => {
 		},
 	};
 
-	useEffect(() => {
-		const config = subscriptionTypeConfig[expiredSubscriptionType] || {
-			dataUsed: null,
-			dataLimit: null,
-		};
-
-		setInfo((prev) => ({
-			...prev,
-			dataUsed: config.dataUsed,
-			dataLimit: config.dataLimit,
-		}));
-	}, [expiredSubscriptionType, currentPlan]);
+	const { dataUsed, dataLimit } = subscriptionTypeConfig[expiredSubscriptionType] || {};
 
 	const closeModal = useCallback(() => {
-		updateSubscriptionState({ expiredSubscriptionModal: false });
+		updateSubscriptionState({ expiredSubscriptionModal: false, expiredSubscriptionType: null });
 	}, []);
 
 	const handleRenewSubscirption = useCallback(async () => {
+		await getAllSubscriptionPlan();
 		closeModal();
-		getAllSubscriptionPlan();
 		setInfo((prev) => ({
 			...prev,
 			isAddOnOpen: true,
@@ -95,6 +85,9 @@ const ExpiredSubscriptionModal = () => {
 		}));
 	}, []);
 
+	const handleToggleSubscriptionState = useCallback(async (state) => {
+		setInfo((prev) => ({ ...prev, subscriptionState: state }));
+	}, []);
 	return (
 		<>
 			<ReactModal
@@ -125,18 +118,15 @@ const ExpiredSubscriptionModal = () => {
 					{expiredSubscriptionType && (
 						<div className="progressBarMainContainer">
 							<div className="progressBarTextContainer">
-								{info?.dataUsed} out of {info?.dataLimit}
+								{dataUsed} out of {dataLimit}
 							</div>
 							<div className="progressBarContainer">
 								<div
 									className="progressBar"
 									style={{
 										width: `${
-											info?.dataLimit
-												? Math.min(
-														(info.dataUsed / info.dataLimit) * 100,
-														100,
-												  )
+											dataLimit
+												? Math.min((dataUsed / dataLimit) * 100, 100)
 												: 0
 										}%`,
 									}}
@@ -171,7 +161,8 @@ const ExpiredSubscriptionModal = () => {
 			<AddOnCards
 				isOpen={info?.isAddOnOpen}
 				closeModal={handleCloseAddOn}
-				subscriptionState={currentPlan?.isPaidPlan ? 'addOnPlans' : 'upgradeSubscription'}
+				subscriptionState={info?.subscriptionState}
+				handleToggleSubscriptionState={handleToggleSubscriptionState}
 			/>
 		</>
 	);
