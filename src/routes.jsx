@@ -1,75 +1,66 @@
-import { lazy } from 'react';
 import { Navigate } from 'react-router-dom';
 
 import Landing_screen from './views/features/landingScreen/LandingPage';
 
-// Lazy load components
-const AuthWrapper = lazy(() => import('./views/layouts/authWrapper'));
-const Onboarding = lazy(() => import('./views/features/onboarding/Onboarding'));
-
-// Lazy load components
-const CalendarModule = lazy(() => import('./views/features/calendar/Calendar'));
-const OauthVerify = lazy(() => import('./views/features/signin/oauth/OauthVerify'));
-const GlobalWorkflows = lazy(() => import('./views/features/sales/GlobalWorkflows'));
-const SmartFile = lazy(() => import('./views/features/sales/smartFiles/SmartFile'));
-const WorkflowBuilderLayout = lazy(() => import('./views/layouts/workflowBuilderLayout'));
-const SmartFileLayout = lazy(() => import('./views/layouts/smartFileLayout'));
-const EarlyAccess = lazy(() => import('./views/features/earlyAccess/EarlyAccess'));
-const PrivacyPolicy = lazy(() => import('./views/features/signin/PrivacyPolicy'));
-const ChageLog = lazy(() => import('./views/features/signin/ChageLog'));
-
-const AddGallery = lazy(() => import('./views/features/gallery/AddGallery'));
-const GalleryPage = lazy(() => import('./views/features/gallery/GalleryPage'));
-const GalleryViewer = lazy(() => import('./views/features/gallery/GalleryViewer'));
-const AlbumSettings = lazy(() => import('./views/features/gallery/AlbumSettings'));
-const UploadPhotos = lazy(() => import('./views/features/gallery/UploadPhotos'));
-const GalleryViewLayout = lazy(() => import('./views/layouts/galleryViewLayout'));
-const TermsOfService = lazy(() => import('./views/features/signin/TermsOfService'));
-const CookiePolicy = lazy(() => import('./views/features/signin/CookiePolicy'));
-const WorkflowBuilder = lazy(() => import('./views/features/workflowBuilder/WorkflowBuilder'));
-const Tasks = lazy(() => import('./views/features/tasks/Tasks'));
-const Notes = lazy(() => import('./views/features/notesModule/Notes'));
-const Docs = lazy(() => import('./views/features/docs/Docs'));
-const LiteGallery = lazy(() => import('./views/features/gallery/Litegallery'));
-const MyTemplates = lazy(() => import('./views/features/myTemplates/MyTemplates'));
-const Forms = lazy(() => import('./views/features/forms/Forms'));
-const FormLeads = lazy(() => import('./views/features/forms/FormLeads'));
-const EditAgent = lazy(() => import('./views/features/aiAssistant/EditAgent'));
-const AgentDetails = lazy(() => import('./views/features/aiAssistant/AgentDetails'));
-const InitialHomePage = lazy(() => import('./views/features/homePage/InitialHomePage'));
-const RecentChat = lazy(() => import('./views/features/chat/RecentChat'));
-const AutomationBuilder = lazy(() =>
-	import('./views/features/automationBuilder/AutomationBuilder'),
-);
-const AutomationBuilderLayout = lazy(() => import('./views/layouts/automationBuilderLayout'));
-const Automations = lazy(() => import('./views/features/automations/Automations'));
-const BrandSetup = lazy(() => import('./views/features/settings/BrandSetup'));
-const DocsFullView = lazy(() => import('./views/components/docs/DocsFullView'));
-const TaskFullView = lazy(() => import('./views/features/tasks/TaskFullView'));
-const ExpandedClientView = lazy(() => import('./views/features/contacts/ExpandedClientView'));
-const ElasticSearch = lazy(() => import('./views/features/elasticSearch/ElasticSearch'));
-const PublicChat = lazy(() => import('./views/features/publicChat/PublicChat'));
-const EditKnowledgeAgent = lazy(() => import('./views/features/knowledgeAgent/EditAgent'));
-const FormResCard = lazy(() => import('./views/components/forms/FormResCard'));
-const FormSummary = lazy(() => import('./views/components/forms/FormSummary'));
-const Integrations = lazy(() => import('./views/features/integrationsList/Integrations'));
-const SchedulerMainPage = lazy(() => import('./views/features/calendar/SchedulerMainPage'));
-const EditScheduler = lazy(() => import('./views/features/calendar/EditScheduler'));
-const Contacts = lazy(() => import('./views/features/contacts/Contacts'));
-const PricingPage = lazy(() => import('./views/features/pricingPlans/pricingPage'));
-const ProactiveAi = lazy(() => import('./views/features/proactiveAi/ProactiveAi'));
-const ShareAndEarn = lazy(() => import('./views/features/shareAndEarn/ShareAndEarn'));
-const NotesPage = lazy(() => import('./views/features/notesPage/NotesPage'));
-const BuilderApp = lazy(() => import('../builderSrc/App'));
-const KnowledgeAgents = lazy(() => import('./views/features/knowledgeAgent/KnowledgeAgents'));
-const SettingsWrapper = lazy(() => import('./views/features/settings/SettingsWrapper'));
-const Files = lazy(() => import('./views/features/files/Files'));
-const Workflow_builder_updated = lazy(() =>
-	import('./views/features/workflowBuilderUpdated/WorkflowBuilderUpdated'),
-);
-const AiAssistants = lazy(() => import('./views/features/aiAssistant/AiAssistants'));
-const KnowledgeAgentDetails = lazy(() => import('./views/features/knowledgeAgent/AgentDetails'));
-const LoginPage = lazy(() => import('./views/features/loginPage/LoginPage'));
+import AuthWrapper from './views/layouts/authWrapper';
+import Onboarding from './views/features/onboarding/Onboarding';
+import CalendarModule from './views/features/calendar/Calendar';
+import OauthVerify from './views/features/signin/oauth/OauthVerify';
+import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
+import SmartFile from './views/features/sales/smartFiles/SmartFile';
+import WorkflowBuilderLayout from './views/layouts/workflowBuilderLayout';
+import SmartFileLayout from './views/layouts/smartFileLayout';
+import EarlyAccess from './views/features/earlyAccess/EarlyAccess';
+import PrivacyPolicy from './views/features/signin/PrivacyPolicy';
+import ChageLog from './views/features/signin/ChageLog';
+import AddGallery from './views/features/gallery/AddGallery';
+import GalleryPage from './views/features/gallery/GalleryPage'; // this is a string, not an import — keep it or remove accordingly
+import GalleryViewer from './views/features/gallery/GalleryViewer';
+import AlbumSettings from './views/features/gallery/AlbumSettings';
+import UploadPhotos from './views/features/gallery/UploadPhotos';
+import GalleryViewLayout from './views/layouts/galleryViewLayout';
+import TermsOfService from './views/features/signin/TermsOfService';
+import CookiePolicy from './views/features/signin/CookiePolicy';
+import WorkflowBuilder from './views/features/workflowBuilder/WorkflowBuilder';
+import Tasks from './views/features/tasks/Tasks';
+import Notes from './views/features/notesModule/Notes';
+import Docs from './views/features/docs/Docs';
+import LiteGallery from './views/features/gallery/Litegallery';
+import MyTemplates from './views/features/myTemplates/MyTemplates';
+import Forms from './views/features/forms/Forms';
+import FormLeads from './views/features/forms/FormLeads';
+import EditAgent from './views/features/aiAssistant/EditAgent';
+import AgentDetails from './views/features/aiAssistant/AgentDetails';
+import InitialHomePage from './views/features/homePage/InitialHomePage';
+import RecentChat from './views/features/chat/RecentChat';
+import AutomationBuilder from './views/features/automationBuilder/AutomationBuilder';
+import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
+import Automations from './views/features/automations/Automations';
+import BrandSetup from './views/features/settings/BrandSetup';
+import DocsFullView from './views/components/docs/DocsFullView';
+import TaskFullView from './views/features/tasks/TaskFullView';
+import ExpandedClientView from './views/features/contacts/ExpandedClientView';
+import ElasticSearch from './views/features/elasticSearch/ElasticSearch';
+import PublicChat from './views/features/publicChat/PublicChat';
+import EditKnowledgeAgent from './views/features/knowledgeAgent/EditAgent';
+import FormResCard from './views/components/forms/FormResCard';
+import FormSummary from './views/components/forms/FormSummary';
+import Integrations from './views/features/integrationsList/Integrations';
+import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
+import EditScheduler from './views/features/calendar/EditScheduler';
+import Contacts from './views/features/contacts/Contacts';
+import PricingPage from './views/features/pricingPlans/pricingPage';
+import ProactiveAi from './views/features/proactiveAi/ProactiveAi';
+import ShareAndEarn from './views/features/shareAndEarn/ShareAndEarn';
+import NotesPage from './views/features/notesPage/NotesPage';
+import BuilderApp from '../builderSrc/App';
+import KnowledgeAgents from './views/features/knowledgeAgent/KnowledgeAgents';
+import SettingsWrapper from './views/features/settings/SettingsWrapper';
+import Files from './views/features/files/Files';
+import Workflow_builder_updated from './views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
+import AiAssistants from './views/features/aiAssistant/AiAssistants';
+import KnowledgeAgentDetails from './views/features/knowledgeAgent/AgentDetails';
+import LoginPage from './views/features/loginPage/LoginPage';
 
 const routes = [
 	{
