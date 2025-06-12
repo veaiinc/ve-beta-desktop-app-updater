@@ -110,7 +110,7 @@ const ViewModeSortFilter = ({
 						}}
 						className="search-input"
 					/>
-					{loading && (
+					{info.searchQuery.length > 0 && loading && (
 						<div className="search-spinner">
 							<Spinner
 								size="small"
