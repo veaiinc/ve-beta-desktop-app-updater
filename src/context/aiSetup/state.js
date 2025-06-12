@@ -824,7 +824,6 @@ export const AiSetupState = () => {
 				actionId;
 			const body = {
 				...data,
-				agent: 'knowledgeAgent',
 			};
 			const response = await service?.fetchPut(url, body, usertoken, 'ai_assistant_api');
 			if (response?.[0]) {
