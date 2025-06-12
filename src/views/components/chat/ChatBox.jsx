@@ -1239,7 +1239,7 @@ const ChatBox = ({
 															}}
 														>
 															<div
-																className="icon"
+																className="chat-icon"
 																style={{ cursor: 'pointer' }}
 															>
 																<PlusSvg width={24} height={24} />
@@ -1311,7 +1311,7 @@ const ChatBox = ({
 											))}
 									</div>
 									{!startPage && (
-										<div className="options-container">
+										<div className="chatInputParentContainer__options-container">
 											{info?.showFilters ? (
 												<div className="filters-parent-container">
 													<div
@@ -1437,7 +1437,7 @@ const ChatBox = ({
 																			}`,
 																		}}
 																	>
-																		<div className="icon">
+																		<div className="chat-icon">
 																			<PlusSvg
 																				width={17}
 																				height={17}
@@ -1468,7 +1468,7 @@ const ChatBox = ({
 																		}`}
 																		onClick={handleAskClick}
 																	>
-																		<div className="icon">
+																		<div className="chat-icon">
 																			<div
 																				className="icon-text ask-icon-text"
 																				style={{
@@ -1534,7 +1534,7 @@ const ChatBox = ({
 																			handleDeepResearchClick
 																		}
 																	>
-																		<div className="icon">
+																		<div className="chat-icon">
 																			<div className="text-wrapper deep-research-text-wrapper">
 																				<AtomSvg
 																					fill={
@@ -1581,7 +1581,7 @@ const ChatBox = ({
 																		}`}
 																		onClick={handleBuildClick}
 																	>
-																		<div className="icon">
+																		<div className="chat-icon">
 																			<div className="text-wrapper">
 																				<div className="build-icon">
 																					<SparkSvg />

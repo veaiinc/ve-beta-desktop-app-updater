@@ -282,46 +282,46 @@
     }
 }
 
-.rbc-calendar {
-    background: white;
-    border-radius: 8px;
-    padding: 16px;
+// .rbc-calendar {
+//     background: white;
+//     border-radius: 8px;
+//     padding: 16px;
 
-    .rbc-month-view {
-        border: none;
-    }
+//     .rbc-month-view {
+//         border: none;
+//     }
 
-    .rbc-header {
-        padding: 8px;
-        font-weight: 500;
-        border: none;
-    }
+//     .rbc-header {
+//         padding: 8px;
+//         font-weight: 500;
+//         border: none;
+//     }
 
-    .rbc-date-cell {
-        padding: 8px;
-        text-align: center;
+//     .rbc-date-cell {
+//         padding: 8px;
+//         text-align: center;
 
-        &.rbc-now {
-            background-color: #f0f0f0;
-            border-radius: 50%;
-        }
-    }
+//         &.rbc-now {
+//             background-color: #f0f0f0;
+//             border-radius: 50%;
+//         }
+//     }
 
-    .rbc-off-range-bg {
-        background: none;
-        opacity: 0.5;
-    }
+//     .rbc-off-range-bg {
+//         background: none;
+//         opacity: 0.5;
+//     }
 
-    .rbc-today {
-        background-color: transparent;
-    }
+//     .rbc-today {
+//         background-color: transparent;
+//     }
 
-    .rbc-selected {
-        background-color: #90A955 !important;
-        color: white;
-        border-radius: 50%;
-    }
-}
+//     .rbc-selected {
+//         background-color: #90A955 !important;
+//         color: white;
+//         border-radius: 50%;
+//     }
+// }
 
 .appointment-summary {
     background: white;
