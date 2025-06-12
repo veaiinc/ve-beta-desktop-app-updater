@@ -305,7 +305,7 @@ const GalleryGrid = ({
 						}}
 						className="search-input"
 					/>
-					{info.loading && (
+					{info.searchQuery.length > 0 && info.loading && (
 						<div className="search-spinner">
 							<Spinner
 								size="small"
