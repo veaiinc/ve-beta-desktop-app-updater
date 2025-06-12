@@ -153,7 +153,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 					</div>
 					{userWorkSpaceList?.length > 10 && (
 						<div className="searchContainer">
-							{!searchWorkspace && <SearchSvg className="searchIcon" />}
+							<SearchSvg className="searchIcon" />
 							<input
 								type="text"
 								placeholder="Search"
