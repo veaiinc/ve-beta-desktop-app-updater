@@ -220,7 +220,10 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 				validateExpiryData?.restrictCalendar &&
 				validateExpiryData?.isExpired
 			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Event',
+				});
 			}
 			setInfo((prev) => ({
 				...prev,

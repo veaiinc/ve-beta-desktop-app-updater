@@ -85,7 +85,10 @@ const UploadPhotos = () => {
 				...prev,
 				isAiEnabled: false,
 			}));
-			updateSubscriptionState({ expiredSubscriptionModal: true });
+			updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Lite-Gallery',
+			});
 			return;
 		}
 		const updatedUploadImages = info?.uploadImages || {};
@@ -101,7 +104,6 @@ const UploadPhotos = () => {
 			});
 		}
 	}, [aiFacesLogic, info?.isAiEnabled]);
-
 	useEffect(() => {
 		if (!waterMarks) {
 			getWaterMarks();
@@ -144,7 +146,10 @@ const UploadPhotos = () => {
 				aiFacesLogic) &&
 			!validateExpiryData?.imagesAllowed
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Lite-Gallery',
+			});
 		}
 
 		if (
@@ -153,7 +158,10 @@ const UploadPhotos = () => {
 			validateExpiryData?.restrictGalleries &&
 			!validateExpiryData?.uploadAllowed
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Classic-Gallery',
+			});
 		}
 
 		let updateInfo = { ...info };
@@ -171,7 +179,10 @@ const UploadPhotos = () => {
 			let uploadedImages = { ...updateInfo?.uploadImages };
 
 			if (uploadImagesLength > imagesLimit && lightGallery === 'true') {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Lite-Gallery',
+				});
 			}
 
 			let findDuplicateImage = imageDuplicatesList?.list?.find(
