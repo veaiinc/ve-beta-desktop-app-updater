@@ -289,7 +289,7 @@ class Layout extends Component {
 			selectedFontColor: '#000000',
 			adjustGridAreasTriggerd: false,
 		};
-		this.handleBeforeUnload = this.handleBeforeUnload.bind(this);
+
 		this.blockRef = React.createRef();
 		this.boxRefs = [];
 		this.columnRefs = [];
@@ -314,7 +314,6 @@ class Layout extends Component {
 			gridCols: this.state.previewType === 'm' || this.state.previewMode === 'm' ? 8 : 28,
 		});
 
-		window.addEventListener('beforeunload', this.handleBeforeUnload);
 		document.addEventListener('mousedown', this.handleClickOutside);
 		document.addEventListener('keydown', this.handleKeyDown);
 		this.animateSection();
@@ -404,24 +403,6 @@ class Layout extends Component {
 		// }
 
 		// Cleanup observers
-		window.removeEventListener('beforeunload', this.handleBeforeUnload);
-		this.observers.forEach((observer) => observer.disconnect());
-		this.observers.clear();
-	}
-
-	handleBeforeUnload(event) {
-		// Most browsers ignore the custom message these days,
-		// but you must set returnValue to show the confirmation dialog.\
-		// if (!this.props.client) {
-		// 	this.adjustGridAreas();
-		// }
-
-		const confirmationMessage = 'Are you sure you want to leave this page';
-
-		event.preventDefault();
-
-		event.returnValue = confirmationMessage;
-		return confirmationMessage;
 	}
 
 	getGridRowsCount = () => {
@@ -946,11 +927,18 @@ class Layout extends Component {
 			},
 		);
 	}
+
 	componentWillReceiveProps = (nextProps) => {
 		if (this.state.triggerFont !== nextProps.triggerFont) {
 			this.setState({
 				triggerFont: nextProps.triggerFont,
 			});
+		}
+		if (this.state.triggerAdjustGridAreas !== nextProps.triggerAdjustGridAreas) {
+			if (nextProps.triggerAdjustGridAreas === true) {
+				this.adjustGridAreas();
+				this.props.setAdjustGridAreas(false);
+			}
 		}
 		if (this.state.intialGridRows !== nextProps.intialGridRows) {
 			this.setState({
@@ -991,7 +979,7 @@ class Layout extends Component {
 								adjustGridAreasTriggerd: true,
 							},
 							() => {
-								this.adjustGridAreas();
+								// this.adjustGridAreas();
 							},
 						);
 					} else {
@@ -3218,8 +3206,8 @@ class Layout extends Component {
 					: activeComponent?.divStyles?.gridArea;
 
 			const [rowStart, colStart, rowEnd, colEnd] = presentgrid
-				.split('/')
-				.map((n) => parseInt(n));
+				?.split('/')
+				?.map((n) => parseInt(n));
 
 			const rowDiff = rowEnd - rowStart;
 			const difference = numberOfRows - rowDiff;
