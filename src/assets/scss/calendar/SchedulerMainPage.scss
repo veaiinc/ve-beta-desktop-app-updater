@@ -53,6 +53,7 @@
 			background: var(--card, #18191b);
 			overflow: hidden;
 			.create-title {
+				color: var(--primary-font);
 				display: flex;
 				padding: 16px;
 				align-items: center;

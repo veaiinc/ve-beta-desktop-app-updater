@@ -50,7 +50,7 @@ const dropDownTextStyling = {
 import validator from 'validator';
 const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = false }) => {
 	let {
-		contacts: { createClient, updateStateValues },
+		contacts: { createClient, updateStateValues, getClients },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	const [isLoading, setLoading] = useState(false);
@@ -176,6 +176,16 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 				setLoading(false);
 				message.success('Client added successfully');
 				updateStateValues({ refetchClientList: true });
+				getClients(
+					{
+						clientFilterInput: {
+							limit: 15,
+							page: 1,
+							sort: [{ sortBy: 'createdAt', sortType: -1 }],
+						},
+					},
+					true,
+				);
 				closeModalFunc();
 			} else {
 				setLoading(false);
@@ -198,6 +208,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 		updateSubscriptionState,
 		validateExpiryData,
 		source,
+		getClients,
 	]);
 
 	return (
