@@ -27,10 +27,12 @@ export const intialState = {
 export const ContactsState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
-	const getClients = async (payload, reset = false) => {
+	const getClients = async ({ clientFilterInput }) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
+
+			const payload = { clientFilterInput };
 			const response = await service.query(
 				getClientsQuery,
 				payload,
@@ -38,17 +40,21 @@ export const ContactsState = () => {
 				usertoken,
 				'workflows_Api',
 			);
-
 			if (response?.[0]) {
-				const data = reset
-					? response?.[1]?.data?.clients?.data
-					: [
-							...(state?.clientList?.data || []),
-							...(response?.[1]?.data?.clients?.data || []),
-					  ];
+				const data =
+					clientFilterInput.page === 1
+						? response?.[1]?.data?.clients?.data
+						: [
+								...(state?.clientList?.data || []),
+								...(response?.[1]?.data?.clients?.data || []),
+						  ];
+				const currentPage = response?.[1]?.data?.clients?.currentPage;
+				const hasNextPage = response?.[1]?.data?.clients?.hasNextPage;
+
 				const payload = {
-					...response?.[1]?.data?.clients, // includes hasNextPage, currentPage, totalPages, totalItems
 					data,
+					currentPage,
+					hasNextPage,
 				};
 				dispatch({
 					type: Actions.SET_CLIENT_LIST,
@@ -293,6 +299,8 @@ export const ContactsState = () => {
 								],
 								hasNextPage: responseData?.hasNextPage,
 								currentPage: responseData?.currentPage,
+								totalPages: responseData?.totalPages,
+								totalDocs: responseData?.totalDocs,
 						  };
 
 				dispatch({

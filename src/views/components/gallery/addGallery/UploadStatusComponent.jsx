@@ -47,7 +47,10 @@ const UploadStatusComponent = ({
 				(info?.isAiEnabled && validateExpiryData?.liteImageLimitWithAiFace === 0)) &&
 			!validateExpiryData?.imagesAllowed
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Lite-Gallery',
+			});
 		}
 
 		if (
@@ -56,7 +59,10 @@ const UploadStatusComponent = ({
 			validateExpiryData?.totalStorageUsedInGB >= validateExpiryData?.storageLimitInGB &&
 			!validateExpiryData?.uploadAllowed
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Classic-Gallery',
+			});
 		}
 		e.preventDefault();
 		let imageCount = Object.keys(info?.uploadImages || {}).length;

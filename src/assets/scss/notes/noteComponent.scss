@@ -601,10 +601,10 @@
 
 .bn-add-file-button {
 	background: none !important;
-	border: 1px solid var(--stroke) !important;
+	border: 2.5px dashed var(--stroke, #2b2e31);
 
 	&:hover {
-		background-color: var(--card-over-card-hover) !important;
+		border: 2.5px dashed var(--stroke-hover, #f2f2f3);
 	}
 }
 

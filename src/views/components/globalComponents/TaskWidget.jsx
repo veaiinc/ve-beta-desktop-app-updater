@@ -299,7 +299,10 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 	const addNewTask = useCallback(
 		async (payload) => {
 			if (validateExpiryData?.restrictTasks && validateExpiryData?.isExpired) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Tasks',
+				});
 			}
 
 			const isSubtask = info?.isCreatingSubtask;
@@ -647,7 +650,10 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 				validateExpiryData?.restrictTasks &&
 				validateExpiryData?.isExpired
 			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Tasks',
+				});
 			}
 			let originalValue;
 			let updatedValue = value;
@@ -707,7 +713,10 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 				validateExpiryData?.restrictTasks &&
 				validateExpiryData?.isExpired
 			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Tasks',
+				});
 			} else {
 				const response = await deleteListItem(payload);
 				if (response) {

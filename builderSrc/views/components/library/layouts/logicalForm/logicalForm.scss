@@ -337,7 +337,8 @@ h3 {
 	opacity: 1;
 }
 
-.action-button, .remove-condition {
+.action-button,
+.remove-condition {
 	background: none;
 	border: none;
 	cursor: pointer;
@@ -405,7 +406,7 @@ h3 {
 	border: none;
 	outline: none;
 	background: transparent;
-	color: var(--answer-color, #1A1A1A); // Default to #1A1A1A if no color is set
+	color: var(--answer-color, #1a1a1a); // Default to #1A1A1A if no color is set
 	margin-bottom: 8px;
 	position: relative;
 }
@@ -1355,7 +1356,7 @@ input::placeholder {
 	background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(128, 0, 128, 0.4) 100%);
 	padding: 20px;
 	color: white;
-	
+
 	top: 0;
 	left: 0;
 	margin: 0;
@@ -1529,8 +1530,6 @@ input::placeholder {
 .answer-input:invalid {
 	border-color: #ff4444;
 }
-
-
 
 .dropdown-trigger:hover {
 	border-color: #4d4d4d;
@@ -1932,7 +1931,6 @@ textarea.embed-anything-input {
 	transition: width 0.3s, height 0.3s;
 }
 
-
 .image-upload-contartrtrtiner:hover::after {
 	content: '';
 	position: absolute;
@@ -1967,16 +1965,16 @@ textarea.embed-anything-input {
 .client-mode {
 	.answer-input {
 		display: flex !important;
-        height: 36px !important;
-        padding: 8px 16px !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        align-self: stretch !important;
-        border-radius: 16px !important;
-        border: 1.5px solid #D0D0D0 !important;
-        border: 1.5px solid color(display-p3 0.8155 0.8155 0.8155) !important;
-        background: #FFF ;
-        background: color(display-p3 1 1 1) ;
+		height: 36px !important;
+		padding: 8px 16px !important;
+		justify-content: space-between !important;
+		align-items: center !important;
+		align-self: stretch !important;
+		border-radius: 16px !important;
+		border: 1.5px solid #d0d0d0 !important;
+		border: 1.5px solid color(display-p3 0.8155 0.8155 0.8155) !important;
+		background: #fff;
+		background: color(display-p3 1 1 1);
 	}
 
 	// .logical-form-phone-input {
@@ -2008,7 +2006,7 @@ input[type='time'] {
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	background-color: white;
-	border: 1.5px solid #D0D0D0 !important;
+	border: 1.5px solid #d0d0d0 !important;
 	border-radius: 16px;
 	color: black;
 	font-size: 14px;
@@ -2028,7 +2026,13 @@ input[type='time'] {
 	&::-webkit-inner-spin-button {
 		display: none;
 	}
+	&::-webkit-inner-spin-button {
+		display: none;
+	}
 
+	&::-webkit-clear-button {
+		display: none;
+	}
 	&::-webkit-clear-button {
 		display: none;
 	}
@@ -2055,6 +2059,5 @@ input[type='time'] {
 	font-size: 13.58px;
 	font-style: normal;
 	font-weight: 600;
-	line-height: 19.012px;  }
-  
-  
+	line-height: 19.012px;
+}

@@ -1,6 +1,5 @@
 import { memo, useContext, useState, useCallback } from 'react';
 import Context from '../../../context/context';
-import FormModel from './FormModel';
 import { Markdown } from '../../../helpers/markdownHelper';
 import { Tooltip } from 'antd';
 import { ReactComponent as PencilSparkleIcon } from '../../../assets/svg/notes/pencilSparkle.svg';
@@ -14,6 +13,7 @@ import AISuggestionsReportAiComponent from './chatComponents/AiSuggestionsReport
 import '../../../assets/scss/chat/aiMessage.scss';
 import PromptPopup from '../homePage/PromptPopup';
 import ClarifyWidget from './chatWidgets/ClarifyWidget';
+import FormWidget from './FormWidget';
 
 const AIMessage = ({
 	text,
@@ -98,7 +98,7 @@ const AIMessage = ({
 				messageData?.module_template_id &&
 				(showCanvas && !isNoteCanvas ? (
 					messageData?.used_agents?.map((agent, index) => (
-						<FormModel
+						<FormWidget
 							workflowTemplateId={messageData?.workflow_template_id}
 							moduleTemplateId={messageData?.module_template_id}
 							handleSendWebsocketMessage={handleSendWebsocketMessage}
