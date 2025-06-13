@@ -11,12 +11,12 @@ import { ReactComponent as ListIcon } from '../../../assets/svg/agents/list.svg'
 
 // components
 import QuickActions from '../../components/globalComponents/QuickActions';
-import CreateNewAgentCard from '../../components/agents/createNewAgentCard/CreateNewAgentCard';
+import AgentsList from '../../components/agents/agentsList/AgentsList';
 import AgentSuggestion from '../../components/agents/suggestedCard/agentSuggestion';
 
 // constants
 const page = 1,
-	limit = 10;
+	limit = 20;
 
 const Agents = () => {
 	const {
@@ -63,7 +63,7 @@ const Agents = () => {
 						</div>
 					</div>
 					<div className={s.body}>
-						<CreateNewAgentCard agents={knowledgeAssistantsList?.data || []} />
+						<AgentsList agents={knowledgeAssistantsList?.data || []} />
 					</div>
 				</div>
 				<div className={s.suggestionsContainer}>

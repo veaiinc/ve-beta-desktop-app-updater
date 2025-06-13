@@ -1,4 +1,4 @@
-.agentIntroCardContainer {
+.agentsListContainer {
 	display: flex;
 	gap: 36px;
 	flex-wrap: wrap;
@@ -8,7 +8,8 @@
 		display: none;
 	}
 
-	.agentIntroCard {
+	.createNewAgent,
+	.agentInfoContainer {
 		display: flex;
 		align-items: center;
 		cursor: pointer;
@@ -19,6 +20,10 @@
 		transition: all 0.2s ease-in;
 		border-radius: 12px;
 		max-height: 74px;
+		border: none;
+		outline: none;
+		padding: 0;
+		background-color: inherit;
 
 		&:hover {
 			background: var(--card-over-card-hover);
@@ -32,6 +37,16 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+		}
+
+		.plusIcon {
+			display: flex;
+			min-width: 74px;
+			height: 74px;
+			justify-content: center;
+			align-items: center;
+			border-radius: 20px;
+			background-color: #79ecc9;
 		}
 
 		.addIcon {

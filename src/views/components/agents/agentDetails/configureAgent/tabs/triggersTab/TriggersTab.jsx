@@ -55,6 +55,7 @@ const TriggersTab = () => {
 
 	const [info, setInfo] = useState({
 		ListEmailsModalOpen: false,
+		disconnectTriggerLoader: false,
 	});
 
 	const { connectedTriggers, connectedEmails } = useMemo(() => {
@@ -131,27 +132,17 @@ const TriggersTab = () => {
 
 	const handleDisconnectTrigger = async (triggerId) => {
 		try {
+			if (info.disconnectTriggerLoader) return;
+			setInfo((prev) => ({ ...prev, disconnectTriggerLoader: true }));
 			const response = await disconnectTrigger(triggerId);
 			const success = response[0] === true;
 
 			if (success) {
-				const localDisconnectedTrigger =
-					(info?.localConnectedTriggers || []).filter(
-						(trigger) => trigger._id === triggerId,
-					).length > 0;
-
-				if (localDisconnectedTrigger) {
-					setInfo((prev) => ({
-						...prev,
-						localConnectedTriggers: (prev.localConnectedTriggers || []).filter(
-							(trigger) => trigger._id !== triggerId,
-						),
-					}));
-				}
 				message.success('Trigger disconnected successfully!');
 			} else {
 				message.error('Failed to disconnect trigger!');
 			}
+			setInfo((prev) => ({ ...prev, disconnectTriggerLoader: false }));
 		} catch (error) {
 			message.error('An error occurred while disconnecting the trigger.');
 		}

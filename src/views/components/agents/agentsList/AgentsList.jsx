@@ -1,5 +1,5 @@
-import { memo, useContext } from 'react';
-import s from './createNewAgentCard.module.scss';
+import { memo, useContext, useState } from 'react';
+import s from './agentsList.module.scss';
 import { ReactComponent as AddIcon } from '../../../../assets/svg/agents/add.svg';
 
 // icons
@@ -12,7 +12,7 @@ import Context from '../../../../context/context';
 // utils
 import { generateRandomAIAgentDetails } from './utils';
 import { message } from '../../globalComponents/CustomToast';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 
@@ -31,7 +31,7 @@ const infiniteScrollStyle = {
 const limit = 10,
 	append = true;
 
-const CreateNewAgentCard = ({ agents = [] }) => {
+const AgentsList = ({ agents = [] }) => {
 	const navigate = useNavigate();
 
 	const {
@@ -42,11 +42,17 @@ const CreateNewAgentCard = ({ agents = [] }) => {
 		},
 	} = useContext(Context);
 
+	const [info, setInfo] = useState({
+		createAgentLoader: false,
+	});
+
 	const dataLength = agents?.length ?? 0;
 	const currentPage = knowledgeAssistantsList?.currentPage ?? 1;
 	const hasNextPage = knowledgeAssistantsList?.hasNextPage ?? false;
 
 	const handleCreateAgent = async () => {
+		if (info.createAgentLoader) return;
+		setInfo((prev) => ({ ...prev, createAgentLoader: true }));
 		const { agentName, agentDescription } = generateRandomAIAgentDetails();
 		const [success, data] = await createNewKnowledgeAgent(agentName, agentDescription);
 		if (success) {
@@ -55,6 +61,7 @@ const CreateNewAgentCard = ({ agents = [] }) => {
 		} else {
 			message.error(data?.message);
 		}
+		setInfo((prev) => ({ ...prev, createAgentLoader: true }));
 	};
 
 	const fetchNextAgents = () => {
@@ -63,7 +70,7 @@ const CreateNewAgentCard = ({ agents = [] }) => {
 	};
 
 	return (
-		<div className={s.agentIntroCardContainer}>
+		<div className={s.agentsListContainer}>
 			<InfiniteScroll
 				style={infiniteScrollStyle}
 				height={infiniteScrollHeight}
@@ -72,33 +79,34 @@ const CreateNewAgentCard = ({ agents = [] }) => {
 				next={fetchNextAgents}
 				hasMore={hasNextPage}
 			>
-				<div className={s.agentIntroCard} onClick={handleCreateAgent}>
-					<div className={s.addIcon} style={{ background: '#79ecc9' }}>
+				<button className={s.createNewAgent} onClick={handleCreateAgent}>
+					<div className={s.plusIcon}>
 						<AddIcon />
 					</div>
 					<h1 className={s.name}>Create New Agent</h1>
-				</div>
+				</button>
 				{agents.map((agent) => (
-					<div
-						onClick={() => navigate(`/agent/${agent._id}?config=prompt`)}
+					<Link
+						to={`/agent/${agent._id}?config=prompt`}
 						key={agent._id}
-						className={s.agentIntroCard}
+						className={s.agentInfoContainer}
 					>
 						<div className={s.addIcon}>
 							<img
 								src={agent.knowledgeAgent_profile_picture_s3Key || CatIcon}
 								className={s.profileIcon}
+								alt={agent.name}
 							/>
 						</div>
 						<div className={s.agentInfo}>
 							<div className={s.agentName}>{agent.name}</div>
 							<div className={s.agentDescription}>{agent.description}</div>
 						</div>
-					</div>
+					</Link>
 				))}
 			</InfiniteScroll>
 		</div>
 	);
 };
 
-export default memo(CreateNewAgentCard);
+export default memo(AgentsList);
