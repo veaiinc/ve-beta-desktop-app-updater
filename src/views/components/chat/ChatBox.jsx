@@ -103,8 +103,6 @@ Dont change this otherwise chat functionality will break.
 */
 
 const ChatBox = ({
-	outerContainerStyle = {},
-	chatList = [],
 	onSend,
 	aiChatLoading,
 	handleAiUploadImage,
@@ -115,7 +113,6 @@ const ChatBox = ({
 	lastQuery,
 	toggleLatestStreamMessage,
 	isPublicChat = false,
-	showIconText = true,
 	autoFocus = true,
 	animatePlaceholder = false,
 	customChatBoxClick = null,

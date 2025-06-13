@@ -39,7 +39,7 @@ const codeColorTheme = {
 		overflow: 'auto',
 	},
 	comment: {
-		color: '#ffffff80', // Adjusted for better contrast
+		color: 'var(--secondary-font)',
 		fontStyle: 'italic',
 	},
 	prolog: {
