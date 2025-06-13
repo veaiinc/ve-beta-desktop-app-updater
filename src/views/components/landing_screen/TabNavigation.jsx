@@ -25,7 +25,9 @@ const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
 					}}
 					key={index}
 				>
-					{label}
+					<span>
+						{label}
+						</span>
 				</li>
 			))}
 		</ul>

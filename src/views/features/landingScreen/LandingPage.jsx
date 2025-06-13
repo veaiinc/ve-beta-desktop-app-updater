@@ -28,8 +28,7 @@ import '../../../assets/scss/landingScreen/index.scss';
 const pathToTabMap = {
 	'/mission': 1,
 	'/contact-us': 2,
-	'/api': 3,
-	'/pricing': 4,
+	'/pricing': 3,
 };
 
 const LandingPage = () => {
@@ -78,7 +77,9 @@ const LandingPage = () => {
 	const handleSetTab = (tabVal) => {
 		setTab(tabVal);
 		const tabRoutes = ['/', '/mission', '/contact-us', '/pricing'];
-		navigate(tabRoutes[tabVal]);
+		if (tabRoutes[tabVal]) {
+			navigate(tabRoutes[tabVal]);
+		}
 	};
 
 	const tabComponents = {
@@ -129,8 +130,7 @@ const LandingPage = () => {
 		),
 		1: <OurMission />,
 		2: <ContactUs type="Enterprise" />,
-		3: '',
-		4: <PricingPage />,
+		3: <PricingPage />,
 	};
 
 	return (

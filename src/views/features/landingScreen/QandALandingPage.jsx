@@ -7,7 +7,7 @@ const QandALandingPage = () => {
 	const faqData = [
 		{
 			key: '1',
-			label: 'How do I suggest a partner that Notion should work with?',
+			label: 'How do I suggest a partner that VE.AI should work with?',
 			children: (
 				<div className="faq-content">
 					<p>
@@ -55,7 +55,7 @@ const QandALandingPage = () => {
 		},
 		{
 			key: '5',
-			label: 'How can I provide feedback on VE?',
+			label: 'How can I provide feedback on VE.AI?',
 			children: (
 				<div className="faq-content">
 					<p>
@@ -67,7 +67,7 @@ const QandALandingPage = () => {
 		},
         {
             key: '6',
-            label: 'Are there any tutorial resources available for new users of VE?',
+            label: 'Are there any tutorial resources available for new users of VE.AI?',
             children: (
                 <div className="faq-content">
                     <p>
