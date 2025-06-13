@@ -192,6 +192,7 @@ const ShareModal = ({
 
 	const handleGalleryProtection = (name) => {
 		let payload = {};
+		let payload2 = {};
 		if (name === 'download') {
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -205,16 +206,24 @@ const ShareModal = ({
 				setInfo((prevInfo) => ({
 					...prevInfo,
 					canClientDownloadOptimized: true,
+					canGuestDownloadOptimized: true,
 				}));
 				payload = {
 					canClientDownloadOptimized: true,
+				};
+				payload2 = {
+					canDownloadOptimized: true,
+					isEnabled: true,
 				};
 			} else {
 				payload = {
 					canClientDownloadOriginals: false,
 					canClientDownloadOptimized: false,
-					canGuestDownloadOptimized: false,
-					canGuestDownloadOriginals: false,
+				};
+				payload2 = {
+					canDownloadOptimized: false,
+					canDownloadOriginals: false,
+					isEnabled: false,
 				};
 			}
 		} else if (name === 'guestCannotDownload') {
@@ -245,6 +254,7 @@ const ShareModal = ({
 		}
 
 		editPreferences(galleryId, payload);
+		updateGuestAccess(payload2, galleryId);
 	};
 
 	const handleGuestAccessUpdate = async (name) => {

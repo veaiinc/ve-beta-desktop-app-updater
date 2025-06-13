@@ -171,7 +171,10 @@ const StatusEditDropDown = ({ handleEditPropertyChange, handleClose }) => {
 				validateExpiryData?.restrictTasks &&
 				validateExpiryData?.isExpired
 			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Tasks',
+				});
 			}
 
 			const newLabel = info.addNewProperty.label.trim();

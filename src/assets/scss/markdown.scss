@@ -4,7 +4,7 @@
 	--font-size: 16px;
 	width: 100%;
 
-	span {
+	.span {
 		font-family: var(--chat-primary-font-family);
 		font-size: calc(var(--font-size) * 0.9375);
 		letter-spacing: calc(var(--font-size) * 0.0125);
@@ -98,7 +98,7 @@
 		font-size: calc(var(--font-size) * 0.85);
 		line-height: 1.45;
 		background-color: var(--card);
-		border-radius: calc(var(--font-size) * 0.375);
+		border-radius: calc(var(--font-size) * 1); //0.375
 		font-family: var(--chat-primary-font-family);
 	}
 
@@ -120,8 +120,27 @@
 		padding-left: calc(var(--font-size) * 2.25);
 	}
 
+	.ol {
+		.li {
+			list-style-type: decimal;
+			&::marker {
+				font-size: calc(var(--font-size) * 0.9375);
+				color: var(--primary-font);
+			}
+		}
+	}
+
+	.ul {
+		.li {
+			list-style-type: disc;
+			&::marker {
+				font-size: calc(var(--font-size) * 1.25);
+				color: var(--chat-secondary-font);
+			}
+		}
+	}
+
 	.li {
-		list-style-type: disc;
 		color: var(--chat-secondary-font);
 		font-family: var(--chat-primary-font-family);
 		letter-spacing: calc(var(--font-size) * 0.0125);
@@ -129,17 +148,6 @@
 		line-height: calc(var(--font-size) * 1.5);
 		font-size: calc(var(--font-size) * 0.9375);
 		margin-bottom: calc(var(--font-size) * 0.625);
-	}
-
-	.li::marker {
-		font-size: calc(var(--font-size) * 1.25);
-	}
-
-	.span {
-		color: var(--chat-secondary-font);
-		letter-spacing: calc(var(--font-size) * -0.02);
-		font-weight: 500;
-		font-family: var(--chat-primary-font-family);
 	}
 
 	.strong {
@@ -179,6 +187,48 @@
 		text-decoration: underline;
 		text-decoration-thickness: 0.5px;
 		text-underline-offset: 5px;
+	}
+	.markdown-code-wrapper {
+		display: flex;
+		flex-direction: column;
+		border-radius: calc(var(--font-size) * 1);
+		overflow: hidden;
+		border: 1px solid var(--stroke);
+		background-color: var(--card);
+
+		.code-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: calc(var(--font-size) * 0.75);
+			background-color: var(--card-over-card-hover);
+			.copy-code-btn {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				background-color: transparent;
+				border: none;
+				cursor: pointer;
+				padding: 0;
+				align-self: flex-end;
+				height: 18px;
+				width: 18px;
+
+				svg {
+					path {
+						fill: var(--chat-secondary-font);
+					}
+				}
+			}
+			.code-language {
+				font-size: calc(var(--font-size) * 0.75);
+				color: var(--chat-secondary-font);
+				font-family: var(--chat-primary-font-family);
+				font-weight: 500;
+				line-height: 1.5;
+				letter-spacing: 0.0125em;
+			}
+		}
 	}
 	.table-wrapper {
 		display: flex;

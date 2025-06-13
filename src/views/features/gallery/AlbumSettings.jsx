@@ -285,7 +285,10 @@ const AlbumSettings = () => {
 			validateExpiryData?.restrictGalleries &&
 			validateExpiryData?.isExpired
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Classic-Gallery',
+			});
 		}
 		const image = e.target.files[0];
 
@@ -416,7 +419,10 @@ const AlbumSettings = () => {
 			validateExpiryData?.restrictGalleries &&
 			validateExpiryData?.isExpired
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Classic-Gallery',
+			});
 		}
 
 		const id = message.loading('Downloading album...');

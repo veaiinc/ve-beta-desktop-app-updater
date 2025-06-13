@@ -162,8 +162,8 @@ const suggestedOptions = [
 		title: 'Document',
 		value: '',
 		controlValue: 'workflow',
-		action: () => {
-			window.location.href = `${origin}/create-document`;
+		action: navigate => {
+			navigate(`/builder/create-document`);
 		},
 	},
 	{

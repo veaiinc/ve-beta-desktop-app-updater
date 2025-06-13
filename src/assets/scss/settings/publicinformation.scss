@@ -80,6 +80,25 @@
 						background-color: transparent;
 						width: 100%;
 					}
+
+					.PhoneInput {
+						width: 100%;
+						color: var(--primary-font);
+
+						.PhoneInputInput {
+							color: var(--primary-font);
+						}
+
+						.PhoneInputCountrySelect {
+							color: var(--primary-font);
+							background-color: transparent;
+						}
+
+						.PhoneInputCountrySelectArrow {
+							color: var(--primary-font);
+							opacity: 1;
+						}
+					}
 				}
 			}
 		}
