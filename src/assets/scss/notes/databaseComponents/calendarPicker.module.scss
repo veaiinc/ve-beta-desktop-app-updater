@@ -67,20 +67,20 @@
 
 .calendarGrid {
 	padding: 8px;
-	// Fixed height for 6 rows with consistent spacing
-	height: 252px; // 6 rows * 42px per row
+	height: 260px;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
+	gap: 6px;
 }
 
 .calendarWeek {
 	display: grid;
 	grid-template-columns: repeat(7, 1fr);
 	gap: 2px;
-	// Each row takes equal space
 	flex: 1;
 	align-items: center;
+	min-height: 36px;
 }
 
 .calendarDay {
@@ -91,10 +91,16 @@
 	height: 36px;
 	cursor: pointer;
 	border-radius: 6px;
-	transition: all 0.15s ease;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	background-color: transparent;
 
 	&:hover {
 		background-color: var(--card);
+		transform: translateY(-1px);
+	}
+
+	&:active {
+		transform: translateY(0);
 	}
 }
 
@@ -104,11 +110,13 @@
 	color: var(--primary-font);
 	z-index: 2;
 	position: relative;
+	transition: color 0.2s ease, font-weight 0.2s ease;
 }
 
 .otherMonth {
 	.dayNumber {
 		color: var(--secondary-font);
+		transition: color 0.2s ease;
 	}
 
 	&:hover {
@@ -120,10 +128,12 @@
 	.dayNumber {
 		color: var(--primary-font);
 		font-weight: 600;
+		transition: color 0.2s ease, font-weight 0.2s ease;
 	}
 
 	&:not(.rangeStart):not(.rangeEnd) {
 		background-color: var(--card);
+		transition: background-color 0.2s ease;
 
 		&:hover {
 			background-color: var(--card);
@@ -142,15 +152,14 @@
 		border-radius: 4px;
 		pointer-events: none;
 		z-index: 1;
+		transition: border-color 0.2s ease, opacity 0.2s ease;
 	}
 
-	// Adjust the highlight when in range
 	&.inRange::after {
 		border-color: var(--primary-button-font);
 		opacity: 0.5;
 	}
 
-	// Adjust the highlight when it's a range start/end
 	&.rangeStart::after,
 	&.rangeEnd::after {
 		border-color: var(--primary-button-font);
@@ -161,10 +170,12 @@
 .rangeStart {
 	background-color: var(--primary-button) !important;
 	color: var(--primary-button-font);
+	transition: background-color 0.2s ease, color 0.2s ease;
 
 	.dayNumber {
 		color: var(--primary-button-font);
 		font-weight: 600;
+		transition: color 0.2s ease, font-weight 0.2s ease;
 	}
 
 	&:hover {
@@ -175,10 +186,12 @@
 .rangeEnd {
 	background-color: var(--primary-button) !important;
 	color: var(--primary-button-font);
+	transition: background-color 0.2s ease, color 0.2s ease;
 
 	.dayNumber {
 		color: var(--primary-button-font);
 		font-weight: 600;
+		transition: color 0.2s ease, font-weight 0.2s ease;
 	}
 
 	&:hover {
@@ -188,9 +201,11 @@
 
 .inRange {
 	background-color: var(--primary-button) !important;
+	transition: background-color 0.2s ease, opacity 0.2s ease;
 
 	.dayNumber {
 		color: var(--primary-button-font);
+		transition: color 0.2s ease;
 	}
 
 	&:hover {

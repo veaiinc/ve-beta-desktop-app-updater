@@ -37,7 +37,7 @@ const CalendarPicker = ({
 		const startOfMonth = currentMonth.clone().startOf('month');
 		const endOfMonth = currentMonth.clone().endOf('month');
 		const startOfGrid = startOfMonth.clone().startOf('week').day(0);
-		const endOfGrid = endOfMonth.clone().endOf('week');
+		const endOfGrid = endOfMonth.clone().endOf('week').day(6); // Ensure end is Saturday
 
 		const weeks = [];
 		let currentWeek = [];
