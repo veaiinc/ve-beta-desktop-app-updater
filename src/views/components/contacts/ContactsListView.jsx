@@ -2,6 +2,8 @@ import { memo } from 'react';
 import '../../../assets/scss/contacts/contactsListView.scss';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/contacts/clock.svg';
+import { ReactComponent as SortDescSvg } from '../../../assets/svg/home_page/sortDesc.svg';
+import { ReactComponent as SortAscSvg } from '../../../assets/svg/home_page/sortAsc.svg';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
@@ -10,8 +12,13 @@ import { Tooltip } from 'antd';
 
 dayjs?.extend(relativeTime);
 
-const ContactsListView = ({ data, hasMore, fetchMore }) => {
+const ContactsListView = ({ data, hasMore, fetchMore, onSort, sortType }) => {
 	const navigate = useNavigate();
+
+	const handleSortClick = () => {
+		const newSortType = sortType === -1 ? 1 : -1;
+		onSort?.(newSortType);
+	};
 
 	return (
 		<div className="contacts-table">
@@ -19,7 +26,21 @@ const ContactsListView = ({ data, hasMore, fetchMore }) => {
 				<div className="column people">Name/Email</div>
 				<div className="column strength"></div>
 				<div className="column interaction">
-					Last Interaction <ClockSvg />
+					<div className="interaction-header">
+						{/* <ClockSvg /> */}
+						{/* Last Interaction */}
+						Created At
+						<Tooltip
+							placement="bottom"
+							// title={<div className="tooltipTitle">Sort by created at</div>}
+							color="transparent"
+							arrow={false}
+						>
+							<div className="sort-by-created-at" onClick={handleSortClick}>
+								{sortType === -1 ? <SortAscSvg /> : <SortDescSvg />}
+							</div>
+						</Tooltip>
+					</div>
 				</div>
 			</div>
 			<div className="table-body-container">
@@ -63,14 +84,14 @@ const ContactsListView = ({ data, hasMore, fetchMore }) => {
                     <span className="text">{contact.strength}</span> */}
 										</div>
 										<div className="interaction">
-											{contact?.updatedAt ? (
+											{contact?.createdAt ? (
 												<Tooltip
 													title={`Last Interacted on: ${dayjs
-														?.unix(contact?.updatedAt)
+														?.unix(contact?.createdAt)
 														?.format('DD MMM YYYY')}`}
 												>
 													<span>
-														{dayjs?.unix(contact?.updatedAt)?.fromNow()}
+														{dayjs?.unix(contact?.createdAt)?.fromNow()}
 													</span>
 												</Tooltip>
 											) : (

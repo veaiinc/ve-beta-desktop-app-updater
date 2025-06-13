@@ -40,20 +40,11 @@ const SortAndFilterTooltip = ({
 	children,
 	selectedOption,
 	tooltipOpen,
+	toggleTooltipOpen,
 }) => (
 	<Tooltip
 		open={tooltipOpen}
-		onOpenChange={() =>
-			handleOptionClick({
-				type:
-					type === 'sort'
-						? 'sortTooltipOpen'
-						: type === 'filter'
-						? 'filterTooltipOpen'
-						: null,
-				value: !tooltipOpen,
-			})
-		}
+		onOpenChange={() => toggleTooltipOpen()}
 		title={
 			type === 'filter' ? (
 				<div className="notesPageFilterTooltip">
