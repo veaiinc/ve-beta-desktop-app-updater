@@ -1953,6 +1953,10 @@ class Home extends Proposals {
 	saveSubBlockContent = (content, sectionID, blockID, id, mContent = false, sectionId = null) => {
 		// if (this.timeout1) clearTimeout(this.timeout1);
 		// this.timeout1 = setTimeout(async () => {
+		this.setState({
+			activeVariableID: null,
+			activeVariableName: null,
+		});
 		if (sectionId !== null) {
 			this.setState({
 				activeSectionID: sectionId,

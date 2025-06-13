@@ -6,8 +6,10 @@ import '../../../assets/scss/document/acceptModel.scss';
 import Spinner from '../loaders/Spinner';
 import { useParams, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import { message } from 'antd';
+import { message } from '../../../../src/views/components/globalComponents/CustomToast';
 import moment from 'moment';
+
+const getToday = () => dayjs().format('YYYY-MM-DD');
 
 const stripHtml = (str) => (str ? str.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, '') : '');
 

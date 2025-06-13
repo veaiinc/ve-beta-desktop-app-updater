@@ -587,9 +587,7 @@ const CreateDocument = () => {
 				<div className="createDocumentHeader">
 					<span
 						className="createDocumentTitle"
-						onClick={() =>
-							(window.location.href = `${origin}/files?activeTab=Documents`)
-						}
+						onClick={() => navigate(`/files?activeTab=Documents`)}
 					>
 						<span style={{ cursor: 'pointer' }}>&#8592;</span> Back to Files
 					</span>
