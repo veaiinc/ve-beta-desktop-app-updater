@@ -1462,6 +1462,14 @@ class Builder extends Component {
 															isService,
 														)
 													}
+													index={section?.order}
+													moveItem={this.moveItem}
+													itemsLength={arr.length}
+													moveDirection={moveDirection}
+													duplicateBlock={(e) =>
+														this.props.duplicateBlock(e)
+													}
+													handleBlock={(e) => this.props.handleBlock(e)}
 												/>
 											</div>
 										);

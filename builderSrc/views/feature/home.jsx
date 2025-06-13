@@ -5710,7 +5710,7 @@ class Home extends Proposals {
 		if (response[0] === true) {
 			// let from = window.location.origin;
 
-			return navigate(`/files?activeTab=Designs`);
+			return this.props?.navigate(`/files?activeTab=Designs`);
 		}
 	};
 	updateTablesForTaxes = (tables) => {
