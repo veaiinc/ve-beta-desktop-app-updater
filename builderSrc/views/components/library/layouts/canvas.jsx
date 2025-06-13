@@ -3206,8 +3206,8 @@ class Layout extends Component {
 					: activeComponent?.divStyles?.gridArea;
 
 			const [rowStart, colStart, rowEnd, colEnd] = presentgrid
-				.split('/')
-				.map((n) => parseInt(n));
+				?.split('/')
+				?.map((n) => parseInt(n));
 
 			const rowDiff = rowEnd - rowStart;
 			const difference = numberOfRows - rowDiff;
