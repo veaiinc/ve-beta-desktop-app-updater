@@ -1,7 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 
-let navigate = useNavigate();
-
 const isAuthenticated = () => {
 	const usertoken = localStorage.getItem('usertoken');
 	const workspaceID = localStorage.getItem('workspaceID');
@@ -15,6 +13,7 @@ const isAuthenticated = () => {
 };
 
 const AuthenticatedRoute = ({ children }) => {
+	const navigate = useNavigate();
 	if (!isAuthenticated()) {
 		navigate('/');
 		return null;
