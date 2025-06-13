@@ -11,7 +11,7 @@ import Skeleton from 'react-loading-skeleton';
 import Spinner from '../loaders/Spinner';
 
 const initialState = {
-	selectedUploadCategory: 'images',
+	selectedUploadCategory: 'upload',
 	link: '',
 	isLinkValid: false,
 	workspaceImagesLoading: false,
@@ -28,13 +28,13 @@ const skeletonLoaders = Array.from({ length: 16 }, (_, index) => index + 1);
 const uploadCategoryOptions = [
 	{
 		id: 1,
-		label: 'Images',
-		value: 'images',
+		label: 'Upload',
+		value: 'upload',
 	},
 	{
 		id: 2,
-		label: 'Upload',
-		value: 'upload',
+		label: 'Library',
+		value: 'images',
 	},
 	{
 		id: 3,

@@ -122,11 +122,11 @@
 	.rbc-event {
 		border: none;
 		padding: 8px 10px;
-		border: 1px solid var(--stroke);
+		// border: 1px solid var(--stroke);
 		min-width: 100%;
 		background: none;
 		height: auto;
-		min-height: 45px;
+		min-height: 35px;
 		z-index: 1;
 
 		.rbc-event-label {

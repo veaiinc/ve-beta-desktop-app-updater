@@ -384,7 +384,7 @@
 									flex-shrink: 0;
 									font-size: 11px;
 									line-height: 1.2;
-									color: var(--primary-font);
+									color: var(--secondary-font);
 									font-weight: 500;
 									position: relative;
 									z-index: 2;
@@ -505,16 +505,16 @@
 }
 
 body > .rbc-overlay {
-	background-color: var(--card);
-	background: var(--card);
 	border: none;
 	border-radius: 18px;
 	border: 1px solid var(--stroke);
-	background: var(--card);
+	background: var(--popup);
 	padding: 15px;
 	display: flex;
 	flex-direction: column;
 	max-width: 500px;
+	max-height: 400px;
+	overflow-y: auto;
 	align-items: start;
 	.rbc-event-content {
 		width: 100%;
@@ -524,31 +524,32 @@ body > .rbc-overlay {
 	}
 	.rbc-overlay-header {
 		color: var(--primary-font);
-		font-size: 13px;
+		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
-		padding: 5px 0;
+		padding: 10px 0;
 		border-bottom: 1px solid var(--stroke);
 		text-align: center;
 		width: 100%;
 		align-self: center;
+		background: var(--popup);
 	}
 	.customEventWrapper {
 		width: 100%;
 		.rbc-event {
 			background: none;
-			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
 			padding: 0;
-			padding: 5px 0;
+			padding: 10px 0;
 			border-bottom: 1px solid var(--stroke);
 			width: 100%;
 			border-radius: 0;
+			color: var(--secondary-font);
 		}
 	}
 }
