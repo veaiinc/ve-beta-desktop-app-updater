@@ -229,17 +229,6 @@
 				letter-spacing: 0.0125em;
 			}
 		}
-
-		.syntax-highlighter-code {
-			background-color: transparent;
-			margin: 0;
-			padding: 16px;
-			color: var(--primary-font);
-
-			code {
-				font-family: monospace, Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono' !important;
-			}
-		}
 	}
 	.table-wrapper {
 		display: flex;

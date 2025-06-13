@@ -19,10 +19,8 @@ import AISuggestionsReportUserComponent from '../views/components/chat/chatCompo
 const codeColorTheme = {
 	'code[class*="language-"]': {
 		color: 'var(--primary-font) !important',
-		background: 'none',
-		fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
-		fontSize: '1em',
-		lineHeight: '1.5',
+		background: 'transparent',
+		fontFamily: 'monospace, Consolas, Monaco, "Andale Mono", "Ubuntu Mono"',
 		tabSize: '4',
 		hyphens: 'none',
 		whiteSpace: 'pre',
@@ -33,14 +31,11 @@ const codeColorTheme = {
 	},
 	'pre[class*="language-"]': {
 		color: 'var(--primary-font) !important',
-		background: '#1e1e1e',
-		fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
-		fontSize: '1em',
+		background: 'transparent',
+		fontFamily: 'monospace, Consolas, Monaco, "Andale Mono", "Ubuntu Mono"',
 		lineHeight: '1.5',
-		padding: '1em',
-		margin: '0.5em 0',
+		padding: '16px',
 		overflow: 'auto',
-		borderRadius: '5px',
 	},
 	comment: {
 		color: '#ffffff80', // Adjusted for better contrast
@@ -326,12 +321,7 @@ const MarkdownCode = memo(({ code, match }) => {
 				</button>
 			</div>
 
-			<SyntaxHighlighter
-				style={codeColorTheme}
-				language={match[1]}
-				PreTag="div"
-				className="syntax-highlighter-code"
-			>
+			<SyntaxHighlighter style={codeColorTheme} language={match[1]} PreTag="div">
 				{String(code)?.replace(/\n$/, '')}
 			</SyntaxHighlighter>
 		</div>
