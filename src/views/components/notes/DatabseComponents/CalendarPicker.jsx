@@ -36,7 +36,7 @@ const CalendarPicker = ({
 	const generateCalendarGrid = () => {
 		const startOfMonth = currentMonth.clone().startOf('month');
 		const endOfMonth = currentMonth.clone().endOf('month');
-		const startOfGrid = startOfMonth.clone().startOf('week');
+		const startOfGrid = startOfMonth.clone().startOf('week').day(0);
 		const endOfGrid = endOfMonth.clone().endOf('week');
 
 		const weeks = [];

@@ -129,6 +129,33 @@
 			background-color: var(--card);
 		}
 	}
+
+	// Add special highlighting for today that works with selection
+	&::after {
+		content: '';
+		position: absolute;
+		top: 2px;
+		left: 2px;
+		right: 2px;
+		bottom: 2px;
+		border: 2px solid var(--primary-button);
+		border-radius: 4px;
+		pointer-events: none;
+		z-index: 1;
+	}
+
+	// Adjust the highlight when in range
+	&.inRange::after {
+		border-color: var(--primary-button-font);
+		opacity: 0.5;
+	}
+
+	// Adjust the highlight when it's a range start/end
+	&.rangeStart::after,
+	&.rangeEnd::after {
+		border-color: var(--primary-button-font);
+		opacity: 0.5;
+	}
 }
 
 .rangeStart {
