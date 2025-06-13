@@ -54,7 +54,7 @@ export default class ImagePopup extends Images {
 
 			extraProps: {
 				altText: this.props?.activeComponent?.altText,
-				link: this.props?.activeComponent?.link,
+				link: this.props?.activeComponent?.link || '',
 			},
 			debounceStateForAltProps: null,
 			pageDropdown: false,
@@ -163,6 +163,8 @@ export default class ImagePopup extends Images {
 			'animeDistance',
 			'direction',
 			'animeIntensity',
+			'animeArea',
+			'triggerPoint',
 		];
 		const innerAdjustmentsTypes = [
 			'scale',
@@ -190,7 +192,7 @@ export default class ImagePopup extends Images {
 			zoom: 1,
 			aspect: 3 / 2,
 		};
-		if (type == 'page' || type == 'section' || type == 'link') {
+		if (type == 'page' || type == 'section' || type == 'link' || type == 'removeLink') {
 			if (type == 'link') {
 				newComponent = {
 					...newComponent,
@@ -200,13 +202,24 @@ export default class ImagePopup extends Images {
 			} else if (type == 'page') {
 				newComponent = {
 					...newComponent,
-					// linkModuleName: value?.label,
+					linkModuleName: value?.label,
 					linkModuleId: value?._id,
 					linkModuleType: value?.module,
+					linkType: 'page',
 				};
 				this.setState({ pageDropdown: false, sectionDropdown: true }, () => {
 					this.props?.getModuleSections(value);
 				});
+			} else if (type == 'removeLink') {
+				newComponent = {
+					...newComponent,
+					link: '',
+					linkType: 'link',
+					linkModuleName: '',
+					linkModuleId: '',
+					linkModuleType: '',
+					sectionId: '',
+				};
 			} else {
 				newComponent = {
 					...newComponent,
@@ -297,6 +310,10 @@ export default class ImagePopup extends Images {
 				activeComponent: newComponent,
 				activeAnimeName: type == 'animeName' ? value : this.state?.activeAnimeName,
 				showAnimeLoader: type == 'animePreview' ? true : this.state?.showAnimeLoader,
+				extraProps: {
+					...this.state.extraProps,
+					link: type == 'removeLink' ? '' : this.state.extraProps.link,
+				},
 			},
 			() => {
 				if (debounce) {
@@ -1069,19 +1086,51 @@ export default class ImagePopup extends Images {
 										<>
 											<div className="element_pasteURL">
 												<p className="heading">Link</p>
-												<div className="element_input">
+												<div
+													className="element_input"
+													style={{ flexDirection: 'row' }}
+												>
 													<input
 														type="text"
 														name="link"
 														placeholder="Add Link to your Image"
-														value={this.state.extraProps.link}
-														onChange={(e) => this.handleExtraprops(e)}
+														value={
+															this.state?.activeComponent
+																?.linkType !== 'link'
+																? `/${this.state?.activeComponent?.linkModuleName}`
+																: this.state.extraProps.link || ''
+														}
+														onChange={(e) => {
+															this.state?.activeComponent?.linkType ==
+																'link' && this.handleExtraprops(e);
+														}}
 														onClick={() => {
 															this.setState({
 																pageDropdown: true,
 															});
 														}}
+														// disabled={
+														// 	this.state?.activeComponent?.linkType ==
+														// 	'link'
+														// 		? false
+														// 		: true
+														// }
 													/>
+													<span
+														style={{
+															cursor: 'pointer',
+															color: '#e8e8e8',
+															fontSize: '12px',
+														}}
+														onClick={(e) => {
+															this.handleActiveImageStyles(
+																'removeLink',
+																e,
+															);
+														}}
+													>
+														x
+													</span>
 												</div>
 												{this.state?.pageDropdown && (
 													<div className="i-link-pages-container">

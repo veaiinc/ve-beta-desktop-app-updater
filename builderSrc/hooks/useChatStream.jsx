@@ -147,7 +147,7 @@ const useChatStream = () => {
 			};
 
 			socketRef.current.onerror = (event) => {
-				console.log('WebSocket error: shahid', event);
+				// console.log('WebSocket error: shahid', event);
 			};
 		},
 		[resetInactivityTimeout],

@@ -148,6 +148,8 @@ export default class IconPopup extends Component {
 			'animeDistance',
 			'direction',
 			'animeIntensity',
+			'animeArea',
+			'triggerPoint',
 		];
 		const innerAdjustmentsTypes = [
 			'scale',

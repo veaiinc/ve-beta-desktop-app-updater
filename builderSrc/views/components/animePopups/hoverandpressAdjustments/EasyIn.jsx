@@ -26,7 +26,11 @@ const EasyIn = ({ activeComponent, adjustAnimation }) => {
 			<div className="adj-element-position">
 				<div className="adj-dropdown-container">
 					<div className="adj-dropdown-header" onClick={toggleDropdown}>
-						<div className="adj-select-position">{selectedOption}</div>
+						<div className="adj-select-position">
+							{activeComponent?.animations?.adjustments?.position === 'from'
+								? 'From Current Position'
+								: 'Into Current Position'}
+						</div>
 						<div>
 							{' '}
 							<p className="adj-dropdown-arrow">
@@ -42,7 +46,7 @@ const EasyIn = ({ activeComponent, adjustAnimation }) => {
 						<div className="adj-dropdown-list">
 							<div
 								className={`adj-dropdown-item ${
-									selectedOption === 'From Current Position'
+									activeComponent?.animations?.adjustments?.position === 'from'
 										? 'adj-active-dropdown'
 										: ''
 								}`}
@@ -55,13 +59,13 @@ const EasyIn = ({ activeComponent, adjustAnimation }) => {
 							</div>
 							<div
 								className={`adj-dropdown-item ${
-									selectedOption === 'Into Current Position'
+									activeComponent?.animations?.adjustments?.position === 'into'
 										? 'adj-active-dropdown'
 										: ''
 								}`}
 								onClick={() => {
 									handleSelect('Into Current Position');
-									adjustAnimation('position', 'to');
+									adjustAnimation('position', 'into');
 								}}
 							>
 								Into Current Position
@@ -82,8 +86,16 @@ const EasyIn = ({ activeComponent, adjustAnimation }) => {
 					>
 						<input
 							type="range"
-							min="1"
-							max="5"
+							min={
+								activeComponent?.animations?.adjustments?.position === 'into'
+									? 1
+									: 0.1
+							}
+							max={
+								activeComponent?.animations?.adjustments?.position === 'into'
+									? 5
+									: 1
+							}
 							step="0.1"
 							value={activeComponent?.animations?.adjustments?.scale || fontSize}
 							onChange={(e) => {

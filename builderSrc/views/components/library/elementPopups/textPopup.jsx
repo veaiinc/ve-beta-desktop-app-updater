@@ -510,6 +510,8 @@ export default class TextPopup extends Component {
 			'animeDistance',
 			'direction',
 			'animeIntensity',
+			'animeArea',
+			'triggerPoint',
 		];
 		const innerAdjustmentsTypes = [
 			'scale',

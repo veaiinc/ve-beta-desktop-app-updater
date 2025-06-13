@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import Text from '../../elements/text/index.jsx';
-import ImageItem from '../../elements/image/index.jsx';
+import Text from '../../elements/text';
+import ImageItem from '../../elements/image';
 import _ from 'lodash';
 import '../index.scss';
-import Button from '../../elements/button/index.jsx';
+import Button from '../../elements/button';
 // import { ReactComponent as Edit } from '../actions/edit.svg';
 // import { ReactComponent as Copy } from '../actions/copy.svg';
 import Down from '../actions/down.jsx';
@@ -1292,6 +1292,7 @@ class Layout1 extends Component {
 										)}
 										currencySymbol={this.props?.currencySymbol}
 										builderCurrencySymbol={this.props?.builderCurrencySymbol}
+										clientGrandTotal={this.props?.clientGrandTotal}
 										activeModule={this.props.activeModule}
 									/>
 								</div>

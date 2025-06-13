@@ -19,10 +19,10 @@
 }
 
 // rotate transition
-// .rotate {
-// 	transition: all 4s ease-in-out;
-// 	animation: rotate 3s linear;
-// }
+.rotate {
+	transition: all 4s ease-in-out;
+	animation: rotate 3s linear;
+}
 @keyframes rotate {
 	from {
 		transform: rotate(0deg);
@@ -641,7 +641,7 @@
 @keyframes ScrollShrink {
 	0% {
 		transform: translate(var(--shrink-x), var(--shrink-y)) scale(var(--shrink-scale));
-		opacity: 1;
+		opacity: 0;
 	}
 	100% {
 		transform: translate(0, 0) scale(1);
