@@ -451,6 +451,7 @@ export const createDatabaseViewMutation = gql`
 			label
 			cardSize
 			sortBy {
+				_id
 				fieldId
 				direction
 			}
@@ -680,6 +681,7 @@ export const getDatabaseViewsQuery = gql`
 			label
 			cardSize
 			sortBy {
+				_id
 				fieldId
 				direction
 			}
@@ -774,6 +776,62 @@ export const updateFilterMutation = gql`
 			_id
 			filter
 			fieldType
+		}
+	}
+`;
+
+export const addSortMutation = gql`
+	mutation AddSort(
+		$pageId: ID!
+		$databaseViewId: ID!
+		$databaseId: ID!
+		$input: ViewSortConfigInput!
+	) {
+		addSort(
+			pageId: $pageId
+			databaseViewId: $databaseViewId
+			databaseId: $databaseId
+			input: $input
+		) {
+			_id
+			fieldId
+			direction
+		}
+	}
+`;
+
+export const updateSortMutation = gql`
+	mutation UpdateSort(
+		$pageId: ID!
+		$databaseViewId: ID!
+		$databaseId: ID!
+		$sortId: ID!
+		$input: ViewSortConfigInput!
+	) {
+		updateSort(
+			pageId: $pageId
+			databaseViewId: $databaseViewId
+			databaseId: $databaseId
+			sortId: $sortId
+			input: $input
+		) {
+			_id
+			fieldId
+			direction
+		}
+	}
+`;
+
+export const removeSortMutation = gql`
+	mutation DeleteSort($pageId: ID!, $databaseViewId: ID!, $databaseId: ID!, $sortId: ID!) {
+		deleteSort(
+			pageId: $pageId
+			databaseViewId: $databaseViewId
+			databaseId: $databaseId
+			sortId: $sortId
+		) {
+			success
+			message
 		}
 	}
 `;

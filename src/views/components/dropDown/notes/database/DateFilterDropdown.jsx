@@ -25,6 +25,7 @@ const DateFilterDropdown = ({ selected, onChange, title, showStartEnd = false, f
 	const handleDateTypeChange = (e) => {
 		const newDateType = e.target.value;
 		setInfo((prev) => ({ ...prev, dateType: newDateType }));
+		``````;
 		if (filterType === 'relative_to_today') {
 			onChange({
 				timeScope: info.timeScope,

@@ -1,41 +1,25 @@
-.filterComponent {
+.filterComponentWrapper {
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+	gap: 4px;
 	width: 100%;
 
-	.filterComponentWrapper {
+	.filterComponentHeader {
 		display: flex;
-		flex-direction: column;
-		gap: 4px;
+		justify-content: flex-start;
+		align-items: center;
 		width: 100%;
+		gap: 10px;
 
-		.filterComponentHeader {
+		.filterComponentHeaderTitle {
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--primary-font);
+		}
+
+		.filterComponentHeaderButtons {
 			display: flex;
-			justify-content: flex-start;
-			align-items: center;
-			width: 100%;
 			gap: 10px;
-
-			.filterComponentHeaderTitle {
-				font-size: 14px;
-				font-weight: 600;
-				color: var(--primary-font);
-			}
-
-			.filterComponentHeaderButtons {
-				display: flex;
-				gap: 10px;
-
-				.filterComponentHeaderButton {
-					background-color: transparent;
-					border: none;
-					cursor: pointer;
-					font-size: 14px;
-					font-weight: 600;
-					color: var(--primary-font);
-				}
-			}
 
 			.filterComponentHeaderButton {
 				background-color: transparent;
@@ -43,70 +27,79 @@
 				cursor: pointer;
 				font-size: 14px;
 				font-weight: 600;
-				color: var(--error);
-				border: 1px solid var(--error);
-				border-radius: 4px;
-				padding: 4px 8px;
-				margin-left: auto;
+				color: var(--primary-font);
 			}
 		}
 
-		.filterComponentBody {
-			width: 100%;
+		.filterComponentHeaderButton {
+			background-color: transparent;
+			border: none;
+			cursor: pointer;
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--error);
+			border: 1px solid var(--error);
+			border-radius: 4px;
+			padding: 4px 8px;
+			margin-left: auto;
+		}
+	}
+
+	.filterComponentBody {
+		width: 100%;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+
+		.filterComponentBodyItem {
 			display: flex;
-			flex-wrap: wrap;
+			justify-content: flex-start;
+			align-items: center;
 			gap: 10px;
+			border: 1px solid var(--stroke);
+			border-radius: 4px;
+			padding: 4px 8px;
+			width: fit-content;
 
-			.filterComponentBodyItem {
-				display: flex;
-				justify-content: flex-start;
-				align-items: center;
-				gap: 10px;
-				border: 1px solid var(--stroke);
-				border-radius: 4px;
-				padding: 4px 8px;
-				width: fit-content;
-
-				.filterComponentBodyItemTitle {
-					font-size: 14px;
-					font-weight: 400;
-					color: var(--primary-font);
-				}
-
-				.filterComponentBodyItemCondition {
-					font-size: 14px;
-					font-weight: 400;
-					color: var(--secondary-font);
-					cursor: pointer;
-				}
-
-				.filterComponentBodyItemValue {
-					font-size: 14px;
-					font-weight: 400;
-					color: var(--primary-font);
-				}
-
-				.filterComponentBodyItemDelete {
-					background-color: transparent;
-					border: none;
-					cursor: pointer;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-
-					svg {
-						path {
-							stroke: var(--error);
-						}
-					}
-				}
+			.filterComponentBodyItemTitle {
+				font-size: 14px;
+				font-weight: 400;
+				color: var(--primary-font);
 			}
 
-			.noFilter {
+			.filterComponentBodyItemCondition {
 				font-size: 14px;
 				font-weight: 400;
 				color: var(--secondary-font);
+				cursor: pointer;
 			}
+
+			.filterComponentBodyItemValue {
+				font-size: 14px;
+				font-weight: 400;
+				color: var(--primary-font);
+			}
+
+			.filterComponentBodyItemDelete {
+				background-color: transparent;
+				border: none;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				svg {
+					path {
+						stroke: var(--error);
+					}
+				}
+			}
+		}
+
+		.noFilter {
+			font-size: 14px;
+			font-weight: 400;
+			color: var(--secondary-font);
 		}
 	}
 }

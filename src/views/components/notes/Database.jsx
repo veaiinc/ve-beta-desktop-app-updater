@@ -38,6 +38,7 @@ import NumberComponent from './DatabseComponents/NumberComponent';
 import { ReactComponent as ChevronIcon } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import ListView from './DatabseComponents/views/ListView';
 import Spinner from '../loaders/Spinner';
+import SortComponent from './DatabseComponents/SortComponent';
 
 export const rowTypes = {
 	text: TextField,
@@ -166,13 +167,20 @@ const DatabaseComponent = memo(({ block, editor }) => {
 		const currentRow = rowData?.[info?.selectedViewId];
 		const filterHasChanged =
 			JSON.stringify(currentRow?.filters) !== JSON.stringify(selectedDatabaseView?.filterBy);
+		const sortHasChanged =
+			JSON.stringify(currentRow?.sortBy) !== JSON.stringify(selectedDatabaseView?.sortBy);
 		const searchHasChanged = currentRow?.searchQuery !== info?.debouncedSearchQuery;
 
-		if (!filterHasChanged && !searchHasChanged && currentRow?.data) {
+		if (!filterHasChanged && !searchHasChanged && !sortHasChanged && currentRow?.data) {
 			return;
 		}
 		fetchDatabaseRows(info.selectedViewId);
-	}, [info?.selectedViewId, selectedDatabaseView?.filterBy, info?.debouncedSearchQuery]);
+	}, [
+		info?.selectedViewId,
+		selectedDatabaseView?.filterBy,
+		info?.debouncedSearchQuery,
+		selectedDatabaseView?.sortBy,
+	]);
 
 	// Optimized fetch function with duplicate call prevention
 	const fetchDatabaseRows = useCallback(
@@ -270,7 +278,7 @@ const DatabaseComponent = memo(({ block, editor }) => {
 							fields: [
 								{
 									name: 'Name',
-									type: 'text',
+									type: 'title',
 								},
 							],
 							sourceBlockId,
@@ -529,13 +537,22 @@ const DatabaseComponent = memo(({ block, editor }) => {
 								className={s.notesDatabaseHeaderTitle}
 							/>
 						</div>
-						<FilterComponent
-							databaseId={databaseId}
-							view={selectedDatabaseView}
-							fields={fields}
-							pageId={pageId}
-							blockId={block?.id}
-						/>
+						<div className={s.sortFilterWrapper}>
+							<FilterComponent
+								databaseId={databaseId}
+								view={selectedDatabaseView}
+								fields={fields}
+								pageId={pageId}
+								blockId={block?.id}
+							/>
+							<SortComponent
+								databaseId={databaseId}
+								view={selectedDatabaseView}
+								fields={fields}
+								pageId={pageId}
+								blockId={block?.id}
+							/>
+						</div>
 					</div>
 					{info?.rowsLoading ? (
 						<div className={s.loadingContainer}>

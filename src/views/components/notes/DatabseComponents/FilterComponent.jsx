@@ -1,4 +1,4 @@
-import { memo, useContext } from 'react';
+import { memo, useContext, useMemo } from 'react';
 import s from '../../../../assets/scss/notes/databaseComponents/filterComponent.module.scss';
 import { getFilterConditions } from '../../../../helpers/databaseHelpers';
 import FilterHelperDropdown from '../../dropDown/notes/database/FilterHelperDropdown';
@@ -77,139 +77,122 @@ const FilterComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 		);
 	};
 
+	const fieldMapper = useMemo(() => {
+		return new Map(fields?.map((field) => [field?._id, field]));
+	}, [fields]);
+
 	return (
-		<div className={s.filterComponent}>
-			<div className={s.filterComponentWrapper}>
-				<div className={s.filterComponentHeader}>
-					<div className={s.filterComponentHeaderTitle}>Filter</div>
-					<div className={s.filterComponentHeaderButtons}>
-						<FilterDropdown
-							fields={fields}
-							filters={view?.filterBy}
-							handleFilterChange={handleFilterChange}
-						/>
-					</div>
-					{/* <button className={s.filterComponentHeaderButton}>Clear All</button> */}
+		<div className={s.filterComponentWrapper}>
+			<div className={s.filterComponentHeader}>
+				<div className={s.filterComponentHeaderTitle}>Filter</div>
+				<div className={s.filterComponentHeaderButtons}>
+					<FilterDropdown
+						fields={fields}
+						filters={view?.filterBy}
+						handleFilterChange={handleFilterChange}
+					/>
 				</div>
-				<div className={s.filterComponentBody}>
-					{view?.filterBy?.length > 0 ? (
-						view?.filterBy?.map((filter) => {
-							const field = fields?.find((field) => field?._id === filter?.fieldId);
-							const filterConditions = getFilterConditions(field?.type);
-							const componentType =
-								field?.type === 'select'
-									? 'multi_select'
-									: field?.type === 'status'
-									? 'statusFilter'
-									: field?.type === 'checkbox'
-									? 'checkboxFilter'
-									: ['date', 'created_time', 'last_edited_time'].includes(
+				{/* <button className={s.filterComponentHeaderButton}>Clear All</button> */}
+			</div>
+			<div className={s.filterComponentBody}>
+				{view?.filterBy?.length > 0 ? (
+					view?.filterBy?.map((filter) => {
+						const field = fieldMapper?.get(filter?.fieldId);
+						const filterConditions = getFilterConditions(field?.type);
+						const componentType =
+							field?.type === 'select'
+								? 'multi_select'
+								: field?.type === 'status'
+								? 'statusFilter'
+								: field?.type === 'checkbox'
+								? 'checkboxFilter'
+								: ['date', 'created_time', 'last_edited_time'].includes(field?.type)
+								? 'dateFilter'
+								: field?.type;
+						const Component = rowTypes?.[componentType] || null;
+						const currentField = fields?.find(
+							(field) => field?._id === filter?.fieldId,
+						);
+
+						const options =
+							currentField?.type === 'status'
+								? currentField?.config?.status
+								: currentField?.config?.options;
+
+						return (
+							<div className={s.filterComponentBodyItem} key={filter?.fieldId}>
+								<div className={s.filterComponentBodyItemTitle}>{field?.name}</div>
+								<FilterHelperDropdown
+									options={filterConditions}
+									selectedOption={filter?.operator}
+									onChange={(condition) => {
+										handleFilterChange(
+											filter?.fieldId,
+											filter?.value,
 											field?.type,
-									  )
-									? 'dateFilter'
-									: field?.type;
-							const Component = rowTypes?.[componentType] || null;
-							const currentField = fields?.find(
-								(field) => field?._id === filter?.fieldId,
-							);
-
-							const options =
-								currentField?.type === 'status'
-									? currentField?.config?.status
-									: currentField?.config?.options;
-
-							return (
-								<div className={s.filterComponentBodyItem} key={filter?.fieldId}>
-									<div className={s.filterComponentBodyItemTitle}>
-										{field?.name}
-									</div>
-									<FilterHelperDropdown
-										options={filterConditions}
-										selectedOption={filter?.operator}
-										onChange={(condition) => {
-											handleFilterChange(
-												filter?.fieldId,
-												filter?.value,
-												field?.type,
-												condition,
-											);
-										}}
-									>
-										<div className={s.filterComponentBodyItemCondition}>
-											{
-												filterConditions?.find(
-													(condition) =>
-														condition?.value === filter?.operator,
-												)?.label
-											}
-										</div>
-									</FilterHelperDropdown>
-
-									<div className={s.filterComponentBodyItemValue}>
-										{Component &&
-											!filterConditions?.find(
+											condition,
+										);
+									}}
+								>
+									<div className={s.filterComponentBodyItemCondition}>
+										{
+											filterConditions?.find(
 												(condition) =>
 													condition?.value === filter?.operator,
-											)?.noValue && (
-												<Component
-													value={filter?.value}
-													options={options}
-													labelField={'label'}
-													title={field?.name}
-													showLabel={true}
-													multiSelect={true}
-													onOptionClick={(value) => {
-														handleFilterChange(
-															filter?.fieldId,
-															value,
-															field?.type,
-															filter?.operator,
-														);
-													}}
-													onChange={(value) => {
-														handleFilterChange(
-															filter?.fieldId,
-															value,
-															field?.type,
-															filter?.operator,
-														);
-													}}
-													linkType={field?.type}
-													showStartEnd={field?.type === 'date'}
-													filterType={filter?.operator}
-												/>
-											)}
+											)?.label
+										}
 									</div>
-									<button
-										className={s.filterComponentBodyItemDelete}
-										onClick={() => {
-											deleteFilter(filter?._id);
-										}}
-									>
-										<CrossIcon />
-									</button>
+								</FilterHelperDropdown>
+
+								<div className={s.filterComponentBodyItemValue}>
+									{Component &&
+										!filterConditions?.find(
+											(condition) => condition?.value === filter?.operator,
+										)?.noValue && (
+											<Component
+												value={filter?.value}
+												options={options}
+												labelField={'label'}
+												title={field?.name}
+												showLabel={true}
+												multiSelect={true}
+												onOptionClick={(value) => {
+													handleFilterChange(
+														filter?.fieldId,
+														value,
+														field?.type,
+														filter?.operator,
+													);
+												}}
+												onChange={(value) => {
+													handleFilterChange(
+														filter?.fieldId,
+														value,
+														field?.type,
+														filter?.operator,
+													);
+												}}
+												linkType={field?.type}
+												showStartEnd={field?.type === 'date'}
+												filterType={filter?.operator}
+											/>
+										)}
 								</div>
-							);
-						})
-					) : (
-						<div className={s.noFilter}>No Filter</div>
-					)}
-				</div>
+								<button
+									className={s.filterComponentBodyItemDelete}
+									onClick={() => {
+										deleteFilter(filter?._id);
+									}}
+								>
+									<CrossIcon />
+								</button>
+							</div>
+						);
+					})
+				) : (
+					<div className={s.noFilter}>No Filter</div>
+				)}
 			</div>
-			{/* <div className={s.filterComponentWrapper}>
-				<div className={s.filterComponentHeader}>
-					<div className={s.filterComponentHeaderTitle}>Sort</div>
-					<div className={s.filterComponentHeaderButtons}>
-						<button className={s.filterComponentHeaderButton}>+</button>
-					</div>
-				</div>
-				<div className={s.filterComponentBody}>
-					<div className={s.filterComponentBodyItem}>
-						<div className={s.filterComponentBodyItemTitle}>CreatedAt</div>
-						<div className={s.filterComponentBodyItemValue}>Asc</div>
-					</div>
-				</div>
-			</div> */}
 		</div>
 	);
 };
