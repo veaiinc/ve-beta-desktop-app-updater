@@ -6172,7 +6172,15 @@ function LogicalForm(props) {
 					{showDropdown && (
 						<div className="dropdown-menu" ref={dropdownRef}>
 							<div className="dropdown-header">
-								<h3>Question Types</h3>
+								<span
+									style={{
+										color: '#ffffff',
+										fontSize: '16px',
+										fontWeight: 'bold',
+									}}
+								>
+									Question Types
+								</span>
 								<button
 									className="close-button"
 									onClick={() => setShowDropdown(false)}
@@ -6191,7 +6199,15 @@ function LogicalForm(props) {
 								</div>
 							))}
 							<div className="embed-fields">
-								<h3>Embed fields</h3>
+								<span
+									style={{
+										color: '#ffffff',
+										fontSize: '16px',
+										fontWeight: 'bold',
+									}}
+								>
+									Embed fields
+								</span>
 								{embedFields.map((item, index) => (
 									<div
 										key={`embed-${index}`}
@@ -6967,8 +6983,8 @@ function LogicalForm(props) {
 																	<path
 																		d="M9.84229 6.1579V10.8948"
 																		stroke="#96969F"
-																		stroke-width="1.2"
-																		stroke-linecap="round"
+																		strokeWidth="1.2"
+																		strokeLinecap="round"
 																	/>
 																	<path
 																		d="M9.84221 14.0526C10.2782 14.0526 10.6317 13.6992 10.6317 13.2632C10.6317 12.8272 10.2782 12.4737 9.84221 12.4737C9.40619 12.4737 9.05273 12.8272 9.05273 13.2632C9.05273 13.6992 9.40619 14.0526 9.84221 14.0526Z"
@@ -6977,8 +6993,8 @@ function LogicalForm(props) {
 																	<path
 																		d="M17.5789 9.84213C17.5789 5.56919 14.115 2.10529 9.84207 2.10529C5.56913 2.10529 2.10522 5.56919 2.10522 9.84213C2.10522 14.1151 5.56913 17.579 9.84207 17.579C14.115 17.579 17.5789 14.1151 17.5789 9.84213Z"
 																		stroke="#96969F"
-																		stroke-width="1.2"
-																		stroke-miterlimit="10"
+																		strokeWidth="1.2"
+																		strokeMiterlimit="10"
 																	/>
 																</svg>
 																<span
@@ -7289,8 +7305,8 @@ function LogicalForm(props) {
 															<path
 																d="M9.84229 6.1579V10.8948"
 																stroke="#96969F"
-																stroke-width="1.2"
-																stroke-linecap="round"
+																strokeWidth="1.2"
+																strokeLinecap="round"
 															/>
 															<path
 																d="M9.84221 14.0526C10.2782 14.0526 10.6317 13.6992 10.6317 13.2632C10.6317 12.8272 10.2782 12.4737 9.84221 12.4737C9.40619 12.4737 9.05273 12.8272 9.05273 13.2632C9.05273 13.6992 9.40619 14.0526 9.84221 14.0526Z"
@@ -7299,8 +7315,8 @@ function LogicalForm(props) {
 															<path
 																d="M17.5789 9.84213C17.5789 5.56919 14.115 2.10529 9.84207 2.10529C5.56913 2.10529 2.10522 5.56919 2.10522 9.84213C2.10522 14.1151 5.56913 17.579 9.84207 17.579C14.115 17.579 17.5789 14.1151 17.5789 9.84213Z"
 																stroke="#96969F"
-																stroke-width="1.2"
-																stroke-miterlimit="10"
+																strokeWidth="1.2"
+																strokeMiterlimit="10"
 															/>
 														</svg>
 														<span

@@ -2164,7 +2164,7 @@ class Builder extends Component {
 												}}
 												key={index}
 												style={{
-													height: this.props.client ? '100%' : 'auto',
+													height: this.props.client ? 'auto' : 'auto',
 													minHeight: '418.5px',
 													display: 'block',
 												}}
