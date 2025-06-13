@@ -388,8 +388,6 @@ const AddOnPlans = ({
 		if (response?.[0]) {
 			setInfo((prev) => ({ ...prev, startTrialLoading: false }));
 			window.location.href = response?.[1]?.url;
-			await getCurrentSubscriptionPlan();
-			closeModal();
 		} else {
 			setInfo((prev) => ({ ...prev, startTrialLoading: false }));
 			message?.error(response?.[1]?.message);
