@@ -90,7 +90,10 @@ const UpdateCategoryModal = ({ show, handleClose, isCategoryEditable, selectedCa
 				validateExpiryData?.restrictCalendar &&
 				validateExpiryData?.isExpired
 			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Events',
+				});
 			}
 
 			if (!validateForm()) {

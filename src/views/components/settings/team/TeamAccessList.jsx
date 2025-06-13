@@ -28,7 +28,10 @@ const TeamAccessListComponent = ({
 
 	const handleInviteMembersAndExpiredSubscriptionModal = () => {
 		if (tenantUserLimitReached) {
-			updateSubscriptionState({ expiredSubscriptionModal: true });
+			updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Tenants',
+			});
 		} else {
 			handleInviteMembers();
 		}
