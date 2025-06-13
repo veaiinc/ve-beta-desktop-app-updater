@@ -661,7 +661,10 @@ const Tasks = () => {
 				validateExpiryData?.restrictTasks &&
 				validateExpiryData?.isExpired
 			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Tasks',
+				});
 			}
 			let originalValue;
 			let updatedValue = value;
@@ -722,7 +725,10 @@ const Tasks = () => {
 				validateExpiryData?.restrictTasks &&
 				validateExpiryData?.isExpired
 			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Tasks',
+				});
 			} else {
 				if (info?.isCreatingSubtask) {
 					payload.parentTaskId = sideBarData?.stack?.at(-1)?._id;
@@ -774,7 +780,10 @@ const Tasks = () => {
 				validateExpiryData?.restrictTasks &&
 				validateExpiryData?.isExpired
 			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Tasks',
+				});
 			} else {
 				const response = await deleteListItem(payload);
 

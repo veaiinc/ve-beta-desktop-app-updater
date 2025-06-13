@@ -126,7 +126,10 @@ const CreateGallery = ({
 			validateExpiryData?.restrictGalleries &&
 			validateExpiryData?.isExpired
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Gallery',
+			});
 		}
 		if (galleryData?.isSubmitting) return;
 		const galleryNameError = !galleryData.title;

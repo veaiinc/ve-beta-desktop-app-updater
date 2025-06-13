@@ -15,7 +15,10 @@ const AiEnabledSwitch = ({ isAiEnabled, isProcessing, setinfo }) => {
 			(validateExpiryData?.liteImageLimitWithAiFace === 0 ||
 				validateExpiryData?.liteImageLimit <= validateExpiryData?.liteImageUsed)
 		) {
-			updateSubscriptionState({ expiredSubscriptionModal: true });
+			updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Lite-Gallery',
+			});
 			return;
 		}
 

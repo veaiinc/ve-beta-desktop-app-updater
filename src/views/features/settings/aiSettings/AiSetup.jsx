@@ -63,7 +63,10 @@ const AiSetup = () => {
 			validateExpiryData?.restrictWorkflows &&
 			validateExpiryData?.isExpired
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Workflows',
+			});
 		}
 		setInfo((prev) => ({
 			...prev,
