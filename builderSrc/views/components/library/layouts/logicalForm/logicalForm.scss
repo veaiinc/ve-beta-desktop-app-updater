@@ -1358,7 +1358,7 @@ input::placeholder {
 
 .formContainer {
 	padding: '40px 20px';
-	maxwidth: '800px';
+	max-width: '800px';
 	margin: '0 auto';
 	background: 'transparent'; // Ensure transparent background
 }
@@ -1367,9 +1367,9 @@ input::placeholder {
 	display: flex;
 	align-items: center;
 	gap: '12px';
-	marginbottom: '120px'; // Increased from 40px to 120px for gap between counter and question field
+	margin-bottom: '120px'; // Increased from 40px to 120px for gap between counter and question field
 	position: 'relative';
-	paddingbottom: '8px';
+	padding-bottom: '8px';
 	margin-left: '-20px';
 }
 
@@ -1448,7 +1448,7 @@ input::placeholder {
 	}
 
 	&:hover {
-		bordercolor: '#666'; // Change color on hover
+		border-color: '#666'; // Change color on hover
 	}
 }
 
