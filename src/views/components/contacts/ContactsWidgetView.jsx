@@ -53,28 +53,34 @@ const ContactsWidgetView = ({ data, hasMore = false, fetchMore }) => {
 										</div>
 									</div>
 									<div className="icons-container">
-										{contact?.email && (
-											<div
-												className="icon-container"
-												onClick={(e) => handleEmailClick(e, contact?.email)}
-											>
-												<EmailSvg width={20} height={20} />
-											</div>
-										)}
-										{contact?.phoneNumber && (
-											<div
-												className="icon-container"
-												onClick={(e) =>
-													handlePhoneClick(e, contact?.phoneNumber)
-												}
-											>
-												<PhoneSvg
-													width={20}
-													height={20}
-													fill="var(--primary-font)"
-												/>
-											</div>
-										)}
+										{contact?.email &&
+											/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email) && (
+												<div
+													className="icon-container"
+													onClick={(e) =>
+														handleEmailClick(e, contact?.email)
+													}
+												>
+													<EmailSvg width={20} height={20} />
+												</div>
+											)}
+										{contact?.phoneNumber &&
+											/^\+?[1-9]\d{1,14}$/.test(
+												contact.phoneNumber.replace(/\s|-/g, ''),
+											) && (
+												<div
+													className="icon-container"
+													onClick={(e) =>
+														handlePhoneClick(e, contact?.phoneNumber)
+													}
+												>
+													<PhoneSvg
+														width={20}
+														height={20}
+														fill="var(--primary-font)"
+													/>
+												</div>
+											)}
 									</div>
 								</div>
 							</div>

@@ -1977,22 +1977,6 @@ export const TemplatesState = (props) => {
 			payload: updatedGlobalChatMessages,
 		});
 	};
-	const handleStreamIncomingMessage = (response) => {
-		const citations = response?.citations;
-		const followUpQuery = response?.['follow_up_query'];
-		// const messageId = response?.['message_id'];
-		// if (citations && citations?.length > 0) {
-		// 	dispatch({
-		// 		type: Actions?.CHAT_CITATIONS_SUCCESS,
-		// 		payload: citations,
-		// 	});
-		// } else {
-		// 	dispatch({
-		// 		type: Actions?.CHAT_CITATIONS_SUCCESS,
-		// 		payload: null,
-		// 	});
-		// }
-	};
 
 	const handleStreamMessageChunk = (payload, chunkId) => {
 		try {
@@ -2674,7 +2658,6 @@ export const TemplatesState = (props) => {
 		getCitationData,
 		getRecentChatMessages,
 		handleStreamSendMessage,
-		handleStreamIncomingMessage,
 		handleStreamMessageChunk,
 		getLLMModels,
 		createBlankWorkflow,
