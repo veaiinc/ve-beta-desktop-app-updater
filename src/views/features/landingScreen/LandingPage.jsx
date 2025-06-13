@@ -20,6 +20,8 @@ import EarlyAccess from './EarlyAccess';
 import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
 import { ReactComponent as VeLogoBlack } from '../../../assets/svg/veLogoBlack.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
+import OwnYourMemoryCards from './OwnYourMemoryCards';
+import QandALandingPage from './QandALandingPage';
 
 import '../../../assets/scss/landingScreen/index.scss';
 
@@ -118,7 +120,9 @@ const LandingPage = () => {
 					<HowItWorks />
 					<Features />
 					<div className="responsive-spacer"></div>
+					<OwnYourMemoryCards />
 					<EarlyAccess />
+					<QandALandingPage />
 					<Footer />
 				</div>
 			</>

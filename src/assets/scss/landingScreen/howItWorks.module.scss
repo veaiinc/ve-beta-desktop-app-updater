@@ -197,6 +197,7 @@
 		max-width: 1600px;
 		padding: 120px 0;
 	}
+	
 }
 
 // Large screens (laptops/desktops)
@@ -209,6 +210,7 @@
 	.howItWorksImageContainer {
 		height: 700px;
 		.howItWorksImage {
+			padding: 50px 80px;
 			.videoContainer {
 				height: 100%;
 			}
@@ -295,7 +297,7 @@
 		.howItWorksImage {
 			padding: 0 8px;
 			.videoContainer {
-				height: 400px;
+				height: 600px;
 				max-width: 900px;
 			}
 		}
@@ -350,9 +352,9 @@
 		height: 400px;
 		padding: 0 8px;
 		.howItWorksImage {
-			padding: 0 4px;
+			padding: 0 20px;
 			.videoContainer {
-				height: 200px;
+				height: 340px;
 				max-width: 100%;
 			}
 		}
@@ -404,6 +406,17 @@
 			}
 		}
 	}
+	.howItWorksImageContainer {
+		height: 400px;
+		padding: 0 8px;
+		.howItWorksImage {
+			padding: 0 10px;
+			.videoContainer {
+				height: 320px;
+				max-width: 100%;
+			}
+		}
+	}
 }
 
 @media screen and (max-width: 400px) {
@@ -411,9 +424,9 @@
 		height: 350px;
 		padding: 0 8px;
 		.howItWorksImage {
-			padding: 0 4px;
+			padding: 0 10px;
 			.videoContainer {
-				height: 180px;
+				height: 250px;
 				max-width: 100%;
 			}
 		}
