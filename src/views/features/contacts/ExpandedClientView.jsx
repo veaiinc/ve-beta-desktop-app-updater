@@ -168,7 +168,10 @@ const ExpandedClientView = () => {
 
 	const handleUpdate = async (propName, value, onSuccess) => {
 		if (validateExpiryData?.restrictContacts && validateExpiryData?.isExpired) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Contacts',
+			});
 		}
 
 		const response = await updateClient({

@@ -53,7 +53,10 @@ const SmartFileHeader = ({
 			validateExpiryData?.restrictWorkflows &&
 			validateExpiryData?.isExpired
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Workflows',
+			});
 		}
 
 		if (info?.loading) {
@@ -73,7 +76,10 @@ const SmartFileHeader = ({
 				validateExpiryData?.restrictWorkflows &&
 				validateExpiryData?.isExpired
 			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Workflows',
+				});
 			}
 			if (data?.label === 'Edit') {
 				if (editable) {
@@ -129,7 +135,10 @@ const SmartFileHeader = ({
 			validateExpiryData?.restrictWorkflows &&
 			validateExpiryData?.isExpired
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Workflows',
+			});
 		}
 		setInfo((prev) => ({ ...prev, previewLoader: true }));
 		const usertoken = localStorage.getItem('usertoken');

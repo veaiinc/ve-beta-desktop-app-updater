@@ -1,4 +1,3 @@
- 
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../.././../../assets/scss/sales/smartFile.scss';
 import SmartFileHeader from '../../../components/smartFileComponets/SmartFileHeader';
@@ -258,7 +257,10 @@ const SmartFile = () => {
 			validateExpiryData?.restrictWorkflows &&
 			validateExpiryData?.isExpired
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Workflows',
+			});
 		}
 		if (info?.activeTab === 'form') {
 			return setInfo((prev) => ({ ...prev, activeTab: 'file' }));
@@ -280,7 +282,10 @@ const SmartFile = () => {
 			validateExpiryData?.restrictWorkflows &&
 			validateExpiryData?.isExpired
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Workflows',
+			});
 		}
 		setInfo((prev) => ({ ...prev, signatureModal: true }));
 	}, [info?.sendSmartFileModal, validateExpiryData]);
