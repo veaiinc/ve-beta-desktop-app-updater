@@ -28,10 +28,11 @@ const Contacts = () => {
 		templates: { updateStateValues },
 		contacts: { clientList, getClients, updateStateValues: updateContactState },
 	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		loadingSkeleton: true,
 		error: null,
-		sort: [],
+		sort: [{ sortBy: 'createdAt', sortType: -1 }],
 		filters: [],
 		searchValue: '',
 		updated: false,
@@ -46,7 +47,7 @@ const Contacts = () => {
 
 	useEffect(() => {
 		updateStateValues({ leftSidebarState: 'close' });
-
+		fetchClientList();
 		return () => {
 			if (searchValueRef.current !== '') {
 				updateContactState({ clientList: null });
@@ -55,15 +56,41 @@ const Contacts = () => {
 	}, []);
 
 	useEffect(() => {
+		if (info?.searchValue === '') {
+			const page = 1;
+			const limit = 15;
+			const sortBy = 'createdAt';
+			const sortType = info?.sort[0]?.sortType || -1;
+			const clientFilterInput = {
+				limit,
+				page,
+				search: '',
+				sort: [{ sortBy, sortType }],
+			};
+			getClients({ clientFilterInput });
+			return;
+		}
+
 		if (isMountedRef.current && clientList?.data) {
 			isMountedRef.current = false;
 			return;
 		}
+
 		timeoutIdRef.current = setTimeout(() => {
-			const reset = true;
-			fetchClientList(1, reset);
+			const page = 1;
+			const limit = 15;
+			const sortBy = 'createdAt';
+			const sortType = info?.sort[0]?.sortType || -1;
+			const clientFilterInput = {
+				limit,
+				page,
+				search: info?.searchValue,
+				sort: [{ sortBy, sortType }],
+			};
+			getClients({ clientFilterInput });
 			pageRef.current = 1;
 		}, 500);
+
 		return () => {
 			clearTimeout(timeoutIdRef.current);
 		};
@@ -81,27 +108,14 @@ const Contacts = () => {
 	}, [clientList]);
 
 	const fetchClientList = useCallback(
-		(page = 1, reset = false) => {
-			const payload = {
-				clientFilterInput: {
-					limit: 15,
-					page: page,
-					sort:
-						info?.sort?.length > 0
-							? info?.sort
-							: [{ sortBy: 'createdAt', sortType: 1 }],
-					...(info?.searchValue && {
-						search: info?.searchValue,
-					}),
-					...(info?.filters?.length > 0 && {
-						filters: info?.filters?.map((filter) => ({
-							key: filter.key,
-							value: filter.value?._id || filter.value,
-						})),
-					}),
-				},
+		(page = 1, limit = 15, reset = false, sortBy = 'createdAt', sortType = -1, search = '') => {
+			const clientFilterInput = {
+				limit,
+				page,
+				search: searchValueRef.current || info?.searchValue || '',
+				sort: [{ sortBy, sortType }],
 			};
-			getClients(payload, reset);
+			getClients({ clientFilterInput });
 		},
 		[info?.searchValue, info?.filters, info?.sort, getClients],
 	);
@@ -109,19 +123,41 @@ const Contacts = () => {
 	const fetchMoreClientsList = useCallback(() => {
 		if (info?.hasMore) {
 			const nextPage = pageRef.current + 1;
-			const reset = false;
-			fetchClientList(nextPage, reset);
+			const limit = 15;
+			const sortBy = 'createdAt';
+			const sortType = info?.sort[0]?.sortType || -1;
+			const clientFilterInput = {
+				limit,
+				page: nextPage,
+				search: info?.searchValue || '',
+				sort: [{ sortBy, sortType }],
+			};
+			getClients({ clientFilterInput });
 		}
-	}, [info?.hasMore, fetchClientList]);
+	}, [info?.hasMore, info?.searchValue, info?.sort, getClients]);
 
 	const handleViewChange = (view) => {
 		setInfo({ ...info, activeView: view });
 	};
 
 	const handleSearchQueryChange = (e) => {
-		setInfo({ ...info, searchValue: e?.target?.value });
-		searchValueRef.current = e?.target?.value;
+		const value = e?.target?.value;
+		setInfo((prev) => ({ ...prev, searchValue: value }));
+		searchValueRef.current = value;
 	};
+
+	const handleSort = useCallback(
+		(sortType) => {
+			setInfo((prev) => ({
+				...prev,
+				sort: [{ sortBy: 'createdAt', sortType }],
+			}));
+			if (!info?.searchValue) {
+				fetchClientList(1, 15, true, 'createdAt', sortType, '');
+			}
+		},
+		[fetchClientList, info?.searchValue],
+	);
 
 	return (
 		<div className="contacts-container">
@@ -215,6 +251,8 @@ const Contacts = () => {
 									data={listItems}
 									hasMore={info?.hasMore}
 									fetchMore={fetchMoreClientsList}
+									onSort={handleSort}
+									sortType={info?.sort[0]?.sortType}
 								/>
 							) : (
 								<ContactsWidgetView

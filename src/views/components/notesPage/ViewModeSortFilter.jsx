@@ -28,6 +28,7 @@ const ViewModeSortFilter = ({
 	});
 
 	const debounceTimeout = useRef();
+	const searchLoading = loading && info?.searchQuery?.length > 0;
 
 	useEffect(() => {
 		if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
@@ -122,7 +123,7 @@ const ViewModeSortFilter = ({
 						}}
 						className="search-input"
 					/>
-					{loading && (
+					{searchLoading && (
 						<div className="search-spinner">
 							<Spinner
 								size="small"
