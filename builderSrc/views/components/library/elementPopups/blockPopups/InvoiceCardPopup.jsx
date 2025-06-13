@@ -26,6 +26,7 @@ import ImageLibrary from '../../../imageLibrary';
 import Cropper from 'react-easy-crop';
 import { ReactComponent as Delete } from '../../svgs/delete.svg';
 import ObjectID from 'bson-objectid';
+import _ from 'lodash';
 export default class InvoiceCardPopup extends Images {
 	constructor(props) {
 		super(props);

@@ -16,6 +16,7 @@ import { ReactComponent as Delete } from '../../svgs/delete.svg';
 import { ReactComponent as Dropdown } from '../../svgs/dropDown.svg';
 import { ReactComponent as SearchIcon } from '../../svgs/search.svg';
 import { ReactComponent as ActiveTick } from '../../svgs/tick.svg';
+import _ from 'lodash';
 
 export default class SignaturePopup extends Images {
     constructor(props) {

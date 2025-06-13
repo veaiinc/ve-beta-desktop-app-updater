@@ -6,6 +6,7 @@ import ImageLibrary from '../../../imageLibrary/';
 import Modal from '../../modals/index';
 import Images from '../../../../../controllers/images';
 import Cropper from 'react-easy-crop';
+import _ from 'lodash';
 export default class EventPopup extends Images {
     constructor(props) {
         super(props);
