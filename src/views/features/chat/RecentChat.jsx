@@ -49,7 +49,6 @@ const RecentChat = ({
 			getRecentChatMessages,
 			recentChatStorage,
 			moreRecentChatStorage,
-			handleStreamIncomingMessage,
 			handleStreamMessageChunk,
 			globalLoadingMesssage,
 			chatInfo,
@@ -134,6 +133,18 @@ const RecentChat = ({
 			updateStateValues({ currentSessionId: ObjectID()?.toString() });
 		};
 	}, []);
+
+	useEffect(() => {
+		const { workflow_template_id, module_template_id } = info?.latestStreamMesage || {};
+		if (workflow_template_id && module_template_id && info?.showViewDocument) {
+			updateStateValues({
+				documentPreviewIds: {
+					workflowTemplateId: workflow_template_id,
+					moduleTemplateId: module_template_id,
+				},
+			});
+		}
+	}, [info?.latestStreamMesage]);
 
 	useEffect(() => {
 		if (sessionId) {
@@ -596,7 +607,6 @@ const RecentChat = ({
 					moduleTemplateId: module_template_id,
 				};
 			}
-			handleStreamIncomingMessage(data);
 			updateStateValues({
 				globalLoadingMesssage: null,
 				...(chatPayload && { chatPayload }),
@@ -734,13 +744,13 @@ const RecentChat = ({
 													{chat?.type?.toLowerCase() === 'ai' ? (
 														<div
 															className="content"
-															// style={{
-															// 	opacity:
-															// 		index ===
-															// 		info?.activeAIMessageIndex
-															// 			? 1
-															// 			: 0.6,
-															// }}
+															style={{
+																opacity:
+																	index ===
+																	info?.activeAIMessageIndex
+																		? 1
+																		: 0.6,
+															}}
 															// ref={(el) => {
 															// 	if (
 															// 		el &&
@@ -809,13 +819,13 @@ const RecentChat = ({
 															}}
 															data-index={index}
 															key={index}
-															// style={{
-															// 	opacity:
-															// 		index ===
-															// 		info?.activeUserMessageIndex
-															// 			? 1
-															// 			: 0.6,
-															// }}
+															style={{
+																opacity:
+																	index ===
+																	info?.activeUserMessageIndex
+																		? 1
+																		: 0.6,
+															}}
 														>
 															<UserMessageRenderer
 																messageData={chat}

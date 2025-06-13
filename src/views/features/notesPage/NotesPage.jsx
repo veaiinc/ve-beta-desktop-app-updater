@@ -20,11 +20,13 @@ const NotesPage = () => {
 		selectedFilter: { label: 'All', value: 'all' },
 		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 		userId: null,
+		searchQuery: '',
+		loading: false,
 	});
 
 	useEffect(() => {
 		fetchNotes({ page: 1 });
-	}, [info?.selectedFilter?.value, info?.selectedSort]);
+	}, [info?.selectedFilter?.value, info?.selectedSort, info?.searchQuery]);
 
 	useEffect(() => {
 		setSearchParams({ viewMode: info?.viewMode });
@@ -40,6 +42,7 @@ const NotesPage = () => {
 
 	const fetchNotes = async ({ page = 1, limit = 30, append = false }) => {
 		try {
+			setLoading(true);
 			const { value: sortBy, sortType: sortOrder } = info?.selectedSort;
 			const payload = {
 				input: {
@@ -48,11 +51,14 @@ const NotesPage = () => {
 					pageType: info?.selectedFilter?.value,
 					sortBy,
 					sortOrder,
+					search: info?.searchQuery,
 				},
 			};
 			await getNotesList(payload, append);
 		} catch (error) {
 			console.error('Error fetching notes:', error);
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -64,6 +70,10 @@ const NotesPage = () => {
 		setInfo((prev) => ({ ...prev, selectedSort: sort }));
 	};
 
+	const setLoading = (loading) => {
+		setInfo((prev) => ({ ...prev, loading }));
+	};
+
 	return (
 		<div className="notesPageContainer">
 			<ViewModeSortFilter
@@ -71,6 +81,9 @@ const NotesPage = () => {
 				setViewMode={(viewMode) => setInfo((prev) => ({ ...prev, viewMode }))}
 				setSelectedFilter={setSelectedFilter}
 				setSelectedSort={setSelectedSort}
+				setSearchQuery={(searchQuery) => setInfo((prev) => ({ ...prev, searchQuery }))}
+				setLoading={setLoading}
+				loading={info?.loading}
 			/>
 			<div
 				className={`notesContainer ${

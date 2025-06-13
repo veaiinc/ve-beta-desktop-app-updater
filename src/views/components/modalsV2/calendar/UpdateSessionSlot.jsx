@@ -176,13 +176,15 @@ const UpdateSessionSlot = ({
 						</div>
 					</Tooltip>
 				</div>
-				<h3 style={{ color: '#e4e5e6', fontWeight: 500, fontSize: 14 }}>
+				<h3 style={{ color: 'var(--primary-font)', fontWeight: 500, fontSize: 14 }}>
 					{selectedSlotData?.selectedDate
 						? `Slots for ${selectedSlotData.selectedDate}`
 						: 'No day selected'}
 				</h3>
 				{info.slots.length === 0 ? (
-					<div style={{ color: '#888', margin: '16px 0' }}>No slots for this day.</div>
+					<div style={{ color: 'var(--secondary-font)', margin: '16px 0' }}>
+						No slots for this day.
+					</div>
 				) : (
 					info.slots.map((slot, idx) => (
 						<div key={idx} className="timeSlot">

@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import routes from './routes';
-import React, { memo, useContext, useEffect } from 'react';
+import { memo, useContext, useEffect } from 'react';
 import ExpiredSubscriptionModal from './views/components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from './views/components/modalsV2/subscription/ExpiredTokenModal';
 import Cookies from 'js-cookie';
@@ -8,6 +8,7 @@ import Context from './context/context';
 import AccessDeniedPopup from './views/components/accessPopups/accessDeniedPopup';
 import VoiceWrapper from './views/layouts/VoiceWrapper';
 import CustomToast from './views/components/globalComponents/CustomToast';
+import Spinner from './views/components/loaders/Spinner';
 
 function App() {
 	const currentRoute = window.location.pathname;

@@ -59,7 +59,10 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 			validateExpiryData?.restrictGalleries &&
 			validateExpiryData?.isExpired
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Classic-Gallery',
+			});
 		}
 		const response = await uploadWaterMark(e.target.files[0]);
 		if (response) {

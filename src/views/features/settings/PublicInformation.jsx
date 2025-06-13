@@ -107,6 +107,9 @@ const PublicInformation = () => {
 		let Value = value || '';
 		switch (fieldName) {
 			case 'email':
+				if (validator.isEmpty(Value)) {
+					return { error: true, message: 'Email is required' };
+				}
 				if (!validator.isEmail(Value) && initialState?.email !== overviewState?.email) {
 					return { error: true, message: 'Invalid Email' };
 				}
@@ -117,6 +120,9 @@ const PublicInformation = () => {
 				}
 				break;
 			case 'phoneNumber':
+				if (validator.isEmpty(Value)) {
+					return { error: true, message: 'Phone Number is required' };
+				}
 				if (
 					!validator.isMobilePhone(Value, 'any', { strictMode: true }) &&
 					initialState?.phoneNumber !== overviewState?.phoneNumber

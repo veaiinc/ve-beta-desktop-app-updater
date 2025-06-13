@@ -216,7 +216,10 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 			validateExpiryData?.restrictWorkflows &&
 			validateExpiryData?.isExpired
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Workflows',
+			});
 		}
 
 		if (createButtonActiveState) {

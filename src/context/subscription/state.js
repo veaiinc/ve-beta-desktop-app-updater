@@ -19,6 +19,7 @@ export const intialState = {
 	expiredTokenModal: false,
 	reFetchSubscription: false,
 	renewBanner: false,
+	expiredSubscriptionType: null,
 };
 
 export const SubscriptionState = (props) => {
