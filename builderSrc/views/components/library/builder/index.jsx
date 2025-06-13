@@ -2635,9 +2635,6 @@ class Builder extends Component {
 														triggerAdjustGridAreas={
 															this.props?.triggerAdjustGridAreas
 														}
-														setTriggerAdjustGridAreas={(e) =>
-															this.props.setTriggerAdjustGridAreas(e)
-														}
 														mobile_preview_builder={
 															this.props?.mobile_preview_builder
 														}
@@ -2999,6 +2996,9 @@ class Builder extends Component {
 														}
 														handleVerticleAlign={
 															this.props?.handleVerticleAlign
+														}
+														setAdjustGridAreas={(e) =>
+															this.props.setAdjustGridAreas(e)
 														}
 													/>
 												) : (

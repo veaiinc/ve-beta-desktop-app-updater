@@ -923,7 +923,6 @@ class Layout extends Component {
 					this.setState({
 						adjustGridAreasTriggerd: false,
 					});
-					this.props.setTriggerAdjustGridAreas(false);
 				}, 3000);
 			},
 		);
@@ -938,6 +937,7 @@ class Layout extends Component {
 		if (this.state.triggerAdjustGridAreas !== nextProps.triggerAdjustGridAreas) {
 			if (nextProps.triggerAdjustGridAreas === true) {
 				this.adjustGridAreas();
+				this.props.setAdjustGridAreas(false);
 			}
 		}
 		if (this.state.intialGridRows !== nextProps.intialGridRows) {
@@ -979,7 +979,7 @@ class Layout extends Component {
 								adjustGridAreasTriggerd: true,
 							},
 							() => {
-								this.adjustGridAreas();
+								// this.adjustGridAreas();
 							},
 						);
 					} else {

@@ -5690,23 +5690,16 @@ class Home extends Proposals {
 			},
 		);
 	};
-	handleTriggerAdjustGridAreas = async () => {
+	handleTriggerAdjustGridAreas = async (e) => {
 		this.setState({
-			triggerAdjustGridAreas: false,
+			triggerAdjustGridAreas: e,
+			isPublishLoading: true,
 		});
 
 		const queryString = window.location.search;
 		const urlParams = new URLSearchParams(queryString);
 
 		const workflow = urlParams?.get('workflow');
-
-		if (workflow === 'true') {
-			return this.props.navigate(-1);
-		}
-
-		this.setState({
-			isPublishLoading: true,
-		});
 
 		const response = await this.publishWorkflow(updateWorkflowTemplate, {
 			templateId: this.props.params.templateID || this.templateId,
@@ -5717,6 +5710,9 @@ class Home extends Proposals {
 		this.setState({
 			isPublishLoading: false,
 		});
+		if (workflow === 'true') {
+			return this.props.navigate(-1);
+		}
 
 		if (response?.[0]) {
 			if (
@@ -6104,9 +6100,6 @@ class Home extends Proposals {
 												</div>
 												<div className="desktop-view-preview-border">
 													<Builder
-														setTriggerAdjustGridAreas={(e) =>
-															this.handleTriggerAdjustGridAreas(e)
-														}
 														triggerAdjustGridAreas={
 															this.state.triggerAdjustGridAreas
 														}
@@ -6925,9 +6918,6 @@ class Home extends Proposals {
 											</div>
 										) : (
 											<Builder
-												setTriggerAdjustGridAreas={(e) =>
-													this.handleTriggerAdjustGridAreas(e)
-												}
 												triggerAdjustGridAreas={
 													this.state.triggerAdjustGridAreas
 												}
@@ -7519,6 +7509,9 @@ class Home extends Proposals {
 													this.addManualInvoiceBlock(id, order);
 												}}
 												updateTablesForTaxes={this?.updateTablesForTaxes}
+												setAdjustGridAreas={(e) =>
+													this.handleTriggerAdjustGridAreas(e)
+												}
 											/>
 										)}
 
