@@ -330,12 +330,7 @@ const MarkdownCode = memo(({ code, match }) => {
 				style={codeColorTheme}
 				language={match[1]}
 				PreTag="div"
-				customStyle={{
-					backgroundColor: 'transparent',
-					margin: '0',
-					padding: '16px',
-					color: 'var(--primary-font)',
-				}}
+				className="syntax-highlighter-code"
 			>
 				{String(code)?.replace(/\n$/, '')}
 			</SyntaxHighlighter>
