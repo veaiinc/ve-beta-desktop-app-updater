@@ -25,6 +25,7 @@ const codeColorTheme = {
 		hyphens: 'none',
 		whiteSpace: 'pre',
 		wordBreak: 'normal',
+		lineHeight: '1.5',
 		wordWrap: 'normal',
 		textAlign: 'left',
 		wordSpacing: 'normal',
