@@ -620,6 +620,7 @@ class Home extends Proposals {
 			isTemplateDeleteOpen: false,
 			numOfDocuments: 0,
 			isFormTemplate: false,
+			triggerAdjustGridAreas: false,
 		};
 		this.componentRef = createRef();
 		this.addBlockRef = createRef();
@@ -3552,44 +3553,9 @@ class Home extends Proposals {
 	};
 
 	handlePublish = async (e) => {
-		const queryString = window.location.search;
-		const urlParams = new URLSearchParams(queryString);
-
-		const workflow = urlParams?.get('workflow');
-
-		if (workflow === 'true') {
-			return this.props.navigate(-1);
-		}
-
 		this.setState({
-			isPublishLoading: true,
+			triggerAdjustGridAreas: true,
 		});
-
-		const response = await this.publishWorkflow(updateWorkflowTemplate, {
-			templateId: this.props.params.templateID || this.templateId,
-			updateObj: {
-				status: 'published',
-			},
-		});
-		this.setState({
-			isPublishLoading: false,
-		});
-
-		if (response?.[0]) {
-			if (
-				_.has(this.state.template, 'version') &&
-				!this.state.template.actions?.includes('form-submission')
-			) {
-				// return (window.location.href = `https://ve.ai/my-templates`);
-				return this.props.navigate(-1);
-			} else if (this.state.template.actions?.includes('form-submission')) {
-				return this.props.navigate(-1);
-			} else {
-				return (window.location.href = `https://ve.ai/workflow_builder/${
-					this.props.params.templateID || this.templateId
-				}`);
-			}
-		}
 	};
 
 	handleSetServiceBlock = (e, type, blockId, sectionID) => {
@@ -5724,6 +5690,50 @@ class Home extends Proposals {
 			},
 		);
 	};
+	handleTriggerAdjustGridAreas = async () => {
+		this.setState({
+			triggerAdjustGridAreas: false,
+		});
+
+		const queryString = window.location.search;
+		const urlParams = new URLSearchParams(queryString);
+
+		const workflow = urlParams?.get('workflow');
+
+		if (workflow === 'true') {
+			return this.props.navigate(-1);
+		}
+
+		this.setState({
+			isPublishLoading: true,
+		});
+
+		const response = await this.publishWorkflow(updateWorkflowTemplate, {
+			templateId: this.props.params.templateID || this.templateId,
+			updateObj: {
+				status: 'published',
+			},
+		});
+		this.setState({
+			isPublishLoading: false,
+		});
+
+		if (response?.[0]) {
+			if (
+				_.has(this.state.template, 'version') &&
+				!this.state.template.actions?.includes('form-submission')
+			) {
+				// return (window.location.href = `https://ve.ai/my-templates`);
+				return this.props.navigate(-1);
+			} else if (this.state.template.actions?.includes('form-submission')) {
+				return this.props.navigate(-1);
+			} else {
+				return (window.location.href = `https://ve.ai/workflow_builder/${
+					this.props.params.templateID || this.templateId
+				}`);
+			}
+		}
+	};
 	render() {
 		if (this.componentRef.current) {
 			const data = [
@@ -6094,6 +6104,12 @@ class Home extends Proposals {
 												</div>
 												<div className="desktop-view-preview-border">
 													<Builder
+														setTriggerAdjustGridAreas={(e) =>
+															this.handleTriggerAdjustGridAreas(e)
+														}
+														triggerAdjustGridAreas={
+															this.state.triggerAdjustGridAreas
+														}
 														mobile_preview_builder={true}
 														fluidGrid={() => this.fluidGrid()}
 														fluidShowGrid={this.state.fluidShowGrid}
@@ -6909,6 +6925,12 @@ class Home extends Proposals {
 											</div>
 										) : (
 											<Builder
+												setTriggerAdjustGridAreas={(e) =>
+													this.handleTriggerAdjustGridAreas(e)
+												}
+												triggerAdjustGridAreas={
+													this.state.triggerAdjustGridAreas
+												}
 												fluidGrid={() => this.fluidGrid()}
 												fluidShowGrid={this.state.fluidShowGrid}
 												invoiceTables={this.state.invoiceTables}
