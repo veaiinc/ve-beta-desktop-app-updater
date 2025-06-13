@@ -265,24 +265,20 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 				</div>
 				<div
 					className="doc-info-badge-accept"
-					disabled={info?.workflowInfo?.status === 'confirmed'}
 					style={{
-						opacity: info?.workflowInfo?.status === 'confirmed' ? 0.7 : 1,
-						cursor:
-							info?.workflowInfo?.status === 'confirmed' ? 'not-allowed' : 'pointer',
+						cursor: 'pointer',
 					}}
 					onClick={() => {
-						if (info?.workflowInfo?.status !== 'confirmed') {
+						
 							setInfo((prev) => ({ ...prev, showAcceptDocumentModal: true }));
-						}
 					}}
 				>
 					<span className="doc-info-badge-accept-text">
-						{info?.workflowInfo?.status === 'confirmed' ? (
+						{/* {info?.workflowInfo?.status === 'confirmed' ? (
 							<span className="doc-info-badge-accept-text-accepted">Accepted</span>
 						) : (
-							<span className="doc-info-badge-accept-text-accept">Accept</span>
-						)}
+						)} */}
+						<span className="doc-info-badge-accept-text-accept">Accept</span>
 					</span>
 				</div>
 			</div>
@@ -430,7 +426,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 							onDuplicate={handleDuplicate}
 						/>
 					)}
-					{info.showAcceptDocumentModal && info?.workflowInfo?.status !== 'confirmed' && (
+					{info.showAcceptDocumentModal &&  (
 						<AcceptDocumentModel
 							isOpen={info.showAcceptDocumentModal}
 							onClose={() =>
