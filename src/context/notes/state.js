@@ -827,7 +827,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const getDatabaseRows = async (payload, viewId, filters) => {
+	const getDatabaseRows = async (payload, viewId, filters, sortBy) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -846,7 +846,8 @@ export const NotesState = (props) => {
 							...(state?.rowData?.[viewId] || {}),
 							...response?.[1]?.data?.listDatabaseRows,
 							filters,
-							searchQuery: payload?.search,
+							sortBy,
+							searchQuery: payload?.input?.search,
 						},
 					},
 				});

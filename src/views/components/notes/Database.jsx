@@ -42,6 +42,7 @@ import SortComponent from './DatabseComponents/SortComponent';
 
 export const rowTypes = {
 	text: TextField,
+	title: TextField,
 	select: Select,
 	person: Person,
 	multi_select: MultiSelect,
@@ -157,8 +158,12 @@ const DatabaseComponent = memo(({ block, editor }) => {
 	// Reset search when switching tabs
 	useEffect(() => {
 		if (info?.selectedViewId) {
-			// Only clear the search input value, keep debounced value to prevent effect trigger
-			setInfo((prev) => ({ ...prev, searchQuery: '' }));
+			const row = rowData?.[info?.selectedViewId];
+			setInfo((prev) => ({
+				...prev,
+				searchQuery: row?.searchQuery || '',
+				debouncedSearchQuery: row?.searchQuery || '',
+			}));
 		}
 	}, [info?.selectedViewId]);
 
@@ -196,11 +201,12 @@ const DatabaseComponent = memo(({ block, editor }) => {
 					input: {
 						page: 1,
 						limit: 50,
-						search: info?.debouncedSearchQuery,
+						search: info?.debouncedSearchQuery || '',
 					},
 				},
 				viewId,
 				filters || selectedDatabaseView?.filterBy,
+				selectedDatabaseView?.sortBy,
 			);
 			setInfo((prev) => ({ ...prev, rowsLoading: false }));
 		},
@@ -210,6 +216,7 @@ const DatabaseComponent = memo(({ block, editor }) => {
 			getDatabaseRows,
 			selectedDatabaseView?.filterBy,
 			info?.debouncedSearchQuery,
+			selectedDatabaseView?.sortBy,
 		],
 	);
 

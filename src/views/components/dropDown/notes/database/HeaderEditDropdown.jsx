@@ -135,16 +135,17 @@ const HeaderEditDropdown = ({ field, pageId, databaseId }) => {
 					</div>
 				</div>
 			)}
-
-			<div
-				className={`${s.headerEditDropdownItem} ${s.cursorPointer}`}
-				onClick={handleDeleteField}
-			>
-				<div className={s.headerEditDropdownItemIcon}>
-					<Dustbin />
+			{field?.type !== 'title' && (
+				<div
+					className={`${s.headerEditDropdownItem} ${s.cursorPointer}`}
+					onClick={handleDeleteField}
+				>
+					<div className={s.headerEditDropdownItemIcon}>
+						<Dustbin />
+					</div>
+					<div className={s.headerEditDropdownItemText}>Delete</div>
 				</div>
-				<div className={s.headerEditDropdownItemText}>Delete</div>
-			</div>
+			)}
 		</div>
 	);
 };

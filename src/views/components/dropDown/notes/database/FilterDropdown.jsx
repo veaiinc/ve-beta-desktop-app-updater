@@ -18,6 +18,7 @@ import NumberFilterDropdown from './NumberFilterDropdown';
 
 const filterMapperTypes = {
 	text: TextFilter,
+	title: TextFilter,
 	number: NumberFilterDropdown,
 	select: MultiSelectDropdown,
 	multi_select: MultiSelectDropdown,

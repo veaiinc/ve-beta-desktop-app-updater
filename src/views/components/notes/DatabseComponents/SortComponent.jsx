@@ -73,6 +73,7 @@ const SortComponent = ({ databaseId, view, fields, pageId, blockId }) => {
 						return (
 							<div
 								className={s.sortComponentBodyItem}
+								key={sort?._id}
 								onClick={() =>
 									handleSortChange(
 										sort?.fieldId,
