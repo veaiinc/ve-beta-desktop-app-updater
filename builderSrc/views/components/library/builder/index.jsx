@@ -2172,7 +2172,7 @@ class Builder extends Component {
 												}}
 												key={index}
 												style={{
-													height: this.props.client ? 'auto' : 'auto',
+													height: this.props.client ? '100%' : 'auto',
 													minHeight: '418.5px',
 													display: 'block',
 												}}
@@ -2637,9 +2637,6 @@ class Builder extends Component {
 											>
 												{section?.isFluidSection ? (
 													<FluidLayout
-														triggerAdjustGridAreas={
-															this.props?.triggerAdjustGridAreas
-														}
 														mobile_preview_builder={
 															this.props?.mobile_preview_builder
 														}
@@ -3001,9 +2998,6 @@ class Builder extends Component {
 														}
 														handleVerticleAlign={
 															this.props?.handleVerticleAlign
-														}
-														setAdjustGridAreas={(e) =>
-															this.props.setAdjustGridAreas(e)
 														}
 													/>
 												) : (
