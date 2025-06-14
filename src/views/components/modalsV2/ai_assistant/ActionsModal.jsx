@@ -1,4 +1,4 @@
-import React, { memo, useState, useContext, useEffect } from 'react';
+import { memo, useState, useContext, useEffect } from 'react';
 import '../../../../assets/scss/ai_assistant/modal/actionsModal.scss';
 import ReactModal from '../index';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
