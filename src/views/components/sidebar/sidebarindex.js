@@ -4,6 +4,7 @@ import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
 import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
 import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
+import ChatSvg from '../../../assets/svg/sidebar/NewChat.jsx';
 import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
 import { ReactComponent as HelpSvg } from '../../../assets/svg/sidebar/help.svg';
 import { ReactComponent as ProfileIcon } from '../../../assets/svg/sidebar/profileIcon.svg';
@@ -19,8 +20,8 @@ export const veAiModulesItemsList = [
 		id: 0,
 		name: 'New Chat',
 		moduleRoute: null,
-		route: null,
-		icon: HomeSvg,
+		route: 'New Chat',
+		icon: ChatSvg,
 	},
 	{
 		id: 1,

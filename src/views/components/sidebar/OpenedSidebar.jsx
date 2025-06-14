@@ -127,7 +127,9 @@ const OpenedSidebarModules = ({
 		if (name === 'Agents') {
 			return currentPath.includes('/agents') || currentPath.includes('/ai-assistant');
 		}
-
+		if (name === 'New Chat') {
+			return currentPath.includes('/chat');
+		}
 		return currentPath === routePath;
 	}, [location.pathname, route, name]);
 
@@ -323,6 +325,7 @@ const OpenedSidebar = ({
 
 	const handleNavigateFunction = useCallback(
 		(route, singleItems) => {
+			console.log(route, singleItems);
 			if (singleItems?.name === 'Settings') {
 				setShowSettingsSidebar(true);
 				navigate('/settings/my-profile');
@@ -335,6 +338,10 @@ const OpenedSidebar = ({
 				...prev,
 				selectedModule: singleItems?.name,
 			}));
+			if (singleItems?.name === 'New Chat') {
+				handleNewChat();
+				return;
+			}
 			navigate(route);
 		},
 		[navigate],

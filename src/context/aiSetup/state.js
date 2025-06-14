@@ -797,7 +797,7 @@ export const AiSetupState = () => {
 				...data,
 				agent: 'knowledgeAgent',
 			};
-			const response = await service?.fetchPost(url, data, usertoken, 'ai_assistant_api');
+			const response = await service?.fetchPost(url, body, usertoken, 'ai_assistant_api');
 			if (response?.[0]) {
 				dispatch({
 					type: Actions?.ADD_AI_ACTION,
