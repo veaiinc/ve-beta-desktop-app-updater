@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './Tables.scss';
-import Text from '../../elements/text/index.jsx';
+import Text from '../../elements/text';
 
 // svgs
 import Down from '../actions/down.jsx';

@@ -8,8 +8,8 @@ import { ReactComponent as ShareDotIcon } from '../../../assets/svg/document/sha
 import { ReactComponent as AvatarIcon } from '../../../assets/svg/Settings/Profile.svg';
 import { ReactComponent as InfoIcon } from '../../../assets/svg/Settings/Info.svg';
 import { ReactComponent as ChevronDownIcon } from '../../../assets/svg/smartFile/downArrow.svg';
-import { ReactComponent as EmailIcon } from '../../components/library/svgs/logicform/email.svg';
-import { ReactComponent as AssistantIcon } from '../../components/library/svgs/LeftBar/AIassit.svg';
+import { ReactComponent as EmailIcon } from '../../../views/components/library/svgs/logicform/email.svg';
+import { ReactComponent as AssistantIcon } from '../../../views/components/library/svgs/LeftBar/AIassit.svg';
 import { DatePicker, Modal, Input, Button } from 'antd';
 import dayjs from 'dayjs';
 import Context from '../../../context/context';

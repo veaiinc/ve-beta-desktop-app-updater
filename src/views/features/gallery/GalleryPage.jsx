@@ -3353,7 +3353,10 @@ const GalleryPage = () => {
 			validateExpiryData?.restrictGalleries &&
 			validateExpiryData?.isExpired
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Classic-Gallery',
+			});
 		}
 
 		try {

@@ -22,6 +22,7 @@ import { ReactComponent as SearchIcon } from '../../svgs/search.svg';
 import { ReactComponent as ActiveTick } from '../../svgs/tick.svg';
 
 import randomize from 'randomatic';
+import _ from 'lodash';
 
 export default class SummaryPopup extends Images {
 	constructor(props) {

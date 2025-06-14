@@ -10,6 +10,41 @@ definitions:
               script:
                   - echo 'Running tests...'
                   - echo 'Building...'
+
+        - step: &sync-client-dashboard-library
+              name: Sync Library to ve-client-dashboard
+              script:
+                  # 1. Clone the client repo
+                  - git clone https://${BB_USERNAME}:${BB_APP_PASSWORD}@bitbucket.org/veaiinc/ve-client-dashboard.git client-dashboard
+
+                  # 2. Checkout the same branch (or create it off main)
+                  - cd client-dashboard
+                  - git fetch origin
+                  - |
+                      if git rev-parse --verify origin/${BITBUCKET_BRANCH} >/dev/null 2>&1; then
+                          git checkout ${BITBUCKET_BRANCH}
+                      else
+                          git checkout -b ${BITBUCKET_BRANCH} origin/main
+                      fi
+                  - cd ..
+                  # 3. Mirror the library folder (adds/updates/removes)
+                  - rm -rf client-dashboard/src/components/library
+                  - mkdir -p client-dashboard/src/components
+                  - cp -R builderSrc/views/components/library client-dashboard/src/components/library
+
+                  # 4. Commit & push only if there are changes
+                  - |
+                      cd client-dashboard
+                      git config user.email "noreply@bitbucket.org"
+                      git config user.name  "Bitbucket-Client-Dashboard Sync"
+                      if [ -n "$(git status --porcelain)" ]; then
+                          git add src/components/library
+                          git commit -m "sync library from ve-dashboard-v1 → ${BITBUCKET_BRANCH}"
+                          git push origin ${BITBUCKET_BRANCH}
+                      else
+                          echo "✔ No library changes to sync on branch ${BITBUCKET_BRANCH}."
+                      fi
+
         - step: &sync-to-github
               name: Sync to GitHub
               script:
@@ -27,7 +62,5 @@ pipelines:
             - step: *sync-to-github
         development:
             - step: *build-and-test
-            - step: *sync-to-github
-        feature/change-iframe:
-            - step: *build-and-test
+            - step: *sync-client-dashboard-library
             - step: *sync-to-github

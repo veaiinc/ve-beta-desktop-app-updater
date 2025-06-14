@@ -23,7 +23,7 @@ class FluidBlockOptionsControls extends Component {
 					alignItems: 'center',
 					justifyContent: 'center',
 					position: 'absolute',
-					zIndex: '99',
+					zIndex: '9999999',
 
 					top: (() => {
 						// Check if gridArea exists
@@ -36,7 +36,8 @@ class FluidBlockOptionsControls extends Component {
 							// Extract the starting row from gridArea (first number before '/')
 							const startRow = parseInt(gridArea.split('/')[0]);
 							// If element starts in first 4 rows, position at 0, else -51
-							return startRow <= 2 ? 0 : -65;
+							//uday z-index
+							return startRow <= 2 ? 50 : -65;
 						}
 						return -65; // Default position if no gridArea
 					})(),

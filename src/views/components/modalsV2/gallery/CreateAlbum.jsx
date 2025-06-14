@@ -65,7 +65,10 @@ const CreateAlbum = ({ open, closeModal, galleryId, handleNewAlbumCreated }) => 
 			validateExpiryData?.restrictGalleries &&
 			validateExpiryData?.isExpired
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Gallery',
+			});
 		}
 		if (info?.isSubmitting) return;
 		const albumNameError = !info.albumName;

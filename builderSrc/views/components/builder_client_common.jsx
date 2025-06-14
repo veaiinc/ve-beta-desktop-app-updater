@@ -1,32 +1,40 @@
 import React from 'react';
-// hello
-import ProposalsController from '../../controllers/proposals.jsx';
+import ProposalsController from '../../controllers/proposals';
+import useChatStreamImport from '../../hooks/useChatStream'
 
-const getBaseClass = () =>
-	typeof window !== 'undefined' && !window.__NEXT_DATA__ ? ProposalsController : React.Component;
+const IconIndexBaseClass =
+	typeof window !== 'undefined' && !window.__NEXT_DATA__
+		? ProposalsController
+		: React.Component;
 
-const IconIndexBaseClass = getBaseClass();
-const ImageIndexBaseClass = getBaseClass();
-const TextIndexBaseClass = getBaseClass();
+const ImageIndexBaseClass =
+	typeof window !== 'undefined' && !window.__NEXT_DATA__
+		? ProposalsController
+		: React.Component;
+
+const TextIndexBaseClass =
+	typeof window !== 'undefined' && !window.__NEXT_DATA__
+		? ProposalsController
+		: React.Component;
 
 const useChatStream =
 	typeof window !== 'undefined' && !window.__NEXT_DATA__
 		? (() => {
-				try {
-					return import('../../hooks/useChatStream').then((module) => module.default);
-				} catch {
-					return () => ({
-						socketRef: null,
+			try {
+					return useChatStreamImport;
+			} catch {
+				return () => ({
+					socketRef: null,
 						createWebSocketConnection: () => {},
 						sendMessage: () => {},
-					});
-				}
-		  })()
+				});
+			}
+		})()
 		: () => ({
-				socketRef: null,
+			socketRef: null,
 				createWebSocketConnection: () => {},
 				sendMessage: () => {},
-		  });
+		});
 
 import { ReactComponent as SelectDownSVG } from './library/svgs/formQuestionTypes/selectDown.svg';
 import { ReactComponent as StarSVG } from './library/svgs/formQuestionTypes/star.svg';
@@ -82,6 +90,7 @@ import ColorPicker from './properties/colorpicker/index';
 import { ReactComponent as Threedots } from './library/svgs/Threedots.svg';
 import { ReactComponent as DeleteSVG } from './library/svgs/vDelete.svg';
 
+//event popup
 import { ReactComponent as ActionDropDown } from './library/svgs/dropDown.svg';
 
 export {
@@ -141,5 +150,5 @@ export {
 	UpDown,
 	DeleteSVG,
 	Threedots,
-	ActionDropDown,
+	ActionDropDown
 };

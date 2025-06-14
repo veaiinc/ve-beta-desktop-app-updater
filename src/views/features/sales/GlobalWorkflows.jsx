@@ -250,7 +250,10 @@ const GlobalWorkflows = () => {
 
 	const onCustomiseFunc = useCallback(async () => {
 		if (validateExpiryData?.isExpired) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Workflows',
+			});
 		}
 		if (info?.duplicateApiLoading) {
 			return;

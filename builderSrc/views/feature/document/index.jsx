@@ -243,7 +243,7 @@ const Stage1 = ({ info, setInfo }) => {
 					message.success('Document created successfully for new client');
 					// Navigate to workflow route with dynamic IDs
 					navigate(
-						`/workflow/${response[1]._id}?workflow=true&templateId=${stageInfo.selectedTemplate._id}`,
+						`/builder/workflow/${response[1]._id}?workflow=true&templateId=${stageInfo.selectedTemplate._id}`,
 					);
 				} else {
 					message.error('Failed to create document for new client');
@@ -284,7 +284,7 @@ const Stage1 = ({ info, setInfo }) => {
 					message.success('Document created successfully');
 					// Navigate to workflow route with dynamic IDs
 					navigate(
-						`/workflow/${response[1]._id}?workflow=true&templateId=${stageInfo.selectedTemplate._id}`,
+						`/builder/workflow/${response[1]._id}?workflow=true&templateId=${stageInfo.selectedTemplate._id}`,
 					);
 				} else {
 					message.error('Failed to create document');

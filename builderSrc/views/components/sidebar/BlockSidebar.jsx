@@ -26,9 +26,9 @@ class BlockSidebar extends Component {
 		};
 		this.sidebarRef = React.createRef();
 	}
-	componentDidMount() {}
-	componentDidUpdate() {}
-	componentWillUnmount() {}
+	componentDidMount() { }
+	componentDidUpdate() { }
+	componentWillUnmount() { }
 	componentWillReceiveProps(nextProps) {
 		if (nextProps.activeType !== this.state.activeType) {
 			this.setState({
@@ -232,11 +232,9 @@ class BlockSidebar extends Component {
 							activeComponent={this.state?.activePopupComponent}
 							setModalRef={(e) => this.props?.setModalRef(e)}
 							activeModuleId={this.props?.activeModuleId}
-							setActiveSection={(e) =>
-								this.setState({ activePopupComponent: e }, () => {
-									this.props?.setActiveSection(e);
-								})
-							}
+							setActiveSection={(e) => this.setState({ activePopupComponent: e }, () => {
+								this.props?.setActiveSection(e)
+							})}
 						/>
 					)}
 					{this.state?.activeType === 'paymentSchedule' && (
@@ -245,9 +243,9 @@ class BlockSidebar extends Component {
 							setModalRef={(e) => this.props?.setModalRef(e)}
 							setActiveSection={(e) => {
 								this.setState({
-									activeComponent: e,
-								});
-								this.props.setActiveSection(e);
+									activeComponent: e
+								})
+								this.props.setActiveSection(e)
 							}}
 							activeModuleId={this.props?.activeModuleId}
 						/>
@@ -262,9 +260,9 @@ class BlockSidebar extends Component {
 							handleIsValidBgVideoURL={this.props.handleIsValidBgVideoURL}
 							setActiveSection={(e) => {
 								this.setState({
-									activeComponent: e,
-								});
-								this.props.setActiveSection(e);
+									activeComponent: e
+								})
+								this.props.setActiveSection(e)
 							}}
 							fonts={this.props?.fonts}
 						/>

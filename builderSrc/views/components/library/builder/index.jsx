@@ -1190,17 +1190,14 @@ class Builder extends Component {
 													editingWorflow={
 														this.props?.editingWorflow || false
 													}
-													// handleSideBar={(e, _id) => {
-													// 	this.props.handleOpenSideBar(
-													// 		e,
-													// 		_id,
-													// 		false,
-													// 		true,
-													// 	);
-													// }}
-													handleSideBar={(e, _id) =>
-														this.props.handleOpenSideBar(e, _id)
-													}
+													handleSideBar={(e, _id) => {
+														this.props.handleOpenSideBar(
+															e,
+															_id,
+															false,
+															true,
+														);
+													}}
 													activeModuleId={this.props?.activeModuleId}
 												/>
 											</div>
@@ -1465,6 +1462,14 @@ class Builder extends Component {
 															isService,
 														)
 													}
+													index={section?.order}
+													moveItem={this.moveItem}
+													itemsLength={arr.length}
+													moveDirection={moveDirection}
+													duplicateBlock={(e) =>
+														this.props.duplicateBlock(e)
+													}
+													handleBlock={(e) => this.props.handleBlock(e)}
 												/>
 											</div>
 										);
@@ -2632,6 +2637,9 @@ class Builder extends Component {
 											>
 												{section?.isFluidSection ? (
 													<FluidLayout
+														triggerAdjustGridAreas={
+															this.props?.triggerAdjustGridAreas
+														}
 														mobile_preview_builder={
 															this.props?.mobile_preview_builder
 														}
@@ -2993,6 +3001,9 @@ class Builder extends Component {
 														}
 														handleVerticleAlign={
 															this.props?.handleVerticleAlign
+														}
+														setAdjustGridAreas={(e) =>
+															this.props.setAdjustGridAreas(e)
 														}
 													/>
 												) : (

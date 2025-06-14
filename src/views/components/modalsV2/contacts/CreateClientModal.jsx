@@ -119,7 +119,10 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 			validateExpiryData?.restrictContacts &&
 			validateExpiryData?.isExpired
 		) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Contacts',
+			});
 		}
 
 		if (createButtonActiveState) {

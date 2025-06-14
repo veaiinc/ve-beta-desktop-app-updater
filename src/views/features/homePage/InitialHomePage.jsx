@@ -440,7 +440,7 @@ const InitialHomePage = () => {
 				</div>
 
 				{!info?.showSuggestions && (
-					<div className="options-container">{renderedOptions}</div>
+					<div className="homepage__options-container">{renderedOptions}</div>
 				)}
 			</div>
 			{options?.length > 0 && !info?.showSuggestions && (
