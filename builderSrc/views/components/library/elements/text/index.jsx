@@ -567,7 +567,7 @@ class App extends BaseClass {
 			// );
 			// this.initializeWebSocket(this.state.sessionId, this.state.agentType);
 		} else {
-			// console.warn('No sessionId or agentType found in URL parameters');
+			console.warn('No sessionId or agentType found in URL parameters');
 		}
 
 		//! for text smart field
@@ -2503,7 +2503,12 @@ class App extends BaseClass {
 						style={{
 							...(this.state.isFluid
 								? {
-										display: this.props.client ? 'block' : 'flex',
+										display: this.props?.verticalAlign ? 'flex' : 'block',
+										flexDirection: this.props?.verticalAlign && 'column',
+										justifyContent: this.props?.verticalAlign
+											? this.props?.verticalAlign
+											: '',
+										height: this.props?.verticalAlign ? '100%' : 'auto',
 										gridArea: 'inherit',
 										flex: 1,
 								  }
