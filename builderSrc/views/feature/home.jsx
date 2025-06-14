@@ -1810,15 +1810,25 @@ class Home extends Proposals {
 	handleVerticleAlign = (e, f) => {
 		let sectionsArray = [...this.state.sections];
 		const newSectionsArray = [];
-
+		console.log(
+			'jeevan',
+			e,
+			f,
+			this.state.activeSubBlockID,
+			this.state.activeBlockID,
+			this.state.activeSectionID,
+		);
 		_.map(sectionsArray, (section, k) => {
 			if (section._id == this.state.activeSectionID) {
 				_.map(section.blocks, (block, k) => {
-					if (block._id == this.state.activeBlockID) {
+					if (block._id == this.state.activeBlockID || e == 'mobileVerticalAlign') {
 						_.map(block.subBlocks, (subBlock, k) => {
-							if (subBlock._id == this.state.activeSubBlockID) {
-								if (e == 'verticalAlign') {
-									subBlock.divStyles.verticalAlign = f;
+							if (
+								subBlock._id == this.state.activeSubBlockID ||
+								e == 'mobileVerticalAlign'
+							) {
+								if (e == 'verticalAlign' || e == 'mobileVerticalAlign') {
+									subBlock.divStyles[e] = f;
 								}
 							}
 						});

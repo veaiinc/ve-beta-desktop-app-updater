@@ -2367,6 +2367,12 @@ class App extends BaseClass {
 	};
 
 	render() {
+		console.log(
+			'jeevan',
+			this.props?.mobileVerticalAlign,
+			this.state.isFluid,
+			this.state.isFluidButton,
+		);
 		const themes = this.props.themes || {};
 		let themeStyles = '';
 		if (Object.keys(themes).length > 0) {
@@ -2496,14 +2502,33 @@ class App extends BaseClass {
 						style={{
 							...(this.state.isFluid
 								? {
-										display: this.props?.verticalAlign ? 'flex' : 'block',
-										flexDirection: this.props?.verticalAlign && 'column',
-										justifyContent: this.props?.verticalAlign
-											? this.props?.verticalAlign
-											: '',
-										height: this.props?.verticalAlign ? '100%' : 'auto',
-										gridArea: 'inherit',
-										flex: 1,
+										...(this.props?.previewType == 'm' ||
+										this.props?.previewType == 'ml'
+											? {
+													display: 'flex',
+													flexDirection:
+														this.props?.mobileVerticalAlign && 'column',
+													justifyContent: this.props?.mobileVerticalAlign
+														? this.props?.mobileVerticalAlign
+														: 'center',
+													gridArea: 'inherit',
+													border: 'none',
+											  }
+											: {
+													display: this.props?.verticalAlign
+														? 'flex'
+														: 'block',
+													flexDirection:
+														this.props?.verticalAlign && 'column',
+													justifyContent: this.props?.verticalAlign
+														? this.props?.verticalAlign
+														: '',
+													height: this.props?.verticalAlign
+														? '100%'
+														: 'auto',
+													gridArea: 'inherit',
+													flex: 1,
+											  }),
 								  }
 								: {}),
 						}}
@@ -2560,19 +2585,31 @@ class App extends BaseClass {
 						// borderRadius: this.state.showElementOptions && '20px',
 						...(this.state.isFluid
 							? {
-									display: this.state?.isFluidButton
-										? 'flex'
-										: this.props?.verticalAlign
-										? 'flex'
-										: 'block',
-									flexDirection: this.props?.verticalAlign && 'column',
-									justifyContent: this.props?.verticalAlign
-										? this.props?.verticalAlign
-										: this.state?.isFluidButton
-										? 'center'
-										: '',
-									gridArea: 'inherit',
-									border: 'none',
+									...(this.props?.previewType == 'm' ||
+									this.props?.previewType == 'ml'
+										? {
+												display: 'flex',
+												flexDirection:
+													this.props?.mobileVerticalAlign && 'column',
+												justifyContent: this.props?.mobileVerticalAlign
+													? this.props?.mobileVerticalAlign
+													: 'center',
+												gridArea: 'inherit',
+												border: 'none',
+										  }
+										: {
+												display: this.props?.verticalAlign
+													? 'flex'
+													: 'block',
+												flexDirection:
+													this.props?.verticalAlign && 'column',
+												justifyContent: this.props?.verticalAlign
+													? this.props?.verticalAlign
+													: '',
+												height: this.props?.verticalAlign ? '100%' : 'auto',
+												gridArea: 'inherit',
+												border: 'none',
+										  }),
 							  }
 							: {}),
 					}}

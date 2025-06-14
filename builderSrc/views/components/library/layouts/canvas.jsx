@@ -1579,6 +1579,7 @@ class Layout extends Component {
 						debounceFuncForElementProps={this.props?.debounceFuncForElementProps}
 						adjustGridAreasTriggerd={this.state.adjustGridAreasTriggerd}
 						verticalAlign={properties?.divStyles?.verticalAlign || ''}
+						mobileVerticalAlign={properties?.divStyles?.mobileVerticalAlign || ''}
 					/>
 				);
 

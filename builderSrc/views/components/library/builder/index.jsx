@@ -1799,6 +1799,13 @@ class Builder extends Component {
 													updateTablesForTaxes={
 														this.props?.updateTablesForTaxes
 													}
+													handleAddLayout={(e, isFluid, isService) => {
+														this.props.handleAddLayout(
+															e,
+															isFluid,
+															isService,
+														);
+													}}
 												/>
 											</div>
 										);
