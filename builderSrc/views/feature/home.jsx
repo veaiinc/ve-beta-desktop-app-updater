@@ -1,7 +1,7 @@
 import { Fragment, createRef } from 'react';
 import '../../assets/scss/home.scss';
 import Header from '../components/header';
-import Builder from '../components/library/builder/index';
+import Builder from '../components/library/builder';
 import Sidebar from '../components/sidebar';
 import Proposals from '../../controllers/proposals';
 import { withRouter } from '../../services/withRouter';
@@ -49,6 +49,9 @@ import ThemeSettings from '../components/HomePopups/ThemeSettings';
 import { initialThemeState } from '../components/themeSettings/themeconstants';
 import DeleteTemplatePopup from '../components/HomePopups/DeleteTemplatePopup';
 import ObjectID from 'bson-objectid';
+import { fetchOriginSelection } from '../../helper';
+
+const origin = fetchOriginSelection();
 
 const query = gql`
 	query Query($getDetailedTemplateInfoId: ID!) {
@@ -597,7 +600,7 @@ class Home extends Proposals {
 			isFluidLayout: false,
 
 			showThemeSettings: false,
-			template_ID: this.templateId,
+			template_ID: null,
 			titleName: '',
 			showEditDesignModal: false,
 			navBar: {},
@@ -659,7 +662,7 @@ class Home extends Proposals {
 
 		window.isClient = this.state.client;
 
-		//await this.getTemplate(this.props.params.templateID || this.templateId);
+		//await this.getTemplate(this.props.params.templateID);
 
 		await this.getFonts();
 		await this.getTenantsData();
@@ -668,7 +671,7 @@ class Home extends Proposals {
 		// let json ={};
 		// this.createLayout(json);
 		this.setState({
-			activeModuleId: this.props.params.templateID || this.templateId,
+			activeModuleId: this.props.params.templateID,
 		});
 
 		const queryString = window.location.search;
@@ -685,7 +688,7 @@ class Home extends Proposals {
 
 		if (workflow) {
 			let response = await this.getWorkflowWithModules(workflowQueryWithModules, {
-				getWorkflowWithModulesId: this.props.params.templateID || this.templateId,
+				getWorkflowWithModulesId: this.props.params.templateID,
 			});
 
 			// if (response?.[1]?.data?.getWorkflowWithModules === null) {
@@ -695,7 +698,7 @@ class Home extends Proposals {
 			// } else if (response?.[1]?.networkError?.result?.message === 'Workspace not found') {
 			// 	return this.props.navigate('/not-found?messageText=workspaceNotFound');
 			// }
-			await this.getVariables(this.props.params.templateID || this.templateId);
+			await this.getVariables(this.props.params.templateID);
 		}
 		this.setState(
 			{
@@ -703,7 +706,7 @@ class Home extends Proposals {
 				isModule: module,
 				moduleType,
 				closeWorkFlowPopup: localStorage.getItem(
-					`${this.props.params.templateID || this.templateId}::closeWorkFlowPopup`,
+					`${this.props.params.templateID}::closeWorkFlowPopup`,
 				),
 			},
 			async () => {
@@ -1950,6 +1953,10 @@ class Home extends Proposals {
 	saveSubBlockContent = (content, sectionID, blockID, id, mContent = false, sectionId = null) => {
 		// if (this.timeout1) clearTimeout(this.timeout1);
 		// this.timeout1 = setTimeout(async () => {
+		this.setState({
+			activeVariableID: null,
+			activeVariableName: null,
+		});
 		if (sectionId !== null) {
 			this.setState({
 				activeSectionID: sectionId,
@@ -3552,6 +3559,8 @@ class Home extends Proposals {
 	};
 
 	handlePublish = async (e) => {
+		window.dispatchEvent(new CustomEvent('suppressWarning', { detail: true }));
+		message.info('Changes Saved Sucessfully..!');
 		const queryString = window.location.search;
 		const urlParams = new URLSearchParams(queryString);
 
@@ -3566,7 +3575,7 @@ class Home extends Proposals {
 		});
 
 		const response = await this.publishWorkflow(updateWorkflowTemplate, {
-			templateId: this.props.params.templateID || this.templateId,
+			templateId: this.props.params.templateID,
 			updateObj: {
 				status: 'published',
 			},
@@ -3576,19 +3585,7 @@ class Home extends Proposals {
 		});
 
 		if (response?.[0]) {
-			if (
-				_.has(this.state.template, 'version') &&
-				!this.state.template.actions?.includes('form-submission')
-			) {
-				// return (window.location.href = `https://ve.ai/my-templates`);
-				return this.props.navigate(-1);
-			} else if (this.state.template.actions?.includes('form-submission')) {
-				return this.props.navigate(-1);
-			} else {
-				return (window.location.href = `https://ve.ai/workflow_builder/${
-					this.props.params.templateID || this.templateId
-				}`);
-			}
+			return this.props.navigate(-1);
 		}
 	};
 
@@ -3961,7 +3958,7 @@ class Home extends Proposals {
 
 		if (this.state.isWorkflow) {
 			response = await this.updatepublishedWorkflow(updateIndividualWorkflowTitle, {
-				updateWorkflowId: this.props.params.templateID || this.templateId,
+				updateWorkflowId: this.props.params.templateID,
 				updateWorkflowInput: {
 					title: title,
 				},
@@ -3973,7 +3970,7 @@ class Home extends Proposals {
 			}
 		} else {
 			response = await this.updatepublishedWorkflow(updateWorkflowTemplateTitleNew, {
-				templateId: this.props.params.templateID || this.templateId,
+				templateId: this.props.params.templateID,
 				updateObj: {
 					title: title,
 				},
@@ -4121,7 +4118,7 @@ class Home extends Proposals {
 			mobileViewLocked: !this.state.mobileViewLocked,
 		});
 		await this.updatepublishedWorkflow(updateWorkflowTemplateTitle, {
-			updateWorkflowId: this.props.params.templateID || this.templateId,
+			updateWorkflowId: this.props.params.templateID,
 			updateWorkflowInput: {
 				mobileViewLocked: !this.state.mobileViewLocked,
 			},
@@ -4267,14 +4264,14 @@ class Home extends Proposals {
 						return updatedModule;
 					});
 					await this.updateModules(updateIndividualModules, {
-						updateWorkflowId: this.props.params.templateID || this.templateId,
+						updateWorkflowId: this.props.params.templateID,
 						updateWorkflowInput: {
 							modules: changeModules,
 						},
 					});
 				} else {
 					await this.updateModules(updateModules, {
-						templateId: this.props.params.templateID || this.templateId,
+						templateId: this.props.params.templateID,
 						updateObj: {
 							moduleTemplates: updatedItems,
 						},
@@ -4308,7 +4305,7 @@ class Home extends Proposals {
 					await this.updateModules(
 						updateIndividualModules,
 						{
-							updateWorkflowId: this.props.params.templateID || this.templateId,
+							updateWorkflowId: this.props.params.templateID,
 							updateWorkflowInput: {
 								modules: changeModules,
 							},
@@ -4320,7 +4317,7 @@ class Home extends Proposals {
 					);
 				} else {
 					await this.updateModules(updateModules, {
-						templateId: this.props.params.templateID || this.templateId,
+						templateId: this.props.params.templateID,
 						updateObj: {
 							moduleTemplates: e,
 						},
@@ -4565,7 +4562,7 @@ class Home extends Proposals {
 		await this.updateModules(
 			duplicateModule,
 			{
-				templateId: this.props.params.templateID || this.templateId,
+				templateId: this.props.params.templateID,
 				moduleId: e,
 				order: _.size(this.state.duplicateModules) + 1,
 				isTemplate: !this.state.isWorkflow,
@@ -4579,7 +4576,7 @@ class Home extends Proposals {
 		await this.updateModules(
 			this.state.isWorkflow ? deleteModulesInWorkflow : deleteModule,
 			{
-				templateId: this.props.params.templateID || this.templateId,
+				templateId: this.props.params.templateID,
 				moduleId: e,
 				isTemplate: !this.state.isWorkflow,
 			},
@@ -4592,7 +4589,7 @@ class Home extends Proposals {
 		await this.updateModules(
 			addModule,
 			{
-				templateId: this.props.params.templateID || this.templateId,
+				templateId: this.props.params.templateID,
 				moduleTemplateInput: {
 					order: _.size(this.state.modules) + 1,
 					label: module.label || 'Page',
@@ -4774,7 +4771,7 @@ class Home extends Proposals {
 		this.setState({ endUrl: valueWithoutSpaces });
 		const variables = { slug: valueWithoutSpaces, moduleType: 'workflows' };
 		const updateSlugVariables = {
-			updateSlugId: this.props.params.templateID || this.templateId,
+			updateSlugId: this.props.params.templateID,
 			slug: valueWithoutSpaces,
 			moduleType: 'workflows',
 		};
@@ -4808,7 +4805,7 @@ class Home extends Proposals {
 
 						this.handleDebouceFunctionCall(async () => {
 							let response = await this.updateWorkflow(customExpiryQuery, {
-								updateWorkflowId: this.props.params.templateID || this.templateId,
+								updateWorkflowId: this.props.params.templateID,
 								updateWorkflowInput: {
 									expiresAt: newExpiryTimestamp,
 								},
@@ -4830,7 +4827,7 @@ class Home extends Proposals {
 
 				this.handleDebouceFunctionCall(async () => {
 					let response = await this.updateWorkflow(customExpiryQuery, {
-						updateWorkflowId: this.props.params.templateID || this.templateId,
+						updateWorkflowId: this.props.params.templateID,
 						updateWorkflowInput: {
 							expiresAt: newExpiryTimestamp,
 						},
@@ -4850,7 +4847,7 @@ class Home extends Proposals {
 		if (type === 'name') {
 			this.setState({ settingName: !this.state.settingName }, async () => {
 				let response = await this.updateWorkflow(customExpiryQuery, {
-					updateWorkflowId: this.props.params.templateID || this.templateId,
+					updateWorkflowId: this.props.params.templateID,
 					updateWorkflowInput: {
 						userIdentification: { name: this.state.settingName },
 					},
@@ -4865,7 +4862,7 @@ class Home extends Proposals {
 		if (type === 'email') {
 			this.setState({ settingEmail: !this.state.settingEmail }, async () => {
 				let response = await this.updateWorkflow(customExpiryQuery, {
-					updateWorkflowId: this.props.params.templateID || this.templateId,
+					updateWorkflowId: this.props.params.templateID,
 					updateWorkflowInput: {
 						userIdentification: { email: this.state.settingEmail },
 					},
@@ -4880,7 +4877,7 @@ class Home extends Proposals {
 		if (type === 'phone') {
 			this.setState({ settingPhone: !this.state.settingPhone }, async () => {
 				let response = await this.updateWorkflow(customExpiryQuery, {
-					updateWorkflowId: this.props.params.templateID || this.templateId,
+					updateWorkflowId: this.props.params.templateID,
 					updateWorkflowInput: {
 						userIdentification: { phone: this.state.settingPhone },
 					},
@@ -4895,7 +4892,7 @@ class Home extends Proposals {
 		if (type === 'no') {
 			this.setState({ isEnable: true }, async () => {
 				let response = await this.updateWorkflow(customExpiryQuery, {
-					updateWorkflowId: this.props.params.templateID || this.templateId,
+					updateWorkflowId: this.props.params.templateID,
 					updateWorkflowInput: {
 						isPublic: true,
 					},
@@ -4910,7 +4907,7 @@ class Home extends Proposals {
 		if (type === 'otp') {
 			this.setState({ isEnable: false }, async () => {
 				let response = await this.updateWorkflow(customExpiryQuery, {
-					updateWorkflowId: this.props.params.templateID || this.templateId,
+					updateWorkflowId: this.props.params.templateID,
 					updateWorkflowInput: {
 						isPublic: false,
 					},
@@ -4938,7 +4935,7 @@ class Home extends Proposals {
 
 		this.state.copyStatus &&
 			(await this.copyStatus(updateHittingCount, {
-				fileSentStatusId: this.props.params.templateID || this.templateId,
+				fileSentStatusId: this.props.params.templateID,
 			}));
 	};
 	fluidGrid = (e) => {
@@ -4967,7 +4964,7 @@ class Home extends Proposals {
 	};
 	handleAddClient = async (id) => {
 		let response = await this.updateClientSmartFile(SmartFileClientUpdate, {
-			addClientToSmartFileId: this.props.params.templateID || this.templateId,
+			addClientToSmartFileId: this.props.params.templateID,
 			clientId: id,
 		});
 
@@ -5008,7 +5005,7 @@ class Home extends Proposals {
 	};
 	handleAiAssistant = async (e) => {
 		let response = await this.updateWorkflow(customExpiryQuery, {
-			updateWorkflowId: this.props.params.templateID || this.templateId,
+			updateWorkflowId: this.props.params.templateID,
 			updateWorkflowInput: {
 				isAlChatEnabled: e.target.checked,
 			},
@@ -5043,13 +5040,10 @@ class Home extends Proposals {
 		this.setState({ activeModuleSections: responce });
 	};
 	handleCloseWorkflowPopup = () => {
-		localStorage.setItem(
-			`${this.props.params.templateID || this.templateId}::closeWorkFlowPopup`,
-			true,
-		);
+		localStorage.setItem(`${this.props.params.templateID}::closeWorkFlowPopup`, true);
 		this.setState({
 			closeWorkFlowPopup: localStorage.getItem(
-				`${this.props.params.templateID || this.templateId}::closeWorkFlowPopup`,
+				`${this.props.params.templateID}::closeWorkFlowPopup`,
 			),
 		});
 	};
@@ -5274,7 +5268,7 @@ class Home extends Proposals {
 
 	handleAddBlankPage = async () => {
 		let response = await this.addModuleBlankTemplate(addBlankPage, {
-			templateId: this.props.params.templateID || this.templateId,
+			templateId: this.props.params.templateID,
 			moduleTemplateInput: {
 				isTemplate: this.state.isWorkflow ? false : true,
 				order: _.size(this.state.duplicateModules) + 1,
@@ -5398,7 +5392,7 @@ class Home extends Proposals {
 			});
 		} else {
 			this.updateWorkflowTemplate(updateWorkflowTemplateQuery, {
-				templateId: this.props.params.templateID || this.templateId,
+				templateId: this.props.params.templateID,
 				updateObj: {
 					navBar: json,
 				},
@@ -5490,7 +5484,7 @@ class Home extends Proposals {
 			});
 		} else {
 			await this.updateWorkflowThemeSettings(updateWorkflowTemplate, {
-				templateId: this.props.params.templateID || this.templateId,
+				templateId: this.props.params.templateID,
 				updateObj: {
 					themes: themeJson,
 					navBar: this.state.navBar,
@@ -5555,7 +5549,7 @@ class Home extends Proposals {
 			});
 		} else {
 			this.updateWorkflowTemplate(updateWorkflowTemplateQuery, {
-				templateId: this.props.params.templateID || this.templateId,
+				templateId: this.props.params.templateID,
 				updateObj: {
 					navBar: {
 						type: 'navbar',
@@ -5634,11 +5628,7 @@ class Home extends Proposals {
 		}
 
 		if (!_.isEqual(referanceJson, json)) {
-			this.updateVariables(
-				json,
-				this.props.params.templateID || this.templateId,
-				activeSmartFieldData?._id,
-			);
+			this.updateVariables(json, this.props.params.templateID, activeSmartFieldData?._id);
 			this.setState({
 				showSmartFieldModal: false,
 			});
@@ -5691,11 +5681,12 @@ class Home extends Proposals {
 	};
 
 	handleDeleteVariable = (variableId) => {
-		this.deleteVariable(this.props.params.templateID || this.templateId, variableId);
+		this.deleteVariable(this.props.params.templateID, variableId);
 	};
+
 	handleDuplicateTemplate = async () => {
 		let response = await this.handleDuplicateTemplateFunction(duplicateTemplateQuery, {
-			templateId: this.props.params.templateID || this.templateId,
+			templateId: this.props.params.templateID,
 			title: `Copy of ${this.state.title}`,
 		});
 		if (response[0] === true) {
@@ -5703,15 +5694,17 @@ class Home extends Proposals {
 		}
 	};
 	handleDuplicateTemplateRoute = (templateId) => {
-		window.location.replace(`/builder/${templateId}`);
+		return (window.location.href = `${window.location.origin}/builder/${templateId}`);
 	};
 	handleDeleteTemplate = async (e) => {
 		let response = await this.handleDeleteTemplateFunction(deleteTemplateQuery, {
-			deleteTemplateId: this.props.params.templateID || this.templateId,
+			deleteTemplateId: this.props.params.templateID,
 			isDeleted: e,
 		});
 		if (response[0] === true) {
-			return window.location.replace(`${window.location.origin}/files?activeTab=Designs`);
+			// let from = window.location.origin;
+
+			return this.props?.navigate(`/files?activeTab=Designs`);
 		}
 	};
 	updateTablesForTaxes = (tables) => {
@@ -6909,6 +6902,7 @@ class Home extends Proposals {
 											</div>
 										) : (
 											<Builder
+												suppressWarning={this.state.isPublishing}
 												fluidGrid={() => this.fluidGrid()}
 												fluidShowGrid={this.state.fluidShowGrid}
 												invoiceTables={this.state.invoiceTables}
@@ -7447,9 +7441,7 @@ class Home extends Proposals {
 												letterSpacing={this.state.letterSpacing}
 												allSchedules={this.state.allSchedules}
 												smartVariables={this.state.variables}
-												paramsTemplateID={
-													this.props.params.templateID || this.templateId
-												}
+												paramsTemplateID={this.props.params.templateID}
 												navBar={this.state.navBar}
 												handleShowNavbar={this.handleNavbarUpdate}
 												handleNavbarUpdate={this.handleNavbarUpdate}
@@ -7497,6 +7489,10 @@ class Home extends Proposals {
 													this.addManualInvoiceBlock(id, order);
 												}}
 												updateTablesForTaxes={this?.updateTablesForTaxes}
+												//for actionblock
+												setServiceTable={(e, value) => {
+													this.setServiceTableSection(e, value);
+												}}
 											/>
 										)}
 
@@ -7969,21 +7965,18 @@ class Home extends Proposals {
 												postVariables={(json) =>
 													this.postVariables(
 														json,
-														this.props.params.templateID ||
-															this.templateId,
+														this.props.params.templateID,
 													)
 												}
 												updateVariables={(json) =>
 													this.updateVariables(
 														json,
-														this.props.params.templateID ||
-															this.templateId,
+														this.props.params.templateID,
 													)
 												}
 												deleteVariables={(json) =>
 													this.deleteVariables(
-														this.props.params.templateID ||
-															this.templateId,
+														this.props.params.templateID,
 													)
 												}
 												activeWorkflowModuleId={

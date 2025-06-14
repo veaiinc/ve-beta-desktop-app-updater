@@ -1,4 +1,5 @@
 import { Navigate } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 
 import Landing_screen from './views/features/landingScreen/LandingPage';
 
@@ -53,7 +54,6 @@ import PricingPage from './views/features/pricingPlans/pricingPage';
 import ProactiveAi from './views/features/proactiveAi/ProactiveAi';
 import ShareAndEarn from './views/features/shareAndEarn/ShareAndEarn';
 import NotesPage from './views/features/notesPage/NotesPage';
-import BuilderApp from '../builderSrc/App';
 import KnowledgeAgents from './views/features/knowledgeAgent/KnowledgeAgents';
 import SettingsWrapper from './views/features/settings/SettingsWrapper';
 import Files from './views/features/files/Files';
@@ -61,6 +61,8 @@ import Workflow_builder_updated from './views/features/workflowBuilderUpdated/Wo
 import AiAssistants from './views/features/aiAssistant/AiAssistants';
 import KnowledgeAgentDetails from './views/features/knowledgeAgent/AgentDetails';
 import LoginPage from './views/features/loginPage/LoginPage';
+
+const BuilderApp = lazy(() => import('../builderSrc/App'));
 
 import Agents from './views/features/agents/Agents';
 import Agent from './views/features/agents/agent/Agent';
@@ -671,7 +673,9 @@ const routes = [
 				childrenContainerStyles={{ maxWidth: '100%' }}
 				showSidebar={false}
 			>
-				<BuilderApp />
+				<Suspense fallback={'loading builder...'}>
+					<BuilderApp />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},

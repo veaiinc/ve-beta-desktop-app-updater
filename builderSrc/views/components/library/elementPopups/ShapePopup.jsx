@@ -150,6 +150,8 @@ export default class ShapePopup extends Component {
 			'animeDistance',
 			'direction',
 			'animeIntensity',
+			'animeArea',
+			'triggerPoint',
 		];
 		const innerAdjustmentsTypes = [
 			'scale',

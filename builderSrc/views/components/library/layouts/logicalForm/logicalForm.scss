@@ -1358,7 +1358,7 @@ input::placeholder {
 
 .formContainer {
 	padding: '40px 20px';
-	maxwidth: '800px';
+	max-width: '800px';
 	margin: '0 auto';
 	background: 'transparent'; // Ensure transparent background
 }
@@ -1367,9 +1367,9 @@ input::placeholder {
 	display: flex;
 	align-items: center;
 	gap: '12px';
-	marginbottom: '120px'; // Increased from 40px to 120px for gap between counter and question field
+	margin-bottom: '120px'; // Increased from 40px to 120px for gap between counter and question field
 	position: 'relative';
-	paddingbottom: '8px';
+	padding-bottom: '8px';
 	margin-left: '-20px';
 }
 
@@ -1448,7 +1448,7 @@ input::placeholder {
 	}
 
 	&:hover {
-		bordercolor: '#666'; // Change color on hover
+		border-color: '#666'; // Change color on hover
 	}
 }
 
@@ -1978,43 +1978,43 @@ textarea.embed-anything-input {
 	// }
 }
 
-// Date and time picker consistent styling
-input[type='date'],
-input[type='time'] {
-	appearance: none;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	background-color: var(--card);
-	border: 1.5px solid var(--stroke) !important;
-	border-radius: 16px;
-	color: var(--primary-font);
-	font-size: 14px;
-	cursor: pointer;
-	width: 100%;
-	padding: 12px;
+// // Date and time picker consistent styling
+// input[type='date'],
+// input[type='time'] {
+// 	appearance: none;
+// 	-webkit-appearance: none;
+// 	-moz-appearance: none;
+// 	background-color: white;
+// 	border: 1.5px solid #d0d0d0 !important;
+// 	border-radius: 16px;
+// 	color: var(--primary-font, #f2f2f3);
+// 	font-size: 14px;
+// 	cursor: pointer;
+// 	width: 100%;
+// 	padding: 12px;
 
 // 	// &::-webkit-calendar-picker-indicator {
 // 	// 	background: none;
 // 	// 	display: none;
 // 	// }
 
-	&::-webkit-datetime-edit {
-		color: var(--primary-font);
-	}
+// 	&::-webkit-datetime-edit {
+// 		color: var(--primary-font);
+// 	}
 
-	&::-webkit-inner-spin-button {
-		display: none;
-	}
+// 	&::-webkit-inner-spin-button {
+// 		display: none;
+// 	}
 
-	&::-webkit-clear-button {
-		display: none;
-	}
+// 	&::-webkit-clear-button {
+// 		display: none;
+// 	}
 
-	@media screen and (max-width: 768px) {
-		-webkit-appearance: none;
-		color-scheme: light;
-	}
-}
+// 	@media screen and (max-width: 768px) {
+// 		-webkit-appearance: none;
+// 		color-scheme: light;
+// 	}
+// }
 
 // Override any mobile-specific styling
 @media screen and (max-width: 768px) {

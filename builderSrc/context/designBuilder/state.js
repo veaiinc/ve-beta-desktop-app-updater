@@ -57,7 +57,6 @@ export const DesignBuilderState = (props) => {
 			'workflows_Api',
 		);
 		if (response?.[0]) {
-			console.log(response?.[1]);
 			return [true, response?.[1]?.data?.getTemplateBySessionId?._id];
 		} else {
 			return [false];

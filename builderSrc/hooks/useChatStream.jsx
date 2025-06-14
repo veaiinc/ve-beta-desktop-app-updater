@@ -102,7 +102,7 @@ const useChatStream = () => {
 			messageHandlerRef.current = onMessageFunc;
 			isPublicChatRef.current = isPublicChat;
 
-			const agent = agentTypeMap[agentType] || 'multi_agent_chat_streaming';
+			const agent = agentTypeMap[agentType] || 'chat_streaming';
 			agentTypeRef.current = agent;
 
 			const usertoken = localStorage.getItem('usertoken');
@@ -147,7 +147,7 @@ const useChatStream = () => {
 			};
 
 			socketRef.current.onerror = (event) => {
-				console.log('WebSocket error: shahid', event);
+				// console.log('WebSocket error: shahid', event);
 			};
 		},
 		[resetInactivityTimeout],

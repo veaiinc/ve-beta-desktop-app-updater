@@ -232,13 +232,12 @@ class InvoiceWrapper extends Component {
 	render() {
 		return (
 			<div
-				className={`block  invoice-wrapper-container ${
-					!this.state.preview &&
+				className={`block  invoice-wrapper-container ${!this.state.preview &&
 					this.state.showBlockOptions &&
 					!disabledModules.includes(this.props.module)
-						? 'borderedBlock '
-						: ''
-				} `}
+					? 'borderedBlock '
+					: ''
+					} `}
 				style={{
 					flexDirection: 'column',
 					backgroundColor:
@@ -309,31 +308,29 @@ class InvoiceWrapper extends Component {
 
 						padding: this.state.style?.noPadding
 							? ''
-							: `${
-									this.state?.style?.padding
-										? this.state.previewType === 'm'
-											? '20px'
-											: padding[this.state?.style?.padding]
-										: '0px'
-							  } ${
-									(this.state.previewType === 'm' ||
-										this.state.previewType === 'ml') &&
-									this.state.preview
-										? this.state?.style?.noMPadding
-											? '0px'
-											: '0px'
-										: this.state.style?.paddingHorizontal
-										? paddingHorizontal[this.state.style.paddingHorizontal]
-										: '0px'
-							  }`,
+							: `${this.state?.style?.padding
+								? this.state.previewType === 'm'
+									? '20px'
+									: padding[this.state?.style?.padding]
+								: '0px'
+							} ${(this.state.previewType === 'm' ||
+								this.state.previewType === 'ml') &&
+								this.state.preview
+								? this.state?.style?.noMPadding
+									? '0px'
+									: '0px'
+								: this.state.style?.paddingHorizontal
+									? paddingHorizontal[this.state.style.paddingHorizontal]
+									: '0px'
+							}`,
 
 						zIndex: 1,
 						justifyContent: 'center',
 					}}
 				>
 					{this.state.showBlockActions &&
-					this.state.preview == false &&
-					!disabledModules.includes(this.props.module) ? (
+						this.state.preview == false &&
+						!disabledModules.includes(this.props.module) ? (
 						<div className="block-action-bar">
 							<span className="tooltip" onClick={(e) => this.handleBlock(e)}>
 								<NewEdit />
@@ -365,7 +362,7 @@ class InvoiceWrapper extends Component {
 										style={{
 											cursor:
 												this.props.sortedIndex ===
-												this.props.itemsLength - 1
+													this.props.itemsLength - 1
 													? 'not-allowed'
 													: 'pointer',
 										}}
@@ -413,10 +410,10 @@ class InvoiceWrapper extends Component {
 						''
 					)}
 					{this.state.preview == false &&
-					this.state.showBlockOptions &&
-					this.props.module !== 'form' &&
-					!this.props?.activeModule?.showAsSlide &&
-					!disabledModules.includes(this.props.module) ? (
+						this.state.showBlockOptions &&
+						this.props.module !== 'form' &&
+						!this.props?.activeModule?.showAsSlide &&
+						!disabledModules.includes(this.props.module) ? (
 						// <a className="add-block" onClick={(e) => this.hanldeAddBlock(e)}>
 						// 	Add Block
 						// </a>
@@ -434,11 +431,10 @@ class InvoiceWrapper extends Component {
 							<div className="addBlankContainer">
 								{this.state.isElement !== true ? (
 									<div
-										className={`addBlank ${
-											this.state.activeTab === 'fluid' ? 'active' : ''
-										}`}
+										className={`addBlank ${this.state.activeTab === 'fluid' ? 'active' : ''
+											}`}
 										onClick={(e) => this.props.handleAddLayout(null, true)}
-										//onMouseEnter={(e) => this.setActiveTab('fluid')}
+									//onMouseEnter={(e) => this.setActiveTab('fluid')}
 									>
 										<AddBlank />
 									</div>
@@ -531,6 +527,7 @@ class InvoiceWrapper extends Component {
 							modules={this.props?.modules}
 							updateTablesForTaxes={this.props?.updateTablesForTaxes}
 							showCardPopup={this.state.showCardPopup}
+							setShowCardPopup={(e) => this.setState({ showCardPopup: e })}
 						/>
 					</div>
 				</div>

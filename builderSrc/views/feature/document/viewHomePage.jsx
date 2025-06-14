@@ -33,8 +33,7 @@ const ViewButton = ({ smartFileInfo }) => {
 
 		if (smartFileInfo?.slug) {
 			const previewUrl = `https://${currentWorkspaceId}.ve.ai/portal/${smartFileInfo.slug}/${region}/${usertoken}`;
-			// console.log('Opening preview URL:', previewUrl);
-			window.open(previewUrl, '_blank');
+			window.location.href = previewUrl;
 		} else {
 			console.error('Cannot open preview - missing slug:', smartFileInfo);
 		}
@@ -179,6 +178,7 @@ const ViewHomePage = () => {
 				) : (
 					<div className="previewBody">
 						<TempBuilderPreview
+							workflowId={workflowId}
 							showSmartFileSideBar={false}
 							showHeader={false}
 							editingWorflow={true}

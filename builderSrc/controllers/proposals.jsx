@@ -1527,7 +1527,7 @@ class Proposals extends Component {
 			this.setState({
 				isPromptLoading: false,
 			});
-			this.props.navigate(`/generate/templates/${workflowID}`);
+			this.props.navigate(`/builder/generate/templates/${workflowID}`);
 		}
 	};
 	getIndividualTemplate = async (query, variables) => {
@@ -2084,7 +2084,9 @@ class Proposals extends Component {
 					);
 
 					// Navigate only after all layouts have been added
-					this.props.navigate(`/generate/templates/${this.props.params.templateID}`);
+					this.props.navigate(
+						`/builder/generate/templates/${this.props.params.templateID}`,
+					);
 				},
 			);
 		}

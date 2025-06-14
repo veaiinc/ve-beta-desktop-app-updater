@@ -25,7 +25,11 @@ const Skew = ({ activeComponent, adjustAnimation }) => {
 			<div className="adj-element-position">
 				<div className="adj-dropdown-container">
 					<div className="adj-dropdown-header" onClick={toggleDropdown}>
-						<div className="adj-select-position">{selectedOption}</div>
+						<div className="adj-select-position">
+							{activeComponent?.animations?.adjustments?.position === 'from'
+								? 'From Current Position'
+								: 'Into Current Position'}
+						</div>
 						<div>
 							{' '}
 							<p className="adj-dropdown-arrow">
@@ -33,7 +37,7 @@ const Skew = ({ activeComponent, adjustAnimation }) => {
 									style={{ transform: 'rotate(270deg)' }}
 									color="#8A8A8A"
 								/>
-							</p>
+							</p>{' '}
 						</div>
 					</div>
 
@@ -41,7 +45,7 @@ const Skew = ({ activeComponent, adjustAnimation }) => {
 						<div className="adj-dropdown-list">
 							<div
 								className={`adj-dropdown-item ${
-									selectedOption === 'From Current Position'
+									activeComponent?.animations?.adjustments?.position === 'from'
 										? 'adj-active-dropdown'
 										: ''
 								}`}
@@ -54,7 +58,7 @@ const Skew = ({ activeComponent, adjustAnimation }) => {
 							</div>
 							<div
 								className={`adj-dropdown-item ${
-									selectedOption === 'Into Current Position'
+									activeComponent?.animations?.adjustments?.position === 'into'
 										? 'adj-active-dropdown'
 										: ''
 								}`}

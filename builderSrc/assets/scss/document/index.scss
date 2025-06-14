@@ -259,8 +259,8 @@
 
 						&.completed {
 							.step-number {
-								background: var(--primary-button, #cfff48);
-								border-color: var(--primary-button, #cfff48);
+								background: var(--product-lime-blu, #cfff48);
+								border-color: var(--product-lime-blu, #cfff48);
 							}
 
 							.step-title {
@@ -273,7 +273,7 @@
 							}
 
 							& + .step::before {
-								background: var(--primary-button, #cfff48);
+								background: var(--product-lime-blu, #cfff48);
 							}
 						}
 
@@ -344,7 +344,7 @@
 			.createDocumentButton {
 				padding: 8px 16px;
 				border-radius: 100px;
-				background: var(--primary-button, #cfff48);
+				background: var(--product-lime-blu, #cfff48);
 				background: color(display-p3 0.8118 1 0.2824);
 				color: #000000;
 				border: none;
@@ -472,8 +472,8 @@
 				.inputIcon {
 					position: absolute;
 					right: 14px;
-					bottom: 20%;
-					// transform: translateY(-50%);
+					top: 70%;
+					transform: translateY(-50%);
 					display: flex;
 					align-items: center;
 					cursor: help;
@@ -570,6 +570,9 @@
 					line-height: normal;
 					width: 30px;
 					flex: 1;
+					text-overflow: ellipsis;
+					overflow: hidden;
+					white-space: nowrap;
 				}
 
 				.clientSelectorBox {

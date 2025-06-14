@@ -1145,7 +1145,7 @@ export const TemplatesState = (props) => {
 				workspaceID,
 				null,
 				usertoken,
-				'workflows_Api',
+				'graphql_server',
 			);
 
 			if (response?.[0]) {

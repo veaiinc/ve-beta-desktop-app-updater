@@ -5821,6 +5821,7 @@ const SortableComponent = ({
 								countrySelectProps={{
 									className: 'PhoneInputCountrySelectDropdown',
 								}}
+								maxLength={15}
 							/>
 						</div>
 					) : (
@@ -5915,7 +5916,15 @@ const SortableComponent = ({
 					}}
 				>
 					<div className="dropdown-header">
-						<h3>Question Types</h3>
+						<span
+							style={{
+								color: '#FFFFFF',
+								fontSize: '16px',
+								fontWeight: 'bold',
+							}}
+						>
+							Question Types
+						</span>
 						<button
 							className="close-button"
 							onClick={(e) => {
