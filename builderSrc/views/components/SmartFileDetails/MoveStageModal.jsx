@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/smart-file-components/moveToStageModal.scss';
-import ReactModal from '../ui-components/modal';
+import ReactModal from '../../components/ui-components/modal';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import HeadersDropDownComp from '../ui-components/HeadersDropDownComp';
 

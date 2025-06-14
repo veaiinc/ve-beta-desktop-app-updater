@@ -14,7 +14,7 @@ import { ReactComponent as LinkInteractionSvg } from '../../../assets/svg/docume
 import { ReactComponent as BlockUnfoldSvg } from '../../../assets/svg/document/blockUnfold.svg';
 import { ReactComponent as QuoteChangedSvg } from '../../../assets/svg/document/quoteChanged.svg';
 import { ReactComponent as ButtonInteractionSvg } from '../../../assets/svg/document/buttonInteraction.svg';
-import DoughnutChart from './doughnutChart.jsx';
+import DoughnutChart from './doughnutChart';
 import Skeleton from 'react-loading-skeleton';
 import Spinner from '../loaders/Spinner.jsx';
 
@@ -143,14 +143,14 @@ const SessionMetric = ({
 						}
 						statsData={
 							!info?.isLabelSelected
-								? info?.labelsData?.map((item) => ({
-										name: item.moduleType,
-										percentage: item.percentage,
-								  }))
-								: transformLabelItemsData(info?.labelItemsData)?.map((item) => ({
-										name: item.content,
-										percentage: item.percentage,
-								  }))
+								? info?.labelsData?.map(item => ({
+									name: item.moduleType,
+									percentage: item.percentage
+								}))
+								: transformLabelItemsData(info?.labelItemsData)?.map(item => ({
+									name: item.content,
+									percentage: item.percentage
+								}))
 						}
 						title={title}
 						COLORS={info?.COLORS}

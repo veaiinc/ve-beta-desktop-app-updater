@@ -1,4 +1,3 @@
-import { fetchOriginSelection } from '../helper';
 import { useNavigate } from 'react-router-dom';
 
 const isAuthenticated = () => {
@@ -16,7 +15,7 @@ const isAuthenticated = () => {
 const AuthenticatedRoute = ({ children }) => {
 	const navigate = useNavigate();
 	if (!isAuthenticated()) {
-		navigate(fetchOriginSelection());
+		navigate('/');
 		return null;
 	}
 

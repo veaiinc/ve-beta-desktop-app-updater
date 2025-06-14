@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import ImageItem from '../../elements/image';
 import { EditNavbar as Edit } from '../../../builder_client_common';
-import Cart from '../../svgs/Navbar/Cart';
+import Cart from '../../../library/svgs/Navbar/Cart';
 import './NavbarCompStyles.scss';
 import { ElementSidebar, DownloadIcon, DownloadPDF } from '../../../builder_client_common';
-import CartIcons from './CartIcons';
+import CartIcons from '../NabarWrapper/CartIcons';
 import _ from 'lodash';
 class NavbarComponent extends Component {
 	constructor(props) {
@@ -369,9 +369,9 @@ class NavbarComponent extends Component {
 									ref={this.imageRef}
 									className="navbar-image-wrapper"
 									style={{
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
+										display:'flex',
+										alignItems:'center',
+										justifyContent:'center',
 										width:
 											this.props?.section?.style?.siteTitle &&
 											this.props?.section?.style?.showLogo &&
@@ -408,21 +408,19 @@ class NavbarComponent extends Component {
 									!properties?.imageURL ? (
 										<div
 											style={{
-												display: 'flex',
+												display:'flex',
 												flexDirection: 'column',
-												alignItems: 'center',
-												justifyContent: 'center',
+												alignItems:"center",
+												justifyContent:"center",
 												fontSize: '14px',
 												fontWeight: 'bold',
 												width: '100px',
-												height: '70px',
+												height:'70px',
 												wordBreak: 'break-word',
 												textAlign: 'center',
 												textTransform: 'capitalize',
-												overflow: 'hidden',
-												color:
-													this.props?.section?.navigationColor ||
-													'#000000',
+												overflow:'hidden',
+												color: this.props?.section?.navigationColor || '#000000',
 											}}
 											className="site-title-wrapper"
 										>
@@ -587,7 +585,7 @@ class NavbarComponent extends Component {
 												}}
 												className="cart-count"
 											>
-												{this.props?.currencySymbol}
+												{this.props?.currencySymbol} 
 												{this.props?.finalTotalCost || 0}
 											</div>
 										)}
@@ -853,7 +851,7 @@ class NavbarComponent extends Component {
 												!_.has(
 													this.props?.section?.style,
 													'downloadIcon',
-												)) && (
+												)) &&  (
 												<div
 													style={{
 														width: '1px',
@@ -867,26 +865,26 @@ class NavbarComponent extends Component {
 									{(this.props?.section?.style?.cartValue ||
 										!_.has(this.props?.section?.style, 'cartValue')) &&
 										this.props?.returnCartValue() != Number(0) && (
-											<div
-												style={{
-													color:
-														this.props?.section?.navigationColor ||
-														'#000000',
-												}}
-												className="cart-count"
-											>
-												{this.props?.returnCartValue() == Number(0)
-													? ''
-													: `${
-															this.props?.currencySymbol
-													  } ${this.props?.returnCartValue()}`?.toLocaleString(
-															'en-IN',
-															{
-																currency: 'INR',
-															},
-													  )}
-											</div>
-										)}
+										<div
+											style={{
+												color:
+													this.props?.section?.navigationColor ||
+													'#000000',
+											}}
+											className="cart-count"
+										>
+										{this.props?.returnCartValue() == Number(0)
+												? ''
+												: `${
+														this.props?.currencySymbol
+												  } ${this.props?.returnCartValue()}`?.toLocaleString(
+														'en-IN',
+														{
+															currency: 'INR',
+														},
+												  )}
+										</div>
+									)}
 								</div>
 							</div>
 						</div>

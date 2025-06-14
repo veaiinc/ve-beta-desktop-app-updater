@@ -1,87 +1,92 @@
-import React from 'react';
-import { ReactComponent as EditSet } from '../../../../assets/svg/edit.svg';
-import { ReactComponent as Profile } from '../../../../assets/svg/workflow/profile.svg';
-import { ReactComponent as LinkExpiry } from '../../../../assets/svg/Settings/LinkExpiry.svg';
+
+import React from 'react'
 
 class ShareComponent extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			title: props?.title,
-		};
-	}
-	componentWillReceiveProps(nextProps) {
-		if (this.state.title !== nextProps?.title && nextProps?.title) {
-			this.setState({ title: nextProps?.title });
-		}
-	}
-	render() {
-		return (
-			<div className="settings_wrapper">
-				<div className="settings_heading">
-					<div className="settings_heading_wrapper">
-						<div className="settings_heading_title">Configure settings</div>
-						<div
-							onClick={() => this.handleSettingDisabled()}
-							style={{ cursor: 'pointer' }}
-						>
-							x
-						</div>
-					</div>
-					<div className="settings_heading_description">
-						These settings directly affect your clients' experience and interaction with
-						this file.
-					</div>
-				</div>
-				<div className="tumbnail_wrapper">
-					<div className="tumbnail_heading">Title and Thumbnail</div>
+    constructor(props){
+        super(props)
+        this.state = {
+            title: props?.title
+        }
+    }
+    componentWillReceiveProps(nextProps){
+        if(this.state.title !== nextProps?.title && nextProps?.title){
+            this.setState({title: nextProps?.title})
+        }
+    }
+    render(){
+        return (
+            <div className="settings_wrapper">
+            <div className="settings_heading">
+        <div className="settings_heading_wrapper">
+            <div className="settings_heading_title">
+                Configure settings
+            </div>
+            <div
+                onClick={() => this.handleSettingDisabled()}
+                style={{ cursor: 'pointer' }}
+            >
+            x
+            </div>
+        </div>
+        <div className="settings_heading_description">
+            These settings directly affect your clients' experience and
+            interaction with this file.
+        </div>
+    </div>
+    <div className="tumbnail_wrapper">
+        <div className="tumbnail_heading">Title and Thumbnail</div>
 
-					<div className="tumbnail_title">
-						<div className="tumbnail_title_heading">Place your file title</div>
-						<div className="tumbnail_title_input">{this.state.title}</div>
-					</div>
-					<div className="tumbnail_image">
-						<div className="tumbnail_image_heading">URL</div>
-						<div
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'space-between',
-							}}
-						>
-							<div className="tumbnail_input">
-								{`${
-									this.state.customDomain
-										? this.state.customDomain
-										: localStorage.getItem('workspaceID')
-										? `${localStorage.getItem('workspaceID')}.ve.ai`
-										: ''
-								}/portal/`}
-								<input
-									className="tumbnail_input_slug"
-									type="text"
-									value={this.state.endUrl}
-									onChange={(e) => this.handleSlugChange(e)}
-									size={this.state.endUrl.length}
-								/>{' '}
-							</div>
-							<div>
-								<EditSet />
-							</div>
-						</div>
-						{this.state.slugErrorMsg && (
-							<div
-								style={{
-									color: 'red',
-									fontSize: '12px',
-									fontFamily: 'Inter',
-								}}
-							>
-								Slug already exists
-							</div>
-						)}
+        <div className="tumbnail_title">
+            <div className="tumbnail_title_heading">
+                Place your file title
+            </div>
+            <div className="tumbnail_title_input">
+                {this.state.title}
+            </div>
+        </div>
+        <div className="tumbnail_image">
+            <div className="tumbnail_image_heading">URL</div>
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                }}
+            >
+                <div className="tumbnail_input">
+                    {`${this.state.customDomain
+                        ? this.state.customDomain
+                        : localStorage.getItem('workspaceID')
+                            ? `${localStorage.getItem(
+                                'workspaceID',
+                            )}.ve.ai`
+                            : ''
+                        }/portal/`}
+                    <input
+                        className="tumbnail_input_slug"
+                        type="text"
+                        value={this.state.endUrl}
+                        onChange={(e) => this.handleSlugChange(e)}
+                        size={this.state.endUrl.length}
+                    />{' '}
+                </div>
+                <div>
+                    <EditSet />
+                </div>
+            </div>
+            {this.state.slugErrorMsg && (
+                <div
+                    style={{
+                        color: 'red',
+                        fontSize: '12px',
+                        fontFamily: 'Inter',
+                    }}
+                >
+                    Slug already exists
+                </div>
+            )}
 
-						{/* <div className='tumbnail_image_wrapper'>
+            {/* <div className='tumbnail_image_wrapper'>
                 <div className='image_item'><img src={''} alt='image'/></div>
                 <div className='image_edit'>
                     <div className='edit_delete'><EditSet/><span>Edit or Replace the image</span></div>
@@ -89,46 +94,57 @@ class ShareComponent extends React.Component {
                 </div>
 
             </div> */}
-					</div>
-				</div>
-				<div className="tumbnail_wrapper security_wrapper">
-					<div className="access_code">Security and Access code</div>
-					<div className="client_auth">Add client authentication to your file</div>
-					<div className="access_via">
-						<Profile />
-						<span>Access Via</span>
-					</div>
-					<div className="profile_checkbox">
-						<div>
-							<input type="checkbox" checked={this.state.settingName} />
-							<span>Name</span>
-						</div>
-						<div>
-							<input type="checkbox" checked={this.state.settingEmail} />
-							<span>Email</span>
-						</div>
-						<div>
-							<input type="checkbox" checked={this.state.settingPhone} />
-							<span>Phone</span>
-						</div>
-					</div>
-					{this.state.settingEmail && (
-						<div className="verification_wrapper">
-							<div className="verification_heading">
-								<span>Verification</span>
-							</div>
-							<div className="verification_input">
-								<input
-									type="radio"
-									name="verification"
-									checked={this.state.settingEmail}
-								/>
-								<span>OTP Verification</span>
-							</div>
-						</div>
-					)}
+        </div>
+    </div>
+    <div className="tumbnail_wrapper security_wrapper">
+        <div className="access_code">Security and Access code</div>
+        <div className="client_auth">
+            Add client authentication to your file
+        </div>
+        <div className="access_via">
+            <Profile />
+            <span>Access Via</span>
+        </div>
+        <div className="profile_checkbox">
+            <div>
+                <input
+                    type="checkbox"
+                    checked={this.state.settingName}
+                />
+                <span>Name</span>
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    checked={this.state.settingEmail}
+                />
+                <span>Email</span>
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    checked={this.state.settingPhone}
+                />
+                <span>Phone</span>
+            </div>
+        </div>
+        {this.state.settingEmail && (
+            <div className="verification_wrapper">
+                <div className="verification_heading">
+                    <span>Verification</span>
+                </div>
+                <div className="verification_input">
+                    <input
+                        type="radio"
+                        name="verification"
+                        checked={this.state.settingEmail}
+                    />
+                    <span>OTP Verification</span>
+                </div>
+            </div>
+        )}
 
-					{/* <div className="download_wrapper_button">
+        {/* <div className="download_wrapper_button">
             <label className="switch">
                 <input
                     type="checkbox"
@@ -141,53 +157,60 @@ class ShareComponent extends React.Component {
                 Allow client to download as PDF
             </div>
         </div> */}
-				</div>
-				<div className="tumbnail_wrapper file_expiry">
-					<div className="access_code">Security and Access code</div>
-					<div className="client_auth">Add client authentication to your file</div>
-					<div className="requried_wrapper">
-						<div className="requried_wrapper_checkbox">
-							<label className="switch">
-								<input
-									type="checkbox"
-									onChange={(e) => ''}
-									checked={this.state.expiresAt}
-								/>
-								<span className="slider-round round"></span>
-							</label>
-							<span>Turn on file expiration</span>
-						</div>
-					</div>
+    </div>
+    <div className="tumbnail_wrapper file_expiry">
+        <div className="access_code">Security and Access code</div>
+        <div className="client_auth">
+            Add client authentication to your file
+        </div>
+        <div className="requried_wrapper">
+            <div className="requried_wrapper_checkbox">
+                <label className="switch">
+                    <input
+                        type="checkbox"
+                        onChange={(e) => ''}
+                        checked={this.state.expiresAt}
+                    />
+                    <span className="slider-round round"></span>
+                </label>
+                <span>Turn on file expiration</span>
+            </div>
+        </div>
 
-					<div className="link_expiry_wrapper">
-						<div className="link_expiry_heading">
-							<LinkExpiry />
-							<span
-								style={{
-									color: this.state.expiresAt ? '#E8E8E8' : '#424548',
-								}}
-							>
-								Link Expiry
-							</span>
-						</div>
-						<div className="link_expiry_time">
-							<span
-								style={{
-									color: this.state.expiresAt ? '#E8E8E8' : '#424548',
-								}}
-							>
-								{this.state.totalDays} days{' '}
-							</span>
-						</div>
-					</div>
-				</div>
-			</div>
-		);
-	}
+        <div className="link_expiry_wrapper">
+            <div className="link_expiry_heading">
+                <LinkExpiry />
+                <span
+                    style={{
+                        color: this.state.expiresAt
+                            ? '#E8E8E8'
+                            : '#424548',
+                    }}
+                >
+                    Link Expiry
+                </span>
+            </div>
+            <div className="link_expiry_time">
+                <span
+                    style={{
+                        color: this.state.expiresAt
+                            ? '#E8E8E8'
+                            : '#424548',
+                    }}
+                >
+                    {this.state.totalDays} days{' '}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+  )
+}
 }
 
-export default ShareComponent;
+export default ShareComponent
 
+// /* eslint-disable react-hooks/exhaustive-deps */
 // import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 // import './ShareComponent.scss';
 // import Context from '../../../../context/context';
@@ -1064,3 +1087,8 @@ export default ShareComponent;
 // };
 
 // export default memo(SendProposalModal);
+
+
+
+
+

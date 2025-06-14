@@ -596,12 +596,9 @@ input[type='range']:disabled::-moz-range-thumb {
 		line-height: normal;
 	}
 
-	&:hover {
-		.tooltip-text {
-			display: flex;
-			visibility: visible;
-			opacity: 1;
-		}
+	&:hover .tooltip-text {
+		visibility: visible;
+		opacity: 1;
 	}
 }
 .toolTipContainer .ant-tooltip-inner {

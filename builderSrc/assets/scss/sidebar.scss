@@ -1956,7 +1956,7 @@ input:checked + .slider-round-white:before {
 	}
 }
 
-.sidebar-controls {
+.controls {
 	position: absolute;
 	top: 300px;
 	left: 50%;
@@ -1964,7 +1964,7 @@ input:checked + .slider-round-white:before {
 	transform: translateX(-50%);
 	height: 80px;
 	display: flex;
-	// align-items: center;
+	align-items: center;
 	.image-zoom-div {
 		display: flex;
 		flex-direction: row;
@@ -3269,3 +3269,4 @@ input:checked + .slider-round-white:before {
 		}
 	}
 }
+

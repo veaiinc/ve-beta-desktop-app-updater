@@ -45,38 +45,69 @@
 		/* #c39df8 */ rgb(195, 157, 248) -2.06%,
 		/* #ec7c9d */ rgb(236, 124, 157) 95.85%
 	);
+	--primary-button-font: var(--background-color);
 
-	/* button colors */
-	--primary-button: rgba(121, 236, 201, 1);
-	--primary-button-hover: rgb(38, 40, 41); /* #262829 */
-	--primary-button-active: rgb(38, 40, 41); /* #262829 */
-	--primary-button-font: var(--background-color); /* #0c0c0d */
+	--spinner-color-light: #000; // Example for light theme
+	--spinner-color-dark: #fff; // Example for dark theme
+	--setting-color-light: #fff;
+	--setting-color-dark: #000;
 
-	--secondary-button: rgb(122, 126, 133); /* #7a7e85 */
-	--secondary-button-hover: rgb(255, 255, 231); /* #ffffe7 */
-	--secondary-button-active: rgb(255, 255, 231); /* #ffffe7 */
+	--error-color: #ff4d4f;
+	--success-bg: #375841;
+	--draft-bg: #373737;
+	// Add other color variables as needed
+}
 
-	/* spinner colors */
-	--spinner-color-light: rgb(0, 0, 0); /* #000000 */
-	--spinner-color-dark: rgb(255, 255, 255); /* #ffffff */
+// dark theme global css variables
+[theme='dark'] {
+	--background-color: rgba(12, 12, 13, 1);
+	--card: rgba(23, 24, 25, 1);
+	--card-hover: rgba(32, 33, 35, 1);
+	--popup: rgba(32, 33, 35, 1);
+	--navbar: rgba(32, 33, 35, 1);
+	--card-over-card: rgba(32, 33, 35, 1);
+	--card-over-card-hover: rgba(39, 40, 43, 1);
+	--stroke: rgba(51, 51, 52, 1);
+	--stroke-hover: rgba(66, 69, 72, 1);
+	--stroke-active: rgba(32, 33, 35, 1);
+	--primary-font: rgba(242, 242, 243, 1);
+	--secondary-font: rgba(122, 126, 133, 1);
+	--right-bar: rgba(23, 24, 25, 1);
+	--primary-button: var(--accent-color);
+	--primary-button-hover: var(--card-hover);
+	--primary-button-active: var(--card-hover);
+	--secondary-button: var(--secondary-font);
+	--secondary-button-hover: rgba(228, 228, 231, 1);
+	--secondary-button-active: rgba(228, 228, 231, 1);
+	--primary-button-font: var(--background-color);
+	--spinner-color: var(--spinner-color-dark);
+	--setting-color: var(--setting-color-light);
+}
 
-	/* setting colors */
-	--setting-color-light: rgb(255, 255, 255); /* #ffffff */
-	--setting-color-dark: rgb(0, 0, 0); /* #000000 */
-	--spinner-color: rgb(255, 255, 255); /* #ffffff */
-	--setting-color: rgb(255, 255, 255); /* #ffffff */
-
-	--default-state-buttons: rgb(46, 47, 51); /* #2e2f33 */
-	--chat-secondary-font: #c1c1c9; /* rgb(193, 193, 201) */
-
-	--backdrop: rgba(15, 15, 16, 0.5); /* #0f0f10 */
-
-	// gradients
-	--linear-gradient: linear-gradient(
-		0deg,
-		rgba(12, 12, 13, 0.9) 19.76%,
-		rgba(12, 12, 13, 0) 100%
-	); // Used in /files route
+// system dark theme global css variables
+[theme='system-dark'] {
+	--background-color: rgba(12, 12, 13, 1);
+	--card: rgba(23, 24, 25, 1);
+	--card-hover: rgba(32, 33, 35, 1);
+	--popup: rgba(32, 33, 35, 1);
+	--navbar: rgba(32, 33, 35, 1);
+	--card-over-card: rgba(32, 33, 35, 1);
+	--card-over-card-hover: rgba(39, 40, 43, 1);
+	--stroke: rgba(51, 51, 52, 1);
+	--stroke-hover: rgba(66, 69, 72, 1);
+	--stroke-active: rgba(32, 33, 35, 1);
+	--primary-font: rgba(242, 242, 243, 1);
+	--secondary-font: rgba(122, 126, 133, 1);
+	--right-bar: rgba(23, 24, 25, 1);
+	--primary-button: var(--accent-color);
+	--primary-button-hover: var(--card-hover);
+	--primary-button-active: var(--card-hover);
+	--secondary-button: var(--secondary-font);
+	--secondary-button-hover: rgba(228, 228, 231, 1);
+	--secondary-button-active: rgba(228, 228, 231, 1);
+	--primary-button-font: var(--background-color);
+	--spinner-color: var(--spinner-color-dark);
+	--setting-color: var(--spinner-color-light);
 }
 
 /* light theme global css variables */

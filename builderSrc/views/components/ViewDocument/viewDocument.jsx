@@ -19,7 +19,7 @@ import DeleteLeadModal from './DeletedocumentModel';
 import DuplicateLeadModal from './DuplicatedocumentModel';
 import AcceptDocumentModel from './AcceptDoc';
 import moment from 'moment';
-import MoveStageModal from '../SmartFileDetails/MoveStageModal';
+import MoveStageModal from '../../components/SmartFileDetails/MoveStageModal';
 
 const MainDocumentSection = ({ workflowId, templateID }) => {
 	const navigate = useNavigate();
@@ -265,9 +265,21 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 				</div>
 				<div
 					className="doc-info-badge-accept"
-					onClick={() => setInfo((prev) => ({ ...prev, showAcceptDocumentModal: true }))}
+					style={{
+						cursor: 'pointer',
+					}}
+					onClick={() => {
+						
+							setInfo((prev) => ({ ...prev, showAcceptDocumentModal: true }));
+					}}
 				>
-					Accept
+					<span className="doc-info-badge-accept-text">
+						{/* {info?.workflowInfo?.status === 'confirmed' ? (
+							<span className="doc-info-badge-accept-text-accepted">Accepted</span>
+						) : (
+						)} */}
+						<span className="doc-info-badge-accept-text-accept">Accept</span>
+					</span>
 				</div>
 			</div>
 			{/* Section1 */}
@@ -414,7 +426,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 							onDuplicate={handleDuplicate}
 						/>
 					)}
-					{info.showAcceptDocumentModal && (
+					{info.showAcceptDocumentModal &&  (
 						<AcceptDocumentModel
 							isOpen={info.showAcceptDocumentModal}
 							onClose={() =>
@@ -479,15 +491,10 @@ const ViewDocument = ({ workflowId, templateID }) => {
 	};
 	const origin = fetchOriginSelection();
 
-	console.log(origin);
-
 	return (
 		<div className="viewDocumentContainer">
 			<div className="back-to-files" onClick={() => navigate(`/files?activeTab=Documents`)}>
-				<span style={{ cursor: 'pointer' }} className="back-arrow">
-					&#8592;
-				</span>{' '}
-				Back to Files
+				<span className="back-arrow">&#8592;</span> Back to Files
 			</div>
 			<MainDocumentSection workflowId={workflowId} templateID={templateID} />
 		</div>
