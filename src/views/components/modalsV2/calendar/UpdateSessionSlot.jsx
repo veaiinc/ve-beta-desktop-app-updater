@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState, useRef } from 'react';
 import '../../../../assets/scss/calendar/modal/udateSessionSlot.scss';
 import ReactModal from '../index';
 import { ReactComponent as Delete } from '../../../../assets/svg/ai_assistant/delete.svg';
@@ -20,6 +20,7 @@ const UpdateSessionSlot = ({
 	selectedSlotData,
 	updateCalendarInfo,
 }) => {
+	const timeSlotsContainerRef = useRef(null);
 	const [info, setInfo] = useState({
 		slots: [],
 		selectedSession: null,
@@ -89,6 +90,15 @@ const UpdateSessionSlot = ({
 
 	const addSlot = () => {
 		setInfo((prev) => ({ ...prev, slots: [...prev.slots, { from: '09:00', to: '10:00' }] }));
+		// Scroll to bottom after state update
+		setTimeout(() => {
+			if (timeSlotsContainerRef.current) {
+				timeSlotsContainerRef.current.scrollTo({
+					top: timeSlotsContainerRef.current.scrollHeight,
+					behavior: 'smooth',
+				});
+			}
+		}, 0);
 	};
 
 	const removeSlot = (idx) => {
@@ -181,35 +191,37 @@ const UpdateSessionSlot = ({
 						? `Slots for ${selectedSlotData.selectedDate}`
 						: 'No day selected'}
 				</h3>
-				{info.slots.length === 0 ? (
-					<div style={{ color: 'var(--secondary-font)', margin: '16px 0' }}>
-						No slots for this day.
-					</div>
-				) : (
-					info.slots.map((slot, idx) => (
-						<div key={idx} className="timeSlot">
-							<input
-								type="time"
-								className="slot-input"
-								value={slot.from}
-								onChange={(e) => handleSlotChange(idx, 'from', e.target.value)}
-							/>
-							<span>to</span>
-							<input
-								type="time"
-								className="slot-input"
-								value={slot.to}
-								onChange={(e) => handleSlotChange(idx, 'to', e.target.value)}
-							/>
-							<Delete
-								width={8}
-								height={8}
-								onClick={() => removeSlot(idx)}
-								style={{ cursor: 'pointer' }}
-							/>
+				<div className="timeSlots-container" ref={timeSlotsContainerRef}>
+					{info.slots.length === 0 ? (
+						<div style={{ color: 'var(--secondary-font)', margin: '16px 0' }}>
+							No slots for this day.
 						</div>
-					))
-				)}
+					) : (
+						info.slots.map((slot, idx) => (
+							<div key={idx} className="timeSlot">
+								<input
+									type="time"
+									className="slot-input"
+									value={slot.from}
+									onChange={(e) => handleSlotChange(idx, 'from', e.target.value)}
+								/>
+								<span>to</span>
+								<input
+									type="time"
+									className="slot-input"
+									value={slot.to}
+									onChange={(e) => handleSlotChange(idx, 'to', e.target.value)}
+								/>
+								<Delete
+									width={8}
+									height={8}
+									onClick={() => removeSlot(idx)}
+									style={{ cursor: 'pointer' }}
+								/>
+							</div>
+						))
+					)}
+				</div>
 				<div className="addSlot" onClick={addSlot}>
 					+ Add Time Slot
 				</div>
