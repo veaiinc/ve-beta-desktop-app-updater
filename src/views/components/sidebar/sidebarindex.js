@@ -17,19 +17,26 @@ import { ReactComponent as PricingIcon } from '../../../assets/svg/sidebar/planB
 export const veAiModulesItemsList = [
 	{
 		id: 0,
+		name: 'New Chat',
+		moduleRoute: null,
+		route: null,
+		icon: HomeSvg,
+	},
+	{
+		id: 1,
 		name: 'Home',
 		moduleRoute: '/home',
 		route: '/home',
 		icon: HomeSvg,
 	},
-	{ id: 1, name: 'Agents', route: '/agents', icon: AgentsSvg },
+	{ id: 2, name: 'Agents', route: '/agents', icon: AgentsSvg },
 	{
-		id: 2,
+		id: 3,
 		name: 'Notes',
 		route: '/notes',
 		icon: NotesIcon,
 	},
-	{ id: 3, name: 'Files', route: '/files', icon: FilesSvg },
+	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
 ];
 
 export const veAiModules = [

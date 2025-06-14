@@ -22,6 +22,7 @@ import VeSvg from '../../../assets/svg/veSvg';
 
 import '../../../assets/scss/home_page/initialHomepage.scss';
 import Spinner from '../../components/loaders/Spinner';
+import { getGreeting } from '../../../helpers';
 
 const optionsList = [
 	{
@@ -409,9 +410,10 @@ const InitialHomePage = () => {
 	const title = homePageTextContent[info?.selectedOption]?.title || '';
 	const subText = homePageTextContent[info?.selectedOption]?.subText || '';
 	const userName =
-		jwtDecode(localStorage.getItem('usertoken'))?.userName?.split(' ')[0] ||
-		userDetailsData?.firstName ||
+		jwtDecode(localStorage.getItem('usertoken'))?.userName ||
+		userDetailsData?.firstName + ' ' + userDetailsData?.lastName ||
 		'User';
+	const greeting = getGreeting();
 
 	return (
 		<div
@@ -431,12 +433,12 @@ const InitialHomePage = () => {
 			>
 				<div className={`title-container `}>
 					<div className="title-text">
-						<h2 className="title-one">Hey, {userName || ''}</h2>
-						<span className="title-two">{title}</span>
+						<h2 className="title-one">{greeting}!</h2>
+						<span className="title-two">{userName}</span>
 
 						{/* <span className="title-two">truly yours</span> */}
 					</div>
-					<div className="sub-text">{subText}</div>
+					{/* <div className="sub-text">{subText}</div> */}
 				</div>
 
 				{!info?.showSuggestions && (

@@ -497,12 +497,12 @@ const OpenedSidebar = ({
 			icon: () => <SearchSvg />,
 			onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
 		},
-		{
-			key: 'newChat',
-			label: () => 'New Chat',
-			icon: () => <NewEditSvg />,
-			onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
-		},
+		// {
+		// 	key: 'newChat',
+		// 	label: () => 'New Chat',
+		// 	icon: () => <NewEditSvg />,
+		// 	onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
+		// },
 	];
 
 	return (
