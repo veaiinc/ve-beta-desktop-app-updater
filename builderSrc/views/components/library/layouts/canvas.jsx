@@ -8810,6 +8810,7 @@ class Layout extends Component {
 															  component?._id
 															? '3px solid #3B82F6'
 															: 'none',
+														wordBreak: 'break-word',
 
 														background: `${
 															_.has(component, 'backgroundlabel') &&
