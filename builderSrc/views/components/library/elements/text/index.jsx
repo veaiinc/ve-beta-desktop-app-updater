@@ -2268,13 +2268,6 @@ class App extends BaseClass {
 		}
 	};
 
-	handleUnselectColor = () => {
-		const systemSelection = window.getSelection();
-		if (systemSelection && systemSelection.rangeCount > 0) {
-			this.savedRange = systemSelection.getRangeAt(0).cloneRange();
-		}
-	};
-
 	handleChange = (content) => {
 		// Call both the local handler and parent handler if provided
 		if (this.props.onChange) {
