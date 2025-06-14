@@ -40,7 +40,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 	const hasNextPage = knowledgeBaseInfo?.hasNextPage ?? false;
 
 	useEffect(() => {
-		if ((knowledgeBaseInfo?.data ?? [])?.length === 0) {
+		if (knowledgeBaseInfo === null) {
 			getKnowledgeBaseInfo(agentId, page, limit);
 		}
 	}, []);

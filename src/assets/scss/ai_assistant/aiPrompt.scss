@@ -102,8 +102,10 @@
 			gap: 4px;
 			width: 100%;
 
-			span {
+			button {
 				cursor: pointer;
+				outline: none;
+				background-color: inherit;
 				border-radius: 100px;
 				border: 1px solid var(--stroke);
 				display: flex;

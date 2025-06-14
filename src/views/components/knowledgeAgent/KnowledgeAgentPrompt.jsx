@@ -273,7 +273,7 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 						/>
 
 						<div className="resetPromptContainer">
-							<span onClick={handleResetPrompt}>Reset</span>
+							<button onClick={handleResetPrompt}>Reset</button>
 						</div>
 					</>
 				)}
