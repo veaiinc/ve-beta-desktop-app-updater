@@ -32,73 +32,44 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 		editedPrompt: '',
 		timeout: null,
 		promptLoading: true,
+		currentPromptId: null,
 	});
 
 	useEffect(() => {
 		if (allAiPrompts) {
-			// Append "Custom" to the end
-			const allPromptsWithCustom = [...allAiPrompts, customPromptItem];
-
 			let selectedSystemPrompt;
 			let systemPrompt;
+			let currentPromptId;
 
 			if (assistant?.prompt?.customEditedPrompt) {
 				selectedSystemPrompt = 'Custom';
 				systemPrompt = assistant?.prompt?.customEditedPrompt;
+				currentPromptId = assistant?.prompt?.promptId;
 			} else if (assistant?.prompt?.promptId) {
-				const selectedPrompt = allPromptsWithCustom.find(
-					(prompt) => prompt._id === assistant.prompt.promptId,
+				const selectedPrompt = allAiPrompts?.find(
+					(prompt) => prompt?._id === assistant?.prompt?.promptId,
 				);
 				selectedSystemPrompt = selectedPrompt?.label;
 				systemPrompt = selectedPrompt?.prompt;
+				currentPromptId = assistant?.prompt?.promptId;
 			} else {
-				const defaultPrompt = allPromptsWithCustom.find((prompt) => prompt.isDefault);
+				const defaultPrompt = allAiPrompts?.find((prompt) => prompt?.isDefault);
 				selectedSystemPrompt = defaultPrompt?.label;
 				systemPrompt = defaultPrompt?.prompt;
+				currentPromptId = defaultPrompt?._id;
 			}
-
 			setInfo((prev) => ({
 				...prev,
-				systemPromptOptions: allPromptsWithCustom,
+				systemPromptOptions: allAiPrompts || [],
 				selectedSystemPrompt,
 				systemPrompt,
+				currentPromptId,
 				promptLoading: false,
 			}));
 		} else if (assistant?._id) {
-			getAiPrompts(assistant._id);
+			getAiPrompts(assistant?._id);
 		}
 	}, [allAiPrompts, assistant?._id]);
-
-	// useEffect(() => {
-	// 	getAiPrompt(assistant?._id);
-	// 	getDefaultAiPrompt(assistant?._id);
-	// }, [assistant]);
-
-	// useEffect(() => {
-	// 	if (aiPrompt) {
-	// 		const promptToShow = aiPrompt?.customEditedPrompt || aiPrompt?.prompt || '';
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			systemPrompt: promptToShow,
-	// 			selectedSystemPrompt: aiPrompt?.label || '',
-	// 		}));
-	// 	}
-	// }, [aiPrompt]);
-
-	// useEffect(() => {
-	// 	if (aiDefaultPrompt && Array?.isArray(aiDefaultPrompt)) {
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			systemPromptOptions: [
-	// 				...prev.systemPromptOptions,
-	// 				...aiDefaultPrompt?.map((prompt) => ({
-	// 					label: prompt?.label,
-	// 					id: prompt?._id,
-	// 				})),
-	// 			],
-	// 		}));
-	// 	}
-	// }, [aiDefaultPrompt]);
 
 	useEffect(() => {
 		if (info?.systemPrompt !== undefined) {
@@ -109,8 +80,8 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 	const handleDebounceUpdate = useCallback(() => {
 		clearTimeout(info?.timeout);
 		const timeout = setTimeout(() => {
-			if (info?.editedPrompt && assistant?._id && assistant?.prompt?.promptId) {
-				editAiPrompt(assistant?._id, assistant?.prompt?.promptId, {
+			if (info?.editedPrompt && assistant?._id && info?.currentPromptId) {
+				editAiPrompt(assistant?._id, info?.currentPromptId, {
 					prompt: info?.editedPrompt,
 				});
 			}
@@ -120,13 +91,7 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 			}));
 		}, 800);
 		setInfo((prev) => ({ ...prev, timeout }));
-	}, [
-		info?.timeout,
-		info?.editedPrompt,
-		assistant?._id,
-		assistant?.prompt?.promptId,
-		editAiPrompt,
-	]);
+	}, [info?.timeout, info?.editedPrompt, info?.currentPromptId, assistant?._id, editAiPrompt]);
 
 	const handleModelDropdownVisibility = useCallback((visible) => {
 		setInfo((prev) => ({ ...prev, isSelectModelOpen: visible }));
@@ -146,6 +111,7 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 				...prev,
 				selectedSystemPrompt: option.label,
 				systemPrompt: option.prompt || '',
+				currentPromptId: option._id,
 				isSelectSystemPromptOpen: false,
 			}));
 			if (assistant?._id && option._id) {
@@ -161,11 +127,20 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 			systemPrompt: value,
 			editedPrompt: value,
 			selectedSystemPrompt: 'Custom',
+			currentPromptId: prev.currentPromptId,
 		}));
 	}, []);
 
-	const handleResetPrompt = useCallback(() => {
-		resetAiPrompt(assistant?._id);
+	const handleResetPrompt = useCallback(async () => {
+		const resetPromptLabel = await resetAiPrompt(assistant?._id);
+		if (resetPromptLabel?.[0] === true) {
+			setInfo((prev) => ({
+				...prev,
+				selectedSystemPrompt: resetPromptLabel?.[1]?.label,
+				systemPrompt: resetPromptLabel?.[1]?.prompt,
+				editedPrompt: resetPromptLabel?.[1]?.prompt,
+			}));
+		}
 	}, [assistant]);
 
 	return (
