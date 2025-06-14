@@ -175,24 +175,26 @@
 		align-self: stretch;
 		border-radius: 16px;
 		background: var(--card-over-card);
+		border: 1px solid var(--stroke);
 		.docsCardPreview {
 			height: 215px;
+			align-items: flex-start;
 			width: 100%;
 			display: flex;
-			justify-content: center;
-			align-items: center;
+			justify-content: flex-start;
 			overflow: hidden;
 			zoom: 0.5;
 			border-radius: 8px;
+			pointer-events: none;
 			background: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.4) 100%);
 		}
 		.docsTitleContainer {
 			display: flex;
 			flex-direction: column;
 			align-items: flex-start;
-			gap: 12px;
+			gap: 8px;
 			align-self: stretch;
-			padding: 0px 10px;
+			padding: 0px 10px 6px 8px;
 			.docsTitle {
 				width: 176px;
 				overflow: hidden;

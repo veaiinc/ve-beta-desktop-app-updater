@@ -6,7 +6,7 @@ import Context from '../../../context/context';
 
 import LoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
 import EventsPopup from '../calendar/EventsPopUp';
-import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
+// import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
 import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
 import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
 import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
@@ -27,6 +27,7 @@ import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calenda
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 
 import '../../../assets/scss/globalComponents/quickActions.scss';
+import SchedulerRightDrawer from '../calendar/SchedulerRightDrawer';
 
 const suggestedOptions = [];
 
@@ -98,7 +99,7 @@ const createOptions = [
 		value: 'session',
 		controlValue: 'calendar',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+			setInfo((prev) => ({ ...prev, openSchedulerDrawer: true, dropdown: false }));
 		},
 	},
 	{
@@ -344,7 +345,7 @@ const QuickActions = ({
 		openGalleryPopup: false,
 		openLiteGalleryPopup: false,
 		openEventsPopup: false,
-		openSessionPopup: false,
+		openSchedulerDrawer: false,
 		options: {
 			suggestedOptions: propSuggestedOptions.length ? propSuggestedOptions : suggestedOptions,
 			buildAi: buildAiOptions,
@@ -404,7 +405,11 @@ const QuickActions = ({
 					value: 'session',
 					controlValue: 'calendar',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+						setInfo((prev) => ({
+							...prev,
+							openSchedulerDrawer: true,
+							dropdown: false,
+						}));
 					},
 				},
 				{
@@ -842,7 +847,11 @@ const QuickActions = ({
 					value: 'session',
 					controlValue: 'calendar',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+						setInfo((prev) => ({
+							...prev,
+							openSchedulerDrawer: true,
+							dropdown: false,
+						}));
 					},
 				},
 			];
@@ -865,7 +874,11 @@ const QuickActions = ({
 					value: 'session',
 					controlValue: 'calendar',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+						setInfo((prev) => ({
+							...prev,
+							openSchedulerDrawer: true,
+							dropdown: false,
+						}));
 					},
 				},
 				{
@@ -1543,11 +1556,12 @@ const QuickActions = ({
 				open={info?.openEventsPopup}
 				closeModal={() => setInfo({ ...info, openEventsPopup: false })}
 			/>
-			<CreateSessionModal
-				open={info?.openSessionPopup}
-				closeModal={() => setInfo({ ...info, openSessionPopup: false })}
+			<SchedulerRightDrawer
+				open={info?.openSchedulerDrawer}
+				onClose={() => setInfo({ ...info, openSchedulerDrawer: false })}
+				mode="create"
 				onSessionCreated={() => {
-					setInfo({ ...info, openSessionPopup: false });
+					setInfo({ ...info, openSchedulerDrawer: false });
 					navigate('/calendar');
 				}}
 			/>

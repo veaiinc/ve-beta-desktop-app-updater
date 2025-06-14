@@ -43,6 +43,21 @@ const ImageComponent = memo(({ block, editor }) => {
 		[block, editor],
 	);
 
+	const toggleFitMode = useCallback(() => {
+		const modes = ['contain', 'cover', 'fit'];
+		const currentIndex = modes.indexOf(block.props.fitMode || 'contain');
+		const nextIndex = (currentIndex + 1) % modes.length;
+		const newFitMode = modes[nextIndex];
+
+		editor.updateBlock(block, {
+			type: 'image',
+			props: {
+				...block.props,
+				fitMode: newFitMode,
+			},
+		});
+	}, [block, editor]);
+
 	const handleImageSelect = async (imageUrl) => {
 		if (imageUrl) {
 			// If it's a File object (from upload)
@@ -118,42 +133,37 @@ const ImageComponent = memo(({ block, editor }) => {
 							border: isSelected ? '2px solid var(--info)' : 'none',
 						}}
 					>
-						<div style={{ width: '100%', height: '100%', position: 'relative' }}>
+						<div className="image-container">
 							<img
 								src={block.props.url}
 								alt={block.props.caption}
-								style={{
-									width: '100%',
-									height: '100%',
-									objectFit: 'contain',
-								}}
+								data-fit={block.props.fitMode || 'fit'}
 							/>
 						</div>
 					</ResizableBox>
 					{showReplace && (
-						<button
-							onClick={(e) => {
-								e.stopPropagation();
-								setShowUploadPopup(true);
-							}}
-							style={{
-								position: 'absolute',
-								top: 8,
-								right: 8,
-								background: 'var(--card)',
-								border: '1px solid var(--stroke)',
-								padding: '4px 8px',
-								borderRadius: '4px',
-								cursor: 'pointer',
-								fontSize: '12px',
-								fontWeight: '500',
-								color: 'var(--secondary-font)',
-								boxShadow: '0 2px 4px var(--backdrop)',
-								zIndex: 1,
-							}}
-						>
-							Replace
-						</button>
+						<div className="image-controls">
+							<button
+								onClick={(e) => {
+									e.stopPropagation();
+									toggleFitMode();
+								}}
+							>
+								{block.props.fitMode === 'cover'
+									? 'Contain'
+									: block.props.fitMode === 'fit'
+									? 'Cover'
+									: 'Fit'}
+							</button>
+							<button
+								onClick={(e) => {
+									e.stopPropagation();
+									setShowUploadPopup(true);
+								}}
+							>
+								Replace
+							</button>
+						</div>
 					)}
 				</div>
 			) : (
@@ -219,6 +229,10 @@ export const ImageBlock = createReactBlockSpec(
 			height: {
 				default: 300, // Default height in pixels
 			},
+			fitMode: {
+				default: 'contain',
+				values: ['contain', 'cover'],
+			},
 
 			// Your custom props
 			name: {
@@ -268,6 +282,7 @@ export const insertImage = (editor, pageId) => ({
 			type: 'image',
 			props: {
 				pageId,
+				fitMode: 'contain',
 			},
 		});
 	},
