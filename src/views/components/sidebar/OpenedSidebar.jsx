@@ -9,6 +9,7 @@ import { ReactComponent as SwitchWorkspaceSvg } from '../../../assets/svg/sideba
 import { ReactComponent as SunIcon } from '../../../assets/svg/sun.svg';
 import { ReactComponent as MoonIcon } from '../../../assets/svg/moon.svg';
 import { ReactComponent as NewEditSvg } from '../../../assets/svg/sidebar/newEdit.svg';
+import { ReactComponent as PencilkSvg } from '../../../assets/svg/pencilSimple.svg';
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import ChatHistory from './chatHistory/ChatHistory';
@@ -16,12 +17,13 @@ import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import Cropper from 'react-easy-crop';
 import Context from '../../../context/context';
-import { getInitials } from '../../../helpers/index';
 import { message } from '../globalComponents/CustomToast';
 import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as CreateWorkspaceSvg } from '../../../assets/svg/sidebar/createWorkspace.svg';
 import SidebarTooltip from './SidebarTooltip';
+import UploadAvatarPopupComponent from '../settings/profile/UploadAvatarPopup';
+import UploadFileProiflePopup from '../settings/profile/UploadFileProiflePopup';
 
 const workspaceStyles = {
 	position: 'absolute',
@@ -252,13 +254,54 @@ const OpenedSidebar = ({
 	const {
 		templates: { leftSidebarState, updateStateValues },
 		profileInfo: {
-			tenantUserAccessControls,
 			userDetailsData,
+			updateUserLogo,
+			getTenantUserDetails,
+			tenantUserDetails,
+			updateUserDetailsState,
+			updateUserDetails: updateUserDetailsProfile,
+			tenantUserAccessControls,
 			tennantSettingsData,
 			getTenantSettings,
 		},
 		themeInfo: { theme, updateTheme },
+		authInfo: { updateUserDetails },
+		companyInfo: { getTenantPreferences, tenantPreferenceData },
 	} = useContext(Context);
+
+	const [userDetails, setUserDetails] = useState({
+		fullName: '',
+		email: '',
+		phoneNumber: '',
+		is2FAEnabled: '',
+		logoURL: '',
+		cropSettings: { crop: { x: 0, y: 0 }, zoom: 1 },
+	});
+
+	const [initialState, setInitialState] = useState({ ...userDetails });
+
+	const [isHover, setisHover] = useState(false);
+
+	const [uploadAvatarPopup, setuploadAvatarPopup] = useState({ theme: false, file: false });
+
+	const [logoFile, setlogoFile] = useState(null);
+
+	useEffect(() => {
+		if (!tenantUserDetails) {
+			getTenantUserDetails();
+		}
+	}, []);
+
+	useEffect(() => {
+		console.log(userDetailsData); // Added console log to check userDetailsData
+		if (userDetailsData) {
+			setUserDetails((prev) => ({
+				...prev,
+				logoURL: userDetailsData?.dp_s3_500w_key || '',
+			}));
+		}
+	}, [userDetailsData]);
+
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
 	const [selectedOption, setSelectedOption] = useState(null);
@@ -509,6 +552,58 @@ const OpenedSidebar = ({
 			onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
 		},
 	];
+
+	const updateProfileImage = async (settings) => {
+		let json = {
+			dp_style: settings,
+		};
+		const response = await updateUserDetailsProfile(json);
+
+		if (response[0]) {
+			setUserDetails((prev) => ({ ...prev, cropSettings: settings }));
+			updateUserLogo(logoFile);
+		}
+	};
+
+	const updateDpThemeHandler = async (color) => {
+		let json = {
+			dp_style: {
+				...userDetails?.cropSettings,
+				profileDpColor: color,
+			},
+		};
+
+		const response = await updateUserDetails(json);
+		if (response[0]) {
+			updateUserDetailsState({
+				...json.dp_style,
+			});
+		}
+	};
+
+	const handleImageChange = (acceptedFiles) => {
+		const file = acceptedFiles[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setUserDetails({
+					...userDetails,
+					logoURL: reader.result,
+				});
+			};
+			reader.readAsDataURL(file);
+
+			setuploadAvatarPopup((prev) => ({ ...prev, theme: false, file: true }));
+			setlogoFile(file);
+		}
+	};
+
+	const getInitials = (firstName, lastName) => {
+		const firstNameInitial = firstName ? firstName?.charAt(0) : '-';
+		const lastNameInitial = lastName ? lastName?.charAt(0) : '';
+		const initials = `${firstNameInitial?.toUpperCase()}${lastNameInitial?.toUpperCase()}`;
+		return initials;
+	};
 
 	return (
 		<>
@@ -920,13 +1015,63 @@ const OpenedSidebar = ({
 							)}
 						</div>
 
-						{/* <hr
-							style={{
-								border: '0.7px solid var(--stroke)',
-								margin: '16px 0px',
-							}}
-						/> */}
-						{/* Settings Options */}
+						<div className="profile-image-div">
+							<div className="imageCircleDiv">
+								{userDetails?.logoURL ? (
+									<div className="crop-container">
+										<Cropper
+											image={userDetails?.logoURL} // Image URL to crop
+											crop={userDetails?.cropSettings?.crop}
+											zoom={userDetails?.cropSettings?.zoom}
+											showGrid={false}
+											onCropChange={(e) => ''}
+											onCropComplete={(e) => ''}
+											onZoomChange={(e) => ''}
+										/>
+									</div>
+								) : (
+									<div
+										className="noImageText"
+										style={{
+											background:
+												userDetails?.cropSettings?.profileDpColor || '',
+										}}
+									>
+										{getInitials(
+											userDetailsData?.firstName,
+											userDetailsData?.lastName,
+										)}
+									</div>
+								)}
+
+								<div
+									className="editImage"
+									onClick={() =>
+										setuploadAvatarPopup((prev) => ({ ...prev, theme: true }))
+									}
+								>
+									<PencilkSvg />
+								</div>
+							</div>
+						</div>
+
+						<UploadAvatarPopupComponent
+							userDetails={userDetails}
+							userDetailsData={userDetailsData}
+							uploadAvatarPopup={uploadAvatarPopup}
+							setuploadAvatarPopup={setuploadAvatarPopup}
+							handleImageChange={handleImageChange}
+							updateDpThemeHandler={updateDpThemeHandler}
+						/>
+
+						<UploadFileProiflePopup
+							userDetails={userDetails}
+							userDetailsData={userDetailsData}
+							uploadAvatarPopup={uploadAvatarPopup}
+							setuploadAvatarPopup={setuploadAvatarPopup}
+							updateProfileImage={updateProfileImage}
+						/>
+
 						<div className="settings-options">
 							<div className="settings-options-title">Settings</div>
 							{settingsOptions.map((option, index) => (

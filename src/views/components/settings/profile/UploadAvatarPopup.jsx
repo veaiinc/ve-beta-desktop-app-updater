@@ -2,7 +2,6 @@ import React, { memo, useState } from 'react';
 import ReactModal from '../../modalsV2';
 import { getInitials } from '../../../../helpers/index';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
-import { ReactComponent as PlusSvg } from '../../../../assets/svg/workspaceSettings/plus-button.svg';
 import { ReactComponent as PlusSvgColor } from '../../../../assets/svg/Settings/Plus6055ec.svg';
 import { ReactComponent as PencilSvg } from '../../../../assets/svg/Settings/pencilwhite.svg';
 import { avatarColorList } from '../../../features/settings/indexConstant';
@@ -64,9 +63,9 @@ const UploadAvatarPopupComponent = ({
 									crop={userDetails?.cropSettings?.crop}
 									zoom={userDetails?.cropSettings?.zoom}
 									showGrid={false}
-									onCropChange={(e) => ''}
-									onCropComplete={(e) => ''}
-									onZoomChange={(e) => ''}
+									onCropChange={updateDpThemeHandler}
+									onCropComplete={updateDpThemeHandler}
+									onZoomChange={updateDpThemeHandler}
 								/>
 							</div>
 						) : (
@@ -90,15 +89,10 @@ const UploadAvatarPopupComponent = ({
 
 				<Dropzone onDrop={handleImageChange} accept={'image/png'} multiple={false}>
 					{({ getRootProps, getInputProps }) => (
-						<div
-							className="customAvatarButton"
-							{...getRootProps()}
-							onMouseEnter={() => sethover(true)}
-							onMouseLeave={() => sethover(false)}
-						>
+						<div className="customAvatarButton" {...getRootProps()}>
 							<input {...getInputProps()} />
 							<span className="addIcon">
-								{hover ? <PlusSvgColor /> : <PlusSvg />}
+								<PlusSvgColor />
 							</span>
 							<span> Add Custom Avatar</span>
 						</div>
