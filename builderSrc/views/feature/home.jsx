@@ -3585,17 +3585,7 @@ class Home extends Proposals {
 		});
 
 		if (response?.[0]) {
-			if (
-				_.has(this.state.template, 'version') &&
-				!this.state.template.actions?.includes('form-submission')
-			) {
-				// return (window.location.href = `https://ve.ai/my-templates`);
-				return this.props.navigate(-1);
-			} else if (this.state.template.actions?.includes('form-submission')) {
-				return this.props.navigate(-1);
-			} else {
-				return (window.location.href = `${origin}/workflow_builder/${this.props.params.templateID}`);
-			}
+			return this.props.navigate(-1);
 		}
 	};
 
