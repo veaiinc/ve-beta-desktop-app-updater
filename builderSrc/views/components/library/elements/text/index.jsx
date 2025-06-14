@@ -2268,13 +2268,6 @@ class App extends BaseClass {
 		}
 	};
 
-	handleUnselectColor = () => {
-		const systemSelection = window.getSelection();
-		if (systemSelection && systemSelection.rangeCount > 0) {
-			this.savedRange = systemSelection.getRangeAt(0).cloneRange();
-		}
-	};
-
 	handleChange = (content) => {
 		// Call both the local handler and parent handler if provided
 		if (this.props.onChange) {
@@ -2503,7 +2496,12 @@ class App extends BaseClass {
 						style={{
 							...(this.state.isFluid
 								? {
-										display: this.props.client ? 'block' : 'flex',
+										display: this.props?.verticalAlign ? 'flex' : 'block',
+										flexDirection: this.props?.verticalAlign && 'column',
+										justifyContent: this.props?.verticalAlign
+											? this.props?.verticalAlign
+											: '',
+										height: this.props?.verticalAlign ? '100%' : 'auto',
 										gridArea: 'inherit',
 										flex: 1,
 								  }
