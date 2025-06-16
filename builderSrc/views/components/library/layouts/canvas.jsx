@@ -964,6 +964,12 @@ class Layout extends Component {
 				triggerFont: nextProps.triggerFont,
 			});
 		}
+		if (this.props.triggerAdjustGridAreas !== nextProps.triggerAdjustGridAreas) {
+			if (nextProps.triggerAdjustGridAreas === true) {
+				this.adjustGridAreas();
+				this.props.setAdjustGridAreas(false);
+			}
+		}
 		if (this.state.intialGridRows !== nextProps.intialGridRows) {
 			this.setState({
 				intialGridRows: nextProps.intialGridRows,
