@@ -71,7 +71,10 @@ class FormWrapper extends Component {
 				triggerFont: nextProps.triggerFont,
 			});
 		}
-		if (this.state.triggerAdjustGridAreas !== nextProps.triggerAdjustGridAreas && nextProps.triggerAdjustGridAreas === true) {
+		if (
+			this.state.triggerAdjustGridAreas !== nextProps.triggerAdjustGridAreas &&
+			nextProps.triggerAdjustGridAreas === true
+		) {
 			this.props.setAdjustGridAreas(false);
 		}
 		if (this.state.triggeredFont !== nextProps.triggeredFont) {
@@ -457,7 +460,7 @@ class FormWrapper extends Component {
 					border: this.state.preview ? 'none' : '',
 					width: '100%',
 					height:
-						this.props.client && this.state?.section?.isSinglePage ? '100%' : '100%',
+						this.props.client && this.state?.section?.isSinglePage ? 'auto' : '100%',
 					minHeight: '418.5px',
 					top: '45px',
 				}}
