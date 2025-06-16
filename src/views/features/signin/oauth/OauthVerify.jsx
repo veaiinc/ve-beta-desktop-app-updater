@@ -32,7 +32,7 @@ const OauthVerify = () => {
 					sameSite: 'lax',
 					domain: host,
 				});
-				Cookies.set('workspaceID', accessibleWorkspaces?.workspaceId, {
+				Cookies.set('workspaceId', accessibleWorkspaces?.workspaceId, {
 					sameSite: 'lax',
 					domain: host,
 				});

@@ -897,7 +897,7 @@ class TempBuilderPreview extends Proposals {
 															console.log();
 														}}
 														handleAddLayout={(
-															workspaceID,
+															workspaceId,
 															json,
 															templateID,
 														) => console.log()}

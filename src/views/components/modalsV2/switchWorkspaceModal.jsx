@@ -58,7 +58,7 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 		const host = fetchDomainName();
 		localStorage.setItem('workspaceId', activeWorkspaceId);
 		localStorage.setItem('isOnboard', isOnboard);
-		Cookies.set('workspaceID', activeWorkspaceId, {
+		Cookies.set('workspaceId', activeWorkspaceId, {
 			sameSite: 'lax',
 			domain: host,
 		});
