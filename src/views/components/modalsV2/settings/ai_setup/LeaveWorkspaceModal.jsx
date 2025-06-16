@@ -42,7 +42,7 @@ const LeaveWorkspaceModal = ({ isOpen, toggleModal }) => {
 						localStorage.setItem('workspaceId', activeWorkspaceId);
 						localStorage.setItem('isOnboard', isOnboard);
 						const host = fetchDomainName();
-						Cookies.set('workspaceID', activeWorkspaceId, {
+						Cookies.set('workspaceId', activeWorkspaceId, {
 							sameSite: 'lax',
 							domain: host,
 						});

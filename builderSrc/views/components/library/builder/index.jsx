@@ -514,7 +514,7 @@ class Builder extends Component {
 			order: order,
 		};
 		this.props.handleAddLayout(
-			'this.props.params.workspaceID',
+			'this.props.params.workspaceId',
 			json,
 			'this.props.params.templateID',
 		);

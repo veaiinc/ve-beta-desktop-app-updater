@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 const CreateGallery = ({
 	open,
 	closeModal,
-	workspaceID,
+	workspaceId,
 	fetchGalleries,
 	message,
 	isLightGallery,
@@ -25,7 +25,7 @@ const CreateGallery = ({
 		title: 'Untitled Gallery',
 		slug: 'untitledgallery',
 		shotDuring: new Date().toISOString().split('T')[0],
-		workspaceID: '',
+		workspaceId: '',
 		userID: '',
 		galleryNameError: false,
 		eventDateError: false,
@@ -39,7 +39,7 @@ const CreateGallery = ({
 		const userToken = localStorage.getItem('usertoken');
 
 		if (storedWorkspaceID) {
-			setGalleryData((prevData) => ({ ...prevData, workspaceID: storedWorkspaceID }));
+			setGalleryData((prevData) => ({ ...prevData, workspaceId: storedWorkspaceID }));
 		} else {
 			console.error('WorkspaceID not found in local storage');
 		}
@@ -111,7 +111,7 @@ const CreateGallery = ({
 			title: 'Untitled',
 			slug: 'untitled',
 			shotDuring: new Date().toISOString().split('T')[0],
-			workspaceID: '',
+			workspaceId: '',
 			userID: '',
 			galleryNameError: false,
 			eventDateError: false,
