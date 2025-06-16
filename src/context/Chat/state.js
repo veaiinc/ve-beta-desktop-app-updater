@@ -22,13 +22,13 @@ export const intialState = {
 export const ChatState = (props) => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
-	const getAllUsersFromMeta = async (workspaceID, payload, fetchMore = false) => {
+	const getAllUsersFromMeta = async (workspaceId, payload, fetchMore = false) => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
 			const response = await Service.query(
 				getAllUsersFromMetaDataApi,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				've_conversations_api',
 			);
@@ -52,13 +52,13 @@ export const ChatState = (props) => {
 		}
 	};
 
-	const getAllUsersConversation = async (workspaceID, payload, fetchMore = false) => {
+	const getAllUsersConversation = async (workspaceId, payload, fetchMore = false) => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
 			const response = await Service.query(
 				getAllUsersConversationApi,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				've_conversations_api',
 			);
@@ -83,13 +83,13 @@ export const ChatState = (props) => {
 		}
 	};
 
-	const markUnreadMessages = async (workspaceID, payload) => {
+	const markUnreadMessages = async (workspaceId, payload) => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
 			const response = await Service.query(
 				markUnreadMessagesApi,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				've_conversations_api',
 			);

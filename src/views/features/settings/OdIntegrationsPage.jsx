@@ -145,8 +145,8 @@ const OldIntegrationsPage = () => {
 
 			try {
 				const usertoken = localStorage.getItem('usertoken');
-				const workspaceID = localStorage.getItem('workspaceId');
-				const link = `${ve_conversations_api}/oauth/${workspaceID}/login`;
+				const workspaceId = localStorage.getItem('workspaceId');
+				const link = `${ve_conversations_api}/oauth/${workspaceId}/login`;
 				const response = await axios.get(link, {
 					headers: {
 						Authorization: `Bearer ${usertoken}`,

@@ -643,7 +643,7 @@ class Home extends Proposals {
 		const currentURL = window.location.href;
 
 		if (currentURL.includes('localhost') || currentURL.includes('192.168')) {
-			const requiredKeys = ['usertoken', 'workspaceID', 'region'];
+			const requiredKeys = ['usertoken', 'workspaceId', 'region'];
 
 			requiredKeys.forEach((key) => {
 				if (!localStorage.getItem(key)) {
@@ -3563,6 +3563,8 @@ class Home extends Proposals {
 	};
 
 	handlePublish = async (e) => {
+		e.stopPropagation();
+		e.preventDefault();
 		this.setState({
 			triggerAdjustGridAreas: true,
 		});
@@ -3885,7 +3887,7 @@ class Home extends Proposals {
 				}
 				if (this.state.isWorkflow) {
 					await this.addWorkflowLayout(
-						'this.props.params.workspaceID',
+						'this.props.params.workspaceId',
 						jso,
 						isFluid,
 						isService,
@@ -3898,13 +3900,13 @@ class Home extends Proposals {
 							jso.style.backgroundType = 'color';
 						}
 						await this.addSection(
-							'this.props.params.workspaceID',
+							'this.props.params.workspaceId',
 							jso,
 							this.state.activeModuleId,
 						);
 					} else {
 						await this.addLayout(
-							'this.props.params.workspaceID',
+							'this.props.params.workspaceId',
 							jso,
 							this.state.activeModuleId,
 							isService,
@@ -5697,13 +5699,9 @@ class Home extends Proposals {
 		);
 	};
 	handleTriggerAdjustGridAreas = async (e) => {
-		e.stopPropagation();
-		e.preventDefault();
 		this.setState({
-			triggerAdjustGridAreas: e,
 			isPublishLoading: true,
 		});
-
 		const queryString = window.location.search;
 		const urlParams = new URLSearchParams(queryString);
 
@@ -5718,11 +5716,19 @@ class Home extends Proposals {
 		this.setState({
 			isPublishLoading: false,
 		});
+
 		if (workflow === 'true') {
-			return this.props.navigate(-1);
+			return this.props.navigate(
+				`/builder/document/view/${this.props.params.templateID}?workflow=true`,
+			);
 		}
 
 		if (response?.[0]) {
+			console.log(
+				this.state.template,
+				this.state.template.actions?.includes('form-submission'),
+				'karthik====>data',
+			);
 			if (
 				_.has(this.state.template, 'version') &&
 				!this.state.template.actions?.includes('form-submission')
@@ -7520,9 +7526,12 @@ class Home extends Proposals {
 												setServiceTable={(e, value) => {
 													this.setServiceTableSection(e, value);
 												}}
-												setAdjustGridAreas={(e) =>
-													this.handleTriggerAdjustGridAreas(e)
-												}
+												setAdjustGridAreas={() => {
+													this.setState({
+														triggerAdjustGridAreas: false,
+													});
+													this.handleTriggerAdjustGridAreas();
+												}}
 											/>
 										)}
 
