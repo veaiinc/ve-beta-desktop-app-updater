@@ -2653,6 +2653,7 @@ class Builder extends Component {
 														triggerAdjustGridAreas={
 															this.props.triggerAdjustGridAreas
 														}
+														audioMode={this.props.audioMode}
 														mobile_preview_builder={
 															this.props?.mobile_preview_builder
 														}
