@@ -1021,6 +1021,7 @@ class TempBuilderPreview extends Proposals {
 														}
 														isSummaryPreview={true}
 														clientDetails={this.state.clientDetails}
+														audioMode={true}
 													/>
 												</div>
 											</div>
