@@ -162,7 +162,7 @@ const suggestedOptions = [
 		title: 'Document',
 		value: '',
 		controlValue: 'workflow',
-		action: navigate => {
+		action: (navigate) => {
 			navigate(`/builder/create-document`);
 		},
 	},
@@ -785,7 +785,7 @@ const Files = () => {
 							</div>
 						</div>
 
-						<div className={`search-input-container`} onClick={triggerCmdK}>
+						{/* <div className={`search-input-container`} onClick={triggerCmdK}>
 							<div className="search-input-wrapper">
 								<SearchSvg /> Search
 							</div>
@@ -795,7 +795,7 @@ const Files = () => {
 								</div>
 								<span className="cmd-text">K</span>
 							</div>
-						</div>
+						</div> */}
 					</div>
 				</div>
 				{/* <div className="black-gradient-btm"></div> */}

@@ -79,9 +79,10 @@ const elements = [
 	// { text: 'signature', _id: '67165712f9a74b97c60d1f05' },
 	{ text: 'divider', _id: '6717413415e02bdd2b316122' },
 ];
+import ObjectID from 'bson-objectid';
 
 import gsap from 'gsap';
-import ObjectID from 'bson-objectid';
+// import ScrollMagic from 'scrollmagic';
 
 class Layout extends Component {
 	constructor(props) {
@@ -287,6 +288,12 @@ class Layout extends Component {
 			activeColor: '#000000',
 			selectedFontColor: '#000000',
 			adjustGridAreasTriggerd: false,
+
+			animeTriggerPoints: {
+				start: 0.9,
+				center: 0.6,
+				end: 0.2,
+			},
 		};
 		this.handleBeforeUnload = this.handleBeforeUnload.bind(this);
 		this.blockRef = React.createRef();
@@ -964,6 +971,12 @@ class Layout extends Component {
 				triggerFont: nextProps.triggerFont,
 			});
 		}
+		if (this.props.triggerAdjustGridAreas !== nextProps.triggerAdjustGridAreas) {
+			if (nextProps.triggerAdjustGridAreas === true) {
+				this.adjustGridAreas();
+				this.props.setAdjustGridAreas(false);
+			}
+		}
 		if (this.state.intialGridRows !== nextProps.intialGridRows) {
 			this.setState({
 				intialGridRows: nextProps.intialGridRows,
@@ -1572,6 +1585,7 @@ class Layout extends Component {
 						debounceFuncForElementProps={this.props?.debounceFuncForElementProps}
 						adjustGridAreasTriggerd={this.state.adjustGridAreasTriggerd}
 						verticalAlign={properties?.divStyles?.verticalAlign || ''}
+						mobileVerticalAlign={properties?.divStyles?.mobileVerticalAlign || ''}
 					/>
 				);
 
@@ -2462,7 +2476,7 @@ class Layout extends Component {
 			}
 
 			// Calculate grid positions
-			let columnStart = Math.floor(relativeLeft / cellWidth) + 1;
+			const columnStart = Math.floor(relativeLeft / cellWidth) + 1;
 
 			const rowStart = Math.floor(relativeTop / cellHeight) + 1;
 
@@ -5953,34 +5967,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -6006,7 +6011,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							fadeTween.progress(event.progress);
@@ -6070,34 +6075,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -6140,7 +6136,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							moveTween.progress(event.progress);
@@ -6216,34 +6212,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -6276,7 +6263,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							expandTween.progress(event.progress);
@@ -6351,34 +6338,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -6411,7 +6389,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							shrinkTween.progress(event.progress);
@@ -6458,34 +6436,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -6509,7 +6478,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							spinTween.progress(event.progress);
@@ -6567,34 +6536,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -6633,7 +6593,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							slideTween.progress(event.progress);
@@ -6673,34 +6633,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -6722,7 +6673,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							blurTween.progress(event.progress);
@@ -6774,34 +6725,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -6822,7 +6764,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							revealTween.progress(event.progress);
@@ -6871,34 +6813,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -6931,7 +6864,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							tl.progress(event.progress);
@@ -6982,34 +6915,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -7036,7 +6960,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							flyTween.progress(event.progress);
@@ -7090,34 +7014,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -7155,7 +7070,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							turnTween.progress(event.progress);
@@ -7206,34 +7121,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -7270,7 +7176,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							tiltTween.progress(event.progress);
@@ -7316,34 +7222,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -7372,7 +7269,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							stretchTween.progress(event.progress);
@@ -7421,34 +7318,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -7479,7 +7367,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							flipTween.progress(event.progress);
@@ -7528,34 +7416,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -7582,7 +7461,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							parallaxTween.progress(event.progress);
@@ -7634,34 +7513,25 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
-		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
 		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
@@ -7692,7 +7562,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							arcTween.progress(event.progress);
@@ -7769,35 +7639,27 @@ class Layout extends Component {
 			if (_.has(adjustments, 'animeArea')) {
 				if (animeArea[0] >= 0 && animeArea[1] < 51) {
 					triggerValue = 'start';
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
 					triggerValue = 'center';
-					triggerHook = 0.6;
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
 				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			} else {
 				if (triggerPoint == 'In') {
 					triggerValue = 'start';
 
-					triggerHook = 0.9;
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
 				} else {
 					triggerValue = 'end';
-					triggerHook = 0.2;
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
 				}
 			}
 			return triggerHook;
 		};
-		const returnDuration = () => {
-			if (triggerValue == 'start') {
-				return window?.innerHeight * 1 - 100;
-			} else if (triggerValue == 'center') {
-				return window?.innerHeight * 1 - 300;
-			} else {
-				return window?.innerHeight * 1 - 400;
-			}
-		};
+
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
 				if (this.ScrollMagic) {
@@ -7835,7 +7697,7 @@ class Layout extends Component {
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
 						triggerHook: returnTrigger() || 0.9,
-						duration: returnDuration() || 900,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
 						.on('progress', (event) => {
 							shapeTween.progress(event.progress);
@@ -7950,6 +7812,17 @@ class Layout extends Component {
 			}, 4500);
 		} else if (action == 'remove' && this.props?.client) {
 			remove();
+		}
+	};
+
+	// returning scroll duration (area to animation)
+	returnAnimeDuration = (triggerValue = 'start') => {
+		if (triggerValue == 'start') {
+			return window?.innerHeight * 1 - 100;
+		} else if (triggerValue == 'center') {
+			return window?.innerHeight * 1 - 300;
+		} else {
+			return window?.innerHeight * 1 - 400;
 		}
 	};
 	getZoomScale = () => {
@@ -8944,6 +8817,7 @@ class Layout extends Component {
 															  component?._id
 															? '3px solid #3B82F6'
 															: 'none',
+														wordBreak: 'break-word',
 
 														background: `${
 															_.has(component, 'backgroundlabel') &&

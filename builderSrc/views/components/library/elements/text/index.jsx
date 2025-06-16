@@ -567,7 +567,7 @@ class App extends BaseClass {
 			// );
 			// this.initializeWebSocket(this.state.sessionId, this.state.agentType);
 		} else {
-			// console.warn('No sessionId or agentType found in URL parameters');
+			console.warn('No sessionId or agentType found in URL parameters');
 		}
 
 		//! for text smart field
@@ -2505,7 +2505,7 @@ class App extends BaseClass {
 										gridArea: 'inherit',
 										flex: 1,
 								  }
-								: {}),
+								: ''),
 						}}
 					/>
 				</div>
@@ -2560,21 +2560,16 @@ class App extends BaseClass {
 						// borderRadius: this.state.showElementOptions && '20px',
 						...(this.state.isFluid
 							? {
-									display: this.state?.isFluidButton
-										? 'flex'
-										: this.props?.verticalAlign
-										? 'flex'
-										: 'block',
+									display: this.props?.verticalAlign ? 'flex' : 'block',
 									flexDirection: this.props?.verticalAlign && 'column',
 									justifyContent: this.props?.verticalAlign
 										? this.props?.verticalAlign
-										: this.state?.isFluidButton
-										? 'center'
 										: '',
+									height: this.props?.verticalAlign ? '100%' : 'auto',
 									gridArea: 'inherit',
 									border: 'none',
 							  }
-							: {}),
+							: ''),
 					}}
 					ref={this.textRef}
 					// onClick={() => (this.state.preview !== true ? this.getStyles() : '')}

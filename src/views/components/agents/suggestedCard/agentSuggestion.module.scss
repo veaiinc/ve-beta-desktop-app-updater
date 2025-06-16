@@ -1,0 +1,79 @@
+.agentSuggestion {
+	display: flex;
+	align-items: center;
+	align-content: center;
+	gap: 24px;
+	align-self: stretch;
+	flex-wrap: wrap;
+	.agentCard {
+		display: flex;
+		width: 248px;
+		height: 250px;
+		padding: 16px;
+		flex-direction: column;
+		justify-content: space-between;
+		align-items: flex-start;
+		border-radius: 16px;
+		background: var(--card);
+		.agentcontainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+			.aiInfo {
+				display: flex;
+				padding: 2px 8px 2px 6px;
+				align-items: center;
+				gap: 4px;
+				border-radius: 20px;
+				border: 0.8px solid var(--stroke, #2b2e31);
+				.aiTitle {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 20px;
+				}
+			}
+		}
+		.agentTitle {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: 26px;
+		}
+		.agentDescription {
+			color: var(--secondary-font, #7a7e85);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px;
+		}
+		.agentButton {
+			border-radius: 20px;
+			border: 0.8px solid var(--stroke, #2b2e31);
+			background: var(--card-over-card, #27282b);
+			display: flex;
+			height: 32px;
+			padding: 2px 12px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			width: 100%;
+			cursor: pointer;
+			.agentButtonText {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px;
+			}
+		}
+	}
+}

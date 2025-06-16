@@ -1,12 +1,11 @@
 import Skeleton from 'react-loading-skeleton';
-import React, { useContext, useEffect, memo, useCallback, useState, useRef } from 'react';
+import React, { useContext, useEffect, memo, useCallback } from 'react';
 import '../../../../assets/scss/chats.scss';
 import Context from '../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import InfiniteScroll from '../../../components/globalComponents/InfiniteScroll';
 import moment from 'moment';
-import { useNavigate, useParams } from 'react-router-dom';
-import debounce from 'lodash/debounce';
+import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 const infiniteScrollStyle = {
 	display: 'flex',

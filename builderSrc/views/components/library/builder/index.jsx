@@ -678,7 +678,7 @@ class Builder extends Component {
 						this.props.module === 'contract' ? 'contractPage' : ''
 					} ${this.props.module === 'invoice' ? 'invoicePage' : ''}`}
 					style={{
-						paddingBottom: this.props.client && this.state.isformv1 ? '45px' : '0',
+						paddingBottom: this.props.client && this.state.isformv1 ? '0' : '45px',
 						opacity: this.getMoveClass() ? 0.5 : isDragging ? 0.52 : 1,
 						// height: item.height,
 						transition: this.getMoveClass() ? 'transform 0.5s, opacity 0.5s' : 'none',
@@ -1799,6 +1799,13 @@ class Builder extends Component {
 													updateTablesForTaxes={
 														this.props?.updateTablesForTaxes
 													}
+													handleAddLayout={(e, isFluid, isService) => {
+														this.props.handleAddLayout(
+															e,
+															isFluid,
+															isService,
+														);
+													}}
 												/>
 											</div>
 										);
@@ -2637,6 +2644,9 @@ class Builder extends Component {
 											>
 												{section?.isFluidSection ? (
 													<FluidLayout
+														triggerAdjustGridAreas={
+															this.props.triggerAdjustGridAreas
+														}
 														mobile_preview_builder={
 															this.props?.mobile_preview_builder
 														}
@@ -2998,6 +3008,9 @@ class Builder extends Component {
 														}
 														handleVerticleAlign={
 															this.props?.handleVerticleAlign
+														}
+														setAdjustGridAreas={(e) =>
+															this.props.setAdjustGridAreas(e)
 														}
 													/>
 												) : (

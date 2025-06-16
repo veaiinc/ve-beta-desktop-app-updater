@@ -1,21 +1,20 @@
 import { memo, useCallback, useEffect, useState, useRef } from 'react';
 import '../../../assets/scss/calendar/attendeeSelector.scss';
-import { Select, Modal, Input, Form } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Select, Input, Button } from 'antd';
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { message } from '../globalComponents/CustomToast';
 
 const AttendeeSelector = ({ options, value = [], onChange, className }) => {
-	const [showAll, setShowAll] = useState(false);
 	const [searchValue, setSearchValue] = useState('');
+	const [showSearch, setShowSearch] = useState(false);
 	const [info, setInfo] = useState({
 		formattedOptions: [],
 		formattedValues: [],
 		visibleCount: 2,
 	});
-	const [isAddModalVisible, setIsAddModalVisible] = useState(false);
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-	const [form] = Form.useForm();
 	const selectRef = useRef(null);
+	const searchInputRef = useRef(null);
 
 	// Email validation regex
 	const isValidEmail = (email) => {
@@ -42,6 +41,14 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 			visibleCount: 2,
 		});
 	}, [options, value]);
+
+	useEffect(() => {
+		if (showSearch && searchInputRef.current) {
+			setTimeout(() => {
+				searchInputRef.current.focus();
+			}, 0);
+		}
+	}, [showSearch]);
 
 	const tagRender = useCallback(
 		({ label, value: tagValue, closable, onClose }) => {
@@ -94,87 +101,29 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 		[options, onChange],
 	);
 
-	const handleAddAttendee = async () => {
-		try {
-			const values = await form.validateFields();
-
-			// Check for duplicate email
-			const isDuplicate = value.some(
-				(attendee) => attendee.email.toLowerCase() === values.email.toLowerCase(),
-			);
-			if (isDuplicate) {
-				message.error('This email is already added as an attendee');
-				return;
-			}
-
-			const newAttendee = {
-				email: values.email,
-				name: values.name,
-				responseStatus: 'confirmed',
-				isWorkspaceUser: false,
-				tenantUserId: null,
-				role: null,
-			};
-
-			const updatedValue = [...value, newAttendee];
-			onChange(updatedValue);
-			setIsAddModalVisible(false);
-			form.resetFields();
-			message.success('Attendee added successfully');
-		} catch (error) {
-			console.error('Validation failed:', error);
-			if (error.errorFields) {
-				message.error('Please fill in all required fields correctly');
-			}
-		}
-	};
-
-	const handleSearch = (value) => {
-		setSearchValue(value);
-		if (value) {
-			setIsDropdownOpen(true);
-		}
-	};
-
-	const handleAddFromSearch = () => {
-		if (!searchValue) {
+	const handleAddNewAttendee = (email) => {
+		if (!email) {
 			message.error('Please enter an email address');
 			return;
 		}
 
-		const trimmedSearchValue = searchValue.trim();
-		if (!trimmedSearchValue) {
-			message.error('Please enter an email address');
-			return;
-		}
-
-		// Only accept valid email addresses
-		if (!isValidEmail(trimmedSearchValue)) {
+		if (!isValidEmail(email)) {
 			message.error('Please enter a valid email address');
 			return;
 		}
 
-		// Check for duplicates in both current attendees and options
-		const isDuplicate =
-			value.some((attendee) => {
-				if (!attendee) return false;
-				const attendeeEmail = attendee.email || '';
-				return attendeeEmail.toLowerCase() === trimmedSearchValue.toLowerCase();
-			}) ||
-			info.formattedOptions.some((option) => {
-				if (!option) return false;
-				const optionEmail = option.email || '';
-				return optionEmail.toLowerCase() === trimmedSearchValue.toLowerCase();
-			});
-
+		// Check for duplicate email
+		const isDuplicate = value.some(
+			(attendee) => attendee.email.toLowerCase() === email.toLowerCase(),
+		);
 		if (isDuplicate) {
-			message.error('This email is already added');
+			message.error('This email is already added as an attendee');
 			return;
 		}
 
 		const newAttendee = {
-			email: trimmedSearchValue,
-			name: trimmedSearchValue,
+			email: email,
+			name: email.split('@')[0],
 			responseStatus: 'confirmed',
 			isWorkspaceUser: false,
 			tenantUserId: null,
@@ -184,146 +133,133 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 		const updatedValue = [...value, newAttendee];
 		onChange(updatedValue);
 		setSearchValue('');
-		setIsDropdownOpen(true);
-		setTimeout(() => {
-			if (selectRef.current) {
-				selectRef.current.focus();
-			}
-		}, 100);
+		setShowSearch(false);
 		message.success('Attendee added successfully');
 	};
 
-	const handleKeyDown = (e) => {
-		if (e.key === 'Enter' && searchValue.trim()) {
-			e.preventDefault(); // Prevent default Select behavior
-			e.stopPropagation(); // Stop event from bubbling up to Select
-			handleAddFromSearch();
+	const handleSearch = (value) => {
+		setSearchValue(value);
+		if (value) {
+			setIsDropdownOpen(true);
 		}
 	};
 
+	const handleSearchKeyPress = (e) => {
+		if (e.key === 'Enter') {
+			const email = e.target.value.trim();
+			if (isValidEmail(email)) {
+				handleAddNewAttendee(email);
+			} else {
+				// If not a valid email, just search
+				handleSearch(email);
+			}
+		} else if (e.key === 'Escape') {
+			setShowSearch(false);
+			setSearchValue('');
+		}
+	};
+
+	const handleAddAttendeeClick = () => {
+		setShowSearch(true);
+		setSearchValue('');
+		setIsDropdownOpen(true);
+	};
+
 	const dropdownRender = (menu) => {
-		const trimmedSearchValue = searchValue.trim();
-		const isValidSearchInput =
-			trimmedSearchValue &&
-			(isValidEmail(trimmedSearchValue) || trimmedSearchValue.length > 2);
-		const isDuplicate =
-			value.some(
-				(attendee) =>
-					attendee.email?.toLowerCase() === trimmedSearchValue.toLowerCase() ||
-					attendee.name?.toLowerCase() === trimmedSearchValue.toLowerCase(),
-			) ||
-			info.formattedOptions.some(
-				(opt) =>
-					opt.email?.toLowerCase() === trimmedSearchValue.toLowerCase() ||
-					opt.label?.toLowerCase() === trimmedSearchValue.toLowerCase(),
-			);
-
-		const showAddOption = isValidSearchInput && !isDuplicate;
-
-		// Check if there are matching options
-		const hasMatchingOptions = info.formattedOptions.some(
-			(opt) =>
-				(opt.label?.toLowerCase() || '').includes(trimmedSearchValue.toLowerCase()) ||
-				(opt.email?.toLowerCase() || '').includes(trimmedSearchValue.toLowerCase()),
-		);
+		const isEmail = isValidEmail(searchValue);
+		const isNewEmail =
+			isEmail &&
+			!options?.some((opt) => opt.email.toLowerCase() === searchValue.toLowerCase());
 
 		return (
 			<div style={{ padding: '8px' }}>
-				<Input
-					value={searchValue}
-					onChange={(e) => setSearchValue(e.target.value)}
-					placeholder="Search or add attendee by name or email"
-					style={{
-						marginBottom: '8px',
-						width: '100%',
-						backgroundColor: 'var(--popup)',
-						color: 'var(--primary-font)',
-						'::placeholder': { color: 'var(--primary-font) !important' },
-					}}
-					onPressEnter={showAddOption ? handleAddFromSearch : undefined}
-					onKeyDown={handleKeyDown}
-				/>
-				{hasMatchingOptions && (
-					<div style={{ maxHeight: '150px', overflowY: 'auto' }}>{menu}</div>
-				)}
-				{trimmedSearchValue && (
-					<div
-						className="add-from-search"
-						onClick={showAddOption ? handleAddFromSearch : undefined}
-						style={{
-							padding: '8px',
-							cursor: showAddOption ? 'pointer' : 'not-allowed',
-							borderTop: hasMatchingOptions ? '1px solid #f0f0f0' : 'none',
-							display: 'flex',
-							alignItems: 'center',
-							opacity: showAddOption ? 1 : 0.5,
-							color: 'var(--primary-font)',
-						}}
-					>
-						<PlusOutlined
-							style={{ marginRight: '8px', color: 'var(--primary-font)' }}
-						/>
-						{showAddOption
-							? `Add "${trimmedSearchValue}" as new attendee`
-							: 'Enter a valid, unique name or email to add as new attendee'}
-					</div>
-				)}
+				<div style={{ maxHeight: '150px', overflowY: 'auto' }}>
+					{isNewEmail && (
+						<div
+							className="new-attendee-option"
+							onClick={() => handleAddNewAttendee(searchValue)}
+							style={{
+								padding: '8px',
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								color: 'var(--primary-font)',
+								backgroundColor: 'var(--hover-bg)',
+								borderRadius: '4px',
+								marginBottom: '8px',
+							}}
+						>
+							<PlusOutlined />
+							<span>Add "{searchValue}" as new attendee</span>
+						</div>
+					)}
+					{menu}
+				</div>
 			</div>
 		);
 	};
 
-	const handleAddMoreClick = () => {
-		setIsDropdownOpen(true);
-		setTimeout(() => {
-			selectRef.current?.focus();
-		}, 0);
-	};
-
-	const displayedAttendees = showAll ? info.formattedValues : info.formattedValues?.slice(0, 4);
-	const hasMoreAttendees = info.formattedValues?.length > 4;
-
 	return (
 		<div className={`multi-category-selector ${className}`}>
-			<div
-				className="add-more-button"
-				onClick={handleAddMoreClick}
-				style={{
-					display: 'inline-flex',
-					alignItems: 'center',
-					cursor: 'pointer',
-					marginBottom: '8px',
-					color: 'var(--primary-font)',
-				}}
-			>
-				<PlusOutlined
-					style={{ marginRight: '4px', color: 'var(--primary-font) !important' }}
-				/>
-				<span>Add more</span>
-			</div>
+			{showSearch ? (
+				<div style={{ marginBottom: '8px', display: 'flex', gap: '8px' }}>
+					<Input
+						ref={searchInputRef}
+						value={searchValue}
+						onChange={(e) => handleSearch(e.target.value)}
+						onKeyPress={handleSearchKeyPress}
+						placeholder="Search or enter email to add new attendee"
+						prefix={<SearchOutlined />}
+						style={{
+							flex: 1,
+							backgroundColor: 'var(--popup)',
+							color: 'var(--primary-font)',
+						}}
+					/>
+					<Button
+						onClick={() => setShowSearch(false)}
+						style={{
+							backgroundColor: 'var(--popup)',
+							color: 'var(--primary-font)',
+						}}
+					>
+						Cancel
+					</Button>
+				</div>
+			) : (
+				<Button
+					type="solid"
+					onClick={handleAddAttendeeClick}
+					icon={<PlusOutlined />}
+					style={{
+						width: '100%',
+						marginBottom: '8px',
+						backgroundColor: 'var(--popup)',
+						color: 'var(--primary-font)',
+					}}
+				>
+					Add Attendee
+				</Button>
+			)}
 			<Select
 				ref={selectRef}
 				mode="multiple"
 				variant="borderless"
-				value={displayedAttendees}
+				value={info.formattedValues}
 				options={info.formattedOptions}
 				onChange={handleChange}
 				onSearch={handleSearch}
-				onKeyDown={handleKeyDown}
 				searchValue={searchValue}
-				placeholder="Type name or email and press Enter to add"
+				placeholder=" "
 				tagRender={tagRender}
 				optionRender={optionRender}
 				dropdownRender={dropdownRender}
 				optionFilterProp="label"
 				showSearch
-				autoFocus
 				open={isDropdownOpen}
 				onDropdownVisibleChange={(visible) => {
-					if (!visible && searchValue.trim()) {
-						setIsDropdownOpen(true);
-					} else {
-						setIsDropdownOpen(visible);
-					}
+					setIsDropdownOpen(visible);
 				}}
 				filterOption={(input, option) =>
 					(option?.label?.toLowerCase() || '').includes(input.toLowerCase()) ||
@@ -337,51 +273,9 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 					color: 'var(--primary-font)',
 				}}
 				notFoundContent={null}
-				defaultOpen={true}
 				showArrow={false}
 				style={{ width: '100%' }}
 			/>
-			{hasMoreAttendees && !showAll && (
-				<button
-					className="showMoreButton"
-					onClick={() => setShowAll(true)}
-					style={{ color: 'var(--primary-font)' }}
-				>
-					+{info.formattedValues.length - 4} more
-				</button>
-			)}
-			<Modal
-				title="Add New Attendee"
-				open={isAddModalVisible}
-				onOk={handleAddAttendee}
-				onCancel={() => {
-					setIsAddModalVisible(false);
-					form.resetFields();
-				}}
-				okText="Add"
-				cancelText="Cancel"
-				style={{ backgroundColor: 'var(--card)', color: 'white' }}
-			>
-				<Form form={form} layout="vertical">
-					<Form.Item
-						name="name"
-						label="Name"
-						rules={[{ required: true, message: 'Please enter attendee name' }]}
-					>
-						<Input placeholder="Enter attendee name" />
-					</Form.Item>
-					<Form.Item
-						name="email"
-						label="Email"
-						rules={[
-							{ required: true, message: 'Please enter email address' },
-							{ type: 'email', message: 'Please enter a valid email address' },
-						]}
-					>
-						<Input placeholder="Enter email address" />
-					</Form.Item>
-				</Form>
-			</Modal>
 		</div>
 	);
 };

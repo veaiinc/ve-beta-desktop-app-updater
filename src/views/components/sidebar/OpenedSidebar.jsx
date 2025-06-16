@@ -125,11 +125,11 @@ const OpenedSidebarModules = ({
 		const routePath = route?.replace(/\/$/, '');
 
 		if (name === 'Agents') {
-			return (
-				currentPath.includes('/knowledge-agent') || currentPath.includes('/ai-assistant')
-			);
+			return currentPath.includes('/agents') || currentPath.includes('/ai-assistant');
 		}
-
+		if (name === 'New Chat') {
+			return currentPath.includes('/chat');
+		}
 		return currentPath === routePath;
 	}, [location.pathname, route, name]);
 
@@ -337,6 +337,10 @@ const OpenedSidebar = ({
 				...prev,
 				selectedModule: singleItems?.name,
 			}));
+			if (singleItems?.name === 'New Chat') {
+				handleNewChat();
+				return;
+			}
 			navigate(route);
 		},
 		[navigate],
@@ -449,10 +453,7 @@ const OpenedSidebar = ({
 			const routePath = currentRoute?.replace(/\/$/, '');
 
 			if (moduleName === 'Agents') {
-				return (
-					currentPath.includes('/knowledge-agent') ||
-					currentPath.includes('/ai-assistant')
-				);
+				return currentPath.includes('/agents') || currentPath.includes('/ai-assistant');
 			}
 
 			return currentPath === routePath;
@@ -496,18 +497,18 @@ const OpenedSidebar = ({
 			icon: (theme) => (theme === 'dark' ? <SunIcon /> : <MoonIcon />),
 			onClick: (updateTheme, newThemeValue) => () => updateTheme(newThemeValue),
 		},
-		{
-			key: 'search',
-			label: (_, isMac) => (isMac ? 'Search ⌘ + k' : 'Search Ctrl + k'),
-			icon: () => <SearchSvg />,
-			onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
-		},
-		{
-			key: 'newChat',
-			label: () => 'New Chat',
-			icon: () => <NewEditSvg />,
-			onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
-		},
+		// {
+		// 	key: 'search',
+		// 	label: (_, isMac) => (isMac ? 'Search ⌘ + k' : 'Search Ctrl + k'),
+		// 	icon: () => <SearchSvg />,
+		// 	onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
+		// },
+		// {
+		// 	key: 'newChat',
+		// 	label: () => 'New Chat',
+		// 	icon: () => <NewEditSvg />,
+		// 	onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
+		// },
 	];
 
 	return (
