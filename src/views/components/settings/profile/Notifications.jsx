@@ -1,5 +1,5 @@
 import React, { memo, useState, useEffect, useContext } from 'react';
-import { ReactComponent as WhatsappIcon } from '../../../../assets/svg/Settings/whatsApp.svg';
+import { ReactComponent as WhatsappIcon } from '../../../../assets/svg/Settings/whatsapp-logo.svg';
 import { ReactComponent as SlackIcon } from '../../../../assets/svg/Settings/slackColor.svg';
 import GmailIcon from '../../../../assets/svg/login_page/GmailIcon';
 import { Switch, Checkbox } from 'antd';
