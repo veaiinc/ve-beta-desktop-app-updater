@@ -127,11 +127,11 @@ const OpenedSidebarModules = ({
 		const routePath = route?.replace(/\/$/, '');
 
 		if (name === 'Agents') {
-			return (
-				currentPath.includes('/knowledge-agent') || currentPath.includes('/ai-assistant')
-			);
+			return currentPath.includes('/agents') || currentPath.includes('/ai-assistant');
 		}
-
+		if (name === 'New Chat') {
+			return currentPath.includes('/chat');
+		}
 		return currentPath === routePath;
 	}, [location.pathname, route, name]);
 
@@ -368,6 +368,7 @@ const OpenedSidebar = ({
 
 	const handleNavigateFunction = useCallback(
 		(route, singleItems) => {
+			console.log(route, singleItems);
 			if (singleItems?.name === 'Settings') {
 				setShowSettingsSidebar(true);
 				navigate('/settings/my-profile');
@@ -380,6 +381,10 @@ const OpenedSidebar = ({
 				...prev,
 				selectedModule: singleItems?.name,
 			}));
+			if (singleItems?.name === 'New Chat') {
+				handleNewChat();
+				return;
+			}
 			navigate(route);
 		},
 		[navigate],
@@ -492,10 +497,7 @@ const OpenedSidebar = ({
 			const routePath = currentRoute?.replace(/\/$/, '');
 
 			if (moduleName === 'Agents') {
-				return (
-					currentPath.includes('/knowledge-agent') ||
-					currentPath.includes('/ai-assistant')
-				);
+				return currentPath.includes('/agents') || currentPath.includes('/ai-assistant');
 			}
 
 			return currentPath === routePath;
@@ -545,12 +547,12 @@ const OpenedSidebar = ({
 			icon: () => <SearchSvg />,
 			onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
 		},
-		{
-			key: 'newChat',
-			label: () => 'New Chat',
-			icon: () => <NewEditSvg />,
-			onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
-		},
+		// {
+		// 	key: 'newChat',
+		// 	label: () => 'New Chat',
+		// 	icon: () => <NewEditSvg />,
+		// 	onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
+		// },
 	];
 
 	const updateProfileImage = async (settings) => {

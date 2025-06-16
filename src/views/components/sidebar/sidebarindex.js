@@ -4,6 +4,7 @@ import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
 import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
 import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
+import ChatSvg from '../../../assets/svg/sidebar/NewChat.jsx';
 import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
 import { ReactComponent as HelpSvg } from '../../../assets/svg/sidebar/help.svg';
 import { ReactComponent as ProfileIcon } from '../../../assets/svg/sidebar/profileIcon.svg';
@@ -17,19 +18,26 @@ import { ReactComponent as PricingIcon } from '../../../assets/svg/sidebar/planB
 export const veAiModulesItemsList = [
 	{
 		id: 0,
+		name: 'New Chat',
+		moduleRoute: null,
+		route: 'New Chat',
+		icon: ChatSvg,
+	},
+	{
+		id: 1,
 		name: 'Home',
 		moduleRoute: '/home',
 		route: '/home',
 		icon: HomeSvg,
 	},
-	{ id: 1, name: 'Agents', route: '/knowledge-agent', icon: AgentsSvg },
+	{ id: 2, name: 'Agents', route: '/agents', icon: AgentsSvg },
 	{
-		id: 2,
+		id: 3,
 		name: 'Notes',
 		route: '/notes',
 		icon: NotesIcon,
 	},
-	{ id: 3, name: 'Files', route: '/files', icon: FilesSvg },
+	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
 ];
 
 export const veAiModules = [

@@ -1,0 +1,135 @@
+.editAgentToolContainer {
+	display: flex;
+	width: 948px;
+	height: 660px;
+	padding: 32px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+	border-radius: 24px;
+	background: var(--popup, #202123);
+
+	.inputContainer {
+		display: flex;
+		width: 432px;
+		padding: 8px 12px;
+		align-items: center;
+		gap: 8px;
+		border-radius: 8px;
+		border: 1px solid var(--stroke-hover, #424548);
+		background: var(--navbar, #202123);
+
+		.inputField {
+			flex-grow: 1;
+			height: 100%;
+			border: none;
+			background: transparent;
+			color: var(--primary-font, #fff);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px;
+		}
+	}
+
+	.toolsListContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		align-self: stretch;
+		width: 100%;
+
+		.toolType {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px;
+		}
+
+		.toolList {
+			width: 100%;
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 8px 20px;
+
+			.toolItem {
+				display: flex;
+				padding: 12px;
+				justify-content: space-between;
+				align-items: center;
+				flex: 1 0 0;
+				border-radius: 12px;
+				gap: 12px;
+				cursor: pointer;
+				transition: background-color 0.3s ease-out;
+				&:hover {
+					background-color: var(--card-over-card-hover, #2e2f32);
+				}
+
+				.itemIconContainer {
+					flex-shrink: 0;
+					display: flex;
+					width: 40px;
+					height: 40px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					border-radius: 8px;
+					border: 1px solid var(--stroke, #2b2e31);
+					background: var(--card-over-card, #27282b);
+				}
+
+				.titleContainer {
+					flex-grow: 1;
+					display: flex;
+					gap: 10px;
+					justify-content: space-between;
+					align-items: center;
+
+					.title {
+						display: -webkit-box;
+						-webkit-line-clamp: 1;
+						line-clamp: 1;
+						-webkit-box-orient: vertical;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						word-break: break-all;
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 22px;
+					}
+
+					.addedContainer {
+						display: flex;
+						padding: 2px 6px 2px 4px;
+						align-items: center;
+						gap: 6px;
+						border-radius: 6px;
+						background: rgba(6, 201, 63, 0.08);
+
+						.tickIcon {
+							path {
+								stroke: var(--success, #06c93f);
+							}
+						}
+						.addedText {
+							color: var(--success, #06c93f);
+							font-family: var(--primary-font-family);
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 18px;
+						}
+					}
+				}
+			}
+		}
+	}
+}
