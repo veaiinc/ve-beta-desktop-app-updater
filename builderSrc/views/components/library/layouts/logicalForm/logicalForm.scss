@@ -136,6 +136,16 @@
 	height: 100%;
 	padding-top: 60px;
 	/* Add space for the fixed button */
+	/* Override react-beautiful-dnd default styles */
+	[data-rbd-draggable-context-id] {
+		width: 100% !important;
+		left: 0 !important;
+		transform: none !important;
+	}
+
+	[data-rbd-drag-handle-draggable-id] {
+		width: 100% !important;
+	}
 }
 
 .form-header {
@@ -297,17 +307,6 @@ h3 {
 	touch-action: none;
 	position: relative;
 	margin-left: 160px;
-}
-
-/* Override react-beautiful-dnd default styles */
-[data-rbd-draggable-context-id] {
-	width: 100% !important;
-	left: 0 !important;
-	transform: none !important;
-}
-
-[data-rbd-drag-handle-draggable-id] {
-	width: 100% !important;
 }
 
 .form-field[data-rbd-dragging-state='true'] {
