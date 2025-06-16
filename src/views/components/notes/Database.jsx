@@ -270,6 +270,8 @@ const DatabaseComponent = memo(({ block, editor }) => {
 		};
 	}, []);
 
+	console.log('selectedDatabaseView=>', selectedDatabaseView);
+
 	const initializeDatabase = useCallback(
 		async (selectedDatabaseId = null) => {
 			try {
