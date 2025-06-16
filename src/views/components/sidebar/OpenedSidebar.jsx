@@ -292,6 +292,7 @@ const OpenedSidebar = ({
 			setUserDetails((prev) => ({
 				...prev,
 				logoURL: userDetailsData?.dp_s3_500w_key || '',
+				cropSettings: userDetailsData?.dp_style || { crop: { x: 0, y: 0 }, zoom: 1 },
 			}));
 		}
 	}, [userDetailsData]);
@@ -577,28 +578,28 @@ const OpenedSidebar = ({
 	};
 
 	const handleZoom = (zoom) => {
-		setUserDetails(prev => {
+		setUserDetails((prev) => {
 			return {
 				...prev,
 				cropSettings: {
 					...prev.cropSettings,
 					zoom,
 				},
-			}
-		})
-	}
+			};
+		});
+	};
 
 	const handleCrop = (crop) => {
-		setUserDetails(prev => {
+		setUserDetails((prev) => {
 			return {
 				...prev,
 				cropSettings: {
 					...prev.cropSettings,
 					crop,
 				},
-			}
-		})
-	}
+			};
+		});
+	};
 
 	const handleImageChange = (acceptedFiles) => {
 		const file = acceptedFiles[0];
