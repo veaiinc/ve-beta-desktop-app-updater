@@ -2560,7 +2560,7 @@ class App extends BaseClass {
 						// borderRadius: this.state.showElementOptions && '20px',
 						...(this.state.isFluid
 							? {
-									display: this.props?.verticalAlign ? 'flex' : 'block',
+									display: this.props?.verticalAlign ? 'flex' : 'contents',
 									flexDirection: this.props?.verticalAlign && 'column',
 									justifyContent: this.props?.verticalAlign
 										? this.props?.verticalAlign
