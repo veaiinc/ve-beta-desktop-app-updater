@@ -98,6 +98,7 @@ const PayloadField = ({
 		prop.type === 'app' ||
 		prop.type === '$.service.db' ||
 		prop.type === '$.interface.http' ||
+		prop.type === '$.interface.timer' ||
 		prop.type === 'alert'
 	)
 		return null;
@@ -409,7 +410,7 @@ const PayloadField = ({
 				<div style={{ margin: '8px 0 0 0' }}>
 					<input
 						type="text"
-						className="input-text"
+						className={`input-text ${error ? 'error' : ''}`}
 						placeholder="Describe this variable for the agent (required)"
 						value={variableDescription || ''}
 						onChange={(e) => onVariableDescriptionChange(fieldName, e.target.value)}
@@ -419,11 +420,12 @@ const PayloadField = ({
 						This description will help the agent understand what value to provide for
 						this variable.
 					</div>
+					{error && <p className="field-error">{error}</p>}
 				</div>
 			)}
 			{!isAIMode && <>{renderField()}</>}
 			{!isAIMode && helpText && <div className="field-help">{helpText}</div>}
-			{error && <p className="field-error">{error}</p>}
+			{!isAIMode && error && <p className="field-error">{error}</p>}
 			{prop.description && !error && <p className="field-description">{prop.description}</p>}
 		</div>
 	);
