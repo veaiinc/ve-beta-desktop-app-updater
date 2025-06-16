@@ -2644,6 +2644,9 @@ class Builder extends Component {
 											>
 												{section?.isFluidSection ? (
 													<FluidLayout
+														triggerAdjustGridAreas={
+															this.props.triggerAdjustGridAreas
+														}
 														mobile_preview_builder={
 															this.props?.mobile_preview_builder
 														}
@@ -3005,6 +3008,9 @@ class Builder extends Component {
 														}
 														handleVerticleAlign={
 															this.props?.handleVerticleAlign
+														}
+														setAdjustGridAreas={(e) =>
+															this.props.setAdjustGridAreas(e)
 														}
 													/>
 												) : (

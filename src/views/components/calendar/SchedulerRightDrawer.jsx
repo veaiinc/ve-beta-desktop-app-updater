@@ -538,6 +538,7 @@ const SchedulerRightDrawer = ({
 				...prev,
 				errors: { ...prev.errors, dateRange: true },
 			}));
+			message.error('Please select a valid date range for custom availability');
 			return;
 		}
 		if (
@@ -549,6 +550,7 @@ const SchedulerRightDrawer = ({
 				...prev,
 				errors: { ...prev.errors, dateRange: true },
 			}));
+			message.error('End date must be after start date');
 			return;
 		}
 
@@ -562,6 +564,14 @@ const SchedulerRightDrawer = ({
 				...prev,
 				errors,
 			}));
+			if (errors.sessionName) {
+				message.error('Please enter a session name');
+			}
+			if (errors.sessionTypeInput) {
+				message.error(
+					`Please enter ${sessionTypeInputConfig[info.sessionType].tag.toLowerCase()}`,
+				);
+			}
 			return;
 		}
 
@@ -571,7 +581,7 @@ const SchedulerRightDrawer = ({
 				...prev,
 				errors: { ...prev.errors, inviteeLimit: true },
 			}));
-			message.error('Group sessions must have at least 2 invitees.');
+			message.error('Group sessions must have at least 2 invitees');
 			return;
 		}
 

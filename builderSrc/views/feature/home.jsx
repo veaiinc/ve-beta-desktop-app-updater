@@ -623,6 +623,7 @@ class Home extends Proposals {
 			isTemplateDeleteOpen: false,
 			numOfDocuments: 0,
 			isFormTemplate: false,
+			triggerAdjustGridAreas: false,
 		};
 		this.componentRef = createRef();
 		this.addBlockRef = createRef();
@@ -3569,34 +3570,9 @@ class Home extends Proposals {
 	};
 
 	handlePublish = async (e) => {
-		window.dispatchEvent(new CustomEvent('suppressWarning', { detail: true }));
-		message.info('Changes Saved Sucessfully..!');
-		const queryString = window.location.search;
-		const urlParams = new URLSearchParams(queryString);
-
-		const workflow = urlParams?.get('workflow');
-
-		if (workflow === 'true') {
-			return this.props.navigate(-1);
-		}
-
 		this.setState({
-			isPublishLoading: true,
+			triggerAdjustGridAreas: true,
 		});
-
-		const response = await this.publishWorkflow(updateWorkflowTemplate, {
-			templateId: this.props.params.templateID,
-			updateObj: {
-				status: 'published',
-			},
-		});
-		this.setState({
-			isPublishLoading: false,
-		});
-
-		if (response?.[0]) {
-			return this.props.navigate(-1);
-		}
 	};
 
 	handleSetServiceBlock = (e, type, blockId, sectionID) => {
@@ -5727,6 +5703,46 @@ class Home extends Proposals {
 			},
 		);
 	};
+	handleTriggerAdjustGridAreas = async (e) => {
+		this.setState({
+			triggerAdjustGridAreas: e,
+			isPublishLoading: true,
+		});
+
+		const queryString = window.location.search;
+		const urlParams = new URLSearchParams(queryString);
+
+		const workflow = urlParams?.get('workflow');
+
+		const response = await this.publishWorkflow(updateWorkflowTemplate, {
+			templateId: this.props.params.templateID || this.templateId,
+			updateObj: {
+				status: 'published',
+			},
+		});
+		this.setState({
+			isPublishLoading: false,
+		});
+		if (workflow === 'true') {
+			return this.props.navigate(-1);
+		}
+
+		if (response?.[0]) {
+			if (
+				_.has(this.state.template, 'version') &&
+				!this.state.template.actions?.includes('form-submission')
+			) {
+				// return (window.location.href = `https://ve.ai/my-templates`);
+				return this.props.navigate(-1);
+			} else if (this.state.template.actions?.includes('form-submission')) {
+				return this.props.navigate(-1);
+			} else {
+				return (window.location.href = `https://ve.ai/workflow_builder/${
+					this.props.params.templateID || this.templateId
+				}`);
+			}
+		}
+	};
 	render() {
 		if (this.componentRef.current) {
 			const data = [
@@ -6097,6 +6113,9 @@ class Home extends Proposals {
 												</div>
 												<div className="desktop-view-preview-border">
 													<Builder
+														triggerAdjustGridAreas={
+															this.state.triggerAdjustGridAreas
+														}
 														mobile_preview_builder={true}
 														fluidGrid={() => this.fluidGrid()}
 														fluidShowGrid={this.state.fluidShowGrid}
@@ -6912,6 +6931,9 @@ class Home extends Proposals {
 											</div>
 										) : (
 											<Builder
+												triggerAdjustGridAreas={
+													this.state.triggerAdjustGridAreas
+												}
 												suppressWarning={this.state.isPublishing}
 												fluidGrid={() => this.fluidGrid()}
 												fluidShowGrid={this.state.fluidShowGrid}
@@ -7503,6 +7525,9 @@ class Home extends Proposals {
 												setServiceTable={(e, value) => {
 													this.setServiceTableSection(e, value);
 												}}
+												setAdjustGridAreas={(e) =>
+													this.handleTriggerAdjustGridAreas(e)
+												}
 											/>
 										)}
 

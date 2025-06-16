@@ -136,6 +136,12 @@
 				background: var(--card-over-card-hover);
 			}
 
+			.copy-link {
+				path {
+					fill: var(--secondary-font) !important;
+				}
+			}
+
 			.edit {
 				color: var(--primary-font);
 				font-family: var(--primary-font-family);

@@ -40,16 +40,12 @@ const NoteComponentModal = ({
 	const [info, setInfo] = useState({
 		noteComponentFullScreen: false,
 		chatToNoteLoopOn: false,
-		noteIconsInfo: {
-			copy: false,
-		},
 		noteId: null,
 		isFavorite: false,
 		notesConfigs: {
 			smallText: false,
 			fullWidth: false,
 		},
-		moreOptionsOpen: false,
 	});
 
 	const customModalStyles = {
@@ -127,43 +123,6 @@ const NoteComponentModal = ({
 			chatToNoteLoopOn: !info?.chatToNoteLoopOn,
 		});
 	};
-
-	const handleCopyNoteContent = (content) => {
-		navigator?.clipboard?.writeText(content);
-		setTimeout(() => {
-			setInfo((prev) => ({
-				...prev,
-				noteIconsInfo: {
-					...prev?.noteIconsInfo,
-					copy: !prev?.noteIconsInfo?.copy,
-				},
-			}));
-		}, 1000);
-	};
-
-	const handleCopyClick = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			noteIconsInfo: {
-				...prev?.noteIconsInfo,
-				copy: !prev?.noteIconsInfo?.copy,
-			},
-		}));
-	}, []);
-
-	const noteIcons = useMemo(
-		() => [
-			{ icon: <PreviousSvg />, tooltipContent: 'undo' },
-			{ icon: <NextSvg />, tooltipContent: 'redo' },
-			{
-				icon: <CopySvg />,
-				onIconClick: handleCopyClick,
-				tooltipContent: info?.noteIconsInfo?.copy ? 'copied' : 'copy',
-			},
-			{ icon: <ShareSvg />, tooltipContent: 'share' },
-		],
-		[info?.noteIconsInfo],
-	);
 
 	const handleClose = () => {
 		closeModal();
@@ -334,8 +293,6 @@ const NoteComponentModal = ({
 									info?.chatToNoteLoopOn ? globalChatMessages : noteContent
 								}
 								loopOn={info?.chatToNoteLoopOn}
-								noteIconsInfo={info?.noteIconsInfo}
-								onCopyNoteContent={handleCopyNoteContent}
 								noteId={info?.noteId}
 								setNoteId={(newNoteId) =>
 									setInfo((prev) => ({ ...prev, noteId: newNoteId }))
