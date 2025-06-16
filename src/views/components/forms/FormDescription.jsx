@@ -155,10 +155,10 @@ export const EventsAnswer = ({ answer }) => {
 							<tr key={index} className="eventCard">
 								<td className="eventName">{eventName}</td>
 								<td className="eventDate">
-									{moment(eventDate).format('DD MMM YYYY')}
+									{eventDate ? moment(eventDate).format('DD MMM YYYY') : 'Not Provided'}
 								</td>
-								<td className="eventLocation">{eventLocation}</td>
-								<td className="eventGuests">{eventGuests}</td>
+								<td className="eventLocation">{eventLocation || '-'}</td>
+								<td className="eventGuests">{eventGuests || '-'}</td>
 							</tr>
 						);
 					})}
