@@ -1193,7 +1193,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 									theme={'dark'}
 									editable={info?.myAccess !== 'view' || !info?.isDeleted}
 									slashMenu={false}
-									filePanel={<div>hiii</div>}
 								>
 									{(info?.myAccess !== 'view' || !info?.isDeleted) && (
 										<NoteToolbar

@@ -82,13 +82,14 @@ const actionHandlers = {
 	UPDATE_RELATED_VIEWS: (state, action) => {
 		const { updatedRow, viewId, databaseId, rowId, actionType = 'update' } = action.payload;
 
-		const affectedViews = Object.values(state?.views)
-			.flat()
-			.filter((item) => item.databaseId === databaseId && item._id !== viewId);
+		const affectedViews = Object.values(state?.views).flat();
+		// .filter((item) => item.databaseId === databaseId && item._id !== viewId);
 
 		if (!affectedViews.length) return state;
 
-		const updatedRowData = state?.rowData?.[viewId]?.data?.find((row) => row._id === rowId);
+		const updatedRowData = {
+			...state?.rowData?.[viewId]?.data?.find((row) => row._id === rowId),
+		};
 
 		for (const view of affectedViews) {
 			const rowData = state?.rowData?.[view._id];
