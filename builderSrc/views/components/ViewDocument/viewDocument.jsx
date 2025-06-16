@@ -232,7 +232,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 				<div className="doc-header-actions">
 					<div className="doc-header-btn" onClick={handleEditClick}>
 						<UserIcon />
-						<span className="doc-header-btn-text">Re Edit document</span>
+						<span className="doc-header-btn-text">Re-Edit document</span>
 					</div>
 					<div
 						className="doc-header-btn"
