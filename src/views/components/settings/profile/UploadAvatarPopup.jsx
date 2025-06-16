@@ -15,10 +15,10 @@ const UploadAvatarPopupComponent = ({
 	setuploadAvatarPopup,
 	handleImageChange,
 	updateDpThemeHandler,
+	setZoom,
+	setCrop
 }) => {
 	const [openTheme, setopenTheme] = useState(false);
-	const [hover, sethover] = useState(false);
-
 	const closeModalFunc = () => {
 		openTheme
 			? setopenTheme(false)
@@ -63,9 +63,8 @@ const UploadAvatarPopupComponent = ({
 									crop={userDetails?.cropSettings?.crop}
 									zoom={userDetails?.cropSettings?.zoom}
 									showGrid={false}
-									onCropChange={updateDpThemeHandler}
-									onCropComplete={updateDpThemeHandler}
-									onZoomChange={updateDpThemeHandler}
+									onCropChange={setCrop}
+									onZoomChange={setZoom}
 								/>
 							</div>
 						) : (

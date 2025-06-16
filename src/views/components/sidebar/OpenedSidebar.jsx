@@ -266,7 +266,6 @@ const OpenedSidebar = ({
 		},
 		themeInfo: { theme, updateTheme },
 		authInfo: { updateUserDetails },
-		companyInfo: { getTenantPreferences, tenantPreferenceData },
 	} = useContext(Context);
 
 	const [userDetails, setUserDetails] = useState({
@@ -277,10 +276,6 @@ const OpenedSidebar = ({
 		logoURL: '',
 		cropSettings: { crop: { x: 0, y: 0 }, zoom: 1 },
 	});
-
-	const [initialState, setInitialState] = useState({ ...userDetails });
-
-	const [isHover, setisHover] = useState(false);
 
 	const [uploadAvatarPopup, setuploadAvatarPopup] = useState({ theme: false, file: false });
 
@@ -293,7 +288,6 @@ const OpenedSidebar = ({
 	}, []);
 
 	useEffect(() => {
-		console.log(userDetailsData); // Added console log to check userDetailsData
 		if (userDetailsData) {
 			setUserDetails((prev) => ({
 				...prev,
@@ -582,6 +576,30 @@ const OpenedSidebar = ({
 			});
 		}
 	};
+
+	const handleZoom = (zoom) => {
+		setUserDetails(prev => {
+			return {
+				...prev,
+				cropSettings: {
+					...prev.cropSettings,
+					zoom,
+				},
+			}
+		})
+	}
+
+	const handleCrop = (crop) => {
+		setUserDetails(prev => {
+			return {
+				...prev,
+				cropSettings: {
+					...prev.cropSettings,
+					crop,
+				},
+			}
+		})
+	}
 
 	const handleImageChange = (acceptedFiles) => {
 		const file = acceptedFiles[0];
@@ -1064,6 +1082,8 @@ const OpenedSidebar = ({
 							setuploadAvatarPopup={setuploadAvatarPopup}
 							handleImageChange={handleImageChange}
 							updateDpThemeHandler={updateDpThemeHandler}
+							setZoom={handleZoom}
+							setCrop={handleCrop}
 						/>
 
 						<UploadFileProiflePopup
