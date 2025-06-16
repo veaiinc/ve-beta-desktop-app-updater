@@ -96,10 +96,10 @@ const SuggestedOptions = [
 	},
 	{
 		id: 2,
-		title: 'Session',
-		value: 'session',
+		title: 'Schedule',
+		value: 'schedule',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+			setInfo((prev) => ({ ...prev, openSchedulerDrawer: true, dropdown: false }));
 		},
 	},
 	{
@@ -168,8 +168,8 @@ const homePageTextContent = {
 		subText: 'Your enterprise knowledge hub for instant answers.',
 	},
 	calendar: {
-		title: 'Let’s make every moment count',
-		subText: 'More than a schedule - It’s your daily mission control',
+		title: "Let's make every moment count",
+		subText: "More than a schedule - It's your daily mission control",
 	},
 	task: {
 		title: 'Transform goals into actionable tasks',

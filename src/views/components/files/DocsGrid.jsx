@@ -330,7 +330,10 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 											</span>
 										</div>
 									</div> */}
-									<div className="docsCardContainer">
+									<div
+										className="docsCardContainer"
+										onClick={() => handleDocClick(doc)}
+									>
 										<div className="docsCardPreview">
 											{doc?.firstModule[0]?._id && (
 												<DocumentShortPreview doc={doc} />
