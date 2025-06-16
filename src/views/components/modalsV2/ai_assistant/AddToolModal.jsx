@@ -9,7 +9,6 @@ import Spinner from '../../loaders/Spinner';
 import { useParams } from 'react-router-dom';
 import { message } from '../../globalComponents/CustomToast';
 import PayloadField from './PayloadField';
-
 const AddToolModal = ({ isOpen, onClose }) => {
 	const {
 		knowledgeAgent: {
@@ -154,6 +153,8 @@ const AddToolModal = ({ isOpen, onClose }) => {
 				success: null,
 				connectedAccounts: [],
 				selectedAccount: null,
+				validationErrors: {}, // reset errors
+				payloadVariableDescriptions: {}, // reset descriptions
 			}));
 			fetchConnectedAccounts();
 		}
@@ -295,7 +296,16 @@ const AddToolModal = ({ isOpen, onClose }) => {
 	// Validation logic
 	const validatePayloadField = (prop, value) => {
 		const mode = info.payloadFieldModes?.[prop.name] || 'ai';
-		if (mode === 'ai') return null; // always valid if agent decides
+		if (mode === 'ai') {
+			if (!prop.optional) {
+				const description = info.payloadVariableDescriptions?.[prop.name];
+				if (!description || !description.trim()) {
+					message.error('Please provide a description for the agent');
+					return 'Please provide a description for the agent';
+				}
+			}
+			return null;
+		}
 		if (
 			prop.hidden ||
 			prop.type === 'app' ||
@@ -348,6 +358,14 @@ const AddToolModal = ({ isOpen, onClose }) => {
 		const errors = {};
 		let hasErrors = false;
 		info.actionPayloadConfig?.configurable_props?.forEach((prop) => {
+			if (
+				prop.hidden ||
+				prop.type === 'app' ||
+				prop.type === '$.service.db' ||
+				prop.type === '$.interface.http'
+			) {
+				return;
+			}
 			const value = info.actionPayloadValues[prop.name];
 			const error = validatePayloadField(prop, value);
 			if (error) {
@@ -355,6 +373,7 @@ const AddToolModal = ({ isOpen, onClose }) => {
 				hasErrors = true;
 			}
 		});
+		console.log('Validation errors:', errors);
 		setInfo((prev) => ({
 			...prev,
 			validationErrors: errors,
