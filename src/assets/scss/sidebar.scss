@@ -1303,9 +1303,9 @@
 		justify-content: center;
 		align-items: center;
 		gap: 10px;
-		border-radius: 100px;
-		border: 1px solid var(--stroke, #2c2d2e);
-		background: var(--card, #18191b);
+		border-radius: 8px;
+		border: 1px solid var(--stroke, #2b2e31);
+		background: var(--new-card, #1a1b1e);
 		cursor: pointer;
 		svg {
 			flex-shrink: 0;

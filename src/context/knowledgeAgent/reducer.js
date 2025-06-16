@@ -32,6 +32,18 @@ const actionHandlers = {
 		...state,
 		actionsInfo: action?.payload,
 	}),
+	GET_TRIGGERS: (state, action) => ({
+		...state,
+		triggers: action?.payload,
+	}),
+	CONNECT_TRIGGER: (state, action) => ({
+		...state,
+		triggers: action.payload,
+	}),
+	DELETE_TRIGGER: (state, action) => ({
+		...state,
+		triggers: action?.payload,
+	}),
 	RESET_STATE: () => initialState,
 };
 
