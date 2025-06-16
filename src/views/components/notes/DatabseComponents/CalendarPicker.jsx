@@ -26,6 +26,10 @@ const CalendarPicker = ({
 	};
 
 	const handleDateClick = (date) => {
+		// If the clicked date is from a different month, update the current month
+		if (!date.isSame(currentMonth, 'month')) {
+			setCurrentMonth(date.clone().startOf('month'));
+		}
 		onDateSelect(date);
 	};
 
@@ -37,31 +41,20 @@ const CalendarPicker = ({
 		const startOfMonth = currentMonth.clone().startOf('month');
 		const endOfMonth = currentMonth.clone().endOf('month');
 		const startOfGrid = startOfMonth.clone().startOf('week').day(0);
-		const endOfGrid = endOfMonth.clone().endOf('week').day(6); // Ensure end is Saturday
+		const endOfGrid = endOfMonth.clone().endOf('week').day(6);
 
 		const weeks = [];
 		let currentWeek = [];
 		let currentDate = startOfGrid.clone();
 
-		while (currentDate.isSameOrBefore(endOfGrid)) {
-			currentWeek.push(currentDate.clone());
-
-			if (currentWeek.length === 7) {
-				weeks.push(currentWeek);
-				currentWeek = [];
-			}
-
-			currentDate.add(1, 'day');
-		}
-
-		// Ensure we always have 6 rows for consistent height
-		while (weeks.length < 6) {
-			const lastWeek = [];
-			for (let i = 0; i < 7; i++) {
-				lastWeek.push(currentDate.clone());
+		// Generate exactly 6 weeks
+		for (let week = 0; week < 6; week++) {
+			currentWeek = [];
+			for (let day = 0; day < 7; day++) {
+				currentWeek.push(currentDate.clone());
 				currentDate.add(1, 'day');
 			}
-			weeks.push(lastWeek);
+			weeks.push(currentWeek);
 		}
 
 		return weeks;
