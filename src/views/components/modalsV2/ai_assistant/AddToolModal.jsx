@@ -375,7 +375,6 @@ const AddToolModal = ({ isOpen, onClose }) => {
 				hasErrors = true;
 			}
 		});
-		console.log('Validation errors:', errors);
 		setInfo((prev) => ({
 			...prev,
 			validationErrors: errors,
