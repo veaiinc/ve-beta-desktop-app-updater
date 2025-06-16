@@ -310,7 +310,8 @@ const AddToolModal = ({ isOpen, onClose }) => {
 			prop.hidden ||
 			prop.type === 'app' ||
 			prop.type === '$.service.db' ||
-			prop.type === '$.interface.http'
+			prop.type === '$.interface.http' ||
+			prop.type === '$.interface.timer'
 		)
 			return null;
 		if (
@@ -362,7 +363,8 @@ const AddToolModal = ({ isOpen, onClose }) => {
 				prop.hidden ||
 				prop.type === 'app' ||
 				prop.type === '$.service.db' ||
-				prop.type === '$.interface.http'
+				prop.type === '$.interface.http' ||
+				prop.type === '$.interface.timer'
 			) {
 				return;
 			}
@@ -421,16 +423,20 @@ const AddToolModal = ({ isOpen, onClose }) => {
 			const mode = fieldModes[prop.name] || 'ai';
 			let desc = variableDescriptions[prop.name];
 			if (!desc || !desc.trim()) {
-				desc = `No description provided for "${prop.name}"`;
+				// If field is optional, use prop.description from API response
+				if (prop.optional && prop.description) {
+					desc = prop.description;
+				} else {
+					desc = `No description provided for "${prop.name}"`;
+				}
 			}
 
-			// Special handling for app type fields
-			if (prop.type === 'app') {
-				props[prop.name] = {
-					name: app,
-					type: 'app',
-					app: app,
-				};
+			// Always skip double braces for 'app' and types starting with '$'
+			if (
+				prop.type === 'app' ||
+				(typeof prop.type === 'string' && prop.type.startsWith('$'))
+			) {
+				props[prop.name] = '';
 				continue;
 			}
 
@@ -440,8 +446,8 @@ const AddToolModal = ({ isOpen, onClose }) => {
 					type: prop.type,
 					description: desc,
 				});
-				// For AI mode, use double braces in the props
-				props[prop.name] = `{{${prop.name}}}`;
+				// Use placeholder for later replacement
+				props[prop.name] = `__VAR__${prop.name}__`;
 			} else {
 				const val = userValues[prop.name];
 				if (val !== undefined && val !== null && val !== '') {
@@ -477,10 +483,14 @@ const AddToolModal = ({ isOpen, onClose }) => {
 			action_key: action?.key || action?.id || '',
 			app: app || '',
 			account_id: accountId,
-			props: props, // This will contain the double braces format for AI mode fields
+			props: props, // This will contain the placeholders for AI mode fields
 		};
 
 		const workspaceId = localStorage.getItem('workspaceId');
+		let body = JSON.stringify(output);
+		// Replace all "__VAR__variable__" (with quotes) with {{variable}} (no quotes)
+		body = body.replace(/"__VAR__(.*?)__"/g, '{{$1}}');
+
 		const payload = {
 			name: action?.name || action?.id || '',
 			description: action?.description || '',
@@ -489,7 +499,7 @@ const AddToolModal = ({ isOpen, onClose }) => {
 				workspaceId,
 			method: 'POST',
 			contentType: 'json',
-			body: JSON.stringify(output),
+			body,
 			headers: [
 				{
 					name: 'Content-Type',

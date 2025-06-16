@@ -98,6 +98,7 @@ const PayloadField = ({
 		prop.type === 'app' ||
 		prop.type === '$.service.db' ||
 		prop.type === '$.interface.http' ||
+		prop.type === '$.interface.timer' ||
 		prop.type === 'alert'
 	)
 		return null;
