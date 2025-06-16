@@ -425,6 +425,7 @@ class DocumentShortPreview extends NewProposals {
 										currencySymbol={this.state?.currencySymbol}
 										handleSpanClick={this?.handleSpanClick}
 										editingWorflow={this.props?.editingWorflow || false}
+										audioMode={true}
 									/>
 								</div>
 							</div>

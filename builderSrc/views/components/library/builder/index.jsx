@@ -2187,6 +2187,12 @@ class Builder extends Component {
 												data-block-id={section?.type}
 											>
 												<FormWrapper
+													triggerAdjustGridAreas={
+														this.props.triggerAdjustGridAreas
+													}
+													setAdjustGridAreas={(e) => {
+														this.props.setAdjustGridAreas(e);
+													}}
 													handleAddLayout={(e, type) =>
 														this.props.handleAddLayout(e, type)
 													}
@@ -2647,6 +2653,7 @@ class Builder extends Component {
 														triggerAdjustGridAreas={
 															this.props.triggerAdjustGridAreas
 														}
+														audioMode={this.props.audioMode}
 														mobile_preview_builder={
 															this.props?.mobile_preview_builder
 														}
