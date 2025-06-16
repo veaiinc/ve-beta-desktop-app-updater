@@ -64,6 +64,9 @@ import LoginPage from './views/features/loginPage/LoginPage';
 
 const BuilderApp = lazy(() => import('../builderSrc/App'));
 
+import Agents from './views/features/agents/Agents';
+import Agent from './views/features/agents/agent/Agent';
+
 const routes = [
 	{
 		path: '/',
@@ -673,6 +676,26 @@ const routes = [
 				<Suspense fallback={'loading builder...'}>
 					<BuilderApp />
 				</Suspense>
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/agents',
+		component: (
+			<AuthWrapper
+				title="Agents"
+				outerContainerStyle={{ padding: '0' }}
+				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
+			>
+				<Agents />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/agent/:agentId',
+		component: (
+			<AuthWrapper title="Agent">
+				<Agent />
 			</AuthWrapper>
 		),
 	},

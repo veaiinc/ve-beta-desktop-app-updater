@@ -136,19 +136,26 @@ const createOptions = [
 			}
 		},
 	},
+	// {
+	// 	id: 6,
+	// 	title: 'Proposal',
+	// 	value: 'proposal',
+	// 	controlValue: 'workflow',
+	// 	action: ({ setInfo }) => {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			openProposalPopup: true,
+	// 			commonState: 'proposal',
+	// 			dropdown: false,
+	// 		}));
+	// 	},
+	// },
 	{
 		id: 6,
-		title: 'Proposal',
-		value: 'proposal',
+		title: 'Document',
+		value: 'document',
 		controlValue: 'workflow',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({
-				...prev,
-				openProposalPopup: true,
-				commonState: 'proposal',
-				dropdown: false,
-			}));
-		},
+		action: ({ navigate }) => navigate('/builder/create-document'),
 	},
 	{
 		id: 7,
