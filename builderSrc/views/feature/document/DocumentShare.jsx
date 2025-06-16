@@ -186,7 +186,7 @@ const DocumentShare = ({
 	}, [info.editSlug]);
 
 	const getCurrentWorkspaceId = (workspaces) => {
-		const workspaceId = localStorage.getItem('workspaceID');
+		const workspaceId = localStorage.getItem('workspaceId');
 		const workspace = workspaces.find((ws) => ws.activeWorkspaceId === workspaceId);
 		return workspace ? workspace.activeWorkspaceId : '';
 	};

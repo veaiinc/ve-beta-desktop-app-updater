@@ -63,18 +63,10 @@ class ShortBuilderPreview extends NewProposals {
 			isSubmit: false,
 			isClientVariable: false,
 			activeBlockIdToScroll: null,
-			customDomain: '',
-			currencySymbol: '',
-			updateClient: false,
-			clientListArray: [],
-			isSubmit: false,
-			isClientVariable: false,
 			clientDetails: {},
 			fetchAgain: null,
-			customDomain: '',
 			endUrl: '',
 			expiresAt: '',
-			clientDetails: {},
 			customExpiryDate: '',
 			mobileViewLocked: false,
 		};
@@ -437,7 +429,7 @@ class ShortBuilderPreview extends NewProposals {
 															console.log();
 														}}
 														handleAddLayout={(
-															workspaceID,
+															workspaceId,
 															json,
 															templateID,
 														) => console.log()}

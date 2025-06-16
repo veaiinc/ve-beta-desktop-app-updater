@@ -101,7 +101,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 			localStorage.setItem('showSettingsSidebar', 'false');
 			const host = fetchDomainName();
 
-			Cookies?.set('workspaceID', activeWorkspaceId, {
+			Cookies?.set('workspaceId', activeWorkspaceId, {
 				sameSite: 'lax',
 				domain: host,
 			});
