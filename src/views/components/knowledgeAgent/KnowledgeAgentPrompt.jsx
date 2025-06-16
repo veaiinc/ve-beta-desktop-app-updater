@@ -133,6 +133,8 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 
 	const handleResetPrompt = useCallback(async () => {
 		const resetPromptLabel = await resetAiPrompt(assistant?._id);
+		console.log(resetPromptLabel);
+
 		if (resetPromptLabel?.[0] === true) {
 			setInfo((prev) => ({
 				...prev,

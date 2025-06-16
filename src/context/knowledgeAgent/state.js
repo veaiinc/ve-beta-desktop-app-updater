@@ -277,7 +277,7 @@ export const KnowledgeAgentState = () => {
 			const path = '/' + workspaceId + '/knowledge-agents/' + agentId + '/reset-prompt';
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
-			const response = await service?.fetchPost(path, null, token, type);
+			const response = await service?.fetchPut(path, null, token, type);
 			const success = response?.[0] === true;
 			if (success) {
 				dispatch({
@@ -285,6 +285,7 @@ export const KnowledgeAgentState = () => {
 					payload: { data: response?.[1] },
 				});
 			}
+			return response;
 		} catch (error) {
 			console.log('error==>resetAiPrompt', error);
 			return [false, error];
@@ -834,7 +835,6 @@ export const KnowledgeAgentState = () => {
 			return response?.[1];
 		}
 		return [false, response?.[1]];
-		
 	};
 
 	const updateContextValues = (data) => {
