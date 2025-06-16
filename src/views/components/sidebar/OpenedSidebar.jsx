@@ -325,7 +325,6 @@ const OpenedSidebar = ({
 
 	const handleNavigateFunction = useCallback(
 		(route, singleItems) => {
-			console.log(route, singleItems);
 			if (singleItems?.name === 'Settings') {
 				setShowSettingsSidebar(true);
 				navigate('/settings/my-profile');
