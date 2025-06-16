@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './shapes.scss';
 import _ from 'lodash';
 import Image from '../image';
-import { Resizable } from 're-resizable';
+// import { Resizable } from 're-resizable';
 class Shape extends Component {
 	constructor(props) {
 		super();

@@ -1817,9 +1817,12 @@ class Home extends Proposals {
 				_.map(section.blocks, (block, k) => {
 					if (block._id == this.state.activeBlockID) {
 						_.map(block.subBlocks, (subBlock, k) => {
-							if (subBlock._id == this.state.activeSubBlockID) {
+							if (
+								subBlock._id == this.state.activeSubBlockID ||
+								e == 'mobileVerticalAlign'
+							) {
 								if (e == 'verticalAlign') {
-									subBlock.divStyles.verticalAlign = f;
+									subBlock.divStyles[e] = f;
 								}
 							}
 						});

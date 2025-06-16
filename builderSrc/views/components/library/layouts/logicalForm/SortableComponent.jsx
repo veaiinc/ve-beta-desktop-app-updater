@@ -4941,7 +4941,7 @@ const SortableComponent = ({
 						>
 							<button
 								ref={addButtonRef}
-								className="builder__action-button"
+								className="action-button"
 								onClick={(e) => {
 									e.preventDefault();
 									setShowInlineDropdown(!showInlineDropdown);
@@ -4962,7 +4962,7 @@ const SortableComponent = ({
 									trigger="hover"
 								>
 									<button
-										className="builder__action-button condition-button"
+										className="action-button condition-button"
 										onClick={(e) => {
 											e.preventDefault();
 											setShowConditions(!showConditions);
@@ -4981,7 +4981,7 @@ const SortableComponent = ({
 							trigger="hover"
 						>
 							<button
-								className="builder__action-button"
+								className="action-button"
 								onClick={(e) => {
 									e.preventDefault();
 									onDuplicate(field, _id);
@@ -4999,7 +4999,7 @@ const SortableComponent = ({
 								trigger="hover"
 							>
 								<button
-									className="builder__action-button"
+									className="action-button"
 									onClick={(e) => {
 										e.preventDefault();
 										onDelete(field.id, _id);
@@ -5287,6 +5287,8 @@ const SortableComponent = ({
 														: [option] // Convert to array if not already
 													: option;
 												onAnswerChange(field.id, newValue, _id);
+												// Close dropdown after selection
+												setLocalDropdownState(false);
 											}}
 											style={{
 												padding: '10px 12px',
@@ -5985,7 +5987,7 @@ const SortableComponent = ({
 							<When /> When
 						</span>
 						<button
-							className="builder__action-button"
+							className="action-button"
 							onClick={(e) => {
 								e.preventDefault();
 								setShowConditions(false);
@@ -6217,7 +6219,7 @@ const SortableComponent = ({
 									</div>
 								)}
 							<button
-								className="builder__action-button remove-condition"
+								className="action-button remove-condition"
 								onClick={(e) => {
 									e.preventDefault();
 									onRemoveCondition(field.id, index, 'actions', _id);
