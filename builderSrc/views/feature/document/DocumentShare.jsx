@@ -529,7 +529,7 @@ const DocumentShare = ({
 	const slugOnChange = useCallback(
 		(e) => {
 			// const valueWithoutSpaces = e.target.value.replace(/[^a-z0-9]/g, '');
-			const valueWithoutSpaces = e.target.value.replace(/[^a-zA-Z0-9-]/g, '');
+			const valueWithoutSpaces = e.target.value.replace(/[^a-z0-9-]/g, '');
 			setInfo((prev) => ({
 				...prev,
 				slugHolder: valueWithoutSpaces,
@@ -671,6 +671,7 @@ const DocumentShare = ({
 									ref={inputRef}
 									onChange={slugOnChange}
 									disabled={!info.editSlug}
+									onClick={toggleEditSlug}
 								/>
 							</span>
 							{info.slugErrorMessage && (
