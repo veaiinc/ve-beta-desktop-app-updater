@@ -7,6 +7,7 @@ import { getFaviconUrl } from '../../../../../../../helpers';
 import ActionsModal from '../../../../../modalsV2/ai_assistant/ActionsModal';
 import EditAgentTool from '../../../../modals/editAgentTool/EditAgentTool';
 import ToggleSwitch from '../../../../../../components/input/slider';
+import AddToolModal from '../../../../../modalsV2/ai_assistant/AddToolModal';
 
 // svgs
 import { ReactComponent as SearchSvg } from '../assets/search-icon.svg';
@@ -30,6 +31,7 @@ const ToolsTab = ({ agentId }) => {
 		actionsLoading: true,
 		selectedAction: null,
 		editAgentToolOpen: false,
+		addToolModalOpen : false,
 	});
 
 	useEffect(() => {
@@ -152,7 +154,7 @@ const ToolsTab = ({ agentId }) => {
 					onClick={() =>
 						setInfo((prevStates) => ({
 							...prevStates,
-							actionModalOpen: true,
+							addToolModalOpen: true,
 						}))
 					}
 				>
@@ -212,6 +214,10 @@ const ToolsTab = ({ agentId }) => {
 			<EditAgentTool
 				isOpen={info?.editAgentToolOpen}
 				onClose={() => setInfo((prev) => ({ ...prev, editAgentToolOpen: false }))}
+			/>
+			<AddToolModal
+				isOpen={info?.addToolModalOpen}
+				onClose={() => setInfo((prev) => ({ ...prev, addToolModalOpen: false }))}
 			/>
 		</div>
 	);

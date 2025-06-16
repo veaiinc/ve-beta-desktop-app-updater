@@ -325,7 +325,6 @@ const OpenedSidebar = ({
 
 	const handleNavigateFunction = useCallback(
 		(route, singleItems) => {
-			console.log(route, singleItems);
 			if (singleItems?.name === 'Settings') {
 				setShowSettingsSidebar(true);
 				navigate('/settings/my-profile');
@@ -498,12 +497,12 @@ const OpenedSidebar = ({
 			icon: (theme) => (theme === 'dark' ? <SunIcon /> : <MoonIcon />),
 			onClick: (updateTheme, newThemeValue) => () => updateTheme(newThemeValue),
 		},
-		{
-			key: 'search',
-			label: (_, isMac) => (isMac ? 'Search ⌘ + k' : 'Search Ctrl + k'),
-			icon: () => <SearchSvg />,
-			onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
-		},
+		// {
+		// 	key: 'search',
+		// 	label: (_, isMac) => (isMac ? 'Search ⌘ + k' : 'Search Ctrl + k'),
+		// 	icon: () => <SearchSvg />,
+		// 	onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
+		// },
 		// {
 		// 	key: 'newChat',
 		// 	label: () => 'New Chat',

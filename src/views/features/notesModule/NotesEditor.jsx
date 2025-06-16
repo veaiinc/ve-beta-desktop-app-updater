@@ -41,9 +41,10 @@ import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
+import { ImageBlock, insertImage } from '../../components/notes/ImageComponent';
+import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
 import { isEqual } from 'lodash';
 import { Database, insertDatabase } from '../../components/notes/Database';
-import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
 import DatabaseSidebar from '../../components/modalsV2/notes/DatabaseSidebar';
 
 export const NotesRefContext = createContext(null);
@@ -176,12 +177,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 		return null;
 	}, [notesPageData?.data?.iconImage, info?.selectedEmoji?.native]);
-
 	const schema = BlockNoteSchema.create({
 		blockSpecs: {
 			// Adds all default blocks.
 			...defaultBlockSpecs,
 			// Adds the Alert block.
+			image: ImageBlock,
 			database: Database,
 		},
 	});
@@ -194,7 +195,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			cellTextColor: true,
 			headers: true,
 		},
-		uploadFile,
+		// uploadFile,
 	});
 
 	useEffect(() => {
@@ -1201,26 +1202,37 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 											resetAiResponse={resetAiResponse}
 										/>
 									)}
-
 									<SuggestionMenuController
 										triggerCharacter={'/'}
 										getItems={async (query) => {
-											// Gets all default slash menu items.
+											// Gets all default slash menu items
 											const defaultItems =
 												getDefaultReactSlashMenuItems(editor);
-											// Finds index of last item in "Basic blocks" group.
+
+											// Find index of image block in Media group
+											const imageBlockIndex = defaultItems.findIndex(
+												(item) => item.group === 'Media',
+											);
+											// Insert the image item in Media group
+											defaultItems.splice(
+												imageBlockIndex,
+												0,
+												insertImage(editor, noteId),
+											);
+
+											// Find index of last item in Advanced group
 											const lastAdvanceBlockIndex =
 												defaultItems.findLastIndex(
 													(item) => item.group === 'Advanced',
 												);
-											// Inserts the Alert item as the last item in the "Basic blocks" group.
+											// Insert the database item after Advanced group
 											defaultItems.splice(
 												lastAdvanceBlockIndex + 1,
 												0,
 												insertDatabase(editor, noteId),
 											);
 
-											// Returns filtered items based on the query.
+											// Return filtered items based on the query
 											return filterSuggestionItems(defaultItems, query);
 										}}
 									/>
