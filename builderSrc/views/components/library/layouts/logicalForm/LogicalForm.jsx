@@ -4535,8 +4535,8 @@ function LogicalForm(props) {
         border: 1.5px solid color(display-p3 0.8155 0.8155 0.8155) !important;
         background: transparent ;
        
-        color: black ;
-        font-family: Inter ;
+        
+        
         ...(props?.newTheme?.colors?.form?.inputAnswer || {}),
 		...(props?.newTheme?.fonts?.form?.inputAnswer || {}),
     }
