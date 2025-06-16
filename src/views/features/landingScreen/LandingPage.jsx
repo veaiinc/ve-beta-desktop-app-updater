@@ -92,10 +92,10 @@ const LandingPage = () => {
 						<div className="title-text">
 							<div className="title-text-container">
 								<span className="title-one">The World's First</span>
-								<span className="title-two">Ambient OS</span>
+								<span className="title-two">Ambient AI</span>
 							</div>
 							<p className="title-three">
-								A living memory system that thinks and acts — without prompts.
+								Your living memory system that thinks and acts — without prompts.
 							</p>
 						</div>
 
@@ -133,7 +133,7 @@ const LandingPage = () => {
 	return (
 		<>
 			<Helmet>
-				<title>Ve - The World's First Proactive AI OS</title>
+				<title>Ve - The World's First Ambient AI OS</title>
 			</Helmet>
 			<main className="landing-page-container">
 				<header className="page-header">

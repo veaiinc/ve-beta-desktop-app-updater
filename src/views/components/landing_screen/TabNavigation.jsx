@@ -15,7 +15,7 @@ const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
 				getPopupContainer={() => document.body}
 				overlayStyle={{ width: '100%', maxWidth: '100vw' }}
 			>
-				<div className="proactiveDropdown">Proactive</div>
+				<div className="proactiveDropdown">Ambient</div>
 			</Tooltip>
 			{tabs.map((label, index) => (
 				<li
