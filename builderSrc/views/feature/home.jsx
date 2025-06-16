@@ -3563,6 +3563,8 @@ class Home extends Proposals {
 	};
 
 	handlePublish = async (e) => {
+		e.stopPropagation();
+		e.preventDefault();
 		this.setState({
 			triggerAdjustGridAreas: true,
 		});
@@ -5697,13 +5699,9 @@ class Home extends Proposals {
 		);
 	};
 	handleTriggerAdjustGridAreas = async (e) => {
-		e.stopPropagation();
-		e.preventDefault();
 		this.setState({
-			triggerAdjustGridAreas: e,
 			isPublishLoading: true,
 		});
-
 		const queryString = window.location.search;
 		const urlParams = new URLSearchParams(queryString);
 
@@ -5718,11 +5716,17 @@ class Home extends Proposals {
 		this.setState({
 			isPublishLoading: false,
 		});
+
 		if (workflow === 'true') {
-			return this.props.navigate(-1);
+			return this.props.navigate('/files?activeTab=Documents');
 		}
 
 		if (response?.[0]) {
+			console.log(
+				this.state.template,
+				this.state.template.actions?.includes('form-submission'),
+				'karthik====>data',
+			);
 			if (
 				_.has(this.state.template, 'version') &&
 				!this.state.template.actions?.includes('form-submission')
@@ -7520,9 +7524,12 @@ class Home extends Proposals {
 												setServiceTable={(e, value) => {
 													this.setServiceTableSection(e, value);
 												}}
-												setAdjustGridAreas={(e) =>
-													this.handleTriggerAdjustGridAreas(e)
-												}
+												setAdjustGridAreas={() => {
+													this.setState({
+														triggerAdjustGridAreas: false,
+													});
+													this.handleTriggerAdjustGridAreas();
+												}}
 											/>
 										)}
 
