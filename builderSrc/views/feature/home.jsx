@@ -5718,7 +5718,9 @@ class Home extends Proposals {
 		});
 
 		if (workflow === 'true') {
-			return this.props.navigate('/files?activeTab=Documents');
+			return this.props.navigate(
+				`/builder/document/view/${this.props.params.templateID}?workflow=true`,
+			);
 		}
 
 		if (response?.[0]) {
