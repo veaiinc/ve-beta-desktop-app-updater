@@ -48,7 +48,7 @@ const uploadCategoryOptions = [
 	},
 ];
 
-const ImageUploadPopup = ({ closePopup, onImageSelect, noteId }) => {
+const ImageUploadPopup = ({ closePopup, onImageSelect }) => {
 	const unsplashSearchTimeout = useRef(null);
 	const {
 		workspaceAssets: {

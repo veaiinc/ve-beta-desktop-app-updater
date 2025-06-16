@@ -1553,7 +1553,7 @@ const QuickActions = ({
 			/>
 			<CreateTaskPopup
 				isOpen={info?.createTaskPopup}
-				closeModal={() => setInfo({ ...info, createTaskPopup: false })}
+				closeModal={() => setInfo((prev) => ({ ...prev, createTaskPopup: false }))}
 				responseMetadata={responseMetadata}
 				colors={colors}
 				tenantUsers={info?.tenantUsers}
@@ -1561,11 +1561,11 @@ const QuickActions = ({
 			/>
 			<EventsPopup
 				open={info?.openEventsPopup}
-				closeModal={() => setInfo({ ...info, openEventsPopup: false })}
+				closeModal={() => setInfo((prev) => ({ ...prev, openEventsPopup: false }))}
 			/>
 			<SchedulerRightDrawer
 				open={info?.openSchedulerDrawer}
-				onClose={() => setInfo({ ...info, openSchedulerDrawer: false })}
+				onClose={() => setInfo((prev) => ({ ...prev, openSchedulerDrawer: false }))}
 				mode="create"
 				onSessionCreated={() => {
 					setInfo({ ...info, openSchedulerDrawer: false });
