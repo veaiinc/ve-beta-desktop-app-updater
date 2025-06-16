@@ -271,20 +271,19 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
-	const resetAiPrompt = async (agentId,payload={}) => {
+	const resetAiPrompt = async (agentId) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const path = '/' + workspaceId + '/knowledge-agents/' + agentId + '/reset-prompt';
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
-			const response = await service?.fetchPut(path, payload, token, type);
+			const response = await service?.fetchPost(path, null, token, type);
 			const success = response?.[0] === true;
 			if (success) {
 				dispatch({
 					type: Actions?.SELECT_AI_PROMPT,
 					payload: { data: response?.[1] },
 				});
-				return [true, response?.[1]];
 			}
 		} catch (error) {
 			console.log('error==>resetAiPrompt', error);
@@ -713,6 +712,131 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
+	const connectTool = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = '/pipedream/connect-token/' + workspaceId + '/' + payload?.app;
+
+			const response = await service?.fetchPost(
+				url,
+				{},
+				usertoken,
+				'third_party_integrations_api',
+			);
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			}
+			return [false, response?.[1]];
+		} catch (error) {
+			console.log('error==>connectTool', error);
+		}
+	};
+
+	const getPipedreamApps = async (page = 1, limit = 10, search = '') => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/pipedream/apps/${workspaceId}?page=${page}&limit=${limit}${
+				search ? `&search=${encodeURIComponent(search)}` : ''
+			}`;
+
+			const response = await service?.fetchGet(
+				url,
+				usertoken,
+				'third_party_integrations_api',
+			);
+
+			if (response?.[0] === true) {
+				const { data } = response[1];
+				return [
+					true,
+					{
+						data: data.apps,
+						hasNextPage: data.has_more,
+						currentPage: data.current_page,
+						totalPages: data.total_pages,
+						totalApps: data.total_apps,
+						perPage: data.per_page,
+					},
+				];
+			}
+			return [false, response?.[1]];
+		} catch (error) {
+			console.log('error==>getPipedreamApps', error);
+			return [false, error];
+		}
+	};
+
+	const getPipedreamAppActions = async (appName, page = 1, limit = 10, search = '') => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/pipedream/apps/${workspaceId}/${appName}/actions?page=${page}&limit=${limit}${
+				search ? `&search=${encodeURIComponent(search)}` : ''
+			}`;
+
+			const response = await service?.fetchGet(
+				url,
+				usertoken,
+				'third_party_integrations_api',
+			);
+
+			if (response?.[0] === true) {
+				const { data } = response[1];
+				return [
+					true,
+					{
+						data: data.actions,
+						hasNextPage: data.has_more,
+						currentPage: data.current_page,
+						totalPages: data.total_pages,
+						totalActions: data.total_actions,
+						perPage: data.per_page,
+					},
+				];
+			}
+			return [false, response?.[1]];
+		} catch (error) {
+			console.log('error==>getPipedreamAppActions', error);
+			return [false, error];
+		}
+	};
+
+	const getPipedreamActionPayload = async (appName, actionId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/pipedream/apps/${workspaceId}/${appName}/actions/${actionId}/payload`;
+
+			const response = await service?.fetchGet(
+				url,
+				usertoken,
+				'third_party_integrations_api',
+			);
+
+			if (response?.[0] === true) {
+				return [true, response?.[1]?.data];
+			}
+			return [false, response?.[1]];
+		} catch (error) {
+			console.log('error==>getPipedreamActionPayload', error);
+			return [false, error];
+		}
+	};
+
+	const getExistingconnectedAccounts = async (payload) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/pipedream/connected-accounts/${workspaceId}?external_user_id=${payload?.tenatUserId}`;
+		const response = await service?.fetchGet(url, usertoken, 'third_party_integrations_api');
+		if (response?.[0] === true) {
+			return response?.[1];
+		}
+		return [false, response?.[1]];
+		
+	};
+
 	const updateContextValues = (data) => {
 		dispatch({ type: Actions?.UPDATE_CONTEXT_VALUES, payload: data });
 	};
@@ -749,5 +873,10 @@ export const KnowledgeAgentState = () => {
 		getTriggers,
 		connectTrigger,
 		disconnectTrigger,
+		connectTool,
+		getPipedreamApps,
+		getPipedreamAppActions,
+		getPipedreamActionPayload,
+		getExistingconnectedAccounts,
 	};
 };
