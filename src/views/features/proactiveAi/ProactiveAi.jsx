@@ -69,7 +69,7 @@ const ProactiveAi = () => {
 		if (!proactiveAiData) return;
 
 		const { chain_of_thought } = proactiveAiData;
-		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || null);
+		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || []);
 		setInfo((prev) => ({
 			...prev,
 			selectedFeedback: proactiveAiData?.rating,
