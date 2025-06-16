@@ -5697,6 +5697,8 @@ class Home extends Proposals {
 		);
 	};
 	handleTriggerAdjustGridAreas = async (e) => {
+		e.stopPropagation();
+		e.preventDefault();
 		this.setState({
 			triggerAdjustGridAreas: e,
 			isPublishLoading: true,
