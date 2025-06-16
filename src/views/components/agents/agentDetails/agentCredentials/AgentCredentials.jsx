@@ -1,0 +1,218 @@
+import { memo, useState, useEffect, useContext } from 'react';
+import s from './agentCredentials.module.scss';
+import Context from '../../../../../context/context';
+import { message } from '../../../../components/globalComponents/CustomToast';
+import PencilIcon from '../assets/PencilIcon';
+import CatIcon from '../assets/cat.png';
+
+const AgentCredentials = ({ agentId }) => {
+	const {
+		knowledgeAgent: { activeKnowledgeAssistant, updateKnowledgeAgent, uploadAgentProfilePic },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		agentName: '',
+		agentDescription: '',
+		agentProfilePic: null,
+		editAgentDetails: {
+			agentName: false,
+			agentDescription: false,
+		},
+	});
+
+	useEffect(() => {
+		const name = activeKnowledgeAssistant?.data?.name ?? '';
+		const description = activeKnowledgeAssistant?.data?.description ?? '';
+		const profilePic =
+			activeKnowledgeAssistant?.data?.knowledgeAgent_profile_picture_s3Key ?? null;
+
+		setInfo((prev) => ({
+			...prev,
+			agentName: name,
+			agentDescription: description,
+			agentProfilePic: profilePic,
+		}));
+	}, [activeKnowledgeAssistant]);
+
+	const handleUploadAgentProfilePic = async (e) => {
+		try {
+			const agentProfilePic = e.target.files[0];
+			if (!agentProfilePic) return;
+
+			const [success, error] = await uploadAgentProfilePic({
+				agentId,
+				file: agentProfilePic,
+			});
+
+			if (success) {
+				message.success('Profile picture uploaded successfully');
+				setInfo((prev) => ({
+					...prev,
+					agentProfilePic: URL.createObjectURL(agentProfilePic),
+				}));
+			} else {
+				message.error(error?.message || 'Failed to upload profile picture');
+			}
+		} catch (err) {
+			message.error(
+				err?.message || 'An unexpected error occurred while uploading the profile picture',
+			);
+		}
+	};
+
+	const handleAgentUpdate = (type) => {
+		const currentValue = info[type];
+		if (currentValue === activeKnowledgeAssistant?.data?.name && type === 'agentName') return;
+		if (
+			currentValue === activeKnowledgeAssistant?.data?.description &&
+			type === 'agentDescription'
+		)
+			return;
+
+		if (!currentValue.trim()) {
+			message.error(`${type === 'agentName' ? 'Name' : 'Description'} cannot be empty!`);
+			setInfo((prev) => ({
+				...prev,
+				[type]: activeKnowledgeAssistant?.data?.[
+					type === 'agentName' ? 'name' : 'description'
+				],
+				editAgentDetails: {
+					...prev.editAgentDetails,
+					[type]: false,
+				},
+			}));
+			return;
+		}
+
+		updateKnowledgeAgent(agentId, {
+			...(type === 'agentName' && { name: currentValue }),
+			...(type === 'agentDescription' && { description: currentValue }),
+		});
+
+		setInfo((prev) => ({
+			...prev,
+			editAgentDetails: {
+				...prev.editAgentDetails,
+				[type]: false,
+			},
+		}));
+	};
+
+	const toggleEditAgentDetails = (type) => {
+		setInfo((prev) => ({
+			...prev,
+			editAgentDetails: {
+				...prev.editAgentDetails,
+				[type]: !prev.editAgentDetails[type],
+			},
+		}));
+	};
+
+	return (
+		<div className={s.agentCredentialsContainer}>
+			<div className={s.agentProfilePicContainer}>
+				<img
+					src={info.agentProfilePic ?? CatIcon}
+					alt="agent icon"
+					className={s.agentIcon}
+				/>
+				<input
+					type="file"
+					onChange={handleUploadAgentProfilePic}
+					accept="image/png,image/jpeg,image/jpg"
+				/>
+			</div>
+
+			<div className={s.agentDetails}>
+				<div className={s.agentName}>
+					{info.editAgentDetails.agentName ? (
+						<input
+							type="text"
+							autoFocus
+							value={info.agentName}
+							onChange={(e) =>
+								setInfo((prev) => ({ ...prev, agentName: e.target.value }))
+							}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter') {
+									handleAgentUpdate('agentName');
+								}
+							}}
+							onBlur={() => {
+								toggleEditAgentDetails('agentName');
+								handleAgentUpdate('agentName');
+							}}
+							aria-label="Edit agent name"
+							className={s.input}
+							placeholder="Give a name to your agent and hit enter!"
+						/>
+					) : (
+						<>
+							<span
+								onClick={() => toggleEditAgentDetails('agentName')}
+								role="button"
+								tabIndex={0}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter') {
+										toggleEditAgentDetails('agentName');
+									}
+								}}
+							>
+								{info.agentName || activeKnowledgeAssistant?.data?.name}
+							</span>
+							<PencilIcon />
+						</>
+					)}
+				</div>
+
+				<div className={s.agentDescription}>
+					{info.editAgentDetails.agentDescription ? (
+						<textarea
+							placeholder="Give a description to your agent and hit enter!"
+							autoFocus
+							value={info.agentDescription}
+							onChange={(e) =>
+								setInfo((prev) => ({
+									...prev,
+									agentDescription: e.target.value,
+								}))
+							}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' && !e.shiftKey) {
+									e.preventDefault();
+									handleAgentUpdate('agentDescription');
+								}
+							}}
+							onBlur={() => {
+								toggleEditAgentDetails('agentDescription');
+								handleAgentUpdate('agentDescription');
+							}}
+							aria-label="Edit agent description"
+							className={s.textarea}
+							rows={3}
+						/>
+					) : (
+						<>
+							<p
+								onClick={() => toggleEditAgentDetails('agentDescription')}
+								role="button"
+								tabIndex={0}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter') {
+										toggleEditAgentDetails('agentDescription');
+									}
+								}}
+							>
+								{info.agentDescription ||
+									activeKnowledgeAssistant?.data?.description}
+							</p>
+							<PencilIcon />
+						</>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+};
+
+export default memo(AgentCredentials);

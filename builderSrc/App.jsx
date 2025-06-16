@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import AuthenticatedRoute from './services/AuthenticatedRouteWrapper';
 import Template from './views/feature/home';
@@ -10,7 +10,7 @@ import withRouter from './hooks'; // Import the withRouter HOC
 import EditWorkflow from './views/feature/EditWorkflow';
 import DesignBuilder from './views/feature/design-builder';
 import { handleCookieSetupOnMounting } from './helper';
-import ShortBuilderPreview from './views/feature/DocumentShortPreview';
+import ShortBuilderPreview from './views/feature/ShortPreview';
 import './assets/scss/globalColorsAndTheme.scss';
 import CreatedDocument from './views/feature/document/newIndex';
 import ViewHomePage from './views/feature/document/viewHomePage';

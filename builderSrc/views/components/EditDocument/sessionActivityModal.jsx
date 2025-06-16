@@ -13,7 +13,7 @@ import { ReactComponent as PhoneSvg } from '../../../assets/svg/document/phone.s
 import { ReactComponent as WebSvg } from '../../../assets/svg/document/web.svg';
 import { Drawer } from 'antd';
 import { useParams } from 'react-router-dom';
-import Context from '../../../context/context.js';
+import Context from '../../../context/context';
 import SessionMetric from './sessionMetric.jsx';
 import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';

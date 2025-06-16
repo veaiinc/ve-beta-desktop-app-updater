@@ -338,14 +338,12 @@ const Events = ({
 		setShowConnectPopover(false);
 	};
 
-	const handleShowPopover = () => setShowConnectPopover(prev => !prev);
-
-	return allEvents.length > 0 ? (
+	return (
 		<div className="eventsParentContainer">
 			<div className="eventsHeaderRow">
 				<span className="eventsBlockTitle">Events {allEvents.length}</span>
 				{editable && formResponses && formResponses.length > 0 && (
-					<div className="connectWithFormBtn" onClick={handleConnectWithForm} onMouseEnter={handleShowPopover} onMouseLeave={handleShowPopover}>
+					<div className="connectWithFormBtn" onClick={handleConnectWithForm}>
 						Connect with Form
 						{showConnectPopover && (
 							<div
@@ -377,266 +375,288 @@ const Events = ({
 					</div>
 				)}
 			</div>
-			{allEvents.map((item, ind) => (
-				<div className="eventsBlockContainer" key={item.subBlockId || ind}>
-					<div className="eventsBlockTitle" style={{ marginBottom: '8px' }}>
-						Event {ind + 1}
-					</div>
-					<div className="deleteEventsContainer" onClick={() => deletEventsValues(ind)}>
-						<Dustbin />
-						Delete
-					</div>
-					<div className="eventsDetailsContainer">
-						<div className="inputWithLabelContainer" style={{ position: 'relative' }}>
-							<span className="labelName">Event Name</span>
-							<div style={{ position: 'relative', width: '100%' }}>
-								<input
-									className={`custominputContainer ${editable ? 'edit' : ''}`}
-									value={item?.name}
-									onChange={(e) =>
-										localEventsOnchange(ind, 'name', e.target.value)
-									}
-									readOnly={!editable}
-									style={{ paddingRight: 32 }}
-								/>
-								<span
-									style={{
-										position: 'absolute',
-										top: '50%',
-										right: 8,
-										zIndex: 2,
-										cursor: 'pointer',
-										transform: 'translateY(-50%)',
-									}}
-									onClick={() =>
-										setPopoverIndex(`${item.__tableIdx}-${item.__eventIdx}`)
-									}
-								></span>
-								{popoverIndex === `${item.__tableIdx}-${item.__eventIdx}` && (
-									<div
-										className="eventsPresetsParentContainer"
+			{allEvents.length > 0 &&
+				allEvents.map((item, ind) => (
+					<div className="eventsBlockContainer" key={item.subBlockId || ind}>
+						<div className="eventsBlockTitle" style={{ marginBottom: '8px' }}>
+							Event {ind + 1}
+						</div>
+						<div
+							className="deleteEventsContainer"
+							onClick={() => deletEventsValues(ind)}
+						>
+							<Dustbin />
+							Delete
+						</div>
+						<div className="eventsDetailsContainer">
+							<div
+								className="inputWithLabelContainer"
+								style={{ position: 'relative' }}
+							>
+								<span className="labelName">Event Name</span>
+								<div style={{ position: 'relative', width: '100%' }}>
+									<input
+										className={`custominputContainer ${editable ? 'edit' : ''}`}
+										value={item?.name}
+										onChange={(e) =>
+											localEventsOnchange(ind, 'name', e.target.value)
+										}
+										readOnly={!editable}
+										style={{ paddingRight: 32 }}
+									/>
+									<span
 										style={{
 											position: 'absolute',
-											top: '110%',
-											zIndex: 1000,
-											width: 350,
+											top: '50%',
+											right: 8,
+											zIndex: 2,
+											cursor: 'pointer',
+											transform: 'translateY(-50%)',
 										}}
-										ref={popoverRef}
-									>
-										<div className="definedPresetContainer">
-											{eventSuggestions.length === 0 ? (
-												<div style={{ color: '#888', padding: 16 }}>
-													No suggestions
-												</div>
-											) : (
-												eventSuggestions.map((sug, sugIdx) => (
-													<div
-														key={sug._id || sugIdx}
-														className="presetCards"
-														style={{ padding: 12, cursor: 'pointer' }}
-														onClick={() =>
-															localEventsOnchange(
-																ind,
-																'name',
-																sug.answer,
-															)
-														}
-													>
-														<span className="presetTitle">
-															{(sug.question || '').replace(
-																/<[^>]+>/g,
-																'',
-															)}
-														</span>
-														<span className="presetSubTitle">
-															{sug.answer}
-														</span>
-													</div>
-												))
-											)}
-										</div>
-									</div>
-								)}
-							</div>
-						</div>
-						<div className="inputWithLabelContainer">
-							<span className="labelName">Date</span>
-							<DatePicker
-								onChange={(date, dateString) => {
-									localEventsOnchange(ind, 'date', dateString);
-								}}
-								format={['YYYY-MM-DD', 'DD-MM-YYYY']}
-								value={
-									item?.date
-										? dayjs(
-												`${moment(item?.date)?.format('YYYY-MM-DD')}`,
-												'YYYY-MM-DD',
-										  )
-										: item?.date
-								}
-								className={`custominputContainer ${editable ? 'edit' : ''}`}
-								style={{ height: '50px' }}
-								disabled={!editable}
-								defaultPickerValue={
-									info?.calenderStartDate
-										? dayjs(`${info?.calenderStartDate}`, 'YYYY-MM-DD')
-										: ''
-								}
-								allowClear={false}
-							/>
-						</div>
-						<div className="inputWithLabelContainer">
-							<span className="labelName">Location</span>
-							<input
-								className={`custominputContainer ${editable ? 'edit' : ''}`}
-								value={item?.location}
-								onChange={(e) =>
-									localEventsOnchange(ind, 'location', e.target.value)
-								}
-								readOnly={!editable}
-							/>
-						</div>
-					</div>
-					<div style={{ width: '100%' }}>
-						<div className="inputWithLabelContainer">
-							<span className="labelName">Description</span>
-							<textarea
-								className={`custominputContainer ${editable ? 'edit' : ''}`}
-								value={item?.description}
-								onChange={(e) =>
-									localEventsOnchange(ind, 'description', e.target.value)
-								}
-								readOnly={!editable}
-								style={{ resize: 'none' }}
-							/>
-						</div>
-					</div>
-					<div className="servicesContainer">
-						<Tooltip
-							placement="bottomLeft"
-							title={
-								editable ? (
-									<EventsPresetsPopOverComponent
-										closePresetPopUp={() =>
-											closePresetPopUp(item.__tableIdx, item.__eventIdx)
+										onClick={() =>
+											setPopoverIndex(`${item.__tableIdx}-${item.__eventIdx}`)
 										}
-										addServiceDataInEvents={addServiceDataInEvents}
-										outerIndex={item.__tableIdx}
-										innerIndex={item.__eventIdx}
-										refetchEventspresetData={getEventsPresetsData}
-									/>
-								) : (
-									''
-								)
-							}
-							color={'#202020'}
-							arrow={false}
-							trigger="click"
-							overlayClassName="toolTipContainer"
-							open={info?.presetPopUp?.[`events${item.__tableIdx}${item.__eventIdx}`]}
-							onOpenChange={(open) => {
-								if (!open) {
-									closePresetPopUp(item.__tableIdx, item.__eventIdx);
-								}
-							}}
-						>
-							<div
-								className="serviceContainerTitle"
-								onClick={() => openEventPreset(item.__tableIdx, item.__eventIdx)}
-							>
-								<span className="serviceContainerTitleStyling">
-									Services Provided{' '}
-									<span className="addFromPreset">Add from preset</span>
-								</span>
+									></span>
+									{popoverIndex === `${item.__tableIdx}-${item.__eventIdx}` && (
+										<div
+											className="eventsPresetsParentContainer"
+											style={{
+												position: 'absolute',
+												top: '110%',
+												zIndex: 1000,
+												width: 350,
+											}}
+											ref={popoverRef}
+										>
+											<div className="definedPresetContainer">
+												{eventSuggestions.length === 0 ? (
+													<div style={{ color: '#888', padding: 16 }}>
+														No suggestions
+													</div>
+												) : (
+													eventSuggestions.map((sug, sugIdx) => (
+														<div
+															key={sug._id || sugIdx}
+															className="presetCards"
+															style={{
+																padding: 12,
+																cursor: 'pointer',
+															}}
+															onClick={() =>
+																localEventsOnchange(
+																	ind,
+																	'name',
+																	sug.answer,
+																)
+															}
+														>
+															<span className="presetTitle">
+																{(sug.question || '').replace(
+																	/<[^>]+>/g,
+																	'',
+																)}
+															</span>
+															<span className="presetSubTitle">
+																{sug.answer}
+															</span>
+														</div>
+													))
+												)}
+											</div>
+										</div>
+									)}
+								</div>
 							</div>
-						</Tooltip>
-						{item?.roles?.map((x, lt) => (
-							<div className="serviceRoleContainer" key={lt}>
-								<input
-									className={
-										item?.ai_generated
-											? `customInputWithoutLabel ai_generated ${
-													editable ? 'edit' : ''
-											  }`
-											: `customInputWithoutLabel ${editable ? 'edit' : ''}`
+							<div className="inputWithLabelContainer">
+								<span className="labelName">Date</span>
+								<DatePicker
+									onChange={(date, dateString) => {
+										localEventsOnchange(ind, 'date', dateString);
+									}}
+									format={['YYYY-MM-DD', 'DD-MM-YYYY']}
+									value={
+										item?.date
+											? dayjs(
+													`${moment(item?.date)?.format('YYYY-MM-DD')}`,
+													'YYYY-MM-DD',
+											  )
+											: item?.date
 									}
-									value={x?.type}
+									className={`custominputContainer ${editable ? 'edit' : ''}`}
+									style={{ height: '50px' }}
+									disabled={!editable}
+									defaultPickerValue={
+										info?.calenderStartDate
+											? dayjs(`${info?.calenderStartDate}`, 'YYYY-MM-DD')
+											: ''
+									}
+									allowClear={false}
+								/>
+							</div>
+							<div className="inputWithLabelContainer">
+								<span className="labelName">Location</span>
+								<input
+									className={`custominputContainer ${editable ? 'edit' : ''}`}
+									value={item?.location}
 									onChange={(e) =>
-										localEventsOnchange(ind, 'serviecType', e.target.value, lt)
+										localEventsOnchange(ind, 'location', e.target.value)
 									}
 									readOnly={!editable}
 								/>
+							</div>
+						</div>
+						<div style={{ width: '100%' }}>
+							<div className="inputWithLabelContainer">
+								<span className="labelName">Description</span>
+								<textarea
+									className={`custominputContainer ${editable ? 'edit' : ''}`}
+									value={item?.description}
+									onChange={(e) =>
+										localEventsOnchange(ind, 'description', e.target.value)
+									}
+									readOnly={!editable}
+									style={{ resize: 'none' }}
+								/>
+							</div>
+						</div>
+						<div className="servicesContainer">
+							<Tooltip
+								placement="bottomLeft"
+								title={
+									editable ? (
+										<EventsPresetsPopOverComponent
+											closePresetPopUp={() =>
+												closePresetPopUp(item.__tableIdx, item.__eventIdx)
+											}
+											addServiceDataInEvents={addServiceDataInEvents}
+											outerIndex={item.__tableIdx}
+											innerIndex={item.__eventIdx}
+											refetchEventspresetData={getEventsPresetsData}
+										/>
+									) : (
+										''
+									)
+								}
+								color={'#202020'}
+								arrow={false}
+								trigger="click"
+								overlayClassName="toolTipContainer"
+								open={
+									info?.presetPopUp?.[
+										`events${item.__tableIdx}${item.__eventIdx}`
+									]
+								}
+								onOpenChange={(open) => {
+									if (!open) {
+										closePresetPopUp(item.__tableIdx, item.__eventIdx);
+									}
+								}}
+							>
 								<div
-									className={`incrementDecrementContainer ${
-										item?.ai_generated ? 'ai_generated' : ''
-									}`}
+									className="serviceContainerTitle"
+									onClick={() =>
+										openEventPreset(item.__tableIdx, item.__eventIdx)
+									}
 								>
-									<span
-										className="incrementorBtns"
-										onClick={() =>
-											localEventsOnchange(ind, 'decrementQuantity', 1, lt)
-										}
-									>
-										−
+									<span className="serviceContainerTitleStyling">
+										Services Provided{' '}
+										<span className="addFromPreset">Add from preset</span>
 									</span>
+								</div>
+							</Tooltip>
+							{item?.roles?.map((x, lt) => (
+								<div className="serviceRoleContainer" key={lt}>
 									<input
-										type="number"
-										className="incrementDecrementinput"
-										value={x?.categories?.[0]?.quantity}
+										className={
+											item?.ai_generated
+												? `customInputWithoutLabel ai_generated ${
+														editable ? 'edit' : ''
+												  }`
+												: `customInputWithoutLabel ${
+														editable ? 'edit' : ''
+												  }`
+										}
+										value={x?.type}
 										onChange={(e) =>
 											localEventsOnchange(
 												ind,
-												'serviceTypeQuantity',
+												'serviecType',
 												e.target.value,
 												lt,
 											)
 										}
 										readOnly={!editable}
 									/>
-									<span
-										className="incrementorBtns"
-										onClick={() =>
-											localEventsOnchange(ind, 'incrementQuantity', 1, lt)
-										}
+									<div
+										className={`incrementDecrementContainer ${
+											item?.ai_generated ? 'ai_generated' : ''
+										}`}
 									>
-										+
-									</span>
+										<span
+											className="incrementorBtns"
+											onClick={() =>
+												localEventsOnchange(ind, 'decrementQuantity', 1, lt)
+											}
+										>
+											−
+										</span>
+										<input
+											type="number"
+											className="incrementDecrementinput"
+											value={x?.categories?.[0]?.quantity}
+											onChange={(e) =>
+												localEventsOnchange(
+													ind,
+													'serviceTypeQuantity',
+													e.target.value,
+													lt,
+												)
+											}
+											readOnly={!editable}
+										/>
+										<span
+											className="incrementorBtns"
+											onClick={() =>
+												localEventsOnchange(ind, 'incrementQuantity', 1, lt)
+											}
+										>
+											+
+										</span>
+									</div>
+									{editable ? (
+										<span
+											className="removeRoleContainer"
+											onClick={() =>
+												localEventsOnchange(ind, 'removeRole', null, lt)
+											}
+										>
+											<Close />
+										</span>
+									) : (
+										''
+									)}
 								</div>
-								{editable ? (
-									<span
-										className="removeRoleContainer"
-										onClick={() =>
-											localEventsOnchange(ind, 'removeRole', null, lt)
-										}
-									>
-										<Close />
-									</span>
-								) : (
-									''
-								)}
-							</div>
-						))}
-						{editable ? (
-							<div
-								className="addMoreRoleBtn"
-								onClick={() => localEventsOnchange(ind, 'addRole')}
-							>
-								+ Add Role
-							</div>
-						) : (
-							''
-						)}
+							))}
+							{editable ? (
+								<div
+									className="addMoreRoleBtn"
+									onClick={() => localEventsOnchange(ind, 'addRole')}
+								>
+									+ Add Role
+								</div>
+							) : (
+								''
+							)}
+						</div>
 					</div>
-				</div>
-			))}
-			{/* Only one Add Event button for all events */}
+				))}
 			{editable && (
 				<div className="addEventBtn" onClick={addMoreEventsValues}>
 					+ Add Event
 				</div>
 			)}
 		</div>
-	) : null;
+	);
 };
 
 export default memo(Events);

@@ -1,0 +1,27 @@
+.promptInputContainer {
+	width: 100%;
+	height: calc(100vh - 560px);
+	overflow-y: auto;
+	position: relative;
+	z-index: 1;
+
+	:global(.bn-container[data-color-scheme]) {
+		--bn-colors-editor-text: var(--primary-font); /* Set your desired text color */
+		--bn-colors-placeholder-text: var(--secondary-font);
+		--bn-colors-tooltip-text: var(--primary-font);
+		--bn-colors-tooltip-background: var(--card);
+		--bn-colors-menu-text: var(--primary-font);
+		--bn-colors-menu-background: var(--card);
+		--bn-shadow-medium: none;
+		--bn-colors-hovered-background: var(--card-hover);
+		--bn-colors-selected-background: var(--card-over-card-hover);
+		--bn-colors-selected-text: var(--primary-font);
+		--bn-colors-disabled-background: var(--card);
+		--bn-border: var(--card, #171819);
+		// --bn-colors-disabled-text: var(--secondary-font);
+	}
+
+	:global(.bn-editor) {
+		background-color: transparent;
+	}
+}

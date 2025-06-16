@@ -1,5 +1,5 @@
 import React from 'react';
-import { ReactComponent as Info } from '../../../assets/svg/DeleteTemplate/Info.svg';
+import {ReactComponent as Info} from '../../../assets/svg/DeleteTemplate/Info.svg';
 class DeleteTemplatePopup extends React.Component {
     constructor(props) {
         super(props);

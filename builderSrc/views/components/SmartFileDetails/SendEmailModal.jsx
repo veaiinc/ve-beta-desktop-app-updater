@@ -2,7 +2,7 @@ import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useSt
 import ReactModal from '../ui-components/modal.jsx';
 import '../../../assets/scss/smart-file-components/sendEmail.scss';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
-import Context from '../../../context/context.js';
+import Context from '../../../context/context';
 import { message, Spin } from 'antd';
 import JoditEditor from 'jodit-react';
 import validator from 'validator';

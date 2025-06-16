@@ -1,7 +1,8 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 import * as Action from './actions';
 import Service from '../services/graphQlServices';
 import _ from 'lodash';
+import moment from 'moment';
 
 class NewProposals extends Component {
 	reorderSections = (sections, type = null) => {
@@ -1370,7 +1371,7 @@ class NewProposals extends Component {
 			this.setState({
 				isPromptLoading: false,
 			});
-			this.props.navigate(`/generate/templates/${workflowID}`);
+			this.props.navigate(`/builder/generate/templates/${workflowID}`);
 		}
 	};
 
@@ -1887,7 +1888,9 @@ class NewProposals extends Component {
 						),
 					);
 
-					this.props.navigate(`/generate/templates/${this.props.params.templateID}`);
+					this.props.navigate(
+						`/builder/generate/templates/${this.props.params.templateID}`,
+					);
 				},
 			);
 		}

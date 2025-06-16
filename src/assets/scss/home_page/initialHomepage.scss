@@ -36,40 +36,40 @@
 				align-items: center;
 				gap: 2px;
 				.title-one {
-					color: var(--primary-button, #f2f2f3);
-					font-family: Manrope;
-					font-size: 20px;
+					color: var(--primary-font);
+					text-align: center;
+					font-family: var(--secondary-font-family);
+					font-size: 36px;
 					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
+					font-weight: 600;
+					line-height: 45px; /* 125% */
+				}
+				.title-two {
+					color: var(--product-tale, #79ecc9);
+					font-family: var(--secondary-font-family);
+
+					font-size: 36px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: 45px;
 					@media screen and (max-width: 425px) {
 						font-size: 24px;
 						letter-spacing: -0.72px;
 					}
-				}
-				.title-two {
-					color: var(--primary-font, #79ecc9);
-					text-align: center;
-					font-family: Manrope;
-					font-size: 40px;
-					font-style: normal;
-					font-weight: 600;
-					line-height: 45px; /* 112.5% */
-					text-transform: capitalize;
 				}
 			}
 
 			.sub-text {
 				color: var(--secondary-font, #7a7e85);
 				text-align: center;
-				font-family: Manrope;
+				font-family: var(--secondary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
 			}
 		}
-		.options-container {
+		.homepage__options-container {
 			display: flex;
 			justify-content: center;
 			align-items: center;

@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import '../styles.scss';
 import { ReactComponent as Arrow } from '../../library/svgs/arrow.svg';
 import { ReactComponent as DropdownArrow } from '../../library/svgs/logicform/backarrow.svg';
+import { Slider } from 'antd';
+import 'antd/dist/reset.css'; // For antd v5
 const Turn = ({ activeComponent, adjustAnimation }) => {
 	const [selectedOption, setSelectedOption] = useState('In');
 	const [orentation, setOrentation] = useState('Clockwise');
 	const [isOptionOpen, setIsOptionOpen] = useState(false);
 	const [isOrentationOpen, setIsOrentationOpen] = useState(false);
 	const [scale, setScale] = useState(0);
-	const [direction, setDirection] = useState('right');
-	const [animation, setAnimation] = useState(50);
+	const [animeArea, setAnimeArea] = useState(
+		activeComponent?.animations?.adjustments?.animeArea || [10, 50],
+	);
 
 	const toggleOptionDropdown = () => {
 		setIsOptionOpen(!isOptionOpen);
@@ -30,7 +33,10 @@ const Turn = ({ activeComponent, adjustAnimation }) => {
 		setOrentation(option);
 		setIsOrentationOpen(false);
 	};
-
+	const handleAnimeArea = (value) => {
+		setAnimeArea(value);
+		adjustAnimation('animeArea', value);
+	};
 	return (
 		<div className="adj-popup-container">
 			<div className="adj-anime-type">
@@ -41,7 +47,10 @@ const Turn = ({ activeComponent, adjustAnimation }) => {
 			<div className="adj-element-position">
 				<div className="adj-dropdown-container">
 					<div className="adj-dropdown-header" onClick={toggleOptionDropdown}>
-						<div className="adj-select-position">{selectedOption}</div>
+						<div className="adj-select-position">
+							{activeComponent?.animations?.adjustments?.triggerPoint ||
+								selectedOption}
+						</div>
 						<p className="adj-dropdown-arrow">
 							<DropdownArrow
 								style={{ transform: 'rotate(270deg)' }}
@@ -51,17 +60,32 @@ const Turn = ({ activeComponent, adjustAnimation }) => {
 					</div>
 					{isOptionOpen && (
 						<div className="adj-dropdown-list">
-							{['In', 'Out'].map((option) => (
-								<div
-									key={option}
-									className={`adj-dropdown-item ${
-										selectedOption === option ? 'adj-active-dropdown' : ''
-									}`}
-									onClick={() => handleOptionSelect(option)}
-								>
-									{option}
-								</div>
-							))}
+							<div
+								className={`adj-dropdown-item ${
+									activeComponent?.animations?.adjustments?.triggerPoint === 'In'
+										? 'adj-active-dropdown'
+										: ''
+								}`}
+								onClick={() => {
+									setIsOptionOpen(false);
+									adjustAnimation('triggerPoint', 'In');
+								}}
+							>
+								In
+							</div>
+							<div
+								className={`adj-dropdown-item ${
+									activeComponent?.animations?.adjustments?.triggerPoint === 'Out'
+										? 'adj-active-dropdown'
+										: ''
+								}`}
+								onClick={() => {
+									setIsOptionOpen(false);
+									adjustAnimation('triggerPoint', 'Out');
+								}}
+							>
+								Out
+							</div>
 						</div>
 					)}
 				</div>
@@ -80,7 +104,6 @@ const Turn = ({ activeComponent, adjustAnimation }) => {
 						}`}
 						onClick={() => {
 							adjustAnimation('direction', 'left');
-							setDirection('right');
 						}}
 					>
 						<p className="adj-dropdown-arrow" style={{ paddingRight: '0px' }}>
@@ -96,7 +119,6 @@ const Turn = ({ activeComponent, adjustAnimation }) => {
 						}`}
 						onClick={() => {
 							adjustAnimation('direction', 'right');
-							setDirection('left');
 						}}
 					>
 						<p className="adj-dropdown-arrow" style={{ paddingRight: '0px' }}>
@@ -176,18 +198,14 @@ const Turn = ({ activeComponent, adjustAnimation }) => {
 				<b className="adj-adjustment-title">Animation area</b>
 				<div className="adj-popup-range-div">
 					<div className="adj-slider-wrapper">
-						<input
-							type="range"
-							min="0"
-							max="100"
-							step="1"
-							value={activeComponent?.animations?.adjustments?.animeArea || animation}
-							onChange={(e) => {
-								setAnimation(e.target.value);
-								adjustAnimation('animeArea', e.target.value);
-							}}
+						<div
 							className="adj-animation-slider"
-						/>
+							style={{
+								width: '100%',
+							}}
+						>
+							<Slider range step={2} value={animeArea} onChange={handleAnimeArea} />{' '}
+						</div>
 						<div className="adj-slider-labels">
 							<span>0%</span>
 							<span>50%</span>

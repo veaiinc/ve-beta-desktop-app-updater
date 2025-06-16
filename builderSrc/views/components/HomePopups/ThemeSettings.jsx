@@ -130,7 +130,7 @@ const ThemeSettings = memo((props) => {
 	} = props;
 
 	const {
-		themeSettings: { activeSection, updateStateValues, fonts, applyTheme, newTheme, navBar },
+		themeSettings: { activeSection, updateStateValues, fonts, applyTheme, newTheme,navBar },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -186,7 +186,7 @@ const ThemeSettings = memo((props) => {
 			};
 			updateStateValues(objectData, isInitialState);
 		}
-	}, [homeFonts, Homesections, fonts, homeThemes, newTheme?.activeTheme, homeNavBar]);
+	}, [homeFonts, Homesections, fonts, homeThemes, newTheme?.activeTheme,homeNavBar]);
 	// console.log("homeNavBar",navBar)
 
 	// const CurrentSectionComponent = useMemo(() => {
@@ -284,7 +284,7 @@ const ThemeSettings = memo((props) => {
 		<Drawer
 			onClose={() => {}}
 			open={showThemeSettings}
-			width={'360px !important'}
+			width={'360px'}
 			style={{ padding: '0px', backgroundColor: 'transparent', padding: 0 }}
 			styles={{
 				body: { padding: 0 },
@@ -293,7 +293,7 @@ const ThemeSettings = memo((props) => {
 			rootClassName="settingsDrawerWrapper"
 			mask={true}
 		>
-			<div style={{ width: '360px !important' }} className="themeSettingsParentContainer">
+			<div className="themeSettingsParentContainer">
 				<div className="themeSettingsHeader">
 					<div
 						className="title"

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import './divider.scss';
-
+``;
 const GRID_UNIT = 8;
 
 const Divider = ({

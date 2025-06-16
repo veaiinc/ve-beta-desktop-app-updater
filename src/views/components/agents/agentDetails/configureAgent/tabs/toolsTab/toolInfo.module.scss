@@ -1,0 +1,215 @@
+.addToolContainer {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	align-self: stretch;
+
+	.backButton {
+		display: flex;
+		padding: 2px;
+		align-items: center;
+		gap: 6px;
+		border: none;
+		background-color: transparent;
+		cursor: pointer;
+		.backButtonIcon {
+			transform: rotate(180deg);
+		}
+		.backButtonText {
+			color: var(--secondary-font, #7a7e85);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px;
+		}
+	}
+
+	.toolInfoContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		width: 100%;
+		flex-grow: 1;
+		.toolTitleContainer {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			align-self: stretch;
+			.leftContainer {
+				display: flex;
+				gap: 12px;
+				.toolIconContainer {
+					display: flex;
+					width: 37px;
+					height: 37px;
+					padding: 10.5px 12px 12.5px 11px;
+					justify-content: center;
+					align-items: center;
+					border-radius: 8px;
+					border: 1px solid var(--stroke, #2b2e31);
+					background: var(--primary-font);
+				}
+				.toolTitle {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 24px;
+				}
+			}
+
+			.rightContainer {
+				.configureButton {
+					display: flex;
+					padding: 4px 8px;
+					align-items: center;
+					gap: 6px;
+					border-radius: 8px;
+					background: var(--card-over-card-hover, #2e2f32);
+					border: none;
+					cursor: pointer;
+
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 18px;
+				}
+			}
+		}
+		.divider {
+			width: 100%;
+			height: 1px;
+			border: none;
+			border-top: 1px solid var(--stroke, #2b2e31);
+			margin: 0;
+		}
+
+		.inputsText {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px;
+		}
+
+		.toolInputsContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 24px;
+			align-self: stretch;
+			width: 100%;
+			overflow-y: auto;
+
+			.toolInputContainer {
+				display: flex;
+				padding: 8px 16px;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 10px;
+				align-self: stretch;
+				border-radius: 12px;
+				border: 1px solid var(--stroke, #2b2e31);
+				background: var(--card-over-card, #27282b);
+
+				.toolInfo {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					align-self: stretch;
+					gap: 100px;
+
+					.leftContainer {
+						flex-grow: 1;
+						display: flex;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: 4px;
+
+						.title {
+							color: var(--primary-font, #f2f2f3);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 20px;
+						}
+
+						.description {
+							color: var(--chat-secondary-font, #c3c3c9);
+							font-family: var(--primary-font-family);
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 18px;
+						}
+					}
+				}
+
+				.dropdownContainer {
+					display: flex;
+					height: 40px;
+					padding: 8px 12px;
+					justify-content: space-between;
+					align-items: center;
+					gap: 10px;
+					align-self: stretch;
+					border-radius: 10px;
+					border: 1px solid var(--stroke, #2b2e31);
+					background: var(--card-over-card-hover, #2e2f32);
+
+					.inputField {
+						flex-grow: 1;
+						background-color: transparent;
+						border: none;
+
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 20px;
+					}
+
+					.dropdownIcon {
+						cursor: pointer;
+						width: 16px;
+						height: 16px;
+						transform: rotate(90deg);
+						path {
+							stroke: var(--secondary-font);
+						}
+					}
+				}
+			}
+		}
+	}
+	.addToolButton {
+		display: flex;
+		height: 40px;
+		padding: 6px 16px;
+		align-items: center;
+		gap: 6px;
+		border-radius: 100px;
+		border: 2px solid var(--stroke, #2b2e31);
+		background: var(--card-over-card, #27282b);
+		margin: 0 auto;
+
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 18px;
+	}
+}
