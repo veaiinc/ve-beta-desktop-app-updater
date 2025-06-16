@@ -865,12 +865,6 @@ export default class IconPopup extends Component {
 												<span
 													className={`icon-align-option   
 														${this.state?.activeComponent?.extraStyles?.verticalAlign == 'flex-start' ? 'active' : ''}`}
-													// className={`icon-align-option ${
-													// 	this.state?.activeComponent?.extraStyles
-													// 		?.align == 'right'
-													// 		? 'active'
-													// 		: ''
-													// }`}
 													onClick={() =>
 														this.handleIconProps(
 															'extraStyles',
@@ -886,12 +880,6 @@ export default class IconPopup extends Component {
 													className={`icon-align-option   
 														${this.state?.activeComponent?.extraStyles?.verticalAlign === 'center' ? 'active' : ''}
 															`}
-													// className={`icon-align-option ${
-													// 	this.state?.activeComponent?.extraStyles
-													// 		?.align == 'right'
-													// 		? 'active'
-													// 		: ''
-													// }`}
 													onClick={() =>
 														this.handleIconProps(
 															'extraStyles',
@@ -905,12 +893,6 @@ export default class IconPopup extends Component {
 												<span
 													className={`icon-align-option   
 														${this.state?.activeComponent?.extraStyles?.verticalAlign === 'flex-end' ? 'active' : ''}`}
-													// className={`icon-align-option ${
-													// 	this.state?.activeComponent?.extraStyles
-													// 		?.align == 'right'
-													// 		? 'active'
-													// 		: ''
-													// }`}
 													onClick={() =>
 														this.handleIconProps(
 															'extraStyles',
@@ -1171,6 +1153,115 @@ export default class IconPopup extends Component {
 														: this.state?.activeComponent?.size}
 													px
 												</p>
+											</div>
+										</div>
+										<div className="card-tab-wrapper">
+											<div className="bg-types-container">
+												<span
+													className={
+														`bg-item ` +
+														((this.props?.previewType == 'm'
+															? this.state?.activeComponent?.mSize
+															: this.state?.activeComponent?.size) ==
+														12
+															? ' active-bg-type'
+															: '')
+													}
+													onClick={() =>
+														this.handleIconProps(
+															this.props?.previewType == 'm'
+																? 'mSize'
+																: 'size',
+															12,
+														)
+													}
+												>
+													XS
+												</span>
+												<span
+													className={
+														`bg-item ` +
+														((this.props?.previewType == 'm'
+															? this.state?.activeComponent?.mSize
+															: this.state?.activeComponent?.size) ==
+														18
+															? ' active-bg-type'
+															: '')
+													}
+													onClick={() =>
+														this.handleIconProps(
+															this.props?.previewType == 'm'
+																? 'mSize'
+																: 'size',
+															18,
+														)
+													}
+												>
+													S
+												</span>
+												<span
+													className={
+														`bg-item ` +
+														((this.props?.previewType == 'm'
+															? this.state?.activeComponent?.mSize
+															: this.state?.activeComponent?.size) ==
+														24
+															? ' active-bg-type'
+															: '')
+													}
+													onClick={() =>
+														this.handleIconProps(
+															this.props?.previewType == 'm'
+																? 'mSize'
+																: 'size',
+															24,
+														)
+													}
+												>
+													M
+												</span>
+												<span
+													className={
+														`bg-item ` +
+														((this.props?.previewType == 'm'
+															? this.state?.activeComponent?.mSize
+															: this.state?.activeComponent?.size) ==
+														32
+															? ' active-bg-type'
+															: '')
+													}
+													onClick={() =>
+														this.handleIconProps(
+															this.props?.previewType == 'm'
+																? 'mSize'
+																: 'size',
+															32,
+														)
+													}
+												>
+													L
+												</span>
+												<span
+													className={
+														`bg-item ` +
+														((this.props?.previewType == 'm'
+															? this.state?.activeComponent?.mSize
+															: this.state?.activeComponent?.size) ==
+														40
+															? ' active-bg-type'
+															: '')
+													}
+													onClick={() =>
+														this.handleIconProps(
+															this.props?.previewType == 'm'
+																? 'mSize'
+																: 'size',
+															40,
+														)
+													}
+												>
+													XL
+												</span>
 											</div>
 										</div>
 										<div className="line"></div>
