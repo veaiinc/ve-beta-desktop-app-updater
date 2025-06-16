@@ -152,9 +152,6 @@
 
 	.strong {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 0.875);
-		line-height: calc(var(--font-size) * 1.5);
-		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 700;
 		font-family: var(--chat-primary-font-family);
 	}
