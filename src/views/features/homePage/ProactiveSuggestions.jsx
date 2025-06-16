@@ -435,7 +435,7 @@ const ProactiveSuggestions = () => {
 
 	const handleViewReportClick = useCallback((card) => {
 		const { chain_of_thought } = card;
-		const report = handleCombinedChainOfThought(chain_of_thought || []);
+		const report = handleCombinedChainOfThought(chain_of_thought || null);
 
 		const messages = [
 			{
