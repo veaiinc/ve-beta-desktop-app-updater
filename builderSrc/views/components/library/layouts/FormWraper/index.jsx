@@ -71,6 +71,9 @@ class FormWrapper extends Component {
 				triggerFont: nextProps.triggerFont,
 			});
 		}
+		if (this.state.triggerAdjustGridAreas !== nextProps.triggerAdjustGridAreas && nextProps.triggerAdjustGridAreas === true) {
+			this.props.setAdjustGridAreas(false);
+		}
 		if (this.state.triggeredFont !== nextProps.triggeredFont) {
 			this.setState({
 				triggeredFont: nextProps.triggeredFont,
