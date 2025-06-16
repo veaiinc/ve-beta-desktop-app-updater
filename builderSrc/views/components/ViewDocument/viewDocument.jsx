@@ -13,7 +13,6 @@ import { useState, useContext, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import DocumentShare from '../../feature/document/DocumentShare';
-import { fetchOriginSelection } from '../../../helper';
 import Summary from './Summary';
 import DeleteLeadModal from './DeletedocumentModel';
 import DuplicateLeadModal from './DuplicatedocumentModel';
@@ -23,7 +22,6 @@ import MoveStageModal from '../../components/SmartFileDetails/MoveStageModal';
 
 const MainDocumentSection = ({ workflowId, templateID }) => {
 	const navigate = useNavigate();
-	const origin = fetchOriginSelection();
 	const {
 		templates: {
 			workflowInfoDetails,
@@ -227,11 +225,14 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 		<>
 			{/* Header Section */}
 			<div className="doc-header-row">
-				<div className="doc-header-title">{info?.title}</div>
+				<div className="doc-header-title-container">
+					<span className="doc-header-title-container-text">Document Title</span>
+					<span className="doc-header-title">{info?.title}</span>
+				</div>
 				<div className="doc-header-actions">
 					<div className="doc-header-btn" onClick={handleEditClick}>
 						<UserIcon />
-						<span className="doc-header-btn-text">Edit details</span>
+						<span className="doc-header-btn-text">Re Edit document</span>
 					</div>
 					<div
 						className="doc-header-btn"
@@ -269,8 +270,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 						cursor: 'pointer',
 					}}
 					onClick={() => {
-						
-							setInfo((prev) => ({ ...prev, showAcceptDocumentModal: true }));
+						setInfo((prev) => ({ ...prev, showAcceptDocumentModal: true }));
 					}}
 				>
 					<span className="doc-info-badge-accept-text">
@@ -330,7 +330,11 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 											}`}
 										/>
 									</div>
-									<span className={`status-label ${isActive ? 'active' : ''}`}>
+									<span
+										className={`status-label${isActive ? ' active' : ''}${
+											isLastActive ? ' current' : ''
+										}`}
+									>
 										{step.label}
 									</span>
 								</div>
@@ -426,7 +430,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 							onDuplicate={handleDuplicate}
 						/>
 					)}
-					{info.showAcceptDocumentModal &&  (
+					{info.showAcceptDocumentModal && (
 						<AcceptDocumentModel
 							isOpen={info.showAcceptDocumentModal}
 							onClose={() =>
@@ -489,8 +493,6 @@ const ViewDocument = ({ workflowId, templateID }) => {
 	const handleBackToEdit = () => {
 		navigate(`/builder/document/edit/${workflowId}/${templateID}`);
 	};
-	const origin = fetchOriginSelection();
-
 	return (
 		<div className="viewDocumentContainer">
 			<div className="back-to-files" onClick={() => navigate(`/files?activeTab=Documents`)}>

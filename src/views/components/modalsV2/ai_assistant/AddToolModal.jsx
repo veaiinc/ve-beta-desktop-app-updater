@@ -9,7 +9,7 @@ import Spinner from '../../loaders/Spinner';
 import { useParams } from 'react-router-dom';
 import { message } from '../../globalComponents/CustomToast';
 import PayloadField from './PayloadField';
-const AddToolModal = ({ isOpen, onClose }) => {
+const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 	const {
 		knowledgeAgent: {
 			connectTool,
@@ -295,6 +295,14 @@ const AddToolModal = ({ isOpen, onClose }) => {
 
 	// Validation logic
 	const validatePayloadField = (prop, value) => {
+		// Skip validation for hidden, app, and any type starting with $
+		if (
+			prop.hidden ||
+			prop.type === 'app' ||
+			(typeof prop.type === 'string' && prop.type.startsWith('$'))
+		) {
+			return null;
+		}
 		const mode = info.payloadFieldModes?.[prop.name] || 'ai';
 		if (mode === 'ai') {
 			if (!prop.optional) {
@@ -307,18 +315,11 @@ const AddToolModal = ({ isOpen, onClose }) => {
 			return null;
 		}
 		if (
-			prop.hidden ||
-			prop.type === 'app' ||
-			prop.type === '$.service.db' ||
-			prop.type === '$.interface.http' ||
-			prop.type === '$.interface.timer'
-		)
-			return null;
-		if (
 			!prop.optional &&
 			(value === undefined || value === '' || (Array.isArray(value) && value.length === 0))
 		) {
 			return 'This field is required';
+			
 		}
 		if (prop.type === 'string[]' && ['to', 'cc', 'bcc'].includes(prop.name.toLowerCase())) {
 			if (Array.isArray(value)) {
@@ -362,9 +363,7 @@ const AddToolModal = ({ isOpen, onClose }) => {
 			if (
 				prop.hidden ||
 				prop.type === 'app' ||
-				prop.type === '$.service.db' ||
-				prop.type === '$.interface.http' ||
-				prop.type === '$.interface.timer'
+				(typeof prop.type === 'string' && prop.type.startsWith('$'))
 			) {
 				return;
 			}
@@ -514,6 +513,7 @@ const AddToolModal = ({ isOpen, onClose }) => {
 		var response = await addActionToKnowledgeAgent(agentId, payload);
 		if (response) {
 			message.success('Action added successfully');
+			if (onToolAdded) onToolAdded();
 			onClose();
 		}
 	};
