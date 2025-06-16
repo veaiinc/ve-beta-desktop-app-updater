@@ -214,7 +214,12 @@ class JIcon extends Component {
 								display: 'flex',
 								justifyContent: 'center',
 								alignItems: 'center',
-								padding: '6px',
+								padding:
+									parseFloat(
+										this.state?.previewType == 'm'
+											? this.state?.mSize / 10 + 5
+											: this.state?.size / 10 + 5,
+									) || '6px',
 							}}
 						>
 							<div
