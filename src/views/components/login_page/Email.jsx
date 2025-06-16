@@ -54,7 +54,7 @@ const Email = ({
 	useEffect(() => {
 		const isHostnameVeDotAi =
 			typeof window !== 'undefined' && window.location.hostname.endsWith('ve.ai');
-		setInfo((prev) => ({ ...prev, isHostnameVeDotAi }));
+		setInfo((prev) => ({ ...prev, isHostnameVeDotAi, googleLoading: false }));
 
 		if (referralCode) {
 			handleGetAndSetReferrerUserName();

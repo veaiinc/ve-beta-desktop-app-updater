@@ -2,7 +2,11 @@ import '@blocknote/core/fonts/inter.css';
 import { BlockNoteView } from '@blocknote/mantine';
 // import { createBlock } from '@blocknote/core';
 import '@blocknote/mantine/style.css';
-import { useCreateBlockNote } from '@blocknote/react';
+import {
+	getDefaultReactSlashMenuItems,
+	SuggestionMenuController,
+	useCreateBlockNote,
+} from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
 import NoteToolbar from '../../components/notes/NoteToolbar';
 import ShareComponent from '../../components/notes/ShareComponent';
@@ -28,6 +32,9 @@ import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
+import FileUploadToolbar from '../../components/notes/ImageComponent';
+import { ImageBlock, insertImage } from '../../components/notes/ImageComponent';
+import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
 
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
@@ -148,15 +155,24 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 		return null;
 	}, [notesPageData?.data?.iconImage, info?.selectedEmoji?.native]);
+	const schema = BlockNoteSchema.create({
+		blockSpecs: {
+			// Adds all default blocks.
+			...defaultBlockSpecs,
+			// Adds the Alert block.
+			image: ImageBlock,
+		},
+	});
 
 	const editor = useCreateBlockNote({
+		schema,
 		tables: {
 			splitCells: true,
 			cellBackgroundColor: true,
 			cellTextColor: true,
 			headers: true,
 		},
-		uploadFile,
+		// uploadFile,
 	});
 
 	useEffect(() => {
@@ -901,6 +917,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 								style={innerContainerStyle || {}}
 								theme={'dark'}
 								editable={info?.myAccess !== 'view' || !info?.isDeleted}
+								filePanel={FileUploadToolbar}
+								slashMenu={false}
 							>
 								{(info?.myAccess !== 'view' || !info?.isDeleted) && (
 									<NoteToolbar
@@ -909,6 +927,22 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 										resetAiResponse={resetAiResponse}
 									/>
 								)}
+								<SuggestionMenuController
+									triggerCharacter={'/'}
+									getItems={async (query) => {
+										const defaultItems = getDefaultReactSlashMenuItems(editor);
+										const imageBlockIndex = defaultItems.findIndex(
+											(item) => item.group === 'Media',
+										);
+										defaultItems.splice(
+											imageBlockIndex,
+											0,
+											insertImage(editor, noteId),
+										);
+
+										return filterSuggestionItems(defaultItems, query);
+									}}
+								/>
 							</BlockNoteView>
 						</div>
 					</>
