@@ -514,7 +514,7 @@ class Builder extends Component {
 			order: order,
 		};
 		this.props.handleAddLayout(
-			'this.props.params.workspaceID',
+			'this.props.params.workspaceId',
 			json,
 			'this.props.params.templateID',
 		);
@@ -2653,6 +2653,7 @@ class Builder extends Component {
 														triggerAdjustGridAreas={
 															this.props.triggerAdjustGridAreas
 														}
+														audioMode={this.props.audioMode}
 														mobile_preview_builder={
 															this.props?.mobile_preview_builder
 														}

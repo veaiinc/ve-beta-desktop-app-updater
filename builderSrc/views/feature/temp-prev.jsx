@@ -897,7 +897,7 @@ class TempBuilderPreview extends Proposals {
 															console.log();
 														}}
 														handleAddLayout={(
-															workspaceID,
+															workspaceId,
 															json,
 															templateID,
 														) => console.log()}
@@ -1021,6 +1021,7 @@ class TempBuilderPreview extends Proposals {
 														}
 														isSummaryPreview={true}
 														clientDetails={this.state.clientDetails}
+														audioMode={true}
 													/>
 												</div>
 											</div>

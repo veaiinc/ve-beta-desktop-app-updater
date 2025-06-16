@@ -29,7 +29,7 @@ const ViewButton = ({ smartFileInfo }) => {
 	const handlePreviewUrl = () => {
 		const usertoken = localStorage.getItem('usertoken');
 		const region = localStorage.getItem('region');
-		const currentWorkspaceId = localStorage.getItem('workspaceID');
+		const currentWorkspaceId = localStorage.getItem('workspaceId');
 
 		if (smartFileInfo?.slug) {
 			const previewUrl = `https://${currentWorkspaceId}.ve.ai/portal/${smartFileInfo.slug}/${region}/${usertoken}`;

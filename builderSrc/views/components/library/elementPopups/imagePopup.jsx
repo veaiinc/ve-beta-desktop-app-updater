@@ -1313,7 +1313,7 @@ export default class ImagePopup extends Images {
 												</div>
 												{this.state.showShapes && (
 													<>
-														<div className="shapeRatioContainer">
+														{/* <div className="shapeRatioContainer">
 															<p
 																className={
 																	this.state.activeShape === 1
@@ -1350,7 +1350,7 @@ export default class ImagePopup extends Images {
 															>
 																3:2
 															</p>
-														</div>
+														</div> */}
 														<div
 															className="block_shapes"
 															style={{

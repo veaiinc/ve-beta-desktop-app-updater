@@ -33,7 +33,7 @@ const Service = {
 	query: async (
 		query,
 		variables,
-		workspaceID,
+		workspaceId,
 		workflowID,
 		usertoken,
 		url = null,
@@ -43,8 +43,8 @@ const Service = {
 
 		url =
 			region === 'ap-south-1'
-				? `${apiEndPointMapper?.[url] || `${graphql_server}`}/${workspaceID}/graphql`
-				: `${apiEndPointMapperUS?.[url] || `${graphql_server_US}`}/${workspaceID}/graphql`;
+				? `${apiEndPointMapper?.[url] || `${graphql_server}`}/${workspaceId}/graphql`
+				: `${apiEndPointMapperUS?.[url] || `${graphql_server_US}`}/${workspaceId}/graphql`;
 
 		const apolloClient = new ApolloClient({
 			uri: url,
@@ -76,7 +76,7 @@ const Service = {
 	mutation: async (
 		mutation,
 		variables,
-		workspaceID,
+		workspaceId,
 		usertoken,
 		url = null,
 		trackerData = null,
@@ -93,7 +93,7 @@ const Service = {
 		} else {
 			subUrl = region === 'ap-south-1' ? `${graphql_server}` : `${graphql_server_US}`;
 		}
-		let URL = `${subUrl}/${workspaceID}/graphql`;
+		let URL = `${subUrl}/${workspaceId}/graphql`;
 		const apolloClient = new ApolloClient({
 			uri: URL,
 

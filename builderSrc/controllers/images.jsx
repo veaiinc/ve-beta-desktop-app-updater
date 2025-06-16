@@ -8,11 +8,11 @@ import Proposals from './proposals';
 class Images extends Proposals {
 	uploadImage = async (json, image, activaModuleId = null) => {
 		let userToken = localStorage.getItem('usertoken');
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let response = await Action.uploadImage(
 			json,
 			userToken,
-			workspaceID,
+			workspaceId,
 			this.state.activeModuleId ? this.state.activeModuleId : activaModuleId,
 		);
 		if (response[0] == true) {
@@ -34,12 +34,12 @@ class Images extends Proposals {
 
 	uploadImageWorkflow = async (json, image, indivisualState) => {
 		let userToken = localStorage.getItem('usertoken');
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 
 		let response = await Action.uploadImageWorkflow(
 			json,
 			userToken,
-			workspaceID,
+			workspaceId,
 			indivisualState?.module,
 			indivisualState?.activeWorkflowModuleId,
 		);
@@ -90,9 +90,9 @@ class Images extends Proposals {
 	};
 	getAllImages = async (limit = 10, page = 1, reset = true) => {
 		let userToken = localStorage.getItem('usertoken');
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		const query = `limit=${limit}&page=${page}`;
-		let response = await Action.getAllImages(userToken, workspaceID, query);
+		let response = await Action.getAllImages(userToken, workspaceId, query);
 		if (response[0] === true) {
 			let updateData = reset
 				? response[1]
