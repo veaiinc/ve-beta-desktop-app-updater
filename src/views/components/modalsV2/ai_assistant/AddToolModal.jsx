@@ -319,7 +319,6 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 			(value === undefined || value === '' || (Array.isArray(value) && value.length === 0))
 		) {
 			return 'This field is required';
-			
 		}
 		if (prop.type === 'string[]' && ['to', 'cc', 'bcc'].includes(prop.name.toLowerCase())) {
 			if (Array.isArray(value)) {
@@ -510,10 +509,10 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 		};
 
 		setInfo((prev) => ({ ...prev, isSubmitting: false }));
-		var response = await addActionToKnowledgeAgent(agentId, payload);
+		const response = await addActionToKnowledgeAgent(agentId, payload);
 		if (response) {
 			message.success('Action added successfully');
-			if (onToolAdded) onToolAdded();
+			onToolAdded();
 			onClose();
 		}
 	};
