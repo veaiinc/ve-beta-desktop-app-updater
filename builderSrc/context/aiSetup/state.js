@@ -12,7 +12,7 @@ export const AiSetupState = () => {
 	const [state, dispatch] = useReducer(Reducer, initialState);
 
 	const getExistingAiAssistants = async () => {
-		let workspaceId = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		const url = '/' + workspaceId + AI_PERSONALITY?.listAiAssistants;
 		try {
@@ -32,7 +32,7 @@ export const AiSetupState = () => {
 		}
 	};
 	const assignAiAssistantToSelectedWorkflows = async (assistantId, workflowIds) => {
-		let workspaceId = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		const url = '/' + workspaceId + `/ai-assistants/${assistantId}/workflow-templates`;
 

@@ -11,7 +11,7 @@ const useActiveWorkspace = () => {
 		if (workspaceId) {
 			localStorage.setItem('workspaceId', workspaceId);
 			const host = fetchDomainName();
-			Cookies.set('workspaceID', workspaceId, {
+			Cookies.set('workspaceId', workspaceId, {
 				sameSite: 'lax',
 				domain: host,
 			});

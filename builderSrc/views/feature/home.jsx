@@ -643,7 +643,7 @@ class Home extends Proposals {
 		const currentURL = window.location.href;
 
 		if (currentURL.includes('localhost') || currentURL.includes('192.168')) {
-			const requiredKeys = ['usertoken', 'workspaceID', 'region'];
+			const requiredKeys = ['usertoken', 'workspaceId', 'region'];
 
 			requiredKeys.forEach((key) => {
 				if (!localStorage.getItem(key)) {
@@ -3885,7 +3885,7 @@ class Home extends Proposals {
 				}
 				if (this.state.isWorkflow) {
 					await this.addWorkflowLayout(
-						'this.props.params.workspaceID',
+						'this.props.params.workspaceId',
 						jso,
 						isFluid,
 						isService,
@@ -3898,13 +3898,13 @@ class Home extends Proposals {
 							jso.style.backgroundType = 'color';
 						}
 						await this.addSection(
-							'this.props.params.workspaceID',
+							'this.props.params.workspaceId',
 							jso,
 							this.state.activeModuleId,
 						);
 					} else {
 						await this.addLayout(
-							'this.props.params.workspaceID',
+							'this.props.params.workspaceId',
 							jso,
 							this.state.activeModuleId,
 							isService,
