@@ -175,7 +175,23 @@ class JIcon extends Component {
 		return (
 			<>
 				{this.props?.isFluid ? (
-					<>
+					<div
+						className={`fluid-j-icon-container `}
+						style={{
+							width: '100%',
+							height: '100%',
+							display: 'flex',
+							flexDirection: 'column',
+							justifyContent: this.props?.extraStyles?.verticalAlign || 'center',
+							alignItems:
+								this.props?.extraStyles?.align == 'left'
+									? 'flex-start'
+									: this.props?.extraStyles?.align == 'right'
+									? 'flex-end'
+									: 'center',
+						}}
+						onClick={() => this.handleOnClick()}
+					>
 						<div
 							className={`fluid-j-icon-container j-icon-${this.props?.extraStyles?.bgType}`}
 							style={{
@@ -191,20 +207,15 @@ class JIcon extends Component {
 									this.props?.isFluid
 										? `${this.props?.extraStyles?.thickness}px solid ${this.state?.color}`
 										: 'none',
-								width: '100%',
-								height: '100%',
 								minWidth: `${this.state.containerSize}px`,
 								minHeight: `${this.state.containerSize}px`,
+								width: 'auto',
+								height: 'auto',
 								display: 'flex',
-								justifyContent:
-									this.props?.extraStyles?.align == 'left'
-										? 'flex-start'
-										: this.props?.extraStyles?.align == 'right'
-										? 'flex-end'
-										: 'center',
+								justifyContent: 'center',
 								alignItems: 'center',
+								padding: '6px',
 							}}
-							onClick={() => this.handleOnClick()}
 						>
 							<div
 								ref={this.iconRef}
@@ -217,9 +228,14 @@ class JIcon extends Component {
 											: this.state?.size,
 									),
 								}}
+								style={{
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+								}}
 							></div>
 						</div>
-					</>
+					</div>
 				) : (
 					<>
 						<div

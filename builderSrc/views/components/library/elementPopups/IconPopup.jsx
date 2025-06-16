@@ -11,6 +11,9 @@ import { ReactComponent as Arrow } from '../svgs/arrow.svg';
 import { ReactComponent as Right } from '../../../../assets/svg/right.svg';
 import { ReactComponent as Left } from '../../../../assets/svg/left.svg';
 import { ReactComponent as Center } from '../../../../assets/svg/center.svg';
+import { ReactComponent as Top } from '../svgs/alignment/TopAlign.svg';
+import { ReactComponent as Bottom } from '../svgs/alignment/BottomAlign.svg';
+import { ReactComponent as Middle } from '../svgs/alignment/CenterAlign.svg';
 
 //! journey icons
 import { journeyIcons } from '../elements/jicon/journeyIcons';
@@ -795,7 +798,7 @@ export default class IconPopup extends Component {
 											</>
 										)}
 										<div className="icon-align-div">
-											<p className="heading">Align</p>
+											<p className="heading">Horizontal Alignment</p>
 											<div className="icon-align-options">
 												<div
 													className={`icon-align-option ${
@@ -855,6 +858,72 @@ export default class IconPopup extends Component {
 												</div>
 											</div>
 										</div>
+
+										<div className="popup-shapes-range-wrapper icon-align-div">
+											<b>Vertical Alignment</b>
+											<div className="popup-stroke-styles icon-align-options">
+												<span
+													className={`icon-align-option   
+														${this.state?.activeComponent?.extraStyles?.verticalAlign == 'flex-start' ? 'active' : ''}`}
+													// className={`icon-align-option ${
+													// 	this.state?.activeComponent?.extraStyles
+													// 		?.align == 'right'
+													// 		? 'active'
+													// 		: ''
+													// }`}
+													onClick={() =>
+														this.handleIconProps(
+															'extraStyles',
+															'flex-start',
+															'verticalAlign',
+														)
+													}
+												>
+													<Top />
+												</span>
+
+												<span
+													className={`icon-align-option   
+														${this.state?.activeComponent?.extraStyles?.verticalAlign === 'center' ? 'active' : ''}
+															`}
+													// className={`icon-align-option ${
+													// 	this.state?.activeComponent?.extraStyles
+													// 		?.align == 'right'
+													// 		? 'active'
+													// 		: ''
+													// }`}
+													onClick={() =>
+														this.handleIconProps(
+															'extraStyles',
+															'center',
+															'verticalAlign',
+														)
+													}
+												>
+													<Middle />
+												</span>
+												<span
+													className={`icon-align-option   
+														${this.state?.activeComponent?.extraStyles?.verticalAlign === 'flex-end' ? 'active' : ''}`}
+													// className={`icon-align-option ${
+													// 	this.state?.activeComponent?.extraStyles
+													// 		?.align == 'right'
+													// 		? 'active'
+													// 		: ''
+													// }`}
+													onClick={() =>
+														this.handleIconProps(
+															'extraStyles',
+															'flex-end',
+															'verticalAlign',
+														)
+													}
+												>
+													<Bottom />
+												</span>
+											</div>
+										</div>
+
 										<div className="element_pasteURL">
 											<p className="heading">Connect to any Page or URL</p>
 											{this.state?.activeComponent?.linkType == 'section' ? (
