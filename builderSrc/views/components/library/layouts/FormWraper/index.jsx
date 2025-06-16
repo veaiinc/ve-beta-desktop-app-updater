@@ -459,10 +459,8 @@ class FormWrapper extends Component {
 					position: 'relative',
 					border: this.state.preview ? 'none' : '',
 					width: '100%',
-					height:
-						this.props.client && this.state?.section?.isSinglePage ? 'auto' : '100%',
+					height: this.props.client ? '100%' : 'auto',
 					minHeight: '418.5px',
-					top: '45px',
 				}}
 				onClick={(e) => {
 					if (this.state.preview !== true) {
