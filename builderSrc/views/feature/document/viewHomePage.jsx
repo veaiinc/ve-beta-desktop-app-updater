@@ -11,6 +11,9 @@ import { ReactComponent as ShareIcon } from '../../../assets/svg/document/share.
 import TempBuilderPreview from '../temp-prev';
 import DocumentAnalytics from './documentAnalytics';
 import DocumentShare from './DocumentShare';
+import { ReactComponent as DesktopIcon } from '../../components/library/svgs/header/Desktop.svg';
+import { ReactComponent as MobileIcon } from '../../components/library/svgs/header/MobilePop.svg';
+
 const EditButton = ({ workflowId, templateID }) => {
 	const navigate = useNavigate();
 	const handleEditClick = () => {
@@ -84,6 +87,8 @@ const ViewHomePage = () => {
 		analyticsSelected: false,
 		isShareModalOpen: false,
 	});
+	const [previewDevice, setPreviewDevice] = useState('d'); // 'd' for desktop, 'm' for mobile
+
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -176,15 +181,44 @@ const ViewHomePage = () => {
 				{info?.analyticsSelected ? (
 					<DocumentAnalytics workflowId={workflowId} />
 				) : (
-					<div className="previewBody">
-						<TempBuilderPreview
-							workflowId={workflowId}
-							showSmartFileSideBar={false}
-							showHeader={false}
-							editingWorflow={true}
-						/>
-					</div>
+					<>
+						<div className="previewBody">
+							<TempBuilderPreview
+								workflowId={workflowId}
+								showSmartFileSideBar={false}
+								showHeader={false}
+								editingWorflow={true}
+								previewType={previewDevice}
+								previewMode={previewDevice}
+							/>
+						</div>
+						{/* Device Switcher Bar */}
+					</>
 				)}
+				<div className="device-switcher-bar">
+					<button
+						className={
+							previewDevice === 'd'
+								? 'device-switcher-btn active'
+								: 'device-switcher-btn'
+						}
+						aria-label="Desktop Preview"
+						onClick={() => setPreviewDevice('d')}
+					>
+						<DesktopIcon width={24} height={24} />
+					</button>
+					<button
+						className={
+							previewDevice === 'm'
+								? 'device-switcher-btn active'
+								: 'device-switcher-btn'
+						}
+						aria-label="Mobile Preview"
+						onClick={() => setPreviewDevice('m')}
+					>
+						<MobileIcon width={24} height={24} />
+					</button>
+				</div>
 				{info.isShareModalOpen && (
 					<DocumentShare
 						isOpen={info.isShareModalOpen}

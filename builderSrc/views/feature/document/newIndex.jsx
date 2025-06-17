@@ -797,7 +797,8 @@ const CreateDocument = () => {
 														</span>
 													</div>
 													<div className="verifiedIconWrapper">
-														<VerifiedSvg className="verifiedIcon" />
+														{/* <VerifiedSvg className="verifiedIcon" /> */}
+														<span className="changeButton">Change</span>
 													</div>
 												</>
 											) : (
@@ -807,7 +808,11 @@ const CreateDocument = () => {
 															Select template
 														</span>
 													</div>
-													<button className="changeButton">Change</button>
+													<button className="changeButton">
+														{stageInfo.selectedTemplate
+															? 'Change'
+															: 'Choose Template'}
+													</button>
 												</>
 											)}
 										</div>
