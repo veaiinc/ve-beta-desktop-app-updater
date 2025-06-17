@@ -16,17 +16,20 @@
 		gap: 42px;
 		align-items: center;
 		justify-content: center;
+		width: 100%;
 		.taglineContainer {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 			gap: 42px;
+			width: 100%;
 			.top {
 				display: flex;
 				flex-direction: column;
 				gap: 22px;
 				align-items: center;
 				justify-content: center;
+				width: 100%;
 
 				.poweredBy {
 					color: var(--primary-button, #79ecc9);
@@ -49,14 +52,21 @@
 				}
 
 				.subHeading {
-					color: var(--secondary-font, #7a7e85);
-					text-align: center;
-					font-family: var(--secondary-font-family);
-					font-size: 24px;
-					font-weight: 400;
-					line-height: 35px;
-					max-width: 670px;
+					max-width: 1254px;
 					width: 100%;
+					display: flex;
+					flex-direction: column;
+					gap: 30px;
+					p {
+						color: var(--primary-font, #f2f2f3);
+						text-align: center;
+						font-family: Manrope;
+						font-size: 20px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 35px; /* 175% */
+						width: 100%;
+					}
 				}
 			}
 
@@ -153,7 +163,7 @@
 			.taglineContainer {
 				.top {
 					.heading {
-						color: var(--primary-font, #F2F2F3);
+						color: var(--primary-font, #f2f2f3);
 						text-align: center;
 						font-family: var(--secondary-font-family);
 						font-size: 55px;
@@ -165,15 +175,16 @@
 						font-size: 18px;
 					}
 					.subHeading {
-						color: var(--secondary-font, #7A7E85);
-						text-align: center;
-						font-family: var(--secondary-font-family);
-						font-size: 24px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 35px;
-						max-width: 670px;
-						width: 100%;
+						p {
+							color: var(--secondary-font, #7a7e85);
+							text-align: center;
+							font-family: var(--secondary-font-family);
+							font-size: 20px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 35px;
+							width: 100%;
+						}
 					}
 				}
 			}
@@ -187,7 +198,7 @@
 			.taglineContainer {
 				.top {
 					.heading {
-						color: var(--primary-font, #F2F2F3);
+						color: var(--primary-font, #f2f2f3);
 						text-align: center;
 						font-family: var(--secondary-font-family);
 						font-size: 55px;
@@ -199,15 +210,16 @@
 						font-size: 18px;
 					}
 					.subHeading {
-						color: var(--secondary-font, #7A7E85);
-						text-align: center;
-						font-family: var(--secondary-font-family);
-						font-size: 24px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 35px;
-						max-width: 670px;
-						width: 100%;
+						p {
+							color: var(--secondary-font, #7a7e85);
+							text-align: center;
+							font-family: var(--secondary-font-family);
+							font-size: 20px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 35px;
+							width: 100%;
+						}
 					}
 				}
 			}
@@ -242,7 +254,7 @@
 					}
 
 					.heading {
-						color: var(--primary-font, #F2F2F3);
+						color: var(--primary-font, #f2f2f3);
 						text-align: center;
 						font-family: var(--secondary-font-family);
 						font-size: 34px;
@@ -253,13 +265,15 @@
 					}
 
 					.subHeading {
-						color: var(--secondary-font, #7A7E85);
-						text-align: center;
-						font-family: var(--secondary-font-family);
-						font-size: 16px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 26px;
+						p {
+							color: var(--secondary-font, #7a7e85);
+							text-align: center;
+							font-family: var(--secondary-font-family);
+							font-size: 16px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 26px;
+						}
 					}
 				}
 
@@ -302,7 +316,7 @@
 					}
 
 					.heading {
-						color: var(--primary-font, #F2F2F3);
+						color: var(--primary-font, #f2f2f3);
 						text-align: center;
 						font-family: var(--secondary-font-family);
 						font-size: 34px;
@@ -313,7 +327,7 @@
 					}
 
 					.subHeading {
-						color: var(--secondary-font, #7A7E85);
+						color: var(--secondary-font, #7a7e85);
 						text-align: center;
 						font-family: var(--secondary-font-family);
 						font-size: 16px;
@@ -336,5 +350,3 @@
 		}
 	}
 }
-
-

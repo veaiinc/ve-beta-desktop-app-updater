@@ -25,7 +25,7 @@ import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 import '../../../assets/scss/landingScreen/index.scss';
 
 const pathToTabMap = {
-	'/mission': 1,
+	'/thebridge': 1,
 	'/contact-us': 2,
 	'/api': 3,
 	'/pricing': 4,
@@ -76,7 +76,7 @@ const LandingPage = () => {
 
 	const handleSetTab = (tabVal) => {
 		setTab(tabVal);
-		const tabRoutes = ['/', '/mission', '/contact-us', '/pricing'];
+		const tabRoutes = ['/', '/thebridge', '/contact-us', '/pricing'];
 		navigate(tabRoutes[tabVal]);
 	};
 
