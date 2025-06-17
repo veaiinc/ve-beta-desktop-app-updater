@@ -129,9 +129,9 @@ const OpenedSidebarModules = ({
 		if (name === 'Agents') {
 			return currentPath.includes('/agents') || currentPath.includes('/ai-assistant');
 		}
-		if (name === 'New Chat') {
-			return currentPath.includes('/chat');
-		}
+		// if (name === 'New Chat') {
+		// 	return currentPath.includes('/chat');
+		// }
 		return currentPath === routePath;
 	}, [location.pathname, route, name]);
 

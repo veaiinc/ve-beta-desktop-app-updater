@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import React, { useEffect, useRef, useCallback, useState, useMemo } from 'react';
+import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import '../../../assets/scss/notes/noteComponentModal.scss';
 import NoteComponent from './NoteComponent';
 import Markdown from 'react-markdown';
@@ -33,7 +33,7 @@ const NoteComponentModal = ({
 	const chatContentRef = useRef(null);
 	const [isClosing, setIsClosing] = useState(false);
 	const {
-		templates: { globalChatMessages },
+		templates: { globalChatMessages, currentSessionId },
 		documentPreview: { noteContent },
 		notes: { addToFavorite, removeFromFavorite, deletePage, duplicatePage },
 	} = useContext(Context);
@@ -162,6 +162,10 @@ const NoteComponentModal = ({
 		}
 	}, [info?.noteId]);
 
+	if (!modalIsOpen) {
+		return null;
+	}
+
 	return (
 		<ReactModal
 			isOpen={modalIsOpen}
@@ -186,37 +190,42 @@ const NoteComponentModal = ({
 						{/* chat body */}
 						<div className={`chatBodyParentContainer`} ref={chatContentRef}>
 							<div className="chatContent">
-								{chatList?.map((chat, index) =>
-									chat?.content ? (
-										chat?.content
-									) : (
-										<div
-											key={index}
-											className={`chat-message ${chat?.type?.toLowerCase()}-message`}
-										>
-											<div className="message-content">
-												{chat?.type?.toLowerCase() === 'ai' ? (
-													<div className="content">
-														<AIMessage
-															text={chat?.message}
-															smoothScrollToBottom={
-																smoothScrollToBottom
-															}
-															handleRatingClick={handleRatingClick}
-															messageId={chat?.messageId}
-															showTypingEffect={chat?.typingEffect}
-															rating={chat?.rating}
-															messageData={chat}
-															citations={chat?.citations}
-															isNoteCanvas={true}
-														/>
-													</div>
-												) : (
-													<Markdown>{chat?.message}</Markdown>
-												)}
+								{globalChatMessages?.[currentSessionId]?.messages?.map(
+									(chat, index) =>
+										chat?.content ? (
+											chat?.content
+										) : (
+											<div
+												key={index}
+												className={`chat-message ${chat?.type?.toLowerCase()}-message`}
+											>
+												<div className="message-content">
+													{chat?.type?.toLowerCase() === 'ai' ? (
+														<div className="content">
+															<AIMessage
+																text={chat?.message}
+																smoothScrollToBottom={
+																	smoothScrollToBottom
+																}
+																handleRatingClick={
+																	handleRatingClick
+																}
+																messageId={chat?.messageId}
+																showTypingEffect={
+																	chat?.typingEffect
+																}
+																rating={chat?.rating}
+																messageData={chat}
+																citations={chat?.citations}
+																isNoteCanvas={true}
+															/>
+														</div>
+													) : (
+														<Markdown>{chat?.message}</Markdown>
+													)}
+												</div>
 											</div>
-										</div>
-									),
+										),
 								)}
 							</div>
 						</div>

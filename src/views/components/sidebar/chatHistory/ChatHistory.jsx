@@ -7,13 +7,14 @@ import InfiniteScroll from '../../../components/globalComponents/InfiniteScroll'
 import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
+import Spinner from '../../loaders/Spinner';
 const infiniteScrollStyle = {
 	display: 'flex',
 	flexDirection: 'column',
 	alignItems: 'flex-start',
 	alignSelf: 'stretch',
 	gap: '2px',
-	marginBottom: '60px',
+	marginBottom: '140px',
 	// height: '38vh',
 };
 const skeletonLoaders = Array?.from({ length: 30 }, (_, index) => index + 1);
@@ -25,7 +26,14 @@ const ChatHistory = () => {
 	const navigate = useNavigate();
 	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
-		templates: { refetchChatHistoryList, updateStateValues, currentSessionId, currentChatData },
+		templates: {
+			refetchChatHistoryList,
+			updateStateValues,
+			currentSessionId,
+			currentChatData,
+			chatLoadingSessions,
+			updateChatLoadingSessions,
+		},
 	} = useContext(Context);
 	// const previousSearchQuery = useRef('');
 	// const [searchQuery, setSearchQuery] = useState('');
@@ -87,6 +95,10 @@ const ChatHistory = () => {
 		(chat) => {
 			if (currentSessionId === chat?._id) return;
 
+			if (chatLoadingSessions?.[chat?._id]?.isNotSeen) {
+				updateChatLoadingSessions({ sessionId: chat?._id, removeSessionId: true });
+			}
+
 			if (chat?.agentType === 'knowledge_agent') {
 				navigate(
 					`/chat/${chat?._id}?agentType=knowledge_agent&assistantId=${chat?.assistantId}`,
@@ -95,13 +107,8 @@ const ChatHistory = () => {
 				navigate(`/chat/${chat?._id}`);
 			}
 		},
-		[currentSessionId],
+		[currentSessionId, updateChatLoadingSessions],
 	);
-
-	const handleCreateChat = useCallback(() => {
-		const sessionId = ObjectID()?.toString();
-		navigate(`/chat/${sessionId}`);
-	}, []);
 
 	const getChatDateGroup = useCallback((timestamp) => {
 		const chatDate = moment.unix(timestamp).startOf('day');
@@ -200,6 +207,20 @@ const ChatHistory = () => {
 												{chat?.title}
 											</p>
 										</div>
+										{(chatLoadingSessions?.[chat?._id]?.isStreaming ||
+											chatLoadingSessions?.[chat?._id]?.isNotSeen) &&
+											chat?._id !== currentSessionId && (
+												<div className="loader-container">
+													{chatLoadingSessions?.[chat?._id]
+														?.isStreaming && (
+														<Spinner width={'15px'} height={'14.5px'} />
+													)}
+													{chatLoadingSessions?.[chat?._id]
+														?.isNotSeen && (
+														<div className="not-seen-badge" />
+													)}
+												</div>
+											)}
 									</div>
 								</div>
 							);
