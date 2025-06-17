@@ -1,7 +1,8 @@
 .FullScreenSidebar {
 	margin-left: 0px;
 	margin-right: 0px;
-
+	cursor: pointer;
+	z-index: 1001;
 	&.opened {
 		height: 100dvh;
 		position: relative;
@@ -13,8 +14,11 @@
 		animation: expandWidth 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 	}
 	&.closed {
-		animation: delayMargin 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards,
-			adjustWidth 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+		
+		transform: translateX(50px);
+		top: 15px;
+		left: 55px;
+		padding: 24px 19px !important;
 	}
 
 	&.contacts-sidebar {
@@ -725,6 +729,84 @@
 			}
 		}
 	}
+
+	&.docked {
+		position: relative;
+		left: 0;
+		top: 0;
+		z-index: 1001;
+		transform: translateX(0);
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		height: 100dvh !important;
+		padding: 0 !important;
+		margin: 0;
+		border-radius: 0;
+
+		// &.closed {
+		// 	transform: translateX(-100%);
+		// }
+
+		.sidebarComponent {
+			position: relative;
+			left: 3px;
+			top: 0;
+			height: 100dvh;
+			background: var(--navbar);
+			border-right: 1px solid var(--stroke);
+		}
+	}
+
+	&:not(.docked) {
+		position: absolute;
+		z-index: 1001;
+		margin-top: 0px;
+		top: 4px;
+		bottom: 20px;
+		margin-bottom: 10px;
+		margin-left: 0px;
+		border-top-right-radius: 26px;
+		border-bottom-right-radius: 26px;
+		border-top-left-radius: 0px;
+		border-bottom-left-radius: 0px;
+		// box-shadow: 0 0 10px rgba(0, 0, 0, 0.183);
+
+		&.closed {
+			transform: translateX(-100%);
+		}
+
+		&.hovering {
+			transform: translateX(0);
+			z-index: 1002;
+		}
+
+		.sidebarComponent {
+			position: relative;
+		}
+	}
+
+	.sidebar-close {
+		transition: opacity 0.3s ease;
+		opacity: 1;
+
+		&.inactive {
+			opacity: 0;
+			pointer-events: none;
+		}
+	}
+
+	.sidebar-open {
+		opacity: 1;
+
+		&.inactive {
+			opacity: 0;
+			transform: translateX(-100%);
+			pointer-events: none;
+		}
+
+		&.inactive-no-animation {
+			display: none;
+		}
+	}
 }
 
 // .workSpaceOverlay {
@@ -1390,27 +1472,9 @@
 	}
 }
 
-@keyframes delayMargin {
-	0% {
-		margin-left: -32px;
-		margin-top: -32px;
-	}
-	99% {
-		margin-left: -32px;
-		margin-top: -32px;
-	}
-	100% {
-		margin-left: 0;
-		margin-top: 0;
-	}
-}
-
 @keyframes adjustWidth {
 	0% {
 		width: 280px;
-	}
-	99% {
-		width: 52px;
 	}
 	100% {
 		width: 20px;

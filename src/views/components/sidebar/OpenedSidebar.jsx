@@ -247,7 +247,8 @@ const OpenedSidebar = ({
 	setShowChatsDrawer,
 	setShowNotesDrawer,
 	setHideClosedSidebarIcon,
-	// renewBanner,
+	isDocked,
+	handleDockToggle,
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
@@ -513,7 +514,13 @@ const OpenedSidebar = ({
 
 	return (
 		<>
-			<div style={{ display: 'flex', position: 'relative' }}>
+			<div
+				style={{
+					display: 'flex',
+					position: 'relative',
+				}}
+				// onMouseLeave={() => !isDocked && setIsOpen(false)}
+			>
 				{tenantUserAccessControls && (
 					<div style={{ display: 'flex' }}>
 						{(!isMobile || (isMobile && !selectedChat)) && (
@@ -521,7 +528,6 @@ const OpenedSidebar = ({
 								<div
 									className="openSideBarComponent"
 									style={{
-										// height: renewBanner ? 'calc(100dvh - 58px)' : '100dvh',
 										height: '100dvh',
 										display: 'flex',
 										flexDirection: 'column',
@@ -575,14 +581,22 @@ const OpenedSidebar = ({
 												</div>
 											)}
 											<SidebarTooltip
-												label="Close Sidebar"
+												label={isDocked ? 'Undock Sidebar' : 'Dock Sidebar'}
 												icon={
 													<SidebarClosingSvg
 														className="collapseArrow"
 														style={{ cursor: 'pointer' }}
+														onClick={(e) => {
+															e.stopPropagation();
+															if (isDocked) {
+																handleDockToggle();
+															} else {
+																handleDockToggle();
+																setIsOpen(true);
+															}
+														}}
 													/>
 												}
-												onClick={setIsOpen}
 											/>
 
 											{!isThisEarlyAccessPage && (
