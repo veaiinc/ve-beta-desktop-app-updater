@@ -734,10 +734,9 @@ class App extends BaseClass {
 				},
 				() => {
 					// Update readonly state when preview type changes
-					if (this[`ref_${this.state.reference}`]) {
-						this[`ref_${this.state.reference}`].setReadOnly(
-							this.state.previewType === 'm',
-						);
+					const ref = this[`ref_${this.state.reference}`];
+					if (ref && typeof ref.setReadOnly === 'function') {
+						ref.setReadOnly(this.state.previewType === 'm');
 					}
 				},
 			);
