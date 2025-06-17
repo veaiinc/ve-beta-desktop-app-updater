@@ -6,15 +6,14 @@
 	&.opened {
 		height: 100dvh;
 		position: relative;
-		margin-left: -32px;
-		margin-top: -32px;
+		// margin-left: -32px;
+		// margin-top: -32px;
 		padding: 0 !important;
 		margin-right: 10px !important;
 		z-index: 1000;
 		animation: expandWidth 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 	}
 	&.closed {
-		
 		transform: translateX(50px);
 		top: 15px;
 		left: 55px;
@@ -83,6 +82,11 @@
 		.sidebar-close {
 			&.active {
 				display: block;
+				.eachOption {
+					position: fixed;
+					top: 20px;
+					left: 10px;
+				}
 			}
 			&.inactive {
 				display: none;
