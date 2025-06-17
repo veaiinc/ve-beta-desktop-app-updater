@@ -624,6 +624,7 @@ class Home extends Proposals {
 			numOfDocuments: 0,
 			isFormTemplate: false,
 			triggerAdjustGridAreas: false,
+			workflowTemplateID: null,
 		};
 		this.componentRef = createRef();
 		this.addBlockRef = createRef();
@@ -7590,6 +7591,7 @@ class Home extends Proposals {
 											}`}
 										>
 											<Sidebar
+												workflowTemplateID={this.state.workflowTemplateID}
 												activeModule={this.state.activeModule}
 												socialMediaLinks={this.state.socialMediaLinks}
 												getModuleInfo={(id, type) =>
