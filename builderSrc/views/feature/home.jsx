@@ -5700,6 +5700,7 @@ class Home extends Proposals {
 	};
 	handleTriggerAdjustGridAreas = async (e) => {
 		this.setState({
+			triggerAdjustGridAreas: false,
 			isPublishLoading: true,
 		});
 		const queryString = window.location.search;
@@ -5734,9 +5735,9 @@ class Home extends Proposals {
 				!this.state.template.actions?.includes('form-submission')
 			) {
 				// return (window.location.href = `https://ve.ai/my-templates`);
-				return this.props.navigate(-1);
+				return this.props.navigateData(-1);
 			} else if (this.state.template.actions?.includes('form-submission')) {
-				return this.props.navigate(-1);
+				return this.props.navigateData(-1);
 			} else {
 				return (window.location.href = `https://ve.ai/workflow_builder/${
 					this.props.params.templateID || this.templateId
@@ -7527,9 +7528,6 @@ class Home extends Proposals {
 													this.setServiceTableSection(e, value);
 												}}
 												setAdjustGridAreas={() => {
-													this.setState({
-														triggerAdjustGridAreas: false,
-													});
 													this.handleTriggerAdjustGridAreas();
 												}}
 											/>
