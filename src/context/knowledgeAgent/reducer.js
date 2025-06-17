@@ -24,6 +24,10 @@ const actionHandlers = {
 		...state,
 		knowledgeBaseInfo: action?.payload,
 	}),
+	SET_KNOWLEDGE_BASE_ACTIVE_FILE_STATUS: (state, action) => ({
+		...state,
+		knowledgeBaseFilesActiveStatus: action?.payload,
+	}),
 	UPDATE_CONTEXT_VALUES: (state, action) => ({
 		...state,
 		...action?.payload,

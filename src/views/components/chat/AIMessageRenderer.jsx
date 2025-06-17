@@ -192,63 +192,73 @@ const AIMessageRenderer = ({
 			) : (
 				<div className="source-content">
 					{messageData?.citations && messageData?.citations.length > 0
-						? messageData?.citations.map((citation, idx) => (
-								<div
-									key={citation?.id || idx}
-									className="citation-item"
-									onClick={() =>
-										redirectTo?.(
-											citation?.type,
-											citation?.[redirectTypeMapper?.[citation?.type]],
-										)
-									}
-								>
-									<div className="citation-header">
-										<div className="citation-icon">
-											{citation?.type === 'url' ? (
-												getFaviconUrl(citation?.name) ? (
-													<img
-														src={getFaviconUrl(citation?.name)}
-														alt="favicon"
-														className="favicon-image"
-													/>
+						? messageData?.citations
+								?.filter((citation) =>
+									citation?.type === 'url'
+										? (citation['url'] || false) && citation?.name?.length > 0
+										: citation?.name?.length > 0,
+								)
+								?.map((citation, idx) => (
+									<div
+										key={citation?.id || idx}
+										className="citation-item"
+										onClick={() =>
+											redirectTo?.(
+												citation?.type,
+												citation?.[redirectTypeMapper?.[citation?.type]],
+											)
+										}
+									>
+										<div className="citation-header">
+											<div className="citation-icon">
+												{citation?.type === 'url' ? (
+													getFaviconUrl(citation?.name) ? (
+														<img
+															src={getFaviconUrl(citation?.name)}
+															alt="favicon"
+															className="favicon-image"
+														/>
+													) : (
+														<div className="company-icon">
+															{getWebsiteName(citation?.name)?.charAt(
+																0,
+															)}
+														</div>
+													)
 												) : (
 													<div className="company-icon">
-														{getWebsiteName(citation?.name)?.charAt(0)}
+														{citation?.type === 's3_key'
+															? fileTypeIcons[
+																	citation?.name?.match(
+																		/\.(\w+)$/,
+																	)?.[1]
+															  ]
+															: fileTypeIcons[citation?.type]}
 													</div>
-												)
-											) : (
-												<div className="company-icon">
-													{citation?.type === 's3_key'
-														? fileTypeIcons[
-																citation?.name?.match(
-																	/\.(\w+)$/,
-																)?.[1]
-														  ]
-														: fileTypeIcons[citation?.type]}
-												</div>
-											)}
-										</div>
-										<div className="citation-details">
-											<div className="website-name">
-												{citation?.type === 'url'
-													? getWebsiteName(citation?.name)
-													: citation?.name}
+												)}
 											</div>
-											{citation?.type === 'url' && (
-												<div className="citation-url">{citation?.name}</div>
-											)}
-
-											{citation?.snippet && (
-												<div className="citation-title">
-													{citation?.snippet}
+											<div className="citation-details">
+												<div className="website-name">
+													{citation?.type === 'url'
+														? getWebsiteName(citation?.name)
+														: citation?.name}
 												</div>
-											)}
+												{citation?.type === 'url' && (
+													<div className="citation-url">
+														{citation?.name}
+													</div>
+												)}
+
+												{citation?.snippet && (
+													<div className="citation-title">
+														{citation?.snippet}
+													</div>
+												)}
+											</div>
 										</div>
+										<ArrowRightIcon className="arrow-icon" />
 									</div>
-									<ArrowRightIcon className="arrow-icon" />
-								</div>
-						  ))
+								))
 						: null}
 				</div>
 			)}

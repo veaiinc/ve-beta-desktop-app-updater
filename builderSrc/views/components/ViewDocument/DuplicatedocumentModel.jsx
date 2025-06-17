@@ -38,8 +38,7 @@ const DuplicateLeadModal = ({ open, closeModal, duplicateLeadFunc }) => {
 				<div className="deleteLeadTextContainer">
 					<span className="deleteLeadHeaderText">Duplicate Document</span>
 					<span className="deleteLeadSubtext">
-						Are you sure you want to duplicate this Document?<br></br> All data will be lost,
-						you cannot undo this operation.
+						Are you sure you want to duplicate this Document?
 					</span>
 				</div>
 
