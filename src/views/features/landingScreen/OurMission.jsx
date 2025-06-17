@@ -4,7 +4,6 @@ const OurMission = () => {
 	return (
 		<main className="our-mission-container">
 			<section className="mission-block">
-				<h2 className="heading">The bridge</h2>
 				<p>
 					The next leap in civilization is not technological; it is relational. It will be
 					a bridge between human intent and machine memory. Our greatest need is not just
