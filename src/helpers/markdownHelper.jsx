@@ -445,32 +445,32 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 		isOverflowing: false,
 	});
 
-	useEffect(() => {
-		adjustFontSize();
-	}, [messageData?.message]);
+	// useEffect(() => {
+	// 	adjustFontSize();
+	// }, [messageData?.message]);
 
-	const checkOverflow = (element) => {
-		return element?.scrollHeight > element?.clientHeight;
-	};
+	// const checkOverflow = (element) => {
+	// 	return element?.scrollHeight > element?.clientHeight;
+	// };
 
-	const adjustFontSize = () => {
-		if (textRef?.current) {
-			// Set initial font size
-			textRef.current.style.fontSize = '1.5rem';
-			textRef.current.style.lineHeight = '1.75rem';
+	// const adjustFontSize = () => {
+	// 	if (textRef?.current) {
+	// 		// Set initial font size
+	// 		textRef.current.style.fontSize = '1.5rem';
+	// 		textRef.current.style.lineHeight = '1.75rem';
 
-			// Check again for overflow
-			if (checkOverflow(textRef?.current)) {
-				// If still overflowing, revert to 0.875rem
-				textRef.current.style.fontSize = '0.875rem';
-				textRef.current.style.lineHeight = '1.25rem';
+	// 		// Check again for overflow
+	// 		if (checkOverflow(textRef?.current)) {
+	// 			// If still overflowing, revert to 0.875rem
+	// 			textRef.current.style.fontSize = '0.875rem';
+	// 			textRef.current.style.lineHeight = '1.25rem';
 
-				if (checkOverflow(textRef?.current)) {
-					setinfo((prev) => ({ ...prev, isOverflowing: true }));
-				}
-			}
-		}
-	};
+	// 			if (checkOverflow(textRef?.current)) {
+	// 				setinfo((prev) => ({ ...prev, isOverflowing: true }));
+	// 			}
+	// 		}
+	// 	}
+	// };
 
 	const handleCopyTextClick = useCallback(
 		(text) => {
@@ -524,29 +524,52 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 	return (
 		<div className="user-message-renderer-wrapper">
 			{!info?.editUserQuery ? (
-				<div>
+				<div className="hover-actions-container">
+					{/* <div className="icon-container">
+						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
+							<PencilSparkleIcon onClick={handleEditUserQueryToggle} />
+						</Tooltip>
+					</div> */}
+
+					<div className="icon-container">
+						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Copy'}>
+							{info?.isCopiedToClipboard ? (
+								<TickSvg />
+							) : (
+								<CopyIcon
+									onClick={() => handleCopyTextClick(messageData?.message)}
+								/>
+							)}
+						</Tooltip>
+					</div>
+				</div>
+			) : (
+				''
+			)}
+			{!info?.editUserQuery ? (
+				<div className="user-message-wrapper">
 					{messageData?.moduleType === 'ai_suggestion_report' ? (
 						<AISuggestionsReportUserComponent data={messageData?.data} />
 					) : (
-						<div>
+						<div className="user-message">
 							<div
-								style={{
-									maxHeight: info?.isExpanded
-										? `${textRef.current?.scrollHeight}px`
-										: '147px',
-								}}
+								// style={{
+								// 	maxHeight: info?.isExpanded
+								// 		? `${textRef.current?.scrollHeight}px`
+								// 		: '147px',
+								// }}
 								className="user-message-renderer-container"
-								ref={textRef}
+								// ref={textRef}
 							>
 								{messageData?.message || ''}
 							</div>
-							{info?.isOverflowing && (
+							{/* {info?.isOverflowing && (
 								<div className="expand-btn">
 									<div className="btn-text" onClick={toggleExpand}>
 										{info?.isExpanded ? 'Show less' : 'Show more'}
 									</div>
 								</div>
-							)}
+							)} */}
 						</div>
 					)}
 				</div>
@@ -569,30 +592,6 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 						</div>
 					</div>
 				</div>
-			)}
-
-			{!info?.editUserQuery ? (
-				<div className="hover-actions-container">
-					{/* <div className="icon-container">
-						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
-							<PencilSparkleIcon onClick={handleEditUserQueryToggle} />
-						</Tooltip>
-					</div> */}
-
-					<div className="icon-container">
-						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Copy'}>
-							{info?.isCopiedToClipboard ? (
-								<TickSvg />
-							) : (
-								<CopyIcon
-									onClick={() => handleCopyTextClick(messageData?.message)}
-								/>
-							)}
-						</Tooltip>
-					</div>
-				</div>
-			) : (
-				''
 			)}
 		</div>
 	);

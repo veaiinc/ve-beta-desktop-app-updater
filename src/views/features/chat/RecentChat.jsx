@@ -212,41 +212,41 @@ const RecentChat = ({
 		}
 	}, [globalChatMessages]);
 
-	useEffect(() => {
-		if (!chatContentRef?.current || !tabsRefs?.current) return;
-		previousTabsRefs.current = tabsRefs.current;
-		const observer = new IntersectionObserver(
-			() => {
-				Object?.values(tabsRefs?.current)?.forEach((entry) => {
-					if (
-						entry?.getBoundingClientRect()?.top <
-						chatContentRef?.current?.getBoundingClientRect()?.top
-					) {
-						if (!entry?.classList?.contains('sticky-element')) {
-							entry?.classList?.add('sticky-element');
-						}
-					} else {
-						if (entry?.classList?.contains('sticky-element')) {
-							entry?.classList?.remove('sticky-element');
-						}
-					}
-				});
-			},
-			{
-				root: chatContentRef?.current, // Observe within the parent
-				threshold: [0.99, 1], // Triggers when any part enters
-			},
-		);
+	// useEffect(() => {
+	// 	if (!chatContentRef?.current || !tabsRefs?.current) return;
+	// 	previousTabsRefs.current = tabsRefs.current;
+	// 	const observer = new IntersectionObserver(
+	// 		() => {
+	// 			Object?.values(tabsRefs?.current)?.forEach((entry) => {
+	// 				if (
+	// 					entry?.getBoundingClientRect()?.top <
+	// 					chatContentRef?.current?.getBoundingClientRect()?.top
+	// 				) {
+	// 					if (!entry?.classList?.contains('sticky-element')) {
+	// 						entry?.classList?.add('sticky-element');
+	// 					}
+	// 				} else {
+	// 					if (entry?.classList?.contains('sticky-element')) {
+	// 						entry?.classList?.remove('sticky-element');
+	// 					}
+	// 				}
+	// 			});
+	// 		},
+	// 		{
+	// 			root: chatContentRef?.current, // Observe within the parent
+	// 			threshold: [0.99, 1], // Triggers when any part enters
+	// 		},
+	// 	);
 
-		Object?.values(tabsRefs?.current)?.forEach((tab) => {
-			observer?.observe(tab);
-		});
-		return () => {
-			Object?.values(previousTabsRefs?.current)?.forEach((tab) => {
-				observer.unobserve(tab);
-			});
-		};
-	}, [globalChatMessages]);
+	// 	Object?.values(tabsRefs?.current)?.forEach((tab) => {
+	// 		observer?.observe(tab);
+	// 	});
+	// 	return () => {
+	// 		Object?.values(previousTabsRefs?.current)?.forEach((tab) => {
+	// 			observer.unobserve(tab);
+	// 		});
+	// 	};
+	// }, [globalChatMessages]);
 
 	useEffect(() => {
 		chatMessagesRef.current = [...(globalChatMessages || [])];
