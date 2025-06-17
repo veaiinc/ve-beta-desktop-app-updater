@@ -5699,6 +5699,7 @@ class Home extends Proposals {
 		);
 	};
 	handleTriggerAdjustGridAreas = async (e) => {
+		console.log(this.props, 'handleTriggerAdjustGridAreas');
 		this.setState({
 			triggerAdjustGridAreas: false,
 			isPublishLoading: true,
@@ -5735,9 +5736,9 @@ class Home extends Proposals {
 				!this.state.template.actions?.includes('form-submission')
 			) {
 				// return (window.location.href = `https://ve.ai/my-templates`);
-				return this.props.navigateData(-1);
+				return this.props.router.navigateData(-1);
 			} else if (this.state.template.actions?.includes('form-submission')) {
-				return this.props.navigateData(-1);
+				return this.props.router.navigateData(-1);
 			} else {
 				return (window.location.href = `https://ve.ai/workflow_builder/${
 					this.props.params.templateID || this.templateId
