@@ -9,7 +9,7 @@ import Spinner from '../../loaders/Spinner';
 import { useParams } from 'react-router-dom';
 import { message } from '../../globalComponents/CustomToast';
 import PayloadField from './PayloadField';
-const AddToolModal = ({ isOpen, onClose }) => {
+const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 	const {
 		knowledgeAgent: {
 			connectTool,
@@ -24,6 +24,7 @@ const AddToolModal = ({ isOpen, onClose }) => {
 	const { agentId } = useParams();
 	const pageRef = useRef(1);
 	const searchTimeoutRef = useRef(null);
+	const isSubmittingRef = useRef(false);
 	const [info, setInfo] = useState({
 		step: 0, // 0: Select Account (if exists), 1: Select App, 2: Select Action, 3: Configure Payload
 		selectedApp: '',
@@ -295,6 +296,14 @@ const AddToolModal = ({ isOpen, onClose }) => {
 
 	// Validation logic
 	const validatePayloadField = (prop, value) => {
+		// Skip validation for hidden, app, and any type starting with $
+		if (
+			prop.hidden ||
+			prop.type === 'app' ||
+			(typeof prop.type === 'string' && prop.type.startsWith('$'))
+		) {
+			return null;
+		}
 		const mode = info.payloadFieldModes?.[prop.name] || 'ai';
 		if (mode === 'ai') {
 			if (!prop.optional) {
@@ -306,14 +315,6 @@ const AddToolModal = ({ isOpen, onClose }) => {
 			}
 			return null;
 		}
-		if (
-			prop.hidden ||
-			prop.type === 'app' ||
-			prop.type === '$.service.db' ||
-			prop.type === '$.interface.http' ||
-			prop.type === '$.interface.timer'
-		)
-			return null;
 		if (
 			!prop.optional &&
 			(value === undefined || value === '' || (Array.isArray(value) && value.length === 0))
@@ -362,9 +363,7 @@ const AddToolModal = ({ isOpen, onClose }) => {
 			if (
 				prop.hidden ||
 				prop.type === 'app' ||
-				prop.type === '$.service.db' ||
-				prop.type === '$.interface.http' ||
-				prop.type === '$.interface.timer'
+				(typeof prop.type === 'string' && prop.type.startsWith('$'))
 			) {
 				return;
 			}
@@ -406,115 +405,138 @@ const AddToolModal = ({ isOpen, onClose }) => {
 
 	// Update handlePayloadSubmit to build variables array for outer payload
 	const handlePayloadSubmit = async () => {
-		if (!validateAllFields()) return;
+		if (isSubmittingRef.current) return; // Synchronous guard
+		isSubmittingRef.current = true;
 		setInfo((prev) => ({ ...prev, isSubmitting: true }));
+		if (!validateAllFields()) {
+			setInfo((prev) => ({ ...prev, isSubmitting: false }));
+			isSubmittingRef.current = false;
+			return;
+		}
 
-		const action = info.selectedActionObj;
-		const app = info.selectedAppObj?.name_slug;
-		const configurableProps = info.actionPayloadConfig?.configurable_props || [];
-		const userValues = info.actionPayloadValues || {};
-		const fieldModes = info.payloadFieldModes || {};
-		const variableDescriptions = info.payloadVariableDescriptions || {};
+		try {
+			const action = info.selectedActionObj;
+			const app = info.selectedAppObj?.name_slug;
+			const configurableProps = info.actionPayloadConfig?.configurable_props || [];
+			const userValues = info.actionPayloadValues || {};
+			const fieldModes = info.payloadFieldModes || {};
+			const variableDescriptions = info.payloadVariableDescriptions || {};
 
-		const props = {};
-		const variables = [];
-		for (const prop of configurableProps) {
-			const mode = fieldModes[prop.name] || 'ai';
-			let desc = variableDescriptions[prop.name];
-			if (!desc || !desc.trim()) {
-				// If field is optional, use prop.description from API response
-				if (prop.optional && prop.description) {
-					desc = prop.description;
-				} else {
-					desc = `No description provided for "${prop.name}"`;
+			const props = {};
+			const variables = [];
+			for (const prop of configurableProps) {
+				const mode = fieldModes[prop.name] || 'ai';
+				let desc = variableDescriptions[prop.name];
+				if (!desc || !desc.trim()) {
+					// If field is optional, use prop.description from API response
+					if (prop.optional && prop.description) {
+						desc = prop.description;
+					} else {
+						desc = `No description provided for "${prop.name}"`;
+					}
 				}
-			}
 
-			// Always skip double braces for 'app' and types starting with '$'
-			if (
-				prop.type === 'app' ||
-				(typeof prop.type === 'string' && prop.type.startsWith('$'))
-			) {
-				props[prop.name] = '';
-				continue;
-			}
+				// Always skip double braces for 'app' and types starting with '$'
+				if (typeof prop.type === 'string' && prop.type.startsWith('$')) {
+					props[prop.name] = '';
+					continue;
+				}
+				if (prop.type === 'app') {
+					// For app type, we need to add the authProvisionId from the selected account
+					if (info.selectedAccount) {
+						props[info.selectedAccount.app.name_slug] = {
+							authProvisionId: info.selectedAccount?.id,
+						};
+					}
+					continue;
+				}
 
-			if (mode === 'ai') {
-				variables.push({
-					name: prop.name,
-					type: prop.type,
-					description: desc,
-				});
-				// Use placeholder for later replacement
-				props[prop.name] = `__VAR__${prop.name}__`;
-			} else {
-				const val = userValues[prop.name];
-				if (val !== undefined && val !== null && val !== '') {
-					props[prop.name] = val;
+				if (mode === 'ai') {
+					variables.push({
+						name: prop.name,
+						type: prop.type,
+						description: desc,
+					});
+					// Use placeholder for later replacement
+					props[prop.name] = `__VAR__${prop.name}__`;
 				} else {
-					switch (prop.type) {
-						case 'string':
-							props[prop.name] = '';
-							break;
-						case 'string[]':
-							props[prop.name] = [];
-							break;
-						case 'boolean':
-							props[prop.name] = false;
-							break;
-						case 'integer':
-						case 'number':
-							props[prop.name] = null;
-							break;
-						case 'any':
-						default:
-							props[prop.name] = null;
+					const val = userValues[prop.name];
+					if (val !== undefined && val !== null && val !== '') {
+						props[prop.name] = val;
+					} else {
+						switch (prop.type) {
+							case 'string':
+								props[prop.name] = '';
+								break;
+							case 'string[]':
+								props[prop.name] = [];
+								break;
+							case 'boolean':
+								props[prop.name] = false;
+								break;
+							case 'integer':
+							case 'number':
+								props[prop.name] = null;
+								break;
+							case 'any':
+							default:
+								props[prop.name] = null;
+						}
 					}
 				}
 			}
-		}
 
-		// Get the account ID from the selected account
-		const accountId = info.selectedAccount?.id || null;
+			// Get the account ID from the selected account
+			const accountId = info.selectedAccount?.id || null;
 
-		// Create the output object with normal values for non-props fields
-		const output = {
-			action_key: action?.key || action?.id || '',
-			app: app || '',
-			account_id: accountId,
-			props: props, // This will contain the placeholders for AI mode fields
-		};
+			// Create the output object with normal values for non-props fields
+			const output = {
+				action_key: action?.key || action?.id || '',
+				app: app || '',
+				account_id: accountId,
+				props: props, // This will contain the placeholders for AI mode fields
+			};
 
-		const workspaceId = localStorage.getItem('workspaceId');
-		let body = JSON.stringify(output);
-		// Replace all "__VAR__variable__" (with quotes) with {{variable}} (no quotes)
-		body = body.replace(/"__VAR__(.*?)__"/g, '{{$1}}');
+			const workspaceId = localStorage.getItem('workspaceId');
+			let body = JSON.stringify(output);
+			// Replace all "__VAR__variable__" (with quotes) with {{variable}} (no quotes)
+			body = body.replace(/"__VAR__(.*?)__"/g, '{{$1}}');
 
-		const payload = {
-			name: action?.name || action?.id || '',
-			description: action?.description || '',
-			url:
-				'https://ap.api.ve.ai/third-party-integrations/1.0/pipedream/execute-action/' +
-				workspaceId,
-			method: 'POST',
-			contentType: 'json',
-			body,
-			headers: [
-				{
-					name: 'Content-Type',
-					value: 'application/json',
-				},
-			],
-			variables,
-			isAuthenticated: true,
-			agent: 'knowledgeAgent',
-		};
+			const payload = {
+				name: action?.name || action?.id || '',
+				description: action?.description || '',
+				url:
+					'https://ap.api.ve.ai/third-party-integrations/1.0/pipedream/execute-action/' +
+					workspaceId,
+				method: 'POST',
+				contentType: 'json',
+				body,
+				headers: [
+					{
+						name: 'Content-Type',
+						value: 'application/json',
+					},
+				],
+				variables,
+				isAuthenticated: true,
+				agent: 'knowledgeAgent',
+			};
 
-		setInfo((prev) => ({ ...prev, isSubmitting: false }));
-		var response = await addActionToKnowledgeAgent(agentId, payload);
-		if (response) {
-			message.success('Action added successfully');
-			onClose();
+			const response = await addActionToKnowledgeAgent(agentId, payload);
+			if (response) {
+				message.success('Action added successfully');
+				onToolAdded();
+				onClose();
+			}
+		} catch (error) {
+			if (error?.message) {
+				message.error(error.message);
+			} else {
+				message.error('An unexpected error occurred');
+			}
+		} finally {
+			setInfo((prev) => ({ ...prev, isSubmitting: false }));
+			isSubmittingRef.current = false;
 		}
 	};
 
@@ -761,6 +783,7 @@ const AddToolModal = ({ isOpen, onClose }) => {
 				)}
 				<div className="actions-modal-footer">
 					<button
+						type="button"
 						className="primary-button connect-button"
 						onClick={handlePayloadSubmit}
 						disabled={info.payloadLoading || info.isSubmitting}

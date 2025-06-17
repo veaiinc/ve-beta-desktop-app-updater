@@ -8,6 +8,7 @@ export const initialState = {
 	activeKnowledgeAssistant: null,
 	allAiPrompts: null,
 	knowledgeBaseInfo: null,
+	knowledgeBaseFilesActiveStatus: null,
 	actionsInfo: null,
 	triggers: null,
 };
@@ -277,7 +278,7 @@ export const KnowledgeAgentState = () => {
 			const path = '/' + workspaceId + '/knowledge-agents/' + agentId + '/reset-prompt';
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
-			const response = await service?.fetchPost(path, null, token, type);
+			const response = await service?.fetchPut(path, null, token, type);
 			const success = response?.[0] === true;
 			if (success) {
 				dispatch({
@@ -285,6 +286,7 @@ export const KnowledgeAgentState = () => {
 					payload: { data: response?.[1] },
 				});
 			}
+			return response;
 		} catch (error) {
 			console.log('error==>resetAiPrompt', error);
 			return [false, error];
@@ -315,6 +317,53 @@ export const KnowledgeAgentState = () => {
 			}
 		} catch (error) {
 			console.log('error==>getKnowledgeBaseInfo', error);
+			return [false, error];
+		}
+	};
+
+	const getKnowledgeBaseFilesActiveStatus = async ({
+		page = 1,
+		limit = 10,
+		agentId,
+		append = false,
+	}) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const token = localStorage.getItem('usertoken');
+
+			if (!workspaceId || !agentId) {
+				console.warn('Missing workspaceId or agentId');
+				return;
+			}
+
+			const path = `/${workspaceId}/knowledge-agents/${agentId}/related-knowledge-base-file-status`;
+			const params = { page, limit };
+			const type = 'ai_assistant_api';
+
+			const response = await service.fetchGet(path, token, type, params);
+			const success = response?.[0] === true;
+			const { data, currentPage, hasNextPage } = response[1];
+			const Data = append
+				? data
+				: [...(state.knowledgeBaseFilesActiveStatus?.data || []), ...(data || [])];
+			if (success) {
+				const payload = {
+					data: Data,
+					currentPage,
+					hasNextPage,
+				};
+				dispatch({
+					type: Actions.SET_KNOWLEDGE_BASE_ACTIVE_FILE_STATUS,
+					payload,
+				});
+			} else {
+				console.error('API request failed:', response);
+			}
+		} catch (error) {
+			console.error(
+				'Error fetching knowledge base active file status:',
+				error.message || error,
+			);
 			return [false, error];
 		}
 	};
@@ -834,7 +883,6 @@ export const KnowledgeAgentState = () => {
 			return response?.[1];
 		}
 		return [false, response?.[1]];
-		
 	};
 
 	const updateContextValues = (data) => {
@@ -860,6 +908,7 @@ export const KnowledgeAgentState = () => {
 		editAiPrompt,
 		resetAiPrompt,
 		getKnowledgeBaseInfo,
+		getKnowledgeBaseFilesActiveStatus,
 		uploadURLsToKnowledgeBase,
 		uploadPDFsToKnowledgeBase,
 		updateContextValues,

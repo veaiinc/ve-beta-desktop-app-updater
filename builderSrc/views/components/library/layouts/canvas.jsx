@@ -1990,6 +1990,7 @@ class Layout extends Component {
 						// showAltText={properties?.showAltText || false}
 						muteVideo={properties?.muteVideo || false}
 						client={this.props?.client}
+						audioMode={this.props.audioMode}
 					/>
 				);
 

@@ -509,7 +509,7 @@ const Header = ({
 	const handlePreviewUrl = () => {
 		const usertoken = localStorage.getItem('usertoken');
 		const region = localStorage.getItem('region');
-		const currentWorkspaceId = localStorage.getItem('workspaceID');
+		const currentWorkspaceId = localStorage.getItem('workspaceId');
 		window.open(
 			`https://${currentWorkspaceId}.ve.ai/portal/${info?.slug}/${region}/${usertoken}`,
 			'_self',

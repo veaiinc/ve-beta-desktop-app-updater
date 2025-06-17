@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 import LeaveWorkspaceModal from '../../modalsV2/settings/ai_setup/LeaveWorkspaceModal';
+import { ReactComponent as Signout } from '../../../../assets/svg/signOut.svg';
 
 const LeaveWorkspaceComponent = () => {
 	const [info, setInfo] = useState({
@@ -22,7 +23,7 @@ const LeaveWorkspaceComponent = () => {
 					className="button button-cancel"
 					onClick={() => setInfo((prev) => ({ ...prev, leaveWorskapceModal: true }))}
 				>
-					Leave workspace
+					<Signout /> Leave workspace
 				</button>
 			</div>
 			<LeaveWorkspaceModal

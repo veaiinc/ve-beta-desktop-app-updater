@@ -10,77 +10,77 @@ import _, { sortBy } from 'lodash';
     
 */
 
-export const getTemplate = async (workspaceID, templateId, token) => {
+export const getTemplate = async (workspaceId, templateId, token) => {
 	return await service.fetchGet(
-		'/' + workspaceID + API.Templates.url + '/' + templateId,
+		'/' + workspaceId + API.Templates.url + '/' + templateId,
 
 		token,
 		'proposal',
 	);
 };
-export const getTenantsData = async (workspaceID, token) => {
-	return await service.fetchGet('/' + workspaceID, token, 'tenant', null);
+export const getTenantsData = async (workspaceId, token) => {
+	return await service.fetchGet('/' + workspaceId, token, 'tenant', null);
 };
-export const putTenantsData = async (workspaceID, json, token) => {
+export const putTenantsData = async (workspaceId, json, token) => {
 	return await service.fetchPut(
-		'/' + workspaceID + '/social-media-profile',
+		'/' + workspaceId + '/social-media-profile',
 		json,
 		token,
 		'tenant',
 		null,
 	);
 };
-export const getAITextGeneration = async (workspaceID, type, json, token) => {
+export const getAITextGeneration = async (workspaceId, type, json, token) => {
 	return await service.fetchPost('/' + type, json, null, 'aiAssistant');
 };
-export const getAIImageGeneration = async (workspaceID, type, json, token) => {
+export const getAIImageGeneration = async (workspaceId, type, json, token) => {
 	return await service.fetchPost('', json, null, 'aiAssistantImage');
 };
-export const generateTemplate = async (workspaceID, type, json, token) => {
+export const generateTemplate = async (workspaceId, type, json, token) => {
 	return await service.fetchPost('', json, null, 'generateTemplate');
 };
-export const getLayoutTextContent = async (workspaceID, templateID, json, token) => {
+export const getLayoutTextContent = async (workspaceId, templateID, json, token) => {
 	return await service.fetchPost(
-		'/' + workspaceID + '/' + templateID + '/update-content',
+		'/' + workspaceId + '/' + templateID + '/update-content',
 		json,
 		null,
 		'generateTemplate',
 	);
 };
-export const getVariables = async (workspaceID, templateId, token) => {
+export const getVariables = async (workspaceId, templateId, token) => {
 	return await service.fetchGet(
-		'/' + workspaceID + '/variables' + `?template_id=${templateId}`,
+		'/' + workspaceId + '/variables' + `?template_id=${templateId}`,
 
 		token,
 		'proposal',
 	);
 };
-export const getSmartFileVariables = async (workspaceID, workflowId, token) => {
+export const getSmartFileVariables = async (workspaceId, workflowId, token) => {
 	return await service.fetchGet(
-		'/' + workspaceID + '/variables/smart-file-variables' + `?workflow_id=${workflowId}`,
+		'/' + workspaceId + '/variables/smart-file-variables' + `?workflow_id=${workflowId}`,
 
 		token,
 		'proposal',
 	);
 };
-export const addServiceVariable = async (json, workspaceID, templateId, token) => {
-	return await service.fetchPost('/' + workspaceID + '/variables', json, token, 'proposal');
+export const addServiceVariable = async (json, workspaceId, templateId, token) => {
+	return await service.fetchPost('/' + workspaceId + '/variables', json, token, 'proposal');
 };
-export const postVariables = async (json, workspaceID, templateId, token) => {
-	return await service.fetchPost('/' + workspaceID + '/variables', json, token, 'proposal');
+export const postVariables = async (json, workspaceId, templateId, token) => {
+	return await service.fetchPost('/' + workspaceId + '/variables', json, token, 'proposal');
 };
 
-export const updateVariables = async (json, workspaceID, token, variableId) => {
+export const updateVariables = async (json, workspaceId, token, variableId) => {
 	return await service.fetchPut(
-		'/' + workspaceID + '/variables/' + variableId,
+		'/' + workspaceId + '/variables/' + variableId,
 		json,
 		token,
 		'proposal',
 	);
 };
-export const deleteVariable = async (workspaceID, token, variableId) => {
+export const deleteVariable = async (workspaceId, token, variableId) => {
 	return await service.fetchDelete(
-		'/' + workspaceID + '/variables/' + variableId,
+		'/' + workspaceId + '/variables/' + variableId,
 
 		token,
 		null,
@@ -88,12 +88,12 @@ export const deleteVariable = async (workspaceID, token, variableId) => {
 	);
 };
 
-export const getFonts = async (workspaceID, token) => {
-	return await service.fetchGet('/' + workspaceID + '/getFontsList', token, 'tenant');
+export const getFonts = async (workspaceId, token) => {
+	return await service.fetchGet('/' + workspaceId + '/getFontsList', token, 'tenant');
 };
-export const putTemplate = async (json, workspaceID, templateId, token) => {
+export const putTemplate = async (json, workspaceId, templateId, token) => {
 	return await service.fetchPut(
-		'/' + workspaceID + API.Templates.url + '/' + templateId,
+		'/' + workspaceId + API.Templates.url + '/' + templateId,
 		json,
 		token,
 		'proposal',
@@ -101,7 +101,7 @@ export const putTemplate = async (json, workspaceID, templateId, token) => {
 };
 export const putWorkflowTemplate = async (
 	json,
-	workspaceID,
+	workspaceId,
 	moduleType,
 	moduleId,
 	versionId,
@@ -109,7 +109,7 @@ export const putWorkflowTemplate = async (
 ) => {
 	return await service.fetchPut(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.modules +
 			'/' +
 			moduleType +
@@ -123,19 +123,19 @@ export const putWorkflowTemplate = async (
 	);
 };
 
-export const duplicateTemplate = async (json, workspaceID, templateId, token) => {
+export const duplicateTemplate = async (json, workspaceId, templateId, token) => {
 	return await service.fetchPost(
-		'/' + workspaceID + API.Templates.url + '/' + templateId + API.Templates.duplicateTemplate,
+		'/' + workspaceId + API.Templates.url + '/' + templateId + API.Templates.duplicateTemplate,
 		json,
 		token,
 		'proposal',
 	);
 };
 
-export const duplicateBlock = async (json, sectionID, templateID, token, workspaceID) => {
+export const duplicateBlock = async (json, sectionID, templateID, token, workspaceId) => {
 	return await service.fetchPost(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.url +
 			'/' +
 			templateID +
@@ -152,7 +152,7 @@ export const duplicateBlock = async (json, sectionID, templateID, token, workspa
 export const duplicateWorkflowBlock = async (
 	json,
 	sectionID,
-	workspaceID,
+	workspaceId,
 	moduleType,
 	moduleId,
 	versionId,
@@ -160,7 +160,7 @@ export const duplicateWorkflowBlock = async (
 ) => {
 	return await service.fetchPost(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.modules +
 			'/' +
 			moduleType +
@@ -185,11 +185,11 @@ export const duplicateServiceBlock = async (
 	sectionID,
 	templateID,
 	token,
-	workspaceID,
+	workspaceId,
 ) => {
 	return await service.fetchPost(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.url +
 			'/' +
 			templateID +
@@ -204,9 +204,9 @@ export const duplicateServiceBlock = async (
 		'proposal',
 	);
 };
-export const generateWorkflow = async (json, workspaceID, workflowID) => {
+export const generateWorkflow = async (json, workspaceId, workflowID) => {
 	return await service.fetchPost(
-		`/${workspaceID}/${workflowID}/generate-page-outline`,
+		`/${workspaceId}/${workflowID}/generate-page-outline`,
 		json,
 		null,
 		'generateTemplate',
@@ -216,7 +216,7 @@ export const duplicateWorkflowServiceBlock = async (
 	json,
 	blockId,
 	sectionID,
-	workspaceID,
+	workspaceId,
 	moduleType,
 	moduleId,
 	versionId,
@@ -224,7 +224,7 @@ export const duplicateWorkflowServiceBlock = async (
 ) => {
 	return await service.fetchPost(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.modules +
 			'/' +
 			moduleType +
@@ -244,18 +244,18 @@ export const duplicateWorkflowServiceBlock = async (
 	);
 };
 
-export const createLayout = async (workspaceID, json, token) => {
+export const createLayout = async (workspaceId, json, token) => {
 	return await service.fetchPost(
-		'/' + workspaceID + API.Templates.layouts + '/',
+		'/' + workspaceId + API.Templates.layouts + '/',
 		json,
 		token,
 		'proposal',
 	);
 };
-export const addSubBlock = async (workspaceID, json, templateId, sectionID, blockID, token) => {
+export const addSubBlock = async (workspaceId, json, templateId, sectionID, blockID, token) => {
 	return await service.fetchPost(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.url +
 			'/' +
 			templateId +
@@ -272,7 +272,7 @@ export const addSubBlock = async (workspaceID, json, templateId, sectionID, bloc
 	);
 };
 export const addWorkflowSubBlock = async (
-	workspaceID,
+	workspaceId,
 	json,
 	templateId,
 	sectionID,
@@ -284,7 +284,7 @@ export const addWorkflowSubBlock = async (
 ) => {
 	return await service.fetchPost(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.modules +
 			'/' +
 			moduleType +
@@ -305,27 +305,27 @@ export const addWorkflowSubBlock = async (
 		'proposal',
 	);
 };
-export const addLayout = async (workspaceID, json, templateId, token) => {
+export const addLayout = async (workspaceId, json, templateId, token) => {
 	return await service.fetchPost(
-		'/' + workspaceID + API.Templates.url + '/' + templateId + API.Templates.layouts,
+		'/' + workspaceId + API.Templates.url + '/' + templateId + API.Templates.layouts,
 		json,
 		token,
 		'proposal',
 	);
 };
-export const addSection = async (workspaceID, json, templateId, token) => {
+export const addSection = async (workspaceId, json, templateId, token) => {
 	return await service.fetchPost(
-		'/' + workspaceID + API.Templates.url + '/' + templateId + API.Templates.sections,
+		'/' + workspaceId + API.Templates.url + '/' + templateId + API.Templates.sections,
 		json,
 		token,
 		'proposal',
 	);
 };
 
-export const singleSectionEdit = async (workspaceID, json, templateId, sectionId, token) => {
+export const singleSectionEdit = async (workspaceId, json, templateId, sectionId, token) => {
 	return await service.fetchPut(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.url +
 			'/' +
 			templateId +
@@ -339,7 +339,7 @@ export const singleSectionEdit = async (workspaceID, json, templateId, sectionId
 };
 export const singleWorkflowSectionEdit = async (
 	json,
-	workspaceID,
+	workspaceId,
 	moduleType,
 	moduleId,
 	versionId,
@@ -348,7 +348,7 @@ export const singleWorkflowSectionEdit = async (
 ) => {
 	return await service.fetchPut(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.modules +
 			'/' +
 			moduleType +
@@ -368,7 +368,7 @@ export const singleWorkflowSectionEdit = async (
 
 export const addWorkflowLayout = async (
 	json,
-	workspaceID,
+	workspaceId,
 	moduleType,
 	moduleId,
 	versionId,
@@ -377,7 +377,7 @@ export const addWorkflowLayout = async (
 ) => {
 	return await service.fetchPost(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.modules +
 			'/' +
 			moduleType +
@@ -393,10 +393,10 @@ export const addWorkflowLayout = async (
 	);
 };
 
-export const addServiceTableBlock = async (workspaceID, json, sectionID, templateID, token) => {
+export const addServiceTableBlock = async (workspaceId, json, sectionID, templateID, token) => {
 	return await service.fetchPost(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.url +
 			'/' +
 			templateID +
@@ -414,7 +414,7 @@ export const addServiceTableBlock = async (workspaceID, json, sectionID, templat
 
 // /:template_id/sections/:section_id/blocks/:block_id/sub-blocks
 export const duplicateSubBlock = async (
-	workspaceID,
+	workspaceId,
 	json,
 	templateID,
 	sectionID,
@@ -423,7 +423,7 @@ export const duplicateSubBlock = async (
 ) => {
 	return await service.fetchPost(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.url +
 			'/' +
 			templateID +
@@ -441,7 +441,7 @@ export const duplicateSubBlock = async (
 
 export const duplicateWorkflowSubBlock = async (
 	json,
-	workspaceID,
+	workspaceId,
 	moduleType,
 	moduleId,
 	versionId,
@@ -451,7 +451,7 @@ export const duplicateWorkflowSubBlock = async (
 ) => {
 	return await service.fetchPost(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.modules +
 			'/' +
 			moduleType +
@@ -474,7 +474,7 @@ export const duplicateWorkflowSubBlock = async (
 };
 
 export const addWorkflowServiceTableBlock = async (
-	workspaceID,
+	workspaceId,
 	json,
 	sectionID,
 	moduleType,
@@ -484,7 +484,7 @@ export const addWorkflowServiceTableBlock = async (
 ) => {
 	return await service.fetchPost(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.modules +
 			'/' +
 			moduleType +
@@ -506,7 +506,7 @@ export const addWorkflowServiceTableBlock = async (
 // /:module_type/:module_id/versions/:version_id/sections/:section_id/blocks/:block_id/duplicateSectionBlock
 export const duplicateWorkflowEventBlock = async (
 	json,
-	workspaceID,
+	workspaceId,
 	moduleType,
 	moduleId,
 	versionId,
@@ -516,7 +516,7 @@ export const duplicateWorkflowEventBlock = async (
 ) => {
 	return await service.fetchPost(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.modules +
 			'/' +
 			moduleType +
@@ -538,10 +538,10 @@ export const duplicateWorkflowEventBlock = async (
 	);
 };
 
-export const deleteSection = async (templateID, sectionID, workspaceID, userToken) => {
+export const deleteSection = async (templateID, sectionID, workspaceId, userToken) => {
 	return await service.fetchDelete(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.url +
 			'/' +
 			templateID +
@@ -556,7 +556,7 @@ export const deleteSection = async (templateID, sectionID, workspaceID, userToke
 
 export const deleteWorkflowSection = async (
 	sectionID,
-	workspaceID,
+	workspaceId,
 	moduleType,
 	moduleId,
 	versionId,
@@ -564,7 +564,7 @@ export const deleteWorkflowSection = async (
 ) => {
 	return await service.fetchDelete(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.modules +
 			'/' +
 			moduleType +
@@ -582,10 +582,10 @@ export const deleteWorkflowSection = async (
 	);
 };
 
-export const deleteBlock = async (templateID, blockID, sectionID, workspaceID, userToken) => {
+export const deleteBlock = async (templateID, blockID, sectionID, workspaceId, userToken) => {
 	return await service.fetchDelete(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.url +
 			'/' +
 			templateID +
@@ -604,7 +604,7 @@ export const deleteBlock = async (templateID, blockID, sectionID, workspaceID, u
 export const deleteWorkflowBlock = async (
 	blockID,
 	sectionID,
-	workspaceID,
+	workspaceId,
 	moduleType,
 	moduleId,
 	versionId,
@@ -612,7 +612,7 @@ export const deleteWorkflowBlock = async (
 ) => {
 	return await service.fetchDelete(
 		'/' +
-			workspaceID +
+			workspaceId +
 			API.Templates.modules +
 			'/' +
 			moduleType +
@@ -639,12 +639,12 @@ export const saveSectionBlockSubBlockContent = async (
 	blockID,
 	subBlockID,
 	json,
-	workspaceID,
+	workspaceId,
 	userToken,
 ) => {
 	return await service.fetchPut(
 		'/' +
-			workspaceID +
+			workspaceId +
 			'/' +
 			'templates' +
 			'/' +
@@ -664,18 +664,18 @@ export const saveSectionBlockSubBlockContent = async (
 	);
 };
 
-export const uploadImage = async (json, token, workspaceID, templateID) => {
+export const uploadImage = async (json, token, workspaceId, templateID) => {
 	return await service.fetchPost(
-		`/${workspaceID}/workspaceAssets/templates/${templateID}/images`,
+		`/${workspaceId}/workspaceAssets/templates/${templateID}/images`,
 		json,
 		token,
 		'images',
 	);
 };
 
-export const uploadImageWorkflow = async (json, token, workspaceID, moduleType, moduleId) => {
+export const uploadImageWorkflow = async (json, token, workspaceId, moduleType, moduleId) => {
 	return await service.fetchPost(
-		`/${workspaceID}/workspaceAssets-images${API.Templates.modules}/${moduleType}/${moduleId}/images`,
+		`/${workspaceId}/workspaceAssets-images${API.Templates.modules}/${moduleType}/${moduleId}/images`,
 		json,
 		token,
 		'images',
@@ -700,18 +700,18 @@ export const getAllImages = async (usertoken, workspaceId, query) => {
 
 // actions for invoice
 
-export const getInvoiceNumber = async (workspaceID, token) => {
+export const getInvoiceNumber = async (workspaceId, token) => {
 	return await service.fetchGet(
-		'/' + workspaceID + '/' + 'invoice-preferences',
+		'/' + workspaceId + '/' + 'invoice-preferences',
 
 		token,
 		'tenant',
 	);
 };
 
-export const putInvoiceNumber = async (invoiceNumber, workspaceID, token) => {
+export const putInvoiceNumber = async (invoiceNumber, workspaceId, token) => {
 	return await service.fetchPut(
-		'/' + workspaceID + '/' + 'invoice-preferences',
+		'/' + workspaceId + '/' + 'invoice-preferences',
 		{ invoicePreferences: invoiceNumber },
 		token,
 		'tenant',
@@ -719,32 +719,32 @@ export const putInvoiceNumber = async (invoiceNumber, workspaceID, token) => {
 };
 // actions for color picker
 
-export const getBrandColors = async (workspaceID, token) => {
-	return await service.fetchGet('/' + workspaceID + '/preferences', token, 'tenant');
+export const getBrandColors = async (workspaceId, token) => {
+	return await service.fetchGet('/' + workspaceId + '/preferences', token, 'tenant');
 };
 
-export const putBrandColors = async (json, workspaceID, token) => {
+export const putBrandColors = async (json, workspaceId, token) => {
 	return await service.fetchPut(
-		'/' + workspaceID + '/preferences',
+		'/' + workspaceId + '/preferences',
 		{ brandingThemes: json },
 		token,
 		'tenant',
 	);
 };
-export const getWorkflowWithModules = async (workspaceID, token) => {
-	// return await service.fetchGet(`/${workspaceID}/workflows/modules`, token, 'tenant');
-	return await service.fetchGet(`/${workspaceID}/graphql`, token, 'tenant');
+export const getWorkflowWithModules = async (workspaceId, token) => {
+	// return await service.fetchGet(`/${workspaceId}/workflows/modules`, token, 'tenant');
+	return await service.fetchGet(`/${workspaceId}/graphql`, token, 'tenant');
 };
 
 // Schedule Services
 
-export const getAllSchedules = async (workspaceID, token) => {
-	return await service.fetchGet(`/${workspaceID}/scheduler/all-sessions`, token, 'calendar');
+export const getAllSchedules = async (workspaceId, token) => {
+	return await service.fetchGet(`/${workspaceId}/scheduler/all-sessions`, token, 'calendar');
 };
 
-export const getSessionDetails = async (workspaceID, token, sessionId) => {
+export const getSessionDetails = async (workspaceId, token, sessionId) => {
 	return await service.fetchGet(
-		`/${workspaceID}/scheduler/session/${sessionId}`,
+		`/${workspaceId}/scheduler/session/${sessionId}`,
 		token,
 		'calendar',
 	);

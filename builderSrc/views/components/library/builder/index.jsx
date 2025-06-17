@@ -514,7 +514,7 @@ class Builder extends Component {
 			order: order,
 		};
 		this.props.handleAddLayout(
-			'this.props.params.workspaceID',
+			'this.props.params.workspaceId',
 			json,
 			'this.props.params.templateID',
 		);
@@ -678,7 +678,7 @@ class Builder extends Component {
 						this.props.module === 'contract' ? 'contractPage' : ''
 					} ${this.props.module === 'invoice' ? 'invoicePage' : ''}`}
 					style={{
-						paddingBottom: this.props.client && this.state.isformv1 ? '0' : '45px',
+						paddingBottom: this.state.isformv1 ? '0' : this.props.client ? '45px' : '0',
 						opacity: this.getMoveClass() ? 0.5 : isDragging ? 0.52 : 1,
 						// height: item.height,
 						transition: this.getMoveClass() ? 'transform 0.5s, opacity 0.5s' : 'none',
@@ -2653,6 +2653,7 @@ class Builder extends Component {
 														triggerAdjustGridAreas={
 															this.props.triggerAdjustGridAreas
 														}
+														audioMode={this.props.audioMode}
 														mobile_preview_builder={
 															this.props?.mobile_preview_builder
 														}
