@@ -186,7 +186,7 @@ const DocumentShare = ({
 	}, [info.editSlug]);
 
 	const getCurrentWorkspaceId = (workspaces) => {
-		const workspaceId = localStorage.getItem('workspaceID');
+		const workspaceId = localStorage.getItem('workspaceId');
 		const workspace = workspaces.find((ws) => ws.activeWorkspaceId === workspaceId);
 		return workspace ? workspace.activeWorkspaceId : '';
 	};
@@ -528,7 +528,8 @@ const DocumentShare = ({
 
 	const slugOnChange = useCallback(
 		(e) => {
-			const valueWithoutSpaces = e.target.value.replace(/[^a-z0-9]/g, '');
+			// const valueWithoutSpaces = e.target.value.replace(/[^a-z0-9]/g, '');
+			const valueWithoutSpaces = e.target.value.replace(/[^a-z0-9-]/g, '');
 			setInfo((prev) => ({
 				...prev,
 				slugHolder: valueWithoutSpaces,
@@ -670,6 +671,7 @@ const DocumentShare = ({
 									ref={inputRef}
 									onChange={slugOnChange}
 									disabled={!info.editSlug}
+									onClick={toggleEditSlug}
 								/>
 							</span>
 							{info.slugErrorMessage && (

@@ -9,8 +9,9 @@ import Spinner from '../../loaders/Spinner';
 import { useParams } from 'react-router-dom';
 import { message } from '../../globalComponents/CustomToast';
 import PayloadField from './PayloadField';
+import { ReactComponent as Delete } from '../../../../assets/svg/delete.svg';
 
-const AddToolModal = ({ isOpen, onClose }) => {
+const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 	const {
 		knowledgeAgent: {
 			connectTool,
@@ -19,12 +20,14 @@ const AddToolModal = ({ isOpen, onClose }) => {
 			getPipedreamActionPayload,
 			addActionToKnowledgeAgent,
 			getExistingconnectedAccounts,
+			deleteConnectedAccount,
 		},
 		profileInfo: { userDetailsData, getUserDetails },
 	} = useContext(Context);
 	const { agentId } = useParams();
 	const pageRef = useRef(1);
 	const searchTimeoutRef = useRef(null);
+	const isSubmittingRef = useRef(false);
 	const [info, setInfo] = useState({
 		step: 0, // 0: Select Account (if exists), 1: Select App, 2: Select Action, 3: Configure Payload
 		selectedApp: '',
@@ -55,6 +58,7 @@ const AddToolModal = ({ isOpen, onClose }) => {
 		payloadMode: 'manual',
 		payloadFieldModes: {}, // key: field name, value: 'ai' or 'manual'
 		payloadVariableDescriptions: {}, // key: field name, value: description string
+		deletingAccountId: null,
 	});
 
 	// Fetch user details if not available
@@ -154,6 +158,8 @@ const AddToolModal = ({ isOpen, onClose }) => {
 				success: null,
 				connectedAccounts: [],
 				selectedAccount: null,
+				validationErrors: {}, // reset errors
+				payloadVariableDescriptions: {}, // reset descriptions
 			}));
 			fetchConnectedAccounts();
 		}
@@ -294,15 +300,25 @@ const AddToolModal = ({ isOpen, onClose }) => {
 
 	// Validation logic
 	const validatePayloadField = (prop, value) => {
-		const mode = info.payloadFieldModes?.[prop.name] || 'ai';
-		if (mode === 'ai') return null; // always valid if agent decides
+		// Skip validation for hidden, app, and any type starting with $
 		if (
 			prop.hidden ||
 			prop.type === 'app' ||
-			prop.type === '$.service.db' ||
-			prop.type === '$.interface.http'
-		)
+			(typeof prop.type === 'string' && prop.type.startsWith('$'))
+		) {
 			return null;
+		}
+		const mode = info.payloadFieldModes?.[prop.name] || 'ai';
+		if (mode === 'ai') {
+			if (!prop.optional) {
+				const description = info.payloadVariableDescriptions?.[prop.name];
+				if (!description || !description.trim()) {
+					message.error('Please provide a description for the agent');
+					return 'Please provide a description for the agent';
+				}
+			}
+			return null;
+		}
 		if (
 			!prop.optional &&
 			(value === undefined || value === '' || (Array.isArray(value) && value.length === 0))
@@ -348,6 +364,13 @@ const AddToolModal = ({ isOpen, onClose }) => {
 		const errors = {};
 		let hasErrors = false;
 		info.actionPayloadConfig?.configurable_props?.forEach((prop) => {
+			if (
+				prop.hidden ||
+				prop.type === 'app' ||
+				(typeof prop.type === 'string' && prop.type.startsWith('$'))
+			) {
+				return;
+			}
 			const value = info.actionPayloadValues[prop.name];
 			const error = validatePayloadField(prop, value);
 			if (error) {
@@ -386,107 +409,137 @@ const AddToolModal = ({ isOpen, onClose }) => {
 
 	// Update handlePayloadSubmit to build variables array for outer payload
 	const handlePayloadSubmit = async () => {
-		if (!validateAllFields()) return;
+		if (isSubmittingRef.current) return; // Synchronous guard
+		isSubmittingRef.current = true;
 		setInfo((prev) => ({ ...prev, isSubmitting: true }));
+		if (!validateAllFields()) {
+			setInfo((prev) => ({ ...prev, isSubmitting: false }));
+			isSubmittingRef.current = false;
+			return;
+		}
 
-		const action = info.selectedActionObj;
-		const app = info.selectedAppObj?.name_slug;
-		const configurableProps = info.actionPayloadConfig?.configurable_props || [];
-		const userValues = info.actionPayloadValues || {};
-		const fieldModes = info.payloadFieldModes || {};
-		const variableDescriptions = info.payloadVariableDescriptions || {};
+		try {
+			const action = info.selectedActionObj;
+			const app = info.selectedAppObj?.name_slug;
+			const configurableProps = info.actionPayloadConfig?.configurable_props || [];
+			const userValues = info.actionPayloadValues || {};
+			const fieldModes = info.payloadFieldModes || {};
+			const variableDescriptions = info.payloadVariableDescriptions || {};
 
-		const props = {};
-		const variables = [];
-		for (const prop of configurableProps) {
-			const mode = fieldModes[prop.name] || 'ai';
-			let desc = variableDescriptions[prop.name];
-			if (!desc || !desc.trim()) {
-				desc = `No description provided for "${prop.name}"`;
-			}
+			const props = {};
+			const variables = [];
+			for (const prop of configurableProps) {
+				const mode = fieldModes[prop.name] || 'ai';
+				let desc = variableDescriptions[prop.name];
+				if (!desc || !desc.trim()) {
+					// If field is optional, use prop.description from API response
+					if (prop.optional && prop.description) {
+						desc = prop.description;
+					} else {
+						desc = `No description provided for "${prop.name}"`;
+					}
+				}
 
-			// Special handling for app type fields
-			if (prop.type === 'app') {
-				props[prop.name] = {
-					name: app,
-					type: 'app',
-					app: app,
-				};
-				continue;
-			}
+				// Always skip double braces for 'app' and types starting with '$'
+				if (typeof prop.type === 'string' && prop.type.startsWith('$')) {
+					props[prop.name] = '';
+					continue;
+				}
+				if (prop.type === 'app') {
+					// For app type, we need to add the authProvisionId from the selected account
+					if (info.selectedAccount) {
+						props[info.selectedAccount.app.name] = {
+							authProvisionId: info.selectedAccount?.id,
+						};
+					}
+					continue;
+				}
 
-			if (mode === 'ai') {
-				variables.push({
-					name: prop.name,
-					type: prop.type,
-					description: desc,
-				});
-				// For AI mode, use double braces in the props
-				props[prop.name] = `{{${prop.name}}}`;
-			} else {
-				const val = userValues[prop.name];
-				if (val !== undefined && val !== null && val !== '') {
-					props[prop.name] = val;
+				if (mode === 'ai') {
+					variables.push({
+						name: prop.name,
+						type: prop.type,
+						description: desc,
+					});
+					// Use placeholder for later replacement
+					props[prop.name] = `__VAR__${prop.name}__`;
 				} else {
-					switch (prop.type) {
-						case 'string':
-							props[prop.name] = '';
-							break;
-						case 'string[]':
-							props[prop.name] = [];
-							break;
-						case 'boolean':
-							props[prop.name] = false;
-							break;
-						case 'integer':
-						case 'number':
-							props[prop.name] = null;
-							break;
-						case 'any':
-						default:
-							props[prop.name] = null;
+					const val = userValues[prop.name];
+					if (val !== undefined && val !== null && val !== '') {
+						props[prop.name] = val;
+					} else {
+						switch (prop.type) {
+							case 'string':
+								props[prop.name] = '';
+								break;
+							case 'string[]':
+								props[prop.name] = [];
+								break;
+							case 'boolean':
+								props[prop.name] = false;
+								break;
+							case 'integer':
+							case 'number':
+								props[prop.name] = null;
+								break;
+							case 'any':
+							default:
+								props[prop.name] = null;
+						}
 					}
 				}
 			}
-		}
 
-		// Get the account ID from the selected account
-		const accountId = info.selectedAccount?.id || null;
+			// Get the account ID from the selected account
+			const accountId = info.selectedAccount?.id || null;
 
-		// Create the output object with normal values for non-props fields
-		const output = {
-			action_key: action?.key || action?.id || '',
-			app: app || '',
-			account_id: accountId,
-			props: props, // This will contain the double braces format for AI mode fields
-		};
+			// Create the output object with normal values for non-props fields
+			const output = {
+				action_key: action?.key || action?.id || '',
+				app: app || '',
+				account_id: accountId,
+				props: props, // This will contain the placeholders for AI mode fields
+			};
 
-		const workspaceId = localStorage.getItem('workspaceId');
-		const payload = {
-			name: action?.name || action?.id || '',
-			description: action?.description || '',
-			url:
-				'https://ap.api.ve.ai/third-party-integrations/1.0/pipedream/execute-action/' +
-				workspaceId,
-			method: 'POST',
-			contentType: 'json',
-			body: JSON.stringify(output),
-			headers: [
-				{
-					name: 'Content-Type',
-					value: 'application/json',
-				},
-			],
-			variables,
-			isAuthenticated: true,
-			agent: 'knowledgeAgent',
-		};
+			const workspaceId = localStorage.getItem('workspaceId');
+			let body = JSON.stringify(output);
+			// Replace all "__VAR__variable__" (with quotes) with {{variable}} (no quotes)
+			body = body.replace(/"__VAR__(.*?)__"/g, '{{$1}}');
+			const payload = {
+				name: action?.name || action?.id || '',
+				description: action?.description || '',
+				url:
+					'https://ap.api.ve.ai/third-party-integrations/1.0/pipedream/execute-action/' +
+					workspaceId,
+				method: 'POST',
+				contentType: 'json',
+				body,
+				headers: [
+					{
+						name: 'Content-Type',
+						value: 'application/json',
+					},
+				],
+				variables,
+				isAuthenticated: true,
+				agent: 'knowledgeAgent',
+			};
 
-		setInfo((prev) => ({ ...prev, isSubmitting: false }));
-		var response = await addActionToKnowledgeAgent(agentId, payload);
-		if (response) {
-			message.success('Action added successfully');
-			onClose();
+			const response = await addActionToKnowledgeAgent(agentId, payload);
+			if (response) {
+				message.success('Action added successfully');
+				onToolAdded();
+				onClose();
+			}
+		} catch (error) {
+			if (error?.message) {
+				message.error(error.message);
+			} else {
+				message.error('An unexpected error occurred');
+			}
+		} finally {
+			setInfo((prev) => ({ ...prev, isSubmitting: false }));
+			isSubmittingRef.current = false;
 		}
 	};
 
@@ -534,6 +587,30 @@ const AddToolModal = ({ isOpen, onClose }) => {
 		fetchApps(1, true); // fetch first page of apps immediately
 	};
 
+	const handleDeleteAccount = async (accountId, appName, e) => {
+		if (info?.deletingAccountId === accountId) return;
+		e.stopPropagation();
+		setInfo((prev) => ({
+			...prev,
+			deletingAccountId: accountId,
+		}));
+
+		const response = await deleteConnectedAccount({
+			app: appName,
+			account_id: accountId,
+		});
+
+		if (response?.[0] === true) {
+			message.success('Account deleted successfully');
+			fetchConnectedAccounts();
+		}
+
+		setInfo((prev) => ({
+			...prev,
+			deletingAccountId: null,
+		}));
+	};
+
 	const renderAccountStep = () => (
 		<>
 			<div className="actions-modal-description">
@@ -570,6 +647,23 @@ const AddToolModal = ({ isOpen, onClose }) => {
 								<span className="account-date">
 									Connected on {new Date(account.created_at).toLocaleDateString()}
 								</span>
+							</div>
+							<div
+								className="delete-account-button"
+								onClick={(e) =>
+									handleDeleteAccount(account.id, account.app.name_slug, e)
+								}
+								disabled={info.deletingAccountId === account.id}
+							>
+								{info.deletingAccountId === account.id ? (
+									<Spinner
+										width="16px"
+										height="16px"
+										color="var(--primary-font)"
+									/>
+								) : (
+									<Delete />
+								)}
 							</div>
 						</div>
 					))}
@@ -733,6 +827,7 @@ const AddToolModal = ({ isOpen, onClose }) => {
 				)}
 				<div className="actions-modal-footer">
 					<button
+						type="button"
 						className="primary-button connect-button"
 						onClick={handlePayloadSubmit}
 						disabled={info.payloadLoading || info.isSubmitting}

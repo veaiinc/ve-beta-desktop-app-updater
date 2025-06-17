@@ -51,7 +51,7 @@ class Prompt extends Proposals {
 
 		try {
 			await this.addLayout(
-				this.props.params.workspaceID,
+				this.props.params.workspaceId,
 				jso,
 				_.filter(this.state.modules, { module: 'proposal' })[0]._id,
 			);

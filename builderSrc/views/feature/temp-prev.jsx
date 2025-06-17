@@ -9,6 +9,8 @@ import BottomModal from '../components/library/modals/BottomModal';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import CreateClient from '../components/HomePopups/CreateClient';
 import { message } from 'antd';
+import { ReactComponent as DesktopIcon } from '../components/library/svgs/header/Desktop.svg';
+import { ReactComponent as MobileIcon } from '../components/library/svgs/header/MobilePop.svg';
 
 const query = gql`
 	query Query($getDetailedTemplateInfoId: ID!) {
@@ -121,8 +123,8 @@ class TempBuilderPreview extends Proposals {
 			client: true,
 			preview: true,
 			isAllModulesLoading: true,
-			previewType: this?.props?.editingWorflow ? 'd' : 'm',
-			previewMode: this?.props?.editingWorflow ? 'd' : 'm',
+			previewType: props.previewType || (props.editingWorflow ? 'd' : 'm'),
+			previewMode: props.previewMode || (props.editingWorflow ? 'd' : 'm'),
 			isLoading: true,
 			activeModuleId: this.props.workflowId || this.props.params.templateID,
 			previewModuleSections: [],
@@ -269,6 +271,16 @@ class TempBuilderPreview extends Proposals {
 	};
 
 	componentDidUpdate(prevProps, prevState) {
+		// Sync previewType/previewMode from props to state
+		if (
+			prevProps.previewType !== this.props.previewType ||
+			prevProps.previewMode !== this.props.previewMode
+		) {
+			this.setState({
+				previewType: this.props.previewType,
+				previewMode: this.props.previewMode,
+			});
+		}
 		const previewSize = _.size(this.state.previewModuleSections);
 		const filteredModulesSize = _.size(
 			_.filter(this.state.modules, {
@@ -749,7 +761,7 @@ class TempBuilderPreview extends Proposals {
 
 	render() {
 		return (
-			<div style={{ display: 'flex', flexDirection: 'column' }}>
+			<div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 				<div
 					className="home_wrapper"
 					ref={this.parentRef}
@@ -758,6 +770,8 @@ class TempBuilderPreview extends Proposals {
 						...(this.props?.homeWrapperStyle || {}),
 						width: this.state?.showSmartFileSidebar ? '60%' : '100%',
 						transition: 'width 0.3s ease-in-out',
+						flex: 1,
+						minHeight: 0,
 					}}
 				>
 					{this.state.updateClient &&
@@ -897,7 +911,7 @@ class TempBuilderPreview extends Proposals {
 															console.log();
 														}}
 														handleAddLayout={(
-															workspaceID,
+															workspaceId,
 															json,
 															templateID,
 														) => console.log()}
@@ -1021,6 +1035,7 @@ class TempBuilderPreview extends Proposals {
 														}
 														isSummaryPreview={true}
 														clientDetails={this.state.clientDetails}
+														audioMode={true}
 													/>
 												</div>
 											</div>

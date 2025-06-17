@@ -20,12 +20,14 @@ class Video extends Component {
 			previewType: props?.previewType,
 		};
 	}
+
 	componentWillReceiveProps = (nextProps) => {
 		if (this.state.actionType !== nextProps.actionType) {
 			this.setState({
 				actionType: nextProps.actionType,
 			});
 		}
+
 		if (this.state.previewType !== nextProps.previewType) {
 			this.setState({
 				previewType: nextProps.previewType,
@@ -163,7 +165,13 @@ class Video extends Component {
 								}}
 								playing={this.state.autoplay}
 								controls
-								muted={this.state?.isFluid ? this.props.muteVideo : true}
+								muted={
+									this.state?.isFluid
+										? this.props?.audioMode
+											? true
+											: this.props.muteVideo
+										: true
+								}
 							/>
 						</div>
 					)}
