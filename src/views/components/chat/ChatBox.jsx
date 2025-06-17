@@ -134,6 +134,7 @@ const ChatBox = ({
 	const {
 		templates: {
 			globalChatMessages,
+			handleGlobalChatMessages,
 			updateStateValues,
 			handleGlobalUploadImage,
 			checkIndividualImageUploadedStatus,
@@ -141,14 +142,13 @@ const ChatBox = ({
 			activeWorkflowSlugForSmartFile,
 			updateApplicationChat,
 			activePromptForChat,
-			currentSessionId,
 			handleStreamSendMessage,
 			activePayloadForChat,
 			activeInputForChat,
 			chatInfo,
 			userEditedQuery,
 			galleryFile,
-			chatPayload,
+			currentSessionId,
 		},
 		subscriptionInfo: { currentPlan, updateSubscriptionState },
 		calendarInfo: { updateCalendarState },
@@ -181,6 +181,7 @@ const ChatBox = ({
 		isLLMModelOpen: false,
 		searchTypeOpenForReason: false,
 		activePlaceholderIndex: 0,
+		chatBoxInfo: null,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -202,6 +203,74 @@ const ChatBox = ({
 			});
 		}
 	}, []);
+
+	useEffect(() => {
+		const sessionData = globalChatMessages?.[info?.chatSessionId],
+			isStreaming = sessionData?.isStreaming || false,
+			latestStreamMessage = sessionData?.latestStreamMessage,
+			lastQuery = sessionData?.lastQuery;
+
+		if (sessionData?.chatBoxInfo) {
+			const deepResearch = sessionData?.chatBoxInfo?.deepResearch;
+			const build = sessionData?.chatBoxInfo?.build;
+			const webSearch = sessionData?.chatBoxInfo?.webSearch;
+			const workspaceSearch = sessionData?.chatBoxInfo?.workspaceSearch;
+			const ask = sessionData?.chatBoxInfo?.ask;
+
+			if (
+				info?.chatBoxInfo?.deepResearch !== deepResearch ||
+				info?.chatBoxInfo?.build !== build ||
+				info?.chatBoxInfo?.webSearch !== webSearch ||
+				info?.chatBoxInfo?.workspaceSearch !== workspaceSearch ||
+				info?.chatBoxInfo?.ask !== ask
+			) {
+				setInfo((prev) => ({
+					...prev,
+					chatBoxInfo: sessionData?.chatBoxInfo,
+				}));
+			}
+		}
+
+		if (info?.chatLoading !== isStreaming) {
+			setInfo((prev) => ({ ...prev, chatLoading: isStreaming }));
+		}
+
+		if (latestStreamMessage) {
+			const { deep_research, db_updates, variables_required } = latestStreamMessage;
+			if (db_updates?.calendar_db_update) {
+				updateCalendarState({ refetchCalendarState: true });
+			}
+			if (db_updates?.task_db_update) {
+				updateTaskState({ refetchTasks: true });
+			}
+			if (db_updates?.proposal_db_update) {
+				updateStateValues({ smartFileRefetch: true });
+			}
+			if (variables_required) {
+				handleVariablesRequired(variables_required, lastQuery);
+			}
+
+			// 		if (deep_research) {
+			// 			updateStateValues({
+			// 				chatInfo: {
+			// 					...chatInfo,
+			// 					deepResearch: false,
+			// 					reason: {
+			// 						webSearch: false,
+			// 						workspaceSearch: false,
+			// 					},
+			// 					ask: true,
+			// 				},
+			// 			});
+			// 		}
+
+			handleGlobalChatMessages({
+				sessionId: info?.chatSessionId,
+				removeLatestStreamMessage: true,
+				updateExtraInfo: true,
+			});
+		}
+	}, [globalChatMessages, info?.chatSessionId]);
 
 	useEffect(() => {
 		if (activePromptForChat) {
@@ -261,19 +330,18 @@ const ChatBox = ({
 	}, [userEditedQuery, info?.chatLoading]);
 
 	useEffect(() => {
-		if (activePayloadForChat) {
-			setInfo((prev) => ({ ...prev, chatLoading: true }));
+		if (activePayloadForChat && info?.chatSessionId) {
 			const { payload, localPayload, currentQuery, recentFiles = [] } = activePayloadForChat;
 			if (handleSendWebsocketMessage) {
-				handleSendWebsocketMessage(payload, currentQuery);
+				handleSendWebsocketMessage(payload, currentQuery, '', info?.chatSessionId);
 			}
 
-			handleStreamSendMessage(payload, localPayload, currentQuery);
+			handleStreamSendMessage(payload, localPayload, currentQuery, info?.chatSessionId);
 			updateStateValues({ activePayloadForChat: null });
 			recentFilesRef.current = recentFiles;
 			setInfo((prev) => ({ ...prev, recentFiles }));
 		}
-	}, [activePayloadForChat]);
+	}, [activePayloadForChat, info?.chatSessionId]);
 
 	useEffect(() => {
 		if (currentSessionId) {
@@ -284,48 +352,63 @@ const ChatBox = ({
 	}, [currentSessionId]);
 
 	useEffect(() => {
-		if (recentFilesRef?.current?.length > 0 || uploadedImagesRef?.current?.length > 0) {
-			updateStateValues({
-				chatInfo: { ...chatInfo, workspaceSearch: true },
+		if (info?.chatSessionId && !globalChatMessages?.[info?.chatSessionId]?.chatBoxInfo) {
+			handleGlobalChatMessages({
+				sessionId: info?.chatSessionId,
+				chatBoxInfo: {
+					deepResearch: false,
+					build: false,
+					webSearch: true,
+					workspaceSearch: true,
+					ask: true,
+				},
+				updateExtraInfo: true,
 			});
 		}
-	}, [recentFilesRef?.current, uploadedImagesRef?.current]);
+	}, [info?.chatSessionId]);
 
-	useEffect(() => {
-		if (latestStreamMesage && lastQuery) {
-			const { db_updates, variables_required, deep_research } = latestStreamMesage;
-			if (db_updates?.calendar_db_update) {
-				updateCalendarState({ refetchCalendarState: true });
-			}
-			if (db_updates?.task_db_update) {
-				updateTaskState({ refetchTasks: true });
-			}
-			if (db_updates?.proposal_db_update) {
-				updateStateValues({ smartFileRefetch: true });
-			}
-			if (variables_required) {
-				handleVariablesRequired(variables_required, lastQuery);
-			}
-			if (deep_research) {
-				updateStateValues({
-					chatInfo: {
-						...chatInfo,
-						deepResearch: false,
-						reason: {
-							webSearch: false,
-							workspaceSearch: false,
-						},
-						ask: true,
-					},
-				});
-			}
+	// useEffect(() => {
+	// 	if (recentFilesRef?.current?.length > 0 || uploadedImagesRef?.current?.length > 0) {
+	// 		updateStateValues({
+	// 			chatInfo: { ...chatInfo, workspaceSearch: true },
+	// 		});
+	// 	}
+	// }, [recentFilesRef?.current, uploadedImagesRef?.current]);
 
-			if (toggleLatestStreamMessage) {
-				toggleLatestStreamMessage();
-			}
-			setInfo((prev) => ({ ...prev, chatLoading: false }));
-		}
-	}, [latestStreamMesage]);
+	// useEffect(() => {
+	// 	if (latestStreamMesage && lastQuery) {
+	// 		const { db_updates, variables_required, deep_research } = latestStreamMesage;
+	// 		if (db_updates?.calendar_db_update) {
+	// 			updateCalendarState({ refetchCalendarState: true });
+	// 		}
+	// 		if (db_updates?.task_db_update) {
+	// 			updateTaskState({ refetchTasks: true });
+	// 		}
+	// 		if (db_updates?.proposal_db_update) {
+	// 			updateStateValues({ smartFileRefetch: true });
+	// 		}
+	// 		if (variables_required) {
+	// 			handleVariablesRequired(variables_required, lastQuery);
+	// 		}
+	// 		if (deep_research) {
+	// 			updateStateValues({
+	// 				chatInfo: {
+	// 					...chatInfo,
+	// 					deepResearch: false,
+	// 					reason: {
+	// 						webSearch: false,
+	// 						workspaceSearch: false,
+	// 					},
+	// 					ask: true,
+	// 				},
+	// 			});
+	// 		}
+
+	// 		if (toggleLatestStreamMessage) {
+	// 			toggleLatestStreamMessage();
+	// 		}
+	// 	}
+	// }, [latestStreamMesage]);
 
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -340,39 +423,6 @@ const ChatBox = ({
 		}
 		setPreviewImage(file.url || file.preview);
 		setPreviewOpen(true);
-	};
-
-	const handleWebSearchClick = () => {
-		if (chatInfo?.deepResearch) return;
-
-		if (isPublicChat) {
-			if (chatInfo?.deepResearch) {
-				updateStateValues({
-					chatInfo: {
-						...chatInfo,
-						deepResearch: false,
-						webSearch: !chatInfo?.webSearch,
-					},
-				});
-				return;
-			}
-		}
-		if (chatInfo?.webSearch) {
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					webSearch: false,
-					workspaceSearch: true,
-				},
-			});
-		} else {
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					webSearch: true,
-				},
-			});
-		}
 	};
 
 	const handleDeepResearchClick = () => {
@@ -538,9 +588,10 @@ const ChatBox = ({
 				}
 
 				if (info?.chatQuery?.trim()?.length > 0 || query?.trim()?.length > 0) {
-					setInfo((prev) => ({ ...prev, chatLoading: true }));
 					let currentQuery = info?.chatQuery?.trim() || query?.trim();
 					const routeName = location?.pathname?.split('/')?.[1];
+					const chatPayload =
+						globalChatMessages?.[info?.chatSessionId]?.chatPayload || {};
 
 					const date =
 						info?.chatFilters?.dateRange?.length > 0
@@ -614,15 +665,6 @@ const ChatBox = ({
 						payload.module_id = params?.contactId;
 					}
 
-					// if (
-					// 	!chatInfo?.webSearch &&
-					// 	!chatInfo?.workspaceSearch &&
-					// 	!uploadedImagesRef?.current?.length &&
-					// 	!recentFilesRef?.current?.length
-					// ) {
-					// 	payload.selected_model = chatInfo?.selectedLLMModel;
-					// }
-
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
 
 					if (!location_details) {
@@ -659,7 +701,12 @@ const ChatBox = ({
 							recentFiles: recentFilesRef?.current || [],
 						});
 					}
-					handleStreamSendMessage(payload, localPayload, currentQuery);
+					handleStreamSendMessage(
+						payload,
+						localPayload,
+						currentQuery,
+						info?.chatSessionId,
+					);
 					if (handleSendWebsocketMessage) {
 						handleSendWebsocketMessage(payload, currentQuery);
 					}
@@ -678,12 +725,12 @@ const ChatBox = ({
 			location,
 			params,
 			currentPlan,
+			globalChatMessages,
 		],
 	);
 
 	const handleWorkflowSlugSelection = useCallback(
 		async (data, query) => {
-			setInfo((prev) => ({ ...prev, chatLoading: true }));
 			const showCustomChatOptions = [
 				{
 					type: 'AI',
@@ -709,7 +756,6 @@ const ChatBox = ({
 				payload.module = moduleHelper?.[location?.pathname?.split('/')?.[1]];
 			}
 
-			setInfo((prev) => ({ ...prev, chatLoading: false }));
 			handleSendWebsocketMessage(payload, '');
 			handleStreamSendMessage(payload, localPayload, '');
 		},
@@ -734,7 +780,7 @@ const ChatBox = ({
 				updateApplicationChat(workflowSlug);
 			}
 		},
-		[info, handleWorkflowSlugSelection, globalChatMessages],
+		[handleWorkflowSlugSelection],
 	);
 
 	const handleGlobalImageProcessing = useCallback(
