@@ -624,6 +624,7 @@ class Home extends Proposals {
 			numOfDocuments: 0,
 			isFormTemplate: false,
 			triggerAdjustGridAreas: false,
+			workflowTemplateID: null,
 		};
 		this.componentRef = createRef();
 		this.addBlockRef = createRef();
@@ -5699,7 +5700,9 @@ class Home extends Proposals {
 		);
 	};
 	handleTriggerAdjustGridAreas = async (e) => {
+		console.log(this.props, 'handleTriggerAdjustGridAreas');
 		this.setState({
+			triggerAdjustGridAreas: false,
 			isPublishLoading: true,
 		});
 		const queryString = window.location.search;
@@ -5734,9 +5737,9 @@ class Home extends Proposals {
 				!this.state.template.actions?.includes('form-submission')
 			) {
 				// return (window.location.href = `https://ve.ai/my-templates`);
-				return this.props.navigate(-1);
+				return this.props.router.navigateData(-1);
 			} else if (this.state.template.actions?.includes('form-submission')) {
-				return this.props.navigate(-1);
+				return this.props.router.navigateData(-1);
 			} else {
 				return (window.location.href = `https://ve.ai/workflow_builder/${
 					this.props.params.templateID || this.templateId
@@ -7527,9 +7530,6 @@ class Home extends Proposals {
 													this.setServiceTableSection(e, value);
 												}}
 												setAdjustGridAreas={() => {
-													this.setState({
-														triggerAdjustGridAreas: false,
-													});
 													this.handleTriggerAdjustGridAreas();
 												}}
 											/>
@@ -7591,6 +7591,7 @@ class Home extends Proposals {
 											}`}
 										>
 											<Sidebar
+												workflowTemplateID={this.state.workflowTemplateID}
 												activeModule={this.state.activeModule}
 												socialMediaLinks={this.state.socialMediaLinks}
 												getModuleInfo={(id, type) =>

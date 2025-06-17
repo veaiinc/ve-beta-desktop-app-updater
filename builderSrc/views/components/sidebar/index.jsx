@@ -1882,7 +1882,7 @@ class Sidebar extends Images {
 			displayName: name,
 			inputType: selectedOption,
 			isRequired: false,
-			templateId: this.props.params.templateID,
+			templateId: this.props.workflowTemplateID,
 			workflowId: this.props.workflowID,
 		};
 		if (this.state.isWorkflow) {

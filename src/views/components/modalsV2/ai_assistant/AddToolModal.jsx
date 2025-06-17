@@ -9,6 +9,8 @@ import Spinner from '../../loaders/Spinner';
 import { useParams } from 'react-router-dom';
 import { message } from '../../globalComponents/CustomToast';
 import PayloadField from './PayloadField';
+import { ReactComponent as Delete } from '../../../../assets/svg/delete.svg';
+
 const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 	const {
 		knowledgeAgent: {
@@ -18,6 +20,7 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 			getPipedreamActionPayload,
 			addActionToKnowledgeAgent,
 			getExistingconnectedAccounts,
+			deleteConnectedAccount,
 		},
 		profileInfo: { userDetailsData, getUserDetails },
 	} = useContext(Context);
@@ -55,6 +58,7 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 		payloadMode: 'manual',
 		payloadFieldModes: {}, // key: field name, value: 'ai' or 'manual'
 		payloadVariableDescriptions: {}, // key: field name, value: description string
+		deletingAccountId: null,
 	});
 
 	// Fetch user details if not available
@@ -444,7 +448,7 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 				if (prop.type === 'app') {
 					// For app type, we need to add the authProvisionId from the selected account
 					if (info.selectedAccount) {
-						props[info.selectedAccount.app.name_slug] = {
+						props[info.selectedAccount.app.name] = {
 							authProvisionId: info.selectedAccount?.id,
 						};
 					}
@@ -501,7 +505,6 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 			let body = JSON.stringify(output);
 			// Replace all "__VAR__variable__" (with quotes) with {{variable}} (no quotes)
 			body = body.replace(/"__VAR__(.*?)__"/g, '{{$1}}');
-
 			const payload = {
 				name: action?.name || action?.id || '',
 				description: action?.description || '',
@@ -584,6 +587,30 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 		fetchApps(1, true); // fetch first page of apps immediately
 	};
 
+	const handleDeleteAccount = async (accountId, appName, e) => {
+		if (info?.deletingAccountId === accountId) return;
+		e.stopPropagation();
+		setInfo((prev) => ({
+			...prev,
+			deletingAccountId: accountId,
+		}));
+
+		const response = await deleteConnectedAccount({
+			app: appName,
+			account_id: accountId,
+		});
+
+		if (response?.[0] === true) {
+			message.success('Account deleted successfully');
+			fetchConnectedAccounts();
+		}
+
+		setInfo((prev) => ({
+			...prev,
+			deletingAccountId: null,
+		}));
+	};
+
 	const renderAccountStep = () => (
 		<>
 			<div className="actions-modal-description">
@@ -620,6 +647,23 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 								<span className="account-date">
 									Connected on {new Date(account.created_at).toLocaleDateString()}
 								</span>
+							</div>
+							<div
+								className="delete-account-button"
+								onClick={(e) =>
+									handleDeleteAccount(account.id, account.app.name_slug, e)
+								}
+								disabled={info.deletingAccountId === account.id}
+							>
+								{info.deletingAccountId === account.id ? (
+									<Spinner
+										width="16px"
+										height="16px"
+										color="var(--primary-font)"
+									/>
+								) : (
+									<Delete />
+								)}
 							</div>
 						</div>
 					))}
