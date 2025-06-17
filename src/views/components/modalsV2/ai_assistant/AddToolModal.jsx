@@ -437,11 +437,17 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 				}
 
 				// Always skip double braces for 'app' and types starting with '$'
-				if (
-					prop.type === 'app' ||
-					(typeof prop.type === 'string' && prop.type.startsWith('$'))
-				) {
+				if (typeof prop.type === 'string' && prop.type.startsWith('$')) {
 					props[prop.name] = '';
+					continue;
+				}
+				if (prop.type === 'app') {
+					// For app type, we need to add the authProvisionId from the selected account
+					if (info.selectedAccount) {
+						props[info.selectedAccount.app.name_slug] = {
+							authProvisionId: info.selectedAccount?.id,
+						};
+					}
 					continue;
 				}
 
