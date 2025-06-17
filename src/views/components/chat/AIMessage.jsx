@@ -21,7 +21,7 @@ const AIMessage = ({
 	messageId = null,
 	handleRatingClick = null,
 	rating = null,
-	citations = [],
+	citations = null,
 	messageData,
 	isLastMessage = false,
 	isNewMessage = false,

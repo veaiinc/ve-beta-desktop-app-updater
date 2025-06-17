@@ -83,7 +83,7 @@ export const Calendar = () => {
 	// Calendar Categories Apis ==================>
 	const createCalendarCategory = async (body) => {
 		try {
-			let workspaceId = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const url = `/${workspaceId}${API.CALENDAR.getcalendarCategories}`;
 			const response = await service.fetchPost(url, body, usertoken, 'calendar_api');
@@ -133,7 +133,7 @@ export const Calendar = () => {
 
 	const getCalendarCategories = async () => {
 		try {
-			let workspaceId = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const url = `/${workspaceId}${API.CALENDAR.getcalendarCategories}`;
 			const response = await service.fetchGet(url, usertoken, 'calendar');
@@ -292,7 +292,7 @@ export const Calendar = () => {
 
 	const createCalendarEvent = async (body) => {
 		try {
-			let workspaceId = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const url = `/${workspaceId}${API.CALENDAR.createCalendarEvent}`;
 

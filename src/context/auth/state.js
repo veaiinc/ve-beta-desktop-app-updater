@@ -160,7 +160,7 @@ export const AuthState = () => {
 						JSON.stringify(accessibleWorkspaces),
 					);
 				if (workspaceId) localStorage.setItem('workspaceId', workspaceId);
-				Cookies.set('workspaceID', workspaceId, {
+				Cookies.set('workspaceId', workspaceId, {
 					sameSite: 'lax',
 					domain: host,
 				});

@@ -107,6 +107,10 @@
 						color: var(--primary-font, #f2f2f3);
 						font-family: Inter;
 						font-size: 14px;
+						&:hover {
+							background-color: var(--card-over-card-hover);
+							cursor: pointer;
+						}
 					}
 				}
 			}
@@ -267,7 +271,7 @@
 					width: 16px;
 					height: 16px;
 					color: var(--secondary-font, #7a7e85);
-					transition: transform 0.2s;
+					transition: transform 0.2s rotate(0deg) !important;
 
 					&.open {
 						transform: rotate(180deg);
@@ -417,6 +421,10 @@
 				font-size: 13px;
 				.editableSlugInput {
 					font-size: 13px;
+				}
+				&:hover {
+					background-color: var(--card-over-card-hover);
+					cursor: pointer;
 				}
 			}
 		}

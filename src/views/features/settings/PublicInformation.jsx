@@ -94,8 +94,8 @@ const PublicInformation = () => {
 	const checkIsAdmin = () => {
 		let usertoken = localStorage.getItem('usertoken');
 		let decoded = jwt_decode(usertoken);
-		let workspaceID = localStorage.getItem('workspaceId');
-		let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded?.user_id}`));
+		let workspaceId = localStorage.getItem('workspaceId');
+		let role = atob(localStorage.getItem(`userRole::${workspaceId}::${decoded?.user_id}`));
 
 		setOverviewState((prev) => ({
 			...prev,

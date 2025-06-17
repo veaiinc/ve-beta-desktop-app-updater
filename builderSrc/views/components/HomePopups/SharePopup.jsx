@@ -164,8 +164,8 @@ class SharePopup extends Component {
 		}
 		let dynamicDomain = this.state.customDomain
 			? `https://${this.state.customDomain}/portal/${this.state.endUrl}`
-			: localStorage.getItem('workspaceID')
-			? `https://${localStorage.getItem('workspaceID')}.ve.ai/portal/${this.state.endUrl}`
+			: localStorage.getItem('workspaceId')
+			? `https://${localStorage.getItem('workspaceId')}.ve.ai/portal/${this.state.endUrl}`
 			: '';
 		return (
 			<div className="share_component_popup">
@@ -182,8 +182,8 @@ class SharePopup extends Component {
 								{`https://${
 									this.state.customDomain
 										? this.state.customDomain
-										: localStorage.getItem('workspaceID')
-										? `${localStorage.getItem('workspaceID')}.ve.ai`
+										: localStorage.getItem('workspaceId')
+										? `${localStorage.getItem('workspaceId')}.ve.ai`
 										: ''
 								}/portal/`}
 								<input

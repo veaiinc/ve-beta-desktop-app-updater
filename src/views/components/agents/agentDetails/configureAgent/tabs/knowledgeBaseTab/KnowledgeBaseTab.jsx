@@ -20,6 +20,9 @@ const KnowledgeBaseTab = ({ agentId }) => {
 			knowledgeBaseInfo,
 			activeKnowledgeAssistant,
 			updateKnowledgeAgent,
+			knowledgeBaseFilesActiveStatus,
+			getKnowledgeBaseFilesActiveStatus,
+			updateContextValues,
 		},
 	} = useContext(Context);
 
@@ -31,24 +34,31 @@ const KnowledgeBaseTab = ({ agentId }) => {
 	const fullWorkspaceAccess = activeKnowledgeAssistant?.data?.fullWorkspaceAccess;
 	const knowledgeBaseFiles = knowledgeBaseInfo?.data ?? [];
 	const dataLength = knowledgeBaseFiles.length;
-	const knowledgeBaseFilesActiveStatus =
-		activeKnowledgeAssistant?.data?.knowledgeBase_ids?.reduce((acc, item) => {
-			acc[item._id] = item.isActive;
-			return acc;
-		}, {});
+	const activeStatus = knowledgeBaseFilesActiveStatus?.data.reduce((acc, item) => {
+		acc[item._id] = item.isActive;
+		return acc;
+	}, {});
 	const currentPage = knowledgeBaseInfo?.currentPage ?? 1;
 	const hasNextPage = knowledgeBaseInfo?.hasNextPage ?? false;
 
 	useEffect(() => {
 		if (knowledgeBaseInfo === null) {
 			getKnowledgeBaseInfo(agentId, page, limit);
+			getKnowledgeBaseFilesActiveStatus({ agentId, page, limit });
 		}
-	}, []);
+		return () => {
+			updateContextValues({
+				knowledgeBaseInfo: null,
+				knowledgeBaseFilesActiveStatus: null,
+			});
+		};
+	}, [agentId]);
 
 	const fetchMoreKnowledgeBaseFiles = () => {
 		const page = currentPage + 1;
 		const append = true;
 		getKnowledgeBaseInfo(agentId, page, limit, append);
+		getKnowledgeBaseFilesActiveStatus({ agentId, page, limit, append });
 	};
 
 	const handleSearchWebOrFullAccessChange = async (data) => {
@@ -103,68 +113,71 @@ const KnowledgeBaseTab = ({ agentId }) => {
 					Knowledge
 				</button>
 			</div>
-			<table className={s?.assistantsListContainer} role="table">
-				<thead role="rowgroup">
-					<tr className={s.listHeader} role="row">
-						<th className={s?.title}>Knowledge File</th>
-						<th className={s?.lastEdit}>Last Updated</th>
-						<th className={s?.active}>Active</th>
-					</tr>
-				</thead>
-				<tbody className={s?.assistantsList} role="rowgroup">
-					<InfiniteScroll
-						dataLength={dataLength}
-						next={fetchMoreKnowledgeBaseFiles}
-						hasMore={hasNextPage}
-						loader={<FetchMoreLoaderComp />}
-						height={'100%'}
-						style={{ width: '100%' }}
-					>
-						{knowledgeBaseFiles?.map((file) => {
-							const { _id, name, sourceType, updatedAt } = file;
+			{dataLength > 0 && (
+				<table className={s?.assistantsListContainer} role="table">
+					<thead role="rowgroup">
+						<tr className={s.listHeader} role="row">
+							<th className={s?.title}>Knowledge File</th>
+							<th className={s?.lastEdit}>Last Updated</th>
+							<th className={s?.active}>Active</th>
+						</tr>
+					</thead>
+					<tbody className={s?.assistantsList} role="rowgroup">
+						<InfiniteScroll
+							dataLength={dataLength}
+							next={fetchMoreKnowledgeBaseFiles}
+							hasMore={hasNextPage}
+							loader={<FetchMoreLoaderComp />}
+							height={'324px'}
+							style={{ width: '100%' }}
+						>
+							{knowledgeBaseFiles?.map((file) => {
+								const { _id, name, sourceType, updatedAt } = file;
 
-							const formattedUpdatedAt = `${new Date(updatedAt * 1000)
-								.toLocaleDateString('en-US', {
-									month: 'short',
-									day: '2-digit',
-									year: 'numeric',
-								})
-								.replace(',', '')
-								.replace(/^(\w+) (\d+) (\d+)$/, '$1, $2 $3')}`;
+								const formattedUpdatedAt = `${new Date(updatedAt * 1000)
+									.toLocaleDateString('en-US', {
+										month: 'short',
+										day: '2-digit',
+										year: 'numeric',
+									})
+									.replace(',', '')
+									.replace(/^(\w+) (\d+) (\d+)$/, '$1, $2 $3')}`;
 
-							const isActive =
-								info.isActive?.[_id] ?? knowledgeBaseFilesActiveStatus?.[_id];
+								const isActive = activeStatus?.[_id];
 
-							return (
-								<tr className={s?.assistantItem} key={_id} role="row">
-									<td className={s?.assistantItemTitle} role="cell">
-										<div className={s?.fileIcon}>
-											{fileTypeIcons[sourceType] || ''}
-										</div>
-										<div className={s?.fileName}>{name || ''}</div>
-									</td>
-									<td className={s?.assistantItemLastEdit} role="cell">
-										{formattedUpdatedAt || ''}
-									</td>
-									<td className={s?.assistantItemActive} role="cell">
-										<Switch
-											checked={isActive || false}
-											onChange={(checked) => handleToggleChange(_id, checked)}
-											size="small"
-											style={{
-												background: isActive
-													? 'var(--primary-font)'
-													: 'var(--secondary-font)',
-											}}
-											className={s?.agentSwitch}
-										/>
-									</td>
-								</tr>
-							);
-						})}
-					</InfiniteScroll>
-				</tbody>
-			</table>
+								return (
+									<tr className={s?.assistantItem} key={_id} role="row">
+										<td className={s?.assistantItemTitle} role="cell">
+											<div className={s?.fileIcon}>
+												{fileTypeIcons[sourceType] || ''}
+											</div>
+											<div className={s?.fileName}>{name || ''}</div>
+										</td>
+										<td className={s?.assistantItemLastEdit} role="cell">
+											{formattedUpdatedAt || ''}
+										</td>
+										<td className={s?.assistantItemActive} role="cell">
+											<Switch
+												checked={isActive || false}
+												onChange={(checked) =>
+													handleToggleChange(_id, checked)
+												}
+												size="small"
+												style={{
+													background: isActive
+														? 'var(--primary-font)'
+														: 'var(--secondary-font)',
+												}}
+												className={s?.agentSwitch}
+											/>
+										</td>
+									</tr>
+								);
+							})}
+						</InfiniteScroll>
+					</tbody>
+				</table>
+			)}
 			<div className={s.knowledgeSettingsContainer}>
 				<div className={s.knowledgeToggleContainer}>
 					<div className={s.knowledgeToggleTextWrapper}>

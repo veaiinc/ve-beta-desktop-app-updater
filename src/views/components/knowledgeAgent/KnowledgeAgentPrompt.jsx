@@ -3,7 +3,7 @@ import '../../../assets/scss/ai_assistant/aiPrompt.scss';
 import { ReactComponent as Question } from '../../../assets/svg/ai_assistant/question.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
 import CustomTextArea from '../globalComponents/CustomTextArea';
-import { Tooltip } from 'antd';
+import { message, Tooltip } from 'antd';
 import Context from '../../../context/context';
 import Skeleton from 'react-loading-skeleton';
 
@@ -17,11 +17,22 @@ const customPromptItem = {
 
 const KnowledgeAgentPrompt = ({ assistant }) => {
 	const {
-		knowledgeAgent: { allAiPrompts, getAiPrompts, selectAiPrompt, resetAiPrompt, editAiPrompt },
+		knowledgeAgent: {
+			allAiPrompts,
+			getAiPrompts,
+			selectAiPrompt,
+			resetAiPrompt,
+			editAiPrompt,
+			updateKnowledgeAgent,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		aiModelOptions: ['GPT-4o', 'GPT-4o-mini', 'GPT-4o-turbo'],
+		aiModelOptions: [
+			{ label: 'GPT-4o', value: 'gpt-4o' },
+			{ label: 'GPT-4o-mini', value: 'gpt-4o-mini' },
+			{ label: 'GPT-4o-turbo', value: 'gpt-4o-turbo' },
+		],
 		selectedModel: 'GPT-4o',
 		modelListLoading: false,
 		isSelectModelOpen: false,
@@ -72,6 +83,16 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 	}, [allAiPrompts, assistant?._id]);
 
 	useEffect(() => {
+		const selectedModel = info?.aiModelOptions?.find(
+			(option) => option.value === assistant?.model,
+		)?.label;
+		setInfo((prev) => ({
+			...prev,
+			selectedModel,
+		}));
+	}, [assistant]);
+
+	useEffect(() => {
 		if (info?.systemPrompt !== undefined) {
 			handleDebounceUpdate();
 		}
@@ -101,9 +122,11 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 		setInfo((prev) => ({ ...prev, isSelectSystemPromptOpen: visible }));
 	}, []);
 
-	const handleChooseModalChange = useCallback((value) => {
-		setInfo((prev) => ({ ...prev, selectedModel: value, isSelectModelOpen: false }));
-	}, []);
+	const handleChooseModalChange = async (option) => {
+		setInfo((prev) => ({ ...prev, selectedModel: option.label, isSelectModelOpen: false }));
+		const response = await updateKnowledgeAgent(assistant?._id, { model: option.value });
+		if (!response[0]) message.error('Failed to update model for the agent!');
+	};
 
 	const handleSystemPromptChange = useCallback(
 		(option) => {
@@ -132,13 +155,14 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 	}, []);
 
 	const handleResetPrompt = useCallback(async () => {
-		const resetPromptLabel = await resetAiPrompt(assistant?._id);
-		if (resetPromptLabel?.[0] === true) {
+		const response = await resetAiPrompt(assistant?._id);
+		if (response?.[0] === true) {
+			const { label, prompt } = response[1];
 			setInfo((prev) => ({
 				...prev,
-				selectedSystemPrompt: resetPromptLabel?.[1]?.label,
-				systemPrompt: resetPromptLabel?.[1]?.prompt,
-				editedPrompt: resetPromptLabel?.[1]?.prompt,
+				selectedSystemPrompt: label,
+				systemPrompt: prompt,
+				editedPrompt: '',
 			}));
 		}
 	}, [assistant]);
@@ -164,7 +188,7 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 										className="modelListItem"
 										onClick={() => handleChooseModalChange(option)}
 									>
-										{option}
+										{option.label}
 									</div>
 								))}
 							</div>
