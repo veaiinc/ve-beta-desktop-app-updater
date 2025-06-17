@@ -893,6 +893,22 @@ export const KnowledgeAgentState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
 
+	const deleteConnectedAccount = async (payload) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/pipedream/disconnect-account/${workspaceId}`;
+		const response = await service?.fetchDelete(
+			url,
+			usertoken,
+			payload,
+			'third_party_integrations_api',
+		);
+		if (response?.[0] === true) {
+			return [true, response?.[1]];
+		}
+		return [false, response?.[1]];
+	};
+
 	return {
 		...state,
 		createNewKnowledgeAgent,
@@ -927,5 +943,6 @@ export const KnowledgeAgentState = () => {
 		getPipedreamAppActions,
 		getPipedreamActionPayload,
 		getExistingconnectedAccounts,
+		deleteConnectedAccount,
 	};
 };
