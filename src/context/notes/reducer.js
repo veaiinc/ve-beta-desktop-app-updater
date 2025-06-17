@@ -82,8 +82,9 @@ const actionHandlers = {
 	UPDATE_RELATED_VIEWS: (state, action) => {
 		const { updatedRow, viewId, databaseId, rowId, actionType = 'update' } = action.payload;
 
-		const affectedViews = Object.values(state?.views).flat();
-		// .filter((item) => item.databaseId === databaseId && item._id !== viewId);
+		const affectedViews = Object.values(state?.views)
+			.flat()
+			.filter((item) => item.databaseId === databaseId);
 
 		if (!affectedViews.length) return state;
 
@@ -103,10 +104,12 @@ const actionHandlers = {
 			switch (actionType) {
 				case 'add':
 					// Add new row to the data array
-					updatedRowData[view._id] = {
-						...rowData,
-						data: [...rowData.data, updatedRow],
-					};
+					if (view?._id !== viewId) {
+						updatedRowData[view._id] = {
+							...rowData,
+							data: [...rowData.data, updatedRow],
+						};
+					}
 					break;
 
 				case 'delete':

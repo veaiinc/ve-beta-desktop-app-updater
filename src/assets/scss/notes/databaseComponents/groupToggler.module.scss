@@ -1,0 +1,51 @@
+.groupToggler {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	overflow: hidden;
+	position: relative;
+	margin-top: 10px;
+
+	.groupTogglerHeader {
+		display: flex;
+		align-items: center;
+		// gap: 4px;
+		width: 100%;
+		height: 30px;
+		position: sticky;
+		top: 0;
+		z-index: 100;
+
+		.groupTogglerButton {
+			background-color: transparent;
+			border: none;
+			cursor: pointer;
+			padding: 0;
+			margin: 0;
+			width: 24px;
+			height: 24px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			.groupTogglerIcon {
+				path {
+					stroke-width: 2px;
+				}
+			}
+
+			.groupTogglerIconOpen {
+				transform: rotate(90deg);
+			}
+
+			.groupTogglerContent {
+				color: var(--primary-font);
+			}
+		}
+
+		.groupTogglerContent {
+			color: var(--primary-font);
+		}
+	}
+}

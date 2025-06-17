@@ -4,6 +4,7 @@ import TableHeader from './TableHeader';
 import TableBody from './TableBody';
 import s from '../../../../../assets/scss/notes/databaseComponents/tableView.module.scss';
 import { DragDropContext } from 'react-beautiful-dnd';
+import GroupToggler from '../GroupToggler';
 
 const TableView = ({ data, columns, colors, databaseId, pageId, viewId }) => {
 	const [resizingColumn, setResizingColumn] = useState(null);
@@ -82,21 +83,25 @@ const TableView = ({ data, columns, colors, databaseId, pageId, viewId }) => {
 			<div className={`${s.tableView} ${resizingColumn !== null ? s.resizing : ''}`}>
 				<div className={s.tableScrollContainer}>
 					<div className={s.tableContent}>
-						<TableHeader
-							columns={localColumns}
-							handleResizeStart={handleResizeStart}
-							loading={false}
-							databaseId={databaseId}
-							pageId={pageId}
-						/>
-						<TableBody
-							data={data}
-							columns={localColumns}
-							colors={colors}
-							pageId={pageId}
-							viewId={viewId}
-							databaseId={databaseId}
-						/>
+						{/* <GroupToggler> */}
+						<>
+							<TableHeader
+								columns={localColumns}
+								handleResizeStart={handleResizeStart}
+								loading={false}
+								databaseId={databaseId}
+								pageId={pageId}
+							/>
+							<TableBody
+								data={data}
+								columns={localColumns}
+								colors={colors}
+								pageId={pageId}
+								viewId={viewId}
+								databaseId={databaseId}
+							/>
+						</>
+						{/* </GroupToggler> */}
 					</div>
 				</div>
 			</div>

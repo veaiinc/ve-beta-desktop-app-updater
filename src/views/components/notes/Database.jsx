@@ -50,9 +50,6 @@ export const rowTypes = {
 	serial_number: TaskId,
 	status: Status,
 	priority: Priority,
-	email: Email,
-	phone: Phone,
-	url: Url,
 	checkbox: CheckBox,
 	parentTask: ParentTaskComponent,
 	childTasks: ChildTaskProgress,
@@ -72,7 +69,7 @@ export const rowTypes = {
 	dateFilter: DateFilterComponent,
 };
 
-const DatabaseComponent = memo(({ block, editor }) => {
+const DatabaseComponent = ({ block, editor }) => {
 	const {
 		notes: {
 			createDatabase,
@@ -93,7 +90,7 @@ const DatabaseComponent = memo(({ block, editor }) => {
 	const { previousBlocksRef, pageId } = useContext(NotesRefContext);
 	const timeoutRef = useRef(null);
 
-	const { databaseId } = block?.props;
+	const { databaseId } = block?.props || {};
 	const sourceBlockId = previousBlocksRef?.current?.get(block?.id)?._id;
 
 	const [info, setInfo] = useState({
@@ -269,8 +266,6 @@ const DatabaseComponent = memo(({ block, editor }) => {
 			}
 		};
 	}, []);
-
-	console.log('selectedDatabaseView=>', selectedDatabaseView);
 
 	const initializeDatabase = useCallback(
 		async (selectedDatabaseId = null) => {
@@ -613,9 +608,9 @@ const DatabaseComponent = memo(({ block, editor }) => {
 			)}
 		</div>
 	);
-});
+};
 
-export default DatabaseComponent;
+export default memo(DatabaseComponent);
 
 export const Database = createReactBlockSpec(
 	{
@@ -635,7 +630,7 @@ export const Database = createReactBlockSpec(
 		isSelectable: false,
 	},
 	{
-		render: DatabaseComponent,
+		render: memo(DatabaseComponent),
 	},
 );
 

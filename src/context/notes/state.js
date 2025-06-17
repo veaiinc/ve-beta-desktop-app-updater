@@ -976,6 +976,8 @@ export const NotesState = (props) => {
 			if (response?.[0]) {
 				const newField = response?.[1]?.data?.addDatabaseField;
 				const database = state?.database?.[payload?.databaseId];
+				console.log('database=>', database);
+
 				dispatch({
 					type: Actions.UPDATE_DATABASE,
 					payload: {

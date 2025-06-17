@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import s from '../../../../assets/scss/notes/modals/databaseAddModal.module.scss';
 import Context from '../../../../context/context';
@@ -15,7 +15,15 @@ const DatabaseAddModal = ({ isOpen, onClose, viewId, pageId, databaseId, fields 
 	});
 
 	const handleInfoChange = useCallback((data = {}) => {
-		setInfo((prev) => ({ ...prev, ...data }));
+		setInfo((prev) => {
+			let result;
+			if (data?.values) {
+				result = { ...prev, values: { ...prev?.values, ...data?.values } };
+			} else {
+				result = { ...prev, ...data };
+			}
+			return result;
+		});
 	}, []);
 
 	const preparePayload = useCallback(
@@ -44,18 +52,6 @@ const DatabaseAddModal = ({ isOpen, onClose, viewId, pageId, databaseId, fields 
 		handleInfoChange({ values: {}, loading: false });
 		onClose();
 	}, [info?.values]);
-
-	const handleOptionSelect = useCallback(
-		(fieldId, value) => {
-			handleInfoChange({
-				values: {
-					...info?.values,
-					[fieldId]: value,
-				},
-			});
-		},
-		[info?.values, handleInfoChange],
-	);
 
 	const renderFieldInput = useCallback(
 		(field) => {
@@ -98,13 +94,21 @@ const DatabaseAddModal = ({ isOpen, onClose, viewId, pageId, databaseId, fields 
 								},
 							})
 						}
-						onOptionClick={(value) => handleOptionSelect(field._id, value)}
+						onOptionClick={(value) =>
+							handleInfoChange({
+								values: {
+									...info?.values,
+									[field._id]: value,
+								},
+							})
+						}
 						options={options}
 						showTitle={true}
 						showLabel={true}
 						style={{ background: 'transparent', padding: 0 }}
 						disabled={field.isReadOnly}
 						labelField={'label'}
+						multiSelect={true}
 					/>
 				);
 			}
@@ -128,7 +132,7 @@ const DatabaseAddModal = ({ isOpen, onClose, viewId, pageId, databaseId, fields 
 				/>
 			);
 		},
-		[info?.values, handleInfoChange, handleOptionSelect],
+		[info?.values, handleInfoChange],
 	);
 
 	return (
@@ -176,4 +180,4 @@ const DatabaseAddModal = ({ isOpen, onClose, viewId, pageId, databaseId, fields 
 	);
 };
 
-export default DatabaseAddModal;
+export default memo(DatabaseAddModal);

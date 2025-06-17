@@ -464,7 +464,6 @@ export const createDatabaseViewMutation = gql`
 			}
 			groupBy {
 				fieldId
-				collapsed
 			}
 			visibleFields
 			type
@@ -694,7 +693,6 @@ export const getDatabaseViewsQuery = gql`
 			}
 			groupBy {
 				fieldId
-				collapsed
 			}
 			visibleFields
 			type
