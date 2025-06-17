@@ -318,8 +318,8 @@ const HeadingComponent = () => {
 							}
 							dropdownRender={(menu) => (
 								<div
-									// onMouseDown={handleMouseDown}
-									// onMouseUp={handleMouseDown}
+									onMouseDown={handleMouseDown}
+									onMouseUp={handleMouseDown}
 									onClick={handleMouseDown}
 								>
 									{menu}
@@ -345,7 +345,7 @@ const HeadingComponent = () => {
 								handleSelectHandler('fontFamily', value);
 								setSelectStates((prev) => ({ ...prev, fontFamily: true }));
 							}}
-							showSearch
+							// showSearch
 							filterOption={(input, option) =>
 								(option?.label || '')?.toLowerCase().includes(input?.toLowerCase())
 							}
