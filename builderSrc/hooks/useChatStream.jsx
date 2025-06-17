@@ -102,7 +102,7 @@ const useChatStream = () => {
 			messageHandlerRef.current = onMessageFunc;
 			isPublicChatRef.current = isPublicChat;
 
-			const agent = agentTypeMap[agentType] || 'multi_achat_streaming';
+			const agent = agentTypeMap[agentType] || 'chat_streaming';
 			agentTypeRef.current = agent;
 
 			const usertoken = localStorage.getItem('usertoken');
