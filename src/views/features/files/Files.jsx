@@ -287,10 +287,11 @@ const Files = () => {
 
 	useEffect(() => {
 		if (activeTab) {
-			const exists = info?.options?.some((item) => item?.label === activeTab);
+			const mappedActiveTab = activeTab === 'My-Templates' ? 'My Templates' : activeTab;
+			const exists = info?.options?.some((item) => item?.label === mappedActiveTab);
 			setInfo((prev) => ({
 				...prev,
-				selectedView: exists ? activeTab : info?.options[0]?.label,
+				selectedView: exists ? mappedActiveTab : info?.options[0]?.label,
 			}));
 		}
 	}, [activeTab, info?.options]);
