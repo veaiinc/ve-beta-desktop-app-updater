@@ -31,7 +31,7 @@ const ToolsTab = ({ agentId }) => {
 		actionsLoading: true,
 		selectedAction: null,
 		editAgentToolOpen: false,
-		addToolModalOpen : false,
+		addToolModalOpen: false,
 	});
 
 	useEffect(() => {
@@ -140,6 +140,12 @@ const ToolsTab = ({ agentId }) => {
 		[info?.aiActionList, info?.assistantId],
 	);
 
+	const refreshToolList = useCallback(() => {
+		if (agentId) {
+			getActionsForKnowledgeAgent(agentId);
+		}
+	}, [agentId]);
+
 	return (
 		<div className={s?.actionsTabContainer}>
 			<div className={s?.actionsHeader}>
@@ -218,6 +224,7 @@ const ToolsTab = ({ agentId }) => {
 			<AddToolModal
 				isOpen={info?.addToolModalOpen}
 				onClose={() => setInfo((prev) => ({ ...prev, addToolModalOpen: false }))}
+				onToolAdded={refreshToolList}
 			/>
 		</div>
 	);

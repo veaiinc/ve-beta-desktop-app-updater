@@ -1685,6 +1685,7 @@ class Proposals extends Component {
 					titleName: response?.[1]?.data?.workflowInfo?.template?.title,
 					navBar: response?.[1]?.data?.workflowInfo?.navBar,
 					themes: response?.[1]?.data?.workflowInfo?.themes || null,
+					workflowTemplateID: response?.[1]?.data?.workflowInfo?.template?._id,
 				},
 				() => {
 					if (getModules === true) {
@@ -2446,8 +2447,8 @@ class Proposals extends Component {
 		let response = await Service.query(query, variables, workspaceId, workflowID, usertoken);
 		if (response[0] == true) {
 			this.setState({
-				navBar: response[1]?.data?.updateWorkflowTemplate?.navBar,
-				themes: response[1]?.data?.updateWorkflowTemplate?.themes,
+				navBar: response[1]?.data?.updateWorkflow?.navBar,
+				themes: response[1]?.data?.updateWorkflow?.themes,
 			});
 			return [true];
 		} else {
