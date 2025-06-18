@@ -14,7 +14,7 @@ const ProactiveDropdown = ({ isOpen }) => {
 				<div className={s.listContainer}>
 					<div className={s.list}>
 						<span>
-							<Link to="/">Proactive AI</Link>
+							<Link to="/">Ambient AI</Link>
 						</span>
 						<span>
 							<Link>Enterprise Search</Link>

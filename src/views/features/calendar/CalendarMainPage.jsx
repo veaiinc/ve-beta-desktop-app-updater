@@ -71,7 +71,7 @@ const Calendar = () => {
 
 	// Close left sidebar when component unmounts
 	useEffect(() => {
-		updateStateValues({ leftSidebarState: 'close' });
+		updateStateValues({ leftSidebarState: 'open' });
 		return () => {
 			updateStateValues({ leftSidebarState: null });
 		};

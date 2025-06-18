@@ -627,6 +627,7 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 	};
 
 	const handleDeleteAccount = async (accountId, appName, e) => {
+		if (info?.deletingAccountId === accountId) return;
 		e.stopPropagation();
 		setInfo((prev) => ({
 			...prev,

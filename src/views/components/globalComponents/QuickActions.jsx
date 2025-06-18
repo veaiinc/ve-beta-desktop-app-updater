@@ -602,13 +602,8 @@ const QuickActions = ({
 					title: 'Proposal',
 					value: 'proposal',
 					controlValue: 'workflow',
-					action: ({ setInfo }) => {
-						setInfo((prev) => ({
-							...prev,
-							openProposalPopup: true,
-							commonState: 'proposal',
-							dropdown: false,
-						}));
+					action: ({ navigate }) => {
+						navigate('/builder/create-document');
 					},
 				},
 				{
@@ -616,13 +611,8 @@ const QuickActions = ({
 					title: 'Invoice',
 					value: 'invoice',
 					controlValue: 'workflow',
-					action: ({ setInfo }) => {
-						setInfo((prev) => ({
-							...prev,
-							openProposalPopup: true,
-							commonState: 'invoice',
-							dropdown: false,
-						}));
+					action: ({ navigate }) => {
+						navigate('/builder/create-document');
 					},
 				},
 				{
@@ -630,13 +620,8 @@ const QuickActions = ({
 					title: 'Contracts',
 					value: 'contract',
 					controlValue: 'workflow',
-					action: ({ setInfo }) => {
-						setInfo((prev) => ({
-							...prev,
-							openProposalPopup: true,
-							commonState: 'contract',
-							dropdown: false,
-						}));
+					action: ({ navigate }) => {
+						navigate('/builder/create-document');
 					},
 				},
 				{
@@ -644,13 +629,8 @@ const QuickActions = ({
 					title: 'Presentation',
 					value: 'presentation',
 					controlValue: 'workflow',
-					action: ({ setInfo }) => {
-						setInfo((prev) => ({
-							...prev,
-							openProposalPopup: true,
-							commonState: 'presentation',
-							dropdown: false,
-						}));
+					action: ({ navigate }) => {
+						navigate('/builder/create-document');
 					},
 				},
 				{
@@ -1383,7 +1363,6 @@ const QuickActions = ({
 						onChange={handleSearch}
 					/>
 				</div>
-
 				<div className="content-container">
 					{info?.filteredOptions?.suggestedOptions?.length > 0 && (
 						<div className="suggested-modules-container">
