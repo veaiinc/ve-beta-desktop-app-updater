@@ -11,6 +11,20 @@ import { message } from '../../globalComponents/CustomToast';
 import PayloadField from './PayloadField';
 import { ReactComponent as Delete } from '../../../../assets/svg/delete.svg';
 
+// Helper function to convert app name to camelCase
+const toCamelCase = (str) => {
+	return str
+		.replace(/[^a-zA-Z0-9\s]/g, '') // Remove special characters except spaces
+		.split(' ')
+		.map((word, index) => {
+			if (index === 0) {
+				return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+			}
+			return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+		})
+		.join('');
+};
+
 const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 	const {
 		knowledgeAgent: {
@@ -199,8 +213,33 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 			await pd.connectAccount({
 				app: selectedApp.name_slug,
 				token: token,
-				onSuccess: () => {
+				onSuccess: async () => {
 					setInfo((prev) => ({ ...prev, success: `Connected to ${selectedApp.name}` }));
+
+					// Fetch connected accounts to get the account ID
+					try {
+						const accountsResponse = await getExistingconnectedAccounts({
+							tenatUserId,
+						});
+						if (accountsResponse?.data?.connected_accounts) {
+							// Find the newly connected account for this app
+							const newAccount = accountsResponse.data.connected_accounts.find(
+								(account) => account.app.name_slug === selectedApp.name_slug,
+							);
+
+							if (newAccount) {
+								// Set the selected account so account ID is available
+								setInfo((prev) => ({
+									...prev,
+									selectedAccount: newAccount,
+									connectedAccounts: accountsResponse.data.connected_accounts,
+								}));
+							}
+						}
+					} catch (error) {
+						console.error('Error fetching connected accounts after connection:', error);
+					}
+
 					setTimeout(() => {
 						fetchActionsList(selectedApp.name_slug);
 					}, 1000);
@@ -448,7 +487,7 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 				if (prop.type === 'app') {
 					// For app type, we need to add the authProvisionId from the selected account
 					if (info.selectedAccount) {
-						props[info.selectedAccount.app.name] = {
+						props[toCamelCase(info.selectedAccount.app.name)] = {
 							authProvisionId: info.selectedAccount?.id,
 						};
 					}
