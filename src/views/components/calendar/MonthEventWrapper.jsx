@@ -68,12 +68,13 @@ const MonthEventWrapper = ({ event }) => {
 				className="leftColorBar"
 				style={{
 					backgroundColor: event?.calendarCategory?.color || '#989898',
+
 					// boxShadow: `0px 0px 10px 0px ${event?.calendarCategory?.color || '#989898'}`,
 				}}
 			/>
 			<div
 				className="textContainer"
-				style={{ color: 'var(--primary-font)' }}
+				style={{ color: 'var(--primary-font)', padding: '0 0px 2px 6px', width: '100%' }}
 				title={event?.title}
 			>
 				{event?.title}
