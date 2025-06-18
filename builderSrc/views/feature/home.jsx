@@ -1982,11 +1982,8 @@ class Home extends Proposals {
 						if (block._id == blockID) {
 							_.forEach(block.subBlocks, (subBlock, k) => {
 								if (subBlock._id == id) {
-									if (mContent) {
-										subBlock.mContent = content;
-									} else {
-										subBlock.content = content;
-									}
+									subBlock.mContent = content;
+									subBlock.content = content;
 								}
 							});
 						}
