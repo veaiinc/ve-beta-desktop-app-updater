@@ -299,7 +299,9 @@ const NoteComponentModal = ({
 										: outerContainerStyle
 								}
 								initialContent={
-									info?.chatToNoteLoopOn ? globalChatMessages : noteContent
+									info?.chatToNoteLoopOn
+										? globalChatMessages?.[currentSessionId]?.messages
+										: noteContent
 								}
 								loopOn={info?.chatToNoteLoopOn}
 								noteId={info?.noteId}

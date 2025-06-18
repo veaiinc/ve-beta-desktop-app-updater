@@ -130,7 +130,6 @@ const RecentChat = ({
 						workflowTemplateId: null,
 						moduleTemplateId: null,
 					},
-					currentSessionId: null,
 				});
 			}, 0);
 
