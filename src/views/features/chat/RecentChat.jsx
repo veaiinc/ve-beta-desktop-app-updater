@@ -130,6 +130,7 @@ const RecentChat = ({
 						workflowTemplateId: null,
 						moduleTemplateId: null,
 					},
+					chatReplyData: null,
 				});
 			}, 0);
 			updateStateValues({ currentSessionId: ObjectID()?.toString() });
