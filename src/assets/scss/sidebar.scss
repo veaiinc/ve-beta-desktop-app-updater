@@ -800,6 +800,15 @@
 		.sidebarComponent {
 			position: relative;
 		}
+		.openSideBarComponent {
+			max-height: 99dvh;
+			border: 1px solid var(--stroke);
+		}
+		.settingsOptionsContainerOpen {
+			border-bottom-right-radius: 18px;
+			border-bottom-left-radius: 18px;
+			border: 1px solid var(--stroke);
+		}
 	}
 
 	.sidebar-close {
