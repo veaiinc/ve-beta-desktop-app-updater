@@ -389,7 +389,7 @@ const routes = [
 	{
 		path: '/notes',
 		component: (
-			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '32px 32px 0px' }}>
+			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
 				<NotesPage />
 			</AuthWrapper>
 		),
@@ -611,7 +611,7 @@ const routes = [
 					backgroundColor: 'var(--background-color)',
 					padding: '0px',
 				}}
-				sidebarContainerStyles={{ paddingTop: '32px', paddingLeft: '32px' }}
+				sidebarContainerStyles={{ padding: '0px' }}
 				maxWidth={'100%'}
 				sidebarContainerClassName={'auth-sidebar-container'}
 			>
