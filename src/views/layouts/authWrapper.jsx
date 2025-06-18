@@ -15,6 +15,7 @@ import CommandKSearch from '../components/commandKSearch/CommandKSearch';
 import Spinner from '../components/loaders/Spinner';
 
 import '../../assets/scss/authWrapper.scss';
+// import useWorkspaceMode from '../hooks/useWorkspaceMode';
 
 const AuthWrapper = ({
 	title,
@@ -29,9 +30,7 @@ const AuthWrapper = ({
 	childrenContainerStyles = {},
 	showSidebar = true,
 }) => {
-	// const {
-	// 	subscriptionInfo: { renewBanner },
-	// } = useContext(Context);
+	// const { loading, error } = useWorkspaceMode();
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 	const location = useLocation();
 	const checkAuth = useAuth();
