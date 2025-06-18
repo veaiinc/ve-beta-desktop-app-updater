@@ -121,6 +121,7 @@ export const intialState = {
 			webSearch: false,
 		},
 	},
+	chatReplyData: null,
 	citationChunks: {},
 	currentChatData: null,
 	chatPayload: {
