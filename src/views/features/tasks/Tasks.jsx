@@ -273,16 +273,12 @@ const Tasks = () => {
 		[info?.taskMetadata],
 	);
 	useEffect(() => {
-		updateSidebarState({ leftSidebarState: 'close' });
+		updateSidebarState({ leftSidebarState: 'open' });
 	}, []);
 
 	useEffect(() => {
 		handleDebounceFetch();
 	}, [info?.filters, info?.searchValue, info?.sort, info?.group]);
-
-	useEffect(() => {
-		updateStateValues({ leftSidebarState: 'close' });
-	}, []);
 
 	useEffect(() => {
 		if (!tenantsUserList) {

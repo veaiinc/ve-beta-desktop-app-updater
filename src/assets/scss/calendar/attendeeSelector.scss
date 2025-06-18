@@ -137,6 +137,7 @@
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 		position: fixed !important;
 		z-index: 1050;
+		color: var(--primary-font);
 
 		div {
 			div {
@@ -335,7 +336,7 @@
 
 			// Dropdown styles
 			.ant-select-dropdown {
-				background-color: #333;
+				background-color: var(--popup);
 				color: var(--primary-font);
 
 				.ant-select-item {
