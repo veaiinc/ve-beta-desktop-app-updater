@@ -65,7 +65,7 @@ const fileModuleQuery = gql`
 		getWorkflowModule(id: $getWorkflowModuleId, module: $module)
 	}
 `;
-const updateWorkflowTemplate = gql`
+const update_Workflow_Template = gql`
 	mutation UpdateWorkflowTemplate($templateId: ID!, $updateObj: TemplateUpdateObj!) {
 		updateWorkflowTemplate(templateId: $templateId, updateObj: $updateObj) {
 			status
@@ -5467,7 +5467,7 @@ class Home extends Proposals {
 				},
 			});
 		} else {
-			await this.updateWorkflowThemeSettings(updateWorkflowTemplate, {
+			await this.updateWorkflowThemeSettingsTemplate(update_Workflow_Template, {
 				templateId: this.props.params.templateID,
 				updateObj: {
 					themes: themeJson,
