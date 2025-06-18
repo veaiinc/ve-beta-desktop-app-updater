@@ -1982,11 +1982,8 @@ class Home extends Proposals {
 						if (block._id == blockID) {
 							_.forEach(block.subBlocks, (subBlock, k) => {
 								if (subBlock._id == id) {
-									if (mContent) {
-										subBlock.mContent = content;
-									} else {
-										subBlock.content = content;
-									}
+									subBlock.mContent = content;
+									subBlock.content = content;
 								}
 							});
 						}
@@ -3559,11 +3556,21 @@ class Home extends Proposals {
 	};
 
 	handlePublish = async (e) => {
-		e.stopPropagation();
-		e.preventDefault();
 		this.setState({
-			triggerAdjustGridAreas: true,
+			isPublishLoading: true,
 		});
+
+		const response = await this.publishWorkflow(updateWorkflowTemplate, {
+			templateId: this.props.params.templateID || this.templateId,
+			updateObj: {
+				status: 'published',
+			},
+		});
+		this.setState({
+			isPublishLoading: false,
+		});
+
+		window.history.back();
 	};
 
 	handleSetServiceBlock = (e, type, blockId, sectionID) => {
@@ -5694,24 +5701,7 @@ class Home extends Proposals {
 			},
 		);
 	};
-	handleTriggerAdjustGridAreas = async (e) => {
-		this.setState({
-			triggerAdjustGridAreas: false,
-			isPublishLoading: true,
-		});
-
-		const response = await this.publishWorkflow(updateWorkflowTemplate, {
-			templateId: this.props.params.templateID || this.templateId,
-			updateObj: {
-				status: 'published',
-			},
-		});
-		this.setState({
-			isPublishLoading: false,
-		});
-
-		window.history.back();
-	};
+	handleTriggerAdjustGridAreas = async (e) => {};
 	render() {
 		if (this.componentRef.current) {
 			const data = [

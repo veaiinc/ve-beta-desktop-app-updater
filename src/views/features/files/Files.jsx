@@ -52,7 +52,7 @@ const options = [
 		value: 'form',
 	},
 	{
-		label: 'Designs',
+		label: 'My Templates',
 		value: 'template',
 	},
 	{
@@ -237,7 +237,7 @@ const suggestedOptions = [
 
 const Files = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const activeTab = searchParams.get('activeTab') || 'Documents';
+	const activeTab = searchParams.get('active-tab') || 'Documents';
 	const cardItems = useRef(null);
 	const elasticSearchTimeoutRef = useRef(null);
 	const navigate = useNavigate();
@@ -287,10 +287,11 @@ const Files = () => {
 
 	useEffect(() => {
 		if (activeTab) {
-			const exists = info?.options?.some((item) => item?.label === activeTab);
+			const mappedActiveTab = activeTab === 'My-Templates' ? 'My Templates' : activeTab;
+			const exists = info?.options?.some((item) => item?.label === mappedActiveTab);
 			setInfo((prev) => ({
 				...prev,
-				selectedView: exists ? activeTab : info?.options[0]?.label,
+				selectedView: exists ? mappedActiveTab : info?.options[0]?.label,
 			}));
 		}
 	}, [activeTab, info?.options]);
@@ -416,7 +417,8 @@ const Files = () => {
 				...info,
 				bottomNavigationDropdown: false,
 			});
-			setSearchParams({ activeTab: option });
+			const urlParam = option === 'My Templates' ? 'My-Templates' : option;
+			setSearchParams({ 'active-tab': urlParam });
 		} finally {
 			setLoadingView(null);
 		}
@@ -692,7 +694,7 @@ const Files = () => {
 			/>
 		),
 		MostUsedEntries: <MostUsedEntries mostUsedEntities={mostUsedEntities} />,
-		Designs: (
+		'My Templates': (
 			<TemplatesGrid
 				handleCreateTemplate={() =>
 					setInfo((prev) => ({ ...prev, openProposalPopup: true }))

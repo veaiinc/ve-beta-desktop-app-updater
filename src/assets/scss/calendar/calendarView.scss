@@ -565,6 +565,7 @@ body > .rbc-overlay {
 	}
 	.customEventWrapper {
 		width: 100%;
+		border-bottom: 1px solid var(--stroke);
 		.rbc-event {
 			background: none;
 			font-family: var(--primary-font-family);
