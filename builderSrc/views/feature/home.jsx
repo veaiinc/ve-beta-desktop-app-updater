@@ -324,8 +324,6 @@ const updateWorkflowTemplateQuery = gql`
 const updateNavBar_Theme_File_Query = gql`
 	mutation UpdateWorkflow($updateWorkflowId: ID!, $updateWorkflowInput: UpdateWorkflowInput) {
 		updateWorkflow(id: $updateWorkflowId, updateWorkflowInput: $updateWorkflowInput)
-		navBar
-		themes
 	}
 `;
 const updateNavBarWorkflowQuery = gql`

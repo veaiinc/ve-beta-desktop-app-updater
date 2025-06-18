@@ -25,7 +25,7 @@ import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 import '../../../assets/scss/landingScreen/index.scss';
 
 const pathToTabMap = {
-	'/mission': 1,
+	'/thebridge': 1,
 	'/contact-us': 2,
 	'/api': 3,
 	'/pricing': 4,
@@ -76,7 +76,7 @@ const LandingPage = () => {
 
 	const handleSetTab = (tabVal) => {
 		setTab(tabVal);
-		const tabRoutes = ['/', '/mission', '/contact-us', '/pricing'];
+		const tabRoutes = ['/', '/thebridge', '/contact-us', '/pricing'];
 		navigate(tabRoutes[tabVal]);
 	};
 
@@ -92,10 +92,10 @@ const LandingPage = () => {
 						<div className="title-text">
 							<div className="title-text-container">
 								<span className="title-one">The World's First</span>
-								<span className="title-two">Ambient OS</span>
+								<span className="title-two">Ambient AI</span>
 							</div>
 							<p className="title-three">
-								A living memory system that thinks and acts — without prompts.
+								Your living memory system that thinks and acts — without prompts.
 							</p>
 						</div>
 
@@ -133,7 +133,7 @@ const LandingPage = () => {
 	return (
 		<>
 			<Helmet>
-				<title>Ve - The World's First Proactive AI OS</title>
+				<title>Ve - The World's First Ambient AI OS</title>
 			</Helmet>
 			<main className="landing-page-container">
 				<header className="page-header">
