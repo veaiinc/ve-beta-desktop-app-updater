@@ -1770,7 +1770,7 @@ const ChatBox = ({
 															</div>
 														)} */}
 
-														{info?.chatQuery?.trim()?.length > 0 ||
+														{/* {info?.chatQuery?.trim()?.length > 0 ||
 														isPublicChat ? (
 															<div
 																className="click-btn"
@@ -1799,7 +1799,20 @@ const ChatBox = ({
 															>
 																<AudioSvg />
 															</div>
-														)}
+														)} */}
+														<div
+															className="click-btn"
+															onClick={(e) => {
+																e.stopPropagation();
+																handleSendBtnClick(e);
+															}}
+															style={{
+																backgroundColor:
+																	'var(--primary-button)',
+															}}
+														>
+															<ArrowUp />
+														</div>
 													</div>
 												</div>
 											)}
