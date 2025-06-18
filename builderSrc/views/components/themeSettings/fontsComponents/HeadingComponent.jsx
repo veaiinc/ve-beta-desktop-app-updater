@@ -345,7 +345,7 @@ const HeadingComponent = () => {
 								handleSelectHandler('fontFamily', value);
 								setSelectStates((prev) => ({ ...prev, fontFamily: true }));
 							}}
-							// showSearch
+							showSearch
 							filterOption={(input, option) =>
 								(option?.label || '')?.toLowerCase().includes(input?.toLowerCase())
 							}

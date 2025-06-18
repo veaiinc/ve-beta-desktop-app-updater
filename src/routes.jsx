@@ -73,7 +73,7 @@ const routes = [
 		component: <Landing_screen />,
 	},
 	{
-		path: '/mission',
+		path: '/thebridge',
 		component: <Landing_screen />,
 	},
 	{
