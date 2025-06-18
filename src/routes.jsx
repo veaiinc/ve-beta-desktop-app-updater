@@ -611,7 +611,7 @@ const routes = [
 					backgroundColor: 'var(--background-color)',
 					padding: '0px',
 				}}
-				sidebarContainerStyles={{ paddingTop: '32px', paddingLeft: '32px' }}
+				sidebarContainerStyles={{ padding: '0px' }}
 				maxWidth={'100%'}
 				sidebarContainerClassName={'auth-sidebar-container'}
 			>
