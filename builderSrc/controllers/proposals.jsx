@@ -2447,8 +2447,8 @@ class Proposals extends Component {
 		let response = await Service.query(query, variables, workspaceId, workflowID, usertoken);
 		if (response[0] == true) {
 			this.setState({
-				navBar: response[1]?.data?.updateWorkflowTemplate?.navBar,
-				themes: response[1]?.data?.updateWorkflowTemplate?.themes,
+				navBar: response[1]?.data?.updateWorkflow?.navBar,
+				themes: response[1]?.data?.updateWorkflow?.themes,
 			});
 			return [true];
 		} else {
