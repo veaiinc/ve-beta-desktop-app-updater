@@ -15,7 +15,7 @@ import EarlyAccess from './views/features/earlyAccess/EarlyAccess';
 import PrivacyPolicy from './views/features/signin/PrivacyPolicy';
 import ChageLog from './views/features/signin/ChageLog';
 import AddGallery from './views/features/gallery/AddGallery';
-import GalleryPage from './views/features/gallery/GalleryPage'; // this is a string, not an import — keep it or remove accordingly
+import GalleryPage from './views/features/gallery/GalleryPage';
 import GalleryViewer from './views/features/gallery/GalleryViewer';
 import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
