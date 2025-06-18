@@ -34,7 +34,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const [isHovering, setIsHovering] = useState(false);
 
 	const [isOpen, setIsOpen] = useState(() => {
-		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
+		return JSON.parse(localStorage.getItem('isOpen')) ?? false;
 	});
 
 	const [sidebarStates, setsidebarStates] = useState({
