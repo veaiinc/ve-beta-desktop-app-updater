@@ -533,11 +533,6 @@ class Layout extends Component {
 			let data = this.props?.sections;
 			data.forEach((section) => {
 				section.blocks.forEach((block) => {
-					console.log(
-						block?._id,
-						updatedBlocks[0]?._id,
-						'Data in the section==>karthikeya',
-					);
 					if (block?._id === updatedBlocks[0]?._id) {
 						section.blocks = updatedBlocks;
 					}
