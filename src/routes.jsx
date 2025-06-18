@@ -71,89 +71,73 @@ const routes = [
 	{
 		path: '/',
 		component: <Landing_screen />,
+		routeType: 'public',
 	},
 	{
 		path: '/thebridge',
 		component: <Landing_screen />,
+		routeType: 'public',
 	},
 	{
 		path: '/contact-us',
 		component: <Landing_screen />,
+		routeType: 'public',
 	},
 	{
 		path: '/pricing',
 		component: <Landing_screen />,
+		routeType: 'public',
 	},
 	{
 		path: '/api',
 		component: <Landing_screen />,
+		routeType: 'public',
 	},
 	{
 		path: '/onboarding',
 		component: <Onboarding />,
+		routeType: 'public',
 	},
 	{
 		path: '/create-workspace',
 		component: <Onboarding />,
+		routeType: 'public',
 	},
 	{
 		path: '/verify-user',
 		component: <LoginPage />,
+		routeType: 'public',
 	},
 	{
 		path: '/referral/:referralCode',
 		component: <LoginPage />,
+		routeType: 'public',
 	},
-	// {
-	// 	path: '/login-with-password',
-	// 	component: <LoginScreen stage={'login-with-password'} />,
-	// },
-	// {
-	// 	path: '/signup-user',
-	// 	component: <LoginScreen stage={'signup-user'} />,
-	// },
-	// {
-	// 	path: '/verify-email-code',
-	// 	component: <LoginScreen stage={'verify-email-code'} />,
-	// },
-	// {
-	// 	path: '/create-workspace',
-	// 	component: <LoginScreen stage={'create-workspace'} />,
-	// },
-	// {
-	// 	path: '/forgot-password',
-	// 	component: <LoginScreen stage={'forgot-password'} />,
-	// },
 	{
 		path: '/user/verify-oauth-user',
 		component: <OauthVerify />,
+		routeType: 'public',
 	},
 	{
 		path: '/privacy-policy',
 		component: <PrivacyPolicy />,
+		routeType: 'public',
 	},
 	{
 		path: '/terms-of-service',
 		component: <TermsOfService />,
+		routeType: 'public',
 	},
 	{
 		path: '/cookie-policy',
 		component: <CookiePolicy />,
+		routeType: 'public',
 	},
 	{
 		path: '/changelog',
 		component: <ChageLog />,
+		routeType: 'public',
 	},
-	// {
-	// 	path: '/inbox',
-	// 	component: (
-	// 		<AuthWrapper title={'Inbox'}>
-	// 			<ChatScreen />
-	// 		</AuthWrapper>
-	// 	),
-	// 	exact: true,
-	// },
-
 	{
 		path: '/home',
 		component: (
@@ -166,8 +150,8 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
-
 	{
 		path: '/playbook',
 		component: (
@@ -176,6 +160,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/share-and-earn',
@@ -185,8 +170,8 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
-
 	{
 		path: '/workflow_builder/:templateId',
 		component: (
@@ -195,6 +180,7 @@ const routes = [
 			</WorkflowBuilderLayout>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/automation_builder/:templateId',
@@ -204,8 +190,8 @@ const routes = [
 			</WorkflowBuilderLayout>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
-
 	{
 		path: '/smart-file/:templateId/:workflowId',
 		component: (
@@ -214,6 +200,7 @@ const routes = [
 			</SmartFileLayout>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/early-access',
@@ -223,6 +210,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/settings/:type',
@@ -232,6 +220,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/brand-setup',
@@ -240,6 +229,7 @@ const routes = [
 				<BrandSetup />
 			</AuthWrapper>
 		),
+		routeType: 'protected',
 	},
 	{
 		path: '/galleries',
@@ -249,6 +239,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/lite-gallery',
@@ -258,6 +249,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/galleries/:galleryId',
@@ -267,6 +259,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/galleries/:galleryId/:albumId/upload-photos',
@@ -276,6 +269,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/galleries/:galleryId/:albumId/album-settings',
@@ -285,6 +279,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/galleries/:galleryId/:albumId/gallery-viewer',
@@ -294,16 +289,8 @@ const routes = [
 			</GalleryViewLayout>
 		),
 		exact: true,
+		routeType: 'public',
 	},
-	// {
-	// 	path: '/settings/ai-setup-page/:aiAssistantId',
-	// 	component: (
-	// 		<AuthWrapper title={'AI Setup'}>
-	// 			<AiSetupPage />
-	// 		</AuthWrapper>
-	// 	),
-	// 	exact: true,
-	// },
 	{
 		path: '/tasks',
 		component: (
@@ -316,6 +303,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/task/:taskId',
@@ -325,6 +313,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/integrations',
@@ -334,10 +323,12 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '*',
 		component: <Navigate to="/" />,
+		routeType: 'public',
 	},
 	{
 		path: '/calendar',
@@ -351,6 +342,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/scheduler',
@@ -360,6 +352,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/scheduling/edit/:sessionId',
@@ -369,15 +362,8 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
-	// {
-	// 	path: '/pricing',
-	// 	component: (
-	// 		<AuthWrapper title={'Pricing'}>
-	// 			<PricingPage />
-	// 		</AuthWrapper>
-	// 	),
-	// },
 	{
 		path: '/pricing',
 		component: (
@@ -385,6 +371,7 @@ const routes = [
 				<PricingPage />
 			</AuthWrapper>
 		),
+		routeType: 'protected',
 	},
 	{
 		path: '/notes',
@@ -394,6 +381,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/contacts',
@@ -407,34 +395,8 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
-	// {
-	// 	path: '/ai-agents/home/:agent-name',
-	// 	component: (
-	// 		<AuthWrapper title={'AI Agents'}>
-	// 			<Ai_agent />
-	// 		</AuthWrapper>
-	// 	),
-	// 	exact: true,
-	// },
-	// {
-	// 	path: '/ai-agents/jobs/:agent-name',
-	// 	component: (
-	// 		<AuthWrapper title={'AI Agents'}>
-	// 			<AgentsJobs />
-	// 		</AuthWrapper>
-	// 	),
-	// 	exact: true,
-	// },
-	// {
-	// 	path: '/ai-agents/setup/:agent-name',
-	// 	component: (
-	// 		<AuthWrapper title={'AI Agents'}>
-	// 			<AgentsSetup />
-	// 		</AuthWrapper>
-	// 	),
-	// 	exact: true,
-	// },
 	{
 		path: '/ai-assistant',
 		component: (
@@ -443,6 +405,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/ai-assistant/:aiAssistantId',
@@ -452,9 +415,9 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
-		// path: '/ai-assistant/create-assistant',
 		path: '/ai-assistant/:aiAssistantId/edit',
 		component: (
 			<AuthWrapper title={'AI Assistant'}>
@@ -462,6 +425,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/docs',
@@ -471,6 +435,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/knowledge-agent',
@@ -484,6 +449,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/knowledge-agent/:agentId',
@@ -497,6 +463,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/knowledge-agent/:agentId/edit',
@@ -510,6 +477,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/doc/:id',
@@ -519,6 +487,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/my-templates',
@@ -528,6 +497,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/automation-builder/:automationId',
@@ -537,6 +507,7 @@ const routes = [
 			</AutomationBuilderLayout>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/form',
@@ -546,6 +517,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/form/:id',
@@ -555,16 +527,8 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
-	// {
-	// 	path: '/forms/:id/analytics',
-	// 	component: (
-	// 		<AuthWrapper title={'Form Analytics'}>
-	// 			<FormAnalytics view="analytics" />
-	// 		</AuthWrapper>
-	// 	),
-	// 	exact: true,
-	// },
 	{
 		path: '/forms/:id/responses',
 		component: (
@@ -573,6 +537,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/forms/:id/summary',
@@ -582,6 +547,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/chat/:sessionId',
@@ -597,10 +563,12 @@ const routes = [
 				<RecentChat />
 			</AuthWrapper>
 		),
+		routeType: 'protected',
 	},
 	{
 		path: '/c/:sessionId',
 		component: <PublicChat />,
+		routeType: 'public',
 	},
 	{
 		path: '/note/:noteId',
@@ -619,6 +587,7 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+		routeType: 'protected',
 	},
 	{
 		path: '/automations',
@@ -627,6 +596,7 @@ const routes = [
 				<Automations />
 			</AuthWrapper>
 		),
+		routeType: 'protected',
 	},
 	{
 		path: '/contact/:contactId',
@@ -639,6 +609,7 @@ const routes = [
 				<ExpandedClientView />
 			</AuthWrapper>
 		),
+		routeType: 'protected',
 	},
 	{
 		path: '/search',
@@ -647,6 +618,7 @@ const routes = [
 				<ElasticSearch />
 			</AuthWrapper>
 		),
+		routeType: 'protected',
 	},
 	{
 		path: '/files',
@@ -655,6 +627,7 @@ const routes = [
 				<Files />
 			</AuthWrapper>
 		),
+		routeType: 'protected',
 	},
 	{
 		path: '/proactiveai/:proactiveAiId',
@@ -663,6 +636,7 @@ const routes = [
 				<ProactiveAi />
 			</AuthWrapper>
 		),
+		routeType: 'protected',
 	},
 	{
 		path: '/builder/*',
@@ -678,6 +652,7 @@ const routes = [
 				</Suspense>
 			</AuthWrapper>
 		),
+		routeType: 'protected',
 	},
 	{
 		path: '/agents',
@@ -690,6 +665,7 @@ const routes = [
 				<Agents />
 			</AuthWrapper>
 		),
+		routeType: 'protected',
 	},
 	{
 		path: '/agent/:agentId',
@@ -698,6 +674,7 @@ const routes = [
 				<Agent />
 			</AuthWrapper>
 		),
+		routeType: 'protected',
 	},
 ];
 

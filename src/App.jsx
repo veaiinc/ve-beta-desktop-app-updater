@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import routes from './routes';
+import betaRoutes from './routes';
 import { memo, useContext, useEffect } from 'react';
 import ExpiredSubscriptionModal from './views/components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from './views/components/modalsV2/subscription/ExpiredTokenModal';
@@ -9,27 +9,31 @@ import AccessDeniedPopup from './views/components/accessPopups/accessDeniedPopup
 import VoiceWrapper from './views/layouts/VoiceWrapper';
 import CustomToast from './views/components/globalComponents/CustomToast';
 import Spinner from './views/components/loaders/Spinner';
+import useWorkspaceMode from './views/hooks/useWorkspaceMode';
+
+const stableRoutes = betaRoutes?.filter(
+	(route) =>
+		route.routeType === 'public' ||
+		route.path === '/home' ||
+		route.path === '/settings/:type' ||
+		route.path === '/chat/:sessionId' ||
+		route.path === '/share-and-earn',
+);
 
 function App() {
 	const currentRoute = window.location.pathname;
-
+	const { workspaceMode } = useWorkspaceMode(); // stable, beta, internal
 	const {
 		themeInfo: { theme },
 	} = useContext(Context);
 
-	// Theme logic with builder route handling
 	const getThemePreference = () => {
-		// Force light theme for builder routes
 		if (currentRoute.startsWith('/builder')) {
 			return 'light';
 		}
-
-		// Force dark theme for landing page
 		if (currentRoute === '/') {
 			return 'dark';
 		}
-
-		// Normal theme logic for other routes
 		return theme || localStorage?.getItem('theme') || Cookies.get('theme') || 'dark';
 	};
 
@@ -44,21 +48,19 @@ function App() {
 
 	useEffect(() => {
 		const htmlElement = document.documentElement;
-
 		if (window.navigator.appVersion.indexOf('Mac') !== -1) {
 			htmlElement.classList.add('macos');
 		} else {
 			htmlElement.classList.add('otheros');
 		}
-
 		if (currentRoute.startsWith('/builder')) {
-			// Remove theme attribute for builder routes
 			htmlElement.removeAttribute('theme');
 		} else {
-			// Set theme attribute normally
 			htmlElement.setAttribute('theme', themeAttribute);
 		}
-	}, [theme, currentRoute]); // Still keep dependencie
+	}, [theme, currentRoute]);
+
+	const routes = workspaceMode === 'beta' ? stableRoutes : betaRoutes;
 
 	return (
 		<>
