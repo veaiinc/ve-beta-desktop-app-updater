@@ -2450,6 +2450,22 @@ class Proposals extends Component {
 				navBar: response[1]?.data?.updateWorkflow?.navBar,
 				themes: response[1]?.data?.updateWorkflow?.themes,
 			});
+
+			return [true];
+		} else {
+			return [false];
+		}
+	};
+	updateWorkflowThemeSettingsTemplate = async (query, variables) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let workflowID = this.state.activeModuleId;
+		let usertoken = localStorage.getItem('usertoken');
+		let response = await Service.query(query, variables, workspaceId, workflowID, usertoken);
+		if (response[0] == true) {
+			this.setState({
+				navBar: response[1]?.data?.updateWorkflowTemplate?.navBar,
+				themes: response[1]?.data?.updateWorkflowTemplate?.themes,
+			});
 			return [true];
 		} else {
 			return [false];
