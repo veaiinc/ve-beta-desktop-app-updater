@@ -70,7 +70,7 @@ const MultiSelect = ({
 						labelField={labelField}
 					/>
 				}
-				placement="bottom"
+				placement="bottomLeft"
 				arrow={false}
 				trigger="click"
 				color="transparent"

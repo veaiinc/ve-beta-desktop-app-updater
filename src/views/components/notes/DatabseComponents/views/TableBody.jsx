@@ -3,7 +3,16 @@ import Context from '../../../../../context/context';
 import s from '../../../../../assets/scss/notes/databaseComponents/tableView.module.scss';
 import { rowTypes } from '../../Database';
 
-const TableBody = ({ data, columns, handleUpdate, colors, pageId, viewId, databaseId }) => {
+const TableBody = ({
+	data,
+	columns,
+	handleUpdate,
+	colors,
+	pageId,
+	viewId,
+	databaseId,
+	groupId,
+}) => {
 	const {
 		notes: { updateDatabaseSidebar, updateDatabaseRow },
 	} = useContext(Context);
@@ -23,9 +32,9 @@ const TableBody = ({ data, columns, handleUpdate, colors, pageId, viewId, databa
 				},
 				pageId,
 			};
-			updateDatabaseRow(payload, viewIdRef.current, databaseId);
+			updateDatabaseRow(payload, viewIdRef.current, databaseId, groupId);
 		},
-		[pageId, updateDatabaseRow, databaseId],
+		[pageId, updateDatabaseRow, databaseId, groupId],
 	);
 
 	const generateCell = useCallback(

@@ -67,7 +67,7 @@ const Select = ({
 						title={title}
 					/>
 				}
-				placement="bottom"
+				placement="bottomLeft"
 				arrow={false}
 				trigger={'click'}
 				color={'transparent'}

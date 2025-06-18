@@ -2,7 +2,7 @@ import { memo, useState } from 'react';
 import s from '../../../../assets/scss/notes/databaseComponents/groupToggler.module.scss';
 import { ReactComponent as ChevronSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 
-const GroupToggler = ({ children }) => {
+const GroupToggler = ({ children, groupData }) => {
 	const [info, setInfo] = useState({
 		isOpen: true,
 	});
@@ -19,7 +19,7 @@ const GroupToggler = ({ children }) => {
 						}`}
 					/>
 				</button>
-				<span className={s.groupTogglerContent}>Group 1</span>
+				<span className={s.groupTogglerContent}>{groupData?.label || 'No value'}</span>
 			</div>
 			{info?.isOpen && children}
 		</div>

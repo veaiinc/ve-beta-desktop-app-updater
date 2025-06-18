@@ -182,7 +182,7 @@ const filterHelper = {
 		if (type === 'status') {
 			const allLabels = filterValue?.groups?.reduce(
 				(acc, item) => {
-					acc.push(...statusOptions?.[item]?.map((item) => item?._id));
+					acc.push(...(statusOptions?.[item]?.map((item) => item?._id) || []));
 					return acc;
 				},
 				[...(filterValue?.labels || [])],
@@ -195,7 +195,7 @@ const filterHelper = {
 		}
 		return dataValue === filterValue;
 	},
-	is_not: (filterValue, dataValue, type = 'primitive') => {
+	is_not: (filterValue, dataValue, type = 'primitive', statusOptions = null) => {
 		if (type === 'arrayOfStrings') {
 			return !filterValue.some((item) => dataValue.includes(item));
 		}
@@ -203,7 +203,7 @@ const filterHelper = {
 		if (type === 'status') {
 			const allLabels = filterValue?.groups?.reduce(
 				(acc, item) => {
-					acc.push(...statusOptions?.[item]?.map((item) => item?._id));
+					acc.push(...(statusOptions?.[item]?.map((item) => item?._id) || []));
 					return acc;
 				},
 				[...(filterValue?.labels || [])],
@@ -320,6 +320,71 @@ export const applyFilter = (filters, row, statusOptions = null) => {
 		if (!include) break;
 	}
 	return include;
+};
+
+export const handleUpdateInGroup = ({ groupData, updatedRowData, groupId, rowId, groupBy }) => {
+	const row = groupData?.[groupId]?.docs?.find((row) => row?._id === rowId);
+	const updatedRow = {
+		...row,
+		...(updatedRowData || {}),
+		values: {
+			...row?.values,
+			...(updatedRowData?.values || {}),
+		},
+	};
+	const updatedFields = Object.keys(updatedRowData?.values || {});
+	const updatedGroupData = {};
+	let hasUpdated = false;
+
+	if (groupBy === updatedFields?.[0]) {
+		for (const group in groupData) {
+			const docs = [...(groupData[group]?.docs || [])];
+			const index = docs.findIndex((row) => row?._id === rowId);
+			const value = updatedRowData?.values?.[updatedFields?.[0]];
+			const valueIsEmpty = !value || (Array.isArray(value) && value?.length === 0);
+			if ((valueIsEmpty && group === 'null') || value?.includes(group)) {
+				if (index !== -1) {
+					docs[index] = updatedRow;
+				} else {
+					docs.push(updatedRow);
+				}
+				hasUpdated = true;
+			} else {
+				if (index !== -1) {
+					docs.splice(index, 1);
+					hasUpdated = true;
+				}
+			}
+			updatedGroupData[group] = {
+				...groupData[group],
+				docs,
+			};
+		}
+	} else {
+		for (const group in groupData) {
+			const updatedDocs = groupData[group]?.docs?.map((row) => {
+				if (row?._id === rowId) {
+					hasUpdated = true;
+					return updatedRow;
+				}
+				return row;
+			});
+			updatedGroupData[group] = {
+				...groupData[group],
+				docs: updatedDocs,
+			};
+		}
+	}
+
+	return hasUpdated ? updatedGroupData : groupData;
+};
+
+export const handleAddInGroup = ({ groupData, updatedRowData, groupId, rowId, groupBy }) => {
+	const row = groupData?.[groupId]?.docs?.find((row) => row?._id === rowId);
+	const updatedRow = {
+		...row,
+		...(updatedRowData || {}),
+	};
 };
 
 export const relativeTodayTimeScopes = {

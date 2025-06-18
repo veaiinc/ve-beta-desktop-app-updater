@@ -89,7 +89,7 @@ const Person = ({
 						/>
 					)
 				}
-				placement="bottom"
+				placement="bottomLeft"
 				trigger="click"
 				arrow={false}
 				color="transparent"
@@ -106,7 +106,7 @@ const Person = ({
 				>
 					{info?.selected?.length > 0 ? (
 						<div className="person-multi-select-selected-list">
-							{(showLabel ? info?.selected : info?.selected?.slice(0, 3)).map(
+							{(showLabel ? info?.selected : info?.selected?.slice(0, 3))?.map(
 								(item) => (
 									<div
 										className={

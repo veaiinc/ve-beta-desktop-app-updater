@@ -6,7 +6,7 @@ import s from '../../../../../assets/scss/notes/databaseComponents/tableView.mod
 import { DragDropContext } from 'react-beautiful-dnd';
 import GroupToggler from '../GroupToggler';
 
-const TableView = ({ data, columns, colors, databaseId, pageId, viewId }) => {
+const TableView = ({ groupData, metaInfo, columns, colors, databaseId, pageId, view }) => {
 	const [resizingColumn, setResizingColumn] = useState(null);
 	const [resizeStartX, setResizeStartX] = useState(0);
 	const [resizeStartWidth, setResizeStartWidth] = useState(0);
@@ -83,25 +83,26 @@ const TableView = ({ data, columns, colors, databaseId, pageId, viewId }) => {
 			<div className={`${s.tableView} ${resizingColumn !== null ? s.resizing : ''}`}>
 				<div className={s.tableScrollContainer}>
 					<div className={s.tableContent}>
-						{/* <GroupToggler> */}
-						<>
-							<TableHeader
-								columns={localColumns}
-								handleResizeStart={handleResizeStart}
-								loading={false}
-								databaseId={databaseId}
-								pageId={pageId}
-							/>
-							<TableBody
-								data={data}
-								columns={localColumns}
-								colors={colors}
-								pageId={pageId}
-								viewId={viewId}
-								databaseId={databaseId}
-							/>
-						</>
-						{/* </GroupToggler> */}
+						{view?.groupBy?.defaultGroups?.map((item, index) => (
+							<GroupToggler key={index} groupData={item}>
+								<TableHeader
+									columns={localColumns}
+									handleResizeStart={handleResizeStart}
+									loading={false}
+									databaseId={databaseId}
+									pageId={pageId}
+								/>
+								<TableBody
+									data={groupData?.[item?._id]?.docs || []}
+									columns={localColumns}
+									colors={colors}
+									pageId={pageId}
+									viewId={view?._id}
+									databaseId={databaseId}
+									groupId={item?._id}
+								/>
+							</GroupToggler>
+						))}
 					</div>
 				</div>
 			</div>

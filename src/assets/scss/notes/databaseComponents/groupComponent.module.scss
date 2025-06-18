@@ -1,0 +1,60 @@
+.groupComponentDropdown {
+	display: flex;
+	width: 250px;
+	padding: 8px 0px 0px;
+	flex-direction: column;
+	align-items: flex-start;
+	border-radius: 12px;
+	background-color: var(--card);
+	overflow: hidden;
+	border: 1px solid var(--stroke);
+
+	.groupComponentDropdownHeader {
+		display: flex;
+		padding: 12px;
+		align-items: center;
+		gap: 2px;
+		align-self: stretch;
+		border-radius: 8px 8px 0px 0px;
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
+		font-size: 11px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	.groupComponentDropdownBody {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+		align-self: stretch;
+		max-height: 240px;
+		overflow-y: auto;
+
+		.groupComponentDropdownBodyOptions {
+			display: flex;
+			padding: 10px 16px;
+			justify-content: space-between;
+			align-self: stretch;
+			transition: all 0.2s ease-in-out;
+			cursor: pointer;
+			align-items: flex-start;
+			gap: 16px;
+
+			.groupComponentDropdownBodyOptionsLabel {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			&:hover {
+				background: var(--card-over-card-hover);
+			}
+		}
+	}
+}

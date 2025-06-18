@@ -39,6 +39,7 @@ import { ReactComponent as ChevronIcon } from '../../../assets/svg/tasks/chevron
 import ListView from './DatabseComponents/views/ListView';
 import Spinner from '../loaders/Spinner';
 import SortComponent from './DatabseComponents/SortComponent';
+import GroupComponent from './DatabseComponents/GroupComponent';
 
 export const rowTypes = {
 	text: TextField,
@@ -172,8 +173,18 @@ const DatabaseComponent = ({ block, editor }) => {
 		const sortHasChanged =
 			JSON.stringify(currentRow?.sortBy) !== JSON.stringify(selectedDatabaseView?.sortBy);
 		const searchHasChanged = currentRow?.searchQuery !== info?.debouncedSearchQuery;
+		const groupHasChanged =
+			JSON.stringify(currentRow?.groupBy) !==
+			JSON.stringify(selectedDatabaseView?.groupBy?.fieldId);
 
-		if (!filterHasChanged && !searchHasChanged && !sortHasChanged && currentRow?.data) {
+		if (
+			!filterHasChanged &&
+			!searchHasChanged &&
+			!sortHasChanged &&
+			!groupHasChanged &&
+			!groupHasChanged &&
+			currentRow?.data
+		) {
 			return;
 		}
 		fetchDatabaseRows(info.selectedViewId);
@@ -182,6 +193,7 @@ const DatabaseComponent = ({ block, editor }) => {
 		selectedDatabaseView?.filterBy,
 		info?.debouncedSearchQuery,
 		selectedDatabaseView?.sortBy,
+		selectedDatabaseView?.groupBy?.fieldId,
 	]);
 
 	// Optimized fetch function with duplicate call prevention
@@ -190,20 +202,26 @@ const DatabaseComponent = ({ block, editor }) => {
 			if (!databaseId || !pageId || !viewId) return;
 			if (info?.rowsLoading) return;
 			setInfo((prev) => ({ ...prev, rowsLoading: true }));
+
 			await getDatabaseRows(
 				{
 					pageId,
 					databaseId,
 					databaseViewId: viewId,
 					input: {
-						page: 1,
-						limit: 50,
+						docLimit: 10,
+						docPage: 1,
+						groupLimit: 10,
+						groupPage: 1,
 						search: info?.debouncedSearchQuery || '',
 					},
 				},
-				viewId,
-				filters || selectedDatabaseView?.filterBy,
-				selectedDatabaseView?.sortBy,
+				{
+					viewId,
+					filters: filters || selectedDatabaseView?.filterBy,
+					sortBy: selectedDatabaseView?.sortBy,
+					groupBy: selectedDatabaseView?.groupBy?.fieldId,
+				},
 			);
 			setInfo((prev) => ({ ...prev, rowsLoading: false }));
 		},
@@ -444,7 +462,10 @@ const DatabaseComponent = ({ block, editor }) => {
 		() => currentDatabase?.databaseMetadata?.fields || [],
 		[currentDatabase],
 	);
-	const rows = useMemo(() => currentDatabaseRows?.data || [], [currentDatabaseRows]);
+	const { groupData, metaInfo } = useMemo(
+		() => currentDatabaseRows || { groupData: {}, metaInfo: {} },
+		[currentDatabaseRows],
+	);
 	const columns = useMemo(
 		() =>
 			fields.map((field) => ({
@@ -521,9 +542,12 @@ const DatabaseComponent = ({ block, editor }) => {
 									value={info?.searchQuery}
 									onChange={(e) => handleSearchChange(e.target.value)}
 								/>
-								{/* <button >
-									Filter button goes here
-								</button> */}
+								<GroupComponent
+									fields={fields}
+									databaseId={databaseId}
+									view={selectedDatabaseView}
+									blockId={block?.id}
+								/>
 								<button onClick={() => handleInfoChange({ addRowModalOpen: true })}>
 									Add Row
 								</button>
@@ -566,11 +590,12 @@ const DatabaseComponent = ({ block, editor }) => {
 						<>
 							{selectedDatabaseView?.type === 'table' && (
 								<TableView
-									data={rows}
+									groupData={groupData}
+									metaInfo={metaInfo}
 									columns={columns}
 									databaseId={databaseId}
 									pageId={pageId}
-									viewId={info?.selectedViewId}
+									view={selectedDatabaseView}
 								/>
 							)}
 							{selectedDatabaseView?.type === 'list' && (

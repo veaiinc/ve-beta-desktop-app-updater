@@ -46,6 +46,7 @@ import {
 	addSortMutation,
 	updateSortMutation,
 	removeSortMutation,
+	updateViewGroupMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -827,7 +828,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const getDatabaseRows = async (payload, viewId, filters, sortBy) => {
+	const getDatabaseRows = async (payload, { viewId, filters, sortBy, groupBy }) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -839,14 +840,18 @@ export const NotesState = (props) => {
 				'page_notes_api',
 			);
 			if (response?.[0]) {
+				const { data, metaInfo } = response?.[1]?.data?.listDatabaseRowsWithGroup || {};
+				const groupData = Object.fromEntries(data?.map((item) => [item?._id, item]));
 				dispatch({
 					type: Actions.ADD_DATABASE_ROWS,
 					payload: {
 						[viewId]: {
 							...(state?.rowData?.[viewId] || {}),
-							...response?.[1]?.data?.listDatabaseRows,
+							groupData,
+							metaInfo,
 							filters,
 							sortBy,
+							groupBy,
 							searchQuery: payload?.input?.search,
 						},
 					},
@@ -897,7 +902,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const updateDatabaseRow = async (payload, viewId, databaseId) => {
+	const updateDatabaseRow = async (payload, viewId, databaseId, groupId) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -916,6 +921,7 @@ export const NotesState = (props) => {
 						viewId,
 						rowId: payload?.updateDatabaseRowId,
 						updatedRow,
+						groupId,
 					},
 				});
 				updateRelatedViews({
@@ -976,7 +982,6 @@ export const NotesState = (props) => {
 			if (response?.[0]) {
 				const newField = response?.[1]?.data?.addDatabaseField;
 				const database = state?.database?.[payload?.databaseId];
-				console.log('database=>', database);
 
 				dispatch({
 					type: Actions.UPDATE_DATABASE,
@@ -1379,6 +1384,38 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const updateViewGroup = async (payload, blockId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateViewGroupMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				const view = state?.views?.[blockId] || [];
+				const newView = view?.map((view) => {
+					if (view?._id === payload?.databaseViewId) {
+						return {
+							...view,
+							groupBy: response?.[1]?.data?.updateGroup,
+						};
+					}
+					return view;
+				});
+				dispatch({
+					type: Actions.UPDATE_DATABASE_VIEWS,
+					payload: { [blockId]: newView },
+				});
+			}
+		} catch (error) {
+			console.error('error==>updateViewGroup', error);
+		}
+	};
+
 	const updateRelatedViews = async ({
 		updatedRow,
 		updatedField,
@@ -1388,10 +1425,10 @@ export const NotesState = (props) => {
 		actionType = 'update',
 	}) => {
 		try {
-			dispatch({
-				type: Actions.UPDATE_RELATED_VIEWS,
-				payload: { updatedRow, viewId, databaseId, rowId, actionType },
-			});
+			// dispatch({
+			// 	type: Actions.UPDATE_RELATED_VIEWS,
+			// 	payload: { updatedRow, viewId, databaseId, rowId, actionType },
+			// });
 		} catch (error) {
 			console.error('error==>updateRelatedViews', error);
 		}
@@ -1446,5 +1483,6 @@ export const NotesState = (props) => {
 		addSort,
 		updateSort,
 		removeSort,
+		updateViewGroup,
 	};
 };

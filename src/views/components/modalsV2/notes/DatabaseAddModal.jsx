@@ -109,6 +109,7 @@ const DatabaseAddModal = ({ isOpen, onClose, viewId, pageId, databaseId, fields 
 						disabled={field.isReadOnly}
 						labelField={'label'}
 						multiSelect={true}
+						selectionLimit={field?.selectionLimit || -1}
 					/>
 				);
 			}

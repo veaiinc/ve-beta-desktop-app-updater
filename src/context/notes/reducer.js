@@ -1,4 +1,4 @@
-import { applyFilter } from '../../helpers/databaseHelpers';
+import { applyFilter, handleUpdateInGroup } from '../../helpers/databaseHelpers';
 import { intialState } from './state';
 const actionHandlers = {
 	GET_NOTES_SUCCESS: (state, action) => ({ ...state, notes: action?.payload }),
@@ -42,23 +42,18 @@ const actionHandlers = {
 		};
 	},
 	UPDATE_DATABASE_ROWS: (state, action) => {
-		const { viewId, rowId, updatedRow } = action.payload;
+		const { viewId, rowId, updatedRow, groupId } = action.payload;
 
 		const currentBlockData = state?.rowData?.[viewId] || {};
-		const currentRows = currentBlockData.data || [];
+		const { groupData, groupBy } = currentBlockData || {};
 
-		const updatedRows = currentRows.map((row) =>
-			row._id === rowId
-				? {
-						...(row || {}),
-						...(updatedRow || {}),
-						values: {
-							...(row?.values || {}),
-							...(updatedRow?.values || {}),
-						},
-				  }
-				: row,
-		);
+		const updatedGroupData = handleUpdateInGroup({
+			groupData,
+			updatedRowData: updatedRow,
+			groupId,
+			rowId,
+			groupBy,
+		});
 
 		return {
 			...state,
@@ -66,7 +61,7 @@ const actionHandlers = {
 				...state.rowData,
 				[viewId]: {
 					...currentBlockData,
-					data: updatedRows,
+					groupData: updatedGroupData,
 				},
 			},
 		};

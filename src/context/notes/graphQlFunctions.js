@@ -504,40 +504,97 @@ export const getDatabaseQuery = gql`
 	}
 `;
 
+// export const getDatabaseRowsQuery = gql`
+// 	query ListDatabaseRows(
+// 		$pageId: ID!
+// 		$databaseId: ID!
+// 		$input: DatabaseRowsInput!
+// 		$databaseViewId: ID
+// 	) {
+// 		listDatabaseRows(
+// 			pageId: $pageId
+// 			databaseId: $databaseId
+// 			input: $input
+// 			databaseViewId: $databaseViewId
+// 		) {
+// 			totalPages
+// 			totalDocs
+// 			limit
+// 			currentPage
+// 			hasNextPage
+// 			data {
+// 				_id
+// 				values
+// 				databaseId
+// 				serialNumber
+// 				createdAt
+// 				updatedAt
+// 				createdBy {
+// 					_id
+// 					name
+// 					email
+// 				}
+// 				updatedBy {
+// 					_id
+// 					name
+// 					email
+// 				}
+// 			}
+// 		}
+// 	}
+// `;
+
 export const getDatabaseRowsQuery = gql`
-	query ListDatabaseRows(
+	query listDatabaseRowsWithGroup(
 		$pageId: ID!
 		$databaseId: ID!
-		$input: DatabaseRowsInput!
+		$input: DatabaseRowsInputWithGroup!
 		$databaseViewId: ID
 	) {
-		listDatabaseRows(
+		listDatabaseRowsWithGroup(
 			pageId: $pageId
 			databaseId: $databaseId
 			input: $input
 			databaseViewId: $databaseViewId
 		) {
-			totalPages
-			totalDocs
-			limit
-			currentPage
-			hasNextPage
+			metaInfo {
+				fieldId
+				totalPages
+				totalGroups
+				limit
+				currentPage
+				hasPrevPage
+				hasNextPage
+				prevPage
+				nextPage
+			}
 			data {
 				_id
-				values
-				databaseId
-				serialNumber
-				createdAt
-				updatedAt
-				createdBy {
+				totalDocs
+				limit
+				currentPage
+				totalPages
+				hasPrevPage
+				hasNextPage
+				prevPage
+				nextPage
+				docs {
 					_id
-					name
-					email
-				}
-				updatedBy {
-					_id
-					name
-					email
+					values
+					databaseId
+					serialNumber
+					createdAt
+					updatedAt
+					createdBy {
+						_id
+						name
+						email
+					}
+					updatedBy {
+						_id
+						name
+						email
+					}
 				}
 			}
 		}
@@ -591,6 +648,7 @@ export const addDatabaseFieldMutation = gql`
 			isRequired
 			isUnique
 			isReadOnly
+			selectionLimit
 			createdAt
 			updatedAt
 			createdBy
@@ -619,6 +677,7 @@ export const updateDatabaseFieldMutation = gql`
 			isRequired
 			isUnique
 			isReadOnly
+			selectionLimit
 			createdAt
 			updatedAt
 			createdBy
@@ -677,7 +736,6 @@ export const getDatabaseViewsQuery = gql`
 			databaseId
 			pageId
 			blockId
-			label
 			cardSize
 			sortBy {
 				_id
@@ -689,10 +747,12 @@ export const getDatabaseViewsQuery = gql`
 				fieldId
 				operator
 				value
-				fieldType
 			}
 			groupBy {
 				fieldId
+				fieldType
+				visibleGroups
+				defaultGroups
 			}
 			visibleFields
 			type
@@ -830,6 +890,27 @@ export const removeSortMutation = gql`
 		) {
 			success
 			message
+		}
+	}
+`;
+
+export const updateViewGroupMutation = gql`
+	mutation CreateGroup(
+		$pageId: ID!
+		$databaseViewId: ID!
+		$databaseId: ID!
+		$input: ViewGroupConfigInput!
+	) {
+		updateGroup(
+			pageId: $pageId
+			databaseViewId: $databaseViewId
+			databaseId: $databaseId
+			input: $input
+		) {
+			fieldId
+			visibleGroups
+			fieldType
+			defaultGroups
 		}
 	}
 `;
