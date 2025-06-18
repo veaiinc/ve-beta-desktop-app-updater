@@ -60,7 +60,7 @@ function App() {
 		}
 	}, [theme, currentRoute]);
 
-	const routes = workspaceMode === 'beta' ? stableRoutes : betaRoutes;
+	const routes = workspaceMode === 'stable' ? stableRoutes : betaRoutes;
 
 	return (
 		<>
