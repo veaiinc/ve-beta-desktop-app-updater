@@ -1,15 +1,24 @@
 .chain-of-thought-widget-container {
-	display: flex;
-	padding-bottom: 16px;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 16px;
-	align-self: stretch;
-	border-radius: 16px;
-	border: 1px solid var(--stroke, #2b2e31);
-	background: var(--card, #18191b);
+	// display: flex;
+	// padding-bottom: 16px;
+	// flex-direction: column;
+	// align-items: flex-start;
+	// gap: 16px;
+	// align-self: stretch;
+	// border-radius: 16px;
+	// border: 1px solid var(--stroke, #2b2e31);
+	// background: var(--card, #18191b);
 	overflow: hidden;
 	transition: max-height 0.3s ease-in-out;
+	display: flex;
+	// padding: 16px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	align-self: stretch;
+	border-radius: 8px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	margin-bottom: 16px;
 
 	.cot-wrapper {
 		margin-top: 0;
