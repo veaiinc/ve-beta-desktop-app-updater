@@ -114,11 +114,15 @@ export const ChatStreamState = () => {
 
 	const createWebSocketConnection = useCallback(
 		(sessionId, onMessageFunc, agentType, isPublicChat = false) => {
-			if ((!sessionId && !isPublicChat) || socketRefs.current[sessionId]) {
+			if (!sessionId && !isPublicChat) {
 				return;
 			}
 
 			currentSessionIdRef.current = sessionId;
+			if (socketRefs.current[sessionId]) {
+				return;
+			}
+
 			messageHandlerRef.current = onMessageFunc;
 			isPublicChatRef.current = isPublicChat;
 
@@ -158,7 +162,7 @@ export const ChatStreamState = () => {
 			socketRefs.current[currentSessionIdRef.current].onmessage = (event) => {
 				resetInactivityTimeout();
 				if (onMessageFunc) {
-					onMessageFunc(event);
+					onMessageFunc(event, currentSessionIdRef.current);
 				}
 			};
 		},
@@ -176,10 +180,15 @@ export const ChatStreamState = () => {
 		}
 	}, []);
 
+	const removeCurrentSessionId = useCallback(() => {
+		currentSessionIdRef.current = null;
+	}, []);
+
 	return {
 		...state,
 		createWebSocketConnection,
 		sendMessage,
 		closeWebSocketConnection,
+		removeCurrentSessionId,
 	};
 };

@@ -54,7 +54,12 @@ const RecentChat = ({
 			updateChatLoadingSessions,
 			newChatSessionIds,
 		},
-		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
+		chatStream: {
+			createWebSocketConnection,
+			sendMessage,
+			closeWebSocketConnection,
+			removeCurrentSessionId,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -93,7 +98,6 @@ const RecentChat = ({
 	const isFirstTimeConnectingToPublicChatRef = useRef(true);
 	const navigate = useNavigate();
 	const location = useLocation();
-	const currentSessionIdRef = useRef(currentSessionId);
 	const newChatSessionIdsRef = useRef(newChatSessionIds);
 	const globalChatMessagesRef = useRef(globalChatMessages);
 	sessionId = isPreview ? sId : sessionId;
@@ -118,7 +122,6 @@ const RecentChat = ({
 			setTimeout(() => {
 				tabsRefs.current = {};
 				userMessagesRefs.current = {};
-				currentSessionIdRef.current = null;
 				updateStateValues({
 					moreRecentChatStorage: null,
 					recentChatStorage: null,
@@ -141,6 +144,7 @@ const RecentChat = ({
 				removeChatSessions: true,
 				updateExtraInfo: true,
 			});
+			removeCurrentSessionId();
 			updateStateValues({ newChatSessionIds: [] });
 		};
 	}, []);
@@ -208,7 +212,6 @@ const RecentChat = ({
 				currentSessionId: sessionId,
 				newChatSessionIds: newChatSessionIdsRef.current,
 			});
-			currentSessionIdRef.current = sessionId;
 		}
 	}, [sessionId]);
 
@@ -221,10 +224,6 @@ const RecentChat = ({
 
 		if (agentType) {
 			updateStateValues({ chatInfo: { ...chatInfo, agentType, assistantId } });
-		}
-
-		if (globalChatMessages?.[sessionId]) {
-			return;
 		}
 
 		if (sessionId && !isPublicChat) {
@@ -635,7 +634,7 @@ const RecentChat = ({
 
 	// stream chat
 	const onMessageFunc = useCallback(
-		(event) => {
+		(event, currentSessionId) => {
 			let { data = '' } = event || {};
 			data = JSON?.parse(data);
 
@@ -652,7 +651,7 @@ const RecentChat = ({
 			}
 
 			if (data?.stream_end) {
-				if (sessionId !== currentSessionIdRef.current) {
+				if (sessionId !== currentSessionId) {
 					closeWebSocketConnection([sessionId]);
 					updateChatLoadingSessions({ sessionId, isStreaming: false, isNotSeen: true });
 				} else {
@@ -687,7 +686,7 @@ const RecentChat = ({
 					sessionId,
 					updateExtraInfo: false,
 					...(data?.stream_end &&
-						sessionId !== currentSessionIdRef.current && {
+						sessionId !== currentSessionId && {
 							removeChatSession: true,
 						}),
 				});
