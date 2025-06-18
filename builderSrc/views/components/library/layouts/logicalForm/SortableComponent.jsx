@@ -5105,6 +5105,12 @@ const SortableComponent = ({
 								? '305px' // Mobile width
 								: '712px', // Desktop width
 						marginRight: '400px',
+						maxHeight: '600px',
+						overflowY: 'auto',
+						position: 'relative',
+						paddingBottom: '20px',
+						maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
+						WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
 					}}
 				>
 					{' '}
