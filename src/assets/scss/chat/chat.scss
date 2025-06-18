@@ -93,7 +93,7 @@
 					width: 100%;
 					max-width: 750px;
 					margin: 0 auto;
-					padding-bottom: calc(var(--chat-content-height) - 140px);
+					padding-bottom: calc(var(--chat-content-height) - 40px);
 					.aiMessageWrapper {
 						.text-container {
 							color: var(--secondary-font, #787e87);
