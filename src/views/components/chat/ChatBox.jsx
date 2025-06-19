@@ -1465,7 +1465,7 @@ const ChatBox = ({
 																			}`,
 																		}}
 																	>
-																		<div className="chat-icon">
+																		<div className="plus-icon">
 																			<PlusSvg
 																				width={17}
 																				height={17}

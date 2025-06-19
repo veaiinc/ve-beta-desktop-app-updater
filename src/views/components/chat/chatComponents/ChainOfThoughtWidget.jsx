@@ -58,7 +58,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 	}
 
 	const chainOfThoughtCompleted = messageData?.message?.length > 0 || messageData?.stream_end;
-	const maxHeight = chainOfThoughtCompleted ? (info?.isExpanded ? '400px' : '57px') : '400px';
+	const maxHeight = chainOfThoughtCompleted ? (info?.isExpanded ? '400px' : '54px') : '400px';
 
 	return (
 		<div
