@@ -502,7 +502,7 @@ const InitialHomePage = () => {
 						}
 					>
 						{/* {componentMapper[info?.selectedOption]} */}
-						{!info?.selectedOption === 'proactive' ? (
+						{info?.selectedOption === 'proactive' ? (
 							<ProactiveSuggestions />
 						) : (
 							<GlobalWidget option={info?.selectedOption} />
