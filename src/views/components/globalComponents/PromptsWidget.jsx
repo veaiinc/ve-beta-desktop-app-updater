@@ -4,6 +4,7 @@ import InfiniteScroll from './InfiniteScroll';
 import '../../../assets/scss/globalComponents/promptWidget.scss';
 import Skeleton from 'react-loading-skeleton';
 import ChatBox from '../chat/ChatBox';
+import Suggestions from '../../features/homePage/Suggestions';
 
 const skeletonLoaders = [1, 2, 3, 4];
 
@@ -17,15 +18,21 @@ const PromptsWidget = ({ option }) => {
 		},
 	} = useContext(Context);
 
-	const [animateCards, setAnimateCards] = useState(false);
-
+	// const [animateCards, setAnimateCards] = useState(false);
+	const [info, setInfo] = useState({
+		animateCards: false,
+		chatQuery: '',
+	});
 	useEffect(() => {
 		if (option) {
 			const page = 1;
 			const shouldReset = true;
 			getUpdatedSuggestedPendingActions(page, shouldReset);
 			setTimeout(() => {
-				setAnimateCards(true); // Start card animations
+				setInfo((prev) => ({
+					...prev,
+					animateCards: true,
+				}));
 			}, 100);
 		}
 	}, []);
@@ -84,13 +91,14 @@ const PromptsWidget = ({ option }) => {
 		<>
 			<div
 				className="prompts-widget"
-				style={{ height: cardsData?.length > 0 ? '93vh' : '300px' }}
+				style={{ height: cardsData?.length > 0 ? '93vh' : '10px' }}
 			>
 				{cardsEmpty ? (
-					<div className="prompts-widget-empty">
-						<div className="prompts-widget-empty-title">No prompts found</div>
-					</div>
+					''
 				) : (
+					// <div className="prompts-widget-empty">
+					// 	<div className="prompts-widget-empty-title">No prompts found</div>
+					// </div>
 					<InfiniteScroll
 						hasMore={cardsHasNextPage}
 						next={() => fetchNextCards()}
@@ -104,7 +112,7 @@ const PromptsWidget = ({ option }) => {
 								<div
 									key={card?.id}
 									className={`prompts-widget-each-card ${
-										animateCards
+										info?.animateCards
 											? animatedIndices.includes(index)
 												? `deal-animate deal-path-${animatedIndices.indexOf(
 														index,
@@ -121,14 +129,19 @@ const PromptsWidget = ({ option }) => {
 					</InfiniteScroll>
 				)}
 			</div>
-			<div className="chatbox-container">
-				<ChatBox
-					onSend={handleCustomOnSendFunction}
-					customChatActions={true}
-					autoFocus={false}
-					animatePlaceholder={true}
-					onChatQueryChange={handleChatQueryChange}
-				/>
+			<div className="prompts-widget-bottom">
+				<div className="chatbox-container">
+					<ChatBox
+						onSend={handleCustomOnSendFunction}
+						customChatActions={true}
+						autoFocus={false}
+						animatePlaceholder={true}
+						onChatQueryChange={handleChatQueryChange}
+					/>
+				</div>
+				<div className="suggestions-container">
+					<Suggestions chatQuery={info?.chatQuery} styles={{ margin: '0 auto' }} />
+				</div>
 			</div>
 		</>
 	);

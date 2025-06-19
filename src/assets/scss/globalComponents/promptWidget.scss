@@ -205,15 +205,31 @@
 		opacity: 1;
 	}
 }
-
-.chatbox-container {
+.prompts-widget-bottom {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+	align-self: stretch;
+	position: relative;
 	max-width: 750px;
 	width: 100%;
-	position: relative;
 	margin: 0 auto;
-	height: 140px;
+	.chatbox-container {
+		max-width: 750px;
+		width: 100%;
+		margin: 0 auto;
+		height: 140px;
+	}
+	.suggestions-container {
+		max-width: 750px;
+		width: 100%;
+		position: absolute;
+		margin: 0 auto;
+		bottom: 100%;
+		left: 0;
+	}
 }
-
 .skeletonLoaderContainer {
 	display: flex;
 	align-items: flex-start;
