@@ -1685,6 +1685,7 @@ class Proposals extends Component {
 					titleName: response?.[1]?.data?.workflowInfo?.template?.title,
 					navBar: response?.[1]?.data?.workflowInfo?.navBar,
 					themes: response?.[1]?.data?.workflowInfo?.themes || null,
+					workflowTemplateID: response?.[1]?.data?.workflowInfo?.template?._id,
 				},
 				() => {
 					if (getModules === true) {
@@ -2440,6 +2441,22 @@ class Proposals extends Component {
 	};
 
 	updateWorkflowThemeSettings = async (query, variables) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let workflowID = this.state.activeModuleId;
+		let usertoken = localStorage.getItem('usertoken');
+		let response = await Service.query(query, variables, workspaceId, workflowID, usertoken);
+		if (response[0] == true) {
+			this.setState({
+				navBar: response[1]?.data?.updateWorkflow?.navBar,
+				themes: response[1]?.data?.updateWorkflow?.themes,
+			});
+
+			return [true];
+		} else {
+			return [false];
+		}
+	};
+	updateWorkflowThemeSettingsTemplate = async (query, variables) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let workflowID = this.state.activeModuleId;
 		let usertoken = localStorage.getItem('usertoken');

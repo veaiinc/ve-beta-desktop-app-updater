@@ -46,7 +46,7 @@ const Contacts = () => {
 	const searchValueRef = useRef('');
 
 	useEffect(() => {
-		updateStateValues({ leftSidebarState: 'close' });
+		updateStateValues({ leftSidebarState: 'open' });
 		fetchClientList();
 		return () => {
 			if (searchValueRef.current !== '') {

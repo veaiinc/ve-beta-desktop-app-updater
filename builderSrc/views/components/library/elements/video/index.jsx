@@ -225,7 +225,7 @@ class Video extends Component {
 								controls
 								muted={
 									this.state?.isFluid
-										? this.props.audioMode
+										? this.props?.audioMode
 											? true
 											: this.props.muteVideo
 										: true

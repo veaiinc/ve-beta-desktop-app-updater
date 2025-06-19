@@ -77,7 +77,7 @@ const AISuggestionsModal = ({
 		if (!data) return;
 
 		const { chain_of_thought } = data;
-		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || []);
+		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || null);
 		const accessType = (data?.permissions?.sharedWith || [])?.filter(
 			(eachItem) => eachItem?.userId === info?.currentUserId,
 		)?.[0]?.access;
@@ -715,7 +715,7 @@ const AISuggestionsModal = ({
 													className="report-description"
 													onClick={(e) => e.stopPropagation()}
 												>
-													<Markdown citations={thinker_sources || []}>
+													<Markdown citations={thinker_sources || null}>
 														{research_report || ''}
 													</Markdown>
 												</div>
@@ -827,7 +827,7 @@ const AISuggestionsModal = ({
 									<div className="chain-of-thought-content">
 										<CombinedChainOfThought
 											data={info?.chainOfThoughtData}
-											citations={thinker_sources || []}
+											citations={thinker_sources || null}
 										/>
 									</div>
 								</div>

@@ -1877,11 +1877,12 @@ class Sidebar extends Images {
 		const params = new URLSearchParams(window.location.search);
 		const stemplateId = params.get('templateId');
 		const isworkflowjson = {
+			blockId: this.props.activeSectionID,
 			defaultValue: value,
 			displayName: name,
 			inputType: selectedOption,
 			isRequired: false,
-			templateId: stemplateId,
+			templateId: this.props.workflowTemplateID,
 			workflowId: this.props.workflowID,
 		};
 		if (this.state.isWorkflow) {

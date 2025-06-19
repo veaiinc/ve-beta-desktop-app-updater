@@ -5,8 +5,10 @@ import SmartFileSidebar from '../SmartFileDetails/NewSmartFileSidebar';
 import Context from '../../../context/context';
 import { ReactComponent as EditIcon } from '../../../assets/svg/edit.svg';
 import { ReactComponent as ViewIcon } from '../../../assets/svg/view.svg';
+import { ReactComponent as DesktopIcon } from '../../components/library/svgs/header/Desktop.svg';
+import { ReactComponent as MobileIcon } from '../../components/library/svgs/header/MobilePop.svg';
 import TempBuilderPreview from '../../feature/temp-prev';
-
+import EditdocumentModel from '../ViewDocument/EditdocumentModel';
 const EditButton = ({ workflowId, templateId }) => {
 	const navigate = useNavigate();
 	const handleEditClick = () => {
@@ -16,7 +18,7 @@ const EditButton = ({ workflowId, templateId }) => {
 	return (
 		<div onClick={handleEditClick} className="editButton">
 			<EditIcon />
-			Edit Design
+			Modify Design
 		</div>
 	);
 };
@@ -50,6 +52,7 @@ const EditDocument = () => {
 	const isWorkflow = searchParams.get('workflow') === 'true';
 	const shouldOpenSignature = searchParams.get('openSignature') === 'true';
 	const navigate = useNavigate();
+	const [previewDevice, setPreviewDevice] = useState('d'); // 'd' for desktop, 'm' for mobile
 	const [info, setInfo] = useState({
 		workflowInfo: null,
 		clientDetails: {},
@@ -62,7 +65,8 @@ const EditDocument = () => {
 		},
 		shareModalIsOpen: false,
 		showSignatureModal: false,
-		previewDomReady: false, // Track DOM readiness
+		previewDomReady: false,
+		showEditDocumentModal: false,
 	});
 	const formResponseId = info.workflowInfo?.formResponseId;
 	useEffect(() => {
@@ -114,6 +118,10 @@ const EditDocument = () => {
 		setInfo((prev) => ({ ...prev, shareModalIsOpen: !prev.shareModalIsOpen }));
 	};
 
+	const handleEditClick = () => {
+		setInfo((prev) => ({ ...prev, showEditDocumentModal: true }));
+	};
+
 	return (
 		<div className="editDocumentContainer">
 			<div className="section1-main-container">
@@ -140,10 +148,42 @@ const EditDocument = () => {
 					workflowInfo={info.workflowInfo}
 				/>
 			</div>
-			<div className="section2-main-container" style={{ background: '#fff' }}>
+			<div className="section2-main-container">
 				<div className="previewHeader">
-					<ViewButton workflowInfo={info.workflowInfo} smartFileInfo={smartFileInfo} />
-					<EditButton workflowId={workflowId} templateId={templateId} />
+					<div className="btn-actions">
+						<ViewButton
+							workflowInfo={info.workflowInfo}
+							smartFileInfo={smartFileInfo}
+						/>
+						<div onClick={handleEditClick} className="editButton">
+							<EditIcon />
+							Modify Design
+						</div>
+					</div>
+					<div className="device-switcher-bar">
+						<button
+							className={
+								previewDevice === 'd'
+									? 'device-switcher-btn active'
+									: 'device-switcher-btn'
+							}
+							aria-label="Desktop Preview"
+							onClick={() => setPreviewDevice('d')}
+						>
+							<DesktopIcon width={24} height={24} />
+						</button>
+						<button
+							className={
+								previewDevice === 'm'
+									? 'device-switcher-btn active'
+									: 'device-switcher-btn'
+							}
+							aria-label="Mobile Preview"
+							onClick={() => setPreviewDevice('m')}
+						>
+							<MobileIcon width={24} height={24} />
+						</button>
+					</div>
 				</div>
 				<div className="previewBody">
 					<TempBuilderPreview
@@ -155,9 +195,18 @@ const EditDocument = () => {
 						updateCallbacks={handleUpdateCallbacks}
 						onDomReady={handlePreviewDomReady}
 						clientDetails={info.clientDetails}
+						previewType={previewDevice}
+						previewMode={previewDevice}
 					/>
 				</div>
 			</div>
+			<EditdocumentModel
+				open={info.showEditDocumentModal}
+				closeModal={() => setInfo((prev) => ({ ...prev, showEditDocumentModal: true }))}
+				workflowId={workflowId}
+				showEditTemplateButton={info.workflowInfo?.template?.isDeleted ? false : true}
+				templateID={info.workflowInfo?.template?.workflowTemplateDetails?.[0]?._id}
+			/>
 		</div>
 	);
 };

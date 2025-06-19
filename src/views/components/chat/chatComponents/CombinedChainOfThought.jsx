@@ -4,7 +4,7 @@ import DeepSearchChainOfThought from './DeepSearchChainOfThought';
 import DeepResearchChainOfThought from './DeepResearchChainOfThought';
 import { updateCitationIdsWithCitations } from '../../../../helpers/chatHelpers';
 
-const CombinedChainOfThought = ({ data, citations = [] }) => {
+const CombinedChainOfThought = ({ data, citations = null }) => {
 	const { thoughts, deepSearches, deepResearches } = data;
 
 	return (
