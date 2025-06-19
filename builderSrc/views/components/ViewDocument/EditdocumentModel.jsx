@@ -1,10 +1,16 @@
-import React from 'react';
+import { memo } from 'react';
 import { ReactComponent as Danger } from '../../../assets/svg/document/danger.svg';
 import '../../../assets/scss/document/editDocumentModel.scss';
 import ReactModal from '../../components/ui-components/modal';
 import { useNavigate } from 'react-router-dom';
 
-const EditdocumentModel = ({ open, closeModal, workflowId, templateID, showEditTemplateButton }) => {
+const EditdocumentModel = ({
+	open,
+	closeModal,
+	workflowId,
+	templateID,
+	showEditTemplateButton,
+}) => {
 	const navigate = useNavigate();
 	const handleEditTemplate = () => {
 		navigate(`/builder/${templateID}`);
@@ -49,4 +55,4 @@ const EditdocumentModel = ({ open, closeModal, workflowId, templateID, showEditT
 	);
 };
 
-export default EditdocumentModel;
+export default memo(EditdocumentModel);

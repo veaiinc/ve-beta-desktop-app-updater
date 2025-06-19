@@ -200,19 +200,9 @@ const EditDocument = () => {
 					/>
 				</div>
 			</div>
-			{info.showEditDocumentModal && (
-				<EditdocumentModel
-					open={info.showEditDocumentModal}
-					closeModal={() => setInfo((prev) => ({ ...prev, showEditDocumentModal: true }))}
-					workflowId={workflowId}
-					showEditTemplateButton={info.workflowInfo?.template?.isDeleted ? false : true}
-					templateID={info.workflowInfo?.template?.workflowTemplateDetails?.[0]?._id}
-				/>
-			)}
-
 			<EditdocumentModel
 				open={info.showEditDocumentModal}
-				closeModal={() => setInfo((prev) => ({ ...prev, showEditDocumentModal: false }))}
+				closeModal={() => setInfo((prev) => ({ ...prev, showEditDocumentModal: true }))}
 				workflowId={workflowId}
 				showEditTemplateButton={info.workflowInfo?.template?.isDeleted ? false : true}
 				templateID={info.workflowInfo?.template?.workflowTemplateDetails?.[0]?._id}
