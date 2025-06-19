@@ -1,19 +1,20 @@
 .accountSettingsMainWrapper {
 	display: flex;
-	height: calc(100vh - 32px);
+	height: 100vh;
 	width: 100%;
 	margin: auto;
 	justify-content: center;
+	padding: 32px 32px 0px 32px;
 
 	.accountSettingsWrapper {
 		display: flex;
 		justify-content: center;
 		gap: 15px;
 		width: 100%;
-		max-height: 97%;
-		overflow-y: scroll;
+		overflow-y: auto;
 		scroll-behavior: smooth;
 		margin: auto;
+
 		.accountSettingsMapper {
 			max-width: 700px;
 			width: 100%;
@@ -59,6 +60,31 @@
 	}
 }
 
+// Mobile-specific class styles
+.mobile-view {
+	.accountSettingsWrapper {
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.accountSettingsMapper {
+		width: 100%;
+		max-width: 100%;
+	}
+}
+
+.mobile-settings-wrapper {
+	width: 100%;
+	max-width: 100%;
+	padding: 0;
+}
+
+.mobile-settings-mapper {
+	width: 100%;
+	max-width: 100%;
+	padding: 0 8px;
+}
+
 @keyframes slideIn {
 	0% {
 		opacity: 0;
@@ -72,5 +98,84 @@
 	100% {
 		opacity: 1;
 		transform: translateY(0);
+	}
+}
+
+// Mobile responsive styles using media query for 768px
+@media (max-width: 768px) {
+	.accountSettingsMainWrapper {
+		padding: 16px 16px 0px 16px;
+		height: 100vh;
+
+		// Ensure proper touch targets
+		button,
+		input,
+		select,
+		textarea {
+			min-height: 44px;
+			min-width: 44px;
+		}
+
+		// Improve scrolling on mobile
+		overflow-x: hidden;
+		-webkit-overflow-scrolling: touch;
+
+		// Global mobile text size adjustments
+		h1,
+		h2,
+		h3,
+		h4,
+		h5,
+		h6 {
+			font-size: clamp(16px, 4vw, 24px);
+		}
+
+		p,
+		span,
+		div {
+			font-size: clamp(12px, 3vw, 16px);
+		}
+
+		button,
+		input,
+		select,
+		textarea {
+			font-size: clamp(12px, 3vw, 16px);
+		}
+
+		// Optimize form elements for mobile
+		input,
+		select,
+		textarea {
+			font-size: 16px !important; // Prevents zoom on iOS
+		}
+
+		.accountSettingsWrapper {
+			gap: 10px;
+			padding: 0;
+
+			.accountSettingsMapper {
+				max-width: 100%;
+				height: 90vh;
+				padding: 0 8px;
+
+				.settingsBoxContainer {
+					border-radius: 20px;
+					gap: 16px;
+				}
+
+				.orContainer {
+					&::before {
+						font-size: 12px;
+						padding: 0 16px;
+					}
+				}
+			}
+
+			.accountSettingsSidebar {
+				position: relative;
+				top: auto;
+			}
+		}
 	}
 }
