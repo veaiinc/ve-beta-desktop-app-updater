@@ -8,7 +8,6 @@ import Context from './context/context';
 import AccessDeniedPopup from './views/components/accessPopups/accessDeniedPopup';
 import VoiceWrapper from './views/layouts/VoiceWrapper';
 import CustomToast from './views/components/globalComponents/CustomToast';
-import Spinner from './views/components/loaders/Spinner';
 
 function App() {
 	const currentRoute = window.location.pathname;
