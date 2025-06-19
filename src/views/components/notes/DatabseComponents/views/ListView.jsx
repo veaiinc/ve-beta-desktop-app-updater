@@ -2,8 +2,9 @@ import React, { useCallback, useContext } from 'react';
 import s from '../../../../../assets/scss/notes/databaseComponents/listView.module.scss';
 import { rowTypes } from '../../Database';
 import Context from '../../../../../context/context';
+import GroupToggler from '../GroupToggler';
 
-const ListView = ({ data, columns, databaseId, pageId, viewId }) => {
+const ListView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) => {
 	const {
 		notes: { updateDatabaseSidebar, updateDatabaseRow },
 	} = useContext(Context);
@@ -17,13 +18,14 @@ const ListView = ({ data, columns, databaseId, pageId, viewId }) => {
 				},
 				pageId,
 			};
-			updateDatabaseRow(payload, viewId, databaseId);
+			updateDatabaseRow(payload, view?._id, databaseId);
 		},
-		[pageId, updateDatabaseRow, databaseId, viewId],
+		[pageId, updateDatabaseRow, databaseId, view?._id],
 	);
 
 	const generateRow = useCallback((row) => {
 		const renderData = [];
+		console.log('row', row);
 		for (let i = 0; i < columns.length; i++) {
 			const element = columns[i];
 			const item = row?.values?.[element?._id];
@@ -77,7 +79,7 @@ const ListView = ({ data, columns, databaseId, pageId, viewId }) => {
 					updateDatabaseSidebar({
 						data: {
 							rowData: row,
-							viewId,
+							viewId: view?._id,
 							databaseId,
 						},
 						open: true,
@@ -90,7 +92,18 @@ const ListView = ({ data, columns, databaseId, pageId, viewId }) => {
 		);
 	}, []);
 
-	return <div className={s.listViewContainer}>{data?.map((row) => generateRow(row))}</div>;
+	// return <div className={s.listViewContainer}>{data?.map((row) => generateRow(row))}</div>;
+	console.log('groupData', groupData);
+	console.log('groupData', view);
+	return (
+		<div className={s.listViewContainer}>
+			{view?.groupBy?.defaultGroups?.map((item, index) => (
+				<GroupToggler key={index} groupData={item}>
+					{groupData?.[item?._id || null]?.docs?.map((row) => generateRow(row))}
+				</GroupToggler>
+			))}
+		</div>
+	);
 };
 
 export default ListView;

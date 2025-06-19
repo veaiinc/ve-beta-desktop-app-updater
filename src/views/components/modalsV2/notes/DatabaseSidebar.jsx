@@ -16,7 +16,12 @@ const DatabaseSidebar = ({ pageId }) => {
 	} = useContext(Context);
 
 	const sideBarOpen = databaseSidebar?.open;
-	const { rowData = {}, viewId = '', databaseId = '' } = databaseSidebar?.stack?.at(-1) || {};
+	const {
+		rowData = {},
+		viewId = '',
+		databaseId = '',
+		groupId = null,
+	} = databaseSidebar?.stack?.at(-1) || {};
 	const currentDatabase = useMemo(() => database?.[databaseId], [database, databaseId]);
 
 	const renderRowData = (field, value) => {
@@ -87,6 +92,7 @@ const DatabaseSidebar = ({ pageId }) => {
 			},
 			viewId,
 			databaseId,
+			groupId,
 		);
 		updateDatabaseSidebar({ open: false });
 	};

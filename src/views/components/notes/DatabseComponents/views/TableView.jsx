@@ -93,7 +93,7 @@ const TableView = ({ groupData, metaInfo, columns, colors, databaseId, pageId, v
 									pageId={pageId}
 								/>
 								<TableBody
-									data={groupData?.[item?._id]?.docs || []}
+									data={groupData?.[item?._id || null]?.docs || []}
 									columns={localColumns}
 									colors={colors}
 									pageId={pageId}

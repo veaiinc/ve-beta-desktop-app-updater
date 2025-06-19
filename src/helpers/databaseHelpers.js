@@ -322,7 +322,13 @@ export const applyFilter = (filters, row, statusOptions = null) => {
 	return include;
 };
 
-export const handleUpdateInGroup = ({ groupData, updatedRowData, groupId, rowId, groupBy }) => {
+export const handleUpdateInGroup = ({
+	groupData,
+	updatedRowData,
+	groupId = null,
+	rowId,
+	groupBy = null,
+}) => {
 	const row = groupData?.[groupId]?.docs?.find((row) => row?._id === rowId);
 	const updatedRow = {
 		...row,
@@ -410,6 +416,26 @@ export const handleAddInGroup = ({ groupData, newRowData, groupBy }) => {
 			docs: [...(groupData?.[null]?.docs || []), newRowData],
 		};
 	}
+
+	return updatedGroupData;
+};
+
+export const handleDeleteInGroup = ({ groupData, rowId, groupBy, groupId }) => {
+	let updatedGroupData = { ...groupData };
+	const deletedRow = groupData?.[groupId]?.docs?.find((row) => row?._id === rowId);
+	const groupValue = deletedRow?.values?.[groupBy] || null;
+	const valueArray = Array.isArray(groupValue)
+		? groupValue.every((v) => typeof v === 'object' && v !== null && '_id' in v)
+			? groupValue.map((v) => v._id)
+			: groupValue
+		: [groupValue];
+
+	valueArray.forEach((v) => {
+		updatedGroupData[v] = {
+			...groupData?.[v],
+			docs: groupData?.[v]?.docs?.filter((row) => row?._id !== rowId),
+		};
+	});
 
 	return updatedGroupData;
 };

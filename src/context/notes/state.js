@@ -865,7 +865,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const addDatabaseRow = async (payload, viewId, groupBy) => {
+	const addDatabaseRow = async (payload, viewId) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -937,7 +937,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const deleteDatabaseRow = async (payload, viewId, databaseId) => {
+	const deleteDatabaseRow = async (payload, viewId, databaseId, groupId) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -951,7 +951,7 @@ export const NotesState = (props) => {
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.DELETE_DATABASE_ROWS,
-					payload: { viewId },
+					payload: { viewId, rowId: payload?.deleteDatabaseRowId, groupId },
 				});
 
 				updateRelatedViews({

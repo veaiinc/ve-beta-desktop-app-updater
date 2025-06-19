@@ -1,4 +1,9 @@
-import { applyFilter, handleUpdateInGroup, handleAddInGroup } from '../../helpers/databaseHelpers';
+import {
+	applyFilter,
+	handleUpdateInGroup,
+	handleAddInGroup,
+	handleDeleteInGroup,
+} from '../../helpers/databaseHelpers';
 import { intialState } from './state';
 const actionHandlers = {
 	GET_NOTES_SUCCESS: (state, action) => ({ ...state, notes: action?.payload }),
@@ -50,14 +55,24 @@ const actionHandlers = {
 		};
 	},
 	DELETE_DATABASE_ROWS: (state, action) => {
-		const { viewId, rowId } = action.payload;
+		const { viewId, rowId, groupId } = action.payload;
+
+		const currentBlockData = state?.rowData?.[viewId] || {};
+		const { groupData, groupBy } = currentBlockData || {};
+
+		const updatedGroupData = handleDeleteInGroup({
+			groupData,
+			rowId,
+			groupBy,
+			groupId,
+		});
 		return {
 			...state,
 			rowData: {
 				...state.rowData,
 				[viewId]: {
-					...state.rowData[viewId],
-					data: state.rowData[viewId]?.data?.filter((row) => row._id !== rowId),
+					...currentBlockData,
+					groupData: updatedGroupData,
 				},
 			},
 		};

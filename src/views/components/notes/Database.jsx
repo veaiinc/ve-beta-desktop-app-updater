@@ -209,7 +209,7 @@ const DatabaseComponent = ({ block, editor }) => {
 					databaseId,
 					databaseViewId: viewId,
 					input: {
-						docLimit: 10,
+						docLimit: 25,
 						docPage: 1,
 						groupLimit: 10,
 						groupPage: 1,
@@ -600,11 +600,12 @@ const DatabaseComponent = ({ block, editor }) => {
 							)}
 							{selectedDatabaseView?.type === 'list' && (
 								<ListView
-									data={rows}
+									groupData={groupData}
+									metaInfo={metaInfo}
 									columns={columns}
 									databaseId={databaseId}
 									pageId={pageId}
-									viewId={info?.selectedViewId}
+									view={selectedDatabaseView}
 								/>
 							)}
 						</>

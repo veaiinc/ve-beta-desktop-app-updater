@@ -119,6 +119,7 @@ const TableBody = ({
 										rowData: row,
 										viewId,
 										databaseId,
+										groupId,
 									},
 									open: true,
 									replace: true,
