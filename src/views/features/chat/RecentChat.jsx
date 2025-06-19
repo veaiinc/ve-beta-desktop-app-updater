@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useState, useRef, useEffect, useContext, Fragment } from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
-//
 import {
 	handleDeepSearchChainOfThought,
 	handleDeepResearchChainOfThought,

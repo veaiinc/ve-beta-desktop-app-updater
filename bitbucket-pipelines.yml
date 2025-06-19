@@ -64,6 +64,3 @@ pipelines:
             - step: *build-and-test
             - step: *sync-client-dashboard-library
             - step: *sync-to-github
-        feature/speed-issue-resolved : 
-            - step: *build-and-test
-            - step: *sync-to-github
