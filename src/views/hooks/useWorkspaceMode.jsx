@@ -3,7 +3,7 @@ import Context from '../../context/context';
 
 const useWorkspaceMode = () => {
 	const [info, setInfo] = useState({
-		workspaceMode: null,
+		workspaceMode: 'stable',
 		workspaceModeList: null,
 		loading: false,
 		error: false,

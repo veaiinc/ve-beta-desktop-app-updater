@@ -1,4 +1,5 @@
 import { useCallback, useRef, useEffect } from 'react';
+import useWorkspaceMode from './useWorkspaceMode';
 
 const agentTypeMap = {
 	search_agent: 'search_agent_streaming',
@@ -102,7 +103,10 @@ const useChatStream = () => {
 			messageHandlerRef.current = onMessageFunc;
 			isPublicChatRef.current = isPublicChat;
 
-			const agent = agentTypeMap[agentType] || 'chat_streaming';
+			const { workspaceMode } = useWorkspaceMode(); // stable, beta, internal
+			const defaultAgent =
+				workspaceMode === 'stable' ? 'chat_streaming' : 'multi_agent_chat_streaming';
+			const agent = agentTypeMap[agentType] || defaultAgent;
 			agentTypeRef.current = agent;
 
 			const usertoken = localStorage.getItem('usertoken');
