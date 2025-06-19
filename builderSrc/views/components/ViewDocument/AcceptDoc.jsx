@@ -2,12 +2,18 @@ import React, { memo, useState, useEffect, useContext, useMemo } from 'react';
 import ReactModal from '../../components/ui-components/modal';
 import { Collapse, Input, DatePicker } from 'antd';
 import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import '../../../assets/scss/document/acceptModel.scss';
 import Spinner from '../loaders/Spinner';
 import { useParams, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import { message } from '../../../../src/views/components/globalComponents/CustomToast';
 import moment from 'moment';
+
+// Extend dayjs with timezone plugins
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const getToday = () => dayjs().format('YYYY-MM-DD');
 
@@ -354,8 +360,10 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 			// Use startDate and endDate from event (already in YYYY-MM-DD format)
 			const startDate = event.startDate || event.date || getToday();
 			const endDate = event.endDate || event.date || getToday();
-			const startDateTime = dayjs(startDate).startOf('day').toISOString();
-			const endDateTime = dayjs(endDate).endOf('day').toISOString();
+
+			// Create dates in Asia/Calcutta timezone to avoid UTC conversion issues
+			const startDateTime = dayjs.tz(startDate, 'Asia/Calcutta').startOf('day').format();
+			const endDateTime = dayjs.tz(endDate, 'Asia/Calcutta').endOf('day').format();
 
 			const payload = {
 				title: event.title,

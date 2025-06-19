@@ -263,6 +263,9 @@
 								border-radius: 20px;
 								background: var(--primary-font, #f2f2f3);
 							}
+							&.last-active {
+								background: var(--primary-button);
+							}
 							&.inactive {
 								background: var(--secondary-font);
 								opacity: 0.1;
@@ -283,6 +286,9 @@
 							&.active {
 								opacity: 1;
 								display: block;
+							}
+							&.last-active {
+								background: var(--primary-button);
 							}
 						}
 					}
@@ -673,7 +679,7 @@
 		gap: 4px;
 		.doc-header-title-container-text {
 			color: var(--secondary-font, #7a7e85);
-			font-family: Inter;
+			font-family: var(--primary-font);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
@@ -688,7 +694,7 @@
 		.doc-header-title {
 			color: var(--primary-font, #f2f2f3);
 			text-align: start;
-			font-family: Inter;
+			font-family: var(--primary-font);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;

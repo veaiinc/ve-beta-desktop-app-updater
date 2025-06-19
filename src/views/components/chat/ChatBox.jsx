@@ -149,6 +149,7 @@ const ChatBox = ({
 			userEditedQuery,
 			galleryFile,
 			currentSessionId,
+			chatReplyData,
 		},
 		subscriptionInfo: { currentPlan, updateSubscriptionState },
 		calendarInfo: { updateCalendarState },
@@ -604,7 +605,9 @@ const ChatBox = ({
 				}
 
 				if (info?.chatQuery?.trim()?.length > 0 || query?.trim()?.length > 0) {
-					let currentQuery = info?.chatQuery?.trim() || query?.trim();
+					let currentQuery =
+						(chatReplyData ? chatReplyData + '\n' : '') +
+						(info?.chatQuery?.trim() || query?.trim());
 					const chatBoxData = info?.chatBoxInfo;
 					const routeName = location?.pathname?.split('/')?.[1];
 					const chatPayload =
@@ -724,6 +727,11 @@ const ChatBox = ({
 							recentFiles: recentFilesRef?.current || [],
 						});
 					}
+					if (chatReplyData) {
+						updateStateValues({
+							chatReplyData: null,
+						});
+					}
 					handleStreamSendMessage(
 						payload,
 						localPayload,
@@ -749,6 +757,7 @@ const ChatBox = ({
 			params,
 			currentPlan,
 			globalChatMessages,
+			chatReplyData,
 		],
 	);
 
@@ -1196,6 +1205,12 @@ const ChatBox = ({
 		});
 	};
 
+	const handleReplyCloseClick = () => {
+		updateStateValues({
+			chatReplyData: null,
+		});
+	};
+
 	return (
 		<div
 			className="chatParentWrapper"
@@ -1215,6 +1230,18 @@ const ChatBox = ({
 										startPage ? ' startPageContainer' : ''
 									}`}
 								>
+									{chatReplyData && (
+										<div className="chat-reply-data">
+											<div className="reply-icon"></div>
+											<div className="reply-text">{`"${chatReplyData}"`}</div>
+											<div
+												className="reply-close-icon"
+												onClick={handleReplyCloseClick}
+											>
+												<CloseSvg />
+											</div>
+										</div>
+									)}
 									<RecentFileTooltip
 										fileTypeIcons={fileTypeIcons}
 										handleRecentFileClick={handleRecentFileClick}
@@ -1787,7 +1814,7 @@ const ChatBox = ({
 															</div>
 														)} */}
 
-														{info?.chatQuery?.trim()?.length > 0 ||
+														{/* {info?.chatQuery?.trim()?.length > 0 ||
 														isPublicChat ? (
 															<div
 																className="click-btn"
@@ -1816,7 +1843,20 @@ const ChatBox = ({
 															>
 																<AudioSvg />
 															</div>
-														)}
+														)} */}
+														<div
+															className="click-btn"
+															onClick={(e) => {
+																e.stopPropagation();
+																handleSendBtnClick(e);
+															}}
+															style={{
+																backgroundColor:
+																	'var(--primary-button)',
+															}}
+														>
+															<ArrowUp />
+														</div>
 													</div>
 												</div>
 											)}

@@ -121,6 +121,7 @@ export const intialState = {
 		},
 	},
 	chatLoadingSessions: {},
+	chatReplyData: null,
 	citationChunks: {},
 	currentChatData: null,
 	galleryFile: null,

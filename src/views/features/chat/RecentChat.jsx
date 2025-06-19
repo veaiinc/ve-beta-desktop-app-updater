@@ -17,6 +17,7 @@ import { debounce } from 'lodash';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as PlusCircleSvg } from '../../../assets/svg/ai_agents/plus-cricle.svg';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
+import TextSelector from '../../components/chat/chatComponents/TextSelector';
 
 let throttleTimer = null;
 const RecentChat = ({
@@ -83,6 +84,7 @@ const RecentChat = ({
 		previousAgentType: null,
 		showScrollButton: false,
 		showViewDocument: false,
+		tooltipStyles: { visible: false, styles: { top: 0, left: 0 }, selectedText: '' },
 	});
 
 	const chatContentRef = useRef(null);
@@ -90,8 +92,6 @@ const RecentChat = ({
 	let { sessionId } = useParams();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const userMessagesRefs = useRef({});
-	const scrollExecutedRef = useRef(false);
-	// const aiMessagesRef = useRef([]);
 	// const previousAiMessagesRef = useRef([]);
 	// const aiCitationsByIdRef = useRef({});
 	const tabsRefs = useRef({});
@@ -113,11 +113,13 @@ const RecentChat = ({
 
 	useEffect(() => {
 		window?.addEventListener('resize', handleResize);
+		document.addEventListener('mouseup', handleMouseUp);
 
 		handleResize(0);
 
 		return () => {
 			window?.removeEventListener('resize', handleResize);
+			document.removeEventListener('mouseup', handleMouseUp);
 			clearTimeout(throttleTimer);
 
 			setTimeout(() => {
@@ -131,6 +133,7 @@ const RecentChat = ({
 						workflowTemplateId: null,
 						moduleTemplateId: null,
 					},
+					chatReplyData: null,
 				});
 			}, 0);
 
@@ -177,8 +180,10 @@ const RecentChat = ({
 				});
 				tabsRefs.current = {};
 				userMessagesRefs.current = {};
-				scrollExecutedRef.current = false;
-				// aiMessagesRef.current = [];
+				setInfo((prev) => ({
+					...prev,
+					scrollExecuted: false,
+				}));
 			}
 
 			if (!globalChatMessages?.[sessionId]) {
@@ -237,49 +242,52 @@ const RecentChat = ({
 	}, [sessionId, searchParams]);
 
 	useEffect(() => {
-		if (globalChatMessages?.[sessionId]?.messages?.length > 2 && !scrollExecutedRef.current) {
+		if (globalChatMessages?.[sessionId]?.messages?.length > 2 && !info?.scrollExecuted) {
 			setTimeout(() => {
 				smoothScrollToLastMessage();
 			}, 0);
-			scrollExecutedRef.current = true;
+			setInfo((prev) => ({
+				...prev,
+				scrollExecuted: true,
+			}));
 		}
 	}, [globalChatMessages, sessionId]);
 
-	useEffect(() => {
-		if (!chatContentRef?.current || !tabsRefs?.current) return;
-		previousTabsRefs.current = tabsRefs.current;
-		const observer = new IntersectionObserver(
-			() => {
-				Object?.values(tabsRefs?.current)?.forEach((entry) => {
-					if (
-						entry?.getBoundingClientRect()?.top <
-						chatContentRef?.current?.getBoundingClientRect()?.top
-					) {
-						if (!entry?.classList?.contains('sticky-element')) {
-							entry?.classList?.add('sticky-element');
-						}
-					} else {
-						if (entry?.classList?.contains('sticky-element')) {
-							entry?.classList?.remove('sticky-element');
-						}
-					}
-				});
-			},
-			{
-				root: chatContentRef?.current, // Observe within the parent
-				threshold: [0.99, 1], // Triggers when any part enters
-			},
-		);
+	// useEffect(() => {
+	// 	if (!chatContentRef?.current || !tabsRefs?.current) return;
+	// 	previousTabsRefs.current = tabsRefs.current;
+	// 	const observer = new IntersectionObserver(
+	// 		() => {
+	// 			Object?.values(tabsRefs?.current)?.forEach((entry) => {
+	// 				if (
+	// 					entry?.getBoundingClientRect()?.top <
+	// 					chatContentRef?.current?.getBoundingClientRect()?.top
+	// 				) {
+	// 					if (!entry?.classList?.contains('sticky-element')) {
+	// 						entry?.classList?.add('sticky-element');
+	// 					}
+	// 				} else {
+	// 					if (entry?.classList?.contains('sticky-element')) {
+	// 						entry?.classList?.remove('sticky-element');
+	// 					}
+	// 				}
+	// 			});
+	// 		},
+	// 		{
+	// 			root: chatContentRef?.current, // Observe within the parent
+	// 			threshold: [0.99, 1], // Triggers when any part enters
+	// 		},
+	// 	);
 
-		Object?.values(tabsRefs?.current)?.forEach((tab) => {
-			observer?.observe(tab);
-		});
-		return () => {
-			Object?.values(previousTabsRefs?.current)?.forEach((tab) => {
-				observer.unobserve(tab);
-			});
-		};
-	}, [globalChatMessages]);
+	// 	Object?.values(tabsRefs?.current)?.forEach((tab) => {
+	// 		observer?.observe(tab);
+	// 	});
+	// 	return () => {
+	// 		Object?.values(previousTabsRefs?.current)?.forEach((tab) => {
+	// 			observer.unobserve(tab);
+	// 		});
+	// 	};
+	// }, [globalChatMessages]);
 
 	useEffect(() => {
 		globalChatMessagesRef.current = globalChatMessages;
@@ -364,6 +372,54 @@ const RecentChat = ({
 			recentChatHandler(moreRecentChatStorage, true, firstTimeApiCall);
 		}
 	}, [moreRecentChatStorage]);
+
+	const handleMouseUp = useCallback(() => {
+		const selection = window?.getSelection();
+		if (!selection?.isCollapsed) {
+			const range = selection?.getRangeAt(0);
+			const rects = range?.getClientRects();
+			const selectedText = selection?.toString();
+
+			if (rects?.length > 0) {
+				const firstRect = rects[0];
+				const x = firstRect?.left + window?.scrollX;
+				const y = firstRect?.top + window?.scrollY;
+
+				// Get the infinite scroll container height
+				const infiniteScrollContainer = document?.querySelector(
+					'.infinite-scroll-component__outerdiv',
+				);
+				const containerRect = infiniteScrollContainer?.getBoundingClientRect();
+
+				// Calculate x and y relative to the infinite scroll container
+				const relativeX = x - (containerRect?.left || 0);
+				const relativeY = y - 50 - (containerRect?.top || 0);
+
+				setInfo((prev) => ({
+					...prev,
+					tooltipStyles: {
+						selectedText,
+						visible: true,
+						styles: { top: relativeY, left: relativeX },
+					},
+				}));
+			}
+		} else {
+			setInfo((prev) => {
+				const { visible, styles } = prev?.tooltipStyles || {};
+				if (visible === false && styles?.top === 0 && styles?.left === 0) return prev;
+
+				return {
+					...prev,
+					tooltipStyles: {
+						selectedText: prev?.tooltipStyles?.selectedText,
+						visible: false,
+						styles: { top: 0, left: 0 },
+					},
+				};
+			});
+		}
+	}, []);
 
 	const handleScroll = useCallback(() => {
 		if (!chatContentRef?.current) return;
@@ -552,7 +608,13 @@ const RecentChat = ({
 						}
 						return chat;
 					});
-					updateStateValues({ globalChatMessages: messages });
+
+					handleGlobalChatMessages({
+						updateExtraInfo: true,
+						recentChatMessages: messages,
+						sessionId: currentSessionId,
+					});
+					chatMessagesRef.current = messages;
 				}
 			}
 		} catch (error) {
@@ -800,6 +862,11 @@ const RecentChat = ({
 								'--chat-content-height': `${chatContentRef?.current?.clientHeight}px`,
 							}}
 						>
+							<TextSelector
+								styles={info?.tooltipStyles?.styles}
+								text={info?.tooltipStyles?.selectedText}
+								visible={info?.tooltipStyles?.visible}
+							/>
 							<InfiniteScroll
 								dataLength={globalChatMessages?.length || 0}
 								next={fetchMoreData}

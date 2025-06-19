@@ -9,6 +9,7 @@ import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../../../assets/svg/ai_agents/copy.svg';
 import { ReactComponent as ViewDocumentIcon } from '../../../assets/svg/chat/viewDocument.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
+import { ReactComponent as BulbSvg } from '../../../assets/svg/home_page/bulb.svg';
 import AISuggestionsReportAiComponent from './chatComponents/AiSuggestionsReportAiComponent';
 import '../../../assets/scss/chat/aiMessage.scss';
 import PromptPopup from '../homePage/PromptPopup';
@@ -24,7 +25,6 @@ const AIMessage = ({
 	citations = null,
 	messageData,
 	isLastMessage = false,
-	isNewMessage = false,
 	showCanvas = true,
 	handleSendWebsocketMessage = null,
 	latestStreamMesage = null,
@@ -140,7 +140,7 @@ const AIMessage = ({
 				<div
 					className="hover-actions-container"
 					style={{
-						visibility: isNewMessage ? 'visible' : '',
+						visibility: isLastMessage ? 'visible' : '',
 					}}
 				>
 					<div className="left-container">
@@ -222,7 +222,10 @@ const AIMessage = ({
 				messageData?.stream_end &&
 				(messageData?.['follow_up_query'] || [])?.length > 0 && (
 					<div className="suggested-prompts">
-						<div className="title-text">Suggested Prompts</div>
+						<div className="title-text">
+							<BulbSvg />
+							Suggested Prompts
+						</div>
 						<div className="prompts-container">
 							{(messageData?.['follow_up_query'] || [])?.map((query, index) => (
 								<div
@@ -230,9 +233,6 @@ const AIMessage = ({
 									key={index}
 									onClick={() => handlePromptClick(query)}
 								>
-									<div className="logo-container">
-										<ArrowRightSvg />
-									</div>
 									<div className="prompt">{query}</div>
 								</div>
 							))}
@@ -250,7 +250,7 @@ export default memo(AIMessage, (prevProps, nextProps) => {
 		prevProps.rating === nextProps.rating &&
 		JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
 		prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
-		prevProps.isNewMessage === nextProps.isNewMessage &&
+		prevProps.isLastMessage === nextProps.isLastMessage &&
 		prevProps.lastQuery === nextProps.lastQuery &&
 		prevProps.latestStreamMesage === nextProps.latestStreamMesage
 	);

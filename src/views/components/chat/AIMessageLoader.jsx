@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, memo } from 'react';
 import Context from '../../../context/context';
 import '../../../assets/scss/chat/aiMessageLoader.scss';
 import ChatLoader from './ChatLoader';
@@ -21,17 +21,17 @@ const AIMessageLoader = () => {
 
 	return (
 		<div className="ai-message-loader">
-			<div className="loader-tabs-wrapper">
+			{/* <div className="loader-tabs-wrapper">
 				<div className={`loader-tab-btn active`}>
 					<div className="loader-wrapper">
 						<ChatLoader />
 					</div>
 					Answer
 				</div>
-			</div>
+			</div> */}
 			<div className="text-container">{message}</div>
 		</div>
 	);
 };
 
-export default AIMessageLoader;
+export default memo(AIMessageLoader);
