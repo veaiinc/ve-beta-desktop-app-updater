@@ -30,6 +30,7 @@ import SidebarTooltip from './SidebarTooltip';
 import UploadAvatarPopupComponent from '../settings/profile/UploadAvatarPopup';
 import UploadFileProiflePopup from '../settings/profile/UploadFileProiflePopup';
 import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import CreditsLeft from './chatHistory/CreditsLeft';
 
 const workspaceStyles = {
 	position: 'absolute',
@@ -837,6 +838,7 @@ const OpenedSidebar = ({
 														<hr className={'horizontal-line-sidebar'} />
 													</div>
 													<ChatHistory />
+													<CreditsLeft />
 													<div
 														className={`settingsOptionsContainer  ${
 															!showSettingsSidebar

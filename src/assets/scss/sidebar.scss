@@ -120,7 +120,7 @@
 			.allmodulesList,
 			.bottomOptionsList {
 				.creditsLeft {
-					width: 100%;
+					width: 97%;
 					padding: 16px;
 					display: flex;
 					justify-content: space-between;
@@ -130,13 +130,72 @@
 					margin-top: 10px;
 					margin-bottom: 10px;
 					overflow-x: hidden !important;
-					.credits {
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
+					position: absolute;
+					bottom: 61px;
+					right: 3px;
+
+					.left {
+						display: flex;
+						flex-direction: column;
+						width: 100%;
+						.creditsContainer {
+							display: flex;
+							flex-direction: column;
+							width: 100%;
+							gap: 12px;
+							&.noCreditsLeft {
+								flex-direction: row;
+								gap: 5px;
+								margin-bottom: 10px;
+							}
+						}
+
+						.upgrade-btn {
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							gap: 6px;
+							color: var(--primary-button, #79ecc9);
+							font-family: var(--primary-font-family);
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 600;
+							line-height: normal;
+							cursor: pointer;
+							svg {
+								path {
+									stroke: var(--primary-button);
+								}
+							}
+						}
+					}
+					.creditsContainerImage {
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						gap: 4px;
+						width: 100%;
+						.credits {
+							color: var(--primary-font, #f2f2f3);
+							font-family: var(--primary-font-family);
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+					.progressBarContainer {
+						width: 100%;
+						height: 8px;
+						background-color: var(--primary-font);
+						border-radius: 4px;
+						overflow: hidden;
+						.progressBar {
+							height: 100%;
+							background-color: var(--primary-button);
+							border-radius: 4px;
+							transition: width 0.3s ease;
+						}
 					}
 					.content {
 						color: var(--secondary-font);
@@ -146,6 +205,10 @@
 						font-weight: 400;
 						line-height: normal;
 					}
+				}
+
+				.displayNone {
+					display: none;
 				}
 				.singleModuleItem {
 					width: 100%;
