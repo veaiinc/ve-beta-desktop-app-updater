@@ -1201,7 +1201,7 @@ const OpenedSidebar = ({
 							}}
 						>
 							<div
-								style={{ width: '100%', gap: '4px', position: 'relative' }}
+								style={{ width: '100%', position: 'relative' }}
 								className={`${
 									showSettingsSidebar ? 'settingsAnimationContainer' : ''
 								}`}
