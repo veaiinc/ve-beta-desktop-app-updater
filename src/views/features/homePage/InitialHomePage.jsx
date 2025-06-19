@@ -478,9 +478,7 @@ const InitialHomePage = () => {
 						className={`homepage__options-container`}
 						style={{
 							display:
-								!aiSuggestedPendingActions?.pendingActions?.length > 0
-									? ''
-									: 'none',
+								aiSuggestedPendingActions?.pendingActions?.length > 0 ? '' : 'none',
 						}}
 					>
 						{renderedOptions}
@@ -504,7 +502,7 @@ const InitialHomePage = () => {
 						}
 					>
 						{/* {componentMapper[info?.selectedOption]} */}
-						{info?.selectedOption === 'proactive' ? (
+						{!info?.selectedOption === 'proactive' ? (
 							<ProactiveSuggestions />
 						) : (
 							<GlobalWidget option={info?.selectedOption} />

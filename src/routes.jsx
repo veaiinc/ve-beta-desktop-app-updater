@@ -160,6 +160,7 @@ const routes = [
 			<AuthWrapper
 				title={'Home'}
 				outerContainerStyle={{ overflow: 'hidden' }}
+				childrenContainerStyles={{ overflow: 'scroll' }}
 				showBottomToolbar={false}
 			>
 				<InitialHomePage />

@@ -37,7 +37,7 @@ const PromptsWidget = ({ option }) => {
 				limit: 20,
 				sortBy: 'createdAt',
 				sortType: -1,
-				category: option,
+				// category: option,
 			},
 			shouldReset,
 		);

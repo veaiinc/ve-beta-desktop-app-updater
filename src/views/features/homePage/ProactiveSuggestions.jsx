@@ -29,6 +29,7 @@ import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.sv
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
 import { ReactComponent as DoubleUpArrowSvg } from '../../../assets/svg/home_page/doubleUpArrow.svg';
 import ChatBox from '../../components/chat/ChatBox';
+import Suggestions from './Suggestions';
 
 const payload = {
 	page: 1,
@@ -1031,14 +1032,19 @@ const ProactiveSuggestions = () => {
 					/>
 				</>
 			)}
-			<div className={`chatbox-container ${info?.showExploreMore ? 'slideUp' : ''}`}>
-				<ChatBox
-					onSend={handleCustomOnSendFunction}
-					customChatActions={true}
-					autoFocus={true}
-					animatePlaceholder={true}
-					onChatQueryChange={handleChatQueryChange}
-				/>
+			<div className="proactiveChatContainer">
+				<div className={`chatbox-container ${info?.showExploreMore ? 'slideUp' : ''}`}>
+					<ChatBox
+						onSend={handleCustomOnSendFunction}
+						customChatActions={true}
+						autoFocus={true}
+						animatePlaceholder={true}
+						onChatQueryChange={handleChatQueryChange}
+					/>
+				</div>
+				<div className="suggestions-container">
+					<Suggestions chatQuery={info?.chatQuery} styles={{ margin: '0 auto' }} />
+				</div>
 			</div>
 			{promptsData?.data?.length > 0 && (
 				<>
