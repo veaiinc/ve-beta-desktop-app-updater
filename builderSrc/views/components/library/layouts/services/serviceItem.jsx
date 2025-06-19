@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import ImageItem from '../../elements/image/index.jsx';
-import Text from '../../elements/text/index.jsx';
+import ImageItem from '../../elements/image';
+import Text from '../../elements/text';
 import Down from '../actions/down.jsx';
 import Up from '../actions/up.jsx';
 import Delete from '../actions/delete.jsx';
@@ -184,6 +184,8 @@ class ServiceItem extends Component {
 				activeVariableID={this.state.activeVariableID}
 				activeVariableName={this.state.activeVariableName}
 				variables={this.props.variables}
+				currencySymbol={this.props.currencySymbol}
+				clientGrandTotal={this.props.clientGrandTotal}
 				module={'proposal'}
 				preview={this.state.preview}
 				client={this.state.client}
@@ -475,6 +477,8 @@ class ServiceItem extends Component {
 								activeVariableID={this.state.activeVariableID}
 								activeVariableName={this.state.activeVariableName}
 								variables={this.props.variables}
+								currencySymbol={this.props.currencySymbol}
+								clientGrandTotal={this.props.clientGrandTotal}
 								module={'proposal'}
 								preview={this.state.preview}
 								client={this.state.client}

@@ -43,18 +43,10 @@ class DocumentShortPreview extends NewProposals {
 			isSubmit: false,
 			isClientVariable: false,
 			activeBlockIdToScroll: null,
-			customDomain: '',
-			currencySymbol: '',
-			updateClient: false,
-			clientListArray: [],
-			isSubmit: false,
-			isClientVariable: false,
 			clientDetails: {},
 			fetchAgain: null,
-			customDomain: '',
 			endUrl: '',
 			expiresAt: '',
-			clientDetails: {},
 			customExpiryDate: '',
 			mobileViewLocked: false,
 			moduleData: this.props.doc.firstModule[0].versions[0],
@@ -351,7 +343,7 @@ class DocumentShortPreview extends NewProposals {
 										setActiveTab={(e, subBlockID = null, blockID = null) => {
 											console.log();
 										}}
-										handleAddLayout={(workspaceID, json, templateID) =>
+										handleAddLayout={(workspaceId, json, templateID) =>
 											console.log()
 										}
 										activeVariableID={this.state.activeVariableID}
@@ -425,6 +417,7 @@ class DocumentShortPreview extends NewProposals {
 										currencySymbol={this.state?.currencySymbol}
 										handleSpanClick={this?.handleSpanClick}
 										editingWorflow={this.props?.editingWorflow || false}
+										audioMode={true}
 									/>
 								</div>
 							</div>

@@ -117,12 +117,12 @@ export const TemplatesState = (props) => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
 	const getMyWorkflows = async (payload, fetchMore = false) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		const response = await service.query(
 			getTemmplatesQuery,
 			payload,
-			workspaceID,
+			workspaceId,
 			null,
 			usertoken,
 			'graphql_server',
@@ -140,13 +140,13 @@ export const TemplatesState = (props) => {
 	};
 
 	const getGlobalWorkflows = async (payload, fetchMore = false) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 
 		const response = await service.query(
 			getTemmplatesQuery,
 			payload,
-			workspaceID,
+			workspaceId,
 			usertoken,
 			'workflows_Api',
 		);
@@ -165,12 +165,12 @@ export const TemplatesState = (props) => {
 
 	const getClientList = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getClientListQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'graphql_server',
@@ -189,12 +189,12 @@ export const TemplatesState = (props) => {
 
 	const getClientListForDocs = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getClientListQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -211,13 +211,13 @@ export const TemplatesState = (props) => {
 	};
 
 	const duplicateGlobalWorkflowTemplate = async (payload) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 
 		const response = await service.query(
 			duplicateTemplateQuery,
 			payload,
-			workspaceID,
+			workspaceId,
 			usertoken,
 			'workflows_Api',
 		);
@@ -250,12 +250,12 @@ export const TemplatesState = (props) => {
 
 	const getAllEmailTemplates = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getAllEmailTemplatesQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -273,12 +273,12 @@ export const TemplatesState = (props) => {
 
 	const addEmailTriggersInWorkflow = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				addEmailTriggersInWorkflowQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -297,12 +297,12 @@ export const TemplatesState = (props) => {
 
 	const getSpecificWorkflowTemplateDetails = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getSpecificWorkflowTemplateDetailsQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -319,12 +319,12 @@ export const TemplatesState = (props) => {
 
 	const deleteWorkflowStep = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				deleteWorkflowStepQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -341,12 +341,12 @@ export const TemplatesState = (props) => {
 
 	const updateWorkflowSteps = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				updateWorkflowStepsQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -363,12 +363,12 @@ export const TemplatesState = (props) => {
 
 	const getSmartFileData = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getSmartFileDataQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'workflows_Api',
@@ -400,12 +400,12 @@ export const TemplatesState = (props) => {
 
 	const updateProposal = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				updateProposalQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'graphql_server',
@@ -423,12 +423,12 @@ export const TemplatesState = (props) => {
 
 	const updateContracts = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				updateContractQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'workflows_Api',
@@ -445,12 +445,12 @@ export const TemplatesState = (props) => {
 
 	const updateInvoice = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				updateInvoiceQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -466,12 +466,12 @@ export const TemplatesState = (props) => {
 
 	const updateForm = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				updateFormQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -487,12 +487,12 @@ export const TemplatesState = (props) => {
 
 	const updateThankyou = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				updateThankYouQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -507,12 +507,12 @@ export const TemplatesState = (props) => {
 	};
 	const getWorkflowsListForFiles = async (payload, fetchMore = false) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getWorkflowListQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -559,12 +559,12 @@ export const TemplatesState = (props) => {
 
 	const getWorkflowsList = async (payload, fetchMore = false) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getWorkflowListQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -585,7 +585,7 @@ export const TemplatesState = (props) => {
 	};
 
 	const getTemplatesListForCreateLead = async () => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 
 		const payload = {
@@ -599,7 +599,7 @@ export const TemplatesState = (props) => {
 		const response = await service.query(
 			getTemplatesListForCreateLeadQuery,
 			payload,
-			workspaceID,
+			workspaceId,
 			usertoken,
 			'workflows_Api',
 		);
@@ -615,7 +615,7 @@ export const TemplatesState = (props) => {
 	};
 
 	const getTemplatesListForDocs = async (page = 1, limit = 10, searchValue = '') => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 
 		const payload = {
@@ -630,7 +630,7 @@ export const TemplatesState = (props) => {
 		const response = await service.query(
 			getTemplatesListForCreateLeadQuery,
 			payload,
-			workspaceID,
+			workspaceId,
 			usertoken,
 			'workflows_Api',
 		);
@@ -645,7 +645,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 	const getTemplatesListForForms = async (page = 1, limit = 10, fetchMore = false) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 
 		const payload = {
@@ -662,7 +662,7 @@ export const TemplatesState = (props) => {
 		const response = await service.query(
 			getTemplatesListForCreateLeadQuery,
 			payload,
-			workspaceID,
+			workspaceId,
 			usertoken,
 			'workflows_Api',
 		);
@@ -681,7 +681,7 @@ export const TemplatesState = (props) => {
 
 	const getFormResponsesList = async (formId, page = 1, limit = 10, fetchMore = false) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 
 			const payload = {
@@ -694,7 +694,7 @@ export const TemplatesState = (props) => {
 			const response = await service.query(
 				getFormResponsesListQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -715,12 +715,12 @@ export const TemplatesState = (props) => {
 
 	const createLeadfromTemplates = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				createLeadfromTemplatesQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'graphql_server',
@@ -737,12 +737,12 @@ export const TemplatesState = (props) => {
 
 	const sendSmartFile = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				sendSmartFileMutation,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -760,12 +760,12 @@ export const TemplatesState = (props) => {
 
 	const getformResponses = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				formResponsesQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -784,12 +784,12 @@ export const TemplatesState = (props) => {
 
 	const chnageWorkflowStats = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				changeWorkflowStatusQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'graphql_server',
@@ -807,12 +807,12 @@ export const TemplatesState = (props) => {
 
 	const getSignedUrlForContracts = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getSignedUrlForContractsQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'workflows_Api',
@@ -868,12 +868,12 @@ export const TemplatesState = (props) => {
 
 	const moveWorkflowStatus = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				moveWorkflowStatusQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'graphql_server',
@@ -891,12 +891,12 @@ export const TemplatesState = (props) => {
 
 	const getSpecificTemplatesInfo = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getSpecifiTemplatesInfoQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -915,12 +915,12 @@ export const TemplatesState = (props) => {
 
 	const getSendSmartFileEmailTemplate = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getSendSmartFileTemplateQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -939,12 +939,12 @@ export const TemplatesState = (props) => {
 
 	const checkSmartFileSlugExists = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				checkSmartFileSlugExistsQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'workflows_Api',
@@ -963,12 +963,12 @@ export const TemplatesState = (props) => {
 
 	const updateSmartFileSlug = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				updateSmartFileSlugMutation,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'workflows_Api',
@@ -986,12 +986,12 @@ export const TemplatesState = (props) => {
 
 	const deleteLead = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				deleteLeadMutation,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'graphql_server',
@@ -1007,12 +1007,12 @@ export const TemplatesState = (props) => {
 	};
 	const deleteWorkflowTemplates = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				deleteWorkflowTemplatesMutation,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -1030,12 +1030,12 @@ export const TemplatesState = (props) => {
 	// Sheshant
 	const getTabItemCount = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getTabItemCountQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -1056,7 +1056,7 @@ export const TemplatesState = (props) => {
 
 	const getRequiredActions = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 
 			const { resetRequiredActions, ...queryPayload } = payload;
@@ -1064,7 +1064,7 @@ export const TemplatesState = (props) => {
 			const response = await service.query(
 				getRequiredActionDetailsQuery,
 				queryPayload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -1092,13 +1092,13 @@ export const TemplatesState = (props) => {
 
 	const getRequiredActionsForTemplate = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const { resetRequiredActions, ...queryPayload } = payload;
 			const response = await service.query(
 				getRequiredActionDetailsQuery,
 				queryPayload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -1137,15 +1137,15 @@ export const TemplatesState = (props) => {
 	const updateSendSmartFileSettings = async (payload) => {
 		console.log('yes im the one');
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				updateSendSmartFileSettingsMutation,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
-				'workflows_Api',
+				'graphql_server',
 			);
 
 			if (response?.[0]) {
@@ -1161,10 +1161,10 @@ export const TemplatesState = (props) => {
 	//events presets
 	const getEventsPresets = async (params) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 
-			let url = `/${workspaceID}/variables/list`;
+			let url = `/${workspaceId}/variables/list`;
 			let completeUrl = url;
 			if (Object.keys(params)?.length) {
 				completeUrl += handleParams(params);
@@ -1183,10 +1183,10 @@ export const TemplatesState = (props) => {
 
 	const addEventsPresets = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await Service.fetchPost(
-				`/${workspaceID}/variables`,
+				`/${workspaceId}/variables`,
 				payload,
 				usertoken,
 				'proposal',
@@ -1204,10 +1204,10 @@ export const TemplatesState = (props) => {
 
 	const editEventsPresets = async (payload, varaibleId) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await Service.fetchPut(
-				`/${workspaceID}/variables/${varaibleId}`,
+				`/${workspaceId}/variables/${varaibleId}`,
 				payload,
 				usertoken,
 				'proposal',
@@ -1225,10 +1225,10 @@ export const TemplatesState = (props) => {
 
 	const deleteEventsPreset = async (varaibleId) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await Service.fetchDelete(
-				`/${workspaceID}/variables/${varaibleId}`,
+				`/${workspaceId}/variables/${varaibleId}`,
 				usertoken,
 				null,
 				'proposal',
@@ -1246,12 +1246,12 @@ export const TemplatesState = (props) => {
 
 	const getLatestSendSmartFileSettings = async () => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getLatestSendSmartFileSettingsQuery,
 				null,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -1271,9 +1271,9 @@ export const TemplatesState = (props) => {
 	//Ai predictions
 	const getAiPredictionForSmartFile = async (workflowSlug) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceID}/${workflowSlug}/predict`;
+			const url = `/${workspaceId}/${workflowSlug}/predict`;
 			const response = await Service.fetchGet(url, usertoken, 'ai_predictions');
 
 			if (response?.[0]) {
@@ -1292,10 +1292,10 @@ export const TemplatesState = (props) => {
 	//leaveWorkspace
 	const leaveWorkspace = async () => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await Service.fetchDelete(
-				`/tenant/${workspaceID}/tenant-users/leave-workspace`,
+				`/tenant/${workspaceId}/tenant-users/leave-workspace`,
 				usertoken,
 				null,
 				'auth',
@@ -1314,13 +1314,13 @@ export const TemplatesState = (props) => {
 
 	const sendCustomEmailToClients = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 
 			const response = await service.query(
 				sendCustomMailMutation,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'workflows_Api',
@@ -1340,8 +1340,8 @@ export const TemplatesState = (props) => {
 	const connectThirdParty = async (connectType) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
-			let workspaceID = localStorage.getItem('workspaceID');
-			const path = `/${connectType}/${workspaceID}/auth`;
+			let workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${connectType}/${workspaceId}/auth`;
 
 			const response = await Service?.fetchGet(
 				path,
@@ -1373,12 +1373,12 @@ export const TemplatesState = (props) => {
 
 	const getActivityLogs = async (payload, fetchMore = false) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getActivityLogsQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -1400,12 +1400,12 @@ export const TemplatesState = (props) => {
 
 	const getDrafStateWorkflowtemplates = async (payload, fetchMore = false) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getTemmplatesQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -1435,9 +1435,9 @@ export const TemplatesState = (props) => {
 
 	const smartFileAiChat = async (payload, sessionId) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceID}/${sessionId}/multi_agent_chat`;
+			const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
 			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
 			if (response?.[0]) {
 				return [true, response?.[1]];
@@ -1449,9 +1449,9 @@ export const TemplatesState = (props) => {
 
 	const uploadImageInSmartFileAi = async (file, slug) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `https://ai.ap-south-1.ve.ai/${workspaceID}/${slug}/data_extraction`;
+			const url = `https://ai.ap-south-1.ve.ai/${workspaceId}/${slug}/data_extraction`;
 
 			const base64 = await getBase64(file);
 			// Convert base64 to blob
@@ -1479,9 +1479,9 @@ export const TemplatesState = (props) => {
 
 	// const handleGlobalChatMessages = async (payload, sessionId, localPayload) => {
 	// 	try {
-	// 		let workspaceID = localStorage.getItem('workspaceID');
+	// 		let workspaceId = localStorage.getItem('workspaceId');
 	// 		let usertoken = localStorage.getItem('usertoken');
-	// 		const url = `/${workspaceID}/${sessionId}/multi_agent_chat`;
+	// 		const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
 
 	// 		let updatedGlobalChatMessages = [];
 
@@ -1580,11 +1580,11 @@ export const TemplatesState = (props) => {
 
 	// const handleGlobalUploadImage = async (file, payload) => {
 	// 	try {
-	// 		let workspaceID = localStorage.getItem('workspaceID');
+	// 		let workspaceId = localStorage.getItem('workspaceId');
 	// 		let usertoken = localStorage.getItem('usertoken');
 
 	// 		const response = await Service.fetchPost(
-	// 			`/${workspaceID}/knowledge-bases/upload-file`,
+	// 			`/${workspaceId}/knowledge-bases/upload-file`,
 	// 			payload,
 	// 			usertoken,
 	// 			'ai_assistant_api',
@@ -1622,10 +1622,10 @@ export const TemplatesState = (props) => {
 
 	// const deleteUploadedImageThroughChat = async (fileId) => {
 	// 	try {
-	// 		let workspaceID = localStorage.getItem('workspaceID');
+	// 		let workspaceId = localStorage.getItem('workspaceId');
 	// 		let usertoken = localStorage.getItem('usertoken');
 	// 		const response = await Service.fetchDelete(
-	// 			`/${workspaceID}/ai-chat/delete-file/${fileId}`,
+	// 			`/${workspaceId}/ai-chat/delete-file/${fileId}`,
 	// 			usertoken,
 	// 			null,
 	// 			'ai_assistant_api',
@@ -1643,9 +1643,9 @@ export const TemplatesState = (props) => {
 
 	const checkIndividualImageUploadedStatus = async (uploadBatchId) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceID}/knowledge-bases/file-upload-status/${uploadBatchId}`;
+			const url = `/${workspaceId}/knowledge-bases/file-upload-status/${uploadBatchId}`;
 			const response = await Service.fetchGet(url, usertoken, 'ai_assistant_api');
 			return response;
 		} catch (error) {
@@ -1658,12 +1658,12 @@ export const TemplatesState = (props) => {
 
 	const getDocsFilesList = async (payload, fetchMore = false) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getWorkflowListQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -1689,12 +1689,12 @@ export const TemplatesState = (props) => {
 	//updated steps functions
 	const addNewSteps = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				addNewStepsQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -1713,12 +1713,12 @@ export const TemplatesState = (props) => {
 
 	const updateSteps = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				updateStepsQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
@@ -1735,10 +1735,10 @@ export const TemplatesState = (props) => {
 	//slack Apis
 	const getAllSlackChannels = async (slackAccessToken) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await Service.fetchGet(
-				`/slack/${workspaceID}/channels`,
+				`/slack/${workspaceId}/channels`,
 				usertoken,
 				'third_party_integrations_api',
 				{
@@ -1762,12 +1762,12 @@ export const TemplatesState = (props) => {
 
 	const updateFiles = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				updateFiledataQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'workflows_Api',
@@ -1784,12 +1784,12 @@ export const TemplatesState = (props) => {
 
 	const getSmartFileVariablesData = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getSmartFileDataVariablesDataQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'workflows_Api',
@@ -1808,12 +1808,12 @@ export const TemplatesState = (props) => {
 
 	const updateClientVariablesData = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				updateClientVariableDataMutation,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'workflows_Api',
@@ -1832,10 +1832,10 @@ export const TemplatesState = (props) => {
 
 	const updateCustomVariabledata = async (payload, varaibleId) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await Service.fetchPut(
-				`/${workspaceID}/variables/${varaibleId}`,
+				`/${workspaceId}/variables/${varaibleId}`,
 				payload,
 				usertoken,
 				'proposal',
@@ -1852,12 +1852,12 @@ export const TemplatesState = (props) => {
 	};
 	const createSmartfile = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service?.query(
 				createSmartfileQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'graphql_server',
@@ -1878,12 +1878,12 @@ export const TemplatesState = (props) => {
 
 	const getWorkflowInfo = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getWorkflowInfoQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'graphql_server',
@@ -1906,12 +1906,12 @@ export const TemplatesState = (props) => {
 
 	const getSmartFileActivity = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getSmartFileActivityQuery,
 				payload,
-				workspaceID,
+				workspaceId,
 				null,
 				usertoken,
 				'activity_api',
@@ -1932,7 +1932,7 @@ export const TemplatesState = (props) => {
 
 	const getSmartFileViewers = async (payload) => {
 		try {
-			let workspaceId = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getSmartFileViewersQuery,
@@ -1959,7 +1959,7 @@ export const TemplatesState = (props) => {
 
 	const duplicateSmartFile = async (payload) => {
 		try {
-			const workspaceId = localStorage.getItem('workspaceID');
+			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				duplicateSmartFileQuery,
@@ -1981,7 +1981,7 @@ export const TemplatesState = (props) => {
 
 	const getViewersSessionDetails = async (payload) => {
 		try {
-			let workspaceId = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getViewersSessionDetailsQuery,
@@ -2007,7 +2007,7 @@ export const TemplatesState = (props) => {
 
 	const getFormResponse = async (payload) => {
 		try {
-			let workspaceId = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getFormResponseQuery,

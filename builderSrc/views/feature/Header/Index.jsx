@@ -509,7 +509,7 @@ const Header = ({
 	const handlePreviewUrl = () => {
 		const usertoken = localStorage.getItem('usertoken');
 		const region = localStorage.getItem('region');
-		const currentWorkspaceId = localStorage.getItem('workspaceID');
+		const currentWorkspaceId = localStorage.getItem('workspaceId');
 		window.open(
 			`https://${currentWorkspaceId}.ve.ai/portal/${info?.slug}/${region}/${usertoken}`,
 			'_self',
@@ -517,7 +517,7 @@ const Header = ({
 	};
 
 	const handleTemplateClick = (template_ID) => {
-		window.open(`${window.location.origin}/${template_ID}`, '_blank', 'noopener,noreferrer');
+		navigate(`/builder/${template_ID}`, '_blank', 'noopener,noreferrer');
 	};
 
 	return (
@@ -530,7 +530,7 @@ const Header = ({
 					<div className="input-wrapper">
 						{/* <LeftArrow onClick={() => navigate(-1)} style={{ cursor: 'pointer' }} /> */}
 						<LeftArrow
-							onClick={() => navigate('/my-templates')}
+							onClick={() => navigate(`/files?activeTab=Designs`)}
 							style={{ cursor: 'pointer' }}
 						/>
 

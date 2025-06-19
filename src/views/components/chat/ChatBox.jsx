@@ -149,6 +149,7 @@ const ChatBox = ({
 			userEditedQuery,
 			galleryFile,
 			chatPayload,
+			chatReplyData,
 		},
 		subscriptionInfo: { currentPlan, updateSubscriptionState },
 		calendarInfo: { updateCalendarState },
@@ -539,7 +540,9 @@ const ChatBox = ({
 
 				if (info?.chatQuery?.trim()?.length > 0 || query?.trim()?.length > 0) {
 					setInfo((prev) => ({ ...prev, chatLoading: true }));
-					let currentQuery = info?.chatQuery?.trim() || query?.trim();
+					let currentQuery =
+						(chatReplyData ? chatReplyData + '\n' : '') +
+						(info?.chatQuery?.trim() || query?.trim());
 					const routeName = location?.pathname?.split('/')?.[1];
 
 					const date =
@@ -659,6 +662,11 @@ const ChatBox = ({
 							recentFiles: recentFilesRef?.current || [],
 						});
 					}
+					if (chatReplyData) {
+						updateStateValues({
+							chatReplyData: null,
+						});
+					}
 					handleStreamSendMessage(payload, localPayload, currentQuery);
 					if (handleSendWebsocketMessage) {
 						handleSendWebsocketMessage(payload, currentQuery);
@@ -678,6 +686,7 @@ const ChatBox = ({
 			location,
 			params,
 			currentPlan,
+			chatReplyData,
 		],
 	);
 
@@ -1167,6 +1176,12 @@ const ChatBox = ({
 		});
 	};
 
+	const handleReplyCloseClick = () => {
+		updateStateValues({
+			chatReplyData: null,
+		});
+	};
+
 	return (
 		<div
 			className="chatParentWrapper"
@@ -1186,6 +1201,18 @@ const ChatBox = ({
 										startPage ? ' startPageContainer' : ''
 									}`}
 								>
+									{chatReplyData && (
+										<div className="chat-reply-data">
+											<div className="reply-icon"></div>
+											<div className="reply-text">{`"${chatReplyData}"`}</div>
+											<div
+												className="reply-close-icon"
+												onClick={handleReplyCloseClick}
+											>
+												<CloseSvg />
+											</div>
+										</div>
+									)}
 									<RecentFileTooltip
 										fileTypeIcons={fileTypeIcons}
 										handleRecentFileClick={handleRecentFileClick}
@@ -1240,7 +1267,7 @@ const ChatBox = ({
 															}}
 														>
 															<div
-																className="icon"
+																className="chat-icon"
 																style={{ cursor: 'pointer' }}
 															>
 																<PlusSvg width={24} height={24} />
@@ -1312,7 +1339,7 @@ const ChatBox = ({
 											))}
 									</div>
 									{!startPage && (
-										<div className="options-container">
+										<div className="chatInputParentContainer__options-container">
 											{info?.showFilters ? (
 												<div className="filters-parent-container">
 													<div
@@ -1438,7 +1465,7 @@ const ChatBox = ({
 																			}`,
 																		}}
 																	>
-																		<div className="icon">
+																		<div className="chat-icon">
 																			<PlusSvg
 																				width={17}
 																				height={17}
@@ -1469,7 +1496,7 @@ const ChatBox = ({
 																		}`}
 																		onClick={handleAskClick}
 																	>
-																		<div className="icon">
+																		<div className="chat-icon">
 																			<div
 																				className="icon-text ask-icon-text"
 																				style={{
@@ -1535,7 +1562,7 @@ const ChatBox = ({
 																			handleDeepResearchClick
 																		}
 																	>
-																		<div className="icon">
+																		<div className="chat-icon">
 																			<div className="text-wrapper deep-research-text-wrapper">
 																				<AtomSvg
 																					fill={
@@ -1582,7 +1609,7 @@ const ChatBox = ({
 																		}`}
 																		onClick={handleBuildClick}
 																	>
-																		<div className="icon">
+																		<div className="chat-icon">
 																			<div className="text-wrapper">
 																				<div className="build-icon">
 																					<SparkSvg />
@@ -1743,7 +1770,7 @@ const ChatBox = ({
 															</div>
 														)} */}
 
-														{info?.chatQuery?.trim()?.length > 0 ||
+														{/* {info?.chatQuery?.trim()?.length > 0 ||
 														isPublicChat ? (
 															<div
 																className="click-btn"
@@ -1772,7 +1799,20 @@ const ChatBox = ({
 															>
 																<AudioSvg />
 															</div>
-														)}
+														)} */}
+														<div
+															className="click-btn"
+															onClick={(e) => {
+																e.stopPropagation();
+																handleSendBtnClick(e);
+															}}
+															style={{
+																backgroundColor:
+																	'var(--primary-button)',
+															}}
+														>
+															<ArrowUp />
+														</div>
 													</div>
 												</div>
 											)}

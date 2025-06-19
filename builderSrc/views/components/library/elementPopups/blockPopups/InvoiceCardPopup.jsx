@@ -26,11 +26,12 @@ import ImageLibrary from '../../../imageLibrary';
 import Cropper from 'react-easy-crop';
 import { ReactComponent as Delete } from '../../svgs/delete.svg';
 import ObjectID from 'bson-objectid';
+import _ from 'lodash';
 export default class InvoiceCardPopup extends Images {
 	constructor(props) {
 		super(props);
 		this.state = {
-			active: 'i',
+			active: 'b',
 			overlayEffect: false,
 			activeComponent: props?.activeComponent || {},
 			showImageProgressBar: false,
@@ -43,7 +44,7 @@ export default class InvoiceCardPopup extends Images {
 			activeModuleId: props?.activeModuleId,
 			isCustomGrid: false, // Add this new state
 
-			activeBgtype: props?.activeComponent?.style?.backgroundType,
+			activeBgtype: props?.activeComponent?.style?.backgroundType || 'background',
 			showTaxes: true,
 			showDiscounts: false,
 			debounceStateForInputs: null,
@@ -292,7 +293,10 @@ export default class InvoiceCardPopup extends Images {
 			type == 'backgroundVideoURL' ||
 			type == 'backgroundType' ||
 			type == 'showDescription' ||
-			type == 'showImage'
+			type == 'showImage' ||
+			type == 'showQuantity' ||
+			type == 'showUnit' ||
+			type == 'showUnitPrice'
 		) {
 			if (type == 'sectionBackgroundColor') {
 				newComponent = {
@@ -320,7 +324,13 @@ export default class InvoiceCardPopup extends Images {
 						backgroundType: 'video',
 					},
 				};
-			} else if (type == 'showDescription' || type == 'showImage') {
+			} else if (
+				type == 'showDescription' ||
+				type == 'showImage' ||
+				type == 'showQuantity' ||
+				type == 'showUnit' ||
+				type == 'showUnitPrice'
+			) {
 				newComponent = {
 					...newComponent,
 					style: {
@@ -449,6 +459,20 @@ export default class InvoiceCardPopup extends Images {
 			func();
 		}, delay);
 		this.setState({ debounceStateForInputs: debounceFunc });
+	};
+
+	handleInvoiceCardStyles = (type, value) => {
+		let newComponent = { ...this.state.activeComponent };
+		newComponent = {
+			...newComponent,
+			style: {
+				...newComponent?.style,
+				[type]: value,
+			},
+		};
+		this.setState({ activeComponent: newComponent }, () => {
+			this.props?.handleCardPopupProps(newComponent);
+		});
 	};
 	render() {
 		return (
@@ -1050,7 +1074,7 @@ export default class InvoiceCardPopup extends Images {
 										this.handleActiveCardStyles(
 											'showDescription',
 											!this.state?.activeComponent?.style?.labels
-												?.showDescription,
+												?.showDescription ?? false,
 										);
 									}}
 								>
@@ -1065,7 +1089,7 @@ export default class InvoiceCardPopup extends Images {
 										// }}
 										checked={
 											this.state?.activeComponent?.style?.labels
-												?.showDescription ?? false
+												?.showDescription ?? true
 										}
 									/>
 									<span className="slider-round round"></span>
@@ -1090,7 +1114,8 @@ export default class InvoiceCardPopup extends Images {
 									onClick={() => {
 										this.handleActiveCardStyles(
 											'showImage',
-											!this.state?.activeComponent?.style?.labels?.showImage,
+											!this.state?.activeComponent?.style?.labels
+												?.showImage ?? false,
 										);
 									}}
 								>
@@ -1105,12 +1130,136 @@ export default class InvoiceCardPopup extends Images {
 										// }}
 										checked={
 											this.state?.activeComponent?.style?.labels?.showImage ??
-											false
+											true
 										}
 									/>
 									<span className="slider-round round"></span>
 								</label>
 							</div>
+							<div
+								className=" bs-item bs-item-row animated-item"
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									// margin: '20px 0px',
+								}}
+							>
+								<b
+								// style={{ textTransform: 'capitalize' }}
+								>
+									Quantity
+								</b>
+
+								<label
+									className="switch"
+									onClick={() => {
+										this.handleActiveCardStyles(
+											'showQuantity',
+											!this.state?.activeComponent?.style?.labels
+												?.showQuantity ?? false,
+										);
+									}}
+								>
+									<input
+										type="checkbox"
+										// onChange={(e) => {
+										// 	e.preventDefault();
+										// 	this.handleActiveStickerStyles(
+										// 		'stretch',
+										// 		e.target.checked,
+										// 	);
+										// }}
+										checked={
+											this.state?.activeComponent?.style?.labels
+												?.showQuantity ?? true
+										}
+									/>
+									<span className="slider-round round"></span>
+								</label>
+							</div>
+							<div
+								className=" bs-item bs-item-row animated-item"
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									// margin: '20px 0px',
+								}}
+							>
+								<b
+								// style={{ textTransform: 'capitalize' }}
+								>
+									Unit
+								</b>
+
+								<label
+									className="switch"
+									onClick={() => {
+										this.handleActiveCardStyles(
+											'showUnit',
+											!this.state?.activeComponent?.style?.labels?.showUnit ??
+												false,
+										);
+									}}
+								>
+									<input
+										type="checkbox"
+										// onChange={(e) => {
+										// 	e.preventDefault();
+										// 	this.handleActiveStickerStyles(
+										// 		'stretch',
+										// 		e.target.checked,
+										// 	);
+										// }}
+										checked={
+											this.state?.activeComponent?.style?.labels?.showUnit ??
+											true
+										}
+									/>
+									<span className="slider-round round"></span>
+								</label>
+							</div>
+							<div
+								className=" bs-item bs-item-row animated-item"
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									// margin: '20px 0px',
+								}}
+							>
+								<b
+								// style={{ textTransform: 'capitalize' }}
+								>
+									Unit Price
+								</b>
+
+								<label
+									className="switch"
+									onClick={() => {
+										this.handleActiveCardStyles(
+											'showUnitPrice',
+											!this.state?.activeComponent?.style?.labels
+												?.showUnitPrice ?? false,
+										);
+									}}
+								>
+									<input
+										type="checkbox"
+										// onChange={(e) => {
+										// 	e.preventDefault();
+										// 	this.handleActiveStickerStyles(
+										// 		'stretch',
+										// 		e.target.checked,
+										// 	);
+										// }}
+										checked={
+											this.state?.activeComponent?.style?.labels
+												?.showUnitPrice ?? true
+										}
+									/>
+									<span className="slider-round round"></span>
+								</label>
+							</div>
+
 							<div className="element_image">
 								<div className="element_pasteURL" style={{ gap: '15px' }}>
 									<div className="block_styles pad-color-p-imp">

@@ -379,7 +379,7 @@ class BuilderPreview extends Proposals {
 	getAllModules = async () => {
 		this.setState({ isLoading: true });
 
-		_.map(this.state.modules, async (module, key) => {
+		const modulePromises = _.map(this.state.modules, async (module, key) => {
 			if (module.isPublic === null) module.isPublic = this.state.isPublicModule;
 
 			if (
@@ -388,7 +388,7 @@ class BuilderPreview extends Proposals {
 				this.state.displayModules === module._id
 			) {
 				if (this.state.isWorkflow)
-					this.getWorkflowModuleTemplate(
+					return this.getWorkflowModuleTemplate(
 						moduleWorkflowQuery,
 						{
 							getModuleTemplateId: module._id,
@@ -398,7 +398,7 @@ class BuilderPreview extends Proposals {
 						module.order,
 					);
 				else
-					this.getModuleTemplate(
+					return this.getModuleTemplate(
 						moduleQuery,
 						{
 							getModuleTemplateId: module._id,
@@ -409,6 +409,9 @@ class BuilderPreview extends Proposals {
 					);
 			}
 		});
+
+		await Promise.all(modulePromises.filter(Boolean));
+		this.computeGrandTotal();
 	};
 
 	replaceInput = async (id, text) => {
@@ -610,8 +613,12 @@ class BuilderPreview extends Proposals {
 					const val = (section?.style?.subTotalValue + '')
 						.replace(/&nbsp;/g, ' ')
 						.replace(/<\/?[^>]+(>|$)/g, '')
-						.replace(/"/g, '');
-					total += parseFloat(val) || 0;
+						.replace(/"/g, '')
+						.trim();
+					const parsedVal = parseFloat(val);
+					if (!isNaN(parsedVal)) {
+						total += parsedVal;
+					}
 				}
 			});
 		});
@@ -793,12 +800,21 @@ class BuilderPreview extends Proposals {
 					ref={this.parentRef}
 					style={{
 						pointerEvents: this.state?.restrictClick === 'true' ? 'none' : '',
-
 						...(this.props?.homeWrapperStyle || {}),
 						width: this.state?.showSmartFileSidebar ? '60%' : '100%',
 						transition: 'width 0.3s ease-in-out',
 					}}
 				>
+					<style>{`
+						.home_wrapper a:-webkit-any-link {
+							color: inherit !important;
+							text-decoration: none;
+						}
+						.home_wrapper a {
+							color: inherit !important;
+							text-decoration: none;
+						}
+					`}</style>
 					{this.state.updateClient &&
 						this.state.isWorkflow &&
 						this.props?.editingWorflow && (
@@ -944,7 +960,7 @@ class BuilderPreview extends Proposals {
 															console.log();
 														}}
 														handleAddLayout={(
-															workspaceID,
+															workspaceId,
 															json,
 															templateID,
 														) => console.log()}

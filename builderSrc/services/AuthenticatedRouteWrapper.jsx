@@ -1,12 +1,11 @@
-import { fetchOriginSelection } from '../helper';
 import { useNavigate } from 'react-router-dom';
 
 const isAuthenticated = () => {
 	const usertoken = localStorage.getItem('usertoken');
-	const workspaceID = localStorage.getItem('workspaceID');
+	const workspaceId = localStorage.getItem('workspaceId');
 	const region = localStorage.getItem('region') || 'ap-south-1';
 
-	if (usertoken && workspaceID) {
+	if (usertoken && workspaceId) {
 		return true;
 	}
 
@@ -16,7 +15,7 @@ const isAuthenticated = () => {
 const AuthenticatedRoute = ({ children }) => {
 	const navigate = useNavigate();
 	if (!isAuthenticated()) {
-		navigate(fetchOriginSelection());
+		navigate('/');
 		return null;
 	}
 

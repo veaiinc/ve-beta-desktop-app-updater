@@ -1,4 +1,5 @@
 import { Navigate } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 
 import Landing_screen from './views/features/landingScreen/LandingPage';
 
@@ -53,7 +54,6 @@ import PricingPage from './views/features/pricingPlans/pricingPage';
 import ProactiveAi from './views/features/proactiveAi/ProactiveAi';
 import ShareAndEarn from './views/features/shareAndEarn/ShareAndEarn';
 import NotesPage from './views/features/notesPage/NotesPage';
-import BuilderApp from '../builderSrc/App';
 import KnowledgeAgents from './views/features/knowledgeAgent/KnowledgeAgents';
 import SettingsWrapper from './views/features/settings/SettingsWrapper';
 import Files from './views/features/files/Files';
@@ -62,13 +62,18 @@ import AiAssistants from './views/features/aiAssistant/AiAssistants';
 import KnowledgeAgentDetails from './views/features/knowledgeAgent/AgentDetails';
 import LoginPage from './views/features/loginPage/LoginPage';
 
+const BuilderApp = lazy(() => import('../builderSrc/App'));
+
+import Agents from './views/features/agents/Agents';
+import Agent from './views/features/agents/agent/Agent';
+
 const routes = [
 	{
 		path: '/',
 		component: <Landing_screen />,
 	},
 	{
-		path: '/mission',
+		path: '/thebridge',
 		component: <Landing_screen />,
 	},
 	{
@@ -384,7 +389,7 @@ const routes = [
 	{
 		path: '/notes',
 		component: (
-			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '32px 32px 0px' }}>
+			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
 				<NotesPage />
 			</AuthWrapper>
 		),
@@ -606,7 +611,7 @@ const routes = [
 					backgroundColor: 'var(--background-color)',
 					padding: '0px',
 				}}
-				sidebarContainerStyles={{ paddingTop: '32px', paddingLeft: '32px' }}
+				sidebarContainerStyles={{ padding: '0px' }}
 				maxWidth={'100%'}
 				sidebarContainerClassName={'auth-sidebar-container'}
 			>
@@ -668,7 +673,29 @@ const routes = [
 				childrenContainerStyles={{ maxWidth: '100%' }}
 				showSidebar={false}
 			>
-				<BuilderApp />
+				<Suspense fallback={'loading builder...'}>
+					<BuilderApp />
+				</Suspense>
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/agents',
+		component: (
+			<AuthWrapper
+				title="Agents"
+				outerContainerStyle={{ padding: '0' }}
+				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
+			>
+				<Agents />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/agent/:agentId',
+		component: (
+			<AuthWrapper title="Agent">
+				<Agent />
 			</AuthWrapper>
 		),
 	},

@@ -1,7 +1,4 @@
 import React from 'react';
-import { ReactComponent as EditSet } from '../../../../assets/svg/edit.svg';
-import { ReactComponent as Profile } from '../../../../assets/svg/workflow/profile.svg';
-import { ReactComponent as LinkExpiry } from '../../../../assets/svg/Settings/LinkExpiry.svg';
 
 class ShareComponent extends React.Component {
 	constructor(props) {
@@ -53,8 +50,8 @@ class ShareComponent extends React.Component {
 								{`${
 									this.state.customDomain
 										? this.state.customDomain
-										: localStorage.getItem('workspaceID')
-										? `${localStorage.getItem('workspaceID')}.ve.ai`
+										: localStorage.getItem('workspaceId')
+										? `${localStorage.getItem('workspaceId')}.ve.ai`
 										: ''
 								}/portal/`}
 								<input
@@ -188,6 +185,7 @@ class ShareComponent extends React.Component {
 
 export default ShareComponent;
 
+// /* eslint-disable react-hooks/exhaustive-deps */
 // import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 // import './ShareComponent.scss';
 // import Context from '../../../../context/context';

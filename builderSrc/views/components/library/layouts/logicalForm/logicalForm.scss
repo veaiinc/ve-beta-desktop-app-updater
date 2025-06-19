@@ -119,7 +119,8 @@
 }
 
 .add-element-button-logical-form:hover {
-	background-color: #1976d2;
+	background-color: #d2ff00;
+	color: black;
 }
 
 .logical-form-container {
@@ -135,6 +136,16 @@
 	height: 100%;
 	padding-top: 60px;
 	/* Add space for the fixed button */
+
+	[data-rbd-draggable-context-id] {
+		width: 100% !important;
+		left: 0 !important;
+		transform: none !important;
+	}
+
+	[data-rbd-drag-handle-draggable-id] {
+		width: 100% !important;
+	}
 }
 
 .form-header {
@@ -251,11 +262,11 @@
 	text-align: center;
 }
 
-// h3 {
-// 	margin: 8px 12px;
-// 	font-size: 14px;
-// 	color: #888;
-// }
+h3 {
+	margin: 8px 12px;
+	font-size: 14px;
+	color: #888;
+}
 
 .embed-fields {
 	margin-top: 16px;
@@ -336,7 +347,7 @@
 	opacity: 1;
 }
 
-.builder__action-button,
+.action-button,
 .remove-condition {
 	background: none;
 	border: none;
@@ -377,7 +388,7 @@
 	border: transparent;
 }
 
-.builder__answer-input.error {
+.answer-input.error {
 	border-color: #ff4d4d !important;
 	background-color: #fff5f5;
 }
@@ -398,7 +409,7 @@
 	}
 }
 
-.builder__answer-input {
+.answer-input {
 	width: 712px;
 	padding: 8px 0;
 	font-size: 18px;
@@ -410,11 +421,11 @@
 	position: relative;
 }
 
-.builder__answer-input:focus {
+.answer-input:focus {
 	outline: none;
 }
 
-.builder__answer-input::placeholder {
+.answer-input::placeholder {
 	color: #999;
 	font-size: 18px;
 }
@@ -552,6 +563,21 @@
 	background: #f5f5f5;
 }
 
+.copy-button {
+	padding: 8px 16px;
+	background: #2196f3;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: background-color 0.2s;
+}
+
+.copy-button:hover {
+	background-color: #1976d2;
+}
+
 .modal-actions {
 	display: flex;
 	justify-content: flex-end;
@@ -579,6 +605,11 @@
 	border-top: 1px solid #eee;
 }
 
+.options-container {
+	width: 712px;
+	margin-bottom: 24px;
+}
+
 .add-option-form {
 	display: flex;
 	gap: 10px;
@@ -600,16 +631,16 @@
 	display: block;
 }
 
-// .input-container {
-// 	position: relative;
-// 	width: 712px;
-// 	display: flex;
-// 	align-items: center;
+.input-container {
+	position: relative;
+	width: 712px;
+	display: flex;
+	align-items: center;
 
-// 	@media only screen and (max-width: 768px) {
-// 		width: 380px !important;
-// 	}
-// }
+	@media only screen and (max-width: 768px) {
+		width: 380px !important;
+	}
+}
 
 .input-container.required::after {
 	content: '*';
@@ -624,7 +655,7 @@
 	position: relative;
 }
 
-.builder__answer-input::after {
+.answer-input::after {
 	content: '';
 	position: absolute;
 	bottom: -8px;
@@ -1452,13 +1483,13 @@ input::placeholder {
 	}
 }
 
-// .inputIcon {
-// 	position: absolute;
-// 	right: 8px;
-// 	top: 50%;
-// 	transform: translateY(-50%);
-// 	color: #666;
-// }
+.inputIcon {
+	position: absolute;
+	right: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: #666;
+}
 
 .submit-button {
 	display: flex;
@@ -1506,7 +1537,7 @@ input::placeholder {
 	transition: all 0.3s ease;
 }
 
-.builder__answer-input:invalid {
+.answer-input:invalid {
 	border-color: #ff4444;
 }
 
@@ -1643,11 +1674,11 @@ input::placeholder {
 	gap: 20px;
 }
 
-// input[type='date']::-webkit-calendar-picker-indicator,
-// input[type='time']::-webkit-calendar-picker-indicator {
-// 	filter: invert(1);
-// 	cursor: pointer;
-// }
+input[type='date']::-webkit-calendar-picker-indicator,
+input[type='time']::-webkit-calendar-picker-indicator {
+	filter: invert(1);
+	cursor: pointer;
+}
 
 .embed-anything-container {
 	width: 100%;
@@ -1934,7 +1965,7 @@ textarea.embed-anything-input {
 	z-index: 2;
 }
 
-.builder__answer-input {
+.answer-input {
 	&:focus {
 		outline: none;
 	}
@@ -1942,7 +1973,7 @@ textarea.embed-anything-input {
 
 // Client-specific styles
 .client-mode {
-	.builder__answer-input {
+	.answer-input {
 		display: flex !important;
 		height: 36px !important;
 		padding: 8px 16px !important;
@@ -1979,51 +2010,55 @@ textarea.embed-anything-input {
 }
 
 // Date and time picker consistent styling
-input[type='date'],
-input[type='time'] {
-	appearance: none;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	background-color: var(--card);
-	border: 1.5px solid var(--stroke) !important;
-	border-radius: 16px;
-	color: var(--primary-font);
-	font-size: 14px;
-	cursor: pointer;
-	width: 100%;
-	padding: 12px;
-
-// 	// &::-webkit-calendar-picker-indicator {
-// 	// 	background: none;
-// 	// 	display: none;
-// 	// }
-
-	&::-webkit-datetime-edit {
-		color: var(--primary-font);
-	}
-
-	&::-webkit-inner-spin-button {
-		display: none;
-	}
-
-	&::-webkit-clear-button {
-		display: none;
-	}
-
-	@media screen and (max-width: 768px) {
+.logical-form {
+	input[type='date'],
+	input[type='time'] {
+		appearance: none;
 		-webkit-appearance: none;
-		color-scheme: light;
+		-moz-appearance: none;
+		background-color: white;
+		border: 1.5px solid #d0d0d0 !important;
+		border-radius: 16px;
+		color: black;
+		font-size: 14px;
+		cursor: pointer;
+		width: 100%;
+		padding: 12px;
+
+		&::-webkit-calendar-picker-indicator {
+			background: none;
+			display: none;
+		}
+
+		&::-webkit-datetime-edit {
+			color: black;
+		}
+
+		&::-webkit-inner-spin-button {
+			display: none;
+		}
+
+		&::-webkit-clear-button {
+			display: none;
+		}
+
+		@media screen and (max-width: 768px) {
+			-webkit-appearance: none;
+			color-scheme: light;
+		}
 	}
 }
 
 // Override any mobile-specific styling
 @media screen and (max-width: 768px) {
-	input[type='date'],
-	input[type='time'] {
-		font-size: 14px;
-		background-color: transparent !important;
-		color: var(--primary-font, #f2f2f3);
-		margin-top: 8px !important;
+	.logical-form {
+		input[type='date'],
+		input[type='time'] {
+			font-size: 14px;
+			background-color: transparent !important;
+			color: black !important;
+			margin-top: 8px !important;
+		}
 	}
 }
 .custom-placeholder::placeholder {

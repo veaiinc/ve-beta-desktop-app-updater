@@ -13,17 +13,15 @@ import { useState, useContext, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import DocumentShare from '../../feature/document/DocumentShare';
-import { fetchOriginSelection } from '../../../helper';
 import Summary from './Summary';
 import DeleteLeadModal from './DeletedocumentModel';
 import DuplicateLeadModal from './DuplicatedocumentModel';
 import AcceptDocumentModel from './AcceptDoc';
 import moment from 'moment';
-import MoveStageModal from '../SmartFileDetails/MoveStageModal';
-
+import MoveStageModal from '../../components/SmartFileDetails/MoveStageModal';
+import EditdocumentModel from './EditdocumentModel';
 const MainDocumentSection = ({ workflowId, templateID }) => {
 	const navigate = useNavigate();
-	const origin = fetchOriginSelection();
 	const {
 		templates: {
 			workflowInfoDetails,
@@ -46,6 +44,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 		showMoveStageModal: false,
 		workflowInfo: null,
 		isShareModalOpen: false,
+		showEditDocumentModal: false,
 	});
 	const [isCollapseOpen, setIsCollapseOpen] = useState(false);
 
@@ -227,11 +226,14 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 		<>
 			{/* Header Section */}
 			<div className="doc-header-row">
-				<div className="doc-header-title">{info?.title}</div>
+				<div className="doc-header-title-container">
+					<span className="doc-header-title-container-text">Document Title</span>
+					<span className="doc-header-title">{info?.title}</span>
+				</div>
 				<div className="doc-header-actions">
 					<div className="doc-header-btn" onClick={handleEditClick}>
 						<UserIcon />
-						<span className="doc-header-btn-text">Edit details</span>
+						<span className="doc-header-btn-text">Re-Edit document</span>
 					</div>
 					<div
 						className="doc-header-btn"
@@ -265,9 +267,20 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 				</div>
 				<div
 					className="doc-info-badge-accept"
-					onClick={() => setInfo((prev) => ({ ...prev, showAcceptDocumentModal: true }))}
+					style={{
+						cursor: 'pointer',
+					}}
+					onClick={() => {
+						setInfo((prev) => ({ ...prev, showAcceptDocumentModal: true }));
+					}}
 				>
-					Accept
+					<span className="doc-info-badge-accept-text">
+						{/* {info?.workflowInfo?.status === 'confirmed' ? (
+							<span className="doc-info-badge-accept-text-accepted">Accepted</span>
+						) : (
+						)} */}
+						<span className="doc-info-badge-accept-text-accept">Accept</span>
+					</span>
 				</div>
 			</div>
 			{/* Section1 */}
@@ -310,15 +323,19 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 										<div
 											className={`status-line ${
 												isActive ? 'active' : 'inactive'
-											}`}
+											} ${isLastActive ? 'last-active' : ''}`}
 										></div>
 										<div
 											className={`status-dot ${
 												isLastActive ? 'active' : 'inactive'
-											}`}
+											} ${isLastActive ? 'last-active' : ''}`}
 										/>
 									</div>
-									<span className={`status-label ${isActive ? 'active' : ''}`}>
+									<span
+										className={`status-label ${isActive ? ' active' : ''}${
+											isLastActive ? ' current' : ''
+										}`}
+									>
 										{step.label}
 									</span>
 								</div>
@@ -423,6 +440,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 							// acceptDocumentFunc={handleAccept}
 						/>
 					)}
+
 				</div>
 			)}
 			{info.isShareModalOpen && (
@@ -468,6 +486,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 				moveStageFunc={handleMoveStage}
 				workflowStatus={info?.workflowInfo?.status}
 			/>
+
 		</>
 	);
 };
@@ -477,17 +496,10 @@ const ViewDocument = ({ workflowId, templateID }) => {
 	const handleBackToEdit = () => {
 		navigate(`/builder/document/edit/${workflowId}/${templateID}`);
 	};
-	const origin = fetchOriginSelection();
-
-	console.log(origin);
-
 	return (
 		<div className="viewDocumentContainer">
 			<div className="back-to-files" onClick={() => navigate(`/files?activeTab=Documents`)}>
-				<span style={{ cursor: 'pointer' }} className="back-arrow">
-					&#8592;
-				</span>{' '}
-				Back to Files
+				<span className="back-arrow">&#8592;</span> Back to Files
 			</div>
 			<MainDocumentSection workflowId={workflowId} templateID={templateID} />
 		</div>

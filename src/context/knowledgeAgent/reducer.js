@@ -24,6 +24,10 @@ const actionHandlers = {
 		...state,
 		knowledgeBaseInfo: action?.payload,
 	}),
+	SET_KNOWLEDGE_BASE_ACTIVE_FILE_STATUS: (state, action) => ({
+		...state,
+		knowledgeBaseFilesActiveStatus: action?.payload,
+	}),
 	UPDATE_CONTEXT_VALUES: (state, action) => ({
 		...state,
 		...action?.payload,
@@ -31,6 +35,18 @@ const actionHandlers = {
 	SET_ACTIONS_INFO: (state, action) => ({
 		...state,
 		actionsInfo: action?.payload,
+	}),
+	GET_TRIGGERS: (state, action) => ({
+		...state,
+		triggers: action?.payload,
+	}),
+	CONNECT_TRIGGER: (state, action) => ({
+		...state,
+		triggers: action.payload,
+	}),
+	DELETE_TRIGGER: (state, action) => ({
+		...state,
+		triggers: action?.payload,
 	}),
 	RESET_STATE: () => initialState,
 };

@@ -1,19 +1,19 @@
 import _, { transform } from 'lodash';
 import React, { Component } from 'react';
-import Button from '../elements/button/index.jsx';
+import Button from '../elements/button';
 import CircleText from '../elements/circletext/CircleText.jsx';
 import Icon from '../elements/icons/index.jsx';
-import ImageItem from '../elements/image/index.jsx';
+import ImageItem from '../elements/image';
 import ListIcon from '../elements/listicon/index.jsx';
 import Loader from '../elements/loader/index.jsx';
-import Shape from '../elements/shape/index.jsx';
-import Sticker from '../elements/sticker/index.jsx';
-import Text from '../elements/text/index.jsx';
+import Shape from '../elements/shape';
+import Sticker from '../elements/sticker';
+import Text from '../elements/text';
 import ScrollText from '../elements/scrolltext/index.jsx';
 import IframeItem from '../elements/iframe/index.jsx';
 
-import JNumber from '../elements/jnumber/index.jsx';
-import JIcon from '../elements/jicon/index.jsx';
+import JNumber from '../elements/jnumber';
+import JIcon from '../elements/jicon';
 import Divider from '../elements/divider/index.jsx';
 
 import './index.scss';
@@ -79,10 +79,10 @@ const elements = [
 	// { text: 'signature', _id: '67165712f9a74b97c60d1f05' },
 	{ text: 'divider', _id: '6717413415e02bdd2b316122' },
 ];
+import ObjectID from 'bson-objectid';
 
 import gsap from 'gsap';
-import ScrollMagic from 'scrollmagic';
-import ObjectID from 'bson-objectid';
+// import ScrollMagic from 'scrollmagic';
 
 class Layout extends Component {
 	constructor(props) {
@@ -288,8 +288,14 @@ class Layout extends Component {
 			activeColor: '#000000',
 			selectedFontColor: '#000000',
 			adjustGridAreasTriggerd: false,
-		};
 
+			animeTriggerPoints: {
+				start: 0.9,
+				center: 0.6,
+				end: 0.2,
+			},
+		};
+		this.handleBeforeUnload = this.handleBeforeUnload.bind(this);
 		this.blockRef = React.createRef();
 		this.boxRefs = [];
 		this.columnRefs = [];
@@ -302,8 +308,13 @@ class Layout extends Component {
 		this.groupResizeRef = React.createRef();
 		this.placeholderRef = React.createRef();
 		this.elementSidebarRef = React.createRef();
+		this.animeBlockParentsRef = [];
 	}
 	componentDidMount = async () => {
+		if (typeof window != 'undefined') {
+			const ScrollMagicModule = await import('scrollmagic');
+			this.ScrollMagic = ScrollMagicModule.default;
+		}
 		this.setState({
 			layoutHeight: this.props.blocks?.[0]?.divStyles?.layoutHeight || 600,
 			gridRows: _.has(this.props.blocks?.[0]?.divStyles, 'gridRows')
@@ -314,7 +325,11 @@ class Layout extends Component {
 			gridCols: this.state.previewType === 'm' || this.state.previewMode === 'm' ? 8 : 28,
 		});
 
+		window.addEventListener('beforeunload', this.handleBeforeUnload);
 		document.addEventListener('mousedown', this.handleClickOutside);
+		window.addEventListener('suppressWarning', (e) => {
+			this.setState({ suppressWarning: e.detail });
+		});
 		document.addEventListener('keydown', this.handleKeyDown);
 		this.animateSection();
 		let windowWidth = window.innerWidth;
@@ -384,11 +399,12 @@ class Layout extends Component {
 		this.observers = new Map();
 	};
 	componentWillUnmount() {
+		// Clean up ScrollMagic
 		if (this.controller) {
-			this.controller.destroy(true);
+			this?.controller?.destroy();
 		}
 		if (this.scene) {
-			this.scene.destroy(true);
+			this?.scene?.destroy();
 		}
 		document.removeEventListener('mousedown', this.handleClickOutside);
 		document.removeEventListener('keydown', this.handleKeyDown);
@@ -403,6 +419,28 @@ class Layout extends Component {
 		// }
 
 		// Cleanup observers
+		window.removeEventListener('beforeunload', this.handleBeforeUnload);
+		this?.observers?.forEach((observer) => observer?.disconnect());
+		this?.observers?.clear();
+	}
+
+	handleBeforeUnload(e) {
+		// Most browsers ignore the custom message these days,
+		// but you must set returnValue to show the confirmation dialog.\
+		// if (!this.props.client) {
+		// 	this.adjustGridAreas();
+		// }
+
+		const confirmationMessage = 'Are you sure you want to leave this page without saving?';
+
+		// event.preventDefault();
+
+		// event.returnValue = confirmationMessage;
+		// return confirmationMessage;
+		if (!this.state.suppressWarning && !this.props.client) {
+			e.preventDefault();
+			e.returnValue = confirmationMessage;
+		}
 	}
 
 	getGridRowsCount = () => {
@@ -488,14 +526,27 @@ class Layout extends Component {
 		}
 	};
 
-	adjustGridAreas() {
+	adjustGridAreas(updatedBlocks = null) {
 		let rowStart = 1;
+		let sections = [];
+		if (updatedBlocks) {
+			let data = this.props?.sections;
+			data.forEach((section) => {
+				section.blocks.forEach((block) => {
+					if (block?._id === updatedBlocks[0]?._id) {
+						section.blocks = updatedBlocks;
+					}
+				});
+			});
+			sections = data;
+		} else {
+			sections = this.props?.sections;
+		}
 		let updatedSections = [];
-		const fluidSections = this.props?.sections?.filter(
+		const fluidSections = sections?.filter(
 			(section) => _.has(section, 'isFluidSection') && section?.isFluidSection,
 		);
-
-		this.props?.sections?.forEach((section) => {
+		sections?.forEach((section) => {
 			let updatedSection = { ...section };
 
 			if (
@@ -927,14 +978,13 @@ class Layout extends Component {
 			},
 		);
 	}
-
 	componentWillReceiveProps = (nextProps) => {
 		if (this.state.triggerFont !== nextProps.triggerFont) {
 			this.setState({
 				triggerFont: nextProps.triggerFont,
 			});
 		}
-		if (this.state.triggerAdjustGridAreas !== nextProps.triggerAdjustGridAreas) {
+		if (this.props.triggerAdjustGridAreas !== nextProps.triggerAdjustGridAreas) {
 			if (nextProps.triggerAdjustGridAreas === true) {
 				this.adjustGridAreas();
 				this.props.setAdjustGridAreas(false);
@@ -979,7 +1029,7 @@ class Layout extends Component {
 								adjustGridAreasTriggerd: true,
 							},
 							() => {
-								// this.adjustGridAreas();
+								this.adjustGridAreas();
 							},
 						);
 					} else {
@@ -1548,6 +1598,7 @@ class Layout extends Component {
 						debounceFuncForElementProps={this.props?.debounceFuncForElementProps}
 						adjustGridAreasTriggerd={this.state.adjustGridAreasTriggerd}
 						verticalAlign={properties?.divStyles?.verticalAlign || ''}
+						mobileVerticalAlign={properties?.divStyles?.mobileVerticalAlign || ''}
 					/>
 				);
 
@@ -1952,6 +2003,7 @@ class Layout extends Component {
 						// showAltText={properties?.showAltText || false}
 						muteVideo={properties?.muteVideo || false}
 						client={this.props?.client}
+						audioMode={this.props.audioMode}
 					/>
 				);
 
@@ -2438,7 +2490,7 @@ class Layout extends Component {
 			}
 
 			// Calculate grid positions
-			let columnStart = Math.floor(relativeLeft / cellWidth) + 1;
+			const columnStart = Math.floor(relativeLeft / cellWidth) + 1;
 
 			const rowStart = Math.floor(relativeTop / cellHeight) + 1;
 
@@ -2629,7 +2681,7 @@ class Layout extends Component {
 						initialDragX: 0,
 						initialDragY: 0,
 					});
-					this.props.handleSaveblocks(updatedLayoutHeight);
+					this.adjustGridAreas(updatedLayoutHeight);
 					// Remove transforms after state update
 				},
 			);
@@ -3206,8 +3258,8 @@ class Layout extends Component {
 					: activeComponent?.divStyles?.gridArea;
 
 			const [rowStart, colStart, rowEnd, colEnd] = presentgrid
-				?.split('/')
-				?.map((n) => parseInt(n));
+				.split('/')
+				.map((n) => parseInt(n));
 
 			const rowDiff = rowEnd - rowStart;
 			const difference = numberOfRows - rowDiff;
@@ -4574,7 +4626,6 @@ class Layout extends Component {
 	onHoverAnime = (component) => {
 		const animations = component?.animations || {};
 		if (animations?.animeType == 'hover' && animations?.adjust == true) {
-			// this.triggerAnimationAdjustments(component, this.boxRefs[component?._id]);
 			this.handleHoverNPressAnimations(component, this.boxRefs[component?._id], 'add');
 		}
 	};
@@ -4582,42 +4633,38 @@ class Layout extends Component {
 	// ! animation function for click
 	onClickAnime = (component) => {
 		const animations = component?.animations || {};
-		if (animations?.animeType == 'press') {
-			if (animations?.adjust == true) {
-				this.triggerAnimationAdjustments(component, this.boxRefs[component?._id]);
-			} else {
-				if (animations?.animeName == 'appear') {
-					this.boxRefs[component?._id]?.classList.add(
+		if (animations?.adjust == true) {
+			this.handleHoverNPressAnimations(component, this.boxRefs[component?._id], 'add');
+		} else {
+			if (animations?.animeName == 'appear') {
+				this.boxRefs[component?._id]?.classList.add(`press-out-${animations?.animeName}`);
+				setTimeout(() => {
+					this.boxRefs[component?._id]?.classList.remove(
 						`press-out-${animations?.animeName}`,
 					);
-					setTimeout(() => {
+				}, 2000);
+			} else {
+				this.boxRefs[component?._id]?.classList.add(`press-${animations?.animeName}`);
+				setTimeout(
+					() => {
 						this.boxRefs[component?._id]?.classList.remove(
+							`press-${animations?.animeName}`,
+						);
+						this.boxRefs[component?._id]?.classList.add(
 							`press-out-${animations?.animeName}`,
 						);
-					}, 2000);
-				} else {
-					this.boxRefs[component?._id]?.classList.add(`press-${animations?.animeName}`);
-					setTimeout(
-						() => {
-							this.boxRefs[component?._id]?.classList.remove(
-								`press-${animations?.animeName}`,
-							);
-							this.boxRefs[component?._id]?.classList.add(
-								`press-out-${animations?.animeName}`,
-							);
-							// add remove
-							setTimeout(
-								() => {
-									this.boxRefs[component?._id]?.classList.remove(
-										`press-out-${animations?.animeName}`,
-									);
-								},
-								animations?.animeName == 'rotate' ? 3000 : 1500,
-							);
-						},
-						animations?.animeName == 'rotate' ? 3000 : 1500,
-					);
-				}
+						// add remove
+						setTimeout(
+							() => {
+								this.boxRefs[component?._id]?.classList.remove(
+									`press-out-${animations?.animeName}`,
+								);
+							},
+							animations?.animeName == 'rotate' ? 3000 : 1500,
+						);
+					},
+					animations?.animeName == 'rotate' ? 3000 : 1500,
+				);
 			}
 		}
 	};
@@ -4657,13 +4704,7 @@ class Layout extends Component {
 
 	// ! function for returning animation classes
 	returnAnimationClasses = (component) => {
-		// return '';
 		if (!component?.animations) return '';
-
-		// if (component?.animations?.animeType === 'scroll') {
-		// 	this.handleScrollAnimations(component, this.boxRefs[component?._id]);
-		// }
-		// return '';
 
 		if (component?.animations?.animePreview == true && !this.props?.client) {
 			if (component?.animations?.adjust == true) {
@@ -4691,25 +4732,17 @@ class Layout extends Component {
 					} else {
 						return `${`scroll-${component?.animations?.animeName}`}`;
 					}
-				} else if (component?.animations?.animeType == 'hover') {
-					return component?.animations?.adjust == true &&
-						component?.animations?.animeName !== 'appear'
-						? ''
-						: `${
-								component?.animations?.animeType == 'hover'
-									? `hover-${component?.animations?.animeName}`
-									: ''
-						  }  `;
-				} else if (component?.animations?.animeType == 'press') {
-					return component?.animations?.adjust == true &&
-						component?.animations?.animeName !== 'appear'
-						? ''
-						: `${
-								component?.animations?.animeType == 'press'
-									? // ? `press-${component?.animations?.animeName}`
-									  ''
-									: ''
-						  }  `;
+				} else if (
+					component?.animations?.animeType == 'hover' ||
+					component?.animations?.animeType === 'press'
+				) {
+					if (
+						component?.animations?.adjustments?.position === 'into' &&
+						!_.has(component, 'initialPositionSet')
+					) {
+						this.setHoverNPressPosition(this.boxRefs[component?._id], component);
+					}
+					return '';
 				} else {
 					return `${
 						component?.animations?.animeType == 'hover'
@@ -4774,42 +4807,6 @@ class Layout extends Component {
 		observer.observe(element);
 		return observer;
 	};
-	triggerScrollAnimation = (component, element) => {
-		if (!component?.animations?.animeName) return;
-		gsap.killTweensOf(element);
-
-		let classes = [];
-
-		if (component.animations.animePreview) {
-			classes.push(component.animations.animeName);
-		}
-
-		// ! normal scroll animation logic
-
-		// ! scroll animation logic for adjustments
-		switch (component.animations.animeName) {
-			case 'fade':
-				gsap.fromTo(
-					element,
-					{ opacity: 1, background: 'red', scale: 1 },
-					{ opacity: 1, duration: 3, background: 'blue', scale: 2 },
-				);
-				break;
-			case 'slideUp':
-				gsap.fromTo(element, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 1 });
-				break;
-			case 'slideDown':
-				gsap.fromTo(element, { y: -50, opacity: 0 }, { y: 0, opacity: 1, duration: 1 });
-				break;
-			case 'slideLeft':
-				gsap.fromTo(element, { x: 50, opacity: 0 }, { x: 0, opacity: 1, duration: 1 });
-				break;
-			case 'slideRight':
-				gsap.fromTo(element, { x: -50, opacity: 0 }, { x: 0, opacity: 1, duration: 1 });
-				break;
-			// Add more animation cases as needed
-		}
-	};
 
 	triggerAnimationAdjustments = (component, element) => {
 		const adjustments = component?.animations?.adjustments || {};
@@ -4821,219 +4818,10 @@ class Layout extends Component {
 				this.handleLoopAnimations(component, element);
 			} else if (animations?.animeType == 'scroll') {
 				this.handleScrollAnimations(component, element);
-			} else if (animations?.animeType == 'hover') {
+			} else if (animations?.animeType == 'hover' || animations?.animeType == 'press') {
 				this.handleHoverNPressAnimations(component, element, 'add');
 			} else {
-				const transition = `all ${adjustments?.animeDuration || 2}s ${
-					adjustments?.animeEase || 'ease-in'
-				} ${adjustments?.animeDelay || 1}s`;
-
-				// const scaleTransform =
-				// 	adjustments?.transform === 'scale'
-				// 		? animations?.animeName === 'easeIn'
-				// 			? adjustments?.position === 'into'
-				// 				? `scale(${parseFloat(adjustments?.scale || 1)})`
-				// 				: `scale(${parseFloat(1 - (adjustments?.scale || 1) / 5)})`
-				// 			: animations?.animeName === 'easeOut'
-				// 			? adjustments?.position === 'into'
-				// 				? `scale(${parseFloat(1 - (adjustments?.scale || 1) / 5)})`
-				// 				: `scale(${parseFloat(adjustments?.scale || 1)})`
-				// 			: ''
-				// 		: '';
-
-				// const skewTransform =
-				// 	adjustments?.transform === 'skew' ? `skewX(${adjustments?.skew}deg)` : '';
-
-				const isScale = adjustments?.transform === 'scale';
-				const isPosition = adjustments?.position === 'into';
-				const scaleValue = parseFloat(adjustments?.scale || 1);
-				const scaleFraction = scaleValue / 5;
-
-				const scaleTransform = isScale
-					? animations?.animeName === 'easeIn'
-						? isPosition
-							? `scale(1)`
-							: `scale(${scaleFraction})`
-						: animations?.animeName === 'easeOut'
-						? isPosition
-							? `scale(1)`
-							: `scale(${scaleValue})`
-						: ''
-					: '';
-
-				if (isScale && isPosition) {
-					const initialScale =
-						animations?.animeName === 'easeIn'
-							? `scale(${scaleValue})`
-							: `scale(${scaleFraction})`;
-
-					element.style.transition = 'none';
-					element.style.transform = initialScale;
-					void element.offsetWidth;
-				}
-
-				const skewTransform =
-					animations?.animeName === 'skew' && adjustments?.transform === 'skew'
-						? adjustments?.position === 'into'
-							? 'skewX(0deg)'
-							: `skewX(${adjustments?.skew || 0}deg)`
-						: '';
-				if (
-					animations?.animeName === 'skew' &&
-					adjustments?.transform === 'skew' &&
-					adjustments?.position === 'into'
-				) {
-					const initialSkew = `skewX(${adjustments?.skew || 0}deg)`;
-					element.style.transition = 'none';
-					element.style.transform = initialSkew;
-					void element.offsetWidth;
-				}
-
-				// const rotateTransform =
-				// 	adjustments?.transform === 'rotate'
-				// 		? `rotate(${
-				// 				adjustments?.direction === 'right'
-				// 					? adjustments?.rotate
-				// 					: -adjustments?.rotate
-				// 		  }deg)`
-				// 		: '';
-
-				// const translateTransform =
-				// 	adjustments?.transform === 'translate'
-				// 		? `translate(
-				// 							${
-				// 								adjustments?.mDirection === 'right'
-				// 									? adjustments?.animeDistance
-				// 									: adjustments?.mDirection === 'left'
-				// 									? -adjustments?.animeDistance
-				// 									: 0
-				// 							}px,
-				// 							${
-				// 								adjustments?.mDirection === 'down'
-				// 									? adjustments?.animeDistance
-				// 									: adjustments?.mDirection === 'top'
-				// 									? -adjustments?.animeDistance
-				// 									: 0
-				// 							}px
-				// 						)`
-				// 		: '';
-
-				const isRotate = adjustments?.transform === 'rotate';
-				const isIntoRotate = adjustments?.position === 'into';
-
-				const rotateValue =
-					isRotate && adjustments?.direction === 'right'
-						? adjustments?.rotate
-						: isRotate && adjustments?.direction === 'left'
-						? -adjustments?.rotate
-						: 0;
-
-				const rotateTransform = isRotate
-					? isIntoRotate
-						? (() => {
-								const initialRotate = `rotate(${rotateValue}deg)`;
-								element.style.transition = 'none';
-								element.style.transform = initialRotate;
-								void element.offsetWidth;
-						  })() && 'rotate(0deg)'
-						: `rotate(${rotateValue}deg)`
-					: '';
-
-				const isTranslate = adjustments?.transform === 'translate';
-				const isInto = adjustments?.position === 'into';
-
-				const x =
-					isTranslate && adjustments?.mDirection === 'right'
-						? adjustments?.animeDistance
-						: isTranslate && adjustments?.mDirection === 'left'
-						? -adjustments?.animeDistance
-						: 0;
-
-				const y =
-					isTranslate && adjustments?.mDirection === 'down'
-						? adjustments?.animeDistance
-						: isTranslate && adjustments?.mDirection === 'top'
-						? -adjustments?.animeDistance
-						: 0;
-				const translateTransform = isTranslate
-					? isInto
-						? 'translate(0px, 0px)'
-						: `translate(${x}px, ${y}px)`
-					: '';
-
-				if (isTranslate && isInto) {
-					const initialTranslate = `translate(${x}px, ${y}px)`;
-					element.style.transition = 'none';
-					element.style.transform = initialTranslate;
-					void element.offsetWidth;
-				}
-
-				// const opacityTransition =
-				// 	animations?.animeName == 'appear' &&
-				// 	adjustments?.opacityDelay &&
-				// 	!isNaN(adjustments?.opacityDelay)
-				// 		? `opacity 2s ease-in-out ${adjustments?.opacityDelay || 2}s` // After delay, transition opacity to 1;
-				// 		: '';
-
-				const isAppear = animations?.animeName === 'appear';
-				const isIn = adjustments?.position === 'into';
-
-				const opacityTransition =
-					isAppear && adjustments?.opacityDelay && !isNaN(adjustments?.opacityDelay)
-						? `opacity 2s ease-in-out ${adjustments?.opacityDelay || 2}s`
-						: '';
-				if (isAppear) {
-					element.style.opacity = isIn ? 0 : 1;
-				}
-				if (isAppear && isIn) {
-					element.style.opacity = 1;
-				} else if (isAppear && !isIn) {
-					element.style.opacity = 0;
-				}
-
-				const transform = [
-					scaleTransform,
-					skewTransform,
-					opacityTransition,
-					rotateTransform,
-					translateTransform,
-				]
-					.filter(Boolean)
-					.join(' ');
-
-				const timeout = parseFloat(
-					animations?.animeName == 'appear'
-						? parseFloat(adjustments?.opacityDelay) || 2 + 2
-						: parseFloat(adjustments?.animeDuration) +
-								parseFloat(adjustments?.animeDelay || 1),
-				);
-
-				element.style.transition = transition;
-				element.style.transform = transform;
-				// if (animations?.animeName == 'appear') {
-				// 	element.style.opacity = 0;
-				// }
-
-				// setTimeout(() => {
-				// 	// element.style.transition = '';
-				// 	// element.style.transform = '';
-				// 	if (animations?.animeName == 'appear') {
-				// 		element.style.opacity = 1;
-				// 	}
-				// }, timeout * 1000)'
-
-				setTimeout(() => {
-					element.style.transition = 'none';
-					element.style.transform = '';
-
-					if (isAppear) {
-						element.style.opacity = 1;
-					}
-
-					setTimeout(() => {
-						element.style.transition = transition;
-					}, 1000);
-				}, timeout * 1000);
+				return;
 			}
 		}
 
@@ -5064,7 +4852,7 @@ class Layout extends Component {
 		if (handler && element) {
 			handler.call(this, element, adjustments);
 		} else if (animations?.animeName) {
-			console.warn(`Unknown animation: ${animations?.animeName}`);
+			// console.warn(`Unknown animation: ${animations?.animeName}`);
 		}
 	};
 	//? main function for scroll animation
@@ -5093,12 +4881,12 @@ class Layout extends Component {
 			shutters: this.handleScrollShutters,
 		};
 		const handler = animationHandlers[animations?.animeName];
-
+		const parentBlock = this.animeBlockParentsRef[component?._id];
 		// ! new logic
 		if (typeof window !== 'undefined' && handler && element) {
-			handler.call(this, element, adjustments, animations?.animePreview);
+			handler.call(this, element, adjustments, animations?.animePreview, parentBlock);
 		} else if (animations?.animeName) {
-			console.warn(`Unknown animation: ${animations?.animeName}`);
+			// console.warn(`Unknown animation: ${animations?.animeName}`);
 		}
 		// !previouse logic
 		// if (action == 'add' && this.props?.client) {
@@ -5125,6 +4913,7 @@ class Layout extends Component {
 		// 	}
 		// }
 	};
+	// ? main function for Hover and Press animations
 	handleHoverNPressAnimations = (component, element, action = 'add') => {
 		const animations = component?.animations || {};
 		const animationHandlers = {
@@ -5136,55 +4925,197 @@ class Layout extends Component {
 			appear: this.handleAppearAnime,
 		};
 		const handler = animationHandlers[animations?.animeName];
-		// ! new logic
 		if (typeof window !== 'undefined' && handler && element) {
 			handler.call(this, element, component, action, animations?.animePreview);
-			// handler.call(this, element, component,action, animations?.animePreview);
 		} else if (animations?.animeName) {
-			console.warn(`Unknown animation: ${animations?.animeName}`);
+			// console.warn(`Unknown animation: ${animations?.animeName}`);
 		}
 	};
+
 	//* various functions for Hover and Press animations
+
+	// ! setting initial position for into Position
+	setHoverNPressPosition = (element, component) => {
+		const { animations = {} } = component || {};
+		const { adjustments = {} } = animations || {};
+		setTimeout(() => {
+			if (animations?.animeName == 'easeIn' || animations?.animeName == 'easeOut') {
+				const scaleValue =
+					animations?.animeName == 'easeOut'
+						? parseFloat(adjustments?.scale || 1.3)
+						: parseFloat(
+								parseFloat(adjustments?.scale || 1) /
+									(adjustments?.position == 'into' ? 1 : 10),
+						  );
+
+				gsap.to(element, {
+					scale: scaleValue,
+					overwrite: true,
+					opacity: 0,
+					duration: 0,
+					ease: 'power3.Out',
+				});
+				component.initialPositionSet = true;
+			} else if (animations?.animeName == 'skew') {
+				const skewValue = parseFloat(adjustments?.skew || 20);
+				gsap.to(element, {
+					skewX: skewValue,
+					opacity: 0,
+					overwrite: true,
+					duration: 0,
+					ease: 'power3.out',
+				});
+				component.initialPositionSet = true;
+			} else if (animations?.animeName == 'rotate') {
+				const rotateValue = parseFloat(adjustments?.rotate || 360);
+
+				gsap.to(element, {
+					rotation: rotateValue,
+					opacity: 0,
+					overwrite: true,
+					duration: 0,
+					ease: 'power3.out',
+				});
+				component.initialPositionSet = true;
+			} else if (animations?.animeName == 'move') {
+				const { animeDistance = 150, mDirection = 'top' } = adjustments || {};
+				const returnDistance = (direction) => {
+					if (direction == 'top' || direction == 'left') {
+						return `-${parseFloat(animeDistance || 100)}px`;
+					}
+					return `${parseFloat(animeDistance || 100)}px`;
+				};
+				gsap.to(element, {
+					y: mDirection == 'top' || mDirection == 'down' ? returnDistance(mDirection) : 0,
+					x:
+						mDirection == 'left' || mDirection == 'right'
+							? returnDistance(mDirection)
+							: 0,
+					opacity: 0,
+					overwrite: true,
+					duration: 0,
+					ease: 'power3.out',
+				});
+				component.initialPositionSet = true;
+			} else if (animations?.animeName == 'appear') {
+				gsap.to(element, {
+					opacity: 0,
+					overwrite: true,
+					duration: 0,
+					ease: 'power3.out',
+				});
+				component.initialPositionSet = true;
+			}
+		}, 0);
+
+		return '';
+	};
+
 	// ! EaseIn and EaseOut animation function
 	handleEaseInOutAnime = (element, component, action = 'add', preview = false) => {
 		// !function to add and remove animation properties
 		const { animations = {} } = component || {};
 		const { adjustments = {} } = animations || {};
+		const scaleValue =
+			animations?.animeName == 'easeOut'
+				? parseFloat(adjustments?.scale || 1.3)
+				: parseFloat(
+						parseFloat(adjustments?.scale || 1) /
+							(adjustments?.position == 'into' ? 1 : 10),
+				  );
 		const add = () => {
-			const scaleValue =
-				animations?.animeName == 'easeOut'
-					? parseFloat(adjustments?.scale || 1.3)
-					: parseFloat((adjustments?.scale || 1) / 10);
-			gsap.to(element, {
-				scale: scaleValue,
-				overwrite: true,
-				duration: adjustments?.animeDuration || 3,
-				ease: 'power3.out',
-			});
+			if (adjustments?.position === 'into') {
+				gsap.to(element, {
+					scale: 1,
+					opacity: 1,
+					overwrite: true,
+					duration: adjustments?.animeDuration || 3,
+					ease: 'power3.out',
+				});
+			} else {
+				gsap.to(element, {
+					scale: scaleValue,
+					overwrite: true,
+					duration: adjustments?.animeDuration || 3,
+					ease: 'power3.out',
+				});
+			}
 		};
 		const remove = () => {
-			gsap.to(element, {
-				scale: 1,
-				overwrite: true,
-				duration: 2,
-				ease: 'power2.Out',
-			});
-		};
-		if (this.state?.preview && this.props?.client) {
-			if (action == 'add') {
-				add();
-			} else if (action == 'remove') {
-				remove();
+			if (adjustments?.position === 'into') {
+				gsap.to(element, {
+					scale: scaleValue,
+					overwrite: true,
+					opacity: this.props?.client ? 0 : 1,
+					duration:
+						adjustments?.position !== 'into' ? adjustments?.animeDuration || 3 : 0,
+					ease: 'power3.Out',
+				});
+			} else {
+				gsap.to(element, {
+					scale: 1,
+					overwrite: true,
+					duration: 2,
+					ease: 'power3.Out',
+				});
 			}
-		} else if (action == 'add' && preview) {
-			add();
-			const timeout = parseFloat(adjustments?.animeDuration || 1);
-			setTimeout(() => {
-				remove();
-			}, timeout * 1000);
-			return '';
+		};
+		if (animations?.animeType === 'press') {
+			if (this.state?.preview && this.props?.client) {
+				if (!component?.animations?.isClicked) {
+					add();
+					component.animations.isClicked = true;
+				} else {
+					remove();
+					component.animations.isClicked = false;
+				}
+			} else if (action == 'add' && preview) {
+				if (adjustments?.position === 'into') {
+					remove();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						add();
+					}, timeout * 1000);
+
+					return '';
+				} else {
+					add();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						remove();
+					}, timeout * 1000);
+					return '';
+				}
+			} else {
+				return '';
+			}
 		} else {
-			return '';
+			if (this.state?.preview && this.props?.client) {
+				if (action == 'add') {
+					add();
+				} else if (action == 'remove') {
+					remove();
+				}
+			} else if (action == 'add' && preview) {
+				if (adjustments?.position === 'into') {
+					remove();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						add();
+					}, timeout * 1000);
+
+					return '';
+				} else {
+					add();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						remove();
+					}, timeout * 1000);
+					return '';
+				}
+			} else {
+				return '';
+			}
 		}
 	};
 	// ! Skew animation function
@@ -5192,38 +5123,100 @@ class Layout extends Component {
 		// !function to add and remove animation properties
 		const { animations = {} } = component || {};
 		const { adjustments = {} } = animations || {};
+		const skewValue = parseFloat(adjustments?.skew || 20);
 		const add = () => {
-			const skewValue = parseFloat(adjustments?.skew || 20);
-			gsap.to(element, {
-				skewX: skewValue,
-				overwrite: true,
-				duration: adjustments?.animeDuration || 3,
-				ease: 'power3.out',
-			});
+			if (adjustments?.position === 'into') {
+				gsap.to(element, {
+					skewX: 0,
+					opacity: 1,
+					overwrite: true,
+					duration: adjustments?.animeDuration || 3,
+					ease: 'power3.Out',
+				});
+			} else {
+				gsap.to(element, {
+					skewX: skewValue,
+					overwrite: true,
+					duration: adjustments?.animeDuration || 3,
+					ease: 'power3.out',
+				});
+			}
 		};
 		const remove = () => {
-			gsap.to(element, {
-				skewX: 0,
-				overwrite: true,
-				duration: 2,
-				ease: 'power2.Out',
-			});
-		};
-		if (this.state?.preview && this.props?.client) {
-			if (action == 'add') {
-				add();
-			} else if (action == 'remove') {
-				remove();
+			if (adjustments?.position === 'into') {
+				gsap.to(element, {
+					skewX: skewValue,
+					overwrite: true,
+					opacity: this.props?.client ? 0 : 1,
+					duration:
+						adjustments?.position !== 'into' ? adjustments?.animeDuration || 3 : 0,
+					ease: 'power3.out',
+				});
+			} else {
+				gsap.to(element, {
+					skewX: 0,
+					overwrite: true,
+					duration: 2,
+					ease: 'power3.Out',
+				});
 			}
-		} else if (action == 'add' && preview) {
-			add();
-			const timeout = parseFloat(adjustments?.animeDuration || 1);
-			setTimeout(() => {
-				remove();
-			}, timeout * 1000);
-			return '';
+		};
+		if (animations?.animeType === 'press') {
+			if (this.state?.preview && this.props?.client) {
+				if (!component?.animations?.isClicked) {
+					add();
+					component.animations.isClicked = true;
+				} else {
+					remove();
+					component.animations.isClicked = false;
+				}
+			} else if (action == 'add' && preview) {
+				if (adjustments?.position === 'into') {
+					remove();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						add();
+					}, timeout * 1000);
+
+					return '';
+				} else {
+					add();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						remove();
+					}, timeout * 1000);
+					return '';
+				}
+			} else {
+				return '';
+			}
 		} else {
-			return '';
+			if (this.state?.preview && this.props?.client) {
+				if (action == 'add') {
+					add();
+				} else if (action == 'remove') {
+					remove();
+				}
+			} else if (action == 'add' && preview) {
+				if (adjustments?.position === 'into') {
+					remove();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						add();
+					}, timeout * 1000);
+
+					return '';
+				} else {
+					add();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						remove();
+					}, timeout * 1000);
+					return '';
+				}
+			} else {
+				return '';
+			}
 		}
 	};
 	// ! Rotate animation function
@@ -5231,38 +5224,100 @@ class Layout extends Component {
 		// !function to add and remove animation properties
 		const { animations = {} } = component || {};
 		const { adjustments = {} } = animations || {};
+		const rotateValue = parseFloat(adjustments?.rotate || 360);
 		const add = () => {
-			const rotateValue = parseFloat(adjustments?.rotate || 360);
-			gsap.to(element, {
-				rotation: rotateValue,
-				overwrite: true,
-				duration: adjustments?.animeDuration || 3,
-				ease: 'power3.out',
-			});
+			if (adjustments?.position === 'into') {
+				gsap.to(element, {
+					rotation: 0,
+					opacity: 1,
+					overwrite: true,
+					duration: adjustments?.animeDuration || 3,
+					ease: 'power3.Out',
+				});
+			} else {
+				gsap.to(element, {
+					rotation: rotateValue,
+					overwrite: true,
+					duration: adjustments?.animeDuration || 3,
+					ease: 'power3.out',
+				});
+			}
 		};
 		const remove = () => {
-			gsap.to(element, {
-				rotation: 0,
-				overwrite: true,
-				duration: 2,
-				ease: 'power2.Out',
-			});
-		};
-		if (this.state?.preview && this.props?.client) {
-			if (action == 'add') {
-				add();
-			} else if (action == 'remove') {
-				remove();
+			if (adjustments?.position === 'into') {
+				gsap.to(element, {
+					rotation: rotateValue,
+					overwrite: true,
+					opacity: this.props?.client ? 0 : 1,
+					duration:
+						adjustments?.position !== 'into' ? adjustments?.animeDuration || 3 : 0,
+					ease: 'power3.out',
+				});
+			} else {
+				gsap.to(element, {
+					rotation: 0,
+					overwrite: true,
+					duration: 2,
+					ease: 'power3.Out',
+				});
 			}
-		} else if (action == 'add' && preview) {
-			add();
-			const timeout = parseFloat(adjustments?.animeDuration || 1);
-			setTimeout(() => {
-				remove();
-			}, timeout * 1000);
-			return '';
+		};
+		if (animations?.animeType === 'press') {
+			if (this.state?.preview && this.props?.client) {
+				if (!component?.animations?.isClicked) {
+					add();
+					component.animations.isClicked = true;
+				} else {
+					remove();
+					component.animations.isClicked = false;
+				}
+			} else if (action == 'add' && preview) {
+				if (adjustments?.position === 'into') {
+					remove();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						add();
+					}, timeout * 1000);
+
+					return '';
+				} else {
+					add();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						remove();
+					}, timeout * 1000);
+					return '';
+				}
+			} else {
+				return '';
+			}
 		} else {
-			return '';
+			if (this.state?.preview && this.props?.client) {
+				if (action == 'add') {
+					add();
+				} else if (action == 'remove') {
+					remove();
+				}
+			} else if (action == 'add' && preview) {
+				if (adjustments?.position === 'into') {
+					remove();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						add();
+					}, timeout * 1000);
+
+					return '';
+				} else {
+					add();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						remove();
+					}, timeout * 1000);
+					return '';
+				}
+			} else {
+				return '';
+			}
 		}
 	};
 	// ! Move animation function
@@ -5270,46 +5325,116 @@ class Layout extends Component {
 		// !function to add and remove animation properties
 		const { animations = {} } = component || {};
 		const { adjustments = {} } = animations || {};
+		const { animeDistance = 150, mDirection = 'top' } = adjustments || {};
+		const returnDistance = (direction) => {
+			if (direction == 'top' || direction == 'left') {
+				return `-${parseFloat(animeDistance || 100)}px`;
+			}
+			return `${parseFloat(animeDistance || 100)}px`;
+		};
 		const add = () => {
-			const { animeDistance = 150, mDirection = 'top' } = adjustments || {};
-			const returnDistance = (direction) => {
-				if (direction == 'top' || direction == 'left') {
-					return `-${parseFloat(animeDistance || 100)}px`;
-				}
-				return `${parseFloat(animeDistance || 100)}px`;
-			};
-			gsap.to(element, {
-				y: mDirection == 'top' || mDirection == 'down' ? returnDistance(mDirection) : 0,
-				x: mDirection == 'left' || mDirection == 'right' ? returnDistance(mDirection) : 0,
-				overwrite: true,
-				duration: adjustments?.animeDuration || 3,
-				ease: 'power3.out',
-			});
+			if (adjustments?.position === 'into') {
+				gsap.to(element, {
+					x: 0,
+					y: 0,
+					opacity: 1,
+					overwrite: true,
+					duration: 2,
+					ease: 'power3.Out',
+				});
+			} else {
+				gsap.to(element, {
+					y: mDirection == 'top' || mDirection == 'down' ? returnDistance(mDirection) : 0,
+					x:
+						mDirection == 'left' || mDirection == 'right'
+							? returnDistance(mDirection)
+							: 0,
+					overwrite: true,
+					duration: adjustments?.animeDuration || 3,
+					ease: 'power3.out',
+				});
+			}
 		};
 		const remove = () => {
-			gsap.to(element, {
-				x: 0,
-				y: 0,
-				overwrite: true,
-				duration: 2,
-				ease: 'power2.Out',
-			});
-		};
-		if (this.state?.preview && this.props?.client) {
-			if (action == 'add') {
-				add();
-			} else if (action == 'remove') {
-				remove();
+			if (adjustments?.position === 'into') {
+				gsap.to(element, {
+					y: mDirection == 'top' || mDirection == 'down' ? returnDistance(mDirection) : 0,
+					x:
+						mDirection == 'left' || mDirection == 'right'
+							? returnDistance(mDirection)
+							: 0,
+					overwrite: true,
+					opacity: this.props?.client ? 0 : 1,
+					duration:
+						adjustments?.position !== 'into' ? adjustments?.animeDuration || 3 : 0,
+					ease: 'power3.out',
+				});
+			} else {
+				gsap.to(element, {
+					x: 0,
+					y: 0,
+					overwrite: true,
+					duration: 2,
+					ease: 'power3.Out',
+				});
 			}
-		} else if (action == 'add' && preview) {
-			add();
-			const timeout = parseFloat(adjustments?.animeDuration || 1);
-			setTimeout(() => {
-				remove();
-			}, timeout * 1000);
-			return '';
+		};
+		if (animations?.animeType === 'press') {
+			if (this.state?.preview && this.props?.client) {
+				if (!component?.animations?.isClicked) {
+					add();
+					component.animations.isClicked = true;
+				} else {
+					remove();
+					component.animations.isClicked = false;
+				}
+			} else if (action == 'add' && preview) {
+				if (adjustments?.position === 'into') {
+					remove();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						add();
+					}, timeout * 1000);
+
+					return '';
+				} else {
+					add();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						remove();
+					}, timeout * 1000);
+					return '';
+				}
+			} else {
+				return '';
+			}
 		} else {
-			return '';
+			if (this.state?.preview && this.props?.client) {
+				if (action == 'add') {
+					add();
+				} else if (action == 'remove') {
+					remove();
+				}
+			} else if (action == 'add' && preview) {
+				if (adjustments?.position === 'into') {
+					remove();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						add();
+					}, timeout * 1000);
+
+					return '';
+				} else {
+					add();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						remove();
+					}, timeout * 1000);
+					return '';
+				}
+			} else {
+				return '';
+			}
 		}
 	};
 	// ! Appear animation function
@@ -5318,38 +5443,99 @@ class Layout extends Component {
 		const { animations = {} } = component || {};
 		const { adjustments = {} } = animations || {};
 		const add = () => {
-			gsap.to(element, {
-				autoAlpha: 0,
-				overwrite: true,
-				duration: adjustments?.opacityDelay || 3,
-				ease: 'power3.out',
-			});
+			if (adjustments?.position === 'into') {
+				gsap.to(element, {
+					opacity: 1,
+					overwrite: true,
+					duration: adjustments?.opacityDelay || 3,
+					ease: 'power3.Out',
+				});
+			} else {
+				gsap.to(element, {
+					opacity: 0,
+					overwrite: true,
+					duration: adjustments?.opacityDelay || 3,
+					ease: 'power3.out',
+				});
+			}
 		};
 		const remove = () => {
-			gsap.to(element, {
-				autoAlpha: 1,
-				overwrite: true,
-				duration: 2,
-				ease: 'power2.Out',
-			});
-		};
-		if (this.state?.preview && this.props?.client) {
-			if (action == 'add') {
-				add();
-			} else if (action == 'remove') {
-				remove();
+			if (adjustments?.position === 'into') {
+				gsap.to(element, {
+					overwrite: true,
+					opacity: 0,
+					// opacity: this.props?.client ? 0 : 1,
+					duration: adjustments?.position !== 'into' ? adjustments?.opacityDelay || 3 : 0,
+					ease: 'power3.out',
+				});
+			} else {
+				gsap.to(element, {
+					opacity: 1,
+					overwrite: true,
+					duration: 2,
+					ease: 'power3.Out',
+				});
 			}
-		} else if (action == 'add' && preview) {
-			add();
-			const timeout = parseFloat(adjustments?.opacityDelay || 1);
-			setTimeout(() => {
-				remove();
-			}, timeout * 1000);
-			return '';
+		};
+		if (animations?.animeType === 'press') {
+			if (this.state?.preview && this.props?.client) {
+				if (!component?.animations?.isClicked) {
+					add();
+					component.animations.isClicked = true;
+				} else {
+					remove();
+					component.animations.isClicked = false;
+				}
+			} else if (action == 'add' && preview) {
+				if (adjustments?.position === 'into') {
+					remove();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						add();
+					}, timeout * 1000);
+
+					return '';
+				} else {
+					add();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						remove();
+					}, timeout * 1000);
+					return '';
+				}
+			} else {
+				return '';
+			}
 		} else {
-			return '';
+			if (this.state?.preview && this.props?.client) {
+				if (action == 'add') {
+					add();
+				} else if (action == 'remove') {
+					remove();
+				}
+			} else if (action == 'add' && preview) {
+				if (adjustments?.position === 'into') {
+					remove();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						add();
+					}, timeout * 1000);
+
+					return '';
+				} else {
+					add();
+					const timeout = parseFloat(adjustments?.animeDuration || 1);
+					setTimeout(() => {
+						remove();
+					}, timeout * 1000);
+					return '';
+				}
+			} else {
+				return '';
+			}
 		}
 	};
+
 	//* various functions for loop animations
 	// ! breathe loop animation function
 	handleLoopBreathe = (element, adjustments) => {
@@ -5423,11 +5609,10 @@ class Layout extends Component {
 	handleLoopSpin = (element, adjustments) => {
 		element.classList.add('loop-spin');
 		element.style.animationDuration = `${adjustments?.animeDuration || 3}s`;
-		element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
+		// element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
 		element.style.animationDelay = `${adjustments?.animeDelay || 0}s`;
 		element.style.animationIterationCount =
 			!this.state?.preview && !this.props?.client ? 1 : 'infinite';
-		// console.log(`ssss${adjustments?.direction}`);
 		element.style.setProperty(
 			'--spin-end-angle',
 			`${adjustments?.direction == 'Clockwise' ? '360deg' : '-360deg'}`,
@@ -5776,7 +5961,7 @@ class Layout extends Component {
 	// * various functions for scroll animations
 
 	// ! scroll fade animation function
-	handleScrollFade = (element, adjustments, preview = false) => {
+	handleScrollFade = (element, adjustments, preview = false, parent = this.blockRef.current) => {
 		// !function to add and remove animation properties
 		const add = () => {
 			element.classList.add('scroll-fade');
@@ -5789,36 +5974,64 @@ class Layout extends Component {
 			element.classList.remove('scroll-fade');
 			element.style.removeProperty('--starting-opacity');
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
-				element.style.willChange = 'opacity, transform';
-				const fadeTween = gsap.fromTo(
-					element,
-					{
-						autoAlpha: parseFloat(adjustments?.opacity / 100) || 0,
-						force3D: 'auto',
-						backfaceVisibility: 'hidden',
-					},
-					{
-						autoAlpha: 1,
-						duration: 1,
-						ease: 'none',
-						paused: true,
-						immediateRender: false,
-						overwrite: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.7,
-					duration: 500,
-				})
-					.on('progress', (event) => {
-						fadeTween.progress(event.progress);
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
+					element.style.willChange = 'opacity, transform';
+					const fadeTween = gsap.fromTo(
+						element,
+						{
+							autoAlpha: parseFloat(adjustments?.opacity / 100) || 0,
+							force3D: 'auto',
+							backfaceVisibility: 'hidden',
+						},
+						{
+							autoAlpha: 1,
+							duration: 1,
+							ease: 'none',
+							paused: true,
+							immediateRender: false,
+							overwrite: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							fadeTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -5835,7 +6048,7 @@ class Layout extends Component {
 
 	// ! scroll move animation function
 
-	handleScrollMove = (element, adjustments, preview = false) => {
+	handleScrollMove = (element, adjustments, preview = false, parent = this.blockRef.current) => {
 		// !function to add and remove animation properties
 		const add = () => {
 			element.classList.add('scroll-move');
@@ -5869,53 +6082,81 @@ class Layout extends Component {
 			element.style.removeProperty('--breathe-x-distance');
 			element.style.removeProperty('--breathe-y-distance');
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
-				const direction = adjustments?.direction || 'top';
-				const returnDistance = (direction) => {
-					if (direction == 'top' || direction == 'left') {
-						return `-${parseFloat(adjustments?.animeDistance || 100)}px`;
-					}
-					return `${parseFloat(adjustments?.animeDistance || 100)}px`;
-				};
-				element.style.willChange = 'opacity, transform';
-				const moveTween = gsap.fromTo(
-					element,
-					{
-						y:
-							direction == 'top' || direction == 'bottom'
-								? returnDistance(direction)
-								: 0,
-						x:
-							direction == 'left' || direction == 'right'
-								? returnDistance(direction)
-								: 0,
-						autoAlpha: 0,
-						force3D: true,
-						backfaceVisibility: 'hidden',
-					},
-					{
-						y: 0,
-						x: 0,
-						autoAlpha: 1,
-						duration: 3,
-						ease: 'power2.inOut',
-						paused: true,
-						immediateRender: false,
-						overwrite: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.7,
-					duration: 900,
-				})
-					.on('progress', (event) => {
-						moveTween.progress(event.progress);
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
+					const direction = adjustments?.direction || 'top';
+					const returnDistance = (direction) => {
+						if (direction == 'top' || direction == 'left') {
+							return `-${parseFloat(adjustments?.animeDistance || 100)}px`;
+						}
+						return `${parseFloat(adjustments?.animeDistance || 100)}px`;
+					};
+					element.style.willChange = 'opacity, transform';
+					const moveTween = gsap.fromTo(
+						element,
+						{
+							y:
+								direction == 'top' || direction == 'bottom'
+									? returnDistance(direction)
+									: 0,
+							x:
+								direction == 'left' || direction == 'right'
+									? returnDistance(direction)
+									: 0,
+							autoAlpha: 0,
+							force3D: true,
+							backfaceVisibility: 'hidden',
+						},
+						{
+							y: 0,
+							x: 0,
+							autoAlpha: 1,
+							duration: 3,
+							ease: 'power3.inOut',
+							paused: true,
+							immediateRender: false,
+							overwrite: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							moveTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -5931,7 +6172,12 @@ class Layout extends Component {
 	};
 
 	// ! scroll Expand animation function
-	handleScrollExpand = (element, adjustments, preview = false) => {
+	handleScrollExpand = (
+		element,
+		adjustments,
+		preview = false,
+		parent = this.blockRef.current,
+	) => {
 		// !function to add and remove animation properties
 		const { direction = 'center', scale = 1, speed = 1, intensity } = adjustments || {};
 		const add = () => {
@@ -5973,43 +6219,71 @@ class Layout extends Component {
 					return { x: 0, y: 0 };
 			}
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
-				element.style.willChange = 'opacity, transform';
-				const expandTween = gsap.fromTo(
-					element,
-					{
-						y: parseFloat(getDirectionOffset(direction, intensity).y) || 100,
-						x: parseFloat(getDirectionOffset(direction, intensity).x) || 100,
-						autoAlpha: 0,
-						scale: parseFloat(scale / 100),
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
+					element.style.willChange = 'opacity, transform';
+					const expandTween = gsap.fromTo(
+						element,
+						{
+							y: parseFloat(getDirectionOffset(direction, intensity).y) || 100,
+							x: parseFloat(getDirectionOffset(direction, intensity).x) || 100,
+							autoAlpha: 0,
+							scale: parseFloat(scale / 100),
 
-						force3D: true,
-						backfaceVisibility: 'hidden',
-					},
-					{
-						y: 0,
-						x: 0,
-						autoAlpha: 1,
-						scale: 1,
-						duration: speed || 3,
-						ease: 'power2.inOut',
-						paused: true,
-						immediateRender: false,
-						overwrite: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.5,
-					duration: 1200,
-				})
-					.on('progress', (event) => {
-						expandTween.progress(event.progress);
+							force3D: true,
+							backfaceVisibility: 'hidden',
+						},
+						{
+							y: 0,
+							x: 0,
+							autoAlpha: 1,
+							scale: 1,
+							duration: speed || 3,
+							ease: 'power3.inOut',
+							paused: true,
+							immediateRender: false,
+							overwrite: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							expandTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -6024,7 +6298,12 @@ class Layout extends Component {
 		}
 	};
 	// ! scroll shrink animation function
-	handleScrollShrink = (element, adjustments, preview = false) => {
+	handleScrollShrink = (
+		element,
+		adjustments,
+		preview = false,
+		parent = this.blockRef.current,
+	) => {
 		// !function to add and remove animation properties
 		const { direction = 'center', scale = 2, speed = 1, intensity } = adjustments || {};
 		const add = () => {
@@ -6066,43 +6345,71 @@ class Layout extends Component {
 					return { x: 0, y: 0 };
 			}
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
-				element.style.willChange = 'opacity, transform';
-				const shrinkTween = gsap.fromTo(
-					element,
-					{
-						y: parseFloat(getDirectionOffset(direction, intensity).y) || 100,
-						x: parseFloat(getDirectionOffset(direction, intensity).x) || 100,
-						autoAlpha: 0,
-						scale: parseFloat(scale),
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
+					element.style.willChange = 'opacity, transform';
+					const shrinkTween = gsap.fromTo(
+						element,
+						{
+							y: parseFloat(getDirectionOffset(direction, intensity).y) || 100,
+							x: parseFloat(getDirectionOffset(direction, intensity).x) || 100,
+							autoAlpha: 0,
+							scale: parseFloat(scale),
 
-						force3D: 'auto',
-						backfaceVisibility: 'hidden',
-					},
-					{
-						y: 0,
-						x: 0,
-						scale: 1,
-						autoAlpha: 1,
-						duration: speed || 3,
-						ease: 'power2.inOut',
-						paused: true,
-						immediateRender: false,
-						overwrite: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.7,
-					duration: 1800,
-				})
-					.on('progress', (event) => {
-						shrinkTween.progress(event.progress);
+							force3D: 'auto',
+							backfaceVisibility: 'hidden',
+						},
+						{
+							y: 0,
+							x: 0,
+							scale: 1,
+							autoAlpha: 1,
+							duration: speed || 3,
+							ease: 'power3.inOut',
+							paused: true,
+							immediateRender: false,
+							overwrite: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							shrinkTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -6118,7 +6425,7 @@ class Layout extends Component {
 	};
 
 	// !scroll spin animation function
-	handleScrollSpin = (element, adjustments, preview = false) => {
+	handleScrollSpin = (element, adjustments, preview = false, parent = this.blockRef.current) => {
 		// !function to add and remove animation properties
 		const spinCount = adjustments?.spin || 1;
 		const scale = adjustments?.scale / 100;
@@ -6136,35 +6443,62 @@ class Layout extends Component {
 			element.style.removeProperty('--spin-rotate');
 			element.style.removeProperty('--spin-scale');
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
 
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
 
-				const spinTween = gsap.fromTo(
-					element,
-					{
-						rotation: spinDegrees || 360,
-						scale: scale,
-					},
-					{
-						rotate: 0,
-						scale: 1,
-						duration: 3,
-						ease: 'none',
-						paused: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.9,
-					duration: 500,
-				})
-					.on('progress', (event) => {
-						spinTween.progress(event.progress);
+					const spinTween = gsap.fromTo(
+						element,
+						{
+							rotation: spinDegrees || 360,
+							scale: scale,
+						},
+						{
+							rotate: 0,
+							scale: 1,
+							duration: 3,
+							ease: 'none',
+							paused: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							spinTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -6179,7 +6513,7 @@ class Layout extends Component {
 		}
 	};
 	// ! scroll slide animation function
-	handleScrollSlide = (element, adjustments, preview = false) => {
+	handleScrollSlide = (element, adjustments, preview = false, parent = this.blockRef.current) => {
 		// !function to add and remove animation properties
 		const add = () => {
 			const { direction = '' } = adjustments;
@@ -6209,46 +6543,77 @@ class Layout extends Component {
 			element.classList.remove('scroll-slide');
 			element.style.removeProperty('--slide-translate');
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
-				const direction = adjustments?.direction || 'top';
-				const returnDistance = (direction) => {
-					if (direction == 'top' || direction == 'left') {
-						return `-${parseFloat(adjustments?.animeDistance || 100)}px`;
-					}
-					return `${parseFloat(adjustments?.animeDistance || 100)}px`;
-				};
-				const slideTween = gsap.fromTo(
-					element,
-					{
-						y:
-							direction == 'top' || direction == 'down'
-								? returnDistance(direction)
-								: 0,
-						x:
-							direction == 'left' || direction == 'right'
-								? returnDistance(direction)
-								: 0,
-					},
-					{
-						y: 0,
-						x: 0,
-						duration: 3,
-						ease: 'power2.inOut',
-						paused: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.7,
-					duration: 900,
-				})
-					.on('progress', (event) => {
-						slideTween.progress(event.progress);
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
+					// element.style.willChange = 'transform';
+					const direction = adjustments?.direction || 'top';
+					const returnDistance = (direction) => {
+						if (direction == 'top' || direction == 'left') {
+							return `-${parseFloat(adjustments?.animeDistance || 100)}px`;
+						}
+						return `${parseFloat(adjustments?.animeDistance || 100)}px`;
+					};
+					const slideTween = gsap.fromTo(
+						element,
+						{
+							y:
+								direction == 'top' || direction == 'down'
+									? returnDistance(direction)
+									: 0,
+							x:
+								direction == 'left' || direction == 'right'
+									? returnDistance(direction)
+									: 0,
+						},
+						{
+							y: 0,
+							x: 0,
+							duration: 3,
+							ease: 'power2.inOut',
+							immediateRender: false,
+							overwrite: 'auto',
+							paused: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							slideTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -6264,7 +6629,7 @@ class Layout extends Component {
 	};
 
 	// ! scroll blur animation function
-	handleScrollBlur = (element, adjustments, preview = false) => {
+	handleScrollBlur = (element, adjustments, preview = false, parent = this.blockRef.current) => {
 		// !function to add and remove animation properties
 
 		const add = () => {
@@ -6275,32 +6640,60 @@ class Layout extends Component {
 			element.classList.remove('scroll-blur');
 			element.style.removeProperty('--blur-intensity');
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
 
-				const blurTween = gsap.fromTo(
-					element,
-					{
-						filter: `blur(${parseFloat(adjustments?.blur || 10)}px)`,
-					},
-					{
-						filter: 'blur(0px)',
-						duration: 1,
-						ease: 'none',
-						paused: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.5,
-					duration: 300,
-				})
-					.on('progress', (event) => {
-						blurTween.progress(event.progress);
+					const blurTween = gsap.fromTo(
+						element,
+						{
+							filter: `blur(${parseFloat(adjustments?.blur || 10)}px)`,
+						},
+						{
+							filter: 'blur(0px)',
+							duration: 1,
+							ease: 'none',
+							paused: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							blurTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -6316,7 +6709,12 @@ class Layout extends Component {
 	};
 
 	// ! scroll reveal animation function
-	handleScrollReveal = (element, adjustments, preview = false) => {
+	handleScrollReveal = (
+		element,
+		adjustments,
+		preview = false,
+		parent = this.blockRef.current,
+	) => {
 		// !function to add and remove animation properties
 		const clipMap = {
 			top: 'inset(100% 0 0 0)',
@@ -6334,31 +6732,59 @@ class Layout extends Component {
 			element.classList.remove('scroll-reveal');
 			element.style.removeProperty('--clip-start');
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
-				const revealTween = gsap.fromTo(
-					element,
-					{
-						clipPath: clipStart,
-					},
-					{
-						clipPath: 'inset(0% 0% 0% 0%)',
-						duration: 2,
-						ease: 'none',
-						paused: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.5,
-					duration: 300,
-				})
-					.on('progress', (event) => {
-						revealTween.progress(event.progress);
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
+					const revealTween = gsap.fromTo(
+						element,
+						{
+							clipPath: clipStart,
+						},
+						{
+							clipPath: 'inset(0% 0% 0% 0%)',
+							duration: 2,
+							ease: 'none',
+							paused: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							revealTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -6374,7 +6800,12 @@ class Layout extends Component {
 	};
 
 	// ! scroll 3dspin animation function
-	handleScroll3dSpin = (element, adjustments, preview = false) => {
+	handleScroll3dSpin = (
+		element,
+		adjustments,
+		preview = false,
+		parent = this.blockRef.current,
+	) => {
 		// !function to add and remove animation properties
 
 		const { rotate = 150, speed = 2 } = adjustments;
@@ -6389,43 +6820,71 @@ class Layout extends Component {
 			element.style.removeProperty('--spin-angle');
 			element.style.animationDuration = '';
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
 
-				const tl = gsap.timeline({ paused: true });
-				tl.fromTo(
-					element,
-					{
-						transformPerspective: 1000,
-						rotateX: rotate || 360,
-						rotateY: rotate || 360,
-						scale: 0.2,
-					},
-					{
-						transformPerspective: 1000,
-						rotateX: rotate / 2 || 180,
-						rotateY: rotate / 2 || 180,
-						scale: 0.6,
-						duration: speed || 2,
-					},
-				).to(element, {
-					rotateX: 0,
-					rotateY: 0,
-					autoAlpha: 1,
-					scale: 1,
-					duration: speed || 1,
-				});
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.5,
-					duration: 300,
-				})
-					.on('progress', (event) => {
-						tl.progress(event.progress);
+					const tl = gsap.timeline({ paused: true });
+					tl.fromTo(
+						element,
+						{
+							transformPerspective: 1000,
+							rotateX: rotate || 360,
+							rotateY: rotate || 360,
+							scale: 0.2,
+						},
+						{
+							transformPerspective: 1000,
+							rotateX: rotate / 2 || 180,
+							rotateY: rotate / 2 || 180,
+							scale: 0.6,
+							duration: speed || 2,
+						},
+					).to(element, {
+						rotateX: 0,
+						rotateY: 0,
+						autoAlpha: 1,
+						scale: 1,
+						duration: speed || 1,
+					});
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							tl.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -6441,7 +6900,7 @@ class Layout extends Component {
 	};
 
 	// ! scroll fly animation function
-	handleScrollFly = (element, adjustments, preview = false) => {
+	handleScrollFly = (element, adjustments, preview = false, parent = this.blockRef.current) => {
 		// !function to add and remove animation properties
 
 		const distance = adjustments?.distance || 100;
@@ -6463,37 +6922,65 @@ class Layout extends Component {
 			element.style.removeProperty('--fly-translate');
 			element.style.removeProperty('--fly-skew');
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
 
-				const translate = direction === 'left' ? -200 : 200;
+					const translate = direction === 'left' ? -200 : 200;
 
-				const skew = direction === 'left' ? angle : -angle;
-				const flyTween = gsap.fromTo(
-					element,
-					{
-						x: translate,
-						skewX: skew,
-					},
-					{
-						x: 0,
-						skewX: 0,
-						duration: 1,
-						ease: 'none',
-						paused: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.5,
-					duration: 600,
-				})
-					.on('progress', (event) => {
-						flyTween.progress(event.progress);
+					const skew = direction === 'left' ? angle : -angle;
+					const flyTween = gsap.fromTo(
+						element,
+						{
+							x: translate,
+							skewX: skew,
+						},
+						{
+							x: 0,
+							skewX: 0,
+							duration: 1,
+							ease: 'none',
+							paused: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							flyTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -6509,7 +6996,7 @@ class Layout extends Component {
 	};
 	// ! scroll Turn animation function
 
-	handleScrollTurn = (element, adjustments, preview = false) => {
+	handleScrollTurn = (element, adjustments, preview = false, parent = this.blockRef.current) => {
 		// !function to add and remove animation properties
 
 		const {
@@ -6534,48 +7021,76 @@ class Layout extends Component {
 			element.style.removeProperty('--turn-rotate');
 			element.style.removeProperty('--turn-scale');
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
-				element.style.willChange = 'opacity, transform';
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
+					element.style.willChange = 'opacity, transform';
 
-				let rotateZ = orientation === 'Clockwise' ? -180 : 180;
-				const turnTween = gsap.fromTo(
-					element,
-					{
-						x: translateX,
-						z: -200,
-						rotationZ: rotateZ,
-						scale: parseFloat(scale),
-						autoAlpha: 0,
-						force3D: 'auto',
-						backfaceVisibility: 'hidden',
-						transformStyle: 'preserve-3d',
-						transformPerspective: 1000,
-					},
-					{
-						x: 0,
-						z: 0,
-						rotationZ: 0,
-						scale: 1,
-						autoAlpha: 1,
-						duration: 3,
-						ease: 'none',
-						paused: true,
-						immediateRender: false,
-						overwrite: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.7,
-					duration: 1000,
-				})
-					.on('progress', (event) => {
-						turnTween.progress(event.progress);
+					let rotateZ = orientation === 'Clockwise' ? -180 : 180;
+					const turnTween = gsap.fromTo(
+						element,
+						{
+							x: translateX,
+							z: -200,
+							rotationZ: rotateZ,
+							scale: parseFloat(scale),
+							autoAlpha: 0,
+							force3D: 'auto',
+							backfaceVisibility: 'hidden',
+							transformStyle: 'preserve-3d',
+							transformPerspective: 1000,
+						},
+						{
+							x: 0,
+							z: 0,
+							rotationZ: 0,
+							scale: 1,
+							autoAlpha: 1,
+							duration: 3,
+							ease: 'none',
+							paused: true,
+							immediateRender: false,
+							overwrite: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							turnTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -6592,7 +7107,7 @@ class Layout extends Component {
 
 	// ! scroll tilt animation function
 
-	handleScrollTilt = (element, adjustments, preview = false) => {
+	handleScrollTilt = (element, adjustments, preview = false, parent = this.blockRef.current) => {
 		// !function to add and remove animation properties
 		const { speed = 1, direction = 'left' } = adjustments || {};
 		const add = () => {
@@ -6613,47 +7128,75 @@ class Layout extends Component {
 			element.style.removeProperty('--rotate-y');
 			element.style.removeProperty('--rotate');
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
-				const rotateX = direction === 'left' ? -15 : 15;
-				const rotateY = direction === 'left' ? 25 : -25;
-				const rotate = direction === 'left' ? -25 : 25;
-				const zValue = direction === 'left' ? 50 : -50;
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
+					const rotateX = direction === 'left' ? -15 : 15;
+					const rotateY = direction === 'left' ? 25 : -25;
+					const rotate = direction === 'left' ? -25 : 25;
+					const zValue = direction === 'left' ? 50 : -50;
 
-				const tiltTween = gsap.fromTo(
-					element,
-					{
-						z: zValue,
-						rotationX: rotateX,
-						rotationY: rotateY,
-						rotation: rotate,
-						scale: 0.95,
-						duration: speed,
-						transformStyle: 'preserve-3d',
-						transformPerspective: 400,
-					},
-					{
-						z: 0,
-						rotationX: 0,
-						rotationY: 0,
-						rotation: 0,
-						scale: 1,
-						duration: 2,
-						ease: 'none',
-						paused: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.7,
-					duration: 500,
-				})
-					.on('progress', (event) => {
-						tiltTween.progress(event.progress);
+					const tiltTween = gsap.fromTo(
+						element,
+						{
+							z: zValue,
+							rotationX: rotateX,
+							rotationY: rotateY,
+							rotation: rotate,
+							scale: 0.95,
+							duration: speed,
+							transformStyle: 'preserve-3d',
+							transformPerspective: 400,
+						},
+						{
+							z: 0,
+							rotationX: 0,
+							rotationY: 0,
+							rotation: 0,
+							scale: 1,
+							duration: 2,
+							ease: 'none',
+							paused: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							tiltTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -6669,7 +7212,12 @@ class Layout extends Component {
 	};
 
 	// ! scroll stretch animation function
-	handleScrollStretch = (element, adjustments, preview = false) => {
+	handleScrollStretch = (
+		element,
+		adjustments,
+		preview = false,
+		parent = this.blockRef.current,
+	) => {
 		// !function to add and remove animation properties
 		const scale = parseFloat((adjustments?.scale || 20) / 100);
 		const add = () => {
@@ -6681,39 +7229,67 @@ class Layout extends Component {
 			element.classList.remove('scroll-stretch');
 			element.style.removeProperty('--stretch-scale');
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
 
-				const stretchTween = gsap.fromTo(
-					element,
-					{
-						scaleX: 2 - scale,
-						scaleY: 1 - scale,
-						y: '40%',
-						duration: 2,
-						transformStyle: 'preserve-3d',
-						transformPerspective: 400,
-					},
-					{
-						scaleX: 1,
-						scaleY: 1,
-						y: 0,
-						duration: 2,
-						ease: 'none',
-						paused: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.7,
-					duration: 500,
-				})
-					.on('progress', (event) => {
-						stretchTween.progress(event.progress);
+					const stretchTween = gsap.fromTo(
+						element,
+						{
+							scaleX: 2 - scale,
+							scaleY: 1 - scale,
+							y: '40%',
+							duration: 2,
+							transformStyle: 'preserve-3d',
+							transformPerspective: 400,
+						},
+						{
+							scaleX: 1,
+							scaleY: 1,
+							y: 0,
+							duration: 2,
+							ease: 'none',
+							paused: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							stretchTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -6729,7 +7305,7 @@ class Layout extends Component {
 	};
 
 	// ! scroll flip animation function
-	handleScrollFlip = (element, adjustments, preview = false) => {
+	handleScrollFlip = (element, adjustments, preview = false, parent = this.blockRef.current) => {
 		// !function to add and remove animation properties
 		const { angle = -360, direction = 'horizontal' } = adjustments || {};
 
@@ -6749,41 +7325,69 @@ class Layout extends Component {
 			element.style.removeProperty('--flip-angle');
 			element.style.removeProperty('--flip-rotate');
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
-				const rotateX = direction == 'vertical' ? angle : 0;
-				const rotateY = direction == 'horizontal' ? angle : 0;
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
+					const rotateX = direction == 'vertical' ? angle : 0;
+					const rotateY = direction == 'horizontal' ? angle : 0;
 
-				const flipTween = gsap.fromTo(
-					element,
-					{
-						rotationY: rotateY,
-						rotationX: rotateX,
-						scale: 0.95,
-						duration: 2,
-						transformStyle: 'preserve-3d',
-						transformPerspective: 400,
-					},
-					{
-						rotationY: 0,
-						rotationX: 0,
-						scale: 1,
-						duration: 4,
-						ease: 'none',
-						paused: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.7,
-					duration: 500,
-				})
-					.on('progress', (event) => {
-						flipTween.progress(event.progress);
+					const flipTween = gsap.fromTo(
+						element,
+						{
+							rotationY: rotateY,
+							rotationX: rotateX,
+							scale: 0.95,
+							duration: 2,
+							transformStyle: 'preserve-3d',
+							transformPerspective: 400,
+						},
+						{
+							rotationY: 0,
+							rotationX: 0,
+							scale: 1,
+							duration: 4,
+							ease: 'none',
+							paused: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							flipTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -6800,7 +7404,12 @@ class Layout extends Component {
 
 	// !  scroll parallax animation function
 
-	handleScrollParallax = (element, adjustments, preview = false) => {
+	handleScrollParallax = (
+		element,
+		adjustments,
+		preview = false,
+		parent = this.blockRef.current,
+	) => {
 		// !function to add and remove animation properties
 
 		const add = () => {
@@ -6814,37 +7423,65 @@ class Layout extends Component {
 			element.classList.remove('scroll-parallax');
 			element.style.removeProperty('--parallax-intensity');
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
-				const intensity = parseFloat((adjustments?.animeIntensity || 1) * -1);
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
+					const intensity = parseFloat((adjustments?.animeIntensity || 1) * -1);
 
-				const parallaxTween = gsap.fromTo(
-					element,
-					{
-						y: 259.524 * intensity,
-						opacity: 1,
-						duration: 2,
-						transformStyle: 'preserve-3d',
-						transformPerspective: 400,
-					},
-					{
-						y: 0,
-						duration: 4,
-						ease: 'none',
-						paused: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.9,
-					duration: 1200,
-				})
-					.on('progress', (event) => {
-						parallaxTween.progress(event.progress);
+					const parallaxTween = gsap.fromTo(
+						element,
+						{
+							y: 259.524 * intensity,
+							opacity: 1,
+							duration: 2,
+							transformStyle: 'preserve-3d',
+							transformPerspective: 400,
+						},
+						{
+							y: 0,
+							duration: 4,
+							ease: 'none',
+							paused: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							parallaxTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -6859,7 +7496,7 @@ class Layout extends Component {
 		}
 	};
 	// ! scroll arc animation
-	handleScrollArc = (element, adjustments, preview = false) => {
+	handleScrollArc = (element, adjustments, preview = false, parent = this.blockRef.current) => {
 		// !function to add and remove animation properties
 		const { direction = 'vertical', speed = 6 } = adjustments;
 		const add = () => {
@@ -6883,41 +7520,69 @@ class Layout extends Component {
 			element.style.removeProperty('--arc-rotate-x');
 			element.style.removeProperty('--arc-rotate-y');
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
-				const arcTween = gsap.fromTo(
-					element,
-					{
-						z: 400,
-						rotationX: direction === 'horizontal' ? 0 : -65,
-						rotationY: direction === 'horizontal' ? -55 : 0,
-						y: direction === 'horizontal' ? 0 : 200,
-						x: direction === 'horizontal' ? -200 : 0,
-						scale: 1.3,
-					},
-					{
-						z: 0,
-						y: 0,
-						x: 0,
-						rotationX: 0,
-						rotationY: 0,
-						scale: 1,
-						duration: speed || 2,
-						ease: 'none',
-						paused: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.7,
-					duration: 1200,
-				})
-					.on('progress', (event) => {
-						arcTween.progress(event.progress);
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
+					const arcTween = gsap.fromTo(
+						element,
+						{
+							z: 400,
+							rotationX: direction === 'horizontal' ? 0 : -65,
+							rotationY: direction === 'horizontal' ? -55 : 0,
+							y: direction === 'horizontal' ? 0 : 200,
+							x: direction === 'horizontal' ? -200 : 0,
+							scale: 1.3,
+						},
+						{
+							z: 0,
+							y: 0,
+							x: 0,
+							rotationX: 0,
+							rotationY: 0,
+							scale: 1,
+							duration: speed || 2,
+							ease: 'none',
+							paused: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							arcTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -6933,7 +7598,7 @@ class Layout extends Component {
 	};
 
 	// ! scroll shape animation
-	handleScrollShape = (element, adjustments, preview = false) => {
+	handleScrollShape = (element, adjustments, preview = false, parent = this.blockRef.current) => {
 		// !function to add and remove animation properties
 
 		const { direction = 'circle', animeIntensity = 1 } = adjustments;
@@ -6981,49 +7646,78 @@ class Layout extends Component {
 			element.style.removeProperty('--shape-clip-mid');
 			element.style.removeProperty('--shape-clip-end');
 		};
+		let triggerValue = 'start';
+		const returnTrigger = () => {
+			const { triggerPoint = 'In', animeArea = [0, 0] } = adjustments || {};
+			let triggerHook = 0.9;
+			if (_.has(adjustments, 'animeArea')) {
+				if (animeArea[0] >= 0 && animeArea[1] < 51) {
+					triggerValue = 'start';
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else if (animeArea[0] > 20 && animeArea[1] < 75) {
+					triggerValue = 'center';
+					triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
+				} else if (animeArea[0] > 50 && animeArea[1] > 50) {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			} else {
+				if (triggerPoint == 'In') {
+					triggerValue = 'start';
+
+					triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
+				} else {
+					triggerValue = 'end';
+					triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
+				}
+			}
+			return triggerHook;
+		};
+
 		if (this.state?.preview == true && this.props?.client == true) {
 			setTimeout(() => {
-				this.controller = new ScrollMagic.Controller();
-				const shapeMap = {
-					circle: {
-						start: 'circle(0% at center)',
-						end: `circle(150% at center)`,
-					},
-					square: {
-						start: `inset(50% round 0%)`,
-						end: `inset(0% round 0%)`,
-					},
-					oval: {
-						start: `ellipse(0% 0% at center)`,
-						end: `ellipse(100% 60% at center )`,
-					},
-					diamond: {
-						start: `polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)`,
-						end: `polygon(50% -50%, 150% 50%, 50% 150%, -50% 50%)`,
-					},
-				};
-				const shapeTween = gsap.fromTo(
-					element,
-					{
-						clipPath: shapeMap[direction]?.start || 'circle(0% at center)',
-					},
-					{
-						clipPath: shapeMap[direction]?.end || `circle(150% at center)`,
-						duration: 2,
-						ease: 'none',
-						paused: true,
-					},
-				);
-
-				this.scene = new ScrollMagic.Scene({
-					triggerElement: this.blockRef.current,
-					triggerHook: 0.5,
-					duration: 900,
-				})
-					.on('progress', (event) => {
-						shapeTween.progress(event.progress);
+				if (this.ScrollMagic) {
+					this.controller = new this.ScrollMagic.Controller();
+					const shapeMap = {
+						circle: {
+							start: 'circle(0% at center)',
+							end: `circle(150% at center)`,
+						},
+						square: {
+							start: `inset(50% round 0%)`,
+							end: `inset(0% round 0%)`,
+						},
+						oval: {
+							start: `ellipse(0% 0% at center)`,
+							end: `ellipse(100% 60% at center )`,
+						},
+						diamond: {
+							start: `polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)`,
+							end: `polygon(50% -50%, 150% 50%, 50% 150%, -50% 50%)`,
+						},
+					};
+					const shapeTween = gsap.fromTo(
+						element,
+						{
+							clipPath: shapeMap[direction]?.start || 'circle(0% at center)',
+						},
+						{
+							clipPath: shapeMap[direction]?.end || `circle(150% at center)`,
+							duration: parseFloat(animeIntensity + 1),
+							ease: 'none',
+							paused: true,
+						},
+					);
+					this.scene = new this.ScrollMagic.Scene({
+						triggerElement: parent,
+						triggerHook: returnTrigger() || 0.9,
+						duration: this?.returnAnimeDuration(triggerValue) || 900,
 					})
-					.addTo(this.controller);
+						.on('progress', (event) => {
+							shapeTween.progress(event.progress);
+						})
+						.addTo(this.controller);
+				}
 			}, 0);
 			return '';
 		} else if (preview) {
@@ -7132,6 +7826,17 @@ class Layout extends Component {
 			}, 4500);
 		} else if (action == 'remove' && this.props?.client) {
 			remove();
+		}
+	};
+
+	// returning scroll duration (area to animation)
+	returnAnimeDuration = (triggerValue = 'start') => {
+		if (triggerValue == 'start') {
+			return window?.innerHeight * 1 - 100;
+		} else if (triggerValue == 'center') {
+			return window?.innerHeight * 1 - 300;
+		} else {
+			return window?.innerHeight * 1 - 400;
 		}
 	};
 	getZoomScale = () => {
@@ -7971,7 +8676,10 @@ class Layout extends Component {
 														) || 'auto',
 												}),
 											}}
-											ref={(el) => (this.columnRefs[k] = el)}
+											ref={(el) => {
+												this.columnRefs[k] = el;
+												this.animeBlockParentsRef[component?._id] = el;
+											}}
 										>
 											<Draggable
 												bounds={`.${this.state.className}`}
@@ -8052,10 +8760,12 @@ class Layout extends Component {
 														}
 													}}
 													onClick={(e) => {
-														// e.stopPropagation();
+														e.stopPropagation();
 														if (
-															this.state?.preview == true ||
-															!this.props?.client == true
+															(this.state?.preview == true ||
+																this.props?.client == true) &&
+															component?.animations?.animeType ==
+																'press'
 														) {
 															this.onClickAnime(component);
 														}
@@ -8121,6 +8831,7 @@ class Layout extends Component {
 															  component?._id
 															? '3px solid #3B82F6'
 															: 'none',
+														wordBreak: 'break-word',
 
 														background: `${
 															_.has(component, 'backgroundlabel') &&

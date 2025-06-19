@@ -610,6 +610,16 @@
 		font-size: 11px;
 		flex-grow: 1;
 		font-family: var(--primary-font-family);
+
+		&::-webkit-calendar-picker-indicator {
+			filter: invert(48%) sepia(13%) saturate(3207%) hue-rotate(130deg) brightness(95%)
+				contrast(80%);
+		}
+	}
+
+	.events-popup-time-input::-webkit-calendar-picker-indicator {
+		filter: invert(75%) sepia(85%) saturate(3500%) hue-rotate(340deg) brightness(100%)
+			contrast(100%);
 	}
 
 	@media screen and (max-width: 768px) {
@@ -635,6 +645,13 @@
 		.sessionOptionContainer {
 			flex-direction: column;
 			gap: 12px;
+		}
+
+		input[type='text'],
+		input[type='time'],
+		input[type='date'] {
+			padding: 8px 10px;
+			font-size: 10px;
 		}
 	}
 

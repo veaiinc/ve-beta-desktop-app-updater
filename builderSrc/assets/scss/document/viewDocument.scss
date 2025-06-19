@@ -13,6 +13,7 @@
 		display: none;
 	}
 	.back-to-files {
+		cursor: pointer;
 		.createDocumentHeader {
 			position: absolute;
 			top: 0;
@@ -165,7 +166,7 @@
 		align-items: center;
 		align-self: stretch;
 		border-radius: 16px;
-		background: var(--card, #1c1d21);
+		background: var(--new-card, #1c1d21);
 		min-height: fit-content;
 
 		.status-tracking {
@@ -193,7 +194,7 @@
 					text-wrap: nowrap;
 					border-radius: 65px;
 					border: 0.8px solid var(--stroke, #2b2e31);
-					background: var(--card, #1c1d21);
+					background: var(--new-card, #1c1d21);
 					.doc-header-btn-text {
 						color: var(--primary-font, #f2f2f3);
 						font-family: Inter;
@@ -262,6 +263,9 @@
 								border-radius: 20px;
 								background: var(--primary-font, #f2f2f3);
 							}
+							&.last-active {
+								background: var(--primary-button);
+							}
 							&.inactive {
 								background: var(--secondary-font);
 								opacity: 0.1;
@@ -283,6 +287,9 @@
 								opacity: 1;
 								display: block;
 							}
+							&.last-active {
+								background: var(--primary-button);
+							}
 						}
 					}
 					.status-label {
@@ -299,12 +306,21 @@
 
 						&.active {
 							color: var(--primary-font);
+							font-weight: 600;
+						}
+						&.current {
+							color: var(--primary-button);
+							font-weight: 700;
+							cursor: pointer;
 						}
 					}
 
 					&:last-child {
 						.status-line {
 							width: calc(100% - 8px);
+							// background-color: rgba(255, 0, 0, 0.8);
+							// box-shadow: 0 0 8px rgba(255, 0, 0, 0.4);
+							// opacity: 1;
 						}
 					}
 				}
@@ -316,7 +332,7 @@
 			background: #161618;
 		}
 		.section2-container {
-			background: var(--card, #1c1d21);
+			background: var(--new-card, #1c1d21);
 			display: flex;
 			flex-direction: column;
 			align-items: center;
@@ -349,9 +365,6 @@
 					gap: 8px;
 					align-self: stretch;
 					cursor: pointer;
-					.section2-title {
-						color: var(--primary-font);
-					}
 				}
 				.section2-actions-container {
 					display: flex;
@@ -385,7 +398,7 @@
 		align-items: flex-start;
 		align-self: stretch;
 		gap: 32px;
-		background: var(--card);
+		background: #1e2021;
 		border-radius: 16px;
 		padding: 24px;
 
@@ -419,7 +432,7 @@
 				align-self: stretch;
 				gap: 8px;
 				border-radius: 0px 4px 4px 0px;
-				border-left: 2px solid var(--primary-button, #cfff48);
+				border-left: 2px solid var(--product-lime-blu, #cfff48);
 				background: rgba(207, 255, 72, 0.02);
 				cursor: pointer;
 				transition: all 0.2s ease;
@@ -660,14 +673,33 @@
 	margin-top: 1.5rem;
 	gap: 2rem;
 
-	.doc-header-title {
-		color: var(--primary-font, #f2f2f3);
-		text-align: start;
-		font-family: Inter;
-		font-size: 18px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: 26px; /* 144.444% */
+	.doc-header-title-container {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		.doc-header-title-container-text {
+			color: var(--secondary-font, #7a7e85);
+			font-family: var(--primary-font);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 18px;
+			font-weight: 600;
+			// background: var(--new-card, #1c1d21);
+			// width: fit-content;
+			// padding: 4px 12px;
+			// border-radius: 6px;
+			// border: 1px solid var(--stroke, #2b2e31);
+		}
+		.doc-header-title {
+			color: var(--primary-font, #f2f2f3);
+			text-align: start;
+			font-family: var(--primary-font);
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 26px;
+		}
 	}
 	.doc-header-actions {
 		display: flex;
@@ -685,7 +717,7 @@
 			text-wrap: nowrap;
 			border-radius: 65px;
 			border: 0.8px solid var(--stroke, #2b2e31);
-			background: var(--card, #1c1d21);
+			background: var(--new-card, #1c1d21);
 			.doc-header-btn-text {
 				color: var(--primary-font, #f2f2f3);
 				font-family: Inter;
@@ -723,7 +755,7 @@
 	gap: 8px;
 	border-radius: 12px;
 	border: 1px solid var(--stroke, #2b2e31);
-	background: var(--card, #1c1d21);
+	background: var(--new-card, #1c1d21);
 	.doc-info-badge-left {
 		display: flex;
 		align-items: center;
@@ -757,13 +789,14 @@
 		justify-content: center;
 		align-items: center;
 		gap: 10px;
+		margin: auto;
 		align-self: stretch;
 		border-radius: 65px;
 		border: 1px solid var(--stroke, #2b2e31);
 		background: var(--primary-button, #cfff48);
 		&:hover {
-			background: #bbee00;
 			color: #000;
+			opacity: 0.8;
 		}
 	}
 }
@@ -797,3 +830,9 @@
 		}
 	}
 }
+
+// .status-label.current {
+// 	color: #ff0000;
+// 	font-weight: 700;
+// 	text-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
+// }

@@ -83,7 +83,32 @@ const AIMessageRenderer = ({
 
 	return (
 		<div className="ai-message-renderer">
-			<div
+			<>
+				{(messageData?.processing === 'Deep Search' ||
+					messageData?.processing === 'Deep Research') && (
+					<ChainOfThoughtWidget messageData={messageData} />
+				)}
+
+				<AIMessage
+					text={messageData?.message}
+					messageId={messageData?.messageId}
+					customePencilClickFunc={handleNoteComponentModalOpen}
+					handleRatingClick={handleRatingClick}
+					rating={messageData?.rating}
+					citations={messageData?.citations}
+					messageData={messageData}
+					isNewMessage={index === globalChatMessages?.length - 1}
+					handleSendWebsocketMessage={handleSendWebsocketMessage}
+					latestStreamMesage={latestStreamMesage}
+					lastQuery={lastQuery}
+					toggleLatestStreamMessage={toggleLatestStreamMessage}
+					handleViewDocument={handleViewDocument}
+					showViewDocument={showViewDocument}
+					isLastMessage={index === globalChatMessages?.length - 1}
+					isPublicChat={isPublicChat}
+				/>
+			</>
+			{/* <div
 				className={`tabs-wrapper`}
 				style={{
 					marginBottom: messageData?.message?.length > 0 ? '16px' : '32px',
@@ -192,66 +217,76 @@ const AIMessageRenderer = ({
 			) : (
 				<div className="source-content">
 					{messageData?.citations && messageData?.citations.length > 0
-						? messageData?.citations.map((citation, idx) => (
-								<div
-									key={citation?.id || idx}
-									className="citation-item"
-									onClick={() =>
-										redirectTo?.(
-											citation?.type,
-											citation?.[redirectTypeMapper?.[citation?.type]],
-										)
-									}
-								>
-									<div className="citation-header">
-										<div className="citation-icon">
-											{citation?.type === 'url' ? (
-												getFaviconUrl(citation?.name) ? (
-													<img
-														src={getFaviconUrl(citation?.name)}
-														alt="favicon"
-														className="favicon-image"
-													/>
+						? messageData?.citations
+								?.filter((citation) =>
+									citation?.type === 'url'
+										? (citation['url'] || false) && citation?.name?.length > 0
+										: citation?.name?.length > 0,
+								)
+								?.map((citation, idx) => (
+									<div
+										key={citation?.id || idx}
+										className="citation-item"
+										onClick={() =>
+											redirectTo?.(
+												citation?.type,
+												citation?.[redirectTypeMapper?.[citation?.type]],
+											)
+										}
+									>
+										<div className="citation-header">
+											<div className="citation-icon">
+												{citation?.type === 'url' ? (
+													getFaviconUrl(citation?.name) ? (
+														<img
+															src={getFaviconUrl(citation?.name)}
+															alt="favicon"
+															className="favicon-image"
+														/>
+													) : (
+														<div className="company-icon">
+															{getWebsiteName(citation?.name)?.charAt(
+																0,
+															)}
+														</div>
+													)
 												) : (
 													<div className="company-icon">
-														{getWebsiteName(citation?.name)?.charAt(0)}
+														{citation?.type === 's3_key'
+															? fileTypeIcons[
+																	citation?.name?.match(
+																		/\.(\w+)$/,
+																	)?.[1]
+															  ]
+															: fileTypeIcons[citation?.type]}
 													</div>
-												)
-											) : (
-												<div className="company-icon">
-													{citation?.type === 's3_key'
-														? fileTypeIcons[
-																citation?.name?.match(
-																	/\.(\w+)$/,
-																)?.[1]
-														  ]
-														: fileTypeIcons[citation?.type]}
-												</div>
-											)}
-										</div>
-										<div className="citation-details">
-											<div className="website-name">
-												{citation?.type === 'url'
-													? getWebsiteName(citation?.name)
-													: citation?.name}
+												)}
 											</div>
-											{citation?.type === 'url' && (
-												<div className="citation-url">{citation?.name}</div>
-											)}
-
-											{citation?.snippet && (
-												<div className="citation-title">
-													{citation?.snippet}
+											<div className="citation-details">
+												<div className="website-name">
+													{citation?.type === 'url'
+														? getWebsiteName(citation?.name)
+														: citation?.name}
 												</div>
-											)}
+												{citation?.type === 'url' && (
+													<div className="citation-url">
+														{citation?.name}
+													</div>
+												)}
+
+												{citation?.snippet && (
+													<div className="citation-title">
+														{citation?.snippet}
+													</div>
+												)}
+											</div>
 										</div>
+										<ArrowRightIcon className="arrow-icon" />
 									</div>
-									<ArrowRightIcon className="arrow-icon" />
-								</div>
-						  ))
+								))
 						: null}
 				</div>
-			)}
+			)} */}
 		</div>
 	);
 };

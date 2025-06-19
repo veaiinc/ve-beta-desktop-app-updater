@@ -10,11 +10,11 @@ export const DesignBuilderState = (props) => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
 	const getAiResponseForDesignBuilderQuery = async (payload, sessionId) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 
 		const response = await Service.fetchPost(
-			`/${workspaceID}/${sessionId}/design_builder`,
+			`/${workspaceId}/${sessionId}/design_builder`,
 			payload,
 			usertoken,
 			'design_builder_api_server',
@@ -28,12 +28,12 @@ export const DesignBuilderState = (props) => {
 	};
 
 	const getTemplateIdusingSlug = async (payload) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		const response = await service.query(
 			getTemplateIdusingSlugQuery,
 			payload,
-			workspaceID,
+			workspaceId,
 			null,
 			usertoken,
 			'workflows_Api',
@@ -46,18 +46,17 @@ export const DesignBuilderState = (props) => {
 	};
 
 	const getTemplateIdusingSessionId = async (payload) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		const response = await service.query(
 			getTemplateIdusingSessionIdQuery,
 			payload,
-			workspaceID,
+			workspaceId,
 			null,
 			usertoken,
 			'workflows_Api',
 		);
 		if (response?.[0]) {
-			console.log(response?.[1]);
 			return [true, response?.[1]?.data?.getTemplateBySessionId?._id];
 		} else {
 			return [false];

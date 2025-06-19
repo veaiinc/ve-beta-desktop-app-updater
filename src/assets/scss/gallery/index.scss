@@ -51,6 +51,7 @@
 }
 
 .galleryContainer {
+	padding: 32px 0px 0;
 	display: flex;
 	flex-direction: column;
 	width: 100%;
@@ -690,7 +691,7 @@
 				}
 				.album {
 					flex: 0 0 auto;
-					width: 200px;
+					width: 200px !important;
 					height: 130px;
 					position: relative;
 					border-radius: 16px;

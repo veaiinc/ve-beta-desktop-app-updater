@@ -1,12 +1,21 @@
 import React, { memo, useState, useEffect, useContext, useMemo } from 'react';
-import ReactModal from '../ui-components/modal';
-import { Collapse } from 'antd';
+import ReactModal from '../../components/ui-components/modal';
+import { Collapse, Input, DatePicker } from 'antd';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import '../../../assets/scss/document/acceptModel.scss';
 import Spinner from '../loaders/Spinner';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import { message } from 'antd';
+import { message } from '../../../../src/views/components/globalComponents/CustomToast';
 import moment from 'moment';
+
+// Extend dayjs with timezone plugins
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const getToday = () => dayjs().format('YYYY-MM-DD');
 
 const stripHtml = (str) => (str ? str.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, '') : '');
 
@@ -53,6 +62,9 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 		tasks: { taskMetadata, getTaskMetadata, addListItem },
 		calendarInfo: { createCalendarEvent, calendarCategoriesList, getCalendarCategories },
 	} = useContext(Context);
+	const navigate = useNavigate();
+	// State to control contract sign modal
+	const [showContractSignModal, setShowContractSignModal] = useState(false);
 
 	// Centralized info state
 	const [info, setInfo] = useState({
@@ -63,6 +75,12 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 		activeEventKeys: [],
 		calendarCategories: [],
 	});
+
+	// Add new state for editing
+	const [editingTask, setEditingTask] = useState({ key: null, field: null });
+	const [editingEvent, setEditingEvent] = useState({ key: null, field: null });
+	const [taskEditFields, setTaskEditFields] = useState({});
+	const [eventEditFields, setEventEditFields] = useState({});
 
 	// Fetch taskMetadata if needed
 	useEffect(() => {
@@ -201,7 +219,85 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 		}));
 	};
 
+	// Helper to regenerate description for service
+	const buildServiceDescription = (item) => {
+		const descParts = [];
+		if (item.description) descParts.push(stripHtml(item.description));
+		if (item.quantity !== undefined)
+			descParts.push(`Quantity: ${item.quantity}${item.unit ? ' ' + item.unit : ''}`);
+		if (item.unitPrice !== undefined)
+			descParts.push(
+				`Unit Price: ${item.currency === 'INR' ? '₹' : ''}${Number(
+					item.unitPrice,
+				).toLocaleString('en-IN')}`,
+			);
+		if (item.amount !== undefined)
+			descParts.push(
+				`Amount: ${item.currency === 'INR' ? '₹' : ''}${Number(item.amount).toLocaleString(
+					'en-IN',
+				)}`,
+			);
+		return descParts.join(' | ');
+	};
+	// Helper to regenerate description for event
+	const buildEventDescription = (event) => {
+		const descParts = [];
+		if (event.description) descParts.push(stripHtml(event.description));
+		if (event.date) descParts.push(`Date: ${event.date}`);
+		if (event.location) descParts.push(`Location: ${event.location}`);
+		if (event.numberOfGuests !== undefined) descParts.push(`Guests: ${event.numberOfGuests}`);
+		return descParts.join(' | ');
+	};
+
+	// When entering edit mode, initialize edit fields
+	const handleTaskFieldEdit = (task, field) => {
+		setEditingTask({ key: task.key, field });
+		setTaskEditFields({ value: task[field] });
+	};
+	const handleEventFieldEdit = (event, field) => {
+		setEditingEvent({ key: event.key, field });
+		setEventEditFields({ value: event[field] });
+	};
+	const handleTaskFieldSave = (task, field) => {
+		setInfo((prev) => ({
+			...prev,
+			taskState: prev.taskState.map((t) =>
+				t.key === task.key ? { ...t, [field]: taskEditFields.value } : t,
+			),
+		}));
+		setEditingTask({ key: null, field: null });
+		setTaskEditFields({});
+	};
+	const handleEventFieldSave = (event, field) => {
+		setInfo((prev) => ({
+			...prev,
+			eventState: prev.eventState.map((e) =>
+				e.key === event.key ? { ...e, [field]: eventEditFields.value } : e,
+			),
+		}));
+		setEditingEvent({ key: null, field: null });
+		setEventEditFields({});
+	};
+
 	const handleAccept = async () => {
+		// Check for tenant user signature before proceeding
+		const contractTable = (workflowInfoDetails?.summary?.tables || []).find(
+			(t) => t.type === 'contract-with-signature',
+		);
+
+		let tenantUserSigned = true;
+		if (contractTable) {
+			const tenantUser = (contractTable.values || []).find(
+				(v) => v.userType === 'tenantUser',
+			);
+			if (tenantUser && !tenantUser.value) {
+				navigate(
+					`/builder/document/edit/${workflowInfoDetails?._id}?workflow=true&openSignature=true`,
+				);
+				return;
+			}
+		}
+
 		if (!statusId) {
 			message.error('Default status not found. Please check your workflow settings.');
 			return;
@@ -211,38 +307,76 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 		let allSuccess = true;
 
 		for (const task of checkedTasks) {
+			// Always start with the original description
+			const descriptionParts = [task.description || ''];
+
+			// Helper function to check if a property already exists in description
+			const hasProperty = (property) => task.description?.includes(property);
+
+			// Add metadata only if not already present
+			if (!hasProperty('Quantity:') && task.quantity !== undefined) {
+				descriptionParts.push(
+					`Quantity: ${task.quantity}${task.unit ? ' ' + task.unit : ''}`,
+				);
+			}
+			if (!hasProperty('Unit Price:') && task.unitPrice !== undefined) {
+				descriptionParts.push(
+					`Unit Price: ${task.currency === 'INR' ? '₹' : ''}${Number(
+						task.unitPrice,
+					).toLocaleString('en-IN')}`,
+				);
+			}
+			if (!hasProperty('Amount:') && task.amount !== undefined) {
+				descriptionParts.push(
+					`Amount: ${task.currency === 'INR' ? '₹' : ''}${Number(
+						task.amount,
+					).toLocaleString('en-IN')}`,
+				);
+			}
+
+			// Filter out empty strings and join with separator
+			const finalDescription = descriptionParts.filter((part) => part).join(' | ');
+
 			const payload = {
 				title: task.title,
-				description: task.description,
+				description: finalDescription,
 				priority: 'low',
 				status: statusId,
 				clients: [workflowInfoDetails?.clientDetails?._id],
-				// Add more fields as needed
 			};
+
 			try {
 				await addListItem({ input: payload });
 			} catch (e) {
+				console.error('Error creating task:', e);
 				allSuccess = false;
 			}
 		}
 
 		// For events, use createCalendarEvent with the correct payload
-		const today = new Date();
-		const todayISO = today.toISOString();
 		const calendarCategory = (info.calendarCategories || []).find((cat) => cat.type === 'all');
 
 		for (const event of checkedEvents) {
+			// Use startDate and endDate from event (already in YYYY-MM-DD format)
+			const startDate = event.startDate || event.date || getToday();
+			const endDate = event.endDate || event.date || getToday();
+
+			// Create dates in Asia/Calcutta timezone to avoid UTC conversion issues
+			const startDateTime = dayjs.tz(startDate, 'Asia/Calcutta').startOf('day').format();
+			const endDateTime = dayjs.tz(endDate, 'Asia/Calcutta').endOf('day').format();
+
 			const payload = {
 				title: event.title,
 				description: event.description,
-				location: null,
-				startDateTime: todayISO,
-				endDateTime: todayISO,
+				location: event.location || null,
+				startDateTime,
+				endDateTime,
 				timezone: 'Asia/Calcutta',
 				allDay: true,
 				calendarCategory: calendarCategory || null,
 				meeting: null,
 				phone: null,
+				// Do not add numberOfGuests or any custom keys
 			};
 			try {
 				await createCalendarEvent(payload);
@@ -322,9 +456,36 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 									<Collapse.Panel
 										header={
 											<div className="acceptDocumentModalCardHeader">
-												<span className="acceptDocumentModalCardTitle">
-													{task.title}
-												</span>
+												{editingTask.key === task.key &&
+												editingTask.field === 'title' ? (
+													<input
+														value={taskEditFields.value}
+														className="acceptDocumentModalEditInput"
+														autoFocus
+														onChange={(e) =>
+															setTaskEditFields({
+																value: e.target.value,
+															})
+														}
+														onBlur={() =>
+															handleTaskFieldSave(task, 'title')
+														}
+														onKeyDown={(e) => {
+															if (e.key === 'Enter')
+																handleTaskFieldSave(task, 'title');
+														}}
+													/>
+												) : (
+													<span
+														className="acceptDocumentModalCardTitle"
+														onClick={() =>
+															handleTaskFieldEdit(task, 'title')
+														}
+														style={{ cursor: 'pointer' }}
+													>
+														{task.title}
+													</span>
+												)}
 												<input
 													type="checkbox"
 													checked={task.checked}
@@ -338,9 +499,37 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 										className="acceptDocumentModalCard acceptDocumentModalCollapsePanel"
 									>
 										<div className="acceptDocumentModalCardDetails">
-											<div>
-												{task.description && (
-													<div className="acceptDocumentModalCardDescription">
+											<div style={{ width: '100%' }}>
+												{editingTask.key === task.key &&
+												editingTask.field === 'description' ? (
+													<input
+														value={taskEditFields.value}
+														className="acceptDocumentModalEditInput"
+														autoFocus
+														onChange={(e) =>
+															setTaskEditFields({
+																value: e.target.value,
+															})
+														}
+														onBlur={() =>
+															handleTaskFieldSave(task, 'description')
+														}
+														onKeyDown={(e) => {
+															if (e.key === 'Enter')
+																handleTaskFieldSave(
+																	task,
+																	'description',
+																);
+														}}
+													/>
+												) : (
+													<div
+														className="acceptDocumentModalCardDescription"
+														onClick={() =>
+															handleTaskFieldEdit(task, 'description')
+														}
+														style={{ cursor: 'pointer' }}
+													>
 														{task.description}
 													</div>
 												)}
@@ -385,9 +574,39 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 									<Collapse.Panel
 										header={
 											<div className="acceptDocumentModalCardHeader">
-												<span className="acceptDocumentModalCardTitle">
-													{event.title}
-												</span>
+												{editingEvent.key === event.key &&
+												editingEvent.field === 'title' ? (
+													<input
+														value={eventEditFields.value}
+														className="acceptDocumentModalEditInput"
+														autoFocus
+														onChange={(e) =>
+															setEventEditFields({
+																value: e.target.value,
+															})
+														}
+														onBlur={() =>
+															handleEventFieldSave(event, 'title')
+														}
+														onKeyDown={(e) => {
+															if (e.key === 'Enter')
+																handleEventFieldSave(
+																	event,
+																	'title',
+																);
+														}}
+													/>
+												) : (
+													<span
+														className="acceptDocumentModalCardTitle"
+														onClick={() =>
+															handleEventFieldEdit(event, 'title')
+														}
+														style={{ cursor: 'pointer' }}
+													>
+														{event.title}
+													</span>
+												)}
 												<input
 													type="checkbox"
 													checked={event.checked}
@@ -401,9 +620,43 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 										className="acceptDocumentModalCard acceptDocumentModalCollapsePanel"
 									>
 										<div className="acceptDocumentModalCardDetails">
-											<div>
-												{event.description && (
-													<div className="acceptDocumentModalCardDescription">
+											<div style={{ width: '100%' }}>
+												{editingEvent.key === event.key &&
+												editingEvent.field === 'description' ? (
+													<input
+														value={eventEditFields.value}
+														className="acceptDocumentModalEditInput"
+														autoFocus
+														onChange={(e) =>
+															setEventEditFields({
+																value: e.target.value,
+															})
+														}
+														onBlur={() =>
+															handleEventFieldSave(
+																event,
+																'description',
+															)
+														}
+														onKeyDown={(e) => {
+															if (e.key === 'Enter')
+																handleEventFieldSave(
+																	event,
+																	'description',
+																);
+														}}
+													/>
+												) : (
+													<div
+														className="acceptDocumentModalCardDescription"
+														onClick={() =>
+															handleEventFieldEdit(
+																event,
+																'description',
+															)
+														}
+														style={{ cursor: 'pointer' }}
+													>
 														{event.description}
 													</div>
 												)}

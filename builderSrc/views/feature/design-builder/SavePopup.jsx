@@ -30,7 +30,7 @@ const SavePopup = ({ modalIsOpen, modifiedCloseModal, sessionId, executeFetchCal
 		const response = await getTemplateIdusingSessionId(payload);
 
 		if (response?.[0]) {
-			return navigate(`/${response?.[1]}`);
+			return navigate(`/builder/${response?.[1]}`);
 		}
 	}, [sessionId]);
 

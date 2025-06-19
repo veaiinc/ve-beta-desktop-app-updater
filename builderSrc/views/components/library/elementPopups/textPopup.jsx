@@ -218,6 +218,7 @@ export default class TextPopup extends Component {
 			highlightLength: 2,
 			message: 'Initializing',
 			verticalAlign: 'flex-start',
+			mobileVerticalAlign: 'flex-start',
 		};
 
 		this.dropdownref = React.createRef();
@@ -458,14 +459,25 @@ export default class TextPopup extends Component {
 				},
 			);
 		} else if (type == 'justify') {
-			this.setState(
-				{
-					verticalAlign: font,
-				},
-				() => {
-					this.props.handleVerticleAlign('verticalAlign', font);
-				},
-			);
+			if (this.props?.previewType == 'm') {
+				this.setState(
+					{
+						mobileVerticalAlign: font,
+					},
+					() => {
+						this.props.handleVerticleAlign('mobileVerticalAlign', font);
+					},
+				);
+			} else {
+				this.setState(
+					{
+						verticalAlign: font,
+					},
+					() => {
+						this.props.handleVerticleAlign('verticalAlign', font);
+					},
+				);
+			}
 		}
 	};
 
@@ -510,6 +522,8 @@ export default class TextPopup extends Component {
 			'animeDistance',
 			'direction',
 			'animeIntensity',
+			'animeArea',
+			'triggerPoint',
 		];
 		const innerAdjustmentsTypes = [
 			'scale',
@@ -1410,69 +1424,67 @@ export default class TextPopup extends Component {
 													</div>
 												</>
 												<>
-													{this.state?.activeComponent?.type == 'text' &&
-														this.props?.previewType != 'm' && (
-															<div className="popup-shapes-range-wrapper">
-																<b>Align Vertical</b>
-																<div className="popup-stroke-styles">
-																	<span
-																		className={
-																			this.state
-																				?.verticalAlign ===
-																			'flex-start'
-																				? 'active-stroke-align'
-																				: ''
-																		}
-																		onClick={(e) => {
-																			this.handleFontFamily(
-																				e,
-																				'justify',
-																				'flex-start',
-																			);
-																		}}
-																	>
-																		<Top />
-																	</span>
+													<div className="popup-shapes-range-wrapper">
+														<b>
+															{this.props?.previewType == 'm'
+																? 'Mobile Align '
+																: 'Align Vertical'}
+														</b>
+														<div className="popup-stroke-styles">
+															<span
+																className={
+																	this.state?.verticalAlign ===
+																	'flex-start'
+																		? 'active-stroke-align'
+																		: ''
+																}
+																onClick={(e) => {
+																	this.handleFontFamily(
+																		e,
+																		'justify',
+																		'flex-start',
+																	);
+																}}
+															>
+																<Top />
+															</span>
 
-																	<span
-																		className={
-																			this.state
-																				?.verticalAlign ===
-																			'center'
-																				? 'active-stroke-align'
-																				: ''
-																		}
-																		onClick={(e) => {
-																			this.handleFontFamily(
-																				e,
-																				'justify',
-																				'center',
-																			);
-																		}}
-																	>
-																		<Middle />
-																	</span>
-																	<span
-																		className={
-																			this.state
-																				?.verticalAlign ===
-																			'flex-end'
-																				? 'active-stroke-align'
-																				: ''
-																		}
-																		onClick={(e) => {
-																			this.handleFontFamily(
-																				e,
-																				'justify',
-																				'flex-end',
-																			);
-																		}}
-																	>
-																		<Bottom />
-																	</span>
-																</div>
-															</div>
-														)}
+															<span
+																className={
+																	this.state?.verticalAlign ===
+																	'center'
+																		? 'active-stroke-align'
+																		: ''
+																}
+																onClick={(e) => {
+																	this.handleFontFamily(
+																		e,
+																		'justify',
+																		'center',
+																	);
+																}}
+															>
+																<Middle />
+															</span>
+															<span
+																className={
+																	this.state?.verticalAlign ===
+																	'flex-end'
+																		? 'active-stroke-align'
+																		: ''
+																}
+																onClick={(e) => {
+																	this.handleFontFamily(
+																		e,
+																		'justify',
+																		'flex-end',
+																	);
+																}}
+															>
+																<Bottom />
+															</span>
+														</div>
+													</div>
 												</>
 												<>
 													<div

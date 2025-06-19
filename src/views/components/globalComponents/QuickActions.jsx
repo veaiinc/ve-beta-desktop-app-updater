@@ -6,7 +6,7 @@ import Context from '../../../context/context';
 
 import LoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
 import EventsPopup from '../calendar/EventsPopUp';
-import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
+// import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
 import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
 import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
 import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
@@ -27,6 +27,7 @@ import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calenda
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 
 import '../../../assets/scss/globalComponents/quickActions.scss';
+import SchedulerRightDrawer from '../calendar/SchedulerRightDrawer';
 
 const suggestedOptions = [];
 
@@ -98,7 +99,7 @@ const createOptions = [
 		value: 'session',
 		controlValue: 'calendar',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+			setInfo((prev) => ({ ...prev, openSchedulerDrawer: true, dropdown: false }));
 		},
 	},
 	{
@@ -135,19 +136,26 @@ const createOptions = [
 			}
 		},
 	},
+	// {
+	// 	id: 6,
+	// 	title: 'Proposal',
+	// 	value: 'proposal',
+	// 	controlValue: 'workflow',
+	// 	action: ({ setInfo }) => {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			openProposalPopup: true,
+	// 			commonState: 'proposal',
+	// 			dropdown: false,
+	// 		}));
+	// 	},
+	// },
 	{
 		id: 6,
-		title: 'Proposal',
-		value: 'proposal',
+		title: 'Document',
+		value: 'document',
 		controlValue: 'workflow',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({
-				...prev,
-				openProposalPopup: true,
-				commonState: 'proposal',
-				dropdown: false,
-			}));
-		},
+		action: ({ navigate }) => navigate('/builder/create-document'),
 	},
 	{
 		id: 7,
@@ -344,7 +352,7 @@ const QuickActions = ({
 		openGalleryPopup: false,
 		openLiteGalleryPopup: false,
 		openEventsPopup: false,
-		openSessionPopup: false,
+		openSchedulerDrawer: false,
 		options: {
 			suggestedOptions: propSuggestedOptions.length ? propSuggestedOptions : suggestedOptions,
 			buildAi: buildAiOptions,
@@ -404,7 +412,11 @@ const QuickActions = ({
 					value: 'session',
 					controlValue: 'calendar',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+						setInfo((prev) => ({
+							...prev,
+							openSchedulerDrawer: true,
+							dropdown: false,
+						}));
 					},
 				},
 				{
@@ -590,13 +602,8 @@ const QuickActions = ({
 					title: 'Proposal',
 					value: 'proposal',
 					controlValue: 'workflow',
-					action: ({ setInfo }) => {
-						setInfo((prev) => ({
-							...prev,
-							openProposalPopup: true,
-							commonState: 'proposal',
-							dropdown: false,
-						}));
+					action: ({ navigate }) => {
+						navigate('/builder/create-document');
 					},
 				},
 				{
@@ -604,13 +611,8 @@ const QuickActions = ({
 					title: 'Invoice',
 					value: 'invoice',
 					controlValue: 'workflow',
-					action: ({ setInfo }) => {
-						setInfo((prev) => ({
-							...prev,
-							openProposalPopup: true,
-							commonState: 'invoice',
-							dropdown: false,
-						}));
+					action: ({ navigate }) => {
+						navigate('/builder/create-document');
 					},
 				},
 				{
@@ -618,13 +620,8 @@ const QuickActions = ({
 					title: 'Contracts',
 					value: 'contract',
 					controlValue: 'workflow',
-					action: ({ setInfo }) => {
-						setInfo((prev) => ({
-							...prev,
-							openProposalPopup: true,
-							commonState: 'contract',
-							dropdown: false,
-						}));
+					action: ({ navigate }) => {
+						navigate('/builder/create-document');
 					},
 				},
 				{
@@ -632,13 +629,8 @@ const QuickActions = ({
 					title: 'Presentation',
 					value: 'presentation',
 					controlValue: 'workflow',
-					action: ({ setInfo }) => {
-						setInfo((prev) => ({
-							...prev,
-							openProposalPopup: true,
-							commonState: 'presentation',
-							dropdown: false,
-						}));
+					action: ({ navigate }) => {
+						navigate('/builder/create-document');
 					},
 				},
 				{
@@ -842,7 +834,11 @@ const QuickActions = ({
 					value: 'session',
 					controlValue: 'calendar',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+						setInfo((prev) => ({
+							...prev,
+							openSchedulerDrawer: true,
+							dropdown: false,
+						}));
 					},
 				},
 			];
@@ -865,7 +861,11 @@ const QuickActions = ({
 					value: 'session',
 					controlValue: 'calendar',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+						setInfo((prev) => ({
+							...prev,
+							openSchedulerDrawer: true,
+							dropdown: false,
+						}));
 					},
 				},
 				{
@@ -1363,7 +1363,6 @@ const QuickActions = ({
 						onChange={handleSearch}
 					/>
 				</div>
-
 				<div className="content-container">
 					{info?.filteredOptions?.suggestedOptions?.length > 0 && (
 						<div className="suggested-modules-container">
@@ -1533,7 +1532,7 @@ const QuickActions = ({
 			/>
 			<CreateTaskPopup
 				isOpen={info?.createTaskPopup}
-				closeModal={() => setInfo({ ...info, createTaskPopup: false })}
+				closeModal={() => setInfo((prev) => ({ ...prev, createTaskPopup: false }))}
 				responseMetadata={responseMetadata}
 				colors={colors}
 				tenantUsers={info?.tenantUsers}
@@ -1541,13 +1540,14 @@ const QuickActions = ({
 			/>
 			<EventsPopup
 				open={info?.openEventsPopup}
-				closeModal={() => setInfo({ ...info, openEventsPopup: false })}
+				closeModal={() => setInfo((prev) => ({ ...prev, openEventsPopup: false }))}
 			/>
-			<CreateSessionModal
-				open={info?.openSessionPopup}
-				closeModal={() => setInfo({ ...info, openSessionPopup: false })}
+			<SchedulerRightDrawer
+				open={info?.openSchedulerDrawer}
+				onClose={() => setInfo((prev) => ({ ...prev, openSchedulerDrawer: false }))}
+				mode="create"
 				onSessionCreated={() => {
-					setInfo({ ...info, openSessionPopup: false });
+					setInfo({ ...info, openSchedulerDrawer: false });
 					navigate('/calendar');
 				}}
 			/>

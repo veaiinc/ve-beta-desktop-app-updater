@@ -71,6 +71,12 @@ class FormWrapper extends Component {
 				triggerFont: nextProps.triggerFont,
 			});
 		}
+		if (
+			this.state.triggerAdjustGridAreas !== nextProps.triggerAdjustGridAreas &&
+			nextProps.triggerAdjustGridAreas === true
+		) {
+			this.props.setAdjustGridAreas(false);
+		}
 		if (this.state.triggeredFont !== nextProps.triggeredFont) {
 			this.setState({
 				triggeredFont: nextProps.triggeredFont,
@@ -274,7 +280,7 @@ class FormWrapper extends Component {
 						? 100
 						: upperPopupValues.includes(popupFor)
 						? 150
-						: 400,
+						: this.state?.yPosition,
 				},
 				activeTextTab: tab,
 				showPopup: true,
@@ -413,6 +419,17 @@ class FormWrapper extends Component {
 		});
 	};
 
+	// ! function for handling click to update the yposition for popup
+	handleClickValue = (e) => {
+		const rect = e?.currentTarget?.getBoundingClientRect();
+		// const x = e?.clientX - rect?.left;
+		const y = e?.clientY - rect?.top - 50;
+		if (this.state?.yPosition != y) {
+			this.setState({
+				yPosition: y,
+			});
+		}
+	};
 	render() {
 		return (
 			<div
@@ -442,10 +459,11 @@ class FormWrapper extends Component {
 					position: 'relative',
 					border: this.state.preview ? 'none' : '',
 					width: '100%',
-					height:
-						this.props.client && this.state?.section?.isSinglePage
-							? 'fit-content'
-							: '100%',
+					height: !this.props?.client
+						? 'auto'
+						: this.state?.section?.isSinglePage && this.props?.client
+						? 'auto'
+						: '100%',
 					minHeight: '418.5px',
 				}}
 				onClick={(e) => {
@@ -530,9 +548,6 @@ class FormWrapper extends Component {
 							<span
 								className="tooltip"
 								onClick={(e) => {
-									// this.setState({
-									// 	showPopup: true,
-									// });
 									this.handleElementEdit('form-v1');
 									this.handleBlock(e);
 								}}
@@ -657,9 +672,9 @@ class FormWrapper extends Component {
 							width: '100%',
 							zoom: this.state.previewType === 'ml' && this.state.preview ? 0.4 : 1,
 						}}
+						onClick={(e) => this.handleClickValue(e)}
 					>
 						<LogicalForm
-							isActiveSection={this.props?.isActiveSection}
 							deleteSection={this.handleDeleteSection}
 							submitLogicalForm={this.props.submitLogicalForm}
 							submitFormLoading={this.state.submitFormLoading}
@@ -818,6 +833,7 @@ class FormWrapper extends Component {
 						isLogicalFormImage={this.state?.popupFor === 'blockImage'}
 						isLogicalFormText={this.state?.isLogicalText.includes(this.state?.popupFor)}
 						handleIsValidBgVideoURL={this.props.handleIsValidBgVideoURL}
+						isLogicalForm={true}
 					/>
 				)}
 			</div>

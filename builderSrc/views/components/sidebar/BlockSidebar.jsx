@@ -59,7 +59,13 @@ class BlockSidebar extends Component {
 		return (
 			<Draggable
 				handle=".draggerPoint"
-				bounds={this.props?.showPopupInMobile || this.props?.isScheduler ? '' : '.builder'}
+				bounds={
+					this.props?.isLogicalForm
+						? 'parent'
+						: this.props?.showPopupInMobile || this.props?.isScheduler
+						? ''
+						: '.builder'
+				}
 			>
 				<div
 					ref={this.sidebarRef}

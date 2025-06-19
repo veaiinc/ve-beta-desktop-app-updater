@@ -150,6 +150,8 @@ export default class ShapePopup extends Component {
 			'animeDistance',
 			'direction',
 			'animeIntensity',
+			'animeArea',
+			'triggerPoint',
 		];
 		const innerAdjustmentsTypes = [
 			'scale',
@@ -761,11 +763,11 @@ export default class ShapePopup extends Component {
 																				this.state
 																					?.activeComponent
 																					?.corners
-																					?.bottomLeft
+																					?.bottomRight
 																			}
 																			onChange={(e) => {
 																				this.handleActiveStickerStyles(
-																					'bottomLeft',
+																					'bottomRight',
 																					e.target.value,
 																				);
 																			}}
@@ -794,11 +796,11 @@ export default class ShapePopup extends Component {
 																				this.state
 																					?.activeComponent
 																					?.corners
-																					?.bottomRight
+																					?.bottomLeft
 																			}
 																			onChange={(e) => {
 																				this.handleActiveStickerStyles(
-																					'bottomRight',
+																					'bottomLeft',
 																					e.target.value,
 																				);
 																			}}

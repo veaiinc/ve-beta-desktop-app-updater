@@ -110,7 +110,7 @@ import Shape18 from '../library/svgs/fluidShapes/shape18';
 import Shape19 from '../library/svgs/fluidShapes/shape19';
 
 import ColorPicker from '../properties/colorpicker';
-import Modal from '../library/modals/index';
+import Modal from '../../components/library/modals/index';
 import Slider from 'rc-slider';
 import Cropper from 'react-easy-crop';
 import moment from 'moment';
@@ -1877,11 +1877,12 @@ class Sidebar extends Images {
 		const params = new URLSearchParams(window.location.search);
 		const stemplateId = params.get('templateId');
 		const isworkflowjson = {
+			blockId: this.props.activeSectionID,
 			defaultValue: value,
 			displayName: name,
 			inputType: selectedOption,
 			isRequired: false,
-			templateId: stemplateId,
+			templateId: this.props.workflowTemplateID,
 			workflowId: this.props.workflowID,
 		};
 		if (this.state.isWorkflow) {
@@ -5981,7 +5982,7 @@ else{
 										/>
 									</div>
 									<div
-										className="sidebar-controls"
+										className="controls"
 										style={{
 											display: 'flex',
 											flexDirection: 'column',
@@ -6030,7 +6031,7 @@ else{
 										/>
 									</div>
 									<div
-										className="sidebar-controls"
+										className="controls"
 										style={{
 											display: 'flex',
 											flexDirection: 'column',
@@ -6282,7 +6283,7 @@ else{
 									</>
 									<>
 										<div
-											className="sidebar-controls"
+											className="controls"
 											style={{
 												display: 'flex',
 												flexDirection: 'column',
@@ -8914,7 +8915,7 @@ else{
 									</span>
 								</div>
 								<div
-									className="sidebar-controls"
+									className="controls"
 									style={{
 										display: 'flex',
 										flexDirection: 'column',
@@ -8952,7 +8953,7 @@ else{
 
 									{this.state.isLogo && (
 										<div
-											className="sidebar-controls"
+											className="controls"
 											style={{
 												display: 'flex',
 												flexDirection: 'column',
@@ -10789,7 +10790,6 @@ else{
 									className={`tooltip ${this.state.justifyleft ? 'active' : ''}`}
 								>
 									<Left />
-									{/* <label className="tooltip-text">Left</label> */}
 								</span>
 								<span
 									onClick={(e) => this.changeTextAlign(e, 'justifycenter')}
@@ -10798,7 +10798,6 @@ else{
 									}`}
 								>
 									<Center />
-									{/* <label className="tooltip-text">center</label> */}
 								</span>
 
 								<span
@@ -10806,14 +10805,12 @@ else{
 									className={`tooltip ${this.state.justifyright ? 'active' : ''}`}
 								>
 									<Right />
-									{/* <label className="tooltip-text">right</label> */}
 								</span>
 								<span
 									onClick={(e) => this.changeTextAlign(e, 'justifyfull')}
 									className={`tooltip ${this.state.justifyfull ? 'active' : ''}`}
 								>
 									<Justify />
-									{/* <label className="tooltip-text">justify</label> */}
 								</span>
 							</div>
 						</div>

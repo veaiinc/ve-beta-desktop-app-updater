@@ -955,7 +955,7 @@ class BuilderPreview extends NewProposals {
 															console.log();
 														}}
 														handleAddLayout={(
-															workspaceID,
+															workspaceId,
 															json,
 															templateID,
 														) => console.log()}

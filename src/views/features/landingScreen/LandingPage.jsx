@@ -26,7 +26,7 @@ import QandALandingPage from './QandALandingPage';
 import '../../../assets/scss/landingScreen/index.scss';
 
 const pathToTabMap = {
-	'/mission': 1,
+	'/thebridge': 1,
 	'/contact-us': 2,
 	'/pricing': 3,
 };
@@ -76,10 +76,8 @@ const LandingPage = () => {
 
 	const handleSetTab = (tabVal) => {
 		setTab(tabVal);
-		const tabRoutes = ['/', '/mission', '/contact-us', '/pricing'];
-		if (tabRoutes[tabVal]) {
-			navigate(tabRoutes[tabVal]);
-		}
+		const tabRoutes = ['/', '/thebridge', '/contact-us', '/pricing'];
+		navigate(tabRoutes[tabVal]);
 	};
 
 	const tabComponents = {
@@ -94,10 +92,10 @@ const LandingPage = () => {
 						<div className="title-text">
 							<div className="title-text-container">
 								<span className="title-one">The World's First</span>
-								<span className="title-two">Ambient OS</span>
+								<span className="title-two">Ambient AI</span>
 							</div>
 							<p className="title-three">
-								A living memory system that thinks and acts — without prompts.
+								Your living memory system that thinks and acts — without prompts.
 							</p>
 						</div>
 
@@ -136,7 +134,7 @@ const LandingPage = () => {
 	return (
 		<>
 			<Helmet>
-				<title>Ve - The World's First Proactive AI OS</title>
+				<title>Ve - The World's First Ambient AI OS</title>
 			</Helmet>
 			<main className="landing-page-container">
 				<header className="page-header">

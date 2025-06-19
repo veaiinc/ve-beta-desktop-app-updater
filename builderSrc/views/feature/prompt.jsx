@@ -7,7 +7,6 @@ import { ReactComponent as Loader } from '../../assets/svg/generate-loader.svg';
 import { withRouter } from '../../services/withRouter';
 import Proposals from '../../controllers/proposals';
 import { gql, useMutation } from '@apollo/client';
-import _ from 'lodash';
 const query = gql`
 	query Query($getDetailedTemplateInfoId: ID!) {
 		getDetailedTemplateInfo(id: $getDetailedTemplateInfoId)
@@ -52,7 +51,7 @@ class Prompt extends Proposals {
 
 		try {
 			await this.addLayout(
-				this.props.params.workspaceID,
+				this.props.params.workspaceId,
 				jso,
 				_.filter(this.state.modules, { module: 'proposal' })[0]._id,
 			);
@@ -65,7 +64,7 @@ class Prompt extends Proposals {
 		localStorage.setItem('prompt', this.state.command);
 		localStorage.setItem('title', this.state.title);
 		this.setState({ workflowLoading: false }, () => {
-			this.props.navigate(`/generate/templates/${this.props.params.templateID}`);
+			this.props.navigate(`/builder/generate/templates/${this.props.params.templateID}`);
 		});
 		// 	this.setState({ workflowLoading: true });
 		// 	await this.duplicateWorkflow(duplicateWorkflowQuery,{
@@ -85,7 +84,7 @@ class Prompt extends Proposals {
 		// 		);
 
 		// 		// Navigate only after all layouts have been added
-		// 		this.props.navigate(`/generate/templates/${this.props.params.templateID}`);
+		// 		this.props.navigate(`/builder/generate/templates/${this.props.params.templateID}`);
 		// 	} catch (error) {
 		// 		console.error('Error generating workflow:', error);
 		// 		// Handle error (e.g., show an error message to the user)

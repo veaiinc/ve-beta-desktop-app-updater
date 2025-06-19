@@ -22,6 +22,7 @@ import VeSvg from '../../../assets/svg/veSvg';
 
 import '../../../assets/scss/home_page/initialHomepage.scss';
 import Spinner from '../../components/loaders/Spinner';
+import { getGreeting } from '../../../helpers';
 
 const optionsList = [
 	{
@@ -95,10 +96,10 @@ const SuggestedOptions = [
 	},
 	{
 		id: 2,
-		title: 'Session',
-		value: 'session',
+		title: 'Schedule',
+		value: 'schedule',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+			setInfo((prev) => ({ ...prev, openSchedulerDrawer: true, dropdown: false }));
 		},
 	},
 	{
@@ -167,8 +168,8 @@ const homePageTextContent = {
 		subText: 'Your enterprise knowledge hub for instant answers.',
 	},
 	calendar: {
-		title: 'Let’s make every moment count',
-		subText: 'More than a schedule - It’s your daily mission control',
+		title: "Let's make every moment count",
+		subText: "More than a schedule - It's your daily mission control",
 	},
 	task: {
 		title: 'Transform goals into actionable tasks',
@@ -409,9 +410,10 @@ const InitialHomePage = () => {
 	const title = homePageTextContent[info?.selectedOption]?.title || '';
 	const subText = homePageTextContent[info?.selectedOption]?.subText || '';
 	const userName =
-		jwtDecode(localStorage.getItem('usertoken'))?.userName?.split(' ')[0] ||
-		userDetailsData?.firstName ||
+		jwtDecode(localStorage.getItem('usertoken'))?.userName ||
+		userDetailsData?.firstName + ' ' + userDetailsData?.lastName ||
 		'User';
+	const greeting = getGreeting();
 
 	return (
 		<div
@@ -431,16 +433,16 @@ const InitialHomePage = () => {
 			>
 				<div className={`title-container `}>
 					<div className="title-text">
-						<h2 className="title-one">Hey, {userName || ''}</h2>
-						<span className="title-two">{title}</span>
+						<h2 className="title-one">{greeting}!</h2>
+						<span className="title-two">{userName}</span>
 
 						{/* <span className="title-two">truly yours</span> */}
 					</div>
-					<div className="sub-text">{subText}</div>
+					{/* <div className="sub-text">{subText}</div> */}
 				</div>
 
 				{!info?.showSuggestions && (
-					<div className="options-container">{renderedOptions}</div>
+					<div className="homepage__options-container">{renderedOptions}</div>
 				)}
 			</div>
 			{options?.length > 0 && !info?.showSuggestions && (

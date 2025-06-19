@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import ReactModal from '../index';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
 import { ReactComponent as DeleteSvg } from '../../../../assets/svg/tasks/dustBin.svg';

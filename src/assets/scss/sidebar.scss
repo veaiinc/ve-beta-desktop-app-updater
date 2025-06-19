@@ -1,20 +1,25 @@
 .FullScreenSidebar {
 	margin-left: 0px;
 	margin-right: 0px;
+	cursor: pointer;
+	z-index: 1001;
 
 	&.opened {
 		height: 100dvh;
 		position: relative;
-		margin-left: -32px;
-		margin-top: -32px;
+		// margin-left: -32px;
+		// margin-top: -32px;
 		padding: 0 !important;
-		margin-right: 10px !important;
+		// margin-left: 0px !important;
+		// margin-right: 10px !important;
 		z-index: 1000;
 		animation: expandWidth 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 	}
 	&.closed {
-		animation: delayMargin 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards,
-			adjustWidth 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+		transform: translateX(50px);
+		top: 15px;
+		left: 55px;
+		padding: 24px 19px !important;
 	}
 
 	&.contacts-sidebar {
@@ -79,9 +84,16 @@
 		.sidebar-close {
 			&.active {
 				display: block;
+				.eachOption {
+					position: fixed;
+					top: 20px;
+					left: 10px;
+					transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+				}
 			}
 			&.inactive {
 				display: none;
+				transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 			}
 		}
 
@@ -97,7 +109,10 @@
 			border-radius: inherit;
 			transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 			overflow-x: hidden !important;
-			// border-right: 1px solid var(--stroke);
+			border-top-right-radius: 18px;
+			border-bottom-right-radius: 18px;
+			border-top-left-radius: 18px;
+			border-bottom-left-radius: 18px;
 			user-select: none;
 			z-index: 9;
 			margin-top: 1px;
@@ -725,6 +740,100 @@
 			}
 		}
 	}
+
+	&.docked {
+		position: relative;
+		left: 0;
+		top: 0;
+		z-index: 1001;
+		transform: translateX(0);
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		height: 100dvh !important;
+		padding: 0 !important;
+		margin: 0;
+		border-radius: 0;
+
+		// &.closed {
+		// 	transform: translateX(-100%);
+		// }
+
+		.sidebarComponent {
+			position: relative;
+			left: 0px;
+			top: 0;
+			height: 100dvh;
+			// background: var(--navbar);
+			// // border-right: 1px solid var(--stroke);
+			// border-top-right-radius: 26px;
+			// border-bottom-right-radius: 26px;
+			// border-top-left-radius: 0px;
+			// border-bottom-left-radius: 0px;
+		}
+
+		.openSideBarComponent {
+			border-radius: 0;
+			transition: none;
+		}
+	}
+
+	&:not(.docked) {
+		position: absolute;
+		z-index: 1001;
+		margin-top: 0px;
+		margin-left: 0px; // change to 4px after flicker issue is resolved
+		top: 4px;
+		border-top-right-radius: 18px;
+		border-bottom-right-radius: 18px;
+		border-top-left-radius: 18px;
+		border-bottom-left-radius: 18px;
+		// box-shadow: 0 0 10px rgba(0, 0, 0, 0.183);
+
+		&.closed {
+			transform: translateX(-100%);
+		}
+
+		&.hovering {
+			transform: translateX(0);
+			z-index: 1002;
+		}
+
+		.sidebarComponent {
+			position: relative;
+		}
+		.openSideBarComponent {
+			max-height: 99dvh;
+			border: 1px solid var(--stroke);
+		}
+		.settingsOptionsContainerOpen {
+			border-bottom-right-radius: 18px;
+			border-bottom-left-radius: 18px;
+			border: 1px solid var(--stroke);
+		}
+	}
+
+	.sidebar-close {
+		transition: opacity 0.3s ease;
+		opacity: 1;
+
+		&.inactive {
+			opacity: 0;
+			pointer-events: none;
+		}
+	}
+
+	.sidebar-open {
+		opacity: 1;
+
+		&.inactive {
+			opacity: 0;
+			transform: translateX(-100%);
+			pointer-events: none;
+		}
+
+		&.inactive-no-animation {
+			display: none;
+		}
+	}
 }
 
 // .workSpaceOverlay {
@@ -790,6 +899,7 @@
 			// }
 			.openSideBarComponent {
 				width: 100vw !important;
+				transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 				.topOptionsList {
 					width: 100vw !important;
 					.veAiLogoDiv {
@@ -926,6 +1036,83 @@
 	&::-webkit-scrollbar {
 		display: none; // For Chrome, Safari, and newer versions of Edge
 	}
+
+	.profile-image-div {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 20px 0;
+
+		.imageCircleDiv {
+			width: 100px;
+			height: 100px;
+			border-radius: 100px;
+			border: 1px solid rgba(151, 151, 151, 0.36);
+			position: relative;
+			overflow: hidden;
+			.crop-container {
+				position: static;
+				.reactEasyCrop_CropArea {
+					border: none !important; /* Removes the crop area border */
+					display: none !important;
+				}
+				.reactEasyCrop_Container {
+					.reactEasyCrop_Image {
+						position: absolute;
+						width: 100%;
+						height: 100%;
+						top: 0;
+						left: 0;
+					}
+				}
+			}
+			img {
+				width: 100%;
+				height: 100%;
+				border-radius: 100px;
+				object-fit: cover;
+			}
+
+			.noImageText {
+				width: 100%;
+				height: 100%;
+				border-radius: 100px;
+				background: #6055ec;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 24px;
+				color: #e4e5e6;
+				font-weight: bold;
+				font-family: var(--primary-font-family);
+				padding: 0px;
+			}
+
+			.editImage {
+				position: absolute;
+				bottom: 0;
+				left: 0px;
+				right: 1px;
+				padding-bottom: 5px;
+				border-radius: 0 0 45px 45px;
+				border-radius: 50%;
+				display: flex;
+				justify-content: center;
+				align-items: flex-end;
+				opacity: 0.9;
+				cursor: pointer;
+				/* zoom: 0.5; */
+				border-radius: 24px;
+				background: rgba(0, 0, 0, 0.3);
+				backdrop-filter: blur(10px);
+				svg {
+					margin-bottom: 1px;
+					margin-top: 5px;
+				}
+			}
+		}
+	}
+
 	.settingBackdrop {
 		position: absolute;
 		height: 100vh;
@@ -1303,9 +1490,9 @@
 		justify-content: center;
 		align-items: center;
 		gap: 10px;
-		border-radius: 100px;
-		border: 1px solid var(--stroke, #2c2d2e);
-		background: var(--card, #18191b);
+		border-radius: 8px;
+		border: 1px solid var(--stroke, #2b2e31);
+		background: var(--new-card, #1a1b1e);
 		cursor: pointer;
 		svg {
 			flex-shrink: 0;
@@ -1390,27 +1577,9 @@
 	}
 }
 
-@keyframes delayMargin {
-	0% {
-		margin-left: -32px;
-		margin-top: -32px;
-	}
-	99% {
-		margin-left: -32px;
-		margin-top: -32px;
-	}
-	100% {
-		margin-left: 0;
-		margin-top: 0;
-	}
-}
-
 @keyframes adjustWidth {
 	0% {
 		width: 280px;
-	}
-	99% {
-		width: 52px;
 	}
 	100% {
 		width: 20px;
@@ -1438,5 +1607,16 @@
 		width: 20px;
 		height: 20px;
 		top: 0px;
+	}
+}
+
+@keyframes fadeInOptions {
+	0% {
+		opacity: 0;
+		transform: scale(0.8);
+	}
+	100% {
+		opacity: 1;
+		transform: scale(1);
 	}
 }

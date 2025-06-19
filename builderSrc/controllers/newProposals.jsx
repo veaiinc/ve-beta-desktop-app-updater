@@ -1,7 +1,8 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 import * as Action from './actions';
 import Service from '../services/graphQlServices';
 import _ from 'lodash';
+import moment from 'moment';
 
 class NewProposals extends Component {
 	reorderSections = (sections, type = null) => {
@@ -22,9 +23,9 @@ class NewProposals extends Component {
 	};
 
 	getTemplate = async (id) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Action.getTemplate(workspaceID, id, userToken);
+		let response = await Action.getTemplate(workspaceId, id, userToken);
 		if (response[0] == true) {
 			let invoiceTables = [...this.state.invoiceTables];
 			this.setState({
@@ -46,9 +47,9 @@ class NewProposals extends Component {
 	};
 
 	getTenantsData = async () => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Action.getTenantsData(workspaceID, userToken);
+		let response = await Action.getTenantsData(workspaceId, userToken);
 		if (response[0] == true) {
 			this.setState(
 				{
@@ -123,7 +124,7 @@ class NewProposals extends Component {
 	};
 
 	getVariables = async (moduleId, moduleType = null, version = 0) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let module;
 		let response;
@@ -133,9 +134,9 @@ class NewProposals extends Component {
 			module = this.state.activeModuleId;
 		}
 		if (version === 1 || this.state.isWorkflow) {
-			response = await Action.getSmartFileVariables(workspaceID, module, userToken);
+			response = await Action.getSmartFileVariables(workspaceId, module, userToken);
 		} else {
-			response = await Action.getVariables(workspaceID, module, userToken);
+			response = await Action.getVariables(workspaceId, module, userToken);
 		}
 
 		if (response[0] == true) {
@@ -177,10 +178,10 @@ class NewProposals extends Component {
 	};
 
 	postVariables = async (json, moduleId) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 
-		let response = await Action.postVariables(json, workspaceID, moduleId, userToken);
+		let response = await Action.postVariables(json, workspaceId, moduleId, userToken);
 		if (response[0] == true) {
 			this.setState(
 				{
@@ -194,14 +195,14 @@ class NewProposals extends Component {
 	};
 
 	postIndividulVariables = async (json, moduleId) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		const params = new URLSearchParams(window.location.search);
 		const stemplateId = params.get('templateId');
 
 		let response = await Action.postVariables(
 			json,
-			workspaceID,
+			workspaceId,
 			stemplateId || moduleId,
 			userToken,
 		);
@@ -225,9 +226,9 @@ class NewProposals extends Component {
 	};
 
 	updateVariables = async (json, moduleId, variableId) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Action.updateVariables(json, workspaceID, userToken, variableId);
+		let response = await Action.updateVariables(json, workspaceId, userToken, variableId);
 		if (response[0] == true) {
 			this.setState(
 				{
@@ -251,10 +252,10 @@ class NewProposals extends Component {
 	};
 
 	deleteVariable = async (moduleId, variableId) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 
-		let response = await Action.deleteVariable(workspaceID, userToken, variableId);
+		let response = await Action.deleteVariable(workspaceId, userToken, variableId);
 		if (response[0] == true) {
 			this.setState(
 				{
@@ -268,10 +269,10 @@ class NewProposals extends Component {
 	};
 
 	getFonts = async (
-		workspaceID = localStorage.getItem('workspaceID'),
+		workspaceId = localStorage.getItem('workspaceId'),
 		userToken = localStorage.getItem('usertoken'),
 	) => {
-		let response = await Action.getFonts(workspaceID, userToken);
+		let response = await Action.getFonts(workspaceId, userToken);
 		if (response[0] == true) {
 			this.setState({
 				fonts: response[1],
@@ -281,9 +282,9 @@ class NewProposals extends Component {
 	};
 
 	createLayout = async (json) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Action.createLayout(workspaceID, json, userToken);
+		let response = await Action.createLayout(workspaceId, json, userToken);
 
 		if (response[0] === true) {
 		}
@@ -296,7 +297,7 @@ class NewProposals extends Component {
 			order,
 		};
 		let templateID = this.state.activeModuleId;
-		let workspace = localStorage.getItem('workspaceID');
+		let workspace = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let response = await Action.addServiceTableBlock(
 			workspace,
@@ -348,7 +349,7 @@ class NewProposals extends Component {
 			order,
 		};
 		let templateID = this.state.activeModuleId;
-		let workspace = localStorage.getItem('workspaceID');
+		let workspace = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let response = await Action.addWorkflowServiceTableBlock(
 			workspace,
@@ -399,11 +400,11 @@ class NewProposals extends Component {
 	};
 
 	duplicateSubBlock = async (json, blockId, sectionId) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let templateID = this.state.activeModuleId;
 		let response = await Action.duplicateSubBlock(
-			workspaceID,
+			workspaceId,
 			json,
 			templateID,
 			sectionId,
@@ -418,12 +419,12 @@ class NewProposals extends Component {
 	};
 
 	duplicateWorkflowSubBlock = async (json, blockId, sectionId) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let templateID = this.state.activeModuleId;
 		let response = await Action.duplicateWorkflowSubBlock(
 			json,
-			workspaceID,
+			workspaceId,
 			this.state.module,
 			this.state.activeWorkflowModuleId,
 			this.state.activeVersionId,
@@ -440,12 +441,12 @@ class NewProposals extends Component {
 	};
 
 	duplicateWorkflowEventBlock = async (json, blockId, sectionId) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let templateID = this.state.activeModuleId;
 		let response = await Action.duplicateWorkflowEventBlock(
 			json,
-			workspaceID,
+			workspaceId,
 			this.state.module,
 			this.state.activeWorkflowModuleId,
 			this.state.activeVersionId,
@@ -461,12 +462,12 @@ class NewProposals extends Component {
 	};
 
 	addSection = async (
-		workspaceID,
+		workspaceId,
 		json,
 		templateID,
 		userToken = localStorage.getItem('usertoken'),
 	) => {
-		let workspace = localStorage.getItem('workspaceID');
+		let workspace = localStorage.getItem('workspaceId');
 		let response = await Action.addSection(workspace, json, templateID, userToken);
 
 		if (response[0] === true) {
@@ -500,7 +501,7 @@ class NewProposals extends Component {
 		templateID,
 		userToken = localStorage.getItem('usertoken'),
 	) => {
-		let workspace = localStorage.getItem('workspaceID');
+		let workspace = localStorage.getItem('workspaceId');
 		let response;
 		if (this.state.isWorkflow) {
 			response = await Action.addWorkflowSubBlock(
@@ -565,7 +566,7 @@ class NewProposals extends Component {
 	};
 
 	addServiceVariable = async (sectionID, sections, tables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let servicesArray = sections.filter((section) => section.type === 'services');
 		let key = [];
@@ -587,7 +588,7 @@ class NewProposals extends Component {
 			json.workflowId = this.state.workflow_id;
 		}
 
-		let response = await Action.addServiceVariable(json, workspaceID, sectionID, userToken);
+		let response = await Action.addServiceVariable(json, workspaceId, sectionID, userToken);
 		if (response[0] == true) {
 			let invoiceTables = [...this.state.invoiceTables];
 			this.setState(
@@ -616,13 +617,13 @@ class NewProposals extends Component {
 	};
 
 	addLayout = async (
-		workspaceID,
+		workspaceId,
 		json,
 		templateID,
 		isService = false,
 		userToken = localStorage.getItem('usertoken'),
 	) => {
-		let workspace = localStorage.getItem('workspaceID');
+		let workspace = localStorage.getItem('workspaceId');
 		let response = await Action.addLayout(workspace, json, templateID, userToken);
 
 		if (response[0] === true) {
@@ -654,8 +655,8 @@ class NewProposals extends Component {
 		}
 	};
 
-	addWorkflowLayout = async (workspaceID, json, isFluid, isService) => {
-		let workspace = localStorage.getItem('workspaceID');
+	addWorkflowLayout = async (workspaceId, json, isFluid, isService) => {
+		let workspace = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let response = await Action.addWorkflowLayout(
 			json,
@@ -710,7 +711,7 @@ class NewProposals extends Component {
 			question: '<p><i>Your question goes here</i></p>',
 		};
 		let templateID = this.state.activeModuleId;
-		let workspace = localStorage.getItem('workspaceID');
+		let workspace = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let response = await Action.addServiceTableBlock(
 			workspace,
@@ -748,7 +749,7 @@ class NewProposals extends Component {
 			order,
 			question: '<p><i>Your question goes here</i></p>',
 		};
-		let workspace = localStorage.getItem('workspaceID');
+		let workspace = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let response = await Action.addWorkflowServiceTableBlock(
 			workspace,
@@ -783,9 +784,9 @@ class NewProposals extends Component {
 
 	deleteSectionItem = async (sectionID) => {
 		let templateID = this.state?.activeModuleId;
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Action.deleteSection(templateID, sectionID, workspaceID, userToken);
+		let response = await Action.deleteSection(templateID, sectionID, workspaceId, userToken);
 		let sections = [...this.state.sections];
 		this.setState({
 			saveProposalState: 'Saving...',
@@ -823,11 +824,11 @@ class NewProposals extends Component {
 	};
 
 	deleteWorkflowSectionItem = async (sectionID) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let response = await Action.deleteWorkflowSection(
 			sectionID,
-			workspaceID,
+			workspaceId,
 			this.state.module,
 			this.state.activeWorkflowModuleId,
 			this.state.activeVersionId,
@@ -861,13 +862,13 @@ class NewProposals extends Component {
 
 	handleDeleteBlock = async (blockID, sectionID) => {
 		let templateID = this.state.activeModuleId;
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let response = await Action.deleteBlock(
 			templateID,
 			blockID,
 			sectionID,
-			workspaceID,
+			workspaceId,
 			userToken,
 		);
 		this.setState({
@@ -894,12 +895,12 @@ class NewProposals extends Component {
 	};
 
 	handleWorkflowDeleteBlock = async (blockID, sectionID) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let response = await Action.deleteWorkflowBlock(
 			blockID,
 			sectionID,
-			workspaceID,
+			workspaceId,
 			this.state.module,
 			this.state.activeWorkflowModuleId,
 			this.state.activeVersionId,
@@ -932,7 +933,7 @@ class NewProposals extends Component {
 
 	saveSubBlockContentAPI = async (content, sectionID, blockID, id) => {
 		let templateID = this.state.activeModuleId;
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let response = await Action.saveSectionBlockSubBlockContent(
 			templateID,
@@ -940,7 +941,7 @@ class NewProposals extends Component {
 			blockID,
 			id,
 			(content = { content }),
-			workspaceID,
+			workspaceId,
 			userToken,
 		);
 
@@ -972,11 +973,11 @@ class NewProposals extends Component {
 		isSummary = null,
 		actionBlockState = null,
 	) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let response = await Action.putTemplate(
 			json,
-			workspaceID,
+			workspaceId,
 			templateId
 				? templateId
 				: isSummary == true
@@ -1031,12 +1032,12 @@ class NewProposals extends Component {
 	};
 
 	putWorkflowSections = async (json, templateId = null, restrictState = null) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 
 		let response = await Action.putWorkflowTemplate(
 			json,
-			workspaceID,
+			workspaceId,
 			this.state.module === 'summary' ? 'proposal' : this.state.module,
 			this.state.activeWorkflowModuleId,
 			this.state.activeVersionId,
@@ -1090,11 +1091,11 @@ class NewProposals extends Component {
 	};
 
 	duplicateTemplate = async (json, payload) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let response = await Action.duplicateTemplate(
 			json,
-			workspaceID,
+			workspaceId,
 			this.state.activeModuleId,
 			userToken,
 		);
@@ -1105,14 +1106,14 @@ class NewProposals extends Component {
 
 	duplicateBlock = async (json, sectionId, templateId = null) => {
 		let userToken = localStorage.getItem('usertoken');
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 
 		let response = await Action.duplicateBlock(
 			json,
 			sectionId,
 			templateId ? templateId : this.state.activeModuleId,
 			userToken,
-			workspaceID,
+			workspaceId,
 		);
 		if (response[0] === true) {
 			let sections = [...response[1].sections];
@@ -1142,12 +1143,12 @@ class NewProposals extends Component {
 
 	duplicateWorkflowBlock = async (json, sectionId, templateId = null) => {
 		let userToken = localStorage.getItem('usertoken');
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 
 		let response = await Action.duplicateWorkflowBlock(
 			json,
 			sectionId,
-			workspaceID,
+			workspaceId,
 			this.state.module,
 			this.state.activeWorkflowModuleId,
 			this.state.activeVersionId,
@@ -1163,14 +1164,14 @@ class NewProposals extends Component {
 
 	duplicateServiceBlock = async (json, blockId, sectionId) => {
 		let userToken = localStorage.getItem('usertoken');
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let response = await Action.duplicateServiceBlock(
 			json,
 			blockId,
 			sectionId,
 			this.state.activeModuleId,
 			userToken,
-			workspaceID,
+			workspaceId,
 		);
 		if (response[0] === true) {
 			this.setState({
@@ -1182,12 +1183,12 @@ class NewProposals extends Component {
 
 	duplicateWorkflowServiceBlock = async (json, blockId, sectionId) => {
 		let userToken = localStorage.getItem('usertoken');
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let response = await Action.duplicateWorkflowServiceBlock(
 			json,
 			blockId,
 			sectionId,
-			workspaceID,
+			workspaceId,
 			this.state.module,
 			this.state.activeWorkflowModuleId,
 			this.state.activeVersionId,
@@ -1202,12 +1203,12 @@ class NewProposals extends Component {
 	};
 
 	updateModules = async (query, variables, setState = false, type = null, isWorkflow = false) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		let response = await Service.query(
 			query,
 			variables,
-			workspaceID,
+			workspaceId,
 			this.props.params.templateID,
 			usertoken,
 		);
@@ -1232,9 +1233,9 @@ class NewProposals extends Component {
 
 	getTemplateList = async (query, variables, isWorkflow = false) => {
 		let data = { ...this.state.templateList };
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, null, usertoken);
+		let response = await Service.query(query, variables, workspaceId, null, usertoken);
 
 		if (response[0] == true) {
 			let templates = isWorkflow ? response[1].data.workflows : response[1].data.templates;
@@ -1253,13 +1254,13 @@ class NewProposals extends Component {
 		workflow = null,
 		callVariableApi = true,
 	) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let workflowID = workflow !== null ? workflow : this.props.params.templateID;
 		let usertoken = localStorage.getItem('usertoken');
 		let response = await Service.query(
 			query,
 			{ getDetailedTemplateInfoId: workflowID },
-			workspaceID,
+			workspaceId,
 			workflowID,
 			usertoken,
 		);
@@ -1330,13 +1331,13 @@ class NewProposals extends Component {
 	};
 
 	duplicateWorkflow = async (query, variables, duplicateWorkflowQuery) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let workflowID = this.props.params.templateID;
 		let usertoken = localStorage.getItem('usertoken');
 		let response = await Service.query(
 			query,
 			variables,
-			workspaceID,
+			workspaceId,
 			null,
 			usertoken,
 			'workflows',
@@ -1359,25 +1360,25 @@ class NewProposals extends Component {
 	};
 
 	generateWorkflow = async (workflowID) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let json = {
 			user_prompt: localStorage.getItem('prompt'),
 			page_type: 'proposal',
 		};
-		let response = await Action.generateWorkflow(json, workspaceID, workflowID);
+		let response = await Action.generateWorkflow(json, workspaceId, workflowID);
 		if (response[0] == true) {
 			localStorage.removeItem('title');
 			this.setState({
 				isPromptLoading: false,
 			});
-			this.props.navigate(`/generate/templates/${workflowID}`);
+			this.props.navigate(`/builder/generate/templates/${workflowID}`);
 		}
 	};
 
 	getIndividualTemplate = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, null, usertoken);
+		let response = await Service.query(query, variables, workspaceId, null, usertoken);
 		if (response[0] == true) {
 			let invoiceTables = [...this.state.invoiceTables];
 			let version = response[1].data.getModuleTemplate;
@@ -1431,7 +1432,7 @@ class NewProposals extends Component {
 	};
 
 	getIndividualWorkflowInfo = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		let workflowID = variables?.getDetailedWorkflowInfoId;
 
@@ -1445,7 +1446,7 @@ class NewProposals extends Component {
 			let response = await Service.query(
 				query,
 				variables,
-				workspaceID,
+				workspaceId,
 				workflowID,
 				usertoken,
 			);
@@ -1556,10 +1557,10 @@ class NewProposals extends Component {
 	};
 
 	updateWorkflowNavbar = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let workflowID = this.state.workflow_id;
 		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, workflowID, usertoken);
+		let response = await Service.query(query, variables, workspaceId, workflowID, usertoken);
 		if (response[0] == true) {
 			this.setState({
 				navBar: response[1]?.data?.updateWorkflow?.navBar,
@@ -1568,10 +1569,10 @@ class NewProposals extends Component {
 	};
 
 	getModuleTemplate = async (query, variables, activeModuleId = null, moduleOrder = null) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let workflowID = activeModuleId === null ? this.state.activeModuleId : activeModuleId;
 		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, workflowID, usertoken);
+		let response = await Service.query(query, variables, workspaceId, workflowID, usertoken);
 
 		if (response[0] == true) {
 			let template = response[1].data.getModuleTemplate;
@@ -1650,11 +1651,11 @@ class NewProposals extends Component {
 		activeModuleId = null,
 		moduleOrder = null,
 	) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let workflowID = activeModuleId === null ? this.state.activeModuleId : activeModuleId;
 		let usertoken = localStorage.getItem('usertoken');
 
-		let response = await Service.query(query, variables, workspaceID, workflowID, usertoken);
+		let response = await Service.query(query, variables, workspaceId, workflowID, usertoken);
 
 		if (response[0] == true) {
 			let template = response[1].data.getWorkflowModule?.versions?.[0];
@@ -1739,10 +1740,10 @@ class NewProposals extends Component {
 	};
 
 	publishWorkflow = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let workflowID = this.state.activeModuleId;
 		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, workflowID, usertoken);
+		let response = await Service.query(query, variables, workspaceId, workflowID, usertoken);
 		if (response[0] == true) {
 			return [true];
 		} else {
@@ -1751,14 +1752,14 @@ class NewProposals extends Component {
 	};
 
 	updatepublishedWorkflow = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let workflowID = this.state.activeModuleId;
 		let usertoken = localStorage.getItem('usertoken');
 		try {
 			let response = await Service.query(
 				query,
 				variables,
-				workspaceID,
+				workspaceId,
 				workflowID,
 				usertoken,
 			);
@@ -1777,10 +1778,10 @@ class NewProposals extends Component {
 	};
 
 	updatepublishedWorkflowPreview = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let workflowID = this.state.activeModuleId;
 		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, workflowID, usertoken);
+		let response = await Service.query(query, variables, workspaceId, workflowID, usertoken);
 		if (response[0] == true) {
 			this.setState({
 				title: response[1]?.data?.updateWorkflow?.title,
@@ -1792,9 +1793,9 @@ class NewProposals extends Component {
 	};
 
 	createLead = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, null, usertoken);
+		let response = await Service.query(query, variables, workspaceId, null, usertoken);
 		if (response[0] == true) {
 			const clientId = response?.[1]?.data?.createWorkflowFromTemplate?._id;
 
@@ -1805,9 +1806,9 @@ class NewProposals extends Component {
 	};
 
 	getInvoiceNumber = async () => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Action.getInvoiceNumber(workspaceID, userToken);
+		let response = await Action.getInvoiceNumber(workspaceId, userToken);
 
 		if (response[0] === true) {
 			this.setState({ invoiceNumber: response[1].invoicePreferences[0] });
@@ -1815,18 +1816,18 @@ class NewProposals extends Component {
 	};
 
 	putInvoiceNumber = async (invoiceNumber) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Action.putInvoiceNumber(invoiceNumber, workspaceID, userToken);
+		let response = await Action.putInvoiceNumber(invoiceNumber, workspaceId, userToken);
 
 		if (response[0] === true) {
 		}
 	};
 
 	generateAIText = async (json, type) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
-		let response = await Action.getAITextGeneration(workspaceID, type, json, usertoken);
+		let response = await Action.getAITextGeneration(workspaceId, type, json, usertoken);
 		if (response[0] == true) {
 			let generatedText;
 			if (type === 'improve_text') {
@@ -1852,9 +1853,9 @@ class NewProposals extends Component {
 	};
 
 	generateAIImages = async (json, type) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
-		let response = await Action.getAIImageGeneration(workspaceID, type, json, usertoken);
+		let response = await Action.getAIImageGeneration(workspaceId, type, json, usertoken);
 		if (response[0] == true) {
 			return {
 				aiPromptLoading: false,
@@ -1871,7 +1872,7 @@ class NewProposals extends Component {
 	};
 
 	generateTemplate = async (variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		let response = await Action.generateTemplate(null, null, variables, null);
 
@@ -1887,17 +1888,19 @@ class NewProposals extends Component {
 						),
 					);
 
-					this.props.navigate(`/generate/templates/${this.props.params.templateID}`);
+					this.props.navigate(
+						`/builder/generate/templates/${this.props.params.templateID}`,
+					);
 				},
 			);
 		}
 	};
 
 	getLayoutTextContent = async (json) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		let response = await Action.getLayoutTextContent(
-			workspaceID,
+			workspaceId,
 			this.props.params.templateID,
 			json,
 			usertoken,
@@ -1919,9 +1922,9 @@ class NewProposals extends Component {
 	};
 
 	putTenantData = async (json, templateId = null, restrictState = null) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Action.putTenantsData(workspaceID, json, userToken);
+		let response = await Action.putTenantsData(workspaceId, json, userToken);
 		if (response[0] == true) {
 			return true;
 		} else {
@@ -1930,9 +1933,9 @@ class NewProposals extends Component {
 	};
 
 	getBrandColors = async () => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Action.getBrandColors(workspaceID, userToken);
+		let response = await Action.getBrandColors(workspaceId, userToken);
 
 		if (response[0] === true) {
 			this.setState({ brandColors: response[1]?.brandingThemes });
@@ -1940,9 +1943,9 @@ class NewProposals extends Component {
 	};
 
 	putBrandColors = async (json) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Action.putBrandColors(json, workspaceID, userToken);
+		let response = await Action.putBrandColors(json, workspaceId, userToken);
 
 		if (response[0] === true) {
 			this.setState({ brandColors: response[1]?.brandingThemes });
@@ -1956,7 +1959,7 @@ class NewProposals extends Component {
 			order,
 		};
 		let templateID = this.state.activeModuleId;
-		let workspace = localStorage.getItem('workspaceID');
+		let workspace = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let response = await Action.addServiceTableBlock(
 			workspace,
@@ -1986,7 +1989,7 @@ class NewProposals extends Component {
 			order,
 		};
 		let templateID = this.state.activeModuleId;
-		let workspace = localStorage.getItem('workspaceID');
+		let workspace = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let response = await Action.addWorkflowServiceTableBlock(
 			workspace,
@@ -2012,9 +2015,9 @@ class NewProposals extends Component {
 	};
 
 	getWorkflowWithModules = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, null, userToken);
+		let response = await Service.query(query, variables, workspaceId, null, userToken);
 
 		if (response[0] === true) {
 			let updateClientFlag = false;
@@ -2055,9 +2058,9 @@ class NewProposals extends Component {
 	};
 
 	isSlugAvailable = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, null, userToken);
+		let response = await Service.query(query, variables, workspaceId, null, userToken);
 		if (response[0] === true) {
 			return response[1].data.isSlugAvailable;
 		} else {
@@ -2066,9 +2069,9 @@ class NewProposals extends Component {
 	};
 
 	updateSlug = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, null, userToken);
+		let response = await Service.query(query, variables, workspaceId, null, userToken);
 		if (response[0] === true) {
 			return response[1].data.updateSlug;
 		} else {
@@ -2077,9 +2080,9 @@ class NewProposals extends Component {
 	};
 
 	updateWorkflow = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, null, userToken);
+		let response = await Service.query(query, variables, workspaceId, null, userToken);
 		if (response[0] === true) {
 			return response[1].data.updateWorkflow;
 		} else {
@@ -2088,33 +2091,33 @@ class NewProposals extends Component {
 	};
 
 	copyStatus = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, null, userToken);
+		let response = await Service.query(query, variables, workspaceId, null, userToken);
 	};
 
 	getClientName = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, null, userToken);
+		let response = await Service.query(query, variables, workspaceId, null, userToken);
 		if (response[0] === true) {
 			this.setState({ clientListArray: response[1]?.data?.clientsList?.data });
 		}
 	};
 
 	getTemplateModulesForLinkPage = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, null, userToken);
+		let response = await Service.query(query, variables, workspaceId, null, userToken);
 		if (response[0] === true) {
 			return response[1]?.data?.getModuleTemplate?.sections;
 		}
 	};
 
 	updateClientSmartFile = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, null, userToken);
+		let response = await Service.query(query, variables, workspaceId, null, userToken);
 		if (response[0] === true) {
 			this.setState({
 				updateClient: false,
@@ -2126,9 +2129,9 @@ class NewProposals extends Component {
 	};
 
 	createClientDetails = async (query, variables, SmartFileClientUpdate) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, null, userToken);
+		let response = await Service.query(query, variables, workspaceId, null, userToken);
 		if (response[0] === true) {
 			this.updateClientSmartFile(SmartFileClientUpdate, {
 				addClientToSmartFileId: this.props.params.templateID,
@@ -2142,9 +2145,9 @@ class NewProposals extends Component {
 	};
 
 	addModuleBlankTemplate = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, null, userToken);
+		let response = await Service.query(query, variables, workspaceId, null, userToken);
 		if (response[0] === true) {
 			let newModules = this.state.isWorkflow
 				? response[1]?.data?.addModuleTemplate?.modules
@@ -2164,9 +2167,9 @@ class NewProposals extends Component {
 	};
 
 	updateWorkflowTemplate = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, null, userToken);
+		let response = await Service.query(query, variables, workspaceId, null, userToken);
 		if (response[0] === true) {
 			this.setState({
 				navBar: response[1]?.data?.updateWorkflowTemplate?.navBar,
@@ -2175,10 +2178,10 @@ class NewProposals extends Component {
 	};
 
 	updateWorkflowTemplateThemeSettings = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let workflowID = this.state.activeModuleId;
 		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, workflowID, usertoken);
+		let response = await Service.query(query, variables, workspaceId, workflowID, usertoken);
 		if (response[0] == true) {
 			return [true];
 		} else {
@@ -2187,9 +2190,9 @@ class NewProposals extends Component {
 	};
 
 	getAllSchedules = async (s) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Action.getAllSchedules(workspaceID, userToken);
+		let response = await Action.getAllSchedules(workspaceId, userToken);
 		this.setState({
 			allSchedules: response[1]?.sessions,
 		});
@@ -2197,16 +2200,16 @@ class NewProposals extends Component {
 	};
 
 	getSessionDetails = async (sessionId) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Action.getSessionDetails(workspaceID, userToken, sessionId);
+		let response = await Action.getSessionDetails(workspaceId, userToken, sessionId);
 		return response;
 	};
 
 	createNavbarFunction = async (query, variables) => {
-		let workspaceID = localStorage.getItem('workspaceID');
+		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
-		let response = await Service.query(query, variables, workspaceID, null, userToken);
+		let response = await Service.query(query, variables, workspaceId, null, userToken);
 		// console.log(response, 'response=================>');
 		if (response[0] === true) {
 			this.setState({

@@ -347,16 +347,15 @@ export const TasksState = () => {
 
 	const addListItem = async (payload) => {
 		try {
-			let workspaceID = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.mutation(
 				addListItemMutation,
 				payload,
-				workspaceID,
+				workspaceId,
 				usertoken,
 				'graphql_server',
 			);
-			console.log(response);
 
 			if (response?.[0]) {
 				return response?.[1]?.data;
@@ -604,7 +603,7 @@ export const TasksState = () => {
 
 	const getTaskMetadata = async () => {
 		try {
-			let workspaceId = localStorage.getItem('workspaceID');
+			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				taskMetadataQuery,

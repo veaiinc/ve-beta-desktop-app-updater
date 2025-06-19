@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react';
 import '../../../assets/scss/new-smart-file-sidebar.scss';
 import { ReactComponent as DoubleArrow } from '../../../assets/svg/smartFile/doubleArrow.svg';
 import { ReactComponent as Ai } from '../../../assets/svg/smartFile/ai.svg';
@@ -15,6 +15,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import DocumentShare from '../../feature/document/DocumentShare';
 import FormDescription from '../../feature/document/FormDescription';
 import { fetchOriginSelection } from '../../../helper';
+import { ReactComponent as EditIcon } from '../../../assets/svg/edit.svg';
+import { Spin, message } from 'antd';
 
 let origin = fetchOriginSelection();
 
@@ -47,6 +49,7 @@ const SmartFileSidebar = ({
 			getEventsPresets,
 			chnageWorkflowStats,
 			getFormResponse,
+			updateSendSmartFileSettings,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -67,6 +70,10 @@ const SmartFileSidebar = ({
 	const [showSummary, setShowSummary] = useState(false);
 	const [activeTab, setActiveTab] = useState('document');
 	const [formResponses, setFormResponses] = useState([]);
+	const [isEditingTitle, setIsEditingTitle] = useState(false);
+	const [titleInput, setTitleInput] = useState('');
+	const [isTitleLoading, setIsTitleLoading] = useState(false);
+	const titleInputRef = React.useRef(null);
 
 	// --- Workflow Warnings Logic ---
 	const workflowWarnings = useMemo(() => {
@@ -107,7 +114,7 @@ const SmartFileSidebar = ({
 			const sectionName = getDisplayName(section);
 			if (!tableMap.has(section._id)) {
 				warnings.push(
-					`Section '${sectionName}' (type: ${section.type}) is missing in tables. Please delete the workflow and redesign.`,
+					`Section '${sectionName}' (type: ${section.type}) is missing in tables. Please delete the section and redesign.`,
 				);
 			} else {
 				// If exists in both, check type
@@ -126,7 +133,7 @@ const SmartFileSidebar = ({
 			const tableName = getDisplayName(table);
 			if (!sectionMap.has(table._id)) {
 				warnings.push(
-					`Table '${tableName}' (type: ${table.type}) is missing in sections. Please contact us.`,
+					`Table '${tableName}' (type: ${table.type}) is missing in sections. Please contact support team.`,
 				);
 			}
 		});
@@ -208,6 +215,16 @@ const SmartFileSidebar = ({
 		}
 	}, [showSignatureModal, onCloseSignatureModal]);
 
+	useEffect(() => {
+		if (isEditingTitle && titleInputRef.current) {
+			titleInputRef.current.focus();
+		}
+	}, [isEditingTitle]);
+
+	useEffect(() => {
+		setTitleInput(info.documentTitle || 'Untitled Document');
+	}, [info.documentTitle]);
+
 	const scrollToElement = useCallback(
 		(id) => {
 			if (!id) {
@@ -241,7 +258,7 @@ const SmartFileSidebar = ({
 			const {
 				file = [],
 				modules = [],
-				clientDetails = {},
+				clientDetails: workflowClientDetails = {},
 				slug,
 				status,
 				title = 'Untitled Document',
@@ -266,7 +283,7 @@ const SmartFileSidebar = ({
 				status,
 				slug,
 				defaultActiveArray,
-				clientDetails: clientDetails || {},
+				clientDetails: workflowClientDetails || {},
 				documentTitle: title,
 			}));
 		}
@@ -335,6 +352,14 @@ const SmartFileSidebar = ({
 		[info],
 	);
 
+	const refreshClientDetails = useCallback(() => {
+		if (workflowId) {
+			getSmartFileData({
+				getWorkflowWithModulesId: workflowId,
+			});
+		}
+	}, [workflowId, getSmartFileData]);
+
 	if (!showSmartFileSidebar) {
 		return null;
 	}
@@ -368,6 +393,57 @@ const SmartFileSidebar = ({
 			handleNavigateToDocumentView();
 		}
 	};
+	const refreshVariablesData = useCallback(() => {
+		getSmartFileVariablesData({
+			workflowId: workflowId,
+		});
+	}, [workflowId, getSmartFileVariablesData]);
+
+	const handleEditTitleClick = () => {
+		setIsEditingTitle(true);
+	};
+
+	const handleTitleInputChange = (e) => {
+		setTitleInput(e.target.value);
+	};
+
+	const debouncedUpdateTitle = useRef();
+
+	const handleTitleInputBlurOrEnter = useCallback(() => {
+		if (!titleInput.trim() || titleInput === info.documentTitle) {
+			setIsEditingTitle(false);
+			return;
+		}
+		setIsTitleLoading(true);
+		if (debouncedUpdateTitle.current) {
+			clearTimeout(debouncedUpdateTitle.current);
+		}
+		debouncedUpdateTitle.current = setTimeout(async () => {
+			const payload = {
+				updateWorkflowId: workflowId,
+				updateWorkflowInput: { title: titleInput.trim() },
+			};
+			const res = await updateSendSmartFileSettings(payload);
+			if (res && res[0]) {
+				setInfo((prev) => ({ ...prev, documentTitle: titleInput.trim() }));
+				message.success('Title updated');
+			} else {
+				message.error('Failed to update title');
+			}
+			setIsTitleLoading(false);
+			setIsEditingTitle(false);
+		}, 1000);
+	}, [titleInput, workflowId, updateSendSmartFileSettings, setInfo, info.documentTitle]);
+
+	const handleTitleInputKeyDown = (e) => {
+		if (e.key === 'Enter') {
+			handleTitleInputBlurOrEnter();
+		}
+		if (e.key === 'Escape') {
+			setIsEditingTitle(false);
+			setTitleInput(info.documentTitle || 'Untitled Document');
+		}
+	};
 
 	return (
 		<div
@@ -380,9 +456,64 @@ const SmartFileSidebar = ({
 				<span className="createDocumentTitle">Back</span>
 			</div>
 			<div className="sidebarContent">
+				<div className="doc-header-title-container">
+
+			<span className="doc-header-title-container-text">Document Title</span>
 				<div className="smartFileSideBarHeader">
-					<span>{info.documentTitle || 'Untitled Document'}</span>
+					{isEditingTitle ? (
+						<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+							<input
+								ref={titleInputRef}
+								className="sidebar-title-input"
+								value={titleInput}
+								onChange={handleTitleInputChange}
+								onBlur={handleTitleInputBlurOrEnter}
+								onKeyDown={handleTitleInputKeyDown}
+								maxLength={80}
+								style={{
+									fontSize: 18,
+									fontWeight: 500,
+									background: 'transparent',
+									border: 'none',
+									borderBottom: '1px solid #c2ff00',
+									color: 'var(--primary-font)',
+									outline: 'none',
+								}}
+							/>
+							{isTitleLoading && <Spin size="small" />}
+						</div>
+					) : (
+						<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+							<span
+								className="sidebar-title-value"
+								style={{
+									color: 'var(--primary-font)',
+									fontSize: 18,
+									fontWeight: 500,
+									cursor: 'pointer',
+									flex: 1,
+									whiteSpace: 'nowrap',
+									overflow: 'hidden',
+									textOverflow: 'ellipsis',
+								}}
+								onClick={handleEditTitleClick}
+							>
+								{info.documentTitle || 'Untitled Document'}
+							</span>
+							<EditIcon
+								style={{
+									cursor: 'pointer',
+									width: 18,
+									height: 18,
+									fill: '#B3B3B3',
+								}}
+								onClick={handleEditTitleClick}
+							/>
+						</div>
+					)}
 				</div>
+				</div>
+
 				{formResponseId ? (
 					<>
 						<div className="smartFileTabsBar">
@@ -427,16 +558,29 @@ const SmartFileSidebar = ({
 								<div className="smartFileFormSubHeader">
 									<span>Update manage document</span>
 								</div>
-								<Variables
-									data={info?.variablesData || []}
-									clientDetails={info?.clientDetails || {}}
-									variableBlockChanges={variableBlockChanges}
-									updateLocalStateData={updateLocalStateData}
-									scrollAndHighlightElement={scrollToElement}
-									handleReplaceMultipleInput={handleReplaceMultipleInput}
-									previewReady={previewReady}
-									formResponses={formResponses}
-								/>
+								{info?.variablesData?.filter(
+									(ele) =>
+										ele?.displayName !== 'Grand Total' &&
+										ele?.displayName !== 'Grand Total In Words',
+								)?.length > 0 && (
+									<Variables
+										data={
+											info?.variablesData?.filter(
+												(ele) =>
+													ele?.displayName !== 'Grand Total' &&
+													ele?.displayName !== 'Grand Total In Words',
+											) || []
+										}
+										clientDetails={info?.clientDetails || {}}
+										variableBlockChanges={variableBlockChanges}
+										updateLocalStateData={updateLocalStateData}
+										scrollAndHighlightElement={scrollToElement}
+										handleReplaceMultipleInput={handleReplaceMultipleInput}
+										previewReady={previewReady}
+										onVariableUpdate={refreshClientDetails}
+										formResponses={formResponses}
+									/>
+								)}
 								{workflowWarnings.length > 0 && (
 									<div className="workflow-warnings-container-parent">
 										<div className="workflow-warnings-container">
@@ -445,14 +589,30 @@ const SmartFileSidebar = ({
 										<ul
 											className="workflow-warnings"
 											style={{
-												color: '#ffb300',
+												color: '#ffb300 !important',
 												margin: '8px 0',
 												fontSize: 13,
 											}}
 										>
 											{workflowWarnings.map((warning, idx) => (
-												<li key={idx} style={{ marginBottom: 4 }}>
-													{warning}
+												<li className="workflow-warning-item" key={idx}>
+													<p
+														style={{
+															color: '#ffb300',
+															fontSize: 13,
+															fontFamily: 'Inter, sans-serif',
+															fontWeight: 500,
+															lineHeight: 1.5,
+															background: 'none',
+															letterSpacing: 'normal',
+															fontStyle: 'normal',
+															textAlign: 'left',
+															margin: 0,
+															padding: 0,
+														}}
+													>
+														{warning}
+													</p>
 												</li>
 											))}
 										</ul>
@@ -503,16 +663,29 @@ const SmartFileSidebar = ({
 						<div className="smartFileFormSubHeader">
 							<span>Update manage document</span>
 						</div>
-						<Variables
-							data={info?.variablesData || []}
-							clientDetails={info?.clientDetails || {}}
-							variableBlockChanges={variableBlockChanges}
-							updateLocalStateData={updateLocalStateData}
-							scrollAndHighlightElement={scrollToElement}
-							handleReplaceMultipleInput={handleReplaceMultipleInput}
-							previewReady={previewReady}
-							formResponses={formResponses}
-						/>
+						{info?.variablesData?.filter(
+							(ele) =>
+								ele?.displayName !== 'Grand Total' &&
+								ele?.displayName !== 'Grand Total In Words',
+						)?.length > 0 && (
+							<Variables
+								data={
+									info?.variablesData?.filter(
+										(ele) =>
+											ele?.displayName !== 'Grand Total' &&
+											ele?.displayName !== 'Grand Total In Words',
+									) || []
+								}
+								clientDetails={info?.clientDetails || {}}
+								variableBlockChanges={variableBlockChanges}
+								updateLocalStateData={updateLocalStateData}
+								scrollAndHighlightElement={scrollToElement}
+								handleReplaceMultipleInput={handleReplaceMultipleInput}
+								previewReady={previewReady}
+								formResponses={formResponses}
+								onVariableUpdate={refreshClientDetails}
+							/>
+						)}
 						{workflowWarnings.length > 0 && (
 							<div className="workflow-warnings-container-parent">
 								<div className="workflow-warnings-container">
@@ -523,8 +696,24 @@ const SmartFileSidebar = ({
 									style={{ color: '#ffb300', margin: '8px 0', fontSize: 13 }}
 								>
 									{workflowWarnings.map((warning, idx) => (
-										<li key={idx} style={{ marginBottom: 4 }}>
-											{warning}
+										<li className="workflow-warning-item" key={idx}>
+											<p
+												style={{
+													color: '#ffb300',
+													fontSize: 13,
+													fontFamily: 'Inter, sans-serif',
+													fontWeight: 500,
+													lineHeight: 1.5,
+													background: 'none',
+													letterSpacing: 'normal',
+													fontStyle: 'normal',
+													textAlign: 'left',
+													margin: 0,
+													padding: 0,
+												}}
+											>
+												{warning}
+											</p>
 										</li>
 									))}
 								</ul>

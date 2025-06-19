@@ -15,7 +15,6 @@ import EmptyState from './EmptyState';
 import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
 import { ReactComponent as Search } from '../../../assets/svg/search.svg';
-import TemplateShortPreview from '../../../../builderSrc/views/feature/TemplateShortPreview';
 import DocumentShortPreview from '../../../../builderSrc/views/feature/DocumentShortPreview';
 
 const origin = fetchOriginSelection();
@@ -331,7 +330,10 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 											</span>
 										</div>
 									</div> */}
-									<div className="docsCardContainer">
+									<div
+										className="docsCardContainer"
+										onClick={() => handleDocClick(doc)}
+									>
 										<div className="docsCardPreview">
 											{doc?.firstModule[0]?._id && (
 												<DocumentShortPreview doc={doc} />

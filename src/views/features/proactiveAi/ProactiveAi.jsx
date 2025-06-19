@@ -630,7 +630,7 @@ const ProactiveAi = () => {
 											className="report-description"
 											onClick={(e) => e.stopPropagation()}
 										>
-											<Markdown citations={thinker_sources || []}>
+											<Markdown citations={thinker_sources || null}>
 												{research_report || ''}
 											</Markdown>
 										</div>
@@ -734,7 +734,7 @@ const ProactiveAi = () => {
 							<div className="chain-of-thought-content">
 								<CombinedChainOfThought
 									data={info?.chainOfThoughtData}
-									citations={thinker_sources || []}
+									citations={thinker_sources || null}
 								/>
 							</div>
 						</div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ReactComponent as DropDown } from '../../svgs/dropDown.svg';
+import { ReactComponent as DropDown } from '../../../../components/library/svgs/dropDown.svg';
 import * as GoogleFonts from 'google-fonts-complete';
 
 function FontSelector({ blocks, field, sections, _id, saveSections }) {

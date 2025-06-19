@@ -8,8 +8,8 @@ import { ReactComponent as ShareDotIcon } from '../../../assets/svg/document/sha
 import { ReactComponent as AvatarIcon } from '../../../assets/svg/Settings/Profile.svg';
 import { ReactComponent as InfoIcon } from '../../../assets/svg/Settings/Info.svg';
 import { ReactComponent as ChevronDownIcon } from '../../../assets/svg/smartFile/downArrow.svg';
-import { ReactComponent as EmailIcon } from '../../components/library/svgs/logicform/email.svg';
-import { ReactComponent as AssistantIcon } from '../../components/library/svgs/LeftBar/AIassit.svg';
+import { ReactComponent as EmailIcon } from '../../../views/components/library/svgs/logicform/email.svg';
+import { ReactComponent as AssistantIcon } from '../../../views/components/library/svgs/LeftBar/AIassit.svg';
 import { DatePicker, Modal, Input, Button } from 'antd';
 import dayjs from 'dayjs';
 import Context from '../../../context/context';
@@ -186,7 +186,7 @@ const DocumentShare = ({
 	}, [info.editSlug]);
 
 	const getCurrentWorkspaceId = (workspaces) => {
-		const workspaceId = localStorage.getItem('workspaceID');
+		const workspaceId = localStorage.getItem('workspaceId');
 		const workspace = workspaces.find((ws) => ws.activeWorkspaceId === workspaceId);
 		return workspace ? workspace.activeWorkspaceId : '';
 	};
@@ -528,7 +528,8 @@ const DocumentShare = ({
 
 	const slugOnChange = useCallback(
 		(e) => {
-			const valueWithoutSpaces = e.target.value.replace(/[^a-z0-9]/g, '');
+			// const valueWithoutSpaces = e.target.value.replace(/[^a-z0-9]/g, '');
+			const valueWithoutSpaces = e.target.value.replace(/[^a-z0-9-]/g, '');
 			setInfo((prev) => ({
 				...prev,
 				slugHolder: valueWithoutSpaces,
@@ -670,6 +671,7 @@ const DocumentShare = ({
 									ref={inputRef}
 									onChange={slugOnChange}
 									disabled={!info.editSlug}
+									onClick={toggleEditSlug}
 								/>
 							</span>
 							{info.slugErrorMessage && (
