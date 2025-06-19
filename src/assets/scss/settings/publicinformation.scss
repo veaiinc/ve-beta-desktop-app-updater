@@ -198,9 +198,115 @@
 		.icon_name_div {
 			display: flex;
 			flex-direction: column;
-			gap: 8px;
 			align-items: center;
-			justify-content: center;
+			gap: 8px;
+
+			p {
+				margin: 0;
+				text-align: center;
+			}
+		}
+	}
+}
+
+// Mobile responsive styles using media query for 768px
+@media (max-width: 768px) {
+	.publicInformationComponent {
+		h1 {
+			font-size: 26px;
+			font-weight: 500;
+		}
+
+		.header {
+			grid-template-columns: 1fr;
+			gap: 24px;
+			padding: 24px;
+			border-radius: 16px;
+
+			.logoDivProfile {
+				grid-column: 1 / -1;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				order: 1; // Move to top
+			}
+
+			.detailsBody {
+				grid-column: 1 / -1;
+				order: 2; // Move below logo
+				gap: 12px;
+
+				.flex-gap {
+					flex-direction: column;
+					gap: 12px;
+				}
+
+				.inputDiv {
+					gap: 6px;
+
+					.label {
+						font-size: 11px;
+						margin-left: 0;
+					}
+
+					.inputdiv {
+						height: 44px;
+						padding: 10px 12px;
+					}
+
+					.inputBox {
+						border-radius: 8px !important;
+
+						input {
+							font-size: 14px;
+							line-height: 20px;
+						}
+
+						.PhoneInput {
+							font-size: 14px;
+						}
+					}
+				}
+			}
+		}
+
+		.imageCircleDiv {
+			width: 120px;
+			height: 120px;
+
+			.noImageText {
+				font-size: 20px;
+			}
+
+			.editImage {
+				svg {
+					width: 20px;
+					height: 20px;
+				}
+			}
+		}
+
+		.upload-brand-embeded-btn {
+			width: 120px;
+
+			.upload-brand-placeholder {
+				width: 120px;
+				height: 120px;
+				font-size: 11px;
+
+				svg {
+					width: 28px;
+					height: 20px;
+				}
+			}
+
+			.icon_name_div {
+				gap: 6px;
+
+				p {
+					font-size: 11px;
+				}
+			}
 		}
 	}
 }

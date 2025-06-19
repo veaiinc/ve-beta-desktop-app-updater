@@ -110,10 +110,10 @@
 			border-radius: inherit;
 			transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 			overflow-x: hidden !important;
-			border-top-right-radius: 18px;
-			border-bottom-right-radius: 18px;
-			border-top-left-radius: 18px;
-			border-bottom-left-radius: 18px;
+			border-top-right-radius: 20px;
+			border-bottom-right-radius: 25px;
+			border-top-left-radius: 20px;
+			border-bottom-left-radius: 25px;
 			user-select: none;
 			z-index: 9;
 			margin-top: 1px;
@@ -782,8 +782,8 @@
 		z-index: 1001;
 		margin-top: 0px;
 		border-top-right-radius: 20px;
-		border-bottom-right-radius: 20px;
-		border-top-left-radius: 25px;
+		border-bottom-right-radius: 25px;
+		border-top-left-radius: 20px;
 		border-bottom-left-radius: 25px;
 		border-left: 10px solid transparent;
 		border-top: 9px solid transparent;
@@ -805,8 +805,8 @@
 		}
 
 		.settingsOptionsContainer {
-			border-bottom-right-radius: 20px;
-			border-bottom-left-radius: 20px;
+			border-bottom-right-radius: 25px;
+			border-bottom-left-radius: 25px;
 			border: 1px solid var(--stroke);
 			.settingsOptionsContainerOpen {
 				border-bottom-right-radius: 25px;
@@ -891,8 +891,8 @@
 		}
 
 		&.opened {
-			height: 100dvh !important;
-			margin-top: -32px !important;
+			// height: 98dvh !important;
+			margin-top: -16px !important;
 			margin-left: 0px !important;
 			width: 100vw !important;
 			margin-right: 0px !important;
@@ -915,10 +915,11 @@
 			}
 
 			.openSideBarComponent {
-				width: 100vw !important;
+				max-height: 100dvh;
+				width: 100vw;
 				transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 				.topOptionsList {
-					width: 100vw !important;
+					width: 100vw;
 					.veAiLogoDiv {
 						width: 100vw !important;
 						padding: 0px 32px 0px 20px;
@@ -1340,10 +1341,11 @@
 		align-self: stretch;
 		gap: 14px;
 		// border-top: 0.8px solid var(--stroke);
-		position: sticky;
-		bottom: 0;
-		z-index: 2;
+		position: relative;
+		z-index: 1;
 		cursor: pointer;
+		margin-bottom: 8px;
+		// min-height: 44px;
 		p {
 			color: var(--primary-font);
 			font-family: var(--primary-font-family);
@@ -1493,6 +1495,10 @@
 .settingsAnimationContainer {
 	padding: 10px;
 	animation: slideIn 0.3s ease-out;
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	z-index: 1;
 }
 
 .sideBarOptions {
