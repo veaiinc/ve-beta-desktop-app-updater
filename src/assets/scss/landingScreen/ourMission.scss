@@ -1,25 +1,46 @@
 .our-mission-container {
-	max-width: 761px;
+	display: flex;
+	gap: 100px;
+	min-height: 100vh;
+	align-items: flex-start;
+	width: 100%;
+	padding: 40px 20px 40px 50px;
 	margin: 0 auto;
-	padding: 40px 20px;
+	margin-top: 100px;
 	color: var(--primary-font);
 	font-weight: 700;
 	font-family: var(--secondary-font-family);
-	padding-left: 100px;
-	margin-top: 160px;
-	width: 100%;
-	height: 84vh;
+
+	.mission-nav-col {
+		flex: 0 0 180px;
+		position: sticky;
+		top: 120px; // adjust as needed for your header
+		align-self: flex-start;
+		z-index: 10;
+		height: fit-content;
+	}
+
+	.mission-content-col {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+
 	.mission-block {
 		margin-bottom: 50px;
 		display: flex;
 		flex-direction: column;
 		gap: 30px;
+		max-width: 750px;
+		width: 100%;
+		overflow: auto;
+		height: 100%;
+		padding-right: 10px;
 
 		.heading {
-			color: var(--primary-button, #79ecc9);
+			color: var(--primary-font, #f2f2f3);
 			font-family: var(--tertiary-font-family);
-			font-size: 50px;
-			font-weight: 400;
+			font-size: 45px;
+			font-weight: 500;
 		}
 
 		.ending {
@@ -50,9 +71,14 @@
 
 		p {
 			color: var(--primary-font, #f2f2f3);
-			font-size: 20px;
+			font-family: var(--primary-font);
+			font-size: 15px;
 			font-weight: 500;
-			line-height: 34px; /* 170% */
+			line-height: 25px; /* 166.667% */
+
+			&:last-child {
+				margin-bottom: 100px;
+			}
 		}
 		strong {
 			margin-top: 10px;
