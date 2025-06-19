@@ -46,6 +46,8 @@ const LandingPage = () => {
 	});
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+	const bridgePage = location.pathname === '/thebridge'
+
 	useEffect(() => {
 		const currentTab = pathToTabMap[location.pathname] ?? 0;
 		setTab((prevTab) => (prevTab !== currentTab ? currentTab : prevTab));
@@ -136,7 +138,7 @@ const LandingPage = () => {
 			<Helmet>
 				<title>Ve - The World's First Ambient AI OS</title>
 			</Helmet>
-			<main className="landing-page-container">
+			<main className={`landing-page-container ${bridgePage ? 'fullHeight' : ''}`}>
 				<header className="page-header">
 					<div className="left-container">
 						<VeLogo className="ve-logo" onClick={() => navigate('/')} />

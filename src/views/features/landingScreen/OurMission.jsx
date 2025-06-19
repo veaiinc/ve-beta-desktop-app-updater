@@ -77,7 +77,7 @@ const tabsMapper = {
 
 const OurMission = () => {
 	const [info, setInfo] = useState({
-		tab: 1,
+		tab: 0,
 	});
 	const handleSetNewTab = (tab) => {
 		setInfo((prev) => ({
