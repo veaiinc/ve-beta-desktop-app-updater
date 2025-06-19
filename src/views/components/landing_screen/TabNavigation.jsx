@@ -3,7 +3,7 @@ import { memo } from 'react';
 import ProactiveDropdown from './ProactiveDropdown';
 
 const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
-	const tabs = ['Home', 'The bridge', 'For Enterprise', 'Pricing'];
+	const tabs = ['Home', 'The Bridge', 'For Enterprise', 'Pricing'];
 	// ${isVisible ? 'slide-in' : 'slide-out'}
 	return (
 		<ul className={`tabNavigation`}>
@@ -13,7 +13,7 @@ const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
 				trigger="hover"
 				overlayClassName="proactive-tooltip"
 				getPopupContainer={() => document.body}
-				overlayStyle={{ width: '100%', maxWidth: '100vw' }}
+				overlayStyle={{ width: '100%', maxWidth: '100vw', padding: '0' }}
 			>
 				<div className="proactiveDropdown">Ambient</div>
 			</Tooltip>

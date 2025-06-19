@@ -7,9 +7,8 @@ import Context from '../../../context/context';
 import TabNavigation from '../../components/landing_screen/TabNavigation';
 import Tagline from './Tagline';
 import Footer from './Footer';
-import HowItWorks from './HowItWorks';
+
 import ChatBox from '../../components/chat/ChatBox';
-import Features from './Features';
 import Suggestions from '../homePage/Suggestions';
 import MobileMenu from '../../components/landing_screen/MobileMenu';
 
@@ -18,10 +17,7 @@ import PricingPage from '../pricingPlans/pricingPage';
 import OurMission from './OurMission';
 import EarlyAccess from './EarlyAccess';
 import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
-import { ReactComponent as VeLogoBlack } from '../../../assets/svg/veLogoBlack.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
-import OwnYourMemoryCards from './OwnYourMemoryCards';
-import QandALandingPage from './QandALandingPage';
 
 import '../../../assets/scss/landingScreen/index.scss';
 
@@ -46,7 +42,7 @@ const LandingPage = () => {
 	});
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-	const bridgePage = location.pathname === '/thebridge'
+	const bridgePage = location.pathname === '/thebridge';
 
 	useEffect(() => {
 		const currentTab = pathToTabMap[location.pathname] ?? 0;
@@ -97,7 +93,7 @@ const LandingPage = () => {
 								<span className="title-two">Ambient AI</span>
 							</div>
 							<p className="title-three">
-								Your living memory system that thinks and acts — without prompts.
+								Your Living Memory Intelligence — built to think, remember, and act.
 							</p>
 						</div>
 
@@ -117,13 +113,19 @@ const LandingPage = () => {
 							</div>
 						)}
 					</div>
+					<video autoPlay muted loop className="videoContainer">
+						<source
+							src="https://ap.images.ve.ai/public/dashboard/landing_page.mp4"
+							type="video/mp4"
+						/>
+					</video>
 					<Tagline />
-					<HowItWorks />
-					<Features />
-					<div className="responsive-spacer"></div>
-					<OwnYourMemoryCards />
+					{/* <HowItWorks /> */}
+					{/* <Features /> */}
+					{/* <div className="responsive-spacer"></div> */}
+					{/* <OwnYourMemoryCards /> */}
 					<EarlyAccess />
-					<QandALandingPage />
+					{/* <QandALandingPage /> */}
 					<Footer />
 				</div>
 			</>
@@ -140,26 +142,33 @@ const LandingPage = () => {
 			</Helmet>
 			<main className={`landing-page-container ${bridgePage ? 'fullHeight' : ''}`}>
 				<header className="page-header">
-					<div className="left-container">
-						<VeLogo className="ve-logo" onClick={() => navigate('/')} />
-					</div>
-					<div className="middle-container">
-						{!mobileMenuOpen && <TabNavigation tab={tab} handleSetTab={handleSetTab} />}
-					</div>
-					<div className="right-container">
-						<Link className="login-btn-text hide-on-mobile" to="/verify-user">
-							Login
-						</Link>
-						<div className="login-container">
-							<button className="login-btn" onClick={() => navigate('/verify-user')}>
-								Get <VeLogoBlack /> Free
-							</button>
-							<button
-								className="sidebar-button mobile-only"
-								onClick={() => setMobileMenuOpen(true)}
-							>
-								<MenuIcon />
-							</button>
+					<div className="page-header-wrapper">
+						<div className="left-container">
+							<VeLogo className="ve-logo" onClick={() => navigate('/')} />
+						</div>
+						<div className="middle-container">
+							{!mobileMenuOpen && (
+								<TabNavigation tab={tab} handleSetTab={handleSetTab} />
+							)}
+						</div>
+						<div className="right-container">
+							<Link className="login-btn-text hide-on-mobile" to="/verify-user">
+								Login
+							</Link>
+							<div className="login-container">
+								<button
+									className="login-btn"
+									onClick={() => navigate('/verify-user')}
+								>
+									Get VE Free
+								</button>
+								<button
+									className="sidebar-button mobile-only"
+									onClick={() => setMobileMenuOpen(true)}
+								>
+									<MenuIcon />
+								</button>
+							</div>
 						</div>
 					</div>
 					<MobileMenu
