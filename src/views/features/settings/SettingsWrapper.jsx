@@ -10,6 +10,25 @@ import PlanBilling from './PlanBilling';
 import AiSetup from '../aiSetup/AiSetup';
 import PricingPage from '../pricingPlans/pricingPage';
 import Integrations from '../integrationsList/Integrations';
+
+// Mobile detection hook
+const useIsMobile = () => {
+	const [isMobile, setIsMobile] = useState(false);
+
+	useEffect(() => {
+		const checkIsMobile = () => {
+			setIsMobile(window.innerWidth <= 768);
+		};
+
+		checkIsMobile();
+		window.addEventListener('resize', checkIsMobile);
+
+		return () => window.removeEventListener('resize', checkIsMobile);
+	}, []);
+
+	return isMobile;
+};
+
 const mapper = {
 	'my-profile': <MyProfile />,
 	workspace: <SettingsWorkspace />,
@@ -25,6 +44,7 @@ const SettingsWrapper = (props) => {
 	const { type } = useParams();
 	const navigate = useNavigate();
 	const [urlType, setUrlype] = useState('');
+	const isMobile = useIsMobile();
 
 	const setType = (type) => {
 		navigate(`/settings/${type}`);
@@ -45,7 +65,7 @@ const SettingsWrapper = (props) => {
 		<div
 			className={`${
 				type === 'integrations' || type === 'ai-setup' ? '' : 'accountSettingsMainWrapper'
-			}`}
+			} ${isMobile ? 'mobile-view' : ''}`}
 			style={{
 				height: '100%',
 			}}
@@ -54,13 +74,17 @@ const SettingsWrapper = (props) => {
 				mapper?.[type]
 			) : (
 				<div
-					className={`${type !== 'integrations'  ? 'accountSettingsWrapper' : ''}`}
+					className={`${type !== 'integrations' ? 'accountSettingsWrapper' : ''} ${
+						isMobile ? 'mobile-settings-wrapper' : ''
+					}`}
 					style={{
 						height: '100%',
 					}}
 				>
 					<div
-						className={`${type !== 'integrations'  ? 'accountSettingsMapper' : ''}`}
+						className={`${type !== 'integrations' ? 'accountSettingsMapper' : ''} ${
+							isMobile ? 'mobile-settings-mapper' : ''
+						}`}
 						style={{
 							height: '100%',
 						}}
