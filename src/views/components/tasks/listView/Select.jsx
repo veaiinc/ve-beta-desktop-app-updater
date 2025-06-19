@@ -110,7 +110,9 @@ const Select = ({
 								</div>
 							</div>
 						) : (
-							<div className="select-option-item">Select an option</div>
+							<div className="select-option-item">
+								<div className="select-option-label">Select an option</div>
+							</div>
 						)}
 					</div>
 				</Tooltip>

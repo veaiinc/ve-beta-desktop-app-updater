@@ -19,7 +19,9 @@ const GroupToggler = ({ children, groupData }) => {
 						}`}
 					/>
 				</button>
-				<span className={s.groupTogglerContent}>{groupData?.label || 'No value'}</span>
+				<span className={s.groupTogglerContent}>
+					{groupData?.label || groupData?.name || 'No value'}
+				</span>
 			</div>
 			{info?.isOpen && children}
 		</div>

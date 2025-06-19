@@ -738,12 +738,11 @@ export const getDatabaseViewsQuery = gql`
 			blockId
 			cardSize
 			sortBy {
-				_id
 				fieldId
 				direction
+				_id
 			}
 			filterBy {
-				_id
 				fieldId
 				operator
 				value
@@ -753,6 +752,9 @@ export const getDatabaseViewsQuery = gql`
 				fieldType
 				visibleGroups
 				defaultGroups
+				config {
+					statusBy
+				}
 			}
 			visibleFields
 			type
@@ -895,7 +897,7 @@ export const removeSortMutation = gql`
 `;
 
 export const updateViewGroupMutation = gql`
-	mutation CreateGroup(
+	mutation UpdateGroup(
 		$pageId: ID!
 		$databaseViewId: ID!
 		$databaseId: ID!
@@ -911,6 +913,9 @@ export const updateViewGroupMutation = gql`
 			visibleGroups
 			fieldType
 			defaultGroups
+			config {
+				statusBy
+			}
 		}
 	}
 `;

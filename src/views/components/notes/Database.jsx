@@ -40,6 +40,7 @@ import ListView from './DatabseComponents/views/ListView';
 import Spinner from '../loaders/Spinner';
 import SortComponent from './DatabseComponents/SortComponent';
 import GroupComponent from './DatabseComponents/GroupComponent';
+import BoardView from './DatabseComponents/views/BoardView';
 
 export const rowTypes = {
 	text: TextField,
@@ -599,7 +600,15 @@ const DatabaseComponent = ({ block, editor }) => {
 								/>
 							)}
 							{selectedDatabaseView?.type === 'list' && (
-								<ListView
+								// <ListView
+								// 	groupData={groupData}
+								// 	metaInfo={metaInfo}
+								// 	columns={columns}
+								// 	databaseId={databaseId}
+								// 	pageId={pageId}
+								// 	view={selectedDatabaseView}
+								// />
+								<BoardView
 									groupData={groupData}
 									metaInfo={metaInfo}
 									columns={columns}

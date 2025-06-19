@@ -1,0 +1,49 @@
+.boardViewContainer {
+	width: 100%;
+	display: flex;
+	gap: 16px;
+	overflow-x: auto;
+	height: fit-content;
+
+	.board {
+		background-color: var(--card);
+		border-radius: 12px;
+		width: 312px;
+		height: fit-content;
+		flex-shrink: 0;
+
+		.boardHeader {
+			border-radius: 12px 12px 0 0;
+			padding: 6px 10px;
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+			font-size: 12px;
+			font-weight: 500;
+		}
+		.boardBody {
+			height: fit-content;
+			padding: 6px;
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+
+			.card {
+				background-color: var(--card-over-card);
+				border-radius: 12px;
+				padding: 10px;
+				flex-shrink: 0;
+				height: fit-content;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				padding: 10px;
+				.cardField {
+					display: flex;
+					flex-direction: column;
+					gap: 10px;
+				}
+			}
+		}
+	}
+}
