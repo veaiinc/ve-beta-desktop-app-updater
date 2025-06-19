@@ -1,6 +1,11 @@
 import { createElement, useState, useCallback, useEffect, useContext, memo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { veAiModulesItemsList, veAiModules, SETTINGS_OPTIONS } from './sidebarindex';
+import {
+	stableNavigationItems,
+	betaNaviagationItems,
+	stableSettingsNavItems,
+	betaSettingsNavItems,
+} from './sidebarindex';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg.svg';
@@ -24,6 +29,7 @@ import { ReactComponent as CreateWorkspaceSvg } from '../../../assets/svg/sideba
 import SidebarTooltip from './SidebarTooltip';
 import UploadAvatarPopupComponent from '../settings/profile/UploadAvatarPopup';
 import UploadFileProiflePopup from '../settings/profile/UploadFileProiflePopup';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const workspaceStyles = {
 	position: 'absolute',
@@ -252,6 +258,12 @@ const OpenedSidebar = ({
 	isDocked,
 	handleDockToggle,
 }) => {
+	const { workspaceMode } = useWorkspaceMode();
+	const sidebarNavigationItems =
+		workspaceMode === 'stable' ? stableNavigationItems : betaNaviagationItems;
+	const settingsNavigationItems =
+		workspaceMode === 'stable' ? stableSettingsNavItems : betaSettingsNavItems;
+
 	const {
 		templates: { leftSidebarState, updateStateValues },
 		profileInfo: {
@@ -317,7 +329,7 @@ const OpenedSidebar = ({
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
 
 	// Add this constant for Settings options
-	const settingsOptions = isAdmin ? SETTINGS_OPTIONS.admin : SETTINGS_OPTIONS.user;
+	const settingsOptions = isAdmin ? settingsNavigationItems.admin : settingsNavigationItems.user;
 
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
 	useEffect(() => {
@@ -349,6 +361,19 @@ const OpenedSidebar = ({
 	useEffect(() => {
 		localStorage.setItem('showSettingsSidebar', JSON.stringify(showSettingsSidebar));
 	}, [showSettingsSidebar]);
+
+	const handleNewChat = () => {
+		// For stable workspaceMode, redirecting to /home, check stableNavigationItems
+		if (workspaceMode === 'stable') {
+			navigate('/home');
+			return;
+		}
+		const sessionId = ObjectID()?.toString();
+		navigate(`/chat/${sessionId}`);
+		updateStateValues({
+			currentChatData: null,
+		});
+	};
 
 	const handleLogout = useCallback(async () => {
 		logoutFunc();
@@ -402,7 +427,7 @@ const OpenedSidebar = ({
 				handleSidebarCollapse();
 			}
 		},
-		[navigate, isMobile, handleSidebarCollapse],
+		[navigate, workspaceMode, isMobile, handleSidebarCollapse],
 	);
 
 	const handleCloseChatPanel = () => {
@@ -486,21 +511,23 @@ const OpenedSidebar = ({
 	};
 	const allPossibleApps = Object.values(MODULE_NAME_MAP);
 
-	const tenantModules = veAiModulesItemsList;
-
 	const filteredModules =
 		tenantUserAccessControls?.role === 'admin'
-			? tenantModules
+			? sidebarNavigationItems
 			: filterModules(
-					tenantModules,
+					sidebarNavigationItems,
 					tenantUserAccessControls?.accessControls,
 					allPossibleApps,
 			  );
 
-	const filterModules2 =
+	const settingEssentials =
 		tenantUserAccessControls?.role === 'admin'
-			? veAiModules
-			: filterModules(veAiModules, tenantUserAccessControls?.accessControls, allPossibleApps);
+			? settingsNavigationItems.essentials
+			: filterModules(
+					settingsNavigationItems.essentials,
+					tenantUserAccessControls?.accessControls,
+					allPossibleApps,
+			  );
 
 	const isExactPathMatch = useCallback(
 		(currentRoute, moduleName) => {
@@ -536,13 +563,6 @@ const OpenedSidebar = ({
 			bubbles: true,
 		});
 		document.dispatchEvent(event);
-	};
-	const handleNewChat = () => {
-		const sessionId = ObjectID()?.toString();
-		navigate(`/chat/${sessionId}`);
-		updateStateValues({
-			currentChatData: null,
-		});
 	};
 
 	const tooltipItems = [
@@ -1154,7 +1174,7 @@ const OpenedSidebar = ({
 						/>
 						<div className="settings-options-container">
 							<div className="settings-options-title">Essentials</div>
-							{filterModules2?.map((singleItem, index) => (
+							{settingEssentials?.map((singleItem, index) => (
 								<div
 									key={index}
 									style={{ width: '100%' }}
