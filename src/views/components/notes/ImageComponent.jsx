@@ -61,7 +61,6 @@ const ImageComponent = memo(({ block, editor }) => {
 	}, [block, editor]);
 
 	const handleImageSelect = async (imageUrl, imageFile = null) => {
-		console.log('imageUrl=>', imageUrl);
 		setIsLoading(true);
 
 		try {
