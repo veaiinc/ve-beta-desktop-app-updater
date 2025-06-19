@@ -1,17 +1,18 @@
 .user-message-renderer-wrapper {
 	display: flex;
-	justify-content: space-between;
+	justify-content: flex-end;
+	align-items: flex-start;
 	position: relative;
 	width: 100%;
-	align-items: flex-start;
-	justify-content: center;
 	gap: 20px;
 
 	.user-message-wrapper {
 		width: 100%;
 		flex-grow: 1;
+		max-width: 400px;
 		.user-message {
 			width: 100%;
+
 			.user-message-renderer-container {
 				padding: 8px 16px;
 				border-radius: 8px;
