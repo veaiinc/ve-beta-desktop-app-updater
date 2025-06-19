@@ -484,7 +484,7 @@ const GalleryPage = () => {
 		}));
 	};
 	useEffect(() => {
-		updateStateValues({ leftSidebarState: 'close' });
+		updateStateValues({ leftSidebarState: 'open' });
 		return () => {
 			updateStateValues({ leftSidebarState: null });
 		};

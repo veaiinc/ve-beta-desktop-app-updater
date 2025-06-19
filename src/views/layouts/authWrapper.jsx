@@ -60,7 +60,7 @@ const AuthWrapper = ({
 						display: 'flex',
 						// height: renewBanner ? 'calc(100dvh - 57px)' : '100dvh',
 						height: '100dvh',
-						padding: '32px 32px 0',
+						padding: '0',
 						...outerContainerStyle,
 					}}
 					className="auth-wrapper-container"
@@ -72,6 +72,8 @@ const AuthWrapper = ({
 									...sidebarContainerStyles,
 									height: 'fit-content',
 									position: 'relative',
+									padding: '0',
+									margin: '0',
 								}}
 								className={sidebarContainerClassName}
 							>
@@ -88,6 +90,7 @@ const AuthWrapper = ({
 								overflowY: 'auto',
 								maxHeight: '100%',
 								height: '100%',
+								padding: ' 0',
 							}}
 							id="scrollableTarget"
 						>
