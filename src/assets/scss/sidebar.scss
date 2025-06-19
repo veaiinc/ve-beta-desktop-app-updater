@@ -17,8 +17,8 @@
 	}
 	&.closed {
 		transform: translateX(50px);
-		top: 15px;
-		left: 55px;
+		top: 8px;
+		left: 50px;
 		padding: 24px 19px !important;
 	}
 
@@ -85,6 +85,7 @@
 			&.active {
 				display: block;
 				.eachOption {
+					height: 100dvh;
 					position: fixed;
 					top: 20px;
 					left: 10px;
@@ -780,13 +781,12 @@
 		position: absolute;
 		z-index: 1001;
 		margin-top: 0px;
-		margin-left: 0px; // change to 4px after flicker issue is resolved
-		top: 4px;
-		border-top-right-radius: 18px;
-		border-bottom-right-radius: 18px;
-		border-top-left-radius: 18px;
-		border-bottom-left-radius: 18px;
-		// box-shadow: 0 0 10px rgba(0, 0, 0, 0.183);
+		border-top-right-radius: 20px;
+		border-bottom-right-radius: 20px;
+		border-top-left-radius: 25px;
+		border-bottom-left-radius: 25px;
+		border-left: 10px solid transparent;
+		border-top: 9px solid transparent;
 
 		&.closed {
 			transform: translateX(-100%);
@@ -801,13 +801,18 @@
 			position: relative;
 		}
 		.openSideBarComponent {
-			max-height: 99dvh;
-			border: 1px solid var(--stroke);
+			max-height: 98dvh;
 		}
-		.settingsOptionsContainerOpen {
-			border-bottom-right-radius: 18px;
-			border-bottom-left-radius: 18px;
+
+		.settingsOptionsContainer {
+			border-bottom-right-radius: 20px;
+			border-bottom-left-radius: 20px;
 			border: 1px solid var(--stroke);
+			.settingsOptionsContainerOpen {
+				border-bottom-right-radius: 25px;
+				border-bottom-left-radius: 25px;
+				border-bottom: none;
+			}
 		}
 	}
 
@@ -871,6 +876,20 @@
 		position: absolute;
 		top: 0px;
 		left: 0px;
+
+		// Force hover behavior on mobile - no dock functionality
+		&.docked {
+			position: absolute !important;
+			left: 0px !important;
+			top: 0px !important;
+			transform: none !important;
+			z-index: 1001 !important;
+			height: 100dvh !important;
+			padding: 0px !important;
+			margin: 0px !important;
+			border-radius: 0px !important;
+		}
+
 		&.opened {
 			height: 100dvh !important;
 			margin-top: -32px !important;
@@ -889,14 +908,12 @@
 			border: none !important;
 			padding: 0px !important;
 			margin: 0px !important;
-			// &.open {
-			//  border-top-left-radius: 0 !important;
-			//  border-bottom-left-radius: 0 !important;
-			//  height: 100dvh !important;
-			//  border: 1px solid var(--stroke) !important;
-			//  background: var(--card) !important;
-			//  width: 100vw !important;
-			// }
+
+			// Ensure hover behavior works on mobile
+			&:hover {
+				transform: none !important;
+			}
+
 			.openSideBarComponent {
 				width: 100vw !important;
 				transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1091,23 +1108,24 @@
 			.editImage {
 				position: absolute;
 				bottom: 0;
-				left: 0px;
-				right: 1px;
-				padding-bottom: 5px;
-				border-radius: 0 0 45px 45px;
-				border-radius: 50%;
+				left: 0;
+				right: 0;
+				height: 42px;
+				padding: 2px;
+				border-radius: 0 0 100px 100px;
 				display: flex;
 				justify-content: center;
-				align-items: flex-end;
+				align-items: center;
 				opacity: 0.9;
 				cursor: pointer;
-				/* zoom: 0.5; */
-				border-radius: 24px;
+
 				background: rgba(0, 0, 0, 0.3);
 				backdrop-filter: blur(10px);
+				z-index: 10;
 				svg {
-					margin-bottom: 1px;
-					margin-top: 5px;
+					width: 16px;
+					height: 16px;
+					margin: 0;
 				}
 			}
 		}
