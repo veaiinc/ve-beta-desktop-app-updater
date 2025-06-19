@@ -379,12 +379,39 @@ export const handleUpdateInGroup = ({ groupData, updatedRowData, groupId, rowId,
 	return hasUpdated ? updatedGroupData : groupData;
 };
 
-export const handleAddInGroup = ({ groupData, updatedRowData, groupId, rowId, groupBy }) => {
-	const row = groupData?.[groupId]?.docs?.find((row) => row?._id === rowId);
-	const updatedRow = {
-		...row,
-		...(updatedRowData || {}),
-	};
+export const handleAddInGroup = ({ groupData, newRowData, groupBy }) => {
+	let updatedGroupData = { ...groupData };
+	const allFields = Object.keys(newRowData?.values || {});
+
+	const fieldsWithValues = allFields.filter((field) => {
+		const value = newRowData?.values?.[field];
+		if (Array.isArray(value)) {
+			return value.length > 0;
+		}
+		return value !== undefined && value !== null && value !== '';
+	});
+
+	if (fieldsWithValues?.includes(groupBy)) {
+		const value = newRowData?.values?.[groupBy];
+		const valueArray = Array.isArray(value)
+			? value.every((v) => typeof v === 'object' && v !== null && '_id' in v)
+				? value.map((v) => v._id)
+				: value
+			: [value];
+		valueArray.forEach((v) => {
+			updatedGroupData[v] = {
+				...groupData?.[v],
+				docs: [...(groupData?.[v]?.docs || []), newRowData],
+			};
+		});
+	} else {
+		updatedGroupData[null] = {
+			...groupData?.[null],
+			docs: [...(groupData?.[null]?.docs || []), newRowData],
+		};
+	}
+
+	return updatedGroupData;
 };
 
 export const relativeTodayTimeScopes = {

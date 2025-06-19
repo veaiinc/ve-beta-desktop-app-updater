@@ -843,7 +843,7 @@ export const NotesState = (props) => {
 				const { data, metaInfo } = response?.[1]?.data?.listDatabaseRowsWithGroup || {};
 				const groupData = Object.fromEntries(data?.map((item) => [item?._id, item]));
 				dispatch({
-					type: Actions.ADD_DATABASE_ROWS,
+					type: Actions.SET_DATABASE_ROWS,
 					payload: {
 						[viewId]: {
 							...(state?.rowData?.[viewId] || {}),
@@ -865,7 +865,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const addDatabaseRow = async (payload, viewId) => {
+	const addDatabaseRow = async (payload, viewId, groupBy) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -878,24 +878,22 @@ export const NotesState = (props) => {
 			);
 
 			if (response?.[0]) {
-				const newRow = response?.[1]?.data?.createDatabaseRow;
+				const newRowData = response?.[1]?.data?.createDatabaseRow;
 				dispatch({
-					type: Actions.ADD_DATABASE_ROWS,
+					type: Actions.ADD_DATABASE_ROW,
 					payload: {
-						[viewId]: {
-							...(state?.rowData?.[viewId] || {}),
-							data: [...(state?.rowData?.[viewId]?.data || []), newRow],
-						},
+						viewId,
+						newRowData,
 					},
 				});
 
-				updateRelatedViews({
-					updatedRow: newRow,
-					viewId,
-					databaseId: payload?.input?.databaseId,
-					rowId: newRow?._id,
-					actionType: 'add',
-				});
+				// updateRelatedViews({
+				// 	updatedRow: newRow,
+				// 	viewId,
+				// 	databaseId: payload?.input?.databaseId,
+				// 	rowId: newRow?._id,
+				// 	actionType: 'add',
+				// });
 			}
 		} catch (error) {
 			console.error('error==>addDatabaseRow', error);
