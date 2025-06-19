@@ -83,7 +83,32 @@ const AIMessageRenderer = ({
 
 	return (
 		<div className="ai-message-renderer">
-			<div
+			<>
+				{(messageData?.processing === 'Deep Search' ||
+					messageData?.processing === 'Deep Research') && (
+					<ChainOfThoughtWidget messageData={messageData} />
+				)}
+
+				<AIMessage
+					text={messageData?.message}
+					messageId={messageData?.messageId}
+					customePencilClickFunc={handleNoteComponentModalOpen}
+					handleRatingClick={handleRatingClick}
+					rating={messageData?.rating}
+					citations={messageData?.citations}
+					messageData={messageData}
+					isNewMessage={index === globalChatMessages?.length - 1}
+					handleSendWebsocketMessage={handleSendWebsocketMessage}
+					latestStreamMesage={latestStreamMesage}
+					lastQuery={lastQuery}
+					toggleLatestStreamMessage={toggleLatestStreamMessage}
+					handleViewDocument={handleViewDocument}
+					showViewDocument={showViewDocument}
+					isLastMessage={index === globalChatMessages?.length - 1}
+					isPublicChat={isPublicChat}
+				/>
+			</>
+			{/* <div
 				className={`tabs-wrapper`}
 				style={{
 					marginBottom: messageData?.message?.length > 0 ? '16px' : '32px',
@@ -261,7 +286,7 @@ const AIMessageRenderer = ({
 								))
 						: null}
 				</div>
-			)}
+			)} */}
 		</div>
 	);
 };

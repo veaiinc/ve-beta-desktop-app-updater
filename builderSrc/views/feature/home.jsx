@@ -3560,7 +3560,7 @@ class Home extends Proposals {
 			isPublishLoading: true,
 		});
 
-		const response = await this.publishWorkflow(updateWorkflowTemplate, {
+		const response = await this.publishWorkflow(update_Workflow_Template, {
 			templateId: this.props.params.templateID || this.templateId,
 			updateObj: {
 				status: 'published',

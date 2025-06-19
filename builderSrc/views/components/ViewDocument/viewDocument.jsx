@@ -19,7 +19,7 @@ import DuplicateLeadModal from './DuplicatedocumentModel';
 import AcceptDocumentModel from './AcceptDoc';
 import moment from 'moment';
 import MoveStageModal from '../../components/SmartFileDetails/MoveStageModal';
-
+import EditdocumentModel from './EditdocumentModel';
 const MainDocumentSection = ({ workflowId, templateID }) => {
 	const navigate = useNavigate();
 	const {
@@ -44,6 +44,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 		showMoveStageModal: false,
 		workflowInfo: null,
 		isShareModalOpen: false,
+		showEditDocumentModal: false,
 	});
 	const [isCollapseOpen, setIsCollapseOpen] = useState(false);
 
@@ -322,16 +323,16 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 										<div
 											className={`status-line ${
 												isActive ? 'active' : 'inactive'
-											}`}
+											} ${isLastActive ? 'last-active' : ''}`}
 										></div>
 										<div
 											className={`status-dot ${
 												isLastActive ? 'active' : 'inactive'
-											}`}
+											} ${isLastActive ? 'last-active' : ''}`}
 										/>
 									</div>
 									<span
-										className={`status-label${isActive ? ' active' : ''}${
+										className={`status-label ${isActive ? ' active' : ''}${
 											isLastActive ? ' current' : ''
 										}`}
 									>
@@ -439,6 +440,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 							// acceptDocumentFunc={handleAccept}
 						/>
 					)}
+
 				</div>
 			)}
 			{info.isShareModalOpen && (
@@ -484,6 +486,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 				moveStageFunc={handleMoveStage}
 				workflowStatus={info?.workflowInfo?.status}
 			/>
+
 		</>
 	);
 };

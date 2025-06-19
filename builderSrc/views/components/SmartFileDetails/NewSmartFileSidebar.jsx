@@ -456,6 +456,9 @@ const SmartFileSidebar = ({
 				<span className="createDocumentTitle">Back</span>
 			</div>
 			<div className="sidebarContent">
+				<div className="doc-header-title-container">
+
+			<span className="doc-header-title-container-text">Document Title</span>
 				<div className="smartFileSideBarHeader">
 					{isEditingTitle ? (
 						<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -509,6 +512,8 @@ const SmartFileSidebar = ({
 						</div>
 					)}
 				</div>
+				</div>
+
 				{formResponseId ? (
 					<>
 						<div className="smartFileTabsBar">
