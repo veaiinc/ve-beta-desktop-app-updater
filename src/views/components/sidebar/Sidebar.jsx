@@ -22,14 +22,19 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const location = useLocation();
 	const sidebarRef = useRef(null);
 	const sidebarOpenRef = useRef(null);
+	const hoverTimeoutRef = useRef(null);
 
 	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
 	const [showNotesDrawer, setShowNotesDrawer] = useState(false);
 	const [showChatsDrawer, setShowChatsDrawer] = useState(false);
 	const [hideClosedSidebarIcon, setHideClosedSidebarIcon] = useState(false);
+	const [isDocked, setIsDocked] = useState(() => {
+		return JSON.parse(localStorage.getItem('isDocked')) ?? false;
+	});
+	const [isHovering, setIsHovering] = useState(false);
 
 	const [isOpen, setIsOpen] = useState(() => {
-		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
+		return JSON.parse(localStorage.getItem('isOpen')) ?? false;
 	});
 
 	const [sidebarStates, setsidebarStates] = useState({
@@ -53,21 +58,22 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		selectedModule: null,
 	});
 
-	// Sync isOpen to localStorage
+	// Sync isOpen and isDocked to localStorage
 	useEffect(() => {
 		localStorage.setItem('isOpen', JSON.stringify(isOpen));
-	}, [isOpen]);
+		localStorage.setItem('isDocked', JSON.stringify(isDocked));
+	}, [isOpen, isDocked]);
 
 	// Listen for template-triggered sidebar state changes
-	useEffect(() => {
-		if (leftSidebarState === 'open') {
-			if (!isOpen) setIsOpen(true);
-			updateStateValues({ leftSidebarState: null });
-		} else if (leftSidebarState === 'close') {
-			if (isOpen) setIsOpen(false);
-			updateStateValues({ leftSidebarState: null });
-		}
-	}, [leftSidebarState]);
+	// useEffect(() => {
+	// 	if (leftSidebarState === 'open') {
+	// 		if (!isOpen) setIsOpen(true);
+	// 		updateStateValues({ leftSidebarState: null });
+	// 	} else if (leftSidebarState === 'close') {
+	// 		if (isOpen && !isDocked) setIsOpen(false);
+	// 		updateStateValues({ leftSidebarState: null });
+	// 	}
+	// }, [leftSidebarState, isDocked]);
 
 	// Fetch workspace and user info
 	useEffect(() => {
@@ -122,14 +128,52 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		}
 	}, [location?.pathname]);
 
-	const handleOpen = () => setIsOpen(true);
-	const handleClose = () => setIsOpen(false);
+	const handleMouseEnter = () => {
+		if (!isDocked) {
+			clearTimeout(hoverTimeoutRef.current);
+			setIsHovering(true);
+			setIsOpen(true);
+			if (sidebarRef.current) {
+				sidebarRef.current.style.zIndex = '1002';
+			}
+		}
+	};
+
+	const handleMouseLeave = () => {
+		if (!isDocked) {
+			hoverTimeoutRef.current = setTimeout(() => {
+				setIsHovering(false);
+				setIsOpen(false);
+				if (sidebarRef.current) {
+					sidebarRef.current.style.zIndex = '1001';
+				}
+			}, 300); // Small delay to prevent flickering
+		}
+	};
+
+	const handleDockToggle = () => {
+		setIsDocked(!isDocked);
+		if (!isDocked) {
+			setIsOpen(true);
+		}
+	};
+
+	// Cleanup timeout on unmount
+	useEffect(() => {
+		return () => {
+			if (hoverTimeoutRef.current) {
+				clearTimeout(hoverTimeoutRef.current);
+			}
+		};
+	}, []);
 
 	return (
 		<>
 			<div
 				className={`FullScreenSidebar
 					${isOpen ? 'opened' : sidebarRef.current?.classList?.contains('opened') ? 'closed' : ''}
+					${isDocked ? 'docked' : ''}
+					${isHovering ? 'hovering' : ''}
 					${
 						sidebarStates.selectedModule &&
 						veAiModulesItemsList.find(
@@ -138,9 +182,9 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							? 'has-submodules'
 							: 'no-submodules'
 					}
-					${isChatSidebarRoute ? 'contacts-sidebar' : ''}`}
+					`}
 				style={{
-					height: isOpen ? '100dvh' : 'fit-content',
+					height: isOpen ? '100dvh' : '100dvh',
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : '',
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
@@ -149,6 +193,8 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					marginLeft: isChatSidebarRoute ? '0' : '',
 				}}
 				ref={sidebarRef}
+				onMouseEnter={handleMouseEnter}
+				onMouseLeave={handleMouseLeave}
 			>
 				<nav className={`sidebarComponent ${!isOpen && isHome ? 'padding-48' : ''}`}>
 					<div
@@ -168,20 +214,22 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							setInfo={setInfo}
 							userWorkSpaceList={userWorkSpaceList}
 							isOpen={isOpen}
-							setIsOpen={handleClose}
+							setIsOpen={setIsOpen}
 							setShowChatsDrawer={setShowChatsDrawer}
 							setShowNotificationsDrawer={setShowNotificationsDrawer}
 							setShowNotesDrawer={setShowNotesDrawer}
 							setHideClosedSidebarIcon={setHideClosedSidebarIcon}
+							isDocked={isDocked}
+							handleDockToggle={handleDockToggle}
 						/>
 					</div>
 
 					<div className={`sidebar-close ${isOpen ? 'inactive' : 'active'}`}>
 						<SidebarTooltip
-							label="Open Sidebar"
+							label={isDocked ? 'Undock Sidebar' : 'Open Sidebar'}
 							icon={
 								<SidebarClosingSvg
-									onClick={handleOpen}
+									onClick={handleDockToggle}
 									style={{ cursor: 'pointer' }}
 								/>
 							}

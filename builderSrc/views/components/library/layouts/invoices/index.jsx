@@ -267,7 +267,7 @@ class Invoice extends Component {
 						{
 							showServiceTables: true,
 						},
-						() => { },
+						() => {},
 					);
 				} else {
 					table?.values?.find((value, index) => {
@@ -276,7 +276,7 @@ class Invoice extends Component {
 								{
 									showServiceTables: true,
 								},
-								() => { },
+								() => {},
 							);
 						}
 					});
@@ -440,7 +440,7 @@ class Invoice extends Component {
 								gap: '24px',
 								boxShadow: `0px 4px 8px 0px rgba(0, 0, 0, 0.08)`,
 								marginBottom: '12px',
-								width: this.state?.previewType === 'm' ? '435px' : 'auto',
+								width: this.state?.previewType === 'm' ? '100%' : 'auto',
 								borderRadius: '5px',
 							}}
 						>
@@ -459,8 +459,8 @@ class Invoice extends Component {
 									{this.cleanHtmlString(table?.styles?.subTotalTitle)
 										? this.cleanHtmlString(table?.styles?.subTotalTitle)
 										: table?.styles?.services_selection == 2
-											? 'Package cost'
-											: 'Services'}
+										? 'Package cost'
+										: 'Services'}
 								</div>
 								<div
 									className="invoice-table-cost"
@@ -491,12 +491,12 @@ class Invoice extends Component {
 
 										subTotalValue == 0
 											? this.renderCurrencyValue(
-												parseInt(
-													this.cleanHtmlString(
-														table?.styles?.subTotalValue,
+													parseInt(
+														this.cleanHtmlString(
+															table?.styles?.subTotalValue,
+														),
 													),
-												),
-											)
+											  )
 											: this.renderCurrencyValue(subTotalValue)
 									}
 								</div>
@@ -525,7 +525,7 @@ class Invoice extends Component {
 													padding: '10px 0px',
 													backgroundColor:
 														this.state?.style &&
-															this.state?.style?.invoiceLayout
+														this.state?.style?.invoiceLayout
 															? this.state?.style?.Card2Color
 															: '',
 												}}
@@ -541,40 +541,40 @@ class Invoice extends Component {
 												>
 													<div className="serv-details">
 														{_.has(this.state?.style, 'labels') &&
-															!this.state?.style?.labels?.showImage
+														!this.state?.style?.labels?.showImage
 															? ''
 															: value?.imageURL && (
-																<div
-																	className="serv-image"
-																	style={{
-																		width:
-																			this.state
-																				.previewType ===
+																	<div
+																		className="serv-image"
+																		style={{
+																			width:
+																				this.state
+																					.previewType ===
 																				'm'
-																				? '48px'
-																				: '72px',
-																		height:
-																			this.state
-																				.previewType ===
+																					? '48px'
+																					: '72px',
+																			height:
+																				this.state
+																					.previewType ===
 																				'm'
-																				? '48px'
-																				: '72px',
-																	}}
-																>
-																	{
-																		// (this.state?.client ||
-																		// 	this.props?.isWorkflow) &&
-																		value?.imageURL ? (
-																			<img
-																				src={
-																					value?.imageURL
-																				}
-																				alt="service image"
-																			/>
-																		) : null
-																	}
-																</div>
-															)}
+																					? '48px'
+																					: '72px',
+																		}}
+																	>
+																		{
+																			// (this.state?.client ||
+																			// 	this.props?.isWorkflow) &&
+																			value?.imageURL ? (
+																				<img
+																					src={
+																						value?.imageURL
+																					}
+																					alt="service image"
+																				/>
+																			) : null
+																		}
+																	</div>
+															  )}
 														<div
 															className="serv-content"
 															style={{
@@ -594,13 +594,13 @@ class Invoice extends Component {
 															>
 																{value?.title
 																	? this.cleanHtmlString(
-																		value?.title,
-																	)
+																			value?.title,
+																	  )
 																	: 'title'}
 															</span>
 															{_.has(this.state?.style, 'labels') &&
-																!this.state?.style?.labels
-																	?.showDescription ? (
+															!this.state?.style?.labels
+																?.showDescription ? (
 																''
 															) : (
 																<span
@@ -612,93 +612,175 @@ class Invoice extends Component {
 																>
 																	{value?.description
 																		? this.cleanHtmlString(
-																			value?.description,
-																		)
+																				value?.description,
+																		  )
 																		: 'description'}
 																</span>
 															)}
 														</div>
 													</div>
 													{this.state?.previewType === 'm' ? (
-														<div
-															className="serv-amt"
-															style={{
-																alignSelf: 'end',
-																justifyContent: 'flex-end',
-																width: '100%',
-															}}
-														>
-															{value?.quantity && (
-																<span
-																	style={{
-																		width: 'auto',
-																		textAlign: 'center',
-																		color: this.state?.style
-																			?.valueColor,
-																	}}
-																>
-																	{`${value?.quantity} ${value?.quantity > 1 && unit
-																		? `${unit}s`
-																		: unit
-																		}`}
-																</span>
-															)}
-															{value?.unitPrice
-																? value?.unitPrice != '0' && (
-																	<span
-																		style={{
-																			width: 'auto',
-																			color: this.state
-																				?.style
-																				?.valueColor,
-																		}}
-																	>
-																		{(value?.currency ===
-																			'INR'
-																			? '₹'
-																			: '$') +
-																			value?.unitPrice}
-																		{/* {value?.currency === 'INR' ? '₹' : '$'}
-													{value?.unitPrice} */}
-																	</span>
-																)
-																: ''}
-															{value?.amount != '0' && (
-																<span
-																	style={{
-																		width: 'auto',
-																		color: this.state?.style
-																			?.valueColor,
-																	}}
-																>
-																	{value?.amount == '0'
-																		? ''
-																		: (this.props
-																			?.currencySymbol
-																			? this.props
-																				?.currencySymbol
-																			: this.props
-																				?.currencySymbol2 ||
-																			'') +
-																		value?.amount}
-																</span>
-															)}
-															{value?.quantity * value?.amount !=
-																'0' && (
+														<>
+															<div
+																className="serv-amt"
+																style={{
+																	alignSelf: 'end',
+																	justifyContent: 'flex-end',
+																	width: '100%',
+																}}
+															>
+																{value?.quantity && (
 																	<span
 																		style={{
 																			width: 'auto',
 																			textAlign: 'center',
-																			color: this.state?.style
-																				?.valueColor,
+																			color:
+																				this.state?.style
+																					?.valueColor ||
+																				'#000',
+																			fontSize: '12px',
+																			fontWeight: '400',
 																		}}
 																	>
-																		{this.props?.currencySymbol +
-																			value?.quantity *
-																			value?.amount}
+																		{this.state?.style?.labels
+																			?.showQuantity &&
+																			`${value?.quantity}`}
+																		{this.state?.style?.labels
+																			?.showUnit &&
+																			`${
+																				value?.quantity >
+																					1 && unit
+																					? `${unit}s`
+																					: unit
+																			}`}
 																	</span>
 																)}
-														</div>
+																{value?.unitPrice
+																	? value?.unitPrice != '0' && (
+																			<span
+																				style={{
+																					width: 'auto',
+																					color:
+																						this.state
+																							?.style
+																							?.valueColor ||
+																						'#000',
+																					fontSize:
+																						'12px',
+																					fontWeight:
+																						'400',
+																				}}
+																			>
+																				{(value?.currency ===
+																				'INR'
+																					? '₹'
+																					: '$') +
+																					value?.unitPrice}
+																				{/* {value?.currency === 'INR' ? '₹' : '$'}
+													{value?.unitPrice} */}
+																			</span>
+																	  )
+																	: ''}
+																{value?.amount != '0' &&
+																	this.state?.style?.labels
+																		?.showUnitPrice && (
+																		<span
+																			style={{
+																				width: 'auto',
+																				color:
+																					this.state
+																						?.style
+																						?.valueColor ||
+																					'#000',
+																				fontSize: '12px',
+																				fontWeight: '400',
+																			}}
+																		>
+																			{value?.amount == '0'
+																				? ''
+																				: (this.props
+																						?.currencySymbol
+																						? this.props
+																								?.currencySymbol
+																						: this.props
+																								?.currencySymbol2 ||
+																						  '') +
+																				  value?.amount}
+																		</span>
+																	)}
+																{/* {value?.quantity * value?.amount !=
+																	'0' && (
+																	<span
+																		style={{
+																			width: 'auto',
+																			textAlign: 'center',
+																			color:
+																				this.state?.style
+																					?.valueColor ||
+																				'#000',
+																			fontSize: '12px',
+																			fontWeight: '400',
+																		}}
+																	>
+																		{value?.quantity *
+																			value?.amount ==
+																		0
+																			? ''
+																			: `${
+																					this.props
+																						?.currencySymbol
+																						? this.props
+																								?.currencySymbol
+																						: this.props
+																								?.currencySymbol2
+																			  }${
+																					value?.quantity *
+																					value?.amount
+																			  }`}
+																	</span>
+																)} */}
+															</div>
+															<div
+																className="serv-amt"
+																style={{
+																	alignSelf: 'end',
+																	justifyContent: 'flex-end',
+																	width: '100%',
+																}}
+															>
+																{value?.quantity * value?.amount !=
+																	'0' && (
+																	<span
+																		style={{
+																			width: 'auto',
+																			textAlign: 'center',
+																			color:
+																				this.state?.style
+																					?.valueColor ||
+																				'#000',
+																			fontSize: '20px',
+																			fontWeight: '500',
+																		}}
+																	>
+																		{value?.quantity *
+																			value?.amount ==
+																		0
+																			? ''
+																			: `${
+																					this.props
+																						?.currencySymbol
+																						? this.props
+																								?.currencySymbol
+																						: this.props
+																								?.currencySymbol2
+																			  }${
+																					value?.quantity *
+																					value?.amount
+																			  }`}
+																	</span>
+																)}
+															</div>
+														</>
 													) : (
 														<div
 															className="serv-amt"
@@ -708,7 +790,7 @@ class Invoice extends Component {
 																		?.taxes?.length > 0
 																		? 'auto'
 																		: '400px',
-																justifyContent: 'space-around',
+																justifyContent: 'flex-end',
 																marginRight:
 																	window.innerWidth < 1100
 																		? '0px'
@@ -719,112 +801,129 @@ class Invoice extends Component {
 																	'18px',
 															}}
 														>
-															<span
-																style={{
-																	// width: '30px',
-																	width: `${value?.quantity?.length *
-																		10 || 40
+															{this.state?.style?.labels
+																?.showQuantity && (
+																<span
+																	style={{
+																		// width: '30px',
+																		width: `${
+																			value?.quantity
+																				?.length * 10 || 40
 																		}px`,
-																	minWidth: '30px',
-																	textAlign: 'center',
-																	color: this.state?.style
-																		?.valueColor,
-																}}
-															>
-																{value?.quantity}
-															</span>
-															<span
-																style={{
-																	width: this.props?.client
-																		? '65px'
-																		: '80px',
-																	color: this.state?.style
-																		?.valueColor,
-																}}
-															>
-																{value?.unit ? value?.unit : ''}
-															</span>
-															<span
-																style={{
-																	width:
-																		value?.amount?.length > 5
-																			? parseFloat(
-																				value?.amount
-																					?.length *
-																				10 +
-																				15,
-																			)
-																			: value?.amount > 999
+																		minWidth: '30px',
+																		textAlign: 'center',
+																		color: this.state?.style
+																			?.valueColor,
+																	}}
+																>
+																	{value?.quantity}
+																</span>
+															)}
+															{this.state?.style?.labels
+																?.showUnit && (
+																<span
+																	style={{
+																		width: this.props?.client
+																			? '65px'
+																			: '80px',
+																		color: this.state?.style
+																			?.valueColor,
+																	}}
+																>
+																	{value?.unit ? value?.unit : ''}
+																</span>
+															)}
+															{this.state?.style?.labels
+																?.showUnitPrice && (
+																<span
+																	style={{
+																		width:
+																			value?.amount?.length >
+																			5
+																				? parseFloat(
+																						value
+																							?.amount
+																							?.length *
+																							10 +
+																							15,
+																				  )
+																				: value?.amount >
+																				  999
 																				? '70px'
 																				: '60px',
-																	color: this.state?.style
-																		?.valueColor,
-																}}
-															>
-																{value?.amount == '0'
-																	? ''
-																	: (this.props?.currencySymbol
-																		? this.props
-																			?.currencySymbol
-																		: this.props
-																			?.currencySymbol2 ||
-																		'') + value?.amount}
-															</span>
+																		color: this.state?.style
+																			?.valueColor,
+																	}}
+																>
+																	{value?.amount == '0'
+																		? ''
+																		: (this.props
+																				?.currencySymbol
+																				? this.props
+																						?.currencySymbol
+																				: this.props
+																						?.currencySymbol2 ||
+																				  '') +
+																		  value?.amount}
+																</span>
+															)}
 															{this.state?.section?.style?.taxes
 																?.length > 0 && (
-																	<>
-																		{Array(
-																			this.state?.section?.style
-																				?.taxes?.length,
-																		)
-																			.fill()
-																			.map((_, index) => (
-																				<input
-																					type="checkbox"
-																					key={index}
-																					checked={
-																						isTotalFixed ||
-																						value?.[
-																						`tax${index +
-																						1
+																<>
+																	{Array(
+																		this.state?.section?.style
+																			?.taxes?.length,
+																	)
+																		.fill()
+																		.map((_, index) => (
+																			<input
+																				type="checkbox"
+																				key={index}
+																				checked={
+																					isTotalFixed ||
+																					value?.[
+																						`tax${
+																							index +
+																							1
 																						}`
-																						]
-																					}
-																					onChange={(e) => {
-																						this.props
-																							?.client ||
-																							isTotalFixed
-																							? ''
-																							: this.handleTaxChecked(
-																								`tax${index +
-																								1
+																					]
+																				}
+																				onChange={(e) => {
+																					this.props
+																						?.client ||
+																					isTotalFixed
+																						? ''
+																						: this.handleTaxChecked(
+																								`tax${
+																									index +
+																									1
 																								}`,
 																								e
 																									.target
 																									.checked,
 																								value?.blockId,
-																							);
-																					}}
-																					style={{
-																						minWidth:
-																							'40px',
-																						cursor: this
-																							.props
-																							?.client
-																							? 'not-allowed'
-																							: 'pointer',
-																					}}
-																				/>
-																			))}
-																	</>
-																)}
+																						  );
+																				}}
+																				style={{
+																					minWidth:
+																						'40px',
+																					cursor: this
+																						.props
+																						?.client
+																						? 'not-allowed'
+																						: 'pointer',
+																				}}
+																			/>
+																		))}
+																</>
+															)}
 
 															<span
 																style={{
 																	width:
 																		value?.quantity *
 																			value?.amount >
-																			999
+																		999
 																			? '75px'
 																			: '60px',
 																	textAlign: 'center',
@@ -833,17 +932,19 @@ class Invoice extends Component {
 																}}
 															>
 																{value?.quantity * value?.amount ==
-																	0
+																0
 																	? ''
-																	: `${this.props
-																		?.currencySymbol
-																		? this.props
-																			?.currencySymbol
-																		: this.props
-																			?.currencySymbol2
-																	}${value?.quantity *
-																	value?.amount
-																	}`}
+																	: `${
+																			this.props
+																				?.currencySymbol
+																				? this.props
+																						?.currencySymbol
+																				: this.props
+																						?.currencySymbol2
+																	  }${
+																			value?.quantity *
+																			value?.amount
+																	  }`}
 															</span>
 														</div>
 													)}
@@ -1215,9 +1316,9 @@ class Invoice extends Component {
 				inValidErrorMsg: hasNonLetters
 					? 'Only letters are allowed'
 					: lettersOnly?.length > 0 &&
-						(lettersOnly?.length < 3 || lettersOnly?.length > 7)
-						? 'Please enter min 3 and max 7 letters'
-						: '',
+					  (lettersOnly?.length < 3 || lettersOnly?.length > 7)
+					? 'Please enter min 3 and max 7 letters'
+					: '',
 			},
 			() => {
 				// hitting the api
@@ -1427,7 +1528,7 @@ class Invoice extends Component {
 										>
 											{/* {value?.imageURL && ( */}
 											{_.has(this.state?.style, 'labels') &&
-												!this.state?.style?.labels?.showImage ? (
+											!this.state?.style?.labels?.showImage ? (
 												''
 											) : (
 												<>
@@ -1450,7 +1551,7 @@ class Invoice extends Component {
 																	width: '100%',
 																	height:
 																		this.state.previewType ===
-																			'm'
+																		'm'
 																			? '48px'
 																			: '72px',
 																}}
@@ -1491,12 +1592,12 @@ class Invoice extends Component {
 																style={{
 																	width:
 																		this.state.previewType ===
-																			'm'
+																		'm'
 																			? '48px'
 																			: '72px',
 																	height:
 																		this.state.previewType ===
-																			'm'
+																		'm'
 																			? '48px'
 																			: '72px',
 																}}
@@ -1553,7 +1654,7 @@ class Invoice extends Component {
 													/>
 												</span>
 												{_.has(this.state?.style, 'labels') &&
-													!this.state?.style?.labels?.showDescription ? (
+												!this.state?.style?.labels?.showDescription ? (
 													''
 												) : (
 													<span
@@ -1609,29 +1710,31 @@ class Invoice extends Component {
 															color: this.state?.style?.valueColor,
 														}}
 													>
-														{`${value?.quantity} ${value?.quantity > 1 && unit
-															? `${unit}s`
-															: unit
-															}`}
+														{`${value?.quantity} ${
+															value?.quantity > 1 && unit
+																? `${unit}s`
+																: unit
+														}`}
 													</span>
 												)}
 												{value?.amount
 													? value?.amount != '0' && (
-														<span
-															style={{
-																width: 'auto',
-																color: this.state?.style
-																	?.valueColor,
-															}}
-														>
-															{`${this.props?.currencySymbol
-																? this.props?.currencySymbol
-																: this.props
-																	?.currencySymbol2 ||
-																''
+															<span
+																style={{
+																	width: 'auto',
+																	color: this.state?.style
+																		?.valueColor,
+																}}
+															>
+																{`${
+																	this.props?.currencySymbol
+																		? this.props?.currencySymbol
+																		: this.props
+																				?.currencySymbol2 ||
+																		  ''
 																}${value?.amount}`}
-														</span>
-													)
+															</span>
+													  )
 													: ''}
 												{value?.quantity * value?.amount != '0' && (
 													<span
@@ -1641,10 +1744,11 @@ class Invoice extends Component {
 															color: this.state?.style?.valueColor,
 														}}
 													>
-														{`${this.props?.currencySymbol
-															? this.props?.currencySymbol
-															: this.props?.currencySymbol2 || ''
-															}${value?.amount * value?.quantity}`}
+														{`${
+															this.props?.currencySymbol
+																? this.props?.currencySymbol
+																: this.props?.currencySymbol2 || ''
+														}${value?.amount * value?.quantity}`}
 													</span>
 												)}
 											</div>
@@ -1654,15 +1758,15 @@ class Invoice extends Component {
 												style={{
 													width:
 														this.state?.section?.style?.taxes?.length >
-															0
+														0
 															? 'auto'
 															: '400px',
-													justifyContent: 'space-around',
+													justifyContent: 'flex-end',
 													marginRight:
 														window.innerWidth < 1100 ? '0px' : '34px',
 													gap:
 														this.state?.section?.style?.taxes?.length >
-														0 && '18px',
+															0 && '18px',
 												}}
 											>
 												{/* <span
@@ -1675,169 +1779,186 @@ class Invoice extends Component {
 									>
 										{value?.quantity}
 									</span> */}
-												<input
-													type="text"
-													style={{
-														width: `${value?.quantity?.length * 10 || 40
-															}px`,
-														minWidth: '30px',
-														textAlign: 'center',
-														color: this.state?.style?.valueColor,
-													}}
-													value={value?.quantity}
-													onChange={(e) =>
-														this.handleServiceValueChange(
-															'quantity',
-															e.target.value,
-															block?._id,
-														)
-													}
-													maxLength={7}
-													disabled={this.props?.client}
-													placeholder="0"
-												/>
-												<span
-													style={{
-														width: this.props?.client ? '65px' : '80px',
-														position: 'relative',
-														color: this.state?.style?.valueColor,
-														display: 'flex',
-														gap: '2px',
-														alignItems: 'center',
-														justifyContent: this.props?.client
-															? 'center'
-															: 'space-between',
-														padding: this.props?.client
-															? '10px'
-															: '10px 0px',
-													}}
-												>
-													{value?.unit ? value?.unit : 'none'}
-													{!this.props?.client && (
-														<Dropdown
-															style={{
-																rotate:
-																	this.state?.showUnitTypes ==
-																		block?._id
-																		? '180deg'
-																		: '0deg',
-																cursor: 'pointer',
-															}}
-															onClick={(e) => {
-																e?.stopPropagation();
-																this.setState({
-																	showUnitTypes:
-																		this.state?.showUnitTypes ==
-																			block?._id
-																			? null
-																			: block?._id,
-																});
-															}}
-														/>
-													)}
-													{this.state?.showUnitTypes == block?._id && (
-														<div
-															className="unit-types-div"
-															ref={this.UnitTypesRef}
-														>
-															{unitTypes?.map((value, i) => {
-																return (
-																	<span
-																		key={i}
-																		style={{
-																			textTransform:
-																				'capitalize',
-																			color: 'black',
-																		}}
-																		onClick={(e) => {
-																			e.stopPropagation();
-																			this.setState(
-																				{
-																					showUnitTypes:
-																						null,
-																				},
-																				() => {
-																					this.handleServiceValueChange(
-																						'unit',
-																						value,
-																						block?._id,
-																					);
-																				},
-																			);
-																		}}
-																	>
-																		{value}
-																	</span>
-																);
-															})}
-															{/* <input
-																	type="text"
-																	placeholder="add Custom unit"
-																	value={value?.unit}
-																/> */}
-															<span
-																style={{
-																	textTransform: 'capitalize',
-																	color: 'blue',
-																	fontSize: '12px',
-																}}
-																onClick={(e) => {
-																	e.stopPropagation();
-																	this.setState({
-																		showUnitTypes: null,
-																		currentBlockId: block?._id,
-																		showAddUnit: true,
-																	});
-																}}
-															>
-																+ add unit
-															</span>
-														</div>
-													)}
-												</span>
-												<span
-													style={{
-														width:
-															value?.amount?.length > 5
-																? parseFloat(
-																	value?.amount?.length * 10 +
-																	15,
-																)
-																: value?.amount > 999
-																	? '70px'
-																	: '60px',
-														color: this.state?.style?.valueColor,
-														display: 'flex',
-														alignItems: 'end',
-													}}
-												>
-													{value?.amount == '0'
-														? ''
-														: this.props?.currencySymbol
-															? this.props?.currencySymbol
-															: this.props?.currencySymbol2 || ''}
+												{(this.state?.style?.labels?.showQuantity ??
+													true) && (
 													<input
 														type="text"
 														style={{
-															width: `${value?.amount?.length * 10 || 10
-																}px`,
+															width: `${
+																value?.quantity?.length * 10 || 40
+															}px`,
 															minWidth: '30px',
-															textAlign: 'left',
+															textAlign: 'center',
 															color: this.state?.style?.valueColor,
 														}}
-														value={value?.amount}
+														value={value?.quantity}
 														onChange={(e) =>
 															this.handleServiceValueChange(
-																'amount',
+																'quantity',
 																e.target.value,
 																block?._id,
 															)
 														}
-														maxLength={10}
+														maxLength={7}
 														disabled={this.props?.client}
 														placeholder="0"
 													/>
-												</span>
+												)}
+												{(this.state?.style?.labels?.showUnit ?? true) && (
+													<span
+														style={{
+															width: this.props?.client
+																? '65px'
+																: '80px',
+															position: 'relative',
+															color: this.state?.style?.valueColor,
+															display: 'flex',
+															gap: '2px',
+															alignItems: 'center',
+															justifyContent: this.props?.client
+																? 'center'
+																: 'space-between',
+															padding: this.props?.client
+																? '10px'
+																: '10px 0px',
+														}}
+													>
+														{value?.unit ? value?.unit : 'none'}
+														{!this.props?.client && (
+															<Dropdown
+																style={{
+																	rotate:
+																		this.state?.showUnitTypes ==
+																		block?._id
+																			? '180deg'
+																			: '0deg',
+																	cursor: 'pointer',
+																}}
+																onClick={(e) => {
+																	e?.stopPropagation();
+																	this.setState({
+																		showUnitTypes:
+																			this.state
+																				?.showUnitTypes ==
+																			block?._id
+																				? null
+																				: block?._id,
+																	});
+																}}
+															/>
+														)}
+														{this.state?.showUnitTypes ==
+															block?._id && (
+															<div
+																className="unit-types-div"
+																ref={this.UnitTypesRef}
+															>
+																{unitTypes?.map((value, i) => {
+																	return (
+																		<span
+																			key={i}
+																			style={{
+																				textTransform:
+																					'capitalize',
+																				color: 'black',
+																			}}
+																			onClick={(e) => {
+																				e.stopPropagation();
+																				this.setState(
+																					{
+																						showUnitTypes:
+																							null,
+																					},
+																					() => {
+																						this.handleServiceValueChange(
+																							'unit',
+																							value,
+																							block?._id,
+																						);
+																					},
+																				);
+																			}}
+																		>
+																			{value}
+																		</span>
+																	);
+																})}
+																{/* <input
+																	type="text"
+																	placeholder="add Custom unit"
+																	value={value?.unit}
+																/> */}
+																<span
+																	style={{
+																		textTransform: 'capitalize',
+																		color: 'blue',
+																		fontSize: '12px',
+																	}}
+																	onClick={(e) => {
+																		e.stopPropagation();
+																		this.setState({
+																			showUnitTypes: null,
+																			currentBlockId:
+																				block?._id,
+																			showAddUnit: true,
+																		});
+																	}}
+																>
+																	+ add unit
+																</span>
+															</div>
+														)}
+													</span>
+												)}
+												{(this.state?.style?.labels?.showUnitPrice ??
+													true) && (
+													<span
+														style={{
+															width:
+																value?.amount?.length > 5
+																	? parseFloat(
+																			value?.amount?.length *
+																				10 +
+																				15,
+																	  )
+																	: value?.amount > 999
+																	? '70px'
+																	: '60px',
+															color: this.state?.style?.valueColor,
+															display: 'flex',
+															alignItems: 'end',
+														}}
+													>
+														{value?.amount == '0'
+															? ''
+															: this.props?.currencySymbol
+															? this.props?.currencySymbol
+															: this.props?.currencySymbol2 || ''}
+														<input
+															type="text"
+															style={{
+																width: `${
+																	value?.amount?.length * 10 || 10
+																}px`,
+																minWidth: '30px',
+																textAlign: 'left',
+																color: this.state?.style
+																	?.valueColor,
+															}}
+															value={value?.amount}
+															onChange={(e) =>
+																this.handleServiceValueChange(
+																	'amount',
+																	e.target.value,
+																	block?._id,
+																)
+															}
+															maxLength={10}
+															disabled={this.props?.client}
+															placeholder="0"
+														/>
+													</span>
+												)}
 												{this.state?.section?.style?.taxes?.length > 0 && (
 													<>
 														{Array(
@@ -1851,19 +1972,20 @@ class Invoice extends Component {
 																	key={index}
 																	checked={
 																		value?.[
-																		`tax${index + 1}`
+																			`tax${index + 1}`
 																		] ?? false
 																	}
 																	onChange={(e) => {
 																		this.props?.client
 																			? ''
 																			: this.handleTaxChecked(
-																				`tax${index + 1
-																				}`,
-																				e.target
-																					.checked,
-																				block?._id,
-																			);
+																					`tax${
+																						index + 1
+																					}`,
+																					e.target
+																						.checked,
+																					block?._id,
+																			  );
 																	}}
 																	style={{
 																		minWidth: '40px',
@@ -1887,10 +2009,11 @@ class Invoice extends Component {
 												>
 													{value?.quantity * value?.amount == 0
 														? ''
-														: `${this.props?.currencySymbol
-															? this.props?.currencySymbol
-															: this.props?.currencySymbol2
-														}${value?.quantity * value?.amount}`}
+														: `${
+																this.props?.currencySymbol
+																	? this.props?.currencySymbol
+																	: this.props?.currencySymbol2
+														  }${value?.quantity * value?.amount}`}
 												</span>
 											</div>
 										)}
@@ -1957,12 +2080,14 @@ class Invoice extends Component {
 			!this.blockSidebarRef.current.getSidebarNode().contains(e.target) &&
 			!this.state.showImageModal
 		) {
-			this.setState({
-				showCardPopup: false,
-			}, () => {
-				this.props?.setShowCardPopup(false);
-			});
-
+			this.setState(
+				{
+					showCardPopup: false,
+				},
+				() => {
+					this.props?.setShowCardPopup(false);
+				},
+			);
 		}
 	};
 
@@ -2396,6 +2521,7 @@ class Invoice extends Component {
 											? 'flex-start'
 											: 'space-between',
 									width: this.state?.previewType === 'm' && '390px',
+									paddingBottom: this.state?.previewType === 'm' && '16px',
 								}}
 							>
 								<div className="bd-left">
@@ -2466,9 +2592,9 @@ class Invoice extends Component {
 														this.props?.client == true
 															? ''
 															: this.setState({
-																isEditing:
-																	!this.state?.isEditing,
-															});
+																	isEditing:
+																		!this.state?.isEditing,
+															  });
 													}}
 													style={{ color: this.state?.style?.titleColor }}
 												>
@@ -2495,8 +2621,8 @@ class Invoice extends Component {
 										<p style={{ color: this.state?.style?.titleColor }}>
 											{this.props.client == true || this.props.isWorkflow
 												? moment
-													.unix(this.state.invoiceDetails?.createdAt)
-													.format('DD/MM/YYYY')
+														.unix(this.state.invoiceDetails?.createdAt)
+														.format('DD/MM/YYYY')
 												: '------'}
 										</p>
 									</div>
@@ -2548,22 +2674,28 @@ class Invoice extends Component {
 										style={{
 											width:
 												window.innerWidth < 1100 ||
-													this.state?.section?.style?.taxes?.length > 0
+												this.state?.section?.style?.taxes?.length > 0
 													? 'auto'
 													: '400px',
-											justifyContent: 'space-around',
+											justifyContent: 'flex-end',
 											marginRight: window.innerWidth < 1100 ? '10px' : '40px',
 										}}
 									>
-										<span style={{ color: this.state?.style?.titleColor }}>
-											qty
-										</span>
-										<span style={{ color: this.state?.style?.titleColor }}>
-											unit
-										</span>
-										<span style={{ color: this.state?.style?.titleColor }}>
-											unit price
-										</span>
+										{(this.state?.style?.labels?.showQuantity ?? true) && (
+											<span style={{ color: this.state?.style?.titleColor }}>
+												qty
+											</span>
+										)}
+										{(this.state?.style?.labels?.showUnit ?? true) && (
+											<span style={{ color: this.state?.style?.titleColor }}>
+												unit
+											</span>
+										)}
+										{(this.state?.style?.labels?.showUnitPrice ?? true) && (
+											<span style={{ color: this.state?.style?.titleColor }}>
+												unit price
+											</span>
+										)}
 										{this.state?.section?.style?.taxes?.length > 0 && (
 											<>
 												{_.map(
@@ -2599,8 +2731,8 @@ class Invoice extends Component {
 									this.state?.previewType === 'm'
 										? 0.78
 										: window.innerWidth < 1100
-											? 0.8
-											: 1,
+										? 0.8
+										: 1,
 								backgroundColor:
 									this.state?.style && this.state?.style?.invoiceLayout
 										? this.state?.style?.Card2Color
@@ -2619,12 +2751,24 @@ class Invoice extends Component {
 
 							<div
 								className="service-total"
-								style={{
-									justifyContent: this.state.previewType === 'm' && 'center',
-								}}
+								style={
+									{
+										// justifyContent: this.state.previewType === 'm' && 'center',
+									}
+								}
 							>
-								<div className="st-right">
-									<div className="subtotal">
+								<div
+									className="st-right"
+									style={{
+										width: this.state?.previewType === 'm' ? '100%' : 'auto',
+									}}
+								>
+									<div
+										className="subtotal"
+										style={{
+											width: this.state?.previewType === 'm' && '100%',
+										}}
+									>
 										<span
 											style={{
 												color: this.state?.style?.valueColor,
@@ -2641,32 +2785,35 @@ class Invoice extends Component {
 												// this.props.client === true ||
 												// this.props?.isWorkflow
 												this.state?.showServiceTables
-													? `${this.props?.currencySymbol
-														? this.props?.currencySymbol
-														: this.props?.currencySymbol2
-													}${this.renderCurrencyValue(
-														this.props?.clientGrandTotal
-															? this.props?.clientGrandTotal
-															: this.state?.invoiceDetails
-																?.totalAmount
+													? `${
+															this.props?.currencySymbol
+																? this.props?.currencySymbol
+																: this.props?.currencySymbol2
+													  }${this.renderCurrencyValue(
+															this.props?.clientGrandTotal
+																? this.props?.clientGrandTotal
+																: this.state?.invoiceDetails
+																		?.totalAmount
 																? this.state?.invoiceDetails
-																	?.totalAmount
+																		?.totalAmount
 																: this.state?.totalCost,
-													)}`
+													  )}`
 													: this.state?.isManual
-														? `${this.props?.currencySymbol
-															? this.props?.currencySymbol
-															: this.props?.currencySymbol2
-														}${this.renderCurrencyValue(
+													? `${
+															this.props?.currencySymbol
+																? this.props?.currencySymbol
+																: this.props?.currencySymbol2
+													  }${this.renderCurrencyValue(
 															this.state?.totalCost,
-														)}`
-														: 'TBD'
+													  )}`
+													: 'TBD'
 											}
 										</span>
 									</div>
-									<hr />
+
+									{/* <hr /> */}
 									{!this.state?.section?.style?.discounts?.showDiscount &&
-										this.props?.client ? (
+									this.props?.client ? (
 										''
 									) : (
 										<>
@@ -2691,21 +2838,21 @@ class Invoice extends Component {
 													{this.state?.section?.style?.discounts
 														?.isDiscountInPerc
 														? this.state?.section?.style?.discounts
-															?.showDiscount && (
-															<span
-																className="disc-perc-span"
-																style={{
-																	backgroundColor:
-																		'royalblue',
-																}}
-															>
-																{
-																	this.state?.section?.style
-																		?.discounts?.discount
-																}
-																%
-															</span>
-														)
+																?.showDiscount && (
+																<span
+																	className="disc-perc-span"
+																	style={{
+																		backgroundColor:
+																			'royalblue',
+																	}}
+																>
+																	{
+																		this.state?.section?.style
+																			?.discounts?.discount
+																	}
+																	%
+																</span>
+														  )
 														: ''}
 												</span>
 												<span
@@ -2715,14 +2862,15 @@ class Invoice extends Component {
 												>
 													{this.state?.section?.style?.discounts
 														?.showDiscount
-														? `-${this.props?.currencySymbol
-															? this.props?.currencySymbol
-															: this.props?.currencySymbol2
-														}${this.state?.discountValue}`
+														? `-${
+																this.props?.currencySymbol
+																	? this.props?.currencySymbol
+																	: this.props?.currencySymbol2
+														  }${this.state?.discountValue}`
 														: '0.0'}
 												</span>
 											</div>
-											<hr />
+											{/* <hr /> */}
 										</>
 									)}
 									{this.state?.section?.style?.taxes?.length > 0 && (
@@ -2739,12 +2887,12 @@ class Invoice extends Component {
 																			?.valueColor,
 																		textTransform: 'uppercase',
 																	}}
-																// onClick={(e) => {
-																// 	e.stopPropagation();
-																// 	this.setState({
-																// 		showCardPopup: true,
-																// 	});
-																// }}
+																	// onClick={(e) => {
+																	// 	e.stopPropagation();
+																	// 	this.setState({
+																	// 		showCardPopup: true,
+																	// 	});
+																	// }}
 																>
 																	{taxItem?.label ||
 																		`Tax ${i + 1}`}
@@ -2763,20 +2911,21 @@ class Invoice extends Component {
 																	}}
 																>
 																	{taxItem?.tax
-																		? `${this.props
-																			?.currencySymbol
-																			? this.props
-																				?.currencySymbol
-																			: this.props
-																				?.currencySymbol2
-																		}${taxItem?.taxValue}`
+																		? `${
+																				this.props
+																					?.currencySymbol
+																					? this.props
+																							?.currencySymbol
+																					: this.props
+																							?.currencySymbol2
+																		  }${taxItem?.taxValue}`
 																		: '0.0'}
 																</span>
 															</div>
-															{this.state?.section?.style?.taxes
+															{/* {this.state?.section?.style?.taxes
 																?.length != parseInt(i + 1) && (
-																	<hr />
-																)}
+																<hr />
+															)} */}
 														</>
 													);
 												},
@@ -2803,14 +2952,19 @@ class Invoice extends Component {
 											</div>
 										)}
 									<div
-										style={{
-											backgroundColor: this.state?.style?.valueColor,
-											width: '100%',
-											height: '1px',
-										}}
+									// style={{
+									// 	backgroundColor: this.state?.style?.valueColor,
+									// 	width: '100%',
+									// 	height: '1px',
+									// }}
 									/>
 
-									<div className="total">
+									<div
+										className="total"
+										style={{
+											width: this.state?.previewType === 'm' && '100%',
+										}}
+									>
 										<span
 											style={{
 												color: this.state?.style?.valueColor,
@@ -2820,7 +2974,9 @@ class Invoice extends Component {
 										</span>
 										<label
 											style={{
-												color: this.state?.style?.valueColor,
+												color: this.state?.style?.valueColor || '#101314',
+												fontSize: '20px',
+												fontWeight: '500',
 											}}
 										>
 											{' '}
@@ -2835,32 +2991,34 @@ class Invoice extends Component {
 												// this.props.client === true ||
 												// this.props?.isWorkflow
 												this.state?.showServiceTables
-													? `${this.props?.currencySymbol
-														? this.props?.currencySymbol
-														: this.props?.currencySymbol2
-													}${this.renderCurrencyValue(
-														// this.props?.clientGrandTotal
-														// 	? this.props?.clientGrandTotal
-														// 	: this.state?.invoiceDetails
-														// 			?.totalAmount
-														// 	? this.state?.invoiceDetails
-														// 			?.totalAmount
-														// 	: // : this.state?.totalCost,
-														this.state?.grandTotal
-															? this.state?.grandTotal
-															: this.state?.totalCost,
-													)}`
+													? `${
+															this.props?.currencySymbol
+																? this.props?.currencySymbol
+																: this.props?.currencySymbol2
+													  }${this.renderCurrencyValue(
+															// this.props?.clientGrandTotal
+															// 	? this.props?.clientGrandTotal
+															// 	: this.state?.invoiceDetails
+															// 			?.totalAmount
+															// 	? this.state?.invoiceDetails
+															// 			?.totalAmount
+															// 	: // : this.state?.totalCost,
+															this.state?.grandTotal
+																? this.state?.grandTotal
+																: this.state?.totalCost,
+													  )}`
 													: this.state?.isManual
-														? `${this.props?.currencySymbol
-															? this.props?.currencySymbol
-															: this.props?.currencySymbol2
-														}${this.renderCurrencyValue(
+													? `${
+															this.props?.currencySymbol
+																? this.props?.currencySymbol
+																: this.props?.currencySymbol2
+													  }${this.renderCurrencyValue(
 															// this.state?.totalCost,
 															this.state?.grandTotal
 																? this.state?.grandTotal
 																: this.state?.totalCost,
-														)}`
-														: 'TBD'
+													  )}`
+													: 'TBD'
 											}
 										</label>
 									</div>
@@ -3005,7 +3163,7 @@ class Invoice extends Component {
 															}}
 														>
 															{this.state?.activePayment ===
-																'percentage'
+															'percentage'
 																? data?.amountPercentage
 																: this?.getPercentage()}
 														</p>
@@ -3015,7 +3173,7 @@ class Invoice extends Component {
 														<input
 															className={
 																!this.state?.preview &&
-																	!this.props?.client
+																!this.props?.client
 																	? 'perc-input'
 																	: ''
 															}
@@ -3025,11 +3183,12 @@ class Invoice extends Component {
 																		? ''
 																		: '30%',
 															}}
-															value={`${this?.state?.activePayment ===
+															value={`${
+																this?.state?.activePayment ===
 																'percentage'
-																? data?.amountPercentage
-																: this?.getPercentage()
-																}`}
+																	? data?.amountPercentage
+																	: this?.getPercentage()
+															}`}
 															pattern="\d*"
 															title="Only numbers are allowed"
 															maxLength={3}
@@ -3041,14 +3200,14 @@ class Invoice extends Component {
 															}
 															disabled={
 																this.state.activePayment !==
-																'percentage' ||
+																	'percentage' ||
 																this.state?.preview ||
 																this.state?.previewType?.includes(
 																	'm',
 																) ||
 																this.props?.client
 															}
-														// type='number'
+															// type='number'
 														/>
 													</>
 												)}
@@ -3126,10 +3285,10 @@ class Invoice extends Component {
 												{data?.status}
 											</p>
 											{!this.state?.preview &&
-												!this.state?.previewType?.includes('m') &&
-												!this.props?.client &&
-												this?.state?.showDelete &&
-												this?.state?.activeId === index ? (
+											!this.state?.previewType?.includes('m') &&
+											!this.props?.client &&
+											this?.state?.showDelete &&
+											this?.state?.activeId === index ? (
 												<div
 													className="delete-payment"
 													onClick={() => this.deletePayment(index)}

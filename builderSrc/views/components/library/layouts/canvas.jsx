@@ -526,14 +526,27 @@ class Layout extends Component {
 		}
 	};
 
-	adjustGridAreas() {
+	adjustGridAreas(updatedBlocks = null) {
 		let rowStart = 1;
+		let sections = [];
+		if (updatedBlocks) {
+			let data = this.props?.sections;
+			data.forEach((section) => {
+				section.blocks.forEach((block) => {
+					if (block?._id === updatedBlocks[0]?._id) {
+						section.blocks = updatedBlocks;
+					}
+				});
+			});
+			sections = data;
+		} else {
+			sections = this.props?.sections;
+		}
 		let updatedSections = [];
-		const fluidSections = this.props?.sections?.filter(
+		const fluidSections = sections?.filter(
 			(section) => _.has(section, 'isFluidSection') && section?.isFluidSection,
 		);
-
-		this.props?.sections?.forEach((section) => {
+		sections?.forEach((section) => {
 			let updatedSection = { ...section };
 
 			if (
@@ -2668,7 +2681,7 @@ class Layout extends Component {
 						initialDragX: 0,
 						initialDragY: 0,
 					});
-					this.props.handleSaveblocks(updatedLayoutHeight);
+					this.adjustGridAreas(updatedLayoutHeight);
 					// Remove transforms after state update
 				},
 			);
