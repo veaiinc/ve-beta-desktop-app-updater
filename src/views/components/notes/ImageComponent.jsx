@@ -12,11 +12,13 @@ import ReactModal from '../modalsV2';
 import { ResizableBox } from 'react-resizable';
 import 'react-resizable/css/styles.css';
 import { ReactComponent as ImageIcon } from '../../../assets/svg/notes/image.svg';
+import Spinner from '../loaders/Spinner';
 
 const ImageComponent = memo(({ block, editor }) => {
 	const [showUploadPopup, setShowUploadPopup] = useState(!block.props.url);
 	const [isSelected, setIsSelected] = useState(false);
 	const [showReplace, setShowReplace] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 	const [size, setSize] = useState({
 		width: block.props.width || 500,
 		height: block.props.height || 300,
@@ -58,34 +60,60 @@ const ImageComponent = memo(({ block, editor }) => {
 		});
 	}, [block, editor]);
 
-	const handleImageSelect = async (imageUrl) => {
-		if (imageUrl) {
-			// If it's a File object (from upload)
-			if (imageUrl instanceof File) {
+	const handleImageSelect = async (imageUrl, imageFile = null) => {
+		setIsLoading(true);
+
+		try {
+			if (imageFile) {
 				const response = await uploadNotesImageBlock(
 					{
 						pageId: block.props.pageId,
 						uploadPageBlockImageInput: {
-							imageName: imageUrl.name,
-							imageSize: imageUrl.size,
+							imageName: imageFile.name,
+							imageSize: imageFile.size,
 						},
 					},
-					imageUrl,
+					imageFile,
 				);
-
 				if (response?.[0]) {
 					imageUrl = response[1];
 				}
 			}
 
-			// Update the block with the new image URL
-			editor.updateBlock(block, {
-				type: 'image',
-				props: {
-					...block.props,
-					url: imageUrl,
-				},
-			});
+			// Use native image loading to check availability
+			const waitForImageLoad = (url, maxAttempts = 10, interval = 2000) =>
+				new Promise((resolve) => {
+					let attempts = 0;
+
+					const tryLoad = () => {
+						const img = new Image();
+						img.onload = () => resolve(true);
+						img.onerror = () => {
+							if (++attempts >= maxAttempts) return resolve(false);
+							setTimeout(tryLoad, interval);
+						};
+						img.src = url + `?cacheBust=${Date.now()}`; // avoid caching issues
+					};
+
+					tryLoad();
+				});
+
+			const available = await waitForImageLoad(imageUrl);
+			if (available) {
+				editor.updateBlock(block, {
+					type: 'image',
+					props: {
+						...block.props,
+						url: imageUrl,
+					},
+				});
+			} else {
+				console.warn('Image not available after polling.');
+			}
+		} catch (error) {
+			console.error('Error uploading image:', error);
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
@@ -169,12 +197,25 @@ const ImageComponent = memo(({ block, editor }) => {
 			) : (
 				<div
 					className="custom-image-block-placeholder"
-					onClick={() => setShowUploadPopup(true)}
+					onClick={() => !isLoading && setShowUploadPopup(true)}
 				>
-					<div className="custom-image-block-placeholder-icon">
-						<ImageIcon />
-					</div>
-					<p className="custom-image-block-placeholder-text">Add image</p>
+					{isLoading ? (
+						<>
+							<div className="custom-image-block-placeholder-loading">
+								<Spinner width="24px" height="24px" />
+							</div>
+							<p className="custom-image-block-placeholder-text">
+								Uploading image...
+							</p>
+						</>
+					) : (
+						<>
+							<div className="custom-image-block-placeholder-icon">
+								<ImageIcon />
+							</div>
+							<p className="custom-image-block-placeholder-text">Add image</p>
+						</>
+					)}
 				</div>
 			)}
 
