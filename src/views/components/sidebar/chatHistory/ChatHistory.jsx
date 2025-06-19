@@ -47,7 +47,7 @@ const ChatHistory = () => {
 	// );
 
 	useEffect(() => {
-		if (!aiChatSessions) {
+		if (!aiChatSessions || aiChatSessions?.getData) {
 			fetchChats();
 		}
 		// const timeoutId = setTimeout(() => {

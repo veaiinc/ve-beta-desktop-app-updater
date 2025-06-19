@@ -54,6 +54,7 @@ const RecentChat = ({
 			updateChatLoadingSessions,
 			newChatSessionIds,
 		},
+		aiSetup: { updateAiChatSessions },
 		chatStream: {
 			createWebSocketConnection,
 			sendMessage,
@@ -144,7 +145,7 @@ const RecentChat = ({
 				updateExtraInfo: true,
 			});
 			removeCurrentSessionId();
-			updateStateValues({ newChatSessionIds: [] });
+			updateStateValues({ newChatSessionIds: [], currentSessionId: null });
 		};
 	}, []);
 
@@ -671,9 +672,15 @@ const RecentChat = ({
 						}),
 					latestStreamMessage: data,
 				});
-				updateStateValues({
-					...(chatMessagesRef?.current?.length === 2 && { refetchChatHistoryList: true }),
-				});
+
+				if (chatMessagesRef?.current?.length === 2) {
+					const payload = {
+						sessionId,
+						page: 1,
+						limit: 5,
+					};
+					updateAiChatSessions(payload);
+				}
 				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
 			}
 			const { message_chunk_id } = data;
@@ -691,7 +698,7 @@ const RecentChat = ({
 				});
 			}
 		},
-		[sessionId],
+		[globalChatMessages, sessionId],
 	);
 
 	const handleSendWebsocketMessage = useCallback(

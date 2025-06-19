@@ -153,7 +153,7 @@ const ChatBox = ({
 		subscriptionInfo: { currentPlan, updateSubscriptionState },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
-		aiSetup: { voiceIntegrationData },
+		aiSetup: { voiceIntegrationData, updateAiChatSessions },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -709,6 +709,12 @@ const ChatBox = ({
 					uploadedImagesRef.current = [];
 
 					clearTextArea();
+
+					if (!(globalChatMessages?.[info?.chatSessionId]?.messages?.length > 0)) {
+						const addNewSession = true;
+						const payload = { sessionId: info?.chatSessionId };
+						updateAiChatSessions(payload, addNewSession);
+					}
 
 					if (customChatActions) {
 						return onSend({
