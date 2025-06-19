@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import betaRoutes from './routes';
-import { memo, useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import ExpiredSubscriptionModal from './views/components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from './views/components/modalsV2/subscription/ExpiredTokenModal';
 import Cookies from 'js-cookie';
@@ -83,4 +83,4 @@ function App() {
 	);
 }
 
-export default memo(App);
+export default App;
