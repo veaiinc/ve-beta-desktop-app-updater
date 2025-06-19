@@ -10,7 +10,7 @@ const ListView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) =>
 	} = useContext(Context);
 
 	const handleUpdateRow = useCallback(
-		(rowId, key, value) => {
+		(rowId, key, value, groupId) => {
 			const payload = {
 				updateDatabaseRowId: rowId,
 				input: {
@@ -18,14 +18,13 @@ const ListView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) =>
 				},
 				pageId,
 			};
-			updateDatabaseRow(payload, view?._id, databaseId);
+			updateDatabaseRow(payload, view?._id, databaseId, groupId);
 		},
 		[pageId, updateDatabaseRow, databaseId, view?._id],
 	);
 
-	const generateRow = useCallback((row) => {
+	const generateRow = useCallback((row, groupId) => {
 		const renderData = [];
-		console.log('row', row);
 		for (let i = 0; i < columns.length; i++) {
 			const element = columns[i];
 			const item = row?.values?.[element?._id];
@@ -48,10 +47,19 @@ const ListView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) =>
 			}
 
 			const metadataMapper = {
-				created_time: row?.createdAt,
+				serial_number: row?.serialNumber,
 				created_by: [row?.createdBy],
-				last_edited_time: row?.updatedAt,
+				created_time: {
+					startDate: row?.createdAt,
+					endDate: row?.createdAt,
+					isEndDateEnabled: false,
+				},
 				last_edited_by: [row?.updatedBy],
+				last_edited_time: {
+					startDate: row?.updatedAt,
+					endDate: row?.updatedAt,
+					isEndDateEnabled: false,
+				},
 			};
 			const options =
 				element?.type === 'status' ? element?.config?.status : element?.config?.options;
@@ -65,8 +73,12 @@ const ListView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) =>
 						multiSelect={true}
 						disabled={metadataMapper?.[element?.type] !== undefined}
 						showTitle={true}
-						onOptionClick={(value) => handleUpdateRow(row?._id, element?._id, value)}
-						onChange={(value) => handleUpdateRow(row?._id, element?._id, value)}
+						onOptionClick={(value) =>
+							handleUpdateRow(row?._id, element?._id, value, groupId)
+						}
+						onChange={(value) =>
+							handleUpdateRow(row?._id, element?._id, value, groupId)
+						}
 					/>
 				</div>,
 			);
@@ -81,6 +93,7 @@ const ListView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) =>
 							rowData: row,
 							viewId: view?._id,
 							databaseId,
+							groupId,
 						},
 						open: true,
 						replace: true,
@@ -92,17 +105,18 @@ const ListView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) =>
 		);
 	}, []);
 
-	// return <div className={s.listViewContainer}>{data?.map((row) => generateRow(row))}</div>;
-	console.log('groupData', groupData);
-	console.log('groupData', view);
 	return (
-		<div className={s.listViewContainer}>
+		<>
 			{view?.groupBy?.defaultGroups?.map((item, index) => (
 				<GroupToggler key={index} groupData={item}>
-					{groupData?.[item?._id || null]?.docs?.map((row) => generateRow(row))}
+					<div className={s.listViewContainer}>
+						{groupData?.[item?._id || null]?.docs?.map((row) =>
+							generateRow(row, item?._id),
+						)}
+					</div>
 				</GroupToggler>
 			))}
-		</div>
+		</>
 	);
 };
 
