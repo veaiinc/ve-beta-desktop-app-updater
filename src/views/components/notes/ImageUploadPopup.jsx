@@ -17,6 +17,7 @@ const initialState = {
 	workspaceImagesLoading: false,
 	unsplashSearchQuery: 'fall',
 	spinnerLoading: false,
+	uploadLoading: false,
 };
 
 const page = 1;
@@ -48,7 +49,7 @@ const uploadCategoryOptions = [
 	},
 ];
 
-const ImageUploadPopup = ({ closePopup, onImageSelect }) => {
+const ImageUploadPopup = ({ closePopup, onImageSelect, noteId }) => {
 	const unsplashSearchTimeout = useRef(null);
 	const {
 		workspaceAssets: {
@@ -86,6 +87,15 @@ const ImageUploadPopup = ({ closePopup, onImageSelect }) => {
 		}
 	}, [info?.selectedUploadCategory]);
 
+	// Reset loading state when component unmounts
+	useEffect(() => {
+		return () => {
+			if (info.uploadLoading) {
+				setInfo((prev) => ({ ...prev, uploadLoading: false }));
+			}
+		};
+	}, [info.uploadLoading]);
+
 	const fetchNextWorkspaceImages = async () => {
 		if (workspaceImagesHasNextPage) {
 			const page = workspaceImagesCurrentPage + 1;
@@ -102,7 +112,7 @@ const ImageUploadPopup = ({ closePopup, onImageSelect }) => {
 
 	const handleLinkSubmit = async () => {
 		if (info.isLinkValid) {
-			onImageSelect(info.link);
+			onImageSelect(info.link, null);
 			closePopup();
 		} else {
 			message.error('Please enter a valid image URL');
@@ -117,14 +127,20 @@ const ImageUploadPopup = ({ closePopup, onImageSelect }) => {
 	const handleImageUpload = async (e) => {
 		const imageFile = e.target.files[0];
 		if (imageFile) {
-			const imageUrl = URL.createObjectURL(imageFile);
-			onImageSelect(imageUrl);
-			closePopup();
+			setInfo((prev) => ({ ...prev, uploadLoading: true }));
+			try {
+				const imageUrl = URL.createObjectURL(imageFile);
+				onImageSelect(imageUrl, imageFile);
+				closePopup();
+			} catch (error) {
+				console.error('Error uploading image:', error);
+				setInfo((prev) => ({ ...prev, uploadLoading: false }));
+			}
 		}
 	};
 
 	const handleImageClick = (imageUrl) => {
-		onImageSelect(imageUrl);
+		onImageSelect(imageUrl, null);
 		closePopup();
 	};
 
@@ -191,17 +207,33 @@ const ImageUploadPopup = ({ closePopup, onImageSelect }) => {
 		),
 		upload: (
 			<div className="upload">
-				<input
-					type="file"
-					className="uploadInput"
-					accept="image/*"
-					onChange={handleImageUpload}
-				/>
-				<UploadIcon />
-				<div className="uploadContent">
-					<div className="uploadTitle">Click to upload</div>
-					<div className="uploadSubtitle">supported formats .jpg, .jpeg, .png</div>
-				</div>
+				{info.uploadLoading ? (
+					<div className="uploadLoading">
+						<Spinner width="24px" height="24px" />
+						<div className="uploadContent">
+							<div className="uploadTitle">Uploading image...</div>
+							<div className="uploadSubtitle">
+								Please wait while we process your image
+							</div>
+						</div>
+					</div>
+				) : (
+					<>
+						<input
+							type="file"
+							className="uploadInput"
+							accept="image/*"
+							onChange={handleImageUpload}
+						/>
+						<UploadIcon />
+						<div className="uploadContent">
+							<div className="uploadTitle">Click to upload</div>
+							<div className="uploadSubtitle">
+								supported formats .jpg, .jpeg, .png
+							</div>
+						</div>
+					</>
+				)}
 			</div>
 		),
 		link: (
