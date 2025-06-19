@@ -28,7 +28,13 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const [showNotesDrawer, setShowNotesDrawer] = useState(false);
 	const [showChatsDrawer, setShowChatsDrawer] = useState(false);
 	const [hideClosedSidebarIcon, setHideClosedSidebarIcon] = useState(false);
+
+	// Check if device is mobile
+	const isMobile = window.innerWidth <= 500;
+
 	const [isDocked, setIsDocked] = useState(() => {
+		// Don't allow docked state on mobile
+		if (isMobile) return false;
 		return JSON.parse(localStorage.getItem('isDocked')) ?? false;
 	});
 	const [isHovering, setIsHovering] = useState(false);
@@ -58,11 +64,13 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		selectedModule: null,
 	});
 
-	// Sync isOpen and isDocked to localStorage
+	// Sync isOpen and isDocked to localStorage (only if not mobile)
 	useEffect(() => {
 		localStorage.setItem('isOpen', JSON.stringify(isOpen));
-		localStorage.setItem('isDocked', JSON.stringify(isDocked));
-	}, [isOpen, isDocked]);
+		if (!isMobile) {
+			localStorage.setItem('isDocked', JSON.stringify(isDocked));
+		}
+	}, [isOpen, isDocked, isMobile]);
 
 	// Listen for template-triggered sidebar state changes
 	// useEffect(() => {
@@ -129,7 +137,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	}, [location?.pathname]);
 
 	const handleMouseEnter = () => {
-		if (!isDocked) {
+		if (!isDocked || isMobile) {
 			clearTimeout(hoverTimeoutRef.current);
 			setIsHovering(true);
 			setIsOpen(true);
@@ -140,7 +148,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	};
 
 	const handleMouseLeave = () => {
-		if (!isDocked) {
+		if (!isDocked || isMobile) {
 			hoverTimeoutRef.current = setTimeout(() => {
 				setIsHovering(false);
 				setIsOpen(false);
@@ -152,6 +160,9 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	};
 
 	const handleDockToggle = () => {
+		// Disable dock toggle on mobile
+		if (isMobile) return;
+
 		setIsDocked(!isDocked);
 		if (!isDocked) {
 			setIsOpen(true);
@@ -172,7 +183,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 			<div
 				className={`FullScreenSidebar
 					${isOpen ? 'opened' : sidebarRef.current?.classList?.contains('opened') ? 'closed' : ''}
-					${isDocked ? 'docked' : ''}
+					${isDocked && !isMobile ? 'docked' : ''}
 					${isHovering ? 'hovering' : ''}
 					${
 						sidebarStates.selectedModule &&
@@ -223,18 +234,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							handleDockToggle={handleDockToggle}
 						/>
 					</div>
-
-					<div className={`sidebar-close ${isOpen ? 'inactive' : 'active'}`}>
-						<SidebarTooltip
-							label={isDocked ? 'Undock Sidebar' : 'Open Sidebar'}
-							icon={
-								<SidebarClosingSvg
-									onClick={handleDockToggle}
-									style={{ cursor: 'pointer' }}
-								/>
-							}
-						/>
-					</div>
 				</nav>
 
 				<Notifications
@@ -242,6 +241,28 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					setShowNotificationsDrawer={setShowNotificationsDrawer}
 				/>
 				<Notes showNotesDrawer={showNotesDrawer} setShowNotesDrawer={setShowNotesDrawer} />
+			</div>
+
+			{/* Sidebar toggle button, always visible and not animated */}
+			<div
+				className="sidebar-toggle-btn"
+				style={{
+					position: 'fixed',
+					top: 24,
+					left: 20, // Fixed position, doesn't change with sidebar state
+					zIndex: 900,
+				}}
+				onMouseEnter={handleMouseEnter}
+			>
+				<SidebarTooltip
+					label={isDocked && !isMobile ? 'Undock Sidebar' : 'Open Sidebar'}
+					icon={
+						<SidebarClosingSvg
+							onClick={handleDockToggle}
+							style={{ cursor: 'pointer' }}
+						/>
+					}
+				/>
 			</div>
 
 			{isOpen && <div className="sidebar__overlay"></div>}
