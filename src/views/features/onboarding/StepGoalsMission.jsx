@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
 import '../../../assets/scss/onboarding/stepGoalsMission.scss';
 import ProgressBar from '../../components/onboarding/ProgressBar';
+import { useNavigate } from 'react-router-dom';
 
 const goalsData = [
 	{
@@ -26,7 +27,11 @@ const goalsData = [
 ];
 
 const StepGoalsMission = ({ data = {}, onNext, onBack }) => {
+    const navigate = useNavigate();
 	const [otherGoals, setOtherGoals] = useState(data.otherGoals || '');
+	const handleContinue = () => {
+		navigate('/home');
+	};
 
 	return (
 		<div className="goalsMissionStepContainer">
@@ -71,10 +76,10 @@ const StepGoalsMission = ({ data = {}, onNext, onBack }) => {
 				</button>
 				<button
 					className="continueBtn"
-					onClick={() => onNext({ otherGoals })}
+					onClick={() => handleContinue()}
 					style={{ opacity: 1, cursor: 'pointer' }}
 				>
-					Continue
+					Continues
 				</button>
 			</div>
 		</div>

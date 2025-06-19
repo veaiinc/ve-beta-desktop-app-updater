@@ -470,45 +470,39 @@ const Stages = ({ onNext }) => {
 		}
 	}, [companyLogoFile]);
 
-	const handleCreateWorkspace = useCallback(async () => {
-		const response = await createWorkspace({
-			workspaceHandle: info?.workspaceHandle,
-			workspaceType: info?.workspaceType,
-			businessName: info?.companyName,
-		});
-		const success = response?.[0] === true;
-		if (success) {
-			const workspaceId = response?.[1]?.workspaceId;
-			localStorage.setItem('workspaceId', workspaceId);
-			getTenantSettings();
-			await getUserWorkSpaceList();
-			if (companyLogoFile) {
-				const isCompanyLogoUploaded = await handleUploadCompanyLogo();
-				if (isCompanyLogoUploaded) {
-					message?.success('Workspace created successfully');
-					setTimeout(() => {
-						navigate('/home');
-					}, 1000);
+	const handleContinue = async () => {
+		if (continueBtnDisabled) return;
+		setInfo((prev) => ({ ...prev, continueBtnLoading: true }));
+		try {
+			const response = await createWorkspace({
+				workspaceHandle: info?.workspaceHandle,
+				workspaceType: info?.workspaceType,
+				businessName: info?.companyName,
+			});
+			const success = response?.[0] === true;
+			if (success) {
+				const workspaceId = response?.[1]?.workspaceId;
+				localStorage.setItem('workspaceId', workspaceId);
+				getTenantSettings();
+				await getUserWorkSpaceList();
+				if (companyLogoFile) {
+					const isCompanyLogoUploaded = await handleUploadCompanyLogo();
+					if (isCompanyLogoUploaded) {
+						message?.success('Workspace created successfully');
+					} else {
+						message?.error('Workspace created but failed to upload company logo');
+					}
 				} else {
-					message?.error(
-						'Workspace created successfully but failed to upload company logo',
-					);
+					message?.success('Workspace created successfully');
 				}
+				onNext(info);
 			} else {
-				message?.success('Workspace created successfully');
-				setTimeout(() => {
-					navigate('/home');
-				}, 1000);
+				message?.error(response?.[1]?.message);
 			}
-		} else {
-			message?.error(response?.[1]?.message);
+		} catch (err) {
+			message?.error('Something went wrong. Please try again.');
 		}
-	}, [info?.companyName, info?.workspaceType, info?.workspaceHandle]);
-
-	const handleContinue = () => {
-		if (!continueBtnDisabled) {
-			onNext(info);
-		}
+		setInfo((prev) => ({ ...prev, continueBtnLoading: false }));
 	};
 
 	// Workspace type dropdown open logic
