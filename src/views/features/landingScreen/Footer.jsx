@@ -2,16 +2,44 @@ import { memo } from 'react';
 import s from '../../../assets/scss/landingScreen/footer.module.scss';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 import { ReactComponent as LinkedinLogo } from '../../../assets/svg/landingScreen/linkedinLogo.svg';
-import { ReactComponent as YoutubeLogo } from '../../../assets/svg/landingScreen/youtubeLogo.svg';
 import { ReactComponent as InstagramLogo } from '../../../assets/svg/landingScreen/instagramLogo.svg';
-import { ReactComponent as FacebookLogo } from '../../../assets/svg/landingScreen/facebookLogo.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 import GoldenGateImage from '../../../assets/images/goldenGate.png';
 import { LINKEDIN_URL, INSTAGRAM_URL } from '../../../helpers/ConstantUrls';
 
 import { Link } from 'react-router-dom';
+import Context from '../../../context/context';
+import { useContext, useState } from 'react';
+import { message } from '../../components/globalComponents/CustomToast';
+import Spinner from '../../components/loaders/Spinner';
 
-const Footer = ({ BackTop }) => {
+const Footer = () => {
+	const {
+		authInfo: { subscribeToNewsletter },
+	} = useContext(Context);
+	const [info, setInfo] = useState({
+		email: '',
+		loading: false,
+	});
+	const handleSubscribe = async () => {
+		try {
+			setInfo({ ...info, loading: true });
+			const res = await subscribeToNewsletter(info.email);
+			if (res?.[0]) {
+				message.success('Subscribed successfully');
+			} else {
+				message.error(res?.[1]?.message);
+			}
+		} catch (error) {
+			console.error('Error subscribing to newsletter:', error);
+			message.error('An unexpected error occurred. Please try again!');
+		} finally {
+			setInfo({ ...info, loading: false });
+		}
+	};
+	const handleEmailChange = (e) => {
+		setInfo({ ...info, email: e.target.value });
+	};
 	return (
 		<div className={s.footer}>
 			<div className={s.container}>
@@ -26,8 +54,18 @@ const Footer = ({ BackTop }) => {
 							Just raw, early insights as we build.
 						</p>
 						<div className={s.emailInput}>
-							<input type="text" placeholder="example@gmail.com" />
-							<button className={s.subscribeButton}>Subscribe</button>
+							<input
+								type="text"
+								placeholder="example@gmail.com"
+								onChange={handleEmailChange}
+							/>
+							<button
+								className={s.subscribeButton}
+								onClick={handleSubscribe}
+								disabled={info.loading}
+							>
+								Subscribe {info.loading && <Spinner/>}
+							</button>
 							<p className={s.terms}>
 								By submitting, you allow Ve.ai to store and process your information
 								to deliver what you requested. Read our privacy policy for details.
@@ -41,7 +79,7 @@ const Footer = ({ BackTop }) => {
 									<span className={s.listHeading}>About</span>
 								</li>
 								<li>
-									<Link to="/mission">Mission</Link>
+									<Link to="/thebridge">The Bridge</Link>
 								</li>
 								<li>
 									<Link to="/contact-us">For Enterprise</Link>
