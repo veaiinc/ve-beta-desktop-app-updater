@@ -245,6 +245,11 @@
 		&:hover {
 			background: var(--card-over-card-hover);
 		}
+
+		&:not(:hover) {
+			cursor: default;
+		}
+
 		.custom-image-block-placeholder-icon {
 			width: 24px;
 			height: 24px;
@@ -254,6 +259,14 @@
 			svg {
 				width: 100%;
 			}
+		}
+
+		.custom-image-block-placeholder-loading {
+			width: 24px;
+			height: 24px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 		}
 
 		.custom-image-block-placeholder-text {
