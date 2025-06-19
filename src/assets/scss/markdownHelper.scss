@@ -4,25 +4,30 @@
 	position: relative;
 	width: 100%;
 	align-items: flex-start;
-	gap: 5px;
-	margin-bottom: 1.5rem;
+	justify-content: center;
+	gap: 20px;
 
-	.user-message-renderer-container {
-		position: relative;
-		line-height: 1.5;
-		font-weight: 500 !important;
-		overflow: hidden;
-		transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-		font-size: 1.5rem;
-		font-family: var(--chat-primary-font-family);
-		white-space: pre-wrap;
-		span {
-			line-height: 1.5;
-			font-weight: 500 !important;
-			font-family: var(--chat-primary-font-family);
-			word-break: break-word;
+	.user-message-wrapper {
+		width: 100%;
+		flex-grow: 1;
+		.user-message {
+			width: 100%;
+			.user-message-renderer-container {
+				padding: 8px 16px;
+				border-radius: 8px;
+				background: var(--card, #18191b);
+				font-family: var(--chat-primary-font-family);
+				white-space: pre-wrap;
+
+				color: var(--primary-font, #f2f2f3);
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 24px;
+			}
 		}
 	}
+
 	.expand-btn {
 		width: fit-content;
 		.btn-text {

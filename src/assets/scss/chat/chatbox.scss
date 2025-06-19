@@ -77,7 +77,6 @@
 
 						.chatInputParentContainer {
 							display: flex;
-							max-height: 400px;
 							width: 100%;
 							padding: 4px 12px 14px 16px;
 							flex-direction: column;
@@ -91,6 +90,34 @@
 							position: relative;
 							&.startPageContainer {
 								padding: 12px;
+							}
+							.chat-reply-data {
+								display: flex;
+								gap: 12px;
+								justify-content: center;
+								align-items: flex-start;
+								width: 100%;
+								margin-top: 10px;
+								padding: 12px 6px;
+								border-top-left-radius: 12px;
+								border-top-right-radius: 12px;
+								border-bottom-left-radius: 6px;
+								border-bottom-right-radius: 6px;
+								background-color: var(--card-over-card);
+
+								.reply-text {
+									flex-grow: 1;
+									color: var(--primary-font);
+									font-family: var(--primary-font-family);
+									font-size: 13px;
+									font-style: normal;
+									font-weight: 500;
+									line-height: normal;
+								}
+
+								.reply-close-icon {
+									cursor: pointer;
+								}
 							}
 							.recent-file-wrapper {
 								position: absolute;

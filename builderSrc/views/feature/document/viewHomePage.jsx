@@ -13,17 +13,18 @@ import DocumentAnalytics from './documentAnalytics';
 import DocumentShare from './DocumentShare';
 import { ReactComponent as DesktopIcon } from '../../components/library/svgs/header/Desktop.svg';
 import { ReactComponent as MobileIcon } from '../../components/library/svgs/header/MobilePop.svg';
+import EditdocumentModel from '../../components/ViewDocument/EditdocumentModel';
 
-const EditButton = ({ workflowId, templateID }) => {
-	const navigate = useNavigate();
-	const handleEditClick = () => {
-		navigate(`/builder/${workflowId}?workflow=true`);
-	};
+const EditButton = ({ workflowId, templateID, handleEditClick }) => {
+	// const navigate = useNavigate();
+	// const handleEditClick = () => {
+	// 	navigate(`/builder/${workflowId}?workflow=true`);
+	// };
 
 	return (
 		<div onClick={handleEditClick} className="editButton">
 			<EditIcon />
-			Edit Design
+			Modify Design
 		</div>
 	);
 };
@@ -86,6 +87,7 @@ const ViewHomePage = () => {
 		},
 		analyticsSelected: false,
 		isShareModalOpen: false,
+		showEditDocumentModal: false,
 	});
 	const [previewDevice, setPreviewDevice] = useState('d'); // 'd' for desktop, 'm' for mobile
 
@@ -161,6 +163,10 @@ const ViewHomePage = () => {
 		console.log('AI chat enabled:', value);
 	}, []);
 
+	const handleEditClick = () => {
+		setInfo((prev) => ({ ...prev, showEditDocumentModal: true }));
+	};
+
 	return (
 		<div className="viewHomePageContainer">
 			<div className="viewDocuemntContainer">
@@ -172,11 +178,44 @@ const ViewHomePage = () => {
 				}`}
 			>
 				<div className="previewHeader">
-					{smartFileActivity && viewersList && (
-						<AnalyticsButton handleAnalyticsClick={handleAnalyticsClick} info={info} />
-					)}
-					<ViewButton smartFileInfo={smartFileInfo} />
-					<EditButton workflowId={workflowId} templateID={templateID} />
+					<div className="btn-actions">
+						{smartFileActivity && viewersList && (
+							<AnalyticsButton
+								handleAnalyticsClick={handleAnalyticsClick}
+								info={info}
+							/>
+						)}
+						<ViewButton smartFileInfo={smartFileInfo} />
+						<div onClick={handleEditClick} className="editButton">
+							<EditIcon />
+							Modify Design
+						</div>
+					</div>
+
+					<div className="device-switcher-bar">
+						<button
+							className={
+								previewDevice === 'd'
+									? 'device-switcher-btn active'
+									: 'device-switcher-btn'
+							}
+							aria-label="Desktop Preview"
+							onClick={() => setPreviewDevice('d')}
+						>
+							<DesktopIcon width={24} height={24} />
+						</button>
+						<button
+							className={
+								previewDevice === 'm'
+									? 'device-switcher-btn active'
+									: 'device-switcher-btn'
+							}
+							aria-label="Mobile Preview"
+							onClick={() => setPreviewDevice('m')}
+						>
+							<MobileIcon width={24} height={24} />
+						</button>
+					</div>
 				</div>
 				{info?.analyticsSelected ? (
 					<DocumentAnalytics workflowId={workflowId} />
@@ -195,30 +234,7 @@ const ViewHomePage = () => {
 						{/* Device Switcher Bar */}
 					</>
 				)}
-				<div className="device-switcher-bar">
-					<button
-						className={
-							previewDevice === 'd'
-								? 'device-switcher-btn active'
-								: 'device-switcher-btn'
-						}
-						aria-label="Desktop Preview"
-						onClick={() => setPreviewDevice('d')}
-					>
-						<DesktopIcon width={24} height={24} />
-					</button>
-					<button
-						className={
-							previewDevice === 'm'
-								? 'device-switcher-btn active'
-								: 'device-switcher-btn'
-						}
-						aria-label="Mobile Preview"
-						onClick={() => setPreviewDevice('m')}
-					>
-						<MobileIcon width={24} height={24} />
-					</button>
-				</div>
+
 				{info.isShareModalOpen && (
 					<DocumentShare
 						isOpen={info.isShareModalOpen}
@@ -229,7 +245,27 @@ const ViewHomePage = () => {
 						status={info.workflowInfo?.status}
 					/>
 				)}
+				{info.showEditDocumentModal && (
+					<EditdocumentModel
+						isOpen={info.showEditDocumentModal}
+						onClose={() =>
+							setInfo((prev) => ({ ...prev, showEditDocumentModal: false }))
+						}
+						workflowId={workflowId}
+						templateID={info.workflowInfo?.template?.workflowTemplateDetails?.[0]?._id}
+						showEditTemplateButton={
+							info.workflowInfo?.template?.isDeleted ? false : true
+						}
+					/>
+				)}
 			</div>
+			<EditdocumentModel
+				open={info.showEditDocumentModal}
+				closeModal={() => setInfo((prev) => ({ ...prev, showEditDocumentModal: false }))}
+				workflowId={workflowId}
+				showEditTemplateButton={info.workflowInfo?.template?.isDeleted ? false : true}
+				templateID={info.workflowInfo?.template?.workflowTemplateDetails?.[0]?._id}
+			/>
 		</div>
 	);
 };
