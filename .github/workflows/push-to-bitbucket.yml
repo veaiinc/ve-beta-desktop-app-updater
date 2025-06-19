@@ -5,6 +5,7 @@ on:
             # - '**'  # Sync all branches
             - 'master'
             - 'development'
+            - 'feature/speed-issue-resolved'
 
 jobs:
     sync:
