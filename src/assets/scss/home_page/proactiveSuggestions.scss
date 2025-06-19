@@ -1311,3 +1311,31 @@
 		}
 	}
 }
+@media screen and (max-width: 768px) {
+	.cards-container {
+		width: 100% !important;
+		overflow: hidden !important;
+	}
+
+	.selected {
+		display: flex; /* Show only the selected card */
+		width: 100%; /* Full width for mobile */
+		height: auto; /* Adjust height as needed */
+		transform: translateX(-50%) rotate(0deg); /* Remove rotation for centered card */
+		left: 50%;
+		bottom: 0;
+	}
+
+	.left-1,
+	.left-2,
+	.right-1,
+	.right-2 {
+		display: none !important; /* Hide adjacent cards on mobile */
+	}
+
+	/* Hide navigation buttons if not needed, or style them for mobile */
+	.card-change-btn-left,
+	.card-change-btn-right {
+		display: none; /* Optionally hide buttons, or adjust their style */
+	}
+}

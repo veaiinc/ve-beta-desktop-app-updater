@@ -155,7 +155,9 @@ const ProactiveSuggestions = () => {
 	const promptsLenght = promptsData?.data?.length ?? 0;
 	const promptsHasNextPage = Boolean(promptsData?.hasNextPage);
 	const promptsCurrentPage = Number(promptsData?.currentPage) || 1;
-
+	const [touchStartX, setTouchStartX] = useState(null);
+	const [touchEndX, setTouchEndX] = useState(null);
+	const minSwipeDistance = 50;
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
 			updateCardsData();
@@ -586,6 +588,31 @@ const ProactiveSuggestions = () => {
 	const fetchMoreAiSuggestedPrompts = () => {
 		fetchAiSuggestedPrompts(info?.page + 1, info?.searchQuery);
 	};
+	const handleTouchStart = (e) => {
+		setTouchStartX(e.targetTouches[0].clientX);
+		setTouchEndX(null); // Reset touchEndX
+	};
+
+	const handleTouchMove = (e) => {
+		setTouchEndX(e.targetTouches[0].clientX);
+	};
+
+	const handleTouchEnd = () => {
+		if (!touchStartX || !touchEndX) return;
+		const distance = touchStartX - touchEndX;
+		const isLeftSwipe = distance > minSwipeDistance;
+		const isRightSwipe = distance < -minSwipeDistance;
+
+		if (isLeftSwipe) {
+			handleRight(); // Swipe left to show next card
+		} else if (isRightSwipe) {
+			handleLeft(); // Swipe right to show previous card
+		}
+
+		// Reset touch coordinates
+		setTouchStartX(null);
+		setTouchEndX(null);
+	};
 	return (
 		<div
 			className="proactive-suggestions-container"
@@ -691,6 +718,9 @@ const ProactiveSuggestions = () => {
 											? ''
 											: 'none',
 								}}
+								onTouchStart={handleTouchStart}
+								onTouchMove={handleTouchMove}
+								onTouchEnd={handleTouchEnd}
 							>
 								<div className="right-container">
 									{/* <div className="viewSelectionContainer">
@@ -730,23 +760,28 @@ const ProactiveSuggestions = () => {
 											gap: '6px',
 										}}
 									>
-										{/* <Tooltip
-							placement="bottom"
-							title={<div className="tooltipTitle">Sort by created at</div>}
-							color="transparent"
-							arrow={false}
-						>
-							<div
-								className="sort-by-created-at"
-								onClick={() => handleSortByClick('createdAt')}
-							>
-								{info?.sortOptions[info?.sortBy]?.sortType === -1 ? (
-									<SortAscSvg />
-								) : (
-									<SortDescSvg />
-								)}
-							</div>
-						</Tooltip> */}
+										<Tooltip
+											placement="bottom"
+											title={
+												<div className="tooltipTitle">
+													Sort by created at
+												</div>
+											}
+											color="transparent"
+											arrow={false}
+										>
+											<div
+												className="sort-by-created-at"
+												onClick={() => handleSortByClick('createdAt')}
+											>
+												{info?.sortOptions[info?.sortBy]?.sortType ===
+												-1 ? (
+													<SortAscSvg />
+												) : (
+													<SortDescSvg />
+												)}
+											</div>
+										</Tooltip>
 										<Tooltip
 											open={info?.openFilter}
 											onOpenChange={() =>
