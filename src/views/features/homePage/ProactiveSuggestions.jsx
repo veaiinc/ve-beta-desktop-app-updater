@@ -12,7 +12,7 @@ import Skeleton from 'react-loading-skeleton';
 import AISuggestionsModal from '../../components/modalsV2/homePage/AISuggestionsModal';
 import { Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { getRelativeDayLabel } from '../../../helpers';
+import { FetchMoreLoaderComp, getRelativeDayLabel } from '../../../helpers';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { message } from '../../components/globalComponents/CustomToast';
 import ObjectID from 'bson-objectid';
@@ -27,6 +27,8 @@ import { ReactComponent as AgentIcon } from '../../../assets/svg/sidebar/agentsI
 import AIQuestions from './AIQuestions';
 import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
+import { ReactComponent as DoubleUpArrowSvg } from '../../../assets/svg/home_page/doubleUpArrow.svg';
+import ChatBox from '../../components/chat/ChatBox';
 
 const payload = {
 	page: 1,
@@ -123,7 +125,10 @@ const ProactiveSuggestions = () => {
 			updateStateValues,
 			getAiQuestions,
 			aiQuestions,
+			currentSessionId,
+			chatInfo,
 		},
+		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -143,7 +148,12 @@ const ProactiveSuggestions = () => {
 		activeBtn: 'insights',
 		sortOptions,
 		searchQuery: '',
+		chatQuery: '',
+		showExploreMore: false,
 	});
+	const promptsLenght = promptsData?.data?.length ?? 0;
+	const promptsHasNextPage = Boolean(promptsData?.hasNextPage);
+	const promptsCurrentPage = Number(promptsData?.currentPage) || 1;
 
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
@@ -539,14 +549,54 @@ const ProactiveSuggestions = () => {
 
 		return groups;
 	}, [info?.cards]);
+	const handleCustomOnSendFunction = useCallback(
+		(data) => {
+			updateStateValues({ activePayloadForChat: data });
+			navigate(`/chat/${currentSessionId}`);
+		},
+		[currentSessionId],
+	);
 
+	const handleChatQueryChange = (query) => {
+		setInfo((prev) => ({
+			...prev,
+			chatQuery: query,
+		}));
+
+		if (query?.length === 0) {
+			updateStateValues({ chatBoxSuggestions: null });
+		}
+	};
+	const handleExploreMoreClick = () => {
+		setInfo((prev) => ({
+			...prev,
+			showExploreMore: !prev?.showExploreMore,
+		}));
+	};
+	const fetchAiSuggestedPrompts = async (page = 1, searchQuery = '') => {
+		const payload = {
+			page: page,
+			limit: 30,
+			category: promptsCategory,
+			...(searchQuery && { search: searchQuery }),
+		};
+		getPromptsData(payload);
+	};
+	const fetchMoreAiSuggestedPrompts = () => {
+		fetchAiSuggestedPrompts(info?.page + 1, info?.searchQuery);
+	};
 	return (
-		<div className="proactive-suggestions-container">
-			<div className="action-container">
-				<div className="left-container">
-					{/* {info?.isListView && ( */}
-					<div className="btns-container">
-						<div
+		<div
+			className="proactive-suggestions-container"
+			style={{ paddingTop: info?.showExploreMore ? '40px' : '0px' }}
+		>
+			{!info?.showExploreMore && (
+				<>
+					<div className="action-container">
+						<div className="left-container">
+							{/* {info?.isListView && ( */}
+							<div className="btns-container">
+								{/* <div
 							className={`btn ${info?.activeBtn === 'insights' ? 'active' : ''}`}
 							onClick={() => handleBtnClick('insights')}
 						>
@@ -565,12 +615,84 @@ const ProactiveSuggestions = () => {
 								</div>
 								<div className="text-container">Questions</div>
 							</div>
-						)}
+						)} */}
+								{/* <div
+							className={`btn ${
+								info?.activeBtn === 'calendar' ? 'activeAgents' : ''
+							}`}
+							onClick={() => handleBtnClick('calendar')}
+						>
+							<div className="icon-container">
+								<CalendarIcon fill={'var(--secondary-font)'} />
+							</div>
+							<div className="text-container">Calendar</div>
+						</div>
+						<div
+							className={`btn ${info?.activeBtn === 'tasks' ? 'activeAgents' : ''}`}
+							onClick={() => handleBtnClick('tasks')}
+						>
+							<div className="icon-container">
+								<DoubleTickIcon />
+							</div>
+							<div className="text-container">Tasks</div>
+						</div>
+						<div
+							className={`btn ${info?.activeBtn === 'agents' ? 'activeAgents' : ''}`}
+							onClick={() => handleBtnClick('agents')}
+						>
+							<div className="icon-container">
+								<AgentIcon fill={'var(--secondary-font)'} />
+							</div>
+							<div className="text-container">Agents</div>
+						</div> */}
+							</div>
+							{/* )} */}
+						</div>
+
+						{/* {info?.cards?.length > 5 && (
+					<div className="action-right">
+						<button className="card-change-btn" onClick={handleLeft}>
+							<ChevronRightThinSvg className="left-chevron" />
+						</button>
+						<button className="card-change-btn" onClick={handleRight}>
+							<ChevronRightThinSvg />
+						</button>
 					</div>
-					{/* )} */}
-				</div>
-				<div className="right-container">
-					<div className="viewSelectionContainer">
+				)} */}
+					</div>
+					<>
+						{info?.selectedFilters?.length > 0 && (
+							<div className="selected-filter">
+								{info?.selectedFilters?.map((item) => (
+									<div key={item?.id} className="selected-filter-item">
+										<span>{item?.title}</span>
+										<CloseIcon
+											style={{ cursor: 'pointer' }}
+											onClick={() => handleFilterClick(item, item?.group)}
+										/>
+									</div>
+								))}
+							</div>
+						)}
+					</>
+					{info?.activeBtn === 'questions' && (
+						<div className="ai-questions-wrapper">
+							<AIQuestions />
+						</div>
+					)}
+					{info?.activeBtn === 'insights' && (
+						<>
+							<div
+								className="cards-container"
+								style={{
+									display:
+										aiSuggestedPendingActions?.pendingActions?.length > 0
+											? ''
+											: 'none',
+								}}
+							>
+								<div className="right-container">
+									{/* <div className="viewSelectionContainer">
 						<Tooltip
 							arrow={false}
 							title={<div className="tooltipTitle">List View</div>}
@@ -598,10 +720,16 @@ const ProactiveSuggestions = () => {
 								<FocusViewSvg className={!info?.isListView ? 'active-icon' : ''} />
 							</div>
 						</Tooltip>
-					</div>
+					</div> */}
 
-					<div style={{ display: 'flex', flexDirection: 'row', gap: '6px' }}>
-						<Tooltip
+									<div
+										style={{
+											display: 'flex',
+											flexDirection: 'row',
+											gap: '6px',
+										}}
+									>
+										{/* <Tooltip
 							placement="bottom"
 							title={<div className="tooltipTitle">Sort by created at</div>}
 							color="transparent"
@@ -617,651 +745,338 @@ const ProactiveSuggestions = () => {
 									<SortDescSvg />
 								)}
 							</div>
-						</Tooltip>
-						<Tooltip
-							open={info?.openFilter}
-							onOpenChange={() => setInfo((prev) => ({ ...prev, openFilter: false }))}
-							placement="top"
-							title={
-								<div className="filter-container">
-									<div className="filter-items">
-										{filterGroups?.map((group, idx) => (
-											<div key={group?.title} style={{ width: '100%' }}>
-												<div className="filter-item">
-													<div className="filter-item-title">
-														{group?.title || ''}
-													</div>
-													<div className="filter-item-options">
-														{group?.options?.map((item) => {
-															const itemWithGroup = {
-																...item,
-																group: group?.title,
-															};
-
-															const isSelected =
-																info?.selectedFilters?.some(
-																	(option) =>
-																		option?.title ===
-																			itemWithGroup?.title &&
-																		option?.group ===
-																			itemWithGroup?.group,
-																);
-															return (
-																<div
-																	key={item?.id}
-																	className="eachOption"
-																	onClick={() =>
-																		handleFilterClick(
-																			itemWithGroup,
-																			group?.title,
-																		)
-																	}
-																>
-																	{group?.title ===
-																		'Priority Level' && (
-																		<div
-																			className="indicator"
-																			style={{
-																				backgroundColor:
-																					item?.bgColor ||
-																					'',
-																			}}
-																		></div>
-																	)}
-																	<div className="option-text">
-																		<span className="option-text-content">
-																			{item?.title || ''}
-																		</span>
-																		{isSelected && (
-																			<TickIcon
-																				style={{
-																					marginLeft:
-																						'8px',
-																				}}
-																			/>
-																		)}
-																	</div>
-																</div>
-															);
-														})}
-													</div>
-												</div>
-												{idx < filterGroups?.length - 1 && (
-													<hr
-														style={{
-															width: '100%',
-															height: '1px',
-															backgroundColor: 'var(--stroke)',
-															border: 'none',
-															marginTop: '10px',
-														}}
-													/>
-												)}
-											</div>
-										))}
-									</div>
-								</div>
-							}
-							color={'transparent'}
-							style={{ cursor: 'pointer', userSelect: 'none' }}
-							trigger={'click'}
-						>
-							<div
-								className="action-left"
-								onClick={() => {
-									if (info?.openFilter) {
-										return;
-									}
-									setInfo((prev) => ({ ...prev, openFilter: true }));
-								}}
-							>
-								<button
-									className={`filter-btn ${info?.openFilter ? 'active' : ''}`}
-									data-tooltip="Filter"
-								>
-									<FilterIcon />
-								</button>
-							</div>
-						</Tooltip>
-
-						<div className="search-wrapper" data-tooltip="Search">
-							<div className="search-icon">
-								<SearchSvg />
-							</div>
-							<input
-								className="search-input"
-								placeholder="Search"
-								onChange={handleSearchQueryChange}
-								onFocus={() => (searchFocusedRef.current = true)}
-								onBlur={() => (searchFocusedRef.current = false)}
-							/>
-						</div>
-					</div>
-				</div>
-
-				{/* {info?.cards?.length > 5 && (
-					<div className="action-right">
-						<button className="card-change-btn" onClick={handleLeft}>
-							<ChevronRightThinSvg className="left-chevron" />
-						</button>
-						<button className="card-change-btn" onClick={handleRight}>
-							<ChevronRightThinSvg />
-						</button>
-					</div>
-				)} */}
-			</div>
-			<>
-				{info?.selectedFilters?.length > 0 && (
-					<div className="selected-filter">
-						{info?.selectedFilters?.map((item) => (
-							<div key={item?.id} className="selected-filter-item">
-								<span>{item?.title}</span>
-								<CloseIcon
-									style={{ cursor: 'pointer' }}
-									onClick={() => handleFilterClick(item, item?.group)}
-								/>
-							</div>
-						))}
-					</div>
-				)}
-			</>
-			{info?.activeBtn === 'questions' && (
-				<div className="ai-questions-wrapper">
-					<AIQuestions />
-				</div>
-			)}
-			{info?.isListView && info?.activeBtn === 'insights' ? (
-				<div className="proactiveSuggestionsContainer">
-					{info?.loading && !aiSuggestedPendingActions?.pendingActions?.length ? (
-						<div className="skeleton-container">
-							{skeletonLoaders?.map((_, index) => (
-								<Skeleton
-									width="739px"
-									height="100px"
-									style={{
-										'--highlight-color': 'gray',
-										'--base-color': 'transparent',
-									}}
-									key={index}
-								/>
-							))}
-						</div>
-					) : aiSuggestedPendingActions?.pendingActions?.length === 0 ? (
-						<div
-							className="no-data"
-							style={{ color: 'var(--primary-font)', margin: '0 auto' }}
-						>
-							No data available
-						</div>
-					) : (
-						<div className="list-view-container">
-							{info?.activeBtn === 'insights' && (
-								<InfiniteScroll
-									dataLength={info?.cards?.length || 0}
-									hasMore={
-										(aiSuggestedPendingActions?.metaInfo?.hasNextPage &&
-											info?.cards?.length) ||
-										false
-									}
-									next={fetchMorePendingActions}
-									style={infiniteScrollStyle}
-									height={'100%'}
-									endMessage={<div style={{ paddingBottom: '50px' }}></div>}
-									className="scrollable-container"
-								>
-									<div style={{ margin: 'auto' }}>
-										{Object?.entries(groupedCards)?.map(
-											([label, cards], index) => (
-												<div key={index} className="groupedCardsContainer">
-													<div
-														className="dateLabel"
-														style={{
-															marginTop: `${
-																index !== 0 ? '50px' : '0px'
-															}`,
-														}}
-													>
-														{label}
-													</div>
-													{cards?.map((card, index) => {
-														const priority = card?.priority;
-														const isRead = card?.read;
-														const messageAt = dayjs(
-															card?.knowledgeBase?.[0]?.metadata
-																?.messages?.[0]?.messagedAt * 1000,
-														).format('MMMM D, YYYY  h:mm A');
-														return (
+						</Tooltip> */}
+										<Tooltip
+											open={info?.openFilter}
+											onOpenChange={() =>
+												setInfo((prev) => ({
+													...prev,
+													openFilter: false,
+												}))
+											}
+											placement="top"
+											title={
+												<div className="filter-container">
+													<div className="filter-items">
+														{filterGroups?.map((group, idx) => (
 															<div
-																className="eachCardContainer"
-																key={index}
-																onMouseEnter={() =>
-																	setInfo((prev) => ({
-																		...prev,
-																		hoveredCard: card,
-																	}))
-																}
-																onMouseLeave={() =>
-																	setInfo((prev) => ({
-																		...prev,
-																		hoveredCard: null,
-																	}))
-																}
-																onClick={() =>
-																	handleCardClick(card, index)
-																}
+																key={group?.title}
+																style={{ width: '100%' }}
 															>
-																{/* <Tooltip
-															title={
-																<div className="tooltipContainer">
-																	{card?.description || ''}
-																</div>
-															}
-															placement="bottomLeft"
-															arrow={false}
-															color={'transparent'}
-															mouseEnterDelay={0}
-															mouseLeaveDelay={0}
-															overlayStyle={{
-																position: 'fixed',
-																pointerEvents: 'none',
-															}}
-															overlayClassName={`tooltip-${card?._id}`}
-														> */}
-																<div
-																	className="cardContainerUnreadIndicator"
-																	style={{ cursor: 'pointer' }}
-																	onMouseMove={(e) => {
-																		const tooltip =
-																			document?.querySelector(
-																				`.tooltip-${card?._id}`,
-																			);
-																		if (tooltip) {
-																			tooltip.style.left = `${
-																				e.clientX + 10
-																			}px`;
-																			tooltip.style.top = `${
-																				e.clientY + 10
-																			}px`;
-																		}
-																	}}
-																>
-																	{!isRead && (
-																		<span className="unread"></span>
-																	)}
-																	<div className="cardContianerTitle">
-																		<span>
-																			{card?.title} -{' '}
-																		</span>
-																		{card?.description}
+																<div className="filter-item">
+																	<div className="filter-item-title">
+																		{group?.title || ''}
 																	</div>
-																</div>
-																{/* </Tooltip> */}
-																<div
-																	className={`cardOptionsMainContainer`}
-																>
-																	<div className="cardOptionsContainer">
-																		<Tooltip
-																			title={
-																				<div className="priorityTooltip">{`${
-																					card?.isFavourite ===
-																					true
-																						? 'Favorite'
-																						: 'Not Favourited'
-																				}`}</div>
-																			}
-																			placement="bottom"
-																			trigger={'hover'}
-																			arrow={false}
-																			color={'transparent'}
-																		>
-																			<div
-																				className={`starLogoContainer ${
-																					card?.isFavourite ===
-																					true
-																						? 'active'
-																						: ''
-																				}`}
-																				onClick={(e) => {
-																					e?.stopPropagation();
-																					handleFavouriteClick(
-																						card?._id,
-																					);
-																				}}
-																			>
-																				<StarSvg />
-																			</div>
-																		</Tooltip>
-																		{card?.moduleType ===
-																			'gmail' && (
-																			<>
-																				<div className="verticalLine"></div>
-																				<Tooltip
-																					title={
-																						<div className="emailContainer">
-																							{/* <div className="emailHeader">
-																				<div className="emailTitle">
-																					Summary of the mail
-																				</div>
-																				<div className="emailDescription">
-																					Establish ongoing
-																					check-ins and feedback
-																					sessions to identify
-																					customer requirements
-																					and modify our products
-																					as needed.Establish
-																					ongoing check-ins and
-																					feedback sessions to
-																					identify customer
-																					requirements and
-																					modifyEstablish ongoing
-																					check-ins and feedback
-																					sessions to identify
-																					customer requirements
-																					and modify our products
-																					as needed.Establish
-																					ongoing check-ins and
-																					feedback sessions to
-																					identify customer
-																					requirements and modify.
-																				</div>
-																			</div> */}
-																							<div className="relativeTime">
-																								<EmailIcon
-																									width={
-																										16
-																									}
-																									height={
-																										12
-																									}
-																								/>
-																								{
-																									messageAt
-																								}
-																							</div>
-																						</div>
-																					}
-																					placement="bottom"
-																					trigger={
-																						'hover'
-																					}
-																					arrow={false}
-																					color={
-																						'transparent'
-																					}
-																				>
-																					<div>
-																						<EmailIcon
-																							width={
-																								16
-																							}
-																							height={
-																								12
-																							}
-																						/>
-																					</div>
-																				</Tooltip>
-																			</>
-																		)}
-																		<div className="verticalLine"></div>
+																	<div className="filter-item-options">
+																		{group?.options?.map(
+																			(item) => {
+																				const itemWithGroup =
+																					{
+																						...item,
+																						group: group?.title,
+																					};
 
-																		{priority && (
-																			<>
-																				<div className="priorityOption">
-																					<Tooltip
-																						title={
-																							<div className="priorityTooltip">
-																								{`Priority: ${priority}`}
-																							</div>
+																				const isSelected =
+																					info?.selectedFilters?.some(
+																						(option) =>
+																							option?.title ===
+																								itemWithGroup?.title &&
+																							option?.group ===
+																								itemWithGroup?.group,
+																					);
+																				return (
+																					<div
+																						key={
+																							item?.id
 																						}
-																						placement="bottom"
-																						trigger={
-																							'hover'
-																						}
-																						arrow={
-																							false
-																						}
-																						color={
-																							'transparent'
+																						className="eachOption"
+																						onClick={() =>
+																							handleFilterClick(
+																								itemWithGroup,
+																								group?.title,
+																							)
 																						}
 																					>
-																						<div className="priority">
+																						{group?.title ===
+																							'Priority Level' && (
 																							<div
 																								className="indicator"
 																								style={{
-																									background:
-																										priority ===
-																										'High'
-																											? 'red'
-																											: priority ===
-																											  'Medium'
-																											? 'orange'
-																											: 'green',
+																									backgroundColor:
+																										item?.bgColor ||
+																										'',
 																								}}
 																							></div>
-																							<div className="priority-text">
-																								{
-																									priority
-																								}
-																							</div>
+																						)}
+																						<div className="option-text">
+																							<span className="option-text-content">
+																								{item?.title ||
+																									''}
+																							</span>
+																							{isSelected && (
+																								<TickIcon
+																									style={{
+																										marginLeft:
+																											'8px',
+																									}}
+																								/>
+																							)}
 																						</div>
-																					</Tooltip>
-																				</div>
-																				<div className="verticalLine"></div>
-																			</>
-																		)}
-
-																		<Tooltip
-																			title={
-																				<div className="confidenceScoreContainer">
-																					<AgentIcon fill="var(--primary-button)" />
-																					<div className="confidenceScoreDescription">
-																						<span>
-																							{card?.confidence_score *
-																								100}
-																							{'  '}%
-																						</span>{' '}
-																						Confidence
-																						that this
-																						task/message
-																						is aligned
-																						with the
-																						user's
-																						intent or
-																						ready for
-																						action.
 																					</div>
-																				</div>
-																			}
-																			placement="bottom"
-																			trigger={'hover'}
-																			arrow={false}
-																			color={'transparent'}
-																		>
-																			<div
-																				style={{
-																					fontSize:
-																						'12px',
-																				}}
-																				className="confidenceScore"
-																			>
-																				{card?.confidence_score *
-																					100}{' '}
-																				%
-																			</div>
-																		</Tooltip>
-																		<div className="verticalLine"></div>
-																		<Tooltip
-																			title={
-																				<div className="priorityTooltip">
-																					Last Updated At
-																				</div>
-																			}
-																			placement="bottom"
-																			trigger={'hover'}
-																			arrow={false}
-																			color={'transparent'}
-																		>
-																			<div className="relativeTime">
-																				<RelativeTimeSvg />
-																				{dayjs(
-																					card?.updatedAt *
-																						1000,
-																				).fromNow()}
-																			</div>
-																		</Tooltip>
+																				);
+																			},
+																		)}
 																	</div>
-																	{info?.hoveredCard?._id ===
-																		card?._id && (
-																		<div className="cardButtonsContainer">
-																			<div
-																				className="checkButton"
-																				onClick={(e) => {
-																					e.stopPropagation();
-																					handleViewReportClick(
-																						card,
-																					);
-																				}}
-																			>
-																				Check
-																				<ChevronRightThinSvg />
-																			</div>
-																		</div>
-																	)}
 																</div>
+																{idx < filterGroups?.length - 1 && (
+																	<hr
+																		style={{
+																			width: '100%',
+																			height: '1px',
+																			backgroundColor:
+																				'var(--stroke)',
+																			border: 'none',
+																			marginTop: '10px',
+																		}}
+																	/>
+																)}
 															</div>
-														);
-													})}
+														))}
+													</div>
 												</div>
-											),
-										)}
-									</div>
-								</InfiniteScroll>
-							)}
-						</div>
-					)}
-				</div>
-			) : (
-				info?.activeBtn === 'insights' && (
-					<>
-						<div className="cards-container">
-							{info?.loading ? (
-								[
-									{ position: 0 },
-									{ position: 1 },
-									{ position: 2 },
-									{ position: -1 },
-									{ position: -2 },
-								]?.map((item, index) => {
-									const classList = [
-										'card',
-										'skeleton',
-										positionClassMap[item.position],
-									];
-									return (
-										<div key={index} className={classList.join(' ')}>
+											}
+											color={'transparent'}
+											style={{ cursor: 'pointer', userSelect: 'none' }}
+											trigger={'click'}
+										>
 											<div
-												className="skeleton-container"
-												style={{
-													width: '100%',
-													height: '100%',
-													borderRadius: '10px',
+												className="action-left"
+												onClick={() => {
+													if (info?.openFilter) {
+														return;
+													}
+													setInfo((prev) => ({
+														...prev,
+														openFilter: true,
+													}));
 												}}
 											>
-												<Skeleton height={'100%'} width={'100%'} />
+												<button
+													className={`filter-btn ${
+														info?.openFilter ? 'active' : ''
+													}`}
+													data-tooltip="Filter"
+												>
+													<FilterIcon />
+												</button>
 											</div>
+										</Tooltip>
+
+										<div className="search-wrapper" data-tooltip="Search">
+											<div className="search-icon">
+												<SearchSvg />
+											</div>
+											<input
+												className="search-input"
+												placeholder="Search"
+												onChange={handleSearchQueryChange}
+												onFocus={() => (searchFocusedRef.current = true)}
+												onBlur={() => (searchFocusedRef.current = false)}
+											/>
 										</div>
-									);
-								})
-							) : info?.cards?.length === 0 ? (
-								<div className="no-data" style={{ color: 'var(--primary-font)' }}>
-									No data available
+									</div>
 								</div>
-							) : (
-								info?.cards?.map((card, index) => {
-									if (card?.position === null) return null;
-									const classList = ['card', positionClassMap[card?.position]];
-									return (
-										<div
-											key={index}
-											className={classList?.join(' ')}
-											onClick={() => handleCardClick(card, index)}
-										>
-											<div className="header">
-												<div className="card-description">
-													{card?.title}
+								{info?.loading ? (
+									[
+										{ position: 0 },
+										{ position: 1 },
+										{ position: 2 },
+										{ position: -1 },
+										{ position: -2 },
+									]?.map((item, index) => {
+										const classList = [
+											'card',
+											'skeleton',
+											positionClassMap[item.position],
+										];
+										return (
+											<div key={index} className={classList.join(' ')}>
+												<div
+													className="skeleton-container"
+													style={{
+														width: '100%',
+														height: '100%',
+														borderRadius: '10px',
+													}}
+												>
+													<Skeleton height={'100%'} width={'100%'} />
 												</div>
 											</div>
-											{classList?.[1] === 'selected' && (
-												<div className="footer">
-													<div className="module-type">
-														{card?.moduleType}
-													</div>
-													<div className="module-priority">
-														<span
-															style={{
-																backgroundColor:
-																	PriorityLevel[card?.priority],
-															}}
-														></span>
-														<div className="module-priority-text">
-															<div>{card?.priority}</div>
-															{card?.priority && card?.updatedAt && (
-																<div
-																	style={{
-																		color: 'var(--secondary-font)',
-																	}}
-																>
-																	|
-																</div>
-															)}
-															<Tooltip
-																title={dayjs(
-																	card?.updatedAt * 1000,
-																).format('MMMM D, YYYY h:mm A')}
-															>
-																<div>
-																	{dayjs(
-																		card?.updatedAt * 1000,
-																	)?.fromNow()}
-																</div>
-															</Tooltip>
+										);
+									})
+								) : info?.cards?.length === 0 ? (
+									<div
+										className="no-data"
+										style={{ color: 'var(--primary-font)' }}
+									>
+										No data available
+									</div>
+								) : (
+									info?.cards?.map((card, index) => {
+										if (card?.position === null) return null;
+										const classList = [
+											'card',
+											positionClassMap[card?.position],
+										];
+										return (
+											<>
+												<div
+													key={index}
+													className={classList?.join(' ')}
+													onClick={() => handleCardClick(card, index)}
+												>
+													<div className="header">
+														<div className="card-description">
+															{card?.title}
 														</div>
 													</div>
+													{classList?.[1] === 'selected' && (
+														<div className="footer">
+															<div className="module-type">
+																{card?.moduleType}
+															</div>
+															<div className="module-priority">
+																<span
+																	style={{
+																		backgroundColor:
+																			PriorityLevel[
+																				card?.priority
+																			],
+																	}}
+																></span>
+																<div className="module-priority-text">
+																	<div>{card?.priority}</div>
+																	{card?.priority &&
+																		card?.updatedAt && (
+																			<div
+																				style={{
+																					color: 'var(--secondary-font)',
+																				}}
+																			>
+																				|
+																			</div>
+																		)}
+																	<Tooltip
+																		title={dayjs(
+																			card?.updatedAt * 1000,
+																		).format(
+																			'MMMM D, YYYY h:mm A',
+																		)}
+																	>
+																		<div>
+																			{dayjs(
+																				card?.updatedAt *
+																					1000,
+																			)?.fromNow()}
+																		</div>
+																	</Tooltip>
+																</div>
+															</div>
+														</div>
+													)}
 												</div>
-											)}
-										</div>
-									);
-								})
-							)}
-						</div>
-
-						{info?.cards?.length && (
-							<div className="action-right">
-								<button className="card-change-btn" onClick={handleLeft}>
-									<ChevronRightThinSvg className="left-chevron" />
-								</button>
-								<div className="card-number">
-									<span>{currentIndexRef?.current + 1}</span>/
-									<span>{aiSuggestedPendingActions?.metaInfo?.totalDocs}</span>
-								</div>
-								<button className="card-change-btn" onClick={handleRight}>
-									<ChevronRightThinSvg />
-								</button>
+											</>
+										);
+									})
+								)}
+								{info?.cards?.length !== 0 && (
+									<>
+										<button
+											className="card-change-btn-left"
+											onClick={handleLeft}
+										>
+											<ChevronRightThinSvg className="left-chevron" />
+										</button>
+										<button
+											className="card-change-btn-right"
+											onClick={handleRight}
+										>
+											<ChevronRightThinSvg />
+										</button>
+									</>
+								)}
 							</div>
-						)}
-					</>
-				)
+
+							{info?.cards?.length > 0 && (
+								<div className="action-right">
+									<div className="card-number">
+										<span>{currentIndexRef?.current + 1}</span>/
+										<span>
+											{aiSuggestedPendingActions?.metaInfo?.totalDocs}
+										</span>
+									</div>
+								</div>
+							)}
+						</>
+					)}
+					<AISuggestionsModal
+						open={info?.openModal}
+						onClose={handleCloseModal}
+						data={info?.activeCardContent}
+						onNextCardClick={handleRight}
+						onPrevCardClick={handleLeft}
+						totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
+						selectedCardNumber={currentIndexRef?.current + 1}
+						onFavouriteClick={handleFavouriteClick}
+					/>
+				</>
 			)}
-			<AISuggestionsModal
-				open={info?.openModal}
-				onClose={handleCloseModal}
-				data={info?.activeCardContent}
-				onNextCardClick={handleRight}
-				onPrevCardClick={handleLeft}
-				totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
-				selectedCardNumber={currentIndexRef?.current + 1}
-				onFavouriteClick={handleFavouriteClick}
-			/>
+			<div className={`chatbox-container ${info?.showExploreMore ? 'slideUp' : ''}`}>
+				<ChatBox
+					onSend={handleCustomOnSendFunction}
+					customChatActions={true}
+					autoFocus={true}
+					animatePlaceholder={true}
+					onChatQueryChange={handleChatQueryChange}
+				/>
+			</div>
+			{promptsData?.data?.length > 0 && (
+				<>
+					<div
+						className="explore-more-btn"
+						onClick={(e) => {
+							e.stopPropagation();
+							handleExploreMoreClick(e);
+						}}
+					>
+						Explore More <DoubleUpArrowSvg />
+					</div>
+					{info?.showExploreMore && (
+						<div className="modal-container">
+							<InfiniteScroll
+								dataLength={promptsLenght}
+								next={() => fetchMoreAiSuggestedPrompts()}
+								hasMore={promptsHasNextPage || false}
+								loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
+								height={'70vh'}
+							>
+								<div className="modal-content-container">
+									{promptsData?.data?.map((prompt, index) => (
+										<div key={index} className="modal-content">
+											<div className="modal-content-title">
+												{prompt?.title}
+											</div>
+											<div className="modal-content-prompt">
+												{prompt?.category}
+											</div>
+										</div>
+									))}
+								</div>
+							</InfiniteScroll>
+						</div>
+					)}
+				</>
+			)}
 		</div>
 	);
 };
