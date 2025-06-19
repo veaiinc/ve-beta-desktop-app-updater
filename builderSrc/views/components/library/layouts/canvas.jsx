@@ -6120,6 +6120,19 @@ class Layout extends Component {
 						}
 						return `${parseFloat(adjustments?.animeDistance || 100)}px`;
 					};
+					const setInitialPosition = () => {
+						if (direction == 'top' || direction == 'bottom') {
+							element.style.transform = `translateY(${returnDistance(direction)})`;
+							element.style.opacity = 0;
+						} else {
+							element.style.transform = `translateX(${returnDistance(direction)})`;
+							element.style.opacity = 0;
+						}
+						adjustments.initialPositionSet = true;
+					};
+					if (!adjustments?.initialPositionSet) {
+						setInitialPosition();
+					}
 					element.style.willChange = 'opacity, transform';
 					const moveTween = gsap.fromTo(
 						element,
@@ -6250,6 +6263,18 @@ class Layout extends Component {
 			setTimeout(() => {
 				if (this.ScrollMagic) {
 					this.controller = new this.ScrollMagic.Controller();
+					const setInitialPosition = () => {
+						element.style.transform = `translate(${
+							parseFloat(getDirectionOffset(direction, intensity).x) || 100
+						},${parseFloat(getDirectionOffset(direction, intensity).y) || 100}) scale(${
+							parseFloat(scale / 100) || 1
+						})`;
+						element.style.opacity = 0;
+						adjustments.initialPositionSet = true;
+					};
+					if (!adjustments?.initialPositionSet) {
+						setInitialPosition();
+					}
 					element.style.willChange = 'opacity, transform';
 					const expandTween = gsap.fromTo(
 						element,
@@ -6376,6 +6401,19 @@ class Layout extends Component {
 			setTimeout(() => {
 				if (this.ScrollMagic) {
 					this.controller = new this.ScrollMagic.Controller();
+					const setInitialPosition = () => {
+						element.style.transform = `translate(${
+							parseFloat(getDirectionOffset(direction, intensity).x) || 100
+						},${parseFloat(getDirectionOffset(direction, intensity).y) || 100}) scale(${
+							parseFloat(scale / 100) || 1
+						})`;
+						element.style.opacity = 0;
+
+						adjustments.initialPositionSet = true;
+					};
+					if (!adjustments?.initialPositionSet) {
+						setInitialPosition();
+					}
 					element.style.willChange = 'opacity, transform';
 					const shrinkTween = gsap.fromTo(
 						element,
@@ -6582,6 +6620,18 @@ class Layout extends Component {
 						}
 						return `${parseFloat(adjustments?.animeDistance || 100)}px`;
 					};
+					const setInitialPosition = () => {
+						if (direction == 'top' || direction == 'down') {
+							element.style.transform = `translateY(${returnDistance(direction)})`;
+						} else {
+							element.style.transform = `translateX(${returnDistance(direction)})`;
+						}
+						adjustments.initialPositionSet = true;
+					};
+					if (!adjustments?.initialPositionSet) {
+						setInitialPosition();
+					}
+					element.style.willChange = 'transform';
 					const slideTween = gsap.fromTo(
 						element,
 						{
@@ -6957,6 +7007,15 @@ class Layout extends Component {
 					const translate = direction === 'left' ? -200 : 200;
 
 					const skew = direction === 'left' ? angle : -angle;
+					const setInitialPosition = () => {
+						element.style.transform = `translateX(${translate}) skewX(${skew})`;
+
+						adjustments.initialPositionSet = true;
+					};
+					if (!adjustments?.initialPositionSet) {
+						setInitialPosition();
+					}
+					element.style.willChange = 'transform';
 					const flyTween = gsap.fromTo(
 						element,
 						{
