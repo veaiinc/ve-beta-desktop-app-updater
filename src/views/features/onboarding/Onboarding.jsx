@@ -1,11 +1,13 @@
-import { memo, useContext, useEffect } from 'react';
+import { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/onboarding/index.scss';
-import Stages from '../../components/onboarding/Stages';
+import OnboardingStepper from './OnboardingStepper';
 import { ReactComponent as DarkModeGradient } from '../../../assets/svg/onboarding/dark-mode-gradient.svg';
 import { ReactComponent as LightModeGradient } from '../../../assets/svg/onboarding/light-mode-gradient.svg';
 import Context from '../../../context/context';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
+
 const aboutVe = `Hi! Welcome to VEAI, you can give me access to everything from your Slack, Google Drive files, Calendar, Notion documents, and Salesforce. I'll help you get answers from data you don't have the time or energy to go through, help find connections between points in multiple different documents, record and summarize meetings you join (or the ones you skip).`;
+
 export const animateFadeIn = (selector) => {
 	const element = document.querySelector(selector);
 	if (element) {
@@ -17,6 +19,8 @@ const Onboarding = () => {
 	const {
 		themeInfo: { theme },
 	} = useContext(Context);
+
+	const [currentStep, setCurrentStep] = useState(1);
 
 	const isDarkMode =
 		theme === 'systemDefault'
@@ -30,18 +34,17 @@ const Onboarding = () => {
 
 	return (
 		<div className="onboardingContainer">
-			<div className="onboardingContainer-left">
-				<div className="onboarding-header">
-					<div className="logo">
-						<VeLogo />
-					</div>
+			<div className="onboarding-header">
+				<div className="logo">
+					<VeLogo />
 				</div>
+			</div>
+			<div className="onboarding-main">
 				<div className="stages-container">
-					<Stages />
+					<OnboardingStepper onStepChange={setCurrentStep} />
 				</div>
 			</div>
-			<div className="onboardingContainer-right">
-			</div>
+			{/* {currentStep === 1 && <div className="onboardingContainer-right"></div>} */}
 		</div>
 	);
 };

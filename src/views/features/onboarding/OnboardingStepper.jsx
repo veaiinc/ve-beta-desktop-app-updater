@@ -1,0 +1,78 @@
+import React, { useState, useEffect } from 'react';
+import Stages from '../../components/onboarding/Stages';
+import StepIntro from './StepIntro';
+import StepKnowEachOther from './StepKnowEachOther';
+import StepGoalsMission from './StepGoalsMission';
+import ProgressBar from '../../components/onboarding/ProgressBar';
+
+const initialData = {
+	userWorkspaceDetails: {},
+	knowEachOther: {},
+	goals: {},
+};
+
+const OnboardingStepper = ({ onStepChange }) => {
+	const [step, setStep] = useState(1);
+	const [data, setData] = useState(initialData);
+
+	useEffect(() => {
+		onStepChange?.(step);
+	}, [step, onStepChange]);
+
+	const handleNext = (stepData) => {
+		setData((prev) => ({ ...prev, ...stepData }));
+		setStep((prev) => prev + 1);
+	};
+
+	const handleBack = () => {
+		setStep((prev) => prev - 1);
+	};
+
+	let content;
+	let showProgressBar = false;
+	let progress = 0;
+
+	switch (step) {
+		case 1:
+			content = (
+				<Stages onNext={(stepData) => handleNext({ userWorkspaceDetails: stepData })} />
+			);
+			break;
+		case 2:
+			content = <StepIntro onNext={() => setStep(3)} onBack={handleBack} />;
+			break;
+		case 3:
+			showProgressBar = true;
+			progress = 0.5;
+			content = (
+				<StepKnowEachOther
+					data={data.knowEachOther}
+					onNext={(stepData) => handleNext({ knowEachOther: stepData })}
+					onBack={handleBack}
+				/>
+			);
+			break;
+		case 4:
+			showProgressBar = true;
+			progress = 1;
+			content = (
+				<StepGoalsMission
+					data={data.goals}
+					onNext={(stepData) => handleNext({ goals: stepData })}
+					onBack={handleBack}
+				/>
+			);
+			break;
+		default:
+			content = <div>Onboarding Complete!</div>;
+	}
+
+	return (
+		<>
+			{/* {showProgressBar && <ProgressBar progress={progress} />} */}
+			{content}
+		</>
+	);
+};
+
+export default OnboardingStepper;
