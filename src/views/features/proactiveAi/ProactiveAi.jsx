@@ -112,14 +112,8 @@ const ProactiveAi = () => {
 					stream_end: true,
 				},
 			];
-			const sessionId = card?.sessionId || ObjectID()?.toString();
-
-			handleGlobalChatMessages({
-				updateExtraInfo: true,
-				recentChatMessages: messages,
-				sessionId,
-			});
-			navigate(`/chat/${sessionId}`);
+			updateStateValues({ globalChatMessages: messages });
+			navigate(`/chat/${ObjectID()?.toString()}`);
 		},
 		[info?.chainOfThoughtData],
 	);

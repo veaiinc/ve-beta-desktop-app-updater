@@ -25,6 +25,7 @@ const AIMessage = ({
 	citations = null,
 	messageData,
 	isLastMessage = false,
+	isNewMessage = false,
 	showCanvas = true,
 	handleSendWebsocketMessage = null,
 	latestStreamMesage = null,
@@ -140,7 +141,7 @@ const AIMessage = ({
 				<div
 					className="hover-actions-container"
 					style={{
-						visibility: isLastMessage ? 'visible' : '',
+						visibility: isNewMessage ? 'visible' : '',
 					}}
 				>
 					<div className="left-container">
@@ -250,7 +251,7 @@ export default memo(AIMessage, (prevProps, nextProps) => {
 		prevProps.rating === nextProps.rating &&
 		JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
 		prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
-		prevProps.isLastMessage === nextProps.isLastMessage &&
+		prevProps.isNewMessage === nextProps.isNewMessage &&
 		prevProps.lastQuery === nextProps.lastQuery &&
 		prevProps.latestStreamMesage === nextProps.latestStreamMesage
 	);

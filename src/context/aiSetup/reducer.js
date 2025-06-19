@@ -25,37 +25,6 @@ const actionHandlers = {
 		...state,
 		aiChatSessions: action?.payload,
 	}),
-	SET_AI_CHAT_SESSIONS_BY_ID: (state, action) => {
-		const payload = action?.payload;
-		let aiChatSessions = state?.aiChatSessions;
-
-		if (!aiChatSessions) {
-			aiChatSessions = {
-				data: [{ ...payload }],
-				hasMore: false,
-				currentPage: 1,
-				getData: true,
-			};
-			return {
-				...state,
-				aiChatSessions,
-			};
-		}
-
-		let foundIndex = (aiChatSessions?.data || [])?.findIndex(
-			(item) => item?._id === payload?._id,
-		);
-		if (foundIndex !== -1) {
-			aiChatSessions.data[foundIndex] = payload;
-		} else {
-			aiChatSessions?.data?.unshift(payload);
-		}
-
-		return {
-			...state,
-			aiChatSessions,
-		};
-	},
 	SET_AI_ASSISTANTS: (state, action) => ({
 		...state,
 		[action?.selectedVariable]: action?.payload,

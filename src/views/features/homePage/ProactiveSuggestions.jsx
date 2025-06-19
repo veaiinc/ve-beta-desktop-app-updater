@@ -123,7 +123,6 @@ const ProactiveSuggestions = () => {
 			updateStateValues,
 			getAiQuestions,
 			aiQuestions,
-			handleGlobalChatMessages,
 		},
 	} = useContext(Context);
 
@@ -457,15 +456,13 @@ const ProactiveSuggestions = () => {
 				stream_end: true,
 			},
 		];
-		const sessionId = card?.sessionId || ObjectID()?.toString();
-		handleGlobalChatMessages({
-			updateExtraInfo: true,
-			recentChatMessages: messages,
-			sessionId,
-		});
-		navigate(`/chat/${sessionId}`);
+		updateStateValues({ globalChatMessages: messages });
+		if (card?.sessionId) {
+			navigate(`/chat/${card?.sessionId}`);
+		} else {
+			navigate(`/chat/${ObjectID()?.toString()}`);
+		}
 	}, []);
-
 	const handleViewChange = (view) => {
 		setInfo((prev) => ({
 			...prev,

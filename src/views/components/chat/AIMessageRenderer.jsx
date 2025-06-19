@@ -34,7 +34,7 @@ const AIMessageRenderer = ({
 	chatContentElement = null,
 }) => {
 	const {
-		templates: { globalChatMessages, currentSessionId },
+		templates: { globalChatMessages },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		activeTab: 'response',
@@ -97,15 +97,14 @@ const AIMessageRenderer = ({
 					rating={messageData?.rating}
 					citations={messageData?.citations}
 					messageData={messageData}
+					isNewMessage={index === globalChatMessages?.length - 1}
 					handleSendWebsocketMessage={handleSendWebsocketMessage}
 					latestStreamMesage={latestStreamMesage}
 					lastQuery={lastQuery}
 					toggleLatestStreamMessage={toggleLatestStreamMessage}
 					handleViewDocument={handleViewDocument}
 					showViewDocument={showViewDocument}
-					isLastMessage={
-						index === globalChatMessages?.[currentSessionId]?.messages?.length - 1
-					}
+					isLastMessage={index === globalChatMessages?.length - 1}
 					isPublicChat={isPublicChat}
 				/>
 			</>
@@ -121,11 +120,9 @@ const AIMessageRenderer = ({
 				}}
 			>
 				<div className="user-message-wrapper">
-					{globalChatMessages?.[currentSessionId]?.messages?.[
-						index - 1
-					]?.type?.toLowerCase() === 'user' && (
+					{globalChatMessages[index - 1]?.type?.toLowerCase() === 'user' && (
 						<div className="user-message-content">
-							{globalChatMessages?.[currentSessionId]?.messages?.[index - 1]?.message}
+							{globalChatMessages[index - 1]?.message}
 						</div>
 					)}
 				</div>
@@ -186,18 +183,14 @@ const AIMessageRenderer = ({
 						rating={messageData?.rating}
 						citations={messageData?.citations}
 						messageData={messageData}
-						isNewMessage={
-							index === globalChatMessages?.[currentSessionId]?.messages?.length - 1
-						}
+						isNewMessage={index === globalChatMessages?.length - 1}
 						handleSendWebsocketMessage={handleSendWebsocketMessage}
 						latestStreamMesage={latestStreamMesage}
 						lastQuery={lastQuery}
 						toggleLatestStreamMessage={toggleLatestStreamMessage}
 						handleViewDocument={handleViewDocument}
 						showViewDocument={showViewDocument}
-						isLastMessage={
-							index === globalChatMessages?.[currentSessionId]?.messages?.length - 1
-						}
+						isLastMessage={index === globalChatMessages?.length - 1}
 						isPublicChat={isPublicChat}
 					/>
 				</>

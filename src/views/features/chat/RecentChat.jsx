@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useState, useRef, useEffect, useContext, Fragment } from 'react';
 import '../../../assets/scss/chat/chat.scss';
+import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import {
 	handleDeepSearchChainOfThought,
 	handleDeepResearchChainOfThought,
@@ -14,6 +15,7 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
+import useChatStream from '../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as PlusCircleSvg } from '../../../assets/svg/ai_agents/plus-cricle.svg';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
@@ -47,20 +49,12 @@ const RecentChat = ({
 			getRecentChatMessages,
 			recentChatStorage,
 			moreRecentChatStorage,
-			handleGlobalChatMessages,
+			handleStreamMessageChunk,
+			globalLoadingMesssage,
 			chatInfo,
 			currentChatData,
 			chatHistoryDrawerIsOpen,
 			currentSessionId,
-			updateChatLoadingSessions,
-			newChatSessionIds,
-		},
-		aiSetup: { updateAiChatSessions },
-		chatStream: {
-			createWebSocketConnection,
-			sendMessage,
-			closeWebSocketConnection,
-			removeCurrentSessionId,
 		},
 	} = useContext(Context);
 
@@ -81,14 +75,17 @@ const RecentChat = ({
 		activeUserMessageIndex: null,
 		renderingTwice: false,
 		initialRendering: false,
+		scrollExecuted: false,
 		previousAgentType: null,
 		showScrollButton: false,
 		showViewDocument: false,
 		tooltipStyles: { visible: false, styles: { top: 0, left: 0 }, selectedText: '' },
 	});
 
+	const { createWebSocketConnection, sendMessage } = useChatStream();
 	const chatContentRef = useRef(null);
-	const chatMessagesRef = useRef([]);
+	const loadingMessageRef = useRef(globalLoadingMesssage);
+	const chatMessagesRef = useRef(globalChatMessages || []);
 	let { sessionId } = useParams();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const userMessagesRefs = useRef({});
@@ -99,8 +96,7 @@ const RecentChat = ({
 	const isFirstTimeConnectingToPublicChatRef = useRef(true);
 	const navigate = useNavigate();
 	const location = useLocation();
-	const newChatSessionIdsRef = useRef(newChatSessionIds);
-	const globalChatMessagesRef = useRef(globalChatMessages);
+
 	sessionId = isPreview ? sId : sessionId;
 
 	useEffect(() => {
@@ -128,6 +124,7 @@ const RecentChat = ({
 				updateStateValues({
 					moreRecentChatStorage: null,
 					recentChatStorage: null,
+					globalChatMessages: [],
 					citations: null,
 					chatPayload: {
 						workflowTemplateId: null,
@@ -136,19 +133,7 @@ const RecentChat = ({
 					chatReplyData: null,
 				});
 			}, 0);
-
-			const sessionIdsToClose = newChatSessionIdsRef?.current?.filter(
-				(id) => !globalChatMessagesRef?.current?.[id]?.isStreaming,
-			);
-			if (sessionIdsToClose?.length > 0) {
-				closeWebSocketConnection(sessionIdsToClose);
-			}
-			handleGlobalChatMessages({
-				removeChatSessions: true,
-				updateExtraInfo: true,
-			});
-			removeCurrentSessionId();
-			updateStateValues({ newChatSessionIds: [], currentSessionId: null });
+			updateStateValues({ currentSessionId: ObjectID()?.toString() });
 		};
 	}, []);
 
@@ -171,7 +156,7 @@ const RecentChat = ({
 				updateStateValues({
 					moreRecentChatStorage: null,
 					recentChatStorage: null,
-					// globalChatMessages: [],
+					globalChatMessages: [],
 					citations: null,
 					chatPayload: {
 						workflowTemplateId: null,
@@ -186,37 +171,16 @@ const RecentChat = ({
 				}));
 			}
 
-			if (!globalChatMessages?.[sessionId]) {
-				getRecentChatMessages(sessionId, 1, false, 1000, isPublicChat);
-			}
-
-			const sessionIdsToClose = newChatSessionIds?.filter(
-				(id) => !globalChatMessages?.[id]?.isStreaming,
-			);
-			const sessionIdsStillOpen = newChatSessionIds?.filter(
-				(id) => globalChatMessages?.[id]?.isStreaming,
-			);
-			if (sessionIdsToClose?.length > 0) {
-				closeWebSocketConnection(sessionIdsToClose);
-			}
-			newChatSessionIdsRef.current = [...sessionIdsStillOpen, sessionId];
-
-			handleGlobalChatMessages({
-				sessionId,
-				removeChatSessions: true,
-				updateExtraInfo: true,
-			});
-
+			getRecentChatMessages(sessionId, 1, false, 1000, isPublicChat);
 			setInfo((prev) => ({
 				...prev,
 				chatLoading: true,
 				chatSessionId: sessionId,
 				renderingTwice: true,
 			}));
-			updateStateValues({
-				currentSessionId: sessionId,
-				newChatSessionIds: newChatSessionIdsRef.current,
-			});
+			if (currentSessionId !== sessionId) {
+				updateStateValues({ currentSessionId: sessionId });
+			}
 		}
 	}, [sessionId]);
 
@@ -242,16 +206,13 @@ const RecentChat = ({
 	}, [sessionId, searchParams]);
 
 	useEffect(() => {
-		if (globalChatMessages?.[sessionId]?.messages?.length > 2 && !info?.scrollExecuted) {
+		if (globalChatMessages?.length > 2 && !info?.scrollExecuted) {
 			setTimeout(() => {
 				smoothScrollToLastMessage();
 			}, 0);
-			setInfo((prev) => ({
-				...prev,
-				scrollExecuted: true,
-			}));
+			setInfo((prev) => ({ ...prev, scrollExecuted: true }));
 		}
-	}, [globalChatMessages, sessionId]);
+	}, [globalChatMessages]);
 
 	// useEffect(() => {
 	// 	if (!chatContentRef?.current || !tabsRefs?.current) return;
@@ -290,9 +251,7 @@ const RecentChat = ({
 	// }, [globalChatMessages]);
 
 	useEffect(() => {
-		globalChatMessagesRef.current = globalChatMessages;
-		if (!sessionId) return;
-		chatMessagesRef.current = [...(globalChatMessages?.[sessionId]?.messages || [])];
+		chatMessagesRef.current = [...(globalChatMessages || [])];
 
 		const container = chatContentRef.current;
 		if (!container) return;
@@ -349,7 +308,7 @@ const RecentChat = ({
 			visibleUserMessagesSet?.clear();
 			observer.disconnect();
 		};
-	}, [globalChatMessages, sessionId]);
+	}, [globalChatMessages]);
 
 	// useEffect(() => {
 	// 	if (info?.activeAIMessageId) {
@@ -362,7 +321,7 @@ const RecentChat = ({
 	useEffect(() => {
 		if (recentChatStorage) {
 			const firstTimeApiCall = true;
-			recentChatHandler(recentChatStorage, false, firstTimeApiCall);
+			recentChatHandler(recentChatStorage, true, firstTimeApiCall);
 		}
 	}, [recentChatStorage]);
 
@@ -467,7 +426,7 @@ const RecentChat = ({
 	};
 
 	const recentChatHandler = useCallback(
-		(inComingData, fetchMore = false, firstTimeApiCall = false) => {
+		(inComingData, fetcMore = false, firstTimeApiCall = false) => {
 			const { data, hasNextPage, currentPage } = inComingData;
 			let messages = [];
 			let chatPayload = {
@@ -541,56 +500,32 @@ const RecentChat = ({
 				]?.concat(messages);
 			}
 
-			if (messages?.length > 0) {
-				handleGlobalChatMessages({
-					sessionId,
-					fetchMore,
-					recentChatMessages: messages,
-					updateExtraInfo: true,
+			if (fetcMore) {
+				updateStateValues({
+					globalChatMessages: messages?.concat(chatMessagesRef?.current),
 					...(chatPayload?.moduleTemplateId &&
 						chatPayload?.workflowTemplateId && { chatPayload }),
 				});
+				// if (chatContentRef?.current) {
+				// 	chatContentRef.current.scrollBy({
+				// 		top: 300, // Reduced from 500 for smoother feel
+				// 		behavior: 'smooth',
+				// 	});
+				// }
+			} else {
+				updateStateValues({
+					globalChatMessages: messages,
+					...(chatPayload?.moduleTemplateId &&
+						chatPayload?.workflowTemplateId && { chatPayload }),
+				});
+				// setTimeout(() => {
+				// 	// smoothScrollToBottom();
+				// }, 1000);
 			}
-			// updateStateValues({
-			// 	...(chatPayload?.moduleTemplateId &&
-			// 		chatPayload?.workflowTemplateId && { chatPayload }),
-			// });
-
-			// if (fetcMore) {
-			// 	updateStateValues({
-			// 		globalChatMessages: {
-			// 			...(globalChatMessages || {}),
-			// 			[sessionId]: {
-			// 				...(globalChatMessages?.[sessionId] || {}),
-			// 				messages: messages?.concat(chatMessagesRef?.current),
-			// 			},
-			// 		},
-			// 		...(chatPayload?.moduleTemplateId &&
-			// 			chatPayload?.workflowTemplateId && { chatPayload }),
-			// 	});
-			// 	// if (chatContentRef?.current) {
-			// 	// 	chatContentRef.current.scrollBy({
-			// 	// 		top: 300, // Reduced from 500 for smoother feel
-			// 	// 		behavior: 'smooth',
-			// 	// 	});
-			// 	// }
-			// } else {
-			// 	updateStateValues({
-			// 		globalChatMessages: {
-			// 			...(globalChatMessages || {}),
-			// 			[sessionId]: {
-			// 				...(globalChatMessages?.[sessionId] || {}),
-			// 				messages,
-			// 			},
-			// 		},
-			// 		...(chatPayload?.moduleTemplateId &&
-			// 			chatPayload?.workflowTemplateId && { chatPayload }),
-			// 	});
-			// }
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
 		},
-		[sessionId],
+		[],
 	);
 
 	const handleRatingClick = useCallback(async (type, messageId) => {
@@ -608,13 +543,7 @@ const RecentChat = ({
 						}
 						return chat;
 					});
-
-					handleGlobalChatMessages({
-						updateExtraInfo: true,
-						recentChatMessages: messages,
-						sessionId: currentSessionId,
-					});
-					chatMessagesRef.current = messages;
+					updateStateValues({ globalChatMessages: messages });
 				}
 			}
 		} catch (error) {
@@ -628,7 +557,6 @@ const RecentChat = ({
 			noteModalIsOpen: false,
 		}));
 	};
-
 	const handleCloseCitationsModal = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -695,73 +623,53 @@ const RecentChat = ({
 	);
 
 	// stream chat
-	const onMessageFunc = useCallback(
-		(event, currentSessionId) => {
-			let { data = '' } = event || {};
-			data = JSON?.parse(data);
+	const onMessageFunc = useCallback((event) => {
+		let { data = '' } = event || {};
+		data = JSON?.parse(data);
 
-			if (data?.hasOwnProperty('intermediate_response') || data?.memory_thinking) {
-				handleGlobalChatMessages({
-					payload: data,
-					sessionId,
-					updateExtraInfo: true,
-				});
+		if (data?.hasOwnProperty('intermediate_response')) {
+			if (data?.intermediate_response_done === true) {
+				loadingMessageRef.current = null;
 				return;
 			}
-			if (data?.user_id) {
-				localStorage?.setItem('user_id', data?.user_id);
+
+			loadingMessageRef.current = loadingMessageRef?.current || '';
+			loadingMessageRef.current += data?.intermediate_response || '';
+			updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
+			return;
+		}
+		if (data?.memory_thinking) {
+			updateStateValues({ globalLoadingMesssage: data?.memory_thinking });
+			return;
+		}
+		if (data?.type === 'variableRequirement') {
+			loadingMessageRef.current = null;
+		}
+		if (data?.user_id) {
+			localStorage?.setItem('user_id', data?.user_id);
+		}
+		let chatPayload = null;
+		if (data?.stream_end) {
+			const { workflow_template_id, module_template_id } = data;
+			if (workflow_template_id || module_template_id) {
+				chatPayload = {
+					workflowTemplateId: workflow_template_id,
+					moduleTemplateId: module_template_id,
+				};
 			}
+			updateStateValues({
+				globalLoadingMesssage: null,
+				...(chatPayload && { chatPayload }),
+				...(chatMessagesRef?.current?.length === 2 && { refetchChatHistoryList: true }),
+			});
+			setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
+		}
+		const { message_chunk_id } = data;
 
-			if (data?.stream_end) {
-				if (sessionId !== currentSessionId) {
-					closeWebSocketConnection([sessionId]);
-					updateChatLoadingSessions({ sessionId, isStreaming: false, isNotSeen: true });
-				} else {
-					updateChatLoadingSessions({ sessionId, removeSessionId: true });
-				}
-
-				handleGlobalChatMessages({
-					removeLoadingMessage: true,
-					sessionId,
-					updateExtraInfo: true,
-					removeStreaming: true,
-					...(data?.module_template_id &&
-						data?.workflow_template_id && {
-							chatPayload: {
-								moduleTemplateId: data?.module_template_id,
-								workflowTemplateId: data?.workflow_template_id,
-							},
-						}),
-					latestStreamMessage: data,
-				});
-
-				if (chatMessagesRef?.current?.length === 2) {
-					const payload = {
-						sessionId,
-						page: 1,
-						limit: 5,
-					};
-					updateAiChatSessions(payload);
-				}
-				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
-			}
-			const { message_chunk_id } = data;
-
-			if (message_chunk_id) {
-				handleGlobalChatMessages({
-					payload: data,
-					chunkId: message_chunk_id,
-					sessionId,
-					updateExtraInfo: false,
-					...(data?.stream_end &&
-						sessionId !== currentSessionId && {
-							removeChatSession: true,
-						}),
-				});
-			}
-		},
-		[globalChatMessages, sessionId],
-	);
+		if (message_chunk_id) {
+			handleStreamMessageChunk(data, message_chunk_id);
+		}
+	}, []);
 
 	const handleSendWebsocketMessage = useCallback(
 		async (data, lastQuery) => {
@@ -769,17 +677,12 @@ const RecentChat = ({
 				await sendMessage(data);
 				smoothScrollToLastMessage();
 				setInfo((prev) => ({ ...prev, lastQuery: lastQuery }));
-				handleGlobalChatMessages({
-					sessionId,
-					lastQuery,
-					updateExtraInfo: true,
-				});
 			} catch (error) {
 				console.error('Failed to send message:', error);
 				// Handle error appropriately (show notification, etc.)
 			}
 		},
-		[sendMessage, sessionId],
+		[sendMessage],
 	);
 
 	const toggleLatestStreamMessage = useCallback(() => {
@@ -884,110 +787,109 @@ const RecentChat = ({
 								className="smooth-scroll"
 							>
 								<div className="chatContent" style={{ flex: 1 }}>
-									{(globalChatMessages?.[sessionId]?.messages || [])?.map(
-										(chat, index) =>
-											chat?.content ? (
-												<Fragment key={index}>{chat?.content}</Fragment>
-											) : (
-												<div
-													key={index}
-													className={`chat-message ${chat?.type?.toLowerCase()}-message chat-${index}`}
-												>
-													<div className="message-content">
-														{chat?.type?.toLowerCase() === 'ai' ? (
-															<div
-																className="content"
-																style={{
-																	opacity:
-																		index ===
-																		info?.activeAIMessageIndex
-																			? 1
-																			: 0.6,
-																}}
-																// ref={(el) => {
-																// 	if (
-																// 		el &&
-																// 		!aiMessagesRef.current.includes(
-																// 			el,
-																// 		)
-																// 	) {
-																// 		aiMessagesRef?.current?.push(
-																// 			el,
-																// 		);
-																// 	}
-																// }}
-																data-message-id={chat?.messageId}
-																data-index={index}
-															>
-																<AIMessageRenderer
-																	messageData={chat}
-																	userMessageElement={
-																		userMessagesRefs.current?.[
-																			index - 1
-																		]
-																	}
-																	chatContentElement={
-																		chatContentRef?.current
-																	}
-																	handleNoteComponentModalOpen={
-																		handleNoteComponentModalOpen
-																	}
-																	handleRatingClick={
-																		handleRatingClick
-																	}
-																	tabsRefs={tabsRefs}
-																	index={index}
-																	handleSendWebsocketMessage={
-																		handleSendWebsocketMessage
-																	}
-																	toggleLatestStreamMessage={
-																		toggleLatestStreamMessage
-																	}
-																	latestStreamMesage={
-																		info?.latestStreamMesage
-																	}
-																	lastQuery={info?.lastQuery}
-																	handleViewDocument={
-																		handleViewDocument
-																	}
-																	showViewDocument={
-																		info?.showViewDocument
-																	}
-																	isPublicChat={isPublicChat}
-																/>
-															</div>
-														) : (
-															<div
-																ref={(el) => {
-																	if (
-																		el &&
-																		!userMessagesRefs.current?.[
-																			index
-																		]
-																	) {
-																		userMessagesRefs.current[
-																			index
-																		] = el;
-																	}
-																}}
-																data-index={index}
-																key={index}
-																style={{
-																	opacity:
-																		index ===
-																		info?.activeUserMessageIndex
-																			? 1
-																			: 0.6,
-																}}
-															>
-																<UserMessageRenderer
-																	messageData={chat}
-																/>
-															</div>
-														)}
-													</div>
+									{(globalChatMessages || [])?.map((chat, index) =>
+										chat?.content ? (
+											<Fragment key={index}>{chat?.content}</Fragment>
+										) : (
+											<div
+												key={index}
+												className={`chat-message ${chat?.type?.toLowerCase()}-message chat-${index}`}
+											>
+												<div className="message-content">
+													{chat?.type?.toLowerCase() === 'ai' ? (
+														<div
+															className="content"
+															style={{
+																opacity:
+																	index ===
+																	info?.activeAIMessageIndex
+																		? 1
+																		: 0.6,
+															}}
+															// ref={(el) => {
+															// 	if (
+															// 		el &&
+															// 		!aiMessagesRef.current.includes(
+															// 			el,
+															// 		)
+															// 	) {
+															// 		aiMessagesRef?.current?.push(
+															// 			el,
+															// 		);
+															// 	}
+															// }}
+															data-message-id={chat?.messageId}
+															data-index={index}
+														>
+															<AIMessageRenderer
+																messageData={chat}
+																userMessageElement={
+																	userMessagesRefs.current?.[
+																		index - 1
+																	]
+																}
+																chatContentElement={
+																	chatContentRef?.current
+																}
+																handleNoteComponentModalOpen={
+																	handleNoteComponentModalOpen
+																}
+																handleRatingClick={
+																	handleRatingClick
+																}
+																tabsRefs={tabsRefs}
+																index={index}
+																handleSendWebsocketMessage={
+																	handleSendWebsocketMessage
+																}
+																toggleLatestStreamMessage={
+																	toggleLatestStreamMessage
+																}
+																latestStreamMesage={
+																	info?.latestStreamMesage
+																}
+																lastQuery={info?.lastQuery}
+																handleViewDocument={
+																	handleViewDocument
+																}
+																showViewDocument={
+																	info?.showViewDocument
+																}
+																isPublicChat={isPublicChat}
+															/>
+														</div>
+													) : (
+														<div
+															ref={(el) => {
+																if (
+																	el &&
+																	!userMessagesRefs.current?.[
+																		index
+																	]
+																) {
+																	userMessagesRefs.current[
+																		index
+																	] = el;
+																}
+															}}
+															data-index={index}
+															key={index}
+															style={{
+																opacity:
+																	index ===
+																	info?.activeUserMessageIndex
+																		? 1
+																		: 0.6,
+															}}
+														>
+															<UserMessageRenderer
+																messageData={chat}
+															/>
+														</div>
+													)}
 												</div>
-											),
+											</div>
+										),
 									)}
 								</div>
 							</InfiniteScroll>
