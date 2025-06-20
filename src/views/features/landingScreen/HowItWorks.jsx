@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import s from '../../../assets/scss/landingScreen/howItWorks.module.scss';
-import HeroImage from '../../../assets/svg/landingScreen/hero.svg';
+import FeatureCards from './FeatureCards';
 const HowItWorks = () => {
 	return (
 		<div className={s.howItWorksContainer}>
@@ -25,7 +25,17 @@ const HowItWorks = () => {
 					</p>
 				</div>
 			</div>
-			<img src={HeroImage} alt="homepage" className="homepageImage" />
+			<FeatureCards />
+			{/* <div className={s.howItWorksImageContainer}>
+				<div className={s.howItWorksImage}>
+					<video autoPlay muted loop className={s.videoContainer}>
+						<source
+							src="https://ap.images.ve.ai/public/dashboard/landing_page.mp4"
+							type="video/mp4"
+						/>
+					</video>
+				</div>
+			</div> */}
 			{/* <div className={s.bottom}>
 				<div className={`${s.feature} ${s.feature1}`}>
 					<div className={s.image}>
