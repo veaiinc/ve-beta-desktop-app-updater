@@ -824,6 +824,9 @@ const RecentChat = ({
 		const response = await deleteChatSession(sessionId);
 		if (response?.[0] === true) {
 			navigate('/home');
+			updateStateValues({
+				refetchChatHistoryList: true,
+			});
 		} else {
 			message.error('Failed to delete chat session');
 		}
