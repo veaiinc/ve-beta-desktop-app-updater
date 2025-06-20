@@ -1162,11 +1162,15 @@ class Layout1 extends Component {
 										/>
 									) : (
 										<div>
-											{this?.state?.client
-												? subTotal
-												: String(
-														this.state.style?.subTotalValue || '',
-												  ).replace(/<[^>]*>/g, '')}
+											{this.state.client ? (
+												subTotal
+											) : (
+												<div
+													dangerouslySetInnerHTML={{
+														__html: this.state.style?.subTotalValue,
+													}}
+												/>
+											)}
 										</div>
 									)}
 								</div>
