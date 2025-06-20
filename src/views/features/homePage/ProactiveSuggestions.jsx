@@ -824,10 +824,9 @@ const ProactiveSuggestions = () => {
 								)}
 							</div>
 
-							{info?.cards?.length && (
-								<div className="actionMainContainer">
-									<div className="right-container">
-										{/* <div className="viewSelectionContainer">
+							<div className="actionMainContainer">
+								<div className="right-container">
+									{/* <div className="viewSelectionContainer">
 						<Tooltip
 							arrow={false}
 							title={<div className="tooltipTitle">List View</div>}
@@ -857,14 +856,14 @@ const ProactiveSuggestions = () => {
 						</Tooltip>
 					</div> */}
 
-										<div
-											style={{
-												display: 'flex',
-												flexDirection: 'row',
-												gap: '6px',
-											}}
-										>
-											{/* <Tooltip
+									<div
+										style={{
+											display: 'flex',
+											flexDirection: 'row',
+											gap: '6px',
+										}}
+									>
+										{/* <Tooltip
 												placement="bottom"
 												title={
 													<div className="tooltipTitle">
@@ -887,156 +886,149 @@ const ProactiveSuggestions = () => {
 												</div>
 											</Tooltip> */}
 
-											<div className="search-wrapper" data-tooltip="Search">
-												<div className="search-icon">
-													<SearchSvg />
-												</div>
-												<input
-													className="search-input"
-													placeholder="Search"
-													onChange={handleSearchQueryChange}
-													onFocus={() =>
-														(searchFocusedRef.current = true)
-													}
-													onBlur={() =>
-														(searchFocusedRef.current = false)
-													}
-												/>
+										<div className="search-wrapper" data-tooltip="Search">
+											<div className="search-icon">
+												<SearchSvg />
 											</div>
-											<Tooltip
-												open={info?.openFilter}
-												onOpenChange={() =>
+											<input
+												className="search-input"
+												placeholder="Search"
+												onChange={handleSearchQueryChange}
+												onFocus={() => (searchFocusedRef.current = true)}
+												onBlur={() => (searchFocusedRef.current = false)}
+											/>
+										</div>
+										<Tooltip
+											open={info?.openFilter}
+											onOpenChange={() =>
+												setInfo((prev) => ({
+													...prev,
+													openFilter: false,
+												}))
+											}
+											placement="top"
+											title={
+												<div className="filter-container">
+													<div className="filter-items">
+														{filterGroups?.map((group, idx) => (
+															<div
+																key={group?.title}
+																style={{ width: '100%' }}
+															>
+																<div className="filter-item">
+																	<div className="filter-item-title">
+																		{group?.title || ''}
+																	</div>
+																	<div className="filter-item-options">
+																		{group?.options?.map(
+																			(item) => {
+																				const itemWithGroup =
+																					{
+																						...item,
+																						group: group?.title,
+																					};
+
+																				const isSelected =
+																					info?.selectedFilters?.some(
+																						(option) =>
+																							option?.title ===
+																								itemWithGroup?.title &&
+																							option?.group ===
+																								itemWithGroup?.group,
+																					);
+																				return (
+																					<div
+																						key={
+																							item?.id
+																						}
+																						className="eachOption"
+																						onClick={() =>
+																							handleFilterClick(
+																								itemWithGroup,
+																								group?.title,
+																							)
+																						}
+																					>
+																						{group?.title ===
+																							'Priority Level' && (
+																							<div
+																								className="indicator"
+																								style={{
+																									backgroundColor:
+																										item?.bgColor ||
+																										'',
+																								}}
+																							></div>
+																						)}
+																						<div className="option-text">
+																							<span className="option-text-content">
+																								{item?.title ||
+																									''}
+																							</span>
+																							{isSelected && (
+																								<TickIcon
+																									style={{
+																										marginLeft:
+																											'8px',
+																									}}
+																								/>
+																							)}
+																						</div>
+																					</div>
+																				);
+																			},
+																		)}
+																	</div>
+																</div>
+																{idx < filterGroups?.length - 1 && (
+																	<hr
+																		style={{
+																			width: '100%',
+																			height: '1px',
+																			backgroundColor:
+																				'var(--stroke)',
+																			border: 'none',
+																			marginTop: '10px',
+																		}}
+																	/>
+																)}
+															</div>
+														))}
+													</div>
+												</div>
+											}
+											color={'transparent'}
+											style={{
+												cursor: 'pointer',
+												userSelect: 'none',
+											}}
+											trigger={'click'}
+										>
+											<div
+												className="action-left"
+												onClick={() => {
+													if (info?.openFilter) {
+														return;
+													}
 													setInfo((prev) => ({
 														...prev,
-														openFilter: false,
-													}))
-												}
-												placement="top"
-												title={
-													<div className="filter-container">
-														<div className="filter-items">
-															{filterGroups?.map((group, idx) => (
-																<div
-																	key={group?.title}
-																	style={{ width: '100%' }}
-																>
-																	<div className="filter-item">
-																		<div className="filter-item-title">
-																			{group?.title || ''}
-																		</div>
-																		<div className="filter-item-options">
-																			{group?.options?.map(
-																				(item) => {
-																					const itemWithGroup =
-																						{
-																							...item,
-																							group: group?.title,
-																						};
-
-																					const isSelected =
-																						info?.selectedFilters?.some(
-																							(
-																								option,
-																							) =>
-																								option?.title ===
-																									itemWithGroup?.title &&
-																								option?.group ===
-																									itemWithGroup?.group,
-																						);
-																					return (
-																						<div
-																							key={
-																								item?.id
-																							}
-																							className="eachOption"
-																							onClick={() =>
-																								handleFilterClick(
-																									itemWithGroup,
-																									group?.title,
-																								)
-																							}
-																						>
-																							{group?.title ===
-																								'Priority Level' && (
-																								<div
-																									className="indicator"
-																									style={{
-																										backgroundColor:
-																											item?.bgColor ||
-																											'',
-																									}}
-																								></div>
-																							)}
-																							<div className="option-text">
-																								<span className="option-text-content">
-																									{item?.title ||
-																										''}
-																								</span>
-																								{isSelected && (
-																									<TickIcon
-																										style={{
-																											marginLeft:
-																												'8px',
-																										}}
-																									/>
-																								)}
-																							</div>
-																						</div>
-																					);
-																				},
-																			)}
-																		</div>
-																	</div>
-																	{idx <
-																		filterGroups?.length -
-																			1 && (
-																		<hr
-																			style={{
-																				width: '100%',
-																				height: '1px',
-																				backgroundColor:
-																					'var(--stroke)',
-																				border: 'none',
-																				marginTop: '10px',
-																			}}
-																		/>
-																	)}
-																</div>
-															))}
-														</div>
-													</div>
-												}
-												color={'transparent'}
-												style={{
-													cursor: 'pointer',
-													userSelect: 'none',
+														openFilter: true,
+													}));
 												}}
-												trigger={'click'}
 											>
-												<div
-													className="action-left"
-													onClick={() => {
-														if (info?.openFilter) {
-															return;
-														}
-														setInfo((prev) => ({
-															...prev,
-															openFilter: true,
-														}));
-													}}
+												<button
+													className={`filter-btn ${
+														info?.openFilter ? 'active' : ''
+													}`}
+													data-tooltip="Filter"
 												>
-													<button
-														className={`filter-btn ${
-															info?.openFilter ? 'active' : ''
-														}`}
-														data-tooltip="Filter"
-													>
-														<FilterIcon />
-													</button>
-												</div>
-											</Tooltip>
-										</div>
+													<FilterIcon />
+												</button>
+											</div>
+										</Tooltip>
 									</div>
+								</div>
+								{info?.cards?.length && (
 									<div className="action-right">
 										<button className="card-change-btn" onClick={handleLeft}>
 											<ChevronRightThinSvg className="left-chevron" />
@@ -1051,8 +1043,8 @@ const ProactiveSuggestions = () => {
 											<ChevronRightThinSvg />
 										</button>
 									</div>
-								</div>
-							)}
+								)}
+							</div>
 						</>
 					)}
 					<AISuggestionsModal
