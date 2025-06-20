@@ -1,28 +1,23 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from '@svgr/rollup';
-import { splitVendorChunkPlugin } from 'vite';
 
 export default defineConfig({
 	build: {
 		outDir: 'build',
 		rollupOptions: {
 			output: {
-				// Manual chunks removed - will use default chunking behavior
+				// No manual chunks - let Vite handle chunking automatically for speed
 			},
 		},
-		chunkSizeWarningLimit: 1000,
-		minify: 'terser',
-		terserOptions: {
-			compress: {
-				drop_console: true,
-				drop_debugger: true,
-			},
-		},
+		chunkSizeWarningLimit: 2000,
+		minify: 'esbuild',
+		target: 'es2015',
+		sourcemap: false,
+		reportCompressedSize: false,
 	},
 	plugins: [
 		react(),
-		splitVendorChunkPlugin(),
 		svgr({
 			svgoConfig: {
 				plugins: [],
@@ -30,7 +25,7 @@ export default defineConfig({
 		}),
 	],
 	css: {
-		devSourcemap: true,
+		devSourcemap: false,
 		postcss: {
 			plugins: [
 				require('autoprefixer'),
@@ -49,7 +44,17 @@ export default defineConfig({
 		},
 	},
 	optimizeDeps: {
-		include: ['react', 'react-dom', 'react-router-dom'],
+		include: [
+			'react',
+			'react-dom',
+			'react-router-dom',
+			'antd',
+			'lodash',
+			'axios',
+			'moment',
+			'dayjs',
+		],
+		force: true,
 	},
 	server: {
 		hmr: {
