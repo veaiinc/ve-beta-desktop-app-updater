@@ -88,7 +88,7 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
-	globalChatMessages: [], // { type: 'AI', message: 'Hello, how can I help you today?' }
+	globalChatMessages: {}, // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
 	citations: null,
 	docsFilesList: null,
@@ -109,7 +109,6 @@ export const intialState = {
 	llmModels: null,
 	chatInfo: {
 		deepResearch: false,
-		selectedLLMModel: null,
 		agentType: null,
 		assistantId: null,
 		build: false,
@@ -121,15 +120,11 @@ export const intialState = {
 			webSearch: false,
 		},
 	},
+	chatLoadingSessions: {},
 	chatReplyData: null,
 	citationChunks: {},
 	currentChatData: null,
-	chatPayload: {
-		workflowTemplateId: null,
-		moduleTemplateId: null,
-	},
 	galleryFile: null,
-	globalLoadingMesssage: null,
 	userEditedQuery: null,
 	aiSuggestedPendingActions: null,
 	documentPreviewIds: {
@@ -140,6 +135,7 @@ export const intialState = {
 	aiQuestions: null,
 	proactiveAiData: null,
 	chatBoxSuggestions: null,
+	newChatSessionIds: [],
 };
 
 export const TemplatesState = (props) => {
@@ -774,7 +770,6 @@ export const TemplatesState = (props) => {
 			message: inputMessage,
 			marketingConsent,
 			type,
-			phone,
 		} = formData;
 
 		try {
@@ -782,44 +777,50 @@ export const TemplatesState = (props) => {
 				responseInput: {
 					response: [
 						{
-							_id: '68540d18275e840b828a0a36',
+							_id: '67fcfbbcbfcf70d43e4f3585',
 							type: 'email',
-							question: '<p style="font-size:;">Work email</p>',
-							required: true,
-							order: 0,
-							isEditing: false,
-							placeholder: 'Enter your name',
-							answer: email,
-							variableId: '619f75683f381fd66dac4b65',
-							validation: { pattern: {}, operators: [] },
-							conditions: [],
-							actions: [],
-						},
-						{
-							_id: '68540d18275e840b828a0a37',
-							type: 'shortanswer',
-							question: '<p style="font-size:;">First name?</p>',
+							question: 'Work Email',
 							required: true,
 							order: 1,
 							isEditing: false,
-							placeholder: 'Enter your first name',
-							answer: firstName,
-							variableId: '6311efc4911e0f82be7e2b2d',
-							validation: { pattern: {}, operators: [] },
+							placeholder: 'Work Email',
+							answer: email,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
 							conditions: [],
 							actions: [],
 						},
 						{
-							_id: '68540d4cd698c8078e1078fc',
+							_id: '67fcfbbcbfcf70d43e4f3586',
 							type: 'shortanswer',
-							question: '<br style="font-size:;"><p>Last name</p>',
+							question: 'First Name',
 							required: true,
 							order: 2,
 							isEditing: false,
-							placeholder: 'Enter your last name',
+							placeholder: 'First Name',
+							answer: firstName,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbbcbfcf70d43e4f3587',
+							type: 'shortanswer',
+							question: 'Last Name',
+							required: true,
+							order: 3,
+							isEditing: false,
+							placeholder: 'Last Name',
 							answer: lastName,
-							variableId: '619f75683f381fd66dac4b65',
-							validation: { pattern: {}, operators: [] },
+							validation: {
+								pattern: {},
+								operators: [],
+							},
 							conditions: [],
 							actions: [],
 						},
@@ -830,7 +831,7 @@ export const TemplatesState = (props) => {
 							required: true,
 							order: 4,
 							isEditing: false,
-							placeholder: 'Enter your company name',
+							placeholder: 'Company Name',
 							answer: companyName,
 							validation: {
 								pattern: {},
@@ -846,7 +847,7 @@ export const TemplatesState = (props) => {
 							required: true,
 							order: 5,
 							isEditing: false,
-							placeholder: 'Enter your job title',
+							placeholder: 'Job Title',
 							answer: jobTitle,
 							validation: {
 								pattern: {},
@@ -859,10 +860,10 @@ export const TemplatesState = (props) => {
 							_id: '67fcfbbcbfcf70d43e4f358a',
 							type: 'shortanswer',
 							question: 'Platform Users',
-							required: true,
+							required: false,
 							order: 6,
 							isEditing: false,
-							placeholder: 'Enter your platform users',
+							placeholder: 'Platform Users',
 							answer: platformUsers,
 							validation: {
 								pattern: {},
@@ -875,10 +876,10 @@ export const TemplatesState = (props) => {
 							_id: '67fcfbbcbfcf70d43e4f358b',
 							type: 'shortanswer',
 							question: 'Company Headquarters',
-							required: true,
+							required: false,
 							order: 7,
 							isEditing: false,
-							placeholder: 'Enter your company headquarters',
+							placeholder: 'Company Headquarters',
 							answer: headquarters,
 							validation: {
 								pattern: {},
@@ -891,10 +892,10 @@ export const TemplatesState = (props) => {
 							_id: '67fcfbbcbfcf70d43e4f358c',
 							type: 'longanswer',
 							question: 'Tell us more about how you want to use VE.AI',
-							required: true,
+							required: false,
 							order: 8,
 							isEditing: false,
-							placeholder: 'Enter your long answer text',
+							placeholder: 'Tell us more about how you want to use VE.AI',
 							answer: inputMessage,
 							validation: {
 								pattern: {},
@@ -904,16 +905,18 @@ export const TemplatesState = (props) => {
 							actions: [],
 						},
 						{
-							_id: '68540d18275e840b828a0a38',
-							type: 'phone',
-							question: 'What is your phone number?',
-							required: false,
-							order: 9,
+							_id: '67fcfbe9bfcf70d43e4f3592',
+							type: 'dropdown',
+							question: 'Type',
+							required: true,
+							order: 1,
 							isEditing: false,
-							placeholder: 'Enter your phone number',
-							answer: phone,
-							variableId: '6311ee8f8e7c108259cf96e6',
-							validation: { pattern: {}, operators: [] },
+							placeholder: 'Type',
+							answer: type,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
 							conditions: [],
 							actions: [],
 						},
@@ -921,17 +924,16 @@ export const TemplatesState = (props) => {
 				},
 			};
 
-			const token = localStorage.getItem('usertoken');
+			const token = null;
 
 			const url =
-				'/veai/68540d0db5dbb87f8fb78c70/68540d0db5dbb87f8fb78c71/68540d17c07d261ea9125e3a';
+				'/veai/67fcfbbcbfcf70d43e4f358d/67fcfbbcbfcf70d43e4f358e/67fcfbbcbfcf70d43e4f3584';
 
 			const response = await Service.fetchPost(url, body, token, 'workflow');
 
-			return response;
+			message?.success(response[1]?.message);
 		} catch (error) {
 			console.log(error);
-			return error;
 		}
 	};
 	// const getFormResponseSummary = async (formId) => {
@@ -1755,148 +1757,148 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const handleGlobalChatMessages = async (
-		payload,
-		sessionId,
-		localPayload,
-		recentFiles = null,
-	) => {
-		try {
-			let workspaceId = localStorage.getItem('workspaceId');
-			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
+	// const handleGlobalChatMessages = async (
+	// 	payload,
+	// 	sessionId,
+	// 	localPayload,
+	// 	recentFiles = null,
+	// ) => {
+	// 	try {
+	// 		let workspaceId = localStorage.getItem('workspaceId');
+	// 		let usertoken = localStorage.getItem('usertoken');
+	// 		const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
 
-			let updatedGlobalChatMessages = [];
+	// 		let updatedGlobalChatMessages = [];
 
-			if (localPayload.showCustomChatOptions) {
-				updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
-			} else if (payload.files) {
-				let str = '  ';
-				for (let i = 0; i < localPayload?.files?.length; i++) {
-					str += localPayload?.files?.[i]?.name || '' + ' ,';
-				}
+	// 		if (localPayload.showCustomChatOptions) {
+	// 			updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
+	// 		} else if (payload.files) {
+	// 			let str = '  ';
+	// 			for (let i = 0; i < localPayload?.files?.length; i++) {
+	// 				str += localPayload?.files?.[i]?.name || '' + ' ,';
+	// 			}
 
-				updatedGlobalChatMessages = [
-					{
-						type: 'user',
-						content: (
-							<div
-								className="uploadedImagesContainer"
-								style={{
-									display: 'flex',
-									flexDirection: 'column',
-									gap: '2px',
-									alignItems: 'flex-end',
-								}}
-							>
-								{localPayload?.files?.map((ele, index) => (
-									<img
-										src={ele.preview}
-										alt="filetochat"
-										width={'75px'}
-										onClick={() => localPayload?.handlePreview(ele)}
-										style={{ cursor: 'pointer' }}
-									/>
-								))}
+	// 			updatedGlobalChatMessages = [
+	// 				{
+	// 					type: 'user',
+	// 					content: (
+	// 						<div
+	// 							className="uploadedImagesContainer"
+	// 							style={{
+	// 								display: 'flex',
+	// 								flexDirection: 'column',
+	// 								gap: '2px',
+	// 								alignItems: 'flex-end',
+	// 							}}
+	// 						>
+	// 							{localPayload?.files?.map((ele, index) => (
+	// 								<img
+	// 									src={ele.preview}
+	// 									alt="filetochat"
+	// 									width={'75px'}
+	// 									onClick={() => localPayload?.handlePreview(ele)}
+	// 									style={{ cursor: 'pointer' }}
+	// 								/>
+	// 							))}
 
-								<div className="message-content-user" style={{ marginTop: '8px' }}>
-									<span>{payload?.query}</span>
-								</div>
-							</div>
-						),
-					},
-					{
-						type: 'AI',
-						message: 'loading....',
-						content: (
-							<div className="aiMessageWrapper">
-								<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
-								<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
-								<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
-							</div>
-						),
-						contentType: 'loading',
-					},
-				];
+	// 							<div className="message-content-user" style={{ marginTop: '8px' }}>
+	// 								<span>{payload?.query}</span>
+	// 							</div>
+	// 						</div>
+	// 					),
+	// 				},
+	// 				{
+	// 					type: 'AI',
+	// 					message: 'loading....',
+	// 					content: (
+	// 						<div className="aiMessageWrapper">
+	// 							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+	// 							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+	// 							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+	// 						</div>
+	// 					),
+	// 					contentType: 'loading',
+	// 				},
+	// 			];
 
-				payload.query += str;
-			} else {
-				updatedGlobalChatMessages = [
-					{ type: 'user', message: payload?.query || '' },
-					{
-						type: 'AI',
-						message: 'loading....',
-						content: (
-							<div className="aiMessageWrapper">
-								<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
-								<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
-								<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
-							</div>
-						),
-						contentType: 'loading',
-					},
-				];
-			}
+	// 			payload.query += str;
+	// 		} else {
+	// 			updatedGlobalChatMessages = [
+	// 				{ type: 'user', message: payload?.query || '' },
+	// 				{
+	// 					type: 'AI',
+	// 					message: 'loading....',
+	// 					content: (
+	// 						<div className="aiMessageWrapper">
+	// 							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+	// 							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+	// 							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+	// 						</div>
+	// 					),
+	// 					contentType: 'loading',
+	// 				},
+	// 			];
+	// 		}
 
-			dispatch({
-				type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
-				payload: updatedGlobalChatMessages,
-			});
+	// 		dispatch({
+	// 			type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
+	// 			payload: updatedGlobalChatMessages,
+	// 		});
 
-			if (payload.files && recentFiles?.length) {
-				payload.files = payload?.files?.concat(
-					recentFiles?.map((ele) => ele?.originalFileName),
-				);
-			} else if (recentFiles?.length) {
-				payload.files = recentFiles?.map((ele) => ele?.originalFileName);
-			}
+	// 		if (payload.files && recentFiles?.length) {
+	// 			payload.files = payload?.files?.concat(
+	// 				recentFiles?.map((ele) => ele?.originalFileName),
+	// 			);
+	// 		} else if (recentFiles?.length) {
+	// 			payload.files = recentFiles?.map((ele) => ele?.originalFileName);
+	// 		}
 
-			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
-			if (response?.[0]) {
-				const citations = response?.[1]?.citations;
-				const followUpQuery = response?.[1]?.['follow_up_query'];
-				const messageId = response?.[1]?.['message_id'];
-				if (citations && citations?.length > 0) {
-					dispatch({
-						type: Actions?.CHAT_CITATIONS_SUCCESS,
-						payload: citations,
-					});
-				} else {
-					dispatch({
-						type: Actions?.CHAT_CITATIONS_SUCCESS,
-						payload: null,
-					});
-				}
-				if (followUpQuery?.length) {
-					dispatch({
-						type: Actions?.CHAT_FOLLOW_UP_QUERY,
-						payload: followUpQuery,
-					});
-				} else {
-					dispatch({
-						type: Actions?.CHAT_FOLLOW_UP_QUERY,
-						payload: null,
-					});
-				}
-				const updatedGlobalChatMessages = {
-					type: 'AI',
-					message: response?.[1]?.answer,
-					messageId: response?.[1]?.['message_id'],
-					rating: null,
-					deepResearch: response?.[1]?.['deep_research'],
-				};
-				dispatch({
-					type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,
-					payload: updatedGlobalChatMessages,
-				});
-				return [true, response?.[1]];
-			}
-		} catch (error) {
-			console.log('errror ==>handleGlobalChatMessages', error);
-		}
-	};
+	// 		const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
+	// 		if (response?.[0]) {
+	// 			const citations = response?.[1]?.citations;
+	// 			const followUpQuery = response?.[1]?.['follow_up_query'];
+	// 			const messageId = response?.[1]?.['message_id'];
+	// 			if (citations && citations?.length > 0) {
+	// 				dispatch({
+	// 					type: Actions?.CHAT_CITATIONS_SUCCESS,
+	// 					payload: citations,
+	// 				});
+	// 			} else {
+	// 				dispatch({
+	// 					type: Actions?.CHAT_CITATIONS_SUCCESS,
+	// 					payload: null,
+	// 				});
+	// 			}
+	// 			if (followUpQuery?.length) {
+	// 				dispatch({
+	// 					type: Actions?.CHAT_FOLLOW_UP_QUERY,
+	// 					payload: followUpQuery,
+	// 				});
+	// 			} else {
+	// 				dispatch({
+	// 					type: Actions?.CHAT_FOLLOW_UP_QUERY,
+	// 					payload: null,
+	// 				});
+	// 			}
+	// 			const updatedGlobalChatMessages = {
+	// 				type: 'AI',
+	// 				message: response?.[1]?.answer,
+	// 				messageId: response?.[1]?.['message_id'],
+	// 				rating: null,
+	// 				deepResearch: response?.[1]?.['deep_research'],
+	// 			};
+	// 			dispatch({
+	// 				type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,
+	// 				payload: updatedGlobalChatMessages,
+	// 			});
+	// 			return [true, response?.[1]];
+	// 		}
+	// 	} catch (error) {
+	// 		console.log('errror ==>handleGlobalChatMessages', error);
+	// 	}
+	// };
 
-	const handleStreamSendMessage = (payload, localPayload, queryMessage, recentFiles = []) => {
+	const handleStreamSendMessage = (payload, localPayload, queryMessage, sessionId = null) => {
 		let updatedGlobalChatMessages = [];
 
 		if (localPayload.showCustomChatOptions) {
@@ -1967,17 +1969,53 @@ export const TemplatesState = (props) => {
 			];
 		}
 
+		updateChatLoadingSessions({ sessionId, isStreaming: true });
 		dispatch({
 			type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
-			payload: updatedGlobalChatMessages,
+			payload: { updatedGlobalChatMessages, sessionId, isStreaming: true },
 		});
 	};
 
-	const handleStreamMessageChunk = (payload, chunkId) => {
+	const handleGlobalChatMessages = ({
+		payload,
+		chunkId,
+		sessionId,
+		fetchMore = false,
+		recentChatMessages = null,
+		updateExtraInfo = false,
+		removeLoadingMessage = false,
+		chatPayload = null,
+		removeStreaming = false,
+		removeChatSession = false,
+		removeChatSessions = false,
+		latestStreamMessage = null,
+		removeLatestStreamMessage = false,
+		lastQuery = null,
+		chatBoxInfo = null,
+	}) => {
 		try {
-			dispatch({ type: Actions.HANDLE_STREAM_MESSAGE_CHUNK, payload: { payload, chunkId } });
+			dispatch({
+				type: Actions.HANDLE_STREAM_MESSAGE_CHUNK,
+				payload: {
+					payload,
+					chunkId,
+					sessionId,
+					fetchMore,
+					recentChatMessages,
+					updateExtraInfo,
+					removeLoadingMessage,
+					chatPayload,
+					removeStreaming,
+					removeChatSession,
+					removeChatSessions,
+					latestStreamMessage,
+					removeLatestStreamMessage,
+					lastQuery,
+					chatBoxInfo,
+				},
+			});
 		} catch (error) {
-			console.log('error==>handleStreamMessageChunk', error);
+			console.log('error==>handleGlobalChatMessages', error);
 		}
 	};
 
@@ -2582,6 +2620,19 @@ export const TemplatesState = (props) => {
 			console.log('error==>updateCitationChunks', error);
 		}
 	};
+
+	const updateChatLoadingSessions = ({
+		sessionId,
+		removeSessionId = false,
+		isStreaming = false,
+		isNotSeen = false,
+	}) => {
+		dispatch({
+			type: Actions?.UPDATE_CHAT_LOADING_SESSIONS,
+			payload: { sessionId, removeSessionId, isStreaming, isNotSeen },
+		});
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -2654,7 +2705,6 @@ export const TemplatesState = (props) => {
 		getCitationData,
 		getRecentChatMessages,
 		handleStreamSendMessage,
-		handleStreamMessageChunk,
 		getLLMModels,
 		createBlankWorkflow,
 		createBlankTemplate,
@@ -2673,5 +2723,6 @@ export const TemplatesState = (props) => {
 		getProactiveAiData,
 		addProactiveAiAccess,
 		getChatBoxSuggestions,
+		updateChatLoadingSessions,
 	};
 };

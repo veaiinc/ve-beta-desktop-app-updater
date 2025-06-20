@@ -9,7 +9,7 @@ import { ReactComponent as LeftSvg } from '../../assets/svg/activity/left.svg';
 const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 	const {
 		// subscriptionInfo: { renewBanner },
-		templates: { globalChatMessages, updateStateValues },
+		templates: { globalChatMessages, currentSessionId, updateStateValues },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -23,7 +23,6 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 
 	useEffect(() => {
 		const sessionId = ObjectID()?.toString();
-		updateStateValues({ globalChatMessages: [] });
 		setInfo((prev) => ({
 			...prev,
 			sessionId,
@@ -83,7 +82,7 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 				<div className="wrapper">{children}</div>
 			</div>
 
-			{globalChatMessages?.length === 0 &&
+			{globalChatMessages?.[currentSessionId]?.messages?.length === 0 &&
 				isFirstTimeSuggestionsRenderRef?.current &&
 				info?.chatActive && (
 					<div className="chat-left-bar-suggestions-overlay">
