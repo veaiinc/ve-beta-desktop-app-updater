@@ -208,13 +208,13 @@ const LoginPage = () => {
 			</footer> */}
 			</div>
 
-			<div className="login-page-container-right">
+			{/* <div className="login-page-container-right"> */}
 				{/* <div className="login-page-container-right-content">
 					<div className="login-page-container-right-content-title">
 						<h1>Welcome to Ve.ai</h1>
 					</div>
 				</div> */}
-			</div>
+			{/* </div> */}
 		</div>
 	);
 };

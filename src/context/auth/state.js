@@ -319,6 +319,7 @@ export const AuthState = () => {
 					{
 						isOnboard: response?.[1]?.isOnboard,
 						workspaceId: response?.[1]?.workspaceId,
+						region: response?.[1]?.region,
 					},
 				];
 			} else {

@@ -3,6 +3,7 @@ import Stages from '../../components/onboarding/Stages';
 import StepIntro from './StepIntro';
 import StepKnowEachOther from './StepKnowEachOther';
 import StepGoalsMission from './StepGoalsMission';
+import PricingPage from '../pricingPlans/pricingPage';
 import ProgressBar from '../../components/onboarding/ProgressBar';
 
 const initialData = {
@@ -62,6 +63,9 @@ const OnboardingStepper = ({ onStepChange }) => {
 					onBack={handleBack}
 				/>
 			);
+			break;
+		case 5:
+			content = <PricingPage />;
 			break;
 		default:
 			content = <div>Onboarding Complete!</div>;

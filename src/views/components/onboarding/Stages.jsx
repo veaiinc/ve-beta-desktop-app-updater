@@ -1,6 +1,5 @@
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
-import { formatUsername } from '../../../helpers';
 import Context from '../../../context/context';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { message } from '../globalComponents/CustomToast';
@@ -16,7 +15,8 @@ import Spinner from '../loaders/Spinner';
 import WorkspaceTypeOptions from './WorkspaceTypeOptions';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
-
+import { formatUsername, fetchDomainName } from '../../../helpers';
+import Cookies from 'js-cookie';
 let usernameTimeoutId, companyLogoFile;
 
 const themePreferences = [
@@ -123,13 +123,13 @@ const Stages = ({ onNext }) => {
 	const profilePictureCntxt = userDetailsFromTenantAPI?.googleMeta?.picture ?? null;
 	const userLogo = userDetailsFromTenantAPI?.dp_s3_500w_key ?? null;
 	const continueBtnDisabled = false;
-	// !info?.username ||
-	// !info?.isPhoneNumberVerified ||
-	// !info?.companyName ||
-	// !info?.workspaceHandle ||
-	// !info?.isWorkspaceHandleAvailable ||
-	// !info?.workspaceType ||
-	// info?.continueBtnLoading;
+		// !info?.username ||
+		// !info?.isPhoneNumberVerified ||
+		// !info?.companyName ||
+		// !info?.workspaceHandle ||
+		// !info?.isWorkspaceHandleAvailable ||
+		// !info?.workspaceType ||
+		// info?.continueBtnLoading;
 
 	useEffect(() => {
 		if (!usertoken) {
@@ -482,7 +482,17 @@ const Stages = ({ onNext }) => {
 			const success = response?.[0] === true;
 			if (success) {
 				const workspaceId = response?.[1]?.workspaceId;
+				const region = response?.[1]?.region;
 				localStorage.setItem('workspaceId', workspaceId);
+				if (region) {
+					localStorage.setItem('region', region);
+					// Store region in cookies
+					const host = fetchDomainName();
+					Cookies.set('region', region, {
+						sameSite: 'lax',
+						domain: host,
+					});
+				}
 				getTenantSettings();
 				await getUserWorkSpaceList();
 				if (companyLogoFile) {
@@ -839,7 +849,7 @@ const Stages = ({ onNext }) => {
 						opacity: continueBtnDisabled ? 0.4 : 1,
 						cursor: continueBtnDisabled ? 'not-allowed' : 'pointer',
 					}}
-					// disabled={continueBtnDisabled}
+					disabled={continueBtnDisabled}
 					className="continueBtn"
 					onClick={handleContinue}
 				>

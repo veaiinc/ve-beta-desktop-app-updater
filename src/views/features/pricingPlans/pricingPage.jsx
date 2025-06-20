@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/pricingPlans/pricingPage.scss';
 import 'antd/dist/reset.css';
 import { ReactComponent as MinusIcon } from '../../../assets/svg/Settings/minusIcon.svg';
@@ -8,12 +9,14 @@ import { message } from '../../components/globalComponents/CustomToast';
 import Spinner from '../../components/loaders/Spinner';
 
 const PricingPage = () => {
+	const navigate = useNavigate();
 	const {
 		subscriptionInfo: {
 			currentPlan,
 			subscriptionPlans,
 			getAllSubscriptionPlan,
 			purchaseSubscriptionPlan,
+			getCurrentSubscriptionPlan,
 		},
 	} = useContext(Context);
 
@@ -31,6 +34,12 @@ const PricingPage = () => {
 			getAllSubscriptionPlan();
 		}
 	}, [subscriptionPlans]);
+
+	useEffect(() => {
+		if (!currentPlan) {
+			getCurrentSubscriptionPlan();
+		}
+	}, [currentPlan]);
 
 	const increaseTenantUsersCount = (planId) => {
 		setInfo((prev) => ({
