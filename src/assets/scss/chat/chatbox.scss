@@ -106,8 +106,16 @@
 								background-color: var(--card-over-card);
 
 								.reply-text {
+									display: -webkit-box;
+									-webkit-line-clamp: 3;
+									line-clamp: 3;
+									-webkit-box-orient: vertical;
+									overflow: hidden;
+									text-overflow: ellipsis;
+									word-break: break-all;
 									flex-grow: 1;
-									color: var(--primary-font);
+
+									color: var(--secondary-font);
 									font-family: var(--primary-font-family);
 									font-size: 13px;
 									font-style: normal;
@@ -268,7 +276,9 @@
 												justify-content: center;
 												align-items: center;
 												background: var(--popup);
-
+												.plus-icon {
+													height: 17px;
+												}
 												.chat-icon {
 													display: flex;
 													align-items: center;
