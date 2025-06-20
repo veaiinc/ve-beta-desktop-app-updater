@@ -88,7 +88,7 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
-	globalChatMessages: [], // { type: 'AI', message: 'Hello, how can I help you today?' }
+	globalChatMessages: {}, // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
 	citations: null,
 	docsFilesList: null,
@@ -109,7 +109,6 @@ export const intialState = {
 	llmModels: null,
 	chatInfo: {
 		deepResearch: false,
-		selectedLLMModel: null,
 		agentType: null,
 		assistantId: null,
 		build: false,
@@ -121,15 +120,11 @@ export const intialState = {
 			webSearch: false,
 		},
 	},
+	chatLoadingSessions: {},
 	chatReplyData: null,
 	citationChunks: {},
 	currentChatData: null,
-	chatPayload: {
-		workflowTemplateId: null,
-		moduleTemplateId: null,
-	},
 	galleryFile: null,
-	globalLoadingMesssage: null,
 	userEditedQuery: null,
 	aiSuggestedPendingActions: null,
 	documentPreviewIds: {
@@ -140,6 +135,7 @@ export const intialState = {
 	aiQuestions: null,
 	proactiveAiData: null,
 	chatBoxSuggestions: null,
+	newChatSessionIds: [],
 };
 
 export const TemplatesState = (props) => {
@@ -1761,148 +1757,148 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const handleGlobalChatMessages = async (
-		payload,
-		sessionId,
-		localPayload,
-		recentFiles = null,
-	) => {
-		try {
-			let workspaceId = localStorage.getItem('workspaceId');
-			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
+	// const handleGlobalChatMessages = async (
+	// 	payload,
+	// 	sessionId,
+	// 	localPayload,
+	// 	recentFiles = null,
+	// ) => {
+	// 	try {
+	// 		let workspaceId = localStorage.getItem('workspaceId');
+	// 		let usertoken = localStorage.getItem('usertoken');
+	// 		const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
 
-			let updatedGlobalChatMessages = [];
+	// 		let updatedGlobalChatMessages = [];
 
-			if (localPayload.showCustomChatOptions) {
-				updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
-			} else if (payload.files) {
-				let str = '  ';
-				for (let i = 0; i < localPayload?.files?.length; i++) {
-					str += localPayload?.files?.[i]?.name || '' + ' ,';
-				}
+	// 		if (localPayload.showCustomChatOptions) {
+	// 			updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
+	// 		} else if (payload.files) {
+	// 			let str = '  ';
+	// 			for (let i = 0; i < localPayload?.files?.length; i++) {
+	// 				str += localPayload?.files?.[i]?.name || '' + ' ,';
+	// 			}
 
-				updatedGlobalChatMessages = [
-					{
-						type: 'user',
-						content: (
-							<div
-								className="uploadedImagesContainer"
-								style={{
-									display: 'flex',
-									flexDirection: 'column',
-									gap: '2px',
-									alignItems: 'flex-end',
-								}}
-							>
-								{localPayload?.files?.map((ele, index) => (
-									<img
-										src={ele.preview}
-										alt="filetochat"
-										width={'75px'}
-										onClick={() => localPayload?.handlePreview(ele)}
-										style={{ cursor: 'pointer' }}
-									/>
-								))}
+	// 			updatedGlobalChatMessages = [
+	// 				{
+	// 					type: 'user',
+	// 					content: (
+	// 						<div
+	// 							className="uploadedImagesContainer"
+	// 							style={{
+	// 								display: 'flex',
+	// 								flexDirection: 'column',
+	// 								gap: '2px',
+	// 								alignItems: 'flex-end',
+	// 							}}
+	// 						>
+	// 							{localPayload?.files?.map((ele, index) => (
+	// 								<img
+	// 									src={ele.preview}
+	// 									alt="filetochat"
+	// 									width={'75px'}
+	// 									onClick={() => localPayload?.handlePreview(ele)}
+	// 									style={{ cursor: 'pointer' }}
+	// 								/>
+	// 							))}
 
-								<div className="message-content-user" style={{ marginTop: '8px' }}>
-									<span>{payload?.query}</span>
-								</div>
-							</div>
-						),
-					},
-					{
-						type: 'AI',
-						message: 'loading....',
-						content: (
-							<div className="aiMessageWrapper">
-								<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
-								<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
-								<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
-							</div>
-						),
-						contentType: 'loading',
-					},
-				];
+	// 							<div className="message-content-user" style={{ marginTop: '8px' }}>
+	// 								<span>{payload?.query}</span>
+	// 							</div>
+	// 						</div>
+	// 					),
+	// 				},
+	// 				{
+	// 					type: 'AI',
+	// 					message: 'loading....',
+	// 					content: (
+	// 						<div className="aiMessageWrapper">
+	// 							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+	// 							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+	// 							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+	// 						</div>
+	// 					),
+	// 					contentType: 'loading',
+	// 				},
+	// 			];
 
-				payload.query += str;
-			} else {
-				updatedGlobalChatMessages = [
-					{ type: 'user', message: payload?.query || '' },
-					{
-						type: 'AI',
-						message: 'loading....',
-						content: (
-							<div className="aiMessageWrapper">
-								<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
-								<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
-								<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
-							</div>
-						),
-						contentType: 'loading',
-					},
-				];
-			}
+	// 			payload.query += str;
+	// 		} else {
+	// 			updatedGlobalChatMessages = [
+	// 				{ type: 'user', message: payload?.query || '' },
+	// 				{
+	// 					type: 'AI',
+	// 					message: 'loading....',
+	// 					content: (
+	// 						<div className="aiMessageWrapper">
+	// 							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+	// 							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+	// 							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+	// 						</div>
+	// 					),
+	// 					contentType: 'loading',
+	// 				},
+	// 			];
+	// 		}
 
-			dispatch({
-				type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
-				payload: updatedGlobalChatMessages,
-			});
+	// 		dispatch({
+	// 			type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
+	// 			payload: updatedGlobalChatMessages,
+	// 		});
 
-			if (payload.files && recentFiles?.length) {
-				payload.files = payload?.files?.concat(
-					recentFiles?.map((ele) => ele?.originalFileName),
-				);
-			} else if (recentFiles?.length) {
-				payload.files = recentFiles?.map((ele) => ele?.originalFileName);
-			}
+	// 		if (payload.files && recentFiles?.length) {
+	// 			payload.files = payload?.files?.concat(
+	// 				recentFiles?.map((ele) => ele?.originalFileName),
+	// 			);
+	// 		} else if (recentFiles?.length) {
+	// 			payload.files = recentFiles?.map((ele) => ele?.originalFileName);
+	// 		}
 
-			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
-			if (response?.[0]) {
-				const citations = response?.[1]?.citations;
-				const followUpQuery = response?.[1]?.['follow_up_query'];
-				const messageId = response?.[1]?.['message_id'];
-				if (citations && citations?.length > 0) {
-					dispatch({
-						type: Actions?.CHAT_CITATIONS_SUCCESS,
-						payload: citations,
-					});
-				} else {
-					dispatch({
-						type: Actions?.CHAT_CITATIONS_SUCCESS,
-						payload: null,
-					});
-				}
-				if (followUpQuery?.length) {
-					dispatch({
-						type: Actions?.CHAT_FOLLOW_UP_QUERY,
-						payload: followUpQuery,
-					});
-				} else {
-					dispatch({
-						type: Actions?.CHAT_FOLLOW_UP_QUERY,
-						payload: null,
-					});
-				}
-				const updatedGlobalChatMessages = {
-					type: 'AI',
-					message: response?.[1]?.answer,
-					messageId: response?.[1]?.['message_id'],
-					rating: null,
-					deepResearch: response?.[1]?.['deep_research'],
-				};
-				dispatch({
-					type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,
-					payload: updatedGlobalChatMessages,
-				});
-				return [true, response?.[1]];
-			}
-		} catch (error) {
-			console.log('errror ==>handleGlobalChatMessages', error);
-		}
-	};
+	// 		const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
+	// 		if (response?.[0]) {
+	// 			const citations = response?.[1]?.citations;
+	// 			const followUpQuery = response?.[1]?.['follow_up_query'];
+	// 			const messageId = response?.[1]?.['message_id'];
+	// 			if (citations && citations?.length > 0) {
+	// 				dispatch({
+	// 					type: Actions?.CHAT_CITATIONS_SUCCESS,
+	// 					payload: citations,
+	// 				});
+	// 			} else {
+	// 				dispatch({
+	// 					type: Actions?.CHAT_CITATIONS_SUCCESS,
+	// 					payload: null,
+	// 				});
+	// 			}
+	// 			if (followUpQuery?.length) {
+	// 				dispatch({
+	// 					type: Actions?.CHAT_FOLLOW_UP_QUERY,
+	// 					payload: followUpQuery,
+	// 				});
+	// 			} else {
+	// 				dispatch({
+	// 					type: Actions?.CHAT_FOLLOW_UP_QUERY,
+	// 					payload: null,
+	// 				});
+	// 			}
+	// 			const updatedGlobalChatMessages = {
+	// 				type: 'AI',
+	// 				message: response?.[1]?.answer,
+	// 				messageId: response?.[1]?.['message_id'],
+	// 				rating: null,
+	// 				deepResearch: response?.[1]?.['deep_research'],
+	// 			};
+	// 			dispatch({
+	// 				type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,
+	// 				payload: updatedGlobalChatMessages,
+	// 			});
+	// 			return [true, response?.[1]];
+	// 		}
+	// 	} catch (error) {
+	// 		console.log('errror ==>handleGlobalChatMessages', error);
+	// 	}
+	// };
 
-	const handleStreamSendMessage = (payload, localPayload, queryMessage, recentFiles = []) => {
+	const handleStreamSendMessage = (payload, localPayload, queryMessage, sessionId = null) => {
 		let updatedGlobalChatMessages = [];
 
 		if (localPayload.showCustomChatOptions) {
@@ -1973,17 +1969,53 @@ export const TemplatesState = (props) => {
 			];
 		}
 
+		updateChatLoadingSessions({ sessionId, isStreaming: true });
 		dispatch({
 			type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
-			payload: updatedGlobalChatMessages,
+			payload: { updatedGlobalChatMessages, sessionId, isStreaming: true },
 		});
 	};
 
-	const handleStreamMessageChunk = (payload, chunkId) => {
+	const handleGlobalChatMessages = ({
+		payload,
+		chunkId,
+		sessionId,
+		fetchMore = false,
+		recentChatMessages = null,
+		updateExtraInfo = false,
+		removeLoadingMessage = false,
+		chatPayload = null,
+		removeStreaming = false,
+		removeChatSession = false,
+		removeChatSessions = false,
+		latestStreamMessage = null,
+		removeLatestStreamMessage = false,
+		lastQuery = null,
+		chatBoxInfo = null,
+	}) => {
 		try {
-			dispatch({ type: Actions.HANDLE_STREAM_MESSAGE_CHUNK, payload: { payload, chunkId } });
+			dispatch({
+				type: Actions.HANDLE_STREAM_MESSAGE_CHUNK,
+				payload: {
+					payload,
+					chunkId,
+					sessionId,
+					fetchMore,
+					recentChatMessages,
+					updateExtraInfo,
+					removeLoadingMessage,
+					chatPayload,
+					removeStreaming,
+					removeChatSession,
+					removeChatSessions,
+					latestStreamMessage,
+					removeLatestStreamMessage,
+					lastQuery,
+					chatBoxInfo,
+				},
+			});
 		} catch (error) {
-			console.log('error==>handleStreamMessageChunk', error);
+			console.log('error==>handleGlobalChatMessages', error);
 		}
 	};
 
@@ -2587,6 +2619,19 @@ export const TemplatesState = (props) => {
 			console.log('error==>updateCitationChunks', error);
 		}
 	};
+
+	const updateChatLoadingSessions = ({
+		sessionId,
+		removeSessionId = false,
+		isStreaming = false,
+		isNotSeen = false,
+	}) => {
+		dispatch({
+			type: Actions?.UPDATE_CHAT_LOADING_SESSIONS,
+			payload: { sessionId, removeSessionId, isStreaming, isNotSeen },
+		});
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -2659,7 +2704,6 @@ export const TemplatesState = (props) => {
 		getCitationData,
 		getRecentChatMessages,
 		handleStreamSendMessage,
-		handleStreamMessageChunk,
 		getLLMModels,
 		createBlankWorkflow,
 		createBlankTemplate,
@@ -2678,5 +2722,6 @@ export const TemplatesState = (props) => {
 		getProactiveAiData,
 		addProactiveAiAccess,
 		getChatBoxSuggestions,
+		updateChatLoadingSessions,
 	};
 };

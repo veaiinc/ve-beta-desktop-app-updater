@@ -88,12 +88,10 @@
 	},
 	"scripts": {
 		"start": "vite",
-		"build": "rm -rf build .vite node_modules/.vite && NODE_ENV=production node --max-old-space-size=12288 node_modules/vite/bin/vite.js build",
-		"build:analyze": "npm run build && npx vite-bundle-analyzer build",
+		"build": "rm -rf build .vite node_modules/.vite && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build",
 		"preview": "vite preview",
 		"delete-maps": "rm ./build/static/js/*.map && rm ./build/static/css/*.map",
-		"format": "prettier --write \"**/*.+(js|jsx|json|yml|yaml|css|md|vue)\"",
-		"lighthouse": "lighthouse http://localhost:3000 --output=html --output-path=./lighthouse-report.html"
+		"format": "prettier --write \"**/*.+(js|jsx|json|yml|yaml|css|md|vue)\""
 	},
 	"eslintConfig": {
 		"extends": [
@@ -126,21 +124,16 @@
 		"@eslint/js": "^9.27.0",
 		"@svgr/rollup": "^8.1.0",
 		"@vitejs/plugin-react": "^4.4.1",
-		"autoprefixer": "^10.4.21",
 		"css-loader": "^7.1.2",
-		"cssnano": "^7.0.7",
 		"eslint": "^9.27.0",
 		"eslint-config-prettier": "^6.15.0",
 		"eslint-plugin-prettier": "^3.2.0",
 		"eslint-plugin-react": "^7.37.5",
 		"globals": "^16.1.0",
-		"lighthouse": "^12.6.1",
 		"prettier": "^2.2.1",
 		"sass": "^1.77.5",
 		"sass-loader": "^16.0.5",
 		"style-loader": "^4.0.0",
-		"terser": "^5.43.1",
-		"vite": "^6.3.5",
-		"vite-bundle-analyzer": "^0.8.3"
+		"vite": "^6.3.5"
 	}
 }
