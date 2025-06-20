@@ -13,23 +13,30 @@
 	// z-index: 100;
 	margin-top: 100px;
 	.pricing-header {
-		text-align: center;
-		margin-bottom: 32px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 6px;
+		align-self: stretch;
 		.pricing-header-title {
+			height: 44px;
 			color: var(--primary-font, #f2f2f3);
-			font-family: var(--primary-font-family);
-			font-size: 30px;
+			text-align: center;
+			font-family: Manrope;
+			font-size: 32px;
 			font-style: normal;
-			font-weight: 500;
+			font-weight: 700;
 			line-height: normal;
+			align-self: stretch;
 		}
 		.pricing-header-description {
-			color: var(--secondary-font, #787e87);
-			font-family: var(--primary-font-family);
+			color: var(--primary-font, #f2f2f3);
+			font-family: Manrope;
 			font-size: 16px;
 			font-style: normal;
-			font-weight: 500;
-			line-height: 16px;
+			font-weight: 400;
+			line-height: normal;
 		}
 	}
 	.pricing-toggle-container {
@@ -59,13 +66,13 @@
 					border-radius: 8px;
 					cursor: pointer;
 					&.active {
-						background: var(--primary-button, #00f3c5);
-						color: var(--background-color, #0c0c0d);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
+						display: flex;
+						padding: 6px 16px;
+						justify-content: center;
+						align-items: center;
+						gap: 18px;
+						border-radius: 6px;
+						background: var(--card-over-card-hover, #27282b);
 					}
 				}
 			}
@@ -846,31 +853,43 @@
 				cursor: pointer;
 				transition: background 0.2s;
 			}
-			.quantitySelectorContainer {
+		}
+		.quantitySelectorContainer {
+			width: 100%;
+			display: flex;
+			flex-direction: row;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+			.quantitySelectorOptionsCount {
 				display: flex;
-				flex-direction: row;
-				gap: 4px;
+				padding: 14px 16px;
+				justify-content: center;
 				align-items: center;
-				align-self: flex-end;
-				.quantitySelectorOptions {
-					align-items: center;
-					background: var(--popup, #202123);
-					border: 1px solid var(--stroke, #2c2d2e);
-					border-radius: 8px;
-					cursor: pointer;
-					display: flex;
-					gap: 20px;
-					justify-content: space-around;
-					width: 100%;
-					.quantitySelectorOptions-minus {
-						padding: 4px;
-						cursor: pointer;
-						transition: background 0.2s;
-					}
-					.quantitySelectorOptionsCount {
-						user-select: none;
-					}
-				}
+				gap: 10px;
+				flex: 1 0 0;
+				border-radius: 24px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-transform: capitalize;
+			}
+			.quantitySelectorOptions-minus {
+				display: flex;
+				width: 60px;
+				height: 45px;
+				padding: 14px 16px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				border-radius: 24px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				cursor: pointer;
+				background: transparent;
 			}
 		}
 		.startTrailButton {
@@ -891,6 +910,7 @@
 			text-transform: capitalize;
 			cursor: pointer;
 			background: transparent;
+			cursor: pointer;
 		}
 	}
 }
