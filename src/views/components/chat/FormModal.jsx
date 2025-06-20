@@ -57,22 +57,14 @@ const Section1 = ({
 	toggleLatestStreamMessage,
 }) => {
 	const {
-		templates: {
-			globalChatMessages,
-			currentSessionId,
-			updateAiChatMessageRating,
-			handleGlobalChatMessages,
-		},
+		templates: { globalChatMessages, updateStateValues, updateAiChatMessageRating },
 	} = useContext(Context);
 	const chatContentRef = useRef(null);
-	const chatMessagesRef = useRef(globalChatMessages?.[currentSessionId]?.messages || []);
+	const chatMessagesRef = useRef(globalChatMessages || []);
 	const scrollToBottomRef = useRef(true);
 
 	useEffect(() => {
-		const lastMessage =
-			globalChatMessages?.[currentSessionId]?.messages?.[
-				globalChatMessages?.[currentSessionId]?.messages?.length - 1
-			];
+		const lastMessage = globalChatMessages[globalChatMessages?.length - 1];
 		if (scrollToBottomRef.current && lastMessage?.contentType === 'loading') {
 			smoothScrollToBottom();
 			scrollToBottomRef.current = false;
@@ -85,7 +77,7 @@ const Section1 = ({
 				scrollToBottomRef.current = true;
 			}
 		}
-	}, [globalChatMessages?.[currentSessionId]?.messages]);
+	}, [globalChatMessages]);
 
 	const smoothScrollToBottom = useCallback(
 		(type) => {
@@ -125,13 +117,7 @@ const Section1 = ({
 						}
 						return chat;
 					});
-
-					handleGlobalChatMessages({
-						updateExtraInfo: true,
-						recentChatMessages: messages,
-						sessionId: currentSessionId,
-					});
-					chatMessagesRef.current = messages;
+					updateStateValues({ globalChatMessages: messages });
 				}
 			}
 		} catch (error) {
@@ -143,7 +129,7 @@ const Section1 = ({
 			{/* chat body */}
 			<div className={`chatBodyParentContainer`} ref={chatContentRef}>
 				<div className="chatContent">
-					{globalChatMessages?.[currentSessionId]?.messages?.map((chat, index) =>
+					{globalChatMessages?.map((chat, index) =>
 						chat?.content ? (
 							chat?.content
 						) : (

@@ -287,42 +287,28 @@
 														.icon-text {
 															border: none !important;
 															padding: 0 !important;
-															display: none;
 														}
 														.build-icon {
 															height: 16px;
 														}
-														.bulb-icon {
-															height: 15px;
-															svg {
-																path {
-																	stroke: var(--secondary-font);
-																}
-															}
-														}
-														.trend-icon {
-															height: 16px;
-														}
 													}
-													.deep-research-text-wrapper,
-													.goals-text-wrapper {
+													.deep-research-text-wrapper {
 														border-radius: 6px;
 													}
 													.icon-arrow-wrapper {
-														// width: 0px;
-														// height: 100%;
-														// transition: width 200ms ease-in-out;
-														display: none;
+														width: 0px;
+														height: 100%;
+														transition: width 200ms ease-in-out;
 													}
 													.icon-arrow-wrapper-active {
-														display: block;
+														width: 22px;
 													}
 
 													.icon-arrow {
 														display: flex;
 														align-items: center;
 														justify-content: center;
-														height: 27px;
+														height: 100%;
 														padding: 6px 4px;
 														border-radius: 0px 6px 6px 0px;
 														position: relative;
@@ -361,27 +347,10 @@
 											}
 											.chat-box-icon-container.active {
 												background-color: inherit;
-												.chat-icon {
+												.icon {
 													.text-wrapper {
 														border: 1px solid var(--primary-button);
 														.build-icon {
-															svg {
-																path {
-																	stroke: var(--primary-button);
-																}
-															}
-														}
-														.bulb-icon {
-															svg {
-																path {
-																	stroke: var(
-																		--primary-button
-																	) !important;
-																}
-															}
-														}
-
-														.trend-icon {
 															svg {
 																path {
 																	stroke: var(--primary-button);
@@ -393,7 +362,6 @@
 														color: var(--primary-button);
 														border: 1px solid var(--primary-button);
 														background-color: var(--popup);
-														display: block;
 													}
 													.icon-arrow {
 														border: 1px solid var(--primary-button);
@@ -607,7 +575,10 @@
 		}
 	}
 }
-
+.build-icon-container {
+	position: relative;
+	left: -3px;
+}
 .upload-file-icon-container {
 	display: flex;
 	height: 28px;

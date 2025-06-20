@@ -119,23 +119,10 @@ const actionHandlers = {
 		...action.payload,
 	}),
 
-	GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS: (state, action) => {
-		const { updatedGlobalChatMessages, sessionId, isStreaming } = action?.payload;
-		return {
-			...state,
-			globalChatMessages: {
-				...(state?.globalChatMessages || {}),
-				[sessionId]: {
-					...(state?.globalChatMessages?.[sessionId] || {}),
-					messages: [
-						...(state?.globalChatMessages?.[sessionId]?.messages || []),
-						...updatedGlobalChatMessages,
-					],
-					isStreaming,
-				},
-			},
-		};
-	},
+	GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS: (state, action) => ({
+		...state,
+		globalChatMessages: [...state?.globalChatMessages, ...action?.payload],
+	}),
 	CHAT_CITATIONS_SUCCESS: (state, action) => ({
 		...state,
 		citations: action?.payload,
@@ -183,105 +170,10 @@ const actionHandlers = {
 		[action?.selectedvariable]: action.payload,
 	}),
 	HANDLE_STREAM_MESSAGE_CHUNK: (state, action) => {
-		const {
-			payload,
-			chunkId,
-			sessionId,
-			fetchMore,
-			recentChatMessages,
-			updateExtraInfo,
-			removeLoadingMessage,
-			chatPayload,
-			removeStreaming,
-			removeChatSession,
-			removeChatSessions,
-			latestStreamMessage,
-			removeLatestStreamMessage,
-			lastQuery,
-			chatBoxInfo,
-		} = action?.payload;
-		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
-
-		if (removeChatSession) {
-			const globalChatMessages = { ...state?.globalChatMessages };
-			delete globalChatMessages[sessionId];
-			return { ...state, globalChatMessages };
-		}
-
-		if (updateExtraInfo) {
-			let sessionIdData = state?.globalChatMessages?.[sessionId] || {};
-
-			if (chatBoxInfo) {
-				sessionIdData.chatBoxInfo = chatBoxInfo;
-			}
-
-			if (latestStreamMessage) {
-				sessionIdData.latestStreamMessage = latestStreamMessage;
-			}
-
-			if (removeLatestStreamMessage) {
-				sessionIdData.latestStreamMessage = null;
-				sessionIdData.lastQuery = null;
-			}
-
-			if (lastQuery) {
-				sessionIdData.lastQuery = lastQuery;
-			}
-
-			if (removeChatSessions) {
-				let globalChatMessages = { ...state?.globalChatMessages };
-				globalChatMessages = Object.keys(globalChatMessages)?.reduce((acc, key) => {
-					if (globalChatMessages[key]?.isStreaming || key === sessionId) {
-						acc[key] = globalChatMessages[key];
-					}
-					return acc;
-				}, {});
-				return { ...state, globalChatMessages };
-			}
-
-			if (recentChatMessages) {
-				if (fetchMore) {
-					messages = messages?.concat(recentChatMessages);
-				} else {
-					messages = recentChatMessages;
-				}
-				sessionIdData.messages = messages;
-			}
-
-			if (removeLoadingMessage) {
-				sessionIdData.loadingMessage = null;
-			}
-
-			if (removeStreaming) {
-				sessionIdData.isStreaming = false;
-			}
-
-			if (payload?.hasOwnProperty('intermediate_response')) {
-				let loadingMessage = sessionIdData?.loadingMessage;
-				loadingMessage = loadingMessage || '';
-				loadingMessage += payload?.intermediate_response;
-				sessionIdData.loadingMessage = loadingMessage;
-			}
-
-			if (payload?.hasOwnProperty('memory_thinking')) {
-				const loadingMessage = payload?.memory_thinking;
-				sessionIdData.loadingMessage = loadingMessage;
-			}
-
-			if (chatPayload) {
-				sessionIdData.chatPayload = chatPayload;
-			}
-
-			return {
-				...state,
-				globalChatMessages: {
-					...(state?.globalChatMessages || {}),
-					[sessionId]: sessionIdData,
-				},
-			};
-		}
-
+		const { payload, chunkId } = action?.payload;
+		let messages = [...state?.globalChatMessages] || [];
 		let requiredIndex = -1;
+
 		messages = messages?.filter((ele) => ele?.contentType !== 'loading');
 
 		for (let i = messages?.length - 1; i >= 0; i--) {
@@ -548,16 +440,7 @@ const actionHandlers = {
 			});
 		}
 
-		return {
-			...state,
-			globalChatMessages: {
-				...(state?.globalChatMessages || {}),
-				[sessionId]: {
-					...(state?.globalChatMessages?.[sessionId] || {}),
-					messages,
-				},
-			},
-		};
+		return { ...state, globalChatMessages: messages };
 	},
 	GET_LLM_MODELS_SUCCESS: (state, action) => ({
 		...state,
@@ -593,22 +476,6 @@ const actionHandlers = {
 		...state,
 		chatBoxSuggestions: action?.payload,
 	}),
-
-	UPDATE_CHAT_LOADING_SESSIONS: (state, action) => {
-		const {
-			sessionId,
-			removeSessionId,
-			isStreaming = false,
-			isNotSeen = false,
-		} = action.payload;
-		const chatLoadingSessions = { ...state.chatLoadingSessions };
-		if (removeSessionId) {
-			delete chatLoadingSessions[sessionId];
-		} else {
-			chatLoadingSessions[sessionId] = { isStreaming, isNotSeen };
-		}
-		return { ...state, chatLoadingSessions };
-	},
 
 	RESET_STATE: () => intialState,
 };

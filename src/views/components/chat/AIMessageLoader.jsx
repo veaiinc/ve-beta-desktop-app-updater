@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, memo } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Context from '../../../context/context';
 import '../../../assets/scss/chat/aiMessageLoader.scss';
 import ChatLoader from './ChatLoader';
@@ -34,4 +34,4 @@ const AIMessageLoader = () => {
 	);
 };
 
-export default memo(AIMessageLoader);
+export default AIMessageLoader;

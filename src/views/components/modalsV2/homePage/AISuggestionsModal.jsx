@@ -46,12 +46,7 @@ const AISuggestionsModal = ({
 	onFavouriteClick,
 }) => {
 	const {
-		templates: {
-			updateStateValues,
-			pendingActionsUpdate,
-			getAISuggestedPendingActions,
-			handleGlobalChatMessages,
-		},
+		templates: { updateStateValues, pendingActionsUpdate, getAISuggestedPendingActions },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		isAIResultsExpanded: true,
@@ -138,13 +133,8 @@ const AISuggestionsModal = ({
 					stream_end: true,
 				},
 			];
-			const sessionId = ObjectID()?.toString();
-			handleGlobalChatMessages({
-				updateExtraInfo: true,
-				recentChatMessages: messages,
-				sessionId,
-			});
-			navigate(`/chat/${sessionId}`);
+			updateStateValues({ globalChatMessages: messages });
+			navigate(`/chat/${ObjectID()?.toString()}`);
 		},
 		[info?.chainOfThoughtData],
 	);
