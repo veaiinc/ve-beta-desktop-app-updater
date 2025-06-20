@@ -43,6 +43,7 @@ import IconUploadPopup from '../../components/notes/IconUploadPopup';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ImageBlock, insertImage } from '../../components/notes/ImageComponent';
 import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 import { isEqual } from 'lodash';
 import { Database, insertDatabase } from '../../components/notes/Database';
 import DatabaseSidebar from '../../components/modalsV2/notes/DatabaseSidebar';
@@ -97,6 +98,7 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 }));
 
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
+	const { workspaceMode } = useWorkspaceMode();
 	const { noteId } = useParams();
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
@@ -106,7 +108,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const debounceTimerRef = useRef(null);
 
 	const originalFaviconRef = useRef(null);
-	const { createWebSocketConnection, sendMessage } = useChatStream();
+	// const { createWebSocketConnection, sendMessage } = useChatStream();
 
 	const {
 		notes: {
@@ -132,6 +134,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			updateBlock,
 			deleteBlock,
 		},
+		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 
@@ -303,16 +306,17 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	// }, [noteId]);
 
 	useEffect(() => {
+		const sessionId = ObjectID()?.toString();
 		if (noteId) {
-			const sessionId = ObjectID()?.toString();
 			getNotesPageDataFunc();
-			createWebSocketConnection(sessionId, handleAiResponse);
+			createWebSocketConnection(sessionId, handleAiResponse, '', false, workspaceMode);
 		}
 
 		return () => {
 			updateNotesState({
 				notesPageData: null,
 			});
+			closeWebSocketConnection([sessionId]);
 		};
 	}, [noteId]);
 

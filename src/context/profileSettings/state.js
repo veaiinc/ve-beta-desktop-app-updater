@@ -31,6 +31,7 @@ export const ProfileState = () => {
 					payload: response?.[1],
 				});
 			}
+			return [response[0]];
 		} catch (error) {
 			console.log('error==>getTenantSettings', error);
 		}
@@ -178,7 +179,6 @@ export const ProfileState = () => {
 					payload: workSpaceList?.[1],
 				});
 			}
-			return workSpaceList;
 		} catch (error) {
 			console.log('error==>getUserWorkSpaceList', error);
 		}

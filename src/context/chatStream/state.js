@@ -1,32 +1,39 @@
-import { useCallback, useRef, useEffect } from 'react';
-import useWorkspaceMode from './useWorkspaceMode';
+import { useReducer, useRef, useEffect, useCallback } from 'react';
+
+export const initialChatStreamState = {};
 
 const agentTypeMap = {
 	search_agent: 'search_agent_streaming',
 	knowledge_agent: 'knowledge_agent_chat_streaming',
 };
 
-const useChatStream = () => {
-	const socketRef = useRef(null);
+const Reducer = (state) => {
+	return state;
+};
+
+export const ChatStreamState = () => {
+	const [state, dispatch] = useReducer(Reducer, initialChatStreamState);
+	const socketRefs = useRef({});
 	const inactivityTimeoutRef = useRef(null);
 	const currentSessionIdRef = useRef(null);
 	const messageHandlerRef = useRef(null);
 	const isPublicChatRef = useRef(false);
 	const agentTypeRef = useRef(null);
+	const workspaceModeRef = useRef(null);
 	const MAX_RETRY_ATTEMPTS = 3;
 	const RETRY_DELAY = 1000; // 1 second
 
-	// Cleanup on unmount
-	useEffect(() => {
-		return () => {
-			if (inactivityTimeoutRef.current) {
-				clearTimeout(inactivityTimeoutRef.current);
-			}
-			if (socketRef.current) {
-				socketRef.current.close();
-			}
-		};
-	}, []);
+	// // Cleanup on unmount
+	// useEffect(() => {
+	// 	return () => {
+	// 		if (inactivityTimeoutRef.current) {
+	// 			clearTimeout(inactivityTimeoutRef.current);
+	// 		}
+	// 		if (socketRef.current) {
+	// 			socketRef.current.close();
+	// 		}
+	// 	};
+	// }, []);
 
 	// Helper function to reset the inactivity timer
 	const resetInactivityTimeout = useCallback(() => {
@@ -35,9 +42,9 @@ const useChatStream = () => {
 		}
 
 		inactivityTimeoutRef.current = setTimeout(() => {
-			if (socketRef.current) {
+			if (socketRefs.current[currentSessionIdRef.current]) {
 				console.log('Disconnecting due to inactivity');
-				socketRef.current.close();
+				socketRefs.current[currentSessionIdRef.current].close();
 			}
 		}, 5 * 60 * 1000); // 5 minutes in milliseconds
 	}, []);
@@ -55,13 +62,18 @@ const useChatStream = () => {
 					}
 
 					// If socket doesn't exist or is closed, try to reconnect
-					if (!socketRef.current || socketRef.current.readyState === WebSocket.CLOSED) {
+					if (
+						!socketRefs.current[currentSessionIdRef.current] ||
+						socketRefs.current[currentSessionIdRef.current].readyState ===
+							WebSocket.CLOSED
+					) {
 						console.log('Connection closed, attempting to reconnect...');
 						createWebSocketConnection(
 							currentSessionIdRef.current,
 							messageHandlerRef.current,
 							agentTypeRef.current,
 							isPublicChatRef.current,
+							workspaceModeRef.current,
 						);
 						attempts++;
 						setTimeout(attemptSend, RETRY_DELAY);
@@ -69,7 +81,10 @@ const useChatStream = () => {
 					}
 
 					// If socket is still connecting, wait and retry
-					if (socketRef.current.readyState === WebSocket.CONNECTING) {
+					if (
+						socketRefs.current[currentSessionIdRef.current].readyState ===
+						WebSocket.CONNECTING
+					) {
 						console.log('Connection not ready, waiting...');
 						attempts++;
 						setTimeout(attemptSend, RETRY_DELAY);
@@ -77,9 +92,14 @@ const useChatStream = () => {
 					}
 
 					// If socket is ready, send the message
-					if (socketRef.current.readyState === WebSocket.OPEN) {
+					if (
+						socketRefs.current[currentSessionIdRef.current].readyState ===
+						WebSocket.OPEN
+					) {
 						try {
-							socketRef.current.send(JSON.stringify(data));
+							socketRefs.current[currentSessionIdRef.current].send(
+								JSON.stringify(data),
+							);
 							resetInactivityTimeout();
 							resolve();
 						} catch (error) {
@@ -93,19 +113,23 @@ const useChatStream = () => {
 		},
 		[resetInactivityTimeout],
 	);
-
 	const createWebSocketConnection = useCallback(
-		(sessionId, onMessageFunc, agentType, isPublicChat = false) => {
+		(sessionId, onMessageFunc, agentType, isPublicChat = false, workspaceMode) => {
 			if (!sessionId && !isPublicChat) {
 				return;
 			}
+
 			currentSessionIdRef.current = sessionId;
+			if (socketRefs.current[sessionId]) {
+				return;
+			}
+
 			messageHandlerRef.current = onMessageFunc;
 			isPublicChatRef.current = isPublicChat;
-
-			const { workspaceMode } = useWorkspaceMode(); // stable, beta, internal
+			workspaceModeRef.current = workspaceMode;
 			const defaultAgent =
 				workspaceMode === 'stable' ? 'chat_streaming' : 'multi_agent_chat_streaming';
+
 			const agent = agentTypeMap[agentType] || defaultAgent;
 			agentTypeRef.current = agent;
 
@@ -125,35 +149,50 @@ const useChatStream = () => {
 				}/${sessionId}/guest_chat`;
 			}
 
-			if (socketRef.current) {
-				socketRef.current.close();
-			}
+			socketRefs.current[currentSessionIdRef.current] = new WebSocket(baseUrl);
 
-			socketRef.current = new WebSocket(baseUrl);
-
-			socketRef.current.onopen = () => {
+			socketRefs.current[currentSessionIdRef.current].onopen = () => {
 				console.log('Connected to WebSocket server');
 				resetInactivityTimeout();
 			};
 
-			socketRef.current.onclose = () => {
+			socketRefs.current[currentSessionIdRef.current].onclose = () => {
 				console.log('Disconnected from WebSocket server');
 				if (inactivityTimeoutRef.current) {
 					clearTimeout(inactivityTimeoutRef.current);
 				}
 			};
 
-			socketRef.current.onmessage = (event) => {
+			socketRefs.current[currentSessionIdRef.current].onmessage = (event) => {
 				resetInactivityTimeout();
 				if (onMessageFunc) {
-					onMessageFunc(event);
+					onMessageFunc(event, currentSessionIdRef.current);
 				}
 			};
 		},
 		[resetInactivityTimeout],
 	);
 
-	return { socketRef, createWebSocketConnection, sendMessage };
-};
+	const closeWebSocketConnection = useCallback((sessionIds) => {
+		if (sessionIds?.length > 0) {
+			sessionIds?.forEach((sessionId) => {
+				if (socketRefs.current[sessionId]) {
+					socketRefs.current[sessionId].close();
+					delete socketRefs.current[sessionId];
+				}
+			});
+		}
+	}, []);
 
-export default useChatStream;
+	const removeCurrentSessionId = useCallback(() => {
+		currentSessionIdRef.current = null;
+	}, []);
+
+	return {
+		...state,
+		createWebSocketConnection,
+		sendMessage,
+		closeWebSocketConnection,
+		removeCurrentSessionId,
+	};
+};
