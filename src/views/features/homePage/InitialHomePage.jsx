@@ -330,13 +330,13 @@ const InitialHomePage = () => {
 	};
 
 	const handleOptionSelection = (option) => {
-		if (info?.selectedOption === option?.value) {
+		if (info?.selectedOption === option) {
 			return;
 		}
 
 		setInfo((prev) => ({
 			...prev,
-			selectedOption: option?.value,
+			selectedOption: option,
 		}));
 	};
 
