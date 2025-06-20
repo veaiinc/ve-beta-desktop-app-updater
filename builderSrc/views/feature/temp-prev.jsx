@@ -155,8 +155,6 @@ class TempBuilderPreview extends Proposals {
 			themes: null,
 			sectionVariables: {},
 			domRendered: false, // Track DOM rendering
-			globalTables: [],
-			clientGrandTotal: 0,
 		};
 		this.parentRef = createRef();
 		this.updateClientRef = createRef();
@@ -301,9 +299,6 @@ class TempBuilderPreview extends Proposals {
 
 		if (prevState.isLoading && !this.state.isLoading) {
 			this.attachClickListeners();
-		}
-		if (this.state.globalTables !== prevState.globalTables) {
-			this.handleGlobalTables();
 		}
 	}
 
@@ -763,67 +758,6 @@ class TempBuilderPreview extends Proposals {
 				fileSentStatusId: this.props.workflowId || this.props.params.templateID,
 			}));
 	};
-	handleGlobalTables = () => {
-		let finalTotalCost = 0;
-
-		if (this.state.version === 1) {
-			// update the section styles to tables
-
-			// for single service selection && multiple service selection
-			this.state?.globalTables
-				?.filter(
-					(table) =>
-						table?.type === 'services' && table?.styles?.services_selection !== 2,
-				)
-				?.forEach((table) => {
-					let subTotalValue = 0;
-					table.values.forEach((value) => {
-						if (value.isSelected === true && value?.show) {
-							let amount = parseFloat(value.amount) || 0;
-							let quantity = parseFloat(value.quantity) || 0;
-							let price = quantity * amount;
-							subTotalValue += price;
-						}
-					});
-					finalTotalCost += subTotalValue;
-				});
-
-			// view only service selection
-			this.state?.globalTables
-				?.filter(
-					(table) =>
-						table?.type === 'services' && table?.styles?.services_selection === 2,
-				)
-				?.forEach((table) => {
-					let subTotalValue = 0;
-					table.values.forEach((value) => {
-						subTotalValue += parseFloat(value.amount) * parseFloat(value.quantity) || 0;
-					});
-					if (subTotalValue === 0) {
-						let customSectionSubtotalValue =
-							this.state?.globalSummaryData?.sections?.find(
-								(section) => section?._id === table?._id,
-							)?.style?.subTotalValue;
-						let customTableSubtotalValue = table?.styles?.subTotalValue;
-						let customSubTotalValue =
-							customSectionSubtotalValue !== customTableSubtotalValue
-								? customSectionSubtotalValue
-								: customTableSubtotalValue;
-						const incomingSubTotalValue =
-							parseFloat(
-								(customSubTotalValue + '')
-									?.replace(/&nbsp;/g, ' ')
-									.replace(/<\/?[^>]+(>|$)/g, '')
-									.replace(/"/g, ''),
-							) || 0;
-						subTotalValue = incomingSubTotalValue;
-					}
-					finalTotalCost += subTotalValue;
-				});
-
-			this.setState({ clientGrandTotal: finalTotalCost });
-		}
-	};
 
 	render() {
 		return (
@@ -1102,9 +1036,6 @@ class TempBuilderPreview extends Proposals {
 														isSummaryPreview={true}
 														clientDetails={this.state.clientDetails}
 														audioMode={true}
-														clientGrandTotal={
-															this.state.clientGrandTotal
-														}
 													/>
 												</div>
 											</div>

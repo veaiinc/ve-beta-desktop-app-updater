@@ -4,7 +4,7 @@ import Intercom from '@intercom/messenger-js-sdk';
 import { Tooltip } from 'antd';
 
 import '../../../assets/scss/sidebar.scss';
-import { stableNavigationItems, betaNaviagationItems } from './sidebarindex';
+import { veAiModulesItemsList } from './sidebarindex';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 
 import OpenedSidebar from './OpenedSidebar';
@@ -12,14 +12,10 @@ import Notifications from './notifications/Notifications';
 import Notes from './notes/Notes';
 import SidebarTooltip from './SidebarTooltip';
 import Context from '../../../context/context';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const Sidebar = ({ activeWorkspaceId }) => {
-	const { workspaceMode } = useWorkspaceMode();
-	const sidebarNavigationItems =
-		workspaceMode === 'stable' ? stableNavigationItems : betaNaviagationItems;
 	const {
-		profileInfo: { userWorkSpaceList, userDetailsData, getUserDetails },
+		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 
@@ -89,6 +85,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 
 	// Fetch workspace and user info
 	useEffect(() => {
+		if (!userWorkSpaceList) getUserWorkSpaceList();
 		if (!userDetailsData) getUserDetails();
 	}, []);
 
@@ -127,7 +124,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 			const currentPath = '/' + location.pathname.split('/')[1];
 			setInfo((prev) => ({ ...prev, activeRoute: currentPath }));
 
-			const currentModule = sidebarNavigationItems.find(
+			const currentModule = veAiModulesItemsList.find(
 				(module) => module.moduleRoute === currentPath,
 			);
 			if (currentModule) {
@@ -190,7 +187,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					${isHovering ? 'hovering' : ''}
 					${
 						sidebarStates.selectedModule &&
-						sidebarNavigationItems.find(
+						veAiModulesItemsList.find(
 							(module) => module.name === sidebarStates.selectedModule,
 						)?.subModules?.length > 0
 							? 'has-submodules'

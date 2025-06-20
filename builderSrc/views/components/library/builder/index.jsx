@@ -1605,7 +1605,6 @@ class Builder extends Component {
 												data-block-id={section?.type}
 											>
 												<InvoiceWrapper
-													variables={this.props.variables}
 													setTriggerFont={(e) =>
 														this.props?.client
 															? ''
@@ -1812,9 +1811,6 @@ class Builder extends Component {
 															isService,
 														);
 													}}
-													smartFileVariables={
-														this.props?.smartFileVariables
-													}
 												/>
 											</div>
 										);
@@ -2062,7 +2058,6 @@ class Builder extends Component {
 												data-block-id={section?.type}
 											>
 												<SummaryWrapper
-													variables={this.props?.variables}
 													activeSubBlockId={this.state.activeSubBlockId}
 													key={index}
 													module={this.props.module}
@@ -2175,9 +2170,6 @@ class Builder extends Component {
 													section={section}
 													fonts={this.props?.fonts}
 													activeModuleId={this.props?.activeModuleId}
-													smartFileVariables={
-														this.props?.smartFileVariables
-													}
 												/>
 											</div>
 										);
@@ -2192,12 +2184,7 @@ class Builder extends Component {
 												}}
 												key={index}
 												style={{
-													height: !this.props?.client
-														? 'auto'
-														: section?.isSinglePage &&
-														  this.props?.client
-														? 'auto'
-														: '100%',
+													height: this.props.client ? '100%' : 'auto',
 													minHeight: '418.5px',
 													display: 'block',
 												}}
@@ -3370,7 +3357,6 @@ class Builder extends Component {
 					)}
 					{this.props.module === 'invoice' ? (
 						<Invoice
-							variables={this.state.variables}
 							isWorkflow={this.state.isWorkflow}
 							preview={this.state.preview}
 							previewType={this.state.previewType}

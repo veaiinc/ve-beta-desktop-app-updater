@@ -30,21 +30,25 @@
 				align-items: center;
 				justify-content: center;
 				width: 100%;
-				max-width: 1000px;
 
 				.poweredBy {
-					color: var(--primary-font, #f2f2f3);
+					color: var(--primary-button, #79ecc9);
 					text-align: center;
+					font-family: var(--secondary-font-family);
 					font-size: 18px;
+					font-style: normal;
 					font-weight: 500;
+					line-height: normal;
 				}
 
 				.heading {
-					color: var(--primary-button, #79ecc9);
+					color: var(--primary-font, #f2f2f3);
 					text-align: center;
+					font-family: var(--secondary-font-family);
 					font-size: 55px;
+					font-style: normal;
 					font-weight: 600;
-					line-height: 70px;
+					line-height: normal;
 				}
 
 				.subHeading {
@@ -56,9 +60,12 @@
 					p {
 						color: var(--primary-font, #f2f2f3);
 						text-align: center;
-						font-size: 18px;
+						font-family: var(--secondary-font-family);
+						font-size: 20px;
+						font-style: normal;
 						font-weight: 500;
-						line-height: 36px;
+						line-height: 35px; /* 175% */
+						width: 100%;
 					}
 				}
 			}
@@ -77,8 +84,11 @@
 					border-radius: 100px;
 					border: 1px solid var(--primary-button, #79ecc9);
 					color: var(--primary-button, #79ecc9);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
+					font-style: normal;
 					font-weight: 500;
+					line-height: normal;
 					cursor: pointer;
 				}
 
@@ -91,8 +101,11 @@
 					border-radius: 100px;
 					background: var(--primary-button, #79ecc9);
 					color: var(--background-color, #0c0c0d);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
+					font-style: normal;
 					font-weight: 500;
+					line-height: normal;
 					cursor: pointer;
 				}
 			}
@@ -150,20 +163,24 @@
 			.taglineContainer {
 				.top {
 					.heading {
-						color: var(--primary-button, #79ecc9);
+						color: var(--primary-font, #f2f2f3);
 						text-align: center;
+						font-family: var(--secondary-font-family);
 						font-size: 55px;
+						font-style: normal;
 						font-weight: 600;
 						line-height: normal;
 					}
 					.poweredBy {
-						font-size: 16px;
+						font-size: 18px;
 					}
 					.subHeading {
 						p {
 							color: var(--secondary-font, #7a7e85);
 							text-align: center;
-							font-size: 18px;
+							font-family: var(--secondary-font-family);
+							font-size: 20px;
+							font-style: normal;
 							font-weight: 500;
 							line-height: 35px;
 							width: 100%;
@@ -181,20 +198,24 @@
 			.taglineContainer {
 				.top {
 					.heading {
-						color: var(--primary-button, #79ecc9);
+						color: var(--primary-font, #f2f2f3);
 						text-align: center;
+						font-family: var(--secondary-font-family);
 						font-size: 55px;
+						font-style: normal;
 						font-weight: 600;
 						line-height: normal;
 					}
 					.poweredBy {
-						font-size: 16px;
+						font-size: 18px;
 					}
 					.subHeading {
 						p {
 							color: var(--secondary-font, #7a7e85);
 							text-align: center;
-							font-size: 18px;
+							font-family: var(--secondary-font-family);
+							font-size: 20px;
+							font-style: normal;
 							font-weight: 500;
 							line-height: 35px;
 							width: 100%;
@@ -233,9 +254,11 @@
 					}
 
 					.heading {
-						color: var(--primary-button, #79ecc9);
+						color: var(--primary-font, #f2f2f3);
 						text-align: center;
+						font-family: var(--secondary-font-family);
 						font-size: 34px;
+						font-style: normal;
 						font-weight: 600;
 						line-height: normal;
 						text-transform: capitalize;
@@ -293,9 +316,11 @@
 					}
 
 					.heading {
-						color: var(--primary-button, #79ecc9);
+						color: var(--primary-font, #f2f2f3);
 						text-align: center;
+						font-family: var(--secondary-font-family);
 						font-size: 34px;
+						font-style: normal;
 						font-weight: 600;
 						line-height: normal;
 						text-transform: capitalize;

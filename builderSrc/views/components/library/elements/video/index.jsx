@@ -18,7 +18,58 @@ class Video extends Component {
 			subBlockID: props?.subBlockID,
 			height: props?.height,
 			previewType: props?.previewType,
+			shouldPlay: false,
 		};
+		this.videoRef = React.createRef();
+		this.observer = null;
+	}
+
+	componentDidMount() {
+		this?.setupIntersectionObserver();
+	}
+
+	componentWillUnmount() {
+		if (this?.observer && this?.videoRef?.current) {
+			this?.observer?.unobserve(this?.videoRef?.current);
+		}
+	}
+
+	setupIntersectionObserver = () => {
+		const options = {
+			root: null,
+			rootMargin: '0px',
+			threshold: 0.3,
+		};
+
+		this.observer = new IntersectionObserver((entries) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting) {
+					// Video is in viewport
+					this.setState({
+						shouldPlay: true,
+					});
+				} else {
+					// Video is out of viewport
+					this.setState({
+						shouldPlay: false,
+					});
+				}
+			});
+		}, options);
+
+		// Start observing when component mounts
+		if (this?.videoRef?.current) {
+			this?.observer?.observe(this?.videoRef?.current);
+		}
+	};
+
+	componentDidUpdate(prevProps, prevState) {
+		// If videoRef becomes available, start observing
+		if (!prevState?.videoURL && this.state?.videoURL && this.videoRef?.current) {
+			if (this?.observer) {
+				this?.observer?.observe(this?.videoRef?.current);
+			}
+		}
 	}
 
 	componentWillReceiveProps = (nextProps) => {
@@ -88,6 +139,12 @@ class Video extends Component {
 			: [this.props.setTab('bvideo')];
 	};
 
+	shouldVideoPlay = () => {
+		if (this.state?.autoplay) {
+			return this.state?.shouldPlay; // Play when in viewport if autoplay is enabled
+		}
+		return false;
+	};
 	render() {
 		return (
 			<>
@@ -99,6 +156,7 @@ class Video extends Component {
 					`}</style>
 				</Helmet>
 				<div
+					ref={this.videoRef}
 					className={`video-block `}
 					style={{
 						overflow: 'hidden',
@@ -163,7 +221,7 @@ class Video extends Component {
 									});
 									this.props.setIsValidURL(true);
 								}}
-								playing={this.state.autoplay}
+								playing={this.shouldVideoPlay()}
 								controls
 								muted={
 									this.state?.isFluid

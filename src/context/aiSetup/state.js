@@ -214,6 +214,39 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const updateAiChatSessions = async (payload, addNewSession = false) => {
+		try {
+			if (addNewSession) {
+				const data = {
+					_id: payload?.sessionId,
+					title: 'New Chat',
+					createdAt: Math.floor(Date.now() / 1000),
+				};
+				dispatch({
+					type: Actions?.SET_AI_CHAT_SESSIONS_BY_ID,
+					payload: data,
+				});
+				return;
+			}
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = '/' + workspaceId + '/ai-chat/list-multiagent-sessions';
+			const params = payload;
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api', params);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.SET_AI_CHAT_SESSIONS_BY_ID,
+					payload: response?.[1]?.data?.[0],
+				});
+				return;
+			} else {
+				console.log('error==>updateAiChatSessions', response?.[1]);
+			}
+		} catch (error) {
+			console.log('error==>updateAiChatSessions', error);
+		}
+	};
+
 	const getExistingAiAssistants = async () => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -1188,5 +1221,6 @@ export const AiSetupState = () => {
 		resetAiSetupData,
 		deleteAiSetupData,
 		editAiSetupData,
+		updateAiChatSessions,
 	};
 };
