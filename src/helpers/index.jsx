@@ -7,6 +7,7 @@ import { ReactComponent as JpgSvg } from '../assets/svg/ai_agents/jpg.svg';
 import { ReactComponent as PngSvg } from '../assets/svg/ai_agents/png.svg';
 import { ReactComponent as MdSvg } from '../assets/svg/ai_agents/md.svg';
 import { ReactComponent as ExcelSvg } from '../assets/svg/ai_agents/excel.svg';
+import { ReactComponent as OpenAISvg } from '../assets/svg/openai.svg';
 import GmailSvg from '../assets/svg/login_page/GmailIcon';
 import { ReactComponent as SlackSvg } from '../assets/svg/slack.svg';
 import { ReactComponent as NotionSvg } from '../assets/svg/notion.svg';
@@ -342,6 +343,7 @@ export const fileTypeIcons = {
 	drive: <DriveSvg />,
 	notion: <NotionSvg />,
 	workflowId: <VeLogoSvg />,
+	openai: <OpenAISvg />,
 	'image/png': <PngSvg />,
 	'image/jpeg': <JpgSvg />,
 	'image/jpg': <JpgSvg />,

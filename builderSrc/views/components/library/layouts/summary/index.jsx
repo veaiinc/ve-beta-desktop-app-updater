@@ -128,42 +128,10 @@ export default class Summary extends PureComponent {
 			return ''; // Return an empty string for invalid inputs
 		}
 
-		// First handle variables if present
-		if (str.includes('class="variable"')) {
-			return this.getVariableValue(str);
-		}
-
 		return str
 			.replace(/<[^>]*>/g, '') // Remove HTML tags
 			.replace(/\s*style=["'][^"']*["']/g, '') // Remove inline styles
 			.replace(/&nbsp;/g, '  '); // Replace non-breaking spaces
-	}
-
-	getVariableValue(text) {
-		if (!text || !this.props.variables || !this.props?.smartFileVariables) return '';
-
-		const parts = text.split(/<input[^>]*>/);
-		const beforeText = parts[0]
-			.replace(/<[^>]*>/g, '')
-			.replace(/&nbsp;/g, ' ')
-			.trim();
-
-		const match = text.match(/data-id="([^"]+)"/);
-		const variableId = match ? match[1] : null;
-
-		if (!variableId) return text;
-		let variable = null;
-		variable = this.props.variables.find((v) => v._id === variableId);
-		if (!variable) {
-			const { module = [], workspace = [], custom = [] } = this.props?.smartFileVariables;
-			variable =
-				custom.find((v) => v._id === variableId) ||
-				module.find((v) => v._id === variableId) ||
-				workspace.find((v) => v._id === variableId);
-		}
-		const variableValue = variable?.defaultValue || '';
-
-		return `${beforeText} ${variableValue}`.trim();
 	}
 
 	render() {
@@ -253,7 +221,7 @@ export default class Summary extends PureComponent {
 											.replace(/"/g, ''),
 									) || 0;
 							}
-							console.log(section, 'this is the section from the summary');
+
 							return (
 								<>
 									<div className="service-div" key={section._id || index}>
@@ -401,26 +369,6 @@ export default class Summary extends PureComponent {
 																												?.subBlocks?.[0]
 																												?.description ||
 																												'Description',
-																										)}
-																									</div>
-																								) : null,
-																						)}
-
-																						{/* Handle variables in text */}
-																						{block.labels?.map(
-																							(
-																								label,
-																								labelIndex,
-																							) =>
-																								label.variable ? (
-																									<div
-																										key={
-																											labelIndex
-																										}
-																										className="variable-content"
-																									>
-																										{this.getVariableValue(
-																											label.text,
 																										)}
 																									</div>
 																								) : null,
@@ -642,26 +590,6 @@ export default class Summary extends PureComponent {
 																												?.subBlocks?.[0]
 																												?.description ||
 																												'Description',
-																										)}
-																									</div>
-																								) : null,
-																						)}
-
-																						{/* Handle variables in text */}
-																						{block.labels?.map(
-																							(
-																								label,
-																								labelIndex,
-																							) =>
-																								label.variable ? (
-																									<div
-																										key={
-																											labelIndex
-																										}
-																										className="variable-content"
-																									>
-																										{this.getVariableValue(
-																											label.text,
 																										)}
 																									</div>
 																								) : null,

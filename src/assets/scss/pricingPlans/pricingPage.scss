@@ -49,7 +49,6 @@
 			display: flex;
 			align-items: center;
 			gap: 24px;
-			flex-wrap: wrap;
 			.toggle-group {
 				display: flex;
 				padding: 6px;
@@ -64,7 +63,6 @@
 					justify-content: center;
 					align-items: center;
 					border-radius: 8px;
-					cursor: pointer;
 					&.active {
 						display: flex;
 						padding: 6px 16px;
@@ -407,13 +405,17 @@
 		}
 
 		.plan-boxes-row {
+			position: sticky;
+			top: -50px;
+			z-index: 100;
 			display: flex;
-			max-width: 1250px;
+			max-width: 1200px;
+			margin: 0 auto;
 			justify-content: center;
+			align-items: flex-start;
 			gap: 16px;
+			align-self: stretch;
 			background: var(--background-color, #0c0c0d);
-			flex-wrap: wrap;
-			width: 100%;
 			.plan-table-box {
 				display: flex;
 				width: 232px;
@@ -928,18 +930,15 @@
 	}
 }
 
-@media (max-width: 1470px) {
-	.pricing-toggle-container {
+@media (max-width: 1000px) {
+	.pricing-page {
 		.pricing-cards {
+			flex-direction: column;
 			align-items: center;
 			gap: 40px;
 			width: 100%;
+			max-width: 500px;
 			margin: 0 auto;
-			flex-wrap: wrap;
-		}
-
-		.pricing-toggle-row {
-			margin: auto;
 		}
 
 		.pricing-features-table-section {
@@ -980,6 +979,13 @@
 		.pricing-features-table-section {
 			.features-table-title {
 				font-size: 24px;
+			}
+
+			.plan-boxes-row {
+				.plan-table-box {
+					width: 100%;
+					max-width: 400px;
+				}
 			}
 		}
 
@@ -1088,21 +1094,21 @@
 					}
 				}
 			}
+		}
 
-			.pricing-cards {
-				.pricing-card {
-					padding: 16px;
-					min-width: 280px;
+		.pricing-cards {
+			.pricing-card {
+				padding: 16px;
+				min-width: 280px;
 
-					.card-header-container {
-						.card-header {
-							.price-container {
-								.price {
-									font-size: 20px;
-								}
-								.user-info {
-									font-size: 11px;
-								}
+				.card-header-container {
+					.card-header {
+						.price-container {
+							.price {
+								font-size: 20px;
+							}
+							.user-info {
+								font-size: 11px;
 							}
 						}
 					}
