@@ -12,6 +12,7 @@ import { ReactComponent as ArrowDownSvg } from '../../../assets/svg/ai_agents/ar
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as BulbSvg } from '../../../assets/svg/home_page/bulb.svg';
 import { ReactComponent as TrendUpSvg } from '../../../assets/svg/trendUp.svg';
+import CreditCoinImage from '../../../assets/images/creditCoin.png';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation, useParams } from 'react-router-dom';
@@ -33,6 +34,7 @@ import { fileTypeIcons } from '../../../helpers';
 import BuildTooltip from './BuildTooltip';
 import RecentFileTooltip from './RecentFileTooltip';
 import AskTooltip from './AskTooltip';
+import AddOnCards from '../settings/planbilling/addOnCards';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -195,6 +197,7 @@ const ChatBox = ({
 		searchTypeOpenForReason: false,
 		activePlaceholderIndex: 0,
 		chatBoxInfo: null,
+		openUpgradeModal: false,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -203,6 +206,8 @@ const ChatBox = ({
 	const recentFilesRef = useRef(info?.recentFiles || []);
 	const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
 	const placeholderIntervalId = useRef(null);
+	const totalCreditsUsed = currentPlan?.totalAiCreditUsed || -1,
+		totalCreditsLimit = currentPlan?.totalAiCreditLimit || 0;
 
 	useEffect(() => {
 		if (
@@ -602,10 +607,7 @@ const ChatBox = ({
 					const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
 						totalCreditsLimit = currentPlan?.totalAiCreditLimit || 0;
 					if (totalCreditsUsed >= totalCreditsLimit) {
-						return updateSubscriptionState({
-							expiredSubscriptionModal: true,
-							expiredSubscriptionType: 'Chat',
-						});
+						return message.error('You have reached your limit of credits');
 					}
 				}
 
@@ -1200,11 +1202,22 @@ const ChatBox = ({
 		});
 	};
 
-	const handleReplyCloseClick = () => {
+	const handleReplyCloseClick = useCallback(() => {
 		updateStateValues({
 			chatReplyData: null,
 		});
-	};
+	}, []);
+
+	const handleUpgradeClick = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			openUpgradeModal: true,
+		}));
+	}, []);
+
+	const handleCloseUpgrageModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, openUpgradeModal: false }));
+	}, []);
 
 	return (
 		<div
@@ -2013,7 +2026,35 @@ const ChatBox = ({
 						))}
 					</div>
 				)}
+				{totalCreditsUsed >= totalCreditsLimit && (
+					<div className="credits-upgrade-container">
+						<div className="left-container">
+							<div className="title-container">
+								<img src={CreditCoinImage} className="coin-icon" alt="coin" />
+
+								<div className="title-text-container">
+									You don’t have enough credits to continue.
+								</div>
+							</div>
+							<div className="description-container">
+								Please consider purchasing additional credits to unlock more
+								features and enhance your experience. If you need assistance, feel
+								free to reach out to our support team!
+							</div>
+						</div>
+						<div className="right-container">
+							<div className="upgrade-button" onClick={handleUpgradeClick}>
+								Upgrade
+							</div>
+						</div>
+					</div>
+				)}
 			</div>
+			<AddOnCards
+				isOpen={info?.openUpgradeModal}
+				closeModal={handleCloseUpgrageModal}
+				subscriptionState="addOnPlans"
+			/>
 		</div>
 	);
 };

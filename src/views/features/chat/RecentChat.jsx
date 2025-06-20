@@ -148,7 +148,11 @@ const RecentChat = ({
 				updateExtraInfo: true,
 			});
 			removeCurrentSessionId();
-			updateStateValues({ newChatSessionIds: [], currentSessionId: null });
+			updateStateValues({
+				newChatSessionIds: [],
+				currentSessionId: null,
+				currentChatData: null,
+			});
 		};
 	}, []);
 
