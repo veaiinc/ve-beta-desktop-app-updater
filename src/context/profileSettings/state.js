@@ -178,7 +178,6 @@ export const ProfileState = () => {
 					payload: workSpaceList?.[1],
 				});
 			}
-			return workSpaceList;
 		} catch (error) {
 			console.log('error==>getUserWorkSpaceList', error);
 		}
