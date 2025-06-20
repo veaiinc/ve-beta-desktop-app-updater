@@ -3,47 +3,29 @@ import Context from '../../context/context';
 
 const useWorkspaceMode = () => {
 	const [info, setInfo] = useState({
-		workspaceMode: 'stable',
-		workspaceModeList: null,
-		loading: false,
+		loading: true,
 		error: false,
 	});
 
 	const {
-		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
+		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
+	const workspaceMode = tennantSettingsData?.workspaceMode ?? null;
+
 	const fetchWorkspaceModes = async (workspaceId) => {
-		if (info.loading) return;
-		setInfo((prev) => ({ ...prev, loading: true }));
 		try {
-			if (userWorkSpaceList !== null) {
-				const workspaceModeList = userWorkSpaceList.reduce((workspaceMode, workspace) => {
-					workspaceMode[workspace.activeWorkspaceId] = workspace.workspaceMode;
-					return workspaceMode;
-				}, {});
-				const workspaceMode = workspaceModeList[workspaceId];
-				setInfo((prev) => ({
-					...prev,
-					workspaceMode,
-					workspaceModeList,
-				}));
-				return;
-			}
-			const response = await getUserWorkSpaceList();
-			const success = response[0];
-			if (success) {
-				const workspaceList = response[1];
-				const workspaceModeList = workspaceList.reduce((workspaceMode, workspace) => {
-					workspaceMode[workspace.activeWorkspaceId] = workspace.workspaceMode;
-					return workspaceMode;
-				}, {});
-				const workspaceMode = workspaceModeList[workspaceId];
-				setInfo((prev) => ({
-					...prev,
-					workspaceMode,
-					workspaceModeList,
-				}));
+			if (!tennantSettingsData) {
+				const response = await getTenantSettings();
+				const success = response[0] === true;
+				if (!success) {
+					const error = response[1];
+					console.log(error);
+					setInfo((prev) => ({
+						...prev,
+						error,
+					}));
+				}
 			}
 		} catch (error) {
 			setInfo((prev) => ({
@@ -59,7 +41,7 @@ const useWorkspaceMode = () => {
 		fetchWorkspaceModes(workspaceId);
 	}, []);
 
-	return info;
+	return { workspaceMode, ...info };
 };
 
 export default useWorkspaceMode;
