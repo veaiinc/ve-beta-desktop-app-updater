@@ -163,6 +163,7 @@
 								padding-right: 16px;
 								margin-right: 16px;
 							}
+							
 						}
 
 						.input-container {
@@ -1087,19 +1088,14 @@
 }
 
 @media screen and (max-width: 768px) {
-	.myProfileComponent {
-		.settingsContainer {
-			gap: 0px;
-
-			.formsMain {
-				padding: 20px;
-				gap: 24px;
-			}
+	.myProfileComponent{
+		.formsMain {
+			padding: 20px;
 		}
+
 	}
 
 	.notifications-container {
-		gap: 0px;
 		.notifications-container-header {
 			padding: 20px;
 		}
@@ -1111,6 +1107,5 @@
 
 	.danger-zone {
 		padding: 20px;
-		gap: 20px;
 	}
 }
