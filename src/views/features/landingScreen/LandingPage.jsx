@@ -115,7 +115,7 @@ const LandingPage = () => {
 					</div>
 					<video autoPlay muted loop className="videoContainer">
 						<source
-							src="https://ap.images.ve.ai/public/dashboard/landing_page.mp4"
+							src="https://ap.images.ve.ai/public/dashboard/login_page.mp4"
 							type="video/mp4"
 						/>
 					</video>

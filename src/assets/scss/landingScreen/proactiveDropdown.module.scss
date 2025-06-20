@@ -32,14 +32,17 @@
 		justify-content: center;
 
 		span {
-			background-color: var(--card-hover, #18191b);
 			padding: 5px 10px;
 			* {
 				color: var(--primary-font, #f2f2f3);
 				font-size: 20px;
 				transition: text-decoration 0.3s ease;
 				text-underline-offset: 3px;
-
+			}
+			&:hover {
+				background-color: var(--card-over-card-hover, #252627);
+				border-radius: 12px;
+				cursor: pointer;
 			}
 		}
 	}

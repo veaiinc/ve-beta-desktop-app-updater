@@ -56,9 +56,26 @@ const paragraphs2 = [
 						change the world. It may be the first thing we've ever built that finally
 						understands why it should.`,
 ];
+const missionContent = [
+	`The next leap in civilization is not technological; it is relational. It will be a bridge between human intent and machine memory. Our greatest need is not just intelligence, but intelligence that truly understands. At Ve.ai, we stand at the forefront of this effort.`,
+	`In this path, we launch Ambient Memory AI —
+AI that becomes your living intelligence —
+Evolving, thinking, and always acting in your best interest.`,
+	`Because human memory is not data — it's a garden.
+We don't just store; we grow, prune, and rediscover.
+And now, so will our machines.`,
+];
 
 const tabsMapper = {
 	0: (
+		<section className="mission-block">
+			<h1 className="heading">The bridge </h1>
+			{missionContent.map((content, index) => (
+				<p key={`mission-${index}`}>{content}</p>
+			))}
+		</section>
+	),
+	1: (
 		<section className="mission-block">
 			<h1 className="heading">Building bridge between human intent and machine memory!</h1>
 
