@@ -196,6 +196,7 @@ const InitialHomePage = () => {
 
 	const navigate = useNavigate();
 	const timeoutIdRef = useRef(null);
+	const previousSelectedOptionRef = useRef(null);
 
 	const [info, setInfo] = useState({
 		selectedOption: '',
@@ -334,6 +335,7 @@ const InitialHomePage = () => {
 			return;
 		}
 
+		previousSelectedOptionRef.current = info?.selectedOption;
 		setInfo((prev) => ({
 			...prev,
 			selectedOption: option,
@@ -431,7 +433,10 @@ const InitialHomePage = () => {
 			{info?.options?.length > 0 && !info?.showSuggestions && (
 				<div className="home-page-container-content">
 					{info?.selectedOption === 'proactive' ? (
-						<ProactiveSuggestions />
+						<ProactiveSuggestions
+							option={info?.selectedOption}
+							previousOption={previousSelectedOptionRef.current}
+						/>
 					) : (
 						<GlobalWidget option={info?.selectedOption} />
 					)}

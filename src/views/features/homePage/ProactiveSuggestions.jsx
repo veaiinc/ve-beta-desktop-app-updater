@@ -110,7 +110,7 @@ const sortOptions = {
 };
 const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
 
-const ProactiveSuggestions = () => {
+const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	const navigate = useNavigate();
 	const currentIndexRef = useRef(0);
 	const totalCardsDataRef = useRef([]);
@@ -185,11 +185,17 @@ const ProactiveSuggestions = () => {
 	}, [info?.totalCardsData, info?.currentIndex]);
 
 	useEffect(() => {
-		if (!aiSuggestedPendingActions) return;
+		if (!previousOption) {
+			return;
+		}
+		fetchPendingActions();
+	}, []);
+
+	useEffect(() => {
+		if (!aiSuggestedPendingActions || !isMountedRef.current) return;
 		if (
 			aiSuggestedPendingActions?.metaInfo?.currentPage === 1 &&
-			info?.selectedFilters?.length === 0 &&
-			isMountedRef.current
+			info?.selectedFilters?.length === 0
 		) {
 			return;
 		}

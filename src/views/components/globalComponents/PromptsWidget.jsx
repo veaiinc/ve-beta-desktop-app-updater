@@ -2,11 +2,10 @@ import { useContext, useState, useEffect, useCallback } from 'react';
 import Context from '../../../context/context';
 import InfiniteScroll from './InfiniteScroll';
 import '../../../assets/scss/globalComponents/promptWidget.scss';
-import Skeleton from 'react-loading-skeleton';
 import ChatBox from '../chat/ChatBox';
 import Suggestions from '../../features/homePage/Suggestions';
-
-const skeletonLoaders = [1, 2, 3, 4];
+import Skeleton from 'react-loading-skeleton';
+const skeletonLoaders = [1, 2, 3, 4, 5, 6, 7, 8];
 
 const PromptsWidget = ({ option }) => {
 	const {
@@ -18,24 +17,35 @@ const PromptsWidget = ({ option }) => {
 		},
 	} = useContext(Context);
 
-	// const [animateCards, setAnimateCards] = useState(false);
 	const [info, setInfo] = useState({
 		animateCards: false,
 		chatQuery: '',
+		cardsLoading: false,
 	});
+
 	useEffect(() => {
 		if (option) {
+			// Reset animateCards to false to allow animation to retrigger
+			setInfo((prev) => ({
+				...prev,
+				animateCards: false,
+				cardsLoading: true,
+			}));
+
 			const page = 1;
 			const shouldReset = true;
-			getUpdatedSuggestedPendingActions(page, shouldReset);
-			setTimeout(() => {
+
+			// Fetch new data
+			getUpdatedSuggestedPendingActions(page, shouldReset).then(() => {
+				// After data is fetched, trigger animation
 				setInfo((prev) => ({
 					...prev,
 					animateCards: true,
+					cardsLoading: false,
 				}));
-			}, 100);
+			});
 		}
-	}, []);
+	}, [option]);
 
 	const getUpdatedSuggestedPendingActions = async (page = 1, shouldReset = false) => {
 		await getAISuggestedPendingActions(
@@ -44,7 +54,7 @@ const PromptsWidget = ({ option }) => {
 				limit: 20,
 				sortBy: 'createdAt',
 				sortType: -1,
-				// category: option,
+				category: option,
 			},
 			shouldReset,
 		);
@@ -79,13 +89,13 @@ const PromptsWidget = ({ option }) => {
 
 	const cardsData = aiSuggestedPendingActions?.pendingActions;
 	const cardsLoading = aiSuggestedPendingActions ? false : true;
-	const cardsEmpty = cardsData?.length === 0 && !cardsLoading;
-	const cardsLength = cardsData?.length ?? 0;
+	const cardsEmpty = aiSuggestedPendingActions?.pendingActions?.length === 0 && !cardsLoading;
+	const cardsLength = aiSuggestedPendingActions?.pendingActions?.length ?? 0;
 	const cardsHasNextPage = Boolean(aiSuggestedPendingActions?.metaInfo?.hasNextPage);
 	const cardsCurrentPage = Number(aiSuggestedPendingActions?.metaInfo?.currentPage) || 1;
 
 	// Indices of cards to animate with dealing effect (4th, 5th, 8th, 10th, 12th)
-	const animatedIndices = [3, 4, 7, 9, 11];
+	const animatedIndices = [];
 
 	return (
 		<>
@@ -93,12 +103,15 @@ const PromptsWidget = ({ option }) => {
 				className="prompts-widget"
 				style={{ height: cardsData?.length > 0 ? '93vh' : '10px' }}
 			>
-				{cardsEmpty ? (
+				{info?.cardsLoading ? (
+					<div className="prompts-widget-cards-loading">
+						{skeletonLoaders?.map((item) => (
+							<Skeleton key={item} height={'160px'} width={'175px'} />
+						))}
+					</div>
+				) : cardsEmpty ? (
 					''
 				) : (
-					// <div className="prompts-widget-empty">
-					// 	<div className="prompts-widget-empty-title">No prompts found</div>
-					// </div>
 					<InfiniteScroll
 						hasMore={cardsHasNextPage}
 						next={() => fetchNextCards()}
@@ -112,7 +125,7 @@ const PromptsWidget = ({ option }) => {
 								<div
 									key={card?.id}
 									className={`prompts-widget-each-card ${
-										info?.animateCards
+										info.animateCards
 											? animatedIndices.includes(index)
 												? `deal-animate deal-path-${animatedIndices.indexOf(
 														index,
