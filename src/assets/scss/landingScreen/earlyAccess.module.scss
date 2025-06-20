@@ -64,6 +64,16 @@
 			}
 		}
 
+		.description {
+			color: var(--background-color, #0c0c0d);
+			text-align: center;
+			font-size: 22px;
+			font-weight: 500;
+			line-height: 32px;
+			max-width: 792px;
+			width: 100%;
+		}
+
 		.ctaButton {
 			display: flex;
 			padding: 12px 24px;
