@@ -35,6 +35,7 @@ import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/bac
 import FileUploadToolbar from '../../components/notes/ImageComponent';
 import { ImageBlock, insertImage } from '../../components/notes/ImageComponent';
 import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
@@ -84,12 +85,13 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 }));
 
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
+	const { workspaceMode } = useWorkspaceMode();
 	const { noteId } = useParams();
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const prevDocRef = useRef([]);
 	const originalFaviconRef = useRef(null);
-	const { createWebSocketConnection, sendMessage } = useChatStream();
+	// const { createWebSocketConnection, sendMessage } = useChatStream();
 
 	const {
 		notes: {
@@ -110,6 +112,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			notesDeleteCoverImage,
 			notesDeleteIcon,
 		},
+		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 
@@ -254,16 +257,17 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	// }, [noteId]);
 
 	useEffect(() => {
+		const sessionId = ObjectID()?.toString();
 		if (noteId) {
-			const sessionId = ObjectID()?.toString();
 			getNotesPageDataFunc();
-			createWebSocketConnection(sessionId, handleAiResponse);
+			createWebSocketConnection(sessionId, handleAiResponse, '', false, workspaceMode);
 		}
 
 		return () => {
 			updateNotesState({
 				notesPageData: null,
 			});
+			closeWebSocketConnection([sessionId]);
 		};
 	}, [noteId]);
 
