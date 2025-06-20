@@ -9,8 +9,12 @@ const EarlyAccess = () => {
 			<div className={s.container}>
 				{/* <p className={s.subHeading}>Explore.</p> */}
 				<p className={s.heading}>Own your memory</p>
+				<p className={s.description}>
+					Power every tool with your Ambient Memory — via MCP. Or simply download your
+					entire memory anytime fully encrypted, fully yours!
+				</p>
 				<button className={s.ctaButton} onClick={() => navigate('/verify-user')}>
-					Request Early Access
+					Connect with MCP
 				</button>
 			</div>
 		</div>

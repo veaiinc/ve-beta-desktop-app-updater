@@ -17,8 +17,8 @@
 	}
 	&.closed {
 		transform: translateX(50px);
-		top: 15px;
-		left: 55px;
+		top: 8px;
+		left: 50px;
 		padding: 24px 19px !important;
 	}
 
@@ -85,6 +85,7 @@
 			&.active {
 				display: block;
 				.eachOption {
+					height: 100dvh;
 					position: fixed;
 					top: 20px;
 					left: 10px;
@@ -109,10 +110,10 @@
 			border-radius: inherit;
 			transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 			overflow-x: hidden !important;
-			border-top-right-radius: 18px;
-			border-bottom-right-radius: 18px;
-			border-top-left-radius: 18px;
-			border-bottom-left-radius: 18px;
+			border-top-right-radius: 20px;
+			border-bottom-right-radius: 25px;
+			border-top-left-radius: 20px;
+			border-bottom-left-radius: 25px;
 			user-select: none;
 			z-index: 9;
 			margin-top: 1px;
@@ -780,13 +781,12 @@
 		position: absolute;
 		z-index: 1001;
 		margin-top: 0px;
-		margin-left: 0px; // change to 4px after flicker issue is resolved
-		top: 4px;
-		border-top-right-radius: 18px;
-		border-bottom-right-radius: 18px;
-		border-top-left-radius: 18px;
-		border-bottom-left-radius: 18px;
-		// box-shadow: 0 0 10px rgba(0, 0, 0, 0.183);
+		border-top-right-radius: 20px;
+		border-bottom-right-radius: 25px;
+		border-top-left-radius: 20px;
+		border-bottom-left-radius: 25px;
+		border-left: 10px solid transparent;
+		border-top: 9px solid transparent;
 
 		&.closed {
 			transform: translateX(-100%);
@@ -801,13 +801,18 @@
 			position: relative;
 		}
 		.openSideBarComponent {
-			max-height: 99dvh;
-			border: 1px solid var(--stroke);
+			max-height: 98dvh;
 		}
-		.settingsOptionsContainerOpen {
-			border-bottom-right-radius: 18px;
-			border-bottom-left-radius: 18px;
+
+		.settingsOptionsContainer {
+			border-bottom-right-radius: 25px;
+			border-bottom-left-radius: 25px;
 			border: 1px solid var(--stroke);
+			.settingsOptionsContainerOpen {
+				border-bottom-right-radius: 25px;
+				border-bottom-left-radius: 25px;
+				border-bottom: none;
+			}
 		}
 	}
 
@@ -871,9 +876,23 @@
 		position: absolute;
 		top: 0px;
 		left: 0px;
-		&.opened {
+
+		// Force hover behavior on mobile - no dock functionality
+		&.docked {
+			position: absolute !important;
+			left: 0px !important;
+			top: 0px !important;
+			transform: none !important;
+			z-index: 1001 !important;
 			height: 100dvh !important;
-			margin-top: -32px !important;
+			padding: 0px !important;
+			margin: 0px !important;
+			border-radius: 0px !important;
+		}
+
+		&.opened {
+			// height: 98dvh !important;
+			margin-top: -16px !important;
 			margin-left: 0px !important;
 			width: 100vw !important;
 			margin-right: 0px !important;
@@ -889,19 +908,18 @@
 			border: none !important;
 			padding: 0px !important;
 			margin: 0px !important;
-			// &.open {
-			//  border-top-left-radius: 0 !important;
-			//  border-bottom-left-radius: 0 !important;
-			//  height: 100dvh !important;
-			//  border: 1px solid var(--stroke) !important;
-			//  background: var(--card) !important;
-			//  width: 100vw !important;
-			// }
+
+			// Ensure hover behavior works on mobile
+			&:hover {
+				transform: none !important;
+			}
+
 			.openSideBarComponent {
-				width: 100vw !important;
+				max-height: 100dvh;
+				width: 100vw;
 				transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 				.topOptionsList {
-					width: 100vw !important;
+					width: 100vw;
 					.veAiLogoDiv {
 						width: 100vw !important;
 						padding: 0px 32px 0px 20px;
@@ -1091,23 +1109,24 @@
 			.editImage {
 				position: absolute;
 				bottom: 0;
-				left: 0px;
-				right: 1px;
-				padding-bottom: 5px;
-				border-radius: 0 0 45px 45px;
-				border-radius: 50%;
+				left: 0;
+				right: 0;
+				height: 42px;
+				padding: 2px;
+				border-radius: 0 0 100px 100px;
 				display: flex;
 				justify-content: center;
-				align-items: flex-end;
+				align-items: center;
 				opacity: 0.9;
 				cursor: pointer;
-				/* zoom: 0.5; */
-				border-radius: 24px;
+
 				background: rgba(0, 0, 0, 0.3);
 				backdrop-filter: blur(10px);
+				z-index: 10;
 				svg {
-					margin-bottom: 1px;
-					margin-top: 5px;
+					width: 16px;
+					height: 16px;
+					margin: 0;
 				}
 			}
 		}
@@ -1322,10 +1341,11 @@
 		align-self: stretch;
 		gap: 14px;
 		// border-top: 0.8px solid var(--stroke);
-		position: sticky;
-		bottom: 0;
-		z-index: 2;
+		position: relative;
+		z-index: 1;
 		cursor: pointer;
+		margin-bottom: 8px;
+		// min-height: 44px;
 		p {
 			color: var(--primary-font);
 			font-family: var(--primary-font-family);
@@ -1475,6 +1495,10 @@
 .settingsAnimationContainer {
 	padding: 10px;
 	animation: slideIn 0.3s ease-out;
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	z-index: 1;
 }
 
 .sideBarOptions {
