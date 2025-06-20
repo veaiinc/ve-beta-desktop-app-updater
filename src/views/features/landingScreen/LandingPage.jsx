@@ -107,6 +107,7 @@ const LandingPage = () => {
 								animatePlaceholder={true}
 								onSend={handleCustomOnSendFunction}
 								isBuildEnbled={false}
+								showUpgradeSubscriptionBtn={false}
 							/>
 						</div>
 						{info.showSuggestions && (

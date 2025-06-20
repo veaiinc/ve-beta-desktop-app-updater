@@ -57,7 +57,7 @@ export const CitationsTooltip = memo(({ citationId, citations = null, placement 
 				setCitationData(response);
 				updateCitationChunks(payload);
 
-				if (Object?.keys(citationChunks)?.length >= 150) {
+				if (Object?.keys(citationChunks || {})?.length >= 150) {
 					updateStateValues({ citationChunks: {} });
 				}
 			}
@@ -152,7 +152,7 @@ export const CitationsTooltip = memo(({ citationId, citations = null, placement 
 					display: citationInfo ? 'inline-block' : 'none',
 				}}
 			>
-				{Object?.keys(citationInfo)?.length > 0 ? (
+				{citationInfo && Object?.keys(citationInfo || {})?.length > 0 ? (
 					<span className="citation-wrapper">
 						<div className="citation-with-icon">
 							<div className="citation-icon">
