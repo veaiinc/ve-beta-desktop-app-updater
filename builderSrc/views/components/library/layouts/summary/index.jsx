@@ -253,7 +253,6 @@ export default class Summary extends PureComponent {
 											.replace(/"/g, ''),
 									) || 0;
 							}
-							console.log(section, 'this is the section from the summary');
 							return (
 								<>
 									<div className="service-div" key={section._id || index}>
