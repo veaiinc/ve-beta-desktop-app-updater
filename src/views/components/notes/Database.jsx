@@ -41,6 +41,7 @@ import Spinner from '../loaders/Spinner';
 import SortComponent from './DatabseComponents/SortComponent';
 import GroupComponent from './DatabseComponents/GroupComponent';
 import BoardView from './DatabseComponents/views/BoardView';
+import GalleryView from './DatabseComponents/views/GalleryView';
 
 export const rowTypes = {
 	text: TextField,
@@ -613,6 +614,16 @@ const DatabaseComponent = ({ block, editor }) => {
 							)}
 							{selectedDatabaseView?.type === 'board' && (
 								<BoardView
+									groupData={groupData}
+									metaInfo={metaInfo}
+									columns={columns}
+									databaseId={databaseId}
+									pageId={pageId}
+									view={selectedDatabaseView}
+								/>
+							)}
+							{selectedDatabaseView?.type === 'gallery' && (
+								<GalleryView
 									groupData={groupData}
 									metaInfo={metaInfo}
 									columns={columns}

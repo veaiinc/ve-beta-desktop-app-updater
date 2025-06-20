@@ -1,10 +1,10 @@
 import { memo, useCallback, useContext } from 'react';
-import s from '../../../../../assets/scss/notes/databaseComponents/boardView.module.scss';
-import { rowTypes } from '../../Database';
+import s from '../../../../../assets/scss/notes/databaseComponents/galleryView.module.scss';
 import Context from '../../../../../context/context';
-import { colors } from '../../../../../helpers/databaseHelpers';
+import GroupToggler from '../GroupToggler';
+import { rowTypes } from '../../Database';
 
-const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) => {
+const GalleryView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) => {
 	const {
 		notes: { updateDatabaseSidebar, updateDatabaseRow },
 	} = useContext(Context);
@@ -83,25 +83,22 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) =
 				</div>,
 			);
 		}
-		return <div className={s.card}>{renderData}</div>;
+		return <div className={s.galleryCard}>{renderData}</div>;
 	};
+
 	return (
-		<div className={s.boardViewContainer}>
+		<div className={s.galleryView}>
 			{view?.groupBy?.defaultGroups?.map((item, index) => (
-				<div
-					className={s.board}
-					style={{ backgroundColor: colors?.[item?.color]?.backgroundColor }}
-				>
-					<div className={s.boardHeader}>{item?.label || item?.name || 'No Value'}</div>
-					<div className={s.boardBody}>
+				<GroupToggler groupData={item} key={index}>
+					<div className={s.galleryViewWrapper}>
 						{groupData?.[item?._id || null]?.docs?.map((row) =>
 							generateCard(row, item?._id),
 						)}
 					</div>
-				</div>
+				</GroupToggler>
 			))}
 		</div>
 	);
 };
 
-export default memo(BoardView);
+export default memo(GalleryView);
