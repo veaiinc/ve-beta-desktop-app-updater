@@ -16,8 +16,8 @@
 		font-family: var(--chat-primary-font-family);
 		font-size: calc(var(--font-size) * 0.9375);
 		letter-spacing: calc(var(--font-size) * 0.0125);
-		font-weight: 500;
-		color: var(--chat-secondary-font);
+		font-weight: 400;
+		color: var(--primary-font);
 		line-height: calc(var(--font-size) * 1.5);
 	}
 
@@ -34,70 +34,59 @@
 		}
 	}
 
-	.h1,
+	.h1 {
+		color: var(--primary-font);
+		font-size: calc(var(--font-size) * 1.625); /* 26px */
+		letter-spacing: calc(var(--font-size) * 0.0125);
+		font-weight: 900;
+		font-family: var(--chat-primary-font-family);
+		margin: calc(var(--font-size) * 0.75) 0; /* 12px */
+		line-height: calc(var(--font-size) * 2); /* 32px */
+	}
+
 	.h2 {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 1.75);
+		font-size: calc(var(--font-size) * 1.375); /* 22px */
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 700;
 		font-family: var(--chat-primary-font-family);
-		margin-top: calc(var(--font-size) * 0.75); /* 24px */
-		margin-bottom: calc(var(--font-size) * 0.5); /* 8px */
-		line-height: calc(var(--font-size) * 2.25);
+		margin: calc(var(--font-size) * 1) 0; /* 16px */
+		line-height: calc(var(--font-size) * 1.75); /* 28px */
 	}
 
 	.h3 {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 1.5);
+		font-size: calc(var(--font-size) * 1.25); /* 20px */
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
-		margin-bottom: calc(var(--font-size) * 0.5); /* 8px */
-		margin-top: calc(var(--font-size) * 1.5); /* 24px */
-		line-height: calc(var(--font-size) * 2);
+		margin: calc(var(--font-size) * 1) 0; /* 16px */
+		line-height: calc(var(--font-size) * 1.5); /* 24px */
 	}
 
-	.h4 {
-		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 1.375);
-		line-height: calc(var(--font-size) * 2);
-		letter-spacing: calc(var(--font-size) * 0.0125);
-		font-weight: 500;
-		font-family: var(--chat-primary-font-family);
-		margin-bottom: calc(var(--font-size) * 0.5); /* 8px */
-		margin-top: calc(var(--font-size) * 1.5); /* 24px */
-	}
-
+	.h4,
 	.h5 {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 1.125);
-		line-height: calc(var(--font-size) * 1.75);
+		font-size: calc(var(--font-size) * 1.125); /* 18px */
+		line-height: calc(var(--font-size) * 1.375); /* 22px */
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
-		margin-bottom: calc(var(--font-size) * 0.5); /* 8px */
-		margin-top: calc(var(--font-size) * 1.5); /* 24px */
+		margin: calc(var(--font-size) * 1) 0; /* 16px */
 	}
 
+	.p,
 	.h6 {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 0.9375);
-		line-height: calc(var(--font-size) * 1.5);
+		font-size: calc(var(--font-size) * 1); /* 16px */
+		line-height: calc(var(--font-size) * 1.5625); /* 25px */
 		letter-spacing: calc(var(--font-size) * 0.0125);
-		font-weight: 500;
+		font-weight: 400;
 		font-family: var(--chat-primary-font-family);
-		margin-bottom: calc(var(--font-size) * 0.5); /* 8px */
-		margin-top: calc(var(--font-size) * 1.5); /* 24px */
+		margin: 0 0 calc(var(--font-size) * 1) 0; /* 16px */
 	}
-
-	.p {
-		color: var(--chat-secondary-font);
-		font-size: calc(var(--font-size) * 0.9375);
-		line-height: calc(var(--font-size) * 1.5);
-		letter-spacing: calc(var(--font-size) * 0.0125);
-		font-weight: 500;
-		font-family: var(--chat-primary-font-family);
-		margin: 0 0 calc(var(--font-size) * 1) 0;
+	.h6 {
+		margin-top: calc(var(--font-size) * 1); /* 16px */
 	}
 
 	.pre {
@@ -113,19 +102,23 @@
 	hr {
 		margin: calc(var(--font-size) * 0.5) 0;
 		border: 0;
-		border-top: 1px solid var(--chat-secondary-font);
+		border-top: 1px solid var(--primary-font);
 	}
 
 	.ol,
 	.ul {
 		list-style-position: outside;
-		margin-bottom: calc(var(--font-size) * 0.0625);
+		margin-bottom: calc(var(--font-size) * 0.5); /* 8px */
 		font-size: calc(var(--font-size) * 0.9375);
-		line-height: calc(var(--font-size) * 1.5);
+		// line-height: calc(var(--font-size) * 1.5);
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
-		padding-left: calc(var(--font-size) * 2.25);
+		padding-left: calc(var(--font-size) * 1.5); /* 24px */
+
+		.p {
+			margin: 0;
+		}
 	}
 
 	.ol {
@@ -143,19 +136,19 @@
 			list-style-type: disc;
 			&::marker {
 				font-size: calc(var(--font-size) * 1.25);
-				color: var(--chat-secondary-font);
+				color: var(--primary-font);
 			}
 		}
 	}
 
 	.li {
-		color: var(--chat-secondary-font);
+		color: var(--primary-font);
 		font-family: var(--chat-primary-font-family);
 		letter-spacing: calc(var(--font-size) * 0.0125);
-		font-weight: 500;
+		font-weight: 400;
 		line-height: calc(var(--font-size) * 1.5);
 		font-size: calc(var(--font-size) * 0.9375);
-		margin-bottom: calc(var(--font-size) * 0.625);
+		margin: calc(var(--font-size) * 0.5) 0; /* 8px */
 	}
 
 	.strong {
@@ -221,13 +214,13 @@
 
 				svg {
 					path {
-						fill: var(--chat-secondary-font);
+						fill: var(--primary-font);
 					}
 				}
 			}
 			.code-language {
 				font-size: calc(var(--font-size) * 0.75);
-				color: var(--chat-secondary-font);
+				color: var(--primary-font);
 				font-family: var(--chat-primary-font-family);
 				font-weight: 500;
 				line-height: 1.5;
