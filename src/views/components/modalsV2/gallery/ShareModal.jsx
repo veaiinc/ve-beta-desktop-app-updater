@@ -44,7 +44,12 @@ const ShareModal = ({
 			getGuestAccessDetails,
 			galleryGuestAccessDetails,
 		},
-		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
+		profileInfo: {
+			userWorkSpaceList,
+			getTenantSettings,
+			tennantSettingsData,
+			getUserWorkSpaceList,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		visitorFormAccess: visitorFormAccess,
@@ -142,6 +147,11 @@ const ShareModal = ({
 		info?.canGuestDownloadOptimized,
 		info?.canGuestDownloadOriginals,
 	]);
+	useEffect(() => {
+		if (!userWorkSpaceList) {
+			getUserWorkSpaceList();
+		}
+	}, [userWorkSpaceList]);
 
 	useEffect(() => {
 		if (userWorkSpaceList) {
