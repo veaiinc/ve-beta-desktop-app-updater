@@ -31,6 +31,7 @@ export const ProfileState = () => {
 					payload: response?.[1],
 				});
 			}
+			return [response[0]];
 		} catch (error) {
 			console.log('error==>getTenantSettings', error);
 		}
