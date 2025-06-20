@@ -20,7 +20,7 @@ const useWorkspaceMode = () => {
 				const success = response[0] === true;
 				if (!success) {
 					const error = response[1];
-					console.log(error);
+					console.error(error);
 					setInfo((prev) => ({
 						...prev,
 						error,
