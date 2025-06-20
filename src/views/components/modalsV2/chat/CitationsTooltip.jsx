@@ -57,7 +57,7 @@ export const CitationsTooltip = memo(({ citationId, citations = null, placement 
 				setCitationData(response);
 				updateCitationChunks(payload);
 
-				if (Object?.keys(citationChunks)?.length >= 150) {
+				if (Object?.keys(citationChunks || {})?.length >= 150) {
 					updateStateValues({ citationChunks: {} });
 				}
 			}
