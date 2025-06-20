@@ -10,7 +10,7 @@ import './assets/fonts/PlayfairDisplay/playfairdisplay.css';
 // import './assets/fonts/TNY_Adobe_Caslon_Pro_Regular/calson.css';
 import './assets/scss/global.scss';
 import './index.css';
-
+//
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
 	<ContextState>
