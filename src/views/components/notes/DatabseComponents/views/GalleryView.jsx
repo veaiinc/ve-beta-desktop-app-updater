@@ -4,7 +4,7 @@ import Context from '../../../../../context/context';
 import GroupToggler from '../GroupToggler';
 import { rowTypes } from '../../Database';
 
-const GalleryView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) => {
+const GalleryView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blockId }) => {
 	const {
 		notes: { updateDatabaseSidebar, updateDatabaseRow },
 	} = useContext(Context);
@@ -18,9 +18,9 @@ const GalleryView = ({ groupData, metaInfo, columns, databaseId, pageId, view })
 				},
 				pageId,
 			};
-			updateDatabaseRow(payload, view?._id, databaseId, groupId);
+			updateDatabaseRow(payload, { viewId: view?._id, databaseId, groupId, blockId });
 		},
-		[pageId, updateDatabaseRow, databaseId, view?._id],
+		[pageId, updateDatabaseRow, databaseId, view?._id, blockId],
 	);
 	const generateCard = (row, groupId) => {
 		const renderData = [];
@@ -83,7 +83,11 @@ const GalleryView = ({ groupData, metaInfo, columns, databaseId, pageId, view })
 				</div>,
 			);
 		}
-		return <div className={s.galleryCard}>{renderData}</div>;
+		return (
+			<div className={s.galleryCard} key={row?._id}>
+				{renderData}
+			</div>
+		);
 	};
 
 	return (

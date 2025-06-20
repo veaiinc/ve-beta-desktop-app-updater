@@ -458,22 +458,33 @@ export const createDatabaseViewMutation = gql`
 			filterBy {
 				_id
 				fieldId
+				fieldType
 				operator
 				value
-				fieldType
+				filter
 			}
 			groupBy {
 				fieldId
+				visibleGroups
+				fieldType
+				defaultGroups
+				config {
+					statusBy
+					numberBy {
+						groupRange
+						groupInterval
+					}
+				}
 			}
 			visibleFields
 			type
 			columnWidths
+			aggregations
+			order
 			createdAt
 			updatedAt
 			createdBy
 			updatedBy
-			order
-			aggregations
 		}
 	}
 `;
@@ -736,6 +747,7 @@ export const getDatabaseViewsQuery = gql`
 			_id
 			databaseId
 			pageId
+			label
 			blockId
 			cardSize
 			sortBy {
@@ -755,6 +767,10 @@ export const getDatabaseViewsQuery = gql`
 				defaultGroups
 				config {
 					statusBy
+					numberBy {
+						groupRange
+						groupInterval
+					}
 				}
 			}
 			visibleFields

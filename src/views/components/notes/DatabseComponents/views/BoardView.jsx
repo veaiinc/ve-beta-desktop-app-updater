@@ -4,7 +4,7 @@ import { rowTypes } from '../../Database';
 import Context from '../../../../../context/context';
 import { colors } from '../../../../../helpers/databaseHelpers';
 
-const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) => {
+const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blockId }) => {
 	const {
 		notes: { updateDatabaseSidebar, updateDatabaseRow },
 	} = useContext(Context);
@@ -18,9 +18,9 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) =
 				},
 				pageId,
 			};
-			updateDatabaseRow(payload, view?._id, databaseId, groupId);
+			updateDatabaseRow(payload, { viewId: view?._id, databaseId, groupId, blockId });
 		},
-		[pageId, updateDatabaseRow, databaseId, view?._id],
+		[pageId, updateDatabaseRow, databaseId, view?._id, blockId],
 	);
 	const generateCard = (row, groupId) => {
 		const renderData = [];
@@ -83,12 +83,17 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) =
 				</div>,
 			);
 		}
-		return <div className={s.card}>{renderData}</div>;
+		return (
+			<div className={s.card} key={row?._id}>
+				{renderData}
+			</div>
+		);
 	};
 	return (
 		<div className={s.boardViewContainer}>
 			{view?.groupBy?.defaultGroups?.map((item, index) => (
 				<div
+					key={item?._id}
 					className={s.board}
 					style={{ backgroundColor: colors?.[item?.color]?.backgroundColor }}
 				>

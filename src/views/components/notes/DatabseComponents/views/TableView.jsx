@@ -6,7 +6,7 @@ import s from '../../../../../assets/scss/notes/databaseComponents/tableView.mod
 import { DragDropContext } from 'react-beautiful-dnd';
 import GroupToggler from '../GroupToggler';
 
-const TableView = ({ groupData, metaInfo, columns, colors, databaseId, pageId, view }) => {
+const TableView = ({ groupData, metaInfo, columns, colors, databaseId, pageId, view, blockId }) => {
 	const [resizingColumn, setResizingColumn] = useState(null);
 	const [resizeStartX, setResizeStartX] = useState(0);
 	const [resizeStartWidth, setResizeStartWidth] = useState(0);
@@ -100,6 +100,7 @@ const TableView = ({ groupData, metaInfo, columns, colors, databaseId, pageId, v
 									viewId={view?._id}
 									databaseId={databaseId}
 									groupId={item?._id}
+									blockId={blockId}
 								/>
 							</GroupToggler>
 						))}

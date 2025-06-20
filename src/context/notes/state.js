@@ -852,11 +852,16 @@ export const NotesState = (props) => {
 							filters,
 							sortBy,
 							groupBy,
+							fieldType: metaInfo?.fieldType,
 							searchQuery: payload?.input?.search,
 						},
 					},
 				});
-				if (['text', 'title', 'email', 'url', 'phone'].includes(metaInfo?.fieldType)) {
+				if (
+					['text', 'title', 'email', 'url', 'phone', 'number'].includes(
+						metaInfo?.fieldType,
+					)
+				) {
 					const view = state?.views?.[blockId] || [];
 					const newView = view?.map((view) => {
 						if (view?._id === viewId) {
@@ -922,7 +927,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const updateDatabaseRow = async (payload, viewId, databaseId, groupId) => {
+	const updateDatabaseRow = async (payload, { viewId, databaseId, groupId, blockId }) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -942,6 +947,7 @@ export const NotesState = (props) => {
 						rowId: payload?.updateDatabaseRowId,
 						updatedRow,
 						groupId,
+						blockId,
 					},
 				});
 				updateRelatedViews({

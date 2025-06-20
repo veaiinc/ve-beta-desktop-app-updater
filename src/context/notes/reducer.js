@@ -78,18 +78,32 @@ const actionHandlers = {
 		};
 	},
 	UPDATE_DATABASE_ROWS: (state, action) => {
-		const { viewId, rowId, updatedRow, groupId } = action.payload;
+		const { viewId, rowId, updatedRow, groupId, blockId } = action.payload;
 
 		const currentBlockData = state?.rowData?.[viewId] || {};
-		const { groupData, groupBy } = currentBlockData || {};
+		const { groupData, groupBy, fieldType } = currentBlockData || {};
 
-		const updatedGroupData = handleUpdateInGroup({
+		let view = (state?.views?.[blockId] || []).find((item) => item?._id === viewId);
+
+		const { updatedGroupData, updatedGroups } = handleUpdateInGroup({
 			groupData,
 			updatedRowData: updatedRow,
 			groupId,
 			rowId,
 			groupBy,
+			config: view?.groupBy?.config,
+			fieldType,
+			defaultGroups: view?.groupBy?.defaultGroups,
 		});
+		if (updatedGroups) {
+			view = {
+				...view,
+				groupBy: {
+					...view?.groupBy,
+					defaultGroups: updatedGroups,
+				},
+			};
+		}
 
 		return {
 			...state,
@@ -99,6 +113,12 @@ const actionHandlers = {
 					...currentBlockData,
 					groupData: updatedGroupData,
 				},
+			},
+			views: {
+				...state.views,
+				[blockId]: state?.views?.[blockId]?.map((item) =>
+					item?._id === viewId ? view : item,
+				),
 			},
 		};
 	},

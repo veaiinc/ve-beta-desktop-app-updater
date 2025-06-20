@@ -4,7 +4,7 @@ import { rowTypes } from '../../Database';
 import Context from '../../../../../context/context';
 import GroupToggler from '../GroupToggler';
 
-const ListView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) => {
+const ListView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blockId }) => {
 	const {
 		notes: { updateDatabaseSidebar, updateDatabaseRow },
 	} = useContext(Context);
@@ -18,9 +18,9 @@ const ListView = ({ groupData, metaInfo, columns, databaseId, pageId, view }) =>
 				},
 				pageId,
 			};
-			updateDatabaseRow(payload, view?._id, databaseId, groupId);
+			updateDatabaseRow(payload, { viewId: view?._id, databaseId, groupId, blockId });
 		},
-		[pageId, updateDatabaseRow, databaseId, view?._id],
+		[pageId, updateDatabaseRow, databaseId, view?._id, blockId],
 	);
 
 	const generateRow = useCallback((row, groupId) => {

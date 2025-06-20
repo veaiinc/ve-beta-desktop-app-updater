@@ -12,6 +12,7 @@ const TableBody = ({
 	viewId,
 	databaseId,
 	groupId,
+	blockId,
 }) => {
 	const {
 		notes: { updateDatabaseSidebar, updateDatabaseRow },
@@ -32,9 +33,9 @@ const TableBody = ({
 				},
 				pageId,
 			};
-			updateDatabaseRow(payload, viewIdRef.current, databaseId, groupId);
+			updateDatabaseRow(payload, { viewId: viewIdRef.current, databaseId, groupId, blockId });
 		},
-		[pageId, updateDatabaseRow, databaseId, groupId],
+		[pageId, updateDatabaseRow, databaseId, groupId, blockId],
 	);
 
 	const generateCell = useCallback(

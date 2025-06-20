@@ -328,8 +328,12 @@ export const handleUpdateInGroup = ({
 	groupId = null,
 	rowId,
 	groupBy = null,
+	config = null,
+	defaultGroups = [],
+	fieldType = null,
 }) => {
 	const row = groupData?.[groupId]?.docs?.find((row) => row?._id === rowId);
+	let updatedGroups = [];
 	const updatedRow = {
 		...row,
 		...(updatedRowData || {}),
@@ -342,7 +346,25 @@ export const handleUpdateInGroup = ({
 	const updatedGroupData = {};
 	let hasUpdated = false;
 
-	const rawValue = updatedRowData?.values?.[updatedFields?.[0]];
+	let rawValue = updatedRowData?.values?.[updatedFields?.[0]];
+	if (fieldType === 'number') {
+		const { groupRange = [], groupInterval = 0 } = config?.numberBy || {};
+		const [start = 0, end = 0] = groupRange;
+
+		if (groupInterval > 0 && rawValue >= start && rawValue <= end) {
+			const groupStart =
+				Math.floor((rawValue - start) / groupInterval) * groupInterval + start;
+			const groupEnd = groupStart + groupInterval;
+			rawValue = `${groupStart}-${groupEnd}`;
+		} else {
+			rawValue = 'Other';
+		}
+	}
+
+	if (fieldType === 'checkbox') {
+		rawValue = rawValue ? 'true' : 'false';
+	}
+
 	const valueArray = Array.isArray(rawValue)
 		? rawValue.map((item) => (typeof item === 'object' && item !== null ? item._id : item))
 		: typeof rawValue === 'object' && rawValue !== null
@@ -352,8 +374,10 @@ export const handleUpdateInGroup = ({
 		: [];
 
 	if (groupBy === updatedFields?.[0]) {
+		let groupExists = false;
 		for (const group in groupData) {
 			const docs = [...(groupData[group]?.docs || [])];
+			const hasNextPage = groupData[group]?.hasNextPage;
 			const index = docs.findIndex((row) => row?._id === rowId);
 
 			const valueIsEmpty =
@@ -365,16 +389,33 @@ export const handleUpdateInGroup = ({
 					docs.push(updatedRow);
 				}
 				hasUpdated = true;
+				groupExists = true;
 			} else {
 				if (index !== -1) {
+					// delete row from a group that is not included in the values
 					docs.splice(index, 1);
 					hasUpdated = true;
 				}
 			}
+
+			if (docs.length > 0 || hasNextPage) {
+				const currentGroup = defaultGroups?.find((item) => item?._id === group);
+				updatedGroups.push(currentGroup);
+			}
+
 			updatedGroupData[group] = {
 				...groupData[group],
 				docs,
 			};
+		}
+
+		if (!groupExists) {
+			// if there is no group for the updated row, create a new group
+			updatedGroupData[rawValue] = {
+				docs: [updatedRow],
+			};
+			updatedGroups.push({ _id: rawValue, label: rawValue });
+			hasUpdated = true;
 		}
 	} else {
 		for (const group in groupData) {
@@ -391,8 +432,11 @@ export const handleUpdateInGroup = ({
 			};
 		}
 	}
+	if (!['text', 'number', 'title'].includes(fieldType)) {
+		updatedGroups = defaultGroups;
+	}
 
-	return hasUpdated ? updatedGroupData : groupData;
+	return hasUpdated ? { updatedGroupData, updatedGroups } : { groupData, updatedGroups: null };
 };
 
 export const handleAddInGroup = ({ groupData, newRowData, groupBy }) => {

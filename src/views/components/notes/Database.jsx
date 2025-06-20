@@ -600,6 +600,7 @@ const DatabaseComponent = ({ block, editor }) => {
 									databaseId={databaseId}
 									pageId={pageId}
 									view={selectedDatabaseView}
+									blockId={block?.id}
 								/>
 							)}
 							{selectedDatabaseView?.type === 'list' && (
@@ -610,6 +611,7 @@ const DatabaseComponent = ({ block, editor }) => {
 									databaseId={databaseId}
 									pageId={pageId}
 									view={selectedDatabaseView}
+									blockId={block?.id}
 								/>
 							)}
 							{selectedDatabaseView?.type === 'board' && (
@@ -620,6 +622,7 @@ const DatabaseComponent = ({ block, editor }) => {
 									databaseId={databaseId}
 									pageId={pageId}
 									view={selectedDatabaseView}
+									blockId={block?.id}
 								/>
 							)}
 							{selectedDatabaseView?.type === 'gallery' && (
@@ -630,6 +633,7 @@ const DatabaseComponent = ({ block, editor }) => {
 									databaseId={databaseId}
 									pageId={pageId}
 									view={selectedDatabaseView}
+									blockId={block?.id}
 								/>
 							)}
 						</>

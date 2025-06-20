@@ -36,6 +36,13 @@ const GroupComponent = ({ fields, view, databaseId, blockId }) => {
 				<div className={s.groupComponentDropdown}>
 					<div className={s.groupComponentDropdownHeader}>Group by</div>
 					<div className={s.groupComponentDropdownBody}>
+						<div
+							className={s.groupComponentDropdownBodyOptions}
+							onClick={() => handleUpdateViewGroup('none')}
+						>
+							<div className={s.groupComponentDropdownBodyOptionsLabel}>None</div>
+							{view?.groupBy?.fieldId === null && <Tick />}
+						</div>
 						{fields?.map((field) => (
 							<div
 								key={field?._id}
