@@ -15,10 +15,11 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
 import ObjectID from 'bson-objectid';
-import { ReactComponent as PlusCircleSvg } from '../../../assets/svg/ai_agents/plus-cricle.svg';
+import { ReactComponent as DeleteSvg } from '../../../assets/svg/delete.svg';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import TextSelector from '../../components/chat/chatComponents/TextSelector';
 import useWorkspaceMode from '../../../views/hooks/useWorkspaceMode';
+import { Tooltip } from 'antd';
 
 let throttleTimer = null;
 const RecentChat = ({
@@ -56,6 +57,7 @@ const RecentChat = ({
 			currentSessionId,
 			updateChatLoadingSessions,
 			newChatSessionIds,
+			deleteChatSession,
 		},
 		aiSetup: { updateAiChatSessions },
 		chatStream: {
@@ -87,6 +89,7 @@ const RecentChat = ({
 		showScrollButton: false,
 		showViewDocument: false,
 		tooltipStyles: { visible: false, styles: { top: 0, left: 0 }, selectedText: '' },
+		deleteChatSessionLoading: false,
 	});
 
 	const chatContentRef = useRef(null);
@@ -813,23 +816,19 @@ const RecentChat = ({
 		setInfo((prev) => ({ ...prev, showViewDocument: value }));
 	}, []);
 
-	// const handleNewChatClick = useCallback(() => {
-	// 	const pathname = location?.pathname?.split('/')?.[1];
-	// 	const sessionId = ObjectID()?.toString();
-
-	// 	if (pathname === 'chat') {
-	// 		navigate(`/chat/${sessionId}`);
-	// 	} else if (pathname === 'c') {
-	// 		navigate(`/c/${sessionId}`);
-	// 	} else if (
-	// 		pathname === 'calendar' ||
-	// 		pathname === 'contacts' ||
-	// 		pathname === 'tasks' ||
-	// 		pathname === 'contact'
-	// 	) {
-	// 		onNewChatBtnClick?.();
-	// 	}
-	// }, [location?.pathname]);
+	const handleDeleteChatClick = useCallback(async () => {
+		if (info?.deleteChatSessionLoading) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, deleteChatSessionLoading: true }));
+		const response = await deleteChatSession(sessionId);
+		if (response?.[0] === true) {
+			navigate('/home');
+		} else {
+			message.error('Failed to delete chat session');
+		}
+		setInfo((prev) => ({ ...prev, deleteChatSessionLoading: false }));
+	}, [deleteChatSession, sessionId, info?.deleteChatSessionLoading]);
 
 	const handleNavigateBack = useCallback(() => {
 		const pathname = location?.pathname?.split('/')?.[1];
@@ -860,13 +859,16 @@ const RecentChat = ({
 									{currentChatData?.title || 'New Chat'}
 								</div>
 							</div>
-							{/* <div className="right-container">
-								<Tooltip title="New Chat" placement="bottom">
-									<button className="new-chat-btn" onClick={handleNewChatClick}>
-										<PlusCircleSvg />
+							<div className="right-container">
+								<Tooltip title="Delete Chat" placement="bottom">
+									<button
+										className="delete-chat-btn"
+										onClick={handleDeleteChatClick}
+									>
+										<DeleteSvg />
 									</button>
 								</Tooltip>
-							</div> */}
+							</div>
 						</div>
 					)}
 
