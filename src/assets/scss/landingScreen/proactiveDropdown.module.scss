@@ -28,8 +28,8 @@
 		flex-direction: column;
 		gap: 16px;
 		cursor: auto;
-		align-items: center;
-		justify-content: center;
+		align-items: flex-start;
+		justify-content: flex-start;
 
 		span {
 			padding: 5px 10px;
