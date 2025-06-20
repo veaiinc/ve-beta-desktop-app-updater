@@ -19,6 +19,7 @@ export const ChatStreamState = () => {
 	const messageHandlerRef = useRef(null);
 	const isPublicChatRef = useRef(false);
 	const agentTypeRef = useRef(null);
+	const workspaceModeRef = useRef(null);
 	const MAX_RETRY_ATTEMPTS = 3;
 	const RETRY_DELAY = 1000; // 1 second
 
@@ -72,6 +73,7 @@ export const ChatStreamState = () => {
 							messageHandlerRef.current,
 							agentTypeRef.current,
 							isPublicChatRef.current,
+							workspaceModeRef.current,
 						);
 						attempts++;
 						setTimeout(attemptSend, RETRY_DELAY);
@@ -111,9 +113,8 @@ export const ChatStreamState = () => {
 		},
 		[resetInactivityTimeout],
 	);
-
 	const createWebSocketConnection = useCallback(
-		(sessionId, onMessageFunc, agentType, isPublicChat = false) => {
+		(sessionId, onMessageFunc, agentType, isPublicChat = false, workspaceMode) => {
 			if (!sessionId && !isPublicChat) {
 				return;
 			}
@@ -125,8 +126,11 @@ export const ChatStreamState = () => {
 
 			messageHandlerRef.current = onMessageFunc;
 			isPublicChatRef.current = isPublicChat;
+			workspaceModeRef.current = workspaceMode;
+			const defaultAgent =
+				workspaceMode === 'stable' ? 'chat_streaming' : 'multi_agent_chat_streaming';
 
-			const agent = agentTypeMap[agentType] || 'chat_streaming';
+			const agent = agentTypeMap[agentType] || defaultAgent;
 			agentTypeRef.current = agent;
 
 			const usertoken = localStorage.getItem('usertoken');
