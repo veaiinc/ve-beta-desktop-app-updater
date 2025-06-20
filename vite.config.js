@@ -8,18 +8,7 @@ export default defineConfig({
 		outDir: 'build',
 		rollupOptions: {
 			output: {
-				manualChunks: {
-					// Vendor chunks
-					vendor: ['react', 'react-dom', 'react-router-dom'],
-					ui: ['antd', 'react-loading-skeleton', 'react-modal'],
-					utils: ['lodash', 'moment', 'dayjs', 'axios'],
-					// Feature chunks
-					auth: ['js-cookie', 'jwt-decode'],
-					forms: ['react-select', 'react-datepicker', 'react-phone-number-input'],
-					media: ['react-player', 'react-dropzone', 'react-easy-crop'],
-					charts: ['recharts'],
-					editor: ['@blocknote/react', '@blocknote/core', '@blocknote/mantine'],
-				},
+				// Manual chunks removed - will use default chunking behavior
 			},
 		},
 		chunkSizeWarningLimit: 1000,
