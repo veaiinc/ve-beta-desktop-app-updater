@@ -1,6 +1,11 @@
 import { createElement, useState, useCallback, useEffect, useContext, memo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { veAiModulesItemsList, veAiModules, SETTINGS_OPTIONS } from './sidebarindex';
+import {
+	stableNavigationItems,
+	betaNaviagationItems,
+	stableSettingsNavItems,
+	betaSettingsNavItems,
+} from './sidebarindex';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg.svg';
@@ -131,9 +136,9 @@ const OpenedSidebarModules = ({
 		if (name === 'Agents') {
 			return currentPath.includes('/agents') || currentPath.includes('/ai-assistant');
 		}
-		// if (name === 'New Chat') {
-		// 	return currentPath.includes('/chat');
-		// }
+		if (name === 'New Chat') {
+			return currentPath.includes('/chat');
+		}
 		return currentPath === routePath;
 	}, [location.pathname, route, name]);
 
@@ -254,6 +259,12 @@ const OpenedSidebar = ({
 	isDocked,
 	handleDockToggle,
 }) => {
+	const { workspaceMode } = useWorkspaceMode();
+	const sidebarNavigationItems =
+		workspaceMode === 'stable' ? stableNavigationItems : betaNaviagationItems;
+	const settingsNavigationItems =
+		workspaceMode === 'stable' ? stableSettingsNavItems : betaSettingsNavItems;
+
 	const {
 		templates: { leftSidebarState, updateStateValues },
 		profileInfo: {
@@ -319,7 +330,7 @@ const OpenedSidebar = ({
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
 
 	// Add this constant for Settings options
-	const settingsOptions = isAdmin ? SETTINGS_OPTIONS.admin : SETTINGS_OPTIONS.user;
+	const settingsOptions = isAdmin ? settingsNavigationItems.admin : settingsNavigationItems.user;
 
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
 	useEffect(() => {
@@ -352,6 +363,19 @@ const OpenedSidebar = ({
 		localStorage.setItem('showSettingsSidebar', JSON.stringify(showSettingsSidebar));
 	}, [showSettingsSidebar]);
 
+	const handleNewChat = () => {
+		// For stable workspaceMode, redirecting to /home, check stableNavigationItems
+		if (workspaceMode === 'stable') {
+			navigate('/home');
+			return;
+		}
+		const sessionId = ObjectID()?.toString();
+		navigate(`/chat/${sessionId}`);
+		updateStateValues({
+			currentChatData: null,
+		});
+	};
+
 	const handleLogout = useCallback(async () => {
 		logoutFunc();
 	}, [logoutFunc]);
@@ -364,11 +388,23 @@ const OpenedSidebar = ({
 		}));
 	};
 
+	//close sidebar
+	const handleSidebarCollapse = (e) => {
+		// e.stopPropagation();
+		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
+		setIsOpen(false);
+		// setShowChatsDrawer(false);
+	};
+
 	const handleNavigateFunction = useCallback(
 		(route, singleItems) => {
 			if (singleItems?.name === 'Settings') {
 				setShowSettingsSidebar(true);
 				navigate('/settings/my-profile');
+				// Close sidebar on mobile after navigation
+				if (isMobile) {
+					handleSidebarCollapse();
+				}
 				return;
 			}
 
@@ -380,20 +416,20 @@ const OpenedSidebar = ({
 			}));
 			if (singleItems?.name === 'New Chat') {
 				handleNewChat();
+				// Close sidebar on mobile after navigation
+				if (isMobile) {
+					handleSidebarCollapse();
+				}
 				return;
 			}
 			navigate(route);
+			// Close sidebar on mobile after navigation
+			if (isMobile) {
+				handleSidebarCollapse();
+			}
 		},
-		[navigate],
+		[navigate, workspaceMode, isMobile, handleSidebarCollapse],
 	);
-
-	//close sidebar
-	const handleSidebarCollapse = (e) => {
-		// e.stopPropagation();
-		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
-		setIsOpen(false);
-		// setShowChatsDrawer(false);
-	};
 
 	const handleCloseChatPanel = () => {
 		setSelectedChat(null);
@@ -409,6 +445,10 @@ const OpenedSidebar = ({
 		e.stopPropagation();
 		if (subModule.route) {
 			navigate(subModule.route);
+			// Close sidebar on mobile after navigation
+			if (isMobile) {
+				handleSidebarCollapse();
+			}
 		}
 	};
 
@@ -472,21 +512,23 @@ const OpenedSidebar = ({
 	};
 	const allPossibleApps = Object.values(MODULE_NAME_MAP);
 
-	const tenantModules = veAiModulesItemsList;
-
 	const filteredModules =
 		tenantUserAccessControls?.role === 'admin'
-			? tenantModules
+			? sidebarNavigationItems
 			: filterModules(
-					tenantModules,
+					sidebarNavigationItems,
 					tenantUserAccessControls?.accessControls,
 					allPossibleApps,
 			  );
 
-	const filterModules2 =
+	const settingEssentials =
 		tenantUserAccessControls?.role === 'admin'
-			? veAiModules
-			: filterModules(veAiModules, tenantUserAccessControls?.accessControls, allPossibleApps);
+			? settingsNavigationItems.essentials
+			: filterModules(
+					settingsNavigationItems.essentials,
+					tenantUserAccessControls?.accessControls,
+					allPossibleApps,
+			  );
 
 	const isExactPathMatch = useCallback(
 		(currentRoute, moduleName) => {
@@ -522,13 +564,6 @@ const OpenedSidebar = ({
 			bubbles: true,
 		});
 		document.dispatchEvent(event);
-	};
-	const handleNewChat = () => {
-		const sessionId = ObjectID()?.toString();
-		navigate(`/chat/${sessionId}`);
-		updateStateValues({
-			currentChatData: null,
-		});
 	};
 
 	const tooltipItems = [
@@ -1122,6 +1157,10 @@ const OpenedSidebar = ({
 									onClick={() => {
 										navigate(option.route);
 										setSelectedSettingsOption(option.name);
+										// Close sidebar on mobile after navigation
+										if (isMobile) {
+											handleSidebarCollapse();
+										}
 									}}
 								>
 									<option.icon fill={'var(--secondary-font)'} />
@@ -1137,7 +1176,7 @@ const OpenedSidebar = ({
 						/>
 						<div className="settings-options-container">
 							<div className="settings-options-title">Essentials</div>
-							{filterModules2?.map((singleItem, index) => (
+							{settingEssentials?.map((singleItem, index) => (
 								<div
 									key={index}
 									style={{ width: '100%' }}
@@ -1184,7 +1223,7 @@ const OpenedSidebar = ({
 							}}
 						>
 							<div
-								style={{ width: '100%', gap: '4px', position: 'relative' }}
+								style={{ width: '100%', position: 'relative' }}
 								className={`${
 									showSettingsSidebar ? 'settingsAnimationContainer' : ''
 								}`}
