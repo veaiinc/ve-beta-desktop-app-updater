@@ -440,7 +440,7 @@ export const NotesState = (props) => {
 			);
 
 			if (response?.[0]) {
-				const { signedUrl, imageUrl } = response?.[1]?.data?.uploadPageBlockImage;
+				const { signedUrl, imageUrl } = response?.[1]?.data?.uploadPageBlockImage || {};
 				const uploadResponse = await axios.put(signedUrl, data, {
 					headers: {
 						'Content-Type': data?.type,
@@ -828,7 +828,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const getDatabaseRows = async (payload, { viewId, filters, sortBy, groupBy }) => {
+	const getDatabaseRows = async (payload, { viewId, filters, sortBy, groupBy, blockId }) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -856,6 +856,28 @@ export const NotesState = (props) => {
 						},
 					},
 				});
+				if (['text', 'title', 'email', 'url', 'phone'].includes(metaInfo?.fieldType)) {
+					const view = state?.views?.[blockId] || [];
+					const newView = view?.map((view) => {
+						if (view?._id === viewId) {
+							return {
+								...view,
+								groupBy: {
+									...view?.groupBy,
+									defaultGroups: Object.keys(groupData)?.map((item) => ({
+										_id: item,
+										label: item === 'null' ? 'No Value' : item,
+									})),
+								},
+							};
+						}
+						return view;
+					});
+					dispatch({
+						type: Actions.UPDATE_DATABASE_VIEWS,
+						payload: { [blockId]: newView },
+					});
+				}
 				return [true, response?.[1]];
 			} else {
 				return [false, response?.[1]];

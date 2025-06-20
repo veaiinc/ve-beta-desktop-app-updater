@@ -222,6 +222,7 @@ const DatabaseComponent = ({ block, editor }) => {
 					filters: filters || selectedDatabaseView?.filterBy,
 					sortBy: selectedDatabaseView?.sortBy,
 					groupBy: selectedDatabaseView?.groupBy?.fieldId,
+					blockId: block?.id,
 				},
 			);
 			setInfo((prev) => ({ ...prev, rowsLoading: false }));
@@ -233,6 +234,7 @@ const DatabaseComponent = ({ block, editor }) => {
 			selectedDatabaseView?.filterBy,
 			info?.debouncedSearchQuery,
 			selectedDatabaseView?.sortBy,
+			block?.id,
 		],
 	);
 
@@ -335,7 +337,7 @@ const DatabaseComponent = ({ block, editor }) => {
 			const labelMapper = {
 				table: 'Table',
 				list: 'List',
-				kanban: 'Kanban',
+				board: 'Kanban',
 				calendar: 'Calendar',
 				gallery: 'Gallery',
 			};
@@ -347,7 +349,7 @@ const DatabaseComponent = ({ block, editor }) => {
 						input: {
 							blockId: sourceBlockId,
 							databaseId: targetDatabaseId,
-							label: labelMapper?.[viewType],
+							label: labelMapper[viewType],
 							type: viewType,
 							order,
 						},
@@ -600,14 +602,16 @@ const DatabaseComponent = ({ block, editor }) => {
 								/>
 							)}
 							{selectedDatabaseView?.type === 'list' && (
-								// <ListView
-								// 	groupData={groupData}
-								// 	metaInfo={metaInfo}
-								// 	columns={columns}
-								// 	databaseId={databaseId}
-								// 	pageId={pageId}
-								// 	view={selectedDatabaseView}
-								// />
+								<ListView
+									groupData={groupData}
+									metaInfo={metaInfo}
+									columns={columns}
+									databaseId={databaseId}
+									pageId={pageId}
+									view={selectedDatabaseView}
+								/>
+							)}
+							{selectedDatabaseView?.type === 'board' && (
 								<BoardView
 									groupData={groupData}
 									metaInfo={metaInfo}

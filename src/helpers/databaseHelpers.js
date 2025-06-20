@@ -342,13 +342,23 @@ export const handleUpdateInGroup = ({
 	const updatedGroupData = {};
 	let hasUpdated = false;
 
+	const rawValue = updatedRowData?.values?.[updatedFields?.[0]];
+	const valueArray = Array.isArray(rawValue)
+		? rawValue.map((item) => (typeof item === 'object' && item !== null ? item._id : item))
+		: typeof rawValue === 'object' && rawValue !== null
+		? [rawValue._id]
+		: rawValue !== undefined
+		? [rawValue]
+		: [];
+
 	if (groupBy === updatedFields?.[0]) {
 		for (const group in groupData) {
 			const docs = [...(groupData[group]?.docs || [])];
 			const index = docs.findIndex((row) => row?._id === rowId);
-			const value = updatedRowData?.values?.[updatedFields?.[0]];
-			const valueIsEmpty = !value || (Array.isArray(value) && value?.length === 0);
-			if ((valueIsEmpty && group === 'null') || value?.includes(group)) {
+
+			const valueIsEmpty =
+				!valueArray || (Array.isArray(valueArray) && valueArray?.length === 0);
+			if ((valueIsEmpty && group === 'null') || valueArray?.includes(group)) {
 				if (index !== -1) {
 					docs[index] = updatedRow;
 				} else {

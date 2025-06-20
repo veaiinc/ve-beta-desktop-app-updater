@@ -559,6 +559,7 @@ export const getDatabaseRowsQuery = gql`
 		) {
 			metaInfo {
 				fieldId
+				fieldType
 				totalPages
 				totalGroups
 				limit
