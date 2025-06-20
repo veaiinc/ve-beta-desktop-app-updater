@@ -138,6 +138,7 @@ const ChatBox = ({
 	startPage = false,
 	onChatQueryChange = null,
 	isBuildEnbled = true,
+	showUpgradeSubscriptionBtn = true,
 }) => {
 	const textAreaRef = useRef(null);
 	const location = useLocation();
@@ -206,8 +207,8 @@ const ChatBox = ({
 	const recentFilesRef = useRef(info?.recentFiles || []);
 	const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
 	const placeholderIntervalId = useRef(null);
-	const totalCreditsUsed = currentPlan?.totalAiCreditUsed || -1,
-		totalCreditsLimit = currentPlan?.totalAiCreditLimit || 0;
+	const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
+		totalCreditsLimit = currentPlan?.totalAiCreditLimit || -1;
 
 	useEffect(() => {
 		if (
@@ -2026,7 +2027,7 @@ const ChatBox = ({
 						))}
 					</div>
 				)}
-				{totalCreditsUsed >= totalCreditsLimit && (
+				{totalCreditsUsed >= totalCreditsLimit && showUpgradeSubscriptionBtn && (
 					<div className="credits-upgrade-container">
 						<div className="left-container">
 							<div className="title-container">
