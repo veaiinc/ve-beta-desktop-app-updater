@@ -80,7 +80,7 @@ const CreditsLeft = () => {
 	}, []);
 	const daysUntilExpiry = useMemo(() => {
 		if (!currentPlan?.expiresAt) return null;
-		const msLeft = 1750464000 * 1000 - Date.now();
+		const msLeft = currentPlan?.expiresAt * 1000 - Date.now();
 		return Math.ceil(msLeft / (1000 * 60 * 60 * 24));
 	}, [currentPlan]);
 	// Calculate dynamic strokeDasharray
