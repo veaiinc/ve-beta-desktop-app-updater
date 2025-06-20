@@ -387,11 +387,23 @@ const OpenedSidebar = ({
 		}));
 	};
 
+	//close sidebar
+	const handleSidebarCollapse = (e) => {
+		// e.stopPropagation();
+		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
+		setIsOpen(false);
+		// setShowChatsDrawer(false);
+	};
+
 	const handleNavigateFunction = useCallback(
 		(route, singleItems) => {
 			if (singleItems?.name === 'Settings') {
 				setShowSettingsSidebar(true);
 				navigate('/settings/my-profile');
+				// Close sidebar on mobile after navigation
+				if (isMobile) {
+					handleSidebarCollapse();
+				}
 				return;
 			}
 
@@ -403,20 +415,20 @@ const OpenedSidebar = ({
 			}));
 			if (singleItems?.name === 'New Chat') {
 				handleNewChat();
+				// Close sidebar on mobile after navigation
+				if (isMobile) {
+					handleSidebarCollapse();
+				}
 				return;
 			}
 			navigate(route);
+			// Close sidebar on mobile after navigation
+			if (isMobile) {
+				handleSidebarCollapse();
+			}
 		},
-		[navigate, workspaceMode],
+		[navigate, workspaceMode, isMobile, handleSidebarCollapse],
 	);
-
-	//close sidebar
-	const handleSidebarCollapse = (e) => {
-		// e.stopPropagation();
-		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
-		setIsOpen(false);
-		// setShowChatsDrawer(false);
-	};
 
 	const handleCloseChatPanel = () => {
 		setSelectedChat(null);
@@ -432,6 +444,10 @@ const OpenedSidebar = ({
 		e.stopPropagation();
 		if (subModule.route) {
 			navigate(subModule.route);
+			// Close sidebar on mobile after navigation
+			if (isMobile) {
+				handleSidebarCollapse();
+			}
 		}
 	};
 
@@ -1139,6 +1155,10 @@ const OpenedSidebar = ({
 									onClick={() => {
 										navigate(option.route);
 										setSelectedSettingsOption(option.name);
+										// Close sidebar on mobile after navigation
+										if (isMobile) {
+											handleSidebarCollapse();
+										}
 									}}
 								>
 									<option.icon fill={'var(--secondary-font)'} />
@@ -1201,7 +1221,7 @@ const OpenedSidebar = ({
 							}}
 						>
 							<div
-								style={{ width: '100%', gap: '4px', position: 'relative' }}
+								style={{ width: '100%', position: 'relative' }}
 								className={`${
 									showSettingsSidebar ? 'settingsAnimationContainer' : ''
 								}`}
