@@ -598,7 +598,7 @@ const ChatBox = ({
 				// Prevent default to avoid unwanted new line
 				e?.preventDefault();
 
-				if (!isPublicChat) {
+				if (!isPublicChat && window.location.hostname !== 'localhost') {
 					const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
 						totalCreditsLimit = currentPlan?.totalAiCreditLimit || 0;
 					if (totalCreditsUsed >= totalCreditsLimit) {
