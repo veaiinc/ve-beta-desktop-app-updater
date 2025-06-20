@@ -13,23 +13,30 @@
 	// z-index: 100;
 	margin-top: 100px;
 	.pricing-header {
-		text-align: center;
-		margin-bottom: 32px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 6px;
+		align-self: stretch;
 		.pricing-header-title {
+			height: 44px;
 			color: var(--primary-font, #f2f2f3);
-			font-family: var(--primary-font-family);
-			font-size: 30px;
+			text-align: center;
+			font-family: Manrope;
+			font-size: 32px;
 			font-style: normal;
-			font-weight: 500;
+			font-weight: 700;
 			line-height: normal;
+			align-self: stretch;
 		}
 		.pricing-header-description {
-			color: var(--secondary-font, #787e87);
-			font-family: var(--primary-font-family);
+			color: var(--primary-font, #f2f2f3);
+			font-family: Manrope;
 			font-size: 16px;
 			font-style: normal;
-			font-weight: 500;
-			line-height: 16px;
+			font-weight: 400;
+			line-height: normal;
 		}
 	}
 	.pricing-toggle-container {
@@ -57,13 +64,13 @@
 					align-items: center;
 					border-radius: 8px;
 					&.active {
-						background: var(--primary-button, #00f3c5);
-						color: var(--background-color, #0c0c0d);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
+						display: flex;
+						padding: 6px 16px;
+						justify-content: center;
+						align-items: center;
+						gap: 18px;
+						border-radius: 6px;
+						background: var(--card-over-card-hover, #27282b);
 					}
 				}
 			}
@@ -743,6 +750,169 @@
 			color: var(--primary-font, #f2f2f3);
 			font-size: 22px;
 			margin-left: 8px;
+		}
+	}
+}
+.eachPricingCard {
+	display: flex;
+	padding: 24px;
+	flex-direction: column;
+	align-items: center;
+	gap: 24px;
+	align-self: stretch;
+	border-radius: 16px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	width: 353px;
+	.pricingCardHeader {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		align-self: stretch;
+		.pricingTitleContainer {
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-start;
+			align-self: stretch;
+			.priceTitle {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 20px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+			.trailText {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Manrope;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+		}
+		.pricingCardBody {
+			align-self: stretch;
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 22px; /* 157.143% */
+		}
+		.pricingCardFooter {
+			display: flex;
+			flex-direction: row;
+			gap: 4px;
+			align-items: center;
+			.planAmount {
+				color: var(--primary-button, #79ecc9);
+				font-family: Inter;
+				font-size: 34px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+			.tenantUsersLimit {
+				color: var(--secondary-font, #7a7e85);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+	}
+	.pricingButtonContainer {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+		align-self: stretch;
+		.pricingButtonRow {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+			width: 100%;
+			.pricingButton {
+				display: flex;
+				padding: 14px 16px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				align-self: stretch;
+				border-radius: 24px;
+				border: 1px solid var(--primary-button, #79ecc9);
+				color: var(--primary-button, #79ecc9);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-transform: capitalize;
+				background: transparent;
+				cursor: pointer;
+				transition: background 0.2s;
+			}
+		}
+		.quantitySelectorContainer {
+			width: 100%;
+			display: flex;
+			flex-direction: row;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+			.quantitySelectorOptionsCount {
+				display: flex;
+				padding: 14px 16px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				flex: 1 0 0;
+				border-radius: 24px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-transform: capitalize;
+			}
+			.quantitySelectorOptions-minus {
+				display: flex;
+				width: 60px;
+				height: 45px;
+				padding: 14px 16px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				border-radius: 24px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				cursor: pointer;
+				background: transparent;
+			}
+		}
+		.startTrailButton {
+			display: flex;
+			padding: 14px 16px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			align-self: stretch;
+			border-radius: 24px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			text-transform: capitalize;
+			cursor: pointer;
+			background: transparent;
+			cursor: pointer;
 		}
 	}
 }
