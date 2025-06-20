@@ -23,7 +23,7 @@ const stableRoutes = betaRoutes?.filter(
 
 function App() {
 	const currentRoute = window.location.pathname;
-	const { workspaceMode, loading, error } = useWorkspaceMode(); // stable, beta, internal
+	const { workspaceMode } = useWorkspaceMode(); // stable, beta, internal
 	const {
 		themeInfo: { theme },
 	} = useContext(Context);
@@ -61,8 +61,7 @@ function App() {
 		}
 	}, [theme, currentRoute]);
 
-	const routes =
-		loading || error !== false ? [] : workspaceMode === 'stable' ? stableRoutes : betaRoutes;
+	const routes = workspaceMode === 'stable' ? stableRoutes : betaRoutes;
 
 	return (
 		<>
