@@ -284,6 +284,18 @@
 	}
 }
 
+.recent-chat-tooltip {
+	background-color: var(--card);
+	color: var(--primary-font);
+	padding: 10px;
+	border-radius: 10px;
+	font-family: var(--chat-primary-font-family);
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+}
+
 // @media screen and (max-width: 1200px) {
 // 	.chat-container {
 // 		height: calc(100% - 62px);

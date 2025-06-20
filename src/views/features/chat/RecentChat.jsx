@@ -860,7 +860,12 @@ const RecentChat = ({
 								</div>
 							</div>
 							<div className="right-container">
-								<Tooltip title="Delete Chat" placement="bottom">
+								<Tooltip
+									title={<div className="recent-chat-tooltip">Delete Chat</div>}
+									placement="bottom"
+									color="transparent"
+									arrow={false}
+								>
 									<button
 										className="delete-chat-btn"
 										onClick={handleDeleteChatClick}
