@@ -1,5 +1,5 @@
 import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/notification.svg';
-// import { ReactComponent as SearchIcon } from '../../../assets/svg/sidebar/searchIcon.svg';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/sidebar/searchIcon.svg';
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
 import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
 import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
@@ -13,18 +13,9 @@ import { ReactComponent as TeamIcon } from '../../../assets/svg/sidebar/teamMemb
 import { ReactComponent as IntegrationsIcon } from '../../../assets/svg/sidebar/integrationsIcon.svg';
 import { ReactComponent as PlanBillingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
 import { ReactComponent as NotesIcon } from '../../../assets/svg/sidebar/notes-icon.svg';
-// import { ReactComponent as PricingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
+import { ReactComponent as PricingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
 
-export const stableNavigationItems = [
-	{
-		id: 0,
-		name: 'New Chat',
-		moduleRoute: null,
-		route: 'New Chat',
-		icon: ChatSvg,
-	},
-];
-export const betaNaviagationItems = [
+export const veAiModulesItemsList = [
 	{
 		id: 0,
 		name: 'New Chat',
@@ -49,26 +40,14 @@ export const betaNaviagationItems = [
 	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
 ];
 
-export const stableSettingsNavItems = {
-	admin: [
-		{ name: 'My Profile', route: '/settings/my-profile', icon: FilesSvg },
-		{ name: 'Workspace', route: '/settings/workspace', icon: WorkspaceIcon },
-		{ name: 'Team Members', route: '/settings/team-members', icon: TeamIcon },
-		{ name: 'Plan Billing', route: '/settings/plan-billing', icon: PlanBillingIcon },
-		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
-	],
-	user: [
-		{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
-		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
-	],
-	essentials: [
-		{ id: 2, icon: NotificationSvg, name: 'Notifications', route: null },
-		{ id: 3, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
-		{ id: 4, icon: HelpSvg, name: 'Help' },
-	],
-};
+export const veAiModules = [
+	{ id: 1, icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
+	{ id: 2, icon: NotificationSvg, name: 'Notifications', route: null },
+	{ id: 3, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
+	{ id: 4, icon: HelpSvg, name: 'Help' },
+];
 
-export const betaSettingsNavItems = {
+export const SETTINGS_OPTIONS = {
 	admin: [
 		{ name: 'My Profile', route: '/settings/my-profile', icon: FilesSvg },
 		{ name: 'Workspace', route: '/settings/workspace', icon: WorkspaceIcon },
@@ -82,11 +61,5 @@ export const betaSettingsNavItems = {
 		{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
 		{ name: 'Integration', route: '/settings/integrations', icon: IntegrationsIcon },
 		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
-	],
-	essentials: [
-		{ id: 1, icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
-		{ id: 2, icon: NotificationSvg, name: 'Notifications', route: null },
-		{ id: 3, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
-		{ id: 4, icon: HelpSvg, name: 'Help' },
 	],
 };

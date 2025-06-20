@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useContext, useCallback, memo } from 'react';
-import '../../../assets/scss/gallery/index.scss';
 import { ReactComponent as ShareIcon } from '../../../assets/svg/gallery/share.svg';
 import sixDots from '../../../assets/svg/gallery/sixdots.svg';
 import { ReactComponent as ThreeDotsIcon } from '../../../assets/svg/gallery/threeDots.svg';
@@ -67,7 +66,6 @@ import { getCurrentWorkspaceId } from '../../../helpers';
 import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
 import SharePopup from '../../components/modalsV2/gallery/SharePopup';
 import GalleryViewer from './GalleryViewer';
-
 import { ReactComponent as ArrowSvg } from '../../../assets/svg/file/arrow.svg';
 
 // const workspaceId = localStorage.getItem('workspaceId');
