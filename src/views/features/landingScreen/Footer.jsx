@@ -55,6 +55,11 @@ const Footer = () => {
 	const handleEmailChange = (e) => {
 		setInfo({ ...info, email: e.target.value, error: '' });
 	};
+	const handleKeyDown = (e) => {
+		if (e.key === 'Enter') {
+			handleSubscribe();
+		}
+	};
 	return (
 		<div className={s.footer}>
 			<div className={s.container}>
@@ -73,6 +78,7 @@ const Footer = () => {
 								type="text"
 								placeholder="example@gmail.com"
 								onChange={handleEmailChange}
+								onKeyDown={handleKeyDown}
 								className={info.error ? s.errorInput : ''}
 							/>
 							{info.error && <p className={s.errorMessage}>{info.error}</p>}
@@ -96,14 +102,14 @@ const Footer = () => {
 									<span className={s.listHeading}>About</span>
 								</li>
 								<li>
-									<Link to="/mission">Mission</Link>
+									<Link to="/thebridge">The bridge</Link>
 								</li>
 								<li>
 									<Link to="/contact-us">For Enterprise</Link>
 								</li>
-								<li>
+								{/* <li>
 									<Link to="/forenterprise">Investor Updates</Link>
-								</li>
+								</li> */}
 							</ul>
 						</div>
 						<div className={s.about}>

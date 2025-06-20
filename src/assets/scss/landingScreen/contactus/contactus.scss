@@ -67,7 +67,6 @@
 				color: var(--primary-font, #f2f2f3);
 				margin: 8px 0;
 			}
-
 			// select {
 			// 	appearance: none;
 			// }
@@ -205,6 +204,10 @@
 					text-underline-position: from-font;
 				}
 			}
+		}
+
+		.error-text {
+			color: var(--error);
 		}
 
 		button {

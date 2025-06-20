@@ -123,39 +123,30 @@
 							position: relative;
 							cursor: pointer;
 							font-size: 14px;
+							transition: color 0.2s ease;
 
 							&::after {
-								position: absolute;
 								content: '';
 								height: 2px;
-								width: 100%;
-								background-color: var(--primary-button);
-								left: 0;
+								width: 0%;
+								position: absolute;
 								bottom: -8px;
-								transform: scaleX(0);
-								transform-origin: right;
-								transition: transform 0.3s ease;
-							}
-						}
-
-						&:hover {
-							color: var(--primary-font);
-						}
-
-						&.active {
-							span {
-								color: var(--primary-font, #f2f2f3);
-								font-size: 14px;
-								font-style: normal;
-								font-weight: 500;
-								line-height: normal;
+								left: 25%;
+								background-color: var(--primary-button);
+								transition: width 0.3s ease;
 							}
 						}
 
 						&:hover span::after,
 						&.active span::after {
-							transform: scaleX(1);
-							transform-origin: left;
+							width: 50%;
+						}
+
+						&:hover,
+						&.active {
+							span {
+								color: var(--primary-font);
+							}
 						}
 					}
 				}

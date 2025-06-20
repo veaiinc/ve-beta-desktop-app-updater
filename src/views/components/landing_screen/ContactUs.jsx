@@ -62,7 +62,7 @@ const ContactUs = ({ type }) => {
 
 	// Ref-wrapped throttled function to avoid stale closures
 	const throttledSubmitRef = useRef(
-		throttle((formData, sendFn, setInfoFn) => {
+		throttle((formData, sendFn) => {
 			const newErrors = {};
 
 			const {
@@ -89,16 +89,17 @@ const ContactUs = ({ type }) => {
 				newErrors.marketingConsent = 'You must agree to marketing consent';
 
 			if (Object.keys(newErrors).length > 0) {
-				setInfoFn((prev) => ({ ...prev, errors: newErrors }));
+				setInfo((prev) => ({ ...prev, errors: newErrors }));
 				return;
 			}
 
-			setInfoFn((prev) => ({ ...prev, errors: {}, loading: true }));
+			setInfo((prev) => ({ ...prev, errors: {}, loading: true }));
 
 			sendFn(formData)
 				.then((res) => {
 					if (res?.[0]) {
 						toast.success('Form submitted successfully!');
+						setInfo(initialState);
 					} else {
 						throw new Error('An unexpected error occurred. Please try again!');
 					}
@@ -108,7 +109,7 @@ const ContactUs = ({ type }) => {
 					toast.error(error?.message || 'Something went wrong!');
 				})
 				.finally(() => {
-					setInfoFn((prev) => ({ ...prev, loading: false }));
+					setInfo(initialState);
 				});
 		}, throttleDelay),
 	);
@@ -126,7 +127,7 @@ const ContactUs = ({ type }) => {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		throttledSubmitRef.current(info.formData, sendContactFormData, setInfo);
+		throttledSubmitRef.current(info.formData, sendContactFormData);
 	};
 
 	return (

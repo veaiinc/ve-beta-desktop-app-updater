@@ -68,7 +68,7 @@ And now, so will our machines.`,
 
 const tabsMapper = {
 	0: (
-		<section className="mission-block">
+		<section className="bridge-block">
 			<h1 className="heading">The bridge </h1>
 			{missionContent.map((content, index) => (
 				<p key={`mission-${index}`}>{content}</p>
