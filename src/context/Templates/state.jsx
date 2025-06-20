@@ -774,6 +774,7 @@ export const TemplatesState = (props) => {
 			message: inputMessage,
 			marketingConsent,
 			type,
+			phone,
 		} = formData;
 
 		try {
@@ -781,50 +782,44 @@ export const TemplatesState = (props) => {
 				responseInput: {
 					response: [
 						{
-							_id: '67fcfbbcbfcf70d43e4f3585',
+							_id: '68540d18275e840b828a0a36',
 							type: 'email',
-							question: 'Work Email',
+							question: '<p style="font-size:;">Work email</p>',
+							required: true,
+							order: 0,
+							isEditing: false,
+							placeholder: 'Enter your name',
+							answer: email,
+							variableId: '619f75683f381fd66dac4b65',
+							validation: { pattern: {}, operators: [] },
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '68540d18275e840b828a0a37',
+							type: 'shortanswer',
+							question: '<p style="font-size:;">First name?</p>',
 							required: true,
 							order: 1,
 							isEditing: false,
-							placeholder: 'Work Email',
-							answer: email,
-							validation: {
-								pattern: {},
-								operators: [],
-							},
+							placeholder: 'Enter your first name',
+							answer: firstName,
+							variableId: '6311efc4911e0f82be7e2b2d',
+							validation: { pattern: {}, operators: [] },
 							conditions: [],
 							actions: [],
 						},
 						{
-							_id: '67fcfbbcbfcf70d43e4f3586',
+							_id: '68540d4cd698c8078e1078fc',
 							type: 'shortanswer',
-							question: 'First Name',
+							question: '<br style="font-size:;"><p>Last name</p>',
 							required: true,
 							order: 2,
 							isEditing: false,
-							placeholder: 'First Name',
-							answer: firstName,
-							validation: {
-								pattern: {},
-								operators: [],
-							},
-							conditions: [],
-							actions: [],
-						},
-						{
-							_id: '67fcfbbcbfcf70d43e4f3587',
-							type: 'shortanswer',
-							question: 'Last Name',
-							required: true,
-							order: 3,
-							isEditing: false,
-							placeholder: 'Last Name',
+							placeholder: 'Enter your last name',
 							answer: lastName,
-							validation: {
-								pattern: {},
-								operators: [],
-							},
+							variableId: '619f75683f381fd66dac4b65',
+							validation: { pattern: {}, operators: [] },
 							conditions: [],
 							actions: [],
 						},
@@ -835,7 +830,7 @@ export const TemplatesState = (props) => {
 							required: true,
 							order: 4,
 							isEditing: false,
-							placeholder: 'Company Name',
+							placeholder: 'Enter your company name',
 							answer: companyName,
 							validation: {
 								pattern: {},
@@ -851,7 +846,7 @@ export const TemplatesState = (props) => {
 							required: true,
 							order: 5,
 							isEditing: false,
-							placeholder: 'Job Title',
+							placeholder: 'Enter your job title',
 							answer: jobTitle,
 							validation: {
 								pattern: {},
@@ -864,10 +859,10 @@ export const TemplatesState = (props) => {
 							_id: '67fcfbbcbfcf70d43e4f358a',
 							type: 'shortanswer',
 							question: 'Platform Users',
-							required: false,
+							required: true,
 							order: 6,
 							isEditing: false,
-							placeholder: 'Platform Users',
+							placeholder: 'Enter your platform users',
 							answer: platformUsers,
 							validation: {
 								pattern: {},
@@ -880,10 +875,10 @@ export const TemplatesState = (props) => {
 							_id: '67fcfbbcbfcf70d43e4f358b',
 							type: 'shortanswer',
 							question: 'Company Headquarters',
-							required: false,
+							required: true,
 							order: 7,
 							isEditing: false,
-							placeholder: 'Company Headquarters',
+							placeholder: 'Enter your company headquarters',
 							answer: headquarters,
 							validation: {
 								pattern: {},
@@ -896,10 +891,10 @@ export const TemplatesState = (props) => {
 							_id: '67fcfbbcbfcf70d43e4f358c',
 							type: 'longanswer',
 							question: 'Tell us more about how you want to use VE.AI',
-							required: false,
+							required: true,
 							order: 8,
 							isEditing: false,
-							placeholder: 'Tell us more about how you want to use VE.AI',
+							placeholder: 'Enter your long answer text',
 							answer: inputMessage,
 							validation: {
 								pattern: {},
@@ -909,18 +904,16 @@ export const TemplatesState = (props) => {
 							actions: [],
 						},
 						{
-							_id: '67fcfbe9bfcf70d43e4f3592',
-							type: 'dropdown',
-							question: 'Type',
-							required: true,
-							order: 1,
+							_id: '68540d18275e840b828a0a38',
+							type: 'phone',
+							question: 'What is your phone number?',
+							required: false,
+							order: 9,
 							isEditing: false,
-							placeholder: 'Type',
-							answer: type,
-							validation: {
-								pattern: {},
-								operators: [],
-							},
+							placeholder: 'Enter your phone number',
+							answer: phone,
+							variableId: '6311ee8f8e7c108259cf96e6',
+							validation: { pattern: {}, operators: [] },
 							conditions: [],
 							actions: [],
 						},
@@ -928,16 +921,17 @@ export const TemplatesState = (props) => {
 				},
 			};
 
-			const token = null;
+			const token = localStorage.getItem('usertoken');
 
 			const url =
-				'/veai/67fcfbbcbfcf70d43e4f358d/67fcfbbcbfcf70d43e4f358e/67fcfbbcbfcf70d43e4f3584';
+				'/veai/68540d0db5dbb87f8fb78c70/68540d0db5dbb87f8fb78c71/68540d17c07d261ea9125e3a';
 
 			const response = await Service.fetchPost(url, body, token, 'workflow');
 
-			message?.success(response[1]?.message);
+			return response;
 		} catch (error) {
 			console.log(error);
+			return error;
 		}
 	};
 	// const getFormResponseSummary = async (formId) => {
