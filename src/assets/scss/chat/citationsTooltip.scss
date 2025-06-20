@@ -26,7 +26,8 @@
 			align-items: center;
 			gap: 6px;
 			border-radius: 100px;
-			background: var(--card-over-card, #202123);
+			background: var(--card-over-card-hover, #202123);
+			border: 1px solid var(--stroke);
 
 			.citation-icon {
 				width: 10px;
