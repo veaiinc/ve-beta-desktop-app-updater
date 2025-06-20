@@ -139,14 +139,56 @@ export const CitationsTooltip = memo(({ citationId, citations = null, placement 
 				</div>
 			}
 		>
-			<span
-				className="citation-tooltip-header"
+			<div
+				className="citation-tooltip-wrapper"
+				onClick={(e) => {
+					e?.stopPropagation();
+					redirectTo?.(
+						citationInfo?.type,
+						citationInfo?.[redirectTypeMapper?.[citationInfo?.type]],
+					);
+				}}
 				style={{
 					display: citationInfo ? 'inline-block' : 'none',
 				}}
 			>
-				{number}
-			</span>
+				{Object?.keys(citationInfo)?.length > 0 ? (
+					<span className="citation-wrapper">
+						<div className="citation-with-icon">
+							<div className="citation-icon">
+								{citationInfo?.type === 'url' ? (
+									getFaviconUrl(citationInfo?.name) ? (
+										<img
+											src={getFaviconUrl(citationInfo?.name)}
+											alt="favicon"
+											className="favicon-image"
+										/>
+									) : (
+										<div className="company-icon">
+											{getWebsiteName(citationInfo?.name)?.charAt(0)}
+										</div>
+									)
+								) : (
+									<div className="company-icon">
+										{citationInfo?.type === 's3_key'
+											? fileTypeIcons[
+													citationInfo?.name?.match(/\.(\w+)$/)?.[1]
+											  ]
+											: fileTypeIcons[citationInfo?.type]}
+									</div>
+								)}
+							</div>
+							<div className="citation-text">
+								{citationInfo?.type === 'url'
+									? getWebsiteName(citationInfo?.name || '')
+									: citationInfo?.name || ''}
+							</div>
+						</div>
+					</span>
+				) : (
+					<span className="citation-tooltip-header">{number}</span>
+				)}
+			</div>
 		</Tooltip>
 	);
 });

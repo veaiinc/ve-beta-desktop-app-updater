@@ -294,61 +294,61 @@ const RecentChat = ({
 		if (!sessionId) return;
 		chatMessagesRef.current = [...(globalChatMessages?.[sessionId]?.messages || [])];
 
-		const container = chatContentRef.current;
-		if (!container) return;
-		const visibleUserMessagesSet = new Set();
+		// const container = chatContentRef.current;
+		// if (!container) return;
+		// const visibleUserMessagesSet = new Set();
 
-		const observer = new IntersectionObserver(
-			(entries) => {
-				entries?.forEach((entry) => {
-					const bounding = entry?.boundingClientRect;
-					const rootBounds = entry?.rootBounds;
+		// const observer = new IntersectionObserver(
+		// 	(entries) => {
+		// 		entries?.forEach((entry) => {
+		// 			const bounding = entry?.boundingClientRect;
+		// 			const rootBounds = entry?.rootBounds;
 
-					// Check if it is entering the top half
-					if (entry?.isIntersecting) {
-						visibleUserMessagesSet?.add(entry?.target);
-					} else {
-						// If it scrolled past the top (i.e. fully out of view and above)
-						const isAboveTop = bounding?.bottom < rootBounds?.top;
+		// 			// Check if it is entering the top half
+		// 			if (entry?.isIntersecting) {
+		// 				visibleUserMessagesSet?.add(entry?.target);
+		// 			} else {
+		// 				// If it scrolled past the top (i.e. fully out of view and above)
+		// 				const isAboveTop = bounding?.bottom < rootBounds?.top;
 
-						if (isAboveTop) {
-							visibleUserMessagesSet?.add(entry?.target);
-						} else {
-							visibleUserMessagesSet?.delete(entry?.target);
-						}
-					}
-				});
+		// 				if (isAboveTop) {
+		// 					visibleUserMessagesSet?.add(entry?.target);
+		// 				} else {
+		// 					visibleUserMessagesSet?.delete(entry?.target);
+		// 				}
+		// 			}
+		// 		});
 
-				const visibleUserMessages = [...visibleUserMessagesSet]?.map(
-					(m) => m?.dataset?.index,
-				);
-				if (visibleUserMessages?.length > 0) {
-					const activeUserMessageIndex = Number(
-						visibleUserMessages?.[visibleUserMessages?.length - 1],
-					);
-					const activeAIMessageIndex = activeUserMessageIndex + 1;
-					setInfo((prev) => ({
-						...prev,
-						activeUserMessageIndex,
-						activeAIMessageIndex,
-					}));
-				}
-			},
-			{
-				root: container,
-				rootMargin: '-10% 0px -50% 0px',
-				threshold: 0,
-			},
-		);
+		// 		const visibleUserMessages = [...visibleUserMessagesSet]?.map(
+		// 			(m) => m?.dataset?.index,
+		// 		);
+		// 		if (visibleUserMessages?.length > 0) {
+		// 			const activeUserMessageIndex = Number(
+		// 				visibleUserMessages?.[visibleUserMessages?.length - 1],
+		// 			);
+		// 			const activeAIMessageIndex = activeUserMessageIndex + 1;
+		// 			setInfo((prev) => ({
+		// 				...prev,
+		// 				activeUserMessageIndex,
+		// 				activeAIMessageIndex,
+		// 			}));
+		// 		}
+		// 	},
+		// 	{
+		// 		root: container,
+		// 		rootMargin: '-10% 0px -50% 0px',
+		// 		threshold: 0,
+		// 	},
+		// );
 
-		// Observe each user message element
-		Object?.values(userMessagesRefs.current)?.forEach((el) => {
-			observer.observe(el);
-		});
-		return () => {
-			visibleUserMessagesSet?.clear();
-			observer.disconnect();
-		};
+		// // Observe each user message element
+		// Object?.values(userMessagesRefs.current)?.forEach((el) => {
+		// 	observer.observe(el);
+		// });
+		// return () => {
+		// 	visibleUserMessagesSet?.clear();
+		// 	observer.disconnect();
+		// };
 	}, [globalChatMessages, sessionId]);
 
 	// useEffect(() => {
@@ -897,13 +897,13 @@ const RecentChat = ({
 														{chat?.type?.toLowerCase() === 'ai' ? (
 															<div
 																className="content"
-																style={{
-																	opacity:
-																		index ===
-																		info?.activeAIMessageIndex
-																			? 1
-																			: 0.6,
-																}}
+																// style={{
+																// 	opacity:
+																// 		index ===
+																// 		info?.activeAIMessageIndex
+																// 			? 1
+																// 			: 0.6,
+																// }}
 																// ref={(el) => {
 																// 	if (
 																// 		el &&
@@ -972,13 +972,13 @@ const RecentChat = ({
 																}}
 																data-index={index}
 																key={index}
-																style={{
-																	opacity:
-																		index ===
-																		info?.activeUserMessageIndex
-																			? 1
-																			: 0.6,
-																}}
+																// style={{
+																// 	opacity:
+																// 		index ===
+																// 		info?.activeUserMessageIndex
+																// 			? 1
+																// 			: 0.6,
+																// }}
 															>
 																<UserMessageRenderer
 																	messageData={chat}
