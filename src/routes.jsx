@@ -1,142 +1,108 @@
 import { Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 
-// Lazy load all route components for better performance
 import Landing_screen from './views/features/landingScreen/LandingPage';
-import InitialHomePage from './views/features/homePage/InitialHomePage';
+
 import AuthWrapper from './views/layouts/authWrapper';
-
-const Onboarding = lazy(() => import('./views/features/onboarding/Onboarding'));
-//
-const CalendarModule = lazy(() => import('./views/features/calendar/Calendar'));
-const OauthVerify = lazy(() => import('./views/features/signin/oauth/OauthVerify'));
-const GlobalWorkflows = lazy(() => import('./views/features/sales/GlobalWorkflows'));
-const SmartFile = lazy(() => import('./views/features/sales/smartFiles/SmartFile'));
-const WorkflowBuilderLayout = lazy(() => import('./views/layouts/workflowBuilderLayout'));
-const SmartFileLayout = lazy(() => import('./views/layouts/smartFileLayout'));
-const EarlyAccess = lazy(() => import('./views/features/earlyAccess/EarlyAccess'));
-const PrivacyPolicy = lazy(() => import('./views/features/signin/PrivacyPolicy'));
-const ChageLog = lazy(() => import('./views/features/signin/ChageLog'));
-const AddGallery = lazy(() => import('./views/features/gallery/AddGallery'));
-const GalleryPage = lazy(() => import('./views/features/gallery/GalleryPage'));
-const GalleryViewer = lazy(() => import('./views/features/gallery/GalleryViewer'));
-const AlbumSettings = lazy(() => import('./views/features/gallery/AlbumSettings'));
-const UploadPhotos = lazy(() => import('./views/features/gallery/UploadPhotos'));
-const GalleryViewLayout = lazy(() => import('./views/layouts/galleryViewLayout'));
-const TermsOfService = lazy(() => import('./views/features/signin/TermsOfService'));
-const CookiePolicy = lazy(() => import('./views/features/signin/CookiePolicy'));
-const WorkflowBuilder = lazy(() => import('./views/features/workflowBuilder/WorkflowBuilder'));
-const Tasks = lazy(() => import('./views/features/tasks/Tasks'));
-const Notes = lazy(() => import('./views/features/notesModule/Notes'));
-const Docs = lazy(() => import('./views/features/docs/Docs'));
-const LiteGallery = lazy(() => import('./views/features/gallery/Litegallery'));
-const MyTemplates = lazy(() => import('./views/features/myTemplates/MyTemplates'));
-const Forms = lazy(() => import('./views/features/forms/Forms'));
-const FormLeads = lazy(() => import('./views/features/forms/FormLeads'));
-const EditAgent = lazy(() => import('./views/features/aiAssistant/EditAgent'));
-const AgentDetails = lazy(() => import('./views/features/aiAssistant/AgentDetails'));
-
-const RecentChat = lazy(() => import('./views/features/chat/RecentChat'));
-const AutomationBuilder = lazy(() =>
-	import('./views/features/automationBuilder/AutomationBuilder'),
-);
-const AutomationBuilderLayout = lazy(() => import('./views/layouts/automationBuilderLayout'));
-const Automations = lazy(() => import('./views/features/automations/Automations'));
-const BrandSetup = lazy(() => import('./views/features/settings/BrandSetup'));
-const DocsFullView = lazy(() => import('./views/components/docs/DocsFullView'));
-const TaskFullView = lazy(() => import('./views/features/tasks/TaskFullView'));
-const ExpandedClientView = lazy(() => import('./views/features/contacts/ExpandedClientView'));
-const ElasticSearch = lazy(() => import('./views/features/elasticSearch/ElasticSearch'));
-const PublicChat = lazy(() => import('./views/features/publicChat/PublicChat'));
-const EditKnowledgeAgent = lazy(() => import('./views/features/knowledgeAgent/EditAgent'));
-const FormResCard = lazy(() => import('./views/components/forms/FormResCard'));
-const FormSummary = lazy(() => import('./views/components/forms/FormSummary'));
-const Integrations = lazy(() => import('./views/features/integrationsList/Integrations'));
-const SchedulerMainPage = lazy(() => import('./views/features/calendar/SchedulerMainPage'));
-const EditScheduler = lazy(() => import('./views/features/calendar/EditScheduler'));
-const Contacts = lazy(() => import('./views/features/contacts/Contacts'));
-const PricingPage = lazy(() => import('./views/features/pricingPlans/pricingPage'));
-const ProactiveAi = lazy(() => import('./views/features/proactiveAi/ProactiveAi'));
-const ShareAndEarn = lazy(() => import('./views/features/shareAndEarn/ShareAndEarn'));
-const NotesPage = lazy(() => import('./views/features/notesPage/NotesPage'));
-const KnowledgeAgents = lazy(() => import('./views/features/knowledgeAgent/KnowledgeAgents'));
-const SettingsWrapper = lazy(() => import('./views/features/settings/SettingsWrapper'));
-const Files = lazy(() => import('./views/features/files/Files'));
-const Workflow_builder_updated = lazy(() =>
-	import('./views/features/workflowBuilderUpdated/WorkflowBuilderUpdated'),
-);
-const AiAssistants = lazy(() => import('./views/features/aiAssistant/AiAssistants'));
-const KnowledgeAgentDetails = lazy(() => import('./views/features/knowledgeAgent/AgentDetails'));
-const LoginPage = lazy(() => import('./views/features/loginPage/LoginPage'));
-const Agents = lazy(() => import('./views/features/agents/Agents'));
-const Agent = lazy(() => import('./views/features/agents/agent/Agent'));
+import Onboarding from './views/features/onboarding/Onboarding';
+import CalendarModule from './views/features/calendar/Calendar';
+import OauthVerify from './views/features/signin/oauth/OauthVerify';
+import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
+import SmartFile from './views/features/sales/smartFiles/SmartFile';
+import WorkflowBuilderLayout from './views/layouts/workflowBuilderLayout';
+import SmartFileLayout from './views/layouts/smartFileLayout';
+import EarlyAccess from './views/features/earlyAccess/EarlyAccess';
+import PrivacyPolicy from './views/features/signin/PrivacyPolicy';
+import ChageLog from './views/features/signin/ChageLog';
+import AddGallery from './views/features/gallery/AddGallery';
+import GalleryPage from './views/features/gallery/GalleryPage'; // this is a string, not an import — keep it or remove accordingly
+import GalleryViewer from './views/features/gallery/GalleryViewer';
+import AlbumSettings from './views/features/gallery/AlbumSettings';
+import UploadPhotos from './views/features/gallery/UploadPhotos';
+import GalleryViewLayout from './views/layouts/galleryViewLayout';
+import TermsOfService from './views/features/signin/TermsOfService';
+import CookiePolicy from './views/features/signin/CookiePolicy';
+import WorkflowBuilder from './views/features/workflowBuilder/WorkflowBuilder';
+import Tasks from './views/features/tasks/Tasks';
+import Notes from './views/features/notesModule/Notes';
+import Docs from './views/features/docs/Docs';
+import LiteGallery from './views/features/gallery/Litegallery';
+import MyTemplates from './views/features/myTemplates/MyTemplates';
+import Forms from './views/features/forms/Forms';
+import FormLeads from './views/features/forms/FormLeads';
+import EditAgent from './views/features/aiAssistant/EditAgent';
+import AgentDetails from './views/features/aiAssistant/AgentDetails';
+import InitialHomePage from './views/features/homePage/InitialHomePage';
+import RecentChat from './views/features/chat/RecentChat';
+import AutomationBuilder from './views/features/automationBuilder/AutomationBuilder';
+import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
+import Automations from './views/features/automations/Automations';
+import BrandSetup from './views/features/settings/BrandSetup';
+import DocsFullView from './views/components/docs/DocsFullView';
+import TaskFullView from './views/features/tasks/TaskFullView';
+import ExpandedClientView from './views/features/contacts/ExpandedClientView';
+import ElasticSearch from './views/features/elasticSearch/ElasticSearch';
+import PublicChat from './views/features/publicChat/PublicChat';
+import EditKnowledgeAgent from './views/features/knowledgeAgent/EditAgent';
+import FormResCard from './views/components/forms/FormResCard';
+import FormSummary from './views/components/forms/FormSummary';
+import Integrations from './views/features/integrationsList/Integrations';
+import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
+import EditScheduler from './views/features/calendar/EditScheduler';
+import Contacts from './views/features/contacts/Contacts';
+import PricingPage from './views/features/pricingPlans/pricingPage';
+import ProactiveAi from './views/features/proactiveAi/ProactiveAi';
+import ShareAndEarn from './views/features/shareAndEarn/ShareAndEarn';
+import NotesPage from './views/features/notesPage/NotesPage';
+import KnowledgeAgents from './views/features/knowledgeAgent/KnowledgeAgents';
+import SettingsWrapper from './views/features/settings/SettingsWrapper';
+import Files from './views/features/files/Files';
+import Workflow_builder_updated from './views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
+import AiAssistants from './views/features/aiAssistant/AiAssistants';
+import KnowledgeAgentDetails from './views/features/knowledgeAgent/AgentDetails';
+import LoginPage from './views/features/loginPage/LoginPage';
 
 const BuilderApp = lazy(() => import('../builderSrc/App'));
 
-// Loading component for Suspense fallback
-const LoadingFallback = () => (
-	<div
-		style={{
-			display: 'flex',
-			justifyContent: 'center',
-			alignItems: 'center',
-			height: '100vh',
-			fontSize: '16px',
-			color: '#666',
-		}}
-	>
-		Please Wait While We are Preparing Your Workspace...
-	</div>
-);
-
-// Wrapper component to handle lazy loading with Suspense
-const LazyComponent = ({ component: Component, ...props }) => (
-	<Suspense fallback={<LoadingFallback />}>
-		<Component {...props} />
-	</Suspense>
-);
+import Agents from './views/features/agents/Agents';
+import Agent from './views/features/agents/agent/Agent';
 
 const routes = [
 	{
 		path: '/',
 		component: <Landing_screen />,
-		routeType: 'public',
 	},
 	{
 		path: '/thebridge',
 		component: <Landing_screen />,
-		routeType: 'public',
 	},
 	{
 		path: '/contact-us',
 		component: <Landing_screen />,
-		routeType: 'public',
 	},
 	{
 		path: '/pricing',
 		component: <Landing_screen />,
-		routeType: 'public',
 	},
 	{
 		path: '/api',
 		component: <Landing_screen />,
-		routeType: 'public',
 	},
 	{
 		path: '/onboarding',
-		component: <LazyComponent component={Onboarding} />,
+		component: <Onboarding />,
 	},
 	{
 		path: '/create-workspace',
-		component: <LazyComponent component={Onboarding} />,
+		component: <Onboarding />,
 	},
 	{
 		path: '/verify-user',
-		component: <LazyComponent component={LoginPage} />,
+		component: <LoginPage />,
 	},
 	{
 		path: '/referral/:referralCode',
-		component: <LazyComponent component={LoginPage} />,
+		component: <LoginPage />,
 	},
 	// {
 	// 	path: '/login-with-password',
@@ -160,23 +126,23 @@ const routes = [
 	// },
 	{
 		path: '/user/verify-oauth-user',
-		component: <LazyComponent component={OauthVerify} />,
+		component: <OauthVerify />,
 	},
 	{
 		path: '/privacy-policy',
-		component: <LazyComponent component={PrivacyPolicy} />,
+		component: <PrivacyPolicy />,
 	},
 	{
 		path: '/terms-of-service',
-		component: <LazyComponent component={TermsOfService} />,
+		component: <TermsOfService />,
 	},
 	{
 		path: '/cookie-policy',
-		component: <LazyComponent component={CookiePolicy} />,
+		component: <CookiePolicy />,
 	},
 	{
 		path: '/changelog',
-		component: <LazyComponent component={ChageLog} />,
+		component: <ChageLog />,
 	},
 	// {
 	// 	path: '/inbox',
@@ -200,147 +166,144 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
+
 	{
 		path: '/playbook',
 		component: (
 			<AuthWrapper title={'Sales'}>
-				<LazyComponent component={GlobalWorkflows} />
+				<GlobalWorkflows />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/share-and-earn',
 		component: (
 			<AuthWrapper title={'Share and Earn'}>
-				<LazyComponent component={ShareAndEarn} />
+				<ShareAndEarn />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
+
 	{
 		path: '/workflow_builder/:templateId',
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
-				<LazyComponent component={WorkflowBuilder} />
+				<WorkflowBuilder />
 			</WorkflowBuilderLayout>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/automation_builder/:templateId',
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
-				<LazyComponent component={Workflow_builder_updated} />
+				<Workflow_builder_updated />
 			</WorkflowBuilderLayout>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
+
 	{
 		path: '/smart-file/:templateId/:workflowId',
 		component: (
 			<SmartFileLayout title={'Smart File'}>
-				<LazyComponent component={SmartFile} />
+				<SmartFile />
 			</SmartFileLayout>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/early-access',
 		component: (
 			<AuthWrapper title={'Early Access'}>
-				<LazyComponent component={EarlyAccess} />
+				<EarlyAccess />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/settings/:type',
 		component: (
 			<AuthWrapper title={'Workspace Settings'}>
-				<LazyComponent component={SettingsWrapper} />
+				<SettingsWrapper />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/brand-setup',
 		component: (
 			<AuthWrapper title={'Brand Setup'}>
-				<LazyComponent component={BrandSetup} />
+				<BrandSetup />
 			</AuthWrapper>
 		),
-		routeType: 'protected',
 	},
 	{
 		path: '/galleries',
 		component: (
 			<AuthWrapper title={'Galleries'} showBottomToolbar={false}>
-				<LazyComponent component={AddGallery} />
+				<AddGallery />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/lite-gallery',
 		component: (
 			<AuthWrapper title={'Lite Gallery'} showBottomToolbar={false}>
-				<LazyComponent component={LiteGallery} />
+				<LiteGallery />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/galleries/:galleryId',
 		component: (
 			<AuthWrapper title={'Gallery'} showBottomToolbar={false}>
-				<LazyComponent component={GalleryPage} />
+				<GalleryPage />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/galleries/:galleryId/:albumId/upload-photos',
 		component: (
 			<AuthWrapper title={'Upload Photos'} showBottomToolbar={false}>
-				<LazyComponent component={UploadPhotos} />
+				<UploadPhotos />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/galleries/:galleryId/:albumId/album-settings',
 		component: (
 			<AuthWrapper title={'Album Settings'} showBottomToolbar={false}>
-				<LazyComponent component={AlbumSettings} />
+				<AlbumSettings />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/galleries/:galleryId/:albumId/gallery-viewer',
 		component: (
 			<GalleryViewLayout title={'Gallery Viewer'}>
-				<LazyComponent component={GalleryViewer} />
+				<GalleryViewer />
 			</GalleryViewLayout>
 		),
 		exact: true,
-		routeType: 'public',
 	},
+	// {
+	// 	path: '/settings/ai-setup-page/:aiAssistantId',
+	// 	component: (
+	// 		<AuthWrapper title={'AI Setup'}>
+	// 			<AiSetupPage />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 	{
 		path: '/tasks',
 		component: (
@@ -349,36 +312,32 @@ const routes = [
 				outerContainerStyle={{ padding: '0 32px 0 0' }}
 				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
-				<LazyComponent component={Tasks} />
+				<Tasks />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/task/:taskId',
 		component: (
 			<AuthWrapper title={'Tasks'}>
-				<LazyComponent component={TaskFullView} />
+				<TaskFullView />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/integrations',
 		component: (
 			<AuthWrapper title={'Integrations'}>
-				<LazyComponent component={Integrations} />
+				<Integrations />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '*',
 		component: <Navigate to="/" />,
-		routeType: 'public',
 	},
 	{
 		path: '/calendar',
@@ -388,50 +347,53 @@ const routes = [
 				outerContainerStyle={{ overflow: 'hidden', padding: '0 32px 0 0 ' }}
 				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
-				<LazyComponent component={CalendarModule} />
+				<CalendarModule />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/scheduler',
 		component: (
 			<AuthWrapper title={'Scheduler'} maxWidth={'95%'}>
-				<LazyComponent component={SchedulerMainPage} />
+				<SchedulerMainPage />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/scheduling/edit/:sessionId',
 		component: (
 			<AuthWrapper title={'Scheduling'} maxWidth={'95%'}>
-				<LazyComponent component={EditScheduler} />
+				<EditScheduler />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
+	// {
+	// 	path: '/pricing',
+	// 	component: (
+	// 		<AuthWrapper title={'Pricing'}>
+	// 			<PricingPage />
+	// 		</AuthWrapper>
+	// 	),
+	// },
 	{
 		path: '/pricing',
 		component: (
 			<AuthWrapper title={'Pricing'}>
-				<LazyComponent component={PricingPage} />
+				<PricingPage />
 			</AuthWrapper>
 		),
-		routeType: 'protected',
 	},
 	{
 		path: '/notes',
 		component: (
 			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
-				<LazyComponent component={NotesPage} />
+				<NotesPage />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/contacts',
@@ -441,51 +403,74 @@ const routes = [
 				outerContainerStyle={{ padding: '0 32px 0 0' }}
 				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
-				<LazyComponent component={Contacts} />
+				<Contacts />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
+	// {
+	// 	path: '/ai-agents/home/:agent-name',
+	// 	component: (
+	// 		<AuthWrapper title={'AI Agents'}>
+	// 			<Ai_agent />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
+	// {
+	// 	path: '/ai-agents/jobs/:agent-name',
+	// 	component: (
+	// 		<AuthWrapper title={'AI Agents'}>
+	// 			<AgentsJobs />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
+	// {
+	// 	path: '/ai-agents/setup/:agent-name',
+	// 	component: (
+	// 		<AuthWrapper title={'AI Agents'}>
+	// 			<AgentsSetup />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 	{
 		path: '/ai-assistant',
 		component: (
 			<AuthWrapper title={'AI Assistant'}>
-				<LazyComponent component={AiAssistants} />
+				<AiAssistants />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/ai-assistant/:aiAssistantId',
 		component: (
 			<AuthWrapper title={'AI Assistant'}>
-				<LazyComponent component={AgentDetails} />
+				<AgentDetails />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
+		// path: '/ai-assistant/create-assistant',
 		path: '/ai-assistant/:aiAssistantId/edit',
 		component: (
 			<AuthWrapper title={'AI Assistant'}>
-				<LazyComponent component={EditAgent} />
+				<EditAgent />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/docs',
 		component: (
 			<AuthWrapper title={'Docs'}>
-				<LazyComponent component={Docs} />
+				<Docs />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/knowledge-agent',
@@ -495,11 +480,10 @@ const routes = [
 				innerContainerStyle={{ paddingBottom: '0px' }}
 				showBottomToolbar={false}
 			>
-				<LazyComponent component={KnowledgeAgents} />
+				<KnowledgeAgents />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/knowledge-agent/:agentId',
@@ -509,11 +493,10 @@ const routes = [
 				showBottomToolbar={false}
 				innerContainerStyle={{ paddingBottom: '0px' }}
 			>
-				<LazyComponent component={KnowledgeAgentDetails} />
+				<KnowledgeAgentDetails />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/knowledge-agent/:agentId/edit',
@@ -523,81 +506,82 @@ const routes = [
 				showBottomToolbar={false}
 				outerContainerStyle={{ paddingRight: '0px' }}
 			>
-				<LazyComponent component={EditKnowledgeAgent} />
+				<EditKnowledgeAgent />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/doc/:id',
 		component: (
 			<AuthWrapper title={'Docs'}>
-				<LazyComponent component={DocsFullView} />
+				<DocsFullView />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/my-templates',
 		component: (
 			<AuthWrapper title={'My Templates'}>
-				<LazyComponent component={MyTemplates} />
+				<MyTemplates />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/automation-builder/:automationId',
 		component: (
 			<AutomationBuilderLayout title={'Automation Builder'}>
-				<LazyComponent component={AutomationBuilder} />
+				<AutomationBuilder />
 			</AutomationBuilderLayout>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/form',
 		component: (
 			<AuthWrapper title={'Forms'}>
-				<LazyComponent component={Forms} />
+				<Forms />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/form/:id',
 		component: (
 			<AuthWrapper title={'Form Leads'}>
-				<LazyComponent component={FormLeads} />
+				<FormLeads />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
+	// {
+	// 	path: '/forms/:id/analytics',
+	// 	component: (
+	// 		<AuthWrapper title={'Form Analytics'}>
+	// 			<FormAnalytics view="analytics" />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 	{
 		path: '/forms/:id/responses',
 		component: (
 			<AuthWrapper title={'Form Responses'}>
-				<LazyComponent component={FormResCard} view="responses" />
+				<FormResCard view="responses" />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/forms/:id/summary',
 		component: (
 			<AuthWrapper title={'Form Summary'}>
-				<LazyComponent component={FormSummary} view="summary" />
+				<FormSummary view="summary" />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/chat/:sessionId',
@@ -610,14 +594,13 @@ const routes = [
 				maxWidth="100%"
 				showDynamicWidget={false}
 			>
-				<LazyComponent component={RecentChat} />
+				<RecentChat />
 			</AuthWrapper>
 		),
-		routeType: 'protected',
 	},
 	{
 		path: '/c/:sessionId',
-		component: <LazyComponent component={PublicChat} />,
+		component: <PublicChat />,
 	},
 	{
 		path: '/note/:noteId',
@@ -632,20 +615,18 @@ const routes = [
 				maxWidth={'100%'}
 				sidebarContainerClassName={'auth-sidebar-container'}
 			>
-				<LazyComponent component={Notes} />
+				<Notes />
 			</AuthWrapper>
 		),
 		exact: true,
-		routeType: 'protected',
 	},
 	{
 		path: '/automations',
 		component: (
 			<AuthWrapper title={'Automations'}>
-				<LazyComponent component={Automations} />
+				<Automations />
 			</AuthWrapper>
 		),
-		routeType: 'protected',
 	},
 	{
 		path: '/contact/:contactId',
@@ -655,37 +636,33 @@ const routes = [
 				outerContainerStyle={{ padding: '0 32px 0 0' }}
 				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
-				<LazyComponent component={ExpandedClientView} />
+				<ExpandedClientView />
 			</AuthWrapper>
 		),
-		routeType: 'protected',
 	},
 	{
 		path: '/search',
 		component: (
 			<AuthWrapper title="Search">
-				<LazyComponent component={ElasticSearch} />
+				<ElasticSearch />
 			</AuthWrapper>
 		),
-		routeType: 'protected',
 	},
 	{
 		path: '/files',
 		component: (
 			<AuthWrapper title="Files" maxWidth={'100%'}>
-				<LazyComponent component={Files} />
+				<Files />
 			</AuthWrapper>
 		),
-		routeType: 'protected',
 	},
 	{
 		path: '/proactiveai/:proactiveAiId',
 		component: (
 			<AuthWrapper title="Proactive AI" childrenContainerStyles={{ maxWidth: '100%' }}>
-				<LazyComponent component={ProactiveAi} />
+				<ProactiveAi />
 			</AuthWrapper>
 		),
-		routeType: 'protected',
 	},
 	{
 		path: '/builder/*',
@@ -701,7 +678,6 @@ const routes = [
 				</Suspense>
 			</AuthWrapper>
 		),
-		routeType: 'protected',
 	},
 	{
 		path: '/agents',
@@ -711,19 +687,17 @@ const routes = [
 				outerContainerStyle={{ padding: '0' }}
 				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
 			>
-				<LazyComponent component={Agents} />
+				<Agents />
 			</AuthWrapper>
 		),
-		routeType: 'protected',
 	},
 	{
 		path: '/agent/:agentId',
 		component: (
 			<AuthWrapper title="Agent">
-				<LazyComponent component={Agent} />
+				<Agent />
 			</AuthWrapper>
 		),
-		routeType: 'protected',
 	},
 ];
 

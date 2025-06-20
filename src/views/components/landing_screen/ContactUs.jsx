@@ -1,33 +1,31 @@
-import React, { memo, useContext, useState, useCallback, useRef } from 'react';
-import { throttle } from 'lodash';
+import React, { memo, useContext, useState } from 'react';
 import '../../../assets/scss/landingScreen/contactus/contactus.scss';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import SelectDropdown from './SelectDropdown';
-import { message as toast } from '../../../views/components/globalComponents/CustomToast';
-import Spinner from '../loaders/Spinner';
+import { message } from '../globalComponents/CustomToast';
 
 const employeeCount = [
-	{ value: 'A. 1-10', label: '1-10' },
-	{ value: 'B. 11-50', label: '11-50' },
-	{ value: 'C. 51-200', label: '51-200' },
-	{ value: 'D. 201-500+', label: '201-500+' },
+	{ value: '', label: 'Please select' },
+	{ value: '1-10', label: '1-10' },
+	{ value: '11-50', label: '11-50' },
+	{ value: '51-200', label: '51-200' },
+	{ value: '201-500+', label: '201-500+' },
 ];
 
 const headquartersOptions = [
-	{ value: 'A. United States', label: 'United States' },
-	{ value: 'B. India', label: 'India' },
-	{ value: 'C. Dubai', label: 'Dubai' },
-	{ value: 'D. United Kingdom', label: 'United Kingdom' },
-	{ value: 'E. Australia', label: 'Australia' },
-	{ value: 'F. Canada', label: 'Canada' },
-	{ value: 'G. Uganda', label: 'Uganda' },
-	{ value: 'H. South Africa', label: 'South Africa' },
-	{ value: 'I. Brazil', label: 'Brazil' },
-	{ value: 'J. Japan', label: 'Japan' },
+	{ value: '', label: 'Please select' },
+	{ value: 'United States', label: 'United States' },
+	{ value: 'India', label: 'India' },
+	{ value: 'Dubai', label: 'Dubai' },
+	{ value: 'United Kingdom', label: 'United Kingdom' },
+	{ value: 'Australia', label: 'Australia' },
+	{ value: 'Canada', label: 'Canada' },
+	{ value: 'Uganda', label: 'Uganda' },
+	{ value: 'South Africa', label: 'South Africa' },
+	{ value: 'Brazil', label: 'Brazil' },
+	{ value: 'Japan', label: 'Japan' },
 ];
-
-const throttleDelay = 1000;
 
 const ContactUs = ({ type }) => {
 	const navigate = useNavigate();
@@ -49,7 +47,6 @@ const ContactUs = ({ type }) => {
 		employeesDropdownVisible: false,
 		companyHeadquartersDropdownVisible: false,
 		errors: {},
-		loading: false,
 	});
 
 	const {
@@ -57,59 +54,6 @@ const ContactUs = ({ type }) => {
 	} = useContext(Context);
 
 	const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
-
-	// Ref-wrapped throttled function to avoid stale closures
-	const throttledSubmitRef = useRef(
-		throttle((formData, sendFn, setInfoFn) => {
-			const newErrors = {};
-
-			const {
-				email,
-				firstName,
-				lastName,
-				companyName,
-				jobTitle,
-				message,
-				marketingConsent,
-				employees,
-				companyHeadquarters,
-			} = formData;
-
-			if (!email || !validateEmail(email)) newErrors.email = 'Enter a valid email address';
-			if (!firstName) newErrors.firstName = 'First name is required';
-			if (!lastName) newErrors.lastName = 'Last name is required';
-			if (!companyName) newErrors.companyName = 'Company name is required';
-			if (!jobTitle) newErrors.jobTitle = 'Job title is required';
-			if (!employees) newErrors.employees = 'Select employee range';
-			if (!companyHeadquarters) newErrors.companyHeadquarters = 'Select a headquarters';
-			if (!message) newErrors.message = 'Message is required';
-			if (!marketingConsent)
-				newErrors.marketingConsent = 'You must agree to marketing consent';
-
-			if (Object.keys(newErrors).length > 0) {
-				setInfoFn((prev) => ({ ...prev, errors: newErrors }));
-				return;
-			}
-
-			setInfoFn((prev) => ({ ...prev, errors: {}, loading: true }));
-
-			sendFn(formData)
-				.then((res) => {
-					if (res?.[0]) {
-						toast.success('Form submitted successfully!');
-					} else {
-						throw new Error('An unexpected error occurred. Please try again!');
-					}
-				})
-				.catch((error) => {
-					console.error(error);
-					toast.error(error?.message || 'Something went wrong!');
-				})
-				.finally(() => {
-					setInfoFn((prev) => ({ ...prev, loading: false }));
-				});
-		}, throttleDelay),
-	);
 
 	const handleChange = (e) => {
 		const { name, value, type, checked } = e.target;
@@ -124,7 +68,47 @@ const ContactUs = ({ type }) => {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		throttledSubmitRef.current(info.formData, sendContactFormData, setInfo);
+
+		const {
+			email,
+			firstName,
+			lastName,
+			companyName,
+			jobTitle,
+			message,
+			marketingConsent,
+			employees,
+			companyHeadquarters,
+		} = info.formData;
+
+		const newErrors = {};
+
+		if (!email || !validateEmail(email)) {
+			newErrors.email = 'Enter a valid email address';
+		}
+		if (!firstName) newErrors.firstName = 'First name is required';
+		if (!lastName) newErrors.lastName = 'Last name is required';
+		if (!companyName) newErrors.companyName = 'Company name is required';
+		if (!jobTitle) newErrors.jobTitle = 'Job title is required';
+		if (!employees) newErrors.employees = 'Select employee range';
+		if (!companyHeadquarters) newErrors.companyHeadquarters = 'Select a headquarters';
+		if (!message) newErrors.message = 'Message is required';
+		if (!marketingConsent) newErrors.marketingConsent = 'You must agree to marketing consent';
+
+		if (Object.keys(newErrors).length > 0) {
+			setInfo((prev) => ({
+				...prev,
+				errors: newErrors,
+			}));
+			return;
+		}
+
+		setInfo((prev) => ({
+			...prev,
+			errors: {},
+		}));
+
+		sendContactFormData(info.formData);
 	};
 
 	return (
@@ -139,7 +123,6 @@ const ContactUs = ({ type }) => {
 			</div>
 
 			<form className="contact-form" onSubmit={handleSubmit}>
-				{/* Work Email */}
 				<label>
 					Work email
 					<input
@@ -153,7 +136,6 @@ const ContactUs = ({ type }) => {
 					{info.errors.email && <span className="error-text">{info.errors.email}</span>}
 				</label>
 
-				{/* First and Last Name */}
 				<div className="grid">
 					<label>
 						First name
@@ -185,7 +167,6 @@ const ContactUs = ({ type }) => {
 					</label>
 				</div>
 
-				{/* Company Name and Job Title */}
 				<div className="grid">
 					<label>
 						Company name
@@ -217,7 +198,6 @@ const ContactUs = ({ type }) => {
 					</label>
 				</div>
 
-				{/* Employees and Company Headquarters */}
 				<div className="grid">
 					<label>
 						<span className="dropdownText">Employees</span>
@@ -275,7 +255,6 @@ const ContactUs = ({ type }) => {
 					</label>
 				</div>
 
-				{/* Message */}
 				<label>
 					<span className="tellUsMoreLabel">
 						Tell us more about how you want to use VE.AI
@@ -292,7 +271,6 @@ const ContactUs = ({ type }) => {
 					)}
 				</label>
 
-				{/* Marketing Consent */}
 				<div className="checkbox-group">
 					<input
 						type="checkbox"
@@ -306,14 +284,14 @@ const ContactUs = ({ type }) => {
 							className="privacy-policy-link"
 							onClick={() => navigate('/privacy-policy')}
 						>
-							Privacy
+							<span>Privacy</span>
 						</span>{' '}
 						and{' '}
 						<span
 							className="cookie-policy-link"
 							onClick={() => navigate('/cookie-policy')}
 						>
-							Cookie policy
+							<span>Cookie policy</span>
 						</span>
 					</p>
 				</div>
@@ -321,16 +299,7 @@ const ContactUs = ({ type }) => {
 					<span className="error-text">{info.errors.marketingConsent}</span>
 				)}
 
-				{/* Submit Button */}
-				<button type="submit" disabled={info.loading}>
-					{info.loading ? (
-						<>
-							Submitting... <Spinner />
-						</>
-					) : (
-						'Submit'
-					)}
-				</button>
+				<button type="submit">Submit</button>
 			</form>
 		</div>
 	);

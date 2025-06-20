@@ -1278,7 +1278,7 @@
 @media screen and (max-width: 768px) {
 	.addOnsContainer {
 		width: 100%;
-		height: 500px;
+		height: calc(100% - 120px);
 		padding: 12px;
 	}
 
