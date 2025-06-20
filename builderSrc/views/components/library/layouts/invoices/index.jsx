@@ -307,19 +307,42 @@ class Invoice extends Component {
 		return newcost;
 	};
 	cleanHtmlString = (htmlString) => {
-		if (typeof htmlString === 'string') {
-			const newString = htmlString
-				?.replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
-				?.replace(/<br\s*\/?>/gi, '\n') // Convert <br> to newlines
-				?.replace(/<[^>]+>/g, '') // Remove all HTML tags
-				?.replace(/&[^;]+;/g, '') // Remove HTML entities
-				?.replace(/\s+/g, ' ') // Replace multiple spaces with single space
-				?.trim(); // Remove leading/trailing spaces
-			return newString;
-		} else {
-			return htmlString;
+		if (!htmlString || typeof htmlString !== 'string') {
+			return '';
 		}
+
+		if (htmlString.includes('class="variable"')) {
+			return this.getVariableValue(htmlString);
+		}
+
+		const newString = htmlString
+			?.replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
+			?.replace(/<br\s*\/?>/gi, '\n') // Convert <br> to newlines
+			?.replace(/<[^>]+>/g, '') // Remove all HTML tags
+			?.replace(/&[^;]+;/g, '') // Remove HTML entities
+			?.replace(/\s+/g, ' ') // Replace multiple spaces with single space
+			?.trim(); // Remove leading/trailing spaces
+		return newString;
 	};
+	getVariableValue(text) {
+		if (!text || !this.props.variables) return '';
+
+		const parts = text.split(/<input[^>]*>/);
+		const beforeText = parts[0]
+			.replace(/<[^>]*>/g, '')
+			.replace(/&nbsp;/g, ' ')
+			.trim();
+
+		const match = text.match(/data-id="([^"]+)"/);
+		const variableId = match ? match[1] : null;
+
+		if (!variableId) return text;
+
+		const variable = this.props.variables.find((v) => v._id === variableId);
+		const variableValue = variable?.defaultValue || '';
+
+		return `${beforeText} ${variableValue}`.trim();
+	}
 	// client side table for services
 	returnServiceTables = () => {
 		// return;
@@ -2333,6 +2356,33 @@ class Invoice extends Component {
 			}
 		}
 	};
+	getVariableValue(text) {
+		if (!text || !this.props.variables || !this.props?.smartFileVariables) return '';
+
+		const parts = text.split(/<input[^>]*>/);
+		const beforeText = parts[0]
+			.replace(/<[^>]*>/g, '')
+			.replace(/&nbsp;/g, ' ')
+			.trim();
+
+		const match = text.match(/data-id="([^"]+)"/);
+		const variableId = match ? match[1] : null;
+
+		if (!variableId) return text;
+		let variable = null;
+		variable = this.props.variables.find((v) => v._id === variableId);
+		if (!variable) {
+			const { module = [], workspace = [], custom = [] } = this.props?.smartFileVariables;
+			variable =
+				custom.find((v) => v._id === variableId) ||
+				module.find((v) => v._id === variableId) ||
+				workspace.find((v) => v._id === variableId);
+		}
+		const variableValue = variable?.defaultValue || '';
+
+		return `${beforeText} ${variableValue}`.trim();
+	}
+
 	render() {
 		return (
 			<div
