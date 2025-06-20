@@ -18,6 +18,7 @@ import ObjectID from 'bson-objectid';
 import { ReactComponent as PlusCircleSvg } from '../../../assets/svg/ai_agents/plus-cricle.svg';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import TextSelector from '../../components/chat/chatComponents/TextSelector';
+import useWorkspaceMode from '../../../views/hooks/useWorkspaceMode';
 
 let throttleTimer = null;
 const RecentChat = ({
@@ -39,6 +40,7 @@ const RecentChat = ({
 	onNewChatBtnClick = null,
 	onNavigateBack = null,
 }) => {
+	const { workspaceMode } = useWorkspaceMode();
 	const {
 		templates: {
 			globalChatMessages,
@@ -106,7 +108,13 @@ const RecentChat = ({
 	useEffect(() => {
 		if (sessionIdChanged && chatActive) {
 			const agentType = 'mulit_agent';
-			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
+			createWebSocketConnection(
+				sessionId,
+				onMessageFunc,
+				agentType,
+				isPublicChat,
+				workspaceMode,
+			);
 			onChangeSessionId?.();
 		}
 	}, [sessionIdChanged, chatActive]);
@@ -236,11 +244,23 @@ const RecentChat = ({
 		}
 
 		if (sessionId && !isPublicChat) {
-			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
+			createWebSocketConnection(
+				sessionId,
+				onMessageFunc,
+				agentType,
+				isPublicChat,
+				workspaceMode,
+			);
 		}
 
 		if (sessionId && isPublicChat && isFirstTimeConnectingToPublicChatRef.current) {
-			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
+			createWebSocketConnection(
+				sessionId,
+				onMessageFunc,
+				agentType,
+				isPublicChat,
+				workspaceMode,
+			);
 			isFirstTimeConnectingToPublicChatRef.current = false;
 		}
 	}, [sessionId, searchParams]);
