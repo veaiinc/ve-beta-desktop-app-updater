@@ -23,6 +23,7 @@ import VeSvg from '../../../assets/svg/veSvg';
 import '../../../assets/scss/home_page/initialHomepage.scss';
 import Spinner from '../../components/loaders/Spinner';
 import { getGreeting } from '../../../helpers';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const optionsList = [
 	{
