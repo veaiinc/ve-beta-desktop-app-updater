@@ -15,18 +15,20 @@ const Tagline = () => {
 								where memory, meaning, and context flow through an evolving graph.
 								Unlike traditional LLMs that wait for prompts, AGT perceives the
 								world in motion. It maps relationships, spots patterns, and
-								anticipates what matters next. This isn’t static memory or
-								step-by-step logic. It’s a living structure—constantly adapting and
-								refining itself with every signal. The graph evolves. The
-								transformer sharpens. Together, they form a mind that’s always
-								learning, always in sync.
+								anticipates what matters next.
+							</p>
+							<p>
+								This isn’t static memory or step-by-step logic. It’s a living
+								structure—constantly adapting and refining itself with every signal.
+								The graph evolves. The transformer sharpens. Together, they form a
+								mind that’s always learning, always in sync.
 							</p>
 						</div>
 					</div>
-					{/* <div className={s.taglineButtons}>
-						<div className={s.readMore}>Read more</div>
+					<div className={s.taglineButtons}>
+						{/* <div className={s.readMore}>Read more</div> */}
 						<div className={s.tryOurApi}>Try our API</div>
-					</div> */}
+					</div>
 				</div>
 				{/* <div className={s.bottom}>
 					<div className={s.buttonsContainer}>
