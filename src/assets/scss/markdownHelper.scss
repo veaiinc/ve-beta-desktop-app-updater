@@ -4,7 +4,7 @@
 	align-items: flex-start;
 	position: relative;
 	width: 100%;
-	gap: 20px;
+	gap: 10px;
 
 	.user-message-wrapper {
 		width: fit-content;
@@ -130,4 +130,15 @@
 	.hover-actions-container {
 		visibility: visible;
 	}
+}
+.user-hover-icons-tooltip {
+	background-color: var(--card);
+	color: var(--primary-font);
+	padding: 10px;
+	border-radius: 10px;
+	font-family: var(--chat-primary-font-family);
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
 }
