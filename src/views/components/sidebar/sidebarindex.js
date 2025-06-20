@@ -13,6 +13,10 @@ import { ReactComponent as TeamIcon } from '../../../assets/svg/sidebar/teamMemb
 import { ReactComponent as IntegrationsIcon } from '../../../assets/svg/sidebar/integrationsIcon.svg';
 import { ReactComponent as PlanBillingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
 import { ReactComponent as NotesIcon } from '../../../assets/svg/sidebar/notes-icon.svg';
+import { ReactComponent as CalendarSvg } from '../../../assets/svg/home_page/calendar.svg';
+import { ReactComponent as TasksSvg } from '../../../assets/svg/home_page/tasks.svg';
+import { ReactComponent as ContactsSvg } from '../../../assets/svg/home_page/contacts.svg';
+import { ReactComponent as AutomationSvg } from '../../../assets/svg/home_page/automation.svg';
 // import { ReactComponent as PricingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
 
 export const stableNavigationItems = [
@@ -47,6 +51,10 @@ export const betaNaviagationItems = [
 		icon: NotesIcon,
 	},
 	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
+	{ id: 5, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
+	{ id: 6, name: 'Tasks', route: '/tasks', icon: TasksSvg },
+	{ id: 7, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
+	{ id: 8, name: 'Automations', route: '/automations', icon: AutomationSvg },
 ];
 
 export const stableSettingsNavItems = {

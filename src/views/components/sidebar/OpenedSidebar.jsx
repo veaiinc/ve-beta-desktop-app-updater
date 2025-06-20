@@ -181,7 +181,19 @@ const OpenedSidebarModules = ({
 						width: '100%',
 					}}
 				>
-					{Icon && <Icon fill={name === 'Notes' ? 'none' : 'var(--secondary-font)'} />}
+					{Icon && (
+						<Icon
+							fill={
+								name === 'Notes' ||
+								name === 'Calendar' ||
+								name === 'Tasks' ||
+								name === 'Contacts' ||
+								name === 'Automations'
+									? 'none'
+									: 'var(--secondary-font)'
+							}
+						/>
+					)}
 					<p style={{ margin: 0 }}>{name}</p>
 					{isExactPathMatch() && <TickSvg />}
 				</div>
