@@ -892,7 +892,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const addDatabaseRow = async (payload, viewId) => {
+	const addDatabaseRow = async (payload, { viewId, blockId }) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -911,6 +911,7 @@ export const NotesState = (props) => {
 					payload: {
 						viewId,
 						newRowData,
+						blockId,
 					},
 				});
 

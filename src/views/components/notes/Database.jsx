@@ -651,6 +651,7 @@ const DatabaseComponent = ({ block, editor }) => {
 						pageId={pageId}
 						databaseId={databaseId}
 						fields={fields}
+						blockId={block?.id}
 					/>
 					<DatabaseAddFieldModal
 						isOpen={info?.addFieldModalOpen}

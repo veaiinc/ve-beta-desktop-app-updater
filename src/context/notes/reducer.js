@@ -34,15 +34,31 @@ const actionHandlers = {
 		rowData: { ...state.rowData, ...action?.payload },
 	}),
 	ADD_DATABASE_ROW: (state, action) => {
-		const { viewId, newRowData } = action.payload;
+		const { viewId, newRowData, blockId } = action.payload;
 		const currentBlockData = state?.rowData?.[viewId] || {};
-		const { groupData, groupBy } = currentBlockData || {};
+		const { groupData, groupBy, fieldType } = currentBlockData || {};
+		const view = state?.views?.[blockId] || [];
+		let currentView = view?.find((item) => item?._id === viewId);
 
-		const updatedGroupData = handleAddInGroup({
+		const { updatedGroupData, updatedGroups } = handleAddInGroup({
 			groupData,
 			newRowData,
 			groupBy,
+			config: currentView?.groupBy?.config,
+			fieldType,
+			defaultGroups: currentView?.groupBy?.defaultGroups,
 		});
+
+		if (updatedGroups) {
+			currentView = {
+				...currentView,
+				groupBy: {
+					...currentView?.groupBy,
+					defaultGroups: updatedGroups,
+				},
+			};
+		}
+
 		return {
 			...state,
 			rowData: {
@@ -51,6 +67,12 @@ const actionHandlers = {
 					...currentBlockData,
 					groupData: updatedGroupData,
 				},
+			},
+			views: {
+				...state.views,
+				[blockId]: state?.views?.[blockId]?.map((item) =>
+					item?._id === viewId ? currentView : item,
+				),
 			},
 		};
 	},

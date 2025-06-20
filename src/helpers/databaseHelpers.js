@@ -439,9 +439,18 @@ export const handleUpdateInGroup = ({
 	return hasUpdated ? { updatedGroupData, updatedGroups } : { groupData, updatedGroups: null };
 };
 
-export const handleAddInGroup = ({ groupData, newRowData, groupBy }) => {
+export const handleAddInGroup = ({
+	groupData,
+	newRowData,
+	groupBy,
+	config,
+	fieldType,
+	defaultGroups = [],
+}) => {
 	let updatedGroupData = { ...groupData };
 	const allFields = Object.keys(newRowData?.values || {});
+	const newGroups = [...(defaultGroups || [])];
+	let groupsUpdated = false;
 
 	const fieldsWithValues = allFields.filter((field) => {
 		const value = newRowData?.values?.[field];
@@ -452,7 +461,29 @@ export const handleAddInGroup = ({ groupData, newRowData, groupBy }) => {
 	});
 
 	if (fieldsWithValues?.includes(groupBy)) {
-		const value = newRowData?.values?.[groupBy];
+		let value = newRowData?.values?.[groupBy];
+
+		if (fieldType === 'checkbox') {
+			value = value ? 'true' : 'false';
+		}
+
+		if (fieldType === 'number') {
+			const { groupRange = [], groupInterval = 0 } = config?.numberBy || {};
+			const [start = 0, end = 0] = groupRange;
+			if (groupInterval > 0 && value >= start && value <= end) {
+				const groupStart =
+					Math.floor((value - start) / groupInterval) * groupInterval + start;
+				const groupEnd = groupStart + groupInterval;
+				value = `${groupStart}-${groupEnd}`;
+			} else {
+				value = 'Other';
+			}
+		}
+		if (!groupData?.[value]) {
+			newGroups.push({ _id: value, label: value });
+			groupsUpdated = true;
+		}
+
 		const valueArray = Array.isArray(value)
 			? value.every((v) => typeof v === 'object' && v !== null && '_id' in v)
 				? value.map((v) => v._id)
@@ -471,7 +502,7 @@ export const handleAddInGroup = ({ groupData, newRowData, groupBy }) => {
 		};
 	}
 
-	return updatedGroupData;
+	return { updatedGroupData, updatedGroups: groupsUpdated ? newGroups : null };
 };
 
 export const handleDeleteInGroup = ({ groupData, rowId, groupBy, groupId }) => {
