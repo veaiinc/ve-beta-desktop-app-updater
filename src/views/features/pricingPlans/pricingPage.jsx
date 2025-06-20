@@ -1,348 +1,87 @@
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useContext, useEffect } from 'react';
 import '../../../assets/scss/pricingPlans/pricingPage.scss';
-import QuickActions from '../../components/globalComponents/QuickActions';
-import { ReactComponent as CheckmarkSVG } from '../../../assets/svg/Settings/PricingCheck.svg';
-import { Collapse } from 'antd';
 import 'antd/dist/reset.css';
-import Footer from '../landingScreen/Footer';
-import { ReactComponent as PlusSVG } from '../../../assets/svg/files/Plus.svg';
-import { ReactComponent as CloseSVG } from '../../../assets/svg/close.svg';
-import { ReactComponent as SlackIcon } from '../../../assets/svg/slack.svg';
-import { ReactComponent as GoogleDriveIcon } from '../../../assets/svg/Settings/google-drive.svg';
-import { ReactComponent as MailIcon } from '../../../assets/svg/mail.svg';
-
-const plans = [
-	{
-		key: 'free',
-		name: 'Free',
-		price: { monthly: 0, yearly: 0 },
-		userInfo: { monthly: '1 User/48 Hours', yearly: '1 User/48 Hours' },
-		subscribeLabel: 'Get Started',
-		features: [
-			'Get full access to all features (except Proactive AI) for 48 hours, including 5,000 tokens.',
-		],
-		description: 'Start free upgrade anytime to keep your data!',
-		featuresTitle: '',
-
-		tokens: null,
-		highlight: false,
-		isBasicIntegrationAvailable: false,
-		basicIntegration: [],
-	},
-	{
-		key: 'Plus',
-		name: 'Plus',
-		price: { monthly: 10, yearly: 120 },
-		userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
-		subscribeLabel: 'Subscribe',
-		featuresTitle: 'Everything in Free',
-		features: [
-			'LLM selection',
-			'Unified Memory Graph',
-			'Enterprise Search',
-			'Unlimited Storage',
-			'Basic integrations',
-		],
-		aiFeatures: [
-			'AI included',
-			'Enterprise Search',
-			'AI Note Taker',
-			'AI Meeting Notes',
-			'Presentations',
-			'AI Research Mode',
-			'Proactive AI',
-			'AI Agents',
-		],
-		tokens: 2500,
-		highlight: false,
-		isBasicIntegrationAvailable: true,
-		basicIntegration: [
-			{ label: 'Slack', icon: <SlackIcon width={16} height={16} /> },
-			{ label: 'Google Drive', icon: <GoogleDriveIcon width={16} height={16} /> },
-			{ label: 'Mail', icon: <MailIcon width={16} height={16} /> },
-		],
-	},
-	{
-		key: 'os',
-		name: 'OS',
-		price: { monthly: 35, yearly: 420 },
-		userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
-		subscribeLabel: 'Subscribe',
-		featuresTitle: 'Everything in Plus',
-		features: [
-			'Forms',
-			'AI Files Hub',
-			'Website',
-			'Presentations',
-			'Database & Pages',
-			'Unlimited Clients & Pages',
-			'Invoices & Payments',
-			'Proposals & Contracts',
-			'Calendar',
-			'All Professional Templates',
-			'Client Portal',
-			'Scheduler',
-			'Automations',
-			'Calendar Scheduler',
-		],
-		aiFeatures: [
-			'AI included',
-			'Enterprise Search',
-			'AI Note Taker',
-			'AI Meeting Notes',
-			'Presentations',
-			'AI Research Mode',
-			'Proactive AI',
-			'AI Agents',
-		],
-		tokens: null,
-		highlight: false,
-		badge: { label: 'Recommended' },
-		isBasicIntegrationAvailable: false,
-		basicIntegration: [],
-	},
-	{
-		key: 'proactive',
-		name: 'Pro Active',
-		price: { monthly: 60, yearly: 720 },
-		userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
-		subscribeLabel: 'Subscribe',
-		featuresTitle: 'Everything in OS',
-		features: [
-			'24x7 Support',
-			'Security & Compliance',
-			'Unlimited AI',
-			'Customer Success Manager',
-			'Advanced Integration',
-		],
-		aiFeatures: [
-			'AI included',
-			'Enterprise Search',
-			'AI Note Taker',
-			'AI Meeting Notes',
-			'Presentations',
-			'AI Research Mode',
-			'Proactive AI',
-			'AI Agents',
-		],
-		tokens: null,
-		highlight: false,
-		isBasicIntegrationAvailable: false,
-		basicIntegration: [],
-	},
-	{
-		key: 'enterprise',
-		name: 'Enterprise',
-		price: { monthly: 'Custom Pricing ', yearly: 'Custom Pricing' },
-		userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
-		subscribeLabel: 'Contact Sales',
-		featuresTitle: 'Everything in Pro Active',
-		features: [
-			'User provisioning (SCIM)',
-			'Advanced security & controls',
-			'Audit log',
-			'Customer Success Manager',
-			'Security & Compliance integrations (DLP, SIEM)',
-			'Domain management',
-			'Advanced integrations',
-		],
-		aiFeatures: [
-			'AI included',
-			'Enterprise Search',
-			'AI Note Taker',
-			'AI Meeting Notes',
-			'Presentations',
-			'AI Research Mode',
-			'Proactive AI',
-			'AI Agents',
-		],
-		tokens: null,
-		highlight: false,
-		isBasicIntegrationAvailable: false,
-		basicIntegration: [],
-	},
-];
-
-const aiFeatures = [
-	{
-		title: (
-			<div className="feature-title-container">
-				Core AI Features
-				<span className="feature-title-sub-text">Chat, Generate Documents, etc.</span>
-			</div>
-		),
-		values: [
-			<>
-				<span className="feature-bold">Free with Limited Tokens</span>
-				<br />
-				<span className="feature-desc">2500 Tokens</span>
-			</>,
-			'10,000 Tokens Monthly',
-			'Unlimited',
-		],
-	},
-	{ title: 'Files Storage', values: ['5 GB', '15 GB', '50 GB'] },
-	{ title: 'Users', values: ['1 User', '1 User', '5 Users'] },
-	{ title: 'Integrations', values: ['Slack', '50 GB', '200 GB'] },
-	{ title: 'Enterprise Plan', values: ['100 GB', 'Unlimited', 'Unlimited'] },
-];
-
-const productFeatures = [
-	{ title: 'Documents', values: ['10 GB', '25 GB', '100 GB'] },
-	{ title: 'Storage', values: ['10 GB', '25 GB', '100 GB'] },
-	{ title: 'Premium Plan', values: ['50 GB', '100 GB', '500 GB'] },
-	{ title: 'Business Plan', values: ['200 GB', '500 GB', '2 TB'] },
-	{
-		title: 'Corporate Plan',
-		values: ['500 GB', 'Unlimited', 'Unlimited'],
-	},
-];
-
-const faqData = [
-	{
-		key: '1',
-		label: 'What is Ve AI?',
-		children: (
-			<div className="faq-content">
-				<p>
-					Ve AI is a platform that allows you to create and manage your AI-powered
-					workflows.
-				</p>
-			</div>
-		),
-	},
-	{
-		key: '2',
-		label: 'What do I get in the free Trial plan?',
-		children: (
-			<div className="faq-content">
-				<p>
-					The Trial plan is completely free for 48 hours. It includes basic features in
-					each module and 2,500 tokens to explore Ve AI.
-				</p>
-			</div>
-		),
-	},
-	{
-		key: '3',
-		label: 'Can I switch plans or cancel anytime?',
-		children: (
-			<div className="faq-content">
-				<p>
-					Yes, you can upgrade, downgrade, or cancel your plan at any time directly from
-					your billing settings.
-				</p>
-			</div>
-		),
-	},
-	{
-		key: '4',
-		label: `What's included in the AI token usage?`,
-		children: (
-			<div className="faq-content">
-				<p>
-					Each plan includes a set number of AI tokens used across research, writing,
-					search, and automation. You'll be notified before hitting limits.
-				</p>
-			</div>
-		),
-	},
-	{
-		key: '5',
-		label: 'Is my data private and secure?',
-		children: (
-			<div className="faq-content">
-				<p>
-					Absolutely. Your data is encrypted and never used to train our models. We follow
-					strict privacy and enterprise-grade security protocols.
-				</p>
-			</div>
-		),
-	},
-];
-
-const FeatureList = memo(
-	({ features, description, basicIntegration, isBasicIntegrationAvailable }) => (
-		<ul className="features-list">
-			{features.map((feature, idx) => (
-				<li key={idx}>
-					<span className="checkmark-svg">
-						<CheckmarkSVG />
-					</span>
-					<span className="feature-text">{feature}</span>
-				</li>
-			))}
-
-			{isBasicIntegrationAvailable && (
-				<div className="basic-integration-list-container">
-					{basicIntegration.map((integration, idx) => (
-						<div className="basic-integration-item" key={idx}>
-							<span className="feature-icon">{integration.icon}</span>
-						</div>
-					))}
-				</div>
-			)}
-			{description && <li className="description">{description}</li>}
-		</ul>
-	),
-);
-
-const AIFeatureList = memo(({ aiFeatures }) => (
-	<div className="ai-features">
-		<span className="ai-label">AI Features</span>
-		<div className="ai-feature-list">
-			{aiFeatures.map((feature, idx) => (
-				<div className="ai-feature-item" key={idx}>
-					<span className="checkmark-svg">
-						<CheckmarkSVG />
-					</span>
-					<span className="ai-feature-text">{feature}</span>
-				</div>
-			))}
-		</div>
-	</div>
-));
-
-const PricingCard = memo(({ plan, price, userInfo, isHighlighted }) => (
-	<div
-		className={`pricing-card ${plan.key}${isHighlighted ? ' highlighted' : ''}`.trim()}
-		style={plan.badge && { border: '1px solid var(--primary-button)' }}
-	>
-		<div className="card-header-container">
-			<div className="card-header">
-				<div className="plan-name-container">
-					<span className="plan-name">{plan.name}</span>
-					{plan.badge && <div className="recommended-badge">{plan.badge.label}</div>}
-				</div>
-
-				<div className="price-container">
-					<span className={`price ${plan.key === 'enterprise' ? 'user-info' : 'price'}`}>
-						${price}
-					</span>
-					{plan.key !== 'enterprise' && <span className="user-info">{userInfo}</span>}
-				</div>
-			</div>
-			<div className="subscribe-btn">{plan.subscribeLabel}</div>
-			<div className="features-container">
-				{plan.featuresTitle && <div className="features-title">{plan.featuresTitle}</div>}
-				<FeatureList
-					basicIntegration={plan.basicIntegration}
-					isBasicIntegrationAvailable={plan.isBasicIntegrationAvailable}
-					features={plan.features}
-					description={plan.description}
-				/>
-			</div>
-		</div>
-		{plan.aiFeatures && <AIFeatureList aiFeatures={plan.aiFeatures} />}
-		{/* {plan.tokens && <div className="token-box">{plan.tokens} Tokens</div>} */}
-	</div>
-));
+import { ReactComponent as MinusIcon } from '../../../assets/svg/Settings/minusIcon.svg';
+import { ReactComponent as PlusIcon } from '../../../assets/svg/Settings/plusIcon.svg';
+import Context from '../../../context/context';
+import { message } from '../../components/globalComponents/CustomToast';
+import Spinner from '../../components/loaders/Spinner';
 
 const PricingPage = () => {
+	const {
+		subscriptionInfo: {
+			currentPlan,
+			subscriptionPlans,
+			getAllSubscriptionPlan,
+			purchaseSubscriptionPlan,
+		},
+	} = useContext(Context);
 
+	const [info, setInfo] = useState({
+		billing: 'yearly',
+		tenantUsersCount: currentPlan?.tenantUsers,
+		planLoading: false,
+		trailLoading: false,
+	});
 
-	const [billing, setBilling] = useState('monthly');
+	useEffect(() => {
+		if (subscriptionPlans === null) {
+			getAllSubscriptionPlan();
+		}
+	}, [subscriptionPlans]);
 
+	const increaseTenantUsersCount = () => {
+		setInfo((prev) => ({ ...prev, tenantUsersCount: prev?.tenantUsersCount + 1 }));
+	};
+
+	const decreaseTenantUsersCount = () => {
+		if (info?.tenantUsersCount <= currentPlan?.tenantUsers) {
+			message.error(`Minimum ${currentPlan?.tenantUsers} user is required`);
+			return;
+		}
+		setInfo((prev) => ({ ...prev, tenantUsersCount: prev?.tenantUsersCount - 1 }));
+	};
+
+	const handleBuySubscriptionPlan = async (plan) => {
+		if (info?.planLoading) return;
+		setInfo((prev) => ({ ...prev, planLoading: true }));
+		const payload = {
+			plan: {
+				planId: plan?._id,
+				quantity: info?.tenantUsersCount,
+				recurringType: info?.billing === 'yearly' ? 'yearly' : 'monthly',
+			},
+		};
+		const response = await purchaseSubscriptionPlan(payload);
+		if (response?.[0]) {
+			setInfo((prev) => ({ ...prev, planLoading: false }));
+			window.location.href = response?.[1]?.url;
+		} else {
+			setInfo((prev) => ({ ...prev, planLoading: false }));
+			message.error(response?.[1]?.message);
+		}
+	};
+
+	const handleBuyTrailPlan = async (plan) => {
+		if (info?.trailLoading) return;
+		setInfo((prev) => ({ ...prev, trailLoading: true }));
+		const payload = {
+			plan: {
+				planId: plan?._id,
+				quantity: 1,
+				recurringType: info?.billing === 'yearly' ? 'yearly' : 'monthly',
+				isTrial: true,
+			},
+		};
+		const response = await purchaseSubscriptionPlan(payload);
+		if (response?.[0]) {
+			setInfo((prev) => ({ ...prev, trailLoading: false }));
+			window.location.href = response?.[1]?.url;
+		} else {
+			setInfo((prev) => ({ ...prev, trailLoading: false }));
+			message.error(response?.[1]?.message);
+		}
+	};
 	return (
 		<div className="pricing-page" id="pricing-page-scroll">
 			{/* <QuickActions /> */}
@@ -356,138 +95,105 @@ const PricingPage = () => {
 				<div className="pricing-toggle-row">
 					<div className="toggle-group">
 						<div
-							className={`toggle-btn${billing === 'yearly' ? ' active' : ''}`}
-							onClick={() => setBilling('yearly')}
+							className={`toggle-btn${info?.billing === 'yearly' ? ' active' : ''}`}
+							onClick={() => setInfo((prev) => ({ ...prev, billing: 'yearly' }))}
 						>
 							Yearly
 						</div>
 						<div
-							className={`toggle-btn${billing === 'monthly' ? ' active' : ''}`}
-							onClick={() => setBilling('monthly')}
+							className={`toggle-btn${info?.billing === 'monthly' ? ' active' : ''}`}
+							onClick={() => setInfo((prev) => ({ ...prev, billing: 'monthly' }))}
 						>
 							Monthly
 						</div>
 					</div>
-					{/* <span className="toggle-offer">Saving Offer 20%</span> */}
 				</div>
 				<div className="pricing-cards">
-					{plans.map((plan) => (
-						<PricingCard
-							name={plan.name}
-							plan={plan}
-							price={plan.price[billing]}
-							userInfo={plan.userInfo[billing]}
-							isHighlighted={plan.highlight}
-						/>
-					))}
-				</div>
-			</div>
-
-			<div className="pricing-video-section">
-				<h3 className="video-title">Ve AI</h3>
-				<div className="video-description">
-					<span className="video-description-text">
-						"There's power in a single platform which can memorise your workflow."
-					</span>
-					<span className="video-description-sub-text">
-						<span className="video-description-sub-text-bold"> Ve AI &nbsp;</span>
-						<span className="video-description-sub-text-normal">
-							{' '}
-							is that centralised hub.
-						</span>
-					</span>
-				</div>
-				<div className="vide-button">Watch Video</div>
-			</div>
-			<div className="pricing-features-table-section">
-				<h2 className="features-table-title">Pricing & Features</h2>
-				<div className="plan-boxes-row">
-					{plans.map((plan) => (
-						<div className={`plan-table-box`} key={plan.key}>
-							<div className="plan-table-name-container">
-								<div className="plan-table-name">{plan.name}</div>
-								<div className="plan-table-content">
-									{plan.key === 'enterprise' ? (
-										<span className="plan-table-user">Custom Pricing</span>
-									) : (
-										<>
-											<div className="plan-table-price">
-												${plan.price.monthly}
+					{subscriptionPlans?.map((plan) => {
+						return (
+							<div className="eachPricingCard">
+								<div className="pricingCardHeader">
+									<div className="pricingTitleContainer">
+										<span className="priceTitle">{plan?.plan}</span>
+									</div>
+									<div className="pricingCardBody">
+										Select seats, pick billing cycle, then secure checkout in
+										the next step.
+									</div>
+									<div className="pricingCardFooter">
+										<span className="planAmount">
+											{plan?.currency === 'INR' ? '₹ ' : '$ '}
+											{info?.billing === 'monthly'
+												? plan?.monthlyPrice
+												: plan?.yearlyPrice}
+										</span>
+										<span className="tenantUsersLimit">
+											{plan?.tenantUserDetails?.numberOfUsers} User/
+											{info?.billing === 'monthly' ? 'Monthly' : 'Yearly'}
+										</span>
+									</div>
+								</div>
+								<div className="pricingButtonContainer">
+									<div className="pricingButtonRow">
+										{currentPlan?.isSeatBasedPlan && (
+											<div className="quantitySelectorContainer">
+												<span>Users </span>
+												<div className="quantitySelectorOptions">
+													<span
+														onClick={decreaseTenantUsersCount}
+														className="quantitySelectorOptions-minus"
+													>
+														<MinusIcon />
+													</span>
+													<span className="quantitySelectorOptionsCount">
+														{info?.tenantUsersCount}
+													</span>
+													<span
+														onClick={increaseTenantUsersCount}
+														className="quantitySelectorOptions-minus"
+													>
+														<PlusIcon />
+													</span>
+												</div>
 											</div>
-											<div className="plan-table-user">
-												{plan.userInfo.monthly}
-											</div>
-										</>
+										)}
+										<button
+											className="pricingButton"
+											onClick={() => handleBuySubscriptionPlan(plan)}
+										>
+											{info?.planLoading ? (
+												<Spinner
+													color="var(--background-color)"
+													width="16px"
+													height="16px"
+												/>
+											) : (
+												`Get ${plan?.plan}`
+											)}
+										</button>
+									</div>
+									{currentPlan?.showTrail && plan?.plan === 'Plus' && (
+										<button
+											className="startTrailButton"
+											onClick={() => handleBuyTrailPlan(plan)}
+										>
+											{info?.trailLoading ? (
+												<Spinner
+													color="var(--background-color)"
+													width="16px"
+													height="16px"
+												/>
+											) : (
+												'Get 1 day free trail'
+											)}
+										</button>
 									)}
 								</div>
 							</div>
-							<div className={`plan-table-btn${plan.key === 'free' ? ' free' : ''}`}>
-								{plan.key === 'enterprise' ? 'Contact Sales' : plan.subscribeLabel}
-							</div>
-						</div>
-					))}
-				</div>
-				<div className="features-table-wrapper">
-					<span className="table-title">AI Features</span>
-					<table className="features-table no-vertical-lines">
-						<tbody>
-							{aiFeatures.map((feature, idx) => (
-								<tr key={idx}>
-									<td className="feature-title">{feature.title}</td>
-									{feature.values.map((value, vIdx) => (
-										<td className="feature-desc" key={vIdx}>
-											{value}
-										</td>
-									))}
-								</tr>
-							))}
-						</tbody>
-					</table>
-					<span className="table-title product-section-title">Product Features</span>
-					<table className="features-table no-vertical-lines">
-						<tbody>
-							{productFeatures.map((feature, idx) => (
-								<tr key={idx}>
-									<td className="feature-title">{feature.title}</td>
-									{feature.values.map((value, vIdx) => (
-										<td className="feature-desc" key={vIdx}>
-											<span
-												style={{
-													position: 'relative',
-													left: vIdx === 1 ? '100px' : '45px',
-												}}
-											>
-												{value}
-											</span>
-										</td>
-									))}
-								</tr>
-							))}
-						</tbody>
-					</table>
+						);
+					})}
 				</div>
 			</div>
-			<div className="faq-section">
-				<h2 className="faq-title">Questions & Answers</h2>
-				<Collapse
-					accordion
-					expandIconPosition="start"
-					className="custom-faq-collapse"
-					items={faqData}
-					expandIcon={({ isActive }) =>
-						isActive ? (
-							<span style={{ fontSize: 22, color: '#f2f2f3' }}>
-								<CloseSVG />
-							</span>
-						) : (
-							<span style={{ fontSize: 22, color: '#f2f2f3' }}>
-								<PlusSVG />
-							</span>
-						)
-					}
-				/>
-			</div>
-			<Footer  />
 		</div>
 	);
 };
