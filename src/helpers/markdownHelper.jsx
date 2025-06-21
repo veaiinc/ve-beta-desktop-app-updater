@@ -376,7 +376,7 @@ const createCitationComponents = (citations, markdown) => ({
 	span: ({ children, citationId, ...props }) => {
 		if (citationId) return <CitationsTooltip citationId={citationId} citations={citations} />;
 		return (
-			<span {...props} className="span">
+			<span className="span" {...props}>
 				{children}
 			</span>
 		);
@@ -394,10 +394,7 @@ const remarkPlugins = [remarkGfm, remarkMath];
 const rehypePlugins = [rehypeKatex, rehypeCITPlugin, rehypeRaw];
 
 const NonMemoizedMarkdown = ({ children, citations }) => {
-	const markdown = children
-		?.replace(/(?<!\\)\$/g, '\\$')
-		?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')
-		?.replace(/\\\((.*?)\\\)/g, '$$$1$$');
+	const markdown = children;
 	// ?.replace(/\\n/g, '\n');
 
 	// Memoize the combined components object
@@ -532,7 +529,13 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 					</div> */}
 
 					<div className="icon-container">
-						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Copy'}>
+						<Tooltip
+							placement="bottom"
+							arrow={false}
+							trigger={'hover'}
+							color="transparent"
+							title={<div className="user-hover-icons-tooltip">Copy</div>}
+						>
 							{info?.isCopiedToClipboard ? (
 								<TickSvg />
 							) : (

@@ -2490,12 +2490,12 @@ class Layout extends Component {
 			}
 
 			// Calculate grid positions
-			const columnStart = Math.floor(relativeLeft / cellWidth) + 1;
+			let columnStart = Math.floor(relativeLeft / cellWidth) + 1;
 
-			const rowStart = Math.floor(relativeTop / cellHeight) + 1;
+			let rowStart = Math.floor(relativeTop / cellHeight) + 1;
 
 			// Ensure we don't exceed the total number of rows
-			const rowEnd = Math.min(rowStart + heightInCells, totalRows);
+			let rowEnd = Math.min(rowStart + heightInCells, totalRows);
 
 			let columnEnd = columnStart + widthInCells;
 

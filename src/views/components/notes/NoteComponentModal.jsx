@@ -236,6 +236,7 @@ const NoteComponentModal = ({
 								latestStreamMesage={latestStreamMesage}
 								lastQuery={lastQuery}
 								toggleLatestStreamMessage={toggleLatestStreamMessage}
+								showUpgradeSubscriptionBtn={false}
 							/>
 						</div>
 					</div>
