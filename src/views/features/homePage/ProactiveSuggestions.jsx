@@ -1089,6 +1089,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 						autoFocus={true}
 						animatePlaceholder={true}
 						onChatQueryChange={handleChatQueryChange}
+						showUpgradeSubscriptionBtn={false}
 					/>
 				</div>
 				<div className="suggestions-container">

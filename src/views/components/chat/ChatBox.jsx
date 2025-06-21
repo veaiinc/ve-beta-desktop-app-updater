@@ -465,7 +465,7 @@ const ChatBox = ({
 			updateExtraInfo: true,
 		});
 	};
-
+	console.log(showUpgradeSubscriptionBtn, 'showUpgradeSubscriptionBtn');
 	const handleDeepResearchClick = () => {
 		if (recentFilesRef.current?.length > 0 || uploadedImagesRef.current?.length > 0) {
 			return;
@@ -2027,7 +2027,7 @@ const ChatBox = ({
 						))}
 					</div>
 				)}
-				{totalCreditsUsed >= totalCreditsLimit && showUpgradeSubscriptionBtn && (
+				{showUpgradeSubscriptionBtn && totalCreditsUsed >= totalCreditsLimit && (
 					<div className="credits-upgrade-container">
 						<div className="left-container">
 							<div className="title-container">

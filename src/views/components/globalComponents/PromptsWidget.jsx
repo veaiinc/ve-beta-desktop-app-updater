@@ -179,6 +179,7 @@ const PromptsWidget = ({ option }) => {
 						autoFocus={false}
 						animatePlaceholder={true}
 						onChatQueryChange={handleChatQueryChange}
+						showUpgradeSubscriptionBtn={false}
 					/>
 				</div>
 				<div className="suggestions-container">
