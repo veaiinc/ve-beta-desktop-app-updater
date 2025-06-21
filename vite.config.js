@@ -4,7 +4,17 @@ import svgr from '@svgr/rollup';
 
 export default defineConfig({
 	build: {
-		outDir: 'build', // Change output directory from 'dist' to 'build'
+		outDir: 'build',
+		rollupOptions: {
+			output: {
+				// No manual chunks - let Vite handle chunking automatically for speed
+			},
+		},
+		chunkSizeWarningLimit: 2000,
+		minify: 'esbuild',
+		target: 'es2015',
+		sourcemap: false,
+		reportCompressedSize: false,
 	},
 	plugins: [
 		react(),
@@ -15,6 +25,40 @@ export default defineConfig({
 		}),
 	],
 	css: {
-		devSourcemap: true,
+		devSourcemap: false,
+		postcss: {
+			plugins: [
+				require('autoprefixer'),
+				require('cssnano')({
+					preset: [
+						'default',
+						{
+							discardComments: {
+								removeAll: true,
+							},
+							normalizeWhitespace: true,
+						},
+					],
+				}),
+			],
+		},
+	},
+	optimizeDeps: {
+		include: [
+			'react',
+			'react-dom',
+			'react-router-dom',
+			'antd',
+			'lodash',
+			'axios',
+			'moment',
+			'dayjs',
+		],
+		force: true,
+	},
+	server: {
+		hmr: {
+			overlay: false,
+		},
 	},
 });
