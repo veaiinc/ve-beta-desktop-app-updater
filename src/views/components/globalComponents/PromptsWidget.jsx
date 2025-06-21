@@ -6,6 +6,7 @@ import ChatBox from '../chat/ChatBox';
 import Suggestions from '../../features/homePage/Suggestions';
 import Skeleton from 'react-loading-skeleton';
 import AISuggestionsModal from '../modalsV2/homePage/AISuggestionsModal';
+import { message } from './CustomToast';
 const skeletonLoaders = [1, 2, 3, 4, 5, 6, 7, 8];
 
 const PromptsWidget = ({ option }) => {
@@ -98,7 +99,7 @@ const PromptsWidget = ({ option }) => {
 		}));
 	};
 	const handleFavouriteClick = async (id) => {
-		const card = info?.cards?.find((c) => c?._id === id);
+		const card = cardsData?.find((c) => c?._id === id);
 		const res = await pendingActionsUpdate(id, { isFavourite: !card?.isFavourite });
 		if (res?.[0] === true) {
 			getAISuggestedPendingActions(
@@ -109,6 +110,10 @@ const PromptsWidget = ({ option }) => {
 				'update',
 				id,
 			);
+			setInfo((prev) => ({
+				...prev,
+				openSuggestionsModal: false,
+			}));
 			message.success(!card?.isFavourite ? 'Added to favourites' : 'Removed from favourites');
 		} else {
 			message.error('Failed to update');
