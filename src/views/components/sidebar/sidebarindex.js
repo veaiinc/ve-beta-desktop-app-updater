@@ -75,7 +75,7 @@ export const betaSettingsNavItems = {
 		{ name: 'Team Members', route: '/settings/team-members', icon: TeamIcon },
 		{ name: 'Integrations', route: '/settings/integrations', icon: IntegrationsIcon },
 		{ name: 'Plan Billing', route: '/settings/plan-billing', icon: PlanBillingIcon },
-		{ name: 'Pricing', route: '/settings/pricing', icon: PricingIcon },
+		// { name: 'Pricing', route: '/settings/pricing', icon: PricingIcon },
 		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
 	],
 	user: [
