@@ -121,6 +121,7 @@ const TableBody = ({
 										viewId,
 										databaseId,
 										groupId,
+										blockId,
 									},
 									open: true,
 									replace: true,

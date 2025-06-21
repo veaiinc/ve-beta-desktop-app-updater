@@ -858,7 +858,7 @@ export const NotesState = (props) => {
 					},
 				});
 				if (
-					['text', 'title', 'email', 'url', 'phone', 'number'].includes(
+					['text', 'title', 'email', 'url', 'phone', 'number', 'date'].includes(
 						metaInfo?.fieldType,
 					)
 				) {
@@ -966,7 +966,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const deleteDatabaseRow = async (payload, viewId, databaseId, groupId) => {
+	const deleteDatabaseRow = async (payload, { viewId, databaseId, groupId, blockId }) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -980,7 +980,7 @@ export const NotesState = (props) => {
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.DELETE_DATABASE_ROWS,
-					payload: { viewId, rowId: payload?.deleteDatabaseRowId, groupId },
+					payload: { viewId, rowId: payload?.deleteDatabaseRowId, groupId, blockId },
 				});
 
 				updateRelatedViews({

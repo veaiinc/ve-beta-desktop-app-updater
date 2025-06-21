@@ -84,13 +84,23 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 			);
 		}
 		return (
-			<div className={s.card} key={row?._id}>
+			<div
+				className={s.card}
+				key={row?._id}
+				onClick={() =>
+					updateDatabaseSidebar({
+						data: { rowData: row, viewId: view?._id, databaseId, groupId, blockId },
+						open: true,
+						replace: true,
+					})
+				}
+			>
 				{renderData}
 			</div>
 		);
 	};
 	return (
-		<div className={s.boardViewContainer}>
+		<div className={s.boardViewWrapper}>
 			{view?.groupBy?.defaultGroups?.map((item, index) => (
 				<div
 					key={item?._id}

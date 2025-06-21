@@ -84,7 +84,17 @@ const GalleryView = ({ groupData, metaInfo, columns, databaseId, pageId, view, b
 			);
 		}
 		return (
-			<div className={s.galleryCard} key={row?._id}>
+			<div
+				className={s.galleryCard}
+				key={row?._id}
+				onClick={() =>
+					updateDatabaseSidebar({
+						data: { rowData: row, viewId: view?._id, databaseId, groupId, blockId },
+						open: true,
+						replace: true,
+					})
+				}
+			>
 				{renderData}
 			</div>
 		);

@@ -21,6 +21,7 @@ const DatabaseSidebar = ({ pageId }) => {
 		viewId = '',
 		databaseId = '',
 		groupId = null,
+		blockId = '',
 	} = databaseSidebar?.stack?.at(-1) || {};
 	const currentDatabase = useMemo(() => database?.[databaseId], [database, databaseId]);
 
@@ -90,9 +91,12 @@ const DatabaseSidebar = ({ pageId }) => {
 				deleteDatabaseRowId: rowData?._id,
 				pageId,
 			},
-			viewId,
-			databaseId,
-			groupId,
+			{
+				viewId,
+				databaseId,
+				groupId,
+				blockId,
+			},
 		);
 		updateDatabaseSidebar({ open: false });
 	};

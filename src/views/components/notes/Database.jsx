@@ -1,6 +1,5 @@
 import { defaultProps, insertOrUpdateBlock } from '@blocknote/core';
 import { createReactBlockSpec } from '@blocknote/react';
-import moment from 'moment';
 import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import s from '../../../assets/scss/notes/database.module.scss';
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
@@ -9,25 +8,20 @@ import { NotesRefContext } from '../../features/notesModule/NotesEditor';
 import CustomTextArea from '../globalComponents/CustomTextArea';
 import DatabaseAddFieldModal from '../modalsV2/notes/DatabaseAddFieldModal';
 import DatabaseAddModal from '../modalsV2/notes/DatabaseAddModal';
-import DatabaseSidebar from '../modalsV2/notes/DatabaseSidebar';
 import CheckBox from '../tasks/listView/CheckBox';
 import ChildTaskProgress from '../tasks/listView/ChildTaskProgress';
 import CreatedWithAi from '../tasks/listView/CreatedWithAi';
-import DateView from '../tasks/listView/DateView';
-import Email from '../tasks/listView/Email';
 import LinkText from '../tasks/listView/LinkText';
 import MultiSelect from '../tasks/listView/MultiSelect';
 import ParentTaskComponent from '../tasks/listView/ParentTaskComponent';
 import Person from '../tasks/listView/Person';
 import PersonMultiSelect from '../tasks/listView/PersonMultiSelect';
-import Phone from '../tasks/listView/Phone';
 import Priority from '../tasks/listView/Priority';
 import Select from '../tasks/listView/Select';
 import Status from '../tasks/listView/Status';
 import TaskHeader from '../tasks/listView/TaskHeader';
 import TaskId from '../tasks/listView/TaskId';
 import TextField from '../tasks/listView/TextField';
-import Url from '../tasks/listView/Url';
 import CheckBoxFilter from './DatabseComponents/CheckBoxFilter';
 import DateComponent from './DatabseComponents/DateComponent';
 import FilterComponent from './DatabseComponents/FilterComponent';
@@ -461,6 +455,25 @@ const DatabaseComponent = ({ block, editor }) => {
 		[handleDeleteDatabaseView],
 	);
 
+	// const fetchMoreGroups = useCallback(async () => {
+	// 	// {
+	// 	// 	"pageId": "68303ca4d6bd82266428d1fa",
+	// 	// 	"databaseId": "68318359d285feb917809346",
+	// 	// 	  "databaseViewId": "683ae82adf485bd0f86c4d97",
+	// 	// 	"input": {
+	// 	// 	  "docLimit": 5,
+	// 	// 	  "docPage": 1,
+	// 	// 	  "groupLimit": 5,
+	// 	// 	  "groupPage": 1,
+	// 	// 	  "groupFilterId":"683ef366b11910e9368ffbe1"
+	// 	// 	},
+	// 	if (hasMoreGroups) {
+	// 		await fetchDatabaseRows(info?.selectedViewId, {
+	// 			page: metaInfo?.nextPage,
+	// 		});
+	// 	}
+	// }, [hasMoreGroups, info?.selectedViewId, metaInfo?.nextPage, fetchDatabaseRows]);
+
 	// Memoized derived values
 	const fields = useMemo(
 		() => currentDatabase?.databaseMetadata?.fields || [],
@@ -479,6 +492,8 @@ const DatabaseComponent = ({ block, editor }) => {
 		[fields],
 	);
 	const allDatabases = useMemo(() => availableDatabases || [], [availableDatabases]);
+
+	const hasMoreGroups = metaInfo?.hasNextPage;
 
 	return (
 		<div className={s.notesDatabaseContainer}>
@@ -638,9 +653,9 @@ const DatabaseComponent = ({ block, editor }) => {
 							)}
 						</>
 					)}
-					{currentDatabaseRows?.hasNextPage && (
+					{hasMoreGroups && (
 						<button className={s.loadMoreButton} onClick={() => {}}>
-							Load More
+							Load More groups
 						</button>
 					)}
 
@@ -698,6 +713,6 @@ export const insertDatabase = (editor, pageId) => ({
 		});
 	},
 	aliases: ['database', 'table', 'data', 'store'],
-	group: 'Advanced',
+	group: 'hehe',
 	icon: <TableViewIcon />,
 });

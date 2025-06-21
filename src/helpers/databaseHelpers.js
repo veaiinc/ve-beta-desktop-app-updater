@@ -322,6 +322,24 @@ export const applyFilter = (filters, row, statusOptions = null) => {
 	return include;
 };
 
+export const getRelativeDateLabel = (unixDate) => {
+	const inputDate = moment.unix(unixDate).startOf('day');
+	const today = moment().startOf('day');
+	const diffDays = inputDate.diff(today, 'days');
+
+	if (diffDays === 0) return 'Today';
+	if (diffDays === -1) return 'Yesterday';
+	if (diffDays === 1) return 'Tomorrow';
+
+	if (diffDays > 1 && diffDays <= 7) return 'Next 7 Days';
+	if (diffDays > 7 && diffDays <= 30) return 'Next 30 Days';
+
+	if (diffDays < -1 && diffDays >= -7) return 'Last 7 Days';
+	if (diffDays < -7 && diffDays >= -30) return 'Last 30 Days';
+
+	return inputDate.format('MMM YYYY');
+};
+
 export const handleUpdateInGroup = ({
 	groupData,
 	updatedRowData,
@@ -363,6 +381,10 @@ export const handleUpdateInGroup = ({
 
 	if (fieldType === 'checkbox') {
 		rawValue = rawValue ? 'true' : 'false';
+	}
+
+	if (fieldType === 'date') {
+		rawValue = getRelativeDateLabel(rawValue?.startDate);
 	}
 
 	const valueArray = Array.isArray(rawValue)
@@ -432,7 +454,7 @@ export const handleUpdateInGroup = ({
 			};
 		}
 	}
-	if (!['text', 'number', 'title'].includes(fieldType)) {
+	if (!['text', 'number', 'title', 'date'].includes(fieldType)) {
 		updatedGroups = defaultGroups;
 	}
 
@@ -479,6 +501,11 @@ export const handleAddInGroup = ({
 				value = 'Other';
 			}
 		}
+
+		if (fieldType === 'date') {
+			value = getRelativeDateLabel(value?.startDate);
+		}
+
 		if (!groupData?.[value]) {
 			newGroups.push({ _id: value, label: value });
 			groupsUpdated = true;
@@ -505,10 +532,32 @@ export const handleAddInGroup = ({
 	return { updatedGroupData, updatedGroups: groupsUpdated ? newGroups : null };
 };
 
-export const handleDeleteInGroup = ({ groupData, rowId, groupBy, groupId }) => {
+export const handleDeleteInGroup = ({ groupData, rowId, groupBy, groupId, fieldType, config }) => {
 	let updatedGroupData = { ...groupData };
 	const deletedRow = groupData?.[groupId]?.docs?.find((row) => row?._id === rowId);
-	const groupValue = deletedRow?.values?.[groupBy] || null;
+	let groupValue = deletedRow?.values?.[groupBy] || null;
+
+	if (fieldType === 'checkbox') {
+		groupValue = groupValue ? 'true' : 'false';
+	}
+
+	if (fieldType === 'number') {
+		const { groupRange = [], groupInterval = 0 } = config?.numberBy || {};
+		const [start = 0, end = 0] = groupRange;
+		if (groupInterval > 0 && groupValue >= start && groupValue <= end) {
+			const groupStart =
+				Math.floor((groupValue - start) / groupInterval) * groupInterval + start;
+			const groupEnd = groupStart + groupInterval;
+			groupValue = `${groupStart}-${groupEnd}`;
+		} else {
+			groupValue = 'Other';
+		}
+	}
+
+	if (fieldType === 'date') {
+		groupValue = getRelativeDateLabel(groupValue?.startDate);
+	}
+
 	const valueArray = Array.isArray(groupValue)
 		? groupValue.every((v) => typeof v === 'object' && v !== null && '_id' in v)
 			? groupValue.map((v) => v._id)

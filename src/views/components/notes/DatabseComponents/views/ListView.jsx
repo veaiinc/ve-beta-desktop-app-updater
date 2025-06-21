@@ -23,87 +23,91 @@ const ListView = ({ groupData, metaInfo, columns, databaseId, pageId, view, bloc
 		[pageId, updateDatabaseRow, databaseId, view?._id, blockId],
 	);
 
-	const generateRow = useCallback((row, groupId) => {
-		const renderData = [];
-		for (let i = 0; i < columns.length; i++) {
-			const element = columns[i];
-			const item = row?.values?.[element?._id];
-			if (
-				!item &&
-				![
-					'status',
-					'checkbox',
-					'created_time',
-					'created_by',
-					'last_edited_time',
-					'last_edited_by',
-				].includes(element?.type)
-			) {
-				continue;
-			}
-			const Component = rowTypes?.[element?.type] || null;
-			if (!Component) {
-				continue;
-			}
-
-			const metadataMapper = {
-				serial_number: row?.serialNumber,
-				created_by: [row?.createdBy],
-				created_time: {
-					startDate: row?.createdAt,
-					endDate: row?.createdAt,
-					isEndDateEnabled: false,
-				},
-				last_edited_by: [row?.updatedBy],
-				last_edited_time: {
-					startDate: row?.updatedAt,
-					endDate: row?.updatedAt,
-					isEndDateEnabled: false,
-				},
-			};
-			const options =
-				element?.type === 'status' ? element?.config?.status : element?.config?.options;
-			renderData.push(
-				<div className={s.listItemField} key={element?._id}>
-					<Component
-						value={metadataMapper?.[element?.type] || item}
-						options={options}
-						title={element?.name}
-						labelField={'label'}
-						multiSelect={true}
-						disabled={metadataMapper?.[element?.type] !== undefined}
-						showTitle={true}
-						onOptionClick={(value) =>
-							handleUpdateRow(row?._id, element?._id, value, groupId)
-						}
-						onChange={(value) =>
-							handleUpdateRow(row?._id, element?._id, value, groupId)
-						}
-					/>
-				</div>,
-			);
-		}
-		return (
-			<div
-				className={s.listItem}
-				key={row?._id}
-				onClick={() =>
-					updateDatabaseSidebar({
-						data: {
-							rowData: row,
-							viewId: view?._id,
-							databaseId,
-							groupId,
-						},
-						open: true,
-						replace: true,
-					})
+	const generateRow = useCallback(
+		(row, groupId) => {
+			const renderData = [];
+			for (let i = 0; i < columns.length; i++) {
+				const element = columns[i];
+				const item = row?.values?.[element?._id];
+				if (
+					!item &&
+					![
+						'status',
+						'checkbox',
+						'created_time',
+						'created_by',
+						'last_edited_time',
+						'last_edited_by',
+					].includes(element?.type)
+				) {
+					continue;
 				}
-			>
-				{renderData}
-			</div>
-		);
-	}, []);
+				const Component = rowTypes?.[element?.type] || null;
+				if (!Component) {
+					continue;
+				}
+
+				const metadataMapper = {
+					serial_number: row?.serialNumber,
+					created_by: [row?.createdBy],
+					created_time: {
+						startDate: row?.createdAt,
+						endDate: row?.createdAt,
+						isEndDateEnabled: false,
+					},
+					last_edited_by: [row?.updatedBy],
+					last_edited_time: {
+						startDate: row?.updatedAt,
+						endDate: row?.updatedAt,
+						isEndDateEnabled: false,
+					},
+				};
+				const options =
+					element?.type === 'status' ? element?.config?.status : element?.config?.options;
+				renderData.push(
+					<div className={s.listItemField} key={element?._id}>
+						<Component
+							value={metadataMapper?.[element?.type] || item}
+							options={options}
+							title={element?.name}
+							labelField={'label'}
+							multiSelect={true}
+							disabled={metadataMapper?.[element?.type] !== undefined}
+							showTitle={true}
+							onOptionClick={(value) =>
+								handleUpdateRow(row?._id, element?._id, value, groupId)
+							}
+							onChange={(value) =>
+								handleUpdateRow(row?._id, element?._id, value, groupId)
+							}
+						/>
+					</div>,
+				);
+			}
+			return (
+				<div
+					className={s.listItem}
+					key={row?._id}
+					onClick={() =>
+						updateDatabaseSidebar({
+							data: {
+								rowData: row,
+								viewId: view?._id,
+								databaseId,
+								groupId,
+								blockId,
+							},
+							open: true,
+							replace: true,
+						})
+					}
+				>
+					{renderData}
+				</div>
+			);
+		},
+		[pageId, updateDatabaseRow, databaseId, view?._id, blockId, columns],
+	);
 
 	return (
 		<>

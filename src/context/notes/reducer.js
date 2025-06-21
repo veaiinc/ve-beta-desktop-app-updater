@@ -77,16 +77,19 @@ const actionHandlers = {
 		};
 	},
 	DELETE_DATABASE_ROWS: (state, action) => {
-		const { viewId, rowId, groupId } = action.payload;
+		const { viewId, rowId, groupId, blockId } = action.payload;
 
 		const currentBlockData = state?.rowData?.[viewId] || {};
-		const { groupData, groupBy } = currentBlockData || {};
+		const { groupData, groupBy, fieldType } = currentBlockData || {};
+		const view = state?.views?.[blockId]?.find((item) => item?._id === viewId);
 
 		const updatedGroupData = handleDeleteInGroup({
 			groupData,
 			rowId,
 			groupBy,
 			groupId,
+			fieldType,
+			config: view?.groupBy?.config,
 		});
 		return {
 			...state,
