@@ -239,7 +239,7 @@ const Email = ({
 					<h2 className="login-page-subtitle">AI Memory OS</h2>
 				</h1>
 			</div>
-			{/* {info?.isHostnameVeDotAi && (
+			{info?.isHostnameVeDotAi && (
 				<>
 					<div className="service-container">
 						<div
@@ -268,7 +268,7 @@ const Email = ({
 						<div className="line"></div>
 					</div>
 				</>
-			)} */}
+			)}
 
 			<div className="login-button-container">
 				<div className="email-input-container-title">
