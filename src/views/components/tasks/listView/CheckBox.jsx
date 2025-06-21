@@ -1,8 +1,6 @@
 import { useState, memo, useEffect } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 
-import { ReactComponent as Check } from '../../../../assets/svg/tasks/checkmark.svg';
-
 const CheckBox = ({ value, onChange }) => {
 	const [info, setInfo] = useState({ checked: value });
 	useEffect(() => {
@@ -14,13 +12,13 @@ const CheckBox = ({ value, onChange }) => {
 	};
 	return (
 		<div
-			className="listItem-checkBox"
+			className={`listItem-checkBox ${info?.checked ? 'checked' : ''}`}
 			onClick={(e) => {
 				e.stopPropagation();
 				updateCheckBoxInfo('checked', !info?.checked);
 			}}
 		>
-			{info?.checked ? <Check /> : ''}
+			{info?.checked ? '✓' : ''}
 		</div>
 	);
 };

@@ -81,6 +81,7 @@ const DatabaseComponent = ({ block, editor }) => {
 			views,
 			getDatabaseViews,
 			deleteDatabaseView,
+			addDatabaseField,
 		},
 	} = useContext(Context);
 
@@ -283,6 +284,11 @@ const DatabaseComponent = ({ block, editor }) => {
 		};
 	}, []);
 
+	const fields = useMemo(
+		() => currentDatabase?.databaseMetadata?.fields || [],
+		[currentDatabase],
+	);
+
 	const initializeDatabase = useCallback(
 		async (selectedDatabaseId = null) => {
 			try {
@@ -337,6 +343,20 @@ const DatabaseComponent = ({ block, editor }) => {
 				gallery: 'Gallery',
 			};
 			try {
+				let boardGroupBy = null;
+				if (viewType === 'board') {
+					boardGroupBy = fields?.find((field) => field?.type === 'status')?._id;
+					if (!boardGroupBy) {
+						const response = await addDatabaseField({
+							pageId,
+							databaseId: targetDatabaseId,
+							input: { name: 'Status', type: 'status' },
+						});
+						if (response) {
+							boardGroupBy = response?._id;
+						}
+					}
+				}
 				const order = (currentDatabaseViews?.length ?? 0) + 1;
 				const databaseView = await createDatabaseView(
 					{
@@ -347,10 +367,22 @@ const DatabaseComponent = ({ block, editor }) => {
 							label: labelMapper[viewType],
 							type: viewType,
 							order,
+							...(viewType === 'board' && {
+								groupBy: {
+									fieldId: boardGroupBy,
+								},
+							}),
 						},
 					},
 					block?.id,
 				);
+
+				if (databaseView) {
+					setInfo((prev) => ({
+						...prev,
+						selectedViewId: databaseView?._id,
+					}));
+				}
 
 				return databaseView;
 			} catch (error) {
@@ -358,7 +390,14 @@ const DatabaseComponent = ({ block, editor }) => {
 				return null;
 			}
 		},
-		[currentDatabaseViews?.length, pageId, sourceBlockId, createDatabaseView, block?.id],
+		[
+			currentDatabaseViews?.length,
+			pageId,
+			sourceBlockId,
+			createDatabaseView,
+			block?.id,
+			fields,
+		],
 	);
 
 	const handleDebouncedDatabaseNameUpdate = useCallback(
@@ -475,10 +514,7 @@ const DatabaseComponent = ({ block, editor }) => {
 	// }, [hasMoreGroups, info?.selectedViewId, metaInfo?.nextPage, fetchDatabaseRows]);
 
 	// Memoized derived values
-	const fields = useMemo(
-		() => currentDatabase?.databaseMetadata?.fields || [],
-		[currentDatabase],
-	);
+
 	const { groupData, metaInfo } = useMemo(
 		() => currentDatabaseRows || { groupData: {}, metaInfo: {} },
 		[currentDatabaseRows],
@@ -564,6 +600,7 @@ const DatabaseComponent = ({ block, editor }) => {
 								<GroupComponent
 									fields={fields}
 									databaseId={databaseId}
+									metaInfo={metaInfo}
 									view={selectedDatabaseView}
 									blockId={block?.id}
 								/>

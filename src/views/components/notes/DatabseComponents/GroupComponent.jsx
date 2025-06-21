@@ -4,7 +4,7 @@ import s from '../../../../assets/scss/notes/databaseComponents/groupComponent.m
 import Context from '../../../../context/context';
 import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
 
-const GroupComponent = ({ fields, view, databaseId, blockId }) => {
+const GroupComponent = ({ fields, view, databaseId, blockId, metaInfo }) => {
 	const {
 		notes: { updateViewGroup },
 	} = useContext(Context);
@@ -36,13 +36,16 @@ const GroupComponent = ({ fields, view, databaseId, blockId }) => {
 				<div className={s.groupComponentDropdown}>
 					<div className={s.groupComponentDropdownHeader}>Group by</div>
 					<div className={s.groupComponentDropdownBody}>
-						<div
-							className={s.groupComponentDropdownBodyOptions}
-							onClick={() => handleUpdateViewGroup('none')}
-						>
-							<div className={s.groupComponentDropdownBodyOptionsLabel}>None</div>
-							{view?.groupBy?.fieldId === null && <Tick />}
-						</div>
+						{view?.type !== 'board' && (
+							<div
+								className={s.groupComponentDropdownBodyOptions}
+								onClick={() => handleUpdateViewGroup('none')}
+							>
+								<div className={s.groupComponentDropdownBodyOptionsLabel}>None</div>
+								{view?.groupBy?.fieldId === null && <Tick />}
+							</div>
+						)}
+
 						{fields?.map((field) => (
 							<div
 								key={field?._id}

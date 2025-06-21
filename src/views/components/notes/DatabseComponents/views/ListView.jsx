@@ -112,7 +112,7 @@ const ListView = ({ groupData, metaInfo, columns, databaseId, pageId, view, bloc
 	return (
 		<>
 			{view?.groupBy?.defaultGroups?.map((item, index) => (
-				<GroupToggler key={index} groupData={item}>
+				<GroupToggler key={index} groupData={item} type={metaInfo?.fieldType}>
 					<div className={s.listViewContainer}>
 						{groupData?.[item?._id || null]?.docs?.map((row) =>
 							generateRow(row, item?._id),

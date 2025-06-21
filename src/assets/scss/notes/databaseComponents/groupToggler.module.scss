@@ -5,7 +5,8 @@
 	width: 100%;
 	overflow: hidden;
 	position: relative;
-	margin-top: 10px;
+	margin-bottom: 20px;
+	gap: 10px;
 
 	.groupTogglerHeader {
 		display: flex;
@@ -43,9 +44,68 @@
 				color: var(--primary-font);
 			}
 		}
-
 		.groupTogglerContent {
 			color: var(--primary-font);
+			font-size: 12px;
+			font-weight: 500;
+			line-height: normal;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.groupTogglerTag {
+			display: flex;
+			cursor: pointer;
+			border-radius: 6px;
+			align-items: center;
+			gap: 12px;
+			padding: 4px 8px;
+			border: 1px solid var(--stroke);
+			width: fit-content;
+
+			.groupTogglerTagColor {
+				width: 6px;
+				height: 6px;
+				border-radius: 28.8px;
+				background-color: var(--stroke);
+			}
+
+			.groupTogglerTagLabel {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		.groupTogglerPerson {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+
+			.groupTogglerContentAvatar {
+				width: 20px;
+				height: 20px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 50%;
+				background-color: var(--card);
+				border: 1px solid var(--stroke);
+				font-size: 11px;
+				color: var(--secondary-font);
+				text-transform: uppercase;
+			}
+			.groupTogglerContentLabel {
+				font-size: 12px;
+				font-weight: 500;
+				color: var(--primary-font);
+				display: flex;
+				align-items: center;
+			}
 		}
 	}
 }

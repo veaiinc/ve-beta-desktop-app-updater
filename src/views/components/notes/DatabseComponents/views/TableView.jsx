@@ -84,7 +84,7 @@ const TableView = ({ groupData, metaInfo, columns, colors, databaseId, pageId, v
 				<div className={s.tableScrollContainer}>
 					<div className={s.tableContent}>
 						{view?.groupBy?.defaultGroups?.map((item, index) => (
-							<GroupToggler key={index} groupData={item}>
+							<GroupToggler key={index} groupData={item} type={metaInfo?.fieldType}>
 								<TableHeader
 									columns={localColumns}
 									handleResizeStart={handleResizeStart}

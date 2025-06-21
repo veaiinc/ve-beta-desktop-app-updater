@@ -1022,6 +1022,7 @@ export const NotesState = (props) => {
 						},
 					},
 				});
+				return newField;
 			}
 		} catch (error) {
 			console.error('error==>addDatabaseField', error);

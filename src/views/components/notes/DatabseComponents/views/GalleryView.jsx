@@ -103,7 +103,7 @@ const GalleryView = ({ groupData, metaInfo, columns, databaseId, pageId, view, b
 	return (
 		<div className={s.galleryView}>
 			{view?.groupBy?.defaultGroups?.map((item, index) => (
-				<GroupToggler groupData={item} key={index}>
+				<GroupToggler groupData={item} key={index} type={metaInfo?.fieldType}>
 					<div className={s.galleryViewWrapper}>
 						{groupData?.[item?._id || null]?.docs?.map((row) =>
 							generateCard(row, item?._id),
