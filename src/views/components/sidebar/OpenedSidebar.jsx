@@ -30,6 +30,7 @@ import SidebarTooltip from './SidebarTooltip';
 import UploadAvatarPopupComponent from '../settings/profile/UploadAvatarPopup';
 import UploadFileProiflePopup from '../settings/profile/UploadFileProiflePopup';
 import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import CreditsLeft from './chatHistory/CreditsLeft';
 
 const workspaceStyles = {
 	position: 'absolute',

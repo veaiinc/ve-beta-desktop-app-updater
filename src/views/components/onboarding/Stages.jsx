@@ -122,14 +122,15 @@ const Stages = ({ onNext }) => {
 	const phoneNumberCntxt = userDetailsFromTenantAPI?.phoneNumber;
 	const profilePictureCntxt = userDetailsFromTenantAPI?.googleMeta?.picture ?? null;
 	const userLogo = userDetailsFromTenantAPI?.dp_s3_500w_key ?? null;
-	const continueBtnDisabled = false;
-		// !info?.username ||
-		// !info?.isPhoneNumberVerified ||
-		// !info?.companyName ||
-		// !info?.workspaceHandle ||
-		// !info?.isWorkspaceHandleAvailable ||
-		// !info?.workspaceType ||
-		// info?.continueBtnLoading;
+
+	const continueBtnDisabled =
+		!info?.username ||
+		!info?.isPhoneNumberVerified ||
+		!info?.companyName ||
+		!info?.workspaceHandle ||
+		!info?.isWorkspaceHandleAvailable ||
+		!info?.workspaceType ||
+		info?.continueBtnLoading;
 
 	useEffect(() => {
 		if (!usertoken) {
@@ -140,7 +141,7 @@ const Stages = ({ onNext }) => {
 		}
 		if (
 			isUserOnboard &&
-			pathname !== '/create-workspace' &&
+			pathname !== '/onboarding' &&
 			!invitedWorkspaceId &&
 			!invitedUserEmail
 		) {
