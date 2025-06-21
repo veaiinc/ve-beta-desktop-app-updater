@@ -257,19 +257,26 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	// }, [noteId]);
 
 	useEffect(() => {
-		const sessionId = ObjectID()?.toString();
 		if (noteId) {
 			getNotesPageDataFunc();
-			createWebSocketConnection(sessionId, handleAiResponse, '', false, workspaceMode);
 		}
 
 		return () => {
 			updateNotesState({
 				notesPageData: null,
 			});
-			closeWebSocketConnection([sessionId]);
 		};
 	}, [noteId]);
+
+	useEffect(() => {
+		const sessionId = ObjectID()?.toString();
+		if (noteId && workspaceMode) {
+			createWebSocketConnection(sessionId, handleAiResponse, '', false, workspaceMode);
+		}
+		return () => {
+			closeWebSocketConnection([sessionId]);
+		};
+	}, [noteId, workspaceMode]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {

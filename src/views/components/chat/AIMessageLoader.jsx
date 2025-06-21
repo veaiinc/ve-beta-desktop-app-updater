@@ -3,21 +3,24 @@ import Context from '../../../context/context';
 import '../../../assets/scss/chat/aiMessageLoader.scss';
 import ChatLoader from './ChatLoader';
 
+const defaultMessage = 'Thinking'; // Default text when globalLoadingMessage is null or empty
 const AIMessageLoader = () => {
 	const {
-		templates: { globalLoadingMesssage },
+		templates: { globalChatMessages, currentSessionId },
 	} = useContext(Context);
 
-	const defaultMessage = 'Thinking'; // Default text when globalLoadingMessage is null or empty
-	const [message, setMessage] = useState(globalLoadingMesssage || defaultMessage);
+	const [message, setMessage] = useState(
+		globalChatMessages?.[currentSessionId]?.loadingMessage || defaultMessage,
+	);
 
 	useEffect(() => {
-		if (!globalLoadingMesssage || globalLoadingMesssage?.length === 0) {
+		const loadingMessage = globalChatMessages?.[currentSessionId]?.loadingMessage;
+		if (!loadingMessage) {
 			setMessage(defaultMessage);
 		} else {
-			setMessage(globalLoadingMesssage);
+			setMessage(loadingMessage);
 		}
-	}, [globalLoadingMesssage]);
+	}, [globalChatMessages]);
 
 	return (
 		<div className="ai-message-loader">
