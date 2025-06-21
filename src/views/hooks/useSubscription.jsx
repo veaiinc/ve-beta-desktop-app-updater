@@ -1,7 +1,6 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'; // Add useNavigate
 import Context from '../../context/context';
-import useWorkspaceMode from './useWorkspaceMode';
 
 const calculateTimeLeft = (expiryTimestamp) => {
 	const now = Date.now();
@@ -57,9 +56,8 @@ const useSubscription = () => {
 	const timerRef = useRef({ timer: null, interval: null });
 	const location = useLocation();
 	const navigate = useNavigate(); // Initialize useNavigate
-	const { workspaceMode } = useWorkspaceMode();
 
-	const validateExpiryData = calculateTimeLeft(currentPlan?.expiresAt || 0);
+	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
 			cleanupTimers();
@@ -100,6 +98,8 @@ const useSubscription = () => {
 
 	const handleExpiryCheckLogic = useCallback(() => {
 		if (currentPlan) {
+			const validateExpiryData = calculateTimeLeft(currentPlan?.expiresAt || 0);
+
 			const {
 				storageLimitInBytes = 0,
 				tenantUsersLimit = 0,
@@ -135,8 +135,9 @@ const useSubscription = () => {
 			});
 
 			// Check if subscription is expired and redirect
-			if (validateExpiryData.isExpired && workspaceMode === 'beta') {
+			if (validateExpiryData.isExpired) {
 				navigate('/settings/pricing');
+				localStorage.setItem('showSettingsSidebar', 'false');
 				cleanupTimers();
 				return;
 			}

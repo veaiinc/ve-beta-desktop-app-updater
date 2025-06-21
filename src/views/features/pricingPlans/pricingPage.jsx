@@ -18,6 +18,7 @@ const PricingPage = () => {
 			purchaseSubscriptionPlan,
 			getCurrentSubscriptionPlan,
 		},
+		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -28,6 +29,11 @@ const PricingPage = () => {
 		selectedPlanId: null,
 		isTrialSelected: false,
 	});
+	useEffect(() => {
+		if (!userWorkSpaceList) {
+			getUserWorkSpaceList();
+		}
+	}, [userWorkSpaceList]);
 
 	useEffect(() => {
 		if (subscriptionPlans === null) {
