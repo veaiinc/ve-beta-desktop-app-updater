@@ -13,11 +13,21 @@ const initialData = {
 };
 
 const OnboardingStepper = ({ onStepChange }) => {
-	const [step, setStep] = useState(1);
+	const [step, setStep] = useState(() => {
+		// Initialize step from localStorage, default to 1 if not found
+		const savedStep = localStorage.getItem('onboardingStep');
+		return savedStep ? parseInt(savedStep, 10) : 1;
+	});
 	const [data, setData] = useState(initialData);
 
 	useEffect(() => {
+		// Save step to localStorage whenever it changes
+		localStorage.setItem('onboardingStep', step);
 		onStepChange?.(step);
+		// Clear localStorage when onboarding is complete (step 5 or beyond)
+		if (step > 5) {
+			localStorage.removeItem('onboardingStep');
+		}
 	}, [step, onStepChange]);
 
 	const handleNext = (stepData) => {
@@ -69,6 +79,8 @@ const OnboardingStepper = ({ onStepChange }) => {
 			break;
 		default:
 			content = <div>Onboarding Complete!</div>;
+			// Clear localStorage when onboarding is complete
+			localStorage.removeItem('onboardingStep');
 	}
 
 	return (
