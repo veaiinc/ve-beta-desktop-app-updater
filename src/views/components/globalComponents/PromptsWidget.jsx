@@ -6,7 +6,7 @@ import ChatBox from '../chat/ChatBox';
 import Suggestions from '../../features/homePage/Suggestions';
 import Skeleton from 'react-loading-skeleton';
 import AISuggestionsModal from '../modalsV2/homePage/AISuggestionsModal';
-import { message } from './CustomToast';
+import { message } from '../../components/globalComponents/CustomToast';
 const skeletonLoaders = [1, 2, 3, 4, 5, 6, 7, 8];
 
 const PromptsWidget = ({ option }) => {
