@@ -45,6 +45,7 @@ export const ChatStreamState = () => {
 			if (socketRefs.current[currentSessionIdRef.current]) {
 				console.log('Disconnecting due to inactivity');
 				socketRefs.current[currentSessionIdRef.current].close();
+				delete socketRefs.current[currentSessionIdRef.current];
 			}
 		}, 5 * 60 * 1000); // 5 minutes in milliseconds
 	}, []);
