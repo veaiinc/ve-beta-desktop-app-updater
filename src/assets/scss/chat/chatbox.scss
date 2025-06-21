@@ -489,9 +489,11 @@
 	.chatbarContainer {
 		position: absolute;
 		top: 0;
-		transform: translateY(-100%);
+		transform: translateY(calc(-100% - 10px));
 		display: flex;
 		flex-direction: column;
+		gap: 10px;
+		width: 100%;
 		.scroll-btn-wrapper {
 			display: flex;
 			align-items: center;
@@ -511,7 +513,76 @@
 				font-size: 20px;
 				transition: all 0.3s ease;
 				z-index: 999;
-				margin-bottom: 10px;
+			}
+		}
+
+		.credits-upgrade-container {
+			display: flex;
+			padding: 16px;
+			align-items: center;
+			gap: 24px;
+			align-self: stretch;
+			border-radius: 8px;
+			background: var(--card, #18191b);
+			width: 100%;
+
+			.left-container {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: flex-start;
+				gap: 8px;
+				flex: 1 0 0;
+
+				.title-container {
+					display: flex;
+					justify-content: flex-start;
+					align-items: center;
+					gap: 8px;
+
+					.coin-icon {
+						width: 16px;
+						height: 16px;
+					}
+
+					.title-text-container {
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 15px;
+						font-style: normal;
+						font-weight: 600;
+						line-height: normal;
+					}
+				}
+
+				.description-container {
+					color: var(--secondary-font, #7a7e85);
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 20px; /* 153.846% */
+				}
+			}
+
+			.right-container {
+				.upgrade-button {
+					display: flex;
+					padding: 8px 16px;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 100px;
+					background: var(--primary-button, #79ecc9);
+					cursor: pointer;
+
+					color: var(--background-color, #0c0c0d);
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
 			}
 		}
 
@@ -523,7 +594,6 @@
 			width: 100%;
 			align-items: center;
 			gap: 12px;
-			padding-bottom: 10px;
 			.recent-file {
 				display: flex;
 				padding: 8px 12px;
