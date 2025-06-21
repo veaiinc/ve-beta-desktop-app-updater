@@ -25,10 +25,9 @@ const Tagline = () => {
 							</p>
 						</div>
 					</div>
-					<div className={s.taglineButtons}>
-						{/* <div className={s.readMore}>Read more</div> */}
+					{/* <div className={s.taglineButtons}>
 						<div className={s.tryOurApi}>Try our API</div>
-					</div>
+					</div> */}
 				</div>
 				{/* <div className={s.bottom}>
 					<div className={s.buttonsContainer}>
