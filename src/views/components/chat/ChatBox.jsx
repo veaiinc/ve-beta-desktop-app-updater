@@ -465,7 +465,6 @@ const ChatBox = ({
 			updateExtraInfo: true,
 		});
 	};
-	console.log(showUpgradeSubscriptionBtn, 'showUpgradeSubscriptionBtn');
 	const handleDeepResearchClick = () => {
 		if (recentFilesRef.current?.length > 0 || uploadedImagesRef.current?.length > 0) {
 			return;
