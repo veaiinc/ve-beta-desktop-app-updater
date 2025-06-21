@@ -8,7 +8,7 @@
 
 	.user-message-wrapper {
 		width: fit-content;
-		max-width: 400px;
+		max-width: 520px;
 		.user-message {
 			width: 100%;
 
@@ -18,6 +18,7 @@
 				background: var(--card, #18191b);
 				font-family: var(--chat-primary-font-family);
 				white-space: pre-wrap;
+				word-break: break-all;
 
 				color: var(--primary-font, #f2f2f3);
 				font-size: 16px;
