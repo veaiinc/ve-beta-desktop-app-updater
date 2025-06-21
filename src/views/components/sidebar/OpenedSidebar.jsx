@@ -30,6 +30,7 @@ import SidebarTooltip from './SidebarTooltip';
 import UploadAvatarPopupComponent from '../settings/profile/UploadAvatarPopup';
 import UploadFileProiflePopup from '../settings/profile/UploadFileProiflePopup';
 import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import CreditsLeft from './chatHistory/CreditsLeft';
 
 const workspaceStyles = {
 	position: 'absolute',
@@ -180,7 +181,19 @@ const OpenedSidebarModules = ({
 						width: '100%',
 					}}
 				>
-					{Icon && <Icon fill={name === 'Notes' ? 'none' : 'var(--secondary-font)'} />}
+					{Icon && (
+						<Icon
+							fill={
+								name === 'Notes' ||
+								name === 'Calendar' ||
+								name === 'Tasks' ||
+								name === 'Contacts' ||
+								name === 'Automations'
+									? 'none'
+									: 'var(--secondary-font)'
+							}
+						/>
+					)}
 					<p style={{ margin: 0 }}>{name}</p>
 					{isExactPathMatch() && <TickSvg />}
 				</div>
@@ -853,6 +866,7 @@ const OpenedSidebar = ({
 														<hr className={'horizontal-line-sidebar'} />
 													</div>
 													<ChatHistory />
+													<CreditsLeft />
 													<div
 														className={`settingsOptionsContainer  ${
 															!showSettingsSidebar
