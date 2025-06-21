@@ -5934,13 +5934,17 @@ class Layout extends Component {
 		element.style.setProperty(
 			'--cross-x-distance',
 			`${adjustments?.direction == 'left' ? '-' : ''}${
-				adjustments?.direction == 'left' || adjustments?.direction == 'right' ? '200' : 0
+				adjustments?.direction == 'left' || adjustments?.direction == 'right'
+					? window?.innerWidth || '200'
+					: 0
 			}px`,
 		);
 		element.style.setProperty(
 			'--cross-y-distance',
 			`${adjustments?.direction == 'top' ? '-' : ''}${
-				adjustments?.direction == 'top' || adjustments?.direction == 'bottom' ? '200' : 0
+				adjustments?.direction == 'top' || adjustments?.direction == 'bottom'
+					? window?.innerHeight || '200'
+					: 0
 			}px`,
 		);
 

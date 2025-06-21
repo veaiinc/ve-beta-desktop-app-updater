@@ -1161,12 +1161,18 @@
 	font-weight: 500;
 	line-height: normal;
 }
-.chatbox-container {
+.chatbox_container {
 	max-width: 750px;
 	width: 100%;
 	position: relative;
 	margin: 0 auto;
-	height: 140px;
+	.chatParentWrapper {
+		position: relative !important;
+
+		.textArea {
+			max-height: 200px !important;
+		}
+	}
 }
 @keyframes slideUpChatbox {
 	0% {

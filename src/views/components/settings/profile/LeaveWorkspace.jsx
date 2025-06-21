@@ -22,6 +22,7 @@ const LeaveWorkspaceComponent = () => {
 				<button
 					className="button button-cancel"
 					onClick={() => setInfo((prev) => ({ ...prev, leaveWorskapceModal: true }))}
+					style={{ cursor: 'pointer' }}
 				>
 					<Signout /> Leave workspace
 				</button>
