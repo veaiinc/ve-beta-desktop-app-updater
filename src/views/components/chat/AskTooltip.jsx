@@ -2,8 +2,9 @@ import { memo, useContext, useEffect, useCallback } from 'react';
 import '../../../assets/scss/chat/askTooltip.scss';
 import { Tooltip } from 'antd';
 import Context from '../../../context/context';
-import { fileTypeIcons } from '../../../helpers';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
+import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
+import { ReactComponent as OpenAISvg } from '../../../assets/svg/openai.svg';
 
 const AskTooltip = ({ children }) => {
 	const {
@@ -56,29 +57,37 @@ const AskTooltip = ({ children }) => {
 			color="transparent"
 			title={
 				<div className="ask-tooltip-container">
-					<div className="title-text">Model</div>
-					<div className="options">
-						{llmModels?.models?.map((model, index) => (
-							<div
-								className="option"
-								key={index}
-								onClick={() => handleModelClick(model)}
-							>
-								<div className="title-container">
-									<div className="icon">
-										{fileTypeIcons[model?.model_type] || ''}
-									</div>
-									<div className="text-container">
-										{model?.display_name || ''}
-									</div>
-								</div>
-								{chatBoxInfo?.selectedLLMModel === model?.model_code && (
-									<div className="icon">
-										<TickSvg />
-									</div>
-								)}
+					<div className="ve-container">
+						<div className="ve-header">Include workspace context</div>
+						<div className="ve-body">
+							<div className="ve-title-container">
+								<VeLogoSvg style={{ width: 16, height: 11 }} />
+								<div className="text-container">Ask Ve AI</div>
 							</div>
-						))}
+							{!chatBoxInfo?.selectedLLMModel && <TickSvg />}
+						</div>
+					</div>
+					<div className="model-options-container">
+						<div className="title-text">Use Model (Exclude Workspace context)</div>
+						<div className="options">
+							{llmModels?.models?.map((model, index) => (
+								<div
+									className="option"
+									key={index}
+									onClick={() => handleModelClick(model)}
+								>
+									<div className="option-title-container">
+										<OpenAISvg />
+										<div className="text-container">
+											{model?.display_name || ''}
+										</div>
+									</div>
+									{chatBoxInfo?.selectedLLMModel === model?.model_code && (
+										<TickSvg />
+									)}
+								</div>
+							))}
+						</div>
 					</div>
 				</div>
 			}
