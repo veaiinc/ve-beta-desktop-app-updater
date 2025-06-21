@@ -1,7 +1,10 @@
 import { useContext, useEffect, useState } from 'react';
 import Context from '../../context/context';
+import { publicRoutesList } from '../../routes/publicRoutes';
+import { useLocation } from 'react-router-dom';
 
 const useWorkspaceMode = () => {
+	const { pathname } = useLocation();
 	const [info, setInfo] = useState({
 		loading: true,
 		error: false,
@@ -12,8 +15,9 @@ const useWorkspaceMode = () => {
 	} = useContext(Context);
 
 	const workspaceMode = tennantSettingsData?.workspaceMode ?? null;
+	const isPublicRoute = publicRoutesList.includes(pathname);
 
-	const fetchWorkspaceModes = async (workspaceId) => {
+	const fetchWorkspaceModes = async () => {
 		try {
 			if (!tennantSettingsData) {
 				const response = await getTenantSettings();
@@ -37,9 +41,11 @@ const useWorkspaceMode = () => {
 	};
 
 	useEffect(() => {
-		const workspaceId = localStorage.getItem('workspaceId');
-		fetchWorkspaceModes(workspaceId);
-	}, []);
+		let isMounted = true;
+		if (isPublicRoute || isMounted === false) return;
+		fetchWorkspaceModes();
+		return () => (isMounted = false);
+	}, [isPublicRoute, tennantSettingsData]);
 
 	return { workspaceMode, ...info };
 };
