@@ -4,7 +4,7 @@ import PhoneInput from 'react-phone-number-input';
 import { ReactComponent as GreenTickSvg } from '../../../../assets/svg/Settings/TickCirclegree.svg';
 import UserSvg from '../../../../assets/svg/Settings/UserSvg';
 import EmailSvg from '../../../../assets/svg/Settings/EmailSvg';
-import { ReactComponent as ProfessionSvg } from '../../../../assets/svg/Settings/Profession.svg';
+import { ReactComponent as ProfessionSvg } from '../../../../assets/svg/Settings/profession.svg';
 // profile details component
 const ProfileDetailsComponent = ({
 	fullNameRef,
