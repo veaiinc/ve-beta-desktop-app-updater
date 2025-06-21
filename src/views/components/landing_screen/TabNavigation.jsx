@@ -1,6 +1,7 @@
 import { Tooltip } from 'antd';
 import { memo } from 'react';
 import ProactiveDropdown from './ProactiveDropdown';
+import {ReactComponent as CaretDown} from '../../../assets/svg/CaretDownSecondary.svg';
 
 const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
 	const tabs = ['Home', 'The bridge', 'For Enterprise', 'Pricing'];
@@ -15,7 +16,7 @@ const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
 				getPopupContainer={() => document.body}
 				overlayStyle={{ width: '100%', maxWidth: '100vw' }}
 			>
-				<div className="proactiveDropdown">Ambient</div>
+				<div className="proactiveDropdown">Ambient <CaretDown /></div>
 			</Tooltip>
 			{tabs.map((label, index) => (
 				<li
@@ -25,7 +26,9 @@ const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
 					}}
 					key={index}
 				>
-					{label}
+					<span>
+						{label}
+					</span>
 				</li>
 			))}
 		</ul>
