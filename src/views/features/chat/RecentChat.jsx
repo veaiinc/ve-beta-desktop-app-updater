@@ -245,8 +245,7 @@ const RecentChat = ({
 		if (agentType) {
 			updateStateValues({ chatInfo: { ...chatInfo, agentType, assistantId } });
 		}
-
-		if (sessionId && !isPublicChat) {
+		if (sessionId && !isPublicChat && workspaceMode) {
 			createWebSocketConnection(
 				sessionId,
 				onMessageFunc,
@@ -256,7 +255,12 @@ const RecentChat = ({
 			);
 		}
 
-		if (sessionId && isPublicChat && isFirstTimeConnectingToPublicChatRef.current) {
+		if (
+			sessionId &&
+			isPublicChat &&
+			isFirstTimeConnectingToPublicChatRef.current &&
+			workspaceMode
+		) {
 			createWebSocketConnection(
 				sessionId,
 				onMessageFunc,
@@ -266,7 +270,7 @@ const RecentChat = ({
 			);
 			isFirstTimeConnectingToPublicChatRef.current = false;
 		}
-	}, [sessionId, searchParams]);
+	}, [sessionId, searchParams, workspaceMode]);
 
 	useEffect(() => {
 		if (globalChatMessages?.[sessionId]?.messages?.length > 2 && !info?.scrollExecuted) {
