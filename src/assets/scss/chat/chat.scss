@@ -50,10 +50,18 @@
 				display: flex;
 				align-items: center;
 				gap: 12px;
-				.new-chat-btn {
+				.delete-chat-btn {
 					border: none;
-					background-color: transparent;
 					cursor: pointer;
+					display: flex;
+					width: 32px;
+					height: 32px;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 6px;
+					border: 1px solid var(--error, #c71b3a);
+					background: rgba(192, 55, 68, 0.08);
 				}
 			}
 		}
@@ -274,6 +282,18 @@
 			}
 		}
 	}
+}
+
+.recent-chat-tooltip {
+	background-color: var(--card);
+	color: var(--primary-font);
+	padding: 10px;
+	border-radius: 10px;
+	font-family: var(--chat-primary-font-family);
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
 }
 
 // @media screen and (max-width: 1200px) {

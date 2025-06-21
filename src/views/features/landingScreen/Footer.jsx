@@ -10,8 +10,56 @@ import GoldenGateImage from '../../../assets/images/goldenGate.png';
 import { LINKEDIN_URL, INSTAGRAM_URL } from '../../../helpers/ConstantUrls';
 
 import { Link } from 'react-router-dom';
-
-const Footer = ({ BackTop }) => {
+import Context from '../../../context/context';
+import { useContext, useState } from 'react';
+import { message } from '../../components/globalComponents/CustomToast';
+import Spinner from '../../components/loaders/Spinner';
+// Email validation regex pattern
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const initialState = {
+	email: '',
+	loading: false,
+	error: '',
+};
+const Footer = () => {
+	const {
+		authInfo: { subscribeToNewsletter },
+	} = useContext(Context);
+	const [info, setInfo] = useState(initialState);
+	const handleSubscribe = async () => {
+		if (!info.email) {
+			setInfo({ ...info, error: 'Email is required' });
+			return;
+		}
+		if (!emailRegex.test(info.email)) {
+			setInfo({ ...info, error: 'Please enter a valid email address' });
+			return;
+		}
+		setInfo({ ...info, error: '' });
+		try {
+			setInfo({ ...info, loading: true });
+			const res = await subscribeToNewsletter(info.email);
+			if (res?.[0]) {
+				message.success('Subscribed successfully');
+				setInfo(initialState);
+			} else {
+				message.error(res?.[1]?.message);
+			}
+		} catch (error) {
+			console.error('Error subscribing to newsletter:', error);
+			message.error('An unexpected error occurred. Please try again!');
+		} finally {
+			setInfo(initialState);
+		}
+	};
+	const handleEmailChange = (e) => {
+		setInfo({ ...info, email: e.target.value, error: '' });
+	};
+	const handleKeyDown = (e) => {
+		if (e.key === 'Enter') {
+			handleSubscribe();
+		}
+	};
 	return (
 		<div className={s.footer}>
 			<div className={s.container}>
@@ -26,8 +74,21 @@ const Footer = ({ BackTop }) => {
 							Just raw, early insights as we build.
 						</p>
 						<div className={s.emailInput}>
-							<input type="text" placeholder="example@gmail.com" />
-							<button className={s.subscribeButton}>Subscribe</button>
+							<input
+								type="text"
+								placeholder="example@gmail.com"
+								onChange={handleEmailChange}
+								onKeyDown={handleKeyDown}
+								className={info.error ? s.errorInput : ''}
+							/>
+							{info.error && <p className={s.errorMessage}>{info.error}</p>}
+							<button
+								className={s.subscribeButton}
+								onClick={handleSubscribe}
+								disabled={info.loading}
+							>
+								Subscribe {info.loading && <Spinner />}
+							</button>
 							<p className={s.terms}>
 								By submitting, you allow Ve.ai to store and process your information
 								to deliver what you requested. Read our privacy policy for details.
@@ -41,14 +102,14 @@ const Footer = ({ BackTop }) => {
 									<span className={s.listHeading}>About</span>
 								</li>
 								<li>
-									<Link to="/mission">Mission</Link>
+									<Link to="/thebridge">The bridge</Link>
 								</li>
 								<li>
 									<Link to="/contact-us">For Enterprise</Link>
 								</li>
-								<li>
+								{/* <li>
 									<Link to="/forenterprise">Investor Updates</Link>
-								</li>
+								</li> */}
 							</ul>
 						</div>
 						<div className={s.about}>

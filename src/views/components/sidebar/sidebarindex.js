@@ -70,7 +70,6 @@ export const stableSettingsNavItems = {
 		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
 	],
 	essentials: [
-		{ id: 2, icon: NotificationSvg, name: 'Notifications', route: null },
 		{ id: 3, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
 		{ id: 4, icon: HelpSvg, name: 'Help' },
 	],

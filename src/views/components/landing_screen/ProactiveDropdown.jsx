@@ -4,6 +4,77 @@ import { ReactComponent as BinocularsSvg } from '../../../assets/svg/landingScre
 import s from '../../../assets/scss/landingScreen/proactiveDropdown.module.scss';
 import { Link } from 'react-router-dom';
 
+const linkMapper = {
+	features: [
+		{
+			title: 'Ambient AI',
+			path: '/',
+		},
+		{
+			title: 'Enterprise Search',
+			path: '/',
+		},
+		{
+			title: 'AI meeting notes',
+			path: '/',
+		},
+		{
+			title: 'Agents',
+			path: '/',
+		},
+		{
+			title: 'Build',
+			path: '/',
+		},
+		{
+			title: 'Notes',
+			path: '/',
+		},
+		{
+			title: 'Projects',
+			path: '/',
+		},
+		{
+			title: 'Docs',
+			path: '/',
+		},
+		{
+			title: 'Forms',
+			path: '/',
+		},
+		{
+			title: 'Sites',
+			path: '/',
+		},
+		{
+			title: 'Calendar',
+			path: '/',
+		},
+		{
+			title: 'Task',
+			path: '/',
+		},
+		{
+			title: 'Automation',
+			path: '/',
+		},
+	],
+	search: [
+		{
+			title: 'Knowledge search',
+			path: '/',
+		},
+		{
+			title: 'Internal search',
+			path: '/',
+		},
+		{
+			title: 'LLM search',
+			path: '/',
+		},
+	],
+};
+
 const ProactiveDropdown = ({ isOpen }) => {
 	return (
 		<div className={`${s.proactiveDropdown__container} `}>
@@ -12,51 +83,17 @@ const ProactiveDropdown = ({ isOpen }) => {
 					<SparkleSvg /> Features
 				</div>
 				<div className={s.listContainer}>
-					<div className={s.list}>
-						<span>
-							<Link to="/">Ambient AI</Link>
-						</span>
-						<span>
-							<Link>Enterprise Search</Link>
-						</span>
-						<span>
-							<Link>AI meeting notes</Link>
-						</span>
-						<span>
-							<Link>Agents</Link>
-						</span>
-						<span>
-							<Link>Build</Link>
-						</span>
-					</div>
-					<div className={s.list}>
-						<span>
-							<Link>Notes</Link>
-						</span>
-						<span>
-							<Link>Projects</Link>
-						</span>
-						<span>
-							<Link>Docs</Link>
-						</span>
-						<span>
-							<Link>Forms</Link>
-						</span>
-						<span>
-							<Link>Sites</Link>
-						</span>
-					</div>
-					<div className={s.list}>
-						<span>
-							<Link>Calendar</Link>
-						</span>
-						<span>
-							<Link>Task</Link>
-						</span>
-						<span>
-							<Link>Automation</Link>
-						</span>
-					</div>
+					{[0, 1, 2].map((listIndex) => (
+						<div key={listIndex} className={s.list}>
+							{linkMapper.features
+								.slice(listIndex * 5, (listIndex + 1) * 5)
+								.map((link, index) => (
+									<span key={index}>
+										<Link to={link.path}>{link.title}</Link>
+									</span>
+								))}
+						</div>
+					))}
 				</div>
 			</div>
 			<div className={s.right}>
@@ -64,15 +101,11 @@ const ProactiveDropdown = ({ isOpen }) => {
 					<BinocularsSvg /> Search
 				</div>
 				<div className={s.list}>
-					<span>
-						<Link>Knowledge search</Link>
-					</span>
-					<span>
-						<Link>Internal search</Link>
-					</span>
-					<span>
-						<Link>LLM search</Link>
-					</span>
+					{linkMapper.search.map((link, index) => (
+						<span key={index}>
+							<Link to={link.path}>{link.title}</Link>
+						</span>
+					))}
 				</div>
 			</div>
 		</div>
