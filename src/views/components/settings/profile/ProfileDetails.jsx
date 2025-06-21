@@ -4,7 +4,7 @@ import PhoneInput from 'react-phone-number-input';
 import { ReactComponent as GreenTickSvg } from '../../../../assets/svg/Settings/TickCirclegree.svg';
 import UserSvg from '../../../../assets/svg/Settings/UserSvg';
 import EmailSvg from '../../../../assets/svg/Settings/EmailSvg';
-
+import { ReactComponent as ProfessionSvg } from '../../../../assets/svg/Settings/Profession.svg';
 // profile details component
 const ProfileDetailsComponent = ({
 	fullNameRef,
@@ -14,6 +14,7 @@ const ProfileDetailsComponent = ({
 	showForm,
 	handlePopupFormClose,
 	role,
+	workspaceName,
 }) => {
 	return (
 		<>
@@ -82,6 +83,34 @@ const ProfileDetailsComponent = ({
 
 								<GreenTickSvg />
 							</div>
+						</div>
+						<div className="profession-label">
+							Your profession in <span>{workspaceName}</span>
+						</div>
+						<div>
+							<div className="iconAlignclass">
+								<ProfessionSvg />
+								<div className="input-container">
+									<input
+										type="text"
+										placeholder={'Enter Your Profession'}
+										value={userDetails?.profession || ''}
+										name="profession"
+										className="profession-input"
+										autoComplete="off"
+										autofill="off"
+										onChange={(e) =>
+											handleUsernameAndPhoneNumberUpdate({
+												type: 'profession',
+												value: e?.target?.value,
+											})
+										}
+									/>
+								</div>
+							</div>
+							{errors?.profession && (
+								<p className="errorMessage">{errors?.profession}</p>
+							)}
 						</div>
 					</div>
 				</div>
