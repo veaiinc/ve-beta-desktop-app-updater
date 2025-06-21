@@ -5,6 +5,7 @@ import '../../../assets/scss/globalComponents/promptWidget.scss';
 import ChatBox from '../chat/ChatBox';
 import Suggestions from '../../features/homePage/Suggestions';
 import Skeleton from 'react-loading-skeleton';
+import AISuggestionsModal from '../modalsV2/homePage/AISuggestionsModal';
 const skeletonLoaders = [1, 2, 3, 4, 5, 6, 7, 8];
 
 const PromptsWidget = ({ option }) => {
@@ -14,6 +15,7 @@ const PromptsWidget = ({ option }) => {
 			getAISuggestedPendingActions,
 			updateStateValues,
 			currentSessionId,
+			pendingActionsUpdate,
 		},
 	} = useContext(Context);
 
@@ -21,6 +23,8 @@ const PromptsWidget = ({ option }) => {
 		animateCards: false,
 		chatQuery: '',
 		cardsLoading: false,
+		selectedCard: null,
+		openSuggestionsModal: false,
 	});
 
 	useEffect(() => {
@@ -86,6 +90,30 @@ const PromptsWidget = ({ option }) => {
 			updateStateValues({ chatBoxSuggestions: null });
 		}
 	};
+	const handlePromptClick = (card) => {
+		setInfo((prev) => ({
+			...prev,
+			openSuggestionsModal: true,
+			selectedCard: card,
+		}));
+	};
+	const handleFavouriteClick = async (id) => {
+		const card = info?.cards?.find((c) => c?._id === id);
+		const res = await pendingActionsUpdate(id, { isFavourite: !card?.isFavourite });
+		if (res?.[0] === true) {
+			getAISuggestedPendingActions(
+				{
+					isFavourite: !card?.isFavourite,
+				},
+				false,
+				'update',
+				id,
+			);
+			message.success(!card?.isFavourite ? 'Added to favourites' : 'Removed from favourites');
+		} else {
+			message.error('Failed to update');
+		}
+	};
 
 	const cardsData = aiSuggestedPendingActions?.pendingActions;
 	const cardsLoading = aiSuggestedPendingActions ? false : true;
@@ -133,6 +161,7 @@ const PromptsWidget = ({ option }) => {
 												: 'slide-animate'
 											: ''
 									}`}
+									onClick={() => handlePromptClick(card)}
 								>
 									<div className="promptsCardTitle">{card?.title}</div>
 									{/* <div className="promptsCardDescription">{card?.description}</div> */}
@@ -156,6 +185,15 @@ const PromptsWidget = ({ option }) => {
 					<Suggestions chatQuery={info?.chatQuery} styles={{ margin: '0 auto' }} />
 				</div>
 			</div>
+			<AISuggestionsModal
+				open={info?.openSuggestionsModal}
+				onClose={() => setInfo((prev) => ({ ...prev, openSuggestionsModal: false }))}
+				data={info?.selectedCard}
+				totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
+				// selectedCardNumber={currentIndexRef?.current + 1}
+				onFavouriteClick={handleFavouriteClick}
+				shouldShowCards={false}
+			/>
 		</>
 	);
 };

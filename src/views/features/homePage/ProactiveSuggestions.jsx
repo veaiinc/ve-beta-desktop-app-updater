@@ -1050,7 +1050,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 										</div>
 									</div>
 								)}
-								{info?.cards?.length && (
+								{info?.cards?.length > 0 && (
 									<div className="action-right">
 										<button className="card-change-btn" onClick={handleLeft}>
 											<ChevronRightThinSvg className="left-chevron" />

@@ -44,6 +44,7 @@ const AISuggestionsModal = ({
 	totalDocs,
 	selectedCardNumber,
 	onFavouriteClick,
+	shouldShowCards = true,
 }) => {
 	const {
 		templates: {
@@ -316,17 +317,21 @@ const AISuggestionsModal = ({
 					<div className="drawer-header">
 						<div className="header-content">
 							<div className="left-container">
-								<div className="total-docs">
-									<div className="current-doc">{selectedCardNumber}</div>
-									<div className="doc-divider">/</div>
-									<div className="total">{totalDocs}</div>
-								</div>
-								<div className="prev-btn" onClick={handlePrevCardClick}>
-									<ChevronRightThinSvg />
-								</div>
-								<div className="next-btn" onClick={handleNextCardClick}>
-									<ChevronRightThinSvg />
-								</div>
+								{shouldShowCards && (
+									<>
+										<div className="total-docs">
+											<div className="current-doc">{selectedCardNumber}</div>
+											<div className="doc-divider">/</div>
+											<div className="total">{totalDocs}</div>
+										</div>
+										<div className="prev-btn" onClick={handlePrevCardClick}>
+											<ChevronRightThinSvg />
+										</div>
+										<div className="next-btn" onClick={handleNextCardClick}>
+											<ChevronRightThinSvg />
+										</div>
+									</>
+								)}
 							</div>
 
 							<div className="right-container">
