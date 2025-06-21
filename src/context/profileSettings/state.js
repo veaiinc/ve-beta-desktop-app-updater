@@ -507,6 +507,33 @@ export const ProfileState = () => {
 			console.log('error==>getAiCategories', error);
 		}
 	};
+
+	// Update tenant profession
+	const updateTenantProfession = async (profession) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${workspaceId}/update-tenant`;
+			const body = {
+				profession: profession,
+			};
+			const response = await service.fetchPut(path, body, token, 'tenant');
+			if (response?.[0]) {
+				// Update the local state to reflect the change
+				dispatch({
+					type: Actions.UPDATE_TENANT_PROFESSION,
+					payload: profession,
+				});
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
+		} catch (error) {
+			console.log('error==>updateTenantProfession', error);
+			return [false, { message: 'Failed to update profession' }];
+		}
+	};
+
 	return {
 		...state,
 		getTenantSettings,
@@ -535,6 +562,7 @@ export const ProfileState = () => {
 		updateAccessControlOpenModal,
 		updateModuleAppTypeSelectAll,
 		updatedGmailAccount,
+		updateTenantProfession,
 		getAiCategories,
 	};
 };

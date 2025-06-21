@@ -22,6 +22,17 @@
 		background: var(--background-color, #0c0c0d);
 		font-family: var(--primary-font-family);
 		z-index: 150;
+		transition: background-color 0.3s ease;
+
+		// Change background when proactive dropdown tooltip is visible
+		&.proactive-dropdown-open {
+			background: var(--card, #18191b);
+		}
+
+		// Alternative approach for browsers that don't support :has()
+		.proactiveDropdown:hover ~ & {
+			background: var(--card, #18191b);
+		}
 
 		.page-header-wrapper {
 			display: flex;
@@ -44,8 +55,8 @@
 				z-index: 1000;
 				cursor: pointer;
 				.ve-logo {
-					width: 36px;
-					height: 19px;
+					width: 40px;
+					height: 27px;
 				}
 
 				.sidebar-button {
@@ -65,6 +76,7 @@
 				display: flex;
 				justify-content: center;
 				align-items: center;
+				margin-left: 170px;
 
 				.tabNavigation {
 					display: flex;
@@ -79,7 +91,7 @@
 						color: var(--secondary-font);
 						font-size: 14px;
 						padding: 13px 16px;
-						transition: color 0.3s ease;
+						transition: color 0.3s ease-in;
 						align-items: center;
 						gap: 6px;
 
@@ -96,6 +108,7 @@
 							transform-origin: top center !important;
 							display: flex;
 							justify-content: center;
+							background: var(--card, #18191b);
 						}
 
 						.ant-tooltip {
@@ -107,6 +120,12 @@
 							background: transparent !important;
 							box-shadow: none !important;
 						}
+					}
+
+					// Change page-header background when proactive tooltip is visible
+					&:hover + .proactive-tooltip ~ .page-header,
+					&:hover ~ .page-header {
+						background: var(--card, #18191b) !important;
 					}
 
 					li {
@@ -130,7 +149,7 @@
 								height: 2px;
 								width: 0%;
 								position: absolute;
-								bottom: -8px;
+								bottom: -10px;
 								left: 25%;
 								background-color: var(--primary-button);
 								transition: width 0.3s ease;
@@ -676,4 +695,28 @@
 	.title-container.with-suggestions {
 		height: 160vh !important;
 	}
+}
+
+// Global rule to change page-header background when proactive dropdown is hovered
+.proactive-tooltip {
+	~ .landing-page-container .page-header,
+	& ~ .page-header {
+		background: var(--card, #18191b) !important;
+	}
+}
+
+// Alternative approach using body class when tooltip is visible
+body.proactive-dropdown-open .landing-page-container .page-header {
+	background: var(--card, #18191b) !important;
+}
+
+// Change proactive dropdown text color when dropdown is open
+body.proactive-dropdown-open
+	.landing-page-container
+	.page-header
+	.page-header-wrapper
+	.middle-container
+	.tabNavigation
+	.proactiveDropdown {
+	color: var(--primary-font) !important;
 }
