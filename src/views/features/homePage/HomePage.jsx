@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo, useMemo, useContext } from 'react';
+import { useState, useEffect, memo, useMemo, useContext } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/navBar';

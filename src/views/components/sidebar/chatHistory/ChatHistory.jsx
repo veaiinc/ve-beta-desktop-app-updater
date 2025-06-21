@@ -14,7 +14,7 @@ const infiniteScrollStyle = {
 	alignItems: 'flex-start',
 	alignSelf: 'stretch',
 	gap: '2px',
-	marginBottom: '140px',
+
 	// height: '38vh',
 };
 const skeletonLoaders = Array?.from({ length: 30 }, (_, index) => index + 1);
@@ -34,6 +34,7 @@ const ChatHistory = () => {
 			chatLoadingSessions,
 			updateChatLoadingSessions,
 		},
+		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
 	// const previousSearchQuery = useRef('');
 	// const [searchQuery, setSearchQuery] = useState('');
@@ -170,7 +171,10 @@ const ChatHistory = () => {
 						next={fetchMoreChats}
 						hasMore={hasNextPage || false}
 						loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
-						style={infiniteScrollStyle}
+						style={{
+							...infiniteScrollStyle,
+							marginBottom: !currentPlan?.totalAiCreditLimit === 0 ? '140px' : '70px',
+						}}
 						// scrollableTarget="chatsScroll"
 						height={'100%'}
 					>

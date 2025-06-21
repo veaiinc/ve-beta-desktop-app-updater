@@ -77,6 +77,10 @@ const actionHandlers = {
 		...state,
 		...action.payload,
 	}),
+	SET_AI_CATEGORIES: (state, action) => ({
+		...state,
+		aiCategories: action?.payload,
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 

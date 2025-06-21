@@ -2402,6 +2402,7 @@ export const TemplatesState = (props) => {
 				sortBy,
 				isFavourited,
 				search,
+				category,
 			} = payload || {};
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -2419,7 +2420,7 @@ export const TemplatesState = (props) => {
 			if (sortType && sortBy) filterParams?.push(`sortType=${sortType}&sortBy=${sortBy}`);
 			if (isFavourited) filterParams?.push(`isFavourite=${isFavourited}`);
 			filterParams?.push(`search=${search || ''}`);
-
+			if (category) filterParams?.push(`category=${category}`);
 			const queryString = new URLSearchParams({ page, limit })?.toString();
 			const fullQuery = `${queryString}&${filterParams?.join('&')}`;
 
@@ -2612,13 +2613,15 @@ export const TemplatesState = (props) => {
 			console.log('error==>updateCitationChunks', error);
 		}
 	};
+
 	const deleteChatSession = async (sessionId) => {
 		try {
 			console.log('sessionId==>deleteChatSession', sessionId);
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const url = `/${workspaceId}/ai-chat/delete-multiagent-conversation/${sessionId}`;
-			const response = await Service.fetchDelete(url, usertoken, null, 'ai_assistant_api');
+			const body = { isPermanent: false };
+			const response = await Service.fetchDelete(url, usertoken, body, 'ai_assistant_api');
 			return response;
 		} catch (error) {
 			console.log('error==>deleteChatSession', error);

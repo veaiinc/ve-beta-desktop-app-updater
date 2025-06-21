@@ -6,7 +6,7 @@ import ObjectID from 'bson-objectid';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 
-const Suggestions = ({ landingPage = false, chatQuery = '' }) => {
+const Suggestions = ({ landingPage = false, chatQuery = '', styles = {} }) => {
 	const {
 		templates: { updateStateValues, getChatBoxSuggestions, chatBoxSuggestions },
 	} = useContext(Context);
@@ -51,6 +51,7 @@ const Suggestions = ({ landingPage = false, chatQuery = '' }) => {
 			style={{
 				height: landingPage ? '250px' : '100%',
 				overflow: landingPage ? 'auto' : 'hidden',
+				...styles,
 			}}
 		>
 			{chatBoxSuggestions?.map((suggestion, index) => (

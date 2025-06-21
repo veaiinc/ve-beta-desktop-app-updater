@@ -16,6 +16,7 @@ export const intialState = {
 	tenantUserAccessControls: null,
 	accessControlOpenModal: false,
 	userDetailsFromTenantAPI: null,
+	aiCategories: null,
 };
 export const ProfileState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -491,6 +492,21 @@ export const ProfileState = () => {
 			console.log('error==>updatedGmailAccount', error);
 		}
 	};
+
+	const getAiCategories = async () => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = '/' + workspaceId + '/knowledge-bases/pending-actions/categories';
+			const response = await service.fetchGet(url, usertoken, 'tenant');
+			if (response?.[0]) {
+				dispatch({ type: Actions?.SET_AI_CATEGORIES, payload: response?.[1] });
+			}
+			return response;
+		} catch (error) {
+			console.log('error==>getAiCategories', error);
+		}
+	};
 	return {
 		...state,
 		getTenantSettings,
@@ -519,5 +535,6 @@ export const ProfileState = () => {
 		updateAccessControlOpenModal,
 		updateModuleAppTypeSelectAll,
 		updatedGmailAccount,
+		getAiCategories,
 	};
 };

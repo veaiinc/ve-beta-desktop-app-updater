@@ -44,6 +44,7 @@ const AISuggestionsModal = ({
 	totalDocs,
 	selectedCardNumber,
 	onFavouriteClick,
+	shouldShowCards = true,
 }) => {
 	const {
 		templates: {
@@ -63,6 +64,7 @@ const AISuggestionsModal = ({
 			hasChainOfThought: false,
 		},
 		feedbackPopupOpen: false,
+		isDeleting: false,
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -252,8 +254,9 @@ const AISuggestionsModal = ({
 	};
 
 	const handleDeleteCard = useCallback(async () => {
-		if (!data?._id) return;
+		if (!data?._id || info.isDeleting) return;
 		const type = 'delete';
+		setInfo((prev) => ({ ...prev, isDeleting: true }));
 		const res = await pendingActionsUpdate(data?._id, { isDeleted: true }, type);
 		if (res?.[0] === true) {
 			getAISuggestedPendingActions(null, false, 'delete', data?._id);
@@ -261,7 +264,8 @@ const AISuggestionsModal = ({
 		} else {
 			message.error('Failed to delete pending action');
 		}
-	}, [data?._id, getAISuggestedPendingActions, onClose, pendingActionsUpdate]);
+		setInfo((prev) => ({ ...prev, isDeleting: false }));
+	}, [data?._id, getAISuggestedPendingActions, onClose, pendingActionsUpdate, info.isDeleting]);
 
 	const handleOpenFeedbackPopup = () => {
 		setInfo((prev) => ({
@@ -316,17 +320,21 @@ const AISuggestionsModal = ({
 					<div className="drawer-header">
 						<div className="header-content">
 							<div className="left-container">
-								<div className="total-docs">
-									<div className="current-doc">{selectedCardNumber}</div>
-									<div className="doc-divider">/</div>
-									<div className="total">{totalDocs}</div>
-								</div>
-								<div className="prev-btn" onClick={handlePrevCardClick}>
-									<ChevronRightThinSvg />
-								</div>
-								<div className="next-btn" onClick={handleNextCardClick}>
-									<ChevronRightThinSvg />
-								</div>
+								{shouldShowCards && (
+									<>
+										<div className="total-docs">
+											<div className="current-doc">{selectedCardNumber}</div>
+											<div className="doc-divider">/</div>
+											<div className="total">{totalDocs}</div>
+										</div>
+										<div className="prev-btn" onClick={handlePrevCardClick}>
+											<ChevronRightThinSvg />
+										</div>
+										<div className="next-btn" onClick={handleNextCardClick}>
+											<ChevronRightThinSvg />
+										</div>
+									</>
+								)}
 							</div>
 
 							<div className="right-container">

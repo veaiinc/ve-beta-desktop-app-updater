@@ -79,12 +79,14 @@ const AddOnPlans = ({
 	}, []);
 
 	useEffect(() => {
-		if (info?.subscriptionState === 'addOnPlans' && !currentPlanAddOns) {
-			getAddOnsForCurrentPlan();
-		} else if (info?.subscriptionState === 'upgradeSubscription' && !subscriptionPlans) {
-			getAllSubscriptionPlan();
+		if (isOpen) {
+			if (info?.subscriptionState === 'addOnPlans' && !currentPlanAddOns) {
+				getAddOnsForCurrentPlan();
+			} else if (info?.subscriptionState === 'upgradeSubscription' && !subscriptionPlans) {
+				getAllSubscriptionPlan();
+			}
 		}
-	}, [info?.subscriptionState]);
+	}, [info?.subscriptionState, isOpen]);
 
 	useEffect(() => {
 		let mappableData = [];
