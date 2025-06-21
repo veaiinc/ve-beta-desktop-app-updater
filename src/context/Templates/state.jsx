@@ -2402,6 +2402,7 @@ export const TemplatesState = (props) => {
 				sortBy,
 				isFavourited,
 				search,
+				category,
 			} = payload || {};
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -2419,7 +2420,7 @@ export const TemplatesState = (props) => {
 			if (sortType && sortBy) filterParams?.push(`sortType=${sortType}&sortBy=${sortBy}`);
 			if (isFavourited) filterParams?.push(`isFavourite=${isFavourited}`);
 			filterParams?.push(`search=${search || ''}`);
-
+			if (category) filterParams?.push(`category=${category}`);
 			const queryString = new URLSearchParams({ page, limit })?.toString();
 			const fullQuery = `${queryString}&${filterParams?.join('&')}`;
 
