@@ -2,24 +2,21 @@ import jwtDecode from 'jwt-decode';
 import { memo, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
-
 import Context from '../../../context/context';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import { message } from '../../components/globalComponents/CustomToast';
 import AskMe from './AskMe';
-
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 import ChatPrompts from './ChatPrompts';
 import ProactiveSuggestions from './ProactiveSuggestions';
-
 import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import { ReactComponent as PromptsSvg } from '../../../assets/svg/home_page/prompts.svg';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/home_page/calendar.svg';
 import { ReactComponent as TaskSvg } from '../../../assets/svg/home_page/tasks.svg';
 import { ReactComponent as ContactSvg } from '../../../assets/svg/home_page/contacts.svg';
 import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/automation.svg';
+import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import VeSvg from '../../../assets/svg/veSvg';
-
 import '../../../assets/scss/home_page/initialHomepage.scss';
 import Spinner from '../../components/loaders/Spinner';
 import { getGreeting } from '../../../helpers';
@@ -197,16 +194,63 @@ const InitialHomePage = () => {
 	const navigate = useNavigate();
 	const timeoutIdRef = useRef(null);
 	const previousSelectedOptionRef = useRef(null);
+	const optionsContainerRef = useRef(null); // Ref for the options container
+	const [showArrows, setShowArrows] = useState({ left: false, right: false });
 
 	const [info, setInfo] = useState({
 		selectedOption: '',
 		options: optionsList,
 		promptsCategory: 'all',
-		optionsHandledOnce: Object?.values(optionsList)?.reduce((acc, option) => {
+		optionsHandledOnce: Object.values(optionsList).reduce((acc, option) => {
 			acc[option.value] = false;
 			return acc;
 		}, {}),
 	});
+
+	// Check if the options container is scrollable
+	const checkScroll = useCallback(() => {
+		const container = optionsContainerRef.current;
+		if (container) {
+			const isOverflowing = container.scrollWidth > container.clientWidth;
+			setShowArrows({
+				left: container.scrollLeft > 0,
+				right:
+					isOverflowing &&
+					container.scrollLeft < container.scrollWidth - container.clientWidth - 1,
+			});
+		}
+	}, []);
+
+	// Handle scroll on arrow click
+	const handleScroll = (direction) => {
+		const container = optionsContainerRef.current;
+		if (container) {
+			const scrollAmount = 600; // Adjust scroll distance as needed
+			const newScrollPosition =
+				direction === 'left'
+					? container.scrollLeft - scrollAmount
+					: container.scrollLeft + scrollAmount;
+			container.scrollTo({
+				left: newScrollPosition,
+				behavior: 'smooth',
+			});
+		}
+	};
+
+	useEffect(() => {
+		checkScroll();
+		window.addEventListener('resize', checkScroll);
+		const container = optionsContainerRef.current;
+		if (container) {
+			container.addEventListener('scroll', checkScroll);
+		}
+		return () => {
+			window.removeEventListener('resize', checkScroll);
+			if (container) {
+				container.removeEventListener('scroll', checkScroll);
+			}
+		};
+	}, [checkScroll]);
 
 	useEffect(() => {
 		return () => {
@@ -217,24 +261,18 @@ const InitialHomePage = () => {
 
 	useEffect(() => {
 		if (!promptsData) {
-			// Always fetch if no data yet
 			getPromptsData({ category: 'all', limit: 30 });
 			return;
 		}
-
 		if (promptsData?.data?.length > 0) {
 			if (!info?.optionsHandledOnce?.prompts) {
 				handleUpdateOptions('prompts');
 				setInfo((prev) => ({
 					...prev,
-					optionsHandledOnce: {
-						...prev.optionsHandledOnce,
-						prompts: true,
-					},
+					optionsHandledOnce: { ...prev.optionsHandledOnce, prompts: true },
 				}));
 			}
 		} else {
-			// Hide the option if no data
 			setInfo((prev) => ({
 				...prev,
 				options: prev.options.map((o) =>
@@ -257,20 +295,15 @@ const InitialHomePage = () => {
 			);
 			return;
 		}
-
 		const cards = aiSuggestedPendingActions?.pendingActions?.filter(
 			(card) => card?.title?.length > 0,
 		);
-
 		if (cards?.length > 0) {
 			if (!info?.optionsHandledOnce?.proactiveSuggestions) {
 				handleUpdateOptions('proactiveSuggestions');
 				setInfo((prev) => ({
 					...prev,
-					optionsHandledOnce: {
-						...prev.optionsHandledOnce,
-						proactiveSuggestions: true,
-					},
+					optionsHandledOnce: { ...prev.optionsHandledOnce, proactiveSuggestions: true },
 				}));
 			}
 		} else {
@@ -285,18 +318,19 @@ const InitialHomePage = () => {
 
 	useEffect(() => {
 		if (info?.options?.length > 0 && !info?.selectedOption) {
-			// Set the first visible option as the selected option
 			setInfo((prev) => ({
 				...prev,
 				selectedOption: prev?.options[0],
 			}));
 		}
 	}, [info?.selectedOption, info?.options]);
+
 	useEffect(() => {
 		if (!aiCategories) {
 			getAiCategoriesOptions();
 		}
 	}, [aiCategories, info?.options]);
+
 	const getAiCategoriesOptions = async () => {
 		const response = await getAiCategories();
 		if (response?.[0] === true) {
@@ -320,9 +354,7 @@ const InitialHomePage = () => {
 			}
 			return option;
 		});
-
 		const selectedOption = updatedOptions?.find((option) => option?.showOption)?.value ?? '';
-
 		setInfo((prev) => ({
 			...prev,
 			options: updatedOptions,
@@ -334,7 +366,6 @@ const InitialHomePage = () => {
 		if (info?.selectedOption === option) {
 			return;
 		}
-
 		previousSelectedOptionRef.current = info?.selectedOption;
 		setInfo((prev) => ({
 			...prev,
@@ -344,16 +375,13 @@ const InitialHomePage = () => {
 
 	const renderedOptions = useMemo(() => {
 		return info?.options?.map((option) => {
-			// const Icon = option?.icon;
 			return (
 				<div
 					className={`option ${info?.selectedOption === option ? 'active' : ''}`}
 					onClick={() => handleOptionSelection(option)}
+					key={option}
 				>
-					<div className="option-label">
-						{/* <Icon /> */}
-						{option}
-					</div>
+					<div className="option-label">{option}</div>
 				</div>
 			);
 		});
@@ -365,19 +393,6 @@ const InitialHomePage = () => {
 			promptsCategory: value,
 		}));
 	};
-
-	// const componentMapper = useMemo(
-	// 	() => ({
-	// 		proactiveSuggestions: <ProactiveSuggestions />,
-	// 		prompts: <ChatPrompts promptsCategory={info?.promptsCategory} />,
-	// 		calendar: <GlobalWidget option={'calendar'} />,
-	// 		task: <GlobalWidget option={'task'} />,
-	// 		automation: <GlobalWidget option={'automation'} />,
-	// 		contact: <GlobalWidget option={'contacts'} />,
-	// 		ask: <AskMe />,
-	// 	}),
-	// 	[info?.promptsCategory],
-	// );
 
 	const options = useMemo(
 		() => info?.options?.filter((option) => option?.showOption),
@@ -412,21 +427,40 @@ const InitialHomePage = () => {
 					<div className="title-text">
 						<h2 className="title-one">{greeting}!</h2>
 						<span className="title-two">{userName}</span>
-
-						{/* <span className="title-two">truly yours</span> */}
 					</div>
-					{/* <div className="sub-text">{subText}</div> */}
 				</div>
-
 				{!info?.showSuggestions && (
-					<div
-						className={`homepage__options-container`}
-						style={{
-							display:
-								aiSuggestedPendingActions?.pendingActions?.length > 0 ? '' : 'none',
-						}}
-					>
-						{renderedOptions}
+					<div className="options-wrapper">
+						<div
+							className={`homepage__options-container`}
+							ref={optionsContainerRef}
+							style={{
+								display:
+									aiSuggestedPendingActions?.pendingActions?.length > 0
+										? ''
+										: 'none',
+							}}
+						>
+							{renderedOptions}
+						</div>
+						<div className="arrow-container">
+							{showArrows.left && (
+								<div
+									className="arrow left-arrow"
+									onClick={() => handleScroll('left')}
+								>
+									<ChevronRightThinSvg style={{ transform: 'rotate(180deg)' }} />
+								</div>
+							)}
+							{showArrows.right && (
+								<div
+									className="arrow right-arrow"
+									onClick={() => handleScroll('right')}
+								>
+									<ChevronRightThinSvg />
+								</div>
+							)}
+						</div>
 					</div>
 				)}
 			</div>

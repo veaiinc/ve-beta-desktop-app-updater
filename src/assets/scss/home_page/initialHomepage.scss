@@ -75,12 +75,19 @@
 			justify-content: flex-start;
 			align-items: center;
 			align-content: center;
+			position: relative;
 			gap: 6px;
 			width: 100%;
-			max-width: 750px;
+			max-width: 700px; /* Adjusted to make space for arrows */
 			overflow-x: auto;
 			scrollbar-width: none !important;
 			transition: width 0.9s ease-in-out;
+			scroll-behavior: smooth; /* Ensure smooth scrolling */
+			-ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+			&::-webkit-scrollbar {
+				display: none; /* Hide scrollbar for WebKit browsers */
+			}
+
 			.option {
 				display: flex;
 				padding: 8px 12px;
@@ -112,7 +119,6 @@
 						height: 16px;
 					}
 				}
-
 				&.active {
 					border: 1px solid var(--primary-button);
 					.option-label {
@@ -120,6 +126,46 @@
 						svg {
 							color: var(--primary-button);
 						}
+					}
+				}
+			}
+		}
+
+		.options-wrapper {
+			position: relative;
+			display: flex;
+			align-items: center;
+			max-width: 750px; /* Total width including arrows */
+			margin: 0 auto;
+			.arrow-container {
+				width: 50px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 6px;
+				background: var(--background-color);
+				.arrow {
+					position: absolute;
+					top: 50%;
+					transform: translateY(-50%);
+					width: 24px;
+					height: 24px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					cursor: pointer;
+					z-index: 1;
+					svg {
+						width: 16px;
+						height: 16px;
+						color: var(--primary-font);
+					}
+
+					&.left-arrow {
+						right: 30px;
+					}
+					&.right-arrow {
+						right: 0;
 					}
 				}
 			}
