@@ -1082,7 +1082,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 				</>
 			)}
 			<div className="proactiveChatContainer">
-				<div className={`chatbox-container ${info?.showExploreMore ? 'slideUp' : ''}`}>
+				<div className={`chatbox_container ${info?.showExploreMore ? 'slideUp' : ''}`}>
 					<ChatBox
 						onSend={handleCustomOnSendFunction}
 						customChatActions={true}
