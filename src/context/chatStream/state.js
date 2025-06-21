@@ -45,7 +45,7 @@ export const ChatStreamState = () => {
 				socketRefs.current[currentSessionIdRef.current].close();
 				delete socketRefs.current[currentSessionIdRef.current];
 			}
-		}, 15 * 1000); // 5 minutes in milliseconds
+		}, 5 * 60 * 1000); // 5 minutes in milliseconds
 	}, []);
 
 	const sendMessage = useCallback(
