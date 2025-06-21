@@ -64,6 +64,7 @@ const AISuggestionsModal = ({
 			hasChainOfThought: false,
 		},
 		feedbackPopupOpen: false,
+		isDeleting: false,
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -253,8 +254,9 @@ const AISuggestionsModal = ({
 	};
 
 	const handleDeleteCard = useCallback(async () => {
-		if (!data?._id) return;
+		if (!data?._id || info.isDeleting) return;
 		const type = 'delete';
+		setInfo((prev) => ({ ...prev, isDeleting: true }));
 		const res = await pendingActionsUpdate(data?._id, { isDeleted: true }, type);
 		if (res?.[0] === true) {
 			getAISuggestedPendingActions(null, false, 'delete', data?._id);
@@ -262,7 +264,8 @@ const AISuggestionsModal = ({
 		} else {
 			message.error('Failed to delete pending action');
 		}
-	}, [data?._id, getAISuggestedPendingActions, onClose, pendingActionsUpdate]);
+		setInfo((prev) => ({ ...prev, isDeleting: false }));
+	}, [data?._id, getAISuggestedPendingActions, onClose, pendingActionsUpdate, info.isDeleting]);
 
 	const handleOpenFeedbackPopup = () => {
 		setInfo((prev) => ({

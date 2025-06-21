@@ -110,10 +110,6 @@ const PromptsWidget = ({ option }) => {
 				'update',
 				id,
 			);
-			setInfo((prev) => ({
-				...prev,
-				openSuggestionsModal: false,
-			}));
 			message.success(!card?.isFavourite ? 'Added to favourites' : 'Removed from favourites');
 		} else {
 			message.error('Failed to update');
