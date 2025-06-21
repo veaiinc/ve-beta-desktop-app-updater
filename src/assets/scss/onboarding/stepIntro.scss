@@ -1,0 +1,72 @@
+.introStepContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 150px;
+	justify-content: space-around;
+
+	height: 100%;
+	.introContent {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 16px;
+		align-self: stretch;
+		.introBadge {
+			display: flex;
+			padding: 10px 14px;
+			margin: 0 auto;
+			justify-content: center;
+			align-items: center;
+			width: fit-content;
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			gap: 10px;
+			border-radius: 24px;
+			border: 1px solid var(--primary-button, #79ecc9);
+			background: var(--background-color, #0c0c0d);
+			box-shadow: 0px 0px 200px 0px rgba(121, 236, 201, 0.7);
+		}
+		.introTitle {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 45px;
+			font-style: normal;
+			text-align: center;
+			width: 490px;
+			font-weight: 600;
+			line-height: 55px; /* 122.222% */
+		}
+		.introDesc {
+			color: var(--primary-font, #f2f2f3);
+			text-align: center;
+			font-family: var(--primary-font-family);
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 28px; /* 155.556% */
+		}
+	}
+	.continueBtn {
+		background: var(--primary-button);
+		color: var(--background-color, #0c0c0d);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		text-transform: capitalize;
+		border-radius: 24px;
+		padding: 14px 32px;
+		border: none;
+		cursor: pointer;
+		transition: background 0.2s;
+		&:hover {
+			background: var(--primary-button-hover, #1de9b6);
+		}
+	}
+}

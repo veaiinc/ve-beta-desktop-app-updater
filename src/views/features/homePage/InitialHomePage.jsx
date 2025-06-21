@@ -403,7 +403,7 @@ const InitialHomePage = () => {
 	const subText = homePageTextContent[info?.selectedOption]?.subText || '';
 	const userName =
 		jwtDecode(localStorage.getItem('usertoken'))?.userName ||
-		userDetailsData?.firstName + ' ' + userDetailsData?.lastName ||
+		userDetailsData?.firstName + ' ' + (userDetailsData?.lastName ?? '') ||
 		'User';
 	const greeting = getGreeting();
 
