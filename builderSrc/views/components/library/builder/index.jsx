@@ -1709,7 +1709,6 @@ class Builder extends Component {
 														this.state?.activeVariableName
 													}
 													subBlockID={this.state?.subBlockID}
-													variables={this.state?.variables}
 													client={this.props?.client}
 													setNewTab={(e) =>
 														this.props?.handleSetOpenNewtab(e)

@@ -1,17 +1,17 @@
 .user-message-renderer-wrapper {
 	display: flex;
-	justify-content: space-between;
+	justify-content: flex-end;
+	align-items: flex-start;
 	position: relative;
 	width: 100%;
-	align-items: flex-start;
-	justify-content: center;
-	gap: 20px;
+	gap: 10px;
 
 	.user-message-wrapper {
-		width: 100%;
-		flex-grow: 1;
+		width: fit-content;
+		max-width: 400px;
 		.user-message {
 			width: 100%;
+
 			.user-message-renderer-container {
 				padding: 8px 16px;
 				border-radius: 8px;
@@ -130,4 +130,15 @@
 	.hover-actions-container {
 		visibility: visible;
 	}
+}
+.user-hover-icons-tooltip {
+	background-color: var(--card);
+	color: var(--primary-font);
+	padding: 10px;
+	border-radius: 10px;
+	font-family: var(--chat-primary-font-family);
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
 }

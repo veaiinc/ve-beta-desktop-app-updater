@@ -4,6 +4,7 @@ import AddOnPlans from '../../settings/planbilling/addOnCards';
 // import CreditsLeftSvg from '../../../../assets/svg/sidebar/CreditsLeftSvg';
 import CreditsCoin from '../../../../assets/images/creditCoin.png';
 import { ReactComponent as ChevronRightIcon } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as HourGlassIcon } from '../../../../assets/svg/sidebar/hourGlass.svg';
 const CreditsLeft = () => {
 	const {
 		subscriptionInfo: { currentPlan },
@@ -79,7 +80,7 @@ const CreditsLeft = () => {
 	}, []);
 	const daysUntilExpiry = useMemo(() => {
 		if (!currentPlan?.expiresAt) return null;
-		const msLeft = currentPlan.expiresAt * 1000 - Date.now();
+		const msLeft = currentPlan?.expiresAt * 1000 - Date.now();
 		return Math.ceil(msLeft / (1000 * 60 * 60 * 24));
 	}, [currentPlan]);
 	// Calculate dynamic strokeDasharray
@@ -95,11 +96,7 @@ const CreditsLeft = () => {
 
 	return (
 		<div
-			className={`creditsLeft ${
-				!currentPlan?.aiCreditUsage || currentPlan?.totalAiCreditLimit === 0
-					? 'displayNone'
-					: ''
-			}`}
+			className={`creditsLeft ${currentPlan?.totalAiCreditLimit === 0 ? 'displayNone' : ''}`}
 		>
 			<div className={`left ${info?.creditsLeft === 0 ? 'noCreditsLeft' : ''}`}>
 				<div
@@ -132,20 +129,26 @@ const CreditsLeft = () => {
 						</div>
 					)}
 				</div>
-				{info?.creditsLeft === 0 && (
-					<div
-						className="upgrade-btn"
-						onClick={() => setInfo({ ...info, showUpgradeModal: true })}
-					>
-						Upgrade to continue <ChevronRightIcon />
-					</div>
-				)}
+
 				{daysUntilExpiry > 0 && daysUntilExpiry <= 3 && (
-					<div className="expiryBanner">
-						{daysUntilExpiry} day{daysUntilExpiry > 1 ? 's' : ''} left in your
-						subscription
+					<div className="expiryBannerContainer">
+						<HourGlassIcon />
+						<div className="expiryBanner">
+							{/* {daysUntilExpiry} day{daysUntilExpiry > 1 ? 's' : ''} left in your
+						subscription */}
+							Your plan expires in {daysUntilExpiry} days
+						</div>
 					</div>
 				)}
+				{info?.creditsLeft === 0 ||
+					(daysUntilExpiry > 0 && daysUntilExpiry <= 3 && (
+						<div
+							className="upgrade-btn"
+							onClick={() => setInfo({ ...info, showUpgradeModal: true })}
+						>
+							Upgrade <ChevronRightIcon />
+						</div>
+					))}
 				{info?.showUpgradeModal && (
 					<AddOnPlans
 						isOpen={info?.showUpgradeModal}

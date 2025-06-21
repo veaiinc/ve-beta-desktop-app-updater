@@ -168,6 +168,22 @@
 								}
 							}
 						}
+						.expiryBannerContainer {
+							display: flex;
+							align-items: flex-start;
+							gap: 8px;
+							align-self: stretch;
+							align-items: center;
+							margin: 10px 0px;
+							.expiryBanner {
+								color: var(--pending);
+								font-family: Inter;
+								font-size: 13px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
+						}
 					}
 					.creditsContainerImage {
 						display: flex;

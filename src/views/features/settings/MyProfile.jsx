@@ -7,6 +7,7 @@ import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWork
 import Notifications from '../../components/settings/profile/Notifications';
 import { message } from '../../components/globalComponents/CustomToast';
 import Cookies from 'js-cookie';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const themePreferenceOptions = [
 	{
@@ -27,6 +28,7 @@ const themePreferenceOptions = [
 ];
 
 const MyProfile = () => {
+	const { workspaceMode } = useWorkspaceMode();
 	const fullNameRef = useRef(null);
 	const {
 		profileInfo: {
@@ -374,7 +376,8 @@ const MyProfile = () => {
 					</div>
 				</div> */}
 				{/* Temporary Hide */}
-				<Notifications />
+
+				{workspaceMode === 'beta' && <Notifications />}
 
 				<div className="danger-zone">
 					<div className="danger-zone-header">

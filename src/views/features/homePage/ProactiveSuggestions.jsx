@@ -110,7 +110,7 @@ const sortOptions = {
 };
 const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
 
-const ProactiveSuggestions = () => {
+const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	const navigate = useNavigate();
 	const currentIndexRef = useRef(0);
 	const totalCardsDataRef = useRef([]);
@@ -128,6 +128,7 @@ const ProactiveSuggestions = () => {
 			aiQuestions,
 			currentSessionId,
 			chatInfo,
+			handleGlobalChatMessages,
 		},
 		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
@@ -185,11 +186,17 @@ const ProactiveSuggestions = () => {
 	}, [info?.totalCardsData, info?.currentIndex]);
 
 	useEffect(() => {
-		if (!aiSuggestedPendingActions) return;
+		if (!previousOption) {
+			return;
+		}
+		fetchPendingActions();
+	}, []);
+
+	useEffect(() => {
+		if (!aiSuggestedPendingActions || !isMountedRef.current) return;
 		if (
 			aiSuggestedPendingActions?.metaInfo?.currentPage === 1 &&
-			info?.selectedFilters?.length === 0 &&
-			isMountedRef.current
+			info?.selectedFilters?.length === 0
 		) {
 			return;
 		}
@@ -469,13 +476,15 @@ const ProactiveSuggestions = () => {
 				stream_end: true,
 			},
 		];
-		updateStateValues({ globalChatMessages: messages });
-		if (card?.sessionId) {
-			navigate(`/chat/${card?.sessionId}`);
-		} else {
-			navigate(`/chat/${ObjectID()?.toString()}`);
-		}
+		const sessionId = card?.sessionId || ObjectID()?.toString();
+		handleGlobalChatMessages({
+			updateExtraInfo: true,
+			recentChatMessages: messages,
+			sessionId,
+		});
+		navigate(`/chat/${sessionId}`);
 	}, []);
+
 	const handleViewChange = (view) => {
 		setInfo((prev) => ({
 			...prev,
@@ -710,122 +719,125 @@ const ProactiveSuggestions = () => {
 					)}
 					{info?.activeBtn === 'insights' && (
 						<>
-							<div
-								className="cards-container"
-								// style={{
-								// 	display: info?.cards?.length > 0 ? '' : 'none',
-								// }}
-								// onTouchStart={handleTouchStart}
-								// onTouchMove={handleTouchMove}
-								// onTouchEnd={handleTouchEnd}
-							>
-								{info?.loading ? (
-									[
-										{ position: 0 },
-										{ position: 1 },
-										{ position: 2 },
-										{ position: -1 },
-										{ position: -2 },
-									]?.map((item, index) => {
-										const classList = [
-											'card',
-											'skeleton',
-											positionClassMap[item.position],
-										];
-										return (
-											<div key={index} className={classList.join(' ')}>
-												<div
-													className="skeleton-container"
-													style={{
-														width: '100%',
-														height: '100%',
-														borderRadius: '10px',
-													}}
-												>
-													<Skeleton height={'100%'} width={'100%'} />
-												</div>
-											</div>
-										);
-									})
-								) : info?.cards?.length === 0 ? (
-									<div
-										className="no-data"
-										style={{ color: 'var(--primary-font)' }}
-									>
-										No data available
-									</div>
-								) : (
-									info?.cards?.map((card, index) => {
-										if (card?.position === null) return null;
-										const classList = [
-											'card',
-											positionClassMap[card?.position],
-										];
-										return (
-											<>
-												<div
-													key={index}
-													className={classList?.join(' ')}
-													onClick={() => handleCardClick(card, index)}
-												>
-													<div className="header">
-														<div className="card-description">
-															{card?.title}
-														</div>
+							{(info?.cards?.length > 0 || info?.searchQuery?.length !== 0) && (
+								<div
+									className="cards-container"
+									// style={{
+									// 	display: info?.cards?.length > 0 ? '' : 'none',
+									// }}
+									// onTouchStart={handleTouchStart}
+									// onTouchMove={handleTouchMove}
+									// onTouchEnd={handleTouchEnd}
+								>
+									{info?.loading ? (
+										[
+											{ position: 0 },
+											{ position: 1 },
+											{ position: 2 },
+											{ position: -1 },
+											{ position: -2 },
+										]?.map((item, index) => {
+											const classList = [
+												'card',
+												'skeleton',
+												positionClassMap[item.position],
+											];
+											return (
+												<div key={index} className={classList.join(' ')}>
+													<div
+														className="skeleton-container"
+														style={{
+															width: '100%',
+															height: '100%',
+															borderRadius: '10px',
+														}}
+													>
+														<Skeleton height={'100%'} width={'100%'} />
 													</div>
-													{classList?.[1] === 'selected' && (
-														<div className="footer">
-															<div className="module-type">
-																{card?.moduleType}
+												</div>
+											);
+										})
+									) : info?.cards?.length === 0 ? (
+										<div
+											className="no-data"
+											style={{ color: 'var(--primary-font)' }}
+										>
+											No data available
+										</div>
+									) : (
+										info?.cards?.map((card, index) => {
+											if (card?.position === null) return null;
+											const classList = [
+												'card',
+												positionClassMap[card?.position],
+											];
+											return (
+												<>
+													<div
+														key={index}
+														className={classList?.join(' ')}
+														onClick={() => handleCardClick(card, index)}
+													>
+														<div className="header">
+															<div className="card-description">
+																{card?.title}
 															</div>
-															<div className="module-priority">
-																<span
-																	style={{
-																		backgroundColor:
-																			PriorityLevel[
-																				card?.priority
-																			],
-																	}}
-																></span>
-																<div className="module-priority-text">
-																	<div>{card?.priority}</div>
-																	{card?.priority &&
-																		card?.updatedAt && (
-																			<div
-																				style={{
-																					color: 'var(--secondary-font)',
-																				}}
-																			>
-																				|
-																			</div>
-																		)}
-																	<Tooltip
-																		title={dayjs(
-																			card?.updatedAt * 1000,
-																		).format(
-																			'MMMM D, YYYY h:mm A',
-																		)}
-																	>
-																		<div>
-																			{dayjs(
+														</div>
+														{classList?.[1] === 'selected' && (
+															<div className="footer">
+																<div className="module-type">
+																	{card?.moduleType}
+																</div>
+																<div className="module-priority">
+																	<span
+																		style={{
+																			backgroundColor:
+																				PriorityLevel[
+																					card?.priority
+																				],
+																		}}
+																	></span>
+																	<div className="module-priority-text">
+																		<div>{card?.priority}</div>
+																		{card?.priority &&
+																			card?.updatedAt && (
+																				<div
+																					style={{
+																						color: 'var(--secondary-font)',
+																					}}
+																				>
+																					|
+																				</div>
+																			)}
+																		<Tooltip
+																			title={dayjs(
 																				card?.updatedAt *
 																					1000,
-																			)?.fromNow()}
-																		</div>
-																	</Tooltip>
+																			).format(
+																				'MMMM D, YYYY h:mm A',
+																			)}
+																		>
+																			<div>
+																				{dayjs(
+																					card?.updatedAt *
+																						1000,
+																				)?.fromNow()}
+																			</div>
+																		</Tooltip>
+																	</div>
 																</div>
 															</div>
-														</div>
-													)}
-												</div>
-											</>
-										);
-									})
-								)}
-							</div>
+														)}
+													</div>
+												</>
+											);
+										})
+									)}
+								</div>
+							)}
 
-							{info?.cards?.length && (
-								<div className="actionMainContainer">
+							<div className="actionMainContainer">
+								{(info?.cards.length || info?.searchQuery?.length !== 0) && (
 									<div className="right-container">
 										{/* <div className="viewSelectionContainer">
 						<Tooltip
@@ -1037,6 +1049,8 @@ const ProactiveSuggestions = () => {
 											</Tooltip>
 										</div>
 									</div>
+								)}
+								{info?.cards?.length && (
 									<div className="action-right">
 										<button className="card-change-btn" onClick={handleLeft}>
 											<ChevronRightThinSvg className="left-chevron" />
@@ -1051,8 +1065,8 @@ const ProactiveSuggestions = () => {
 											<ChevronRightThinSvg />
 										</button>
 									</div>
-								</div>
-							)}
+								)}
+							</div>
 						</>
 					)}
 					<AISuggestionsModal

@@ -228,9 +228,8 @@ class InvoiceWrapper extends Component {
 		e.stopPropagation();
 		this.props.showAddBlock(e);
 	};
-	//
+
 	render() {
-		console.log(this.props.variables, 'udayinvoicewrapper123===>hr');
 		return (
 			<div
 				className={`block  invoice-wrapper-container ${
@@ -466,9 +465,7 @@ class InvoiceWrapper extends Component {
 							zoom: this.state.previewType === 'ml' && this.state.preview ? 0.4 : 1,
 						}}
 					>
-						{console.log(this.props.variables, 'udayinvoicewrapper123')}
 						<Invoice
-							variables={this.props?.variables}
 							preview={this.state?.preview}
 							previewType={this.state?.previewType}
 							invoiceDetails={this.props?.invoiceDetails}
@@ -513,6 +510,7 @@ class InvoiceWrapper extends Component {
 							activeVariableID={this.props.activeVariableID}
 							activeVariableName={this.props.activeVariableName}
 							subBlockID={this.props?.subBlockID}
+							variables={this.props.variables}
 							sectionType={this.props.sectionType}
 							header={this.props.header}
 							clearStyling={() => this.props.clearStyle()}

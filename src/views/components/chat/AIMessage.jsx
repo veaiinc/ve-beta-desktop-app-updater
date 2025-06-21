@@ -3,6 +3,7 @@ import Context from '../../../context/context';
 import { Markdown } from '../../../helpers/markdownHelper';
 import { Tooltip } from 'antd';
 import { ReactComponent as PencilSparkleIcon } from '../../../assets/svg/notes/pencilSparkle.svg';
+import { ReactComponent as GraduationCapSvg } from '../../../assets/svg/graduationCap.svg';
 import { ReactComponent as ThumpsUpSvg } from '../../../assets/svg/ai_agents/thumps-up.svg';
 import { ReactComponent as ThumpsDownSvg } from '../../../assets/svg/ai_agents/thumps-down.svg';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
@@ -25,7 +26,6 @@ const AIMessage = ({
 	citations = null,
 	messageData,
 	isLastMessage = false,
-	isNewMessage = false,
 	showCanvas = true,
 	handleSendWebsocketMessage = null,
 	latestStreamMesage = null,
@@ -71,13 +71,10 @@ const AIMessage = ({
 		setNoteContent(messageData);
 	}, [customePencilClickFunc, setNoteContent, messageData]);
 
-	const handleThumbsClick = useCallback(
-		(thumbs) => {
-			// handleRatingClick && handleRatingClick(newRating, messageId);
-			setInfo((prev) => ({ ...prev, liked: thumbs, feedbackPopupOpen: true }));
-		},
-		[handleRatingClick, messageId, rating],
-	);
+	const handleTeachMeClick = useCallback(() => {
+		// handleRatingClick && handleRatingClick(newRating, messageId);
+		setInfo((prev) => ({ ...prev, feedbackPopupOpen: true }));
+	}, []);
 
 	const handlePromptClick = (prompt) => {
 		updateStateValues({ activePromptForChat: prompt });
@@ -141,7 +138,7 @@ const AIMessage = ({
 				<div
 					className="hover-actions-container"
 					style={{
-						visibility: isNewMessage ? 'visible' : '',
+						visibility: isLastMessage ? 'visible' : '',
 					}}
 				>
 					<div className="left-container">
@@ -150,19 +147,12 @@ const AIMessage = ({
 								placement="bottom"
 								arrow={false}
 								trigger={'hover'}
-								title={'Edit'}
-								overlayInnerStyle={{ color: 'var(--primary-font)' }}
-							>
-								<PencilSparkleIcon onClick={handlePencilClick} />
-							</Tooltip>
-						</div>
-
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={info?.isCopiedToClipboard ? 'Copied' : 'Copy'}
+								title={
+									<div className="hover-icons-tooltip">
+										{info?.isCopiedToClipboard ? 'Copied' : 'Copy'}
+									</div>
+								}
+								color="transparent"
 								overlayInnerStyle={{ color: 'var(--primary-font)' }}
 							>
 								{info?.isCopiedToClipboard ? (
@@ -172,49 +162,38 @@ const AIMessage = ({
 								)}
 							</Tooltip>
 						</div>
-					</div>
-
-					{/* <div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Audio'}
-							>
-								<HeadPhoneSvg />
-							</Tooltip>
-						</div> */}
-
-					<div className="right-container">
 						<div className="icon-container">
 							<Tooltip
 								placement="bottom"
 								arrow={false}
 								trigger={'hover'}
-								title={'Like'}
+								color="transparent"
+								title={<div className="hover-icons-tooltip">Edit</div>}
 								overlayInnerStyle={{ color: 'var(--primary-font)' }}
 							>
-								<ThumpsUpSvg
-									fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
-									onClick={() => handleThumbsClick('thumbsUp')}
+								<PencilSparkleIcon
+									style={{ width: '20px', height: '20px' }}
+									onClick={handlePencilClick}
 								/>
 							</Tooltip>
 						</div>
 
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Dislike'}
-								overlayInnerStyle={{ color: 'var(--primary-font)' }}
-							>
-								<ThumpsDownSvg
-									fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
-									onClick={() => handleThumbsClick('thumbsDown')}
+						<Tooltip
+							placement="bottom"
+							arrow={false}
+							trigger={'hover'}
+							color="transparent"
+							title={<div className="hover-icons-tooltip">Feedback</div>}
+							overlayInnerStyle={{ color: 'var(--primary-font)' }}
+						>
+							<div className="teach-me-container" onClick={handleTeachMeClick}>
+								<GraduationCapSvg
+									className="teach-me-icon"
+									style={{ width: '20px', height: '20px' }}
 								/>
-							</Tooltip>
-						</div>
+								<div className="teach-me-text">Teach me</div>
+							</div>
+						</Tooltip>
 					</div>
 				</div>
 			)}
@@ -251,7 +230,7 @@ export default memo(AIMessage, (prevProps, nextProps) => {
 		prevProps.rating === nextProps.rating &&
 		JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
 		prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
-		prevProps.isNewMessage === nextProps.isNewMessage &&
+		prevProps.isLastMessage === nextProps.isLastMessage &&
 		prevProps.lastQuery === nextProps.lastQuery &&
 		prevProps.latestStreamMesage === nextProps.latestStreamMesage
 	);

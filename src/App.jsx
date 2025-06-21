@@ -1,14 +1,14 @@
 import { Routes, Route } from 'react-router-dom';
 import betaRoutes from './routes';
-import { memo, useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import ExpiredSubscriptionModal from './views/components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from './views/components/modalsV2/subscription/ExpiredTokenModal';
 import Cookies from 'js-cookie';
 import Context from './context/context';
 import AccessDeniedPopup from './views/components/accessPopups/accessDeniedPopup';
-import VoiceWrapper from './views/layouts/VoiceWrapper';
+// import VoiceWrapper from './views/layouts/VoiceWrapper';
 import CustomToast from './views/components/globalComponents/CustomToast';
-import Spinner from './views/components/loaders/Spinner';
+// import Spinner from './views/components/loaders/Spinner';
 import useWorkspaceMode from './views/hooks/useWorkspaceMode';
 
 const stableRoutes = betaRoutes?.filter(
@@ -17,7 +17,8 @@ const stableRoutes = betaRoutes?.filter(
 		route.path === '/home' ||
 		route.path === '/settings/:type' ||
 		route.path === '/chat/:sessionId' ||
-		route.path === '/share-and-earn',
+		route.path === '/share-and-earn' ||
+		route.path === '/create-workspace',
 );
 
 function App() {
@@ -77,10 +78,10 @@ function App() {
 			<ExpiredSubscriptionModal />
 			<ExpiredTokenModal />
 			<AccessDeniedPopup />
-			<VoiceWrapper />
+			{/* <VoiceWrapper /> */}
 			<CustomToast />
 		</>
 	);
 }
 
-export default memo(App);
+export default App;

@@ -7,7 +7,7 @@
 	margin: 0 auto;
 	height: 93vh;
 	position: relative; // Positioning context for absolute-positioned cards
-
+	margin-top: 30px;
 	.prompts-widget-empty {
 		display: flex;
 		align-items: flex-start;
@@ -40,12 +40,12 @@
 			// Initial state for all cards
 			opacity: 0;
 			transform: translateY(50px); // Start 50px below for non-animated cards
-			transition: all 0.9s ease-in-out;
+			transition: all 0.5s ease-in-out;
 
 			&.slide-animate {
 				opacity: 1; // Fade-in and slide up for non-animated cards
 				transform: translateY(0);
-				animation: slide-up 0.9s ease-in-out 0s forwards;
+				animation: slide-up 0.5s ease-in-out 0s forwards;
 			}
 
 			&.deal-animate {
@@ -58,27 +58,27 @@
 
 			&.deal-path-0 {
 				// 4th card (index 3, first row, fourth column)
-				animation: deal-to-first-row-fourth 0.9s ease-in-out 0s forwards;
+				animation: deal-to-first-row-fourth 0.5s ease-in-out 0s forwards;
 			}
 
 			&.deal-path-1 {
 				// 5th card (index 4, second row, first column)
-				animation: deal-to-second-row-first 0.9s ease-in-out 0s forwards;
+				animation: deal-to-second-row-first 0.5s ease-in-out 0s forwards;
 			}
 
 			&.deal-path-2 {
 				// 8th card (index 7, second row, fourth column)
-				animation: deal-to-second-row-fourth 0.9s ease-in-out 0s forwards;
+				animation: deal-to-second-row-fourth 0.5s ease-in-out 0s forwards;
 			}
 
 			&.deal-path-3 {
 				// 10th card (index 9, third row, second column)
-				animation: deal-to-third-row-second 0.9s ease-in-out 0s forwards;
+				animation: deal-to-third-row-second 0.5s ease-in-out 0s forwards;
 			}
 
 			&.deal-path-4 {
 				// 12th card (index 11, third row, fourth column)
-				animation: deal-to-third-row-fourth 0.9s ease-in-out 0s forwards;
+				animation: deal-to-third-row-fourth 0.5s ease-in-out 0s forwards;
 			}
 		}
 
@@ -230,11 +230,11 @@
 		left: 0;
 	}
 }
-.skeletonLoaderContainer {
+
+.prompts-widget-cards-loading {
 	display: flex;
-	align-items: flex-start;
-	align-content: flex-start;
 	gap: 16px;
+	max-width: 750px;
+	width: 100%;
 	flex-wrap: wrap;
-	width: 750px;
 }
