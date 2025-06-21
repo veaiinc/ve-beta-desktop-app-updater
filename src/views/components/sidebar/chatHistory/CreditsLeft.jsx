@@ -96,11 +96,7 @@ const CreditsLeft = () => {
 
 	return (
 		<div
-			className={`creditsLeft ${
-				!currentPlan?.aiCreditUsage || currentPlan?.totalAiCreditLimit === 0
-					? 'displayNone'
-					: ''
-			}`}
+			className={`creditsLeft ${currentPlan?.totalAiCreditLimit === 0 ? 'displayNone' : ''}`}
 		>
 			<div className={`left ${info?.creditsLeft === 0 ? 'noCreditsLeft' : ''}`}>
 				<div
