@@ -1,12 +1,20 @@
-import { memo, useCallback, useContext, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import s from '../../../assets/scss/chat/chatHeader.module.scss';
 import { ReactComponent as LeftSvg } from '../../../assets/svg/activity/left.svg';
 import { ReactComponent as DeleteSvg } from '../../../assets/svg/delete.svg';
+import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
+
 import { Tooltip } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 
-const ChatHeader = ({ sessionId, onNavigateBack, isNewChat = false }) => {
+const ChatHeader = ({
+	sessionId,
+	onNavigateBack,
+	isNewChat = false,
+	smoothScrollToParticularMessage = null,
+}) => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const {
@@ -15,7 +23,43 @@ const ChatHeader = ({ sessionId, onNavigateBack, isNewChat = false }) => {
 
 	const [info, setInfo] = useState({
 		deleteChatSessionLoading: false,
+		chatDropdownExpanded: false,
+		userMessages: [],
+		activeUserMessageIndex: -1,
 	});
+
+	useEffect(() => {
+		const messages = globalChatMessages?.[sessionId]?.messages;
+		if (messages?.length > 0) {
+			const userMessages = [];
+			let index = 0,
+				activeIndex = 0;
+
+			for (const message of messages) {
+				if (message?.type?.toLowerCase() === 'user') {
+					userMessages.push({
+						message: message?.message,
+						index: index++,
+					});
+				}
+			}
+
+			activeIndex = userMessages?.length - 1;
+
+			const others = userMessages
+				?.filter((_, idx) => idx !== activeIndex)
+				?.sort((a, b) => a?.index - b?.index);
+			const filteredUserMessages = [userMessages?.[activeIndex], ...others];
+
+			if (userMessages?.length > 0) {
+				setInfo((prev) => ({
+					...prev,
+					activeUserMessageIndex: 0,
+					userMessages: filteredUserMessages,
+				}));
+			}
+		}
+	}, [globalChatMessages?.[sessionId]?.messages?.length]);
 
 	const handleNavigateBack = useCallback(() => {
 		const pathname = location?.pathname?.split('/')?.[1];
@@ -43,28 +87,85 @@ const ChatHeader = ({ sessionId, onNavigateBack, isNewChat = false }) => {
 		setInfo((prev) => ({ ...prev, deleteChatSessionLoading: false }));
 	}, [deleteChatSession, sessionId, info?.deleteChatSessionLoading, globalChatMessages]);
 
+	const handleActiveUserMessageIndexChange = useCallback(
+		(index) => {
+			if (index === info?.activeUserMessageIndex) return;
+
+			const others = info?.userMessages
+				?.filter((_, idx) => idx !== index)
+				?.sort((a, b) => a?.index - b?.index);
+			const filteredUserMessages = [info?.userMessages?.[index], ...others];
+
+			smoothScrollToParticularMessage?.(2 * info?.userMessages?.[index]?.index);
+
+			setInfo((prev) => ({
+				...prev,
+				activeUserMessageIndex: 0,
+				userMessages: filteredUserMessages,
+				chatDropdownExpanded: false,
+			}));
+		},
+		[info?.activeUserMessageIndex, info?.userMessages, smoothScrollToParticularMessage],
+	);
+
 	return (
-		<div className={s.chatHeader}>
-			<div className={s.leftContainer}>
-				<div className={s.iconContainer} onClick={handleNavigateBack}>
-					<LeftSvg />
+		<div className={`${s.chatHeader} ${info?.chatDropdownExpanded ? s.expanded : ''}`}>
+			<div className={s.headerInfo}>
+				<div className={s.leftContainer}>
+					<div className={s.iconContainer} onClick={handleNavigateBack}>
+						<LeftSvg />
+					</div>
+					<div className={s.chatTitle}>{currentChatData?.title || 'New Chat'}</div>
 				</div>
-				<div className={s.chatTitle}>{currentChatData?.title || 'New Chat'}</div>
+				<div className={s.rightContainer}>
+					{!isNewChat && (
+						<Tooltip
+							title={<div className={s.tooltip}>Delete Chat</div>}
+							placement="bottom"
+							color="transparent"
+							arrow={false}
+						>
+							<button className={s.deleteChatBtn} onClick={handleDeleteChatClick}>
+								<DeleteSvg />
+							</button>
+						</Tooltip>
+					)}
+				</div>
 			</div>
-			<div className={s.rightContainer}>
-				{!isNewChat && (
-					<Tooltip
-						title={<div className={s.tooltip}>Delete Chat</div>}
-						placement="bottom"
-						color="transparent"
-						arrow={false}
+			{info?.userMessages?.length > 0 && (
+				<div className={s.chatInfo}>
+					<div
+						className={`${s.questionWrapper} ${
+							info?.chatDropdownExpanded ? s.expanded : ''
+						}`}
 					>
-						<button className={s.deleteChatBtn} onClick={handleDeleteChatClick}>
-							<DeleteSvg />
-						</button>
-					</Tooltip>
-				)}
-			</div>
+						<div className={s.chatQuestionContainer}>
+							{info?.userMessages?.map((message, index) => (
+								<div
+									className={`${s.chatQuestion} ${index === 0 ? s.active : ''}`}
+									onClick={() => handleActiveUserMessageIndexChange(index)}
+								>
+									{index === 0 && info?.chatDropdownExpanded && <TickSvg />}
+									{message?.message || ''}
+								</div>
+							))}
+						</div>
+						<div
+							className={`${s.iconContainer} ${
+								info?.chatDropdownExpanded ? s.expanded : ''
+							}`}
+							onClick={() =>
+								setInfo((prev) => ({
+									...prev,
+									chatDropdownExpanded: !prev.chatDropdownExpanded,
+								}))
+							}
+						>
+							<ChevronRightThinSvg width={18} height={18} />
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };

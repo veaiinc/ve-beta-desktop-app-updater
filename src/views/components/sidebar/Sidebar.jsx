@@ -251,7 +251,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 				className="sidebar-toggle-btn"
 				style={{
 					position: 'fixed',
-					top: 24,
+					top: 29,
 					left: 20, // Fixed position, doesn't change with sidebar state
 					zIndex: 900,
 				}}
