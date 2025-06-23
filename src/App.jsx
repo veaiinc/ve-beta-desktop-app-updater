@@ -23,6 +23,7 @@ const stableRoutes = betaRoutes?.filter(
 );
 
 function App() {
+	console.log(Cookies.get('region'));
 	const currentRoute = window.location.pathname;
 	const { workspaceMode } = useWorkspaceMode(); // stable, beta, internal
 	const {
