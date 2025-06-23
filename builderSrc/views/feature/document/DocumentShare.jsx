@@ -35,10 +35,8 @@ const DocumentShare = ({
 			sendCustomEmailToClients,
 		},
 		profileInfo: {
-			userWorkSpaceList,
 			tennantSettingsData,
 			getTenantSettings,
-			getUserWorkSpaceList,
 		},
 		aiSetup: {
 			existingAiAssistants,
@@ -70,11 +68,11 @@ const DocumentShare = ({
 		slugErrorMessage: '',
 		editSlug: false,
 		timeout: null,
-		currentWorkspaceId: '',
 		workflowId: smartFileInfo?._id || '',
 		copyLink: '',
 		isAlChatEnabled: smartFileInfo?.isAlChatEnabled || false,
 		clientDetails: '',
+		workspaceId: '',
 	});
 
 	const [pendingExpirySelection, setPendingExpirySelection] = useState(null);
@@ -90,12 +88,6 @@ const DocumentShare = ({
 	const assistantDropdownRef = useRef(null);
 
 	const navigate = useNavigate();
-
-	useEffect(() => {
-		if (!userWorkSpaceList) {
-			getUserWorkSpaceList();
-		}
-	}, [userWorkSpaceList]);
 
 	useEffect(() => {
 		if (!tennantSettingsData) {
@@ -163,20 +155,19 @@ const DocumentShare = ({
 
 	// Set currentWorkspaceId and copyLink
 	useEffect(() => {
-		if (userWorkSpaceList) {
-			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
-			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
+		if (tennantSettingsData) {
+			setInfo((prev) => ({ ...prev, workspaceId: tennantSettingsData?.workspaceIds[tennantSettingsData?.workspaceIds?.length - 1] }));
 		}
-		if (tennantSettingsData && smartFileInfo && info.currentWorkspaceId) {
+		if (tennantSettingsData && smartFileInfo && info.workspaceId) {
 			let link;
 			if (tennantSettingsData?.customDomain?.length) {
 				link = `https://${tennantSettingsData.customDomain}/portal/${smartFileInfo.slug}`;
 			} else {
-				link = `https://${info.currentWorkspaceId}.ve.ai/portal/${smartFileInfo.slug}`;
+				link = `https://${info.workspaceId}.ve.ai/portal/${smartFileInfo.slug}`;
 			}
 			setInfo((prev) => ({ ...prev, copyLink: link }));
 		}
-	}, [userWorkSpaceList, tennantSettingsData, smartFileInfo, info.currentWorkspaceId]);
+	}, [tennantSettingsData, smartFileInfo, info.workspaceId]);
 
 	// Focus input when editing slug
 	useEffect(() => {
@@ -184,12 +175,6 @@ const DocumentShare = ({
 			inputRef.current.focus();
 		}
 	}, [info.editSlug]);
-
-	const getCurrentWorkspaceId = (workspaces) => {
-		const workspaceId = localStorage.getItem('workspaceId');
-		const workspace = workspaces.find((ws) => ws.activeWorkspaceId === workspaceId);
-		return workspace ? workspace.activeWorkspaceId : '';
-	};
 
 	// Update parent state (mimics updateWorkflowSlug in DocsFullView)
 	const updateWorkflowSlug = useCallback(
@@ -663,7 +648,7 @@ const DocumentShare = ({
 						</div>
 						<div className="url-text">
 							<span className="linkDetailText">
-								{`https://${info.currentWorkspaceId}.ve.ai/portal/`}
+								{`https://${info.workspaceId}.ve.ai/portal/`}
 								<input
 									type="text"
 									className="editableSlugInput"
