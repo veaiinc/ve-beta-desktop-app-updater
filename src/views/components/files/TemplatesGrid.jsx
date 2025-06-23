@@ -14,6 +14,7 @@ import EmptyState from './EmptyState';
 import { Tooltip } from 'antd';
 import { ReactComponent as Search } from '../../../assets/svg/search.svg';
 import { useNavigate } from 'react-router-dom';
+import { useRef } from 'react';
 
 const filterOptions = [
 	{ label: 'All', value: '' },
@@ -31,6 +32,7 @@ const sortOptions = [
 ];
 let origin = fetchOriginSelection();
 const TemplatesGrid = ({ handleTotalChange }) => {
+	const mountedRef = useRef(true);
 	const {
 		templates: { myWorkflows, getMyWorkflows, createBlankTemplate },
 	} = useContext(Context);
@@ -48,8 +50,17 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 		blankTemplateLoading: false,
 		searchQuery: '',
 	});
+	useEffect(() => {
+		if (!myWorkflows) {
+			getMyWorkflowTemplatesData(1);
+		}
+	}, [myWorkflows]);
 
 	useEffect(() => {
+		if (mountedRef.current) {
+			mountedRef.current = false;
+			return;
+		}
 		const timeout = setTimeout(() => {
 			getMyWorkflowTemplatesData(1);
 		}, 1000);
