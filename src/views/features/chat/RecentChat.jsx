@@ -255,19 +255,8 @@ const RecentChat = ({
 			);
 		}
 
-		if (
-			sessionId &&
-			isPublicChat &&
-			isFirstTimeConnectingToPublicChatRef.current &&
-			workspaceMode
-		) {
-			createWebSocketConnection(
-				sessionId,
-				onMessageFunc,
-				agentType,
-				isPublicChat,
-				workspaceMode,
-			);
+		if (sessionId && isPublicChat && isFirstTimeConnectingToPublicChatRef.current) {
+			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 			isFirstTimeConnectingToPublicChatRef.current = false;
 		}
 	}, [sessionId, searchParams, workspaceMode]);
