@@ -71,9 +71,6 @@ const GalleryGrid = ({
 	const debounceTimeout = useRef();
 
 	useEffect(() => {
-		if (!mountedRef.current) {
-			return;
-		}
 		handleStateUpdate({ loading: true, currentPage: 1, hasNextPage: false });
 
 		const options = {
@@ -81,7 +78,9 @@ const GalleryGrid = ({
 			limit: 20,
 			storeOriginals: selectedOption === 'Gallery',
 		};
-		fetchGalleries(options);
+		if (!tenantGalleries) {
+			fetchGalleries(options);
+		}
 	}, []);
 
 	useEffect(() => {
