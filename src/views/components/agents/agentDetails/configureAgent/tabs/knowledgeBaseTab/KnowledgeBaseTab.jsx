@@ -101,7 +101,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 						knowledge for chats.
 					</div>
 				</div>
-				<button
+				<div
 					onClick={() => {
 						setInfo((prev) => ({ ...prev, knowledgeModalOpen: true }));
 					}}
@@ -111,7 +111,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 						<PlusSvg />
 					</div>
 					Knowledge
-				</button>
+				</div>
 			</div>
 			{dataLength > 0 && (
 				<table className={s?.assistantsListContainer} role="table">
