@@ -1,22 +1,14 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useContext, useEffect } from 'react';
-import ExpiredSubscriptionModal from './views/components/modalsV2/subscription/ExpiredSubscriptionModal';
-import ExpiredTokenModal from './views/components/modalsV2/subscription/ExpiredTokenModal';
 import Cookies from 'js-cookie';
 import Context from './context/context';
-import AccessDeniedPopup from './views/components/accessPopups/accessDeniedPopup';
 import CustomToast from './views/components/globalComponents/CustomToast';
 import useWorkspaceMode from './views/hooks/useWorkspaceMode';
-import publicRoutes from './routes/publicRoutes';
-import stableRoutes from './routes/stableRoutes';
-import betaRoutes from './routes/betaRoutes';
+import Spinner from './views/components/loaders/Spinner';
 
-function App() {
+const App = () => {
 	const { pathname } = useLocation();
-	const { workspaceMode } = useWorkspaceMode(); // stable, beta, internal
-	const protectedRoutes =
-		workspaceMode === 'stable' ? stableRoutes : workspaceMode === 'beta' ? betaRoutes : [];
-	const routes = [...publicRoutes, ...protectedRoutes];
+	const { loading, routes } = useWorkspaceMode();
 
 	const {
 		themeInfo: { theme },
@@ -55,7 +47,19 @@ function App() {
 		}
 	}, [theme]);
 
-	return (
+	return loading ? (
+		<div
+			style={{
+				width: '100vw',
+				height: '100vh',
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+			}}
+		>
+			<Spinner width={32} height={32} />
+		</div>
+	) : (
 		<>
 			<Routes>
 				{routes?.map((route, index) => (
@@ -67,12 +71,9 @@ function App() {
 					/>
 				))}
 			</Routes>
-			<ExpiredSubscriptionModal />
-			<ExpiredTokenModal />
-			<AccessDeniedPopup />
 			<CustomToast />
 		</>
 	);
-}
+};
 
 export default App;
