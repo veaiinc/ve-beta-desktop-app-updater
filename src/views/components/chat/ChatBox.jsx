@@ -1246,7 +1246,7 @@ const ChatBox = ({
 												className="reply-close-icon"
 												onClick={handleReplyCloseClick}
 											>
-												<CloseSvg />
+												<CloseSvg width={16} height={16} />
 											</div>
 										</div>
 									)}

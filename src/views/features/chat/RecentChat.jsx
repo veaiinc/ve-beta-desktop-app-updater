@@ -440,7 +440,7 @@ const RecentChat = ({
 
 				// Calculate x and y relative to the infinite scroll container
 				const relativeX = x - (containerRect?.left || 0);
-				const relativeY = y - 50 - (containerRect?.top || 0);
+				const relativeY = y - 44 - (containerRect?.top || 0);
 
 				setInfo((prev) => ({
 					...prev,
