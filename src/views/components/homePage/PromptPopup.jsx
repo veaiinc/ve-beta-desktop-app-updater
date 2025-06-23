@@ -250,14 +250,14 @@ const PromptPopup = ({
 					{info?.feedbackPopupOpen && (
 						<div className="promptPopupContainerHeaderRight">
 							<button
-								className={`${info?.feedback === 'thumbsup' ? 'active' : ''}`}
-								onClick={() => handleFeedbackClick('thumbsup')}
+								className={`${info?.feedback === 'thumbsUp' ? 'active' : ''}`}
+								onClick={() => handleFeedbackClick('thumbsUp')}
 							>
 								<ThumbsUp />
 							</button>
 							<button
-								className={`${info?.feedback === 'thumbsdown' ? 'active' : ''}`}
-								onClick={() => handleFeedbackClick('thumbsdown')}
+								className={`${info?.feedback === 'thumbsDown' ? 'active' : ''}`}
+								onClick={() => handleFeedbackClick('thumbsDown')}
 							>
 								<ThumbsDown />
 							</button>
