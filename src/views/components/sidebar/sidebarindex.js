@@ -71,7 +71,7 @@ export const stableSettingsNavItems = {
 	],
 	essentials: [
 		{ id: 3, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
-		{ id: 4, icon: HelpSvg, name: 'Help' },
+		// { id: 4, icon: HelpSvg, name: 'Help' },
 	],
 };
 
@@ -94,6 +94,6 @@ export const betaSettingsNavItems = {
 		{ id: 1, icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
 		{ id: 2, icon: NotificationSvg, name: 'Notifications', route: null },
 		{ id: 3, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
-		{ id: 4, icon: HelpSvg, name: 'Help' },
+		// { id: 4, icon: HelpSvg, name: 'Help' },
 	],
 };
