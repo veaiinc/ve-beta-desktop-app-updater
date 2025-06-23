@@ -1084,9 +1084,9 @@ const OpenedSidebar = ({
 									>
 										{theme === 'dark' ? <SunIcon /> : <MoonIcon />}
 									</div>
-									<div className="eachOption" onClick={triggerCmdK}>
+									{/* <div className="eachOption" onClick={triggerCmdK}>
 										<SearchSvg />
-									</div>
+									</div> */}
 									<div className="eachOption" onClick={handleNewChat}>
 										<NewEditSvg />
 									</div>
