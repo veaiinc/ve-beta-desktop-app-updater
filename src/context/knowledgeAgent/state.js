@@ -16,7 +16,7 @@ export const initialState = {
 export const KnowledgeAgentState = () => {
 	const [state, dispatch] = useReducer(Reducer, initialState);
 
-	const getKnowledgeAssistantsList = async (page = 1, limit = 10) => {
+	const getKnowledgeAssistantsList = async (page = 1, limit = 10, append = true) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const path = `/${workspaceId}/knowledge-agents?page=${page}&limit=${limit}`;
@@ -25,10 +25,12 @@ export const KnowledgeAgentState = () => {
 			const response = await service?.fetchGet(path, token, type);
 			const success = response?.[0] === true;
 			if (success) {
-				const data = [
-					...(state?.knowledgeAssistantsList?.data || []),
-					...(response?.[1]?.data || []),
-				];
+				const data = append
+					? [
+							...(state?.knowledgeAssistantsList?.data || []),
+							...(response?.[1]?.data || []),
+					  ]
+					: [...(response?.[1]?.data || [])];
 				const payload = {
 					data,
 					currentPage: response?.[1]?.currentPage ?? 1,
@@ -636,6 +638,25 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
+	const deleteKnowledgeBaseFile = async (knowledgeFileId) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const path = `/${workspaceId}/knowledge-bases/${knowledgeFileId}/knowledgeAgent`;
+		const token = localStorage.getItem('usertoken');
+		const type = 'ai_assistant_api';
+		const response = await service?.fetchDelete(path, token, null, type);
+		const success = response?.[0] === true;
+		if (success) {
+			dispatch({
+				type: Actions?.SET_KNOWLEDGE_BASE_INFO,
+				payload: {
+					...response?.[1],
+					data: [...(response?.[1]?.data || [])],
+				},
+			});
+		}
+		return [success];
+	};
+
 	const uploadAgentProfilePic = async ({ agentId, file }) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -909,6 +930,39 @@ export const KnowledgeAgentState = () => {
 		return [false, response?.[1]];
 	};
 
+	const deleteKnowledgeAgent = async (agentId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${workspaceId}/knowledge-agents/${agentId}`;
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const response = await service?.fetchDelete(path, token, null, type);
+			const success = response?.[0] === true;
+			if (success) {
+				if (state?.activeKnowledgeAssistant?.data?._id === agentId) {
+					dispatch({
+						type: Actions?.SET_ACTIVE_KNOWLEDGE_ASSISTANT,
+						payload: { data: null },
+					});
+				}
+				dispatch({
+					type: Actions?.SET_KNOWLEDGE_BASE_INFO,
+					payload: null,
+				});
+				dispatch({
+					type: Actions?.SET_KNOWLEDGE_BASE_ACTIVE_FILE_STATUS,
+					payload: null,
+				});
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>deleteKnowledgeAgent', error);
+			return [false, error];
+		}
+	};
+
 	return {
 		...state,
 		createNewKnowledgeAgent,
@@ -944,5 +998,7 @@ export const KnowledgeAgentState = () => {
 		getPipedreamActionPayload,
 		getExistingconnectedAccounts,
 		deleteConnectedAccount,
+		deleteKnowledgeBaseFile,
+		deleteKnowledgeAgent,
 	};
 };

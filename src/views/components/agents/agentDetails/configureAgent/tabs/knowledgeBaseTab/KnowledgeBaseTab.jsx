@@ -8,7 +8,7 @@ import AddKnowledgeModal from '../../../../../../components/modalsV2/knowledgeAg
 import InfiniteScroll from '../../../../../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp, fileTypeIcons } from '../../../../../../../helpers';
 import ToggleSwitch from '../../../../../../components/input/slider';
-
+import { ReactComponent as Delete } from '../assets/delete.svg';
 const page = 1;
 const limit = 10;
 
@@ -23,12 +23,14 @@ const KnowledgeBaseTab = ({ agentId }) => {
 			knowledgeBaseFilesActiveStatus,
 			getKnowledgeBaseFilesActiveStatus,
 			updateContextValues,
+			deleteKnowledgeBaseFile,
 		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		knowledgeModalOpen: false,
 		isActive: null,
+		loading: false,
 	});
 
 	const fullWorkspaceAccess = activeKnowledgeAssistant?.data?.fullWorkspaceAccess;
@@ -69,27 +71,83 @@ const KnowledgeBaseTab = ({ agentId }) => {
 	const handleToggleChange = useCallback(
 		async (knowledgeId, value) => {
 			try {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					isActive: {
-						...(prevInfo.isActive || {}),
-						[knowledgeId]: value,
+				const updatedActiveStatus = {
+					...activeStatus,
+					[knowledgeId]: value,
+				};
+
+				updateContextValues({
+					knowledgeBaseFilesActiveStatus: {
+						...knowledgeBaseFilesActiveStatus,
+						data: Object.entries(updatedActiveStatus).map(([_id, isActive]) => ({
+							_id,
+							isActive,
+						})),
 					},
-				}));
+				});
+
 				const response = await updateKnowledgeBaseFile(knowledgeId, {
 					isActive: value,
 					agent: 'knowledgeAgent',
 				});
 
 				if (!response?.[0]) {
-					message?.error('Failed to update knowledge base file');
+					updateContextValues({
+						knowledgeBaseFilesActiveStatus: {
+							...knowledgeBaseFilesActiveStatus,
+							data: Object.entries(activeStatus).map(([_id, isActive]) => ({
+								_id,
+								isActive,
+							})),
+						},
+					});
+					message?.error('Failed to update knowledge base file try again');
+				} else {
+					message?.success('Knowledge base file updated successfully!');
 				}
+				setInfo((prev) => ({
+					...prev,
+					isActive: { ...prev.isActive, [knowledgeId]: value },
+				}));
 			} catch (error) {
+				updateContextValues({
+					knowledgeBaseFilesActiveStatus: {
+						...knowledgeBaseFilesActiveStatus,
+						data: Object.entries(activeStatus).map(([_id, isActive]) => ({
+							_id,
+							isActive,
+						})),
+					},
+				});
 				message?.error('Failed to update knowledge base file');
 			}
 		},
-		[info?.knowledgeBaseFiles],
+		[activeStatus],
 	);
+
+	const handleDeleteKnowledgeBaseFile = async (knowledgeId) => {
+		if (info?.loading) return;
+		setInfo((prev) => ({ ...prev, loading: true }));
+
+		try {
+			const response = await deleteKnowledgeBaseFile(knowledgeId);
+			if (response?.[0]) {
+				message?.success('Knowledge base file deleted successfully!');
+				updateContextValues({
+					knowledgeBaseInfo: null,
+					knowledgeBaseFilesActiveStatus: null,
+				});
+				await getKnowledgeBaseInfo(agentId, page, limit);
+				await getKnowledgeBaseFilesActiveStatus({ agentId, page, limit });
+			} else {
+				message?.error('Failed to delete knowledge base file');
+			}
+		} catch (error) {
+			message?.error('Failed to delete knowledge base file');
+		} finally {
+			setInfo((prev) => ({ ...prev, loading: false }));
+		}
+	};
 
 	return (
 		<div className={s?.knowledgeBaseContainer}>
@@ -101,7 +159,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 						knowledge for chats.
 					</div>
 				</div>
-				<div
+				<button
 					onClick={() => {
 						setInfo((prev) => ({ ...prev, knowledgeModalOpen: true }));
 					}}
@@ -111,9 +169,9 @@ const KnowledgeBaseTab = ({ agentId }) => {
 						<PlusSvg />
 					</div>
 					Knowledge
-				</div>
+				</button>
 			</div>
-			{dataLength > 0 && (
+			{dataLength > 0 ? (
 				<table className={s?.assistantsListContainer} role="table">
 					<thead role="rowgroup">
 						<tr className={s.listHeader} role="row">
@@ -128,7 +186,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 							next={fetchMoreKnowledgeBaseFiles}
 							hasMore={hasNextPage}
 							loader={<FetchMoreLoaderComp />}
-							height={'324px'}
+							// height={'324px'}
 							style={{ width: '100%' }}
 						>
 							{knowledgeBaseFiles?.map((file) => {
@@ -152,6 +210,13 @@ const KnowledgeBaseTab = ({ agentId }) => {
 												{fileTypeIcons[sourceType] || ''}
 											</div>
 											<div className={s?.fileName}>{name || ''}</div>
+											<Delete
+												className={s.deleteKnowledge}
+												onClick={(e) => {
+													e.stopPropagation();
+													handleDeleteKnowledgeBaseFile(_id);
+												}}
+											/>
 										</td>
 										<td className={s?.assistantItemLastEdit} role="cell">
 											{formattedUpdatedAt || ''}
@@ -177,6 +242,13 @@ const KnowledgeBaseTab = ({ agentId }) => {
 						</InfiniteScroll>
 					</tbody>
 				</table>
+			) : (
+				<div className={s.emptyState}>
+					<p className={s.emptyStateTitle}>No knowledge base files found</p>
+					<p className={s.emptyStateDescription}>
+						Add a knowledge base file to get started.
+					</p>
+				</div>
 			)}
 			<div className={s.knowledgeSettingsContainer}>
 				<div className={s.knowledgeToggleContainer}>
