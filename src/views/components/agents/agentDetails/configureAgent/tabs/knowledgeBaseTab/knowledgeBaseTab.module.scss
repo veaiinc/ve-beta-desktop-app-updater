@@ -34,18 +34,20 @@
 		}
 
 		.addKnowledgeBaseButton {
-			color: var(--primary-font);
+			width: fit-content;
+			padding: 8px 12px;
+			border-radius: 8px;
+			border: 1px solid var(--stroke, #2b2e31);
+			color: var(--primary-font, #f2f2f3);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
-			font-weight: 400;
-			background-color: transparent;
-			border: none;
-			padding: 0;
-			display: flex;
-			gap: 8px;
-			align-items: center;
+			font-weight: 500;
+			line-height: 20px;
 			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 4px;
 
 			.iconContainer {
 				height: 16px;

@@ -169,44 +169,51 @@ const ToolsTab = ({ agentId }) => {
 				</div>
 			</div>
 
-			<div className={s?.actionsContainer}>
-				{info?.aiActionList?.map((item) => (
-					<div
-						key={item?._id}
-						className={s.instructionItem}
-						onClick={() => handleActionClick(item)}
-						style={{ cursor: 'pointer' }}
-					>
-						<span className={s.actionNameContainer}>
-							<p>{item?.typeDependencies?.name}</p>
-							<Delete
-								className={s.deleteKnowledge}
+			{info?.aiActionList?.length > 0 ? (
+				<div className={s?.actionsContainer}>
+					{info?.aiActionList?.map((item) => (
+						<div
+							key={item?._id}
+							className={s.instructionItem}
+							onClick={() => handleActionClick(item)}
+							style={{ cursor: 'pointer' }}
+						>
+							<span className={s.actionNameContainer}>
+								<p>{item?.typeDependencies?.name}</p>
+								<Delete
+									className={s.deleteKnowledge}
+									onClick={(e) => {
+										e.stopPropagation();
+										handleDeleteAction(item?._id);
+									}}
+								/>
+							</span>
+							<span className={s.actionDate}>
+								{moment.unix(item?.createdAt).format('MMM DD, YYYY')}
+							</span>
+							<span
+								className={s.aiToggleSwitch}
 								onClick={(e) => {
 									e.stopPropagation();
-									handleDeleteAction(item?._id);
 								}}
-							/>
-						</span>
-						<span className={s.actionDate}>
-							{moment.unix(item?.createdAt).format('MMM DD, YYYY')}
-						</span>
-						<span
-							className={s.aiToggleSwitch}
-							onClick={(e) => {
-								e.stopPropagation();
-							}}
-						>
-							<ToggleSwitch
-								id={item?._id}
-								value={item?.status}
-								onChange={() =>
-									handleToggleChange(item?._id, item?.status, item?.type)
-								}
-							/>
-						</span>
-					</div>
-				))}
-			</div>
+							>
+								<ToggleSwitch
+									id={item?._id}
+									value={item?.status}
+									onChange={() =>
+										handleToggleChange(item?._id, item?.status, item?.type)
+									}
+								/>
+							</span>
+						</div>
+					))}
+				</div>
+			) : (
+				<div className={s?.emptyState}>
+					<p className={s?.emptyStateTitle}>No tools found</p>
+					<p className={s?.emptyStateDescription}>Add a tool to get started.</p>
+				</div>
+			)}
 
 			<ActionsModal
 				isOpen={info?.actionModalOpen}
