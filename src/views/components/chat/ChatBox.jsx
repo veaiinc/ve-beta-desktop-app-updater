@@ -208,7 +208,7 @@ const ChatBox = ({
 	const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
 	const placeholderIntervalId = useRef(null);
 	const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
-		totalCreditsLimit = currentPlan?.totalAiCreditLimit || -1;
+		totalCreditsLimit = currentPlan?.totalAiCreditLimit || 1;
 
 	useEffect(() => {
 		if (

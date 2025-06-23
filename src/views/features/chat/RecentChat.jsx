@@ -59,7 +59,7 @@ const RecentChat = ({
 			newChatSessionIds,
 			deleteChatSession,
 		},
-		aiSetup: { updateAiChatSessions },
+		aiSetup: { updateAiChatSessions, aiChatSessions },
 		chatStream: {
 			createWebSocketConnection,
 			sendMessage,
@@ -90,6 +90,7 @@ const RecentChat = ({
 		showViewDocument: false,
 		tooltipStyles: { visible: false, styles: { top: 0, left: 0 }, selectedText: '' },
 		deleteChatSessionLoading: false,
+		isNewChat: false,
 	});
 
 	const chatContentRef = useRef(null);
@@ -107,20 +108,6 @@ const RecentChat = ({
 	const newChatSessionIdsRef = useRef(newChatSessionIds);
 	const globalChatMessagesRef = useRef(globalChatMessages);
 	sessionId = isPreview ? sId : sessionId;
-
-	useEffect(() => {
-		if (sessionIdChanged && chatActive) {
-			const agentType = 'mulit_agent';
-			createWebSocketConnection(
-				sessionId,
-				onMessageFunc,
-				agentType,
-				isPublicChat,
-				workspaceMode,
-			);
-			onChangeSessionId?.();
-		}
-	}, [sessionIdChanged, chatActive]);
 
 	useEffect(() => {
 		window?.addEventListener('resize', handleResize);
@@ -166,6 +153,47 @@ const RecentChat = ({
 			});
 		};
 	}, []);
+
+	useEffect(() => {
+		if (!sessionId) return;
+
+		if (!aiChatSessions) {
+			setInfo((prev) => ({
+				...prev,
+				isNewChat: true,
+			}));
+		} else {
+			const sessions = aiChatSessions?.data || [];
+			if (sessions?.length > 0) {
+				const session = sessions?.findIndex((s) => s?._id === sessionId);
+				if (session === -1) {
+					setInfo((prev) => ({
+						...prev,
+						isNewChat: true,
+					}));
+				} else {
+					setInfo((prev) => ({
+						...prev,
+						isNewChat: false,
+					}));
+				}
+			}
+		}
+	}, [aiChatSessions, sessionId]);
+
+	useEffect(() => {
+		if (sessionIdChanged && chatActive && workspaceMode) {
+			const agentType = 'mulit_agent';
+			createWebSocketConnection(
+				sessionId,
+				onMessageFunc,
+				agentType,
+				isPublicChat,
+				workspaceMode,
+			);
+			onChangeSessionId?.();
+		}
+	}, [sessionIdChanged, chatActive, workspaceMode]);
 
 	useEffect(() => {
 		const { workflow_template_id, module_template_id } = info?.latestStreamMesage || {};
@@ -821,7 +849,7 @@ const RecentChat = ({
 	}, []);
 
 	const handleDeleteChatClick = useCallback(async () => {
-		if (info?.deleteChatSessionLoading) {
+		if (info?.deleteChatSessionLoading || globalChatMessages?.[sessionId]?.isStreaming) {
 			return;
 		}
 		setInfo((prev) => ({ ...prev, deleteChatSessionLoading: true }));
@@ -835,7 +863,7 @@ const RecentChat = ({
 			message.error('Failed to delete chat session');
 		}
 		setInfo((prev) => ({ ...prev, deleteChatSessionLoading: false }));
-	}, [deleteChatSession, sessionId, info?.deleteChatSessionLoading]);
+	}, [deleteChatSession, sessionId, info?.deleteChatSessionLoading, globalChatMessages]);
 
 	const handleNavigateBack = useCallback(() => {
 		const pathname = location?.pathname?.split('/')?.[1];
@@ -867,19 +895,23 @@ const RecentChat = ({
 								</div>
 							</div>
 							<div className="right-container">
-								<Tooltip
-									title={<div className="recent-chat-tooltip">Delete Chat</div>}
-									placement="bottom"
-									color="transparent"
-									arrow={false}
-								>
-									<button
-										className="delete-chat-btn"
-										onClick={handleDeleteChatClick}
+								{!info?.isNewChat && (
+									<Tooltip
+										title={
+											<div className="recent-chat-tooltip">Delete Chat</div>
+										}
+										placement="bottom"
+										color="transparent"
+										arrow={false}
 									>
-										<DeleteSvg />
-									</button>
-								</Tooltip>
+										<button
+											className="delete-chat-btn"
+											onClick={handleDeleteChatClick}
+										>
+											<DeleteSvg />
+										</button>
+									</Tooltip>
+								)}
 							</div>
 						</div>
 					)}
