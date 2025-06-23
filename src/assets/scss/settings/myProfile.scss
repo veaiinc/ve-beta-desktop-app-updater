@@ -1102,6 +1102,11 @@
 }
 
 @media screen and (max-width: 768px) {
+	.myProfileComponent .settingsContainer,
+	.myProfileComponent .settingsContainer .formsMain {
+		gap: 20px;
+	}
+
 	.myProfileComponent {
 		.formsMain {
 			padding: 20px;
@@ -1109,6 +1114,7 @@
 	}
 
 	.notifications-container {
+		gap: 0px;
 		.notifications-container-header {
 			padding: 20px;
 		}
