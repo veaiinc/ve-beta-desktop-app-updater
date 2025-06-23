@@ -359,7 +359,10 @@ const OpenedSidebar = ({
 	}, [leftSidebarState]);
 
 	useEffect(() => {
-		setIsThisEarlyAccessPage(location?.pathname?.includes('/early-access'));
+		setIsThisEarlyAccessPage(
+			location?.pathname?.includes('/early-access') ||
+				location?.pathname?.includes('/pricing'),
+		);
 	}, [location?.pathname]);
 
 	useEffect(() => {

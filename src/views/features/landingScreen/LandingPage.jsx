@@ -13,13 +13,13 @@ import Suggestions from '../homePage/Suggestions';
 import MobileMenu from '../../components/landing_screen/MobileMenu';
 
 import ContactUs from '../../components/landing_screen/ContactUs';
-import PricingPage from '../pricingPlans/pricingPage';
 import OurMission from './OurMission';
 import EarlyAccess from './EarlyAccess';
 import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 
 import '../../../assets/scss/landingScreen/index.scss';
+import WebsitePricingPage from '../pricingPlans/PricingPageWebsite';
 
 const pathToTabMap = {
 	'/thebridge': 1,
@@ -133,7 +133,7 @@ const LandingPage = () => {
 		),
 		1: <OurMission />,
 		2: <ContactUs type="Enterprise" />,
-		3: <PricingPage />,
+		3: <WebsitePricingPage />,
 	};
 
 	return (
