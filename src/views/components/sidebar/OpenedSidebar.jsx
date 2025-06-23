@@ -268,8 +268,6 @@ const OpenedSidebar = ({
 	setShowChatsDrawer,
 	setShowNotesDrawer,
 	setHideClosedSidebarIcon,
-	isDocked,
-	handleDockToggle,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const sidebarNavigationItems =
@@ -685,7 +683,6 @@ const OpenedSidebar = ({
 					display: 'flex',
 					position: 'relative',
 				}}
-				// onMouseLeave={() => !isDocked && setIsOpen(false)}
 			>
 				{tenantUserAccessControls && (
 					<div style={{ display: 'flex' }}>
@@ -747,19 +744,14 @@ const OpenedSidebar = ({
 												</div>
 											)}
 											<SidebarTooltip
-												label={isDocked ? 'Undock Sidebar' : 'Dock Sidebar'}
+												label="Close Sidebar"
 												icon={
 													<SidebarClosingSvg
 														className="collapseArrow"
 														style={{ cursor: 'pointer' }}
 														onClick={(e) => {
 															e.stopPropagation();
-															if (isDocked) {
-																handleDockToggle();
-															} else {
-																handleDockToggle();
-																setIsOpen(true);
-															}
+															handleSidebarCollapse();
 														}}
 													/>
 												}
