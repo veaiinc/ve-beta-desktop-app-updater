@@ -26,6 +26,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const location = useLocation();
 	const sidebarRef = useRef(null);
 	const sidebarOpenRef = useRef(null);
+	const hasClosedForRouteRef = useRef(false);
 
 	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
 	const [showNotesDrawer, setShowNotesDrawer] = useState(false);
@@ -33,7 +34,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const [hideClosedSidebarIcon, setHideClosedSidebarIcon] = useState(false);
 
 	const [isOpen, setIsOpen] = useState(() => {
-		return JSON.parse(localStorage.getItem('isOpen')) ?? false;
+		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
 	});
 
 	const [sidebarStates, setsidebarStates] = useState({
@@ -111,8 +112,16 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					selectedModule: currentModule.name,
 				}));
 			}
+
+			// Close sidebar only once when first navigating to contacts, calendar, or tasks routes
+			if (isChatSidebarRoute && isOpen && !hasClosedForRouteRef.current) {
+				setIsOpen(false);
+				hasClosedForRouteRef.current = true;
+			} else if (!isChatSidebarRoute) {
+				hasClosedForRouteRef.current = false;
+			}
 		}
-	}, [location?.pathname]);
+	}, [location?.pathname, isChatSidebarRoute, isOpen]);
 
 	return (
 		<>

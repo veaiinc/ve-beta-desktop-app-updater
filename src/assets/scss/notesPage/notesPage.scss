@@ -515,3 +515,80 @@
 		}
 	}
 }
+
+@media (max-width: 768px) {
+	.notesPageContainer {
+		padding: 29px 25px 0 33px;
+		.ctaContainer {
+			.sortAndFilterInfo {
+				flex-direction: column;
+				align-items: stretch;
+				gap: 6px;
+				width: 100%;
+				.sortInfo,
+				.filterInfo {
+					width: 100%;
+					box-sizing: border-box;
+					text-align: left;
+				}
+				.filter-container-search {
+					width: 100%;
+					.search-input {
+						width: 100%;
+						padding: 8px 0 10px 10px;
+					}
+				}
+			}
+		}
+
+		.notesContainer {
+			&.cardsView {
+				.createNewNoteContainer {
+					.titleAndDescriptionContainer {
+						.title {
+							font-size: 14px;
+							line-height: 20px;
+						}
+						.description {
+							font-size: 12px;
+							line-height: 16px;
+						}
+					}
+				}
+
+				.noteCard {
+					.noteCardHeader {
+						.noteCardTitle {
+							font-size: 14px;
+							line-height: 20px;
+						}
+					}
+				}
+			}
+
+			&.listView {
+				.createNewNoteContainer {
+					.titleAndDescriptionContainer {
+						.title {
+							font-size: 14px;
+							line-height: 20px;
+						}
+						.description {
+							font-size: 12px;
+							line-height: 16px;
+						}
+					}
+				}
+
+				.noteListItem {
+					.noteCardHeader {
+						.noteCardTitle {
+							font-size: 13px;
+							line-height: 18px;
+						}
+					}
+				}
+			}
+		}
+	}
+}
