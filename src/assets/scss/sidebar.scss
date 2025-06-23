@@ -3,6 +3,7 @@
 	margin-right: 0px;
 	cursor: pointer;
 	z-index: 1001;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
 	&.opened {
 		height: 100dvh;
@@ -16,6 +17,8 @@
 		animation: expandWidth 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 	}
 	&.closed {
+		animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 		transform: translateX(-100%);
 		pointer-events: none;
 	}
@@ -32,6 +35,7 @@
 		left: 20px;
 	}
 	&.contacts-sidebar.closed {
+		animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 		transform: translateX(-100%);
 		pointer-events: none;
 	}
@@ -93,11 +97,13 @@
 					top: 20px;
 					left: 10px;
 					transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+					animation: collapseWidth 0.3s ease-out;
 				}
 			}
 			&.inactive {
 				display: none;
 				transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+				animation: collapseWidth 0.3s ease-out;
 			}
 		}
 
@@ -850,10 +856,12 @@
 
 	.sidebar-close {
 		transition: opacity 0.3s ease;
+		animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 		opacity: 1;
 
 		&.inactive {
-			opacity: 0;
+			animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 			pointer-events: none;
 		}
 	}
@@ -862,8 +870,7 @@
 		opacity: 1;
 
 		&.inactive {
-			opacity: 0;
-			transform: translateX(-100%);
+			animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 			pointer-events: none;
 		}
 
@@ -919,7 +926,8 @@
 		}
 
 		&.closed {
-			animation: minimizeWidth 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+			animation: slideOutAnimation 0.3s ease-out;
+			transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 		}
 
 		.sidebarComponent {
@@ -1488,7 +1496,14 @@
 		transform: translateX(0);
 	}
 }
-
+@keyframes slowCloseAnimation {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-100%);
+	}
+}
 .horizontal-line-sidebar {
 	border: 0.7px solid var(--stroke);
 	margin: 16px 0px 16px -10px;
@@ -1601,11 +1616,13 @@
 }
 @keyframes slideOutAnimation {
 	0% {
+		opacity: 1;
 		transform: translateX(0);
 	}
 	100% {
-		display: none;
+		opacity: 0;
 		transform: translateX(-100%);
+		display: none;
 	}
 }
 
@@ -1624,6 +1641,17 @@
 	}
 	100% {
 		width: 280px;
+	}
+}
+
+@keyframes collapseWidth {
+	0% {
+		transform: translateX(0);
+		width: 280px;
+	}
+	100% {
+		transform: translateX(-100%);
+		width: 20px;
 	}
 }
 
