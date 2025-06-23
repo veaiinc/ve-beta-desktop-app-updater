@@ -153,16 +153,7 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			custom_domain_api: custom_domain_api_US,
 		};
 
-		// hotfix
-		// const region = localStorage.getItem('region') || 'ap-south-1'; remove #158-165 after complete database migration to US region
-		const workspaceId = localStorage.getItem('workspaceId');
-		let region;
-		if (workspaceId === 'framemax') {
-			const region = 'us-north-1';
-		} else {
-			region = localStorage.getItem('region') || 'ap-south-1';
-		}
-
+		const region = localStorage.getItem('region') || 'ap-south-1';
 		const endpoint =
 			(region === 'ap-south-1' ? apiEndpoints[type] : apiEndpointsUS?.[type]) + url;
 

@@ -17,6 +17,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			checkAccountExistsUsingEmail,
 			verifyEmailVerificationCode,
 		},
+		profileInfo: { getWorkSpaceInfo },
 	} = useContext(Context);
 
 	const location = useLocation();
@@ -69,6 +70,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 						if (!locationDetails) {
 							locationDetails = await getLocationsDetails();
 						}
+						await getWorkSpaceInfo(response?.[1]?.workspaceId);
 						navigate('/home');
 					} else {
 						navigate('/early-access');

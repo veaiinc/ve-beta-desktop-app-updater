@@ -20,7 +20,26 @@ export const intialState = {
 };
 export const ProfileState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
-
+	// {{ _.authBaseUrl }}/tenant/{{ _.workspaceId }}/workspace-info
+	const getWorkSpaceInfo = async (workspaceId) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const response = await service.fetchGet(
+				`/tenant/${workspaceId}/workspace-info`,
+				token,
+				'auth',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_WORKSPACE_INFO,
+					payload: response?.[1],
+				});
+				localStorage.setItem('region', response?.[1]?.locationDetails?.region);
+			}
+		} catch (error) {
+			console.log('error==>getWorkSpaceInfo', error);
+		}
+	};
 	const getTenantSettings = async () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -564,5 +583,6 @@ export const ProfileState = () => {
 		updatedGmailAccount,
 		updateTenantProfession,
 		getAiCategories,
+		getWorkSpaceInfo,
 	};
 };
