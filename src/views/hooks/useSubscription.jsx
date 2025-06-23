@@ -1,6 +1,7 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Context from '../../context/context';
+
 const calculateTimeLeft = (expiryTimestamp) => {
 	const now = Date.now();
 	// Convert expiryTimestamp to milliseconds if it's in seconds

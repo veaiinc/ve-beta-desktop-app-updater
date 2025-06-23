@@ -8,16 +8,19 @@
 
 	.user-message-wrapper {
 		width: fit-content;
-		max-width: 400px;
+		max-width: 520px;
 		.user-message {
 			width: 100%;
 
 			.user-message-renderer-container {
+				width: 100%;
 				padding: 8px 16px;
 				border-radius: 8px;
 				background: var(--card, #18191b);
 				font-family: var(--chat-primary-font-family);
 				white-space: pre-wrap;
+				word-break: normal;
+				overflow-wrap: break-word;
 
 				color: var(--primary-font, #f2f2f3);
 				font-size: 16px;

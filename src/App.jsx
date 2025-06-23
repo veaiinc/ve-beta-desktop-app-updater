@@ -18,7 +18,8 @@ const stableRoutes = betaRoutes?.filter(
 		route.path === '/settings/:type' ||
 		route.path === '/chat/:sessionId' ||
 		route.path === '/share-and-earn' ||
-		route.path === '/create-workspace',
+		route.path === '/create-workspace' ||
+		route.path === '/onboarding',
 );
 
 function App() {

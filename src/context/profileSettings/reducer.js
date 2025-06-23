@@ -81,6 +81,13 @@ const actionHandlers = {
 		...state,
 		aiCategories: action?.payload,
 	}),
+	UPDATE_TENANT_PROFESSION: (state, action) => ({
+		...state,
+		tenantUserDetails: {
+			...state?.tenantUserDetails,
+			profession: action?.payload,
+		},
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 

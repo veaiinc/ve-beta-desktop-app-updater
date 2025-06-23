@@ -1,0 +1,123 @@
+.knowEachOtherStepContainer {
+	width: 600px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 50px;
+	.stepHeader {
+		margin-bottom: 32px;
+		.stepHeaderContent {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            align-self: stretch;
+		}
+		.stepProgressContainer {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			gap: 16px;
+			align-self: stretch;
+		}
+		.stepProgress {
+			color: var(--primary-button);
+			font-size: 14px;
+			font-weight: 500;
+			margin-bottom: 8px;
+		}
+		.stepTitle {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 32px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: normal;
+		}
+		.stepDesc {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--secondary-font-family);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 24px; /* 150% */
+		}
+	}
+	.stepForm {
+		margin-bottom: 32px;
+		.formRow {
+			display: flex;
+			flex-direction: column;
+			margin-bottom: 18px;
+			.formLabel {
+				color: var(--primary-font);
+				font-size: 14px;
+				font-weight: 500;
+				margin-bottom: 6px;
+				.optional {
+					color: var(--secondary-font);
+					font-size: 12px;
+				}
+			}
+			.formInput {
+				background: var(--card);
+				color: var(--primary-font);
+				border-radius: 12px;
+				border: none;
+				font-size: 15px;
+				padding: 12px 16px;
+				font-family: var(--primary-font-family);
+				outline: none;
+				height: 100px;
+			}
+			&::placeholder {
+				font-style: italic;
+			}
+		}
+	}
+	.inlineSentenceInputs {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-bottom: 32px;
+		font-size: 20px;
+		font-family: var(--primary-font-family);
+		color: var(--primary-font, #f2f2f3);
+		font-weight: 500;
+	}
+	.inlineLabel {
+		color: var(--primary-font, #f2f2f3);
+		text-align: center;
+		font-family: var(--primary-font-family);
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 600;
+		line-height: normal;
+		letter-spacing: -0.32px;
+	}
+	.inlineInput {
+		background: transparent;
+		border: none;
+		border-bottom: 1px solid var(--stroke, #2c2d2e);
+		color: var(--primary-font, #f2f2f3);
+		font-size: 20px;
+		font-family: var(--primary-font-family);
+		font-weight: 500;
+		outline: none;
+		min-width: 80px;
+		max-width: 180px;
+		padding: 2px 6px 2px 6px;
+		margin-right: 8px;
+		transition: border-color 0.2s;
+		color: var(--secondary-font, #7a7e85);
+		font-family: var(--primary-font-family);
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+		letter-spacing: -0.32px;
+	}
+	.inlineInput:focus {
+		border-bottom: 2px solid var(--primary-button, #79ecc9);
+	}
+}

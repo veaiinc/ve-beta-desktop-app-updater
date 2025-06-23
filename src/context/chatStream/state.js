@@ -14,11 +14,9 @@ const Reducer = (state) => {
 export const ChatStreamState = () => {
 	const [state, dispatch] = useReducer(Reducer, initialChatStreamState);
 	const socketRefs = useRef({});
+	const socketsInfoRef = useRef({});
 	const inactivityTimeoutRef = useRef(null);
 	const currentSessionIdRef = useRef(null);
-	const messageHandlerRef = useRef(null);
-	const isPublicChatRef = useRef(false);
-	const agentTypeRef = useRef(null);
 	const workspaceModeRef = useRef(null);
 	const MAX_RETRY_ATTEMPTS = 3;
 	const RETRY_DELAY = 1000; // 1 second
@@ -45,6 +43,7 @@ export const ChatStreamState = () => {
 			if (socketRefs.current[currentSessionIdRef.current]) {
 				console.log('Disconnecting due to inactivity');
 				socketRefs.current[currentSessionIdRef.current].close();
+				delete socketRefs.current[currentSessionIdRef.current];
 			}
 		}, 5 * 60 * 1000); // 5 minutes in milliseconds
 	}, []);
@@ -70,9 +69,9 @@ export const ChatStreamState = () => {
 						console.log('Connection closed, attempting to reconnect...');
 						createWebSocketConnection(
 							currentSessionIdRef.current,
-							messageHandlerRef.current,
-							agentTypeRef.current,
-							isPublicChatRef.current,
+							socketsInfoRef.current[currentSessionIdRef.current]?.onMessageFunc,
+							socketsInfoRef.current[currentSessionIdRef.current]?.agentType,
+							socketsInfoRef.current[currentSessionIdRef.current]?.isPublicChat,
 							workspaceModeRef.current,
 						);
 						attempts++;
@@ -124,14 +123,16 @@ export const ChatStreamState = () => {
 				return;
 			}
 
-			messageHandlerRef.current = onMessageFunc;
-			isPublicChatRef.current = isPublicChat;
 			workspaceModeRef.current = workspaceMode;
 			const defaultAgent =
 				workspaceMode === 'stable' ? 'chat_streaming' : 'multi_agent_chat_streaming';
 
 			const agent = agentTypeMap[agentType] || defaultAgent;
-			agentTypeRef.current = agent;
+			socketsInfoRef.current[sessionId] = {
+				agentType: agent,
+				isPublicChat,
+				onMessageFunc,
+			};
 
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -179,6 +180,7 @@ export const ChatStreamState = () => {
 				if (socketRefs.current[sessionId]) {
 					socketRefs.current[sessionId].close();
 					delete socketRefs.current[sessionId];
+					delete socketsInfoRef.current[sessionId];
 				}
 			});
 		}

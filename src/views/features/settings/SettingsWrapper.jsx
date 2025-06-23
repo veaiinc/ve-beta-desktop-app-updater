@@ -18,6 +18,7 @@ const mapper = {
 	integrations: <Integrations />,
 	'team-members': <TeamSettings />,
 	'plan-billing': <PlanBilling />,
+	pricing: <PricingPage />,
 	'ai-setup': <AiSetup />,
 };
 

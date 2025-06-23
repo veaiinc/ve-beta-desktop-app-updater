@@ -130,7 +130,7 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			elastic_search_api,
 			workspace_images_api,
 			custom_domain_api,
-};
+		};
 
 		const apiEndpointsUS = {
 			tenant_users_api: tenant_users_api_US,
@@ -151,9 +151,18 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			elastic_search_api: elastic_search_api_US,
 			workspace_images_api: workspace_images_api_US,
 			custom_domain_api: custom_domain_api_US,
-};
+		};
 
-		const region = localStorage.getItem('region') || 'ap-south-1';
+		// hotfix
+		// const region = localStorage.getItem('region') || 'ap-south-1'; remove #158-165 after complete database migration to US region
+		const workspaceId = localStorage.getItem('workspaceId');
+		let region;
+		if (workspaceId === 'framemax') {
+			const region = 'us-north-1';
+		} else {
+			region = localStorage.getItem('region') || 'ap-south-1';
+		}
+
 		const endpoint =
 			(region === 'ap-south-1' ? apiEndpoints[type] : apiEndpointsUS?.[type]) + url;
 
