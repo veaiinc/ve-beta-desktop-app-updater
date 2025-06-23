@@ -52,6 +52,7 @@ const GalleryGrid = ({
 	handleTotalChange,
 }) => {
 	const navigate = useNavigate();
+	const mountedRef = useRef(true);
 
 	const {
 		galleryInfo: { getGalleries, tenantGalleries, setDefaultSort },
@@ -70,6 +71,9 @@ const GalleryGrid = ({
 	const debounceTimeout = useRef();
 
 	useEffect(() => {
+		if (!mountedRef.current) {
+			return;
+		}
 		handleStateUpdate({ loading: true, currentPage: 1, hasNextPage: false });
 
 		const options = {
@@ -78,7 +82,7 @@ const GalleryGrid = ({
 			storeOriginals: selectedOption === 'Gallery',
 		};
 		fetchGalleries(options);
-	}, [selectedOption]);
+	}, []);
 
 	useEffect(() => {
 		if (!tenantGalleries) return;
@@ -209,6 +213,10 @@ const GalleryGrid = ({
 
 	// Debounce search effect
 	useEffect(() => {
+		if (mountedRef.current) {
+			mountedRef.current = false;
+			return;
+		}
 		if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
 		debounceTimeout.current = setTimeout(() => {
 			handleStateUpdate({ loading: true, currentPage: 1, hasNextPage: false });
