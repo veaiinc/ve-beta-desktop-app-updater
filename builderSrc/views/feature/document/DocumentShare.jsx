@@ -34,10 +34,7 @@ const DocumentShare = ({
 			workflowInfoDetails,
 			sendCustomEmailToClients,
 		},
-		profileInfo: {
-			tennantSettingsData,
-			getTenantSettings,
-		},
+		profileInfo: { tennantSettingsData, getTenantSettings },
 		aiSetup: {
 			existingAiAssistants,
 			getExistingAiAssistants,
@@ -156,7 +153,13 @@ const DocumentShare = ({
 	// Set currentWorkspaceId and copyLink
 	useEffect(() => {
 		if (tennantSettingsData) {
-			setInfo((prev) => ({ ...prev, workspaceId: tennantSettingsData?.workspaceIds[tennantSettingsData?.workspaceIds?.length - 1] }));
+			setInfo((prev) => ({
+				...prev,
+				workspaceId:
+					tennantSettingsData?.workspaceIds[
+						tennantSettingsData?.workspaceIds?.length - 1
+					],
+			}));
 		}
 		if (tennantSettingsData && smartFileInfo && info.workspaceId) {
 			let link;
@@ -612,7 +615,7 @@ const DocumentShare = ({
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, []);
-
+	const isCustomDomainExists = tennantSettingsData?.customDomain;
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -648,7 +651,11 @@ const DocumentShare = ({
 						</div>
 						<div className="url-text">
 							<span className="linkDetailText">
-								{`https://${info.workspaceId}.ve.ai/portal/`}
+								{`https://${
+									isCustomDomainExists
+										? tennantSettingsData?.customDomain
+										: info.workspaceId
+								}.ve.ai/portal/`}
 								<input
 									type="text"
 									className="editableSlugInput"
@@ -657,6 +664,7 @@ const DocumentShare = ({
 									onChange={slugOnChange}
 									disabled={!info.editSlug}
 									onClick={toggleEditSlug}
+									size={Math.max(info.slugHolder.length, 1)}
 								/>
 							</span>
 							{info.slugErrorMessage && (
