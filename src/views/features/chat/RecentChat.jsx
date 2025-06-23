@@ -1032,6 +1032,7 @@ const RecentChat = ({
 								customChatBoxClick={customChatBoxClick}
 								showScrollButton={info?.showScrollButton}
 								smoothScrollToBottom={smoothScrollToBottom}
+								showUpgradeSubscriptionBtn={isPublicChat ? false : true}
 							/>
 						</div>
 					</div>
