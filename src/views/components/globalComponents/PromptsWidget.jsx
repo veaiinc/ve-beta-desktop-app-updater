@@ -134,8 +134,8 @@ const PromptsWidget = ({ option }) => {
 			>
 				{info?.cardsLoading ? (
 					<div className="prompts-widget-cards-loading">
-						{skeletonLoaders?.map((item) => (
-							<Skeleton key={item} height={'160px'} width={'175px'} />
+						{skeletonLoaders?.map((_, index) => (
+							<Skeleton key={index} height={'160px'} width={'175px'} />
 						))}
 					</div>
 				) : cardsEmpty ? (
@@ -152,7 +152,7 @@ const PromptsWidget = ({ option }) => {
 						<div className="prompts-widget-cards">
 							{cardsData?.map((card, index) => (
 								<div
-									key={card?.id}
+									key={index}
 									className={`prompts-widget-each-card ${
 										info.animateCards
 											? animatedIndices.includes(index)

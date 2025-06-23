@@ -117,19 +117,13 @@ Dont change this otherwise chat functionality will break.
 */
 
 const ChatBox = ({
-	outerContainerStyle = {},
-	chatList = [],
 	onSend,
 	aiChatLoading,
 	handleAiUploadImage,
 	customChatActions = false,
 	uploadedImages = [],
 	handleSendWebsocketMessage,
-	latestStreamMesage,
-	lastQuery,
-	toggleLatestStreamMessage,
 	isPublicChat = false,
-	showIconText = true,
 	autoFocus = true,
 	animatePlaceholder = false,
 	customChatBoxClick = null,
@@ -166,7 +160,7 @@ const ChatBox = ({
 			currentSessionId,
 			chatReplyData,
 		},
-		subscriptionInfo: { currentPlan, updateSubscriptionState },
+		subscriptionInfo: { currentPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 		aiSetup: { voiceIntegrationData, updateAiChatSessions },
@@ -385,49 +379,6 @@ const ChatBox = ({
 			});
 		}
 	}, [info?.chatSessionId]);
-
-	// useEffect(() => {
-	// 	if (recentFilesRef?.current?.length > 0 || uploadedImagesRef?.current?.length > 0) {
-	// 		updateStateValues({
-	// 			chatInfo: { ...chatInfo, workspaceSearch: true },
-	// 		});
-	// 	}
-	// }, [recentFilesRef?.current, uploadedImagesRef?.current]);
-
-	// useEffect(() => {
-	// 	if (latestStreamMesage && lastQuery) {
-	// 		const { db_updates, variables_required, deep_research } = latestStreamMesage;
-	// 		if (db_updates?.calendar_db_update) {
-	// 			updateCalendarState({ refetchCalendarState: true });
-	// 		}
-	// 		if (db_updates?.task_db_update) {
-	// 			updateTaskState({ refetchTasks: true });
-	// 		}
-	// 		if (db_updates?.proposal_db_update) {
-	// 			updateStateValues({ smartFileRefetch: true });
-	// 		}
-	// 		if (variables_required) {
-	// 			handleVariablesRequired(variables_required, lastQuery);
-	// 		}
-	// 		if (deep_research) {
-	// 			updateStateValues({
-	// 				chatInfo: {
-	// 					...chatInfo,
-	// 					deepResearch: false,
-	// 					reason: {
-	// 						webSearch: false,
-	// 						workspaceSearch: false,
-	// 					},
-	// 					ask: true,
-	// 				},
-	// 			});
-	// 		}
-
-	// 		if (toggleLatestStreamMessage) {
-	// 			toggleLatestStreamMessage();
-	// 		}
-	// 	}
-	// }, [latestStreamMesage]);
 
 	useEffect(() => {
 		setInfo((prev) => ({

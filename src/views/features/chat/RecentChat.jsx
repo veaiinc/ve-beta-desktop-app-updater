@@ -6,7 +6,6 @@ import {
 } from '../../../helpers/chatHelpers';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
-import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import ChatBox from '../../components/chat/ChatBox';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -18,7 +17,6 @@ import TextSelector from '../../components/chat/chatComponents/TextSelector';
 import useWorkspaceMode from '../../../views/hooks/useWorkspaceMode';
 import ChatHeader from '../../components/chat/ChatHeader';
 
-let throttleTimer = null;
 const RecentChat = ({
 	isPublicChat = false,
 	isPreview = false,
@@ -36,14 +34,11 @@ const RecentChat = ({
 		templates: {
 			globalChatMessages,
 			updateStateValues,
-			updateAiChatMessageRating,
 			getRecentChatMessages,
 			recentChatStorage,
 			moreRecentChatStorage,
 			handleGlobalChatMessages,
 			chatInfo,
-			chatHistoryDrawerIsOpen,
-			currentSessionId,
 			updateChatLoadingSessions,
 			newChatSessionIds,
 		},
@@ -63,11 +58,9 @@ const RecentChat = ({
 		chatLoading: false,
 		voiceIntegration: false,
 		noteModalIsOpen: false,
-		citationsModalIsOpen: false,
 		page: 1,
 		currentPage: true,
 		latestStreamMesage: null,
-		lastQuery: '',
 		activeAIMessageIndex: null,
 		activeAIMessageId: null,
 		activeUserMessageIndex: null,
@@ -84,7 +77,7 @@ const RecentChat = ({
 	const chatContentRef = useRef(null);
 	const chatMessagesRef = useRef([]);
 	let { sessionId } = useParams();
-	const [searchParams, setSearchParams] = useSearchParams();
+	const [searchParams] = useSearchParams();
 	const userMessagesRefs = useRef({});
 	// const previousAiMessagesRef = useRef([]);
 	// const aiCitationsByIdRef = useRef({});
@@ -98,15 +91,10 @@ const RecentChat = ({
 	sessionId = isPreview ? sId : sessionId;
 
 	useEffect(() => {
-		window?.addEventListener('resize', handleResize);
 		document.addEventListener('mouseup', handleMouseUp);
 
-		handleResize(0);
-
 		return () => {
-			window?.removeEventListener('resize', handleResize);
 			document.removeEventListener('mouseup', handleMouseUp);
-			clearTimeout(throttleTimer);
 
 			setTimeout(() => {
 				tabsRefs.current = {};
@@ -192,6 +180,10 @@ const RecentChat = ({
 					moduleTemplateId: module_template_id,
 				},
 			});
+			setInfo((prev) => ({
+				...prev,
+				latestStreamMesage: null,
+			}));
 		}
 	}, [info?.latestStreamMesage]);
 
@@ -398,14 +390,6 @@ const RecentChat = ({
 		// };
 	}, [globalChatMessages, sessionId]);
 
-	// useEffect(() => {
-	// 	if (info?.activeAIMessageId) {
-	// 		updateStateValues({
-	// 			citations: aiCitationsByIdRef.current[info?.activeAIMessageId],
-	// 		});
-	// 	}
-	// }, [info?.activeAIMessageId]);
-
 	useEffect(() => {
 		if (recentChatStorage) {
 			const firstTimeApiCall = true;
@@ -498,20 +482,6 @@ const RecentChat = ({
 			};
 		}
 	}, [handleScroll]);
-
-	const handleResize = (time = 300) => {
-		if (throttleTimer) return;
-
-		throttleTimer = setTimeout(() => {
-			if (window.innerWidth < 1400) {
-				setInfo((prev) => ({
-					...prev,
-					citationsModalIsOpen: false,
-				}));
-			}
-			throttleTimer = null;
-		}, time);
-	};
 
 	const recentChatHandler = useCallback(
 		(inComingData, fetchMore = false, firstTimeApiCall = false) => {
@@ -640,48 +610,12 @@ const RecentChat = ({
 		[sessionId],
 	);
 
-	const handleRatingClick = useCallback(async (type, messageId) => {
-		try {
-			if (messageId) {
-				const message = [...(chatMessagesRef.current || [])]?.find(
-					(chat) => chat?.messageId === messageId,
-				);
-				if (message?.rating === null || message?.rating !== type) {
-					await updateAiChatMessageRating({ rating: type }, messageId, isPublicChat);
-					let messages = [...(chatMessagesRef.current || [])];
-					messages = messages?.map((chat) => {
-						if (chat?.messageId === messageId) {
-							chat.rating = type;
-						}
-						return chat;
-					});
-
-					handleGlobalChatMessages({
-						updateExtraInfo: true,
-						recentChatMessages: messages,
-						sessionId: currentSessionId,
-					});
-					chatMessagesRef.current = messages;
-				}
-			}
-		} catch (error) {
-			console.log('error', error);
-		}
-	}, []);
-
-	const handleNoteComponentModalClose = () => {
+	const handleNoteComponentModalClose = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
 			noteModalIsOpen: false,
 		}));
-	};
-
-	const handleCloseCitationsModal = () => {
-		setInfo((prev) => ({
-			...prev,
-			citationsModalIsOpen: false,
-		}));
-	};
+	}, []);
 
 	const handleNoteComponentModalOpen = useCallback(() => {
 		setInfo((prev) => ({
@@ -815,7 +749,6 @@ const RecentChat = ({
 			try {
 				await sendMessage(data);
 				smoothScrollToLastMessage();
-				setInfo((prev) => ({ ...prev, lastQuery: lastQuery }));
 				handleGlobalChatMessages({
 					sessionId,
 					lastQuery,
@@ -829,9 +762,6 @@ const RecentChat = ({
 		[sendMessage, sessionId],
 	);
 
-	const toggleLatestStreamMessage = useCallback(() => {
-		setInfo((prev) => ({ ...prev, latestStreamMesage: null }));
-	}, []);
 	const handleViewDocument = useCallback((value) => {
 		setInfo((prev) => ({ ...prev, showViewDocument: value }));
 	}, []);
@@ -855,13 +785,7 @@ const RecentChat = ({
 					)}
 
 					{/* chat body */}
-					<div
-						className="chatBodyContainer"
-						style={{
-							width: `${info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%'}`,
-							paddingLeft: `${chatHistoryDrawerIsOpen ? '250px' : '0px'}`,
-						}}
-					>
+					<div className="chatBodyContainer">
 						<div
 							className={`chatBodyParentContainer`}
 							ref={chatContentRef}
@@ -940,21 +864,8 @@ const RecentChat = ({
 																	handleNoteComponentModalOpen={
 																		handleNoteComponentModalOpen
 																	}
-																	handleRatingClick={
-																		handleRatingClick
-																	}
 																	tabsRefs={tabsRefs}
 																	index={index}
-																	handleSendWebsocketMessage={
-																		handleSendWebsocketMessage
-																	}
-																	toggleLatestStreamMessage={
-																		toggleLatestStreamMessage
-																	}
-																	latestStreamMesage={
-																		info?.latestStreamMesage
-																	}
-																	lastQuery={info?.lastQuery}
 																	handleViewDocument={
 																		handleViewDocument
 																	}
@@ -1005,9 +916,6 @@ const RecentChat = ({
 								showIconText={showIconText}
 								isPublicChat={isPublicChat}
 								handleSendWebsocketMessage={handleSendWebsocketMessage}
-								latestStreamMesage={info?.latestStreamMesage}
-								lastQuery={info?.lastQuery}
-								toggleLatestStreamMessage={toggleLatestStreamMessage}
 								hideDeepResearch={searchParams?.get('agentType') === 'search_agent'}
 								autoFocus={autoFocus}
 								customChatBoxClick={customChatBoxClick}
@@ -1019,19 +927,13 @@ const RecentChat = ({
 				</div>
 			</div>
 
-			<CitationsModal
+			{/* <CitationsModal
 				modalIsOpen={info?.citationsModalIsOpen}
 				closeModal={handleCloseCitationsModal}
-			/>
+			/> */}
 			<NoteComponentModal
 				modalIsOpen={info?.noteModalIsOpen}
 				closeModal={handleNoteComponentModalClose}
-				handleRatingClick={handleRatingClick}
-				chatList={globalChatMessages || []}
-				handleSendWebsocketMessage={handleSendWebsocketMessage}
-				latestStreamMesage={info?.latestStreamMesage}
-				lastQuery={info?.lastQuery}
-				toggleLatestStreamMessage={toggleLatestStreamMessage}
 			/>
 		</>
 	);
