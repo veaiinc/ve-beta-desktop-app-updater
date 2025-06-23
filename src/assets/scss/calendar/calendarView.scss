@@ -391,16 +391,6 @@
 									z-index: 2;
 									background: transparent;
 									pointer-events: auto;
-
-									@media (max-width: 768px) {
-										font-size: 10px;
-									}
-									@media (min-width: 769px) and (max-width: 1024px) {
-										font-size: 11px;
-									}
-									@media (min-width: 1025px) {
-										font-size: 12px;
-									}
 								}
 							}
 						}
@@ -631,6 +621,57 @@ body > .rbc-overlay {
 
 			&:hover {
 				background: var(--card-hover);
+			}
+		}
+	}
+}
+
+// Media Queries - Mobile Responsive Styles
+@media (max-width: 768px) {
+	.scheduler {
+		height: 100vh;
+		width: 100%;
+		font-size: 11px;
+
+		.rbc-month-view {
+			gap: 3px;
+
+			.rbc-month-row {
+				&:first-child {
+					.rbc-row-bg {
+						gap: 3px;
+
+						.rbc-day-bg {
+							padding: 8px;
+							gap: 6px;
+							border-radius: 4px;
+						}
+					}
+
+					.rbc-row-content {
+						.rbc-row {
+							.weekDayHeader {
+								gap: 2px;
+								padding: 0 2px;
+								margin-bottom: 2px;
+
+								.dayHeader {
+									font-size: 10px;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			.rbc-row-segment {
+				.rbc-event {
+					.monthEventWrapper {
+						.textContainer {
+							font-size: 10px;
+						}
+					}
+				}
 			}
 		}
 	}

@@ -54,3 +54,8 @@
 		stroke: var(--primary-font) !important;
 	}
 }
+@media (max-width: 768px) {
+	.tasks-right-container {
+		padding: 49px 5px 0 23px;
+	}
+}
