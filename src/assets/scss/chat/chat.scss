@@ -11,60 +11,6 @@
 		display: flex;
 		flex-direction: column;
 		position: relative;
-		.chat-header {
-			display: flex;
-			align-items: center;
-			align-self: stretch;
-			justify-content: space-between;
-			padding-bottom: 5px;
-			// position: absolute;
-			width: 100%;
-			.left-container {
-				display: flex;
-				align-items: center;
-				gap: 12px;
-
-				.icon-container {
-					cursor: pointer;
-					height: 16px;
-				}
-
-				.chat-title {
-					display: -webkit-box;
-					-webkit-line-clamp: 1;
-					line-clamp: 1;
-					-webkit-box-orient: vertical;
-					overflow: hidden;
-					text-overflow: ellipsis;
-					word-break: break-all;
-					color: var(--primary-font, #f2f2f3);
-					font-family: var(--chat-primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-				}
-			}
-
-			.right-container {
-				display: flex;
-				align-items: center;
-				gap: 12px;
-				.delete-chat-btn {
-					border: none;
-					cursor: pointer;
-					display: flex;
-					width: 32px;
-					height: 32px;
-					justify-content: center;
-					align-items: center;
-					gap: 6px;
-					border-radius: 6px;
-					border: 1px solid var(--error, #c71b3a);
-					background: rgba(192, 55, 68, 0.08);
-				}
-			}
-		}
 
 		.chatBodyContainer {
 			width: 100%;

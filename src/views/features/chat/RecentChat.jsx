@@ -4,7 +4,6 @@ import {
 	handleDeepSearchChainOfThought,
 	handleDeepResearchChainOfThought,
 } from '../../../helpers/chatHelpers';
-import { ReactComponent as LeftSvg } from '../../../assets/svg/activity/left.svg';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
@@ -14,21 +13,13 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
-import ObjectID from 'bson-objectid';
-import { ReactComponent as DeleteSvg } from '../../../assets/svg/delete.svg';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import TextSelector from '../../components/chat/chatComponents/TextSelector';
 import useWorkspaceMode from '../../../views/hooks/useWorkspaceMode';
-import { Tooltip } from 'antd';
+import ChatHeader from '../../components/chat/ChatHeader';
 
 let throttleTimer = null;
 const RecentChat = ({
-	outerContainerStyle = {},
-	chatList = [],
-	onSend,
-	aiChatLoading,
-	handleAiUploadImage,
-	customChatActions = false,
 	isPublicChat = false,
 	isPreview = false,
 	sId = null,
@@ -38,7 +29,6 @@ const RecentChat = ({
 	sessionIdChanged = false,
 	onChangeSessionId = null,
 	chatActive = false,
-	onNewChatBtnClick = null,
 	onNavigateBack = null,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
@@ -52,12 +42,10 @@ const RecentChat = ({
 			moreRecentChatStorage,
 			handleGlobalChatMessages,
 			chatInfo,
-			currentChatData,
 			chatHistoryDrawerIsOpen,
 			currentSessionId,
 			updateChatLoadingSessions,
 			newChatSessionIds,
-			deleteChatSession,
 		},
 		aiSetup: { updateAiChatSessions, aiChatSessions },
 		chatStream: {
@@ -848,32 +836,6 @@ const RecentChat = ({
 		setInfo((prev) => ({ ...prev, showViewDocument: value }));
 	}, []);
 
-	const handleDeleteChatClick = useCallback(async () => {
-		if (info?.deleteChatSessionLoading || globalChatMessages?.[sessionId]?.isStreaming) {
-			return;
-		}
-		setInfo((prev) => ({ ...prev, deleteChatSessionLoading: true }));
-		const response = await deleteChatSession(sessionId);
-		if (response?.[0] === true) {
-			navigate('/home');
-			updateStateValues({
-				refetchChatHistoryList: true,
-			});
-		} else {
-			message.error('Failed to delete chat session');
-		}
-		setInfo((prev) => ({ ...prev, deleteChatSessionLoading: false }));
-	}, [deleteChatSession, sessionId, info?.deleteChatSessionLoading, globalChatMessages]);
-
-	const handleNavigateBack = useCallback(() => {
-		const pathname = location?.pathname?.split('/')?.[1];
-		if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
-			onNavigateBack?.();
-		} else {
-			navigate(-1);
-		}
-	}, [location?.pathname]);
-
 	return (
 		<>
 			<div
@@ -885,35 +847,11 @@ const RecentChat = ({
 				<div className="chatBarContainer" style={{ width: '100%' }}>
 					{/* header */}
 					{!isPublicChat && (
-						<div className="chat-header">
-							<div className="left-container">
-								<div className="icon-container" onClick={handleNavigateBack}>
-									<LeftSvg />
-								</div>
-								<div className="chat-title">
-									{currentChatData?.title || 'New Chat'}
-								</div>
-							</div>
-							<div className="right-container">
-								{!info?.isNewChat && (
-									<Tooltip
-										title={
-											<div className="recent-chat-tooltip">Delete Chat</div>
-										}
-										placement="bottom"
-										color="transparent"
-										arrow={false}
-									>
-										<button
-											className="delete-chat-btn"
-											onClick={handleDeleteChatClick}
-										>
-											<DeleteSvg />
-										</button>
-									</Tooltip>
-								)}
-							</div>
-						</div>
+						<ChatHeader
+							sessionId={sessionId}
+							onNavigateBack={onNavigateBack}
+							isNewChat={info?.isNewChat}
+						/>
 					)}
 
 					{/* chat body */}
