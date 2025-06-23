@@ -5,7 +5,7 @@ import { DocsStatusButton } from '../../features/docs/Docs';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import DocsCardBg from '../../../assets/images/files/docs-card-bg.png';
 import { useNavigate } from 'react-router-dom';
-import { memo, useContext, useEffect, useState, useCallback } from 'react';
+import { memo, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import Context from '../../../context/context';
 import gsap from 'gsap';
@@ -57,6 +57,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 	const {
 		templates: { getDocsFilesList, docsFilesList },
 	} = useContext(Context);
+	const mountedRef = useRef(true);
 
 	const [info, setInfo] = useState({
 		docs: [],
@@ -171,6 +172,16 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 	}, [docsFilesList]);
 
 	useEffect(() => {
+		if (!docsFilesList) {
+			fetchDocs({ page: 1 });
+		}
+	}, [docsFilesList]);
+
+	useEffect(() => {
+		if (mountedRef.current) {
+			mountedRef.current = false;
+			return;
+		}
 		const timeout = setTimeout(() => {
 			fetchDocs({ page: 1 });
 		}, 1000);
