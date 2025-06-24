@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect, useCallback } from 'react';
+import { useContext, useState, useEffect, useCallback, useRef } from 'react';
 import Context from '../../../context/context';
 import InfiniteScroll from './InfiniteScroll';
 import '../../../assets/scss/globalComponents/promptWidget.scss';
@@ -7,9 +7,20 @@ import Suggestions from '../../features/homePage/Suggestions';
 import Skeleton from 'react-loading-skeleton';
 import AISuggestionsModal from '../modalsV2/homePage/AISuggestionsModal';
 import { message } from '../../components/globalComponents/CustomToast';
-const skeletonLoaders = [1, 2, 3, 4, 5, 6, 7, 8];
+import { getRelativeDayLabel } from '../../../helpers';
 
-const PromptsWidget = ({ option }) => {
+const skeletonLoaders = [1, 2, 3, 4];
+
+const PriorityLevel = {
+	High: 'red',
+	Medium: 'yellow',
+	Low: 'green',
+};
+const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
+	const cardsPerView = 4; // Number of cards to show at a time
+	const cardWidth = 226; // Card width (216px) + margin-right (10px)
+	const containerRef = useRef(null);
+
 	const {
 		templates: {
 			aiSuggestedPendingActions,
@@ -27,6 +38,13 @@ const PromptsWidget = ({ option }) => {
 		selectedCard: null,
 		openSuggestionsModal: false,
 	});
+
+	const cardsData = aiSuggestedPendingActions?.pendingActions;
+	const cardsLoading = aiSuggestedPendingActions ? false : true;
+	const cardsEmpty = aiSuggestedPendingActions?.pendingActions?.length === 0 && !cardsLoading;
+	const cardsLength = aiSuggestedPendingActions?.pendingActions?.length ?? 0;
+	const cardsHasNextPage = Boolean(aiSuggestedPendingActions?.metaInfo?.hasNextPage);
+	const cardsCurrentPage = Number(aiSuggestedPendingActions?.metaInfo?.currentPage) || 1;
 
 	useEffect(() => {
 		if (option) {
@@ -51,6 +69,28 @@ const PromptsWidget = ({ option }) => {
 			});
 		}
 	}, [option]);
+
+	useEffect(() => {
+		if (containerRef.current && cardsData) {
+			const scrollPosition = currentIndex * cardWidth - (934 - 216) / 2; // Center the current card
+			containerRef.current.scrollTo({
+				left: scrollPosition,
+				behavior: 'smooth',
+			});
+		}
+	}, [currentIndex, cardsData]);
+
+	// Fetch more cards when currentIndex approaches the end of cardsData
+	useEffect(() => {
+		if (
+			cardsData &&
+			currentIndex >= cardsData.length - cardsPerView &&
+			cardsHasNextPage &&
+			!info.cardsLoading
+		) {
+			fetchNextCards();
+		}
+	}, [currentIndex, cardsData, cardsHasNextPage, info.cardsLoading]);
 
 	const getUpdatedSuggestedPendingActions = async (page = 1, shouldReset = false) => {
 		await getAISuggestedPendingActions(
@@ -116,76 +156,76 @@ const PromptsWidget = ({ option }) => {
 		}
 	};
 
-	const cardsData = aiSuggestedPendingActions?.pendingActions;
-	const cardsLoading = aiSuggestedPendingActions ? false : true;
-	const cardsEmpty = aiSuggestedPendingActions?.pendingActions?.length === 0 && !cardsLoading;
-	const cardsLength = aiSuggestedPendingActions?.pendingActions?.length ?? 0;
-	const cardsHasNextPage = Boolean(aiSuggestedPendingActions?.metaInfo?.hasNextPage);
-	const cardsCurrentPage = Number(aiSuggestedPendingActions?.metaInfo?.currentPage) || 1;
-
 	// Indices of cards to animate with dealing effect (4th, 5th, 8th, 10th, 12th)
 	const animatedIndices = [];
 
 	return (
 		<>
-			<div
-				className="prompts-widget"
-				style={{ height: cardsData?.length > 0 ? '93vh' : '10px' }}
-			>
+			<div className="prompts-widget" style={{ height: '100%' }}>
 				{info?.cardsLoading ? (
 					<div className="prompts-widget-cards-loading">
 						{skeletonLoaders?.map((item) => (
-							<Skeleton key={item} height={'160px'} width={'175px'} />
+							<Skeleton key={item} height={'226px'} width={'216px'} />
 						))}
 					</div>
 				) : cardsEmpty ? (
-					''
+					<div className="prompts-widget-cards-loading">No results found</div>
 				) : (
-					<InfiniteScroll
-						hasMore={cardsHasNextPage}
-						next={() => fetchNextCards()}
-						dataLength={cardsLength}
-						loader={<></>}
-						height={cardsData?.length > 0 ? '80vh' : '100%'}
-						style={{ width: '760px' }}
-					>
-						<div className="prompts-widget-cards">
-							{cardsData?.map((card, index) => (
-								<div
-									key={card?.id}
-									className={`prompts-widget-each-card ${
-										info.animateCards
-											? animatedIndices.includes(index)
-												? `deal-animate deal-path-${animatedIndices.indexOf(
-														index,
-												  )}`
-												: 'slide-animate'
-											: ''
-									}`}
-									onClick={() => handlePromptClick(card)}
-								>
-									<div className="promptsCardTitle">{card?.title}</div>
-									{/* <div className="promptsCardDescription">{card?.description}</div> */}
+					// <InfiniteScroll
+					// 	hasMore={cardsHasNextPage}
+					// 	next={() => {}}
+					// 	dataLength={cardsLength}
+					// 	loader={<></>}
+					// 	height={cardsData?.length > 0 ? '25vh' : '100%'}
+					// 	style={{ width: '934px' }}
+					// >
+					<div className="prompts-widget-cards" ref={containerRef}>
+						{cardsData?.map((card, index) => (
+							<div
+								key={card?.id}
+								className={`prompts-widget-each-card ${
+									info.animateCards
+										? animatedIndices.includes(index)
+											? `deal-animate deal-path-${animatedIndices.indexOf(
+													index,
+											  )}`
+											: 'slide-animate'
+										: ''
+								} ${currentIndex === index ? 'selected-card' : ''}`}
+								onClick={() => handlePromptClick(card)}
+								// onMouseEnter={() =>
+								// 	setInfo((prev) => ({ ...prev, currentIndex: index }))
+								// }
+								// onMouseLeave={() =>
+								// 	setInfo((prev) => ({ ...prev, currentIndex: 0 }))
+								// }
+							>
+								<div className="promptsCardTitle">{card?.title}</div>
+								<div className="promptsCardDetails">
+									<span className="promptsCardDetailsModuleType">
+										{card?.moduleType}
+									</span>
+									<span className="promptsCardDetailsPriority">
+										<span className="promptsCardDetailsPriorityValue">
+											<span
+												className="promptsCardDetailsPriorityValueIcon"
+												style={{
+													backgroundColor: PriorityLevel[card?.priority],
+												}}
+											></span>
+											{card?.priority}
+										</span>
+										<span className="promptsCardDetailsPriorityIcon"></span>
+										<span className="promptsCardDetailsPriorityDate">
+											{getRelativeDayLabel(card?.updatedAt)}
+										</span>
+									</span>
 								</div>
-							))}
-						</div>
-					</InfiniteScroll>
+							</div>
+						))}
+					</div>
+					// </InfiniteScroll>
 				)}
-			</div>
-			<div className="prompts-widget-bottom">
-				<div className="chatbox-container">
-					<ChatBox
-						onSend={handleCustomOnSendFunction}
-						customChatActions={true}
-						autoFocus={false}
-						animatePlaceholder={true}
-						onChatQueryChange={handleChatQueryChange}
-						showUpgradeSubscriptionBtn={false}
-					/>
-				</div>
-				<div className="suggestions-container">
-					<Suggestions chatQuery={info?.chatQuery} styles={{ margin: '0 auto' }} />
-				</div>
 			</div>
 			<AISuggestionsModal
 				open={info?.openSuggestionsModal}

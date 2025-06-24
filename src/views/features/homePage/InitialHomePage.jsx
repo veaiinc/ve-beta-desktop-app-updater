@@ -39,7 +39,7 @@ const optionsList = [
 	//  showOption: false,
 	//  icon: AgentsSvg,
 	// },
-	'proactive',
+	'All',
 	// {
 	//  id: 2,
 	//  label: 'Suggested prompts',
@@ -208,49 +208,49 @@ const InitialHomePage = () => {
 	});
 
 	// Check if the options container is scrollable
-	const checkScroll = useCallback(() => {
-		const container = optionsContainerRef.current;
-		if (container) {
-			const isOverflowing = container.scrollWidth > container.clientWidth;
-			setShowArrows({
-				left: container.scrollLeft > 0,
-				right:
-					isOverflowing &&
-					container.scrollLeft < container.scrollWidth - container.clientWidth - 1,
-			});
-		}
-	}, []);
+	// const checkScroll = useCallback(() => {
+	// 	const container = optionsContainerRef.current;
+	// 	if (container) {
+	// 		const isOverflowing = container.scrollWidth > container.clientWidth;
+	// 		setShowArrows({
+	// 			left: container.scrollLeft > 0,
+	// 			right:
+	// 				isOverflowing &&
+	// 				container.scrollLeft < container.scrollWidth - container.clientWidth - 1,
+	// 		});
+	// 	}
+	// }, []);
 
-	// Handle scroll on arrow click
-	const handleScroll = (direction) => {
-		const container = optionsContainerRef.current;
-		if (container) {
-			const scrollAmount = 600; // Adjust scroll distance as needed
-			const newScrollPosition =
-				direction === 'left'
-					? container.scrollLeft - scrollAmount
-					: container.scrollLeft + scrollAmount;
-			container.scrollTo({
-				left: newScrollPosition,
-				behavior: 'smooth',
-			});
-		}
-	};
+	// // Handle scroll on arrow click
+	// const handleScroll = (direction) => {
+	// 	const container = optionsContainerRef.current;
+	// 	if (container) {
+	// 		const scrollAmount = 600; // Adjust scroll distance as needed
+	// 		const newScrollPosition =
+	// 			direction === 'left'
+	// 				? container.scrollLeft - scrollAmount
+	// 				: container.scrollLeft + scrollAmount;
+	// 		container.scrollTo({
+	// 			left: newScrollPosition,
+	// 			behavior: 'smooth',
+	// 		});
+	// 	}
+	// };
 
-	useEffect(() => {
-		checkScroll();
-		window.addEventListener('resize', checkScroll);
-		const container = optionsContainerRef.current;
-		if (container) {
-			container.addEventListener('scroll', checkScroll);
-		}
-		return () => {
-			window.removeEventListener('resize', checkScroll);
-			if (container) {
-				container.removeEventListener('scroll', checkScroll);
-			}
-		};
-	}, [checkScroll]);
+	// useEffect(() => {
+	// 	checkScroll();
+	// 	window.addEventListener('resize', checkScroll);
+	// 	const container = optionsContainerRef.current;
+	// 	if (container) {
+	// 		container.addEventListener('scroll', checkScroll);
+	// 	}
+	// 	return () => {
+	// 		window.removeEventListener('resize', checkScroll);
+	// 		if (container) {
+	// 			container.removeEventListener('scroll', checkScroll);
+	// 		}
+	// 	};
+	// }, [checkScroll]);
 
 	useEffect(() => {
 		return () => {
@@ -378,7 +378,10 @@ const InitialHomePage = () => {
 			return (
 				<div
 					className={`option ${info?.selectedOption === option ? 'active' : ''}`}
-					onClick={() => handleOptionSelection(option)}
+					onClick={(e) => {
+						e.stopPropagation();
+						handleOptionSelection(option);
+					}}
 					key={option}
 				>
 					<div className="option-label">{option}</div>
@@ -431,19 +434,8 @@ const InitialHomePage = () => {
 				</div>
 				{!info?.showSuggestions && (
 					<div className="options-wrapper">
-						<div
-							className={`homepage__options-container`}
-							ref={optionsContainerRef}
-							style={{
-								display:
-									aiSuggestedPendingActions?.pendingActions?.length > 0
-										? ''
-										: 'none',
-							}}
-						>
-							{renderedOptions}
-						</div>
-						<div className="arrow-container">
+						<div className={`homepage__options-container`}>{renderedOptions}</div>
+						{/* <div className="arrow-container">
 							{showArrows.left && (
 								<div
 									className="arrow left-arrow"
@@ -460,20 +452,24 @@ const InitialHomePage = () => {
 									<ChevronRightThinSvg />
 								</div>
 							)}
-						</div>
+						</div> */}
 					</div>
 				)}
 			</div>
 			{info?.options?.length > 0 && !info?.showSuggestions && (
 				<div className="home-page-container-content">
-					{info?.selectedOption === 'proactive' ? (
+					{/* {info?.selectedOption === 'All' ? (
 						<ProactiveSuggestions
 							option={info?.selectedOption}
 							previousOption={previousSelectedOptionRef.current}
 						/>
 					) : (
 						<GlobalWidget option={info?.selectedOption} />
-					)}
+					)} */}
+					<ProactiveSuggestions
+						option={info?.selectedOption}
+						previousOption={previousSelectedOptionRef.current}
+					/>
 				</div>
 			)}
 		</div>
