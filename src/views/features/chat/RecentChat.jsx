@@ -72,6 +72,7 @@ const RecentChat = ({
 		tooltipStyles: { visible: false, styles: { top: 0, left: 0 }, selectedText: '' },
 		deleteChatSessionLoading: false,
 		isNewChat: false,
+		currentUserMessageIndex: null,
 	});
 
 	const chatContentRef = useRef(null);
@@ -88,6 +89,7 @@ const RecentChat = ({
 	const location = useLocation();
 	const newChatSessionIdsRef = useRef(newChatSessionIds);
 	const globalChatMessagesRef = useRef(globalChatMessages);
+	const currentUserMessageTimeoutRef = useRef(null);
 	sessionId = isPreview ? sId : sessionId;
 
 	useEffect(() => {
@@ -95,6 +97,11 @@ const RecentChat = ({
 
 		return () => {
 			document.removeEventListener('mouseup', handleMouseUp);
+
+			if (currentUserMessageTimeoutRef.current) {
+				clearTimeout(currentUserMessageTimeoutRef.current);
+				currentUserMessageTimeoutRef.current = null;
+			}
 
 			setTimeout(() => {
 				tabsRefs.current = {};
@@ -202,6 +209,10 @@ const RecentChat = ({
 					...prev,
 					scrollExecuted: false,
 				}));
+			}
+			if (currentUserMessageTimeoutRef.current) {
+				clearTimeout(currentUserMessageTimeoutRef.current);
+				currentUserMessageTimeoutRef.current = null;
 			}
 
 			if (!globalChatMessages?.[sessionId]) {
@@ -659,6 +670,21 @@ const RecentChat = ({
 			top: scrollOffset,
 			behavior: 'smooth',
 		});
+
+		if (currentUserMessageTimeoutRef.current) {
+			clearTimeout(currentUserMessageTimeoutRef.current);
+		}
+		setInfo((prev) => ({
+			...prev,
+			currentUserMessageIndex: index,
+		}));
+		currentUserMessageTimeoutRef.current = setTimeout(() => {
+			setInfo((prev) => ({
+				...prev,
+				currentUserMessageIndex: null,
+			}));
+			currentUserMessageTimeoutRef.current = null;
+		}, 2000);
 	}, []);
 
 	const fetchMoreData = useCallback(
@@ -826,6 +852,16 @@ const RecentChat = ({
 													{chat?.type?.toLowerCase() === 'ai' ? (
 														<div
 															className="content"
+															style={{
+																...(info?.currentUserMessageIndex && {
+																	opacity:
+																		index ===
+																		info?.currentUserMessageIndex +
+																			1
+																			? 1
+																			: 0.6,
+																}),
+															}}
 															// style={{
 															// 	opacity:
 															// 		index ===
@@ -895,6 +931,16 @@ const RecentChat = ({
 															// 			? 1
 															// 			: 0.6,
 															// }}
+
+															style={{
+																...(info?.currentUserMessageIndex && {
+																	opacity:
+																		index ===
+																		info?.currentUserMessageIndex
+																			? 1
+																			: 0.6,
+																}),
+															}}
 														>
 															<UserMessageRenderer
 																messageData={chat}

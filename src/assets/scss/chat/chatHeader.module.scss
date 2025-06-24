@@ -126,6 +126,7 @@
 					white-space: nowrap;
 					word-break: break-all;
 					flex-shrink: 0;
+					transition: color 0.2s ease-in-out;
 					color: var(--secondary-font, #f2f2f3);
 					font-family: var(--primary-font-family);
 					font-size: 13px;
@@ -133,6 +134,10 @@
 					font-weight: 500;
 					line-height: normal;
 					cursor: pointer;
+
+					&:hover {
+						color: var(--primary-font);
+					}
 				}
 			}
 
