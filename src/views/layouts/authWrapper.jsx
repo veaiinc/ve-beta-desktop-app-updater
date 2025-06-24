@@ -19,6 +19,8 @@ import ExpiredSubscriptionModal from '../components/modalsV2/subscription/Expire
 import ExpiredTokenModal from '../components/modalsV2/subscription/ExpiredTokenModal';
 import AccessDeniedPopup from '../components/accessPopups/accessDeniedPopup';
 import CustomToast from '../components/globalComponents/CustomToast';
+import useWorkspaceMode from '../hooks/useWorkspaceMode';
+import PageLoader from '../components/app/PageLoader';
 
 const AuthWrapper = ({
 	title,
@@ -42,13 +44,16 @@ const AuthWrapper = ({
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
 	const accessControls = useAccessControls();
+	const { loading } = useWorkspaceMode();
 
 	useEffect(() => {
 		checkAuth();
 	}, []);
 	// const workspaceIds = ['swaroop', 'veai', 'bhee'];
 
-	return (
+	return loading ? (
+		<PageLoader />
+	) : (
 		<main className="main-container">
 			{/* {renewBanner && <RenewBanner />} */}
 			<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>

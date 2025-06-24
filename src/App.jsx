@@ -1,15 +1,12 @@
 import { Routes, Route } from 'react-router-dom';
-import PageLoader from './views/components/app/PageLoader';
 import useTheme from './views/hooks/useTheme';
 import useWorkspaceMode from './views/hooks/useWorkspaceMode';
 
 const App = () => {
 	useTheme();
-	const { loading, routes } = useWorkspaceMode();
+	const { routes } = useWorkspaceMode();
 
-	return loading ? (
-		<PageLoader />
-	) : (
+	return (
 		<Routes>
 			{routes?.map((route) => (
 				<Route
