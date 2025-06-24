@@ -1,39 +1,24 @@
-import { Routes, Route } from 'react-router-dom';
-import betaRoutes from './routes';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { useContext, useEffect } from 'react';
-import ExpiredSubscriptionModal from './views/components/modalsV2/subscription/ExpiredSubscriptionModal';
-import ExpiredTokenModal from './views/components/modalsV2/subscription/ExpiredTokenModal';
 import Cookies from 'js-cookie';
 import Context from './context/context';
-import AccessDeniedPopup from './views/components/accessPopups/accessDeniedPopup';
-// import VoiceWrapper from './views/layouts/VoiceWrapper';
 import CustomToast from './views/components/globalComponents/CustomToast';
-// import Spinner from './views/components/loaders/Spinner';
 import useWorkspaceMode from './views/hooks/useWorkspaceMode';
+import Spinner from './views/components/loaders/Spinner';
 
-const stableRoutes = betaRoutes?.filter(
-	(route) =>
-		route.routeType === 'public' ||
-		route.path === '/home' ||
-		route.path === '/settings/:type' ||
-		route.path === '/chat/:sessionId' ||
-		route.path === '/share-and-earn' ||
-		route.path === '/create-workspace' ||
-		route.path === '/onboarding',
-);
+const App = () => {
+	const { pathname } = useLocation();
+	const { loading, routes } = useWorkspaceMode();
 
-function App() {
-	const currentRoute = window.location.pathname;
-	const { workspaceMode } = useWorkspaceMode(); // stable, beta, internal
 	const {
 		themeInfo: { theme },
 	} = useContext(Context);
 
 	const getThemePreference = () => {
-		if (currentRoute.startsWith('/builder')) {
+		if (pathname.startsWith('builder')) {
 			return 'light';
 		}
-		if (currentRoute === '/') {
+		if (pathname === '/') {
 			return 'dark';
 		}
 		return theme || localStorage?.getItem('theme') || Cookies.get('theme') || 'dark';
@@ -55,34 +40,40 @@ function App() {
 		} else {
 			htmlElement.classList.add('otheros');
 		}
-		if (currentRoute.startsWith('/builder')) {
+		if (pathname.startsWith('/builder')) {
 			htmlElement.removeAttribute('theme');
 		} else {
 			htmlElement.setAttribute('theme', themeAttribute);
 		}
-	}, [theme, currentRoute]);
+	}, [theme]);
 
-	const routes = workspaceMode === 'stable' ? stableRoutes : betaRoutes;
-
-	return (
+	return loading ? (
+		<div
+			style={{
+				width: '100vw',
+				height: '100vh',
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+			}}
+		>
+			<Spinner width={32} height={32} />
+		</div>
+	) : (
 		<>
 			<Routes>
 				{routes?.map((route, index) => (
 					<Route
 						key={index}
 						path={route?.path}
-						element={route?.component}
+						element={route?.element}
 						exact={route?.exact}
 					/>
 				))}
 			</Routes>
-			<ExpiredSubscriptionModal />
-			<ExpiredTokenModal />
-			<AccessDeniedPopup />
-			{/* <VoiceWrapper /> */}
 			<CustomToast />
 		</>
 	);
-}
+};
 
 export default App;

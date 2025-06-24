@@ -15,6 +15,9 @@ import CommandKSearch from '../components/commandKSearch/CommandKSearch';
 import Spinner from '../components/loaders/Spinner';
 
 import '../../assets/scss/authWrapper.scss';
+import ExpiredSubscriptionModal from '../components/modalsV2/subscription/ExpiredSubscriptionModal';
+import ExpiredTokenModal from '../components/modalsV2/subscription/ExpiredTokenModal';
+import AccessDeniedPopup from '../components/accessPopups/accessDeniedPopup';
 
 const AuthWrapper = ({
 	title,
@@ -106,6 +109,9 @@ const AuthWrapper = ({
 				{/* {showBottomToolbar ? <BottomToolbar outerContainerStyle={{ bottom: '10px' }} /> : ''} */}
 				{/* <CommandKSearch /> */}
 			</div>
+			<ExpiredSubscriptionModal />
+			<ExpiredTokenModal />
+			<AccessDeniedPopup />
 		</main>
 	);
 };
