@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import Context from '../../context/context';
 import { matchPath, useLocation } from 'react-router-dom';
 
@@ -7,14 +7,8 @@ import publicRoutes, { publicRoutesList } from '../../routes/publicRoutes';
 import stableRoutes from '../../routes/stableRoutes';
 import betaRoutes from '../../routes/betaRoutes';
 
-const initialState = {
-	routes: null,
-	error: false,
-};
-
 const useWorkspaceMode = () => {
 	const { pathname } = useLocation();
-	const [info, setInfo] = useState(initialState);
 
 	const {
 		profileInfo: { tennantSettingsData, getTenantSettings },
@@ -39,17 +33,10 @@ const useWorkspaceMode = () => {
 				if (!success) {
 					const error = response[1];
 					console.error(error);
-					setInfo((prev) => ({
-						...prev,
-						error,
-					}));
 				}
 			}
 		} catch (error) {
-			setInfo((prev) => ({
-				...prev,
-				error,
-			}));
+			console.error(error);
 		}
 	};
 
@@ -59,7 +46,7 @@ const useWorkspaceMode = () => {
 		fetchWorkspaceMode();
 	}, [isPublicRoute]);
 
-	return { ...info, loading, routes, workspaceMode };
+	return { loading, routes, workspaceMode, isPublicRoute };
 };
 
 export default useWorkspaceMode;
