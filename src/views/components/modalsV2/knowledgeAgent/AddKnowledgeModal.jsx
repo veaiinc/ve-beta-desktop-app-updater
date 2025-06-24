@@ -55,6 +55,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			uploadURLsToKnowledgeBase,
 			getKnowledgeBaseInfo,
 			uploadPDFsToKnowledgeBase,
+			getKnowledgeBaseFilesActiveStatus,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -147,7 +148,13 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			if (statusSummary?.[0]) {
 				message.success('URLs uploaded successfully!', 1);
 				modifyClose();
-				getKnowledgeBaseInfo(assistantId, 1, 20);
+				// Refresh both knowledge base info and active status
+				await getKnowledgeBaseInfo(assistantId, 1, 20);
+				await getKnowledgeBaseFilesActiveStatus({
+					agentId: assistantId,
+					page: 1,
+					limit: 20,
+				});
 			}
 		} else if (info?.activeFileType === 'pdf') {
 			if (info?.pdfFilesInfo?.length === 0) {
@@ -167,7 +174,13 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			if (statusSummary?.[0]) {
 				message.success('PDF Files uploaded successfully!', 1);
 				toggleModal();
-				getKnowledgeBaseInfo(assistantId, 1, 20);
+				// Refresh both knowledge base info and active status
+				await getKnowledgeBaseInfo(assistantId, 1, 20);
+				await getKnowledgeBaseFilesActiveStatus({
+					agentId: assistantId,
+					page: 1,
+					limit: 20,
+				});
 			}
 		} else if (info?.activeFileType === 'customText') {
 			if (info?.customTextInfo?.filename === '') {
@@ -195,7 +208,13 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			if (statusSummary?.[0]) {
 				message.success('Text File uploaded successfully!', 1);
 				toggleModal();
-				getKnowledgeBaseInfo(assistantId, 1, 20);
+				// Refresh both knowledge base info and active status
+				await getKnowledgeBaseInfo(assistantId, 1, 20);
+				await getKnowledgeBaseFilesActiveStatus({
+					agentId: assistantId,
+					page: 1,
+					limit: 20,
+				});
 			}
 		}
 		setInfo((prev) => ({ ...prev, isUploading: false }));

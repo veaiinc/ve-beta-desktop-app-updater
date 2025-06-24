@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
 import moment from 'moment';
@@ -53,7 +53,7 @@ const FormsGrid = ({
 }) => {
 	const activeWorkspaceId = localStorage.getItem('workspaceId');
 	const origin = fetchOriginSelection();
-
+	const mountedRef = useRef(true);
 	const {
 		templates: {
 			getTemplatesListForForms,
@@ -163,6 +163,16 @@ const FormsGrid = ({
 	}, [info?.forms?.length]);
 
 	useEffect(() => {
+		if (!formsTemplatesList) {
+			fetchForms({ page: 1 });
+		}
+	}, [formsTemplatesList]);
+
+	useEffect(() => {
+		if (mountedRef.current) {
+			mountedRef.current = false;
+			return;
+		}
 		const timeout = setTimeout(() => {
 			fetchForms({ page: 1 });
 		}, 1000);

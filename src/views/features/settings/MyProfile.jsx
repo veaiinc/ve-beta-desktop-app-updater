@@ -127,13 +127,7 @@ const MyProfile = () => {
 	useEffect(() => {
 		if (tenantUserAccessControls) {
 			// Try to get profession from tenantUserAccessControls if it exists
-			const professionValue =
-				tenantUserAccessControls?.profession ||
-				tenantUserAccessControls?.userProfession ||
-				tenantUserAccessControls?.userDetails?.profession ||
-				tenantUserAccessControls?.profile?.profession ||
-				tenantUserAccessControls?.user?.profession;
-
+			const professionValue = tenantUserAccessControls?.profession;
 			if (professionValue) {
 				setUserDetails((prev) => ({
 					...prev,
