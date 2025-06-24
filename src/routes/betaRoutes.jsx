@@ -1,16 +1,21 @@
 import { lazy, Suspense } from 'react';
 
+// layouts
 import AuthWrapper from '../views/layouts/authWrapper';
+import GalleryViewLayout from '../views/layouts/galleryViewLayout';
+import AutomationBuilderLayout from '../views/layouts/automationBuilderLayout';
+import SmartFileLayout from '../views/layouts/smartFileLayout';
+import WorkflowBuilderLayout from '../views/layouts/workflowBuilderLayout';
+
+// Protected Pages
 import CalendarModule from '../views/features/calendar/Calendar';
 import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
 import EarlyAccess from '../views/features/earlyAccess/EarlyAccess';
-
 import AddGallery from '../views/features/gallery/AddGallery';
 import GalleryPage from '../views/features/gallery/GalleryPage';
 import GalleryViewer from '../views/features/gallery/GalleryViewer';
 import AlbumSettings from '../views/features/gallery/AlbumSettings';
 import UploadPhotos from '../views/features/gallery/UploadPhotos';
-import GalleryViewLayout from '../views/layouts/galleryViewLayout';
 import InitialHomePage from '../views/features/homePage/InitialHomePage';
 import ShareAndEarn from '../views/features/shareAndEarn/ShareAndEarn';
 import SettingsWrapper from '../views/features/settings/SettingsWrapper';
@@ -25,7 +30,6 @@ import EditAgent from '../views/features/aiAssistant/EditAgent';
 import AgentDetails from '../views/features/aiAssistant/AgentDetails';
 import RecentChat from '../views/features/chat/RecentChat';
 import AutomationBuilder from '../views/features/automationBuilder/AutomationBuilder';
-import AutomationBuilderLayout from '../views/layouts/automationBuilderLayout';
 import Automations from '../views/features/automations/Automations';
 import BrandSetup from '../views/features/settings/BrandSetup';
 import DocsFullView from '../views/components/docs/DocsFullView';
@@ -46,11 +50,12 @@ import KnowledgeAgents from '../views/features/knowledgeAgent/KnowledgeAgents';
 import Files from '../views/features/files/Files';
 import AiAssistants from '../views/features/aiAssistant/AiAssistants';
 import KnowledgeAgentDetails from '../views/features/knowledgeAgent/AgentDetails';
-
-const BuilderApp = lazy(() => import('../../builderSrc/App'));
-
 import Agents from '../views/features/agents/Agents';
 import Agent from '../views/features/agents/agent/Agent';
+import SmartFile from '../views/features/sales/smartFiles/SmartFile';
+import WorkflowBuilder from '../views/features/workflowBuilder/WorkflowBuilder';
+import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
+const BuilderApp = lazy(() => import('../../builderSrc/App'));
 
 const betaRoutes = [
 	{
@@ -168,6 +173,30 @@ const betaRoutes = [
 			<GalleryViewLayout title={'Gallery Viewer'}>
 				<GalleryViewer />
 			</GalleryViewLayout>
+		),
+	},
+	{
+		path: '/smart-file/:templateId/:workflowId',
+		element: (
+			<SmartFileLayout title={'Smart File'}>
+				<SmartFile />
+			</SmartFileLayout>
+		),
+	},
+	{
+		path: '/workflow_builder/:templateId',
+		element: (
+			<WorkflowBuilderLayout title={'Workflow Builder'}>
+				<WorkflowBuilder />
+			</WorkflowBuilderLayout>
+		),
+	},
+	{
+		path: '/automation_builder/:templateId',
+		element: (
+			<WorkflowBuilderLayout title={'Workflow Builder'}>
+				<Workflow_builder_updated />
+			</WorkflowBuilderLayout>
 		),
 	},
 	{
