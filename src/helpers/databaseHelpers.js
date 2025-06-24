@@ -340,6 +340,34 @@ export const getRelativeDateLabel = (unixDate) => {
 	return inputDate.format('MMM YYYY');
 };
 
+export const getDayDateLabel = (unixDate) => {
+	return moment.unix(unixDate).format('MMM D, YYYY');
+};
+
+export const getWeekDateLabel = (unixDate) => {
+	const date = moment.unix(unixDate);
+
+	// Force Sunday as the first day of the week (0 = Sunday)
+	const startOfWeek = date.clone().day(0); // Sunday
+	const endOfWeek = date.clone().day(6); // Saturday
+
+	const sameMonth = startOfWeek.month() === endOfWeek.month();
+
+	if (sameMonth) {
+		return `${startOfWeek.format('MMM D')} - ${endOfWeek.format('D, YYYY')}`;
+	} else {
+		return `${startOfWeek.format('MMM D')} - ${endOfWeek.format('MMM D, YYYY')}`;
+	}
+};
+
+export const getMonthDateLabel = (unixDate) => {
+	return moment.unix(unixDate).format('MMMM YYYY');
+};
+
+export const getYearDateLabel = (unixDate) => {
+	return moment.unix(unixDate).format('YYYY');
+};
+
 export const handleUpdateInGroup = ({
 	groupData,
 	updatedRowData,
@@ -349,6 +377,7 @@ export const handleUpdateInGroup = ({
 	config = null,
 	defaultGroups = [],
 	fieldType = null,
+	statusOptions = null,
 }) => {
 	const row = groupData?.[groupId]?.docs?.find((row) => row?._id === rowId);
 	let updatedGroups = [];
@@ -384,7 +413,32 @@ export const handleUpdateInGroup = ({
 	}
 
 	if (fieldType === 'date') {
-		rawValue = getRelativeDateLabel(rawValue?.startDate);
+		if ('day' === config?.dateBy) {
+			rawValue = getDayDateLabel(rawValue?.startDate);
+		}
+		if ('week' === config?.dateBy) {
+			rawValue = getWeekDateLabel(rawValue?.startDate);
+		}
+		if ('month' === config?.dateBy) {
+			rawValue = getMonthDateLabel(rawValue?.startDate);
+		}
+		if ('year' === config?.dateBy) {
+			rawValue = getYearDateLabel(rawValue?.startDate);
+		}
+		if ('relative' === config?.dateBy) {
+			rawValue = getRelativeDateLabel(rawValue?.startDate);
+		}
+	}
+
+	if (fieldType === 'status') {
+		if (config?.statusBy === 'group') {
+			for (const [groupName, values] of Object.entries(statusOptions)) {
+				if (values.some((item) => item?._id === rawValue)) {
+					rawValue = groupName;
+					break;
+				}
+			}
+		}
 	}
 
 	const valueArray = Array.isArray(rawValue)
@@ -468,6 +522,7 @@ export const handleAddInGroup = ({
 	config,
 	fieldType,
 	defaultGroups = [],
+	statusOptions = null,
 }) => {
 	let updatedGroupData = { ...groupData };
 	const allFields = Object.keys(newRowData?.values || {});
@@ -503,7 +558,32 @@ export const handleAddInGroup = ({
 		}
 
 		if (fieldType === 'date') {
-			value = getRelativeDateLabel(value?.startDate);
+			if ('day' === config?.dateBy) {
+				value = getDayDateLabel(value?.startDate);
+			}
+			if ('week' === config?.dateBy) {
+				value = getWeekDateLabel(value?.startDate);
+			}
+			if ('month' === config?.dateBy) {
+				value = getMonthDateLabel(value?.startDate);
+			}
+			if ('year' === config?.dateBy) {
+				value = getYearDateLabel(value?.startDate);
+			}
+			if ('relative' === config?.dateBy) {
+				value = getRelativeDateLabel(value?.startDate);
+			}
+		}
+
+		if (fieldType === 'status') {
+			if (config?.statusBy === 'group') {
+				for (const [groupName, values] of Object.entries(statusOptions)) {
+					if (values.some((item) => item?._id === value)) {
+						value = groupName;
+						break;
+					}
+				}
+			}
 		}
 
 		if (!groupData?.[value]) {
@@ -532,7 +612,15 @@ export const handleAddInGroup = ({
 	return { updatedGroupData, updatedGroups: groupsUpdated ? newGroups : null };
 };
 
-export const handleDeleteInGroup = ({ groupData, rowId, groupBy, groupId, fieldType, config }) => {
+export const handleDeleteInGroup = ({
+	groupData,
+	rowId,
+	groupBy,
+	groupId,
+	fieldType,
+	config,
+	statusOptions = null,
+}) => {
 	let updatedGroupData = { ...groupData };
 	const deletedRow = groupData?.[groupId]?.docs?.find((row) => row?._id === rowId);
 	let groupValue = deletedRow?.values?.[groupBy] || null;
@@ -555,7 +643,32 @@ export const handleDeleteInGroup = ({ groupData, rowId, groupBy, groupId, fieldT
 	}
 
 	if (fieldType === 'date') {
-		groupValue = getRelativeDateLabel(groupValue?.startDate);
+		if ('day' === config?.dateBy) {
+			groupValue = getDayDateLabel(groupValue?.startDate);
+		}
+		if ('week' === config?.dateBy) {
+			groupValue = getWeekDateLabel(groupValue?.startDate);
+		}
+		if ('month' === config?.dateBy) {
+			groupValue = getMonthDateLabel(groupValue?.startDate);
+		}
+		if ('year' === config?.dateBy) {
+			groupValue = getYearDateLabel(groupValue?.startDate);
+		}
+		if ('relative' === config?.dateBy) {
+			groupValue = getRelativeDateLabel(groupValue?.startDate);
+		}
+	}
+
+	if (fieldType === 'status') {
+		if (config?.statusBy === 'group') {
+			for (const [groupName, values] of Object.entries(statusOptions)) {
+				if (values.some((item) => item?._id === groupValue)) {
+					groupValue = groupName;
+					break;
+				}
+			}
+		}
 	}
 
 	const valueArray = Array.isArray(groupValue)

@@ -912,6 +912,7 @@ export const NotesState = (props) => {
 						viewId,
 						newRowData,
 						blockId,
+						databaseId: payload?.input?.databaseId,
 					},
 				});
 
@@ -949,6 +950,7 @@ export const NotesState = (props) => {
 						updatedRow,
 						groupId,
 						blockId,
+						databaseId,
 					},
 				});
 				updateRelatedViews({
@@ -980,7 +982,13 @@ export const NotesState = (props) => {
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.DELETE_DATABASE_ROWS,
-					payload: { viewId, rowId: payload?.deleteDatabaseRowId, groupId, blockId },
+					payload: {
+						viewId,
+						rowId: payload?.deleteDatabaseRowId,
+						groupId,
+						blockId,
+						databaseId,
+					},
 				});
 
 				updateRelatedViews({

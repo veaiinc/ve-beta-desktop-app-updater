@@ -34,7 +34,7 @@ const actionHandlers = {
 		rowData: { ...state.rowData, ...action?.payload },
 	}),
 	ADD_DATABASE_ROW: (state, action) => {
-		const { viewId, newRowData, blockId } = action.payload;
+		const { viewId, newRowData, blockId, databaseId } = action.payload;
 		const currentBlockData = state?.rowData?.[viewId] || {};
 		const { groupData, groupBy, fieldType } = currentBlockData || {};
 		const view = state?.views?.[blockId] || [];
@@ -48,6 +48,15 @@ const actionHandlers = {
 			fieldType,
 			defaultGroups: currentView?.groupBy?.defaultGroups,
 		});
+
+		let statusOptions = null;
+		if (fieldType === 'status') {
+			const fieldId = groupBy?.fieldId;
+			const updatedField = state?.database?.[databaseId]?.databaseMetadata?.fields?.find(
+				(item) => item?._id === fieldId,
+			);
+			statusOptions = updatedField?.config?.status;
+		}
 
 		if (updatedGroups) {
 			currentView = {
@@ -77,11 +86,20 @@ const actionHandlers = {
 		};
 	},
 	DELETE_DATABASE_ROWS: (state, action) => {
-		const { viewId, rowId, groupId, blockId } = action.payload;
+		const { viewId, rowId, groupId, blockId, databaseId } = action.payload;
 
 		const currentBlockData = state?.rowData?.[viewId] || {};
 		const { groupData, groupBy, fieldType } = currentBlockData || {};
 		const view = state?.views?.[blockId]?.find((item) => item?._id === viewId);
+
+		let statusOptions = null;
+		if (fieldType === 'status') {
+			const fieldId = groupBy?.fieldId;
+			const updatedField = state?.database?.[databaseId]?.databaseMetadata?.fields?.find(
+				(item) => item?._id === fieldId,
+			);
+			statusOptions = updatedField?.config?.status;
+		}
 
 		const updatedGroupData = handleDeleteInGroup({
 			groupData,
@@ -103,12 +121,21 @@ const actionHandlers = {
 		};
 	},
 	UPDATE_DATABASE_ROWS: (state, action) => {
-		const { viewId, rowId, updatedRow, groupId, blockId } = action.payload;
+		const { viewId, rowId, updatedRow, groupId, blockId, databaseId } = action.payload;
 
 		const currentBlockData = state?.rowData?.[viewId] || {};
 		const { groupData, groupBy, fieldType } = currentBlockData || {};
 
 		let view = (state?.views?.[blockId] || []).find((item) => item?._id === viewId);
+
+		let statusOptions = null;
+		if (fieldType === 'status') {
+			const fieldId = groupBy?.fieldId;
+			const updatedField = state?.database?.[databaseId]?.databaseMetadata?.fields?.find(
+				(item) => item?._id === fieldId,
+			);
+			statusOptions = updatedField?.config?.status;
+		}
 
 		const { updatedGroupData, updatedGroups } = handleUpdateInGroup({
 			groupData,
@@ -119,6 +146,7 @@ const actionHandlers = {
 			config: view?.groupBy?.config,
 			fieldType,
 			defaultGroups: view?.groupBy?.defaultGroups,
+			statusOptions,
 		});
 		if (updatedGroups) {
 			view = {
