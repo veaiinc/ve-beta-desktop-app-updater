@@ -12,12 +12,6 @@ const initialState = {
 	error: false,
 };
 
-const routeMap = {
-	stable: stableRoutes,
-	beta: betaRoutes,
-	public: [],
-};
-
 const useWorkspaceMode = () => {
 	const { pathname } = useLocation();
 	const [info, setInfo] = useState(initialState);
