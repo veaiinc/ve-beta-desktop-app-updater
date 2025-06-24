@@ -33,7 +33,7 @@ const ChatHeader = ({
 		if (messages?.length > 0) {
 			const userMessages = [];
 			let index = 0,
-				activeIndex = 0;
+				lastIndex;
 
 			for (const message of messages) {
 				if (message?.type?.toLowerCase() === 'user') {
@@ -44,18 +44,13 @@ const ChatHeader = ({
 				}
 			}
 
-			activeIndex = userMessages?.length - 1;
-
-			const others = userMessages
-				?.filter((_, idx) => idx !== activeIndex)
-				?.sort((a, b) => a?.index - b?.index);
-			const filteredUserMessages = [userMessages?.[activeIndex], ...others];
+			lastIndex = userMessages?.length - 1;
 
 			if (userMessages?.length > 0) {
 				setInfo((prev) => ({
 					...prev,
-					activeUserMessageIndex: 0,
-					userMessages: filteredUserMessages,
+					activeUserMessageIndex: lastIndex,
+					userMessages,
 				}));
 			}
 		}
@@ -91,17 +86,10 @@ const ChatHeader = ({
 		(index) => {
 			if (index === info?.activeUserMessageIndex) return;
 
-			const others = info?.userMessages
-				?.filter((_, idx) => idx !== index)
-				?.sort((a, b) => a?.index - b?.index);
-			const filteredUserMessages = [info?.userMessages?.[index], ...others];
-
 			smoothScrollToParticularMessage?.(2 * info?.userMessages?.[index]?.index);
-
 			setInfo((prev) => ({
 				...prev,
-				activeUserMessageIndex: 0,
-				userMessages: filteredUserMessages,
+				activeUserMessageIndex: index,
 				chatDropdownExpanded: false,
 			}));
 		},
@@ -109,62 +97,84 @@ const ChatHeader = ({
 	);
 
 	return (
-		<div className={`${s.chatHeader} ${info?.chatDropdownExpanded ? s.expanded : ''}`}>
-			<div className={s.headerInfo}>
-				<div className={s.leftContainer}>
-					<div className={s.iconContainer} onClick={handleNavigateBack}>
-						<LeftSvg />
+		<div className={s.wrapper}>
+			<div className={`${s.chatHeader} ${info?.chatDropdownExpanded ? s.expanded : ''}`}>
+				<div className={s.headerInfo}>
+					<div className={s.leftContainer}>
+						<div className={s.iconContainer} onClick={handleNavigateBack}>
+							<LeftSvg />
+						</div>
+						<div className={s.chatTitle}>{currentChatData?.title || 'New Chat'}</div>
 					</div>
-					<div className={s.chatTitle}>{currentChatData?.title || 'New Chat'}</div>
+					<div className={s.rightContainer}>
+						{!isNewChat && (
+							<Tooltip
+								title={<div className={s.tooltip}>Delete Chat</div>}
+								placement="bottom"
+								color="transparent"
+								arrow={false}
+							>
+								<button className={s.deleteChatBtn} onClick={handleDeleteChatClick}>
+									<DeleteSvg />
+								</button>
+							</Tooltip>
+						)}
+					</div>
 				</div>
-				<div className={s.rightContainer}>
-					{!isNewChat && (
-						<Tooltip
-							title={<div className={s.tooltip}>Delete Chat</div>}
-							placement="bottom"
-							color="transparent"
-							arrow={false}
-						>
-							<button className={s.deleteChatBtn} onClick={handleDeleteChatClick}>
-								<DeleteSvg />
-							</button>
-						</Tooltip>
-					)}
-				</div>
-			</div>
-			{info?.userMessages?.length > 0 && (
-				<div className={s.chatInfo}>
-					<div
-						className={`${s.questionWrapper} ${
-							info?.chatDropdownExpanded ? s.expanded : ''
-						}`}
-					>
-						<div className={s.chatQuestionContainer}>
-							{info?.userMessages?.map((message, index) => (
-								<div
-									className={`${s.chatQuestion} ${index === 0 ? s.active : ''}`}
-									onClick={() => handleActiveUserMessageIndexChange(index)}
-								>
-									{index === 0 && info?.chatDropdownExpanded && <TickSvg />}
-									{message?.message || ''}
-								</div>
-							))}
+				{info?.userMessages?.length > 0 && (
+					<div className={s.chatInfo}>
+						<div className={s.nonActiveQuestionsContainer}>
+							{info?.userMessages?.map((message) =>
+								message?.index !== info?.activeUserMessageIndex ? (
+									<div
+										className={`${s.nonActiveQuestion}`}
+										role="button"
+										onClick={() =>
+											handleActiveUserMessageIndexChange(message?.index)
+										}
+										key={message?.index}
+									>
+										{message?.message || ''}
+									</div>
+								) : (
+									''
+								),
+							)}
 						</div>
 						<div
-							className={`${s.iconContainer} ${
+							className={`${s.questionWrapper} ${
 								info?.chatDropdownExpanded ? s.expanded : ''
 							}`}
-							onClick={() =>
-								setInfo((prev) => ({
-									...prev,
-									chatDropdownExpanded: !prev.chatDropdownExpanded,
-								}))
-							}
 						>
-							<ChevronRightThinSvg width={18} height={18} />
+							<div className={s.chatQuestionContainer}>
+								<div className={s.activeQuestion}>
+									{info?.chatDropdownExpanded && <TickSvg />}
+									{info?.userMessages?.[info?.activeUserMessageIndex]?.message ||
+										''}
+								</div>
+							</div>
+							<div
+								className={`${s.iconContainer} ${
+									info?.chatDropdownExpanded ? s.expanded : ''
+								}`}
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										chatDropdownExpanded: !prev.chatDropdownExpanded,
+									}))
+								}
+							>
+								<ChevronRightThinSvg width={18} height={18} />
+							</div>
 						</div>
 					</div>
-				</div>
+				)}
+			</div>
+			{info?.chatDropdownExpanded && (
+				<div
+					className={s.overlay}
+					onClick={() => setInfo((prev) => ({ ...prev, chatDropdownExpanded: false }))}
+				/>
 			)}
 		</div>
 	);
