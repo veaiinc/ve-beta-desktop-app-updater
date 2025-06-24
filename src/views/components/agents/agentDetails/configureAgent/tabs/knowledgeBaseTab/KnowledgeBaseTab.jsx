@@ -189,7 +189,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 							next={fetchMoreKnowledgeBaseFiles}
 							hasMore={hasNextPage}
 							loader={<FetchMoreLoaderComp />}
-							// height={'324px'}
+							height={'324px'}
 							style={{ width: '100%' }}
 						>
 							{knowledgeBaseFiles?.map((file) => {
