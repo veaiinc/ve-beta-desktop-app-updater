@@ -162,7 +162,13 @@ const ChatHeader = ({
 									className={`${s.iconContainer} ${
 										info?.chatDropdownExpanded ? s.expanded : ''
 									}`}
-									onClick={() =>
+									onMouseEnter={() =>
+										setInfo((prev) => ({
+											...prev,
+											chatDropdownExpanded: !prev.chatDropdownExpanded,
+										}))
+									}
+									onMouseLeave={() =>
 										setInfo((prev) => ({
 											...prev,
 											chatDropdownExpanded: !prev.chatDropdownExpanded,
