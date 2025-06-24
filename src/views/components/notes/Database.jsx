@@ -173,6 +173,9 @@ const DatabaseComponent = ({ block, editor }) => {
 		const groupHasChanged =
 			JSON.stringify(currentRow?.groupBy) !==
 			JSON.stringify(selectedDatabaseView?.groupBy?.fieldId);
+		const groupConfigHasChanged =
+			JSON.stringify(currentRow?.groupBy?.config) !==
+			JSON.stringify(selectedDatabaseView?.groupBy?.config);
 
 		if (
 			!filterHasChanged &&
@@ -191,6 +194,7 @@ const DatabaseComponent = ({ block, editor }) => {
 		info?.debouncedSearchQuery,
 		selectedDatabaseView?.sortBy,
 		selectedDatabaseView?.groupBy?.fieldId,
+		selectedDatabaseView?.groupBy?.config,
 	]);
 
 	// Optimized fetch function with duplicate call prevention

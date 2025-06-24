@@ -475,6 +475,7 @@ export const createDatabaseViewMutation = gql`
 						groupInterval
 					}
 					dateBy
+					textBy
 				}
 			}
 			visibleFields
@@ -773,6 +774,7 @@ export const getDatabaseViewsQuery = gql`
 						groupInterval
 					}
 					dateBy
+					textBy
 				}
 			}
 			visibleFields
@@ -934,6 +936,12 @@ export const updateViewGroupMutation = gql`
 			defaultGroups
 			config {
 				statusBy
+				numberBy {
+					groupRange
+					groupInterval
+				}
+				dateBy
+				textBy
 			}
 		}
 	}

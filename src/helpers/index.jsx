@@ -367,7 +367,6 @@ export const redirectTo = (type, id) => {
 		drive: `https://drive.google.com/file/d/${id}/view`,
 		notes: `https://ve.ai/note/${id}`,
 		proactiveai: `https://ve.ai/proactiveai/${id}`,
-		notes: `https://ve.ai/note/${id}`,
 	};
 
 	const url = urls?.[type];

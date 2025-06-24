@@ -1,0 +1,23 @@
+.groupConfigOptions {
+	display: flex;
+	flex-direction: column;
+	background-color: var(--card);
+	width: 200px;
+	border-radius: 10px;
+	box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+	overflow: hidden;
+	border: 1px solid var(--stroke);
+
+	.groupConfigOption {
+		display: flex;
+		align-items: center;
+		font-size: 12px;
+		gap: 10px;
+		padding: 10px;
+		cursor: pointer;
+		justify-content: space-between;
+		&:hover {
+			background-color: var(--card-hover);
+		}
+	}
+}
