@@ -1,6 +1,7 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/smart-file-components/services.scss';
 import ToggleSlider from '../ui-components/slider';
+import Context from '../../../context/context';
 
 const serviceStyleMapper = {
 	0: 'Select One',
@@ -19,6 +20,9 @@ const Services = ({ serviceData, serviceOnChangeFunc }) => {
 		data: [],
 		subTotalValueMapper: {},
 	});
+	const {
+		templates: { updateCustomVariabledata, smartFileVariablesData },
+	} = useContext(Context);
 
 	useEffect(() => {
 		if (serviceData) {
@@ -81,7 +85,9 @@ const Services = ({ serviceData, serviceOnChangeFunc }) => {
 	}, [serviceData]);
 
 	const onLocalServiceDataChange = useCallback(
-		async (innerIndex, outerIndex, type, val) => {
+		async (innerIndex, outerIndex, type, val, serviceBlockId = null) => {
+			console.log('val', val, serviceBlockId);
+
 			// if (!editable) {
 			// 	return;
 			// }
@@ -131,6 +137,15 @@ const Services = ({ serviceData, serviceOnChangeFunc }) => {
 				};
 
 				serviceOnChangeFunc(selectedServiceTable, outerIndex);
+				console.log('smartFileVariablesData', smartFileVariablesData);
+				let subtotalVarID = smartFileVariablesData?.custom?.find((ele) => {
+					console.log('ele', ele, serviceBlockId);
+					return ele?.blockId === serviceBlockId;
+				})?._id;
+				console.log('subtotalVarID', subtotalVarID);
+				if (subtotalVarID) {
+					updateCustomVariabledata({ defaultValue: val }, subtotalVarID);
+				}
 				return;
 			}
 			let { blocks } = selectedServiceTable;
@@ -228,6 +243,7 @@ const Services = ({ serviceData, serviceOnChangeFunc }) => {
 												index,
 												'subTotalValue',
 												e.target.value,
+												ele?._id,
 											)
 										}
 										className={'serviceSubtotalValueInput'}
