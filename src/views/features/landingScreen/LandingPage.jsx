@@ -20,6 +20,7 @@ import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 
 import '../../../assets/scss/landingScreen/index.scss';
 import WebsitePricingPage from '../pricingPlans/PricingPageWebsite';
+import CustomToast from '../../components/globalComponents/CustomToast';
 
 const pathToTabMap = {
 	'/thebridge': 1,
@@ -181,6 +182,7 @@ const LandingPage = () => {
 				</header>
 				{tabComponents[tab]}
 			</main>
+			<CustomToast />
 		</>
 	);
 };
