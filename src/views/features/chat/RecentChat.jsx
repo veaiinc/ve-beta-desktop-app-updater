@@ -133,12 +133,7 @@ const RecentChat = ({
 	useEffect(() => {
 		if (!sessionId) return;
 
-		if (!aiChatSessions) {
-			setInfo((prev) => ({
-				...prev,
-				isNewChat: true,
-			}));
-		} else {
+		if (aiChatSessions) {
 			const sessions = aiChatSessions?.data || [];
 			if (sessions?.length > 0) {
 				const session = sessions?.findIndex((s) => s?._id === sessionId);
@@ -648,7 +643,7 @@ const RecentChat = ({
 		const scrollElementTop = scrollElement?.getBoundingClientRect()?.top;
 		const scrollOffset = lastUserMessageTop - scrollElementTop;
 		scrollElement?.scrollBy({
-			top: scrollOffset - 10,
+			top: scrollOffset,
 			behavior: 'smooth',
 		});
 	}, []);
@@ -661,7 +656,7 @@ const RecentChat = ({
 		const scrollElementTop = chatContentRef?.current?.getBoundingClientRect()?.top;
 		const scrollOffset = messageElementTop - scrollElementTop;
 		chatContentRef?.current?.scrollBy({
-			top: scrollOffset - 10,
+			top: scrollOffset,
 			behavior: 'smooth',
 		});
 	}, []);

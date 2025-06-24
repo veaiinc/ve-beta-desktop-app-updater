@@ -30,6 +30,7 @@ const ChatHeader = ({
 
 	useEffect(() => {
 		const messages = globalChatMessages?.[sessionId]?.messages;
+
 		if (messages?.length > 0) {
 			const userMessages = [];
 			let index = 0,
