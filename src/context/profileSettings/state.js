@@ -4,7 +4,9 @@ import { Actions } from './actions';
 import * as API from './actionTypes';
 import jwt_decode from 'jwt-decode';
 import service from '../../services/index';
+import Cookies from 'js-cookie';
 import axios from 'axios';
+import { fetchDomainName } from '../../helpers';
 export const intialState = {
 	tennantSettingsData: null,
 	userDetailsData: null,
@@ -30,11 +32,21 @@ export const ProfileState = () => {
 				'auth',
 			);
 			if (response?.[0]) {
-				dispatch({
-					type: Actions.GET_WORKSPACE_INFO,
-					payload: response?.[1],
-				});
-				localStorage.setItem('region', response?.[1]?.locationDetails?.region);
+				const region = response?.[1]?.locationDetails?.region ?? null;
+				if (region) {
+					const host = fetchDomainName();
+					localStorage.setItem('region', region);
+					Cookies.set('region', region, {
+						sameSite: 'lax',
+						domain: host,
+					});
+					dispatch({
+						type: Actions.GET_WORKSPACE_INFO,
+						payload: response?.[1],
+					});
+				} else {
+					console.error('Unable to get region from workspace info api');
+				}
 			}
 		} catch (error) {
 			console.log('error==>getWorkSpaceInfo', error);
