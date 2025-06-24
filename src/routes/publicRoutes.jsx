@@ -148,5 +148,7 @@ const publicRoutes = [
 	},
 ];
 
-export const publicRoutesList = publicRoutes.map((route) => route.path);
+export const publicRoutesList = publicRoutes
+	.map((route) => route.path)
+	.filter((path) => path !== '*');
 export default publicRoutes;
