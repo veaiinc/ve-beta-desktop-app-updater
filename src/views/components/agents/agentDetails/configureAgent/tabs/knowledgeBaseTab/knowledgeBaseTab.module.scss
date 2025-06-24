@@ -34,18 +34,21 @@
 		}
 
 		.addKnowledgeBaseButton {
-			color: var(--primary-font);
+			width: fit-content;
+			padding: 8px 12px;
+			border-radius: 8px;
+			background: none;
+			border: 1px solid var(--stroke, #2b2e31);
+			color: var(--primary-font, #f2f2f3);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
-			font-weight: 400;
-			background-color: transparent;
-			border: none;
-			padding: 0;
-			display: flex;
-			gap: 8px;
-			align-items: center;
+			font-weight: 500;
+			line-height: 20px;
 			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 4px;
 
 			.iconContainer {
 				height: 16px;
@@ -120,6 +123,27 @@
 			}
 		}
 	}
+	.emptyState {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+		.emptyStateTitle {
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+		}
+		.emptyStateDescription {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+		}
+	}
 
 	.assistantsList {
 		display: flex;
@@ -161,7 +185,6 @@
 				}
 				.fileName {
 					word-break: break-all;
-					flex-grow: 1;
 					display: -webkit-box;
 					-webkit-box-orient: vertical;
 					-webkit-line-clamp: 1;
@@ -174,6 +197,17 @@
 					font-style: normal;
 					font-weight: 500;
 					line-height: 22px;
+				}
+				.deleteKnowledge {
+					cursor: pointer;
+					opacity: 0;
+					transition: 0.3s;
+					flex-shrink: 0;
+				}
+				&:hover {
+					.deleteKnowledge {
+						opacity: 1;
+					}
 				}
 			}
 

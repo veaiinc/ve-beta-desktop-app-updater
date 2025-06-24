@@ -166,7 +166,7 @@ const TriggersTab = () => {
 						dataLength={connectedTriggers?.length ?? 0}
 						next={fetchNextTriggers}
 						hasMore={hasNextPage}
-						height={'400px'}
+						// height={'400px'}
 						loader={<FetchMoreLoaderComp />}
 					>
 						<ul className={s.triggersListContainer}>
