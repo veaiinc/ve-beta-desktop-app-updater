@@ -10,18 +10,16 @@ const App = () => {
 	return loading ? (
 		<PageLoader />
 	) : (
-		<>
-			<Routes>
-				{routes?.map((route) => (
-					<Route
-						key={route.path}
-						path={route.path}
-						element={route.element}
-						exact={route.exact}
-					/>
-				))}
-			</Routes>
-		</>
+		<Routes>
+			{routes?.map((route) => (
+				<Route
+					key={route.path}
+					path={route.path}
+					element={route.element}
+					exact={route.exact}
+				/>
+			))}
+		</Routes>
 	);
 };
 
