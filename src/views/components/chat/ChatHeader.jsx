@@ -148,25 +148,28 @@ const ChatHeader = ({
 							}`}
 						>
 							<div className={s.chatQuestionContainer}>
+								{info?.chatDropdownExpanded && <TickSvg />}
+
 								<div className={s.activeQuestion}>
-									{info?.chatDropdownExpanded && <TickSvg />}
 									{info?.userMessages?.[info?.activeUserMessageIndex]?.message ||
 										''}
 								</div>
 							</div>
-							<div
-								className={`${s.iconContainer} ${
-									info?.chatDropdownExpanded ? s.expanded : ''
-								}`}
-								onClick={() =>
-									setInfo((prev) => ({
-										...prev,
-										chatDropdownExpanded: !prev.chatDropdownExpanded,
-									}))
-								}
-							>
-								<ChevronRightThinSvg width={18} height={18} />
-							</div>
+							{info?.userMessages?.length > 1 && (
+								<div
+									className={`${s.iconContainer} ${
+										info?.chatDropdownExpanded ? s.expanded : ''
+									}`}
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											chatDropdownExpanded: !prev.chatDropdownExpanded,
+										}))
+									}
+								>
+									<ChevronRightThinSvg width={18} height={18} />
+								</div>
+							)}
 						</div>
 					</div>
 				)}
