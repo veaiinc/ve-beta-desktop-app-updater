@@ -18,6 +18,7 @@ import '../../assets/scss/authWrapper.scss';
 import ExpiredSubscriptionModal from '../components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from '../components/modalsV2/subscription/ExpiredTokenModal';
 import AccessDeniedPopup from '../components/accessPopups/accessDeniedPopup';
+import CustomToast from '../components/globalComponents/CustomToast';
 
 const AuthWrapper = ({
 	title,
@@ -112,6 +113,7 @@ const AuthWrapper = ({
 			<ExpiredSubscriptionModal />
 			<ExpiredTokenModal />
 			<AccessDeniedPopup />
+			<CustomToast />
 		</main>
 	);
 };
