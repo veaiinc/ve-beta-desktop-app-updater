@@ -80,7 +80,6 @@ const AgentsList = ({ agents = [] }) => {
 			const [success, data] = await deleteKnowledgeAgent(agentId);
 			if (success) {
 				message.success('Agent deleted successfully');
-				getKnowledgeAssistantsList(1, limit, false);
 			} else {
 				message.error(data?.message || 'Failed to delete agent');
 			}

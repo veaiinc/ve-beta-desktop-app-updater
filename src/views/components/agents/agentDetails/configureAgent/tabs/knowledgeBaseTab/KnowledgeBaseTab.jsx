@@ -76,13 +76,18 @@ const KnowledgeBaseTab = ({ agentId }) => {
 					[knowledgeId]: value,
 				};
 
+				const updatedActiveStatusData =
+					knowledgeBaseFilesActiveStatus?.data?.map((item) => {
+						if (item._id === knowledgeId) {
+							return { ...item, isActive: value };
+						}
+						return item;
+					}) || [];
+
 				updateContextValues({
 					knowledgeBaseFilesActiveStatus: {
 						...knowledgeBaseFilesActiveStatus,
-						data: Object.entries(updatedActiveStatus).map(([_id, isActive]) => ({
-							_id,
-							isActive,
-						})),
+						data: updatedActiveStatusData,
 					},
 				});
 
@@ -92,37 +97,41 @@ const KnowledgeBaseTab = ({ agentId }) => {
 				});
 
 				if (!response?.[0]) {
+					const revertedActiveStatusData =
+						knowledgeBaseFilesActiveStatus?.data?.map((item) => {
+							if (item._id === knowledgeId) {
+								return { ...item, isActive: activeStatus[knowledgeId] };
+							}
+							return item;
+						}) || [];
+
 					updateContextValues({
 						knowledgeBaseFilesActiveStatus: {
 							...knowledgeBaseFilesActiveStatus,
-							data: Object.entries(activeStatus).map(([_id, isActive]) => ({
-								_id,
-								isActive,
-							})),
+							data: revertedActiveStatusData,
 						},
 					});
 					message?.error('Failed to update knowledge base file try again');
-				} else {
-					message?.success('Knowledge base file updated successfully!');
 				}
-				setInfo((prev) => ({
-					...prev,
-					isActive: { ...prev.isActive, [knowledgeId]: value },
-				}));
 			} catch (error) {
+				const revertedActiveStatusData =
+					knowledgeBaseFilesActiveStatus?.data?.map((item) => {
+						if (item._id === knowledgeId) {
+							return { ...item, isActive: activeStatus[knowledgeId] };
+						}
+						return item;
+					}) || [];
+
 				updateContextValues({
 					knowledgeBaseFilesActiveStatus: {
 						...knowledgeBaseFilesActiveStatus,
-						data: Object.entries(activeStatus).map(([_id, isActive]) => ({
-							_id,
-							isActive,
-						})),
+						data: revertedActiveStatusData,
 					},
 				});
 				message?.error('Failed to update knowledge base file');
 			}
 		},
-		[activeStatus],
+		[activeStatus, knowledgeBaseFilesActiveStatus, updateContextValues],
 	);
 
 	const handleDeleteKnowledgeBaseFile = async (knowledgeId) => {
@@ -130,15 +139,9 @@ const KnowledgeBaseTab = ({ agentId }) => {
 		setInfo((prev) => ({ ...prev, loading: true }));
 
 		try {
-			const response = await deleteKnowledgeBaseFile(knowledgeId);
-			if (response?.[0]) {
+			const [success, data] = await deleteKnowledgeBaseFile(knowledgeId);
+			if (success) {
 				message?.success('Knowledge base file deleted successfully!');
-				updateContextValues({
-					knowledgeBaseInfo: null,
-					knowledgeBaseFilesActiveStatus: null,
-				});
-				await getKnowledgeBaseInfo(agentId, page, limit);
-				await getKnowledgeBaseFilesActiveStatus({ agentId, page, limit });
 			} else {
 				message?.error('Failed to delete knowledge base file');
 			}

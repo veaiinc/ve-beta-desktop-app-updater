@@ -639,22 +639,43 @@ export const KnowledgeAgentState = () => {
 	};
 
 	const deleteKnowledgeBaseFile = async (knowledgeFileId) => {
-		const workspaceId = localStorage.getItem('workspaceId');
-		const path = `/${workspaceId}/knowledge-bases/${knowledgeFileId}/knowledgeAgent`;
-		const token = localStorage.getItem('usertoken');
-		const type = 'ai_assistant_api';
-		const response = await service?.fetchDelete(path, token, null, type);
-		const success = response?.[0] === true;
-		if (success) {
-			dispatch({
-				type: Actions?.SET_KNOWLEDGE_BASE_INFO,
-				payload: {
-					...response?.[1],
-					data: [...(response?.[1]?.data || [])],
-				},
-			});
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${workspaceId}/knowledge-bases/${knowledgeFileId}/knowledgeAgent`;
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const response = await service?.fetchDelete(path, token, null, type);
+			const success = response?.[0] === true;
+			if (success) {
+				// Remove the deleted file from knowledge base info
+				const updatedKnowledgeBaseInfo = {
+					...state?.knowledgeBaseInfo,
+					data: (state?.knowledgeBaseInfo?.data || []).filter(
+						(file) => file._id !== knowledgeFileId,
+					),
+				};
+				dispatch({
+					type: Actions?.SET_KNOWLEDGE_BASE_INFO,
+					payload: updatedKnowledgeBaseInfo,
+				});
+
+				// Remove the deleted file from active status
+				const updatedActiveStatus = {
+					...state?.knowledgeBaseFilesActiveStatus,
+					data: (state?.knowledgeBaseFilesActiveStatus?.data || []).filter(
+						(status) => status._id !== knowledgeFileId,
+					),
+				};
+				dispatch({
+					type: Actions?.SET_KNOWLEDGE_BASE_ACTIVE_FILE_STATUS,
+					payload: updatedActiveStatus,
+				});
+			}
+			return [success, response?.[1]];
+		} catch (error) {
+			console.log('error==>deleteKnowledgeBaseFile', error);
+			return [false, error];
 		}
-		return [success];
 	};
 
 	const uploadAgentProfilePic = async ({ agentId, file }) => {
@@ -952,6 +973,17 @@ export const KnowledgeAgentState = () => {
 				dispatch({
 					type: Actions?.SET_KNOWLEDGE_BASE_ACTIVE_FILE_STATUS,
 					payload: null,
+				});
+				// Remove the deleted agent from the list directly
+				const updatedAgentsList = {
+					...state?.knowledgeAssistantsList,
+					data: (state?.knowledgeAssistantsList?.data || []).filter(
+						(agent) => agent._id !== agentId,
+					),
+				};
+				dispatch({
+					type: Actions?.SET_KNOWLEDGE_ASSISTANTS_LIST,
+					payload: updatedAgentsList,
 				});
 				return [true, response?.[1]];
 			} else {
