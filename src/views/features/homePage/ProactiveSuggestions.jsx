@@ -196,13 +196,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	}, [option]);
 
 	useEffect(() => {
-		if (!aiSuggestedPendingActions || !isMountedRef.current) return;
-		if (
-			aiSuggestedPendingActions?.metaInfo?.currentPage === 1 &&
-			info?.selectedFilters?.length === 0
-		) {
-			return;
-		}
+		if (isMountedRef.current) return;
 		fetchPendingActions();
 	}, [info?.selectedFilters, info?.sortOptions, info?.sortBy]);
 
