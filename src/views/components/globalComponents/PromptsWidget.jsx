@@ -77,6 +77,8 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 				left: scrollPosition,
 				behavior: 'smooth',
 			});
+			// Focus the container to allow keydown events
+			containerRef.current.focus();
 		}
 	}, [currentIndex, cardsData]);
 
@@ -91,6 +93,31 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 			fetchNextCards();
 		}
 	}, [currentIndex, cardsData, cardsHasNextPage, info.cardsLoading]);
+
+	const handlePromptClick = (card) => {
+		setInfo((prev) => ({
+			...prev,
+			openSuggestionsModal: true,
+			selectedCard: card,
+		}));
+	};
+	// Add keydown event listener for Enter key
+	useEffect(() => {
+		const container = containerRef.current;
+		if (!container) return;
+
+		const handleKeyDown = (e) => {
+			if (e.key === 'Enter' && cardsData && cardsData[currentIndex]) {
+				e.preventDefault(); // Prevent default behavior
+				handlePromptClick(cardsData[currentIndex]); // Open modal for currentIndex card
+			}
+		};
+
+		container.addEventListener('keydown', handleKeyDown);
+		return () => {
+			container.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [cardsData, currentIndex, handlePromptClick]);
 
 	const getUpdatedSuggestedPendingActions = async (page = 1, shouldReset = false) => {
 		await getAISuggestedPendingActions(
@@ -131,13 +158,6 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 			updateStateValues({ chatBoxSuggestions: null });
 		}
 	};
-	const handlePromptClick = (card) => {
-		setInfo((prev) => ({
-			...prev,
-			openSuggestionsModal: true,
-			selectedCard: card,
-		}));
-	};
 	const handleFavouriteClick = async (id) => {
 		const card = cardsData?.find((c) => c?._id === id);
 		const res = await pendingActionsUpdate(id, { isFavourite: !card?.isFavourite });
@@ -171,15 +191,7 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 				) : cardsEmpty ? (
 					<div className="prompts-widget-cards-loading">No results found</div>
 				) : (
-					// <InfiniteScroll
-					// 	hasMore={cardsHasNextPage}
-					// 	next={() => {}}
-					// 	dataLength={cardsLength}
-					// 	loader={<></>}
-					// 	height={cardsData?.length > 0 ? '25vh' : '100%'}
-					// 	style={{ width: '934px' }}
-					// >
-					<div className="prompts-widget-cards" ref={containerRef}>
+					<div className="prompts-widget-cards" ref={containerRef} tabIndex={0}>
 						{cardsData?.map((card, index) => (
 							<div
 								key={card?.id}
@@ -193,12 +205,6 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 										: ''
 								} ${currentIndex === index ? 'selected-card' : ''}`}
 								onClick={() => handlePromptClick(card)}
-								// onMouseEnter={() =>
-								// 	setInfo((prev) => ({ ...prev, currentIndex: index }))
-								// }
-								// onMouseLeave={() =>
-								// 	setInfo((prev) => ({ ...prev, currentIndex: 0 }))
-								// }
 							>
 								<div className="promptsCardTitle">{card?.title}</div>
 								<div className="promptsCardDetails">
@@ -224,7 +230,6 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 							</div>
 						))}
 					</div>
-					// </InfiniteScroll>
 				)}
 			</div>
 			<AISuggestionsModal
@@ -232,7 +237,6 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 				onClose={() => setInfo((prev) => ({ ...prev, openSuggestionsModal: false }))}
 				data={info?.selectedCard}
 				totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
-				// selectedCardNumber={currentIndexRef?.current + 1}
 				onFavouriteClick={handleFavouriteClick}
 				shouldShowCards={false}
 			/>
