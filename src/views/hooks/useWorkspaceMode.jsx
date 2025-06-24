@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import Context from '../../context/context';
-import { useLocation } from 'react-router-dom';
+import { matchPath, useLocation } from 'react-router-dom';
 
 // routes
 import publicRoutes, { publicRoutesList } from '../../routes/publicRoutes';
@@ -21,7 +21,7 @@ const useWorkspaceMode = () => {
 	} = useContext(Context);
 
 	const workspaceMode = tennantSettingsData?.workspaceMode ?? null; // stable, beta, internal
-	const isPublicRoute = publicRoutesList.includes(pathname);
+	const isPublicRoute = publicRoutesList.find((route) => matchPath(route, pathname));
 	const loading = isPublicRoute ? false : workspaceMode === null ? true : false;
 	const routes = isPublicRoute
 		? [...publicRoutes]

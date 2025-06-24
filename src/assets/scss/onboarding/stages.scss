@@ -304,6 +304,7 @@
 							border-radius: 8px;
 							border: 1px solid var(--stroke, #2c2d2e);
 							background: var(--card, #18191b);
+							cursor: pointer;
 
 							.themeOptionLabel {
 								color: var(--primary-font);
@@ -356,7 +357,6 @@
 						display: flex;
 						align-items: center;
 						justify-content: center;
-
 					}
 
 					.phoneNumberVerifiedContainer {
