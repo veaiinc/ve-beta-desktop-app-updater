@@ -148,7 +148,9 @@ const ChatHeader = ({
 							}`}
 						>
 							<div className={s.chatQuestionContainer}>
-								{info?.chatDropdownExpanded && <TickSvg />}
+								{info?.chatDropdownExpanded && (
+									<TickSvg style={{ flexShrink: 0 }} />
+								)}
 
 								<div className={s.activeQuestion}>
 									{info?.userMessages?.[info?.activeUserMessageIndex]?.message ||
