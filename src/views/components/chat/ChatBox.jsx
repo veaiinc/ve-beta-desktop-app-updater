@@ -35,6 +35,7 @@ import BuildTooltip from './BuildTooltip';
 import RecentFileTooltip from './RecentFileTooltip';
 import AskTooltip from './AskTooltip';
 import AddOnCards from '../settings/planbilling/addOnCards';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -139,6 +140,7 @@ const ChatBox = ({
 
 	const { handleConnect } = useUpdatedVoiceIntegration();
 	const params = useParams();
+	const { workspaceMode } = useWorkspaceMode();
 
 	const {
 		templates: {
@@ -1457,12 +1459,10 @@ const ChatBox = ({
 																			}`,
 																		}}
 																	>
-																		<div className="plus-icon">
-																			<PlusSvg
-																				width={17}
-																				height={17}
-																			/>
-																		</div>
+																		<PlusSvg
+																			width={17}
+																			height={17}
+																		/>
 																	</div>
 																</Tooltip>
 															</UploadFileTooltip>
@@ -1670,65 +1670,71 @@ const ChatBox = ({
 															)}
 
 															{/* {!isPublicChat && ( */}
-															{isBuildEnbled && (
-																<Tooltip
-																	title={
-																		<div className="chatbox-icon-tooltip-container">
-																			Build
-																		</div>
-																	}
-																	color="transparent"
-																	arrow={false}
-																	rootClassName="chatbox-tooltip"
-																>
-																	<div
-																		className={`chat-box-icon-container ${
-																			info?.chatBoxInfo?.build
-																				? 'active'
-																				: ''
-																		}`}
-																		onClick={handleBuildClick}
-																	>
-																		<div className="chat-icon">
-																			<div className="text-wrapper">
-																				<div className="build-icon">
-																					<SparkSvg />
-																				</div>
-																				<div
-																					className="icon-text"
-																					style={{
-																						color: info
-																							?.chatBoxInfo
-																							?.build
-																							? 'var(--primary-button)'
-																							: 'var(--secondary-font)',
-																					}}
-																				>
-																					Build
-																				</div>
+															{isBuildEnbled &&
+																workspaceMode !== 'stable' && (
+																	<Tooltip
+																		title={
+																			<div className="chatbox-icon-tooltip-container">
+																				Build
 																			</div>
-																			<BuildTooltip>
-																				<div
-																					className={`icon-arrow-wrapper ${
-																						info
-																							?.chatBoxInfo
-																							?.build
-																							? 'icon-arrow-wrapper-active'
-																							: ''
-																					}`}
-																					onClick={(e) =>
-																						e?.stopPropagation()
-																					}
-																				>
-																					<div className="icon-arrow">
-																						<ArrowDownSvg fill="var(--secondary-font)" />
+																		}
+																		color="transparent"
+																		arrow={false}
+																		rootClassName="chatbox-tooltip"
+																	>
+																		<div
+																			className={`chat-box-icon-container ${
+																				info?.chatBoxInfo
+																					?.build
+																					? 'active'
+																					: ''
+																			}`}
+																			onClick={
+																				handleBuildClick
+																			}
+																		>
+																			<div className="chat-icon">
+																				<div className="text-wrapper">
+																					<div className="build-icon">
+																						<SparkSvg />
+																					</div>
+																					<div
+																						className="icon-text"
+																						style={{
+																							color: info
+																								?.chatBoxInfo
+																								?.build
+																								? 'var(--primary-button)'
+																								: 'var(--secondary-font)',
+																						}}
+																					>
+																						Build
 																					</div>
 																				</div>
-																			</BuildTooltip>
+																				<BuildTooltip>
+																					<div
+																						className={`icon-arrow-wrapper ${
+																							info
+																								?.chatBoxInfo
+																								?.build
+																								? 'icon-arrow-wrapper-active'
+																								: ''
+																						}`}
+																						onClick={(
+																							e,
+																						) =>
+																							e?.stopPropagation()
+																						}
+																					>
+																						<div className="icon-arrow">
+																							<ArrowDownSvg fill="var(--secondary-font)" />
+																						</div>
+																					</div>
+																				</BuildTooltip>
+																			</div>
 																		</div>
-																	</div>
-																</Tooltip>
-															)}
+																	</Tooltip>
+																)}
 															{/* )} */}
 														</div>
 
