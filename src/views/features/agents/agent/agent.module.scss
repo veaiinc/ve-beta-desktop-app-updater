@@ -1,4 +1,26 @@
 .agentContainer {
 	width: 100%;
 	height: 100%;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	.chatBlock {
+		align-items: center;
+		background: var(--card);
+		display: flex;
+		flex-direction: column;
+		flex-shrink: 0;
+		justify-content: space-between;
+		padding: 32px 24px;
+		position: relative;
+		width: clamp(300px, 29vw, 461px);
+		height: 100%;
+		:global(.chat-container) {
+			padding: 0 !important;
+		}
+	}
+	.agentBlock {
+		width: 100%;
+		height: 100%;
+	}
 }

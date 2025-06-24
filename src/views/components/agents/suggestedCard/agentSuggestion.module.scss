@@ -41,23 +41,41 @@
 		.agentTitle {
 			color: var(--primary-font, #f2f2f3);
 			font-family: var(--primary-font-family);
-			font-size: 18px;
+			font-size: 16px;
 			font-style: normal;
 			font-weight: 600;
 			line-height: 26px;
 		}
 		.agentDescription {
 			color: var(--secondary-font, #7a7e85);
-			font-family: Inter;
-			font-size: 12px;
+			font-family: var(--primary-font-family);
+			font-size: 13px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: 20px;
 		}
+		.toolsList {
+			display: flex;
+			padding: 8px;
+			align-items: center;
+			gap: 8px;
+			border-radius: 100px;
+			background: var(--card-hover, #212326);
+			.toolItem {
+				display: flex;
+				align-items: center;
+				width: 20px;
+				height: 20px;
+				.toolIcon {
+					width: 100%;
+					height: 100%;
+					object-fit: contain;
+				}
+			}
+		}
 		.agentButton {
 			border-radius: 20px;
 			border: 0.8px solid var(--stroke, #2b2e31);
-			background: var(--card-over-card, #27282b);
 			display: flex;
 			height: 32px;
 			padding: 2px 12px;

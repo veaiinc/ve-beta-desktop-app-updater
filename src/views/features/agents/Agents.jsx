@@ -6,8 +6,6 @@ import Context from '../../../context/context';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/agents/search.svg';
 import { ReactComponent as SortIcon } from '../../../assets/svg/agents/sort.svg';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/agents/filter.svg';
-import { ReactComponent as CardIcon } from '../../../assets/svg/agents/card.svg';
-import { ReactComponent as ListIcon } from '../../../assets/svg/agents/list.svg';
 
 // components
 import QuickActions from '../../components/globalComponents/QuickActions';
@@ -37,30 +35,20 @@ const Agents = () => {
 			</div>
 			<div className={s.agentsListAndSuggestedAgentsContainer}>
 				<div className={s.agentActionsContainer}>
-					<div className={s.header}>
-						<div className={s.headerActions}>
-							<div className={s.headerTitle}>Your Agents</div>
-							{/* <div className={s.headerActionsContainer}>
-								<div className={s.searchContainer}>
-									<SearchIcon />
-									<input type="text" placeholder="Search your agent" />
-								</div>
-								<div className={s.actionsContainer}>
-									<SortIcon />
-								</div>
-								<div className={s.actionsContainer}>
-									<FilterIcon />
-								</div>
-								<div className={s.viewContainer}>
-									<div className={`${s.viewIcon} ${s.active}`}>
-										<CardIcon />
-									</div>
-									<div className={s.viewIcon}>
-										<ListIcon />
-									</div>
-								</div>
-							</div> */}
+					<div className={s.headerActionsContainer}>
+						<div className={s.searchContainer}>
+							<SearchIcon />
+							<input type="text" placeholder="Search your agent" />
 						</div>
+						<div className={s.actionsContainer}>
+							<SortIcon />
+						</div>
+						<div className={s.actionsContainer}>
+							<FilterIcon />
+						</div>
+					</div>
+					<div className={s.headerActions}>
+						<div className={s.headerTitle}>Your Agents</div>
 					</div>
 					<div className={s.body}>
 						<AgentsList agents={knowledgeAssistantsList?.data || []} />

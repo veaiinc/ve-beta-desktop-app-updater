@@ -34,6 +34,32 @@ const ToolsTab = ({ agentId }) => {
 		addToolModalOpen: false,
 	});
 
+	const getToolFaviconUrl = useCallback((typeDependencies) => {
+		try {
+			if (typeDependencies?.description) {
+				// Extract URL from description using regex
+				const urlMatch = typeDependencies.description.match(
+					/\[.*?\]\((https?:\/\/[^)]+)\)/,
+				);
+				if (urlMatch && urlMatch[1]) {
+					const url = urlMatch[1];
+					return getFaviconUrl(url);
+				}
+			}
+			return null;
+		} catch (error) {
+			console.error('Error extracting tool favicon:', error);
+			return null;
+		}
+	}, []);
+
+	// Helper function to extract description text before square bracket
+	const getCleanDescription = useCallback((description) => {
+		if (!description) return '';
+		const bracketIndex = description.indexOf('[');
+		return bracketIndex > 0 ? description.substring(0, bracketIndex).trim() : description;
+	}, []);
+
 	useEffect(() => {
 		if (agentId) {
 			getActionsForKnowledgeAgent(agentId);
@@ -146,6 +172,7 @@ const ToolsTab = ({ agentId }) => {
 		}
 	}, [agentId]);
 
+	console.log('info?.aiActionList', info?.aiActionList);
 	return (
 		<div className={s?.actionsTabContainer}>
 			<div className={s?.actionsHeader}>
@@ -168,6 +195,9 @@ const ToolsTab = ({ agentId }) => {
 					<span>Add tool</span>
 				</div>
 			</div>
+			<span className={s.description}>
+				Give your agent abilities like reading emails or syncing notes.
+			</span>
 
 			{info?.aiActionList?.length > 0 ? (
 				<div className={s?.actionsContainer}>
@@ -179,7 +209,21 @@ const ToolsTab = ({ agentId }) => {
 							style={{ cursor: 'pointer' }}
 						>
 							<span className={s.actionNameContainer}>
-								<p>{item?.typeDependencies?.name}</p>
+								<div className={s.toolIconContainer}>
+									{getToolFaviconUrl(item?.typeDependencies) && (
+										<img
+											src={getToolFaviconUrl(item?.typeDependencies)}
+											alt="Tool icon"
+											className={s.toolFavicon}
+										/>
+									)}
+								</div>
+								<div className={s.actionNameContainer}>
+									<p className={s.actionName}>{item?.typeDependencies?.name}</p>
+									<span className={s.actionDescription}>
+										{getCleanDescription(item?.typeDependencies?.description)}
+									</span>
+								</div>
 								<Delete
 									className={s.deleteKnowledge}
 									onClick={(e) => {
