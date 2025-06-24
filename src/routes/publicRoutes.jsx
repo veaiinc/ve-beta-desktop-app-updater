@@ -12,7 +12,7 @@ import useWorkspaceMode from '../views/hooks/useWorkspaceMode';
 import OauthVerify from '../views/features/signin/oauth/OauthVerify';
 import PageLoader from '../views/components/app/PageLoader';
 
-const Public = ({ children }) => {
+export const Public = ({ children }) => {
 	const { loading } = useWorkspaceMode();
 	return loading ? <PageLoader /> : <>{children}</>;
 };
@@ -60,14 +60,6 @@ const publicRoutes = [
 	},
 	{
 		path: '/onboarding',
-		element: (
-			<Public>
-				<Onboarding />
-			</Public>
-		),
-	},
-	{
-		path: '/create-workspace',
 		element: (
 			<Public>
 				<Onboarding />

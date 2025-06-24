@@ -55,6 +55,8 @@ import Agent from '../views/features/agents/agent/Agent';
 import SmartFile from '../views/features/sales/smartFiles/SmartFile';
 import WorkflowBuilder from '../views/features/workflowBuilder/WorkflowBuilder';
 import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
+import { Public } from './publicRoutes';
+import Onboarding from '../views/features/onboarding/Onboarding';
 const BuilderApp = lazy(() => import('../../builderSrc/App'));
 
 const betaRoutes = [
@@ -69,6 +71,14 @@ const betaRoutes = [
 			>
 				<InitialHomePage />
 			</AuthWrapper>
+		),
+	},
+	{
+		path: '/create-workspace',
+		element: (
+			<Public>
+				<Onboarding />
+			</Public>
 		),
 	},
 	{

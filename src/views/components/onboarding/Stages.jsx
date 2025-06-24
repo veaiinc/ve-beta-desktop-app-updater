@@ -2,7 +2,7 @@ import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
 import Context from '../../../context/context';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { message } from '../globalComponents/CustomToast';
+import CustomToast, { message } from '../globalComponents/CustomToast';
 import Skeleton from 'react-loading-skeleton';
 import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/green-tick.svg';
 import { ReactComponent as DarkIcon } from '../../../assets/svg/onboarding/dark.svg';
@@ -141,7 +141,7 @@ const Stages = ({ onNext }) => {
 		}
 		if (
 			isUserOnboard &&
-			pathname !== '/onboarding' &&
+			pathname === '/onboarding' &&
 			!invitedWorkspaceId &&
 			!invitedUserEmail
 		) {
@@ -857,6 +857,7 @@ const Stages = ({ onNext }) => {
 					Continue
 				</button>
 			</div>
+			<CustomToast />
 		</>
 	);
 };
