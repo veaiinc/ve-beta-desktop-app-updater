@@ -4,6 +4,7 @@ import { ReactComponent as AddIcon } from '../../../../assets/svg/agents/add.svg
 
 // icons
 import { ReactComponent as CarretRight } from './assets/carret-right.svg';
+import { ReactComponent as Delete } from '../agentDetails/configureAgent/tabs/assets/delete.svg';
 
 // images
 import CatIcon from './assets/cat.png';
@@ -39,11 +40,13 @@ const AgentsList = ({ agents = [] }) => {
 			createNewKnowledgeAgent,
 			knowledgeAssistantsList,
 			getKnowledgeAssistantsList,
+			deleteKnowledgeAgent,
 		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		createAgentLoader: false,
+		loading: false,
 	});
 
 	const dataLength = agents?.length ?? 0;
@@ -69,6 +72,23 @@ const AgentsList = ({ agents = [] }) => {
 		getKnowledgeAssistantsList(page, limit, append);
 	};
 
+	const handleDeleteAgent = async (agentId) => {
+		if (info?.loading) return;
+		setInfo((prev) => ({ ...prev, loading: true }));
+
+		try {
+			const [success, data] = await deleteKnowledgeAgent(agentId);
+			if (success) {
+				message.success('Agent deleted successfully');
+			} else {
+				message.error(data?.message || 'Failed to delete agent');
+			}
+		} catch (error) {
+			message.error('Failed to delete agent');
+		} finally {
+			setInfo((prev) => ({ ...prev, loading: false }));
+		}
+	};
 	return (
 		<div className={s.agentsListContainer}>
 			<InfiniteScroll
@@ -99,8 +119,18 @@ const AgentsList = ({ agents = [] }) => {
 							/>
 						</div>
 						<div className={s.agentInfo}>
-							<div className={s.agentName}>{agent.name}</div>
-							<div className={s.agentDescription}>{agent.description}</div>
+							<div className={s.agentInfoHeader}>
+								<div className={s.agentName}>{agent.name}</div>
+								<div className={s.agentDescription}>{agent.description}</div>
+							</div>
+							<Delete
+								className={s.deleteIcon}
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									handleDeleteAgent(agent._id);
+								}}
+							/>
 						</div>
 					</Link>
 				))}
