@@ -620,6 +620,8 @@ class Home extends Proposals {
 			isFormTemplate: false,
 			triggerAdjustGridAreas: false,
 			workflowTemplateID: null,
+			invoiceSentDate: null,
+			invoiceAcceptedDate: null,
 		};
 		this.componentRef = createRef();
 		this.addBlockRef = createRef();
@@ -6646,6 +6648,12 @@ class Home extends Proposals {
 															this.handleScheduleStyles(data)
 														}
 														themes={this.state.themes}
+														invoiceSentDate={
+															this.state?.invoiceSentDate
+														}
+														invoiceAcceptedDate={
+															this.state?.invoiceAcceptedDate
+														}
 													/>
 												</div>
 											</div>
@@ -7487,6 +7495,10 @@ class Home extends Proposals {
 												setAdjustGridAreas={() => {
 													this.handleTriggerAdjustGridAreas();
 												}}
+												invoiceSentDate={this.state?.invoiceSentDate}
+												invoiceAcceptedDate={
+													this.state?.invoiceAcceptedDate
+												}
 											/>
 										)}
 

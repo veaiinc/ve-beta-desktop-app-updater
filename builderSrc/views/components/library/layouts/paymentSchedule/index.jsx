@@ -329,7 +329,9 @@ class PaymentSchedule extends Component {
 			);
 		}
 		const dueDate = new Date(data.type === 'custom Date' && data.dueDate);
-
+		const invoiceSentDate = new Date(this.props?.invoiceSentDate * 1000);
+		const invoiceAcceptedDate = new Date(this.props?.invoiceAcceptedDate * 1000);
+		console.log('dates', data);
 		if (data.type === 'custom Date' && isNaN(dueDate.getTime())) {
 			return <p>Invalid date</p>; // Or any fallback UI
 		}
@@ -338,6 +340,14 @@ class PaymentSchedule extends Component {
 				<p style={{ color: this.state?.style?.paymentFontColor || '#000' }}>
 					{data?.type === 'custom Date'
 						? dueDate?.toLocaleDateString('en-US', options)
+						: this.props?.client &&
+						  data?.type === 'invoice Sent Date' &&
+						  this.props?.invoiceSentDate
+						? invoiceSentDate?.toLocaleDateString('en-US', options)
+						: this.props?.client &&
+						  data?.type === 'invoice Accepted Date' &&
+						  this.props?.invoiceAcceptedDate
+						? invoiceAcceptedDate?.toLocaleDateString('en-US', options)
 						: data?.dueDate}
 				</p>
 				{!this.props?.client && this.state?.previewType !== 'm' && (
@@ -371,7 +381,7 @@ class PaymentSchedule extends Component {
 	};
 
 	handleDueDateChange = (e, index) => {
-		if (e === 'Invoice Sent Date') {
+		if (e === 'invoice Sent Date') {
 			this.setState(
 				(prevState) => {
 					const updatedPaymentData = prevState?.paymentSchedule?.map((payment, i) => {
@@ -381,14 +391,14 @@ class PaymentSchedule extends Component {
 								subBlocks:
 									payment?.subBlocks?.length > 0
 										? [
-											{
-												...payment.subBlocks[0],
-												dueDate: e,
-												type: 'smart file sent',
-												status:
-													payment?.subBlocks[0]?.status || 'upcoming', // Fallback to 'upcoming' if status is undefined
-											},
-										]
+												{
+													...payment.subBlocks[0],
+													dueDate: e,
+													type: e,
+													status:
+														payment?.subBlocks[0]?.status || 'upcoming', // Fallback to 'upcoming' if status is undefined
+												},
+										  ]
 										: [],
 							};
 						}
@@ -401,6 +411,41 @@ class PaymentSchedule extends Component {
 					// 	type: 'smart file sent',
 					// 	status: updatedPaymentData[index].status === 'paid' ? 'paid' : 'upcoming',
 					// };
+					return {
+						paymentSchedule: updatedPaymentData,
+						showDateOptions: false,
+						showDateInput: false,
+						dateInputIndex: null,
+					};
+				},
+				() => {
+					this.SavePaymentSchedule();
+				},
+			);
+		} else if (e === 'invoice Accepted Date') {
+			this.setState(
+				(prevState) => {
+					const updatedPaymentData = prevState?.paymentSchedule?.map((payment, i) => {
+						if (i === index) {
+							return {
+								...payment,
+								subBlocks:
+									payment?.subBlocks?.length > 0
+										? [
+												{
+													...payment.subBlocks[0],
+													dueDate: e,
+													type: e,
+													status:
+														payment?.subBlocks[0]?.status || 'upcoming',
+												},
+										  ]
+										: [],
+							};
+						}
+
+						return payment;
+					});
 					return {
 						paymentSchedule: updatedPaymentData,
 						showDateOptions: false,
@@ -521,12 +566,12 @@ class PaymentSchedule extends Component {
 					subBlocks:
 						data?.subBlocks?.length > 0
 							? [
-								// Check if subBlocks exists and has elements
-								{
-									...data.subBlocks[0],
-									equalValue: newEqualValue,
-								},
-							]
+									// Check if subBlocks exists and has elements
+									{
+										...data.subBlocks[0],
+										equalValue: newEqualValue,
+									},
+							  ]
 							: [],
 				})),
 			}),
@@ -541,25 +586,31 @@ class PaymentSchedule extends Component {
 	};
 	updatePaymentStatuses() {
 		const today = moment().startOf('day');
+		const invoiceSentDate = moment(this.props?.invoiceSentDate * 1000)?.startOf('day');
+		const invoiceAcceptedDate = moment(this.props?.invoiceAcceptedDate * 1000)?.startOf('day');
 		this.setState(
 			(prevState) => ({
 				previewType: prevState?.previewType,
 				paymentSchedule: prevState?.paymentSchedule?.map((payment) => {
-					// const payment= payment.subBlocks[0];
+					const paymentBlock = payment.subBlocks[0];
 					// Skip updating status if payment is already paid
-					if (payment?.subBlocks[0]?.status === 'paid') return payment;
-
-					const dueDate = moment(payment?.subBlocks[0]?.dueDate).startOf('day');
-
+					if (paymentBlock?.status === 'paid') return payment;
+					const currentdate = moment(paymentBlock?.dueDate).startOf('day');
+					const dateToCheck =
+						paymentBlock?.type == 'invoice Sent Date' && this.props?.client
+							? invoiceSentDate
+							: paymentBlock?.type == 'invoice Accepted Date' && this.props?.client
+							? invoiceAcceptedDate
+							: currentdate;
 					let newStatus;
-					if (dueDate.isSame(today)) {
+
+					if (dateToCheck.isSame(today)) {
 						newStatus = 'due today';
-					} else if (dueDate.isBefore(today)) {
+					} else if (dateToCheck.isBefore(today)) {
 						newStatus = 'overdue';
 					} else {
 						newStatus = 'upcoming';
 					}
-
 					return {
 						// ...payment,
 						// status: newStatus,
@@ -594,12 +645,12 @@ class PaymentSchedule extends Component {
 			subBlocks:
 				data?.subBlocks?.length > 0
 					? [
-						// Check if subBlocks exists and has elements
-						{
-							...data.subBlocks[0],
-							equalValue: newEqualValue,
-						},
-					]
+							// Check if subBlocks exists and has elements
+							{
+								...data.subBlocks[0],
+								equalValue: newEqualValue,
+							},
+					  ]
 					: [],
 		}));
 
@@ -620,9 +671,9 @@ class PaymentSchedule extends Component {
 						this.props?.module === 'thankyou'
 							? ''
 							: this.state.style?.backgroundType !== 'video' &&
-								this.state.style?.backgroundType !== 'image'
-								? this.state.style?.sectionBackgroundColor
-								: '',
+							  this.state.style?.backgroundType !== 'image'
+							? this.state.style?.sectionBackgroundColor
+							: '',
 					backgroundImage:
 						this.state?.style?.backgroundType == 'image' &&
 						`url(${this.state?.style?.backgroundImageURL})`,
@@ -637,26 +688,29 @@ class PaymentSchedule extends Component {
 					padding:
 						this.props?.module === 'invoice'
 							? '0px'
-							: `${this.state?.style?.padding
-								? padding[this.state?.style?.padding]
-								: '0px'
-							} ${(this.state.previewType === 'm' ||
-								this.state.previewType === 'ml') &&
-								this.state.preview
-								? this.state?.style?.noMPadding
-									? '0px'
-									: '14px'
-								: this.state.style?.paddingHorizontal
-									? paddingHorizontal[this.state.style.paddingHorizontal]
-									: '0px'
-							}`,
+							: `${
+									this.state?.style?.padding
+										? padding[this.state?.style?.padding]
+										: '0px'
+							  } ${
+									(this.state.previewType === 'm' ||
+										this.state.previewType === 'ml') &&
+									this.state.preview
+										? this.state?.style?.noMPadding
+											? '0px'
+											: '14px'
+										: this.state.style?.paddingHorizontal
+										? paddingHorizontal[this.state.style.paddingHorizontal]
+										: '0px'
+							  }`,
 					justifyContent: 'center',
 				}}
 				ref={this.blockRef}
-				className={`block invoice-wrapper ${this.state?.showBlockOptions && this.props?.module !== 'invoice'
-					? 'borderedBlock'
-					: ''
-					}`}
+				className={`block invoice-wrapper ${
+					this.state?.showBlockOptions && this.props?.module !== 'invoice'
+						? 'borderedBlock'
+						: ''
+				}`}
 				onClick={(e) => {
 					if (this.state?.preview !== true) {
 						this.toggleSideBar(e);
@@ -693,7 +747,6 @@ class PaymentSchedule extends Component {
 								width="100%"
 								height="100%"
 								loop={this.state.style?.videoProps?.loop ?? false}
-
 								onError={(e) => {
 									this.props.handleIsValidBgVideoURL(false);
 								}}
@@ -706,8 +759,8 @@ class PaymentSchedule extends Component {
 					)}
 				{/* {this.state.showSchedule && ( */}
 				{this.props?.module !== 'invoice' &&
-					this.state?.showBlockActions &&
-					this.state?.preview == false ? (
+				this.state?.showBlockActions &&
+				this.state?.preview == false ? (
 					<div className="block-action-bar">
 						<span className="tooltip" onClick={(e) => this.handleBlock(e)}>
 							<NewEdit />
@@ -769,15 +822,12 @@ class PaymentSchedule extends Component {
 					''
 				)}
 				{this.state.preview == false &&
-					this.state.showBlockOptions &&
-					this.props.module !== 'form' &&
-					!this.props?.activeModule?.showAsSlide &&
-					!disabledModules.includes(this.props.module) ? (
+				this.state.showBlockOptions &&
+				this.props.module !== 'form' &&
+				!this.props?.activeModule?.showAsSlide &&
+				!disabledModules.includes(this.props.module) ? (
 					<div className="add-block-new-container">
-						<div
-							onClick={(e) => this.hanldeAddBlock(e)}
-							className="addBlankContainer"
-						>
+						<div onClick={(e) => this.hanldeAddBlock(e)} className="addBlankContainer">
 							<AddBlock />
 							<label className="tooltip-text">Add Block</label>
 						</div>
@@ -787,10 +837,11 @@ class PaymentSchedule extends Component {
 						<div className="addBlankContainer">
 							{this.state.isElement !== true ? (
 								<div
-									className={`addBlank ${this.state.activeTab === 'fluid' ? 'active' : ''
-										}`}
+									className={`addBlank ${
+										this.state.activeTab === 'fluid' ? 'active' : ''
+									}`}
 									onClick={(e) => this.props.handleAddLayout(null, true)}
-								//onMouseEnter={(e) => this.setActiveTab('fluid')}
+									//onMouseEnter={(e) => this.setActiveTab('fluid')}
 								>
 									<AddBlank />
 								</div>
@@ -814,24 +865,24 @@ class PaymentSchedule extends Component {
 						margin: this.props?.module === 'invoice' ? '0px' : '30px 0px',
 						background: this.state?.style?.paymentCardColor || '#fff',
 					}}
-				// onClick={() => this.handleInvClick()}
+					// onClick={() => this.handleInvClick()}
 				>
 					<div
 						className="payment-show"
-					// onClick={() => {
-					// 	this.setState({
-					//         showAnimation:!this.state.showAnimation,
-					//     });
+						// onClick={() => {
+						// 	this.setState({
+						//         showAnimation:!this.state.showAnimation,
+						//     });
 
-					// 	setTimeout(() => {
-					// 		this.setState({
-					// 			showSchedule: !this.state.showSchedule,
-					// 			showAnimation:!this.state?.showAnimation,
-					// 		});
-					// 	}, 1000)
-					// }
-					// }
-					// onClick={this.toggleScheduleContainer}
+						// 	setTimeout(() => {
+						// 		this.setState({
+						// 			showSchedule: !this.state.showSchedule,
+						// 			showAnimation:!this.state?.showAnimation,
+						// 		});
+						// 	}, 1000)
+						// }
+						// }
+						// onClick={this.toggleScheduleContainer}
 					>
 						<p
 							className="heading"
@@ -1001,9 +1052,9 @@ class PaymentSchedule extends Component {
 													{this.props?.style?.isEqualPercentage
 														? this?.getPercentage(data?.equalValue)
 														: (
-															(data?.amountPercentage / 100) *
-															this.props?.clientGrandTotal
-														).toFixed(2)}
+																(data?.amountPercentage / 100) *
+																this.props?.clientGrandTotal
+														  ).toFixed(2)}
 												</p>
 											</>
 										) : (
@@ -1023,10 +1074,11 @@ class PaymentSchedule extends Component {
 															this.state?.style?.paymentFontColor ||
 															'#000',
 													}}
-													value={`${this.state?.activePayment === 'percentage'
-														? data?.amountPercentage
-														: this.getPercentage()
-														}`}
+													value={`${
+														this.state?.activePayment === 'percentage'
+															? data?.amountPercentage
+															: this.getPercentage()
+													}`}
 													// defaultValue={`${
 													// 	this.state?.activePayment === 'percentage'
 													// 		? data?.amountPercentage
@@ -1040,12 +1092,12 @@ class PaymentSchedule extends Component {
 													}}
 													disabled={
 														this.state?.activePayment !==
-														'percentage' ||
+															'percentage' ||
 														this.state?.preview ||
 														this.state?.previewType?.includes('m') ||
 														this.props?.client
 													}
-												// type='number'
+													// type='number'
 												/>
 											</>
 										)}
@@ -1069,12 +1121,23 @@ class PaymentSchedule extends Component {
 													onClick={(e) => {
 														e.stopPropagation();
 														this.handleDueDateChange(
-															'Invoice Sent Date',
+															'invoice Sent Date',
 															index,
 														);
 													}}
 												>
 													Invoice Sent Date
+												</p>
+												<p
+													onClick={(e) => {
+														e.stopPropagation();
+														this.handleDueDateChange(
+															'invoice Accepted Date',
+															index,
+														);
+													}}
+												>
+													Invoice Accepted Date
 												</p>
 												{this.props?.isWorkflow && (
 													<p
@@ -1123,10 +1186,10 @@ class PaymentSchedule extends Component {
 										{data?.status}
 									</p>
 									{!this.state?.preview &&
-										!this.state?.previewType?.includes('m') &&
-										!this.props?.client &&
-										this.state.showDelete &&
-										this.state.activeId === index ? (
+									!this.state?.previewType?.includes('m') &&
+									!this.props?.client &&
+									this.state.showDelete &&
+									this.state.activeId === index ? (
 										<div
 											className="delete-payment"
 											onClick={(e) => {
@@ -1171,9 +1234,7 @@ class PaymentSchedule extends Component {
 					<>
 						<BlockSidebar
 							ref={this.blockSidebarRef}
-							elementEndPosition={
-								this.state.elementEndPosition || { x: 450, y: 100 }
-							}
+							elementEndPosition={this.state.elementEndPosition || { x: 450, y: 100 }}
 							activeType={'paymentSchedule'}
 							activePopupComponent={this.props.section}
 							brandColors={this.props?.brandColors}
@@ -1184,12 +1245,15 @@ class PaymentSchedule extends Component {
 								});
 							}}
 							setActiveSection={(e) => {
-								this.setState({
-									section: e,
-									style: e?.style,
-								}, () => {
-									this.props.setActiveSection(e);
-								})
+								this.setState(
+									{
+										section: e,
+										style: e?.style,
+									},
+									() => {
+										this.props.setActiveSection(e);
+									},
+								);
 							}}
 							fonts={this.props?.fonts}
 							activeModuleId={this.props?.activeModuleId}
