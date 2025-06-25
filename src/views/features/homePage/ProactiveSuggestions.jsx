@@ -199,7 +199,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			container.addEventListener('scroll', checkScroll);
 		}
 		return () => {
-			window.removeEventListener('resize', checkScroll);
 			if (container) {
 				container.removeEventListener('scroll', checkScroll);
 			}
@@ -331,10 +330,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		(e) => {
 			if (searchFocusedRef.current) return;
 			if (e?.key === 'ArrowUp' || e?.key === 'ArrowLeft') {
-				e.stopPropagation();
 				handleLeft();
 			} else if (e?.key === 'ArrowDown' || e?.key === 'ArrowRight') {
-				e.stopPropagation();
 				handleRight();
 			}
 		},
@@ -702,9 +699,11 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		setTouchEndX(null);
 	};
 	const handleOptionSelection = (option) => {
+		currentIndexRef.current = 0;
 		setInfo((prev) => ({
 			...prev,
 			selectedOption: option,
+			currentIndex: 0,
 		}));
 	};
 	const renderedOptions = useMemo(() => {

@@ -78,7 +78,7 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 				behavior: 'smooth',
 			});
 			// Focus the container to allow keydown events
-			containerRef.current.focus();
+			// containerRef.current.focus();
 		}
 	}, [currentIndex, cardsData]);
 
