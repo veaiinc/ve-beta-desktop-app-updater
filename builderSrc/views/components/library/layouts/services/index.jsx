@@ -891,7 +891,7 @@ class Layout1 extends Component {
 							className="addBlankContainer"
 						>
 							<AddBlock />
-							<span className="tooltip-text">Add Card</span>
+							<span className="tooltip-text">Add Layout</span>
 						</div>
 						<div className="addBlockDividerContainer">
 							<div className="addBlockDivider"></div>
