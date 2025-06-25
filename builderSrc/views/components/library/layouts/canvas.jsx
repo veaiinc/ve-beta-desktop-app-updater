@@ -8966,6 +8966,10 @@ class Layout extends Component {
 														// width: 'fit-content',
 														minHeight: '100%',
 														zIndex:
+															// this.state.activeComponentID ===
+															// component?._id
+															// 	? 999999
+															// 	:
 															this.state.previewType === 'm'
 																? component?.divStyles?.mZIndex
 																: component?.divStyles?.zIndex,
