@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import s from './toolsTab.module.scss';
 import Context from '../../../../../../../context/context';
 import { getFaviconUrl } from '../../../../../../../helpers';
@@ -8,7 +8,8 @@ import ActionsModal from '../../../../../modalsV2/ai_assistant/ActionsModal';
 import EditAgentTool from '../../../../modals/editAgentTool/EditAgentTool';
 import ToggleSwitch from '../../../../../../components/input/slider';
 import AddToolModal from '../../../../../modalsV2/ai_assistant/AddToolModal';
-
+import EditToolVariablesModal from './EditToolVariablesModal';
+import Spinner from '../../../../../loaders/Spinner';
 // svgs
 import { ReactComponent as SearchSvg } from '../assets/search-icon.svg';
 import { ReactComponent as DeleteSvg } from '../assets/delete-icon.svg';
@@ -18,6 +19,21 @@ import { ReactComponent as GmailIcon } from '../assets/gmail-icon.svg';
 import { ReactComponent as Delete } from '../assets/delete.svg';
 import moment from 'moment';
 import { message } from '../../../../../globalComponents/CustomToast';
+
+// Debounce hook
+const useDebounce = (func, timeout = 500) => {
+	const timeoutRef = useRef(null);
+
+	return (...args) => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
+
+		timeoutRef.current = setTimeout(() => {
+			func(...args);
+		}, timeout);
+	};
+};
 
 const ToolsTab = ({ agentId }) => {
 	const {
@@ -33,7 +49,28 @@ const ToolsTab = ({ agentId }) => {
 		editAgentToolOpen: false,
 		addToolModalOpen: false,
 		editToolModalOpen: false,
+		editToolModalTool: null,
+		search: '',
+		searchLoading: false,
 	});
+
+	// Debounced search function
+	const debouncedSearch = useDebounce((searchValue) => {
+		if (agentId) {
+			setInfo((prev) => ({ ...prev, searchLoading: true }));
+			getActionsForKnowledgeAgent(agentId, searchValue);
+		}
+	}, 500);
+
+	// Handle search input change
+	const handleSearchChange = useCallback(
+		(e) => {
+			const searchValue = e.target.value;
+			setInfo((prev) => ({ ...prev, search: searchValue }));
+			debouncedSearch(searchValue);
+		},
+		[debouncedSearch],
+	);
 
 	const getToolFaviconUrl = useCallback((typeDependencies) => {
 		try {
@@ -63,7 +100,7 @@ const ToolsTab = ({ agentId }) => {
 
 	useEffect(() => {
 		if (agentId) {
-			getActionsForKnowledgeAgent(agentId);
+			getActionsForKnowledgeAgent(agentId, info?.search);
 		}
 	}, [agentId]);
 
@@ -73,6 +110,7 @@ const ToolsTab = ({ agentId }) => {
 				...prev,
 				aiActionList: actionsInfo?.data,
 				actionsLoading: false,
+				searchLoading: false,
 			}));
 		}
 	}, [actionsInfo]);
@@ -169,19 +207,29 @@ const ToolsTab = ({ agentId }) => {
 
 	const refreshToolList = useCallback(() => {
 		if (agentId) {
-			getActionsForKnowledgeAgent(agentId);
+			setInfo((prev) => ({ ...prev, searchLoading: true }));
+			getActionsForKnowledgeAgent(agentId, info?.search);
 		}
-	}, [agentId]);
+	}, [agentId, info?.search]);
 
-	console.log('info?.aiActionList', info?.aiActionList);
 	return (
 		<div className={s?.actionsTabContainer}>
 			<div className={s?.actionsHeader}>
 				<div className={s?.searchInputContainer}>
 					<div className={s?.searchIcon}>
-						<SearchSvg />
+						{info?.searchLoading ? (
+							<Spinner width="16px" height="16px" />
+						) : (
+							<SearchSvg />
+						)}
 					</div>
-					<input type="text" placeholder="Browse tools" className={s?.searchInput} />
+					<input
+						type="text"
+						placeholder="Browse tools"
+						className={s?.searchInput}
+						value={info?.search}
+						onChange={handleSearchChange}
+					/>
 				</div>
 				<div
 					className={s?.addActionButton}
@@ -233,18 +281,18 @@ const ToolsTab = ({ agentId }) => {
 									}}
 								/>
 								<div className={s.actionIconsContainer}>
-									
-								<EditSvg
-									className={s.editKnowledge}
-									onClick={(e) => {
-										e.stopPropagation();
-										setInfo((prev) => ({
-											...prev,
-											editToolModalOpen: true,
-										}));
-									}}
+									<EditSvg
+										className={s.editKnowledge}
+										onClick={(e) => {
+											e.stopPropagation();
+											setInfo((prev) => ({
+												...prev,
+												editToolModalOpen: true,
+												editToolModalTool: item,
+											}));
+										}}
 									/>
-									</div>
+								</div>
 							</span>
 							<span className={s.actionDate}>
 								{moment.unix(item?.createdAt).format('MMM DD, YYYY')}
@@ -290,6 +338,18 @@ const ToolsTab = ({ agentId }) => {
 				isOpen={info?.addToolModalOpen}
 				onClose={() => setInfo((prev) => ({ ...prev, addToolModalOpen: false }))}
 				onToolAdded={refreshToolList}
+			/>
+			<EditToolVariablesModal
+				isOpen={info.editToolModalOpen}
+				onClose={() =>
+					setInfo((prev) => ({
+						...prev,
+						editToolModalOpen: false,
+						editToolModalTool: null,
+					}))
+				}
+				tool={info.editToolModalTool}
+				onUpdate={(values) => console.log('EditToolVariablesModal updated values:', values)}
 			/>
 		</div>
 	);

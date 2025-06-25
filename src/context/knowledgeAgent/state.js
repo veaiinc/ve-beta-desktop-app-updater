@@ -16,19 +16,31 @@ export const initialState = {
 export const KnowledgeAgentState = () => {
 	const [state, dispatch] = useReducer(Reducer, initialState);
 
-	const getKnowledgeAssistantsList = async (page = 1, limit = 10) => {
+	const getKnowledgeAssistantsList = async (
+		page = 1,
+		limit = 10,
+		search = '',
+		sortBy = 'createdAt',
+		sortOrder = -1,
+		reset = true,
+	) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
-			const path = `/${workspaceId}/knowledge-agents?page=${page}&limit=${limit}`;
+			const searchParam =
+				search && search.trim() ? `&search=${encodeURIComponent(search.trim())}` : '';
+			const sortParam = `&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+			const path = `/${workspaceId}/knowledge-agents?page=${page}&limit=${limit}${searchParam}${sortParam}`;
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchGet(path, token, type);
 			const success = response?.[0] === true;
 			if (success) {
-				const data = [
-					...(state?.knowledgeAssistantsList?.data || []),
-					...(response?.[1]?.data || []),
-				];
+				const data = reset
+					? [...(response?.[1]?.data || [])]
+					: [
+							...(state?.knowledgeAssistantsList?.data || []),
+							...(response?.[1]?.data || []),
+					  ];
 				const payload = {
 					data,
 					currentPage: response?.[1]?.currentPage ?? 1,
@@ -499,10 +511,16 @@ export const KnowledgeAgentState = () => {
 		return statusSummary;
 	};
 
-	const getActionsForKnowledgeAgent = async (agentId) => {
+	const getActionsForKnowledgeAgent = async (agentId, search = '') => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
-			const path = '/' + workspaceId + '/ai-assistants/' + agentId + '/action';
+			const path =
+				'/' +
+				workspaceId +
+				'/ai-assistants/' +
+				agentId +
+				'/action' +
+				(search ? `?search=${encodeURIComponent(search)}` : '');
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchGet(path, token, type);
@@ -919,6 +937,18 @@ export const KnowledgeAgentState = () => {
 		}
 		return [false, response?.[1]];
 	};
+
+	const updateToolVariables = async (agentId, toolId, payload) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}/ai-assistants/${agentId}/action/${toolId}`;
+		const response = await service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+		if (response?.[0] === true) {
+			return [true, response?.[1]];
+		}
+		return [false, response?.[1]];
+	};
+
 	return {
 		...state,
 		createNewKnowledgeAgent,
@@ -955,5 +985,6 @@ export const KnowledgeAgentState = () => {
 		getExistingconnectedAccounts,
 		deleteConnectedAccount,
 		getActivitiesForKnowledgeAgent,
+		updateToolVariables,
 	};
 };

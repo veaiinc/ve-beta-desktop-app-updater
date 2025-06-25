@@ -18,9 +18,9 @@ const toCamelCase = (str) => {
 		.split(' ')
 		.map((word, index) => {
 			if (index === 0) {
-				return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+				return word.charAt(0).toLowerCase() + word.slice(1); // First word: first letter lowercase, rest unchanged
 			}
-			return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+			return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(); // Subsequent words: capitalize first letter
 		})
 		.join('');
 };
@@ -548,7 +548,7 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 				name: action?.name || action?.id || '',
 				description: action?.description || '',
 				url:
-					'https://ap.api.ve.ai/third-party-integrations/1.0/pipedream/execute-action/' +
+					'https://us.api.ve.ai/third-party-integrations/1.0/pipedream/execute-action/' +
 					workspaceId,
 				method: 'POST',
 				contentType: 'json',

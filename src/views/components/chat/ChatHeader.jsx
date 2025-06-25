@@ -100,7 +100,7 @@ const ChatHeader = ({
 	return (
 		<div className={s.wrapper}>
 			<div className={`${s.chatHeader} ${info?.chatDropdownExpanded ? s.expanded : ''}`}>
-				<div className={s.headerInfo}>
+				<div className={`${s.headerInfo} headerInfo`}>
 					<div className={s.leftContainer}>
 						<div className={s.iconContainer} onClick={handleNavigateBack}>
 							<LeftSvg />
