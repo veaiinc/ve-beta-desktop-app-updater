@@ -187,7 +187,7 @@ const homePageTextContent = {
 const InitialHomePage = () => {
 	const {
 		templates: { updateStateValues, aiSuggestedPendingActions, getAISuggestedPendingActions },
-		profileInfo: { tenantUserAccessControls, userDetailsData, getAiCategories, aiCategories },
+		profileInfo: { tenantUserAccessControls, userDetailsData },
 		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
 
@@ -316,36 +316,6 @@ const InitialHomePage = () => {
 		}
 	}, [aiSuggestedPendingActions]);
 
-	useEffect(() => {
-		if (info?.options?.length > 0 && !info?.selectedOption) {
-			setInfo((prev) => ({
-				...prev,
-				selectedOption: prev?.options[0],
-			}));
-		}
-	}, [info?.selectedOption, info?.options]);
-
-	useEffect(() => {
-		if (!aiCategories) {
-			getAiCategoriesOptions();
-		}
-	}, [aiCategories, info?.options]);
-
-	const getAiCategoriesOptions = async () => {
-		const response = await getAiCategories();
-		if (response?.[0] === true) {
-			setInfo((prev) => ({
-				...prev,
-				options: [...optionsList, ...response?.[1]],
-			}));
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				options: optionsList,
-			}));
-		}
-	};
-
 	const handleUpdateOptions = (value) => {
 		let updatedOptions = info?.options;
 		updatedOptions = updatedOptions?.map((option) => {
@@ -432,29 +402,30 @@ const InitialHomePage = () => {
 						<span className="title-two">{userName}</span>
 					</div>
 				</div>
-				{!info?.showSuggestions && (
-					<div className="options-wrapper">
-						<div className={`homepage__options-container`}>{renderedOptions}</div>
-						{/* <div className="arrow-container">
-							{showArrows.left && (
-								<div
-									className="arrow left-arrow"
-									onClick={() => handleScroll('left')}
-								>
-									<ChevronRightThinSvg style={{ transform: 'rotate(180deg)' }} />
-								</div>
-							)}
-							{showArrows.right && (
-								<div
-									className="arrow right-arrow"
-									onClick={() => handleScroll('right')}
-								>
-									<ChevronRightThinSvg />
-								</div>
-							)}
-						</div> */}
-					</div>
-				)}
+				{
+					!info?.showSuggestions && ''
+					// <div className="options-wrapper">
+					// 	<div className={`homepage__options-container`}>{renderedOptions}</div>
+					// 	{/* <div className="arrow-container">
+					// 		{showArrows.left && (
+					// 			<div
+					// 				className="arrow left-arrow"
+					// 				onClick={() => handleScroll('left')}
+					// 			>
+					// 				<ChevronRightThinSvg style={{ transform: 'rotate(180deg)' }} />
+					// 			</div>
+					// 		)}
+					// 		{showArrows.right && (
+					// 			<div
+					// 				className="arrow right-arrow"
+					// 				onClick={() => handleScroll('right')}
+					// 			>
+					// 				<ChevronRightThinSvg />
+					// 			</div>
+					// 		)}
+					// 	</div> */}
+					// </div>
+				}
 			</div>
 			{info?.options?.length > 0 && !info?.showSuggestions && (
 				<div className="home-page-container-content">

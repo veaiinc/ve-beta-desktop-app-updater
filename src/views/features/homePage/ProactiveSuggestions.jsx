@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import React, { memo, useContext, useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import Context from '../../../context/context';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
@@ -32,6 +32,7 @@ import ChatBox from '../../components/chat/ChatBox';
 import Suggestions from './Suggestions';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 import PromptsWidget from '../../components/globalComponents/PromptsWidget';
+import BuildOptions from './BuildOptions';
 
 const payload = {
 	page: 1,
@@ -112,6 +113,7 @@ const sortOptions = {
 };
 const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
 
+const optionsList = ['All'];
 const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	const navigate = useNavigate();
 	const currentIndexRef = useRef(0);
@@ -130,10 +132,11 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			getAiQuestions,
 			aiQuestions,
 			currentSessionId,
-			chatInfo,
 			handleGlobalChatMessages,
+			globalChatMessages,
 		},
 		aiSetup: { getPromptsData, promptsData },
+		profileInfo: { aiCategories, getAiCategories },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -155,6 +158,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		searchQuery: '',
 		chatQuery: '',
 		showExploreMore: false,
+		options: optionsList,
+		selectedOption: 'All',
 	});
 	const promptsLenght = promptsData?.data?.length ?? 0;
 	const promptsHasNextPage = Boolean(promptsData?.hasNextPage);
@@ -183,17 +188,37 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	}, []);
 
 	useEffect(() => {
+		if (!aiCategories) {
+			getAiCategoriesOptions();
+		}
+	}, [aiCategories, info?.options]);
+
+	const getAiCategoriesOptions = async () => {
+		const response = await getAiCategories();
+		if (response?.[0] === true) {
+			setInfo((prev) => ({
+				...prev,
+				options: [...optionsList, ...response?.[1]],
+			}));
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				options: optionsList,
+			}));
+		}
+	};
+	useEffect(() => {
 		if (info?.totalCardsData?.length > 0) {
 			updateWindow(info?.currentIndex);
 		}
 	}, [info?.totalCardsData, info?.currentIndex]);
 
 	useEffect(() => {
-		if (!previousOption || option !== 'All') {
+		if (info?.selectedOption !== 'All') {
 			return;
 		}
 		fetchPendingActions();
-	}, [option]);
+	}, [info?.selectedOption]);
 
 	useEffect(() => {
 		if (isMountedRef.current) return;
@@ -262,7 +287,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			selectedCardNumber: index + 1,
 		}));
 		currentIndexRef.current = index;
-	}, [info?.isApiLoading, aiSuggestedPendingActions, option]);
+	}, [info?.isApiLoading, aiSuggestedPendingActions, info?.selectedOption]);
 
 	const handleKeyDown = useCallback(
 		(e) => {
@@ -290,6 +315,15 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			}
 		};
 	}, [handleKeyDown]);
+
+	useEffect(() => {
+		if (info?.options?.length > 0 && !info?.selectedOption) {
+			setInfo((prev) => ({
+				...prev,
+				selectedOption: prev?.options[0],
+			}));
+		}
+	}, [info?.selectedOption, info?.options]);
 
 	const getDateRangeFromFilters = (filters) => {
 		const selectedDateFilter = filters?.find((f) => f?.group === 'Date');
@@ -629,83 +663,44 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		setTouchStartX(null);
 		setTouchEndX(null);
 	};
+	const handleOptionSelection = (option) => {
+		console.log('option', option);
+		setInfo((prev) => ({
+			...prev,
+			selectedOption: option,
+		}));
+	};
+	const renderedOptions = useMemo(() => {
+		return info?.options?.map((option) => {
+			return (
+				<div
+					className={`option ${info?.selectedOption === option ? 'active' : ''}`}
+					onClick={(e) => {
+						e.stopPropagation();
+						handleOptionSelection(option);
+					}}
+					key={option}
+				>
+					<div className="option-label">{option}</div>
+				</div>
+			);
+		});
+	}, [info?.options, info?.selectedOption]);
 	return (
-		<div
-			className="proactive-suggestions-container"
-			style={{ paddingTop: info?.showExploreMore ? '40px' : '0px' }}
-			ref={mainContainerRef}
-			tabIndex={0}
-		>
-			{!info?.showExploreMore && (
-				<>
-					<div className="action-container">
-						<div className="left-container">
-							{/* {info?.isListView && ( */}
-							<div className="btns-container">
-								{/* <div
-							className={`btn ${info?.activeBtn === 'insights' ? 'active' : ''}`}
-							onClick={() => handleBtnClick('insights')}
-						>
-							<div className="icon-container">
-								<ListDashesSvg />
-							</div>
-							<div className="text-container">Insights</div>
-						</div>
-						{aiQuestions?.data?.length > 0 && (
-							<div
-								className={`btn ${info?.activeBtn === 'questions' ? 'active' : ''}`}
-								onClick={() => handleBtnClick('questions')}
-							>
-								<div className="icon-container">
-									<QuestionSvg />
-								</div>
-								<div className="text-container">Questions</div>
-							</div>
-						)} */}
-								{/* <div
-							className={`btn ${
-								info?.activeBtn === 'calendar' ? 'activeAgents' : ''
-							}`}
-							onClick={() => handleBtnClick('calendar')}
-						>
-							<div className="icon-container">
-								<CalendarIcon fill={'var(--secondary-font)'} />
-							</div>
-							<div className="text-container">Calendar</div>
-						</div>
-						<div
-							className={`btn ${info?.activeBtn === 'tasks' ? 'activeAgents' : ''}`}
-							onClick={() => handleBtnClick('tasks')}
-						>
-							<div className="icon-container">
-								<DoubleTickIcon />
-							</div>
-							<div className="text-container">Tasks</div>
-						</div>
-						<div
-							className={`btn ${info?.activeBtn === 'agents' ? 'activeAgents' : ''}`}
-							onClick={() => handleBtnClick('agents')}
-						>
-							<div className="icon-container">
-								<AgentIcon fill={'var(--secondary-font)'} />
-							</div>
-							<div className="text-container">Agents</div>
-						</div> */}
-							</div>
-							{/* )} */}
-						</div>
-
-						{/* {info?.cards?.length > 5 && (
-					<div className="action-right">
-						<button className="card-change-btn" onClick={handleLeft}>
-							<ChevronRightThinSvg className="left-chevron" />
-						</button>
-						<button className="card-change-btn" onClick={handleRight}>
-							<ChevronRightThinSvg />
-						</button>
-					</div>
-				)} */}
-					</div>
+		<>
+			{(aiSuggestedPendingActions?.pendingActions?.length > 0 ||
+				info?.searchQuery?.length !== 0) && (
+				<div className="options-wrapper">
+					<div className={`homepage__options-container`}>{renderedOptions}</div>
+				</div>
+			)}
+			<div
+				className="proactive-suggestions-container"
+				style={{ paddingTop: info?.showExploreMore ? '40px' : '0px' }}
+				ref={mainContainerRef}
+				tabIndex={0}
+			>
+				{!info?.showExploreMore && (
 					<>
 						{info?.selectedFilters?.length > 0 && (
 							<div className="selected-filter">
@@ -720,75 +715,75 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 								))}
 							</div>
 						)}
-					</>
-					{info?.activeBtn === 'questions' && (
-						<div className="ai-questions-wrapper">
-							<AIQuestions />
-						</div>
-					)}
-					{info?.activeBtn === 'insights' && (
-						<>
-							{option === 'All' ? (
-								(info?.cards?.length > 0 || info?.searchQuery?.length !== 0) && (
-									<div
-										className="cards-container"
-										// style={{
-										// 	display: info?.cards?.length > 0 ? '' : 'none',
-										// }}
-										// onTouchStart={handleTouchStart}
-										// onTouchMove={handleTouchMove}
-										// onTouchEnd={handleTouchEnd}
-									>
-										{info?.loading ? (
-											[
-												{ position: 0 },
-												{ position: 1 },
-												{ position: 2 },
-												{ position: -1 },
-												{ position: -2 },
-											]?.map((item, index) => {
-												const classList = [
-													'card',
-													'skeleton',
-													positionClassMap[item.position],
-												];
-												return (
-													<div
-														key={index}
-														className={classList.join(' ')}
-													>
+
+						{info?.activeBtn === 'questions' && (
+							<div className="ai-questions-wrapper">
+								<AIQuestions />
+							</div>
+						)}
+						{info?.activeBtn === 'insights' && (
+							<>
+								{info?.selectedOption === 'All' ? (
+									(info?.cards?.length > 0 ||
+										info?.searchQuery?.length !== 0) && (
+										<div
+											className="cards-container"
+											// style={{
+											// 	display: info?.cards?.length > 0 ? '' : 'none',
+											// }}
+											// onTouchStart={handleTouchStart}
+											// onTouchMove={handleTouchMove}
+											// onTouchEnd={handleTouchEnd}
+										>
+											{info?.loading ? (
+												[
+													{ position: 0 },
+													{ position: 1 },
+													{ position: 2 },
+													{ position: -1 },
+													{ position: -2 },
+												]?.map((item, index) => {
+													const classList = [
+														'card',
+														'skeleton',
+														positionClassMap[item.position],
+													];
+													return (
 														<div
-															className="skeleton-container"
-															style={{
-																width: '100%',
-																height: '100%',
-																borderRadius: '10px',
-															}}
+															key={index}
+															className={classList.join(' ')}
 														>
-															<Skeleton
-																height={'100%'}
-																width={'100%'}
-															/>
+															<div
+																className="skeleton-container"
+																style={{
+																	width: '100%',
+																	height: '100%',
+																	borderRadius: '10px',
+																}}
+															>
+																<Skeleton
+																	height={'100%'}
+																	width={'100%'}
+																/>
+															</div>
 														</div>
-													</div>
-												);
-											})
-										) : info?.cards?.length === 0 ? (
-											<div
-												className="no-data"
-												style={{ color: 'var(--primary-font)' }}
-											>
-												No data available
-											</div>
-										) : (
-											info?.cards?.map((card, index) => {
-												if (card?.position === null) return null;
-												const classList = [
-													'card',
-													positionClassMap[card?.position],
-												];
-												return (
-													<>
+													);
+												})
+											) : info?.cards?.length === 0 ? (
+												<div
+													className="no-data"
+													style={{ color: 'var(--primary-font)' }}
+												>
+													No data available
+												</div>
+											) : (
+												info?.cards?.map((card, index) => {
+													if (card?.position === null) return null;
+													const classList = [
+														'card',
+														positionClassMap[card?.position],
+													];
+													return (
 														<div
 															key={index}
 															className={classList?.join(' ')}
@@ -850,279 +845,293 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 																</div>
 															)}
 														</div>
-													</>
-												);
-											})
-										)}
-									</div>
-								)
-							) : (
-								<PromptsWidget
-									option={option}
-									currentIndex={currentIndexRef?.current}
-									searchQuery={info?.searchQuery}
-								/>
-							)}
+													);
+												})
+											)}
+										</div>
+									)
+								) : (
+									<PromptsWidget
+										option={info?.selectedOption}
+										currentIndex={currentIndexRef?.current}
+										searchQuery={info?.searchQuery}
+									/>
+								)}
 
-							<div className="actionMainContainer">
-								{(info?.cards.length || info?.searchQuery?.length !== 0) && (
-									<div className="right-container">
-										<div
-											style={{
-												display: 'flex',
-												flexDirection: 'row',
-												gap: '6px',
-											}}
-										>
-											<div className="search-wrapper" data-tooltip="Search">
-												<div className="search-icon">
-													<SearchSvg />
-												</div>
-												<input
-													className="search-input"
-													placeholder="Search"
-													onChange={handleSearchQueryChange}
-													onFocus={() =>
-														(searchFocusedRef.current = true)
-													}
-													onBlur={() =>
-														(searchFocusedRef.current = false)
-													}
-												/>
-											</div>
-											<Tooltip
-												open={info?.openFilter}
-												onOpenChange={() =>
-													setInfo((prev) => ({
-														...prev,
-														openFilter: false,
-													}))
-												}
-												placement="top"
-												title={
-													<div className="filter-container">
-														<div className="filter-items">
-															{filterGroups?.map((group, idx) => (
-																<div
-																	key={group?.title}
-																	style={{ width: '100%' }}
-																>
-																	<div className="filter-item">
-																		<div className="filter-item-title">
-																			{group?.title || ''}
-																		</div>
-																		<div className="filter-item-options">
-																			{group?.options?.map(
-																				(item) => {
-																					const itemWithGroup =
-																						{
-																							...item,
-																							group: group?.title,
-																						};
-
-																					const isSelected =
-																						info?.selectedFilters?.some(
-																							(
-																								option,
-																							) =>
-																								option?.title ===
-																									itemWithGroup?.title &&
-																								option?.group ===
-																									itemWithGroup?.group,
-																						);
-																					return (
-																						<div
-																							key={
-																								item?.id
-																							}
-																							className="eachOption"
-																							onClick={() =>
-																								handleFilterClick(
-																									itemWithGroup,
-																									group?.title,
-																								)
-																							}
-																						>
-																							{group?.title ===
-																								'Priority Level' && (
-																								<div
-																									className="indicator"
-																									style={{
-																										backgroundColor:
-																											item?.bgColor ||
-																											'',
-																									}}
-																								></div>
-																							)}
-																							<div className="option-text">
-																								<span className="option-text-content">
-																									{item?.title ||
-																										''}
-																								</span>
-																								{isSelected && (
-																									<TickIcon
-																										style={{
-																											marginLeft:
-																												'8px',
-																										}}
-																									/>
-																								)}
-																							</div>
-																						</div>
-																					);
-																				},
-																			)}
-																		</div>
-																	</div>
-																	{idx <
-																		filterGroups?.length -
-																			1 && (
-																		<hr
-																			style={{
-																				width: '100%',
-																				height: '1px',
-																				backgroundColor:
-																					'var(--stroke)',
-																				border: 'none',
-																				marginTop: '10px',
-																			}}
-																		/>
-																	)}
-																</div>
-															))}
-														</div>
-													</div>
-												}
-												color={'transparent'}
+								<div
+									className={`actionMainContainer ${
+										info?.selectedOption !== 'All' ? 'onPrompt' : ''
+									}`}
+								>
+									{(info?.cards.length || info?.searchQuery?.length !== 0) && (
+										<div className="right-container">
+											<div
 												style={{
-													cursor: 'pointer',
-													userSelect: 'none',
+													display: 'flex',
+													flexDirection: 'row',
+													gap: '6px',
 												}}
-												trigger={'click'}
 											>
 												<div
-													className="action-left"
-													onClick={() => {
-														if (info?.openFilter) {
-															return;
+													className="search-wrapper"
+													data-tooltip="Search"
+												>
+													<div className="search-icon">
+														<SearchSvg />
+													</div>
+													<input
+														className="search-input"
+														placeholder="Search"
+														onChange={handleSearchQueryChange}
+														onFocus={() =>
+															(searchFocusedRef.current = true)
 														}
+														onBlur={() =>
+															(searchFocusedRef.current = false)
+														}
+													/>
+												</div>
+												<Tooltip
+													open={info?.openFilter}
+													onOpenChange={() =>
 														setInfo((prev) => ({
 															...prev,
-															openFilter: true,
-														}));
+															openFilter: false,
+														}))
+													}
+													placement="top"
+													title={
+														<div className="filter-container">
+															<div className="filter-items">
+																{filterGroups?.map((group, idx) => (
+																	<div
+																		key={group?.title}
+																		style={{ width: '100%' }}
+																	>
+																		<div className="filter-item">
+																			<div className="filter-item-title">
+																				{group?.title || ''}
+																			</div>
+																			<div className="filter-item-options">
+																				{group?.options?.map(
+																					(item) => {
+																						const itemWithGroup =
+																							{
+																								...item,
+																								group: group?.title,
+																							};
+
+																						const isSelected =
+																							info?.selectedFilters?.some(
+																								(
+																									option,
+																								) =>
+																									option?.title ===
+																										itemWithGroup?.title &&
+																									option?.group ===
+																										itemWithGroup?.group,
+																							);
+																						return (
+																							<div
+																								key={
+																									item?.id
+																								}
+																								className="eachOption"
+																								onClick={() =>
+																									handleFilterClick(
+																										itemWithGroup,
+																										group?.title,
+																									)
+																								}
+																							>
+																								{group?.title ===
+																									'Priority Level' && (
+																									<div
+																										className="indicator"
+																										style={{
+																											backgroundColor:
+																												item?.bgColor ||
+																												'',
+																										}}
+																									></div>
+																								)}
+																								<div className="option-text">
+																									<span className="option-text-content">
+																										{item?.title ||
+																											''}
+																									</span>
+																									{isSelected && (
+																										<TickIcon
+																											style={{
+																												marginLeft:
+																													'8px',
+																											}}
+																										/>
+																									)}
+																								</div>
+																							</div>
+																						);
+																					},
+																				)}
+																			</div>
+																		</div>
+																		{idx <
+																			filterGroups?.length -
+																				1 && (
+																			<hr
+																				style={{
+																					width: '100%',
+																					height: '1px',
+																					backgroundColor:
+																						'var(--stroke)',
+																					border: 'none',
+																					marginTop:
+																						'10px',
+																				}}
+																			/>
+																		)}
+																	</div>
+																))}
+															</div>
+														</div>
+													}
+													color={'transparent'}
+													style={{
+														cursor: 'pointer',
+														userSelect: 'none',
 													}}
+													trigger={'click'}
 												>
-													<button
-														className={`filter-btn ${
-															info?.openFilter ? 'active' : ''
-														}`}
-														data-tooltip="Filter"
+													<div
+														className="action-left"
+														onClick={() => {
+															if (info?.openFilter) {
+																return;
+															}
+															setInfo((prev) => ({
+																...prev,
+																openFilter: true,
+															}));
+														}}
 													>
-														<FilterIcon />
-													</button>
-												</div>
-											</Tooltip>
-										</div>
-									</div>
-								)}
-								{info?.cards?.length > 0 && (
-									<div className="action-right">
-										<button
-											className="card-change-btn"
-											onClick={(e) => {
-												e.stopPropagation();
-												e.preventDefault();
-												handleLeft();
-											}}
-										>
-											<ChevronRightThinSvg className="left-chevron" />
-										</button>
-										<div className="card-number">
-											<span>{currentIndexRef?.current + 1}</span>/
-											<span>
-												{aiSuggestedPendingActions?.metaInfo?.totalDocs}
-											</span>
-										</div>
-										<button
-											className="card-change-btn"
-											onClick={(e) => {
-												e.stopPropagation();
-												e.preventDefault();
-												handleRight();
-											}}
-										>
-											<ChevronRightThinSvg />
-										</button>
-									</div>
-								)}
-							</div>
-						</>
-					)}
-					<AISuggestionsModal
-						open={info?.openModal}
-						onClose={handleCloseModal}
-						data={info?.activeCardContent}
-						onNextCardClick={handleRight}
-						onPrevCardClick={handleLeft}
-						totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
-						selectedCardNumber={currentIndexRef?.current + 1}
-						onFavouriteClick={handleFavouriteClick}
-					/>
-				</>
-			)}
-			<div className="proactiveChatContainer">
-				<div className={`chatbox_container ${info?.showExploreMore ? 'slideUp' : ''}`}>
-					<ChatBox
-						onSend={handleCustomOnSendFunction}
-						customChatActions={true}
-						autoFocus={true}
-						animatePlaceholder={true}
-						onChatQueryChange={handleChatQueryChange}
-						showUpgradeSubscriptionBtn={false}
-					/>
-				</div>
-				<div className="suggestions-container">
-					<Suggestions chatQuery={info?.chatQuery} styles={{ margin: '0 auto' }} />
-				</div>
-			</div>
-			{promptsData?.data?.length > 0 && (
-				<>
-					<div
-						className="explore-more-btn"
-						onClick={(e) => {
-							e.stopPropagation();
-							handleExploreMoreClick(e);
-						}}
-					>
-						Explore More <DoubleUpArrowSvg />
-					</div>
-					{info?.showExploreMore && (
-						<div className="modal-container">
-							<InfiniteScroll
-								dataLength={promptsLenght}
-								next={() => fetchMoreAiSuggestedPrompts()}
-								hasMore={promptsHasNextPage || false}
-								loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
-								height={'70vh'}
-							>
-								<div className="modal-content-container">
-									{promptsData?.data?.map((prompt, index) => (
-										<div key={index} className="modal-content">
-											<div className="modal-content-title">
-												{prompt?.title}
-											</div>
-											<div className="modal-content-prompt">
-												{prompt?.category}
+														<button
+															className={`filter-btn ${
+																info?.openFilter ? 'active' : ''
+															}`}
+															data-tooltip="Filter"
+														>
+															<FilterIcon />
+														</button>
+													</div>
+												</Tooltip>
 											</div>
 										</div>
-									))}
+									)}
+									{info?.cards?.length > 0 && (
+										<div className="action-right">
+											<button
+												className="card-change-btn"
+												onClick={(e) => {
+													e.stopPropagation();
+													e.preventDefault();
+													handleLeft();
+												}}
+											>
+												<ChevronRightThinSvg className="left-chevron" />
+											</button>
+											<div className="card-number">
+												<span>{currentIndexRef?.current + 1}</span>/
+												<span>
+													{aiSuggestedPendingActions?.metaInfo?.totalDocs}
+												</span>
+											</div>
+											<button
+												className="card-change-btn"
+												onClick={(e) => {
+													e.stopPropagation();
+													e.preventDefault();
+													handleRight();
+												}}
+											>
+												<ChevronRightThinSvg />
+											</button>
+										</div>
+									)}
 								</div>
-							</InfiniteScroll>
+							</>
+						)}
+						<AISuggestionsModal
+							open={info?.openModal}
+							onClose={handleCloseModal}
+							data={info?.activeCardContent}
+							onNextCardClick={handleRight}
+							onPrevCardClick={handleLeft}
+							totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
+							selectedCardNumber={currentIndexRef?.current + 1}
+							onFavouriteClick={handleFavouriteClick}
+						/>
+					</>
+				)}
+				<div className="proactiveChatContainer">
+					<div className={`chatbox_container ${info?.showExploreMore ? 'slideUp' : ''}`}>
+						<ChatBox
+							onSend={handleCustomOnSendFunction}
+							customChatActions={true}
+							autoFocus={true}
+							animatePlaceholder={true}
+							onChatQueryChange={handleChatQueryChange}
+							showUpgradeSubscriptionBtn={false}
+						/>
+					</div>
+					<div className="suggestions-container">
+						<Suggestions chatQuery={info?.chatQuery} styles={{ margin: '0 auto' }} />
+					</div>
+					{info?.chatQuery?.length === 0 &&
+						globalChatMessages?.[currentSessionId]?.chatBoxInfo?.build && (
+							<BuildOptions />
+						)}
+				</div>
+				{promptsData?.data?.length > 0 && (
+					<>
+						<div
+							className="explore-more-btn"
+							onClick={(e) => {
+								e.stopPropagation();
+								handleExploreMoreClick(e);
+							}}
+						>
+							Explore More <DoubleUpArrowSvg />
 						</div>
-					)}
-				</>
-			)}
-		</div>
+						{info?.showExploreMore && (
+							<div className="modal-container">
+								<InfiniteScroll
+									dataLength={promptsLenght}
+									next={() => fetchMoreAiSuggestedPrompts()}
+									hasMore={promptsHasNextPage || false}
+									loader={
+										<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />
+									}
+									height={'70vh'}
+								>
+									<div className="modal-content-container">
+										{promptsData?.data?.map((prompt, index) => (
+											<div key={index} className="modal-content">
+												<div className="modal-content-title">
+													{prompt?.title}
+												</div>
+												<div className="modal-content-prompt">
+													{prompt?.category}
+												</div>
+											</div>
+										))}
+									</div>
+								</InfiniteScroll>
+							</div>
+						)}
+					</>
+				)}
+			</div>
+		</>
 	);
 };
 
