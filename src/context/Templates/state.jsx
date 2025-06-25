@@ -2607,16 +2607,34 @@ export const TemplatesState = (props) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}/suggestions`;
-			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
-			if (response?.[0]) {
+			const path = `https://ai.us-east-1.ve.ai/${workspaceId}/suggestions`;
+			const response = await fetch(path, {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${usertoken}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(payload),
+			});
+			const data = await response.json();
+			if (response?.status === 200) {
 				dispatch({
 					type: Actions.GET_CHAT_BOX_SUGGESTIONS_SUCCESS,
-					payload: response?.[1]?.suggestions || [],
+					payload: data?.suggestions || [],
 				});
 			} else {
 				console.log('error==>getChatBoxSuggestions', response);
 			}
+			// const url = `/${workspaceId}/suggestions`;
+			// const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
+			// if (response?.[0]) {
+			// 	dispatch({
+			// 		type: Actions.GET_CHAT_BOX_SUGGESTIONS_SUCCESS,
+			// 		payload: response?.[1]?.suggestions || [],
+			// 	});
+			// } else {
+			// 	console.log('error==>getChatBoxSuggestions', response);
+			// }
 		} catch (error) {
 			console.log('error==>getChatBoxSuggestions', error);
 		}

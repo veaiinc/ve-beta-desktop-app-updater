@@ -87,8 +87,9 @@ export default class CardPopup extends Images {
 	};
 	handleCustomGrid = () => {
 		this.setState({ isCustomGrid: true }, () => {
-			this.handleGridGapCustom(0, 'rowGap');
-			this.handleGridGapCustom(0, 'columnGap');
+			//commented because when it called it is resetting
+			// this.handleGridGapCustom(0, 'rowGap');
+			// this.handleGridGapCustom(0, 'columnGap');
 		});
 	};
 
@@ -271,8 +272,9 @@ export default class CardPopup extends Images {
 			...activeSection.blocks[0].divStyles,
 			[type]: value,
 		};
+		console.log('activeSection', activeSection);
 		this.setState({ activeComponent: activeSection }, () => {
-			this.props.handleCardPopupProps(this.state.activeComponent, true);
+			this.props.handleCardPopupProps(activeSection, true);
 		});
 	};
 

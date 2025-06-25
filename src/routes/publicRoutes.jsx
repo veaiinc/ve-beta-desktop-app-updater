@@ -11,8 +11,10 @@ import PublicChat from '../views/features/publicChat/PublicChat';
 import useWorkspaceMode from '../views/hooks/useWorkspaceMode';
 import OauthVerify from '../views/features/signin/oauth/OauthVerify';
 import PageLoader from '../views/components/app/PageLoader';
+import useTheme from '../views/hooks/useTheme';
 
 export const Public = ({ children }) => {
+	useTheme();
 	const { loading } = useWorkspaceMode();
 	return loading ? <PageLoader /> : <>{children}</>;
 };

@@ -94,12 +94,29 @@ export const FetchMoreLoaderComp = ({
 };
 
 export const getRelativeDayLabel = (timestamp) => {
-	const date = dayjs(timestamp * 1000);
-	if (date.isToday()) return 'Today';
-	if (date.isYesterday()) return 'Yesterday';
+	const date = dayjs(timestamp * 1000); // Convert seconds to milliseconds
+	const now = dayjs();
 
-	const daysAgo = dayjs().startOf('day').diff(date.startOf('day'), 'day');
-	return `${daysAgo} Days Ago`;
+	if (date.isToday()) {
+		const hoursAgo = now.diff(date, 'hour');
+		if (hoursAgo < 1) {
+			const minutesAgo = now.diff(date, 'minute');
+			if (minutesAgo < 1) {
+				return 'Just now';
+			}
+			return `${minutesAgo} min${minutesAgo === 1 ? '' : 's'} ago`;
+		}
+		if (hoursAgo < 24) {
+			return `${hoursAgo} hr${hoursAgo === 1 ? '' : 's'} ago`;
+		}
+		return 'Today';
+	}
+	if (date.isYesterday()) {
+		return 'Yesterday';
+	}
+
+	const daysAgo = now.startOf('day').diff(date.startOf('day'), 'day');
+	return `${daysAgo} day${daysAgo === 1 ? '' : 's'} ago`;
 };
 
 export const getLocationsDetails = async () => {
