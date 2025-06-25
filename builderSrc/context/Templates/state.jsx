@@ -1794,7 +1794,6 @@ export const TemplatesState = (props) => {
 				usertoken,
 				'workflows_Api',
 			);
-			console.log('response', response);
 
 			if (response?.[0]) {
 				dispatch({
@@ -1832,7 +1831,6 @@ export const TemplatesState = (props) => {
 	};
 
 	const updateCustomVariabledata = async (payload, varaibleId) => {
-		console.log('payload', payload, varaibleId);
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
