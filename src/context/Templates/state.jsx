@@ -2656,6 +2656,18 @@ export const TemplatesState = (props) => {
 		});
 	};
 
+	const deleteMultiAgentFile = async (fileId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/ai-chat/delete-file/${fileId}`;
+			const response = await Service.fetchDelete(url, usertoken, null, 'ai_assistant_api');
+			return response;
+		} catch (error) {
+			console.log('error==>deleteMultiAgentFile', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -2748,5 +2760,6 @@ export const TemplatesState = (props) => {
 		getChatBoxSuggestions,
 		updateChatLoadingSessions,
 		deleteChatSession,
+		deleteMultiAgentFile,
 	};
 };

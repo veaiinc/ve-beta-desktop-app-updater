@@ -28,7 +28,7 @@ import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
 import { message } from '../globalComponents/CustomToast';
-import SearchTypeTooltip from './SearchTypeTooltip';
+// import SearchTypeTooltip from './SearchTypeTooltip';
 import ChatBoxPlaceholder from './ChatBoxPlaceholder';
 import { fileTypeIcons } from '../../../helpers';
 import BuildTooltip from './BuildTooltip';
@@ -161,6 +161,7 @@ const ChatBox = ({
 			galleryFile,
 			currentSessionId,
 			chatReplyData,
+			deleteMultiAgentFile,
 		},
 		subscriptionInfo: { currentPlan },
 		calendarInfo: { updateCalendarState },
@@ -508,6 +509,10 @@ const ChatBox = ({
 			(ele) => ele?._id !== file?._id || ele?.uniqueId !== file?.uniqueId,
 		);
 		recentFilesRef.current = updatedRecentFiles;
+
+		if (file?.loading && file?.uploadStatus?.status !== 'ready') {
+			deleteMultiAgentFile(file?.fileId);
+		}
 		setInfo((prev) => ({
 			...prev,
 			recentFiles: updatedRecentFiles,
@@ -876,6 +881,20 @@ const ChatBox = ({
 				successCount = 0;
 
 			while (!(uploadedCount && successCount) && maxAttempts) {
+				if (isImage) {
+					requiredFileIndex = uploadedImagesRef?.current?.findIndex(
+						(ele) => ele?.uniqueId === fileData?.uniqueId,
+					);
+				} else {
+					requiredFileIndex = recentFilesRef?.current?.findIndex(
+						(ele) => ele?.uniqueId === fileData?.uniqueId,
+					);
+				}
+
+				if (requiredFileIndex === -1) {
+					return;
+				}
+
 				const response = await checkIndividualImageUploadedStatus(uploadBatchId);
 				if (response?.[0]) {
 					uploadedCount = response?.[1]?.uploadedCount;
@@ -912,13 +931,20 @@ const ChatBox = ({
 
 				uploadedImages = [...(uploadedImagesRef?.current || [])];
 				recentFiles = [...(recentFilesRef?.current || [])];
+				let file = null;
 
 				if (isImage) {
+					file = uploadedImages[requiredFileIndex];
 					uploadedImages.splice(requiredFileIndex, 1);
 					uploadedImagesRef.current = uploadedImages;
 				} else {
+					file = recentFiles[requiredFileIndex];
 					recentFiles.splice(requiredFileIndex, 1);
 					recentFilesRef.current = recentFiles;
+				}
+
+				if (maxAttempts === 0) {
+					deleteMultiAgentFile(file?.fileId);
 				}
 
 				setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
