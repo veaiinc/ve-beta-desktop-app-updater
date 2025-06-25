@@ -61,7 +61,7 @@ const publicRoutes = [
 		),
 	},
 	{
-		path: '/thebridge',
+		path: '/about-us',
 		element: (
 			<Public>
 				<LandingPage />
@@ -78,19 +78,11 @@ const publicRoutes = [
 	},
 	{
 		path: '/forefront',
-		element: <Public><LandingPage /></Public>,
-	},
-	{
-		path: '/thebridge',
-		element: <Public><LandingPage /></Public>,
-	},
-	{
-		path: '/careers',
-		element: <Public><LandingPage /></Public>,
-	},
-	{
-		path: '/forefront',
-		element: <LandingPage />,
+		element: (
+			<Public>
+				<LandingPage />
+			</Public>
+		),
 	},
 	{
 		path: '/onboarding',
