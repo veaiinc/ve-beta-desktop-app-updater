@@ -6,10 +6,7 @@
 	width: 100%;
 	align-items: center;
 	color: var(--primary-font);
-	@media screen and (max-width: 768px) {
-		padding: 0 16px;
-		height: 500px;
-	}
+	font-family: var(--secondary-font-family);
 
 	.container {
 		display: flex;
@@ -21,7 +18,7 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		gap: 16px;
+		gap: 24px;
 		max-width: 1700px;
 		width: 100%;
 		flex: 1 0 0;
@@ -32,17 +29,15 @@
 		background: var(--primary-button, #79ecc9);
 
 		@media screen and (max-width: 768px) {
-				gap: 10px;
-				height: 100%;
-				margin: 0;
+			gap: 10px;
+			height: 100%;
+			margin: 0;
 		}
 
 		.subHeading {
 			color: var(--background-color, #0c0c0d);
 			text-align: center;
-			font-family: Manrope;
 			font-size: 18px;
-			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
 			@media screen and (max-width: 768px) {
@@ -53,9 +48,7 @@
 		.heading {
 			color: var(--background-color, #0c0c0d);
 			text-align: center;
-			font-family: Manrope;
-			font-size: 50px;
-			font-style: normal;
+			font-size: 60px;
 			font-weight: 600;
 			line-height: normal;
 
@@ -71,12 +64,12 @@
 			font-weight: 500;
 			line-height: 32px;
 			max-width: 792px;
-			width: 100%;
+			width: 80%;
 		}
 
 		.ctaButton {
 			display: flex;
-			padding: 12px 24px;
+			padding: 14px 24px;
 			justify-content: center;
 			align-items: center;
 			gap: 10px;
@@ -86,6 +79,30 @@
 			border: none;
 			outline: none;
 			cursor: pointer;
+			margin-top: 8px;
+		}
+	}
+}
+
+@media screen and (max-width: 768px) {
+	.earlyAccess {
+		padding: 0 16px;
+		height: 500px;
+
+		.container {
+			.heading {
+				text-align: center;
+				font-size: 45px;
+				font-weight: 600;
+				line-height: 50px;
+			}
+
+			.description {
+				text-align: center;
+				font-size: 18px;
+				font-weight: 600;
+				line-height: 30px;
+			}
 		}
 	}
 }
