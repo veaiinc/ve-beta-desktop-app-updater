@@ -6,7 +6,7 @@ import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import { ReactComponent as OpenAISvg } from '../../../assets/svg/openai.svg';
 
-const AskTooltip = ({ children }) => {
+const AskTooltip = ({ children, open, onOpenChange }) => {
 	const {
 		templates: {
 			globalChatMessages,
@@ -20,10 +20,10 @@ const AskTooltip = ({ children }) => {
 	const chatBoxInfo = globalChatMessages?.[currentSessionId]?.chatBoxInfo;
 
 	useEffect(() => {
-		if (!llmModels) {
+		if (!llmModels && open) {
 			getLLMModels();
 		}
-	}, []);
+	}, [open]);
 
 	const handleModelClick = useCallback(
 		(model) => {
@@ -51,10 +51,12 @@ const AskTooltip = ({ children }) => {
 	return (
 		<Tooltip
 			placement="bottom"
-			trigger="click"
 			rootClassName="ask-tooltip-wrapper"
 			arrow={false}
 			color="transparent"
+			trigger="click"
+			open={open}
+			onOpenChange={onOpenChange}
 			title={
 				<div className="ask-tooltip-container">
 					<div className="ve-container">

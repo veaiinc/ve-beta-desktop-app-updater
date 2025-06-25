@@ -195,6 +195,7 @@ const ChatBox = ({
 		activePlaceholderIndex: 0,
 		chatBoxInfo: null,
 		openUpgradeModal: false,
+		askTooltipOpen: false,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -1172,6 +1173,14 @@ const ChatBox = ({
 		setInfo((prev) => ({ ...prev, openUpgradeModal: false }));
 	}, []);
 
+	const handleAskTooltipClick = useCallback((e) => {
+		e?.stopPropagation();
+		setInfo((prev) => ({
+			...prev,
+			askTooltipOpen: true,
+		}));
+	}, []);
+
 	return (
 		<div
 			className="chatParentWrapper"
@@ -1507,7 +1516,22 @@ const ChatBox = ({
 																					Ask
 																				</div>
 																			</div>
-																			<AskTooltip>
+																			<AskTooltip
+																				open={
+																					info?.askTooltipOpen
+																				}
+																				onOpenChange={(
+																					value,
+																				) => {
+																					setInfo(
+																						(prev) => ({
+																							...prev,
+																							askTooltipOpen:
+																								value,
+																						}),
+																					);
+																				}}
+																			>
 																				<div
 																					className={`icon-arrow-wrapper ${
 																						info
@@ -1517,7 +1541,9 @@ const ChatBox = ({
 																							: ''
 																					}`}
 																					onClick={(e) =>
-																						e?.stopPropagation()
+																						handleAskTooltipClick(
+																							e,
+																						)
 																					}
 																				>
 																					<div className="icon-arrow">
