@@ -127,6 +127,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		},
 		aiSetup: { getPromptsData, promptsData },
 		profileInfo: { aiCategories, getAiCategories },
+		themeInfo: { theme },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		totalCardsData: [],
@@ -742,7 +743,10 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 				info?.searchQuery?.length !== 0) &&
 				!info?.showExploreMore && (
 					<div className="options-wrapper">
-						<div className="arrow left-arrow" onClick={() => handleScroll('left')}>
+						<div
+							className={`arrow left-arrow ${theme === 'light' ? 'light' : ''}`}
+							onClick={() => handleScroll('left')}
+						>
 							<ChevronRightThinSvg style={{ transform: 'rotate(180deg)' }} />
 						</div>
 
@@ -750,7 +754,10 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 							{renderedOptions}
 						</div>
 
-						<div className="arrow right-arrow" onClick={() => handleScroll('right')}>
+						<div
+							className={`arrow right-arrow ${theme === 'light' ? 'light' : ''}`}
+							onClick={() => handleScroll('right')}
+						>
 							<ChevronRightThinSvg />
 						</div>
 					</div>
