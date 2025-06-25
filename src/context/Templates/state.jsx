@@ -2604,7 +2604,6 @@ export const TemplatesState = (props) => {
 	};
 
 	const getChatBoxSuggestions = async (payload) => {
-		console.log('payload==>getChatBoxSuggestions', payload);
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -2618,7 +2617,6 @@ export const TemplatesState = (props) => {
 				body: JSON.stringify(payload),
 			});
 			const data = await response.json();
-			console.log('data==>getChatBoxSuggestions', data);
 			if (response?.status === 200) {
 				dispatch({
 					type: Actions.GET_CHAT_BOX_SUGGESTIONS_SUCCESS,

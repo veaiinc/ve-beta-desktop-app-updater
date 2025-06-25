@@ -119,8 +119,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			aiSuggestedPendingActions,
 			pendingActionsUpdate,
 			updateStateValues,
-			getAiQuestions,
-			aiQuestions,
+			// getAiQuestions,
+			// aiQuestions,
 			currentSessionId,
 			handleGlobalChatMessages,
 			globalChatMessages,
@@ -218,11 +218,11 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		}
 	}, [aiSuggestedPendingActions]);
 
-	useEffect(() => {
-		if (!aiQuestions) {
-			getAiQuestions();
-		}
-	}, []);
+	// useEffect(() => {
+	// 	if (!aiQuestions) {
+	// 		getAiQuestions();
+	// 	}
+	// }, []);
 
 	useEffect(() => {
 		if (!aiCategories) {

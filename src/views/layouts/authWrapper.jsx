@@ -43,7 +43,7 @@ const AuthWrapper = ({
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
-	const accessControls = useAccessControls();
+	useAccessControls();
 	const { loading } = useWorkspaceMode();
 
 	useEffect(() => {
