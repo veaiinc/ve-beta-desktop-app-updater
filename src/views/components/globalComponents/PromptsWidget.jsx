@@ -82,18 +82,6 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 		}
 	}, [currentIndex, cardsData]);
 
-	// Fetch more cards when currentIndex approaches the end of cardsData
-	useEffect(() => {
-		if (
-			cardsData &&
-			currentIndex >= cardsData.length - cardsPerView &&
-			cardsHasNextPage &&
-			!info.cardsLoading
-		) {
-			fetchNextCards();
-		}
-	}, [currentIndex, cardsData, cardsHasNextPage, info.cardsLoading]);
-
 	const handlePromptClick = (card) => {
 		setInfo((prev) => ({
 			...prev,
@@ -132,32 +120,6 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 		);
 	};
 
-	const fetchNextCards = () => {
-		if (cardsHasNextPage) {
-			const page = cardsCurrentPage + 1;
-			const shouldReset = false;
-			getUpdatedSuggestedPendingActions(page, shouldReset);
-		}
-	};
-
-	const handleCustomOnSendFunction = useCallback(
-		(data) => {
-			updateStateValues({ activePayloadForChat: data });
-			navigate(`/chat/${currentSessionId}`);
-		},
-		[currentSessionId],
-	);
-
-	const handleChatQueryChange = (query) => {
-		setInfo((prev) => ({
-			...prev,
-			chatQuery: query,
-		}));
-
-		if (query?.length === 0) {
-			updateStateValues({ chatBoxSuggestions: null });
-		}
-	};
 	const handleFavouriteClick = async (id) => {
 		const card = cardsData?.find((c) => c?._id === id);
 		const res = await pendingActionsUpdate(id, { isFavourite: !card?.isFavourite });
