@@ -7,17 +7,7 @@ import ChatBox from '../chat/ChatBox';
 import { fetchOriginSelection } from '../../../helpers';
 import { ReactComponent as ExpandIcon } from '../../../assets/svg/docs/expand.svg';
 
-const FormModal = ({
-	isOpen,
-	closeModal,
-	handleSendWebsocketMessage,
-	latestStreamMesage,
-	lastQuery,
-	toggleLatestStreamMessage,
-	workflowTemplateId,
-	builderAgentMapper,
-	agent,
-}) => {
+const FormModal = ({ isOpen, closeModal, workflowTemplateId, builderAgentMapper, agent }) => {
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -30,12 +20,7 @@ const FormModal = ({
 		>
 			<div className="form-modal-container">
 				<div className="section-30">
-					<Section1
-						handleSendWebsocketMessage={handleSendWebsocketMessage}
-						latestStreamMesage={latestStreamMesage}
-						lastQuery={lastQuery}
-						toggleLatestStreamMessage={toggleLatestStreamMessage}
-					/>
+					<Section1 />
 				</div>
 				<div className="section-70">
 					<Section2
@@ -50,22 +35,12 @@ const FormModal = ({
 	);
 };
 
-const Section1 = ({
-	handleSendWebsocketMessage,
-	latestStreamMesage,
-	lastQuery,
-	toggleLatestStreamMessage,
-}) => {
+const Section1 = () => {
 	const {
-		templates: {
-			globalChatMessages,
-			currentSessionId,
-			updateAiChatMessageRating,
-			handleGlobalChatMessages,
-		},
+		templates: { globalChatMessages, currentSessionId, handleGlobalChatMessages },
+		chatStream: { sendMessage },
 	} = useContext(Context);
 	const chatContentRef = useRef(null);
-	const chatMessagesRef = useRef(globalChatMessages?.[currentSessionId]?.messages || []);
 	const scrollToBottomRef = useRef(true);
 
 	useEffect(() => {
@@ -110,34 +85,21 @@ const Section1 = ({
 		[chatContentRef?.current],
 	);
 
-	const handleRatingClick = useCallback(async (type, messageId) => {
-		try {
-			if (messageId) {
-				const message = [...(chatMessagesRef.current || [])]?.find(
-					(chat) => chat?.messageId === messageId,
-				);
-				if (message?.rating === null || message?.rating !== type) {
-					await updateAiChatMessageRating({ rating: type }, messageId);
-					let messages = [...(chatMessagesRef.current || [])];
-					messages = messages?.map((chat) => {
-						if (chat?.messageId === messageId) {
-							chat.rating = type;
-						}
-						return chat;
-					});
-
-					handleGlobalChatMessages({
-						updateExtraInfo: true,
-						recentChatMessages: messages,
-						sessionId: currentSessionId,
-					});
-					chatMessagesRef.current = messages;
-				}
+	const handleSendWebsocketMessage = useCallback(
+		async (data, lastQuery) => {
+			try {
+				await sendMessage(data);
+				handleGlobalChatMessages({
+					sessionId: currentSessionId,
+					lastQuery,
+					updateExtraInfo: true,
+				});
+			} catch (error) {
+				console.error('Failed to send message:', error);
 			}
-		} catch (error) {
-			console.log('error', error);
-		}
-	}, []);
+		},
+		[sendMessage, currentSessionId],
+	);
 	return (
 		<div className="form-widget-chat-bar-container">
 			{/* chat body */}
@@ -157,7 +119,6 @@ const Section1 = ({
 											<AIMessage
 												text={chat?.message}
 												smoothScrollToBottom={smoothScrollToBottom}
-												handleRatingClick={handleRatingClick}
 												messageId={chat?.messageId}
 												rating={chat?.rating}
 												messageData={chat}
@@ -178,9 +139,6 @@ const Section1 = ({
 				<ChatBox
 					showIconText={false}
 					handleSendWebsocketMessage={handleSendWebsocketMessage}
-					latestStreamMesage={latestStreamMesage}
-					lastQuery={lastQuery}
-					toggleLatestStreamMessage={toggleLatestStreamMessage}
 					autoFocus={true}
 				/>
 			</div>

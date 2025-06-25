@@ -2329,19 +2329,35 @@ export const TemplatesState = (props) => {
 	const getLLMModels = async () => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
-			const path = '/available_models';
-			const type = 'ai_predictions';
-			const response = await Service?.fetchGet(path, usertoken, type);
-
-			if (response?.[0]) {
+			const path = 'https://ai.us-east-1.ve.ai/available_models';
+			// const type = 'ai_predictions';
+			// const response = await Service?.fetchGet(path, usertoken, type);
+			const response = await fetch(path, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${usertoken}`,
+				},
+			});
+			const data = await response.json();
+			if (response?.status === 200) {
 				dispatch({
 					type: Actions?.GET_LLM_MODELS_SUCCESS,
-					payload: response?.[1],
+					payload: data,
 				});
 			} else {
 				console.log('errror ==>getLLMModels', response);
 				return [false];
 			}
+
+			// if (response?.[0]) {
+			// 	dispatch({
+			// 		type: Actions?.GET_LLM_MODELS_SUCCESS,
+			// 		payload: response?.[1],
+			// 	});
+			// } else {
+			// 	console.log('errror ==>getLLMModels', response);
+			// 	return [false];
+			// }
 		} catch (error) {
 			console.log('errror ==>getLLMModels', error);
 		}

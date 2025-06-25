@@ -3,8 +3,10 @@ import { ReactComponent as UploadSvg } from '../../../assets/svg/ai_agents/uploa
 import { Tooltip, Upload } from 'antd';
 import Context from '../../../context/context';
 import GmailSvg from '../../../assets/svg/login_page/GmailIcon';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const UploadFileTooltip = ({ children, handleChange, isUploadFileOpen, setIsUploadFileOpen }) => {
+	const { workspaceMode } = useWorkspaceMode();
 	const {
 		templates: { connectThirdParty, connectedThirdParties, getConnectedThirdParties },
 	} = useContext(Context);
@@ -33,20 +35,25 @@ const UploadFileTooltip = ({ children, handleChange, isUploadFileOpen, setIsUplo
 				rootClassName="upload-file-tooltip-container"
 				title={
 					<div className="upload-file-container">
-						<div className="chat-integrations-container">
-							<div
-								className="integration"
-								onClick={() => !gmailConnected && handleConnect('gmail')}
-							>
-								<div className="integration-icon">
-									<GmailSvg width={18} height={16} />
+						{workspaceMode === 'beta' && (
+							<>
+								<div className="chat-integrations-container">
+									<div
+										className="integration"
+										onClick={() => !gmailConnected && handleConnect('gmail')}
+									>
+										<div className="integration-icon">
+											<GmailSvg width={18} height={16} />
+										</div>
+										<div className="integration-title">
+											{gmailConnected ? `Connected Gmail` : `Connect Gmail`}
+										</div>
+									</div>
 								</div>
-								<div className="integration-title">
-									{gmailConnected ? `Connected Gmail` : `Connect Gmail`}
-								</div>
-							</div>
-						</div>
-						<div className="horizontal-line" />
+								<div className="horizontal-line" />
+							</>
+						)}
+
 						<div className="upload-file-wrapper">
 							<Upload
 								onChange={handleChange}
