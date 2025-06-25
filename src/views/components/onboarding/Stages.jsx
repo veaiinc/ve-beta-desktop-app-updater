@@ -1,17 +1,62 @@
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
-import { formatUsername } from '../../../helpers';
 import Context from '../../../context/context';
-import ProgressBar from './ProgressBar';
-import UserDetailsForm from './UserDetailsForm';
-import WorkspaceDetailsForm from './WorkspaceDetailsForm';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { message } from '../globalComponents/CustomToast';
+import CustomToast, { message } from '../globalComponents/CustomToast';
 import Skeleton from 'react-loading-skeleton';
-
+import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/green-tick.svg';
+import { ReactComponent as DarkIcon } from '../../../assets/svg/onboarding/dark.svg';
+import { ReactComponent as LightIcon } from '../../../assets/svg/onboarding/light.svg';
+import { ReactComponent as UploadIcon } from '../../../assets/svg/onboarding/upload-icon.svg';
+import { ReactComponent as DeskTopIcon } from '../../../../builderSrc/assets/svg/smartFile/Desktop.svg';
+import { Tooltip } from 'antd';
+import ToolTipContainer from '../popover/ToolTipContainer';
+import Spinner from '../loaders/Spinner';
+import WorkspaceTypeOptions from './WorkspaceTypeOptions';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+import { formatUsername, fetchDomainName } from '../../../helpers';
+import Cookies from 'js-cookie';
 let usernameTimeoutId, companyLogoFile;
 
-const Stages = () => {
+const themePreferences = [
+	{
+		id: 1,
+		label: 'System Default',
+		icon: <DeskTopIcon />,
+		value: 'systemDefault',
+	},
+	{
+		id: 2,
+		label: 'Dark',
+		icon: <DarkIcon />,
+		value: 'dark',
+	},
+	{
+		id: 3,
+		label: 'Light',
+		icon: <LightIcon />,
+		value: 'light',
+	},
+];
+
+export const customContainerStyle = {
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	backgroundColor: 'var(--card)',
+};
+
+export const contentStyling = {
+	color: 'var(--primary-font)',
+	fontFamily: 'var(--primary-font-family)',
+	fontSize: '12px',
+	fontStyle: 'normal',
+	fontWeight: '500',
+	lineHeight: 'normal',
+};
+
+const Stages = ({ onNext }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const [searchParams] = useSearchParams();
@@ -23,7 +68,6 @@ const Stages = () => {
 		localStorage.setItem('stage', 2);
 	}
 	const usertoken = localStorage.getItem('usertoken');
-	const stageFromLocalStorage = Number(localStorage.getItem('stage') ?? 1);
 	const isUserOnboard = localStorage?.getItem('isOnboard') === 'true';
 
 	const {
@@ -46,7 +90,6 @@ const Stages = () => {
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		stage: stageFromLocalStorage, // Stage 1: UserDetailsForm, Stage 2: WorkspaceDetailsForm
 		username: '',
 		phoneNumber: '',
 		profilePicture: null,
@@ -68,6 +111,9 @@ const Stages = () => {
 		isWorkspaceHandleLengthInvalid: true,
 	});
 
+	const [workspaceTypeContainerWidth, setWorkspaceTypeContainerWidth] = useState(0);
+	const [workspaceTypeContainerOpen, setWorkspaceTypeContainerOpen] = useState(false);
+
 	const emailCntxt = userDetailsFromTenantAPI?.email;
 	const isPhoneNumberVerifiedCntxt = userDetailsFromTenantAPI?.isPhoneVerified;
 	const phoneNumberExistsInDBCntxt = userDetailsFromTenantAPI?.phoneNumber?.length > 0;
@@ -76,52 +122,51 @@ const Stages = () => {
 	const phoneNumberCntxt = userDetailsFromTenantAPI?.phoneNumber;
 	const profilePictureCntxt = userDetailsFromTenantAPI?.googleMeta?.picture ?? null;
 	const userLogo = userDetailsFromTenantAPI?.dp_s3_500w_key ?? null;
+
 	const continueBtnDisabled =
-		(info?.stage === 1 && (!info?.username || !info?.isPhoneNumberVerified)) ||
-		(info?.stage === 2 &&
-			(!info?.companyName ||
-				!info?.workspaceHandle ||
-				!info?.isWorkspaceHandleAvailable ||
-				!info?.workspaceType)) ||
+		!info?.username ||
+		!info?.isPhoneNumberVerified ||
+		!info?.companyName ||
+		!info?.workspaceHandle ||
+		!info?.isWorkspaceHandleAvailable ||
+		!info?.workspaceType ||
 		info?.continueBtnLoading;
 
 	useEffect(() => {
 		if (!usertoken) {
 			message?.error('Session expired! Please login again');
-			localStorage.removeItem('stage');
 			setTimeout(() => {
 				window.location.href = '/verify-user';
 			}, 1500);
 		}
 		if (
 			isUserOnboard &&
-			pathname !== '/create-workspace' &&
+			pathname === '/onboarding' &&
 			!invitedWorkspaceId &&
 			!invitedUserEmail
 		) {
 			message?.error('You are already onboarded');
 			setTimeout(() => {
-				localStorage.removeItem('stage');
 				navigate('/home');
 			}, 1500);
 		}
 		if (!isUserOnboard && pathname === '/create-workspace') {
 			message?.error('You are not onboarded! Redirecting to onboarding page');
 			setTimeout(() => {
-				setInfo((prev) => ({ ...prev, stage: 1 }));
-				localStorage.setItem('stage', 1);
 				navigate('/onboarding');
 			}, 1500);
 		}
 		handleGetUserDetails();
-		return () => {
-			localStorage.removeItem('stage');
-		};
 	}, []);
 
 	useEffect(() => {
-		localStorage.setItem('stage', info?.stage);
-	}, [info?.stage]);
+		const selector = '.workspaceTypeContainer';
+		const workspaceTypeContainer = document.querySelector(selector);
+		if (workspaceTypeContainer) {
+			const width = workspaceTypeContainer?.offsetWidth;
+			setWorkspaceTypeContainerWidth(width);
+		}
+	}, []);
 
 	useEffect(() => {
 		if (pathname === '/create-workspace') return;
@@ -213,7 +258,6 @@ const Stages = () => {
 			const statusCode = response?.[1]?.statusCode;
 			if (statusCode === 401) {
 				message?.error('Session expired! Please login again');
-				localStorage.removeItem('stage');
 				setTimeout(() => {
 					window.location.href = '/verify-user';
 				}, 1500);
@@ -417,11 +461,6 @@ const Stages = () => {
 		[info?.companyLogo],
 	);
 
-	const handlePrevStage = useCallback(
-		() => setInfo((prev) => ({ ...prev, stage: prev?.stage - 1 })),
-		[info?.stage],
-	);
-
 	const handleUploadCompanyLogo = useCallback(async () => {
 		if (companyLogoFile) {
 			const response = await uploadTenantLogo(companyLogoFile);
@@ -432,106 +471,66 @@ const Stages = () => {
 		}
 	}, [companyLogoFile]);
 
-	const handleCreateWorkspace = useCallback(async () => {
-		const response = await createWorkspace({
-			workspaceHandle: info?.workspaceHandle,
-			workspaceType: info?.workspaceType,
-			businessName: info?.companyName,
-		});
-		const success = response?.[0] === true;
-		if (success) {
-			const workspaceId = response?.[1]?.workspaceId;
-			localStorage.setItem('workspaceId', workspaceId);
-			getTenantSettings();
-			await getUserWorkSpaceList();
-			if (companyLogoFile) {
-				const isCompanyLogoUploaded = await handleUploadCompanyLogo();
-				if (isCompanyLogoUploaded) {
-					message?.success('Workspace created successfully');
-					setTimeout(() => {
-						localStorage.removeItem('stage');
-						navigate('/home');
-					}, 1000);
-				} else {
-					message?.error(
-						'Workspace created successfully but failed to upload company logo',
-					);
+	const handleContinue = async () => {
+		if (continueBtnDisabled) return;
+		setInfo((prev) => ({ ...prev, continueBtnLoading: true }));
+		try {
+			const response = await createWorkspace({
+				workspaceHandle: info?.workspaceHandle,
+				workspaceType: info?.workspaceType,
+				businessName: info?.companyName,
+			});
+			const success = response?.[0] === true;
+			if (success) {
+				const workspaceId = response?.[1]?.workspaceId;
+				const region = response?.[1]?.region;
+				localStorage.setItem('workspaceId', workspaceId);
+				if (region) {
+					localStorage.setItem('region', region);
+					// Store region in cookies
+					const host = fetchDomainName();
+					Cookies.set('region', region, {
+						sameSite: 'lax',
+						domain: host,
+					});
 				}
+				getTenantSettings();
+				await getUserWorkSpaceList();
+				if (companyLogoFile) {
+					const isCompanyLogoUploaded = await handleUploadCompanyLogo();
+					if (isCompanyLogoUploaded) {
+						message?.success('Workspace created successfully');
+					} else {
+						message?.error('Workspace created but failed to upload company logo');
+					}
+				} else {
+					message?.success('Workspace created successfully');
+				}
+				onNext(info);
 			} else {
-				message?.success('Workspace created successfully');
-				setTimeout(() => {
-					localStorage.removeItem('stage');
-					navigate('/home');
-				}, 1000);
+				message?.error(response?.[1]?.message);
 			}
+		} catch (err) {
+			message?.error('Something went wrong. Please try again.');
+		}
+		setInfo((prev) => ({ ...prev, continueBtnLoading: false }));
+	};
+
+	// Workspace type dropdown open logic
+	const handleWorkspaceTypeInput = (e) => {
+		handleSetWorkspaceType(e);
+		const value = e?.target?.value || '';
+		if (value.length > 0) {
+			setWorkspaceTypeContainerOpen(true);
 		} else {
-			message?.error(response?.[1]?.message);
+			setWorkspaceTypeContainerOpen(false);
 		}
-	}, [info?.companyName, info?.workspaceType, info?.workspaceHandle]);
-
-	const handleNextStage = useCallback(async () => {
-		if (invitedUserOnboarding) {
-			localStorage.removeItem('stage');
-			navigate('/home');
-			return;
-		}
-		if (info?.stage === 2) {
-			setInfo((prev) => ({ ...prev, continueBtnLoading: true }));
-			await handleCreateWorkspace();
-			return;
-		}
-		setInfo((prev) => ({ ...prev, stage: prev?.stage + 1 }));
-	}, [info?.stage, info?.companyName, info?.workspaceType, info?.continueBtnLoading]);
-
-	const stageMapper = {
-		1: (
-			<UserDetailsForm
-				userDetailsLoading={info?.userDetailsLoading}
-				username={info?.username}
-				phoneNumber={info?.phoneNumber}
-				isPhoneNumberVerified={info?.isPhoneNumberVerified}
-				profilePicture={info?.profilePicture}
-				handleSetProfilePicture={handleSetProfilePicture}
-				countryCode={info?.countryCode}
-				themePreference={info?.themePreference}
-				handleSetUsername={handleSetUsername}
-				handleSetPhoneNumber={handleSetPhoneNumber}
-				handleSetThemePreference={handleSetThemePreference}
-				handleVerifyPhoneNumber={handleVerifyPhoneNumber}
-				otp={info?.otp}
-				handleSetOTP={handleSetOTP}
-				otpSent={info?.otpSent}
-				handleSetOTPSentToFalse={handleSetOTPSentToFalse}
-				handleResendOtp={handleResendOtp}
-				resendOtpLoading={info?.resendOtpLoading}
-				verifyPhoneNumberLoading={info?.verifyPhoneNumberLoading}
-				verifyOtpLoader={info?.verifyOtpLoader}
-			/>
-		),
-		2: (
-			<WorkspaceDetailsForm
-				companyName={info?.companyName}
-				workspaceHandle={info?.workspaceHandle}
-				companyLogo={info?.companyLogo}
-				handleSetCompanyName={handleSetCompanyName}
-				handleSetCompanyLogo={handleSetCompanyLogo}
-				checkingWorkspaceHandle={info?.checkingWorkspaceHandle}
-				isWorkspaceHandleAvailable={info?.isWorkspaceHandleAvailable}
-				workspaceType={info?.workspaceType}
-				handleSetWorkspaceType={handleSetWorkspaceType}
-			/>
-		),
 	};
 
 	return (
 		<>
-			<ProgressBar
-				stage={info?.stage}
-				pathname={pathname}
-				invitedUserOnboarding={invitedUserOnboarding}
-			/>
 			<div className="stageContainer">
-				{info?.userDetailsLoading ? (
+				{/* {info?.userDetailsLoading ? (
 					<Skeleton
 						width="300px"
 						height="17px"
@@ -542,15 +541,310 @@ const Stages = () => {
 					/>
 				) : (
 					<h1 className="email">{emailCntxt}</h1>
-				)}
-				{stageMapper?.[info?.stage]}
+				)} */}
+
+				{/* Combined Single Stage Form */}
+				<div className="singleStage">
+					<header className="header">
+						<h1 className="title">Let's get started</h1>
+						<h2 className="subtitle">Personalize your experience</h2>
+					</header>
+
+					<main className="singleStageContent">
+						{/* User Details Section */}
+						<div className="userDetailsSection">
+							<div className="nameInputContainer">
+								<p className="question">What is your name?</p>
+								{info?.userDetailsLoading ? (
+									<Skeleton
+										width="100%"
+										height="41px"
+										style={{
+											'--highlight-color': 'gray',
+											'--base-color': 'transparent',
+										}}
+									/>
+								) : (
+									<div className="nameInputAndProfilePictureContainer">
+										<input
+											className="nameInput"
+											value={info?.username}
+											onChange={handleSetUsername}
+											type="text"
+											placeholder="Full Name"
+											autoFocus
+										/>
+										<Tooltip
+											title={
+												<ToolTipContainer
+													customContainerStyle={customContainerStyle}
+													contentStyling={contentStyling}
+													title={''}
+													content={'Upload your profile picture'}
+													removeClassName={true}
+												/>
+											}
+											arrow={true}
+											color={'var(--card)'}
+										>
+											<div className="profilePictureContainer">
+												<label htmlFor="profilePictureInput">
+													<input
+														id="profilePictureInput"
+														type="file"
+														accept="image/*"
+														onChange={handleSetProfilePicture}
+														className="profilePictureInput"
+													/>
+													{/* {info?.profilePicture ? (
+														<img
+															src={info?.profilePicture}
+															alt={info?.username}
+															className="profilePicture"
+														/>
+													) : (
+														<UploadIcon />
+													)} */}
+												</label>
+											</div>
+										</Tooltip>
+									</div>
+								)}
+							</div>
+
+							{info?.otpSent ? (
+								<div className="otpInputContainer">
+									<p className="question">
+										Enter the OTP that was sent to {info?.phoneNumber}
+									</p>
+									<input
+										className={`otpInput ${info?.otpSent && 'animate'}`}
+										value={info?.otp}
+										placeholder="0000"
+										onChange={handleSetOTP}
+										type="text"
+									/>
+									{info?.verifyOtpLoader && (
+										<div className="spinnerContainer">
+											<Spinner width={'16px'} height={'16px'} />
+										</div>
+									)}
+									<button
+										onClick={handleResendOtp}
+										className="resendOtpBtn"
+										style={{
+											opacity: info?.resendOtpLoading ? 0.5 : 1,
+											cursor: info?.resendOtpLoading
+												? 'not-allowed'
+												: 'pointer',
+										}}
+										disabled={info?.resendOtpLoading}
+									>
+										{info?.resendOtpLoading ? 'Resending...' : 'Resend OTP'}
+									</button>
+									<button
+										onClick={handleSetOTPSentToFalse}
+										className="changePhoneNumberBtn"
+									>
+										Change Phone Number
+									</button>
+								</div>
+							) : (
+								<div className="phoneInputContainer">
+									<p className="question">Enter your phone number</p>
+									<div className="phoneInputContain">
+										{info?.userDetailsLoading ? (
+											<Skeleton
+												width="100%"
+												height="41px"
+												style={{
+													'--highlight-color': 'gray',
+													'--base-color': 'transparent',
+												}}
+											/>
+										) : (
+											<PhoneInput
+												placeholder="Enter phone number"
+												value={info?.phoneNumber}
+												onChange={handleSetPhoneNumber}
+												defaultCountry={(() => {
+													try {
+														const locationDetails = JSON.parse(
+															localStorage.getItem('locationDetails'),
+														);
+														return locationDetails?.countryCode || 'US';
+													} catch {
+														return 'US';
+													}
+												})()}
+												className="phoneInputNumber"
+												countryCallingCodeEditable={true}
+												autoComplete="tel"
+												disabled={info?.isPhoneNumberVerified}
+											/>
+										)}
+										{info?.isPhoneNumberVerified ? (
+											<div className="phoneNumberVerifiedContainer">
+												<GreenTick />
+											</div>
+										) : (
+											info?.phoneNumber && (
+												<button
+													onClick={handleVerifyPhoneNumber}
+													className="verifyPhoneNumberBtn"
+													style={{
+														opacity: info?.verifyPhoneNumberLoading
+															? 0.5
+															: 1,
+														cursor: info?.verifyPhoneNumberLoading
+															? 'not-allowed'
+															: 'pointer',
+													}}
+													disabled={info?.verifyPhoneNumberLoading}
+												>
+													{info?.verifyPhoneNumberLoading
+														? 'Verifying...'
+														: 'Verify now'}
+												</button>
+											)
+										)}
+									</div>
+								</div>
+							)}
+							{/* Workspace Details Section */}
+							<div className="workspaceDetailsSection">
+								<div className="companyNameContainer">
+									<p className="question">Name of your Workspace handle?</p>
+									<div className="companyNameAndLogoInputs">
+										<input
+											className="companyNameInput"
+											type="text"
+											placeholder="Company Name"
+											value={info?.companyName}
+											onChange={handleSetCompanyName}
+										/>
+										<Tooltip
+											title={
+												<ToolTipContainer
+													customContainerStyle={customContainerStyle}
+													contentStyling={contentStyling}
+													title={''}
+													content={'Upload your company logo'}
+													removeClassName={true}
+												/>
+											}
+											arrow={true}
+											color={'var(--card)'}
+										>
+											<div className="companyLogoInputContainer">
+												<label htmlFor="companyLogoInput">
+													<input
+														id="companyLogoInput"
+														type="file"
+														accept="image/*"
+														onChange={handleSetCompanyLogo}
+														className="companyLogoInput"
+													/>
+													{/* {info?.companyLogo ? (
+														<img
+															className="companyLogo"
+															src={info?.companyLogo}
+															alt="Company Logo"
+														/>
+													) : (
+														<UploadIcon />
+													)} */}
+												</label>
+											</div>
+										</Tooltip>
+									</div>
+
+									<div className="domainInfoContainer">
+										{info?.workspaceHandle?.length > 0 &&
+											(info?.workspaceHandle.length < 4 ? (
+												<span className="unavailable">
+													Workspace handle must be at least 4 characters
+												</span>
+											) : (
+												<>
+													<span className="domainName">
+														{info?.workspaceHandle}.ve.ai
+													</span>
+													{info?.checkingWorkspaceHandle ? (
+														<Spinner width="16px" height="16px" />
+													) : info?.isWorkspaceHandleAvailable ? (
+														<span className="available">
+															will be your domain
+														</span>
+													) : (
+														<span className="unavailable">
+															is already taken
+														</span>
+													)}
+												</>
+											))}
+									</div>
+								</div>
+
+								<div className="workspaceTypeContainer">
+									<p className="question">Your workspace type?</p>
+									<Tooltip
+										open={workspaceTypeContainerOpen}
+										trigger={[]}
+										title={
+											<WorkspaceTypeOptions
+												width={workspaceTypeContainerWidth}
+												handleSetWorkspaceType={handleSetWorkspaceType}
+												searchTerm={info?.workspaceType}
+												setWorkspaceTypeContainerOpen={
+													setWorkspaceTypeContainerOpen
+												}
+											/>
+										}
+										placement="bottom"
+										color={'transparent'}
+									>
+										<div className="workspaceTypeInputContainer">
+											<input
+												type="text"
+												placeholder="Type to search"
+												className="workspaceTypeInput"
+												value={info?.workspaceType}
+												onChange={handleWorkspaceTypeInput}
+											/>
+											{/* <div className="workspaceTypeDropdown">
+											<div className="labelContainer">
+												<DownArrow />
+											</div>
+										</div> */}
+										</div>
+									</Tooltip>
+								</div>
+							</div>
+							<div className="themeInputContainer">
+								<p className="question">How do you want things to look?</p>
+								<div className="themeOptionsContainer">
+									{themePreferences.map((theme) => (
+										<div
+											key={theme.id}
+											className={`themeOption ${
+												info?.themePreference === theme.value
+													? 'active'
+													: ''
+											}`}
+											onClick={() => handleSetThemePreference(theme.value)}
+										>
+											{theme.icon}
+											<span className="themeOptionLabel">{theme.label}</span>
+										</div>
+									))}
+								</div>
+							</div>
+						</div>
+					</main>
+				</div>
 			</div>
 			<div className="btnsContainer">
-				{info?.stage > 1 && pathname !== '/create-workspace' && (
-					<button onClick={handlePrevStage} className="backBtn">
-						Back
-					</button>
-				)}
 				<button
 					style={{
 						opacity: continueBtnDisabled ? 0.4 : 1,
@@ -558,11 +852,12 @@ const Stages = () => {
 					}}
 					disabled={continueBtnDisabled}
 					className="continueBtn"
-					onClick={handleNextStage}
+					onClick={handleContinue}
 				>
-					{info?.continueBtnLoading ? 'Creating workspace...' : 'Continue'}
+					Continue
 				</button>
 			</div>
+			<CustomToast />
 		</>
 	);
 };

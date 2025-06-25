@@ -25,7 +25,7 @@ export default defineConfig({
 		}),
 	],
 	css: {
-		devSourcemap: false,
+		devSourcemap: true,
 		postcss: {
 			plugins: [
 				require('autoprefixer'),

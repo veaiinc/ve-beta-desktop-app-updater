@@ -4139,6 +4139,24 @@ class Layout extends Component {
 					let newSubBlock = { ...subBlock };
 					newSubBlock._id = ObjectID().toString();
 					let blockdata = _.omit(newSubBlock, ['divStyles.mGridArea']);
+
+					// Parse the grid area values
+					let [row, col, rowEnd, colEnd] = blockdata.divStyles.gridArea
+						.split('/')
+						.map((val) => parseInt(val.trim()));
+
+					// Add offset to the position (move 2 grid cells right and down)
+					row += 2;
+					col += 2;
+					rowEnd += 2;
+					colEnd += 2;
+
+					// Update the grid area with new position
+					blockdata.divStyles.gridArea = `${row} / ${col} / ${rowEnd} / ${colEnd}`;
+
+					// Increment z-index to place above original
+					blockdata.divStyles.zIndex = (parseInt(blockdata.divStyles.zIndex) || 0) + 1;
+
 					block.subBlocks.push(blockdata);
 				}
 			});
@@ -4154,6 +4172,22 @@ class Layout extends Component {
 				(subBlock) => !this.state.selectedComponents.includes(subBlock._id),
 			);
 		});
+		this.setState(
+			{
+				blocks,
+				selectedComponents: [],
+				selectionBox: {
+					startX: 0,
+					startY: 0,
+					endX: 0,
+					endY: 0,
+					isSelecting: false,
+				},
+			},
+			() => {
+				this.props.handleSaveblocks(blocks);
+			},
+		);
 	};
 
 	handleImageObjectFit = (value, component) => {
@@ -5934,13 +5968,17 @@ class Layout extends Component {
 		element.style.setProperty(
 			'--cross-x-distance',
 			`${adjustments?.direction == 'left' ? '-' : ''}${
-				adjustments?.direction == 'left' || adjustments?.direction == 'right' ? '200' : 0
+				adjustments?.direction == 'left' || adjustments?.direction == 'right'
+					? window?.innerWidth || '200'
+					: 0
 			}px`,
 		);
 		element.style.setProperty(
 			'--cross-y-distance',
 			`${adjustments?.direction == 'top' ? '-' : ''}${
-				adjustments?.direction == 'top' || adjustments?.direction == 'bottom' ? '200' : 0
+				adjustments?.direction == 'top' || adjustments?.direction == 'bottom'
+					? window?.innerHeight || '200'
+					: 0
 			}px`,
 		);
 

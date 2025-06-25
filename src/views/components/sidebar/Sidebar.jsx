@@ -26,25 +26,15 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const location = useLocation();
 	const sidebarRef = useRef(null);
 	const sidebarOpenRef = useRef(null);
-	const hoverTimeoutRef = useRef(null);
+	const hasClosedForRouteRef = useRef(false);
 
 	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
 	const [showNotesDrawer, setShowNotesDrawer] = useState(false);
 	const [showChatsDrawer, setShowChatsDrawer] = useState(false);
 	const [hideClosedSidebarIcon, setHideClosedSidebarIcon] = useState(false);
 
-	// Check if device is mobile
-	const isMobile = window.innerWidth <= 500;
-
-	const [isDocked, setIsDocked] = useState(() => {
-		// Don't allow docked state on mobile
-		if (isMobile) return false;
-		return JSON.parse(localStorage.getItem('isDocked')) ?? false;
-	});
-	const [isHovering, setIsHovering] = useState(false);
-
 	const [isOpen, setIsOpen] = useState(() => {
-		return JSON.parse(localStorage.getItem('isOpen')) ?? false;
+		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
 	});
 
 	const [sidebarStates, setsidebarStates] = useState({
@@ -68,24 +58,10 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		selectedModule: null,
 	});
 
-	// Sync isOpen and isDocked to localStorage (only if not mobile)
+	// Sync isOpen to localStorage
 	useEffect(() => {
 		localStorage.setItem('isOpen', JSON.stringify(isOpen));
-		if (!isMobile) {
-			localStorage.setItem('isDocked', JSON.stringify(isDocked));
-		}
-	}, [isOpen, isDocked, isMobile]);
-
-	// Listen for template-triggered sidebar state changes
-	// useEffect(() => {
-	// 	if (leftSidebarState === 'open') {
-	// 		if (!isOpen) setIsOpen(true);
-	// 		updateStateValues({ leftSidebarState: null });
-	// 	} else if (leftSidebarState === 'close') {
-	// 		if (isOpen && !isDocked) setIsOpen(false);
-	// 		updateStateValues({ leftSidebarState: null });
-	// 	}
-	// }, [leftSidebarState, isDocked]);
+	}, [isOpen]);
 
 	// Fetch workspace and user info
 	useEffect(() => {
@@ -136,58 +112,23 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					selectedModule: currentModule.name,
 				}));
 			}
-		}
-	}, [location?.pathname]);
 
-	const handleMouseEnter = () => {
-		if (!isDocked || isMobile) {
-			clearTimeout(hoverTimeoutRef.current);
-			setIsHovering(true);
-			setIsOpen(true);
-			if (sidebarRef.current) {
-				sidebarRef.current.style.zIndex = '1002';
-			}
-		}
-	};
-
-	const handleMouseLeave = () => {
-		if (!isDocked || isMobile) {
-			hoverTimeoutRef.current = setTimeout(() => {
-				setIsHovering(false);
+			// Close sidebar only once when first navigating to contacts, calendar, or tasks routes
+			if (isChatSidebarRoute && isOpen && !hasClosedForRouteRef.current) {
 				setIsOpen(false);
-				if (sidebarRef.current) {
-					sidebarRef.current.style.zIndex = '1001';
-				}
-			}, 300); // Small delay to prevent flickering
-		}
-	};
-
-	const handleDockToggle = () => {
-		// Disable dock toggle on mobile
-		if (isMobile) return;
-
-		setIsDocked(!isDocked);
-		if (!isDocked) {
-			setIsOpen(true);
-		}
-	};
-
-	// Cleanup timeout on unmount
-	useEffect(() => {
-		return () => {
-			if (hoverTimeoutRef.current) {
-				clearTimeout(hoverTimeoutRef.current);
+				hasClosedForRouteRef.current = true;
+			} else if (!isChatSidebarRoute) {
+				hasClosedForRouteRef.current = false;
 			}
-		};
-	}, []);
+		}
+	}, [location?.pathname, isChatSidebarRoute, isOpen]);
 
 	return (
 		<>
 			<div
 				className={`FullScreenSidebar
 					${isOpen ? 'opened' : sidebarRef.current?.classList?.contains('opened') ? 'closed' : ''}
-					${isDocked && !isMobile ? 'docked' : ''}
-					${isHovering ? 'hovering' : ''}
+					${isChatSidebarRoute ? 'contacts-sidebar' : ''}
 					${
 						sidebarStates.selectedModule &&
 						sidebarNavigationItems.find(
@@ -207,8 +148,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					marginLeft: isChatSidebarRoute ? '0' : '',
 				}}
 				ref={sidebarRef}
-				onMouseEnter={handleMouseEnter}
-				onMouseLeave={handleMouseLeave}
 			>
 				<nav className={`sidebarComponent ${!isOpen && isHome ? 'padding-48' : ''}`}>
 					<div
@@ -233,8 +172,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							setShowNotificationsDrawer={setShowNotificationsDrawer}
 							setShowNotesDrawer={setShowNotesDrawer}
 							setHideClosedSidebarIcon={setHideClosedSidebarIcon}
-							isDocked={isDocked}
-							handleDockToggle={handleDockToggle}
 						/>
 					</div>
 				</nav>
@@ -251,17 +188,16 @@ const Sidebar = ({ activeWorkspaceId }) => {
 				className="sidebar-toggle-btn"
 				style={{
 					position: 'fixed',
-					top: 24,
-					left: 20, // Fixed position, doesn't change with sidebar state
+					top: 29,
+					left: 20,
 					zIndex: 900,
 				}}
-				onMouseEnter={handleMouseEnter}
 			>
 				<SidebarTooltip
-					label={isDocked && !isMobile ? 'Undock Sidebar' : 'Open Sidebar'}
+					label={isOpen ? 'Close Sidebar' : 'Open Sidebar'}
 					icon={
 						<SidebarClosingSvg
-							onClick={handleDockToggle}
+							onClick={() => setIsOpen(!isOpen)}
 							style={{ cursor: 'pointer' }}
 						/>
 					}

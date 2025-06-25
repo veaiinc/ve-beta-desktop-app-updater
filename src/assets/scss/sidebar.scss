@@ -3,6 +3,7 @@
 	margin-right: 0px;
 	cursor: pointer;
 	z-index: 1001;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
 	&.opened {
 		height: 100dvh;
@@ -16,21 +17,27 @@
 		animation: expandWidth 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 	}
 	&.closed {
-		transform: translateX(50px);
-		top: 8px;
-		left: 50px;
-		padding: 24px 19px !important;
+		animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		transform: translateX(-100%);
+		pointer-events: none;
 	}
 
 	&.contacts-sidebar {
 		position: absolute;
 		top: 0px;
 		left: 0px;
+		z-index: 1001;
 	}
 	&.contacts-sidebar:not(.opened) {
 		position: absolute;
 		top: 30px;
 		left: 20px;
+	}
+	&.contacts-sidebar.closed {
+		animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+		transform: translateX(-100%);
+		pointer-events: none;
 	}
 	overflow: hidden;
 	scrollbar-width: none; // For Firefox
@@ -90,11 +97,13 @@
 					top: 20px;
 					left: 10px;
 					transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+					animation: collapseWidth 0.3s ease-out;
 				}
 			}
 			&.inactive {
 				display: none;
 				transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+				animation: collapseWidth 0.3s ease-out;
 			}
 		}
 
@@ -110,10 +119,6 @@
 			border-radius: inherit;
 			transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 			overflow-x: hidden !important;
-			border-top-right-radius: 18px;
-			border-bottom-right-radius: 18px;
-			border-top-left-radius: 18px;
-			border-bottom-left-radius: 18px;
 			user-select: none;
 			z-index: 9;
 			margin-top: 1px;
@@ -821,86 +826,42 @@
 		}
 	}
 
-	&.docked {
+	position: absolute;
+	z-index: 1001;
+	margin-top: 0px;
+	// border-top-right-radius: 20px;
+	// border-bottom-right-radius: 20px;
+	// border-top-left-radius: 25px;
+	// border-bottom-left-radius: 25px;
+	// border-left: 10px solid transparent;
+	// border-top: 9px solid transparent;
+
+	.sidebarComponent {
 		position: relative;
-		left: 0;
-		top: 0;
-		z-index: 1001;
-		transform: translateX(0);
-		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-		height: 100dvh !important;
-		padding: 0 !important;
-		margin: 0;
-		border-radius: 0;
-
-		// &.closed {
-		// 	transform: translateX(-100%);
-		// }
-
-		.sidebarComponent {
-			position: relative;
-			left: 0px;
-			top: 0;
-			height: 100dvh;
-			// background: var(--navbar);
-			// // border-right: 1px solid var(--stroke);
-			// border-top-right-radius: 26px;
-			// border-bottom-right-radius: 26px;
-			// border-top-left-radius: 0px;
-			// border-bottom-left-radius: 0px;
-		}
-
-		.openSideBarComponent {
-			border-radius: 0;
-			transition: none;
-		}
+	}
+	.openSideBarComponent {
+		max-height: 100dvh;
 	}
 
-	&:not(.docked) {
-		position: absolute;
-		z-index: 1001;
-		margin-top: 0px;
-		border-top-right-radius: 20px;
-		border-bottom-right-radius: 20px;
-		border-top-left-radius: 25px;
-		border-bottom-left-radius: 25px;
-		border-left: 10px solid transparent;
-		border-top: 9px solid transparent;
-
-		&.closed {
-			transform: translateX(-100%);
-		}
-
-		&.hovering {
-			transform: translateX(0);
-			z-index: 1002;
-		}
-
-		.sidebarComponent {
-			position: relative;
-		}
-		.openSideBarComponent {
-			max-height: 98dvh;
-		}
-
-		.settingsOptionsContainer {
-			border-bottom-right-radius: 20px;
-			border-bottom-left-radius: 20px;
-			border: 1px solid var(--stroke);
-			.settingsOptionsContainerOpen {
-				border-bottom-right-radius: 25px;
-				border-bottom-left-radius: 25px;
-				border-bottom: none;
-			}
-		}
-	}
+	// .settingsOptionsContainer {
+	// 	border-bottom-right-radius: 20px;
+	// 	border-bottom-left-radius: 20px;
+	// 	border: 1px solid var(--stroke);
+	// 	.settingsOptionsContainerOpen {
+	// 		border-bottom-right-radius: 25px;
+	// 		border-bottom-left-radius: 25px;
+	// 		border-bottom: none;
+	// 	}
+	// }
 
 	.sidebar-close {
 		transition: opacity 0.3s ease;
+		animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 		opacity: 1;
 
 		&.inactive {
-			opacity: 0;
+			animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 			pointer-events: none;
 		}
 	}
@@ -909,8 +870,7 @@
 		opacity: 1;
 
 		&.inactive {
-			opacity: 0;
-			transform: translateX(-100%);
+			animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 			pointer-events: none;
 		}
 
@@ -956,19 +916,6 @@
 		top: 0px;
 		left: 0px;
 
-		// Force hover behavior on mobile - no dock functionality
-		&.docked {
-			position: absolute !important;
-			left: 0px !important;
-			top: 0px !important;
-			transform: none !important;
-			z-index: 1001 !important;
-			height: 100dvh !important;
-			padding: 0px !important;
-			margin: 0px !important;
-			border-radius: 0px !important;
-		}
-
 		&.opened {
 			height: 100dvh !important;
 			margin-top: -32px !important;
@@ -979,7 +926,8 @@
 		}
 
 		&.closed {
-			animation: minimizeWidth 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+			animation: slideOutAnimation 0.3s ease-out;
+			transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 		}
 
 		.sidebarComponent {
@@ -987,11 +935,6 @@
 			border: none !important;
 			padding: 0px !important;
 			margin: 0px !important;
-
-			// Ensure hover behavior works on mobile
-			&:hover {
-				transform: none !important;
-			}
 
 			.openSideBarComponent {
 				width: 100vw !important;
@@ -1553,7 +1496,14 @@
 		transform: translateX(0);
 	}
 }
-
+@keyframes slowCloseAnimation {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-100%);
+	}
+}
 .horizontal-line-sidebar {
 	border: 0.7px solid var(--stroke);
 	margin: 16px 0px 16px -10px;
@@ -1666,11 +1616,13 @@
 }
 @keyframes slideOutAnimation {
 	0% {
+		opacity: 1;
 		transform: translateX(0);
 	}
 	100% {
-		display: none;
+		opacity: 0;
 		transform: translateX(-100%);
+		display: none;
 	}
 }
 
@@ -1692,18 +1644,23 @@
 	}
 }
 
-@keyframes minimizeWidth {
+@keyframes collapseWidth {
 	0% {
-		width: 100vw;
-		top: -15px;
-	}
-	99% {
-		top: -15px;
+		transform: translateX(0);
+		width: 280px;
 	}
 	100% {
+		transform: translateX(-100%);
 		width: 20px;
-		height: 20px;
-		top: 0px;
+	}
+}
+
+@keyframes minimizeWidth {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-100%);
 	}
 }
 

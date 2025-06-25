@@ -4,7 +4,7 @@
 	/* font families */
 	--primary-font-family: 'Inter';
 	--secondary-font-family: 'Manrope';
-	--chat-primary-font-family: 'HelveticaNeue';
+	--chat-primary-font-family: 'DMSans';
 	--tertiary-font-family: 'LibreCaslonDisplay';
 
 	/* common colors */
@@ -20,6 +20,7 @@
 	/* font colors */
 	--primary-font: rgb(242, 242, 243); /* #f2f2f3 */
 	--secondary-font: rgb(122, 126, 133); /* #7a7e85 */
+	--chat-secondary-font: #c9c9cf; /* rgb(193, 193, 201) */
 
 	/* card colors */
 	--card: rgb(24, 25, 27); /* #18191b */
@@ -69,7 +70,6 @@
 	--setting-color: rgb(255, 255, 255); /* #ffffff */
 
 	--default-state-buttons: rgb(46, 47, 51); /* #2e2f33 */
-	--chat-secondary-font: #c1c1c9; /* rgb(193, 193, 201) */
 
 	--backdrop: rgba(15, 15, 16, 0.5); /* #0f0f10 */
 
@@ -95,6 +95,7 @@
 	/* font colors */
 	--primary-font: rgb(12, 12, 13); /* #0c0c0d */
 	--secondary-font: rgb(123, 126, 132); /* #7b7e84 */
+	--chat-secondary-font: rgb(12, 12, 13); /* rgb(79, 96, 100) */
 
 	/* card colors */
 	--card: rgb(242, 242, 243); /* #f2f2f3 */
@@ -131,7 +132,6 @@
 	--setting-color: rgb(0, 0, 0); /* #000000 */
 
 	--default-state-buttons: rgb(223, 223, 223); /* #dfdfdf */
-	--chat-secondary-font: #4f6064; /* rgb(79, 96, 100) */
 
 	--backdrop: rgb(176, 178, 181, 0.5); /* #B0B2B5 */
 

@@ -27,7 +27,7 @@ const actionHandlers = {
 	}),
 	SET_AI_CHAT_SESSIONS_BY_ID: (state, action) => {
 		const payload = action?.payload;
-		let aiChatSessions = state?.aiChatSessions;
+		let aiChatSessions = { ...(state?.aiChatSessions || {}) };
 
 		if (!aiChatSessions) {
 			aiChatSessions = {

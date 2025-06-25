@@ -268,8 +268,6 @@ const OpenedSidebar = ({
 	setShowChatsDrawer,
 	setShowNotesDrawer,
 	setHideClosedSidebarIcon,
-	isDocked,
-	handleDockToggle,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const sidebarNavigationItems =
@@ -359,7 +357,10 @@ const OpenedSidebar = ({
 	}, [leftSidebarState]);
 
 	useEffect(() => {
-		setIsThisEarlyAccessPage(location?.pathname?.includes('/early-access'));
+		setIsThisEarlyAccessPage(
+			location?.pathname?.includes('/early-access') ||
+				location?.pathname?.includes('/pricing'),
+		);
 	}, [location?.pathname]);
 
 	useEffect(() => {
@@ -682,7 +683,6 @@ const OpenedSidebar = ({
 					display: 'flex',
 					position: 'relative',
 				}}
-				// onMouseLeave={() => !isDocked && setIsOpen(false)}
 			>
 				{tenantUserAccessControls && (
 					<div style={{ display: 'flex' }}>
@@ -744,19 +744,14 @@ const OpenedSidebar = ({
 												</div>
 											)}
 											<SidebarTooltip
-												label={isDocked ? 'Undock Sidebar' : 'Dock Sidebar'}
+												label="Close Sidebar"
 												icon={
 													<SidebarClosingSvg
 														className="collapseArrow"
 														style={{ cursor: 'pointer' }}
 														onClick={(e) => {
 															e.stopPropagation();
-															if (isDocked) {
-																handleDockToggle();
-															} else {
-																handleDockToggle();
-																setIsOpen(true);
-															}
+															handleSidebarCollapse();
 														}}
 													/>
 												}
@@ -1089,9 +1084,9 @@ const OpenedSidebar = ({
 									>
 										{theme === 'dark' ? <SunIcon /> : <MoonIcon />}
 									</div>
-									<div className="eachOption" onClick={triggerCmdK}>
+									{/* <div className="eachOption" onClick={triggerCmdK}>
 										<SearchSvg />
-									</div>
+									</div> */}
 									<div className="eachOption" onClick={handleNewChat}>
 										<NewEditSvg />
 									</div>

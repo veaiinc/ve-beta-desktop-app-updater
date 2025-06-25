@@ -139,13 +139,14 @@ const LoginPage = () => {
 	];
 
 	return (
-		<div className="login-page-container">
-			<div className="header">
-				<div className="logo" onClick={handleLogoClick}>
-					<VeLogo />
+		<div className="login-page-container-wrapper">
+			<div className="login-page-container">
+				<div className="header">
+					<div className="logo" onClick={handleLogoClick}>
+						<VeLogo />
+					</div>
 				</div>
-			</div>
-			{/* <div className="gradient-container">
+				{/* <div className="gradient-container">
 				{info?.isDarkMode ? <DarkModeGradient /> : <LightModeGradient />}
 			</div> */}
 				<div className="stages-container">
@@ -154,8 +155,8 @@ const LoginPage = () => {
 						</div> */}
 					{stages?.[info?.activeStage]}
 				</div>
-			<div className="disclaimer-container">
-				{/* <div className="disclaimer">
+				<div className="disclaimer-container">
+					{/* <div className="disclaimer">
 					<span className="disclaimer-text">By continuing, you accept our</span>
 					<div className="disclaimer-links">
 						<b onClick={() => navigate('/terms-of-service')} className="link">
@@ -172,39 +173,48 @@ const LoginPage = () => {
 						.
 					</div>
 				</div> */}
-				{!info?.cookiesAccepted && info?.showCookiesNotice && (
-					<div className="cookies-notice">
-						<div className="cookie-container">
-							<span className="cookie-icon">
-								<img src={CookiesImg} />
-							</span>
-							<p>
-								This site uses cookies to provide you with a personalized
-								experience. Check our{' '}
-								<b onClick={() => window.open('/cookie-policy', '_blank')}>
-									<u>cookie policy</u>
-								</b>{' '}
-								for more details.
-							</p>
-						</div>
-						<div className="buttons-container">
-							<div className="decline-button" onClick={handleDeclineCookies}>
-								Decline all
+					{!info?.cookiesAccepted && info?.showCookiesNotice && (
+						<div className="cookies-notice">
+							<div className="cookie-container">
+								<span className="cookie-icon">
+									<img src={CookiesImg} />
+								</span>
+								<p>
+									This site uses cookies to provide you with a personalized
+									experience. Check our{' '}
+									<b onClick={() => window.open('/cookie-policy', '_blank')}>
+										<u>cookie policy</u>
+									</b>{' '}
+									for more details.
+								</p>
 							</div>
-							<div className="accept-button" onClick={handleAcceptCookies}>
-								Accept
+							<div className="buttons-container">
+								<div className="decline-button" onClick={handleDeclineCookies}>
+									Decline all
+								</div>
+								<div className="accept-button" onClick={handleAcceptCookies}>
+									Accept
+								</div>
 							</div>
 						</div>
-					</div>
-				)}
-			</div>
-			{/* <footer className="login-footer-container">
+					)}
+				</div>
+				{/* <footer className="login-footer-container">
 				{footerLinks?.map((link) => (
 					<a className="footer-link" key={link?.id} onClick={link?.handleClick}>
 						{link?.label}
 					</a>
 				))}
 			</footer> */}
+			</div>
+
+			{/* <div className="login-page-container-right"> */}
+				{/* <div className="login-page-container-right-content">
+					<div className="login-page-container-right-content-title">
+						<h1>Welcome to Ve.ai</h1>
+					</div>
+				</div> */}
+			{/* </div> */}
 		</div>
 	);
 };

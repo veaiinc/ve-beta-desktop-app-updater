@@ -144,6 +144,22 @@
 					flex-direction: column;
 					gap: 16px;
 					width: 100%;
+					.profession-label {
+						color: var(--primary-font, #f2f2f3);
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						span {
+							color: var(--primary-font, #f2f2f3);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 600;
+							line-height: normal;
+						}
+					}
 
 					.iconAlignclass {
 						display: flex;
@@ -163,7 +179,6 @@
 								padding-right: 16px;
 								margin-right: 16px;
 							}
-							
 						}
 
 						.input-container {
@@ -526,7 +541,7 @@
 	flex-direction: column;
 	gap: 32px;
 	border-radius: 40px;
-	background: var(--popup);	
+	background: var(--popup);
 
 	.headerPopup {
 		display: flex;
@@ -566,7 +581,6 @@
 			.reactEasyCrop_Container {
 				cursor: default;
 			}
-
 		}
 
 		img {
@@ -727,7 +741,7 @@
 		background-color: var(--primary-button);
 		color: var(--primary-button-font);
 
-		&:hover{
+		&:hover {
 			border-color: var(--stroke-hover);
 		}
 	}
@@ -982,7 +996,7 @@
 				}
 				.divider {
 					width: 100%;
-					background: var(--stroke, #2C2D2E);
+					background: var(--stroke, #2c2d2e);
 				}
 			}
 		}
@@ -1088,14 +1102,19 @@
 }
 
 @media screen and (max-width: 768px) {
-	.myProfileComponent{
+	.myProfileComponent .settingsContainer,
+	.myProfileComponent .settingsContainer .formsMain {
+		gap: 20px;
+	}
+
+	.myProfileComponent {
 		.formsMain {
 			padding: 20px;
 		}
-
 	}
 
 	.notifications-container {
+		gap: 0px;
 		.notifications-container-header {
 			padding: 20px;
 		}

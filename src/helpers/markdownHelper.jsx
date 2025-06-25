@@ -43,7 +43,7 @@ const codeColorTheme = {
 		borderRadius: '5px',
 	},
 	comment: {
-		color: '#ffffff80', // Adjusted for better contrast
+		color: 'var(--secondary-font)', // Adjusted for better contrast
 		fontStyle: 'italic',
 	},
 	prolog: {
@@ -300,7 +300,9 @@ const baseComponents = {
 		return !inline && match ? (
 			<MarkdownCode code={children} match={match} node={node} />
 		) : (
-			<code {...props}>{children}</code>
+			<code {...props} className="code">
+				{children}
+			</code>
 		);
 	},
 };

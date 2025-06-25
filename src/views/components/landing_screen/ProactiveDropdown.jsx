@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 const linkMapper = {
 	features: [
 		{
-			title: 'Ambient AI',
+			title: 'Proactive AI',
 			path: '/',
 		},
 		{
@@ -46,6 +46,8 @@ const linkMapper = {
 			title: 'Sites',
 			path: '/',
 		},
+	],
+	search: [
 		{
 			title: 'Calendar',
 			path: '/',
@@ -58,8 +60,6 @@ const linkMapper = {
 			title: 'Automation',
 			path: '/',
 		},
-	],
-	search: [
 		{
 			title: 'Knowledge search',
 			path: '/',
@@ -80,7 +80,7 @@ const ProactiveDropdown = ({ isOpen }) => {
 		<div className={`${s.proactiveDropdown__container} `}>
 			<div className={s.left}>
 				<div className={s.heading}>
-					<SparkleSvg /> Features
+					<SparkleSvg /> Upcoming features
 				</div>
 				<div className={s.listContainer}>
 					{[0, 1, 2].map((listIndex) => (
@@ -89,7 +89,8 @@ const ProactiveDropdown = ({ isOpen }) => {
 								.slice(listIndex * 5, (listIndex + 1) * 5)
 								.map((link, index) => (
 									<span key={index}>
-										<Link to={link.path}>{link.title}</Link>
+										<p to={link.path}>{link.title}</p>
+										{/* <link> */}
 									</span>
 								))}
 						</div>
@@ -97,14 +98,19 @@ const ProactiveDropdown = ({ isOpen }) => {
 				</div>
 			</div>
 			<div className={s.right}>
-				<div className={s.heading}>
-					<BinocularsSvg /> Search
-				</div>
-				<div className={s.list}>
-					{linkMapper.search.map((link, index) => (
-						<span key={index}>
-							<Link to={link.path}>{link.title}</Link>
-						</span>
+				<div className={s.heading}>{/* <BinocularsSvg /> Search */} ㅤ </div>
+				<div className={s.listContainer}>
+					{[0, 1].map((listIndex) => (
+						<div key={listIndex} className={s.list}>
+							{linkMapper.search
+								.slice(listIndex * 3, (listIndex + 1) * 3)
+								.map((link, index) => (
+									<span key={index}>
+										<p to={link.path}>{link.title}</p>
+										{/* </link> */}
+									</span>
+								))}
+						</div>
 					))}
 				</div>
 			</div>
