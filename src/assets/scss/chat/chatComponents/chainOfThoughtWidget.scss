@@ -8,14 +8,7 @@
 	border: 1px solid var(--stroke, #2c2d2e);
 	margin-bottom: 16px;
 	box-sizing: border-box;
-
-	&.expanded-animation {
-		animation: expandAnimation 2s ease-in-out forwards;
-	}
-
-	&.minimized-animation {
-		animation: minimizeAnimation 2s ease-in-out forwards;
-	}
+	transition: height 0.5s ease-in-out;
 
 	.cot-wrapper {
 		margin-top: 0;
@@ -81,23 +74,5 @@
 				letter-spacing: 0.2px;
 			}
 		}
-	}
-}
-
-@keyframes expandAnimation {
-	from {
-		height: min(calc(var(--minimized-height) * 1px), calc(var(--expanded-height) * 1px));
-	}
-	to {
-		height: max(calc(var(--minimized-height) * 1px), calc(var(--expanded-height) * 1px));
-	}
-}
-
-@keyframes minimizeAnimation {
-	from {
-		height: max(calc(var(--minimized-height) * 1px), calc(var(--expanded-height) * 1px));
-	}
-	to {
-		height: min(calc(var(--minimized-height) * 1px), calc(var(--expanded-height) * 1px));
 	}
 }

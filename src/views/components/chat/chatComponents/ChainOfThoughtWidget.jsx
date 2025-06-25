@@ -8,34 +8,30 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/ta
 const ChainOfThoughtWidget = ({ messageData }) => {
 	const [info, setInfo] = useState({
 		isExpanded: false,
-		minimizedHeight: 0,
-		expandedHeight: 0,
+		height: 0,
 	});
 	const contentContainerRef = useRef(null);
 	const containerRef = useRef(null);
 	const { deepSearch, deepResearch } = messageData;
 	const chainOfThoughtCompleted = messageData?.message?.length > 0 || messageData?.stream_end;
-	const previousMinimizedHeightRef = useRef(null);
 
 	useEffect(() => {
-		if (!containerRef?.current || !contentContainerRef?.current) return;
-		let minimizedHeight, expandedHeight;
-		const containerHeight = containerRef?.current?.scrollHeight;
+		if (!contentContainerRef?.current) return;
+		setTimeout(() => {
+			let height;
+			const contentContainerHeight = contentContainerRef?.current?.scrollHeight;
 
-		if (chainOfThoughtCompleted) {
-			minimizedHeight = 54;
-			expandedHeight = containerHeight;
-		} else {
-			minimizedHeight = previousMinimizedHeightRef?.current ?? containerHeight;
-			expandedHeight = containerHeight;
-		}
+			if (chainOfThoughtCompleted) {
+				height = info?.isExpanded ? contentContainerHeight + 54 : 54;
+			} else {
+				height = contentContainerHeight + 54;
+			}
 
-		previousMinimizedHeightRef.current = containerHeight;
-		setInfo((prev) => ({
-			...prev,
-			minimizedHeight,
-			expandedHeight,
-		}));
+			setInfo((prev) => ({
+				...prev,
+				height,
+			}));
+		}, 0);
 	}, [info?.isExpanded]);
 
 	useEffect(() => {
@@ -85,12 +81,9 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 
 	return (
 		<div
-			className={`chain-of-thought-widget-container ${
-				info?.isExpanded ? 'expanded-animation' : 'minimized-animation'
-			}`}
+			className={`chain-of-thought-widget-container`}
 			style={{
-				'--expanded-height': info?.expandedHeight,
-				'--minimized-height': info?.minimizedHeight,
+				height: `${info?.height}px`,
 			}}
 			ref={containerRef}
 		>
