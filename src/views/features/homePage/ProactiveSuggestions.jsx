@@ -772,64 +772,61 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 												positionClassMap[card?.position],
 											];
 											return (
-												<>
-													<div
-														key={index}
-														className={classList?.join(' ')}
-														onClick={() => handleCardClick(card, index)}
-													>
-														<div className="header">
-															<div className="card-description">
-																{card?.title}
-															</div>
+												<div
+													key={index}
+													className={classList?.join(' ')}
+													onClick={() => handleCardClick(card, index)}
+												>
+													<div className="header">
+														<div className="card-description">
+															{card?.title}
 														</div>
-														{classList?.[1] === 'selected' && (
-															<div className="footer">
-																<div className="module-type">
-																	{card?.moduleType}
-																</div>
-																<div className="module-priority">
-																	<span
-																		style={{
-																			backgroundColor:
-																				PriorityLevel[
-																					card?.priority
-																				],
-																		}}
-																	></span>
-																	<div className="module-priority-text">
-																		<div>{card?.priority}</div>
-																		{card?.priority &&
-																			card?.updatedAt && (
-																				<div
-																					style={{
-																						color: 'var(--secondary-font)',
-																					}}
-																				>
-																					|
-																				</div>
-																			)}
-																		<Tooltip
-																			title={dayjs(
+													</div>
+													{classList?.[1] === 'selected' && (
+														<div className="footer">
+															<div className="module-type">
+																{card?.moduleType}
+															</div>
+															<div className="module-priority">
+																<span
+																	style={{
+																		backgroundColor:
+																			PriorityLevel[
+																				card?.priority
+																			],
+																	}}
+																></span>
+																<div className="module-priority-text">
+																	<div>{card?.priority}</div>
+																	{card?.priority &&
+																		card?.updatedAt && (
+																			<div
+																				style={{
+																					color: 'var(--secondary-font)',
+																				}}
+																			>
+																				|
+																			</div>
+																		)}
+																	<Tooltip
+																		title={dayjs(
+																			card?.updatedAt * 1000,
+																		).format(
+																			'MMMM D, YYYY h:mm A',
+																		)}
+																	>
+																		<div>
+																			{dayjs(
 																				card?.updatedAt *
 																					1000,
-																			).format(
-																				'MMMM D, YYYY h:mm A',
-																			)}
-																		>
-																			<div>
-																				{dayjs(
-																					card?.updatedAt *
-																						1000,
-																				)?.fromNow()}
-																			</div>
-																		</Tooltip>
-																	</div>
+																			)?.fromNow()}
+																		</div>
+																	</Tooltip>
 																</div>
 															</div>
-														)}
-													</div>
-												</>
+														</div>
+													)}
+												</div>
 											);
 										})
 									)}
