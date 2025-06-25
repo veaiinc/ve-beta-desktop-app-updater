@@ -1,8 +1,9 @@
-import { memo, useState } from 'react';
+import { memo, useContext, useState } from 'react';
 import s from '../../../../assets/scss/notes/databaseComponents/groupToggler.module.scss';
 import { ReactComponent as ChevronSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { colors } from '../../../../helpers/databaseHelpers';
 import CheckBox from '../../tasks/listView/CheckBox';
+import Context from '../../../../context/context';
 
 const GroupToggler = ({
 	children,
@@ -12,9 +13,18 @@ const GroupToggler = ({
 	currentPage,
 	totalPages,
 	hasNextPage,
+	viewId,
+	blockId,
+	databaseId,
+	pageId,
 }) => {
+	const {
+		notes: { fetchMoreGroupData },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		isOpen: true,
+		dataLoading: false,
 	});
 
 	const getGroupHeaderElement = ({ label, type, color }) => {
@@ -52,6 +62,27 @@ const GroupToggler = ({
 	const handleToggle = () => {
 		setInfo((prev) => ({ ...prev, isOpen: !prev.isOpen }));
 	};
+
+	const handleLoadMore = async () => {
+		setInfo((prev) => ({ ...prev, dataLoading: true }));
+		await fetchMoreGroupData(
+			{
+				pageId,
+				databaseId,
+				databaseViewId: viewId,
+				input: {
+					docLimit: 25,
+					docPage: currentPage + 1,
+					groupFilterId: groupData?._id || null,
+				},
+			},
+			{
+				blockId,
+			},
+		);
+		setInfo((prev) => ({ ...prev, dataLoading: false }));
+	};
+
 	return (
 		<div className={s.groupToggler}>
 			{groupData && (
@@ -75,7 +106,18 @@ const GroupToggler = ({
 				</div>
 			)}
 
-			{info?.isOpen && children}
+			{info?.isOpen && (
+				<>
+					{children}
+					{hasNextPage && (
+						<div className={s.loadMoreContainer}>
+							<button className={s.loadMoreButton} onClick={handleLoadMore}>
+								{info?.dataLoading ? 'Loading...' : 'Load more'}
+							</button>
+						</div>
+					)}
+				</>
+			)}
 		</div>
 	);
 };

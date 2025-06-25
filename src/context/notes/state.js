@@ -1452,7 +1452,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const fetchMoreGroupData = async (payload, { viewId, groupId, blockId, databaseId }) => {
+	const fetchMoreGroupData = async (payload, { blockId } = {}) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -1464,14 +1464,13 @@ export const NotesState = (props) => {
 				'page_notes_api',
 			);
 			if (response?.[0]) {
+				const data = response?.[1]?.data?.listDatabaseRowsWithGroup?.data?.[0];
 				dispatch({
-					type: Actions.UPDATE_DATABASE_VIEWS,
+					type: Actions.ADD_MORE_DATA_IN_GROUP,
 					payload: {
-						[blockId]: state?.views?.[blockId]?.map((view) =>
-							view?._id === viewId
-								? { ...view, groupBy: response?.[1]?.data?.fetchMoreGroupData }
-								: view,
-						),
+						viewId: payload?.databaseViewId,
+						groupId: payload?.input?.groupFilterId,
+						data,
 					},
 				});
 			}

@@ -1,13 +1,19 @@
-import { memo, useCallback, useContext } from 'react';
-import s from '../../../../../assets/scss/notes/databaseComponents/galleryView.module.scss';
+import { useCallback, useContext, useState } from 'react';
 import Context from '../../../../../context/context';
-import GroupToggler from '../GroupToggler';
+import s from '../../../../../assets/scss/notes/databaseComponents/boardView.module.scss';
+import { colors } from '../../../../../helpers/databaseHelpers';
 import { rowTypes } from '../../Database';
 
-const GalleryView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blockId }) => {
+const Board = ({ item, groupData, columns, databaseId, blockId, view, pageId }) => {
 	const {
-		notes: { updateDatabaseSidebar, updateDatabaseRow },
+		notes: { updateDatabaseSidebar, updateDatabaseRow, fetchMoreGroupData },
 	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		dataLoading: false,
+	});
+
+	const { docs, hasNextPage, totalDocs, currentPage } = groupData?.[item?._id || null] || {};
 
 	const handleUpdateRow = useCallback(
 		(rowId, key, value, groupId) => {
@@ -22,6 +28,7 @@ const GalleryView = ({ groupData, metaInfo, columns, databaseId, pageId, view, b
 		},
 		[pageId, updateDatabaseRow, databaseId, view?._id, blockId],
 	);
+
 	const generateCard = (row, groupId) => {
 		const renderData = [];
 		for (let i = 0; i < columns.length; i++) {
@@ -85,7 +92,7 @@ const GalleryView = ({ groupData, metaInfo, columns, databaseId, pageId, view, b
 		}
 		return (
 			<div
-				className={s.galleryCard}
+				className={s.card}
 				key={row?._id}
 				onClick={() =>
 					updateDatabaseSidebar({
@@ -100,34 +107,48 @@ const GalleryView = ({ groupData, metaInfo, columns, databaseId, pageId, view, b
 		);
 	};
 
+	const handleLoadMore = async () => {
+		setInfo((prev) => ({ ...prev, dataLoading: true }));
+		await fetchMoreGroupData(
+			{
+				pageId,
+				databaseId,
+				databaseViewId: view?._id,
+				input: {
+					docLimit: 25,
+					docPage: currentPage + 1,
+					groupFilterId: item?._id || null,
+				},
+			},
+			{
+				blockId,
+			},
+		);
+		setInfo((prev) => ({ ...prev, dataLoading: false }));
+	};
+
 	return (
-		<div className={s.galleryView}>
-			{view?.groupBy?.defaultGroups?.map((item, index) => {
-				const { totalDocs, currentPage, totalPages, hasNextPage, docs } =
-					groupData?.[item?._id || null] || {};
-				return (
-					<GroupToggler
-						groupData={item}
-						key={index}
-						type={metaInfo?.fieldType}
-						viewId={view?._id}
-						databaseId={databaseId}
-						totalDocs={totalDocs}
-						currentPage={currentPage}
-						totalPages={totalPages}
-						hasNextPage={hasNextPage}
-						pageId={pageId}
-					>
-						<div className={s.galleryViewWrapper}>
-							{docs?.map((row) =>
-								generateCard(row, item?._id),
-							)}
-						</div>
-					</GroupToggler>
-				);
-			})}
+		<div
+			key={item?._id}
+			className={s.board}
+			style={{ backgroundColor: colors?.[item?.color]?.backgroundColor }}
+		>
+			<div className={s.boardHeader}>
+				{item?.label || item?.name || 'No Value'}
+				<span className={s.totalDocs}>
+					{/* {totalDocs || 0} {totalDocs > 1 ? 'items' : 'item'} */}
+				</span>
+			</div>
+			<div className={s.boardBody}>{docs?.map((row) => generateCard(row, item?._id))}</div>
+			{hasNextPage && (
+				<div className={s.loadMoreContainer}>
+					<button className={s.loadMoreButton} onClick={handleLoadMore}>
+						{info?.dataLoading ? 'Loading...' : 'Load more'}
+					</button>
+				</div>
+			)}
 		</div>
 	);
 };
 
-export default memo(GalleryView);
+export default Board;

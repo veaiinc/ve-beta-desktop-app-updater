@@ -342,7 +342,7 @@ const DatabaseComponent = ({ block, editor }) => {
 			const labelMapper = {
 				table: 'Table',
 				list: 'List',
-				board: 'Kanban',
+				board: 'Board',
 				calendar: 'Calendar',
 				gallery: 'Gallery',
 			};
@@ -754,6 +754,6 @@ export const insertDatabase = (editor, pageId) => ({
 		});
 	},
 	aliases: ['database', 'table', 'data', 'store'],
-	group: 'hehe',
+	group: 'Advanced',
 	icon: <TableViewIcon />,
 });

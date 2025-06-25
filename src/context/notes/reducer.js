@@ -149,7 +149,6 @@ const actionHandlers = {
 			statusOptions,
 		});
 		if (updatedGroups) {
-			console.log('updatedGroups', updatedGroups);
 			view = {
 				...view,
 				groupBy: {
@@ -173,6 +172,58 @@ const actionHandlers = {
 				[blockId]: state?.views?.[blockId]?.map((item) =>
 					item?._id === viewId ? view : item,
 				),
+			},
+		};
+	},
+	ADD_MORE_DATA_IN_GROUP: (state, action) => {
+		const { viewId, groupId, data } = action.payload;
+		const currentBlockData = state?.rowData?.[viewId] || {};
+		const { groupData } = currentBlockData || {};
+
+		// Get the current group data
+		const currentGroup = groupData?.[groupId];
+
+		if (!currentGroup || !data) {
+			return state;
+		}
+
+		// Create a map of existing doc IDs for quick duplicate checking
+		const existingDocIds = new Set(currentGroup.docs?.map((doc) => doc._id) || []);
+
+		// Filter out duplicates from the new data
+		const newDocs = data.docs?.filter((doc) => !existingDocIds.has(doc._id)) || [];
+
+		// Merge the docs arrays
+		const mergedDocs = [...(currentGroup.docs || []), ...newDocs];
+
+		// Update the group data with merged docs and new pagination info
+		const updatedGroup = {
+			...currentGroup,
+			docs: mergedDocs,
+			currentPage: data.currentPage,
+			hasNextPage: data.hasNextPage,
+			hasPrevPage: data.hasPrevPage,
+			limit: data.limit,
+			nextPage: data.nextPage,
+			prevPage: data.prevPage,
+			totalDocs: data.totalDocs,
+			totalPages: data.totalPages,
+		};
+
+		// Update the groupData with the merged group
+		const updatedGroupData = {
+			...groupData,
+			[groupId]: updatedGroup,
+		};
+
+		return {
+			...state,
+			rowData: {
+				...state.rowData,
+				[viewId]: {
+					...currentBlockData,
+					groupData: updatedGroupData,
+				},
 			},
 		};
 	},

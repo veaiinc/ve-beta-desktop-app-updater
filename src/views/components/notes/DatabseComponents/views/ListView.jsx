@@ -110,17 +110,30 @@ const ListView = ({ groupData, metaInfo, columns, databaseId, pageId, view, bloc
 	);
 
 	return (
-		<>
-			{view?.groupBy?.defaultGroups?.map((item, index) => (
-				<GroupToggler key={index} groupData={item} type={metaInfo?.fieldType}>
-					<div className={s.listViewContainer}>
-						{groupData?.[item?._id || null]?.docs?.map((row) =>
-							generateRow(row, item?._id),
-						)}
-					</div>
-				</GroupToggler>
-			))}
-		</>
+		<div className={s.listView}>
+			{view?.groupBy?.defaultGroups?.map((item, index) => {
+				const { totalDocs, currentPage, totalPages, hasNextPage, docs } =
+					groupData?.[item?._id || null] || {};
+				return (
+					<GroupToggler
+						key={index}
+						groupData={item}
+						type={metaInfo?.fieldType}
+						viewId={view?._id}
+						databaseId={databaseId}
+						totalDocs={totalDocs}
+						currentPage={currentPage}
+						totalPages={totalPages}
+						hasNextPage={hasNextPage}
+						pageId={pageId}
+					>
+						<div className={s.listViewContainer}>
+							{docs?.map((row) => generateRow(row, item?._id))}
+						</div>
+					</GroupToggler>
+				);
+			})}
+		</div>
 	);
 };
 

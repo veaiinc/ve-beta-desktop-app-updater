@@ -275,7 +275,7 @@ export const getNotesListQuery = gql`
 			prevPage
 			nextPage
 			data {
-				id
+				_id
 				title
 				icon
 				coverImage
@@ -758,9 +758,12 @@ export const getDatabaseViewsQuery = gql`
 				_id
 			}
 			filterBy {
+				_id
 				fieldId
+				fieldType
 				operator
 				value
+				filter
 			}
 			groupBy {
 				fieldId

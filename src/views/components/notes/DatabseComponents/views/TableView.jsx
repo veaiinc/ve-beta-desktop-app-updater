@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import Context from '../../../../../context/context';
 import TableHeader from './TableHeader';
 import TableBody from './TableBody';
@@ -12,7 +12,7 @@ const TableView = ({ groupData, metaInfo, columns, colors, databaseId, pageId, v
 	const [resizeStartWidth, setResizeStartWidth] = useState(0);
 	const [localColumns, setLocalColumns] = useState(columns);
 
-	React.useEffect(() => {
+	useEffect(() => {
 		setLocalColumns(columns);
 	}, [columns]);
 
@@ -67,7 +67,7 @@ const TableView = ({ groupData, metaInfo, columns, colors, databaseId, pageId, v
 		});
 	}, []);
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (resizingColumn !== null) {
 			window.addEventListener('mousemove', handleResizeMove);
 			window.addEventListener('mouseup', handleResizeEnd);
@@ -77,8 +77,6 @@ const TableView = ({ groupData, metaInfo, columns, colors, databaseId, pageId, v
 			};
 		}
 	}, [resizingColumn, handleResizeMove, handleResizeEnd]);
-	console.log('groupData', groupData);
-	console.log('view', view?.groupBy?.defaultGroups);
 
 	return (
 		<DragDropContext onDragEnd={handleDragEnd}>
@@ -97,6 +95,10 @@ const TableView = ({ groupData, metaInfo, columns, colors, databaseId, pageId, v
 									currentPage={currentPage}
 									totalPages={totalPages}
 									hasNextPage={hasNextPage}
+									viewId={view?._id}
+									blockId={blockId}
+									databaseId={databaseId}
+									pageId={pageId}
 								>
 									<>
 										<TableHeader
