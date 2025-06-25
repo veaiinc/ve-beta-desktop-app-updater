@@ -156,7 +156,7 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 					<div className="prompts-widget-cards" ref={containerRef} tabIndex={0}>
 						{cardsData?.map((card, index) => (
 							<div
-								key={card?.id}
+								key={card?._id}
 								className={`prompts-widget-each-card ${
 									info.animateCards
 										? animatedIndices.includes(index)
