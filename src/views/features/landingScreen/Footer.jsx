@@ -174,16 +174,7 @@ const Footer = () => {
 							</div>
 						</div>
 						<div className={s.bottom__topPart_rightPart}>
-							<div
-								onClick={() => {
-									const el = document.getElementById('pricing-page-scroll');
-									if (el) {
-										el.scrollTo({ top: 0, behavior: 'smooth' });
-									} else {
-										window.scrollTo({ top: 0, behavior: 'smooth' });
-									}
-								}}
-							>
+							<div onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
 								<span>Back top </span>
 								<ArrowUp />
 							</div>

@@ -13,6 +13,7 @@ import PrivacyPolicy from '../views/features/signin/PrivacyPolicy';
 import ChageLog from '../views/features/signin/ChageLog';
 import PublicChat from '../views/features/publicChat/PublicChat';
 import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
+import OurMission from '../views/features/landingScreen/OurMission';
 
 const publicRoutes = [
 	{
@@ -33,6 +34,18 @@ const publicRoutes = [
 	},
 	{
 		path: '/api',
+		element: <LandingPage />,
+	},
+	{
+		path: '/thebridge',
+		element: <LandingPage />,
+	},
+	{
+		path: '/careers',
+		element: <LandingPage />,
+	},
+	{
+		path: '/forefront',
 		element: <LandingPage />,
 	},
 	{

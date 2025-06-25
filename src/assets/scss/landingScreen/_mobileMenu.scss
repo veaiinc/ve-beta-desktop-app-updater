@@ -44,14 +44,8 @@
 			font-weight: 500;
 			font-size: 14px;
 			cursor: pointer;
-			margin-right: 12px;
-			display: flex;
-			align-items: center;
 			gap: 6px;
-			.ve-logo-black {
-				width: 20px !important;
-				color: var(--primary-button-font);
-			}
+			text-align: center;
 		}
 		.close-btn {
 			background: transparent;
@@ -155,6 +149,7 @@
 					font-style: normal;
 					font-weight: 600;
 					line-height: normal;
+					text-transform: capitalize;
 				}
 			}
 		}
@@ -203,6 +198,24 @@
 	.mobile-menu-footer {
 		padding: 20px 24px 32px 24px;
 		background: var(--card, #18191b);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+		gap: 8px;
+		.get-ve-free-btn {
+			background: var(--primary-button, #79ecc9);
+			color: var(--primary-button-font, #0c0c0d);
+			border: none;
+			border-radius: 100px;
+			padding: 12px 24px;
+			font-family: var(--primary-font-family);
+			font-weight: 500;
+			font-size: 14px;
+			cursor: pointer;
+			width: 100%;
+			text-align: center;
+		}
 		.login-btn {
 			display: flex;
 			padding: 12px 24px;
