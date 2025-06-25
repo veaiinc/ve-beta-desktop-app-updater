@@ -2,13 +2,13 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import AgentDetails from './AgentDetails';
-import Context from '../../../../context/context';
-import ContextState from '../../../../context/ContextStates';
+import AgentDetails from '../../views/components/agents/agentDetails/AgentDetails';
+import Context from '../../context/context';
+import ContextState from '../../context/ContextStates';
 //Component renders without crashing
 
 // Mock the child components
-vi.mock('../runBuildToggle/RunAndBuildToggle', () => ({
+vi.mock('../../views/components/agents/runBuildToggle/RunAndBuildToggle', () => ({
 	default: ({ agentAction, setAgentAction }) => (
 		<div data-testid="run-build-toggle">
 			<span data-testid="agent-action">{agentAction}</span>
@@ -17,17 +17,17 @@ vi.mock('../runBuildToggle/RunAndBuildToggle', () => ({
 	),
 }));
 
-vi.mock('./configureAgent/ConfigureAgent', () => ({
+vi.mock('../../views/components/agents/agentDetails/configureAgent/ConfigureAgent', () => ({
 	default: ({ agentId }) => <div data-testid="configure-agent">Configure Agent {agentId}</div>,
 }));
 
-vi.mock('./agentCredentials/AgentCredentials', () => ({
+vi.mock('../../views/components/agents/agentDetails/agentCredentials/AgentCredentials', () => ({
 	default: ({ agentId }) => (
 		<div data-testid="agent-credentials">Agent Credentials {agentId}</div>
 	),
 }));
 
-vi.mock('../../../../views/features/knowledgeAgent/AgentDetails', () => ({
+vi.mock('../../views/features/knowledgeAgent/AgentDetails', () => ({
 	default: () => <div data-testid="knowledge-agent-details">Knowledge Agent Details</div>,
 }));
 
