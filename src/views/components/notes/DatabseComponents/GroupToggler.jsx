@@ -4,7 +4,15 @@ import { ReactComponent as ChevronSvg } from '../../../../assets/svg/tasks/chevr
 import { colors } from '../../../../helpers/databaseHelpers';
 import CheckBox from '../../tasks/listView/CheckBox';
 
-const GroupToggler = ({ children, groupData, type }) => {
+const GroupToggler = ({
+	children,
+	groupData,
+	type,
+	totalDocs,
+	currentPage,
+	totalPages,
+	hasNextPage,
+}) => {
 	const [info, setInfo] = useState({
 		isOpen: true,
 	});
@@ -60,6 +68,10 @@ const GroupToggler = ({ children, groupData, type }) => {
 						type,
 						color: groupData?.color,
 					})}
+
+					<span className={s.totalDocsCount}>
+						{totalDocs} {totalDocs > 1 ? 'items' : 'item'}
+					</span>
 				</div>
 			)}
 
