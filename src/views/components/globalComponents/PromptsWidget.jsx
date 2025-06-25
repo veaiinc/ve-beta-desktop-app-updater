@@ -105,7 +105,7 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 		return () => {
 			container.removeEventListener('keydown', handleKeyDown);
 		};
-	}, [cardsData, currentIndex, handlePromptClick]);
+	}, [cardsData, currentIndex]);
 
 	const getUpdatedSuggestedPendingActions = async (page = 1, shouldReset = false) => {
 		await getAISuggestedPendingActions(

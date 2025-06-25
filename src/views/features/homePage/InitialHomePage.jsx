@@ -280,39 +280,39 @@ const InitialHomePage = () => {
 		}
 	}, [promptsData]);
 
-	useEffect(() => {
-		if (!aiSuggestedPendingActions) {
-			getAISuggestedPendingActions(
-				{
-					page: 1,
-					limit: 20,
-					sortBy: 'createdAt',
-					sortType: -1,
-				},
-				true,
-			);
-			return;
-		}
-		const cards = aiSuggestedPendingActions?.pendingActions?.filter(
-			(card) => card?.title?.length > 0,
-		);
-		if (cards?.length > 0) {
-			if (!info?.optionsHandledOnce?.proactiveSuggestions) {
-				handleUpdateOptions('proactiveSuggestions');
-				setInfo((prev) => ({
-					...prev,
-					optionsHandledOnce: { ...prev.optionsHandledOnce, proactiveSuggestions: true },
-				}));
-			}
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				options: prev.options.map((o) =>
-					o.value === 'proactiveSuggestions' ? { ...o, showOption: false } : o,
-				),
-			}));
-		}
-	}, [aiSuggestedPendingActions]);
+	// useEffect(() => {
+	// 	if (!aiSuggestedPendingActions) {
+	// 		getAISuggestedPendingActions(
+	// 			{
+	// 				page: 1,
+	// 				limit: 20,
+	// 				sortBy: 'createdAt',
+	// 				sortType: -1,
+	// 			},
+	// 			true,
+	// 		);
+	// 		return;
+	// 	}
+	// 	const cards = aiSuggestedPendingActions?.pendingActions?.filter(
+	// 		(card) => card?.title?.length > 0,
+	// 	);
+	// 	if (cards?.length > 0) {
+	// 		if (!info?.optionsHandledOnce?.proactiveSuggestions) {
+	// 			handleUpdateOptions('proactiveSuggestions');
+	// 			setInfo((prev) => ({
+	// 				...prev,
+	// 				optionsHandledOnce: { ...prev.optionsHandledOnce, proactiveSuggestions: true },
+	// 			}));
+	// 		}
+	// 	} else {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			options: prev.options.map((o) =>
+	// 				o.value === 'proactiveSuggestions' ? { ...o, showOption: false } : o,
+	// 			),
+	// 		}));
+	// 	}
+	// }, [aiSuggestedPendingActions]);
 
 	const handleUpdateOptions = (value) => {
 		let updatedOptions = info?.options;
