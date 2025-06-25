@@ -113,6 +113,7 @@ const AddNewGoalModal = ({
 							value={info?.goalTitle}
 							onChange={handleSetGoalTitle}
 							className="titleInput"
+							maxLength={20}
 							placeholderStyles={{
 								backgroundColor: 'var(--card)',
 							}}
@@ -123,6 +124,7 @@ const AddNewGoalModal = ({
 						value={info?.goalDescription}
 						onChange={handleSetGoalDescription}
 						className="descriptionInput"
+						maxLength={300}
 						placeholderStyles={{
 							backgroundColor: 'var(--card)',
 						}}
