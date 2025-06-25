@@ -18,31 +18,64 @@ const Title = ({ title: initialTitle, updatePublishedTemplate }) => {
 		const value = e.target.value;
 		setTitle(value);
 
-		if (debounceTimeout.current) {
-			clearTimeout(debounceTimeout.current);
-		}
+		// if (debounceTimeout.current) {
+		// 	clearTimeout(debounceTimeout.current);
+		// }
 
-		debounceTimeout.current = setTimeout(async () => {
-			if (value || value !== '') {
-				const response = await updatePublishedTemplate(value);
-			} else {
-				message.error('Title cannot be empty');
-			}
-		}, 1000);
+		// debounceTimeout.current = setTimeout(async () => {
+		// 	if (value || value !== '') {
+		// 		const response = await updatePublishedTemplate(value);
+		// 	} else {
+		// 		message.error('Title cannot be empty');
+		// 	}
+		// }, 1000);
 	};
 
+	const handleTitleSave = async () => {
+		if (title && title.trim() !== '') {
+			console.log('title', title);
+			const response = await updatePublishedTemplate(title);
+			if (response) {
+				setIsEditing(false);
+			}
+		} else {
+			message.error('Title cannot be empty');
+		}
+	};
 	return (
 		<div className="title-container">
 			{isEditing ? (
-				<input
-					className="title-input"
-					ref={inputRef}
-					type="text"
-					value={title}
-					onChange={handleTitleChange}
-					onBlur={() => setIsEditing(false)}
-					autoFocus
-				/>
+				<>
+					<input
+						className="title-input"
+						ref={inputRef}
+						type="text"
+						value={title}
+						onChange={handleTitleChange}
+						onBlur={(e) => {
+							if (
+								!e.relatedTarget ||
+								!e.relatedTarget.classList.contains('save-btn')
+							) {
+								setIsEditing(false);
+							}
+						}}
+						autoFocus
+					/>
+					<span
+						className="save-btn"
+						style={{
+							cursor: 'pointer',
+							border: '1px solid #fff',
+							padding: '0px 5px',
+							borderRadius: '5px',
+						}}
+						onClick={handleTitleSave}
+						tabIndex={0}
+					>
+						save
+					</span>
+				</>
 			) : (
 				<span className="title-value" onClick={() => setIsEditing((prev) => !prev)}>
 					{title}
