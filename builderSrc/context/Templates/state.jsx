@@ -1794,7 +1794,6 @@ export const TemplatesState = (props) => {
 				usertoken,
 				'workflows_Api',
 			);
-			console.log('response', response);
 
 			if (response?.[0]) {
 				dispatch({

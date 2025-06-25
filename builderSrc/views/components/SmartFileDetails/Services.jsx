@@ -86,8 +86,6 @@ const Services = ({ serviceData, serviceOnChangeFunc }) => {
 
 	const onLocalServiceDataChange = useCallback(
 		async (innerIndex, outerIndex, type, val, serviceBlockId = null) => {
-			console.log('val', val, serviceBlockId);
-
 			// if (!editable) {
 			// 	return;
 			// }
@@ -137,12 +135,9 @@ const Services = ({ serviceData, serviceOnChangeFunc }) => {
 				};
 
 				serviceOnChangeFunc(selectedServiceTable, outerIndex);
-				console.log('smartFileVariablesData', smartFileVariablesData);
 				let subtotalVarID = smartFileVariablesData?.custom?.find((ele) => {
-					console.log('ele', ele, serviceBlockId);
 					return ele?.blockId === serviceBlockId;
 				})?._id;
-				console.log('subtotalVarID', subtotalVarID);
 				if (subtotalVarID) {
 					updateCustomVariabledata({ defaultValue: val }, subtotalVarID);
 				}
