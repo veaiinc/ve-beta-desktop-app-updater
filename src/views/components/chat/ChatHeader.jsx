@@ -129,7 +129,7 @@ const ChatHeader = ({
 				className={`${s.chatHeader} ${info?.chatDropdownExpanded ? s.expanded : ''}`}
 				onMouseLeave={handleMouseLeave}
 			>
-				<div className={s.headerInfo}>
+				<div className={`${s.headerInfo} headerInfo`}>
 					<div className={s.leftContainer}>
 						<div className={s.iconContainer} onClick={handleNavigateBack}>
 							<LeftSvg />
