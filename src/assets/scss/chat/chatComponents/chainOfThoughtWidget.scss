@@ -1,8 +1,6 @@
 .chain-of-thought-widget-container {
 	overflow: hidden;
-	transition: max-height 0.3s ease-in-out;
 	display: flex;
-	// padding: 16px;
 	flex-direction: column;
 	align-items: flex-start;
 	align-self: stretch;
@@ -10,6 +8,14 @@
 	border: 1px solid var(--stroke, #2c2d2e);
 	margin-bottom: 16px;
 	box-sizing: border-box;
+
+	&.expanded-animation {
+		animation: expandAnimation 2s ease-in-out forwards;
+	}
+
+	&.minimized-animation {
+		animation: minimizeAnimation 2s ease-in-out forwards;
+	}
 
 	.cot-wrapper {
 		margin-top: 0;
@@ -58,8 +64,7 @@
 		align-items: flex-start;
 		gap: 36px;
 		align-self: stretch;
-		overflow-y: auto;
-		transition: max-height 0.3s ease-in-out;
+		flex-shrink: 0;
 
 		.loader-container {
 			display: flex;
@@ -76,5 +81,23 @@
 				letter-spacing: 0.2px;
 			}
 		}
+	}
+}
+
+@keyframes expandAnimation {
+	from {
+		height: min(calc(var(--minimized-height) * 1px), calc(var(--expanded-height) * 1px));
+	}
+	to {
+		height: max(calc(var(--minimized-height) * 1px), calc(var(--expanded-height) * 1px));
+	}
+}
+
+@keyframes minimizeAnimation {
+	from {
+		height: max(calc(var(--minimized-height) * 1px), calc(var(--expanded-height) * 1px));
+	}
+	to {
+		height: min(calc(var(--minimized-height) * 1px), calc(var(--expanded-height) * 1px));
 	}
 }
