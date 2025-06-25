@@ -1452,6 +1452,34 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const fetchMoreGroupData = async (payload, { viewId, groupId, blockId, databaseId }) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				getDatabaseRowsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_DATABASE_VIEWS,
+					payload: {
+						[blockId]: state?.views?.[blockId]?.map((view) =>
+							view?._id === viewId
+								? { ...view, groupBy: response?.[1]?.data?.fetchMoreGroupData }
+								: view,
+						),
+					},
+				});
+			}
+		} catch (error) {
+			console.error('error==>fetchMoreGroupData', error);
+		}
+	};
+
 	const updateRelatedViews = async ({
 		updatedRow,
 		updatedField,
@@ -1520,5 +1548,6 @@ export const NotesState = (props) => {
 		updateSort,
 		removeSort,
 		updateViewGroup,
+		fetchMoreGroupData,
 	};
 };

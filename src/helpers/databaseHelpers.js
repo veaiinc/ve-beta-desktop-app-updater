@@ -507,6 +507,7 @@ export const handleUpdateInGroup = ({
 				docs: updatedDocs,
 			};
 		}
+		updatedGroups = [...defaultGroups];
 	}
 	if (!['text', 'number', 'title', 'date'].includes(fieldType)) {
 		updatedGroups = defaultGroups;

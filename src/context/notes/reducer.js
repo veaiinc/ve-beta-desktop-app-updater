@@ -149,6 +149,7 @@ const actionHandlers = {
 			statusOptions,
 		});
 		if (updatedGroups) {
+			console.log('updatedGroups', updatedGroups);
 			view = {
 				...view,
 				groupBy: {

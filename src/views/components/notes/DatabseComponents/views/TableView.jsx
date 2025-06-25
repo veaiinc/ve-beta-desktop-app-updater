@@ -77,6 +77,8 @@ const TableView = ({ groupData, metaInfo, columns, colors, databaseId, pageId, v
 			};
 		}
 	}, [resizingColumn, handleResizeMove, handleResizeEnd]);
+	console.log('groupData', groupData);
+	console.log('view', view?.groupBy?.defaultGroups);
 
 	return (
 		<DragDropContext onDragEnd={handleDragEnd}>
@@ -85,23 +87,30 @@ const TableView = ({ groupData, metaInfo, columns, colors, databaseId, pageId, v
 					<div className={s.tableContent}>
 						{view?.groupBy?.defaultGroups?.map((item, index) => (
 							<GroupToggler key={index} groupData={item} type={metaInfo?.fieldType}>
-								<TableHeader
-									columns={localColumns}
-									handleResizeStart={handleResizeStart}
-									loading={false}
-									databaseId={databaseId}
-									pageId={pageId}
-								/>
-								<TableBody
-									data={groupData?.[item?._id || null]?.docs || []}
-									columns={localColumns}
-									colors={colors}
-									pageId={pageId}
-									viewId={view?._id}
-									databaseId={databaseId}
-									groupId={item?._id}
-									blockId={blockId}
-								/>
+								<>
+									<TableHeader
+										columns={localColumns}
+										handleResizeStart={handleResizeStart}
+										loading={false}
+										databaseId={databaseId}
+										pageId={pageId}
+									/>
+									<TableBody
+										data={groupData?.[item?._id || null]?.docs || []}
+										columns={localColumns}
+										colors={colors}
+										pageId={pageId}
+										viewId={view?._id}
+										databaseId={databaseId}
+										groupId={item?._id}
+										blockId={blockId}
+									/>
+									{item?.hasNextPage && (
+										<div className={s.footerArea}>
+											<button>Load more</button>
+										</div>
+									)}
+								</>
 							</GroupToggler>
 						))}
 					</div>

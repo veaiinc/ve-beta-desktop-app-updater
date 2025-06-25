@@ -13,15 +13,44 @@
 	width: 100%;
 	height: 100%;
 	overflow: auto;
-	position: relative;
-}
+	// position: relative;
 
-.tableContent {
-	min-width: 100%;
-	border-collapse: separate;
-	border-spacing: 0;
-	width: max-content;
-	position: relative;
+	.tableContent {
+		min-width: 100%;
+		border-collapse: separate;
+		border-spacing: 0;
+		width: max-content;
+
+		.footerArea {
+			height: 30px;
+			align-self: stretch;
+			display: flex;
+			justify-content: flex-start;
+			align-items: center;
+			padding: 12px 8px;
+			background-color: var(--card);
+			position: sticky;
+			left: 0;
+			right: 0;
+
+			button {
+				background-color: var(--card);
+				border: none;
+				border-radius: 4px;
+				padding: 4px 8px;
+				font-size: 13px;
+				position: sticky;
+				left: 0;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				text-align: end;
+				cursor: pointer;
+			}
+		}
+	}
 }
 
 .tableHeader {

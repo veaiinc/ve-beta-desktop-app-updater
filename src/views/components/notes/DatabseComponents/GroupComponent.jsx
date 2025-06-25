@@ -173,11 +173,18 @@ const GroupComponent = ({ fields, view, databaseId, blockId, metaInfo }) => {
 					}
 				}
 
+				// Create clean config with only expected fields
+				const cleanNumberByConfig = {
+					groupRange: [Number(finalStart), Number(finalEnd)],
+				};
+
+				// Only include groupInterval if it exists in the current config
+				if (view?.groupBy?.config?.numberBy?.groupInterval !== undefined) {
+					cleanNumberByConfig.groupInterval = view.groupBy.config.numberBy.groupInterval;
+				}
+
 				await updateConfig({
-					numberBy: {
-						...view?.groupBy?.config?.numberBy,
-						groupRange: [Number(finalStart), Number(finalEnd)],
-					},
+					numberBy: cleanNumberByConfig,
 				});
 			} else if (field === 'interval') {
 				const intervalValue = parseFloat(value);
@@ -186,11 +193,18 @@ const GroupComponent = ({ fields, view, databaseId, blockId, metaInfo }) => {
 					return;
 				}
 
+				// Create clean config with only expected fields
+				const cleanNumberByConfig = {
+					groupInterval: Number(intervalValue),
+				};
+
+				// Only include groupRange if it exists in the current config
+				if (view?.groupBy?.config?.numberBy?.groupRange) {
+					cleanNumberByConfig.groupRange = view.groupBy.config.numberBy.groupRange;
+				}
+
 				await updateConfig({
-					numberBy: {
-						...view?.groupBy?.config?.numberBy,
-						groupInterval: Number(intervalValue),
-					},
+					numberBy: cleanNumberByConfig,
 				});
 			}
 		} catch (error) {
