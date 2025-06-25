@@ -4,12 +4,9 @@ import { Markdown } from '../../../helpers/markdownHelper';
 import { Tooltip } from 'antd';
 import { ReactComponent as PencilSparkleIcon } from '../../../assets/svg/notes/pencilSparkle.svg';
 import { ReactComponent as GraduationCapSvg } from '../../../assets/svg/graduationCap.svg';
-import { ReactComponent as ThumpsUpSvg } from '../../../assets/svg/ai_agents/thumps-up.svg';
-import { ReactComponent as ThumpsDownSvg } from '../../../assets/svg/ai_agents/thumps-down.svg';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../../../assets/svg/ai_agents/copy.svg';
 import { ReactComponent as ViewDocumentIcon } from '../../../assets/svg/chat/viewDocument.svg';
-import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
 import { ReactComponent as BulbSvg } from '../../../assets/svg/home_page/bulb.svg';
 import AISuggestionsReportAiComponent from './chatComponents/AiSuggestionsReportAiComponent';
 import '../../../assets/scss/chat/aiMessage.scss';
@@ -21,16 +18,11 @@ const AIMessage = ({
 	text,
 	customePencilClickFunc = null,
 	messageId = null,
-	handleRatingClick = null,
 	rating = null,
 	citations = null,
 	messageData,
 	isLastMessage = false,
 	showCanvas = true,
-	handleSendWebsocketMessage = null,
-	latestStreamMesage = null,
-	lastQuery = null,
-	toggleLatestStreamMessage = null,
 	handleViewDocument = null,
 	showViewDocument = false,
 	isNoteCanvas = false,
@@ -72,7 +64,6 @@ const AIMessage = ({
 	}, [customePencilClickFunc, setNoteContent, messageData]);
 
 	const handleTeachMeClick = useCallback(() => {
-		// handleRatingClick && handleRatingClick(newRating, messageId);
 		setInfo((prev) => ({ ...prev, feedbackPopupOpen: true }));
 	}, []);
 
@@ -99,10 +90,6 @@ const AIMessage = ({
 						<FormWidget
 							workflowTemplateId={messageData?.workflow_template_id}
 							moduleTemplateId={messageData?.module_template_id}
-							handleSendWebsocketMessage={handleSendWebsocketMessage}
-							latestStreamMesage={latestStreamMesage}
-							lastQuery={lastQuery}
-							toggleLatestStreamMessage={toggleLatestStreamMessage}
 							handleViewDocument={handleViewDocument}
 							showViewDocument={showViewDocument}
 							isLastMessage={isLastMessage}
@@ -230,8 +217,6 @@ export default memo(AIMessage, (prevProps, nextProps) => {
 		prevProps.rating === nextProps.rating &&
 		JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
 		prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
-		prevProps.isLastMessage === nextProps.isLastMessage &&
-		prevProps.lastQuery === nextProps.lastQuery &&
-		prevProps.latestStreamMesage === nextProps.latestStreamMesage
+		prevProps.isLastMessage === nextProps.isLastMessage
 	);
 });

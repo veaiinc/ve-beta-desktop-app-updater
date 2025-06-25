@@ -20,13 +20,8 @@ import ChainOfThoughtWidget from './chatComponents/ChainOfThoughtWidget';
 const AIMessageRenderer = ({
 	messageData,
 	handleNoteComponentModalOpen,
-	handleRatingClick,
 	tabsRefs,
 	index,
-	handleSendWebsocketMessage,
-	toggleLatestStreamMessage,
-	latestStreamMesage,
-	lastQuery,
 	handleViewDocument,
 	showViewDocument = false,
 	isPublicChat = false,
@@ -93,14 +88,9 @@ const AIMessageRenderer = ({
 					text={messageData?.message}
 					messageId={messageData?.messageId}
 					customePencilClickFunc={handleNoteComponentModalOpen}
-					handleRatingClick={handleRatingClick}
 					rating={messageData?.rating}
 					citations={messageData?.citations}
 					messageData={messageData}
-					handleSendWebsocketMessage={handleSendWebsocketMessage}
-					latestStreamMesage={latestStreamMesage}
-					lastQuery={lastQuery}
-					toggleLatestStreamMessage={toggleLatestStreamMessage}
 					handleViewDocument={handleViewDocument}
 					showViewDocument={showViewDocument}
 					isLastMessage={
@@ -182,7 +172,6 @@ const AIMessageRenderer = ({
 						text={messageData?.message}
 						messageId={messageData?.messageId}
 						customePencilClickFunc={handleNoteComponentModalOpen}
-						handleRatingClick={handleRatingClick}
 						rating={messageData?.rating}
 						citations={messageData?.citations}
 						messageData={messageData}
@@ -190,9 +179,6 @@ const AIMessageRenderer = ({
 							index === globalChatMessages?.[currentSessionId]?.messages?.length - 1
 						}
 						handleSendWebsocketMessage={handleSendWebsocketMessage}
-						latestStreamMesage={latestStreamMesage}
-						lastQuery={lastQuery}
-						toggleLatestStreamMessage={toggleLatestStreamMessage}
 						handleViewDocument={handleViewDocument}
 						showViewDocument={showViewDocument}
 						isLastMessage={

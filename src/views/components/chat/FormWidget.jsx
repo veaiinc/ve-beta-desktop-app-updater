@@ -17,10 +17,6 @@ const builderAgentMapper = {
 const FormWidget = ({
 	workflowTemplateId,
 	moduleTemplateId,
-	handleSendWebsocketMessage,
-	latestStreamMesage,
-	lastQuery,
-	toggleLatestStreamMessage,
 	handleViewDocument,
 	showViewDocument = false,
 	messageData,
@@ -93,10 +89,6 @@ const FormWidget = ({
 			<FormModal
 				isOpen={isExpanded}
 				closeModal={handleExpand}
-				handleSendWebsocketMessage={handleSendWebsocketMessage}
-				latestStreamMesage={latestStreamMesage}
-				lastQuery={lastQuery}
-				toggleLatestStreamMessage={toggleLatestStreamMessage}
 				workflowTemplateId={workflowTemplateId}
 				agent={agent}
 				builderAgentMapper={builderAgentMapper}
