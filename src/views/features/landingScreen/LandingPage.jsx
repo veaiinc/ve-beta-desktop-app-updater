@@ -21,6 +21,7 @@ import { ReactComponent as PlayIcon } from './assets/playIcon.svg';
 import { ReactComponent as PauseIcon } from './assets/pauseIcon.svg';
 
 import '../../../assets/scss/landingScreen/index.scss';
+import CustomToast from '../../components/globalComponents/CustomToast';
 
 const pathToTabMap = {
   '/': 0,            // ← added

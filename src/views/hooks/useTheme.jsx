@@ -1,0 +1,44 @@
+import { useCallback, useContext, useEffect } from 'react';
+import Context from '../../context/context';
+import Cookies from 'js-cookie';
+import { useLocation } from 'react-router-dom';
+
+const useTheme = () => {
+	const { pathname } = useLocation();
+	const {
+		themeInfo: { theme },
+	} = useContext(Context);
+
+	useEffect(() => {
+		const themePreference = getThemePreference();
+		let themeAttribute = themePreference;
+
+		if (themePreference === 'systemDefault') {
+			themeAttribute = window.matchMedia('(prefers-color-scheme: dark)').matches
+				? 'dark'
+				: 'light';
+		}
+
+		const htmlElement = document.documentElement;
+
+		if (pathname.startsWith('/builder')) {
+			htmlElement.removeAttribute('theme');
+		} else {
+			htmlElement.setAttribute('theme', themeAttribute);
+		}
+
+		if (window.navigator.appVersion.indexOf('Mac') !== -1) {
+			htmlElement.classList.add('macos');
+		} else {
+			htmlElement.classList.add('otheros');
+		}
+	}, [pathname, theme]);
+
+	const getThemePreference = useCallback(() => {
+		if (pathname.startsWith('/builder')) return 'light';
+		if (pathname === '/') return 'dark';
+		return theme || localStorage?.getItem('theme') || Cookies.get('theme') || 'dark';
+	}, [pathname, theme]);
+};
+
+export default useTheme;

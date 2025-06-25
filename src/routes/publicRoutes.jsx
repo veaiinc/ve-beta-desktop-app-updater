@@ -5,44 +5,88 @@ import LoginPage from '../views/features/loginPage/LoginPage';
 import Onboarding from '../views/features/onboarding/Onboarding';
 import TermsOfService from '../views/features/signin/TermsOfService';
 import CookiePolicy from '../views/features/signin/CookiePolicy';
-import WorkflowBuilder from '../views/features/workflowBuilder/WorkflowBuilder';
-import SmartFile from '../views/features/sales/smartFiles/SmartFile';
-import WorkflowBuilderLayout from '../views/layouts/workflowBuilderLayout';
-import SmartFileLayout from '../views/layouts/smartFileLayout';
 import PrivacyPolicy from '../views/features/signin/PrivacyPolicy';
 import ChageLog from '../views/features/signin/ChageLog';
 import PublicChat from '../views/features/publicChat/PublicChat';
-import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
-import OurMission from '../views/features/landingScreen/OurMission';
+import useWorkspaceMode from '../views/hooks/useWorkspaceMode';
+import OauthVerify from '../views/features/signin/oauth/OauthVerify';
+import PageLoader from '../views/components/app/PageLoader';
+import useTheme from '../views/hooks/useTheme';
+
+export const Public = ({ children }) => {
+	useTheme();
+	const { loading } = useWorkspaceMode();
+	return loading ? <PageLoader /> : <>{children}</>;
+};
 
 const publicRoutes = [
 	{
 		path: '/',
-		element: <LandingPage />,
+		element: (
+			<Public>
+				<LandingPage />
+			</Public>
+		),
 	},
 	{
 		path: '/thebridge',
-		element: <LandingPage />,
+		element: (
+			<Public>
+				<LandingPage />
+			</Public>
+		),
 	},
 	{
 		path: '/contact-us',
-		element: <LandingPage />,
+		element: (
+			<Public>
+				<LandingPage />
+			</Public>
+		),
 	},
 	{
 		path: '/pricing',
-		element: <LandingPage />,
+		element: (
+			<Public>
+				<LandingPage />
+			</Public>
+		),
 	},
 	{
 		path: '/api',
-		element: <LandingPage />,
+		element: (
+			<Public>
+				<LandingPage />
+			</Public>
+		),
 	},
 	{
 		path: '/thebridge',
-		element: <LandingPage />,
+		element: (
+			<Public>
+				<LandingPage />
+			</Public>
+		),
 	},
 	{
 		path: '/careers',
-		element: <LandingPage />,
+		element: (
+			<Public>
+				<LandingPage />
+			</Public>
+		),
+	},
+	{
+		path: '/forefront',
+		element: <Public><LandingPage /></Public>,
+	},
+	{
+		path: '/thebridge',
+		element: <Public><LandingPage /></Public>,
+	},
+	{
+		path: '/careers',
+		element: <Public><LandingPage /></Public>,
 	},
 	{
 		path: '/forefront',
@@ -50,67 +94,83 @@ const publicRoutes = [
 	},
 	{
 		path: '/onboarding',
-		element: <Onboarding />,
-	},
-	{
-		path: '/create-workspace',
-		element: <Onboarding />,
+		element: (
+			<Public>
+				<Onboarding />
+			</Public>
+		),
 	},
 	{
 		path: '/verify-user',
-		element: <LoginPage />,
+		element: (
+			<Public>
+				<LoginPage />
+			</Public>
+		),
 	},
 	{
 		path: '/referral/:referralCode',
-		element: <LoginPage />,
+		element: (
+			<Public>
+				<LoginPage />
+			</Public>
+		),
 	},
 	{
 		path: '/privacy-policy',
-		element: <PrivacyPolicy />,
+		element: (
+			<Public>
+				<PrivacyPolicy />
+			</Public>
+		),
 	},
 	{
 		path: '/terms-of-service',
-		element: <TermsOfService />,
+		element: (
+			<Public>
+				<TermsOfService />
+			</Public>
+		),
 	},
 	{
 		path: '/cookie-policy',
-		element: <CookiePolicy />,
+		element: (
+			<Public>
+				<CookiePolicy />
+			</Public>
+		),
 	},
 	{
 		path: '/changelog',
-		element: <ChageLog />,
-	},
-	{
-		path: '/smart-file/:templateId/:workflowId',
 		element: (
-			<SmartFileLayout title={'Smart File'}>
-				<SmartFile />
-			</SmartFileLayout>
-		),
-	},
-	{
-		path: '/workflow_builder/:templateId',
-		element: (
-			<WorkflowBuilderLayout title={'Workflow Builder'}>
-				<WorkflowBuilder />
-			</WorkflowBuilderLayout>
-		),
-	},
-	{
-		path: '/automation_builder/:templateId',
-		element: (
-			<WorkflowBuilderLayout title={'Workflow Builder'}>
-				<Workflow_builder_updated />
-			</WorkflowBuilderLayout>
+			<Public>
+				<ChageLog />
+			</Public>
 		),
 	},
 	{
 		path: '/c/:sessionId',
-		element: <PublicChat />,
+		element: (
+			<Public>
+				<PublicChat />
+			</Public>
+		),
+	},
+	{
+		path: '/user/verify-oauth-user',
+		element: (
+			<Public>
+				<OauthVerify />
+			</Public>
+		),
 	},
 	{
 		path: '*',
-		element: <Navigate to="/" />,
+		element: (
+			<Public>
+				<Navigate to="/" />
+			</Public>
+		),
 	},
 ];
 
