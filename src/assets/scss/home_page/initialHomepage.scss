@@ -70,112 +70,13 @@
 				line-height: normal;
 			}
 		}
-		.homepage__options-container {
-			display: flex;
-			justify-content: flex-start;
-			align-items: center;
-			align-content: center;
-			position: relative;
-			gap: 6px;
-			width: 100%;
-			max-width: 700px; /* Adjusted to make space for arrows */
-			overflow-x: auto;
-			scrollbar-width: none !important;
-			transition: width 0.9s ease-in-out;
-			scroll-behavior: smooth; /* Ensure smooth scrolling */
-			-ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
-			&::-webkit-scrollbar {
-				display: none; /* Hide scrollbar for WebKit browsers */
-			}
-
-			.option {
-				display: flex;
-				padding: 8px 12px;
-				align-items: center;
-				gap: 10px;
-				border-radius: 100px;
-				border: 1px solid var(--stroke, #202123);
-				cursor: pointer;
-				box-sizing: border-box;
-				height: 32px;
-				flex-shrink: 0;
-				&:hover {
-					border: 1px solid var(--stroke-hover);
-				}
-				.option-label {
-					color: var(--primary-font);
-					font-family: var(--primary-font-family);
-					font-size: 13px !important;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-					display: flex;
-					gap: 6px;
-					align-items: center;
-					text-transform: capitalize;
-					svg {
-						color: var(--secondary-font);
-						width: 16px;
-						height: 16px;
-					}
-				}
-				&.active {
-					border: 1px solid var(--primary-button);
-					.option-label {
-						color: var(--primary-button);
-						svg {
-							color: var(--primary-button);
-						}
-					}
-				}
-			}
-		}
-
-		.options-wrapper {
-			position: relative;
-			display: flex;
-			align-items: center;
-			max-width: 750px; /* Total width including arrows */
-			margin: 0 auto;
-			.arrow-container {
-				width: 50px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				gap: 6px;
-				background: var(--background-color);
-				.arrow {
-					position: absolute;
-					top: 50%;
-					transform: translateY(-50%);
-					width: 24px;
-					height: 24px;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					cursor: pointer;
-					z-index: 1;
-					svg {
-						width: 16px;
-						height: 16px;
-						color: var(--primary-font);
-					}
-
-					&.left-arrow {
-						right: 30px;
-					}
-					&.right-arrow {
-						right: 0;
-					}
-				}
-			}
-		}
 	}
 
 	.home-page-container-content {
 		width: 100%;
 		flex-grow: 1;
 		overflow-y: auto;
+		position: relative;
 	}
 }
 
