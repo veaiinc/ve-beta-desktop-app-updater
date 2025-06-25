@@ -1,9 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
-import useTheme from './views/hooks/useTheme';
 import useWorkspaceMode from './views/hooks/useWorkspaceMode';
 
 const App = () => {
-	useTheme();
 	const { routes } = useWorkspaceMode();
 
 	return (

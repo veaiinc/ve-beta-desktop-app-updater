@@ -10,7 +10,7 @@ const divStyles = {
 	borderRadius: '24px',
 	margin: '0 auto',
 	justifyContent: 'center',
-	width: '903px',
+	width: '924px',
 	flexDirection: 'column',
 };
 const GlobalWidget = ({ option = '' }) => {
