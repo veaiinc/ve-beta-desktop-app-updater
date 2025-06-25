@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import Context from '../../context/context';
 import Cookies from 'js-cookie';
 import { useLocation } from 'react-router-dom';
@@ -10,12 +10,6 @@ const useTheme = () => {
 	} = useContext(Context);
 
 	useEffect(() => {
-		const getThemePreference = () => {
-			if (pathname.startsWith('/builder')) return 'light';
-			if (pathname === '/') return 'dark';
-			return theme || localStorage?.getItem('theme') || Cookies.get('theme') || 'dark';
-		};
-
 		const themePreference = getThemePreference();
 		let themeAttribute = themePreference;
 
@@ -38,6 +32,12 @@ const useTheme = () => {
 		} else {
 			htmlElement.classList.add('otheros');
 		}
+	}, [pathname, theme]);
+
+	const getThemePreference = useCallback(() => {
+		if (pathname.startsWith('/builder')) return 'light';
+		if (pathname === '/') return 'dark';
+		return theme || localStorage?.getItem('theme') || Cookies.get('theme') || 'dark';
 	}, [pathname, theme]);
 };
 
