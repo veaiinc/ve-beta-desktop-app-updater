@@ -24,7 +24,7 @@ const Agent = () => {
 	};
 	return (
 		<div className={s.agentContainer}>
-			<div className={s.chatBlock}>
+			<div className={s.chatBlock} >
 				<RecentChat
 					isPreview={true}
 					{...(chatBoxClickedRef?.current && { sId: sid })}

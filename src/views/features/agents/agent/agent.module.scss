@@ -18,6 +18,12 @@
 		:global(.chat-container) {
 			padding: 0 !important;
 		}
+		:global(.chatHeader) {
+			:global(.headerInfo) {
+				background-color: transparent !important;
+			}
+		}
+
 	}
 	.agentBlock {
 		width: 100%;

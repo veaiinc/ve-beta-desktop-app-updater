@@ -78,6 +78,36 @@
 					line-height: 18px;
 				}
 			}
+			.actionIconsContainer {
+				display: flex;
+				width: 24px;
+				height: 24px;
+				padding: 4px 8px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				border-radius: 6px;
+				border: 0.5px solid var(--stroke-hover, #424548);
+				background: var(--card-over-card, #27282b);
+				cursor: pointer;
+				opacity: 0;
+	
+				.editKnowledge {
+					width: 14px;
+					height: 14px;
+					flex-shrink: 0;
+				}
+			}
+			.deleteKnowledge {
+				width: 14px;
+				height: 14px;
+				flex-shrink: 0;
+			}
+			&:hover {
+				.actionIconsContainer {
+					opacity: 1;
+				}
+			}
 		}
 
 		span:nth-child(2) {

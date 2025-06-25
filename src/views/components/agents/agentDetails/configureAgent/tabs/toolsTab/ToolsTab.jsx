@@ -32,6 +32,7 @@ const ToolsTab = ({ agentId }) => {
 		selectedAction: null,
 		editAgentToolOpen: false,
 		addToolModalOpen: false,
+		editToolModalOpen: false,
 	});
 
 	const getToolFaviconUrl = useCallback((typeDependencies) => {
@@ -231,6 +232,19 @@ const ToolsTab = ({ agentId }) => {
 										handleDeleteAction(item?._id);
 									}}
 								/>
+								<div className={s.actionIconsContainer}>
+									
+								<EditSvg
+									className={s.editKnowledge}
+									onClick={(e) => {
+										e.stopPropagation();
+										setInfo((prev) => ({
+											...prev,
+											editToolModalOpen: true,
+										}));
+									}}
+									/>
+									</div>
 							</span>
 							<span className={s.actionDate}>
 								{moment.unix(item?.createdAt).format('MMM DD, YYYY')}
