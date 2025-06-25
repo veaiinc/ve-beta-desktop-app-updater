@@ -21,6 +21,7 @@ import AccessDeniedPopup from '../components/accessPopups/accessDeniedPopup';
 import CustomToast from '../components/globalComponents/CustomToast';
 import useWorkspaceMode from '../hooks/useWorkspaceMode';
 import PageLoader from '../components/app/PageLoader';
+import useTheme from '../hooks/useTheme';
 
 const AuthWrapper = ({
 	title,
@@ -38,6 +39,7 @@ const AuthWrapper = ({
 	// const {
 	// 	subscriptionInfo: { renewBanner },
 	// } = useContext(Context);
+	useTheme();
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 	const location = useLocation();
 	const checkAuth = useAuth();
