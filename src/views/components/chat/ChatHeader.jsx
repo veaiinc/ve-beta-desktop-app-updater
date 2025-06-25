@@ -97,9 +97,38 @@ const ChatHeader = ({
 		[info?.activeUserMessageIndex, info?.userMessages, smoothScrollToParticularMessage],
 	);
 
+	const handleMouseEnter = useCallback(() => {
+		setInfo((prev) => {
+			const chatDropdownExpanded = prev.chatDropdownExpanded;
+			if (chatDropdownExpanded) {
+				return prev;
+			}
+			return {
+				...prev,
+				chatDropdownExpanded: true,
+			};
+		});
+	}, []);
+
+	const handleMouseLeave = useCallback(() => {
+		setInfo((prev) => {
+			const chatDropdownExpanded = prev.chatDropdownExpanded;
+			if (!chatDropdownExpanded) {
+				return prev;
+			}
+			return {
+				...prev,
+				chatDropdownExpanded: false,
+			};
+		});
+	}, []);
+
 	return (
 		<div className={s.wrapper}>
-			<div className={`${s.chatHeader} ${info?.chatDropdownExpanded ? s.expanded : ''}`}>
+			<div
+				className={`${s.chatHeader} ${info?.chatDropdownExpanded ? s.expanded : ''}`}
+				onMouseLeave={handleMouseLeave}
+			>
 				<div className={s.headerInfo}>
 					<div className={s.leftContainer}>
 						<div className={s.iconContainer} onClick={handleNavigateBack}>
@@ -162,18 +191,7 @@ const ChatHeader = ({
 									className={`${s.iconContainer} ${
 										info?.chatDropdownExpanded ? s.expanded : ''
 									}`}
-									onMouseEnter={() =>
-										setInfo((prev) => ({
-											...prev,
-											chatDropdownExpanded: !prev.chatDropdownExpanded,
-										}))
-									}
-									onMouseLeave={() =>
-										setInfo((prev) => ({
-											...prev,
-											chatDropdownExpanded: !prev.chatDropdownExpanded,
-										}))
-									}
+									onMouseEnter={handleMouseEnter}
 								>
 									<ChevronRightThinSvg width={18} height={18} />
 								</div>
