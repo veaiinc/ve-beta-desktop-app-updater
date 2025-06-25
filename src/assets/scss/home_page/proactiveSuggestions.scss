@@ -870,7 +870,7 @@
 	align-items: center;
 	gap: 8px;
 	color: var(--secondary-font, #7a7e85);
-	font-family: Inter;
+	font-family: 'var(--primary-font-family)';
 	font-size: 13px;
 	font-style: normal;
 	font-weight: 500;
@@ -1271,7 +1271,7 @@
 			background: var(--new-card, #1a1b1e);
 			.modal-content-title {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: 'var(--primary-font-family)';
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 600;
@@ -1280,7 +1280,7 @@
 			}
 			.modal-content-prompt {
 				color: var(--secondary-font, #7a7e85);
-				font-family: Inter;
+				font-family: 'var(--primary-font-family)';
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
