@@ -724,25 +724,43 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	}, [info?.options, info?.selectedOption]);
 	return (
 		<>
-			{(aiSuggestedPendingActions?.pendingActions?.length > 0 ||
-				info?.searchQuery?.length !== 0) && (
-				<div className="options-wrapper">
-					<div className="arrow left-arrow" onClick={() => handleScroll('left')}>
-						<ChevronRightThinSvg style={{ transform: 'rotate(180deg)' }} />
-					</div>
-
-					<div className={`homepage__options-container`} ref={optionsContainerRef}>
-						{renderedOptions}
-					</div>
-
-					<div className="arrow right-arrow" onClick={() => handleScroll('right')}>
-						<ChevronRightThinSvg />
-					</div>
+			{info?.showExploreMore && (
+				<div
+					className="revertExploreMore"
+					onClick={() => {
+						setInfo((prev) => ({
+							...prev,
+							showExploreMore: false,
+						}));
+					}}
+				>
+					<div>Back to insights</div>
+					<DoubleUpArrowSvg />
 				</div>
 			)}
+			{(aiSuggestedPendingActions?.pendingActions?.length > 0 ||
+				info?.searchQuery?.length !== 0) &&
+				!info?.showExploreMore && (
+					<div className="options-wrapper">
+						<div className="arrow left-arrow" onClick={() => handleScroll('left')}>
+							<ChevronRightThinSvg style={{ transform: 'rotate(180deg)' }} />
+						</div>
+
+						<div className={`homepage__options-container`} ref={optionsContainerRef}>
+							{renderedOptions}
+						</div>
+
+						<div className="arrow right-arrow" onClick={() => handleScroll('right')}>
+							<ChevronRightThinSvg />
+						</div>
+					</div>
+				)}
 			<div
 				className="proactive-suggestions-container"
-				style={{ paddingTop: info?.showExploreMore ? '40px' : '0px' }}
+				style={{
+					marginTop: info?.showExploreMore ? '60px' : '0px',
+					height: info?.showExploreMore ? '140px' : '',
+				}}
 				ref={mainContainerRef}
 				tabIndex={0}
 			>
@@ -1137,46 +1155,44 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 							<BuildOptions />
 						)}
 				</div>
-				{promptsData?.data?.length > 0 && (
-					<>
-						<div
-							className="explore-more-btn"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleExploreMoreClick(e);
-							}}
-						>
-							Explore More <DoubleUpArrowSvg />
-						</div>
-						{info?.showExploreMore && (
-							<div className="modal-container">
-								<InfiniteScroll
-									dataLength={promptsLenght}
-									next={() => fetchMoreAiSuggestedPrompts()}
-									hasMore={promptsHasNextPage || false}
-									loader={
-										<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />
-									}
-									height={'70vh'}
-								>
-									<div className="modal-content-container">
-										{promptsData?.data?.map((prompt, index) => (
-											<div key={index} className="modal-content">
-												<div className="modal-content-title">
-													{prompt?.title}
-												</div>
-												<div className="modal-content-prompt">
-													{prompt?.category}
-												</div>
-											</div>
-										))}
-									</div>
-								</InfiniteScroll>
-							</div>
-						)}
-					</>
-				)}
 			</div>
+			{promptsData?.data?.length > 0 && (
+				<>
+					<div
+						className={`explore-more-btn ${info?.showExploreMore ? 'active' : ''}`}
+						onClick={(e) => {
+							e.stopPropagation();
+							handleExploreMoreClick(e);
+						}}
+					>
+						Explore More <DoubleUpArrowSvg />
+					</div>
+					{info?.showExploreMore && (
+						<div className="modal-container">
+							<InfiniteScroll
+								dataLength={promptsLenght}
+								next={() => fetchMoreAiSuggestedPrompts()}
+								hasMore={promptsHasNextPage || false}
+								loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
+								height={'60vh'}
+							>
+								<div className="modal-content-container">
+									{promptsData?.data?.map((prompt, index) => (
+										<div key={index} className="modal-content">
+											<div className="modal-content-title">
+												{prompt?.title}
+											</div>
+											<div className="modal-content-prompt">
+												{prompt?.category}
+											</div>
+										</div>
+									))}
+								</div>
+							</InfiniteScroll>
+						</div>
+					)}
+				</>
+			)}
 		</>
 	);
 };

@@ -70,15 +70,13 @@
 				line-height: normal;
 			}
 		}
-		
-
-		
 	}
 
 	.home-page-container-content {
 		width: 100%;
 		flex-grow: 1;
 		overflow-y: auto;
+		position: relative;
 	}
 }
 
