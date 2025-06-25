@@ -1292,38 +1292,40 @@
 	align-items: center;
 	max-width: 750px; /* Total width including arrows */
 	margin: 30px auto;
-	.arrow-container {
-		width: 50px;
+
+	.arrow {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 24px;
+		height: 24px;
 		display: flex;
 		align-items: center;
-		justify-content: center;
-		gap: 6px;
-		background: var(--background-color);
-		.arrow {
-			position: absolute;
-			top: 50%;
-			transform: translateY(-50%);
-			width: 24px;
-			height: 24px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			cursor: pointer;
-			z-index: 1;
-			svg {
-				width: 16px;
-				height: 16px;
-				color: var(--primary-font);
-			}
 
-			&.left-arrow {
-				right: 30px;
-			}
-			&.right-arrow {
-				right: 0;
-			}
+		cursor: pointer;
+		z-index: 1;
+		svg {
+			width: 16px;
+			height: 16px;
+			color: var(--primary-font);
+		}
+
+		&.left-arrow {
+			justify-content: center;
+			width: 81px;
+			height: 36px;
+			left: -50px;
+			background: linear-gradient(90deg, #111113 9.11%, rgba(17, 17, 19, 0) 125.88%);
+		}
+		&.right-arrow {
+			justify-content: flex-end;
+			right: 0px;
+			width: 81px;
+			height: 36px;
+			background: linear-gradient(270deg, #111113 9.11%, rgba(17, 17, 19, 0) 125.88%);
 		}
 	}
+
 	.homepage__options-container {
 		display: flex;
 		justify-content: flex-start;

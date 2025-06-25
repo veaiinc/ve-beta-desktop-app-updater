@@ -5,9 +5,6 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks
 import { ReactComponent as FilterIcon } from '../../../assets/svg/tasks/newFiltersIcon.svg';
 import { ReactComponent as TickIcon } from '../../../assets/svg/tick.svg';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/close.svg';
-import EmailIcon from '../../../assets/svg/login_page/GmailIcon';
-import { ReactComponent as QuestionSvg } from '../../../assets/svg/home_page/question.svg';
-import { ReactComponent as ListDashesSvg } from '../../../assets/svg/home_page/listDashes.svg';
 import Skeleton from 'react-loading-skeleton';
 import AISuggestionsModal from '../../components/modalsV2/homePage/AISuggestionsModal';
 import { Tooltip } from 'antd';
@@ -18,19 +15,11 @@ import { message } from '../../components/globalComponents/CustomToast';
 import ObjectID from 'bson-objectid';
 import { useNavigate } from 'react-router-dom';
 import { handleCombinedChainOfThought } from '../../../helpers/chatHelpers';
-import { ReactComponent as RelativeTimeSvg } from '../../../assets/svg/home_page/relativeTime.svg';
-import { ReactComponent as ListViewSvg } from '../../../assets/svg/home_page/listView.svg';
-import { ReactComponent as FocusViewSvg } from '../../../assets/svg/home_page/focusView.svg';
-import { ReactComponent as SortDescSvg } from '../../../assets/svg/home_page/sortDesc.svg';
-import { ReactComponent as SortAscSvg } from '../../../assets/svg/home_page/sortAsc.svg';
-import { ReactComponent as AgentIcon } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import AIQuestions from './AIQuestions';
-import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
 import { ReactComponent as DoubleUpArrowSvg } from '../../../assets/svg/home_page/doubleUpArrow.svg';
 import ChatBox from '../../components/chat/ChatBox';
 import Suggestions from './Suggestions';
-import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 import PromptsWidget from '../../components/globalComponents/PromptsWidget';
 import BuildOptions from './BuildOptions';
 
@@ -122,6 +111,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	const timeoutIdRef = useRef(null);
 	const searchFocusedRef = useRef(false);
 	const mainContainerRef = useRef(null);
+	const optionsContainerRef = useRef(null); // Ref for the options container
 
 	const {
 		templates: {
@@ -138,7 +128,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		aiSetup: { getPromptsData, promptsData },
 		profileInfo: { aiCategories, getAiCategories },
 	} = useContext(Context);
-
 	const [info, setInfo] = useState({
 		totalCardsData: [],
 		cards: [],
@@ -160,6 +149,10 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		showExploreMore: false,
 		options: optionsList,
 		selectedOption: 'All',
+		showArrows: {
+			left: false,
+			right: false,
+		},
 	});
 	const promptsLenght = promptsData?.data?.length ?? 0;
 	const promptsHasNextPage = Boolean(promptsData?.hasNextPage);
@@ -167,6 +160,51 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	const [touchStartX, setTouchStartX] = useState(null);
 	const [touchEndX, setTouchEndX] = useState(null);
 	const minSwipeDistance = 50;
+
+	const checkScroll = useCallback(() => {
+		const container = optionsContainerRef.current;
+		if (container) {
+			const isOverflowing = container.scrollWidth > container.clientWidth;
+			setInfo((prev) => ({
+				...prev,
+				showArrows: {
+					left: true,
+					right:
+						isOverflowing &&
+						container.scrollLeft < container.scrollWidth - container.clientWidth - 1,
+				},
+			}));
+		}
+	}, []);
+
+	// Handle scroll on arrow click
+	const handleScroll = (direction) => {
+		const container = optionsContainerRef.current;
+		if (container) {
+			const scrollAmount = 600; // Adjust scroll distance as needed
+			const newScrollPosition =
+				direction === 'left'
+					? container.scrollLeft - scrollAmount
+					: container.scrollLeft + scrollAmount;
+			container.scrollTo({
+				left: newScrollPosition,
+				behavior: 'smooth',
+			});
+		}
+	};
+
+	useEffect(() => {
+		const container = optionsContainerRef.current;
+		if (container) {
+			container.addEventListener('scroll', checkScroll);
+		}
+		return () => {
+			window.removeEventListener('resize', checkScroll);
+			if (container) {
+				container.removeEventListener('scroll', checkScroll);
+			}
+		};
+	}, [checkScroll]);
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
 			updateCardsData();
@@ -664,14 +702,13 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		setTouchEndX(null);
 	};
 	const handleOptionSelection = (option) => {
-		console.log('option', option);
 		setInfo((prev) => ({
 			...prev,
 			selectedOption: option,
 		}));
 	};
 	const renderedOptions = useMemo(() => {
-		return info?.options?.map((option) => {
+		return info?.options?.map((option, index) => {
 			return (
 				<div
 					className={`option ${info?.selectedOption === option ? 'active' : ''}`}
@@ -679,7 +716,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 						e.stopPropagation();
 						handleOptionSelection(option);
 					}}
-					key={option}
+					key={index}
 				>
 					<div className="option-label">{option}</div>
 				</div>
@@ -691,7 +728,17 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			{(aiSuggestedPendingActions?.pendingActions?.length > 0 ||
 				info?.searchQuery?.length !== 0) && (
 				<div className="options-wrapper">
-					<div className={`homepage__options-container`}>{renderedOptions}</div>
+					<div className="arrow left-arrow" onClick={() => handleScroll('left')}>
+						<ChevronRightThinSvg style={{ transform: 'rotate(180deg)' }} />
+					</div>
+
+					<div className={`homepage__options-container`} ref={optionsContainerRef}>
+						{renderedOptions}
+					</div>
+
+					<div className="arrow right-arrow" onClick={() => handleScroll('right')}>
+						<ChevronRightThinSvg />
+					</div>
 				</div>
 			)}
 			<div
@@ -731,9 +778,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 											// style={{
 											// 	display: info?.cards?.length > 0 ? '' : 'none',
 											// }}
-											// onTouchStart={handleTouchStart}
-											// onTouchMove={handleTouchMove}
-											// onTouchEnd={handleTouchEnd}
+											onTouchStart={handleTouchStart}
+											onTouchMove={handleTouchMove}
+											onTouchEnd={handleTouchEnd}
 										>
 											{info?.loading ? (
 												[

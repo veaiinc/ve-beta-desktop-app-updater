@@ -194,8 +194,6 @@ const InitialHomePage = () => {
 	const navigate = useNavigate();
 	const timeoutIdRef = useRef(null);
 	const previousSelectedOptionRef = useRef(null);
-	const optionsContainerRef = useRef(null); // Ref for the options container
-	const [showArrows, setShowArrows] = useState({ left: false, right: false });
 
 	const [info, setInfo] = useState({
 		selectedOption: '',
