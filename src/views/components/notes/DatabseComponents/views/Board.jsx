@@ -5,7 +5,18 @@ import s from '../../../../../assets/scss/notes/databaseComponents/boardView.mod
 import { colors } from '../../../../../helpers/databaseHelpers';
 import { rowTypes } from '../../Database';
 
-const Board = ({ item, groupData, columns, databaseId, blockId, view, pageId, dragState }) => {
+const Board = ({
+	item,
+	groupData,
+	columns,
+	databaseId,
+	blockId,
+	view,
+	pageId,
+	dragState,
+	isGroupFieldReadOnly,
+	groupField,
+}) => {
 	const {
 		notes: { updateDatabaseSidebar, updateDatabaseRow, fetchMoreGroupData },
 	} = useContext(Context);
@@ -91,14 +102,26 @@ const Board = ({ item, groupData, columns, databaseId, blockId, view, pageId, dr
 				</div>,
 			);
 		}
+
+		// Create unique draggable ID and key using group ID + card ID + index for uniqueness
+		const draggableId = `${groupId}-${row?._id}-${index}`;
+		const cardKey = `${groupId}-${row?._id}-${index}`;
+
 		return (
-			<Draggable key={row?._id} draggableId={row?._id} index={index}>
+			<Draggable
+				key={cardKey}
+				draggableId={draggableId}
+				index={index}
+				isDragDisabled={isGroupFieldReadOnly}
+			>
 				{(provided, snapshot) => (
 					<div
 						ref={provided.innerRef}
 						{...provided.draggableProps}
 						{...provided.dragHandleProps}
-						className={`${s.card} ${snapshot.isDragging ? s.dragging : ''}`}
+						className={`${s.card} ${snapshot.isDragging ? s.dragging : ''} ${
+							isGroupFieldReadOnly ? s.readOnly : ''
+						}`}
 						onClick={() =>
 							updateDatabaseSidebar({
 								data: {
@@ -112,12 +135,7 @@ const Board = ({ item, groupData, columns, databaseId, blockId, view, pageId, dr
 								replace: true,
 							})
 						}
-						style={{
-							...provided.draggableProps.style,
-							transform: snapshot.isDragging
-								? provided.draggableProps.style?.transform
-								: 'none',
-						}}
+						style={provided.draggableProps.style}
 					>
 						{renderData}
 					</div>
@@ -150,35 +168,8 @@ const Board = ({ item, groupData, columns, databaseId, blockId, view, pageId, dr
 	const isDestination = dragState?.isDragging && dragState?.destinationGroupId === item?._id;
 	const destinationIndex = isDestination ? dragState?.destinationIndex : null;
 
-	// Generate drop indicators
-	const renderDropIndicators = () => {
-		if (!isDestination) return null;
-
-		const indicators = [];
-		const totalCards = docs?.length || 0;
-
-		// Show indicator at the top if dropping at index 0
-		if (destinationIndex === 0) {
-			indicators.push(
-				<div key="top" className={s.dropIndicator} style={{ marginTop: '6px' }} />,
-			);
-		}
-
-		// Show indicators between cards
-		for (let i = 0; i < totalCards; i++) {
-			if (destinationIndex === i + 1) {
-				indicators.push(
-					<div
-						key={`after-${i}`}
-						className={s.dropIndicator}
-						style={{ marginTop: '6px' }}
-					/>,
-				);
-			}
-		}
-
-		return indicators;
-	};
+	// Ensure consistent droppable ID
+	const droppableId = item?._id || 'null';
 
 	return (
 		<div
@@ -192,7 +183,7 @@ const Board = ({ item, groupData, columns, databaseId, blockId, view, pageId, dr
 					{/* {totalDocs || 0} {totalDocs > 1 ? 'items' : 'item'} */}
 				</span>
 			</div>
-			<Droppable droppableId={item?._id || 'null'}>
+			<Droppable droppableId={droppableId} isDropDisabled={isGroupFieldReadOnly}>
 				{(provided, snapshot) => (
 					<div
 						ref={provided.innerRef}
@@ -205,7 +196,7 @@ const Board = ({ item, groupData, columns, databaseId, blockId, view, pageId, dr
 						)}
 
 						{docs?.map((row, index) => (
-							<div key={row?._id}>
+							<div key={`${item?._id}-${row?._id}-${index}`}>
 								{generateCard(row, item?._id, index)}
 								{/* Show indicator after this card if it's the drop position */}
 								{isDestination && destinationIndex === index + 1 && (

@@ -72,6 +72,7 @@
 				cursor: grab;
 				transition: all 0.2s ease;
 				user-select: none;
+				position: relative;
 
 				&:active {
 					cursor: grabbing;
@@ -82,6 +83,15 @@
 					box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 					opacity: 0.9;
 					z-index: 1000;
+				}
+
+				&.readOnly {
+					cursor: default;
+					opacity: 0.7;
+
+					&:active {
+						cursor: default;
+					}
 				}
 
 				.cardField {

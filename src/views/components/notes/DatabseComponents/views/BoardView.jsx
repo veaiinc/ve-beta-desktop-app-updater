@@ -8,7 +8,7 @@ import Board from './Board';
 
 const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blockId }) => {
 	const {
-		notes: { updateDatabaseRow },
+		notes: { updateDatabaseRow, database },
 	} = useContext(Context);
 
 	const [dragState, setDragState] = useState({
@@ -17,6 +17,13 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 		destinationGroupId: null,
 		destinationIndex: null,
 	});
+
+	// Get the group field to check if it's read-only
+	const groupFieldId = view?.groupBy?.fieldId;
+	const groupField = database?.[databaseId]?.databaseMetadata?.fields?.find(
+		(field) => field._id === groupFieldId,
+	);
+	const isGroupFieldReadOnly = groupField?.isReadOnly || false;
 
 	const handleDragEnd = useCallback(
 		(result) => {
@@ -35,7 +42,12 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 			const destinationGroupId = destination.droppableId;
 			const sourceIndex = source.index;
 			const destinationIndex = destination.index;
-			const rowId = result.draggableId;
+
+			// Extract the actual row ID from the draggable ID (format: groupId-cardId-index)
+			const draggableId = result.draggableId;
+			const parts = draggableId.split('-');
+			// Remove the first part (groupId) and last part (index), join the rest as cardId
+			const rowId = parts.slice(1, -1).join('-');
 
 			// Reset drag state
 			setDragState({
@@ -60,13 +72,88 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 			);
 			if (!destinationGroup) return;
 
+			// Find the dragged row to get its current values
+			const draggedRow = groupData?.[sourceGroupId]?.docs?.find((row) => row._id === rowId);
+			if (!draggedRow) return;
+
+			// Get the current value of the group field
+			const currentGroupValue = draggedRow?.values?.[groupFieldId];
+
+			// Determine the new value based on field type
+			let newValue;
+			if (groupField?.type === 'multi_select') {
+				// For multi_select, we need array of option IDs
+				const currentArray = Array.isArray(currentGroupValue) ? currentGroupValue : [];
+				const sourceGroupValue = sourceGroupId === 'null' ? null : sourceGroupId;
+				const destinationGroupValue =
+					destinationGroupId === 'null' ? null : destinationGroupId;
+
+				// Remove source value and add destination value
+				const filteredArray = currentArray.filter((value) => {
+					const valueId = typeof value === 'object' ? value._id : value;
+					return valueId !== sourceGroupValue;
+				});
+
+				// Add destination value if it's not already in the array
+				const destinationExists = filteredArray.some((value) => {
+					const valueId = typeof value === 'object' ? value._id : value;
+					return valueId === destinationGroupValue;
+				});
+
+				if (!destinationExists && destinationGroupValue !== null) {
+					// For multi_select, we just add the option ID
+					filteredArray.push(destinationGroupValue);
+				}
+
+				newValue = filteredArray;
+			} else if (
+				groupField?.type === 'person' ||
+				groupField?.type === 'created_by' ||
+				groupField?.type === 'last_edited_by'
+			) {
+				// For person fields, we need array of person objects
+				const currentArray = Array.isArray(currentGroupValue) ? currentGroupValue : [];
+				const sourceGroupValue = sourceGroupId === 'null' ? null : sourceGroupId;
+				const destinationGroupValue =
+					destinationGroupId === 'null' ? null : destinationGroupId;
+
+				// Remove source value and add destination value
+				const filteredArray = currentArray.filter((value) => {
+					const valueId = typeof value === 'object' ? value._id : value;
+					return valueId !== sourceGroupValue;
+				});
+
+				// Add destination value if it's not already in the array
+				const destinationExists = filteredArray.some((value) => {
+					const valueId = typeof value === 'object' ? value._id : value;
+					return valueId === destinationGroupValue;
+				});
+
+				if (!destinationExists && destinationGroupValue !== null) {
+					// For person fields, we need to add the person object
+					const destinationGroupObj = view?.groupBy?.defaultGroups?.find(
+						(group) => group._id === destinationGroupValue,
+					);
+					if (destinationGroupObj) {
+						filteredArray.push({
+							_id: destinationGroupObj._id,
+							name: destinationGroupObj.label || destinationGroupObj.name,
+						});
+					}
+				}
+
+				newValue = filteredArray;
+			} else {
+				// For non-array fields, just set the destination value
+				newValue = destinationGroup._id === 'null' ? null : destinationGroup._id;
+			}
+
 			// Prepare the update payload
 			const payload = {
 				updateDatabaseRowId: rowId,
 				input: {
 					values: {
-						[groupFieldId]:
-							destinationGroup._id === 'null' ? null : destinationGroup._id,
+						[groupFieldId]: newValue,
 					},
 				},
 				pageId,
@@ -90,7 +177,7 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 				isOptimisticUpdate: true,
 			});
 		},
-		[pageId, updateDatabaseRow, databaseId, view, blockId],
+		[pageId, updateDatabaseRow, databaseId, view, blockId, groupData, groupField],
 	);
 
 	const handleDragUpdate = useCallback((update) => {
@@ -113,6 +200,29 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 		});
 	}, []);
 
+	// If the group field is read-only, render without drag and drop
+	if (isGroupFieldReadOnly) {
+		return (
+			<div className={s.boardViewWrapper}>
+				{view?.groupBy?.defaultGroups?.map((item, index) => (
+					<Board
+						key={item?._id}
+						item={item}
+						groupData={groupData}
+						columns={columns}
+						databaseId={databaseId}
+						blockId={blockId}
+						view={view}
+						pageId={pageId}
+						dragState={dragState}
+						isGroupFieldReadOnly={isGroupFieldReadOnly}
+						groupField={groupField}
+					/>
+				))}
+			</div>
+		);
+	}
+
 	return (
 		<DragDropContext
 			onDragEnd={handleDragEnd}
@@ -131,6 +241,8 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 						view={view}
 						pageId={pageId}
 						dragState={dragState}
+						isGroupFieldReadOnly={isGroupFieldReadOnly}
+						groupField={groupField}
 					/>
 				))}
 			</div>
