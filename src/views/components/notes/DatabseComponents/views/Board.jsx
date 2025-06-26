@@ -104,8 +104,9 @@ const Board = ({
 		}
 
 		// Create unique draggable ID and key using group ID + card ID + index for uniqueness
-		const draggableId = `${groupId}-${row?._id}-${index}`;
-		const cardKey = `${groupId}-${row?._id}-${index}`;
+		// Using ||| as separator to avoid conflicts with any user input
+		const draggableId = `${groupId}|||${row?._id}|||${index}`;
+		const cardKey = `${groupId}|||${row?._id}|||${index}`;
 
 		return (
 			<Draggable
@@ -152,7 +153,7 @@ const Board = ({
 				databaseId,
 				databaseViewId: view?._id,
 				input: {
-					docLimit: 25,
+					docLimit: 4,
 					docPage: currentPage + 1,
 					groupFilterId: item?._id || null,
 				},
@@ -204,6 +205,9 @@ const Board = ({
 								)}
 							</div>
 						))}
+
+						{/* Required placeholder for react-beautiful-dnd */}
+						{provided.placeholder}
 					</div>
 				)}
 			</Droppable>

@@ -34,6 +34,7 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 					destinationGroupId: null,
 					destinationIndex: null,
 				});
+
 				return;
 			}
 
@@ -43,11 +44,21 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 			const sourceIndex = source.index;
 			const destinationIndex = destination.index;
 
-			// Extract the actual row ID from the draggable ID (format: groupId-cardId-index)
+			// If dropped in the same position, do nothing
+			if (sourceGroupId === destinationGroupId && sourceIndex === destinationIndex) {
+				return;
+			}
+
+			// Extract the actual row ID from the draggable ID (format: groupId|||cardId|||index)
 			const draggableId = result.draggableId;
-			const parts = draggableId.split('-');
-			// Remove the first part (groupId) and last part (index), join the rest as cardId
-			const rowId = parts.slice(1, -1).join('-');
+
+			// The draggable ID format is: groupId|||cardId|||index
+			// Using ||| as separator to avoid conflicts with any user input
+			const parts = draggableId.split('|||');
+
+			// Extract the rowId (second part) and index (third part)
+			const rowId = parts[1]; // cardId
+			const index = parts[2]; // index
 
 			// Reset drag state
 			setDragState({
@@ -56,11 +67,6 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 				destinationGroupId: null,
 				destinationIndex: null,
 			});
-
-			// If dropped in the same position, do nothing
-			if (sourceGroupId === destinationGroupId && sourceIndex === destinationIndex) {
-				return;
-			}
 
 			// Get the group field ID from the view
 			const groupFieldId = view?.groupBy?.fieldId;
@@ -143,6 +149,38 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 				}
 
 				newValue = filteredArray;
+			} else if (groupField?.type === 'number') {
+				// For number fields, extract the starting value from the destination group ID
+				// Group ID format: "100-200" -> extract 100 (the first part)
+				if (destinationGroupId === 'null') {
+					newValue = null;
+				} else {
+					const groupIdParts = destinationGroupId.split('-');
+					if (groupIdParts.length >= 2) {
+						// Extract the first number (starting value of the range)
+						const startingValue = parseInt(groupIdParts[0], 10);
+						if (!isNaN(startingValue)) {
+							newValue = startingValue;
+						} else {
+							newValue = null;
+						}
+					} else {
+						// If it's not in range format, try to parse as number
+						const numericValue = parseFloat(destinationGroupId);
+						newValue = isNaN(numericValue) ? null : numericValue;
+					}
+				}
+			} else if (groupField?.type === 'date') {
+				// For date fields, we need to handle date grouping
+				// The destination group ID will contain the date information
+				if (destinationGroupId === 'null') {
+					newValue = null;
+				} else {
+					// For date fields, we might need to parse the group ID to get the actual date
+					// This depends on how your date grouping is configured
+					// For now, we'll pass the destination group ID and let the backend handle it
+					newValue = destinationGroupId;
+				}
 			} else {
 				// For non-array fields, just set the destination value
 				newValue = destinationGroup._id === 'null' ? null : destinationGroup._id;

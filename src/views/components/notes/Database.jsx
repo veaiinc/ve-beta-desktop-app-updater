@@ -210,7 +210,7 @@ const DatabaseComponent = ({ block, editor }) => {
 					databaseId,
 					databaseViewId: viewId,
 					input: {
-						docLimit: 25,
+						docLimit: 4,
 						docPage: 1,
 						groupLimit: 10,
 						groupPage: 1,
