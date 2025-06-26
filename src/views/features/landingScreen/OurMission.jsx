@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import '../../../assets/scss/landingScreen/ourMission.scss';
 import MissionTabNavigation from './missionTabNavigation/MissionTabNavigation';
-import { ReactComponent as BridgeSvg } from '../../../assets/svg/bridge.svg';
 import Careers from './careers/Careers';
 import MobileMenu from '../../components/landing_screen/MobileMenu';
-import { ReactComponent as BridgeMobile } from '../../../assets/svg/bridgeMobile.svg';
 
 const paragraphs1 = [
 	`We've built telescopes to touch the stars and microscopes to probe life's
@@ -70,7 +68,11 @@ We don't just store; we grow, prune, and rediscover.
 And now, so will our machines.`,
 ];
 
-const tabs = [{label: 'The bridge', path: '/thebridge'}, {label: 'Careers', path: '/careers'}, {label: 'Forefront', path: '/forefront'}];
+const tabs = [
+	{ label: 'The bridge', path: '/thebridge' },
+	{ label: 'Careers', path: '/careers' },
+	{ label: 'Forefront', path: '/forefront' },
+];
 
 const tabsMapper = {
 	1: (
@@ -84,14 +86,15 @@ const tabsMapper = {
 	4: <Careers />,
 	5: (
 		<section className="mission-block">
-			<h2 className="small-heading">
-				Forefront
-			</h2>
+			<h2 className="small-heading">Forefront</h2>
 			<div className="bridge">
-				<BridgeSvg />
+				<img src="https://ap.images.ve.ai/public/dashboard/bridge.svg" alt="bridge" />
 			</div>
 			<div className="bridgeMobile">
-				<BridgeMobile />
+				<img
+					src="https://ap.images.ve.ai/public/dashboard/bridgeMobile.svg"
+					alt="bridge mobile"
+				/>
 			</div>
 			<h1 className="heading">Building bridge between human intent and machine memory!</h1>
 
