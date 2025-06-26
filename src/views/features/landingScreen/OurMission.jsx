@@ -1,6 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import '../../../assets/scss/landingScreen/ourMission.scss';
 import MissionTabNavigation from './missionTabNavigation/MissionTabNavigation';
+import { ReactComponent as BridgeSvg } from '../../../assets/svg/bridge.svg';
+import Careers from './careers/Careers';
+import MobileMenu from '../../components/landing_screen/MobileMenu';
+import { ReactComponent as BridgeMobile } from '../../../assets/svg/bridgeMobile.svg';
 
 const paragraphs1 = [
 	`We've built telescopes to touch the stars and microscopes to probe life's
@@ -66,8 +70,10 @@ We don't just store; we grow, prune, and rediscover.
 And now, so will our machines.`,
 ];
 
+const tabs = [{label: 'The bridge', path: '/thebridge'}, {label: 'Careers', path: '/careers'}, {label: 'Forefront', path: '/forefront'}];
+
 const tabsMapper = {
-	0: (
+	1: (
 		<section className="bridge-block">
 			<h1 className="heading">The bridge </h1>
 			{missionContent.map((content, index) => (
@@ -75,8 +81,18 @@ const tabsMapper = {
 			))}
 		</section>
 	),
-	1: (
+	4: <Careers />,
+	5: (
 		<section className="mission-block">
+			<h2 className="small-heading">
+				Forefront
+			</h2>
+			<div className="bridge">
+				<BridgeSvg />
+			</div>
+			<div className="bridgeMobile">
+				<BridgeMobile />
+			</div>
 			<h1 className="heading">Building bridge between human intent and machine memory!</h1>
 
 			{paragraphs1.map((para, i) => (
@@ -92,22 +108,19 @@ const tabsMapper = {
 	),
 };
 
-const OurMission = () => {
-	const [info, setInfo] = useState({
-		tab: 0,
-	});
-	const handleSetNewTab = (tab) => {
-		setInfo((prev) => ({
-			...prev,
-			tab,
-		}));
-	};
+const OurMission = ({ tab }) => {
+	const [info, setInfo] = useState({ mobileMenuOpen: false });
 	return (
 		<main className="our-mission-container">
+			<MobileMenu
+				open={info.mobileMenuOpen}
+				onClose={() => setInfo({ mobileMenuOpen: false })}
+				onLogin={() => navigate('/login')}
+			/>
 			<div className="mission-nav-col">
-				<MissionTabNavigation tab={info.tab} handleSetNewTab={handleSetNewTab} />
+				<MissionTabNavigation tabs={tabs} activeIndex={tab} />
 			</div>
-			<div className="mission-content-col">{tabsMapper[info.tab]}</div>
+			<div className="mission-content-col">{tabsMapper[tab]}</div>
 		</main>
 	);
 };
