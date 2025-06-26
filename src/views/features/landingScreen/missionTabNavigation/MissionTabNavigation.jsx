@@ -1,71 +1,57 @@
 import { memo } from 'react';
 import s from './missionTabNavigation.module.scss';
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
-// const tabs = ['Mission', 'Research', 'Careers'];
-const tabs = ['Mission', 'Forefront'];
-// const subTabs = [
-// 	{
-// 		blog: [{ label: 'Forefront', path: '/forefront' }],
-// 	},
-// ];
-
-const MissionTabNavigation = ({ tab, handleSetNewTab }) => {
+const Tab = ({ tab, navigate, setInfo, activeTab }) => {
 	return (
-		<main className={s.missionTabsContainer} aria-label="Mission navigation">
-			<ul className={s.mainTabs}>
-				{tabs.map((label, index) => (
-					<li
-						key={`main-tab-${index}`}
-						className={`${s.tab} ${tab === index ? s.active : ''}`}
-						onClick={() => handleSetNewTab(index)}
-						role="tab"
-						aria-selected={tab === index}
-						tabIndex={0}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								handleSetNewTab(index);
-							}
-						}}
-					>
-						{label}
-					</li>
-				))}
-			</ul>
+		<li
+			key={tab.label}
+			className={`${s.tab} ${tab.path === activeTab ? s.active : ''}`}
+			onClick={() => {
+				setInfo({ currentTab: tab.path });
+				navigate(tab.path);
+			}}
+			role="tab"
+			aria-selected={tab.path === activeTab}
+			tabIndex={0}
+		>
+			{tab.label}
+		</li>
+	);
+};
 
-			{/* {subTabs.map((subTab, subTabIndex) => (
-				<section key={`subtab-section-${subTabIndex}`} className={s.subTabSection}>
-					{Object.entries(subTab).map(([category, items], categoryIndex) => (
-						<ul
-							key={`subtab-${category}-${categoryIndex}`}
-							className={s.subTabContainer}
-						>
-							<li className={s.subTab} style={{ pointerEvents: 'none', fontWeight: 600 }}>
-								{category}
-							</li>
-							{items.map((item, itemIndex) => {
-								const flatIndex = tabs.length + itemIndex; // <--- Key logic!
-								return (
-									<li
-										key={`subtab-item-${itemIndex}`}
-										className={`${s.subTab} ${tab === flatIndex ? s.active : ''}`}
-										role="tab"
-										tabIndex={0}
-										onClick={() => handleSetNewTab(flatIndex)}
-										onKeyDown={(e) => {
-											if (e.key === 'Enter' || e.key === ' ') {
-												handleSetNewTab(flatIndex);
-											}
-										}}
-									>
-										{item.label}
-									</li>
-								);
-							})}
-						</ul>
-					))}
-				</section>
-			))} */}
-		</main>
+const MissionTabNavigation = ({ tabs }) => {
+	const navigate = useNavigate();
+	const [info, setInfo] = useState({ currentTab: '/thebridge' });
+	const tab = tabs[tabs.length - 1];
+	return (
+		<aside className={s.missionTabsContainer} aria-label="Mission navigation">
+			<ul className={s.mainTabs}>
+				{tabs.slice(0, tabs.length - 1).map((tab) => (
+					<Tab
+						tab={tab}
+						key={tab.label}
+						navigate={navigate}
+						setInfo={setInfo}
+						activeTab={info.currentTab}
+					/>
+				))}
+				<div className={s.divider}></div>
+				<li
+					role="tab"
+					aria-selected={tab.path === info.currentTab}
+					tabIndex={0}
+					className={`${s.tab} ${tab.path === info.currentTab ? s.active : ''}`}
+					onClick={() => {
+						setInfo({ currentTab: tab.path });
+						navigate(tab.path);
+					}}
+				>
+					{tab.label}
+				</li>
+			</ul>
+		</aside>
 	);
 };
 

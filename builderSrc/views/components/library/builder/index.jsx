@@ -720,10 +720,7 @@ class Builder extends Component {
 							this.props.module === 'contract' || this.props.module === 'invoice'
 								? '0px auto'
 								: '',
-						width:
-							this.props.module === 'contract' || this.props.module === 'invoice'
-								? '100%'
-								: '',
+
 						overflowX:
 							this.props.client && this.state.previewType === 'm' ? 'hidden' : '',
 
@@ -731,6 +728,7 @@ class Builder extends Component {
 
 						display: 'block',
 						borderRadius: this.props.mobile_preview_builder ? '24px' : '',
+						width: '100%',
 					}}
 				>
 					{/* navigationBar */}
