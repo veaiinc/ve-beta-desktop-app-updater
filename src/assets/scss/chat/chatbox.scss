@@ -83,11 +83,14 @@
 							gap: 8px;
 							align-self: center;
 							border-radius: 16px;
-							background-color: var(--card);
+							background-color: var(--chat-box);
 							border: 1px solid var(--stroke);
 							transition: border 200ms ease-in-out;
 							overflow: hidden;
 							position: relative;
+							&:hover {
+								border: 1px solid var(--stroke-hover);
+							}
 							&.startPageContainer {
 								padding: 12px;
 							}
@@ -266,7 +269,7 @@
 
 										.combined-chat-options {
 											display: flex;
-											background-color: var(--popup);
+
 											border-radius: 6px;
 											position: relative;
 											border: 1px solid var(--stroke);
@@ -276,7 +279,7 @@
 												display: flex;
 												justify-content: center;
 												align-items: center;
-												background: var(--popup);
+
 												.plus-icon {
 													height: 17px;
 												}
