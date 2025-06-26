@@ -6,6 +6,7 @@ import GalleryViewLayout from '../views/layouts/galleryViewLayout';
 import AutomationBuilderLayout from '../views/layouts/automationBuilderLayout';
 import SmartFileLayout from '../views/layouts/smartFileLayout';
 import WorkflowBuilderLayout from '../views/layouts/workflowBuilderLayout';
+import Public from '../views/layouts/Public';
 
 // Protected Pages
 import CalendarModule from '../views/features/calendar/Calendar';
@@ -55,7 +56,6 @@ import Agent from '../views/features/agents/agent/Agent';
 import SmartFile from '../views/features/sales/smartFiles/SmartFile';
 import WorkflowBuilder from '../views/features/workflowBuilder/WorkflowBuilder';
 import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
-import { Public } from './publicRoutes';
 import Onboarding from '../views/features/onboarding/Onboarding';
 const BuilderApp = lazy(() => import('../../builderSrc/App'));
 

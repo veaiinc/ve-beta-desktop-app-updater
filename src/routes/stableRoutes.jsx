@@ -1,9 +1,12 @@
+// layouts
+import Public from '../views/layouts/Public';
+import AuthWrapper from '../views/layouts/authWrapper';
+
+// pages
 import InitialHomePage from '../views/features/homePage/InitialHomePage';
 import ShareAndEarn from '../views/features/shareAndEarn/ShareAndEarn';
 import SettingsWrapper from '../views/features/settings/SettingsWrapper';
 import RecentChat from '../views/features/chat/RecentChat';
-import AuthWrapper from '../views/layouts/authWrapper';
-import { Public } from './publicRoutes';
 import Onboarding from '../views/features/onboarding/Onboarding';
 
 const stableRoutes = [

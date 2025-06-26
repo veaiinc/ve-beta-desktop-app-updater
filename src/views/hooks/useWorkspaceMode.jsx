@@ -6,6 +6,7 @@ import { matchPath, useLocation } from 'react-router-dom';
 import publicRoutes, { publicRoutesList } from '../../routes/publicRoutes';
 import stableRoutes from '../../routes/stableRoutes';
 import betaRoutes from '../../routes/betaRoutes';
+import fallbackRoute from '../../routes/fallbackRoute';
 
 const useWorkspaceMode = () => {
 	const { pathname } = useLocation();
@@ -15,15 +16,17 @@ const useWorkspaceMode = () => {
 	} = useContext(Context);
 
 	const workspaceMode = tennantSettingsData?.workspaceMode ?? null; // stable, beta, internal
-	const isPublicRoute = publicRoutesList.find((route) => matchPath(route, pathname));
+	const isPublicRoute = publicRoutesList.some((routePath) =>
+		matchPath({ path: routePath, end: true }, pathname),
+	);
 	const loading = isPublicRoute ? false : workspaceMode === null ? true : false;
 	const routes = isPublicRoute
-		? [...publicRoutes]
+		? publicRoutes
 		: workspaceMode === 'stable' && !loading
-		? [...stableRoutes]
+		? stableRoutes
 		: workspaceMode === 'beta' && !loading
-		? [...betaRoutes]
-		: null;
+		? betaRoutes
+		: fallbackRoute;
 
 	const fetchWorkspaceMode = async () => {
 		try {
@@ -39,6 +42,8 @@ const useWorkspaceMode = () => {
 			console.error(error);
 		}
 	};
+
+	console.log(isPublicRoute);
 
 	useEffect(() => {
 		// Fetch workspaceMode only for protected routes
