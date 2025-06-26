@@ -61,6 +61,30 @@ const publicRoutes = [
 		),
 	},
 	{
+		path: '/about-us',
+		element: (
+			<Public>
+				<LandingPage />
+			</Public>
+		),
+	},
+	{
+		path: '/careers',
+		element: (
+			<Public>
+				<LandingPage />
+			</Public>
+		),
+	},
+	{
+		path: '/forefront',
+		element: (
+			<Public>
+				<LandingPage />
+			</Public>
+		),
+	},
+	{
 		path: '/onboarding',
 		element: (
 			<Public>

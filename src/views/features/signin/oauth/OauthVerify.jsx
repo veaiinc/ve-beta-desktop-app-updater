@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { fetchDomainName } from '../../../../helpers';
-import './OauthVerify.scss';
+import './oauthVerify.scss';
 import Spinner from '../../../components/loaders/Spinner';
 
 const OauthVerify = () => {

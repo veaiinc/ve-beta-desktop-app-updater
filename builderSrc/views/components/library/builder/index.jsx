@@ -1585,6 +1585,10 @@ class Builder extends Component {
 															isService,
 														)
 													}
+													invoiceSentDate={this.props?.invoiceSentDate}
+													invoiceAcceptedDate={
+														this.props?.invoiceAcceptedDate
+													}
 												/>
 											</div>
 										);

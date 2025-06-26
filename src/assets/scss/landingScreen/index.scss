@@ -23,13 +23,11 @@
 		font-family: var(--primary-font-family);
 		z-index: 150;
 		transition: background-color 0.3s ease;
+		padding: 20px;
 
-		// Change background when proactive dropdown tooltip is visible
 		&.proactive-dropdown-open {
 			background: var(--card, #18191b);
 		}
-
-		// Alternative approach for browsers that don't support :has()
 		.proactiveDropdown:hover ~ & {
 			background: var(--card, #18191b);
 		}
@@ -39,21 +37,19 @@
 			align-items: center;
 			justify-content: space-between;
 			margin: 0 auto;
-			padding: 24px 32px 20px 32px;
 			background: transparent;
-			flex: 1 0 0;
 			border-radius: 8px;
 			max-width: 1700px;
 			width: 100%;
 			box-sizing: border-box;
 
 			.left-container {
-				justify-self: start;
 				display: flex;
 				gap: 32px;
 				align-items: center;
 				z-index: 1000;
 				cursor: pointer;
+
 				.ve-logo {
 					width: 40px;
 					height: 27px;
@@ -61,7 +57,6 @@
 
 				.sidebar-button {
 					background: transparent;
-					outline: none;
 					border: none;
 					cursor: pointer;
 					position: relative;
@@ -72,8 +67,6 @@
 			}
 
 			.middle-container {
-				justify-self: center;
-				display: flex;
 				justify-content: center;
 				align-items: center;
 				margin-left: 170px;
@@ -81,8 +74,6 @@
 				.tabNavigation {
 					display: flex;
 					gap: 4px;
-					margin: 0;
-					padding: 0;
 
 					.proactiveDropdown {
 						display: flex;
@@ -94,7 +85,6 @@
 						transition: color 0.3s ease-in;
 						align-items: center;
 						gap: 6px;
-
 						&:hover {
 							color: var(--primary-font);
 						}
@@ -105,27 +95,19 @@
 							width: 100%;
 							max-width: 1440px;
 							margin: 0 auto;
-							transform-origin: top center !important;
+							transform-origin: top center;
 							display: flex;
 							justify-content: center;
 							background: var(--card, #18191b);
 						}
-
 						.ant-tooltip {
 							max-width: 100vw !important;
 						}
-
 						.ant-tooltip-inner {
 							padding: 0 !important;
 							background: transparent !important;
 							box-shadow: none !important;
 						}
-					}
-
-					// Change page-header background when proactive tooltip is visible
-					&:hover + .proactive-tooltip ~ .page-header,
-					&:hover ~ .page-header {
-						background: var(--card, #18191b) !important;
 					}
 
 					li {
@@ -143,7 +125,6 @@
 							cursor: pointer;
 							font-size: 14px;
 							transition: color 0.2s ease;
-
 							&::after {
 								content: '';
 								height: 2px;
@@ -172,15 +153,10 @@
 			}
 
 			.right-container {
-				justify-self: end;
 				display: flex;
 				justify-content: flex-end;
 				align-items: center;
 				gap: 10px;
-
-				&.hidden-on-mobile {
-					// Empty rule for media query
-				}
 
 				.theme-btn {
 					display: flex;
@@ -189,32 +165,27 @@
 					padding: 12px;
 					justify-content: center;
 					align-items: center;
-					gap: 10px;
 					border-radius: 100px;
 					background: var(--card, #181a1b);
 					cursor: pointer;
 					border: none;
 				}
-				.login-container {
-					display: flex;
 
+				.login-container {
 					.login-btn {
-						display: flex;
-						padding: 12px 24px;
+						padding: 14px 24px;
 						justify-content: center;
 						align-items: center;
 						gap: 6px;
 						border-radius: 100px;
 						background: var(--primary-button, #cfff48);
-						color: var(--primary-button-font, #0c0c0d);
+						color: var(--background-color, #0c0c0d);
 						cursor: pointer;
 						border: none;
-						color: var(--background-color, #0c0c0d);
 						font-family: var(--primary-font-family);
 						font-size: 14px;
-						font-style: normal;
 						font-weight: 500;
-						line-height: normal;
+
 						svg {
 							width: 18px !important;
 							color: var(--primary-button-font);
@@ -223,20 +194,17 @@
 				}
 
 				.login-btn-text {
-					display: flex;
-					padding: 12px 24px;
+					padding: 14px 24px;
 					justify-content: center;
 					align-items: center;
 					gap: 10px;
 					border-radius: 100px;
 					border: 1px solid var(--stroke, #2c2d2e);
-					color: var(--primary-font, #f2f2f3);
+					color: var(--primary-font);
 					font-size: 14px;
 					font-weight: 500;
-					outline: none;
 					background-color: transparent;
 					cursor: pointer;
-					height: 47px;
 				}
 			}
 		}
@@ -248,7 +216,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 30px;
+		gap: 100px;
 		background: var(--background-color, #0c0c0d);
 		padding: 30px 0 0;
 
@@ -257,13 +225,16 @@
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			gap: 32px;
-			// flex: 0 0 0;
+			gap: 50px;
 			position: relative;
 			width: 100%;
 			margin: 0 auto;
 			height: 60vh;
 			margin-top: 0rem;
+
+			&.with-suggestions {
+				height: 90vh;
+			}
 
 			.chatbox-container {
 				width: 100%;
@@ -274,6 +245,7 @@
 				z-index: 2;
 				.chatParentWrapper {
 					max-width: 750px;
+					padding-inline: 20px;
 				}
 			}
 
@@ -288,37 +260,34 @@
 				display: flex;
 				flex-direction: column;
 				gap: 20px;
+				text-align: center;
 				.title-text-container {
 					display: flex;
 					flex-direction: column;
 					align-items: center;
-					// gap: 20px;
-					align-self: stretch;
+					gap: 6px;
 					.title-one {
 						color: var(--primary-button, #79ecc9);
 						text-align: center;
-						font-family: var(--secondary-font-family);
 						font-size: 20px;
-						font-style: normal;
 						font-weight: 500;
-						line-height: normal;
 						text-transform: capitalize;
 					}
 
 					.title-two {
 						color: var(--primary-font, #f2f2f3);
 						text-align: center;
-						font-family: var(--secondary-font-family);
-						font-size: 55px;
-						font-style: normal;
+						font-family: Manrope;
+						font-size: 70px;
 						font-weight: 600;
-						line-height: 60px; /* 109.091% */
+						line-height: 72px;
 						text-transform: capitalize;
 					}
 				}
 				.title-three {
 					color: var(--primary-font, #f2f2f3);
 					text-align: center;
+					font-family: Manrope;
 					font-size: 20px;
 					font-weight: 500;
 				}
@@ -332,13 +301,8 @@
 			}
 		}
 
-		.title-container.with-suggestions {
-			height: 90vh;
-		}
-
 		.responsive-spacer {
 			height: 3500px;
-			// display: none;
 		}
 
 		.chatbox-container {
@@ -348,23 +312,63 @@
 			position: relative;
 		}
 
+		/* ─── VIDEO CONTROLS ───────────────────────────────────────────────── */
 		.videoContainer {
 			max-width: 1700px;
 			width: 100%;
 			border-radius: 16px;
-			object-fit: cover;
-			border-radius: 16px;
 			margin-bottom: 50px;
-			padding-inline: 50px;
+			padding-inline: 20px;
+			position: relative;
+
+			video {
+				border: 1px solid var(--stroke, #2c2d2e);
+			}
+
+			/* BEFORE first play: always show button */
+			&.unplayed button {
+				visibility: visible;
+			}
+			/* AFTER first play: hide by default */
+			&.played button {
+				visibility: hidden;
+			}
+			/* on hover, reveal controls */
+			&.played:hover button {
+				visibility: visible;
+			}
+
+			button {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				display: flex;
+				padding: 16px;
+				align-items: center;
+				gap: 16px;
+				border-radius: 8px;
+				background-color: var(--card);
+				border: 1px solid var(--stroke, #2c2d2e);
+				cursor: pointer;
+				z-index: 10;
+				transition: visibility 0.3s ease;
+				&:hover {
+					border-color: var(--stroke-hover);
+				}
+			}
+
+			video {
+				width: 100%;
+			}
 		}
+		/* ─────────────────────────────────────────────────────────────────────── */
 
 		.buttons-container {
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			align-content: center;
 			gap: 8px;
-			align-self: stretch;
 			flex-wrap: wrap;
 
 			button {
@@ -376,7 +380,6 @@
 				border-radius: 100px;
 				border: 1px solid var(--stroke, #2c2d2e);
 				color: var(--secondary-font, #7a7e85);
-				text-align: center;
 				font-size: 14px;
 				font-weight: 500;
 				background-color: transparent;
@@ -387,7 +390,6 @@
 		.homepageImage {
 			width: 100%;
 			border-radius: 24px;
-			// max-width: 1376px;
 			padding: 0 32px;
 			height: 1000px;
 			flex-shrink: 0;
@@ -422,301 +424,90 @@
 	}
 }
 
-// MEDIA QUERIES (ORDER: LARGEST TO SMALLEST)
-@media screen and (max-width: 1024px) {
-	.title-container.with-suggestions {
-		height: 95vh !important;
-	}
-}
-@media screen and (max-width: 1000px) {
-	.title-container.with-suggestions {
-		height: 97vh !important;
-	}
-}
-@media screen and (max-width: 768px) {
-	.title-container.with-suggestions {
-		height: 98vh !important;
-	}
-}
-@media screen and (max-width: 600px) {
-	.title-container.with-suggestions {
-		height: 100vh !important;
-	}
-}
-
-@media (min-width: 1025px) {
-	.landing-page-container .page-body .responsive-spacer {
-		display: block;
-	}
-
-	.landing-page-container .page-body .title-container {
-		// height: auto;
-		// min-height: 500px;
-		padding: 0 64px;
-	}
-
-	.title-text .title-three {
-		width: 100%;
-		max-width: 764px;
-	}
-}
-
-@media screen and (max-width: 500px) {
-	.title-container.with-suggestions {
-		height: 100vh !important;
-	}
-}
-@media screen and (max-width: 1024px) {
-	.landing-page-container .page-body .title-container {
-		// height: auto;
-		// min-height: 400px;
-		padding: 0 32px;
-	}
-
-	.title-text .title-three {
-		width: 100%;
-		max-width: 600px;
-	}
-}
-
-@media screen and (max-width: 1000px) {
-	.page-header .middle-container {
-		display: none !important;
-	}
-	.page-header {
-		display: flex !important;
-		justify-content: space-between;
-		padding: 20px !important;
-	}
-
-	.hide-on-mobile {
-		display: none !important;
-	}
-
-	.login-btn-text {
-		display: none !important;
-	}
-}
-@media screen and (max-width: 768px) {
-	.landing-page-container .page-body {
-		gap: 24px;
-		padding-top: 80px;
-	}
-
-	.landing-page-container .page-body .title-container {
-		// height: auto;
-		// min-height: 300px;
-		// margin-top: 4rem;
-
-		.title-text .title-text-container .title-one {
-			color: var(--primary-button, #79ecc9);
-			text-align: center;
-			font-family: var(--secondary-font-family);
-			font-size: 20px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			text-transform: capitalize;
-		}
-
-		.title-text .title-text-container .title-two {
-			color: var(--primary-font, #f2f2f3);
-			text-align: center;
-			font-family: var(--secondary-font-family);
-			font-size: 34px;
-			font-style: normal;
-			font-weight: 600;
-			line-height: normal;
-			text-transform: capitalize;
-		}
-		.title-text .title-text-container .title-three {
-			color: var(--secondary-font, #7a7e85);
-			text-align: center;
-			font-family: var(--secondary-font-family);
-			font-size: 16px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 24px;
-		}
-	}
-	.page-header .middle-container {
-		display: none !important;
-	}
-
-	.hide-on-mobile {
-		display: none !important;
-	}
-
-	.login-btn-text {
-		display: none !important;
-	}
-}
-
-@media screen and (max-width: 600px) {
-	.page-header .middle-container {
-		display: none !important;
-	}
-
-	.landing-page-container .page-body .title-container {
-		// min-height: 200px;
-		padding: 0 20px;
-		margin-top: 0rem;
-		// height: auto;
-	}
-}
-
-@media screen and (max-width: 600px) {
-	.page-header .middle-container {
-		display: none !important;
-	}
-
-	.landing-page-container .page-body .title-container {
-		// min-height: 200px;
-		padding: 0 20px;
-		margin-top: 0rem;
-		// height: auto;
-	}
-}
-
-@media screen and (max-width: 500px) {
-	.page-header {
-		padding: 16px;
-		position: relative;
-		display: flex;
-		// height: auto;
-		// min-height: 80px;
-
-		.left-container {
-			gap: 12px;
-			flex: 1;
+@media screen and (max-width: 1700px) {
+	.landing-page-container {
+		.page-header {
+			display: flex;
 			justify-content: space-between;
-			position: relative;
+			padding: 20px;
 
-			.sidebar-button {
-				order: 2;
-				position: absolute;
-				right: 0;
-				top: 50%;
-				transform: translateY(-50%);
+			.right-container .login-btn-text {
+				display: flex;
 			}
 
-			svg:first-child {
-				order: 1;
+			.page-header-wrapper {
+				.middle-container {
+					display: block;
+				}
+				.right-container {
+					.login-container {
+						display: block;
+					}
+					.login-btn-text {
+						display: block;
+					}
+				}
 			}
 		}
-
-		.sidebar-button {
-			z-index: 1000;
-		}
-
-		.tabNavigation {
-			width: 100%;
-			padding-top: 80px;
-		}
-
-		.right-container {
-			.theme-btn {
-				display: none;
-			}
-			.login-btn {
-				margin-left: 8px;
-				padding: 10px 16px;
-				font-size: 12px;
-			}
-		}
-	}
-
-	.landing-page-container .page-body {
-		padding-top: 60px;
-	}
-
-	.landing-page-container .page-body .title-container {
-		padding: 0 16px;
-		// height: auto;
-		// min-height: 300px;
-		gap: 16px;
-		margin-top: 0rem;
-		.title-text {
-			gap: 8px;
-
-			.title-one {
-				font-size: 20px;
-				line-height: 28px;
-			}
-
-			.title-two {
-				font-size: 32px;
-				line-height: 40px;
-			}
-
-			.title-three {
-				font-size: 16px;
-				line-height: 24px;
-				width: 100%;
-			}
-		}
-
-		.chatbox-container {
-			height: 80px;
-			width: 100%;
-		}
-
-		.suggestions-container {
-			margin-top: 8px;
-			width: 100%;
-		}
-	}
-
-	.landing-page-container .page-body .title-container .subtext {
-		font-size: 16px;
-		line-height: 24px;
-	}
-
-	.landing-page-container .page-body .homepageImage {
-		padding: 16px;
 	}
 }
 
-@media screen and (max-width: 400px) {
-	.title-container {
-		height: 50vh !important;
-		margin-top: 0rem;
-	}
-	.title-container.with-suggestions {
-		height: 120vh !important;
+@media screen and (max-width: 1000px) {
+	.landing-page-container {
+		.page-header {
+			padding: 20px;
+
+			.page-header-wrapper {
+				.middle-container {
+					display: none;
+				}
+				.right-container {
+					.login-container {
+						.login-btn {
+							display: none;
+						}
+					}
+					.login-btn-text {
+						display: none;
+					}
+				}
+			}
+		}
+
+		.page-body {
+			gap: 50px;
+
+			.videoContainer {
+				button {
+					display: none;
+				}
+			}
+			.title-container {
+				height: 50vh;
+				.title-text {
+					.title-text-container {
+						.title-one {
+							font-size: 14px;
+						}
+						.title-two {
+							font-size: 50px;
+						}
+					}
+					.title-three {
+						font-size: 14px;
+					}
+				}
+			}
+		}
 	}
 }
 
-@media screen and (max-width: 350px) {
-	.title-container {
-		height: 100vh !important;
-		margin-top: 0rem;
+@media screen and (max-width: 1700) {
+	.landing-page-container {
+		.page-body {
+			.videoContainer {
+				padding-inline: 20px;
+			}
+		}
 	}
-	.title-container.with-suggestions {
-		height: 160vh !important;
-	}
-}
-
-// Global rule to change page-header background when proactive dropdown is hovered
-.proactive-tooltip {
-	~ .landing-page-container .page-header,
-	& ~ .page-header {
-		background: var(--card, #18191b) !important;
-	}
-}
-
-// Alternative approach using body class when tooltip is visible
-body.proactive-dropdown-open .landing-page-container .page-header {
-	background: var(--card, #18191b) !important;
-}
-
-// Change proactive dropdown text color when dropdown is open
-body.proactive-dropdown-open
-	.landing-page-container
-	.page-header
-	.page-header-wrapper
-	.middle-container
-	.tabNavigation
-	.proactiveDropdown {
-	color: var(--primary-font) !important;
 }
