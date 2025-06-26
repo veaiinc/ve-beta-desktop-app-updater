@@ -17,7 +17,7 @@ import { ReactComponent as CalendarSvg } from '../../../assets/svg/home_page/cal
 import { ReactComponent as TasksSvg } from '../../../assets/svg/home_page/tasks.svg';
 import { ReactComponent as ContactsSvg } from '../../../assets/svg/home_page/contacts.svg';
 import { ReactComponent as AutomationSvg } from '../../../assets/svg/home_page/automation.svg';
-import { ReactComponent as PricingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
+// import { ReactComponent as PricingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
 
 export const stableNavigationItems = [
 	{
@@ -82,7 +82,7 @@ export const betaSettingsNavItems = {
 		{ name: 'Team Members', route: '/settings/team-members', icon: TeamIcon },
 		{ name: 'Integrations', route: '/settings/integrations', icon: IntegrationsIcon },
 		{ name: 'Plan Billing', route: '/settings/plan-billing', icon: PlanBillingIcon },
-		{ name: 'Pricing', route: '/settings/pricing', icon: PricingIcon },
+		// { name: 'Pricing', route: '/settings/pricing', icon: PricingIcon },
 		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
 	],
 	user: [
