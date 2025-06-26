@@ -343,7 +343,7 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 	const table = markdown?.slice(start, end);
 
 	const handleCopyTable = useCallback((table) => {
-		navigator?.clipboard?.writeText(table);
+		navigator?.clipboard?.writeText(table?.replace(/\[C\d+\]/g, ''));
 		setIsCopied(true);
 		setTimeout(() => {
 			setIsCopied(false);

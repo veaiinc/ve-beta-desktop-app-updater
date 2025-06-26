@@ -47,7 +47,7 @@ const AIMessage = ({
 	};
 
 	const handleCopyTextClick = useCallback((text) => {
-		const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
+		const textToBeCopied = text?.replace(/\[C\d+\]/g, '');
 		navigator?.clipboard?.writeText(textToBeCopied).then(() => {
 			setInfo((prev) => ({ ...prev, isCopiedToClipboard: true }));
 			setTimeout(() => {
