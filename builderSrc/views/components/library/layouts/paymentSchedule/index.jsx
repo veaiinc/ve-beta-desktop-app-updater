@@ -331,7 +331,6 @@ class PaymentSchedule extends Component {
 		const dueDate = new Date(data.type === 'custom Date' && data.dueDate);
 		const invoiceSentDate = new Date(this.props?.invoiceSentDate * 1000);
 		const invoiceAcceptedDate = new Date(this.props?.invoiceAcceptedDate * 1000);
-		console.log('dates', data);
 		if (data.type === 'custom Date' && isNaN(dueDate.getTime())) {
 			return <p>Invalid date</p>; // Or any fallback UI
 		}
