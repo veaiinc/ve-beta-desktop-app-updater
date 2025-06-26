@@ -516,6 +516,74 @@ export const handleUpdateInGroup = ({
 	return hasUpdated ? { updatedGroupData, updatedGroups } : { groupData, updatedGroups: null };
 };
 
+export const handleDragAndDropInGroup = ({
+	groupData,
+	updatedRowData,
+	groupId = null,
+	rowId,
+	groupBy = null,
+	config = null,
+	defaultGroups = [],
+	fieldType = null,
+	statusOptions = null,
+	sourceGroupId,
+	destinationGroupId,
+	sourceIndex,
+	destinationIndex,
+	isSameGroup = false,
+}) => {
+	const updatedGroupData = { ...groupData };
+	let updatedGroups = [...(defaultGroups || [])];
+
+	// If it's the same group, just reorder within that group
+	if (isSameGroup && sourceGroupId === destinationGroupId) {
+		const group = updatedGroupData[sourceGroupId];
+		if (group && group.docs) {
+			const docs = [...group.docs];
+			const [movedItem] = docs.splice(sourceIndex, 1);
+			docs.splice(destinationIndex, 0, movedItem);
+
+			updatedGroupData[sourceGroupId] = {
+				...group,
+				docs,
+			};
+		}
+		return { updatedGroupData, updatedGroups: null };
+	}
+
+	// If moving between different groups
+	if (sourceGroupId !== destinationGroupId) {
+		// Remove from source group
+		if (updatedGroupData[sourceGroupId] && updatedGroupData[sourceGroupId].docs) {
+			const sourceDocs = [...updatedGroupData[sourceGroupId].docs];
+			const [movedItem] = sourceDocs.splice(sourceIndex, 1);
+
+			updatedGroupData[sourceGroupId] = {
+				...updatedGroupData[sourceGroupId],
+				docs: sourceDocs,
+			};
+
+			// Add to destination group at specific position
+			if (updatedGroupData[destinationGroupId]) {
+				const destDocs = [...(updatedGroupData[destinationGroupId].docs || [])];
+				destDocs.splice(destinationIndex, 0, movedItem);
+
+				updatedGroupData[destinationGroupId] = {
+					...updatedGroupData[destinationGroupId],
+					docs: destDocs,
+				};
+			} else {
+				// Create new group if it doesn't exist
+				updatedGroupData[destinationGroupId] = {
+					docs: [movedItem],
+				};
+			}
+		}
+	}
+
+	return { updatedGroupData, updatedGroups: null };
+};
+
 export const handleAddInGroup = ({
 	groupData,
 	newRowData,

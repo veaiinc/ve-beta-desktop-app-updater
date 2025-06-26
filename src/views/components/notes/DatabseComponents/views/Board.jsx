@@ -1,10 +1,11 @@
 import { useCallback, useContext, useState } from 'react';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 import Context from '../../../../../context/context';
 import s from '../../../../../assets/scss/notes/databaseComponents/boardView.module.scss';
 import { colors } from '../../../../../helpers/databaseHelpers';
 import { rowTypes } from '../../Database';
 
-const Board = ({ item, groupData, columns, databaseId, blockId, view, pageId }) => {
+const Board = ({ item, groupData, columns, databaseId, blockId, view, pageId, dragState }) => {
 	const {
 		notes: { updateDatabaseSidebar, updateDatabaseRow, fetchMoreGroupData },
 	} = useContext(Context);
@@ -29,7 +30,7 @@ const Board = ({ item, groupData, columns, databaseId, blockId, view, pageId }) 
 		[pageId, updateDatabaseRow, databaseId, view?._id, blockId],
 	);
 
-	const generateCard = (row, groupId) => {
+	const generateCard = (row, groupId, index) => {
 		const renderData = [];
 		for (let i = 0; i < columns.length; i++) {
 			const element = columns[i];
@@ -91,19 +92,37 @@ const Board = ({ item, groupData, columns, databaseId, blockId, view, pageId }) 
 			);
 		}
 		return (
-			<div
-				className={s.card}
-				key={row?._id}
-				onClick={() =>
-					updateDatabaseSidebar({
-						data: { rowData: row, viewId: view?._id, databaseId, groupId, blockId },
-						open: true,
-						replace: true,
-					})
-				}
-			>
-				{renderData}
-			</div>
+			<Draggable key={row?._id} draggableId={row?._id} index={index}>
+				{(provided, snapshot) => (
+					<div
+						ref={provided.innerRef}
+						{...provided.draggableProps}
+						{...provided.dragHandleProps}
+						className={`${s.card} ${snapshot.isDragging ? s.dragging : ''}`}
+						onClick={() =>
+							updateDatabaseSidebar({
+								data: {
+									rowData: row,
+									viewId: view?._id,
+									databaseId,
+									groupId,
+									blockId,
+								},
+								open: true,
+								replace: true,
+							})
+						}
+						style={{
+							...provided.draggableProps.style,
+							transform: snapshot.isDragging
+								? provided.draggableProps.style?.transform
+								: 'none',
+						}}
+					>
+						{renderData}
+					</div>
+				)}
+			</Draggable>
 		);
 	};
 
@@ -127,6 +146,40 @@ const Board = ({ item, groupData, columns, databaseId, blockId, view, pageId }) 
 		setInfo((prev) => ({ ...prev, dataLoading: false }));
 	};
 
+	// Check if this board is the destination for the current drag
+	const isDestination = dragState?.isDragging && dragState?.destinationGroupId === item?._id;
+	const destinationIndex = isDestination ? dragState?.destinationIndex : null;
+
+	// Generate drop indicators
+	const renderDropIndicators = () => {
+		if (!isDestination) return null;
+
+		const indicators = [];
+		const totalCards = docs?.length || 0;
+
+		// Show indicator at the top if dropping at index 0
+		if (destinationIndex === 0) {
+			indicators.push(
+				<div key="top" className={s.dropIndicator} style={{ marginTop: '6px' }} />,
+			);
+		}
+
+		// Show indicators between cards
+		for (let i = 0; i < totalCards; i++) {
+			if (destinationIndex === i + 1) {
+				indicators.push(
+					<div
+						key={`after-${i}`}
+						className={s.dropIndicator}
+						style={{ marginTop: '6px' }}
+					/>,
+				);
+			}
+		}
+
+		return indicators;
+	};
+
 	return (
 		<div
 			key={item?._id}
@@ -139,7 +192,30 @@ const Board = ({ item, groupData, columns, databaseId, blockId, view, pageId }) 
 					{/* {totalDocs || 0} {totalDocs > 1 ? 'items' : 'item'} */}
 				</span>
 			</div>
-			<div className={s.boardBody}>{docs?.map((row) => generateCard(row, item?._id))}</div>
+			<Droppable droppableId={item?._id || 'null'}>
+				{(provided, snapshot) => (
+					<div
+						ref={provided.innerRef}
+						{...provided.droppableProps}
+						className={s.boardBody}
+					>
+						{/* Show top indicator if dropping at index 0 */}
+						{isDestination && destinationIndex === 0 && (
+							<div className={s.dropIndicator} style={{ marginTop: '6px' }} />
+						)}
+
+						{docs?.map((row, index) => (
+							<div key={row?._id}>
+								{generateCard(row, item?._id, index)}
+								{/* Show indicator after this card if it's the drop position */}
+								{isDestination && destinationIndex === index + 1 && (
+									<div className={s.dropIndicator} style={{ marginTop: '6px' }} />
+								)}
+							</div>
+						))}
+					</div>
+				)}
+			</Droppable>
 			{hasNextPage && (
 				<div className={s.loadMoreContainer}>
 					<button className={s.loadMoreButton} onClick={handleLoadMore}>

@@ -929,8 +929,28 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const updateDatabaseRow = async (payload, { viewId, databaseId, groupId, blockId }) => {
+	const updateDatabaseRow = async (
+		payload,
+		{ viewId, databaseId, groupId, blockId, reorderContext, isOptimisticUpdate = false },
+	) => {
 		try {
+			// If this is an optimistic update for drag and drop, update UI immediately
+			if (isOptimisticUpdate && reorderContext) {
+				dispatch({
+					type: Actions.UPDATE_DATABASE_ROWS,
+					payload: {
+						viewId,
+						rowId: payload?.updateDatabaseRowId,
+						updatedRow: null, // We don't have the updated row yet
+						groupId,
+						blockId,
+						databaseId,
+						reorderContext,
+						isOptimisticUpdate: true,
+					},
+				});
+			}
+
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const response = await service.mutation(
@@ -940,19 +960,40 @@ export const NotesState = (props) => {
 				usertoken,
 				'page_notes_api',
 			);
+
 			if (response?.[0]) {
 				const updatedRow = response?.[1]?.data?.updateDatabaseRow;
-				dispatch({
-					type: Actions.UPDATE_DATABASE_ROWS,
-					payload: {
-						viewId,
-						rowId: payload?.updateDatabaseRowId,
-						updatedRow,
-						groupId,
-						blockId,
-						databaseId,
-					},
-				});
+
+				// If this was an optimistic update, we don't need to dispatch again
+				// as the UI is already updated. Just sync with the server response
+				if (!isOptimisticUpdate) {
+					dispatch({
+						type: Actions.UPDATE_DATABASE_ROWS,
+						payload: {
+							viewId,
+							rowId: payload?.updateDatabaseRowId,
+							updatedRow,
+							groupId,
+							blockId,
+							databaseId,
+							reorderContext,
+						},
+					});
+				} else {
+					// For optimistic updates, just sync the updated row data without reordering
+					dispatch({
+						type: Actions.SYNC_OPTIMISTIC_UPDATE,
+						payload: {
+							viewId,
+							rowId: payload?.updateDatabaseRowId,
+							updatedRow,
+							groupId,
+							blockId,
+							databaseId,
+						},
+					});
+				}
+
 				updateRelatedViews({
 					updatedRow,
 					viewId,
@@ -961,10 +1002,39 @@ export const NotesState = (props) => {
 				});
 				return [true, response?.[1]];
 			} else {
+				// If API call failed and this was an optimistic update, revert the changes
+				if (isOptimisticUpdate) {
+					dispatch({
+						type: Actions.REVERT_OPTIMISTIC_UPDATE,
+						payload: {
+							viewId,
+							rowId: payload?.updateDatabaseRowId,
+							groupId,
+							blockId,
+							databaseId,
+							reorderContext,
+						},
+					});
+				}
 				return [false, response?.[1]];
 			}
 		} catch (error) {
 			console.error('error==>updateDatabaseRow', error);
+
+			// If there was an error and this was an optimistic update, revert the changes
+			if (isOptimisticUpdate) {
+				dispatch({
+					type: Actions.REVERT_OPTIMISTIC_UPDATE,
+					payload: {
+						viewId,
+						rowId: payload?.updateDatabaseRowId,
+						groupId,
+						blockId,
+						databaseId,
+						reorderContext,
+					},
+				});
+			}
 		}
 	};
 

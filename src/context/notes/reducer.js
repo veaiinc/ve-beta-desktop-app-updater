@@ -3,6 +3,7 @@ import {
 	handleUpdateInGroup,
 	handleAddInGroup,
 	handleDeleteInGroup,
+	handleDragAndDropInGroup,
 } from '../../helpers/databaseHelpers';
 import { intialState } from './state';
 const actionHandlers = {
@@ -121,7 +122,16 @@ const actionHandlers = {
 		};
 	},
 	UPDATE_DATABASE_ROWS: (state, action) => {
-		const { viewId, rowId, updatedRow, groupId, blockId, databaseId } = action.payload;
+		const {
+			viewId,
+			rowId,
+			updatedRow,
+			groupId,
+			blockId,
+			databaseId,
+			reorderContext,
+			isOptimisticUpdate = false,
+		} = action.payload;
 
 		const currentBlockData = state?.rowData?.[viewId] || {};
 		const { groupData, groupBy, fieldType } = currentBlockData || {};
@@ -137,6 +147,50 @@ const actionHandlers = {
 			statusOptions = updatedField?.config?.status;
 		}
 
+		// If reorderContext is provided, use drag and drop logic
+		if (reorderContext) {
+			const { updatedGroupData, updatedGroups } = handleDragAndDropInGroup({
+				groupData,
+				updatedRowData: updatedRow,
+				groupId,
+				rowId,
+				groupBy,
+				config: view?.groupBy?.config,
+				fieldType,
+				defaultGroups: view?.groupBy?.defaultGroups,
+				statusOptions,
+				...reorderContext,
+			});
+
+			if (updatedGroups) {
+				view = {
+					...view,
+					groupBy: {
+						...view?.groupBy,
+						defaultGroups: updatedGroups,
+					},
+				};
+			}
+
+			return {
+				...state,
+				rowData: {
+					...state.rowData,
+					[viewId]: {
+						...currentBlockData,
+						groupData: updatedGroupData,
+					},
+				},
+				views: {
+					...state.views,
+					[blockId]: state?.views?.[blockId]?.map((item) =>
+						item?._id === viewId ? view : item,
+					),
+				},
+			};
+		}
+
+		// Otherwise, use the original update logic
 		const { updatedGroupData, updatedGroups } = handleUpdateInGroup({
 			groupData,
 			updatedRowData: updatedRow,
@@ -337,6 +391,111 @@ const actionHandlers = {
 			rowData: {
 				...state.rowData,
 				...updatedRowData,
+			},
+		};
+	},
+	SYNC_OPTIMISTIC_UPDATE: (state, action) => {
+		const { viewId, rowId, updatedRow, groupId, blockId, databaseId } = action.payload;
+
+		const currentBlockData = state?.rowData?.[viewId] || {};
+		const { groupData } = currentBlockData || {};
+
+		// Update the row data in all groups without reordering
+		const updatedGroupData = {};
+		for (const group in groupData) {
+			const updatedDocs = groupData[group]?.docs?.map((row) => {
+				if (row?._id === rowId) {
+					return {
+						...row,
+						...updatedRow,
+						values: {
+							...row?.values,
+							...(updatedRow?.values || {}),
+						},
+					};
+				}
+				return row;
+			});
+			updatedGroupData[group] = {
+				...groupData[group],
+				docs: updatedDocs,
+			};
+		}
+
+		return {
+			...state,
+			rowData: {
+				...state.rowData,
+				[viewId]: {
+					...currentBlockData,
+					groupData: updatedGroupData,
+				},
+			},
+		};
+	},
+	REVERT_OPTIMISTIC_UPDATE: (state, action) => {
+		const { viewId, rowId, groupId, blockId, databaseId, reorderContext } = action.payload;
+
+		const currentBlockData = state?.rowData?.[viewId] || {};
+		const { groupData, groupBy, fieldType } = currentBlockData || {};
+
+		let view = (state?.views?.[blockId] || []).find((item) => item?._id === viewId);
+
+		let statusOptions = null;
+		if (fieldType === 'status') {
+			const fieldId = groupBy?.fieldId;
+			const updatedField = state?.database?.[databaseId]?.databaseMetadata?.fields?.find(
+				(item) => item?._id === fieldId,
+			);
+			statusOptions = updatedField?.config?.status;
+		}
+
+		// Revert the reordering by doing the opposite operation
+		const reverseReorderContext = {
+			...reorderContext,
+			sourceGroupId: reorderContext.destinationGroupId,
+			destinationGroupId: reorderContext.sourceGroupId,
+			sourceIndex: reorderContext.destinationIndex,
+			destinationIndex: reorderContext.sourceIndex,
+		};
+
+		const { updatedGroupData, updatedGroups } = handleDragAndDropInGroup({
+			groupData,
+			updatedRowData: null,
+			groupId,
+			rowId,
+			groupBy,
+			config: view?.groupBy?.config,
+			fieldType,
+			defaultGroups: view?.groupBy?.defaultGroups,
+			statusOptions,
+			...reverseReorderContext,
+		});
+
+		if (updatedGroups) {
+			view = {
+				...view,
+				groupBy: {
+					...view?.groupBy,
+					defaultGroups: updatedGroups,
+				},
+			};
+		}
+
+		return {
+			...state,
+			rowData: {
+				...state.rowData,
+				[viewId]: {
+					...currentBlockData,
+					groupData: updatedGroupData,
+				},
+			},
+			views: {
+				...state.views,
+				[blockId]: state?.views?.[blockId]?.map((item) =>
+					item?._id === viewId ? view : item,
+				),
 			},
 		};
 	},
