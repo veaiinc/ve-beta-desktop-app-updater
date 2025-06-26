@@ -5573,426 +5573,589 @@ class Layout extends Component {
 	//* various functions for loop animations
 	// ! breathe loop animation function
 	handleLoopBreathe = (element, adjustments) => {
-		element.classList.add(
-			adjustments?.direction == 'center' ? 'loop-breathe-center' : 'loop-breathe',
-		);
-		element.style.animationDuration = `${adjustments?.animeDuration || 3}s`;
-		element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
-		element.style.animationDelay = `${adjustments?.animeDelay || 0}s`;
-		element.style.animationIterationCount =
-			!this.state?.preview && !this.props?.client ? 1 : 'infinite';
+		const durationTime = parseFloat(adjustments?.animeDuration ?? 1);
+		const delayTime = parseFloat(adjustments?.animeDelay ?? 0);
+		const totalTime = durationTime + delayTime;
+		const add = () => {
+			element.classList.add(
+				adjustments?.direction == 'center' ? 'loop-breathe-center' : 'loop-breathe',
+			);
+			element.style.animationDuration = `${durationTime || 3}s`;
+			element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
 
-		element.style.setProperty(
-			'--breathe-x-distance',
-			`${adjustments?.direction == 'horizontal' ? adjustments?.animeDistance : '0'}px`,
-		);
-
-		element.style.setProperty(
-			'--breathe-y-distance',
-			`${adjustments?.direction == 'vertical' ? adjustments?.animeDistance : '0'}px`,
-		);
-		adjustments?.direction == 'center' &&
 			element.style.setProperty(
-				'--breathe-scale-value',
-				`${adjustments?.animeDistance / 100 + 0.5 || 2}`,
+				'--breathe-x-distance',
+				`${adjustments?.direction == 'horizontal' ? adjustments?.animeDistance : '0'}px`,
 			);
 
-		if (!this.state?.preview && !this.props?.client) {
-			const timeout = parseFloat(
-				parseFloat(adjustments?.animeDuration || 1) +
-					parseFloat(adjustments?.animeDelay || 1),
+			element.style.setProperty(
+				'--breathe-y-distance',
+				`${adjustments?.direction == 'vertical' ? adjustments?.animeDistance : '0'}px`,
 			);
-
-			setTimeout(() => {
-				element.classList.remove(
-					adjustments?.direction == 'center' ? 'loop-breathe-center' : 'loop-breathe',
+			adjustments?.direction == 'center' &&
+				element.style.setProperty(
+					'--breathe-scale-value',
+					`${adjustments?.animeDistance / 100 + 0.5 || 2}`,
 				);
-				element.style.removeProperty('--breathe-x-distance');
-				element.style.removeProperty('--breathe-y-distance');
-				element.style.removeProperty('--breathe-scale-value');
-			}, timeout * 1000);
+
+			if (this.props?.client && delayTime > 0) {
+				setTimeout(() => {
+					remove();
+				}, parseFloat(durationTime ?? 1) * 1000);
+			}
+		};
+		const remove = () => {
+			element.classList.remove(
+				adjustments?.direction == 'center' ? 'loop-breathe-center' : 'loop-breathe',
+			);
+			element.style.removeProperty('--breathe-x-distance');
+			element.style.removeProperty('--breathe-y-distance');
+			element.style.removeProperty('--breathe-scale-value');
+			if (this.props?.client) {
+				setTimeout(() => {
+					add();
+				}, parseFloat(delayTime ?? 0) * 1000);
+			}
+		};
+		setTimeout(() => {
+			add();
+		}, delayTime * 1000);
+		if (!this.state?.preview && !this.props?.client) {
+			setTimeout(() => {
+				remove();
+			}, totalTime * 1000);
 		}
 	};
 
 	// ! pulse loop animation function
 	handleLoopPulse = (element, adjustments) => {
-		element.classList.add('loop-pulse');
-		element.style.animationDuration = `${adjustments?.animeDuration || 3}s`;
-		element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
-		element.style.animationDelay = `${adjustments?.animeDelay || 0}s`;
-		element.style.animationIterationCount =
-			!this.state?.preview && !this.props?.client ? 1 : 'infinite';
-		element.style.setProperty(
-			'--pulse-intensity-value',
-			`${adjustments?.animeIntensity == 0 ? 0.1 : adjustments?.animeIntensity || 1}`,
-		);
-
-		if (!this.state?.preview && !this.props?.client) {
-			const timeout = parseFloat(
-				parseFloat(adjustments?.animeDuration || 1) +
-					parseFloat(adjustments?.animeDelay || 1),
+		const durationTime = parseFloat(adjustments?.animeDuration ?? 1);
+		const delayTime = parseFloat(adjustments?.animeDelay ?? 0);
+		const totalTime = durationTime + delayTime;
+		const add = () => {
+			element.classList.add('loop-pulse');
+			element.style.animationDuration = `${durationTime || 3}s`;
+			element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
+			element.style.setProperty(
+				'--pulse-intensity-value',
+				`${adjustments?.animeIntensity == 0 ? 0.1 : adjustments?.animeIntensity || 1}`,
 			);
 
+			if (this.props?.client && delayTime > 0) {
+				setTimeout(() => {
+					remove();
+				}, parseFloat(durationTime ?? 1) * 1000);
+			}
+		};
+		const remove = () => {
+			element.classList.remove('loop-pulse');
+			element.style.removeProperty('--pulse-intensity-value');
+			if (this.props?.client) {
+				setTimeout(() => {
+					add();
+				}, parseFloat(delayTime ?? 0) * 1000);
+			}
+		};
+		setTimeout(() => {
+			add();
+		}, delayTime * 1000);
+		if (!this.state?.preview && !this.props?.client) {
 			setTimeout(() => {
-				element.classList.remove('loop-pulse');
-				element.style.removeProperty('--pulse-intensity-value');
-			}, timeout * 1000);
+				remove();
+			}, totalTime * 1000);
 		}
 	};
 	// ! spin loop animation function
 	handleLoopSpin = (element, adjustments) => {
-		element.classList.add('loop-spin');
-		element.style.animationDuration = `${adjustments?.animeDuration || 3}s`;
-		// element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
-		element.style.animationDelay = `${adjustments?.animeDelay || 0}s`;
-		element.style.animationIterationCount =
-			!this.state?.preview && !this.props?.client ? 1 : 'infinite';
-		element.style.setProperty(
-			'--spin-end-angle',
-			`${adjustments?.direction == 'Clockwise' ? '360deg' : '-360deg'}`,
-		);
-
-		if (!this.state?.preview && !this.props?.client) {
-			const timeout = parseFloat(
-				parseFloat(adjustments?.animeDuration || 1) +
-					parseFloat(adjustments?.animeDelay || 1),
+		const durationTime = parseFloat(adjustments?.animeDuration ?? 1);
+		const delayTime = parseFloat(adjustments?.animeDelay ?? 0);
+		const totalTime = durationTime + delayTime;
+		const add = () => {
+			element.classList.add('loop-spin');
+			element.style.animationDuration = `${durationTime || 2}s`;
+			element.style.setProperty(
+				'--spin-end-angle',
+				`${adjustments?.direction === 'Clockwise' ? '360deg' : '-360deg'}`,
 			);
 
+			if (this.props?.client && delayTime > 0) {
+				setTimeout(() => {
+					remove();
+				}, parseFloat(durationTime ?? 1) * 1000);
+			}
+		};
+		const remove = () => {
+			element.classList.remove('loop-spin');
+			element.style.removeProperty('--spin-end-angle');
+			if (this.props?.client) {
+				setTimeout(() => {
+					add();
+				}, parseFloat(delayTime ?? 0) * 1000);
+			}
+		};
+		setTimeout(() => {
+			add();
+		}, delayTime * 1000);
+		if (!this.state?.preview && !this.props?.client) {
 			setTimeout(() => {
-				element.classList.remove('loop-spin');
-				element.style.removeProperty('--spin-end-angle');
-			}, timeout * 1000);
+				remove();
+			}, totalTime * 1000);
 		}
 	};
 
 	// ! poke loop animation function
 	handleLoopPoke = (element, adjustments) => {
-		element.classList.add('loop-poke');
-		element.style.animationDuration = `${adjustments?.animeDuration || 3}s`;
-		element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
-		element.style.animationDelay = `${adjustments?.animeDelay || 0}s`;
-		element.style.animationIterationCount =
-			!this.state?.preview && !this.props?.client ? 1 : 'infinite';
+		const durationTime = parseFloat(adjustments?.animeDuration ?? 1);
+		const delayTime = parseFloat(adjustments?.animeDelay ?? 0);
+		const totalTime = durationTime + delayTime;
+		const add = () => {
+			element.classList.add('loop-poke');
+			element.style.animationDuration = `${durationTime || 3}s`;
+			element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
 
-		element.style.setProperty(
-			'--poke-x-distance',
-			`${adjustments?.direction == 'left' ? '-' : ''}${parseFloat(
-				adjustments?.animeIntensity &&
-					(adjustments?.direction == 'left' || adjustments?.direction == 'right')
-					? 50 * adjustments?.animeIntensity
-					: '0',
-			)}px`,
-		);
-		element.style.setProperty(
-			'--poke-y-distance',
-			`${adjustments?.direction == 'top' ? '-' : ''}${parseFloat(
-				adjustments?.animeIntensity &&
-					(adjustments?.direction == 'top' || adjustments?.direction == 'bottom')
-					? 50 * adjustments?.animeIntensity
-					: '0',
-			)}px`,
-		);
-
-		if (!this.state?.preview && !this.props?.client) {
-			const timeout = parseFloat(
-				parseFloat(adjustments?.animeDuration || 1) +
-					parseFloat(adjustments?.animeDelay || 1),
+			element.style.setProperty(
+				'--poke-x-distance',
+				`${adjustments?.direction == 'left' ? '-' : ''}${parseFloat(
+					adjustments?.animeIntensity &&
+						(adjustments?.direction == 'left' || adjustments?.direction == 'right')
+						? 60 * adjustments?.animeIntensity
+						: '0',
+				)}px`,
 			);
-
+			element.style.setProperty(
+				'--poke-y-distance',
+				`${adjustments?.direction == 'top' ? '-' : ''}${parseFloat(
+					adjustments?.animeIntensity &&
+						(adjustments?.direction == 'top' || adjustments?.direction == 'bottom')
+						? 60 * adjustments?.animeIntensity
+						: '0',
+				)}px`,
+			);
+			if (this.props?.client && delayTime > 0) {
+				setTimeout(() => {
+					remove();
+				}, parseFloat(durationTime ?? 1) * 1000);
+			}
+		};
+		const remove = () => {
+			element.classList.remove('loop-poke');
+			element.style.removeProperty('--poke-x-distance');
+			element.style.removeProperty('--poke-y-distance');
+			if (this.props?.client) {
+				setTimeout(() => {
+					add();
+				}, parseFloat(delayTime ?? 0) * 1000);
+			}
+		};
+		setTimeout(() => {
+			add();
+		}, delayTime * 1000);
+		if (!this.state?.preview && !this.props?.client) {
 			setTimeout(() => {
-				element.classList.remove('loop-poke');
-				element.style.removeProperty('--poke-x-distance');
-				element.style.removeProperty('--poke-y-distance');
-			}, timeout * 1000);
+				remove();
+			}, totalTime * 1000);
 		}
 	};
 
 	// ! flash loop animation function
 	handleLoopFlash = (element, adjustments) => {
-		element.classList.add('loop-flash');
-		element.style.animationDuration = `${adjustments?.animeDuration || 3}s`;
-		element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
-		element.style.animationDelay = `${adjustments?.animeDelay || 0}s`;
-		element.style.animationIterationCount =
-			!this.state?.preview && !this.props?.client ? 1 : 'infinite';
-
+		const durationTime = parseFloat(adjustments?.animeDuration ?? 1);
+		const delayTime = parseFloat(adjustments?.animeDelay ?? 0);
+		const totalTime = durationTime + delayTime;
+		const add = () => {
+			element.classList.add('loop-flash');
+			element.style.animationDuration = `${durationTime || 3}s`;
+			element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
+			if (this.props?.client && delayTime > 0) {
+				setTimeout(() => {
+					remove();
+				}, parseFloat(durationTime ?? 1) * 1000);
+			}
+		};
+		const remove = () => {
+			element.classList.remove('loop-flash');
+			if (this.props?.client) {
+				setTimeout(() => {
+					add();
+				}, parseFloat(delayTime ?? 0) * 1000);
+			}
+		};
+		setTimeout(() => {
+			add();
+		}, delayTime * 1000);
 		if (!this.state?.preview && !this.props?.client) {
-			const timeout = parseFloat(
-				parseFloat(adjustments?.animeDuration || 1) +
-					parseFloat(adjustments?.animeDelay || 1),
-			);
-
 			setTimeout(() => {
-				element.classList.remove('loop-flash');
-			}, timeout * 1000);
+				remove();
+			}, totalTime * 1000);
 		}
 	};
 
 	// ! poke loop animation function
 	handleLoopSwing = (element, adjustments) => {
-		element.classList.add('loop-swing');
-		element.style.animationDuration = `${adjustments?.animeDuration || 3}s`;
-		element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
-		element.style.animationDelay = `${adjustments?.animeDelay || 0}s`;
-		element.style.transformOrigin = `${
-			adjustments?.direction
-				? adjustments?.direction == 'right'
-					? '100% 50%'
-					: adjustments?.direction == 'bottom'
-					? '50% 100%'
-					: adjustments?.direction == 'left'
-					? '0% 50%'
+		const durationTime = parseFloat(adjustments?.animeDuration ?? 1);
+		const delayTime = parseFloat(adjustments?.animeDelay ?? 0);
+		const totalTime = durationTime + delayTime;
+		const add = () => {
+			element.classList.add('loop-swing');
+			element.style.animationDuration = `${durationTime || 3}s`;
+			element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
+			element.style.transformOrigin = `${
+				adjustments?.direction
+					? adjustments?.direction == 'right'
+						? '100% 50%'
+						: adjustments?.direction == 'bottom'
+						? '50% 100%'
+						: adjustments?.direction == 'left'
+						? '0% 50%'
+						: '50% 0%'
 					: '50% 0%'
-				: '50% 0%'
-		}`;
-		element.style.animationIterationCount =
-			!this.state?.preview && !this.props?.client ? 1 : 'infinite';
+			}`;
 
-		element.style.setProperty(
-			'--swing-value',
-			`${parseFloat(
-				adjustments?.animeIntensity ? 25 * adjustments?.animeIntensity : '15',
-			)}deg`,
-		);
-
-		if (!this.state?.preview && !this.props?.client) {
-			const timeout = parseFloat(
-				parseFloat(adjustments?.animeDuration || 1) +
-					parseFloat(adjustments?.animeDelay || 1),
+			element.style.setProperty(
+				'--swing-value',
+				`${parseFloat(
+					adjustments?.animeIntensity ? 25 * adjustments?.animeIntensity : '15',
+				)}deg`,
 			);
 
+			if (this.props?.client && delayTime > 0) {
+				setTimeout(() => {
+					remove();
+				}, parseFloat(durationTime ?? 1) * 1000);
+			}
+		};
+		const remove = () => {
+			element.classList.remove('loop-swing');
+			element.style.removeProperty('--swing-value');
+			element.style.removeProperty('transform-origin');
+			if (this.props?.client) {
+				setTimeout(() => {
+					add();
+				}, parseFloat(delayTime ?? 0) * 1000);
+			}
+		};
+		setTimeout(() => {
+			add();
+		}, delayTime * 1000);
+		if (!this.state?.preview && !this.props?.client) {
 			setTimeout(() => {
-				element.classList.remove('loop-swing');
-				element.style.removeProperty('--swing-value');
-				element.style.removeProperty('transform-origin');
-			}, timeout * 1000);
+				remove();
+			}, totalTime * 1000);
 		}
 	};
 	// ! flip loop animation function
 	handleLoopFlip = (element, adjustments) => {
-		element.classList.add('loop-flip');
-		element.style.animationDuration = `${adjustments?.animeDuration || 3}s`;
-		element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
-		element.style.animationDelay = `${adjustments?.animeDelay || 0}s`;
-		element.style.animationIterationCount =
-			!this.state?.preview && !this.props?.client ? 2 : 'infinite';
-		element.style.setProperty(
-			'--flip-Name',
-			`${adjustments?.direction == 'horizontal' ? 'Flip' : 'FlipX'}`,
-		);
-		if (!this.state?.preview && !this.props?.client) {
-			const timeout = parseFloat(
-				parseFloat(adjustments?.animeDuration || 1) +
-					parseFloat(adjustments?.animeDelay || 1),
+		const durationTime = parseFloat(adjustments?.animeDuration ?? 1);
+		const delayTime = parseFloat(adjustments?.animeDelay ?? 0);
+		const totalTime = durationTime + delayTime;
+		const add = () => {
+			element.classList.add('loop-flip');
+			element.style.animationDuration = `${durationTime || 3}s`;
+			element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
+			element.style.setProperty(
+				'--flip-Name',
+				`${adjustments?.direction == 'horizontal' ? 'Flip' : 'FlipX'}`,
 			);
-
+			if (this.props?.client && delayTime > 0) {
+				setTimeout(() => {
+					remove();
+				}, parseFloat(durationTime ?? 1) * 1000);
+			}
+		};
+		const remove = () => {
+			element.classList.remove('loop-flip');
+			element.style.removeProperty('--flip-Name');
+			if (this.props?.client) {
+				setTimeout(() => {
+					add();
+				}, parseFloat(delayTime ?? 0) * 1000);
+			}
+		};
+		setTimeout(() => {
+			add();
+		}, delayTime * 1000);
+		if (!this.state?.preview && !this.props?.client) {
 			setTimeout(() => {
-				element.classList.remove('loop-flip');
-				element.style.removeProperty('--flip-Name');
-			}, timeout * 1000);
+				remove();
+			}, totalTime * 1000);
 		}
 	};
 	// ! rubber loop animation function
 	handleLoopRubber = (element, adjustments) => {
-		element.classList.add('loop-rubber');
-		element.style.animationDuration = `${adjustments?.animeDuration || 3}s`;
-		element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
-		element.style.animationDelay = `${adjustments?.animeDelay || 0}s`;
-		element.style.animationIterationCount =
-			!this.state?.preview && !this.props?.client ? 1 : 'infinite';
-		element.style.setProperty(
-			'--rubber-intensity-value',
-			`${
-				adjustments?.animeIntensity <= 0.5
-					? parseFloat(adjustments?.animeIntensity) + 0.3
-					: parseFloat(adjustments?.animeIntensity) + 0.2 || 1
-			}`,
-		);
-
-		if (!this.state?.preview && !this.props?.client) {
-			const timeout = parseFloat(
-				parseFloat(adjustments?.animeDuration || 1) +
-					parseFloat(adjustments?.animeDelay || 1),
+		const durationTime = parseFloat(adjustments?.animeDuration ?? 1);
+		const delayTime = parseFloat(adjustments?.animeDelay ?? 0);
+		const totalTime = durationTime + delayTime;
+		const add = () => {
+			element.classList.add('loop-rubber');
+			element.style.animationDuration = `${durationTime || 3}s`;
+			element.style.setProperty(
+				'--rubber-intensity-value',
+				`${
+					adjustments?.animeIntensity <= 0.5
+						? parseFloat(adjustments?.animeIntensity) + 0.3
+						: parseFloat(adjustments?.animeIntensity) + 0.2 || 1
+				}`,
 			);
-
+			if (this.props?.client && delayTime > 0) {
+				setTimeout(() => {
+					remove();
+				}, parseFloat(durationTime ?? 1) * 1000);
+			}
+		};
+		const remove = () => {
+			element.classList.remove('loop-rubber');
+			element.style.removeProperty('--rubber-intensity-value');
+			if (this.props?.client) {
+				setTimeout(() => {
+					add();
+				}, parseFloat(delayTime ?? 0) * 1000);
+			}
+		};
+		setTimeout(() => {
+			add();
+		}, delayTime * 1000);
+		if (!this.state?.preview && !this.props?.client) {
 			setTimeout(() => {
-				element.classList.remove('loop-rubber');
-				element.style.removeProperty('--rubber-intensity-value');
-			}, timeout * 1000);
+				remove();
+			}, totalTime * 1000);
 		}
 	};
 
 	// ! jello loop animation function
 	handleLoopJello = (element, adjustments) => {
-		element.classList.add('loop-jello');
-		element.style.animationDuration = `${adjustments?.animeDuration || 3}s`;
-		element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
-		element.style.animationDelay = `${adjustments?.animeDelay || 0}s`;
-		element.style.animationIterationCount =
-			!this.state?.preview && !this.props?.client ? 1 : 'infinite';
-
-		element.style.setProperty(
-			'--jello-skew-value',
-			`${parseFloat(
-				adjustments?.animeIntensity ? 30 * adjustments?.animeIntensity : '10',
-			)}deg`,
-		);
-
-		if (!this.state?.preview && !this.props?.client) {
-			const timeout = parseFloat(
-				parseFloat(adjustments?.animeDuration || 1) +
-					parseFloat(adjustments?.animeDelay || 1),
+		const durationTime = parseFloat(adjustments?.animeDuration ?? 1);
+		const delayTime = parseFloat(adjustments?.animeDelay ?? 0);
+		const totalTime = durationTime + delayTime;
+		const add = () => {
+			element.classList.add('loop-jello');
+			element.style.animationDuration = `${durationTime || 3}s`;
+			element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
+			element.style.setProperty(
+				'--jello-skew-value',
+				`${parseFloat(
+					adjustments?.animeIntensity ? 30 * adjustments?.animeIntensity : '10',
+				)}deg`,
 			);
 
+			if (this.props?.client && delayTime > 0) {
+				setTimeout(() => {
+					remove();
+				}, parseFloat(durationTime ?? 1) * 1000);
+			}
+		};
+		const remove = () => {
+			element.classList.remove('loop-jello');
+			element.style.removeProperty('--jello-skew-value');
+			if (this.props?.client) {
+				setTimeout(() => {
+					add();
+				}, parseFloat(delayTime ?? 0) * 1000);
+			}
+		};
+		setTimeout(() => {
+			add();
+		}, delayTime * 1000);
+		if (!this.state?.preview && !this.props?.client) {
 			setTimeout(() => {
-				element.classList.remove('loop-jello');
-				element.style.removeProperty('--jello-skew-value');
-			}, timeout * 1000);
+				remove();
+			}, totalTime * 1000);
 		}
 	};
 
 	// ! bounce loop animation function
 	handleLoopBounce = (element, adjustments) => {
-		element.classList.add('loop-bounce');
-		element.style.animationDuration = `${adjustments?.animeDuration || 3}s`;
-		element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
-		element.style.animationDelay = `${adjustments?.animeDelay || 0}s`;
-		element.style.animationIterationCount =
-			!this.state?.preview && !this.props?.client ? 1 : 'infinite';
-		element.style.setProperty(
-			'--bounce-value',
-			`${adjustments?.animeIntensity ? 30 * adjustments?.animeIntensity : 30}px`,
-		);
-
-		if (!this.state?.preview && !this.props?.client) {
-			const timeout = parseFloat(
-				parseFloat(adjustments?.animeDuration || 1) +
-					parseFloat(adjustments?.animeDelay || 1),
+		const durationTime = parseFloat(adjustments?.animeDuration ?? 1);
+		const delayTime = parseFloat(adjustments?.animeDelay ?? 0);
+		const totalTime = durationTime + delayTime;
+		const add = () => {
+			element.classList.add('loop-bounce');
+			element.style.animationDuration = `${durationTime || 3}s`;
+			element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
+			element.style.setProperty(
+				'--bounce-value',
+				`${adjustments?.animeIntensity ? 30 * adjustments?.animeIntensity : 30}px`,
 			);
-
+			if (this.props?.client && delayTime > 0) {
+				setTimeout(() => {
+					remove();
+				}, parseFloat(durationTime ?? 1) * 1000);
+			}
+		};
+		const remove = () => {
+			element.classList.remove('loop-bounce');
+			element.style.removeProperty('--bounce-value');
+			if (this.props?.client) {
+				setTimeout(() => {
+					add();
+				}, parseFloat(delayTime ?? 0) * 1000);
+			}
+		};
+		setTimeout(() => {
+			add();
+		}, delayTime * 1000);
+		if (!this.state?.preview && !this.props?.client) {
 			setTimeout(() => {
-				element.classList.remove('loop-bounce');
-				element.style.removeProperty('--bounce-value');
-			}, timeout * 1000);
+				remove();
+			}, totalTime * 1000);
 		}
 	};
 
 	// ! jello loop animation function
 	handleLoopWiggle = (element, adjustments) => {
-		element.classList.add('loop-wiggle');
-		element.style.animationDuration = `${adjustments?.animeDuration || 3}s`;
-		element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
-		element.style.animationDelay = `${adjustments?.animeDelay || 0}s`;
-		element.style.animationIterationCount =
-			!this.state?.preview && !this.props?.client ? 1 : 'infinite';
+		const durationTime = parseFloat(adjustments?.animeDuration ?? 1);
+		const delayTime = parseFloat(adjustments?.animeDelay ?? 0);
+		const totalTime = durationTime + delayTime;
+		const add = () => {
+			element.classList.add('loop-wiggle');
+			element.style.animationDuration = `${durationTime || 3}s`;
+			element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
 
-		element.style.setProperty(
-			'--wiggle-value',
-			`${parseFloat(adjustments?.animeIntensity ? 20 * adjustments?.animeIntensity : 15)}deg`,
-		);
-
-		if (!this.state?.preview && !this.props?.client) {
-			const timeout = parseFloat(
-				parseFloat(adjustments?.animeDuration || 1) +
-					parseFloat(adjustments?.animeDelay || 1),
+			element.style.setProperty(
+				'--wiggle-value',
+				`${parseFloat(
+					adjustments?.animeIntensity ? 20 * adjustments?.animeIntensity : 15,
+				)}deg`,
 			);
 
+			if (this.props?.client && delayTime > 0) {
+				setTimeout(() => {
+					remove();
+				}, parseFloat(durationTime ?? 1) * 1000);
+			}
+		};
+		const remove = () => {
+			element.classList.remove('loop-wiggle');
+			element.style.removeProperty('--wiggle-value');
+			if (this.props?.client) {
+				setTimeout(() => {
+					add();
+				}, parseFloat(delayTime ?? 0) * 1000);
+			}
+		};
+		setTimeout(() => {
+			add();
+		}, delayTime * 1000);
+		if (!this.state?.preview && !this.props?.client) {
 			setTimeout(() => {
-				element.classList.remove('loop-wiggle');
-				element.style.removeProperty('--wiggle-value');
-			}, timeout * 1000);
+				remove();
+			}, totalTime * 1000);
 		}
 	};
 
 	// ! Flap loop animation function
 	handleLoopFlap = (element, adjustments) => {
-		element.classList.add('loop-flap');
-		element.style.animationDuration = `${adjustments?.animeDuration || 3}s`;
-		element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
-		element.style.animationDelay = `${adjustments?.animeDelay || 0}s`;
-		element.style.animationDirection = 'alternate';
-		element.style.animationIterationCount =
-			!this.state?.preview && !this.props?.client ? 1 : 'infinite';
+		const durationTime = parseFloat(adjustments?.animeDuration ?? 1);
+		const delayTime = parseFloat(adjustments?.animeDelay ?? 0);
+		const totalTime = durationTime + delayTime;
+		const add = () => {
+			element.classList.add('loop-flap');
+			element.style.animationDuration = `${durationTime || 3}s`;
+			element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
+			element.style.animationDirection = 'alternate';
 
-		element.style.setProperty(
-			'--flap-name',
-			`${
-				adjustments?.direction == 'left' || adjustments?.direction == 'right'
-					? 'FlapX'
-					: 'FlapY'
-			}`,
-		);
-		element.style.setProperty(
-			'--flap-intensity-value',
-			`${parseFloat(
-				adjustments?.animeIntensity ? 40 * adjustments?.animeIntensity : 22.7,
-			)}deg`,
-		);
-		element.style.setProperty(
-			'--flap-origin-value',
-			`${
-				adjustments?.direction == 'top'
-					? '50% 0%'
-					: adjustments?.direction == 'bottom'
-					? '50% 100%'
-					: adjustments?.direction == 'left'
-					? '0% 50%'
-					: '100% 50%'
-			}`,
-		);
-
-		if (!this.state?.preview && !this.props?.client) {
-			const timeout = parseFloat(
-				parseFloat(adjustments?.animeDuration || 1) +
-					parseFloat(adjustments?.animeDelay || 1),
+			element.style.setProperty(
+				'--flap-name',
+				`${
+					adjustments?.direction == 'left' || adjustments?.direction == 'right'
+						? 'FlapX'
+						: 'FlapY'
+				}`,
+			);
+			element.style.setProperty(
+				'--flap-intensity-value',
+				`${parseFloat(
+					adjustments?.animeIntensity ? 40 * adjustments?.animeIntensity : 22.7,
+				)}deg`,
+			);
+			element.style.setProperty(
+				'--flap-origin-value',
+				`${
+					adjustments?.direction == 'top'
+						? '50% 0%'
+						: adjustments?.direction == 'bottom'
+						? '50% 100%'
+						: adjustments?.direction == 'left'
+						? '0% 50%'
+						: '100% 50%'
+				}`,
 			);
 
+			if (this.props?.client && delayTime > 0) {
+				setTimeout(() => {
+					remove();
+				}, parseFloat(durationTime ?? 1) * 1000);
+			}
+		};
+		const remove = () => {
+			element.classList.remove('loop-flap');
+			element.style.removeProperty('--flap-name');
+			element.style.removeProperty('--flap-intensity-value');
+			element.style.removeProperty('--flap-origin-value');
+			if (this.props?.client) {
+				setTimeout(() => {
+					add();
+				}, parseFloat(delayTime ?? 0) * 1000);
+			}
+		};
+		setTimeout(() => {
+			add();
+		}, delayTime * 1000);
+		if (!this.state?.preview && !this.props?.client) {
 			setTimeout(() => {
-				element.classList.remove('loop-flap');
-				element.style.removeProperty('--flap-name');
-				element.style.removeProperty('--flap-intensity-value');
-				element.style.removeProperty('--flap-origin-value');
-			}, timeout * 1000);
+				remove();
+			}, totalTime * 1000);
 		}
 	};
 
 	// ! cross loop animation function
 	handleLoopCross = (element, adjustments) => {
-		element.classList.add('loop-cross');
-		element.style.animationDuration = `${adjustments?.animeDuration || 3}s`;
-		element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
-		element.style.animationDelay = `${adjustments?.animeDelay || 0}s`;
-		element.style.animationIterationCount =
-			!this.state?.preview && !this.props?.client ? 1 : 'infinite';
+		const durationTime = parseFloat(adjustments?.animeDuration ?? 1);
+		const delayTime = parseFloat(adjustments?.animeDelay ?? 0);
+		const totalTime = durationTime + delayTime;
+		const add = () => {
+			element.classList.add('loop-cross');
+			element.style.animationDuration = `${durationTime || 3}s`;
+			element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
 
-		element.style.setProperty(
-			'--cross-x-distance',
-			`${adjustments?.direction == 'left' ? '-' : ''}${
-				adjustments?.direction == 'left' || adjustments?.direction == 'right'
-					? window?.innerWidth || '200'
-					: 0
-			}px`,
-		);
-		element.style.setProperty(
-			'--cross-y-distance',
-			`${adjustments?.direction == 'top' ? '-' : ''}${
-				adjustments?.direction == 'top' || adjustments?.direction == 'bottom'
-					? window?.innerHeight || '200'
-					: 0
-			}px`,
-		);
-
-		if (!this.state?.preview && !this.props?.client) {
-			const timeout = parseFloat(
-				parseFloat(adjustments?.animeDuration || 1) +
-					parseFloat(adjustments?.animeDelay || 1),
+			element.style.setProperty(
+				'--cross-x-distance',
+				`${adjustments?.direction == 'left' ? '-' : ''}${
+					adjustments?.direction == 'left' || adjustments?.direction == 'right'
+						? window?.innerWidth || '200'
+						: 0
+				}px`,
 			);
-
+			element.style.setProperty(
+				'--cross-y-distance',
+				`${adjustments?.direction == 'top' ? '-' : ''}${
+					adjustments?.direction == 'top' || adjustments?.direction == 'bottom'
+						? window?.innerHeight || '200'
+						: 0
+				}px`,
+			);
+			if (this.props?.client && delayTime > 0) {
+				setTimeout(() => {
+					remove();
+				}, parseFloat(durationTime ?? 1) * 1000);
+			}
+		};
+		const remove = () => {
+			element.classList.remove('loop-cross');
+			element.style.removeProperty('--cross-x-distance');
+			element.style.removeProperty('--cross-y-distance');
+			if (this.props?.client) {
+				setTimeout(() => {
+					add();
+				}, parseFloat(delayTime ?? 0) * 1000);
+			}
+		};
+		setTimeout(() => {
+			add();
+		}, delayTime * 1000);
+		if (!this.state?.preview && !this.props?.client) {
 			setTimeout(() => {
-				element.classList.remove('loop-cross');
-				element.style.removeProperty('--cross-x-distance');
-				element.style.removeProperty('--cross-y-distance');
-			}, timeout * 1000);
+				remove();
+			}, totalTime * 1000);
 		}
 	};
 
