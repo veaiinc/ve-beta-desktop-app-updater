@@ -93,10 +93,10 @@ class Button extends Component {
 	};
 	handleOnClick = async (e) => {
 		if (this.props.sectionType === 'accept' && this.props?.client) {
-			if(this.props.status != "proposalAccepted"){
+			if (this.props.status != 'proposalAccepted') {
 				this.props.handleOpenAcceptProposalModal(e);
 			} else {
-				message.info("You have already accepted the Document");
+				message.info('You have already accepted the Document');
 			}
 		} else if (this.props?.isLogicalForm && this.props?.client) {
 			this.props?.handleFromSubmit(e);
@@ -221,7 +221,15 @@ class Button extends Component {
 						isWorkflow={this.props.isWorkflow}
 						reference={this.props.reference}
 						// text={this.props.content}
-						text={(this.props.client && this.props.status == "proposalAccepted") ? "Accepted" : this.state.previewType === 'm' ? _.has(this.props.properties, 'mContent') ? this.props.properties.mContent : this.props.properties.content : this.props.content}
+						text={
+							this.props.client && this.props.status == 'proposalAccepted'
+								? 'Accepted'
+								: this.state.previewType === 'm'
+								? _.has(this.props.properties, 'mContent')
+									? this.props.properties.mContent
+									: this.props.properties.content
+								: this.props.content
+						}
 						actionType={this.state.actionType}
 						actionValue={this.state.actionValue}
 						preview={this.state.preview}

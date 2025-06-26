@@ -66,7 +66,7 @@ const ChatHistory = () => {
 	}, []);
 
 	useEffect(() => {
-		if (currentSessionId && currentChatData?._id !== currentSessionId) {
+		if (currentSessionId) {
 			const index = aiChatSessions?.data?.findIndex((chat) => chat?._id === currentSessionId);
 			if (typeof index === 'number' && index !== -1) {
 				updateStateValues({ currentChatData: aiChatSessions?.data[index] });

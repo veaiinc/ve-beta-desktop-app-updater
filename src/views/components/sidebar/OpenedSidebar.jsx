@@ -280,8 +280,6 @@ const OpenedSidebar = ({
 		profileInfo: {
 			userDetailsData,
 			updateUserLogo,
-			getTenantUserDetails,
-			tenantUserDetails,
 			updateUserDetailsState,
 			updateUserDetails: updateUserDetailsProfile,
 			tenantUserAccessControls,
@@ -304,12 +302,6 @@ const OpenedSidebar = ({
 	const [uploadAvatarPopup, setuploadAvatarPopup] = useState({ theme: false, file: false });
 
 	const [logoFile, setlogoFile] = useState(null);
-
-	useEffect(() => {
-		if (!tenantUserDetails) {
-			getTenantUserDetails();
-		}
-	}, []);
 
 	useEffect(() => {
 		if (userDetailsData) {

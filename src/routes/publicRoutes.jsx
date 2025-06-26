@@ -9,9 +9,12 @@ import PrivacyPolicy from '../views/features/signin/PrivacyPolicy';
 import ChageLog from '../views/features/signin/ChageLog';
 import PublicChat from '../views/features/publicChat/PublicChat';
 import useWorkspaceMode from '../views/hooks/useWorkspaceMode';
+import OauthVerify from '../views/features/signin/oauth/OauthVerify';
 import PageLoader from '../views/components/app/PageLoader';
+import useTheme from '../views/hooks/useTheme';
 
-const Public = ({ children }) => {
+export const Public = ({ children }) => {
+	useTheme();
 	const { loading } = useWorkspaceMode();
 	return loading ? <PageLoader /> : <>{children}</>;
 };
@@ -58,15 +61,31 @@ const publicRoutes = [
 		),
 	},
 	{
-		path: '/onboarding',
+		path: '/about-us',
 		element: (
 			<Public>
-				<Onboarding />
+				<LandingPage />
 			</Public>
 		),
 	},
 	{
-		path: '/create-workspace',
+		path: '/careers',
+		element: (
+			<Public>
+				<LandingPage />
+			</Public>
+		),
+	},
+	{
+		path: '/forefront',
+		element: (
+			<Public>
+				<LandingPage />
+			</Public>
+		),
+	},
+	{
+		path: '/onboarding',
 		element: (
 			<Public>
 				<Onboarding />
@@ -130,6 +149,14 @@ const publicRoutes = [
 		),
 	},
 	{
+		path: '/user/verify-oauth-user',
+		element: (
+			<Public>
+				<OauthVerify />
+			</Public>
+		),
+	},
+	{
 		path: '*',
 		element: (
 			<Public>
@@ -139,8 +166,7 @@ const publicRoutes = [
 	},
 ];
 
-export const publicRoutesList = [
-	...publicRoutes.map((route) => route.path).filter((path) => path !== '*'),
-	'/user/verify-oauth-user', // manually add google oauth public route
-];
+export const publicRoutesList = publicRoutes
+	.map((route) => route.path)
+	.filter((path) => path !== '*');
 export default publicRoutes;

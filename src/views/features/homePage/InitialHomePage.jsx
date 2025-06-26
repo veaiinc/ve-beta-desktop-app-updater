@@ -39,7 +39,7 @@ const optionsList = [
 	//  showOption: false,
 	//  icon: AgentsSvg,
 	// },
-	'proactive',
+	'All',
 	// {
 	//  id: 2,
 	//  label: 'Suggested prompts',
@@ -187,15 +187,13 @@ const homePageTextContent = {
 const InitialHomePage = () => {
 	const {
 		templates: { updateStateValues, aiSuggestedPendingActions, getAISuggestedPendingActions },
-		profileInfo: { tenantUserAccessControls, userDetailsData, getAiCategories, aiCategories },
+		profileInfo: { tenantUserAccessControls, userDetailsData },
 		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
 	const timeoutIdRef = useRef(null);
 	const previousSelectedOptionRef = useRef(null);
-	const optionsContainerRef = useRef(null); // Ref for the options container
-	const [showArrows, setShowArrows] = useState({ left: false, right: false });
 
 	const [info, setInfo] = useState({
 		selectedOption: '',
@@ -208,49 +206,49 @@ const InitialHomePage = () => {
 	});
 
 	// Check if the options container is scrollable
-	const checkScroll = useCallback(() => {
-		const container = optionsContainerRef.current;
-		if (container) {
-			const isOverflowing = container.scrollWidth > container.clientWidth;
-			setShowArrows({
-				left: container.scrollLeft > 0,
-				right:
-					isOverflowing &&
-					container.scrollLeft < container.scrollWidth - container.clientWidth - 1,
-			});
-		}
-	}, []);
+	// const checkScroll = useCallback(() => {
+	// 	const container = optionsContainerRef.current;
+	// 	if (container) {
+	// 		const isOverflowing = container.scrollWidth > container.clientWidth;
+	// 		setShowArrows({
+	// 			left: container.scrollLeft > 0,
+	// 			right:
+	// 				isOverflowing &&
+	// 				container.scrollLeft < container.scrollWidth - container.clientWidth - 1,
+	// 		});
+	// 	}
+	// }, []);
 
-	// Handle scroll on arrow click
-	const handleScroll = (direction) => {
-		const container = optionsContainerRef.current;
-		if (container) {
-			const scrollAmount = 600; // Adjust scroll distance as needed
-			const newScrollPosition =
-				direction === 'left'
-					? container.scrollLeft - scrollAmount
-					: container.scrollLeft + scrollAmount;
-			container.scrollTo({
-				left: newScrollPosition,
-				behavior: 'smooth',
-			});
-		}
-	};
+	// // Handle scroll on arrow click
+	// const handleScroll = (direction) => {
+	// 	const container = optionsContainerRef.current;
+	// 	if (container) {
+	// 		const scrollAmount = 600; // Adjust scroll distance as needed
+	// 		const newScrollPosition =
+	// 			direction === 'left'
+	// 				? container.scrollLeft - scrollAmount
+	// 				: container.scrollLeft + scrollAmount;
+	// 		container.scrollTo({
+	// 			left: newScrollPosition,
+	// 			behavior: 'smooth',
+	// 		});
+	// 	}
+	// };
 
-	useEffect(() => {
-		checkScroll();
-		window.addEventListener('resize', checkScroll);
-		const container = optionsContainerRef.current;
-		if (container) {
-			container.addEventListener('scroll', checkScroll);
-		}
-		return () => {
-			window.removeEventListener('resize', checkScroll);
-			if (container) {
-				container.removeEventListener('scroll', checkScroll);
-			}
-		};
-	}, [checkScroll]);
+	// useEffect(() => {
+	// 	checkScroll();
+	// 	window.addEventListener('resize', checkScroll);
+	// 	const container = optionsContainerRef.current;
+	// 	if (container) {
+	// 		container.addEventListener('scroll', checkScroll);
+	// 	}
+	// 	return () => {
+	// 		window.removeEventListener('resize', checkScroll);
+	// 		if (container) {
+	// 			container.removeEventListener('scroll', checkScroll);
+	// 		}
+	// 	};
+	// }, [checkScroll]);
 
 	useEffect(() => {
 		return () => {
@@ -282,69 +280,39 @@ const InitialHomePage = () => {
 		}
 	}, [promptsData]);
 
-	useEffect(() => {
-		if (!aiSuggestedPendingActions) {
-			getAISuggestedPendingActions(
-				{
-					page: 1,
-					limit: 20,
-					sortBy: 'createdAt',
-					sortType: -1,
-				},
-				true,
-			);
-			return;
-		}
-		const cards = aiSuggestedPendingActions?.pendingActions?.filter(
-			(card) => card?.title?.length > 0,
-		);
-		if (cards?.length > 0) {
-			if (!info?.optionsHandledOnce?.proactiveSuggestions) {
-				handleUpdateOptions('proactiveSuggestions');
-				setInfo((prev) => ({
-					...prev,
-					optionsHandledOnce: { ...prev.optionsHandledOnce, proactiveSuggestions: true },
-				}));
-			}
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				options: prev.options.map((o) =>
-					o.value === 'proactiveSuggestions' ? { ...o, showOption: false } : o,
-				),
-			}));
-		}
-	}, [aiSuggestedPendingActions]);
-
-	useEffect(() => {
-		if (info?.options?.length > 0 && !info?.selectedOption) {
-			setInfo((prev) => ({
-				...prev,
-				selectedOption: prev?.options[0],
-			}));
-		}
-	}, [info?.selectedOption, info?.options]);
-
-	useEffect(() => {
-		if (!aiCategories) {
-			getAiCategoriesOptions();
-		}
-	}, [aiCategories, info?.options]);
-
-	const getAiCategoriesOptions = async () => {
-		const response = await getAiCategories();
-		if (response?.[0] === true) {
-			setInfo((prev) => ({
-				...prev,
-				options: [...optionsList, ...response?.[1]],
-			}));
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				options: optionsList,
-			}));
-		}
-	};
+	// useEffect(() => {
+	// 	if (!aiSuggestedPendingActions) {
+	// 		getAISuggestedPendingActions(
+	// 			{
+	// 				page: 1,
+	// 				limit: 20,
+	// 				sortBy: 'createdAt',
+	// 				sortType: -1,
+	// 			},
+	// 			true,
+	// 		);
+	// 		return;
+	// 	}
+	// 	const cards = aiSuggestedPendingActions?.pendingActions?.filter(
+	// 		(card) => card?.title?.length > 0,
+	// 	);
+	// 	if (cards?.length > 0) {
+	// 		if (!info?.optionsHandledOnce?.proactiveSuggestions) {
+	// 			handleUpdateOptions('proactiveSuggestions');
+	// 			setInfo((prev) => ({
+	// 				...prev,
+	// 				optionsHandledOnce: { ...prev.optionsHandledOnce, proactiveSuggestions: true },
+	// 			}));
+	// 		}
+	// 	} else {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			options: prev.options.map((o) =>
+	// 				o.value === 'proactiveSuggestions' ? { ...o, showOption: false } : o,
+	// 			),
+	// 		}));
+	// 	}
+	// }, [aiSuggestedPendingActions]);
 
 	const handleUpdateOptions = (value) => {
 		let updatedOptions = info?.options;
@@ -378,7 +346,10 @@ const InitialHomePage = () => {
 			return (
 				<div
 					className={`option ${info?.selectedOption === option ? 'active' : ''}`}
-					onClick={() => handleOptionSelection(option)}
+					onClick={(e) => {
+						e.stopPropagation();
+						handleOptionSelection(option);
+					}}
 					key={option}
 				>
 					<div className="option-label">{option}</div>
@@ -429,51 +400,45 @@ const InitialHomePage = () => {
 						<span className="title-two">{userName}</span>
 					</div>
 				</div>
-				{!info?.showSuggestions && (
-					<div className="options-wrapper">
-						<div
-							className={`homepage__options-container`}
-							ref={optionsContainerRef}
-							style={{
-								display:
-									aiSuggestedPendingActions?.pendingActions?.length > 0
-										? ''
-										: 'none',
-							}}
-						>
-							{renderedOptions}
-						</div>
-						<div className="arrow-container">
-							{showArrows.left && (
-								<div
-									className="arrow left-arrow"
-									onClick={() => handleScroll('left')}
-								>
-									<ChevronRightThinSvg style={{ transform: 'rotate(180deg)' }} />
-								</div>
-							)}
-							{showArrows.right && (
-								<div
-									className="arrow right-arrow"
-									onClick={() => handleScroll('right')}
-								>
-									<ChevronRightThinSvg />
-								</div>
-							)}
-						</div>
-					</div>
-				)}
+				{
+					!info?.showSuggestions && ''
+					// <div className="options-wrapper">
+					// 	<div className={`homepage__options-container`}>{renderedOptions}</div>
+					// 	{/* <div className="arrow-container">
+					// 		{showArrows.left && (
+					// 			<div
+					// 				className="arrow left-arrow"
+					// 				onClick={() => handleScroll('left')}
+					// 			>
+					// 				<ChevronRightThinSvg style={{ transform: 'rotate(180deg)' }} />
+					// 			</div>
+					// 		)}
+					// 		{showArrows.right && (
+					// 			<div
+					// 				className="arrow right-arrow"
+					// 				onClick={() => handleScroll('right')}
+					// 			>
+					// 				<ChevronRightThinSvg />
+					// 			</div>
+					// 		)}
+					// 	</div> */}
+					// </div>
+				}
 			</div>
 			{info?.options?.length > 0 && !info?.showSuggestions && (
 				<div className="home-page-container-content">
-					{info?.selectedOption === 'proactive' ? (
+					{/* {info?.selectedOption === 'All' ? (
 						<ProactiveSuggestions
 							option={info?.selectedOption}
 							previousOption={previousSelectedOptionRef.current}
 						/>
 					) : (
 						<GlobalWidget option={info?.selectedOption} />
-					)}
+					)} */}
+					<ProactiveSuggestions
+						option={info?.selectedOption}
+						previousOption={previousSelectedOptionRef.current}
+					/>
 				</div>
 			)}
 		</div>

@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect, useCallback } from 'react';
+import { useContext, useState, useEffect, useCallback, useRef } from 'react';
 import Context from '../../../context/context';
 import InfiniteScroll from './InfiniteScroll';
 import '../../../assets/scss/globalComponents/promptWidget.scss';
@@ -7,9 +7,20 @@ import Suggestions from '../../features/homePage/Suggestions';
 import Skeleton from 'react-loading-skeleton';
 import AISuggestionsModal from '../modalsV2/homePage/AISuggestionsModal';
 import { message } from '../../components/globalComponents/CustomToast';
-const skeletonLoaders = [1, 2, 3, 4, 5, 6, 7, 8];
+import { getRelativeDayLabel } from '../../../helpers';
 
-const PromptsWidget = ({ option }) => {
+const skeletonLoaders = [1, 2, 3, 4];
+
+const PriorityLevel = {
+	High: 'red',
+	Medium: 'yellow',
+	Low: 'green',
+};
+const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
+	const cardsPerView = 4; // Number of cards to show at a time
+	const cardWidth = 226; // Card width (216px) + margin-right (10px)
+	const containerRef = useRef(null);
+
 	const {
 		templates: {
 			aiSuggestedPendingActions,
@@ -27,6 +38,13 @@ const PromptsWidget = ({ option }) => {
 		selectedCard: null,
 		openSuggestionsModal: false,
 	});
+
+	const cardsData = aiSuggestedPendingActions?.pendingActions;
+	const cardsLoading = aiSuggestedPendingActions ? false : true;
+	const cardsEmpty = aiSuggestedPendingActions?.pendingActions?.length === 0 && !cardsLoading;
+	const cardsLength = aiSuggestedPendingActions?.pendingActions?.length ?? 0;
+	const cardsHasNextPage = Boolean(aiSuggestedPendingActions?.metaInfo?.hasNextPage);
+	const cardsCurrentPage = Number(aiSuggestedPendingActions?.metaInfo?.currentPage) || 1;
 
 	useEffect(() => {
 		if (option) {
@@ -52,6 +70,43 @@ const PromptsWidget = ({ option }) => {
 		}
 	}, [option]);
 
+	useEffect(() => {
+		if (containerRef.current && cardsData) {
+			const scrollPosition = currentIndex * cardWidth - (934 - 216) / 2; // Center the current card
+			containerRef.current.scrollTo({
+				left: scrollPosition,
+				behavior: 'smooth',
+			});
+			// Focus the container to allow keydown events
+			// containerRef.current.focus();
+		}
+	}, [currentIndex, cardsData]);
+
+	const handlePromptClick = (card) => {
+		setInfo((prev) => ({
+			...prev,
+			openSuggestionsModal: true,
+			selectedCard: card,
+		}));
+	};
+	// Add keydown event listener for Enter key
+	useEffect(() => {
+		const container = containerRef.current;
+		if (!container) return;
+
+		const handleKeyDown = (e) => {
+			if (e.key === 'Enter' && cardsData && cardsData[currentIndex]) {
+				e.preventDefault(); // Prevent default behavior
+				handlePromptClick(cardsData[currentIndex]); // Open modal for currentIndex card
+			}
+		};
+
+		container.addEventListener('keydown', handleKeyDown);
+		return () => {
+			container.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [cardsData, currentIndex]);
+
 	const getUpdatedSuggestedPendingActions = async (page = 1, shouldReset = false) => {
 		await getAISuggestedPendingActions(
 			{
@@ -65,39 +120,6 @@ const PromptsWidget = ({ option }) => {
 		);
 	};
 
-	const fetchNextCards = () => {
-		if (cardsHasNextPage) {
-			const page = cardsCurrentPage + 1;
-			const shouldReset = false;
-			getUpdatedSuggestedPendingActions(page, shouldReset);
-		}
-	};
-
-	const handleCustomOnSendFunction = useCallback(
-		(data) => {
-			updateStateValues({ activePayloadForChat: data });
-			navigate(`/chat/${currentSessionId}`);
-		},
-		[currentSessionId],
-	);
-
-	const handleChatQueryChange = (query) => {
-		setInfo((prev) => ({
-			...prev,
-			chatQuery: query,
-		}));
-
-		if (query?.length === 0) {
-			updateStateValues({ chatBoxSuggestions: null });
-		}
-	};
-	const handlePromptClick = (card) => {
-		setInfo((prev) => ({
-			...prev,
-			openSuggestionsModal: true,
-			selectedCard: card,
-		}));
-	};
 	const handleFavouriteClick = async (id) => {
 		const card = cardsData?.find((c) => c?._id === id);
 		const res = await pendingActionsUpdate(id, { isFavourite: !card?.isFavourite });
@@ -116,83 +138,67 @@ const PromptsWidget = ({ option }) => {
 		}
 	};
 
-	const cardsData = aiSuggestedPendingActions?.pendingActions;
-	const cardsLoading = aiSuggestedPendingActions ? false : true;
-	const cardsEmpty = aiSuggestedPendingActions?.pendingActions?.length === 0 && !cardsLoading;
-	const cardsLength = aiSuggestedPendingActions?.pendingActions?.length ?? 0;
-	const cardsHasNextPage = Boolean(aiSuggestedPendingActions?.metaInfo?.hasNextPage);
-	const cardsCurrentPage = Number(aiSuggestedPendingActions?.metaInfo?.currentPage) || 1;
-
 	// Indices of cards to animate with dealing effect (4th, 5th, 8th, 10th, 12th)
 	const animatedIndices = [];
 
 	return (
 		<>
-			<div
-				className="prompts-widget"
-				style={{ height: cardsData?.length > 0 ? '93vh' : '10px' }}
-			>
+			<div className="prompts-widget" style={{ height: '100%' }}>
 				{info?.cardsLoading ? (
 					<div className="prompts-widget-cards-loading">
 						{skeletonLoaders?.map((item) => (
-							<Skeleton key={item} height={'160px'} width={'175px'} />
+							<Skeleton key={item} height={'226px'} width={'216px'} />
 						))}
 					</div>
 				) : cardsEmpty ? (
-					''
+					<div className="prompts-widget-cards-loading">No results found</div>
 				) : (
-					<InfiniteScroll
-						hasMore={cardsHasNextPage}
-						next={() => fetchNextCards()}
-						dataLength={cardsLength}
-						loader={<></>}
-						height={cardsData?.length > 0 ? '80vh' : '100%'}
-						style={{ width: '760px' }}
-					>
-						<div className="prompts-widget-cards">
-							{cardsData?.map((card, index) => (
-								<div
-									key={card?.id}
-									className={`prompts-widget-each-card ${
-										info.animateCards
-											? animatedIndices.includes(index)
-												? `deal-animate deal-path-${animatedIndices.indexOf(
-														index,
-												  )}`
-												: 'slide-animate'
-											: ''
-									}`}
-									onClick={() => handlePromptClick(card)}
-								>
-									<div className="promptsCardTitle">{card?.title}</div>
-									{/* <div className="promptsCardDescription">{card?.description}</div> */}
+					<div className="prompts-widget-cards" ref={containerRef} tabIndex={0}>
+						{cardsData?.map((card, index) => (
+							<div
+								key={card?._id}
+								className={`prompts-widget-each-card ${
+									info.animateCards
+										? animatedIndices.includes(index)
+											? `deal-animate deal-path-${animatedIndices.indexOf(
+													index,
+											  )}`
+											: 'slide-animate'
+										: ''
+								} ${currentIndex === index ? 'selected-card' : ''}`}
+								onClick={() => handlePromptClick(card)}
+							>
+								<div className="promptsCardTitle">{card?.title}</div>
+								<div className="promptsCardDetails">
+									<span className="promptsCardDetailsModuleType">
+										{card?.moduleType}
+									</span>
+									<span className="promptsCardDetailsPriority">
+										<span className="promptsCardDetailsPriorityValue">
+											<span
+												className="promptsCardDetailsPriorityValueIcon"
+												style={{
+													backgroundColor: PriorityLevel[card?.priority],
+												}}
+											></span>
+											{card?.priority}
+										</span>
+										<span className="promptsCardDetailsPriorityIcon"></span>
+										<span className="promptsCardDetailsPriorityDate">
+											{getRelativeDayLabel(card?.updatedAt)}
+										</span>
+									</span>
 								</div>
-							))}
-						</div>
-					</InfiniteScroll>
+							</div>
+						))}
+					</div>
 				)}
-			</div>
-			<div className="prompts-widget-bottom">
-				<div className="chatbox-container">
-					<ChatBox
-						onSend={handleCustomOnSendFunction}
-						customChatActions={true}
-						autoFocus={false}
-						animatePlaceholder={true}
-						onChatQueryChange={handleChatQueryChange}
-						showUpgradeSubscriptionBtn={false}
-					/>
-				</div>
-				<div className="suggestions-container">
-					<Suggestions chatQuery={info?.chatQuery} styles={{ margin: '0 auto' }} />
-				</div>
 			</div>
 			<AISuggestionsModal
 				open={info?.openSuggestionsModal}
 				onClose={() => setInfo((prev) => ({ ...prev, openSuggestionsModal: false }))}
 				data={info?.selectedCard}
 				totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
-				// selectedCardNumber={currentIndexRef?.current + 1}
 				onFavouriteClick={handleFavouriteClick}
 				shouldShowCards={false}
 			/>

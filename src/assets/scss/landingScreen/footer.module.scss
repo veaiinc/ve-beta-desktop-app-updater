@@ -9,7 +9,7 @@
 	font-family: var(--secondary-font-family);
 
 	.container {
-		max-width: 1440px;
+		max-width: 1700px;
 		width: 100%;
 		gap: 50px;
 		display: flex;
@@ -60,7 +60,6 @@
 						background: var(--popup, #202123);
 						padding: 14px;
 						color: var(--primary-font, #f2f2f3);
-						font-style: italic;
 						width: 100%;
 
 						&.errorInput {
@@ -250,9 +249,12 @@
 					cursor: pointer;
 
 					div {
+						display: flex;
+						gap: 6px;
 						span {
 							font-size: 14px;
 							color: var(--secondary-font, #7a7e85);
+							white-space: nowrap;
 						}
 					}
 				}
@@ -306,7 +308,10 @@
 // Media Queries
 @media screen and (max-width: 768px) {
 	.footer {
-		padding: 30px 20px;
+		display: flex;
+		padding: 60px 20px 32px 20px;
+		flex-direction: column;
+		align-items: center;
 		gap: 50px;
 
 		.container {

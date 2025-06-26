@@ -395,7 +395,7 @@ const WebsitePricingPage = () => {
 						</span>
 					</span>
 				</div>
-				<div className="vide-button">Watch Video</div>
+				{/* <div className="vide-button">Watch Video</div> */}
 			</div>
 			<div className="pricing-features-table-section">
 				<h2 className="features-table-title">Pricing & Features</h2>
