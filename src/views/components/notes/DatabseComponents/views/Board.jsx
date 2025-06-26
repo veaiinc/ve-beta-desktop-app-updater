@@ -153,7 +153,7 @@ const Board = ({
 				databaseId,
 				databaseViewId: view?._id,
 				input: {
-					docLimit: 4,
+					docLimit: 25,
 					docPage: currentPage + 1,
 					groupFilterId: item?._id || null,
 				},

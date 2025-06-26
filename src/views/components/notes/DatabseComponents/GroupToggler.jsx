@@ -71,7 +71,7 @@ const GroupToggler = ({
 				databaseId,
 				databaseViewId: viewId,
 				input: {
-					docLimit: 4,
+					docLimit: 25,
 					docPage: currentPage + 1,
 					groupFilterId: groupData?._id || null,
 				},

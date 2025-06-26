@@ -1,7 +1,6 @@
 import { memo, useCallback, useContext, useState } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 import s from '../../../../../assets/scss/notes/databaseComponents/boardView.module.scss';
-import { rowTypes } from '../../Database';
 import Context from '../../../../../context/context';
 import { colors, getDateValueFromLabel } from '../../../../../helpers/databaseHelpers';
 import Board from './Board';
