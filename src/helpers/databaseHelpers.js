@@ -413,44 +413,50 @@ const getRelativeDateValue = (label) => {
 				isEndDateEnabled: false,
 			};
 		case 'Next 7 Days':
-			// Calculate the date 7 days from today
-			const next7Days = today.clone().add(7, 'days');
+			// This represents dates within the next 7 days (exclusive of today)
+			// Set to the end of the range (7 days from today)
+			const next7DaysEnd = today.clone().add(7, 'days');
 			return {
-				startDate: next7Days.unix(),
-				endDate: next7Days.unix(),
+				startDate: next7DaysEnd.unix(),
+				endDate: next7DaysEnd.unix(),
 				isEndDateEnabled: false,
 			};
 		case 'Next 30 Days':
-			// Calculate the date 30 days from today
-			const next30Days = today.clone().add(30, 'days');
+			// This represents dates within the next 30 days (exclusive of today)
+			// Set to the end of the range (30 days from today)
+			const next30DaysEnd = today.clone().add(30, 'days');
 			return {
-				startDate: next30Days.unix(),
-				endDate: next30Days.unix(),
+				startDate: next30DaysEnd.unix(),
+				endDate: next30DaysEnd.unix(),
 				isEndDateEnabled: false,
 			};
 		case 'Last 7 Days':
-			// Calculate the date 7 days ago from today
-			const last7Days = today.clone().subtract(7, 'days');
+			// This represents dates within the last 7 days (exclusive of today)
+			// Set to the start of the range (7 days ago from today)
+			const last7DaysStart = today.clone().subtract(7, 'days');
 			return {
-				startDate: last7Days.unix(),
-				endDate: last7Days.unix(),
+				startDate: last7DaysStart.unix(),
+				endDate: last7DaysStart.unix(),
 				isEndDateEnabled: false,
 			};
 		case 'Last 30 Days':
-			// Calculate the date 30 days ago from today
-			const last30Days = today.clone().subtract(30, 'days');
+			// This represents dates within the last 30 days (exclusive of today)
+			// Set to the start of the range (30 days ago from today)
+			const last30DaysStart = today.clone().subtract(30, 'days');
 			return {
-				startDate: last30Days.unix(),
-				endDate: last30Days.unix(),
+				startDate: last30DaysStart.unix(),
+				endDate: last30DaysStart.unix(),
 				isEndDateEnabled: false,
 			};
 		default:
 			// Try to parse as "MMM YYYY" format
 			const parsedDate = moment(label, 'MMM YYYY');
 			if (parsedDate.isValid()) {
+				// For MMM YYYY format, set to the first day of that month
+				const firstDayOfMonth = parsedDate.startOf('month');
 				return {
-					startDate: parsedDate.unix(),
-					endDate: parsedDate.unix(),
+					startDate: firstDayOfMonth.unix(),
+					endDate: firstDayOfMonth.unix(),
 					isEndDateEnabled: false,
 				};
 			}

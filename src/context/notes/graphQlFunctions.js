@@ -264,8 +264,8 @@ export const notesDeleteCoverImageMutation = gql`
 `;
 
 export const getNotesListQuery = gql`
-	query ListPrivatePages($input: PageFilterInput!) {
-		listPrivatePages(input: $input) {
+	query ListPages($input: PageFilterInput!) {
+		listPages(input: $input) {
 			totalPages
 			totalDocs
 			limit
@@ -290,6 +290,8 @@ export const getNotesListQuery = gql`
 				createdAt
 				updatedAt
 				createdBy
+				updatedBy
+				isDeleted
 			}
 		}
 	}
