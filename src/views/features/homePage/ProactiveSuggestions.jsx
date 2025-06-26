@@ -763,10 +763,11 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 					</div>
 				)}
 			<div
-				className="proactive-suggestions-container"
+				className={`proactive-suggestions-container ${
+					info?.showExploreMore ? 'active' : ''
+				}`}
 				style={{
 					marginTop: info?.showExploreMore ? '60px' : '0px',
-					height: info?.showExploreMore ? '140px' : '',
 				}}
 				ref={mainContainerRef}
 				tabIndex={0}
@@ -1148,10 +1149,16 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 						<ChatBox
 							onSend={handleCustomOnSendFunction}
 							customChatActions={true}
-							autoFocus={true}
+							autoFocus={false}
 							animatePlaceholder={true}
 							onChatQueryChange={handleChatQueryChange}
 							showUpgradeSubscriptionBtn={false}
+							customChatBoxClick={() => {
+								setInfo((prev) => ({
+									...prev,
+									showExploreMore: true,
+								}));
+							}}
 						/>
 					</div>
 					<div className="suggestions-container">

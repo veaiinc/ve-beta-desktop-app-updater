@@ -8,6 +8,13 @@
 	align-items: center;
 	overflow-y: auto;
 	position: relative;
+	height: 60vh;
+	transition: height 0s;
+	scrollbar-width: none !important;
+	&.active {
+		height: 140px;
+		transition: height 0.7s ease;
+	}
 	.cards-container {
 		display: flex;
 		gap: 20px;
@@ -876,11 +883,14 @@
 	font-weight: 500;
 	line-height: normal;
 	cursor: pointer;
+	&.active {
+		display: none;
+	}
 }
 .revertExploreMore {
 	position: absolute;
 	top: 0px;
-	left: 0px;
+	left: 18%;
 	color: var(--primary-font);
 	display: inline-flex;
 	padding: 10px 12px;
@@ -1196,15 +1206,16 @@
 }
 @keyframes slideUpChatbox {
 	0% {
-		top: 500px;
+		position: absolute;
+		top: 700px;
 	}
 	100% {
 		top: -20px;
+		position: relative;
 	}
 }
 .slideUp {
-	position: absolute;
-
+	z-index: 100;
 	animation: slideUpChatbox 0.5s ease-out forwards;
 }
 .card-change-btn-left {
