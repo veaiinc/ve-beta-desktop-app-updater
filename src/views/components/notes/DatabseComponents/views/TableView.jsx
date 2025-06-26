@@ -1,16 +1,20 @@
-import { memo, useCallback, useEffect, useState } from 'react';
-import Context from '../../../../../context/context';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import TableHeader from './TableHeader';
 import TableBody from './TableBody';
 import s from '../../../../../assets/scss/notes/databaseComponents/tableView.module.scss';
 import { DragDropContext } from 'react-beautiful-dnd';
 import GroupToggler from '../GroupToggler';
+import Context from '../../../../../context/context';
 
 const TableView = ({ groupData, metaInfo, columns, colors, databaseId, pageId, view, blockId }) => {
+	const {
+		notes: { handleLoadMoreGroups },
+	} = useContext(Context);
 	const [resizingColumn, setResizingColumn] = useState(null);
 	const [resizeStartX, setResizeStartX] = useState(0);
 	const [resizeStartWidth, setResizeStartWidth] = useState(0);
 	const [localColumns, setLocalColumns] = useState(columns);
+	const [loadingMoreGroups, setLoadingMoreGroups] = useState(false);
 
 	useEffect(() => {
 		setLocalColumns(columns);
@@ -78,6 +82,28 @@ const TableView = ({ groupData, metaInfo, columns, colors, databaseId, pageId, v
 		}
 	}, [resizingColumn, handleResizeMove, handleResizeEnd]);
 
+	const { hasNextPage, currentPage } = metaInfo;
+
+	const loadMoreGroups = useCallback(async () => {
+		if (loadingMoreGroups) return;
+
+		setLoadingMoreGroups(true);
+		const payload = {
+			pageId,
+			databaseId,
+			databaseViewId: view?._id,
+			input: {
+				docLimit: 25,
+				docPage: 1,
+				groupLimit: 10,
+				groupPage: currentPage + 1,
+				search: metaInfo?.searchQuery || '',
+			},
+		};
+		const [success] = await handleLoadMoreGroups(payload, { viewId: view?._id, blockId });
+		setLoadingMoreGroups(false);
+	}, [loadingMoreGroups, pageId, databaseId, view, currentPage, metaInfo, blockId]);
+
 	return (
 		<DragDropContext onDragEnd={handleDragEnd}>
 			<div className={`${s.tableView} ${resizingColumn !== null ? s.resizing : ''}`}>
@@ -124,6 +150,17 @@ const TableView = ({ groupData, metaInfo, columns, colors, databaseId, pageId, v
 						})}
 					</div>
 				</div>
+				{hasNextPage && (
+					<div className={s.tableFooter}>
+						<button
+							className={s.tableFooterButton}
+							onClick={loadMoreGroups}
+							disabled={loadingMoreGroups}
+						>
+							{loadingMoreGroups ? 'Loading...' : 'Load more groups'}
+						</button>
+					</div>
+				)}
 			</div>
 		</DragDropContext>
 	);

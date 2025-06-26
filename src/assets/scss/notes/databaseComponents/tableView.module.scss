@@ -242,3 +242,17 @@
 		}
 	}
 }
+
+.tableFooter {
+	background-color: var(--card);
+
+	.tableFooterButton {
+		background-color: var(--card);
+		border: none;
+		border-radius: 4px;
+		padding: 4px 8px;
+		font-size: 13px;
+		left: 0;
+		cursor: pointer;
+	}
+}

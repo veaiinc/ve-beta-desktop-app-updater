@@ -100,9 +100,9 @@ const GroupToggler = ({
 						color: groupData?.color,
 					})}
 
-					<span className={s.totalDocsCount}>
+					{/* <span className={s.totalDocsCount}>
 						{totalDocs} {totalDocs > 1 ? 'items' : 'item'}
-					</span>
+					</span> */}
 				</div>
 			)}
 

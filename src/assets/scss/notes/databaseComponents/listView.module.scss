@@ -41,4 +41,33 @@
 			}
 		}
 	}
+
+	.listViewFooter {
+		background-color: var(--card);
+		padding: 12px 16px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		.listViewFooterButton {
+			background-color: var(--card);
+			border: none;
+			border-radius: 4px;
+			padding: 4px 8px;
+			font-size: 13px;
+			cursor: pointer;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-weight: 500;
+
+			&:disabled {
+				opacity: 0.6;
+				cursor: not-allowed;
+			}
+
+			&:hover:not(:disabled) {
+				background-color: var(--card-hover);
+			}
+		}
+	}
 }

@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext } from 'react';
+import { memo, useCallback, useContext, useState } from 'react';
 import s from '../../../../../assets/scss/notes/databaseComponents/galleryView.module.scss';
 import Context from '../../../../../context/context';
 import GroupToggler from '../GroupToggler';
@@ -6,8 +6,10 @@ import { rowTypes } from '../../Database';
 
 const GalleryView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blockId }) => {
 	const {
-		notes: { updateDatabaseSidebar, updateDatabaseRow },
+		notes: { updateDatabaseSidebar, updateDatabaseRow, handleLoadMoreGroups },
 	} = useContext(Context);
+
+	const [loadingMoreGroups, setLoadingMoreGroups] = useState(false);
 
 	const handleUpdateRow = useCallback(
 		(rowId, key, value, groupId) => {
@@ -22,6 +24,27 @@ const GalleryView = ({ groupData, metaInfo, columns, databaseId, pageId, view, b
 		},
 		[pageId, updateDatabaseRow, databaseId, view?._id, blockId],
 	);
+
+	const loadMoreGroups = useCallback(async () => {
+		if (loadingMoreGroups) return;
+
+		setLoadingMoreGroups(true);
+		const payload = {
+			pageId,
+			databaseId,
+			databaseViewId: view?._id,
+			input: {
+				docLimit: 25,
+				docPage: 1,
+				groupLimit: 10,
+				groupPage: metaInfo?.currentPage + 1,
+				search: metaInfo?.searchQuery || '',
+			},
+		};
+		const [success] = await handleLoadMoreGroups(payload, { viewId: view?._id, blockId });
+		setLoadingMoreGroups(false);
+	}, [loadingMoreGroups, pageId, databaseId, view, metaInfo, blockId, handleLoadMoreGroups]);
+
 	const generateCard = (row, groupId) => {
 		const renderData = [];
 		for (let i = 0; i < columns.length; i++) {
@@ -119,13 +142,22 @@ const GalleryView = ({ groupData, metaInfo, columns, databaseId, pageId, view, b
 						pageId={pageId}
 					>
 						<div className={s.galleryViewWrapper}>
-							{docs?.map((row) =>
-								generateCard(row, item?._id),
-							)}
+							{docs?.map((row) => generateCard(row, item?._id))}
 						</div>
 					</GroupToggler>
 				);
 			})}
+			{metaInfo?.hasNextPage && (
+				<div className={s.galleryViewFooter}>
+					<button
+						className={s.galleryViewFooterButton}
+						onClick={loadMoreGroups}
+						disabled={loadingMoreGroups}
+					>
+						{loadingMoreGroups ? 'Loading...' : 'Load more groups'}
+					</button>
+				</div>
+			)}
 		</div>
 	);
 };

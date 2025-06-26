@@ -533,8 +533,6 @@ const DatabaseComponent = ({ block, editor }) => {
 	);
 	const allDatabases = useMemo(() => availableDatabases || [], [availableDatabases]);
 
-	const hasMoreGroups = metaInfo?.hasNextPage;
-
 	return (
 		<div className={s.notesDatabaseContainer}>
 			{!databaseId ? (
@@ -693,11 +691,6 @@ const DatabaseComponent = ({ block, editor }) => {
 								/>
 							)}
 						</>
-					)}
-					{hasMoreGroups && (
-						<button className={s.loadMoreButton} onClick={() => {}}>
-							Load More groups
-						</button>
 					)}
 
 					<DatabaseAddModal

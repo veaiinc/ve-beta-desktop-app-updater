@@ -7,8 +7,10 @@ import Board from './Board';
 
 const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blockId }) => {
 	const {
-		notes: { updateDatabaseRow, database },
+		notes: { updateDatabaseRow, database, handleLoadMoreGroups },
 	} = useContext(Context);
+
+	const [loadingMoreGroups, setLoadingMoreGroups] = useState(false);
 
 	const [dragState, setDragState] = useState({
 		isDragging: false,
@@ -23,6 +25,26 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 		(field) => field._id === groupFieldId,
 	);
 	const isGroupFieldReadOnly = groupField?.isReadOnly || false;
+
+	const loadMoreGroups = useCallback(async () => {
+		if (loadingMoreGroups) return;
+
+		setLoadingMoreGroups(true);
+		const payload = {
+			pageId,
+			databaseId,
+			databaseViewId: view?._id,
+			input: {
+				docLimit: 25,
+				docPage: 1,
+				groupLimit: 10,
+				groupPage: metaInfo?.currentPage + 1,
+				search: metaInfo?.searchQuery || '',
+			},
+		};
+		const [success] = await handleLoadMoreGroups(payload, { viewId: view?._id, blockId });
+		setLoadingMoreGroups(false);
+	}, [loadingMoreGroups, pageId, databaseId, view, metaInfo, blockId, handleLoadMoreGroups]);
 
 	const handleDragEnd = useCallback(
 		(result) => {
@@ -257,6 +279,17 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 						groupField={groupField}
 					/>
 				))}
+				{metaInfo?.hasNextPage && (
+					<div className={s.boardViewFooter}>
+						<button
+							className={s.boardViewFooterButton}
+							onClick={loadMoreGroups}
+							disabled={loadingMoreGroups}
+						>
+							{loadingMoreGroups ? 'Loading...' : 'Load more groups'}
+						</button>
+					</div>
+				)}
 			</div>
 		);
 	}
@@ -283,6 +316,17 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 						groupField={groupField}
 					/>
 				))}
+				{metaInfo?.hasNextPage && (
+					<div className={s.boardViewFooter}>
+						<button
+							className={s.boardViewFooterButton}
+							onClick={loadMoreGroups}
+							disabled={loadingMoreGroups}
+						>
+							{loadingMoreGroups ? 'Loading...' : 'Load more groups'}
+						</button>
+					</div>
+				)}
 			</div>
 		</DragDropContext>
 	);

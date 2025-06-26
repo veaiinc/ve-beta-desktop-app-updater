@@ -892,6 +892,88 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const handleLoadMoreGroups = async (payload, { viewId, blockId }) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getDatabaseRowsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				const { data, metaInfo } = response?.[1]?.data?.listDatabaseRowsWithGroup || {};
+				const newGroupData = Object.fromEntries(data?.map((item) => [item?._id, item]));
+
+				// Get existing group data for this view
+				const existingGroupData = state?.rowData?.[viewId]?.groupData || {};
+
+				// Merge new group data with existing data
+				const mergedGroupData = {
+					...existingGroupData,
+					...newGroupData,
+				};
+
+				dispatch({
+					type: Actions.SET_DATABASE_ROWS,
+					payload: {
+						[viewId]: {
+							...(state?.rowData?.[viewId] || {}),
+							groupData: mergedGroupData,
+							metaInfo,
+							fieldType: metaInfo?.fieldType,
+							searchQuery: payload?.input?.search,
+						},
+					},
+				});
+
+				// Update default groups for specific field types
+				if (
+					['text', 'title', 'email', 'url', 'phone', 'number', 'date'].includes(
+						metaInfo?.fieldType,
+					)
+				) {
+					const view = state?.views?.[blockId] || [];
+					const newView = view?.map((view) => {
+						if (view?._id === viewId) {
+							// Get existing default groups
+							const existingDefaultGroups = view?.groupBy?.defaultGroups || [];
+							// Get new group keys that don't already exist
+							const newGroupKeys = Object.keys(newGroupData).filter(
+								(key) => !existingDefaultGroups.some((group) => group._id === key),
+							);
+							// Create new default group objects
+							const newDefaultGroups = newGroupKeys.map((item) => ({
+								_id: item,
+								label: item === 'null' ? 'No Value' : item,
+							}));
+
+							return {
+								...view,
+								groupBy: {
+									...view?.groupBy,
+									defaultGroups: [...existingDefaultGroups, ...newDefaultGroups],
+								},
+							};
+						}
+						return view;
+					});
+					dispatch({
+						type: Actions.UPDATE_DATABASE_VIEWS,
+						payload: { [blockId]: newView },
+					});
+				}
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.error('error==>handleLoadMoreGroups', error);
+		}
+	};
+
 	const addDatabaseRow = async (payload, { viewId, blockId }) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -1598,6 +1680,7 @@ export const NotesState = (props) => {
 		createDatabase,
 		createDatabaseView,
 		getDatabaseRows,
+		handleLoadMoreGroups,
 		getDatabase,
 		addDatabaseRow,
 		addDatabaseField,
