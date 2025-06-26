@@ -1686,6 +1686,7 @@ class Proposals extends Component {
 					navBar: response?.[1]?.data?.workflowInfo?.navBar,
 					themes: response?.[1]?.data?.workflowInfo?.themes || null,
 					workflowTemplateID: response?.[1]?.data?.workflowInfo?.template?._id,
+					invoiceSentDate: response[1]?.data?.workflowInfo?.sendAt,
 				},
 				() => {
 					if (getModules === true) {

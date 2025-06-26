@@ -95,8 +95,8 @@ const Cross = ({ activeComponent, adjustAnimation }) => {
 						<input
 							type="range"
 							min="1"
-							max="10"
-							step="0.1"
+							max="20"
+							step="0.2"
 							value={
 								activeComponent?.animations?.adjustments?.animeDuration || duration
 							}
