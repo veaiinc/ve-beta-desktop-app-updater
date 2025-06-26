@@ -29,7 +29,7 @@ const AIMessage = ({
 }) => {
 	const {
 		documentPreview: { setNoteContent },
-		templates: { updateStateValues },
+		templates: { updateStateValues, aiMessagesInfo },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		isCopiedToClipboard: false,
@@ -206,6 +206,28 @@ const AIMessage = ({
 						</div>
 					</div>
 				)}
+
+			{aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 && (
+				<div className="suggested-prompts">
+					<div className="title-text">
+						<BulbSvg />
+						Suggested Prompts
+					</div>
+					<div className="prompts-container">
+						{(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery || [])?.map(
+							(query, index) => (
+								<div
+									className="prompt-container"
+									key={index}
+									onClick={() => handlePromptClick(query)}
+								>
+									<div className="prompt">{query}</div>
+								</div>
+							),
+						)}
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };

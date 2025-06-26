@@ -151,7 +151,7 @@ const ChatHeader = ({
 						)}
 					</div>
 				</div>
-				{info?.userMessages?.length > 0 && (
+				{info?.userMessages?.length > 1 && (
 					<div className={s.chatInfo}>
 						<div className={s.nonActiveQuestionsContainer}>
 							{info?.userMessages?.map((message) =>

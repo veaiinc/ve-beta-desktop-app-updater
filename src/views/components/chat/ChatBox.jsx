@@ -688,8 +688,8 @@ const ChatBox = ({
 					}));
 					uploadedImagesRef.current = [];
 
+					onChatQueryChange?.('');
 					clearTextArea();
-
 					if (!(globalChatMessages?.[info?.chatSessionId]?.messages?.length > 0)) {
 						const addNewSession = true;
 						const payload = { sessionId: info?.chatSessionId };
@@ -735,6 +735,7 @@ const ChatBox = ({
 			currentPlan,
 			globalChatMessages,
 			chatReplyData,
+			onChatQueryChange,
 		],
 	);
 
