@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import s from '../../../assets/scss/chat/chatHeader.module.scss';
 import { ReactComponent as LeftSvg } from '../../../assets/svg/activity/left.svg';
 import { ReactComponent as DeleteSvg } from '../../../assets/svg/delete.svg';
@@ -17,6 +17,7 @@ const ChatHeader = ({
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const timeoutRef = useRef(null);
 	const {
 		templates: { currentChatData, deleteChatSession, globalChatMessages },
 	} = useContext(Context);
@@ -98,19 +99,26 @@ const ChatHeader = ({
 	);
 
 	const handleMouseEnter = useCallback(() => {
-		setInfo((prev) => {
-			const chatDropdownExpanded = prev.chatDropdownExpanded;
-			if (chatDropdownExpanded) {
-				return prev;
-			}
-			return {
-				...prev,
-				chatDropdownExpanded: true,
-			};
-		});
+		timeoutRef.current = setTimeout(() => {
+			setInfo((prev) => {
+				const chatDropdownExpanded = prev.chatDropdownExpanded;
+				if (chatDropdownExpanded) {
+					return prev;
+				}
+				return {
+					...prev,
+					chatDropdownExpanded: true,
+				};
+			});
+		}, [300]);
 	}, []);
 
 	const handleMouseLeave = useCallback(() => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+			timeoutRef.current = null;
+			return;
+		}
 		setInfo((prev) => {
 			const chatDropdownExpanded = prev.chatDropdownExpanded;
 			if (!chatDropdownExpanded) {
@@ -152,7 +160,7 @@ const ChatHeader = ({
 					</div>
 				</div>
 				{info?.userMessages?.length > 1 && (
-					<div className={s.chatInfo}>
+					<div className={s.chatInfo} onMouseLeave={handleMouseLeave}>
 						<div className={s.nonActiveQuestionsContainer}>
 							{info?.userMessages?.map((message) =>
 								message?.index !== info?.activeUserMessageIndex ? (
@@ -175,6 +183,7 @@ const ChatHeader = ({
 							className={`${s.questionWrapper} ${
 								info?.chatDropdownExpanded ? s.expanded : ''
 							}`}
+							onMouseEnter={handleMouseEnter}
 						>
 							<div className={s.chatQuestionContainer}>
 								{info?.chatDropdownExpanded && (
@@ -191,7 +200,6 @@ const ChatHeader = ({
 									className={`${s.iconContainer} ${
 										info?.chatDropdownExpanded ? s.expanded : ''
 									}`}
-									onMouseEnter={handleMouseEnter}
 								>
 									<ChevronRightThinSvg width={18} height={18} />
 								</div>
