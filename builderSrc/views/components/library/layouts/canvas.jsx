@@ -1255,6 +1255,10 @@ class Layout extends Component {
 
 	handleClickOutside = (event) => {
 		// this.props.setPreviewType('b');
+		if (event.target.closest('.elementPopupContainer')) {
+			return;
+		}
+		// this.props.setPreviewType('b');
 		if (this.addElementRef.current && !this.addElementRef.current.contains(event.target)) {
 			this.setState({
 				showAddElement: false,
@@ -1267,6 +1271,22 @@ class Layout extends Component {
 				showSlashElement: false,
 				slashInput: '',
 				isClick: false,
+			});
+		}
+		if (
+			this.blockRef.current &&
+			!this.blockRef.current.contains(event.target) &&
+			!(
+				this.elementSidebarRef.current &&
+				this.elementSidebarRef.current.getSidebarNode &&
+				this.elementSidebarRef.current.getSidebarNode().contains(event.target)
+			)
+		) {
+			this.setState({
+				showBlockActions: false,
+				activeComponentID: null,
+				activeComponent: null,
+				isFocused: false,
 			});
 		}
 		if (this.blockRef.current && !this.blockRef.current.contains(event.target)) {
