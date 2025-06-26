@@ -2,7 +2,7 @@
 	height: calc(100% - 25px);
 	width: 100%;
 	box-sizing: border-box;
-	padding: 0px 0px 0 10px;
+	padding: 0px;
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
@@ -38,7 +38,7 @@
 			.chatContent {
 				display: flex;
 				flex-direction: column;
-				gap: 50px;
+				gap: 40px;
 				width: 100%;
 				max-width: 750px;
 				margin: 0 auto;

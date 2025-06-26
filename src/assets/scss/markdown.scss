@@ -13,13 +13,12 @@
 	}
 
 	.span {
-		font-family: var(--chat-primary-font-family);
-		font-size: calc(var(--font-size) * 0.9375);
-		letter-spacing: -0.08px;
-		font-weight: 400;
-		// color: var(--chat-secondary-font);
 		color: var(--primary-font);
-		line-height: calc(var(--font-size) * 1.5);
+		font-family: var(--chat-primary-font-family);
+		font-size: calc(var(--font-size) * 1);
+		font-weight: 460;
+		line-height: 28px;
+		letter-spacing: 0.25px;
 	}
 
 	.markdown-image-wrapper {
@@ -41,7 +40,7 @@
 		color: var(--primary-font);
 		font-family: var(--chat-primary-font-family);
 		line-height: calc(var(--font-size) * 1.75);
-		letter-spacing: -0.08px;
+		// letter-spacing: -0.08px;;
 		font-weight: 400;
 		background-color: var(--stroke);
 		padding: 0.15em 0.3em;
@@ -50,34 +49,42 @@
 		// -webkit-box-decoration-break: clone;
 	}
 
+	.h1,
+	.h2,
+	.h3 {
+		.strong {
+			font-weight: inherit !important;
+		}
+	}
+
 	.h1 {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 1.625); /* 26px */
-		letter-spacing: -0.08px;
-		font-weight: 900;
+		font-size: 28px; /* 26px */
+		letter-spacing: 0.25px;
+		font-weight: 600;
 		font-family: var(--chat-primary-font-family);
-		margin: calc(var(--font-size) * 0.75) 0; /* 12px */
-		line-height: calc(var(--font-size) * 2); /* 32px */
+		margin: 20px 0; /* 12px */
+		line-height: 32px; /* 32px */
 	}
 
 	.h2 {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 1.375); /* 22px */
-		letter-spacing: -0.08px;
-		font-weight: 700;
+		font-size: 24px; /* 22px */
+		letter-spacing: 0.25px;
+		font-weight: 600;
 		font-family: var(--chat-primary-font-family);
-		margin: calc(var(--font-size) * 1) 0; /* 16px */
-		line-height: calc(var(--font-size) * 1.75); /* 28px */
+		margin: 18px 0; /* 16px */
+		line-height: 32px; /* 28px */
 	}
 
 	.h3 {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 1.25); /* 20px */
-		letter-spacing: -0.08px;
-		font-weight: 700;
+		font-size: 22px; /* 20px */
+		letter-spacing: 0.25px;
+		font-weight: 600;
 		font-family: var(--chat-primary-font-family);
 		margin: calc(var(--font-size) * 1) 0; /* 16px */
-		line-height: calc(var(--font-size) * 1.5); /* 24px */
+		line-height: 28px; /* 24px */
 	}
 
 	.h4,
@@ -85,35 +92,30 @@
 		color: var(--primary-font);
 		font-size: calc(var(--font-size) * 1.125); /* 18px */
 		line-height: calc(var(--font-size) * 1.375); /* 22px */
-		letter-spacing: -0.08px;
-		font-weight: 500;
+		letter-spacing: 0.25px;
+		font-weight: 600;
 		font-family: var(--chat-primary-font-family);
 		margin: calc(var(--font-size) * 1) 0; /* 16px */
-	}
-
-	.p {
-		// color: var(--chat-secondary-font);
-		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 1); /* 16px */
-		line-height: 28px; /* 25px */
-		letter-spacing: -0.08px;
-		font-weight: 400;
-		font-family: var(--chat-primary-font-family);
-		margin: 8px 0; /* 16px */
 	}
 
 	.h6 {
 		color: var(--primary-font);
 		font-size: calc(var(--font-size) * 1); /* 16px */
 		line-height: calc(var(--font-size) * 1.5625); /* 25px */
-
-		letter-spacing: -0.08px;
-		font-weight: 400;
+		letter-spacing: 0.25px;
+		font-weight: 600;
 		font-family: var(--chat-primary-font-family);
-		margin: 0 0 calc(var(--font-size) * 1) 0; /* 16px */
+		margin: calc(var(--font-size) * 1) 0; /* 16px */
 	}
-	.h6 {
-		margin-top: calc(var(--font-size) * 1); /* 16px */
+
+	.p {
+		color: var(--primary-font);
+		font-family: var(--chat-primary-font-family);
+		font-size: calc(var(--font-size) * 1);
+		font-weight: 460;
+		letter-spacing: 0.25px;
+		line-height: 28px;
+		margin: 8px 0;
 	}
 
 	.pre {
@@ -123,7 +125,7 @@
 		line-height: 1.45;
 		background-color: var(--card);
 		border-radius: calc(var(--font-size) * 1); //0.375
-		letter-spacing: -0.08px;
+		letter-spacing: 0.25px;
 		font-family: var(--chat-primary-font-family);
 
 		.code {
@@ -140,6 +142,7 @@
 		margin: calc(var(--font-size) * 3) 0;
 		border: 0;
 		border-top: 1px solid var(--stroke);
+		opacity: 0.65;
 	}
 
 	.ol,
@@ -148,8 +151,8 @@
 		margin-bottom: 16px; /* 8px */
 		font-size: calc(var(--font-size) * 0.9375);
 		// line-height: calc(var(--font-size) * 1.5);
-		letter-spacing: -0.08px;
-		font-weight: 500;
+		// letter-spacing: -0.08px;;
+		font-weight: 460;
 		font-family: var(--chat-primary-font-family);
 		padding-left: calc(var(--font-size) * 1.5); /* 24px */
 
@@ -183,17 +186,19 @@
 		// color: var(--chat-secondary-font);
 		color: var(--primary-font);
 		font-family: var(--chat-primary-font-family);
-		letter-spacing: -0.08px;
-		font-weight: 400;
+		letter-spacing: 0.25px;
+		font-weight: 460;
 		line-height: 28px;
-		font-size: calc(var(--font-size) * 0.9375);
+		font-size: calc(var(--font-size) * 1);
 		margin: 8px 0; /* 8px */
 	}
 
 	.strong {
 		color: var(--primary-font);
-		font-weight: 700;
+		font-weight: 635;
 		font-family: var(--chat-primary-font-family);
+		letter-spacing: 0.25px;
+		line-height: 28px;
 	}
 
 	.iframe-wrapper {
@@ -218,8 +223,8 @@
 		color: var(--info);
 		font-size: inherit;
 		line-height: calc(var(--font-size) * 1.5);
-		letter-spacing: -0.08px;
-		font-weight: 500;
+		letter-spacing: 0.25px;
+		font-weight: 460;
 		font-family: var(--chat-primary-font-family);
 		text-decoration: none;
 
@@ -264,9 +269,9 @@
 				// color: var(--chat-secondary-font);
 				color: var(--primary-font);
 				font-family: var(--chat-primary-font-family);
-				font-weight: 500;
+				font-weight: 460;
 				line-height: 1.5;
-				letter-spacing: -0.08px;
+				// letter-spacing: -0.08px;;
 			}
 		}
 	}
@@ -320,8 +325,8 @@
 					color: var(--primary-font);
 					font-size: calc(var(--font-size) * 0.875); /* 14px */
 					line-height: calc(var(--font-size) * 1.25); /* 20px */
-					letter-spacing: -0.08px; /* 0.2px */
-					font-weight: 500;
+					// letter-spacing: -0.08px;; /* 0.2px */
+					font-weight: 460;
 					font-family: var(--chat-primary-font-family);
 					padding: calc(var(--font-size) * 0.5) calc(var(--font-size) * 1.25); /* 8px 20px */
 				}

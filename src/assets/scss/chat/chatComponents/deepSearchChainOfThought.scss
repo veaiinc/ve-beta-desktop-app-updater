@@ -59,6 +59,7 @@
 					font-style: normal;
 					font-weight: 500;
 					line-height: 24px;
+					letter-spacing: 0.25px;
 
 					&::first-letter {
 						text-transform: capitalize;
@@ -109,14 +110,15 @@
 									}
 
 									.search-text {
+										height: fit-content;
 										color: var(--secondary-font, #7a7e85);
 										font-family: var(--chat-primary-font-family);
-										font-size: 12px;
+										font-size: 13px;
 										font-style: normal;
-										font-weight: 400;
-										line-height: 18px;
-										letter-spacing: 0.2px;
+										font-weight: 500;
 										height: fit-content;
+										letter-spacing: 0.25px;
+										line-height: 18px;
 									}
 								}
 							}
@@ -149,11 +151,11 @@
 									.query {
 										color: var(--primary-font, #f2f2f3);
 										font-family: var(--chat-primary-font-family);
-										font-size: 15px;
+										font-size: 14px;
 										font-style: normal;
 										font-weight: 500;
+										letter-spacing: 0.25px;
 										line-height: 24px;
-										letter-spacing: 0.2px;
 										position: relative;
 										top: 7px;
 
