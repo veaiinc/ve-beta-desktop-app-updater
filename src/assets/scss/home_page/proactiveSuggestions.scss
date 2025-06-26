@@ -12,7 +12,7 @@
 	transition: height 0s;
 	scrollbar-width: none !important;
 	&.active {
-		height: 140px;
+		height: 200px;
 		transition: height 0.7s ease;
 	}
 	.cards-container {
@@ -887,18 +887,21 @@
 		display: none;
 	}
 }
-.revertExploreMore {
-	position: absolute;
-	top: 0px;
-	left: 18%;
-	color: var(--primary-font);
-	display: inline-flex;
-	padding: 10px 12px;
-	align-items: center;
-	gap: 8px;
-	border-radius: 60px;
-	background: var(--new-card, #1a1b1e);
-	backdrop-filter: blur(8.300000190734863px);
+.revertExploreMoreContainer {
+	width: 100%;
+	max-width: 750px;
+	margin: 0 auto;
+	.revertExploreMore {
+		position: relative;
+		color: var(--primary-font);
+		display: inline-flex;
+		padding: 10px 12px;
+		align-items: center;
+		gap: 8px;
+		border-radius: 60px;
+		background: var(--new-card, #1a1b1e);
+		backdrop-filter: blur(8.300000190734863px);
+	}
 }
 
 .filter-container {

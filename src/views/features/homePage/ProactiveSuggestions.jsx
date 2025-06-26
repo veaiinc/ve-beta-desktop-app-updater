@@ -725,17 +725,19 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	return (
 		<>
 			{info?.showExploreMore && (
-				<div
-					className="revertExploreMore"
-					onClick={() => {
-						setInfo((prev) => ({
-							...prev,
-							showExploreMore: false,
-						}));
-					}}
-				>
-					<div>Back to insights</div>
-					<DoubleUpArrowSvg />
+				<div className="revertExploreMoreContainer">
+					<div
+						className="revertExploreMore"
+						onClick={() => {
+							setInfo((prev) => ({
+								...prev,
+								showExploreMore: false,
+							}));
+						}}
+					>
+						<div>Back to insights</div>
+						<DoubleUpArrowSvg />
+					</div>
 				</div>
 			)}
 			{(aiSuggestedPendingActions?.pendingActions?.length > 0 ||
