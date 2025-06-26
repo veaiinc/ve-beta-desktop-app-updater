@@ -1305,6 +1305,7 @@ class Layout extends Component {
 		) {
 			this.setState({
 				showSidebar: false,
+				activeComponentID: null,
 			});
 		}
 		Object.values(this.boxRefs).forEach((ref, index) => {
