@@ -450,7 +450,7 @@ class ImageItem extends BaseClass {
 						  // </a>
 						  ''
 						: ''}
-					{this.state.showGenerateButton && !this.props.client ? (
+					{/* {this.state.showGenerateButton && !this.props.client ? (
 						<a
 							className="generate-ai-btn"
 							onClick={() =>
@@ -465,8 +465,8 @@ class ImageItem extends BaseClass {
 						</a>
 					) : (
 						''
-					)}
-					{this.state.showGeneratePopup ? (
+					)} */}
+					{/* {this.state.showGeneratePopup ? (
 						<div className="generate-popup" ref={this.popupRef}>
 							<div className="generate-popup-header">
 								<h3>Generate AI Image</h3>
@@ -518,7 +518,7 @@ class ImageItem extends BaseClass {
 						</div>
 					) : (
 						''
-					)}
+					)} */}
 					{/* {this.state.showElementOptions && _.has(this.props, 'label') && this.props.label ? (
 					<legend
 						className="element-edit-label"

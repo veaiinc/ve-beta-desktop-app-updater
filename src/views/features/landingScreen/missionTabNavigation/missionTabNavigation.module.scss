@@ -29,10 +29,19 @@
 			border: none;
 			outline: none;
 			transition: background 0.2s;
+			border-radius: 8px;
+
 			&:hover,
 			&.active {
-				background-color: var(--card);
+				background: var(--card, #18191b);
 			}
+		}
+
+		.divider {
+			height: 1px;
+			background-color: var(--stroke);
+			width: 100%;
+			margin: 16px 0;
 		}
 	}
 

@@ -1,30 +1,34 @@
+// src/pages/LandingPage.jsx
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { Link, useNavigate } from 'react-router-dom';
 
 import Context from '../../../context/context';
 import TabNavigation from '../../components/landing_screen/TabNavigation';
 import Tagline from './Tagline';
 import Footer from './Footer';
-
 import ChatBox from '../../components/chat/ChatBox';
 import Suggestions from '../homePage/Suggestions';
 import MobileMenu from '../../components/landing_screen/MobileMenu';
-
 import ContactUs from '../../components/landing_screen/ContactUs';
 import OurMission from './OurMission';
 import EarlyAccess from './EarlyAccess';
-import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
-import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
-
-import '../../../assets/scss/landingScreen/index.scss';
 import WebsitePricingPage from '../pricingPlans/PricingPageWebsite';
 
+import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
+import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
+import { ReactComponent as PlayIcon } from './assets/playIcon.svg';
+import { ReactComponent as PauseIcon } from './assets/pauseIcon.svg';
+
+import '../../../assets/scss/landingScreen/index.scss';
+
 const pathToTabMap = {
+	'/': 0, // ← added
 	'/thebridge': 1,
 	'/contact-us': 2,
 	'/pricing': 3,
+	'/careers': 4,
+	'/forefront': 5,
 };
 
 const LandingPage = () => {
@@ -36,40 +40,59 @@ const LandingPage = () => {
 	const location = useLocation();
 
 	const [tab, setTab] = useState(0);
-	const [info, setInfo] = useState({
-		chatQuery: '',
-		showSuggestions: false,
-	});
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+	const [isPlaying, setIsPlaying] = useState(false);
+	const [hasPlayed, setHasPlayed] = useState(false);
+	const [showSuggestions, setShowSuggestions] = useState(false);
 
-	const bridgePage = location.pathname === '/thebridge';
+	const isMobileScreen = window.innerWidth < 768;
 
+	// sync tab with URL
 	useEffect(() => {
-		const currentTab = pathToTabMap[location.pathname] ?? 0;
-		setTab((prevTab) => (prevTab !== currentTab ? currentTab : prevTab));
+		const path = location.pathname;
+		// fallback to 0 if path not in map
+		setTab(pathToTabMap[path] ?? 0);
 	}, [location.pathname]);
 
+	// redirect if onboarded
 	useEffect(() => {
-		const usertoken = localStorage.getItem('usertoken');
+		const token = localStorage.getItem('usertoken');
 		const region = localStorage.getItem('region');
 		const workspaceId = localStorage.getItem('workspaceId');
-		const isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
-		if (usertoken && region && workspaceId) {
-			if (isOnboard === false) return navigate('/early-access');
-			if (isOnboard) return navigate('/home');
-		}
-	}, []);
+		const isOnboard = JSON.parse(localStorage.getItem('isOnboard') || 'false');
 
-	const handleLoginBtnClick = () => {
-		navigate('/verify-user');
+		if (token && region && workspaceId) {
+			if (!isOnboard) return navigate('/early-access');
+			return navigate('/home');
+		}
+	}, [navigate]);
+
+	// play/pause handler
+	const handleVideoClick = async () => {
+		const video = document.getElementById('landing-video');
+		if (!video) return;
+		try {
+			if (video.paused) {
+				await video.play();
+				setIsPlaying(true);
+			} else {
+				video.pause();
+				setIsPlaying(false);
+			}
+			setHasPlayed(true);
+		} catch (err) {
+			console.error('Video play failed:', err);
+		}
 	};
 
+	// chat send
 	const handleCustomOnSendFunction = useCallback(
 		(data) => {
 			updateStateValues({ activePayloadForChat: data });
 			navigate(`/c/${currentSessionId}`);
+			setShowSuggestions(false);
 		},
-		[currentSessionId],
+		[currentSessionId, updateStateValues, navigate],
 	);
 
 	const handleSetTab = (tabVal) => {
@@ -80,60 +103,69 @@ const LandingPage = () => {
 
 	const tabComponents = {
 		0: (
-			<>
-				<div className="page-body">
-					<div
-						className={`title-container${
-							info.showSuggestions ? ' with-suggestions' : ''
-						}`}
-					>
-						<div className="title-text">
-							<div className="title-text-container">
-								<span className="title-one">The World's First</span>
-								<span className="title-two">Ambient AI</span>
-							</div>
-							<p className="title-three">
-								Your Living Memory Intelligence — built to think, remember, and act.
-							</p>
+			<div className="page-body">
+				<div className={`title-container${showSuggestions ? ' with-suggestions' : ''}`}>
+					<div className="title-text">
+						<div className="title-text-container">
+							<span className="title-one">The World's First</span>
+							<span className="title-two">Ambient AI</span>
 						</div>
-
-						<div className="chatbox-container">
-							<ChatBox
-								customChatActions={true}
-								autoFocus={false}
-								isPublicChat={true}
-								animatePlaceholder={true}
-								onSend={handleCustomOnSendFunction}
-								isBuildEnbled={false}
-								showUpgradeSubscriptionBtn={false}
-							/>
-						</div>
-						{info.showSuggestions && (
-							<div className="suggestions-container">
-								<Suggestions landingPage={true} />
-							</div>
-						)}
+						<p className="title-three">
+							Your Living Memory Intelligence — built to think, remember, and act.
+						</p>
 					</div>
-					<video autoPlay muted loop className="videoContainer">
-						<source
-							src="https://ap.images.ve.ai/public/dashboard/login_page.mp4"
-							type="video/mp4"
+
+					<div className="chatbox-container">
+						<ChatBox
+							customChatActions
+							autoFocus={false}
+							isPublicChat
+							animatePlaceholder
+							onSend={handleCustomOnSendFunction}
+							isBuildEnbled={false}
+							showUpgradeSubscriptionBtn={false}
 						/>
-					</video>
-					<Tagline />
-					{/* <HowItWorks /> */}
-					{/* <Features /> */}
-					{/* <div className="responsive-spacer"></div> */}
-					{/* <OwnYourMemoryCards /> */}
-					<EarlyAccess />
-					{/* <QandALandingPage /> */}
-					<Footer />
+					</div>
+					{showSuggestions && (
+						<div className="suggestions-container">
+							<Suggestions landingPage />
+						</div>
+					)}
 				</div>
-			</>
+
+				<div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
+					<button onClick={handleVideoClick}>
+						{isPlaying ? (
+							<>
+								<PauseIcon /> Pause
+							</>
+						) : (
+							<>
+								<PlayIcon /> Play
+							</>
+						)}
+					</button>
+					<video
+						id="landing-video"
+						src="https://ap.images.ve.ai/public/dashboard/login_page.mp4"
+						muted
+						style={{ width: '100%' }}
+						controls={isMobileScreen}
+						controlsList="nofullscreen nodownload noremoteplayback noplaybackrate foobar"
+						autoPlay={isMobileScreen}
+					/>
+				</div>
+
+				<Tagline />
+				<EarlyAccess />
+				<Footer />
+			</div>
 		),
-		1: <OurMission />,
+		1: <OurMission tab={tab} />,
 		2: <ContactUs type="Enterprise" />,
 		3: <WebsitePricingPage />,
+		4: <OurMission tab={tab} />,
+		5: <OurMission tab={tab} />,
 	};
 
 	return (
@@ -141,7 +173,11 @@ const LandingPage = () => {
 			<Helmet>
 				<title>Ve - The World's First Ambient AI OS</title>
 			</Helmet>
-			<main className={`landing-page-container ${bridgePage ? 'fullHeight' : ''}`}>
+			<main
+				className={`landing-page-container${
+					location.pathname === '/thebridge' ? ' fullHeight' : ''
+				}`}
+			>
 				<header className="page-header">
 					<div className="page-header-wrapper">
 						<div className="left-container">
@@ -175,7 +211,7 @@ const LandingPage = () => {
 					<MobileMenu
 						open={mobileMenuOpen}
 						onClose={() => setMobileMenuOpen(false)}
-						onLogin={handleLoginBtnClick}
+						onLogin={() => navigate('/verify-user')}
 						onGetFree={() => {}}
 					/>
 				</header>

@@ -1,47 +1,52 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import Context from '../../context/context';
+import { matchPath, useLocation } from 'react-router-dom';
+
+// routes
+import publicRoutes, { publicRoutesList } from '../../routes/publicRoutes';
+import stableRoutes from '../../routes/stableRoutes';
+import betaRoutes from '../../routes/betaRoutes';
 
 const useWorkspaceMode = () => {
-	const [info, setInfo] = useState({
-		loading: true,
-		error: false,
-	});
+	const { pathname } = useLocation();
 
 	const {
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
-	const workspaceMode = tennantSettingsData?.workspaceMode ?? null;
+	const workspaceMode = tennantSettingsData?.workspaceMode ?? null; // stable, beta, internal
+	const isPublicRoute = publicRoutesList.find((route) => matchPath(route, pathname));
+	const loading = isPublicRoute ? false : workspaceMode === null ? true : false;
+	const routes = isPublicRoute
+		? [...publicRoutes]
+		: workspaceMode === 'stable' && !loading
+		? [...stableRoutes]
+		: workspaceMode === 'beta' && !loading
+		? [...betaRoutes]
+		: null;
 
-	const fetchWorkspaceModes = async (workspaceId) => {
+	const fetchWorkspaceMode = async () => {
 		try {
-			if (!tennantSettingsData) {
+			if (workspaceMode === null) {
 				const response = await getTenantSettings();
 				const success = response[0] === true;
 				if (!success) {
 					const error = response[1];
 					console.error(error);
-					setInfo((prev) => ({
-						...prev,
-						error,
-					}));
 				}
 			}
 		} catch (error) {
-			setInfo((prev) => ({
-				...prev,
-				error,
-			}));
+			console.error(error);
 		}
-		setInfo((prev) => ({ ...prev, loading: false }));
 	};
 
 	useEffect(() => {
-		const workspaceId = localStorage.getItem('workspaceId');
-		fetchWorkspaceModes(workspaceId);
-	}, []);
+		// Fetch workspaceMode only for protected routes
+		if (isPublicRoute) return;
+		fetchWorkspaceMode();
+	}, [isPublicRoute]);
 
-	return { workspaceMode, ...info };
+	return { loading, routes, workspaceMode, isPublicRoute };
 };
 
 export default useWorkspaceMode;

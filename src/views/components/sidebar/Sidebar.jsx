@@ -19,7 +19,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const sidebarNavigationItems =
 		workspaceMode === 'stable' ? stableNavigationItems : betaNaviagationItems;
 	const {
-		profileInfo: { userWorkSpaceList, userDetailsData, getUserDetails },
+		profileInfo: { userWorkSpaceList, userDetailsData, getUserDetails, getUserWorkSpaceList },
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 
@@ -66,6 +66,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	// Fetch workspace and user info
 	useEffect(() => {
 		if (!userDetailsData) getUserDetails();
+		if (!userWorkSpaceList) getUserWorkSpaceList();
 	}, []);
 
 	// Configure Intercom

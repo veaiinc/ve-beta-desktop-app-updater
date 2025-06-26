@@ -15,6 +15,13 @@ import CommandKSearch from '../components/commandKSearch/CommandKSearch';
 import Spinner from '../components/loaders/Spinner';
 
 import '../../assets/scss/authWrapper.scss';
+import ExpiredSubscriptionModal from '../components/modalsV2/subscription/ExpiredSubscriptionModal';
+import ExpiredTokenModal from '../components/modalsV2/subscription/ExpiredTokenModal';
+import AccessDeniedPopup from '../components/accessPopups/accessDeniedPopup';
+import CustomToast from '../components/globalComponents/CustomToast';
+import useWorkspaceMode from '../hooks/useWorkspaceMode';
+import PageLoader from '../components/app/PageLoader';
+import useTheme from '../hooks/useTheme';
 
 const AuthWrapper = ({
 	title,
@@ -32,19 +39,23 @@ const AuthWrapper = ({
 	// const {
 	// 	subscriptionInfo: { renewBanner },
 	// } = useContext(Context);
+	useTheme();
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 	const location = useLocation();
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
-	const accessControls = useAccessControls();
+	useAccessControls();
+	const { loading } = useWorkspaceMode();
 
 	useEffect(() => {
 		checkAuth();
 	}, []);
 	// const workspaceIds = ['swaroop', 'veai', 'bhee'];
 
-	return (
+	return loading ? (
+		<PageLoader />
+	) : (
 		<main className="main-container">
 			{/* {renewBanner && <RenewBanner />} */}
 			<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
@@ -106,6 +117,10 @@ const AuthWrapper = ({
 				{/* {showBottomToolbar ? <BottomToolbar outerContainerStyle={{ bottom: '10px' }} /> : ''} */}
 				{/* <CommandKSearch /> */}
 			</div>
+			<ExpiredSubscriptionModal />
+			<ExpiredTokenModal />
+			<AccessDeniedPopup />
+			<CustomToast />
 		</main>
 	);
 };

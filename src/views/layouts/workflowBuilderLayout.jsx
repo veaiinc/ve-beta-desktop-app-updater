@@ -7,12 +7,14 @@ import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import useAccessControls from '../hooks/useAccessControls';
+import useTheme from '../hooks/useTheme';
 // import Context from '../../context/context';
 // import RenewBanner from '../components/globalComponents/RenewBanner';
 const WorkflowBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 	// const {
 	// 	subscriptionInfo: { renewBanner },
 	// } = useContext(Context);
+	useTheme();
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();

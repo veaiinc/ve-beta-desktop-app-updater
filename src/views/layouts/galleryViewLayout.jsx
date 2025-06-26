@@ -8,12 +8,14 @@ import useAuth from '../hooks/useAuth';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import useSubscription from '../hooks/useSubscription';
 import useAccessControls from '../hooks/useAccessControls';
+import useTheme from '../hooks/useTheme';
 // import Context from '../../context/context';
 // import RenewBanner from '../components/globalComponents/RenewBanner';
 const GalleryViewLayout = ({ title, children }) => {
 	// const {
 	// 	subscriptionInfo: { renewBanner },
 	// } = useContext(Context);
+	useTheme();
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();

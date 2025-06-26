@@ -3,6 +3,7 @@ import ToggleBlock from './ToggleBlock';
 import '../../../assets/scss/AiSetup/sectionBlock.scss';
 import MemoryBlock from './MemoryBlock';
 import Skeleton from 'react-loading-skeleton';
+import { message } from '../globalComponents/CustomToast';
 const SectionBlock = ({
 	title,
 	openAddNewGoalModal,
@@ -13,16 +14,28 @@ const SectionBlock = ({
 	loading,
 	onEditClick,
 }) => {
+	const addNewButtonClick = (type) => {
+		if (type === 'goal' && data?.length >= 5) {
+			message.error('You can only add 5 goals');
+			return;
+		}
+		openAddNewGoalModal(type);
+	};
 	return (
 		<div className="SectionBlockContainer">
 			<div className="sectionBlockHeader">
-				<h1 className="sectionBlockTitle">{title}</h1>
+				<h1 className="sectionBlockTitle">
+					{title}{' '}
+					{type === 'goal' && (
+						<span className="sectionBlockTitleCount">{data.length}/5</span>
+					)}
+				</h1>
 				<div className="sectionBlockHeaderButtons">
 					<button onClick={() => onResetClick(type)} className="sectionBlockHeaderButton">
 						Reset
 					</button>
 					<button
-						onClick={() => openAddNewGoalModal(type)}
+						onClick={() => addNewButtonClick(type)}
 						className="sectionBlockHeaderButton sectionBlockHeaderButtonAdd"
 					>
 						Add new

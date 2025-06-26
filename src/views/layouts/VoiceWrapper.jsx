@@ -6,9 +6,11 @@ import { message } from '../components/globalComponents/CustomToast';
 import { useLocation } from 'react-router-dom';
 import '../../assets/scss/voice/voiceWrapper.scss';
 import { checkDevices } from '../../helpers';
+import useTheme from '../hooks/useTheme';
 
 const VoiceWrapper = () => {
-	let {
+	useTheme();
+	const {
 		aiSetup: { updateAiSetupState, voiceIntegrationData },
 	} = useContext(Context);
 
