@@ -19,14 +19,14 @@ const useWorkspaceMode = () => {
 	const isPublicRoute = publicRoutesList.some((routePath) =>
 		matchPath({ path: routePath, end: true }, pathname),
 	);
-	const loading = isPublicRoute ? false : workspaceMode === null ? true : false;
+	const loading = isPublicRoute ? false : workspaceMode === null; // since public routes don't have workspace mode. Until workspace mode becomes stable/beta, loading is true.
 	const routes = isPublicRoute
 		? publicRoutes
-		: workspaceMode === 'stable' && !loading
+		: workspaceMode === 'stable'
 		? stableRoutes
-		: workspaceMode === 'beta' && !loading
+		: workspaceMode === 'beta'
 		? betaRoutes
-		: fallbackRoute;
+		: fallbackRoute; // handles reload in protected routes
 
 	const fetchWorkspaceMode = async () => {
 		try {
@@ -49,7 +49,7 @@ const useWorkspaceMode = () => {
 		fetchWorkspaceMode();
 	}, [isPublicRoute]);
 
-	return { loading, routes, workspaceMode, isPublicRoute };
+	return { loading, routes, workspaceMode };
 };
 
 export default useWorkspaceMode;
