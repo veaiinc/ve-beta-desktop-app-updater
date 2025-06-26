@@ -523,35 +523,6 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 	return (
 		<div className="user-message-renderer-wrapper">
 			{!info?.editUserQuery ? (
-				<div className="hover-actions-container">
-					{/* <div className="icon-container">
-						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
-							<PencilSparkleIcon onClick={handleEditUserQueryToggle} />
-						</Tooltip>
-					</div> */}
-
-					<div className="icon-container">
-						<Tooltip
-							placement="bottom"
-							arrow={false}
-							trigger={'hover'}
-							color="transparent"
-							title={<div className="user-hover-icons-tooltip">Copy</div>}
-						>
-							{info?.isCopiedToClipboard ? (
-								<TickSvg />
-							) : (
-								<CopyIcon
-									onClick={() => handleCopyTextClick(messageData?.message)}
-								/>
-							)}
-						</Tooltip>
-					</div>
-				</div>
-			) : (
-				''
-			)}
-			{!info?.editUserQuery ? (
 				<div className="user-message-wrapper">
 					{messageData?.moduleType === 'ai_suggestion_report' ? (
 						<AISuggestionsReportUserComponent data={messageData?.data} />
@@ -597,6 +568,35 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 						</div>
 					</div>
 				</div>
+			)}
+			{!info?.editUserQuery ? (
+				<div className="hover-actions-container">
+					{/* <div className="icon-container">
+						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
+							<PencilSparkleIcon onClick={handleEditUserQueryToggle} />
+						</Tooltip>
+					</div> */}
+
+					<div className="icon-container">
+						<Tooltip
+							placement="bottom"
+							arrow={false}
+							trigger={'hover'}
+							color="transparent"
+							title={<div className="user-hover-icons-tooltip">Copy</div>}
+						>
+							{info?.isCopiedToClipboard ? (
+								<TickSvg />
+							) : (
+								<CopyIcon
+									onClick={() => handleCopyTextClick(messageData?.message)}
+								/>
+							)}
+						</Tooltip>
+					</div>
+				</div>
+			) : (
+				''
 			)}
 		</div>
 	);

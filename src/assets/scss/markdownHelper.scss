@@ -1,10 +1,11 @@
 .user-message-renderer-wrapper {
 	display: flex;
+	flex-direction: column;
 	justify-content: flex-end;
-	align-items: flex-start;
+	align-items: flex-end;
 	position: relative;
 	width: 100%;
-	gap: 10px;
+	gap: 16px;
 
 	.user-message-wrapper {
 		width: fit-content;
