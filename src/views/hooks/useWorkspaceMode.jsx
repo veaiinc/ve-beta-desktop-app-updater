@@ -43,8 +43,6 @@ const useWorkspaceMode = () => {
 		}
 	};
 
-	console.log(isPublicRoute);
-
 	useEffect(() => {
 		// Fetch workspaceMode only for protected routes
 		if (isPublicRoute) return;
