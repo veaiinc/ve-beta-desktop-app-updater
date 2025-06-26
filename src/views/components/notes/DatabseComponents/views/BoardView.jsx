@@ -3,7 +3,7 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import s from '../../../../../assets/scss/notes/databaseComponents/boardView.module.scss';
 import { rowTypes } from '../../Database';
 import Context from '../../../../../context/context';
-import { colors } from '../../../../../helpers/databaseHelpers';
+import { colors, getDateValueFromLabel } from '../../../../../helpers/databaseHelpers';
 import Board from './Board';
 
 const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blockId }) => {
@@ -172,14 +172,15 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 				}
 			} else if (groupField?.type === 'date') {
 				// For date fields, we need to handle date grouping
-				// The destination group ID will contain the date information
+				// The destination group ID will contain the date label
 				if (destinationGroupId === 'null') {
 					newValue = null;
 				} else {
-					// For date fields, we might need to parse the group ID to get the actual date
-					// This depends on how your date grouping is configured
-					// For now, we'll pass the destination group ID and let the backend handle it
-					newValue = destinationGroupId;
+					// Get the dateBy configuration from the view
+					const dateBy = view?.groupBy?.config?.dateBy;
+
+					// Convert the group label to actual date value
+					newValue = getDateValueFromLabel(destinationGroupId, dateBy);
 				}
 			} else {
 				// For non-array fields, just set the destination value

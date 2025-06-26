@@ -368,6 +368,168 @@ export const getYearDateLabel = (unixDate) => {
 	return moment.unix(unixDate).format('YYYY');
 };
 
+// Reverse functions to convert group labels back to date values
+export const getDateValueFromLabel = (label, dateBy) => {
+	if (!label || label === 'null') return null;
+
+	switch (dateBy) {
+		case 'relative':
+			return getRelativeDateValue(label);
+		case 'day':
+			return getDayDateValue(label);
+		case 'week':
+			return getWeekDateValue(label);
+		case 'month':
+			return getMonthDateValue(label);
+		case 'year':
+			return getYearDateValue(label);
+		default:
+			return null;
+	}
+};
+
+const getRelativeDateValue = (label) => {
+	const today = moment().startOf('day');
+
+	switch (label) {
+		case 'Today':
+			return {
+				startDate: today.unix(),
+				endDate: today.unix(),
+				isEndDateEnabled: false,
+			};
+		case 'Yesterday':
+			const yesterday = today.clone().subtract(1, 'day');
+			return {
+				startDate: yesterday.unix(),
+				endDate: yesterday.unix(),
+				isEndDateEnabled: false,
+			};
+		case 'Tomorrow':
+			const tomorrow = today.clone().add(1, 'day');
+			return {
+				startDate: tomorrow.unix(),
+				endDate: tomorrow.unix(),
+				isEndDateEnabled: false,
+			};
+		case 'Next 7 Days':
+			// Calculate the date 7 days from today
+			const next7Days = today.clone().add(7, 'days');
+			return {
+				startDate: next7Days.unix(),
+				endDate: next7Days.unix(),
+				isEndDateEnabled: false,
+			};
+		case 'Next 30 Days':
+			// Calculate the date 30 days from today
+			const next30Days = today.clone().add(30, 'days');
+			return {
+				startDate: next30Days.unix(),
+				endDate: next30Days.unix(),
+				isEndDateEnabled: false,
+			};
+		case 'Last 7 Days':
+			// Calculate the date 7 days ago from today
+			const last7Days = today.clone().subtract(7, 'days');
+			return {
+				startDate: last7Days.unix(),
+				endDate: last7Days.unix(),
+				isEndDateEnabled: false,
+			};
+		case 'Last 30 Days':
+			// Calculate the date 30 days ago from today
+			const last30Days = today.clone().subtract(30, 'days');
+			return {
+				startDate: last30Days.unix(),
+				endDate: last30Days.unix(),
+				isEndDateEnabled: false,
+			};
+		default:
+			// Try to parse as "MMM YYYY" format
+			const parsedDate = moment(label, 'MMM YYYY');
+			if (parsedDate.isValid()) {
+				return {
+					startDate: parsedDate.unix(),
+					endDate: parsedDate.unix(),
+					isEndDateEnabled: false,
+				};
+			}
+			return null;
+	}
+};
+
+const getDayDateValue = (label) => {
+	// Parse "MMM D, YYYY" format
+	const parsedDate = moment(label, 'MMM D, YYYY');
+	if (parsedDate.isValid()) {
+		return {
+			startDate: parsedDate.unix(),
+			endDate: parsedDate.unix(),
+			isEndDateEnabled: false,
+		};
+	}
+	return null;
+};
+
+const getWeekDateValue = (label) => {
+	// Parse "MMM D - D, YYYY" or "MMM D - MMM D, YYYY" format
+	const parts = label.split(' - ');
+	if (parts.length === 2) {
+		const startPart = parts[0]; // "MMM D"
+		const endPart = parts[1]; // "D, YYYY" or "MMM D, YYYY"
+
+		// Try to parse the start date
+		let startDate;
+		if (endPart.includes(',')) {
+			// Format: "MMM D - D, YYYY"
+			const year = endPart.split(', ')[1];
+			startDate = moment(`${startPart} ${year}`, 'MMM D YYYY');
+		} else {
+			// Format: "MMM D - MMM D, YYYY"
+			startDate = moment(startPart, 'MMM D');
+		}
+
+		// Try to parse the end date
+		const endDate = moment(endPart, ['D, YYYY', 'MMM D, YYYY']);
+
+		if (startDate.isValid() && endDate.isValid()) {
+			// Use the start date as the reference point
+			return {
+				startDate: startDate.unix(),
+				endDate: startDate.unix(),
+				isEndDateEnabled: false,
+			};
+		}
+	}
+	return null;
+};
+
+const getMonthDateValue = (label) => {
+	// Parse "MMMM YYYY" format
+	const parsedDate = moment(label, 'MMMM YYYY');
+	if (parsedDate.isValid()) {
+		return {
+			startDate: parsedDate.unix(),
+			endDate: parsedDate.unix(),
+			isEndDateEnabled: false,
+		};
+	}
+	return null;
+};
+
+const getYearDateValue = (label) => {
+	// Parse "YYYY" format
+	const parsedDate = moment(label, 'YYYY');
+	if (parsedDate.isValid()) {
+		return {
+			startDate: parsedDate.unix(),
+			endDate: parsedDate.unix(),
+			isEndDateEnabled: false,
+		};
+	}
+	return null;
+};
+
 export const handleUpdateInGroup = ({
 	groupData,
 	updatedRowData,
