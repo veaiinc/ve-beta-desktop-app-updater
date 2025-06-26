@@ -958,7 +958,7 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const getPromptsData = async (queryParams = {}) => {
+	const getPromptsData = async (queryParams = {}, reset = true) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -972,7 +972,12 @@ export const AiSetupState = () => {
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions?.GET_PROMPTS_DATA,
-					payload: response?.[1],
+					payload: reset
+						? response?.[1]
+						: {
+								...response?.[1],
+								data: [...state?.promptsData?.data, ...response?.[1]?.data],
+						  },
 				});
 				return response?.[1];
 			}

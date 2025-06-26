@@ -155,7 +155,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			right: false,
 		},
 	});
-	const promptsLenght = promptsData?.data?.length ?? 0;
+	const promptsLength = promptsData?.data?.length ?? 0;
 	const promptsHasNextPage = Boolean(promptsData?.hasNextPage);
 	const promptsCurrentPage = Number(promptsData?.currentPage) || 1;
 	const [touchStartX, setTouchStartX] = useState(null);
@@ -662,17 +662,16 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			showExploreMore: !prev?.showExploreMore,
 		}));
 	};
-	const fetchAiSuggestedPrompts = async (page = 1, searchQuery = '') => {
+	const fetchAiSuggestedPrompts = async (page = 1, searchQuery = '', reset = true) => {
 		const payload = {
 			page: page,
 			limit: 30,
-			category: promptsCategory,
 			...(searchQuery && { search: searchQuery }),
 		};
-		getPromptsData(payload);
+		getPromptsData(payload, reset);
 	};
 	const fetchMoreAiSuggestedPrompts = () => {
-		fetchAiSuggestedPrompts(info?.page + 1, info?.searchQuery);
+		fetchAiSuggestedPrompts(promptsCurrentPage + 1, info?.searchQuery, false);
 	};
 	const handleTouchStart = (e) => {
 		setTouchStartX(e.targetTouches[0].clientX);
@@ -1184,7 +1183,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 					{info?.showExploreMore && (
 						<div className="modal-container">
 							<InfiniteScroll
-								dataLength={promptsLenght}
+								dataLength={promptsLength}
 								next={() => fetchMoreAiSuggestedPrompts()}
 								hasMore={promptsHasNextPage || false}
 								loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
