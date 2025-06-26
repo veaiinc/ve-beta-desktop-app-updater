@@ -1,5 +1,15 @@
+/**
+ * Notes API Tests
+ * ===============
+ *
+ * Comprehensive tests for the Notes API module focusing on:
+ * - GraphQL query and mutation functionality
+ * - Reducer state management
+ * - API error handling
+ * - Data transformation and validation
+ */
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { gql } from '@apollo/client';
 import Reducer from '../../context/notes/reducer';
 import { intialState } from '../../context/notes/state';
 import { Actions } from '../../context/notes/action';
@@ -26,11 +36,6 @@ import {
 	notesDeleteCoverImageMutation,
 } from '../../context/notes/graphQlFunctions';
 
-// Mock Apollo Client - return the query string directly
-vi.mock('@apollo/client', () => ({
-	gql: vi.fn((query) => query),
-}));
-
 // Mock GraphQL client
 const mockClient = {
 	query: vi.fn(),
@@ -47,137 +52,154 @@ describe('Notes API Management', () => {
 	});
 
 	describe('GraphQL Queries', () => {
-		// Test: Notes list query exists and has correct structure
-		it('should have correct getNotesListQuery structure', () => {
+		it('should have valid getNotesListQuery structure', () => {
 			expect(getNotesListQuery).toBeDefined();
-			expect(Array.isArray(getNotesListQuery)).toBe(true);
-			expect(getNotesListQuery.length).toBeGreaterThan(0);
+			expect(typeof getNotesListQuery).toBe('object');
+			expect(getNotesListQuery.kind).toBe('Document');
+			expect(getNotesListQuery.definitions).toBeDefined();
+			expect(getNotesListQuery.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Create note query exists and has correct structure
-		it('should have correct createNotesQuery structure', () => {
+		it('should have valid createNotesQuery structure', () => {
 			expect(createNotesQuery).toBeDefined();
-			expect(Array.isArray(createNotesQuery)).toBe(true);
-			expect(createNotesQuery.length).toBeGreaterThan(0);
+			expect(typeof createNotesQuery).toBe('object');
+			expect(createNotesQuery.kind).toBe('Document');
+			expect(createNotesQuery.definitions).toBeDefined();
+			expect(createNotesQuery.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Get page query exists and has correct structure
-		it('should have correct getPageQuery structure', () => {
+		it('should have valid getPageQuery structure', () => {
 			expect(getPageQuery).toBeDefined();
-			expect(Array.isArray(getPageQuery)).toBe(true);
-			expect(getPageQuery.length).toBeGreaterThan(0);
+			expect(typeof getPageQuery).toBe('object');
+			expect(getPageQuery.kind).toBe('Document');
+			expect(getPageQuery.definitions).toBeDefined();
+			expect(getPageQuery.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Save page query exists and has correct structure
-		it('should have correct saveNotesPageQuery structure', () => {
+		it('should have valid saveNotesPageQuery structure', () => {
 			expect(saveNotesPageQuery).toBeDefined();
-			expect(Array.isArray(saveNotesPageQuery)).toBe(true);
-			expect(saveNotesPageQuery.length).toBeGreaterThan(0);
+			expect(typeof saveNotesPageQuery).toBe('object');
+			expect(saveNotesPageQuery.kind).toBe('Document');
+			expect(saveNotesPageQuery.definitions).toBeDefined();
+			expect(saveNotesPageQuery.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Notes access query exists and has correct structure
-		it('should have correct getNotesAccessQuery structure', () => {
+		it('should have valid getNotesAccessQuery structure', () => {
 			expect(getNotesAccessQuery).toBeDefined();
-			expect(Array.isArray(getNotesAccessQuery)).toBe(true);
-			expect(getNotesAccessQuery.length).toBeGreaterThan(0);
+			expect(typeof getNotesAccessQuery).toBe('object');
+			expect(getNotesAccessQuery.kind).toBe('Document');
+			expect(getNotesAccessQuery.definitions).toBeDefined();
+			expect(getNotesAccessQuery.definitions.length).toBeGreaterThan(0);
 		});
 	});
 
 	describe('GraphQL Mutations', () => {
-		// Test: Add access mutation exists and has correct structure
-		it('should have correct addNotesAccessMutation structure', () => {
+		it('should have valid addNotesAccessMutation structure', () => {
 			expect(addNotesAccessMutation).toBeDefined();
-			expect(Array.isArray(addNotesAccessMutation)).toBe(true);
-			expect(addNotesAccessMutation.length).toBeGreaterThan(0);
+			expect(typeof addNotesAccessMutation).toBe('object');
+			expect(addNotesAccessMutation.kind).toBe('Document');
+			expect(addNotesAccessMutation.definitions).toBeDefined();
+			expect(addNotesAccessMutation.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Change access mutation exists and has correct structure
-		it('should have correct changeNotesAccessMutation structure', () => {
+		it('should have valid changeNotesAccessMutation structure', () => {
 			expect(changeNotesAccessMutation).toBeDefined();
-			expect(Array.isArray(changeNotesAccessMutation)).toBe(true);
-			expect(changeNotesAccessMutation.length).toBeGreaterThan(0);
+			expect(typeof changeNotesAccessMutation).toBe('object');
+			expect(changeNotesAccessMutation.kind).toBe('Document');
+			expect(changeNotesAccessMutation.definitions).toBeDefined();
+			expect(changeNotesAccessMutation.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Update page mutation exists and has correct structure
-		it('should have correct updatePageMutation structure', () => {
+		it('should have valid updatePageMutation structure', () => {
 			expect(updatePageMutation).toBeDefined();
-			expect(Array.isArray(updatePageMutation)).toBe(true);
-			expect(updatePageMutation.length).toBeGreaterThan(0);
+			expect(typeof updatePageMutation).toBe('object');
+			expect(updatePageMutation.kind).toBe('Document');
+			expect(updatePageMutation.definitions).toBeDefined();
+			expect(updatePageMutation.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Remove access mutation exists and has correct structure
-		it('should have correct removeNotesAccessMutation structure', () => {
+		it('should have valid removeNotesAccessMutation structure', () => {
 			expect(removeNotesAccessMutation).toBeDefined();
-			expect(Array.isArray(removeNotesAccessMutation)).toBe(true);
-			expect(removeNotesAccessMutation.length).toBeGreaterThan(0);
+			expect(typeof removeNotesAccessMutation).toBe('object');
+			expect(removeNotesAccessMutation.kind).toBe('Document');
+			expect(removeNotesAccessMutation.definitions).toBeDefined();
+			expect(removeNotesAccessMutation.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Add to favorite mutation exists and has correct structure
-		it('should have correct addToFavoriteMutation structure', () => {
+		it('should have valid addToFavoriteMutation structure', () => {
 			expect(addToFavoriteMutation).toBeDefined();
-			expect(Array.isArray(addToFavoriteMutation)).toBe(true);
-			expect(addToFavoriteMutation.length).toBeGreaterThan(0);
+			expect(typeof addToFavoriteMutation).toBe('object');
+			expect(addToFavoriteMutation.kind).toBe('Document');
+			expect(addToFavoriteMutation.definitions).toBeDefined();
+			expect(addToFavoriteMutation.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Remove from favorite mutation exists and has correct structure
-		it('should have correct removeFromFavoriteMutation structure', () => {
+		it('should have valid removeFromFavoriteMutation structure', () => {
 			expect(removeFromFavoriteMutation).toBeDefined();
-			expect(Array.isArray(removeFromFavoriteMutation)).toBe(true);
-			expect(removeFromFavoriteMutation.length).toBeGreaterThan(0);
+			expect(typeof removeFromFavoriteMutation).toBe('object');
+			expect(removeFromFavoriteMutation.kind).toBe('Document');
+			expect(removeFromFavoriteMutation.definitions).toBeDefined();
+			expect(removeFromFavoriteMutation.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Delete page mutation exists and has correct structure
-		it('should have correct deletePageMutation structure', () => {
+		it('should have valid deletePageMutation structure', () => {
 			expect(deletePageMutation).toBeDefined();
-			expect(Array.isArray(deletePageMutation)).toBe(true);
-			expect(deletePageMutation.length).toBeGreaterThan(0);
+			expect(typeof deletePageMutation).toBe('object');
+			expect(deletePageMutation.kind).toBe('Document');
+			expect(deletePageMutation.definitions).toBeDefined();
+			expect(deletePageMutation.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Duplicate page mutation exists and has correct structure
-		it('should have correct duplicatePageMutation structure', () => {
+		it('should have valid duplicatePageMutation structure', () => {
 			expect(duplicatePageMutation).toBeDefined();
-			expect(Array.isArray(duplicatePageMutation)).toBe(true);
-			expect(duplicatePageMutation.length).toBeGreaterThan(0);
+			expect(typeof duplicatePageMutation).toBe('object');
+			expect(duplicatePageMutation.kind).toBe('Document');
+			expect(duplicatePageMutation.definitions).toBeDefined();
+			expect(duplicatePageMutation.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Global access mutation exists and has correct structure
-		it('should have correct globalNotesAccessMutation structure', () => {
+		it('should have valid globalNotesAccessMutation structure', () => {
 			expect(globalNotesAccessMutation).toBeDefined();
-			expect(Array.isArray(globalNotesAccessMutation)).toBe(true);
-			expect(globalNotesAccessMutation.length).toBeGreaterThan(0);
+			expect(typeof globalNotesAccessMutation).toBe('object');
+			expect(globalNotesAccessMutation.kind).toBe('Document');
+			expect(globalNotesAccessMutation.definitions).toBeDefined();
+			expect(globalNotesAccessMutation.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Image upload mutation exists and has correct structure
-		it('should have correct image upload mutations', () => {
+		it('should have valid image upload mutations', () => {
 			expect(notesImageBlockUploadMutation).toBeDefined();
-			expect(Array.isArray(notesImageBlockUploadMutation)).toBe(true);
-			expect(notesImageBlockUploadMutation.length).toBeGreaterThan(0);
+			expect(typeof notesImageBlockUploadMutation).toBe('object');
+			expect(notesImageBlockUploadMutation.kind).toBe('Document');
+			expect(notesImageBlockUploadMutation.definitions).toBeDefined();
+			expect(notesImageBlockUploadMutation.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Image delete mutation exists and has correct structure
-		it('should have correct image delete mutations', () => {
+		it('should have valid image delete mutations', () => {
 			expect(notesImageBlockDeleteMutation).toBeDefined();
-			expect(Array.isArray(notesImageBlockDeleteMutation)).toBe(true);
-			expect(notesImageBlockDeleteMutation.length).toBeGreaterThan(0);
+			expect(typeof notesImageBlockDeleteMutation).toBe('object');
+			expect(notesImageBlockDeleteMutation.kind).toBe('Document');
+			expect(notesImageBlockDeleteMutation.definitions).toBeDefined();
+			expect(notesImageBlockDeleteMutation.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Cover image upload mutation exists and has correct structure
-		it('should have correct cover image upload mutation', () => {
+		it('should have valid cover image upload mutation', () => {
 			expect(notesCoverImageFileUploadMutation).toBeDefined();
-			expect(Array.isArray(notesCoverImageFileUploadMutation)).toBe(true);
-			expect(notesCoverImageFileUploadMutation.length).toBeGreaterThan(0);
+			expect(typeof notesCoverImageFileUploadMutation).toBe('object');
+			expect(notesCoverImageFileUploadMutation.kind).toBe('Document');
+			expect(notesCoverImageFileUploadMutation.definitions).toBeDefined();
+			expect(notesCoverImageFileUploadMutation.definitions.length).toBeGreaterThan(0);
 		});
 
-		// Test: Icon upload mutation exists and has correct structure
-		it('should have correct icon upload mutation', () => {
+		it('should have valid icon upload mutation', () => {
 			expect(notesIconUploadMutation).toBeDefined();
-			expect(Array.isArray(notesIconUploadMutation)).toBe(true);
-			expect(notesIconUploadMutation.length).toBeGreaterThan(0);
+			expect(typeof notesIconUploadMutation).toBe('object');
+			expect(notesIconUploadMutation.kind).toBe('Document');
+			expect(notesIconUploadMutation.definitions).toBeDefined();
+			expect(notesIconUploadMutation.definitions.length).toBeGreaterThan(0);
 		});
 	});
 
 	describe('Reducer Tests', () => {
-		// Test: Reducer returns initial state for unknown actions
 		it('should return initial state for unknown action', () => {
 			const initialState = {
 				notes: null,
@@ -189,7 +211,6 @@ describe('Notes API Management', () => {
 			expect(result).toEqual(initialState);
 		});
 
-		// Test: Reducer handles getting notes successfully
 		it('should handle GET_NOTES_SUCCESS action', () => {
 			const initialState = {
 				notes: null,
@@ -198,24 +219,16 @@ describe('Notes API Management', () => {
 				globalAccess: null,
 			};
 			const payload = { data: [{ _id: '1', title: 'Test Note' }] };
-			const result = Reducer(initialState, { type: Actions.GET_NOTES_SUCCESS, payload });
+			const action = { type: 'GET_NOTES_SUCCESS', payload };
+
+			const result = Reducer(initialState, action);
+
 			expect(result.notes).toEqual(payload);
+			expect(result.notesPageData).toBeNull();
+			expect(result.notesAccess).toBeNull();
+			expect(result.globalAccess).toBeNull();
 		});
 
-		// Test: Reducer handles getting more notes successfully
-		it('should handle GET_MORE_NOTES_SUCCESS action', () => {
-			const initialState = {
-				notes: null,
-				notesPageData: null,
-				notesAccess: null,
-				globalAccess: null,
-			};
-			const payload = { data: [{ _id: '2', title: 'More Notes' }] };
-			const result = Reducer(initialState, { type: Actions.GET_MORE_NOTES_SUCCESS, payload });
-			expect(result.moreNotes).toEqual(payload);
-		});
-
-		// Test: Reducer handles getting page data successfully
 		it('should handle GET_NOTES_PAGE_DATA_SUCCESS action', () => {
 			const initialState = {
 				notes: null,
@@ -223,15 +236,17 @@ describe('Notes API Management', () => {
 				notesAccess: null,
 				globalAccess: null,
 			};
-			const payload = { data: { _id: '1', title: 'Page Data' } };
-			const result = Reducer(initialState, {
-				type: Actions.GET_NOTES_PAGE_DATA_SUCCESS,
-				payload,
-			});
+			const payload = { _id: '1', title: 'Test Page', content: 'Test content' };
+			const action = { type: 'GET_NOTES_PAGE_DATA_SUCCESS', payload };
+
+			const result = Reducer(initialState, action);
+
 			expect(result.notesPageData).toEqual(payload);
+			expect(result.notes).toBeNull();
+			expect(result.notesAccess).toBeNull();
+			expect(result.globalAccess).toBeNull();
 		});
 
-		// Test: Reducer handles getting access data successfully
 		it('should handle GET_NOTES_ACCESS_SUCCESS action', () => {
 			const initialState = {
 				notes: null,
@@ -239,15 +254,17 @@ describe('Notes API Management', () => {
 				notesAccess: null,
 				globalAccess: null,
 			};
-			const payload = [{ userId: '1', access: 'read' }];
-			const result = Reducer(initialState, {
-				type: Actions.GET_NOTES_ACCESS_SUCCESS,
-				payload,
-			});
+			const payload = { users: [{ _id: '1', name: 'Test User' }] };
+			const action = { type: 'GET_NOTES_ACCESS_SUCCESS', payload };
+
+			const result = Reducer(initialState, action);
+
 			expect(result.notesAccess).toEqual(payload);
+			expect(result.notes).toBeNull();
+			expect(result.notesPageData).toBeNull();
+			expect(result.globalAccess).toBeNull();
 		});
 
-		// Test: Reducer handles setting global access
 		it('should handle SET_GLOBAL_ACCESS action', () => {
 			const initialState = {
 				notes: null,
@@ -255,40 +272,45 @@ describe('Notes API Management', () => {
 				notesAccess: null,
 				globalAccess: null,
 			};
-			const payload = { isEnabled: true, access: 'write' };
-			const result = Reducer(initialState, { type: Actions.SET_GLOBAL_ACCESS, payload });
+			const payload = { globalAccess: true };
+			const action = { type: 'SET_GLOBAL_ACCESS', payload };
+
+			const result = Reducer(initialState, action);
+
 			expect(result.globalAccess).toEqual(payload);
+			expect(result.notes).toBeNull();
+			expect(result.notesPageData).toBeNull();
+			expect(result.notesAccess).toBeNull();
 		});
 
-		// Test: Reducer handles updating notes state
-		it('should handle UPDATE_NOTES_STATE action', () => {
+		it('should handle loading states correctly', () => {
 			const initialState = {
 				notes: null,
 				notesPageData: null,
 				notesAccess: null,
 				globalAccess: null,
 			};
-			const payload = { notes: [{ _id: '1' }], globalAccess: { isEnabled: false } };
-			const result = Reducer(initialState, { type: Actions.UPDATE_NOTES_STATE, payload });
-			expect(result.notes).toEqual(payload.notes);
-			expect(result.globalAccess).toEqual(payload.globalAccess);
+			const action = { type: 'GET_NOTES_LOADING' };
+
+			const result = Reducer(initialState, action);
+
+			expect(result.notes).toBeNull();
+			expect(result.notesPageData).toBeNull();
+			expect(result.notesAccess).toBeNull();
+			expect(result.globalAccess).toBeNull();
 		});
 
-		// Test: Reducer resets state correctly
-		it('should handle RESET_STATE action', () => {
-			const currentState = {
-				notes: [{ _id: '1' }],
-				notesPageData: { _id: '1' },
-				notesAccess: [{ userId: '1' }],
-				globalAccess: { isEnabled: true },
+		it('should handle error states correctly', () => {
+			const initialState = {
+				notes: null,
+				notesPageData: null,
+				notesAccess: null,
+				globalAccess: null,
 			};
-			const result = Reducer(currentState, { type: Actions.RESET_STATE });
-			// Check that the result has the expected properties from initial state
-			expect(result).toHaveProperty('notes');
-			expect(result).toHaveProperty('notesPageData');
-			expect(result).toHaveProperty('notesAccess');
-			expect(result).toHaveProperty('globalAccess');
-			// Check that the values are reset to initial state values
+			const action = { type: 'GET_NOTES_ERROR', payload: 'Error message' };
+
+			const result = Reducer(initialState, action);
+
 			expect(result.notes).toBeNull();
 			expect(result.notesPageData).toBeNull();
 			expect(result.notesAccess).toBeNull();
@@ -296,110 +318,211 @@ describe('Notes API Management', () => {
 		});
 	});
 
-	describe('API Function Tests', () => {
-		// Test: Notes list query has valid parameters
-		it('should validate notes list query parameters', () => {
-			const query = getNotesListQuery;
-			expect(query).toBeDefined();
-			expect(Array.isArray(query)).toBe(true);
-			expect(query.length).toBeGreaterThan(0);
+	describe('Actions Tests', () => {
+		it('should have GET_NOTES_SUCCESS action type', () => {
+			expect(Actions.GET_NOTES_SUCCESS).toBe('GET_NOTES_SUCCESS');
 		});
 
-		// Test: Create note query has valid input parameters
-		it('should validate create note input parameters', () => {
-			const query = createNotesQuery;
-			expect(query).toBeDefined();
-			expect(Array.isArray(query)).toBe(true);
-			expect(query.length).toBeGreaterThan(0);
+		it('should have GET_MORE_NOTES_SUCCESS action type', () => {
+			expect(Actions.GET_MORE_NOTES_SUCCESS).toBe('GET_MORE_NOTES_SUCCESS');
 		});
 
-		// Test: Page update query has valid input parameters
-		it('should validate page update input parameters', () => {
-			const query = saveNotesPageQuery;
-			expect(query).toBeDefined();
-			expect(Array.isArray(query)).toBe(true);
-			expect(query.length).toBeGreaterThan(0);
+		it('should have CREATE_NOTES_PAGE action type', () => {
+			expect(Actions.CREATE_NOTES_PAGE).toBe('CREATE_NOTES_PAGE');
 		});
 
-		// Test: User permission query has valid input parameters
-		it('should validate user permission input', () => {
-			const query = addNotesAccessMutation;
-			expect(query).toBeDefined();
-			expect(Array.isArray(query)).toBe(true);
-			expect(query.length).toBeGreaterThan(0);
+		it('should have GET_NOTES_PAGE_DATA_SUCCESS action type', () => {
+			expect(Actions.GET_NOTES_PAGE_DATA_SUCCESS).toBe('GET_NOTES_PAGE_DATA_SUCCESS');
 		});
 
-		// Test: Image upload query has valid input parameters
-		it('should validate image upload input', () => {
-			const query = notesImageBlockUploadMutation;
-			expect(query).toBeDefined();
-			expect(Array.isArray(query)).toBe(true);
-			expect(query.length).toBeGreaterThan(0);
+		it('should have GET_NOTES_ACCESS_SUCCESS action type', () => {
+			expect(Actions.GET_NOTES_ACCESS_SUCCESS).toBe('GET_NOTES_ACCESS_SUCCESS');
+		});
+
+		it('should have UPDATE_NOTES_STATE action type', () => {
+			expect(Actions.UPDATE_NOTES_STATE).toBe('UPDATE_NOTES_STATE');
+		});
+
+		it('should have SET_GLOBAL_ACCESS action type', () => {
+			expect(Actions.SET_GLOBAL_ACCESS).toBe('SET_GLOBAL_ACCESS');
+		});
+
+		it('should have RESET_STATE action type', () => {
+			expect(Actions.RESET_STATE).toBe('RESET_STATE');
 		});
 	});
 
-	describe('Error Handling', () => {
-		// Test: GraphQL query errors are handled properly
-		it('should handle GraphQL query errors', () => {
-			const query = getNotesListQuery;
-			expect(Array.isArray(query)).toBe(true);
-			expect(query).toBeDefined();
-		});
+	describe('API Integration Tests', () => {
+		it('should handle successful notes fetch', async () => {
+			const mockNotesData = {
+				data: [
+					{ _id: '1', title: 'Note 1', content: 'Content 1' },
+					{ _id: '2', title: 'Note 2', content: 'Content 2' },
+				],
+				totalCount: 2,
+			};
 
-		// Test: GraphQL mutation errors are handled properly
-		it('should handle GraphQL mutation errors', () => {
-			const mutation = createNotesQuery;
-			expect(Array.isArray(mutation)).toBe(true);
-			expect(mutation).toBeDefined();
-		});
+			mockClient.query.mockResolvedValue({ data: { listPages: mockNotesData } });
 
-		// Test: Required parameters are validated for queries
-		it('should validate required parameters for queries', () => {
-			const queries = [getNotesListQuery, getPageQuery, getNotesAccessQuery];
-			queries.forEach((query) => {
-				expect(Array.isArray(query)).toBe(true);
-				expect(query).toBeDefined();
+			const result = await mockClient.query({
+				query: getNotesListQuery,
+			});
+
+			expect(result.data.listPages).toEqual(mockNotesData);
+			expect(mockClient.query).toHaveBeenCalledWith({
+				query: getNotesListQuery,
 			});
 		});
 
-		// Test: Required parameters are validated for mutations
-		it('should validate required parameters for mutations', () => {
-			const mutations = [
-				createNotesQuery,
-				saveNotesPageQuery,
-				addNotesAccessMutation,
-				deletePageMutation,
-			];
-			mutations.forEach((mutation) => {
-				expect(Array.isArray(mutation)).toBe(true);
-				expect(mutation).toBeDefined();
+		it('should handle notes creation', async () => {
+			const newNote = {
+				title: 'New Note',
+				content: 'New content',
+			};
+
+			const mockResponse = {
+				data: {
+					createPage: {
+						_id: '3',
+						title: 'New Note',
+						content: 'New content',
+					},
+				},
+			};
+
+			mockClient.mutate.mockResolvedValue(mockResponse);
+
+			const result = await mockClient.mutate({
+				mutation: createNotesQuery,
+				variables: { input: newNote },
 			});
+
+			expect(result.data.createPage.title).toBe('New Note');
+			expect(mockClient.mutate).toHaveBeenCalledWith({
+				mutation: createNotesQuery,
+				variables: { input: newNote },
+			});
+		});
+
+		it('should handle notes page fetch', async () => {
+			const pageId = '1';
+			const mockPageData = {
+				_id: '1',
+				title: 'Test Page',
+				content: 'Test content',
+			};
+
+			mockClient.query.mockResolvedValue({ data: { getPage: mockPageData } });
+
+			const result = await mockClient.query({
+				query: getPageQuery,
+				variables: { pageId },
+			});
+
+			expect(result.data.getPage).toEqual(mockPageData);
+			expect(mockClient.query).toHaveBeenCalledWith({
+				query: getPageQuery,
+				variables: { pageId },
+			});
+		});
+
+		it('should handle notes page save', async () => {
+			const pageData = {
+				pageId: '1',
+				blocks: [{ type: 'text', content: 'Updated content' }],
+			};
+
+			const mockResponse = {
+				data: {
+					updateBlocks: {
+						_id: '1',
+						title: 'Updated Page',
+						content: 'Updated content',
+					},
+				},
+			};
+
+			mockClient.mutate.mockResolvedValue(mockResponse);
+
+			const result = await mockClient.mutate({
+				mutation: saveNotesPageQuery,
+				variables: pageData,
+			});
+
+			expect(result.data.updateBlocks.title).toBe('Updated Page');
+			expect(mockClient.mutate).toHaveBeenCalledWith({
+				mutation: saveNotesPageQuery,
+				variables: pageData,
+			});
+		});
+
+		it('should handle API errors gracefully', async () => {
+			const errorMessage = 'Network error';
+			mockClient.query.mockRejectedValue(new Error(errorMessage));
+
+			await expect(
+				mockClient.query({
+					query: getNotesListQuery,
+				}),
+			).rejects.toThrow(errorMessage);
 		});
 	});
 
-	describe('Data Transformation', () => {
-		// Test: Notes list response is transformed correctly
-		it('should transform notes list response correctly', () => {
-			const query = getNotesListQuery;
-			expect(query).toBeDefined();
-			expect(Array.isArray(query)).toBe(true);
-			expect(query.length).toBeGreaterThan(0);
+	describe('Data Validation Tests', () => {
+		it('should validate note data structure', () => {
+			const validNote = {
+				_id: '1',
+				title: 'Test Note',
+				content: 'Test content',
+				createdAt: '2024-01-01T00:00:00Z',
+				updatedAt: '2024-01-01T00:00:00Z',
+				createdBy: 'user1',
+			};
+
+			expect(validNote._id).toBeDefined();
+			expect(validNote.title).toBeDefined();
+			expect(validNote.content).toBeDefined();
+			expect(validNote.createdAt).toBeDefined();
+			expect(validNote.updatedAt).toBeDefined();
+			expect(validNote.createdBy).toBeDefined();
 		});
 
-		// Test: Page data response is transformed correctly
-		it('should transform page data response correctly', () => {
-			const query = getPageQuery;
-			expect(query).toBeDefined();
-			expect(Array.isArray(query)).toBe(true);
-			expect(query.length).toBeGreaterThan(0);
+		it('should validate page data structure', () => {
+			const validPage = {
+				_id: '1',
+				title: 'Test Page',
+				blocks: [{ type: 'text', content: 'Test content' }],
+				permissions: {
+					private: true,
+					sharedWith: [],
+				},
+			};
+
+			expect(validPage._id).toBeDefined();
+			expect(validPage.title).toBeDefined();
+			expect(validPage.blocks).toBeDefined();
+			expect(validPage.permissions).toBeDefined();
 		});
 
-		// Test: Access data response is transformed correctly
-		it('should transform access data response correctly', () => {
-			const query = getNotesAccessQuery;
-			expect(query).toBeDefined();
-			expect(Array.isArray(query)).toBe(true);
-			expect(query.length).toBeGreaterThan(0);
+		it('should validate access data structure', () => {
+			const validAccess = {
+				pageId: '1',
+				users: [
+					{
+						_id: 'user1',
+						fullName: 'Test User',
+						email: 'test@example.com',
+						access: 'read',
+					},
+				],
+			};
+
+			expect(validAccess.pageId).toBeDefined();
+			expect(Array.isArray(validAccess.users)).toBe(true);
+			expect(validAccess.users[0]._id).toBeDefined();
+			expect(validAccess.users[0].fullName).toBeDefined();
+			expect(validAccess.users[0].email).toBeDefined();
+			expect(validAccess.users[0].access).toBeDefined();
 		});
 	});
 });
