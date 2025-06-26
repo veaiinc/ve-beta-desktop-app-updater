@@ -4,11 +4,12 @@ import AgentDetails from '../../../components/agents/agentDetails/AgentDetails';
 import RecentChat from '../../chat/RecentChat';
 import ObjectID from 'bson-objectid';
 import Context from '../../../../context/context';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 
 const sid = ObjectID().toString();
 const Agent = () => {
 	const {} = useContext(Context);
+	const [searchParams, setSearchParams] = useSearchParams();
 	const { agentId } = useParams();
 	const chatBoxClickedRef = useRef(false);
 
