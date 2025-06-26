@@ -295,16 +295,6 @@ const baseComponents = {
 			</div>
 		);
 	},
-	code({ node, inline, className, children, ...props }) {
-		const match = /language-(\w+)/?.exec(className || '');
-		return !inline && match ? (
-			<MarkdownCode code={children} match={match} node={node} />
-		) : (
-			<code {...props} className="code">
-				{children}
-			</code>
-		);
-	},
 };
 
 const MarkdownCode = memo(({ code, match }) => {
@@ -374,7 +364,7 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 });
 
 // Memoize citation-specific components
-const createCitationComponents = (citations, markdown) => ({
+const createCustomComponents = (citations, markdown) => ({
 	span: ({ children, citationId, ...props }) => {
 		if (citationId) return <CitationsTooltip citationId={citationId} citations={citations} />;
 		return (
@@ -390,6 +380,23 @@ const createCitationComponents = (citations, markdown) => ({
 			</MarkdownTable>
 		);
 	},
+	code({ node, inline, className, children, ...props }) {
+		const match = /language-(\w+)/?.exec(className || '');
+		let code;
+		if (!inline && match) {
+			code = markdown?.slice(
+				node?.position?.start?.offset + (3 + match[1]?.length),
+				node?.position?.end?.offset - 3,
+			);
+		}
+		return !inline && match ? (
+			<MarkdownCode code={code} match={match} node={node} />
+		) : (
+			<code {...props} className="code">
+				{children}
+			</code>
+		);
+	},
 });
 
 const remarkPlugins = [remarkGfm, remarkMath];
@@ -403,7 +410,7 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 	const components = useMemo(
 		() => ({
 			...baseComponents,
-			...createCitationComponents(citations, markdown),
+			...createCustomComponents(citations, markdown),
 		}),
 		[citations, markdown],
 	);
