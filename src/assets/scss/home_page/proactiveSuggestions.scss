@@ -8,6 +8,12 @@
 	align-items: center;
 	overflow-y: auto;
 	position: relative;
+	height: 60vh;
+	transition: height 0.7s ease;
+	scrollbar-width: none !important;
+	&.active {
+		height: 200px;
+	}
 	.cards-container {
 		display: flex;
 		gap: 20px;
@@ -1203,15 +1209,16 @@
 }
 @keyframes slideUpChatbox {
 	0% {
+		position: absolute;
 		top: 500px;
 	}
 	100% {
 		top: -20px;
+		position: relative;
 	}
 }
 .slideUp {
-	position: absolute;
-
+	z-index: 100;
 	animation: slideUpChatbox 0.5s ease-out forwards;
 }
 .card-change-btn-left {
@@ -1251,7 +1258,7 @@
 	position: relative;
 	height: 60vh;
 	width: 100%;
-	margin-top: 140px;
+	margin-top: 50px;
 	display: flex;
 	align-items: flex-start;
 	align-content: flex-start;
