@@ -8,7 +8,7 @@
 	align-items: center;
 	overflow-y: auto;
 	position: relative;
-	height: 65vh;
+	height: 60vh;
 	transition: height 0.7s ease;
 	scrollbar-width: none !important;
 	&.active {
@@ -1210,7 +1210,7 @@
 @keyframes slideUpChatbox {
 	0% {
 		position: absolute;
-		top: 700px;
+		top: 500px;
 	}
 	100% {
 		top: -20px;
