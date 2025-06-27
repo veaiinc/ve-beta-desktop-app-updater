@@ -137,8 +137,8 @@ const ShareComponent = ({ pageId, makeApiCall = true }) => {
 		const searchLower = info.search.toLowerCase();
 		return (info.tenantUsers || []).filter(
 			(user) =>
-				user.fullName.toLowerCase().includes(searchLower) ||
-				user.email.toLowerCase().includes(searchLower),
+				user?.fullName?.toLowerCase().includes(searchLower) ||
+				user?.email?.toLowerCase().includes(searchLower),
 		);
 	};
 
