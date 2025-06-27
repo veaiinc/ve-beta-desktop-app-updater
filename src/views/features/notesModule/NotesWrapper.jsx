@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/notes/notesWrapper.scss';
 import RecentChat from '../chat/RecentChat';
 import ObjectID from 'bson-objectid';
@@ -8,16 +8,16 @@ import Context from '../../../context/context';
 import useTranscriptionSuggestions from '../../hooks/useTranscriptionSuggestions';
 
 const NotesWrapper = () => {
-	const { createWebSocketConnection } = useTranscriptionSuggestions();
+	const { createWebSocketConnection, socketRef } = useTranscriptionSuggestions();
 	const {
 		templates: { aiTranscriptionSuggestions, updateStateValues },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		modalIsOpen: true,
+		modalIsOpen: false,
 		handledOnce: false,
 		createSocketConnection: false,
+		sessionId: null,
 	});
-	const sessionIdRef = useRef(null);
 
 	useEffect(() => {
 		updateStateValues({
@@ -43,20 +43,40 @@ const NotesWrapper = () => {
 		}
 	}, [aiTranscriptionSuggestions]);
 
-	const handleCloseModal = () => {
-		setInfo({
+	const handleCloseModal = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
 			modalIsOpen: false,
-		});
-	};
-	const onMessageFunc = (event) => {
-		console.log(event);
-	};
+		}));
+	}, []);
 
-	const handleCreateSocketTranscriptionConnection = () => {
-		setInfo({
+	const handleCustomChatBoxClick = useCallback(() => {
+		if (!info?.sessionId) {
+			const sessionId = ObjectID()?.toString();
+			setInfo((prev) => ({
+				...prev,
+				sessionId,
+			}));
+		}
+	}, [info?.sessionId]);
+
+	const handleCreateSocketConnection = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
 			createSocketConnection: true,
-		});
-	};
+		}));
+	}, []);
+
+	const closeSocketConnection = useCallback(() => {
+		if (socketRef?.current) {
+			socketRef.current?.close();
+		}
+	}, []);
+
+	const onMessageFunc = useCallback((event) => {
+		console.log(event);
+	}, []);
+
 	return (
 		<div
 			className={'notes-parent-wrapper'}
@@ -68,12 +88,16 @@ const NotesWrapper = () => {
 				<div className="chat-wrapper">
 					<RecentChat
 						isPreview={true}
-						sId={sessionIdRef?.current}
 						showDeleteChat={false}
+						customChatBoxClick={handleCustomChatBoxClick}
+						{...(info?.sessionId && { sId: info?.sessionId })}
 					/>
 				</div>
 				<div className="notesContainerWrapper">
-					<Notes handleSocketConnection={handleCreateSocketTranscriptionConnection} />
+					<Notes
+						createSocketConnection={handleCreateSocketConnection}
+						closeSocketConnection={closeSocketConnection}
+					/>
 				</div>
 			</div>
 			<AiTranscriptionSuggestions
