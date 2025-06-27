@@ -2582,11 +2582,11 @@ class App extends BaseClass {
 						<style>{`
 							${themeStyles}
 							#text_component_ID a:-webkit-any-link {
-								color: inherit !important;
+								color: inherit;
 								text-decoration: none;
 							}
 							#text_component_ID a {
-								color: inherit !important;
+								color: inherit ;
 								text-decoration: none;
 							}
 						`}</style>

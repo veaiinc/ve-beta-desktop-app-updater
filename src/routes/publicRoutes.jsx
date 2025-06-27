@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-
+import Public from '../views/layouts/Public';
 import LandingPage from '../views/features/landingScreen/LandingPage';
 import LoginPage from '../views/features/loginPage/LoginPage';
 import Onboarding from '../views/features/onboarding/Onboarding';
@@ -8,16 +8,7 @@ import CookiePolicy from '../views/features/signin/CookiePolicy';
 import PrivacyPolicy from '../views/features/signin/PrivacyPolicy';
 import ChageLog from '../views/features/signin/ChageLog';
 import PublicChat from '../views/features/publicChat/PublicChat';
-import useWorkspaceMode from '../views/hooks/useWorkspaceMode';
 import OauthVerify from '../views/features/signin/oauth/OauthVerify';
-import PageLoader from '../views/components/app/PageLoader';
-import useTheme from '../views/hooks/useTheme';
-
-export const Public = ({ children }) => {
-	useTheme();
-	const { loading } = useWorkspaceMode();
-	return loading ? <PageLoader /> : <>{children}</>;
-};
 
 const publicRoutes = [
 	{

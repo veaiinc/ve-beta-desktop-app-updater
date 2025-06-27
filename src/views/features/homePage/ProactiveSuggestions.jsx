@@ -155,7 +155,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			right: false,
 		},
 	});
-	const promptsLenght = promptsData?.data?.length ?? 0;
+	const promptsLength = promptsData?.data?.length ?? 0;
 	const promptsHasNextPage = Boolean(promptsData?.hasNextPage);
 	const promptsCurrentPage = Number(promptsData?.currentPage) || 1;
 	const [touchStartX, setTouchStartX] = useState(null);
@@ -339,16 +339,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		[handleLeft, handleRight],
 	);
 	useEffect(() => {
-		const container = mainContainerRef.current;
-		if (container) {
-			container.addEventListener('keydown', handleKeyDown);
-			container.focus();
-		}
-		// Clean up on unmount
+		window.addEventListener('keydown', handleKeyDown);
 		return () => {
-			if (container) {
-				container.removeEventListener('keydown', handleKeyDown);
-			}
+			window.removeEventListener('keydown', handleKeyDown);
 		};
 	}, [handleKeyDown]);
 
@@ -662,17 +655,16 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			showExploreMore: !prev?.showExploreMore,
 		}));
 	};
-	const fetchAiSuggestedPrompts = async (page = 1, searchQuery = '') => {
+	const fetchAiSuggestedPrompts = async (page = 1, searchQuery = '', reset = true) => {
 		const payload = {
 			page: page,
 			limit: 30,
-			category: promptsCategory,
 			...(searchQuery && { search: searchQuery }),
 		};
-		getPromptsData(payload);
+		getPromptsData(payload, reset);
 	};
 	const fetchMoreAiSuggestedPrompts = () => {
-		fetchAiSuggestedPrompts(info?.page + 1, info?.searchQuery);
+		fetchAiSuggestedPrompts(promptsCurrentPage + 1, info?.searchQuery, false);
 	};
 	const handleTouchStart = (e) => {
 		setTouchStartX(e.targetTouches[0].clientX);
@@ -726,17 +718,19 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	return (
 		<>
 			{info?.showExploreMore && (
-				<div
-					className="revertExploreMore"
-					onClick={() => {
-						setInfo((prev) => ({
-							...prev,
-							showExploreMore: false,
-						}));
-					}}
-				>
-					<div>Back to insights</div>
-					<DoubleUpArrowSvg />
+				<div className="revertExploreMoreContainer">
+					<div
+						className="revertExploreMore"
+						onClick={() => {
+							setInfo((prev) => ({
+								...prev,
+								showExploreMore: false,
+							}));
+						}}
+					>
+						<div>Back to insights</div>
+						<DoubleUpArrowSvg />
+					</div>
 				</div>
 			)}
 			{(aiSuggestedPendingActions?.pendingActions?.length > 0 ||
@@ -763,13 +757,13 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 					</div>
 				)}
 			<div
-				className="proactive-suggestions-container"
+				className={`proactive-suggestions-container ${
+					info?.showExploreMore ? 'active' : ''
+				}`}
 				style={{
 					marginTop: info?.showExploreMore ? '60px' : '0px',
-					height: info?.showExploreMore ? '140px' : '',
 				}}
 				ref={mainContainerRef}
-				tabIndex={0}
 			>
 				{!info?.showExploreMore && (
 					<>
@@ -1148,10 +1142,16 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 						<ChatBox
 							onSend={handleCustomOnSendFunction}
 							customChatActions={true}
-							autoFocus={true}
+							autoFocus={false}
 							animatePlaceholder={true}
 							onChatQueryChange={handleChatQueryChange}
 							showUpgradeSubscriptionBtn={false}
+							customChatBoxClick={() => {
+								setInfo((prev) => ({
+									...prev,
+									showExploreMore: true,
+								}));
+							}}
 						/>
 					</div>
 					<div className="suggestions-container">
@@ -1177,7 +1177,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 					{info?.showExploreMore && (
 						<div className="modal-container">
 							<InfiniteScroll
-								dataLength={promptsLenght}
+								dataLength={promptsLength}
 								next={() => fetchMoreAiSuggestedPrompts()}
 								hasMore={promptsHasNextPage || false}
 								loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}

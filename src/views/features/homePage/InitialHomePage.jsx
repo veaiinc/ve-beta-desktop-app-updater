@@ -259,7 +259,7 @@ const InitialHomePage = () => {
 
 	useEffect(() => {
 		if (!promptsData) {
-			getPromptsData({ category: 'all', limit: 30 });
+			getPromptsData({ category: 'all', limit: 30, page: 1 });
 			return;
 		}
 		if (promptsData?.data?.length > 0) {
