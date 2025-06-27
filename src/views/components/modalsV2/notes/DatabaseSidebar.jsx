@@ -133,7 +133,7 @@ const DatabaseSidebar = ({ pageId }) => {
 					))}
 				</div>
 				<div className={s.notesDatabaseSidebarFooter}>
-					<h3>Footer</h3>
+					{/* <h3>Footer</h3> */}
 				</div>
 			</div>
 		</Drawer>

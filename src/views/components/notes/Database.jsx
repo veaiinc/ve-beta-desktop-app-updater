@@ -599,21 +599,27 @@ const DatabaseComponent = ({ block, editor }) => {
 									value={info?.searchQuery}
 									onChange={(e) => handleSearchChange(e.target.value)}
 								/>
-								<GroupComponent
-									fields={fields}
-									databaseId={databaseId}
-									metaInfo={metaInfo}
-									view={selectedDatabaseView}
-									blockId={block?.id}
-								/>
-								<button onClick={() => handleInfoChange({ addRowModalOpen: true })}>
-									Add Row
-								</button>
-								<button
-									onClick={() => handleInfoChange({ addFieldModalOpen: true })}
-								>
-									Add Field
-								</button>
+								<div className={s.databaseTopContainerButtons}>
+									<GroupComponent
+										fields={fields}
+										databaseId={databaseId}
+										metaInfo={metaInfo}
+										view={selectedDatabaseView}
+										blockId={block?.id}
+									/>
+									<button
+										onClick={() => handleInfoChange({ addRowModalOpen: true })}
+									>
+										Add Row
+									</button>
+									<button
+										onClick={() =>
+											handleInfoChange({ addFieldModalOpen: true })
+										}
+									>
+										Add Field
+									</button>
+								</div>
 							</div>
 						</div>
 						<div className={s.notesDatabaseHeaderTitleContainer}>
