@@ -32,7 +32,7 @@ const AIMessageLoader = () => {
 					Answer
 				</div>
 			</div> */}
-			<div className="text-container">{message}</div>
+			<div className="loader-text-container">{message}</div>
 		</div>
 	);
 };

@@ -18,7 +18,7 @@ export const ChatStreamState = () => {
 	const inactivityTimeoutRef = useRef(null);
 	const currentSessionIdRef = useRef(null);
 	const workspaceModeRef = useRef(null);
-	const MAX_RETRY_ATTEMPTS = 3;
+	const MAX_RETRY_ATTEMPTS = 30;
 	const RETRY_DELAY = 1000; // 1 second
 
 	// // Cleanup on unmount

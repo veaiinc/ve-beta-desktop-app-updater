@@ -37,6 +37,10 @@ export default defineConfig({
 								removeAll: true,
 							},
 							normalizeWhitespace: true,
+							// ✅ Prevent collapsing variable font weights
+							minifyFontValues: {
+								removeAfterKeyword: false,
+							},
 						},
 					],
 				}),
