@@ -2278,6 +2278,18 @@
 		.sortType-up {
 			transform: rotate(180deg);
 		}
+		.option-value-wrapper {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+			flex-grow: 1;
+			&.active {
+				color: var(--primary-font);
+			}
+		}
 	}
 }
 .albumTitle {
