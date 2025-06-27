@@ -7,7 +7,7 @@ import { getFaviconUrl } from '../../../../../../../helpers';
 import ActionsModal from '../../../../../modalsV2/ai_assistant/ActionsModal';
 import EditAgentTool from '../../../../modals/editAgentTool/EditAgentTool';
 import ToggleSwitch from '../../../../../../components/input/slider';
-import AddToolModal from '../../../../../modalsV2/ai_assistant/AddToolModal';
+import AddToolV2Modal from '../../../../../modalsV2/ai_assistant/AddToolV2Modal';
 import EditToolVariablesModal from './EditToolVariablesModal';
 import Spinner from '../../../../../loaders/Spinner';
 // svgs
@@ -334,7 +334,7 @@ const ToolsTab = ({ agentId }) => {
 				isOpen={info?.editAgentToolOpen}
 				onClose={() => setInfo((prev) => ({ ...prev, editAgentToolOpen: false }))}
 			/>
-			<AddToolModal
+			<AddToolV2Modal
 				isOpen={info?.addToolModalOpen}
 				onClose={() => setInfo((prev) => ({ ...prev, addToolModalOpen: false }))}
 				onToolAdded={refreshToolList}

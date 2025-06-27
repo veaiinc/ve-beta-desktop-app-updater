@@ -1032,6 +1032,18 @@ export const KnowledgeAgentState = () => {
 			return [false, error];
 		}
 	};
+	const listofAllappsActions = async (page = 1, limit = 10, search = '') => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}/agent-tools?page=${page}&limit=${limit}${
+			search ? `&search=${encodeURIComponent(search)}` : ''
+		}`;
+		const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+		if (response?.[0] === true) {
+			return [true, response?.[1]];
+		}
+		return [false, response?.[1]];
+	};
 
 	return {
 		...state,
@@ -1072,5 +1084,6 @@ export const KnowledgeAgentState = () => {
 		updateToolVariables,
 		deleteKnowledgeBaseFile,
 		deleteKnowledgeAgent,
+		listofAllappsActions,
 	};
 };

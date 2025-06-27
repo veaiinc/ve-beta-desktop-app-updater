@@ -35,6 +35,7 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 			addActionToKnowledgeAgent,
 			getExistingconnectedAccounts,
 			deleteConnectedAccount,
+			listofAllappsActions,
 		},
 		profileInfo: { userDetailsData, getUserDetails },
 	} = useContext(Context);
@@ -83,6 +84,24 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 	}, [userDetailsData]);
 
 	const tenatUserId = userDetailsData?._id;
+
+	const fetchAllApps = useCallback(async () => {
+		const [success, response] = await listofAllappsActions();
+		if (success) {
+			setInfo((prev) => ({
+				...prev,
+				apps: response.data,
+				hasNextPage: response.hasNextPage,
+				totalApps: response.totalApps,
+				totalPages: response.totalPages,
+				perPage: response.perPage,
+			}));
+		}
+	}, [info.searchQuery]);
+
+	useEffect(() => {
+		fetchAllApps();
+	}, [fetchAllApps]);
 
 	// Step 1: Fetch Apps
 	const fetchApps = useCallback(
