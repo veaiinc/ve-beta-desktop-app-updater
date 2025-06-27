@@ -14,6 +14,7 @@ const ChatHeader = ({
 	onNavigateBack,
 	isNewChat = false,
 	smoothScrollToParticularMessage = null,
+	showDeleteChat = true,
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -145,7 +146,7 @@ const ChatHeader = ({
 						<div className={s.chatTitle}>{currentChatData?.title || 'New Chat'}</div>
 					</div>
 					<div className={s.rightContainer}>
-						{!isNewChat && (
+						{!isNewChat && showDeleteChat && (
 							<Tooltip
 								title={<div className={s.tooltip}>Delete Chat</div>}
 								placement="bottom"

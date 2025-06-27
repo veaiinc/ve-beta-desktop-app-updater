@@ -616,7 +616,11 @@ const actionHandlers = {
 		}
 		return { ...state, chatLoadingSessions };
 	},
-
+	HANDLE_TRANSCRIPTION_SUGGESTIONS: (state, action) => {
+		const aiTranscriptionSuggestions = [...(state?.aiTranscriptionSuggestions || [])];
+		aiTranscriptionSuggestions?.push(action?.payload);
+		return { ...state, aiTranscriptionSuggestions };
+	},
 	RESET_STATE: () => intialState,
 };
 
