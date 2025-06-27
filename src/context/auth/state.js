@@ -160,7 +160,7 @@ export const AuthState = () => {
 						JSON.stringify(accessibleWorkspaces),
 					);
 				if (workspaceId) localStorage.setItem('workspaceId', workspaceId);
-				Cookies.set('workspaceID', workspaceId, {
+				Cookies.set('workspaceId', workspaceId, {
 					sameSite: 'lax',
 					domain: host,
 				});
@@ -319,6 +319,7 @@ export const AuthState = () => {
 					{
 						isOnboard: response?.[1]?.isOnboard,
 						workspaceId: response?.[1]?.workspaceId,
+						region: response?.[1]?.region,
 					},
 				];
 			} else {

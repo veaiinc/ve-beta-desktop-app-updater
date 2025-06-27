@@ -514,7 +514,7 @@ class Builder extends Component {
 			order: order,
 		};
 		this.props.handleAddLayout(
-			'this.props.params.workspaceID',
+			'this.props.params.workspaceId',
 			json,
 			'this.props.params.templateID',
 		);
@@ -678,7 +678,12 @@ class Builder extends Component {
 						this.props.module === 'contract' ? 'contractPage' : ''
 					} ${this.props.module === 'invoice' ? 'invoicePage' : ''}`}
 					style={{
-						paddingBottom: this.props.client && this.state.isformv1 ? '45px' : '0',
+						paddingBottom:
+							this.props.client &&
+							(!this.state?.sections?.length ||
+								this.state?.sections[0]?.type !== 'form-v1')
+								? '45px'
+								: '0',
 						opacity: this.getMoveClass() ? 0.5 : isDragging ? 0.52 : 1,
 						// height: item.height,
 						transition: this.getMoveClass() ? 'transform 0.5s, opacity 0.5s' : 'none',
@@ -715,10 +720,7 @@ class Builder extends Component {
 							this.props.module === 'contract' || this.props.module === 'invoice'
 								? '0px auto'
 								: '',
-						width:
-							this.props.module === 'contract' || this.props.module === 'invoice'
-								? '100%'
-								: '',
+
 						overflowX:
 							this.props.client && this.state.previewType === 'm' ? 'hidden' : '',
 
@@ -726,6 +728,7 @@ class Builder extends Component {
 
 						display: 'block',
 						borderRadius: this.props.mobile_preview_builder ? '24px' : '',
+						width: '100%',
 					}}
 				>
 					{/* navigationBar */}
@@ -1582,6 +1585,10 @@ class Builder extends Component {
 															isService,
 														)
 													}
+													invoiceSentDate={this.props?.invoiceSentDate}
+													invoiceAcceptedDate={
+														this.props?.invoiceAcceptedDate
+													}
 												/>
 											</div>
 										);
@@ -1600,6 +1607,7 @@ class Builder extends Component {
 												data-block-id={section?.type}
 											>
 												<InvoiceWrapper
+													variables={this.props.variables}
 													setTriggerFont={(e) =>
 														this.props?.client
 															? ''
@@ -1703,7 +1711,6 @@ class Builder extends Component {
 														this.state?.activeVariableName
 													}
 													subBlockID={this.state?.subBlockID}
-													variables={this.state?.variables}
 													client={this.props?.client}
 													setNewTab={(e) =>
 														this.props?.handleSetOpenNewtab(e)
@@ -1798,6 +1805,16 @@ class Builder extends Component {
 													modules={this.props?.modules}
 													updateTablesForTaxes={
 														this.props?.updateTablesForTaxes
+													}
+													handleAddLayout={(e, isFluid, isService) => {
+														this.props.handleAddLayout(
+															e,
+															isFluid,
+															isService,
+														);
+													}}
+													smartFileVariables={
+														this.props?.smartFileVariables
 													}
 												/>
 											</div>
@@ -2046,6 +2063,7 @@ class Builder extends Component {
 												data-block-id={section?.type}
 											>
 												<SummaryWrapper
+													variables={this.props?.variables}
 													activeSubBlockId={this.state.activeSubBlockId}
 													key={index}
 													module={this.props.module}
@@ -2158,6 +2176,9 @@ class Builder extends Component {
 													section={section}
 													fonts={this.props?.fonts}
 													activeModuleId={this.props?.activeModuleId}
+													smartFileVariables={
+														this.props?.smartFileVariables
+													}
 												/>
 											</div>
 										);
@@ -2172,7 +2193,12 @@ class Builder extends Component {
 												}}
 												key={index}
 												style={{
-													height: this.props.client ? 'auto' : 'auto',
+													height: !this.props?.client
+														? 'auto'
+														: section?.isSinglePage &&
+														  this.props?.client
+														? 'auto'
+														: '100%',
 													minHeight: '418.5px',
 													display: 'block',
 												}}
@@ -2180,6 +2206,12 @@ class Builder extends Component {
 												data-block-id={section?.type}
 											>
 												<FormWrapper
+													triggerAdjustGridAreas={
+														this.props.triggerAdjustGridAreas
+													}
+													setAdjustGridAreas={(e) => {
+														this.props.setAdjustGridAreas(e);
+													}}
 													handleAddLayout={(e, type) =>
 														this.props.handleAddLayout(e, type)
 													}
@@ -2638,8 +2670,9 @@ class Builder extends Component {
 												{section?.isFluidSection ? (
 													<FluidLayout
 														triggerAdjustGridAreas={
-															this.props?.triggerAdjustGridAreas
+															this.props.triggerAdjustGridAreas
 														}
+														audioMode={this.props.audioMode}
 														mobile_preview_builder={
 															this.props?.mobile_preview_builder
 														}
@@ -3338,6 +3371,7 @@ class Builder extends Component {
 					)}
 					{this.props.module === 'invoice' ? (
 						<Invoice
+							variables={this.state.variables}
 							isWorkflow={this.state.isWorkflow}
 							preview={this.state.preview}
 							previewType={this.state.previewType}

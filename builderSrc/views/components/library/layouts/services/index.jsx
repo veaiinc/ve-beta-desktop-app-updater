@@ -891,7 +891,7 @@ class Layout1 extends Component {
 							className="addBlankContainer"
 						>
 							<AddBlock />
-							<span className="tooltip-text">Add Card</span>
+							<span className="tooltip-text">Add Layout</span>
 						</div>
 						<div className="addBlockDividerContainer">
 							<div className="addBlockDivider"></div>
@@ -1120,39 +1120,59 @@ class Layout1 extends Component {
 									}}
 								>
 									{/* {this.state.style?.subTotalValue} */}
-									<Text
-										isWorkflow={this.props.isWorkflow}
-										text={
-											this?.state?.client
-												? subTotal
-												: `${this.state.style?.subTotalValue || '<p>0</p>'}`
-										}
-										setTriggerFont={(e) =>
-											this.props?.client ? '' : this.props.setTriggerFont(e)
-										}
-										triggerFont={this.state.triggerFont}
-										setContent={(e) =>
-											this.handleServiceSubTotal(
-												{
-													target: {
-														value: e,
+									{this.state.style?.services_selection == 2 &&
+									this.state.style?.subTotalValue == 0 ? (
+										<Text
+											isWorkflow={this.props.isWorkflow}
+											text={
+												this?.state?.client
+													? subTotal
+													: `${
+															this.state.style?.subTotalValue ||
+															'<p>0</p>'
+													  }`
+											}
+											setTriggerFont={(e) =>
+												this.props?.client
+													? ''
+													: this.props.setTriggerFont(e)
+											}
+											triggerFont={this.state.triggerFont}
+											setContent={(e) =>
+												this.handleServiceSubTotal(
+													{
+														target: {
+															value: e,
+														},
 													},
-												},
-												'subTotalValue',
-											)
-										}
-										setTab={(e) => this.props.handleSetTab(e)}
-										handleSelection={(e, activeTextBlock) =>
-											this.props.handleBSelection(e, activeTextBlock)
-										}
-										actionType={this.state.actionType}
-										actionValue={this.state.actionValue}
-										preview={this.state.client}
-										refID={this.state.sectionID + 'subTotalValue'}
-										reference={'subTotalValue' + this.state.sectionID}
-										subBlockID={this.state.sectionID + 'subTotalValue'}
-										theme={this.props?.themes}
-									/>
+													'subTotalValue',
+												)
+											}
+											setTab={(e) => this.props.handleSetTab(e)}
+											handleSelection={(e, activeTextBlock) =>
+												this.props.handleBSelection(e, activeTextBlock)
+											}
+											actionType={this.state.actionType}
+											actionValue={this.state.actionValue}
+											preview={this.state.client}
+											refID={this.state.sectionID + 'subTotalValue'}
+											reference={'subTotalValue' + this.state.sectionID}
+											subBlockID={this.state.sectionID + 'subTotalValue'}
+											theme={this.props?.themes}
+										/>
+									) : (
+										<div>
+											{this.state.client ? (
+												subTotal
+											) : (
+												<div
+													dangerouslySetInnerHTML={{
+														__html: this.state.style?.subTotalValue,
+													}}
+												/>
+											)}
+										</div>
+									)}
 								</div>
 							</div>
 						</div>

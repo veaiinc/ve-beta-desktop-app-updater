@@ -1,5 +1,6 @@
 .tagLine {
 	display: flex;
+	max-width: 2500px;
 	width: 100%;
 	padding: 150px 120px;
 	flex-direction: column;
@@ -16,20 +17,24 @@
 		gap: 42px;
 		align-items: center;
 		justify-content: center;
+		width: 100%;
 		.taglineContainer {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			gap: 42px;
+			gap: 32px;
+			width: 100%;
 			.top {
 				display: flex;
 				flex-direction: column;
-				gap: 22px;
+				gap: 8px;
 				align-items: center;
 				justify-content: center;
+				width: 100%;
+				max-width: 1000px;
 
 				.poweredBy {
-					color: var(--primary-button, #79ecc9);
+					color: var(--primary-font, #f2f2f3);
 					text-align: center;
 					font-family: var(--secondary-font-family);
 					font-size: 18px;
@@ -39,24 +44,32 @@
 				}
 
 				.heading {
-					color: var(--primary-font, #f2f2f3);
+					color: var(--primary-button, #79ecc9);
 					text-align: center;
 					font-family: var(--secondary-font-family);
 					font-size: 55px;
 					font-style: normal;
 					font-weight: 600;
-					line-height: normal;
+					line-height: 70px; /* 127.273% */
 				}
+			}
 
+			.bottom {
 				.subHeading {
-					color: var(--secondary-font, #7a7e85);
-					text-align: center;
-					font-family: var(--secondary-font-family);
-					font-size: 24px;
-					font-weight: 400;
-					line-height: 35px;
-					max-width: 670px;
+					max-width: 1254px;
 					width: 100%;
+					display: flex;
+					flex-direction: column;
+					gap: 30px;
+					p {
+						color: var(--primary-font, #f2f2f3);
+						text-align: center;
+						font-family: var(--secondary-font-family);
+						font-size: 18px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 36px; /* 200% */
+					}
 				}
 			}
 
@@ -153,128 +166,34 @@
 			.taglineContainer {
 				.top {
 					.heading {
-						color: var(--primary-font, #F2F2F3);
-						text-align: center;
-						font-family: var(--secondary-font-family);
-						font-size: 55px;
-						font-style: normal;
-						font-weight: 600;
-						line-height: normal;
-					}
-					.poweredBy {
-						font-size: 18px;
-					}
-					.subHeading {
-						color: var(--secondary-font, #7A7E85);
-						text-align: center;
-						font-family: var(--secondary-font-family);
-						font-size: 24px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 35px;
-						max-width: 670px;
-						width: 100%;
-					}
-				}
-			}
-		}
-	}
-}
-
-@media screen and (min-width: 1025px) {
-	.tagLine {
-		.container {
-			.taglineContainer {
-				.top {
-					.heading {
-						color: var(--primary-font, #F2F2F3);
-						text-align: center;
-						font-family: var(--secondary-font-family);
-						font-size: 55px;
-						font-style: normal;
-						font-weight: 600;
-						line-height: normal;
-					}
-					.poweredBy {
-						font-size: 18px;
-					}
-					.subHeading {
-						color: var(--secondary-font, #7A7E85);
-						text-align: center;
-						font-family: var(--secondary-font-family);
-						font-size: 24px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 35px;
-						max-width: 670px;
-						width: 100%;
-					}
-				}
-			}
-		}
-	}
-}
-
-@media screen and (max-width: 500px) {
-	.tagLine {
-		padding: 60px 20px;
-		gap: 48px;
-
-		.container {
-			gap: 32px;
-
-			.taglineContainer {
-				gap: 32px;
-
-				.top {
-					gap: 16px;
-					padding: 0;
-
-					.poweredBy {
 						color: var(--primary-button, #79ecc9);
 						text-align: center;
-						font-family: var(--secondary-font-family);
-						font-size: 16px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						text-transform: capitalize;
-					}
-
-					.heading {
-						color: var(--primary-font, #F2F2F3);
-						text-align: center;
-						font-family: var(--secondary-font-family);
-						font-size: 34px;
+						font-family: Manrope;
+						font-size: 40px;
 						font-style: normal;
 						font-weight: 600;
-						line-height: normal;
+						line-height: 50px; /* 125% */
 						text-transform: capitalize;
 					}
-
-					.subHeading {
-						color: var(--secondary-font, #7A7E85);
+					.poweredBy {
+						color: var(--primary-font, #f2f2f3);
 						text-align: center;
 						font-family: var(--secondary-font-family);
-						font-size: 16px;
+						font-size: 18px;
 						font-style: normal;
 						font-weight: 500;
-						line-height: 26px;
+						line-height: normal;
 					}
-				}
-
-				.taglineButtons {
-					flex-direction: column;
-					width: 100%;
-					gap: 12px;
-
-					.readMore,
-					.tryOurApi {
-						display: flex;
-						padding: 12px 24px;
-						justify-content: center;
-						align-items: center;
-						gap: 6px;
+					.subHeading {
+						p {
+							color: var(--primary-font, #f2f2f3);
+							text-align: center;
+							font-family: var(--secondary-font-family);
+							font-size: 18px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 36px; /* 200% */
+						}
 					}
 				}
 			}
@@ -282,7 +201,7 @@
 	}
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 840) {
 	.tagLine {
 		padding: 60px 20px;
 		gap: 64px;
@@ -294,32 +213,48 @@
 				gap: 36px;
 
 				.top {
-					gap: 20px;
-					padding: 0 12px;
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					gap: 8px;
+					align-self: stretch;
 
 					.poweredBy {
-						font-size: 16px;
+						color: var(--primary-font, #f2f2f3);
+						text-align: center;
+						font-size: 18px;
+						font-weight: 500;
+						line-height: normal;
 					}
 
 					.heading {
-						color: var(--primary-font, #F2F2F3);
+						color: var(--primary-button, #79ecc9);
 						text-align: center;
-						font-family: var(--secondary-font-family);
-						font-size: 34px;
-						font-style: normal;
+						font-size: 40px;
 						font-weight: 600;
-						line-height: normal;
+						line-height: 50px;
 						text-transform: capitalize;
 					}
 
 					.subHeading {
-						color: var(--secondary-font, #7A7E85);
 						text-align: center;
 						font-family: var(--secondary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 500;
 						line-height: 26px;
+					}
+				}
+
+				.bottom {
+					.subHeading {
+						p {
+							color: var(--primary-font, #f2f2f3);
+							text-align: center;
+							font-size: 14px;
+							font-weight: 500;
+							line-height: 28px;
+						}
 					}
 				}
 
@@ -336,5 +271,3 @@
 		}
 	}
 }
-
-

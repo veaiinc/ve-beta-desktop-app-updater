@@ -34,12 +34,7 @@ const DocumentShare = ({
 			workflowInfoDetails,
 			sendCustomEmailToClients,
 		},
-		profileInfo: {
-			userWorkSpaceList,
-			tennantSettingsData,
-			getTenantSettings,
-			getUserWorkSpaceList,
-		},
+		profileInfo: { tennantSettingsData, getTenantSettings },
 		aiSetup: {
 			existingAiAssistants,
 			getExistingAiAssistants,
@@ -70,11 +65,11 @@ const DocumentShare = ({
 		slugErrorMessage: '',
 		editSlug: false,
 		timeout: null,
-		currentWorkspaceId: '',
 		workflowId: smartFileInfo?._id || '',
 		copyLink: '',
 		isAlChatEnabled: smartFileInfo?.isAlChatEnabled || false,
 		clientDetails: '',
+		workspaceId: '',
 	});
 
 	const [pendingExpirySelection, setPendingExpirySelection] = useState(null);
@@ -90,12 +85,6 @@ const DocumentShare = ({
 	const assistantDropdownRef = useRef(null);
 
 	const navigate = useNavigate();
-
-	useEffect(() => {
-		if (!userWorkSpaceList) {
-			getUserWorkSpaceList();
-		}
-	}, [userWorkSpaceList]);
 
 	useEffect(() => {
 		if (!tennantSettingsData) {
@@ -163,20 +152,25 @@ const DocumentShare = ({
 
 	// Set currentWorkspaceId and copyLink
 	useEffect(() => {
-		if (userWorkSpaceList) {
-			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
-			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
+		if (tennantSettingsData) {
+			setInfo((prev) => ({
+				...prev,
+				workspaceId:
+					tennantSettingsData?.workspaceIds[
+						tennantSettingsData?.workspaceIds?.length - 1
+					],
+			}));
 		}
-		if (tennantSettingsData && smartFileInfo && info.currentWorkspaceId) {
+		if (tennantSettingsData && smartFileInfo && info.workspaceId) {
 			let link;
 			if (tennantSettingsData?.customDomain?.length) {
 				link = `https://${tennantSettingsData.customDomain}/portal/${smartFileInfo.slug}`;
 			} else {
-				link = `https://${info.currentWorkspaceId}.ve.ai/portal/${smartFileInfo.slug}`;
+				link = `https://${info.workspaceId}.ve.ai/portal/${smartFileInfo.slug}`;
 			}
 			setInfo((prev) => ({ ...prev, copyLink: link }));
 		}
-	}, [userWorkSpaceList, tennantSettingsData, smartFileInfo, info.currentWorkspaceId]);
+	}, [tennantSettingsData, smartFileInfo, info.workspaceId]);
 
 	// Focus input when editing slug
 	useEffect(() => {
@@ -184,12 +178,6 @@ const DocumentShare = ({
 			inputRef.current.focus();
 		}
 	}, [info.editSlug]);
-
-	const getCurrentWorkspaceId = (workspaces) => {
-		const workspaceId = localStorage.getItem('workspaceID');
-		const workspace = workspaces.find((ws) => ws.activeWorkspaceId === workspaceId);
-		return workspace ? workspace.activeWorkspaceId : '';
-	};
 
 	// Update parent state (mimics updateWorkflowSlug in DocsFullView)
 	const updateWorkflowSlug = useCallback(
@@ -528,7 +516,8 @@ const DocumentShare = ({
 
 	const slugOnChange = useCallback(
 		(e) => {
-			const valueWithoutSpaces = e.target.value.replace(/[^a-z0-9]/g, '');
+			// const valueWithoutSpaces = e.target.value.replace(/[^a-z0-9]/g, '');
+			const valueWithoutSpaces = e.target.value.replace(/[^a-z0-9-]/g, '');
 			setInfo((prev) => ({
 				...prev,
 				slugHolder: valueWithoutSpaces,
@@ -626,7 +615,7 @@ const DocumentShare = ({
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, []);
-
+	const isCustomDomainExists = tennantSettingsData?.customDomain;
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -662,7 +651,11 @@ const DocumentShare = ({
 						</div>
 						<div className="url-text">
 							<span className="linkDetailText">
-								{`https://${info.currentWorkspaceId}.ve.ai/portal/`}
+								{`https://${
+									isCustomDomainExists
+										? tennantSettingsData?.customDomain
+										: info.workspaceId
+								}.ve.ai/portal/`}
 								<input
 									type="text"
 									className="editableSlugInput"
@@ -670,6 +663,8 @@ const DocumentShare = ({
 									ref={inputRef}
 									onChange={slugOnChange}
 									disabled={!info.editSlug}
+									onClick={toggleEditSlug}
+									size={Math.max(info.slugHolder.length, 1)}
 								/>
 							</span>
 							{info.slugErrorMessage && (

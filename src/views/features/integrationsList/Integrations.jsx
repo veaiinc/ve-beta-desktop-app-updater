@@ -124,6 +124,8 @@ const requestIntegrations = [
 	{ id: 99, title: 'Document360' },
 	{ id: 100, title: 'Helpjuice' },
 	{ id: 101, title: 'ActiveCampaign' },
+	{ id: 102, title: 'Outlook Mail' },
+	{ id: 103, iconSlug: 'googleCalendar', title: 'Google Calendar' },
 ];
 
 const ConnectedIntegrationCard = ({ icon, title, description, accounts, onViewAccounts }) => {

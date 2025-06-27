@@ -8,9 +8,31 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/ta
 const ChainOfThoughtWidget = ({ messageData }) => {
 	const [info, setInfo] = useState({
 		isExpanded: false,
+		height: 0,
 	});
 	const contentContainerRef = useRef(null);
+	const containerRef = useRef(null);
 	const { deepSearch, deepResearch } = messageData;
+	const chainOfThoughtCompleted = messageData?.message?.length > 0 || messageData?.stream_end;
+
+	useEffect(() => {
+		if (!contentContainerRef?.current) return;
+		setTimeout(() => {
+			let height;
+			const contentContainerHeight = contentContainerRef?.current?.scrollHeight;
+
+			if (chainOfThoughtCompleted) {
+				height = info?.isExpanded ? contentContainerHeight + 54 : 54;
+			} else {
+				height = contentContainerHeight + 54;
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				height,
+			}));
+		}, 0);
+	}, [info?.isExpanded]);
 
 	useEffect(() => {
 		if (messageData?.message?.length > 0 || messageData?.stream_end) {
@@ -57,15 +79,13 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 		return null;
 	}
 
-	const chainOfThoughtCompleted = messageData?.message?.length > 0 || messageData?.stream_end;
-	const maxHeight = chainOfThoughtCompleted ? (info?.isExpanded ? '400px' : '57px') : '400px';
-
 	return (
 		<div
-			className="chain-of-thought-widget-container"
+			className={`chain-of-thought-widget-container`}
 			style={{
-				maxHeight,
+				height: `${info?.height}px`,
 			}}
+			ref={containerRef}
 		>
 			<div
 				className="widget-header"
@@ -94,6 +114,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 							}
 						/>
 					)}
+
 					{messageData?.deepSearch && (
 						<DeepSearchChainOfThought
 							data={messageData?.deepSearch}

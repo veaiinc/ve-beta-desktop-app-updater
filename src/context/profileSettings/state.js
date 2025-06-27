@@ -4,7 +4,9 @@ import { Actions } from './actions';
 import * as API from './actionTypes';
 import jwt_decode from 'jwt-decode';
 import service from '../../services/index';
+import Cookies from 'js-cookie';
 import axios from 'axios';
+import { fetchDomainName } from '../../helpers';
 export const intialState = {
 	tennantSettingsData: null,
 	userDetailsData: null,
@@ -16,10 +18,40 @@ export const intialState = {
 	tenantUserAccessControls: null,
 	accessControlOpenModal: false,
 	userDetailsFromTenantAPI: null,
+	aiCategories: null,
 };
 export const ProfileState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
-
+	// {{ _.authBaseUrl }}/tenant/{{ _.workspaceId }}/workspace-info
+	const getWorkSpaceInfo = async (workspaceId) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const response = await service.fetchGet(
+				`/tenant/${workspaceId}/workspace-info`,
+				token,
+				'auth',
+			);
+			if (response?.[0]) {
+				const region = response?.[1]?.locationDetails?.region ?? null;
+				if (region) {
+					const host = fetchDomainName();
+					localStorage.setItem('region', region);
+					Cookies.set('region', region, {
+						sameSite: 'lax',
+						domain: host,
+					});
+					dispatch({
+						type: Actions.GET_WORKSPACE_INFO,
+						payload: response?.[1],
+					});
+				} else {
+					console.error('Unable to get region from workspace info api');
+				}
+			}
+		} catch (error) {
+			console.log('error==>getWorkSpaceInfo', error);
+		}
+	};
 	const getTenantSettings = async () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -31,6 +63,7 @@ export const ProfileState = () => {
 					payload: response?.[1],
 				});
 			}
+			return response;
 		} catch (error) {
 			console.log('error==>getTenantSettings', error);
 		}
@@ -490,6 +523,48 @@ export const ProfileState = () => {
 			console.log('error==>updatedGmailAccount', error);
 		}
 	};
+
+	const getAiCategories = async () => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = '/' + workspaceId + '/knowledge-bases/pending-actions/categories';
+			const response = await service.fetchGet(url, usertoken, 'tenant');
+			if (response?.[0]) {
+				dispatch({ type: Actions?.SET_AI_CATEGORIES, payload: response?.[1] });
+			}
+			return response;
+		} catch (error) {
+			console.log('error==>getAiCategories', error);
+		}
+	};
+
+	// Update tenant profession
+	const updateTenantProfession = async (profession) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${workspaceId}/update-tenant`;
+			const body = {
+				profession: profession,
+			};
+			const response = await service.fetchPut(path, body, token, 'tenant');
+			if (response?.[0]) {
+				// Update the local state to reflect the change
+				dispatch({
+					type: Actions.UPDATE_TENANT_PROFESSION,
+					payload: profession,
+				});
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
+		} catch (error) {
+			console.log('error==>updateTenantProfession', error);
+			return [false, { message: 'Failed to update profession' }];
+		}
+	};
+
 	return {
 		...state,
 		getTenantSettings,
@@ -518,5 +593,8 @@ export const ProfileState = () => {
 		updateAccessControlOpenModal,
 		updateModuleAppTypeSelectAll,
 		updatedGmailAccount,
+		updateTenantProfession,
+		getAiCategories,
+		getWorkSpaceInfo,
 	};
 };

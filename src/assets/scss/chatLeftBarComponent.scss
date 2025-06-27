@@ -25,9 +25,9 @@
 		.tabs-wrapper {
 			background: var(--card);
 		}
-
-		.chat-header {
-			padding-left: 25px;
+		.headerInfo {
+			background-color: transparent !important;
+			padding: 0 0 0 25px !important;
 		}
 	}
 
@@ -55,6 +55,10 @@
 			height: 100%;
 			overflow: auto;
 		}
+
+		&.mobile-hidden {
+			display: none !important;
+		}
 	}
 
 	.chat-left-bar-suggestions-overlay {
@@ -66,15 +70,18 @@
 			height: 100%;
 			display: flex;
 			flex-direction: column;
+
 			.suggestions-header {
 				padding-left: 25px;
 				padding-bottom: 16px;
 				border-bottom: 1px solid var(--stroke);
+
 				.header-container {
 					display: flex;
 					justify-content: space-between;
 					align-items: center;
 					align-self: stretch;
+
 					.left-container {
 						display: flex;
 						align-items: center;
@@ -137,6 +144,7 @@
 					align-self: stretch;
 					margin-top: 24px;
 					margin-bottom: 32px;
+
 					.suggestion {
 						display: flex;
 						padding: 12px;
@@ -163,6 +171,128 @@
 					}
 				}
 			}
+		}
+	}
+}
+
+// Mobile chat toggle button styles
+.mobile-chat-toggle {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	width: 56px;
+	height: 56px;
+	border-radius: 50%;
+	background: var(--primary-button);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	z-index: 999;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	transition: all 0.3s ease-in-out;
+
+	&:hover {
+		transform: scale(1.1);
+		box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+	}
+
+	&:active {
+		transform: scale(0.95);
+	}
+
+	svg {
+		width: 24px;
+		height: 24px;
+		color: var(--primary-button-font);
+	}
+}
+
+// Mobile chat close button styles
+.mobile-chat-close {
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: var(--card-hover);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	z-index: 1001;
+	border: 1px solid var(--stroke);
+	transition: all 0.2s ease-in-out;
+
+	&:hover {
+		background: var(--card-over-card);
+		transform: scale(1.1);
+	}
+
+	&:active {
+		transform: scale(0.95);
+	}
+
+	svg {
+		width: 16px;
+		height: 16px;
+		color: var(--primary-font);
+	}
+}
+
+// Media Queries - Mobile Responsive Styles
+@media (max-width: 768px) {
+	.chat-left-bar-component {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100vh;
+		z-index: 1000;
+		padding: 16px;
+		transform: translateX(-100%);
+		transition: transform 0.3s ease-in-out;
+
+		&.mobile-active {
+			transform: translateX(0);
+		}
+
+		.chat-left-bar-component-overlay,
+		.chat-left-bar-suggestions-overlay {
+			padding: 16px;
+			height: calc(100% - 120px);
+		}
+
+		.chat-left-bar-component-overlay.inactive {
+			display: none;
+		}
+
+		.chat-left-bar-component-overlay {
+			display: none;
+
+			&.active {
+				display: block;
+			}
+		}
+
+		.chat-left-bar-suggestions-overlay {
+			.suggestions-container {
+				.suggestions-header {
+					padding-left: 16px;
+				}
+			}
+		}
+
+		&.mobile-active::before {
+			content: '';
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.5);
+			z-index: -1;
 		}
 	}
 }

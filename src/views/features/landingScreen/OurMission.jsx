@@ -1,122 +1,129 @@
+import { useEffect, useState } from 'react';
 import '../../../assets/scss/landingScreen/ourMission.scss';
+import MissionTabNavigation from './missionTabNavigation/MissionTabNavigation';
+import Careers from './careers/Careers';
+import MobileMenu from '../../components/landing_screen/MobileMenu';
 
-const OurMission = () => {
+const paragraphs1 = [
+	`We've built telescopes to touch the stars and microscopes to probe life's
+	smallest truths, but the bridge that will shape the next century spans not
+	distance but understanding. It must link human intent to machine cognition.
+	Today's models code and compose in a blink, yet forget us the moment the tab
+	closes; they warehouse facts instead of letting them ferment into wisdom.
+	Without a nightly loop of reflection, super‑human output rests on a goldfish
+	memory.`,
+	`We need intelligence that knows what should be remembered, and why.`,
+	`Cause We speak through tensions, glances, and telling silences. Meaning
+						ripens over time. Machines that live with us must hear the unspoken, carry
+						forward what no transcript captures, and remember just enough to care.`,
+	`And more than that, they must evolve. Because human memory is not a database
+						— it is a garden. We don't just retain information. We rewrite it in our
+						sleep. We prune the trivial, tend to the emotional, and rediscover old
+						thoughts as new when the context has ripened. That loop of reflection — is
+						the missing gear in today's AI. Even the most brilliant models operate like
+						goldfish: capable of superhuman output, yet forgetting the moment the
+						session ends.`,
+	`Now imagine a system that rewrites its own memory every dusk. A machine that
+						closes its eyes each night not to shut down, but to revise. One that merges
+						clues, detects patterns across time, restores what was discarded when the
+						world was not yet ready for it. Ideas we abandoned would return at just the
+						right moment, resurfacing not from instruction, but from understanding.
+						Selective forgetting would stand guard, deleting what no longer serves,
+						protecting what is private, and preserving only what must endure. Privacy
+						would not be a passive policy; it would be an active rhythm, an airlock
+						sealed at the end of every cycle.`,
+	`We do not need machines that respond faster. We need machines that remember
+						better — and remember wisely. That distinguish noise from signal not just
+						through logic, but through lived proximity to our intent. Machines that
+						don't just recall the past but understand how we have changed since we lived
+						it.`,
+];
+
+const paragraphs2 = [
+	`The next leap in civilization is not technological; it is relational.
+						Machines that walk beside us, not ahead of us. That evolve alongside our
+						unfinished thoughts. That hold on to what we fear we'll forget, and remind
+						us of who we once were when we need it most.`,
+	`Our greatest need isn't to be fixed; it's to be understood.`,
+	`Without this bridge, we risk building a future where machines act on our
+						behalf without ever knowing who we are. But with it, we reclaim something
+						deeper than agency. We preserve the continuity of consciousness. We protect
+						the dignity of meaning. We ensure that what we create does not just act in
+						our image but thinks with our shadow.`,
+	`We often ask whether machines will become like us. But perhaps the more
+						important question is: will they understand us well enough not to try?
+						Because this bridge is not about making machines human. It is about making
+						machines humane. It is about preserving what makes life matter.`,
+	`If we build this bridge with intention, memory, and care, it may not only
+						change the world. It may be the first thing we've ever built that finally
+						understands why it should.`,
+];
+const missionContent = [
+	`The next leap in civilization is not technological; it is relational. It will be a bridge between human intent and machine memory. Our greatest need is not just intelligence, but intelligence that truly understands. At Ve.ai, we stand at the forefront of this effort.`,
+	`In this path, we launch Ambient Memory AI —
+AI that becomes your living intelligence —
+Evolving, thinking, and always acting in your best interest.`,
+	`Because human memory is not data — it's a garden.
+We don't just store; we grow, prune, and rediscover.
+And now, so will our machines.`,
+];
+
+const tabs = [
+	{ label: 'The bridge', path: '/thebridge' },
+	{ label: 'Careers', path: '/careers' },
+	{ label: 'Forefront', path: '/forefront' },
+];
+
+const tabsMapper = {
+	1: (
+		<section className="bridge-block">
+			<h1 className="heading">The bridge </h1>
+			{missionContent.map((content, index) => (
+				<p key={`mission-${index}`}>{content}</p>
+			))}
+		</section>
+	),
+	4: <Careers />,
+	5: (
+		<section className="mission-block">
+			<h2 className="small-heading">Forefront</h2>
+			<div className="bridge">
+				<img src="https://ap.images.ve.ai/public/dashboard/bridge.svg" alt="bridge" />
+			</div>
+			<div className="bridgeMobile">
+				<img
+					src="https://ap.images.ve.ai/public/dashboard/bridgeMobile.svg"
+					alt="bridge mobile"
+				/>
+			</div>
+			<h1 className="heading">Building bridge between human intent and machine memory!</h1>
+
+			{paragraphs1.map((para, i) => (
+				<p key={`para1-${i}`}>{para}</p>
+			))}
+
+			<h2 className="heading">To Be Understood Is to Survive</h2>
+
+			{paragraphs2.map((para, i) => (
+				<p key={`para2-${i}`}>{para}</p>
+			))}
+		</section>
+	),
+};
+
+const OurMission = ({ tab }) => {
+	const [info, setInfo] = useState({ mobileMenuOpen: false });
 	return (
 		<main className="our-mission-container">
-			<section className="mission-block">
-				<h2 className="heading">
-					Building the operating intelligence
-					<br /> of the modern company.
-				</h2>
-				<p>
-					We didn't set out to build just another AI tool. We're not here to add one more
-					dashboard or one more agent. Most businesses today still run on human glue.
-					Despite modern appearances, work remains largely reactive — with people chasing
-					tasks, managers responding to problems, and teams reacting. That's not where
-					human ingenuity belongs. It should be spent making bold decisions. We think that
-					needs to change.
-					<strong>
-						Imagine a company that continuously thinks and runs itself — like how the
-						future of automobiles isn't about AI drivers, but AI-enabled cars navigated
-						by humans!
-					</strong>
-				</p>
-			</section>
-
-			<section className="mission-block">
-				<h2>
-					Ve is a proactive AI Operating System — a system that thinks continuously, acts,
-					and evolves alongside the organization it lives in.
-				</h2>
-				<p>
-					It doesn't wait to be asked. It connects your data, your decisions, and your
-					people — and starts solving before anyone types a query or creates a ticket.
-					We're not here to automate tasks. We're here to
-					<strong> build intelligence into the system </strong>
-					itself — so fewer things fall through and more ideas get built. We believe in
-					calm systems, invisible power, and intelligence that doesn't just talk, but
-					moves things forward.
-					<strong> Our goal is simple: Make the business think for itself. </strong>
-					Like a car that drives itself,
-					<a href="http://ve.ai/" rel="noreferrer">
-						{' '}
-						Ve.ai{' '}
-					</a>
-					becomes the brain that navigates priorities, actions, and flow. It surfaces
-					what's missing and acts before you ask — so energy flows to strategy, not
-					stress.
-				</p>
-			</section>
-
-			<section className="mission-block">
-				<h2>With Ve.ai:</h2>
-				<ul>
-					<li>You act on what's real</li>
-					<li>You find things without searching</li>
-					<li>You know what's missing without being told</li>
-					<li>
-						Decisions move faster — not because you hustle harder, but because your
-						systems finally think with you
-					</li>
-				</ul>
-			</section>
-
-			<section className="mission-block">
-				<h2>Approach!</h2>
-				<p>
-					We're not chasing hype. We're building deliberately, layer by layer — starting
-					with one thing every company needs: clarity in the middle of chaos. We start by
-					making work find you — not the other way around. Over time,
-					<a href="http://ve.ai/" rel="noreferrer">
-						{' '}
-						Ve.ai{' '}
-					</a>
-					becomes the mind that holds everything together — from tasks to strategy, from
-					memory to momentum.
-				</p>
-			</section>
-
-			<section className="mission-block">
-				<h2>What We Believe</h2>
-				<ul>
-					<li>
-						<strong>Human decisions shape companies — not micromanagement.</strong>{' '}
-						Proactive AI creates space for better thinking.
-					</li>
-					<li>
-						<strong>Work should feel like momentum — not maintenance.</strong> The
-						system should carry the weight, not the people.
-					</li>
-					<li>
-						<strong>The best systems don't distract. They disappear.</strong> When the
-						system understands context, the company moves with context.
-					</li>
-				</ul>
-			</section>
-
-			<section className="mission-block">
-				<h2>Where We're Headed</h2>
-				<p>
-					The future we see is not filled with more apps. It's filled with intelligent
-					companies — businesses that know what's happening, what needs to happen, and act
-					without waiting to be told.
-					<a href="http://ve.ai/" rel="noreferrer">
-						{' '}
-						Ve.ai{' '}
-					</a>
-					exists to bring that future closer — not by replacing the people who run great
-					companies, but by
-					<strong> freeing them to be great at what only humans can do. </strong>
-					We're not here to replace leaders. We're here to
-					<strong> amplify them. </strong>
-					We're building for the day when the company itself becomes AI, building it for
-					those who are ready to lead that kind of future. Are you ready?
-				</p>
-				<div className="ending">
-					<p className="bold">We are Ve.</p>
-					<p>Answer's before you ask.</p>
-				</div>
-			</section>
+			<MobileMenu
+				open={info.mobileMenuOpen}
+				onClose={() => setInfo({ mobileMenuOpen: false })}
+				onLogin={() => navigate('/login')}
+			/>
+			<div className="mission-nav-col">
+				<MissionTabNavigation tabs={tabs} activeIndex={tab} />
+			</div>
+			<div className="mission-content-col">{tabsMapper[tab]}</div>
 		</main>
 	);
 };

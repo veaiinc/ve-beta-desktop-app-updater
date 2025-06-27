@@ -1,19 +1,52 @@
+@import 'mobileMenu';
+
 .our-mission-container {
-	max-width: 1029px;
-	margin: 0 auto;
-	padding: 40px 20px;
+	align-items: flex-start;
 	color: var(--primary-font);
-	font-weight: 700;
+	display: flex;
 	font-family: var(--secondary-font-family);
-	padding-left: 100px;
-	margin-top: 80px;
-	.mission-block {
+	font-weight: 700;
+	gap: 100px;
+	justify-content: center;
+	margin-top: 90px;
+	padding: 46px 0 0 0px;
+	width: 100%;
+	overflow: hidden;
+
+	.mission-nav-col {
+		position: sticky;
+		z-index: 10;
+	}
+
+	.mission-content-col {
+		height: calc(100vh - 120px);
+		overflow: hidden;
+		display: flex;
+		justify-content: center;
+	}
+
+	.mission-block,
+	.bridge-block {
 		margin-bottom: 50px;
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		max-width: 700px;
+		width: 100%;
+		overflow: auto;
+		height: 100%;
+		padding-right: 10px;
+
+		.bridge-svg {
+			width: 100%;
+			height: 360px;
+		}
 
 		.heading {
-			font-size: 40px;
-			font-weight: 500;
-			line-height: 48px;
+			color: var(--primary-font, #79ecc9);
+			font-family: var(--tertiary-font-family);
+			font-size: 50px;
+			font-weight: 400;
 		}
 
 		.ending {
@@ -43,10 +76,15 @@
 		}
 
 		p {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font);
 			font-size: 16px;
-			line-height: 30px;
-			margin-bottom: 12px;
-			font-weight: 400;
+			font-weight: 500;
+			line-height: 32px;
+
+			&:last-child {
+				margin-bottom: 100px;
+			}
 		}
 		strong {
 			margin-top: 10px;
@@ -68,7 +106,7 @@
 			list-style: disc inside;
 			padding-left: 20px;
 			font-size: 16px;
-			line-height: 26px;
+			line-height: 32px;
 
 			li {
 				margin-bottom: 8px;
@@ -78,10 +116,76 @@
 			}
 		}
 	}
+
+	.mission-block {
+		.small-heading {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--tertiary-font-family);
+			font-size: 32px;
+			font-weight: 600;
+			display: none;
+		}
+		.bridge,
+		.bridgeMobile {
+			width: 100%;
+			svg {
+				border-radius: 8px;
+				border: 1px solid var(--stroke, #2c2d2e);
+			}
+		}
+
+		.bridgeMobile {
+			display: none;
+		}
+	}
+
+	.bridge-block {
+		.heading {
+			color: var(--primary-button, #f2f2f3);
+		}
+
+		p {
+			font-family: var(--secondary-font);
+			font-size: 16px;
+			font-weight: 500;
+			line-height: 32px;
+		}
+	}
 }
 
 @media (max-width: 900px) {
 	.our-mission-container {
-		padding: 0 20px;
+		padding: 0 10px;
+
+		.mission-nav-col {
+			display: none;
+		}
+
+		.mission-content-col {
+			height: 100%;
+		}
+
+		.mission-block {
+			p {
+				font-size: 16px;
+				font-weight: 500;
+				line-height: 32px;
+			}
+			.bridge {
+				display: none;
+			}
+			.bridgeMobile {
+				text-align: center;
+				display: block;
+			}
+			.heading {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--tertiary-font-family);
+				font-size: 32px;
+			}
+			.small-heading {
+				display: block;
+			}
+		}
 	}
 }

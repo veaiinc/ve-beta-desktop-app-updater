@@ -5,8 +5,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
-	padding-right: 9px;
-	padding-bottom: 5px;
+	padding: 18px 20px 0px 38px;
 	overflow: hidden;
 
 	.loaderContainer {
@@ -134,6 +133,12 @@
 
 			&:hover {
 				background: var(--card-over-card-hover);
+			}
+
+			.copy-link {
+				path {
+					fill: var(--secondary-font) !important;
+				}
 			}
 
 			.edit {

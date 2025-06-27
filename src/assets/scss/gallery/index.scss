@@ -51,6 +51,7 @@
 }
 
 .galleryContainer {
+	padding: 32px 0px 0;
 	display: flex;
 	flex-direction: column;
 	width: 100%;
@@ -690,7 +691,7 @@
 				}
 				.album {
 					flex: 0 0 auto;
-					width: 200px;
+					width: 200px !important;
 					height: 130px;
 					position: relative;
 					border-radius: 16px;
@@ -2276,6 +2277,18 @@
 		}
 		.sortType-up {
 			transform: rotate(180deg);
+		}
+		.option-value-wrapper {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+			flex-grow: 1;
+			&.active {
+				color: var(--primary-font);
+			}
 		}
 	}
 }

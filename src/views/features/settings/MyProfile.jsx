@@ -3,13 +3,11 @@ import '../../../assets/scss/settings/myProfile.scss';
 import Context from '../../../context/context';
 import validator from 'validator';
 import ProfileDetailsComponent from '../../components/settings/profile/ProfileDetails';
-import ThemePreferenceComponent from '../../components/settings/profile/ThemePreference';
-import UpdatePasswordComponent from '../../components/settings/profile/UpdatePassword';
-import TwoFactorAuthenticationComponent from '../../components/settings/profile/TwoFactorAuthentication';
 import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWorkspace';
 import Notifications from '../../components/settings/profile/Notifications';
 import { message } from '../../components/globalComponents/CustomToast';
 import Cookies from 'js-cookie';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const themePreferenceOptions = [
 	{
@@ -30,7 +28,9 @@ const themePreferenceOptions = [
 ];
 
 const MyProfile = () => {
+	const { workspaceMode } = useWorkspaceMode();
 	const fullNameRef = useRef(null);
+	const professionRef = useRef(null);
 	const {
 		profileInfo: {
 			get2FAQrCode,
@@ -43,6 +43,10 @@ const MyProfile = () => {
 			tenantUserDetails,
 			updateUserDetailsState,
 			updateUserDetails: updateUserDetailsProfile,
+			updateTenantProfession,
+			getTenantUserAccessControls,
+			tenantUserAccessControls,
+			tennantSettingsData,
 		},
 		companyInfo: { getTenantPreferences, tenantPreferenceData },
 		themeInfo: { theme, updateTheme },
@@ -52,11 +56,13 @@ const MyProfile = () => {
 	const [showForm, setShowForm] = useState(false);
 	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [errors, setErrors] = useState({});
+	const [isInitialized, setIsInitialized] = useState(false);
 
 	const [userDetails, setUserDetails] = useState({
 		fullName: '',
 		email: '',
 		phoneNumber: '',
+		profession: '',
 		is2FAEnabled: '',
 		logoURL: '',
 		cropSettings: { crop: { x: 0, y: 0 }, zoom: 1 },
@@ -72,6 +78,9 @@ const MyProfile = () => {
 		if (!tenantUserDetails) {
 			getTenantUserDetails();
 		}
+		if (!tenantUserAccessControls) {
+			getTenantUserAccessControls();
+		}
 	}, []);
 
 	useEffect(() => {
@@ -83,6 +92,7 @@ const MyProfile = () => {
 				fullName: firstName + ' ' + lastName,
 				email: userDetailsData?.email || '',
 				phoneNumber: userDetailsData?.phoneNumber || '',
+				profession: userDetailsData?.profession || prev.profession,
 				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
 				logoURL: userDetailsData?.dp_s3_500w_key || '',
 				cropSettings: userDetailsData?.dp_style || { crop: { x: 0, y: 0 }, zoom: 1 },
@@ -92,12 +102,44 @@ const MyProfile = () => {
 				fullName: firstName + ' ' + lastName,
 				email: userDetailsData?.email || '',
 				phoneNumber: userDetailsData?.phoneNumber || '',
+				profession: userDetailsData?.profession || prev.profession,
 				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
 				logoURL: userDetailsData?.dp_s3_500w_key || '',
 				cropSettings: userDetailsData?.dp_style || { crop: { x: 0, y: 0 }, zoom: 1 },
 			}));
+			setIsInitialized(true);
 		}
 	}, [userDetailsData]);
+
+	useEffect(() => {
+		if (tenantUserDetails) {
+			setUserDetails((prev) => ({
+				...prev,
+				profession: tenantUserDetails?.profession || prev.profession,
+			}));
+			setInitialState((prev) => ({
+				...prev,
+				profession: tenantUserDetails?.profession || prev.profession,
+			}));
+		}
+	}, [tenantUserDetails]);
+
+	useEffect(() => {
+		if (tenantUserAccessControls) {
+			// Try to get profession from tenantUserAccessControls if it exists
+			const professionValue = tenantUserAccessControls?.profession;
+			if (professionValue) {
+				setUserDetails((prev) => ({
+					...prev,
+					profession: professionValue,
+				}));
+				setInitialState((prev) => ({
+					...prev,
+					profession: professionValue,
+				}));
+			}
+		}
+	}, [tenantUserAccessControls]);
 
 	useEffect(() => {
 		if (userDetails.is2FAEnabled) {
@@ -106,30 +148,51 @@ const MyProfile = () => {
 	}, [userDetails.is2FAEnabled]);
 
 	useEffect(() => {
-		if (userDetails?.fullName) {
+		if (
+			isInitialized &&
+			userDetails?.fullName &&
+			userDetails?.fullName !== initialState?.fullName
+		) {
 			handleDebounceSearch('name');
 		}
-	}, [userDetails?.fullName]);
+	}, [userDetails?.fullName, isInitialized]);
 
 	useEffect(() => {
-		if (userDetails?.phoneNumber) {
+		if (
+			isInitialized &&
+			userDetails?.phoneNumber &&
+			userDetails?.phoneNumber !== initialState?.phoneNumber
+		) {
 			handleDebounceSearch('phone');
 		}
-	}, [userDetails?.phoneNumber]);
+	}, [userDetails?.phoneNumber, isInitialized]);
+
+	useEffect(() => {
+		if (
+			isInitialized &&
+			userDetails?.profession &&
+			userDetails?.profession !== initialState?.profession
+		) {
+			handleDebounceSearch('profession');
+		}
+	}, [userDetails?.profession, isInitialized]);
 
 	// # Functions
 	const handleDebounceSearch = useCallback(
 		(typeCall = '') => {
 			clearInterval(isEditMode?.timeout);
 			const timeout = setTimeout(() => {
-				if (isEditMode?.isValueChanged || typeCall === 'name') {
-					handleSubmit(typeCall);
-				}
+				handleSubmit(typeCall);
 				setIsEditMode((prev) => ({ ...prev, timeout: null }));
 			}, 800);
 			setIsEditMode((prev) => ({ ...prev, timeout }));
 		},
-		[isEditMode?.timeout, userDetails?.fullName, userDetails?.phoneNumber],
+		[
+			isEditMode?.timeout,
+			userDetails?.fullName,
+			userDetails?.phoneNumber,
+			userDetails?.profession,
+		],
 	);
 
 	const handleFormPopUp = () => {
@@ -212,6 +275,9 @@ const MyProfile = () => {
 	};
 
 	const handleUsernameAndPhoneNumberUpdate = async ({ type, value }) => {
+		// Clear errors when user starts typing
+		setErrors((prev) => ({ ...prev, [type]: '' }));
+
 		if (type === 'fullName') {
 			if (value === '') {
 				message.error('Name cannot be empty');
@@ -221,17 +287,12 @@ const MyProfile = () => {
 			formatUsername(fullNameRef?.current?.value);
 		}
 
-		if (
-			type === 'phoneNumber' &&
-			!validateField('phoneNumber', value) &&
-			value !== initialState?.phoneNumber
-		) {
-			const response = await updateUserDetails('', value);
-			if (response[0] === true) {
-				message.success('Phone Number updated successfully');
-			} else {
-				setErrors((prev) => ({ ...prev, phoneNumber: response[1]?.message }));
-			}
+		if (type === 'phoneNumber') {
+			setUserDetails((prev) => ({ ...prev, phoneNumber: value }));
+		}
+
+		if (type === 'profession') {
+			setUserDetails((prev) => ({ ...prev, profession: value }));
 		}
 	};
 
@@ -278,12 +339,30 @@ const MyProfile = () => {
 	const handleSubmit = async (nameApi = 'name') => {
 		if (nameApi === 'name') {
 			const response = await updateUserDetails(userDetails?.fullName);
-			if (response[0] !== true)
-				return setErrors((prev) => ({ ...prev, fullName: response[1]?.message }));
+			if (response[0] === true) {
+				message.success('Name updated successfully');
+				setInitialState((prev) => ({ ...prev, fullName: userDetails?.fullName }));
+			} else {
+				setErrors((prev) => ({ ...prev, fullName: response[1]?.message }));
+			}
 		} else if (nameApi === 'phone' && !validateField('phoneNumber', userDetails?.phoneNumber)) {
 			const response = await updateUserDetails('', userDetails?.phoneNumber);
-			if (response[0] !== true)
-				return setErrors((prev) => ({ ...prev, phoneNumber: response[1]?.message }));
+			if (response[0] === true) {
+				message.success('Phone Number updated successfully');
+				setInitialState((prev) => ({ ...prev, phoneNumber: userDetails?.phoneNumber }));
+			} else {
+				setErrors((prev) => ({ ...prev, phoneNumber: response[1]?.message }));
+			}
+		} else if (nameApi === 'profession') {
+			const response = await updateTenantProfession(userDetails?.profession);
+			if (response[0] === true) {
+				message.success('Profession updated successfully');
+				// Update the initialState to reflect the successful update
+				setInitialState((prev) => ({ ...prev, profession: userDetails?.profession }));
+				// The context will automatically update the tenantUserDetails state
+			} else {
+				setErrors((prev) => ({ ...prev, profession: response[1]?.message }));
+			}
 		}
 	};
 
@@ -328,6 +407,7 @@ const MyProfile = () => {
 						setUserDetails={setUserDetails}
 						setlogoFile={setlogoFile}
 						updateDpThemeHandler={updateDpThemeHandler}
+						workspaceName={tennantSettingsData?.businessName}
 					/>
 				</div>
 
@@ -377,7 +457,8 @@ const MyProfile = () => {
 					</div>
 				</div> */}
 				{/* Temporary Hide */}
-				<Notifications />
+
+				{workspaceMode === 'beta' && <Notifications />}
 
 				<div className="danger-zone">
 					<div className="danger-zone-header">

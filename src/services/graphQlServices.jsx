@@ -43,7 +43,7 @@ async function getConfig() {
 }
 
 const Service = {
-	query: async (query, variables, workspaceID, usertoken, type = null) => {
+	query: async (query, variables, workspaceId, usertoken, type = null) => {
 		const config = await getConfig();
 
 		const {
@@ -79,9 +79,16 @@ const Service = {
 			page_notes_api: page_notes_api_US,
 		};
 
-		const region = localStorage.getItem('region') || 'ap-south-1';
+		// hotfix
+		// const region = localStorage.getItem('region') || 'ap-south-1';
+		let region;
+		if (workspaceId === 'framemax') {
+			const region = 'us-north-1';
+		} else {
+			region = localStorage.getItem('region') || 'ap-south-1';
+		}
 		const subUrl = region === 'ap-south-1' ? graphQLAPICall[type] : graphQLAPICallUS[type];
-		const httpLink = new HttpLink({ uri: `${subUrl}/${workspaceID}/graphql` });
+		const httpLink = new HttpLink({ uri: `${subUrl}/${workspaceId}/graphql` });
 
 		const apolloClient = new ApolloClient({
 			cache: new InMemoryCache({ resultCaching: true }),
@@ -108,7 +115,7 @@ const Service = {
 		}
 	},
 
-	mutation: async (mutation, variables, workspaceID, usertoken, type = null) => {
+	mutation: async (mutation, variables, workspaceId, usertoken, type = null) => {
 		const config = await getConfig();
 
 		const {
@@ -146,7 +153,7 @@ const Service = {
 
 		const region = localStorage.getItem('region') || 'ap-south-1';
 		const subUrl = region === 'ap-south-1' ? graphQLAPICall[type] : graphQLAPICallUS[type];
-		const httpLink = new HttpLink({ uri: `${subUrl}/${workspaceID}/graphql` });
+		const httpLink = new HttpLink({ uri: `${subUrl}/${workspaceId}/graphql` });
 		const link = ApolloLink.from([errorLink, httpLink]);
 
 		const apolloClient = new ApolloClient({

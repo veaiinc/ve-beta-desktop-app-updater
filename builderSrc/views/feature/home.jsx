@@ -49,9 +49,6 @@ import ThemeSettings from '../components/HomePopups/ThemeSettings';
 import { initialThemeState } from '../components/themeSettings/themeconstants';
 import DeleteTemplatePopup from '../components/HomePopups/DeleteTemplatePopup';
 import ObjectID from 'bson-objectid';
-import { fetchOriginSelection } from '../../helper';
-
-const origin = fetchOriginSelection();
 
 const query = gql`
 	query Query($getDetailedTemplateInfoId: ID!) {
@@ -68,7 +65,7 @@ const fileModuleQuery = gql`
 		getWorkflowModule(id: $getWorkflowModuleId, module: $module)
 	}
 `;
-const updateWorkflowTemplate = gql`
+const update_Workflow_Template = gql`
 	mutation UpdateWorkflowTemplate($templateId: ID!, $updateObj: TemplateUpdateObj!) {
 		updateWorkflowTemplate(templateId: $templateId, updateObj: $updateObj) {
 			status
@@ -327,8 +324,6 @@ const updateWorkflowTemplateQuery = gql`
 const updateNavBar_Theme_File_Query = gql`
 	mutation UpdateWorkflow($updateWorkflowId: ID!, $updateWorkflowInput: UpdateWorkflowInput) {
 		updateWorkflow(id: $updateWorkflowId, updateWorkflowInput: $updateWorkflowInput)
-		navBar
-		themes
 	}
 `;
 const updateNavBarWorkflowQuery = gql`
@@ -624,6 +619,9 @@ class Home extends Proposals {
 			numOfDocuments: 0,
 			isFormTemplate: false,
 			triggerAdjustGridAreas: false,
+			workflowTemplateID: null,
+			invoiceSentDate: null,
+			invoiceAcceptedDate: null,
 		};
 		this.componentRef = createRef();
 		this.addBlockRef = createRef();
@@ -643,7 +641,7 @@ class Home extends Proposals {
 		const currentURL = window.location.href;
 
 		if (currentURL.includes('localhost') || currentURL.includes('192.168')) {
-			const requiredKeys = ['usertoken', 'workspaceID', 'region'];
+			const requiredKeys = ['usertoken', 'workspaceId', 'region'];
 
 			requiredKeys.forEach((key) => {
 				if (!localStorage.getItem(key)) {
@@ -1817,9 +1815,12 @@ class Home extends Proposals {
 				_.map(section.blocks, (block, k) => {
 					if (block._id == this.state.activeBlockID) {
 						_.map(block.subBlocks, (subBlock, k) => {
-							if (subBlock._id == this.state.activeSubBlockID) {
+							if (
+								subBlock._id == this.state.activeSubBlockID ||
+								e == 'mobileVerticalAlign'
+							) {
 								if (e == 'verticalAlign') {
-									subBlock.divStyles.verticalAlign = f;
+									subBlock.divStyles[e] = f;
 								}
 							}
 						});
@@ -1983,11 +1984,8 @@ class Home extends Proposals {
 						if (block._id == blockID) {
 							_.forEach(block.subBlocks, (subBlock, k) => {
 								if (subBlock._id == id) {
-									if (mContent) {
-										subBlock.mContent = content;
-									} else {
-										subBlock.content = content;
-									}
+									subBlock.mContent = content;
+									subBlock.content = content;
 								}
 							});
 						}
@@ -3561,8 +3559,20 @@ class Home extends Proposals {
 
 	handlePublish = async (e) => {
 		this.setState({
-			triggerAdjustGridAreas: true,
+			isPublishLoading: true,
 		});
+
+		const response = await this.publishWorkflow(update_Workflow_Template, {
+			templateId: this.props.params.templateID || this.templateId,
+			updateObj: {
+				status: 'published',
+			},
+		});
+		this.setState({
+			isPublishLoading: false,
+		});
+
+		window.history.back();
 	};
 
 	handleSetServiceBlock = (e, type, blockId, sectionID) => {
@@ -3882,7 +3892,7 @@ class Home extends Proposals {
 				}
 				if (this.state.isWorkflow) {
 					await this.addWorkflowLayout(
-						'this.props.params.workspaceID',
+						'this.props.params.workspaceId',
 						jso,
 						isFluid,
 						isService,
@@ -3895,13 +3905,13 @@ class Home extends Proposals {
 							jso.style.backgroundType = 'color';
 						}
 						await this.addSection(
-							'this.props.params.workspaceID',
+							'this.props.params.workspaceId',
 							jso,
 							this.state.activeModuleId,
 						);
 					} else {
 						await this.addLayout(
-							'this.props.params.workspaceID',
+							'this.props.params.workspaceId',
 							jso,
 							this.state.activeModuleId,
 							isService,
@@ -5459,7 +5469,7 @@ class Home extends Proposals {
 				},
 			});
 		} else {
-			await this.updateWorkflowThemeSettings(updateWorkflowTemplate, {
+			await this.updateWorkflowThemeSettingsTemplate(update_Workflow_Template, {
 				templateId: this.props.params.templateID,
 				updateObj: {
 					themes: themeJson,
@@ -5678,9 +5688,7 @@ class Home extends Proposals {
 			isDeleted: e,
 		});
 		if (response[0] === true) {
-			// let from = window.location.origin;
-
-			return this.props?.navigate(`/files?activeTab=Designs`);
+			return this.props?.navigate(`/files?active-tab=My-Templates`);
 		}
 	};
 	updateTablesForTaxes = (tables) => {
@@ -5693,46 +5701,7 @@ class Home extends Proposals {
 			},
 		);
 	};
-	handleTriggerAdjustGridAreas = async (e) => {
-		this.setState({
-			triggerAdjustGridAreas: e,
-			isPublishLoading: true,
-		});
-
-		const queryString = window.location.search;
-		const urlParams = new URLSearchParams(queryString);
-
-		const workflow = urlParams?.get('workflow');
-
-		const response = await this.publishWorkflow(updateWorkflowTemplate, {
-			templateId: this.props.params.templateID || this.templateId,
-			updateObj: {
-				status: 'published',
-			},
-		});
-		this.setState({
-			isPublishLoading: false,
-		});
-		if (workflow === 'true') {
-			return this.props.navigate(-1);
-		}
-
-		if (response?.[0]) {
-			if (
-				_.has(this.state.template, 'version') &&
-				!this.state.template.actions?.includes('form-submission')
-			) {
-				// return (window.location.href = `https://ve.ai/my-templates`);
-				return this.props.navigate(-1);
-			} else if (this.state.template.actions?.includes('form-submission')) {
-				return this.props.navigate(-1);
-			} else {
-				return (window.location.href = `https://ve.ai/workflow_builder/${
-					this.props.params.templateID || this.templateId
-				}`);
-			}
-		}
-	};
+	handleTriggerAdjustGridAreas = async (e) => {};
 	render() {
 		if (this.componentRef.current) {
 			const data = [
@@ -6677,6 +6646,12 @@ class Home extends Proposals {
 															this.handleScheduleStyles(data)
 														}
 														themes={this.state.themes}
+														invoiceSentDate={
+															this.state?.invoiceSentDate
+														}
+														invoiceAcceptedDate={
+															this.state?.invoiceAcceptedDate
+														}
 													/>
 												</div>
 											</div>
@@ -6924,6 +6899,7 @@ class Home extends Proposals {
 												triggerAdjustGridAreas={
 													this.state.triggerAdjustGridAreas
 												}
+												suppressWarning={this.state.isPublishing}
 												fluidGrid={() => this.fluidGrid()}
 												fluidShowGrid={this.state.fluidShowGrid}
 												invoiceTables={this.state.invoiceTables}
@@ -7510,8 +7486,16 @@ class Home extends Proposals {
 													this.addManualInvoiceBlock(id, order);
 												}}
 												updateTablesForTaxes={this?.updateTablesForTaxes}
-												setAdjustGridAreas={(e) =>
-													this.handleTriggerAdjustGridAreas(e)
+												//for actionblock
+												setServiceTable={(e, value) => {
+													this.setServiceTableSection(e, value);
+												}}
+												setAdjustGridAreas={() => {
+													this.handleTriggerAdjustGridAreas();
+												}}
+												invoiceSentDate={this.state?.invoiceSentDate}
+												invoiceAcceptedDate={
+													this.state?.invoiceAcceptedDate
 												}
 											/>
 										)}
@@ -7572,6 +7556,7 @@ class Home extends Proposals {
 											}`}
 										>
 											<Sidebar
+												workflowTemplateID={this.state.workflowTemplateID}
 												activeModule={this.state.activeModule}
 												socialMediaLinks={this.state.socialMediaLinks}
 												getModuleInfo={(id, type) =>

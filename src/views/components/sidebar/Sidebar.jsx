@@ -4,7 +4,7 @@ import Intercom from '@intercom/messenger-js-sdk';
 import { Tooltip } from 'antd';
 
 import '../../../assets/scss/sidebar.scss';
-import { veAiModulesItemsList } from './sidebarindex';
+import { stableNavigationItems, betaNaviagationItems } from './sidebarindex';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 
 import OpenedSidebar from './OpenedSidebar';
@@ -12,16 +12,21 @@ import Notifications from './notifications/Notifications';
 import Notes from './notes/Notes';
 import SidebarTooltip from './SidebarTooltip';
 import Context from '../../../context/context';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const Sidebar = ({ activeWorkspaceId }) => {
+	const { workspaceMode } = useWorkspaceMode();
+	const sidebarNavigationItems =
+		workspaceMode === 'stable' ? stableNavigationItems : betaNaviagationItems;
 	const {
-		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
+		profileInfo: { userWorkSpaceList, userDetailsData, getUserDetails, getUserWorkSpaceList },
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 
 	const location = useLocation();
 	const sidebarRef = useRef(null);
 	const sidebarOpenRef = useRef(null);
+	const hasClosedForRouteRef = useRef(false);
 
 	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
 	const [showNotesDrawer, setShowNotesDrawer] = useState(false);
@@ -58,21 +63,10 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		localStorage.setItem('isOpen', JSON.stringify(isOpen));
 	}, [isOpen]);
 
-	// Listen for template-triggered sidebar state changes
-	useEffect(() => {
-		if (leftSidebarState === 'open') {
-			if (!isOpen) setIsOpen(true);
-			updateStateValues({ leftSidebarState: null });
-		} else if (leftSidebarState === 'close') {
-			if (isOpen) setIsOpen(false);
-			updateStateValues({ leftSidebarState: null });
-		}
-	}, [leftSidebarState]);
-
 	// Fetch workspace and user info
 	useEffect(() => {
-		if (!userWorkSpaceList) getUserWorkSpaceList();
 		if (!userDetailsData) getUserDetails();
+		if (!userWorkSpaceList) getUserWorkSpaceList();
 	}, []);
 
 	// Configure Intercom
@@ -110,7 +104,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 			const currentPath = '/' + location.pathname.split('/')[1];
 			setInfo((prev) => ({ ...prev, activeRoute: currentPath }));
 
-			const currentModule = veAiModulesItemsList.find(
+			const currentModule = sidebarNavigationItems.find(
 				(module) => module.moduleRoute === currentPath,
 			);
 			if (currentModule) {
@@ -119,28 +113,34 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					selectedModule: currentModule.name,
 				}));
 			}
-		}
-	}, [location?.pathname]);
 
-	const handleOpen = () => setIsOpen(true);
-	const handleClose = () => setIsOpen(false);
+			// Close sidebar only once when first navigating to contacts, calendar, or tasks routes
+			if (isChatSidebarRoute && isOpen && !hasClosedForRouteRef.current) {
+				setIsOpen(false);
+				hasClosedForRouteRef.current = true;
+			} else if (!isChatSidebarRoute) {
+				hasClosedForRouteRef.current = false;
+			}
+		}
+	}, [location?.pathname, isChatSidebarRoute, isOpen]);
 
 	return (
 		<>
 			<div
 				className={`FullScreenSidebar
 					${isOpen ? 'opened' : sidebarRef.current?.classList?.contains('opened') ? 'closed' : ''}
+					${isChatSidebarRoute ? 'contacts-sidebar' : ''}
 					${
 						sidebarStates.selectedModule &&
-						veAiModulesItemsList.find(
+						sidebarNavigationItems.find(
 							(module) => module.name === sidebarStates.selectedModule,
 						)?.subModules?.length > 0
 							? 'has-submodules'
 							: 'no-submodules'
 					}
-					${isChatSidebarRoute ? 'contacts-sidebar' : ''}`}
+					`}
 				style={{
-					height: isOpen ? '100dvh' : 'fit-content',
+					height: isOpen ? '100dvh' : '100dvh',
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : '',
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
@@ -168,23 +168,11 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							setInfo={setInfo}
 							userWorkSpaceList={userWorkSpaceList}
 							isOpen={isOpen}
-							setIsOpen={handleClose}
+							setIsOpen={setIsOpen}
 							setShowChatsDrawer={setShowChatsDrawer}
 							setShowNotificationsDrawer={setShowNotificationsDrawer}
 							setShowNotesDrawer={setShowNotesDrawer}
 							setHideClosedSidebarIcon={setHideClosedSidebarIcon}
-						/>
-					</div>
-
-					<div className={`sidebar-close ${isOpen ? 'inactive' : 'active'}`}>
-						<SidebarTooltip
-							label="Open Sidebar"
-							icon={
-								<SidebarClosingSvg
-									onClick={handleOpen}
-									style={{ cursor: 'pointer' }}
-								/>
-							}
 						/>
 					</div>
 				</nav>
@@ -194,6 +182,27 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					setShowNotificationsDrawer={setShowNotificationsDrawer}
 				/>
 				<Notes showNotesDrawer={showNotesDrawer} setShowNotesDrawer={setShowNotesDrawer} />
+			</div>
+
+			{/* Sidebar toggle button, always visible and not animated */}
+			<div
+				className="sidebar-toggle-btn"
+				style={{
+					position: 'fixed',
+					top: 29,
+					left: 20,
+					zIndex: 900,
+				}}
+			>
+				<SidebarTooltip
+					label={isOpen ? 'Close Sidebar' : 'Open Sidebar'}
+					icon={
+						<SidebarClosingSvg
+							onClick={() => setIsOpen(!isOpen)}
+							style={{ cursor: 'pointer' }}
+						/>
+					}
+				/>
 			</div>
 
 			{isOpen && <div className="sidebar__overlay"></div>}

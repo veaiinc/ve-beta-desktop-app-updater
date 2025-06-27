@@ -1,9 +1,19 @@
 import { Tooltip } from 'antd';
 import { memo } from 'react';
 import ProactiveDropdown from './ProactiveDropdown';
+import { ReactComponent as CaretDown } from '../../../assets/svg/CaretDownSecondary.svg';
 
 const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
-	const tabs = ['Home', 'Mission', 'For Enterprise', 'Pricing'];
+	const tabs = ['Home', 'The bridge', 'For Enterprise', 'Pricing'];
+
+	const handleProactiveDropdownHover = (isHovered) => {
+		if (isHovered) {
+			document.body.classList.add('proactive-dropdown-open');
+		} else {
+			document.body.classList.remove('proactive-dropdown-open');
+		}
+	};
+
 	// ${isVisible ? 'slide-in' : 'slide-out'}
 	return (
 		<ul className={`tabNavigation`}>
@@ -14,8 +24,13 @@ const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
 				overlayClassName="proactive-tooltip"
 				getPopupContainer={() => document.body}
 				overlayStyle={{ width: '100%', maxWidth: '100vw' }}
+				overlayInnerStyle={{ padding: '0px' }}
+				arrow={false}
+				onVisibleChange={handleProactiveDropdownHover}
 			>
-				<div className="proactiveDropdown">Proactive</div>
+				<div className="proactiveDropdown">
+					Ambient <CaretDown />
+				</div>
 			</Tooltip>
 			{tabs.map((label, index) => (
 				<li
@@ -25,7 +40,7 @@ const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
 					}}
 					key={index}
 				>
-					{label}
+					<span>{label}</span>
 				</li>
 			))}
 		</ul>

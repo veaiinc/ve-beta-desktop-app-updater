@@ -23,10 +23,10 @@ const AddOnPlans = ({
 	isOpen,
 	closeModal,
 	subscriptionState,
-	handleToggleSubscriptionState,
+	// handleToggleSubscriptionState,
 }) => {
 	const {
-		authInfo: { currentPlanAddOns },
+		authInfo: { currentPlanAddOns, getAddOnsForCurrentPlan },
 		subscriptionInfo: {
 			purchaseAddOnPlan,
 			subscriptionPlans,
@@ -37,6 +37,7 @@ const AddOnPlans = ({
 			getCurrentSubscriptionPlan,
 			cancelCurrentSubscription,
 			resumeSubscription,
+			getAllSubscriptionPlan,
 		},
 	} = useContext(Context);
 
@@ -57,6 +58,7 @@ const AddOnPlans = ({
 		resumeSubscriptionLoading: false,
 		isMobile: false,
 		startTrialLoading: false,
+		subscriptionState: subscriptionState || 'upgradeSubscription',
 	});
 
 	// ID of the user's current plan
@@ -77,8 +79,18 @@ const AddOnPlans = ({
 	}, []);
 
 	useEffect(() => {
+		if (isOpen) {
+			if (info?.subscriptionState === 'addOnPlans' && !currentPlanAddOns) {
+				getAddOnsForCurrentPlan();
+			} else if (info?.subscriptionState === 'upgradeSubscription' && !subscriptionPlans) {
+				getAllSubscriptionPlan();
+			}
+		}
+	}, [info?.subscriptionState, isOpen]);
+
+	useEffect(() => {
 		let mappableData = [];
-		if (subscriptionState !== 'upgradeSubscription') {
+		if (info?.subscriptionState !== 'upgradeSubscription') {
 			const filteredData = currentPlanAddOns;
 			mappableData = filteredData?.filter((item) => {
 				if (info?.selectedPeriod === 'One Time Purchase') {
@@ -125,12 +137,16 @@ const AddOnPlans = ({
 			mappableData,
 		}));
 	}, [
-		subscriptionState,
+		info?.subscriptionState,
 		subscriptionPlans,
 		currentPlanAddOns,
 		info?.selectedPeriod,
 		currentPlan,
 	]);
+
+	const handleToggleSubscriptionState = (state) => {
+		setInfo((prev) => ({ ...prev, subscriptionState: state }));
+	};
 
 	const handleToggle = (state) => {
 		setInfo((prev) => ({ ...prev, addOns: [], totalPrice: 0 }));
@@ -148,7 +164,7 @@ const AddOnPlans = ({
 
 	const handleCheckout = async () => {
 		if (info?.checkoutLoader) return;
-		if (subscriptionState === 'upgradeSubscription' && info.addOns.length > 0) {
+		if (info?.subscriptionState === 'upgradeSubscription' && info.addOns.length > 0) {
 			const requiredSeats = currentPlan?.tenantUsers;
 			const selected = info.addOns[0];
 			if (selected?.count < requiredSeats && selected?.count !== '*') {
@@ -168,21 +184,23 @@ const AddOnPlans = ({
 				planId: addOn?._id,
 				quantity: addOn?.count,
 			};
-			if (addOn?.isRecurring || subscriptionState === 'upgradeSubscription') {
+			if (addOn?.isRecurring || info?.subscriptionState === 'upgradeSubscription') {
 				base.recurringType = recurringType;
 			}
-			if (subscriptionState !== 'upgradeSubscription') {
+			if (info?.subscriptionState !== 'upgradeSubscription') {
 				base.isRecurring = addOn?.isRecurring;
 			}
 			return base;
 		});
 
 		const payload =
-			subscriptionState === 'upgradeSubscription' ? { plan: data?.[0] } : { plans: data };
+			info?.subscriptionState === 'upgradeSubscription'
+				? { plan: data?.[0] }
+				: { plans: data };
 
 		try {
 			let response;
-			if (subscriptionState === 'upgradeSubscription') {
+			if (info?.subscriptionState === 'upgradeSubscription') {
 				response = await purchaseSubscriptionPlan(payload);
 			} else {
 				response = await purchaseAddOnPlan(payload);
@@ -204,7 +222,7 @@ const AddOnPlans = ({
 	const handlePurchaseAddOn = useCallback(
 		(addOn) => {
 			if (
-				subscriptionState === 'upgradeSubscription' &&
+				info?.subscriptionState === 'upgradeSubscription' &&
 				info?.addOns?.length > 0 &&
 				!info?.addOns?.some((item) => item?._id === addOn?._id)
 			) {
@@ -212,7 +230,7 @@ const AddOnPlans = ({
 				return;
 			}
 			if (
-				subscriptionState === 'upgradeSubscription' &&
+				info?.subscriptionState === 'upgradeSubscription' &&
 				!addOn?.isSeatBasedPlan &&
 				info?.addOns?.some((item) => item?._id === addOn?._id)
 			) {
@@ -240,7 +258,7 @@ const AddOnPlans = ({
 				};
 			});
 		},
-		[subscriptionState, info?.addOns],
+		[info?.subscriptionState, info?.addOns],
 	);
 
 	const handleRemoveAddOn = useCallback((addOn) => {
@@ -270,7 +288,7 @@ const AddOnPlans = ({
 	const handleAddingAddOn = useCallback(
 		(addOn) => {
 			if (
-				subscriptionState === 'upgradeSubscription' &&
+				info?.subscriptionState === 'upgradeSubscription' &&
 				info?.addOns?.length > 0 &&
 				!info?.addOns?.some((item) => item?._id === addOn?._id)
 			) {
@@ -278,7 +296,7 @@ const AddOnPlans = ({
 				return;
 			}
 			if (
-				subscriptionState === 'upgradeSubscription' &&
+				info?.subscriptionState === 'upgradeSubscription' &&
 				!addOn?.isSeatBasedPlan &&
 				info?.addOns?.some((item) => item?._id === addOn?._id)
 			) {
@@ -309,7 +327,7 @@ const AddOnPlans = ({
 				};
 			});
 		},
-		[subscriptionState, info?.addOns],
+		[info?.subscriptionState, info?.addOns],
 	);
 
 	const handleDowngrade = async (addOn = {}) => {
@@ -411,7 +429,9 @@ const AddOnPlans = ({
 						<div className="subscriptionButtons">
 							<div
 								className={`subscriptionType subscription ${
-									subscriptionState === 'upgradeSubscription' ? 'active' : ''
+									info?.subscriptionState === 'upgradeSubscription'
+										? 'active'
+										: ''
 								}`}
 								onClick={() => handleToggle('upgradeSubscription')}
 							>
@@ -419,7 +439,7 @@ const AddOnPlans = ({
 							</div>
 							<div
 								className={`subscriptionType addOns ${
-									subscriptionState === 'addOnPlans' ? 'active' : ''
+									info?.subscriptionState === 'addOnPlans' ? 'active' : ''
 								}`}
 								onClick={() => handleToggle('addOnPlans')}
 							>
@@ -474,7 +494,7 @@ const AddOnPlans = ({
 					>
 						Monthly
 					</div>
-					{subscriptionState !== 'upgradeSubscription' && (
+					{info?.subscriptionState !== 'upgradeSubscription' && (
 						<div
 							className={`addOnsTabsTime ${
 								info?.selectedPeriod === 'One Time Purchase' ? 'active' : ''
@@ -593,7 +613,8 @@ const AddOnPlans = ({
 													</span>
 												</div>
 
-												{subscriptionState !== 'upgradeSubscription' && (
+												{info?.subscriptionState !==
+													'upgradeSubscription' && (
 													<>
 														{addOn?.addOnAiImageCreditsDetails
 															?.aiImageCredits && (
@@ -619,7 +640,7 @@ const AddOnPlans = ({
 												)}
 											</div>
 
-											{subscriptionState === 'upgradeSubscription' &&
+											{info?.subscriptionState === 'upgradeSubscription' &&
 												isSeatBasedPlan &&
 												info.addOns.some(
 													(item) => item?._id === addOn?._id,
@@ -646,7 +667,8 @@ const AddOnPlans = ({
 													)}
 												<div className="buttonContainer">
 													{/* Show user count only in subscription view and when plan is added to cart */}
-													{subscriptionState === 'upgradeSubscription' &&
+													{info?.subscriptionState ===
+														'upgradeSubscription' &&
 														!isFreePlan &&
 														info.addOns.some(
 															(item) => item?._id === addOn?._id,
@@ -803,7 +825,7 @@ const AddOnPlans = ({
 																		}
 																		className="addOnsButton"
 																	>
-																		{subscriptionState ===
+																		{info?.subscriptionState ===
 																		'upgradeSubscription'
 																			? 'Buy Now'
 																			: 'Add To Cart'}

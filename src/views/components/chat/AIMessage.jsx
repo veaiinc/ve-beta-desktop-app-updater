@@ -3,12 +3,11 @@ import Context from '../../../context/context';
 import { Markdown } from '../../../helpers/markdownHelper';
 import { Tooltip } from 'antd';
 import { ReactComponent as PencilSparkleIcon } from '../../../assets/svg/notes/pencilSparkle.svg';
-import { ReactComponent as ThumpsUpSvg } from '../../../assets/svg/ai_agents/thumps-up.svg';
-import { ReactComponent as ThumpsDownSvg } from '../../../assets/svg/ai_agents/thumps-down.svg';
+import { ReactComponent as GraduationCapSvg } from '../../../assets/svg/graduationCap.svg';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../../../assets/svg/ai_agents/copy.svg';
 import { ReactComponent as ViewDocumentIcon } from '../../../assets/svg/chat/viewDocument.svg';
-import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
+import { ReactComponent as BulbSvg } from '../../../assets/svg/home_page/bulb.svg';
 import AISuggestionsReportAiComponent from './chatComponents/AiSuggestionsReportAiComponent';
 import '../../../assets/scss/chat/aiMessage.scss';
 import PromptPopup from '../homePage/PromptPopup';
@@ -19,24 +18,18 @@ const AIMessage = ({
 	text,
 	customePencilClickFunc = null,
 	messageId = null,
-	handleRatingClick = null,
 	rating = null,
-	citations = [],
+	citations = null,
 	messageData,
 	isLastMessage = false,
-	isNewMessage = false,
 	showCanvas = true,
-	handleSendWebsocketMessage = null,
-	latestStreamMesage = null,
-	lastQuery = null,
-	toggleLatestStreamMessage = null,
 	handleViewDocument = null,
 	showViewDocument = false,
 	isNoteCanvas = false,
 }) => {
 	const {
 		documentPreview: { setNoteContent },
-		templates: { updateStateValues },
+		templates: { updateStateValues, aiMessagesInfo },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		isCopiedToClipboard: false,
@@ -54,7 +47,7 @@ const AIMessage = ({
 	};
 
 	const handleCopyTextClick = useCallback((text) => {
-		const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
+		const textToBeCopied = text?.replace(/\[C\d+\]/g, '');
 		navigator?.clipboard?.writeText(textToBeCopied).then(() => {
 			setInfo((prev) => ({ ...prev, isCopiedToClipboard: true }));
 			setTimeout(() => {
@@ -70,13 +63,9 @@ const AIMessage = ({
 		setNoteContent(messageData);
 	}, [customePencilClickFunc, setNoteContent, messageData]);
 
-	const handleThumbsClick = useCallback(
-		(thumbs) => {
-			// handleRatingClick && handleRatingClick(newRating, messageId);
-			setInfo((prev) => ({ ...prev, liked: thumbs, feedbackPopupOpen: true }));
-		},
-		[handleRatingClick, messageId, rating],
-	);
+	const handleTeachMeClick = useCallback(() => {
+		setInfo((prev) => ({ ...prev, feedbackPopupOpen: true }));
+	}, []);
 
 	const handlePromptClick = (prompt) => {
 		updateStateValues({ activePromptForChat: prompt });
@@ -101,10 +90,6 @@ const AIMessage = ({
 						<FormWidget
 							workflowTemplateId={messageData?.workflow_template_id}
 							moduleTemplateId={messageData?.module_template_id}
-							handleSendWebsocketMessage={handleSendWebsocketMessage}
-							latestStreamMesage={latestStreamMesage}
-							lastQuery={lastQuery}
-							toggleLatestStreamMessage={toggleLatestStreamMessage}
 							handleViewDocument={handleViewDocument}
 							showViewDocument={showViewDocument}
 							isLastMessage={isLastMessage}
@@ -140,7 +125,7 @@ const AIMessage = ({
 				<div
 					className="hover-actions-container"
 					style={{
-						visibility: isNewMessage ? 'visible' : '',
+						visibility: isLastMessage ? 'visible' : '',
 					}}
 				>
 					<div className="left-container">
@@ -149,19 +134,12 @@ const AIMessage = ({
 								placement="bottom"
 								arrow={false}
 								trigger={'hover'}
-								title={'Edit'}
-								overlayInnerStyle={{ color: 'var(--primary-font)' }}
-							>
-								<PencilSparkleIcon onClick={handlePencilClick} />
-							</Tooltip>
-						</div>
-
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={info?.isCopiedToClipboard ? 'Copied' : 'Copy'}
+								title={
+									<div className="hover-icons-tooltip">
+										{info?.isCopiedToClipboard ? 'Copied' : 'Copy'}
+									</div>
+								}
+								color="transparent"
 								overlayInnerStyle={{ color: 'var(--primary-font)' }}
 							>
 								{info?.isCopiedToClipboard ? (
@@ -171,74 +149,66 @@ const AIMessage = ({
 								)}
 							</Tooltip>
 						</div>
-					</div>
-
-					{/* <div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Audio'}
-							>
-								<HeadPhoneSvg />
-							</Tooltip>
-						</div> */}
-
-					<div className="right-container">
 						<div className="icon-container">
 							<Tooltip
 								placement="bottom"
 								arrow={false}
 								trigger={'hover'}
-								title={'Like'}
+								color="transparent"
+								title={<div className="hover-icons-tooltip">Edit</div>}
 								overlayInnerStyle={{ color: 'var(--primary-font)' }}
 							>
-								<ThumpsUpSvg
-									fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
-									onClick={() => handleThumbsClick('thumbsUp')}
+								<PencilSparkleIcon
+									style={{ width: '20px', height: '20px' }}
+									onClick={handlePencilClick}
 								/>
 							</Tooltip>
 						</div>
 
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Dislike'}
-								overlayInnerStyle={{ color: 'var(--primary-font)' }}
-							>
-								<ThumpsDownSvg
-									fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
-									onClick={() => handleThumbsClick('thumbsDown')}
+						<Tooltip
+							placement="bottom"
+							arrow={false}
+							trigger={'hover'}
+							color="transparent"
+							title={<div className="hover-icons-tooltip">Feedback</div>}
+							overlayInnerStyle={{ color: 'var(--primary-font)' }}
+						>
+							<div className="teach-me-container" onClick={handleTeachMeClick}>
+								<GraduationCapSvg
+									className="teach-me-icon"
+									style={{ width: '20px', height: '20px' }}
 								/>
-							</Tooltip>
-						</div>
+								<div className="teach-me-text">Teach me</div>
+							</div>
+						</Tooltip>
 					</div>
 				</div>
 			)}
 
-			{typeof messageData?.['follow_up_query'] !== 'string' &&
-				messageData?.stream_end &&
-				(messageData?.['follow_up_query'] || [])?.length > 0 && (
-					<div className="suggested-prompts">
-						<div className="title-text">Suggested Prompts</div>
-						<div className="prompts-container">
-							{(messageData?.['follow_up_query'] || [])?.map((query, index) => (
-								<div
-									className="prompt-container"
-									key={index}
-									onClick={() => handlePromptClick(query)}
-								>
-									<div className="logo-container">
-										<ArrowRightSvg />
-									</div>
-									<div className="prompt">{query}</div>
-								</div>
-							))}
-						</div>
+			{(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
+				(messageData?.['follow_up_query'] || [])?.length > 0) && (
+				<div className="suggested-prompts">
+					<div className="title-text">
+						<BulbSvg />
+						Suggested Prompts
 					</div>
-				)}
+					<div className="prompts-container">
+						{(
+							aiMessagesInfo?.[messageData?.messageId]?.followUpQuery ||
+							messageData?.['follow_up_query'] ||
+							[]
+						)?.map((query, index) => (
+							<div
+								className="prompt-container"
+								key={index}
+								onClick={() => handlePromptClick(query)}
+							>
+								<div className="prompt">{query}</div>
+							</div>
+						))}
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };
@@ -250,8 +220,6 @@ export default memo(AIMessage, (prevProps, nextProps) => {
 		prevProps.rating === nextProps.rating &&
 		JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
 		prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
-		prevProps.isNewMessage === nextProps.isNewMessage &&
-		prevProps.lastQuery === nextProps.lastQuery &&
-		prevProps.latestStreamMesage === nextProps.latestStreamMesage
+		prevProps.isLastMessage === nextProps.isLastMessage
 	);
 });

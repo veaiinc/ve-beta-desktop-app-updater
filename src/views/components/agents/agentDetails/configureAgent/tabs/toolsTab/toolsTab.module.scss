@@ -1,0 +1,344 @@
+.actionsTabContainer {
+	display: flex;
+	width: 100%;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	flex-shrink: 0;
+	.instructionItem {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		padding: 12px;
+		align-items: center;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 6px;
+
+		span {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+
+			svg {
+				width: 12px;
+				height: 12px;
+				margin-top: 4px;
+				cursor: pointer;
+				opacity: 0;
+			}
+
+			&:hover {
+				svg {
+					opacity: 1;
+				}
+			}
+		}
+
+		span:nth-child(2) {
+			justify-self: center;
+			justify-content: center;
+		}
+
+		span:last-child,
+		.aiToggleSwitch {
+			justify-self: end;
+			justify-content: flex-end;
+			width: 100%;
+		}
+
+		overflow: hidden;
+		color: var(--primary-font);
+		text-overflow: ellipsis;
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+	.actionsHeader {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		.addActionButton {
+			width: fit-content;
+			padding: 8px 12px;
+			border-radius: 8px;
+			border: 1px solid var(--stroke, #2b2e31);
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 4px;
+		}
+		.searchInputContainer {
+			opacity: 0;
+			pointer-events: none;
+			display: flex;
+			width: 330px;
+			padding: 8px 12px;
+			align-items: center;
+			gap: 8px;
+			flex-shrink: 0;
+			border-radius: 8px;
+			border: 1px solid var(--stroke, #2b2e31);
+			.searchIcon {
+				width: 16px;
+				height: 16px;
+				position: relative;
+				top: -1px;
+			}
+			.searchInput {
+				width: 100%;
+				border: none;
+				outline: none;
+				background-color: transparent;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px;
+			}
+		}
+	}
+
+	.actionsContainer {
+		display: flex;
+		padding: 20px;
+		flex-direction: column;
+		align-items: center;
+		gap: 12px;
+		align-self: stretch;
+		border-radius: 16px;
+		background: var(--card);
+
+		.gmailTool {
+			display: flex;
+			padding: 8px;
+			justify-content: flex-start;
+			align-items: center;
+			gap: 12px;
+			align-self: stretch;
+			border-radius: 8px;
+			background: var(--card-hover, #252728);
+			cursor: pointer;
+
+			.gmailIcon {
+				display: flex;
+				width: 37px;
+				height: 37px;
+				padding: 11px 10px 10px 11px;
+				justify-content: center;
+				align-items: center;
+				border-radius: 8px;
+				border: 1px solid var(--stroke, #2b2e31);
+				background: var(--navbar, #202123);
+			}
+
+			.titleSubtile {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+
+				.title {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 20px;
+				}
+
+				.subTitle {
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 18px;
+				}
+			}
+		}
+
+		.actionItem {
+			display: flex;
+			padding: 8px 12px;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+			gap: 4px;
+			align-self: stretch;
+			border-radius: 8px;
+			transition: background-color 0.2s ease-out;
+
+			&:hover {
+				background-color: var(--card-over-card);
+				.leftContainer {
+					.actionIcon {
+						background: var(--card);
+					}
+				}
+				.rightContainer {
+					.deleteSvgContainer,
+					.editSvgContainer {
+						display: block;
+					}
+				}
+			}
+
+			.leftContainer {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				flex-grow: 1;
+				.actionIcon {
+					display: flex;
+					width: 37px;
+					height: 37px;
+					padding: 11px 10px 10px 11px;
+					justify-content: center;
+					align-items: center;
+					border-radius: 8px;
+					border: 1px solid var(--stroke, #2b2e31);
+					background: var(--card-over-card, #202123);
+					transition: background 0.2s ease-out;
+				}
+				.titleContainer {
+					display: flex;
+					flex-grow: 1;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 2px;
+					.title {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 20px;
+					}
+					.description {
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 18px;
+					}
+				}
+			}
+
+			.rightContainer {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 12px;
+				.deleteSvgContainer,
+				.editSvgContainer {
+					cursor: pointer;
+					height: 16px;
+					display: none;
+
+					svg {
+						width: 16px;
+						height: 16px;
+						path {
+							stroke: var(--secondary-font) !important;
+						}
+					}
+				}
+				.editSvgContainer {
+					svg {
+						width: 14px;
+						height: 14px;
+					}
+				}
+
+				.connectAction {
+					display: flex;
+					padding: 4px 8px;
+					justify-content: center;
+					align-items: center;
+					gap: 4px;
+					border-radius: 6px;
+
+					.connectActionIcon {
+						height: 14px;
+						position: relative;
+						top: -1px;
+						svg {
+							width: 14px;
+							height: 14px;
+							path {
+								stroke: var(--secondary-font, #f2f2f3) !important;
+							}
+						}
+					}
+					.connectActionText {
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+
+				.statusContainer {
+					display: flex;
+					padding: 4px 8px;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 6px;
+					border: 0.5px solid var(--stroke-hover, #424548);
+					background: var(--card-over-card, #27282b);
+
+					.indicator {
+						width: 6px;
+						height: 6px;
+						border-radius: 50%;
+						background-color: var(--success);
+					}
+					.status {
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 18px;
+					}
+				}
+			}
+		}
+	}
+	.emptyState {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
+		align-self: stretch;
+		.emptyStateTitle {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 24px;
+		}
+		.emptyStateDescription {
+			color: var(--secondary-font, #9fa1a3);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 20px;
+		}
+	}
+}

@@ -567,7 +567,7 @@ class App extends BaseClass {
 			// );
 			// this.initializeWebSocket(this.state.sessionId, this.state.agentType);
 		} else {
-			// console.warn('No sessionId or agentType found in URL parameters');
+			console.warn('No sessionId or agentType found in URL parameters');
 		}
 
 		//! for text smart field
@@ -734,10 +734,9 @@ class App extends BaseClass {
 				},
 				() => {
 					// Update readonly state when preview type changes
-					if (this[`ref_${this.state.reference}`]) {
-						this[`ref_${this.state.reference}`].setReadOnly(
-							this.state.previewType === 'm',
-						);
+					const ref = this[`ref_${this.state.reference}`];
+					if (ref && typeof ref.setReadOnly === 'function') {
+						ref.setReadOnly(this.state.previewType === 'm');
 					}
 				},
 			);
@@ -2268,13 +2267,6 @@ class App extends BaseClass {
 		}
 	};
 
-	handleUnselectColor = () => {
-		const systemSelection = window.getSelection();
-		if (systemSelection && systemSelection.rangeCount > 0) {
-			this.savedRange = systemSelection.getRangeAt(0).cloneRange();
-		}
-	};
-
 	handleChange = (content) => {
 		// Call both the local handler and parent handler if provided
 		if (this.props.onChange) {
@@ -2503,11 +2495,16 @@ class App extends BaseClass {
 						style={{
 							...(this.state.isFluid
 								? {
-										display: this.props.client ? 'block' : 'flex',
+										display: this.props?.verticalAlign ? 'flex' : 'block',
+										flexDirection: this.props?.verticalAlign && 'column',
+										justifyContent: this.props?.verticalAlign
+											? this.props?.verticalAlign
+											: '',
+										height: this.props?.verticalAlign ? '100%' : 'auto',
 										gridArea: 'inherit',
 										flex: 1,
 								  }
-								: {}),
+								: ''),
 						}}
 					/>
 				</div>
@@ -2562,21 +2559,16 @@ class App extends BaseClass {
 						// borderRadius: this.state.showElementOptions && '20px',
 						...(this.state.isFluid
 							? {
-									display: this.state?.isFluidButton
-										? 'flex'
-										: this.props?.verticalAlign
-										? 'flex'
-										: 'block',
+									display: this.props?.verticalAlign ? 'flex' : 'contents',
 									flexDirection: this.props?.verticalAlign && 'column',
 									justifyContent: this.props?.verticalAlign
 										? this.props?.verticalAlign
-										: this.state?.isFluidButton
-										? 'center'
 										: '',
+									height: this.props?.verticalAlign ? '100%' : 'auto',
 									gridArea: 'inherit',
 									border: 'none',
 							  }
-							: {}),
+							: ''),
 					}}
 					ref={this.textRef}
 					// onClick={() => (this.state.preview !== true ? this.getStyles() : '')}

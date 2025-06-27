@@ -1,57 +1,209 @@
-import React, { useState } from 'react';
-import { PromptData } from '../homePage/PromptData';
+import { useContext, useState, useEffect, useCallback, useRef } from 'react';
+import Context from '../../../context/context';
+import InfiniteScroll from './InfiniteScroll';
 import '../../../assets/scss/globalComponents/promptWidget.scss';
-import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
-import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
-import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
-import { ReactComponent as CalendarIcon } from '../../../assets/svg/contacts/calendar.svg';
-import { ReactComponent as ContactsIcon } from '../../../assets/svg/contacts/contact.svg';
-import PromptPopup from '../homePage/PromptPopup';
+import ChatBox from '../chat/ChatBox';
+import Suggestions from '../../features/homePage/Suggestions';
+import Skeleton from 'react-loading-skeleton';
+import AISuggestionsModal from '../modalsV2/homePage/AISuggestionsModal';
+import { message } from '../../components/globalComponents/CustomToast';
+import { getRelativeDayLabel } from '../../../helpers';
 
-const iconMap = {
-	automation: <AutomationIcon />,
-	deepsearch: <DeepSearchIcon />,
-	task: <TaskSuggestionIcon />,
-	calendar: <CalendarIcon />,
-	contacts: <ContactsIcon />,
+const skeletonLoaders = [1, 2, 3, 4];
+
+const PriorityLevel = {
+	High: 'red',
+	Medium: 'yellow',
+	Low: 'green',
 };
+const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
+	const cardsPerView = 4; // Number of cards to show at a time
+	const cardWidth = 226; // Card width (216px) + margin-right (10px)
+	const containerRef = useRef(null);
 
-const PromptsWidget = ({ option = '' }) => {
+	const {
+		templates: {
+			aiSuggestedPendingActions,
+			getAISuggestedPendingActions,
+			updateStateValues,
+			currentSessionId,
+			pendingActionsUpdate,
+		},
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
+		animateCards: false,
+		chatQuery: '',
+		cardsLoading: false,
 		selectedCard: null,
-		promptPopupOpen: false,
+		openSuggestionsModal: false,
 	});
 
-	const handlePromptPopup = (item) => {
-		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
+	const cardsData = aiSuggestedPendingActions?.pendingActions;
+	const cardsLoading = aiSuggestedPendingActions ? false : true;
+	const cardsEmpty = aiSuggestedPendingActions?.pendingActions?.length === 0 && !cardsLoading;
+	const cardsLength = aiSuggestedPendingActions?.pendingActions?.length ?? 0;
+	const cardsHasNextPage = Boolean(aiSuggestedPendingActions?.metaInfo?.hasNextPage);
+	const cardsCurrentPage = Number(aiSuggestedPendingActions?.metaInfo?.currentPage) || 1;
+
+	useEffect(() => {
+		if (option) {
+			// Reset animateCards to false to allow animation to retrigger
+			setInfo((prev) => ({
+				...prev,
+				animateCards: false,
+				cardsLoading: true,
+			}));
+
+			const page = 1;
+			const shouldReset = true;
+
+			// Fetch new data
+			getUpdatedSuggestedPendingActions(page, shouldReset).then(() => {
+				// After data is fetched, trigger animation
+				setInfo((prev) => ({
+					...prev,
+					animateCards: true,
+					cardsLoading: false,
+				}));
+			});
+		}
+	}, [option]);
+
+	useEffect(() => {
+		if (containerRef.current && cardsData) {
+			const scrollPosition = currentIndex * cardWidth - (934 - 216) / 2; // Center the current card
+			containerRef.current.scrollTo({
+				left: scrollPosition,
+				behavior: 'smooth',
+			});
+			// Focus the container to allow keydown events
+			// containerRef.current.focus();
+		}
+	}, [currentIndex, cardsData]);
+
+	const handlePromptClick = (card) => {
+		setInfo((prev) => ({
+			...prev,
+			openSuggestionsModal: true,
+			selectedCard: card,
+		}));
 	};
+	// Add keydown event listener for Enter key
+	useEffect(() => {
+		const container = containerRef.current;
+		if (!container) return;
+
+		const handleKeyDown = (e) => {
+			if (e.key === 'Enter' && cardsData && cardsData[currentIndex]) {
+				e.preventDefault(); // Prevent default behavior
+				handlePromptClick(cardsData[currentIndex]); // Open modal for currentIndex card
+			}
+		};
+
+		container.addEventListener('keydown', handleKeyDown);
+		return () => {
+			container.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [cardsData, currentIndex]);
+
+	const getUpdatedSuggestedPendingActions = async (page = 1, shouldReset = false) => {
+		await getAISuggestedPendingActions(
+			{
+				page: page,
+				limit: 20,
+				sortBy: 'createdAt',
+				sortType: -1,
+				category: option,
+			},
+			shouldReset,
+		);
+	};
+
+	const handleFavouriteClick = async (id) => {
+		const card = cardsData?.find((c) => c?._id === id);
+		const res = await pendingActionsUpdate(id, { isFavourite: !card?.isFavourite });
+		if (res?.[0] === true) {
+			getAISuggestedPendingActions(
+				{
+					isFavourite: !card?.isFavourite,
+				},
+				false,
+				'update',
+				id,
+			);
+			message.success(!card?.isFavourite ? 'Added to favourites' : 'Removed from favourites');
+		} else {
+			message.error('Failed to update');
+		}
+	};
+
+	// Indices of cards to animate with dealing effect (4th, 5th, 8th, 10th, 12th)
+	const animatedIndices = [];
+
 	return (
 		<>
-			<div className="calenderWidgetSection2">
-				{PromptData.filter((item) => item.type === option).map((item, index) => (
-					<div
-						key={index}
-						className="calenderWidgetSection2Item"
-						onClick={() => handlePromptPopup(item)}
-					>
-						<div className="calenderWidgetSection2ItemContainer">
-							{iconMap[item?.type]}
-							<div className="calenderWidgetSection2ItemTitle">
-								{item?.type?.charAt(0)?.toUpperCase() + item?.type?.slice(1)}
-							</div>
-						</div>
-						<div className="calenderWidgetSection2ItemSubtitle">{item?.title}</div>
+			<div className="prompts-widget" style={{ height: '100%' }}>
+				{info?.cardsLoading ? (
+					<div className="prompts-widget-cards-loading">
+						{skeletonLoaders?.map((item) => (
+							<Skeleton key={item} height={'226px'} width={'216px'} />
+						))}
 					</div>
-				))}
+				) : cardsEmpty ? (
+					<div className="prompts-widget-cards-loading">No results found</div>
+				) : (
+					<div className="prompts-widget-cards" ref={containerRef} tabIndex={0}>
+						{cardsData?.map((card, index) => (
+							<div
+								key={card?._id}
+								className={`prompts-widget-each-card ${
+									info.animateCards
+										? animatedIndices.includes(index)
+											? `deal-animate deal-path-${animatedIndices.indexOf(
+													index,
+											  )}`
+											: 'slide-animate'
+										: ''
+								} ${currentIndex === index ? 'selected-card' : ''}`}
+								onClick={() => handlePromptClick(card)}
+							>
+								<div className="promptsCardTitle">{card?.title}</div>
+								<div className="promptsCardDetails">
+									<span className="promptsCardDetailsModuleType">
+										{card?.moduleType}
+									</span>
+									<span className="promptsCardDetailsPriority">
+										<span className="promptsCardDetailsPriorityValue">
+											<span
+												className="promptsCardDetailsPriorityValueIcon"
+												style={{
+													backgroundColor: PriorityLevel[card?.priority],
+												}}
+											></span>
+											{card?.priority}
+										</span>
+										<span className="promptsCardDetailsPriorityIcon"></span>
+										<span className="promptsCardDetailsPriorityDate">
+											{getRelativeDayLabel(card?.updatedAt)}
+										</span>
+									</span>
+								</div>
+							</div>
+						))}
+					</div>
+				)}
 			</div>
-			<PromptPopup
-				open={info?.promptPopupOpen}
-				closeModal={() =>
-					setInfo((prev) => ({ ...prev, promptPopupOpen: false, selectedCard: null }))
-				}
-				selectedCard={info?.selectedCard}
+			<AISuggestionsModal
+				open={info?.openSuggestionsModal}
+				onClose={() => setInfo((prev) => ({ ...prev, openSuggestionsModal: false }))}
+				data={info?.selectedCard}
+				totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
+				onFavouriteClick={handleFavouriteClick}
+				shouldShowCards={false}
 			/>
 		</>
 	);
 };
+
 export default PromptsWidget;

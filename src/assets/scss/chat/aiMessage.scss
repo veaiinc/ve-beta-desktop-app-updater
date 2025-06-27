@@ -24,12 +24,32 @@
 		align-items: center;
 		justify-content: space-between;
 		visibility: hidden;
-		.left-container,
-		.right-container {
+		.left-container {
 			display: flex;
-			gap: 18px;
+			gap: 16px;
 			flex-direction: row;
 			align-items: center;
+
+			.teach-me-container {
+				display: flex;
+				padding: 2px 10px;
+				justify-content: center;
+				align-items: center;
+				gap: 8px;
+				border-radius: 100px;
+				border: 1px solid var(--stroke);
+				background: var(--card, #18191b);
+				cursor: pointer;
+
+				.teach-me-text {
+					color: var(--primary-button);
+					font-family: var(--chat-primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 24px;
+				}
+			}
 		}
 
 		.icon-container {
@@ -39,52 +59,64 @@
 
 	.suggested-prompts {
 		display: flex;
-		width: 100%;
-		padding: 16px;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 10px;
-		border-radius: 16px;
-		border: 1px solid var(--stroke, #2c2e31);
+		gap: 16px;
+		align-self: stretch;
 		.title-text {
-			color: var(--secondary-font, #95989d);
-			font-family: var(--primary-font-family);
-			font-size: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			color: var(--primary-button, #79ecc9);
+			font-family: var(--chat-primary-font-family);
+			font-size: 14px;
 			font-style: normal;
-			font-weight: 400;
-			line-height: 18px;
+			font-weight: 500;
+			line-height: 24px;
 		}
 		.prompts-container {
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			align-self: stretch;
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
 			gap: 8px;
-			.logo-container {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-			}
+
 			.prompt-container {
-				display: flex;
-				align-items: center;
+				min-height: 100px;
 				cursor: pointer;
-				padding: 4px 12px;
+				display: flex;
+				padding: 14px 16px;
+				flex-direction: column;
+				align-items: flex-start;
 				border-radius: 8px;
-				gap: 8px;
+				background: var(--card, #18191b);
+				border: 1px solid transparent;
+				transition: border-color 0.2s ease-in-out;
 				&:hover {
-					background-color: var(--card-hover);
+					background: linear-gradient(var(--card), var(--card)) padding-box,
+						linear-gradient(90deg, #4acea6 0%, #5f8ee0 100%) border-box;
+					border: 1px solid transparent; /* needed for border-box to work */
 				}
-				transition: all 0.2s ease-in-out;
 				.prompt {
 					color: var(--primary-font, #f2f2f3);
 					font-family: var(--chat-primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
-					line-height: 21px;
+					line-height: 24px;
 				}
 			}
 		}
 	}
+}
+
+.hover-icons-tooltip {
+	background-color: var(--card);
+	color: var(--primary-font);
+	padding: 10px;
+	border-radius: 10px;
+	font-family: var(--chat-primary-font-family);
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
 }

@@ -44,9 +44,15 @@ const AISuggestionsModal = ({
 	totalDocs,
 	selectedCardNumber,
 	onFavouriteClick,
+	shouldShowCards = true,
 }) => {
 	const {
-		templates: { updateStateValues, pendingActionsUpdate, getAISuggestedPendingActions },
+		templates: {
+			updateStateValues,
+			pendingActionsUpdate,
+			getAISuggestedPendingActions,
+			handleGlobalChatMessages,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		isAIResultsExpanded: true,
@@ -58,6 +64,7 @@ const AISuggestionsModal = ({
 			hasChainOfThought: false,
 		},
 		feedbackPopupOpen: false,
+		isDeleting: false,
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -77,7 +84,7 @@ const AISuggestionsModal = ({
 		if (!data) return;
 
 		const { chain_of_thought } = data;
-		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || []);
+		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || null);
 		const accessType = (data?.permissions?.sharedWith || [])?.filter(
 			(eachItem) => eachItem?.userId === info?.currentUserId,
 		)?.[0]?.access;
@@ -133,8 +140,13 @@ const AISuggestionsModal = ({
 					stream_end: true,
 				},
 			];
-			updateStateValues({ globalChatMessages: messages });
-			navigate(`/chat/${ObjectID()?.toString()}`);
+			const sessionId = ObjectID()?.toString();
+			handleGlobalChatMessages({
+				updateExtraInfo: true,
+				recentChatMessages: messages,
+				sessionId,
+			});
+			navigate(`/chat/${sessionId}`);
 		},
 		[info?.chainOfThoughtData],
 	);
@@ -242,8 +254,9 @@ const AISuggestionsModal = ({
 	};
 
 	const handleDeleteCard = useCallback(async () => {
-		if (!data?._id) return;
+		if (!data?._id || info.isDeleting) return;
 		const type = 'delete';
+		setInfo((prev) => ({ ...prev, isDeleting: true }));
 		const res = await pendingActionsUpdate(data?._id, { isDeleted: true }, type);
 		if (res?.[0] === true) {
 			getAISuggestedPendingActions(null, false, 'delete', data?._id);
@@ -251,7 +264,8 @@ const AISuggestionsModal = ({
 		} else {
 			message.error('Failed to delete pending action');
 		}
-	}, [data?._id, getAISuggestedPendingActions, onClose, pendingActionsUpdate]);
+		setInfo((prev) => ({ ...prev, isDeleting: false }));
+	}, [data?._id, getAISuggestedPendingActions, onClose, pendingActionsUpdate, info.isDeleting]);
 
 	const handleOpenFeedbackPopup = () => {
 		setInfo((prev) => ({
@@ -306,17 +320,21 @@ const AISuggestionsModal = ({
 					<div className="drawer-header">
 						<div className="header-content">
 							<div className="left-container">
-								<div className="total-docs">
-									<div className="current-doc">{selectedCardNumber}</div>
-									<div className="doc-divider">/</div>
-									<div className="total">{totalDocs}</div>
-								</div>
-								<div className="prev-btn" onClick={handlePrevCardClick}>
-									<ChevronRightThinSvg />
-								</div>
-								<div className="next-btn" onClick={handleNextCardClick}>
-									<ChevronRightThinSvg />
-								</div>
+								{shouldShowCards && (
+									<>
+										<div className="total-docs">
+											<div className="current-doc">{selectedCardNumber}</div>
+											<div className="doc-divider">/</div>
+											<div className="total">{totalDocs}</div>
+										</div>
+										<div className="prev-btn" onClick={handlePrevCardClick}>
+											<ChevronRightThinSvg />
+										</div>
+										<div className="next-btn" onClick={handleNextCardClick}>
+											<ChevronRightThinSvg />
+										</div>
+									</>
+								)}
 							</div>
 
 							<div className="right-container">
@@ -715,7 +733,7 @@ const AISuggestionsModal = ({
 													className="report-description"
 													onClick={(e) => e.stopPropagation()}
 												>
-													<Markdown citations={thinker_sources || []}>
+													<Markdown citations={thinker_sources || null}>
 														{research_report || ''}
 													</Markdown>
 												</div>
@@ -827,7 +845,7 @@ const AISuggestionsModal = ({
 									<div className="chain-of-thought-content">
 										<CombinedChainOfThought
 											data={info?.chainOfThoughtData}
-											citations={thinker_sources || []}
+											citations={thinker_sources || null}
 										/>
 									</div>
 								</div>

@@ -1,9 +1,9 @@
 import { memo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 import { ReactComponent as Sparkle } from '../../../assets/svg/sparkle.svg';
-import { ReactComponent as CaretDonw } from '../../../assets/svg/left.svg';
 import { ReactComponent as Binoculars } from '../../../assets/svg/landingScreen/binocularsSvg.svg';
-import { useNavigate } from 'react-router-dom';
+import { ReactComponent as CaretDonw } from '../../../assets/svg/left.svg';
 import { ReactComponent as VeLogoBlack } from '../../../assets/svg/veLogoBlack.svg';
 const featuresList = [
 	{ label: 'Proactive AI' },
@@ -26,60 +26,50 @@ const searchList = [
 	{ label: 'LLM search' },
 ];
 
+const missionSubmenuList = [
+	{ label: 'The bridge', path: '/thebridge' },
+	{ label: 'Careers', path: '/careers' },
+	{ label: 'Forefront', path: '/forefront' },
+];
+
 const menuData = [
 	{
 		label: 'Proactive',
 		submenu: { features: featuresList, search: searchList },
 		section: 'Features',
 	},
-	{ label: 'Home' },
-	{ label: 'Mission' , path : '/mission' },
-	{ label: 'For Enterprise' , path : '/contact-us' },
-	{ label: 'Pricing' , path : '/pricing' },
+	{ label: 'Home', path: '/' },
+	{ label: 'The bridge', path: '/thebridge', submenu: { thebridge: missionSubmenuList } },
+	{ label: 'For Enterprise', path: '/contact-us' },
+	{ label: 'Pricing', path: '/pricing' },
 ];
 
 const MobileMenu = ({ open, onClose, onLogin, onGetFree }) => {
 	const navigate = useNavigate();
-	const [info, setInfo] = useState({
-		activeMenu: 'main',
-		submenu: null,
-	});
+	const [info, setInfo] = useState({ activeMenu: 'main', submenu: null });
+
 	const handleMenuClick = (item) => {
 		if (item.submenu) {
-			setInfo({
-				activeMenu: 'submenu',
-				submenu: item,
-			});
+			setInfo({ activeMenu: 'submenu', submenu: item });
 		} else {
-			if (item.path) {
-				navigate(item.path);
-			}
+			item.path && navigate(item.path);
 			onClose();
 		}
 	};
 
-	const handleBack = () => {
-		setInfo({
-			activeMenu: 'main',
-			submenu: null,
-		});
-	};
+	const handleBack = () => setInfo({ activeMenu: 'main', submenu: null });
 
 	return (
 		<div className={`mobile-menu-overlay${open ? ' open' : ''}`}>
-			{' '}
-			{/* Add transition styles in SCSS */}
 			<div className="mobile-menu-header">
 				<VeLogo className="ve-logo" />
 				<div className="mobile-menu-header-right">
-					<button className="get-ve-free-btn" onClick={() => navigate('/verify-user')}>
-						Get <VeLogoBlack className="ve-logo-black" /> Free
-					</button>
 					<button className="close-btn" onClick={onClose}>
 						&times;
 					</button>
 				</div>
 			</div>
+
 			<div className="mobile-menu-content">
 				{info.activeMenu === 'main' && (
 					<ul className="mobile-menu-list">
@@ -95,54 +85,57 @@ const MobileMenu = ({ open, onClose, onLogin, onGetFree }) => {
 						))}
 					</ul>
 				)}
+
 				{info.activeMenu === 'submenu' && info.submenu && (
 					<div className="mobile-submenu">
 						<button className="back-btn" onClick={handleBack}>
 							<CaretDonw style={{ transform: 'rotate(180deg)' }} /> <span>Back</span>
 						</button>
-						{/* Features Section */}
-						<div className="submenu-section-container">
-							<div className="submenu-section">
-								<Sparkle /> <span className="submenu-section-title">Features</span>
+
+						{Object.entries(info.submenu.submenu).map(([sectionKey, items]) => (
+							<div key={sectionKey} className="submenu-section-container">
+								<div
+									className="submenu-section"
+									style={{ marginTop: sectionKey === 'search' ? 32 : 0 }}
+								>
+									{sectionKey === 'features' ? <Sparkle /> : <Binoculars />}
+									<span className="submenu-section-title">{sectionKey}</span>
+								</div>
+
+								<ul className="submenu-list">
+									{items.map((sub, idx) => (
+										<li
+											key={idx}
+											className="submenu-item"
+											onClick={() => {
+												sub.path && navigate(sub.path);
+												onClose();
+											}}
+										>
+											{sub.label}
+											{sub.submenu && (
+												<span className="submenu-arrow">
+													<CaretDonw />
+												</span>
+											)}
+										</li>
+									))}
+								</ul>
+
+								<div className="divider" />
 							</div>
-							<ul className="submenu-list">
-								{info.submenu?.submenu?.features?.map((sub, idx) => (
-									<li key={idx} className="submenu-item" onClick={onClose}>
-										{sub.label}
-										<span className="submenu-arrow">
-											<CaretDonw />
-										</span>
-									</li>
-								))}
-							</ul>
-						</div>
-						<div className="divider"></div>
-						{/* Search Section with gap */}
-						<div className="submenu-section-container">
-							<div
-								className="submenu-section search-section"
-								style={{ marginTop: 32 }}
-							>
-								<Binoculars /> <span className="submenu-section-title">Search</span>
-							</div>
-							<ul className="submenu-list">
-								{info.submenu?.submenu?.search?.map((sub, idx) => (
-									<li key={idx} className="submenu-item" onClick={onClose}>
-										{sub.label}
-										<span className="submenu-arrow">
-											<CaretDonw />
-										</span>
-									</li>
-								))}
-							</ul>
-						</div>
+						))}
 					</div>
 				)}
 			</div>
+
 			<div className="mobile-menu-footer">
 				<div className="login-btn" onClick={() => navigate('/verify-user')}>
 					Login
 				</div>
+				<button className="get-ve-free-btn" onClick={() => navigate('/verify-user')}>
+					Get VE Free
+				</button>
 			</div>
 		</div>
 	);

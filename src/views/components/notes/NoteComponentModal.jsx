@@ -1,13 +1,9 @@
 import { Tooltip } from 'antd';
-import React, { useEffect, useRef, useCallback, useState, useMemo } from 'react';
+import { useEffect, useRef, useCallback, useState, memo } from 'react';
 import '../../../assets/scss/notes/noteComponentModal.scss';
 import NoteComponent from './NoteComponent';
 import Markdown from 'react-markdown';
 import { ReactComponent as BackSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
-import { ReactComponent as PreviousSvg } from '../../../assets/svg/notes/previous.svg';
-import { ReactComponent as NextSvg } from '../../../assets/svg/notes/next.svg';
-import { ReactComponent as CopySvg } from '../../../assets/svg/notes/copy.svg';
-import { ReactComponent as ShareSvg } from '../../../assets/svg/notes/share.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/close.svg';
 import { StarSvg } from '../../../assets/svg/notes/Star';
 import ChatBox from '../chat/ChatBox';
@@ -20,81 +16,69 @@ import ShareComponent from './ShareComponent';
 import MoreOptions from './MoreOptions';
 import AIMessage from '../chat/AIMessage';
 
-const NoteComponentModal = ({
-	modalIsOpen,
-	closeModal,
-	handleRatingClick,
-	chatList,
-	handleSendWebsocketMessage,
-	latestStreamMesage,
-	lastQuery,
-	toggleLatestStreamMessage,
-}) => {
+const customModalStyles = {
+	content: {
+		width: '100vw',
+		height: '100vh',
+		padding: '0px',
+		border: 'none',
+		borderRadius: '0px',
+		backgroundColor: 'var(--background-color)',
+		zIndex: 1000,
+		clipPath: 'inset(0% 0% 0% 0%)',
+		transition:
+			'clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+		opacity: 1,
+	},
+	overlay: {
+		position: 'fixed',
+		top: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
+		backgroundColor: 'rgba(0, 0, 0, 0.5)',
+		zIndex: 1001,
+		transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+	},
+};
+
+const outerContainerStyleFullWidth = {
+	width: '100%',
+	height: '100%',
+	maxWidth: '100%',
+};
+
+const outerContainerStyle = {
+	width: '100%',
+	height: '100%',
+	maxWidth: '775px',
+};
+
+const NoteComponentModal = ({ modalIsOpen, closeModal }) => {
 	const chatContentRef = useRef(null);
-	const [isClosing, setIsClosing] = useState(false);
 	const {
-		templates: { globalChatMessages },
+		templates: { globalChatMessages, currentSessionId, handleGlobalChatMessages },
 		documentPreview: { noteContent },
+		chatStream: { sendMessage },
 		notes: { addToFavorite, removeFromFavorite, deletePage, duplicatePage },
 	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		noteComponentFullScreen: false,
 		chatToNoteLoopOn: false,
-		noteIconsInfo: {
-			copy: false,
-		},
 		noteId: null,
 		isFavorite: false,
 		notesConfigs: {
 			smallText: false,
 			fullWidth: false,
 		},
-		moreOptionsOpen: false,
 	});
-
-	const customModalStyles = {
-		content: {
-			width: '100vw',
-			height: '100vh',
-			padding: '0px',
-			border: 'none',
-			borderRadius: '0px',
-			backgroundColor: 'var(--background-color)',
-			zIndex: 1000,
-			clipPath: 'inset(0% 0% 0% 0%)',
-			transition:
-				'clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-			opacity: 1,
-		},
-		overlay: {
-			position: 'fixed',
-			top: 0,
-			left: 0,
-			right: 0,
-			bottom: 0,
-			backgroundColor: 'rgba(0, 0, 0, 0.5)',
-			zIndex: 1001,
-			transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-		},
-	};
-
-	const outerContainerStyleFullWidth = {
-		width: '100%',
-		height: '100%',
-		maxWidth: '100%',
-	};
-
-	const outerContainerStyle = {
-		width: '100%',
-		height: '100%',
-		maxWidth: '775px',
-	};
 
 	useEffect(() => {
 		if (modalIsOpen) {
 			smoothScrollToBottom();
 		}
-	}, [chatList, modalIsOpen]); // Scroll when chat updates
+	}, [globalChatMessages, modalIsOpen]); // Scroll when chat updates
 
 	const smoothScrollToBottom = useCallback((type) => {
 		const scrollElement = chatContentRef?.current;
@@ -114,60 +98,23 @@ const NoteComponentModal = ({
 		}
 	}, []);
 
-	const handleFullScreenClick = () => {
-		setInfo({
-			...info,
-			noteComponentFullScreen: !info?.noteComponentFullScreen,
-		});
-	};
-
-	const handleChatToNoteLoopClick = () => {
-		setInfo({
-			...info,
-			chatToNoteLoopOn: !info?.chatToNoteLoopOn,
-		});
-	};
-
-	const handleCopyNoteContent = (content) => {
-		navigator?.clipboard?.writeText(content);
-		setTimeout(() => {
-			setInfo((prev) => ({
-				...prev,
-				noteIconsInfo: {
-					...prev?.noteIconsInfo,
-					copy: !prev?.noteIconsInfo?.copy,
-				},
-			}));
-		}, 1000);
-	};
-
-	const handleCopyClick = useCallback(() => {
+	const handleFullScreenClick = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
-			noteIconsInfo: {
-				...prev?.noteIconsInfo,
-				copy: !prev?.noteIconsInfo?.copy,
-			},
+			noteComponentFullScreen: !prev?.noteComponentFullScreen,
 		}));
 	}, []);
 
-	const noteIcons = useMemo(
-		() => [
-			{ icon: <PreviousSvg />, tooltipContent: 'undo' },
-			{ icon: <NextSvg />, tooltipContent: 'redo' },
-			{
-				icon: <CopySvg />,
-				onIconClick: handleCopyClick,
-				tooltipContent: info?.noteIconsInfo?.copy ? 'copied' : 'copy',
-			},
-			{ icon: <ShareSvg />, tooltipContent: 'share' },
-		],
-		[info?.noteIconsInfo],
-	);
+	const handleChatToNoteLoopClick = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			chatToNoteLoopOn: !prev?.chatToNoteLoopOn,
+		}));
+	}, []);
 
-	const handleClose = () => {
-		closeModal();
-	};
+	const handleClose = useCallback(() => {
+		closeModal?.();
+	}, [closeModal]);
 
 	const handleFavorite = useCallback(
 		(value) => {
@@ -203,12 +150,33 @@ const NoteComponentModal = ({
 		}
 	}, [info?.noteId]);
 
+	const handleSendWebsocketMessage = useCallback(
+		async (data, lastQuery) => {
+			try {
+				await sendMessage(data);
+				handleGlobalChatMessages({
+					sessionId: currentSessionId,
+					lastQuery,
+					updateExtraInfo: true,
+				});
+			} catch (error) {
+				console.error('Failed to send message:', error);
+				// Handle error appropriately (show notification, etc.)
+			}
+		},
+		[sendMessage, currentSessionId],
+	);
+
+	if (!modalIsOpen) {
+		return null;
+	}
+
 	return (
 		<ReactModal
 			isOpen={modalIsOpen}
 			closeModal={handleClose}
 			customStyles={customModalStyles}
-			rootClassName={`notes-modal-container ${isClosing ? 'closing' : ''}`}
+			rootClassName={`notes-modal-container`}
 		>
 			<div className="notes-modal-container">
 				<div className="modal-container">
@@ -227,37 +195,39 @@ const NoteComponentModal = ({
 						{/* chat body */}
 						<div className={`chatBodyParentContainer`} ref={chatContentRef}>
 							<div className="chatContent">
-								{chatList?.map((chat, index) =>
-									chat?.content ? (
-										chat?.content
-									) : (
-										<div
-											key={index}
-											className={`chat-message ${chat?.type?.toLowerCase()}-message`}
-										>
-											<div className="message-content">
-												{chat?.type?.toLowerCase() === 'ai' ? (
-													<div className="content">
-														<AIMessage
-															text={chat?.message}
-															smoothScrollToBottom={
-																smoothScrollToBottom
-															}
-															handleRatingClick={handleRatingClick}
-															messageId={chat?.messageId}
-															showTypingEffect={chat?.typingEffect}
-															rating={chat?.rating}
-															messageData={chat}
-															citations={chat?.citations}
-															isNoteCanvas={true}
-														/>
-													</div>
-												) : (
-													<Markdown>{chat?.message}</Markdown>
-												)}
+								{globalChatMessages?.[currentSessionId]?.messages?.map(
+									(chat, index) =>
+										chat?.content ? (
+											chat?.content
+										) : (
+											<div
+												key={index}
+												className={`chat-message ${chat?.type?.toLowerCase()}-message`}
+											>
+												<div className="message-content">
+													{chat?.type?.toLowerCase() === 'ai' ? (
+														<div className="content">
+															<AIMessage
+																text={chat?.message}
+																smoothScrollToBottom={
+																	smoothScrollToBottom
+																}
+																messageId={chat?.messageId}
+																showTypingEffect={
+																	chat?.typingEffect
+																}
+																rating={chat?.rating}
+																messageData={chat}
+																citations={chat?.citations}
+																isNoteCanvas={true}
+															/>
+														</div>
+													) : (
+														<Markdown>{chat?.message}</Markdown>
+													)}
+												</div>
 											</div>
-										</div>
-									),
+										),
 								)}
 							</div>
 						</div>
@@ -265,9 +235,7 @@ const NoteComponentModal = ({
 							<ChatBox
 								showIconText={false}
 								handleSendWebsocketMessage={handleSendWebsocketMessage}
-								latestStreamMesage={latestStreamMesage}
-								lastQuery={lastQuery}
-								toggleLatestStreamMessage={toggleLatestStreamMessage}
+								showUpgradeSubscriptionBtn={false}
 							/>
 						</div>
 					</div>
@@ -331,11 +299,11 @@ const NoteComponentModal = ({
 										: outerContainerStyle
 								}
 								initialContent={
-									info?.chatToNoteLoopOn ? globalChatMessages : noteContent
+									info?.chatToNoteLoopOn
+										? globalChatMessages?.[currentSessionId]?.messages
+										: noteContent
 								}
 								loopOn={info?.chatToNoteLoopOn}
-								noteIconsInfo={info?.noteIconsInfo}
-								onCopyNoteContent={handleCopyNoteContent}
 								noteId={info?.noteId}
 								setNoteId={(newNoteId) =>
 									setInfo((prev) => ({ ...prev, noteId: newNoteId }))
@@ -349,4 +317,4 @@ const NoteComponentModal = ({
 	);
 };
 
-export default NoteComponentModal;
+export default memo(NoteComponentModal);

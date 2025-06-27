@@ -24,8 +24,6 @@ const SelectDropdown = ({
 		option.label?.toLowerCase().includes(searchValue.toLowerCase()),
 	);
 
-	
-
 	useEffect(() => {
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
@@ -38,7 +36,12 @@ const SelectDropdown = ({
 			setSearchValue('');
 		}
 	}, [visible]);
-	
+
+	// Reset searchValue if parent resets value (form cleared)
+	useEffect(() => {
+		if (value === '') setSearchValue('');
+	}, [value]);
+
 	const handleSelect = (option) => {
 		setOption(option);
 		setVisible(false);

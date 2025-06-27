@@ -1,78 +1,115 @@
 import { memo } from 'react';
 import { ReactComponent as SparkleSvg } from '../../../assets/svg/ai_agents/sparkle.svg';
-import { ReactComponent as BinocularsSvg } from '../../../assets/svg/landingScreen/binocularsSvg.svg';
 import s from '../../../assets/scss/landingScreen/proactiveDropdown.module.scss';
-import { Link } from 'react-router-dom';
+
+const linkMapper = {
+	features: [
+		{
+			title: 'Ambient AI',
+			path: '/',
+		},
+		{
+			title: 'Enterprise Search',
+			path: '/',
+		},
+		{
+			title: 'AI meeting notes',
+			path: '/',
+		},
+		{
+			title: 'Agents',
+			path: '/',
+		},
+		{
+			title: 'Build',
+			path: '/',
+		},
+		{
+			title: 'Notes',
+			path: '/',
+		},
+		{
+			title: 'Projects',
+			path: '/',
+		},
+		{
+			title: 'Docs',
+			path: '/',
+		},
+		{
+			title: 'Forms',
+			path: '/',
+		},
+		{
+			title: 'Sites',
+			path: '/',
+		},
+	],
+	search: [
+		{
+			title: 'Calendar',
+			path: '/',
+		},
+		{
+			title: 'Task',
+			path: '/',
+		},
+		{
+			title: 'Automation',
+			path: '/',
+		},
+		{
+			title: 'Knowledge search',
+			path: '/',
+		},
+		{
+			title: 'Internal search',
+			path: '/',
+		},
+		{
+			title: 'LLM search',
+			path: '/',
+		},
+	],
+};
 
 const ProactiveDropdown = ({ isOpen }) => {
 	return (
 		<div className={`${s.proactiveDropdown__container} `}>
 			<div className={s.left}>
 				<div className={s.heading}>
-					<SparkleSvg /> Features
+					<SparkleSvg /> Upcoming features
 				</div>
 				<div className={s.listContainer}>
-					<div className={s.list}>
-						<span>
-							<Link to="/">Proactive AI</Link>
-						</span>
-						<span>
-							<Link>Enterprise Search</Link>
-						</span>
-						<span>
-							<Link>AI meeting notes</Link>
-						</span>
-						<span>
-							<Link>Agents</Link>
-						</span>
-						<span>
-							<Link>Build</Link>
-						</span>
-					</div>
-					<div className={s.list}>
-						<span>
-							<Link>Notes</Link>
-						</span>
-						<span>
-							<Link>Projects</Link>
-						</span>
-						<span>
-							<Link>Docs</Link>
-						</span>
-						<span>
-							<Link>Forms</Link>
-						</span>
-						<span>
-							<Link>Sites</Link>
-						</span>
-					</div>
-					<div className={s.list}>
-						<span>
-							<Link>Calendar</Link>
-						</span>
-						<span>
-							<Link>Task</Link>
-						</span>
-						<span>
-							<Link>Automation</Link>
-						</span>
-					</div>
+					{[0, 1, 2].map((listIndex) => (
+						<div key={listIndex} className={s.list}>
+							{linkMapper.features
+								.slice(listIndex * 5, (listIndex + 1) * 5)
+								.map((link, index) => (
+									<span key={index}>
+										<p to={link.path}>{link.title}</p>
+										{/* <link> */}
+									</span>
+								))}
+						</div>
+					))}
 				</div>
 			</div>
 			<div className={s.right}>
-				<div className={s.heading}>
-					<BinocularsSvg /> Search
-				</div>
-				<div className={s.list}>
-					<span>
-						<Link>Knowledge search</Link>
-					</span>
-					<span>
-						<Link>Internal search</Link>
-					</span>
-					<span>
-						<Link>LLM search</Link>
-					</span>
+				<div className={s.heading}>{/* <BinocularsSvg /> Search */} ㅤ </div>
+				<div className={s.listContainer}>
+					{[0, 1].map((listIndex) => (
+						<div key={listIndex} className={s.list}>
+							{linkMapper.search
+								.slice(listIndex * 3, (listIndex + 1) * 3)
+								.map((link, index) => (
+									<span key={index}>
+										<p to={link.path}>{link.title}</p>
+										{/* </link> */}
+									</span>
+								))}
+						</div>
+					))}
 				</div>
 			</div>
 		</div>

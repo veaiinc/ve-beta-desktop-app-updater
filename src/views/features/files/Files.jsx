@@ -52,7 +52,7 @@ const options = [
 		value: 'form',
 	},
 	{
-		label: 'Designs',
+		label: 'My Templates',
 		value: 'template',
 	},
 	{
@@ -162,7 +162,7 @@ const suggestedOptions = [
 		title: 'Document',
 		value: '',
 		controlValue: 'workflow',
-		action: navigate => {
+		action: (navigate) => {
 			navigate(`/builder/create-document`);
 		},
 	},
@@ -237,7 +237,7 @@ const suggestedOptions = [
 
 const Files = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const activeTab = searchParams.get('activeTab') || 'Documents';
+	const activeTab = searchParams.get('active-tab') || 'Documents';
 	const cardItems = useRef(null);
 	const elasticSearchTimeoutRef = useRef(null);
 	const navigate = useNavigate();
@@ -287,10 +287,11 @@ const Files = () => {
 
 	useEffect(() => {
 		if (activeTab) {
-			const exists = info?.options?.some((item) => item?.label === activeTab);
+			const mappedActiveTab = activeTab === 'My-Templates' ? 'My Templates' : activeTab;
+			const exists = info?.options?.some((item) => item?.label === mappedActiveTab);
 			setInfo((prev) => ({
 				...prev,
-				selectedView: exists ? activeTab : info?.options[0]?.label,
+				selectedView: exists ? mappedActiveTab : info?.options[0]?.label,
 			}));
 		}
 	}, [activeTab, info?.options]);
@@ -416,7 +417,8 @@ const Files = () => {
 				...info,
 				bottomNavigationDropdown: false,
 			});
-			setSearchParams({ activeTab: option });
+			const urlParam = option === 'My Templates' ? 'My-Templates' : option;
+			setSearchParams({ 'active-tab': urlParam });
 		} finally {
 			setLoadingView(null);
 		}
@@ -658,7 +660,7 @@ const Files = () => {
 		Documents: (
 			<DocsGrid
 				statusTextmapper={statusTextmapper}
-				handleCreateDoc={() => (window.location.href = `${origin}/create-document`)}
+				handleCreateDoc={() => (window.location.href = `/builder/create-document`)}
 				handleTotalChange={(value) => handleTotalChange({ workflow: value })}
 			/>
 		),
@@ -692,7 +694,7 @@ const Files = () => {
 			/>
 		),
 		MostUsedEntries: <MostUsedEntries mostUsedEntities={mostUsedEntities} />,
-		Designs: (
+		'My Templates': (
 			<TemplatesGrid
 				handleCreateTemplate={() =>
 					setInfo((prev) => ({ ...prev, openProposalPopup: true }))
@@ -785,7 +787,7 @@ const Files = () => {
 							</div>
 						</div>
 
-						<div className={`search-input-container`} onClick={triggerCmdK}>
+						{/* <div className={`search-input-container`} onClick={triggerCmdK}>
 							<div className="search-input-wrapper">
 								<SearchSvg /> Search
 							</div>
@@ -795,7 +797,7 @@ const Files = () => {
 								</div>
 								<span className="cmd-text">K</span>
 							</div>
-						</div>
+						</div> */}
 					</div>
 				</div>
 				{/* <div className="black-gradient-btm"></div> */}

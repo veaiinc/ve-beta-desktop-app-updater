@@ -16,6 +16,8 @@
 		"@intercom/messenger-js-sdk": "^0.0.14",
 		"@livekit/components-react": "^2.8.1",
 		"@livekit/krisp-noise-filter": "^0.2.16",
+		"@pipedream/platform": "^3.1.0",
+		"@pipedream/sdk": "^1.6.9",
 		"@xyflow/react": "^12.3.6",
 		"antd": "^5.24.5",
 		"axios": "^1.7.2",
@@ -64,6 +66,7 @@
 		"react-phone-number-input": "^3.4.3",
 		"react-player": "^2.16.0",
 		"react-qr-code": "^2.0.15",
+		"react-resizable": "^3.0.5",
 		"react-responsive-masonry": "^2.3.0",
 		"react-router-dom": "^6.23.1",
 		"react-select": "^5.8.0",
@@ -85,7 +88,8 @@
 	},
 	"scripts": {
 		"start": "vite",
-		"build": "rm -rf build .vite node_modules/.vite && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build",
+		"build": "rm -rf .vite node_modules/.vite && NODE_ENV=production node --max-old-space-size=12288 --optimize-for-size node_modules/vite/bin/vite.js build",
+		"build:analyze": "npm run build && npx vite-bundle-analyzer build",
 		"preview": "vite preview",
 		"delete-maps": "rm ./build/static/js/*.map && rm ./build/static/css/*.map",
 		"format": "prettier --write \"**/*.+(js|jsx|json|yml|yaml|css|md|vue)\""
@@ -105,21 +109,6 @@
 		"singleQuote": true,
 		"useTabs": true
 	},
-	"husky": {
-		"hooks": {
-			"pre-commit": "lint-staged"
-		}
-	},
-	"lint-staged": {
-		"*.+(js|jsx)": [
-			"eslint --fix",
-			"git add"
-		],
-		"*.+(json|css|md)": [
-			"prettier --write",
-			"git add"
-		]
-	},
 	"browserslist": {
 		"production": [
 			">0.2%",
@@ -136,14 +125,14 @@
 		"@eslint/js": "^9.27.0",
 		"@svgr/rollup": "^8.1.0",
 		"@vitejs/plugin-react": "^4.4.1",
+		"autoprefixer": "^10.4.21",
 		"css-loader": "^7.1.2",
+		"cssnano": "^7.0.7",
 		"eslint": "^9.27.0",
 		"eslint-config-prettier": "^6.15.0",
 		"eslint-plugin-prettier": "^3.2.0",
 		"eslint-plugin-react": "^7.37.5",
 		"globals": "^16.1.0",
-		"husky": "^4.3.0",
-		"lint-staged": "^10.5.2",
 		"prettier": "^2.2.1",
 		"sass": "^1.77.5",
 		"sass-loader": "^16.0.5",

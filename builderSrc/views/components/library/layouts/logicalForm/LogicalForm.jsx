@@ -4535,8 +4535,8 @@ function LogicalForm(props) {
         border: 1.5px solid color(display-p3 0.8155 0.8155 0.8155) !important;
         background: transparent ;
        
-        color: black ;
-        font-family: Inter ;
+        
+        
         ...(props?.newTheme?.colors?.form?.inputAnswer || {}),
 		...(props?.newTheme?.fonts?.form?.inputAnswer || {}),
     }
@@ -6564,105 +6564,115 @@ function LogicalForm(props) {
 										{!hasStarted ? (
 											// Landing page
 											<div style={landingPageStyles.container}>
-												{/* {formLogo && ( */}
-												{props?.section?.logoProps?.imageURL && (
-													<div
-														style={{
-															...landingPageStyles?.logoContainer,
-															marginBottom: '20px',
-														}}
-													>
-														{/* <img
-															src={formLogo}
-															alt="Form logo"
-															style={landingPageStyles.logo}
-														/> */}
-														<ImageItem
-															width={96}
-															height={96}
-															shape={
-																props?.section?.logoProps?.shape ||
-																'square'
-															}
-															mShapeSize={{ width: 96, height: 96 }}
-															crop={
-																props?.section?.logoProps?.crop || {
-																	x: 0,
-																	y: 0,
+												{/* Only show logo if showFormLogo is not false */}
+												{props?.section?.logoProps?.imageURL &&
+													props?.style?.showFormLogo !== false && (
+														<div
+															style={{
+																...landingPageStyles?.logoContainer,
+																marginBottom: '20px',
+															}}
+														>
+															<ImageItem
+																width={96}
+																height={96}
+																shape={
+																	props?.section?.logoProps
+																		?.shape || 'square'
 																}
-															}
-															zoom={
-																props?.section?.logoProps?.zoom || 1
-															}
-															preview={props?.preview}
-															previewType={props?.previewType}
-															imageUrl={
-																props?.section?.logoProps?.imageURL
-																	? props?.section?.logoProps
-																			?.imageURL
-																	: null
-															}
-															imageSettings={
-																props?.section?.logoProps
-																	?.image_settings
-															}
-															setActiveImage={
-																(e) => ''
-																// this.props.activeImage(
-																// 	this.state.sectionID,
-																// 	this.state.block._id,
-																// 	this.state.block.subBlocks[0]._id,
-																// 	this.state.block.subBlocks[0].imageURL,
-																// 	e,
-																// )
-															}
-															setActiveShape={(e) => ''}
-															settingData={
-																(e) => ''
-																// this.props.imgSettingData(
-																// 	this.state.block.subBlocks[0].image_settings,
-																// )
-															}
-															activeSubBlockId={
-																props?.activeSubBlockId
-															}
-															refID={
-																props?.section?._id
-																	? props?.section?._id
-																	: null
-															}
-															ImgOverlayColor={
-																props?.section?.logoProps
-																	?.ImgOverlayColor
-															}
-															ImgOverlayOpacity={
-																props?.section?.logoProps
-																	?.ImgOverlayOpacity
-															}
-															mImageObjectFit={
-																props?.section?.logoProps
-																	?.mImageObjectFit
-															}
-															mobileImageObjectFit={
-																props?.section?.logoProps
-																	?.mobileImageObjectFit
-															}
-															properties={props?.section?.logoProps}
-														/>
-													</div>
+																mShapeSize={{
+																	width: 96,
+																	height: 96,
+																}}
+																crop={
+																	props?.section?.logoProps
+																		?.crop || {
+																		x: 0,
+																		y: 0,
+																	}
+																}
+																zoom={
+																	props?.section?.logoProps
+																		?.zoom || 1
+																}
+																preview={props?.preview}
+																previewType={props?.previewType}
+																imageUrl={
+																	props?.section?.logoProps
+																		?.imageURL
+																		? props?.section?.logoProps
+																				?.imageURL
+																		: null
+																}
+																imageSettings={
+																	props?.section?.logoProps
+																		?.image_settings
+																}
+																setActiveImage={
+																	(e) => ''
+																	// this.props.activeImage(
+																	// 	this.state.sectionID,
+																	// 	this.state.block._id,
+																	// 	this.state.block.subBlocks[0]._id,
+																	// 	this.state.block.subBlocks[0].imageURL,
+																	// 	e,
+																	// )
+																}
+																setActiveShape={(e) => ''}
+																settingData={
+																	(e) => ''
+																	// this.props.imgSettingData(
+																	// 	this.state.block.subBlocks[0].image_settings,
+																	// )
+																}
+																activeSubBlockId={
+																	props?.activeSubBlockId
+																}
+																refID={
+																	props?.section?._id
+																		? props?.section?._id
+																		: null
+																}
+																ImgOverlayColor={
+																	props?.section?.logoProps
+																		?.ImgOverlayColor
+																}
+																ImgOverlayOpacity={
+																	props?.section?.logoProps
+																		?.ImgOverlayOpacity
+																}
+																mImageObjectFit={
+																	props?.section?.logoProps
+																		?.mImageObjectFit
+																}
+																mobileImageObjectFit={
+																	props?.section?.logoProps
+																		?.mobileImageObjectFit
+																}
+																properties={
+																	props?.section?.logoProps
+																}
+															/>
+														</div>
+													)}
+												{/* Only show title if showFormTitle is not false */}
+												{props?.style?.showFormTitle !== false && (
+													<div
+														style={landingPageStyles.title}
+														dangerouslySetInnerHTML={{
+															__html: formTitle,
+														}}
+													/>
 												)}
-												<div
-													style={landingPageStyles.title}
-													dangerouslySetInnerHTML={{
-														__html: formTitle,
-													}}
-												/>
-												<p
-													style={landingPageStyles.description}
-													dangerouslySetInnerHTML={{
-														__html: formDescription,
-													}}
-												/>
+												{/* Only show description if showFormDescription is not false */}
+												{props?.style?.showFormDescription !== false && (
+													<p
+														style={landingPageStyles.description}
+														dangerouslySetInnerHTML={{
+															__html: formDescription,
+														}}
+													/>
+												)}
 												<button
 													style={landingPageStyles.startButton}
 													onClick={() => setHasStarted(true)}

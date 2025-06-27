@@ -2,7 +2,11 @@ import '@blocknote/core/fonts/inter.css';
 import { BlockNoteView } from '@blocknote/mantine';
 // import { createBlock } from '@blocknote/core';
 import '@blocknote/mantine/style.css';
-import { useCreateBlockNote } from '@blocknote/react';
+import {
+	getDefaultReactSlashMenuItems,
+	SuggestionMenuController,
+	useCreateBlockNote,
+} from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
 import NoteToolbar from '../../components/notes/NoteToolbar';
 import ShareComponent from '../../components/notes/ShareComponent';
@@ -28,6 +32,10 @@ import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
+import FileUploadToolbar from '../../components/notes/ImageComponent';
+import { ImageBlock, insertImage } from '../../components/notes/ImageComponent';
+import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
@@ -77,12 +85,13 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 }));
 
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
+	const { workspaceMode } = useWorkspaceMode();
 	const { noteId } = useParams();
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const prevDocRef = useRef([]);
 	const originalFaviconRef = useRef(null);
-	const { createWebSocketConnection, sendMessage } = useChatStream();
+	// const { createWebSocketConnection, sendMessage } = useChatStream();
 
 	const {
 		notes: {
@@ -103,6 +112,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			notesDeleteCoverImage,
 			notesDeleteIcon,
 		},
+		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 
@@ -148,15 +158,24 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 		return null;
 	}, [notesPageData?.data?.iconImage, info?.selectedEmoji?.native]);
+	const schema = BlockNoteSchema.create({
+		blockSpecs: {
+			// Adds all default blocks.
+			...defaultBlockSpecs,
+			// Adds the Alert block.
+			image: ImageBlock,
+		},
+	});
 
 	const editor = useCreateBlockNote({
+		schema,
 		tables: {
 			splitCells: true,
 			cellBackgroundColor: true,
 			cellTextColor: true,
 			headers: true,
 		},
-		uploadFile,
+		// uploadFile,
 	});
 
 	useEffect(() => {
@@ -239,9 +258,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 	useEffect(() => {
 		if (noteId) {
-			const sessionId = ObjectID()?.toString();
 			getNotesPageDataFunc();
-			createWebSocketConnection(sessionId, handleAiResponse);
 		}
 
 		return () => {
@@ -250,6 +267,16 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			});
 		};
 	}, [noteId]);
+
+	useEffect(() => {
+		const sessionId = ObjectID()?.toString();
+		if (noteId && workspaceMode) {
+			createWebSocketConnection(sessionId, handleAiResponse, '', false, workspaceMode);
+		}
+		return () => {
+			closeWebSocketConnection([sessionId]);
+		};
+	}, [noteId, workspaceMode]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -901,6 +928,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 								style={innerContainerStyle || {}}
 								theme={'dark'}
 								editable={info?.myAccess !== 'view' || !info?.isDeleted}
+								filePanel={FileUploadToolbar}
+								slashMenu={false}
 							>
 								{(info?.myAccess !== 'view' || !info?.isDeleted) && (
 									<NoteToolbar
@@ -909,6 +938,22 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 										resetAiResponse={resetAiResponse}
 									/>
 								)}
+								<SuggestionMenuController
+									triggerCharacter={'/'}
+									getItems={async (query) => {
+										const defaultItems = getDefaultReactSlashMenuItems(editor);
+										const imageBlockIndex = defaultItems.findIndex(
+											(item) => item.group === 'Media',
+										);
+										defaultItems.splice(
+											imageBlockIndex,
+											0,
+											insertImage(editor, noteId),
+										);
+
+										return filterSuggestionItems(defaultItems, query);
+									}}
+								/>
 							</BlockNoteView>
 						</div>
 					</>

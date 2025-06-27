@@ -45,6 +45,7 @@ const initialState = {
 	isUploading: false,
 	isUrlValid: false,
 	aiCrawlLinks: null,
+	isUrlLoading: false,
 };
 
 const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
@@ -54,6 +55,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			uploadURLsToKnowledgeBase,
 			getKnowledgeBaseInfo,
 			uploadPDFsToKnowledgeBase,
+			getKnowledgeBaseFilesActiveStatus,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -62,15 +64,35 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 
 	const { aiAssistantId } = useParams();
 
+	const normalizeUrl = (url) => {
+		// Remove trailing slashes and normalize the URL
+		return url.replace(/\/+$/, '');
+	};
+
 	const fetchSubLinks = useCallback(async (payload) => {
-		const subLinks = await crawlAiAssistant(payload);
-		if (subLinks?.length > 0) {
-			setInfo((prev) => ({
-				...prev,
-				aiCrawlLinks: prev?.aiCrawlLinks
-					? [...prev.aiCrawlLinks, ...subLinks]
-					: [...subLinks],
-			}));
+		setInfo((prev) => ({ ...prev, isUrlLoading: true }));
+		try {
+			const subLinks = await crawlAiAssistant(payload);
+			if (subLinks?.length > 0) {
+				// Normalize the main URL and filter out any sub-links that are identical to it
+				const normalizedMainUrl = normalizeUrl(payload.url);
+				const filteredSubLinks = subLinks.filter(
+					(link) => normalizeUrl(link) !== normalizedMainUrl,
+				);
+
+				if (filteredSubLinks.length > 0) {
+					setInfo((prev) => ({
+						...prev,
+						aiCrawlLinks: prev?.aiCrawlLinks
+							? [...prev.aiCrawlLinks, ...filteredSubLinks]
+							: [...filteredSubLinks],
+					}));
+				}
+			}
+		} catch (error) {
+			message.error('Failed to fetch sub-links', 1);
+		} finally {
+			setInfo((prev) => ({ ...prev, isUrlLoading: false }));
 		}
 	}, []);
 
@@ -126,7 +148,13 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			if (statusSummary?.[0]) {
 				message.success('URLs uploaded successfully!', 1);
 				modifyClose();
-				getKnowledgeBaseInfo(assistantId, 1, 20);
+				// Refresh both knowledge base info and active status
+				await getKnowledgeBaseInfo(assistantId, 1, 20);
+				await getKnowledgeBaseFilesActiveStatus({
+					agentId: assistantId,
+					page: 1,
+					limit: 20,
+				});
 			}
 		} else if (info?.activeFileType === 'pdf') {
 			if (info?.pdfFilesInfo?.length === 0) {
@@ -146,7 +174,13 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			if (statusSummary?.[0]) {
 				message.success('PDF Files uploaded successfully!', 1);
 				toggleModal();
-				getKnowledgeBaseInfo(assistantId, 1, 20);
+				// Refresh both knowledge base info and active status
+				await getKnowledgeBaseInfo(assistantId, 1, 20);
+				await getKnowledgeBaseFilesActiveStatus({
+					agentId: assistantId,
+					page: 1,
+					limit: 20,
+				});
 			}
 		} else if (info?.activeFileType === 'customText') {
 			if (info?.customTextInfo?.filename === '') {
@@ -174,7 +208,13 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			if (statusSummary?.[0]) {
 				message.success('Text File uploaded successfully!', 1);
 				toggleModal();
-				getKnowledgeBaseInfo(assistantId, 1, 20);
+				// Refresh both knowledge base info and active status
+				await getKnowledgeBaseInfo(assistantId, 1, 20);
+				await getKnowledgeBaseFilesActiveStatus({
+					agentId: assistantId,
+					page: 1,
+					limit: 20,
+				});
 			}
 		}
 		setInfo((prev) => ({ ...prev, isUploading: false }));
@@ -225,10 +265,23 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 	};
 
 	const handleRemoveURL = (index) => {
-		setInfo((prev) => ({
-			...prev,
-			urlsInfo: prev?.urlsInfo?.filter((url, i) => i !== index),
-		}));
+		const urlToRemove = info?.urlsInfo[index]?.url;
+		setInfo((prev) => {
+			const newUrlsInfo = prev?.urlsInfo?.filter((url, i) => i !== index);
+			// If this was the last URL, clear all sub-links
+			if (newUrlsInfo.length === 0) {
+				return {
+					...prev,
+					urlsInfo: newUrlsInfo,
+					aiCrawlLinks: null,
+				};
+			}
+			return {
+				...prev,
+				urlsInfo: newUrlsInfo,
+				aiCrawlLinks: prev?.aiCrawlLinks?.filter((link) => !link.includes(urlToRemove)),
+			};
+		});
 	};
 
 	const handleRemovePDF = (index) => {
@@ -258,6 +311,15 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 				fileContent,
 			},
 		}));
+	};
+
+	const handleKeyDown = (e) => {
+		if (e.key === 'Enter' && info?.isUrlValid) {
+			handleAddURL();
+			fetchSubLinks({
+				url: info?.inputURL,
+			});
+		}
 	};
 
 	return (
@@ -296,6 +358,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 									<input
 										value={info?.inputURL}
 										onChange={handleSetInputURL}
+										onKeyDown={handleKeyDown}
 										type="text"
 										placeholder="Enter URL"
 										autoFocus={true}
@@ -307,8 +370,18 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 												url: info?.inputURL,
 											});
 										}}
+										disabled={info?.isUrlLoading}
+										style={{
+											cursor: info?.isUrlLoading ? 'not-allowed' : 'pointer',
+										}}
 									>
-										Add
+										{info?.isUrlLoading ? (
+											<p className="">
+												<Spinner width={'16px'} height={'16px'} />
+											</p>
+										) : (
+											'Add'
+										)}
 									</button>
 								</div>
 							</div>
@@ -433,10 +506,12 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 							className="updateBtn"
 						>
 							{info?.isUploading ? (
-								<p className="loader">
-									Uploading Knowledge Files...
-									<Spinner width={'14px'} height={'14px'} />
-								</p>
+								<>
+									<p className="loader">
+										Uploading Knowledge Files...
+										<Spinner width={'14px'} height={'14px'} />
+									</p>
+								</>
 							) : (
 								<p>
 									Upload{' '}

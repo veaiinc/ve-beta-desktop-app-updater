@@ -6,7 +6,7 @@ import Context from '../../../context/context';
 
 import LoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
 import EventsPopup from '../calendar/EventsPopUp';
-import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
+// import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
 import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
 import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
 import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
@@ -27,6 +27,8 @@ import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calenda
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 
 import '../../../assets/scss/globalComponents/quickActions.scss';
+import SchedulerRightDrawer from '../calendar/SchedulerRightDrawer';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const suggestedOptions = [];
 
@@ -98,7 +100,7 @@ const createOptions = [
 		value: 'session',
 		controlValue: 'calendar',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+			setInfo((prev) => ({ ...prev, openSchedulerDrawer: true, dropdown: false }));
 		},
 	},
 	{
@@ -135,19 +137,26 @@ const createOptions = [
 			}
 		},
 	},
+	// {
+	// 	id: 6,
+	// 	title: 'Proposal',
+	// 	value: 'proposal',
+	// 	controlValue: 'workflow',
+	// 	action: ({ setInfo }) => {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			openProposalPopup: true,
+	// 			commonState: 'proposal',
+	// 			dropdown: false,
+	// 		}));
+	// 	},
+	// },
 	{
 		id: 6,
-		title: 'Proposal',
-		value: 'proposal',
+		title: 'Document',
+		value: 'document',
 		controlValue: 'workflow',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({
-				...prev,
-				openProposalPopup: true,
-				commonState: 'proposal',
-				dropdown: false,
-			}));
-		},
+		action: ({ navigate }) => navigate('/builder/create-document'),
 	},
 	{
 		id: 7,
@@ -315,6 +324,7 @@ const QuickActions = ({
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const { workspaceMode } = useWorkspaceMode();
 
 	const {
 		templates: { toggleCreateLeadModal, updateStateValues, createBlankTemplate },
@@ -344,7 +354,7 @@ const QuickActions = ({
 		openGalleryPopup: false,
 		openLiteGalleryPopup: false,
 		openEventsPopup: false,
-		openSessionPopup: false,
+		openSchedulerDrawer: false,
 		options: {
 			suggestedOptions: propSuggestedOptions.length ? propSuggestedOptions : suggestedOptions,
 			buildAi: buildAiOptions,
@@ -404,7 +414,11 @@ const QuickActions = ({
 					value: 'session',
 					controlValue: 'calendar',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+						setInfo((prev) => ({
+							...prev,
+							openSchedulerDrawer: true,
+							dropdown: false,
+						}));
 					},
 				},
 				{
@@ -590,13 +604,8 @@ const QuickActions = ({
 					title: 'Proposal',
 					value: 'proposal',
 					controlValue: 'workflow',
-					action: ({ setInfo }) => {
-						setInfo((prev) => ({
-							...prev,
-							openProposalPopup: true,
-							commonState: 'proposal',
-							dropdown: false,
-						}));
+					action: ({ navigate }) => {
+						navigate('/builder/create-document');
 					},
 				},
 				{
@@ -604,13 +613,8 @@ const QuickActions = ({
 					title: 'Invoice',
 					value: 'invoice',
 					controlValue: 'workflow',
-					action: ({ setInfo }) => {
-						setInfo((prev) => ({
-							...prev,
-							openProposalPopup: true,
-							commonState: 'invoice',
-							dropdown: false,
-						}));
+					action: ({ navigate }) => {
+						navigate('/builder/create-document');
 					},
 				},
 				{
@@ -618,13 +622,8 @@ const QuickActions = ({
 					title: 'Contracts',
 					value: 'contract',
 					controlValue: 'workflow',
-					action: ({ setInfo }) => {
-						setInfo((prev) => ({
-							...prev,
-							openProposalPopup: true,
-							commonState: 'contract',
-							dropdown: false,
-						}));
+					action: ({ navigate }) => {
+						navigate('/builder/create-document');
 					},
 				},
 				{
@@ -632,13 +631,8 @@ const QuickActions = ({
 					title: 'Presentation',
 					value: 'presentation',
 					controlValue: 'workflow',
-					action: ({ setInfo }) => {
-						setInfo((prev) => ({
-							...prev,
-							openProposalPopup: true,
-							commonState: 'presentation',
-							dropdown: false,
-						}));
+					action: ({ navigate }) => {
+						navigate('/builder/create-document');
 					},
 				},
 				{
@@ -842,7 +836,11 @@ const QuickActions = ({
 					value: 'session',
 					controlValue: 'calendar',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+						setInfo((prev) => ({
+							...prev,
+							openSchedulerDrawer: true,
+							dropdown: false,
+						}));
 					},
 				},
 			];
@@ -865,7 +863,11 @@ const QuickActions = ({
 					value: 'session',
 					controlValue: 'calendar',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+						setInfo((prev) => ({
+							...prev,
+							openSchedulerDrawer: true,
+							dropdown: false,
+						}));
 					},
 				},
 				{
@@ -1334,155 +1336,44 @@ const QuickActions = ({
 	}, []);
 
 	return (
-		<div className="quick-actions-container" style={{ ...styles }}>
-			<button
-				ref={buttonRef}
-				className="dropdown-header"
-				onMouseEnter={() => setInfo((prev) => ({ ...prev, dropdown: true }))}
-			>
-				<div className="newMenuText">New</div>
-				<div className="flashmage">
-					<Flash />
-				</div>
-			</button>
+		workspaceMode !== 'stable' && (
+			<div className="quick-actions-container" style={{ ...styles }}>
+				<button
+					ref={buttonRef}
+					className="dropdown-header"
+					onMouseEnter={() => setInfo((prev) => ({ ...prev, dropdown: true }))}
+				>
+					<div className="newMenuText">New</div>
+					<div className="flashmage">
+						<Flash />
+					</div>
+				</button>
 
-			<div
-				ref={dropdownRef}
-				className={`quick-actions-dropdown-options-container ${
-					info.dropdown ? 'slide-in' : 'slide-out'
-				}`}
-				onMouseEnter={() => setInfo((prev) => ({ ...prev, dropdown: true }))}
-				onMouseLeave={() => setInfo((prev) => ({ ...prev, dropdown: false }))}
-			>
-				<div className="top-search-container">
-					<img src={Search} alt="search" />
-					<input
-						type="text"
-						placeholder="Search"
-						value={info?.search}
-						onChange={handleSearch}
-					/>
-				</div>
-
-				<div className="content-container">
-					{info?.filteredOptions?.suggestedOptions?.length > 0 && (
-						<div className="suggested-modules-container">
-							<div className="suggested-modules-container-header">
-								Suggested Actions
-							</div>
-							<div className="suggested-modules-container-options">
-								{info?.filteredOptions?.suggestedOptions?.map((option) => (
-									<div
-										key={option?.id}
-										className="dropdown-option"
-										onClick={() =>
-											option?.action({
-												setInfo,
-												navigate,
-												createNewAiAssistant,
-												createAutomation,
-												createNewKnowledgeAgent,
-												createBlankTemplate,
-											})
-										}
-									>
-										{option?.icon && <img src={option?.icon} alt="icon" />}
-										<div className="dropdown-option-title">{option?.title}</div>
-									</div>
-								))}
-							</div>
-							<hr className="horizontal-divider" />
-						</div>
-					)}
-					{info?.filteredOptions?.buildAi?.length > 0 && (
-						<div className="suggested-modules-container">
-							<div className="suggested-modules-container-header">Build with AI</div>
-							<div className="suggested-modules-container-options">
-								{info?.filteredOptions?.buildAi?.map((option) => (
-									<div
-										key={option?.id}
-										className="dropdown-option"
-										onClick={() =>
-											option?.action({
-												updateStateValues,
-												navigate,
-											})
-										}
-									>
-										{option?.icon && <img src={option?.icon} alt="icon" />}
-										<div className="dropdown-option-title">{option?.title}</div>
-									</div>
-								))}
-							</div>
-							<hr className="horizontal-divider" />
-						</div>
-					)}
-
-					{info?.filteredOptions?.launch?.length > 0 && (
-						<div className="suggested-modules-container">
-							<div className="suggested-modules-container-header">Launch</div>
-							<div className="suggested-modules-container-options">
-								{info?.filteredOptions?.launch?.map((option) => (
-									<div
-										key={option?.id}
-										className="dropdown-option"
-										onClick={() =>
-											option?.action({
-												setInfo,
-												navigate,
-												createNewAiAssistant,
-												createAutomation,
-												createNewKnowledgeAgent,
-												createBlankTemplate,
-											})
-										}
-									>
-										{option?.icon && <img src={option?.icon} alt="icon" />}
-										<div className="dropdown-option-title">{option?.title}</div>
-									</div>
-								))}
-							</div>
-							<hr className="horizontal-divider" />
-						</div>
-					)}
-					{info?.filteredOptions?.create?.length > 0 && (
-						<div className="suggested-modules-container">
-							<div className="suggested-modules-container-header">Create</div>
-							<div className="suggested-modules-container-options">
-								{info?.filteredOptions?.create?.map((option) => (
-									<div
-										key={option?.id}
-										className="dropdown-option"
-										onClick={() =>
-											option?.action({
-												setInfo,
-												navigate,
-												createNewAiAssistant,
-												createAutomation,
-												createNewKnowledgeAgent,
-												createBlankTemplate,
-											})
-										}
-									>
-										{option?.icon && <img src={option?.icon} alt="icon" />}
-										<div className="dropdown-option-title">{option?.title}</div>
-									</div>
-								))}
-							</div>
-							<hr className="horizontal-divider" />
-						</div>
-					)}
-					{info?.filteredOptions?.upload?.length > 0 && (
-						<div className="suggested-modules-container">
-							<div className="suggested-modules-container-header">Upload</div>
-							<div className="suggested-modules-container-options">
-								{info?.filteredOptions?.upload
-									?.filter(
-										(option) =>
-											liteGalleryPaidPlan ||
-											option.controlValue !== 'liteGallery',
-									)
-									?.map((option) => (
+				<div
+					ref={dropdownRef}
+					className={`quick-actions-dropdown-options-container ${
+						info.dropdown ? 'slide-in' : 'slide-out'
+					}`}
+					onMouseEnter={() => setInfo((prev) => ({ ...prev, dropdown: true }))}
+					onMouseLeave={() => setInfo((prev) => ({ ...prev, dropdown: false }))}
+				>
+					<div className="top-search-container">
+						<img src={Search} alt="search" />
+						<input
+							type="text"
+							placeholder="Search"
+							value={info?.search}
+							onChange={handleSearch}
+						/>
+					</div>
+					<div className="content-container">
+						{info?.filteredOptions?.suggestedOptions?.length > 0 && (
+							<div className="suggested-modules-container">
+								<div className="suggested-modules-container-header">
+									Suggested Actions
+								</div>
+								<div className="suggested-modules-container-options">
+									{info?.filteredOptions?.suggestedOptions?.map((option) => (
 										<div
 											key={option?.id}
 											className="dropdown-option"
@@ -1503,56 +1394,181 @@ const QuickActions = ({
 											</div>
 										</div>
 									))}
+								</div>
+								<hr className="horizontal-divider" />
 							</div>
-						</div>
-					)}
-				</div>
-			</div>
+						)}
+						{info?.filteredOptions?.buildAi?.length > 0 && (
+							<div className="suggested-modules-container">
+								<div className="suggested-modules-container-header">
+									Build with AI
+								</div>
+								<div className="suggested-modules-container-options">
+									{info?.filteredOptions?.buildAi?.map((option) => (
+										<div
+											key={option?.id}
+											className="dropdown-option"
+											onClick={() =>
+												option?.action({
+													updateStateValues,
+													navigate,
+												})
+											}
+										>
+											{option?.icon && <img src={option?.icon} alt="icon" />}
+											<div className="dropdown-option-title">
+												{option?.title}
+											</div>
+										</div>
+									))}
+								</div>
+								<hr className="horizontal-divider" />
+							</div>
+						)}
 
-			<ProposalsPopup
-				open={info?.openProposalPopup}
-				closeModal={() => setInfo({ ...info, openProposalPopup: false })}
-				clientDetails={clientDetails}
-				commonState={info?.commonState}
-			/>
-			<CreateClientModal
-				modalIsOpen={info?.openClientPopup}
-				closeModal={() => setInfo({ ...info, openClientPopup: false })}
-				leadOrClient={true}
-			/>
-			<CreateGallery
-				open={info?.openGalleryPopup}
-				closeModal={() => setInfo({ ...info, openGalleryPopup: false })}
-				message={message}
-			/>
-			<CreateGallery
-				open={info?.openLiteGalleryPopup}
-				closeModal={() => setInfo({ ...info, openLiteGalleryPopup: false })}
-				isLightGallery={true}
-				message={message}
-			/>
-			<CreateTaskPopup
-				isOpen={info?.createTaskPopup}
-				closeModal={() => setInfo({ ...info, createTaskPopup: false })}
-				responseMetadata={responseMetadata}
-				colors={colors}
-				tenantUsers={info?.tenantUsers}
-				addNewTask={addNewTask}
-			/>
-			<EventsPopup
-				open={info?.openEventsPopup}
-				closeModal={() => setInfo({ ...info, openEventsPopup: false })}
-			/>
-			<CreateSessionModal
-				open={info?.openSessionPopup}
-				closeModal={() => setInfo({ ...info, openSessionPopup: false })}
-				onSessionCreated={() => {
-					setInfo({ ...info, openSessionPopup: false });
-					navigate('/calendar');
-				}}
-			/>
-			<LoaderModal loading={info?.showLoader} message={info?.loaderMessage} />
-		</div>
+						{info?.filteredOptions?.launch?.length > 0 && (
+							<div className="suggested-modules-container">
+								<div className="suggested-modules-container-header">Launch</div>
+								<div className="suggested-modules-container-options">
+									{info?.filteredOptions?.launch?.map((option) => (
+										<div
+											key={option?.id}
+											className="dropdown-option"
+											onClick={() =>
+												option?.action({
+													setInfo,
+													navigate,
+													createNewAiAssistant,
+													createAutomation,
+													createNewKnowledgeAgent,
+													createBlankTemplate,
+												})
+											}
+										>
+											{option?.icon && <img src={option?.icon} alt="icon" />}
+											<div className="dropdown-option-title">
+												{option?.title}
+											</div>
+										</div>
+									))}
+								</div>
+								<hr className="horizontal-divider" />
+							</div>
+						)}
+						{info?.filteredOptions?.create?.length > 0 && (
+							<div className="suggested-modules-container">
+								<div className="suggested-modules-container-header">Create</div>
+								<div className="suggested-modules-container-options">
+									{info?.filteredOptions?.create?.map((option) => (
+										<div
+											key={option?.id}
+											className="dropdown-option"
+											onClick={() =>
+												option?.action({
+													setInfo,
+													navigate,
+													createNewAiAssistant,
+													createAutomation,
+													createNewKnowledgeAgent,
+													createBlankTemplate,
+												})
+											}
+										>
+											{option?.icon && <img src={option?.icon} alt="icon" />}
+											<div className="dropdown-option-title">
+												{option?.title}
+											</div>
+										</div>
+									))}
+								</div>
+								<hr className="horizontal-divider" />
+							</div>
+						)}
+						{info?.filteredOptions?.upload?.length > 0 && (
+							<div className="suggested-modules-container">
+								<div className="suggested-modules-container-header">Upload</div>
+								<div className="suggested-modules-container-options">
+									{info?.filteredOptions?.upload
+										?.filter(
+											(option) =>
+												liteGalleryPaidPlan ||
+												option.controlValue !== 'liteGallery',
+										)
+										?.map((option) => (
+											<div
+												key={option?.id}
+												className="dropdown-option"
+												onClick={() =>
+													option?.action({
+														setInfo,
+														navigate,
+														createNewAiAssistant,
+														createAutomation,
+														createNewKnowledgeAgent,
+														createBlankTemplate,
+													})
+												}
+											>
+												{option?.icon && (
+													<img src={option?.icon} alt="icon" />
+												)}
+												<div className="dropdown-option-title">
+													{option?.title}
+												</div>
+											</div>
+										))}
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+
+				<ProposalsPopup
+					open={info?.openProposalPopup}
+					closeModal={() => setInfo({ ...info, openProposalPopup: false })}
+					clientDetails={clientDetails}
+					commonState={info?.commonState}
+				/>
+				<CreateClientModal
+					modalIsOpen={info?.openClientPopup}
+					closeModal={() => setInfo({ ...info, openClientPopup: false })}
+					leadOrClient={true}
+				/>
+				<CreateGallery
+					open={info?.openGalleryPopup}
+					closeModal={() => setInfo({ ...info, openGalleryPopup: false })}
+					message={message}
+				/>
+				<CreateGallery
+					open={info?.openLiteGalleryPopup}
+					closeModal={() => setInfo({ ...info, openLiteGalleryPopup: false })}
+					isLightGallery={true}
+					message={message}
+				/>
+				<CreateTaskPopup
+					isOpen={info?.createTaskPopup}
+					closeModal={() => setInfo((prev) => ({ ...prev, createTaskPopup: false }))}
+					responseMetadata={responseMetadata}
+					colors={colors}
+					tenantUsers={info?.tenantUsers}
+					addNewTask={addNewTask}
+				/>
+				<EventsPopup
+					open={info?.openEventsPopup}
+					closeModal={() => setInfo((prev) => ({ ...prev, openEventsPopup: false }))}
+				/>
+				<SchedulerRightDrawer
+					open={info?.openSchedulerDrawer}
+					onClose={() => setInfo((prev) => ({ ...prev, openSchedulerDrawer: false }))}
+					mode="create"
+					onSessionCreated={() => {
+						setInfo({ ...info, openSchedulerDrawer: false });
+						navigate('/calendar');
+					}}
+				/>
+				<LoaderModal loading={info?.showLoader} message={info?.loaderMessage} />
+			</div>
+		)
 	);
 };
 

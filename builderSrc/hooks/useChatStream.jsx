@@ -106,7 +106,7 @@ const useChatStream = () => {
 			agentTypeRef.current = agent;
 
 			const usertoken = localStorage.getItem('usertoken');
-			const workspaceId = localStorage.getItem('workspaceID');
+			const workspaceId = localStorage.getItem('workspaceId');
 			const region = localStorage.getItem('region') || 'ap-south-1';
 
 			let baseUrl = `${

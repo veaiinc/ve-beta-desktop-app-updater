@@ -5,6 +5,7 @@ const withRouter = (Component) => {
 	return (props) => {
 		const location = useLocation();
 		const navigate = useNavigate();
+		const navigateData = useNavigate();
 		const params = useParams();
 
 		return (
@@ -14,6 +15,7 @@ const withRouter = (Component) => {
 					router={{
 						location,
 						navigate,
+						navigateData,
 						params,
 					}}
 				/>

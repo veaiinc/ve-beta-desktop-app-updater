@@ -10,6 +10,9 @@ import { ReactComponent as AtomSvg } from '../../../assets/svg/ai_agents/atom.sv
 import { ReactComponent as SparkSvg } from '../../../assets/svg/spark.svg';
 import { ReactComponent as ArrowDownSvg } from '../../../assets/svg/ai_agents/arrow-down.svg';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
+import { ReactComponent as BulbSvg } from '../../../assets/svg/home_page/bulb.svg';
+import { ReactComponent as TrendUpSvg } from '../../../assets/svg/trendUp.svg';
+import CreditCoinImage from '../../../assets/images/creditCoin.png';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation, useParams } from 'react-router-dom';
@@ -25,11 +28,14 @@ import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
 import { message } from '../globalComponents/CustomToast';
-import SearchTypeTooltip from './SearchTypeTooltip';
+// import SearchTypeTooltip from './SearchTypeTooltip';
 import ChatBoxPlaceholder from './ChatBoxPlaceholder';
 import { fileTypeIcons } from '../../../helpers';
 import BuildTooltip from './BuildTooltip';
 import RecentFileTooltip from './RecentFileTooltip';
+import AskTooltip from './AskTooltip';
+import AddOnCards from '../settings/planbilling/addOnCards';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -94,6 +100,15 @@ const chatboxPlaceholders = [
 	'Search across Gmail, Drive, and Notion for “invoice”',
 ];
 
+const initialChatBoxInfo = {
+	deepResearch: false,
+	webSearch: true,
+	workspaceSearch: true,
+	ask: true,
+	goals: false,
+	selectedLLMModel: null,
+	build: false,
+};
 /*
 Note:
 We are using useRef at some places along with useState,
@@ -109,9 +124,6 @@ const ChatBox = ({
 	customChatActions = false,
 	uploadedImages = [],
 	handleSendWebsocketMessage,
-	latestStreamMesage,
-	lastQuery,
-	toggleLatestStreamMessage,
 	isPublicChat = false,
 	autoFocus = true,
 	animatePlaceholder = false,
@@ -121,16 +133,19 @@ const ChatBox = ({
 	startPage = false,
 	onChatQueryChange = null,
 	isBuildEnbled = true,
+	showUpgradeSubscriptionBtn = true,
 }) => {
 	const textAreaRef = useRef(null);
 	const location = useLocation();
 
 	const { handleConnect } = useUpdatedVoiceIntegration();
 	const params = useParams();
+	const { workspaceMode } = useWorkspaceMode();
 
 	const {
 		templates: {
 			globalChatMessages,
+			handleGlobalChatMessages,
 			updateStateValues,
 			handleGlobalUploadImage,
 			checkIndividualImageUploadedStatus,
@@ -138,19 +153,20 @@ const ChatBox = ({
 			activeWorkflowSlugForSmartFile,
 			updateApplicationChat,
 			activePromptForChat,
-			currentSessionId,
 			handleStreamSendMessage,
 			activePayloadForChat,
 			activeInputForChat,
 			chatInfo,
 			userEditedQuery,
 			galleryFile,
-			chatPayload,
+			currentSessionId,
+			chatReplyData,
+			deleteMultiAgentFile,
 		},
-		subscriptionInfo: { currentPlan, updateSubscriptionState },
+		subscriptionInfo: { currentPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
-		aiSetup: { voiceIntegrationData },
+		aiSetup: { voiceIntegrationData, updateAiChatSessions },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -178,6 +194,9 @@ const ChatBox = ({
 		isLLMModelOpen: false,
 		searchTypeOpenForReason: false,
 		activePlaceholderIndex: 0,
+		chatBoxInfo: null,
+		openUpgradeModal: false,
+		askTooltipOpen: false,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -186,6 +205,8 @@ const ChatBox = ({
 	const recentFilesRef = useRef(info?.recentFiles || []);
 	const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
 	const placeholderIntervalId = useRef(null);
+	const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
+		totalCreditsLimit = currentPlan?.totalAiCreditLimit || 1;
 
 	useEffect(() => {
 		if (
@@ -199,6 +220,80 @@ const ChatBox = ({
 			});
 		}
 	}, []);
+
+	useEffect(() => {
+		const sessionData = globalChatMessages?.[info?.chatSessionId],
+			isStreaming = sessionData?.isStreaming || false,
+			latestStreamMessage = sessionData?.latestStreamMessage,
+			lastQuery = sessionData?.lastQuery;
+
+		if (sessionData?.chatBoxInfo) {
+			const deepResearch = sessionData?.chatBoxInfo?.deepResearch;
+			const goals = sessionData?.chatBoxInfo?.goals;
+			const webSearch = sessionData?.chatBoxInfo?.webSearch;
+			const workspaceSearch = sessionData?.chatBoxInfo?.workspaceSearch;
+			const ask = sessionData?.chatBoxInfo?.ask;
+			const selectedLLMModel = sessionData?.chatBoxInfo?.selectedLLMModel;
+			const build = sessionData?.chatBoxInfo?.build;
+			if (
+				info?.chatBoxInfo?.deepResearch !== deepResearch ||
+				info?.chatBoxInfo?.goals !== goals ||
+				info?.chatBoxInfo?.webSearch !== webSearch ||
+				info?.chatBoxInfo?.workspaceSearch !== workspaceSearch ||
+				info?.chatBoxInfo?.ask !== ask ||
+				info?.chatBoxInfo?.selectedLLMModel !== selectedLLMModel ||
+				info?.chatBoxInfo?.build !== build
+			) {
+				setInfo((prev) => ({
+					...prev,
+					chatBoxInfo: sessionData?.chatBoxInfo,
+				}));
+			}
+		}
+
+		if (info?.chatLoading !== isStreaming) {
+			setInfo((prev) => ({ ...prev, chatLoading: isStreaming }));
+		}
+
+		if (latestStreamMessage) {
+			const { deep_research, db_updates, variables_required } = latestStreamMessage;
+			if (db_updates?.calendar_db_update) {
+				updateCalendarState({ refetchCalendarState: true });
+			}
+			if (db_updates?.task_db_update) {
+				updateTaskState({ refetchTasks: true });
+			}
+			if (db_updates?.proposal_db_update) {
+				updateStateValues({ smartFileRefetch: true });
+			}
+			if (variables_required) {
+				handleVariablesRequired(variables_required, lastQuery);
+			}
+
+			if (deep_research) {
+				let chatBoxData = info?.chatBoxInfo;
+				chatBoxData = {
+					...chatBoxData,
+					goals: false,
+					deepResearch: false,
+					ask: true,
+					build: false,
+				};
+				handleGlobalChatMessages({
+					sessionId: info?.chatSessionId,
+					chatBoxInfo: chatBoxData,
+					removeLatestStreamMessage: true,
+					updateExtraInfo: true,
+				});
+			} else {
+				handleGlobalChatMessages({
+					sessionId: info?.chatSessionId,
+					removeLatestStreamMessage: true,
+					updateExtraInfo: true,
+				});
+			}
+		}
+	}, [globalChatMessages, info?.chatSessionId]);
 
 	useEffect(() => {
 		if (activePromptForChat) {
@@ -258,19 +353,18 @@ const ChatBox = ({
 	}, [userEditedQuery, info?.chatLoading]);
 
 	useEffect(() => {
-		if (activePayloadForChat) {
-			setInfo((prev) => ({ ...prev, chatLoading: true }));
+		if (activePayloadForChat && info?.chatSessionId) {
 			const { payload, localPayload, currentQuery, recentFiles = [] } = activePayloadForChat;
 			if (handleSendWebsocketMessage) {
-				handleSendWebsocketMessage(payload, currentQuery);
+				handleSendWebsocketMessage(payload, currentQuery, '', info?.chatSessionId);
 			}
 
-			handleStreamSendMessage(payload, localPayload, currentQuery);
+			handleStreamSendMessage(payload, localPayload, currentQuery, info?.chatSessionId);
 			updateStateValues({ activePayloadForChat: null });
 			recentFilesRef.current = recentFiles;
 			setInfo((prev) => ({ ...prev, recentFiles }));
 		}
-	}, [activePayloadForChat]);
+	}, [activePayloadForChat, info?.chatSessionId]);
 
 	useEffect(() => {
 		if (currentSessionId) {
@@ -281,48 +375,14 @@ const ChatBox = ({
 	}, [currentSessionId]);
 
 	useEffect(() => {
-		if (recentFilesRef?.current?.length > 0 || uploadedImagesRef?.current?.length > 0) {
-			updateStateValues({
-				chatInfo: { ...chatInfo, workspaceSearch: true },
+		if (info?.chatSessionId && !globalChatMessages?.[info?.chatSessionId]?.chatBoxInfo) {
+			handleGlobalChatMessages({
+				sessionId: info?.chatSessionId,
+				chatBoxInfo: initialChatBoxInfo,
+				updateExtraInfo: true,
 			});
 		}
-	}, [recentFilesRef?.current, uploadedImagesRef?.current]);
-
-	useEffect(() => {
-		if (latestStreamMesage && lastQuery) {
-			const { db_updates, variables_required, deep_research } = latestStreamMesage;
-			if (db_updates?.calendar_db_update) {
-				updateCalendarState({ refetchCalendarState: true });
-			}
-			if (db_updates?.task_db_update) {
-				updateTaskState({ refetchTasks: true });
-			}
-			if (db_updates?.proposal_db_update) {
-				updateStateValues({ smartFileRefetch: true });
-			}
-			if (variables_required) {
-				handleVariablesRequired(variables_required, lastQuery);
-			}
-			if (deep_research) {
-				updateStateValues({
-					chatInfo: {
-						...chatInfo,
-						deepResearch: false,
-						reason: {
-							webSearch: false,
-							workspaceSearch: false,
-						},
-						ask: true,
-					},
-				});
-			}
-
-			if (toggleLatestStreamMessage) {
-				toggleLatestStreamMessage();
-			}
-			setInfo((prev) => ({ ...prev, chatLoading: false }));
-		}
-	}, [latestStreamMesage]);
+	}, [info?.chatSessionId]);
 
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -339,93 +399,76 @@ const ChatBox = ({
 		setPreviewOpen(true);
 	};
 
-	const handleWebSearchClick = () => {
-		if (chatInfo?.deepResearch) return;
+	const handleGoalsClick = () => {
+		let chatBoxData = info?.chatBoxInfo;
 
-		if (isPublicChat) {
-			if (chatInfo?.deepResearch) {
-				updateStateValues({
-					chatInfo: {
-						...chatInfo,
-						deepResearch: false,
-						webSearch: !chatInfo?.webSearch,
-					},
-				});
-				return;
-			}
+		if (chatBoxData?.goals) {
+			return;
 		}
-		if (chatInfo?.webSearch) {
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					webSearch: false,
-					workspaceSearch: true,
-				},
-			});
-		} else {
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					webSearch: true,
-				},
-			});
-		}
+
+		chatBoxData = {
+			...chatBoxData,
+			goals: true,
+			ask: false,
+			deepResearch: false,
+			build: false,
+		};
+
+		handleGlobalChatMessages({
+			sessionId: info?.chatSessionId,
+			chatBoxInfo: chatBoxData,
+			updateExtraInfo: true,
+		});
 	};
-
 	const handleDeepResearchClick = () => {
 		if (recentFilesRef.current?.length > 0 || uploadedImagesRef.current?.length > 0) {
 			return;
 		}
 
+		let chatBoxData = info?.chatBoxInfo;
+
 		if (isPublicChat) {
-			if (chatInfo?.webSearch) {
-				updateStateValues({
-					chatInfo: {
-						...chatInfo,
-						webSearch: false,
-						deepResearch: !chatInfo?.deepResearch,
-					},
+			if (chatBoxData?.webSearch) {
+				chatBoxData = {
+					...chatBoxData,
+					webSearch: false,
+					deepResearch: !chatBoxData?.deepResearch,
+				};
+				handleGlobalChatMessages({
+					sessionId: info?.chatSessionId,
+					chatBoxInfo: chatBoxData,
+					updateExtraInfo: true,
 				});
 				return;
 			}
 		}
 
-		if (!chatInfo?.deepResearch) {
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					deepResearch: true,
-					ask: false,
-					build: false,
-				},
-			});
-			setInfo((prev) => ({
-				...prev,
-				isLLMModelOpen: false,
-				isUploadFileOpen: false,
-				showFilters: false,
-				chatFilters: initialChatFilters,
-				recentFiles: [],
-			}));
-		} else {
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					deepResearch: false,
-					ask: true,
-					build: false,
-				},
-			});
+		if (chatBoxData?.deepResearch) {
+			return;
 		}
+
+		chatBoxData = {
+			...chatBoxData,
+			deepResearch: true,
+			ask: false,
+			goals: false,
+			build: false,
+		};
+
+		handleGlobalChatMessages({
+			sessionId: info?.chatSessionId,
+			chatBoxInfo: chatBoxData,
+			updateExtraInfo: true,
+		});
 	};
 
-	const handleShowFiltersClick = () => {
-		if (chatInfo?.deepResearch) return;
-		setInfo((prev) => ({
-			...prev,
-			showFilters: true,
-		}));
-	};
+	// const handleShowFiltersClick = () => {
+	// 	if (chatInfo?.deepResearch) return;
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		showFilters: true,
+	// 	}));
+	// };
 
 	const handleHideFiltersClick = () => {
 		setInfo((prev) => ({
@@ -466,6 +509,10 @@ const ChatBox = ({
 			(ele) => ele?._id !== file?._id || ele?.uniqueId !== file?.uniqueId,
 		);
 		recentFilesRef.current = updatedRecentFiles;
+
+		if (file?.loading && file?.uploadStatus?.status !== 'ready') {
+			deleteMultiAgentFile(file?.fileId);
+		}
 		setInfo((prev) => ({
 			...prev,
 			recentFiles: updatedRecentFiles,
@@ -515,14 +562,11 @@ const ChatBox = ({
 				// Prevent default to avoid unwanted new line
 				e?.preventDefault();
 
-				if (!isPublicChat) {
+				if (!isPublicChat && window.location.hostname !== 'localhost') {
 					const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
 						totalCreditsLimit = currentPlan?.totalAiCreditLimit || 0;
 					if (totalCreditsUsed >= totalCreditsLimit) {
-						return updateSubscriptionState({
-							expiredSubscriptionModal: true,
-							expiredSubscriptionType: 'Chat',
-						});
+						return message.error('You have reached your limit of credits');
 					}
 				}
 
@@ -535,9 +579,13 @@ const ChatBox = ({
 				}
 
 				if (info?.chatQuery?.trim()?.length > 0 || query?.trim()?.length > 0) {
-					setInfo((prev) => ({ ...prev, chatLoading: true }));
-					let currentQuery = info?.chatQuery?.trim() || query?.trim();
+					let currentQuery =
+						(chatReplyData ? chatReplyData + '\n' : '') +
+						(info?.chatQuery?.trim() || query?.trim());
+					const chatBoxData = info?.chatBoxInfo;
 					const routeName = location?.pathname?.split('/')?.[1];
+					const chatPayload =
+						globalChatMessages?.[info?.chatSessionId]?.chatPayload || {};
 
 					const date =
 						info?.chatFilters?.dateRange?.length > 0
@@ -552,18 +600,21 @@ const ChatBox = ({
 					const payload = {
 						query,
 						timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-						web_search: chatInfo?.webSearch,
+						web_search: chatBoxData?.webSearch,
 						...(!isPublicChat && {
-							knowledge_base_search: chatInfo?.workspaceSearch,
+							knowledge_base_search: chatBoxData?.workspaceSearch,
 						}),
 						...(!isPublicChat && { modules: Object?.keys(info?.chatFilters?.modules) }),
 						...(!isPublicChat && { date: date }),
-						deep_research: chatInfo?.deepResearch,
+						deep_research: chatBoxData?.deepResearch,
 					};
 
 					if (chatInfo?.agentType === 'knowledge_agent') {
 						payload.assistant_id = chatInfo?.assistantId;
 					}
+
+					const selected_model = chatBoxData?.selectedLLMModel || null;
+					payload.selected_model = selected_model;
 
 					if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
 						payload.screen = moduleHelper[location?.pathname?.split('/')?.[1]];
@@ -611,15 +662,6 @@ const ChatBox = ({
 						payload.module_id = params?.contactId;
 					}
 
-					// if (
-					// 	!chatInfo?.webSearch &&
-					// 	!chatInfo?.workspaceSearch &&
-					// 	!uploadedImagesRef?.current?.length &&
-					// 	!recentFilesRef?.current?.length
-					// ) {
-					// 	payload.selected_model = chatInfo?.selectedLLMModel;
-					// }
-
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
 
 					if (!location_details) {
@@ -646,7 +688,13 @@ const ChatBox = ({
 					}));
 					uploadedImagesRef.current = [];
 
+					onChatQueryChange?.('');
 					clearTextArea();
+					if (!(globalChatMessages?.[info?.chatSessionId]?.messages?.length > 0)) {
+						const addNewSession = true;
+						const payload = { sessionId: info?.chatSessionId };
+						updateAiChatSessions(payload, addNewSession);
+					}
 
 					if (customChatActions) {
 						return onSend({
@@ -656,7 +704,17 @@ const ChatBox = ({
 							recentFiles: recentFilesRef?.current || [],
 						});
 					}
-					handleStreamSendMessage(payload, localPayload, currentQuery);
+					if (chatReplyData) {
+						updateStateValues({
+							chatReplyData: null,
+						});
+					}
+					handleStreamSendMessage(
+						payload,
+						localPayload,
+						currentQuery,
+						info?.chatSessionId,
+					);
 					if (handleSendWebsocketMessage) {
 						handleSendWebsocketMessage(payload, currentQuery);
 					}
@@ -675,12 +733,14 @@ const ChatBox = ({
 			location,
 			params,
 			currentPlan,
+			globalChatMessages,
+			chatReplyData,
+			onChatQueryChange,
 		],
 	);
 
 	const handleWorkflowSlugSelection = useCallback(
 		async (data, query) => {
-			setInfo((prev) => ({ ...prev, chatLoading: true }));
 			const showCustomChatOptions = [
 				{
 					type: 'AI',
@@ -706,7 +766,6 @@ const ChatBox = ({
 				payload.module = moduleHelper?.[location?.pathname?.split('/')?.[1]];
 			}
 
-			setInfo((prev) => ({ ...prev, chatLoading: false }));
 			handleSendWebsocketMessage(payload, '');
 			handleStreamSendMessage(payload, localPayload, '');
 		},
@@ -731,7 +790,7 @@ const ChatBox = ({
 				updateApplicationChat(workflowSlug);
 			}
 		},
-		[info, handleWorkflowSlugSelection, globalChatMessages],
+		[handleWorkflowSlugSelection],
 	);
 
 	const handleGlobalImageProcessing = useCallback(
@@ -823,6 +882,20 @@ const ChatBox = ({
 				successCount = 0;
 
 			while (!(uploadedCount && successCount) && maxAttempts) {
+				if (isImage) {
+					requiredFileIndex = uploadedImagesRef?.current?.findIndex(
+						(ele) => ele?.uniqueId === fileData?.uniqueId,
+					);
+				} else {
+					requiredFileIndex = recentFilesRef?.current?.findIndex(
+						(ele) => ele?.uniqueId === fileData?.uniqueId,
+					);
+				}
+
+				if (requiredFileIndex === -1) {
+					return;
+				}
+
 				const response = await checkIndividualImageUploadedStatus(uploadBatchId);
 				if (response?.[0]) {
 					uploadedCount = response?.[1]?.uploadedCount;
@@ -859,13 +932,20 @@ const ChatBox = ({
 
 				uploadedImages = [...(uploadedImagesRef?.current || [])];
 				recentFiles = [...(recentFilesRef?.current || [])];
+				let file = null;
 
 				if (isImage) {
+					file = uploadedImages[requiredFileIndex];
 					uploadedImages.splice(requiredFileIndex, 1);
 					uploadedImagesRef.current = uploadedImages;
 				} else {
+					file = recentFiles[requiredFileIndex];
 					recentFiles.splice(requiredFileIndex, 1);
 					recentFilesRef.current = recentFiles;
+				}
+
+				if (maxAttempts === 0) {
+					deleteMultiAgentFile(file?.fileId);
 				}
 
 				setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
@@ -1037,107 +1117,45 @@ const ChatBox = ({
 		}
 	};
 
-	const handleLLMModelOptionClick = (model) => {
-		updateStateValues({
-			chatInfo: {
-				...chatInfo,
-				selectedLLMModel: model?.model_code,
-			},
-		});
-		setInfo((prev) => ({
-			...prev,
-			isLLMModelOpen: false,
-		}));
-	};
-
-	const handleWorkspaceSearchClick = () => {
-		if (
-			recentFilesRef?.current?.length > 0 ||
-			uploadedImagesRef?.current?.length > 0 ||
-			chatInfo?.deepResearch
-		) {
-			return;
-		}
-		if (chatInfo?.workspaceSearch) {
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					workspaceSearch: false,
-					webSearch: true,
-				},
-			});
-		} else {
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					workspaceSearch: true,
-				},
-			});
-		}
-	};
-
-	const handleAgentClick = (agentType) => {
-		if (chatInfo?.agentType === agentType || info?.chatLoading) {
-			return;
-		}
-		updateStateValues({
-			chatInfo: {
-				...chatInfo,
-				agentType,
-			},
-		});
-	};
-
 	const handleBuildClick = () => {
-		if (chatInfo?.build) {
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					deepResearch: false,
-					reason: {
-						webSearch: false,
-						workspaceSearch: false,
-					},
-					build: false,
-					ask: true,
-				},
-			});
-		} else {
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					deepResearch: false,
-					reason: {
-						webSearch: false,
-						workspaceSearch: false,
-					},
-					build: true,
-					ask: false,
-				},
-			});
+		let chatBoxData = info?.chatBoxInfo;
+		if (chatBoxData?.build) {
+			return;
 		}
-	};
-
-	const handleSearchTypeChangeForReason = (type, value) => {
-		const reason = { ...chatInfo?.reason, [type]: value };
-		let deepResearch = chatInfo?.deepResearch;
-
-		if (reason?.webSearch === false && reason?.workspaceSearch === false) {
-			deepResearch = false;
-		} else {
-			deepResearch = true;
-		}
-
-		updateStateValues({
-			chatInfo: {
-				...chatInfo,
-				reason,
-				deepResearch,
-				ask: deepResearch ? false : true,
-				build: false,
-			},
+		chatBoxData = {
+			...chatBoxData,
+			build: true,
+			ask: false,
+			deepResearch: false,
+			goals: false,
+		};
+		handleGlobalChatMessages({
+			sessionId: info?.chatSessionId,
+			chatBoxInfo: chatBoxData,
+			updateExtraInfo: true,
 		});
 	};
+
+	// const handleSearchTypeChangeForReason = (type, value) => {
+	// 	const reason = { ...chatInfo?.reason, [type]: value };
+	// 	let deepResearch = chatInfo?.deepResearch;
+
+	// 	if (reason?.webSearch === false && reason?.workspaceSearch === false) {
+	// 		deepResearch = false;
+	// 	} else {
+	// 		deepResearch = true;
+	// 	}
+
+	// 	updateStateValues({
+	// 		chatInfo: {
+	// 			...chatInfo,
+	// 			reason,
+	// 			deepResearch,
+	// 			ask: deepResearch ? false : true,
+	// 			build: false,
+	// 		},
+	// 	});
+	// };
 
 	const handleChatBoxClick = (e) => {
 		if (customChatBoxClick) {
@@ -1146,23 +1164,49 @@ const ChatBox = ({
 	};
 
 	const handleAskClick = () => {
-		if (chatInfo?.ask) {
+		let chatBoxData = info?.chatBoxInfo;
+		if (chatBoxData?.ask) {
 			return;
 		}
 
-		updateStateValues({
-			chatInfo: {
-				...chatInfo,
-				ask: true,
-				deepResearch: false,
-				reason: {
-					webSearch: false,
-					workspaceSearch: false,
-				},
-				build: false,
-			},
+		chatBoxData = {
+			...chatBoxData,
+			ask: true,
+			deepResearch: false,
+			goals: false,
+			build: false,
+		};
+		handleGlobalChatMessages({
+			sessionId: info?.chatSessionId,
+			chatBoxInfo: chatBoxData,
+			updateExtraInfo: true,
 		});
 	};
+
+	const handleReplyCloseClick = useCallback(() => {
+		updateStateValues({
+			chatReplyData: null,
+		});
+	}, []);
+
+	const handleUpgradeClick = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			openUpgradeModal: true,
+		}));
+	}, []);
+
+	const handleCloseUpgrageModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, openUpgradeModal: false }));
+	}, []);
+
+	const handleAskTooltipClick = useCallback((e) => {
+		e?.stopPropagation();
+		setInfo((prev) => ({
+			...prev,
+			askTooltipOpen: true,
+		}));
+	}, []);
 
 	return (
 		<div
@@ -1183,6 +1227,18 @@ const ChatBox = ({
 										startPage ? ' startPageContainer' : ''
 									}`}
 								>
+									{chatReplyData && (
+										<div className="chat-reply-data">
+											<div className="reply-icon"></div>
+											<div className="reply-text">{`"${chatReplyData}"`}</div>
+											<div
+												className="reply-close-icon"
+												onClick={handleReplyCloseClick}
+											>
+												<CloseSvg width={16} height={16} />
+											</div>
+										</div>
+									)}
 									<RecentFileTooltip
 										fileTypeIcons={fileTypeIcons}
 										handleRecentFileClick={handleRecentFileClick}
@@ -1205,7 +1261,7 @@ const ChatBox = ({
 													handleChange={handleFileAttachmentChange}
 													isUploadFileOpen={info?.isUploadFileOpen}
 													setIsUploadFileOpen={(value) => {
-														if (chatInfo?.deepResearch) return;
+														if (info?.chatBoxInfo?.deepResearch) return;
 														setInfo((prev) => ({
 															...prev,
 															isUploadFileOpen: value,
@@ -1228,7 +1284,7 @@ const ChatBox = ({
 															className="chat-box-icon-container start-page-icon"
 															style={{
 																opacity: `${
-																	chatInfo?.deepResearch
+																	info?.chatBoxInfo?.deepResearch
 																		? '0.5'
 																		: '1'
 																}`,
@@ -1401,7 +1457,10 @@ const ChatBox = ({
 																	info?.isUploadFileOpen
 																}
 																setIsUploadFileOpen={(value) => {
-																	if (chatInfo?.deepResearch)
+																	if (
+																		info?.chatBoxInfo
+																			?.deepResearch
+																	)
 																		return;
 																	setInfo((prev) => ({
 																		...prev,
@@ -1429,18 +1488,17 @@ const ChatBox = ({
 																		className="upload-file-icon-container"
 																		style={{
 																			opacity: `${
-																				chatInfo?.deepResearch
+																				info?.chatBoxInfo
+																					?.deepResearch
 																					? '0.5'
 																					: '1'
 																			}`,
 																		}}
 																	>
-																		<div className="chat-icon">
-																			<PlusSvg
-																				width={17}
-																				height={17}
-																			/>
-																		</div>
+																		<PlusSvg
+																			width={17}
+																			height={17}
+																		/>
 																	</div>
 																</Tooltip>
 															</UploadFileTooltip>
@@ -1460,23 +1518,75 @@ const ChatBox = ({
 																>
 																	<div
 																		className={`chat-box-icon-container ${
-																			chatInfo?.ask
+																			info?.chatBoxInfo?.ask
 																				? 'active'
 																				: ''
 																		}`}
 																		onClick={handleAskClick}
 																	>
 																		<div className="chat-icon">
-																			<div
-																				className="icon-text ask-icon-text"
-																				style={{
-																					color: chatInfo?.ask
-																						? 'var(--primary-button)'
-																						: 'var(--secondary-font)',
+																			<div className="text-wrapper">
+																				<div className="bulb-icon">
+																					<BulbSvg
+																						style={{
+																							width: '16px',
+																							height: '16px',
+																						}}
+																					/>
+																				</div>
+																				<div
+																					className="icon-text ask-icon-text"
+																					style={{
+																						color: 'var(--primary-button)',
+																					}}
+																				>
+																					Ask
+																				</div>
+																			</div>
+																			<AskTooltip
+																				open={
+																					info?.askTooltipOpen
+																				}
+																				onOpenChange={(
+																					value,
+																				) => {
+																					setInfo(
+																						(prev) => ({
+																							...prev,
+																							askTooltipOpen:
+																								value,
+																						}),
+																					);
 																				}}
 																			>
-																				Ask
-																			</div>
+																				<div
+																					className={`icon-arrow-wrapper ${
+																						info
+																							?.chatBoxInfo
+																							?.ask
+																							? 'icon-arrow-wrapper-active'
+																							: ''
+																					}`}
+																					onClick={(e) =>
+																						handleAskTooltipClick(
+																							e,
+																						)
+																					}
+																				>
+																					<div className="icon-arrow">
+																						<ArrowDownSvg
+																							fill={
+																								info
+																									?.chatBoxInfo
+																									?.ask
+																									? 'var(--primary-button)'
+																									: 'var(--primary-font)'
+																							}
+																						/>
+																					</div>
+																				</div>
+																			</AskTooltip>
+
 																			{/* <div className="icon-arrow">
 																				<ArrowDownSvg
 																					fill={
@@ -1524,7 +1634,8 @@ const ChatBox = ({
 																>
 																	<div
 																		className={`chat-box-icon-container ${
-																			chatInfo?.deepResearch
+																			info?.chatBoxInfo
+																				?.deepResearch
 																				? 'active'
 																				: ''
 																		}`}
@@ -1536,7 +1647,9 @@ const ChatBox = ({
 																			<div className="text-wrapper deep-research-text-wrapper">
 																				<AtomSvg
 																					fill={
-																						chatInfo?.deepResearch
+																						info
+																							?.chatBoxInfo
+																							?.deepResearch
 																							? 'var(--primary-button)'
 																							: 'var(--secondary-font)'
 																					}
@@ -1545,7 +1658,9 @@ const ChatBox = ({
 																				<div
 																					className="icon-text"
 																					style={{
-																						color: chatInfo?.deepResearch
+																						color: info
+																							?.chatBoxInfo
+																							?.deepResearch
 																							? 'var(--primary-button)'
 																							: 'var(--secondary-font)',
 																					}}
@@ -1559,12 +1674,11 @@ const ChatBox = ({
 																// </SearchTypeTooltip>
 															)}
 
-															{/* {!isPublicChat && ( */}
-															{isBuildEnbled && (
+															{!isPublicChat && (
 																<Tooltip
 																	title={
 																		<div className="chatbox-icon-tooltip-container">
-																			Build
+																			Goals
 																		</div>
 																	}
 																	color="transparent"
@@ -1573,62 +1687,109 @@ const ChatBox = ({
 																>
 																	<div
 																		className={`chat-box-icon-container ${
-																			chatInfo?.build
+																			info?.chatBoxInfo?.goals
 																				? 'active'
 																				: ''
 																		}`}
-																		onClick={handleBuildClick}
+																		onClick={handleGoalsClick}
 																	>
 																		<div className="chat-icon">
-																			<div className="text-wrapper">
-																				<div className="build-icon">
-																					<SparkSvg />
+																			<div className="text-wrapper goals-text-wrapper">
+																				<div className="trend-icon">
+																					<TrendUpSvg
+																						style={{
+																							width: '16px',
+																							height: '16px',
+																						}}
+																					/>
 																				</div>
+
 																				<div
 																					className="icon-text"
 																					style={{
-																						color: chatInfo?.build
+																						color: info
+																							?.chatBoxInfo
+																							?.goals
 																							? 'var(--primary-button)'
 																							: 'var(--secondary-font)',
 																					}}
 																				>
-																					Build
+																					Goals
 																				</div>
 																			</div>
-																			<BuildTooltip>
-																				<div
-																					className={`icon-arrow-wrapper ${
-																						chatInfo?.build
-																							? 'icon-arrow-wrapper-active'
-																							: ''
-																					}`}
-																					onClick={(e) =>
-																						e?.stopPropagation()
-																					}
-																				>
-																					<div className="icon-arrow">
-																						<ArrowDownSvg fill="var(--secondary-font)" />
-																					</div>
-																				</div>
-																			</BuildTooltip>
 																		</div>
 																	</div>
 																</Tooltip>
 															)}
+
+															{/* {!isPublicChat && ( */}
+															{isBuildEnbled &&
+																workspaceMode !== 'stable' && (
+																	<Tooltip
+																		title={
+																			<div className="chatbox-icon-tooltip-container">
+																				Build
+																			</div>
+																		}
+																		color="transparent"
+																		arrow={false}
+																		rootClassName="chatbox-tooltip"
+																	>
+																		<div
+																			className={`chat-box-icon-container ${
+																				info?.chatBoxInfo
+																					?.build
+																					? 'active'
+																					: ''
+																			}`}
+																			onClick={
+																				handleBuildClick
+																			}
+																		>
+																			<div className="chat-icon">
+																				<div className="text-wrapper">
+																					<div className="build-icon">
+																						<SparkSvg />
+																					</div>
+																					<div
+																						className="icon-text"
+																						style={{
+																							color: info
+																								?.chatBoxInfo
+																								?.build
+																								? 'var(--primary-button)'
+																								: 'var(--secondary-font)',
+																						}}
+																					>
+																						Build
+																					</div>
+																				</div>
+																				<BuildTooltip>
+																					<div
+																						className={`icon-arrow-wrapper ${
+																							info
+																								?.chatBoxInfo
+																								?.build
+																								? 'icon-arrow-wrapper-active'
+																								: ''
+																						}`}
+																						onClick={(
+																							e,
+																						) =>
+																							e?.stopPropagation()
+																						}
+																					>
+																						<div className="icon-arrow">
+																							<ArrowDownSvg fill="var(--secondary-font)" />
+																						</div>
+																					</div>
+																				</BuildTooltip>
+																			</div>
+																		</div>
+																	</Tooltip>
+																)}
 															{/* )} */}
 														</div>
-
-														{/* {!isPublicChat && chatInfo?.build && (
-															<BuildTooltip>
-																<div
-																	className={`chat-box-icon-container build-icon-container`}
-																>
-																	<div className="icon build-icon-arrow">
-																		<ArrowDownSvg fill="var(--secondary-font)" />
-																	</div>
-																</div>
-															</BuildTooltip>
-														)} */}
 
 														{/* <Tooltip title={'Add Filters'}>
 														<div
@@ -1740,7 +1901,7 @@ const ChatBox = ({
 															</div>
 														)} */}
 
-														{info?.chatQuery?.trim()?.length > 0 ||
+														{/* {info?.chatQuery?.trim()?.length > 0 ||
 														isPublicChat ? (
 															<div
 																className="click-btn"
@@ -1769,7 +1930,20 @@ const ChatBox = ({
 															>
 																<AudioSvg />
 															</div>
-														)}
+														)} */}
+														<div
+															className="click-btn"
+															onClick={(e) => {
+																e.stopPropagation();
+																handleSendBtnClick(e);
+															}}
+															style={{
+																backgroundColor:
+																	'var(--primary-button)',
+															}}
+														>
+															<ArrowUp />
+														</div>
 													</div>
 												</div>
 											)}
@@ -1862,7 +2036,35 @@ const ChatBox = ({
 						))}
 					</div>
 				)}
+				{showUpgradeSubscriptionBtn && totalCreditsUsed >= totalCreditsLimit && (
+					<div className="credits-upgrade-container">
+						<div className="left-container">
+							<div className="title-container">
+								<img src={CreditCoinImage} className="coin-icon" alt="coin" />
+
+								<div className="title-text-container">
+									You don’t have enough credits to continue.
+								</div>
+							</div>
+							<div className="description-container">
+								Please consider purchasing additional credits to unlock more
+								features and enhance your experience. If you need assistance, feel
+								free to reach out to our support team!
+							</div>
+						</div>
+						<div className="right-container">
+							<div className="upgrade-button" onClick={handleUpgradeClick}>
+								Upgrade
+							</div>
+						</div>
+					</div>
+				)}
 			</div>
+			<AddOnCards
+				isOpen={info?.openUpgradeModal}
+				closeModal={handleCloseUpgrageModal}
+				subscriptionState="addOnPlans"
+			/>
 		</div>
 	);
 };

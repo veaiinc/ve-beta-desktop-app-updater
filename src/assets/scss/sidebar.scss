@@ -1,31 +1,43 @@
 .FullScreenSidebar {
 	margin-left: 0px;
 	margin-right: 0px;
+	cursor: pointer;
+	z-index: 1001;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
 	&.opened {
 		height: 100dvh;
 		position: relative;
-		margin-left: -32px;
-		margin-top: -32px;
+		// margin-left: -32px;
+		// margin-top: -32px;
 		padding: 0 !important;
-		margin-right: 10px !important;
+		// margin-left: 0px !important;
+		// margin-right: 10px !important;
 		z-index: 1000;
 		animation: expandWidth 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 	}
 	&.closed {
-		animation: delayMargin 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards,
-			adjustWidth 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+		animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		transform: translateX(-100%);
+		pointer-events: none;
 	}
 
 	&.contacts-sidebar {
 		position: absolute;
 		top: 0px;
 		left: 0px;
+		z-index: 1001;
 	}
 	&.contacts-sidebar:not(.opened) {
 		position: absolute;
 		top: 30px;
 		left: 20px;
+	}
+	&.contacts-sidebar.closed {
+		animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+		transform: translateX(-100%);
+		pointer-events: none;
 	}
 	overflow: hidden;
 	scrollbar-width: none; // For Firefox
@@ -79,9 +91,19 @@
 		.sidebar-close {
 			&.active {
 				display: block;
+				.eachOption {
+					height: 100dvh;
+					position: fixed;
+					top: 20px;
+					left: 10px;
+					transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+					animation: collapseWidth 0.3s ease-out;
+				}
 			}
 			&.inactive {
 				display: none;
+				transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+				animation: collapseWidth 0.3s ease-out;
 			}
 		}
 
@@ -97,14 +119,13 @@
 			border-radius: inherit;
 			transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 			overflow-x: hidden !important;
-			// border-right: 1px solid var(--stroke);
 			user-select: none;
 			z-index: 9;
 			margin-top: 1px;
 			.allmodulesList,
 			.bottomOptionsList {
 				.creditsLeft {
-					width: 100%;
+					width: 97%;
 					padding: 16px;
 					display: flex;
 					justify-content: space-between;
@@ -114,13 +135,88 @@
 					margin-top: 10px;
 					margin-bottom: 10px;
 					overflow-x: hidden !important;
-					.credits {
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
+					position: absolute;
+					bottom: 61px;
+					right: 3px;
+
+					.left {
+						display: flex;
+						flex-direction: column;
+						width: 100%;
+						.creditsContainer {
+							display: flex;
+							flex-direction: column;
+							width: 100%;
+							gap: 12px;
+							&.noCreditsLeft {
+								flex-direction: row;
+								gap: 5px;
+								margin-bottom: 10px;
+							}
+						}
+
+						.upgrade-btn {
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							gap: 6px;
+							color: var(--primary-button, #79ecc9);
+							font-family: var(--primary-font-family);
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 600;
+							line-height: normal;
+							cursor: pointer;
+							svg {
+								path {
+									stroke: var(--primary-button);
+								}
+							}
+						}
+						.expiryBannerContainer {
+							display: flex;
+							align-items: flex-start;
+							gap: 8px;
+							align-self: stretch;
+							align-items: center;
+							margin: 10px 0px;
+							.expiryBanner {
+								color: var(--pending);
+								font-family: Inter;
+								font-size: 13px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
+						}
+					}
+					.creditsContainerImage {
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						gap: 4px;
+						width: 100%;
+						.credits {
+							color: var(--primary-font, #f2f2f3);
+							font-family: var(--primary-font-family);
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+					.progressBarContainer {
+						width: 100%;
+						height: 8px;
+						background-color: var(--primary-font);
+						border-radius: 4px;
+						overflow: hidden;
+						.progressBar {
+							height: 100%;
+							background-color: var(--primary-button);
+							border-radius: 4px;
+							transition: width 0.3s ease;
+						}
 					}
 					.content {
 						color: var(--secondary-font);
@@ -130,6 +226,10 @@
 						font-weight: 400;
 						line-height: normal;
 					}
+				}
+
+				.displayNone {
+					display: none;
 				}
 				.singleModuleItem {
 					width: 100%;
@@ -725,6 +825,59 @@
 			}
 		}
 	}
+
+	position: absolute;
+	z-index: 1001;
+	margin-top: 0px;
+	// border-top-right-radius: 20px;
+	// border-bottom-right-radius: 20px;
+	// border-top-left-radius: 25px;
+	// border-bottom-left-radius: 25px;
+	// border-left: 10px solid transparent;
+	// border-top: 9px solid transparent;
+
+	.sidebarComponent {
+		position: relative;
+	}
+	.openSideBarComponent {
+		max-height: 100dvh;
+	}
+
+	// .settingsOptionsContainer {
+	// 	border-bottom-right-radius: 20px;
+	// 	border-bottom-left-radius: 20px;
+	// 	border: 1px solid var(--stroke);
+	// 	.settingsOptionsContainerOpen {
+	// 		border-bottom-right-radius: 25px;
+	// 		border-bottom-left-radius: 25px;
+	// 		border-bottom: none;
+	// 	}
+	// }
+
+	.sidebar-close {
+		transition: opacity 0.3s ease;
+		animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		opacity: 1;
+
+		&.inactive {
+			animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+			pointer-events: none;
+		}
+	}
+
+	.sidebar-open {
+		opacity: 1;
+
+		&.inactive {
+			animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+			pointer-events: none;
+		}
+
+		&.inactive-no-animation {
+			display: none;
+		}
+	}
 }
 
 // .workSpaceOverlay {
@@ -762,6 +915,7 @@
 		position: absolute;
 		top: 0px;
 		left: 0px;
+
 		&.opened {
 			height: 100dvh !important;
 			margin-top: -32px !important;
@@ -772,7 +926,8 @@
 		}
 
 		&.closed {
-			animation: minimizeWidth 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+			animation: slideOutAnimation 0.3s ease-out;
+			transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 		}
 
 		.sidebarComponent {
@@ -780,16 +935,10 @@
 			border: none !important;
 			padding: 0px !important;
 			margin: 0px !important;
-			// &.open {
-			//  border-top-left-radius: 0 !important;
-			//  border-bottom-left-radius: 0 !important;
-			//  height: 100dvh !important;
-			//  border: 1px solid var(--stroke) !important;
-			//  background: var(--card) !important;
-			//  width: 100vw !important;
-			// }
+
 			.openSideBarComponent {
 				width: 100vw !important;
+				transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 				.topOptionsList {
 					width: 100vw !important;
 					.veAiLogoDiv {
@@ -926,6 +1075,84 @@
 	&::-webkit-scrollbar {
 		display: none; // For Chrome, Safari, and newer versions of Edge
 	}
+
+	.profile-image-div {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 20px 0;
+
+		.imageCircleDiv {
+			width: 100px;
+			height: 100px;
+			border-radius: 100px;
+			border: 1px solid rgba(151, 151, 151, 0.36);
+			position: relative;
+			overflow: hidden;
+			.crop-container {
+				position: static;
+				.reactEasyCrop_CropArea {
+					border: none !important; /* Removes the crop area border */
+					display: none !important;
+				}
+				.reactEasyCrop_Container {
+					.reactEasyCrop_Image {
+						position: absolute;
+						width: 100%;
+						height: 100%;
+						top: 0;
+						left: 0;
+					}
+				}
+			}
+			img {
+				width: 100%;
+				height: 100%;
+				border-radius: 100px;
+				object-fit: cover;
+			}
+
+			.noImageText {
+				width: 100%;
+				height: 100%;
+				border-radius: 100px;
+				background: #6055ec;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 24px;
+				color: #e4e5e6;
+				font-weight: bold;
+				font-family: var(--primary-font-family);
+				padding: 0px;
+			}
+
+			.editImage {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				height: 42px;
+				padding: 2px;
+				border-radius: 0 0 100px 100px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				opacity: 0.9;
+				cursor: pointer;
+
+				background: rgba(0, 0, 0, 0.3);
+				backdrop-filter: blur(10px);
+				z-index: 10;
+				svg {
+					width: 16px;
+					height: 16px;
+					margin: 0;
+				}
+			}
+		}
+	}
+
 	.settingBackdrop {
 		position: absolute;
 		height: 100vh;
@@ -1269,7 +1496,14 @@
 		transform: translateX(0);
 	}
 }
-
+@keyframes slowCloseAnimation {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-100%);
+	}
+}
 .horizontal-line-sidebar {
 	border: 0.7px solid var(--stroke);
 	margin: 16px 0px 16px -10px;
@@ -1303,9 +1537,9 @@
 		justify-content: center;
 		align-items: center;
 		gap: 10px;
-		border-radius: 100px;
-		border: 1px solid var(--stroke, #2c2d2e);
-		background: var(--card, #18191b);
+		border-radius: 8px;
+		border: 1px solid var(--stroke, #2b2e31);
+		background: var(--new-card, #1a1b1e);
 		cursor: pointer;
 		svg {
 			flex-shrink: 0;
@@ -1382,35 +1616,19 @@
 }
 @keyframes slideOutAnimation {
 	0% {
+		opacity: 1;
 		transform: translateX(0);
 	}
 	100% {
-		display: none;
+		opacity: 0;
 		transform: translateX(-100%);
-	}
-}
-
-@keyframes delayMargin {
-	0% {
-		margin-left: -32px;
-		margin-top: -32px;
-	}
-	99% {
-		margin-left: -32px;
-		margin-top: -32px;
-	}
-	100% {
-		margin-left: 0;
-		margin-top: 0;
+		display: none;
 	}
 }
 
 @keyframes adjustWidth {
 	0% {
 		width: 280px;
-	}
-	99% {
-		width: 52px;
 	}
 	100% {
 		width: 20px;
@@ -1426,17 +1644,33 @@
 	}
 }
 
-@keyframes minimizeWidth {
+@keyframes collapseWidth {
 	0% {
-		width: 100vw;
-		top: -15px;
-	}
-	99% {
-		top: -15px;
+		transform: translateX(0);
+		width: 280px;
 	}
 	100% {
+		transform: translateX(-100%);
 		width: 20px;
-		height: 20px;
-		top: 0px;
+	}
+}
+
+@keyframes minimizeWidth {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-100%);
+	}
+}
+
+@keyframes fadeInOptions {
+	0% {
+		opacity: 0;
+		transform: scale(0.8);
+	}
+	100% {
+		opacity: 1;
+		transform: scale(1);
 	}
 }

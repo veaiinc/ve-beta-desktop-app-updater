@@ -1,20 +1,20 @@
 import Skeleton from 'react-loading-skeleton';
-import React, { useContext, useEffect, memo, useCallback, useState, useRef } from 'react';
+import React, { useContext, useEffect, memo, useCallback } from 'react';
 import '../../../../assets/scss/chats.scss';
 import Context from '../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import InfiniteScroll from '../../../components/globalComponents/InfiniteScroll';
 import moment from 'moment';
-import { useNavigate, useParams } from 'react-router-dom';
-import debounce from 'lodash/debounce';
+import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
+import Spinner from '../../loaders/Spinner';
 const infiniteScrollStyle = {
 	display: 'flex',
 	flexDirection: 'column',
 	alignItems: 'flex-start',
 	alignSelf: 'stretch',
 	gap: '2px',
-	marginBottom: '60px',
+
 	// height: '38vh',
 };
 const skeletonLoaders = Array?.from({ length: 30 }, (_, index) => index + 1);
@@ -26,7 +26,15 @@ const ChatHistory = () => {
 	const navigate = useNavigate();
 	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
-		templates: { refetchChatHistoryList, updateStateValues, currentSessionId, currentChatData },
+		templates: {
+			refetchChatHistoryList,
+			updateStateValues,
+			currentSessionId,
+			currentChatData,
+			chatLoadingSessions,
+			updateChatLoadingSessions,
+		},
+		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
 	// const previousSearchQuery = useRef('');
 	// const [searchQuery, setSearchQuery] = useState('');
@@ -40,7 +48,7 @@ const ChatHistory = () => {
 	// );
 
 	useEffect(() => {
-		if (!aiChatSessions) {
+		if (!aiChatSessions || aiChatSessions?.getData) {
 			fetchChats();
 		}
 		// const timeoutId = setTimeout(() => {
@@ -58,7 +66,7 @@ const ChatHistory = () => {
 	}, []);
 
 	useEffect(() => {
-		if (currentSessionId && currentChatData?._id !== currentSessionId) {
+		if (currentSessionId) {
 			const index = aiChatSessions?.data?.findIndex((chat) => chat?._id === currentSessionId);
 			if (typeof index === 'number' && index !== -1) {
 				updateStateValues({ currentChatData: aiChatSessions?.data[index] });
@@ -88,6 +96,10 @@ const ChatHistory = () => {
 		(chat) => {
 			if (currentSessionId === chat?._id) return;
 
+			if (chatLoadingSessions?.[chat?._id]?.isNotSeen) {
+				updateChatLoadingSessions({ sessionId: chat?._id, removeSessionId: true });
+			}
+
 			if (chat?.agentType === 'knowledge_agent') {
 				navigate(
 					`/chat/${chat?._id}?agentType=knowledge_agent&assistantId=${chat?.assistantId}`,
@@ -96,13 +108,8 @@ const ChatHistory = () => {
 				navigate(`/chat/${chat?._id}`);
 			}
 		},
-		[currentSessionId],
+		[currentSessionId, updateChatLoadingSessions],
 	);
-
-	const handleCreateChat = useCallback(() => {
-		const sessionId = ObjectID()?.toString();
-		navigate(`/chat/${sessionId}`);
-	}, []);
 
 	const getChatDateGroup = useCallback((timestamp) => {
 		const chatDate = moment.unix(timestamp).startOf('day');
@@ -164,7 +171,10 @@ const ChatHistory = () => {
 						next={fetchMoreChats}
 						hasMore={hasNextPage || false}
 						loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
-						style={infiniteScrollStyle}
+						style={{
+							...infiniteScrollStyle,
+							marginBottom: !currentPlan?.totalAiCreditLimit === 0 ? '140px' : '70px',
+						}}
 						// scrollableTarget="chatsScroll"
 						height={'100%'}
 					>
@@ -201,6 +211,20 @@ const ChatHistory = () => {
 												{chat?.title}
 											</p>
 										</div>
+										{(chatLoadingSessions?.[chat?._id]?.isStreaming ||
+											chatLoadingSessions?.[chat?._id]?.isNotSeen) &&
+											chat?._id !== currentSessionId && (
+												<div className="loader-container">
+													{chatLoadingSessions?.[chat?._id]
+														?.isStreaming && (
+														<Spinner width={'15px'} height={'14.5px'} />
+													)}
+													{chatLoadingSessions?.[chat?._id]
+														?.isNotSeen && (
+														<div className="not-seen-badge" />
+													)}
+												</div>
+											)}
 									</div>
 								</div>
 							);

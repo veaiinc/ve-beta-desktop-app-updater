@@ -38,7 +38,7 @@ import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPop
 import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DeleteGalleryComponent from '../../components/gallery/gallerySettings/DeleteGalleryComponent';
 import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
@@ -484,7 +484,7 @@ const GalleryPage = () => {
 		}));
 	};
 	useEffect(() => {
-		updateStateValues({ leftSidebarState: 'close' });
+		updateStateValues({ leftSidebarState: 'open' });
 		return () => {
 			updateStateValues({ leftSidebarState: null });
 		};
@@ -4519,7 +4519,13 @@ const GalleryPage = () => {
 																			{isSelected && (
 																				<div className="sortTypeIndicator"></div>
 																			)}
-																			<div className="option-value-wrapper">
+																			<div
+																				className={`option-value-wrapper ${
+																					isSelected
+																						? 'active'
+																						: ''
+																				}`}
+																			>
 																				{item.label}
 																			</div>
 																			{!item.noArrow &&
@@ -4837,7 +4843,7 @@ const GalleryPage = () => {
 								>
 									<InfiniteScroll
 										dataLength={imagesList?.docs?.length || 0}
-										next={fetchMoreImages}
+										next={() => fetchMoreImages()}
 										hasMore={imagesList?.hasNextPage || false}
 										loader={
 											<p style={{ textAlign: 'center', color: '#fff' }}>

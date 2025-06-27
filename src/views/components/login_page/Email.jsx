@@ -6,6 +6,7 @@ import { ReactComponent as AppleLogo } from '../../../assets/svg/apple.svg';
 import { ReactComponent as MicrosoftLogo } from '../../../assets/svg/microsoft.svg';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
+import { ReactComponent as EmailIcon } from '../../../assets/svg/footer/email.svg';
 import Context from '../../../context/context';
 import { getLocationsDetails } from '../../../helpers';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -54,7 +55,7 @@ const Email = ({
 	useEffect(() => {
 		const isHostnameVeDotAi =
 			typeof window !== 'undefined' && window.location.hostname.endsWith('ve.ai');
-		setInfo((prev) => ({ ...prev, isHostnameVeDotAi }));
+		setInfo((prev) => ({ ...prev, isHostnameVeDotAi, googleLoading: false }));
 
 		if (referralCode) {
 			handleGetAndSetReferrerUserName();
@@ -229,8 +230,8 @@ const Email = ({
 			<div className="login-page-content">
 				{info?.referrerUserDetails?.isValidReferralCode && (
 					<h1 className="referral-message">
-						<span className="referrer-name">{`${info?.referrerUserDetails?.referrerName}`}</span>{' '}
-						invited you to join
+						<EmailIcon className="email-icon" />
+						<span className="referrer-name">{`Invited by ${info?.referrerUserDetails?.referrerName}`}</span>
 					</h1>
 				)}
 				<h1 className="login-page-title">

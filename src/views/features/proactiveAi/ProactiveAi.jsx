@@ -112,8 +112,14 @@ const ProactiveAi = () => {
 					stream_end: true,
 				},
 			];
-			updateStateValues({ globalChatMessages: messages });
-			navigate(`/chat/${ObjectID()?.toString()}`);
+			const sessionId = card?.sessionId || ObjectID()?.toString();
+
+			handleGlobalChatMessages({
+				updateExtraInfo: true,
+				recentChatMessages: messages,
+				sessionId,
+			});
+			navigate(`/chat/${sessionId}`);
 		},
 		[info?.chainOfThoughtData],
 	);
@@ -630,7 +636,7 @@ const ProactiveAi = () => {
 											className="report-description"
 											onClick={(e) => e.stopPropagation()}
 										>
-											<Markdown citations={thinker_sources || []}>
+											<Markdown citations={thinker_sources || null}>
 												{research_report || ''}
 											</Markdown>
 										</div>
@@ -734,7 +740,7 @@ const ProactiveAi = () => {
 							<div className="chain-of-thought-content">
 								<CombinedChainOfThought
 									data={info?.chainOfThoughtData}
-									citations={thinker_sources || []}
+									citations={thinker_sources || null}
 								/>
 							</div>
 						</div>

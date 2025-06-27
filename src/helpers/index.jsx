@@ -12,7 +12,7 @@ import { ReactComponent as SlackSvg } from '../assets/svg/slack.svg';
 import { ReactComponent as NotionSvg } from '../assets/svg/notion.svg';
 import { ReactComponent as VeLogoSvg } from '../assets/svg/veLogo.svg';
 import { ReactComponent as DriveSvg } from '../assets/svg/drive.svg';
-
+import { ReactComponent as LinkSvg } from '../assets/svg/link.svg';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -94,12 +94,29 @@ export const FetchMoreLoaderComp = ({
 };
 
 export const getRelativeDayLabel = (timestamp) => {
-	const date = dayjs(timestamp * 1000);
-	if (date.isToday()) return 'Today';
-	if (date.isYesterday()) return 'Yesterday';
+	const date = dayjs(timestamp * 1000); // Convert seconds to milliseconds
+	const now = dayjs();
 
-	const daysAgo = dayjs().startOf('day').diff(date.startOf('day'), 'day');
-	return `${daysAgo} Days Ago`;
+	if (date.isToday()) {
+		const hoursAgo = now.diff(date, 'hour');
+		if (hoursAgo < 1) {
+			const minutesAgo = now.diff(date, 'minute');
+			if (minutesAgo < 1) {
+				return 'Just now';
+			}
+			return `${minutesAgo} min${minutesAgo === 1 ? '' : 's'} ago`;
+		}
+		if (hoursAgo < 24) {
+			return `${hoursAgo} hr${hoursAgo === 1 ? '' : 's'} ago`;
+		}
+		return 'Today';
+	}
+	if (date.isYesterday()) {
+		return 'Yesterday';
+	}
+
+	const daysAgo = now.startOf('day').diff(date.startOf('day'), 'day');
+	return `${daysAgo} day${daysAgo === 1 ? '' : 's'} ago`;
 };
 
 export const getLocationsDetails = async () => {
@@ -332,6 +349,7 @@ export const fileTypeIcons = {
 	pdf: <PdfSvg />,
 	jpg: <JpgSvg />,
 	json: <JsonSvg />,
+	url: <LinkSvg />,
 	md: <MdSvg />,
 	jpeg: <JpgSvg />,
 	xlsx: <ExcelSvg />,

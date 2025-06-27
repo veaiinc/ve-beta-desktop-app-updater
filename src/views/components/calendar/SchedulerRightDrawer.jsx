@@ -1,6 +1,6 @@
 import { memo, useCallback, useState, useEffect, useContext, useRef } from 'react';
 import '../../../assets/scss/calendar/schedulerRightDrawer.scss';
-import { Collapse, Drawer, Tooltip } from 'antd';
+import { Collapse, Drawer, Tooltip, DatePicker } from 'antd';
 import Context from '../../../context/context';
 import { message } from '../globalComponents/CustomToast';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/calendar/CaretDoubleRight.svg';
@@ -538,6 +538,7 @@ const SchedulerRightDrawer = ({
 				...prev,
 				errors: { ...prev.errors, dateRange: true },
 			}));
+			message.error('Please select a valid date range for custom availability');
 			return;
 		}
 		if (
@@ -549,6 +550,7 @@ const SchedulerRightDrawer = ({
 				...prev,
 				errors: { ...prev.errors, dateRange: true },
 			}));
+			message.error('End date must be after start date');
 			return;
 		}
 
@@ -562,6 +564,14 @@ const SchedulerRightDrawer = ({
 				...prev,
 				errors,
 			}));
+			if (errors.sessionName) {
+				message.error('Please enter a session name');
+			}
+			if (errors.sessionTypeInput) {
+				message.error(
+					`Please enter ${sessionTypeInputConfig[info.sessionType].tag.toLowerCase()}`,
+				);
+			}
 			return;
 		}
 
@@ -571,7 +581,7 @@ const SchedulerRightDrawer = ({
 				...prev,
 				errors: { ...prev.errors, inviteeLimit: true },
 			}));
-			message.error('Group sessions must have at least 2 invitees.');
+			message.error('Group sessions must have at least 2 invitees');
 			return;
 		}
 
@@ -1071,16 +1081,27 @@ const SchedulerRightDrawer = ({
 														<div className="scheduler-window-label">
 															Start Date
 														</div>
-														<input
-															type="date"
+														<DatePicker
 															className="scheduler-window-input"
-															value={info.schedulerWindowStart}
-															min={dayjs().format('YYYY-MM-DD')}
-															onChange={(e) =>
+															value={
+																info.schedulerWindowStart
+																	? dayjs(
+																			info.schedulerWindowStart,
+																	  )
+																	: null
+															}
+															onChange={(date) =>
 																handleFieldChange(
 																	'schedulerWindowStart',
-																	e.target.value,
+																	date
+																		? date.format('YYYY-MM-DD')
+																		: null,
 																)
+															}
+															format="YYYY-MM-DD"
+															disabledDate={(current) =>
+																current &&
+																current < dayjs().startOf('day')
 															}
 														/>
 													</div>
@@ -1088,16 +1109,25 @@ const SchedulerRightDrawer = ({
 														<div className="scheduler-window-label">
 															End Date
 														</div>
-														<input
-															type="date"
+														<DatePicker
 															className="scheduler-window-input"
-															min={dayjs().format('YYYY-MM-DD')}
-															value={info.schedulerWindowEnd}
-															onChange={(e) =>
+															value={
+																info.schedulerWindowEnd
+																	? dayjs(info.schedulerWindowEnd)
+																	: null
+															}
+															onChange={(date) =>
 																handleFieldChange(
 																	'schedulerWindowEnd',
-																	e.target.value,
+																	date
+																		? date.format('YYYY-MM-DD')
+																		: null,
 																)
+															}
+															format="YYYY-MM-DD"
+															disabledDate={(current) =>
+																current &&
+																current < dayjs().startOf('day')
 															}
 														/>
 													</div>

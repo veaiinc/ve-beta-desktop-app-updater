@@ -1,0 +1,193 @@
+.container {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	overflow: auto;
+	gap: 34px;
+
+	.titleSubtitleContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+
+		.title {
+			color: var(--primary-font);
+			font-family: var(--font-family-inter);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.subtitle {
+			color: var(--secondary-font);
+			font-family: var(--font-family-inter);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 20px;
+		}
+	}
+
+	.connectedTriggersContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+
+		.title {
+			color: var(--primary-font);
+			font-family: var(--font-family-inter);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.emptyTriggersMessage {
+			margin: 0;
+			color: var(--secondary-font);
+			font-family: var(--font-family-inter);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 20px;
+		}
+
+		.triggersListContainer {
+			margin: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			padding-left: 0;
+
+			li {
+				width: 100%;
+				max-width: 896px;
+				list-style: none;
+				display: flex;
+				align-items: flex-start;
+				gap: 12px;
+				padding: 16px 24px;
+				border-radius: 12px;
+				border: 1px solid var(--stroke);
+				background: var(--card);
+				position: relative;
+
+				.triggerItemContent {
+					display: flex;
+					flex-direction: column;
+					gap: 2px;
+
+					h3 {
+						color: var(--primary-font);
+						font-family: var(--font-family-inter);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 20px;
+					}
+
+					p {
+						color: var(--secondary-font);
+						font-family: var(--font-family-inter);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 18px;
+					}
+				}
+
+				.disconnectTrigger {
+					position: absolute;
+					right: 18px;
+					top: 50%;
+					transform: translateY(-50%);
+					width: 24px;
+					height: 24px;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					border: none;
+					outline: none;
+					background: inherit;
+					cursor: pointer;
+					transition: all 0.2s ease-in;
+
+					&:hover {
+						transform: translateY(-50%) scale(1.1);
+					}
+				}
+			}
+		}
+	}
+
+	.divider {
+		width: 100%;
+		height: 1px;
+		background: var(--stroke);
+	}
+
+	.connectAppsContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+
+		&:last-child {
+			margin-bottom: 24px;
+		}
+
+		.title {
+			color: var(--primary-font);
+			font-family: var(--font-family-inter);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 22px;
+		}
+
+		.connectAppsListContainer {
+			margin: 0;
+			padding-left: 0;
+			display: flex;
+			gap: 12px;
+
+			li {
+				display: flex;
+				width: 215px;
+				padding: 8px 12px;
+				align-items: center;
+				align-content: center;
+				gap: 12px;
+				flex-wrap: wrap;
+				border-radius: 8px;
+				background: var(--card, #1a1b1e);
+				cursor: pointer;
+
+				.iconContainer {
+					display: flex;
+					width: 40px;
+					height: 40px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					flex-shrink: 0;
+					border-radius: 8px;
+					border: 1px solid var(--stroke, #2b2e31);
+					background: var(--card-over-card, #27282b);
+				}
+
+				span,
+				h3 {
+					color: var(--primary-font);
+					font-family: var(--font-family-inter);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 22px;
+				}
+			}
+		}
+	}
+}

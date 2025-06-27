@@ -3,17 +3,36 @@ import '../../../assets/scss/ai_assistant/aiPrompt.scss';
 import { ReactComponent as Question } from '../../../assets/svg/ai_assistant/question.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
 import CustomTextArea from '../globalComponents/CustomTextArea';
-import { Tooltip } from 'antd';
+import { message, Tooltip } from 'antd';
 import Context from '../../../context/context';
 import Skeleton from 'react-loading-skeleton';
 
+const customPromptItem = {
+	_id: 'custom',
+	label: 'Custom',
+	prompt: '',
+	tag: 'custom',
+	isDefault: false,
+};
+
 const KnowledgeAgentPrompt = ({ assistant }) => {
 	const {
-		knowledgeAgent: { allAiPrompts, getAiPrompts, selectAiPrompt, resetAiPrompt, editAiPrompt },
+		knowledgeAgent: {
+			allAiPrompts,
+			getAiPrompts,
+			selectAiPrompt,
+			resetAiPrompt,
+			editAiPrompt,
+			updateKnowledgeAgent,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		aiModelOptions: ['GPT-4o', 'GPT-4o-mini', 'GPT-4o-turbo'],
+		aiModelOptions: [
+			{ label: 'GPT-4o', value: 'gpt-4o' },
+			{ label: 'GPT-4o-mini', value: 'gpt-4o-mini' },
+			{ label: 'GPT-4o-turbo', value: 'gpt-4o-turbo' },
+		],
 		selectedModel: 'GPT-4o',
 		modelListLoading: false,
 		isSelectModelOpen: false,
@@ -24,31 +43,38 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 		editedPrompt: '',
 		timeout: null,
 		promptLoading: true,
+		currentPromptId: null,
 	});
 
 	useEffect(() => {
 		if (allAiPrompts) {
 			let selectedSystemPrompt;
 			let systemPrompt;
+			let currentPromptId;
+
 			if (assistant?.prompt?.customEditedPrompt) {
 				selectedSystemPrompt = 'Custom';
 				systemPrompt = assistant?.prompt?.customEditedPrompt;
+				currentPromptId = assistant?.prompt?.promptId;
 			} else if (assistant?.prompt?.promptId) {
 				const selectedPrompt = allAiPrompts?.find(
 					(prompt) => prompt?._id === assistant?.prompt?.promptId,
 				);
 				selectedSystemPrompt = selectedPrompt?.label;
 				systemPrompt = selectedPrompt?.prompt;
+				currentPromptId = assistant?.prompt?.promptId;
 			} else {
 				const defaultPrompt = allAiPrompts?.find((prompt) => prompt?.isDefault);
 				selectedSystemPrompt = defaultPrompt?.label;
 				systemPrompt = defaultPrompt?.prompt;
+				currentPromptId = defaultPrompt?._id;
 			}
 			setInfo((prev) => ({
 				...prev,
 				systemPromptOptions: allAiPrompts || [],
 				selectedSystemPrompt,
 				systemPrompt,
+				currentPromptId,
 				promptLoading: false,
 			}));
 		} else if (assistant?._id) {
@@ -56,36 +82,15 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 		}
 	}, [allAiPrompts, assistant?._id]);
 
-	// useEffect(() => {
-	// 	getAiPrompt(assistant?._id);
-	// 	getDefaultAiPrompt(assistant?._id);
-	// }, [assistant]);
-
-	// useEffect(() => {
-	// 	if (aiPrompt) {
-	// 		const promptToShow = aiPrompt?.customEditedPrompt || aiPrompt?.prompt || '';
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			systemPrompt: promptToShow,
-	// 			selectedSystemPrompt: aiPrompt?.label || '',
-	// 		}));
-	// 	}
-	// }, [aiPrompt]);
-
-	// useEffect(() => {
-	// 	if (aiDefaultPrompt && Array?.isArray(aiDefaultPrompt)) {
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			systemPromptOptions: [
-	// 				...prev.systemPromptOptions,
-	// 				...aiDefaultPrompt?.map((prompt) => ({
-	// 					label: prompt?.label,
-	// 					id: prompt?._id,
-	// 				})),
-	// 			],
-	// 		}));
-	// 	}
-	// }, [aiDefaultPrompt]);
+	useEffect(() => {
+		const selectedModel = info?.aiModelOptions?.find(
+			(option) => option.value === assistant?.model,
+		)?.label;
+		setInfo((prev) => ({
+			...prev,
+			selectedModel,
+		}));
+	}, [assistant]);
 
 	useEffect(() => {
 		if (info?.systemPrompt !== undefined) {
@@ -96,8 +101,8 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 	const handleDebounceUpdate = useCallback(() => {
 		clearTimeout(info?.timeout);
 		const timeout = setTimeout(() => {
-			if (info?.editedPrompt && assistant?._id && assistant?.prompt?.promptId) {
-				editAiPrompt(assistant?._id, assistant?.prompt?.promptId, {
+			if (info?.editedPrompt && assistant?._id && info?.currentPromptId) {
+				editAiPrompt(assistant?._id, info?.currentPromptId, {
 					prompt: info?.editedPrompt,
 				});
 			}
@@ -107,13 +112,7 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 			}));
 		}, 800);
 		setInfo((prev) => ({ ...prev, timeout }));
-	}, [
-		info?.timeout,
-		info?.editedPrompt,
-		assistant?._id,
-		assistant?.prompt?.promptId,
-		editAiPrompt,
-	]);
+	}, [info?.timeout, info?.editedPrompt, info?.currentPromptId, assistant?._id, editAiPrompt]);
 
 	const handleModelDropdownVisibility = useCallback((visible) => {
 		setInfo((prev) => ({ ...prev, isSelectModelOpen: visible }));
@@ -123,9 +122,11 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 		setInfo((prev) => ({ ...prev, isSelectSystemPromptOpen: visible }));
 	}, []);
 
-	const handleChooseModalChange = useCallback((value) => {
-		setInfo((prev) => ({ ...prev, selectedModel: value, isSelectModelOpen: false }));
-	}, []);
+	const handleChooseModalChange = async (option) => {
+		setInfo((prev) => ({ ...prev, selectedModel: option.label, isSelectModelOpen: false }));
+		const response = await updateKnowledgeAgent(assistant?._id, { model: option.value });
+		if (!response[0]) message.error('Failed to update model for the agent!');
+	};
 
 	const handleSystemPromptChange = useCallback(
 		(option) => {
@@ -133,6 +134,7 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 				...prev,
 				selectedSystemPrompt: option.label,
 				systemPrompt: option.prompt || '',
+				currentPromptId: option._id,
 				isSelectSystemPromptOpen: false,
 			}));
 			if (assistant?._id && option._id) {
@@ -148,11 +150,21 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 			systemPrompt: value,
 			editedPrompt: value,
 			selectedSystemPrompt: 'Custom',
+			currentPromptId: prev.currentPromptId,
 		}));
 	}, []);
 
-	const handleResetPrompt = useCallback(() => {
-		resetAiPrompt(assistant?._id);
+	const handleResetPrompt = useCallback(async () => {
+		const response = await resetAiPrompt(assistant?._id);
+		if (response?.[0] === true) {
+			const { label, prompt } = response[1];
+			setInfo((prev) => ({
+				...prev,
+				selectedSystemPrompt: label,
+				systemPrompt: prompt,
+				editedPrompt: '',
+			}));
+		}
 	}, [assistant]);
 
 	return (
@@ -176,7 +188,7 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 										className="modelListItem"
 										onClick={() => handleChooseModalChange(option)}
 									>
-										{option}
+										{option.label}
 									</div>
 								))}
 							</div>
@@ -260,7 +272,7 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 						/>
 
 						<div className="resetPromptContainer">
-							<span onClick={handleResetPrompt}>Reset</span>
+							<button onClick={handleResetPrompt}>Reset</button>
 						</div>
 					</>
 				)}

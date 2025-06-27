@@ -1,5 +1,5 @@
-import { memo, useCallback, useEffect, useState } from 'react';
-import '../../../../assets/scss/calendar/modal/udateSessionSlot.scss';
+import { memo, useCallback, useEffect, useState, useRef } from 'react';
+import styles from '../../../../assets/scss/calendar/modal/udateSessionSlot.module.scss';
 import ReactModal from '../index';
 import { ReactComponent as Delete } from '../../../../assets/svg/ai_assistant/delete.svg';
 import { ReactComponent as Down } from '../../../../assets/svg/calendar/down.svg';
@@ -20,6 +20,7 @@ const UpdateSessionSlot = ({
 	selectedSlotData,
 	updateCalendarInfo,
 }) => {
+	const timeSlotsContainerRef = useRef(null);
 	const [info, setInfo] = useState({
 		slots: [],
 		selectedSession: null,
@@ -89,6 +90,15 @@ const UpdateSessionSlot = ({
 
 	const addSlot = () => {
 		setInfo((prev) => ({ ...prev, slots: [...prev.slots, { from: '09:00', to: '10:00' }] }));
+		// Scroll to bottom after state update
+		setTimeout(() => {
+			if (timeSlotsContainerRef.current) {
+				timeSlotsContainerRef.current.scrollTo({
+					top: timeSlotsContainerRef.current.scrollHeight,
+					behavior: 'smooth',
+				});
+			}
+		}, 0);
 	};
 
 	const removeSlot = (idx) => {
@@ -138,8 +148,8 @@ const UpdateSessionSlot = ({
 			style={customStyles}
 			className="update-session-slot-modal"
 		>
-			<div className="updateSessionSlotContainer">
-				<div className="sessionHeader">
+			<div className={styles.updateSessionSlotContainer}>
+				<div className={styles.sessionHeader}>
 					<Tooltip
 						open={info.sessionTypeOpen}
 						onOpenChange={(visible) =>
@@ -147,11 +157,11 @@ const UpdateSessionSlot = ({
 						}
 						placement="bottom"
 						title={
-							<div className="sessionName-dropdown">
+							<div className={styles['sessionName-dropdown']}>
 								{schedulerList?.map((option) => (
 									<div
 										key={option._id}
-										className="sessionName-dropdown-item"
+										className={styles['sessionName-dropdown-item']}
 										onClick={() => {
 											setInfo((prev) => ({
 												...prev,
@@ -170,9 +180,9 @@ const UpdateSessionSlot = ({
 						color={'transparent'}
 						overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
 					>
-						<div className="selectedSession-lable">
+						<div className={styles['selectedSession-lable']}>
 							{info.selectedSession?.sessionName}
-							<Down className={`${info.sessionTypeOpen ? 'open' : ''}`} />
+							<Down className={`${info.sessionTypeOpen ? styles.open : ''}`} />
 						</div>
 					</Tooltip>
 				</div>
@@ -181,40 +191,42 @@ const UpdateSessionSlot = ({
 						? `Slots for ${selectedSlotData.selectedDate}`
 						: 'No day selected'}
 				</h3>
-				{info.slots.length === 0 ? (
-					<div style={{ color: 'var(--secondary-font)', margin: '16px 0' }}>
-						No slots for this day.
-					</div>
-				) : (
-					info.slots.map((slot, idx) => (
-						<div key={idx} className="timeSlot">
-							<input
-								type="time"
-								className="slot-input"
-								value={slot.from}
-								onChange={(e) => handleSlotChange(idx, 'from', e.target.value)}
-							/>
-							<span>to</span>
-							<input
-								type="time"
-								className="slot-input"
-								value={slot.to}
-								onChange={(e) => handleSlotChange(idx, 'to', e.target.value)}
-							/>
-							<Delete
-								width={8}
-								height={8}
-								onClick={() => removeSlot(idx)}
-								style={{ cursor: 'pointer' }}
-							/>
+				<div className={styles['timeSlots-container']} ref={timeSlotsContainerRef}>
+					{info.slots.length === 0 ? (
+						<div style={{ color: 'var(--secondary-font)', margin: '16px 0' }}>
+							No slots for this day.
 						</div>
-					))
-				)}
-				<div className="addSlot" onClick={addSlot}>
+					) : (
+						info.slots.map((slot, idx) => (
+							<div key={idx} className={styles.timeSlot}>
+								<input
+									type="time"
+									className={styles['slot-input']}
+									value={slot.from}
+									onChange={(e) => handleSlotChange(idx, 'from', e.target.value)}
+								/>
+								<span>to</span>
+								<input
+									type="time"
+									className={styles['slot-input']}
+									value={slot.to}
+									onChange={(e) => handleSlotChange(idx, 'to', e.target.value)}
+								/>
+								<Delete
+									width={8}
+									height={8}
+									onClick={() => removeSlot(idx)}
+									style={{ cursor: 'pointer' }}
+								/>
+							</div>
+						))
+					)}
+				</div>
+				<div className={styles.addSlot} onClick={addSlot}>
 					+ Add Time Slot
 				</div>
-				<div className="saveButton">
-					<div className="saveButton-text" onClick={handleSave}>
+				<div className={styles.saveButton}>
+					<div className={styles['saveButton-text']} onClick={handleSave}>
 						Save Changes
 					</div>
 				</div>

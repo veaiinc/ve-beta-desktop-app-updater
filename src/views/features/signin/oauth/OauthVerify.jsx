@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { fetchDomainName } from '../../../../helpers';
+import './oauthVerify.scss';
+import Spinner from '../../../components/loaders/Spinner';
 
 const OauthVerify = () => {
 	const navigate = useNavigate();
@@ -32,7 +34,7 @@ const OauthVerify = () => {
 					sameSite: 'lax',
 					domain: host,
 				});
-				Cookies.set('workspaceID', accessibleWorkspaces?.workspaceId, {
+				Cookies.set('workspaceId', accessibleWorkspaces?.workspaceId, {
 					sameSite: 'lax',
 					domain: host,
 				});
@@ -66,7 +68,26 @@ const OauthVerify = () => {
 			}
 		}
 	}, [params]);
-	return <div></div>;
+
+	return (
+		<div className="oauth-verify">
+			<div className="oauth-verify__container">
+				<div className="oauth-verify__status">Setting up your workspace...</div>
+
+				<div className="oauth-verify__loading">
+					<Spinner
+						width="18px"
+						height="18px"
+						color="var(--primary-button)"
+						borderTopColor="transparent"
+						borderWidth={1.5}
+					/>
+				</div>
+
+				<div className="oauth-verify__message">Please wait while we redirect you...</div>
+			</div>
+		</div>
+	);
 };
 
 export default OauthVerify;

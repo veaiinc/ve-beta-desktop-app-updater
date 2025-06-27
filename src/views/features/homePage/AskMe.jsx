@@ -46,6 +46,7 @@ const AskMe = () => {
 						autoFocus={true}
 						animatePlaceholder={true}
 						onChatQueryChange={handleChatQueryChange}
+						showUpgradeSubscriptionBtn={false}
 					/>
 				</div>
 			</div>

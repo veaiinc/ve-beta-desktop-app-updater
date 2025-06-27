@@ -1,7 +1,7 @@
 import React, { memo, useState, useEffect, useContext } from 'react';
-import { ReactComponent as EmailIcon } from '../../../../assets/svg/notification/email.svg';
-import { ReactComponent as WhatsappIcon } from '../../../../assets/svg/notification/whatsApp.svg';
-import { ReactComponent as SlackIcon } from '../../../../assets/svg/notification/slack.svg';
+import { ReactComponent as WhatsappIcon } from '../../../../assets/svg/Settings/whatsapp-logo.svg';
+import { ReactComponent as SlackIcon } from '../../../../assets/svg/Settings/slackColor.svg';
+import GmailIcon from '../../../../assets/svg/login_page/GmailIcon';
 import { Switch, Checkbox } from 'antd';
 import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';
@@ -10,7 +10,7 @@ const appTypes = [
 	{
 		id: 0,
 		appType: 'email',
-		icon: <EmailIcon />,
+		icon: <GmailIcon />,
 		description: 'Receive emails to stay updated while offline. You can turn them off anytime',
 	},
 	{

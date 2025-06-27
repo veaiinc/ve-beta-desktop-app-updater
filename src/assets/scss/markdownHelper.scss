@@ -1,28 +1,37 @@
 .user-message-renderer-wrapper {
 	display: flex;
-	justify-content: space-between;
+	flex-direction: column;
+	justify-content: flex-end;
+	align-items: flex-end;
 	position: relative;
 	width: 100%;
-	align-items: flex-start;
-	gap: 5px;
-	margin-bottom: 1.5rem;
+	gap: 16px;
 
-	.user-message-renderer-container {
-		position: relative;
-		line-height: 1.5;
-		font-weight: 500 !important;
-		overflow: hidden;
-		transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-		font-size: 1.5rem;
-		font-family: var(--chat-primary-font-family);
-		white-space: pre-wrap;
-		span {
-			line-height: 1.5;
-			font-weight: 500 !important;
-			font-family: var(--chat-primary-font-family);
-			word-break: break-word;
+	.user-message-wrapper {
+		width: fit-content;
+		max-width: 520px;
+		.user-message {
+			width: 100%;
+
+			.user-message-renderer-container {
+				background: var(--card-hover, #18191b);
+				border-radius: 16px;
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--chat-primary-font-family);
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 28px;
+				overflow-wrap: break-word;
+				padding: 10px 18px;
+				white-space: pre-wrap;
+				width: 100%;
+				word-break: normal;
+				letter-spacing: 0.25px;
+			}
 		}
 	}
+
 	.expand-btn {
 		width: fit-content;
 		.btn-text {
@@ -125,4 +134,15 @@
 	.hover-actions-container {
 		visibility: visible;
 	}
+}
+.user-hover-icons-tooltip {
+	background-color: var(--card);
+	color: var(--primary-font);
+	padding: 10px;
+	border-radius: 10px;
+	font-family: var(--chat-primary-font-family);
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
 }
