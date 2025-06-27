@@ -457,61 +457,60 @@ const SmartFileSidebar = ({
 			</div>
 			<div className="sidebarContent">
 				<div className="doc-header-title-container">
-
-			<span className="doc-header-title-container-text">Document Title</span>
-				<div className="smartFileSideBarHeader">
-					{isEditingTitle ? (
-						<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-							<input
-								ref={titleInputRef}
-								className="sidebar-title-input"
-								value={titleInput}
-								onChange={handleTitleInputChange}
-								onBlur={handleTitleInputBlurOrEnter}
-								onKeyDown={handleTitleInputKeyDown}
-								maxLength={80}
-								style={{
-									fontSize: 18,
-									fontWeight: 500,
-									background: 'transparent',
-									border: 'none',
-									borderBottom: '1px solid #c2ff00',
-									color: 'var(--primary-font)',
-									outline: 'none',
-								}}
-							/>
-							{isTitleLoading && <Spin size="small" />}
-						</div>
-					) : (
-						<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-							<span
-								className="sidebar-title-value"
-								style={{
-									color: 'var(--primary-font)',
-									fontSize: 18,
-									fontWeight: 500,
-									cursor: 'pointer',
-									flex: 1,
-									whiteSpace: 'nowrap',
-									overflow: 'hidden',
-									textOverflow: 'ellipsis',
-								}}
-								onClick={handleEditTitleClick}
-							>
-								{info.documentTitle || 'Untitled Document'}
-							</span>
-							<EditIcon
-								style={{
-									cursor: 'pointer',
-									width: 18,
-									height: 18,
-									fill: '#B3B3B3',
-								}}
-								onClick={handleEditTitleClick}
-							/>
-						</div>
-					)}
-				</div>
+					<span className="doc-header-title-container-text">Document Title</span>
+					<div className="smartFileSideBarHeader">
+						{isEditingTitle ? (
+							<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+								<input
+									ref={titleInputRef}
+									className="sidebar-title-input"
+									value={titleInput}
+									onChange={handleTitleInputChange}
+									onBlur={handleTitleInputBlurOrEnter}
+									onKeyDown={handleTitleInputKeyDown}
+									maxLength={80}
+									style={{
+										fontSize: 18,
+										fontWeight: 500,
+										background: 'transparent',
+										border: 'none',
+										borderBottom: '1px solid #c2ff00',
+										color: 'var(--primary-font)',
+										outline: 'none',
+									}}
+								/>
+								{isTitleLoading && <Spin size="small" />}
+							</div>
+						) : (
+							<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+								<span
+									className="sidebar-title-value"
+									style={{
+										color: 'var(--primary-font)',
+										fontSize: 18,
+										fontWeight: 500,
+										cursor: 'pointer',
+										flex: 1,
+										whiteSpace: 'nowrap',
+										overflow: 'hidden',
+										textOverflow: 'ellipsis',
+									}}
+									onClick={handleEditTitleClick}
+								>
+									{info.documentTitle || 'Untitled Document'}
+								</span>
+								<EditIcon
+									style={{
+										cursor: 'pointer',
+										width: 18,
+										height: 18,
+										fill: '#B3B3B3',
+									}}
+									onClick={handleEditTitleClick}
+								/>
+							</div>
+						)}
+					</div>
 				</div>
 
 				{formResponseId ? (
