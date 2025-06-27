@@ -4,7 +4,7 @@ import ProactiveDropdown from './ProactiveDropdown';
 import { ReactComponent as CaretDown } from '../../../assets/svg/CaretDownSecondary.svg';
 
 const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
-	const tabs = ['Home', 'The bridge', 'For Enterprise', 'Pricing'];
+	const tabs = ['Home', 'The bridge', 'For Enterprise'];
 
 	const handleProactiveDropdownHover = (isHovered) => {
 		if (isHovered) {
