@@ -14,6 +14,7 @@ import ContactUs from '../../components/landing_screen/ContactUs';
 import OurMission from './OurMission';
 import EarlyAccess from './EarlyAccess';
 import WebsitePricingPage from '../pricingPlans/PricingPageWebsite';
+import CustomToast from '../../components/globalComponents/CustomToast';
 
 import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
@@ -178,6 +179,7 @@ const LandingPage = () => {
 					location.pathname === '/thebridge' ? ' fullHeight' : ''
 				}`}
 			>
+				<CustomToast />
 				<header className="page-header">
 					<div className="page-header-wrapper">
 						<div className="left-container">
