@@ -8,7 +8,7 @@ const ChatBoxPlaceholder = ({ chatboxPlaceholders, activePlaceholderIndex }) => 
 				className="placeholderList"
 				style={{
 					transform: `translateY(-${
-						activePlaceholderIndex * 20 + activePlaceholderIndex
+						activePlaceholderIndex * 35 + activePlaceholderIndex
 					}px)`,
 					transition:
 						activePlaceholderIndex === 0
