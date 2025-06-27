@@ -1,3 +1,4 @@
+import { Navigate } from 'react-router-dom';
 // layouts
 import Public from '../views/layouts/Public';
 import AuthWrapper from '../views/layouts/authWrapper';
@@ -62,6 +63,17 @@ const stableRoutes = [
 			</AuthWrapper>
 		),
 	},
+	{
+		path: '*',
+		element: (
+			<Public>
+				<Navigate to="/home" />
+			</Public>
+		),
+	},
 ];
+export const stableRoutesList = stableRoutes
+	.map((route) => route.path)
+	.filter((path) => path !== '*');
 
 export default stableRoutes;

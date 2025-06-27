@@ -1,6 +1,7 @@
 import { useContext, useEffect } from 'react';
 import Context from '../../context/context';
 import { matchPath, useLocation } from 'react-router-dom';
+import useLogout from './useLogout';
 
 // routes
 import publicRoutes, { publicRoutesList } from '../../routes/publicRoutes';
@@ -10,6 +11,7 @@ import fallbackRoute from '../../routes/fallbackRoute';
 
 const useWorkspaceMode = () => {
 	const { pathname } = useLocation();
+	const logOut = useLogout();
 
 	const {
 		profileInfo: { tennantSettingsData, getTenantSettings },
@@ -35,7 +37,8 @@ const useWorkspaceMode = () => {
 				const success = response[0] === true;
 				if (!success) {
 					const error = response[1];
-					console.error(error);
+					logOut();
+					// console.error(error);
 				}
 			}
 		} catch (error) {

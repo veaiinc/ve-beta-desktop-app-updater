@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-
+import { Navigate } from 'react-router-dom';
 // layouts
 import AuthWrapper from '../views/layouts/authWrapper';
 import GalleryViewLayout from '../views/layouts/galleryViewLayout';
@@ -514,6 +514,15 @@ const betaRoutes = [
 			</AuthWrapper>
 		),
 	},
+	{
+		path: '*',
+		element: (
+			<Public>
+				<Navigate to="/home" />
+			</Public>
+		),
+	},
 ];
+export const betaRoutesList = betaRoutes.map((route) => route.path).filter((path) => path !== '*');
 
 export default betaRoutes;
