@@ -185,46 +185,27 @@ const AIMessage = ({
 				</div>
 			)}
 
-			{typeof messageData?.['follow_up_query'] !== 'string' &&
-				messageData?.stream_end &&
-				(messageData?.['follow_up_query'] || [])?.length > 0 && (
-					<div className="suggested-prompts">
-						<div className="title-text">
-							<BulbSvg />
-							Suggested Prompts
-						</div>
-						<div className="prompts-container">
-							{(messageData?.['follow_up_query'] || [])?.map((query, index) => (
-								<div
-									className="prompt-container"
-									key={index}
-									onClick={() => handlePromptClick(query)}
-								>
-									<div className="prompt">{query}</div>
-								</div>
-							))}
-						</div>
-					</div>
-				)}
-
-			{aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 && (
+			{(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
+				(messageData?.['follow_up_query'] || [])?.length > 0) && (
 				<div className="suggested-prompts">
 					<div className="title-text">
 						<BulbSvg />
 						Suggested Prompts
 					</div>
 					<div className="prompts-container">
-						{(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery || [])?.map(
-							(query, index) => (
-								<div
-									className="prompt-container"
-									key={index}
-									onClick={() => handlePromptClick(query)}
-								>
-									<div className="prompt">{query}</div>
-								</div>
-							),
-						)}
+						{(
+							aiMessagesInfo?.[messageData?.messageId]?.followUpQuery ||
+							messageData?.['follow_up_query'] ||
+							[]
+						)?.map((query, index) => (
+							<div
+								className="prompt-container"
+								key={index}
+								onClick={() => handlePromptClick(query)}
+							>
+								<div className="prompt">{query}</div>
+							</div>
+						))}
 					</div>
 				</div>
 			)}
