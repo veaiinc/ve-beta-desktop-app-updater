@@ -339,16 +339,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		[handleLeft, handleRight],
 	);
 	useEffect(() => {
-		const container = mainContainerRef.current;
-		if (container) {
-			container.addEventListener('keydown', handleKeyDown);
-			container.focus();
-		}
-		// Clean up on unmount
+		window.addEventListener('keydown', handleKeyDown);
 		return () => {
-			if (container) {
-				container.removeEventListener('keydown', handleKeyDown);
-			}
+			window.removeEventListener('keydown', handleKeyDown);
 		};
 	}, [handleKeyDown]);
 
@@ -771,7 +764,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 					marginTop: info?.showExploreMore ? '60px' : '0px',
 				}}
 				ref={mainContainerRef}
-				tabIndex={0}
 			>
 				{!info?.showExploreMore && (
 					<>

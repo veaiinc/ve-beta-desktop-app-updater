@@ -8,12 +8,11 @@
 	align-items: center;
 	overflow-y: auto;
 	position: relative;
-	height: 60vh;
-	transition: height 0s;
+	height: 65vh;
+	transition: height 0.7s ease;
 	scrollbar-width: none !important;
 	&.active {
 		height: 200px;
-		transition: height 0.7s ease;
 	}
 	.cards-container {
 		display: flex;
