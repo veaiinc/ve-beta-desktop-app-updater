@@ -197,6 +197,7 @@ const ChatBox = ({
 		chatBoxInfo: null,
 		openUpgradeModal: false,
 		askTooltipOpen: false,
+		isFocused: false,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -1326,6 +1327,18 @@ const ChatBox = ({
 														? 'Start typing or use @ to mention a source.'
 														: ''
 												}
+												onFocus={() => {
+													setInfo((prev) => ({
+														...prev,
+														isFocused: true,
+													}));
+												}}
+												onBlur={() => {
+													setInfo((prev) => ({
+														...prev,
+														isFocused: false,
+													}));
+												}}
 											/>
 
 											{showPlaceholder && animatePlaceholder && (
@@ -1346,6 +1359,7 @@ const ChatBox = ({
 													onClick={(e) => handleSendBtnClick(e)}
 													style={{
 														backgroundColor: 'var(--primary-button)',
+														opacity: `${info?.isFocused ? '1' : '0.5'}`,
 													}}
 												>
 													<ArrowUp />
@@ -1358,6 +1372,7 @@ const ChatBox = ({
 													onClick={(e) => handleMicIconClick(e)}
 													style={{
 														backgroundColor: 'var(--primary-button)',
+														opacity: `${info?.isFocused ? '1' : '0.5'}`,
 													}}
 												>
 													<AudioSvg />
@@ -1940,6 +1955,9 @@ const ChatBox = ({
 															style={{
 																backgroundColor:
 																	'var(--primary-button)',
+																opacity: `${
+																	info?.isFocused ? '1' : '0.5'
+																}`,
 															}}
 														>
 															<ArrowUp />
