@@ -182,6 +182,13 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action.payload,
 	}),
+	GET_FOLLOW_UP_QUERIES_SUCCESS: (state, action) => ({
+		...state,
+		aiMessagesInfo: {
+			...(state?.aiMessagesInfo || {}),
+			...action?.payload,
+		},
+	}),
 	HANDLE_STREAM_MESSAGE_CHUNK: (state, action) => {
 		const {
 			payload,

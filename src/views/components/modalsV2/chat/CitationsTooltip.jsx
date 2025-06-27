@@ -186,7 +186,8 @@ export const CitationsTooltip = memo(({ citationId, citations = null, placement 
 						</div>
 					</span>
 				) : (
-					<span className="citation-tooltip-header">{number}</span>
+					// <span className="citation-tooltip-header">{number}</span>
+					''
 				)}
 			</div>
 		</Tooltip>

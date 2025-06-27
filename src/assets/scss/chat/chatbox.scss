@@ -83,11 +83,14 @@
 							gap: 8px;
 							align-self: center;
 							border-radius: 16px;
-							background-color: var(--card);
+							background-color: var(--chat-box);
 							border: 1px solid var(--stroke);
 							transition: border 200ms ease-in-out;
 							overflow: hidden;
 							position: relative;
+							&:hover {
+								border: 1px solid var(--stroke-hover);
+							}
 							&.startPageContainer {
 								padding: 12px;
 							}
