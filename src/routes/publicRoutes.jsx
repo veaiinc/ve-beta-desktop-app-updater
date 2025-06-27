@@ -34,15 +34,7 @@ const publicRoutes = [
 				<LandingPage />
 			</Public>
 		),
-	},
-	{
-		path: '/pricing',
-		element: (
-			<Public>
-				<LandingPage />
-			</Public>
-		),
-	},
+	},	
 	{
 		path: '/api',
 		element: (
