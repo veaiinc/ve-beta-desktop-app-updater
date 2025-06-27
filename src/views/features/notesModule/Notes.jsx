@@ -1,12 +1,7 @@
 import React, { memo } from 'react';
 import NotesEditor from './NotesEditor';
-const Notes = ({ createSocketConnection, closeSocketConnection }) => {
-	return (
-		<NotesEditor
-			createSocketConnection={createSocketConnection}
-			closeSocketConnection={closeSocketConnection}
-		/>
-	);
+const Notes = () => {
+	return <NotesEditor />;
 };
 
 export default memo(Notes);

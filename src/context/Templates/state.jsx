@@ -2715,6 +2715,17 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const handleTranscriptionSuggestions = async (payload) => {
+		try {
+			dispatch({
+				type: Actions.HANDLE_TRANSCRIPTION_SUGGESTIONS,
+				payload,
+			});
+		} catch (error) {
+			console.log('error==>handleTranscriptionSuggestions', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -2809,5 +2820,6 @@ export const TemplatesState = (props) => {
 		deleteChatSession,
 		deleteMultiAgentFile,
 		getFollowUpQueries,
+		handleTranscriptionSuggestions,
 	};
 };

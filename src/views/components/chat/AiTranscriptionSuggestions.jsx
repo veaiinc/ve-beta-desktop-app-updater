@@ -3,7 +3,7 @@ import '../../../assets/scss/chat/aiTranscriptionSuggestions.scss';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 
 import { Drawer } from 'antd';
-const AiTranscriptionSuggestions = ({ data, modalIsOpen, closeModal }) => {
+const AiTranscriptionSuggestions = ({ data = [], modalIsOpen, closeModal }) => {
 	return (
 		<Drawer
 			open={modalIsOpen}
@@ -20,7 +20,19 @@ const AiTranscriptionSuggestions = ({ data, modalIsOpen, closeModal }) => {
 					</div> */}
 					<div className="header-title">Suggestions</div>
 				</div>
-				<div className="body"></div>
+				<div className="body">
+					{(data || [])?.map((item, index) => (
+						<div className="transcription-item" key={index}>
+							<div className="transcription-questions">
+								{item?.suggested_questions?.map((question, index) => (
+									<div className="transcription-question" key={index}>
+										{question || ''}
+									</div>
+								))}
+							</div>
+						</div>
+					))}
+				</div>
 			</div>
 		</Drawer>
 	);

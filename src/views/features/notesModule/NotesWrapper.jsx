@@ -1,14 +1,12 @@
-import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/notes/notesWrapper.scss';
 import RecentChat from '../chat/RecentChat';
 import ObjectID from 'bson-objectid';
 import Notes from './Notes';
 import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
 import Context from '../../../context/context';
-import useTranscriptionSuggestions from '../../hooks/useTranscriptionSuggestions';
 
 const NotesWrapper = () => {
-	const { createWebSocketConnection, socketRef } = useTranscriptionSuggestions();
 	const {
 		templates: { aiTranscriptionSuggestions, updateStateValues },
 	} = useContext(Context);
@@ -26,20 +24,12 @@ const NotesWrapper = () => {
 	}, []);
 
 	useEffect(() => {
-		if (info?.createSocketConnection) {
-			createWebSocketConnection(onMessageFunc);
-			setInfo({
-				createSocketConnection: false,
-			});
-		}
-	}, [info?.createSocketConnection]);
-
-	useEffect(() => {
 		if (aiTranscriptionSuggestions && !info?.handledOnce) {
-			setInfo({
+			setInfo((prev) => ({
+				...prev,
 				modalIsOpen: true,
 				handledOnce: true,
-			});
+			}));
 		}
 	}, [aiTranscriptionSuggestions]);
 
@@ -67,16 +57,6 @@ const NotesWrapper = () => {
 		}));
 	}, []);
 
-	const closeSocketConnection = useCallback(() => {
-		if (socketRef?.current) {
-			socketRef.current?.close();
-		}
-	}, []);
-
-	const onMessageFunc = useCallback((event) => {
-		console.log(event);
-	}, []);
-
 	return (
 		<div
 			className={'notes-parent-wrapper'}
@@ -94,14 +74,11 @@ const NotesWrapper = () => {
 					/>
 				</div>
 				<div className="notesContainerWrapper">
-					<Notes
-						createSocketConnection={handleCreateSocketConnection}
-						closeSocketConnection={closeSocketConnection}
-					/>
+					<Notes />
 				</div>
 			</div>
 			<AiTranscriptionSuggestions
-				data={[]}
+				data={aiTranscriptionSuggestions || []}
 				modalIsOpen={info?.modalIsOpen}
 				closeModal={handleCloseModal}
 			/>

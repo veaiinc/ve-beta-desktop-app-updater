@@ -84,12 +84,7 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 	height: 14,
 }));
 
-const NotesEditor = ({
-	outerContainerStyle,
-	innerContainerStyle,
-	createSocketConnection,
-	closeSocketConnection,
-}) => {
+const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const { noteId } = useParams();
 	const navigate = useNavigate();

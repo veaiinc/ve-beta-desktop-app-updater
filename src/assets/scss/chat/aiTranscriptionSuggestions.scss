@@ -25,6 +25,30 @@
 		.body {
 			overflow-y: auto;
 			flex-grow: 1;
+			.transcription-item {
+				display: flex;
+				flex-direction: column;
+				gap: 16px;
+				padding: 20px 0px;
+				border-bottom: 1px solid var(--stroke);
+				.transcription-questions {
+					display: flex;
+					flex-direction: column;
+					gap: 10px;
+					.transcription-question {
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						border-radius: 15px;
+						padding: 10px;
+						background-color: var(--card-hover);
+						width: fit-content;
+						cursor: pointer;
+					}
+				}
+			}
 		}
 	}
 }
