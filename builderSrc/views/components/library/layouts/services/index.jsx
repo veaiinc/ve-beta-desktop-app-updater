@@ -593,19 +593,10 @@ class Layout1 extends Component {
 
 		//currency
 		const region = localStorage?.getItem('region') || 'ap-south-1';
-		let currencySymbol;
-		if (region === 'ap-south-1') {
-			currencySymbol = '₹';
-		} else {
-			currencySymbol = '$';
-		}
+		let currencySymbol = region === 'ap-south-1' ? '₹' : '$';
 
 		//we need to also maintain the incoming styling from builder
 		let subTotalWithStyling = section?.style?.subTotalValue + '';
-		let incomingValue = (subTotalWithStyling + '')
-			?.replace(/&nbsp;/g, ' ')
-			.replace(/<\/?[^>]+(>|$)/g, '')
-			.replace(/"/g, '');
 		let subTotalValue =
 			(subTotalWithStyling + '')
 				?.replace(/&nbsp;/g, ' ')
@@ -649,14 +640,8 @@ class Layout1 extends Component {
 			}
 		}
 
-		currentSubTotal =
-			currencySymbol +
-			(currentSubTotal || 0)?.toLocaleString('en-IN', {
-				currency: 'INR',
-			});
-
-		currentSubTotal = subTotalWithStyling?.replace(incomingValue, currentSubTotal);
-		return currentSubTotal;
+		// Format the number with proper currency symbol and formatting
+		return currencySymbol + (currentSubTotal || 0)?.toLocaleString('en-IN');
 	};
 	applyFontThemeStyles = (stylesObject) => {
 		if (!stylesObject) return {};
@@ -1163,13 +1148,28 @@ class Layout1 extends Component {
 									) : (
 										<div>
 											{this.state.client ? (
-												subTotal
-											) : (
-												<div
-													dangerouslySetInnerHTML={{
-														__html: this.state.style?.subTotalValue,
+												<span
+													style={{
+														fontFamily: 'inherit',
+														fontSize: 'inherit',
+														color: 'inherit',
 													}}
-												/>
+												>
+													{subTotal}
+												</span>
+											) : (
+												<span
+													style={{
+														fontFamily: 'inherit',
+														fontSize: 'inherit',
+														color: 'inherit',
+													}}
+												>
+													{(this.state.style?.subTotalValue + '')
+														?.replace(/&nbsp;/g, ' ')
+														?.replace(/<\/?[^>]+(>|$)/g, '')
+														?.replace(/"/g, '') || '0'}
+												</span>
 											)}
 										</div>
 									)}

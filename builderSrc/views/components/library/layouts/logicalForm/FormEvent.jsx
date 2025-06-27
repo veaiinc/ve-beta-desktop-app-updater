@@ -400,16 +400,20 @@ class FormEvent extends Component {
 						padding: '12px 24px',
 						fontSize: '16px',
 						fontWeight: '500',
-						color: '#FFFFFF',
-						backgroundColor: this.props?.buttonProps?.btStyles?.background || '#333',
+						color: '#000000',
+						backgroundColor: '#FFFFFF',
 						border: 'none',
-						borderRadius: '8px',
+						borderRadius: '100px',
 						cursor: 'pointer',
 						display: 'flex',
 						alignItems: 'center',
 						gap: '8px',
 						margin: '10px 0',
 						marginTop: '-85px',
+						fontFamily: 'inherit',
+						minWidth: '156px',
+						height: '48px',
+						justifyContent: 'center',
 					}}
 				>
 					<span>+</span>

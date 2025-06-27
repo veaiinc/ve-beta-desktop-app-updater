@@ -8,6 +8,12 @@
 	align-items: center;
 	overflow-y: auto;
 	position: relative;
+	height: 600px;
+	transition: height 0.7s ease;
+	scrollbar-width: none !important;
+	&.active {
+		height: 200px;
+	}
 	.cards-container {
 		display: flex;
 		gap: 20px;
@@ -876,19 +882,26 @@
 	font-weight: 500;
 	line-height: normal;
 	cursor: pointer;
+	&.active {
+		display: none;
+	}
 }
-.revertExploreMore {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	color: var(--primary-font);
-	display: inline-flex;
-	padding: 10px 12px;
-	align-items: center;
-	gap: 8px;
-	border-radius: 60px;
-	background: var(--new-card, #1a1b1e);
-	backdrop-filter: blur(8.300000190734863px);
+.revertExploreMoreContainer {
+	width: 100%;
+	max-width: 750px;
+	margin: 0 auto;
+	.revertExploreMore {
+		position: relative;
+		color: var(--primary-font);
+		display: inline-flex;
+		padding: 10px 12px;
+		align-items: center;
+		gap: 8px;
+		border-radius: 60px;
+		background: var(--new-card, #1a1b1e);
+		backdrop-filter: blur(8.300000190734863px);
+		cursor: pointer;
+	}
 }
 
 .filter-container {
@@ -1196,15 +1209,16 @@
 }
 @keyframes slideUpChatbox {
 	0% {
+		position: absolute;
 		top: 500px;
 	}
 	100% {
 		top: -20px;
+		position: relative;
 	}
 }
 .slideUp {
-	position: absolute;
-
+	z-index: 100;
 	animation: slideUpChatbox 0.5s ease-out forwards;
 }
 .card-change-btn-left {
@@ -1244,7 +1258,7 @@
 	position: relative;
 	height: 60vh;
 	width: 100%;
-	margin-top: 140px;
+	margin-top: 50px;
 	display: flex;
 	align-items: flex-start;
 	align-content: flex-start;

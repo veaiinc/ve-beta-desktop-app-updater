@@ -16,7 +16,7 @@
 		color: var(--primary-font);
 		font-family: var(--chat-primary-font-family);
 		font-size: calc(var(--font-size) * 1);
-		font-weight: 460;
+		font-weight: 500;
 		line-height: 28px;
 		letter-spacing: 0.25px;
 	}
@@ -112,7 +112,7 @@
 		color: var(--primary-font);
 		font-family: var(--chat-primary-font-family);
 		font-size: calc(var(--font-size) * 1);
-		font-weight: 460;
+		font-weight: 500;
 		letter-spacing: 0.25px;
 		line-height: 28px;
 		margin: 8px 0;
@@ -152,7 +152,7 @@
 		font-size: calc(var(--font-size) * 0.9375);
 		// line-height: calc(var(--font-size) * 1.5);
 		// letter-spacing: -0.08px;;
-		font-weight: 460;
+		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
 		padding-left: calc(var(--font-size) * 1.5); /* 24px */
 
@@ -187,7 +187,7 @@
 		color: var(--primary-font);
 		font-family: var(--chat-primary-font-family);
 		letter-spacing: 0.25px;
-		font-weight: 460;
+		font-weight: 500;
 		line-height: 28px;
 		font-size: calc(var(--font-size) * 1);
 		margin: 8px 0; /* 8px */
@@ -195,7 +195,7 @@
 
 	.strong {
 		color: var(--primary-font);
-		font-weight: 635;
+		font-weight: 700;
 		font-family: var(--chat-primary-font-family);
 		letter-spacing: 0.25px;
 		line-height: 28px;
@@ -224,7 +224,7 @@
 		font-size: inherit;
 		line-height: calc(var(--font-size) * 1.5);
 		letter-spacing: 0.25px;
-		font-weight: 460;
+		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
 		text-decoration: none;
 
@@ -268,7 +268,7 @@
 				font-size: 14px;
 				color: var(--primary-font);
 				font-family: var(--chat-primary-font-family);
-				font-weight: 460;
+				font-weight: 500;
 				line-height: 1.5;
 				letter-spacing: 0.25px;
 			}

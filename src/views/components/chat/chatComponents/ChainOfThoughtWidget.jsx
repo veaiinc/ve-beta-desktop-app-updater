@@ -8,7 +8,7 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/ta
 const ChainOfThoughtWidget = ({ messageData }) => {
 	const [info, setInfo] = useState({
 		isExpanded: false,
-		height: 0,
+		height: 54,
 	});
 	const contentContainerRef = useRef(null);
 	const containerRef = useRef(null);
@@ -18,7 +18,9 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 	useEffect(() => {
 		if (!contentContainerRef?.current) return;
 		setTimeout(() => {
-			let height;
+			let height = 54;
+			const chainOfThoughtCompleted =
+				messageData?.message?.length > 0 || messageData?.stream_end;
 			const contentContainerHeight = contentContainerRef?.current?.scrollHeight;
 
 			if (chainOfThoughtCompleted) {
@@ -27,12 +29,17 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 				height = contentContainerHeight + 54;
 			}
 
-			setInfo((prev) => ({
-				...prev,
-				height,
-			}));
+			setInfo((prev) => {
+				if (prev?.height === height) {
+					return prev;
+				}
+				return {
+					...prev,
+					height,
+				};
+			});
 		}, 0);
-	}, [info?.isExpanded]);
+	}, [info?.isExpanded, messageData]);
 
 	useEffect(() => {
 		if (messageData?.message?.length > 0 || messageData?.stream_end) {
@@ -65,19 +72,19 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 		if (messageData?.message?.length > 0 || messageData?.stream_end) {
 			return messageData?.deepSearch ? 'Search Completed' : 'Research Completed';
 		}
-		return messageData?.deepResearch ? 'Researching...' : 'Searching...';
+		return messageData?.deepResearch ? 'Researching' : 'Searching';
 	}, [messageData]);
 
-	if (
-		!(
-			messageData?.deepResearch?.cot?.length > 0 ||
-			messageData?.deepResearch?.sections?.length > 0 ||
-			messageData?.deepResearch?.sections_refined?.length > 0 ||
-			messageData?.deepSearch?.cot?.length > 0
-		)
-	) {
-		return null;
-	}
+	// if (
+	// 	!(
+	// 		messageData?.deepResearch?.cot?.length > 0 ||
+	// 		messageData?.deepResearch?.sections?.length > 0 ||
+	// 		messageData?.deepResearch?.sections_refined?.length > 0 ||
+	// 		messageData?.deepSearch?.cot?.length > 0
+	// 	)
+	// ) {
+	// 	return null;
+	// }
 
 	return (
 		<div
@@ -93,7 +100,9 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 			>
 				<div className="left-container">
 					<div className="icon-container">{chainOfThoughtCompleted && <TickSvg />}</div>
-					<div className="text-container">{text}</div>
+					<div className={`text-container ${chainOfThoughtCompleted ? '' : 'animate'}`}>
+						{text}
+					</div>
 				</div>
 				<div
 					className="right-container"
@@ -101,7 +110,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 						transform: info?.isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)',
 					}}
 				>
-					{chainOfThoughtCompleted && <ChevronRightThinSvg />}
+					<ChevronRightThinSvg />
 				</div>
 			</div>
 			<div className="widget-content-container" ref={contentContainerRef}>
@@ -118,6 +127,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 					{messageData?.deepSearch && (
 						<DeepSearchChainOfThought
 							data={messageData?.deepSearch}
+							showOnlyLastThought={!chainOfThoughtCompleted && !info?.isExpanded}
 							streamEnd={
 								messageData?.message?.length > 0 || messageData?.stream_end || false
 							}

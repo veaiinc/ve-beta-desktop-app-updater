@@ -58,7 +58,7 @@ const AddOnPlans = ({
 		resumeSubscriptionLoading: false,
 		isMobile: false,
 		startTrialLoading: false,
-		subscriptionState: subscriptionState,
+		subscriptionState: subscriptionState || 'upgradeSubscription',
 	});
 
 	// ID of the user's current plan
