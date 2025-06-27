@@ -1,6 +1,6 @@
 import React from 'react';
 import s from './pageLoader.module.scss';
-import Spinner from '../loaders/Spinner';
+import Spinner from '../../components/loaders/Spinner';
 
 const PageLoader = () => {
 	return (
