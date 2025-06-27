@@ -4,7 +4,7 @@
 	/* font families */
 	--primary-font-family: 'Inter';
 	--secondary-font-family: 'Manrope';
-	--chat-primary-font-family: 'DMSans';
+	--chat-primary-font-family: 'GeneralSans';
 	--tertiary-font-family: 'LibreCaslonDisplay';
 
 	/* common colors */
@@ -79,46 +79,49 @@
 		rgba(12, 12, 13, 0.9) 19.76%,
 		rgba(12, 12, 13, 0) 100%
 	); // Used in /files route
+
+	// --chat-box-container-background
+	--chat-box: #202123;
 }
 
 /* light theme global css variables */
 [theme='light'] {
 	/* main colors */
-	--background-color: rgb(250, 250, 250); /* #fafafa */
+	--background-color: #ffffff; /* #fafafa */
 
 	/* common colors */
-	--info: rgb(80, 137, 249); /* #5089f9 */
-	--error: rgb(192, 55, 68); /* #c03744 */
-	--success: rgb(28, 153, 62); /* #1c993e */
-	--pending: rgb(237, 161, 69); /* #eda145 */
+	--info: #5089f9; /* #5089f9 */
+	--error: #da4a58; /* #c03744 */
+	--success: #39af59; /* #1c993e */
+	--pending: #eaa24c; /* #eda145 */
 
 	/* font colors */
-	--primary-font: rgb(12, 12, 13); /* #0c0c0d */
-	--secondary-font: rgb(123, 126, 132); /* #7b7e84 */
+	--primary-font: #18181b; /* #0c0c0d */
+	--secondary-font: #7f858f; /* #7b7e84 */
 	--chat-secondary-font: rgb(12, 12, 13); /* rgb(79, 96, 100) */
 
 	/* card colors */
-	--card: rgb(242, 242, 243); /* #f2f2f3 */
-	--new-card: rgb(247, 247, 248); /* #F7F7F8 */
-	--card-hover: rgb(228, 229, 231); /* #e4e5e7 */
-	--card-over-card: rgb(217, 219, 221); /* #d9dbdd */
-	--card-over-card-hover: rgb(233, 235, 236); /* #e9ebec */
-	--popup: rgb(250, 250, 250); /* #fafafa */
+	--card: #f2f2f2; /* #f2f2f3 */
+	--new-card: #f2f2f2; /* #F7F7F8 */
+	--card-hover: #e5e5e5; /* #e4e5e7 */
+	--card-over-card: #e8e8e8; /* #d9dbdd */
+	--card-over-card-hover: #d9d9d9; /* #e9ebec */
+	--popup: #ffffff; /* #fafafa */
 
-	--backdrop: #b0b2b5;
+	--backdrop: rgba(178, 178, 178, 0.5);
 
 	/* stroke colors */
-	--stroke: rgba(228, 229, 230, 1); /* #e4e5e6 */
-	--stroke-hover: rgb(201, 203, 207); /* #C9CBCF */
+	--stroke: #e3e3e3; /* #e4e5e6 */
+	--stroke-hover: #dbdbdb; /* #C9CBCF */
 	--stroke-active: rgb(242, 242, 243); /* #f2f2f3 */
 	--stroke-disabled: rgb(242, 242, 243); /* #f2f2f3 */
 
 	/* navbar colors */
-	--navbar: rgb(242, 242, 243); /* #f2f2f3 */
-	--right-bar: rgb(250, 250, 250); /* #fafafa */
+	--navbar: #fafafa; /* #f2f2f3 */
+	--right-bar: #ededed; /* #fafafa */
 
 	/* button colors */
-	--primary-button: rgba(52, 160, 144, 1);
+	--primary-button: #34ad9b;
 	--primary-button-hover: rgb(242, 242, 243); /* #f2f2f3 */
 	--primary-button-active: rgb(242, 242, 243); /* #f2f2f3 */
 	--primary-button-font: var(--background-color); /* #0c0c0d */
@@ -133,7 +136,7 @@
 
 	--default-state-buttons: rgb(223, 223, 223); /* #dfdfdf */
 
-	--backdrop: rgb(176, 178, 181, 0.5); /* #B0B2B5 */
+	// --backdrop: rgb(176, 178, 181, 0.5); /* #B0B2B5 */
 
 	// gradients
 	--linear-gradient: linear-gradient(
@@ -141,4 +144,7 @@
 		rgba(255, 255, 255, 0) 0%,
 		#fff 100%
 	); // Used in /files route
+
+	// --chat-box-container-background
+	--chat-box: #ffffff;
 }

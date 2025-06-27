@@ -34,7 +34,13 @@ let origin = fetchOriginSelection();
 const TemplatesGrid = ({ handleTotalChange }) => {
 	const mountedRef = useRef(true);
 	const {
-		templates: { myWorkflows, getMyWorkflows, createBlankTemplate },
+		templates: {
+			myWorkflows,
+			getMyWorkflows,
+			createBlankTemplate,
+			templatesRefetch,
+			updateStateValues,
+		},
 	} = useContext(Context);
 
 	const navigate = useNavigate();
@@ -55,6 +61,22 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 			getMyWorkflowTemplatesData(1);
 		}
 	}, [myWorkflows]);
+
+	// Add refetch mechanism when component mounts
+	useEffect(() => {
+		// Clear
+		updateStateValues({ myWorkflows: null });
+		// Always refetch data when component mounts to ensure fresh data
+		getMyWorkflowTemplatesData(1);
+	}, []);
+
+	// Handle templatesRefetch from context
+	useEffect(() => {
+		if (templatesRefetch) {
+			getMyWorkflowTemplatesData(1);
+			updateStateValues({ templatesRefetch: null });
+		}
+	}, [templatesRefetch]);
 
 	useEffect(() => {
 		if (mountedRef.current) {
