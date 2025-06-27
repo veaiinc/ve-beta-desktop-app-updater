@@ -30,6 +30,9 @@ const AiTranscriptionSuggestions = ({ data = [], modalIsOpen, closeModal }) => {
 									</div>
 								))}
 							</div>
+							{item?.response && (
+								<div className="transcription-response">{item?.response || ''}</div>
+							)}
 						</div>
 					))}
 				</div>
