@@ -54,7 +54,7 @@ export const betaNaviagationItems = [
 	{ id: 5, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
 	{ id: 6, name: 'Tasks', route: '/tasks', icon: TasksSvg },
 	{ id: 7, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
-	{ id: 8, name: 'Automations', route: '/automations', icon: AutomationSvg },
+	// { id: 8, name: 'Automations', route: '/automations', icon: AutomationSvg },
 ];
 
 export const stableSettingsNavItems = {
