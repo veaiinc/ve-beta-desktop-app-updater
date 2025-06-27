@@ -194,7 +194,6 @@ const EarlyAccess = () => {
 			return prevEmails.filter((_, i) => i !== index);
 		});
 	};
-	console.log(onboardPosition, 'onboardPosition');
 	return (
 		<div className="landing-page-container2">
 			<header className="header-container2">
