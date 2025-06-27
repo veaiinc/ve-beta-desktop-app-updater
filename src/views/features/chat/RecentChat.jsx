@@ -814,7 +814,9 @@ const RecentChat = ({
 		async (data, lastQuery) => {
 			try {
 				await sendMessage(data);
-				smoothScrollToLastMessage();
+				setTimeout(() => {
+					smoothScrollToLastMessage();
+				}, 0);
 				handleGlobalChatMessages({
 					sessionId,
 					lastQuery,

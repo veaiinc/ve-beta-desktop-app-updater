@@ -23,15 +23,21 @@ a {
 	background-color: transparent;
 	border: none;
 }
+.text_component {
+	a {
+		color: inherit;
+		text-decoration: none;
+	}
+}
 h1,
 h2,
 h3,
 h4,
 h5,
-h6,
-p {
+h6 {
 	margin: 0px;
 }
+
 button {
 	border: none;
 	outline: none;
