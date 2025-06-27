@@ -225,6 +225,7 @@
 		}
 		&:hover {
 			background: var(--card-over-card-hover);
+			border: 1px solid var(--stroke-hover);
 		}
 	}
 	.card-item-style {
@@ -240,6 +241,10 @@
 			border: 1px solid var(--stroke);
 			padding: 0px;
 			position: relative;
+			&:hover {
+				// background: var(--card-over-card-hover);
+				border: 1px solid var(--stroke-hover);
+			}
 
 			.docs-card-bg {
 				position: absolute;
