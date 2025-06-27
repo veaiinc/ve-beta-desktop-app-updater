@@ -209,7 +209,7 @@ const EarlyAccess = () => {
 				</section>
 				<section className="hero-section-7">
 					<div className="content-container2">
-						{onboardPosition?.onboardPosition && (
+						{onboardPosition && (
 							<div className="top-container">
 								<div>
 									<div className="top-container-text">Your place</div>
