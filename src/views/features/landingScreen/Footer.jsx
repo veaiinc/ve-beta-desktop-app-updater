@@ -81,7 +81,9 @@ const Footer = () => {
 								onKeyDown={handleKeyDown}
 								className={info.error ? s.errorInput : ''}
 							/>
-							<p className={[s.errorMessage, info.error ? s.visible : ''].join(' ')}>{info.error || ''}</p>
+							<p className={[s.errorMessage, info.error ? s.visible : ''].join(' ')}>
+								{info.error || ''}
+							</p>
 							<button
 								className={s.subscribeButton}
 								onClick={handleSubscribe}
@@ -149,11 +151,11 @@ const Footer = () => {
 									// 	label: 'Facebook',
 									// 	url: '#', // Replace with actual URL
 									// },
-									{
-										Icon: InstagramLogo,
-										label: 'Instagram',
-										url: INSTAGRAM_URL, // Replace with actual URL
-									},
+									// {
+									// 	Icon: InstagramLogo,
+									// 	label: 'Instagram',
+									// 	url: INSTAGRAM_URL, // Replace with actual URL
+									// },
 									// {
 									// 	Icon: YoutubeLogo,
 									// 	label: 'YouTube',
