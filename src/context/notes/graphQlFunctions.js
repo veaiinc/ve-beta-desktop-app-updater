@@ -263,3 +263,11 @@ export const notesDeleteCoverImageMutation = gql`
 		}
 	}
 `;
+
+export const getLiveKitTokenQuery = gql`
+	query Query($pageId: ID!) {
+		getLiveKitToken(pageId: $pageId) {
+			accessToken
+		}
+	}
+`;

@@ -22,6 +22,7 @@ import {
 	notesCoverImageFileUploadMutation,
 	notesIconUploadMutation,
 	notesDeleteCoverImageMutation,
+	getLiveKitTokenQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -609,7 +610,26 @@ export const NotesState = (props) => {
 			return false;
 		}
 	};
-
+	const getLiveKitToken = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				getLiveKitTokenQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.getLiveKitToken];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>getLiveKitToken', error);
+		}
+	};
 	return {
 		...state,
 		getNotesList,
@@ -634,5 +654,6 @@ export const NotesState = (props) => {
 		notesIconUpload,
 		notesDeleteCoverImage,
 		notesDeleteIcon,
+		getLiveKitToken,
 	};
 };
