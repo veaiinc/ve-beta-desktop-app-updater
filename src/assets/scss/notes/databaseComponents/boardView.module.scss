@@ -41,10 +41,10 @@
 			// Style the react-beautiful-dnd placeholder - Notion-like simple line
 			[data-rbd-placeholder-context-id] {
 				height: 2px;
-				background-color: #3b82f6;
+				background-color: transparent;
 				border-radius: 0;
 				margin: 2px 0;
-				opacity: 0.8;
+				opacity: 0;
 				// Remove animation for cleaner look like Notion
 			}
 
