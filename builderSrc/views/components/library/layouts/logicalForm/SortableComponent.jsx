@@ -5807,6 +5807,8 @@ const SortableComponent = ({
 								border: '1px solid transparent',
 								borderRadius: '16px',
 								overflow: 'hidden',
+								color:
+									field?.question?.match(/color:\s*(.*?)[;"]/)?.[1] || '#1A1A1A',
 							}}
 						>
 							<PhoneInput
@@ -5824,16 +5826,17 @@ const SortableComponent = ({
 								style={{
 									width: '100%',
 									backgroundColor: 'transparent',
-									color: 'black',
 									fontSize: '14px',
 									padding: '12px',
 									border: '1.5px solid #D0D0D0',
 									borderRadius: '16px',
+									color: 'inherit',
 								}}
 								className="logical-form-phone-input"
 								inputClassName="logical-form-phone-input"
 								countrySelectProps={{
 									className: 'PhoneInputCountrySelectDropdown',
+									style: { color: 'inherit' },
 								}}
 								maxLength={15}
 							/>
