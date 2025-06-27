@@ -16,8 +16,13 @@ const useWorkspaceMode = () => {
 	const {
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
-
-	const workspaceMode = tennantSettingsData?.workspaceMode ?? null; // stable, beta, internal
+	useEffect(() => {
+		if (tennantSettingsData) {
+			localStorage.setItem('workspaceMode', tennantSettingsData.workspaceMode);
+		}
+	}, [tennantSettingsData]);
+	const workspaceMode =
+		tennantSettingsData?.workspaceMode ?? localStorage.getItem('workspaceMode') ?? null; // stable, beta, internal
 	const isPublicRoute = publicRoutesList.some((routePath) =>
 		matchPath({ path: routePath, end: true }, pathname),
 	);
