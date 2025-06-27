@@ -10,7 +10,8 @@
 	max-width: 670px;
 	margin: 0 auto;
 	min-height: 100vh;
-	padding-top: 90px;
+	padding-top: 110px;
+	padding-bottom: 40px;
 
 	.contact-form-wrapper {
 		width: 100%;
@@ -66,7 +67,7 @@
 				color: var(--primary-font, #f2f2f3);
 				margin: 8px 0;
 				border: 1px solid transparent;
-				&:hover{
+				&:hover {
 					border: 1px solid var(--stroke, #2c2d2e);
 				}
 				&:focus {
