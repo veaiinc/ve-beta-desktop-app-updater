@@ -876,19 +876,26 @@
 	font-weight: 500;
 	line-height: normal;
 	cursor: pointer;
+	&.active {
+		display: none;
+	}
 }
-.revertExploreMore {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	color: var(--primary-font);
-	display: inline-flex;
-	padding: 10px 12px;
-	align-items: center;
-	gap: 8px;
-	border-radius: 60px;
-	background: var(--new-card, #1a1b1e);
-	backdrop-filter: blur(8.300000190734863px);
+.revertExploreMoreContainer {
+	width: 100%;
+	max-width: 750px;
+	margin: 0 auto;
+	.revertExploreMore {
+		position: relative;
+		color: var(--primary-font);
+		display: inline-flex;
+		padding: 10px 12px;
+		align-items: center;
+		gap: 8px;
+		border-radius: 60px;
+		background: var(--new-card, #1a1b1e);
+		backdrop-filter: blur(8.300000190734863px);
+		cursor: pointer;
+	}
 }
 
 .filter-container {
