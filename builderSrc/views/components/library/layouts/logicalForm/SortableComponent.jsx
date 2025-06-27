@@ -1301,9 +1301,15 @@ const SortableComponent = ({
 					updatedAnswer = ''; // Clear answer if it was the deleted option
 				}
 
+				// Update the labels for all remaining options
+				const relabeledOptions = updatedOptions.map((option, idx) => {
+					const newLabel = String.fromCharCode(65 + idx);
+					return option.replace(/^[A-Z]\.\s*/, `${newLabel}. `);
+				});
+
 				return {
 					...field,
-					options: updatedOptions,
+					options: relabeledOptions,
 					answer: updatedAnswer,
 				};
 			}
