@@ -203,6 +203,36 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 					// Convert the group label to actual date value
 					newValue = getDateValueFromLabel(destinationGroupId, dateBy);
 				}
+			} else if (groupField?.type === 'status') {
+				// For status fields, we need to handle status grouping
+				if (destinationGroupId === 'null') {
+					newValue = null;
+				} else {
+					// Get the status configuration from the view
+					const statusBy = view?.groupBy?.config?.statusBy;
+
+					if (statusBy === 'group') {
+						// Find the status field in columns using groupFieldId
+						const statusField = columns?.find((col) => col._id === groupFieldId);
+						const statusOptions = statusField?.config?.status;
+
+						if (statusOptions) {
+							// Find the group that matches the destination group ID
+							const groupValues = statusOptions[destinationGroupId];
+							if (groupValues && groupValues.length > 0) {
+								// Use the first status option's ID from the group as the new value
+								newValue = groupValues[0]._id;
+							} else {
+								newValue = null;
+							}
+						} else {
+							newValue = null;
+						}
+					} else {
+						// For non-grouped status, use the destination group ID directly
+						newValue = destinationGroupId;
+					}
+				}
 			} else {
 				// For non-array fields, just set the destination value
 				newValue = destinationGroup._id === 'null' ? null : destinationGroup._id;
@@ -237,7 +267,7 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 				isOptimisticUpdate: true,
 			});
 		},
-		[pageId, updateDatabaseRow, databaseId, view, blockId, groupData, groupField],
+		[pageId, updateDatabaseRow, databaseId, view, blockId, groupData, groupField, columns],
 	);
 
 	const handleDragUpdate = useCallback((update) => {
