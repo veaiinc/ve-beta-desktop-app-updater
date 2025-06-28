@@ -87,7 +87,7 @@ const baseConditions = {
 
 // Multiple aliases per type
 const aliasMap = {
-	text: ['email', 'url', 'phone'],
+	text: ['email', 'url', 'phone', 'serial_number', 'title'],
 	date: ['created_time', 'last_edited_time'],
 	person: ['created_by', 'last_edited_by', 'multi_select'],
 };

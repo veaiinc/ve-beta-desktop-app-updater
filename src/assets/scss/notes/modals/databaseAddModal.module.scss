@@ -59,6 +59,18 @@
 					color: var(--primary-font, #f2f2f3);
 					padding: 0 10px;
 				}
+
+				.databaseAddModalBodyRowInput {
+					width: 100%;
+					height: 30px;
+					border-radius: 8px;
+					background: transparent;
+					border: 1px solid var(--stroke, #2c2d2e);
+					color: var(--primary-font, #f2f2f3);
+					padding: 0 10px;
+					font-size: 14px;
+					font-weight: 500;
+				}
 			}
 		}
 	}

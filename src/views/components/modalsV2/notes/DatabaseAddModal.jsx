@@ -39,6 +39,11 @@ const DatabaseAddModal = ({ isOpen, onClose, viewId, pageId, databaseId, fields,
 		[fields],
 	);
 
+	const handleClose = useCallback(() => {
+		setInfo((prev) => ({ ...prev, loading: false, values: {} }));
+		onClose();
+	}, [onClose]);
+
 	const handleSubmit = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, loading: true }));
 		await addDatabaseRow(
@@ -53,7 +58,7 @@ const DatabaseAddModal = ({ isOpen, onClose, viewId, pageId, databaseId, fields,
 		);
 		setInfo((prev) => ({ ...prev, loading: false }));
 		handleInfoChange({ values: {}, loading: false });
-		onClose();
+		handleClose();
 	}, [info?.values, viewId, blockId]);
 
 	const renderFieldInput = useCallback(
@@ -75,6 +80,7 @@ const DatabaseAddModal = ({ isOpen, onClose, viewId, pageId, databaseId, fields,
 						}
 						disabled={field.isReadOnly}
 						placeholder={`Enter ${field.name}`}
+						className={s.databaseAddModalBodyRowInput}
 					/>
 				);
 			}
@@ -113,6 +119,7 @@ const DatabaseAddModal = ({ isOpen, onClose, viewId, pageId, databaseId, fields,
 						labelField={'label'}
 						multiSelect={true}
 						selectionLimit={field?.selectionLimit || -1}
+						linkType={field?.type}
 					/>
 				);
 			}
@@ -142,7 +149,7 @@ const DatabaseAddModal = ({ isOpen, onClose, viewId, pageId, databaseId, fields,
 	return (
 		<ReactModal
 			isOpen={isOpen}
-			closeModal={info?.loading ? null : onClose}
+			closeModal={info?.loading ? null : handleClose}
 			modalType={'center'}
 			customStyles={{
 				content: {
