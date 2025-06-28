@@ -858,9 +858,17 @@ export const NotesState = (props) => {
 					},
 				});
 				if (
-					['text', 'title', 'email', 'url', 'phone', 'number', 'date'].includes(
-						metaInfo?.fieldType,
-					)
+					[
+						'text',
+						'title',
+						'email',
+						'url',
+						'phone',
+						'number',
+						'date',
+						'created_time',
+						'last_edited_time',
+					].includes(metaInfo?.fieldType)
 				) {
 					const view = state?.views?.[blockId] || [];
 					const newView = view?.map((view) => {
@@ -931,9 +939,17 @@ export const NotesState = (props) => {
 
 				// Update default groups for specific field types
 				if (
-					['text', 'title', 'email', 'url', 'phone', 'number', 'date'].includes(
-						metaInfo?.fieldType,
-					)
+					[
+						'text',
+						'title',
+						'email',
+						'url',
+						'phone',
+						'number',
+						'date',
+						'created_time',
+						'last_edited_time',
+					].includes(metaInfo?.fieldType)
 				) {
 					const view = state?.views?.[blockId] || [];
 					const newView = view?.map((view) => {

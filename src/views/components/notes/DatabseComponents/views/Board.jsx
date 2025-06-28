@@ -103,6 +103,32 @@ const Board = ({
 			);
 		}
 
+		const cardContent = (
+			<div
+				className={`${s.card} ${isGroupFieldReadOnly ? s.readOnly : ''}`}
+				onClick={() =>
+					updateDatabaseSidebar({
+						data: {
+							rowData: row,
+							viewId: view?._id,
+							databaseId,
+							groupId,
+							blockId,
+						},
+						open: true,
+						replace: true,
+					})
+				}
+			>
+				{renderData}
+			</div>
+		);
+
+		// If the field is read-only, return the card without Draggable wrapper
+		if (isGroupFieldReadOnly) {
+			return cardContent;
+		}
+
 		// Create unique draggable ID and key using group ID + card ID + index for uniqueness
 		// Using ||| as separator to avoid conflicts with any user input
 		const draggableId = `${groupId}|||${row?._id}|||${index}`;
@@ -171,6 +197,38 @@ const Board = ({
 
 	// Ensure consistent droppable ID
 	const droppableId = item?._id || 'null';
+
+	// If the field is read-only, render without Droppable wrapper
+	if (isGroupFieldReadOnly) {
+		return (
+			<div
+				key={item?._id}
+				className={s.board}
+				style={{ backgroundColor: colors?.[item?.color]?.backgroundColor }}
+			>
+				<div className={s.boardHeader}>
+					{item?.label || item?.name || 'No Value'}
+					<span className={s.totalDocs}>
+						{/* {totalDocs || 0} {totalDocs > 1 ? 'items' : 'item'} */}
+					</span>
+				</div>
+				<div className={s.boardBody}>
+					{docs?.map((row, index) => (
+						<div key={`${item?._id}-${row?._id}-${index}`}>
+							{generateCard(row, item?._id, index)}
+						</div>
+					))}
+				</div>
+				{hasNextPage && (
+					<div className={s.loadMoreContainer}>
+						<button className={s.loadMoreButton} onClick={handleLoadMore}>
+							{info?.dataLoading ? 'Loading...' : 'Load more'}
+						</button>
+					</div>
+				)}
+			</div>
+		);
+	}
 
 	return (
 		<div

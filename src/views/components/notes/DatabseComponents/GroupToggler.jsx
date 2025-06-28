@@ -29,7 +29,19 @@ const GroupToggler = ({
 
 	const getGroupHeaderElement = ({ label, type, color }) => {
 		if (!label) return <span className={s.groupTogglerContent}>No value</span>;
-		if (['text', 'title', 'email', 'url', 'phone', 'number', 'date'].includes(type)) {
+		if (
+			[
+				'text',
+				'title',
+				'email',
+				'url',
+				'phone',
+				'number',
+				'date',
+				'created_time',
+				'last_edited_time',
+			].includes(type)
+		) {
 			return <span className={s.groupTogglerContent}>{label}</span>;
 		}
 		if (['status', 'multi_select', 'select'].includes(type)) {

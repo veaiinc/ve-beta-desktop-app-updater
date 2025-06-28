@@ -6,33 +6,18 @@ import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
 import { ReactComponent as ChevronIcon } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import GroupConfigOptions from '../../dropDown/notes/database/GroupConfigOptions';
 
-// config: {
-// 	statusBy: {
-// 		type: String,
-// 		enum: ['option', 'group'],
-// 	},
-// 	dateBy: {
-// 		type: String,
-// 		enum: ['relative', 'day', 'week', 'month', 'year'],
-// 	},
-// 	textBy: {
-// 		type: String,
-// 		enum: ['exact', 'alphabetical'],
-// 	},
-// 	numberBy: {
-// 		groupRange: [Number],
-// 		groupInterval: Number,
-// 	},
-// },
+const dateOptions = [
+	{ label: 'Relative', value: 'relative' },
+	{ label: 'Day', value: 'day' },
+	{ label: 'Week', value: 'week' },
+	{ label: 'Month', value: 'month' },
+	{ label: 'Year', value: 'year' },
+];
 
 const groupOptions = {
-	date: [
-		{ label: 'Relative', value: 'relative' },
-		{ label: 'Day', value: 'day' },
-		{ label: 'Week', value: 'week' },
-		{ label: 'Month', value: 'month' },
-		{ label: 'Year', value: 'year' },
-	],
+	date: dateOptions,
+	created_time: dateOptions,
+	last_edited_time: dateOptions,
 	status: [
 		{ label: 'Option', value: 'option' },
 		{ label: 'Group', value: 'group' },
@@ -281,7 +266,9 @@ const GroupComponent = ({ fields, view, databaseId, blockId, metaInfo }) => {
 
 							{groupOptions[selectedGroupOption?.type] && (
 								<>
-									{selectedGroupOption?.type === 'date' && (
+									{['date', 'created_time', 'last_edited_time'].includes(
+										selectedGroupOption?.type,
+									) && (
 										<Tooltip
 											title={
 												<GroupConfigOptions
