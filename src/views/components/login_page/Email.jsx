@@ -250,7 +250,7 @@ const Email = ({
 						>
 							<div className="google-logo-container">
 								<GoogleLogo />
-								<p>Continue with Google</p>
+								<p style={{ marginBottom: '0px' }}>Continue with Google</p>
 							</div>
 							{info?.googleLoading && (
 								<Spinner

@@ -2589,6 +2589,9 @@ class App extends BaseClass {
 								color: inherit ;
 								text-decoration: none;
 							}
+							#text_component_ID p {
+								margin-bottom: 0px !important;
+							}
 						`}</style>
 					</Helmet>
 					{/* Custom toolbar */}
