@@ -233,6 +233,8 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 						newValue = destinationGroupId;
 					}
 				}
+			} else if (groupField?.type === 'checkbox') {
+				newValue = destinationGroup._id === 'null' ? null : Boolean(destinationGroup._id);
 			} else {
 				// For non-array fields, just set the destination value
 				newValue = destinationGroup._id === 'null' ? null : destinationGroup._id;
