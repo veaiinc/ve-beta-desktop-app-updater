@@ -16,13 +16,8 @@ const useWorkspaceMode = () => {
 	const {
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
-	useEffect(() => {
-		if (tennantSettingsData) {
-			localStorage.setItem('workspaceMode', tennantSettingsData.workspaceMode);
-		}
-	}, [tennantSettingsData]);
-	const workspaceMode =
-		tennantSettingsData?.workspaceMode ?? localStorage.getItem('workspaceMode') ?? null; // stable, beta, internal
+
+	const workspaceMode = tennantSettingsData?.workspaceMode ?? null; // stable, beta, internal
 	const isPublicRoute = publicRoutesList.some((routePath) =>
 		matchPath({ path: routePath, end: true }, pathname),
 	);
@@ -41,9 +36,8 @@ const useWorkspaceMode = () => {
 				const response = await getTenantSettings();
 				const success = response[0] === true;
 				if (!success) {
-					const error = response[1];
-					logOut();
-					// console.error(error);
+					const { code } = response[1];
+					if (code === 401) logOut();
 				}
 			}
 		} catch (error) {
