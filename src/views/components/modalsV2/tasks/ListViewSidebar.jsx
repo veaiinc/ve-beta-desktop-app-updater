@@ -9,7 +9,7 @@ import { ReactComponent as ExpandSvg } from '../../../../assets/svg/docs/expand.
 import Spinner from '../../loaders/Spinner';
 import Skeleton from 'react-loading-skeleton';
 import CustomTextArea from '../../globalComponents/CusomTextArea';
-import QuickActions from '../../globalComponents/QuickActions';
+// import QuickActions from '../../globalComponents/QuickActions';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import Context from '../../../../context/context';
@@ -386,12 +386,12 @@ const ListViewSidebar = ({
 						</div>
 
 						<div className="sidebar-header-right-container">
-							{showQuickActions && isSidebarExpanded && (
+							{/* {showQuickActions && isSidebarExpanded && (
 								<QuickActions
 									suggestedOptions={suggestedOptions}
 									// clientDetails={selectedRow}
 								/>
-							)}
+							)} */}
 							<button
 								className="sidebar-delete-button"
 								onClick={() => {

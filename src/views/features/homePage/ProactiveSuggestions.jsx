@@ -217,7 +217,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 				}));
 			}
 		}
-	}, [aiSuggestedPendingActions]);
+	}, [aiSuggestedPendingActions, info?.activeCardContent]);
 
 	// useEffect(() => {
 	// 	if (!aiQuestions) {
@@ -440,6 +440,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			selectedCardNumber: index + 1,
 			cards: prev.cards.map((c) => (c._id === card._id ? { ...c, read: true } : c)),
 		}));
+		console.log(info?.cards, 'info?.cards');
 		currentIndexRef.current = index;
 	};
 

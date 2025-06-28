@@ -8,7 +8,7 @@ import HomePageDashboard from '../../components/homePage/dashboard/HomePageDashb
 import HomePageStart from '../../components/homePage/HomePageStart';
 import { PromptData } from '../../components/homePage/PromptData';
 import Context from '../../../context/context';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import jwtDecode from 'jwt-decode';
 
 const topNavOptions = [
@@ -165,9 +165,9 @@ const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage, prompt
 							</div>
 						))}
 					</div>
-					<div className="home-page-welcome-container-right">
+					{/* <div className="home-page-welcome-container-right">
 						<QuickActions />
-					</div>
+					</div> */}
 				</div>
 			</div>
 			<HeaderInfo title={title} subTitle={subTitle} />

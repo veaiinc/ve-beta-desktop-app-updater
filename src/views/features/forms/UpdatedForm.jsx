@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../../../assets/scss/forms/updateForm.scss';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import Spinner from '../../components/loaders/Spinner';
 const SubTitle = () => {
 	return (
@@ -52,9 +52,9 @@ const UpdatedForm = () => {
 							Generate forms using AI, templates, and automated extraction
 						</div>
 					</div>
-					<div className="quickActionsBtn">
+					{/* <div className="quickActionsBtn">
 						<QuickActions />
-					</div>
+					</div> */}
 				</div>
 
 				<div className="cardsContainer">

@@ -14,7 +14,7 @@ import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Context from '../../../context/context';
 import DropDown from '../../components/dropDown/tasks/DropDown';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import SearchSvg from '../../../assets/svg/activity/SearchSvg';
 import CrossSvg from '../../../assets/svg/docs/CrossSvg';
 import FilterSvg from '../../../assets/svg/my_templates/FilterSvg';
@@ -106,9 +106,9 @@ const Forms = () => {
 						<span className="lineOne">Forms</span>
 						<span className="lineTwo">You Created</span>
 					</div>
-					<div className="quickActionsBtn">
+					{/* <div className="quickActionsBtn">
 						<QuickActions suggestedOptions={suggestedOptions} />
-					</div>
+					</div> */}
 				</div>
 				<div className="formsParentHeaderContainer">
 					{/* <div className="formsHeaderButtons " onClick={() => {}}>

@@ -7,7 +7,7 @@ import WeekHeader from './WeekHeader';
 import DayHeader from './DaysHeader';
 import WeekDayHeader from './WeekDayHeader';
 import moment from 'moment';
-import QuickActions from '../globalComponents/QuickActions';
+// import QuickActions from '../globalComponents/QuickActions';
 
 const MIN_YEAR = 1990;
 const MAX_YEAR = 2050;
@@ -149,9 +149,9 @@ const CalendarHeader = ({
 										: ''}
 								</div>
 							</div>
-							<div className="quickActionsWrapper">
+							{/* <div className="quickActionsWrapper">
 								<QuickActions />
-							</div>
+							</div> */}
 						</div>
 						{/* wrokflow and team dropdown */}
 						{/* <div className="calendarHeaderRight">

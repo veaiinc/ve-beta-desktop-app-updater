@@ -11,7 +11,7 @@ import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import FormResCard from '../../components/forms/FormResCard';
 import { message } from '../../components/globalComponents/CustomToast';
 import { fetchOriginSelection } from '../../../helpers';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import { Input } from 'antd';
 import FormSummary from '../../../views/components/forms/FormSummary';
 import FormDescription from '../../components/forms/FormDescription';
@@ -602,7 +602,7 @@ const FormLeads = () => {
 				<div className="noFormFound">Form not found or failed to load.</div>
 			) : (
 				<>
-					<QuickActions />
+					{/* <QuickActions /> */}
 					<div className="formWrapper">
 						<div className="formEnquiryContainer">
 							<div className="formContainer">
