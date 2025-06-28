@@ -72,10 +72,17 @@
 					}
 
 					.errorMessage {
+						height: 20px;
 						color: #ff4444;
 						font-size: 14px;
 						margin-top: 8px;
 						font-family: var(--secondary-font-family);
+						transition: opacity 0.2s ease;
+						opacity: 0;
+						
+						&.visible {
+							opacity: 1;
+						}
 					}
 
 					.subscribeButton {

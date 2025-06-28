@@ -15,8 +15,8 @@ const useAuth = () => {
 	}, []);
 
 	const getUserDetailsData = async () => {
-		const res = await getUserDetails();
-		if (res?.statusCode === 401) {
+		const { statusCode } = await getUserDetails();
+		if (statusCode === 401) {
 			logOut();
 		}
 	};

@@ -861,7 +861,9 @@ const Stages = ({ onNext }) => {
 						{/* Theme Preference Section - Only show if not in workspace creation mode */}
 						{!isWorkspaceCreationMode && (
 							<div className="themeInputContainer">
-								<p className="question">How do you want things to look?</p>
+								<p className="question" style={{ color: 'var(--primary-font)' }}>
+									How do you want things to look?
+								</p>
 								<div className="themeOptionsContainer">
 									{themePreferences.map((theme) => (
 										<div
@@ -874,7 +876,12 @@ const Stages = ({ onNext }) => {
 											onClick={() => handleSetThemePreference(theme.value)}
 										>
 											{theme.icon}
-											<span className="themeOptionLabel">{theme.label}</span>
+											<span
+												className="themeOptionLabel"
+												style={{ color: 'var(--primary-font)' }}
+											>
+												{theme.label}
+											</span>
 										</div>
 									))}
 								</div>
