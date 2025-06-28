@@ -137,6 +137,13 @@ class ServiceItem extends Component {
 			this.setState({
 				showSubBlockOptions: false,
 			});
+			if (document.activeElement instanceof HTMLElement) {
+				document.activeElement.blur();
+			}
+			const selection = window.getSelection();
+			if (selection) {
+				selection.removeAllRanges();
+			}
 		}
 	};
 	replaceWithServiceTag = (text) => {

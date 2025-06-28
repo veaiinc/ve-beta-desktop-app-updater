@@ -8,7 +8,7 @@
 		flex-direction: column;
 		justify-content: space-between;
 		gap: 66px;
-		width: 100%;
+		width: 100vw;
 		height: 100%;
 		background: var(--background-color);
 		position: relative;
@@ -379,7 +379,7 @@
 						}
 
 						.resend-code-text {
-							color: var(--primary-font, #F2F2F3);
+							color: var(--primary-font, #f2f2f3);
 							text-align: center;
 							font-family: var(--primary-font-family);
 							font-size: 14px;
@@ -609,7 +609,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		background: var(--card, #18191B);
+		background: var(--card, #18191b);
 		.login-page-container-right-content {
 			width: 100%;
 			display: flex;
