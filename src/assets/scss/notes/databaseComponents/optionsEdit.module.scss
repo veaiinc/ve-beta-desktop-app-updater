@@ -18,18 +18,17 @@
 	input {
 		flex: 1;
 		padding: 8px 12px;
-		border: 1px solid var(--border-color);
 		border-radius: 4px;
 		font-size: 14px;
 		background: transparent;
-		border: 2px solid var(--stroke);
+		border: 1px solid var(--stroke);
 		color: var(--primary-font);
 	}
 
 	button {
 		padding: 8px 16px;
 		background-color: var(--primary-button);
-		color: var(primary-button-font);
+		color: var(--primary-button-font);
 		border: none;
 		border-radius: 4px;
 		cursor: pointer;
@@ -85,15 +84,15 @@
 .selectOptionInput {
 	width: 100%;
 	padding: 4px 8px;
-	border: 1px solid var(--border-color);
+	border: 1px solid var(--stroke);
 	border-radius: 4px;
 	font-size: 14px;
-	background: var(--background-color);
-	color: var(--text-color);
+	background: transparent;
+	color: var(--primary-font);
 
 	&:focus {
 		outline: none;
-		border-color: var(--primary-color);
+		border-color: var(--primary-font);
 	}
 }
 
@@ -109,7 +108,7 @@
 
 .selectListItemLabel {
 	font-size: 14px;
-	color: var(--text-color);
+	color: var(--primary-font);
 }
 
 .optionActions {
@@ -122,7 +121,7 @@
 	border: none;
 	padding: 4px;
 	cursor: pointer;
-	color: var(--text-color);
+	color: var(--primary-font);
 	opacity: 0.6;
 	transition: opacity 0.2s;
 

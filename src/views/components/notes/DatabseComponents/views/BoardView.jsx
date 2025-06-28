@@ -2,7 +2,8 @@ import { memo, useCallback, useContext, useState } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 import s from '../../../../../assets/scss/notes/databaseComponents/boardView.module.scss';
 import Context from '../../../../../context/context';
-import { colors, getDateValueFromLabel } from '../../../../../helpers/databaseHelpers';
+import { colors } from '../../../../../helpers/databaseHelpers';
+import { fieldTypeHandlers } from '../../../../../helpers/databaseDragAndDropHelpers';
 import Board from './Board';
 
 const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blockId }) => {
@@ -25,6 +26,15 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 		(field) => field._id === groupFieldId,
 	);
 	const isGroupFieldReadOnly = groupField?.isReadOnly || false;
+
+	// Function to get new value based on field type
+	const getNewValue = (params) => {
+		const { groupField, columns, groupFieldId } = params;
+		const fieldType = groupField?.type;
+		const handler = fieldTypeHandlers?.[fieldType] || fieldTypeHandlers?.default;
+
+		return handler(params);
+	};
 
 	const loadMoreGroups = useCallback(async () => {
 		if (loadingMoreGroups) return;
@@ -106,139 +116,17 @@ const BoardView = ({ groupData, metaInfo, columns, databaseId, pageId, view, blo
 			// Get the current value of the group field
 			const currentGroupValue = draggedRow?.values?.[groupFieldId];
 
-			// Determine the new value based on field type
-			let newValue;
-			if (groupField?.type === 'multi_select') {
-				// For multi_select, we need array of option IDs
-				const currentArray = Array.isArray(currentGroupValue) ? currentGroupValue : [];
-				const sourceGroupValue = sourceGroupId === 'null' ? null : sourceGroupId;
-				const destinationGroupValue =
-					destinationGroupId === 'null' ? null : destinationGroupId;
-
-				// Remove source value and add destination value
-				const filteredArray = currentArray.filter((value) => {
-					const valueId = typeof value === 'object' ? value._id : value;
-					return valueId !== sourceGroupValue;
-				});
-
-				// Add destination value if it's not already in the array
-				const destinationExists = filteredArray.some((value) => {
-					const valueId = typeof value === 'object' ? value._id : value;
-					return valueId === destinationGroupValue;
-				});
-
-				if (!destinationExists && destinationGroupValue !== null) {
-					// For multi_select, we just add the option ID
-					filteredArray.push(destinationGroupValue);
-				}
-
-				newValue = filteredArray;
-			} else if (
-				groupField?.type === 'person' ||
-				groupField?.type === 'created_by' ||
-				groupField?.type === 'last_edited_by'
-			) {
-				// For person fields, we need array of person objects
-				const currentArray = Array.isArray(currentGroupValue) ? currentGroupValue : [];
-				const sourceGroupValue = sourceGroupId === 'null' ? null : sourceGroupId;
-				const destinationGroupValue =
-					destinationGroupId === 'null' ? null : destinationGroupId;
-
-				// Remove source value and add destination value
-				const filteredArray = currentArray.filter((value) => {
-					const valueId = typeof value === 'object' ? value._id : value;
-					return valueId !== sourceGroupValue;
-				});
-
-				// Add destination value if it's not already in the array
-				const destinationExists = filteredArray.some((value) => {
-					const valueId = typeof value === 'object' ? value._id : value;
-					return valueId === destinationGroupValue;
-				});
-
-				if (!destinationExists && destinationGroupValue !== null) {
-					// For person fields, we need to add the person object
-					const destinationGroupObj = view?.groupBy?.defaultGroups?.find(
-						(group) => group._id === destinationGroupValue,
-					);
-					if (destinationGroupObj) {
-						filteredArray.push({
-							_id: destinationGroupObj._id,
-							name: destinationGroupObj.label || destinationGroupObj.name,
-						});
-					}
-				}
-
-				newValue = filteredArray;
-			} else if (groupField?.type === 'number') {
-				// For number fields, extract the starting value from the destination group ID
-				// Group ID format: "100-200" -> extract 100 (the first part)
-				if (destinationGroupId === 'null') {
-					newValue = null;
-				} else {
-					const groupIdParts = destinationGroupId.split('-');
-					if (groupIdParts.length >= 2) {
-						// Extract the first number (starting value of the range)
-						const startingValue = parseInt(groupIdParts[0], 10);
-						if (!isNaN(startingValue)) {
-							newValue = startingValue;
-						} else {
-							newValue = null;
-						}
-					} else {
-						// If it's not in range format, try to parse as number
-						const numericValue = parseFloat(destinationGroupId);
-						newValue = isNaN(numericValue) ? null : numericValue;
-					}
-				}
-			} else if (groupField?.type === 'date') {
-				// For date fields, we need to handle date grouping
-				// The destination group ID will contain the date label
-				if (destinationGroupId === 'null') {
-					newValue = null;
-				} else {
-					// Get the dateBy configuration from the view
-					const dateBy = view?.groupBy?.config?.dateBy;
-
-					// Convert the group label to actual date value
-					newValue = getDateValueFromLabel(destinationGroupId, dateBy);
-				}
-			} else if (groupField?.type === 'status') {
-				// For status fields, we need to handle status grouping
-				if (destinationGroupId === 'null') {
-					newValue = null;
-				} else {
-					// Get the status configuration from the view
-					const statusBy = view?.groupBy?.config?.statusBy;
-
-					if (statusBy === 'group') {
-						// Find the status field in columns using groupFieldId
-						const statusField = columns?.find((col) => col._id === groupFieldId);
-						const statusOptions = statusField?.config?.status;
-
-						if (statusOptions) {
-							// Find the group that matches the destination group ID
-							const groupValues = statusOptions[destinationGroupId];
-							if (groupValues && groupValues.length > 0) {
-								// Use the first status option's ID from the group as the new value
-								newValue = groupValues[0]._id;
-							} else {
-								newValue = null;
-							}
-						} else {
-							newValue = null;
-						}
-					} else {
-						// For non-grouped status, use the destination group ID directly
-						newValue = destinationGroupId;
-					}
-				}
-			} else if (groupField?.type === 'checkbox') {
-				newValue = destinationGroup._id === 'null' ? null : Boolean(destinationGroup._id);
-			} else {
-				// For non-array fields, just set the destination value
-				newValue = destinationGroup._id === 'null' ? null : destinationGroup._id;
-			}
+			// Get new value using the field type handler
+			const newValue = getNewValue({
+				currentGroupValue,
+				sourceGroupId,
+				destinationGroupId,
+				destinationGroup,
+				view,
+				columns,
+				groupFieldId,
+				groupField,
+			});
 
 			// Prepare the update payload
 			const payload = {

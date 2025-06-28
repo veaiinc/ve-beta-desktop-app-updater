@@ -8,6 +8,7 @@
 	position: relative;
 	min-height: 100px;
 	width: 280px;
+	border: 1px solid var(--stroke);
 
 	.headerEditDropdownItem {
 		display: flex;
