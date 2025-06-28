@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import '../../../assets/scss/landingScreen/ourMission.scss';
 import MissionTabNavigation from './missionTabNavigation/MissionTabNavigation';
 import Careers from './careers/Careers';
 import MobileMenu from '../../components/landing_screen/MobileMenu';
+import Context from '../../../context/context';
 
 const paragraphs1 = [
 	`We've built telescopes to touch the stars and microscopes to probe life's
@@ -113,6 +114,9 @@ const tabsMapper = {
 
 const OurMission = ({ tab }) => {
 	const [info, setInfo] = useState({ mobileMenuOpen: false });
+	const {
+		themeInfo: { theme },
+	} = useContext(Context);
 	return (
 		<main className="our-mission-container">
 			<MobileMenu
@@ -123,7 +127,7 @@ const OurMission = ({ tab }) => {
 			<div className="mission-nav-col">
 				<MissionTabNavigation tabs={tabs} activeIndex={tab} />
 			</div>
-			<div className="mission-content-col">{tabsMapper[tab]}</div>
+			<div className={`mission-content-col ${theme === 'dark' ? 'bridge-img-dark' : ''}`}>{tabsMapper[tab]}</div>
 		</main>
 	);
 };

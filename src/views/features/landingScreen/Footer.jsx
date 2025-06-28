@@ -46,7 +46,6 @@ const Footer = () => {
 				message.error(res?.[1]?.message);
 			}
 		} catch (error) {
-			console.error('Error subscribing to newsletter:', error);
 			message.error('An unexpected error occurred. Please try again!');
 		} finally {
 			setInfo(initialState);
@@ -78,10 +77,13 @@ const Footer = () => {
 								type="text"
 								placeholder="example@gmail.com"
 								onChange={handleEmailChange}
+								value={info.email}
 								onKeyDown={handleKeyDown}
 								className={info.error ? s.errorInput : ''}
 							/>
-							{info.error && <p className={s.errorMessage}>{info.error}</p>}
+							<p className={[s.errorMessage, info.error ? s.visible : ''].join(' ')}>
+								{info.error || ''}
+							</p>
 							<button
 								className={s.subscribeButton}
 								onClick={handleSubscribe}
@@ -149,11 +151,11 @@ const Footer = () => {
 									// 	label: 'Facebook',
 									// 	url: '#', // Replace with actual URL
 									// },
-									{
-										Icon: InstagramLogo,
-										label: 'Instagram',
-										url: INSTAGRAM_URL, // Replace with actual URL
-									},
+									// {
+									// 	Icon: InstagramLogo,
+									// 	label: 'Instagram',
+									// 	url: INSTAGRAM_URL, // Replace with actual URL
+									// },
 									// {
 									// 	Icon: YoutubeLogo,
 									// 	label: 'YouTube',

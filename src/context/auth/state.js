@@ -339,14 +339,35 @@ export const AuthState = () => {
 	const subscribeToNewsletter = async (email) => {
 		try {
 			const url = NEWSLETTER_SUBSCRIPTION_URL;
-			const locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
+
+			const body = {
+				responseInput: {
+					response: [
+						{
+							_id: '66accb967410edda114c1a05',
+							question:
+								'<p><span style="font-family: Poppins, sans-serif;">Email?</span></p>',
+							order: 1,
+							type: 'email',
+							variableId: '6311efc4911e0f82be7e2b2d',
+							answer: email,
+						},
+					],
+				},
+			};
 
 			const response = await fetch(url, {
 				method: 'POST',
-				body: JSON.stringify({ email, source: 've.ai', location: locationDetails }),
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(body),
 			});
+
+			const data = await response.json();
+
 			if (response?.ok === true && response?.status === 200) {
-				return [true];
+				return [true, data];
 			} else {
 				return [false, { message: 'An unexpected error occurred. Please try again!' }];
 			}
