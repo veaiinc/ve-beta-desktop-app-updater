@@ -60,13 +60,6 @@ const divStyles = {
 	flexDirection: 'row',
 };
 
-const componentMapper = useMemo(() => ({
-	calendar: <CalenderWidget />,
-	task: <TaskWidget />,
-	// automation: <AutomationWidget />,
-	contact: <ContactsWidget />,
-}));
-
 const GlobalWidget = () => {
 	const {
 		profileInfo: { tenantUserAccessControls },
@@ -74,6 +67,13 @@ const GlobalWidget = () => {
 	const [info, setInfo] = useState({
 		selectedOption: 'calendar',
 	});
+
+	const componentMapper = useMemo(() => ({
+		calendar: <CalenderWidget />,
+		task: <TaskWidget />,
+		// automation: <AutomationWidget />,
+		contact: <ContactsWidget />,
+	}));
 
 	const handleOptionSelection = (option) => {
 		setInfo({
