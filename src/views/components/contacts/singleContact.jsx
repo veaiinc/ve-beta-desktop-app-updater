@@ -1,9 +1,9 @@
 import { memo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/contacts/singleContact.scss';
-import TaskWidget from '../globalComponents/TaskWidget';
-import AutomationWidget from '../globalComponents/AutomationWidget';
-import CalenderWidget from '../globalComponents/CalenderWidget';
+// import TaskWidget from '../globalComponents/TaskWidget';
+// import AutomationWidget from '../globalComponents/AutomationWidget';
+// import CalenderWidget from '../globalComponents/CalenderWidget';
 // import QuickActions from '../globalComponents/QuickActions';
 import DocsGrid from '../files/DocsGrid';
 import ActivityContact from './ActivityContact';
@@ -11,9 +11,7 @@ import OverviewContact from './overViewContact';
 
 const SingleContact = ({ selectedContact, selectedOptions }) => {
 	const navigate = useNavigate();
-	const [info, setInfo] = useState({
-		totalCount: null,
-	});
+
 	const handleTotalChange = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, totalCount: data }));
 	};
@@ -28,7 +26,7 @@ const SingleContact = ({ selectedContact, selectedOptions }) => {
 				email,
 			)}&phoneNumber=${encodeURIComponent(phoneNumber)}`,
 		);
-	}, [selectedContact, navigate]);
+	}, [selectedContact]);
 
 	const handleDocClick = useCallback(
 		(doc) => {

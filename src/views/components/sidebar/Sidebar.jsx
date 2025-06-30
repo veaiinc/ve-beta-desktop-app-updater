@@ -57,11 +57,8 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const [hideClosedSidebarIcon, setHideClosedSidebarIcon] = useState(false);
 
 	const [isOpen, setIsOpen] = useState(() => {
-		// Check if we're on mobile first
-		const isMobileView = window.innerWidth <= 768;
-
 		// If mobile, default to closed unless explicitly set in localStorage
-		if (isMobileView) {
+		if (isMobile) {
 			const savedState = localStorage.getItem('isOpen');
 			return savedState ? JSON.parse(savedState) : false;
 		}
