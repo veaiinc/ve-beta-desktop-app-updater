@@ -134,64 +134,70 @@ const StepGoalsMission = ({ data = {}, onNext, onBack }) => {
 					<ProgressBar currentStep={4} totalSteps={4} />
 					<div className="stepProgress">Step 2 of 2</div>
 				</div>
-				<h1 className="stepTitle">What do you want to achieve?</h1>
-				<p className="stepDesc">Select the goals that matters most to right now.</p>
-			</div>
-			<div className="goalsCardsContainer">
-				{goalsData.map((goal, idx) => (
-					<div
-						className={`goalCard ${info.selectedGoals.includes(idx) ? 'selected' : ''}`}
-						key={idx}
-						onClick={() => handleGoalSelection(idx)}
-						style={{
-							cursor: 'pointer',
-							border: info.selectedGoals.includes(idx)
-								? '2px solid var(--primary-button)'
-								: '1px solid var(--stroke)',
-							background: info.selectedGoals.includes(idx)
-								? 'var(--card-over-card)'
-								: 'var(--card)',
-						}}
-					>
-						<div className="goalCardContent">
-							<div className="goalIcon">{goal.icon}</div>
-							<div className="goalTitle">{goal.title}</div>
-						</div>
-						<div className="goalDesc">{goal.description}</div>
-						<div className="goalTags">
-							{goal.tags.map((tag, i) => (
-								<span className="goalTag" key={i}>
-									{tag}
-								</span>
-							))}
-						</div>
+				<div className="stepContainer">
+					<div className="stepHeaderContent">
+						<h1 className="stepTitle">What do you want to achieve?</h1>
+						<p className="stepDesc">Select the goals that matters most to right now.</p>
 					</div>
-				))}
-			</div>
-			<div className="formRow">
-				<label className="formLabel">Other goals? Tell us more:</label>
-				<textarea
-					className="formInput"
-					value={info.otherGoals}
-					onChange={handleOtherGoalsChange}
-					placeholder="Describe any other specific goals or challenge you'd like help with"
-				/>
-			</div>
-			<div className="btnsContainer">
-				<button className="backBtn" onClick={onBack}>
-					Back
-				</button>
-				<button
-					className="continueBtn"
-					onClick={handleContinue}
-					disabled={info.loading}
-					style={{
-						opacity: info.loading ? 0.4 : 1,
-						cursor: info.loading ? 'not-allowed' : 'pointer',
-					}}
-				>
-					{info.loading ? 'Saving...' : 'Continue'}
-				</button>
+					<div className="goalsCardsContainer">
+						{goalsData.map((goal, idx) => (
+							<div
+								className={`goalCard ${
+									info.selectedGoals.includes(idx) ? 'selected' : ''
+								}`}
+								key={idx}
+								onClick={() => handleGoalSelection(idx)}
+								style={{
+									cursor: 'pointer',
+									border: info.selectedGoals.includes(idx)
+										? '2px solid var(--primary-button)'
+										: '1px solid var(--stroke)',
+									background: info.selectedGoals.includes(idx)
+										? 'var(--card-over-card)'
+										: 'var(--card)',
+								}}
+							>
+								<div className="goalCardContent">
+									<div className="goalIcon">{goal.icon}</div>
+									<div className="goalTitle">{goal.title}</div>
+								</div>
+								<div className="goalDesc">{goal.description}</div>
+								<div className="goalTags">
+									{goal.tags.map((tag, i) => (
+										<span className="goalTag" key={i}>
+											{tag}
+										</span>
+									))}
+								</div>
+							</div>
+						))}
+					</div>
+					<div className="formRow">
+						<label className="formLabel">Other goals? Tell us more:</label>
+						<textarea
+							className="formInput"
+							value={info.otherGoals}
+							onChange={handleOtherGoalsChange}
+							placeholder="Describe any other specific goals or challenge you'd like help with"
+						/>
+					</div>
+					<div className="btnsContainer">
+						<button className="backBtn" onClick={onBack}>
+							Back
+						</button>
+						<button
+							className="continueBtn"
+							onClick={handleContinue}
+							disabled={info.loading}
+							style={{
+								opacity: info.loading ? 0.4 : 1,
+								cursor: info.loading ? 'not-allowed' : 'pointer',
+							}}
+						>
+							{info.loading ? 'Saving...' : 'Continue'}
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
