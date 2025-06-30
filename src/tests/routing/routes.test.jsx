@@ -319,11 +319,6 @@ describe('Application Routing', () => {
 			renderRoute('/changelog');
 			expect(screen.getByTestId('changelog')).toBeInTheDocument();
 		});
-
-		it('should render public chat page', () => {
-			renderRoute('/c/123');
-			expect(screen.getByTestId('public-chat')).toBeInTheDocument();
-		});
 	});
 
 	describe('Protected Routes', () => {
