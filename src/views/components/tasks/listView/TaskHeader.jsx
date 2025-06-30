@@ -39,6 +39,7 @@ const TaskHeader = ({
 	handleAddTab,
 	handleTabDropdownClick,
 	handleTabsReorder,
+	showEditDuplicate = true,
 }) => {
 	const [info, setInfo] = useState({
 		showAddNewTabDropDown: false,
@@ -87,6 +88,7 @@ const TaskHeader = ({
 												handleTabChange={handleTabChange}
 												handleTabDropdownClick={handleTabDropdownClick}
 												tabLength={tabArray?.length}
+												showEditDuplicate={showEditDuplicate}
 											/>
 										</div>
 									)}

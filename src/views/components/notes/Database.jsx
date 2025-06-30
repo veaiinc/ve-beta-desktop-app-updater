@@ -590,6 +590,7 @@ const DatabaseComponent = ({ block, editor }) => {
 									handleCreateDatabaseView(databaseId, viewType)
 								}
 								handleTabDropdownClick={handleTabDropdownClick}
+								showEditDuplicate={false}
 							/>
 							<div className={s.notesDatabaseHeaderButtons}>
 								<input
