@@ -4827,14 +4827,14 @@ class Layout extends Component {
 	// Modify your ref callback
 	handleBoxRef = (component, element) => {
 		// Exit early if element is null (unmounting) or already processed
-		if (!element || this.boxRefs[component?._id] === element) {
-			return;
-		}
+		// if (!element || this.boxRefs[component?._id] === element) {
+		// 	return;
+		// }
 		// Store the ref in boxRefs
 		this.boxRefs[component?._id] = element;
-		setTimeout(() => {
-			this.returnAnimationClasses(component);
-		}, 100);
+		// setTimeout(() => {
+		// 	this.returnAnimationClasses(component);
+		// }, 100);
 		//! If it's a scroll animation, initialize the observer
 		// if (this.state?.preview == true && this.props?.client == true) {
 		// 	if (element && component?.animations?.animeType === 'scroll') {
@@ -9110,10 +9110,8 @@ class Layout extends Component {
 															this.onClickAnime(component);
 														}
 													}}
-													// ${this.returnAnimationClasses(
-													// 	component,
-													// )}
 													className={`column  
+													${this.returnAnimationClasses(component)}
 														 ${component.listCount && 'listAnimation'} ${
 														_.has(component, 'className')
 															? _.has(component, 'mclassName') &&
