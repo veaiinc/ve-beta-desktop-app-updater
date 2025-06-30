@@ -1,15 +1,15 @@
-import React, { memo, useContext, useMemo, useState } from 'react';
+import { memo, useContext, useMemo, useState } from 'react';
 import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import PromptCards from './PromptCard';
 import CalenderWidget from './CalenderWidget';
 import TaskWidget from './TaskWidget';
-import AutomationWidget from './AutomationWidget';
+// import AutomationWidget from './AutomationWidget';
 import ContactsWidget from './ContactsWidget';
 import { Tooltip } from 'antd';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/contacts/calendar.svg';
 import { ReactComponent as TaskSvg } from '../../../assets/svg/home_page/tasks.svg';
 import { ReactComponent as ContactSvg } from '../../../assets/svg/home_page/contacts.svg';
-import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/automation.svg';
+// import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/automation.svg';
 import Context from '../../../context/context';
 
 const optionsList = [
@@ -59,6 +59,14 @@ const divStyles = {
 	width: '924px',
 	flexDirection: 'row',
 };
+
+const componentMapper = useMemo(() => ({
+	calendar: <CalenderWidget />,
+	task: <TaskWidget />,
+	// automation: <AutomationWidget />,
+	contact: <ContactsWidget />,
+}));
+
 const GlobalWidget = () => {
 	const {
 		profileInfo: { tenantUserAccessControls },
@@ -66,12 +74,6 @@ const GlobalWidget = () => {
 	const [info, setInfo] = useState({
 		selectedOption: 'calendar',
 	});
-	const componentMapper = useMemo(() => ({
-		calendar: <CalenderWidget />,
-		task: <TaskWidget />,
-		automation: <AutomationWidget />,
-		contact: <ContactsWidget />,
-	}));
 
 	const handleOptionSelection = (option) => {
 		setInfo({
