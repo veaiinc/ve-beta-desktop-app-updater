@@ -39,7 +39,7 @@ const docsStatusButtonStyles = {
 	border: '1px solid var(--stroke, #2B2E31)',
 	// background: 'var(--card-over-card, #27282B)',
 	color: 'var(--primary-font, #F2F2F3)',
-	fontFamily: 'Inter',
+	fontFamily: 'var(--primary-font-family)',
 	fontSize: '10px',
 	fontStyle: 'normal',
 	fontWeight: '500',

@@ -779,7 +779,7 @@
 			align-self: stretch;
 			.priceTitle {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 20px;
 				font-style: normal;
 				font-weight: 600;
@@ -797,7 +797,7 @@
 		.pricingCardBody {
 			align-self: stretch;
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -810,7 +810,7 @@
 			align-items: center;
 			.planAmount {
 				color: var(--primary-button, #79ecc9);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 34px;
 				font-style: normal;
 				font-weight: 600;
@@ -818,7 +818,7 @@
 			}
 			.tenantUsersLimit {
 				color: var(--secondary-font, #7a7e85);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
@@ -848,7 +848,7 @@
 				border-radius: 24px;
 				border: 1px solid var(--primary-button, #79ecc9);
 				color: var(--primary-button, #79ecc9);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -876,7 +876,7 @@
 				border-radius: 24px;
 				border: 1px solid var(--stroke, #2c2d2e);
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -907,7 +907,7 @@
 			border-radius: 24px;
 			border: 1px solid var(--stroke, #2c2d2e);
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
