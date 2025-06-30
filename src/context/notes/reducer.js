@@ -125,7 +125,7 @@ const actionHandlers = {
 		const {
 			viewId,
 			rowId,
-			updatedRow,
+			updatedRowData,
 			groupId,
 			blockId,
 			databaseId,
@@ -151,7 +151,7 @@ const actionHandlers = {
 		if (reorderContext) {
 			const { updatedGroupData, updatedGroups } = handleDragAndDropInGroup({
 				groupData,
-				updatedRowData: updatedRow,
+				updatedRowData,
 				groupId,
 				rowId,
 				groupBy,
@@ -191,9 +191,9 @@ const actionHandlers = {
 		}
 
 		// Otherwise, use the original update logic
-		const { updatedGroupData, updatedGroups } = handleUpdateInGroup({
+		const { updatedGroupData, updatedGroups, updatedRow } = handleUpdateInGroup({
 			groupData,
-			updatedRowData: updatedRow,
+			updatedRowData,
 			groupId,
 			rowId,
 			groupBy,
@@ -210,6 +210,10 @@ const actionHandlers = {
 					defaultGroups: updatedGroups,
 				},
 			};
+		}
+
+		if (state.databaseSidebar.stack?.at(-1)?.rowData?._id === rowId) {
+			state.databaseSidebar.stack.at(-1).rowData = updatedRow;
 		}
 
 		return {

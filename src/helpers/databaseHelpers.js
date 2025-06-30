@@ -681,7 +681,9 @@ export const handleUpdateInGroup = ({
 		updatedGroups = defaultGroups;
 	}
 
-	return hasUpdated ? { updatedGroupData, updatedGroups } : { groupData, updatedGroups: null };
+	return hasUpdated
+		? { updatedGroupData, updatedGroups, updatedRow }
+		: { groupData, updatedGroups: null, updatedRow };
 };
 
 export const handleDragAndDropInGroup = ({

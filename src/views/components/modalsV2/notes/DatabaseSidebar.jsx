@@ -82,7 +82,7 @@ const DatabaseSidebar = ({ pageId }) => {
 			},
 			pageId,
 		};
-		updateDatabaseRow(payload, viewId, databaseId);
+		updateDatabaseRow(payload, { viewId, databaseId, groupId, blockId });
 	};
 
 	const handleDeleteRow = () => {
@@ -132,9 +132,7 @@ const DatabaseSidebar = ({ pageId }) => {
 						</div>
 					))}
 				</div>
-				<div className={s.notesDatabaseSidebarFooter}>
-					{/* <h3>Footer</h3> */}
-				</div>
+				<div className={s.notesDatabaseSidebarFooter}>{/* <h3>Footer</h3> */}</div>
 			</div>
 		</Drawer>
 	);

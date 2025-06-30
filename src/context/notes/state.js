@@ -1060,7 +1060,7 @@ export const NotesState = (props) => {
 			);
 
 			if (response?.[0]) {
-				const updatedRow = response?.[1]?.data?.updateDatabaseRow;
+				const updatedRowData = response?.[1]?.data?.updateDatabaseRow;
 
 				// If this was an optimistic update, we don't need to dispatch again
 				// as the UI is already updated. Just sync with the server response
@@ -1070,7 +1070,7 @@ export const NotesState = (props) => {
 						payload: {
 							viewId,
 							rowId: payload?.updateDatabaseRowId,
-							updatedRow,
+							updatedRowData,
 							groupId,
 							blockId,
 							databaseId,
@@ -1084,7 +1084,7 @@ export const NotesState = (props) => {
 						payload: {
 							viewId,
 							rowId: payload?.updateDatabaseRowId,
-							updatedRow,
+							updatedRowData,
 							groupId,
 							blockId,
 							databaseId,
@@ -1092,12 +1092,12 @@ export const NotesState = (props) => {
 					});
 				}
 
-				updateRelatedViews({
-					updatedRow,
-					viewId,
-					databaseId,
-					rowId: payload?.updateDatabaseRowId,
-				});
+				// updateRelatedViews({
+				// 	updatedRow,
+				// 	viewId,
+				// 	databaseId,
+				// 	rowId: payload?.updateDatabaseRowId,
+				// });
 				return [true, response?.[1]];
 			} else {
 				// If API call failed and this was an optimistic update, revert the changes
