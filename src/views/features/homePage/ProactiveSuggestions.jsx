@@ -338,6 +338,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		},
 		[handleLeft, handleRight],
 	);
+
 	useEffect(() => {
 		window.addEventListener('keydown', handleKeyDown);
 		return () => {
@@ -1138,7 +1139,11 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 					</>
 				)}
 				<div className="proactiveChatContainer">
-					<div className={`chatbox_container ${info?.showExploreMore ? 'slideUp' : ''}`}>
+					<div
+						className={`chatbox_container ${
+							info?.showExploreMore && info?.cards?.length > 0 ? 'slideUp' : ''
+						}`}
+					>
 						<ChatBox
 							onSend={handleCustomOnSendFunction}
 							customChatActions={true}
