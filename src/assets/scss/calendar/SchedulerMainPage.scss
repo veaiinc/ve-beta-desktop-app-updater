@@ -181,7 +181,7 @@
 			}
 		}
 		.schedulerListCards {
-			height: 350px !important;
+			height: 300px !important;
 		}
 	}
 
@@ -216,6 +216,7 @@
 
 	@media screen and (max-width: 480px) {
 		.schedulerMainPageContainer {
+			gap: 0;
 			padding: 16px;
 		}
 
