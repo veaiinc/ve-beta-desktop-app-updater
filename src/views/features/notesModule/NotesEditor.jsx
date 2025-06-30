@@ -64,7 +64,7 @@ const initialState = {
 	selectedEmoji: null,
 	coverImageRemoved: false,
 	iconImageRemoved: false,
-	transcriptionText:null,
+	transcriptionText: null,
 };
 
 const accessLevels = {
@@ -95,7 +95,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const prevDocRef = useRef([]);
 	const originalFaviconRef = useRef(null);
 	// const { createWebSocketConnection, sendMessage } = useChatStream();
-	
+
 	const {
 		notes: {
 			getNotesPageData,
@@ -114,7 +114,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			deleteNotesImageBlock,
 			notesDeleteCoverImage,
 			notesDeleteIcon,
-		
 		},
 		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
@@ -136,8 +135,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		info?.coverImageError,
 		info?.coverImageRemoved,
 	]);
-
-
 
 	const iconImage = useMemo(() => {
 		if (info?.iconImageRemoved) return false;
@@ -1017,7 +1014,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				)}
 			</div>
 			{/* <NoteTranscription pageId={noteId} updateTranscription={handleUpdateTranscription} /> */}
-			<MeetTaker/>
+			<MeetTaker />
 		</div>
 	);
 };
