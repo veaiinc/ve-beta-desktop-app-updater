@@ -316,3 +316,75 @@
 		opacity: 0.1;
 	}
 }
+
+// Responsive styles for screens smaller than 1400px
+@media screen and (max-width: 1400px) {
+	.ScheduledAvailabilityContainer {
+		.headerContainer {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+
+			.headerLeftContainer {
+				.headerTitle {
+					font-size: 14px;
+				}
+				.headerSubTitle {
+					font-size: 11px;
+				}
+			}
+
+			.headerRightContainer {
+				padding: 8px;
+				gap: 8px;
+				align-self: stretch;
+				justify-content: flex-end;
+
+				svg {
+					width: 18px;
+					height: 18px;
+				}
+			}
+		}
+	}
+
+	.sessionGridContainer {
+		max-width: 320px;
+		min-width: 320px;
+		height: 120px;
+		padding: 12px;
+
+		.sessionGridItem {
+			gap: 12px;
+
+			.sessionImage {
+				width: 80px;
+				height: 80px;
+
+				&.letterAvatar {
+					span {
+						font-size: 32px;
+					}
+				}
+			}
+
+			.sessionContent {
+				.sessionHeader {
+					span {
+						max-width: 160px;
+						font-size: 13px;
+					}
+				}
+
+				.sessionInfo {
+					font-size: 13px;
+				}
+
+				.location {
+					font-size: 13px;
+					max-width: 160px;
+				}
+			}
+		}
+	}
+}
