@@ -8,6 +8,7 @@ import Context from '../../../context/context';
 import Cropper from 'react-easy-crop';
 import CreditsLeftSvg from './chatHistory/CreditsLeftSvg';
 import { Tooltip } from 'antd';
+import ObjectID from 'bson-objectid';
 const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 	const navigate = useNavigate();
 	const { workspaceMode } = useWorkspaceMode();
@@ -25,6 +26,14 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 		return initials;
 	};
 
+	const onOptionsClick = (item) => {
+		if (item?.name === 'New Chat') {
+			const sessionId = ObjectID()?.toString();
+			navigate(`/chat/${sessionId}`);
+		} else {
+			navigate(item?.route);
+		}
+	};
 	return (
 		<div className="sidebar-closing">
 			<div className="topContainerClosed">
@@ -40,7 +49,7 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 							>
 								<div
 									className="closed-sidebar-item"
-									onClick={() => navigate(item?.route)}
+									onClick={() => onOptionsClick(item)}
 									style={{ cursor: 'pointer' }}
 								>
 									<item.icon
