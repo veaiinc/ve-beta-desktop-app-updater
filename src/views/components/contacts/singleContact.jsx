@@ -19,8 +19,16 @@ const SingleContact = ({ selectedContact, selectedOptions }) => {
 	};
 
 	const handleCreateDoc = useCallback(() => {
-		navigate(`/builder/create-document`);
-	}, []);
+		const name = selectedContact?.name || selectedContact?.firstName || '';
+		const email = selectedContact?.email || '';
+		const phoneNumber = selectedContact?.phoneNumber || selectedContact?.phone || '';
+
+		navigate(
+			`/builder/create-document?name=${encodeURIComponent(name)}&email=${encodeURIComponent(
+				email,
+			)}&phoneNumber=${encodeURIComponent(phoneNumber)}`,
+		);
+	}, [selectedContact, navigate]);
 
 	const handleDocClick = useCallback(
 		(doc) => {
