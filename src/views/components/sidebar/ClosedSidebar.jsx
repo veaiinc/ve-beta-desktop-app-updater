@@ -8,7 +8,7 @@ import Context from '../../../context/context';
 import Cropper from 'react-easy-crop';
 import CreditsLeftSvg from './chatHistory/CreditsLeftSvg';
 import { Tooltip } from 'antd';
-const ClosedSidebar = ({ onIconClick }) => {
+const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 	const navigate = useNavigate();
 	const { workspaceMode } = useWorkspaceMode();
 	const {
@@ -29,44 +29,46 @@ const ClosedSidebar = ({ onIconClick }) => {
 		<div className="sidebar-closing">
 			<div className="topContainerClosed">
 				<SidebarClosingSvg onClick={() => onIconClick()} />
-				<div className="closedIconsContainer">
-					{sidebarNavigationItems.map((item) => (
-						<Tooltip
-							title={<div className="tooltip-text">{item?.name}</div>}
-							placement="right"
-							arrow={false}
-							color={'transparent'}
-						>
-							<div
-								className="closed-sidebar-item"
-								onClick={() => navigate(item?.route)}
-								style={{ cursor: 'pointer' }}
+				{!isEarlyAccessPage && (
+					<div className="closedIconsContainer">
+						{sidebarNavigationItems.map((item) => (
+							<Tooltip
+								title={<div className="tooltip-text">{item?.name}</div>}
+								placement="right"
+								arrow={false}
+								color={'transparent'}
 							>
-								<item.icon
-									fill={
-										item.name === 'Notes' ||
-										item.name === 'Calendar' ||
-										item.name === 'Tasks' ||
-										item.name === 'Contacts' ||
-										item.name === 'Automations'
-											? 'none'
-											: 'var(--secondary-font)'
-									}
-									style={{
-										color:
+								<div
+									className="closed-sidebar-item"
+									onClick={() => navigate(item?.route)}
+									style={{ cursor: 'pointer' }}
+								>
+									<item.icon
+										fill={
 											item.name === 'Notes' ||
 											item.name === 'Calendar' ||
 											item.name === 'Tasks' ||
 											item.name === 'Contacts' ||
 											item.name === 'Automations'
-												? 'var(--secondary-font)'
-												: 'none',
-									}}
-								/>
-							</div>
-						</Tooltip>
-					))}
-				</div>
+												? 'none'
+												: 'var(--secondary-font)'
+										}
+										style={{
+											color:
+												item.name === 'Notes' ||
+												item.name === 'Calendar' ||
+												item.name === 'Tasks' ||
+												item.name === 'Contacts' ||
+												item.name === 'Automations'
+													? 'var(--secondary-font)'
+													: 'none',
+										}}
+									/>
+								</div>
+							</Tooltip>
+						))}
+					</div>
+				)}
 			</div>
 			<div className="bottomContainerClosed">
 				<CreditsLeftSvg

@@ -57,6 +57,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		isNewFeaturePlusOpen: false,
 		activeRoute: '/' + location.pathname.split('/')[1],
 		selectedModule: null,
+		isEarlyAccessPage: false,
 	});
 
 	// Sync isOpen to localStorage
@@ -123,7 +124,14 @@ const Sidebar = ({ activeWorkspaceId }) => {
 			}
 		}
 	}, [location?.pathname, isChatSidebarRoute, isOpen]);
-
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			isEarlyAccessPage:
+				location?.pathname?.includes('/early-access') ||
+				location?.pathname?.includes('/pricing'),
+		}));
+	}, [location?.pathname]);
 	return (
 		<>
 			<div
@@ -173,10 +181,14 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							setShowNotificationsDrawer={setShowNotificationsDrawer}
 							setShowNotesDrawer={setShowNotesDrawer}
 							setHideClosedSidebarIcon={setHideClosedSidebarIcon}
+							isThisEarlyAccessPage={info?.isEarlyAccessPage}
 						/>
 					</div>
 				</nav>
-				<ClosedSidebar onIconClick={() => setIsOpen(true)} />
+				<ClosedSidebar
+					onIconClick={() => setIsOpen(true)}
+					isEarlyAccessPage={info?.isEarlyAccessPage}
+				/>
 				<Notifications
 					showNotificationsDrawer={showNotificationsDrawer}
 					setShowNotificationsDrawer={setShowNotificationsDrawer}
