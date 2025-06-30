@@ -201,6 +201,8 @@ const OpenedSidebarModules = ({
 									name === 'Automations'
 										? 'var(--secondary-font)'
 										: 'none',
+								height: '20px',
+								width: '20px',
 							}}
 						/>
 					)}

@@ -13,6 +13,7 @@ import Notes from './notes/Notes';
 import SidebarTooltip from './SidebarTooltip';
 import Context from '../../../context/context';
 import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import ClosedSidebar from './ClosedSidebar';
 
 const Sidebar = ({ activeWorkspaceId }) => {
 	const { workspaceMode } = useWorkspaceMode();
@@ -87,7 +88,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 			});
 		}
 	}, [userDetailsData, info]);
-
 	// Set active business name
 	useEffect(() => {
 		if (userWorkSpaceList) {
@@ -128,7 +128,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		<>
 			<div
 				className={`FullScreenSidebar
-					${isOpen ? 'opened' : sidebarRef.current?.classList?.contains('opened') ? 'closed' : ''}
+					${isOpen ? 'opened' : sidebarRef.current?.classList?.contains('sidebar-open') ? 'closed' : ''}
 					${isChatSidebarRoute ? 'contacts-sidebar' : ''}
 					${
 						sidebarStates.selectedModule &&
@@ -145,7 +145,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
 					marginTop: isChatSidebarRoute ? '0' : '',
-					display: hideClosedSidebarIcon ? 'none' : '',
+					// display: hideClosedSidebarIcon ? 'none' : '',
 					marginLeft: isChatSidebarRoute ? '0' : '',
 				}}
 				ref={sidebarRef}
@@ -157,7 +157,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 								? 'active'
 								: sidebarOpenRef.current?.classList?.contains('active')
 								? 'inactive'
-								: 'inactive-no-animation'
+								: 'inactive'
 						}`}
 						ref={sidebarOpenRef}
 					>
@@ -176,7 +176,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 						/>
 					</div>
 				</nav>
-
+				<ClosedSidebar onIconClick={() => setIsOpen(true)} />
 				<Notifications
 					showNotificationsDrawer={showNotificationsDrawer}
 					setShowNotificationsDrawer={setShowNotificationsDrawer}
@@ -185,7 +185,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 			</div>
 
 			{/* Sidebar toggle button, always visible and not animated */}
-			<div
+			{/* <div
 				className="sidebar-toggle-btn"
 				style={{
 					position: 'fixed',
@@ -194,16 +194,8 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					zIndex: 900,
 				}}
 			>
-				<SidebarTooltip
-					label={isOpen ? 'Close Sidebar' : 'Open Sidebar'}
-					icon={
-						<SidebarClosingSvg
-							onClick={() => setIsOpen(!isOpen)}
-							style={{ cursor: 'pointer' }}
-						/>
-					}
-				/>
-			</div>
+				
+			</div> */}
 
 			{isOpen && <div className="sidebar__overlay"></div>}
 		</>
