@@ -3,6 +3,7 @@ const useLiveIntelligenceStream = () => {
 	const socketRef = useRef(null);
 	const inactivityTimeoutRef = useRef(null);
 	const currentSessionIdRef = useRef(null);
+	const messageHandlerRef = useRef(null);
 	const MAX_RETRY_ATTEMPTS = 30;
 	const RETRY_DELAY = 1000; // 1 second
 	const SEND_INTERVAL = 10000; // 30 seconds
@@ -21,9 +22,9 @@ const useLiveIntelligenceStream = () => {
 			if (sendIntervalRef.current) {
 				clearInterval(sendIntervalRef.current);
 			}
-			// if (socketRef.current) {
-			// 	socketRef.current.close();
-			// }
+			if (socketRef.current) {
+				socketRef.current.close();
+			}
 		};
 	}, []);
 
@@ -34,10 +35,10 @@ const useLiveIntelligenceStream = () => {
 		}
 
 		inactivityTimeoutRef.current = setTimeout(() => {
-			// if (socketRef.current) {
-			// 	console.log('Disconnecting due to inactivity');
-			// 	socketRef.current.close();
-			// }
+			if (socketRef.current) {
+				console.log('Disconnecting due to inactivity');
+				socketRef.current.close();
+			}
 		}, 5 * 60 * 1000); // 5 minutes in milliseconds
 	}, []);
 
@@ -50,7 +51,6 @@ const useLiveIntelligenceStream = () => {
 	const sendContextData = useCallback(() => {
 		let attempts = 0;
 		const attemptSend = () => {
-			console.log(attempts, 'attempts');
 			if (attempts >= MAX_RETRY_ATTEMPTS) {
 				console.log('Max retry attempts reached, stopping context sending');
 				return;
@@ -58,7 +58,7 @@ const useLiveIntelligenceStream = () => {
 
 			if (!socketRef.current || socketRef.current.readyState === WebSocket.CLOSED) {
 				console.log('Connection closed, attempting to reconnect...');
-				createWebSocketConnection(currentSessionIdRef.current);
+				createWebSocketConnection(currentSessionIdRef.current, messageHandlerRef.current);
 				attempts++;
 				setTimeout(attemptSend, RETRY_DELAY);
 				return;
@@ -121,13 +121,14 @@ const useLiveIntelligenceStream = () => {
 	}, []);
 
 	const createWebSocketConnection = useCallback(
-		(sessionId) => {
+		(sessionId, onMessageFunc) => {
 			if (!sessionId) {
 				console.error('Session ID is required for live intelligence streaming');
 				return;
 			}
 
 			currentSessionIdRef.current = sessionId;
+			messageHandlerRef.current = onMessageFunc;
 
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -135,9 +136,9 @@ const useLiveIntelligenceStream = () => {
 
 			const baseUrl = `https://humbly-pleased-alien.ngrok-free.app/${workspaceId}/${sessionId}/live_intelligence_streaming?token=${usertoken}`;
 
-			// if (socketRef.current) {
-			// 	socketRef.current.close();
-			// }
+			if (socketRef.current) {
+				socketRef.current.close();
+			}
 
 			socketRef.current = new WebSocket(baseUrl);
 
@@ -149,7 +150,7 @@ const useLiveIntelligenceStream = () => {
 			};
 
 			socketRef.current.onclose = (event) => {
-				console.log('Disconnected from Live Intelligence WebSocket server', event);
+				console.log('Disconnected from Live Intelligence WebSocket server');
 				if (inactivityTimeoutRef.current) {
 					clearTimeout(inactivityTimeoutRef.current);
 				}
@@ -160,21 +161,21 @@ const useLiveIntelligenceStream = () => {
 				console.error('Live Intelligence WebSocket error:', error);
 			};
 
-			// socketRef.current.onmessage = (event) => {
-			// 	resetInactivityTimeout();
-			// 	if (onMessageFunc) {
-			// 		onMessageFunc(event);
-			// 	}
-			// };
+			socketRef.current.onmessage = (event) => {
+				resetInactivityTimeout();
+				if (messageHandlerRef.current) {
+					messageHandlerRef.current(event);
+				}
+			};
 		},
 		[resetInactivityTimeout, startSendingContext, stopSendingContext],
 	);
 
 	const closeWebSocketConnection = useCallback(() => {
 		stopSendingContext();
-		// if (socketRef.current) {
-		// 	socketRef.current.close();
-		// }
+		if (socketRef.current) {
+			socketRef.current.close();
+		}
 	}, [stopSendingContext]);
 
 	return {

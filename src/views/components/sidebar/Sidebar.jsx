@@ -47,7 +47,8 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const isChatSidebarRoute =
 		location?.pathname?.includes('calendar') ||
 		location?.pathname?.includes('tasks') ||
-		location?.pathname?.includes('contact');
+		location?.pathname?.includes('contact') ||
+		location?.pathname?.includes('note');
 
 	const [info, setInfo] = useState({
 		switchWorkspaceModal: false,
