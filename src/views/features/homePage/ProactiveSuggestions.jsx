@@ -228,10 +228,10 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	// }, []);
 
 	useEffect(() => {
-		if (!aiCategories) {
+		if (!aiCategories && aiSuggestedPendingActions?.pendingActions?.length > 0) {
 			getAiCategoriesOptions();
 		}
-	}, [aiCategories, info?.options]);
+	}, [aiCategories, info?.options, aiSuggestedPendingActions]);
 
 	const getAiCategoriesOptions = async () => {
 		const response = await getAiCategories();
