@@ -10,7 +10,7 @@ import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calenda
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { ReactComponent as DeleteSvg } from '../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import Status from '../../components/tasks/listView/Status';
 import Priority from '../../components/tasks/listView/Priority';
 import DeleteLeadModal from '../../components/modalsV2/workflowsModals/DeleteLeadModal.jsx';
@@ -123,10 +123,10 @@ const TaskFullView = () => {
 						<div className="taskTitle">{taskData.taskSlNo}</div>
 					</div>
 					<div className="headerRight">
-						<QuickActions
+						{/* <QuickActions
 							customActions={optionsForQuickActions}
 							clientDetails={taskData}
-						/>
+						/> */}
 						<Tooltip
 							placement="bottomRight"
 							open={info?.openMoreOptions}
