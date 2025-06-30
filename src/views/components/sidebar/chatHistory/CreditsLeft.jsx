@@ -8,7 +8,6 @@ import { ReactComponent as HourGlassIcon } from '../../../../assets/svg/sidebar/
 const CreditsLeft = () => {
 	const {
 		subscriptionInfo: { currentPlan },
-		authInfo: { getAddOnsForCurrentPlan, currentPlanAddOns },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -73,11 +72,6 @@ const CreditsLeft = () => {
 		}
 	}, [currentPlan]);
 
-	useEffect(() => {
-		if (!currentPlanAddOns) {
-			getAddOnsForCurrentPlan();
-		}
-	}, []);
 	const daysUntilExpiry = useMemo(() => {
 		if (!currentPlan?.expiresAt) return null;
 		const msLeft = currentPlan?.expiresAt * 1000 - Date.now();
