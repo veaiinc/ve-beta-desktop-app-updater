@@ -596,6 +596,9 @@
 		width: 200px;
 		height: 160px;
 		overflow: hidden;
+		&:hover {
+			border: 1px solid var(--stroke-hover);
+		}
 	}
 
 	.status-badge {
