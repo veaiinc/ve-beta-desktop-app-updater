@@ -1053,6 +1053,7 @@ class Presentation extends Component {
 									triggeredFont: e,
 								})
 							}
+							setActiveSection={(e) => this.props.setActiveSectionP(e)}
 							triggeredFont={this.state?.triggeredFont}
 							activeSubBlockId={this.state?.activeSubBlockId}
 							key={index}
@@ -1060,10 +1061,13 @@ class Presentation extends Component {
 							_id={section?._id}
 							blocks={section?.blocks}
 							style={section?.style}
+							section={section}
 							actionType={this.state?.actionType}
 							actionValue={this.state?.actionValue}
 							triggerFont={this.state?.triggerFont}
-							handleSideBar={(e, _id) => this.props.handleSideBarP(e, _id)}
+							handleSideBar={(e, _id) => {
+								this.props.handleOpenSideBar(e, _id, false, true);
+							}}
 							showAddBlock={(e) =>
 								this.props?.showAddBlockP(e, section?.order, index)
 							}
@@ -1169,6 +1173,9 @@ class Presentation extends Component {
 								this.props.handleSetIconLinkP(e, subBlockID, blockID)
 							}
 							activeModule={this.state?.activeModule}
+							handleAddLayout={(e, isFluid, isService) =>
+								this.props.handleAddLayout(e, isFluid, isService)
+							}
 						/>
 					);
 				} else {
