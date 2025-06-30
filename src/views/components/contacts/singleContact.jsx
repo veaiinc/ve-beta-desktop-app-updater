@@ -4,7 +4,7 @@ import '../../../assets/scss/contacts/singleContact.scss';
 import TaskWidget from '../globalComponents/TaskWidget';
 import AutomationWidget from '../globalComponents/AutomationWidget';
 import CalenderWidget from '../globalComponents/CalenderWidget';
-import QuickActions from '../globalComponents/QuickActions';
+// import QuickActions from '../globalComponents/QuickActions';
 import DocsGrid from '../files/DocsGrid';
 import ActivityContact from './ActivityContact';
 import OverviewContact from './overViewContact';

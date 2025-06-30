@@ -3,7 +3,7 @@ import '../../../assets/scss/contacts/contacts.scss';
 import Context from '../../../context/context';
 import SingleContact from '../../components/contacts/singleContact';
 import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import ContactsListView from '../../components/contacts/ContactsListView';
 import ContactsWidgetView from '../../components/contacts/ContactsWidgetView';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/chat/search.svg';
@@ -236,7 +236,7 @@ const Contacts = () => {
 				<div className="contacts-right-section">
 					<div className="header">
 						<h1 className="header-title">Your Contacts</h1>
-						<QuickActions />
+						{/* <QuickActions /> */}
 						{/* <div className="search-bar-container">
 						<SearchIcon className="search-icon" />
 						<input type="text" className="search-bar" placeholder="Search" />

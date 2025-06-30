@@ -13,7 +13,7 @@ import GalleryGrid from '../../components/files/GalleryGrid';
 import MostUsedEntries from '../../components/files/MostUsedEntries';
 import TemplatesGrid from '../../components/files/TemplatesGrid';
 import { message } from '../../components/globalComponents/CustomToast';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import Spinner from '../../components/loaders/Spinner';
 import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
 import getFileTypeInfo from './getFiletypeInfo';
@@ -721,9 +721,9 @@ const Files = () => {
 						{/* <div className="beta-text-bold">Search | Create | Share</div>
 						<div className="beta-text">File Flow Inspired by Your Mind</div> */}
 					</span>
-					<div className="storage-header-items">
+					{/* <div className="storage-header-items">
 						<QuickActions suggestedOptions={suggestedOptions} />
-					</div>
+					</div> */}
 				</div>
 				<div className="card-container-wrapper">
 					<div className="card-sub-container">

@@ -19,7 +19,7 @@ import ProposalPopup from '../../components/docs/ProposalsPopup.jsx';
 import { message } from '../../components/globalComponents/CustomToast.jsx';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from 'antd';
-import QuickActions from '../../components/globalComponents/QuickActions.jsx';
+// import QuickActions from '../../components/globalComponents/QuickActions.jsx';
 import SearchSvg from '../../../assets/svg/activity/SearchSvg.jsx';
 import FilterSvg from '../../../assets/svg/my_templates/FilterSvg.jsx';
 import ThreeDotsSvg from '../../../assets/svg/my_templates/ThreeDotsSvg.jsx';
@@ -660,9 +660,9 @@ const Docs = () => {
 						more.
 					</div>
 				</div>
-				<div className="quickActionsBtn">
+				{/* <div className="quickActionsBtn">
 					<QuickActions suggestedOptions={suggestedOptions} />
-				</div>
+				</div> */}
 			</div>
 
 			<div className="docsParentHeaderContainer">

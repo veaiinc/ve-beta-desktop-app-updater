@@ -11,7 +11,7 @@ import Skeleton from 'react-loading-skeleton';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/chat/filter.svg';
 import { Result, Tooltip } from 'antd';
 import { getCurrentWorkspaceId } from '../../../helpers';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import SearchSvg from '../../../assets/svg/activity/SearchSvg';
 import { message } from '../../components/globalComponents/CustomToast';
 
@@ -262,9 +262,9 @@ const LiteGallery = () => {
 					<span className="lineOne">Lite</span>
 					<span className="lineTwo">Gallery</span>
 				</div>
-				<div className="quickActionsBtn">
+				{/* <div className="quickActionsBtn">
 					<QuickActions />
-				</div>
+				</div> */}
 			</div>
 			<div className="seachbar-container">
 				<div className="gallery-filter">
