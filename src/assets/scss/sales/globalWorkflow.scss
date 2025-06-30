@@ -99,6 +99,8 @@
 						cursor: pointer;
 						padding-left: 20px;
 						position: relative;
+						padding: 10px;
+						border-radius: 12px;
 					}
 					.options_style.selected::before {
 						content: '•';
@@ -110,8 +112,12 @@
 					}
 					.options_style:hover {
 						opacity: 1;
-						transform: translateX(20px);
-						transition: transform 0.8s;
+						transform: translateX(10px);
+						// transition: transform 0.8s;
+						background-color: var(--card-over-card-hover);
+						border-radius: 12px;
+						padding: 10px;
+						transition: all 0.5s;
 					}
 				}
 			}

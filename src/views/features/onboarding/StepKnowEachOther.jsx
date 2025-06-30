@@ -92,85 +92,96 @@ const StepKnowEachOther = ({ data = {}, onNext, onBack }) => {
 		<div className="knowEachOtherStepContainer">
 			<div className="stepHeader">
 				<div className="stepProgressContainer">
-					<ProgressBar currentStep={3} totalSteps={4} />
+					<ProgressBar currentStep={2} totalSteps={4} />
 					<div className="stepProgress">Step 1 of 2</div>
 				</div>
-				<div className="stepHeaderContent">
-					<h1 className="stepTitle">Let's get to know each other</h1>
-					<p className="stepDesc">
-						The more I understand your role and goals, the better I can prioritize,
-						remember, and act on your behalf like a partner who never drops the thread.
-					</p>
+				<div className="stepContainer">
+					<div className="stepHeaderContent">
+						<h1 className="stepTitle">Let's get to know each other</h1>
+						<p className="stepDesc">
+							The more I understand your role and goals, the better I can prioritize,
+							remember, and act on your behalf like a partner who never drops the
+							thread.
+						</p>
+					</div>
+
+					<div className="stepForm">
+						<div className="inlineSentenceInputs">
+							<div className="inlineGroup">
+								<span className="inlineLabel">I'm</span>
+								<input
+									className="inlineInput"
+									name="role"
+									value={info.role}
+									onChange={handleChange}
+									placeholder="solo creator"
+									autoComplete="off"
+								/>
+							</div>
+							<div className="inlineGroup">
+								<span className="inlineLabel">At</span>
+								<input
+									className="inlineInput"
+									name="company"
+									value={info.company}
+									onChange={handleChange}
+									placeholder="a media brand"
+									autoComplete="off"
+								/>
+							</div>
+							<div className="inlineGroup">
+								<span className="inlineLabel">Called</span>
+								<input
+									className="inlineInput"
+									name="workspaceName"
+									value={info.workspaceName}
+									onChange={handleChange}
+									placeholder="HiveMind"
+									autoComplete="off"
+								/>
+							</div>
+						</div>
+						<div className="formRow">
+							<label className="formLabel">What's should we focus on together?</label>
+							<textarea
+								className="formInput"
+								name="additionalGoals"
+								value={info.additionalGoals}
+								onChange={handleChange}
+								placeholder="Tell me your goals so I can remember and help you get there"
+							/>
+						</div>
+						<div className="formRow">
+							<label className="formLabel">
+								LinkedIn? <span className="optional">(optional)</span>
+							</label>
+							<input
+								className="linkedinInput"
+								name="linkedin"
+								value={info.linkedin}
+								onChange={handleChange}
+								placeholder="linkedin.com/in/yourname"
+							/>
+						</div>
+					</div>
+					<div className="btnsContainer">
+						<button className="backBtn" onClick={onBack}>
+							Back
+						</button>
+						<button
+							className="continueBtn"
+							onClick={handleContinue}
+							disabled={continueDisabled || info.loading}
+							style={{
+								opacity: continueDisabled || info.loading ? 0.4 : 1,
+								cursor:
+									continueDisabled || info.loading ? 'not-allowed' : 'pointer',
+							}}
+						>
+							{info.loading ? 'Saving...' : "Alright, What's The Mission?"}
+						</button>
+					</div>
 				</div>
-			</div>
-			<div className="stepForm">
-				<div className="inlineSentenceInputs">
-					<span className="inlineLabel">I'm</span>
-					<input
-						className="inlineInput"
-						name="role"
-						value={info.role}
-						onChange={handleChange}
-						placeholder="solo creator"
-						autoComplete="off"
-					/>
-					<span className="inlineLabel">At</span>
-					<input
-						className="inlineInput"
-						name="company"
-						value={info.company}
-						onChange={handleChange}
-						placeholder="a media brand"
-						autoComplete="off"
-					/>
-					<span className="inlineLabel">Called</span>
-					<input
-						className="inlineInput"
-						name="workspaceName"
-						value={info.workspaceName}
-						onChange={handleChange}
-						placeholder="HiveMind"
-						autoComplete="off"
-					/>
-				</div>
-				<div className="formRow">
-					<label className="formLabel">What's should we focus on together?</label>
-					<textarea
-						className="formInput"
-						name="additionalGoals"
-						value={info.additionalGoals}
-						onChange={handleChange}
-						placeholder="Tell me your goals so I can remember and help you get there"
-					/>
-				</div>
-				<div className="formRow">
-					<label className="formLabel">
-						LinkedIn? <span className="optional">(optional)</span>
-					</label>
-					<input
-						className="formInput"
-						name="linkedin"
-						value={info.linkedin}
-						onChange={handleChange}
-						placeholder="linkedin.com/in/yourname"
-					/>
-				</div>
-			</div>
-			<div className="btnsContainer">
-				<button className="backBtn" onClick={onBack}>
-					Back
-				</button>
-				<button
-					className="continueBtn"
-					onClick={handleContinue}
-					disabled={continueDisabled || info.loading}
-					style={{
-						opacity: continueDisabled || info.loading ? 0.4 : 1,
-						cursor: continueDisabled || info.loading ? 'not-allowed' : 'pointer',
-					}}
-				>
-					{info.loading ? 'Saving...' : "Alright, What's The Mission?"}
-				</button>
 			</div>
 		</div>
 	);

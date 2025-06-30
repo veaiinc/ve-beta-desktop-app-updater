@@ -13,10 +13,33 @@ import Notes from './notes/Notes';
 import SidebarTooltip from './SidebarTooltip';
 import Context from '../../../context/context';
 import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+
+// Custom hook to detect mobile view
+const useIsMobile = () => {
+	const [isMobile, setIsMobile] = useState(false);
+
+	useEffect(() => {
+		const checkIsMobile = () => {
+			setIsMobile(window.innerWidth <= 768);
+		};
+
+		// Check on mount
+		checkIsMobile();
+
+		// Add event listener for window resize
+		window.addEventListener('resize', checkIsMobile);
+
+		// Cleanup
+		return () => window.removeEventListener('resize', checkIsMobile);
+	}, []);
+
+	return isMobile;
+};
 import ClosedSidebar from './ClosedSidebar';
 
 const Sidebar = ({ activeWorkspaceId }) => {
 	const { workspaceMode } = useWorkspaceMode();
+	const isMobile = useIsMobile();
 	const { pathname } = useLocation();
 	const sidebarRef = useRef(null);
 	const sidebarOpenRef = useRef(null);
@@ -33,6 +56,13 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const [hideClosedSidebarIcon, setHideClosedSidebarIcon] = useState(false);
 
 	const [isOpen, setIsOpen] = useState(() => {
+		// If mobile, default to closed unless explicitly set in localStorage
+		if (isMobile) {
+			const savedState = localStorage.getItem('isOpen');
+			return savedState ? JSON.parse(savedState) : false;
+		}
+
+		// If desktop, use the existing logic
 		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
 	});
 
@@ -64,6 +94,18 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	useEffect(() => {
 		localStorage.setItem('isOpen', JSON.stringify(isOpen));
 	}, [isOpen]);
+
+	// Handle responsive behavior when switching between mobile and desktop
+	useEffect(() => {
+		// If switching to mobile and sidebar is open, close it
+		if (isMobile && isOpen) {
+			setIsOpen(false);
+		}
+		// If switching to desktop and no saved state exists, open it
+		else if (!isMobile && !localStorage.getItem('isOpen')) {
+			setIsOpen(true);
+		}
+	}, [isMobile]);
 
 	// Fetch workspace and user info
 	useEffect(() => {
