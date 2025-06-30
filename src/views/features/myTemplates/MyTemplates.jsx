@@ -10,7 +10,7 @@ import { ReactComponent as ThreeDots } from '../../../assets/svg/my_templates/th
 import { fetchOriginSelection } from '../../../helpers';
 import TemplateCards from '../../components/myTemplate/TemplateCards';
 import Context from '../../../context/context';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import SearchSvg from '../../../assets/svg/activity/SearchSvg';
 import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
 import UpDownArrowSvg from '../../../assets/svg/my_templates/UpDownArrowSvg';
@@ -280,9 +280,9 @@ const MyTemplates = () => {
 							contracts, and presentations.
 						</div>
 					</div>
-					<div className="quickActionsBtn">
+					{/* <div className="quickActionsBtn">
 						<QuickActions />
-					</div>
+					</div> */}
 				</div>
 
 				<div className="cardsContainer">

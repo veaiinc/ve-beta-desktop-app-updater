@@ -3,7 +3,7 @@ import { memo, useContext, useState, useEffect, useCallback, useMemo, useRef } f
 import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import { message } from '../../components/globalComponents/CustomToast';
 import AskMe from './AskMe';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
@@ -385,14 +385,14 @@ const InitialHomePage = () => {
 				...(options?.length === 0 && { justifyContent: 'center' }),
 			}}
 		>
-			<div className="quick-actions-container">
+			{/* <div className="quick-actions-container">
 				<QuickActions suggestedOptions={SuggestedOptions} />
-			</div>
+			</div> */}
 			<div
 				className={`home-page-container-header `}
-				style={{
-					...(options?.length === 0 && { marginTop: 0 }),
-				}}
+				// style={{
+				// 	...(options?.length === 0 && { marginTop: 0 }),
+				// }}
 			>
 				<div className={`title-container `}>
 					<div className="title-text">

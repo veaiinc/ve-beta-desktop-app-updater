@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../../../assets/scss/knowledgeAgent/AgentsHeader.scss';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import { message } from '../../components/globalComponents/CustomToast';
 
 const SuggestedOptions = [
@@ -107,7 +107,7 @@ const AgentsHeader = () => {
 						{isKnowledgeAgent ? 'Curiosity is Superpower.' : 'Build your AI Assistant'}
 					</span>
 				</h1>
-				<QuickActions suggestedOptions={SuggestedOptions} />
+				{/* <QuickActions suggestedOptions={SuggestedOptions} /> */}
 			</header>
 		</div>
 	);

@@ -13,7 +13,7 @@ import {
 } from '../../../context/Templates/graphQlFunctions';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
-import QuickActions from '../globalComponents/QuickActions';
+// import QuickActions from '../globalComponents/QuickActions';
 import { Tooltip } from 'antd';
 import { removeQuotes } from './FormDescription';
 import { useParams } from 'react-router-dom';

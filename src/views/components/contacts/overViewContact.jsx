@@ -8,7 +8,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ReactComponent as EditIcon } from '../../../assets/svg/workflow/edit.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/svg/delete.svg';
-import QuickActions from '../globalComponents/QuickActions';
+// import QuickActions from '../globalComponents/QuickActions';
 import { ReactComponent as EmailIcon } from '../../../assets/svg/footer/email.svg';
 import { ReactComponent as PhoneIcon } from '../../../assets/svg/contacts/phone.svg';
 import { ReactComponent as AvatarIcon } from '../../../assets/svg/contacts/phone.svg';
@@ -169,7 +169,7 @@ const OverviewContact = () => {
 						<DeleteIcon className="top-bar-icon delete" onClick={handleDelete} />
 					</div>
 				</div>
-				<QuickActions />
+				{/* <QuickActions /> */}
 			</div>
 			<div className="profile-container">
 				<div className="profile-header">
