@@ -390,9 +390,9 @@ const InitialHomePage = () => {
 			</div> */}
 			<div
 				className={`home-page-container-header `}
-				style={{
-					...(options?.length === 0 && { marginTop: 0 }),
-				}}
+				// style={{
+				// 	...(options?.length === 0 && { marginTop: 0 }),
+				// }}
 			>
 				<div className={`title-container `}>
 					<div className="title-text">

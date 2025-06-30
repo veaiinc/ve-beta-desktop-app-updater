@@ -748,7 +748,13 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 							<ChevronRightThinSvg style={{ transform: 'rotate(180deg)' }} />
 						</div>
 
-						<div className={`homepage__options-container`} ref={optionsContainerRef}>
+						<div
+							className={`homepage__options-container`}
+							ref={optionsContainerRef}
+							style={{
+								justifyContent: 'flex-start',
+							}}
+						>
 							{renderedOptions}
 						</div>
 
@@ -1175,10 +1181,10 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 					<div className="suggestions-container">
 						<Suggestions chatQuery={info?.chatQuery} styles={{ margin: '0 auto' }} />
 					</div>
-					{info?.chatQuery?.length === 0 &&
+					{/* {info?.chatQuery?.length === 0 &&
 						globalChatMessages?.[currentSessionId]?.chatBoxInfo?.build && (
 							<BuildOptions />
-						)}
+						)} */}
 				</div>
 			</div>
 

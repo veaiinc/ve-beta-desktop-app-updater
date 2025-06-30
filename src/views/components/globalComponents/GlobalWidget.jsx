@@ -142,7 +142,7 @@ const GlobalWidget = () => {
 	]);
 	return (
 		<div className="globalWidgetMainContainer">
-			<div className="homepage__options-container">{renderedOptions}</div>
+			<div className="homepage__options-main-container">{renderedOptions}</div>
 			<div style={divStyles}>
 				{info?.selectedOption ? componentMapper[info?.selectedOption] : <CalenderWidget />}
 				<PromptCards option={info?.selectedOption} />
