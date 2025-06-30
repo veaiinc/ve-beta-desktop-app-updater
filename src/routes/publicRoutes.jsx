@@ -7,7 +7,6 @@ import TermsOfService from '../views/features/signin/TermsOfService';
 import CookiePolicy from '../views/features/signin/CookiePolicy';
 import PrivacyPolicy from '../views/features/signin/PrivacyPolicy';
 import ChageLog from '../views/features/signin/ChageLog';
-import PublicChat from '../views/features/publicChat/PublicChat';
 import OauthVerify from '../views/features/signin/oauth/OauthVerify';
 
 const publicRoutes = [
@@ -34,7 +33,7 @@ const publicRoutes = [
 				<LandingPage />
 			</Public>
 		),
-	},	
+	},
 	{
 		path: '/api',
 		element: (
@@ -120,14 +119,6 @@ const publicRoutes = [
 		element: (
 			<Public>
 				<ChageLog />
-			</Public>
-		),
-	},
-	{
-		path: '/c/:sessionId',
-		element: (
-			<Public>
-				<PublicChat />
 			</Public>
 		),
 	},
