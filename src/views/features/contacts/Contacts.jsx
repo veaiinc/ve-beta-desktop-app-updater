@@ -38,7 +38,7 @@ const Contacts = () => {
 		updated: false,
 		selectedContact: null,
 		selectedContactOption: null,
-		activeView: 'listView',
+		activeView: 'widgetView',
 	});
 	const listItems = clientList?.data || [];
 	const isMountedRef = useRef(true);
