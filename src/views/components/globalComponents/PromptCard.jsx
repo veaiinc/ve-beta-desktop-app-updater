@@ -1,7 +1,7 @@
-import React, { useState, memo } from 'react';
+import { useState, memo } from 'react';
 import { PromptData } from '../homePage/PromptData';
 import '../../../assets/scss/globalComponents/promptCard.scss';
-import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
+// import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
 import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
 import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
 import { ReactComponent as CalendarIcon } from '../../../assets/svg/contacts/calendar.svg';
@@ -9,7 +9,7 @@ import { ReactComponent as ContactsIcon } from '../../../assets/svg/contacts/con
 import PromptPopup from '../homePage/PromptPopup';
 
 const iconMap = {
-	automation: <AutomationIcon />,
+	// automation: <AutomationIcon />,
 	deepsearch: <DeepSearchIcon />,
 	task: <TaskSuggestionIcon />,
 	calendar: <CalendarIcon style={{ color: 'var(--primary-button)' }} />,
