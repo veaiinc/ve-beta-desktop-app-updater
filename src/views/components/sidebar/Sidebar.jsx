@@ -1,12 +1,9 @@
 import { useState, useContext, useEffect, memo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import Intercom from '@intercom/messenger-js-sdk';
-import { Tooltip } from 'antd';
-
 import '../../../assets/scss/sidebar.scss';
 import { stableNavigationItems, betaNaviagationItems } from './sidebarindex';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
-
 import OpenedSidebar from './OpenedSidebar';
 import Notifications from './notifications/Notifications';
 import Notes from './notes/Notes';
@@ -20,7 +17,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		workspaceMode === 'stable' ? stableNavigationItems : betaNaviagationItems;
 	const {
 		profileInfo: { userWorkSpaceList, userDetailsData, getUserDetails, getUserWorkSpaceList },
-		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 
 	const location = useLocation();
