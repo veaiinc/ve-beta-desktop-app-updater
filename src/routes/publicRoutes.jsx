@@ -1,3 +1,5 @@
+// Always update publicRoutesList in useWorkspaceMode hook when adding a new route herein
+
 import { Navigate } from 'react-router-dom';
 import Public from '../views/layouts/Public';
 import LandingPage from '../views/features/landingScreen/LandingPage';
@@ -140,7 +142,4 @@ const publicRoutes = [
 	},
 ];
 
-export const publicRoutesList = publicRoutes
-	.map((route) => route.path)
-	.filter((path) => path !== '*');
 export default publicRoutes;

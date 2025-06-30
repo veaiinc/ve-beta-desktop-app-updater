@@ -2,8 +2,32 @@ import { useContext, useEffect, useState } from 'react';
 import Context from '../../context/context';
 import { matchPath, useLocation } from 'react-router-dom';
 import useLogout from './useLogout';
-import { publicRoutesList } from '../../routes/publicRoutes';
-import fallbackRoute from '../../routes/fallbackRoute';
+import PageLoader from '../features/app/PageLoader';
+
+export const publicRoutesList = [
+	'/',
+	'/thebridge',
+	'/contact-us',
+	'/api',
+	'/about-us',
+	'/careers',
+	'/forefront',
+	'/onboarding',
+	'/verify-user',
+	'/referral/:referralCode',
+	'/privacy-policy',
+	'/terms-of-service',
+	'/cookie-policy',
+	'/changelog',
+	'/user/verify-oauth-user',
+];
+
+const fallbackRoute = [
+	{
+		path: '*',
+		element: <PageLoader />,
+	},
+];
 
 const useWorkspaceMode = () => {
 	const { pathname } = useLocation();
@@ -33,6 +57,7 @@ const useWorkspaceMode = () => {
 		: 'fallbackRoute';
 	const routes = routesInfo[routeType] ?? routesInfo['fallbackRoute'];
 	const loading = isPublicRoute ? false : workspaceMode === null; // since public routes don't have workspace mode. Until workspace mode becomes stable/beta, loading is true.
+
 	const fetchWorkspaceMode = async () => {
 		try {
 			if (workspaceMode === null) {
@@ -59,7 +84,6 @@ const useWorkspaceMode = () => {
 					}));
 				}
 				break;
-
 			case 'stableRoutes':
 				if (routesInfo['stableRoutes'] === null) {
 					const { default: stableRoutes } = await import('../../routes/stableRoutes');
