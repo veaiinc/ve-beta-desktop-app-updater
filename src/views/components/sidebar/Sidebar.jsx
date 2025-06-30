@@ -13,20 +13,19 @@ import Notes from './notes/Notes';
 import SidebarTooltip from './SidebarTooltip';
 import Context from '../../../context/context';
 import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import ClosedSidebar from './ClosedSidebar';
 
 const Sidebar = ({ activeWorkspaceId }) => {
 	const { workspaceMode } = useWorkspaceMode();
-	const sidebarNavigationItems =
-		workspaceMode === 'stable' ? stableNavigationItems : betaNaviagationItems;
+	const { pathname } = useLocation();
+	const sidebarRef = useRef(null);
+	const sidebarOpenRef = useRef(null);
+	const hasClosedForRouteRef = useRef(false);
+
 	const {
 		profileInfo: { userWorkSpaceList, userDetailsData, getUserDetails, getUserWorkSpaceList },
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
-
-	const location = useLocation();
-	const sidebarRef = useRef(null);
-	const sidebarOpenRef = useRef(null);
-	const hasClosedForRouteRef = useRef(false);
 
 	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
 	const [showNotesDrawer, setShowNotesDrawer] = useState(false);
@@ -43,20 +42,23 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		selectedModule: null,
 	});
 
-	const isHome = location?.pathname?.includes('home');
+	const isHome = pathname?.includes('home');
 	const isChatSidebarRoute =
-		location?.pathname?.includes('calendar') ||
-		location?.pathname?.includes('tasks') ||
-		location?.pathname?.includes('contact');
+		pathname?.includes('calendar') ||
+		pathname?.includes('tasks') ||
+		pathname?.includes('contact');
 
 	const [info, setInfo] = useState({
 		switchWorkspaceModal: false,
 		activeBusniessName: '',
 		createLeadModal: false,
 		isNewFeaturePlusOpen: false,
-		activeRoute: '/' + location.pathname.split('/')[1],
+		activeRoute: '/' + pathname.split('/')[1],
 		selectedModule: null,
 	});
+
+	const sidebarNavigationItems =
+		workspaceMode === 'stable' ? stableNavigationItems : betaNaviagationItems;
 
 	// Sync isOpen to localStorage
 	useEffect(() => {
@@ -87,7 +89,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 			});
 		}
 	}, [userDetailsData, info]);
-
 	// Set active business name
 	useEffect(() => {
 		if (userWorkSpaceList) {
@@ -100,7 +101,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 
 	// Track route change for route-based module
 	useEffect(() => {
-		if (location?.pathname) {
+		if (pathname) {
 			const currentPath = '/' + location.pathname.split('/')[1];
 			setInfo((prev) => ({ ...prev, activeRoute: currentPath }));
 
@@ -122,13 +123,15 @@ const Sidebar = ({ activeWorkspaceId }) => {
 				hasClosedForRouteRef.current = false;
 			}
 		}
-	}, [location?.pathname, isChatSidebarRoute, isOpen]);
+	}, [pathname, isChatSidebarRoute, isOpen]);
+
+	const isEarlyAccessPage = pathname?.includes('/early-access') || pathname?.includes('/pricing');
 
 	return (
 		<>
 			<div
 				className={`FullScreenSidebar
-					${isOpen ? 'opened' : sidebarRef.current?.classList?.contains('opened') ? 'closed' : ''}
+					${isOpen ? 'opened' : sidebarRef.current?.classList?.contains('sidebar-open') ? 'closed' : ''}
 					${isChatSidebarRoute ? 'contacts-sidebar' : ''}
 					${
 						sidebarStates.selectedModule &&
@@ -145,7 +148,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
 					marginTop: isChatSidebarRoute ? '0' : '',
-					display: hideClosedSidebarIcon ? 'none' : '',
+					// display: hideClosedSidebarIcon ? 'none' : '',
 					marginLeft: isChatSidebarRoute ? '0' : '',
 				}}
 				ref={sidebarRef}
@@ -157,7 +160,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 								? 'active'
 								: sidebarOpenRef.current?.classList?.contains('active')
 								? 'inactive'
-								: 'inactive-no-animation'
+								: 'inactive'
 						}`}
 						ref={sidebarOpenRef}
 					>
@@ -173,10 +176,14 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							setShowNotificationsDrawer={setShowNotificationsDrawer}
 							setShowNotesDrawer={setShowNotesDrawer}
 							setHideClosedSidebarIcon={setHideClosedSidebarIcon}
+							isThisEarlyAccessPage={isEarlyAccessPage}
 						/>
 					</div>
 				</nav>
-
+				<ClosedSidebar
+					onIconClick={() => setIsOpen(true)}
+					isEarlyAccessPage={isEarlyAccessPage}
+				/>
 				<Notifications
 					showNotificationsDrawer={showNotificationsDrawer}
 					setShowNotificationsDrawer={setShowNotificationsDrawer}
@@ -185,7 +192,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 			</div>
 
 			{/* Sidebar toggle button, always visible and not animated */}
-			<div
+			{/* <div
 				className="sidebar-toggle-btn"
 				style={{
 					position: 'fixed',
@@ -194,16 +201,8 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					zIndex: 900,
 				}}
 			>
-				<SidebarTooltip
-					label={isOpen ? 'Close Sidebar' : 'Open Sidebar'}
-					icon={
-						<SidebarClosingSvg
-							onClick={() => setIsOpen(!isOpen)}
-							style={{ cursor: 'pointer' }}
-						/>
-					}
-				/>
-			</div>
+				
+			</div> */}
 
 			{isOpen && <div className="sidebar__overlay"></div>}
 		</>
