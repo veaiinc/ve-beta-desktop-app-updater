@@ -72,8 +72,5 @@ const stableRoutes = [
 		),
 	},
 ];
-export const stableRoutesList = stableRoutes
-	.map((route) => route.path)
-	.filter((path) => path !== '*');
 
 export default stableRoutes;
