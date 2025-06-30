@@ -6,7 +6,7 @@ import { ReactComponent as Binoculars } from '../../../assets/svg/landingScreen/
 import { ReactComponent as CaretDonw } from '../../../assets/svg/left.svg';
 import { ReactComponent as VeLogoBlack } from '../../../assets/svg/veLogoBlack.svg';
 const featuresList = [
-	{ label: 'Proactive AI' },
+	{ label: 'Ambient AI' },
 	{ label: 'Enterprise Search' },
 	{ label: 'AI meeting notes' },
 	{ label: 'Agents' },
@@ -34,7 +34,7 @@ const missionSubmenuList = [
 
 const menuData = [
 	{
-		label: 'Proactive',
+		label: 'Ambient AI',
 		submenu: { features: featuresList, search: searchList },
 		section: 'Features',
 	},

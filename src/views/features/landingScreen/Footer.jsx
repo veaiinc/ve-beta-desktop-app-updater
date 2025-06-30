@@ -81,13 +81,21 @@ const Footer = () => {
 								onKeyDown={handleKeyDown}
 								className={info.error ? s.errorInput : ''}
 							/>
-							<p className={[s.errorMessage, info.error ? s.visible : ''].join(' ')}>
-								{info.error || ''}
-							</p>
+							{info.error && (
+								<p
+									className={[s.errorMessage, info.error ? s.visible : ''].join(
+										' ',
+									)}
+								>
+									{info.error || ''}
+								</p>
+							)}
+
 							<button
 								className={s.subscribeButton}
 								onClick={handleSubscribe}
 								disabled={info.loading}
+								style={info.loading || info.error ? { opacity: 0.5 } : {}}
 							>
 								Subscribe {info.loading && <Spinner />}
 							</button>
