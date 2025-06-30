@@ -1575,6 +1575,9 @@
 	}
 }
 @media screen and (max-width: 768px) {
+	.proactive-suggestions-container {
+		height: 100%;
+	}
 	.cards-container {
 		width: 100% !important;
 		overflow: hidden !important;
