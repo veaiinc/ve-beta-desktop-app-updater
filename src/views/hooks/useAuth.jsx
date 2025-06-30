@@ -1,9 +1,25 @@
-import { useCallback } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Context from '../../context/context';
+import useLogout from './useLogout';
 
 const useAuth = () => {
 	const navigate = useNavigate();
+	const logOut = useLogout();
+	const {
+		profileInfo: { getUserDetails, userDetailsData },
+	} = useContext(Context);
 
+	useEffect(() => {
+		getUserDetailsData();
+	}, []);
+
+	const getUserDetailsData = async () => {
+		const { statusCode } = await getUserDetails();
+		if (statusCode === 401) {
+			logOut();
+		}
+	};
 	const checkUserAuthState = useCallback(() => {
 		if (!localStorage.getItem('usertoken')) {
 			window.location.replace('/');

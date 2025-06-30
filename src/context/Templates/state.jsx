@@ -136,6 +136,7 @@ export const intialState = {
 	proactiveAiData: null,
 	chatBoxSuggestions: null,
 	newChatSessionIds: [],
+	aiMessagesInfo: null,
 };
 
 export const TemplatesState = (props) => {
@@ -2674,6 +2675,45 @@ export const TemplatesState = (props) => {
 		});
 	};
 
+	const deleteMultiAgentFile = async (fileId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/ai-chat/delete-file/${fileId}`;
+			const response = await Service.fetchDelete(url, usertoken, null, 'ai_assistant_api');
+			return response;
+		} catch (error) {
+			console.log('error==>deleteMultiAgentFile', error);
+		}
+	};
+
+	const getFollowUpQueries = async (sessionId, messageId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const location = JSON.parse(localStorage.getItem('locationDetails')) || {};
+			const url = `/${workspaceId}/${sessionId}/generate_follow_up_queries`;
+			const payload = {
+				location,
+				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+				message_id: messageId,
+			};
+			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_FOLLOW_UP_QUERIES_SUCCESS,
+					payload: {
+						[messageId]: response?.[1],
+					},
+				});
+			} else {
+				console.log('error==>getFollowUpQueries', response);
+			}
+		} catch (error) {
+			console.log('error==>getFollowUpQueries', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -2766,5 +2806,7 @@ export const TemplatesState = (props) => {
 		getChatBoxSuggestions,
 		updateChatLoadingSessions,
 		deleteChatSession,
+		deleteMultiAgentFile,
+		getFollowUpQueries,
 	};
 };

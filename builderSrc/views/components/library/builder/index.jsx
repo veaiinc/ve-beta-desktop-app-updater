@@ -1585,6 +1585,10 @@ class Builder extends Component {
 															isService,
 														)
 													}
+													invoiceSentDate={this.props?.invoiceSentDate}
+													invoiceAcceptedDate={
+														this.props?.invoiceAcceptedDate
+													}
 												/>
 											</div>
 										);
@@ -2701,13 +2705,13 @@ class Builder extends Component {
 														setLastClick={(e) =>
 															this.props.setLastClick(e)
 														}
-														handleSaveblocks={(e, layoutHeight) =>
+														handleSaveblocks={(e, layoutHeight) => {
 															this.props.handleSaveblocks(
 																e,
 																section._id,
 																layoutHeight,
-															)
-														}
+															);
+														}}
 														handleSaveSingleBlock={(e) =>
 															this.props.handleSaveSingleBlock(
 																e,
@@ -3590,9 +3594,17 @@ class Builder extends Component {
 								this.props.handleAddElement(e, zIndex)
 							}
 							setLastClickP={(e) => this.props.setLastClick(e)}
-							handleSaveblocksP={(e) => this.props.handleSaveblocks(e)}
+							handleSaveblocksP={(e) => {
+								this.props.handleSaveblocks(e, this.state.activeSectionID);
+							}}
 							generateAIImagesP={(e) => this.props.generateAIImages(e)}
 							generateAITextP={(e) => this.props.generateAIText(e)}
+							handleAddLayout={(e, isFluid, isService) =>
+								this.props.handleAddLayout(e, isFluid, isService)
+							}
+							handleOpenSideBar={(e, _id) => {
+								this.props.handleOpenSideBar(e, _id, false, true);
+							}}
 						/>
 					) : (
 						''

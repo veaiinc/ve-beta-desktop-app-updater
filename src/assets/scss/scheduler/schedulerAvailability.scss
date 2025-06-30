@@ -5,7 +5,6 @@
 
 	.daySlotContainer {
 		height: 400px;
-		overflow-y: auto;
 		display: flex;
 		flex-direction: column;
 		gap: 4px;
@@ -18,6 +17,7 @@
 			align-items: center;
 			gap: 10px;
 			align-self: stretch;
+			flex-shrink: 0;
 
 			.dayName {
 				color: var(--primary-font);
@@ -36,11 +36,15 @@
 			flex-direction: column;
 			gap: 2.5px;
 			flex: 1;
+			overflow-y: auto;
+			min-height: 0;
+			height: calc(400px - 40px);
+			max-height: 200px;
 
 			.slotItem {
 				display: flex;
 				height: 69px;
-				padding: 18px 11px;
+				padding: 34px 12px;
 				justify-content: center;
 				align-items: center;
 				gap: 8px;

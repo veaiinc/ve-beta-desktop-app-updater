@@ -4519,7 +4519,13 @@ const GalleryPage = () => {
 																			{isSelected && (
 																				<div className="sortTypeIndicator"></div>
 																			)}
-																			<div className="option-value-wrapper">
+																			<div
+																				className={`option-value-wrapper ${
+																					isSelected
+																						? 'active'
+																						: ''
+																				}`}
+																			>
 																				{item.label}
 																			</div>
 																			{!item.noArrow &&

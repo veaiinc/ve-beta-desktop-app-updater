@@ -1,7 +1,7 @@
 import { useState, useEffect, Fragment, memo } from 'react';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
 import { ReactComponent as RemoveIcon } from '../../../assets/svg/calendar/bin.svg';
-import { Tooltip } from 'antd';
+import { Tooltip, TimePicker } from 'antd';
 import dayjs from 'dayjs';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -217,21 +217,35 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 								const error = slotErrors[key];
 								return (
 									<Fragment key={idx}>
-										<input
+										<TimePicker
 											className={`slot-input${error ? ' error' : ''}`}
-											type="time"
-											value={slot.from}
-											onChange={(e) =>
-												handleSlotChange(i, idx, 'from', e.target.value)
+											value={
+												slot.from ? dayjs(`2000-01-01 ${slot.from}`) : null
 											}
+											onChange={(time) =>
+												handleSlotChange(
+													i,
+													idx,
+													'from',
+													time ? time.format('HH:mm') : '',
+												)
+											}
+											format="HH:mm"
+											placeholder="Start time"
 										/>
-										<input
+										<TimePicker
 											className={`slot-input${error ? ' error' : ''}`}
-											type="time"
-											value={slot.to}
-											onChange={(e) =>
-												handleSlotChange(i, idx, 'to', e.target.value)
+											value={slot.to ? dayjs(`2000-01-01 ${slot.to}`) : null}
+											onChange={(time) =>
+												handleSlotChange(
+													i,
+													idx,
+													'to',
+													time ? time.format('HH:mm') : '',
+												)
 											}
+											format="HH:mm"
+											placeholder="End time"
 										/>
 										<button
 											className="icon-btn remove"
@@ -277,21 +291,33 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 					) : (
 						date.slots.map((slot, idx) => (
 							<Fragment key={idx}>
-								<input
+								<TimePicker
 									className="slot-input"
-									type="time"
-									value={slot.from}
-									onChange={(e) =>
-										handleDateSlotChange(i, idx, 'from', e.target.value)
+									value={slot.from ? dayjs(`2000-01-01 ${slot.from}`) : null}
+									onChange={(time) =>
+										handleDateSlotChange(
+											i,
+											idx,
+											'from',
+											time ? time.format('HH:mm') : '',
+										)
 									}
+									format="HH:mm"
+									placeholder="Start time"
 								/>
-								<input
+								<TimePicker
 									className="slot-input"
-									type="time"
-									value={slot.to}
-									onChange={(e) =>
-										handleDateSlotChange(i, idx, 'to', e.target.value)
+									value={slot.to ? dayjs(`2000-01-01 ${slot.to}`) : null}
+									onChange={(time) =>
+										handleDateSlotChange(
+											i,
+											idx,
+											'to',
+											time ? time.format('HH:mm') : '',
+										)
 									}
+									format="HH:mm"
+									placeholder="End time"
 								/>
 								<button
 									className="icon-btn remove"

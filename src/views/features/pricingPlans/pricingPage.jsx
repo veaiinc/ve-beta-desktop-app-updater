@@ -82,7 +82,7 @@ const PricingPage = () => {
 				quantity: currentPlan?.isSeatBasedPlan
 					? info.tenantUsersCount[plan._id] || currentPlan?.tenantUsers || 1
 					: 1,
-				recurringType: info.billing === 'yearly' ? 'yearly' : 'monthly',
+				recurringType: info.billing === 'anually' ? 'yearly' : 'monthly',
 			},
 		};
 		const response = await purchaseSubscriptionPlan(payload);
@@ -114,7 +114,7 @@ const PricingPage = () => {
 				quantity: currentPlan?.isSeatBasedPlan
 					? info.tenantUsersCount[plan._id] || currentPlan?.tenantUsers || 1
 					: 1,
-				recurringType: info.billing === 'yearly' ? 'yearly' : 'monthly',
+				recurringType: info.billing === 'anually' ? 'yearly' : 'monthly',
 				isTrial: true,
 			},
 		};

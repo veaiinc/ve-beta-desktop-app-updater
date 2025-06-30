@@ -29,7 +29,7 @@ const AIMessage = ({
 }) => {
 	const {
 		documentPreview: { setNoteContent },
-		templates: { updateStateValues },
+		templates: { updateStateValues, aiMessagesInfo },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		isCopiedToClipboard: false,
@@ -47,7 +47,7 @@ const AIMessage = ({
 	};
 
 	const handleCopyTextClick = useCallback((text) => {
-		const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
+		const textToBeCopied = text?.replace(/\[C\d+\]/g, '');
 		navigator?.clipboard?.writeText(textToBeCopied).then(() => {
 			setInfo((prev) => ({ ...prev, isCopiedToClipboard: true }));
 			setTimeout(() => {
@@ -185,27 +185,30 @@ const AIMessage = ({
 				</div>
 			)}
 
-			{typeof messageData?.['follow_up_query'] !== 'string' &&
-				messageData?.stream_end &&
-				(messageData?.['follow_up_query'] || [])?.length > 0 && (
-					<div className="suggested-prompts">
-						<div className="title-text">
-							<BulbSvg />
-							Suggested Prompts
-						</div>
-						<div className="prompts-container">
-							{(messageData?.['follow_up_query'] || [])?.map((query, index) => (
-								<div
-									className="prompt-container"
-									key={index}
-									onClick={() => handlePromptClick(query)}
-								>
-									<div className="prompt">{query}</div>
-								</div>
-							))}
-						</div>
+			{(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
+				(messageData?.['follow_up_query'] || [])?.length > 0) && (
+				<div className="suggested-prompts">
+					<div className="title-text">
+						<BulbSvg />
+						Suggested Prompts
 					</div>
-				)}
+					<div className="prompts-container">
+						{(
+							aiMessagesInfo?.[messageData?.messageId]?.followUpQuery ||
+							messageData?.['follow_up_query'] ||
+							[]
+						)?.map((query, index) => (
+							<div
+								className="prompt-container"
+								key={index}
+								onClick={() => handlePromptClick(query)}
+							>
+								<div className="prompt">{query}</div>
+							</div>
+						))}
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };

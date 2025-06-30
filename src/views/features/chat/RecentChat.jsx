@@ -41,6 +41,8 @@ const RecentChat = ({
 			chatInfo,
 			updateChatLoadingSessions,
 			newChatSessionIds,
+			getFollowUpQueries,
+			aiMessagesInfo,
 		},
 		aiSetup: { updateAiChatSessions, aiChatSessions },
 		chatStream: {
@@ -73,6 +75,8 @@ const RecentChat = ({
 		deleteChatSessionLoading: false,
 		isNewChat: false,
 		currentUserMessageIndex: null,
+		getFollowUpQueries: false,
+		chatQuery: '',
 	});
 
 	const chatContentRef = useRef(null);
@@ -90,6 +94,7 @@ const RecentChat = ({
 	const newChatSessionIdsRef = useRef(newChatSessionIds);
 	const globalChatMessagesRef = useRef(globalChatMessages);
 	const currentUserMessageTimeoutRef = useRef(null);
+	const followUpQueryTimeoutRef = useRef(null);
 	sessionId = isPreview ? sId : sessionId;
 
 	useEffect(() => {
@@ -106,6 +111,10 @@ const RecentChat = ({
 			setTimeout(() => {
 				tabsRefs.current = {};
 				userMessagesRefs.current = {};
+				if (followUpQueryTimeoutRef.current) {
+					clearTimeout(followUpQueryTimeoutRef.current);
+					followUpQueryTimeoutRef.current = null;
+				}
 				updateStateValues({
 					moreRecentChatStorage: null,
 					recentChatStorage: null,
@@ -115,6 +124,7 @@ const RecentChat = ({
 						moduleTemplateId: null,
 					},
 					chatReplyData: null,
+					aiMessagesInfo: null,
 				});
 			}, 0);
 
@@ -174,6 +184,29 @@ const RecentChat = ({
 	}, [sessionIdChanged, chatActive, workspaceMode]);
 
 	useEffect(() => {
+		if (info?.getFollowUpQueries) {
+			if (info?.chatQuery?.trim()?.length === 0) {
+				followUpQueryTimeoutRef.current = setTimeout(() => {
+					getFollowUpQueries(sessionId, info?.latestStreamMesage?.message_id);
+				}, 5000);
+			}
+			setInfo((prev) => ({
+				...prev,
+				getFollowUpQueries: false,
+			}));
+		}
+	}, [info?.getFollowUpQueries]);
+
+	useEffect(() => {
+		if (info?.chatQuery?.trim()?.length > 0) {
+			if (followUpQueryTimeoutRef.current) {
+				clearTimeout(followUpQueryTimeoutRef.current);
+				followUpQueryTimeoutRef.current = null;
+			}
+		}
+	}, [info?.chatQuery]);
+
+	useEffect(() => {
 		const { workflow_template_id, module_template_id } = info?.latestStreamMesage || {};
 		if (workflow_template_id && module_template_id && info?.showViewDocument) {
 			updateStateValues({
@@ -202,6 +235,7 @@ const RecentChat = ({
 						workflowTemplateId: null,
 						moduleTemplateId: null,
 					},
+					aiMessagesInfo: null,
 				});
 				tabsRefs.current = {};
 				userMessagesRefs.current = {};
@@ -398,6 +432,13 @@ const RecentChat = ({
 			recentChatHandler(moreRecentChatStorage, true, firstTimeApiCall);
 		}
 	}, [moreRecentChatStorage]);
+
+	const handleChatQueryChange = useCallback((query) => {
+		setInfo((prev) => ({
+			...prev,
+			chatQuery: query,
+		}));
+	}, []);
 
 	const handleMouseUp = useCallback(() => {
 		const selection = window?.getSelection();
@@ -723,7 +764,6 @@ const RecentChat = ({
 				} else {
 					updateChatLoadingSessions({ sessionId, removeSessionId: true });
 				}
-
 				handleGlobalChatMessages({
 					removeLoadingMessage: true,
 					sessionId,
@@ -747,10 +787,13 @@ const RecentChat = ({
 					};
 					updateAiChatSessions(payload);
 				}
-				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
+				setInfo((prev) => ({
+					...prev,
+					latestStreamMesage: data,
+					...(sessionId === currentSessionId && { getFollowUpQueries: true }),
+				}));
 			}
 			const { message_chunk_id } = data;
-
 			if (message_chunk_id) {
 				handleGlobalChatMessages({
 					payload: data,
@@ -771,7 +814,9 @@ const RecentChat = ({
 		async (data, lastQuery) => {
 			try {
 				await sendMessage(data);
-				smoothScrollToLastMessage();
+				setTimeout(() => {
+					smoothScrollToLastMessage();
+				}, 0);
 				handleGlobalChatMessages({
 					sessionId,
 					lastQuery,
@@ -964,6 +1009,7 @@ const RecentChat = ({
 							customChatBoxClick={customChatBoxClick}
 							showScrollButton={info?.showScrollButton}
 							smoothScrollToBottom={smoothScrollToBottom}
+							onChatQueryChange={handleChatQueryChange}
 						/>
 					</div>
 				</div>

@@ -36,8 +36,7 @@ const useTheme = () => {
 
 	const getThemePreference = useCallback(() => {
 		if (pathname.startsWith('/builder')) return 'light';
-		if (pathname === '/') return 'dark';
-		return theme || localStorage?.getItem('theme') || Cookies.get('theme') || 'dark';
+		return theme || localStorage?.getItem('theme') || Cookies.get('theme') || 'light';
 	}, [pathname, theme]);
 };
 

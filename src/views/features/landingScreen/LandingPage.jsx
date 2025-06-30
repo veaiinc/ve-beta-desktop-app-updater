@@ -7,18 +7,17 @@ import Context from '../../../context/context';
 import TabNavigation from '../../components/landing_screen/TabNavigation';
 import Tagline from './Tagline';
 import Footer from './Footer';
-import ChatBox from '../../components/chat/ChatBox';
-import Suggestions from '../homePage/Suggestions';
 import MobileMenu from '../../components/landing_screen/MobileMenu';
 import ContactUs from '../../components/landing_screen/ContactUs';
 import OurMission from './OurMission';
 import EarlyAccess from './EarlyAccess';
-import WebsitePricingPage from '../pricingPlans/PricingPageWebsite';
+import CustomToast from '../../components/globalComponents/CustomToast';
 
 import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 import { ReactComponent as PlayIcon } from './assets/playIcon.svg';
 import { ReactComponent as PauseIcon } from './assets/pauseIcon.svg';
+import HeroSection from './heroSection/HeroSection';
 
 import '../../../assets/scss/landingScreen/index.scss';
 
@@ -26,7 +25,6 @@ const pathToTabMap = {
 	'/': 0, // ← added
 	'/thebridge': 1,
 	'/contact-us': 2,
-	'/pricing': 3,
 	'/careers': 4,
 	'/forefront': 5,
 };
@@ -85,19 +83,9 @@ const LandingPage = () => {
 		}
 	};
 
-	// chat send
-	const handleCustomOnSendFunction = useCallback(
-		(data) => {
-			updateStateValues({ activePayloadForChat: data });
-			navigate(`/c/${currentSessionId}`);
-			setShowSuggestions(false);
-		},
-		[currentSessionId, updateStateValues, navigate],
-	);
-
 	const handleSetTab = (tabVal) => {
 		setTab(tabVal);
-		const tabRoutes = ['/', '/thebridge', '/contact-us', '/pricing'];
+		const tabRoutes = ['/', '/thebridge', '/contact-us'];
 		navigate(tabRoutes[tabVal]);
 	};
 
@@ -105,32 +93,7 @@ const LandingPage = () => {
 		0: (
 			<div className="page-body">
 				<div className={`title-container${showSuggestions ? ' with-suggestions' : ''}`}>
-					<div className="title-text">
-						<div className="title-text-container">
-							<span className="title-one">The World's First</span>
-							<span className="title-two">Ambient AI</span>
-						</div>
-						<p className="title-three">
-							Your Living Memory Intelligence — built to think, remember, and act.
-						</p>
-					</div>
-
-					<div className="chatbox-container">
-						<ChatBox
-							customChatActions
-							autoFocus={false}
-							isPublicChat
-							animatePlaceholder
-							onSend={handleCustomOnSendFunction}
-							isBuildEnbled={false}
-							showUpgradeSubscriptionBtn={false}
-						/>
-					</div>
-					{showSuggestions && (
-						<div className="suggestions-container">
-							<Suggestions landingPage />
-						</div>
-					)}
+					<HeroSection />
 				</div>
 
 				<div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
@@ -163,7 +126,6 @@ const LandingPage = () => {
 		),
 		1: <OurMission tab={tab} />,
 		2: <ContactUs type="Enterprise" />,
-		3: <WebsitePricingPage />,
 		4: <OurMission tab={tab} />,
 		5: <OurMission tab={tab} />,
 	};
@@ -178,6 +140,7 @@ const LandingPage = () => {
 					location.pathname === '/thebridge' ? ' fullHeight' : ''
 				}`}
 			>
+				<CustomToast />
 				<header className="page-header">
 					<div className="page-header-wrapper">
 						<div className="left-container">
