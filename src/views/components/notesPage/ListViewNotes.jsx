@@ -15,7 +15,7 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 //constants
 const infiniteScrollHeight = 'calc(100vh - 142px)';
 
-const ListViewNotes = ({ notes, fetchMoreNotes, userId }) => {
+const ListViewNotes = ({ notes, fetchMoreNotes, userId, isDatabase = false }) => {
 	const navigate = useNavigate();
 	const notesList = notes?.data ?? [];
 	const hasNextPage = notes?.hasNextPage ?? false;
@@ -38,7 +38,7 @@ const ListViewNotes = ({ notes, fetchMoreNotes, userId }) => {
 				alignItems: 'flex-start',
 			}}
 		>
-			<CreateNewNote viewMode="list" />
+			<CreateNewNote viewMode="list" isDatabase={isDatabase} />
 			{notesList.map((note) => {
 				const { updatedAt, title, iconImage, _id, permissions, favorites } = note;
 				const isFavourite = favorites?.includes(userId);

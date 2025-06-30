@@ -47,6 +47,10 @@ import {
 	updateSortMutation,
 	removeSortMutation,
 	updateViewGroupMutation,
+	//for database
+	getNotesListDatabaseQuery,
+	getPageQueryDatabase,
+	createNotesDatabaseMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -55,6 +59,7 @@ import axios from 'axios';
 
 export const intialState = {
 	notes: null,
+	databaseNotes: null,
 	notesPageData: null,
 	notesAccess: null,
 	globalAccess: null,
@@ -72,17 +77,17 @@ export const intialState = {
 export const NotesState = (props) => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
-	const getNotesList = async (payload, append = false) => {
+	const getNotesList = async (payload, append = false, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 
 			const response = await service.query(
-				getNotesListQuery,
+				isDatabase ? getNotesListDatabaseQuery : getNotesListQuery,
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 
 			if (response?.[0]) {
@@ -109,16 +114,16 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const createNotesList = async (payload) => {
+	const createNotesList = async (payload, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
-				createNotesMutation,
+				isDatabase ? createNotesDatabaseMutation : createNotesMutation,
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 
 			console.log('response==>getNotesList', response);
@@ -134,16 +139,16 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const getNotesPageData = async (payload) => {
+	const getNotesPageData = async (payload, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
-				getPageQuery,
+				isDatabase ? getPageQueryDatabase : getPageQuery,
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 
 			if (response?.[0]) {

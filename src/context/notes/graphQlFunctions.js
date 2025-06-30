@@ -1,73 +1,73 @@
 import { gql } from '@apollo/client';
-// export const getNotesListQuery = gql`
-// 	query ListPages($input: ListPageInput!) {
-// 		listPages(input: $input) {
-// 			totalPages
-// 			totalDocs
-// 			limit
-// 			currentPage
-// 			hasNextPage
-// 			hasPrevPage
-// 			prevPage
-// 			nextPage
-// 			data {
-// 				_id
-// 				title
-// 				coverImage
-// 				permissions {
-// 					private
-// 					sharedWith {
-// 						access
-// 						userId
-// 					}
-// 				}
-// 				favorites
-// 				isDeleted
-// 				tenantId
-// 				createdAt
-// 				updatedAt
-// 				createdBy
-// 			}
-// 		}
-// 	}
-// `;
-// export const createNotesQuery = gql`
-// 	mutation CreatePage($input: CreatePageInput!) {
-// 		createPage(input: $input) {
-// 			_id
-// 		}
-// 	}
-// `;
+export const getNotesListQuery = gql`
+	query ListPages($input: ListPageInput!) {
+		listPages(input: $input) {
+			totalPages
+			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
+			prevPage
+			nextPage
+			data {
+				_id
+				title
+				coverImage
+				permissions {
+					private
+					sharedWith {
+						access
+						userId
+					}
+				}
+				favorites
+				isDeleted
+				tenantId
+				createdAt
+				updatedAt
+				createdBy
+			}
+		}
+	}
+`;
+export const createNotesMutation = gql`
+	mutation CreatePage($input: CreatePageInput!) {
+		createPage(input: $input) {
+			_id
+		}
+	}
+`;
 
-// export const getPageQuery = gql`
-// 	query Query($pageId: ID!) {
-// 		getPage(pageId: $pageId) {
-// 			_id
-// 			title
-// 			coverImage
-// 			iconImage
-// 			permissions {
-// 				private
-// 				sharedWith {
-// 					userId
-// 					access
-// 				}
-// 			}
-// 			blocks
-// 			isDeleted
-// 			tenantId
-// 			createdAt
-// 			updatedAt
-// 			updatedBy
-// 			createdBy
-// 			isFavorite
-// 			isPublished
-// 			slug
-// 			expiresAt
-// 			globalNoteAccess
-// 		}
-// 	}
-// `;
+export const getPageQuery = gql`
+	query Query($pageId: ID!) {
+		getPage(pageId: $pageId) {
+			_id
+			title
+			coverImage
+			iconImage
+			permissions {
+				private
+				sharedWith {
+					userId
+					access
+				}
+			}
+			blocks
+			isDeleted
+			tenantId
+			createdAt
+			updatedAt
+			updatedBy
+			createdBy
+			isFavorite
+			isPublished
+			slug
+			expiresAt
+			globalNoteAccess
+		}
+	}
+`;
 
 export const saveNotesPageQuery = gql`
 	mutation UpdateBlocks($pageId: ID!, $blocks: [JSON]) {
@@ -263,7 +263,7 @@ export const notesDeleteCoverImageMutation = gql`
 	}
 `;
 
-export const getNotesListQuery = gql`
+export const getNotesListDatabaseQuery = gql`
 	query ListPages($input: PageFilterInput!) {
 		listPages(input: $input) {
 			totalPages
@@ -297,7 +297,7 @@ export const getNotesListQuery = gql`
 	}
 `;
 
-export const createNotesMutation = gql`
+export const createNotesDatabaseMutation = gql`
 	mutation Mutation($input: CreatePageInput!) {
 		createPage(input: $input) {
 			_id
@@ -319,7 +319,7 @@ export const createNotesMutation = gql`
 	}
 `;
 
-export const getPageQuery = gql`
+export const getPageQueryDatabase = gql`
 	query Query($pageId: ID!) {
 		getPage(pageId: $pageId) {
 			_id
