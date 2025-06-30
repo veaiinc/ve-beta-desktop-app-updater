@@ -23,6 +23,7 @@ import Suggestions from './Suggestions';
 import PromptsWidget from '../../components/globalComponents/PromptsWidget';
 import BuildOptions from './BuildOptions';
 import { ReactComponent as CommandSvg } from '../../../assets/svg/files/command.svg';
+import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 
 const payload = {
 	page: 1,
@@ -1180,18 +1181,21 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 						)}
 				</div>
 			</div>
-			{promptsData?.data?.length > 0 && (
+
+			<div
+				className={`explore-more-btn ${info?.showExploreMore ? 'active' : ''}`}
+				onClick={(e) => {
+					e.stopPropagation();
+					handleExploreMoreClick(e);
+				}}
+			>
+				Explore More <DoubleUpArrowSvg />
+			</div>
+			{info?.showExploreMore && (
 				<>
-					<div
-						className={`explore-more-btn ${info?.showExploreMore ? 'active' : ''}`}
-						onClick={(e) => {
-							e.stopPropagation();
-							handleExploreMoreClick(e);
-						}}
-					>
-						Explore More <DoubleUpArrowSvg />
-					</div>
-					{info?.showExploreMore && (
+					<GlobalWidget />
+
+					{promptsData?.data?.lenght > 0 && (
 						<div className="modal-container">
 							<InfiniteScroll
 								dataLength={promptsLength}

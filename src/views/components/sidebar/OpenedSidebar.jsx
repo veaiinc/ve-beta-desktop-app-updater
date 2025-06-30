@@ -151,7 +151,7 @@ const OpenedSidebarModules = ({
 			}}
 		>
 			<div
-				className={`singleModuleItem ${isExactPathMatch() ? 'activeListModule' : ''} ${
+				className={`singleModuleItem ${isExactPathMatch() ? 'isExactPathMatch' : ''} ${
 					isDropdownVisible ? 'calendar-active' : ''
 				}`}
 				onMouseEnter={onMouseEnter}
@@ -192,6 +192,16 @@ const OpenedSidebarModules = ({
 									? 'none'
 									: 'var(--secondary-font)'
 							}
+							style={{
+								color:
+									name === 'Notes' ||
+									name === 'Calendar' ||
+									name === 'Tasks' ||
+									name === 'Contacts' ||
+									name === 'Automations'
+										? 'var(--secondary-font)'
+										: 'none',
+							}}
 						/>
 					)}
 					<p style={{ margin: 0 }}>{name}</p>

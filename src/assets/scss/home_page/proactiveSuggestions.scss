@@ -1432,63 +1432,71 @@
 			// }
 		}
 	}
+}
 
-	.homepage__options-container {
+.globalWidgetMainContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 24px;
+}
+.homepage__options-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+	position: relative;
+	gap: 6px;
+	width: 100%;
+	max-width: 750px; /* Adjusted to make space for arrows */
+	overflow-x: scroll;
+	scrollbar-width: none !important;
+	transition: width 0.9s ease-in-out;
+	scroll-behavior: smooth; /* Ensure smooth scrolling */
+	-ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+	margin: 0 auto;
+	&::-webkit-scrollbar {
+		display: none; /* Hide scrollbar for WebKit browsers */
+	}
+
+	.option {
 		display: flex;
-		justify-content: flex-start;
+		padding: 8px 12px;
 		align-items: center;
-		align-content: center;
-		position: relative;
-		gap: 6px;
-		width: 100%;
-		max-width: 750px; /* Adjusted to make space for arrows */
-		overflow-x: scroll;
-		scrollbar-width: none !important;
-		transition: width 0.9s ease-in-out;
-		scroll-behavior: smooth; /* Ensure smooth scrolling */
-		-ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
-		&::-webkit-scrollbar {
-			display: none; /* Hide scrollbar for WebKit browsers */
+		gap: 10px;
+		border-radius: 100px;
+		border: 1px solid var(--stroke, #202123);
+		cursor: pointer;
+		box-sizing: border-box;
+		height: 32px;
+		flex-shrink: 0;
+		&:hover {
+			border: 1px solid var(--stroke-hover);
 		}
-
-		.option {
+		.option-label {
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 13px !important;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
 			display: flex;
-			padding: 8px 12px;
+			gap: 6px;
 			align-items: center;
-			gap: 10px;
-			border-radius: 100px;
-			border: 1px solid var(--stroke, #202123);
-			cursor: pointer;
-			box-sizing: border-box;
-			height: 32px;
-			flex-shrink: 0;
-			&:hover {
-				border: 1px solid var(--stroke-hover);
+			text-transform: capitalize;
+			svg {
+				color: var(--secondary-font);
+				width: 16px;
+				height: 16px;
 			}
+		}
+		&.active {
+			border: 1px solid var(--primary-button);
 			.option-label {
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 13px !important;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				display: flex;
-				gap: 6px;
-				align-items: center;
-				text-transform: capitalize;
+				color: var(--primary-button);
 				svg {
-					color: var(--secondary-font);
-					width: 16px;
-					height: 16px;
-				}
-			}
-			&.active {
-				border: 1px solid var(--primary-button);
-				.option-label {
 					color: var(--primary-button);
-					svg {
-						color: var(--primary-button);
-					}
 				}
 			}
 		}
