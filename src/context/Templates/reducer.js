@@ -620,9 +620,13 @@ const actionHandlers = {
 		const { message_chunk_id: chunkId, prompts_to_ask, response } = action?.payload || {};
 		const aiTranscriptionSuggestions = state?.aiTranscriptionSuggestions || {};
 		const prompts = [...(aiTranscriptionSuggestions?.prompts || [])];
+		const responses = { ...(aiTranscriptionSuggestions?.responses || {}) };
 
 		if (prompts_to_ask) {
 			prompts?.push(prompts_to_ask);
+		}
+		if (chunkId && response) {
+			responses[chunkId] = (responses?.[chunkId] || '') + response || '';
 		}
 
 		return {
@@ -630,7 +634,7 @@ const actionHandlers = {
 			aiTranscriptionSuggestions: {
 				...aiTranscriptionSuggestions,
 				prompts,
-				response,
+				responses,
 			},
 		};
 	},
