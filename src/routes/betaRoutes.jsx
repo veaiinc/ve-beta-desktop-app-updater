@@ -58,6 +58,7 @@ import WorkflowBuilder from '../views/features/workflowBuilder/WorkflowBuilder';
 import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
 import Onboarding from '../views/features/onboarding/Onboarding';
 import NotesWrapper from '../views/features/notesModule/NotesWrapper';
+import MeetBot from '../views/features/meetBot/meetBot';
 const BuilderApp = lazy(() => import('../../builderSrc/App'));
 
 const betaRoutes = [
@@ -547,6 +548,14 @@ const betaRoutes = [
 			<Public>
 				<Navigate to="/home" />
 			</Public>
+		),
+	},
+	{
+		path: '/meet',
+		element: (
+			<AuthWrapper title={'Meet'}>
+				<MeetBot />
+			</AuthWrapper>
 		),
 	},
 ];
