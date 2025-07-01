@@ -359,7 +359,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const deletePage = async (payload) => {
+	const deletePage = async (payload, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -368,7 +368,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 			if (response?.[0]) {
 				return [true, response?.[1]?.data?.deletePage];

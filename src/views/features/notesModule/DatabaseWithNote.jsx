@@ -784,7 +784,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		async (permanent = false) => {
 			if (info?.deleteLoading) return;
 			setInfo((prev) => ({ ...prev, deleteLoading: true }));
-			const [success] = await deletePage({ pageId: noteId, isPermanent: permanent });
+			const isDatabase = true;
+			// const [success] = await deletePage({ pageId: noteId, isPermanent: permanent });
+			const [success] = await deletePage(
+				{ pageId: noteId, isPermanent: permanent },
+				isDatabase,
+			);
 			if (success) {
 				message.success(`Page ${permanent ? 'permanently ' : ''}deleted successfully`);
 				navigate('/notes');

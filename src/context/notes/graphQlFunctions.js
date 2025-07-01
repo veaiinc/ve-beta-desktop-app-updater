@@ -14,6 +14,7 @@ export const getNotesListQuery = gql`
 				_id
 				title
 				coverImage
+				iconImage
 				permissions {
 					private
 					sharedWith {
@@ -31,6 +32,7 @@ export const getNotesListQuery = gql`
 		}
 	}
 `;
+
 export const createNotesMutation = gql`
 	mutation CreatePage($input: CreatePageInput!) {
 		createPage(input: $input) {
