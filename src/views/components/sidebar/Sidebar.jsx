@@ -1,15 +1,14 @@
 import { useState, useContext, useEffect, memo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import Intercom from '@intercom/messenger-js-sdk';
 import '../../../assets/scss/sidebar.scss';
 import { stableNavigationItems, betaNaviagationItems } from './sidebarindex';
-import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
+// import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import OpenedSidebar from './OpenedSidebar';
 import Notifications from './notifications/Notifications';
 import Notes from './notes/Notes';
 // import SidebarTooltip from './SidebarTooltip';
 import Context from '../../../context/context';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 
 // Custom hook to detect mobile view
 const useIsMobile = () => {
@@ -34,7 +33,7 @@ const useIsMobile = () => {
 };
 import ClosedSidebar from './ClosedSidebar';
 
-const Sidebar = ({ activeWorkspaceId }) => {
+const Sidebar = () => {
 	const { workspaceMode } = useWorkspaceMode();
 	const isMobile = useIsMobile();
 	const { pathname } = useLocation();
@@ -102,40 +101,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 			setIsOpen(true);
 		}
 	}, [isMobile]);
-
-	// Fetch workspace and user info
-	useEffect(() => {
-		if (!userDetailsData) getUserDetails();
-		if (!userWorkSpaceList) getUserWorkSpaceList();
-	}, []);
-
-	// Configure Intercom
-	useEffect(() => {
-		if (userDetailsData && info) {
-			Intercom({
-				app_id: 'vmvweabd',
-				user_id: userDetailsData?._id,
-				name: `${userDetailsData?.firstName} ${userDetailsData?.lastName}`,
-				email: userDetailsData?.email,
-				company: {
-					name:
-						info?.activeBusniessName?.activeWorkspaceId ??
-						localStorage?.getItem('workspaceId'),
-					id: info?.activeBusniessName?.businessName,
-					region: info?.activeBusniessName?.region,
-				},
-			});
-		}
-	}, [userDetailsData, info]);
-	// Set active business name
-	useEffect(() => {
-		if (userWorkSpaceList) {
-			const activeBusniessName = userWorkSpaceList.find(
-				(item) => item.activeWorkspaceId === activeWorkspaceId,
-			);
-			setInfo((prev) => ({ ...prev, activeBusniessName }));
-		}
-	}, [userWorkSpaceList]);
 
 	// Track route change for route-based module
 	useEffect(() => {

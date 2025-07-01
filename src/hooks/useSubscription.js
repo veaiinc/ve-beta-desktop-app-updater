@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'; // Add useNavigate
-import Context from '../../context/context';
+import Context from '../context/context';
 
 const calculateTimeLeft = (expiryTimestamp) => {
 	const now = Date.now();
@@ -52,7 +52,6 @@ const useSubscription = () => {
 			updateRenewBanner,
 		},
 	} = useContext(Context);
-	const [info, setInfo] = useState({});
 	const timerRef = useRef({ timer: null, interval: null });
 	const location = useLocation();
 	const navigate = useNavigate(); // Initialize useNavigate
@@ -133,7 +132,6 @@ const useSubscription = () => {
 			if (liteImageLimit) {
 				imagesAllowed = liteImageUsed < liteImageLimit;
 			}
-			setInfo((prev) => ({ ...prev, ...obj, uploadAllowed, imagesAllowed }));
 			updateSubscriptionState({
 				validateExpiryData: { ...obj, uploadAllowed, imagesAllowed },
 			});
@@ -171,8 +169,6 @@ const useSubscription = () => {
 			timerRef.current.interval = null;
 		}
 	}, []);
-
-	return { ...info };
 };
 
 export default useSubscription;

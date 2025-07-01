@@ -3,11 +3,11 @@ import React, { memo, useEffect, useContext } from 'react';
 import '../../assets/scss/workflowBuilder/workflowBuilderLayout.scss';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { Helmet } from 'react-helmet';
-import useAuth from '../hooks/useAuth';
-import useSubscription from '../hooks/useSubscription';
-import useTokenExpiry from '../hooks/useTokenExpiry';
-import useAccessControls from '../hooks/useAccessControls';
-import useTheme from '../hooks/useTheme';
+import useAuth from '../../hooks/useAuth';
+import useSubscription from '../../hooks/useSubscription';
+import useTokenExpiry from '../../hooks/useTokenExpiry';
+import useAccessControls from '../../hooks/useAccessControls';
+import useTheme from '../../hooks/useTheme';
 // import Context from '../../context/context';
 // import RenewBanner from '../components/globalComponents/RenewBanner';
 const WorkflowBuilderLayout = ({ title, children, hideQuickNav = false }) => {
@@ -16,7 +16,7 @@ const WorkflowBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 	// } = useContext(Context);
 	useTheme();
 	const checkAuth = useAuth();
-	const data = useSubscription();
+	useSubscription();
 	const tokenData = useTokenExpiry();
 	const accessControls = useAccessControls();
 	useEffect(() => {

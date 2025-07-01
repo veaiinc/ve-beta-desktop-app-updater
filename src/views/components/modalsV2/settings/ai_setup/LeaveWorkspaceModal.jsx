@@ -4,7 +4,7 @@ import '../../../../../assets/scss/settings/leaveWorkspaceModal.scss';
 import { Spin } from 'antd';
 import { useContext } from 'react';
 import Context from '../../../../../context/context';
-import useLogout from '../../../../hooks/useLogout';
+import useLogout from '../../../../../hooks/useLogout';
 import Cookies from 'js-cookie';
 import { fetchDomainName } from '../../../../../helpers';
 const LeaveWorkspaceModal = ({ isOpen, toggleModal }) => {

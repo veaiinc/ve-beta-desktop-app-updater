@@ -11,7 +11,7 @@
 	transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 	scrollbar-width: none !important;
 	&.active {
-		height: 200px;
+		height: 160px;
 	}
 	.cards-container {
 		display: flex;
@@ -1371,7 +1371,7 @@
 	width: 100%;
 	position: relative;
 	gap: 16px;
-	margin-top: 40px;
+	margin-top: 20px;
 	.proactiveChatDescriptionContainer {
 		display: none;
 	}

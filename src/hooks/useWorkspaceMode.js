@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
-import Context from '../../context/context';
 import { matchPath, useLocation } from 'react-router-dom';
+import fallbackRoute from '../routes/fallbackRoute';
 import useLogout from './useLogout';
-import PageLoader from '../features/app/PageLoader';
+import Context from '../context/context';
 
 export const publicRoutesList = [
 	'/',
@@ -20,13 +20,6 @@ export const publicRoutesList = [
 	'/cookie-policy',
 	'/changelog',
 	'/user/verify-oauth-user',
-];
-
-const fallbackRoute = [
-	{
-		path: '*',
-		element: <PageLoader />,
-	},
 ];
 
 const useWorkspaceMode = () => {
@@ -77,7 +70,7 @@ const useWorkspaceMode = () => {
 		switch (routeType) {
 			case 'publicRoutes':
 				if (routesInfo['publicRoutes'] === null) {
-					const { default: publicRoutes } = await import('../../routes/publicRoutes');
+					const { default: publicRoutes } = await import('../routes/publicRoutes');
 					setRoutesInfo((prev) => ({
 						...prev,
 						publicRoutes,
@@ -86,7 +79,7 @@ const useWorkspaceMode = () => {
 				break;
 			case 'stableRoutes':
 				if (routesInfo['stableRoutes'] === null) {
-					const { default: stableRoutes } = await import('../../routes/stableRoutes');
+					const { default: stableRoutes } = await import('../routes/stableRoutes');
 					setRoutesInfo((prev) => ({
 						...prev,
 						stableRoutes,
@@ -95,7 +88,7 @@ const useWorkspaceMode = () => {
 				break;
 			case 'betaRoutes':
 				if (routesInfo['betaRoutes'] === null) {
-					const { default: betaRoutes } = await import('../../routes/betaRoutes');
+					const { default: betaRoutes } = await import('../routes/betaRoutes');
 					setRoutesInfo((prev) => ({
 						...prev,
 						betaRoutes,
