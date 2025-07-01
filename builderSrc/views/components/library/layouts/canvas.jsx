@@ -9110,8 +9110,8 @@ class Layout extends Component {
 															this.onClickAnime(component);
 														}
 													}}
+													// ${this.returnAnimationClasses(component)}
 													className={`column  
-													${this.returnAnimationClasses(component)}
 														 ${component.listCount && 'listAnimation'} ${
 														_.has(component, 'className')
 															? _.has(component, 'mclassName') &&
