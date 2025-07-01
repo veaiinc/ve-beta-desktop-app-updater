@@ -5,6 +5,7 @@ import ObjectID from 'bson-objectid';
 import Notes from './Notes';
 import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
 import Context from '../../../context/context';
+import MeetWithNote from './meetWithNote';
 
 const NotesWrapper = () => {
 	const {
@@ -74,7 +75,8 @@ const NotesWrapper = () => {
 					/>
 				</div>
 				<div className="notesContainerWrapper">
-					<Notes />
+					{/* <Notes /> */}
+					<MeetWithNote handleLive />
 				</div>
 			</div>
 			<AiTranscriptionSuggestions

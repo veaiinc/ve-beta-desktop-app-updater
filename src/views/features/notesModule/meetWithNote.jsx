@@ -49,6 +49,7 @@ import { Database, insertDatabase } from '../../components/notes/Database';
 import DatabaseSidebar from '../../components/modalsV2/notes/DatabaseSidebar';
 import MeetTranscript from './MeetTranscript';
 import useRecallStream from '../../hooks/useRecallStream';
+import useLiveIntelligenceStream from '../../hooks/useLiveIntelligenceStream';
 
 export const NotesRefContext = createContext(null);
 
@@ -79,6 +80,7 @@ const initialState = {
 	coverImageRemoved: false,
 	iconImageRemoved: false,
 	activeTab: 'summary',
+	sessionId: ObjectID()?.toString(),
 };
 
 const accessLevels = {
@@ -138,12 +140,15 @@ const MeetNote = ({ outerContainerStyle, innerContainerStyle }) => {
 			deleteBlock,
 		},
 		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
+		templates: { handleTranscriptionSuggestions },
 		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState(initialState);
 	const [transcriptList, setTranscriptList] = useState([]);
 	const { createWebSocketConnection: recallConnection } = useRecallStream();
+	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
+		useLiveIntelligenceStream();
 
 	// Derived states
 	const coverImage = useMemo(() => {
@@ -310,6 +315,14 @@ const MeetNote = ({ outerContainerStyle, innerContainerStyle }) => {
 		};
 	}, [iconImage]);
 
+	useEffect(() => {
+		// Connect to socket and handle transcript events
+
+		recallConnection(handleSocketMessage);
+		createLiveIntelligenceStream(info?.sessionId, handleLiveIntelligenceMessageFunc);
+		// No cleanup needed, useRecallStream handles it
+	}, []);
+
 	// useEffect(() => {
 	// 	getNotesAccess({ pageId: noteId });
 	// }, [noteId]);
@@ -438,6 +451,14 @@ const MeetNote = ({ outerContainerStyle, innerContainerStyle }) => {
 
 		return () => unsubscribe();
 	}, [editor]);
+
+	const handleLiveIntelligenceMessageFunc = useCallback(
+		(event) => {
+			const data = JSON.parse(event?.data || null);
+			handleTranscriptionSuggestions(data);
+		},
+		[handleTranscriptionSuggestions],
+	);
 
 	const getNotesPageDataFunc = useCallback(async () => {
 		const payload = {
@@ -958,28 +979,28 @@ const MeetNote = ({ outerContainerStyle, innerContainerStyle }) => {
 		}
 	};
 
-	useEffect(() => {
-		// Connect to socket and handle transcript events
-		const handleSocketMessage = (event) => {
-			try {
-				const msg = JSON.parse(event.data);
-				if (msg.event === 'transcript.received' && msg.data) {
-					setTranscriptList((prev) => [
-						...prev,
-						{
-							participant: msg.data.participant,
-							text: msg.data.text,
-							timestamp: msg.data.timestamp,
-						},
-					]);
+	const handleSocketMessage = useCallback((event) => {
+		try {
+			const msg = JSON.parse(event?.data || null);
+			if (msg?.event === 'transcript.received' && msg?.data) {
+				setTranscriptList((prev) => [
+					...prev,
+					{
+						participant: msg?.data?.participant,
+						text: msg?.data?.text,
+						timestamp: msg?.data?.timestamp,
+					},
+				]);
+
+				const data = msg?.data;
+				if (data?.participant?.length > 0 || data?.text?.length > 0) {
+					updateCurrentContext((data?.participant || '') + ' : ' + (data?.text || ''));
 				}
-			} catch (e) {
-				// ignore
 			}
-		};
-		recallConnection(handleSocketMessage);
-		// No cleanup needed, useRecallStream handles it
-	}, [recallConnection]);
+		} catch (e) {
+			// ignore
+		}
+	}, []);
 
 	return (
 		<NotesRefContext.Provider value={{ previousBlocksRef, pageId: noteId }}>
@@ -1386,8 +1407,7 @@ const MeetNote = ({ outerContainerStyle, innerContainerStyle }) => {
 									</BlockNoteView>
 								)}
 								{info?.activeTab === 'transcript' && (
-
-										<MeetTranscript transcriptList={transcriptList} />
+									<MeetTranscript transcriptList={transcriptList} />
 								)}
 							</div>
 						</>
