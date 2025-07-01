@@ -318,6 +318,11 @@ const UploadPhotos = () => {
 				});
 
 				return true;
+			} else if (response.status === 402) {
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Classic-Gallery',
+				});
 			} else {
 				return false;
 			}

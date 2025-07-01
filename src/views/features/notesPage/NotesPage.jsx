@@ -1,6 +1,6 @@
 import { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/notesPage/notesPage.scss';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import jwtDecode from 'jwt-decode';
 // Components
 import ViewModeSortFilter from '../../components/notesPage/ViewModeSortFilter';
@@ -114,7 +114,7 @@ const NotesPage = ({ isDatabase = false }) => {
 					/>
 				) : null}
 			</div>
-			<QuickActions />
+			{/* <QuickActions /> */}
 		</div>
 	);
 };

@@ -51,6 +51,7 @@ export const betaNaviagationItems = [
 		route: '/notes',
 		icon: NotesIcon,
 	},
+
 	{
 		id: 3.5,
 		name: 'Database',

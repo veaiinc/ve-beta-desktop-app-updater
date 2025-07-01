@@ -108,9 +108,13 @@ const useSubscription = () => {
 				liteImageLimit = 0,
 				liteImageUsed = 0,
 				liteImageLimitWithAiFace = 0,
+				cumulativeStorageUsedInBytes = 0,
 			} = currentPlan;
 			const storageLimitInGB = parseFloat(storageLimitInBytes / (1024 * 1024 * 1024));
 			const totalStorageUsedInGB = parseFloat(storageUsedInBytes / (1024 * 1024 * 1024));
+			const cumulativeStorageUsedInGB = parseFloat(
+				cumulativeStorageUsedInBytes / (1024 * 1024 * 1024),
+			);
 			const obj = {
 				storageLimitInGB,
 				tenantUsersLimit,
@@ -123,7 +127,7 @@ const useSubscription = () => {
 			};
 			let uploadAllowed = false;
 			if (storageLimitInGB) {
-				uploadAllowed = totalStorageUsedInGB < storageLimitInGB;
+				uploadAllowed = cumulativeStorageUsedInGB <= storageLimitInGB;
 			}
 			let imagesAllowed = false;
 			if (liteImageLimit) {

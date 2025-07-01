@@ -548,6 +548,5 @@ const betaRoutes = [
 		),
 	},
 ];
-export const betaRoutesList = betaRoutes.map((route) => route.path).filter((path) => path !== '*');
 
 export default betaRoutes;
