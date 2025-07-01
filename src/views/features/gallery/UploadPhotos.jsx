@@ -160,7 +160,7 @@ const UploadPhotos = () => {
 		) {
 			return updateSubscriptionState({
 				expiredSubscriptionModal: true,
-				expiredSubscriptionType: 'Classic-Gallery',
+				expiredSubscriptionType: 'Classic-Gallery-Upload',
 			});
 		}
 

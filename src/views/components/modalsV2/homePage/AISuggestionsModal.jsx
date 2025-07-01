@@ -328,17 +328,21 @@ const AISuggestionsModal = ({
 											<div className="total">{totalDocs}</div>
 										</div>
 										<div className="prev-btn" onClick={handlePrevCardClick}>
-											<ChevronRightThinSvg />
+											<ChevronRightThinSvg
+												style={{ transform: 'rotate(270deg)' }}
+											/>
 										</div>
 										<div className="next-btn" onClick={handleNextCardClick}>
-											<ChevronRightThinSvg />
+											<ChevronRightThinSvg
+												style={{ transform: 'rotate(270deg)' }}
+											/>
 										</div>
 									</>
 								)}
 							</div>
 
 							<div className="right-container">
-								<div
+								{/* <div
 									className={`starLogoContainer ${
 										data?.isFavourite === true ? 'active' : ''
 									}`}
@@ -347,7 +351,7 @@ const AISuggestionsModal = ({
 									}}
 								>
 									<StarSvg />
-								</div>
+								</div> */}
 								<div className="btn teach-me-btn" onClick={handleOpenFeedbackPopup}>
 									<AgentsSvg style={{ color: 'var(--primary-button)' }} /> Teach
 									me
@@ -358,6 +362,94 @@ const AISuggestionsModal = ({
 								{/* <div className="btn download-btn">
 									<DownloadSvg />
 								</div> */}
+								{createdAt && (
+									<Tooltip
+										title={
+											<div className="tooltipOption">
+												Created At: {createdDate}
+											</div>
+										}
+										color="transparent"
+										arrow={false}
+									>
+										<div className="prioritySuggestionModal">
+											<div className="icon">
+												<CalendarSvg />
+											</div>
+											<div className="priority-text">{`${createdDate}`}</div>
+										</div>
+									</Tooltip>
+								)}
+								{creditUsed && (
+									<Tooltip
+										title={
+											<div className="tooltipOption">
+												Credits Used: {creditUsed}
+											</div>
+										}
+										color="transparent"
+										arrow={false}
+									>
+										<div className="prioritySuggestionModal">
+											<div className="icon">
+												<img
+													src={CreditCoinImage}
+													width={16}
+													height={16}
+													alt="credit-coin"
+												/>
+											</div>
+											<div className="priority-text">{`${creditUsed} C`}</div>
+										</div>
+									</Tooltip>
+								)}
+
+								{priority && (
+									<Tooltip
+										title={
+											<div className="tooltipOption">
+												Priority: {priority}
+											</div>
+										}
+										color="transparent"
+										arrow={false}
+									>
+										<div className="prioritySuggestionModal">
+											<div
+												className="indicator"
+												style={{
+													background:
+														priority === 'High'
+															? 'red'
+															: priority === 'Medium'
+															? 'orange'
+															: 'green',
+												}}
+											></div>
+											<div className="priority-text">{`${priority}`}</div>
+										</div>
+									</Tooltip>
+								)}
+
+								{confidence_score && (
+									<Tooltip
+										title={
+											<div className="tooltipOption">
+												Confidence Score: {confidence_score * 100}%
+											</div>
+										}
+										trigger="hover"
+										arrow={false}
+										placement="top"
+										color="transparent"
+									>
+										<div className="confidence">
+											<div className="value">{`${
+												confidence_score * 100
+											}%`}</div>
+										</div>
+									</Tooltip>
+								)}
 								<Tooltip
 									title={<div className="tooltipOption">Delete</div>}
 									placement="bottom"
@@ -381,94 +473,7 @@ const AISuggestionsModal = ({
 							</div>
 
 							<div className="suggestions-info">
-								<div className="info">
-									{confidence_score && (
-										<Tooltip
-											title={
-												<div className="tooltipOption">
-													Confidence Score: {confidence_score * 100}%
-												</div>
-											}
-											trigger="hover"
-											arrow={false}
-											placement="top"
-											color="transparent"
-										>
-											<div className="confidence">
-												<div className="value">{`${
-													confidence_score * 100
-												}%`}</div>
-											</div>
-										</Tooltip>
-									)}
-									{priority && (
-										<Tooltip
-											title={
-												<div className="tooltipOption">
-													Priority: {priority}
-												</div>
-											}
-											color="transparent"
-											arrow={false}
-										>
-											<div className="priority">
-												<div
-													className="indicator"
-													style={{
-														background:
-															priority === 'High'
-																? 'red'
-																: priority === 'Medium'
-																? 'orange'
-																: 'green',
-													}}
-												></div>
-												<div className="priority-text">{`${priority}`}</div>
-											</div>
-										</Tooltip>
-									)}
-									{creditUsed && (
-										<Tooltip
-											title={
-												<div className="tooltipOption">
-													Credits Used: {creditUsed}
-												</div>
-											}
-											color="transparent"
-											arrow={false}
-										>
-											<div className="priority">
-												<div className="icon">
-													<img
-														src={CreditCoinImage}
-														width={16}
-														height={16}
-														alt="credit-coin"
-													/>
-												</div>
-												<div className="priority-text">{`${creditUsed} C`}</div>
-											</div>
-										</Tooltip>
-									)}
-									{createdAt && (
-										<Tooltip
-											title={
-												<div className="tooltipOption">
-													Created At: {createdDate}
-												</div>
-											}
-											color="transparent"
-											arrow={false}
-										>
-											<div className="priority">
-												<div className="icon">
-													<CalendarSvg />
-												</div>
-												<div className="priority-text">{`${createdDate}`}</div>
-											</div>
-										</Tooltip>
-									)}
-								</div>
+								<div className="info"></div>
 
 								<div className="more-info">
 									{data?.knowledgeBase?.[0]?.metadata?.connectedEmail && (
