@@ -39,8 +39,8 @@ const ExpiredSubscriptionModal = () => {
 	// // Mapper for subscription types to dataUsed and dataLimit
 	const subscriptionTypeConfig = {
 		'Classic-Gallery': {
-			dataUsed: currentPlan?.storageUsedInBytes
-				? Number((currentPlan.storageUsedInBytes / BYTES_PER_GB).toFixed(2))
+			dataUsed: currentPlan?.cumulativeStorageUsedInBytes
+				? Number((currentPlan.cumulativeStorageUsedInBytes / BYTES_PER_GB).toFixed(2))
 				: 0,
 			dataLimit: currentPlan?.storageLimitInBytes
 				? Number((currentPlan.storageLimitInBytes / BYTES_PER_GB).toFixed(2))
@@ -111,6 +111,8 @@ const ExpiredSubscriptionModal = () => {
 								You have reached the limit of your{' '}
 								{expiredSubscriptionType === 'Tenants'
 									? 'Tenants Users Count'
+									: expiredSubscriptionType === 'Classic-Gallery-Upload'
+									? 'Uploads for Classic Gallery'
 									: expiredSubscriptionType}
 								.
 							</span>
