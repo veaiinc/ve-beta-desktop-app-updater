@@ -45,7 +45,7 @@ const AiTranscriptionSuggestions = ({ closeModal }) => {
 									{/* <div className={s.questionText}>{question?. || ''}</div> */}
 								</div>
 								<div className={s.answerContainer}>
-									{/* <div className={s.text}>Suggested Answer to say</div> */}
+									<div className={s.text}>Ask User</div>
 									<div className={s.answerText}>{`"${
 										question?.query || ''
 									}"`}</div>

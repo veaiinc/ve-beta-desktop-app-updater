@@ -76,7 +76,7 @@ const NotesWrapper = () => {
 				</div>
 				<div className="notesContainerWrapper">
 					{/* <Notes /> */}
-					<MeetWithNote handleLive />
+					<MeetWithNote />
 				</div>
 			</div>
 			<AiTranscriptionSuggestions
