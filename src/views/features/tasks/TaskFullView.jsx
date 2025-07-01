@@ -11,7 +11,7 @@ import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.s
 import { ReactComponent as DeleteSvg } from '../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
 import { ReactComponent as PlusSvg } from '../../../assets/svg/tasks/plus.svg';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import Status from '../../components/tasks/listView/Status';
 import Priority from '../../components/tasks/listView/Priority';
 import Person from '../../components/tasks/listView/Person';

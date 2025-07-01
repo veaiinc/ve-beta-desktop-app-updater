@@ -206,3 +206,58 @@
 		grid-template-columns: 1fr;
 	}
 }
+
+// Responsive styles for screens smaller than 1400px
+@media screen and (max-width: 1400px) {
+	.weeklySlotsContainer {
+		.daySlotContainer {
+			height: 350px;
+
+			.dayHeader {
+				padding: 4px 0px;
+				gap: 6px;
+
+				.dayName {
+					font-size: 11px;
+					line-height: 14px;
+				}
+			}
+
+			.slotsWrapper {
+				height: calc(350px - 32px);
+				max-height: 180px;
+
+				.slotItem {
+					height: 60px;
+					padding: 28px 1px;
+					gap: 6px;
+
+					.slotContent {
+						.slotName {
+							font-size: 11px;
+							width: 100px;
+						}
+
+						.slotTime {
+							font-size: 10px;
+						}
+					}
+				}
+
+				.emptySlotItem {
+					height: 60px;
+					padding: 15px 9px;
+
+					.emptySlotContent {
+						font-size: 11px;
+						gap: 6px;
+
+						.plusIcon {
+							font-size: 14px;
+						}
+					}
+				}
+			}
+		}
+	}
+}

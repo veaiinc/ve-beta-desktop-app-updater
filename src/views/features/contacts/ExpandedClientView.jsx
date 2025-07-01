@@ -3,7 +3,7 @@ import { message } from '../../components/globalComponents/CustomToast';
 import { useNavigate, useParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import TabListFile from '../../components/tasks/listView/TabListFile';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Text from '../../components/tasks/listView/Text';

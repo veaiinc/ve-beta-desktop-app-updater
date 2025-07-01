@@ -151,7 +151,7 @@ const OpenedSidebarModules = ({
 			}}
 		>
 			<div
-				className={`singleModuleItem ${isExactPathMatch() ? 'activeListModule' : ''} ${
+				className={`singleModuleItem ${isExactPathMatch() ? 'isExactPathMatch' : ''} ${
 					isDropdownVisible ? 'calendar-active' : ''
 				}`}
 				onMouseEnter={onMouseEnter}
@@ -192,6 +192,18 @@ const OpenedSidebarModules = ({
 									? 'none'
 									: 'var(--secondary-font)'
 							}
+							style={{
+								color:
+									name === 'Notes' ||
+									name === 'Calendar' ||
+									name === 'Tasks' ||
+									name === 'Contacts' ||
+									name === 'Automations'
+										? 'var(--secondary-font)'
+										: 'none',
+								height: '20px',
+								width: '20px',
+							}}
 						/>
 					)}
 					<p style={{ margin: 0 }}>{name}</p>
@@ -268,6 +280,7 @@ const OpenedSidebar = ({
 	setShowChatsDrawer,
 	setShowNotesDrawer,
 	setHideClosedSidebarIcon,
+	isThisEarlyAccessPage,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const sidebarNavigationItems =
@@ -328,7 +341,6 @@ const OpenedSidebar = ({
 
 	const location = useLocation();
 
-	const [isThisEarlyAccessPage, setIsThisEarlyAccessPage] = useState(false);
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
 
 	// Add this constant for Settings options
@@ -347,13 +359,6 @@ const OpenedSidebar = ({
 			updateStateValues({ leftSidebarState: null });
 		}
 	}, [leftSidebarState]);
-
-	useEffect(() => {
-		setIsThisEarlyAccessPage(
-			location?.pathname?.includes('/early-access') ||
-				location?.pathname?.includes('/pricing'),
-		);
-	}, [location?.pathname]);
 
 	useEffect(() => {
 		const handleResize = () => {
