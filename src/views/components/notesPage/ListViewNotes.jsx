@@ -53,7 +53,7 @@ const ListViewNotes = ({ notes, fetchMoreNotes, userId, isDatabase = false }) =>
 				return (
 					<div
 						key={_id}
-						onClick={() => navigate(`/note/${_id}`)}
+						onClick={() => navigate(`/note/${_id}${isDatabase ? '/database' : ''}`)}
 						className="noteListItem"
 					>
 						<div className="iconImageContainer">

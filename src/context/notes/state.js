@@ -141,6 +141,7 @@ export const NotesState = (props) => {
 
 	const getNotesPageData = async (payload, isDatabase = false) => {
 		try {
+			console.log('payload==>database', isDatabase);
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
@@ -273,7 +274,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const updatePage = async (payload) => {
+	const updatePage = async (payload, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -282,7 +283,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 
 			if (response?.[0]) {
@@ -650,7 +651,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const getBlocks = async (payload) => {
+	const getBlocks = async (payload, isDatabase = false) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -659,7 +660,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 			if (response?.[0]) {
 				dispatch({
@@ -685,7 +686,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 		} catch (error) {
 			console.error('error==>createBlock', error);
@@ -702,7 +703,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 		} catch (error) {
 			console.error('error==>updateBlock', error);
@@ -719,7 +720,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 		} catch (error) {
 			console.error('error==>deleteBlock', error);
@@ -736,7 +737,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				const databaseMetadata = response?.[1]?.data?.createDatabase;
@@ -764,7 +765,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				const databaseView = response?.[1]?.data?.createDatabaseView;
@@ -790,7 +791,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				const databaseViews = response?.[1]?.data?.databaseViews;
@@ -813,7 +814,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				dispatch({
@@ -842,7 +843,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				const { data, metaInfo } = response?.[1]?.data?.listDatabaseRowsWithGroup || {};
@@ -914,7 +915,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				const { data, metaInfo } = response?.[1]?.data?.listDatabaseRowsWithGroup || {};
@@ -1004,7 +1005,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 
 			if (response?.[0]) {
@@ -1061,7 +1062,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 
 			if (response?.[0]) {
@@ -1150,7 +1151,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				dispatch({
@@ -1185,7 +1186,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				const newField = response?.[1]?.data?.addDatabaseField;
@@ -1257,7 +1258,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 
 			if (response?.[0]) {
@@ -1294,7 +1295,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 
 			if (response?.[0]) {
@@ -1323,7 +1324,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				dispatch({
@@ -1365,7 +1366,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				dispatch({
@@ -1398,7 +1399,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				const view = state?.views?.[blockId] || [];
@@ -1431,7 +1432,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				const view = state?.views?.[blockId] || [];
@@ -1467,7 +1468,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 
 			if (response?.[0]) {
@@ -1502,7 +1503,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				const view = state?.views?.[blockId] || [];
@@ -1534,7 +1535,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				const view = state?.views?.[blockId] || [];
@@ -1570,7 +1571,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				const view = state?.views?.[blockId] || [];
@@ -1602,7 +1603,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				const view = state?.views?.[blockId] || [];
@@ -1634,7 +1635,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				const data = response?.[1]?.data?.listDatabaseRowsWithGroup?.data?.[0];

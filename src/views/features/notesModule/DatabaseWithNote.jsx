@@ -203,10 +203,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 	useEffect(() => {
 		if (noteId) {
-			getBlocks({
-				pageId: noteId,
-				listBlockInput: { limit: 100, page: 1 },
-			});
+			const isDatabase = true;
+			getBlocks(
+				{
+					pageId: noteId,
+					listBlockInput: { limit: 100, page: 1 },
+				},
+				isDatabase,
+			);
 		}
 	}, [noteId]);
 
@@ -480,14 +484,21 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const handleTitleChange = (e) => {
 		const newTitle = e?.target?.value;
 		setInfo((prev) => ({ ...prev, title: newTitle }));
-
-		handleDebounce('title', () => {
-			updatePage({
-				pageId: noteId,
-				input: { title: newTitle },
-			});
-			setInfo((prev) => ({ ...prev, updatedAt: moment().unix() }));
-		});
+		const isDatabase = true;
+		handleDebounce(
+			'title',
+			() => {
+				updatePage(
+					{
+						pageId: noteId,
+						input: { title: newTitle },
+					},
+					isDatabase,
+				);
+				setInfo((prev) => ({ ...prev, updatedAt: moment().unix() }));
+			},
+			isDatabase,
+		);
 	};
 
 	const handleKeyDown = (e) => {
@@ -837,10 +848,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const restorePage = async () => {
 		if (info?.deleteLoading) return;
 		setInfo((prev) => ({ ...prev, deleteLoading: true }));
-		const response = await updatePage({
-			pageId: noteId,
-			input: { isDeleted: false },
-		});
+		const isDatabase = true;
+		const response = await updatePage(
+			{
+				pageId: noteId,
+				input: { isDeleted: false },
+			},
+			isDatabase,
+		);
 		if (response?.[0]) {
 			setInfo((prev) => ({
 				...prev,
@@ -1078,7 +1093,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 								}}
 							>
 								<Tooltip
-									open={info?.showCustomizeAppearance}
+									// open={info?.showCustomizeAppearance}
+									open={false}
 									onOpenChange={() => {
 										if (info?.showUploadPopup) {
 											setInfo((prev) => ({
@@ -1218,7 +1234,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 										triggerCharacter={'/'}
 										getItems={async (query) => {
 											// Gets all default slash menu items
-											const defaultItems =
+											let defaultItems =
 												getDefaultReactSlashMenuItems(editor);
 
 											// Find index of image block in Media group
@@ -1242,6 +1258,17 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 												lastAdvanceBlockIndex + 1,
 												0,
 												insertDatabase(editor, noteId),
+											);
+
+											const allowedBlocks = [
+												'heading',
+												'heading_2',
+												'heading_3',
+												'database',
+											];
+
+											defaultItems = defaultItems.filter((item) =>
+												allowedBlocks.includes(item.key),
 											);
 
 											// Return filtered items based on the query

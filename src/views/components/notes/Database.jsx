@@ -748,6 +748,7 @@ export const Database = createReactBlockSpec(
 export const insertDatabase = (editor, pageId) => ({
 	title: 'Database',
 	subtext: 'Database for storing your data',
+	key: 'database',
 	onItemClick: () => {
 		insertOrUpdateBlock(editor, {
 			type: 'database',

@@ -53,7 +53,11 @@ const CardsViewNotes = ({ notes, fetchMoreNotes, userId, isDatabase = false }) =
 				const isLocked = permissions?.private;
 
 				return (
-					<div key={_id} onClick={() => navigate(`/note/${_id}`)} className="noteCard">
+					<div
+						key={_id}
+						onClick={() => navigate(`/note/${_id}${isDatabase ? '/database' : ''}`)}
+						className="noteCard"
+					>
 						<div className="coverImageContainer">
 							{coverImage && <img src={coverImage} alt={title} />}
 						</div>

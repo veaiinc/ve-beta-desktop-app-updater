@@ -120,7 +120,7 @@ export const updatePageMutation = gql`
 					access
 				}
 			}
-			blocks
+			# blocks
 			isDeleted
 			tenantId
 			createdAt

@@ -29,7 +29,7 @@ const CreateNewNote = ({ viewMode, isDatabase = false }) => {
 		const response = await createNotesList(payload, isDatabase);
 		if (response?.[1]?._id) {
 			const newNoteId = response[1]?._id;
-			navigate(`/note/${newNoteId}`);
+			navigate(`/note/${newNoteId}${isDatabase ? '/database' : ''}`);
 		}
 	};
 

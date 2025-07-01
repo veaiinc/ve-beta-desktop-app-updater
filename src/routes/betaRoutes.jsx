@@ -444,7 +444,7 @@ const betaRoutes = [
 		),
 	},
 	{
-		path: '/note/:noteId',
+		path: '/note/:noteId/database',
 		element: (
 			<AuthWrapper
 				title={'Notes'}
