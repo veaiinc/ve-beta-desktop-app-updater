@@ -4,7 +4,7 @@ import Context from '../../../context/context';
 import AutomationCard from '../../components/automations/automationCard/AutomationCard';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import { message } from '../../components/globalComponents/CustomToast';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
@@ -104,7 +104,7 @@ const Automations = () => {
 					<h1 className="title">Automations</h1>
 					<h2 className="subtitle">You Created!</h2>
 				</div>
-				<QuickActions />
+				{/* <QuickActions /> */}
 			</header>
 			{automationsLoading ? (
 				<div className="skeletonLoaderContainer">

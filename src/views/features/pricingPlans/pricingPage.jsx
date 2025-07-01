@@ -29,11 +29,11 @@ const PricingPage = () => {
 		selectedPlanId: null,
 		isTrialSelected: false,
 	});
-	useEffect(() => {
-		if (!userWorkSpaceList) {
-			getUserWorkSpaceList();
-		}
-	}, [userWorkSpaceList]);
+	// useEffect(() => {
+	// 	if (!userWorkSpaceList) {
+	// 		getUserWorkSpaceList();
+	// 	}
+	// }, [userWorkSpaceList]);
 
 	useEffect(() => {
 		if (subscriptionPlans === null) {
@@ -41,11 +41,11 @@ const PricingPage = () => {
 		}
 	}, [subscriptionPlans]);
 
-	useEffect(() => {
-		if (!currentPlan) {
-			getCurrentSubscriptionPlan();
-		}
-	}, [currentPlan]);
+	// useEffect(() => {
+	// 	if (!currentPlan) {
+	// 		getCurrentSubscriptionPlan();
+	// 	}
+	// }, [currentPlan]);
 
 	const increaseTenantUsersCount = (planId) => {
 		setInfo((prev) => ({
@@ -145,7 +145,6 @@ const PricingPage = () => {
 	const handleSelectTrial = (planId) => {
 		setInfo((prev) => ({ ...prev, selectedPlanId: planId, isTrialSelected: true }));
 	};
-
 	return (
 		<div className="pricing-page" id="pricing-page-scroll">
 			<div className="pricing-header">
@@ -159,7 +158,7 @@ const PricingPage = () => {
 					<div className="toggle-group">
 						<div
 							className={`toggle-btn${info.billing === 'anually' ? ' active' : ''}`}
-							onClick={() => setInfo((prev) => ({ ...prev, billing: '	anually' }))}
+							onClick={() => setInfo((prev) => ({ ...prev, billing: 'anually' }))}
 						>
 							Anually
 						</div>

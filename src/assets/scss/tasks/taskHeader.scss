@@ -255,5 +255,13 @@
 			font-weight: 500;
 			line-height: normal;
 		}
+
+		&.hide-border {
+			border-top: none;
+		}
+	}
+
+	&.hide-tooltip {
+		display: none;
 	}
 }

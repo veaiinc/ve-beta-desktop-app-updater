@@ -284,6 +284,14 @@ const betaRoutes = [
 		),
 	},
 	{
+		path: '/database',
+		element: (
+			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
+				<NotesPage isDatabase={true} />
+			</AuthWrapper>
+		),
+	},
+	{
 		path: '/contacts',
 		element: (
 			<AuthWrapper
@@ -438,6 +446,23 @@ const betaRoutes = [
 		),
 	},
 	{
+		path: '/note/:noteId/database',
+		element: (
+			<AuthWrapper
+				title={'Notes'}
+				outerContainerStyle={{
+					backgroundColor: 'var(--background-color)',
+					padding: '0px',
+				}}
+				sidebarContainerStyles={{ padding: '0px' }}
+				maxWidth={'100%'}
+				sidebarContainerClassName={'auth-sidebar-container'}
+			>
+				<Notes isDatabase={true} />
+			</AuthWrapper>
+		),
+	},
+	{
 		path: '/automations',
 		element: (
 			<AuthWrapper title={'Automations'}>
@@ -525,6 +550,5 @@ const betaRoutes = [
 		),
 	},
 ];
-export const betaRoutesList = betaRoutes.map((route) => route.path).filter((path) => path !== '*');
 
 export default betaRoutes;

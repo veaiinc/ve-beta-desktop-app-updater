@@ -31,7 +31,6 @@ import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
-import FileUploadToolbar from '../../components/notes/ImageComponent';
 import { ImageBlock, insertImage } from '../../components/notes/ImageComponent';
 import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
 import useWorkspaceMode from '../../hooks/useWorkspaceMode';
@@ -982,7 +981,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 								style={innerContainerStyle || {}}
 								theme={'dark'}
 								editable={info?.myAccess !== 'view' || !info?.isDeleted}
-								filePanel={FileUploadToolbar}
 								slashMenu={false}
 							>
 								{(info?.myAccess !== 'view' || !info?.isDeleted) && (

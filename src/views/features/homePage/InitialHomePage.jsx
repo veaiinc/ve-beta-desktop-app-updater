@@ -1,13 +1,13 @@
 import jwtDecode from 'jwt-decode';
 import { memo, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Tooltip } from 'antd';
+// import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import { message } from '../../components/globalComponents/CustomToast';
-import AskMe from './AskMe';
+// import AskMe from './AskMe';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
-import ChatPrompts from './ChatPrompts';
+// import ChatPrompts from './ChatPrompts';
 import ProactiveSuggestions from './ProactiveSuggestions';
 import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import { ReactComponent as PromptsSvg } from '../../../assets/svg/home_page/prompts.svg';
@@ -18,9 +18,9 @@ import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import VeSvg from '../../../assets/svg/veSvg';
 import '../../../assets/scss/home_page/initialHomepage.scss';
-import Spinner from '../../components/loaders/Spinner';
+// import Spinner from '../../components/loaders/Spinner';
 import { getGreeting } from '../../../helpers';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+// import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const optionsList = [
 	// {
@@ -385,14 +385,14 @@ const InitialHomePage = () => {
 				...(options?.length === 0 && { justifyContent: 'center' }),
 			}}
 		>
-			<div className="quick-actions-container">
+			{/* <div className="quick-actions-container">
 				<QuickActions suggestedOptions={SuggestedOptions} />
-			</div>
+			</div> */}
 			<div
 				className={`home-page-container-header `}
-				style={{
-					...(options?.length === 0 && { marginTop: 0 }),
-				}}
+				// style={{
+				// 	...(options?.length === 0 && { marginTop: 0 }),
+				// }}
 			>
 				<div className={`title-container `}>
 					<div className="title-text">

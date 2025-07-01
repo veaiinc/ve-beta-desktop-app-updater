@@ -10,7 +10,7 @@ import { ReactComponent as CardIcon } from '../../../assets/svg/agents/card.svg'
 import { ReactComponent as ListIcon } from '../../../assets/svg/agents/list.svg';
 
 // components
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import AgentsList from '../../components/agents/agentsList/AgentsList';
 import AgentSuggestion from '../../components/agents/suggestedCard/agentSuggestion';
 
@@ -82,7 +82,7 @@ const Agents = () => {
 					</div>
 				</div>
 			</div>
-			<QuickActions />
+			{/* <QuickActions /> */}
 		</div>
 	);
 };

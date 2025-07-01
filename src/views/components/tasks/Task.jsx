@@ -9,7 +9,7 @@ import ListView from './views/ListView';
 import BoardView from './views/Board';
 import GalleryView from './views/GalleryView';
 import TableView from './views/TableView';
-import QuickActions from '../globalComponents/QuickActions';
+// import QuickActions from '../globalComponents/QuickActions';
 import ChatLeftBarComponent from '../ChatLeftBarComponent';
 import Taskwidget from './Taskwidget';
 import TaskHeader from './listView/TaskHeader';
@@ -380,7 +380,7 @@ const Task = ({
 				<div className="task-container">
 					<div className="task-header-container">
 						<TaskHeader
-							tabs={taskInfo?.tabs}
+							tabArray={Object?.values(taskInfo?.tabs || {})}
 							activeTab={taskInfo?.activeTab}
 							handleTabChange={handleTabChange}
 							handleAddTab={handleAddTab}
@@ -415,9 +415,9 @@ const Task = ({
 							layoutOptions={layoutOptions}
 							handleLayoutOptionClick={handleAddTab}
 						/> */}
-						<div className="quick-actions-btn">
+						{/* <div className="quick-actions-btn">
 							<QuickActions />
-						</div>
+						</div> */}
 					</div>
 
 					<div className="task-content-area">

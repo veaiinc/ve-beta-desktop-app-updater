@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import '../../../assets/scss/chat/chatStyling.scss';
 import { ReactComponent as Instagram } from '../../../assets/svg/chat/emptyStateInstagram.svg';
 import { ReactComponent as Facebook } from '../../../assets/svg/chat/facebook.svg';

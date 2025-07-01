@@ -1,6 +1,6 @@
 import { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/notesPage/notesPage.scss';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import jwtDecode from 'jwt-decode';
 // Components
 import ViewModeSortFilter from '../../components/notesPage/ViewModeSortFilter';
@@ -9,7 +9,7 @@ import ListViewNotes from '../../components/notesPage/ListViewNotes';
 import Context from '../../../context/context';
 import { useSearchParams } from 'react-router-dom';
 
-const NotesPage = () => {
+const NotesPage = ({ isDatabase = false }) => {
 	const {
 		notes: { getNotesList, notes },
 	} = useContext(Context);
@@ -26,7 +26,7 @@ const NotesPage = () => {
 
 	useEffect(() => {
 		fetchNotes({ page: 1 });
-	}, [info?.selectedFilter?.value, info?.selectedSort, info?.searchQuery]);
+	}, [info?.selectedFilter?.value, info?.selectedSort, info?.searchQuery, isDatabase]);
 
 	useEffect(() => {
 		setSearchParams({ viewMode: info?.viewMode });
@@ -54,7 +54,7 @@ const NotesPage = () => {
 					search: info?.searchQuery,
 				},
 			};
-			await getNotesList(payload, append);
+			await getNotesList(payload, append, isDatabase);
 		} catch (error) {
 			console.error('Error fetching notes:', error);
 		} finally {
@@ -101,6 +101,7 @@ const NotesPage = () => {
 						setSelectedFilter={setSelectedFilter}
 						setSelectedSort={setSelectedSort}
 						userId={info?.userId}
+						isDatabase={isDatabase}
 					/>
 				) : info.viewMode === 'list' ? (
 					<ListViewNotes
@@ -109,10 +110,11 @@ const NotesPage = () => {
 						setSelectedFilter={setSelectedFilter}
 						setSelectedSort={setSelectedSort}
 						userId={info?.userId}
+						isDatabase={isDatabase}
 					/>
 				) : null}
 			</div>
-			<QuickActions />
+			{/* <QuickActions /> */}
 		</div>
 	);
 };

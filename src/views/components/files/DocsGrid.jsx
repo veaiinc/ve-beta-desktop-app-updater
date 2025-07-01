@@ -3,7 +3,7 @@ import '../../../assets/scss/files/files.scss';
 import moment from 'moment';
 import { DocsStatusButton } from '../../features/docs/Docs';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
-import DocsCardBg from '../../../assets/images/files/docs-card-bg.png';
+// import DocsCardBg from '../../../assets/images/files/docs-card-bg.png';
 import { useNavigate } from 'react-router-dom';
 import { memo, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
@@ -38,8 +38,8 @@ const docsStatusButtonStyles = {
 	borderRadius: '100px',
 	border: '1px solid var(--stroke, #2B2E31)',
 	// background: 'var(--card-over-card, #27282B)',
-	color: 'var(--primary-font, #F2F2F3)',
-	fontFamily: 'Inter',
+	color: 'white',
+	fontFamily: 'var(--primary-font-family)',
 	fontSize: '10px',
 	fontStyle: 'normal',
 	fontWeight: '500',

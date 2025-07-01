@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import '../../../assets/scss/globalComponents/ConnectIntegrationWidget.scss';
 import availableIntegrationslist from '../../../helpers/availableIntegrationslist.js';
 import { useNavigate } from 'react-router-dom';

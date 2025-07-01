@@ -7,8 +7,8 @@ import Invoice from '../invoices/index.jsx';
 import Down from '../actions/down.jsx';
 import Up from '../actions/up.jsx';
 import Delete from '../actions/delete.jsx';
-import Edit from '../actions/edit.jsx';
-import Copy from '../actions/copy.jsx';
+// import Edit from '../actions/edit.jsx';
+// import Copy from '../actions/copy.jsx';
 //new lefrbar
 import { ReactComponent as NewDelete } from '../../svgs/LeftBar/NewDelete.svg';
 import { ReactComponent as NewDown } from '../../svgs/LeftBar/NewDown.svg';

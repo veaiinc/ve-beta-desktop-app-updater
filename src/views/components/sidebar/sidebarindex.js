@@ -13,6 +13,7 @@ import { ReactComponent as TeamIcon } from '../../../assets/svg/sidebar/teamMemb
 import { ReactComponent as IntegrationsIcon } from '../../../assets/svg/sidebar/integrationsIcon.svg';
 import { ReactComponent as PlanBillingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
 import { ReactComponent as NotesIcon } from '../../../assets/svg/sidebar/notes-icon.svg';
+import { ReactComponent as DatabaseIcon } from '../../../assets/svg/sidebar/notes/database.svg';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/home_page/calendar.svg';
 import { ReactComponent as TasksSvg } from '../../../assets/svg/home_page/tasks.svg';
 import { ReactComponent as ContactsSvg } from '../../../assets/svg/home_page/contacts.svg';
@@ -49,6 +50,13 @@ export const betaNaviagationItems = [
 		name: 'Notes',
 		route: '/notes',
 		icon: NotesIcon,
+	},
+
+	{
+		id: 3.5,
+		name: 'Database',
+		route: '/database',
+		icon: DatabaseIcon,
 	},
 	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
 	{ id: 5, name: 'Calendar', route: '/calendar', icon: CalendarSvg },

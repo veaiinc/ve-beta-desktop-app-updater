@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import ReactModal from '../index';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as BookMarkSvg } from '../../../../assets/svg/gallery/bookMark.svg';

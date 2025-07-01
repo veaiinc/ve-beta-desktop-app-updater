@@ -11,7 +11,7 @@ import Context from '../../../context/context';
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
-import useSubscription from '../../hooks/useSubscription';
+// import useSubscription from '../../hooks/useSubscription';
 // import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
 
 const UploadPhotos = () => {
@@ -160,7 +160,7 @@ const UploadPhotos = () => {
 		) {
 			return updateSubscriptionState({
 				expiredSubscriptionModal: true,
-				expiredSubscriptionType: 'Classic-Gallery',
+				expiredSubscriptionType: 'Classic-Gallery-Upload',
 			});
 		}
 
@@ -318,6 +318,11 @@ const UploadPhotos = () => {
 				});
 
 				return true;
+			} else if (response.status === 402) {
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Classic-Gallery',
+				});
 			} else {
 				return false;
 			}

@@ -18,6 +18,7 @@ const DateView = ({
 	showTitle = false,
 	placement = 'bottom',
 	hideRemove = false,
+	disabled = false,
 }) => {
 	const [info, setInfo] = useState({
 		showDatePicker: false,

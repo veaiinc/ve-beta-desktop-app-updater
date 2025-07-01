@@ -15,7 +15,7 @@ import {
 import AskAiButton from './AskAiButton';
 import { memo, useEffect } from 'react';
 import TextColorPicker from './TextColorPicker';
-import { useBlockNoteEditor, useComponentsContext } from '@blocknote/react';
+// import { useBlockNoteEditor, useComponentsContext } from '@blocknote/react';
 import AlignButton from './AlignButton';
 
 const NoteToolbar = memo(({ sendMessage, aiResonse, resetAiResponse }) => {

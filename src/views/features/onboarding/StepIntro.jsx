@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
 import '../../../assets/scss/onboarding/stepIntro.scss';
 
