@@ -1,0 +1,49 @@
+.note-transcription {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  position: relative; // Remove absolute positioning to fit naturally in your layout
+}
+
+.note-transcription h3 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  color: #ffffff;
+}
+
+.transcriptions-container {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+  background-color: #222222;
+  border-radius: 4px;
+}
+
+.transcription-item {
+  padding: 8px;
+  margin: 5px 0;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.transcription-item.final {
+  background-color: #333333;
+  color: #ffffff;
+}
+
+.transcription-item.partial {
+  background-color: #2a2a2a;
+  color: #888888;
+}
+
+.waiting-message {
+  color: #888888;
+  font-style: italic;
+  margin: 5px 0;
+}

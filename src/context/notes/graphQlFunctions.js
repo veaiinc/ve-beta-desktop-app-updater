@@ -953,3 +953,11 @@ export const updateViewGroupMutation = gql`
 		}
 	}
 `;
+
+export const getLiveKitTokenQuery = gql`
+	query Query($pageId: ID!) {
+		getLiveKitToken(pageId: $pageId) {
+			accessToken
+		}
+	}
+`;

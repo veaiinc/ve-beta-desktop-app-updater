@@ -57,7 +57,7 @@ import SmartFile from '../views/features/sales/smartFiles/SmartFile';
 import WorkflowBuilder from '../views/features/workflowBuilder/WorkflowBuilder';
 import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
 import Onboarding from '../views/features/onboarding/Onboarding';
-import AiTranscriptionSuggestions from '../views/components/chat/AiTranscriptionSuggestions';
+import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 const BuilderApp = lazy(() => import('../../builderSrc/App'));
 
 const betaRoutes = [
@@ -441,7 +441,7 @@ const betaRoutes = [
 				sidebarContainerClassName={'auth-sidebar-container'}
 			>
 				{/* <Notes /> */}
-				<AiTranscriptionSuggestions />
+				<NotesWrapper />
 			</AuthWrapper>
 		),
 	},

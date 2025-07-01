@@ -22,6 +22,7 @@ import {
 	notesCoverImageFileUploadMutation,
 	notesIconUploadMutation,
 	notesDeleteCoverImageMutation,
+	getLiveKitTokenQuery,
 	getBlocksQuery,
 	createBlockMutation,
 	updateBlockMutation,
@@ -650,7 +651,26 @@ export const NotesState = (props) => {
 			return false;
 		}
 	};
-
+	const getLiveKitToken = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				getLiveKitTokenQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.getLiveKitToken];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>getLiveKitToken', error);
+		}
+	};
 	const getBlocks = async (payload, isDatabase = false) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -1695,6 +1715,7 @@ export const NotesState = (props) => {
 		notesIconUpload,
 		notesDeleteCoverImage,
 		notesDeleteIcon,
+		getLiveKitToken,
 		getBlocks,
 		createBlock,
 		updateBlock,
