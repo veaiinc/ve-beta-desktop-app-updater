@@ -106,7 +106,6 @@ const betaRoutes = [
 				outerContainerStyle={{ paddingRight: '0px', backgroundColor: '' }}
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
-				showDynamicWidget={false}
 			>
 				<RecentChat />
 			</AuthWrapper>

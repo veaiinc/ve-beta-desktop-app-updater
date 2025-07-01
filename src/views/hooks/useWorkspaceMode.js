@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import Context from '../../context/context';
 import { matchPath, useLocation } from 'react-router-dom';
 import useLogout from './useLogout';
-import PageLoader from '../features/app/PageLoader';
+import fallbackRoute from '../../routes/fallbackRoute';
 
 export const publicRoutesList = [
 	'/',
@@ -20,13 +20,6 @@ export const publicRoutesList = [
 	'/cookie-policy',
 	'/changelog',
 	'/user/verify-oauth-user',
-];
-
-const fallbackRoute = [
-	{
-		path: '*',
-		element: <PageLoader />,
-	},
 ];
 
 const useWorkspaceMode = () => {
