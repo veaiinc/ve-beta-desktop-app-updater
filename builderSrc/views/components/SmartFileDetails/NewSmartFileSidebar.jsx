@@ -237,15 +237,18 @@ const SmartFileSidebar = ({
 			// Check if subBlock has description or content with HTML
 			const description = subBlock?.description || '';
 			const title = subBlock?.title || '';
+			const content = subBlock?.content || '';
 
 			if (
 				(description && typeof description === 'string') ||
-				(title && typeof title === 'string')
+				(title && typeof title === 'string') ||
+				(content && typeof content === 'string')
 			) {
 				// Check if content contains input tags with class "variable"
 				const hasVariableInputs =
 					(description.includes('<input') && description.includes('class="variable"')) ||
-					(title.includes('<input') && title.includes('class="variable"'));
+					(title.includes('<input') && title.includes('class="variable"')) ||
+					(content.includes('<input') && content.includes('class="variable"'));
 
 				if (hasVariableInputs) {
 					setInfo((prev) => ({ ...prev, isVariablesPresent: true }));
@@ -258,13 +261,15 @@ const SmartFileSidebar = ({
 
 		// Check all sections for variables
 		workflowInfo?.template?.sections?.forEach((section) => {
-			if (section.type === 'services') {
-				section.blocks?.forEach((block) => {
-					block.subBlocks?.forEach((subBlock) => {
+			// if (section.type === 'services') {
+			section.blocks?.forEach((block) => {
+				block.subBlocks?.forEach((subBlock) => {
+					if (subBlock?.type === 'text' || subBlock?.description || subBlock?.title) {
 						handleCheckVariableInText(subBlock);
-					});
+					}
 				});
-			}
+			});
+			// }
 		});
 	}, [workflowInfo?.template?.sections]);
 
