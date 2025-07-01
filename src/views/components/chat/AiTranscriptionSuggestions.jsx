@@ -31,7 +31,12 @@ const AiTranscriptionSuggestions = ({ data = [], modalIsOpen, closeModal }) => {
 								))}
 							</div>
 							{item?.response && (
-								<div className="transcription-response">{item?.response || ''}</div>
+								<div
+									className="transcription-response"
+									style={{ color: 'white' }}
+								>
+									{item?.response || ''}
+								</div>
 							)}
 						</div>
 					))}

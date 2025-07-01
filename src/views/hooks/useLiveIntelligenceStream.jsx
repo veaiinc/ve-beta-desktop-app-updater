@@ -134,7 +134,7 @@ const useLiveIntelligenceStream = () => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const region = localStorage.getItem('region') || 'ap-south-1';
 
-			const baseUrl = `https://humbly-pleased-alien.ngrok-free.app/${workspaceId}/${sessionId}/live_intelligence_streaming?token=${usertoken}`;
+			const baseUrl = `https://informally-cuddly-chimp.ngrok-free.app/${workspaceId}/${sessionId}/live_intelligence_streaming?token=${usertoken}`;
 
 			if (socketRef.current) {
 				socketRef.current.close();
