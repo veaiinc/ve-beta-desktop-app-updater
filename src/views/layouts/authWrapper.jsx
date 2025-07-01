@@ -1,9 +1,8 @@
-import { useEffect, memo } from 'react';
+import { memo } from 'react';
 import { Helmet } from 'react-helmet';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-import useActiveWorkspace from '../../hooks/useActiveWorkspace';
 import Sidebar from '../components/sidebar/Sidebar';
 import useAuth from '../../hooks/useAuth';
 import useSubscription from '../../hooks/useSubscription';
@@ -25,7 +24,6 @@ const AuthWrapper = ({
 	title,
 	children,
 	maxWidth = '',
-	showBottomToolbar = true,
 	outerContainerStyle = {},
 	authParentContainerStyle = {},
 	sidebarContainerStyles = {},
@@ -33,18 +31,13 @@ const AuthWrapper = ({
 	childrenContainerStyles = {},
 	showSidebar = true,
 }) => {
+	useAuth();
 	useTheme();
 	useIntercom();
-	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
-	const checkAuth = useAuth();
-	const data = useSubscription();
-	const tokenData = useTokenExpiry();
+	useSubscription();
+	useTokenExpiry();
 	useAccessControls();
 	const { loading } = useWorkspaceMode();
-
-	useEffect(() => {
-		checkAuth();
-	}, []);
 
 	return loading ? (
 		<PageLoader />
@@ -58,7 +51,6 @@ const AuthWrapper = ({
 				<div
 					style={{
 						display: 'flex',
-						// height: renewBanner ? 'calc(100dvh - 57px)' : '100dvh',
 						height: '100dvh',
 						padding: '0',
 						...outerContainerStyle,
@@ -77,10 +69,7 @@ const AuthWrapper = ({
 								}}
 								className={sidebarContainerClassName}
 							>
-								<Sidebar
-									setActiveWorkspaceId={setActiveWorkspaceId}
-									activeWorkspaceId={workspaceId}
-								/>
+								<Sidebar />
 							</div>
 						)}
 
@@ -103,8 +92,6 @@ const AuthWrapper = ({
 						</div>
 					</SkeletonTheme>
 				</div>
-				{/* {showBottomToolbar ? <BottomToolbar outerContainerStyle={{ bottom: '10px' }} /> : ''} */}
-				{/* <CommandKSearch /> */}
 			</div>
 			<ExpiredSubscriptionModal />
 			<ExpiredTokenModal />

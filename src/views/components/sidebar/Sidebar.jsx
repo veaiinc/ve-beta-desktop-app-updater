@@ -10,6 +10,7 @@ import Notes from './notes/Notes';
 // import SidebarTooltip from './SidebarTooltip';
 import Context from '../../../context/context';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
+import useActiveWorkspace from '../../../hooks/useActiveWorkspace';
 
 // Custom hook to detect mobile view
 const useIsMobile = () => {
@@ -34,8 +35,9 @@ const useIsMobile = () => {
 };
 import ClosedSidebar from './ClosedSidebar';
 
-const Sidebar = ({ activeWorkspaceId }) => {
+const Sidebar = () => {
 	const { workspaceMode } = useWorkspaceMode();
+	const workspaceId = useActiveWorkspace();
 	const isMobile = useIsMobile();
 	const { pathname } = useLocation();
 	const sidebarRef = useRef(null);
@@ -131,7 +133,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	useEffect(() => {
 		if (userWorkSpaceList) {
 			const activeBusniessName = userWorkSpaceList.find(
-				(item) => item.activeWorkspaceId === activeWorkspaceId,
+				(item) => item.activeWorkspaceId === workspaceId,
 			);
 			setInfo((prev) => ({ ...prev, activeBusniessName }));
 		}

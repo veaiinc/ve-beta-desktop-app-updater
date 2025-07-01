@@ -18,7 +18,7 @@ const SmartFileLayout = ({ title, children, hideQuickNav = false, showBottomTool
 	// } = useContext(Context);
 	useTheme();
 	const checkAuth = useAuth();
-	const data = useSubscription();
+	useSubscription();
 	const tokenData = useTokenExpiry();
 	const accessControls = useAccessControls();
 	useEffect(() => {

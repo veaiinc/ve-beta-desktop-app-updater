@@ -12,6 +12,7 @@ const useAuth = () => {
 
 	useEffect(() => {
 		getUserDetailsData();
+		checkUserAuthState();
 	}, []);
 
 	const getUserDetailsData = async () => {
@@ -20,6 +21,7 @@ const useAuth = () => {
 			logOut();
 		}
 	};
+
 	const checkUserAuthState = useCallback(() => {
 		if (!localStorage.getItem('usertoken')) {
 			window.location.replace('/');
@@ -30,7 +32,6 @@ const useAuth = () => {
 			return navigate('/early-access');
 		}
 	}, []);
-	return checkUserAuthState;
 };
 
 export default useAuth;

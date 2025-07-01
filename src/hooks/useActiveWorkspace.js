@@ -32,7 +32,7 @@ const useActiveWorkspace = () => {
 		};
 	}, []);
 
-	return [workspaceId, setActiveWorkspaceId];
+	return workspaceId;
 };
 
 export default useActiveWorkspace;
