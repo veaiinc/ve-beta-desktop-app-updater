@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 
 const X = ({ fillColor, iconSize }) => {
 	const sizeValues = {

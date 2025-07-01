@@ -50,6 +50,7 @@ export const betaNaviagationItems = [
 		route: '/notes',
 		icon: NotesIcon,
 	},
+
 	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
 	{ id: 5, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
 	{ id: 6, name: 'Tasks', route: '/tasks', icon: TasksSvg },

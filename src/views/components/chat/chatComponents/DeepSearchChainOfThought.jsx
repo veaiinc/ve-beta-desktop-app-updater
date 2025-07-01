@@ -4,7 +4,7 @@ import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
 import { ReactComponent as CurveSvg } from '../../../../assets/svg/ai_agents/curve.svg';
 import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
 import Sources from './Sources';
-import SmoothExpand from './SmoothExpand';
+// import SmoothExpand from './SmoothExpand';
 
 const DeepSearchChainOfThought = ({
 	data,

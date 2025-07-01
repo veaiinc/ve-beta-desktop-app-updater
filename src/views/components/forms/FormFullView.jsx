@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Rate } from 'antd';
+// import { Rate } from 'antd';
 import Context from '../../../context/context';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as BiDash } from '../../../assets/svg/smartFiles/formResponse/bi-dash.svg';

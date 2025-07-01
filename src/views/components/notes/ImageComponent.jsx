@@ -1,6 +1,6 @@
 import { defaultProps, insertOrUpdateBlock } from '@blocknote/core';
 import { createReactBlockSpec } from '@blocknote/react';
-import moment from 'moment';
+// import moment from 'moment';
 import { memo, useContext, useState, useCallback, useEffect } from 'react';
 // import s from '../../../assets/scss/notes/database.module.scss';
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
@@ -8,7 +8,7 @@ import Context from '../../../context/context';
 import { Tooltip } from 'antd';
 import ImageUploadPopup from './ImageUploadPopup';
 import '../../../assets/scss/notes/imageComponent.scss';
-import ReactModal from '../modalsV2';
+// import ReactModal from '../modalsV2';
 import { ResizableBox } from 'react-resizable';
 import 'react-resizable/css/styles.css';
 import { ReactComponent as ImageIcon } from '../../../assets/svg/notes/image.svg';

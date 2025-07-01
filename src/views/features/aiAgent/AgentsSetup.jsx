@@ -4,7 +4,7 @@ import { Tooltip } from 'antd';
 import ToolTipContainer from '../../components/popover/ToolTipContainer';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/questionMark.svg';
 import ToggleSlider from '../../components/input/slider';
-import BottomToolbar from '../../components/ai_agents/BottomToolbar';
+// import BottomToolbar from '../../components/ai_agents/BottomToolbar';
 const AgentsSetup = () => {
 	const [arrow, setArrow] = useState('Show');
 	const mergedArrow = useMemo(() => {

@@ -2,7 +2,7 @@ import { memo, useCallback, useContext, useEffect, useState, useRef } from 'reac
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/knowledgeAgent/index.scss';
 import Context from '../../../context/context';
-import Spinner from '../../components/loaders/Spinner';
+// import Spinner from '../../components/loaders/Spinner';
 import { message } from '../globalComponents/CustomToast';
 
 import searchIcon from '../../../assets/svg/agents/search.svg';

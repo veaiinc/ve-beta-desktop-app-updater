@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import ImageItem from '../../elements/image';
 import Text from '../../elements/text';
-import Down from '../actions/down.jsx';
-import Up from '../actions/up.jsx';
+// import Down from '../actions/down.jsx';
+// import Up from '../actions/up.jsx';
 import Delete from '../actions/delete.jsx';
 
 import Edit from '../actions/edit.jsx';
