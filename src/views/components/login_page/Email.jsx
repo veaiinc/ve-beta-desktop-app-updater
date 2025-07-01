@@ -240,7 +240,7 @@ const Email = ({
 					<h2 className="login-page-subtitle">Ambient Memory AI</h2>
 				</h1>
 			</div>
-			{true && (
+			{info?.isHostnameVeDotAi && (
 				<>
 					<div className="service-container">
 						<div
