@@ -898,7 +898,8 @@ const RecentChat = ({
 														<div
 															className="content"
 															style={{
-																...(info?.currentUserMessageIndex && {
+																...(info?.currentUserMessageIndex !==
+																	null && {
 																	opacity:
 																		index ===
 																		info?.currentUserMessageIndex +
@@ -978,7 +979,8 @@ const RecentChat = ({
 															// }}
 
 															style={{
-																...(info?.currentUserMessageIndex && {
+																...(info?.currentUserMessageIndex !==
+																	null && {
 																	opacity:
 																		index ===
 																		info?.currentUserMessageIndex
