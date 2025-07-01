@@ -55,6 +55,21 @@ const AiTranscriptionSuggestions = ({ closeModal }) => {
 					</div>
 				)}
 
+				{Object?.keys(aiTranscriptionSuggestions?.responses || {})?.map((key, index) => (
+					<div className={s.suggestedUserQuestion} key={index}>
+						<div className={s.questionContainer}>
+							{/* <div className={s.questionType}>Detected Question</div> */}
+							{/* <div className={s.questionText}>{question?. || ''}</div> */}
+						</div>
+						<div className={s.answerContainer}>
+							<div className={s.text}>Response</div>
+							<div className={s.answerText}>{`"${
+								aiTranscriptionSuggestions?.responses?.[key] || ''
+							}"`}</div>
+						</div>
+					</div>
+				))}
+
 				{aiQuestions?.length > 0 && (
 					<div className={s.actionsWrapper}>
 						<div className={s.text}>Actions</div>
