@@ -1,0 +1,80 @@
+.loginDescriptionContainer {
+	display: flex;
+	padding: 50px;
+	flex-direction: column;
+	justify-content: center;
+	gap: 24px;
+	align-self: stretch;
+	border-radius: 16px;
+	border: 1px solid var(--stroke, #e3e3e3);
+	background: var(--card, #f2f2f2);
+	box-shadow: 0px 0px 16px 0px rgba(0, 0, 0, 0.12) inset;
+	color: var(--primary-font, #18181b);
+	font-family: Charter;
+	font-size: 18px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 28px;
+	text-align: left;
+	p {
+		margin: 0;
+		padding: 0;
+	}
+
+	.loginDescriptionText {
+		padding: 0;
+		margin: 0;
+	}
+	.loginDescriptionTwo {
+		.loginDescriptionTwoText {
+			span {
+				color: var(--primary-font, #18181b);
+				font-family: Charter;
+				font-size: 20px;
+				font-style: italic;
+				font-weight: 700;
+				line-height: 28px;
+			}
+		}
+	}
+	.loginDescriptionThree {
+		color: var(--primary-font, #18181b);
+		font-family: Charter;
+		font-size: 20px;
+		font-style: italic;
+		font-weight: 700;
+		line-height: 28px;
+	}
+	.loginDescriptionFour {
+		.descriptionFourTitle {
+			color: var(--primary-font, #18181b);
+			font-family: Charter;
+			font-size: 20px;
+			font-style: italic;
+			font-weight: 700;
+			line-height: 28px;
+		}
+		ul {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+		}
+	}
+	.bottomText {
+		color: var(--primary-font, #18181b);
+		font-family: Charter;
+		font-size: 24px;
+		font-style: italic;
+		font-weight: 700;
+		line-height: 28px;
+		letter-spacing: -0.72px;
+	}
+	.descriptionFour {
+		color: var(--primary-font, #18181b);
+		font-family: Charter;
+		font-size: 20px;
+		font-style: italic;
+		font-weight: 700;
+		line-height: 28px;
+	}
+}

@@ -2,6 +2,7 @@ import { memo, useState, useEffect } from 'react';
 import '../../../assets/scss/login_page/index.scss';
 import Email from '../../components/login_page/Email';
 import VerificationCode from '../../components/login_page/VerificationCode';
+import LoginDescription from '../../components/login_page/LoginDescription';
 import CookiesImg from '../../../assets/images/login_page/cookies.png';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
@@ -87,14 +88,21 @@ const LoginPage = () => {
 
 	const stages = {
 		email: (
-			<Email
-				email={info?.email}
-				setEmail={setEmail}
-				setActiveStage={setActiveStage}
-				setEmailVerified={setEmailVerified}
-				setLastOtpEmail={setLastOtpEmail}
-				lastOtpEmail={info?.lastOtpEmail}
-			/>
+			<div className="email-stage-container">
+				<div className="email-section">
+					<Email
+						email={info?.email}
+						setEmail={setEmail}
+						setActiveStage={setActiveStage}
+						setEmailVerified={setEmailVerified}
+						setLastOtpEmail={setLastOtpEmail}
+						lastOtpEmail={info?.lastOtpEmail}
+					/>
+				</div>
+				<div className="description-section">
+					<LoginDescription />
+				</div>
+			</div>
 		),
 		verificationCode: (
 			<VerificationCode
@@ -209,7 +217,7 @@ const LoginPage = () => {
 			</div>
 
 			{/* <div className="login-page-container-right"> */}
-				{/* <div className="login-page-container-right-content">
+			{/* <div className="login-page-container-right-content">
 					<div className="login-page-container-right-content-title">
 						<h1>Welcome to Ve.ai</h1>
 					</div>
