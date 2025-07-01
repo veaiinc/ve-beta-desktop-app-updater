@@ -1326,7 +1326,7 @@ class Layout1 extends Component {
 									onClick={() =>
 										this.props.addServiceBlock(this.state.style?.services_style)
 									}
-									style={{ padding: '24px 0px' }}
+									style={{ padding: '24px 0px', width: 'fit-content' }}
 								>
 									+ Add Service
 								</span>
