@@ -4,12 +4,12 @@ import '../../assets/scss/sales/smartFileLayout.scss';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { Helmet } from 'react-helmet';
 import { ReactComponent as VE } from '../../assets/svg/smallVe.svg';
-import useAuth from '../hooks/useAuth';
-import useSubscription from '../hooks/useSubscription';
-import useTokenExpiry from '../hooks/useTokenExpiry';
+import useAuth from '../../hooks/useAuth';
+import useSubscription from '../../hooks/useSubscription';
+import useTokenExpiry from '../../hooks/useTokenExpiry';
 import BottomToolbar from '../components/ai_agents/BottomToolbar';
-import useAccessControls from '../hooks/useAccessControls';
-import useTheme from '../hooks/useTheme';
+import useAccessControls from '../../hooks/useAccessControls';
+import useTheme from '../../hooks/useTheme';
 // import Context from '../../context/context';
 // import RenewBanner from '../components/globalComponents/RenewBanner';
 const SmartFileLayout = ({ title, children, hideQuickNav = false, showBottomToolbar = true }) => {

@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'; // Add useNavigate
-import Context from '../../context/context';
+import Context from '../context/context';
 
 const calculateTimeLeft = (expiryTimestamp) => {
 	const now = Date.now();

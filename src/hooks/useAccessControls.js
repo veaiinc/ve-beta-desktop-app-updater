@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import Context from '../../context/context';
+import Context from '../context/context';
 
 const locationMapper = {
 	docs: 'workflow',

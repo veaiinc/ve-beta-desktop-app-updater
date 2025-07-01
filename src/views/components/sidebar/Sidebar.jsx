@@ -9,7 +9,7 @@ import Notifications from './notifications/Notifications';
 import Notes from './notes/Notes';
 // import SidebarTooltip from './SidebarTooltip';
 import Context from '../../../context/context';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 
 // Custom hook to detect mobile view
 const useIsMobile = () => {

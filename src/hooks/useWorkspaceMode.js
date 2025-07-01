@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
 import { matchPath, useLocation } from 'react-router-dom';
+import fallbackRoute from '../routes/fallbackRoute';
 import useLogout from './useLogout';
 import Context from '../context/context';
-import fallbackRoute from '../routes/fallbackRoute';
 
 export const publicRoutesList = [
 	'/',

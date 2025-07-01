@@ -3,23 +3,23 @@ import { Helmet } from 'react-helmet';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-import useActiveWorkspace from '../hooks/useActiveWorkspace';
+import useActiveWorkspace from '../../hooks/useActiveWorkspace';
 import Sidebar from '../components/sidebar/Sidebar';
-import useAuth from '../hooks/useAuth';
-import useSubscription from '../hooks/useSubscription';
-import useTokenExpiry from '../hooks/useTokenExpiry';
+import useAuth from '../../hooks/useAuth';
+import useSubscription from '../../hooks/useSubscription';
+import useTokenExpiry from '../../hooks/useTokenExpiry';
 
-import useAccessControls from '../hooks/useAccessControls';
+import useAccessControls from '../../hooks/useAccessControls';
 
 import '../../assets/scss/authWrapper.scss';
 import ExpiredSubscriptionModal from '../components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from '../components/modalsV2/subscription/ExpiredTokenModal';
 import AccessDeniedPopup from '../components/accessPopups/accessDeniedPopup';
 import CustomToast from '../components/globalComponents/CustomToast';
-import useWorkspaceMode from '../hooks/useWorkspaceMode';
-import useTheme from '../hooks/useTheme';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import useTheme from '../../hooks/useTheme';
 import PageLoader from '../features/app/PageLoader';
-import useIntercom from '../hooks/useIntercom';
+import useIntercom from '../../hooks/useIntercom';
 
 const AuthWrapper = ({
 	title,

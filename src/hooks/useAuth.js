@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Context from '../../context/context';
 import useLogout from './useLogout';
+import Context from '../context/context';
 
 const useAuth = () => {
 	const navigate = useNavigate();

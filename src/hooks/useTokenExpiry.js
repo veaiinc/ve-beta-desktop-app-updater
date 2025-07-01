@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import Context from '../../context/context';
+import Context from '../context/context';
 import useLogout from './useLogout';
 
 const calculateTokenTimeLeft = (token) => {
