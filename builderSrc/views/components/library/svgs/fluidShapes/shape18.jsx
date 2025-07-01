@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 
 const Shape18 = ({ stickerFill, stickerStroke, width, opacity, stretch }) => {
 	return (

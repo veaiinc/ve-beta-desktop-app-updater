@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+// import React, { Component } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import Proposals from '../../../controllers/proposals';
 import _ from 'lodash';

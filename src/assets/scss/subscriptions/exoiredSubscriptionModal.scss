@@ -33,7 +33,7 @@
 		.progressBarTextContainer {
 			display: flex;
 			align-items: center;
-			justify-content: flex-end;
+			justify-content: space-between;
 			width: 100%;
 			align-self: flex-end;
 			color: var(--secondary-font);
@@ -108,4 +108,26 @@
 			line-height: normal;
 		}
 	}
+}
+.expiredTooltipContainer {
+	background-color: var(--card);
+	padding: 10px;
+	border-radius: 10px;
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: normal;
+	border: 1px solid var(--stroke);
+}
+.expiredTooltipIcon {
+	display: flex;
+	width: 20px;
+	height: 20px;
+	padding: 4px;
+	border-radius: 50%;
+	border: 1px solid var(--stroke);
+	align-items: center;
+	justify-content: center;
 }

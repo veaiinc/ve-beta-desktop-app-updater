@@ -1,5 +1,5 @@
 import * as React from 'react';
-import _ from 'lodash';
+// import _ from 'lodash';
 const Underlay = (props) => {
 	let theme;
 	if (props.theme === 'light') {

@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import ReactModal from '../index';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import '../../../../assets/scss/gallery/reusablePopups.scss';

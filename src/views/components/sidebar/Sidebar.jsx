@@ -7,7 +7,7 @@ import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar
 import OpenedSidebar from './OpenedSidebar';
 import Notifications from './notifications/Notifications';
 import Notes from './notes/Notes';
-import SidebarTooltip from './SidebarTooltip';
+// import SidebarTooltip from './SidebarTooltip';
 import Context from '../../../context/context';
 import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 

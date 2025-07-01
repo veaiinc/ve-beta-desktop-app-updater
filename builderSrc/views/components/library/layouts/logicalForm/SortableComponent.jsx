@@ -52,8 +52,8 @@ import {
 	BackArrow,
 } from '../../../builder_client_common';
 import FormEvent from './FormEvent';
-import FontSelector from './FontSelector';
-import FontSelectordescription from './FontSelectordescription';
+// import FontSelector from './FontSelector';
+// import FontSelectordescription from './FontSelectordescription';
 import ImageItem from '../../elements/shape/index';
 
 const SortableComponent = ({

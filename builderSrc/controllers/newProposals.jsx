@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import * as Action from './actions';
 import Service from '../services/graphQlServices';
 import _ from 'lodash';
-import moment from 'moment';
+// import moment from 'moment';
 
 class NewProposals extends Component {
 	reorderSections = (sections, type = null) => {

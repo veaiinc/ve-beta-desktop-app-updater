@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+// import React, { Component } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { ReactComponent as Question } from '../../../assets/svg/question.svg';
 import { ReactComponent as RightMark } from '../../../assets/svg/rightMark.svg';
