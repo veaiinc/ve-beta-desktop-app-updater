@@ -1,10 +1,11 @@
 .loginDescriptionContainer {
 	display: flex;
-	padding: 50px;
+	padding: 60px;
 	flex-direction: column;
 	justify-content: center;
 	gap: 24px;
 	align-self: stretch;
+	height: calc(100vh - 100px);
 	border-radius: 16px;
 	border: 1px solid var(--stroke, #e3e3e3);
 	background: var(--card, #f2f2f2);
@@ -76,5 +77,12 @@
 		font-style: italic;
 		font-weight: 700;
 		line-height: 28px;
+	}
+}
+
+// Responsive styles for height
+@media screen and (max-width: 1024px) {
+	.loginDescriptionContainer {
+		display: none;
 	}
 }

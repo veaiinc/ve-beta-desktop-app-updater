@@ -88,7 +88,7 @@ const LoginPage = () => {
 
 	const stages = {
 		email: (
-			<div className="email-stage-container">
+			<div className="main-content-container">
 				<div className="email-section">
 					<Email
 						email={info?.email}
@@ -98,6 +98,33 @@ const LoginPage = () => {
 						setLastOtpEmail={setLastOtpEmail}
 						lastOtpEmail={info?.lastOtpEmail}
 					/>
+					<div className="disclaimer-container">
+						{!info?.cookiesAccepted && info?.showCookiesNotice && (
+							<div className="cookies-notice">
+								<div className="cookie-container">
+									<span className="cookie-icon">
+										<img src={CookiesImg} />
+									</span>
+									<p>
+										This site uses cookies to provide you with a personalized
+										experience. Check our{' '}
+										<b onClick={() => window.open('/cookie-policy', '_blank')}>
+											<u>cookie policy</u>
+										</b>{' '}
+										for more details.
+									</p>
+								</div>
+								<div className="buttons-container">
+									<div className="decline-button" onClick={handleDeclineCookies}>
+										Decline all
+									</div>
+									<div className="accept-button" onClick={handleAcceptCookies}>
+										Accept
+									</div>
+								</div>
+							</div>
+						)}
+					</div>
 				</div>
 				<div className="description-section">
 					<LoginDescription />
@@ -162,50 +189,6 @@ const LoginPage = () => {
 						<VeAiLogo />
 						</div> */}
 					{stages?.[info?.activeStage]}
-				</div>
-				<div className="disclaimer-container">
-					{/* <div className="disclaimer">
-					<span className="disclaimer-text">By continuing, you accept our</span>
-					<div className="disclaimer-links">
-						<b onClick={() => navigate('/terms-of-service')} className="link">
-							Terms of Service
-						</b>
-						<span>,</span>
-						<b onClick={() => navigate('/privacy-policy')} className="link">
-							Privacy Policy
-						</b>{' '}
-						<span className="disclaimer-text">and</span>
-						<b onClick={() => navigate('/cookie-policy')} className="link">
-							Cookie Policy
-						</b>
-						.
-					</div>
-				</div> */}
-					{!info?.cookiesAccepted && info?.showCookiesNotice && (
-						<div className="cookies-notice">
-							<div className="cookie-container">
-								<span className="cookie-icon">
-									<img src={CookiesImg} />
-								</span>
-								<p>
-									This site uses cookies to provide you with a personalized
-									experience. Check our{' '}
-									<b onClick={() => window.open('/cookie-policy', '_blank')}>
-										<u>cookie policy</u>
-									</b>{' '}
-									for more details.
-								</p>
-							</div>
-							<div className="buttons-container">
-								<div className="decline-button" onClick={handleDeclineCookies}>
-									Decline all
-								</div>
-								<div className="accept-button" onClick={handleAcceptCookies}>
-									Accept
-								</div>
-							</div>
-						</div>
-					)}
 				</div>
 				{/* <footer className="login-footer-container">
 				{footerLinks?.map((link) => (
