@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useContext, useState, useCallback } from 'react';
-import ReactModal from '../../modalsV2/index';
+// import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/gallery/modals/shareModal.scss';
 import { ReactComponent as Copy } from '../../../../assets/svg/gallery/copy.svg';
 import { ReactComponent as Mail } from '../../../../assets/svg/gallery/mail.svg';
@@ -8,7 +8,7 @@ import ToggleSlider from '../../input/slider';
 import Context from '../../../../context/context';
 import { getCurrentWorkspaceId, getInitials } from '../../../../helpers/index';
 import { Drawer, Select } from 'antd';
-import _ from 'lodash';
+// import _ from 'lodash';
 import { message } from '../../globalComponents/CustomToast';
 
 const workspaceId = localStorage.getItem('workspaceId');

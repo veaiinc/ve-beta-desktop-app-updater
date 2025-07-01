@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 
 export const HamburgerOne = ({ fillColor, iconSize, style, onClick }) => {
 	const sizeValues = {

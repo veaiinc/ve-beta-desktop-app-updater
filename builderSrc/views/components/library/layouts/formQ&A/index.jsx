@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './forms.scss';
 import FormElement from './formElement';
-import Button from '../../elements/button';
+// import Button from '../../elements/button';
 import Down from '../actions/down.jsx';
 import Up from '../actions/up.jsx';
 import Delete from '../actions/delete.jsx';

@@ -15,6 +15,7 @@ export const slack_api = 'https://slack.com/api';
 // export const multi_agent_chat = 'ws://ai.ap-south-1.ve.ai';
 export const automation_builder_api = 'https://ap.api.ve.ai/automations/1.0/automation';
 export const page_notes_api = 'https://ap.api.ve.ai/block-notes/1.0';
+export const page_notes_api_database = 'https://ap.api.ve.ai/page-notes/1.0';
 export const elastic_search_api = 'https://ap.api.ve.ai/elastic-search/1.0';
 
 // US region
@@ -34,4 +35,5 @@ export const slack_api_US = 'https://slack.com/api';
 // export const multi_agent_chat_US = 'ws://api.us-east-1.ve.ai';
 export const automation_builder_api_US = 'https://us.api.ve.ai/automations/1.0/automation';
 export const page_notes_api_US = 'https://us.api.ve.ai/block-notes/1.0';
+export const page_notes_api_database_US = 'https://us.api.ve.ai/page-notes/1.0';
 export const elastic_search_api_US = 'https://ap.api.ve.ai/elastic-search/1.0';

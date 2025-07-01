@@ -59,6 +59,8 @@ const Service = {
 			automation_builder_api_US,
 			page_notes_api,
 			page_notes_api_US,
+			page_notes_api_database,
+			page_notes_api_database_US,
 		} = config;
 
 		const graphQLAPICall = {
@@ -68,6 +70,7 @@ const Service = {
 			multi_agent_chat,
 			automation_builder_api,
 			page_notes_api,
+			page_notes_api_database,
 		};
 
 		const graphQLAPICallUS = {
@@ -77,6 +80,7 @@ const Service = {
 			multi_agent_chat: multi_agent_chat_US,
 			automation_builder_api: automation_builder_api_US,
 			page_notes_api: page_notes_api_US,
+			page_notes_api_database: page_notes_api_database_US,
 		};
 
 		// hotfix
@@ -131,6 +135,8 @@ const Service = {
 			automation_builder_api_US,
 			page_notes_api,
 			page_notes_api_US,
+			page_notes_api_database,
+			page_notes_api_database_US,
 		} = config;
 
 		const graphQLAPICall = {
@@ -140,6 +146,7 @@ const Service = {
 			multi_agent_chat,
 			automation_builder_api,
 			page_notes_api,
+			page_notes_api_database,
 		};
 
 		const graphQLAPICallUS = {
@@ -149,6 +156,7 @@ const Service = {
 			multi_agent_chat: multi_agent_chat_US,
 			automation_builder_api: automation_builder_api_US,
 			page_notes_api: page_notes_api_US,
+			page_notes_api_database: page_notes_api_database_US,
 		};
 
 		const region = localStorage.getItem('region') || 'ap-south-1';

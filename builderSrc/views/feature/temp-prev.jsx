@@ -5,7 +5,7 @@ import { withRouter } from '../../services/withRouter';
 import Builder from '../components/library/builder';
 import _ from 'lodash';
 import '../../assets/scss/home.scss';
-import BottomModal from '../components/library/modals/BottomModal';
+// import BottomModal from '../components/library/modals/BottomModal';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import CreateClient from '../components/HomePopups/CreateClient';
 import { message } from 'antd';

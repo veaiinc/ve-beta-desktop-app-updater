@@ -53,18 +53,18 @@ import Skeleton from 'react-loading-skeleton';
 import { gsap } from 'gsap';
 import slugify from 'slugify';
 import Insights from '../../components/gallery/aiSelections/Insights';
-import UploadAlbumImageCover from '../../components/gallery/galleryPage/UploadAlbumImageCover';
+// import UploadAlbumImageCover from '../../components/gallery/galleryPage/UploadAlbumImageCover';
 import MainPopup from '../../components/modalsV2/gallery/RenameGallery';
 import ShareAlbum from '../../components/modalsV2/gallery/ShareAlbum';
 import GalleryStyles from '../../components/modalsV2/gallery/GalleryStyles';
 import DownloadAlbum from '../../components/modalsV2/gallery/DownloadAlbum';
 import DeleteAlbumImagesPopup from '../../components/modalsV2/gallery/DeleteAlbumImagesPopup';
-import ToggleSlider from '../../components/input/slider';
+// import ToggleSlider from '../../components/input/slider';
 import { Switch, message } from 'antd';
 import ShowLightRoomCopy from '../../components/modalsV2/gallery/ShowLightRoomCopy';
 import { getCurrentWorkspaceId } from '../../../helpers';
 import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
-import SharePopup from '../../components/modalsV2/gallery/SharePopup';
+// import SharePopup from '../../components/modalsV2/gallery/SharePopup';
 import GalleryViewer from './GalleryViewer';
 import { ReactComponent as ArrowSvg } from '../../../assets/svg/file/arrow.svg';
 
@@ -5785,6 +5785,7 @@ const GalleryPage = () => {
 									placement="top"
 									trigger={'click'}
 									arrow={false}
+									color={'transparent'}
 								>
 									<OptionsIcon />
 								</Tooltip>

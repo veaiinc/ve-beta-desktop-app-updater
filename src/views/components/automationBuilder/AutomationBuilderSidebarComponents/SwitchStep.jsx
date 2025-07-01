@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect } from 'react';
 import ActionDetailsBlock from './ActionDetailsBlock';
-import VariableComponent from './VariableComponent';
+// import VariableComponent from './VariableComponent';
 import ConditionInput from './ConditionInput';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/switchStep.scss';
 import { message } from '../../globalComponents/CustomToast';

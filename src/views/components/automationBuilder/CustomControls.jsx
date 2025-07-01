@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import { ReactComponent as RearrangeSvg } from '../../../assets/svg/automation_builder/rearrange.svg';
 import { ReactComponent as PlusSvg } from '../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as MinusSvg } from '../../../assets/svg/automation_builder/minus.svg';

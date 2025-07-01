@@ -11,7 +11,7 @@ import { ReactComponent as CrossWhite } from '../../../assets/svg/workspaceSetti
 import Skeleton from 'react-loading-skeleton';
 import gsap from 'gsap';
 import ReactModal from '../../components/modalsV2';
-import { Background } from '@xyflow/react';
+// import { Background } from '@xyflow/react';
 
 const FakeLoadingComponent = () => {
 	return (

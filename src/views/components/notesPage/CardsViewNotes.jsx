@@ -15,7 +15,7 @@ import { ReactComponent as StarSvg } from '../../../assets/svg/notesPage/star.sv
 //constants
 const infiniteScrollHeight = 'calc(100vh - 142px)';
 
-const CardsViewNotes = ({ notes, fetchMoreNotes, userId }) => {
+const CardsViewNotes = ({ notes, fetchMoreNotes, userId, isDatabase = false }) => {
 	const navigate = useNavigate();
 	const notesList = notes?.data ?? [];
 	const hasNextPage = notes?.hasNextPage ?? false;
@@ -39,7 +39,7 @@ const CardsViewNotes = ({ notes, fetchMoreNotes, userId }) => {
 				alignItems: 'flex-start',
 			}}
 		>
-			<CreateNewNote viewMode="cards" />
+			<CreateNewNote viewMode="cards" isDatabase={isDatabase} />
 			{notesList.map((note) => {
 				const { updatedAt, title, iconImage, coverImage, _id, permissions, favorites } =
 					note;
@@ -53,7 +53,11 @@ const CardsViewNotes = ({ notes, fetchMoreNotes, userId }) => {
 				const isLocked = permissions?.private;
 
 				return (
-					<div key={_id} onClick={() => navigate(`/note/${_id}`)} className="noteCard">
+					<div
+						key={_id}
+						onClick={() => navigate(`/note/${_id}${isDatabase ? '/database' : ''}`)}
+						className="noteCard"
+					>
 						<div className="coverImageContainer">
 							{coverImage && <img src={coverImage} alt={title} />}
 						</div>

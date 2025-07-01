@@ -11,7 +11,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import Reducer from '../../context/notes/reducer';
-import { intialState } from '../../context/notes/state';
+// import { intialState } from '../../context/notes/state';
 import { Actions } from '../../context/notes/action';
 import {
 	getNotesListQuery,

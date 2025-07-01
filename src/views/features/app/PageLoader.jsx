@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import s from './pageLoader.module.scss';
 import Spinner from '../../components/loaders/Spinner';
 import useTheme from '../../hooks/useTheme';

@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import './smartFields.scss';
 import _ from 'lodash';
 import { ReactComponent as DropDown } from '../../../assets/svg/dropDown.svg';
@@ -19,7 +19,7 @@ import { ReactComponent as Link } from './smartFields/link.svg';
 import { ReactComponent as Currency } from './smartFields/currency.svg';
 import { ReactComponent as Lock } from './smartFields/lock.svg';
 
-import DatePicker from 'react-datepicker';
+// import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Input from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';

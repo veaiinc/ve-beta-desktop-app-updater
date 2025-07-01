@@ -13,7 +13,7 @@ import CreateTask from './CreateTask';
 import HeaderComponent from './HeaderComponent';
 import GoogleActions from './GoogleActions';
 import SlackActions from './SlackActions';
-import CreateMeeting from './CreateMeeting';
+// import CreateMeeting from './CreateMeeting';
 import Delay from './Delay';
 
 const integrations = [

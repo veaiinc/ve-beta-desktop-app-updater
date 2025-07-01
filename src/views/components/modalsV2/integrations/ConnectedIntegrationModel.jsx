@@ -1,7 +1,7 @@
 import React, { memo, useContext } from 'react';
 import ReactModal from '../../modalsV2/index';
 import { ReactComponent as BackIcon } from '../../../../assets/svg/left-arrow.svg';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import '../../../../assets/scss/integrations/ConnectedCardIntegrationModel.scss';
 import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';

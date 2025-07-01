@@ -33,7 +33,6 @@ const Title = ({ title: initialTitle, updatePublishedTemplate }) => {
 
 	const handleTitleSave = async () => {
 		if (title && title.trim() !== '') {
-			console.log('title', title);
 			const response = await updatePublishedTemplate(title);
 			if (response) {
 				setIsEditing(false);
@@ -42,6 +41,16 @@ const Title = ({ title: initialTitle, updatePublishedTemplate }) => {
 			message.error('Title cannot be empty');
 		}
 	};
+
+	const handleInputBlur = (e) => {
+		// Use setTimeout to delay the blur action, allowing click events to fire first
+		setTimeout(() => {
+			if (!e.relatedTarget || !e.relatedTarget.classList.contains('save-btn')) {
+				setIsEditing(false);
+			}
+		}, 100);
+	};
+
 	return (
 		<div className="title-container">
 			{isEditing ? (
@@ -52,14 +61,7 @@ const Title = ({ title: initialTitle, updatePublishedTemplate }) => {
 						type="text"
 						value={title}
 						onChange={handleTitleChange}
-						onBlur={(e) => {
-							if (
-								!e.relatedTarget ||
-								!e.relatedTarget.classList.contains('save-btn')
-							) {
-								setIsEditing(false);
-							}
-						}}
+						onBlur={handleInputBlur}
 						autoFocus
 					/>
 					<span

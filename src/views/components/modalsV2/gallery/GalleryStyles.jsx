@@ -1,5 +1,5 @@
 import ReactModal from '../index';
-import React from 'react';
+// import React from 'react';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import VerticalAlignSvg from '../../../../assets/svg/gallery/verticalAlignSvg.jsx';
 import HorizontalAlignSvg from '../../../../assets/svg/gallery/gridStyleHorizontalSvg.jsx';
