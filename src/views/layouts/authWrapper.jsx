@@ -2,23 +2,14 @@ import { memo } from 'react';
 import { Helmet } from 'react-helmet';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-
 import Sidebar from '../components/sidebar/Sidebar';
-import useAuth from '../../hooks/useAuth';
-import useSubscription from '../../hooks/useSubscription';
-import useTokenExpiry from '../../hooks/useTokenExpiry';
-
-import useAccessControls from '../../hooks/useAccessControls';
-
 import '../../assets/scss/authWrapper.scss';
 import ExpiredSubscriptionModal from '../components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from '../components/modalsV2/subscription/ExpiredTokenModal';
 import AccessDeniedPopup from '../components/accessPopups/accessDeniedPopup';
 import CustomToast from '../components/globalComponents/CustomToast';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
-import useTheme from '../../hooks/useTheme';
 import PageLoader from '../features/app/PageLoader';
-import useIntercom from '../../hooks/useIntercom';
+import useAuthInitializer from '../../hooks/useAuthInitializer';
 
 const AuthWrapper = ({
 	title,
@@ -31,13 +22,7 @@ const AuthWrapper = ({
 	childrenContainerStyles = {},
 	showSidebar = true,
 }) => {
-	useAuth();
-	useTheme();
-	useIntercom();
-	useSubscription();
-	useTokenExpiry();
-	useAccessControls();
-	const { loading } = useWorkspaceMode();
+	const { loading } = useAuthInitializer();
 
 	return loading ? (
 		<PageLoader />
