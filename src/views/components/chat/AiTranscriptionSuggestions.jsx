@@ -40,10 +40,10 @@ const AiTranscriptionSuggestions = ({ closeModal }) => {
 					<div className={s.suggestedQuestionsContainer}>
 						{userQuestions?.map((question, index) => (
 							<div className={s.suggestedUserQuestion} key={index}>
-								<div className={s.questionContainer}>
-									{/* <div className={s.questionType}>Detected Question</div> */}
-									{/* <div className={s.questionText}>{question?. || ''}</div> */}
-								</div>
+								{/* <div className={s.questionContainer}>
+									<div className={s.questionType}>Detected Question</div>
+									<div className={s.questionText}>{question?. || ''}</div>
+								</div> */}
 								<div className={s.answerContainer}>
 									<div className={s.text}>Ask User</div>
 									<div className={s.answerText}>{`"${
@@ -52,23 +52,25 @@ const AiTranscriptionSuggestions = ({ closeModal }) => {
 								</div>
 							</div>
 						))}
+
+						{Object?.keys(aiTranscriptionSuggestions?.responses || {})?.map(
+							(key, index) => (
+								<div className={s.suggestedUserQuestion} key={index}>
+									{/* <div className={s.questionContainer}>
+										<div className={s.questionType}>Detected Question</div>
+										<div className={s.questionText}>{question?. || ''}</div>
+									</div> */}
+									<div className={s.answerContainer}>
+										<div className={s.text}>Feedback</div>
+										<div className={s.answerText}>{`"${
+											aiTranscriptionSuggestions?.responses?.[key] || ''
+										}"`}</div>
+									</div>
+								</div>
+							),
+						)}
 					</div>
 				)}
-
-				{Object?.keys(aiTranscriptionSuggestions?.responses || {})?.map((key, index) => (
-					<div className={s.suggestedUserQuestion} key={index}>
-						<div className={s.questionContainer}>
-							{/* <div className={s.questionType}>Detected Question</div> */}
-							{/* <div className={s.questionText}>{question?. || ''}</div> */}
-						</div>
-						<div className={s.answerContainer}>
-							<div className={s.text}>Response</div>
-							<div className={s.answerText}>{`"${
-								aiTranscriptionSuggestions?.responses?.[key] || ''
-							}"`}</div>
-						</div>
-					</div>
-				))}
 
 				{aiQuestions?.length > 0 && (
 					<div className={s.actionsWrapper}>
