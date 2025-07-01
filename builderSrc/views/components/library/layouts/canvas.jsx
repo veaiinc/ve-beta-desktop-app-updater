@@ -23,16 +23,16 @@ import ReactPlayer from 'react-player';
 import Line from '../elements/line/index.jsx';
 import LogoSticker from '../elements/logosticker/index.jsx';
 import Video from '../elements/video/index.jsx';
-import Copy from './actions/copy.jsx';
+// import Copy from './actions/copy.jsx';
 import Delete from './actions/delete.jsx';
 import Down from './actions/down.jsx';
-import Edit from './actions/edit.jsx';
+// import Edit from './actions/edit.jsx';
 import Up from './actions/up.jsx';
-import Link from './actions/link.jsx';
+// import Link from './actions/link.jsx';
 
-import Underlay from './actions/underlay.jsx';
-import Overlay from './actions/overlay.jsx';
-import DragIcon from './actions/drag.jsx';
+// import Underlay from './actions/underlay.jsx';
+// import Overlay from './actions/overlay.jsx';
+// import DragIcon from './actions/drag.jsx';
 
 import Draggable from 'react-draggable';
 
@@ -57,7 +57,7 @@ import FluidBlockOptionsControls, {
 	ShowZIndexValues,
 } from './fluid-engine/FluidBlockOptionsControls.jsx';
 import LayoutResizeHandle from './fluid-engine/layoutResizeHandle.jsx';
-import MenuBar from '../elements/menubar/menubar.jsx';
+// import MenuBar from '../elements/menubar/menubar.jsx';
 // const GRID_ROWS = 8;
 
 const elements = [
@@ -4827,14 +4827,14 @@ class Layout extends Component {
 	// Modify your ref callback
 	handleBoxRef = (component, element) => {
 		// Exit early if element is null (unmounting) or already processed
-		// if (!element || this.boxRefs[component?._id] === element) {
-		// 	return;
-		// }
+		if ((!element || this.boxRefs[component?._id] === element) && this.props?.client) {
+			return;
+		}
 		// Store the ref in boxRefs
 		this.boxRefs[component?._id] = element;
-		// setTimeout(() => {
-		// 	this.returnAnimationClasses(component);
-		// }, 100);
+		setTimeout(() => {
+			this.returnAnimationClasses(component);
+		}, 100);
 		//! If it's a scroll animation, initialize the observer
 		// if (this.state?.preview == true && this.props?.client == true) {
 		// 	if (element && component?.animations?.animeType === 'scroll') {
@@ -9110,8 +9110,8 @@ class Layout extends Component {
 															this.onClickAnime(component);
 														}
 													}}
+													// ${this.returnAnimationClasses(component)}
 													className={`column  
-													${this.returnAnimationClasses(component)}
 														 ${component.listCount && 'listAnimation'} ${
 														_.has(component, 'className')
 															? _.has(component, 'mclassName') &&

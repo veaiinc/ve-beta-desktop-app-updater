@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/smart-file-components/services.scss';
-import ToggleSlider from '../ui-components/slider';
+// import ToggleSlider from '../ui-components/slider';
 import Context from '../../../context/context';
 
 const serviceStyleMapper = {

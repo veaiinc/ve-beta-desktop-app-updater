@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 
 const DotSvg = ({ fill = '#FFCE56' }) => (
 	<svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">

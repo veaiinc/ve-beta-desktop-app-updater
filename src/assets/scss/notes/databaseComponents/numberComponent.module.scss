@@ -1,0 +1,42 @@
+.numberComponent {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	padding: 4px 10px;
+	border-radius: 8px;
+	min-height: 32px;
+
+	.numberValue {
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	.numberInput {
+		background-color: transparent;
+		border: none;
+		resize: none;
+		overflow: hidden;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		width: 100%;
+		outline: none;
+
+		&::-webkit-inner-spin-button,
+		&::-webkit-outer-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+	}
+
+	&:hover {
+		background-color: var(--card);
+	}
+}

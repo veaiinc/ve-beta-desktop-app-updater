@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import Text from '../../elements/text';
-import ImageItem from '../../elements/image';
+// import ImageItem from '../../elements/image';
 import _ from 'lodash';
 import '../index.scss';
-import Button from '../../elements/button';
+// import Button from '../../elements/button';
 // import { ReactComponent as Edit } from '../actions/edit.svg';
 // import { ReactComponent as Copy } from '../actions/copy.svg';
 import Down from '../actions/down.jsx';
@@ -1326,7 +1326,7 @@ class Layout1 extends Component {
 									onClick={() =>
 										this.props.addServiceBlock(this.state.style?.services_style)
 									}
-									style={{ padding: '24px 0px' }}
+									style={{ padding: '24px 0px', width: 'fit-content' }}
 								>
 									+ Add Service
 								</span>

@@ -5,10 +5,10 @@ import { ReactComponent as DarkIcon } from '../../../assets/svg/onboarding/dark.
 import { ReactComponent as LightIcon } from '../../../assets/svg/onboarding/light.svg';
 import { ReactComponent as UploadIcon } from '../../../assets/svg/onboarding/upload-icon.svg';
 import { ReactComponent as DownArrow } from '../../../assets/svg/onboarding/down-arrow.svg';
-import { Tooltip } from 'antd';
-import ToolTipContainer from '../../components/popover/ToolTipContainer';
-import WorkspaceTypeOptions from '../../components/onboarding/WorkspaceTypeOptions';
-import Spinner from '../../components/loaders/Spinner';
+// import { Tooltip } from 'antd';
+// import ToolTipContainer from '../../components/popover/ToolTipContainer';
+// import WorkspaceTypeOptions from '../../components/onboarding/WorkspaceTypeOptions';
+// import Spinner from '../../components/loaders/Spinner';
 
 const themePreferences = [
 	{ id: 1, label: 'System Default', icon: null, value: 'systemDefault' },

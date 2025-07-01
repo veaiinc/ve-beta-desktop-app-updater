@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import Arc from './scrollAdjustments/Arc';
 import Blur from './scrollAdjustments/Blur';
 import Expand from './scrollAdjustments/Expand';

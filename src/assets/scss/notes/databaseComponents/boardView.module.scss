@@ -1,0 +1,153 @@
+.boardViewWrapper {
+	width: 100%;
+	display: flex;
+	gap: 10px;
+	overflow-x: auto;
+	height: fit-content;
+
+	.board {
+		background-color: var(--card);
+		border-radius: 12px;
+		width: 290px;
+		height: fit-content;
+		flex-shrink: 0;
+
+		.boardHeader {
+			border-radius: 12px 12px 0 0;
+			padding: 6px 10px;
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+			font-size: 12px;
+			font-weight: 500;
+
+			.totalDocs {
+				font-size: 12px;
+				font-weight: 400;
+				color: var(--text-secondary);
+				margin-left: 10px;
+			}
+		}
+		.boardBody {
+			height: fit-content;
+			padding: 6px;
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			min-height: 100px;
+			transition: all 0.2s ease;
+			position: relative;
+
+			// Style the react-beautiful-dnd placeholder - Notion-like simple line
+			[data-rbd-placeholder-context-id] {
+				height: 2px;
+				background-color: transparent;
+				border-radius: 0;
+				margin: 2px 0;
+				opacity: 0;
+				// Remove animation for cleaner look like Notion
+			}
+
+			// Custom drop indicator - Notion-like simple line
+			.dropIndicator {
+				height: 2px;
+				background-color: #3b82f6;
+				border-radius: 0;
+				margin: 2px 0;
+				opacity: 0.8;
+				width: 100%;
+				// No animation for cleaner look like Notion
+			}
+
+			.card {
+				background-color: var(--card-over-card);
+				border-radius: 12px;
+				padding: 10px;
+				flex-shrink: 0;
+				height: fit-content;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				padding: 10px;
+				cursor: grab;
+				transition: all 0.2s ease;
+				user-select: none;
+				position: relative;
+
+				&:active {
+					cursor: grabbing;
+				}
+
+				&.dragging {
+					transform: rotate(2deg);
+					box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+					opacity: 0.9;
+					z-index: 1000;
+				}
+
+				&.readOnly {
+					cursor: default;
+					opacity: 0.7;
+
+					&:active {
+						cursor: default;
+					}
+				}
+
+				.cardField {
+					display: flex;
+					flex-direction: column;
+					gap: 10px;
+				}
+			}
+		}
+		.loadMoreContainer {
+			display: flex;
+			padding: 0 6px 6px;
+			justify-content: center;
+			align-items: center;
+			width: 100%;
+			.loadMoreButton {
+				width: 100%;
+				background-color: var(--card-over-card);
+				border-radius: 12px;
+				padding: 10px;
+				font-size: 12px;
+				cursor: pointer;
+			}
+		}
+	}
+
+	.boardViewFooter {
+		background-color: var(--card);
+		padding: 12px 16px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border-radius: 12px;
+		flex-shrink: 0;
+		width: 290px;
+		height: fit-content;
+
+		.boardViewFooterButton {
+			background-color: var(--card);
+			border: none;
+			border-radius: 4px;
+			padding: 4px 8px;
+			font-size: 13px;
+			cursor: pointer;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-weight: 500;
+
+			&:disabled {
+				opacity: 0.6;
+				cursor: not-allowed;
+			}
+
+			&:hover:not(:disabled) {
+				background-color: var(--card-hover);
+			}
+		}
+	}
+}

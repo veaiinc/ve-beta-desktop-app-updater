@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback, useRef, useEffect } from 'react';
+import { memo, useState, useCallback, useRef, useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 import TableHeader from '../listView/TableHeader';
 import TableBody from '../listView/TableBody';
@@ -7,7 +7,7 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../../../assets/scss/tasks/tableView.scss';
 import InfiniteScroll from '../../globalComponents/InfiniteScroll';
-import { Background } from '@xyflow/react';
+// import { Background } from '@xyflow/react';
 
 const TableView = ({
 	properties,

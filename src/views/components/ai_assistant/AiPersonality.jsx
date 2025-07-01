@@ -9,7 +9,7 @@ import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.sv
 import CustomInput from '../globalComponents/CustomInput';
 import { Tooltip } from 'antd';
 import { message } from '../globalComponents/CustomToast';
-import CustomTextArea from '../globalComponents/CustomTextArea';
+// import CustomTextArea from '../globalComponents/CustomTextArea';
 import Context from '../../../context/context';
 
 const personas = [

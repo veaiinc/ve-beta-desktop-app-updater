@@ -10,7 +10,7 @@ import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/b
 import { ReactComponent as Copy } from '../../../assets/svg/worflow_builder/buildercard/labelledCopy.svg';
 import { ReactComponent as ShockIcon } from '../../../assets/svg/automation_builder/shock.svg';
 import { ReactComponent as SwitchIcon } from '../../../assets/svg/automation_builder/switch.svg';
-import UpdatedDeleteWorkflowStep from '../modalsV2/automationBuilder/UpdatedDeleteStepsModal';
+// import UpdatedDeleteWorkflowStep from '../modalsV2/automationBuilder/UpdatedDeleteStepsModal';
 import { ReactComponent as OpenEye } from '../../../assets/svg/gallery/open-eye.svg';
 import { ReactComponent as CrossedOpenEye } from '../../../assets/svg/gallery/crossedOpenEye.svg';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';

@@ -1,9 +1,9 @@
-import React from 'react';
+// import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import AgentDetails from '../../views/components/agents/agentDetails/AgentDetails';
-import Context from '../../context/context';
+// import Context from '../../context/context';
 import ContextState from '../../context/ContextStates';
 //Component renders without crashing
 

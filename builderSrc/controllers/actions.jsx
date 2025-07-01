@@ -1,6 +1,6 @@
 import * as API from './actionTypes';
 import service from '../services/index';
-import _, { sortBy } from 'lodash';
+// import _, { sortBy } from 'lodash';
 
 /*
 
