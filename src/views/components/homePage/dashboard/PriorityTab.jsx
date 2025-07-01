@@ -1,9 +1,9 @@
 import React, { memo, useContext, useState, useEffect } from 'react';
-import RequiredActionsLoader from '../../sales/RequiredActionsLoader';
+// import RequiredActionsLoader from '../../sales/RequiredActionsLoader';
 import '../../../../assets/scss/sales/sales.scss';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
-import FilterCheckBox from '../../sales/FilterCheckBox';
+// import FilterCheckBox from '../../sales/FilterCheckBox';
 import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';

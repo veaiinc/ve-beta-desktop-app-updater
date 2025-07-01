@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './forms.scss';
 import FormElement from './formElement';
-import Button from '../../elements/button';
+// import Button from '../../elements/button';
 import _ from 'lodash';
 const padding = ['0px', '20px', '40px', '60px', '80px'];
 class Form extends Component {

@@ -187,15 +187,23 @@
 	text-decoration: underline;
 }
 .listItem-checkBox {
-	padding: 12px 0;
-	width: 28px;
-	height: 28px;
+	width: 18px !important;
+	height: 18px !important;
 	border-radius: 6px;
 	border: 2px solid var(--stroke);
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	cursor: pointer;
+	overflow: hidden;
+	font-size: 16px;
+	font-weight: bold;
+
+	&.checked {
+		background-color: var(--primary-font);
+		border-color: var(--primary-font);
+		color: var(--background-color);
+	}
 }
 
 .listItem-timeStamp {
@@ -375,8 +383,13 @@
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	max-width: 100px;
 	cursor: pointer;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	&.max-width {
+		max-width: 100px;
+	}
 }
 :where(.css-dev-only-do-not-override-mc1tut).ant-picker-outlined:hover {
 	background-color: transparent !important;

@@ -10,7 +10,7 @@ import { ReactComponent as DownArrow } from '../../../assets/svg/smartFile/downA
 import { ReactComponent as UpperArrow } from '../../../assets/svg/smartFile/upperArrow.svg';
 import File from './File';
 import Variables from './Variables';
-import ViewDocument from '../ViewDocument/viewDocument';
+// import ViewDocument from '../ViewDocument/viewDocument';
 import { useNavigate, useLocation } from 'react-router-dom';
 import DocumentShare from '../../feature/document/DocumentShare';
 import FormDescription from '../../feature/document/FormDescription';

@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import { Drawer } from 'antd/lib';
 
 const BottomModal = ({ onHide, show, children, title, height = '70%' }) => {

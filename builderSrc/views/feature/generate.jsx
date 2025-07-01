@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+// import React, { Component } from 'react';
 import { withRouter } from '../../services/withRouter';
-import ProposalImage from '../../assets/svg/samples/1.png';
-import InvoiceImage from '../../assets/svg/samples/2.png';
-import ContractImage from '../../assets/svg/samples/3.png';
-import ThankyouImage from '../../assets/svg/samples/4.png';
+// import ProposalImage from '../../assets/svg/samples/1.png';
+// import InvoiceImage from '../../assets/svg/samples/2.png';
+// import ContractImage from '../../assets/svg/samples/3.png';
+// import ThankyouImage from '../../assets/svg/samples/4.png';
 import { ReactComponent as Loader } from '../../assets/svg/generate-loader.svg';
 import { ReactComponent as Preview } from '../../assets/svg/preview.svg';
 import { ReactComponent as Shuffle } from '../../assets/svg/shuffle.svg';
@@ -13,7 +13,7 @@ import Proposals from '../../controllers/proposals';
 import ManagePages from '../components/managePages';
 import GenerateModule from '../components/generate/module';
 import ManageBlocks from '../components/manageBlocks';
-import ManageTheme from '../components/manageTheme';
+// import ManageTheme from '../components/manageTheme';
 import _ from 'lodash';
 const query = gql`
 	query Query($getDetailedTemplateInfoId: ID!) {

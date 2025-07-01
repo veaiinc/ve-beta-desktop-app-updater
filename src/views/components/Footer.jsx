@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import '../../assets/scss/footer.scss';
 import { ReactComponent as VE } from '../../assets/svg/ve.svg';
 import { ReactComponent as Email } from '../../assets/svg/footer/email.svg';

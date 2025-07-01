@@ -283,6 +283,14 @@ const betaRoutes = [
 		),
 	},
 	{
+		path: '/database',
+		element: (
+			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
+				<NotesPage isDatabase={true} />
+			</AuthWrapper>
+		),
+	},
+	{
 		path: '/contacts',
 		element: (
 			<AuthWrapper
@@ -432,6 +440,23 @@ const betaRoutes = [
 				sidebarContainerClassName={'auth-sidebar-container'}
 			>
 				<Notes />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/note/:noteId/database',
+		element: (
+			<AuthWrapper
+				title={'Notes'}
+				outerContainerStyle={{
+					backgroundColor: 'var(--background-color)',
+					padding: '0px',
+				}}
+				sidebarContainerStyles={{ padding: '0px' }}
+				maxWidth={'100%'}
+				sidebarContainerClassName={'auth-sidebar-container'}
+			>
+				<Notes isDatabase={true} />
 			</AuthWrapper>
 		),
 	},

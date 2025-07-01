@@ -5,10 +5,11 @@ import Context from '../../../../context/context';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import { ReactComponent as Arrow } from '../../../../assets/svg/subscription/diagonalArrow.svg';
 import AddOnCards from '../../settings/planbilling/addOnCards';
+import { Tooltip } from 'antd';
 
 const customStyles = {
-	content: { zIndex: 99999 },
-	overlay: { zIndex: 99998 },
+	content: { zIndex: 999 },
+	overlay: { zIndex: 998 },
 };
 
 const BYTES_PER_GB = 1073741824;
@@ -39,8 +40,8 @@ const ExpiredSubscriptionModal = () => {
 	// // Mapper for subscription types to dataUsed and dataLimit
 	const subscriptionTypeConfig = {
 		'Classic-Gallery': {
-			dataUsed: currentPlan?.storageUsedInBytes
-				? Number((currentPlan.storageUsedInBytes / BYTES_PER_GB).toFixed(2))
+			dataUsed: currentPlan?.cumulativeStorageUsedInBytes
+				? Number((currentPlan.cumulativeStorageUsedInBytes / BYTES_PER_GB).toFixed(2))
 				: 0,
 			dataLimit: currentPlan?.storageLimitInBytes
 				? Number((currentPlan.storageLimitInBytes / BYTES_PER_GB).toFixed(2))
@@ -62,9 +63,21 @@ const ExpiredSubscriptionModal = () => {
 			dataUsed: currentPlan?.conversationalAgentUsed ?? 0,
 			dataLimit: currentPlan?.conversationalAgentLimit ?? 0,
 		},
+		'Classic-Gallery-Upload': {
+			dataUsed: currentPlan?.cumulativeStorageUsedInBytes
+				? Number((currentPlan.cumulativeStorageUsedInBytes / BYTES_PER_GB).toFixed(2))
+				: 0,
+			dataLimit: currentPlan?.storageLimitInBytes
+				? Number((currentPlan.storageLimitInBytes / BYTES_PER_GB).toFixed(2))
+				: 0,
+			dataLimitForUpload: currentPlan?.storageLimitInBytes
+				? Number((currentPlan.storageLimitInBytes / BYTES_PER_GB) * 1.5).toFixed(2)
+				: 0,
+		},
 	};
 
-	const { dataUsed, dataLimit } = subscriptionTypeConfig[expiredSubscriptionType] || {};
+	const { dataUsed, dataLimit, dataLimitForUpload } =
+		subscriptionTypeConfig[expiredSubscriptionType] || {};
 
 	const closeModal = useCallback(() => {
 		updateSubscriptionState({ expiredSubscriptionModal: false, expiredSubscriptionType: null });
@@ -111,6 +124,8 @@ const ExpiredSubscriptionModal = () => {
 								You have reached the limit of your{' '}
 								{expiredSubscriptionType === 'Tenants'
 									? 'Tenants Users Count'
+									: expiredSubscriptionType === 'Classic-Gallery-Upload'
+									? 'Uploads for Classic Gallery'
 									: expiredSubscriptionType}
 								.
 							</span>
@@ -119,10 +134,26 @@ const ExpiredSubscriptionModal = () => {
 							<Close />
 						</span>
 					</div>
-					{expiredSubscriptionType && (
+					{/* {expiredSubscriptionType && ( */}
+					<>
 						<div className="progressBarMainContainer">
-							<div className="progressBarTextContainer">
-								{dataUsed} out of {dataLimit}
+							<div
+								className="progressBarTextContainer"
+								style={{
+									justifyContent:
+										expiredSubscriptionType === 'Classic-Gallery-Upload' ||
+										expiredSubscriptionType === 'Classic-Gallery'
+											? 'space-between'
+											: 'flex-end',
+								}}
+							>
+								{(expiredSubscriptionType === 'Classic-Gallery-Upload' ||
+									expiredSubscriptionType === 'Classic-Gallery') && (
+									<span>Storage</span>
+								)}
+								<span className="progressBarValues">
+									{dataUsed} out of {dataLimit}
+								</span>
 							</div>
 							<div className="progressBarContainer">
 								<div
@@ -137,7 +168,71 @@ const ExpiredSubscriptionModal = () => {
 								/>
 							</div>
 						</div>
-					)}
+						{/* {expiredSubscriptionType === 'Classic-Gallery-Upload' && ( */}
+						<div className="progressBarMainContainer">
+							<div
+								className="progressBarTextContainer"
+								style={{
+									justifyContent:
+										expiredSubscriptionType === 'Classic-Gallery-Upload' ||
+										expiredSubscriptionType === 'Classic-Gallery'
+											? 'space-between'
+											: 'flex-end',
+								}}
+							>
+								{(expiredSubscriptionType === 'Classic-Gallery-Upload' ||
+									expiredSubscriptionType === 'Classic-Gallery') && (
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '4px',
+										}}
+									>
+										Upload Limit{' '}
+										<Tooltip
+											title={
+												<div className="expiredTooltipContainer">
+													"As Per the{' '}
+													<a href="/terms-of-service" target="_blank">
+														Terms and Conditions
+													</a>
+													, the upload limit is 1.5 times the storage
+													limit"
+												</div>
+											}
+											color="transparent"
+											arrow={false}
+											placement="bottom"
+										>
+											{' '}
+											<span className="expiredTooltipIcon"> ?</span>
+										</Tooltip>
+									</div>
+								)}
+								<span className="Progress">
+									{dataUsed} out of {dataLimitForUpload}
+								</span>
+							</div>
+							<div className="progressBarContainer">
+								<div
+									className="progressBar"
+									style={{
+										width: `${
+											dataLimitForUpload
+												? Math.min(
+														(dataUsed / dataLimitForUpload) * 100,
+														100,
+												  )
+												: 0
+										}%`,
+									}}
+								/>
+							</div>
+						</div>
+						{/* )} */}
+					</>
+					{/* )} */}
 					<span className="expiredSubText">
 						{isAdmin
 							? 'Upgrade your plan to continue.'

@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 const ScrollPopup = ({ activeElementAnimeName, handleElementAnimationsValue }) => {
 	// const handleAdjustAnimations = () => {
 	// console.log('Adjust Animations button clicked!');

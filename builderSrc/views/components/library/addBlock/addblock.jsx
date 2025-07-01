@@ -2,7 +2,7 @@ import React, { Component, createRef } from 'react';
 import './add-block.scss';
 import { Tooltip } from 'antd';
 import { ReactComponent as Icon } from './next.svg';
-import { gsap } from 'gsap';
+// import { gsap } from 'gsap';
 
 const baseUrl = 'https://ap.images.ve.ai';
 

@@ -14,7 +14,7 @@ import ToggleSwitch from '../../components/input/slider';
 import Context from '../../../context/context';
 import moment from 'moment/moment';
 import ReactModal from '../modalsV2';
-import { Tooltip } from 'antd';
+// import { Tooltip } from 'antd';
 import PhoneInput from 'react-phone-number-input';
 import { isURL } from '../../../helpers';
 

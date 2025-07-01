@@ -1,19 +1,24 @@
-import React, { useState, memo } from 'react';
+import { useState, memo, useEffect } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 
-import { ReactComponent as Check } from '../../../../assets/svg/tasks/checkmark.svg';
-
-const CheckBox = ({ value }) => {
+const CheckBox = ({ value, onChange }) => {
 	const [info, setInfo] = useState({ checked: value });
+	useEffect(() => {
+		setInfo({ checked: value });
+	}, [value]);
 	const updateCheckBoxInfo = (key, value) => {
 		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
+		onChange(value);
 	};
 	return (
 		<div
-			className="listItem-checkBox"
-			onClick={() => updateCheckBoxInfo('checked', !info?.checked)}
+			className={`listItem-checkBox ${info?.checked ? 'checked' : ''}`}
+			onClick={(e) => {
+				e.stopPropagation();
+				updateCheckBoxInfo('checked', !info?.checked);
+			}}
 		>
-			{info?.checked ? <Check /> : ''}
+			{info?.checked ? '✓' : ''}
 		</div>
 	);
 };

@@ -10,7 +10,7 @@ import {
 } from '../../../builder_client_common';
 import HamburgerIcons from './HamburgerICons';
 import CartIcons from './CartIcons';
-import { HamburgerOne } from '../../svgs/Navbar/Hamburger/HamburgerComponent';
+// import { HamburgerOne } from '../../svgs/Navbar/Hamburger/HamburgerComponent';
 import _ from 'lodash';
 class MobileNavbarComponent extends Component {
 	constructor(props) {

@@ -29,11 +29,11 @@ import Up from './actions/up.jsx';
 
 import Underlay from './actions/underlay.jsx';
 import Overlay from './actions/overlay.jsx';
-import DragIcon from './actions/drag.jsx';
+// import DragIcon from './actions/drag.jsx';
 
 import Draggable from 'react-draggable';
 import { ReactComponent as Rotate } from '../../../../assets/svg/rotate.svg';
-import { ListGroup } from 'react-bootstrap';
+// import { ListGroup } from 'react-bootstrap';
 
 //import Proposals from "../../../controllers/proposals";
 const disabledModules = ['contract', 'invoice', 'thankyou'];

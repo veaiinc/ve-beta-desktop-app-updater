@@ -4,7 +4,7 @@ import '../../../../assets/scss/calendar/modal/createSessionModal.scss';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import { ReactComponent as Down } from '../../../../assets/svg/calendar/down.svg';
 import { ReactComponent as DateSvg } from '../../../../assets/svg/calendar/date.svg';
-import InputComponent from '../../ai_assistant/InputComponent';
+// import InputComponent from '../../ai_assistant/InputComponent';
 import { Tooltip, DatePicker } from 'antd';
 import dayjs from 'dayjs';
 import Context from '../../../../context/context';

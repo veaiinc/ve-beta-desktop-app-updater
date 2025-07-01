@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import PhoneInput from 'react-phone-number-input';
+// import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
-import { getCountryCallingCode } from 'react-phone-number-input';
-import Draggable from 'react-draggable';
+// import { getCountryCallingCode } from 'react-phone-number-input';
+// import Draggable from 'react-draggable';
 import * as GoogleFonts from 'google-fonts-complete';
 import Confetti from 'react-confetti';
 import { Popover } from 'antd';
