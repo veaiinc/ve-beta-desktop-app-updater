@@ -70,3 +70,15 @@
 		}
 	}
 }
+@media (max-width: 768px) {
+	.introStepContainer .introContent .introTitle {
+		font-size: 32px;
+		font-weight: 600;
+		line-height: 30px; /* 125% */
+	}
+	.introDesc {
+		font-size: 13px;
+		line-height: 20px;
+		width: 300px;
+	}
+}
