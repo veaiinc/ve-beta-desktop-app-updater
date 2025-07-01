@@ -15,6 +15,7 @@ const TabEditDropdown = ({
 	handleTabChange,
 	handleTabDropdownClick,
 	tabLength,
+	showEditDuplicate = true,
 }) => {
 	const [info, setInfo] = useState({
 		showEditViewDropDown: false,
@@ -40,25 +41,32 @@ const TabEditDropdown = ({
 	return (
 		<Tooltip
 			title={
-				<div className="tab-tooltip-content">
-					{tabTooltipContent?.map((item, index) => (
-						<div
-							className="tab-tooltip-content-item"
-							key={index}
-							onClick={() =>
-								customHandleTabDropdownClick({
-									value: item?.value,
-									tabId: tab?._id,
-								})
-							}
-						>
-							<div className="tab-tooltip-content-item-icon">{item?.icon}</div>
-							<div className="tab-tooltip-content-item-label">{item?.label}</div>
-						</div>
-					))}
+				<div
+					className={`tab-tooltip-content ${
+						!showEditDuplicate && tabLength === 1 ? 'hide-tooltip' : ''
+					}`}
+				>
+					{showEditDuplicate &&
+						tabTooltipContent?.map((item, index) => (
+							<div
+								className="tab-tooltip-content-item"
+								key={index}
+								onClick={() =>
+									customHandleTabDropdownClick({
+										value: item?.value,
+										tabId: tab?._id,
+									})
+								}
+							>
+								<div className="tab-tooltip-content-item-icon">{item?.icon}</div>
+								<div className="tab-tooltip-content-item-label">{item?.label}</div>
+							</div>
+						))}
 					{tabLength > 1 && (
 						<div
-							className="delete-view-container"
+							className={`delete-view-container ${
+								!showEditDuplicate ? 'hide-border' : ''
+							}`}
 							onClick={() =>
 								customHandleTabDropdownClick({ value: 'delete', tabId: tab?._id })
 							}
@@ -93,7 +101,7 @@ const TabEditDropdown = ({
 				// 	handleStateChange({ showEditViewDropDown: !info?.showEditViewDropDown });
 				// }}
 			>
-				<div className="tab-icon">{layouts[tab?.viewType]?.Icon}</div>
+				<div className="tab-icon">{layouts[tab?.viewType || tab?.type]?.Icon}</div>
 				<div className="tab-title">{tab?.label}</div>
 			</div>
 		</Tooltip>

@@ -7,7 +7,7 @@ import { ReactComponent as NoteIcon } from '../../../assets/svg/notesPage/note-i
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 
-const CreateNewNote = ({ viewMode }) => {
+const CreateNewNote = ({ viewMode, isDatabase = false }) => {
 	const navigate = useNavigate();
 
 	const {
@@ -26,10 +26,10 @@ const CreateNewNote = ({ viewMode }) => {
 			},
 		};
 		setInfo((prev) => ({ ...prev, creatingNoteLoader: true }));
-		const response = await createNotesList(payload);
+		const response = await createNotesList(payload, isDatabase);
 		if (response?.[1]?._id) {
 			const newNoteId = response[1]?._id;
-			navigate(`/note/${newNoteId}`);
+			navigate(`/note/${newNoteId}${isDatabase ? '/database' : ''}`);
 		}
 	};
 
