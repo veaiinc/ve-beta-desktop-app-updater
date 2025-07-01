@@ -1,10 +1,5 @@
-import { useEffect, useState } from 'react';
-import {
-	useLocation,
-	useNavigate,
-	useParams,
-	useSearchParams,
-} from 'react-router-dom';
+// import { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 export const withRouter = (WrappedComponent) => (props) => {
 	const params = useParams();

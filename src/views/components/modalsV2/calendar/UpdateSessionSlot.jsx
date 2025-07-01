@@ -5,7 +5,7 @@ import { ReactComponent as Delete } from '../../../../assets/svg/ai_assistant/de
 import { ReactComponent as Down } from '../../../../assets/svg/calendar/down.svg';
 import { ReactComponent as Clock } from '../../../../assets/svg/workflow/clock.svg';
 import moment from 'moment';
-import ToggleSwitch from '../../../components/input/slider';
+// import ToggleSwitch from '../../../components/input/slider';
 import { Tooltip } from 'antd';
 
 const customStyles = {

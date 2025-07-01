@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import '../../../assets/scss/document/acceptModel.scss';
-import Spinner from '../loaders/Spinner';
+// import Spinner from '../loaders/Spinner';
 import { useParams, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import { message } from '../../../../src/views/components/globalComponents/CustomToast';

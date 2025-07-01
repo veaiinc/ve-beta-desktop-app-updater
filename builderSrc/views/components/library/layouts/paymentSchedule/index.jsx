@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import { ReactComponent as UpDown } from '../../svgs/dropDown.svg';
-import _ from 'lodash';
+// import _ from 'lodash';
 import '../invoices/inovice.scss';
 import { BlockSidebar } from '../../../builder_client_common';
 // avtions

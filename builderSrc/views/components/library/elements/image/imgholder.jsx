@@ -1,5 +1,5 @@
 import * as React from 'react';
-import _ from 'lodash';
+// import _ from 'lodash';
 import Icon from '../../svgs/placeholder.jsx';
 const Placeholder = (props) => {
 	let theme;

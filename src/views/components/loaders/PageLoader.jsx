@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import '../../../assets/scss/pageLoader.scss';
 import { ReactComponent as Logo } from '../../../assets/svg/windmill.svg';
 const InitialPageLoader = () => {

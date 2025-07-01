@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/gallery/modals/deletePopup.scss';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';

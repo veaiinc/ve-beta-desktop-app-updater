@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+// import React, { Component } from 'react';
 import * as Action from './actions';
-import _ from 'lodash';
+// import _ from 'lodash';
 import axios from 'axios';
-import moment from 'moment';
+// import moment from 'moment';
 import Proposals from './proposals';
 
 class Images extends Proposals {
