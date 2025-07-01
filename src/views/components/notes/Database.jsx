@@ -36,6 +36,7 @@ import SortComponent from './DatabseComponents/SortComponent';
 import GroupComponent from './DatabseComponents/GroupComponent';
 import BoardView from './DatabseComponents/views/BoardView';
 import GalleryView from './DatabseComponents/views/GalleryView';
+import ViewRenderer from './DatabseComponents/views/ViewRenderer';
 
 export const rowTypes = {
 	text: TextField,
@@ -652,52 +653,15 @@ const DatabaseComponent = ({ block, editor }) => {
 							<Spinner />
 						</div>
 					) : (
-						<>
-							{selectedDatabaseView?.type === 'table' && (
-								<TableView
-									groupData={groupData}
-									metaInfo={metaInfo}
-									columns={columns}
-									databaseId={databaseId}
-									pageId={pageId}
-									view={selectedDatabaseView}
-									blockId={block?.id}
-								/>
-							)}
-							{selectedDatabaseView?.type === 'list' && (
-								<ListView
-									groupData={groupData}
-									metaInfo={metaInfo}
-									columns={columns}
-									databaseId={databaseId}
-									pageId={pageId}
-									view={selectedDatabaseView}
-									blockId={block?.id}
-								/>
-							)}
-							{selectedDatabaseView?.type === 'board' && (
-								<BoardView
-									groupData={groupData}
-									metaInfo={metaInfo}
-									columns={columns}
-									databaseId={databaseId}
-									pageId={pageId}
-									view={selectedDatabaseView}
-									blockId={block?.id}
-								/>
-							)}
-							{selectedDatabaseView?.type === 'gallery' && (
-								<GalleryView
-									groupData={groupData}
-									metaInfo={metaInfo}
-									columns={columns}
-									databaseId={databaseId}
-									pageId={pageId}
-									view={selectedDatabaseView}
-									blockId={block?.id}
-								/>
-							)}
-						</>
+						<ViewRenderer
+							selectedDatabaseView={selectedDatabaseView}
+							groupData={groupData}
+							metaInfo={metaInfo}
+							columns={columns}
+							databaseId={databaseId}
+							pageId={pageId}
+							block={block}
+						/>
 					)}
 
 					<DatabaseAddModal

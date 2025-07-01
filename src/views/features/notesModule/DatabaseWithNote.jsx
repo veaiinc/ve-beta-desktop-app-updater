@@ -41,12 +41,13 @@ import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
-import { ImageBlock, insertImage } from '../../components/notes/ImageComponent';
+import { ImageBlock } from '../../components/notes/ImageComponent';
 import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
 import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 import { isEqual } from 'lodash';
-import { Database, insertDatabase } from '../../components/notes/Database';
+import { Database } from '../../components/notes/Database';
 import DatabaseSidebar from '../../components/modalsV2/notes/DatabaseSidebar';
+import SlashMenu from '../../components/notes/SlashMenu';
 
 export const NotesRefContext = createContext(null);
 
@@ -216,16 +217,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 	useEffect(() => {
 		if (blocks) {
-			// const testBlock = [
-			// 	{ id: 'example-id', type: 'database', props: { databaseId: null, pageId: noteId } },
-			// 	{
-			// 		type: 'paragraph',
-			// 		content: [],
-			// 	},
-			// ];
-			// previousBlocksRef.current = new Map(testBlock?.map((block) => [block.id, block]));
-			// loadNotesContent(testBlock);
-
 			previousBlocksRef.current = new Map(blocks?.data?.map((block) => [block.id, block]));
 			loadNotesContent(blocks?.data);
 		}
@@ -1235,51 +1226,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 											resetAiResponse={resetAiResponse}
 										/>
 									)}
-									<SuggestionMenuController
-										triggerCharacter={'/'}
-										getItems={async (query) => {
-											// Gets all default slash menu items
-											let defaultItems =
-												getDefaultReactSlashMenuItems(editor);
-
-											// Find index of image block in Media group
-											const imageBlockIndex = defaultItems.findIndex(
-												(item) => item.group === 'Media',
-											);
-											// Insert the image item in Media group
-											defaultItems.splice(
-												imageBlockIndex,
-												0,
-												insertImage(editor, noteId),
-											);
-
-											// Find index of last item in Advanced group
-											const lastAdvanceBlockIndex =
-												defaultItems.findLastIndex(
-													(item) => item.group === 'Advanced',
-												);
-											// Insert the database item after Advanced group
-											defaultItems.splice(
-												lastAdvanceBlockIndex + 1,
-												0,
-												insertDatabase(editor, noteId),
-											);
-
-											const allowedBlocks = [
-												'heading',
-												'heading_2',
-												'heading_3',
-												'database',
-											];
-
-											defaultItems = defaultItems.filter((item) =>
-												allowedBlocks.includes(item.key),
-											);
-
-											// Return filtered items based on the query
-											return filterSuggestionItems(defaultItems, query);
-										}}
-									/>
+									<SlashMenu editor={editor} noteId={noteId} />
 								</BlockNoteView>
 							</div>
 						</>
