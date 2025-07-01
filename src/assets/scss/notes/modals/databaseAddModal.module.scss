@@ -1,0 +1,92 @@
+.databaseAddModalContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	background-color: var(--card, #18191b);
+	border-radius: 24px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	width: 400px;
+	max-height: 440px;
+	padding: 20px;
+	gap: 20px;
+
+	.databaseAddModalHeader {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		width: 100%;
+		gap: 10px;
+		h3 {
+			font-size: 16px;
+			font-weight: 600;
+			color: var(--primary-font, #f2f2f3);
+		}
+	}
+
+	.databaseAddModalBody {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		width: 100%;
+		gap: 10px;
+		overflow-y: auto;
+		.databaseAddModalBodyRow {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			width: 100%;
+			gap: 10px;
+
+			.databaseAddModalBodyRowField {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				width: 100%;
+				gap: 4px;
+
+				label {
+					font-size: 14px;
+					font-weight: 500;
+					color: var(--primary-font, #f2f2f3);
+				}
+
+				input {
+					width: 100%;
+					height: 40px;
+					border-radius: 8px;
+					border: 1px solid var(--stroke, #2c2d2e);
+					background: var(--background, #18191b);
+					color: var(--primary-font, #f2f2f3);
+					padding: 0 10px;
+				}
+
+				.databaseAddModalBodyRowInput {
+					width: 100%;
+					height: 30px;
+					border-radius: 8px;
+					background: transparent;
+					border: 1px solid var(--stroke, #2c2d2e);
+					color: var(--primary-font, #f2f2f3);
+					padding: 0 10px;
+					font-size: 14px;
+					font-weight: 500;
+				}
+			}
+		}
+	}
+
+	.databaseAddModalFooter {
+		display: flex;
+		justify-content: flex-end;
+		width: 100%;
+
+		.databaseAddModalFooterButton {
+			background-color: var(--primary-button, #007bff);
+			color: var(--primary-button-font, #f2f2f3);
+			padding: 10px 20px;
+			border-radius: 8px;
+			border: none;
+			cursor: pointer;
+		}
+	}
+}

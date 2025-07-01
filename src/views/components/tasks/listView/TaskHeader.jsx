@@ -33,12 +33,13 @@ export const layouts = {
 };
 
 const TaskHeader = ({
-	tabs,
+	tabArray,
 	activeTab,
 	handleTabChange,
 	handleAddTab,
 	handleTabDropdownClick,
 	handleTabsReorder,
+	showEditDuplicate = true,
 }) => {
 	const [info, setInfo] = useState({
 		showAddNewTabDropDown: false,
@@ -51,7 +52,7 @@ const TaskHeader = ({
 		}));
 	};
 
-	const tabArray = useMemo(() => Object?.values(tabs || {}), [tabs]);
+	// const tabArray = useMemo(() => Object?.values(tabs || {}), [tabs]);
 
 	const onDragEnd = (result) => {
 		if (!result.destination) return;
@@ -87,6 +88,7 @@ const TaskHeader = ({
 												handleTabChange={handleTabChange}
 												handleTabDropdownClick={handleTabDropdownClick}
 												tabLength={tabArray?.length}
+												showEditDuplicate={showEditDuplicate}
 											/>
 										</div>
 									)}

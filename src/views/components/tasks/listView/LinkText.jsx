@@ -6,18 +6,18 @@ import { message } from '../../globalComponents/CustomToast';
 import validator from 'validator';
 
 const typeMapper = {
-	link: '',
+	url: '',
 	email: 'mailto:',
 	phone: 'tel:',
 };
 
 const LinkText = ({
 	value,
-	linkType = 'link',
+	linkType = 'url',
 	showTitle = false,
 	title = '',
 	takeFullspace = false,
-	onUpdate,
+	onChange,
 }) => {
 	const [info, setInfo] = useState({
 		isEditing: false,
@@ -37,7 +37,7 @@ const LinkText = ({
 	};
 
 	const handleSave = () => {
-		if (info?.value !== value && onUpdate) {
+		if (info?.value !== value && onChange) {
 			if (linkType === 'email') {
 				if (!validator.isEmail(info?.value?.trim())) {
 					message.error('Invalid email');
@@ -56,7 +56,7 @@ const LinkText = ({
 					return;
 				}
 			}
-			onUpdate(info?.value?.trim(), onSuccess);
+			onChange(info?.value?.trim(), onSuccess);
 		}
 		setInfo({ ...info, isEditing: false });
 	};
@@ -97,7 +97,7 @@ const LinkText = ({
 				overlayClassName="tooltip-overlay-container"
 				color="transparent"
 			>
-				{info?.isEditing ? (
+				{info?.isEditing || !value ? (
 					<CustomTextArea
 						className="linkText-textarea"
 						value={info?.value}
@@ -105,6 +105,7 @@ const LinkText = ({
 						onBlur={handleSave}
 						onKeyDown={handleKeyDown}
 						resize={true}
+						placeholder={linkType}
 					/>
 				) : (
 					<a className="linkText-value" href={`${typeMapper[linkType]}${value}`}>

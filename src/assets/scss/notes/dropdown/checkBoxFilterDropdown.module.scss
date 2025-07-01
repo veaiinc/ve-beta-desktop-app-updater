@@ -1,0 +1,57 @@
+.checkBoxFilterDropdown {
+	display: flex;
+	width: 250px;
+	padding: 8px 0px 0px;
+	flex-direction: column;
+	align-items: flex-start;
+	border-radius: 12px;
+	background-color: var(--card);
+	overflow: hidden;
+	border: 1px solid var(--stroke);
+
+	.checkBoxFilterDropdownHeader {
+		display: flex;
+		padding: 10px 16px;
+		align-items: center;
+		gap: 10px;
+		align-self: stretch;
+
+		.checkBoxFilterDropdownHeaderTitle {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.checkBoxFilterDropdownBody {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+		align-self: stretch;
+
+		.checkBoxFilterDropdownItem {
+			display: flex;
+			padding: 10px 16px;
+			justify-content: space-between;
+			align-self: stretch;
+			transition: all 0.2s ease-in-out;
+			cursor: pointer;
+			align-items: center;
+			gap: 16px;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+
+			&:hover {
+				background: var(--card-over-card-hover);
+			}
+		}
+	}
+}

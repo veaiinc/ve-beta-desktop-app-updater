@@ -318,6 +318,7 @@ export const ImageBlock = createReactBlockSpec(
 export const insertImage = (editor, pageId) => ({
 	title: 'Image',
 	subtext: 'Image with caption',
+	key: 'image',
 	onItemClick: () => {
 		insertOrUpdateBlock(editor, {
 			type: 'image',
