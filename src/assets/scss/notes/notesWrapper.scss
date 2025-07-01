@@ -12,6 +12,7 @@
 			width: 400px;
 			padding: 24px 24px 0 24px;
 			background-color: var(--card);
+			flex-shrink: 0;
 
 			.headerInfo {
 				padding: 0 0 0 20px !important;

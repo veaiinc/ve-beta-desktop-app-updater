@@ -153,6 +153,8 @@
 				align-items: flex-start;
 				gap: 8px;
 				align-self: stretch;
+				height: 40vh;
+				overflow-y: auto;
 
 				.actionContainer {
 					display: flex;

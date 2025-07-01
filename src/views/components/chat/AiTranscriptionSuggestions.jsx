@@ -6,20 +6,19 @@ import Context from '../../../context/context';
 
 const AiTranscriptionSuggestions = ({ closeModal }) => {
 	const {
-		aiSetup: { aiTranscriptionSuggestions },
-		templates: { updateStateValues },
+		templates: { aiTranscriptionSuggestions, updateStateValues },
 	} = useContext(Context);
-	const userQuestions = aiTranscriptionSuggestions?.prompts_to_ask?.filter(
-		(question) => question?.entity === 'user',
-	) || [{}];
-	const aiQuestions = aiTranscriptionSuggestions?.prompts_to_ask?.filter(
-		(question) => question?.entity === 'agent',
+	const userQuestions = aiTranscriptionSuggestions?.prompts?.filter(
+		(prompt) => prompt?.entity === 'user',
+	);
+	const aiQuestions = aiTranscriptionSuggestions?.prompts?.filter(
+		(prompt) => prompt?.entity === 'agent',
 	);
 
 	const handleActionClick = useCallback(
-		(question) => {
+		(prompt) => {
 			updateStateValues({
-				activePromptForChat: question?.prompt,
+				activePromptForChat: prompt,
 			});
 		},
 		[updateStateValues],
@@ -29,44 +28,50 @@ const AiTranscriptionSuggestions = ({ closeModal }) => {
 		<div className={s.aiTranscriptionSuggestions}>
 			<div className={s.header}>
 				<div className={s.leftContainer}>
-					<div className={s.closeIconContainer} onClick={closeModal}>
+					{/* <div className={s.closeIconContainer} onClick={closeModal}>
 						<CloseIcon />
-					</div>
+					</div> */}
 					<div className={s.text}>Ambient Assistance</div>
 				</div>
 			</div>
 
 			<div className={s.body}>
-				<div className={s.suggestedQuestionsContainer}>
-					{userQuestions?.map((question, index) => (
-						<div className={s.suggestedUserQuestion} key={index}>
-							<div className={s.questionContainer}>
-								<div className={s.questionType}>Detected Question</div>
-								<div className={s.questionText}>{question?.question || ''}</div>
-							</div>
-							<div className={s.answerContainer}>
-								<div className={s.text}>Suggested Answer to say</div>
-								<div className={s.answerText}>{`"${question?.answer || ''}"`}</div>
-							</div>
-						</div>
-					))}
-				</div>
-
-				<div className={s.actionsWrapper}>
-					<div className={s.text}>Actions</div>
-					<div className={s.actionsContainer}>
-						{aiQuestions?.map((question, index) => (
-							<div
-								className={s.actionContainer}
-								key={index}
-								onClick={handleActionClick(question)}
-							>
-								<ArrowRightSvg />
-								{question?.prompt || 'kjnkemklsmkvse'}
+				{userQuestions?.length > 0 && (
+					<div className={s.suggestedQuestionsContainer}>
+						{userQuestions?.map((question, index) => (
+							<div className={s.suggestedUserQuestion} key={index}>
+								<div className={s.questionContainer}>
+									{/* <div className={s.questionType}>Detected Question</div> */}
+									{/* <div className={s.questionText}>{question?. || ''}</div> */}
+								</div>
+								<div className={s.answerContainer}>
+									{/* <div className={s.text}>Suggested Answer to say</div> */}
+									<div className={s.answerText}>{`"${
+										question?.query || ''
+									}"`}</div>
+								</div>
 							</div>
 						))}
 					</div>
-				</div>
+				)}
+
+				{aiQuestions?.length > 0 && (
+					<div className={s.actionsWrapper}>
+						<div className={s.text}>Actions</div>
+						<div className={s.actionsContainer}>
+							{aiQuestions?.map((question, index) => (
+								<div
+									className={s.actionContainer}
+									key={index}
+									onClick={() => handleActionClick(question?.query || '')}
+								>
+									<ArrowRightSvg style={{ flexShrink: 0 }} />
+									{question?.query || ''}
+								</div>
+							))}
+						</div>
+					</div>
+				)}
 			</div>
 		</div>
 	);

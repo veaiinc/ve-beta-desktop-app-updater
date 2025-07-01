@@ -617,9 +617,22 @@ const actionHandlers = {
 		return { ...state, chatLoadingSessions };
 	},
 	HANDLE_TRANSCRIPTION_SUGGESTIONS: (state, action) => {
-		const aiTranscriptionSuggestions = [...(state?.aiTranscriptionSuggestions || [])];
-		aiTranscriptionSuggestions?.push(action?.payload);
-		return { ...state, aiTranscriptionSuggestions };
+		const { message_chunk_id: chunkId, prompts_to_ask, response } = action?.payload || {};
+		const aiTranscriptionSuggestions = state?.aiTranscriptionSuggestions || {};
+		const prompts = [...(aiTranscriptionSuggestions?.prompts || [])];
+
+		if (prompts_to_ask) {
+			prompts?.push(prompts_to_ask);
+		}
+
+		return {
+			...state,
+			aiTranscriptionSuggestions: {
+				...aiTranscriptionSuggestions,
+				prompts,
+				response,
+			},
+		};
 	},
 	RESET_STATE: () => intialState,
 };

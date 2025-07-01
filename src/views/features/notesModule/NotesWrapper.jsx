@@ -23,15 +23,15 @@ const NotesWrapper = () => {
 		});
 	}, []);
 
-	useEffect(() => {
-		if (aiTranscriptionSuggestions && !info?.handledOnce) {
-			setInfo((prev) => ({
-				...prev,
-				modalIsOpen: true,
-				handledOnce: true,
-			}));
-		}
-	}, [aiTranscriptionSuggestions]);
+	// useEffect(() => {
+	// 	if (aiTranscriptionSuggestions && !info?.handledOnce) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			modalIsOpen: true,
+	// 			handledOnce: true,
+	// 		}));
+	// 	}
+	// }, [aiTranscriptionSuggestions]);
 
 	const handleCloseModal = useCallback(() => {
 		setInfo((prev) => ({
@@ -60,9 +60,9 @@ const NotesWrapper = () => {
 	return (
 		<div
 			className={'notes-parent-wrapper'}
-			style={{
-				width: info?.modalIsOpen ? 'calc(100% - 400px)' : '100%',
-			}}
+			// style={{
+			// 	width: info?.modalIsOpen ? 'calc(100% - 400px)' : '100%',
+			// }}
 		>
 			<div className="leftWrapper">
 				<div className="chat-wrapper">
@@ -70,7 +70,7 @@ const NotesWrapper = () => {
 						isPreview={true}
 						showDeleteChat={false}
 						customChatBoxClick={handleCustomChatBoxClick}
-						{...(info?.sessionId && { sId: info?.sessionId })}
+						sId={info?.sessionId}
 					/>
 				</div>
 				<div className="notesContainerWrapper">
