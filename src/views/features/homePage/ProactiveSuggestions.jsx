@@ -25,6 +25,14 @@ import BuildOptions from './BuildOptions';
 import { ReactComponent as CommandSvg } from '../../../assets/svg/files/command.svg';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 
+const suggestionContainerStyles = {
+	position: 'absolute',
+	top: '0',
+	left: '18%',
+	width: '100%',
+	height: '100%',
+	zIndex: '100',
+};
 const payload = {
 	page: 1,
 	limit: 20,
@@ -126,6 +134,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			currentSessionId,
 			handleGlobalChatMessages,
 			globalChatMessages,
+			chatBoxSuggestions,
 		},
 		aiSetup: { getPromptsData, promptsData },
 		profileInfo: { aiCategories, getAiCategories },
@@ -442,7 +451,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			selectedCardNumber: index + 1,
 			cards: prev.cards.map((c) => (c._id === card._id ? { ...c, read: true } : c)),
 		}));
-		console.log(info?.cards, 'info?.cards');
 		currentIndexRef.current = index;
 	};
 
@@ -770,9 +778,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 				className={`proactive-suggestions-container ${
 					info?.showExploreMore ? 'active' : ''
 				}`}
-				style={{
-					marginTop: info?.showExploreMore ? '60px' : '0px',
-				}}
 				ref={mainContainerRef}
 			>
 				{!info?.showExploreMore && (
@@ -1178,9 +1183,14 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 							}}
 						/>
 					</div>
-					<div className="suggestions-container">
-						<Suggestions chatQuery={info?.chatQuery} styles={{ margin: '0 auto' }} />
-					</div>
+					{chatBoxSuggestions?.length > 0 && (
+						<div className="suggestions-container">
+							<Suggestions
+								chatQuery={info?.chatQuery}
+								styles={suggestionContainerStyles}
+							/>
+						</div>
+					)}
 					{/* {info?.chatQuery?.length === 0 &&
 						globalChatMessages?.[currentSessionId]?.chatBoxInfo?.build && (
 							<BuildOptions />

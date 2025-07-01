@@ -76,7 +76,7 @@
 
 	.ai-suggestions-wrapper {
 		height: 100%;
-		width: 600px;
+		width: 700px;
 		position: relative;
 		background: var(--navbar, #202123);
 		position: relative;
@@ -110,8 +110,6 @@
 				justify-content: center;
 				gap: 24px;
 				align-self: stretch;
-				border-bottom: 1px solid var(--stroke, #2c2d2e);
-				background: var(--popup, #202123);
 
 				.header-content {
 					display: flex;
@@ -168,7 +166,6 @@
 							justify-content: center;
 							transform: rotate(90deg);
 							position: relative;
-							top: 1px;
 							svg {
 								width: 20px;
 								height: 20px;
@@ -245,6 +242,50 @@
 								}
 							}
 						}
+						.prioritySuggestionModal {
+							display: flex;
+							height: 32px;
+							padding: 12px;
+							justify-content: center;
+							align-items: center;
+							gap: 6px;
+							border-radius: 6px;
+							border: 1px solid var(--stroke, #e3e3e3);
+							.priority-text {
+								color: var(--primary-font, #f2f2f3);
+								font-family: var(--primary-font-family);
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
+							.icon {
+								position: relative;
+							}
+							.indicator {
+								width: 8px;
+								height: 8px;
+								border-radius: 50%;
+							}
+						}
+						.confidence {
+							display: flex;
+							height: 32px;
+							padding: 12px;
+							justify-content: center;
+							align-items: center;
+							gap: 6px;
+							border-radius: 6px;
+							border: 1px solid var(--stroke, #e3e3e3);
+							.value {
+								color: var(--primary-font, #18181b);
+								font-family: var(--primary-font-family);
+								font-size: 13px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
+						}
 					}
 				}
 			}
@@ -315,53 +356,6 @@
 								width: 1.5px;
 								height: 18px;
 								background: var(--stroke-hover, #404548);
-							}
-							.confidence {
-								display: flex;
-								height: 30px;
-								padding: 6px 10px;
-								justify-content: center;
-								align-items: center;
-								gap: 10px;
-								border-radius: 8px;
-								border: 1px solid var(--primary-button, #cfff48);
-
-								.value {
-									color: var(--primary-button, #cfff48);
-									font-family: var(--primary-font-family);
-									font-size: 12px;
-									font-style: normal;
-									font-weight: 500;
-									line-height: normal;
-								}
-							}
-
-							.priority {
-								display: flex;
-								height: 30px;
-								padding: 6px 10px;
-								justify-content: center;
-								align-items: center;
-								gap: 6px;
-								border-radius: 8px;
-								border: 1px solid var(--stroke-hover, #424548);
-								.priority-text {
-									color: var(--primary-font, #f2f2f3);
-									font-family: var(--primary-font-family);
-									font-size: 12px;
-									font-style: normal;
-									font-weight: 500;
-									line-height: normal;
-								}
-								.icon {
-									position: relative;
-									top: 2px;
-								}
-								.indicator {
-									width: 8px;
-									height: 8px;
-									border-radius: 50%;
-								}
 							}
 						}
 

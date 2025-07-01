@@ -260,7 +260,7 @@
 
 					&:hover {
 						border-radius: 8px;
-						background: var(--card-over-card-hover);
+						background: var(--card-over-card);
 						cursor: pointer;
 						p {
 							color: var(--primary-font);
@@ -1589,7 +1589,7 @@
 
 .sidebar-closing {
 	display: flex;
-	padding: 20px 0px;
+	padding: 20px 0px 0px;
 	flex-direction: column;
 	justify-content: space-between;
 	align-items: center;
@@ -1693,8 +1693,14 @@
 	gap: 8px;
 	border-radius: 8px;
 	border: 1px solid var(--stroke, #2c2d2e);
-	background: var(--chat-bar, #202123);
+	background: var(--chat-box, #202123);
 	box-shadow: 0px 6px 8px 0px rgba(0, 0, 0, 0.05);
+	color: var(--primary-font, #18181b);
+	font-family: var(--primary-font-family);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
 }
 @keyframes slideInAnimation {
 	0% {
