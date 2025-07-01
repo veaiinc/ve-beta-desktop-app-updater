@@ -6,6 +6,7 @@ import Cropper from 'react-easy-crop';
 import ReactModal from '../../modalsV2/index';
 import { FocusedImage, FocusPicker } from 'image-focus';
 import '../../../../assets/scss/gallery/albumSettings.scss';
+import '../../../../assets/scss/gallery/uploadGalleryImageCover.scss';
 import Spinner from '../../loaders/Spinner';
 import { isURL } from '../../../../helpers';
 
