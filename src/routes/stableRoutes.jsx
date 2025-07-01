@@ -9,6 +9,7 @@ import ShareAndEarn from '../views/features/shareAndEarn/ShareAndEarn';
 import SettingsWrapper from '../views/features/settings/SettingsWrapper';
 import RecentChat from '../views/features/chat/RecentChat';
 import Onboarding from '../views/features/onboarding/Onboarding';
+import MeetBot from '../views/features/meetBot/meetBot';
 
 const stableRoutes = [
 	{
@@ -69,6 +70,14 @@ const stableRoutes = [
 			<Public>
 				<Navigate to="/home" />
 			</Public>
+		),
+	},
+	{
+		path: '/meet',
+		element: (
+			<AuthWrapper title={'Meet'}>
+				<MeetBot />
+			</AuthWrapper>
 		),
 	},
 ];
