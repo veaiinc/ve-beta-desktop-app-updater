@@ -112,7 +112,7 @@ const sortOptions = {
 };
 const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
 
-// const optionsList = ['All'];
+const optionsList = [];
 const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	const navigate = useNavigate();
 	const currentIndexRef = useRef(0);
@@ -159,7 +159,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		searchQuery: '',
 		chatQuery: '',
 		showExploreMore: false,
-		options: null,
+		options: optionsList,
 		selectedOption: '',
 		showArrows: {
 			left: false,
@@ -247,8 +247,13 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		if (response?.[0] === true) {
 			setInfo((prev) => ({
 				...prev,
-				options: [...response?.[1]],
+				options: [...optionsList, ...response?.[1]],
 				selectedOption: response?.[1]?.[0],
+			}));
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				options: optionsList,
 			}));
 		}
 	};
@@ -259,7 +264,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	}, [info?.totalCardsData, info?.currentIndex]);
 
 	useEffect(() => {
-		if (info?.selectedOption !== 'All') {
+		if (info?.selectedOption !== firstOption) {
 			return;
 		}
 		fetchPendingActions();
@@ -624,9 +629,17 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			sortBy: info?.sortBy,
 			...(favourite && { isFavourited: favourite }),
 			search: info?.searchQuery,
-			...(option !== 'All' && { category: option }),
+			// ...(info.selectedOption !== 'All' && { category: info?.selectedOption }),
+			category: info?.selectedOption,
 		};
-	}, [payload, info?.selectedFilters, info?.sortOptions, info?.sortBy, info?.searchQuery]);
+	}, [
+		payload,
+		info?.selectedFilters,
+		info?.sortOptions,
+		info?.sortBy,
+		info?.searchQuery,
+		info?.selectedOption,
+	]);
 
 	const groupedCards = useMemo(() => {
 		const groups = {};
@@ -723,6 +736,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			);
 		});
 	}, [info?.options, info?.selectedOption]);
+
+	const firstOption = info?.options?.[0];
 	return (
 		<>
 			{info?.showExploreMore && (
@@ -800,7 +815,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 						{info?.activeBtn === 'insights' &&
 							aiSuggestedPendingActions?.pendingActions?.length > 0 && (
 								<>
-									{info?.selectedOption === 'All' ? (
+									{info?.selectedOption === firstOption ? (
 										(info?.cards?.length > 0 ||
 											info?.searchQuery?.length !== 0) && (
 											<div
