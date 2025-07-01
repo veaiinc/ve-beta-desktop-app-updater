@@ -5785,6 +5785,7 @@ const GalleryPage = () => {
 									placement="top"
 									trigger={'click'}
 									arrow={false}
+									color={'transparent'}
 								>
 									<OptionsIcon />
 								</Tooltip>
