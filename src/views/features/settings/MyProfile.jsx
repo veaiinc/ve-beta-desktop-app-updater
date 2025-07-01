@@ -7,7 +7,7 @@ import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWork
 import Notifications from '../../components/settings/profile/Notifications';
 import { message } from '../../components/globalComponents/CustomToast';
 import Cookies from 'js-cookie';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 
 const themePreferenceOptions = [
 	{

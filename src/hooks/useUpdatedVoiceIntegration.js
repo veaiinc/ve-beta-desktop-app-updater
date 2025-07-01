@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import Context from '../../context/context';
+import Context from '../context/context';
 
 const useUpdatedVoiceIntegration = () => {
 	const [shouldConnect, setShouldConnect] = useState(false);

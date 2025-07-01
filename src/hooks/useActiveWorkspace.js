@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
-import { fetchDomainName } from '../../helpers';
+import { fetchDomainName } from '../helpers';
 
 const useActiveWorkspace = () => {
 	const [workspaceId, setActiveWorkspaceId] = useState(() => {
@@ -32,7 +32,7 @@ const useActiveWorkspace = () => {
 		};
 	}, []);
 
-	return [workspaceId, setActiveWorkspaceId];
+	return workspaceId;
 };
 
 export default useActiveWorkspace;

@@ -1,7 +1,7 @@
 import { useContext, useCallback } from 'react';
-import Context from '../../context/context';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
+import Context from '../context/context';
 
 const useLogout = () => {
 	const {
