@@ -42,6 +42,7 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 					<div className="closedIconsContainer">
 						{sidebarNavigationItems.map((item) => (
 							<Tooltip
+								key={item?.id}
 								title={<div className="tooltip-text">{item?.name}</div>}
 								placement="right"
 								arrow={false}
