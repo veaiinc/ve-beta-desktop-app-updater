@@ -6,6 +6,7 @@ import moment from 'moment';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as Close } from '../../../assets/svg/smartFile/close.svg';
 import { ReactComponent as UpDown } from '../library/svgs/dropDown.svg';
+import RoundedRight from '../library/svgs/listIcons/RoundedRight';
 const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges, invoiceDates = {} }) => {
 	const [info, setInfo] = useState({
 		paymentSchedule: [],
@@ -13,7 +14,7 @@ const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges, invoice
 	const [dateValues, setDateValues] = useState({
 		showDateInput: false,
 		currentDateInput: null,
-		activeDateId: null,
+		activeDateValue: null,
 		showDateOptions: false,
 	});
 
@@ -123,6 +124,7 @@ const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges, invoice
 					className={`custominputContainer `}
 					style={{ height: '50px' }}
 					allowClear={false}
+					open={true}
 				/>
 			);
 		}
@@ -138,6 +140,7 @@ const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges, invoice
 						overflow: 'hidden',
 						textOverflow: 'ellipsis',
 						width: '80%',
+						marginBottom: '0px',
 					}}
 				>
 					{data?.type === 'custom Date'
@@ -149,14 +152,13 @@ const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges, invoice
 						? invoiceAcceptedDate?.toLocaleDateString('en-US', options)
 						: data?.dueDate}
 				</p>
-
 				<UpDown
 					onClick={() => {
-						if (dateValues?.activeDateId != blockIndex) {
+						if (dateValues?.activeDateValue?._id != block?._id) {
 							setDateValues((prev) => ({
 								...prev,
 								showDateOptions: true,
-								activeDateId: blockIndex,
+								activeDateValue: block,
 							}));
 						} else {
 							setDateValues((prev) => ({
@@ -183,6 +185,7 @@ const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges, invoice
 			}));
 		}
 	};
+	const paymentOptions = ['invoice Sent Date', 'invoice Accepted Date', 'custom Date'];
 	return (
 		<>
 			{info?.paymentSchedule?.length &&
@@ -229,9 +232,46 @@ const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges, invoice
 											{renderDateInput(payment, index, ind)}
 										</div>
 										{dateValues?.showDateOptions &&
-											dateValues?.activeDateId === ind && (
+											dateValues?.activeDateValue?._id === payment?._id && (
 												<div className="payment-date-drop-down">
-													<p
+													{paymentOptions.map((value, i) => {
+														return (
+															<p
+																onClick={(e) => {
+																	e.stopPropagation();
+																	if (value === 'custom Date') {
+																		setDateValues((prev) => ({
+																			...prev,
+																			showDateInput: true,
+																			showDateOptions: false,
+																			currentDateInput: ind,
+																		}));
+																	} else {
+																		handlePaymentScheduleChange(
+																			'date',
+																			value,
+																			index,
+																			ind,
+																		);
+																	}
+																}}
+															>
+																{value}
+																{dateValues?.activeDateValue
+																	?.subBlocks[0]?.type == value ||
+																(dateValues?.activeDateValue
+																	?.subBlocks[0]?.type ==
+																	'custom Date' &&
+																	value == 'custom Date') ? (
+																	<RoundedRight
+																		color={'#f2f2f3'}
+																		size={'small'}
+																	/>
+																) : null}
+															</p>
+														);
+													})}
+													{/* <p
 														onClick={(e) => {
 															e.stopPropagation();
 															handlePaymentScheduleChange(
@@ -243,6 +283,10 @@ const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges, invoice
 														}}
 													>
 														Invoice Sent Date
+														<RoundedRight
+															color={'#f2f2f3'}
+															size={'small'}
+														/>
 													</p>
 													<p
 														onClick={(e) => {
@@ -268,7 +312,7 @@ const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges, invoice
 														}
 													>
 														Custom Date
-													</p>
+													</p> */}
 												</div>
 											)}
 										<span
