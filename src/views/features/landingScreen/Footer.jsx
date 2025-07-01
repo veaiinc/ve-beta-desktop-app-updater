@@ -112,7 +112,7 @@ const Footer = () => {
 									<span className={s.listHeading}>About</span>
 								</li>
 								<li>
-									<Link to="/thebridge">The bridge</Link>
+									<Link to="/manifesto">Manifesto</Link>
 								</li>
 								<li>
 									<Link to="/contact-us">For Enterprise</Link>
@@ -159,11 +159,11 @@ const Footer = () => {
 									// 	label: 'Facebook',
 									// 	url: '#', // Replace with actual URL
 									// },
-									// {
-									// 	Icon: InstagramLogo,
-									// 	label: 'Instagram',
-									// 	url: INSTAGRAM_URL, // Replace with actual URL
-									// },
+									{
+										Icon: InstagramLogo,
+										label: 'Instagram',
+										url: INSTAGRAM_URL, // Replace with actual URL
+									},
 									// {
 									// 	Icon: YoutubeLogo,
 									// 	label: 'YouTube',

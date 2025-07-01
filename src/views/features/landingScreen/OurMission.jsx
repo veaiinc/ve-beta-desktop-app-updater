@@ -70,7 +70,7 @@ And now, so will our machines.`,
 ];
 
 const tabs = [
-	{ label: 'The bridge', path: '/thebridge' },
+	{ label: 'Manifesto', path: '/manifesto' },
 	{ label: 'Careers', path: '/careers' },
 	{ label: 'Forefront', path: '/forefront' },
 ];

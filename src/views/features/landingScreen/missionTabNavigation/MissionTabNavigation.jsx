@@ -23,7 +23,7 @@ const Tab = ({ tab, navigate, setInfo, activeTab }) => {
 
 const MissionTabNavigation = ({ tabs }) => {
 	const navigate = useNavigate();
-	const [info, setInfo] = useState({ currentTab: '/thebridge' });
+	const [info, setInfo] = useState({ currentTab: '/manifesto' });
 	const tab = tabs[tabs.length - 1];
 	return (
 		<aside className={s.missionTabsContainer} aria-label="Mission navigation">

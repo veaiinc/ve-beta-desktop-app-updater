@@ -3,21 +3,23 @@ import { memo } from 'react';
 import ProactiveDropdown from './ProactiveDropdown';
 import { ReactComponent as CaretDown } from '../../../assets/svg/CaretDownSecondary.svg';
 
-const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
-	const tabs = ['Home', 'The bridge', 'For Enterprise'];
+const tabs = ['Home', 'Manifesto', 'For Enterprise'];
 
-	const handleProactiveDropdownHover = (isHovered) => {
-		if (isHovered) {
-			document.body.classList.add('proactive-dropdown-open');
-		} else {
-			document.body.classList.remove('proactive-dropdown-open');
-		}
-	};
+const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
+	
+
+	// const handleProactiveDropdownHover = (isHovered) => {
+	// 	if (isHovered) {
+	// 		document.body.classList.add('proactive-dropdown-open');
+	// 	} else {
+	// 		document.body.classList.remove('proactive-dropdown-open');
+	// 	}
+	// };
 
 	// ${isVisible ? 'slide-in' : 'slide-out'}
 	return (
 		<ul className={`tabNavigation`}>
-			<Tooltip
+			{/* <Tooltip
 				title={<ProactiveDropdown />}
 				placement="bottom"
 				trigger="hover"
@@ -31,7 +33,7 @@ const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
 				<div className="proactiveDropdown">
 					Ambient <CaretDown />
 				</div>
-			</Tooltip>
+			</Tooltip> */}
 			{tabs.map((label, index) => (
 				<li
 					className={index === tab ? 'active' : ''}

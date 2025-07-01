@@ -6,7 +6,7 @@ import PageLoader from '../features/app/PageLoader';
 
 export const publicRoutesList = [
 	'/',
-	'/thebridge',
+	'/manifesto',
 	'/contact-us',
 	'/api',
 	'/about-us',

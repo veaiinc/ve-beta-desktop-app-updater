@@ -1,9 +1,7 @@
-// src/pages/LandingPage.jsx
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useEffect, useState, useRef } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
-import Context from '../../../context/context';
 import TabNavigation from '../../components/landing_screen/TabNavigation';
 import Tagline from './Tagline';
 import Footer from './Footer';
@@ -22,166 +20,184 @@ import HeroSection from './heroSection/HeroSection';
 import '../../../assets/scss/landingScreen/index.scss';
 
 const pathToTabMap = {
-	'/': 0, // ← added
-	'/thebridge': 1,
-	'/contact-us': 2,
-	'/careers': 4,
-	'/forefront': 5,
+  '/': 0,
+  '/manifesto': 1,
+  '/contact-us': 2,
+  '/careers': 4,
+  '/forefront': 5,
 };
 
 const LandingPage = () => {
-	const {
-		templates: { updateStateValues, currentSessionId },
-	} = useContext(Context);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-	const navigate = useNavigate();
-	const location = useLocation();
+  const [tab, setTab] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [hasPlayed, setHasPlayed] = useState(false);
+  const [info, setInfo] = useState({ navVisible: true, seenOnce: false });
 
-	const [tab, setTab] = useState(0);
-	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-	const [isPlaying, setIsPlaying] = useState(false);
-	const [hasPlayed, setHasPlayed] = useState(false);
-	const [showSuggestions, setShowSuggestions] = useState(false);
+  const videoRef = useRef(null);
 
-	const isMobileScreen = window.innerWidth < 768;
+  // sync tab with URL
+  useEffect(() => {
+    const path = location.pathname;
+    setTab(pathToTabMap[path] ?? 0);
+  }, [location.pathname]);
 
-	// sync tab with URL
-	useEffect(() => {
-		const path = location.pathname;
-		// fallback to 0 if path not in map
-		setTab(pathToTabMap[path] ?? 0);
-	}, [location.pathname]);
+  // redirect if onboarded
+  useEffect(() => {
+    const token = localStorage.getItem('usertoken');
+    const region = localStorage.getItem('region');
+    const workspaceId = localStorage.getItem('workspaceId');
+    const isOnboard = JSON.parse(localStorage.getItem('isOnboard') || 'false');
 
-	// redirect if onboarded
-	useEffect(() => {
-		const token = localStorage.getItem('usertoken');
-		const region = localStorage.getItem('region');
-		const workspaceId = localStorage.getItem('workspaceId');
-		const isOnboard = JSON.parse(localStorage.getItem('isOnboard') || 'false');
+    if (token && region && workspaceId) {
+      if (!isOnboard) return navigate('/early-access');
+      return navigate('/home');
+    }
+  }, [navigate]);
 
-		if (token && region && workspaceId) {
-			if (!isOnboard) return navigate('/early-access');
-			return navigate('/home');
-		}
-	}, [navigate]);
+  // header show/hide on scroll (optimized)
+  useEffect(() => {
+    if (tab !== 0) return;
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
 
-	// play/pause handler
-	const handleVideoClick = async () => {
-		const video = document.getElementById('landing-video');
-		if (!video) return;
-		try {
-			if (video.paused) {
-				await video.play();
-				setIsPlaying(true);
-			} else {
-				video.pause();
-				setIsPlaying(false);
-			}
-			setHasPlayed(true);
-		} catch (err) {
-			console.error('Video play failed:', err);
-		}
-	};
+    let lastY = window.scrollY;
+    let ticking = false;
 
-	const handleSetTab = (tabVal) => {
-		setTab(tabVal);
-		const tabRoutes = ['/', '/thebridge', '/contact-us'];
-		navigate(tabRoutes[tabVal]);
-	};
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        window.requestAnimationFrame(() => {
+          const currentY = window.scrollY;
+          const isDown = currentY > lastY;
+          const videoTop = videoEl.getBoundingClientRect().top;
+          const shouldShow = !isDown || videoTop > 0;
 
-	const tabComponents = {
-		0: (
-			<div className="page-body">
-				<div className={`title-container${showSuggestions ? ' with-suggestions' : ''}`}>
-					<HeroSection />
-				</div>
+          setInfo(prev => {
+            if (prev.navVisible === shouldShow) return prev;
+            return { ...prev, navVisible: shouldShow };
+          });
 
-				<div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
-					<button onClick={handleVideoClick}>
-						{isPlaying ? (
-							<>
-								<PauseIcon /> Pause
-							</>
-						) : (
-							<>
-								<PlayIcon /> Play
-							</>
-						)}
-					</button>
-					<video
-						id="landing-video"
-						src="https://ap.images.ve.ai/public/dashboard/login_page.mp4"
-						muted
-						style={{ width: '100%' }}
-						controls={isMobileScreen}
-						controlsList="nofullscreen nodownload noremoteplayback noplaybackrate foobar"
-						autoPlay={isMobileScreen}
-					/>
-				</div>
+          lastY = currentY;
+          ticking = false;
+        });
+      }
+    };
 
-				<Tagline />
-				<EarlyAccess />
-				<Footer />
-			</div>
-		),
-		1: <OurMission tab={tab} />,
-		2: <ContactUs type="Enterprise" />,
-		4: <OurMission tab={tab} />,
-		5: <OurMission tab={tab} />,
-	};
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [tab]);
 
-	return (
-		<>
-			<Helmet>
-				<title>Ve - The World's First Ambient AI OS</title>
-			</Helmet>
-			<main
-				className={`landing-page-container${
-					location.pathname === '/thebridge' ? ' fullHeight' : ''
-				}`}
-			>
-				<CustomToast />
-				<header className="page-header">
-					<div className="page-header-wrapper">
-						<div className="left-container">
-							<VeLogo className="ve-logo" onClick={() => navigate('/')} />
-						</div>
-						<div className="middle-container">
-							{!mobileMenuOpen && (
-								<TabNavigation tab={tab} handleSetTab={handleSetTab} />
-							)}
-						</div>
-						<div className="right-container">
-							<Link className="login-btn-text hide-on-mobile" to="/verify-user">
-								Login
-							</Link>
-							<div className="login-container">
-								<button
-									className="login-btn"
-									onClick={() => navigate('/verify-user')}
-								>
-									Get VE Free
-								</button>
-								<button
-									className="sidebar-button mobile-only"
-									onClick={() => setMobileMenuOpen(true)}
-								>
-									<MenuIcon />
-								</button>
-							</div>
-						</div>
-					</div>
-					<MobileMenu
-						open={mobileMenuOpen}
-						onClose={() => setMobileMenuOpen(false)}
-						onLogin={() => navigate('/verify-user')}
-						onGetFree={() => {}}
-					/>
-				</header>
-				{tabComponents[tab]}
-			</main>
-		</>
-	);
+  // play/pause handler
+  const handleVideoClick = async () => {
+    const video = videoRef.current;
+    if (!video) return;
+    try {
+      if (video.paused) {
+        await video.play();
+        setIsPlaying(true);
+      } else {
+        video.pause();
+        setIsPlaying(false);
+      }
+      setHasPlayed(true);
+    } catch (err) {
+      console.error('Video play failed:', err);
+    }
+  };
+
+  const handleSetTab = (tabVal) => {
+    setTab(tabVal);
+    const tabRoutes = ['/', '/manifesto', '/contact-us'];
+    navigate(tabRoutes[tabVal]);
+  };
+
+  const tabComponents = {
+    0: (
+      <div className="page-body">
+        <div className="heroContainer">
+          <div className="title-container">
+            <HeroSection />
+          </div>
+
+          <div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
+            <button onClick={handleVideoClick}>
+              {isPlaying ? (
+                <><PauseIcon /> Pause</>
+              ) : (
+                <><PlayIcon /> Play</>
+              )}
+            </button>
+            <video
+              ref={videoRef}
+              id="landing-video"
+              src="https://ap.images.ve.ai/public/dashboard/login_page.mp4"
+              muted
+              style={{ width: '100%' }}
+              controls={window.innerWidth < 768}
+              controlsList="nofullscreen nodownload noremoteplayback noplaybackrate foobar"
+              autoPlay={window.innerWidth < 768}
+              loop={window.innerWidth < 768}
+            />
+          </div>
+        </div>
+
+        <Tagline />
+        <EarlyAccess />
+        <Footer />
+      </div>
+    ),
+    1: <OurMission tab={tab} />, 
+    2: <ContactUs type="Enterprise" />, 
+    4: <OurMission tab={tab} />, 
+    5: <OurMission tab={tab} />, 
+  };
+
+  return (
+    <>
+      <Helmet>
+        <title>Ve - The World's First Ambient AI OS</title>
+      </Helmet>
+      <main className={`landing-page-container${
+        location.pathname === '/manifesto' ? ' fullHeight' : ''
+      }`}>
+        <CustomToast />
+        <header className={`page-header${info.navVisible ? '' : ' hidden'}`}>  
+          <div className="page-header-wrapper">
+            <Link to="/">
+              <VeLogo className="ve-logo" />
+            </Link>
+            <div className="middle-container">
+              {!mobileMenuOpen && (
+                <TabNavigation tab={tab} handleSetTab={handleSetTab} />
+              )}
+            </div>
+            <div className="right-container">
+              <Link className="login-btn-text hide-on-mobile" to="/verify-user">
+                Login
+              </Link>
+              <div className="login-container">
+                <Link className="login-btn" to="/verify-user">
+                  Signup
+                </Link>
+                <button
+                  className="sidebar-button mobile-only"
+                  onClick={() => setMobileMenuOpen(true)}
+                >
+                  <MenuIcon />
+                </button>
+              </div>
+            </div>
+          </div>
+          <MobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+        </header>
+        {tabComponents[tab]}
+      </main>
+    </>
+  );
 };
 
 export default memo(LandingPage);
