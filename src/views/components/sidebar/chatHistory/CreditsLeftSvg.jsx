@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo } from 'react';
 
 const CreditsLeftSvg = ({ totalAiCreditLimit, totalAiCreditUsed }) => {
 	const totalCircumference = 62.8; // 2 * π * 10 (radius)
@@ -42,4 +42,4 @@ const CreditsLeftSvg = ({ totalAiCreditLimit, totalAiCreditUsed }) => {
 	);
 };
 
-export default CreditsLeftSvg;
+export default memo(CreditsLeftSvg);
