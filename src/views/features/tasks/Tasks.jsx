@@ -30,7 +30,7 @@ import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress
 import LinkText from '../../components/tasks/listView/LinkText';
 import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
 import PersonMultiSelect from '../../components/tasks/listView/PersonMultiSelect';
-import { useSearchParams } from 'react-router-dom';
+// import { useSearchParams } from 'react-router-dom';
 import CreatedWithAi from '../../components/tasks/listView/CreatedWithAi';
 import { colors } from '../../../helpers/taskHelpers';
 

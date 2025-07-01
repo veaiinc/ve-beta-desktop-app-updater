@@ -5,7 +5,7 @@ import Context from '../../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/createFile.scss';
-import VariableComponent from './VariableComponent';
+// import VariableComponent from './VariableComponent';
 import { message } from '../../globalComponents/CustomToast';
 
 const CreateFile = ({ onBack, onSave, activeStepsData, addTriggerLoading, handleChangeClick }) => {

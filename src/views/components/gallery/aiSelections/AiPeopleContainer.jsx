@@ -4,7 +4,7 @@ import Context from '../../../../context/context';
 import PeopleCard from '../galleryView/PeopleCard';
 import { ReactComponent as DownArrow } from '../../../../assets/svg/gallery/arrow-down.svg';
 import { ReactComponent as SearchIcon } from '../../../../assets/svg/workflow/search.svg';
-import { useLocation } from 'react-router-dom';
+// import { useLocation } from 'react-router-dom';
 import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 

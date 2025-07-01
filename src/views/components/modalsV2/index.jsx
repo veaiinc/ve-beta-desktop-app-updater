@@ -1,4 +1,4 @@
-import React, { useState, memo, useCallback } from 'react';
+// import React, { useState, memo, useCallback } from 'react';
 import Modal from 'react-modal';
 
 const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {} }) => {

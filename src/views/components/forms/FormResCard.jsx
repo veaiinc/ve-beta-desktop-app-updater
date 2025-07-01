@@ -14,7 +14,7 @@ import {
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 // import QuickActions from '../globalComponents/QuickActions';
-import { Tooltip } from 'antd';
+// import { Tooltip } from 'antd';
 import { removeQuotes } from './FormDescription';
 import { useParams } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';

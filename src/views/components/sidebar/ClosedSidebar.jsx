@@ -80,10 +80,12 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 				)}
 			</div>
 			<div className="bottomContainerClosed">
-				<CreditsLeftSvg
-					totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
-					totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
-				/>
+				<div style={{ marginBottom: '10px' }}>
+					<CreditsLeftSvg
+						totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
+						totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
+					/>
+				</div>
 				<div className="closedSidebarProfile">
 					{userDetailsData?.logoURL ? (
 						<div className="crop-container">

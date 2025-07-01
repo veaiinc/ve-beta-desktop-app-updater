@@ -1,5 +1,5 @@
 import service from '../../services/graphQlServices';
-import Service from '../../services/index';
+// import Service from '../../services/index';
 import { message } from '../../views/components/globalComponents/CustomToast';
 import {
 	getNotesListQuery,

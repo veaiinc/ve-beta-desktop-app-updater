@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import './scheduler.scss';
-import Text from '../../elements/text/index';
+// import Text from '../../elements/text/index';
 import { ElementSidebar } from '../../../builder_client_common';
-import moment from 'moment';
+// import moment from 'moment';
 
 // Time slots
 const morningSlots = ['9:30 AM', '11:30 AM'];

@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/document/viewDocument.scss';
 import { ReactComponent as NetworkIcon } from '../../../assets/svg/document/network.svg';
@@ -19,7 +19,7 @@ import DuplicateLeadModal from './DuplicatedocumentModel';
 import AcceptDocumentModel from './AcceptDoc';
 import moment from 'moment';
 import MoveStageModal from '../../components/SmartFileDetails/MoveStageModal';
-import EditdocumentModel from './EditdocumentModel';
+// import EditdocumentModel from './EditdocumentModel';
 const MainDocumentSection = ({ workflowId, templateID }) => {
 	const navigate = useNavigate();
 	const {
