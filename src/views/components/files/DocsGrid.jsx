@@ -225,6 +225,10 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 		fetchDocs({ page: info?.currentPage + 1 });
 	};
 
+	useEffect(() => {
+		fetchDocs({ page: 1 });
+	}, []);
+
 	const handleSortClick = (value) => {
 		let sortType = value?.sortType;
 		if (value?.value === info?.selectedSort?.value) {
