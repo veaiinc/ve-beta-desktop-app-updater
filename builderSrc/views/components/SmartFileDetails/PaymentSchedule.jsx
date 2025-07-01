@@ -124,6 +124,7 @@ const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges, invoice
 					className={`custominputContainer `}
 					style={{ height: '50px' }}
 					allowClear={false}
+					open={true}
 				/>
 			);
 		}
