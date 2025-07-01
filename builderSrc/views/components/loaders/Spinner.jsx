@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 
 const Spinner = ({ width, height, color, cssstyle = {}, borderTopColor }) => {
 	const style = {

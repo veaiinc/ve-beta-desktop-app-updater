@@ -1,9 +1,9 @@
 import { useContext, useState, useEffect, useCallback, useRef } from 'react';
 import Context from '../../../context/context';
-import InfiniteScroll from './InfiniteScroll';
+// import InfiniteScroll from './InfiniteScroll';
 import '../../../assets/scss/globalComponents/promptWidget.scss';
-import ChatBox from '../chat/ChatBox';
-import Suggestions from '../../features/homePage/Suggestions';
+// import ChatBox from '../chat/ChatBox';
+// import Suggestions from '../../features/homePage/Suggestions';
 import Skeleton from 'react-loading-skeleton';
 import AISuggestionsModal from '../modalsV2/homePage/AISuggestionsModal';
 import { message } from '../../components/globalComponents/CustomToast';

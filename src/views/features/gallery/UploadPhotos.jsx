@@ -11,7 +11,7 @@ import Context from '../../../context/context';
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
-import useSubscription from '../../hooks/useSubscription';
+// import useSubscription from '../../hooks/useSubscription';
 // import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
 
 const UploadPhotos = () => {

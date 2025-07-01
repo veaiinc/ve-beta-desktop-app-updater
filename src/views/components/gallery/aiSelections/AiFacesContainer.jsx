@@ -7,7 +7,7 @@ import { ReactComponent as BackIcon } from '../../../../assets/svg/gallery/back-
 import Skeleton from 'react-loading-skeleton';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { ReactComponent as ArrowsOut } from '../../../../assets/svg/gallery/arrowsOut.svg';
-import { Tooltip } from 'antd';
+// import { Tooltip } from 'antd';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import GalleryViewer from '../../../features/gallery/GalleryViewer';
 import { FetchMoreLoaderComp } from '../../../../helpers';

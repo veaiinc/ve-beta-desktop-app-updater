@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useContext } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
-import Context from '../../../context/context';
+// import Context from '../../../context/context';
 import SearchSvg from '../../../assets/svg/activity/SearchSvg';
 import Voice from '../chat/Voice';
 

@@ -7,7 +7,7 @@ import { ReactComponent as EyeSvg } from '../../../assets/svg/activity/eye.svg';
 import FileViewersList from './FileViewersList.jsx';
 import SessionMetric from '../activity/SessionMetric.jsx';
 import FileTimeLine from './FileTimeLine.jsx';
-import Context from '../../../context/context.js';
+// import Context from '../../../context/context.js';
 import Spinner from '../loaders/Spinner.jsx';
 import moment from 'moment';
 
