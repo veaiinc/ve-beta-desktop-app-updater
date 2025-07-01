@@ -114,14 +114,18 @@ const Status = ({
 				overlayClassName="tooltip-overlay-container"
 				color="transparent"
 			>
-				<div className="listItem-status filter-wrapper">
+				<div
+					className="listItem-status filter-wrapper"
+					onClick={() => {
+						if (!disabled) {
+							handleDropdown(true);
+						}
+					}}
+				>
 					<div
 						className={`select-listItem`}
 						style={{
 							...customListItemStyle,
-						}}
-						onClick={() => {
-							handleDropdown(true);
 						}}
 					>
 						<span

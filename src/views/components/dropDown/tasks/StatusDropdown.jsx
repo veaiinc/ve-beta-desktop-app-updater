@@ -1,9 +1,9 @@
 import { memo } from 'react';
 import '../../../../assets/scss/tasks/status.scss';
 import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
+import { colors } from '../../../../helpers/databaseHelpers';
 
 const StatusDropdown = ({
-	colors,
 	options,
 	selected,
 	onOptionClick,

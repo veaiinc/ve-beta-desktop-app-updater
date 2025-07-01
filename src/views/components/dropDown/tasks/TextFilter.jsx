@@ -24,7 +24,7 @@ const TextFilter = ({ value = '', onChange = () => {}, title = 'Text', prefix = 
 	};
 
 	return (
-		<div className="filter-dropdown-text-filter">
+		<div className="filter-dropdown-text-filter" onClick={(e) => e.stopPropagation()}>
 			<div className="filter-dropdown-text-filter-title">{title}</div>
 			<div className="filter-dropdown-text-filter-input-container">
 				{title === 'Id' ? `${prefix} - ` : ''}
