@@ -1,5 +1,5 @@
 import { memo, useCallback, useContext } from 'react';
-import s from './AiTranscriptionSuggestions.module.scss';
+import s from './aiTranscriptionSuggestions.module.scss';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
 import Context from '../../../context/context';
