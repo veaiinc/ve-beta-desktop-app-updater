@@ -1,14 +1,16 @@
+import { lazy, Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
+
 // layouts
 import Public from '../views/layouts/Public';
 import AuthWrapper from '../views/layouts/authWrapper';
 
 // pages
 import InitialHomePage from '../views/features/homePage/InitialHomePage';
-import ShareAndEarn from '../views/features/shareAndEarn/ShareAndEarn';
-import SettingsWrapper from '../views/features/settings/SettingsWrapper';
-import RecentChat from '../views/features/chat/RecentChat';
-import Onboarding from '../views/features/onboarding/Onboarding';
+const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
+const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
+const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
+const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
 
 const stableRoutes = [
 	{
@@ -28,7 +30,9 @@ const stableRoutes = [
 		path: '/create-workspace',
 		element: (
 			<Public>
-				<Onboarding />
+				<Suspense fallback={<p>Loading onboarding...</p>}>
+					<Onboarding />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -36,7 +40,9 @@ const stableRoutes = [
 		path: '/share-and-earn',
 		element: (
 			<AuthWrapper title={'Share and Earn'}>
-				<ShareAndEarn />
+				<Suspense fallback={<p>Loading share and earn...</p>}>
+					<ShareAndEarn />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -44,7 +50,9 @@ const stableRoutes = [
 		path: '/settings/:type',
 		element: (
 			<AuthWrapper title={'Workspace Settings'}>
-				<SettingsWrapper />
+				<Suspense fallback={<p>Loading settings...</p>}>
+					<SettingsWrapper />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -61,7 +69,9 @@ const stableRoutes = [
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>
-				<RecentChat />
+				<Suspense fallback={<p>Loading recent chat...</p>}>
+					<RecentChat />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},

@@ -6,7 +6,7 @@ import Context from '../../../context/context';
 // import QuickActions from '../../components/globalComponents/QuickActions';
 import { message } from '../../components/globalComponents/CustomToast';
 // import AskMe from './AskMe';
-import GlobalWidget from '../../components/globalComponents/GlobalWidget';
+// import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 // import ChatPrompts from './ChatPrompts';
 import ProactiveSuggestions from './ProactiveSuggestions';
 import '../../../assets/scss/home_page/initialHomepage.scss';
@@ -388,7 +388,7 @@ const InitialHomePage = () => {
 					// </div>
 				}
 			</div>
-				
+
 			<div className="home-page-container-content">
 				{/* {info?.selectedOption === 'All' ? (
 						<ProactiveSuggestions
