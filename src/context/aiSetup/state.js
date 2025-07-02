@@ -1176,12 +1176,24 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const updateStateValues = async (updatedVaribaleValuesObj) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+				payload: updatedVaribaleValuesObj,
+			});
+		} catch (error) {
+			console.log('error==>updateStateValues', error);
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
 
 	return {
 		...state,
+		updateStateValues,
 		getKnowledgeBaseFiles,
 		getExistingAiAssistants,
 		createNewAiAssistant,

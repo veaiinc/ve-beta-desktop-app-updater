@@ -698,7 +698,7 @@ const OpenedSidebar = ({
 										flexDirection: 'column',
 										justifyContent: 'space-between',
 										overflowY: 'auto',
-										borderRight: '1px solid var(--stroke)',
+										borderRight: '1px solid var(--dividers)',
 									}}
 								>
 									<div className="topOptionsList">

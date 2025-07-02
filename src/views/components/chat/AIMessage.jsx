@@ -9,16 +9,16 @@ import { ReactComponent as CopyIcon } from '../../../assets/svg/ai_agents/copy.s
 import { ReactComponent as ViewDocumentIcon } from '../../../assets/svg/chat/viewDocument.svg';
 import AISuggestionsReportAiComponent from './chatComponents/AiSuggestionsReportAiComponent';
 import { ReactComponent as PlusSvg } from '../../../assets/svg/ai_assistant/plus.svg';
+import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import '../../../assets/scss/chat/aiMessage.scss';
 import PromptPopup from '../homePage/PromptPopup';
 import ClarifyWidget from './chatWidgets/ClarifyWidget';
 import FormWidget from './FormWidget';
+import { fileTypeIcons, getFaviconUrl, getWebsiteName } from '../../../helpers';
 
 const AIMessage = ({
 	text,
 	customePencilClickFunc = null,
-	messageId = null,
-	rating = null,
 	citations = null,
 	messageData,
 	isLastMessage = false,
@@ -26,6 +26,9 @@ const AIMessage = ({
 	handleViewDocument = null,
 	showViewDocument = false,
 	isNoteCanvas = false,
+	handleSourcesClick = null,
+	messageIndex = null,
+	showCitationsButton = true,
 }) => {
 	const {
 		documentPreview: { setNoteContent },
@@ -68,7 +71,9 @@ const AIMessage = ({
 	}, []);
 
 	const handlePromptClick = (prompt) => {
-		updateStateValues({ activePromptForChat: prompt });
+		if (prompt) {
+			updateStateValues({ activePromptForChat: prompt });
+		}
 	};
 
 	return (
@@ -180,6 +185,45 @@ const AIMessage = ({
 								<div className="teach-me-text">Teach me</div>
 							</div>
 						</Tooltip>
+						{messageData?.citations?.length > 0 && showCitationsButton && (
+							<div
+								className="ai-message-sources-container"
+								onClick={() => handleSourcesClick?.(messageIndex)}
+							>
+								<div className="imgs-container">
+									{messageData?.citations?.slice(0, 3)?.map((citation, index) => (
+										<div className="ai-message-icon" key={index}>
+											{citation?.type === 'url' ? (
+												getFaviconUrl(citation?.name) ? (
+													<img
+														src={getFaviconUrl(citation?.name)}
+														alt="favicon"
+														className="ai-message-favicon-image"
+													/>
+												) : (
+													<div className="ai-message-source-icon">
+														{getWebsiteName(citation?.name)?.charAt(0)}
+													</div>
+												)
+											) : (
+												<div className="ai-message-source-icon">
+													{citation?.type === 's3_key'
+														? fileTypeIcons[
+																citation?.name?.match(
+																	/\.(\w+)$/,
+																)?.[1]
+														  ] || <VeLogoSvg />
+														: fileTypeIcons[citation?.type] || (
+																<VeLogoSvg />
+														  )}
+												</div>
+											)}
+										</div>
+									))}
+								</div>
+								<div className="source-text-container">Sources</div>
+							</div>
+						)}
 					</div>
 				</div>
 			)}
@@ -200,12 +244,12 @@ const AIMessage = ({
 									<div
 										className="prompt-container"
 										key={index}
-										onClick={() => handlePromptClick(query)}
+										onClick={() => handlePromptClick(query?.action_query)}
 									>
 										<PlusSvg
 											style={{ width: '18px', height: '18px', flexShrink: 0 }}
 										/>
-										<div className="prompt">{query}</div>
+										<div className="prompt">{query?.display_query || ''}</div>
 									</div>
 								))}
 							</div>
@@ -224,6 +268,9 @@ export default memo(AIMessage, (prevProps, nextProps) => {
 		prevProps.rating === nextProps.rating &&
 		JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
 		prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
-		prevProps.isLastMessage === nextProps.isLastMessage
+		prevProps.isLastMessage === nextProps.isLastMessage &&
+		prevProps.handleSourcesClick === nextProps.handleSourcesClick &&
+		prevProps.messageIndex === nextProps.messageIndex &&
+		prevProps.showCitationsButton === nextProps.showCitationsButton
 	);
 });
