@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import '../../../assets/scss/landingScreen/ourMission.scss';
 import MissionTabNavigation from './missionTabNavigation/MissionTabNavigation';
 import Careers from './careers/Careers';
@@ -69,7 +70,8 @@ const tabs = [
 
 const tabsMapper = {
 	1: (
-		<section className="bridge-block">
+		<section className="long-description-block">
+			<h2 className="mobile-heading">Manifesto</h2>
 			{/* <h1 className="heading">The bridge </h1> */}
 			<div className="loginDescriptionText">
 				{loginDescriptionContent.descriptionText.map((text, index) => (
@@ -151,9 +153,28 @@ const tabsMapper = {
 
 const OurMission = ({ tab }) => {
 	const [info, setInfo] = useState({ mobileMenuOpen: false });
+	const location = useLocation();
 	const {
 		themeInfo: { theme },
 	} = useContext(Context);
+
+	// Determine which content to show based on current path
+	const getContentToShow = () => {
+		const path = location.pathname;
+		switch (path) {
+			case '/manifesto':
+				return 1;
+			case '/careers':
+				return 4;
+			case '/forefront':
+				return 5;
+			default:
+				return 1; // Default to manifesto
+		}
+	};
+
+	const contentIndex = getContentToShow();
+
 	return (
 		<main className="our-mission-container">
 			<MobileMenu
@@ -165,7 +186,7 @@ const OurMission = ({ tab }) => {
 				<MissionTabNavigation tabs={tabs} activeIndex={tab} />
 			</div>
 			<div className={`mission-content-col ${theme === 'dark' ? 'bridge-img-dark' : ''}`}>
-				{tabsMapper[tab]}
+				{tabsMapper[contentIndex]}
 			</div>
 		</main>
 	);
