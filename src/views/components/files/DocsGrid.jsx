@@ -5,7 +5,7 @@ import { DocsStatusButton } from '../../features/docs/Docs';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 // import DocsCardBg from '../../../assets/images/files/docs-card-bg.png';
 import { useNavigate } from 'react-router-dom';
-import { memo, useContext, useEffect, useState, useCallback, useRef, lazy } from 'react';
+import { memo, useContext, useEffect, useState, useCallback, useRef, lazy, Suspense } from 'react';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import Context from '../../../context/context';
 import gsap from 'gsap';
