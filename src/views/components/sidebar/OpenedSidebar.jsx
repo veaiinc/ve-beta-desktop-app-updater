@@ -274,9 +274,6 @@ const OpenedSidebar = ({
 	sidebarStates,
 	setsidebarStates,
 	info,
-	setInfo,
-	userWorkSpaceList,
-	isOpen,
 	setIsOpen,
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
@@ -300,6 +297,8 @@ const OpenedSidebar = ({
 			tenantUserAccessControls,
 			tennantSettingsData,
 			getTenantSettings,
+			userWorkSpaceList,
+			getUserWorkSpaceList,
 		},
 		themeInfo: { theme, updateTheme },
 		authInfo: { updateUserDetails },
@@ -327,6 +326,10 @@ const OpenedSidebar = ({
 			}));
 		}
 	}, [userDetailsData]);
+
+	useEffect(() => {
+		if (!userWorkSpaceList) getUserWorkSpaceList();
+	}, [userWorkSpaceList]);
 
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
@@ -1325,7 +1328,7 @@ const OpenedSidebar = ({
 						setsidebarStates={setsidebarStates}
 						sidebarStates={sidebarStates}
 						info={info}
-						userWorkSpaceList={userWorkSpaceList}
+						// userWorkSpaceList={userWorkSpaceList}
 						sidebarSettings="close"
 						// openWorkspacesFunction={openWorkspacesFunction}
 					/>
