@@ -1,4 +1,4 @@
-import _, { transform } from 'lodash';
+import _ from 'lodash';
 import React, { Component } from 'react';
 import Button from '../elements/button';
 import CircleText from '../elements/circletext/CircleText.jsx';
@@ -24,7 +24,7 @@ import Line from '../elements/line/index.jsx';
 import LogoSticker from '../elements/logosticker/index.jsx';
 import Video from '../elements/video/index.jsx';
 // import Copy from './actions/copy.jsx';
-import Delete from './actions/delete.jsx';
+// import Delete from './actions/delete.jsx';
 import Down from './actions/down.jsx';
 // import Edit from './actions/edit.jsx';
 import Up from './actions/up.jsx';
@@ -6255,7 +6255,7 @@ class Layout extends Component {
 						{
 							autoAlpha: 1,
 							duration: 1,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 							immediateRender: false,
 							overwrite: true,
@@ -6369,9 +6369,9 @@ class Layout extends Component {
 							element.style.transform = `translateX(${returnDistance(direction)})`;
 							element.style.opacity = 0;
 						}
-						adjustments.initialPositionSet = true;
+						element.dataset.initialPositionSet = true;
 					};
-					if (!adjustments?.initialPositionSet) {
+					if (!element.dataset?.initialPositionSet) {
 						setInitialPosition();
 					}
 					element.style.willChange = 'opacity, transform';
@@ -6513,9 +6513,9 @@ class Layout extends Component {
 							parseFloat(scale / 100) || 1
 						})`;
 						element.style.opacity = 0;
-						adjustments.initialPositionSet = true;
+						element.dataset.initialPositionSet = true;
 					};
-					if (!adjustments?.initialPositionSet) {
+					if (!element.dataset?.initialPositionSet) {
 						setInitialPosition();
 					}
 					element.style.willChange = 'opacity, transform';
@@ -6654,9 +6654,9 @@ class Layout extends Component {
 						})`;
 						element.style.opacity = 0;
 
-						adjustments.initialPositionSet = true;
+						element.dataset.initialPositionSet = true;
 					};
-					if (!adjustments?.initialPositionSet) {
+					if (!element.dataset?.initialPositionSet) {
 						setInitialPosition();
 					}
 					element.style.willChange = 'opacity, transform';
@@ -6770,7 +6770,7 @@ class Layout extends Component {
 							rotate: 0,
 							scale: 1,
 							duration: 3,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -6875,9 +6875,9 @@ class Layout extends Component {
 						} else {
 							element.style.transform = `translateX(${returnDistance(direction)})`;
 						}
-						adjustments.initialPositionSet = true;
+						element.dataset.initialPositionSet = true;
 					};
-					if (!adjustments?.initialPositionSet) {
+					if (!element.dataset?.initialPositionSet) {
 						setInitialPosition();
 					}
 					element.style.willChange = 'transform';
@@ -6981,7 +6981,7 @@ class Layout extends Component {
 						{
 							filter: 'blur(0px)',
 							duration: 1,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -7073,7 +7073,7 @@ class Layout extends Component {
 						{
 							clipPath: 'inset(0% 0% 0% 0%)',
 							duration: 2,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -7266,9 +7266,9 @@ class Layout extends Component {
 					const setInitialPosition = () => {
 						element.style.transform = `translateX(${translate}) skewX(${skew})`;
 
-						adjustments.initialPositionSet = true;
+						element.dataset.initialPositionSet = true;
 					};
-					if (!adjustments?.initialPositionSet) {
+					if (!element.dataset?.initialPositionSet) {
 						setInitialPosition();
 					}
 					element.style.willChange = 'transform';
@@ -7282,7 +7282,7 @@ class Layout extends Component {
 							x: 0,
 							skewX: 0,
 							duration: 1,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -7392,7 +7392,7 @@ class Layout extends Component {
 							scale: 1,
 							autoAlpha: 1,
 							duration: 3,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 							immediateRender: false,
 							overwrite: true,
@@ -7502,7 +7502,7 @@ class Layout extends Component {
 							rotation: 0,
 							scale: 1,
 							duration: 2,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -7596,7 +7596,7 @@ class Layout extends Component {
 							scaleY: 1,
 							y: 0,
 							duration: 2,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -7696,7 +7696,7 @@ class Layout extends Component {
 							rotationX: 0,
 							scale: 1,
 							duration: 4,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -7792,7 +7792,7 @@ class Layout extends Component {
 						{
 							y: 0,
 							duration: 4,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -7895,7 +7895,7 @@ class Layout extends Component {
 							rotationY: 0,
 							scale: 1,
 							duration: speed || 2,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -8032,7 +8032,7 @@ class Layout extends Component {
 						{
 							clipPath: shapeMap[direction]?.end || `circle(150% at center)`,
 							duration: parseFloat(animeIntensity + 1),
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -8165,7 +8165,7 @@ class Layout extends Component {
 	returnAnimeDuration = (triggerValue = 'start', difference = 0) => {
 		const duration = window?.innerHeight * 1;
 		if (difference) {
-			return duration * (difference / 100);
+			return duration * ((difference < 90 ? difference + 5 : difference) / 100);
 		} else {
 			if (triggerValue == 'start') {
 				// return window?.innerHeight * 1 - 100;
