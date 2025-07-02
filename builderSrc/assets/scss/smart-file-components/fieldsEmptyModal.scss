@@ -1,0 +1,134 @@
+.fieldsEmptyModalParentContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 32px;
+	background: var(--card);
+	border-radius: 15px;
+	min-width: 400px;
+	max-width: 500px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+	border: 1px solid var(--stroke, #2c2d2e);
+
+	.fieldsEmptyModalTextContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		margin-bottom: 20px;
+		width: 100%;
+		gap: 16px;
+
+		.fieldsEmptyModalHeaderText {
+			font-size: 20px;
+			font-weight: 600;
+			color: var(--primary-font, #333333);
+			margin-bottom: 8px;
+			line-height: 1.4;
+		}
+
+		.fieldsEmptyModalSubtext {
+			font-size: 14px;
+			color: var(--secondary-font, #666666);
+			margin-bottom: 16px;
+			line-height: 1.5;
+		}
+
+		.emptyFieldsList {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+			gap: 8px;
+			.missingFieldsHeader {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				font-size: 16px;
+				font-weight: 600;
+				color: var(--primary-font, #333333);
+				margin-bottom: 8px;
+			}
+
+			.missingFieldsDescription {
+				font-size: 12px;
+				color: var(--secondary-font, #666666);
+				margin-bottom: 16px;
+				font-style: italic;
+			}
+
+			.missingFieldsUl {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 14px;
+				align-self: stretch;
+				width: 100%;
+
+				.missingFieldLi {
+					color: var(--primary-font, #333333);
+					font-family: var(--primary-font);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 20px;
+
+					&:last-child {
+						margin-bottom: 0;
+					}
+				}
+			}
+		}
+	}
+
+	.fieldsEmptyModalQuestion {
+		font-size: 14px;
+		color: var(--secondary-font, #666666);
+
+		margin-bottom: 24px;
+		line-height: 1.5;
+		font-weight: 500;
+	}
+
+	.fieldsEmptyModalFooterContainer {
+		display: flex;
+		gap: 12px;
+		width: 100%;
+
+		.continueAnywayBtn,
+		.fillFieldsBtn {
+			display: flex;
+			width: 200px;
+			height: 44px;
+			padding: 14px 24px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			flex-shrink: 0;
+			border-radius: 24px;
+			background: var(--primary-button, #00f3c5);
+			color: var(--primary-button-font, #000000);
+			font-family: var(--primary-font);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px;
+			cursor: pointer;
+			border: none;
+			outline: none;
+		}
+
+		.continueAnywayBtn {
+			border-radius: 24px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			background: var(--background-color, #ffffff);
+			color: var(--primary-font, #2c2d2e);
+			font-family: var(--primary-font);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px;
+		}
+	}
+}

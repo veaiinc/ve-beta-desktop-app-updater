@@ -17,6 +17,7 @@ import FormDescription from '../../feature/document/FormDescription';
 import { fetchOriginSelection } from '../../../helper';
 import { ReactComponent as EditIcon } from '../../../assets/svg/edit.svg';
 import { Spin, message } from 'antd';
+import FieldsEmptyModel from './FieldsEmptyModel';
 
 let origin = fetchOriginSelection();
 
@@ -76,6 +77,8 @@ const SmartFileSidebar = ({
 	const [titleInput, setTitleInput] = useState('');
 	const [isTitleLoading, setIsTitleLoading] = useState(false);
 	const titleInputRef = React.useRef(null);
+	const [showEmptyFieldsModal, setShowEmptyFieldsModal] = useState(false);
+	const [emptyFields, setEmptyFields] = useState([]);
 
 	// --- Workflow Warnings Logic ---
 	const workflowWarnings = useMemo(() => {
@@ -435,6 +438,15 @@ const SmartFileSidebar = ({
 	}, [workflowId, info.status, chnageWorkflowStats]);
 
 	const handleButtonClick = () => {
+		// Validate empty fields before proceeding
+		if (!handleEmptyFieldsModal()) {
+			return; // Stop execution if validation fails
+		}
+
+		proceedWithAction();
+	};
+
+	const proceedWithAction = () => {
 		if (info.status === 'enquiry' || info.status === 'draft') {
 			handleShareModal();
 		} else {
@@ -458,7 +470,13 @@ const SmartFileSidebar = ({
 	const debouncedUpdateTitle = useRef();
 
 	const handleTitleInputBlurOrEnter = useCallback(() => {
-		if (!titleInput.trim() || titleInput === info.documentTitle) {
+		if (!titleInput.trim()) {
+			message.error('Document title cannot be empty');
+			setTitleInput(info.documentTitle || 'Untitled Document');
+			setIsEditingTitle(false);
+			return;
+		}
+		if (titleInput === info.documentTitle) {
 			setIsEditingTitle(false);
 			return;
 		}
@@ -492,6 +510,73 @@ const SmartFileSidebar = ({
 			setTitleInput(info.documentTitle || 'Untitled Document');
 		}
 	};
+
+	// Function to validate empty fields
+	const validateEmptyFields = useCallback(() => {
+		const emptyFieldNames = [];
+
+		// Check document title
+		if (!info?.documentTitle || info.documentTitle.trim() === '') {
+			emptyFieldNames.push('Document Title');
+		}
+
+		// Check variables data for empty fields
+		if (info?.variablesData && info.variablesData.length > 0) {
+			info.variablesData.forEach((variable) => {
+				// Skip Grand Total fields as they are calculated
+				if (
+					variable?.displayName !== 'Grand Total' &&
+					variable?.displayName !== 'Grand Total In Words' &&
+					(!variable?.value || variable.value.trim() === '')
+				) {
+					emptyFieldNames.push(variable.displayName || variable.code || 'Unknown Field');
+				}
+			});
+		}
+
+		return emptyFieldNames;
+	}, [info?.variablesData, info?.documentTitle]);
+
+	// Function to handle empty fields modal
+	const handleEmptyFieldsModal = useCallback(() => {
+		const emptyFieldNames = validateEmptyFields();
+
+		if (emptyFieldNames.length > 0) {
+			setEmptyFields(emptyFieldNames);
+			setShowEmptyFieldsModal(true);
+			return false; // Validation failed
+		}
+		return true; // Validation passed
+	}, [validateEmptyFields]);
+
+	// Function to handle fill fields action
+	const handleFillFields = useCallback(() => {
+		setShowEmptyFieldsModal(false);
+		// Focus on the first empty field
+		const firstEmptyField = emptyFields[0];
+
+		// Handle document title case
+		if (firstEmptyField === 'Document Title') {
+			setIsEditingTitle(true);
+			return;
+		}
+
+		// Handle variable fields
+		if (firstEmptyField && info?.variablesData) {
+			const fieldIndex = info.variablesData.findIndex(
+				(variable) =>
+					variable.displayName === firstEmptyField || variable.code === firstEmptyField,
+			);
+			if (fieldIndex !== -1) {
+				const fieldId = info.variablesData[fieldIndex]._id;
+				const fieldElement = document.getElementById(`sidebar-${fieldId}`);
+				if (fieldElement) {
+					fieldElement.focus();
+					fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				}
+			}
+		}
+	}, [emptyFields, info?.variablesData]);
 
 	return (
 		<div
@@ -812,6 +897,15 @@ const SmartFileSidebar = ({
 					status={info.status}
 				/>
 			)}
+
+			{/* Empty Fields Modal */}
+			<FieldsEmptyModel
+				isOpen={showEmptyFieldsModal}
+				closeModal={() => setShowEmptyFieldsModal(false)}
+				emptyFields={emptyFields}
+				onFillFields={handleFillFields}
+				onContinueAnyway={proceedWithAction}
+			/>
 		</div>
 	);
 };
