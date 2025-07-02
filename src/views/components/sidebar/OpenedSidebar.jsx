@@ -188,8 +188,7 @@ const OpenedSidebarModules = ({
 								name === 'Calendar' ||
 								name === 'Tasks' ||
 								name === 'Contacts' ||
-								name === 'Automations' ||
-								name === 'Database'
+								name === 'Automations'
 									? 'none'
 									: 'var(--secondary-font)'
 							}
