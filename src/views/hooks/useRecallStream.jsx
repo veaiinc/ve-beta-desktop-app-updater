@@ -25,7 +25,7 @@ const useRecallStream = () => {
 
 		messageHandlerRef.current = onMessageFunc;
 
-		const wsUrl = `wss://gazelle-ruling-monster.ngrok-free.app/frontend/ws`;
+		const wsUrl = `wss://recall.${region}.ve.ai/frontend/ws`;
 		socketRef.current = new WebSocket(wsUrl);
 
 		socketRef.current.onopen = () => {
