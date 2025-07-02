@@ -1,5 +1,5 @@
 // src/pages/LandingPage.jsx
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
@@ -110,7 +110,7 @@ const LandingPage = () => {
 					</button>
 					<video
 						id="landing-video"
-						src="https://ap.images.ve.ai/public/dashboard/login_page.mp4"
+						src="https://ap.images.ve.ai/public/dashboard/product-video.mp4"
 						muted
 						style={{ width: '100%' }}
 						controls={isMobileScreen}

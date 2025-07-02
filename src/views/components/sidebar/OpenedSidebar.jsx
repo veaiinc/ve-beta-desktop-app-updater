@@ -274,9 +274,6 @@ const OpenedSidebar = ({
 	sidebarStates,
 	setsidebarStates,
 	info,
-	setInfo,
-	userWorkSpaceList,
-	isOpen,
 	setIsOpen,
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
@@ -300,6 +297,8 @@ const OpenedSidebar = ({
 			tenantUserAccessControls,
 			tennantSettingsData,
 			getTenantSettings,
+			userWorkSpaceList,
+			getUserWorkSpaceList,
 		},
 		themeInfo: { theme, updateTheme },
 		authInfo: { updateUserDetails },
@@ -327,6 +326,10 @@ const OpenedSidebar = ({
 			}));
 		}
 	}, [userDetailsData]);
+
+	useEffect(() => {
+		if (!userWorkSpaceList) getUserWorkSpaceList();
+	}, [userWorkSpaceList]);
 
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
@@ -714,23 +717,21 @@ const OpenedSidebar = ({
 													onClick={openWorkspacesFunction}
 													style={{ cursor: 'pointer' }}
 												>
-													{info?.activeBusniessName?.logo_s3_500w_key && (
+													{tennantSettingsData?.logo_s3_500w_key && (
 														<div className="workspaceLogoContainer">
 															<img
 																className="workspaceLogo"
 																src={
-																	info?.activeBusniessName
-																		?.logo_s3_500w_key
+																	tennantSettingsData?.logo_s3_500w_key
 																}
 																alt={
-																	info?.activeBusniessName
-																		?.activeWorkspaceId
+																	tennantSettingsData?.businessName
 																}
 															/>
 														</div>
 													)}
 													<h6 className="workspaceName">
-														{info?.activeBusniessName?.businessName}
+														{tennantSettingsData?.businessName}
 													</h6>
 													{userWorkSpaceList?.length > 1 && (
 														<DownArrowSmallSvg
@@ -1327,7 +1328,7 @@ const OpenedSidebar = ({
 						setsidebarStates={setsidebarStates}
 						sidebarStates={sidebarStates}
 						info={info}
-						userWorkSpaceList={userWorkSpaceList}
+						// userWorkSpaceList={userWorkSpaceList}
 						sidebarSettings="close"
 						// openWorkspacesFunction={openWorkspacesFunction}
 					/>

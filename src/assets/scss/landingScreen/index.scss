@@ -352,6 +352,7 @@
 				border: 1px solid var(--stroke, #2c2d2e);
 				cursor: pointer;
 				z-index: 10;
+				color: var(--primary-font);
 				transition: visibility 0.3s ease;
 				&:hover {
 					border-color: var(--stroke-hover);
