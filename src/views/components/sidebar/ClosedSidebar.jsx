@@ -59,7 +59,8 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 											item.name === 'Calendar' ||
 											item.name === 'Tasks' ||
 											item.name === 'Contacts' ||
-											item.name === 'Automations'
+											item.name === 'Automations' ||
+											item.name === 'Database'
 												? 'none'
 												: 'var(--secondary-font)'
 										}
@@ -69,7 +70,8 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 												item.name === 'Calendar' ||
 												item.name === 'Tasks' ||
 												item.name === 'Contacts' ||
-												item.name === 'Automations'
+												item.name === 'Automations' ||
+												item.name === 'Database'
 													? 'var(--secondary-font)'
 													: 'none',
 										}}

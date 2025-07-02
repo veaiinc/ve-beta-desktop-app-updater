@@ -19,7 +19,10 @@ const ViewRenderer = ({
 	databaseId,
 	pageId,
 	block,
+	selectedViewId,
 }) => {
+	console.log('selectedDatabaseView', selectedDatabaseView);
+	console.log('selectedViewId', selectedViewId);
 	const ViewComponent = viewsMapper[selectedDatabaseView?.type] || TableView;
 
 	return (
