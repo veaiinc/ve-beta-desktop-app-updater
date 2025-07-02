@@ -35,7 +35,7 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 		}
 	};
 	return (
-		<div className="sidebar-closing">
+		<div className="sidebar-closing" onClick={() => onIconClick()}>
 			<div className="topContainerClosed">
 				<SidebarClosingSvg onClick={() => onIconClick()} />
 				{!isEarlyAccessPage && (
@@ -50,7 +50,10 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 							>
 								<div
 									className="closed-sidebar-item"
-									onClick={() => onOptionsClick(item)}
+									onClick={(e) => {
+										e.stopPropagation();
+										onOptionsClick(item);
+									}}
 									style={{ cursor: 'pointer' }}
 								>
 									<item.icon
