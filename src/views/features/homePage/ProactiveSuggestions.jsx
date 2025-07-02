@@ -759,7 +759,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 				</div>
 			)}
 			{(aiSuggestedPendingActions?.pendingActions?.length > 0 ||
-				(info?.searchQuery?.length !== 0 && info?.filters?.length !== 0)) &&
+				info?.searchQuery?.length !== 0 ||
+				info?.selectedFilters?.length > 0) &&
 				!info?.showExploreMore && (
 					<div className="options-wrapper">
 						<div
@@ -818,8 +819,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 							<>
 								{info?.selectedOption === firstOption ? (
 									(info?.cards?.length > 0 ||
-										(info?.searchQuery?.length !== 0 &&
-											info?.filters?.length !== 0)) && (
+										info?.searchQuery?.length !== 0 ||
+										info?.selectedFilters?.length > 0) && (
 										<div
 											className="cards-container"
 											// style={{
@@ -958,7 +959,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 									}`}
 								>
 									{(info?.cards.length > 0 ||
-										info?.searchQuery?.length !== 0) && (
+										info?.searchQuery?.length !== 0 ||
+										info?.selectedFilters?.length > 0) && (
 										<div className="right-container">
 											<div className="searchMainContainer">
 												<div
@@ -993,7 +995,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 											</div>
 										</div>
 									)}
-									{info?.cards?.length > 0 && (
+									{(info?.cards.length > 0 ||
+										info?.searchQuery?.length !== 0 ||
+										info?.selectedFilters?.length > 0) && (
 										<div className="optionsRightMainContainer">
 											<Tooltip
 												open={info?.openFilter}
@@ -1127,7 +1131,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 													</button>
 												</div>
 											</Tooltip>
-											{info?.cards?.length > 0 && (
+											{(info?.cards.length > 0 ||
+												info?.searchQuery?.length !== 0 ||
+												info?.selectedFilters?.length > 0) && (
 												<div className="action-right">
 													<button
 														className="card-change-btn"
