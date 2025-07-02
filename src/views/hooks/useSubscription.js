@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'; // Add useNavigate
-import Context from '../context/context';
+import Context from '../../context/context';
 
 const calculateTimeLeft = (expiryTimestamp) => {
 	const now = Date.now();
@@ -52,6 +52,7 @@ const useSubscription = () => {
 			updateRenewBanner,
 		},
 	} = useContext(Context);
+	const [info, setInfo] = useState({});
 	const timerRef = useRef({ timer: null, interval: null });
 	const location = useLocation();
 	const navigate = useNavigate(); // Initialize useNavigate
@@ -124,25 +125,17 @@ const useSubscription = () => {
 				liteImageLimitWithAiFace,
 				...restrictMapper,
 			};
-			let uploadAllowedForClassicGallery = false;
-			if (storageLimitInGB) {
-				uploadAllowedForClassicGallery = totalStorageUsedInGB <= storageLimitInGB;
-			}
 			let uploadAllowed = false;
 			if (storageLimitInGB) {
-				uploadAllowed = cumulativeStorageUsedInGB <= storageLimitInGB * 1.5;
+				uploadAllowed = cumulativeStorageUsedInGB <= storageLimitInGB;
 			}
 			let imagesAllowed = false;
 			if (liteImageLimit) {
 				imagesAllowed = liteImageUsed < liteImageLimit;
 			}
+			setInfo((prev) => ({ ...prev, ...obj, uploadAllowed, imagesAllowed }));
 			updateSubscriptionState({
-				validateExpiryData: {
-					...obj,
-					uploadAllowed,
-					imagesAllowed,
-					uploadAllowedForClassicGallery,
-				},
+				validateExpiryData: { ...obj, uploadAllowed, imagesAllowed },
 			});
 
 			// Check if subscription is expired and redirect
@@ -178,6 +171,8 @@ const useSubscription = () => {
 			timerRef.current.interval = null;
 		}
 	}, []);
+
+	return { ...info };
 };
 
 export default useSubscription;
