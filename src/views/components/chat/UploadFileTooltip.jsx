@@ -3,7 +3,7 @@ import { ReactComponent as UploadSvg } from '../../../assets/svg/ai_agents/uploa
 import { Tooltip, Upload } from 'antd';
 import Context from '../../../context/context';
 import GmailSvg from '../../../assets/svg/login_page/GmailIcon';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 
 const UploadFileTooltip = ({ children, handleChange, isUploadFileOpen, setIsUploadFileOpen }) => {
 	const { workspaceMode } = useWorkspaceMode();

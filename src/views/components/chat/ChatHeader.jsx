@@ -99,26 +99,26 @@ const ChatHeader = ({
 	);
 
 	const handleMouseEnter = useCallback(() => {
-		timeoutRef.current = setTimeout(() => {
-			setInfo((prev) => {
-				const chatDropdownExpanded = prev.chatDropdownExpanded;
-				if (chatDropdownExpanded) {
-					return prev;
-				}
-				return {
-					...prev,
-					chatDropdownExpanded: true,
-				};
-			});
-		}, [300]);
+		// timeoutRef.current = setTimeout(() => {
+		setInfo((prev) => {
+			const chatDropdownExpanded = prev.chatDropdownExpanded;
+			if (chatDropdownExpanded) {
+				return prev;
+			}
+			return {
+				...prev,
+				chatDropdownExpanded: true,
+			};
+		});
+		// }, [300]);
 	}, []);
 
 	const handleMouseLeave = useCallback(() => {
-		if (timeoutRef.current) {
-			clearTimeout(timeoutRef.current);
-			timeoutRef.current = null;
-			return;
-		}
+		// if (timeoutRef.current) {
+		// 	clearTimeout(timeoutRef.current);
+		// 	timeoutRef.current = null;
+		// 	return;
+		// }
 		setInfo((prev) => {
 			const chatDropdownExpanded = prev.chatDropdownExpanded;
 			if (!chatDropdownExpanded) {
@@ -133,34 +133,9 @@ const ChatHeader = ({
 
 	return (
 		<div className={s.wrapper}>
-			<div
-				className={`${s.chatHeader} ${info?.chatDropdownExpanded ? s.expanded : ''}`}
-				onMouseLeave={handleMouseLeave}
-			>
-				<div className={`${s.headerInfo} headerInfo`}>
-					<div className={s.leftContainer}>
-						<div className={s.iconContainer} onClick={handleNavigateBack}>
-							<LeftSvg />
-						</div>
-						<div className={s.chatTitle}>{currentChatData?.title || 'New Chat'}</div>
-					</div>
-					<div className={s.rightContainer}>
-						{!isNewChat && (
-							<Tooltip
-								title={<div className={s.tooltip}>Delete Chat</div>}
-								placement="bottom"
-								color="transparent"
-								arrow={false}
-							>
-								<button className={s.deleteChatBtn} onClick={handleDeleteChatClick}>
-									<DeleteSvg />
-								</button>
-							</Tooltip>
-						)}
-					</div>
-				</div>
-				{info?.userMessages?.length > 1 && (
-					<div className={s.chatInfo} onMouseLeave={handleMouseLeave}>
+			<div className={`${s.chatHeader} ${info?.chatDropdownExpanded ? s.expanded : ''}`}>
+				<div className={`${s.headerInfo} headerInfo`} onMouseLeave={handleMouseLeave}>
+					{info?.userMessages?.length > 1 && (
 						<div className={s.nonActiveQuestionsContainer}>
 							{info?.userMessages?.map((message) =>
 								message?.index !== info?.activeUserMessageIndex ? (
@@ -179,15 +154,26 @@ const ChatHeader = ({
 								),
 							)}
 						</div>
+					)}
+
+					<div
+						className={s.leftContainer}
+						onMouseEnter={info?.userMessages?.length > 1 ? handleMouseEnter : undefined}
+					>
 						<div
 							className={`${s.questionWrapper} ${
 								info?.chatDropdownExpanded ? s.expanded : ''
 							}`}
-							onMouseEnter={handleMouseEnter}
 						>
 							<div className={s.chatQuestionContainer}>
-								{info?.chatDropdownExpanded && (
-									<TickSvg style={{ flexShrink: 0 }} />
+								{info?.userMessages?.length > 1 && (
+									<div
+										className={`${s.iconContainer} ${
+											info?.chatDropdownExpanded ? s.expanded : ''
+										}`}
+									>
+										<ChevronRightThinSvg width={18} height={18} />
+									</div>
 								)}
 
 								<div className={s.activeQuestion}>
@@ -195,18 +181,23 @@ const ChatHeader = ({
 										''}
 								</div>
 							</div>
-							{info?.userMessages?.length > 1 && (
-								<div
-									className={`${s.iconContainer} ${
-										info?.chatDropdownExpanded ? s.expanded : ''
-									}`}
-								>
-									<ChevronRightThinSvg width={18} height={18} />
-								</div>
-							)}
 						</div>
 					</div>
-				)}
+					<div className={s.rightContainer}>
+						{!isNewChat && (
+							<Tooltip
+								title={<div className={s.tooltip}>Delete Chat</div>}
+								placement="bottom"
+								color="transparent"
+								arrow={false}
+							>
+								<button className={s.deleteChatBtn} onClick={handleDeleteChatClick}>
+									<DeleteSvg />
+								</button>
+							</Tooltip>
+						)}
+					</div>
+				</div>
 			</div>
 			{info?.chatDropdownExpanded && (
 				<div

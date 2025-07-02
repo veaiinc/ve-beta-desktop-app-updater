@@ -11,6 +11,10 @@
 	outline: none;
 }
 
+p {
+	margin: 0; // to override style leakage from reset.css coming from builder
+}
+
 a {
 	text-decoration: none;
 	p,

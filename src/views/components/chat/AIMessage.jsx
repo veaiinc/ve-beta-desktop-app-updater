@@ -7,8 +7,8 @@ import { ReactComponent as GraduationCapSvg } from '../../../assets/svg/graduati
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../../../assets/svg/ai_agents/copy.svg';
 import { ReactComponent as ViewDocumentIcon } from '../../../assets/svg/chat/viewDocument.svg';
-import { ReactComponent as BulbSvg } from '../../../assets/svg/home_page/bulb.svg';
 import AISuggestionsReportAiComponent from './chatComponents/AiSuggestionsReportAiComponent';
+import { ReactComponent as PlusSvg } from '../../../assets/svg/ai_assistant/plus.svg';
 import '../../../assets/scss/chat/aiMessage.scss';
 import PromptPopup from '../homePage/PromptPopup';
 import ClarifyWidget from './chatWidgets/ClarifyWidget';
@@ -164,7 +164,6 @@ const AIMessage = ({
 								/>
 							</Tooltip>
 						</div>
-
 						<Tooltip
 							placement="bottom"
 							arrow={false}
@@ -187,26 +186,31 @@ const AIMessage = ({
 
 			{(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
 				(messageData?.['follow_up_query'] || [])?.length > 0) && (
-				<div className="suggested-prompts">
-					<div className="title-text">
-						<BulbSvg />
-						Suggested Prompts
-					</div>
-					<div className="prompts-container">
-						{(
-							aiMessagesInfo?.[messageData?.messageId]?.followUpQuery ||
-							messageData?.['follow_up_query'] ||
-							[]
-						)?.map((query, index) => (
-							<div
-								className="prompt-container"
-								key={index}
-								onClick={() => handlePromptClick(query)}
-							>
-								<div className="prompt">{query}</div>
+				<div className="chat-suggestions-container">
+					{(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
+						(messageData?.['follow_up_query'] || [])?.length > 0) && (
+						<div className="suggested-prompts">
+							<div className="title-text">Suggested Prompts</div>
+							<div className="prompts-container">
+								{(
+									aiMessagesInfo?.[messageData?.messageId]?.followUpQuery ||
+									messageData?.['follow_up_query'] ||
+									[]
+								)?.map((query, index) => (
+									<div
+										className="prompt-container"
+										key={index}
+										onClick={() => handlePromptClick(query)}
+									>
+										<PlusSvg
+											style={{ width: '18px', height: '18px', flexShrink: 0 }}
+										/>
+										<div className="prompt">{query}</div>
+									</div>
+								))}
 							</div>
-						))}
-					</div>
+						</div>
+					)}
 				</div>
 			)}
 		</div>

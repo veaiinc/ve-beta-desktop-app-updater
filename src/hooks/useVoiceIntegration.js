@@ -1,7 +1,7 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Room, RoomEvent, createLocalTracks } from 'livekit-client';
-import Context from '../../context/context';
-import { message } from '../components/globalComponents/CustomToast';
+import Context from '../context/context';
+import { message } from '../views/components/globalComponents/CustomToast';
 
 const getPermissions = () => {
 	return navigator.mediaDevices

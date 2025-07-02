@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect } from 'react';
-import Context from '../../context/context';
 import Cookies from 'js-cookie';
 import { useLocation } from 'react-router-dom';
+import Context from '../context/context';
 
 const useTheme = () => {
 	const { pathname } = useLocation();

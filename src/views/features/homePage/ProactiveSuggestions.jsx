@@ -112,7 +112,7 @@ const sortOptions = {
 };
 const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
 
-const optionsList = ['All'];
+const optionsList = [];
 const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	const navigate = useNavigate();
 	const currentIndexRef = useRef(0);
@@ -160,7 +160,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		chatQuery: '',
 		showExploreMore: false,
 		options: optionsList,
-		selectedOption: 'All',
+		selectedOption: '',
 		showArrows: {
 			left: false,
 			right: false,
@@ -237,7 +237,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	// }, []);
 
 	useEffect(() => {
-		if (!aiCategories && aiSuggestedPendingActions?.pendingActions?.length > 0) {
+		if (!aiCategories) {
 			getAiCategoriesOptions();
 		}
 	}, [aiCategories, info?.options, aiSuggestedPendingActions]);
@@ -248,6 +248,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			setInfo((prev) => ({
 				...prev,
 				options: [...optionsList, ...response?.[1]],
+				selectedOption: response?.[1]?.[0],
 			}));
 		} else {
 			setInfo((prev) => ({
@@ -263,7 +264,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	}, [info?.totalCardsData, info?.currentIndex]);
 
 	useEffect(() => {
-		if (info?.selectedOption !== 'All') {
+		if (info?.selectedOption !== firstOption) {
 			return;
 		}
 		fetchPendingActions();
@@ -628,9 +629,17 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			sortBy: info?.sortBy,
 			...(favourite && { isFavourited: favourite }),
 			search: info?.searchQuery,
-			...(option !== 'All' && { category: option }),
+			// ...(info.selectedOption !== 'All' && { category: info?.selectedOption }),
+			category: info?.selectedOption,
 		};
-	}, [payload, info?.selectedFilters, info?.sortOptions, info?.sortBy, info?.searchQuery]);
+	}, [
+		payload,
+		info?.selectedFilters,
+		info?.sortOptions,
+		info?.sortBy,
+		info?.searchQuery,
+		info?.selectedOption,
+	]);
 
 	const groupedCards = useMemo(() => {
 		const groups = {};
@@ -727,6 +736,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			);
 		});
 	}, [info?.options, info?.selectedOption]);
+
+	const firstOption = info?.options?.[0];
 	return (
 		<>
 			{info?.showExploreMore && (
@@ -801,355 +812,361 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 								<AIQuestions />
 							</div>
 						)}
-						{info?.activeBtn === 'insights' && (
-							<>
-								{info?.selectedOption === 'All' ? (
-									(info?.cards?.length > 0 ||
-										info?.searchQuery?.length !== 0) && (
-										<div
-											className="cards-container"
-											// style={{
-											// 	display: info?.cards?.length > 0 ? '' : 'none',
-											// }}
-											onTouchStart={handleTouchStart}
-											onTouchMove={handleTouchMove}
-											onTouchEnd={handleTouchEnd}
-										>
-											{info?.loading ? (
-												[
-													{ position: 0 },
-													{ position: 1 },
-													{ position: 2 },
-													{ position: -1 },
-													{ position: -2 },
-												]?.map((item, index) => {
-													const classList = [
-														'card',
-														'skeleton',
-														positionClassMap[item.position],
-													];
-													return (
-														<div
-															key={index}
-															className={classList.join(' ')}
-														>
+						{info?.activeBtn === 'insights' &&
+							aiSuggestedPendingActions?.pendingActions?.length > 0 && (
+								<>
+									{info?.selectedOption === firstOption ? (
+										(info?.cards?.length > 0 ||
+											info?.searchQuery?.length !== 0) && (
+											<div
+												className="cards-container"
+												// style={{
+												// 	display: info?.cards?.length > 0 ? '' : 'none',
+												// }}
+												onTouchStart={handleTouchStart}
+												onTouchMove={handleTouchMove}
+												onTouchEnd={handleTouchEnd}
+											>
+												{info?.loading ? (
+													[
+														{ position: 0 },
+														{ position: 1 },
+														{ position: 2 },
+														{ position: -1 },
+														{ position: -2 },
+													]?.map((item, index) => {
+														const classList = [
+															'card',
+															'skeleton',
+															positionClassMap[item.position],
+														];
+														return (
 															<div
-																className="skeleton-container"
-																style={{
-																	width: '100%',
-																	height: '100%',
-																	borderRadius: '10px',
-																}}
+																key={index}
+																className={classList.join(' ')}
 															>
-																<Skeleton
-																	height={'100%'}
-																	width={'100%'}
-																/>
-															</div>
-														</div>
-													);
-												})
-											) : info?.cards?.length === 0 ? (
-												<div
-													className="no-data"
-													style={{ color: 'var(--primary-font)' }}
-												>
-													No data available
-												</div>
-											) : (
-												info?.cards?.map((card, index) => {
-													if (card?.position === null) return null;
-													const classList = [
-														'card',
-														positionClassMap[card?.position],
-													];
-													return (
-														<div
-															key={index}
-															className={classList?.join(' ')}
-															onClick={() =>
-																handleCardClick(card, index)
-															}
-														>
-															<div className="header">
-																<div className="card-description">
-																	{card?.title}
+																<div
+																	className="skeleton-container"
+																	style={{
+																		width: '100%',
+																		height: '100%',
+																		borderRadius: '10px',
+																	}}
+																>
+																	<Skeleton
+																		height={'100%'}
+																		width={'100%'}
+																	/>
 																</div>
 															</div>
-															{classList?.[1] === 'selected' && (
-																<div className="footer">
-																	<div className="module-type">
-																		{card?.moduleType}
+														);
+													})
+												) : info?.cards?.length === 0 ? (
+													<div
+														className="no-data"
+														style={{ color: 'var(--primary-font)' }}
+													>
+														No data available
+													</div>
+												) : (
+													info?.cards?.map((card, index) => {
+														if (card?.position === null) return null;
+														const classList = [
+															'card',
+															positionClassMap[card?.position],
+														];
+														return (
+															<div
+																key={index}
+																className={classList?.join(' ')}
+																onClick={() =>
+																	handleCardClick(card, index)
+																}
+															>
+																<div className="header">
+																	<div className="card-description">
+																		{card?.title}
 																	</div>
-																	<div className="module-priority">
-																		<span
-																			style={{
-																				backgroundColor:
-																					PriorityLevel[
-																						card
-																							?.priority
-																					],
-																			}}
-																		></span>
-																		<div className="module-priority-text">
-																			<div>
-																				{card?.priority}
-																			</div>
-																			{card?.priority &&
-																				card?.updatedAt && (
-																					<div
-																						style={{
-																							color: 'var(--secondary-font)',
-																						}}
-																					>
-																						|
-																					</div>
-																				)}
-																			<Tooltip
-																				title={dayjs(
-																					card?.updatedAt *
-																						1000,
-																				).format(
-																					'MMMM D, YYYY h:mm A',
-																				)}
-																			>
+																</div>
+																{classList?.[1] === 'selected' && (
+																	<div className="footer">
+																		<div className="module-type">
+																			{card?.moduleType}
+																		</div>
+																		<div className="module-priority">
+																			<span
+																				style={{
+																					backgroundColor:
+																						PriorityLevel[
+																							card
+																								?.priority
+																						],
+																				}}
+																			></span>
+																			<div className="module-priority-text">
 																				<div>
-																					{dayjs(
+																					{card?.priority}
+																				</div>
+																				{card?.priority &&
+																					card?.updatedAt && (
+																						<div
+																							style={{
+																								color: 'var(--secondary-font)',
+																							}}
+																						>
+																							|
+																						</div>
+																					)}
+																				<Tooltip
+																					title={dayjs(
 																						card?.updatedAt *
 																							1000,
-																					)?.fromNow()}
-																				</div>
-																			</Tooltip>
+																					).format(
+																						'MMMM D, YYYY h:mm A',
+																					)}
+																				>
+																					<div>
+																						{dayjs(
+																							card?.updatedAt *
+																								1000,
+																						)?.fromNow()}
+																					</div>
+																				</Tooltip>
+																			</div>
 																		</div>
 																	</div>
-																</div>
-															)}
-														</div>
-													);
-												})
-											)}
-										</div>
-									)
-								) : (
-									<PromptsWidget
-										option={info?.selectedOption}
-										currentIndex={currentIndexRef?.current}
-										searchQuery={info?.searchQuery}
-									/>
-								)}
+																)}
+															</div>
+														);
+													})
+												)}
+											</div>
+										)
+									) : (
+										<PromptsWidget
+											option={info?.selectedOption}
+											currentIndex={currentIndexRef?.current}
+											searchQuery={info?.searchQuery}
+										/>
+									)}
 
-								<div
-									className={`actionMainContainer ${
-										info?.selectedOption !== 'All' ? 'onPrompt' : ''
-									}`}
-								>
-									{(info?.cards.length || info?.searchQuery?.length !== 0) && (
-										<div className="right-container">
-											<div className="searchMainContainer">
-												<div
-													className="search-wrapper"
-													data-tooltip="Search"
-												>
-													<div className="search-icon">
-														<SearchSvg stroke="var(--primary-font)" />
+									<div
+										className={`actionMainContainer ${
+											info?.selectedOption !== 'All' ? 'onPrompt' : ''
+										}`}
+									>
+										{(info?.cards.length ||
+											info?.searchQuery?.length !== 0) && (
+											<div className="right-container">
+												<div className="searchMainContainer">
+													<div
+														className="search-wrapper"
+														data-tooltip="Search"
+													>
+														<div className="search-icon">
+															<SearchSvg stroke="var(--primary-font)" />
+														</div>
+														<input
+															className="search-input"
+															placeholder="Search"
+															onChange={handleSearchQueryChange}
+															onFocus={() =>
+																(searchFocusedRef.current = true)
+															}
+															onBlur={() =>
+																(searchFocusedRef.current = false)
+															}
+														/>
 													</div>
-													<input
-														className="search-input"
-														placeholder="Search"
-														onChange={handleSearchQueryChange}
-														onFocus={() =>
-															(searchFocusedRef.current = true)
-														}
-														onBlur={() =>
-															(searchFocusedRef.current = false)
-														}
-													/>
-												</div>
-												<div className="searchOptionsContainer">
-													<div className="command-icon">
-														<span>
-															<CommandSvg />
-														</span>
-													</div>
-													<div className="command-icon">
-														<span>K</span>
+													<div className="searchOptionsContainer">
+														<div className="command-icon">
+															<span>
+																<CommandSvg />
+															</span>
+														</div>
+														<div className="command-icon">
+															<span>K</span>
+														</div>
 													</div>
 												</div>
 											</div>
-										</div>
-									)}
-									{info?.cards?.length > 0 && (
-										<div className="optionsRightMainContainer">
-											<Tooltip
-												open={info?.openFilter}
-												onOpenChange={() =>
-													setInfo((prev) => ({
-														...prev,
-														openFilter: false,
-													}))
-												}
-												placement="top"
-												title={
-													<div className="filter-container">
-														<div className="filter-items">
-															{filterGroups?.map((group, idx) => (
-																<div
-																	key={group?.title}
-																	style={{ width: '100%' }}
-																>
-																	<div className="filter-item">
-																		<div className="filter-item-title">
-																			{group?.title || ''}
-																		</div>
-																		<div className="filter-item-options">
-																			{group?.options?.map(
-																				(item) => {
-																					const itemWithGroup =
-																						{
-																							...item,
-																							group: group?.title,
-																						};
-
-																					const isSelected =
-																						info?.selectedFilters?.some(
-																							(
-																								option,
-																							) =>
-																								option?.title ===
-																									itemWithGroup?.title &&
-																								option?.group ===
-																									itemWithGroup?.group,
-																						);
-																					return (
-																						<div
-																							key={
-																								item?.id
-																							}
-																							className="eachOption"
-																							onClick={() =>
-																								handleFilterClick(
-																									itemWithGroup,
-																									group?.title,
-																								)
-																							}
-																						>
-																							{group?.title ===
-																								'Priority Level' && (
-																								<div
-																									className="indicator"
-																									style={{
-																										backgroundColor:
-																											item?.bgColor ||
-																											'',
-																									}}
-																								></div>
-																							)}
-																							<div className="option-text">
-																								<span className="option-text-content">
-																									{item?.title ||
-																										''}
-																								</span>
-																								{isSelected && (
-																									<TickIcon
-																										style={{
-																											marginLeft:
-																												'8px',
-																										}}
-																									/>
-																								)}
-																							</div>
-																						</div>
-																					);
-																				},
-																			)}
-																		</div>
-																	</div>
-																	{idx <
-																		filterGroups?.length -
-																			1 && (
-																		<hr
-																			style={{
-																				width: '100%',
-																				height: '1px',
-																				backgroundColor:
-																					'var(--stroke)',
-																				border: 'none',
-																				marginTop: '10px',
-																			}}
-																		/>
-																	)}
-																</div>
-															))}
-														</div>
-													</div>
-												}
-												color={'transparent'}
-												style={{
-													cursor: 'pointer',
-													userSelect: 'none',
-												}}
-												trigger={'click'}
-											>
-												<div
-													className="action-left"
-													onClick={() => {
-														if (info?.openFilter) {
-															return;
-														}
+										)}
+										{info?.cards?.length > 0 && (
+											<div className="optionsRightMainContainer">
+												<Tooltip
+													open={info?.openFilter}
+													onOpenChange={() =>
 														setInfo((prev) => ({
 															...prev,
-															openFilter: true,
-														}));
+															openFilter: false,
+														}))
+													}
+													placement="top"
+													title={
+														<div className="filter-container">
+															<div className="filter-items">
+																{filterGroups?.map((group, idx) => (
+																	<div
+																		key={group?.title}
+																		style={{ width: '100%' }}
+																	>
+																		<div className="filter-item">
+																			<div className="filter-item-title">
+																				{group?.title || ''}
+																			</div>
+																			<div className="filter-item-options">
+																				{group?.options?.map(
+																					(item) => {
+																						const itemWithGroup =
+																							{
+																								...item,
+																								group: group?.title,
+																							};
+
+																						const isSelected =
+																							info?.selectedFilters?.some(
+																								(
+																									option,
+																								) =>
+																									option?.title ===
+																										itemWithGroup?.title &&
+																									option?.group ===
+																										itemWithGroup?.group,
+																							);
+																						return (
+																							<div
+																								key={
+																									item?.id
+																								}
+																								className="eachOption"
+																								onClick={() =>
+																									handleFilterClick(
+																										itemWithGroup,
+																										group?.title,
+																									)
+																								}
+																							>
+																								{group?.title ===
+																									'Priority Level' && (
+																									<div
+																										className="indicator"
+																										style={{
+																											backgroundColor:
+																												item?.bgColor ||
+																												'',
+																										}}
+																									></div>
+																								)}
+																								<div className="option-text">
+																									<span className="option-text-content">
+																										{item?.title ||
+																											''}
+																									</span>
+																									{isSelected && (
+																										<TickIcon
+																											style={{
+																												marginLeft:
+																													'8px',
+																											}}
+																										/>
+																									)}
+																								</div>
+																							</div>
+																						);
+																					},
+																				)}
+																			</div>
+																		</div>
+																		{idx <
+																			filterGroups?.length -
+																				1 && (
+																			<hr
+																				style={{
+																					width: '100%',
+																					height: '1px',
+																					backgroundColor:
+																						'var(--stroke)',
+																					border: 'none',
+																					marginTop:
+																						'10px',
+																				}}
+																			/>
+																		)}
+																	</div>
+																))}
+															</div>
+														</div>
+													}
+													color={'transparent'}
+													style={{
+														cursor: 'pointer',
+														userSelect: 'none',
 													}}
+													trigger={'click'}
 												>
-													<button
-														className={`filter-btn ${
-															info?.openFilter ? 'active' : ''
-														}`}
-														data-tooltip="Filter"
-													>
-														<FilterIcon /> Filter
-													</button>
-												</div>
-											</Tooltip>
-											{info?.cards?.length > 0 && (
-												<div className="action-right">
-													<button
-														className="card-change-btn"
-														onClick={(e) => {
-															e.stopPropagation();
-															e.preventDefault();
-															handleLeft();
-														}}
-													>
-														<ChevronRightThinSvg className="left-chevron" />
-													</button>
-													<div className="card-number">
-														<span>{currentIndexRef?.current + 1}</span>/
-														<span className="total-docs">
-															{
-																aiSuggestedPendingActions?.metaInfo
-																	?.totalDocs
+													<div
+														className="action-left"
+														onClick={() => {
+															if (info?.openFilter) {
+																return;
 															}
-														</span>
-													</div>
-													<button
-														className="card-change-btn"
-														onClick={(e) => {
-															e.stopPropagation();
-															e.preventDefault();
-															handleRight();
+															setInfo((prev) => ({
+																...prev,
+																openFilter: true,
+															}));
 														}}
 													>
-														<ChevronRightThinSvg />
-													</button>
-												</div>
-											)}
-										</div>
-									)}
-								</div>
-							</>
-						)}
+														<button
+															className={`filter-btn ${
+																info?.openFilter ? 'active' : ''
+															}`}
+															data-tooltip="Filter"
+														>
+															<FilterIcon /> Filter
+														</button>
+													</div>
+												</Tooltip>
+												{info?.cards?.length > 0 && (
+													<div className="action-right">
+														<button
+															className="card-change-btn"
+															onClick={(e) => {
+																e.stopPropagation();
+																e.preventDefault();
+																handleLeft();
+															}}
+														>
+															<ChevronRightThinSvg className="left-chevron" />
+														</button>
+														<div className="card-number">
+															<span>
+																{currentIndexRef?.current + 1}
+															</span>
+															/
+															<span className="total-docs">
+																{
+																	aiSuggestedPendingActions
+																		?.metaInfo?.totalDocs
+																}
+															</span>
+														</div>
+														<button
+															className="card-change-btn"
+															onClick={(e) => {
+																e.stopPropagation();
+																e.preventDefault();
+																handleRight();
+															}}
+														>
+															<ChevronRightThinSvg />
+														</button>
+													</div>
+												)}
+											</div>
+										)}
+									</div>
+								</>
+							)}
 						<AISuggestionsModal
 							open={info?.openModal}
 							onClose={handleCloseModal}
@@ -1167,6 +1184,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 						className={`chatbox_container ${
 							info?.showExploreMore && info?.cards?.length > 0 ? 'slideUp' : ''
 						}`}
+						style={{ marginTop: info.showExploreMore ? '20px' : '0' }}
 					>
 						<ChatBox
 							onSend={handleCustomOnSendFunction}
