@@ -35,19 +35,20 @@ export const categories = [
 
 export const jobs = [
 	{
-		title: 'Product Designer',
-		description: 'Full-time · San Francisco'
-	},
-	{
 		title: 'UI/UX Designer',
-		description: 'Part-time · Remote'
+		description: 'Part-time · Remote',
 	},
 	{
-		title: 'Graphic Designer',
-		description: 'Contract · New York'
+		title: 'Sales executive',
+		description: 'Full-time · San Francisco',
+	},
+
+	{
+		title: 'Backend developer',
+		description: 'Contract · New York',
 	},
 	{
-		title: 'Web Designer',
-		description: 'Freelance · Austin'
-	}
-]
+		title: 'Ai engineer',
+		description: 'Freelance · Austin',
+	},
+];
