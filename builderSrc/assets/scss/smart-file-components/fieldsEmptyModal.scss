@@ -65,6 +65,28 @@
 				gap: 14px;
 				align-self: stretch;
 				width: 100%;
+				max-height: 200px;
+				overflow-y: auto;
+				padding-right: 8px;
+
+				/* Custom scrollbar styling */
+				&::-webkit-scrollbar {
+					width: 6px;
+				}
+
+				&::-webkit-scrollbar-track {
+					background: var(--stroke, #2c2d2e);
+					border-radius: 3px;
+				}
+
+				&::-webkit-scrollbar-thumb {
+					background: var(--secondary-font, #666666);
+					border-radius: 3px;
+				}
+
+				&::-webkit-scrollbar-thumb:hover {
+					background: var(--primary-font, #333333);
+				}
 
 				.missingFieldLi {
 					color: var(--primary-font, #333333);
