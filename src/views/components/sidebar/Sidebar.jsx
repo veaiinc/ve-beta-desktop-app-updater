@@ -109,34 +109,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		if (!userWorkSpaceList) getUserWorkSpaceList();
 	}, []);
 
-	// Configure Intercom
-	useEffect(() => {
-		if (userDetailsData && info) {
-			Intercom({
-				app_id: 'vmvweabd',
-				user_id: userDetailsData?._id,
-				name: `${userDetailsData?.firstName} ${userDetailsData?.lastName}`,
-				email: userDetailsData?.email,
-				company: {
-					name:
-						info?.activeBusniessName?.activeWorkspaceId ??
-						localStorage?.getItem('workspaceId'),
-					id: info?.activeBusniessName?.businessName,
-					region: info?.activeBusniessName?.region,
-				},
-			});
-		}
-	}, [userDetailsData, info]);
-	// Set active business name
-	useEffect(() => {
-		if (userWorkSpaceList) {
-			const activeBusniessName = userWorkSpaceList.find(
-				(item) => item.activeWorkspaceId === activeWorkspaceId,
-			);
-			setInfo((prev) => ({ ...prev, activeBusniessName }));
-		}
-	}, [userWorkSpaceList]);
-
 	// Track route change for route-based module
 	useEffect(() => {
 		if (pathname) {
@@ -218,10 +190,13 @@ const Sidebar = ({ activeWorkspaceId }) => {
 						/>
 					</div>
 				</nav>
-				<ClosedSidebar
-					onIconClick={() => setIsOpen(true)}
-					isEarlyAccessPage={isEarlyAccessPage}
-				/>
+				{!isOpen && (
+					<ClosedSidebar
+						onIconClick={() => setIsOpen(true)}
+						isEarlyAccessPage={isEarlyAccessPage}
+					/>
+				)}
+
 				<Notifications
 					showNotificationsDrawer={showNotificationsDrawer}
 					setShowNotificationsDrawer={setShowNotificationsDrawer}

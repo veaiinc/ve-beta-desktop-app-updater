@@ -714,23 +714,21 @@ const OpenedSidebar = ({
 													onClick={openWorkspacesFunction}
 													style={{ cursor: 'pointer' }}
 												>
-													{info?.activeBusniessName?.logo_s3_500w_key && (
+													{tennantSettingsData?.logo_s3_500w_key && (
 														<div className="workspaceLogoContainer">
 															<img
 																className="workspaceLogo"
 																src={
-																	info?.activeBusniessName
-																		?.logo_s3_500w_key
+																	tennantSettingsData?.logo_s3_500w_key
 																}
 																alt={
-																	info?.activeBusniessName
-																		?.activeWorkspaceId
+																	tennantSettingsData?.businessName
 																}
 															/>
 														</div>
 													)}
 													<h6 className="workspaceName">
-														{info?.activeBusniessName?.businessName}
+														{tennantSettingsData?.businessName}
 													</h6>
 													{userWorkSpaceList?.length > 1 && (
 														<DownArrowSmallSvg
