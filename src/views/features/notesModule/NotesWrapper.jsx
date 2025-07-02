@@ -13,9 +13,7 @@ const NotesWrapper = () => {
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		modalIsOpen: false,
-		handledOnce: false,
-		createSocketConnection: false,
-		sessionId: null,
+		sessionId: ObjectID()?.toString(),
 	});
 
 	useEffect(() => {
@@ -41,22 +39,22 @@ const NotesWrapper = () => {
 		}));
 	}, []);
 
-	const handleCustomChatBoxClick = useCallback(() => {
-		if (!info?.sessionId) {
-			const sessionId = ObjectID()?.toString();
-			setInfo((prev) => ({
-				...prev,
-				sessionId,
-			}));
-		}
-	}, [info?.sessionId]);
+	// const handleCustomChatBoxClick = useCallback(() => {
+	// 	if (!info?.sessionId) {
+	// 		const sessionId = ObjectID()?.toString();
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			sessionId,
+	// 		}));
+	// 	}
+	// }, [info?.sessionId]);
 
-	const handleCreateSocketConnection = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			createSocketConnection: true,
-		}));
-	}, []);
+	// const handleCreateSocketConnection = useCallback(() => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		createSocketConnection: true,
+	// 	}));
+	// }, []);
 
 	return (
 		<div
@@ -70,7 +68,7 @@ const NotesWrapper = () => {
 					<RecentChat
 						isPreview={true}
 						showDeleteChat={false}
-						customChatBoxClick={handleCustomChatBoxClick}
+						// customChatBoxClick={handleCustomChatBoxClick}
 						sId={info?.sessionId}
 					/>
 				</div>

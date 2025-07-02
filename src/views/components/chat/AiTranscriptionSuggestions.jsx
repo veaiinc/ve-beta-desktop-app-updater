@@ -37,7 +37,12 @@ const AiTranscriptionSuggestions = ({ closeModal }) => {
 
 			<div className={s.body}>
 				{userQuestions?.length > 0 && (
-					<div className={s.suggestedQuestionsContainer}>
+					<div
+						className={s.suggestedQuestionsContainer}
+						style={{
+							height: userQuestions?.length > 0 ? '40vh' : '100%',
+						}}
+					>
 						{userQuestions?.map((question, index) => (
 							<div className={s.suggestedUserQuestion} key={index}>
 								{/* <div className={s.questionContainer}>
