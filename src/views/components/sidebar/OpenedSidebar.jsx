@@ -188,7 +188,8 @@ const OpenedSidebarModules = ({
 								name === 'Calendar' ||
 								name === 'Tasks' ||
 								name === 'Contacts' ||
-								name === 'Automations'
+								name === 'Automations' ||
+								name === 'Database'
 									? 'none'
 									: 'var(--secondary-font)'
 							}
@@ -198,7 +199,8 @@ const OpenedSidebarModules = ({
 									name === 'Calendar' ||
 									name === 'Tasks' ||
 									name === 'Contacts' ||
-									name === 'Automations'
+									name === 'Automations' ||
+									name === 'Database'
 										? 'var(--secondary-font)'
 										: 'none',
 								height: '20px',
