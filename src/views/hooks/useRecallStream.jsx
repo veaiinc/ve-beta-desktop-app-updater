@@ -28,9 +28,9 @@ const useRecallStream = () => {
 		const wsUrl = `wss://gazelle-ruling-monster.ngrok-free.app/frontend/ws`;
 		socketRef.current = new WebSocket(wsUrl);
 
-		// socketRef.current.onopen = () => {
-		// 	isIntentionallyClosed = false;
-		// };
+		socketRef.current.onopen = () => {
+			console.log('Connected to Recall WebSocket server');
+		};
 
 		socketRef.current.onmessage = (event) => {
 			if (messageHandlerRef?.current) {

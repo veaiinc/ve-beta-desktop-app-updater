@@ -1,13 +1,15 @@
+import { message } from 'antd/lib';
 import { useCallback, useRef, useEffect } from 'react';
 const useLiveIntelligenceStream = () => {
 	const socketRef = useRef(null);
 	const inactivityTimeoutRef = useRef(null);
+	const sendTimeoutRef = useRef(null);
+	const sendingContextRef = useRef(false);
 	const currentSessionIdRef = useRef(null);
 	const messageHandlerRef = useRef(null);
 	const MAX_RETRY_ATTEMPTS = 30;
 	const RETRY_DELAY = 1000; // 1 second
-	const SEND_INTERVAL = 10000; // 30 seconds
-	const sendIntervalRef = useRef(null);
+	const SEND_TIMEOUT = 30000; // 30 seconds
 	const previousContextRef = useRef('');
 	const currentContextRef = useRef('');
 	const location = localStorage.getItem('locationDetails') || {};
@@ -19,8 +21,9 @@ const useLiveIntelligenceStream = () => {
 			if (inactivityTimeoutRef.current) {
 				clearTimeout(inactivityTimeoutRef.current);
 			}
-			if (sendIntervalRef.current) {
-				clearInterval(sendIntervalRef.current);
+
+			if (sendTimeoutRef.current) {
+				clearTimeout(sendTimeoutRef.current);
 			}
 			if (socketRef.current) {
 				socketRef.current.close();
@@ -30,8 +33,8 @@ const useLiveIntelligenceStream = () => {
 
 	// Helper function to reset the inactivity timer
 	const resetInactivityTimeout = useCallback(() => {
-		if (inactivityTimeoutRef.current) {
-			clearTimeout(inactivityTimeoutRef.current);
+		if (sendTimeoutRef.current) {
+			clearTimeout(sendTimeoutRef.current);
 		}
 
 		inactivityTimeoutRef.current = setTimeout(() => {
@@ -42,10 +45,68 @@ const useLiveIntelligenceStream = () => {
 		}, 5 * 60 * 1000); // 5 minutes in milliseconds
 	}, []);
 
-	// Function to update current context with new transcription text
-	const updateCurrentContext = useCallback((newText) => {
-		currentContextRef.current = (currentContextRef.current || '') + (newText || '');
+	// Stop sending context data
+	const stopSendingContext = useCallback(() => {
+		if (sendTimeoutRef.current) {
+			clearTimeout(sendTimeoutRef.current);
+			sendTimeoutRef.current = null;
+		}
 	}, []);
+
+	const createWebSocketConnection = useCallback(
+		(sessionId, onMessageFunc) => {
+			if (!sessionId) {
+				console.error('Session ID is required for live intelligence streaming');
+				return;
+			}
+
+			currentSessionIdRef.current = sessionId;
+			messageHandlerRef.current = onMessageFunc;
+
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+
+			const baseUrl = `https://informally-cuddly-chimp.ngrok-free.app/${workspaceId}/${sessionId}/live_intelligence_streaming?token=${usertoken}`;
+
+			if (socketRef.current) {
+				socketRef.current.close();
+			}
+
+			socketRef.current = new WebSocket(baseUrl);
+
+			socketRef.current.onopen = () => {
+				console.log('Connected to Live Intelligence WebSocket server');
+
+				if (sendTimeoutRef.current) {
+					clearTimeout(sendTimeoutRef.current);
+				}
+
+				sendTimeoutRef.current = setTimeout(() => {
+					sendContextData();
+				}, SEND_TIMEOUT);
+			};
+
+			socketRef.current.onclose = () => {
+				console.log('Disconnected from Live Intelligence WebSocket server');
+				if (inactivityTimeoutRef.current) {
+					clearTimeout(inactivityTimeoutRef.current);
+				}
+				stopSendingContext();
+			};
+
+			socketRef.current.onerror = (error) => {
+				message.error('Failed to connect to Live Intelligence WebSocket server');
+				console.error('Live Intelligence WebSocket error:', error);
+			};
+
+			socketRef.current.onmessage = (event) => {
+				if (messageHandlerRef.current) {
+					messageHandlerRef.current(event);
+				}
+			};
+		},
+		[resetInactivityTimeout, stopSendingContext],
+	);
 
 	// Function to send context data to socket
 	const sendContextData = useCallback(() => {
@@ -82,93 +143,48 @@ const useLiveIntelligenceStream = () => {
 				try {
 					if (currentContextRef.current?.length > 0) {
 						socketRef.current.send(JSON.stringify(contextData));
+						// Move current context to previous context
+						previousContextRef.current =
+							(previousContextRef.current || '') + (currentContextRef.current || '');
+						currentContextRef.current = '';
 					}
-					resetInactivityTimeout();
-					// Move current context to previous context
-					previousContextRef.current =
-						(previousContextRef.current || '') + (currentContextRef.current || '');
-					currentContextRef.current = '';
 				} catch (error) {
+					message.error('Failed to send data to Live Intelligence WebSocket server');
 					console.error('Error sending context data:', error);
+				} finally {
+					sendingContextRef.current = false;
+					if (sendTimeoutRef.current) {
+						clearTimeout(sendTimeoutRef.current);
+					}
+
+					sendTimeoutRef.current = setTimeout(() => {
+						sendContextData();
+					}, SEND_TIMEOUT);
 				}
+
 				return;
 			}
 		};
 
 		attemptSend();
-	}, [resetInactivityTimeout]);
+	}, [resetInactivityTimeout, createWebSocketConnection]);
 
-	// Start sending context data every 30 seconds
-	const startSendingContext = useCallback(() => {
-		if (sendIntervalRef.current) {
-			clearInterval(sendIntervalRef.current);
-		}
-
-		sendIntervalRef.current = setInterval(() => {
-			sendContextData();
-		}, SEND_INTERVAL);
-
-		console.log('Started sending context data every 30 seconds');
-	}, [sendContextData]);
-
-	// Stop sending context data
-	const stopSendingContext = useCallback(() => {
-		if (sendIntervalRef.current) {
-			clearInterval(sendIntervalRef.current);
-			sendIntervalRef.current = null;
-		}
-		console.log('Stopped sending context data');
-	}, []);
-
-	const createWebSocketConnection = useCallback(
-		(sessionId, onMessageFunc) => {
-			if (!sessionId) {
-				console.error('Session ID is required for live intelligence streaming');
-				return;
-			}
-
-			currentSessionIdRef.current = sessionId;
-			messageHandlerRef.current = onMessageFunc;
-
-			const usertoken = localStorage.getItem('usertoken');
-			const workspaceId = localStorage.getItem('workspaceId');
-			const region = localStorage.getItem('region') || 'ap-south-1';
-
-			const baseUrl = `https://informally-cuddly-chimp.ngrok-free.app/${workspaceId}/${sessionId}/live_intelligence_streaming?token=${usertoken}`;
-
-			if (socketRef.current) {
-				socketRef.current.close();
-			}
-
-			socketRef.current = new WebSocket(baseUrl);
-
-			socketRef.current.onopen = () => {
-				console.log('Connected to Live Intelligence WebSocket server');
-				resetInactivityTimeout();
-				// Start sending context data when connected
-				startSendingContext();
-			};
-
-			socketRef.current.onclose = (event) => {
-				console.log('Disconnected from Live Intelligence WebSocket server');
-				if (inactivityTimeoutRef.current) {
-					clearTimeout(inactivityTimeoutRef.current);
+	// Function to update current context with new transcription text
+	const updateCurrentContext = useCallback(
+		(newText) => {
+			currentContextRef.current = (currentContextRef.current || '') + (newText || '');
+			const hasPunctuation = /[?.!]/.test(currentContextRef.current || '');
+			if (hasPunctuation) {
+				if (!sendingContextRef.current) {
+					sendingContextRef.current = true;
+					sendContextData();
+					if (sendTimeoutRef.current) {
+						clearTimeout(sendTimeoutRef.current);
+					}
 				}
-				stopSendingContext();
-			};
-
-			socketRef.current.onerror = (error) => {
-				console.error('Live Intelligence WebSocket error:', error);
-			};
-
-			socketRef.current.onmessage = (event) => {
-				resetInactivityTimeout();
-				if (messageHandlerRef.current) {
-					messageHandlerRef.current(event);
-				}
-			};
+			}
 		},
-		[resetInactivityTimeout, startSendingContext, stopSendingContext],
+		[sendContextData],
 	);
 
 	const closeWebSocketConnection = useCallback(() => {
@@ -184,7 +200,6 @@ const useLiveIntelligenceStream = () => {
 		closeWebSocketConnection,
 		updateCurrentContext,
 		sendContextData,
-		startSendingContext,
 		stopSendingContext,
 	};
 };
