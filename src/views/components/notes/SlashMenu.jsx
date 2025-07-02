@@ -1,5 +1,5 @@
 import { getDefaultReactSlashMenuItems, SuggestionMenuController } from '@blocknote/react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { insertImage } from './ImageComponent';
 import { insertDatabase } from './Database';
 import { filterSuggestionItems } from '@blocknote/core';
