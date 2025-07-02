@@ -94,6 +94,7 @@ export const intialState = {
 	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
 	docsFilesList: null,
 	moreDocsFilesList: null,
+	docsFilesRefetch: false,
 	smartFileRefetch: false,
 	activeWorkflowSlugForSmartFile: null,
 	slackChannels: null,

@@ -55,7 +55,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 	const navigate = useNavigate();
 
 	const {
-		templates: { getDocsFilesList, docsFilesList },
+		templates: { getDocsFilesList, docsFilesList, updateStateValues, docsFilesRefetch },
 	} = useContext(Context);
 	const mountedRef = useRef(true);
 
@@ -69,6 +69,28 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 		searchQuery: '',
 	});
+
+	useEffect(() => {
+		if (!docsFilesList) {
+			fetchDocs({ page: 1 });
+		}
+	}, [docsFilesList]);
+
+	// Add refetch mechanism when component mounts
+	useEffect(() => {
+		// Clear
+		updateStateValues({ docsFilesList: null });
+		// Always refetch data when component mounts to ensure fresh data
+		fetchDocs({ page: 1 });
+	}, []);
+
+	// Handle docsFilesRefetch from context
+	useEffect(() => {
+		if (docsFilesRefetch) {
+			fetchDocs({ page: 1 });
+			updateStateValues({ docsFilesRefetch: null });
+		}
+	}, [docsFilesRefetch]);
 
 	useEffect(() => {
 		const delay =
@@ -168,12 +190,6 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 			const newDocs = currentPage === 1 ? [...data] : [...info?.docs, ...(data || [])];
 			handleStateUpdate({ docs: newDocs, currentPage, hasNextPage, loading: false });
 			handleTotalChange(totalDocs);
-		}
-	}, [docsFilesList]);
-
-	useEffect(() => {
-		if (!docsFilesList) {
-			fetchDocs({ page: 1 });
 		}
 	}, [docsFilesList]);
 
