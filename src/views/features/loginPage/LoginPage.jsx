@@ -126,18 +126,19 @@ const LoginPage = () => {
 						)}
 					</div>
 				</div>
-				<div className="description-section">
-					<LoginDescription />
-				</div>
 			</div>
 		),
 		verificationCode: (
-			<VerificationCode
-				email={info?.email}
-				emailVerified={info?.emailVerified}
-				setEmailVerified={setEmailVerified}
-				setActiveStage={setActiveStage}
-			/>
+			<div className="main-content-container">
+				<div className="email-section">
+					<VerificationCode
+						email={info?.email}
+						emailVerified={info?.emailVerified}
+						setEmailVerified={setEmailVerified}
+						setActiveStage={setActiveStage}
+					/>
+				</div>
+			</div>
 		),
 	};
 
@@ -198,7 +199,7 @@ const LoginPage = () => {
 				))}
 			</footer> */}
 			</div>
-
+			<LoginDescription />
 			{/* <div className="login-page-container-right"> */}
 			{/* <div className="login-page-container-right-content">
 					<div className="login-page-container-right-content-title">
