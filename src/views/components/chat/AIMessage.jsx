@@ -68,7 +68,9 @@ const AIMessage = ({
 	}, []);
 
 	const handlePromptClick = (prompt) => {
-		updateStateValues({ activePromptForChat: prompt });
+		if (prompt) {
+			updateStateValues({ activePromptForChat: prompt });
+		}
 	};
 
 	return (
@@ -200,12 +202,12 @@ const AIMessage = ({
 									<div
 										className="prompt-container"
 										key={index}
-										onClick={() => handlePromptClick(query)}
+										onClick={() => handlePromptClick(query?.action_query)}
 									>
 										<PlusSvg
 											style={{ width: '18px', height: '18px', flexShrink: 0 }}
 										/>
-										<div className="prompt">{query}</div>
+										<div className="prompt">{query?.display_query || ''}</div>
 									</div>
 								))}
 							</div>
