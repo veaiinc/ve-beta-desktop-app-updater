@@ -145,7 +145,7 @@
 		height: calc(100vh - 48px);
 		font-size: 18px;
 		line-height: 20px;
-		max-width: 600px;
+		max-width: 800px;
 		overflow: hidden;
 
 		.loginDescriptionTwo .loginDescriptionTwoText span,
@@ -170,7 +170,7 @@
 		height: calc(100vh - 48px);
 		font-size: 18px;
 		line-height: 20px;
-		max-width: 500px;
+		max-width: 600px;
 		overflow: hidden;
 
 		.loginDescriptionTwo .loginDescriptionTwoText span,
@@ -195,7 +195,7 @@
 		height: calc(100vh - 48px);
 		font-size: 18px;
 		line-height: 20px;
-		max-width: 600px;
+		max-width: 650px;
 		overflow: hidden;
 
 		.loginDescriptionTwo .loginDescriptionTwoText span,
@@ -213,8 +213,12 @@
 		}
 	}
 }
-
-@media screen and (max-width: 1024px) {
+@media screen and (max-width: 1300px) {
+	.loginDescriptionContainer {
+		max-width: 550px;
+	}
+}
+@media screen and (max-width: 1120px) {
 	.loginDescriptionContainer {
 		padding: 24px;
 		gap: 14px;
@@ -222,7 +226,7 @@
 		min-height: 400px;
 		font-size: 13px;
 		line-height: 18px;
-		max-width: 350px;
+		max-width: 400px;
 		overflow: hidden;
 
 		.loginDescriptionTwo .loginDescriptionTwoText span,
