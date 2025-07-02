@@ -3605,6 +3605,12 @@ class Builder extends Component {
 							handleOpenSideBar={(e, _id) => {
 								this.props.handleOpenSideBar(e, _id, false, true);
 							}}
+							activeModuleId={this.props?.activeModuleId}
+							handleSaveSingleBlock={(e) => {
+								this.props.handleSaveSingleBlock(e, this.state.activeSectionID);
+							}}
+							activeWorkflowModuleId={this.props?.activeWorkflowModuleId}
+							handleSaveblocks={(e) => this.props.handleSaveblocks(e)}
 						/>
 					) : (
 						''

@@ -1176,6 +1176,9 @@ class Presentation extends Component {
 							handleAddLayout={(e, isFluid, isService) =>
 								this.props.handleAddLayout(e, isFluid, isService)
 							}
+							activeModuleId={this.props?.activeModuleId}
+							handleSaveSingleBlock={(e) => this.props.handleSaveSingleBlock(e)}
+							activeWorkflowModuleId={this.props?.activeWorkflowModuleId}
 						/>
 					);
 				} else {
