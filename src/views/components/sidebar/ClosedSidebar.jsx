@@ -2,7 +2,7 @@ import { memo, useContext } from 'react';
 import '../../../assets/scss/sidebar.scss';
 import { stableNavigationItems, betaNaviagationItems } from './sidebarindex';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import Cropper from 'react-easy-crop';

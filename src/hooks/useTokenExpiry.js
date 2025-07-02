@@ -1,5 +1,5 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import Context from '../../context/context';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import Context from '../context/context';
 import useLogout from './useLogout';
 
 const calculateTokenTimeLeft = (token) => {
@@ -29,7 +29,6 @@ const calculateTokenTimeLeft = (token) => {
 };
 
 const useTokenExpiry = () => {
-	const [tokenInfo, setTokenInfo] = useState({});
 	const timerRef = useRef({ timer: null, interval: null });
 	const logout = useLogout();
 	let {
@@ -46,11 +45,8 @@ const useTokenExpiry = () => {
 	const handleExpiryCheckLogic = useCallback(() => {
 		const token = localStorage.getItem('usertoken');
 		const validateExpiryData = calculateTokenTimeLeft(token);
-
-		setTokenInfo((prev) => ({ ...prev, ...validateExpiryData }));
 		updateTokenExpiryState({ tokenExpiryData: validateExpiryData });
 		cleanupTimers();
-
 		if (validateExpiryData.isExpired) {
 			updateTokenExpiryState({ expiredTokenModal: true });
 			setTimeout(() => {
@@ -60,7 +56,6 @@ const useTokenExpiry = () => {
 			return;
 		}
 
-		// Set up next check based on time remaining
 		if (validateExpiryData.hoursLeft > 24) {
 			timerRef.current.timer = setTimeout(handleExpiryCheckLogic, 24 * 60 * 60 * 1000);
 		} else if (validateExpiryData.hoursLeft > 6) {
@@ -84,8 +79,6 @@ const useTokenExpiry = () => {
 			timerRef.current.interval = null;
 		}
 	}, []);
-
-	return { ...tokenInfo };
 };
 
 export default useTokenExpiry;

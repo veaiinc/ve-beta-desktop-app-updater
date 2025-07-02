@@ -16,7 +16,7 @@ import { ReactComponent as MoonIcon } from '../../../assets/svg/moon.svg';
 import { ReactComponent as NewEditSvg } from '../../../assets/svg/sidebar/newEdit.svg';
 import { ReactComponent as PencilkSvg } from '../../../assets/svg/pencilSimple.svg';
 import WorkspaceListComponent from './Workspace';
-import useLogout from '../../hooks/useLogout';
+import useLogout from '../../../hooks/useLogout';
 import ChatHistory from './chatHistory/ChatHistory';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
@@ -29,7 +29,7 @@ import { ReactComponent as CreateWorkspaceSvg } from '../../../assets/svg/sideba
 import SidebarTooltip from './SidebarTooltip';
 import UploadAvatarPopupComponent from '../settings/profile/UploadAvatarPopup';
 import UploadFileProiflePopup from '../settings/profile/UploadFileProiflePopup';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import CreditsLeft from './chatHistory/CreditsLeft';
 
 const workspaceStyles = {
@@ -188,8 +188,7 @@ const OpenedSidebarModules = ({
 								name === 'Calendar' ||
 								name === 'Tasks' ||
 								name === 'Contacts' ||
-								name === 'Automations' ||
-								name === 'Database'
+								name === 'Automations'
 									? 'none'
 									: 'var(--secondary-font)'
 							}

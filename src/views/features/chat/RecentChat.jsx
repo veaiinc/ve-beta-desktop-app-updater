@@ -14,7 +14,7 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import TextSelector from '../../components/chat/chatComponents/TextSelector';
-import useWorkspaceMode from '../../../views/hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import ChatHeader from '../../components/chat/ChatHeader';
 
 const RecentChat = ({
@@ -898,7 +898,8 @@ const RecentChat = ({
 														<div
 															className="content"
 															style={{
-																...(info?.currentUserMessageIndex && {
+																...(info?.currentUserMessageIndex !==
+																	null && {
 																	opacity:
 																		index ===
 																		info?.currentUserMessageIndex +
@@ -978,7 +979,8 @@ const RecentChat = ({
 															// }}
 
 															style={{
-																...(info?.currentUserMessageIndex && {
+																...(info?.currentUserMessageIndex !==
+																	null && {
 																	opacity:
 																		index ===
 																		info?.currentUserMessageIndex

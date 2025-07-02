@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import useWorkspaceMode from './views/hooks/useWorkspaceMode';
+import useWorkspaceMode from './hooks/useWorkspaceMode';
 
 const App = () => {
 	const { routes } = useWorkspaceMode();

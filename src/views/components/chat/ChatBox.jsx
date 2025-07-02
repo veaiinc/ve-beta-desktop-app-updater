@@ -26,7 +26,7 @@ import { Image, Spin, Tooltip } from 'antd';
 import AIMessageLoader from './AIMessageLoader';
 import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
-import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
+import useUpdatedVoiceIntegration from '../../../hooks/useUpdatedVoiceIntegration';
 import { message } from '../globalComponents/CustomToast';
 // import SearchTypeTooltip from './SearchTypeTooltip';
 import ChatBoxPlaceholder from './ChatBoxPlaceholder';
@@ -35,7 +35,7 @@ import BuildTooltip from './BuildTooltip';
 import RecentFileTooltip from './RecentFileTooltip';
 import AskTooltip from './AskTooltip';
 import AddOnCards from '../settings/planbilling/addOnCards';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 
 const moduleHelper = {
 	tasks: 'tasks',

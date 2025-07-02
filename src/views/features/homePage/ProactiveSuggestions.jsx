@@ -1182,6 +1182,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 						className={`chatbox_container ${
 							info?.showExploreMore && info?.cards?.length > 0 ? 'slideUp' : ''
 						}`}
+						style={{ marginTop: info.showExploreMore ? '20px' : '0' }}
 					>
 						<ChatBox
 							onSend={handleCustomOnSendFunction}

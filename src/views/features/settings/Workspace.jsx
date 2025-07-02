@@ -1,18 +1,13 @@
-import React, { useContext, useEffect, useState, memo, useCallback } from 'react';
+import { useContext, useEffect, useState, memo, useCallback } from 'react';
 import '../../../assets/scss/settings/workspacesection.scss';
 import Context from '../../../context/context';
 import WorkspaceHandleComponent from '../../components/settings/workspace/WorkspaceHandle';
 import TimeZoneCurrencyComponent from '../../components/settings/workspace/TimezoneCurrency';
-import DeleteWorkpsaceComponent from '../../components/settings/workspace/DeleteWorkspace';
-import { Tooltip } from 'antd';
-import ToolTipContainer from '../../components/popover/ToolTipContainer';
-import { ReactComponent as QuestionMark } from '../../../assets/svg/Settings/question_circle.svg';
-
 import PublicInformation from './PublicInformation';
 import BrandSetup from './BrandSetup';
 import { message } from '../../components/globalComponents/CustomToast';
 import CustomDomain from '../../components/settings/workspace/CustomDomain';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 
 const temporaryPlaceholderText = `
 The voice embodies values of:
