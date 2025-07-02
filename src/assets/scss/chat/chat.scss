@@ -7,6 +7,7 @@
 	flex-direction: column;
 	gap: 24px;
 	position: relative;
+	transition: width 0.25s ease-in-out;
 	.chatBodyContainer {
 		width: 100%;
 		flex-grow: 1;

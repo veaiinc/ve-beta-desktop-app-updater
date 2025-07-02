@@ -120,6 +120,7 @@ export const intialState = {
 			webSearch: false,
 		},
 	},
+	chatSources: null,
 	chatLoadingSessions: {},
 	chatReplyData: null,
 	citationChunks: {},
@@ -2714,6 +2715,19 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const updatechatSessionFavourite = async (sessionId, isFavourite) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/ai-chat/update-multiagent-conversation/${sessionId}`;
+			const body = { isFavorite: isFavourite };
+			const response = await Service.fetchPut(url, body, usertoken, 'ai_assistant_api');
+			return response;
+		} catch (error) {
+			console.log('error==>updatechatSessionFavourite', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -2808,5 +2822,6 @@ export const TemplatesState = (props) => {
 		deleteChatSession,
 		deleteMultiAgentFile,
 		getFollowUpQueries,
+		updatechatSessionFavourite,
 	};
 };

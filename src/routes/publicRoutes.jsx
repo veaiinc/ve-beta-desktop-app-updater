@@ -26,7 +26,7 @@ const publicRoutes = [
 		),
 	},
 	{
-		path: '/thebridge',
+		path: '/manifesto',
 		element: (
 			<Public>
 				<Suspense fallback={<div>Loading...</div>}>

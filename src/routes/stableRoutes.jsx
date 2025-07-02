@@ -54,7 +54,10 @@ const stableRoutes = [
 			<AuthWrapper
 				title={'Chat'}
 				showBottomToolbar={false}
-				outerContainerStyle={{ paddingRight: '0px', backgroundColor: '' }}
+				outerContainerStyle={{
+					paddingRight: '0px',
+					backgroundColor: 'var(--chat-background-color)',
+				}}
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>

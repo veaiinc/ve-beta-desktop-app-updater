@@ -15,7 +15,7 @@ export const TWITTER_POST_URL = 'https://x.com/intent/post?text=';
 export const REFERRAL_BASE_URL = 'https://ve.ai/referral';
 
 export const NEWSLETTER_SUBSCRIPTION_URL =
-	'https://ap.api.ve.ai/workflows/1.0/veai/6766b701c7f27153c1b42cbe/6766b701c7f27153c1b42cc3';
+	'https://ap.api.ve.ai/workflows/1.0/veai/68624ecbc00f70701bf34673/68624ecbc00f70701bf34674/68624edb32c3e9ec5246af41';
 
 export const PRIVACY_POLICY_URL_DIRECT_DOWNLOAD =
 	'https://drive.google.com/uc?export=download&id=1ktST1T5uBCs-LlPvLTKmpVBKe09HhxOj';
