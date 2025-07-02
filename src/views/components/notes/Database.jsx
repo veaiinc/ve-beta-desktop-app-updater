@@ -36,6 +36,7 @@ import SortComponent from './DatabseComponents/SortComponent';
 import GroupComponent from './DatabseComponents/GroupComponent';
 import BoardView from './DatabseComponents/views/BoardView';
 import GalleryView from './DatabseComponents/views/GalleryView';
+import DatabaseHeader from './DatabseComponents/DatabaseHeader';
 
 export const rowTypes = {
 	text: TextField,
@@ -498,27 +499,6 @@ const DatabaseComponent = ({ block, editor }) => {
 		[handleDeleteDatabaseView],
 	);
 
-	// const fetchMoreGroups = useCallback(async () => {
-	// 	// {
-	// 	// 	"pageId": "68303ca4d6bd82266428d1fa",
-	// 	// 	"databaseId": "68318359d285feb917809346",
-	// 	// 	  "databaseViewId": "683ae82adf485bd0f86c4d97",
-	// 	// 	"input": {
-	// 	// 	  "docLimit": 5,
-	// 	// 	  "docPage": 1,
-	// 	// 	  "groupLimit": 5,
-	// 	// 	  "groupPage": 1,
-	// 	// 	  "groupFilterId":"683ef366b11910e9368ffbe1"
-	// 	// 	},
-	// 	if (hasMoreGroups) {
-	// 		await fetchDatabaseRows(info?.selectedViewId, {
-	// 			page: metaInfo?.nextPage,
-	// 		});
-	// 	}
-	// }, [hasMoreGroups, info?.selectedViewId, metaInfo?.nextPage, fetchDatabaseRows]);
-
-	// Memoized derived values
-
 	const { groupData, metaInfo } = useMemo(
 		() => currentDatabaseRows || { groupData: {}, metaInfo: {} },
 		[currentDatabaseRows],
@@ -580,7 +560,7 @@ const DatabaseComponent = ({ block, editor }) => {
 				</div>
 			) : (
 				<>
-					<div className={s.notesDatabaseHeader}>
+					{/* <div className={s.notesDatabaseHeader}>
 						<div className={s.databaseTopContainer}>
 							<TaskHeader
 								tabArray={currentDatabaseViews}
@@ -646,7 +626,21 @@ const DatabaseComponent = ({ block, editor }) => {
 								blockId={block?.id}
 							/>
 						</div>
-					</div>
+					</div> */}
+					<DatabaseHeader
+						databaseId={databaseId}
+						selectedDatabaseView={selectedDatabaseView}
+						fields={fields}
+						pageId={pageId}
+						block={block}
+						currentDatabaseViews={currentDatabaseViews}
+						handleTabChange={handleTabChange}
+						handleCreateDatabaseView={handleCreateDatabaseView}
+						handleTabDropdownClick={handleTabDropdownClick}
+						handleSearchChange={handleSearchChange}
+						searchQuery={info?.searchQuery}
+						selectedViewId={info?.selectedViewId}
+					/>
 					{info?.rowsLoading ? (
 						<div className={s.loadingContainer}>
 							<Spinner />
