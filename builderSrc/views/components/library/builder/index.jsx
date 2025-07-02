@@ -3611,6 +3611,7 @@ class Builder extends Component {
 							}}
 							activeWorkflowModuleId={this.props?.activeWorkflowModuleId}
 							handleSaveblocks={(e) => this.props.handleSaveblocks(e)}
+							themes={this.props?.themes}
 						/>
 					) : (
 						''

@@ -436,6 +436,7 @@ class Presentation extends Component {
 						isWorkflow={this.state.isWorkflow}
 						generateAIImages={(e) => this.props?.generateAIImagesP(e)}
 						generateAIText={(e) => this.props?.generateAITextP(e)}
+						themes={this.props?.themes}
 					/>
 				);
 			case 'events':
@@ -500,6 +501,7 @@ class Presentation extends Component {
 						isWorkflow={this.state.isWorkflow}
 						generateAIImages={(e) => this.props?.generateAIImagesP(e)}
 						generateAIText={(e) => this.props?.generateAITextP(e)}
+						themes={this.props?.themes}
 					/>
 				);
 			case 'form-q&a':
@@ -596,6 +598,7 @@ class Presentation extends Component {
 							this.props?.handleFormAnswerP(answer, key, order)
 						}
 						submitForm={(e, sectionId) => this.props?.submitFormP(e, sectionId)}
+						themes={this.props?.themes}
 					/>
 				);
 			case 'contract-with-signature':
@@ -721,6 +724,7 @@ class Presentation extends Component {
 							)
 						}
 						version={this.props.version}
+						themes={this.props?.themes}
 					/>
 				);
 			case 'invoice-with-payment':
@@ -808,6 +812,7 @@ class Presentation extends Component {
 						addPaymentScheduleBlock={(id, order) =>
 							this.props?.addPaymentScheduleBlockP(id, order)
 						}
+						themes={this.props?.themes}
 					/>
 				);
 			case 'invoice':
@@ -912,6 +917,7 @@ class Presentation extends Component {
 						currencySymbol={this.props?.currencySymbol}
 						activeFontColor={this.state?.activeFontColor}
 						currencySymbol2={this.props?.currencySymbol2}
+						themes={this.props?.themes}
 					/>
 				);
 			case 'table':
@@ -1028,6 +1034,7 @@ class Presentation extends Component {
 						DuplicateInTable={(type, index) =>
 							this.props?.DuplicateInTableP(type, index)
 						}
+						themes={this.props?.themes}
 					/>
 				);
 			default:
@@ -1179,6 +1186,7 @@ class Presentation extends Component {
 							activeModuleId={this.props?.activeModuleId}
 							handleSaveSingleBlock={(e) => this.props.handleSaveSingleBlock(e)}
 							activeWorkflowModuleId={this.props?.activeWorkflowModuleId}
+							themes={this.props?.themes}
 						/>
 					);
 				} else {
@@ -1299,6 +1307,7 @@ class Presentation extends Component {
 							activeModule={this.state?.activeModule}
 							isWorkflow={this.state.isWorkflow}
 							iframeScroll={this.props?.iframeScroll}
+							themes={this.props?.themes}
 						/>
 					);
 				}
