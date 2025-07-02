@@ -1,4 +1,5 @@
-import { memo, useEffect, useState, useRef } from 'react';
+// src/pages/LandingPage.jsx
+import { memo, useContext, useEffect, useState, useRef } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
@@ -138,7 +139,7 @@ const LandingPage = () => {
 						<video
 							ref={videoRef}
 							id="landing-video"
-							src="https://ap.images.ve.ai/public/dashboard/login_page.mp4"
+							src="https://ap.images.ve.ai/public/dashboard/product-video.mp4"
 							muted
 							style={{ width: '100%' }}
 							controls={window.innerWidth < 768}
