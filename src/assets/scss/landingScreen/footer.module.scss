@@ -104,6 +104,13 @@
 						border: none;
 						outline: none;
 						width: 100%;
+						transition: all 0.2s ease;
+						border: 1px solid var(--stroke);
+						&:hover {
+							color: var(--primary-button);
+							background-color: var(--background-color);
+							border-color: var(--primary-button);
+						}
 					}
 
 					.terms {

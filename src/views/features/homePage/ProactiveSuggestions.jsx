@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { memo, useContext, useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import Context from '../../../context/context';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
@@ -21,7 +21,7 @@ import { ReactComponent as DoubleUpArrowSvg } from '../../../assets/svg/home_pag
 import ChatBox from '../../components/chat/ChatBox';
 import Suggestions from './Suggestions';
 import PromptsWidget from '../../components/globalComponents/PromptsWidget';
-import BuildOptions from './BuildOptions';
+// import BuildOptions from './BuildOptions';
 import { ReactComponent as CommandSvg } from '../../../assets/svg/files/command.svg';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 
@@ -93,13 +93,13 @@ export const filterGroups = [
 	},
 ];
 
-const infiniteScrollStyle = {
-	display: 'flex',
-	flexDirection: 'column',
-	alignItems: 'flex-start',
-	alignSelf: 'stretch',
-	gap: '8px',
-};
+// const infiniteScrollStyle = {
+// 	display: 'flex',
+// 	flexDirection: 'column',
+// 	alignItems: 'flex-start',
+// 	alignSelf: 'stretch',
+// 	gap: '8px',
+// };
 const PriorityLevel = {
 	High: 'red',
 	Medium: 'yellow',
@@ -215,7 +215,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 				container.removeEventListener('scroll', checkScroll);
 			}
 		};
-	}, [checkScroll]);
+	}, []);
+
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
 			updateCardsData();
@@ -246,7 +247,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 				selectedOption: aiCategories?.[0],
 			}));
 		}
-	}, [aiCategories, info?.options, aiSuggestedPendingActions]);
+	}, [aiCategories, aiSuggestedPendingActions]);
 
 	const getAiCategoriesOptions = async () => {
 		const response = await getAiCategories();
@@ -759,7 +760,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			)}
 			{(aiSuggestedPendingActions?.pendingActions?.length > 0 ||
 				info?.searchQuery?.length !== 0 ||
-				info?.filters?.length !== 0) &&
+				info?.selectedFilters?.length > 0) &&
 				!info?.showExploreMore && (
 					<div className="options-wrapper">
 						<div
@@ -819,7 +820,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 								{info?.selectedOption === firstOption ? (
 									(info?.cards?.length > 0 ||
 										info?.searchQuery?.length !== 0 ||
-										info?.filters?.length !== 0) && (
+										info?.selectedFilters?.length > 0) && (
 										<div
 											className="cards-container"
 											// style={{
@@ -958,7 +959,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 									}`}
 								>
 									{(info?.cards.length > 0 ||
-										info?.searchQuery?.length !== 0) && (
+										info?.searchQuery?.length !== 0 ||
+										info?.selectedFilters?.length > 0) && (
 										<div className="right-container">
 											<div className="searchMainContainer">
 												<div
@@ -993,7 +995,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 											</div>
 										</div>
 									)}
-									{info?.cards?.length > 0 && (
+									{(info?.cards.length > 0 ||
+										info?.searchQuery?.length !== 0 ||
+										info?.selectedFilters?.length > 0) && (
 										<div className="optionsRightMainContainer">
 											<Tooltip
 												open={info?.openFilter}
@@ -1127,7 +1131,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 													</button>
 												</div>
 											</Tooltip>
-											{info?.cards?.length > 0 && (
+											{(info?.cards.length > 0 ||
+												info?.searchQuery?.length !== 0 ||
+												info?.selectedFilters?.length > 0) && (
 												<div className="action-right">
 													<button
 														className="card-change-btn"

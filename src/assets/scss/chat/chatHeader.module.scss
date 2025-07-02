@@ -19,10 +19,10 @@
 		overflow-y: auto;
 		padding: 0px 55px 0px 42px;
 		max-height: 1px;
-		border-bottom: 1px solid var(--dividers);
+		border-bottom: 1px solid var(--stroke);
 		width: 100%;
 		transition: all 0.4s ease-in-out;
-		background-color: var(--background-color);
+		background-color: var(--chat-background-color);
 		box-sizing: border-box;
 		position: absolute;
 		top: 72px;
@@ -83,7 +83,7 @@
 			width: 100%;
 			padding: 24px 32px 16px 42px;
 			transition: background-color 0.4s ease-in-out;
-			background-color: var(--background-color);
+			background-color: var(--chat-background-color);
 			gap: 10px;
 
 			.leftContainer {
@@ -151,6 +151,35 @@
 				align-items: center;
 				gap: 12px;
 				height: 32px;
+				.favouriteBtn {
+					border: none;
+					cursor: pointer;
+					display: flex;
+					width: 32px;
+					height: 32px;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 6px;
+					border: 1px solid var(--stroke, #c71b3a);
+					background: transparent;
+
+					svg {
+						path {
+							stroke: var(--primary-font);
+							fill: none;
+						}
+					}
+
+					&.active {
+						svg {
+							path {
+								stroke: var(--primary-font);
+								fill: var(--primary-font);
+							}
+						}
+					}
+				}
 				.deleteChatBtn {
 					border: none;
 					cursor: pointer;

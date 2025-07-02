@@ -6,7 +6,7 @@ import Context from '../context/context';
 
 export const publicRoutesList = [
 	'/',
-	'/thebridge',
+	'/manifesto',
 	'/contact-us',
 	'/api',
 	'/about-us',
