@@ -758,7 +758,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 				</div>
 			)}
 			{(aiSuggestedPendingActions?.pendingActions?.length > 0 ||
-				info?.searchQuery?.length !== 0) &&
+				info?.searchQuery?.length !== 0 ||
+				info?.filters?.length !== 0) &&
 				!info?.showExploreMore && (
 					<div className="options-wrapper">
 						<div
@@ -817,7 +818,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 							<>
 								{info?.selectedOption === firstOption ? (
 									(info?.cards?.length > 0 ||
-										info?.searchQuery?.length !== 0) && (
+										info?.searchQuery?.length !== 0 ||
+										info?.filters?.length !== 0) && (
 										<div
 											className="cards-container"
 											// style={{
