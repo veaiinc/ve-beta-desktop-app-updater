@@ -239,6 +239,12 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	useEffect(() => {
 		if (!aiCategories) {
 			getAiCategoriesOptions();
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				options: [...aiCategories],
+				selectedOption: aiCategories?.[0],
+			}));
 		}
 	}, [aiCategories, info?.options, aiSuggestedPendingActions]);
 
@@ -249,11 +255,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 				...prev,
 				options: [...optionsList, ...response?.[1]],
 				selectedOption: response?.[1]?.[0],
-			}));
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				options: optionsList,
 			}));
 		}
 	};
