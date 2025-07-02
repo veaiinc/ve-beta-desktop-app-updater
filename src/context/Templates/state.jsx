@@ -120,6 +120,7 @@ export const intialState = {
 			webSearch: false,
 		},
 	},
+	chatSources: null,
 	chatLoadingSessions: {},
 	chatReplyData: null,
 	citationChunks: {},
