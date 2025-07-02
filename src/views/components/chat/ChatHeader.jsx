@@ -20,7 +20,6 @@ const ChatHeader = ({
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const timeoutRef = useRef(null);
 	const {
 		templates: {
 			currentChatData,
@@ -38,7 +37,6 @@ const ChatHeader = ({
 		isFavourite: false,
 		userId: null,
 	});
-
 	const deleteChatSessionLoadingRef = useRef(false);
 
 	useEffect(() => {
