@@ -22,8 +22,13 @@
 		background: var(--background-color, #0c0c0d);
 		font-family: var(--primary-font-family);
 		z-index: 150;
-		transition: background-color 0.3s ease;
-		padding: 20px;
+		transition: all 0.3s ease;
+		padding-inline: 20px;
+		transform: translateY(0);
+
+		&.hidden {
+			transform: translateY(-100%);
+		}
 
 		&.proactive-dropdown-open {
 			background: var(--card, #18191b);
@@ -42,6 +47,7 @@
 			max-width: 1700px;
 			width: 100%;
 			box-sizing: border-box;
+			padding-top: 10px;
 
 			.left-container {
 				display: flex;
@@ -125,6 +131,7 @@
 							cursor: pointer;
 							font-size: 14px;
 							transition: color 0.2s ease;
+							font-weight: 500;
 							&::after {
 								content: '';
 								height: 2px;
@@ -185,10 +192,18 @@
 						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-weight: 500;
+						transition: all 0.2s ease;
+						border: 1px solid transparent;
 
 						svg {
 							width: 18px !important;
 							color: var(--primary-button-font);
+						}
+
+						&:hover {
+							background-color: var(--background-color);
+							border-color: var(--primary-button);
+							color: var(--primary-button);
 						}
 					}
 				}
@@ -205,6 +220,12 @@
 					font-weight: 500;
 					background-color: transparent;
 					cursor: pointer;
+					transition: all 0.2s ease;
+					&:hover {
+						background-color: var(--primary-font);
+						border-color: var(--stroke-hover);
+						color: var(--background-color);
+					}
 				}
 			}
 		}
@@ -220,87 +241,6 @@
 		background: var(--background-color, #0c0c0d);
 		padding: 30px 0 0;
 
-		.title-container {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			gap: 50px;
-			position: relative;
-			width: 100%;
-			margin: 0 auto;
-			height: 100vh;
-			margin-top: 0rem;
-
-			&.with-suggestions {
-				height: 90vh;
-			}
-
-			.chatbox-container {
-				width: 100%;
-				position: relative;
-				min-height: 114px;
-				display: flex;
-				flex-direction: column;
-				z-index: 2;
-				.chatParentWrapper {
-					max-width: 750px;
-					padding-inline: 20px;
-				}
-			}
-
-			.suggestions-container {
-				margin-top: 10px;
-				max-width: 700px;
-				margin: 0 auto;
-				text-align: start;
-			}
-
-			.title-text {
-				display: flex;
-				flex-direction: column;
-				gap: 20px;
-				text-align: center;
-				.title-text-container {
-					display: flex;
-					flex-direction: column;
-					align-items: center;
-					gap: 6px;
-					.title-one {
-						color: var(--primary-button, #79ecc9);
-						text-align: center;
-						font-size: 20px;
-						font-weight: 500;
-						text-transform: capitalize;
-					}
-
-					.title-two {
-						color: var(--primary-font, #f2f2f3);
-						text-align: center;
-						font-family: Manrope;
-						font-size: 70px;
-						font-weight: 600;
-						line-height: 72px;
-						text-transform: capitalize;
-					}
-				}
-				.title-three {
-					color: var(--primary-font, #f2f2f3);
-					text-align: center;
-					font-family: Manrope;
-					font-size: 20px;
-					font-weight: 500;
-				}
-			}
-
-			.subtext {
-				color: var(--secondary-font, #7a7e85);
-				text-align: center;
-				font-size: 22px;
-				font-weight: 300;
-			}
-		}
-
 		.responsive-spacer {
 			height: 3500px;
 		}
@@ -312,57 +252,146 @@
 			position: relative;
 		}
 
-		/* ─── VIDEO CONTROLS ───────────────────────────────────────────────── */
-		.videoContainer {
-			max-width: 1700px;
-			width: 100%;
-			border-radius: 16px;
-			margin-bottom: 50px;
-			padding-inline: 20px;
-			position: relative;
-
-			video {
-				border: 1px solid var(--stroke, #2c2d2e);
-			}
-
-			/* BEFORE first play: always show button */
-			&.unplayed button {
-				visibility: visible;
-			}
-			/* AFTER first play: hide by default */
-			&.played button {
-				visibility: hidden;
-			}
-			/* on hover, reveal controls */
-			&.played:hover button {
-				visibility: visible;
-			}
-
-			button {
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
+		.heroContainer {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+			gap: 50px;
+			.title-container {
 				display: flex;
-				padding: 16px;
+				flex-direction: column;
 				align-items: center;
-				gap: 16px;
-				border-radius: 8px;
-				background-color: var(--card);
-				border: 1px solid var(--stroke, #2c2d2e);
-				cursor: pointer;
-				z-index: 10;
-				transition: visibility 0.3s ease;
-				&:hover {
-					border-color: var(--stroke-hover);
+				justify-content: center;
+				gap: 50px;
+				position: relative;
+				width: 100%;
+				margin: 0 auto;
+				margin-top: 0rem;
+				height: 100vh;
+
+				&.with-suggestions {
+					height: 90vh;
+				}
+
+				.chatbox-container {
+					width: 100%;
+					position: relative;
+					min-height: 114px;
+					display: flex;
+					flex-direction: column;
+					z-index: 2;
+					.chatParentWrapper {
+						max-width: 750px;
+						padding-inline: 20px;
+					}
+				}
+
+				.suggestions-container {
+					margin-top: 10px;
+					max-width: 700px;
+					margin: 0 auto;
+					text-align: start;
+				}
+
+				.title-text {
+					display: flex;
+					flex-direction: column;
+					gap: 20px;
+					text-align: center;
+					.title-text-container {
+						display: flex;
+						flex-direction: column;
+						align-items: center;
+						gap: 6px;
+						.title-one {
+							color: var(--primary-button, #79ecc9);
+							text-align: center;
+							font-size: 20px;
+							font-weight: 500;
+							text-transform: capitalize;
+						}
+
+						.title-two {
+							color: var(--primary-font, #f2f2f3);
+							text-align: center;
+							font-family: Manrope;
+							font-size: 70px;
+							font-weight: 600;
+							line-height: 72px;
+							text-transform: capitalize;
+						}
+					}
+					.title-three {
+						color: var(--primary-font, #f2f2f3);
+						text-align: center;
+						font-family: Manrope;
+						font-size: 20px;
+						font-weight: 500;
+					}
+				}
+
+				.subtext {
+					color: var(--secondary-font, #7a7e85);
+					text-align: center;
+					font-size: 22px;
+					font-weight: 300;
 				}
 			}
-
-			video {
+			/* ─── VIDEO CONTROLS ───────────────────────────────────────────────── */
+			.videoContainer {
+				max-width: 1700px;
 				width: 100%;
+				border-radius: 16px;
+				margin-bottom: 50px;
+				padding-inline: 20px;
+				position: relative;
+
+				video {
+					border: 1px solid var(--stroke, #2c2d2e);
+					border-radius: 16px;
+				}
+
+				/* BEFORE first play: always show button */
+				&.unplayed button {
+					visibility: visible;
+				}
+				/* AFTER first play: hide by default */
+				&.played button {
+					visibility: hidden;
+				}
+				/* on hover, reveal controls */
+				&.played:hover button {
+					visibility: visible;
+				}
+
+				button {
+					position: absolute;
+					top: 50%;
+					left: 50%;
+					transform: translate(-50%, -50%);
+					display: flex;
+					padding: 16px;
+					align-items: center;
+					gap: 16px;
+					border-radius: 8px;
+					background-color: var(--card);
+					border: 1px solid var(--stroke, #2c2d2e);
+					color: var(--primary-font);
+					cursor: pointer;
+					z-index: 10;
+					transition: visibility 0.3s ease;
+					&:hover {
+						border-color: var(--stroke-hover);
+					}
+				}
+
+				video {
+					width: 100%;
+				}
 			}
+			/* ─────────────────────────────────────────────────────────────────────── */
 		}
-		/* ─────────────────────────────────────────────────────────────────────── */
 
 		.buttons-container {
 			display: flex;
@@ -429,7 +458,6 @@
 		.page-header {
 			display: flex;
 			justify-content: space-between;
-			padding: 20px;
 
 			.right-container .login-btn-text {
 				display: flex;
@@ -477,24 +505,28 @@
 		.page-body {
 			gap: 50px;
 
-			.videoContainer {
-				button {
-					display: none;
+			.heroContainer {
+				height: 100vh;
+				.videoContainer {
+					height: 50%;
+					button {
+						display: none;
+					}
 				}
-			}
-			.title-container {
-				// height: 60vh;
-				.title-text {
-					.title-text-container {
-						.title-one {
+				.title-container {
+					// height: 60vh;
+					.title-text {
+						.title-text-container {
+							.title-one {
+								font-size: 14px;
+							}
+							.title-two {
+								font-size: 50px;
+							}
+						}
+						.title-three {
 							font-size: 14px;
 						}
-						.title-two {
-							font-size: 50px;
-						}
-					}
-					.title-three {
-						font-size: 14px;
 					}
 				}
 			}

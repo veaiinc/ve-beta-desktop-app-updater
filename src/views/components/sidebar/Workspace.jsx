@@ -24,9 +24,9 @@ const workspaceOpenStyle = {
 };
 
 const workspaceStyle = { display: 'flex', gap: '4px', alignItems: 'center' };
-const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
+const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, info }) => {
 	const {
-		subscriptionInfo: { renewBanner },
+		profileInfo: { userWorkSpaceList },
 	} = useContext(Context);
 	// const navigate = useNavigate();
 	// const logoutFunc = useLogout();

@@ -43,6 +43,7 @@
 		color: var(--primary-button-font, #18181b);
 		border: 1px solid var(--stroke);
 		transition: all 0.2s ease-in;
+		font-weight: 500;
 		&:hover {
 			background: var(--primary-button-font);
 			color: var(--primary-button);

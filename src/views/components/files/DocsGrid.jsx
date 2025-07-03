@@ -5,7 +5,7 @@ import { DocsStatusButton } from '../../features/docs/Docs';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 // import DocsCardBg from '../../../assets/images/files/docs-card-bg.png';
 import { useNavigate } from 'react-router-dom';
-import { memo, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import { memo, useContext, useEffect, useState, useCallback, useRef, lazy, Suspense } from 'react';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import Context from '../../../context/context';
 import gsap from 'gsap';
@@ -15,7 +15,9 @@ import EmptyState from './EmptyState';
 import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
 import { ReactComponent as Search } from '../../../assets/svg/search.svg';
-import DocumentShortPreview from '../../../../builderSrc/views/feature/DocumentShortPreview';
+const DocumentShortPreview = lazy(() =>
+	import('../../../../builderSrc/views/feature/DocumentShortPreview'),
+);
 
 const origin = fetchOriginSelection();
 
@@ -241,6 +243,10 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 		fetchDocs({ page: info?.currentPage + 1 });
 	};
 
+	useEffect(() => {
+		fetchDocs({ page: 1 });
+	}, []);
+
 	const handleSortClick = (value) => {
 		let sortType = value?.sortType;
 		if (value?.value === info?.selectedSort?.value) {
@@ -363,7 +369,11 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 									>
 										<div className="docsCardPreview">
 											{doc?.firstModule[0]?._id && (
-												<DocumentShortPreview doc={doc} />
+												<Suspense
+													fallback={<p>Loading document preview...</p>}
+												>
+													<DocumentShortPreview doc={doc} />
+												</Suspense>
 											)}
 										</div>
 										<div className="docsTitleContainer">

@@ -80,6 +80,7 @@
 			border: 1.5px solid var(--stroke, #e3e3e3);
 			color: var(--primary-button-font);
 			transition: all 0.2s ease-in;
+			font-weight: 500;
 			&:hover{
 				border-color: var(--stroke-hover);
 				background-color: var(--primary-button-font);

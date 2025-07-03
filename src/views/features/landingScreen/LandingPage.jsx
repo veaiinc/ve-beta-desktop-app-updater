@@ -1,9 +1,8 @@
 // src/pages/LandingPage.jsx
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState, useRef } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
-import Context from '../../../context/context';
 import TabNavigation from '../../components/landing_screen/TabNavigation';
 import Tagline from './Tagline';
 import Footer from './Footer';
@@ -22,18 +21,14 @@ import HeroSection from './heroSection/HeroSection';
 import '../../../assets/scss/landingScreen/index.scss';
 
 const pathToTabMap = {
-	'/': 0, // ← added
-	'/thebridge': 1,
+	'/': 0,
+	'/manifesto': 1,
 	'/contact-us': 2,
-	'/careers': 4,
-	'/forefront': 5,
+	'/careers': 1,
+	'/forefront': 1,
 };
 
 const LandingPage = () => {
-	const {
-		templates: { updateStateValues, currentSessionId },
-	} = useContext(Context);
-
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -41,14 +36,13 @@ const LandingPage = () => {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [hasPlayed, setHasPlayed] = useState(false);
-	const [showSuggestions, setShowSuggestions] = useState(false);
+	const [info, setInfo] = useState({ navVisible: true, seenOnce: false });
 
-	const isMobileScreen = window.innerWidth < 768;
+	const videoRef = useRef(null);
 
 	// sync tab with URL
 	useEffect(() => {
 		const path = location.pathname;
-		// fallback to 0 if path not in map
 		setTab(pathToTabMap[path] ?? 0);
 	}, [location.pathname]);
 
@@ -65,9 +59,42 @@ const LandingPage = () => {
 		}
 	}, [navigate]);
 
+	// header show/hide on scroll (optimized)
+	useEffect(() => {
+		if (tab !== 0) return;
+		const videoEl = videoRef.current;
+		if (!videoEl) return;
+
+		let lastY = window.scrollY;
+		let ticking = false;
+
+		const onScroll = () => {
+			if (!ticking) {
+				ticking = true;
+				window.requestAnimationFrame(() => {
+					const currentY = window.scrollY;
+					const isDown = currentY > lastY;
+					const videoTop = videoEl.getBoundingClientRect().top;
+					const shouldShow = !isDown || videoTop > 0;
+
+					setInfo((prev) => {
+						if (prev.navVisible === shouldShow) return prev;
+						return { ...prev, navVisible: shouldShow };
+					});
+
+					lastY = currentY;
+					ticking = false;
+				});
+			}
+		};
+
+		window.addEventListener('scroll', onScroll, { passive: true });
+		return () => window.removeEventListener('scroll', onScroll);
+	}, [tab]);
+
 	// play/pause handler
 	const handleVideoClick = async () => {
-		const video = document.getElementById('landing-video');
+		const video = videoRef.current;
 		if (!video) return;
 		try {
 			if (video.paused) {
@@ -85,38 +112,42 @@ const LandingPage = () => {
 
 	const handleSetTab = (tabVal) => {
 		setTab(tabVal);
-		const tabRoutes = ['/', '/thebridge', '/contact-us'];
+		const tabRoutes = ['/', '/manifesto', '/contact-us'];
 		navigate(tabRoutes[tabVal]);
 	};
 
 	const tabComponents = {
 		0: (
 			<div className="page-body">
-				<div className={`title-container${showSuggestions ? ' with-suggestions' : ''}`}>
-					<HeroSection />
-				</div>
+				<div className="heroContainer">
+					<div className="title-container">
+						<HeroSection />
+					</div>
 
-				<div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
-					<button onClick={handleVideoClick}>
-						{isPlaying ? (
-							<>
-								<PauseIcon /> Pause
-							</>
-						) : (
-							<>
-								<PlayIcon /> Play
-							</>
-						)}
-					</button>
-					<video
-						id="landing-video"
-						src="https://ap.images.ve.ai/public/dashboard/login_page.mp4"
-						muted
-						style={{ width: '100%' }}
-						controls={isMobileScreen}
-						controlsList="nofullscreen nodownload noremoteplayback noplaybackrate foobar"
-						autoPlay={isMobileScreen}
-					/>
+					<div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
+						<button onClick={handleVideoClick}>
+							{isPlaying ? (
+								<>
+									<PauseIcon /> Pause
+								</>
+							) : (
+								<>
+									<PlayIcon /> Play
+								</>
+							)}
+						</button>
+						<video
+							ref={videoRef}
+							id="landing-video"
+							src="https://ap.images.ve.ai/public/dashboard/product-video.mp4"
+							muted
+							style={{ width: '100%' }}
+							controls={window.innerWidth < 768}
+							controlsList="nofullscreen nodownload noremoteplayback noplaybackrate foobar"
+							autoPlay={window.innerWidth < 768}
+							loop={window.innerWidth < 768}
+						/>
+					</div>
 				</div>
 
 				<Tagline />
@@ -137,15 +168,15 @@ const LandingPage = () => {
 			</Helmet>
 			<main
 				className={`landing-page-container${
-					location.pathname === '/thebridge' ? ' fullHeight' : ''
+					location.pathname === '/manifesto' ? ' fullHeight' : ''
 				}`}
 			>
 				<CustomToast />
-				<header className="page-header">
+				<header className={`page-header${info.navVisible ? '' : ' hidden'}`}>
 					<div className="page-header-wrapper">
-						<div className="left-container">
-							<VeLogo className="ve-logo" onClick={() => navigate('/')} />
-						</div>
+						<Link to="/">
+							<VeLogo className="ve-logo" />
+						</Link>
 						<div className="middle-container">
 							{!mobileMenuOpen && (
 								<TabNavigation tab={tab} handleSetTab={handleSetTab} />
@@ -156,12 +187,9 @@ const LandingPage = () => {
 								Login
 							</Link>
 							<div className="login-container">
-								<button
-									className="login-btn"
-									onClick={() => navigate('/verify-user')}
-								>
-									Get VE Free
-								</button>
+								<Link className="login-btn" to="/verify-user">
+									Signup
+								</Link>
 								<button
 									className="sidebar-button mobile-only"
 									onClick={() => setMobileMenuOpen(true)}
@@ -171,12 +199,7 @@ const LandingPage = () => {
 							</div>
 						</div>
 					</div>
-					<MobileMenu
-						open={mobileMenuOpen}
-						onClose={() => setMobileMenuOpen(false)}
-						onLogin={() => navigate('/verify-user')}
-						onGetFree={() => {}}
-					/>
+					<MobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
 				</header>
 				{tabComponents[tab]}
 			</main>

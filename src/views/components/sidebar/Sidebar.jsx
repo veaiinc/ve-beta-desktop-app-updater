@@ -41,11 +41,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const sidebarRef = useRef(null);
 	const sidebarOpenRef = useRef(null);
 	const hasClosedForRouteRef = useRef(false);
-
-	const {
-		profileInfo: { userWorkSpaceList, userDetailsData, getUserDetails, getUserWorkSpaceList },
-	} = useContext(Context);
-
 	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
 	const [showNotesDrawer, setShowNotesDrawer] = useState(false);
 	const [showChatsDrawer, setShowChatsDrawer] = useState(false);
@@ -102,40 +97,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 			setIsOpen(true);
 		}
 	}, [isMobile]);
-
-	// Fetch workspace and user info
-	useEffect(() => {
-		if (!userDetailsData) getUserDetails();
-		if (!userWorkSpaceList) getUserWorkSpaceList();
-	}, []);
-
-	// Configure Intercom
-	useEffect(() => {
-		if (userDetailsData && info) {
-			Intercom({
-				app_id: 'vmvweabd',
-				user_id: userDetailsData?._id,
-				name: `${userDetailsData?.firstName} ${userDetailsData?.lastName}`,
-				email: userDetailsData?.email,
-				company: {
-					name:
-						info?.activeBusniessName?.activeWorkspaceId ??
-						localStorage?.getItem('workspaceId'),
-					id: info?.activeBusniessName?.businessName,
-					region: info?.activeBusniessName?.region,
-				},
-			});
-		}
-	}, [userDetailsData, info]);
-	// Set active business name
-	useEffect(() => {
-		if (userWorkSpaceList) {
-			const activeBusniessName = userWorkSpaceList.find(
-				(item) => item.activeWorkspaceId === activeWorkspaceId,
-			);
-			setInfo((prev) => ({ ...prev, activeBusniessName }));
-		}
-	}, [userWorkSpaceList]);
 
 	// Track route change for route-based module
 	useEffect(() => {
@@ -207,7 +168,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							sidebarStates={sidebarStates}
 							info={info}
 							setInfo={setInfo}
-							userWorkSpaceList={userWorkSpaceList}
+							// userWorkSpaceList={userWorkSpaceList}
 							isOpen={isOpen}
 							setIsOpen={setIsOpen}
 							setShowChatsDrawer={setShowChatsDrawer}
@@ -218,10 +179,13 @@ const Sidebar = ({ activeWorkspaceId }) => {
 						/>
 					</div>
 				</nav>
-				<ClosedSidebar
-					onIconClick={() => setIsOpen(true)}
-					isEarlyAccessPage={isEarlyAccessPage}
-				/>
+				{!isOpen && (
+					<ClosedSidebar
+						onIconClick={() => setIsOpen(true)}
+						isEarlyAccessPage={isEarlyAccessPage}
+					/>
+				)}
+
 				<Notifications
 					showNotificationsDrawer={showNotificationsDrawer}
 					setShowNotificationsDrawer={setShowNotificationsDrawer}

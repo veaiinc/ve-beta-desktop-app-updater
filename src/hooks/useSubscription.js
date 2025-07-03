@@ -124,6 +124,10 @@ const useSubscription = () => {
 				liteImageLimitWithAiFace,
 				...restrictMapper,
 			};
+			let uploadAllowedForClassicGallery = false;
+			if (storageLimitInGB) {
+				uploadAllowedForClassicGallery = totalStorageUsedInGB <= storageLimitInGB;
+			}
 			let uploadAllowed = false;
 			if (storageLimitInGB) {
 				uploadAllowed = cumulativeStorageUsedInGB <= storageLimitInGB * 1.5;
@@ -133,7 +137,12 @@ const useSubscription = () => {
 				imagesAllowed = liteImageUsed < liteImageLimit;
 			}
 			updateSubscriptionState({
-				validateExpiryData: { ...obj, uploadAllowed, imagesAllowed },
+				validateExpiryData: {
+					...obj,
+					uploadAllowed,
+					imagesAllowed,
+					uploadAllowedForClassicGallery,
+				},
 			});
 
 			// Check if subscription is expired and redirect

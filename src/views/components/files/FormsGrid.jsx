@@ -163,6 +163,10 @@ const FormsGrid = ({
 	}, [info?.forms?.length]);
 
 	useEffect(() => {
+		fetchForms({ page: 1 });
+	}, []);
+
+	useEffect(() => {
 		if (!formsTemplatesList) {
 			fetchForms({ page: 1 });
 		}
