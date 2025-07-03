@@ -7,7 +7,7 @@ const useLiveIntelligenceStream = () => {
 	const sendingContextRef = useRef(false);
 	const currentSessionIdRef = useRef(null);
 	const messageHandlerRef = useRef(null);
-	const MAX_RETRY_ATTEMPTS = 30;
+	const MAX_RETRY_ATTEMPTS = 10;
 	const RETRY_DELAY = 1000; // 1 second
 	const SEND_TIMEOUT = 30000; // 30 seconds
 	const previousContextRef = useRef('');
@@ -68,6 +68,7 @@ const useLiveIntelligenceStream = () => {
 			const region = localStorage.getItem('region') || 'us-east-1';
 
 			const baseUrl = `https://live.${region}.ve.ai/${workspaceId}/${sessionId}/live_intelligence_streaming?token=${usertoken}`;
+			// const baseUrl = `https://informally-cuddly-chimp.ngrok-free.app/${workspaceId}/${sessionId}/live_intelligence_streaming?token=${usertoken}`;
 
 			if (socketRef.current) {
 				socketRef.current.close();
@@ -96,7 +97,7 @@ const useLiveIntelligenceStream = () => {
 			};
 
 			socketRef.current.onerror = (error) => {
-				message.error('Failed to connect to Live Intelligence WebSocket server');
+				// message.error('Failed to connect to Live Intelligence WebSocket server');
 				console.error('Live Intelligence WebSocket error:', error);
 			};
 
@@ -114,6 +115,13 @@ const useLiveIntelligenceStream = () => {
 		let attempts = 0;
 		const attemptSend = () => {
 			if (attempts >= MAX_RETRY_ATTEMPTS) {
+				sendingContextRef.current = false;
+				// if (sendTimeoutRef.current) {
+				// 	clearTimeout(sendTimeoutRef.current);
+				// }
+				// sendTimeoutRef.current = setTimeout(() => {
+				// 	sendContextData();
+				// }, SEND_TIMEOUT);
 				console.log('Max retry attempts reached, stopping context sending');
 				return;
 			}
@@ -157,7 +165,6 @@ const useLiveIntelligenceStream = () => {
 					if (sendTimeoutRef.current) {
 						clearTimeout(sendTimeoutRef.current);
 					}
-
 					sendTimeoutRef.current = setTimeout(() => {
 						sendContextData();
 					}, SEND_TIMEOUT);
@@ -175,6 +182,12 @@ const useLiveIntelligenceStream = () => {
 		(newText) => {
 			currentContextRef.current = (currentContextRef.current || '') + (newText || '');
 			const hasPunctuation = /[?.!]/.test(currentContextRef.current || '');
+			console.log(
+				currentContextRef.current,
+				newText,
+				hasPunctuation,
+				'currentContextRef.current',
+			);
 			if (hasPunctuation) {
 				if (!sendingContextRef.current) {
 					sendingContextRef.current = true;
