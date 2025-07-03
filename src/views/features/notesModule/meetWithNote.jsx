@@ -339,15 +339,15 @@ const MeetNote = ({ outerContainerStyle, innerContainerStyle }) => {
 		};
 	}, [noteId]);
 
-	useEffect(() => {
-		const sessionId = ObjectID()?.toString();
-		if (noteId && workspaceMode) {
-			createWebSocketConnection(sessionId, handleAiResponse, '', false, workspaceMode);
-		}
-		return () => {
-			closeWebSocketConnection([sessionId]);
-		};
-	}, [noteId, workspaceMode]);
+	// useEffect(() => {
+	// 	const sessionId = ObjectID()?.toString();
+	// 	if (noteId && workspaceMode) {
+	// 		createWebSocketConnection(sessionId, handleAiResponse, '', false, workspaceMode);
+	// 	}
+	// 	return () => {
+	// 		closeWebSocketConnection([sessionId]);
+	// 	};
+	// }, [noteId, workspaceMode]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
