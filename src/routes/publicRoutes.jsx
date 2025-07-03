@@ -1,7 +1,10 @@
 import { Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
+
+// layouts
 import Public from '../views/layouts/Public';
 
+// pages
 const LandingPage = lazy(() => import('../views/features/landingScreen/LandingPage'));
 const LoginPage = lazy(() => import('../views/features/loginPage/LoginPage'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
@@ -23,7 +26,7 @@ const publicRoutes = [
 		),
 	},
 	{
-		path: '/thebridge',
+		path: '/manifesto',
 		element: (
 			<Public>
 				<Suspense fallback={<div>Loading...</div>}>

@@ -121,13 +121,19 @@ const ExpiredSubscriptionModal = () => {
 							</span>
 						) : (
 							<span className="expiredModalHeaderText">
-								You have reached the limit of your{' '}
-								{expiredSubscriptionType === 'Tenants'
-									? 'Tenants Users Count'
-									: expiredSubscriptionType === 'Classic-Gallery-Upload'
-									? 'Uploads for Classic Gallery'
-									: expiredSubscriptionType}
-								.
+								{expiredSubscriptionType !== 'Classic-Gallery-Upload' ? (
+									<>
+										You have reached the limit of your{' '}
+										{expiredSubscriptionType === 'Tenants'
+											? 'Tenants Users Count'
+											: expiredSubscriptionType === 'Classic-Gallery-Upload'
+											? 'Uploads for Classic Gallery'
+											: expiredSubscriptionType}
+										.
+									</>
+								) : (
+									<>you have reached you upload limit for gallery</>
+								)}
 							</span>
 						)}
 						<span className="closeExpiredModalWrapper" onClick={closeModal}>

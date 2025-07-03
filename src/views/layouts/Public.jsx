@@ -1,6 +1,6 @@
 import PageLoader from '../features/app/PageLoader';
-import useTheme from '../hooks/useTheme';
-import useWorkspaceMode from '../hooks/useWorkspaceMode';
+import useTheme from '../../hooks/useTheme';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const Public = ({ children }) => {
 	useTheme();

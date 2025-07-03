@@ -198,6 +198,7 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 					{...(!isFirstTimeChatActiveRef?.current && {
 						sId: info?.sessionId,
 					})}
+					showCitationsButton={false}
 					onNavigateBack={handleGoBackClick}
 				/>
 			</div>

@@ -344,13 +344,21 @@ export const AuthState = () => {
 				responseInput: {
 					response: [
 						{
-							_id: '66accb967410edda114c1a05',
-							question:
-								'<p><span style="font-family: Poppins, sans-serif;">Email?</span></p>',
-							order: 1,
+							_id: '68624edc76c745a14dfff890',
+							question: 'What is your email address?',
+							answer: email,
+							order: 0,
 							type: 'email',
 							variableId: '6311efc4911e0f82be7e2b2d',
-							answer: email,
+							required: true,
+							placeholder: 'Enter your email',
+							isEditing: false,
+							actions: [],
+							conditions: [],
+							validation: {
+								pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+								operators: []
+							}
 						},
 					],
 				},

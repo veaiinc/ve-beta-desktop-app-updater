@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { memo, useContext, useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import Context from '../../../context/context';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
@@ -21,7 +21,7 @@ import { ReactComponent as DoubleUpArrowSvg } from '../../../assets/svg/home_pag
 import ChatBox from '../../components/chat/ChatBox';
 import Suggestions from './Suggestions';
 import PromptsWidget from '../../components/globalComponents/PromptsWidget';
-import BuildOptions from './BuildOptions';
+// import BuildOptions from './BuildOptions';
 import { ReactComponent as CommandSvg } from '../../../assets/svg/files/command.svg';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 
@@ -93,13 +93,13 @@ export const filterGroups = [
 	},
 ];
 
-const infiniteScrollStyle = {
-	display: 'flex',
-	flexDirection: 'column',
-	alignItems: 'flex-start',
-	alignSelf: 'stretch',
-	gap: '8px',
-};
+// const infiniteScrollStyle = {
+// 	display: 'flex',
+// 	flexDirection: 'column',
+// 	alignItems: 'flex-start',
+// 	alignSelf: 'stretch',
+// 	gap: '8px',
+// };
 const PriorityLevel = {
 	High: 'red',
 	Medium: 'yellow',
@@ -112,7 +112,7 @@ const sortOptions = {
 };
 const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
 
-const optionsList = ['All'];
+const optionsList = [];
 const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	const navigate = useNavigate();
 	const currentIndexRef = useRef(0);
@@ -160,7 +160,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		chatQuery: '',
 		showExploreMore: false,
 		options: optionsList,
-		selectedOption: 'All',
+		selectedOption: '',
 		showArrows: {
 			left: false,
 			right: false,
@@ -215,7 +215,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 				container.removeEventListener('scroll', checkScroll);
 			}
 		};
-	}, [checkScroll]);
+	}, []);
+
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
 			updateCardsData();
@@ -237,10 +238,16 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	// }, []);
 
 	useEffect(() => {
-		if (!aiCategories && aiSuggestedPendingActions?.pendingActions?.length > 0) {
+		if (!aiCategories) {
 			getAiCategoriesOptions();
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				options: [...aiCategories],
+				selectedOption: aiCategories?.[0],
+			}));
 		}
-	}, [aiCategories, info?.options, aiSuggestedPendingActions]);
+	}, [aiCategories, aiSuggestedPendingActions]);
 
 	const getAiCategoriesOptions = async () => {
 		const response = await getAiCategories();
@@ -248,11 +255,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			setInfo((prev) => ({
 				...prev,
 				options: [...optionsList, ...response?.[1]],
-			}));
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				options: optionsList,
+				selectedOption: response?.[1]?.[0],
 			}));
 		}
 	};
@@ -263,7 +266,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	}, [info?.totalCardsData, info?.currentIndex]);
 
 	useEffect(() => {
-		if (info?.selectedOption !== 'All') {
+		if (info?.selectedOption !== firstOption) {
 			return;
 		}
 		fetchPendingActions();
@@ -628,9 +631,17 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			sortBy: info?.sortBy,
 			...(favourite && { isFavourited: favourite }),
 			search: info?.searchQuery,
-			...(option !== 'All' && { category: option }),
+			// ...(info.selectedOption !== 'All' && { category: info?.selectedOption }),
+			category: info?.selectedOption,
 		};
-	}, [payload, info?.selectedFilters, info?.sortOptions, info?.sortBy, info?.searchQuery]);
+	}, [
+		payload,
+		info?.selectedFilters,
+		info?.sortOptions,
+		info?.sortBy,
+		info?.searchQuery,
+		info?.selectedOption,
+	]);
 
 	const groupedCards = useMemo(() => {
 		const groups = {};
@@ -727,6 +738,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			);
 		});
 	}, [info?.options, info?.selectedOption]);
+
+	const firstOption = info?.options?.[0];
 	return (
 		<>
 			{info?.showExploreMore && (
@@ -746,7 +759,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 				</div>
 			)}
 			{(aiSuggestedPendingActions?.pendingActions?.length > 0 ||
-				info?.searchQuery?.length !== 0) &&
+				info?.searchQuery?.length !== 0 ||
+				info?.selectedFilters?.length > 0) &&
 				!info?.showExploreMore && (
 					<div className="options-wrapper">
 						<div
@@ -801,11 +815,12 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 								<AIQuestions />
 							</div>
 						)}
-						{info?.activeBtn === 'insights' && (
+						{info?.activeBtn === 'insights' && aiSuggestedPendingActions !== null && (
 							<>
-								{info?.selectedOption === 'All' ? (
+								{info?.selectedOption === firstOption ? (
 									(info?.cards?.length > 0 ||
-										info?.searchQuery?.length !== 0) && (
+										info?.searchQuery?.length !== 0 ||
+										info?.selectedFilters?.length > 0) && (
 										<div
 											className="cards-container"
 											// style={{
@@ -943,7 +958,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 										info?.selectedOption !== 'All' ? 'onPrompt' : ''
 									}`}
 								>
-									{(info?.cards.length || info?.searchQuery?.length !== 0) && (
+									{(info?.cards.length > 0 ||
+										info?.searchQuery?.length !== 0 ||
+										info?.selectedFilters?.length > 0) && (
 										<div className="right-container">
 											<div className="searchMainContainer">
 												<div
@@ -978,7 +995,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 											</div>
 										</div>
 									)}
-									{info?.cards?.length > 0 && (
+									{(info?.cards.length > 0 ||
+										info?.searchQuery?.length !== 0 ||
+										info?.selectedFilters?.length > 0) && (
 										<div className="optionsRightMainContainer">
 											<Tooltip
 												open={info?.openFilter}
@@ -1112,7 +1131,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 													</button>
 												</div>
 											</Tooltip>
-											{info?.cards?.length > 0 && (
+											{(info?.cards.length > 0 ||
+												info?.searchQuery?.length !== 0 ||
+												info?.selectedFilters?.length > 0) && (
 												<div className="action-right">
 													<button
 														className="card-change-btn"
@@ -1167,6 +1188,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 						className={`chatbox_container ${
 							info?.showExploreMore && info?.cards?.length > 0 ? 'slideUp' : ''
 						}`}
+						style={{ marginTop: info.showExploreMore ? '20px' : '0' }}
 					>
 						<ChatBox
 							onSend={handleCustomOnSendFunction}

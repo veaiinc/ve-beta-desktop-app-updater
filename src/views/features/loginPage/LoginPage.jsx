@@ -2,6 +2,7 @@ import { memo, useState, useEffect } from 'react';
 import '../../../assets/scss/login_page/index.scss';
 import Email from '../../components/login_page/Email';
 import VerificationCode from '../../components/login_page/VerificationCode';
+import LoginDescription from '../../components/login_page/LoginDescription';
 import CookiesImg from '../../../assets/images/login_page/cookies.png';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
@@ -87,22 +88,57 @@ const LoginPage = () => {
 
 	const stages = {
 		email: (
-			<Email
-				email={info?.email}
-				setEmail={setEmail}
-				setActiveStage={setActiveStage}
-				setEmailVerified={setEmailVerified}
-				setLastOtpEmail={setLastOtpEmail}
-				lastOtpEmail={info?.lastOtpEmail}
-			/>
+			<div className="main-content-container">
+				<div className="email-section">
+					<Email
+						email={info?.email}
+						setEmail={setEmail}
+						setActiveStage={setActiveStage}
+						setEmailVerified={setEmailVerified}
+						setLastOtpEmail={setLastOtpEmail}
+						lastOtpEmail={info?.lastOtpEmail}
+					/>
+					<div className="disclaimer-container">
+						{!info?.cookiesAccepted && info?.showCookiesNotice && (
+							<div className="cookies-notice">
+								<div className="cookie-container">
+									<span className="cookie-icon">
+										<img src={CookiesImg} />
+									</span>
+									<p>
+										This site uses cookies to provide you with a personalized
+										experience. Check our{' '}
+										<b onClick={() => window.open('/cookie-policy', '_blank')}>
+											<u>cookie policy</u>
+										</b>{' '}
+										for more details.
+									</p>
+								</div>
+								<div className="buttons-container">
+									<div className="decline-button" onClick={handleDeclineCookies}>
+										Decline all
+									</div>
+									<div className="accept-button" onClick={handleAcceptCookies}>
+										Accept
+									</div>
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+			</div>
 		),
 		verificationCode: (
-			<VerificationCode
-				email={info?.email}
-				emailVerified={info?.emailVerified}
-				setEmailVerified={setEmailVerified}
-				setActiveStage={setActiveStage}
-			/>
+			<div className="main-content-container">
+				<div className="email-section">
+					<VerificationCode
+						email={info?.email}
+						emailVerified={info?.emailVerified}
+						setEmailVerified={setEmailVerified}
+						setActiveStage={setActiveStage}
+					/>
+				</div>
+			</div>
 		),
 	};
 
@@ -155,50 +191,6 @@ const LoginPage = () => {
 						</div> */}
 					{stages?.[info?.activeStage]}
 				</div>
-				<div className="disclaimer-container">
-					{/* <div className="disclaimer">
-					<span className="disclaimer-text">By continuing, you accept our</span>
-					<div className="disclaimer-links">
-						<b onClick={() => navigate('/terms-of-service')} className="link">
-							Terms of Service
-						</b>
-						<span>,</span>
-						<b onClick={() => navigate('/privacy-policy')} className="link">
-							Privacy Policy
-						</b>{' '}
-						<span className="disclaimer-text">and</span>
-						<b onClick={() => navigate('/cookie-policy')} className="link">
-							Cookie Policy
-						</b>
-						.
-					</div>
-				</div> */}
-					{!info?.cookiesAccepted && info?.showCookiesNotice && (
-						<div className="cookies-notice">
-							<div className="cookie-container">
-								<span className="cookie-icon">
-									<img src={CookiesImg} />
-								</span>
-								<p>
-									This site uses cookies to provide you with a personalized
-									experience. Check our{' '}
-									<b onClick={() => window.open('/cookie-policy', '_blank')}>
-										<u>cookie policy</u>
-									</b>{' '}
-									for more details.
-								</p>
-							</div>
-							<div className="buttons-container">
-								<div className="decline-button" onClick={handleDeclineCookies}>
-									Decline all
-								</div>
-								<div className="accept-button" onClick={handleAcceptCookies}>
-									Accept
-								</div>
-							</div>
-						</div>
-					)}
-				</div>
 				{/* <footer className="login-footer-container">
 				{footerLinks?.map((link) => (
 					<a className="footer-link" key={link?.id} onClick={link?.handleClick}>
@@ -207,9 +199,9 @@ const LoginPage = () => {
 				))}
 			</footer> */}
 			</div>
-
+			<LoginDescription />
 			{/* <div className="login-page-container-right"> */}
-				{/* <div className="login-page-container-right-content">
+			{/* <div className="login-page-container-right-content">
 					<div className="login-page-container-right-content-title">
 						<h1>Welcome to Ve.ai</h1>
 					</div>

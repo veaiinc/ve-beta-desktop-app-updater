@@ -1122,7 +1122,6 @@ class Proposals extends Component {
 			sectionId || this.state.activeSectionID,
 			userToken,
 		);
-
 		if (response[0] == true) {
 			this.setState({
 				sections: this.reorderSections(response[1].sections),

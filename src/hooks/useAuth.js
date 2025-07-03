@@ -1,17 +1,18 @@
 import { useCallback, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Context from '../../context/context';
 import useLogout from './useLogout';
+import Context from '../context/context';
 
 const useAuth = () => {
 	const navigate = useNavigate();
 	const logOut = useLogout();
 	const {
-		profileInfo: { getUserDetails, userDetailsData },
+		profileInfo: { getUserDetails },
 	} = useContext(Context);
 
 	useEffect(() => {
 		getUserDetailsData();
+		checkUserAuthState();
 	}, []);
 
 	const getUserDetailsData = async () => {
@@ -20,6 +21,7 @@ const useAuth = () => {
 			logOut();
 		}
 	};
+
 	const checkUserAuthState = useCallback(() => {
 		if (!localStorage.getItem('usertoken')) {
 			window.location.replace('/');
@@ -30,7 +32,6 @@ const useAuth = () => {
 			return navigate('/early-access');
 		}
 	}, []);
-	return checkUserAuthState;
 };
 
 export default useAuth;

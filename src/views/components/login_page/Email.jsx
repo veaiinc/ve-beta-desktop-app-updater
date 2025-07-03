@@ -236,8 +236,8 @@ const Email = ({
 				)}
 				<h1 className="login-page-title">
 					{/* <span className="title-one">AI.&nbsp; </span> */}
-					<span className="title-two">Own your memory</span>
-					<h2 className="login-page-subtitle">AI Memory OS</h2>
+					<span className="title-two">Living intelligence</span>
+					<h2 className="login-page-subtitle">Ambient Memory AI</h2>
 				</h1>
 			</div>
 			{info?.isHostnameVeDotAi && (
@@ -250,7 +250,7 @@ const Email = ({
 						>
 							<div className="google-logo-container">
 								<GoogleLogo />
-								<p style={{ marginBottom: '0px' }}>Continue with Google</p>
+								<p>Continue with Google</p>
 							</div>
 							{info?.googleLoading && (
 								<Spinner

@@ -4,10 +4,13 @@ import { ReactComponent as LeftSvg } from '../../../assets/svg/activity/left.svg
 import { ReactComponent as DeleteSvg } from '../../../assets/svg/delete.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
+import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
 
 import { Tooltip } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
+import jwtDecode from 'jwt-decode';
+import { message } from '../globalComponents/CustomToast';
 
 const ChatHeader = ({
 	sessionId,
@@ -18,17 +21,24 @@ const ChatHeader = ({
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const timeoutRef = useRef(null);
 	const {
-		templates: { currentChatData, deleteChatSession, globalChatMessages },
+		templates: {
+			currentChatData,
+			deleteChatSession,
+			globalChatMessages,
+			updatechatSessionFavourite,
+		},
+		aiSetup: { aiChatSessions, updateStateValues },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		deleteChatSessionLoading: false,
 		chatDropdownExpanded: false,
 		userMessages: [],
 		activeUserMessageIndex: -1,
+		isFavourite: false,
+		userId: null,
 	});
+	const deleteChatSessionLoadingRef = useRef(false);
 
 	useEffect(() => {
 		const messages = globalChatMessages?.[sessionId]?.messages;
@@ -59,6 +69,19 @@ const ChatHeader = ({
 		}
 	}, [globalChatMessages?.[sessionId]?.messages?.length]);
 
+	useEffect(() => {
+		const userId = jwtDecode(localStorage.getItem('usertoken'))?.user_id;
+		setInfo((prev) => ({ ...prev, userId }));
+	}, []);
+
+	useEffect(() => {
+		if (currentChatData) {
+			const favorites = currentChatData?.favorites || [];
+			const isFavourite = favorites?.includes(info?.userId) || false;
+			setInfo((prev) => ({ ...prev, isFavourite }));
+		}
+	}, [currentChatData, info?.userId]);
+
 	const handleNavigateBack = useCallback(() => {
 		const pathname = location?.pathname?.split('/')?.[1];
 		if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
@@ -69,10 +92,10 @@ const ChatHeader = ({
 	}, [location?.pathname]);
 
 	const handleDeleteChatClick = useCallback(async () => {
-		if (info?.deleteChatSessionLoading || globalChatMessages?.[sessionId]?.isStreaming) {
+		if (deleteChatSessionLoadingRef.current || globalChatMessages?.[sessionId]?.isStreaming) {
 			return;
 		}
-		setInfo((prev) => ({ ...prev, deleteChatSessionLoading: true }));
+		deleteChatSessionLoadingRef.current = true;
 		const response = await deleteChatSession(sessionId);
 		if (response?.[0] === true) {
 			navigate('/home');
@@ -82,8 +105,8 @@ const ChatHeader = ({
 		} else {
 			message.error('Failed to delete chat session');
 		}
-		setInfo((prev) => ({ ...prev, deleteChatSessionLoading: false }));
-	}, [deleteChatSession, sessionId, info?.deleteChatSessionLoading, globalChatMessages]);
+		deleteChatSessionLoadingRef.current = false;
+	}, [deleteChatSession, sessionId, globalChatMessages]);
 
 	const handleActiveUserMessageIndexChange = useCallback(
 		(index) => {
@@ -100,26 +123,26 @@ const ChatHeader = ({
 	);
 
 	const handleMouseEnter = useCallback(() => {
-		timeoutRef.current = setTimeout(() => {
-			setInfo((prev) => {
-				const chatDropdownExpanded = prev.chatDropdownExpanded;
-				if (chatDropdownExpanded) {
-					return prev;
-				}
-				return {
-					...prev,
-					chatDropdownExpanded: true,
-				};
-			});
-		}, [300]);
+		// timeoutRef.current = setTimeout(() => {
+		setInfo((prev) => {
+			const chatDropdownExpanded = prev.chatDropdownExpanded;
+			if (chatDropdownExpanded) {
+				return prev;
+			}
+			return {
+				...prev,
+				chatDropdownExpanded: true,
+			};
+		});
+		// }, [300]);
 	}, []);
 
 	const handleMouseLeave = useCallback(() => {
-		if (timeoutRef.current) {
-			clearTimeout(timeoutRef.current);
-			timeoutRef.current = null;
-			return;
-		}
+		// if (timeoutRef.current) {
+		// 	clearTimeout(timeoutRef.current);
+		// 	timeoutRef.current = null;
+		// 	return;
+		// }
 		setInfo((prev) => {
 			const chatDropdownExpanded = prev.chatDropdownExpanded;
 			if (!chatDropdownExpanded) {
@@ -132,36 +155,55 @@ const ChatHeader = ({
 		});
 	}, []);
 
+	const handleFavouriteClick = useCallback(async () => {
+		if (globalChatMessages?.[sessionId]?.isStreaming) {
+			return;
+		}
+		const isFavourite = !info?.isFavourite;
+		const response = await updatechatSessionFavourite(sessionId, isFavourite);
+		if (response?.[0] === true) {
+			const data = [...(aiChatSessions?.data || [])];
+			const sessionIndex = data?.findIndex((session) => session?._id === sessionId);
+			if (sessionIndex !== -1) {
+				const favorites = data[sessionIndex]?.favorites || [];
+				if (isFavourite) {
+					favorites?.push(info?.userId);
+				} else {
+					const index = favorites?.indexOf(info?.userId);
+					if (index !== -1) {
+						favorites?.splice(index, 1);
+					}
+				}
+				data[sessionIndex] = {
+					...(data[sessionIndex] || {}),
+					favorites,
+				};
+			}
+			updateStateValues({
+				aiChatSessions: {
+					...(aiChatSessions || {}),
+					data,
+				},
+			});
+		} else {
+			message.error('Failed to update favourites');
+		}
+	}, [
+		info?.isFavourite,
+		info?.userId,
+		sessionId,
+		currentChatData,
+		updatechatSessionFavourite,
+		aiChatSessions,
+		updateStateValues,
+		globalChatMessages,
+	]);
+
 	return (
 		<div className={s.wrapper}>
-			<div
-				className={`${s.chatHeader} ${info?.chatDropdownExpanded ? s.expanded : ''}`}
-				onMouseLeave={handleMouseLeave}
-			>
-				<div className={`${s.headerInfo} headerInfo`}>
-					<div className={s.leftContainer}>
-						<div className={s.iconContainer} onClick={handleNavigateBack}>
-							<LeftSvg />
-						</div>
-						<div className={s.chatTitle}>{currentChatData?.title || 'New Chat'}</div>
-					</div>
-					<div className={s.rightContainer}>
-						{!isNewChat && showDeleteChat && (
-							<Tooltip
-								title={<div className={s.tooltip}>Delete Chat</div>}
-								placement="bottom"
-								color="transparent"
-								arrow={false}
-							>
-								<button className={s.deleteChatBtn} onClick={handleDeleteChatClick}>
-									<DeleteSvg />
-								</button>
-							</Tooltip>
-						)}
-					</div>
-				</div>
-				{info?.userMessages?.length > 1 && (
-					<div className={s.chatInfo} onMouseLeave={handleMouseLeave}>
+			<div className={`${s.chatHeader} ${info?.chatDropdownExpanded ? s.expanded : ''}`}>
+				<div className={`${s.headerInfo} headerInfo`} onMouseLeave={handleMouseLeave}>
+					{info?.userMessages?.length > 1 && (
 						<div className={s.nonActiveQuestionsContainer}>
 							{info?.userMessages?.map((message) =>
 								message?.index !== info?.activeUserMessageIndex ? (
@@ -180,15 +222,26 @@ const ChatHeader = ({
 								),
 							)}
 						</div>
+					)}
+
+					<div
+						className={s.leftContainer}
+						onMouseEnter={info?.userMessages?.length > 1 ? handleMouseEnter : undefined}
+					>
 						<div
 							className={`${s.questionWrapper} ${
 								info?.chatDropdownExpanded ? s.expanded : ''
 							}`}
-							onMouseEnter={handleMouseEnter}
 						>
 							<div className={s.chatQuestionContainer}>
-								{info?.chatDropdownExpanded && (
-									<TickSvg style={{ flexShrink: 0 }} />
+								{info?.userMessages?.length > 1 && (
+									<div
+										className={`${s.iconContainer} ${
+											info?.chatDropdownExpanded ? s.expanded : ''
+										}`}
+									>
+										<ChevronRightThinSvg width={18} height={18} />
+									</div>
 								)}
 
 								<div className={s.activeQuestion}>
@@ -196,18 +249,49 @@ const ChatHeader = ({
 										''}
 								</div>
 							</div>
-							{info?.userMessages?.length > 1 && (
-								<div
-									className={`${s.iconContainer} ${
-										info?.chatDropdownExpanded ? s.expanded : ''
-									}`}
-								>
-									<ChevronRightThinSvg width={18} height={18} />
-								</div>
-							)}
 						</div>
 					</div>
-				)}
+					<div className={s.rightContainer}>
+						{!isNewChat && (
+							<>
+								<Tooltip
+									title={
+										<div className={s.tooltip}>
+											{info?.isFavourite
+												? 'Remove from favourites'
+												: 'Add to favourites'}
+										</div>
+									}
+									placement="bottom"
+									color="transparent"
+									arrow={false}
+								>
+									<button
+										className={`${s.favouriteBtn} ${
+											info?.isFavourite ? s.active : ''
+										}`}
+										onClick={handleFavouriteClick}
+									>
+										<StarSvg />
+									</button>
+								</Tooltip>
+								<Tooltip
+									title={<div className={s.tooltip}>Delete Chat</div>}
+									placement="bottom"
+									color="transparent"
+									arrow={false}
+								>
+									<button
+										className={s.deleteChatBtn}
+										onClick={handleDeleteChatClick}
+									>
+										<DeleteSvg />
+									</button>
+								</Tooltip>
+							</>
+						)}
+					</div>
+				</div>
 			</div>
 			{info?.chatDropdownExpanded && (
 				<div

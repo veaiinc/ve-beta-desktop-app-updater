@@ -127,7 +127,7 @@ const useSubscription = () => {
 			};
 			let uploadAllowed = false;
 			if (storageLimitInGB) {
-				uploadAllowed = cumulativeStorageUsedInGB <= storageLimitInGB * 1.5;
+				uploadAllowed = cumulativeStorageUsedInGB <= storageLimitInGB;
 			}
 			let imagesAllowed = false;
 			if (liteImageLimit) {

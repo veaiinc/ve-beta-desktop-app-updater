@@ -2,7 +2,7 @@ import { memo, useContext } from 'react';
 import '../../../assets/scss/sidebar.scss';
 import { stableNavigationItems, betaNaviagationItems } from './sidebarindex';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import Cropper from 'react-easy-crop';
@@ -35,13 +35,14 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 		}
 	};
 	return (
-		<div className="sidebar-closing">
+		<div className="sidebar-closing" onClick={() => onIconClick()}>
 			<div className="topContainerClosed">
 				<SidebarClosingSvg onClick={() => onIconClick()} />
 				{!isEarlyAccessPage && (
 					<div className="closedIconsContainer">
 						{sidebarNavigationItems.map((item) => (
 							<Tooltip
+								key={item?.id}
 								title={<div className="tooltip-text">{item?.name}</div>}
 								placement="right"
 								arrow={false}
@@ -49,7 +50,10 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 							>
 								<div
 									className="closed-sidebar-item"
-									onClick={() => onOptionsClick(item)}
+									onClick={(e) => {
+										e.stopPropagation();
+										onOptionsClick(item);
+									}}
 									style={{ cursor: 'pointer' }}
 								>
 									<item.icon
@@ -58,7 +62,8 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 											item.name === 'Calendar' ||
 											item.name === 'Tasks' ||
 											item.name === 'Contacts' ||
-											item.name === 'Automations'
+											item.name === 'Automations' ||
+											item.name === 'Database'
 												? 'none'
 												: 'var(--secondary-font)'
 										}
@@ -68,7 +73,8 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 												item.name === 'Calendar' ||
 												item.name === 'Tasks' ||
 												item.name === 'Contacts' ||
-												item.name === 'Automations'
+												item.name === 'Automations' ||
+												item.name === 'Database'
 													? 'var(--secondary-font)'
 													: 'none',
 										}}
