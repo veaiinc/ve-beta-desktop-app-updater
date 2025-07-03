@@ -5,8 +5,7 @@ on:
             # - '**'  # Sync all branches
             - 'master'
             - 'development'
-            - 'feature/vite-dashboard-builder'
-            - 'feature/change-iframe'
+            - 'feature/new-transcription-ui'
 
 jobs:
     sync:

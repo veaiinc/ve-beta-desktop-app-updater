@@ -19,7 +19,8 @@ import { ReactComponent as TasksSvg } from '../../../assets/svg/home_page/tasks.
 import { ReactComponent as ContactsSvg } from '../../../assets/svg/home_page/contacts.svg';
 import { ReactComponent as AutomationSvg } from '../../../assets/svg/home_page/automation.svg';
 // import { ReactComponent as PricingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
-
+import { ReactComponent as MeetIcon } from '../../../assets/svg/meet.svg';
+import MeetBot from '../../features/meetBot/meetBot.jsx';
 export const stableNavigationItems = [
 	{
 		id: 0,
@@ -28,8 +29,16 @@ export const stableNavigationItems = [
 		route: 'New Chat',
 		icon: ChatSvg,
 	},
+	{
+		id: 1,
+		name: 'Meet',
+		moduleRoute: null,
+		route: '/meet',
+		icon: MeetIcon,
+	},
 ];
-export const betaNaviagationItems = [
+
+export const betaNavigationItems = [
 	{
 		id: 0,
 		name: 'New Chat',
@@ -62,7 +71,50 @@ export const betaNaviagationItems = [
 	{ id: 5, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
 	{ id: 6, name: 'Tasks', route: '/tasks', icon: TasksSvg },
 	{ id: 7, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
-	// { id: 8, name: 'Automations', route: '/automations', icon: AutomationSvg },
+	{ id: 8, name: 'Automations', route: '/automations', icon: AutomationSvg },
+];
+
+export const internalNavigationItems = [
+	{
+		id: 0,
+		name: 'New Chat',
+		moduleRoute: null,
+		route: 'New Chat',
+		icon: ChatSvg,
+	},
+	{
+		id: 1,
+		name: 'Home',
+		moduleRoute: '/home',
+		route: '/home',
+		icon: HomeSvg,
+	},
+	{ id: 2, name: 'Agents', route: '/agents', icon: AgentsSvg },
+	{
+		id: 3,
+		name: 'Notes',
+		route: '/notes',
+		icon: NotesIcon,
+	},
+
+	{
+		id: 3.5,
+		name: 'Database',
+		route: '/database',
+		icon: DatabaseIcon,
+	},
+	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
+	{ id: 5, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
+	{ id: 6, name: 'Tasks', route: '/tasks', icon: TasksSvg },
+	{ id: 7, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
+	{
+		id: 8,
+		name: 'Meet',
+		moduleRoute: null,
+		route: '/meet',
+		icon: MeetIcon,
+	},
+	{ id: 8, name: 'Automations', route: '/automations', icon: AutomationSvg },
 ];
 
 export const stableSettingsNavItems = {
