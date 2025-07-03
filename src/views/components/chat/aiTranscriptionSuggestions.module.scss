@@ -109,6 +109,11 @@
 					border-radius: 8px;
 					border: 1px solid var(--stroke, #2c2d2e);
 					background: var(--card, #1b1c1d);
+					transition: background 0.2s ease-in-out;
+
+					&:hover {
+						background: var(--card-over-card-hover, #1f2123);
+					}
 
 					.text {
 						color: var(--primary-button, #79ecc9);
@@ -122,7 +127,7 @@
 					.answerText {
 						color: var(--primary-font, #f2f2f3);
 						font-family: var(--primary-font-family);
-						font-size: 16px;
+						font-size: 15px;
 						font-style: italic;
 						font-weight: 500;
 						line-height: 24px;
@@ -169,9 +174,13 @@
 					border: 1px solid var(--stroke, #2c2d2e);
 					width: 100%;
 
+					&:hover {
+						border: 1px solid var(--stroke-hover, #2c2d2e);
+					}
+
 					color: var(--primary-font, #f2f2f3);
 					font-family: var(--primary-font-family);
-					font-size: 15px;
+					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: 23px;
@@ -245,6 +254,11 @@
 					height: 10vh;
 					width: fit-content;
 					max-width: 100px;
+					transition: background 0.2s ease-in-out;
+
+					&:hover {
+						background: var(--card-over-card-hover, #1f2123);
+					}
 
 					.fileName {
 						width: 100%;

@@ -10,13 +10,24 @@
 		flex-grow: 1;
 		.chat-wrapper {
 			width: 400px;
-			padding: 24px 24px 0 24px;
 			background-color: var(--card);
 			flex-shrink: 0;
 
 			.headerInfo {
-				padding: 0 0 0 20px !important;
-				background-color: transparent !important;
+				padding: 24px 24px 16px 24px;
+				background-color: var(--card) !important;
+			}
+
+			.chatBodyWrapper {
+				padding: 0 20px !important;
+			}
+
+			.markdown-custom-content {
+				--font-size: 15px !important;
+			}
+
+			.nonActiveQuestionsContainer {
+				background-color: var(--card) !important;
 			}
 		}
 		.notesContainerWrapper {
