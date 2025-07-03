@@ -22,6 +22,7 @@ import {
 	notesCoverImageFileUploadMutation,
 	notesIconUploadMutation,
 	notesDeleteCoverImageMutation,
+	getLiveKitTokenQuery,
 	getBlocksQuery,
 	createBlockMutation,
 	updateBlockMutation,
@@ -51,6 +52,10 @@ import {
 	getNotesListDatabaseQuery,
 	getPageQueryDatabase,
 	createNotesDatabaseMutation,
+
+	// for meet bots
+	getMeetBotDataQuery,
+	meetBotCreateMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -650,7 +655,26 @@ export const NotesState = (props) => {
 			return false;
 		}
 	};
-
+	const getLiveKitToken = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				getLiveKitTokenQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.getLiveKitToken];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>getLiveKitToken', error);
+		}
+	};
 	const getBlocks = async (payload, isDatabase = false) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -1671,6 +1695,45 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const getExistingBots = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+
+			const response = await service.query(
+				getMeetBotDataQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api_database',
+			);
+			if (response?.[0]) {
+				return response;
+			}
+		} catch (error) {
+			console.error('error==>getExistingBots', error);
+		}
+	};
+
+	const createMeetBot = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+
+			const response = await service.mutation(
+				meetBotCreateMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api_database',
+			);
+			if (response?.[0]) {
+				return response;
+			}
+		} catch (error) {
+			console.error('error==>createMeetBot', error);
+		}
+	};
 	return {
 		...state,
 		getNotesList,
@@ -1695,6 +1758,7 @@ export const NotesState = (props) => {
 		notesIconUpload,
 		notesDeleteCoverImage,
 		notesDeleteIcon,
+		getLiveKitToken,
 		getBlocks,
 		createBlock,
 		updateBlock,
@@ -1723,5 +1787,7 @@ export const NotesState = (props) => {
 		removeSort,
 		updateViewGroup,
 		fetchMoreGroupData,
+		getExistingBots,
+		createMeetBot,
 	};
 };

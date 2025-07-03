@@ -17,6 +17,7 @@ const ChatHeader = ({
 	onNavigateBack,
 	isNewChat = false,
 	smoothScrollToParticularMessage = null,
+	showDeleteChat = true,
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();

@@ -616,7 +616,28 @@ const actionHandlers = {
 		}
 		return { ...state, chatLoadingSessions };
 	},
+	HANDLE_TRANSCRIPTION_SUGGESTIONS: (state, action) => {
+		const { message_chunk_id: chunkId, prompts_to_ask, response } = action?.payload || {};
+		const aiTranscriptionSuggestions = state?.aiTranscriptionSuggestions || {};
+		const prompts = [...(aiTranscriptionSuggestions?.prompts || [])];
+		const responses = { ...(aiTranscriptionSuggestions?.responses || {}) };
 
+		if (prompts_to_ask) {
+			prompts?.push(prompts_to_ask);
+		}
+		if (chunkId && response) {
+			responses[chunkId] = (responses?.[chunkId] || '') + response || '';
+		}
+
+		return {
+			...state,
+			aiTranscriptionSuggestions: {
+				...aiTranscriptionSuggestions,
+				prompts,
+				responses,
+			},
+		};
+	},
 	RESET_STATE: () => intialState,
 };
 
