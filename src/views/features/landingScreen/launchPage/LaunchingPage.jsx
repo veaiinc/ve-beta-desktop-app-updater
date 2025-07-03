@@ -10,8 +10,14 @@ const LaunchingPage = () => {
 
 	const navigate = useNavigate();
 
-	const handleEmailChange = (e) => {
-		setEmail(e.target.value);
+	const handleInput = (e) => {
+		if (e.target.type === 'email') {
+			setEmail(e.target.value);
+		}
+
+		if (e.key === 'Enter') {
+			handleSubmit();
+		}
 	};
 
 	const handleSubmit = async () => {
@@ -26,12 +32,6 @@ const LaunchingPage = () => {
 		}
 
 		setIsSubmitting(true);
-	};
-
-	const handleKeyPress = (e) => {
-		if (e.key === 'Enter') {
-			handleSubmit();
-		}
 	};
 
 	return (
@@ -60,9 +60,9 @@ const LaunchingPage = () => {
 								type="email"
 								placeholder="Enter your Email"
 								value={email}
-								onChange={handleEmailChange}
+								onChange={handleInput}
+								onKeyPress={handleInput}
 								disabled={isSubmitting}
-								onKeyPress={handleKeyPress}
 								aria-label="Email address"
 							/>
 						</div>

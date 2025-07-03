@@ -823,7 +823,7 @@
 				flex-direction: column;
 				width: 100% !important;
 				gap: 16px !important;
-				padding: 50px 0px !important;
+				padding: 50px 10px !important;
 
 				.cookie-container {
 				}
@@ -904,7 +904,7 @@
 			flex-direction: column;
 			width: 100% !important;
 			gap: 16px !important;
-			padding: 50px 0px !important;
+			padding: 50px 10px !important;
 			.cookie-container {
 			}
 			.buttons-container {
@@ -1165,7 +1165,7 @@
 				flex-direction: column;
 				width: 100% !important;
 				gap: 16px !important;
-				padding: 50px 1px !important;
+				padding: 50px 10px !important;
 
 				.cookie-container {
 				}
@@ -1262,9 +1262,9 @@
 }
 
 // Responsive design for side-by-side layout
-@media screen and (max-width: 1400px) {
+@media screen and (max-width: 1700px) {
 	.main-content-container {
-		padding: 0 130px;
+		padding: 0 320px;
 		padding-right: calc(400px + 48px);
 
 		.email-section {
@@ -1279,6 +1279,20 @@
 		.description-section {
 			display: none;
 		}
+	}
+}
+
+@media screen and (max-width: 1500px) {
+	.main-content-container {
+		padding: 0 130px;
+		padding-right: calc(400px + 48px);
+		.email-section {
+			flex: 0 0 350px;
+			max-width: 350px;
+		}
+	}
+	.description-section {
+		margin-left: 24px;
 	}
 }
 
