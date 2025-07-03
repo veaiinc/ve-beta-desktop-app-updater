@@ -21,16 +21,15 @@ export const paraContent2 = [
 export const categories = [
 	'All career',
 	'Engineering',
-	'Sales',
-	'Finance',
-	'Product',
-	'Customer Success',
-	'Partnerships',
-	'Human Resources',
 	'Design',
+	'Sales',
+	'Marketing',
+	'Customer Success',
 	'IT',
+	'Human Resources',
 	'Legal',
-	'Frontend Developer',
+	'Finance',
+	'Partnerships',
 ];
 
 export const jobs = [
@@ -53,5 +52,10 @@ export const jobs = [
 		title: 'Ai engineer',
 		description: 'Freelance · Austin',
 		category: 'Engineering',
+	},
+	{
+		title: 'In-House Content Creator',
+		description: 'Fulltime · Hyderabad',
+		category: 'Marketing',
 	},
 ];

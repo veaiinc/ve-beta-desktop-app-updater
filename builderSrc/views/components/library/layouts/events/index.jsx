@@ -92,8 +92,8 @@ class Events extends Component {
 			showBlockEditOptions: false,
 			section: props.section,
 			showEventPopup: false,
-			activeType: "event",
-			textTab: "",
+			activeType: 'event',
+			textTab: '',
 		};
 		this.blockRef = React.createRef();
 		this.boxRefs = [];
@@ -332,10 +332,10 @@ class Events extends Component {
 						}),
 						...(this.state.previewType === 'm'
 							? {
-								...this.applyFontThemeStyles({
-									...this.props?.themes?.mobileFonts?.p,
-								}),
-							}
+									...this.applyFontThemeStyles({
+										...this.props?.themes?.mobileFonts?.p,
+									}),
+							  }
 							: {}),
 					}}
 				>
@@ -684,6 +684,15 @@ class Events extends Component {
 				return acc;
 			}, {});
 	};
+
+	returnEventName = (key) => {
+		const name = this.getRowValue('name', key);
+		return name === 'Name' ? '' : name;
+	};
+	returnEventDescription = (key) => {
+		const desc = this.getRowValue('description', key);
+		return desc === 'Description' ? '' : desc;
+	};
 	render() {
 		const events = this.returnData() || []; // Add default empty array
 		const finalWrapperStyling = this.props?.client ? getClientStyling(events?.length || 0) : {};
@@ -707,8 +716,9 @@ class Events extends Component {
 					}
 				}}
 				style={{
-					padding: `${this.state.style.padding ? padding[this.state.style.padding] : '0px'
-						} ${this.state.previewType === 'm' && this.state.preview ? '14px' : '56px'}`,
+					padding: `${
+						this.state.style.padding ? padding[this.state.style.padding] : '0px'
+					} ${this.state.previewType === 'm' && this.state.preview ? '14px' : '56px'}`,
 
 					backgroundColor:
 						this.state.style?.backgroundType !== 'video' &&
@@ -792,12 +802,14 @@ class Events extends Component {
 					{_.map(this.returnData(), (block, key) => {
 						return (
 							<div
-								className={`et-row ${this.props.client ? 'clienEventsStyling' : ''
-									}`}
+								className={`et-row ${
+									this.props.client ? 'clienEventsStyling' : ''
+								}`}
 								style={{
 									backgroundColor: this.state.style?.cardBackgroundColor,
 									maxWidth: this.props.client ? '100%' : '',
-
+									minWidth:
+										window?.location?.pathname?.includes('document') && '400px',
 									position: 'relative',
 									display: 'flex',
 									flexDirection: 'column',
@@ -819,10 +831,10 @@ class Events extends Component {
 											}),
 											...(this.state.previewType === 'm'
 												? {
-													...this.applyFontThemeStyles({
-														...this.props?.themes?.mobileFonts?.p,
-													}),
-												}
+														...this.applyFontThemeStyles({
+															...this.props?.themes?.mobileFonts?.p,
+														}),
+												  }
 												: {}),
 										}}
 									>
@@ -884,16 +896,16 @@ class Events extends Component {
 											}),
 											...(this.state.previewType === 'm'
 												? {
-													...this.applyFontThemeStyles({
-														...this.props?.themes?.mobileFonts?.p,
-													}),
-												}
+														...this.applyFontThemeStyles({
+															...this.props?.themes?.mobileFonts?.p,
+														}),
+												  }
 												: {}),
 										}}
 									>
 										{this.props.client ? (
 											this.getRowValue('date', key) &&
-												this.getRowValue('location', key) ? (
+											this.getRowValue('location', key) ? (
 												<>
 													<span>&nbsp;</span>|<span>&nbsp;</span>
 												</>
@@ -916,10 +928,10 @@ class Events extends Component {
 											}),
 											...(this.state.previewType === 'm'
 												? {
-													...this.applyFontThemeStyles({
-														...this.props?.themes?.mobileFonts?.p,
-													}),
-												}
+														...this.applyFontThemeStyles({
+															...this.props?.themes?.mobileFonts?.p,
+														}),
+												  }
 												: {}),
 										}}
 									>
@@ -966,7 +978,7 @@ class Events extends Component {
 												module={'proposal'}
 												preview={this.state.preview}
 												client={this.state.client}
-											// themes={this.props?.themes}
+												// themes={this.props?.themes}
 											/>
 										)}
 									</span>
@@ -982,16 +994,16 @@ class Events extends Component {
 										}),
 										...(this.state.previewType === 'm'
 											? {
-												...this.applyFontThemeStyles({
-													...this.props?.themes?.mobileFonts?.event
-														?.eventTitle,
-												}),
-											}
+													...this.applyFontThemeStyles({
+														...this.props?.themes?.mobileFonts?.event
+															?.eventTitle,
+													}),
+											  }
 											: {}),
 									}}
 								>
 									{this.props.client ? (
-										this.getRowValue('name', key)
+										this.returnEventName(key)
 									) : (
 										<Text
 											// text={'Name'}
@@ -1057,11 +1069,11 @@ class Events extends Component {
 														}),
 														...(this.state.previewType === 'm'
 															? {
-																...this.applyFontThemeStyles({
-																	...this.props?.themes
-																		?.mobileFonts?.p,
-																}),
-															}
+																	...this.applyFontThemeStyles({
+																		...this.props?.themes
+																			?.mobileFonts?.p,
+																	}),
+															  }
 															: {}),
 													}}
 												>
@@ -1173,15 +1185,15 @@ class Events extends Component {
 										}),
 										...(this.state.previewType === 'm'
 											? {
-												...this.applyFontThemeStyles({
-													...this.props?.themes?.mobileFonts?.p,
-												}),
-											}
+													...this.applyFontThemeStyles({
+														...this.props?.themes?.mobileFonts?.p,
+													}),
+											  }
 											: {}),
 									}}
 								>
 									{this.props.client ? (
-										this.getRowValue('description', key)
+										this.returnEventDescription(key)
 									) : (
 										<Text
 											// text={'Description'}
@@ -1227,8 +1239,8 @@ class Events extends Component {
 									)}
 								</div>
 								{this.state.showBlockEditOptions &&
-									this.state.preview == false &&
-									this.state.activeBlock == block?._id ? (
+								this.state.preview == false &&
+								this.state.activeBlock == block?._id ? (
 									<div className="block-action-bar" style={{ right: '-5px' }}>
 										<span
 											className="tooltip"
@@ -1262,8 +1274,10 @@ class Events extends Component {
 					<BlockSidebar
 						ref={this.elementSidebarRef}
 						activePopupComponent={this.state.section}
-						setActivePopupComponent={(e) => this.setState({ section: e, style: e?.style })}
-						activeType={"event"}
+						setActivePopupComponent={(e) =>
+							this.setState({ section: e, style: e?.style })
+						}
+						activeType={'event'}
 						elementEndPosition={{ x: 0, y: 0 }}
 						setActiveSection={(e) => {
 							this.setState({ section: e });

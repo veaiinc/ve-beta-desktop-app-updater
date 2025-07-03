@@ -20,7 +20,7 @@ import { ReactComponent as ContactsSvg } from '../../../assets/svg/home_page/con
 import { ReactComponent as AutomationSvg } from '../../../assets/svg/home_page/automation.svg';
 // import { ReactComponent as PricingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
 import { ReactComponent as MeetIcon } from '../../../assets/svg/meet.svg';
-import MeetBot from '../../features/meetBot/meetBot.jsx';
+// import MeetBot from '../../features/meetBot/meetBot.jsx';
 export const stableNavigationItems = [
 	{
 		id: 0,
@@ -28,13 +28,6 @@ export const stableNavigationItems = [
 		moduleRoute: null,
 		route: 'New Chat',
 		icon: ChatSvg,
-	},
-	{
-		id: 1,
-		name: 'Meet',
-		moduleRoute: null,
-		route: '/meet',
-		icon: MeetIcon,
 	},
 ];
 

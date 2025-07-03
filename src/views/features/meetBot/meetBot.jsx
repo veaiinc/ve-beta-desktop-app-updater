@@ -140,7 +140,11 @@ const MeetBot = () => {
 							<div className="listSectionTitle">{date}</div>
 							<div className="listSection">
 								{meetingsByDate[date].map((meeting) => (
-									<div className="meetingCard" key={meeting._id}>
+									<div
+										className="meetingCard"
+										onClick={() => navigate(`/meet/${meeting._id}`)}
+										key={meeting._id}
+									>
 										<div className="meetingInfo">
 											<div className="meetingAvatar">
 												{meeting.coverImage ? (
