@@ -46,7 +46,11 @@ const AiTranscriptionSuggestions = ({ closeModal }) => {
 					<div
 						className={s.suggestedQuestionsContainer}
 						style={{
-							height: aiQuestions?.length > 0 ? '40vh' : '100%',
+							height:
+								aiQuestions?.length > 0 ||
+								aiTranscriptionSuggestions?.similar_files?.length > 0
+									? '40vh'
+									: '100%',
 						}}
 					>
 						{userQuestions?.map((question, index) => (
