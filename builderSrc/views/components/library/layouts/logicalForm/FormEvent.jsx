@@ -390,6 +390,7 @@ class FormEvent extends Component {
 		});
 	};
 	render() {
+		const buttonBackground = this.props.buttonProps?.btStyles?.background || '#8b75ba';
 		return (
 			<>
 				<button
@@ -398,10 +399,17 @@ class FormEvent extends Component {
 					style={{
 						position: 'absolute',
 						padding: '12px 24px',
-						fontSize: '16px',
-						fontWeight: '500',
-						color: '#000000',
-						backgroundColor: '#FFFFFF',
+						fontSize:
+							this.props.buttonProps?.content?.match(/font-size:\s*(.*?)[;"]/)?.[1] ||
+							'16px',
+						fontWeight:
+							this.props.buttonProps?.content?.match(
+								/font-weight:\s*(.*?)[;"]/,
+							)?.[1] || '400',
+						color:
+							this.props.buttonProps?.content?.match(/color:\s*(.*?)[;"]/)?.[1] ||
+							'#FFFFFF',
+						backgroundColor: buttonBackground,
 						border: 'none',
 						borderRadius: '100px',
 						cursor: 'pointer',
@@ -410,10 +418,20 @@ class FormEvent extends Component {
 						gap: '8px',
 						margin: '10px 0',
 						marginTop: '-85px',
-						fontFamily: 'inherit',
+						fontFamily:
+							this.props.buttonProps?.content
+								?.match(/font-family:\s*([^;}"]*)/)?.[1]
+								?.replace(/['"]/g, '') || 'Arial',
 						minWidth: '156px',
 						height: '48px',
 						justifyContent: 'center',
+						transition: 'background-color 0.4s ease-in-out',
+					}}
+					onMouseOver={(e) => {
+						e.currentTarget.style.backgroundColor = '#6f5a9a';
+					}}
+					onMouseOut={(e) => {
+						e.currentTarget.style.backgroundColor = buttonBackground;
 					}}
 				>
 					<span>+</span>
