@@ -1,0 +1,371 @@
+.blockPage {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	padding: 20px;
+
+	.blockPageHeader {
+		position: absolute;
+		top: 20px;
+		left: 20px;
+
+		.logo {
+			cursor: pointer;
+		}
+	}
+
+	.blockPageContentWrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 20px;
+
+		.blockPageContent {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 20px;
+			max-width: 500px;
+			text-align: center;
+
+			.blockPageContentBody {
+				display: flex;
+				flex-direction: column;
+				gap: 20px;
+
+				.blockPageContentTitle {
+					color: var(--primary-font, #f2f2f3);
+					text-align: center;
+					font-family: Manrope;
+					font-size: 40px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: normal;
+					text-transform: capitalize;
+				}
+
+				.blockPageContentDescription {
+					align-self: stretch;
+					color: var(--secondary-font, #94989e);
+					text-align: center;
+					font-family: Manrope;
+					font-size: 18px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 28px;
+				}
+			}
+		}
+	}
+
+	.blockPageContentButton {
+		display: flex;
+		gap: 10px;
+		margin-top: 40px;
+
+		.blockPageContentButtonSwitch {
+			display: flex;
+			height: 45px;
+			padding: 14px 16px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 24px;
+			background: var(--primary-button, #79ecc9);
+			cursor: pointer;
+			transition: all 0.2s ease;
+
+			&:hover {
+				opacity: 0.9;
+			}
+
+			.blockPageContentButtonTextIcon {
+				svg {
+					width: 18px;
+					height: 18px;
+				}
+			}
+
+			.blockPageContentButtonText {
+				color: var(--background-color, #121212);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-transform: capitalize;
+			}
+		}
+
+		.blockPageContentButtonCreate {
+			display: flex;
+			height: 45px;
+			padding: 14px 16px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 24px;
+			background: var(--card, #1b1c1d);
+			cursor: pointer;
+			transition: all 0.2s ease;
+
+			&:hover {
+				opacity: 0.9;
+			}
+
+			.blockPageContentButtonTextIcon {
+				svg {
+					width: 18px;
+					height: 18px;
+				}
+			}
+
+			.blockPageContentButtonText {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-transform: capitalize;
+			}
+		}
+	}
+
+	.blockPageFooter {
+		position: absolute;
+		bottom: 20px;
+		left: 50%;
+		transform: translateX(-50%);
+
+		.blockPageFooterContent {
+			color: var(--secondary-font, #94989e);
+			font-family: Manrope;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+			text-align: center;
+
+			a {
+				color: var(--primary-button, #79ecc9);
+				text-decoration: none;
+				font-weight: 500;
+
+				&:hover {
+					text-decoration: underline;
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 768px) {
+	.blockPage {
+		padding: 16px;
+
+		.blockPageHeader {
+			top: 16px;
+			left: 16px;
+
+			.logo svg {
+				width: 50px;
+			}
+		}
+
+		.blockPageContentWrapper {
+			gap: 16px;
+
+			.blockPageContent {
+				gap: 16px;
+				max-width: 400px;
+
+				.blockPageContentImage svg {
+					width: 100px;
+					height: 100px;
+				}
+
+				.blockPageContentBody {
+					gap: 16px;
+
+					.blockPageContentTitle {
+						font-size: 28px;
+						line-height: 36px;
+					}
+
+					.blockPageContentDescription {
+						font-size: 15px;
+						line-height: 22px;
+					}
+				}
+			}
+		}
+
+		.blockPageContentButton {
+			gap: 8px;
+			margin-top: 32px;
+
+			.blockPageContentButtonSwitch,
+			.blockPageContentButtonCreate {
+				height: 42px;
+				padding: 12px 14px;
+				font-size: 13px;
+
+				.blockPageContentButtonTextIcon svg {
+					width: 16px;
+					height: 16px;
+				}
+
+				.blockPageContentButtonText {
+					font-size: 13px;
+				}
+			}
+		}
+
+		.blockPageFooter .blockPageFooterContent {
+			font-size: 13px;
+		}
+	}
+}
+
+@media (max-width: 480px) {
+	.blockPage {
+		padding: 12px;
+
+		.blockPageHeader {
+			top: 12px;
+			left: 12px;
+
+			.logo svg {
+				width: 35px;
+			}
+		}
+
+		.blockPageContentWrapper {
+			gap: 12px;
+
+			.blockPageContent {
+				gap: 12px;
+				max-width: 320px;
+
+				.blockPageContentImage svg {
+					width: 80px;
+					height: 80px;
+				}
+
+				.blockPageContentBody {
+					gap: 12px;
+
+					.blockPageContentTitle {
+						font-size: 24px;
+						line-height: 30px;
+					}
+
+					.blockPageContentDescription {
+						font-size: 14px;
+						line-height: 20px;
+					}
+				}
+			}
+		}
+
+		.blockPageContentButton {
+			flex-direction: column;
+			gap: 12px;
+			margin-top: 24px;
+			width: 100%;
+			max-width: 280px;
+
+			.blockPageContentButtonSwitch,
+			.blockPageContentButtonCreate {
+				height: 40px;
+				padding: 12px 16px;
+				border-radius: 20px;
+
+				.blockPageContentButtonTextIcon svg {
+					width: 16px;
+					height: 16px;
+				}
+
+				.blockPageContentButtonText {
+					font-size: 14px;
+				}
+			}
+		}
+
+		.blockPageFooter .blockPageFooterContent {
+			font-size: 12px;
+		}
+	}
+}
+
+@media (max-width: 360px) {
+	.blockPage {
+		padding: 8px;
+
+		.blockPageHeader {
+			top: 8px;
+			left: 8px;
+
+			.logo svg {
+				width: 35px;
+			}
+		}
+
+		.blockPageContentWrapper {
+			gap: 10px;
+
+			.blockPageContent {
+				gap: 10px;
+				max-width: 280px;
+
+				.blockPageContentImage svg {
+					width: 70px;
+					height: 70px;
+				}
+
+				.blockPageContentBody {
+					gap: 10px;
+
+					.blockPageContentTitle {
+						font-size: 20px;
+						line-height: 26px;
+					}
+
+					.blockPageContentDescription {
+						font-size: 13px;
+						line-height: 18px;
+					}
+				}
+			}
+		}
+
+		.blockPageContentButton {
+			gap: 10px;
+			margin-top: 20px;
+			max-width: 250px;
+
+			.blockPageContentButtonSwitch,
+			.blockPageContentButtonCreate {
+				height: 38px;
+				padding: 10px 14px;
+				border-radius: 19px;
+
+				.blockPageContentButtonTextIcon svg {
+					width: 14px;
+					height: 14px;
+				}
+
+				.blockPageContentButtonText {
+					font-size: 13px;
+				}
+			}
+		}
+
+		.blockPageFooter .blockPageFooterContent {
+			font-size: 11px;
+		}
+	}
+}
