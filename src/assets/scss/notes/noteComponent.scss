@@ -34,8 +34,6 @@
 		cursor: pointer;
 		font-size: 14px;
 		align-self: flex-start;
-		margin-left: 12px;
-		margin-top: 12px;
 
 		.backBtn {
 			display: flex;
@@ -611,4 +609,46 @@
 
 .mantine-LoadingOverlay-overlay {
 	--overlay-bg: var(--backdrop) !important;
+}
+
+.notes-tabs-container {
+	width: 100%;
+	background-color: var(--background-color);
+	position: sticky;
+	top: 0;
+	z-index: 1000;
+}
+
+.notes-tabs-header {
+	display: flex;
+	gap: 24px;
+	border-bottom: 1px solid var(--stroke, #2c2d2e);
+}
+
+.notes-tab {
+	background: none;
+	border: none;
+	outline: none;
+	font-weight: 500;
+	font-size: 16px;
+	padding: 8px 0;
+	border-bottom: 2px solid transparent;
+	cursor: pointer;
+	transition: color 0.2s, border-bottom 0.2s;
+	color: var(--secondary-font, #94989e) !important;
+	font-family: var(--primary-font-family);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+}
+
+.notes-tab.active {
+	border-bottom: 2px solid var(--primary-button, #79ecc9);
+	color: var(--primary-font, #f2f2f3) !important;
+	font-family: var(--primary-font-family);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
 }

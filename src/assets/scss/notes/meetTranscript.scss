@@ -1,0 +1,42 @@
+.meet-transcript-list {
+	display: flex;
+	flex-direction: column;
+	// gap: 8px;
+	// padding: 16px 0;
+}
+
+.meet-transcript-item {
+	border-radius: 8px;
+	padding: 12px 16px;
+}
+
+.meet-transcript-meta {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 4px;
+}
+
+.meet-transcript-participant {
+	color: var(--primary-button, #79ecc9);
+	font-weight: 600;
+	font-size: 13px;
+}
+
+.meet-transcript-time {
+	color: var(--secondary-font, #94989e);
+	font-size: 12px;
+}
+
+.meet-transcript-text {
+	color: var(--primary-font, #f2f2f3);
+	font-size: 15px;
+	line-height: 1.6;
+}
+
+.meet-transcript-empty {
+	color: var(--secondary-font, #94989e);
+	text-align: center;
+	font-size: 15px;
+	width: 100%;
+}

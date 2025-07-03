@@ -30,6 +30,7 @@ const RecentChat = ({
 	chatActive = false,
 	onNavigateBack = null,
 	showCitationsButton = true,
+	showDeleteChat = true,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const {
@@ -881,6 +882,7 @@ const RecentChat = ({
 						onNavigateBack={onNavigateBack}
 						isNewChat={info?.isNewChat}
 						smoothScrollToParticularMessage={smoothScrollToParticularMessage}
+						showDeleteChat={showDeleteChat}
 					/>
 				)}
 
