@@ -8,6 +8,7 @@ import FilterComponent from './FilterComponent';
 import SortComponent from './SortComponent';
 import { useState } from 'react';
 import TaskHeader from '../../tasks/listView/TaskHeader';
+import ViewOptions from '../../dropDown/notes/database/ViewOptions';
 
 const DatabaseHeader = ({
 	databaseId,
@@ -69,9 +70,16 @@ const DatabaseHeader = ({
 					>
 						<FilterIcon />
 					</button>
-					<button className={s.actionButton}>
-						<SettingsIcon />
-					</button>
+					<ViewOptions
+						fields={fields}
+						view={selectedDatabaseView}
+						databaseId={databaseId}
+						blockId={block?.id}
+					>
+						<button className={s.actionButton}>
+							<SettingsIcon />
+						</button>
+					</ViewOptions>
 				</div>
 			</div>
 			{info.filterSortOpen && (

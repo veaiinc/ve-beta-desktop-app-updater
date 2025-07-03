@@ -560,7 +560,7 @@ const DatabaseComponent = ({ block, editor }) => {
 				</div>
 			) : (
 				<>
-					{/* <div className={s.notesDatabaseHeader}>
+					<div className={s.notesDatabaseHeader}>
 						<div className={s.databaseTopContainer}>
 							<TaskHeader
 								tabArray={currentDatabaseViews}
@@ -626,7 +626,7 @@ const DatabaseComponent = ({ block, editor }) => {
 								blockId={block?.id}
 							/>
 						</div>
-					</div> */}
+					</div>
 					<DatabaseHeader
 						databaseId={databaseId}
 						selectedDatabaseView={selectedDatabaseView}
