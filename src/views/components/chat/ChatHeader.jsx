@@ -204,7 +204,9 @@ const ChatHeader = ({
 			<div className={`${s.chatHeader} ${info?.chatDropdownExpanded ? s.expanded : ''}`}>
 				<div className={`${s.headerInfo} headerInfo`} onMouseLeave={handleMouseLeave}>
 					{info?.userMessages?.length > 1 && (
-						<div className={s.nonActiveQuestionsContainer}>
+						<div
+							className={`${s.nonActiveQuestionsContainer} nonActiveQuestionsContainer`}
+						>
 							{info?.userMessages?.map((message) =>
 								message?.index !== info?.activeUserMessageIndex ? (
 									<div
