@@ -441,8 +441,7 @@ const betaRoutes = [
 				maxWidth={'100%'}
 				sidebarContainerClassName={'auth-sidebar-container'}
 			>
-				{/* <Notes /> */}
-				<NotesWrapper />
+				<Notes />
 			</AuthWrapper>
 		),
 	},
@@ -555,6 +554,14 @@ const betaRoutes = [
 		element: (
 			<AuthWrapper title={'Meet'}>
 				<MeetBot />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/meet/:noteId',
+		element: (
+			<AuthWrapper title={'Meet'}>
+				<NotesWrapper />
 			</AuthWrapper>
 		),
 	},

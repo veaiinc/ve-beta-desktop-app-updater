@@ -36,7 +36,6 @@ import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@bloc
 import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 import NoteTranscription from '../note-transcription/NoteTranscription';
 import useRecallStream from '../../hooks/useRecallStream';
-import MeetTaker from '../note-transcription/MeetTaker';
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
 	title: '',
@@ -1012,7 +1011,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				)}
 			</div>
 			{/* <NoteTranscription pageId={noteId} updateTranscription={handleUpdateTranscription} /> */}
-			<MeetTaker />
 		</div>
 	);
 };

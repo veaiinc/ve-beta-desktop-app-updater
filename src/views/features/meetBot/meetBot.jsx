@@ -75,7 +75,7 @@ const MeetBot = () => {
 			const pageId = response?.[1]?.data?.startRecallBot?.data?.pageId;
 			const success = response?.[1]?.data?.startRecallBot?.success;
 			if (success && pageId) {
-				navigate(`/note/${pageId}`);
+				navigate(`/meet/${pageId}`);
 			}
 		} finally {
 			setCreating(false);
