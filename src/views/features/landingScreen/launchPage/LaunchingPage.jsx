@@ -1,37 +1,52 @@
 import { memo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import s from './launchingPage.module.scss';
 import { ReactComponent as VeLogo } from '../../../../assets/svg/veLogo.svg';
 import { message } from '../../../components/globalComponents/CustomToast';
 
 const LaunchingPage = () => {
-	const [email, setEmail] = useState('');
-	const [isSubmitting, setIsSubmitting] = useState(false);
-
 	const navigate = useNavigate();
+	const [info, setInfo] = useState({
+		email: '',
+		isSubmitting: false,
+	});
+
+	const validateEmail = (email) => {
+		const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		return re.test(email) ? null : 'Invalid email';
+	};
 
 	const handleInput = (e) => {
 		if (e.target.type === 'email') {
-			setEmail(e.target.value);
+			setInfo((prev) => ({
+				...prev,
+				email: e.target.value,
+			}));
 		}
 
 		if (e.key === 'Enter') {
-			handleSubmit();
+			const validationError = validateEmail(info.email);
+			if (validationError) {
+				message.error(validationError);
+				return;
+			}
+			setInfo((prev) => ({
+				...prev,
+				isSubmitting: true,
+			}));
 		}
 	};
 
-	const handleSubmit = async () => {
-		if (!email.trim()) {
-			message.error('Please enter a valid email address');
+	const handleSubmit = () => {
+		const validationError = validateEmail(info.email);
+		if (validationError) {
+			message.error(validationError);
 			return;
 		}
-
-		if (!email.includes('@')) {
-			message.error('Please enter a valid email address');
-			return;
-		}
-
-		setIsSubmitting(true);
+		setInfo((prev) => ({
+			...prev,
+			isSubmitting: true,
+		}));
 	};
 
 	return (
@@ -59,17 +74,17 @@ const LaunchingPage = () => {
 							<input
 								type="email"
 								placeholder="Enter your Email"
-								value={email}
+								value={info.email}
 								onChange={handleInput}
 								onKeyPress={handleInput}
-								disabled={isSubmitting}
+								disabled={info.isSubmitting}
 								aria-label="Email address"
 							/>
 						</div>
 						<button
 							className={s.launchingPageContentInputButton}
 							onClick={handleSubmit}
-							disabled={isSubmitting}
+							disabled={info.isSubmitting}
 							aria-label="Submit email subscription"
 						>
 							Submit
@@ -79,25 +94,25 @@ const LaunchingPage = () => {
 				<div className={s.launchingPageFooter}>
 					<div className={s.launchingPageFooterLinks}>
 						<div className={s.launchingPageFooterText}>
-							<a href="/" aria-label="Privacy Policy">
+							<Link to="/privacy-policy" aria-label="Privacy Policy">
 								Privacy Policy
-							</a>
+							</Link>
 						</div>
 						<div className={s.launchingPageFooterText}>
-							<a href="/" aria-label="Terms and Conditions">
+							<Link to="/terms-of-service" aria-label="Terms and Conditions">
 								Terms & Conditions
-							</a>
+							</Link>
 						</div>
 						<div className={s.launchingPageFooterText}>
-							<a href="/" aria-label="Cookies Policy">
+							<Link to="/cookie-policy" aria-label="Cookies Policy">
 								Cookies Policy
-							</a>
+							</Link>
 						</div>
-						<div className={s.launchingPageFooterText}>
-							<a href="/" aria-label="Help Center">
+						{/* <div className={s.launchingPageFooterText}>
+							<Link to="/help-center" aria-label="Help Center">
 								Help Center
-							</a>
-						</div>
+							</Link>
+						</div> */}
 					</div>
 				</div>
 			</div>

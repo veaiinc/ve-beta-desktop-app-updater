@@ -38,7 +38,7 @@
 				.blockPageContentTitle {
 					color: var(--primary-font, #f2f2f3);
 					text-align: center;
-					font-family: Manrope;
+					font-family: var(--secondary-font);
 					font-size: 40px;
 					font-style: normal;
 					font-weight: 600;
@@ -50,7 +50,7 @@
 					align-self: stretch;
 					color: var(--secondary-font, #94989e);
 					text-align: center;
-					font-family: Manrope;
+					font-family: var(--secondary-font);
 					font-size: 18px;
 					font-style: normal;
 					font-weight: 500;
@@ -90,7 +90,7 @@
 
 			.blockPageContentButtonText {
 				color: var(--background-color, #121212);
-				font-family: Inter;
+				font-family: var(--primary-font);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -124,7 +124,7 @@
 
 			.blockPageContentButtonText {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -142,7 +142,7 @@
 
 		.blockPageFooterContent {
 			color: var(--secondary-font, #94989e);
-			font-family: Manrope;
+			font-family: var(--secondary-font);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
