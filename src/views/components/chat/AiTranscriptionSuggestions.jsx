@@ -2,7 +2,9 @@ import { memo, useCallback, useContext } from 'react';
 import s from './aiTranscriptionSuggestions.module.scss';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
+import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import Context from '../../../context/context';
+import { fileTypeIcons } from '../../../helpers';
 
 const AiTranscriptionSuggestions = ({ closeModal }) => {
 	const {
@@ -23,6 +25,21 @@ const AiTranscriptionSuggestions = ({ closeModal }) => {
 		},
 		[updateStateValues],
 	);
+
+	const similar_files = [
+		{
+			name: 'test.pdf',
+			type: 's3_key',
+		},
+		{
+			name: 'test.pdf',
+			type: 's3_key',
+		},
+		{
+			name: 'https://www.google.com',
+			type: 'url',
+		},
+	];
 
 	return (
 		<div className={s.aiTranscriptionSuggestions}>
@@ -94,6 +111,24 @@ const AiTranscriptionSuggestions = ({ closeModal }) => {
 						</div>
 					</div>
 				)}
+
+				{/* {aiTranscriptionSuggestions?.similar_files?.length > 0 && ( */}
+				<div className={s.filesWrapper}>
+					<div className={s.text}>Files</div>
+					<div className={s.filesContainer}>
+						{similar_files?.map((file, index) => (
+							<div className={s.file} key={index}>
+								{fileTypeIcons[
+									file?.type === 's3_key'
+										? file?.name?.match(/\.(\w+)$/)?.[1]
+										: file?.type
+								] || <VeLogoSvg />}
+								<div className={s.fileName}>{file?.name}</div>
+							</div>
+						))}
+					</div>
+				</div>
+				{/* )} */}
 			</div>
 		</div>
 	);

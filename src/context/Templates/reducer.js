@@ -617,10 +617,16 @@ const actionHandlers = {
 		return { ...state, chatLoadingSessions };
 	},
 	HANDLE_TRANSCRIPTION_SUGGESTIONS: (state, action) => {
-		const { message_chunk_id: chunkId, prompts_to_ask, response } = action?.payload || {};
+		const {
+			message_chunk_id: chunkId,
+			prompts_to_ask,
+			response,
+			similar_files,
+		} = action?.payload || {};
 		const aiTranscriptionSuggestions = state?.aiTranscriptionSuggestions || {};
 		const prompts = [...(aiTranscriptionSuggestions?.prompts || [])];
 		const responses = { ...(aiTranscriptionSuggestions?.responses || {}) };
+		const files = [...(aiTranscriptionSuggestions?.similar_files || [])];
 
 		if (prompts_to_ask) {
 			prompts?.push(prompts_to_ask);
@@ -628,13 +634,16 @@ const actionHandlers = {
 		if (chunkId && response) {
 			responses[chunkId] = (responses?.[chunkId] || '') + response || '';
 		}
-
+		if (similar_files) {
+			files?.concat(similar_files);
+		}
 		return {
 			...state,
 			aiTranscriptionSuggestions: {
 				...aiTranscriptionSuggestions,
 				prompts,
 				responses,
+				similar_files: files,
 			},
 		};
 	},
