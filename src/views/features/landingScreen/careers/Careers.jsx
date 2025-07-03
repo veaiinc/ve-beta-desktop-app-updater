@@ -4,6 +4,7 @@ import { paraContent1, paraContent2, categories, jobs } from './constants';
 import { useState, useMemo } from 'react';
 
 const careerPageLink = 'https://veai.ve.ai/552ysrgj';
+const ContentCreator = 'https://veai.ve.ai/lo3x3v26';
 
 const Careers = () => {
 	const [info, setInfo] = useState({
@@ -71,7 +72,14 @@ const Careers = () => {
 								<p className={s.jobDescription}>{job.description}</p>
 							</div>
 							<div className={s.right}>
-								<a href={careerPageLink} target="_blank">
+								<a
+									href={
+										job.title === 'In-House Content Creator'
+											? ContentCreator
+											: careerPageLink
+									}
+									target="_blank"
+								>
 									Apply
 								</a>
 							</div>

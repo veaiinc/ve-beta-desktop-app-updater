@@ -11,46 +11,48 @@ const BlockPage = () => {
 
 	return (
 		<div className={s.blockPage}>
-			<div className={s.blockPageHeader}>
+			<header className={s.blockPageHeader}>
 				<div className={s.logo} onClick={() => navigate('/')}>
 					<VeLogo />
 				</div>
-			</div>
-			<div className={s.blockPageContentWrapper}>
-				<div className={s.blockPageContent}>
+			</header>
+			<main className={s.blockPageContentWrapper}>
+				<section className={s.blockPageContent}>
 					<div className={s.blockPageContentImage}>
 						<BlockIcon />
 					</div>
 					<div className={s.blockPageContentBody}>
-						<div className={s.blockPageContentTitle}>Workspace is Blocked</div>
-						<div className={s.blockPageContentDescription}>
-							We’ve hit a temporary issue with your current workspace. Don’t worry,
-							you’re not blocked—just your workspace. You can still access other
+						<h1 className={s.blockPageContentTitle}>Workspace is Blocked</h1>
+						<p className={s.blockPageContentDescription}>
+							We've hit a temporary issue with your current workspace. Don't worry,
+							you're not blocked—just your workspace. You can still access other
 							workspaces or create a new one.
-						</div>
+						</p>
 					</div>
-				</div>
-			</div>
-			<div className={s.blockPageContentButton}>
-				<div className={s.blockPageContentButtonSwitch}>
-					<div className={s.blockPageContentButtonTextIcon}>
+				</section>
+			</main>
+			<nav className={s.blockPageContentButton} aria-label="Workspace actions">
+				<button type="button" className={s.blockPageContentButtonSwitch}>
+					<span className={s.blockPageContentButtonTextIcon}>
 						<SwitchIcon />
-					</div>
-					<div className={s.blockPageContentButtonText}>Switch to Another Workspace</div>
-				</div>
-				<div className={s.blockPageContentButtonCreate}>
-					<div className={s.blockPageContentButtonTextIcon}>
+					</span>
+					<span className={s.blockPageContentButtonText}>
+						Switch to Another Workspace
+					</span>
+				</button>
+				<button type="button" className={s.blockPageContentButtonCreate}>
+					<span className={s.blockPageContentButtonTextIcon}>
 						<CreateIcon />
-					</div>
-					<div className={s.blockPageContentButtonText}>Create New Workspace</div>
-				</div>
-			</div>
-			<div className={s.blockPageFooter}>
+					</span>
+					<span className={s.blockPageContentButtonText}>Create New Workspace</span>
+				</button>
+			</nav>
+			<footer className={s.blockPageFooter}>
 				<div className={s.blockPageFooterContent}>
 					Need Help? Contact our support team at{' '}
 					<a href="mailto:support@ve.ai">support@ve.ai</a>
 				</div>
-			</div>
+			</footer>
 		</div>
 	);
 };
