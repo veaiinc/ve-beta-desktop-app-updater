@@ -35,7 +35,7 @@ import { ImageBlock, insertImage } from '../../components/notes/ImageComponent';
 import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import NoteTranscription from '../note-transcription/NoteTranscription';
-import useRecallStream from '../../hooks/useRecallStream';
+import useRecallStream from '../../../hooks/useRecallStream';
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
 	title: '',

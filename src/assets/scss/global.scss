@@ -13,6 +13,7 @@
 
 p {
 	margin: 0; // to override style leakage from reset.css coming from builder
+	line-height: normal !important;
 }
 
 a {
@@ -3794,6 +3795,10 @@ input[type='number'] {
 body.ReactModal__Body--open {
 	background-color: var(--card) !important;
 	padding: 0 !important;
+}
+// ant design reset css issue fix for p tag in builder
+p {
+	margin-bottom: 0 !important;
 }
 
 // .jodit-toolbar-editor-collection.jodit-toolbar-editor-collection_mode_horizontal.jodit-toolbar-editor-collection_size_middle {

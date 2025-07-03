@@ -1041,6 +1041,7 @@ class Presentation extends Component {
 				if (section?.isFluidSection) {
 					return (
 						<FluidLayout
+							triggerAdjustGridAreas={this.props.triggerAdjustGridAreas}
 							isWorkflow={this.state.isWorkflow}
 							duplicateSubBlock={(json, subBlockId) =>
 								this.props?.duplicateSubBlockP(json, subBlockId, section?._id)
@@ -1315,7 +1316,7 @@ class Presentation extends Component {
 	};
 	hanldeAddBlock = (e) => {
 		e.stopPropagation();
-		this.props.showAddBlockP(e, this.state?.activeOrderNo, this.state?.activeKey);
+		this.props.showAddBlockP(e, this.state?.activeOrderNo + 0.1, this.state?.activeKey);
 	};
 
 	// function for presentation layout drag and drop
