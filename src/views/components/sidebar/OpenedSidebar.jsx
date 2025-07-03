@@ -2,10 +2,11 @@ import { createElement, useState, useCallback, useEffect, useContext, memo } fro
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
 	stableNavigationItems,
-	betaNaviagationItems,
+	betaNavigationItems,
+	internalNavigationItems,
 	stableSettingsNavItems,
 	betaSettingsNavItems,
-} from './sidebarindex';
+} from './sidebarindex.js';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg.svg';
@@ -270,6 +271,18 @@ const OpenedSidebarModules = ({
 	);
 };
 
+const navigationItemsMap = {
+	beta: betaNavigationItems,
+	internal: internalNavigationItems,
+	stable: stableNavigationItems,
+};
+
+const settingsNavItemsMap = {
+	beta: betaSettingsNavItems,
+	internal: betaSettingsNavItems,
+	stable: stableSettingsNavItems,
+};
+
 const OpenedSidebar = ({
 	sidebarStates,
 	setsidebarStates,
@@ -282,10 +295,9 @@ const OpenedSidebar = ({
 	isThisEarlyAccessPage,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
-	const sidebarNavigationItems =
-		workspaceMode === 'stable' ? stableNavigationItems : betaNaviagationItems;
-	const settingsNavigationItems =
-		workspaceMode === 'stable' ? stableSettingsNavItems : betaSettingsNavItems;
+
+	const sidebarNavigationItems = navigationItemsMap[workspaceMode];
+	const settingsNavigationItems = settingsNavItemsMap[workspaceMode];
 
 	const {
 		templates: { leftSidebarState, updateStateValues },
