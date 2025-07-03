@@ -562,7 +562,7 @@ const DatabaseComponent = ({ block, editor }) => {
 				<>
 					<div className={s.notesDatabaseHeader}>
 						<div className={s.databaseTopContainer}>
-							<TaskHeader
+							{/* <TaskHeader
 								tabArray={currentDatabaseViews}
 								activeTab={info?.selectedViewId}
 								handleTabChange={handleTabChange}
@@ -571,23 +571,23 @@ const DatabaseComponent = ({ block, editor }) => {
 								}
 								handleTabDropdownClick={handleTabDropdownClick}
 								showEditDuplicate={false}
-							/>
+							/> */}
 							<div className={s.notesDatabaseHeaderButtons}>
-								<input
+								{/* <input
 									type="text"
 									placeholder="Search"
 									className={s.notesDatabaseHeaderSearchInput}
 									value={info?.searchQuery}
 									onChange={(e) => handleSearchChange(e.target.value)}
-								/>
+								/> */}
 								<div className={s.databaseTopContainerButtons}>
-									<GroupComponent
+									{/* <GroupComponent
 										fields={fields}
 										databaseId={databaseId}
 										metaInfo={metaInfo}
 										view={selectedDatabaseView}
 										blockId={block?.id}
-									/>
+									/> */}
 									<button
 										onClick={() => handleInfoChange({ addRowModalOpen: true })}
 									>
@@ -603,14 +603,14 @@ const DatabaseComponent = ({ block, editor }) => {
 								</div>
 							</div>
 						</div>
-						<div className={s.notesDatabaseHeaderTitleContainer}>
+						{/* <div className={s.notesDatabaseHeaderTitleContainer}>
 							<CustomTextArea
 								value={info?.databaseName}
 								onChange={(e) => handleInfoChange({ databaseName: e.target.value })}
 								className={s.notesDatabaseHeaderTitle}
 							/>
-						</div>
-						<div className={s.sortFilterWrapper}>
+						</div> */}
+						{/* <div className={s.sortFilterWrapper}>
 							<FilterComponent
 								databaseId={databaseId}
 								view={selectedDatabaseView}
@@ -625,7 +625,7 @@ const DatabaseComponent = ({ block, editor }) => {
 								pageId={pageId}
 								blockId={block?.id}
 							/>
-						</div>
+						</div> */}
 					</div>
 					<DatabaseHeader
 						databaseId={databaseId}

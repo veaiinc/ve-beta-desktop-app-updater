@@ -9,6 +9,7 @@ import { ReactComponent as GridSvg } from '../../../../../assets/svg/tasks/grid.
 import { ReactComponent as DuplicateIcon } from '../../../../../assets/svg/tasks/duplicate.svg';
 import { ReactComponent as DeleteIcon } from '../../../../../assets/svg/tasks/dustBin.svg';
 import GroupDropDown from '../../tasks/GroupDropDown';
+import AllFields from './AllFields';
 
 const ViewOptions = ({ children, fields, view, databaseId, blockId }) => {
 	const [info, setInfo] = useState({
@@ -66,6 +67,12 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId }) => {
 						databaseId={databaseId}
 						blockId={blockId}
 					/>
+				) : info?.openedDropDown === 'allFields' ? (
+					<AllFields
+						fields={fields}
+						handleClose={handleClose}
+						handleBack={resetGroupInfo}
+					/>
 				) : (
 					<div className={s.viewOptionDropdown}>
 						<div className={s.headerSection}>
@@ -85,21 +92,33 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId }) => {
 								<GridSvg />
 
 								<div className={s.text}>Layout</div>
-								<div className={s.subText}>List</div>
+								<div className={s.subText}>
+									List <ChevronRightThinSvg />
+								</div>
 							</div>
 						</div>
 						<div className={s.propertySettings}>
-							<div className={s.option}>
+							<div
+								className={s.option}
+								onClick={() => handleInfoChange({ openedDropDown: 'allFields' })}
+							>
 								<ListSvg />
 
 								<div className={s.text}>Properties</div>
-								<div className={s.subText}>5 Shown</div>
+								<div className={s.subText}>
+									5 Shown <ChevronRightThinSvg />
+								</div>
 							</div>
-							<div className={s.option} onClick={handleOpenGroup}>
+							<div
+								className={s.option}
+								onClick={() => handleInfoChange({ openedDropDown: 'group' })}
+							>
 								<ListSvg />
 
 								<div className={s.text}>Group</div>
-								<div className={s.subText}>{getSelectedGroupName()}</div>
+								<div className={s.subText}>
+									{getSelectedGroupName()} <ChevronRightThinSvg />
+								</div>
 							</div>
 							<div className={s.option}>
 								<div className={s.text}>ID prefix</div>

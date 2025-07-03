@@ -1,0 +1,177 @@
+.allFields {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	width: 220px;
+	border-radius: 14px;
+	background-color: var(--card);
+	border: 1px solid var(--stroke);
+	padding: 12px 10px;
+
+	.optionsDropdownHeader {
+		display: flex;
+		width: 100%;
+		justify-content: space-between;
+		align-items: center;
+		border-bottom: 1px solid var(--stroke);
+		padding-right: 8px;
+		padding-bottom: 12px;
+
+		.optionsDropdownHeaderTitleWrapper {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+
+			.optionsDropdownHeaderTitle {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				text-align: left;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+	}
+
+	.optionsDropdownBody {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		width: 100%;
+		padding-bottom: 12px;
+		border-bottom: 1px solid var(--stroke);
+		gap: 12px;
+
+		input {
+			width: 100%;
+			display: flex;
+			height: 32.039px;
+			transform: rotate(-0.037deg);
+			padding: 6px;
+			align-items: center;
+			gap: 10px;
+			align-self: stretch;
+
+			border-radius: 8px;
+			border: 1px solid var(--stroke);
+			background-color: transparent;
+
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+
+			&::placeholder {
+				color: var(--secondary-font);
+			}
+		}
+
+		.optionsDropdownPropertyContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			width: 100%;
+			gap: 4px;
+
+			.propertyListItem {
+				display: flex;
+				height: 31px;
+				padding: 6px;
+				align-items: center;
+				align-self: stretch;
+				gap: 8px;
+				width: 100%;
+				overflow: hidden;
+				cursor: pointer;
+				border-radius: 8px;
+				transition: all 0.2s ease-in-out;
+				svg {
+					width: 16px;
+					height: 16px;
+					align-self: center;
+				}
+
+				* {
+					flex-shrink: 0;
+				}
+
+				.dragHandleIcon {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				}
+
+				.propertyListItemTitle {
+					color: var(--primary-font);
+					text-align: start;
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					flex-grow: 1;
+					max-width: 125px;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+					user-select: none;
+					flex-grow: 1;
+				}
+
+				.crossedEyeIcon {
+					opacity: 0.48;
+				}
+
+				&:hover {
+					background-color: var(--card-hover);
+				}
+			}
+		}
+	}
+
+	.footer {
+		width: 100%;
+
+		.option {
+			display: flex;
+			height: 31px;
+			padding: 12px;
+			align-items: center;
+			align-self: stretch;
+			width: 100%;
+			gap: 8px;
+
+			.plusIcon {
+				path {
+					stroke: var(--secondary-font) !important;
+				}
+			}
+
+			.text {
+				color: var(--secondary-font);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				flex-grow: 1;
+				text-align: left;
+			}
+		}
+	}
+
+	.cursorPointer {
+		cursor: pointer;
+	}
+
+	.arrowIcon {
+		path {
+			stroke: var(--secondary-font);
+		}
+	}
+}
