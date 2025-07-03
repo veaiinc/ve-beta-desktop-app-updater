@@ -20,7 +20,7 @@ import {
 	useMemo,
 	createContext,
 } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
@@ -149,6 +149,7 @@ const MeetNote = ({ outerContainerStyle, innerContainerStyle }) => {
 	const { createWebSocketConnection: recallConnection } = useRecallStream();
 	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
 		useLiveIntelligenceStream();
+	const location = useLocation();
 
 	// Derived states
 	const coverImage = useMemo(() => {
@@ -318,8 +319,11 @@ const MeetNote = ({ outerContainerStyle, innerContainerStyle }) => {
 	useEffect(() => {
 		// Connect to socket and handle transcript events
 
-		recallConnection(handleSocketMessage);
-		createLiveIntelligenceStream(info?.sessionId, handleLiveIntelligenceMessageFunc);
+		if (location?.pathname?.includes('meet')) {
+			recallConnection(handleSocketMessage);
+			createLiveIntelligenceStream(info?.sessionId, handleLiveIntelligenceMessageFunc);
+		}
+
 		// No cleanup needed, useRecallStream handles it
 	}, []);
 

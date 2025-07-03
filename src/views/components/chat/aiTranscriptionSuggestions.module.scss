@@ -228,7 +228,9 @@
 				align-items: flex-start;
 				gap: 8px;
 				align-self: stretch;
-
+				height: 10vh;
+				flex-wrap: wrap;
+				overflow-y: auto;
 				.file {
 					display: flex;
 					padding: 12px 14px;
@@ -238,8 +240,14 @@
 					flex: 1 0 0;
 					border-radius: 12px;
 					background: var(--card-over-card, #1f2123);
+					cursor: pointer;
+					flex-shrink: 0;
+					height: 10vh;
+					width: fit-content;
+					max-width: 100px;
 
 					.fileName {
+						width: 100%;
 						display: -webkit-box;
 						-webkit-line-clamp: 2;
 						line-clamp: 2;
