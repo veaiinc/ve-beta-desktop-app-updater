@@ -1,26 +1,18 @@
 import jwtDecode from 'jwt-decode';
 import { memo, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Tooltip } from 'antd';
+// import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import { message } from '../../components/globalComponents/CustomToast';
-import AskMe from './AskMe';
-import GlobalWidget from '../../components/globalComponents/GlobalWidget';
-import ChatPrompts from './ChatPrompts';
+// import AskMe from './AskMe';
+// import GlobalWidget from '../../components/globalComponents/GlobalWidget';
+// import ChatPrompts from './ChatPrompts';
 import ProactiveSuggestions from './ProactiveSuggestions';
-import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
-import { ReactComponent as PromptsSvg } from '../../../assets/svg/home_page/prompts.svg';
-import { ReactComponent as CalendarSvg } from '../../../assets/svg/home_page/calendar.svg';
-import { ReactComponent as TaskSvg } from '../../../assets/svg/home_page/tasks.svg';
-import { ReactComponent as ContactSvg } from '../../../assets/svg/home_page/contacts.svg';
-import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/automation.svg';
-import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
-import VeSvg from '../../../assets/svg/veSvg';
 import '../../../assets/scss/home_page/initialHomepage.scss';
-import Spinner from '../../components/loaders/Spinner';
+// import Spinner from '../../components/loaders/Spinner';
 import { getGreeting } from '../../../helpers';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+// import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const optionsList = [
 	// {
@@ -39,7 +31,7 @@ const optionsList = [
 	//  showOption: false,
 	//  icon: AgentsSvg,
 	// },
-	'All',
+	// 'All',
 	// {
 	//  id: 2,
 	//  label: 'Suggested prompts',
@@ -187,7 +179,7 @@ const homePageTextContent = {
 const InitialHomePage = () => {
 	const {
 		templates: { updateStateValues, aiSuggestedPendingActions, getAISuggestedPendingActions },
-		profileInfo: { tenantUserAccessControls, userDetailsData },
+		profileInfo: { userDetailsData, aiCategories, getAiCategories },
 		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
 
@@ -205,51 +197,6 @@ const InitialHomePage = () => {
 		}, {}),
 	});
 
-	// Check if the options container is scrollable
-	// const checkScroll = useCallback(() => {
-	// 	const container = optionsContainerRef.current;
-	// 	if (container) {
-	// 		const isOverflowing = container.scrollWidth > container.clientWidth;
-	// 		setShowArrows({
-	// 			left: container.scrollLeft > 0,
-	// 			right:
-	// 				isOverflowing &&
-	// 				container.scrollLeft < container.scrollWidth - container.clientWidth - 1,
-	// 		});
-	// 	}
-	// }, []);
-
-	// // Handle scroll on arrow click
-	// const handleScroll = (direction) => {
-	// 	const container = optionsContainerRef.current;
-	// 	if (container) {
-	// 		const scrollAmount = 600; // Adjust scroll distance as needed
-	// 		const newScrollPosition =
-	// 			direction === 'left'
-	// 				? container.scrollLeft - scrollAmount
-	// 				: container.scrollLeft + scrollAmount;
-	// 		container.scrollTo({
-	// 			left: newScrollPosition,
-	// 			behavior: 'smooth',
-	// 		});
-	// 	}
-	// };
-
-	// useEffect(() => {
-	// 	checkScroll();
-	// 	window.addEventListener('resize', checkScroll);
-	// 	const container = optionsContainerRef.current;
-	// 	if (container) {
-	// 		container.addEventListener('scroll', checkScroll);
-	// 	}
-	// 	return () => {
-	// 		window.removeEventListener('resize', checkScroll);
-	// 		if (container) {
-	// 			container.removeEventListener('scroll', checkScroll);
-	// 		}
-	// 	};
-	// }, [checkScroll]);
-
 	useEffect(() => {
 		return () => {
 			updateStateValues({ aiSuggestedPendingActions: null });
@@ -257,9 +204,25 @@ const InitialHomePage = () => {
 		};
 	}, []);
 
+	// useEffect(() => {
+	// 	if (!aiCategories) {
+	// 		getAiCategoriesOptions();
+	// 	}
+	// }, [aiCategories, info?.options, aiSuggestedPendingActions]);
+
+	// const getAiCategoriesOptions = async () => {
+	// 	const response = await getAiCategories();
+	// 	if (response?.[0] === true) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			options: [...optionsList, ...response?.[1]],
+	// 		}));
+	// 	}
+	// };
+
 	useEffect(() => {
 		if (!promptsData) {
-			getPromptsData({ category: 'all', limit: 30 });
+			getPromptsData({ category: 'all', limit: 30, page: 1 });
 			return;
 		}
 		if (promptsData?.data?.length > 0) {
@@ -385,14 +348,14 @@ const InitialHomePage = () => {
 				...(options?.length === 0 && { justifyContent: 'center' }),
 			}}
 		>
-			<div className="quick-actions-container">
+			{/* <div className="quick-actions-container">
 				<QuickActions suggestedOptions={SuggestedOptions} />
-			</div>
+			</div> */}
 			<div
 				className={`home-page-container-header `}
-				style={{
-					...(options?.length === 0 && { marginTop: 0 }),
-				}}
+				// style={{
+				// 	...(options?.length === 0 && { marginTop: 0 }),
+				// }}
 			>
 				<div className={`title-container `}>
 					<div className="title-text">
@@ -425,9 +388,9 @@ const InitialHomePage = () => {
 					// </div>
 				}
 			</div>
-			{info?.options?.length > 0 && !info?.showSuggestions && (
-				<div className="home-page-container-content">
-					{/* {info?.selectedOption === 'All' ? (
+
+			<div className="home-page-container-content">
+				{/* {info?.selectedOption === 'All' ? (
 						<ProactiveSuggestions
 							option={info?.selectedOption}
 							previousOption={previousSelectedOptionRef.current}
@@ -435,12 +398,11 @@ const InitialHomePage = () => {
 					) : (
 						<GlobalWidget option={info?.selectedOption} />
 					)} */}
-					<ProactiveSuggestions
-						option={info?.selectedOption}
-						previousOption={previousSelectedOptionRef.current}
-					/>
-				</div>
-			)}
+				<ProactiveSuggestions
+					option={info?.selectedOption}
+					previousOption={previousSelectedOptionRef.current}
+				/>
+			</div>
 		</div>
 	);
 };

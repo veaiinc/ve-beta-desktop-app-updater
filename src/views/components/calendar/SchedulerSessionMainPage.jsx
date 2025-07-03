@@ -1,5 +1,5 @@
 import { useState, memo, useCallback, useContext } from 'react';
-import QuickActions from '../globalComponents/QuickActions';
+// import QuickActions from '../globalComponents/QuickActions';
 import { ReactComponent as BackSvg } from '../../../assets/svg/calendar/CaretLeft.svg';
 import '../../../assets/scss/calendar/SchedulerMainPage.scss';
 import { ReactComponent as CaretRightSvg } from '../../../assets/svg/calendar/CaretLeft.svg';
@@ -129,7 +129,7 @@ const SchedulerSessionMainPage = ({
 					<BackSvg onClick={onBackToCalendar} />
 					<span className="lineOne">Scheduler</span>
 				</h1>
-				<QuickActions />
+				{/* <QuickActions /> */}
 			</div>
 			<div className="scheduler-main-body-row">
 				{/* Left: Create Scheduler */}

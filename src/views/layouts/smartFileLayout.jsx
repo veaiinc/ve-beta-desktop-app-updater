@@ -1,15 +1,15 @@
 import React, { memo, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import '../../assets/scss/sales/smartFileLayout.scss';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { Helmet } from 'react-helmet';
 import { ReactComponent as VE } from '../../assets/svg/smallVe.svg';
-import useAuth from '../hooks/useAuth';
-import useSubscription from '../hooks/useSubscription';
-import useTokenExpiry from '../hooks/useTokenExpiry';
+import useAuth from '../../hooks/useAuth';
+import useSubscription from '../../hooks/useSubscription';
+import useTokenExpiry from '../../hooks/useTokenExpiry';
 import BottomToolbar from '../components/ai_agents/BottomToolbar';
-import useAccessControls from '../hooks/useAccessControls';
-import useTheme from '../hooks/useTheme';
+import useAccessControls from '../../hooks/useAccessControls';
+import useTheme from '../../hooks/useTheme';
 // import Context from '../../context/context';
 // import RenewBanner from '../components/globalComponents/RenewBanner';
 const SmartFileLayout = ({ title, children, hideQuickNav = false, showBottomToolbar = true }) => {
@@ -18,7 +18,7 @@ const SmartFileLayout = ({ title, children, hideQuickNav = false, showBottomTool
 	// } = useContext(Context);
 	useTheme();
 	const checkAuth = useAuth();
-	const data = useSubscription();
+	useSubscription();
 	const tokenData = useTokenExpiry();
 	const accessControls = useAccessControls();
 	useEffect(() => {

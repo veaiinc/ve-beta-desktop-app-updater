@@ -620,6 +620,8 @@ class Home extends Proposals {
 			isFormTemplate: false,
 			triggerAdjustGridAreas: false,
 			workflowTemplateID: null,
+			invoiceSentDate: null,
+			invoiceAcceptedDate: null,
 		};
 		this.componentRef = createRef();
 		this.addBlockRef = createRef();
@@ -5686,9 +5688,7 @@ class Home extends Proposals {
 			isDeleted: e,
 		});
 		if (response[0] === true) {
-			// let from = window.location.origin;
-
-			return this.props?.navigate(`/files?activeTab=Designs`);
+			return this.props?.navigate(`/files?active-tab=My-Templates`);
 		}
 	};
 	updateTablesForTaxes = (tables) => {
@@ -6646,6 +6646,12 @@ class Home extends Proposals {
 															this.handleScheduleStyles(data)
 														}
 														themes={this.state.themes}
+														invoiceSentDate={
+															this.state?.invoiceSentDate
+														}
+														invoiceAcceptedDate={
+															this.state?.invoiceAcceptedDate
+														}
 													/>
 												</div>
 											</div>
@@ -7487,6 +7493,10 @@ class Home extends Proposals {
 												setAdjustGridAreas={() => {
 													this.handleTriggerAdjustGridAreas();
 												}}
+												invoiceSentDate={this.state?.invoiceSentDate}
+												invoiceAcceptedDate={
+													this.state?.invoiceAcceptedDate
+												}
 											/>
 										)}
 

@@ -26,16 +26,16 @@ import { Image, Spin, Tooltip } from 'antd';
 import AIMessageLoader from './AIMessageLoader';
 import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
-import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
+import useUpdatedVoiceIntegration from '../../../hooks/useUpdatedVoiceIntegration';
 import { message } from '../globalComponents/CustomToast';
-import SearchTypeTooltip from './SearchTypeTooltip';
+// import SearchTypeTooltip from './SearchTypeTooltip';
 import ChatBoxPlaceholder from './ChatBoxPlaceholder';
 import { fileTypeIcons } from '../../../helpers';
 import BuildTooltip from './BuildTooltip';
 import RecentFileTooltip from './RecentFileTooltip';
 import AskTooltip from './AskTooltip';
 import AddOnCards from '../settings/planbilling/addOnCards';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -161,6 +161,7 @@ const ChatBox = ({
 			galleryFile,
 			currentSessionId,
 			chatReplyData,
+			deleteMultiAgentFile,
 		},
 		subscriptionInfo: { currentPlan },
 		calendarInfo: { updateCalendarState },
@@ -195,6 +196,7 @@ const ChatBox = ({
 		activePlaceholderIndex: 0,
 		chatBoxInfo: null,
 		openUpgradeModal: false,
+		askTooltipOpen: false,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -507,6 +509,10 @@ const ChatBox = ({
 			(ele) => ele?._id !== file?._id || ele?.uniqueId !== file?.uniqueId,
 		);
 		recentFilesRef.current = updatedRecentFiles;
+
+		if (file?.loading && file?.uploadStatus?.status !== 'ready') {
+			deleteMultiAgentFile(file?.fileId);
+		}
 		setInfo((prev) => ({
 			...prev,
 			recentFiles: updatedRecentFiles,
@@ -682,8 +688,8 @@ const ChatBox = ({
 					}));
 					uploadedImagesRef.current = [];
 
+					onChatQueryChange?.('');
 					clearTextArea();
-
 					if (!(globalChatMessages?.[info?.chatSessionId]?.messages?.length > 0)) {
 						const addNewSession = true;
 						const payload = { sessionId: info?.chatSessionId };
@@ -729,6 +735,7 @@ const ChatBox = ({
 			currentPlan,
 			globalChatMessages,
 			chatReplyData,
+			onChatQueryChange,
 		],
 	);
 
@@ -875,6 +882,20 @@ const ChatBox = ({
 				successCount = 0;
 
 			while (!(uploadedCount && successCount) && maxAttempts) {
+				if (isImage) {
+					requiredFileIndex = uploadedImagesRef?.current?.findIndex(
+						(ele) => ele?.uniqueId === fileData?.uniqueId,
+					);
+				} else {
+					requiredFileIndex = recentFilesRef?.current?.findIndex(
+						(ele) => ele?.uniqueId === fileData?.uniqueId,
+					);
+				}
+
+				if (requiredFileIndex === -1) {
+					return;
+				}
+
 				const response = await checkIndividualImageUploadedStatus(uploadBatchId);
 				if (response?.[0]) {
 					uploadedCount = response?.[1]?.uploadedCount;
@@ -911,13 +932,20 @@ const ChatBox = ({
 
 				uploadedImages = [...(uploadedImagesRef?.current || [])];
 				recentFiles = [...(recentFilesRef?.current || [])];
+				let file = null;
 
 				if (isImage) {
+					file = uploadedImages[requiredFileIndex];
 					uploadedImages.splice(requiredFileIndex, 1);
 					uploadedImagesRef.current = uploadedImages;
 				} else {
+					file = recentFiles[requiredFileIndex];
 					recentFiles.splice(requiredFileIndex, 1);
 					recentFilesRef.current = recentFiles;
+				}
+
+				if (maxAttempts === 0) {
+					deleteMultiAgentFile(file?.fileId);
 				}
 
 				setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
@@ -1170,6 +1198,14 @@ const ChatBox = ({
 
 	const handleCloseUpgrageModal = useCallback(() => {
 		setInfo((prev) => ({ ...prev, openUpgradeModal: false }));
+	}, []);
+
+	const handleAskTooltipClick = useCallback((e) => {
+		e?.stopPropagation();
+		setInfo((prev) => ({
+			...prev,
+			askTooltipOpen: true,
+		}));
 	}, []);
 
 	return (
@@ -1440,7 +1476,11 @@ const ChatBox = ({
 															>
 																<Tooltip
 																	title={
-																		<div className="chatbox-icon-tooltip-container">
+																		<div className="chatbox-icon-tooltip-container upload-file-tooltip-container">
+																			<PlusSvg
+																				width={20}
+																				height={20}
+																			/>
 																			Upload File
 																		</div>
 																	}
@@ -1451,17 +1491,12 @@ const ChatBox = ({
 																	<div
 																		className="upload-file-icon-container"
 																		style={{
-																			opacity: `${
-																				info?.chatBoxInfo
-																					?.deepResearch
-																					? '0.5'
-																					: '1'
-																			}`,
+																			opacity: '1',
 																		}}
 																	>
 																		<PlusSvg
-																			width={17}
-																			height={17}
+																			width={20}
+																			height={20}
 																		/>
 																	</div>
 																</Tooltip>
@@ -1472,7 +1507,8 @@ const ChatBox = ({
 															{!isPublicChat && (
 																<Tooltip
 																	title={
-																		<div className="chatbox-icon-tooltip-container">
+																		<div className="chatbox-icon-tooltip-container ask-option-tooltip-container">
+																			<BulbSvg />
 																			Ask Ai
 																		</div>
 																	}
@@ -1489,50 +1525,67 @@ const ChatBox = ({
 																		onClick={handleAskClick}
 																	>
 																		<div className="chat-icon">
-																			<div className="text-wrapper">
+																			<div
+																				className="text-wrapper  ask-text-wrapper"
+																				style={{
+																					padding: '7px',
+																				}}
+																			>
 																				<div className="bulb-icon">
 																					<BulbSvg
 																						style={{
-																							width: '16px',
-																							height: '16px',
+																							width: '20px',
+																							height: '20px',
 																						}}
 																					/>
 																				</div>
-																				<div
-																					className="icon-text ask-icon-text"
-																					style={{
-																						color: 'var(--primary-button)',
-																					}}
-																				>
+																				<div className="icon-text ask-icon-text">
 																					Ask
 																				</div>
-																			</div>
-																			<AskTooltip>
-																				<div
-																					className={`icon-arrow-wrapper ${
-																						info
-																							?.chatBoxInfo
-																							?.ask
-																							? 'icon-arrow-wrapper-active'
-																							: ''
-																					}`}
-																					onClick={(e) =>
-																						e?.stopPropagation()
+																				<AskTooltip
+																					open={
+																						info?.askTooltipOpen
 																					}
+																					onOpenChange={(
+																						value,
+																					) => {
+																						setInfo(
+																							(
+																								prev,
+																							) => ({
+																								...prev,
+																								askTooltipOpen:
+																									value,
+																							}),
+																						);
+																					}}
 																				>
-																					<div className="icon-arrow">
-																						<ArrowDownSvg
-																							fill={
-																								info
-																									?.chatBoxInfo
-																									?.ask
-																									? 'var(--primary-button)'
-																									: 'var(--primary-font)'
-																							}
-																						/>
+																					<div
+																						className={`icon-arrow-wrapper ${
+																							info
+																								?.chatBoxInfo
+																								?.ask
+																								? 'icon-arrow-wrapper-active'
+																								: ''
+																						}`}
+																						onClick={(
+																							e,
+																						) =>
+																							handleAskTooltipClick(
+																								e,
+																							)
+																						}
+																					>
+																						<div className="icon-arrow">
+																							<ArrowDownSvg
+																								fill={
+																									'var(--primary-font)'
+																								}
+																							/>
+																						</div>
 																					</div>
-																				</div>
-																			</AskTooltip>
+																				</AskTooltip>
+																			</div>
 
 																			{/* <div className="icon-arrow">
 																				<ArrowDownSvg
@@ -1570,7 +1623,9 @@ const ChatBox = ({
 																// >
 																<Tooltip
 																	title={
-																		<div className="chatbox-icon-tooltip-container">
+																		<div className="chatbox-icon-tooltip-container research-tooltip-container">
+																			<AtomSvg />
+																			<span>Research</span>
 																			Unlock in-depth
 																			reasoning on any subject
 																		</div>
@@ -1592,26 +1647,9 @@ const ChatBox = ({
 																	>
 																		<div className="chat-icon">
 																			<div className="text-wrapper deep-research-text-wrapper">
-																				<AtomSvg
-																					fill={
-																						info
-																							?.chatBoxInfo
-																							?.deepResearch
-																							? 'var(--primary-button)'
-																							: 'var(--secondary-font)'
-																					}
-																				/>
+																				<AtomSvg />
 
-																				<div
-																					className="icon-text"
-																					style={{
-																						color: info
-																							?.chatBoxInfo
-																							?.deepResearch
-																							? 'var(--primary-button)'
-																							: 'var(--secondary-font)',
-																					}}
-																				>
+																				<div className="icon-text">
 																					Research
 																				</div>
 																			</div>
@@ -1624,7 +1662,8 @@ const ChatBox = ({
 															{!isPublicChat && (
 																<Tooltip
 																	title={
-																		<div className="chatbox-icon-tooltip-container">
+																		<div className="chatbox-icon-tooltip-container goals-tooltip-container">
+																			<TrendUpSvg />
 																			Goals
 																		</div>
 																	}
@@ -1642,11 +1681,16 @@ const ChatBox = ({
 																	>
 																		<div className="chat-icon">
 																			<div className="text-wrapper goals-text-wrapper">
-																				<div className="trend-icon">
+																				<div
+																					className="trend-icon"
+																					style={{
+																						height: '20px',
+																					}}
+																				>
 																					<TrendUpSvg
 																						style={{
-																							width: '16px',
-																							height: '16px',
+																							width: '20px',
+																							height: '20px',
 																						}}
 																					/>
 																				</div>
@@ -1654,11 +1698,7 @@ const ChatBox = ({
 																				<div
 																					className="icon-text"
 																					style={{
-																						color: info
-																							?.chatBoxInfo
-																							?.goals
-																							? 'var(--primary-button)'
-																							: 'var(--secondary-font)',
+																						color: 'var(--primary-font)',
 																					}}
 																				>
 																					Goals
@@ -1674,7 +1714,8 @@ const ChatBox = ({
 																workspaceMode !== 'stable' && (
 																	<Tooltip
 																		title={
-																			<div className="chatbox-icon-tooltip-container">
+																			<div className="chatbox-icon-tooltip-container  build-icon-tooltip-container">
+																				<SparkSvg />
 																				Build
 																			</div>
 																		}
@@ -1694,43 +1735,44 @@ const ChatBox = ({
 																			}
 																		>
 																			<div className="chat-icon">
-																				<div className="text-wrapper">
-																					<div className="build-icon">
+																				<div className="text-wrapper  build-text-wrapper">
+																					<div
+																						className="build-icon"
+																						style={{
+																							height: '20px',
+																						}}
+																					>
 																						<SparkSvg />
 																					</div>
 																					<div
 																						className="icon-text"
 																						style={{
-																							color: info
-																								?.chatBoxInfo
-																								?.build
-																								? 'var(--primary-button)'
-																								: 'var(--secondary-font)',
+																							color: 'var(	',
 																						}}
 																					>
 																						Build
 																					</div>
-																				</div>
-																				<BuildTooltip>
-																					<div
-																						className={`icon-arrow-wrapper ${
-																							info
-																								?.chatBoxInfo
-																								?.build
-																								? 'icon-arrow-wrapper-active'
-																								: ''
-																						}`}
-																						onClick={(
-																							e,
-																						) =>
-																							e?.stopPropagation()
-																						}
-																					>
-																						<div className="icon-arrow">
-																							<ArrowDownSvg fill="var(--secondary-font)" />
+																					<BuildTooltip>
+																						<div
+																							className={`icon-arrow-wrapper ${
+																								info
+																									?.chatBoxInfo
+																									?.build
+																									? 'icon-arrow-wrapper-active'
+																									: ''
+																							}`}
+																							onClick={(
+																								e,
+																							) =>
+																								e?.stopPropagation()
+																							}
+																						>
+																							<div className="icon-arrow">
+																								<ArrowDownSvg fill="var(--primary-font)" />
+																							</div>
 																						</div>
-																					</div>
-																				</BuildTooltip>
+																					</BuildTooltip>
+																				</div>
 																			</div>
 																		</div>
 																	</Tooltip>
@@ -1879,7 +1921,11 @@ const ChatBox = ({
 															</div>
 														)} */}
 														<div
-															className="click-btn"
+															className={`click-btn ${
+																info?.chatQuery?.trim()?.length > 0
+																	? 'active'
+																	: ''
+															}`}
 															onClick={(e) => {
 																e.stopPropagation();
 																handleSendBtnClick(e);

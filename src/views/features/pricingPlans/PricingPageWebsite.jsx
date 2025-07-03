@@ -1,6 +1,6 @@
 import { useState, memo } from 'react';
 import '../../../assets/scss/pricingPlans/webSitePricingPage.scss';
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import { ReactComponent as CheckmarkSVG } from '../../../assets/svg/Settings/PricingCheck.svg';
 import { Collapse } from 'antd';
 import 'antd/dist/reset.css';

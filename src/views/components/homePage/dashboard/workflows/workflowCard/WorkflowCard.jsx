@@ -6,7 +6,7 @@ import PendingActionsTab from './PendingActionsTab';
 import FilesTab from './FilesTab';
 import { ReactComponent as ThreeDotsVerticalIcon } from '../../../../../../assets/svg/home_page/workflows/DotsThreeVertical.svg';
 import WorkflowPopUp from '../workflowCard/WorkflowPopUp';
-import Spinner from '../../../../loaders/Spinner';
+// import Spinner from '../../../../loaders/Spinner';
 import ThreeDotsSvg from '../../../../../../assets/svg/my_templates/ThreeDotsSvg';
 
 const options = [

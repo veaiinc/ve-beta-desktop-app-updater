@@ -27,9 +27,9 @@
 		.paymentScheduleRowContainer {
 			display: flex;
 			align-items: center;
-			gap: 24px;
+			gap: 20px;
 			align-self: stretch;
-
+			position: relative;
 			.paymentScheduleRowContainerlabel {
 				color: var(--primary-font, #f2f2f3);
 				color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
@@ -42,7 +42,7 @@
 			}
 			.paymentPercentageContainer {
 				display: flex;
-				width: 105px;
+				width: 85px;
 				height: 46px;
 				// padding: 13px 15px;
 				// flex-direction: column;
@@ -67,7 +67,7 @@
 					border-bottom-left-radius: 10px;
 					background-color: transparent;
 					border: none;
-					padding: 11px 14px;
+					padding: 11px 10px;
 					color: #e4e5e6;
 					font-family: Inter;
 					font-size: 14px;
@@ -112,6 +112,41 @@
 			}
 			.custominputContainer.edit:hover {
 				border: 1px solid rgba(255, 255, 255, 0.2);
+			}
+			.payment-date-drop-down {
+				position: absolute;
+				right: 80px;
+				top: 15%;
+				background: #202123;
+				border-radius: 10px;
+				border: 1px solid #2c2d2e;
+				// padding: 6px 0px;
+				z-index: 10;
+				width: 170px;
+				gap: 6px;
+
+				p {
+					color: #f2f2f3;
+					text-align: start;
+					display: flex;
+					padding: 10px 16px;
+					justify-content: space-between;
+					align-items: flex-start;
+					align-self: stretch;
+					cursor: pointer;
+					margin-bottom: 0px;
+					transition: all 0.2s ease-in;
+					font-family: Inter;
+					font-size: 11px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+					letter-spacing: -0.22px;
+				}
+				.hoverNActive-payment-option-p,
+				p:hover {
+					background-color: #252627;
+				}
 			}
 		}
 

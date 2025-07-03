@@ -958,7 +958,7 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const getPromptsData = async (queryParams = {}) => {
+	const getPromptsData = async (queryParams = {}, reset = true) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -972,7 +972,12 @@ export const AiSetupState = () => {
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions?.GET_PROMPTS_DATA,
-					payload: response?.[1],
+					payload: reset
+						? response?.[1]
+						: {
+								...response?.[1],
+								data: [...state?.promptsData?.data, ...response?.[1]?.data],
+						  },
 				});
 				return response?.[1];
 			}
@@ -1171,12 +1176,24 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const updateStateValues = async (updatedVaribaleValuesObj) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+				payload: updatedVaribaleValuesObj,
+			});
+		} catch (error) {
+			console.log('error==>updateStateValues', error);
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
 
 	return {
 		...state,
+		updateStateValues,
 		getKnowledgeBaseFiles,
 		getExistingAiAssistants,
 		createNewAiAssistant,

@@ -10,7 +10,7 @@ import {
 } from '../../../builder_client_common';
 import HamburgerIcons from './HamburgerICons';
 import CartIcons from './CartIcons';
-import { HamburgerOne } from '../../svgs/Navbar/Hamburger/HamburgerComponent';
+// import { HamburgerOne } from '../../svgs/Navbar/Hamburger/HamburgerComponent';
 import _ from 'lodash';
 class MobileNavbarComponent extends Component {
 	constructor(props) {
@@ -57,10 +57,17 @@ class MobileNavbarComponent extends Component {
 					<div
 						className="navbar-mobile-container"
 						style={{
-							justifyContent:'space-between'
+							justifyContent: 'space-between',
 						}}
 					>
-						<div style={{width:this.props?.navBar?.style?.mNavbarAlign === 'two' ? '100px' : 'auto'}}>
+						<div
+							style={{
+								width:
+									this.props?.navBar?.style?.mNavbarAlign === 'two'
+										? '100px'
+										: 'auto',
+							}}
+						>
 							{this.props?.navBar?.style?.showLogo && (
 								<div
 									className="navbar-inner-mobile"
@@ -94,9 +101,9 @@ class MobileNavbarComponent extends Component {
 									) : (
 										<div
 											style={{
-												display:'flex',
+												display: 'flex',
 												flexDirection: 'column',
-												justifyContent:"center",
+												justifyContent: 'center',
 												height: '50px',
 												width: '100px',
 												fontSize: '12px',
@@ -105,7 +112,7 @@ class MobileNavbarComponent extends Component {
 												textTransform: 'capitalize',
 												wordBreak: 'break-word',
 												fontWeight: 'bold',
-												overflow:'hidden',
+												overflow: 'hidden',
 												color:
 													this.props?.navBar?.navigationColor ||
 													'#000000',
@@ -147,8 +154,16 @@ class MobileNavbarComponent extends Component {
 									!_.has(this.props?.navBar?.style, 'mNavbarAlign')
 										? '140px'
 										: '100%',
-										minWidth:this.props?.navBar?.style?.mNavbarAlign === 'two' || this.props?.navBar?.style?.mNavbarAlign === 'one' ? '100px' : '',
-										width:this.props?.navBar?.style?.mNavbarAlign === 'three' || this.props?.navBar?.style?.mNavbarAlign === 'four' ? '100%' : '',
+								minWidth:
+									this.props?.navBar?.style?.mNavbarAlign === 'two' ||
+									this.props?.navBar?.style?.mNavbarAlign === 'one'
+										? '100px'
+										: '',
+								width:
+									this.props?.navBar?.style?.mNavbarAlign === 'three' ||
+									this.props?.navBar?.style?.mNavbarAlign === 'four'
+										? '100%'
+										: '',
 							}}
 						>
 							<div
@@ -189,7 +204,7 @@ class MobileNavbarComponent extends Component {
 										// 			: ''
 										// 		: '',
 										width: '140px',
-										display:"contents"
+										display: 'contents',
 									}}
 									onMouseEnter={() => {
 										this.setState({ mobileHoverCartEdit: true });
@@ -238,7 +253,8 @@ class MobileNavbarComponent extends Component {
 											}}
 											className="navbar-mobile-cart-total"
 										>
-											{this.props?.currencySymbol}{this.props?.finalTotalCost || '0'}
+											{this.props?.currencySymbol}
+											{this.props?.finalTotalCost || '0'}
 										</span>
 									)}
 									{this.state.mobileHoverCartEdit && (
@@ -326,7 +342,7 @@ class MobileNavbarComponent extends Component {
 							className="navbar-mobile-module"
 							style={{
 								backgroundColor:
-									this.props?.navBar?.sectionBackgroundColor || '#ffffff',
+									this.props?.navBar?.style?.sectionBackgroundColor || '#ffffff',
 							}}
 						>
 							<div
@@ -455,23 +471,30 @@ class MobileNavbarComponent extends Component {
 					<div
 						style={{
 							order:
-									this.props?.navBar?.style?.mNavbarAlign === 'one' ||
-									!_.has(this.props?.navBar?.style, 'mNavbarAlign')
-										? '-1'
-										: '',
-								maxWidth:
-									this.props?.navBar?.style?.mNavbarAlign === 'one' ||
-									!_.has(this.props?.navBar?.style, 'mNavbarAlign')
-										? '140px'
-										: '100%',
-										minWidth:this.props?.navBar?.style?.mNavbarAlign === 'two' || this.props?.navBar?.style?.mNavbarAlign === 'one' ? '100px' : '',
-										width:this.props?.navBar?.style?.mNavbarAlign === 'three' || this.props?.navBar?.style?.mNavbarAlign === 'four' ? '100%' : '',
+								this.props?.navBar?.style?.mNavbarAlign === 'one' ||
+								!_.has(this.props?.navBar?.style, 'mNavbarAlign')
+									? '-1'
+									: '',
+							maxWidth:
+								this.props?.navBar?.style?.mNavbarAlign === 'one' ||
+								!_.has(this.props?.navBar?.style, 'mNavbarAlign')
+									? '140px'
+									: '100%',
+							minWidth:
+								this.props?.navBar?.style?.mNavbarAlign === 'two' ||
+								this.props?.navBar?.style?.mNavbarAlign === 'one'
+									? '100px'
+									: '',
+							width:
+								this.props?.navBar?.style?.mNavbarAlign === 'three' ||
+								this.props?.navBar?.style?.mNavbarAlign === 'four'
+									? '100%'
+									: '',
 						}}
 					>
 						<div
 							className="navbar-mobile-cart"
 							style={{
-							
 								justifyContent:
 									this.props?.navBar?.style?.mNavbarAlign === 'three'
 										? 'flex-end'
@@ -535,39 +558,41 @@ class MobileNavbarComponent extends Component {
 										/>
 										{this.props?.navBar?.style?.showCart &&
 											this.props?.navBar?.style?.cartValue &&
-											this.props?.returnCartValue() != Number(0) &&   (
+											this.props?.returnCartValue() != Number(0) && (
 												<Divider height="20px" />
 											)}
 									</>
 								)}
 								{(this.props?.navBar?.style?.cartValue ||
 									!_.has(this.props?.navBar?.style, 'cartValue')) && (
-										<span
-											style={{
-												color:
-													this.props?.navBar?.navigationColor ||
-													'#000000',
-											}}
-											className="navbar-mobile-cart-total"
-										>
+									<span
+										style={{
+											color: this.props?.navBar?.navigationColor || '#000000',
+										}}
+										className="navbar-mobile-cart-total"
+									>
 										{this.props?.returnCartValue() === Number('0')
-												? ''
-												: `${
-														this.props?.currencySymbol
-												  } ${this.props?.returnCartValue()}`?.toLocaleString(
-														'en-IN',
-														{
-															currency: 'INR',
-														},
-												  )}
-										</span>
-									)}
+											? ''
+											: `${
+													this.props?.currencySymbol
+											  } ${this.props?.returnCartValue()}`?.toLocaleString(
+													'en-IN',
+													{
+														currency: 'INR',
+													},
+											  )}
+									</span>
+								)}
 							</div>
 						</div>
 					</div>
 					<div
 						style={{
-							width: this.props?.navBar?.style?.mNavbarAlign ==="two" || this.props?.navBar?.style?.mNavbarAlign === "three" ? "auto": '100px',
+							width:
+								this.props?.navBar?.style?.mNavbarAlign === 'two' ||
+								this.props?.navBar?.style?.mNavbarAlign === 'three'
+									? 'auto'
+									: '100px',
 							display: 'flex',
 							alignItems: 'center',
 							justifyContent: 'flex-end',
@@ -614,7 +639,7 @@ class MobileNavbarComponent extends Component {
 					<div
 						style={{
 							backgroundColor:
-								this.props?.navBar?.sectionBackgroundColor || '#ffffff',
+								this.props?.navBar?.style?.sectionBackgroundColor || '#ffffff',
 						}}
 						className="navbar-mobile-module"
 					>

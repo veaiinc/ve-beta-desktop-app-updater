@@ -5,7 +5,6 @@
 
 	.daySlotContainer {
 		height: 400px;
-		overflow-y: auto;
 		display: flex;
 		flex-direction: column;
 		gap: 4px;
@@ -18,6 +17,7 @@
 			align-items: center;
 			gap: 10px;
 			align-self: stretch;
+			flex-shrink: 0;
 
 			.dayName {
 				color: var(--primary-font);
@@ -36,11 +36,15 @@
 			flex-direction: column;
 			gap: 2.5px;
 			flex: 1;
+			overflow-y: auto;
+			min-height: 0;
+			height: calc(400px - 40px);
+			max-height: 200px;
 
 			.slotItem {
 				display: flex;
 				height: 69px;
-				padding: 18px 11px;
+				padding: 34px 12px;
 				justify-content: center;
 				align-items: center;
 				gap: 8px;
@@ -200,5 +204,60 @@
 @media screen and (max-width: 480px) {
 	.weeklySlotsContainer {
 		grid-template-columns: 1fr;
+	}
+}
+
+// Responsive styles for screens smaller than 1400px
+@media screen and (max-width: 1400px) {
+	.weeklySlotsContainer {
+		.daySlotContainer {
+			height: 350px;
+
+			.dayHeader {
+				padding: 4px 0px;
+				gap: 6px;
+
+				.dayName {
+					font-size: 11px;
+					line-height: 14px;
+				}
+			}
+
+			.slotsWrapper {
+				height: calc(350px - 32px);
+				max-height: 180px;
+
+				.slotItem {
+					height: 60px;
+					padding: 28px 1px;
+					gap: 6px;
+
+					.slotContent {
+						.slotName {
+							font-size: 11px;
+							width: 100px;
+						}
+
+						.slotTime {
+							font-size: 10px;
+						}
+					}
+				}
+
+				.emptySlotItem {
+					height: 60px;
+					padding: 15px 9px;
+
+					.emptySlotContent {
+						font-size: 11px;
+						gap: 6px;
+
+						.plusIcon {
+							font-size: 14px;
+						}
+					}
+				}
+			}
+		}
 	}
 }

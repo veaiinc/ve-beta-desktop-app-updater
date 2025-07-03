@@ -19,28 +19,24 @@ import AISuggestionsReportUserComponent from '../views/components/chat/chatCompo
 const codeColorTheme = {
 	'code[class*="language-"]': {
 		color: 'var(--primary-font) !important',
-		background: 'none',
-		fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
-		fontSize: '1em',
-		lineHeight: '1.5',
+		background: 'transparent',
+		fontFamily: 'monospace, Consolas, Monaco, "Andale Mono", "Ubuntu Mono"',
 		tabSize: '4',
 		hyphens: 'none',
 		whiteSpace: 'pre',
 		wordBreak: 'normal',
+		lineHeight: '1.5',
 		wordWrap: 'normal',
 		textAlign: 'left',
 		wordSpacing: 'normal',
 	},
 	'pre[class*="language-"]': {
 		color: 'var(--primary-font) !important',
-		background: '#1e1e1e',
-		fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
-		fontSize: '1em',
+		background: 'transparent',
+		fontFamily: 'monospace, Consolas, Monaco, "Andale Mono", "Ubuntu Mono"',
 		lineHeight: '1.5',
-		padding: '1em',
-		margin: '0.5em 0',
+		padding: '16px',
 		overflow: 'auto',
-		borderRadius: '5px',
 	},
 	comment: {
 		color: 'var(--secondary-font)', // Adjusted for better contrast
@@ -295,16 +291,6 @@ const baseComponents = {
 			</div>
 		);
 	},
-	code({ node, inline, className, children, ...props }) {
-		const match = /language-(\w+)/?.exec(className || '');
-		return !inline && match ? (
-			<MarkdownCode code={children} match={match} node={node} />
-		) : (
-			<code {...props} className="code">
-				{children}
-			</code>
-		);
-	},
 };
 
 const MarkdownCode = memo(({ code, match }) => {
@@ -328,17 +314,7 @@ const MarkdownCode = memo(({ code, match }) => {
 				</button>
 			</div>
 
-			<SyntaxHighlighter
-				style={codeColorTheme}
-				language={match[1]}
-				PreTag="div"
-				customStyle={{
-					backgroundColor: 'transparent',
-					margin: '0',
-					padding: '16px',
-					color: 'var(--primary-font)',
-				}}
-			>
+			<SyntaxHighlighter style={codeColorTheme} language={match[1]} PreTag="div">
 				{String(code)?.replace(/\n$/, '')}
 			</SyntaxHighlighter>
 		</div>
@@ -353,7 +329,7 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 	const table = markdown?.slice(start, end);
 
 	const handleCopyTable = useCallback((table) => {
-		navigator?.clipboard?.writeText(table);
+		navigator?.clipboard?.writeText(table?.replace(/\[C\d+\]/g, ''));
 		setIsCopied(true);
 		setTimeout(() => {
 			setIsCopied(false);
@@ -374,7 +350,7 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 });
 
 // Memoize citation-specific components
-const createCitationComponents = (citations, markdown) => ({
+const createCustomComponents = (citations, markdown) => ({
 	span: ({ children, citationId, ...props }) => {
 		if (citationId) return <CitationsTooltip citationId={citationId} citations={citations} />;
 		return (
@@ -390,6 +366,23 @@ const createCitationComponents = (citations, markdown) => ({
 			</MarkdownTable>
 		);
 	},
+	code({ node, inline, className, children, ...props }) {
+		const match = /language-(\w+)/?.exec(className || '');
+		let code;
+		if (!inline && match) {
+			code = markdown?.slice(
+				node?.position?.start?.offset + (3 + match[1]?.length),
+				node?.position?.end?.offset - 3,
+			);
+		}
+		return !inline && match ? (
+			<MarkdownCode code={code} match={match} node={node} />
+		) : (
+			<code {...props} className="code">
+				{children}
+			</code>
+		);
+	},
 });
 
 const remarkPlugins = [remarkGfm, remarkMath];
@@ -403,7 +396,7 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 	const components = useMemo(
 		() => ({
 			...baseComponents,
-			...createCitationComponents(citations, markdown),
+			...createCustomComponents(citations, markdown),
 		}),
 		[citations, markdown],
 	);
@@ -523,35 +516,6 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 	return (
 		<div className="user-message-renderer-wrapper">
 			{!info?.editUserQuery ? (
-				<div className="hover-actions-container">
-					{/* <div className="icon-container">
-						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
-							<PencilSparkleIcon onClick={handleEditUserQueryToggle} />
-						</Tooltip>
-					</div> */}
-
-					<div className="icon-container">
-						<Tooltip
-							placement="bottom"
-							arrow={false}
-							trigger={'hover'}
-							color="transparent"
-							title={<div className="user-hover-icons-tooltip">Copy</div>}
-						>
-							{info?.isCopiedToClipboard ? (
-								<TickSvg />
-							) : (
-								<CopyIcon
-									onClick={() => handleCopyTextClick(messageData?.message)}
-								/>
-							)}
-						</Tooltip>
-					</div>
-				</div>
-			) : (
-				''
-			)}
-			{!info?.editUserQuery ? (
 				<div className="user-message-wrapper">
 					{messageData?.moduleType === 'ai_suggestion_report' ? (
 						<AISuggestionsReportUserComponent data={messageData?.data} />
@@ -597,6 +561,35 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 						</div>
 					</div>
 				</div>
+			)}
+			{!info?.editUserQuery ? (
+				<div className="hover-actions-container">
+					{/* <div className="icon-container">
+						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
+							<PencilSparkleIcon onClick={handleEditUserQueryToggle} />
+						</Tooltip>
+					</div> */}
+
+					<div className="icon-container">
+						<Tooltip
+							placement="bottom"
+							arrow={false}
+							trigger={'hover'}
+							color="transparent"
+							title={<div className="user-hover-icons-tooltip">Copy</div>}
+						>
+							{info?.isCopiedToClipboard ? (
+								<TickSvg />
+							) : (
+								<CopyIcon
+									onClick={() => handleCopyTextClick(messageData?.message)}
+								/>
+							)}
+						</Tooltip>
+					</div>
+				</div>
+			) : (
+				''
 			)}
 		</div>
 	);

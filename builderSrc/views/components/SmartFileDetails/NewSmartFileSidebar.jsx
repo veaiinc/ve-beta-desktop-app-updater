@@ -10,7 +10,7 @@ import { ReactComponent as DownArrow } from '../../../assets/svg/smartFile/downA
 import { ReactComponent as UpperArrow } from '../../../assets/svg/smartFile/upperArrow.svg';
 import File from './File';
 import Variables from './Variables';
-import ViewDocument from '../ViewDocument/viewDocument';
+// import ViewDocument from '../ViewDocument/viewDocument';
 import { useNavigate, useLocation } from 'react-router-dom';
 import DocumentShare from '../../feature/document/DocumentShare';
 import FormDescription from '../../feature/document/FormDescription';
@@ -63,6 +63,8 @@ const SmartFileSidebar = ({
 		isAiEnabled: false,
 		documentTitle: '',
 		shareModalIsOpen: false,
+		sections: workflowInfo?.template?.sections || [],
+		isVariablesPresent: false,
 	});
 	const location = useLocation();
 	const isWorkflowPath = location.pathname.startsWith('/document');
@@ -224,6 +226,52 @@ const SmartFileSidebar = ({
 	useEffect(() => {
 		setTitleInput(info.documentTitle || 'Untitled Document');
 	}, [info.documentTitle]);
+
+	useEffect(() => {
+		if (workflowInfo?.template?.sections !== info?.sections) {
+			setInfo((prev) => ({ ...prev, sections: workflowInfo?.template?.sections }));
+		}
+		let isVariablesPresent = false;
+
+		const handleCheckVariableInText = (subBlock) => {
+			// Check if subBlock has description or content with HTML
+			const description = subBlock?.description || '';
+			const title = subBlock?.title || '';
+			const content = subBlock?.content || '';
+
+			if (
+				(description && typeof description === 'string') ||
+				(title && typeof title === 'string') ||
+				(content && typeof content === 'string')
+			) {
+				// Check if content contains input tags with class "variable"
+				const hasVariableInputs =
+					(description.includes('<input') && description.includes('class="variable"')) ||
+					(title.includes('<input') && title.includes('class="variable"')) ||
+					(content.includes('<input') && content.includes('class="variable"'));
+
+				if (hasVariableInputs) {
+					setInfo((prev) => ({ ...prev, isVariablesPresent: true }));
+					return true;
+				}
+			}
+
+			return false;
+		};
+
+		// Check all sections for variables
+		workflowInfo?.template?.sections?.forEach((section) => {
+			// if (section.type === 'services') {
+			section.blocks?.forEach((block) => {
+				block.subBlocks?.forEach((subBlock) => {
+					if (subBlock?.type === 'text' || subBlock?.description || subBlock?.title) {
+						handleCheckVariableInText(subBlock);
+					}
+				});
+			});
+			// }
+		});
+	}, [workflowInfo?.template?.sections]);
 
 	const scrollToElement = useCallback(
 		(id) => {
@@ -457,61 +505,60 @@ const SmartFileSidebar = ({
 			</div>
 			<div className="sidebarContent">
 				<div className="doc-header-title-container">
-
-			<span className="doc-header-title-container-text">Document Title</span>
-				<div className="smartFileSideBarHeader">
-					{isEditingTitle ? (
-						<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-							<input
-								ref={titleInputRef}
-								className="sidebar-title-input"
-								value={titleInput}
-								onChange={handleTitleInputChange}
-								onBlur={handleTitleInputBlurOrEnter}
-								onKeyDown={handleTitleInputKeyDown}
-								maxLength={80}
-								style={{
-									fontSize: 18,
-									fontWeight: 500,
-									background: 'transparent',
-									border: 'none',
-									borderBottom: '1px solid #c2ff00',
-									color: 'var(--primary-font)',
-									outline: 'none',
-								}}
-							/>
-							{isTitleLoading && <Spin size="small" />}
-						</div>
-					) : (
-						<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-							<span
-								className="sidebar-title-value"
-								style={{
-									color: 'var(--primary-font)',
-									fontSize: 18,
-									fontWeight: 500,
-									cursor: 'pointer',
-									flex: 1,
-									whiteSpace: 'nowrap',
-									overflow: 'hidden',
-									textOverflow: 'ellipsis',
-								}}
-								onClick={handleEditTitleClick}
-							>
-								{info.documentTitle || 'Untitled Document'}
-							</span>
-							<EditIcon
-								style={{
-									cursor: 'pointer',
-									width: 18,
-									height: 18,
-									fill: '#B3B3B3',
-								}}
-								onClick={handleEditTitleClick}
-							/>
-						</div>
-					)}
-				</div>
+					<span className="doc-header-title-container-text">Document Title</span>
+					<div className="smartFileSideBarHeader">
+						{isEditingTitle ? (
+							<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+								<input
+									ref={titleInputRef}
+									className="sidebar-title-input"
+									value={titleInput}
+									onChange={handleTitleInputChange}
+									onBlur={handleTitleInputBlurOrEnter}
+									onKeyDown={handleTitleInputKeyDown}
+									maxLength={80}
+									style={{
+										fontSize: 18,
+										fontWeight: 500,
+										background: 'transparent',
+										border: 'none',
+										borderBottom: '1px solid #c2ff00',
+										color: 'var(--primary-font)',
+										outline: 'none',
+									}}
+								/>
+								{isTitleLoading && <Spin size="small" />}
+							</div>
+						) : (
+							<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+								<span
+									className="sidebar-title-value"
+									style={{
+										color: 'var(--primary-font)',
+										fontSize: 18,
+										fontWeight: 500,
+										cursor: 'pointer',
+										flex: 1,
+										whiteSpace: 'nowrap',
+										overflow: 'hidden',
+										textOverflow: 'ellipsis',
+									}}
+									onClick={handleEditTitleClick}
+								>
+									{info.documentTitle || 'Untitled Document'}
+								</span>
+								<EditIcon
+									style={{
+										cursor: 'pointer',
+										width: 18,
+										height: 18,
+										fill: '#B3B3B3',
+									}}
+									onClick={handleEditTitleClick}
+								/>
+							</div>
+						)}
+					</div>
 				</div>
 
 				{formResponseId ? (
@@ -659,92 +706,94 @@ const SmartFileSidebar = ({
 						)}
 					</>
 				) : (
-					<>
-						<div className="smartFileFormSubHeader">
-							<span>Update manage document</span>
-						</div>
-						{info?.variablesData?.filter(
-							(ele) =>
-								ele?.displayName !== 'Grand Total' &&
-								ele?.displayName !== 'Grand Total In Words',
-						)?.length > 0 && (
-							<Variables
-								data={
-									info?.variablesData?.filter(
-										(ele) =>
-											ele?.displayName !== 'Grand Total' &&
-											ele?.displayName !== 'Grand Total In Words',
-									) || []
-								}
-								clientDetails={info?.clientDetails || {}}
-								variableBlockChanges={variableBlockChanges}
-								updateLocalStateData={updateLocalStateData}
-								scrollAndHighlightElement={scrollToElement}
-								handleReplaceMultipleInput={handleReplaceMultipleInput}
-								previewReady={previewReady}
-								formResponses={formResponses}
-								onVariableUpdate={refreshClientDetails}
-							/>
-						)}
-						{workflowWarnings.length > 0 && (
-							<div className="workflow-warnings-container-parent">
-								<div className="workflow-warnings-container">
-									<span>Workflow Warnings</span>
-								</div>
-								<ul
-									className="workflow-warnings"
-									style={{ color: '#ffb300', margin: '8px 0', fontSize: 13 }}
-								>
-									{workflowWarnings.map((warning, idx) => (
-										<li className="workflow-warning-item" key={idx}>
-											<p
-												style={{
-													color: '#ffb300',
-													fontSize: 13,
-													fontFamily: 'Inter, sans-serif',
-													fontWeight: 500,
-													lineHeight: 1.5,
-													background: 'none',
-													letterSpacing: 'normal',
-													fontStyle: 'normal',
-													textAlign: 'left',
-													margin: 0,
-													padding: 0,
-												}}
-											>
-												{warning}
-											</p>
-										</li>
-									))}
-								</ul>
+					info.isVariablesPresent && (
+						<>
+							<div className="smartFileFormSubHeader">
+								<span>Update manage document</span>
 							</div>
-						)}
-						<Collapse
-							ghost
-							activeKey={info?.defaultActiveArray || []}
-							onChange={onKeyChange}
-							style={{ marginTop: '2px' }}
-						>
-							{fileOptions.map((option) => (
-								<Collapse.Panel
-									showArrow={false}
-									className="customAccordionHeader"
-									style={{ marginBottom: '24px' }}
-									header={<CustomAccordionHeader option={option} />}
-									key={option.key}
-								>
-									<File
-										fileData={option.moduleData}
-										workflowId={workflowId}
-										serviceBlockChanges={serviceBlockChanges}
-										eventsBlockChanges={eventsBlockChanges}
-										scrollAndHighlightElement={scrollToElement}
-										formResponses={formResponses}
-									/>
-								</Collapse.Panel>
-							))}
-						</Collapse>
-					</>
+							{info?.variablesData?.filter(
+								(ele) =>
+									ele?.displayName !== 'Grand Total' &&
+									ele?.displayName !== 'Grand Total In Words',
+							)?.length > 0 && (
+								<Variables
+									data={
+										info?.variablesData?.filter(
+											(ele) =>
+												ele?.displayName !== 'Grand Total' &&
+												ele?.displayName !== 'Grand Total In Words',
+										) || []
+									}
+									clientDetails={info?.clientDetails || {}}
+									variableBlockChanges={variableBlockChanges}
+									updateLocalStateData={updateLocalStateData}
+									scrollAndHighlightElement={scrollToElement}
+									handleReplaceMultipleInput={handleReplaceMultipleInput}
+									previewReady={previewReady}
+									formResponses={formResponses}
+									onVariableUpdate={refreshClientDetails}
+								/>
+							)}
+							{workflowWarnings.length > 0 && (
+								<div className="workflow-warnings-container-parent">
+									<div className="workflow-warnings-container">
+										<span>Workflow Warnings</span>
+									</div>
+									<ul
+										className="workflow-warnings"
+										style={{ color: '#ffb300', margin: '8px 0', fontSize: 13 }}
+									>
+										{workflowWarnings.map((warning, idx) => (
+											<li className="workflow-warning-item" key={idx}>
+												<p
+													style={{
+														color: '#ffb300',
+														fontSize: 13,
+														fontFamily: 'Inter, sans-serif',
+														fontWeight: 500,
+														lineHeight: 1.5,
+														background: 'none',
+														letterSpacing: 'normal',
+														fontStyle: 'normal',
+														textAlign: 'left',
+														margin: 0,
+														padding: 0,
+													}}
+												>
+													{warning}
+												</p>
+											</li>
+										))}
+									</ul>
+								</div>
+							)}
+							<Collapse
+								ghost
+								activeKey={info?.defaultActiveArray || []}
+								onChange={onKeyChange}
+								style={{ marginTop: '2px' }}
+							>
+								{fileOptions.map((option) => (
+									<Collapse.Panel
+										showArrow={false}
+										className="customAccordionHeader"
+										style={{ marginBottom: '24px' }}
+										header={<CustomAccordionHeader option={option} />}
+										key={option.key}
+									>
+										<File
+											fileData={option.moduleData}
+											workflowId={workflowId}
+											serviceBlockChanges={serviceBlockChanges}
+											eventsBlockChanges={eventsBlockChanges}
+											scrollAndHighlightElement={scrollToElement}
+											formResponses={formResponses}
+										/>
+									</Collapse.Panel>
+								))}
+							</Collapse>
+						</>
+					)
 				)}
 			</div>
 			<div className="smartFileSidebarFooter">

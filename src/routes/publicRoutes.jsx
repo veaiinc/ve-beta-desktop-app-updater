@@ -1,38 +1,37 @@
 import { Navigate } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
 
-import LandingPage from '../views/features/landingScreen/LandingPage';
-import LoginPage from '../views/features/loginPage/LoginPage';
-import Onboarding from '../views/features/onboarding/Onboarding';
-import TermsOfService from '../views/features/signin/TermsOfService';
-import CookiePolicy from '../views/features/signin/CookiePolicy';
-import PrivacyPolicy from '../views/features/signin/PrivacyPolicy';
-import ChageLog from '../views/features/signin/ChageLog';
-import PublicChat from '../views/features/publicChat/PublicChat';
-import useWorkspaceMode from '../views/hooks/useWorkspaceMode';
-import OauthVerify from '../views/features/signin/oauth/OauthVerify';
-import PageLoader from '../views/components/app/PageLoader';
-import useTheme from '../views/hooks/useTheme';
+// layouts
+import Public from '../views/layouts/Public';
 
-export const Public = ({ children }) => {
-	useTheme();
-	const { loading } = useWorkspaceMode();
-	return loading ? <PageLoader /> : <>{children}</>;
-};
+// pages
+const LandingPage = lazy(() => import('../views/features/landingScreen/LandingPage'));
+const LoginPage = lazy(() => import('../views/features/loginPage/LoginPage'));
+const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
+const TermsOfService = lazy(() => import('../views/features/signin/TermsOfService'));
+const CookiePolicy = lazy(() => import('../views/features/signin/CookiePolicy'));
+const PrivacyPolicy = lazy(() => import('../views/features/signin/PrivacyPolicy'));
+const ChageLog = lazy(() => import('../views/features/signin/ChageLog'));
+const OauthVerify = lazy(() => import('../views/features/signin/oauth/OauthVerify'));
 
 const publicRoutes = [
 	{
 		path: '/',
 		element: (
 			<Public>
-				<LandingPage />
+				<Suspense fallback={<div>Loading...</div>}>
+					<LandingPage />
+				</Suspense>
 			</Public>
 		),
 	},
 	{
-		path: '/thebridge',
+		path: '/manifesto',
 		element: (
 			<Public>
-				<LandingPage />
+				<Suspense fallback={<div>Loading...</div>}>
+					<LandingPage />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -40,15 +39,9 @@ const publicRoutes = [
 		path: '/contact-us',
 		element: (
 			<Public>
-				<LandingPage />
-			</Public>
-		),
-	},
-	{
-		path: '/pricing',
-		element: (
-			<Public>
-				<LandingPage />
+				<Suspense fallback={<div>Loading...</div>}>
+					<LandingPage />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -56,7 +49,9 @@ const publicRoutes = [
 		path: '/api',
 		element: (
 			<Public>
-				<LandingPage />
+				<Suspense fallback={<div>Loading...</div>}>
+					<LandingPage />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -64,7 +59,9 @@ const publicRoutes = [
 		path: '/about-us',
 		element: (
 			<Public>
-				<LandingPage />
+				<Suspense fallback={<div>Loading...</div>}>
+					<LandingPage />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -72,7 +69,9 @@ const publicRoutes = [
 		path: '/careers',
 		element: (
 			<Public>
-				<LandingPage />
+				<Suspense fallback={<div>Loading...</div>}>
+					<LandingPage />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -80,7 +79,9 @@ const publicRoutes = [
 		path: '/forefront',
 		element: (
 			<Public>
-				<LandingPage />
+				<Suspense fallback={<div>Loading...</div>}>
+					<LandingPage />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -88,7 +89,9 @@ const publicRoutes = [
 		path: '/onboarding',
 		element: (
 			<Public>
-				<Onboarding />
+				<Suspense fallback={<div>Loading...</div>}>
+					<Onboarding />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -96,7 +99,9 @@ const publicRoutes = [
 		path: '/verify-user',
 		element: (
 			<Public>
-				<LoginPage />
+				<Suspense fallback={<div>Loading...</div>}>
+					<LoginPage />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -104,7 +109,9 @@ const publicRoutes = [
 		path: '/referral/:referralCode',
 		element: (
 			<Public>
-				<LoginPage />
+				<Suspense fallback={<div>Loading...</div>}>
+					<LoginPage />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -112,7 +119,9 @@ const publicRoutes = [
 		path: '/privacy-policy',
 		element: (
 			<Public>
-				<PrivacyPolicy />
+				<Suspense fallback={<div>Loading...</div>}>
+					<PrivacyPolicy />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -120,7 +129,9 @@ const publicRoutes = [
 		path: '/terms-of-service',
 		element: (
 			<Public>
-				<TermsOfService />
+				<Suspense fallback={<div>Loading...</div>}>
+					<TermsOfService />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -128,7 +139,9 @@ const publicRoutes = [
 		path: '/cookie-policy',
 		element: (
 			<Public>
-				<CookiePolicy />
+				<Suspense fallback={<div>Loading...</div>}>
+					<CookiePolicy />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -136,15 +149,9 @@ const publicRoutes = [
 		path: '/changelog',
 		element: (
 			<Public>
-				<ChageLog />
-			</Public>
-		),
-	},
-	{
-		path: '/c/:sessionId',
-		element: (
-			<Public>
-				<PublicChat />
+				<Suspense fallback={<div>Loading...</div>}>
+					<ChageLog />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -152,7 +159,9 @@ const publicRoutes = [
 		path: '/user/verify-oauth-user',
 		element: (
 			<Public>
-				<OauthVerify />
+				<Suspense fallback={<div>Loading...</div>}>
+					<OauthVerify />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -166,7 +175,4 @@ const publicRoutes = [
 	},
 ];
 
-export const publicRoutesList = publicRoutes
-	.map((route) => route.path)
-	.filter((path) => path !== '*');
 export default publicRoutes;

@@ -1,5 +1,5 @@
 import { memo, useCallback, useState, useContext, useEffect } from 'react';
-import '../../../assets/scss/calendar/eventsPopup.scss';
+import styles from '../../../assets/scss/calendar/eventsPopup.module.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import { ReactComponent as Clock } from '../../../assets/svg/activity/duration.svg';
@@ -14,7 +14,7 @@ import ToggleSwitch from '../../components/input/slider';
 import Context from '../../../context/context';
 import moment from 'moment/moment';
 import ReactModal from '../modalsV2';
-import { Tooltip } from 'antd';
+// import { Tooltip } from 'antd';
 import PhoneInput from 'react-phone-number-input';
 import { isURL } from '../../../helpers';
 
@@ -445,7 +445,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 					className="phoneInputNumber"
 					countryCallingCodeEditable={true}
 					autoComplete="tel"
-					style={{ backgroundColor: 'var(--popup)', border: '1px solid var(--stroke)' }}
+					style={{ backgroundColor: 'none', border: '1px solid var(--stroke)' }}
 				/>
 			);
 		}
@@ -456,8 +456,8 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 				value={info[config.value] || ''}
 				onChange={(e) => handleChange(e.target.value)}
 				placeholder={config.placeholder}
-				className={`inputHeight${
-					info.submissionError && config.value === 'meetingLink' ? ' error' : ''
+				className={`${styles.inputHeight}${
+					info.submissionError && config.value === 'meetingLink' ? ` ${styles.error}` : ''
 				}`}
 			/>
 		);
@@ -467,20 +467,20 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 
 	return (
 		<ReactModal isOpen={open} closeModal={handleClose} customStyles={customStyles}>
-			<div className="events-popup-container">
-				<div className="events-popup-header">
-					<div className="events-popup-header-text">Create Event</div>
+			<div className={styles['events-popup-container']}>
+				<div className={styles['events-popup-header']}>
+					<div className={styles['events-popup-header-text']}>Create Event</div>
 					<CloseSvg onClick={handleClose} style={{ cursor: 'pointer' }} />
 				</div>
 				{info?.submissionError && (
-					<div className="events-popup-submission-error">
+					<div className={styles['events-popup-submission-error']}>
 						⚠️
 						<span>{info?.submissionError}</span>
 					</div>
 				)}
-				<div className="events-popup-body">
-					<div className="events-popup-agenda-container">
-						<span className="events-popup-agenda-label">Event name</span>
+				<div className={styles['events-popup-body']}>
+					<div className={styles['events-popup-agenda-container']}>
+						<span className={styles['events-popup-agenda-label']}>Event name</span>
 						<input
 							type="text"
 							name="title"
@@ -496,7 +496,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								alignSelf: 'stretch',
 							}}
 						/>
-						<span className="events-popup-agenda-label">Description</span>
+						<span className={styles['events-popup-agenda-label']}>Description</span>
 						<input
 							type="text"
 							name="description"
@@ -509,15 +509,15 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 						/>
 					</div>
 					<div
-						className="sessionOptionContainer"
+						className={styles.sessionOptionContainer}
 						style={{
 							marginTop: '-4px',
 						}}
 					>
-						<div className="sessionTypeWrapper">
+						<div className={styles.sessionTypeWrapper}>
 							<span>Session Type</span>
 							<div
-								className="typeOfSession-lable"
+								className={styles['typeOfSession-lable']}
 								style={{
 									backgroundColor: 'var(--popup)',
 								}}
@@ -529,14 +529,16 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								}
 							>
 								{info?.sessionType}
-								<DownSvg className={`${info?.sessionTypeOpen ? 'open' : ''}`} />
+								<DownSvg
+									className={`${info?.sessionTypeOpen ? styles.open : ''}`}
+								/>
 							</div>
 							{info?.sessionTypeOpen && (
-								<div className="sessionType-dropdown">
+								<div className={styles['sessionType-dropdown']}>
 									{sessionTypeOptions?.map((option) => (
 										<div
 											key={option}
-											className="sessionType-dropdown-item"
+											className={styles['sessionType-dropdown-item']}
 											onClick={() => handleSessionTypeChange(option)}
 										>
 											{option}
@@ -545,24 +547,28 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								</div>
 							)}
 						</div>
-						<div className="sessionTypeWrapper">
+						<div className={styles.sessionTypeWrapper}>
 							<span>{sessionTypeInputConfig[info?.sessionType]?.tag}</span>
 							{renderSessionTypeInput()}
 						</div>
 					</div>
 
-					<div className="events-popup-details-container">
+					<div className={styles['events-popup-details-container']}>
 						{/* <div className="events-popup-details-wrapper">
 							<Clock className="events-popup-details-icon" />
 							<span className="events-popup-details-label">Details</span>
 						</div> */}
-						<div className={`${info?.allDay ? `` : `events-popup-time-wrapper`}`}>
-							<div className="events-popup-time-label">Start Date & Time</div>
-							<div className="events-popup-time-wrapper">
+						<div
+							className={`${info?.allDay ? `` : styles['events-popup-time-wrapper']}`}
+						>
+							<div className={styles['events-popup-time-label']}>
+								Start Date & Time
+							</div>
+							<div className={styles['events-popup-time-wrapper']}>
 								<input
 									type="date"
 									placeholder={moment().format('DD MMM YYYY')}
-									className="events-popup-date-input"
+									className={styles['events-popup-date-input']}
 									value={info?.startDate}
 									min="1900-01-01"
 									max="9999-12-31"
@@ -575,11 +581,11 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 									''
 								) : (
 									<>
-										<div className="events-time-date-divider"></div>
+										<div className={styles['events-time-date-divider']}></div>
 										<input
 											type="time"
 											placeholder="12:00PM"
-											className="events-popup-time-input"
+											className={styles['events-popup-time-input']}
 											value={info?.startTime}
 											onChange={(e) => {
 												updateEventInfo('startTime', e.target.value);
@@ -590,13 +596,15 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								)}
 							</div>
 						</div>
-						<div className={`${info?.allDay ? `` : `events-popup-time-wrapper`}`}>
-							<div className="events-popup-time-label">End Date & Time</div>
-							<div className="events-popup-time-wrapper">
+						<div
+							className={`${info?.allDay ? `` : styles['events-popup-time-wrapper']}`}
+						>
+							<div className={styles['events-popup-time-label']}>End Date & Time</div>
+							<div className={styles['events-popup-time-wrapper']}>
 								<input
 									type="date"
 									placeholder={moment().format('DD MMM YYYY')}
-									className="events-popup-date-input"
+									className={styles['events-popup-date-input']}
 									value={info?.endDate}
 									min="0000-00-00"
 									max="9999-12-31"
@@ -609,11 +617,11 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 									''
 								) : (
 									<>
-										<div className="events-time-date-divider"></div>
+										<div className={styles['events-time-date-divider']}></div>
 										<input
 											type="time"
 											placeholder="12:30AM"
-											className="events-popup-time-input"
+											className={styles['events-popup-time-input']}
 											value={info?.endTime}
 											onChange={(e) => {
 												updateEventInfo('endTime', e.target.value);
@@ -624,20 +632,24 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								)}
 							</div>
 						</div>
-						<div className="events-popup-all-day-wrapper">
+						<div className={styles['events-popup-all-day-wrapper']}>
 							<ToggleSwitch
 								onChange={() => updateEventInfo('allDay', !info?.allDay)}
 							/>
-							<span className="events-popup-all-day-label">All Day Event</span>
+							<span className={styles['events-popup-all-day-label']}>
+								All Day Event
+							</span>
 						</div>
 					</div>
 
-					<div className="events-popup-categories-container">
-						<div className="events-popup-categories-wrapper">
+					<div className={styles['events-popup-categories-container']}>
+						<div className={styles['events-popup-categories-wrapper']}>
 							<Category />
-							<div className="events-popup-categories-label">Categories</div>
+							<div className={styles['events-popup-categories-label']}>
+								Categories
+							</div>
 						</div>
-						<div className="events-popup-categories-selector">
+						<div className={styles['events-popup-categories-selector']}>
 							<input
 								type="text"
 								placeholder="Add to a category"
@@ -649,7 +661,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								style={{ textTransform: 'capitalize' }}
 							/>
 							<div
-								className="events-popup-down-arrow"
+								className={styles['events-popup-down-arrow']}
 								onClick={() => updateEventInfo('showCategory', !info?.showCategory)}
 							>
 								<DownSvg
@@ -661,11 +673,13 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								/>
 							</div>
 							{info?.showCategory && (
-								<div className="events-popup-category-dropdown">
+								<div className={styles['events-popup-category-dropdown']}>
 									{info?.categories?.map((item) => (
 										<div
 											key={item?._id}
-											className="events-popup-category-dropdown-item"
+											className={
+												styles['events-popup-category-dropdown-item']
+											}
 											onMouseDown={() => {
 												updateEventInfo('selectedCategory', item);
 												updateEventInfo('showCategory', false);
@@ -687,14 +701,16 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 						</div>
 					</div>
 
-					<div className="events-popup-attendees-container">
-						<div className="events-popup-attendees-header">
-							<span className="events-popup-attendees-label">Attendees</span>
-							<span className="events-popup-attendees-count">
+					<div className={styles['events-popup-attendees-container']}>
+						<div className={styles['events-popup-attendees-header']}>
+							<span className={styles['events-popup-attendees-label']}>
+								Attendees
+							</span>
+							<span className={styles['events-popup-attendees-count']}>
 								{info?.attendees?.length + 1}
 							</span>
 						</div>
-						<div className="events-popup-attendee-input-wrapper">
+						<div className={styles['events-popup-attendee-input-wrapper']}>
 							<input
 								type="text"
 								placeholder="Add attendee or email"
@@ -715,12 +731,12 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								}}
 							/>
 							{info?.showAtendeeSuggestions ? (
-								<div className="events-popup-add-attendee-dropdown">
+								<div className={styles['events-popup-add-attendee-dropdown']}>
 									{tenantsUserList
 										?.filter((item) => !item?.isOwner)
 										?.map((item) => (
 											<div
-												className="events-popup-dropdown-list"
+												className={styles['events-popup-dropdown-list']}
 												key={item?._id}
 												onMouseDown={() => {
 													addAttendees({
@@ -732,14 +748,14 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 													});
 												}}
 											>
-												<div className="events-popup-avatar">
+												<div className={styles['events-popup-avatar']}>
 													<Avtar />
 												</div>
-												<div className="events-popup-details">
-													<div className="events-popup-name">
+												<div className={styles['events-popup-details']}>
+													<div className={styles['events-popup-name']}>
 														{`${item?.firstName}`}
 													</div>
-													<div className="events-popup-email">
+													<div className={styles['events-popup-email']}>
 														{item?.email}
 													</div>
 												</div>
@@ -750,29 +766,32 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								''
 							)}
 						</div>
-						<div className="events-popup-attendees-list">
-							<div className="events-popup-attendees-details">
-								<div className="events-popup-avatar">
+						<div className={styles['events-popup-attendees-list']}>
+							<div className={styles['events-popup-attendees-details']}>
+								<div className={styles['events-popup-avatar']}>
 									<Avtar />
 								</div>
-								<div className="events-popup-name-wrapper">
-									<span className="events-popup-name">
+								<div className={styles['events-popup-name-wrapper']}>
+									<span className={styles['events-popup-name']}>
 										{userDetailsData?.firstName} {userDetailsData?.lastName}
 									</span>
-									<span className="events-popup-role">Organizer</span>
+									<span className={styles['events-popup-role']}>Organizer</span>
 								</div>
 							</div>
 							{info?.attendees
 								? info?.attendees?.map((item, index) => (
-										<div className="events-popup-attendees-details" key={index}>
-											<div className="events-popup-avatar">
+										<div
+											className={styles['events-popup-attendees-details']}
+											key={index}
+										>
+											<div className={styles['events-popup-avatar']}>
 												<Avtar />
 											</div>
-											<div className="events-popup-name-wrapper">
-												<span className="events-popup-name">
+											<div className={styles['events-popup-name-wrapper']}>
+												<span className={styles['events-popup-name']}>
 													{item?.name}
 												</span>
-												<span className="events-popup-role">
+												<span className={styles['events-popup-role']}>
 													{item?.email}
 												</span>
 											</div>
@@ -790,15 +809,15 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 						</div>
 					</div>
 				</div>
-				<div className="events-popup-actions-container">
+				<div className={styles['events-popup-actions-container']}>
 					<div
-						className="events-popup-action-button events-popup-action-button--secondary"
+						className={`${styles['events-popup-action-button']} ${styles['events-popup-action-button--secondary']}`}
 						onClick={handleClose}
 					>
 						Discard
 					</div>
 					<div
-						className="events-popup-action-button events-popup-action-button--primary"
+						className={`${styles['events-popup-action-button']} ${styles['events-popup-action-button--primary']}`}
 						onClick={handleEventSubmission}
 						disabled={info?.isSubmitting}
 					>

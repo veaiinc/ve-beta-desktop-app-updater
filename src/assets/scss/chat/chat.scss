@@ -2,11 +2,12 @@
 	height: calc(100% - 25px);
 	width: 100%;
 	box-sizing: border-box;
-	padding: 0px 0px 0 10px;
+	padding: 0px;
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+	gap: 24px;
 	position: relative;
+	transition: width 0.25s ease-in-out;
 	.chatBodyContainer {
 		width: 100%;
 		flex-grow: 1;
@@ -20,7 +21,7 @@
 		.chatBoxWrapper {
 			position: relative;
 			width: 100%;
-			max-width: 700px;
+			max-width: 750px;
 			height: 110px;
 		}
 
@@ -38,9 +39,9 @@
 			.chatContent {
 				display: flex;
 				flex-direction: column;
-				gap: 24px;
+				gap: 40px;
 				width: 100%;
-				max-width: 768px;
+				max-width: 750px;
 				margin: 0 auto;
 				padding-bottom: calc(var(--chat-content-height) - 40px);
 				.aiMessageWrapper {

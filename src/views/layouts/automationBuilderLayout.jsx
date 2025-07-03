@@ -1,12 +1,12 @@
 import React, { memo, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import '../../assets/scss/automation_builder/automationBuilderLayout.scss';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { Helmet } from 'react-helmet';
-import useAuth from '../hooks/useAuth';
-import useSubscription from '../hooks/useSubscription';
-import useTokenExpiry from '../hooks/useTokenExpiry';
-import useTheme from '../hooks/useTheme';
+import useAuth from '../../hooks/useAuth';
+import useSubscription from '../../hooks/useSubscription';
+import useTokenExpiry from '../../hooks/useTokenExpiry';
+import useTheme from '../../hooks/useTheme';
 // import Context from '../../context/context';
 // import RenewBanner from '../components/globalComponents/RenewBanner';
 const AutomationBuilderLayout = ({ title, children, hideQuickNav = false }) => {
@@ -15,7 +15,7 @@ const AutomationBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 	// } = useContext(Context);
 	useTheme();
 	const checkAuth = useAuth();
-	const data = useSubscription();
+	useSubscription();
 	const tokenData = useTokenExpiry();
 	useEffect(() => {
 		checkAuth();

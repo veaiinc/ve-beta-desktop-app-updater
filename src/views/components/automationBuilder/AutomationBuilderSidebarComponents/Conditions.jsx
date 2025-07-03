@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/conditions.scss';
 import { ReactComponent as Search } from '../../../../assets/svg/worflow_builder/buildercard/search.svg';
-import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
+// import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import {
 	conditionOptions,
 	containerStyle,

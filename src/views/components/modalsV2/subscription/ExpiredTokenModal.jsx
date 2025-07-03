@@ -4,7 +4,7 @@ import ReactModal from '../index';
 import Context from '../../../../context/context';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import Spinner from '../../loaders/Spinner';
-import useLogout from '../../../hooks/useLogout';
+import useLogout from '../../../../hooks/useLogout';
 const ExpiredTokenModal = () => {
 	const logout = useLogout();
 	let {

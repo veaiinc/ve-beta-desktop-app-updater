@@ -8,7 +8,7 @@ import { ReactComponent as SortIcon } from '../../../assets/svg/agents/sort.svg'
 import { ReactComponent as FilterIcon } from '../../../assets/svg/agents/filter.svg';
 
 // components
-import QuickActions from '../../components/globalComponents/QuickActions';
+// import QuickActions from '../../components/globalComponents/QuickActions';
 import AgentsList from '../../components/agents/agentsList/AgentsList';
 import AgentSuggestion from '../../components/agents/suggestedCard/agentSuggestion';
 import Spinner from '../../components/loaders/Spinner';
@@ -148,7 +148,7 @@ const Agents = () => {
 					</div>
 				</div>
 			</div>
-			<QuickActions />
+			{/* <QuickActions /> */}
 		</div>
 	);
 };

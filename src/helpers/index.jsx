@@ -334,9 +334,9 @@ export const getWebsiteName = (url) => {
 	try {
 		const domain = new URL(url)?.hostname;
 		// Remove common TLDs and www
-		const name = domain?.replace(/^www\./i, '')?.split('.')?.[0];
+		const name = domain?.replace(/^www\./i, '');
 		// Capitalize first letter
-		return name?.charAt(0)?.toUpperCase() + name?.slice(1);
+		return name;
 	} catch (error) {
 		return url;
 	}
@@ -384,7 +384,6 @@ export const redirectTo = (type, id) => {
 		drive: `https://drive.google.com/file/d/${id}/view`,
 		notes: `https://ve.ai/note/${id}`,
 		proactiveai: `https://ve.ai/proactiveai/${id}`,
-		notes: `https://ve.ai/note/${id}`,
 	};
 
 	const url = urls?.[type];

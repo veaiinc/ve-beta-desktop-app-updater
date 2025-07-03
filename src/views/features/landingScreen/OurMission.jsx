@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import '../../../assets/scss/landingScreen/ourMission.scss';
 import MissionTabNavigation from './missionTabNavigation/MissionTabNavigation';
-import { ReactComponent as BridgeSvg } from '../../../assets/svg/bridge.svg';
 import Careers from './careers/Careers';
 import MobileMenu from '../../components/landing_screen/MobileMenu';
-import { ReactComponent as BridgeMobile } from '../../../assets/svg/bridgeMobile.svg';
+import Context from '../../../context/context';
+import { loginDescriptionContent } from '../../components/login_page/constants';
 
 const paragraphs1 = [
 	`We've built telescopes to touch the stars and microscopes to probe life's
@@ -60,38 +61,80 @@ const paragraphs2 = [
 						change the world. It may be the first thing we've ever built that finally
 						understands why it should.`,
 ];
-const missionContent = [
-	`The next leap in civilization is not technological; it is relational. It will be a bridge between human intent and machine memory. Our greatest need is not just intelligence, but intelligence that truly understands. At Ve.ai, we stand at the forefront of this effort.`,
-	`In this path, we launch Ambient Memory AI —
-AI that becomes your living intelligence —
-Evolving, thinking, and always acting in your best interest.`,
-	`Because human memory is not data — it's a garden.
-We don't just store; we grow, prune, and rediscover.
-And now, so will our machines.`,
-];
 
-const tabs = [{label: 'The bridge', path: '/thebridge'}, {label: 'Careers', path: '/careers'}, {label: 'Forefront', path: '/forefront'}];
+const tabs = [
+	{ label: 'Manifesto', path: '/manifesto' },
+	{ label: 'Careers', path: '/careers' },
+	{ label: 'Forefront', path: '/forefront' },
+];
 
 const tabsMapper = {
 	1: (
-		<section className="bridge-block">
-			<h1 className="heading">The bridge </h1>
-			{missionContent.map((content, index) => (
-				<p key={`mission-${index}`}>{content}</p>
-			))}
+		<section className="long-description-block">
+			<h2 className="mobile-heading">Manifesto</h2>
+			{/* <h1 className="heading">The bridge </h1> */}
+			<div className="loginDescriptionText">
+				{loginDescriptionContent.descriptionText.map((text, index) => (
+					<p key={`desc-${index}`}>{text}</p>
+				))}
+			</div>
+			<div className="loginDescriptionText2">
+				{loginDescriptionContent.descriptionText2.map((text, index) => (
+					<p key={`desc2-${index}`}>{text}</p>
+				))}
+			</div>
+			<div className="loginDescriptionText3">
+				{loginDescriptionContent.descriptionText3.map((text, index) => (
+					<p key={`desc3-${index}`}>{text}</p>
+				))}
+			</div>
+			<div className="loginDescriptionTwo">
+				<div className="loginDescriptionTwoText">
+					{loginDescriptionContent.descriptionTwo.title
+						.split('Promise.')
+						.map((part, index) =>
+							index === 0 ? (
+								<p key={`title-${index}`}>
+									{part}
+									<span>Promise.</span>
+								</p>
+							) : null,
+						)}
+				</div>
+				<ul>
+					{loginDescriptionContent.descriptionTwo.features.map((feature, index) => (
+						<li key={`feature-${index}`}>{feature}</li>
+					))}
+				</ul>
+			</div>
+			<div className="loginDescriptionThree">{loginDescriptionContent.descriptionThree}</div>
+			<div className="loginDescriptionFour">
+				<div className="descriptionFourTitle">
+					{loginDescriptionContent.descriptionFour.title}
+				</div>
+				<div className="descriptionFourPoints">
+					<ul>
+						{loginDescriptionContent.descriptionFour.points.map((point, index) => (
+							<li key={`point-${index}`}>{point}</li>
+						))}
+					</ul>
+				</div>
+			</div>
+			<div className="bottomText">{loginDescriptionContent.bottomText}</div>
 		</section>
 	),
 	4: <Careers />,
 	5: (
 		<section className="mission-block">
-			<h2 className="small-heading">
-				Forefront
-			</h2>
+			<h2 className="small-heading">Forefront</h2>
 			<div className="bridge">
-				<BridgeSvg />
+				<img src="https://ap.images.ve.ai/public/dashboard/bridge.svg" alt="bridge" />
 			</div>
 			<div className="bridgeMobile">
-				<BridgeMobile />
+				<img
+					src="https://ap.images.ve.ai/public/dashboard/bridgeMobile.svg"
+					alt="bridge mobile"
+				/>
 			</div>
 			<h1 className="heading">Building bridge between human intent and machine memory!</h1>
 
@@ -110,6 +153,28 @@ const tabsMapper = {
 
 const OurMission = ({ tab }) => {
 	const [info, setInfo] = useState({ mobileMenuOpen: false });
+	const location = useLocation();
+	const {
+		themeInfo: { theme },
+	} = useContext(Context);
+
+	// Determine which content to show based on current path
+	const getContentToShow = () => {
+		const path = location.pathname;
+		switch (path) {
+			case '/manifesto':
+				return 1;
+			case '/careers':
+				return 4;
+			case '/forefront':
+				return 5;
+			default:
+				return 1; // Default to manifesto
+		}
+	};
+
+	const contentIndex = getContentToShow();
+
 	return (
 		<main className="our-mission-container">
 			<MobileMenu
@@ -120,7 +185,9 @@ const OurMission = ({ tab }) => {
 			<div className="mission-nav-col">
 				<MissionTabNavigation tabs={tabs} activeIndex={tab} />
 			</div>
-			<div className="mission-content-col">{tabsMapper[tab]}</div>
+			<div className={`mission-content-col ${theme === 'dark' ? 'bridge-img-dark' : ''}`}>
+				{tabsMapper[contentIndex]}
+			</div>
 		</main>
 	);
 };

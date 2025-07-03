@@ -1,75 +1,41 @@
-import { useEffect, memo, useContext, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { memo } from 'react';
 import { Helmet } from 'react-helmet';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-
-import useActiveWorkspace from '../hooks/useActiveWorkspace';
 import Sidebar from '../components/sidebar/Sidebar';
-import useAuth from '../hooks/useAuth';
-import useSubscription from '../hooks/useSubscription';
-import useTokenExpiry from '../hooks/useTokenExpiry';
-
-import useAccessControls from '../hooks/useAccessControls';
-import CommandKSearch from '../components/commandKSearch/CommandKSearch';
-import Spinner from '../components/loaders/Spinner';
-
 import '../../assets/scss/authWrapper.scss';
 import ExpiredSubscriptionModal from '../components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from '../components/modalsV2/subscription/ExpiredTokenModal';
 import AccessDeniedPopup from '../components/accessPopups/accessDeniedPopup';
 import CustomToast from '../components/globalComponents/CustomToast';
-import useWorkspaceMode from '../hooks/useWorkspaceMode';
-import PageLoader from '../components/app/PageLoader';
-import useTheme from '../hooks/useTheme';
+import PageLoader from '../features/app/PageLoader';
+import useAuthInitializer from '../../hooks/useAuthInitializer';
 
 const AuthWrapper = ({
 	title,
 	children,
 	maxWidth = '',
-	showBottomToolbar = true,
 	outerContainerStyle = {},
 	authParentContainerStyle = {},
 	sidebarContainerStyles = {},
-	showDynamicWidget = true,
 	sidebarContainerClassName = '',
 	childrenContainerStyles = {},
 	showSidebar = true,
 }) => {
-	// const {
-	// 	subscriptionInfo: { renewBanner },
-	// } = useContext(Context);
-	useTheme();
-	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
-	const location = useLocation();
-	const checkAuth = useAuth();
-	const data = useSubscription();
-	const tokenData = useTokenExpiry();
-	useAccessControls();
-	const { loading } = useWorkspaceMode();
-
-	useEffect(() => {
-		checkAuth();
-	}, []);
-	// const workspaceIds = ['swaroop', 'veai', 'bhee'];
+	const { loading } = useAuthInitializer();
 
 	return loading ? (
 		<PageLoader />
 	) : (
 		<main className="main-container">
-			{/* {renewBanner && <RenewBanner />} */}
 			<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
 				<Helmet>
 					<meta charSet="utf-8" />
 					<title>{title}</title>
 				</Helmet>
-				{/* {workspaceIds?.includes(workspaceId) && !location?.pathname?.includes('/chat') && (
-					<DynamicWidget />
-				)} */}
 				<div
 					style={{
 						display: 'flex',
-						// height: renewBanner ? 'calc(100dvh - 57px)' : '100dvh',
 						height: '100dvh',
 						padding: '0',
 						...outerContainerStyle,
@@ -88,10 +54,7 @@ const AuthWrapper = ({
 								}}
 								className={sidebarContainerClassName}
 							>
-								<Sidebar
-									setActiveWorkspaceId={setActiveWorkspaceId}
-									activeWorkspaceId={workspaceId}
-								/>
+								<Sidebar />
 							</div>
 						)}
 
@@ -114,8 +77,6 @@ const AuthWrapper = ({
 						</div>
 					</SkeletonTheme>
 				</div>
-				{/* {showBottomToolbar ? <BottomToolbar outerContainerStyle={{ bottom: '10px' }} /> : ''} */}
-				{/* <CommandKSearch /> */}
 			</div>
 			<ExpiredSubscriptionModal />
 			<ExpiredTokenModal />

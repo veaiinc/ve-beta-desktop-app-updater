@@ -4,7 +4,7 @@ import ReactModal from '../modalsV2';
 import Context from '../../../context/context';
 import AIMessage from './AIMessage';
 import ChatBox from '../chat/ChatBox';
-import { fetchOriginSelection } from '../../../helpers';
+// import { fetchOriginSelection } from '../../../helpers';
 import { ReactComponent as ExpandIcon } from '../../../assets/svg/docs/expand.svg';
 
 const FormModal = ({ isOpen, closeModal, workflowTemplateId, builderAgentMapper, agent }) => {

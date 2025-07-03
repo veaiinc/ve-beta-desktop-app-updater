@@ -2071,7 +2071,7 @@
 	align-items: flex-start;
 	gap: 8px;
 	border-radius: 12px;
-	background: var(--navbar);
+	background: var(--card);
 	li {
 		display: flex;
 		height: 30px;
@@ -2277,6 +2277,18 @@
 		}
 		.sortType-up {
 			transform: rotate(180deg);
+		}
+		.option-value-wrapper {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+			flex-grow: 1;
+			&.active {
+				color: var(--primary-font);
+			}
 		}
 	}
 }

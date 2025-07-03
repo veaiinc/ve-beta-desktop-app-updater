@@ -1,41 +1,34 @@
 // src/pages/LandingPage.jsx
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState, useRef } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
-import Context from '../../../context/context';
 import TabNavigation from '../../components/landing_screen/TabNavigation';
 import Tagline from './Tagline';
 import Footer from './Footer';
-import ChatBox from '../../components/chat/ChatBox';
-import Suggestions from '../homePage/Suggestions';
 import MobileMenu from '../../components/landing_screen/MobileMenu';
 import ContactUs from '../../components/landing_screen/ContactUs';
 import OurMission from './OurMission';
 import EarlyAccess from './EarlyAccess';
-import WebsitePricingPage from '../pricingPlans/PricingPageWebsite';
+import CustomToast from '../../components/globalComponents/CustomToast';
 
 import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 import { ReactComponent as PlayIcon } from './assets/playIcon.svg';
 import { ReactComponent as PauseIcon } from './assets/pauseIcon.svg';
+import HeroSection from './heroSection/HeroSection';
 
 import '../../../assets/scss/landingScreen/index.scss';
 
 const pathToTabMap = {
-	'/': 0, // ← added
-	'/thebridge': 1,
+	'/': 0,
+	'/manifesto': 1,
 	'/contact-us': 2,
-	'/pricing': 3,
-	'/careers': 4,
-	'/forefront': 5,
+	'/careers': 1,
+	'/forefront': 1,
 };
 
 const LandingPage = () => {
-	const {
-		templates: { updateStateValues, currentSessionId },
-	} = useContext(Context);
-
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -43,14 +36,13 @@ const LandingPage = () => {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [hasPlayed, setHasPlayed] = useState(false);
-	const [showSuggestions, setShowSuggestions] = useState(false);
+	const [info, setInfo] = useState({ navVisible: true, seenOnce: false });
 
-	const isMobileScreen = window.innerWidth < 768;
+	const videoRef = useRef(null);
 
 	// sync tab with URL
 	useEffect(() => {
 		const path = location.pathname;
-		// fallback to 0 if path not in map
 		setTab(pathToTabMap[path] ?? 0);
 	}, [location.pathname]);
 
@@ -67,9 +59,42 @@ const LandingPage = () => {
 		}
 	}, [navigate]);
 
+	// header show/hide on scroll (optimized)
+	useEffect(() => {
+		if (tab !== 0) return;
+		const videoEl = videoRef.current;
+		if (!videoEl) return;
+
+		let lastY = window.scrollY;
+		let ticking = false;
+
+		const onScroll = () => {
+			if (!ticking) {
+				ticking = true;
+				window.requestAnimationFrame(() => {
+					const currentY = window.scrollY;
+					const isDown = currentY > lastY;
+					const videoTop = videoEl.getBoundingClientRect().top;
+					const shouldShow = !isDown || videoTop > 0;
+
+					setInfo((prev) => {
+						if (prev.navVisible === shouldShow) return prev;
+						return { ...prev, navVisible: shouldShow };
+					});
+
+					lastY = currentY;
+					ticking = false;
+				});
+			}
+		};
+
+		window.addEventListener('scroll', onScroll, { passive: true });
+		return () => window.removeEventListener('scroll', onScroll);
+	}, [tab]);
+
 	// play/pause handler
 	const handleVideoClick = async () => {
-		const video = document.getElementById('landing-video');
+		const video = videoRef.current;
 		if (!video) return;
 		try {
 			if (video.paused) {
@@ -85,75 +110,44 @@ const LandingPage = () => {
 		}
 	};
 
-	// chat send
-	const handleCustomOnSendFunction = useCallback(
-		(data) => {
-			updateStateValues({ activePayloadForChat: data });
-			navigate(`/c/${currentSessionId}`);
-			setShowSuggestions(false);
-		},
-		[currentSessionId, updateStateValues, navigate],
-	);
-
 	const handleSetTab = (tabVal) => {
 		setTab(tabVal);
-		const tabRoutes = ['/', '/thebridge', '/contact-us', '/pricing'];
+		const tabRoutes = ['/', '/manifesto', '/contact-us'];
 		navigate(tabRoutes[tabVal]);
 	};
 
 	const tabComponents = {
 		0: (
 			<div className="page-body">
-				<div className={`title-container${showSuggestions ? ' with-suggestions' : ''}`}>
-					<div className="title-text">
-						<div className="title-text-container">
-							<span className="title-one">The World's First</span>
-							<span className="title-two">Ambient AI</span>
-						</div>
-						<p className="title-three">
-							Your Living Memory Intelligence — built to think, remember, and act.
-						</p>
+				<div className="heroContainer">
+					<div className="title-container">
+						<HeroSection />
 					</div>
 
-					<div className="chatbox-container">
-						<ChatBox
-							customChatActions
-							autoFocus={false}
-							isPublicChat
-							animatePlaceholder
-							onSend={handleCustomOnSendFunction}
-							isBuildEnbled={false}
-							showUpgradeSubscriptionBtn={false}
+					<div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
+						<button onClick={handleVideoClick}>
+							{isPlaying ? (
+								<>
+									<PauseIcon /> Pause
+								</>
+							) : (
+								<>
+									<PlayIcon /> Play
+								</>
+							)}
+						</button>
+						<video
+							ref={videoRef}
+							id="landing-video"
+							src="https://ap.images.ve.ai/public/dashboard/product-video.mp4"
+							muted
+							style={{ width: '100%' }}
+							controls={window.innerWidth < 768}
+							controlsList="nofullscreen nodownload noremoteplayback noplaybackrate foobar"
+							autoPlay={window.innerWidth < 768}
+							loop={window.innerWidth < 768}
 						/>
 					</div>
-					{showSuggestions && (
-						<div className="suggestions-container">
-							<Suggestions landingPage />
-						</div>
-					)}
-				</div>
-
-				<div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
-					<button onClick={handleVideoClick}>
-						{isPlaying ? (
-							<>
-								<PauseIcon /> Pause
-							</>
-						) : (
-							<>
-								<PlayIcon /> Play
-							</>
-						)}
-					</button>
-					<video
-						id="landing-video"
-						src="https://ap.images.ve.ai/public/dashboard/login_page.mp4"
-						muted
-						style={{ width: '100%' }}
-						controls={isMobileScreen}
-						controlsList="nofullscreen nodownload noremoteplayback noplaybackrate foobar"
-						autoPlay={isMobileScreen}
-					/>
 				</div>
 
 				<Tagline />
@@ -163,7 +157,6 @@ const LandingPage = () => {
 		),
 		1: <OurMission tab={tab} />,
 		2: <ContactUs type="Enterprise" />,
-		3: <WebsitePricingPage />,
 		4: <OurMission tab={tab} />,
 		5: <OurMission tab={tab} />,
 	};
@@ -175,14 +168,15 @@ const LandingPage = () => {
 			</Helmet>
 			<main
 				className={`landing-page-container${
-					location.pathname === '/thebridge' ? ' fullHeight' : ''
+					location.pathname === '/manifesto' ? ' fullHeight' : ''
 				}`}
 			>
-				<header className="page-header">
+				<CustomToast />
+				<header className={`page-header${info.navVisible ? '' : ' hidden'}`}>
 					<div className="page-header-wrapper">
-						<div className="left-container">
-							<VeLogo className="ve-logo" onClick={() => navigate('/')} />
-						</div>
+						<Link to="/">
+							<VeLogo className="ve-logo" />
+						</Link>
 						<div className="middle-container">
 							{!mobileMenuOpen && (
 								<TabNavigation tab={tab} handleSetTab={handleSetTab} />
@@ -193,12 +187,9 @@ const LandingPage = () => {
 								Login
 							</Link>
 							<div className="login-container">
-								<button
-									className="login-btn"
-									onClick={() => navigate('/verify-user')}
-								>
-									Get VE Free
-								</button>
+								<Link className="login-btn" to="/verify-user">
+									Signup
+								</Link>
 								<button
 									className="sidebar-button mobile-only"
 									onClick={() => setMobileMenuOpen(true)}
@@ -208,12 +199,7 @@ const LandingPage = () => {
 							</div>
 						</div>
 					</div>
-					<MobileMenu
-						open={mobileMenuOpen}
-						onClose={() => setMobileMenuOpen(false)}
-						onLogin={() => navigate('/verify-user')}
-						onGetFree={() => {}}
-					/>
+					<MobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
 				</header>
 				{tabComponents[tab]}
 			</main>

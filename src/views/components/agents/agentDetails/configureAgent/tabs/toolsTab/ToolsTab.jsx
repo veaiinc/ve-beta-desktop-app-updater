@@ -1,7 +1,7 @@
 import { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import s from './toolsTab.module.scss';
 import Context from '../../../../../../../context/context';
-import { getFaviconUrl } from '../../../../../../../helpers';
+// import { getFaviconUrl } from '../../../../../../../helpers';
 
 // components
 import ActionsModal from '../../../../../modalsV2/ai_assistant/ActionsModal';

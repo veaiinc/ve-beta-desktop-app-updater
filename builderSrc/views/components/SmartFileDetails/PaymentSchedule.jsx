@@ -5,9 +5,17 @@ import dayjs from 'dayjs';
 import moment from 'moment';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as Close } from '../../../assets/svg/smartFile/close.svg';
-const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges }) => {
+import { ReactComponent as UpDown } from '../library/svgs/dropDown.svg';
+import RoundedRight from '../library/svgs/listIcons/RoundedRight';
+const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges, invoiceDates = {} }) => {
 	const [info, setInfo] = useState({
 		paymentSchedule: [],
+	});
+	const [dateValues, setDateValues] = useState({
+		showDateInput: false,
+		currentDateInput: null,
+		activeDateValue: null,
+		showDateOptions: false,
 	});
 
 	useEffect(() => {
@@ -36,8 +44,9 @@ const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges }) => {
 			if (type === 'date') {
 				requiredBlocks.subBlocks[0] = {
 					...(requiredBlocks.subBlocks?.[0] || {}),
-					date: value,
+					date: value?.includes('-') ? value : requiredBlocks.subBlocks[0]?.date,
 					dueDate: value,
+					type: value?.includes('-') ? 'custom Date' : value,
 				};
 			}
 
@@ -45,6 +54,14 @@ const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges }) => {
 			paymentScheduleData[outerIndex] = requiredData;
 			handlePaymentScheduleChanges(requiredData);
 			setInfo((prev) => ({ ...prev, paymentSchedule: paymentScheduleData }));
+			if (type === 'date') {
+				setDateValues((prev) => ({
+					...prev,
+					showDateInput: false,
+					showDateOptions: false,
+					currentDateInput: prev.currentDateInput ? prev.currentDateInput : null,
+				}));
+			}
 		},
 		[info, handlePaymentScheduleChanges],
 	);
@@ -88,6 +105,87 @@ const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges }) => {
 		[info, handlePaymentScheduleChanges],
 	);
 
+	// functin for rendering and returning Date of Installment
+	const renderDateInput = (block, sectionIndex, blockIndex) => {
+		const data = block?.subBlocks[0];
+		const options = { year: 'numeric', month: 'long', day: 'numeric' };
+		if (dateValues?.showDateInput && dateValues.currentDateInput === blockIndex) {
+			return (
+				<DatePicker
+					onChange={(date, dateString) => {
+						handlePaymentScheduleChange('date', dateString, sectionIndex, blockIndex);
+					}}
+					format={['YYYY-MM-DD', 'DD-MM-YYYY']}
+					value={
+						data?.date
+							? dayjs(`${moment(data?.date)?.format('YYYY-MM-DD')}`, 'YYYY-MM-DD')
+							: data?.date || ''
+					}
+					className={`custominputContainer `}
+					style={{ height: '50px' }}
+					allowClear={false}
+					open={true}
+				/>
+			);
+		}
+		const dueDate = new Date(data.type === 'custom Date' && data.dueDate);
+		const invoiceSentDate = new Date(invoiceDates?.invoiceSentDate * 1000);
+		const invoiceAcceptedDate = new Date(invoiceDates?.invoiceAcceptedDate * 1000);
+		return (
+			<>
+				<p
+					style={{
+						color: '#e8e8e8',
+						whiteSpace: 'nowrap',
+						overflow: 'hidden',
+						textOverflow: 'ellipsis',
+						width: '80%',
+						marginBottom: '0px',
+					}}
+				>
+					{data?.type === 'custom Date'
+						? dueDate?.toLocaleDateString('en-US', options)
+						: data?.type === 'invoice Sent Date' && invoiceDates?.invoiceSentDate
+						? invoiceSentDate?.toLocaleDateString('en-US', options)
+						: data?.type === 'invoice Accepted Date' &&
+						  invoiceDates?.invoiceAcceptedDate
+						? invoiceAcceptedDate?.toLocaleDateString('en-US', options)
+						: data?.dueDate}
+				</p>
+				<UpDown
+					onClick={() => {
+						if (dateValues?.activeDateValue?._id != block?._id) {
+							setDateValues((prev) => ({
+								...prev,
+								showDateOptions: true,
+								activeDateValue: block,
+							}));
+						} else {
+							setDateValues((prev) => ({
+								...prev,
+								showDateOptions: !dateValues?.showDateOptions,
+							}));
+						}
+					}}
+					style={{
+						cursor: 'pointer',
+					}}
+				/>
+			</>
+		);
+	};
+
+	// function for date input on Blur
+	const handleDateInputBlur = (e) => {
+		if (!e.relatedTarget || !e.relatedTarget.closest('.date-input-calendar')) {
+			setDateValues((prev) => ({
+				...prev,
+				showDateInput: false,
+				currentDateInput: null,
+			}));
+		}
+	};
+	const paymentOptions = ['invoice Sent Date', 'invoice Accepted Date', 'custom Date'];
 	return (
 		<>
 			{info?.paymentSchedule?.length &&
@@ -122,36 +220,101 @@ const PaymentSchedule = ({ editable, data, handlePaymentScheduleChanges }) => {
 											/>
 											<span>%</span>
 										</div>
-										<DatePicker
-											onChange={(date, dateString) => {
-												handlePaymentScheduleChange(
-													'date',
-													dateString,
-													index,
-													ind,
-												);
+										<div
+											className="custominputContainer"
+											style={{
+												display: 'flex',
+												justifyContent: 'space-between',
+												alignItems: 'center',
+												// maxWidth: '190px',
 											}}
-											format={['YYYY-MM-DD', 'DD-MM-YYYY']}
-											value={
-												payment?.subBlocks?.[0]?.date
-													? dayjs(
-															`${moment(
-																payment?.subBlocks?.[0]?.date,
-															)?.format('YYYY-MM-DD')}`,
-															'YYYY-MM-DD',
-													  )
-													: payment?.subBlocks?.[0]?.date || ''
-											}
-											className={`custominputContainer `}
-											style={{ height: '50px' }}
-											// disabled={!editable}
-											// defaultPickerValue={
-											// 	info?.calenderStartDate
-											// 		? dayjs(`${info?.calenderStartDate}`, 'YYYY-MM-DD')
-											// 		: ''
-											// }
-											allowClear={false}
-										/>
+										>
+											{renderDateInput(payment, index, ind)}
+										</div>
+										{dateValues?.showDateOptions &&
+											dateValues?.activeDateValue?._id === payment?._id && (
+												<div className="payment-date-drop-down">
+													{paymentOptions.map((value, i) => {
+														return (
+															<p
+																onClick={(e) => {
+																	e.stopPropagation();
+																	if (value === 'custom Date') {
+																		setDateValues((prev) => ({
+																			...prev,
+																			showDateInput: true,
+																			showDateOptions: false,
+																			currentDateInput: ind,
+																		}));
+																	} else {
+																		handlePaymentScheduleChange(
+																			'date',
+																			value,
+																			index,
+																			ind,
+																		);
+																	}
+																}}
+															>
+																{value}
+																{dateValues?.activeDateValue
+																	?.subBlocks[0]?.type == value ||
+																(dateValues?.activeDateValue
+																	?.subBlocks[0]?.type ==
+																	'custom Date' &&
+																	value == 'custom Date') ? (
+																	<RoundedRight
+																		color={'#f2f2f3'}
+																		size={'small'}
+																	/>
+																) : null}
+															</p>
+														);
+													})}
+													{/* <p
+														onClick={(e) => {
+															e.stopPropagation();
+															handlePaymentScheduleChange(
+																'date',
+																'invoice Sent Date',
+																index,
+																ind,
+															);
+														}}
+													>
+														Invoice Sent Date
+														<RoundedRight
+															color={'#f2f2f3'}
+															size={'small'}
+														/>
+													</p>
+													<p
+														onClick={(e) => {
+															e.stopPropagation();
+															handlePaymentScheduleChange(
+																'date',
+																'invoice Accepted Date',
+																index,
+																ind,
+															);
+														}}
+													>
+														Invoice Accepted Date
+													</p>
+													<p
+														onClick={() =>
+															setDateValues((prev) => ({
+																...prev,
+																showDateInput: true,
+																showDateOptions: false,
+																currentDateInput: ind,
+															}))
+														}
+													>
+														Custom Date
+													</p> */}
+												</div>
+											)}
 										<span
 											className="removeRoleContainer"
 											onClick={() =>

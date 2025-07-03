@@ -44,6 +44,7 @@
 					font-style: normal;
 					font-weight: 600;
 					line-height: 45px; /* 125% */
+					margin: 0px;
 				}
 				.title-two {
 					color: var(--primary-button, #79ecc9);
@@ -113,7 +114,7 @@
 @media screen and (max-width: 1500px) {
 	.initial-home-page-container {
 		.home-page-container-header {
-			margin-top: 0 !important;
+			margin-top: 85px !important;
 		}
 	}
 }

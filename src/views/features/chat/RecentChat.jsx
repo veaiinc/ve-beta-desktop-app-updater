@@ -14,8 +14,9 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import TextSelector from '../../components/chat/chatComponents/TextSelector';
-import useWorkspaceMode from '../../../views/hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import ChatHeader from '../../components/chat/ChatHeader';
+import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 
 const RecentChat = ({
 	isPublicChat = false,
@@ -28,6 +29,7 @@ const RecentChat = ({
 	onChangeSessionId = null,
 	chatActive = false,
 	onNavigateBack = null,
+	showCitationsButton = true,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const {
@@ -41,6 +43,7 @@ const RecentChat = ({
 			chatInfo,
 			updateChatLoadingSessions,
 			newChatSessionIds,
+			getFollowUpQueries,
 		},
 		aiSetup: { updateAiChatSessions, aiChatSessions },
 		chatStream: {
@@ -73,6 +76,10 @@ const RecentChat = ({
 		deleteChatSessionLoading: false,
 		isNewChat: false,
 		currentUserMessageIndex: null,
+		getFollowUpQueries: false,
+		chatQuery: '',
+		citationsAiMessageIndex: null,
+		citationsModalIsOpen: false,
 	});
 
 	const chatContentRef = useRef(null);
@@ -90,6 +97,7 @@ const RecentChat = ({
 	const newChatSessionIdsRef = useRef(newChatSessionIds);
 	const globalChatMessagesRef = useRef(globalChatMessages);
 	const currentUserMessageTimeoutRef = useRef(null);
+	const followUpQueryTimeoutRef = useRef(null);
 	sessionId = isPreview ? sId : sessionId;
 
 	useEffect(() => {
@@ -106,6 +114,10 @@ const RecentChat = ({
 			setTimeout(() => {
 				tabsRefs.current = {};
 				userMessagesRefs.current = {};
+				if (followUpQueryTimeoutRef.current) {
+					clearTimeout(followUpQueryTimeoutRef.current);
+					followUpQueryTimeoutRef.current = null;
+				}
 				updateStateValues({
 					moreRecentChatStorage: null,
 					recentChatStorage: null,
@@ -115,6 +127,7 @@ const RecentChat = ({
 						moduleTemplateId: null,
 					},
 					chatReplyData: null,
+					aiMessagesInfo: null,
 				});
 			}, 0);
 
@@ -174,6 +187,29 @@ const RecentChat = ({
 	}, [sessionIdChanged, chatActive, workspaceMode]);
 
 	useEffect(() => {
+		if (info?.getFollowUpQueries) {
+			if (info?.chatQuery?.trim()?.length === 0) {
+				followUpQueryTimeoutRef.current = setTimeout(() => {
+					getFollowUpQueries(sessionId, info?.latestStreamMesage?.message_id);
+				}, 5000);
+			}
+			setInfo((prev) => ({
+				...prev,
+				getFollowUpQueries: false,
+			}));
+		}
+	}, [info?.getFollowUpQueries]);
+
+	useEffect(() => {
+		if (info?.chatQuery?.trim()?.length > 0) {
+			if (followUpQueryTimeoutRef.current) {
+				clearTimeout(followUpQueryTimeoutRef.current);
+				followUpQueryTimeoutRef.current = null;
+			}
+		}
+	}, [info?.chatQuery]);
+
+	useEffect(() => {
 		const { workflow_template_id, module_template_id } = info?.latestStreamMesage || {};
 		if (workflow_template_id && module_template_id && info?.showViewDocument) {
 			updateStateValues({
@@ -202,12 +238,15 @@ const RecentChat = ({
 						workflowTemplateId: null,
 						moduleTemplateId: null,
 					},
+					aiMessagesInfo: null,
 				});
 				tabsRefs.current = {};
 				userMessagesRefs.current = {};
 				setInfo((prev) => ({
 					...prev,
 					scrollExecuted: false,
+					citationsModalIsOpen: false,
+					citationsAiMessageIndex: null,
 				}));
 			}
 			if (currentUserMessageTimeoutRef.current) {
@@ -398,6 +437,13 @@ const RecentChat = ({
 			recentChatHandler(moreRecentChatStorage, true, firstTimeApiCall);
 		}
 	}, [moreRecentChatStorage]);
+
+	const handleChatQueryChange = useCallback((query) => {
+		setInfo((prev) => ({
+			...prev,
+			chatQuery: query,
+		}));
+	}, []);
 
 	const handleMouseUp = useCallback(() => {
 		const selection = window?.getSelection();
@@ -723,7 +769,6 @@ const RecentChat = ({
 				} else {
 					updateChatLoadingSessions({ sessionId, removeSessionId: true });
 				}
-
 				handleGlobalChatMessages({
 					removeLoadingMessage: true,
 					sessionId,
@@ -747,10 +792,13 @@ const RecentChat = ({
 					};
 					updateAiChatSessions(payload);
 				}
-				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
+				setInfo((prev) => ({
+					...prev,
+					latestStreamMesage: data,
+					...(sessionId === currentSessionId && { getFollowUpQueries: true }),
+				}));
 			}
 			const { message_chunk_id } = data;
-
 			if (message_chunk_id) {
 				handleGlobalChatMessages({
 					payload: data,
@@ -771,7 +819,9 @@ const RecentChat = ({
 		async (data, lastQuery) => {
 			try {
 				await sendMessage(data);
-				smoothScrollToLastMessage();
+				setTimeout(() => {
+					smoothScrollToLastMessage();
+				}, 0);
 				handleGlobalChatMessages({
 					sessionId,
 					lastQuery,
@@ -789,12 +839,39 @@ const RecentChat = ({
 		setInfo((prev) => ({ ...prev, showViewDocument: value }));
 	}, []);
 
+	const handleCloseCitationsModal = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			citationsModalIsOpen: false,
+			citationsAiMessageIndex: null,
+		}));
+	}, []);
+
+	const handleSourcesClick = useCallback(
+		(index) => {
+			setInfo((prev) => {
+				if (index !== prev?.citationsAiMessageIndex) {
+					updateStateValues({
+						chatSources: globalChatMessages?.[sessionId]?.messages?.[index]?.citations,
+					});
+				}
+				return {
+					...prev,
+					citationsModalIsOpen: index !== prev?.citationsAiMessageIndex,
+					citationsAiMessageIndex: index !== prev?.citationsAiMessageIndex ? index : null,
+				};
+			});
+		},
+		[globalChatMessages, sessionId, updateStateValues],
+	);
+
 	return (
 		<>
 			<div
 				className="chat-container"
 				style={{
 					height: isPublicChat ? 'calc(100% - 32px)' : '',
+					width: info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%',
 				}}
 			>
 				{/* header */}
@@ -853,7 +930,8 @@ const RecentChat = ({
 														<div
 															className="content"
 															style={{
-																...(info?.currentUserMessageIndex && {
+																...(info?.currentUserMessageIndex !==
+																	null && {
 																	opacity:
 																		index ===
 																		info?.currentUserMessageIndex +
@@ -886,19 +964,9 @@ const RecentChat = ({
 														>
 															<AIMessageRenderer
 																messageData={chat}
-																userMessageElement={
-																	userMessagesRefs.current?.[
-																		index - 1
-																	]
-																}
-																chatContentElement={
-																	chatContentRef?.current
-																}
 																handleNoteComponentModalOpen={
 																	handleNoteComponentModalOpen
 																}
-																tabsRefs={tabsRefs}
-																index={index}
 																handleViewDocument={
 																	handleViewDocument
 																}
@@ -906,6 +974,19 @@ const RecentChat = ({
 																	info?.showViewDocument
 																}
 																isPublicChat={isPublicChat}
+																handleSourcesClick={
+																	handleSourcesClick
+																}
+																messageIndex={index}
+																showCitationsButton={
+																	showCitationsButton
+																}
+																isLastMessage={
+																	index ===
+																	globalChatMessages?.[sessionId]
+																		?.messages?.length -
+																		1
+																}
 															/>
 														</div>
 													) : (
@@ -933,7 +1014,8 @@ const RecentChat = ({
 															// }}
 
 															style={{
-																...(info?.currentUserMessageIndex && {
+																...(info?.currentUserMessageIndex !==
+																	null && {
 																	opacity:
 																		index ===
 																		info?.currentUserMessageIndex
@@ -964,15 +1046,16 @@ const RecentChat = ({
 							customChatBoxClick={customChatBoxClick}
 							showScrollButton={info?.showScrollButton}
 							smoothScrollToBottom={smoothScrollToBottom}
+							onChatQueryChange={handleChatQueryChange}
 						/>
 					</div>
 				</div>
 			</div>
 
-			{/* <CitationsModal
+			<CitationsModal
 				modalIsOpen={info?.citationsModalIsOpen}
 				closeModal={handleCloseCitationsModal}
-			/> */}
+			/>
 			<NoteComponentModal
 				modalIsOpen={info?.noteModalIsOpen}
 				closeModal={handleNoteComponentModalClose}

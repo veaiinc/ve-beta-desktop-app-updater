@@ -8,6 +8,7 @@
 	height: fit-content; /* Ensure the container only takes the height it needs */
 	align-self: flex-start; /* Prevent the sticky element from stretching */
 	gap: 4px;
+	font-family: var(--primary-font-family);
 
 	.mainTabs {
 		list-style-type: none;
@@ -24,7 +25,7 @@
 			align-items: center;
 			gap: 10px;
 			cursor: pointer;
-			font-weight: 400;
+			font-weight: 500;
 			background: none;
 			border: none;
 			outline: none;

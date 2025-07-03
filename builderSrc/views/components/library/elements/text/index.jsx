@@ -2,9 +2,9 @@ import React, { PureComponent } from 'react';
 const JoditEditor = React.lazy(() => import('jodit-react'));
 import _ from 'lodash';
 import rgbHex from 'rgb-hex';
-import Right from '../../layouts/actions/down';
+// import Right from '../../layouts/actions/down';
 import { TextIndexBaseClass } from '../../../builder_client_common';
-import { ColorPicker } from '../../../builder_client_common';
+// import { ColorPicker } from '../../../builder_client_common';
 import BoldIcon from './joditsvg/bold.svg';
 import ItalicIcon from './joditsvg/italic.svg';
 import UnderlineIcon from './joditsvg/underline.svg';
@@ -2582,12 +2582,15 @@ class App extends BaseClass {
 						<style>{`
 							${themeStyles}
 							#text_component_ID a:-webkit-any-link {
-								color: inherit !important;
+								color: inherit;
 								text-decoration: none;
 							}
 							#text_component_ID a {
-								color: inherit !important;
+								color: inherit ;
 								text-decoration: none;
+							}
+							#text_component_ID p {
+								margin-bottom: 0px !important;
 							}
 						`}</style>
 					</Helmet>

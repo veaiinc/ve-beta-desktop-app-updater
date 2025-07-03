@@ -22,7 +22,7 @@ import { ReactComponent as CrossIcon } from '../../../assets/svg/notes/cross.svg
 import { message } from '../../components/globalComponents/CustomToast';
 import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
-import useChatStream from '../../hooks/useChatStream';
+import useChatStream from '../../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
 import jwtDecode from 'jwt-decode';
 import { ReactComponent as DustBinIcon } from '../../../assets/svg/tasks/dustBin.svg';
@@ -32,10 +32,9 @@ import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
-import FileUploadToolbar from '../../components/notes/ImageComponent';
 import { ImageBlock, insertImage } from '../../components/notes/ImageComponent';
 import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
@@ -928,7 +927,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 								style={innerContainerStyle || {}}
 								theme={'dark'}
 								editable={info?.myAccess !== 'view' || !info?.isDeleted}
-								filePanel={FileUploadToolbar}
 								slashMenu={false}
 							>
 								{(info?.myAccess !== 'view' || !info?.isDeleted) && (

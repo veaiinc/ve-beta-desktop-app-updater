@@ -46,7 +46,6 @@ const Footer = () => {
 				message.error(res?.[1]?.message);
 			}
 		} catch (error) {
-			console.error('Error subscribing to newsletter:', error);
 			message.error('An unexpected error occurred. Please try again!');
 		} finally {
 			setInfo(initialState);
@@ -78,14 +77,25 @@ const Footer = () => {
 								type="text"
 								placeholder="example@gmail.com"
 								onChange={handleEmailChange}
+								value={info.email}
 								onKeyDown={handleKeyDown}
 								className={info.error ? s.errorInput : ''}
 							/>
-							{info.error && <p className={s.errorMessage}>{info.error}</p>}
+							{info.error && (
+								<p
+									className={[s.errorMessage, info.error ? s.visible : ''].join(
+										' ',
+									)}
+								>
+									{info.error || ''}
+								</p>
+							)}
+
 							<button
 								className={s.subscribeButton}
 								onClick={handleSubscribe}
 								disabled={info.loading}
+								style={info.loading || info.error ? { opacity: 0.5 } : {}}
 							>
 								Subscribe {info.loading && <Spinner />}
 							</button>
@@ -102,7 +112,7 @@ const Footer = () => {
 									<span className={s.listHeading}>About</span>
 								</li>
 								<li>
-									<Link to="/thebridge">The bridge</Link>
+									<Link to="/manifesto">Manifesto</Link>
 								</li>
 								<li>
 									<Link to="/contact-us">For Enterprise</Link>

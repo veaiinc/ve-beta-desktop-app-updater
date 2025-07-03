@@ -1864,7 +1864,7 @@ textarea.embed-anything-input {
 }
 
 .remove-option-btn:hover {
-	color: #ffffff !important;
+	color: black !important;
 }
 
 .field-header:hover .field-actions,
@@ -1987,58 +1987,69 @@ textarea.embed-anything-input {
 		background: color(display-p3 1 1 1);
 	}
 
-	// .logical-form-phone-input {
-	// 	background: transparent !important;
-	// 	border: none !important;
-	// 	border-bottom: 1.5px solid #d0d0d0 !important;
-	// 	border-radius: 0 !important;
-	// 	padding: 8px 0;
-	// 	transition: border-color 0.3s ease;
+	.logical-form-phone-input {
+		background: transparent !important;
 
-	// 	&:focus {
-	// 		border-bottom: 2px solid #000000 !important;
-	// 	}
+		transition: border-color 0.3s ease;
 
-	// 	&::placeholder {
-	// 		color: #757575;
-	// 	}
+		input {
+			color: inherit !important;
+		}
 
-	// 	&:hover:not(:focus) {
-	// 		border-bottom-color: #a0a0a0 !important;
-	// 	}
-	// }
+		.PhoneInputCountrySelect {
+			color: inherit !important;
+		}
+
+		.PhoneInputCountrySelectArrow {
+			color: inherit !important;
+		}
+
+		&:focus {
+			border-bottom: 2px solid #000000 !important;
+		}
+
+		&::placeholder {
+			color: #757575;
+		}
+
+		&:hover:not(:focus) {
+			border-bottom-color: #a0a0a0 !important;
+		}
+	}
 }
 
 // Date and time picker consistent styling
-input[type='date'],
-input[type='time'] {
-	appearance: none;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	background-color: white;
-	border: 1.5px solid #d0d0d0 !important;
-	border-radius: 16px;
-	color: black;
-	font-size: 14px;
-	cursor: pointer;
-	width: 100%;
-	padding: 12px;
-
-	&::-webkit-calendar-picker-indicator {
-		background: none;
-		display: none;
-	}
-
-	&::-webkit-datetime-edit {
+.logical-form {
+	input[type='date'],
+	input[type='time'] {
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		background-color: white;
+		border: 1.5px solid #d0d0d0 !important;
+		border-radius: 16px;
 		color: black;
-	}
+		font-size: 14px;
+		cursor: pointer;
+		width: 100%;
+		padding: 12px;
 
-	&::-webkit-inner-spin-button {
-		display: none;
-	}
+		&::-webkit-calendar-picker-indicator {
+			background: none;
+			display: none;
+		}
 
-	&::-webkit-clear-button {
-		display: none;
+		&::-webkit-datetime-edit {
+			color: black;
+		}
+
+		&::-webkit-inner-spin-button {
+			display: none;
+		}
+
+		&::-webkit-clear-button {
+			display: none;
+		}
 	}
 
 	@media screen and (max-width: 768px) {

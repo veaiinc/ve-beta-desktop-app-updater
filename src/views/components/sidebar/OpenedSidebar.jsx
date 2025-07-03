@@ -16,7 +16,7 @@ import { ReactComponent as MoonIcon } from '../../../assets/svg/moon.svg';
 import { ReactComponent as NewEditSvg } from '../../../assets/svg/sidebar/newEdit.svg';
 import { ReactComponent as PencilkSvg } from '../../../assets/svg/pencilSimple.svg';
 import WorkspaceListComponent from './Workspace';
-import useLogout from '../../hooks/useLogout';
+import useLogout from '../../../hooks/useLogout';
 import ChatHistory from './chatHistory/ChatHistory';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
@@ -29,7 +29,7 @@ import { ReactComponent as CreateWorkspaceSvg } from '../../../assets/svg/sideba
 import SidebarTooltip from './SidebarTooltip';
 import UploadAvatarPopupComponent from '../settings/profile/UploadAvatarPopup';
 import UploadFileProiflePopup from '../settings/profile/UploadFileProiflePopup';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import CreditsLeft from './chatHistory/CreditsLeft';
 
 const workspaceStyles = {
@@ -151,7 +151,7 @@ const OpenedSidebarModules = ({
 			}}
 		>
 			<div
-				className={`singleModuleItem ${isExactPathMatch() ? 'activeListModule' : ''} ${
+				className={`singleModuleItem ${isExactPathMatch() ? 'isExactPathMatch' : ''} ${
 					isDropdownVisible ? 'calendar-active' : ''
 				}`}
 				onMouseEnter={onMouseEnter}
@@ -188,10 +188,24 @@ const OpenedSidebarModules = ({
 								name === 'Calendar' ||
 								name === 'Tasks' ||
 								name === 'Contacts' ||
-								name === 'Automations'
+								name === 'Automations' ||
+								name === 'Database'
 									? 'none'
 									: 'var(--secondary-font)'
 							}
+							style={{
+								color:
+									name === 'Notes' ||
+									name === 'Calendar' ||
+									name === 'Tasks' ||
+									name === 'Contacts' ||
+									name === 'Automations' ||
+									name === 'Database'
+										? 'var(--secondary-font)'
+										: 'none',
+								height: '20px',
+								width: '20px',
+							}}
 						/>
 					)}
 					<p style={{ margin: 0 }}>{name}</p>
@@ -260,14 +274,12 @@ const OpenedSidebar = ({
 	sidebarStates,
 	setsidebarStates,
 	info,
-	setInfo,
-	userWorkSpaceList,
-	isOpen,
 	setIsOpen,
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
 	setShowNotesDrawer,
 	setHideClosedSidebarIcon,
+	isThisEarlyAccessPage,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const sidebarNavigationItems =
@@ -285,6 +297,8 @@ const OpenedSidebar = ({
 			tenantUserAccessControls,
 			tennantSettingsData,
 			getTenantSettings,
+			userWorkSpaceList,
+			getUserWorkSpaceList,
 		},
 		themeInfo: { theme, updateTheme },
 		authInfo: { updateUserDetails },
@@ -313,6 +327,10 @@ const OpenedSidebar = ({
 		}
 	}, [userDetailsData]);
 
+	useEffect(() => {
+		if (!userWorkSpaceList) getUserWorkSpaceList();
+	}, [userWorkSpaceList]);
+
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
 	const [selectedOption, setSelectedOption] = useState(null);
@@ -328,7 +346,6 @@ const OpenedSidebar = ({
 
 	const location = useLocation();
 
-	const [isThisEarlyAccessPage, setIsThisEarlyAccessPage] = useState(false);
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
 
 	// Add this constant for Settings options
@@ -347,13 +364,6 @@ const OpenedSidebar = ({
 			updateStateValues({ leftSidebarState: null });
 		}
 	}, [leftSidebarState]);
-
-	useEffect(() => {
-		setIsThisEarlyAccessPage(
-			location?.pathname?.includes('/early-access') ||
-				location?.pathname?.includes('/pricing'),
-		);
-	}, [location?.pathname]);
 
 	useEffect(() => {
 		const handleResize = () => {
@@ -688,7 +698,7 @@ const OpenedSidebar = ({
 										flexDirection: 'column',
 										justifyContent: 'space-between',
 										overflowY: 'auto',
-										borderRight: '1px solid var(--stroke)',
+										borderRight: '1px solid var(--dividers)',
 									}}
 								>
 									<div className="topOptionsList">
@@ -707,23 +717,21 @@ const OpenedSidebar = ({
 													onClick={openWorkspacesFunction}
 													style={{ cursor: 'pointer' }}
 												>
-													{info?.activeBusniessName?.logo_s3_500w_key && (
+													{tennantSettingsData?.logo_s3_500w_key && (
 														<div className="workspaceLogoContainer">
 															<img
 																className="workspaceLogo"
 																src={
-																	info?.activeBusniessName
-																		?.logo_s3_500w_key
+																	tennantSettingsData?.logo_s3_500w_key
 																}
 																alt={
-																	info?.activeBusniessName
-																		?.activeWorkspaceId
+																	tennantSettingsData?.businessName
 																}
 															/>
 														</div>
 													)}
 													<h6 className="workspaceName">
-														{info?.activeBusniessName?.businessName}
+														{tennantSettingsData?.businessName}
 													</h6>
 													{userWorkSpaceList?.length > 1 && (
 														<DownArrowSmallSvg
@@ -1320,7 +1328,7 @@ const OpenedSidebar = ({
 						setsidebarStates={setsidebarStates}
 						sidebarStates={sidebarStates}
 						info={info}
-						userWorkSpaceList={userWorkSpaceList}
+						// userWorkSpaceList={userWorkSpaceList}
 						sidebarSettings="close"
 						// openWorkspacesFunction={openWorkspacesFunction}
 					/>

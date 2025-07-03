@@ -1,5 +1,5 @@
 import ReactModal from '../index';
-import React from 'react';
+// import React from 'react';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 const ShowLightRoomCopy = (props) => {
 	const customStyles = {

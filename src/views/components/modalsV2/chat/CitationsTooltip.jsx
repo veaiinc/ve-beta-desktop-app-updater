@@ -10,6 +10,7 @@ import {
 	redirectTo,
 	redirectTypeMapper,
 } from '../../../../helpers';
+import { ReactComponent as VeLogoSvg } from '../../../../assets/svg/veLogo.svg';
 
 export const CitationsTooltip = memo(({ citationId, citations = null, placement = 'topLeft' }) => {
 	const {
@@ -123,8 +124,8 @@ export const CitationsTooltip = memo(({ citationId, citations = null, placement 
 										{citationInfo?.type === 's3_key'
 											? fileTypeIcons[
 													citationInfo?.name?.match(/\.(\w+)$/)?.[1]
-											  ]
-											: fileTypeIcons[citationInfo?.type]}
+											  ] || <VeLogoSvg />
+											: fileTypeIcons[citationInfo?.type] || <VeLogoSvg />}
 									</div>
 								)}
 							</div>
@@ -173,8 +174,8 @@ export const CitationsTooltip = memo(({ citationId, citations = null, placement 
 										{citationInfo?.type === 's3_key'
 											? fileTypeIcons[
 													citationInfo?.name?.match(/\.(\w+)$/)?.[1]
-											  ]
-											: fileTypeIcons[citationInfo?.type]}
+											  ] || <VeLogoSvg />
+											: fileTypeIcons[citationInfo?.type] || <VeLogoSvg />}
 									</div>
 								)}
 							</div>
@@ -186,7 +187,8 @@ export const CitationsTooltip = memo(({ citationId, citations = null, placement 
 						</div>
 					</span>
 				) : (
-					<span className="citation-tooltip-header">{number}</span>
+					// <span className="citation-tooltip-header">{number}</span>
+					''
 				)}
 			</div>
 		</Tooltip>

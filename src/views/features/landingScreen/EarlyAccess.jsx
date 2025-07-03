@@ -1,21 +1,18 @@
 import { memo } from 'react';
 import s from '../../../assets/scss/landingScreen/earlyAccess.module.scss';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const EarlyAccess = () => {
-	const navigate = useNavigate();
 	return (
 		<div className={s.earlyAccess}>
 			<div className={s.container}>
-				{/* <p className={s.subHeading}>Explore.</p> */}
-				<p className={s.heading}>Own your memory</p>
-				<p className={s.description}>
-					Power every tool with your Ambient Memory — via MCP.
-					<br />Or simply download your entire memory anytime fully encrypted, fully yours!
+				<p className={s.heading}>
+					Your partner <br />
+					in everything
 				</p>
-				<button className={s.ctaButton} onClick={() => navigate('/verify-user')}>
-					Request Early Access
-				</button>
+				<Link to="/verify-user" className={s.ctaButton}>
+					Get Started
+				</Link>
 			</div>
 		</div>
 	);
