@@ -48,8 +48,8 @@ import { isEqual } from 'lodash';
 import { Database, insertDatabase } from '../../components/notes/Database';
 import DatabaseSidebar from '../../components/modalsV2/notes/DatabaseSidebar';
 import MeetTranscript from './MeetTranscript';
-import useRecallStream from '../../hooks/useRecallStream';
-import useLiveIntelligenceStream from '../../hooks/useLiveIntelligenceStream';
+import useRecallStream from '../../../hooks/useRecallStream';
+import useLiveIntelligenceStream from '../../../hooks/useLiveIntelligenceStream';
 
 export const NotesRefContext = createContext(null);
 
