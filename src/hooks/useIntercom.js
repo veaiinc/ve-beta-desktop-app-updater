@@ -23,7 +23,7 @@ const useIntercom = () => {
 
 			const company = {
 				id: workspaceId,
-				name: businessName ?? 'Unknown',
+				name: businessName,
 				region,
 			};
 
