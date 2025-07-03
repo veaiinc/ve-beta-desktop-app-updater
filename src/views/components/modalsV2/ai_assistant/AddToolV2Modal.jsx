@@ -6,6 +6,8 @@ import { ReactComponent as CrossIcon } from '../../../../assets/svg/docs/cross.s
 import Spinner from '../../loaders/Spinner';
 import { useParams } from 'react-router-dom';
 import InfiniteScroll from '../../globalComponents/InfiniteScroll';
+import { ReactComponent as SearchIcon } from '../../../../assets/svg/ai_assistant/search.svg';
+import { ReactComponent as AddIcon } from '../../../../assets/svg/ai_assistant/add.svg';
 
 const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 	const {
@@ -219,12 +221,9 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 			}}
 		>
 			<div className="actions-modal addtoolv2-modal">
-				<div className="actions-modal-header">
-					<h2>Add Tool</h2>
-					<CrossIcon onClick={onClose} className="cross-icon" />
-				</div>
-				<div className="actions-modal-inputs">
+				<div className="addtoolv2-header">
 					<div className="search-container">
+						<SearchIcon className="search-icon" />
 						<input
 							type="text"
 							placeholder="Browse tools"
@@ -233,6 +232,9 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 							className="search-input"
 						/>
 					</div>
+					<CrossIcon onClick={onClose} className="cross-icon" />
+				</div>
+				<div className="actions-modal-inputs">
 					{info.isLoading && info.actions.length === 0 ? (
 						<div className="centered-loading">
 							<Spinner width="20px" height="20px" color="var(--primary-font)" />
@@ -245,17 +247,21 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 							dataLength={info.actions.length || 0}
 							next={fetchMoreActions}
 							hasMore={info.hasNextPage || false}
-							// loader={
-							// 	<div className="centered-loading">
-							// 		<Spinner
-							// 			width="16px"
-							// 			height="16px"
-							// 			color="var(--primary-font)"
-							// 		/>{' '}
-							// 		Loading more...
-							// 	</div>
-							// }
-							height={400}
+							loader={
+								<div className="centered-loading">
+									<Spinner
+										width="16px"
+										height="16px"
+										color="var(--primary-font)"
+									/>{' '}
+									Loading more...
+								</div>
+							}
+							height={535}
+							style={{
+								overflowY: 'auto',
+								width: '100%',
+							}}
 						>
 							<div className="grouped-app-list">
 								{Object.keys(groupedActions).length === 0 ? (
@@ -306,20 +312,31 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 																		{info.addLoading[
 																			action._id
 																		] ? (
-																			<Spinner
-																				width="16px"
-																				height="16px"
-																				color="var(--white)"
-																			/>
+																			<div className="add-button-container">
+																				<Spinner
+																					width="16px"
+																					height="16px"
+																					color="var(--primary-font)"
+																				/>
+																				Adding...
+																			</div>
 																		) : (
-																			'Add'
+																			<div className="add-button-container">
+																				<AddIcon className="add-icon" />
+																				Add
+																			</div>
 																		)}
 																	</button>
 																)}
 																{info.addError[action._id] && (
 																	<div
 																		className="field-error"
-																		style={{ marginTop: 4 }}
+																		style={{
+																			marginTop: 4,
+																			color: 'var(--error)',
+																			fontSize: '12px',
+																			fontWeight: '500',
+																		}}
 																	>
 																		{info.addError[action._id]}
 																	</div>
