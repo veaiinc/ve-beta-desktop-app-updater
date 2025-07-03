@@ -34,6 +34,7 @@ const useWorkspaceMode = () => {
 		publicRoutes: null,
 		stableRoutes: null,
 		betaRoutes: null,
+		internalRoutes: null,
 		fallbackRoute,
 	});
 
