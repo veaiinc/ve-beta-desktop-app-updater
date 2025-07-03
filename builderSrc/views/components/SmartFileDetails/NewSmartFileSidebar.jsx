@@ -63,7 +63,7 @@ const SmartFileSidebar = ({
 		isAiEnabled: false,
 		documentTitle: '',
 		shareModalIsOpen: false,
-		sections: workflowInfo?.template?.sections || [],
+		sections: workflowInfo?.doc?.versions[0]?.sections || [],
 		isVariablesPresent: false,
 	});
 	const location = useLocation();
@@ -228,8 +228,8 @@ const SmartFileSidebar = ({
 	}, [info.documentTitle]);
 
 	useEffect(() => {
-		if (workflowInfo?.template?.sections !== info?.sections) {
-			setInfo((prev) => ({ ...prev, sections: workflowInfo?.template?.sections }));
+		if (workflowInfo?.doc?.versions[0]?.sections !== info?.sections) {
+			setInfo((prev) => ({ ...prev, sections: workflowInfo?.doc?.versions[0]?.sections }));
 		}
 		let isVariablesPresent = false;
 
@@ -260,7 +260,7 @@ const SmartFileSidebar = ({
 		};
 
 		// Check all sections for variables
-		workflowInfo?.template?.sections?.forEach((section) => {
+		workflowInfo?.doc?.versions[0]?.sections?.forEach((section) => {
 			// if (section.type === 'services') {
 			section.blocks?.forEach((block) => {
 				block.subBlocks?.forEach((subBlock) => {
@@ -271,7 +271,7 @@ const SmartFileSidebar = ({
 			});
 			// }
 		});
-	}, [workflowInfo?.template?.sections]);
+	}, [workflowInfo?.doc?.versions[0]?.sections]);
 
 	const scrollToElement = useCallback(
 		(id) => {
@@ -706,94 +706,96 @@ const SmartFileSidebar = ({
 						)}
 					</>
 				) : (
-					info.isVariablesPresent && (
-						<>
-							<div className="smartFileFormSubHeader">
-								<span>Update manage document</span>
-							</div>
-							{info?.variablesData?.filter(
-								(ele) =>
-									ele?.displayName !== 'Grand Total' &&
-									ele?.displayName !== 'Grand Total In Words',
-							)?.length > 0 && (
-								<Variables
-									data={
-										info?.variablesData?.filter(
-											(ele) =>
-												ele?.displayName !== 'Grand Total' &&
-												ele?.displayName !== 'Grand Total In Words',
-										) || []
-									}
-									clientDetails={info?.clientDetails || {}}
-									variableBlockChanges={variableBlockChanges}
-									updateLocalStateData={updateLocalStateData}
-									scrollAndHighlightElement={scrollToElement}
-									handleReplaceMultipleInput={handleReplaceMultipleInput}
-									previewReady={previewReady}
-									formResponses={formResponses}
-									onVariableUpdate={refreshClientDetails}
-								/>
-							)}
-							{workflowWarnings.length > 0 && (
-								<div className="workflow-warnings-container-parent">
-									<div className="workflow-warnings-container">
-										<span>Workflow Warnings</span>
-									</div>
-									<ul
-										className="workflow-warnings"
-										style={{ color: '#ffb300', margin: '8px 0', fontSize: 13 }}
-									>
-										{workflowWarnings.map((warning, idx) => (
-											<li className="workflow-warning-item" key={idx}>
-												<p
-													style={{
-														color: '#ffb300',
-														fontSize: 13,
-														fontFamily: 'Inter, sans-serif',
-														fontWeight: 500,
-														lineHeight: 1.5,
-														background: 'none',
-														letterSpacing: 'normal',
-														fontStyle: 'normal',
-														textAlign: 'left',
-														margin: 0,
-														padding: 0,
-													}}
-												>
-													{warning}
-												</p>
-											</li>
-										))}
-									</ul>
+					<>
+						{info.isVariablesPresent && (
+							<>
+								<div className="smartFileFormSubHeader">
+									<span>Update manage document</span>
 								</div>
-							)}
-							<Collapse
-								ghost
-								activeKey={info?.defaultActiveArray || []}
-								onChange={onKeyChange}
-								style={{ marginTop: '2px' }}
-							>
-								{fileOptions.map((option) => (
-									<Collapse.Panel
-										showArrow={false}
-										className="customAccordionHeader"
-										style={{ marginBottom: '24px' }}
-										header={<CustomAccordionHeader option={option} />}
-										key={option.key}
-									>
-										<File
-											fileData={option.moduleData}
-											workflowId={workflowId}
-											serviceBlockChanges={serviceBlockChanges}
-											eventsBlockChanges={eventsBlockChanges}
-											scrollAndHighlightElement={scrollToElement}
-											formResponses={formResponses}
-										/>
-									</Collapse.Panel>
-								))}
-							</Collapse>
-						</>
-					)
+								{info?.variablesData?.filter(
+									(ele) =>
+										ele?.displayName !== 'Grand Total' &&
+										ele?.displayName !== 'Grand Total In Words',
+								)?.length > 0 && (
+									<Variables
+										data={
+											info?.variablesData?.filter(
+												(ele) =>
+													ele?.displayName !== 'Grand Total' &&
+													ele?.displayName !== 'Grand Total In Words',
+											) || []
+										}
+										clientDetails={info?.clientDetails || {}}
+										variableBlockChanges={variableBlockChanges}
+										updateLocalStateData={updateLocalStateData}
+										scrollAndHighlightElement={scrollToElement}
+										handleReplaceMultipleInput={handleReplaceMultipleInput}
+										previewReady={previewReady}
+										formResponses={formResponses}
+										onVariableUpdate={refreshClientDetails}
+									/>
+								)}
+							</>
+						)}
+						{workflowWarnings.length > 0 && (
+							<div className="workflow-warnings-container-parent">
+								<div className="workflow-warnings-container">
+									<span>Workflow Warnings</span>
+								</div>
+								<ul
+									className="workflow-warnings"
+									style={{ color: '#ffb300', margin: '8px 0', fontSize: 13 }}
+								>
+									{workflowWarnings.map((warning, idx) => (
+										<li className="workflow-warning-item" key={idx}>
+											<p
+												style={{
+													color: '#ffb300',
+													fontSize: 13,
+													fontFamily: 'Inter, sans-serif',
+													fontWeight: 500,
+													lineHeight: 1.5,
+													background: 'none',
+													letterSpacing: 'normal',
+													fontStyle: 'normal',
+													textAlign: 'left',
+													margin: 0,
+													padding: 0,
+												}}
+											>
+												{warning}
+											</p>
+										</li>
+									))}
+								</ul>
+							</div>
+						)}
+						<Collapse
+							ghost
+							activeKey={info?.defaultActiveArray || []}
+							onChange={onKeyChange}
+							style={{ marginTop: '2px' }}
+						>
+							{fileOptions.map((option) => (
+								<Collapse.Panel
+									showArrow={false}
+									className="customAccordionHeader"
+									style={{ marginBottom: '24px' }}
+									header={<CustomAccordionHeader option={option} />}
+									key={option.key}
+								>
+									<File
+										fileData={option.moduleData}
+										workflowId={workflowId}
+										serviceBlockChanges={serviceBlockChanges}
+										eventsBlockChanges={eventsBlockChanges}
+										scrollAndHighlightElement={scrollToElement}
+										formResponses={formResponses}
+									/>
+								</Collapse.Panel>
+							))}
+						</Collapse>
+					</>
 				)}
 			</div>
 			<div className="smartFileSidebarFooter">
