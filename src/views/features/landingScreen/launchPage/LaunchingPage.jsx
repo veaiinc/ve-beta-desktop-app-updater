@@ -21,9 +21,9 @@ const LaunchingPage = () => {
 		}
 
 		if (e.key === 'Enter') {
-			const validationError = isValidEmail(info.email);
-			if (validationError) {
-				message.error(validationError);
+			const isEmailValid = isValidEmail(info.email);
+			if (!isEmailValid) {
+				message.error('Please enter a valid email');
 				return;
 			}
 			setInfo((prev) => ({
