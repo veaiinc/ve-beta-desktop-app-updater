@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import s from './blockPage.module.scss';
 import { ReactComponent as VeLogo } from '../../../../assets/svg/veLogo.svg';
 import { ReactComponent as BlockIcon } from './svg/block.svg';
@@ -6,21 +7,13 @@ import { ReactComponent as SwitchIcon } from './svg/switch.svg';
 import { ReactComponent as CreateIcon } from './svg/create.svg';
 
 const BlockPage = () => {
-	const handleLogoClick = () => {
-		window.location.href = '/';
-	};
+	const navigate = useNavigate();
 
 	return (
 		<>
-			{/* Add responsive meta tags */}
-			<meta
-				name="viewport"
-				content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-			/>
-
 			<div className={s.blockPage}>
 				<div className={s.blockPageHeader}>
-					<div className={s.logo} onClick={handleLogoClick}>
+					<div className={s.logo} onClick={() => navigate('/')}>
 						<VeLogo />
 					</div>
 				</div>

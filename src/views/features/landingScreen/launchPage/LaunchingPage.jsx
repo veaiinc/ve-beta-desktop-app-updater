@@ -1,14 +1,14 @@
 import { memo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import s from './launchingPage.module.scss';
 import { ReactComponent as VeLogo } from '../../../../assets/svg/veLogo.svg';
+import { message } from '../../../components/globalComponents/CustomToast';
 
 const LaunchingPage = () => {
 	const [email, setEmail] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const handleLogoClick = () => {
-		window.location.href = '/';
-	};
+	const navigate = useNavigate();
 
 	const handleEmailChange = (e) => {
 		setEmail(e.target.value);
@@ -16,12 +16,12 @@ const LaunchingPage = () => {
 
 	const handleSubmit = async () => {
 		if (!email.trim()) {
-			alert('Please enter a valid email address');
+			message.error('Please enter a valid email address');
 			return;
 		}
 
 		if (!email.includes('@')) {
-			alert('Please enter a valid email address');
+			message.error('Please enter a valid email address');
 			return;
 		}
 
@@ -36,15 +36,9 @@ const LaunchingPage = () => {
 
 	return (
 		<>
-			{/* Add responsive meta tags */}
-			<meta
-				name="viewport"
-				content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-			/>
-
 			<div className={s.launchingPage}>
 				<div className={s.launchingPageHeader}>
-					<div className={s.logo} onClick={handleLogoClick}>
+					<div className={s.logo} onClick={() => navigate('/')}>
 						<VeLogo />
 					</div>
 				</div>
@@ -78,7 +72,7 @@ const LaunchingPage = () => {
 							disabled={isSubmitting}
 							aria-label="Submit email subscription"
 						>
-							{isSubmitting ? 'Submitting...' : 'Submit'}
+							Submit
 						</button>
 					</div>
 				</div>
