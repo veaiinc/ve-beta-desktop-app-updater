@@ -182,12 +182,6 @@ const useLiveIntelligenceStream = () => {
 		(newText) => {
 			currentContextRef.current = (currentContextRef.current || '') + (newText || '');
 			const hasPunctuation = /[?.!]/.test(currentContextRef.current || '');
-			console.log(
-				currentContextRef.current,
-				newText,
-				hasPunctuation,
-				'currentContextRef.current',
-			);
 			if (hasPunctuation) {
 				if (!sendingContextRef.current) {
 					sendingContextRef.current = true;
