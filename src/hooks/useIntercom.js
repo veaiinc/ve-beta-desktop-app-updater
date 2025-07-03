@@ -1,5 +1,5 @@
-import { useContext, useEffect } from 'react';
-import Intercom from '@intercom/messenger-js-sdk';
+import { useContext, useEffect, useCallback } from 'react';
+import Intercom, { shutdown, show } from '@intercom/messenger-js-sdk';
 import Context from '../context/context';
 import useActiveWorkspace from './useActiveWorkspace';
 
@@ -12,18 +12,17 @@ const useIntercom = () => {
 		profileInfo: { userDetailsData, tennantSettingsData },
 	} = useContext(Context);
 
-	useEffect(() => {
+	const launchIntercom = useCallback(async () => {
 		try {
 			if (!userDetailsData || !tennantSettingsData || !workspaceId) return;
-
 			const { _id: user_id, firstName, lastName, email } = userDetailsData;
 			const name = `${firstName ?? ''} ${lastName ?? ''}`;
-			const { businessName } = tennantSettingsData;
+			const { businessName, _id: companyId } = tennantSettingsData;
 			const region = localStorage.getItem('region') ?? 'ap-south-1';
 
 			const company = {
-				id: workspaceId,
-				name: businessName ?? 'Unknown',
+				id: companyId,
+				name: businessName,
 				region,
 			};
 
@@ -36,9 +35,15 @@ const useIntercom = () => {
 			};
 
 			Intercom(intercomData);
+			show();
 		} catch (error) {
 			console.error('Intercom boot failed:', error);
 		}
+	}, [userDetailsData, tennantSettingsData, workspaceId]);
+
+	useEffect(() => {
+		launchIntercom();
+		return () => shutdown();
 	}, [userDetailsData, tennantSettingsData, workspaceId]);
 };
 
