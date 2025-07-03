@@ -47,6 +47,8 @@ const useWorkspaceMode = () => {
 		? 'stableRoutes'
 		: workspaceMode === 'beta'
 		? 'betaRoutes'
+		: workspaceMode === 'internal'
+		? 'internalRoutes'
 		: 'fallbackRoute';
 	const routes = routesInfo[routeType] ?? routesInfo['fallbackRoute'];
 	const loading = isPublicRoute ? false : workspaceMode === null; // since public routes don't have workspace mode. Until workspace mode becomes stable/beta, loading is true.
@@ -92,6 +94,15 @@ const useWorkspaceMode = () => {
 					setRoutesInfo((prev) => ({
 						...prev,
 						betaRoutes,
+					}));
+				}
+				break;
+			case 'internalRoutes':
+				if (routesInfo['internalRoutes'] === null) {
+					const { default: internalRoutes } = await import('../routes/internalRoutes');
+					setRoutesInfo((prev) => ({
+						...prev,
+						internalRoutes,
 					}));
 				}
 				break;
