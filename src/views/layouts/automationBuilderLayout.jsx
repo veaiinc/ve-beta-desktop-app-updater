@@ -15,6 +15,7 @@ const AutomationBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 	// } = useContext(Context);
 	useTheme();
 	useAuth();
+	useAuth();
 	useSubscription();
 	useTokenExpiry();
 
