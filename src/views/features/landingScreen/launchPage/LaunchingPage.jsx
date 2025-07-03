@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import s from './launchingPage.module.scss';
 import { ReactComponent as VeLogo } from '../../../../assets/svg/veLogo.svg';
 import { message } from '../../../components/globalComponents/CustomToast';
+import { isValidEmail } from '../../../../helpers/index.jsx';
 
 const LaunchingPage = () => {
 	const navigate = useNavigate();
@@ -10,11 +11,6 @@ const LaunchingPage = () => {
 		email: '',
 		isSubmitting: false,
 	});
-
-	const validateEmail = (email) => {
-		const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		return re.test(email) ? null : 'Invalid email';
-	};
 
 	const handleInput = (e) => {
 		if (e.target.type === 'email') {
@@ -25,7 +21,7 @@ const LaunchingPage = () => {
 		}
 
 		if (e.key === 'Enter') {
-			const validationError = validateEmail(info.email);
+			const validationError = isValidEmail(info.email);
 			if (validationError) {
 				message.error(validationError);
 				return;
@@ -38,7 +34,7 @@ const LaunchingPage = () => {
 	};
 
 	const handleSubmit = () => {
-		const validationError = validateEmail(info.email);
+		const validationError = isValidEmail(info.email);
 		if (validationError) {
 			message.error(validationError);
 			return;
