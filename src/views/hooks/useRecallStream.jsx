@@ -38,11 +38,13 @@ const useRecallStream = () => {
 			}
 		};
 
-		// socketRef.current.onclose = () => {
-		// 	if (!isIntentionallyClosed) {
-		// 		createWebSocketConnection(onMessageFunc);
-		// 	}
-		// };
+		socketRef.current.onclose = () => {
+			console.log('Disconnected from Recall WebSocket server');
+		};
+
+		socketRef.current.onerror = (error) => {
+			console.error('Recall WebSocket error:', error);
+		};
 	}, []);
 
 	return { createWebSocketConnection };

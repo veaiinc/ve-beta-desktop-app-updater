@@ -6,6 +6,7 @@ const useLiveIntelligenceStream = () => {
 	const sendTimeoutRef = useRef(null);
 	const sendingContextRef = useRef(false);
 	const currentSessionIdRef = useRef(null);
+	const isSocketFirstTimeConnectedRef = useRef(false);
 	const messageHandlerRef = useRef(null);
 	const MAX_RETRY_ATTEMPTS = 10;
 	const RETRY_DELAY = 1000; // 1 second
@@ -73,6 +74,8 @@ const useLiveIntelligenceStream = () => {
 			if (socketRef.current) {
 				socketRef.current.close();
 			}
+
+			isSocketFirstTimeConnectedRef.current = true;
 
 			socketRef.current = new WebSocket(baseUrl);
 
@@ -143,7 +146,9 @@ const useLiveIntelligenceStream = () => {
 
 			if (socketRef.current.readyState === WebSocket.OPEN) {
 				const contextData = {
-					previous_context: previousContextRef.current,
+					...(isSocketFirstTimeConnectedRef.current && {
+						previous_context: previousContextRef.current,
+					}),
 					current_context: currentContextRef.current,
 					location: locationData,
 					timezone: 'Asia/Calcutta',
@@ -153,8 +158,12 @@ const useLiveIntelligenceStream = () => {
 					if (currentContextRef.current?.length > 0) {
 						socketRef.current.send(JSON.stringify(contextData));
 						// Move current context to previous context
+						isSocketFirstTimeConnectedRef.current = false;
+
 						previousContextRef.current =
-							(previousContextRef.current || '') + (currentContextRef.current || '');
+							(previousContextRef.current || '') +
+							(currentContextRef.current || '') +
+							'\n';
 						currentContextRef.current = '';
 					}
 				} catch (error) {
