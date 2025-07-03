@@ -100,7 +100,7 @@ const AiTranscriptionSuggestions = ({ closeModal }) => {
 								>
 									{fileTypeIcons[
 										file?.type === 's3_key'
-											? file?.name?.match(/\.(\w+)$/)?.[1]
+											? file?.name?.match(/\.(\w+)$/)?.[1] // to check the file format
 											: file?.type
 									] || <VeLogoSvg />}
 									<div className={s.fileName}>{file?.name}</div>
