@@ -4,30 +4,41 @@ import { ReactComponent as LeftSvg } from '../../../assets/svg/activity/left.svg
 import { ReactComponent as DeleteSvg } from '../../../assets/svg/delete.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
+import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
 
 import { Tooltip } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
+import jwtDecode from 'jwt-decode';
+import { message } from '../globalComponents/CustomToast';
 
 const ChatHeader = ({
 	sessionId,
 	onNavigateBack,
 	isNewChat = false,
 	smoothScrollToParticularMessage = null,
+	showDeleteChat = true,
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const timeoutRef = useRef(null);
 	const {
-		templates: { currentChatData, deleteChatSession, globalChatMessages },
+		templates: {
+			currentChatData,
+			deleteChatSession,
+			globalChatMessages,
+			updatechatSessionFavourite,
+		},
+		aiSetup: { aiChatSessions, updateStateValues },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		deleteChatSessionLoading: false,
 		chatDropdownExpanded: false,
 		userMessages: [],
 		activeUserMessageIndex: -1,
+		isFavourite: false,
+		userId: null,
 	});
+	const deleteChatSessionLoadingRef = useRef(false);
 
 	useEffect(() => {
 		const messages = globalChatMessages?.[sessionId]?.messages;
@@ -58,6 +69,19 @@ const ChatHeader = ({
 		}
 	}, [globalChatMessages?.[sessionId]?.messages?.length]);
 
+	useEffect(() => {
+		const userId = jwtDecode(localStorage.getItem('usertoken'))?.user_id;
+		setInfo((prev) => ({ ...prev, userId }));
+	}, []);
+
+	useEffect(() => {
+		if (currentChatData) {
+			const favorites = currentChatData?.favorites || [];
+			const isFavourite = favorites?.includes(info?.userId) || false;
+			setInfo((prev) => ({ ...prev, isFavourite }));
+		}
+	}, [currentChatData, info?.userId]);
+
 	const handleNavigateBack = useCallback(() => {
 		const pathname = location?.pathname?.split('/')?.[1];
 		if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
@@ -68,10 +92,10 @@ const ChatHeader = ({
 	}, [location?.pathname]);
 
 	const handleDeleteChatClick = useCallback(async () => {
-		if (info?.deleteChatSessionLoading || globalChatMessages?.[sessionId]?.isStreaming) {
+		if (deleteChatSessionLoadingRef.current || globalChatMessages?.[sessionId]?.isStreaming) {
 			return;
 		}
-		setInfo((prev) => ({ ...prev, deleteChatSessionLoading: true }));
+		deleteChatSessionLoadingRef.current = true;
 		const response = await deleteChatSession(sessionId);
 		if (response?.[0] === true) {
 			navigate('/home');
@@ -81,8 +105,8 @@ const ChatHeader = ({
 		} else {
 			message.error('Failed to delete chat session');
 		}
-		setInfo((prev) => ({ ...prev, deleteChatSessionLoading: false }));
-	}, [deleteChatSession, sessionId, info?.deleteChatSessionLoading, globalChatMessages]);
+		deleteChatSessionLoadingRef.current = false;
+	}, [deleteChatSession, sessionId, globalChatMessages]);
 
 	const handleActiveUserMessageIndexChange = useCallback(
 		(index) => {
@@ -130,6 +154,50 @@ const ChatHeader = ({
 			};
 		});
 	}, []);
+
+	const handleFavouriteClick = useCallback(async () => {
+		if (globalChatMessages?.[sessionId]?.isStreaming) {
+			return;
+		}
+		const isFavourite = !info?.isFavourite;
+		const response = await updatechatSessionFavourite(sessionId, isFavourite);
+		if (response?.[0] === true) {
+			const data = [...(aiChatSessions?.data || [])];
+			const sessionIndex = data?.findIndex((session) => session?._id === sessionId);
+			if (sessionIndex !== -1) {
+				const favorites = data[sessionIndex]?.favorites || [];
+				if (isFavourite) {
+					favorites?.push(info?.userId);
+				} else {
+					const index = favorites?.indexOf(info?.userId);
+					if (index !== -1) {
+						favorites?.splice(index, 1);
+					}
+				}
+				data[sessionIndex] = {
+					...(data[sessionIndex] || {}),
+					favorites,
+				};
+			}
+			updateStateValues({
+				aiChatSessions: {
+					...(aiChatSessions || {}),
+					data,
+				},
+			});
+		} else {
+			message.error('Failed to update favourites');
+		}
+	}, [
+		info?.isFavourite,
+		info?.userId,
+		sessionId,
+		currentChatData,
+		updatechatSessionFavourite,
+		aiChatSessions,
+		updateStateValues,
+		globalChatMessages,
+	]);
 
 	return (
 		<div className={s.wrapper}>
@@ -185,16 +253,42 @@ const ChatHeader = ({
 					</div>
 					<div className={s.rightContainer}>
 						{!isNewChat && (
-							<Tooltip
-								title={<div className={s.tooltip}>Delete Chat</div>}
-								placement="bottom"
-								color="transparent"
-								arrow={false}
-							>
-								<button className={s.deleteChatBtn} onClick={handleDeleteChatClick}>
-									<DeleteSvg />
-								</button>
-							</Tooltip>
+							<>
+								<Tooltip
+									title={
+										<div className={s.tooltip}>
+											{info?.isFavourite
+												? 'Remove from favourites'
+												: 'Add to favourites'}
+										</div>
+									}
+									placement="bottom"
+									color="transparent"
+									arrow={false}
+								>
+									<button
+										className={`${s.favouriteBtn} ${
+											info?.isFavourite ? s.active : ''
+										}`}
+										onClick={handleFavouriteClick}
+									>
+										<StarSvg />
+									</button>
+								</Tooltip>
+								<Tooltip
+									title={<div className={s.tooltip}>Delete Chat</div>}
+									placement="bottom"
+									color="transparent"
+									arrow={false}
+								>
+									<button
+										className={s.deleteChatBtn}
+										onClick={handleDeleteChatClick}
+									>
+										<DeleteSvg />
+									</button>
+								</Tooltip>
+							</>
 						)}
 					</div>
 				</div>

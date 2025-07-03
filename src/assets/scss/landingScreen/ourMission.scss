@@ -8,7 +8,7 @@
 	font-weight: 700;
 	gap: 100px;
 	justify-content: center;
-	margin-top: 90px;
+	margin-top: 74px;
 	padding: 46px 0 0 0px;
 	width: 100%;
 	overflow: hidden;
@@ -25,7 +25,8 @@
 		justify-content: center;
 		&.bridge-img-dark {
 			.mission-block {
-				.bridge, .bridgeMobile {
+				.bridge,
+				.bridgeMobile {
 					img {
 						filter: invert(0);
 					}
@@ -163,6 +164,89 @@
 			line-height: 32px;
 		}
 	}
+
+	.long-description-block {
+		color: var(--primary-font, #f2f2f3);
+		font-family: Manrope;
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 32px;
+		text-align: left;
+		gap: 24px;
+		display: flex;
+		flex-direction: column;
+
+		.mobile-heading {
+			display: none;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--tertiary-font-family);
+			font-size: 32px;
+			font-weight: 600;
+			margin-bottom: 16px;
+		}
+
+		p {
+			margin: 0;
+			padding: 2px;
+		}
+
+		.loginDescriptionText {
+			padding: 0;
+			margin: 0;
+		}
+
+		.loginDescriptionTwo {
+			.loginDescriptionTwoText {
+				span {
+					color: var(--primary-font, #f2f2f3);
+					font-family: Charter;
+					font-size: 24px;
+					font-style: italic;
+					font-weight: 700;
+					line-height: normal;
+					letter-spacing: -0.72px;
+				}
+			}
+		}
+
+		.loginDescriptionThree {
+			color: var(--primary-font, #f2f2f3);
+			font-family: Charter;
+			font-size: 24px;
+			font-style: italic;
+			font-weight: 700;
+			line-height: normal;
+			letter-spacing: -0.72px;
+		}
+
+		.loginDescriptionFour {
+			.descriptionFourTitle {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Charter;
+				font-size: 24px;
+				font-style: italic;
+				font-weight: 700;
+				line-height: normal;
+				letter-spacing: -0.72px;
+			}
+			ul {
+				list-style: none;
+				padding: 0;
+				margin: 0;
+			}
+		}
+
+		.bottomText {
+			color: var(--primary-font, #f2f2f3);
+			font-family: Charter;
+			font-size: 24px;
+			font-style: italic;
+			font-weight: 700;
+			line-height: normal;
+			letter-spacing: -0.72px;
+		}
+	}
 }
 
 @media (max-width: 900px) {
@@ -197,6 +281,53 @@
 			}
 			.small-heading {
 				display: block;
+			}
+		}
+
+		.long-description-block {
+			padding: 2px 10px;
+			gap: 3px;
+			overflow: auto;
+
+			.mobile-heading {
+				display: block;
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--tertiary-font-family);
+				font-size: 32px;
+				font-weight: 600;
+				margin-bottom: 16px;
+			}
+
+			p {
+				font-size: 16px;
+				font-weight: 500;
+				line-height: 32px;
+			}
+
+			.loginDescriptionTwo {
+				.loginDescriptionTwoText {
+					span {
+						font-size: 20px;
+						letter-spacing: -0.6px;
+					}
+				}
+			}
+
+			.loginDescriptionThree {
+				font-size: 20px;
+				letter-spacing: -0.6px;
+			}
+
+			.loginDescriptionFour {
+				.descriptionFourTitle {
+					font-size: 20px;
+					letter-spacing: -0.6px;
+				}
+			}
+
+			.bottomText {
+				font-size: 20px;
+				letter-spacing: -0.6px;
 			}
 		}
 	}

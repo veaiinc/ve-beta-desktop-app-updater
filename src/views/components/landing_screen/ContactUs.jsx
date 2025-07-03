@@ -1,5 +1,6 @@
 import React, { memo, useContext, useState, useCallback, useRef } from 'react';
 import { throttle } from 'lodash';
+import { Checkbox } from 'antd';
 import '../../../assets/scss/landingScreen/contactus/contactus.scss';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
@@ -297,11 +298,18 @@ const ContactUs = ({ type }) => {
 
 				{/* Marketing Consent */}
 				<div className="checkbox-group">
-					<input
-						type="checkbox"
-						name="marketingConsent"
+					<Checkbox
+						className="custom-notification-checkbox"
 						checked={info.formData.marketingConsent}
-						onChange={handleChange}
+						onChange={(e) => {
+							setInfo((prev) => ({
+								...prev,
+								formData: {
+									...prev.formData,
+									marketingConsent: e.target.checked,
+								},
+							}));
+						}}
 					/>
 					<p>
 						I agree to VE sending me marketing communications, as described in the{' '}

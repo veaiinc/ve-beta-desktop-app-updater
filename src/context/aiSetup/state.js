@@ -55,6 +55,7 @@ export const initialState = {
 	aiSetupDataUser: null,
 	voiceIntegrationData: null, //{token,serverUrl,shouldConnect	}
 	triggerVoiceDisconnect: null,
+	aiTranscriptionSuggestions: null,
 };
 
 export const AiSetupState = () => {
@@ -1176,12 +1177,35 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const handleAiTranscriptionSuggestions = async (chunk) => {
+		try {
+			dispatch({
+				type: Actions?.HANDLE_AI_TRANSCRIPTION_SUGGESTIONS,
+				payload: chunk,
+			});
+		} catch (error) {
+			console.log('error==>handleAiTranscriptionSuggestions', error);
+		}
+	};
+
+	const updateStateValues = async (updatedVaribaleValuesObj) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+				payload: updatedVaribaleValuesObj,
+			});
+		} catch (error) {
+			console.log('error==>updateStateValues', error);
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
 
 	return {
 		...state,
+		updateStateValues,
 		getKnowledgeBaseFiles,
 		getExistingAiAssistants,
 		createNewAiAssistant,
@@ -1227,5 +1251,6 @@ export const AiSetupState = () => {
 		deleteAiSetupData,
 		editAiSetupData,
 		updateAiChatSessions,
+		handleAiTranscriptionSuggestions,
 	};
 };

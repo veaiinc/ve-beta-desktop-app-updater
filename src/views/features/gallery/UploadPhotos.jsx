@@ -156,7 +156,8 @@ const UploadPhotos = () => {
 			lightGallery === 'false' &&
 			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
-			!validateExpiryData?.uploadAllowed
+			!validateExpiryData?.uploadAllowed &&
+			!validateExpiryData?.uploadAllowedForClassicGallery
 		) {
 			return updateSubscriptionState({
 				expiredSubscriptionModal: true,

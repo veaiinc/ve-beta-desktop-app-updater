@@ -56,6 +56,12 @@ const actionHandlers = {
 			aiChatSessions,
 		};
 	},
+	HANDLE_AI_TRANSCRIPTION_SUGGESTIONS: (state, action) => {
+		return {
+			...state,
+		};
+	},
+	UPDATE_STATE_VALUES_SUCCESS: (state, action) => ({ ...state, ...action.payload }),
 	SET_AI_ASSISTANTS: (state, action) => ({
 		...state,
 		[action?.selectedVariable]: action?.payload,

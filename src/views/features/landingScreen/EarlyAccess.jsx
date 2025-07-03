@@ -8,7 +8,7 @@ const EarlyAccess = () => {
 			<div className={s.container}>
 				<p className={s.heading}>
 					Your partner <br />
-					in everthing
+					in everything
 				</p>
 				<Link to="/verify-user" className={s.ctaButton}>
 					Get Started

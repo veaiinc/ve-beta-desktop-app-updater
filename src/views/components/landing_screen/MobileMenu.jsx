@@ -5,46 +5,46 @@ import { ReactComponent as Sparkle } from '../../../assets/svg/sparkle.svg';
 import { ReactComponent as Binoculars } from '../../../assets/svg/landingScreen/binocularsSvg.svg';
 import { ReactComponent as CaretDonw } from '../../../assets/svg/left.svg';
 import { ReactComponent as VeLogoBlack } from '../../../assets/svg/veLogoBlack.svg';
-const featuresList = [
-	{ label: 'Ambient AI' },
-	{ label: 'Enterprise Search' },
-	{ label: 'AI meeting notes' },
-	{ label: 'Agents' },
-	{ label: 'Build' },
-	{ label: 'Notes' },
-	{ label: 'Projects' },
-	{ label: 'Docs' },
-	{ label: 'Sites' },
-	{ label: 'Calendar' },
-	{ label: 'Task' },
-	{ label: 'Automation' },
-];
+// const featuresList = [
+// 	{ label: 'Ambient AI' },
+// 	{ label: 'Enterprise Search' },
+// 	{ label: 'AI meeting notes' },
+// 	{ label: 'Agents' },
+// 	{ label: 'Build' },
+// 	{ label: 'Notes' },
+// 	{ label: 'Projects' },
+// 	{ label: 'Docs' },
+// 	{ label: 'Sites' },
+// 	{ label: 'Calendar' },
+// 	{ label: 'Task' },
+// 	{ label: 'Automation' },
+// ];
 
-const searchList = [
-	{ label: 'Knowledge search' },
-	{ label: 'Internal search' },
-	{ label: 'LLM search' },
-];
+// const searchList = [
+// 	{ label: 'Knowledge search' },
+// 	{ label: 'Internal search' },
+// 	{ label: 'LLM search' },
+// ];
 
 const missionSubmenuList = [
-	{ label: 'The bridge', path: '/thebridge' },
+	{ label: 'Manifesto', path: '/manifesto' },
 	{ label: 'Careers', path: '/careers' },
 	{ label: 'Forefront', path: '/forefront' },
 ];
 
 const menuData = [
-	{
-		label: 'Ambient AI',
-		submenu: { features: featuresList, search: searchList },
-		section: 'Features',
-	},
+	// {
+	// 	label: 'Ambient AI',
+	// 	submenu: { features: featuresList, search: searchList },
+	// 	section: 'Features',
+	// },
 	{ label: 'Home', path: '/' },
-	{ label: 'The bridge', path: '/thebridge', submenu: { thebridge: missionSubmenuList } },
+	{ label: 'Manifesto', path: '/manifesto', submenu: { manifesto: missionSubmenuList } },
 	{ label: 'For Enterprise', path: '/contact-us' },
 	{ label: 'Pricing', path: '/pricing' },
 ];
 
-const MobileMenu = ({ open, onClose, onLogin, onGetFree }) => {
+const MobileMenu = ({ open, onClose }) => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({ activeMenu: 'main', submenu: null });
 

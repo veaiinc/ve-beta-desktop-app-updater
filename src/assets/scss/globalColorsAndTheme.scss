@@ -16,11 +16,12 @@
 
 	/* main colors */
 	--background-color: #121212; /* #0f0f10 */
+	--chat-background-color: #191a1a;
 
 	/* font colors */
 	--primary-font: rgb(242, 242, 243); /* #f2f2f3 */
 	--secondary-font: #94989e; /* #7a7e85 */
-	--chat-secondary-font: #c9c9cf; /* rgb(193, 193, 201) */
+	--chat-secondary-font: #e1e1e5; /* rgb(193, 193, 201) */
 
 	/* card colors */
 	--card: #1b1c1d; /* #18191b */
@@ -89,6 +90,7 @@
 [theme='light'] {
 	/* main colors */
 	--background-color: #ffffff; /* #fafafa */
+	--chat-background-color: var(--background-color);
 
 	/* common colors */
 	--info: #5089f9; /* #5089f9 */

@@ -16,6 +16,7 @@ import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import TextSelector from '../../components/chat/chatComponents/TextSelector';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import ChatHeader from '../../components/chat/ChatHeader';
+import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 
 const RecentChat = ({
 	isPublicChat = false,
@@ -28,6 +29,8 @@ const RecentChat = ({
 	onChangeSessionId = null,
 	chatActive = false,
 	onNavigateBack = null,
+	showCitationsButton = true,
+	showDeleteChat = true,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const {
@@ -42,7 +45,6 @@ const RecentChat = ({
 			updateChatLoadingSessions,
 			newChatSessionIds,
 			getFollowUpQueries,
-			aiMessagesInfo,
 		},
 		aiSetup: { updateAiChatSessions, aiChatSessions },
 		chatStream: {
@@ -77,6 +79,8 @@ const RecentChat = ({
 		currentUserMessageIndex: null,
 		getFollowUpQueries: false,
 		chatQuery: '',
+		citationsAiMessageIndex: null,
+		citationsModalIsOpen: false,
 	});
 
 	const chatContentRef = useRef(null);
@@ -242,6 +246,8 @@ const RecentChat = ({
 				setInfo((prev) => ({
 					...prev,
 					scrollExecuted: false,
+					citationsModalIsOpen: false,
+					citationsAiMessageIndex: null,
 				}));
 			}
 			if (currentUserMessageTimeoutRef.current) {
@@ -834,12 +840,39 @@ const RecentChat = ({
 		setInfo((prev) => ({ ...prev, showViewDocument: value }));
 	}, []);
 
+	const handleCloseCitationsModal = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			citationsModalIsOpen: false,
+			citationsAiMessageIndex: null,
+		}));
+	}, []);
+
+	const handleSourcesClick = useCallback(
+		(index) => {
+			setInfo((prev) => {
+				if (index !== prev?.citationsAiMessageIndex) {
+					updateStateValues({
+						chatSources: globalChatMessages?.[sessionId]?.messages?.[index]?.citations,
+					});
+				}
+				return {
+					...prev,
+					citationsModalIsOpen: index !== prev?.citationsAiMessageIndex,
+					citationsAiMessageIndex: index !== prev?.citationsAiMessageIndex ? index : null,
+				};
+			});
+		},
+		[globalChatMessages, sessionId, updateStateValues],
+	);
+
 	return (
 		<>
 			<div
 				className="chat-container"
 				style={{
 					height: isPublicChat ? 'calc(100% - 32px)' : '',
+					width: info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%',
 				}}
 			>
 				{/* header */}
@@ -849,6 +882,7 @@ const RecentChat = ({
 						onNavigateBack={onNavigateBack}
 						isNewChat={info?.isNewChat}
 						smoothScrollToParticularMessage={smoothScrollToParticularMessage}
+						showDeleteChat={showDeleteChat}
 					/>
 				)}
 
@@ -932,19 +966,9 @@ const RecentChat = ({
 														>
 															<AIMessageRenderer
 																messageData={chat}
-																userMessageElement={
-																	userMessagesRefs.current?.[
-																		index - 1
-																	]
-																}
-																chatContentElement={
-																	chatContentRef?.current
-																}
 																handleNoteComponentModalOpen={
 																	handleNoteComponentModalOpen
 																}
-																tabsRefs={tabsRefs}
-																index={index}
 																handleViewDocument={
 																	handleViewDocument
 																}
@@ -952,6 +976,19 @@ const RecentChat = ({
 																	info?.showViewDocument
 																}
 																isPublicChat={isPublicChat}
+																handleSourcesClick={
+																	handleSourcesClick
+																}
+																messageIndex={index}
+																showCitationsButton={
+																	showCitationsButton
+																}
+																isLastMessage={
+																	index ===
+																	globalChatMessages?.[sessionId]
+																		?.messages?.length -
+																		1
+																}
 															/>
 														</div>
 													) : (
@@ -1017,10 +1054,10 @@ const RecentChat = ({
 				</div>
 			</div>
 
-			{/* <CitationsModal
+			<CitationsModal
 				modalIsOpen={info?.citationsModalIsOpen}
 				closeModal={handleCloseCitationsModal}
-			/> */}
+			/>
 			<NoteComponentModal
 				modalIsOpen={info?.noteModalIsOpen}
 				closeModal={handleNoteComponentModalClose}

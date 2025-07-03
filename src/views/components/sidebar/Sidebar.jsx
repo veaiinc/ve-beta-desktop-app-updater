@@ -2,7 +2,11 @@ import { useState, useContext, useEffect, memo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import Intercom from '@intercom/messenger-js-sdk';
 import '../../../assets/scss/sidebar.scss';
-import { stableNavigationItems, betaNaviagationItems } from './sidebarindex';
+import {
+	stableNavigationItems,
+	betaNavigationItems,
+	internalNavigationItems,
+} from './sidebarindex';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import OpenedSidebar from './OpenedSidebar';
 import Notifications from './notifications/Notifications';
@@ -41,11 +45,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const sidebarRef = useRef(null);
 	const sidebarOpenRef = useRef(null);
 	const hasClosedForRouteRef = useRef(false);
-
-	const {
-		profileInfo: { userWorkSpaceList, userDetailsData, getUserDetails, getUserWorkSpaceList },
-	} = useContext(Context);
-
 	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
 	const [showNotesDrawer, setShowNotesDrawer] = useState(false);
 	const [showChatsDrawer, setShowChatsDrawer] = useState(false);
@@ -84,7 +83,11 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	});
 
 	const sidebarNavigationItems =
-		workspaceMode === 'stable' ? stableNavigationItems : betaNaviagationItems;
+		workspaceMode === 'beta'
+			? betaNavigationItems
+			: workspaceMode === 'internal'
+			? internalNavigationItems
+			: stableNavigationItems;
 
 	// Sync isOpen to localStorage
 	useEffect(() => {
@@ -102,40 +105,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 			setIsOpen(true);
 		}
 	}, [isMobile]);
-
-	// Fetch workspace and user info
-	useEffect(() => {
-		if (!userDetailsData) getUserDetails();
-		if (!userWorkSpaceList) getUserWorkSpaceList();
-	}, []);
-
-	// Configure Intercom
-	useEffect(() => {
-		if (userDetailsData && info) {
-			Intercom({
-				app_id: 'vmvweabd',
-				user_id: userDetailsData?._id,
-				name: `${userDetailsData?.firstName} ${userDetailsData?.lastName}`,
-				email: userDetailsData?.email,
-				company: {
-					name:
-						info?.activeBusniessName?.activeWorkspaceId ??
-						localStorage?.getItem('workspaceId'),
-					id: info?.activeBusniessName?.businessName,
-					region: info?.activeBusniessName?.region,
-				},
-			});
-		}
-	}, [userDetailsData, info]);
-	// Set active business name
-	useEffect(() => {
-		if (userWorkSpaceList) {
-			const activeBusniessName = userWorkSpaceList.find(
-				(item) => item.activeWorkspaceId === activeWorkspaceId,
-			);
-			setInfo((prev) => ({ ...prev, activeBusniessName }));
-		}
-	}, [userWorkSpaceList]);
 
 	// Track route change for route-based module
 	useEffect(() => {
@@ -207,7 +176,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							sidebarStates={sidebarStates}
 							info={info}
 							setInfo={setInfo}
-							userWorkSpaceList={userWorkSpaceList}
+							// userWorkSpaceList={userWorkSpaceList}
 							isOpen={isOpen}
 							setIsOpen={setIsOpen}
 							setShowChatsDrawer={setShowChatsDrawer}
@@ -218,10 +187,13 @@ const Sidebar = ({ activeWorkspaceId }) => {
 						/>
 					</div>
 				</nav>
-				<ClosedSidebar
-					onIconClick={() => setIsOpen(true)}
-					isEarlyAccessPage={isEarlyAccessPage}
-				/>
+				{!isOpen && (
+					<ClosedSidebar
+						onIconClick={() => setIsOpen(true)}
+						isEarlyAccessPage={isEarlyAccessPage}
+					/>
+				)}
+
 				<Notifications
 					showNotificationsDrawer={showNotificationsDrawer}
 					setShowNotificationsDrawer={setShowNotificationsDrawer}
