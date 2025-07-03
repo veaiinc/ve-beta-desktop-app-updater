@@ -11,7 +11,6 @@ const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndE
 const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
 const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
-import MeetBot from '../views/features/meetBot/meetBot';
 
 const stableRoutes = [
 	{
@@ -82,14 +81,6 @@ const stableRoutes = [
 			<Public>
 				<Navigate to="/home" />
 			</Public>
-		),
-	},
-	{
-		path: '/meet',
-		element: (
-			<AuthWrapper title={'Meet'}>
-				<MeetBot />
-			</AuthWrapper>
 		),
 	},
 ];

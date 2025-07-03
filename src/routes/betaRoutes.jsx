@@ -46,8 +46,6 @@ import SmartFile from '../views/features/sales/smartFiles/SmartFile';
 import WorkflowBuilder from '../views/features/workflowBuilder/WorkflowBuilder';
 import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
 import Onboarding from '../views/features/onboarding/Onboarding';
-import NotesWrapper from '../views/features/notesModule/NotesWrapper';
-import MeetBot from '../views/features/meetBot/meetBot';
 
 const Files = lazy(() => import('../views/features/files/Files'));
 const ExpandedClientView = lazy(() => import('../views/features/contacts/ExpandedClientView'));
@@ -574,22 +572,6 @@ const betaRoutes = [
 			<Public>
 				<Navigate to="/home" />
 			</Public>
-		),
-	},
-	{
-		path: '/meet',
-		element: (
-			<AuthWrapper title={'Meet'}>
-				<MeetBot />
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/meet/:noteId',
-		element: (
-			<AuthWrapper title={'Meet'}>
-				<NotesWrapper />
-			</AuthWrapper>
 		),
 	},
 ];
