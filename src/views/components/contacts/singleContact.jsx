@@ -12,6 +12,8 @@ import OverviewContact from './overViewContact';
 const SingleContact = ({ selectedContact, selectedOptions }) => {
 	const navigate = useNavigate();
 
+	const [info, setInfo] = useState({ totalCount: 0 });
+
 	const handleTotalChange = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, totalCount: data }));
 	};
