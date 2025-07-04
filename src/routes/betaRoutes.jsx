@@ -19,7 +19,6 @@ import UploadPhotos from '../views/features/gallery/UploadPhotos';
 import InitialHomePage from '../views/features/homePage/InitialHomePage';
 import ShareAndEarn from '../views/features/shareAndEarn/ShareAndEarn';
 import SettingsWrapper from '../views/features/settings/SettingsWrapper';
-
 import Docs from '../views/features/docs/Docs';
 import LiteGallery from '../views/features/gallery/Litegallery';
 import MyTemplates from '../views/features/myTemplates/MyTemplates';

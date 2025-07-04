@@ -67,6 +67,7 @@
 		transition: background 0.2s;
 		&:hover {
 			background: var(--primary-button-hover, #1de9b6);
+			color: var(--primary-font);
 		}
 	}
 }

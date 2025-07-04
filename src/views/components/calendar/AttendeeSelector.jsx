@@ -3,6 +3,7 @@ import '../../../assets/scss/calendar/attendeeSelector.scss';
 import { Select, Input, Button } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { message } from '../globalComponents/CustomToast';
+import { isValidEmail } from '../../../helpers/index.jsx';
 
 const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 	const [searchValue, setSearchValue] = useState('');
@@ -15,12 +16,6 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const selectRef = useRef(null);
 	const searchInputRef = useRef(null);
-
-	// Email validation regex
-	const isValidEmail = (email) => {
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		return emailRegex.test(email);
-	};
 
 	useEffect(() => {
 		const formattedOptions = options?.map((option) => ({

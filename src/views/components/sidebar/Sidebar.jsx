@@ -2,7 +2,11 @@ import { useState, useContext, useEffect, memo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import Intercom from '@intercom/messenger-js-sdk';
 import '../../../assets/scss/sidebar.scss';
-import { stableNavigationItems, betaNaviagationItems } from './sidebarindex';
+import {
+	stableNavigationItems,
+	betaNavigationItems,
+	internalNavigationItems,
+} from './sidebarindex';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import OpenedSidebar from './OpenedSidebar';
 import Notifications from './notifications/Notifications';
@@ -79,7 +83,11 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	});
 
 	const sidebarNavigationItems =
-		workspaceMode === 'stable' ? stableNavigationItems : betaNaviagationItems;
+		workspaceMode === 'beta'
+			? betaNavigationItems
+			: workspaceMode === 'internal'
+			? internalNavigationItems
+			: stableNavigationItems;
 
 	// Sync isOpen to localStorage
 	useEffect(() => {

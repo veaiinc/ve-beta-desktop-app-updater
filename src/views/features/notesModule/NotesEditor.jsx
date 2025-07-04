@@ -22,7 +22,6 @@ import { ReactComponent as CrossIcon } from '../../../assets/svg/notes/cross.svg
 import { message } from '../../components/globalComponents/CustomToast';
 import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
-import useChatStream from '../../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
 import jwtDecode from 'jwt-decode';
 import { ReactComponent as DustBinIcon } from '../../../assets/svg/tasks/dustBin.svg';
@@ -35,7 +34,8 @@ import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/bac
 import { ImageBlock, insertImage } from '../../components/notes/ImageComponent';
 import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
-
+import NoteTranscription from '../note-transcription/NoteTranscription';
+import useRecallStream from '../../../hooks/useRecallStream';
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
 	title: '',
@@ -62,6 +62,7 @@ const initialState = {
 	selectedEmoji: null,
 	coverImageRemoved: false,
 	iconImageRemoved: false,
+	transcriptionText: null,
 };
 
 const accessLevels = {
@@ -85,6 +86,7 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const { workspaceMode } = useWorkspaceMode();
+	const { createWebSocketConnection: createRecallStream } = useRecallStream();
 	const { noteId } = useParams();
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
@@ -510,6 +512,52 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		[info?.deleteLoading, info?.notesConfigs, navigate, noteId, setInfo],
 	);
 
+	const NoteTranscriptionCovertion = useCallback(
+		(transcriptionText) => {
+			const text = transcriptionText?.text;
+			if (!text || transcriptionTextsRef.current.has(text)) {
+				console.log('Skipping duplicate transcription text:', text);
+				return;
+			}
+
+			transcriptionTextsRef.current.add(text);
+			if (!lastBlockRef.current) {
+				lastBlockRef.current = editor.document?.at(-1);
+			}
+
+			const block = editor.getBlock(lastBlockRef.current?.id || editor.document?.at(-1)?.id);
+
+			editor.updateBlock(block?.id, {
+				content: [
+					...block?.content,
+					{
+						type: 'text',
+						text: ' ' + text,
+						styles: {},
+					},
+				],
+			});
+
+			// if (lastBlock && lastBlock.type === 'paragraph' && !lastBlock.content) {
+			// 	// Update empty last block
+			// 	editor.updateBlock(lastBlockId, {
+			// 		type: 'paragraph',
+			// 		content: text,
+			// 	});
+			// } else {
+			// 	// Insert new paragraph
+			// 	editor.insertBlocks(
+			// 		[{ type: 'paragraph', content: text }],
+			// 		lastBlockId ? { id: lastBlockId } : null,
+			// 		'after',
+			// 	);
+			// }
+
+			// Trigger save
+			handleContentChange(editor.document);
+		},
+		[editor, handleContentChange],
+	);
 	const handleDuplicatePage = useCallback(async () => {
 		if (info?.loading) return;
 		setInfo((prev) => ({ ...prev, loading: true }));
@@ -657,7 +705,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			message.error('Failed to remove icon');
 		}
 	};
-
+	const handleUpdateTranscription = useCallback((text) => {
+		setInfo((prev) => ({
+			...prev,
+			transcriptionText: text,
+		}));
+	}, []);
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
 			{info?.title && (
@@ -957,6 +1010,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 					</>
 				)}
 			</div>
+			{/* <NoteTranscription pageId={noteId} updateTranscription={handleUpdateTranscription} /> */}
 		</div>
 	);
 };

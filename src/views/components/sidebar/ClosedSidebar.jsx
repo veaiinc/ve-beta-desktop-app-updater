@@ -1,6 +1,11 @@
 import { memo, useContext } from 'react';
 import '../../../assets/scss/sidebar.scss';
-import { stableNavigationItems, betaNaviagationItems } from './sidebarindex';
+import {
+	stableNavigationItems,
+	betaNavigationItems,
+	internalNavigationItems,
+} from './sidebarindex.js';
+
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +14,13 @@ import Cropper from 'react-easy-crop';
 import CreditsLeftSvg from './chatHistory/CreditsLeftSvg';
 import { Tooltip } from 'antd';
 import ObjectID from 'bson-objectid';
+
+const navigationItemsMap = {
+	beta: betaNavigationItems,
+	internal: internalNavigationItems,
+	stable: stableNavigationItems,
+};
+
 const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 	const navigate = useNavigate();
 	const { workspaceMode } = useWorkspaceMode();
@@ -16,8 +28,8 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 		profileInfo: { userDetailsData },
 		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
-	const sidebarNavigationItems =
-		workspaceMode === 'stable' ? stableNavigationItems : betaNaviagationItems;
+
+	const sidebarNavigationItems = navigationItemsMap[workspaceMode];
 
 	const getInitials = (firstName, lastName) => {
 		const firstNameInitial = firstName ? firstName?.charAt(0) : '-';
