@@ -4,6 +4,7 @@ import moment from 'moment';
 import '../../../assets/scss/notes/meetTranscript.scss';
 
 const MeetTranscript = ({ transcriptList = [] }) => {
+	console.log(transcriptList, 'transcriptList');
 	const listRef = useRef(null);
 	const lastItemRef = useRef(null);
 	const [highlightIdx, setHighlightIdx] = useState(null);
@@ -43,14 +44,6 @@ const MeetTranscript = ({ transcriptList = [] }) => {
 	);
 };
 
-MeetTranscript.propTypes = {
-	transcriptList: PropTypes.arrayOf(
-		PropTypes.shape({
-			participant: PropTypes.string,
-			text: PropTypes.string,
-			timestamp: PropTypes.string,
-		}),
-	),
-};
+
 
 export default MeetTranscript;

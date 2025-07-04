@@ -34,8 +34,8 @@ import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/bac
 import { ImageBlock, insertImage } from '../../components/notes/ImageComponent';
 import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
-import NoteTranscription from '../note-transcription/NoteTranscription';
 import useRecallStream from '../../../hooks/useRecallStream';
+import NoteTranscription from '../note-transcription/NoteTranscription';
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
 	title: '',
@@ -706,6 +706,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		}
 	};
 	const handleUpdateTranscription = useCallback((text) => {
+		console.log('text', text);
 		setInfo((prev) => ({
 			...prev,
 			transcriptionText: text,
@@ -1011,6 +1012,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				)}
 			</div>
 			{/* <NoteTranscription pageId={noteId} updateTranscription={handleUpdateTranscription} /> */}
+			
 		</div>
 	);
 };
