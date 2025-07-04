@@ -368,14 +368,16 @@ const createCustomComponents = (citations, markdown) => ({
 	},
 	code({ node, inline, className, children, ...props }) {
 		const match = /language-(\w+)/?.exec(className || '');
+		const codeCheck = !inline && match && match[1] !== 'plaintext';
 		let code;
-		if (!inline && match) {
+		if (codeCheck) {
 			code = markdown?.slice(
 				node?.position?.start?.offset + (3 + match[1]?.length),
 				node?.position?.end?.offset - 3,
 			);
 		}
-		return !inline && match ? (
+
+		return codeCheck ? (
 			<MarkdownCode code={code} match={match} node={node} />
 		) : (
 			<code {...props} className="code">

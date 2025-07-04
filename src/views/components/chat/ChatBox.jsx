@@ -162,6 +162,7 @@ const ChatBox = ({
 			currentSessionId,
 			chatReplyData,
 			deleteMultiAgentFile,
+			isProactive,
 		},
 		subscriptionInfo: { currentPlan },
 		calendarInfo: { updateCalendarState },
@@ -194,9 +195,9 @@ const ChatBox = ({
 		isLLMModelOpen: false,
 		searchTypeOpenForReason: false,
 		activePlaceholderIndex: 0,
-		chatBoxInfo: null,
 		openUpgradeModal: false,
 		askTooltipOpen: false,
+		chatBoxInfo: initialChatBoxInfo,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -582,11 +583,12 @@ const ChatBox = ({
 					let currentQuery =
 						(chatReplyData ? chatReplyData + '\n' : '') +
 						(info?.chatQuery?.trim() || query?.trim());
-					const chatBoxData = info?.chatBoxInfo;
 					const routeName = location?.pathname?.split('/')?.[1];
-					const chatPayload =
-						globalChatMessages?.[info?.chatSessionId]?.chatPayload || {};
+					const sessionId = params?.sessionId || info?.chatSessionId;
+					const chatBoxData =
+						globalChatMessages?.[sessionId]?.chatBoxInfo || info?.chatBoxInfo;
 
+					const chatPayload = globalChatMessages?.[sessionId]?.chatPayload || {};
 					const date =
 						info?.chatFilters?.dateRange?.length > 0
 							? [
@@ -647,10 +649,17 @@ const ChatBox = ({
 							}));
 						}
 					}
+
+					if (isProactive) {
+						payload.proactive = true;
+						updateStateValues({
+							isProactive: false,
+						});
+					}
+
 					if (activeWorkflowSlugForSmartFile) {
 						payload.workflow_slug = activeWorkflowSlugForSmartFile;
 					}
-
 					if (chatPayload?.workflowTemplateId) {
 						payload.workflow_template_id = chatPayload?.workflowTemplateId;
 					}
@@ -660,6 +669,10 @@ const ChatBox = ({
 
 					if (routeName === 'contact') {
 						payload.module_id = params?.contactId;
+					}
+
+					if (routeName === 'meet') {
+						payload.module_id = params?.noteId;
 					}
 
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
@@ -690,12 +703,11 @@ const ChatBox = ({
 
 					onChatQueryChange?.('');
 					clearTextArea();
-					if (!(globalChatMessages?.[info?.chatSessionId]?.messages?.length > 0)) {
+					if (!(globalChatMessages?.[sessionId]?.messages?.length > 0)) {
 						const addNewSession = true;
-						const payload = { sessionId: info?.chatSessionId };
+						const payload = { sessionId };
 						updateAiChatSessions(payload, addNewSession);
 					}
-
 					if (customChatActions) {
 						return onSend({
 							payload,
@@ -709,12 +721,8 @@ const ChatBox = ({
 							chatReplyData: null,
 						});
 					}
-					handleStreamSendMessage(
-						payload,
-						localPayload,
-						currentQuery,
-						info?.chatSessionId,
-					);
+
+					handleStreamSendMessage(payload, localPayload, currentQuery, sessionId);
 					if (handleSendWebsocketMessage) {
 						handleSendWebsocketMessage(payload, currentQuery);
 					}
@@ -735,6 +743,7 @@ const ChatBox = ({
 			currentPlan,
 			globalChatMessages,
 			chatReplyData,
+			isProactive,
 			onChatQueryChange,
 		],
 	);
