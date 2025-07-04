@@ -4,7 +4,7 @@ import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } f
 import s from '../../../assets/scss/notes/database.module.scss';
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
 import Context from '../../../context/context';
-import { NotesRefContext } from '../../features/notesModule/meetWithNote';
+import { NotesRefContext } from '../../features/notesModule/DatabaseWithNote';
 import CustomTextArea from '../globalComponents/CustomTextArea';
 import DatabaseAddFieldModal from '../modalsV2/notes/DatabaseAddFieldModal';
 import DatabaseAddModal from '../modalsV2/notes/DatabaseAddModal';
