@@ -17,7 +17,7 @@ import TextSelector from '../../components/chat/chatComponents/TextSelector';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import ChatHeader from '../../components/chat/ChatHeader';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
-
+import { message } from '../../components/globalComponents/CustomToast';
 const RecentChat = ({
 	isPublicChat = false,
 	isPreview = false,
@@ -829,7 +829,16 @@ const RecentChat = ({
 					updateExtraInfo: true,
 				});
 			} catch (error) {
+				const info = typeof error?.message === 'string' ? error?.message || '' : '';
+				message.error(info);
 				console.error('Failed to send message:', error);
+
+				handleGlobalChatMessages({
+					sessionId,
+					updateExtraInfo: true,
+					removeStreaming: true,
+				});
+
 				// Handle error appropriately (show notification, etc.)
 			}
 		},

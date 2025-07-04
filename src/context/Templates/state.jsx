@@ -140,6 +140,7 @@ export const intialState = {
 	chatBoxSuggestions: null,
 	newChatSessionIds: [],
 	aiMessagesInfo: null,
+	isProactive: false,
 };
 
 export const TemplatesState = (props) => {

@@ -118,6 +118,15 @@ const AISuggestionsModal = ({
 		[data],
 	);
 
+	const handleActionClick = useCallback((prompt) => {
+		sessionId = ObjectID()?.toString();
+		updateStateValues({
+			activePromptForChat: prompt,
+			isProactive: true,
+		});
+		navigate(`/chat/${sessionId}`);
+	}, []);
+
 	const handleViewReportClick = useCallback(
 		(data) => {
 			const report = info?.chainOfThoughtData;
@@ -289,6 +298,7 @@ const AISuggestionsModal = ({
 		crux,
 		createdAt,
 		thinker_sources,
+		sessionId,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -594,7 +604,7 @@ const AISuggestionsModal = ({
 																className="result-item"
 																key={index}
 																onClick={() =>
-																	handlePromptClick(item)
+																	handleActionClick(item)
 																}
 															>
 																<div className="result-text">

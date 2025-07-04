@@ -1,4 +1,4 @@
-import { useReducer, useRef, useEffect, useCallback } from 'react';
+import { useReducer, useRef, useCallback } from 'react';
 
 export const initialChatStreamState = {};
 
@@ -56,7 +56,11 @@ export const ChatStreamState = () => {
 				const attemptSend = () => {
 					// If max retries exceeded, reject the promise
 					if (attempts >= MAX_RETRY_ATTEMPTS) {
-						reject(new Error('Failed to send message after maximum retry attempts'));
+						reject(
+							new Error(
+								'Failed to send message after maximum retry attempts, Please try again',
+							),
+						);
 						return;
 					}
 

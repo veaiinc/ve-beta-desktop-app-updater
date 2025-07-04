@@ -1207,6 +1207,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 									...prev,
 									showExploreMore: true,
 								}));
+								handleModalOpen?.(false);
 							}}
 						/>
 					</div>
