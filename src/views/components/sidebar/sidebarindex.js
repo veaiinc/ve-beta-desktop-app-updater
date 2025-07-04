@@ -15,7 +15,7 @@ import { ReactComponent as PlanBillingIcon } from '../../../assets/svg/sidebar/p
 import { ReactComponent as NotesIcon } from '../../../assets/svg/sidebar/notes-icon.svg';
 import { ReactComponent as DatabaseIcon } from '../../../assets/svg/sidebar/notes/database.svg';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/home_page/calendar.svg';
-import { ReactComponent as TasksSvg } from '../../../assets/svg/home_page/tasks.svg';
+import { ReactComponent as TasksSvg } from '../../../assets/svg/home_page/tasksWithoutColor.svg';
 import { ReactComponent as ContactsSvg } from '../../../assets/svg/home_page/contacts.svg';
 import { ReactComponent as AutomationSvg } from '../../../assets/svg/home_page/automation.svg';
 // import { ReactComponent as PricingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
@@ -25,7 +25,7 @@ export const stableNavigationItems = [
 	{
 		id: 0,
 		name: 'New Chat',
-		moduleRoute: null,
+		moduleRoute: 'null',
 		route: 'New Chat',
 		icon: ChatSvg,
 	},
