@@ -998,6 +998,19 @@
 	}
 }
 
+@media (max-width: 1500px) {
+	.ai-suggestions-wrapper {
+		width: 450px !important;
+		.drawer-header {
+			height: auto !important;
+		}
+		.header-content {
+			flex-wrap: wrap;
+			gap: 10px;
+		}
+	}
+}
+
 .tooltipOption {
 	display: inline-flex;
 	padding: 10px;

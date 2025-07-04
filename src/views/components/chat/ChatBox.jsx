@@ -662,6 +662,10 @@ const ChatBox = ({
 						payload.module_id = params?.contactId;
 					}
 
+					if (routeName === 'meet') {
+						payload.module_id = params?.noteId;
+					}
+
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
 
 					if (!location_details) {

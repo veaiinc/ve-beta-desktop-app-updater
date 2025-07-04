@@ -195,6 +195,7 @@ const InitialHomePage = () => {
 			acc[option.value] = false;
 			return acc;
 		}, {}),
+		aiSuggestionsModalOpen: false,
 	});
 
 	useEffect(() => {
@@ -219,6 +220,14 @@ const InitialHomePage = () => {
 	// 		}));
 	// 	}
 	// };
+
+	useEffect(() => {
+		if (info?.aiSuggestionsModalOpen) {
+			updateStateValues({
+				leftSidebarState: 'close',
+			});
+		}
+	}, [info?.aiSuggestionsModalOpen]);
 
 	useEffect(() => {
 		if (!promptsData) {
@@ -333,6 +342,16 @@ const InitialHomePage = () => {
 		[info?.options],
 	);
 
+	const handleModalOpen = useCallback((value) => {
+		setInfo((prev) => {
+			if (prev?.aiSuggestionsModalOpen === value) return prev;
+			return {
+				...prev,
+				aiSuggestionsModalOpen: value,
+			};
+		});
+	}, []);
+
 	const title = homePageTextContent[info?.selectedOption]?.title || '';
 	const subText = homePageTextContent[info?.selectedOption]?.subText || '';
 	const userName =
@@ -342,55 +361,59 @@ const InitialHomePage = () => {
 	const greeting = getGreeting();
 
 	return (
-		<div
-			className={`initial-home-page-container`}
-			style={{
-				...(options?.length === 0 && { justifyContent: 'center' }),
-			}}
-		>
-			{/* <div className="quick-actions-container">
+		<div className="initial-home-page-wrapper">
+			<div
+				className={`initial-home-page-container ${
+					info?.aiSuggestionsModalOpen ? 'initial-page-active' : ''
+				}`}
+				style={{
+					...(options?.length === 0 && { justifyContent: 'center' }),
+					// width: info?.aiSuggestionsModalOpen ? 'calc(100% - 700px)' : '100%',
+				}}
+			>
+				{/* <div className="quick-actions-container">
 				<QuickActions suggestedOptions={SuggestedOptions} />
 			</div> */}
-			<div
-				className={`home-page-container-header `}
-				// style={{
-				// 	...(options?.length === 0 && { marginTop: 0 }),
-				// }}
-			>
-				<div className={`title-container `}>
-					<div className="title-text">
-						<h2 className="title-one">{greeting}!</h2>
-						<span className="title-two">{userName}</span>
+				<div
+					className={`home-page-container-header `}
+					// style={{
+					// 	...(options?.length === 0 && { marginTop: 0 }),
+					// }}
+				>
+					<div className={`title-container `}>
+						<div className="title-text">
+							<h2 className="title-one">{greeting}!</h2>
+							<span className="title-two">{userName}</span>
+						</div>
 					</div>
+					{
+						!info?.showSuggestions && ''
+						// <div className="options-wrapper">
+						// 	<div className={`homepage__options-container`}>{renderedOptions}</div>
+						// 	{/* <div className="arrow-container">
+						// 		{showArrows.left && (
+						// 			<div
+						// 				className="arrow left-arrow"
+						// 				onClick={() => handleScroll('left')}
+						// 			>
+						// 				<ChevronRightThinSvg style={{ transform: 'rotate(180deg)' }} />
+						// 			</div>
+						// 		)}
+						// 		{showArrows.right && (
+						// 			<div
+						// 				className="arrow right-arrow"
+						// 				onClick={() => handleScroll('right')}
+						// 			>
+						// 				<ChevronRightThinSvg />
+						// 			</div>
+						// 		)}
+						// 	</div> */}
+						// </div>
+					}
 				</div>
-				{
-					!info?.showSuggestions && ''
-					// <div className="options-wrapper">
-					// 	<div className={`homepage__options-container`}>{renderedOptions}</div>
-					// 	{/* <div className="arrow-container">
-					// 		{showArrows.left && (
-					// 			<div
-					// 				className="arrow left-arrow"
-					// 				onClick={() => handleScroll('left')}
-					// 			>
-					// 				<ChevronRightThinSvg style={{ transform: 'rotate(180deg)' }} />
-					// 			</div>
-					// 		)}
-					// 		{showArrows.right && (
-					// 			<div
-					// 				className="arrow right-arrow"
-					// 				onClick={() => handleScroll('right')}
-					// 			>
-					// 				<ChevronRightThinSvg />
-					// 			</div>
-					// 		)}
-					// 	</div> */}
-					// </div>
-				}
-			</div>
 
-			<div className="home-page-container-content">
-				{/* {info?.selectedOption === 'All' ? (
+				<div className="home-page-container-content">
+					{/* {info?.selectedOption === 'All' ? (
 						<ProactiveSuggestions
 							option={info?.selectedOption}
 							previousOption={previousSelectedOptionRef.current}
@@ -398,10 +421,12 @@ const InitialHomePage = () => {
 					) : (
 						<GlobalWidget option={info?.selectedOption} />
 					)} */}
-				<ProactiveSuggestions
-					option={info?.selectedOption}
-					previousOption={previousSelectedOptionRef.current}
-				/>
+					<ProactiveSuggestions
+						option={info?.selectedOption}
+						previousOption={previousSelectedOptionRef.current}
+						handleModalOpen={handleModalOpen}
+					/>
+				</div>
 			</div>
 		</div>
 	);

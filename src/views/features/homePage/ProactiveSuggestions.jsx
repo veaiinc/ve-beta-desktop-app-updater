@@ -113,7 +113,7 @@ const sortOptions = {
 const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
 
 const optionsList = [];
-const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
+const ProactiveSuggestions = ({ previousOption = null, option = null, handleModalOpen = null }) => {
 	const navigate = useNavigate();
 	const currentIndexRef = useRef(0);
 	const totalCardsDataRef = useRef([]);
@@ -454,16 +454,19 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			selectedCardNumber: index + 1,
 			cards: prev.cards.map((c) => (c._id === card._id ? { ...c, read: true } : c)),
 		}));
+		handleModalOpen?.(true);
 		currentIndexRef.current = index;
 	};
 
-	const handleCloseModal = () =>
+	const handleCloseModal = () => {
 		setInfo((prev) => ({
 			...prev,
 			openModal: false,
 			activeCardContent: null,
 			selectedCardNumber: null,
 		}));
+		handleModalOpen?.(false);
+	};
 
 	const handleFilterClick = (option, group) => {
 		setInfo((prev) => {
@@ -722,6 +725,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			currentIndex: 0,
 		}));
 	};
+
 	const renderedOptions = useMemo(() => {
 		return info?.options?.map((option, index) => {
 			return (
@@ -730,6 +734,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 					onClick={(e) => {
 						e.stopPropagation();
 						handleOptionSelection(option);
+						handleModalOpen?.(false);
 					}}
 					key={index}
 				>
@@ -1225,6 +1230,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 				onClick={(e) => {
 					e.stopPropagation();
 					handleExploreMoreClick(e);
+					handleModalOpen?.(false);
+					handleCloseModal();
 				}}
 			>
 				Explore More <DoubleUpArrowSvg />

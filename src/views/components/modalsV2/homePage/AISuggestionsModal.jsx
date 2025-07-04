@@ -311,6 +311,7 @@ const AISuggestionsModal = ({
 			bodyStyle={{ padding: '0px', width: 'auto' }}
 			rootClassName="ai-suggestions-drawer"
 			destroyOnClose={true}
+			mask={false}
 			maskClassName="drawer-mask"
 		>
 			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
