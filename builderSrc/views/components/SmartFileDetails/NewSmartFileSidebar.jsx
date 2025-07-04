@@ -544,6 +544,7 @@ const SmartFileSidebar = ({
 		}
 
 		// Check services data for empty fields
+		let serviceUntickedErrorAdded = false;
 		if (fileOptions && fileOptions.length > 0) {
 			fileOptions.forEach((option) => {
 				const moduleData = option.moduleData;
@@ -554,6 +555,15 @@ const SmartFileSidebar = ({
 							section.blocks &&
 							section.blocks.length > 0
 						) {
+							// Check if ALL services are unticked (show === false)
+							const allUnticked = section.blocks.every(
+								(block) => !block.subBlocks?.[0]?.show,
+							);
+							if (allUnticked && !serviceUntickedErrorAdded) {
+								emptyFieldNames.push('Please select at least one service');
+								serviceUntickedErrorAdded = true;
+							}
+							// Existing quantity check
 							section.blocks.forEach((block, blockIndex) => {
 								if (block.subBlocks && block.subBlocks.length > 0) {
 									block.subBlocks.forEach((subBlock, subBlockIndex) => {
@@ -683,6 +693,45 @@ const SmartFileSidebar = ({
 			if (!clientDetails.email || clientDetails.email.trim() === '') {
 				emptyFieldNames.push('Client Email');
 			}
+		}
+
+		// Check payment schedule for missing dates
+		let paymentDateErrorAdded = false;
+		if (fileOptions && fileOptions.length > 0) {
+			fileOptions.forEach((option) => {
+				const moduleData = option.moduleData;
+				if (moduleData?.versions?.[0]?.sections) {
+					moduleData.versions[0].sections.forEach((section) => {
+						if (
+							section.type === 'invoice-with-payment' &&
+							section.blocks &&
+							section.blocks.length > 0
+						) {
+							section.blocks.forEach((block) => {
+								if (
+									block.subBlocks &&
+									block.subBlocks.length > 0 &&
+									!paymentDateErrorAdded
+								) {
+									block.subBlocks.forEach((subBlock) => {
+										if (
+											!subBlock.type ||
+											subBlock.type.trim() === '' ||
+											!subBlock.dueDate ||
+											subBlock.dueDate.trim() === ''
+										) {
+											emptyFieldNames.push(
+												'Please select a payment date for all installments',
+											);
+											paymentDateErrorAdded = true;
+										}
+									});
+								}
+							});
+						}
+					});
+				}
+			});
 		}
 
 		return emptyFieldNames;
