@@ -27,7 +27,7 @@ const useIntercom = () => {
 		} catch (error) {
 			console.error('Intercom boot failed:', error);
 		}
-	}, [userDetailsData, getIntercomToken]);
+	}, [userDetailsData]);
 
 	useEffect(() => {
 		launchIntercom();
