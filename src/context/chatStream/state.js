@@ -49,7 +49,7 @@ export const ChatStreamState = () => {
 	}, []);
 
 	const sendMessage = useCallback(
-		(data) => {
+		(data, sessionId) => {
 			return new Promise((resolve, reject) => {
 				let attempts = 0;
 
@@ -62,16 +62,15 @@ export const ChatStreamState = () => {
 
 					// If socket doesn't exist or is closed, try to reconnect
 					if (
-						!socketRefs.current[currentSessionIdRef.current] ||
-						socketRefs.current[currentSessionIdRef.current].readyState ===
-							WebSocket.CLOSED
+						!socketRefs.current[sessionId] ||
+						socketRefs.current[sessionId].readyState === WebSocket.CLOSED
 					) {
 						console.log('Connection closed, attempting to reconnect...');
 						createWebSocketConnection(
-							currentSessionIdRef.current,
-							socketsInfoRef.current[currentSessionIdRef.current]?.onMessageFunc,
-							socketsInfoRef.current[currentSessionIdRef.current]?.agentType,
-							socketsInfoRef.current[currentSessionIdRef.current]?.isPublicChat,
+							sessionId,
+							socketsInfoRef.current[sessionId]?.onMessageFunc,
+							socketsInfoRef.current[sessionId]?.agentType,
+							socketsInfoRef.current[sessionId]?.isPublicChat,
 							workspaceModeRef.current,
 						);
 						attempts++;
@@ -80,10 +79,7 @@ export const ChatStreamState = () => {
 					}
 
 					// If socket is still connecting, wait and retry
-					if (
-						socketRefs.current[currentSessionIdRef.current].readyState ===
-						WebSocket.CONNECTING
-					) {
+					if (socketRefs.current[sessionId].readyState === WebSocket.CONNECTING) {
 						console.log('Connection not ready, waiting...');
 						attempts++;
 						setTimeout(attemptSend, RETRY_DELAY);
@@ -91,14 +87,9 @@ export const ChatStreamState = () => {
 					}
 
 					// If socket is ready, send the message
-					if (
-						socketRefs.current[currentSessionIdRef.current].readyState ===
-						WebSocket.OPEN
-					) {
+					if (socketRefs.current[sessionId].readyState === WebSocket.OPEN) {
 						try {
-							socketRefs.current[currentSessionIdRef.current].send(
-								JSON.stringify(data),
-							);
+							socketRefs.current[sessionId].send(JSON.stringify(data));
 							resetInactivityTimeout();
 							resolve();
 						} catch (error) {
@@ -150,21 +141,21 @@ export const ChatStreamState = () => {
 				}/${sessionId}/guest_chat`;
 			}
 
-			socketRefs.current[currentSessionIdRef.current] = new WebSocket(baseUrl);
+			socketRefs.current[sessionId] = new WebSocket(baseUrl);
 
-			socketRefs.current[currentSessionIdRef.current].onopen = () => {
+			socketRefs.current[sessionId].onopen = () => {
 				console.log('Connected to WebSocket server');
 				resetInactivityTimeout();
 			};
 
-			socketRefs.current[currentSessionIdRef.current].onclose = () => {
+			socketRefs.current[sessionId].onclose = () => {
 				console.log('Disconnected from WebSocket server');
 				if (inactivityTimeoutRef.current) {
 					clearTimeout(inactivityTimeoutRef.current);
 				}
 			};
 
-			socketRefs.current[currentSessionIdRef.current].onmessage = (event) => {
+			socketRefs.current[sessionId].onmessage = (event) => {
 				resetInactivityTimeout();
 				if (onMessageFunc) {
 					onMessageFunc(event, currentSessionIdRef.current);

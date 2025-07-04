@@ -819,7 +819,7 @@ const RecentChat = ({
 	const handleSendWebsocketMessage = useCallback(
 		async (data, lastQuery) => {
 			try {
-				await sendMessage(data);
+				await sendMessage(data, sessionId);
 				setTimeout(() => {
 					smoothScrollToLastMessage();
 				}, 0);
