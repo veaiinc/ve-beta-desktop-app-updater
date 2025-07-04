@@ -18,12 +18,10 @@ export default function useNote({ wsUrl, token, isRecording }) {
 	const connect = useCallback(async () => {
 		// Only connect if recording is active
 		if (!isRecording) {
-			console.log('Not connecting to LiveKit: Recording is not active');
 			return;
 		}
 
 		if (isConnected || isConnectingRef.current) {
-			console.log('Already connected or connecting to LiveKit');
 			return;
 		}
 
@@ -44,14 +42,13 @@ export default function useNote({ wsUrl, token, isRecording }) {
 			roomRef.current = room;
 
 			room.on(RoomEvent.ConnectionStateChanged, (state) => {
-				console.log('LiveKit state:', state);
+				// console.log('LiveKit connection state:', state);
 				setIsConnected(state === 'connected');
 				if (
 					state === 'disconnected' &&
 					!isConnectingRef.current &&
 					!isIntentionalDisconnectRef.current
 				) {
-					console.log('Disconnected unexpectedly, attempting to reconnect...');
 					if (reconnectAttemptsRef.current < maxReconnectAttempts && isRecording) {
 						reconnectAttemptsRef.current += 1;
 						setTimeout(connect, 1000 * reconnectAttemptsRef.current); // Exponential backoff
@@ -68,15 +65,15 @@ export default function useNote({ wsUrl, token, isRecording }) {
 			});
 
 			room.on(RoomEvent.Disconnected, (reason) => {
-				console.log('Disconnected from LiveKit. Reason:', reason);
+				// console.log('Disconnected from LiveKit. Reason:', reason);
 			});
 
 			room.on(RoomEvent.Reconnecting, () => {
-				console.log('Reconnecting to LiveKit...');
+				// console.log('Reconnecting to LiveKit...');
 			});
 
 			room.on(RoomEvent.Reconnected, () => {
-				console.log('Reconnected to LiveKit');
+				// console.log('Reconnected to LiveKit');
 				setIsConnected(true);
 			});
 
@@ -91,40 +88,44 @@ export default function useNote({ wsUrl, token, isRecording }) {
 			});
 
 			room.on(RoomEvent.LocalNetworkQualityChanged, (quality) => {
-				console.log('Local network quality:', quality);
+				// Network quality monitoring
 			});
 
 			room.on(RoomEvent.RemoteNetworkQualityChanged, (quality, participant) => {
-				console.log('Remote network quality for', participant.identity, ':', quality);
+				// Remote network quality monitoring
 			});
 
-			room.on(RoomEvent.DataReceived, (payload, participant, topic) => {});
+			room.on(RoomEvent.DataReceived, (payload, participant, topic) => {
+				// console.log('Transcription data received from LiveKit:', {
+				// 	participant: participant.identity,
+				// 	topic: topic,
+				// 	payloadLength: payload.length,
+				// });
+			});
 
-			room.on(RoomEvent.SignalConnected, () => {});
+			room.on(RoomEvent.SignalConnected, () => {
+				// Signal connected
+			});
 
 			room.on(RoomEvent.DCBufferStatusChanged, (status) => {
-				console.log('DCBuffer status changed:', status);
+				// DCBuffer status monitoring
 			});
 
 			// Participant logging
 			room.on(RoomEvent.ParticipantConnected, (participant) => {
-				console.log('Participant connected:', participant.identity, participant.sid);
+				// console.log('Participant connected:', participant.identity);
 			});
 
 			room.on(RoomEvent.ParticipantDisconnected, (participant) => {
-				console.log('Participant disconnected:', participant.identity, participant.sid);
+				// console.log('Participant disconnected:', participant.identity);
 			});
 
 			room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
-				console.log(
-					`Track subscribed: ${track.kind} ${publication.trackSid} from ${participant.identity}`,
-				);
+				// console.log(`Track subscribed: ${track.kind} from ${participant.identity}`);
 			});
 
 			room.on(RoomEvent.TrackUnsubscribed, (track, publication, participant) => {
-				console.log(
-					`Track unsubscribed: ${track.kind} ${publication.trackSid} from ${participant.identity}`,
-				);
+				// console.log(`Track unsubscribed: ${track.kind} from ${participant.identity}`);
 			});
 
 			// Wait for the WebRTC engine to be ready
@@ -152,6 +153,7 @@ export default function useNote({ wsUrl, token, isRecording }) {
 				},
 				video: false,
 			});
+
 			const audioTrack = tracks.find((t) => t.kind === 'audio');
 			if (audioTrack) {
 				audioTrackRef.current = audioTrack;
@@ -170,8 +172,6 @@ export default function useNote({ wsUrl, token, isRecording }) {
 						analyser.getByteFrequencyData(dataArray);
 						const average =
 							dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
-						// if (average > 0) {
-						// }
 						if (audioTrackRef.current && isRecording) {
 							setTimeout(checkAudioActivity, 1000);
 						}
@@ -183,6 +183,7 @@ export default function useNote({ wsUrl, token, isRecording }) {
 				const waitForPublish = new Promise((resolve, reject) => {
 					room.on(RoomEvent.LocalTrackPublished, (publication) => {
 						if (publication.trackSid === audioTrack.sid) {
+							// console.log('Audio track successfully published to LiveKit');
 							resolve();
 						}
 					});
@@ -218,10 +219,9 @@ export default function useNote({ wsUrl, token, isRecording }) {
 						await new Promise((resolve) => setTimeout(resolve, 2000));
 					}
 				}
-				// No post-publish mute state change; rely on muteAudio/unmuteAudio
 			}
 		} catch (err) {
-			console.error('❌ LiveKit setup failed:', err);
+			console.error('LiveKit setup failed:', err);
 			setIsConnected(false);
 		} finally {
 			isConnectingRef.current = false;

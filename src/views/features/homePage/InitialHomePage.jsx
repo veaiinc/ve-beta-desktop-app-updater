@@ -4,7 +4,7 @@ import { memo, useContext, useState, useEffect, useCallback, useMemo, useRef } f
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 // import QuickActions from '../../components/globalComponents/QuickActions';
-import { message } from '../../components/globalComponents/CustomToast';
+// import { message } from '../../components/globalComponents/CustomToast';
 // import AskMe from './AskMe';
 // import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 // import ChatPrompts from './ChatPrompts';
@@ -76,105 +76,105 @@ const optionsList = [
 	// },
 ];
 
-const SuggestedOptions = [
-	{
-		id: 1,
-		title: 'Event',
-		value: 'event',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openEventsPopup: true }));
-		},
-	},
-	{
-		id: 2,
-		title: 'Schedule',
-		value: 'schedule',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openSchedulerDrawer: true, dropdown: false }));
-		},
-	},
-	{
-		id: 3,
-		title: 'Task',
-		value: 'task',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, createTaskPopup: true }));
-		},
-	},
-	{
-		id: 4,
-		title: 'Contact',
-		value: 'contacts',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openClientPopup: true }));
-		},
-	},
-	{
-		id: 5,
-		title: 'Automation',
-		value: 'automation',
-		action: async ({ setInfo, navigate, createAutomation, info }) => {
-			if (info?.isAutomationLoading) return;
-			try {
-				setInfo((prev) => ({
-					...prev,
-					showLoader: true,
-					loaderMessage: 'Creating automation...',
-				}));
-				const response = await createAutomation({
-					name: 'Untitled Automation',
-					version: 1,
-					steps: [],
-					status: 'draft',
-				});
-				if (response?.[0]) {
-					navigate(`/automation-builder/${response?.[1]?._id}`);
-				} else {
-					message.error('Failed to create automation');
-				}
-			} catch (error) {
-				message.error('Failed to create automation');
-			} finally {
-				setInfo((prev) => ({
-					...prev,
-					showLoader: false,
-					loaderMessage: '',
-				}));
-			}
-		},
-	},
-];
+// const SuggestedOptions = [
+// 	{
+// 		id: 1,
+// 		title: 'Event',
+// 		value: 'event',
+// 		action: ({ setInfo }) => {
+// 			setInfo((prev) => ({ ...prev, openEventsPopup: true }));
+// 		},
+// 	},
+// 	{
+// 		id: 2,
+// 		title: 'Schedule',
+// 		value: 'schedule',
+// 		action: ({ setInfo }) => {
+// 			setInfo((prev) => ({ ...prev, openSchedulerDrawer: true, dropdown: false }));
+// 		},
+// 	},
+// 	{
+// 		id: 3,
+// 		title: 'Task',
+// 		value: 'task',
+// 		action: ({ setInfo }) => {
+// 			setInfo((prev) => ({ ...prev, createTaskPopup: true }));
+// 		},
+// 	},
+// 	{
+// 		id: 4,
+// 		title: 'Contact',
+// 		value: 'contacts',
+// 		action: ({ setInfo }) => {
+// 			setInfo((prev) => ({ ...prev, openClientPopup: true }));
+// 		},
+// 	},
+// 	{
+// 		id: 5,
+// 		title: 'Automation',
+// 		value: 'automation',
+// 		action: async ({ setInfo, navigate, createAutomation, info }) => {
+// 			if (info?.isAutomationLoading) return;
+// 			try {
+// 				setInfo((prev) => ({
+// 					...prev,
+// 					showLoader: true,
+// 					loaderMessage: 'Creating automation...',
+// 				}));
+// 				const response = await createAutomation({
+// 					name: 'Untitled Automation',
+// 					version: 1,
+// 					steps: [],
+// 					status: 'draft',
+// 				});
+// 				if (response?.[0]) {
+// 					navigate(`/automation-builder/${response?.[1]?._id}`);
+// 				} else {
+// 					message.error('Failed to create automation');
+// 				}
+// 			} catch (error) {
+// 				message.error('Failed to create automation');
+// 			} finally {
+// 				setInfo((prev) => ({
+// 					...prev,
+// 					showLoader: false,
+// 					loaderMessage: '',
+// 				}));
+// 			}
+// 		},
+// 	},
+// ];
 
-const homePageTextContent = {
-	ask: {
-		title: 'Own your memory',
-		subText: 'Your enterprise knowledge hub for instant answers.',
-	},
-	proactiveSuggestions: {
-		title: 'Answers before you ask',
-		subText: 'Insights delivered before you even think to ask. the power of proactive memory.',
-	},
-	prompts: {
-		title: 'Ask anything from the prompts library',
-		subText: 'Your enterprise knowledge hub for instant answers.',
-	},
-	calendar: {
-		title: "Let's make every moment count",
-		subText: "More than a schedule - It's your daily mission control",
-	},
-	task: {
-		title: 'Transform goals into actionable tasks',
-		subText: 'Clear steps. Smart prioritisation. No more to-do overwhelm',
-	},
-	contact: {
-		title: 'Stay connected with who matters',
-		subText: 'Your most relevant contacts, surfaced when you need them most.',
-	},
-	automation: {
-		title: 'Automate the routine, focus on what matters',
-		subText: 'Trigger workflows, reduce busywork, and stay in flow.',
-	},
-};
+// const homePageTextContent = {
+// 	ask: {
+// 		title: 'Own your memory',
+// 		subText: 'Your enterprise knowledge hub for instant answers.',
+// 	},
+// 	proactiveSuggestions: {
+// 		title: 'Answers before you ask',
+// 		subText: 'Insights delivered before you even think to ask. the power of proactive memory.',
+// 	},
+// 	prompts: {
+// 		title: 'Ask anything from the prompts library',
+// 		subText: 'Your enterprise knowledge hub for instant answers.',
+// 	},
+// 	calendar: {
+// 		title: "Let's make every moment count",
+// 		subText: "More than a schedule - It's your daily mission control",
+// 	},
+// 	task: {
+// 		title: 'Transform goals into actionable tasks',
+// 		subText: 'Clear steps. Smart prioritisation. No more to-do overwhelm',
+// 	},
+// 	contact: {
+// 		title: 'Stay connected with who matters',
+// 		subText: 'Your most relevant contacts, surfaced when you need them most.',
+// 	},
+// 	automation: {
+// 		title: 'Automate the routine, focus on what matters',
+// 		subText: 'Trigger workflows, reduce busywork, and stay in flow.',
+// 	},
+// };
 
 const InitialHomePage = () => {
 	const {
@@ -293,48 +293,48 @@ const InitialHomePage = () => {
 		}));
 	};
 
-	const handleOptionSelection = (option) => {
-		if (info?.selectedOption === option) {
-			return;
-		}
-		previousSelectedOptionRef.current = info?.selectedOption;
-		setInfo((prev) => ({
-			...prev,
-			selectedOption: option,
-		}));
-	};
+	// const handleOptionSelection = (option) => {
+	// 	if (info?.selectedOption === option) {
+	// 		return;
+	// 	}
+	// 	previousSelectedOptionRef.current = info?.selectedOption;
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		selectedOption: option,
+	// 	}));
+	// };
 
-	const renderedOptions = useMemo(() => {
-		return info?.options?.map((option) => {
-			return (
-				<div
-					className={`option ${info?.selectedOption === option ? 'active' : ''}`}
-					onClick={(e) => {
-						e.stopPropagation();
-						handleOptionSelection(option);
-					}}
-					key={option}
-				>
-					<div className="option-label">{option}</div>
-				</div>
-			);
-		});
-	}, [info?.options, info?.selectedOption]);
+	// const renderedOptions = useMemo(() => {
+	// 	return info?.options?.map((option) => {
+	// 		return (
+	// 			<div
+	// 				className={`option ${info?.selectedOption === option ? 'active' : ''}`}
+	// 				onClick={(e) => {
+	// 					e.stopPropagation();
+	// 					handleOptionSelection(option);
+	// 				}}
+	// 				key={option}
+	// 			>
+	// 				<div className="option-label">{option}</div>
+	// 			</div>
+	// 		);
+	// 	});
+	// }, [info?.options, info?.selectedOption]);
 
-	const updatePromptsCategory = (value) => {
-		setInfo((prev) => ({
-			...prev,
-			promptsCategory: value,
-		}));
-	};
+	// const updatePromptsCategory = (value) => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		promptsCategory: value,
+	// 	}));
+	// };
 
 	const options = useMemo(
 		() => info?.options?.filter((option) => option?.showOption),
 		[info?.options],
 	);
 
-	const title = homePageTextContent[info?.selectedOption]?.title || '';
-	const subText = homePageTextContent[info?.selectedOption]?.subText || '';
+	// const title = homePageTextContent[info?.selectedOption]?.title || '';
+	// const subText = homePageTextContent[info?.selectedOption]?.subText || '';
 	const userName =
 		jwtDecode(localStorage.getItem('usertoken'))?.userName ||
 		userDetailsData?.firstName + ' ' + (userDetailsData?.lastName ?? '') ||

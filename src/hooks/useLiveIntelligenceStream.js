@@ -105,6 +105,7 @@ const useLiveIntelligenceStream = () => {
 			};
 
 			socketRef.current.onmessage = (event) => {
+				console.log(event, 'event');
 				if (messageHandlerRef.current) {
 					messageHandlerRef.current(event);
 				}

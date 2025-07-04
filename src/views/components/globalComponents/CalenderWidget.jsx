@@ -196,7 +196,7 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 	return (
 		<div
 			className="calender-main-container"
-			style={{ width: isContactPage ? '100%' : '350px', height: height }}
+			style={{ width: isContactPage ? '100%' : '380px', height: height }}
 		>
 			<div className="calenderWidgetContainer">
 				<div className="calenderWidgetMain">

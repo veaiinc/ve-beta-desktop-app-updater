@@ -1,5 +1,4 @@
 .calenderWidgetSection2 {
-	width: 60%;
 	display: grid;
 	grid-template-columns: repeat(2, 1fr); // 2 columns
 	gap: 12px;
@@ -14,6 +13,8 @@
 		border-radius: 20px;
 		background: var(--card, #171819);
 		cursor: pointer;
+		max-width: 200px;
+		width: 100%;
 		&:hover {
 			background: var(--card-over-card, #202123);
 		}

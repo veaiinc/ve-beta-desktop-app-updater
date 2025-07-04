@@ -1,4 +1,4 @@
-import { memo, useContext } from 'react';
+import { memo, useCallback, useContext } from 'react';
 import '../../../assets/scss/sidebar.scss';
 import {
 	stableNavigationItems,
@@ -6,9 +6,9 @@ import {
 	internalNavigationItems,
 } from './sidebarindex.js';
 
-import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
+import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosingPrimary.svg';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import Cropper from 'react-easy-crop';
 import CreditsLeftSvg from './chatHistory/CreditsLeftSvg';
@@ -24,6 +24,8 @@ const navigationItemsMap = {
 const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 	const navigate = useNavigate();
 	const { workspaceMode } = useWorkspaceMode();
+	const location = useLocation()
+	
 	const {
 		profileInfo: { userDetailsData },
 		subscriptionInfo: { currentPlan },
@@ -38,14 +40,50 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 		return initials;
 	};
 
+	const handleNewChat = () => {
+		// For stable workspaceMode, redirecting to /home, check stableNavigationItems
+		if (workspaceMode === 'stable') {
+			navigate('/home');
+			return;
+		}
+		const sessionId = ObjectID()?.toString();
+		navigate(`/chat/${sessionId}`);
+		updateStateValues({
+			currentChatData: null,
+		});
+	};
+
 	const onOptionsClick = (item) => {
 		if (item?.name === 'New Chat') {
-			const sessionId = ObjectID()?.toString();
-			navigate(`/chat/${sessionId}`);
+			handleNewChat();
 		} else {
 			navigate(item?.route);
 		}
 	};
+
+	const isExactPathMatch = useCallback((route) => {
+		// strip trailing slash
+		const current = location.pathname.replace(/\/$/, '');
+		const target = route.replace(/\/$/, '');
+	  
+		// decide once: in “stable” workspace new‐chat = /home, otherwise /chat
+		const chatRoute = workspaceMode === 'stable' ? '/home' : '/chat';
+	  
+		if (target === '/agents') {
+		  // agents nav should also highlight on /ai-assistant
+		  return current.includes('/agents') || current.includes('/ai-assistant');
+		}
+	  
+		if (target === '/chat' || target === 'New Chat') {
+		  // whenever you ask “does /chat match?”, actually compare to our dynamic chatRoute
+		  return current?.includes(chatRoute);
+		}
+	  
+		// all other routes just match exact
+		return current === target;
+	  }, [location.pathname, workspaceMode]);
+	  
+
 	return (
 		<div className="sidebar-closing" onClick={() => onIconClick()}>
 			<div className="topContainerClosed">
@@ -61,7 +99,7 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 								color={'transparent'}
 							>
 								<div
-									className="closed-sidebar-item"
+									className={`closed-sidebar-item ${isExactPathMatch(item.route) ? 'active' : ''}`}
 									onClick={(e) => {
 										e.stopPropagation();
 										onOptionsClick(item);
@@ -77,17 +115,17 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 											item.name === 'Automations' ||
 											item.name === 'Database'
 												? 'none'
-												: 'var(--secondary-font)'
+												: 'var(--primary-font)'
 										}
 										style={{
-											color:
+											stroke:
 												item.name === 'Notes' ||
 												item.name === 'Calendar' ||
 												item.name === 'Tasks' ||
 												item.name === 'Contacts' ||
 												item.name === 'Automations' ||
 												item.name === 'Database'
-													? 'var(--secondary-font)'
+													? 'var(--primary-font)'
 													: 'none',
 										}}
 									/>
