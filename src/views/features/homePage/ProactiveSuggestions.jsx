@@ -811,9 +811,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			>
 				{!info?.showExploreMore && (
 					<>
-						{info?.selectedFilters?.length > 0 && (
-							<div className="selected-filter">
-								{info?.selectedFilters?.map((item) => (
+						<div className="selected-filter">
+							{info?.selectedFilters?.length > 0 &&
+								info?.selectedFilters?.map((item) => (
 									<div key={item?.id} className="selected-filter-item">
 										<span>{item?.title}</span>
 										<CloseIcon
@@ -822,8 +822,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 										/>
 									</div>
 								))}
-							</div>
-						)}
+						</div>
 
 						{info?.activeBtn === 'questions' && (
 							<div className="ai-questions-wrapper">

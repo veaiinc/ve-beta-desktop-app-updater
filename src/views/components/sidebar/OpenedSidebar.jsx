@@ -212,6 +212,7 @@ const OpenedSidebarModules = ({
 										: 'none',
 								height: '20px',
 								width: '20px',
+								color: 'var(--secondary-font)',
 							}}
 						/>
 					)}

@@ -424,7 +424,7 @@
 				.sort-btn,
 				.filter-btn {
 					display: flex;
-					padding: 4px;
+					padding: 6px;
 					justify-content: center;
 					align-items: center;
 					gap: 8px;
@@ -437,8 +437,10 @@
 					font-weight: 500;
 					line-height: normal;
 					background-color: transparent;
+					margin-left: 5px;
 					cursor: pointer;
 					border: 1px solid transparent;
+					height: 41px;
 					// &::after {
 					// 	content: attr(data-tooltip);
 					// 	position: absolute;
