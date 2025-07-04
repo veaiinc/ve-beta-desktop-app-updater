@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import s from '../../../assets/scss/home_page/chainOfThoughtInterpreter.module.scss';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import CombinedChainOfThought from '../chat/chatComponents/CombinedChainOfThought';
