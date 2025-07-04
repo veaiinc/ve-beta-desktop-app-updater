@@ -4,7 +4,7 @@ import { memo, useContext, useState, useEffect, useCallback, useMemo, useRef } f
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 // import QuickActions from '../../components/globalComponents/QuickActions';
-import { message } from '../../components/globalComponents/CustomToast';
+// import { message } from '../../components/globalComponents/CustomToast';
 // import AskMe from './AskMe';
 // import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 // import ChatPrompts from './ChatPrompts';
@@ -293,33 +293,33 @@ const InitialHomePage = () => {
 		}));
 	};
 
-	const handleOptionSelection = (option) => {
-		if (info?.selectedOption === option) {
-			return;
-		}
-		previousSelectedOptionRef.current = info?.selectedOption;
-		setInfo((prev) => ({
-			...prev,
-			selectedOption: option,
-		}));
-	};
+	// const handleOptionSelection = (option) => {
+	// 	if (info?.selectedOption === option) {
+	// 		return;
+	// 	}
+	// 	previousSelectedOptionRef.current = info?.selectedOption;
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		selectedOption: option,
+	// 	}));
+	// };
 
-	const renderedOptions = useMemo(() => {
-		return info?.options?.map((option) => {
-			return (
-				<div
-					className={`option ${info?.selectedOption === option ? 'active' : ''}`}
-					onClick={(e) => {
-						e.stopPropagation();
-						handleOptionSelection(option);
-					}}
-					key={option}
-				>
-					<div className="option-label">{option}</div>
-				</div>
-			);
-		});
-	}, [info?.options, info?.selectedOption]);
+	// const renderedOptions = useMemo(() => {
+	// 	return info?.options?.map((option) => {
+	// 		return (
+	// 			<div
+	// 				className={`option ${info?.selectedOption === option ? 'active' : ''}`}
+	// 				onClick={(e) => {
+	// 					e.stopPropagation();
+	// 					handleOptionSelection(option);
+	// 				}}
+	// 				key={option}
+	// 			>
+	// 				<div className="option-label">{option}</div>
+	// 			</div>
+	// 		);
+	// 	});
+	// }, [info?.options, info?.selectedOption]);
 
 	// const updatePromptsCategory = (value) => {
 	// 	setInfo((prev) => ({
