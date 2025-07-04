@@ -21,7 +21,6 @@ import {
 	createContext,
 } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
