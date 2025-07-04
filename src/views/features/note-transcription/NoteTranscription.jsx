@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, memo, useContext } from 'react';
+import { useState, useEffect, useRef, useCallback, memo, useContext } from 'react';
 import Context from '../../../context/context';
 import { Track } from 'livekit-client';
 import { useTrackTranscription } from '@livekit/components-react';
@@ -7,7 +7,10 @@ import useLiveIntelligenceStream from '../../../hooks/useLiveIntelligenceStream'
 import '../../../assets/scss/noteTranscription/note-transcription.scss';
 import { message } from 'antd';
 import ObjectID from 'bson-objectid';
-
+import Waveform from '../../../assets/svg/note-transcription.gif';
+import { ReactComponent as Mic } from '../../../assets/svg/microphone.svg';
+import { ReactComponent as MuteMic } from '../../../assets/svg/ai_agents/mutemic.svg';
+import { ReactComponent as Close } from '../../../assets/svg/ai_agents/close.svg';
 // Memoized TranscriptionItem to prevent unnecessary re-renders
 const TranscriptionItem = memo(({ displayedText, isFinal }) => {
 	return (
@@ -28,7 +31,7 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 	const sessionIdRef = useRef(ObjectID().toString()); // Unique session ID for live intelligence
 
 	const {
-		notes: { getLiveKitToken },
+		notes: { getLiveKitToken, deleteLiveKitRoom },
 	} = useContext(Context);
 
 	// Initialize useNote unconditionally
@@ -51,7 +54,7 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 	const {
 		createWebSocketConnection: createLiveIntelligenceConnection,
 		closeWebSocketConnection: closeLiveIntelligenceConnection,
-		updateCurrentContext,
+		updateCurrentContext 
 	} = useLiveIntelligenceStream();
 
 	// Track mounted state and clear transcriptions on mount
@@ -62,7 +65,6 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 		transcriptionsMapRef.current.clear();
 		displayedTextMapRef.current.clear();
 		processedSegmentsRef.current.clear();
-		console.log('Transcriptions cleared on mount');
 		return () => {
 			isMountedRef.current = false;
 			// Clean up all typing intervals
@@ -70,19 +72,26 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 			typingIntervalsRef.current.clear();
 			disconnect();
 			closeLiveIntelligenceConnection();
+			deleteLiveKitRoom({ pageId: pageId });
 		};
 	}, [disconnect]);
 
 	// Connect to LiveKit when recording starts, disconnect when it stops
 	useEffect(() => {
 		if (isRecording && liveKitToken && !isConnected && isMountedRef.current) {
-			console.log('Initiating LiveKit connection');
 			connect();
 		} else if (!isRecording && isConnected && isMountedRef.current) {
-			console.log('Disconnecting LiveKit due to recording stopped');
 			disconnect();
 		}
 	}, [isRecording, liveKitToken, connect, disconnect, isConnected]);
+
+	useEffect(() => {
+		const lastTranscription = transcriptions[transcriptions.length - 1];
+		const prevTranscriptionId = transcriptions[transcriptions.length - 2]?.id || null;
+		updateTranscription(lastTranscription, prevTranscriptionId);
+		{lastTranscription?.isFinal && updateCurrentContext && updateCurrentContext(lastTranscription?.displayedText)}
+		
+	}, [transcriptions]);
 
 	// Use useTrackTranscription to get transcription segments
 	const trackRef =
@@ -220,16 +229,15 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 						text: segment.text,
 						isFinal: segment.final,
 					});
-					debouncedUpdateTranscription(updateTranscription, segment);
-				} else {
+					// debouncedUpdateTranscription(updateTranscription, segment);
 				}
 			}
 		});
 
 		// Update live intelligence context with accumulated transcription text
-		if (transcriptionText.trim()) {
-			updateCurrentContext(transcriptionText.trim());
-		}
+		// if (transcriptionText.trim()) {
+		// 	updateCurrentContext(transcriptionText.trim());
+		// }
 
 		// Update local transcriptions for display
 		const updatedTranscriptions = Array.from(transcriptionsMap.values()).map(
@@ -243,7 +251,7 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 	}, [segments]);
 
 	// Auto-scroll to the latest transcription
-	const containerRef = React.useRef(null);
+	const containerRef = useRef(null);
 	useEffect(() => {
 		if (containerRef.current) {
 			containerRef.current.scrollTop = containerRef.current.scrollHeight;
@@ -258,16 +266,11 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 			if (response && response[0] === true && response[1]?.accessToken) {
 				setLiveKitToken(response[1].accessToken);
 				setIsRecording(true);
-				console.log('Fetched new LiveKit token for transcription');
 
 				// Start live intelligence connection
 				createLiveIntelligenceConnection(
 					sessionIdRef.current,
 					handleLiveIntelligenceMessage,
-				);
-				console.log(
-					'Started live intelligence connection with session ID:',
-					sessionIdRef.current,
 				);
 			} else {
 				console.error('Failed to fetch LiveKit token: Invalid response format', response);
@@ -286,6 +289,7 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 		// Clean up typing intervals
 		typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
 		typingIntervalsRef.current.clear();
+		deleteLiveKitRoom({ pageId: pageId });
 		// Disconnect LiveKit
 		disconnect();
 		// Close live intelligence connection
@@ -299,100 +303,76 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 
 	// Handle live intelligence messages
 	const handleLiveIntelligenceMessage = useCallback((event) => {
-		try {
-			const data = JSON.parse(event.data);
-			console.log('Live Intelligence message received:', data);
-			// Handle any responses from live intelligence here
-		} catch (error) {
-			console.error('Error parsing live intelligence message:', error);
-		}
+
 	}, []);
+
+	// Helper for formatting time
+	const formatTime = (seconds) => {
+		const m = Math.floor(seconds / 60)
+			.toString()
+			.padStart(1, '0');
+		const s = (seconds % 60).toString().padStart(2, '0');
+		return `${m}:${s}`;
+	};
+
+	const [timer, setTimer] = useState(0);
+	useEffect(() => {
+		let interval;
+		if (isRecording) {
+			interval = setInterval(() => {
+				setTimer((prev) => prev + 1);
+			}, 1000);
+		} else {
+			setTimer(0);
+		}
+		return () => clearInterval(interval);
+	}, [isRecording]);
 
 	return (
 		<div className="note-transcription">
-			<h3>Transcriptions</h3>
-			<div style={{ marginBottom: '10px' }}>
+			<div className="transcription-bar">
+				<span className="transcription-timer">
+					{isRecording ? formatTime(timer) : '0:00'}
+				</span>
+				<span className="transcription-waveform">
+					{isRecording ? (
+						<img src={Waveform} alt="Waveform" />
+					) : (
+						<div className="transcription-waveform-placeholder">
+							<span className="transcription-waveform-placeholder-text">
+								Start recording
+							</span>
+						</div>
+					)}
+				</span>
 				{isRecording ? (
-					<button
-						onClick={handleStopTranscription}
-						style={{
-							padding: '8px 16px',
-							marginRight: '10px',
-							backgroundColor: '#ff4d4f',
-							color: '#fff',
-							border: 'none',
-							borderRadius: '4px',
-							cursor: 'pointer',
-						}}
-					>
-						Stop Transcription
-					</button>
+					<>
+						<button
+							className="transcription-btn stop"
+							onClick={handleStopTranscription}
+						>
+							<Close />
+						</button>
+						<button
+							className={`transcription-btn mic ${isMuted ? 'muted' : ''}`}
+							onClick={isMuted ? unmuteAudio : muteAudio}
+							disabled={!localAudioTrack || !isConnected}
+						>
+							{isMuted ? (
+								// Muted mic icon (mic with slash)
+								<MuteMic />
+							) : (
+								// Normal mic icon
+								<Mic />
+							)}
+						</button>
+					</>
 				) : (
-					<button
-						onClick={handleStartTranscription}
-						disabled={isRecording}
-						style={{
-							padding: '8px 16px',
-							marginRight: '10px',
-							backgroundColor: isRecording ? '#555' : '#1890ff',
-							color: '#fff',
-							border: 'none',
-							borderRadius: '4px',
-							cursor: isRecording ? 'not-allowed' : 'pointer',
-						}}
-					>
-						Start Transcription
+					<button className="transcription-btn mic" onClick={handleStartTranscription}>
+						<Mic />
 					</button>
 				)}
-				<button
-					onClick={muteAudio}
-					disabled={isMuted || !localAudioTrack || !isConnected}
-					style={{
-						padding: '8px 16px',
-						marginRight: '10px',
-						backgroundColor:
-							isMuted || !localAudioTrack || !isConnected ? '#555' : '#ff4d4f',
-						color: '#fff',
-						border: 'none',
-						borderRadius: '4px',
-						cursor:
-							isMuted || !localAudioTrack || !isConnected ? 'not-allowed' : 'pointer',
-					}}
-				>
-					Mute Mic
-				</button>
-				<button
-					onClick={unmuteAudio}
-					disabled={!isMuted || !localAudioTrack || !isConnected}
-					style={{
-						padding: '8px 16px',
-						backgroundColor:
-							!isMuted || !localAudioTrack || !isConnected ? '#555' : '#52c41a',
-						color: '#fff',
-						border: 'none',
-						borderRadius: '4px',
-						cursor:
-							!isMuted || !localAudioTrack || !isConnected
-								? 'not-allowed'
-								: 'pointer',
-					}}
-				>
-					Unmute Mic
-				</button>
 			</div>
-			{/* <div ref={containerRef} className="transcriptions-container">
-				{transcriptions.length > 0 ? (
-					transcriptions.map((transcription) => (
-						<TranscriptionItem
-							key={transcription.id}
-							displayedText={transcription.displayedText}
-							isFinal={transcription.isFinal}
-						/>
-					))
-				) : (
-					<p className="waiting-message">Waiting for transcriptions...</p>
-				)}
-			</div> */}
 		</div>
 	);
 }
