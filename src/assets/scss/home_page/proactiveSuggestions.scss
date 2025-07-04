@@ -326,6 +326,7 @@
 						border-left: none;
 						border-top-left-radius: 0;
 						border-bottom-left-radius: 0;
+						position: relative;
 
 						&.expanded {
 							width: 200px;
@@ -342,6 +343,13 @@
 							color: var(--primary-font, #7a7e85);
 							opacity: 1;
 							transition: opacity 0.2s ease 0.1s;
+						}
+
+						.search-loader {
+							position: absolute;
+							right: 10px;
+							top: 50%;
+							transform: translateY(-50%);
 						}
 					}
 				}

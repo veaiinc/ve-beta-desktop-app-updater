@@ -25,6 +25,7 @@ import PromptsWidget from '../../components/globalComponents/PromptsWidget';
 // import { ReactComponent as CommandSvg } from '../../../assets/svg/files/command.svg';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 import { ReactComponent as SettingsIcon } from '../../../assets/svg/calendar/settings.svg';
+import Spinner from '../../components/loaders/Spinner';
 
 const suggestionContainerStyles = {
 	position: 'absolute',
@@ -156,6 +157,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	const mainContainerRef = useRef(null);
 	const optionsContainerRef = useRef(null); // Ref for the options container
 	const searchInputRef = useRef(null);
+	const searchContainerRef = useRef(null);
 
 	const {
 		templates: {
@@ -320,8 +322,16 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		if (timeoutIdRef.current) {
 			clearTimeout(timeoutIdRef.current);
 		}
-		timeoutIdRef.current = setTimeout(() => {
-			fetchPendingActions();
+		setInfo((prev) => ({
+			...prev,
+			searchLoading: true
+		}));
+		timeoutIdRef.current = setTimeout(async () => {
+			await fetchPendingActions();
+			setInfo((prev) => ({
+				...prev,
+				searchLoading: false
+			}));
 		}, 500);
 	}, [info?.searchQuery]);
 
@@ -403,6 +413,26 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			}));
 		}
 	}, [info?.selectedOption, info?.options]);
+
+	useEffect(() => {
+		if (info?.searchOpen && searchInputRef.current) {
+			searchInputRef.current.focus();
+		} else if (searchInputRef?.current?.focused) {
+			searchInputRef.current.blur();
+		}
+
+		if (!info?.searchOpen) return;
+
+		function handleClickOutside(event) {
+			if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+				setInfo((prev) => ({ ...prev, searchOpen: false }));
+			}
+		}
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [info?.searchOpen]);
 
 	const getDateRangeFromFilters = (filters) => {
 		const selectedDateFilter = filters?.find((f) => f?.group === 'Date');
@@ -1002,7 +1032,10 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 										<div className="right-container">
 											<div className="options-container">
 												{/* ←— unified search bar */}
-												<div className="searchMainContainer">
+												<div
+													className="searchMainContainer"
+													ref={searchContainerRef}
+												>
 													<button
 														className={`search-btn ${
 															info?.searchOpen ? 'expanded' : ''
@@ -1023,6 +1056,13 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 															onChange={handleSearchQueryChange}
 															ref={searchInputRef}
 														/>
+														{info?.searchLoading && (
+															<div className='search-loader'>
+																<Spinner
+																	color="var(--primary-button)"
+																/>
+															</div>
+														)}
 													</div>
 												</div>
 												{(info?.cards.length > 0 ||
