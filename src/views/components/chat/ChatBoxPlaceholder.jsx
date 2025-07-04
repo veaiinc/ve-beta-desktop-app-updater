@@ -6,21 +6,24 @@ const ChatBoxPlaceholder = ({ chatboxPlaceholders, activePlaceholderIndex }) => 
 		<div className="placeholderWindow">
 			<div
 				className="placeholderList"
-				style={{
-					transform: `translateY(-${
-						activePlaceholderIndex * 40 + activePlaceholderIndex
-					}px)`,
-					transition:
-						activePlaceholderIndex === 0
-							? 'transform 0s ease-in-out'
-							: 'transform 0.3s ease-in-out',
-				}}
+				// style={{
+				// 	transform: `translateY(-${
+				// 		activePlaceholderIndex * 40 + activePlaceholderIndex
+				// 	}px)`,
+				// 	transition:
+				// 		activePlaceholderIndex === 0
+				// 			? 'transform 0s ease-in-out'
+				// 			: 'transform 0.3s ease-in-out',
+				// }}
 			>
-				{chatboxPlaceholders?.map((placeholder, idx) => (
+				{/* {chatboxPlaceholders?.map((placeholder, idx) => (
 					<p key={idx} className="placeholder">
 						{placeholder}
 					</p>
-				))}
+				))} */}
+				<p className="placeholder">
+					{chatboxPlaceholders?.[0]}
+				</p>
 			</div>
 		</div>
 	);

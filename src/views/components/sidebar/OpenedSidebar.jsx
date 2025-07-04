@@ -88,6 +88,8 @@ const OpenedSidebarModules = ({
 }) => {
 	const location = useLocation();
 
+	const { workspaceMode } = useWorkspaceMode();
+
 	const {
 		aiSetup: { isVoiceIntegrationActive },
 	} = useContext(Context);
@@ -138,8 +140,12 @@ const OpenedSidebarModules = ({
 			return currentPath.includes('/agents') || currentPath.includes('/ai-assistant');
 		}
 		if (name === 'New Chat') {
+			if (workspaceMode === 'stable') {
+				return currentPath.includes('/home');
+			}
 			return currentPath.includes('/chat');
 		}
+
 		return currentPath === routePath;
 	}, [location.pathname, route, name]);
 
@@ -152,7 +158,7 @@ const OpenedSidebarModules = ({
 			}}
 		>
 			<div
-				className={`singleModuleItem ${isExactPathMatch() ? 'isExactPathMatch' : ''} ${
+				className={`singleModuleItem ${isExactPathMatch() ? 'isExactPathMatch ' : ''} ${
 					isDropdownVisible ? 'calendar-active' : ''
 				}`}
 				onMouseEnter={onMouseEnter}
@@ -195,7 +201,7 @@ const OpenedSidebarModules = ({
 									: 'var(--secondary-font)'
 							}
 							style={{
-								color:
+								stroke:
 									name === 'Notes' ||
 									name === 'Calendar' ||
 									name === 'Tasks' ||
@@ -206,6 +212,7 @@ const OpenedSidebarModules = ({
 										: 'none',
 								height: '20px',
 								width: '20px',
+								color: 'var(--secondary-font)',
 							}}
 						/>
 					)}

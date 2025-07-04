@@ -56,7 +56,8 @@ const divStyles = {
 	borderRadius: '24px',
 	margin: '0 auto',
 	justifyContent: 'center',
-	width: '924px',
+	maxWidth: '924px',
+	width: '100%',
 	flexDirection: 'row',
 };
 
