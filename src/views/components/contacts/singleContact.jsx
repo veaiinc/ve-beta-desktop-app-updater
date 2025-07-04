@@ -12,11 +12,9 @@ import OverviewContact from './overViewContact';
 const SingleContact = ({ selectedContact, selectedOptions }) => {
 	const navigate = useNavigate();
 
-	const [info, setInfo] = useState({ totalCount: 0 });
-
-	const handleTotalChange = (data) => {
-		setInfo((prevInfo) => ({ ...prevInfo, totalCount: data }));
-	};
+	// const handleTotalChange = (data) => {
+	// 	setInfo((prevInfo) => ({ ...prevInfo, totalCount: data }));
+	// };
 
 	const handleCreateDoc = useCallback(() => {
 		const name = selectedContact?.name || selectedContact?.firstName || '';
@@ -48,7 +46,7 @@ const SingleContact = ({ selectedContact, selectedOptions }) => {
 			{selectedOptions === 'Activity' && <ActivityContact />}
 			{selectedOptions === 'Files' && (
 				<DocsGrid
-					handleTotalChange={handleTotalChange}
+					// handleTotalChange={handleTotalChange}
 					clientId={selectedContact?._id}
 					handleDocClick={handleDocClick}
 					handleCreateDoc={handleCreateDoc}

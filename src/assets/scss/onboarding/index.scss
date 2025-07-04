@@ -104,7 +104,7 @@
 @media screen and (max-width: 1500px) {
 	.onboarding-main {
 		padding: 0 130px;
-		padding-right: calc(400px + 48px);
+		padding-right: 448px;
 		.onboarding-section {
 			flex: 0 0 350px;
 			max-width: 350px;
@@ -118,7 +118,7 @@
 @media screen and (max-width: 1120px) {
 	.onboarding-main {
 		padding: 0 100px;
-		padding-right: calc(350px + 48px);
+		padding-right: 398px;
 		flex-direction: column;
 		.onboarding-section,
 		.description-section {
