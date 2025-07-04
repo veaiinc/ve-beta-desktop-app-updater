@@ -798,7 +798,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 							}));
 						}}
 					>
-						<div>Back to insights</div>
+						<div>Insights</div>
 						<DoubleUpArrowSvg />
 					</div>
 				</div>
@@ -1002,15 +1002,21 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 										info?.selectedFilters?.length > 0) && (
 										<div className="right-container">
 											<div className="options-container">
-												<button onClick={handleSearchToggle} className={info?.searchOpen ? 'active' : ''}>
-													<SearchSvg stroke="var(--primary-font)" />
-												</button>
-												<div className={`searchMainContainer`}>
+												{/* ←— unified search bar */}
+												<div className="searchMainContainer">
+													<button
+														className={`search-btn ${
+															info?.searchOpen ? 'expanded' : ''
+														}`}
+														onClick={handleSearchToggle}
+														aria-label="Toggle search"
+													>
+														<SearchSvg stroke="var(--secondary-font)" />
+													</button>
 													<div
 														className={`search-wrapper ${
 															info?.searchOpen ? 'expanded' : ''
 														}`}
-														data-tooltip="Search"
 													>
 														<input
 															className="search-input"
@@ -1137,19 +1143,17 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 																	</div>
 																</div>
 															}
-															color={'transparent'}
+															color="transparent"
+															trigger="click"
 															style={{
 																cursor: 'pointer',
 																userSelect: 'none',
 															}}
-															trigger={'click'}
 														>
 															<div
 																className="action-left"
 																onClick={() => {
-																	if (info?.openFilter) {
-																		return;
-																	}
+																	if (info.openFilter) return;
 																	setInfo((prev) => ({
 																		...prev,
 																		openFilter: true,
@@ -1158,21 +1162,18 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 															>
 																<button
 																	className={`filter-btn ${
-																		info?.openFilter
+																		info.openFilter
 																			? 'active'
 																			: ''
 																	}`}
 																	data-tooltip="Filter"
 																>
-																	<FilterIcon stroke="var(--primary-font)" />
+																	<FilterIcon stroke="var(--secondary-font)" />
 																</button>
 															</div>
 														</Tooltip>
 													</div>
 												)}
-												{/* <button>
-													<SettingsIcon stroke="var(--primary-font)" />
-												</button> */}
 											</div>
 										</div>
 									)}

@@ -11,6 +11,7 @@ import { ReactComponent as TaskSvg } from '../../../assets/svg/home_page/tasks.s
 import { ReactComponent as ContactSvg } from '../../../assets/svg/home_page/contacts.svg';
 // import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/automation.svg';
 import Context from '../../../context/context';
+import WidgetContainer from '../../../../builderSrc/views/feature/design-builder/WidgetContainer';
 
 const optionsList = [
 	{
@@ -56,7 +57,8 @@ const divStyles = {
 	borderRadius: '24px',
 	margin: '0 auto',
 	justifyContent: 'center',
-	width: '924px',
+	maxWidth: '924px',
+	width: '100%',
 	flexDirection: 'row',
 };
 
