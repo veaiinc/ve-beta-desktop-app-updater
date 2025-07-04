@@ -22,6 +22,13 @@ export const publicRoutesList = [
 	'/user/verify-oauth-user',
 ];
 
+const routeImports = {
+	publicRoutes: () => import('../routes/publicRoutes'),
+	stableRoutes: () => import('../routes/stableRoutes'),
+	betaRoutes: () => import('../routes/betaRoutes'),
+	internalRoutes: () => import('../routes/internalRoutes'),
+};
+
 const useWorkspaceMode = () => {
 	const { pathname } = useLocation();
 	const logOut = useLogout();
@@ -34,6 +41,7 @@ const useWorkspaceMode = () => {
 		publicRoutes: null,
 		stableRoutes: null,
 		betaRoutes: null,
+		internalRoutes: null,
 		fallbackRoute,
 	});
 
@@ -69,45 +77,13 @@ const useWorkspaceMode = () => {
 	};
 
 	const importRoutes = async (routeType) => {
-		switch (routeType) {
-			case 'publicRoutes':
-				if (routesInfo['publicRoutes'] === null) {
-					const { default: publicRoutes } = await import('../routes/publicRoutes');
-					setRoutesInfo((prev) => ({
-						...prev,
-						publicRoutes,
-					}));
-				}
-				break;
-			case 'stableRoutes':
-				if (routesInfo['stableRoutes'] === null) {
-					const { default: stableRoutes } = await import('../routes/stableRoutes');
-					setRoutesInfo((prev) => ({
-						...prev,
-						stableRoutes,
-					}));
-				}
-				break;
-			case 'betaRoutes':
-				if (routesInfo['betaRoutes'] === null) {
-					const { default: betaRoutes } = await import('../routes/betaRoutes');
-					setRoutesInfo((prev) => ({
-						...prev,
-						betaRoutes,
-					}));
-				}
-				break;
-			case 'internalRoutes':
-				if (routesInfo['internalRoutes'] === null) {
-					const { default: internalRoutes } = await import('../routes/internalRoutes');
-					setRoutesInfo((prev) => ({
-						...prev,
-						internalRoutes,
-					}));
-				}
-				break;
-			case 'fallbackRoute':
-				return;
+		if (routeType === 'fallbackRoute') return;
+		if (routesInfo[routeType] === null && routeImports[routeType]) {
+			const { default: importedRoutes } = await routeImports[routeType]();
+			setRoutesInfo((prev) => ({
+				...prev,
+				[routeType]: importedRoutes,
+			}));
 		}
 	};
 

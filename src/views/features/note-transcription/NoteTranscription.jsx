@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef, useCallback, memo, useContext } fro
 import Context from '../../../context/context';
 import { Track } from 'livekit-client';
 import { useTrackTranscription } from '@livekit/components-react';
-import useNote from '../../hooks/useNote';
-import useLiveIntelligenceStream from '../../hooks/useLiveIntelligenceStream';
+import useNote from '../../../hooks/useNote';
+import useLiveIntelligenceStream from '../../../hooks/useLiveIntelligenceStream';
 import '../../../assets/scss/noteTranscription/note-transcription.scss';
 import { message } from 'antd';
 import ObjectID from 'bson-objectid';
@@ -72,15 +72,6 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 			closeLiveIntelligenceConnection();
 		};
 	}, [disconnect]);
-
-
-
-
-
-
-
-
-
 
 	// Connect to LiveKit when recording starts, disconnect when it stops
 	useEffect(() => {

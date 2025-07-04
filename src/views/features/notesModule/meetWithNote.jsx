@@ -21,6 +21,7 @@ import {
 	createContext,
 } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
@@ -31,7 +32,7 @@ import { ReactComponent as CrossIcon } from '../../../assets/svg/notes/cross.svg
 import { message } from '../../components/globalComponents/CustomToast';
 import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
-import useChatStream from '../../hooks/useChatStream';
+// import useChatStream from '../../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
 import jwtDecode from 'jwt-decode';
 import { ReactComponent as DustBinIcon } from '../../../assets/svg/tasks/dustBin.svg';
@@ -43,13 +44,13 @@ import IconUploadPopup from '../../components/notes/IconUploadPopup';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ImageBlock, insertImage } from '../../components/notes/ImageComponent';
 import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { isEqual } from 'lodash';
 import { Database, insertDatabase } from '../../components/notes/Database';
 import DatabaseSidebar from '../../components/modalsV2/notes/DatabaseSidebar';
 import MeetTranscript from './MeetTranscript';
-import useRecallStream from '../../hooks/useRecallStream';
-import useLiveIntelligenceStream from '../../hooks/useLiveIntelligenceStream';
+import useLiveIntelligenceStream from '../../../hooks/useLiveIntelligenceStream';
+import useRecallStream from '../../../hooks/useRecallStream';
 
 export const NotesRefContext = createContext(null);
 
@@ -323,6 +324,7 @@ const MeetNote = ({ outerContainerStyle, innerContainerStyle }) => {
 			recallConnection(handleSocketMessage);
 			createLiveIntelligenceStream(info?.sessionId, handleLiveIntelligenceMessageFunc);
 		}
+
 		// No cleanup needed, useRecallStream handles it
 	}, []);
 

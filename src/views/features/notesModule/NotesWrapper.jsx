@@ -69,6 +69,7 @@ const NotesWrapper = () => {
 						isPreview={true}
 						showDeleteChat={false}
 						showCitationsButton={false}
+						// customChatBoxClick={handleCustomChatBoxClick}
 						sId={info?.sessionId}
 					/>
 				</div>

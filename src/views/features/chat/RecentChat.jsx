@@ -887,7 +887,7 @@ const RecentChat = ({
 				)}
 
 				{/* chat body */}
-				<div className="chatBodyContainer">
+				<div className="chatBodyWrapper">
 					<div
 						className={`chatBodyParentContainer`}
 						ref={chatContentRef}

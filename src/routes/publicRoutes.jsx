@@ -5,7 +5,7 @@ import { Suspense, lazy } from 'react';
 import Public from '../views/layouts/Public';
 
 // pages
-const LandingPage = lazy(() => import('../views/features/landingScreen/LandingPage'));
+import LandingPage from '../views/features/landingScreen/LandingPage';
 const LoginPage = lazy(() => import('../views/features/loginPage/LoginPage'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
 const TermsOfService = lazy(() => import('../views/features/signin/TermsOfService'));
@@ -19,9 +19,7 @@ const publicRoutes = [
 		path: '/',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
-					<LandingPage />
-				</Suspense>
+				<LandingPage />
 			</Public>
 		),
 	},
@@ -29,9 +27,7 @@ const publicRoutes = [
 		path: '/manifesto',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
-					<LandingPage />
-				</Suspense>
+				<LandingPage />
 			</Public>
 		),
 	},
@@ -39,9 +35,7 @@ const publicRoutes = [
 		path: '/contact-us',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
-					<LandingPage />
-				</Suspense>
+				<LandingPage />
 			</Public>
 		),
 	},
@@ -49,9 +43,7 @@ const publicRoutes = [
 		path: '/api',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
-					<LandingPage />
-				</Suspense>
+				<LandingPage />
 			</Public>
 		),
 	},
@@ -59,9 +51,7 @@ const publicRoutes = [
 		path: '/about-us',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
-					<LandingPage />
-				</Suspense>
+				<LandingPage />
 			</Public>
 		),
 	},
@@ -69,9 +59,7 @@ const publicRoutes = [
 		path: '/careers',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
-					<LandingPage />
-				</Suspense>
+				<LandingPage />
 			</Public>
 		),
 	},
@@ -79,9 +67,7 @@ const publicRoutes = [
 		path: '/forefront',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
-					<LandingPage />
-				</Suspense>
+				<LandingPage />
 			</Public>
 		),
 	},
