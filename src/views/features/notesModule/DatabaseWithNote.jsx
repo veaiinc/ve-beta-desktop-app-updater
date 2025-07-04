@@ -20,7 +20,7 @@ import {
 	useMemo,
 	createContext,
 } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
@@ -47,6 +47,10 @@ import { Database } from '../../components/notes/Database';
 import DatabaseSidebar from '../../components/modalsV2/notes/DatabaseSidebar';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import SlashMenu from '../../components/notes/SlashMenu';
+// import '../../../assets/scss/notes/noteComponent.scss';
+import MeetTranscript from './MeetTranscript';
+import useLiveIntelligenceStream from '../../../hooks/useLiveIntelligenceStream';
+import useRecallStream from '../../../hooks/useRecallStream';
 
 export const NotesRefContext = createContext(null);
 
@@ -76,6 +80,7 @@ const initialState = {
 	selectedEmoji: null,
 	coverImageRemoved: false,
 	iconImageRemoved: false,
+	sessionId: ObjectID()?.toString(),
 };
 
 const accessLevels = {
@@ -97,7 +102,7 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 	height: 14,
 }));
 
-const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
+const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptTabs = false }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const { noteId } = useParams();
 	const navigate = useNavigate();
@@ -136,9 +141,55 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		},
 		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
+		templates: { handleTranscriptionSuggestions },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState(initialState);
+	const [transcriptList, setTranscriptList] = useState([]);
+	const [activeTab, setActiveTab] = useState('summary');
+	const location = useLocation();
+
+	// Add hooks for live intelligence and recall stream
+	const { createWebSocketConnection: recallConnection } = useRecallStream();
+	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
+		useLiveIntelligenceStream();
+
+	// Handler for transcript socket messages
+	const handleLiveIntelligenceMessageFunc = useCallback(
+		(event) => {
+			console.log(event);
+			const data = JSON.parse(event?.data || null);
+			handleTranscriptionSuggestions(data);
+		},
+		[handleTranscriptionSuggestions],
+	);
+	const handleSocketMessage = useCallback(
+		(event) => {
+			try {
+				const msg = JSON.parse(event?.data || null);
+				if (msg?.event === 'transcript.received' && msg?.data) {
+					setTranscriptList((prev) => [
+						...prev,
+						{
+							participant: msg?.data?.participant,
+							text: msg?.data?.text,
+							timestamp: msg?.data?.timestamp,
+						},
+					]);
+					const data = msg?.data;
+					if (data?.participant?.length > 0 || data?.text?.length > 0) {
+						updateCurrentContext &&
+							updateCurrentContext(
+								(data?.participant || '') + ' : ' + (data?.text || ''),
+							);
+					}
+				}
+			} catch (e) {
+				// ignore
+			}
+		},
+		[updateCurrentContext],
+	);
 
 	// Derived states
 	const coverImage = useMemo(() => {
@@ -311,15 +362,15 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		};
 	}, [noteId]);
 
-	useEffect(() => {
-		const sessionId = ObjectID()?.toString();
-		if (noteId && workspaceMode) {
-			createWebSocketConnection(sessionId, handleAiResponse, '', false, workspaceMode);
-		}
-		return () => {
-			closeWebSocketConnection([sessionId]);
-		};
-	}, [noteId, workspaceMode]);
+	// useEffect(() => {
+	// 	const sessionId = ObjectID()?.toString();
+	// 	if (noteId && workspaceMode) {
+	// 		createWebSocketConnection(sessionId, handleAiResponse, '', false, workspaceMode);
+	// 	}
+	// 	return () => {
+	// 		closeWebSocketConnection([sessionId]);
+	// 	};
+	// }, [noteId, workspaceMode]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -943,6 +994,15 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		}
 	};
 
+	useEffect(() => {
+		if (showTranscriptTabs && location?.pathname?.includes('meet')) {
+			recallConnection(handleSocketMessage);
+			createLiveIntelligenceStream(info?.sessionId, handleLiveIntelligenceMessageFunc);
+		}
+		// No cleanup needed, useRecallStream handles it
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [showTranscriptTabs, info?.sessionId]);
+
 	return (
 		<NotesRefContext.Provider value={{ previousBlocksRef, pageId: noteId }}>
 			<div className="notes-container" style={outerContainerStyle || {}}>
@@ -1028,187 +1088,229 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				)}
 
 				<div className="notes-editor-container">
-					{info?.loading ? (
+					<>
+						{coverImage && (
+							<div
+								onMouseEnter={() =>
+									setInfo((prev) => ({ ...prev, showRemoveCoverBtn: true }))
+								}
+								onMouseLeave={() =>
+									setInfo((prev) => ({ ...prev, showRemoveCoverBtn: false }))
+								}
+								className="notes-cover-image-container"
+							>
+								<img
+									src={coverImage}
+									onError={handleCoverImageError}
+									alt="cover image"
+								/>
+								{info?.showRemoveCoverBtn && (
+									<button
+										onClick={handleRemoveCover}
+										className="remove-cover-btn"
+									>
+										Remove
+									</button>
+								)}
+							</div>
+						)}
 						<div
 							className="notes-editor-wrapper"
-							style={{ maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px' }}
+							style={{
+								maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px',
+							}}
 						>
-							<div className="notes-title">
-								<Skeleton
-									width="90%"
-									height={40}
-									highlightColor="var(--card-hover)"
-									baseColor="var(--card)"
-								/>
-							</div>
-
-							<div className="notes-line-loader">
-								{skeletonLines.map((line, i) => (
-									<Skeleton
-										key={i}
-										height={line.height}
-										width={line.width}
-										highlightColor="var(--card-hover)"
-										baseColor="var(--card)"
-									/>
-								))}
-							</div>
-						</div>
-					) : (
-						<>
-							{coverImage && (
-								<div
-									onMouseEnter={() =>
-										setInfo((prev) => ({ ...prev, showRemoveCoverBtn: true }))
-									}
-									onMouseLeave={() =>
-										setInfo((prev) => ({ ...prev, showRemoveCoverBtn: false }))
-									}
-									className="notes-cover-image-container"
-								>
-									<img
-										src={coverImage}
-										onError={handleCoverImageError}
-										alt="cover image"
-									/>
-									{info?.showRemoveCoverBtn && (
-										<button
-											onClick={handleRemoveCover}
-											className="remove-cover-btn"
-										>
-											Remove
-										</button>
-									)}
-								</div>
-							)}
-							<div
-								className="notes-editor-wrapper"
-								style={{
-									maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px',
-								}}
-							>
-								<Tooltip
-									// open={info?.showCustomizeAppearance}
-									open={false}
-									onOpenChange={() => {
-										if (info?.showUploadPopup) {
-											setInfo((prev) => ({
-												...prev,
-												showUploadPopup: false,
-											}));
-										}
+							<Tooltip
+								// open={info?.showCustomizeAppearance}
+								open={false}
+								onOpenChange={() => {
+									if (info?.showUploadPopup) {
 										setInfo((prev) => ({
 											...prev,
-											showCustomizeAppearance: !prev.showCustomizeAppearance,
+											showUploadPopup: false,
 										}));
-									}}
-									placement="bottomLeft"
-									title={
-										info?.showUploadPopup && info?.uploadType === 'cover' ? (
-											<UploadPopup
-												closePopup={() =>
-													setInfo((prev) => ({
-														...prev,
-														showUploadPopup: false,
-														showCustomizeAppearance: false,
-													}))
-												}
-												setLocalCoverImage={(coverImage) =>
-													setInfo((prev) => ({
-														...prev,
-														localCoverImage: coverImage,
-														coverImageRemoved: false,
-													}))
-												}
-												uploadType={info?.uploadType}
-											/>
-										) : info?.showUploadPopup && info?.uploadType === 'icon' ? (
-											<IconUploadPopup
-												setSelectedEmoji={(emoji) =>
-													setInfo((prev) => ({
-														...prev,
-														selectedEmoji: emoji,
-													}))
-												}
-												closePopup={() =>
-													setInfo((prev) => ({
-														...prev,
-														showUploadPopup: false,
-														showCustomizeAppearance: false,
-													}))
-												}
-											/>
-										) : (
-											<CustomizeAppearance
-												// uploadType can be 'cover' or 'icon'
-												showUploadPopup={(uploadType) =>
-													setInfo((prev) => ({
-														...prev,
-														showUploadPopup: true,
-														uploadType,
-													}))
-												}
-											/>
-										)
 									}
-									overlayInnerStyle={{
-										backgroundColor: 'inherit',
+									setInfo((prev) => ({
+										...prev,
+										showCustomizeAppearance: !prev.showCustomizeAppearance,
+									}));
+								}}
+								placement="bottomLeft"
+								title={
+									info?.showUploadPopup && info?.uploadType === 'cover' ? (
+										<UploadPopup
+											closePopup={() =>
+												setInfo((prev) => ({
+													...prev,
+													showUploadPopup: false,
+													showCustomizeAppearance: false,
+												}))
+											}
+											setLocalCoverImage={(coverImage) =>
+												setInfo((prev) => ({
+													...prev,
+													localCoverImage: coverImage,
+													coverImageRemoved: false,
+												}))
+											}
+											uploadType={info?.uploadType}
+										/>
+									) : info?.showUploadPopup && info?.uploadType === 'icon' ? (
+										<IconUploadPopup
+											setSelectedEmoji={(emoji) =>
+												setInfo((prev) => ({
+													...prev,
+													selectedEmoji: emoji,
+												}))
+											}
+											closePopup={() =>
+												setInfo((prev) => ({
+													...prev,
+													showUploadPopup: false,
+													showCustomizeAppearance: false,
+												}))
+											}
+										/>
+									) : (
+										<CustomizeAppearance
+											// uploadType can be 'cover' or 'icon'
+											showUploadPopup={(uploadType) =>
+												setInfo((prev) => ({
+													...prev,
+													showUploadPopup: true,
+													uploadType,
+												}))
+											}
+										/>
+									)
+								}
+								overlayInnerStyle={{
+									backgroundColor: 'inherit',
+								}}
+								arrow={false}
+							>
+								<div
+									className="notes-icon-container"
+									style={{
+										paddingTop: coverImage
+											? '42px'
+											: iconImage
+											? '100px'
+											: '0px',
 									}}
-									arrow={false}
 								>
+									{iconImage && (
+										<div
+											className="notes-icon-wrapper"
+											onMouseEnter={() =>
+												setInfo((prev) => ({
+													...prev,
+													showRemoveIconBtn: true,
+												}))
+											}
+											onMouseLeave={() =>
+												setInfo((prev) => ({
+													...prev,
+													showRemoveIconBtn: false,
+												}))
+											}
+											style={{
+												top: coverImage
+													? '-72px'
+													: iconImage
+													? '-10px'
+													: '-24px',
+											}}
+										>
+											{info?.showRemoveIconBtn && (
+												<div className="remove-icon-btn-container">
+													<CrossIcon
+														className="remove-icon-btn"
+														onClick={handleRemoveIcon}
+													/>
+												</div>
+											)}
+											{iconImage?.native}
+										</div>
+									)}
+									<CustomTextArea
+										className="notes-title"
+										value={info?.title}
+										onChange={handleTitleChange}
+										autoResize={true}
+										onKeyDown={handleKeyDown}
+									/>
+								</div>
+							</Tooltip>
+
+							{showTranscriptTabs && (
+								<div className="notes-tabs-container">
 									<div
-										className="notes-icon-container"
+										className="notes-tabs-header"
 										style={{
-											paddingTop: coverImage
-												? '42px'
-												: iconImage
-												? '100px'
-												: '0px',
+											display: 'flex',
+											gap: 24,
+											borderBottom: '1px solid var(--stroke, #2c2d2e)',
+											marginBottom: 12,
 										}}
 									>
-										{iconImage && (
-											<div
-												className="notes-icon-wrapper"
-												onMouseEnter={() =>
-													setInfo((prev) => ({
-														...prev,
-														showRemoveIconBtn: true,
-													}))
-												}
-												onMouseLeave={() =>
-													setInfo((prev) => ({
-														...prev,
-														showRemoveIconBtn: false,
-													}))
-												}
-												style={{
-													top: coverImage
-														? '-72px'
-														: iconImage
-														? '-10px'
-														: '-24px',
-												}}
-											>
-												{info?.showRemoveIconBtn && (
-													<div className="remove-icon-btn-container">
-														<CrossIcon
-															className="remove-icon-btn"
-															onClick={handleRemoveIcon}
-														/>
-													</div>
-												)}
-												{iconImage?.native}
-											</div>
-										)}
-										<CustomTextArea
-											className="notes-title"
-											value={info?.title}
-											onChange={handleTitleChange}
-											autoResize={true}
-											onKeyDown={handleKeyDown}
-										/>
+										<button
+											className={
+												activeTab === 'summary'
+													? 'notes-tab active'
+													: 'notes-tab'
+											}
+											style={{
+												background: 'none',
+												border: 'none',
+												outline: 'none',
+												color: 'inherit',
+												fontWeight: 500,
+												fontSize: 16,
+												padding: '8px 0',
+												borderBottom:
+													activeTab === 'summary'
+														? '2px solid var(--primary-button, #cfff48)'
+														: '2px solid transparent',
+												cursor: 'pointer',
+												transition: 'color 0.2s',
+											}}
+											onClick={() => setActiveTab('summary')}
+										>
+											Summary
+										</button>
+										<button
+											className={
+												activeTab === 'transcript'
+													? 'notes-tab active'
+													: 'notes-tab'
+											}
+											style={{
+												background: 'none',
+												border: 'none',
+												outline: 'none',
+												color: 'inherit',
+												fontWeight: 500,
+												fontSize: 16,
+												padding: '8px 0',
+												borderBottom:
+													activeTab === 'transcript'
+														? '2px solid var(--primary-button, #cfff48)'
+														: '2px solid transparent',
+												cursor: 'pointer',
+												transition: 'color 0.2s',
+											}}
+											onClick={() => setActiveTab('transcript')}
+										>
+											Transcript
+										</button>
 									</div>
-								</Tooltip>
+								</div>
+							)}
+
+							{showTranscriptTabs && activeTab === 'transcript' ? (
+								<MeetTranscript transcriptList={transcriptList} />
+							) : (
 								<BlockNoteView
 									editor={editor}
 									formattingToolbar={false}
@@ -1227,9 +1329,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 									)}
 									<SlashMenu editor={editor} noteId={noteId} />
 								</BlockNoteView>
-							</div>
-						</>
-					)}
+							)}
+						</div>
+					</>
 				</div>
 			</div>
 			<DatabaseSidebar pageId={noteId} />
