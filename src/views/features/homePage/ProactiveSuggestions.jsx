@@ -734,7 +734,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 					onClick={(e) => {
 						e.stopPropagation();
 						handleOptionSelection(option);
-						handleModalOpen?.(false);
 					}}
 					key={index}
 				>
@@ -1207,7 +1206,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 									...prev,
 									showExploreMore: true,
 								}));
-								handleModalOpen?.(false);
 							}}
 						/>
 					</div>
@@ -1231,7 +1229,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 				onClick={(e) => {
 					e.stopPropagation();
 					handleExploreMoreClick(e);
-					handleModalOpen?.(false);
 					handleCloseModal();
 				}}
 			>

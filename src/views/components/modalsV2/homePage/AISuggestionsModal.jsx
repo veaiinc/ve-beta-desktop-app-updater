@@ -33,6 +33,7 @@ import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agen
 import PromptPopup from '../../homePage/PromptPopup';
 import ProactiveAIShare from '../../../features/homePage/proactiveai/ProactiveAIShare';
 import jwtDecode from 'jwt-decode';
+import ChainOfThoughtInterpreter from '../../homePage/ChainOfThoughtInterpreter';
 const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
@@ -59,7 +60,7 @@ const AISuggestionsModal = ({
 		isReportExpanded: false,
 		isQuestionsExpanded: false,
 		questionsAnswers: {},
-		activeTab: 'situation',
+		activeTab: 'actions',
 		chainOfThoughtData: {
 			hasChainOfThought: false,
 		},
@@ -119,7 +120,7 @@ const AISuggestionsModal = ({
 	);
 
 	const handleActionClick = useCallback((prompt) => {
-		sessionId = ObjectID()?.toString();
+		const sessionId = ObjectID()?.toString();
 		updateStateValues({
 			activePromptForChat: prompt,
 			isProactive: true,
@@ -321,7 +322,6 @@ const AISuggestionsModal = ({
 			bodyStyle={{ padding: '0px', width: 'auto' }}
 			rootClassName="ai-suggestions-drawer"
 			destroyOnClose={true}
-			mask={false}
 			maskClassName="drawer-mask"
 		>
 			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
@@ -384,9 +384,9 @@ const AISuggestionsModal = ({
 										arrow={false}
 									>
 										<div className="prioritySuggestionModal">
-											<div className="icon">
+											{/* <div className="icon">
 												<CalendarSvg />
-											</div>
+											</div> */}
 											<div className="priority-text">{`${createdDate}`}</div>
 										</div>
 									</Tooltip>
@@ -402,14 +402,14 @@ const AISuggestionsModal = ({
 										arrow={false}
 									>
 										<div className="prioritySuggestionModal">
-											<div className="icon">
+											{/* <div className="icon">
 												<img
 													src={CreditCoinImage}
 													width={16}
 													height={16}
 													alt="credit-coin"
 												/>
-											</div>
+											</div> */}
 											<div className="priority-text">{`${creditUsed} C`}</div>
 										</div>
 									</Tooltip>
@@ -527,7 +527,7 @@ const AISuggestionsModal = ({
 								</div>
 							</div>
 						</div>
-						{(solutions?.length > 0 ||
+						{/* {(solutions?.length > 0 ||
 							suggested_prompts?.length > 0 ||
 							suggested_actions?.length > 0) && (
 							<div
@@ -598,7 +598,7 @@ const AISuggestionsModal = ({
 													  ))
 													: solutions}
 
-												{Array?.isArray(suggested_actions)
+												 {Array?.isArray(suggested_actions)
 													? suggested_actions?.map((item, index) => (
 															<div
 																className="result-item"
@@ -621,7 +621,7 @@ const AISuggestionsModal = ({
 																	</div>
 																</div>
 															</div>
-													  ))
+												
 													: suggested_actions}
 											</div>
 
@@ -662,32 +662,35 @@ const AISuggestionsModal = ({
 															: suggested_prompts}
 													</div>
 												</div>
-											)}
+											)} 
 										</div>
 									</Panel>
 								</Collapse>
 							</div>
-						)}
+						)} */}
+
 						<div className="tabs-container">
 							<div className="tab-buttons">
 								<div
 									className={`tab-btn ${
-										info?.activeTab === 'situation' ? 'active' : ''
+										info?.activeTab === 'actions' ? 'active' : ''
 									}`}
-									onClick={() => handleTabClick('situation')}
+									onClick={() => handleTabClick('actions')}
 								>
-									Situation Overview
+									Actions
 								</div>
-								{info?.chainOfThoughtData?.hasChainOfThought && (
-									<div
-										className={`tab-btn ${
-											info?.activeTab === 'chainOfThought' ? 'active' : ''
-										}`}
-										onClick={() => handleTabClick('chainOfThought')}
-									>
-										Chain of Thought
-									</div>
-								)}
+								{/* {info?.chainOfThoughtData?.hasChainOfThought && (
+									
+								)} */}
+
+								<div
+									className={`tab-btn ${
+										info?.activeTab === 'report' ? 'active' : ''
+									}`}
+									onClick={() => handleTabClick('report')}
+								>
+									Report
+								</div>
 
 								{thinker_sources?.length > 0 && (
 									<div
@@ -701,64 +704,68 @@ const AISuggestionsModal = ({
 								)}
 							</div>
 						</div>
-						{info?.activeTab === 'situation' && (
+						{info?.activeTab === 'actions' && (
 							<div className="situation-overview-container">
-								{research_report && (
-									<div
-										className={`report-container ${
-											info?.isReportExpanded ? 'active' : ''
-										}`}
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												isReportExpanded: !prev?.isReportExpanded,
-											}))
-										}
-									>
-										<Collapse
-											activeKey={info?.isReportExpanded ? ['1'] : []}
-											onChange={(key) =>
-												setInfo((prev) => ({
-													...prev,
-													isReportExpanded: key.length > 0,
-												}))
-											}
-											expandIcon={() => {
-												return (
-													<div className="expand-icon">
-														<ChevronRightThinSvg />
-													</div>
-												);
-											}}
-										>
-											<Panel
-												header={
-													<div className="cot-header">
-														<div className="cot-text">
-															<div className="title-text">Report</div>
-															<div className="description-text">
-																{crux ||
-																	'Summary of key insights and outcomes.'}
-															</div>
+								{suggested_actions?.length > 0 && (
+									<div className="suggested-actions-wrapper">
+										<div className="suggested-action-text">Actions</div>
+										<div className="suggested-actions-container">
+											{Array?.isArray(suggested_actions)
+												? suggested_actions?.map((item, index) => (
+														<div
+															className="suggested-action"
+															key={index}
+															onClick={() => handleActionClick(item)}
+														>
+															{/* <div className="result-text"> */}
+															{updateCitationIdsWithCitations(
+																item,
+																thinker_sources || [],
+															)}
+															{/* </div> */}
+
+															{/* <div className="logo-container">
+															<RocketSvg />
+															<div className="logo-text">Action</div>
+														</div> */}
 														</div>
-													</div>
-												}
-												key="1"
-											>
-												<div
-													className="report-description"
-													onClick={(e) => e.stopPropagation()}
-												>
-													<Markdown citations={thinker_sources || null}>
-														{research_report || ''}
-													</Markdown>
-												</div>
-											</Panel>
-										</Collapse>
+												  ))
+												: suggested_actions}
+										</div>
 									</div>
 								)}
 
-								{informationRequests?.length > 0 && (
+								{suggested_prompts?.length > 0 && (
+									<div className="suggested-prompts-container">
+										<div className="suggested-prompts-title">Prompts</div>
+										<div
+											className="suggested-prompts"
+											onClick={(e) => e.stopPropagation()}
+										>
+											{Array?.isArray(suggested_prompts)
+												? suggested_prompts?.map((item, index) => (
+														<div
+															className="prompt-item"
+															key={index}
+															onClick={() => handlePromptClick(item)}
+														>
+															<div className="logo">
+																<ArrowRightSvg />
+															</div>
+															<div className="item-text">
+																{updateCitationIdsWithCitations(
+																	item,
+																	thinker_sources || [],
+																)}
+															</div>
+														</div>
+												  ))
+												: suggested_prompts}
+										</div>
+									</div>
+								)}
+
+								{/* {informationRequests?.length > 0 && (
 									<div
 										className={`questions-wrapper ${
 											info?.isQuestionsExpanded ? 'active' : ''
@@ -851,19 +858,46 @@ const AISuggestionsModal = ({
 											</Panel>
 										</Collapse>
 									</div>
-								)}
+								)} */}
 							</div>
 						)}
 
-						{info?.activeTab === 'chainOfThought' && (
+						{info?.activeTab === 'report' && (
 							<div className="cot">
 								<div className="chain-of-thought-container">
-									<div className="chain-of-thought-content">
+									{/* <div className="chain-of-thought-content">
 										<CombinedChainOfThought
 											data={info?.chainOfThoughtData}
 											citations={thinker_sources || null}
 										/>
-									</div>
+									</div> */}
+									{info?.chainOfThoughtData?.hasChainOfThought && (
+										<div className="chain-of-thought-wrapper">
+											<div className="chain-of-thought-text">
+												Chain of thought
+											</div>
+											<div className="chain-of-thought-content">
+												<ChainOfThoughtInterpreter
+													data={info?.chainOfThoughtData}
+													citations={thinker_sources || null}
+													confidenceScore={confidence_score}
+												/>
+											</div>
+										</div>
+									)}
+
+									{research_report && (
+										<div className={`report-container`}>
+											<div
+												className="report-description"
+												onClick={(e) => e.stopPropagation()}
+											>
+												<Markdown citations={thinker_sources || null}>
+													{research_report || ''}
+												</Markdown>
+											</div>
+										</div>
+									)}
 								</div>
 							</div>
 						)}
