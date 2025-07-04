@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { ReactComponent as OpenEye } from '../../../../../assets/svg/gallery/open-eye.svg';
 import { ReactComponent as CrossedOpenEye } from '../../../../../assets/svg/gallery/crossedOpenEye.svg';
 import { ReactComponent as CrossSvg } from '../../../../../assets/svg/gallery/cross.svg';
@@ -8,9 +8,24 @@ import { ReactComponent as ArrowLeftSvg } from '../../../../../assets/svg/tasks/
 import { ReactComponent as PlusIcon } from '../../../../../assets/svg/tasks/plus.svg';
 
 import s from '../../../../../assets/scss/notes/dropdown/allFields.module.scss';
+import AddField from './AddField';
 
-const AllFields = ({ fields = [], handleClose, handleBack }) => {
-	return (
+const ADD_NEW_KEY = 'ADD_NEW_KEY';
+
+const AllFields = ({ fields = [], handleClose, handleBack, pageId, databaseId }) => {
+	const [info, setInfo] = useState({
+		activeEditing: null,
+	});
+
+	const handleInfoChange = (data) => {
+		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
+	};
+
+	const handleBackToAllFields = useCallback(() => {
+		handleInfoChange({ activeEditing: null });
+	}, []);
+
+	return !info?.activeEditing ? (
 		<div className={s.allFields + ' ' + s.optionsDropdownContainer}>
 			<div className={s.optionsDropdownHeader}>
 				<span className={s.optionsDropdownHeaderTitleWrapper}>
@@ -46,14 +61,24 @@ const AllFields = ({ fields = [], handleClose, handleBack }) => {
 				</div>
 			</div>
 			<div className={`${s.footer} ${s.cursorPointer}`}>
-				<div className={s.option}>
+				<div
+					className={s.option}
+					onClick={() => handleInfoChange({ activeEditing: ADD_NEW_KEY })}
+				>
 					<PlusIcon className={s.plusIcon} />
 					<div className={s.text}>Add new property</div>
 					<ChevronRightThinSvg className={s.arrowIcon} />
 				</div>
-			</div>
+			</div>{' '}
 		</div>
-	);
+	) : info?.activeEditing === ADD_NEW_KEY ? (
+		<AddField
+			handleBack={handleBackToAllFields}
+			handleClose={handleClose}
+			pageId={pageId}
+			databaseId={databaseId}
+		/>
+	) : null;
 };
 
 export default memo(AllFields);

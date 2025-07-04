@@ -124,4 +124,10 @@
 			cursor: pointer;
 		}
 	}
+
+	.listIcon {
+		path {
+			fill: var(--primary-font) !important;
+		}
+	}
 }

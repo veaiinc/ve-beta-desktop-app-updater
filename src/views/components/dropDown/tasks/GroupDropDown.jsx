@@ -369,14 +369,12 @@ const GroupDropDown = ({
 		}
 	};
 
-	const handleGroupByTypeChange = async (value) => {
-		const groupByType = groupByOptions?.[info?.groupBy?.type]?.options.find(
-			(option) => option.value === value,
-		);
+	const handleGroupByTypeChange = async (groupByType) => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			groupByType: groupByType,
+			groupByType,
 		}));
+		const value = groupByType?.value;
 
 		// Update the group configuration with the new type
 		if (info?.groupBy && group && !info?.loading) {

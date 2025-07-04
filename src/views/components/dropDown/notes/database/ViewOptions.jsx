@@ -11,7 +11,7 @@ import { ReactComponent as DeleteIcon } from '../../../../../assets/svg/tasks/du
 import GroupDropDown from '../../tasks/GroupDropDown';
 import AllFields from './AllFields';
 
-const ViewOptions = ({ children, fields, view, databaseId, blockId }) => {
+const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) => {
 	const [info, setInfo] = useState({
 		openedDropDown: null,
 		isOpen: false,
@@ -72,6 +72,8 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId }) => {
 						fields={fields}
 						handleClose={handleClose}
 						handleBack={resetGroupInfo}
+						pageId={pageId}
+						databaseId={databaseId}
 					/>
 				) : (
 					<div className={s.viewOptionDropdown}>
@@ -102,7 +104,7 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId }) => {
 								className={s.option}
 								onClick={() => handleInfoChange({ openedDropDown: 'allFields' })}
 							>
-								<ListSvg />
+								<ListSvg className={s.listIcon} />
 
 								<div className={s.text}>Properties</div>
 								<div className={s.subText}>
@@ -113,7 +115,7 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId }) => {
 								className={s.option}
 								onClick={() => handleInfoChange({ openedDropDown: 'group' })}
 							>
-								<ListSvg />
+								<ListSvg className={s.listIcon} />
 
 								<div className={s.text}>Group</div>
 								<div className={s.subText}>

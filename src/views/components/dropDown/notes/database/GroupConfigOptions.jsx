@@ -9,7 +9,7 @@ const GroupConfigOptions = ({ options = [], selectedOption, onChange }) => {
 				<div
 					key={option.value}
 					className={s.groupConfigOption}
-					onClick={() => onChange(option?.value)}
+					onClick={() => onChange(option)}
 				>
 					<span>{option.label}</span>
 					{selectedOption === option.value && <Tick />}

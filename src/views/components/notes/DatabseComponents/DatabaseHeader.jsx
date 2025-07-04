@@ -75,6 +75,7 @@ const DatabaseHeader = ({
 						view={selectedDatabaseView}
 						databaseId={databaseId}
 						blockId={block?.id}
+						pageId={pageId}
 					>
 						<button className={s.actionButton}>
 							<SettingsIcon />
