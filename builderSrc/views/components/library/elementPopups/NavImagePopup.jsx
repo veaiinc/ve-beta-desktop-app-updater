@@ -230,6 +230,28 @@ class NavImagePopup extends Images {
 					image_settings: newComponent?.image_settings || image_settings,
 				};
 			}
+		} else if (type == 'objectFit') {
+			if (this.props.isMobileNavbar) {
+				newComponent = {
+					...newComponent,
+					blocks: [
+						{
+							...newComponent.blocks[0],
+							subBlocks: [
+								{
+									...newComponent.blocks[0].subBlocks[0],
+									imageURL: value,
+								},
+							],
+						},
+					],
+				};
+			} else {
+				newComponent = {
+					...newComponent,
+					[type]: value,
+				};
+			}
 		} else if (type == 'remove') {
 			if (this.props.isMobileNavbar) {
 				newComponent = {
@@ -279,13 +301,11 @@ class NavImagePopup extends Images {
 				};
 			}
 		}
-
 		this.setState(
 			{
 				activeComponent: newComponent,
 			},
 			() => {
-				console.log('newcomponent', newComponent);
 				this.props?.setActivePopupComponent(newComponent);
 			},
 		);
@@ -331,7 +351,9 @@ class NavImagePopup extends Images {
 				activeComponent: newComponent,
 			},
 			() => {
-				this.props?.setActivePopupComponent(newComponent);
+				this.debounceFunction(() => {
+					this.props?.setActivePopupComponent(newComponent);
+				}, 500);
 			},
 		);
 	};
@@ -367,24 +389,46 @@ class NavImagePopup extends Images {
 				activeComponent: newComponent,
 			},
 			() => {
-				this.props?.setActivePopupComponent(newComponent);
+				this.debounceFunction(() => {
+					this.props?.setActivePopupComponent(newComponent);
+				}, 500);
 			},
 		);
 	};
+
 	render() {
-		let isImage = this.props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.imageURL;
-		console.log(
-			'crop and zoom with aspect',
-			this.state.crop,
-			this.state?.zoom,
-			this.state.aspect,
-		);
+		let isImage = this.props.isMobileNavbar
+			? this.state?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.imageURL
+			: this.state?.activeComponent?.imageURL;
 		return (
 			<>
 				<div className="upload-container">
 					<div className="upload-header">
 						<div className="upload-header-title">Image</div>
 					</div>
+					{/* {!this.props.isMobileNavbar && (
+						<div className="upload-section">
+							<label className="upload-label">Image Styles</label>
+							<div className="fill-fit-container">
+								<span
+									className="fill-fit"
+									onClick={() =>
+										this.handleActiveImageStyles('objectFit', 'fill')
+									}
+								>
+									Fill
+								</span>
+								<span
+									className="fill-fit"
+									onClick={() =>
+										this.handleActiveImageStyles('objectFit', 'contain')
+									}
+								>
+									Fit
+								</span>
+							</div>
+						</div>
+					)} */}
 
 					{!this.props.isMobileNavbar ? (
 						<div className="upload-section">
@@ -516,43 +560,45 @@ class NavImagePopup extends Images {
 								</div>
 							)}
 						</div>
-						<div
-							className="popup-shapes-range-wrapper"
-							style={{ margin: '15px 0px', width: '100%' }}
-						>
-							<b
-								style={{
-									fontSize: '12px',
-									marginBottom: '12px',
-								}}
+						{!this.props.isMobileNavbar && (
+							<div
+								className="popup-shapes-range-wrapper"
+								style={{ margin: '15px 0px', width: '100%' }}
 							>
-								Zoom
-							</b>
-							<div className="popup-range-div" style={{ display: 'flex' }}>
-								<div
+								<b
 									style={{
-										display: 'flex',
-										maxWidth: 180,
+										fontSize: '12px',
+										marginBottom: '12px',
 									}}
 								>
-									<input
-										type="range"
-										min={1}
-										max={5}
-										step={0.5}
-										value={this.state?.zoom}
-										onChange={(e) => this.handleZoomChange(e.target.value)}
-									/>
+									Zoom
+								</b>
+								<div className="popup-range-div" style={{ display: 'flex' }}>
+									<div
+										style={{
+											display: 'flex',
+											maxWidth: 180,
+										}}
+									>
+										<input
+											type="range"
+											min={1}
+											max={5}
+											step={0.5}
+											value={this.state?.zoom}
+											onChange={(e) => this.handleZoomChange(e.target.value)}
+										/>
+									</div>
+									<p
+										style={{
+											textAlign: 'center',
+										}}
+									>
+										{parseFloat(this.state?.zoom)?.toFixed(1)}
+									</p>
 								</div>
-								<p
-									style={{
-										textAlign: 'center',
-									}}
-								>
-									{parseFloat(this.state?.zoom)?.toFixed(1)}
-								</p>
 							</div>
-						</div>
+						)}
 					</div>
 					<div className="element_or">
 						<div className="ortext">Or</div>

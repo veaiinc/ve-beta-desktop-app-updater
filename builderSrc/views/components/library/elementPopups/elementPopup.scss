@@ -752,6 +752,26 @@
 	align-items: flex-start;
 	gap: 8px;
 	margin-bottom: 8px;
+	.fill-fit-container {
+		display: flex;
+		flex-direction: row;
+		gap: 8px;
+		background-color: #171819;
+		border-radius: 8px;
+		.fill-fit {
+			font-size: 12px;
+			font-family: inter;
+			width: 50px;
+			background-color: #3c3c3c;
+			text-align: center;
+			padding: 5px;
+			border-radius: 10px;
+			cursor: pointer;
+			.active {
+				background-color: #171819;
+			}
+		}
+	}
 }
 
 .upload-label {
