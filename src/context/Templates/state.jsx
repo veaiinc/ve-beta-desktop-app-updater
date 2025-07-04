@@ -93,6 +93,7 @@ export const intialState = {
 	citations: null,
 	docsFilesList: null,
 	moreDocsFilesList: null,
+	docsFilesRefetch: false,
 	smartFileRefetch: false,
 	activeWorkflowSlugForSmartFile: null,
 	slackChannels: null,

@@ -1,40 +1,34 @@
 import React from 'react';
 import ProposalsController from '../../controllers/proposals';
-import useChatStreamImport from '../../hooks/useChatStream'
+import useChatStreamImport from '../../hooks/useChatStream';
 
 const IconIndexBaseClass =
-	typeof window !== 'undefined' && !window.__NEXT_DATA__
-		? ProposalsController
-		: React.Component;
+	typeof window !== 'undefined' && !window.__NEXT_DATA__ ? ProposalsController : React.Component;
 
 const ImageIndexBaseClass =
-	typeof window !== 'undefined' && !window.__NEXT_DATA__
-		? ProposalsController
-		: React.Component;
+	typeof window !== 'undefined' && !window.__NEXT_DATA__ ? ProposalsController : React.Component;
 
 const TextIndexBaseClass =
-	typeof window !== 'undefined' && !window.__NEXT_DATA__
-		? ProposalsController
-		: React.Component;
+	typeof window !== 'undefined' && !window.__NEXT_DATA__ ? ProposalsController : React.Component;
 
 const useChatStream =
 	typeof window !== 'undefined' && !window.__NEXT_DATA__
 		? (() => {
-			try {
+				try {
 					return useChatStreamImport;
-			} catch {
-				return () => ({
-					socketRef: null,
+				} catch {
+					return () => ({
+						socketRef: null,
 						createWebSocketConnection: () => {},
 						sendMessage: () => {},
-				});
-			}
-		})()
+					});
+				}
+		  })()
 		: () => ({
-			socketRef: null,
+				socketRef: null,
 				createWebSocketConnection: () => {},
 				sendMessage: () => {},
-		});
+		  });
 
 import { ReactComponent as SelectDownSVG } from './library/svgs/formQuestionTypes/selectDown.svg';
 import { ReactComponent as StarSVG } from './library/svgs/formQuestionTypes/star.svg';
@@ -92,6 +86,7 @@ import { ReactComponent as DeleteSVG } from './library/svgs/vDelete.svg';
 
 //event popup
 import { ReactComponent as ActionDropDown } from './library/svgs/dropDown.svg';
+import { ReactComponent as Warn } from '../../assets/svg/document/warn.svg';
 
 export {
 	IconIndexBaseClass,
@@ -150,5 +145,6 @@ export {
 	UpDown,
 	DeleteSVG,
 	Threedots,
-	ActionDropDown
+	ActionDropDown,
+	Warn,
 };
