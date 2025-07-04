@@ -565,6 +565,18 @@ export const ProfileState = () => {
 		}
 	};
 
+	const getIntercomToken = async (userId) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const path = `/${userId}/intercom`;
+			const type = 'tenant';
+			const response = await service.fetchGet(path, token, type);
+			return response;
+		} catch (error) {
+			console.log('error==>getIntercomToken', error);
+		}
+	};
+
 	return {
 		...state,
 		getTenantSettings,
@@ -596,5 +608,6 @@ export const ProfileState = () => {
 		updateTenantProfession,
 		getAiCategories,
 		getWorkSpaceInfo,
+		getIntercomToken,
 	};
 };
