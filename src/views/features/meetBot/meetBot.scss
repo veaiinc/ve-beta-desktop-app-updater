@@ -219,6 +219,13 @@
 		height: 100%;
 		background: linear-gradient(135deg, var(--card-over-card-hover) 40%, var(--card) 100%);
 		border-radius: 10px;
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		justify-content: center;
+		font-size: 44px;
+		font-weight: 600;
+		color: var(--primary-font);
 	}
 	.sidebarClosingSvg {
 		z-index: 1001;
@@ -232,6 +239,8 @@
 		align-items: flex-start;
 		gap: 24px;
 		flex-shrink: 0;
+		position: relative;
+		right: 20px;
 		.meetbot__right {
 			background: var(--background-color) !important;
 			border-left: 1.5px solid var(--stroke);
@@ -352,11 +361,21 @@
 				border-radius: 8px;
 				border: 1px solid var(--stroke, #2c2d2e);
 				background: none;
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				width: 100%;
 			}
 			.meetbot__drawer-input-wrapper {
 				display: flex;
 				align-items: center;
 				position: relative;
+				width: 100%;
+				justify-content: space-between;
+				gap: 12px;
 			}
 			.meetbot__audio-btn-wrapper {
 				display: flex;
@@ -373,23 +392,29 @@
 				color: var(--background-color, #121212);
 				font-weight: 600;
 				font-size: 14px;
-				
+				padding: 0 16px;
 				cursor: pointer;
 			}
 			.meetbot__audio-btn--disabled {
 				cursor: not-allowed;
-				background: #b2f5e6;
+				background: var(--primary-button, #79ecc9);
+				color: var(--background-color, #121212);
 			}
 			.meetbot__drawer-tick {
-				position: absolute;
-				right: 12px;
-				color: var(--success, #79ecc9);
-				font-size: 22px;
 				cursor: pointer;
+				color: var(--primary-button, #79ecc9);
+				background: none;
+				border: none;
+				font-size: 14px;
+				font-weight: 600;
+				padding: 8px 16px;
+				border-radius: 6px;
+				transition: all 0.2s ease;
 			}
 			.meetbot__drawer-tick--disabled {
 				color: var(--secondary-font, #94989e);
 				cursor: not-allowed;
+				opacity: 0.5;
 			}
 			.meetbot__drawer-loader {
 				position: absolute;

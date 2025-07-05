@@ -247,18 +247,10 @@ const MeetBot = () => {
 												>
 													<div className="meetingInfo">
 														<div className="meetingAvatar">
-															{meeting.coverImage ? (
-																<img
-																	src={meeting.coverImage}
-																	alt="avatar"
-																	className="img"
-																/>
-															) : (
-																(meeting.createdBy?.name || '')
-																	.trim()
-																	.charAt(0)
-																	.toUpperCase() || '?'
-															)}
+															{(meeting.createdBy?.name || '')
+																.trim()
+																.charAt(0)
+																.toUpperCase() || '?'}
 														</div>
 														<div className="meetingTitle">
 															{meeting.title}
@@ -266,6 +258,22 @@ const MeetBot = () => {
 														<div className="meetingMeta">
 															{meeting.createdBy?.name || ''}
 														</div>
+													</div>
+													<div className="meetingImg">
+														{meeting.coverImage && (
+															<img
+																src={meeting.coverImage}
+																alt="avatar"
+															/>
+														)}
+														{!meeting.coverImage && (
+															<div className="imgPlaceholder">
+																{meeting.title
+																	.trim()
+																	.charAt(0)
+																	.toUpperCase() || '?'}
+															</div>
+														)}
 													</div>
 												</div>
 											))}
@@ -347,19 +355,30 @@ const MeetBot = () => {
 									onKeyDown={handleInputKeyDown}
 									disabled={info.creating}
 								/>
-								{info.meetingUrl &&
-									isValidUrl(info.meetingUrl) &&
-									!info.creating && (
-										<span
-											className="meetbot__drawer-tick"
-											onClick={handleCreateMeet}
-											title="Create meeting"
-										>
-											&#10003;
-										</span>
-									)}
+								{!info.creating && (
+									<button
+										className={`meetbot__drawer-tick${
+											!isValidUrl(info.meetingUrl)
+												? ' meetbot__drawer-tick--disabled'
+												: ''
+										}`}
+										onClick={handleCreateMeet}
+										disabled={!isValidUrl(info.meetingUrl)}
+										title="Create meeting"
+									>
+										Create
+									</button>
+								)}
 								{info.creating && (
-									<span className="meetbot__drawer-loader">...</span>
+									<span className="meetbot__drawer-loader">
+										<Spinner
+											width="16px"
+											height="16px"
+											color="var(--primary-button)"
+											borderTopColor="var(--background-color)"
+											borderWidth={1}
+										/>
+									</span>
 								)}
 							</div>
 						)}
