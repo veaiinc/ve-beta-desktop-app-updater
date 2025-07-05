@@ -706,7 +706,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		}
 	};
 	const handleUpdateTranscription = useCallback((text) => {
-		console.log('text', text);
 		setInfo((prev) => ({
 			...prev,
 			transcriptionText: text,
@@ -1012,7 +1011,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				)}
 			</div>
 			{/* <NoteTranscription pageId={noteId} updateTranscription={handleUpdateTranscription} /> */}
-			
 		</div>
 	);
 };

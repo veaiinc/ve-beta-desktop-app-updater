@@ -159,7 +159,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	// Handler for transcript socket messages
 	const handleLiveIntelligenceMessageFunc = useCallback(
 		(event) => {
-			console.log(event);
 			const data = JSON.parse(event?.data || null);
 			handleTranscriptionSuggestions(data);
 		},
@@ -354,7 +353,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	useEffect(() => {
 		if (noteId) {
-			console.log(noteId, 'note');
 			getNotesPageDataFunc();
 		}
 
