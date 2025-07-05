@@ -42,7 +42,7 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 						return (
 							<div
 								className="source-container"
-								key={index}
+								key={`${Date.now()}-${index}`}
 								onClick={() => handleSourceClick(citation)}
 								style={{
 									animationDelay: `${index * 0.05 + 0.2}s`,

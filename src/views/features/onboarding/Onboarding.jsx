@@ -41,15 +41,17 @@ const Onboarding = () => {
 				</div>
 			</div>
 			<div className="onboarding-main">
-				<div className="main-content-container">
-					<div className="onboarding-section">
+				<div className="main-content-container" style={{ padding: '180px 20px 0 120px;' }}>
+					<div className="email-section">
 						<div className="stages-container">
 							<OnboardingStepper onStepChange={setCurrentStep} />
 						</div>
 					</div>
+					<div className="description-section">
+						<LoginDescription />
+					</div>
 				</div>
 			</div>
-			<LoginDescription />
 		</div>
 	);
 };
