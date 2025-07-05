@@ -102,9 +102,9 @@ const LoginPage = () => {
 						{!info?.cookiesAccepted && info?.showCookiesNotice && (
 							<div className="cookies-notice">
 								<div className="cookie-container">
-									<span className="cookie-icon">
+									{/* <span className="cookie-icon">
 										<img src={CookiesImg} />
-									</span>
+									</span> */}
 									<p>
 										This site uses cookies to provide you with a personalized
 										experience. Check our{' '}
@@ -116,7 +116,7 @@ const LoginPage = () => {
 								</div>
 								<div className="buttons-container">
 									<div className="decline-button" onClick={handleDeclineCookies}>
-										Decline all
+										Deny all
 									</div>
 									<div className="accept-button" onClick={handleAcceptCookies}>
 										Accept
@@ -125,6 +125,9 @@ const LoginPage = () => {
 							</div>
 						)}
 					</div>
+				</div>
+				<div className="description-section">
+					<LoginDescription />
 				</div>
 			</div>
 		),
@@ -137,6 +140,9 @@ const LoginPage = () => {
 						setEmailVerified={setEmailVerified}
 						setActiveStage={setActiveStage}
 					/>
+				</div>
+				<div className="description-section">
+					<LoginDescription />
 				</div>
 			</div>
 		),
@@ -199,14 +205,7 @@ const LoginPage = () => {
 				))}
 			</footer> */}
 			</div>
-			<LoginDescription />
-			{/* <div className="login-page-container-right"> */}
-			{/* <div className="login-page-container-right-content">
-					<div className="login-page-container-right-content-title">
-						<h1>Welcome to Ve.ai</h1>
-					</div>
-				</div> */}
-			{/* </div> */}
+			{/* Remove floating LoginDescription here */}
 		</div>
 	);
 };

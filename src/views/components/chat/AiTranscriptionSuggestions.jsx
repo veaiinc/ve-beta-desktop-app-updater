@@ -2,6 +2,7 @@ import { memo, useCallback, useContext, useEffect, useRef, useState } from 'reac
 import s from './aiTranscriptionSuggestions.module.scss';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
+import { ReactComponent as MemorySvg } from '../../../assets/svg/memory.svg';
 import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import Context from '../../../context/context';
 import { fileTypeIcons, redirectTo, redirectTypeMapper } from '../../../helpers';
@@ -115,6 +116,15 @@ const AiTranscriptionSuggestions = ({ closeModal }) => {
 										question?.query || ''
 									}"`}</div>
 								</div>
+								{question?.memory_used && (
+									<>
+										<div className={s.horizontalLine}></div>
+										<div className={s.isMemoryUsed}>
+											<MemorySvg />
+											Memory Used
+										</div>
+									</>
+								)}
 							</div>
 						))}
 					</div>

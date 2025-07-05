@@ -1005,11 +1005,20 @@ export const getMeetBotDataQuery = gql`
 `;
 
 export const meetBotCreateMutation = gql`
-	mutation Mutation($meetingLink: String!, $title: String!) {
-		startRecallBot(meetingLink: $meetingLink, title: $title) {
+	mutation Mutation($input: TranscriptionInput) {
+		startTranscription(input: $input) {
 			success
 			message
 			data
 		}
 	}
+`;
+
+export const deleteLiveKitRoomMutation = gql`
+	mutation DeleteLiveKitRoom($pageId: ID!) {
+	deleteLiveKitRoom(pageId: $pageId) {
+	  message
+	  success
+	}
+  }
 `;

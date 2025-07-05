@@ -20,7 +20,7 @@ import {
 	useMemo,
 	createContext,
 } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
@@ -51,6 +51,7 @@ import SlashMenu from '../../components/notes/SlashMenu';
 import MeetTranscript from './MeetTranscript';
 import useLiveIntelligenceStream from '../../../hooks/useLiveIntelligenceStream';
 import useRecallStream from '../../../hooks/useRecallStream';
+import NoteTakerTranscript from './NoteTakerTranscript';
 
 export const NotesRefContext = createContext(null);
 
@@ -104,7 +105,9 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptTabs = false }) => {
 	const { workspaceMode } = useWorkspaceMode();
-	const { noteId } = useParams();
+	const [searchParams] = useSearchParams();
+	const noteId = searchParams.get('noteId');
+	const type = searchParams.get('type');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const prevDocRef = useRef([]);
@@ -146,7 +149,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	const [info, setInfo] = useState(initialState);
 	const [transcriptList, setTranscriptList] = useState([]);
-	const [activeTab, setActiveTab] = useState('summary');
+	const [activeTab, setActiveTab] = useState('transcript');
 	const location = useLocation();
 
 	// Add hooks for live intelligence and recall stream
@@ -995,13 +998,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	};
 
 	useEffect(() => {
-		if (showTranscriptTabs && location?.pathname?.includes('meet')) {
+		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
 			recallConnection(handleSocketMessage);
 			createLiveIntelligenceStream(info?.sessionId, handleLiveIntelligenceMessageFunc);
 		}
 		// No cleanup needed, useRecallStream handles it
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [showTranscriptTabs, info?.sessionId]);
+	}, [showTranscriptTabs, info?.sessionId, type]);
 
 	return (
 		<NotesRefContext.Provider value={{ previousBlocksRef, pageId: noteId }}>
@@ -1256,31 +1259,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									>
 										<button
 											className={
-												activeTab === 'summary'
-													? 'notes-tab active'
-													: 'notes-tab'
-											}
-											style={{
-												background: 'none',
-												border: 'none',
-												outline: 'none',
-												color: 'inherit',
-												fontWeight: 500,
-												fontSize: 16,
-												padding: '8px 0',
-												borderBottom:
-													activeTab === 'summary'
-														? '2px solid var(--primary-button, #cfff48)'
-														: '2px solid transparent',
-												cursor: 'pointer',
-												transition: 'color 0.2s',
-											}}
-											onClick={() => setActiveTab('summary')}
-										>
-											Summary
-										</button>
-										<button
-											className={
 												activeTab === 'transcript'
 													? 'notes-tab active'
 													: 'notes-tab'
@@ -1304,12 +1282,42 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 										>
 											Transcript
 										</button>
+
+										<button
+											className={
+												activeTab === 'summary'
+													? 'notes-tab active'
+													: 'notes-tab'
+											}
+											style={{
+												background: 'none',
+												border: 'none',
+												outline: 'none',
+												color: 'inherit',
+												fontWeight: 500,
+												fontSize: 16,
+												padding: '8px 0',
+												borderBottom:
+													activeTab === 'summary'
+														? '2px solid var(--primary-button, #cfff48)'
+														: '2px solid transparent',
+												cursor: 'pointer',
+												transition: 'color 0.2s',
+											}}
+											onClick={() => setActiveTab('summary')}
+										>
+											Summary
+										</button>
 									</div>
 								</div>
 							)}
 
 							{showTranscriptTabs && activeTab === 'transcript' ? (
-								<MeetTranscript transcriptList={transcriptList} />
+								type === 'meeting_bot' ? (
+									<MeetTranscript transcriptList={transcriptList} />
+								) : type === 'desktop' ? (
+									<NoteTakerTranscript />
+								) : null
 							) : (
 								<BlockNoteView
 									editor={editor}

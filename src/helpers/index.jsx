@@ -323,7 +323,7 @@ export const getFaviconUrl = (url) => {
 		const domain = new URL(url)?.hostname;
 		const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
 
-		faviconCache?.set(url, faviconUrl);
+		faviconCache?.set(domain, faviconUrl);
 		return faviconUrl;
 	} catch (error) {
 		return null;
