@@ -201,7 +201,11 @@ const ChatHeader = ({
 
 	return (
 		<div className={s.wrapper}>
-			<div className={`${s.chatHeader} ${info?.chatDropdownExpanded ? s.expanded : ''}`}>
+			<div
+				className={`${s.chatHeader} chatHeader ${
+					info?.chatDropdownExpanded ? `${s.expanded} expanded` : ''
+				}`}
+			>
 				<div className={`${s.headerInfo} headerInfo`} onMouseLeave={handleMouseLeave}>
 					{info?.userMessages?.length > 1 && (
 						<div
