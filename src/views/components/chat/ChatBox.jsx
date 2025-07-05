@@ -753,12 +753,6 @@ const ChatBox = ({
 			const showCustomChatOptions = [
 				{
 					type: 'AI',
-					message: 'loading....',
-					content: (
-						<div className="aiMessageWrapper">
-							<AIMessageLoader />
-						</div>
-					),
 					contentType: 'loading',
 				},
 			];

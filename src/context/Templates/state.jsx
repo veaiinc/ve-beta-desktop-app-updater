@@ -1956,12 +1956,6 @@ export const TemplatesState = (props) => {
 				{ type: 'user', message: queryMessage || '' },
 				{
 					type: 'AI',
-					message: 'loading....',
-					content: (
-						<div className="aiMessageWrapper">
-							<AIMessageLoader />
-						</div>
-					),
 					contentType: 'loading',
 				},
 			];
