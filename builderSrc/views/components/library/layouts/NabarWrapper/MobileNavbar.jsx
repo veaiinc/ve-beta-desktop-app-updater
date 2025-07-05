@@ -95,8 +95,11 @@ class MobileNavbarComponent extends Component {
 													?.imageURL
 											}
 											alt="logo"
-											height={'30px'}
-											width={'30px'}
+											height={'40px'}
+											width={'40px'}
+											style={{
+												objectFit: 'contain',
+											}}
 										/>
 									) : (
 										<div
@@ -459,6 +462,9 @@ class MobileNavbarComponent extends Component {
 										alt="logo"
 										height={'50px'}
 										width={'50px'}
+										style={{
+											objectFit: 'contain',
+										}}
 									/>
 								) : (
 									<div className="navbar-inner-mobile-title">

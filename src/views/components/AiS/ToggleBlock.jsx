@@ -3,6 +3,7 @@ import '../../../assets/scss/AiSetup/toggleBlock.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.svg';
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
 import { ReactComponent as Pencil } from '../../../assets/svg/calendar/pencil.svg';
+import { ReactComponent as Dropdown } from '../../../assets/svg/Settings/dropdown.svg';
 
 const ToggleBlock = ({ data, type, onDeleteClick, onEditClick }) => {
 	const [info, setInfo] = useState({
@@ -23,7 +24,7 @@ const ToggleBlock = ({ data, type, onDeleteClick, onEditClick }) => {
 				>
 					{data?.heading}
 				</h1>
-				<div className={info.isOpen ? 'actionButtons' : 'actionButtonsHidden'}>
+				<div className="actionButtons" style={{ display: 'flex', gap: '8px' }}>
 					<button
 						className="actionButton"
 						onClick={() =>
@@ -40,7 +41,12 @@ const ToggleBlock = ({ data, type, onDeleteClick, onEditClick }) => {
 					onClick={() => updateInfo({ isOpen: !info.isOpen })}
 					className="toggleBlockHeaderButton"
 				>
-					<Plus style={{ transform: info.isOpen ? 'rotate(45deg)' : 'rotate(0deg)' }} />
+					<Dropdown
+						style={{
+							transform: info.isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+							transition: 'transform 0.2s',
+						}}
+					/>
 				</button>
 			</div>
 			{info.isOpen && <div className="toggleBlockContent">{data?.description}</div>}
