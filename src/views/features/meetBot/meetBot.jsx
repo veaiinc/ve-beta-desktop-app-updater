@@ -211,37 +211,9 @@ const MeetBot = () => {
 							dataLength={Object.values(info.meetingsByDate).flat().length}
 							next={loadMoreMeetings}
 							hasMore={info.hasMore}
-							loader={
-								<div
-									style={{
-										display: 'flex',
-										justifyContent: 'center',
-										alignItems: 'center',
-										padding: '20px 0',
-									}}
-								>
-									<Spinner
-										width="32px"
-										height="32px"
-										color="var(--primary-button)"
-										borderTopColor="var(--background-color)"
-									/>
-								</div>
-							}
-							endMessage={
-								<div
-									style={{
-										textAlign: 'center',
-										padding: '20px 0',
-										color: 'var(--secondary-font)',
-									}}
-								>
-									No more meetings to load
-								</div>
-							}
 							scrollableTarget="meetbot-list-container"
 						>
-							{info.loadingMeetings && info.page === 1 ? (
+							{info.loadingMeetings ? (
 								<div
 									style={{
 										display: 'flex',
@@ -266,44 +238,37 @@ const MeetBot = () => {
 									<React.Fragment key={date}>
 										<div className="listSection">
 											<div className="listSectionTitle">{date}</div>
-											{!info.meetingsByDate[date].length ? (
-												<div className="empty-meet-bot-list">
-													<EmptyMeetBotList />
-												</div>
-											) : (
-												info.meetingsByDate[date].map((meeting) => (
-													<div
-														className="meetingCard"
-														onClick={() =>
-															navigate(`/meet/${meeting._id}`)
-														}
-														key={meeting._id}
-													>
-														<div className="meetingInfo">
-															<div className="meetingAvatar">
-																{meeting.coverImage ? (
-																	<img
-																		src={meeting.coverImage}
-																		alt="avatar"
-																		className="img"
-																	/>
-																) : (
-																	(meeting.createdBy?.name || '')
-																		.trim()
-																		.charAt(0)
-																		.toUpperCase() || '?'
-																)}
-															</div>
-															<div className="meetingTitle">
-																{meeting.title}
-															</div>
-															<div className="meetingMeta">
-																{meeting.createdBy?.name || ''}
-															</div>
+
+											{info.meetingsByDate[date].map((meeting) => (
+												<div
+													className="meetingCard"
+													onClick={() => navigate(`/meet/${meeting._id}`)}
+													key={meeting._id}
+												>
+													<div className="meetingInfo">
+														<div className="meetingAvatar">
+															{meeting.coverImage ? (
+																<img
+																	src={meeting.coverImage}
+																	alt="avatar"
+																	className="img"
+																/>
+															) : (
+																(meeting.createdBy?.name || '')
+																	.trim()
+																	.charAt(0)
+																	.toUpperCase() || '?'
+															)}
+														</div>
+														<div className="meetingTitle">
+															{meeting.title}
+														</div>
+														<div className="meetingMeta">
+															{meeting.createdBy?.name || ''}
 														</div>
 													</div>
-												))
-											)}
+												</div>
+											))}
 										</div>
 									</React.Fragment>
 								))
