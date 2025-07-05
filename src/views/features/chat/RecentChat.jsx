@@ -99,6 +99,7 @@ const RecentChat = ({
 	const globalChatMessagesRef = useRef(globalChatMessages);
 	const currentUserMessageTimeoutRef = useRef(null);
 	const followUpQueryTimeoutRef = useRef(null);
+
 	sessionId = isPreview ? sId : sessionId;
 
 	useEffect(() => {

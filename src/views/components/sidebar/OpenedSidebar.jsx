@@ -820,8 +820,8 @@ const OpenedSidebar = ({
 															margin: '16px 0px',
 														}}
 													/> */}
-													{filteredModules?.map((singleItem) => (
-														<div key={singleItem.id}>
+													{filteredModules?.map((singleItem, index) => (
+														<div key={index}>
 															<OpenedSidebarModules
 																name={singleItem.name}
 																Icon={singleItem.icon}
