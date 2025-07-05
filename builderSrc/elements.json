@@ -40,7 +40,6 @@
 			"borderWidth": 1
 		},
 		"styles": {
-			"padding": "12px 35px",
 			"display": "flex",
 			"alignItems": "center",
 			"justifyContent": "center"
@@ -224,7 +223,8 @@
 		"divStyles": {
 			"dragX": 0,
 			"dragY": 0,
-			"gridArea": "3 / 3 / 4 / 10"
+			"gridArea": "3 / 3 / 4 / 10",
+			"mGridArea": "1 / 1 / 1 / 9"
 		}
 	},
 	"menubar": {
