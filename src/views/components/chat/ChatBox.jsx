@@ -297,11 +297,11 @@ const ChatBox = ({
 	}, [globalChatMessages, info?.chatSessionId]);
 
 	useEffect(() => {
-		if (activePromptForChat) {
+		if (activePromptForChat && info?.chatSessionId) {
 			handleSendMessageFunc(null, true, activePromptForChat);
 			updateStateValues({ activePromptForChat: null });
 		}
-	}, [activePromptForChat]);
+	}, [activePromptForChat, info?.chatSessionId]);
 
 	useEffect(() => {
 		if (activeInputForChat) {
