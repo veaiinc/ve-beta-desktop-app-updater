@@ -1420,7 +1420,7 @@ class Invoice extends Component {
 				() => {
 					this.props.setActiveSection(activeSection);
 				},
-				debounceTypes?.includes(type) ? 1000 : 200,
+				debounceTypes?.includes(type) ? 2000 : 200,
 			);
 		});
 	};
@@ -2091,6 +2091,7 @@ class Invoice extends Component {
 						<div className="manual-invoice-addbtn-container">
 							<span
 								onClick={() => this.props?.addManualInvoiceBlock()}
+								// onClick={alert('hello')}
 								style={{
 									padding: '24px 0px',
 									color: this.state?.style?.valueColor,

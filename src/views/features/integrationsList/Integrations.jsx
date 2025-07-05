@@ -397,14 +397,14 @@ const Integrations = () => {
 		// 		'Easily connect with Google Drive to sync your files and streamline communication.',
 		// 	isConnected: false,
 		// },
-		// {
-		// 	id: 5,
-		// 	icon: googleCalendar,
-		// 	title: 'Google Calendar',
-		// 	connectType: 'google-calendar',
-		// 	description: 'Easily connect with Google Calendar to sync your calendar.',
-		// 	isConnected: false,
-		// },
+		{
+			id: 5,
+			icon: googleCalendar,
+			title: 'Google Calendar',
+			connectType: 'google-calendar',
+			description: 'Easily connect with Google Calendar to sync your calendar.',
+			isConnected: false,
+		},
 		// {
 		// 	id: 6,
 		// 	icon: zoho,
