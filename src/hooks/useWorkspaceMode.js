@@ -49,6 +49,7 @@ const useWorkspaceMode = () => {
 	const isPublicRoute = publicRoutesList.some((routePath) =>
 		matchPath({ path: routePath, end: true }, pathname),
 	);
+
 	const routeType = isPublicRoute
 		? 'publicRoutes'
 		: workspaceMode === 'stable'

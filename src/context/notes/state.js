@@ -56,6 +56,7 @@ import {
 	// for meet bots
 	getMeetBotDataQuery,
 	meetBotCreateMutation,
+	deleteLiveKitRoomMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -1734,6 +1735,26 @@ export const NotesState = (props) => {
 			console.error('error==>createMeetBot', error);
 		}
 	};
+
+	const deleteLiveKitRoom = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				deleteLiveKitRoomMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api_database',
+			);
+			if (response?.[0]) {
+				return response;
+			}
+		} catch (error) {
+			console.error('error==>deleteLiveKitRoom', error);
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -1789,5 +1810,6 @@ export const NotesState = (props) => {
 		fetchMoreGroupData,
 		getExistingBots,
 		createMeetBot,
+		deleteLiveKitRoom,
 	};
 };

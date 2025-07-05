@@ -29,6 +29,7 @@ class NavbarComponent extends Component {
 			showMobileMenu: false,
 			hoveredCart: false,
 			showCartModal: false,
+			section: props.section,
 		};
 		this.navbarRef = React.createRef();
 		this.imageRef = React.createRef();
@@ -62,6 +63,11 @@ class NavbarComponent extends Component {
 		if (this.state.previewType !== nextProps.previewType) {
 			this.setState({
 				previewType: nextProps.previewType,
+			});
+		}
+		if (this.state.section !== nextProps.section) {
+			this.setState({
+				section: nextProps.section,
 			});
 		}
 	};
@@ -189,18 +195,19 @@ class NavbarComponent extends Component {
 	};
 
 	handleNavbarUpdate = (type, value) => {
-		let newSection = { ...this.props.section };
-		// newSection[type] = value
+		// let newSection = { ...this.props.section };
+		// // newSection[type] = value
 
-		if (type == 'image') {
-			newSection.blocks[0].subBlocks[0].imageURL = value?.imageURL;
-		}
+		// if (type == 'image') {
+		// 	newSection.blocks[0].subBlocks[0].imageURL = value?.imageURL;
+		// }
 		this.setState(
 			{
-				section: newSection,
+				// section: newSection,
+				section: value,
 			},
 			() => {
-				this.props.setActiveSection(newSection);
+				this.props.setActiveSection(value);
 			},
 		);
 	};
@@ -284,7 +291,8 @@ class NavbarComponent extends Component {
 		});
 	};
 	builderRenderNavbar = () => {
-		const properties = this.props?.section?.blocks?.[0]?.subBlocks?.[0] || [];
+		const properties =
+			this.props?.section?.blocks?.[0]?.subBlocks?.[0] || this.props.section || {};
 		const styles = {
 			backgroundColor: 'transparent',
 			height: '100%',
@@ -369,9 +377,9 @@ class NavbarComponent extends Component {
 									ref={this.imageRef}
 									className="navbar-image-wrapper"
 									style={{
-										display:'flex',
-										alignItems:'center',
-										justifyContent:'center',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
 										width:
 											this.props?.section?.style?.siteTitle &&
 											this.props?.section?.style?.showLogo &&
@@ -408,32 +416,43 @@ class NavbarComponent extends Component {
 									!properties?.imageURL ? (
 										<div
 											style={{
-												display:'flex',
+												display: 'flex',
 												flexDirection: 'column',
-												alignItems:"center",
-												justifyContent:"center",
+												alignItems: 'center',
+												justifyContent: 'center',
 												fontSize: '14px',
 												fontWeight: 'bold',
 												width: '100px',
-												height:'70px',
+												height: '70px',
 												wordBreak: 'break-word',
 												textAlign: 'center',
 												textTransform: 'capitalize',
-												overflow:'hidden',
-												color: this.props?.section?.navigationColor || '#000000',
+												overflow: 'hidden',
+												color:
+													this.props?.section?.navigationColor ||
+													'#000000',
 											}}
 											className="site-title-wrapper"
 										>
 											{this.props?.section?.style?.siteTitle}
 										</div>
+									) : this.props.section.objectFit ? (
+										<img
+											style={{
+												objectFit: this.props.section.objectFit,
+												height: '56px',
+												width: '56px',
+											}}
+											src={this.props?.section?.imageURL}
+										/>
 									) : (
 										<ImageItem
-											crop={properties?.crop}
-											zoom={properties?.zoom}
+											crop={this.props?.section?.image_settings?.crop}
+											zoom={this.props?.section?.image_settings?.zoom}
 											preview={this.state?.preview}
 											previewType={this.state?.previewType}
-											imageUrl={properties?.imageURL}
-											imageSettings={properties?.image_settings}
+											imageUrl={this.props?.section?.imageURL}
+											imageSettings={this.props?.section?.image_settings}
 											settingData={(e) => this.props.imgSettingData(e)}
 											setActiveImage={(e) =>
 												this.props.setActiveImage(
@@ -585,7 +604,7 @@ class NavbarComponent extends Component {
 												}}
 												className="cart-count"
 											>
-												{this.props?.currencySymbol} 
+												{this.props?.currencySymbol}
 												{this.props?.finalTotalCost || 0}
 											</div>
 										)}
@@ -671,7 +690,8 @@ class NavbarComponent extends Component {
 	};
 
 	clientRenderNavbar = () => {
-		const properties = this.props?.section?.blocks?.[0]?.subBlocks?.[0] || [];
+		const properties =
+			this.props?.section?.blocks?.[0]?.subBlocks?.[0] || this.props.section || {};
 		const styles = {
 			backgroundColor: 'transparent',
 			height: '100%',
@@ -738,12 +758,12 @@ class NavbarComponent extends Component {
 									}}
 								>
 									<ImageItem
-										crop={properties?.crop}
-										zoom={properties?.zoom}
+										crop={this.props?.section?.image_settings?.crop}
+										zoom={this.props?.section?.image_settings?.zoom}
 										preview={this.state?.preview}
 										previewType={this.state?.previewType}
-										imageUrl={properties?.imageURL}
-										imageSettings={properties?.image_settings}
+										imageUrl={this.props?.section?.imageURL}
+										imageSettings={this.props?.section?.image_settings}
 										settingData={(e) => this.props.imgSettingData(e)}
 										setActiveImage={(e) =>
 											this.props.setActiveImage(
@@ -851,7 +871,7 @@ class NavbarComponent extends Component {
 												!_.has(
 													this.props?.section?.style,
 													'downloadIcon',
-												)) &&  (
+												)) && (
 												<div
 													style={{
 														width: '1px',
@@ -865,26 +885,26 @@ class NavbarComponent extends Component {
 									{(this.props?.section?.style?.cartValue ||
 										!_.has(this.props?.section?.style, 'cartValue')) &&
 										this.props?.returnCartValue() != Number(0) && (
-										<div
-											style={{
-												color:
-													this.props?.section?.navigationColor ||
-													'#000000',
-											}}
-											className="cart-count"
-										>
-										{this.props?.returnCartValue() == Number(0)
-												? ''
-												: `${
-														this.props?.currencySymbol
-												  } ${this.props?.returnCartValue()}`?.toLocaleString(
-														'en-IN',
-														{
-															currency: 'INR',
-														},
-												  )}
-										</div>
-									)}
+											<div
+												style={{
+													color:
+														this.props?.section?.navigationColor ||
+														'#000000',
+												}}
+												className="cart-count"
+											>
+												{this.props?.returnCartValue() == Number(0)
+													? ''
+													: `${
+															this.props?.currencySymbol
+													  } ${this.props?.returnCartValue()}`?.toLocaleString(
+															'en-IN',
+															{
+																currency: 'INR',
+															},
+													  )}
+											</div>
+										)}
 								</div>
 							</div>
 						</div>

@@ -68,7 +68,7 @@ const useLiveIntelligenceStream = () => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const region = localStorage.getItem('region') || 'us-east-1';
 
-			const baseUrl = `https://live.${region}.ve.ai/${workspaceId}/${sessionId}/live_intelligence_streaming?token=${usertoken}`;
+			const baseUrl = `https://live.${region}.ve.ai/${workspaceId}/${sessionId}/live_intelligence_memory?token=${usertoken}`;
 			// const baseUrl = `https://informally-cuddly-chimp.ngrok-free.app/${workspaceId}/${sessionId}/live_intelligence_streaming?token=${usertoken}`;
 
 			if (socketRef.current) {
@@ -105,6 +105,7 @@ const useLiveIntelligenceStream = () => {
 			};
 
 			socketRef.current.onmessage = (event) => {
+				console.log(event, 'event');
 				if (messageHandlerRef.current) {
 					messageHandlerRef.current(event);
 				}

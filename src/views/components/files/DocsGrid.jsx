@@ -187,11 +187,11 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 				currentPage = 1,
 				hasNextPage = false,
 				data = [],
-				totalDocs = 0,
+				// totalDocs = 0,
 			} = docsFilesList || {};
 			const newDocs = currentPage === 1 ? [...data] : [...info?.docs, ...(data || [])];
 			handleStateUpdate({ docs: newDocs, currentPage, hasNextPage, loading: false });
-			handleTotalChange(totalDocs);
+			// handleTotalChange(totalDocs);
 		}
 	}, [docsFilesList]);
 

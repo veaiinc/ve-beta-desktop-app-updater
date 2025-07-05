@@ -619,7 +619,7 @@ const actionHandlers = {
 	HANDLE_TRANSCRIPTION_SUGGESTIONS: (state, action) => {
 		const {
 			message_chunk_id: chunkId,
-			prompts_to_ask,
+			prompt_to_ask,
 			response,
 			similar_files,
 		} = action?.payload || {};
@@ -628,8 +628,8 @@ const actionHandlers = {
 		const responses = { ...(aiTranscriptionSuggestions?.responses || {}) };
 		const files = [...(aiTranscriptionSuggestions?.similar_files || [])];
 
-		if (prompts_to_ask) {
-			prompts?.push(prompts_to_ask);
+		if (prompt_to_ask) {
+			prompts?.push(prompt_to_ask);
 		}
 		if (chunkId && response) {
 			responses[chunkId] = (responses?.[chunkId] || '') + response || '';

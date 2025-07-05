@@ -16,32 +16,6 @@ import ShareComponent from './ShareComponent';
 import MoreOptions from './MoreOptions';
 import AIMessage from '../chat/AIMessage';
 
-const customModalStyles = {
-	content: {
-		width: '100vw',
-		height: '100vh',
-		padding: '0px',
-		border: 'none',
-		borderRadius: '0px',
-		backgroundColor: 'var(--background-color)',
-		zIndex: 1000,
-		clipPath: 'inset(0% 0% 0% 0%)',
-		transition:
-			'clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-		opacity: 1,
-	},
-	overlay: {
-		position: 'fixed',
-		top: 0,
-		left: 0,
-		right: 0,
-		bottom: 0,
-		backgroundColor: 'rgba(0, 0, 0, 0.5)',
-		zIndex: 1001,
-		transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-	},
-};
-
 const outerContainerStyleFullWidth = {
 	width: '100%',
 	height: '100%',
@@ -172,14 +146,9 @@ const NoteComponentModal = ({ modalIsOpen, closeModal }) => {
 	}
 
 	return (
-		<ReactModal
-			isOpen={modalIsOpen}
-			closeModal={handleClose}
-			customStyles={customModalStyles}
-			rootClassName={`notes-modal-container`}
-		>
+		<ReactModal isOpen={modalIsOpen} closeModal={handleClose} modalType="center">
 			<div className="notes-modal-container">
-				<div className="modal-container">
+				<div className="notes-modal-wrapper">
 					<div className="chatBarContainer">
 						<div className="chat-to-note-link-container">
 							<div className="title">Link all chat to note</div>

@@ -7,6 +7,7 @@ import Modal from '../modals/index';
 import ImageLibrary from '../../imageLibrary';
 
 import Images from '../../../../controllers/images';
+import Cropper from 'react-easy-crop';
 class NavImagePopup extends Images {
 	constructor(props) {
 		super(props);
@@ -23,15 +24,41 @@ class NavImagePopup extends Images {
 			progressCount: 0,
 			showImageModalLibrary: false,
 			debounceInterval: null,
+
+			crop:
+				// props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.crop ||
+				{
+					x: 0,
+					y: 0,
+				},
+			zoom:
+				//  props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.zoom ||
+				1,
+			aspect:
+				// props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.aspect ||
+				1.5,
 		};
 
 		this.desktopLogoRef = React.createRef();
 		this.mobileLogoRef = React.createRef();
+		this.cropperRef = React.createRef();
 	}
 
 	componentWillReceiveProps = (nextProps) => {
 		if (this.state.activeComponent !== nextProps.activeComponent) {
-			this.setState({ activeComponent: nextProps.activeComponent });
+			this.setState({
+				activeComponent: nextProps.activeComponent,
+				crop: this.props.isMobileNavbar
+					? nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.crop
+					: nextProps.activeComponent?.image_settings?.crop,
+				zoom: this.props.isMobileNavbar
+					? nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.zoom
+					: nextProps.activeComponent?.image_settings?.zoom,
+				aspect: this.props.isMobileNavbar
+					? nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings
+							?.aspect
+					: nextProps.activeComponent?.image_settings?.aspect,
+			});
 		}
 	};
 	debounceFunction = (func, delay) => {
@@ -180,7 +207,30 @@ class NavImagePopup extends Images {
 			zoom: 1,
 			aspect: 3 / 2,
 		};
-		if (type == 'imageURL') {
+		if (type == 'imageURL' || type == 'imgLibrary') {
+			if (this.props.isMobileNavbar) {
+				newComponent = {
+					...newComponent,
+					blocks: [
+						{
+							...newComponent.blocks[0],
+							subBlocks: [
+								{
+									...newComponent.blocks[0].subBlocks[0],
+									imageURL: value,
+								},
+							],
+						},
+					],
+				};
+			} else {
+				newComponent = {
+					...newComponent,
+					imageURL: value,
+					image_settings: newComponent?.image_settings || image_settings,
+				};
+			}
+		} else if (type == 'objectFit') {
 			if (this.props.isMobileNavbar) {
 				newComponent = {
 					...newComponent,
@@ -200,7 +250,6 @@ class NavImagePopup extends Images {
 				newComponent = {
 					...newComponent,
 					[type]: value,
-					image_settings: newComponent?.image_settings || image_settings,
 				};
 			}
 		} else if (type == 'remove') {
@@ -229,30 +278,7 @@ class NavImagePopup extends Images {
 		} else if (type == 'siteTitle') {
 			newComponent.style = newComponent.style || {};
 			newComponent.style.siteTitle = value;
-		} else if (type == 'imgLibrary') {
-			if (this.props.isMobileNavbar) {
-				newComponent = {
-					...newComponent,
-					blocks: [
-						{
-							...newComponent.blocks[0],
-							subBlocks: [
-								{
-									...newComponent.blocks[0].subBlocks[0],
-									imageURL: value,
-								},
-							],
-						},
-					],
-				};
-			} else {
-				newComponent = {
-					...newComponent,
-					imageURL: value,
-				};
-			}
 		}
-
 		this.setState(
 			{
 				activeComponent: newComponent,
@@ -262,14 +288,125 @@ class NavImagePopup extends Images {
 			},
 		);
 	};
+
+	handleCropChange = (value) => {
+		if (
+			this.cropperRef.current &&
+			this.cropperRef.current?.props?.crop?.x === value.x &&
+			this.cropperRef.current?.props?.crop?.y === value.y
+		) {
+			return;
+		}
+		this.cropperRef.current = value;
+		let newComponent = { ...this.state.activeComponent };
+		if (this.props.isMobileNavbar) {
+			newComponent = {
+				...newComponent,
+				blocks: [
+					{
+						...newComponent.blocks[0],
+						subBlocks: [
+							{
+								...newComponent.blocks[0].subBlocks[0],
+								image_settings: {
+									...newComponent.blocks[0].subBlocks[0]?.image_settings,
+									crop: value,
+								},
+							},
+						],
+					},
+				],
+			};
+		} else {
+			newComponent = {
+				...newComponent,
+				image_settings: { ...newComponent?.image_settings, crop: value },
+			};
+		}
+		this.setState(
+			{
+				crop: value,
+				activeComponent: newComponent,
+			},
+			() => {
+				this.debounceFunction(() => {
+					this.props?.setActivePopupComponent(newComponent);
+				}, 500);
+			},
+		);
+	};
+	handleZoomChange = (value) => {
+		let newComponent = { ...this.state.activeComponent };
+		if (this.props.isMobileNavbar) {
+			newComponent = {
+				...newComponent,
+				blocks: [
+					{
+						...newComponent.blocks[0],
+						subBlocks: [
+							{
+								...newComponent.blocks[0].subBlocks[0],
+								image_settings: {
+									...newComponent?.blocks[0].subBlocks[0]?.image_settings,
+									zoom: value,
+								},
+							},
+						],
+					},
+				],
+			};
+		} else {
+			newComponent = {
+				...newComponent,
+				image_settings: { ...newComponent?.image_settings, zoom: value },
+			};
+		}
+		this.setState(
+			{
+				zoom: value,
+				activeComponent: newComponent,
+			},
+			() => {
+				this.debounceFunction(() => {
+					this.props?.setActivePopupComponent(newComponent);
+				}, 500);
+			},
+		);
+	};
+
 	render() {
-		let isImage = this.props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.imageURL;
+		let isImage = this.props.isMobileNavbar
+			? this.state?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.imageURL
+			: this.state?.activeComponent?.imageURL;
 		return (
 			<>
 				<div className="upload-container">
 					<div className="upload-header">
 						<div className="upload-header-title">Image</div>
 					</div>
+					{/* {!this.props.isMobileNavbar && (
+						<div className="upload-section">
+							<label className="upload-label">Image Styles</label>
+							<div className="fill-fit-container">
+								<span
+									className="fill-fit"
+									onClick={() =>
+										this.handleActiveImageStyles('objectFit', 'fill')
+									}
+								>
+									Fill
+								</span>
+								<span
+									className="fill-fit"
+									onClick={() =>
+										this.handleActiveImageStyles('objectFit', 'contain')
+									}
+								>
+									Fit
+								</span>
+							</div>
+						</div>
+					)} */}
 
 					{!this.props.isMobileNavbar ? (
 						<div className="upload-section">
@@ -285,7 +422,13 @@ class NavImagePopup extends Images {
 					) : null}
 					<div className="upload-section">
 						<label className="upload-label">Logo for desktop</label>
-						<div onClick={this.handleDivClick}>
+						<div
+							onClick={this.handleDivClick}
+							style={{
+								width: '100%',
+								height: '100%',
+							}}
+						>
 							{isImage ? (
 								<div
 									style={{
@@ -294,19 +437,49 @@ class NavImagePopup extends Images {
 										justifyContent: 'space-between',
 										cursor: 'pointer',
 									}}
+									className="element_image"
 								>
-									<img src={isImage} alt="logo" height={120} width={226} />
-									{/* <input
-                            type="file"
-                            id="desktop-logo"
-                            className="file-input"
-                            accept="image/*"
-							ref={this.desktopLogoRef}
-                            onChange={(e) => this.handleFileChange(e)}
-							onClick={(e) => {
-								e.stopPropagation();
-							}}
-                        /> */}
+									{/* <img src={isImage} alt="logo" height={120} width={226} /> */}
+									<div
+										className="popup-cropper-container"
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											position: 'relative',
+											width: '98%',
+											height: '120px',
+										}}
+									>
+										<div
+											className="crop-wrapper"
+											style={{
+												width: '100%',
+												height: '100%',
+												position: 'absolute',
+											}}
+										>
+											<Cropper
+												image={isImage}
+												crop={this.state?.crop}
+												zoom={this.state?.zoom}
+												aspect={this.state?.aspect}
+												onCropChange={(e) => this.handleCropChange(e)}
+												onCropComplete={(e) => ''}
+												onZoomChange={(e) => ''}
+												onCropAreaChange={(e) => ''}
+												restrictPosition={true}
+												ref={this.cropperRef}
+											/>
+											{/* <span
+												onClick={(e) =>
+													this.handleActiveImageStyles('remove', e)
+												}
+											>
+												<Delete />
+											</span> */}
+										</div>
+									</div>
 									<span
 										onClick={(e) => this.handleActiveImageStyles('remove', e)}
 									>
@@ -365,6 +538,45 @@ class NavImagePopup extends Images {
 								</div>
 							)}
 						</div>
+						{!this.props.isMobileNavbar && (
+							<div
+								className="popup-shapes-range-wrapper"
+								style={{ margin: '15px 0px', width: '100%' }}
+							>
+								<b
+									style={{
+										fontSize: '12px',
+										marginBottom: '12px',
+									}}
+								>
+									Zoom
+								</b>
+								<div className="popup-range-div" style={{ display: 'flex' }}>
+									<div
+										style={{
+											display: 'flex',
+											maxWidth: 180,
+										}}
+									>
+										<input
+											type="range"
+											min={1}
+											max={5}
+											step={0.5}
+											value={this.state?.zoom}
+											onChange={(e) => this.handleZoomChange(e.target.value)}
+										/>
+									</div>
+									<p
+										style={{
+											textAlign: 'center',
+										}}
+									>
+										{parseFloat(this.state?.zoom)?.toFixed(1)}
+									</p>
+								</div>
+							</div>
+						)}
 					</div>
 					<div className="element_or">
 						<div className="ortext">Or</div>
