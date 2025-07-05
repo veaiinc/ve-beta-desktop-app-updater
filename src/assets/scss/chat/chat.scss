@@ -42,8 +42,8 @@
 				gap: 40px;
 				width: 100%;
 				max-width: 750px;
-				margin: 0 auto;
-				padding-bottom: calc(var(--chat-content-height) - 40px);
+				margin: 0 auto 50px auto;
+				// padding-bottom: calc(var(--chat-content-height) - 40px);
 
 				.chat-message {
 					display: flex;
