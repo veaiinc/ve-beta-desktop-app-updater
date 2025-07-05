@@ -119,11 +119,14 @@ const AISuggestionsModal = ({
 		[data],
 	);
 
-	const handleActionClick = useCallback((prompt) => {
+	const handleActionClick = useCallback((prompt, proactiveSessionId) => {
 		const sessionId = ObjectID()?.toString();
 		updateStateValues({
 			activePromptForChat: prompt,
-			isProactive: true,
+			proactiveInfoForChat: {
+				isProactive: true,
+				proactiveSessionId,
+			},
 		});
 		navigate(`/chat/${sessionId}`);
 	}, []);
@@ -715,7 +718,9 @@ const AISuggestionsModal = ({
 														<div
 															className="suggested-action"
 															key={index}
-															onClick={() => handleActionClick(item)}
+															onClick={() =>
+																handleActionClick(item, sessionId)
+															}
 														>
 															{/* <div className="result-text"> */}
 															{updateCitationIdsWithCitations(

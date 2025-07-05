@@ -162,7 +162,7 @@ const ChatBox = ({
 			currentSessionId,
 			chatReplyData,
 			deleteMultiAgentFile,
-			isProactive,
+			proactiveInfoForChat,
 		},
 		subscriptionInfo: { currentPlan },
 		calendarInfo: { updateCalendarState },
@@ -650,10 +650,13 @@ const ChatBox = ({
 						}
 					}
 
-					if (isProactive) {
+					if (proactiveInfoForChat) {
 						payload.proactive = true;
+						if (proactiveInfoForChat?.proactiveSessionId) {
+							payload.proactive_id = proactiveInfoForChat?.proactiveSessionId;
+						}
 						updateStateValues({
-							isProactive: false,
+							proactiveInfoForChat: null,
 						});
 					}
 
@@ -743,7 +746,7 @@ const ChatBox = ({
 			currentPlan,
 			globalChatMessages,
 			chatReplyData,
-			isProactive,
+			proactiveInfoForChat,
 			onChatQueryChange,
 		],
 	);
