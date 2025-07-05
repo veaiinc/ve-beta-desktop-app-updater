@@ -1651,27 +1651,44 @@ class Invoice extends Component {
 													}}
 												>
 													<textarea
+														ref={(ref) => {
+															if (ref) {
+																// Always resize on mount and updates
+																ref.style.height = 'auto';
+																ref.style.height =
+																	Math.max(ref.scrollHeight, 30) +
+																	'px';
+															}
+														}}
 														style={{
 															width: '100%',
 															color: this.state?.style?.valueColor,
-															resize: 'none', // Allows vertical resizing only
-															minHeight: '30px', // Minimum height
-															overflow: 'hidden', // Prevents scrollbar
+															resize: 'none', // Disables manual resizing
+															minHeight: '30px',
+															overflow: 'hidden', // Prevent scrollbars
 														}}
 														value={value?.title}
 														placeholder="enter Title here"
-														onChange={(e) =>
+														onChange={(e) => {
 															this.handleServiceValueChange(
 																'title',
 																e.target.value,
 																block?._id,
-															)
-														}
-														// Auto-adjust height based on content
+															);
+															// Auto-resize while typing
+															const target = e.target;
+															target.style.height = 'auto';
+															target.style.height =
+																Math.max(target.scrollHeight, 30) +
+																'px';
+														}}
 														onInput={(e) => {
-															e.target.style.height = 'auto';
-															e.target.style.height =
-																e.target.scrollHeight + 'px';
+															// Additional resize on input to ensure content fits
+															const target = e.target;
+															target.style.height = 'auto';
+															target.style.height =
+																Math.max(target.scrollHeight, 30) +
+																'px';
 														}}
 														disabled={this.props?.client}
 													/>
@@ -1687,28 +1704,51 @@ class Invoice extends Component {
 														}}
 													>
 														<textarea
+															ref={(ref) => {
+																if (ref) {
+																	// Always resize on mount and updates
+																	ref.style.height = 'auto';
+																	ref.style.height =
+																		Math.max(
+																			ref.scrollHeight,
+																			30,
+																		) + 'px';
+																}
+															}}
 															style={{
 																width: '100%',
 																color: this.state?.style
 																	?.valueColor,
-																resize: 'none', // Allows vertical resizing only
-																minHeight: '30px', // Minimum height
-																overflow: 'hidden', // Prevents scrollbar
+																resize: 'none',
+																minHeight: '30px',
+																overflow: 'hidden',
 															}}
 															value={value?.description}
 															placeholder="enter description here"
-															onChange={(e) =>
+															onChange={(e) => {
 																this.handleServiceValueChange(
 																	'description',
 																	e.target.value,
 																	block?._id,
-																)
-															}
-															// Auto-adjust height based on content
+																);
+																// Resize on user input
+																const target = e.target;
+																target.style.height = 'auto';
+																target.style.height =
+																	Math.max(
+																		target.scrollHeight,
+																		30,
+																	) + 'px';
+															}}
 															onInput={(e) => {
-																e.target.style.height = 'auto';
-																e.target.style.height =
-																	e.target.scrollHeight + 'px';
+																// Additional resize on input to ensure content fits
+																const target = e.target;
+																target.style.height = 'auto';
+																target.style.height =
+																	Math.max(
+																		target.scrollHeight,
+																		30,
+																	) + 'px';
 															}}
 															disabled={this.props?.client}
 														/>
