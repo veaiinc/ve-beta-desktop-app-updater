@@ -110,6 +110,18 @@
 	}
 }
 
+@media screen and (max-width: 710px){
+	.initial-home-page-container {
+		.home-page-container-header {
+			.title-container {
+				.title-text {
+					flex-direction: column;
+				}
+			}
+		}
+	}
+}
+
 @media screen and (max-width: 1500px) {
 	.initial-home-page-container {
 		.home-page-container-header {

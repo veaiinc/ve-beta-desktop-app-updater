@@ -278,7 +278,6 @@
 					&:hover,
 					&.active {
 						background-color: var(--card);
-						border-color: var(--stroke-hover);
 						color: var(--primary-font);
 
 						svg {
@@ -299,16 +298,11 @@
 						border: 1px solid transparent;
 						cursor: pointer;
 
-						&.expanded {
-							background-color: var(--card);
-							border-color: var(--stroke-hover);
-							border-top-right-radius: 0;
-							border-bottom-right-radius: 0;
+						&.expanded {							
 							border-right: none;
 						}
 						&:hover {
 							background-color: var(--card);
-							border-color: var(--stroke-hover);
 						}
 					}
 
@@ -319,7 +313,6 @@
 						opacity: 0;
 						height: 41px;
 						overflow: hidden;
-						background: var(--card, #18191b);
 						border-radius: 8px;
 						border: 1px solid transparent;
 						transition: width 0.3s ease, opacity 0.2s ease 0.1s;
@@ -331,7 +324,6 @@
 						&.expanded {
 							width: 200px;
 							opacity: 1;
-							border-color: var(--stroke-hover);
 						}
 
 						.search-input {
@@ -424,7 +416,6 @@
 			position: relative;
 			display: flex;
 			align-items: center;
-			gap: 24px;
 			.action-left {
 				display: flex;
 				align-items: center;
@@ -445,7 +436,6 @@
 					font-weight: 500;
 					line-height: normal;
 					background-color: transparent;
-					margin-left: 5px;
 					cursor: pointer;
 					border: 1px solid transparent;
 					height: 41px;
@@ -481,7 +471,6 @@
 
 					&:hover {
 						background-color: var(--card);
-						border: 1px solid var(--stroke-hover);
 						color: var(--primary-font);
 
 						&::after {
@@ -496,7 +485,6 @@
 
 					&.active {
 						background-color: var(--card);
-						border: 1px solid var(--stroke-hover);
 						color: var(--primary-font);
 					}
 				}

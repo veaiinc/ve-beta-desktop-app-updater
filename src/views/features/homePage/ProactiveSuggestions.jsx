@@ -24,8 +24,10 @@ import PromptsWidget from '../../components/globalComponents/PromptsWidget';
 // import BuildOptions from './BuildOptions';
 // import { ReactComponent as CommandSvg } from '../../../assets/svg/files/command.svg';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
-import { ReactComponent as SettingsIcon } from '../../../assets/svg/calendar/settings.svg';
+import { ReactComponent as SettingsIcon } from '../../../assets/svg/calendar/settingsSecondary.svg';
 import Spinner from '../../components/loaders/Spinner';
+import SettingsPopup from './settings/SettingsPopup';
+import { ReactComponent as CloseSearchbarIcon } from './assets/svg/closeIcon.svg';
 
 const suggestionContainerStyles = {
 	position: 'absolute',
@@ -144,7 +146,7 @@ const sortOptions = {
 		sortType: -1,
 	},
 };
-const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
+// const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
 
 const optionsList = [];
 const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
@@ -202,6 +204,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			right: false,
 		},
 		searchOpen: false,
+		settingsOpen: false,
 	});
 	const promptsLength = promptsData?.data?.length ?? 0;
 	const promptsHasNextPage = Boolean(promptsData?.hasNextPage);
@@ -227,20 +230,20 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 	}, []);
 
 	// Handle scroll on arrow click
-	const handleScroll = (direction) => {
-		const container = optionsContainerRef.current;
-		if (container) {
-			const scrollAmount = 600; // Adjust scroll distance as needed
-			const newScrollPosition =
-				direction === 'left'
-					? container.scrollLeft - scrollAmount
-					: container.scrollLeft + scrollAmount;
-			container.scrollTo({
-				left: newScrollPosition,
-				behavior: 'smooth',
-			});
-		}
-	};
+	// const handleScroll = (direction) => {
+	// 	const container = optionsContainerRef.current;
+	// 	if (container) {
+	// 		const scrollAmount = 600; // Adjust scroll distance as needed
+	// 		const newScrollPosition =
+	// 			direction === 'left'
+	// 				? container.scrollLeft - scrollAmount
+	// 				: container.scrollLeft + scrollAmount;
+	// 		container.scrollTo({
+	// 			left: newScrollPosition,
+	// 			behavior: 'smooth',
+	// 		});
+	// 	}
+	// };
 
 	useEffect(() => {
 		const container = optionsContainerRef.current;
@@ -324,13 +327,13 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		}
 		setInfo((prev) => ({
 			...prev,
-			searchLoading: true
+			searchLoading: true,
 		}));
 		timeoutIdRef.current = setTimeout(async () => {
 			await fetchPendingActions();
 			setInfo((prev) => ({
 				...prev,
-				searchLoading: false
+				searchLoading: false,
 			}));
 		}, 500);
 	}, [info?.searchQuery]);
@@ -574,15 +577,15 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		getAISuggestedPendingActions(newUpdatedPayload, reset);
 	};
 
-	const fetchMorePendingActions = async () => {
-		const nextPage = aiSuggestedPendingActions?.metaInfo?.currentPage + 1;
-		const payload = {
-			...newUpdatedPayload,
-			page: nextPage,
-		};
+	// const fetchMorePendingActions = async () => {
+	// 	const nextPage = aiSuggestedPendingActions?.metaInfo?.currentPage + 1;
+	// 	const payload = {
+	// 		...newUpdatedPayload,
+	// 		page: nextPage,
+	// 	};
 
-		await getAISuggestedPendingActions(payload, false);
-	};
+	// 	await getAISuggestedPendingActions(payload, false);
+	// };
 
 	const handleFavouriteClick = async (id) => {
 		const card = info?.cards?.find((c) => c?._id === id);
@@ -602,70 +605,70 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		}
 	};
 
-	const handleViewReportClick = useCallback((card) => {
-		const { chain_of_thought } = card;
-		const report = handleCombinedChainOfThought(chain_of_thought || []);
+	// const handleViewReportClick = useCallback((card) => {
+	// 	const { chain_of_thought } = card;
+	// 	const report = handleCombinedChainOfThought(chain_of_thought || []);
 
-		const messages = [
-			{
-				type: 'user',
-				moduleType: 'ai_suggestion_report',
-				data: card,
-				message: card?.title,
-			},
-			{
-				type: 'AI',
-				moduleType: 'ai_suggestion_report',
-				data: {
-					research_report: card?.research_report,
-				},
-				processing: 'Report',
-				report,
-				follow_up_query: card?.suggested_prompts,
-				stream_end: true,
-			},
-		];
-		const sessionId = card?.sessionId || ObjectID()?.toString();
-		handleGlobalChatMessages({
-			updateExtraInfo: true,
-			recentChatMessages: messages,
-			sessionId,
-		});
-		navigate(`/chat/${sessionId}`);
-	}, []);
+	// 	const messages = [
+	// 		{
+	// 			type: 'user',
+	// 			moduleType: 'ai_suggestion_report',
+	// 			data: card,
+	// 			message: card?.title,
+	// 		},
+	// 		{
+	// 			type: 'AI',
+	// 			moduleType: 'ai_suggestion_report',
+	// 			data: {
+	// 				research_report: card?.research_report,
+	// 			},
+	// 			processing: 'Report',
+	// 			report,
+	// 			follow_up_query: card?.suggested_prompts,
+	// 			stream_end: true,
+	// 		},
+	// 	];
+	// 	const sessionId = card?.sessionId || ObjectID()?.toString();
+	// 	handleGlobalChatMessages({
+	// 		updateExtraInfo: true,
+	// 		recentChatMessages: messages,
+	// 		sessionId,
+	// 	});
+	// 	navigate(`/chat/${sessionId}`);
+	// }, []);
 
-	const handleViewChange = (view) => {
-		setInfo((prev) => ({
-			...prev,
-			isListView: view,
-		}));
-	};
+	// const handleViewChange = (view) => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		isListView: view,
+	// 	}));
+	// };
 
-	const handleSortByClick = (sortBy) => {
-		setInfo((prev) => {
-			const updatedSortOption = {
-				...prev?.sortOptions[sortBy],
-				sortType: -1 * prev?.sortOptions[sortBy]?.sortType,
-			};
-			const updatedSortOptions = {
-				...prev?.sortOptions,
-				[sortBy]: updatedSortOption,
-			};
-			return {
-				...prev,
-				sortOptions: updatedSortOptions,
-				sortBy: sortBy,
-			};
-		});
-	};
+	// const handleSortByClick = (sortBy) => {
+	// 	setInfo((prev) => {
+	// 		const updatedSortOption = {
+	// 			...prev?.sortOptions[sortBy],
+	// 			sortType: -1 * prev?.sortOptions[sortBy]?.sortType,
+	// 		};
+	// 		const updatedSortOptions = {
+	// 			...prev?.sortOptions,
+	// 			[sortBy]: updatedSortOption,
+	// 		};
+	// 		return {
+	// 			...prev,
+	// 			sortOptions: updatedSortOptions,
+	// 			sortBy: sortBy,
+	// 		};
+	// 	});
+	// };
 
-	const handleBtnClick = (btn) => {
-		if (info?.activeBtn === btn) return;
-		setInfo((prev) => ({
-			...prev,
-			activeBtn: btn,
-		}));
-	};
+	// const handleBtnClick = (btn) => {
+	// 	if (info?.activeBtn === btn) return;
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		activeBtn: btn,
+	// 	}));
+	// };
 
 	const handleSearchQueryChange = (e) => {
 		setInfo((prev) => ({
@@ -708,17 +711,18 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 		info?.selectedOption,
 	]);
 
-	const groupedCards = useMemo(() => {
-		const groups = {};
+	// const groupedCards = useMemo(() => {
+	// 	const groups = {};
 
-		info?.cards?.forEach((card) => {
-			const label = getRelativeDayLabel(card?.createdAt);
-			if (!groups[label]) groups[label] = [];
-			groups[label].push(card);
-		});
+	// 	info?.cards?.forEach((card) => {
+	// 		const label = getRelativeDayLabel(card?.createdAt);
+	// 		if (!groups[label]) groups[label] = [];
+	// 		groups[label].push(card);
+	// 	});
 
-		return groups;
-	}, [info?.cards]);
+	// 	return groups;
+	// }, [info?.cards]);
+
 	const handleCustomOnSendFunction = useCallback(
 		(data) => {
 			updateStateValues({ activePayloadForChat: data });
@@ -787,30 +791,37 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 			currentIndex: 0,
 		}));
 	};
-	const renderedOptions = useMemo(() => {
-		return filters.map(({ name, value }, index) => {
-			return (
-				<div
-					className={`option ${info?.selectedOption === value ? 'active' : ''}`}
-					onClick={(e) => {
-						e.stopPropagation();
-						handleOptionSelection(value);
-					}}
-					key={index}
-				>
-					<div className="option-label">
-						<span className="option-name">{name}</span>
-						<span className="option-value">{value}</span>
-					</div>
-				</div>
-			);
-		});
-	}, [info?.options, info?.selectedOption]);
+	// const renderedOptions = useMemo(() => {
+	// 	return filters.map(({ name, value }, index) => {
+	// 		return (
+	// 			<div
+	// 				className={`option ${info?.selectedOption === value ? 'active' : ''}`}
+	// 				onClick={(e) => {
+	// 					e.stopPropagation();
+	// 					handleOptionSelection(value);
+	// 				}}
+	// 				key={index}
+	// 			>
+	// 				<div className="option-label">
+	// 					<span className="option-name">{name}</span>
+	// 					<span className="option-value">{value}</span>
+	// 				</div>
+	// 			</div>
+	// 		);
+	// 	});
+	// }, [info?.options, info?.selectedOption]);
 
 	const handleSearchToggle = () => {
 		setInfo((prev) => ({
 			...prev,
 			searchOpen: !prev.searchOpen,
+		}));
+	};
+
+	const handleSettingsToggle = () => {
+		setInfo((prev) => ({
+			...prev,
+			settingsOpen: !prev.settingsOpen,
 		}));
 	};
 
@@ -1057,11 +1068,18 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 															ref={searchInputRef}
 														/>
 														{info?.searchLoading && (
-															<div className='search-loader'>
-																<Spinner
-																	color="var(--primary-button)"
-																/>
+															<div className="search-loader">
+																<Spinner color="var(--primary-button)" />
 															</div>
+														)}
+														{info?.searchOpen && (
+															<button
+																className="close-btn"
+																onClick={handleSearchToggle}
+																aria-label="Close search"
+															>
+																<CloseSearchbarIcon />
+															</button>
 														)}
 													</div>
 												</div>
@@ -1211,6 +1229,16 @@ const ProactiveSuggestions = ({ previousOption = null, option = null }) => {
 																</button>
 															</div>
 														</Tooltip>
+														<button
+															className="settings-btn"
+															onClick={handleSettingsToggle}
+														>
+															<SettingsIcon />
+														</button>
+														<SettingsPopup
+															isOpen={info.settingsOpen}
+															handleClose={handleSettingsToggle}
+														/>
 													</div>
 												)}
 											</div>
