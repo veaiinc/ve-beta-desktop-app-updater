@@ -189,6 +189,7 @@ const NoteComponentModal = ({ modalIsOpen, closeModal }) => {
 																messageData={chat}
 																citations={chat?.citations}
 																isNoteCanvas={true}
+																showCitationsButton={false}
 															/>
 														</div>
 													) : (

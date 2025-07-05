@@ -106,7 +106,7 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptTabs = false }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const [searchParams] = useSearchParams();
-	const noteId = searchParams.get('noteId');
+	const { noteId } = useParams();
 	const type = searchParams.get('type');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
@@ -114,7 +114,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const previousBlocksRef = useRef(new Map());
 	const pendingUpdatesRef = useRef(new Map());
 	const debounceTimerRef = useRef(null);
-
 	const originalFaviconRef = useRef(null);
 	// const { createWebSocketConnection, sendMessage } = useChatStream();
 
@@ -355,6 +354,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	useEffect(() => {
 		if (noteId) {
+			console.log(noteId, 'note');
 			getNotesPageDataFunc();
 		}
 
