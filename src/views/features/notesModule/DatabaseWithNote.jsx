@@ -106,7 +106,7 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptTabs = false }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const [searchParams] = useSearchParams();
-	const { noteId } = useParams();
+	const noteId = useParams()?.noteId;
 	const type = searchParams.get('type');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
