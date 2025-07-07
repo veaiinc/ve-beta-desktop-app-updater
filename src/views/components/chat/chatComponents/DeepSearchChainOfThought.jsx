@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/chat/chatComponents/deepSearchChainOfThought.scss';
 import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
 import { ReactComponent as CurveSvg } from '../../../../assets/svg/ai_agents/curve.svg';
@@ -11,8 +11,17 @@ const DeepSearchChainOfThought = ({
 	showLastIndicatorLine = false,
 	streamEnd = true,
 	showOnlyLastThought = false,
+	memoryThinking = null,
 }) => {
-	const cot = showOnlyLastThought ? [data?.cot[data?.cot?.length - 1] || []] : data?.cot || [];
+	const cot = showOnlyLastThought
+		? [data?.cot[data?.cot?.length - 1] || []]
+		: [...(data?.cot || [])];
+	if (memoryThinking && !showOnlyLastThought) {
+		cot?.unshift({
+			step: memoryThinking,
+		});
+	}
+
 	return (
 		<div className="cot-wrapper">
 			<div className="cot-container">
