@@ -61,9 +61,9 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 				? 'Search Completed'
 				: deepSearch
 				? 'Research Completed'
-				: 'Message';
+				: 'Thinking';
 		}
-		return deepResearch ? 'Researching' : deepSearch || normalSearch ? 'Searching' : 'Message';
+		return deepResearch ? 'Researching' : deepSearch || normalSearch ? 'Searching' : 'Thinking';
 	}, [messageData]);
 
 	return (
