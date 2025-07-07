@@ -560,73 +560,6 @@ const DatabaseComponent = ({ block, editor }) => {
 				</div>
 			) : (
 				<>
-					<div className={s.notesDatabaseHeader}>
-						<div className={s.databaseTopContainer}>
-							{/* <TaskHeader
-								tabArray={currentDatabaseViews}
-								activeTab={info?.selectedViewId}
-								handleTabChange={handleTabChange}
-								handleAddTab={(viewType) =>
-									handleCreateDatabaseView(databaseId, viewType)
-								}
-								handleTabDropdownClick={handleTabDropdownClick}
-								showEditDuplicate={false}
-							/> */}
-							<div className={s.notesDatabaseHeaderButtons}>
-								{/* <input
-									type="text"
-									placeholder="Search"
-									className={s.notesDatabaseHeaderSearchInput}
-									value={info?.searchQuery}
-									onChange={(e) => handleSearchChange(e.target.value)}
-								/> */}
-								<div className={s.databaseTopContainerButtons}>
-									{/* <GroupComponent
-										fields={fields}
-										databaseId={databaseId}
-										metaInfo={metaInfo}
-										view={selectedDatabaseView}
-										blockId={block?.id}
-									/> */}
-									<button
-										onClick={() => handleInfoChange({ addRowModalOpen: true })}
-									>
-										Add Row
-									</button>
-									{/* <button
-										onClick={() =>
-											handleInfoChange({ addFieldModalOpen: true })
-										}
-									>
-										Add Field
-									</button> */}
-								</div>
-							</div>
-						</div>
-						{/* <div className={s.notesDatabaseHeaderTitleContainer}>
-							<CustomTextArea
-								value={info?.databaseName}
-								onChange={(e) => handleInfoChange({ databaseName: e.target.value })}
-								className={s.notesDatabaseHeaderTitle}
-							/>
-						</div> */}
-						{/* <div className={s.sortFilterWrapper}>
-							<FilterComponent
-								databaseId={databaseId}
-								view={selectedDatabaseView}
-								fields={fields}
-								pageId={pageId}
-								blockId={block?.id}
-							/>
-							<SortComponent
-								databaseId={databaseId}
-								view={selectedDatabaseView}
-								fields={fields}
-								pageId={pageId}
-								blockId={block?.id}
-							/>
-						</div> */}
-					</div>
 					<DatabaseHeader
 						databaseId={databaseId}
 						selectedDatabaseView={selectedDatabaseView}
@@ -640,6 +573,7 @@ const DatabaseComponent = ({ block, editor }) => {
 						handleSearchChange={handleSearchChange}
 						searchQuery={info?.searchQuery}
 						selectedViewId={info?.selectedViewId}
+						openAddModal={() => handleInfoChange({ addRowModalOpen: true })}
 					/>
 					{info?.rowsLoading ? (
 						<div className={s.loadingContainer}>

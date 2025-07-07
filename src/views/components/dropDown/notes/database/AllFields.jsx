@@ -70,7 +70,7 @@ const AllFields = ({ fields = [], handleClose, handleBack, pageId, databaseId })
 							{/* {field.Icon && <field.Icon />} */}
 							<span className={s.propertyListItemTitle}>{field.name}</span>
 
-							{field.show ? (
+							{/* {field.show ? (
 								field.isTitle ? (
 									<OpenEye className={s.crossedEyeIcon} />
 								) : (
@@ -78,7 +78,8 @@ const AllFields = ({ fields = [], handleClose, handleBack, pageId, databaseId })
 								)
 							) : (
 								<CrossedOpenEye className={s.crossedEyeIcon} />
-							)}
+							)} */}
+							<div style={{ width: '18px' }}></div>
 
 							<ChevronRightThinSvg className={s.arrowIcon} />
 						</div>

@@ -23,6 +23,7 @@ const DatabaseHeader = ({
 	handleSearchChange,
 	searchQuery,
 	selectedViewId,
+	openAddModal,
 }) => {
 	const [info, setInfo] = useState({
 		filterSortOpen: false,
@@ -81,6 +82,9 @@ const DatabaseHeader = ({
 							<SettingsIcon />
 						</button>
 					</ViewOptions>
+					<button className={s.actionButton} onClick={openAddModal}>
+						New
+					</button>
 				</div>
 			</div>
 			{info.filterSortOpen && (
