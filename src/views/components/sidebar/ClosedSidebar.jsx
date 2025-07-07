@@ -140,12 +140,24 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 				)}
 			</div>
 			<div className="bottomContainerClosed">
-				<div style={{ marginBottom: '10px' }}>
-					<CreditsLeftSvg
-						totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
-						totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
-					/>
-				</div>
+				<Tooltip
+					title={
+						<div className="tooltip-text">
+							{currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed}{' '}
+							Credits Left
+						</div>
+					}
+					placement="right"
+					arrow={false}
+					color={'transparent'}
+				>
+					<div style={{ marginBottom: '10px' }}>
+						<CreditsLeftSvg
+							totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
+							totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
+						/>
+					</div>
+				</Tooltip>
 				<div className="closedSidebarProfile">
 					{userDetailsData?.logoURL ? (
 						<div className="crop-container">
