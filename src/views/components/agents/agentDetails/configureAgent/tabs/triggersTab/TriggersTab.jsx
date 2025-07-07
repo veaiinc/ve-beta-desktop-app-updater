@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useMemo, useState } from 'react';
+import { memo, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import s from './triggersTab.module.scss';
 import { message } from '../../../../../../components/globalComponents/CustomToast';
@@ -13,8 +13,10 @@ import { ReactComponent as DustbinIcon } from '../assets/dustbin-icon.svg';
 
 // components
 import ListEmailsModal from './modals/ListEmailsModal';
+import SchedulerModal from './modals/SchedulerModal';
 import InfiniteScroll from '../../../../../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../../../../../../src/helpers/';
+// import { ReactComponent as OutlookIcon } from '../assets/outlook-icon.';
 
 const customTriggers = [
 	{
@@ -41,6 +43,18 @@ const connectableTriggers = [
 
 	// 	description: 'Google (Gmail, Calendar, Docs, & API)',
 	// },
+	{
+		icon: '',
+		title: 'Outlook',
+		triggerType: 'outlook',
+		description: 'Incoming mails',
+	},
+	{
+		icon: '🕐', // Placeholder icon
+		title: 'Scheduler',
+		triggerType: 'schedule',
+		description: 'Schedule at specific time',
+	},
 ];
 
 const emptyConnectedTriggersMessage =
@@ -51,48 +65,115 @@ const TriggersTab = () => {
 
 	const {
 		knowledgeAgent: { triggers, getTriggers, connectTrigger, disconnectTrigger },
+		templates: { connectedThirdParties, getConnectedThirdParties },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		ListEmailsModalOpen: false,
+		schedulerModalOpen: false,
 		disconnectTriggerLoader: false,
+		selectedAppType: null,
+		connectTriggerLoading: false,
 	});
 
-	const { connectedTriggers, connectedEmails } = useMemo(() => {
+	useEffect(() => {
+		if (!connectedThirdParties) {
+			getConnectedThirdParties();
+		}
+	}, []);
+
+	const { connectedTriggers } = useMemo(() => {
 		if (!triggers?.data || !Array.isArray(triggers.data)) {
-			return { connectedTriggers: [], connectedEmails: [] };
+			return { connectedTriggers: [] };
 		}
 
 		const triggersList = [];
-		const emailsSet = new Set();
 
 		for (const trigger of triggers.data) {
-			const { _id, app, action, connectedEmail } = trigger;
+			const { _id, app, action, type, trigerConfig, appConfig } = trigger;
 
-			const icon = app === 'gmail' ? <GmailIcon /> : <GoogleMeetIcon />;
-			const title = app === 'gmail' ? 'Gmail' : 'Google Meet';
-			const description = action === 'replyEmail' ? 'Incoming emails' : 'Google Meet';
-			const triggerType = app === 'gmail' ? 'gmail' : 'googleMeet';
+			// Skip triggers without valid IDs
+			if (!_id || _id === 'undefined') {
+				console.warn('Skipping trigger with invalid ID:', trigger);
+				continue;
+			}
+
+			let icon, title, description;
+
+			if (type === 'schedule') {
+				icon = '🕐'; // Or your custom scheduler icon
+				title = 'Scheduler';
+				description = trigerConfig?.scheduledAt
+					? `Scheduled for ${new Date(
+							Number(trigerConfig.scheduledAt) * 1000,
+					  ).toLocaleString()}`
+					: 'Scheduled Trigger';
+			} else if (type === 'app') {
+				if (app === 'gmail') {
+					icon = <GmailIcon />;
+					title = 'Gmail';
+					description = 'Incoming emails';
+				} else if (app === 'outlook') {
+					icon = '📧'; // Replace with <OutlookIcon /> if you have one
+					title = 'Outlook';
+					description = 'Incoming emails';
+				} else if (app === 'googleMeet') {
+					icon = <GoogleMeetIcon />;
+					title = 'Google Meet';
+					description = 'Google Meet';
+				} else {
+					icon = '📱';
+					title = app || 'App Trigger';
+					description = action || 'Trigger';
+				}
+			} else {
+				// Fallback for unknown/legacy triggers
+				icon = '❓';
+				title = 'Unknown Trigger';
+				description = 'Unknown';
+			}
 
 			triggersList.push({
 				_id,
 				icon,
 				title,
-				triggerType,
+				type,
 				description,
-				connectedEmail,
+				app,
+				action,
+				trigerConfig,
+				appConfig,
 			});
-
-			if (connectedEmail) {
-				emailsSet.add(connectedEmail);
-			}
 		}
 
 		return {
 			connectedTriggers: triggersList,
-			connectedEmails: Array.from(emailsSet),
 		};
 	}, [triggers?.data]);
+
+	// Get available emails for the selected app type
+	const getAvailableEmailsForApp = useCallback(
+		(appType) => {
+			if (!connectedThirdParties?.data) return [];
+
+			return connectedThirdParties.data
+				.filter((party) => party.app === appType)
+				.map((party) => party.email);
+		},
+		[connectedThirdParties?.data],
+	);
+
+	// Get connected emails for a specific app type
+	const getConnectedEmailsForApp = useCallback(
+		(appType) => {
+			if (!triggers?.data) return [];
+
+			return triggers.data
+				.filter((trigger) => trigger.app === appType && trigger.connectedEmail)
+				.map((trigger) => trigger.connectedEmail);
+		},
+		[triggers?.data],
+	);
 
 	const currentPage = triggers?.currentPage ?? 1;
 	const hasNextPage = triggers?.hasNextPage ?? false;
@@ -100,7 +181,7 @@ const TriggersTab = () => {
 	const emptyConnectedTriggers = dataLength === 0;
 
 	useEffect(() => {
-		getTriggers();
+		getTriggers(agentId);
 	}, []);
 
 	const fetchNextTriggers = ({ limit = 10 }) => {
@@ -108,43 +189,121 @@ const TriggersTab = () => {
 		getTriggers({ page, limit });
 	};
 
-	const handleConnectToGmailTrigger = async (email) => {
+	const handleConnectToAppTrigger = async (selectedEmail, appType) => {
 		try {
-			const triggerApp = 'gmail';
+			setInfo((prev) => ({ ...prev, connectTriggerLoading: true }));
+
+			// Find the connected third party data for the selected email
+			const connectedParty = connectedThirdParties?.data?.find(
+				(party) => party.email === selectedEmail && party.app === appType,
+			);
+
+			if (!connectedParty) {
+				message.error(`No connected ${appType} account found for ${selectedEmail}`);
+				return;
+			}
+
 			const triggerData = {
-				app: triggerApp,
-				action: 'replyEmail',
-				connectedEmail: email,
 				assistantId: agentId,
+				triggerType: 'app',
+				app: appType,
+				action: 'receive_email',
+				appConfig: {
+					uid: connectedParty.uid,
+					email: connectedParty.email,
+					conectedIntegrationId: connectedParty._id,
+				},
 			};
-			const response = await connectTrigger({ triggerApp, triggerData });
+
+			const response = await connectTrigger({ triggerApp: appType, triggerData });
 
 			if (response?.[0] === true) {
-				message.success('Trigger connected successfully');
+				message.success(`${appType} trigger connected successfully`);
+				// Refresh the triggers list to show the new trigger
+				await getTriggers(agentId);
 			} else {
-				message.error(response[1].message);
+				const errorMessage =
+					response?.[1]?.message || response?.message || 'Failed to connect trigger';
+				message.error(errorMessage);
 			}
 		} catch (error) {
 			const errorMsg = error?.message || 'An unexpected error occurred';
 			message.error(errorMsg);
+		} finally {
+			setInfo((prev) => ({ ...prev, connectTriggerLoading: false }));
+		}
+	};
+
+	const handleConnectToSchedulerTrigger = async (scheduledAt) => {
+		try {
+			setInfo((prev) => ({ ...prev, connectTriggerLoading: true }));
+
+			const triggerData = {
+				assistantId: agentId,
+				triggerType: 'schedule',
+				scheduledAt: scheduledAt.toString(),
+			};
+
+			console.log('Scheduler Trigger Payload:', triggerData);
+			console.log('Agent ID:', agentId);
+			console.log('Scheduled At (timestamp):', scheduledAt);
+
+			const response = await connectTrigger({ triggerApp: 'schedule', triggerData });
+
+			console.log('Scheduler Trigger Response:', response);
+
+			if (response?.[0] === true) {
+				message.success('Scheduler trigger connected successfully');
+				// Refresh the triggers list to show the new trigger
+				await getTriggers(agentId);
+			} else {
+				const errorMessage =
+					response?.[1]?.message ||
+					response?.message ||
+					'Failed to connect scheduler trigger';
+				console.log('Scheduler Error Details:', response);
+				message.error(errorMessage);
+			}
+		} catch (error) {
+			console.error('Scheduler Trigger Error:', error);
+			const errorMsg = error?.message || 'An unexpected error occurred';
+			message.error(errorMsg);
+		} finally {
+			setInfo((prev) => ({ ...prev, connectTriggerLoading: false }));
 		}
 	};
 
 	const handleDisconnectTrigger = async (triggerId) => {
 		try {
 			if (info.disconnectTriggerLoader) return;
+
+			// Validate triggerId
+			if (!triggerId || triggerId === 'undefined') {
+				console.error('Invalid trigger ID:', triggerId);
+				message.error('Invalid trigger ID. Please refresh the page and try again.');
+				return;
+			}
+
+			console.log('Disconnecting trigger with ID:', triggerId);
+
 			setInfo((prev) => ({ ...prev, disconnectTriggerLoader: true }));
 			const response = await disconnectTrigger(triggerId);
-			const success = response[0] === true;
+
+			console.log('Disconnect response:', response);
+
+			const success = response?.[0] === true;
 
 			if (success) {
 				message.success('Trigger disconnected successfully!');
 			} else {
-				message.error('Failed to disconnect trigger!');
+				const errorMessage = response?.[1]?.message || 'Failed to disconnect trigger!';
+				message.error(errorMessage);
 			}
-			setInfo((prev) => ({ ...prev, disconnectTriggerLoader: false }));
 		} catch (error) {
+			console.error('Error disconnecting trigger:', error);
 			message.error('An error occurred while disconnecting the trigger.');
+		} finally {
+			setInfo((prev) => ({ ...prev, disconnectTriggerLoader: false }));
 		}
 	};
 
@@ -166,7 +325,7 @@ const TriggersTab = () => {
 						dataLength={connectedTriggers?.length ?? 0}
 						next={fetchNextTriggers}
 						hasMore={hasNextPage}
-						// height={'400px'}
+						height={'400px'}
 						loader={<FetchMoreLoaderComp />}
 					>
 						<ul className={s.triggersListContainer}>
@@ -174,7 +333,7 @@ const TriggersTab = () => {
 								<li key={trigger._id}>
 									{trigger.icon}
 									<div className={s.triggerItemContent}>
-										<h3>{trigger.connectedEmail}</h3>
+										<h3>{trigger.title}</h3>
 										<p>{trigger.description}</p>
 									</div>
 									<button
@@ -196,12 +355,27 @@ const TriggersTab = () => {
 					{connectableTriggers.map((trigger) => (
 						<li
 							key={trigger.title}
-							onClick={() =>
-								setInfo((prev) => ({
-									...prev,
-									ListEmailsModalOpen: true,
-								}))
-							}
+							onClick={() => {
+								if (trigger.triggerType === 'gmail') {
+									setInfo((prev) => ({
+										...prev,
+										ListEmailsModalOpen: true,
+										selectedAppType: 'gmail',
+									}));
+								} else if (trigger.triggerType === 'outlook') {
+									setInfo((prev) => ({
+										...prev,
+										ListEmailsModalOpen: true,
+										selectedAppType: 'outlook',
+									}));
+								} else if (trigger.triggerType === 'schedule') {
+									setInfo((prev) => ({
+										...prev,
+										schedulerModalOpen: true,
+									}));
+								}
+								// Add other trigger types here as needed
+							}}
 						>
 							<span className={s.iconContainer}>{trigger.icon}</span>
 							<h3>{trigger.title}</h3>
@@ -223,9 +397,19 @@ const TriggersTab = () => {
 			</div> */}
 			<ListEmailsModal
 				isOpen={info.ListEmailsModalOpen}
-				onClose={() => setInfo({ ...info, ListEmailsModalOpen: false })}
-				handleConnectToGmailTrigger={handleConnectToGmailTrigger}
-				connectedEmails={connectedEmails}
+				onClose={() =>
+					setInfo({ ...info, ListEmailsModalOpen: false, selectedAppType: null })
+				}
+				handleConnectToAppTrigger={handleConnectToAppTrigger}
+				connectedEmails={getConnectedEmailsForApp(info.selectedAppType)}
+				selectedAppType={info.selectedAppType}
+				isLoading={info.connectTriggerLoading}
+			/>
+			<SchedulerModal
+				isOpen={info.schedulerModalOpen}
+				onClose={() => setInfo({ ...info, schedulerModalOpen: false })}
+				handleConnectToSchedulerTrigger={handleConnectToSchedulerTrigger}
+				isLoading={info.connectTriggerLoading}
 			/>
 		</div>
 	);
