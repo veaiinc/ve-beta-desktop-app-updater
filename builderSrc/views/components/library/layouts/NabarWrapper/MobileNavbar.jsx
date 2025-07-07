@@ -88,11 +88,11 @@ class MobileNavbarComponent extends Component {
 										this.setState({ mobileHoverLogoEdit: false });
 									}}
 								>
-									{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.imageURL ? (
+									{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.mImageURL ? (
 										<img
 											src={
 												this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]
-													?.imageURL
+													?.mImageURL
 											}
 											alt="logo"
 											height={'40px'}
@@ -238,14 +238,14 @@ class MobileNavbarComponent extends Component {
 											/>
 										</div>
 									)}
-									{(this.props?.navBar?.style?.cartValue ||
+									{/* {(this.props?.navBar?.style?.cartValue ||
 										!_.has(this.props?.navBar?.style, 'cartValue')) &&
 										(this.props?.navBar?.style?.showCart ||
 											!_.has(this.props?.navBar?.style, 'showCart') ||
 											this.props?.navBar?.style?.downloadIcon ||
 											!_.has(this.props?.navBar?.style, 'downloadIcon')) && (
 											<Divider />
-										)}
+										)} */}
 									{(this.props?.navBar?.style?.cartValue ||
 										!_.has(this.props?.navBar?.style, 'cartValue')) && (
 										<span
@@ -453,11 +453,11 @@ class MobileNavbarComponent extends Component {
 											: '',
 								}}
 							>
-								{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.imageURL ? (
+								{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.mImageURL ? (
 									<img
 										src={
 											this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]
-												?.imageURL
+												?.mImageURL
 										}
 										alt="logo"
 										height={'50px'}
@@ -548,10 +548,10 @@ class MobileNavbarComponent extends Component {
 											/>
 										</div>
 
-										{this.props?.navBar?.style?.downloadIcon &&
+										{/* {this.props?.navBar?.style?.downloadIcon &&
 											this.props?.navBar?.style?.cartValue && (
 												<Divider height="20px" />
-											)}
+											)} */}
 									</>
 								)}
 								{(this.props?.navBar?.style?.showCart ||

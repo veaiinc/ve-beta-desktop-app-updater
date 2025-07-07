@@ -25,18 +25,11 @@ class NavImagePopup extends Images {
 			showImageModalLibrary: false,
 			debounceInterval: null,
 
-			crop:
-				// props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.crop ||
-				{
-					x: 0,
-					y: 0,
-				},
-			zoom:
-				//  props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.zoom ||
-				1,
-			aspect:
-				// props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.aspect ||
-				1.5,
+			crop: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.crop,
+
+			zoom: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.zoom,
+
+			aspect: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.aspect,
 		};
 
 		this.desktopLogoRef = React.createRef();
@@ -48,12 +41,10 @@ class NavImagePopup extends Images {
 		if (this.state.activeComponent !== nextProps.activeComponent) {
 			this.setState({
 				activeComponent: nextProps.activeComponent,
-				crop: this.props.isMobileNavbar
-					? nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.crop
-					: nextProps.activeComponent?.image_settings?.crop,
-				zoom: this.props.isMobileNavbar
-					? nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.zoom
-					: nextProps.activeComponent?.image_settings?.zoom,
+				crop: nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.crop,
+
+				zoom: nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.zoom,
+
 				aspect: this.props.isMobileNavbar
 					? nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings
 							?.aspect
@@ -202,13 +193,23 @@ class NavImagePopup extends Images {
 
 	handleActiveImageStyles = (type, value) => {
 		let newComponent = { ...this.state.activeComponent };
-		let image_settings = {
-			crop: { x: 0, y: 0 },
-			zoom: 1,
-			aspect: 3 / 2,
-		};
 		if (type == 'imageURL' || type == 'imgLibrary') {
 			if (this.props.isMobileNavbar) {
+				newComponent = {
+					...newComponent,
+					blocks: [
+						{
+							...newComponent.blocks[0],
+							subBlocks: [
+								{
+									...newComponent.blocks[0].subBlocks[0],
+									mImageURL: value,
+								},
+							],
+						},
+					],
+				};
+			} else {
 				newComponent = {
 					...newComponent,
 					blocks: [
@@ -222,12 +223,6 @@ class NavImagePopup extends Images {
 							],
 						},
 					],
-				};
-			} else {
-				newComponent = {
-					...newComponent,
-					imageURL: value,
-					image_settings: newComponent?.image_settings || image_settings,
 				};
 			}
 		} else if (type == 'objectFit') {
@@ -262,7 +257,7 @@ class NavImagePopup extends Images {
 							subBlocks: [
 								{
 									...newComponent.blocks[0].subBlocks[0],
-									imageURL: '',
+									mImageURL: '',
 								},
 							],
 						},
@@ -271,8 +266,17 @@ class NavImagePopup extends Images {
 			} else {
 				newComponent = {
 					...newComponent,
-					imageURL: '',
-					image_settings: newComponent?.image_settings || image_settings,
+					blocks: [
+						{
+							...newComponent.blocks[0],
+							subBlocks: [
+								{
+									...newComponent.blocks[0].subBlocks[0],
+									imageURL: '',
+								},
+							],
+						},
+					],
 				};
 			}
 		} else if (type == 'siteTitle') {
@@ -320,7 +324,20 @@ class NavImagePopup extends Images {
 		} else {
 			newComponent = {
 				...newComponent,
-				image_settings: { ...newComponent?.image_settings, crop: value },
+				blocks: [
+					{
+						...newComponent.blocks[0],
+						subBlocks: [
+							{
+								...newComponent.blocks[0].subBlocks[0],
+								image_settings: {
+									...newComponent.blocks[0].subBlocks[0]?.image_settings,
+									crop: value,
+								},
+							},
+						],
+					},
+				],
 			};
 		}
 		this.setState(
@@ -358,12 +375,25 @@ class NavImagePopup extends Images {
 		} else {
 			newComponent = {
 				...newComponent,
-				image_settings: { ...newComponent?.image_settings, zoom: value },
+				blocks: [
+					{
+						...newComponent.blocks[0],
+						subBlocks: [
+							{
+								...newComponent.blocks[0].subBlocks[0],
+								image_settings: {
+									...newComponent?.blocks[0].subBlocks[0]?.image_settings,
+									zoom: parseFloat(value),
+								},
+							},
+						],
+					},
+				],
 			};
 		}
 		this.setState(
 			{
-				zoom: value,
+				zoom: parseFloat(value),
 				activeComponent: newComponent,
 			},
 			() => {
@@ -376,8 +406,8 @@ class NavImagePopup extends Images {
 
 	render() {
 		let isImage = this.props.isMobileNavbar
-			? this.state?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.imageURL
-			: this.state?.activeComponent?.imageURL;
+			? this.state?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.mImageURL
+			: this.state?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.imageURL;
 		return (
 			<>
 				<div className="upload-container">
