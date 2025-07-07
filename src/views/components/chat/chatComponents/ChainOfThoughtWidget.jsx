@@ -81,7 +81,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 				</div>
 			</div>
 			<div className="widget-content-container" ref={contentContainerRef}>
-				{memory_thinking && (chainOfThoughtCompleted || !(deepResearch || deepSearch)) && (
+				{memory_thinking && !(deepResearch || deepSearch) && (
 					<div className="memory-thinking">{memory_thinking || ''}</div>
 				)}
 
@@ -99,6 +99,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 								data={deepSearch}
 								showOnlyLastThought={!chainOfThoughtCompleted && !info?.isExpanded}
 								streamEnd={chainOfThoughtCompleted || false}
+								memoryThinking={memory_thinking}
 							/>
 						)}
 					</div>
