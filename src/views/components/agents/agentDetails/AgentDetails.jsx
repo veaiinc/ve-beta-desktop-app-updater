@@ -26,7 +26,7 @@ const AgentDetails = () => {
 	} = useContext(Context);
 
 	useEffect(() => {
-		if (activeKnowledgeAssistant === null && agentId) {
+		if (activeKnowledgeAssistant === null) {
 			getActiveKnowledgeAgentDetails(agentId);
 		}
 
@@ -42,13 +42,7 @@ const AgentDetails = () => {
 				return updated;
 			});
 		}
-	}, [
-		agentId,
-		activeKnowledgeAssistant,
-		getActiveKnowledgeAgentDetails,
-		searchParams,
-		setSearchParams,
-	]);
+	}, [activeKnowledgeAssistant]);
 
 	useEffect(() => {
 		if (agentActionParam) {

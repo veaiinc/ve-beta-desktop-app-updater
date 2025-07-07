@@ -456,7 +456,9 @@ const betaRoutes = [
 				maxWidth={'100%'}
 				sidebarContainerClassName={'auth-sidebar-container'}
 			>
-				<Notes />
+				<Suspense fallback={<p>Loading notes...</p>}>
+					<Notes />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},

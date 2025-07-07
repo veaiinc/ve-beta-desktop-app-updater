@@ -79,7 +79,7 @@ const PricingPage = () => {
 		const payload = {
 			plan: {
 				planId: plan?._id,
-				quantity: currentPlan?.isSeatBasedPlan
+				quantity: plan?.isSeatBasedPlan
 					? info.tenantUsersCount[plan._id] || currentPlan?.tenantUsers || 1
 					: 1,
 				recurringType: info.billing === 'anually' ? 'yearly' : 'monthly',
@@ -95,13 +95,13 @@ const PricingPage = () => {
 			}));
 			window.location.href = response?.[1]?.url;
 		} else {
+			message.error(response?.[1]?.message);
 			setInfo((prev) => ({
 				...prev,
 				planLoading: false,
 				selectedPlanId: null,
 				isTrialSelected: false,
 			}));
-			message.error(response?.[1]?.message);
 		}
 	};
 
@@ -186,12 +186,14 @@ const PricingPage = () => {
 									<span className="planAmount">
 										{plan?.currency === 'INR' ? '₹ ' : '$ '}
 										{info.billing === 'monthly'
-											? plan?.monthlyPrice
-											: plan?.yearlyPrice}
+											? plan?.monthlyPrice *
+											  (info?.tenantUsersCount[plan?._id] || 1)
+											: plan?.yearlyPrice *
+											  (info?.tenantUsersCount[plan?._id] || 1)}
 									</span>
 									<span className="tenantUsersLimit">
 										{plan?.tenantUserDetails?.numberOfUsers !== '*'
-											? plan?.tenantUserDetails?.numberOfUsers
+											? info?.tenantUsersCount?.[plan?._id] || 1
 											: 'Unlimited'}{' '}
 										User/
 										{info.billing === 'monthly' ? 'Monthly' : 'Yearly'}
@@ -236,7 +238,7 @@ const PricingPage = () => {
 											{(info.planLoading && !info.isTrialSelected) ||
 											(info.trailLoading && info.isTrialSelected) ? (
 												<Spinner
-													color="var(--background-color)"
+													color="var(--primary-font)"
 													width="16px"
 													height="16px"
 												/>
