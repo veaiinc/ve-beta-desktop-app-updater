@@ -498,7 +498,8 @@ const Events = ({
 								<span className="labelName">Location</span>
 								<input
 									className={`custominputContainer ${editable ? 'edit' : ''}`}
-									value={item?.location}
+									value={item?.location === 'Location' ? '' : item?.location}
+									placeholder="Location"
 									onChange={(e) =>
 										localEventsOnchange(ind, 'location', e.target.value)
 									}
