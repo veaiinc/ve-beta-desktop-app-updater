@@ -207,7 +207,10 @@ const ChatBox = ({
 	const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
 	const placeholderIntervalId = useRef(null);
 	const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
-		totalCreditsLimit = currentPlan?.totalAiCreditLimit || 1;
+		totalCreditsLimit =
+			typeof currentPlan?.totalAiCreditLimit === 'number'
+				? currentPlan?.totalAiCreditLimit
+				: 1;
 
 	useEffect(() => {
 		if (
@@ -1607,7 +1610,7 @@ const ChatBox = ({
 																</Tooltip>
 															)}
 
-															{!isPublicChat && (
+															{/* {!isPublicChat && (
 																// <SearchTypeTooltip
 																// 	isOpen={
 																// 		info?.searchTypeOpenForReason
@@ -1663,7 +1666,7 @@ const ChatBox = ({
 																	</div>
 																</Tooltip>
 																// </SearchTypeTooltip>
-															)}
+															)} */}
 
 															{!isPublicChat && (
 																<Tooltip

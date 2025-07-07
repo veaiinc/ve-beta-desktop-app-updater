@@ -12,8 +12,9 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 	});
 	const contentContainerRef = useRef(null);
 	const containerRef = useRef(null);
-	const { deepSearch, deepResearch } = messageData;
-	const chainOfThoughtCompleted = messageData?.message?.length > 0 || messageData?.stream_end;
+	const { deepSearch, deepResearch, normalSearch, memory_thinking, stream_end, message } =
+		messageData;
+	const chainOfThoughtCompleted = message?.length > 0 || stream_end || false;
 
 	useEffect(() => {
 		if (!contentContainerRef?.current) return;
@@ -41,50 +42,29 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 		}, 0);
 	}, [info?.isExpanded, messageData]);
 
-	useEffect(() => {
-		if (messageData?.message?.length > 0 || messageData?.stream_end) {
-			return;
+	const handleExpandClick = useCallback(() => {
+		const chainOfThoughtCompleted = messageData?.stream_end || messageData?.message?.length > 0;
+		if (
+			chainOfThoughtCompleted ||
+			messageData?.deepResearch ||
+			messageData?.deepSearch ||
+			messageData?.normalSearch
+		) {
+			setInfo((prev) => ({ ...prev, isExpanded: !prev?.isExpanded }));
 		}
-		smoothScrollToBottom();
-	}, [deepSearch?.cot?.length, deepResearch?.cot?.length, deepResearch?.sections?.length]);
-
-	const smoothScrollToBottom = useCallback((type) => {
-		const scrollElement = contentContainerRef?.current;
-		if (!scrollElement) return;
-
-		const scrollToPosition = (position) => {
-			scrollElement?.scrollTo({
-				top: position,
-				behavior: type === 'instant' ? 'auto' : 'smooth',
-			});
-		};
-
-		if (type === 'custom') {
-			const scrollHeight = scrollElement.scrollHeight;
-			const scrollOffset = 100;
-			scrollToPosition(scrollHeight - scrollOffset);
-		} else {
-			scrollToPosition(scrollElement?.scrollHeight);
-		}
-	}, []);
-
-	const text = useMemo(() => {
-		if (messageData?.message?.length > 0 || messageData?.stream_end) {
-			return messageData?.deepSearch ? 'Search Completed' : 'Research Completed';
-		}
-		return messageData?.deepResearch ? 'Researching' : 'Searching';
 	}, [messageData]);
 
-	// if (
-	// 	!(
-	// 		messageData?.deepResearch?.cot?.length > 0 ||
-	// 		messageData?.deepResearch?.sections?.length > 0 ||
-	// 		messageData?.deepResearch?.sections_refined?.length > 0 ||
-	// 		messageData?.deepSearch?.cot?.length > 0
-	// 	)
-	// ) {
-	// 	return null;
-	// }
+	const text = useMemo(() => {
+		const { deepSearch, deepResearch, message, stream_end } = messageData || {};
+		if (message?.length > 0 || stream_end) {
+			return deepSearch || normalSearch
+				? 'Search Completed'
+				: deepSearch
+				? 'Research Completed'
+				: 'Message';
+		}
+		return deepResearch ? 'Researching' : deepSearch || normalSearch ? 'Searching' : 'Message';
+	}, [messageData]);
 
 	return (
 		<div
@@ -94,10 +74,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 			}}
 			ref={containerRef}
 		>
-			<div
-				className="widget-header"
-				onClick={() => setInfo({ isExpanded: !info?.isExpanded })}
-			>
+			<div className="widget-header" onClick={handleExpandClick}>
 				<div className="left-container">
 					<div className="icon-container">{chainOfThoughtCompleted && <TickSvg />}</div>
 					<div className={`text-container ${chainOfThoughtCompleted ? '' : 'animate'}`}>
@@ -114,26 +91,30 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 				</div>
 			</div>
 			<div className="widget-content-container" ref={contentContainerRef}>
-				<div className="content-container">
-					{messageData?.deepResearch && (
-						<DeepResearchChainOfThought
-							data={messageData?.deepResearch}
-							streamEnd={
-								messageData?.message?.length > 0 || messageData?.stream_end || false
-							}
-						/>
-					)}
+				{memory_thinking && !(deepResearch || deepSearch || normalSearch) && (
+					<div className="memory-thinking">{memory_thinking || ''}</div>
+				)}
 
-					{messageData?.deepSearch && (
-						<DeepSearchChainOfThought
-							data={messageData?.deepSearch}
-							showOnlyLastThought={!chainOfThoughtCompleted && !info?.isExpanded}
-							streamEnd={
-								messageData?.message?.length > 0 || messageData?.stream_end || false
-							}
-						/>
-					)}
-				</div>
+				{(deepResearch || deepSearch) && (
+					<div className="content-container">
+						{deepResearch && (
+							<DeepResearchChainOfThought
+								data={deepResearch}
+								streamEnd={chainOfThoughtCompleted || false}
+							/>
+						)}
+
+						{(deepSearch || normalSearch) && (
+							<DeepSearchChainOfThought
+								data={deepSearch || normalSearch}
+								showOnlyLastThought={!chainOfThoughtCompleted && !info?.isExpanded}
+								streamEnd={chainOfThoughtCompleted || false}
+								memoryThinking={memory_thinking}
+							/>
+						)}
+					</div>
+				)}
+
 				{/* {!(messageData?.message?.length > 0 || messageData?.stream_end) && (
 					<div className="loader-container">
 						<div className="loader-text">Thinking... </div>
