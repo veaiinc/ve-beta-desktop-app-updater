@@ -256,6 +256,7 @@ class InvoiceWrapper extends Component {
 					position: 'relative',
 					border: this.state.preview ? 'none' : '',
 					width: '100%',
+					zoom: window?.location?.pathname?.includes('document') ? 0.8 : 1,
 				}}
 				onClick={(e) => {
 					if (this.state.preview !== true) {
