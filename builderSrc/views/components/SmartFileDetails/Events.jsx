@@ -13,11 +13,10 @@ import Context from '../../../context/context';
 const stripHtml = (html) => {
 	if (!html) return '';
 	return html
-	  .replace(/<[^>]*>/g, '')   // remove all tags
-	  .replace(/&nbsp;/g, ' ')   // replace non-breaking spaces with regular spaces
-	  .replace(/&amp;/g, '');    // remove any “&amp;” entities
-  };
-  
+		.replace(/<[^>]*>/g, '') // remove all tags
+		.replace(/&nbsp;/g, ' ') // replace non-breaking spaces with regular spaces
+		.replace(/&amp;/g, ''); // remove any “&amp;” entities
+};
 
 const Events = ({
 	eventsData,
@@ -359,7 +358,8 @@ const Events = ({
 										>
 											<div className="presetCardContentContainer">
 												<span className="presetTitle">
-													{stripHtml(item.question) || `Events ${idx + 1}`}
+													{stripHtml(item.question) ||
+														`Events ${idx + 1}`}
 												</span>
 												<span className="presetSubTitle">
 													{Array.isArray(item.answer)
@@ -397,12 +397,13 @@ const Events = ({
 								<div style={{ position: 'relative', width: '100%' }}>
 									<input
 										className={`custominputContainer ${editable ? 'edit' : ''}`}
-										value={item?.name}
+										value={item?.name === 'Name' ? '' : item?.name}
 										onChange={(e) =>
 											localEventsOnchange(ind, 'name', e.target.value)
 										}
 										readOnly={!editable}
 										style={{ paddingRight: 32 }}
+										placeholder="Enter Event Title"
 									/>
 									<span
 										style={{
@@ -510,7 +511,10 @@ const Events = ({
 								<span className="labelName">Description</span>
 								<textarea
 									className={`custominputContainer ${editable ? 'edit' : ''}`}
-									value={item?.description}
+									value={
+										item?.description === 'Description' ? '' : item?.description
+									}
+									placeholder="Description"
 									onChange={(e) =>
 										localEventsOnchange(ind, 'description', e.target.value)
 									}

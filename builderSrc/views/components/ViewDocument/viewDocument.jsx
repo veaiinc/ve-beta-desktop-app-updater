@@ -32,6 +32,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 			getSmartFileData,
 			chnageWorkflowStats,
 			moveWorkflowStatus,
+			updateStateValues,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -68,6 +69,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 			const response = await deleteLead({ deleteWorkflowId: workflowId });
 			if (response?.[0] === true) {
 				message.success('Lead deleted successfully');
+				updateStateValues({ docsFilesRefetch: true });
 				navigate('/files?activeTab=Documents');
 			} else {
 				message.error(response?.[1] || 'Failed to delete lead');
@@ -440,7 +442,6 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 							// acceptDocumentFunc={handleAccept}
 						/>
 					)}
-
 				</div>
 			)}
 			{info.isShareModalOpen && (
@@ -486,7 +487,6 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 				moveStageFunc={handleMoveStage}
 				workflowStatus={info?.workflowInfo?.status}
 			/>
-
 		</>
 	);
 };

@@ -1,5 +1,4 @@
-import React, { memo, useEffect, useContext } from 'react';
-// import { useNavigate } from 'react-router-dom';
+import React, { memo } from 'react';
 import '../../assets/scss/sales/smartFileLayout.scss';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { Helmet } from 'react-helmet';
@@ -10,20 +9,14 @@ import useTokenExpiry from '../../hooks/useTokenExpiry';
 import BottomToolbar from '../components/ai_agents/BottomToolbar';
 import useAccessControls from '../../hooks/useAccessControls';
 import useTheme from '../../hooks/useTheme';
-// import Context from '../../context/context';
-// import RenewBanner from '../components/globalComponents/RenewBanner';
+
 const SmartFileLayout = ({ title, children, hideQuickNav = false, showBottomToolbar = true }) => {
-	// const {
-	// 	subscriptionInfo: { renewBanner },
-	// } = useContext(Context);
 	useTheme();
-	const checkAuth = useAuth();
+	useAuth();
 	useSubscription();
-	const tokenData = useTokenExpiry();
-	const accessControls = useAccessControls();
-	useEffect(() => {
-		checkAuth();
-	}, []);
+	useTokenExpiry();
+	useAccessControls();
+
 	return (
 		<div className="smartFileLayoutParentContainer">
 			<Helmet>
@@ -33,7 +26,6 @@ const SmartFileLayout = ({ title, children, hideQuickNav = false, showBottomTool
 			<div className="smartFileHeader">
 				<VE />
 			</div>
-			{/* {renewBanner && <RenewBanner />} */}
 			<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
 				<div className="childrenContainer">{children}</div>
 			</SkeletonTheme>

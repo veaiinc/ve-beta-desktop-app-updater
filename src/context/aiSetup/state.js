@@ -55,6 +55,7 @@ export const initialState = {
 	aiSetupDataUser: null,
 	voiceIntegrationData: null, //{token,serverUrl,shouldConnect	}
 	triggerVoiceDisconnect: null,
+	aiTranscriptionSuggestions: null,
 };
 
 export const AiSetupState = () => {

@@ -3403,6 +3403,7 @@ class Builder extends Component {
 					_.has(this.state?.activeModule, 'showAsSlide') &&
 					this.state?.activeModule?.showAsSlide === true ? (
 						<Presentation
+							triggerAdjustGridAreas={this.props.triggerAdjustGridAreas}
 							client={this.props.client}
 							setTriggerFontP={(e) => this.props.setTriggerFont(e)}
 							setTriggeredFontP={(e) =>

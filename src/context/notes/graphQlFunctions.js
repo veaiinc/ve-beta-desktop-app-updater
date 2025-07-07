@@ -953,3 +953,72 @@ export const updateViewGroupMutation = gql`
 		}
 	}
 `;
+
+export const getLiveKitTokenQuery = gql`
+	query Query($pageId: ID!) {
+		getLiveKitToken(pageId: $pageId) {
+			accessToken
+		}
+	}
+`;
+
+export const getMeetBotDataQuery = gql`
+	query ListTranscriptionPages($input: ListTranscriptionPagesInput!) {
+		listTranscriptionPages(input: $input) {
+			totalPages
+			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
+			prevPage
+			nextPage
+			data {
+				_id
+				title
+				icon
+				coverImage
+				permissions {
+					private
+					sharedWith {
+						userId
+						access
+					}
+				}
+				tenantId
+				createdAt
+				updatedAt
+				createdBy {
+					_id
+					name
+					email
+				}
+				updatedBy {
+					_id
+					name
+					email
+				}
+				isDeleted
+			}
+		}
+	}
+`;
+
+export const meetBotCreateMutation = gql`
+	mutation Mutation($input: TranscriptionInput) {
+		startTranscription(input: $input) {
+			success
+			message
+			data
+		}
+	}
+`;
+
+export const deleteLiveKitRoomMutation = gql`
+	mutation DeleteLiveKitRoom($pageId: ID!) {
+	deleteLiveKitRoom(pageId: $pageId) {
+	  message
+	  success
+	}
+  }
+`;

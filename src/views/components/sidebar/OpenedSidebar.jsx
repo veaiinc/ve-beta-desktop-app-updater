@@ -2,10 +2,11 @@ import { createElement, useState, useCallback, useEffect, useContext, memo } fro
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
 	stableNavigationItems,
-	betaNaviagationItems,
+	betaNavigationItems,
+	internalNavigationItems,
 	stableSettingsNavItems,
 	betaSettingsNavItems,
-} from './sidebarindex';
+} from './sidebarindex.js';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg.svg';
@@ -87,6 +88,8 @@ const OpenedSidebarModules = ({
 }) => {
 	const location = useLocation();
 
+	const { workspaceMode } = useWorkspaceMode();
+
 	const {
 		aiSetup: { isVoiceIntegrationActive },
 	} = useContext(Context);
@@ -137,8 +140,12 @@ const OpenedSidebarModules = ({
 			return currentPath.includes('/agents') || currentPath.includes('/ai-assistant');
 		}
 		if (name === 'New Chat') {
+			if (workspaceMode === 'stable') {
+				return currentPath.includes('/home');
+			}
 			return currentPath.includes('/chat');
 		}
+
 		return currentPath === routePath;
 	}, [location.pathname, route, name]);
 
@@ -151,7 +158,7 @@ const OpenedSidebarModules = ({
 			}}
 		>
 			<div
-				className={`singleModuleItem ${isExactPathMatch() ? 'isExactPathMatch' : ''} ${
+				className={`singleModuleItem ${isExactPathMatch() ? 'isExactPathMatch ' : ''} ${
 					isDropdownVisible ? 'calendar-active' : ''
 				}`}
 				onMouseEnter={onMouseEnter}
@@ -194,7 +201,7 @@ const OpenedSidebarModules = ({
 									: 'var(--secondary-font)'
 							}
 							style={{
-								color:
+								stroke:
 									name === 'Notes' ||
 									name === 'Calendar' ||
 									name === 'Tasks' ||
@@ -205,6 +212,7 @@ const OpenedSidebarModules = ({
 										: 'none',
 								height: '20px',
 								width: '20px',
+								color: 'var(--secondary-font)',
 							}}
 						/>
 					)}
@@ -270,6 +278,18 @@ const OpenedSidebarModules = ({
 	);
 };
 
+const navigationItemsMap = {
+	beta: betaNavigationItems,
+	internal: internalNavigationItems,
+	stable: stableNavigationItems,
+};
+
+const settingsNavItemsMap = {
+	beta: betaSettingsNavItems,
+	internal: betaSettingsNavItems,
+	stable: stableSettingsNavItems,
+};
+
 const OpenedSidebar = ({
 	sidebarStates,
 	setsidebarStates,
@@ -282,10 +302,9 @@ const OpenedSidebar = ({
 	isThisEarlyAccessPage,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
-	const sidebarNavigationItems =
-		workspaceMode === 'stable' ? stableNavigationItems : betaNaviagationItems;
-	const settingsNavigationItems =
-		workspaceMode === 'stable' ? stableSettingsNavItems : betaSettingsNavItems;
+
+	const sidebarNavigationItems = navigationItemsMap[workspaceMode];
+	const settingsNavigationItems = settingsNavItemsMap[workspaceMode];
 
 	const {
 		templates: { leftSidebarState, updateStateValues },
@@ -801,8 +820,8 @@ const OpenedSidebar = ({
 															margin: '16px 0px',
 														}}
 													/> */}
-													{filteredModules?.map((singleItem) => (
-														<div key={singleItem.id}>
+													{filteredModules?.map((singleItem, index) => (
+														<div key={index}>
 															<OpenedSidebarModules
 																name={singleItem.name}
 																Icon={singleItem.icon}

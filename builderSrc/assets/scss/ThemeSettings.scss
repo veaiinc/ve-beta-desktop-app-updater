@@ -1,7 +1,9 @@
 .settingsDrawerWrapper {
 	.ant-drawer-content-wrapper {
 		// height: calc(100% - 64px);
-		height: calc(100% - 34px);
+		// height: calc(100% - 34px);
+		//because of banner in document we need to set height to 100%
+		height: 100%;
 		align-self: flex-end;
 	}
 
@@ -19,7 +21,7 @@
 	height: 100%;
 	padding: 24px 24px 36px 24px;
 	overflow-y: auto;
-	width: 350px;
+	width: 100%;
 
 	.themeSettingsHeader {
 		display: flex;

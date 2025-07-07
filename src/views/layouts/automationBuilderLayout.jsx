@@ -14,12 +14,11 @@ const AutomationBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 	// 	subscriptionInfo: { renewBanner },
 	// } = useContext(Context);
 	useTheme();
-	const checkAuth = useAuth();
+	useAuth();
+	useAuth();
 	useSubscription();
-	const tokenData = useTokenExpiry();
-	useEffect(() => {
-		checkAuth();
-	}, []);
+	useTokenExpiry();
+
 	return (
 		<div className="automationBuilderParentContainer">
 			<Helmet>
