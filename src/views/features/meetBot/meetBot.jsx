@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import Spinner from '../../components/loaders/Spinner';
 import EmptyMeetBotList from './emptyMeetBotList';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import { FetchMoreLoaderComp } from '../../../helpers';
 
 function formatDate(timestamp) {
 	const date = new Date(Number(timestamp) * 1000);
@@ -30,80 +31,98 @@ function isValidUrl(url) {
 
 const MeetBot = () => {
 	const {
-		notes: { getExistingBots, createMeetBot },
+		notes: { getExistingBots, createMeetBot, existingBots },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
-		limit: 10,
-		page: 1,
 		drawerOpen: true,
 		meetingUrl: '',
 		selectedMode: 'meeting_bot',
-		meetingsByDate: {},
 		creating: false,
 		loadingMeetings: false,
-		hasMore: true, // For infinite scroll
-		totalMeetings: 0, // Track total meetings count
+		page: 1,
+		limit: 10,
+		hasMore: true,
+		currentPage: 1,
+		totalPages: 0,
 	});
 
-	const fetchMeetings = async () => {
-		setInfo((prev) => ({ ...prev, loadingMeetings: true }));
-		const response = await getExistingBots({
-			input: {
-				limit: info.limit,
-				page: info.page,
-			},
-		});
-		const bots = response?.[1]?.data?.listTranscriptionPages?.data || [];
-		const totalCount = response?.[1]?.data?.listTranscriptionPages?.count || 0;
-
-		// Check if we have more data to load
-		const hasMore = info.page * info.limit < totalCount;
-
-		// Group the new bots by date
-		const grouped = { ...info.meetingsByDate };
-		bots.forEach((bot) => {
-			const dateStr = formatDate(bot.createdAt);
-			if (!grouped[dateStr]) grouped[dateStr] = [];
-			grouped[dateStr].push(bot);
-		});
-
-		setInfo((prev) => ({
-			...prev,
-			meetingsByDate: grouped,
-			loadingMeetings: false,
-			hasMore: hasMore,
-			totalMeetings: totalCount,
-		}));
-	};
+	// Load existing bots when component mounts
+	useEffect(() => {
+		if (!existingBots || existingBots.length === 0) {
+			setInfo((prev) => ({ ...prev, loadingMeetings: true }));
+			getExistingBots({
+				input: {
+					limit: info.limit,
+					page: info.page,
+				},
+			})
+				.then((response) => {
+					if (response?.[1]?.data?.listTranscriptionPages) {
+						const { hasNextPage, currentPage, totalPages } =
+							response[1].data.listTranscriptionPages;
+						setInfo((prev) => ({
+							...prev,
+							loadingMeetings: false,
+							hasMore: hasNextPage,
+							currentPage: currentPage,
+							totalPages: totalPages,
+						}));
+					} else {
+						setInfo((prev) => ({ ...prev, loadingMeetings: false }));
+					}
+				})
+				.catch(() => {
+					setInfo((prev) => ({ ...prev, loadingMeetings: false }));
+				});
+		}
+	}, []);
 
 	// Function to load more meetings when scrolling
 	const loadMoreMeetings = () => {
 		if (info.loadingMeetings || !info.hasMore) return;
 
-		setInfo((prev) => ({
-			...prev,
-			page: prev.page + 1,
-		}));
+		const nextPage = info.page + 1;
+		setInfo((prev) => ({ ...prev, page: nextPage, loadingMeetings: true }));
+
+		getExistingBots({
+			input: {
+				limit: info.limit,
+				page: nextPage,
+			},
+		})
+			.then((response) => {
+				if (response?.[1]?.data?.listTranscriptionPages) {
+					const { hasNextPage, currentPage, totalPages } =
+						response[1].data.listTranscriptionPages;
+					setInfo((prev) => ({
+						...prev,
+						loadingMeetings: false,
+						hasMore: hasNextPage,
+						currentPage: currentPage,
+						totalPages: totalPages,
+					}));
+				} else {
+					setInfo((prev) => ({ ...prev, loadingMeetings: false }));
+				}
+			})
+			.catch(() => {
+				setInfo((prev) => ({ ...prev, loadingMeetings: false }));
+			});
 	};
 
-	// Effect to fetch meetings when page changes
-	useEffect(() => {
-		fetchMeetings();
-	}, [info.page]);
-
-	// Initial load
-	useEffect(() => {
-		// Reset page to 1 and clear meetings when component mounts
-		setInfo((prev) => ({
-			...prev,
-			page: 1,
-			meetingsByDate: {},
-			hasMore: true,
-		}));
-	}, []);
+	// Group meetings by date
+	const groupMeetingsByDate = (meetings) => {
+		const grouped = {};
+		meetings.forEach((meeting) => {
+			const dateStr = formatDate(meeting.createdAt);
+			if (!grouped[dateStr]) grouped[dateStr] = [];
+			grouped[dateStr].push(meeting);
+		});
+		return grouped;
+	};
 
 	function formatCustomDate(date) {
 		const months = [
@@ -148,7 +167,6 @@ const MeetBot = () => {
 		try {
 			const response = await createMeetBot({ input });
 			setInfo((prev) => ({ ...prev, meetingUrl: '' }));
-			await fetchMeetings();
 			const pageId = response?.[1]?.data?.startTranscription?.data?.pageId;
 			const type = response?.[1]?.data?.startTranscription?.data?.transcriptionSource;
 			const success = response?.[1]?.data?.startTranscription?.success;
@@ -173,6 +191,9 @@ const MeetBot = () => {
 			handleCreateMeet();
 		}
 	};
+
+	// Group meetings by date for display
+	const meetingsByDate = groupMeetingsByDate(existingBots || []);
 
 	return (
 		<div className="meetbot">
@@ -234,39 +255,33 @@ const MeetBot = () => {
 						{/* <div className="upcomingTitle">Upcoming meeting</div>
                     <div className="upcoming">...</div> */}
 						{/* Meetings list with infinite scroll */}
-						<InfiniteScroll
-							dataLength={Object.values(info.meetingsByDate).flat().length}
-							next={loadMoreMeetings}
-							hasMore={info.hasMore}
-							scrollableTarget="meetbot-list-container"
-						>
-							{info.loadingMeetings ? (
-								<div
-									style={{
-										display: 'flex',
-										justifyContent: 'center',
-										alignItems: 'center',
-										minHeight: 200,
-									}}
-								>
-									<Spinner
-										width="32px"
-										height="32px"
-										color="var(--primary-button)"
-										borderTopColor="var(--background-color)"
-									/>
-								</div>
-							) : Object.keys(info.meetingsByDate).length === 0 ? (
-								<div className="empty-meet-bot-list">
-									<EmptyMeetBotList />
-								</div>
-							) : (
-								Object.keys(info.meetingsByDate).map((date) => (
+						{info.loadingMeetings && info.page === 1 ? (
+							<div className="loading-container">
+								<Spinner
+									width="32px"
+									height="32px"
+									color="var(--primary-button)"
+									borderTopColor="var(--background-color)"
+								/>
+							</div>
+						) : Object.keys(meetingsByDate).length === 0 ? (
+							<div className="empty-meet-bot-list">
+								<EmptyMeetBotList />
+							</div>
+						) : (
+							<InfiniteScroll
+								dataLength={Object.values(meetingsByDate).flat().length}
+								next={loadMoreMeetings}
+								hasMore={info.hasMore}
+								height={'1000px'}
+								loader={<FetchMoreLoaderComp />}
+							>
+								{Object.keys(meetingsByDate).map((date) => (
 									<React.Fragment key={date}>
 										<div className="listSection">
 											<div className="listSectionTitle">{date}</div>
 
-											{info.meetingsByDate[date].map((meeting) => (
+											{meetingsByDate[date].map((meeting) => (
 												<div
 													className="meetingCard"
 													onClick={() => navigate(`/meet/${meeting._id}`)}
@@ -306,9 +321,9 @@ const MeetBot = () => {
 											))}
 										</div>
 									</React.Fragment>
-								))
-							)}
-						</InfiniteScroll>
+								))}
+							</InfiniteScroll>
+						)}
 					</div>
 				</div>
 			</div>

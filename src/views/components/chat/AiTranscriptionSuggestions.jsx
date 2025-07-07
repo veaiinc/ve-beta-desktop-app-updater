@@ -8,10 +8,7 @@ import Context from '../../../context/context';
 import { fileTypeIcons, redirectTo, redirectTypeMapper } from '../../../helpers';
 import { Switch } from 'antd';
 
-const AiTranscriptionSuggestions = ({
-	closeModal,
-	showAmbientAssistance,
-}) => {
+const AiTranscriptionSuggestions = ({ closeModal, showAmbientAssistance }) => {
 	const {
 		templates: { aiTranscriptionSuggestions, updateStateValues },
 	} = useContext(Context);
@@ -40,6 +37,19 @@ const AiTranscriptionSuggestions = ({
 				files: aiTranscriptionSuggestions?.similar_files || [],
 			}));
 		}
+		return () => {
+			// Clear local state
+			setInfo({
+				userQuestions: [],
+				aiQuestions: [],
+				files: [],
+			});
+			// Clear context data
+			updateStateValues({
+				aiTranscriptionSuggestions: null,
+				activePromptForChat: null,
+			});
+		};
 	}, [aiTranscriptionSuggestions]);
 
 	useEffect(() => {
@@ -98,7 +108,6 @@ const AiTranscriptionSuggestions = ({
 						<CloseIcon />
 					</div> */}
 					<div className={s.text}>Ambient Assistance</div>
-
 				</div>
 			</div>
 

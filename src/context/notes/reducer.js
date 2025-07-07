@@ -507,6 +507,14 @@ const actionHandlers = {
 		...state,
 		transcriptHistory: action?.payload,
 	}),
+	GET_EXISTING_BOTS_SUCCESS: (state, action) => ({
+		...state,
+		existingBots: action?.payload,
+	}),
+	APPEND_EXISTING_BOTS_SUCCESS: (state, action) => ({
+		...state,
+		existingBots: [...(state.existingBots || []), ...action?.payload],
+	}),
 	RESET_STATE: () => intialState,
 };
 
