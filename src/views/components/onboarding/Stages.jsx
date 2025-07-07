@@ -74,6 +74,8 @@ const Stages = ({ onNext }) => {
 	const isWorkspaceCreationMode =
 		localStorage.getItem('stage') === '2' && localStorage.getItem('onboardingStep') === '1';
 
+	// const isInvitedUser = searchParams.get('email') ?? null;
+
 	const {
 		authInfo: {
 			checkWorkspaceHandleAvailability,
@@ -582,7 +584,7 @@ const Stages = ({ onNext }) => {
 
 					<main className="singleStageContent">
 						{/* User Details Section - Only show if not in workspace creation mode */}
-						{!isWorkspaceCreationMode && (
+						{(!isWorkspaceCreationMode || invitedUserOnboarding) && (
 							<div className="userDetailsSection">
 								<div className="nameInputContainer">
 									<p className="question">What is your name?</p>
@@ -891,7 +893,7 @@ const Stages = ({ onNext }) => {
 							</div>
 						)}
 						{/* Workspace Details Section - Show for workspace creation mode */}
-						{isWorkspaceCreationMode && (
+						{isWorkspaceCreationMode && !invitedUserOnboarding && (
 							<div className="workspaceDetailsSection">
 								<div className="companyNameContainer">
 									<p className="question">Name of your Workspace handle?</p>
