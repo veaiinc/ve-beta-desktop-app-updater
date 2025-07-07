@@ -6,6 +6,7 @@ import useTokenExpiry from './useTokenExpiry';
 import useAccessControls from './useAccessControls';
 import useWorkspaceMode from './useWorkspaceMode';
 import useActiveWorkspace from './useActiveWorkspace';
+import useChunkLoadErrorReload from './useChunkLoadErrorReload';
 
 const useAuthInitializer = () => {
 	useAuth();
@@ -15,6 +16,7 @@ const useAuthInitializer = () => {
 	useTokenExpiry();
 	useAccessControls();
 	useActiveWorkspace();
+	useChunkLoadErrorReload();
 	const { loading } = useWorkspaceMode();
 
 	return { loading };
