@@ -347,7 +347,7 @@ class ElementSidebar extends Component {
 
 					{this.state?.activeType == 'navImage' && (
 						<NavImagePopup
-							activeComponent={this.props.activePopupComponent}
+							activeComponent={this.state?.activePopupComponent}
 							setActivePopupComponent={(value) => {
 								this.setState(
 									{
