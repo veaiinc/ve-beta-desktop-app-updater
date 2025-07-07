@@ -11,10 +11,10 @@ const RunAndBuildToggle = ({ agentAction, setAgentAction }) => {
 	const navigate = useNavigate();
 	return (
 		<div className={s.container}>
-			<button onClick={() => navigate('/agents')} className={s.backBtn}>
+			{/* <button onClick={() => navigate('/agents')} className={s.backBtn}>
 				<BackIcon />
 				<span>Back to Agents</span>
-			</button>
+			</button> */}
 			<div className={s.runAndBuildToggle}>
 				<button
 					className={

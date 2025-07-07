@@ -199,8 +199,8 @@ const Variables = ({
 					<div className="variableInputWithPopoverWrapper">
 						<input
 							className={`custominputContainer`}
-							placeholder="Variable Name"
-							value={ele?.value || ele?.defaultValue || ''}
+							placeholder={ele?.displayName}
+							value={ele?.value || ''}
 							onChange={(e) => onChangeVariablesData(e, index)}
 							id={'sidebar-' + ele?._id}
 						/>

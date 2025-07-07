@@ -1,0 +1,192 @@
+.editToolModal {
+	display: flex;
+	width: 700px;
+	padding: 32px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 20px;
+	border-radius: 32px;
+	background: var(--popup);
+	max-height: 80dvh;
+	overflow-y: auto;
+
+	&-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+		flex: 1 0 0;
+		width: 100%;
+	}
+
+	&-title {
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 20px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	&-closeIcon {
+		cursor: pointer;
+		width: 24px;
+		height: 24px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: color 0.2s;
+		svg path {
+			stroke: var(--secondary-font);
+			transition: stroke 0.2s;
+		}
+		&:hover svg path {
+			stroke: var(--primary-font);
+		}
+	}
+
+	&-inputs {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		align-self: stretch;
+		width: 100%;
+	}
+
+	&-description {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 3px;
+		align-self: stretch;
+	}
+
+	&-descTitle {
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 18px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	&-descText {
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	&-footer {
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		gap: 16px;
+		align-self: stretch;
+		margin-top: 20px;
+	}
+
+	.form-container {
+		display: flex;
+		flex-direction: column;
+		gap: 18px;
+		width: 100%;
+		margin-top: 8px;
+	}
+
+	.editTool-form-field {
+		margin-bottom: 18px;
+		display: flex;
+		flex-direction: column;
+		gap: 7px;
+		background: none;
+	}
+
+	.editTool-label {
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-weight: 500;
+		margin-bottom: 2px;
+	}
+}
+
+.field-description {
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
+	font-size: 12px;
+	margin: 0;
+	line-height: 1.4;
+}
+
+.editTool-primary-button {
+	display: flex;
+	padding: 12px 24px;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+	border-radius: 14px;
+	background: var(--primary-button);
+	color: var(--white);
+	font-family: var(--primary-font-family);
+	font-size: 15px;
+	font-weight: 600;
+	border: none;
+	cursor: pointer;
+	transition: all 0.2s;
+	&:hover:not(:disabled) {
+		opacity: 0.92;
+		transform: translateY(-1px);
+	}
+	&:active:not(:disabled) {
+		transform: translateY(0);
+	}
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+}
+
+.editTool-cancel-button {
+	display: flex;
+	padding: 12px 24px;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+	border-radius: 14px;
+	background: var(--card);
+	color: var(--secondary-font);
+	border: 1px solid var(--stroke);
+	font-family: var(--primary-font-family);
+	font-size: 15px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+	&:hover {
+		background: var(--card-over-card);
+	}
+}
+
+.editTool-input-text {
+	padding: 12px 16px;
+	border-radius: 10px;
+	border: 1px solid var(--stroke);
+	background: var(--card);
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
+	font-size: 15px;
+	transition: all 0.2s;
+	margin-bottom: 2px;
+	width: 100%;
+	&::placeholder {
+		color: var(--secondary-font);
+	}
+	&:focus {
+		outline: none;
+		border-color: var(--primary-button);
+		background: var(--card-over-card);
+	}
+}
