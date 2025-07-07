@@ -18,9 +18,9 @@ const toCamelCase = (str) => {
 		.split(' ')
 		.map((word, index) => {
 			if (index === 0) {
-				return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+				return word.charAt(0).toLowerCase() + word.slice(1); // First word: first letter lowercase, rest unchanged
 			}
-			return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+			return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(); // Subsequent words: capitalize first letter
 		})
 		.join('');
 };
@@ -35,6 +35,7 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 			addActionToKnowledgeAgent,
 			getExistingconnectedAccounts,
 			deleteConnectedAccount,
+			listofAllappsActions,
 		},
 		profileInfo: { userDetailsData, getUserDetails },
 	} = useContext(Context);
@@ -83,6 +84,24 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 	}, [userDetailsData]);
 
 	const tenatUserId = userDetailsData?._id;
+
+	const fetchAllApps = useCallback(async () => {
+		const [success, response] = await listofAllappsActions();
+		if (success) {
+			setInfo((prev) => ({
+				...prev,
+				apps: response.data,
+				hasNextPage: response.hasNextPage,
+				totalApps: response.totalApps,
+				totalPages: response.totalPages,
+				perPage: response.perPage,
+			}));
+		}
+	}, [info.searchQuery]);
+
+	useEffect(() => {
+		fetchAllApps();
+	}, [fetchAllApps]);
 
 	// Step 1: Fetch Apps
 	const fetchApps = useCallback(
@@ -548,7 +567,7 @@ const AddToolModal = ({ isOpen, onClose, onToolAdded }) => {
 				name: action?.name || action?.id || '',
 				description: action?.description || '',
 				url:
-					'https://ap.api.ve.ai/third-party-integrations/1.0/pipedream/execute-action/' +
+					'https://us.api.ve.ai/third-party-integrations/1.0/pipedream/execute-action/' +
 					workspaceId,
 				method: 'POST',
 				contentType: 'json',
