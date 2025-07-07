@@ -693,6 +693,10 @@ class Events extends Component {
 		const desc = this.getRowValue('description', key);
 		return desc === 'Description' ? '' : desc;
 	};
+	returnEventLocation = (key) => {
+		const location = this.getRowValue('location', key);
+		return location === 'Location' ? '' : location;
+	};
 	render() {
 		const events = this.returnData() || []; // Add default empty array
 		const finalWrapperStyling = this.props?.client ? getClientStyling(events?.length || 0) : {};
@@ -936,7 +940,7 @@ class Events extends Component {
 										}}
 									>
 										{this.props.client ? (
-											this.getRowValue('location', key)
+											this.returnEventLocation(key)
 										) : (
 											<Text
 												// text={',Location'}
