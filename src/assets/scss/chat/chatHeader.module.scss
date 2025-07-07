@@ -7,7 +7,7 @@
 		width: 100vw;
 		height: 100vh;
 		background-color: var(--backdrop);
-		z-index: 300;
+		z-index: 50;
 	}
 
 	.nonActiveQuestionsContainer {
@@ -64,7 +64,7 @@
 		flex-direction: column;
 		padding: 0px;
 		position: relative;
-		z-index: 400;
+		z-index: 90;
 		&.expanded {
 			.nonActiveQuestionsContainer {
 				max-height: 250px;
