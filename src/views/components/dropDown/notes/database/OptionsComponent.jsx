@@ -47,13 +47,14 @@ const OptionsComponent = ({ options, addOption, updateOption, deleteOption }) =>
 	};
 
 	const handleUpdateOption = (update = {}) => {
+		const currentOption = options?.find((opt) => opt._id === info?.activeOption);
 		const option = { _id: info?.activeOption };
 		if (update?.color) {
-			if (update?.color === info?.activeOption?.color) return;
+			if (currentOption && update?.color === currentOption.color) return;
 			option.color = update?.color;
 		}
 		if (update?.label) {
-			if (update?.label === info?.activeOption?.label) return;
+			if (currentOption && update?.label === currentOption.label) return;
 			option.label = update?.label;
 		}
 		updateOption(option);
@@ -119,7 +120,8 @@ const OptionsComponent = ({ options, addOption, updateOption, deleteOption }) =>
 												}
 												onKeyDown={(e) => {
 													if (e.key === 'Enter') {
-														e.onBlur();
+														e.preventDefault();
+														e.target.blur();
 													}
 												}}
 												onBlur={() =>

@@ -53,19 +53,19 @@ const StatusComponent = ({ status, addStatus, updateStatus, deleteStatus }) => {
 	};
 
 	const handleUpdateOption = (group, update = {}) => {
-		const label = info?.editingLabel?.trim();
+		const groupOptions = status?.[group] || [];
+		const currentOption = groupOptions.find((opt) => opt._id === info?.activeOption);
 		const option = { _id: info?.activeOption };
 		if (update?.color) {
-			if (update?.color === info?.activeOption?.color) return;
+			if (currentOption && update?.color === currentOption.color) return;
 			option.color = update?.color;
 		}
 		if (update?.label) {
-			if (update?.label === info?.activeOption?.label) return;
+			if (currentOption && update?.label === currentOption.label) return;
 			option.label = update.label;
 		}
-
 		if (update?.isDefault !== undefined) {
-			if (update?.isDefault === info?.activeOption?.isDefault) return;
+			if (currentOption && update?.isDefault === currentOption.isDefault) return;
 			option.isDefault = update?.isDefault;
 		}
 		updateStatus(group, option);
@@ -135,7 +135,8 @@ const StatusComponent = ({ status, addStatus, updateStatus, deleteStatus }) => {
 														}
 														onKeyDown={(e) => {
 															if (e.key === 'Enter') {
-																e.onBlur();
+																e.preventDefault();
+																e.target.blur();
 															}
 														}}
 														onBlur={() =>

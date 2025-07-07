@@ -1,10 +1,11 @@
-import { memo, useCallback, useContext, useMemo, useState } from 'react';
-import s from '../../../../../assets/scss/notes/dropdown/addField.module.scss';
+import React, { useCallback, useContext, useMemo, useState, useEffect } from 'react';
+import s from '../../../../../assets/scss/notes/dropdown/updateField.module.scss';
 import { ReactComponent as CrossSvg } from '../../../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as SixDotsSvg } from '../../../../../assets/svg/tasks/sixDots.svg';
 import { ReactComponent as ArrowLeftSvg } from '../../../../../assets/svg/tasks/arrowLeft.svg';
 import { ReactComponent as PlusIcon } from '../../../../../assets/svg/tasks/plus.svg';
+import { ReactComponent as DustbinOutlined } from '../../../../../assets/svg/tasks/dustBin.svg';
 
 import { Tooltip } from 'antd';
 import GroupConfigOptions from './GroupConfigOptions';
@@ -128,19 +129,83 @@ const initialState = {
 	loading: false,
 };
 
-const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber = false }) => {
+const UpdateField = ({
+	pageId,
+	databaseId,
+	handleBack,
+	handleClose,
+	hasSerialNumber = false,
+	field,
+}) => {
 	const {
-		notes: { addDatabaseField },
+		notes: { updateDatabaseField, deleteDatabaseField },
 	} = useContext(Context);
 	const [info, setInfo] = useState({ ...initialState });
+	const [loading, setLoading] = useState(false);
+
+	useEffect(() => {
+		if (!field) return;
+		const {
+			name,
+			config: { options, status, prefix },
+			limit,
+			type,
+		} = field;
+		let selectedFieldType = fieldTypes?.find((item) => item?.value === type);
+		if (type === 'title') {
+			selectedFieldType = {
+				label: 'Title',
+				value: 'title',
+			};
+		}
+		handleInfoChange({
+			fieldName: name,
+			options,
+			status,
+			prefix,
+			limit,
+			selectedFieldType,
+		});
+	}, [field]);
 
 	const handleInfoChange = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
 	};
 
-	const handleFieldTypeChange = useCallback((selectedFieldType) => {
-		handleInfoChange({ selectedFieldType, fieldTypeTooltipOpen: false });
-	}, []);
+	// --- Update Field Name ---
+	const handleFieldNameBlur = async () => {
+		const newName = info?.fieldName?.trim();
+		if (loading || !field || newName === field?.name?.trim()) return;
+		if (!newName) {
+			message?.error('Field name cannot be empty');
+			handleInfoChange({ fieldName: field?.name });
+			return;
+		}
+		setLoading(true);
+		await updateDatabaseField({
+			pageId,
+			databaseId,
+			fieldId: field?._id,
+			input: { type: field?.type, name: newName },
+		});
+		setLoading(false);
+	};
+
+	// --- Update Options ---
+	const updateOptionsOnServer = async (newOptions) => {
+		if (!field) return;
+		setLoading(true);
+		await updateDatabaseField({
+			pageId,
+			databaseId,
+			fieldId: field?._id,
+			input: {
+				type: field?.type,
+				config: { options: newOptions },
+			},
+		});
+		setLoading(false);
+	};
 
 	const addOption = useCallback(
 		(option) => {
@@ -149,9 +214,9 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 				message?.error('Option already exists');
 				return;
 			}
-			handleInfoChange({
-				options: [...(info?.options || []), { ...option, _id: option?.label }],
-			});
+			const newOptions = [...(info?.options || []), { ...option, _id: option?.label }];
+			handleInfoChange({ options: newOptions });
+			updateOptionsOnServer(newOptions);
 			return true;
 		},
 		[info?.options],
@@ -170,9 +235,8 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 				}
 				return item;
 			});
-			handleInfoChange({
-				options: newOptions,
-			});
+			handleInfoChange({ options: newOptions });
+			updateOptionsOnServer(newOptions);
 			return true;
 		},
 		[info?.options],
@@ -182,13 +246,26 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 		(optionId) => {
 			const newOptions = info?.options?.filter(({ _id }) => _id !== optionId);
 			handleInfoChange({ options: newOptions });
+			updateOptionsOnServer(newOptions);
 		},
 		[info?.options],
 	);
 
-	const handleChangeLimit = useCallback((option) => {
-		handleInfoChange({ limit: option, limitTooltipOpen: false });
-	}, []);
+	// --- Update Status ---
+	const updateStatusOnServer = async (newStatus) => {
+		if (!field) return;
+		setLoading(true);
+		await updateDatabaseField({
+			pageId,
+			databaseId,
+			fieldId: field?._id,
+			input: {
+				type: field?.type,
+				config: { status: newStatus },
+			},
+		});
+		setLoading(false);
+	};
 
 	const addStatus = useCallback(
 		(group, option) => {
@@ -202,12 +279,13 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 				...(info?.status || {}),
 				[group]: [...(info?.status?.[group] || []), { ...option, _id: option?.label }],
 			};
-
 			handleInfoChange({ status });
+			updateStatusOnServer(status);
 			return true;
 		},
 		[info?.status],
 	);
+
 	const updateStatus = useCallback(
 		(group, option) => {
 			const allOptions = Object.values(info?.status)?.flat();
@@ -216,12 +294,9 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 				message?.error('Option already exists');
 				return;
 			}
-
 			const isDefault = option?.isDefault;
 			let newStatus = { ...info?.status };
-
 			if (isDefault) {
-				// Loop through all groups and unset previous default
 				for (const key in newStatus) {
 					newStatus[key] = newStatus[key].map((item) => {
 						if (item.isDefault && item._id !== option._id) {
@@ -231,16 +306,14 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 					});
 				}
 			}
-
-			// Update the option in the specific group
 			newStatus[group] = newStatus[group].map((item) => {
 				if (item._id === option._id) {
 					return { ...item, ...option };
 				}
 				return item;
 			});
-
 			handleInfoChange({ status: newStatus });
+			updateStatusOnServer(newStatus);
 		},
 		[info?.status],
 	);
@@ -248,74 +321,48 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 	const deleteStatus = useCallback(
 		(group, optionId) => {
 			const filteredGroup = info?.status?.[group]?.filter((item) => item?._id !== optionId);
-			handleInfoChange({ status: { ...(info?.status || {}), [group]: filteredGroup } });
+			const newStatus = { ...(info?.status || {}), [group]: filteredGroup };
+			handleInfoChange({ status: newStatus });
+			updateStatusOnServer(newStatus);
 		},
 		[info?.status],
 	);
 
-	const handleAddField = async () => {
-		const name = info?.fieldName?.trim();
-		if (!name) {
-			message?.error('Field name is required');
-			return;
-		}
-		const {
-			value: type,
-			hasOptions,
-			hasLimit,
-			hasPrefix,
-			hasStatus,
-		} = info?.selectedFieldType || {};
-		const input = { name, type, config: {} };
-		if (hasOptions) {
-			if (info?.options?.length === 0) {
-				message?.error('Add at least one option');
-				return;
-			}
-			input.config.options = info?.options?.map(({ _id, ...option }) => option);
-		}
-
-		if (hasLimit) {
-			input.selectionLimit = info?.limit?.value || -1;
-		}
-
-		if (hasPrefix) {
-			input.config.prefix = info?.prefix;
-		}
-
-		if (hasStatus) {
-			const { todo, inProgress, completed } = info?.status || {};
-			input.config.status = {
-				todo: todo?.map(({ _id, isDefault = false, ...item }) => ({
-					...item,
-					group: 'todo',
-					isDefault,
-				})),
-				inProgress: inProgress?.map(({ _id, isDefault = false, ...item }) => ({
-					...item,
-					group: 'inProgress',
-					isDefault,
-				})),
-				completed: completed?.map(({ _id, isDefault = false, ...item }) => ({
-					...item,
-					group: 'completed',
-					isDefault,
-				})),
-			};
-		}
-
-		const payload = {
-			pageId: pageId,
-			databaseId: databaseId,
-			input,
-		};
-
-		const res = await addDatabaseField(payload);
-		if (res[0]) {
-			handleInfoChange({ ...initialState });
-			handleBack();
-		}
+	// --- Update Prefix ---
+	const handlePrefixBlur = async () => {
+		if (!field) return;
+		const newPrefix = info?.prefix?.trim() || null;
+		if (newPrefix === (field?.config?.prefix || null)) return;
+		setLoading(true);
+		await updateDatabaseField({
+			pageId,
+			databaseId,
+			fieldId: field?._id,
+			input: { type: field?.type, config: { prefix: newPrefix } },
+		});
+		setLoading(false);
 	};
+
+	// --- Delete Field ---
+	const handleDeleteField = async () => {
+		if (!field) return;
+		setLoading(true);
+		await deleteDatabaseField({
+			pageId,
+			databaseId,
+			fieldId: field?._id,
+		});
+		setLoading(false);
+		handleBack();
+	};
+
+	const handleFieldTypeChange = useCallback((selectedFieldType) => {
+		handleInfoChange({ selectedFieldType, fieldTypeTooltipOpen: false });
+	}, []);
+
+	const handleChangeLimit = useCallback((option) => {
+		handleInfoChange({ limit: option, limitTooltipOpen: false });
+	}, []);
 
 	const filteredFieldTypes = useMemo(
 		() => (hasSerialNumber ? fieldTypes.slice(0, -1) : fieldTypes),
@@ -326,7 +373,7 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 		<div className={s.addField}>
 			<div className={s.header}>
 				<ArrowLeftSvg className={s.cursorPointer} onClick={handleBack} />
-				<span className={s.optionsDropdownHeaderTitle}>Add property</span>
+				<span className={s.optionsDropdownHeaderTitle}>Update property</span>
 				<CrossSvg className={s.cursorPointer} onClick={handleClose} />
 			</div>
 			<div className={s.inputWrapper}>
@@ -337,6 +384,8 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 					placeholder="Enter field name"
 					value={info?.fieldName}
 					onChange={(e) => handleInfoChange({ fieldName: e.target.value })}
+					onBlur={handleFieldNameBlur}
+					disabled={loading}
 					autoFocus
 				/>
 			</div>
@@ -349,7 +398,7 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 							onChange={handleFieldTypeChange}
 						/>
 					}
-					open={info?.fieldTypeTooltipOpen}
+					open={false}
 					placement="bottomLeft"
 					overlayClassName="status-dropdown"
 					color="transparent"
@@ -374,7 +423,6 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 						updateOption={updateOption}
 						deleteOption={deleteOption}
 					/>
-					<div className={s.divider} />
 				</>
 			)}
 
@@ -403,7 +451,6 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 							<div className={s.subText}>{info?.limit?.label}</div>
 						</div>
 					</Tooltip>
-					<div className={s.divider} />
 				</>
 			)}
 
@@ -417,9 +464,10 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 							className={s.optionInput}
 							value={info?.prefix}
 							onChange={(e) => handleInfoChange({ prefix: e.target.value })}
+							onBlur={handlePrefixBlur}
+							disabled={loading}
 						/>
 					</div>
-					<div className={s.divider} />
 				</>
 			)}
 
@@ -432,15 +480,28 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 						updateStatus={updateStatus}
 						deleteStatus={deleteStatus}
 					/>
-					<div className={s.divider} />
 				</>
 			)}
-
-			<button className={s.addFieldButton} onClick={handleAddField}>
-				Add property
-			</button>
+			<>
+				<div className={s.divider} />
+				<div
+					className={s.option}
+					onClick={handleDeleteField}
+					style={{
+						color: '#e74c3c',
+						cursor: 'pointer',
+						opacity: loading ? 0.5 : 1,
+						pointerEvents: loading ? 'none' : 'auto',
+					}}
+				>
+					<div className={s.text}>
+						<DustbinOutlined className={s.icon} />
+						Delete property
+					</div>
+				</div>
+			</>
 		</div>
 	);
 };
 
-export default memo(AddField);
+export default UpdateField;

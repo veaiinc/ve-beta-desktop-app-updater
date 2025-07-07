@@ -122,6 +122,15 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+
+			.icon {
+				path: {
+					stroke: var(--primary-font) !important;
+				}
+			}
 		}
 		.subText {
 			color: var(--secondary-font);

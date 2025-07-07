@@ -9,6 +9,7 @@ import { ReactComponent as PlusIcon } from '../../../../../assets/svg/tasks/plus
 
 import s from '../../../../../assets/scss/notes/dropdown/allFields.module.scss';
 import AddField from './AddField';
+import UpdateField from './UpdateField';
 
 const ADD_NEW_KEY = 'ADD_NEW_KEY';
 
@@ -58,7 +59,11 @@ const AllFields = ({ fields = [], handleClose, handleBack, pageId, databaseId })
 				/>
 				<div className={s.optionsDropdownPropertyContainer}>
 					{filteredFields.map((field, idx) => (
-						<div className={s.propertyListItem} key={field._id || idx}>
+						<div
+							className={s.propertyListItem}
+							key={field._id || idx}
+							onClick={() => handleInfoChange({ activeEditing: field })}
+						>
 							<div className={s.dragHandleIcon}>
 								<SixDotsSvg />
 							</div>
@@ -101,7 +106,16 @@ const AllFields = ({ fields = [], handleClose, handleBack, pageId, databaseId })
 			databaseId={databaseId}
 			hasSerialNumber={serialNumberField !== undefined}
 		/>
-	) : null;
+	) : (
+		<UpdateField
+			handleBack={handleBackToAllFields}
+			handleClose={handleClose}
+			pageId={pageId}
+			databaseId={databaseId}
+			hasSerialNumber={serialNumberField !== undefined}
+			field={info?.activeEditing}
+		/>
+	);
 };
 
 export default memo(AllFields);
