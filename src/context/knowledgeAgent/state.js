@@ -692,11 +692,11 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
-	const getTriggers = async () => {
+	const getTriggers = async (agentId) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const url = '/' + workspaceId + '/ai-assistant-triggers/ai-triggers';
+			const url = '/' + workspaceId + '/ai-assistant-triggers/' + agentId;
 			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
 			if (response?.[0] === true) {
 				dispatch({
@@ -715,36 +715,41 @@ export const KnowledgeAgentState = () => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const url = '/' + workspaceId + '/ai-assistant-triggers/ai-trigger';
+			const url = '/' + workspaceId + '/ai-assistant-triggers';
 
-			// triggerApp: 'gmail' | 'googleMeet'
+			// Handle different trigger types
 			switch (triggerApp) {
 				case 'gmail':
+				case 'outlook':
+				case 'schedule':
 					const response = await service?.fetchPost(
 						url,
-						triggerData, // { email: 'user@gmail.com' }
+						triggerData,
 						usertoken,
 						'ai_assistant_api',
 					);
 					if (response?.[0] === true) {
 						const newTrigger = response[1];
-						const data = [newTrigger, ...(state.triggers.data || [])];
+						const data = [newTrigger, ...(state.triggers?.data || [])];
 						const payload = {
 							...state.triggers,
-							data: [newTrigger, ...(state.triggers.data || [])],
+							data: [newTrigger, ...(state.triggers?.data || [])],
 						};
 						dispatch({
 							type: Actions.CONNECT_TRIGGER,
 							payload,
 						});
-						return [true];
+						return [true, response?.[1]];
 					}
 					return [false, response?.[1]];
 				case 'googleMeet':
-					return [false]; // TODO: implement google meet trigger
+					return [false, { message: 'Google Meet trigger not implemented yet' }]; // TODO: implement google meet trigger
+				default:
+					return [false, { message: `Unknown trigger type: ${triggerApp}` }];
 			}
 		} catch (error) {
 			console.log('error==>connectTrigger', error);
+			return [false, error];
 		}
 	};
 
@@ -752,7 +757,7 @@ export const KnowledgeAgentState = () => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}/ai-assistant-triggers/${triggerId}/ai-trigger`;
+			const url = `/${workspaceId}/ai-assistant-triggers/${triggerId}`;
 			const type = 'ai_assistant_api';
 
 			const response = await service.fetchDelete(url, usertoken, null, type);

@@ -18,8 +18,9 @@ const ListEmailsModal = ({
 	isOpen,
 	onClose,
 	setTriggerEmail,
-	handleConnectToGmailTrigger,
+	handleConnectToAppTrigger,
 	connectedEmails,
+	selectedAppType,
 }) => {
 	const {
 		profileInfo: { userDetailsData },
@@ -37,7 +38,7 @@ const ListEmailsModal = ({
 					message.error(`Email ${email} is already in use!`);
 					return;
 				}
-				handleConnectToGmailTrigger(email);
+				handleConnectToAppTrigger(email, selectedAppType);
 				onClose();
 			} else {
 				message.error('Please enter a valid email');
@@ -50,8 +51,19 @@ const ListEmailsModal = ({
 			message.error(`Email ${userEmail} is already in use!`);
 			return;
 		}
-		handleConnectToGmailTrigger(userEmail);
+		handleConnectToAppTrigger(userEmail, selectedAppType);
 		onClose();
+	};
+
+	const getModalTitle = () => {
+		switch (selectedAppType) {
+			case 'gmail':
+				return 'Select a Gmail account or enter an email';
+			case 'outlook':
+				return 'Select an Outlook account or enter an email';
+			default:
+				return 'Select an account or enter an email';
+		}
 	};
 
 	return (
@@ -70,7 +82,7 @@ const ListEmailsModal = ({
 		>
 			<div className={s.listEmailsModalContainer}>
 				<header>
-					<h1>Select an account or enter an email</h1>
+					<h1>{getModalTitle()}</h1>
 				</header>
 				<div className={s.divider}></div>
 				<ul>
