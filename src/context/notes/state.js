@@ -1229,8 +1229,11 @@ export const NotesState = (props) => {
 						},
 					},
 				});
-				return newField;
+			} else {
+				message?.error('Failed to add new property');
 			}
+
+			return response;
 		} catch (error) {
 			console.error('error==>addDatabaseField', error);
 		}
