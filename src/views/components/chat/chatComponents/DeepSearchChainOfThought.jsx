@@ -13,7 +13,9 @@ const DeepSearchChainOfThought = ({
 	showOnlyLastThought = false,
 	memoryThinking = null,
 }) => {
-	const cot = showOnlyLastThought ? [data?.cot[data?.cot?.length - 1] || []] : data?.cot || [];
+	const cot = showOnlyLastThought
+		? [data?.cot[data?.cot?.length - 1] || []]
+		: [...(data?.cot || [])];
 	if (memoryThinking && !showOnlyLastThought) {
 		cot?.unshift({
 			step: memoryThinking,
