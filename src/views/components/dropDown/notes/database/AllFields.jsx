@@ -1,6 +1,6 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
-import { ReactComponent as OpenEye } from '../../../../../assets/svg/gallery/open-eye.svg';
-import { ReactComponent as CrossedOpenEye } from '../../../../../assets/svg/gallery/crossedOpenEye.svg';
+import { memo, useCallback, useMemo, useState } from 'react';
+// import { ReactComponent as OpenEye } from '../../../../../assets/svg/gallery/open-eye.svg';
+// import { ReactComponent as CrossedOpenEye } from '../../../../../assets/svg/gallery/crossedOpenEye.svg';
 import { ReactComponent as CrossSvg } from '../../../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as SixDotsSvg } from '../../../../../assets/svg/tasks/sixDots.svg';
