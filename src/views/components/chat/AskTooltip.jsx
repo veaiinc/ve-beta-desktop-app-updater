@@ -101,7 +101,7 @@ const AskTooltip = ({ children, open, onOpenChange }) => {
 						</div>
 					</div>
 					<div className="model-options-container">
-						<div className="title-text">Use Model (Exclude Workspace context)</div>
+						<div className="title-text">Models</div>
 						<div className="options">
 							{llmModels?.models?.map((model, index) => (
 								<div

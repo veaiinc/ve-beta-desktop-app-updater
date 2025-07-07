@@ -1,0 +1,454 @@
+.meetbot {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	background: var(--background-color);
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
+	position: relative;
+	gap: 20px;
+	// overflow-y: hidden;
+	.leftContainer {
+		width: 100%;
+		height: 100%;
+		background: var(--background-color);
+		z-index: 1;
+		padding: 50px;
+		overflow-y: auto;
+		.left {
+			display: flex;
+			flex-direction: column;
+			gap: 31px;
+			margin: 0 auto;
+			width: 100%;
+			height: 100%;
+			background: var(--background-color);
+			z-index: 1;
+		}
+	}
+	.upcoming {
+		margin-bottom: 40px;
+	}
+
+	.upcomingTitle {
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 20px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	.upcomingCard {
+		display: flex;
+		padding: 20px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		align-self: stretch;
+		border-radius: 16px;
+		border: 1px solid var(--stroke, #2c2d2e);
+
+		.upcomingTimeContainer {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+	}
+
+	.upcomingTime {
+		color: var(--primary-button, #79ecc9);
+		font-family: var(--primary-font-family);
+		font-size: 13px;
+		font-style: normal;
+		font-weight: 600;
+		line-height: normal;
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+	.upcomingdot {
+		width: 4px;
+		height: 4px;
+		aspect-ratio: 1/1;
+		background-color: var(--stroke, #2c2d2e);
+		border-radius: 50%;
+	}
+	.upcomingUser {
+		color: var(--secondary-font);
+		font-size: 0.95rem;
+		margin-bottom: 2px;
+	}
+
+	.upcomingDesc {
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 24px;
+	}
+
+	.guideBtn {
+		display: flex;
+		height: 40px;
+		padding: 0px 24px;
+		justify-content: center;
+		align-items: center;
+		color: var(--background-color, #121212);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		gap: 6px;
+		border-radius: 24px;
+		background: var(--primary-button, #79ecc9);
+		width: fit-content;
+	}
+
+	.listSection {
+		align-items: flex-start;
+		align-self: stretch;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		overflow-y: auto;
+		min-height: 601px;
+		height: 100%;
+	}
+
+	.listSectionTitle {
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 20px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		background-color: var(--background-color);
+		position: sticky;
+		top: 0;
+	}
+
+	.meetingCard {
+		display: flex;
+		padding: 20px;
+		align-items: flex-start;
+		gap: 16px;
+		align-self: stretch;
+		border-radius: 16px;
+		border: 1px solid var(--stroke, #2c2d2e);
+		cursor: pointer;
+	}
+
+	.meetingAvatar {
+		display: flex;
+		width: 28px;
+		height: 28px;
+		padding: 6.125px 10.5px;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 8.75px;
+		aspect-ratio: 1/1;
+		border-radius: 50%;
+		background: var(--card-over-card-hover);
+	}
+
+	.meetingInfo {
+		display: flex;
+		height: 152px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		flex: 1 0 0;
+		overflow-y: auto;
+	}
+
+	.meetingTitle {
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 26px;
+	}
+
+	.meetingMeta {
+		color: var(--secondary-font);
+		font-size: 0.95rem;
+		margin-bottom: 2px;
+	}
+
+	.meetingDesc {
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 24px;
+	}
+
+	.meetingImg {
+		width: 220px;
+		height: 150px;
+		border-radius: 10px;
+		overflow: hidden;
+		background: var(--card-over-card-hover);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.img {
+		width: 220px;
+		height: 150px;
+		object-fit: cover;
+		border-radius: 10px;
+		display: block;
+	}
+
+	.imgPlaceholder {
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(135deg, var(--card-over-card-hover) 40%, var(--card) 100%);
+		border-radius: 10px;
+	}
+	.sidebarClosingSvg {
+		z-index: 1001;
+		cursor: pointer;
+	}
+
+	.rightContainer {
+		display: flex;
+		padding: 20px 24px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		flex-shrink: 0;
+		.meetbot__right {
+			background: var(--background-color) !important;
+			border-left: 1.5px solid var(--stroke);
+			position: relative;
+			transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			transform: translateX(0);
+			z-index: 10;
+			top: 0;
+			display: flex;
+			width: 100%;
+			flex-direction: column;
+			padding: 20px 24px;
+			gap: 24px;
+			color: var(--primary-font);
+			@media (max-width: 900px) {
+				position: static;
+				width: 100vw !important;
+				max-width: 100vw !important;
+				height: auto !important;
+				border-left: none;
+				border-top: 1.5px solid var(--stroke);
+				padding: 0 8px 24px 8px;
+			}
+			.ant-drawer-body {
+				background: var(--background-color) !important;
+				color: var(--primary-font) !important;
+				padding: 0 !important;
+				height: 100vh;
+				@media (max-width: 900px) {
+					height: auto !important;
+				}
+			}
+
+			.ant-drawer-body {
+				display: flex;
+				flex-direction: column;
+				gap: 24px;
+			}
+
+			&--open {
+				display: flex;
+			}
+
+			& .meetbot__drawer-header {
+				display: flex;
+				align-items: center;
+				justify-content: flex-start;
+				padding: 32px 0 16px 0;
+				@media (max-width: 900px) {
+					padding: 18px 0 8px 0;
+				}
+			}
+
+			& .meetbot__drawer-tabs {
+				display: flex;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+			}
+
+			& .meetbot__drawer-tab {
+				display: flex;
+				height: 45px;
+				padding: 0px 16px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				flex: 1 0 0;
+				border-radius: 24px;
+				border: 1px solid #2c2d2e;
+				background: none;
+				font-weight: normal;
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+				cursor: pointer;
+			}
+			& .meetbot__drawer-tab--active {
+				font-weight: bold;
+				border-color: var(--primary-button, #79ecc9);
+				background: var(--card-over-card-hover);
+			}
+
+			& .meetbot__drawer-content {
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+			}
+
+			& .meetbot__drawer-label {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			& .meetbot__drawer-desc {
+				color: var(--secondary-font, #94989e);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			& .meetbot__drawer-input {
+				display: flex;
+				height: 45px;
+				padding: 0px 16px;
+				align-items: center;
+				gap: 8px;
+				align-self: stretch;
+				border-radius: 8px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: none;
+			}
+			.meetbot__drawer-input-wrapper {
+				display: flex;
+				align-items: center;
+				position: relative;
+			}
+			.meetbot__audio-btn-wrapper {
+				display: flex;
+				align-items: center;
+				min-height: 40px;
+				justify-content: end;
+			}
+			.meetbot__audio-btn {
+				width: fit-content;
+				height: 100%;
+				border-radius: 10px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: var(--primary-button, #79ecc9);
+				color: var(--background-color, #121212);
+				font-weight: 600;
+				font-size: 14px;
+				
+				cursor: pointer;
+			}
+			.meetbot__audio-btn--disabled {
+				cursor: not-allowed;
+				background: #b2f5e6;
+			}
+			.meetbot__drawer-tick {
+				position: absolute;
+				right: 12px;
+				color: var(--success, #79ecc9);
+				font-size: 22px;
+				cursor: pointer;
+			}
+			.meetbot__drawer-tick--disabled {
+				color: var(--secondary-font, #94989e);
+				cursor: not-allowed;
+			}
+			.meetbot__drawer-loader {
+				position: absolute;
+				right: 12px;
+				color: var(--secondary-font, #94989e);
+				font-size: 18px;
+			}
+		}
+
+		.openDrawerBtn {
+			display: none;
+		}
+
+		// Responsive scroll for overflow
+		.left,
+		.meetbot__right {
+			overflow-y: auto;
+			max-height: 100%;
+			display: flex;
+			gap: 24px;
+		}
+	}
+
+	// Media queries at the bottom
+	@media (min-width: 901px) {
+		.left {
+			margin-right: 420px;
+		}
+	}
+	@media (max-width: 900px) {
+		.left {
+			margin-right: 0;
+			width: 100vw;
+			height: 100vh;
+		}
+		.meetbot__right {
+			width: 100vw !important;
+			max-width: 100vw !important;
+			height: auto !important;
+			border-left: none;
+			border-top: 1.5px solid var(--stroke);
+			padding: 0 8px 24px 8px;
+		}
+		.upcomingCard {
+			padding: 18px 12px;
+		}
+		.meetingCard {
+			padding: 12px 8px;
+			gap: 10px;
+		}
+		.meetingImg {
+			display: none;
+		}
+		.meetbot__drawer-header {
+			padding: 18px 0 8px 0;
+		}
+		.meetbot__drawer-content {
+			margin-top: 12px;
+		}
+	}
+
+	// Ensure AntD drawer content is always dark themed for this drawer
+	.meetbot-drawer-root .ant-drawer-content,
+	.meetbot-drawer-root .ant-drawer-body {
+		background: var(--background-color) !important;
+		color: var(--primary-font) !important;
+	}
+}

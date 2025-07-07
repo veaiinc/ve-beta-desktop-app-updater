@@ -93,6 +93,7 @@ export const intialState = {
 	citations: null,
 	docsFilesList: null,
 	moreDocsFilesList: null,
+	docsFilesRefetch: false,
 	smartFileRefetch: false,
 	activeWorkflowSlugForSmartFile: null,
 	slackChannels: null,
@@ -120,6 +121,7 @@ export const intialState = {
 			webSearch: false,
 		},
 	},
+	aiTranscriptionSuggestions: null,
 	chatSources: null,
 	chatLoadingSessions: {},
 	chatReplyData: null,
@@ -138,6 +140,7 @@ export const intialState = {
 	chatBoxSuggestions: null,
 	newChatSessionIds: [],
 	aiMessagesInfo: null,
+	proactiveInfoForChat: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1591,17 +1594,26 @@ export const TemplatesState = (props) => {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
 			const type = 'calendar_api';
+			let path, response, success;
 
 			switch (connectType) {
 				case 'gmail':
-					const path = `/auth/gmail/${workspaceId}`;
-					const response = await Service?.fetchGet(path, token, type);
-					const success = response?.[0] === true;
+					path = `/auth/gmail/${workspaceId}`;
+					response = await Service?.fetchGet(path, token, type);
+					success = response?.[0] === true;
 					if (success) {
 						const connectUrl = response?.[1]?.connectUrl;
 						window.location.href = connectUrl;
 					} else {
 						return [false];
+					}
+				case 'google-calendar':
+					path = `/google-calendar/${workspaceId}/auth`;
+					response = await Service.fetchGet(path, token, type);
+					success = response?.[0] === true;
+					if (success) {
+						const connectUrl = response?.[1]?.connectUrl;
+						window.location.href = connectUrl;
 					}
 			}
 		} catch (error) {
@@ -1953,12 +1965,6 @@ export const TemplatesState = (props) => {
 				{ type: 'user', message: queryMessage || '' },
 				{
 					type: 'AI',
-					message: 'loading....',
-					content: (
-						<div className="aiMessageWrapper">
-							<AIMessageLoader />
-						</div>
-					),
 					contentType: 'loading',
 				},
 			];
@@ -2715,6 +2721,17 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const handleTranscriptionSuggestions = async (payload) => {
+		try {
+			dispatch({
+				type: Actions.HANDLE_TRANSCRIPTION_SUGGESTIONS,
+				payload,
+			});
+		} catch (error) {
+			console.log('error==>handleTranscriptionSuggestions', error);
+		}
+	};
+
 	const updatechatSessionFavourite = async (sessionId, isFavourite) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -2822,6 +2839,7 @@ export const TemplatesState = (props) => {
 		deleteChatSession,
 		deleteMultiAgentFile,
 		getFollowUpQueries,
+		handleTranscriptionSuggestions,
 		updatechatSessionFavourite,
 	};
 };

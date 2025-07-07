@@ -42,7 +42,7 @@
 		font-family: var(--chat-primary-font-family);
 		line-height: calc(var(--font-size) * 1.75);
 		// letter-spacing: -0.08px;;
-		font-weight: 400;
+		font-weight: 500;
 		background-color: var(--stroke);
 		padding: 0.15em 0.3em;
 		border-radius: 0.4em;
@@ -129,6 +129,7 @@
 		border-radius: calc(var(--font-size) * 1); //0.375
 		letter-spacing: 0.25px;
 		font-family: var(--chat-primary-font-family);
+		margin: 16px 0;
 
 		.code {
 			background-color: transparent;
@@ -167,9 +168,9 @@
 		.li {
 			list-style-type: decimal;
 			&::marker {
-				font-size: calc(var(--font-size) * 0.9375);
+				font-size: calc(var(--font-size) * 1);
 				color: var(--primary-font);
-				font-weight: 700;
+				font-weight: 600;
 			}
 		}
 	}

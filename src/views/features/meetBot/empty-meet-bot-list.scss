@@ -1,0 +1,167 @@
+.empty-meet-bot-container {
+	display: flex;
+	width: 800px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 20px;
+	flex-shrink: 0;
+
+	.empty-meet-bot-header {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+		align-self: stretch;
+
+		.empty-meet-bot-title {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 24px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 40px;
+		}
+
+		.empty-meet-bot-subtitle {
+			color: var(--secondary-font, #94989e);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 24px;
+		}
+	}
+
+	.meeting-intelligence-section {
+		display: flex;
+		padding: 20px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		align-self: stretch;
+		border-radius: 16px;
+		border: 1px solid var(--stroke, #2c2d2e);
+		background: var(--card, #1b1c1d);
+		.section-header {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			.section-title {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 26px;
+			}
+
+			.section-description {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 24px;
+			}
+		}
+
+		.showcase-container {
+			width: fit-content;
+			display: flex;
+			gap: 24px;
+
+			.emptylist {
+				border-radius: 12px;
+				border: 1px solid var(--stroke);
+				overflow: hidden;
+				width: 321px;
+				height: 274px;
+				flex-shrink: 0;
+			}
+			.showcase-description {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 24px;
+			}
+		}
+	}
+}
+
+// Responsive design
+@media (max-width: 1024px) {
+	.empty-meet-bot-container {
+		.meeting-intelligence-section {
+			.showcase-container {
+				.showcase-content {
+					flex-direction: column;
+					gap: 1.5rem;
+
+					.showcase-description {
+						flex: none;
+						padding-left: 0;
+					}
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 768px) {
+	.empty-meet-bot-container {
+		padding: 2rem 1rem;
+
+		.empty-meet-bot-header {
+			.empty-meet-bot-title {
+				font-size: 2rem;
+			}
+		}
+
+		.meeting-intelligence-section {
+			.showcase-container {
+				padding: 1.5rem;
+
+				.showcase-content {
+					.meeting-interface {
+						.meeting-body {
+							padding: 0.75rem;
+
+							.meeting-transcript {
+								.transcript-item {
+									.transcript-content {
+										.transcript-points {
+											li {
+												font-size: 0.75rem;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 480px) {
+	.empty-meet-bot-container {
+		padding: 1.5rem 1rem;
+
+		.empty-meet-bot-header {
+			.empty-meet-bot-title {
+				font-size: 1.75rem;
+			}
+		}
+
+		.meeting-intelligence-section {
+			.showcase-container {
+				padding: 1rem;
+			}
+		}
+	}
+}

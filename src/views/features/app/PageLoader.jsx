@@ -2,9 +2,12 @@
 import s from './pageLoader.module.scss';
 import Spinner from '../../components/loaders/Spinner';
 import useTheme from '../../../hooks/useTheme';
+import useHardReload from '../../../hooks/useHardReload';
 
 const PageLoader = () => {
 	useTheme();
+	useHardReload();
+
 	return (
 		<div className={s.loaderContainer}>
 			<Spinner

@@ -162,6 +162,7 @@ const ChatBox = ({
 			currentSessionId,
 			chatReplyData,
 			deleteMultiAgentFile,
+			proactiveInfoForChat,
 		},
 		subscriptionInfo: { currentPlan },
 		calendarInfo: { updateCalendarState },
@@ -194,9 +195,9 @@ const ChatBox = ({
 		isLLMModelOpen: false,
 		searchTypeOpenForReason: false,
 		activePlaceholderIndex: 0,
-		chatBoxInfo: null,
 		openUpgradeModal: false,
 		askTooltipOpen: false,
+		chatBoxInfo: initialChatBoxInfo,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -206,7 +207,10 @@ const ChatBox = ({
 	const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
 	const placeholderIntervalId = useRef(null);
 	const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
-		totalCreditsLimit = currentPlan?.totalAiCreditLimit || 1;
+		totalCreditsLimit =
+			typeof currentPlan?.totalAiCreditLimit === 'number'
+				? currentPlan?.totalAiCreditLimit
+				: 1;
 
 	useEffect(() => {
 		if (
@@ -296,11 +300,11 @@ const ChatBox = ({
 	}, [globalChatMessages, info?.chatSessionId]);
 
 	useEffect(() => {
-		if (activePromptForChat) {
+		if (activePromptForChat && info?.chatSessionId) {
 			handleSendMessageFunc(null, true, activePromptForChat);
 			updateStateValues({ activePromptForChat: null });
 		}
-	}, [activePromptForChat]);
+	}, [activePromptForChat, info?.chatSessionId]);
 
 	useEffect(() => {
 		if (activeInputForChat) {
@@ -582,11 +586,12 @@ const ChatBox = ({
 					let currentQuery =
 						(chatReplyData ? chatReplyData + '\n' : '') +
 						(info?.chatQuery?.trim() || query?.trim());
-					const chatBoxData = info?.chatBoxInfo;
 					const routeName = location?.pathname?.split('/')?.[1];
-					const chatPayload =
-						globalChatMessages?.[info?.chatSessionId]?.chatPayload || {};
+					const sessionId = params?.sessionId || info?.chatSessionId;
+					const chatBoxData =
+						globalChatMessages?.[sessionId]?.chatBoxInfo || info?.chatBoxInfo;
 
+					const chatPayload = globalChatMessages?.[sessionId]?.chatPayload || {};
 					const date =
 						info?.chatFilters?.dateRange?.length > 0
 							? [
@@ -647,10 +652,20 @@ const ChatBox = ({
 							}));
 						}
 					}
+
+					if (proactiveInfoForChat) {
+						payload.proactive = true;
+						if (proactiveInfoForChat?.proactiveSessionId) {
+							payload.proactive_id = proactiveInfoForChat?.proactiveSessionId;
+						}
+						updateStateValues({
+							proactiveInfoForChat: null,
+						});
+					}
+
 					if (activeWorkflowSlugForSmartFile) {
 						payload.workflow_slug = activeWorkflowSlugForSmartFile;
 					}
-
 					if (chatPayload?.workflowTemplateId) {
 						payload.workflow_template_id = chatPayload?.workflowTemplateId;
 					}
@@ -660,6 +675,10 @@ const ChatBox = ({
 
 					if (routeName === 'contact') {
 						payload.module_id = params?.contactId;
+					}
+
+					if (routeName === 'meet') {
+						payload.module_id = params?.noteId;
 					}
 
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
@@ -690,12 +709,11 @@ const ChatBox = ({
 
 					onChatQueryChange?.('');
 					clearTextArea();
-					if (!(globalChatMessages?.[info?.chatSessionId]?.messages?.length > 0)) {
+					if (!(globalChatMessages?.[sessionId]?.messages?.length > 0)) {
 						const addNewSession = true;
-						const payload = { sessionId: info?.chatSessionId };
+						const payload = { sessionId };
 						updateAiChatSessions(payload, addNewSession);
 					}
-
 					if (customChatActions) {
 						return onSend({
 							payload,
@@ -709,12 +727,8 @@ const ChatBox = ({
 							chatReplyData: null,
 						});
 					}
-					handleStreamSendMessage(
-						payload,
-						localPayload,
-						currentQuery,
-						info?.chatSessionId,
-					);
+
+					handleStreamSendMessage(payload, localPayload, currentQuery, sessionId);
 					if (handleSendWebsocketMessage) {
 						handleSendWebsocketMessage(payload, currentQuery);
 					}
@@ -735,6 +749,7 @@ const ChatBox = ({
 			currentPlan,
 			globalChatMessages,
 			chatReplyData,
+			proactiveInfoForChat,
 			onChatQueryChange,
 		],
 	);
@@ -744,12 +759,6 @@ const ChatBox = ({
 			const showCustomChatOptions = [
 				{
 					type: 'AI',
-					message: 'loading....',
-					content: (
-						<div className="aiMessageWrapper">
-							<AIMessageLoader />
-						</div>
-					),
 					contentType: 'loading',
 				},
 			];
@@ -1601,7 +1610,7 @@ const ChatBox = ({
 																</Tooltip>
 															)}
 
-															{!isPublicChat && (
+															{/* {!isPublicChat && (
 																// <SearchTypeTooltip
 																// 	isOpen={
 																// 		info?.searchTypeOpenForReason
@@ -1657,7 +1666,7 @@ const ChatBox = ({
 																	</div>
 																</Tooltip>
 																// </SearchTypeTooltip>
-															)}
+															)} */}
 
 															{!isPublicChat && (
 																<Tooltip
@@ -1919,7 +1928,7 @@ const ChatBox = ({
 															>
 																<AudioSvg />
 															</div>
-														)} */}
+														)}  */}
 														<div
 															className={`click-btn ${
 																info?.chatQuery?.trim()?.length > 0

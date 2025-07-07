@@ -17,7 +17,7 @@ import TextSelector from '../../components/chat/chatComponents/TextSelector';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import ChatHeader from '../../components/chat/ChatHeader';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
-
+import { message } from '../../components/globalComponents/CustomToast';
 const RecentChat = ({
 	isPublicChat = false,
 	isPreview = false,
@@ -30,6 +30,7 @@ const RecentChat = ({
 	chatActive = false,
 	onNavigateBack = null,
 	showCitationsButton = true,
+	showDeleteChat = true,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const {
@@ -98,6 +99,7 @@ const RecentChat = ({
 	const globalChatMessagesRef = useRef(globalChatMessages);
 	const currentUserMessageTimeoutRef = useRef(null);
 	const followUpQueryTimeoutRef = useRef(null);
+
 	sessionId = isPreview ? sId : sessionId;
 
 	useEffect(() => {
@@ -552,19 +554,24 @@ const RecentChat = ({
 						moduleTemplateId: moduleTemplateId || null,
 					};
 				}
-				let processing = null;
+				let processing = null,
+					memoryThinking = null;
 				let deepSearch = {},
-					deepResearch = {};
+					deepResearch = {},
+					normalSearch = {};
 
 				if (chainOfThought?.length > 0) {
 					for (let i = 0; i < chainOfThought?.length; i++) {
-						const { deep_search, deep_research } = chainOfThought?.[i] || {};
+						const { deep_search, deep_research, memory_thinking } =
+							chainOfThought?.[i] || {};
 						if (deep_search) {
 							processing = 'Deep Search';
 							break;
 						} else if (deep_research) {
 							processing = 'Deep Research';
 							break;
+						} else if (memory_thinking) {
+							memoryThinking = memory_thinking;
 						}
 					}
 
@@ -572,6 +579,8 @@ const RecentChat = ({
 						deepSearch = handleDeepSearchChainOfThought(chainOfThought);
 					} else if (processing === 'Deep Research') {
 						deepResearch = handleDeepResearchChainOfThought(chainOfThought);
+					} else if (processing === 'normal_search') {
+						normalSearch = handleDeepSearchChainOfThought(chainOfThought);
 					}
 				}
 
@@ -595,6 +604,8 @@ const RecentChat = ({
 						used_agents: designAgentsUsed || [],
 						...(processing === 'Deep Search' && { deepSearch }),
 						...(processing === 'Deep Research' && { deepResearch }),
+						...(processing === 'normal_search' && { normalSearch }),
+						...(memoryThinking && { memory_thinking: memoryThinking }),
 					},
 				]?.concat(messages);
 			}
@@ -750,7 +761,7 @@ const RecentChat = ({
 			let { data = '' } = event || {};
 			data = JSON?.parse(data);
 
-			if (data?.hasOwnProperty('intermediate_response') || data?.memory_thinking) {
+			if (data?.hasOwnProperty('intermediate_response')) {
 				handleGlobalChatMessages({
 					payload: data,
 					sessionId,
@@ -818,7 +829,7 @@ const RecentChat = ({
 	const handleSendWebsocketMessage = useCallback(
 		async (data, lastQuery) => {
 			try {
-				await sendMessage(data);
+				await sendMessage(data, sessionId);
 				setTimeout(() => {
 					smoothScrollToLastMessage();
 				}, 0);
@@ -828,7 +839,16 @@ const RecentChat = ({
 					updateExtraInfo: true,
 				});
 			} catch (error) {
+				const info = typeof error?.message === 'string' ? error?.message || '' : '';
+				message.error(info);
 				console.error('Failed to send message:', error);
+
+				handleGlobalChatMessages({
+					sessionId,
+					updateExtraInfo: true,
+					removeStreaming: true,
+				});
+
 				// Handle error appropriately (show notification, etc.)
 			}
 		},
@@ -881,18 +901,19 @@ const RecentChat = ({
 						onNavigateBack={onNavigateBack}
 						isNewChat={info?.isNewChat}
 						smoothScrollToParticularMessage={smoothScrollToParticularMessage}
+						showDeleteChat={showDeleteChat}
 					/>
 				)}
 
 				{/* chat body */}
-				<div className="chatBodyContainer">
+				<div className="chatBodyWrapper">
 					<div
 						className={`chatBodyParentContainer`}
 						ref={chatContentRef}
 						id="scrollableDiv"
-						style={{
-							'--chat-content-height': `${chatContentRef?.current?.clientHeight}px`,
-						}}
+						// style={{
+						// 	'--chat-content-height': `${chatContentRef?.current?.clientHeight}px`,
+						// }}
 					>
 						<TextSelector
 							styles={info?.tooltipStyles?.styles}
@@ -924,6 +945,15 @@ const RecentChat = ({
 											<div
 												key={index}
 												className={`chat-message ${chat?.type?.toLowerCase()}-message chat-${index}`}
+												style={{
+													minHeight:
+														index ===
+														globalChatMessages?.[sessionId]?.messages
+															?.length -
+															1
+															? `calc(${chatContentRef?.current?.clientHeight}px - 185px)`
+															: 'auto',
+												}}
 											>
 												<div className="message-content">
 													{chat?.type?.toLowerCase() === 'ai' ? (

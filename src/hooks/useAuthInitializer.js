@@ -5,6 +5,7 @@ import useSubscription from './useSubscription';
 import useTokenExpiry from './useTokenExpiry';
 import useAccessControls from './useAccessControls';
 import useWorkspaceMode from './useWorkspaceMode';
+import useActiveWorkspace from './useActiveWorkspace';
 
 const useAuthInitializer = () => {
 	useAuth();
@@ -13,6 +14,7 @@ const useAuthInitializer = () => {
 	useSubscription();
 	useTokenExpiry();
 	useAccessControls();
+	useActiveWorkspace();
 	const { loading } = useWorkspaceMode();
 
 	return { loading };

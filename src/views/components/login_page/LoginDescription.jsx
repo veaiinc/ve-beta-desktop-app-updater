@@ -10,9 +10,16 @@ const LoginDescription = () => (
 			))}
 		</div>
 		<div className={s.loginDescriptionText2}>
-			{loginDescriptionContent.descriptionText2.map((text, index) => (
-				<p key={index}>{text}</p>
-			))}
+			{loginDescriptionContent.descriptionText2.map((text, index) => {
+				const parts = text.split('today');
+				return (
+					<p key={index}>
+						{parts[0]}
+						<span className={s.todaySpan}>today</span>
+						{parts[1]}
+					</p>
+				);
+			})}
 		</div>
 		<div className={s.loginDescriptionText3}>
 			{loginDescriptionContent.descriptionText3.map((text, index) => (

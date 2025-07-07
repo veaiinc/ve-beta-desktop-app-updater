@@ -3734,6 +3734,9 @@ input[type='number'] {
 		}
 	}
 }
+// .jodit-wysiwyg {
+// 	overflow: hidden;
+// }
 
 .jodit-react-container {
 	.jodit-container {
@@ -3794,6 +3797,16 @@ input[type='number'] {
 body.ReactModal__Body--open {
 	background-color: var(--card) !important;
 	padding: 0 !important;
+}
+// ant design reset css issue fix for p tag in builder
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+	margin-bottom: 0 !important;
 }
 
 // .jodit-toolbar-editor-collection.jodit-toolbar-editor-collection_mode_horizontal.jodit-toolbar-editor-collection_size_middle {

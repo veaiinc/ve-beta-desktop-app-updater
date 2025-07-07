@@ -4,9 +4,9 @@ import { memo, useContext, useState, useEffect, useCallback, useMemo, useRef } f
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 // import QuickActions from '../../components/globalComponents/QuickActions';
-import { message } from '../../components/globalComponents/CustomToast';
+// import { message } from '../../components/globalComponents/CustomToast';
 // import AskMe from './AskMe';
-import GlobalWidget from '../../components/globalComponents/GlobalWidget';
+// import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 // import ChatPrompts from './ChatPrompts';
 import ProactiveSuggestions from './ProactiveSuggestions';
 import '../../../assets/scss/home_page/initialHomepage.scss';
@@ -76,117 +76,114 @@ const optionsList = [
 	// },
 ];
 
-const SuggestedOptions = [
-	{
-		id: 1,
-		title: 'Event',
-		value: 'event',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openEventsPopup: true }));
-		},
-	},
-	{
-		id: 2,
-		title: 'Schedule',
-		value: 'schedule',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openSchedulerDrawer: true, dropdown: false }));
-		},
-	},
-	{
-		id: 3,
-		title: 'Task',
-		value: 'task',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, createTaskPopup: true }));
-		},
-	},
-	{
-		id: 4,
-		title: 'Contact',
-		value: 'contacts',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openClientPopup: true }));
-		},
-	},
-	{
-		id: 5,
-		title: 'Automation',
-		value: 'automation',
-		action: async ({ setInfo, navigate, createAutomation, info }) => {
-			if (info?.isAutomationLoading) return;
-			try {
-				setInfo((prev) => ({
-					...prev,
-					showLoader: true,
-					loaderMessage: 'Creating automation...',
-				}));
-				const response = await createAutomation({
-					name: 'Untitled Automation',
-					version: 1,
-					steps: [],
-					status: 'draft',
-				});
-				if (response?.[0]) {
-					navigate(`/automation-builder/${response?.[1]?._id}`);
-				} else {
-					message.error('Failed to create automation');
-				}
-			} catch (error) {
-				message.error('Failed to create automation');
-			} finally {
-				setInfo((prev) => ({
-					...prev,
-					showLoader: false,
-					loaderMessage: '',
-				}));
-			}
-		},
-	},
-];
+// const SuggestedOptions = [
+// 	{
+// 		id: 1,
+// 		title: 'Event',
+// 		value: 'event',
+// 		action: ({ setInfo }) => {
+// 			setInfo((prev) => ({ ...prev, openEventsPopup: true }));
+// 		},
+// 	},
+// 	{
+// 		id: 2,
+// 		title: 'Schedule',
+// 		value: 'schedule',
+// 		action: ({ setInfo }) => {
+// 			setInfo((prev) => ({ ...prev, openSchedulerDrawer: true, dropdown: false }));
+// 		},
+// 	},
+// 	{
+// 		id: 3,
+// 		title: 'Task',
+// 		value: 'task',
+// 		action: ({ setInfo }) => {
+// 			setInfo((prev) => ({ ...prev, createTaskPopup: true }));
+// 		},
+// 	},
+// 	{
+// 		id: 4,
+// 		title: 'Contact',
+// 		value: 'contacts',
+// 		action: ({ setInfo }) => {
+// 			setInfo((prev) => ({ ...prev, openClientPopup: true }));
+// 		},
+// 	},
+// 	{
+// 		id: 5,
+// 		title: 'Automation',
+// 		value: 'automation',
+// 		action: async ({ setInfo, navigate, createAutomation, info }) => {
+// 			if (info?.isAutomationLoading) return;
+// 			try {
+// 				setInfo((prev) => ({
+// 					...prev,
+// 					showLoader: true,
+// 					loaderMessage: 'Creating automation...',
+// 				}));
+// 				const response = await createAutomation({
+// 					name: 'Untitled Automation',
+// 					version: 1,
+// 					steps: [],
+// 					status: 'draft',
+// 				});
+// 				if (response?.[0]) {
+// 					navigate(`/automation-builder/${response?.[1]?._id}`);
+// 				} else {
+// 					message.error('Failed to create automation');
+// 				}
+// 			} catch (error) {
+// 				message.error('Failed to create automation');
+// 			} finally {
+// 				setInfo((prev) => ({
+// 					...prev,
+// 					showLoader: false,
+// 					loaderMessage: '',
+// 				}));
+// 			}
+// 		},
+// 	},
+// ];
 
-const homePageTextContent = {
-	ask: {
-		title: 'Own your memory',
-		subText: 'Your enterprise knowledge hub for instant answers.',
-	},
-	proactiveSuggestions: {
-		title: 'Answers before you ask',
-		subText: 'Insights delivered before you even think to ask. the power of proactive memory.',
-	},
-	prompts: {
-		title: 'Ask anything from the prompts library',
-		subText: 'Your enterprise knowledge hub for instant answers.',
-	},
-	calendar: {
-		title: "Let's make every moment count",
-		subText: "More than a schedule - It's your daily mission control",
-	},
-	task: {
-		title: 'Transform goals into actionable tasks',
-		subText: 'Clear steps. Smart prioritisation. No more to-do overwhelm',
-	},
-	contact: {
-		title: 'Stay connected with who matters',
-		subText: 'Your most relevant contacts, surfaced when you need them most.',
-	},
-	automation: {
-		title: 'Automate the routine, focus on what matters',
-		subText: 'Trigger workflows, reduce busywork, and stay in flow.',
-	},
-};
+// const homePageTextContent = {
+// 	ask: {
+// 		title: 'Own your memory',
+// 		subText: 'Your enterprise knowledge hub for instant answers.',
+// 	},
+// 	proactiveSuggestions: {
+// 		title: 'Answers before you ask',
+// 		subText: 'Insights delivered before you even think to ask. the power of proactive memory.',
+// 	},
+// 	prompts: {
+// 		title: 'Ask anything from the prompts library',
+// 		subText: 'Your enterprise knowledge hub for instant answers.',
+// 	},
+// 	calendar: {
+// 		title: "Let's make every moment count",
+// 		subText: "More than a schedule - It's your daily mission control",
+// 	},
+// 	task: {
+// 		title: 'Transform goals into actionable tasks',
+// 		subText: 'Clear steps. Smart prioritisation. No more to-do overwhelm',
+// 	},
+// 	contact: {
+// 		title: 'Stay connected with who matters',
+// 		subText: 'Your most relevant contacts, surfaced when you need them most.',
+// 	},
+// 	automation: {
+// 		title: 'Automate the routine, focus on what matters',
+// 		subText: 'Trigger workflows, reduce busywork, and stay in flow.',
+// 	},
+// };
 
 const InitialHomePage = () => {
 	const {
-		templates: { updateStateValues, aiSuggestedPendingActions, getAISuggestedPendingActions },
+		templates: { updateStateValues },
 		profileInfo: { userDetailsData, aiCategories, getAiCategories },
 		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
 
-	const navigate = useNavigate();
-	const timeoutIdRef = useRef(null);
 	const previousSelectedOptionRef = useRef(null);
-
 	const [info, setInfo] = useState({
 		selectedOption: '',
 		options: optionsList,
@@ -195,14 +192,8 @@ const InitialHomePage = () => {
 			acc[option.value] = false;
 			return acc;
 		}, {}),
+		aiSuggestionsModalOpen: false,
 	});
-
-	useEffect(() => {
-		return () => {
-			updateStateValues({ aiSuggestedPendingActions: null });
-			clearTimeout(timeoutIdRef.current);
-		};
-	}, []);
 
 	// useEffect(() => {
 	// 	if (!aiCategories) {
@@ -219,6 +210,14 @@ const InitialHomePage = () => {
 	// 		}));
 	// 	}
 	// };
+
+	useEffect(() => {
+		if (info?.aiSuggestionsModalOpen) {
+			updateStateValues({
+				leftSidebarState: 'close',
+			});
+		}
+	}, [info?.aiSuggestionsModalOpen]);
 
 	useEffect(() => {
 		if (!promptsData) {
@@ -293,48 +292,58 @@ const InitialHomePage = () => {
 		}));
 	};
 
-	const handleOptionSelection = (option) => {
-		if (info?.selectedOption === option) {
-			return;
-		}
-		previousSelectedOptionRef.current = info?.selectedOption;
-		setInfo((prev) => ({
-			...prev,
-			selectedOption: option,
-		}));
-	};
+	// const handleOptionSelection = (option) => {
+	// 	if (info?.selectedOption === option) {
+	// 		return;
+	// 	}
+	// 	previousSelectedOptionRef.current = info?.selectedOption;
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		selectedOption: option,
+	// 	}));
+	// };
 
-	const renderedOptions = useMemo(() => {
-		return info?.options?.map((option) => {
-			return (
-				<div
-					className={`option ${info?.selectedOption === option ? 'active' : ''}`}
-					onClick={(e) => {
-						e.stopPropagation();
-						handleOptionSelection(option);
-					}}
-					key={option}
-				>
-					<div className="option-label">{option}</div>
-				</div>
-			);
-		});
-	}, [info?.options, info?.selectedOption]);
+	// const renderedOptions = useMemo(() => {
+	// 	return info?.options?.map((option) => {
+	// 		return (
+	// 			<div
+	// 				className={`option ${info?.selectedOption === option ? 'active' : ''}`}
+	// 				onClick={(e) => {
+	// 					e.stopPropagation();
+	// 					handleOptionSelection(option);
+	// 				}}
+	// 				key={option}
+	// 			>
+	// 				<div className="option-label">{option}</div>
+	// 			</div>
+	// 		);
+	// 	});
+	// }, [info?.options, info?.selectedOption]);
 
-	const updatePromptsCategory = (value) => {
-		setInfo((prev) => ({
-			...prev,
-			promptsCategory: value,
-		}));
-	};
+	// const updatePromptsCategory = (value) => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		promptsCategory: value,
+	// 	}));
+	// };
 
 	const options = useMemo(
 		() => info?.options?.filter((option) => option?.showOption),
 		[info?.options],
 	);
 
-	const title = homePageTextContent[info?.selectedOption]?.title || '';
-	const subText = homePageTextContent[info?.selectedOption]?.subText || '';
+	const handleModalOpen = useCallback((value) => {
+		setInfo((prev) => {
+			if (prev?.aiSuggestionsModalOpen === value) return prev;
+			return {
+				...prev,
+				aiSuggestionsModalOpen: value,
+			};
+		});
+	}, []);
+
+	// const title = homePageTextContent[info?.selectedOption]?.title || '';
+	// const subText = homePageTextContent[info?.selectedOption]?.subText || '';
 	const userName =
 		jwtDecode(localStorage.getItem('usertoken'))?.userName ||
 		userDetailsData?.firstName + ' ' + (userDetailsData?.lastName ?? '') ||
@@ -342,55 +351,59 @@ const InitialHomePage = () => {
 	const greeting = getGreeting();
 
 	return (
-		<div
-			className={`initial-home-page-container`}
-			style={{
-				...(options?.length === 0 && { justifyContent: 'center' }),
-			}}
-		>
-			{/* <div className="quick-actions-container">
+		<div className="initial-home-page-wrapper">
+			<div
+				className={`initial-home-page-container ${
+					info?.aiSuggestionsModalOpen ? 'initial-page-active' : ''
+				}`}
+				style={{
+					...(options?.length === 0 && { justifyContent: 'center' }),
+					// width: info?.aiSuggestionsModalOpen ? 'calc(100% - 700px)' : '100%',
+				}}
+			>
+				{/* <div className="quick-actions-container">
 				<QuickActions suggestedOptions={SuggestedOptions} />
 			</div> */}
-			<div
-				className={`home-page-container-header `}
-				// style={{
-				// 	...(options?.length === 0 && { marginTop: 0 }),
-				// }}
-			>
-				<div className={`title-container `}>
-					<div className="title-text">
-						<h2 className="title-one">{greeting}!</h2>
-						<span className="title-two">{userName}</span>
+				<div
+					className={`home-page-container-header `}
+					// style={{
+					// 	...(options?.length === 0 && { marginTop: 0 }),
+					// }}
+				>
+					<div className={`title-container `}>
+						<div className="title-text">
+							<h2 className="title-one">{greeting}!</h2>
+							<span className="title-two">{userName}</span>
+						</div>
 					</div>
+					{
+						!info?.showSuggestions && ''
+						// <div className="options-wrapper">
+						// 	<div className={`homepage__options-container`}>{renderedOptions}</div>
+						// 	{/* <div className="arrow-container">
+						// 		{showArrows.left && (
+						// 			<div
+						// 				className="arrow left-arrow"
+						// 				onClick={() => handleScroll('left')}
+						// 			>
+						// 				<ChevronRightThinSvg style={{ transform: 'rotate(180deg)' }} />
+						// 			</div>
+						// 		)}
+						// 		{showArrows.right && (
+						// 			<div
+						// 				className="arrow right-arrow"
+						// 				onClick={() => handleScroll('right')}
+						// 			>
+						// 				<ChevronRightThinSvg />
+						// 			</div>
+						// 		)}
+						// 	</div> */}
+						// </div>
+					}
 				</div>
-				{
-					!info?.showSuggestions && ''
-					// <div className="options-wrapper">
-					// 	<div className={`homepage__options-container`}>{renderedOptions}</div>
-					// 	{/* <div className="arrow-container">
-					// 		{showArrows.left && (
-					// 			<div
-					// 				className="arrow left-arrow"
-					// 				onClick={() => handleScroll('left')}
-					// 			>
-					// 				<ChevronRightThinSvg style={{ transform: 'rotate(180deg)' }} />
-					// 			</div>
-					// 		)}
-					// 		{showArrows.right && (
-					// 			<div
-					// 				className="arrow right-arrow"
-					// 				onClick={() => handleScroll('right')}
-					// 			>
-					// 				<ChevronRightThinSvg />
-					// 			</div>
-					// 		)}
-					// 	</div> */}
-					// </div>
-				}
-			</div>
-				
-			<div className="home-page-container-content">
-				{/* {info?.selectedOption === 'All' ? (
+
+				<div className="home-page-container-content">
+					{/* {info?.selectedOption === 'All' ? (
 						<ProactiveSuggestions
 							option={info?.selectedOption}
 							previousOption={previousSelectedOptionRef.current}
@@ -398,10 +411,12 @@ const InitialHomePage = () => {
 					) : (
 						<GlobalWidget option={info?.selectedOption} />
 					)} */}
-				<ProactiveSuggestions
-					option={info?.selectedOption}
-					previousOption={previousSelectedOptionRef.current}
-				/>
+					<ProactiveSuggestions
+						option={info?.selectedOption}
+						previousOption={previousSelectedOptionRef.current}
+						handleModalOpen={handleModalOpen}
+					/>
+				</div>
 			</div>
 		</div>
 	);

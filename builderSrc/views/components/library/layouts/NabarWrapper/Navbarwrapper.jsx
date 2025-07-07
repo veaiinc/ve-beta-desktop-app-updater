@@ -120,7 +120,8 @@ class NavbarWrapper extends React.Component {
 				<div
 					className={`navbar-wrapper`}
 					style={{
-						backgroundColor: this.state?.section?.style?.sectionBackgroundColor || '#ffffff',
+						backgroundColor:
+							this.state?.section?.style?.sectionBackgroundColor || '#ffffff',
 						width: '100%',
 					}}
 					onMouseEnter={() => {
@@ -175,9 +176,9 @@ class NavbarWrapper extends React.Component {
 									getModuleInfo={(id, type) => this.props.getModuleInfo(id, type)}
 									modules={this.state.duplicateModules}
 									renderModules={() => this.props.renderModules()}
-									setActiveSection={(value) =>
-										this.props?.handleNavbarUpdate(value)
-									}
+									setActiveSection={(value) => {
+										this.props?.handleNavbarUpdate(value);
+									}}
 									setShowEditDesignModal={(value) =>
 										this.setState({ showEditDesignModal: value })
 									}

@@ -49,12 +49,12 @@ const NoteToolbar = ({ sendMessage, aiResonse, resetAiResponse }) => {
 					<UnnestBlockButton key={'unnestBlockButton'} />
 
 					<CreateLinkButton key={'createLinkButton'} />
-					<AskAiButton
+					{/* <AskAiButton
 						key={'askAiButton'}
 						sendMessage={sendMessage}
 						aiResonse={aiResonse}
 						resetAiResponse={resetAiResponse}
-					/>
+					/> */}
 				</FormattingToolbar>
 			)}
 		/>
