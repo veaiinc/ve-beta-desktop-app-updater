@@ -46,14 +46,15 @@ const OptionsComponent = ({ options, addOption, updateOption, deleteOption }) =>
 		}
 	};
 
-	const handleUpdateOption = (color = null) => {
-		const label = info?.editingLabel?.trim();
+	const handleUpdateOption = (update = {}) => {
 		const option = { _id: info?.activeOption };
-		if (color) {
-			option.color = color;
+		if (update?.color) {
+			if (update?.color === info?.activeOption?.color) return;
+			option.color = update?.color;
 		}
-		if (label) {
-			option.label = label;
+		if (update?.label) {
+			if (update?.label === info?.activeOption?.label) return;
+			option.label = update?.label;
 		}
 		updateOption(option);
 	};
@@ -66,7 +67,7 @@ const OptionsComponent = ({ options, addOption, updateOption, deleteOption }) =>
 		<div className={s.optionsComponent}>
 			<div className={s.titleArea}>
 				<div className={s.title}>Options</div>
-				<PlusIcon onClick={toggleAddInput} />
+				<PlusIcon onClick={toggleAddInput} className={s.cursorPointer} />
 			</div>
 			{info?.showAddInput && (
 				<input
@@ -118,9 +119,14 @@ const OptionsComponent = ({ options, addOption, updateOption, deleteOption }) =>
 												}
 												onKeyDown={(e) => {
 													if (e.key === 'Enter') {
-														handleUpdateOption();
+														e.onBlur();
 													}
 												}}
+												onBlur={() =>
+													handleUpdateOption({
+														label: info?.editingLabel?.trim(),
+													})
+												}
 												autoFocus
 											/>
 										) : (
@@ -146,7 +152,9 @@ const OptionsComponent = ({ options, addOption, updateOption, deleteOption }) =>
 													key={index}
 													onClick={() => {
 														if (String(index + 1) !== option.color) {
-															handleUpdateOption(String(index + 1));
+															handleUpdateOption({
+																color: String(index + 1),
+															});
 														}
 													}}
 												/>

@@ -58,6 +58,8 @@
 		align-items: flex-start;
 		gap: 4px;
 		align-self: stretch;
+		max-height: 200px;
+		overflow-y: auto;
 
 		.option {
 			width: 100%;
@@ -216,5 +218,9 @@
 		color: var(--secondary-font);
 		text-align: center;
 		font-size: 12px;
+	}
+
+	.cursorPointer {
+		cursor: pointer;
 	}
 }

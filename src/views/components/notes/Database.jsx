@@ -593,13 +593,13 @@ const DatabaseComponent = ({ block, editor }) => {
 									>
 										Add Row
 									</button>
-									<button
+									{/* <button
 										onClick={() =>
 											handleInfoChange({ addFieldModalOpen: true })
 										}
 									>
 										Add Field
-									</button>
+									</button> */}
 								</div>
 							</div>
 						</div>

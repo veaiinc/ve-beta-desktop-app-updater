@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import s from '../../../../../assets/scss/notes/dropdown/addField.module.scss';
 import { ReactComponent as CrossSvg } from '../../../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../../assets/svg/tasks/chevronRightThin.svg';
@@ -11,6 +11,7 @@ import GroupConfigOptions from './GroupConfigOptions';
 import OptionsComponent from './OptionsComponent';
 import { message } from '../../../globalComponents/CustomToast';
 import Context from '../../../../../context/context';
+import StatusComponent from './StatusComponent';
 
 const fieldTypes = [
 	{
@@ -24,6 +25,7 @@ const fieldTypes = [
 	{
 		label: 'Status',
 		value: 'status',
+		hasStatus: true,
 	},
 	{
 		label: 'Select',
@@ -82,6 +84,34 @@ const fieldTypes = [
 		hasPrefix: true,
 	},
 ];
+const limitOptions = [
+	{
+		label: 'No Limit',
+		value: -1,
+	},
+	{
+		label: '1 Person',
+		value: 1,
+	},
+];
+
+const status = {
+	todo: [{ label: 'Not Started', color: '2', _id: 'Not Started', isDefault: true }],
+	inProgress: [
+		{
+			label: 'In Progress',
+			color: '6',
+			_id: 'In Progress',
+		},
+	],
+	completed: [
+		{
+			label: 'Done',
+			color: '5',
+			_id: 'Done',
+		},
+	],
+};
 
 const initialState = {
 	selectedFieldType: {
@@ -89,14 +119,16 @@ const initialState = {
 		value: 'text',
 	},
 	fieldTypeTooltipOpen: false,
+	limitTooltipOpen: false,
 	fieldName: null,
 	options: [],
-	limit: -1,
+	status,
+	limit: { label: 'No Limit', value: -1 },
 	prefix: '',
 	loading: false,
 };
 
-const AddField = ({ pageId, databaseId, handleBack, handleClose }) => {
+const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber = false }) => {
 	const {
 		notes: { addDatabaseField },
 	} = useContext(Context);
@@ -154,13 +186,86 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose }) => {
 		[info?.options],
 	);
 
+	const handleChangeLimit = useCallback((option) => {
+		handleInfoChange({ limit: option, limitTooltipOpen: false });
+	}, []);
+
+	const addStatus = useCallback(
+		(group, option) => {
+			const allOptions = Object.values(info?.status)?.flat();
+			const exists = allOptions?.find(({ label }) => label === option?.label);
+			if (exists) {
+				message?.error('Option already exists');
+				return;
+			}
+			const status = {
+				...(info?.status || {}),
+				[group]: [...(info?.status?.[group] || []), { ...option, _id: option?.label }],
+			};
+
+			handleInfoChange({ status });
+			return true;
+		},
+		[info?.status],
+	);
+	const updateStatus = useCallback(
+		(group, option) => {
+			const allOptions = Object.values(info?.status)?.flat();
+			const exists = allOptions?.find((item) => item?.label === option?.label);
+			if (exists && option?._id !== exists?._id) {
+				message?.error('Option already exists');
+				return;
+			}
+
+			const isDefault = option?.isDefault;
+			let newStatus = { ...info?.status };
+
+			if (isDefault) {
+				// Loop through all groups and unset previous default
+				for (const key in newStatus) {
+					newStatus[key] = newStatus[key].map((item) => {
+						if (item.isDefault && item._id !== option._id) {
+							return { ...item, isDefault: false };
+						}
+						return item;
+					});
+				}
+			}
+
+			// Update the option in the specific group
+			newStatus[group] = newStatus[group].map((item) => {
+				if (item._id === option._id) {
+					return { ...item, ...option };
+				}
+				return item;
+			});
+
+			handleInfoChange({ status: newStatus });
+		},
+		[info?.status],
+	);
+
+	const deleteStatus = useCallback(
+		(group, optionId) => {
+			const filteredGroup = info?.status?.[group]?.filter((item) => item?._id !== optionId);
+			handleInfoChange({ status: { ...(info?.status || {}), [group]: filteredGroup } });
+		},
+		[info?.status],
+	);
+
 	const handleAddField = async () => {
 		const name = info?.fieldName?.trim();
 		if (!name) {
 			message?.error('Field name is required');
 			return;
 		}
-		const { value: type, hasOptions, hasLimit, hasPrefix } = info?.selectedFieldType || {};
+		const {
+			value: type,
+			hasOptions,
+			hasLimit,
+			hasPrefix,
+			hasStatus,
+		} = info?.selectedFieldType || {};
 		const input = { name, type, config: {} };
 		if (hasOptions) {
 			if (info?.options?.length === 0) {
@@ -171,12 +276,34 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose }) => {
 		}
 
 		if (hasLimit) {
-			input.selectionLimit = info?.limit;
+			input.selectionLimit = info?.limit?.value || -1;
 		}
 
 		if (hasPrefix) {
 			input.config.prefix = info?.prefix;
 		}
+
+		if (hasStatus) {
+			const { todo, inProgress, completed } = info?.status || {};
+			input.config.status = {
+				todo: todo?.map(({ _id, isDefault = false, ...item }) => ({
+					...item,
+					group: 'todo',
+					isDefault,
+				})),
+				inProgress: inProgress?.map(({ _id, isDefault = false, ...item }) => ({
+					...item,
+					group: 'inProgress',
+					isDefault,
+				})),
+				completed: completed?.map(({ _id, isDefault = false, ...item }) => ({
+					...item,
+					group: 'completed',
+					isDefault,
+				})),
+			};
+		}
+
 		const payload = {
 			pageId: pageId,
 			databaseId: databaseId,
@@ -189,6 +316,11 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose }) => {
 			handleBack();
 		}
 	};
+
+	const filteredFieldTypes = useMemo(
+		() => (hasSerialNumber ? fieldTypes.slice(0, -1) : fieldTypes),
+		[hasSerialNumber],
+	);
 
 	return (
 		<div className={s.addField}>
@@ -212,7 +344,7 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose }) => {
 				<Tooltip
 					title={
 						<GroupConfigOptions
-							options={fieldTypes}
+							options={filteredFieldTypes}
 							selectedOption={info?.selectedFieldType?.value}
 							onChange={handleFieldTypeChange}
 						/>
@@ -241,6 +373,64 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose }) => {
 						addOption={addOption}
 						updateOption={updateOption}
 						deleteOption={deleteOption}
+					/>
+					<div className={s.divider} />
+				</>
+			)}
+
+			{info?.selectedFieldType?.hasLimit && (
+				<>
+					<div className={s.divider} />
+					<Tooltip
+						title={
+							<GroupConfigOptions
+								options={limitOptions}
+								onChange={handleChangeLimit}
+							/>
+						}
+						open={info?.limitTooltipOpen}
+						placement="bottomLeft"
+						overlayClassName="status-dropdown"
+						color="transparent"
+						trigger={['click']}
+						zIndex={50100}
+						onOpenChange={(open) => {
+							handleInfoChange({ limitTooltipOpen: open });
+						}}
+					>
+						<div className={s.option}>
+							<div className={s.text}>Limit</div>
+							<div className={s.subText}>{info?.limit?.label}</div>
+						</div>
+					</Tooltip>
+					<div className={s.divider} />
+				</>
+			)}
+
+			{info?.selectedFieldType?.hasPrefix && (
+				<>
+					<div className={s.divider} />
+					<div className={s.option}>
+						<div className={s.text}>Prefix</div>
+						<input
+							type="text"
+							className={s.optionInput}
+							value={info?.prefix}
+							onChange={(e) => handleInfoChange({ prefix: e.target.value })}
+						/>
+					</div>
+					<div className={s.divider} />
+				</>
+			)}
+
+			{info?.selectedFieldType?.hasStatus && (
+				<>
+					<div className={s.divider} />
+					<StatusComponent
+						status={info?.status}
+						addStatus={addStatus}
+						updateStatus={updateStatus}
+						deleteStatus={deleteStatus}
 					/>
 					<div className={s.divider} />
 				</>

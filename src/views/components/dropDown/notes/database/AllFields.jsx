@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import { ReactComponent as OpenEye } from '../../../../../assets/svg/gallery/open-eye.svg';
 import { ReactComponent as CrossedOpenEye } from '../../../../../assets/svg/gallery/crossedOpenEye.svg';
 import { ReactComponent as CrossSvg } from '../../../../../assets/svg/gallery/cross.svg';
@@ -15,15 +15,30 @@ const ADD_NEW_KEY = 'ADD_NEW_KEY';
 const AllFields = ({ fields = [], handleClose, handleBack, pageId, databaseId }) => {
 	const [info, setInfo] = useState({
 		activeEditing: null,
+		search: '',
 	});
 
 	const handleInfoChange = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
 	};
 
+	const handleSearchChange = (e) => {
+		handleInfoChange({ search: e.target.value });
+	};
+
 	const handleBackToAllFields = useCallback(() => {
 		handleInfoChange({ activeEditing: null });
 	}, []);
+
+	const serialNumberField = useMemo(() => {
+		return fields?.find((item) => item?.type === 'serial_number');
+	}, [fields]);
+
+	const filteredFields = useMemo(() => {
+		if (!info.search) return fields;
+		const searchLower = info.search.toLowerCase();
+		return fields.filter((field) => field.name?.toLowerCase().includes(searchLower));
+	}, [fields, info.search]);
 
 	return !info?.activeEditing ? (
 		<div className={s.allFields + ' ' + s.optionsDropdownContainer}>
@@ -35,9 +50,14 @@ const AllFields = ({ fields = [], handleClose, handleBack, pageId, databaseId })
 				<CrossSvg className={s.cursorPointer} onClick={handleClose} />
 			</div>
 			<div className={s.optionsDropdownBody}>
-				<input type="text" placeholder="Search for properties" />
+				<input
+					type="text"
+					placeholder="Search for properties"
+					value={info.search}
+					onChange={handleSearchChange}
+				/>
 				<div className={s.optionsDropdownPropertyContainer}>
-					{fields.map((field, idx) => (
+					{filteredFields.map((field, idx) => (
 						<div className={s.propertyListItem} key={field._id || idx}>
 							<div className={s.dragHandleIcon}>
 								<SixDotsSvg />
@@ -58,6 +78,8 @@ const AllFields = ({ fields = [], handleClose, handleBack, pageId, databaseId })
 							<ChevronRightThinSvg className={s.arrowIcon} />
 						</div>
 					))}
+
+					{filteredFields?.length < 1 && <span className={s.noOptions}>No fields</span>}
 				</div>
 			</div>
 			<div className={`${s.footer} ${s.cursorPointer}`}>
@@ -77,6 +99,7 @@ const AllFields = ({ fields = [], handleClose, handleBack, pageId, databaseId })
 			handleClose={handleClose}
 			pageId={pageId}
 			databaseId={databaseId}
+			hasSerialNumber={serialNumberField !== undefined}
 		/>
 	) : null;
 };

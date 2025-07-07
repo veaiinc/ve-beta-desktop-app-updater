@@ -76,38 +76,6 @@
 		align-items: flex-start;
 		gap: 4px;
 		align-self: stretch;
-		.option {
-			display: flex;
-			height: 31px;
-			transform: rotate(-0.037deg);
-			padding: 6px;
-			justify-content: space-between;
-			align-items: center;
-			align-self: stretch;
-			border-radius: 8px;
-			cursor: pointer;
-
-			.text {
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-			}
-			.subText {
-				color: var(--secondary-font);
-				font-family: var(--primary-font-family);
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-			}
-
-			&:hover {
-				background-color: var(--card-hover);
-			}
-		}
 	}
 
 	.addFieldButton {
@@ -128,6 +96,59 @@
 		width: 100%;
 		height: 1px;
 		background-color: var(--stroke);
+	}
+
+	.option {
+		display: flex;
+		height: 31px;
+		transform: rotate(-0.037deg);
+		padding: 6px;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+		border-radius: 8px;
+		cursor: pointer;
+		gap: 8px;
+
+		.text {
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.subText {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.optionInput {
+			width: 100px;
+			border-radius: 8px;
+			border: 1px solid var(--stroke);
+			background-color: transparent;
+			padding: 4px 6px;
+
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+
+			&::placeholder {
+				color: var(--secondary-font);
+			}
+		}
+
+		&:hover {
+			background-color: var(--card-hover);
+		}
 	}
 
 	.cursorPonter {
