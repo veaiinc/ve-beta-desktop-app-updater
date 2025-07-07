@@ -312,7 +312,7 @@ class NavImagePopup extends Images {
 						subBlocks: [
 							{
 								...newComponent.blocks[0].subBlocks[0],
-								image_settings: {
+								mImage_settings: {
 									...newComponent.blocks[0].subBlocks[0]?.image_settings,
 									crop: value,
 								},
@@ -363,7 +363,7 @@ class NavImagePopup extends Images {
 						subBlocks: [
 							{
 								...newComponent.blocks[0].subBlocks[0],
-								image_settings: {
+								mImage_settings: {
 									...newComponent?.blocks[0].subBlocks[0]?.image_settings,
 									zoom: value,
 								},
@@ -451,7 +451,9 @@ class NavImagePopup extends Images {
 						</div>
 					) : null}
 					<div className="upload-section">
-						<label className="upload-label">Logo for desktop</label>
+						<label className="upload-label">
+							Logo for {this.props.isMobileNavbar ? 'Mobile' : 'desktop'}
+						</label>
 						<div
 							onClick={this.handleDivClick}
 							style={{
@@ -568,45 +570,44 @@ class NavImagePopup extends Images {
 								</div>
 							)}
 						</div>
-						{!this.props.isMobileNavbar && (
-							<div
-								className="popup-shapes-range-wrapper"
-								style={{ margin: '15px 0px', width: '100%' }}
+
+						<div
+							className="popup-shapes-range-wrapper"
+							style={{ margin: '15px 0px', width: '100%' }}
+						>
+							<b
+								style={{
+									fontSize: '12px',
+									marginBottom: '12px',
+								}}
 							>
-								<b
+								Zoom
+							</b>
+							<div className="popup-range-div" style={{ display: 'flex' }}>
+								<div
 									style={{
-										fontSize: '12px',
-										marginBottom: '12px',
+										display: 'flex',
+										maxWidth: 180,
 									}}
 								>
-									Zoom
-								</b>
-								<div className="popup-range-div" style={{ display: 'flex' }}>
-									<div
-										style={{
-											display: 'flex',
-											maxWidth: 180,
-										}}
-									>
-										<input
-											type="range"
-											min={1}
-											max={5}
-											step={0.5}
-											value={this.state?.zoom}
-											onChange={(e) => this.handleZoomChange(e.target.value)}
-										/>
-									</div>
-									<p
-										style={{
-											textAlign: 'center',
-										}}
-									>
-										{parseFloat(this.state?.zoom)?.toFixed(1)}
-									</p>
+									<input
+										type="range"
+										min={1}
+										max={5}
+										step={0.5}
+										value={this.state?.zoom}
+										onChange={(e) => this.handleZoomChange(e.target.value)}
+									/>
 								</div>
+								<p
+									style={{
+										textAlign: 'center',
+									}}
+								>
+									{parseFloat(this.state?.zoom)?.toFixed(1)}
+								</p>
 							</div>
-						)}
+						</div>
 					</div>
 					<div className="element_or">
 						<div className="ortext">Or</div>
