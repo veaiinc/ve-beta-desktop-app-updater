@@ -1,6 +1,7 @@
 .aiTranscriptionSuggestions {
 	display: flex;
-	width: 600px;
+	// width: 600px;
+	transition: width 0.3s ease-in-out;
 	height: 100vh;
 	padding: 20px 32px;
 	flex-direction: column;
@@ -38,6 +39,8 @@
 				font-weight: 500;
 				line-height: normal;
 			}
+
+
 		}
 	}
 

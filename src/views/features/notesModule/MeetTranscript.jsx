@@ -4,7 +4,6 @@ import moment from 'moment';
 import '../../../assets/scss/notes/meetTranscript.scss';
 
 const MeetTranscript = ({ transcriptList = [] }) => {
-	console.log(transcriptList, 'transcriptList');
 	const listRef = useRef(null);
 	const lastItemRef = useRef(null);
 	const [highlightIdx, setHighlightIdx] = useState(null);

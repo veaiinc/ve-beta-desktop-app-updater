@@ -6,8 +6,12 @@ import { ReactComponent as MemorySvg } from '../../../assets/svg/memory.svg';
 import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import Context from '../../../context/context';
 import { fileTypeIcons, redirectTo, redirectTypeMapper } from '../../../helpers';
+import { Switch } from 'antd';
 
-const AiTranscriptionSuggestions = ({ closeModal }) => {
+const AiTranscriptionSuggestions = ({
+	closeModal,
+	showAmbientAssistance,
+}) => {
 	const {
 		templates: { aiTranscriptionSuggestions, updateStateValues },
 	} = useContext(Context);
@@ -82,13 +86,19 @@ const AiTranscriptionSuggestions = ({ closeModal }) => {
 	}, []);
 
 	return (
-		<div className={s.aiTranscriptionSuggestions}>
+		<div
+			className={s.aiTranscriptionSuggestions}
+			style={{
+				width: showAmbientAssistance ? '600px' : '0px',
+			}}
+		>
 			<div className={s.header}>
 				<div className={s.leftContainer}>
 					{/* <div className={s.closeIconContainer} onClick={closeModal}>
 						<CloseIcon />
 					</div> */}
 					<div className={s.text}>Ambient Assistance</div>
+
 				</div>
 			</div>
 

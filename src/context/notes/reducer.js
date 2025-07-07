@@ -503,6 +503,10 @@ const actionHandlers = {
 			},
 		};
 	},
+	GET_MEET_TRANSCRIPT_HISTORY_SUCCESS: (state, action) => ({
+		...state,
+		transcriptHistory: action?.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

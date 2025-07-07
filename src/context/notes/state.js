@@ -57,6 +57,8 @@ import {
 	getMeetBotDataQuery,
 	meetBotCreateMutation,
 	deleteLiveKitRoomMutation,
+	getMeetTranscriptHistoryQuery,
+
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -78,6 +80,7 @@ export const intialState = {
 		stack: [],
 		open: false,
 	},
+	transcriptHistory: [],
 };
 
 export const NotesState = (props) => {
@@ -1755,6 +1758,28 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const getMeetTranscriptHistory = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getMeetTranscriptHistoryQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api_database',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_MEET_TRANSCRIPT_HISTORY_SUCCESS,
+					payload: response?.[1]?.data?.listTranscriptions?.data,
+				});
+			}
+		} catch (error) {
+			console.error('error==>getMeetTranscriptHistory', error);
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -1811,5 +1836,6 @@ export const NotesState = (props) => {
 		getExistingBots,
 		createMeetBot,
 		deleteLiveKitRoom,
+		getMeetTranscriptHistory,
 	};
 };

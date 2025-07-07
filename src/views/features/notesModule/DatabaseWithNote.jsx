@@ -106,7 +106,8 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptTabs = false }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const [searchParams] = useSearchParams();
-	const noteId = searchParams.get('noteId');
+	const noteId = useParams().noteId;
+
 	const type = searchParams.get('type');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
@@ -141,6 +142,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			createBlock,
 			updateBlock,
 			deleteBlock,
+			getMeetTranscriptHistory,
+			transcriptHistory,
 		},
 		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
@@ -1006,6 +1009,17 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [showTranscriptTabs, info?.sessionId, type]);
 
+	useEffect(() => {
+		if (type === 'meeting_bot') {
+			const payload = {
+				pageId: noteId,
+				limit: 10,
+				page: 1,
+			};
+			getMeetTranscriptHistory(payload);
+			console.log('transcriptHistory', transcriptHistory);
+		}
+	}, [type, noteId]);
 	return (
 		<NotesRefContext.Provider value={{ previousBlocksRef, pageId: noteId }}>
 			<div className="notes-container" style={outerContainerStyle || {}}>
