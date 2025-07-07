@@ -88,11 +88,14 @@ class MobileNavbarComponent extends Component {
 										this.setState({ mobileHoverLogoEdit: false });
 									}}
 								>
-									{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.mImageURL ? (
+									{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.mImageURL ||
+									this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.imageURL ? (
 										<img
 											src={
 												this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]
-													?.mImageURL
+													?.mImageURL ||
+												this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]
+													?.imageURL
 											}
 											alt="logo"
 											height={'40px'}
@@ -453,11 +456,14 @@ class MobileNavbarComponent extends Component {
 											: '',
 								}}
 							>
-								{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.mImageURL ? (
+								{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.mImageURL ||
+								this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.imageURL ? (
 									<img
 										src={
 											this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]
-												?.mImageURL
+												?.mImageURL ||
+											this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]
+												?.imageURL
 										}
 										alt="logo"
 										height={'50px'}
