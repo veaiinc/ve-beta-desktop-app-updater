@@ -248,9 +248,9 @@ const actionHandlers = {
 
 			if (recentChatMessages) {
 				if (fetchMore) {
-					messages = messages?.concat(recentChatMessages);
+					messages = recentChatMessages?.concat(messages);
 				} else {
-					messages = recentChatMessages;
+					messages = recentChatMessages?.concat(messages);
 				}
 				sessionIdData.messages = messages;
 			}
