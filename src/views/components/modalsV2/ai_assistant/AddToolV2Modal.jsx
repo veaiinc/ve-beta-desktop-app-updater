@@ -282,6 +282,9 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 															<div
 																key={action._id}
 																className="app-item-grid"
+																onClick={() =>
+																	handleAddTool(action)
+																}
 															>
 																<img
 																	src={action.image_src}
@@ -300,9 +303,6 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 																) : (
 																	<button
 																		className="primary-button connect-button"
-																		onClick={() =>
-																			handleAddTool(action)
-																		}
 																		disabled={
 																			!!info.addLoading[
 																				action._id
