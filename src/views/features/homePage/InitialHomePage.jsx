@@ -178,15 +178,12 @@ const optionsList = [
 
 const InitialHomePage = () => {
 	const {
-		templates: { updateStateValues, aiSuggestedPendingActions, getAISuggestedPendingActions },
+		templates: { updateStateValues },
 		profileInfo: { userDetailsData, aiCategories, getAiCategories },
 		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
 
-	const navigate = useNavigate();
-	const timeoutIdRef = useRef(null);
 	const previousSelectedOptionRef = useRef(null);
-
 	const [info, setInfo] = useState({
 		selectedOption: '',
 		options: optionsList,
@@ -197,13 +194,6 @@ const InitialHomePage = () => {
 		}, {}),
 		aiSuggestionsModalOpen: false,
 	});
-
-	useEffect(() => {
-		return () => {
-			updateStateValues({ aiSuggestedPendingActions: null });
-			clearTimeout(timeoutIdRef.current);
-		};
-	}, []);
 
 	// useEffect(() => {
 	// 	if (!aiCategories) {
