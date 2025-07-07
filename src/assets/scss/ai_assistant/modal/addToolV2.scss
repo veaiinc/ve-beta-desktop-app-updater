@@ -198,6 +198,7 @@
 		min-height: 56px;
 		position: relative;
 		transition: all 0.2s ease;
+		cursor: pointer;
 
 		&:hover {
 			background: var(--stroke);
