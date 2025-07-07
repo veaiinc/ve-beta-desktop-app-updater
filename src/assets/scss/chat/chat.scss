@@ -8,6 +8,7 @@
 	gap: 24px;
 	position: relative;
 	transition: width 0.25s ease-in-out;
+
 	.chatBodyWrapper {
 		width: 100%;
 		flex-grow: 1;
@@ -17,6 +18,7 @@
 		align-items: center;
 		transition: width 300ms ease-in-out;
 		position: relative;
+		padding: 0 16px;
 
 		.chatBoxWrapper {
 			position: relative;

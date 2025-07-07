@@ -32,6 +32,10 @@
 			align-items: flex-end;
 			background: var(--card);
 
+			.chatBodyWrapper {
+				padding: 0 !important;
+			}
+
 			.markdown-custom-content {
 				--font-size: 14px;
 			}

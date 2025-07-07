@@ -554,19 +554,23 @@ const RecentChat = ({
 						moduleTemplateId: moduleTemplateId || null,
 					};
 				}
-				let processing = null;
+				let processing = null,
+					memoryThinking = null;
 				let deepSearch = {},
 					deepResearch = {};
 
 				if (chainOfThought?.length > 0) {
 					for (let i = 0; i < chainOfThought?.length; i++) {
-						const { deep_search, deep_research } = chainOfThought?.[i] || {};
+						const { deep_search, deep_research, memory_thinking } =
+							chainOfThought?.[i] || {};
 						if (deep_search) {
 							processing = 'Deep Search';
 							break;
 						} else if (deep_research) {
 							processing = 'Deep Research';
 							break;
+						} else if (memory_thinking) {
+							memoryThinking = memory_thinking;
 						}
 					}
 
@@ -597,6 +601,7 @@ const RecentChat = ({
 						used_agents: designAgentsUsed || [],
 						...(processing === 'Deep Search' && { deepSearch }),
 						...(processing === 'Deep Research' && { deepResearch }),
+						...(memoryThinking && { memory_thinking: memoryThinking }),
 					},
 				]?.concat(messages);
 			}
@@ -752,7 +757,7 @@ const RecentChat = ({
 			let { data = '' } = event || {};
 			data = JSON?.parse(data);
 
-			if (data?.hasOwnProperty('intermediate_response') || data?.memory_thinking) {
+			if (data?.hasOwnProperty('intermediate_response')) {
 				handleGlobalChatMessages({
 					payload: data,
 					sessionId,

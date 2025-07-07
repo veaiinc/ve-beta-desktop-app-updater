@@ -270,11 +270,6 @@ const actionHandlers = {
 				sessionIdData.loadingMessage = loadingMessage;
 			}
 
-			if (payload?.hasOwnProperty('memory_thinking')) {
-				const loadingMessage = payload?.memory_thinking;
-				sessionIdData.loadingMessage = loadingMessage;
-			}
-
 			if (chatPayload) {
 				sessionIdData.chatPayload = chatPayload;
 			}
@@ -297,6 +292,12 @@ const actionHandlers = {
 				break;
 			}
 		}
+
+		const info = {};
+		if (payload?.hasOwnProperty('memory_thinking')) {
+			info.memory_thinking = payload?.memory_thinking;
+		}
+
 		if (requiredIndex !== -1) {
 			const message = messages?.[requiredIndex];
 			const { processing } = message;
@@ -561,6 +562,7 @@ const actionHandlers = {
 				...(state?.globalChatMessages || {}),
 				[sessionId]: {
 					...(state?.globalChatMessages?.[sessionId] || {}),
+					...info,
 					messages,
 				},
 			},
