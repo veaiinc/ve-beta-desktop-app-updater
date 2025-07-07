@@ -12,7 +12,8 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 	});
 	const contentContainerRef = useRef(null);
 	const containerRef = useRef(null);
-	const { deepSearch, deepResearch, memory_thinking, stream_end, message } = messageData;
+	const { deepSearch, deepResearch, normalSearch, memory_thinking, stream_end, message } =
+		messageData;
 	const chainOfThoughtCompleted = message?.length > 0 || stream_end || false;
 
 	useEffect(() => {
@@ -43,7 +44,12 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 
 	const handleExpandClick = useCallback(() => {
 		const chainOfThoughtCompleted = messageData?.stream_end || messageData?.message?.length > 0;
-		if (chainOfThoughtCompleted || messageData?.deepResearch || messageData?.deepSearch) {
+		if (
+			chainOfThoughtCompleted ||
+			messageData?.deepResearch ||
+			messageData?.deepSearch ||
+			messageData?.normalSearch
+		) {
 			setInfo((prev) => ({ ...prev, isExpanded: !prev?.isExpanded }));
 		}
 	}, [messageData]);
@@ -51,9 +57,13 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 	const text = useMemo(() => {
 		const { deepSearch, deepResearch, message, stream_end } = messageData || {};
 		if (message?.length > 0 || stream_end) {
-			return deepSearch ? 'Search Completed' : deepSearch ? 'Research Completed' : 'Message';
+			return deepSearch || normalSearch
+				? 'Search Completed'
+				: deepSearch
+				? 'Research Completed'
+				: 'Message';
 		}
-		return deepResearch ? 'Researching' : deepSearch ? 'Searching' : 'Message';
+		return deepResearch ? 'Researching' : deepSearch || normalSearch ? 'Searching' : 'Message';
 	}, [messageData]);
 
 	return (
@@ -81,7 +91,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 				</div>
 			</div>
 			<div className="widget-content-container" ref={contentContainerRef}>
-				{memory_thinking && !(deepResearch || deepSearch) && (
+				{memory_thinking && !(deepResearch || deepSearch || normalSearch) && (
 					<div className="memory-thinking">{memory_thinking || ''}</div>
 				)}
 
@@ -94,9 +104,9 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 							/>
 						)}
 
-						{deepSearch && (
+						{(deepSearch || normalSearch) && (
 							<DeepSearchChainOfThought
-								data={deepSearch}
+								data={deepSearch || normalSearch}
 								showOnlyLastThought={!chainOfThoughtCompleted && !info?.isExpanded}
 								streamEnd={chainOfThoughtCompleted || false}
 								memoryThinking={memory_thinking}

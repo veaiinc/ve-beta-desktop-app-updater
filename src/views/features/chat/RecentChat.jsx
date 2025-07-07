@@ -557,7 +557,8 @@ const RecentChat = ({
 				let processing = null,
 					memoryThinking = null;
 				let deepSearch = {},
-					deepResearch = {};
+					deepResearch = {},
+					normalSearch = {};
 
 				if (chainOfThought?.length > 0) {
 					for (let i = 0; i < chainOfThought?.length; i++) {
@@ -578,6 +579,8 @@ const RecentChat = ({
 						deepSearch = handleDeepSearchChainOfThought(chainOfThought);
 					} else if (processing === 'Deep Research') {
 						deepResearch = handleDeepResearchChainOfThought(chainOfThought);
+					} else if (processing === 'normal_search') {
+						normalSearch = handleDeepSearchChainOfThought(chainOfThought);
 					}
 				}
 
@@ -601,6 +604,7 @@ const RecentChat = ({
 						used_agents: designAgentsUsed || [],
 						...(processing === 'Deep Search' && { deepSearch }),
 						...(processing === 'Deep Research' && { deepResearch }),
+						...(processing === 'normal_search' && { normalSearch }),
 						...(memoryThinking && { memory_thinking: memoryThinking }),
 					},
 				]?.concat(messages);

@@ -9,9 +9,9 @@ export const handleDeepSearchChainOfThought = (chainOfThought) => {
 			cot?.push({ step: data?.step, readings: data?.reading || [] });
 		}
 
-		if (data?.memory_thinking) {
-			cot?.push({ step: data?.memory_thinking });
-		}
+		// if (data?.memory_thinking) {
+		// 	cot?.push({ step: data?.memory_thinking });
+		// }
 	}
 
 	return { cot };
@@ -48,9 +48,9 @@ export const handleDeepResearchChainOfThought = (chainOfThought) => {
 			cot?.push({ step: data?.responded });
 		}
 
-		if (data?.memory_thinking) {
-			cot?.push({ step: data?.memory_thinking });
-		}
+		// if (data?.memory_thinking) {
+		// 	cot?.push({ step: data?.memory_thinking });
+		// }
 
 		if (data?.intermediate_step) {
 			let last_step = { ...(cot?.[cot?.length - 1] || {}) };
