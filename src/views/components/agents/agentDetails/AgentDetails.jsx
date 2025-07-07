@@ -8,6 +8,7 @@ import RunAndBuildToggle from '../runBuildToggle/RunAndBuildToggle';
 import ConfigureAgent from './configureAgent/ConfigureAgent';
 import AgentCredentials from './agentCredentials/AgentCredentials';
 import KnowledgeAgentDetails from '../../../../views/features/knowledgeAgent/AgentDetails';
+import AgentHeader from '../runBuildToggle/AgentHeader';
 
 const AgentDetails = () => {
 	const { agentId } = useParams();
@@ -25,7 +26,7 @@ const AgentDetails = () => {
 	} = useContext(Context);
 
 	useEffect(() => {
-		if (activeKnowledgeAssistant === null && agentId) {
+		if (activeKnowledgeAssistant === null) {
 			getActiveKnowledgeAgentDetails(agentId);
 		}
 
@@ -41,13 +42,7 @@ const AgentDetails = () => {
 				return updated;
 			});
 		}
-	}, [
-		agentId,
-		activeKnowledgeAssistant,
-		getActiveKnowledgeAgentDetails,
-		searchParams,
-		setSearchParams,
-	]);
+	}, [activeKnowledgeAssistant]);
 
 	useEffect(() => {
 		if (agentActionParam) {
@@ -70,6 +65,7 @@ const AgentDetails = () => {
 
 	return (
 		<div className={s.agentDetailsContainer}>
+			<AgentHeader />
 			<RunAndBuildToggle agentAction={info.agentAction} setAgentAction={setAgentAction} />
 			<div className={s.agentActionContainer}>
 				{info.agentAction === 'runAgent' ? (

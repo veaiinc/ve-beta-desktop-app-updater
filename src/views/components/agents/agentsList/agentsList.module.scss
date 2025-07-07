@@ -11,79 +11,105 @@
 	.createNewAgent,
 	.agentInfoContainer {
 		display: flex;
-		align-items: center;
-		cursor: pointer;
-		display: flex;
-		min-width: 341.333px;
-		align-items: center;
-		gap: 12px;
-		transition: all 0.2s ease-in;
+		flex-direction: column;
+		justify-content: space-between;
+		align-items: flex-start;
+		flex: 1 0 0;
+		padding: 16px;
 		border-radius: 12px;
-		max-height: 74px;
-		border: none;
-		outline: none;
-		padding: 0;
-		background-color: inherit;
+		border: 1px solid var(--stroke, #2b2e31);
+		background: var(--new-card, #1c1e21);
+		cursor: pointer;
+		max-height: 160px;
+		height: 100%;
+		min-width: 341.333px;
+		max-width: 341.333px;
+		width: 100%;
+		gap: 12px;
 
+		.agentInfoHeader {
+			display: flex;
+			align-items: flex-start;
+			gap: 16px;
+			align-self: stretch;
+			width: 100%;
+			justify-content: space-between;
+
+			.agentInfoHeaderLeft {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				flex: 1 0 0;
+				display: flex;
+
+				justify-content: center;
+				align-items: center;
+
+				.profileIcon {
+					border-radius: 50%;
+					background-size: cover;
+					width: 32px;
+					height: 32px;
+					flex-shrink: 0;
+				}
+				.agentNameContainer {
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					align-items: flex-start;
+					gap: 4px;
+					flex: 1 0 0;
+
+					.agentName {
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+					.agentUsername {
+						color: var(--secondary-font, #7a7e85);
+						font-family: var(--primary-font-family);
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+			}
+			.deleteIconContainer {
+				display: flex;
+				width: 24px;
+				height: 24px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				border-radius: 5px;
+				border: 0.75px solid var(--stroke, #2b2e31);
+				background: var(--card-over-card, #27282b);
+				cursor: pointer;
+				opacity: 0;
+				transition: 0.3s;
+				.deleteIcon {
+					width: 10px;
+					height: 10.833px;
+					flex-shrink: 0;
+				}
+			}
+		}
 		&:hover {
-			background: var(--card-over-card-hover);
-			transition: all 0.2s ease-in;
-		}
-
-		.name {
-			color: var(--primary-font, #111113);
-			font-family: var(--primary-font-family);
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-		}
-
-		.plusIcon {
-			display: flex;
-			min-width: 74px;
-			height: 74px;
-			justify-content: center;
-			align-items: center;
-			border-radius: 20px;
-			background-color: #79ecc9;
-		}
-
-		.addIcon {
-			display: flex;
-			min-width: 74px;
-			height: 74px;
-			justify-content: center;
-			align-items: center;
-			border-radius: 20px;
-			background: var(--card-over-card-hover, #2e2f32);
-		}
-		.profileIcon {
-			border-radius: 50px;
-			background-size: cover;
-			width: 42px;
-			height: 42px;
-			flex-shrink: 0;
+			.deleteIconContainer {
+				opacity: 1;
+			}
 		}
 		.agentInfo {
 			display: flex;
-			gap: 4px;
-			width: 100%;
-			justify-content: space-between;
-			align-items: start;
-			position: relative;
-			.agentInfoHeader {
-				display: flex;
-				flex-direction: column;
-				gap: 4px;
-			.agentName {
-				color: var(--primary-font, #111113);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-			}
+			justify-content: center;
+			align-items: flex-start;
+			gap: 6px;
+			align-self: stretch;
+
 			.agentDescription {
 				color: var(--secondary-font, #7a7e85);
 				font-family: var(--primary-font-family);
@@ -99,19 +125,76 @@
 				-webkit-line-clamp: 2;
 				-webkit-box-orient: vertical;
 			}
-			}
-			.deleteIcon {
-				cursor: pointer;
-				opacity: 0;
-				transition: 0.3s;
-				position: absolute;
-				right: 10px;
-				top: 2px;
-			}
-			&:hover {
-				.deleteIcon {
-					opacity: 1;
+		}
+		.agentInfoFooter {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			align-self: stretch;
+
+			.statusBadge {
+				display: flex;
+				padding: 4px 8px;
+				justify-content: center;
+				align-items: center;
+				gap: 7px;
+				border-radius: 6px;
+				border: 1px solid var(--stroke, #2c2d2e);
+
+				.statusDot {
+					width: 6px;
+					height: 6px;
+					border-radius: 50%;
 				}
+				.statusText {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+			.statusActivity {
+				display: flex;
+				height: 32px;
+				padding: 2px 12px 2px 8px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				border-radius: 20px;
+				border: 0.8px solid var(--stroke, #2b2e31);
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px;
+			}
+		}
+		.createNewAgentContainer {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 12px;
+			width: fit-content;
+			margin: auto;
+			.name {
+				color: var(--primary-font, #111113);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.plusIcon {
+				display: flex;
+				padding: 8px;
+				align-items: center;
+				gap: 10px;
+				border-radius: 8px;
+				background: var(--product-lime-blu, #79ecc9);
 			}
 		}
 	}

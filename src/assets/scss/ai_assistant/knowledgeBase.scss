@@ -130,6 +130,10 @@
 
 					.deleteKnowledge {
 						cursor: pointer;
+						width: 14px;
+						height: 14px;
+						flex-shrink: 0;
+						aspect-ratio: 1/1;
 						opacity: 0;
 						transition: 0.3s;
 					}
