@@ -142,11 +142,7 @@ const Stages = ({ onNext }) => {
 		  !info?.isWorkspaceHandleAvailable ||
 		  !info?.workspaceType ||
 		  info?.continueBtnLoading;
-	console.log(
-		!info?.username || !info?.isPhoneNumberVerified,
-		!info.username,
-		!info.isPhoneNumberVerified,
-	);
+
 	useEffect(() => {
 		if (!usertoken) {
 			message?.error('Session expired! Please login again');

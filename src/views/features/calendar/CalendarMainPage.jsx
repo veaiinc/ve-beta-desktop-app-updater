@@ -70,12 +70,12 @@ const Calendar = () => {
 	});
 
 	// Close left sidebar when component unmounts
-	useEffect(() => {
-		updateStateValues({ leftSidebarState: 'open' });
-		return () => {
-			updateStateValues({ leftSidebarState: null });
-		};
-	}, []);
+	// useEffect(() => {
+	// 	updateStateValues({ leftSidebarState: 'close' });
+	// 	return () => {
+	// 		updateStateValues({ leftSidebarState: null });
+	// 	};
+	// }, []);
 
 	useEffect(() => {
 		const sessionId = ObjectId().toString();
