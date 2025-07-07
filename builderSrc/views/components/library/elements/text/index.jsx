@@ -2590,7 +2590,8 @@ class App extends BaseClass {
 								text-decoration: none;
 							}
 							#text_component_ID p {
-								margin-bottom: 0px !important;
+								margin-bottom: 2px !important;
+								overflow:hidden;
 							}
 						`}</style>
 					</Helmet>
