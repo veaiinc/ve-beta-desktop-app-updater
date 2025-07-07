@@ -1607,7 +1607,7 @@ const ChatBox = ({
 																</Tooltip>
 															)}
 
-															{!isPublicChat && (
+															{/* {!isPublicChat && (
 																// <SearchTypeTooltip
 																// 	isOpen={
 																// 		info?.searchTypeOpenForReason
@@ -1663,7 +1663,7 @@ const ChatBox = ({
 																	</div>
 																</Tooltip>
 																// </SearchTypeTooltip>
-															)}
+															)} */}
 
 															{!isPublicChat && (
 																<Tooltip
