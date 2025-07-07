@@ -8,6 +8,8 @@
 	overflow: hidden;
 	border: 1px solid var(--stroke);
 	color: var(--primary-font);
+	max-height: 300px;
+	overflow-y: auto;
 
 	.groupConfigOption {
 		display: flex;
