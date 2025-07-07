@@ -34,6 +34,7 @@
 			transition: all 0.3s ease;
 			width: 100%;
 			overflow-y: scroll;
+			scroll-behavior: smooth;
 			position: relative;
 
 			.chatContent {
@@ -42,24 +43,8 @@
 				gap: 40px;
 				width: 100%;
 				max-width: 750px;
-				margin: 0 auto;
-				padding-bottom: calc(var(--chat-content-height) - 40px);
-				.aiMessageWrapper {
-					.text-container {
-						color: var(--secondary-font, #787e87);
-						font-family: var(--primary-font-family);
-						font-size: 15px;
-						font-weight: 400;
-						line-height: 24px;
-						.char {
-							transition: color 0.2s ease-in-out;
-						}
-
-						.highlight-char {
-							color: var(--primary-font, #f2f2f3);
-						}
-					}
-				}
+				margin: 0 auto 50px auto;
+				// padding-bottom: calc(var(--chat-content-height) - 40px);
 
 				.chat-message {
 					display: flex;

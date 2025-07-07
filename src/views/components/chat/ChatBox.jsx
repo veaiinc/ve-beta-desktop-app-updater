@@ -162,7 +162,7 @@ const ChatBox = ({
 			currentSessionId,
 			chatReplyData,
 			deleteMultiAgentFile,
-			isProactive,
+			proactiveInfoForChat,
 		},
 		subscriptionInfo: { currentPlan },
 		calendarInfo: { updateCalendarState },
@@ -297,11 +297,11 @@ const ChatBox = ({
 	}, [globalChatMessages, info?.chatSessionId]);
 
 	useEffect(() => {
-		if (activePromptForChat) {
+		if (activePromptForChat && info?.chatSessionId) {
 			handleSendMessageFunc(null, true, activePromptForChat);
 			updateStateValues({ activePromptForChat: null });
 		}
-	}, [activePromptForChat]);
+	}, [activePromptForChat, info?.chatSessionId]);
 
 	useEffect(() => {
 		if (activeInputForChat) {
@@ -650,10 +650,13 @@ const ChatBox = ({
 						}
 					}
 
-					if (isProactive) {
+					if (proactiveInfoForChat) {
 						payload.proactive = true;
+						if (proactiveInfoForChat?.proactiveSessionId) {
+							payload.proactive_id = proactiveInfoForChat?.proactiveSessionId;
+						}
 						updateStateValues({
-							isProactive: false,
+							proactiveInfoForChat: null,
 						});
 					}
 
@@ -743,7 +746,7 @@ const ChatBox = ({
 			currentPlan,
 			globalChatMessages,
 			chatReplyData,
-			isProactive,
+			proactiveInfoForChat,
 			onChatQueryChange,
 		],
 	);
@@ -753,12 +756,6 @@ const ChatBox = ({
 			const showCustomChatOptions = [
 				{
 					type: 'AI',
-					message: 'loading....',
-					content: (
-						<div className="aiMessageWrapper">
-							<AIMessageLoader />
-						</div>
-					),
 					contentType: 'loading',
 				},
 			];

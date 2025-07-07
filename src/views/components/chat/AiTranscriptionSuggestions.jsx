@@ -41,7 +41,7 @@ const AiTranscriptionSuggestions = ({
 			}));
 		}
 	}, [aiTranscriptionSuggestions]);
-	//
+
 	useEffect(() => {
 		if (!userQuestionsRef.current) return;
 		if (info?.userQuestions?.length > 0) {
@@ -125,16 +125,17 @@ const AiTranscriptionSuggestions = ({
 									<div className={s.answerText}>{`"${
 										question?.query || ''
 									}"`}</div>
-								</div>
-								{question?.memory_used && (
-									<>
-										<div className={s.horizontalLine}></div>
-										<div className={s.isMemoryUsed}>
-											<MemorySvg />
-											Memory Used
+
+									{question?.memory_used && (
+										<div className={s.extraInfo}>
+											<div className={s.horizontalLine}></div>
+											<div className={s.isMemoryUsed}>
+												<MemorySvg />
+												Memory Used
+											</div>
 										</div>
-									</>
-								)}
+									)}
+								</div>
 							</div>
 						))}
 					</div>

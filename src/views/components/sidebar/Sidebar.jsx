@@ -1,6 +1,5 @@
 import { useState, useContext, useEffect, memo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import Intercom from '@intercom/messenger-js-sdk';
 import '../../../assets/scss/sidebar.scss';
 import {
 	stableNavigationItems,

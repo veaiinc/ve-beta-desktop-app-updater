@@ -447,6 +447,8 @@ class NavbarComponent extends Component {
 										/>
 									) : (
 										<ImageItem
+											crop={this.props?.section?.image_settings?.crop}
+											zoom={this.props?.section?.image_settings?.zoom}
 											preview={this.state?.preview}
 											previewType={this.state?.previewType}
 											imageUrl={this.props?.section?.imageURL}
@@ -756,6 +758,8 @@ class NavbarComponent extends Component {
 									}}
 								>
 									<ImageItem
+										crop={this.props?.section?.image_settings?.crop}
+										zoom={this.props?.section?.image_settings?.zoom}
 										preview={this.state?.preview}
 										previewType={this.state?.previewType}
 										imageUrl={this.props?.section?.imageURL}

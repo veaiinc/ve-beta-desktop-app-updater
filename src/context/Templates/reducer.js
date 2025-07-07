@@ -626,7 +626,7 @@ const actionHandlers = {
 		const aiTranscriptionSuggestions = state?.aiTranscriptionSuggestions || {};
 		const prompts = [...(aiTranscriptionSuggestions?.prompts || [])];
 		const responses = { ...(aiTranscriptionSuggestions?.responses || {}) };
-		const files = [...(aiTranscriptionSuggestions?.similar_files || [])];
+		let files = [...(aiTranscriptionSuggestions?.similar_files || [])];
 
 		if (prompt_to_ask) {
 			prompts?.push(prompt_to_ask);
@@ -635,8 +635,9 @@ const actionHandlers = {
 			responses[chunkId] = (responses?.[chunkId] || '') + response || '';
 		}
 		if (similar_files) {
-			files?.concat(similar_files);
+			files = files?.concat(similar_files || []);
 		}
+
 		return {
 			...state,
 			aiTranscriptionSuggestions: {

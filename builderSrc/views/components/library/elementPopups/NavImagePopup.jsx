@@ -207,7 +207,7 @@ class NavImagePopup extends Images {
 			zoom: 1,
 			aspect: 3 / 2,
 		};
-		if (type == 'imageURL') {
+		if (type == 'imageURL' || type == 'imgLibrary') {
 			if (this.props.isMobileNavbar) {
 				newComponent = {
 					...newComponent,
@@ -226,7 +226,7 @@ class NavImagePopup extends Images {
 			} else {
 				newComponent = {
 					...newComponent,
-					[type]: value,
+					imageURL: value,
 					image_settings: newComponent?.image_settings || image_settings,
 				};
 			}
@@ -278,28 +278,6 @@ class NavImagePopup extends Images {
 		} else if (type == 'siteTitle') {
 			newComponent.style = newComponent.style || {};
 			newComponent.style.siteTitle = value;
-		} else if (type == 'imgLibrary') {
-			if (this.props.isMobileNavbar) {
-				newComponent = {
-					...newComponent,
-					blocks: [
-						{
-							...newComponent.blocks[0],
-							subBlocks: [
-								{
-									...newComponent.blocks[0].subBlocks[0],
-									imageURL: value,
-								},
-							],
-						},
-					],
-				};
-			} else {
-				newComponent = {
-					...newComponent,
-					imageURL: value,
-				};
-			}
 		}
 		this.setState(
 			{

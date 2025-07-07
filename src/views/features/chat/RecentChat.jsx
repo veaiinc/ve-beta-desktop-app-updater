@@ -99,6 +99,7 @@ const RecentChat = ({
 	const globalChatMessagesRef = useRef(globalChatMessages);
 	const currentUserMessageTimeoutRef = useRef(null);
 	const followUpQueryTimeoutRef = useRef(null);
+
 	sessionId = isPreview ? sId : sessionId;
 
 	useEffect(() => {
@@ -901,9 +902,9 @@ const RecentChat = ({
 						className={`chatBodyParentContainer`}
 						ref={chatContentRef}
 						id="scrollableDiv"
-						style={{
-							'--chat-content-height': `${chatContentRef?.current?.clientHeight}px`,
-						}}
+						// style={{
+						// 	'--chat-content-height': `${chatContentRef?.current?.clientHeight}px`,
+						// }}
 					>
 						<TextSelector
 							styles={info?.tooltipStyles?.styles}
@@ -935,6 +936,15 @@ const RecentChat = ({
 											<div
 												key={index}
 												className={`chat-message ${chat?.type?.toLowerCase()}-message chat-${index}`}
+												style={{
+													minHeight:
+														index ===
+														globalChatMessages?.[sessionId]?.messages
+															?.length -
+															1
+															? `calc(${chatContentRef?.current?.clientHeight}px - 185px)`
+															: 'auto',
+												}}
 											>
 												<div className="message-content">
 													{chat?.type?.toLowerCase() === 'ai' ? (

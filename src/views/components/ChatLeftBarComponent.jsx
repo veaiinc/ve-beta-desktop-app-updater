@@ -1,15 +1,15 @@
-import { memo, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useContext, useEffect, useRef, useState, useCallback } from 'react';
 import '../../assets/scss/chatLeftBarComponent.scss';
 import Context from '../../context/context';
 import ObjectID from 'bson-objectid';
 import RecentChat from '../features/chat/RecentChat';
 import { ReactComponent as SparkleSvg } from '../../assets/svg/ai_agents/sparkle.svg';
-import { ReactComponent as LeftSvg } from '../../assets/svg/activity/left.svg';
+import { ReactComponent as ChevronRightThinSvg } from '../../assets/svg/tasks/chevronRightThin.svg';
 
 const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 	const {
 		// subscriptionInfo: { renewBanner },
-		templates: { globalChatMessages, currentSessionId, updateStateValues },
+		templates: { updateStateValues },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -55,6 +55,13 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 			mobileActive: info?.isMobile ? true : prev?.mobileActive,
 		}));
 	};
+
+	const goBack = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			chatActive: false,
+		}));
+	}, []);
 
 	const handleNewChat = () => {
 		const sessionId = ObjectID()?.toString();
@@ -143,7 +150,7 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 					<div className="wrapper">{children}</div>
 				</div>
 
-				{globalChatMessages?.[currentSessionId]?.messages?.length === 0 &&
+				{/* {globalChatMessages?.[currentSessionId]?.messages?.length === 0 &&
 					isFirstTimeSuggestionsRenderRef?.current &&
 					info?.chatActive &&
 					!info?.isMobile && (
@@ -185,22 +192,35 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 								</div>
 							</div>
 						</div>
-					)}
-				<RecentChat
-					showIconText={false}
-					isPreview={true}
-					autoFocus={true}
-					customChatBoxClick={handleChatActive}
-					chatActive={info?.chatActive}
-					sessionIdChanged={info?.sessionIdChanged}
-					onChangeSessionId={handleSessionIdChange}
-					onNewChatBtnClick={handleNewChat}
-					{...(!isFirstTimeChatActiveRef?.current && {
-						sId: info?.sessionId,
-					})}
-					showCitationsButton={false}
-					onNavigateBack={handleGoBackClick}
-				/>
+					)} */}
+				<div className="chatWrapper">
+					<div className="chatWrapperHeader">
+						<ChevronRightThinSvg
+							style={{
+								width: '16px',
+								height: '16px',
+								transform: 'rotate(180deg)',
+								cursor: 'pointer',
+							}}
+							onClick={goBack}
+						/>
+					</div>
+					<RecentChat
+						showIconText={false}
+						isPreview={true}
+						autoFocus={true}
+						customChatBoxClick={handleChatActive}
+						chatActive={info?.chatActive}
+						sessionIdChanged={info?.sessionIdChanged}
+						onChangeSessionId={handleSessionIdChange}
+						onNewChatBtnClick={handleNewChat}
+						{...(!isFirstTimeChatActiveRef?.current && {
+							sId: info?.sessionId,
+						})}
+						showCitationsButton={false}
+						onNavigateBack={handleGoBackClick}
+					/>
+				</div>
 			</div>
 		</>
 	);

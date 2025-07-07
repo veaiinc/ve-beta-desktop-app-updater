@@ -106,8 +106,7 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptTabs = false }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const [searchParams] = useSearchParams();
-	const noteId = useParams().noteId;
-
+	const noteId = useParams()?.noteId;
 	const type = searchParams.get('type');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
@@ -115,7 +114,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const previousBlocksRef = useRef(new Map());
 	const pendingUpdatesRef = useRef(new Map());
 	const debounceTimerRef = useRef(null);
-
 	const originalFaviconRef = useRef(null);
 	// const { createWebSocketConnection, sendMessage } = useChatStream();
 
@@ -163,7 +161,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	// Handler for transcript socket messages
 	const handleLiveIntelligenceMessageFunc = useCallback(
 		(event) => {
-			console.log(event);
 			const data = JSON.parse(event?.data || null);
 			handleTranscriptionSuggestions(data);
 		},
