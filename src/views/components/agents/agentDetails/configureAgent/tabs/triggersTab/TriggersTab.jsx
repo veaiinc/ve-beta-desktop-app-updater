@@ -16,7 +16,7 @@ import ListEmailsModal from './modals/ListEmailsModal';
 import SchedulerModal from './modals/SchedulerModal';
 import InfiniteScroll from '../../../../../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../../../../../../src/helpers/';
-// import { ReactComponent as OutlookIcon } from '../assets/outlook-icon.';
+import { ReactComponent as OutlookIcon } from '../../../assets/outlook.svg';
 
 const customTriggers = [
 	{
@@ -44,7 +44,7 @@ const connectableTriggers = [
 	// 	description: 'Google (Gmail, Calendar, Docs, & API)',
 	// },
 	{
-		icon: '',
+		icon: <OutlookIcon width={24} />,
 		title: 'Outlook',
 		triggerType: 'outlook',
 		description: 'Incoming mails',
@@ -244,13 +244,7 @@ const TriggersTab = () => {
 				scheduledAt: scheduledAt.toString(),
 			};
 
-			console.log('Scheduler Trigger Payload:', triggerData);
-			console.log('Agent ID:', agentId);
-			console.log('Scheduled At (timestamp):', scheduledAt);
-
 			const response = await connectTrigger({ triggerApp: 'schedule', triggerData });
-
-			console.log('Scheduler Trigger Response:', response);
 
 			if (response?.[0] === true) {
 				message.success('Scheduler trigger connected successfully');
@@ -261,7 +255,6 @@ const TriggersTab = () => {
 					response?.[1]?.message ||
 					response?.message ||
 					'Failed to connect scheduler trigger';
-				console.log('Scheduler Error Details:', response);
 				message.error(errorMessage);
 			}
 		} catch (error) {
@@ -284,12 +277,8 @@ const TriggersTab = () => {
 				return;
 			}
 
-			console.log('Disconnecting trigger with ID:', triggerId);
-
 			setInfo((prev) => ({ ...prev, disconnectTriggerLoader: true }));
 			const response = await disconnectTrigger(triggerId);
-
-			console.log('Disconnect response:', response);
 
 			const success = response?.[0] === true;
 
