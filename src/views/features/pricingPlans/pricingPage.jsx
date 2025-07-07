@@ -95,13 +95,13 @@ const PricingPage = () => {
 			}));
 			window.location.href = response?.[1]?.url;
 		} else {
+			message.error(response?.[1]?.message);
 			setInfo((prev) => ({
 				...prev,
 				planLoading: false,
 				selectedPlanId: null,
 				isTrialSelected: false,
 			}));
-			message.error(response?.[1]?.message);
 		}
 	};
 
@@ -238,7 +238,7 @@ const PricingPage = () => {
 											{(info.planLoading && !info.isTrialSelected) ||
 											(info.trailLoading && info.isTrialSelected) ? (
 												<Spinner
-													color="var(--background-color)"
+													color="var(--primary-font)"
 													width="16px"
 													height="16px"
 												/>
