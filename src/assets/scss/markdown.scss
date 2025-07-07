@@ -168,9 +168,9 @@
 		.li {
 			list-style-type: decimal;
 			&::marker {
-				font-size: calc(var(--font-size) * 0.9375);
+				font-size: calc(var(--font-size) * 1);
 				color: var(--primary-font);
-				font-weight: 700;
+				font-weight: 600;
 			}
 		}
 	}
