@@ -2591,7 +2591,7 @@ class App extends BaseClass {
 							}
 							#text_component_ID p {
 								margin-bottom: 2px !important;
-								overflow:hidden;
+								// overflow:hidden;
 							}
 						`}</style>
 					</Helmet>
