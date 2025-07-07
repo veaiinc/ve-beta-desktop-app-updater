@@ -462,6 +462,8 @@ class MobileNavbarComponent extends Component {
 	};
 
 	clientRenderNavbar = () => {
+		let properties = this.props.navBar?.blocks[0]?.subBlocks[0] || {};
+
 		return (
 			<div
 				className={`navbar-inner-mobile-wrapper ${
@@ -496,7 +498,7 @@ class MobileNavbarComponent extends Component {
 									<ImageItem
 										preview={this.props?.preview}
 										previewType={this.props?.previewType}
-										imageUrl={properties?.mImageURL}
+										imageUrl={properties?.mImageURL || properties?.imageURL}
 										imageSettings={properties?.mImage_settings}
 										settingData={(e) => this.props.imgSettingData(e)}
 										setActiveImage={(e) =>

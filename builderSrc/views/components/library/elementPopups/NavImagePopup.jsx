@@ -258,6 +258,14 @@ class NavImagePopup extends Images {
 								{
 									...newComponent.blocks[0].subBlocks[0],
 									mImageURL: '',
+									mImage_settings: {
+										crop: {
+											x: 0,
+											y: 0,
+										},
+										zoom: 1,
+										aspect: 1.5,
+									},
 								},
 							],
 						},
@@ -273,6 +281,14 @@ class NavImagePopup extends Images {
 								{
 									...newComponent.blocks[0].subBlocks[0],
 									imageURL: '',
+									image_settings: {
+										crop: {
+											x: 0,
+											y: 0,
+										},
+										zoom: 1,
+										aspect: 1.5,
+									},
 								},
 							],
 						},
