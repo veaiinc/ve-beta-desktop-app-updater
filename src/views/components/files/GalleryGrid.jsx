@@ -352,7 +352,6 @@ const GalleryGrid = ({
 									key={index}
 									onClick={() => handleNavigateGallery(item)}
 								>
-									{console.log(item, 'itemtesting')}
 									<div
 										className="card-item-style content-wrapper"
 										style={{
