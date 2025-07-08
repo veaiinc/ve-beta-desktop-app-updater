@@ -11,6 +11,8 @@ export const initialState = {
 	knowledgeBaseFilesActiveStatus: null,
 	actionsInfo: null,
 	triggers: null,
+	assistantListForAutomation: null,
+	currentAgentAutomation: null,
 };
 
 export const KnowledgeAgentState = () => {
@@ -1050,6 +1052,81 @@ export const KnowledgeAgentState = () => {
 		return [false, response?.[1]];
 	};
 
+	const getKnowledgeAssistantsListForAutomation = async (
+		page = 1,
+		limit = 10,
+		search = '',
+		sortBy = 'createdAt',
+		sortOrder = -1,
+		reset = true,
+	) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const searchParam =
+				search && search.trim() ? `&search=${encodeURIComponent(search.trim())}` : '';
+			const sortParam = `&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+			const path = `/${workspaceId}/knowledge-agents?page=${page}&limit=${limit}${searchParam}${sortParam}`;
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const response = await service?.fetchGet(path, token, type);
+			const success = response?.[0] === true;
+			if (success) {
+				const data = reset
+					? [...(response?.[1]?.data || [])]
+					: [
+							...(state?.knowledgeAssistantsList?.data || []),
+							...(response?.[1]?.data || []),
+					  ];
+				const payload = {
+					data,
+					currentPage: response?.[1]?.currentPage ?? 1,
+					hasNextPage: response?.[1]?.hasNextPage ?? false,
+				};
+				dispatch({
+					type: Actions?.SET_AGENTS_LIST_FOR_AUTOMATION,
+					payload,
+				});
+			} else {
+				dispatch({
+					type: Actions?.SET_AGENTS_LIST_FOR_AUTOMATION,
+					payload: {
+						data: [],
+						hasNextPage: false,
+						currentPage: 1,
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>getKnowledgeAssistantsList', error);
+			return [false, error];
+		}
+	};
+
+	const getActiveKnowledgeAgentForAutomation = async (aiAssistantId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = '/' + workspaceId + '/knowledge-agents/' + aiAssistantId;
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const response = await service?.fetchGet(path, token, type);
+			const success = response?.[0] === true;
+			if (success) {
+				dispatch({
+					type: Actions?.SET_ACTIVE_ASSISTANT_FOR_AUTOMATION,
+					payload: { data: response?.[1] },
+				});
+			} else {
+				dispatch({
+					type: Actions?.SET_ACTIVE_ASSISTANT_FOR_AUTOMATION,
+					payload: { error: response?.[1] },
+				});
+			}
+		} catch (error) {
+			console.log('error==>getActiveKnowledgeAgentDetails', error);
+			return [false, error];
+		}
+	};
+
 	return {
 		...state,
 		createNewKnowledgeAgent,
@@ -1090,5 +1167,7 @@ export const KnowledgeAgentState = () => {
 		deleteKnowledgeBaseFile,
 		deleteKnowledgeAgent,
 		listofAllappsActions,
+		getKnowledgeAssistantsListForAutomation,
+		getActiveKnowledgeAgentForAutomation,
 	};
 };

@@ -492,5 +492,4 @@ const VariableComponent = ({
 		</div>
 	);
 };
-
 export default memo(VariableComponent);
