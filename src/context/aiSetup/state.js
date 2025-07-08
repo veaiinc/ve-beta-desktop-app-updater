@@ -215,31 +215,38 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const updateAiChatSessions = async (payload, addNewSession = false) => {
+	const updateAiChatSessions = async ({ sessionId, addNewSession, type = null }) => {
 		try {
-			if (addNewSession) {
-				const data = {
-					_id: payload?.sessionId,
-					title: 'New Chat',
-					createdAt: Math.floor(Date.now() / 1000),
-				};
+			if (type === 'update') {
 				dispatch({
-					type: Actions?.SET_AI_CHAT_SESSIONS_BY_ID,
-					payload: data,
+					type: Actions?.SET_AI_CHAT_SESSIONS,
+					payload: { type, addNewSession, sessionId },
+				});
+				return;
+			} else if (type === 'delete') {
+				dispatch({
+					type: Actions?.SET_AI_CHAT_SESSIONS,
+					payload: { type, sessionId },
 				});
 				return;
 			}
+
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const url = '/' + workspaceId + '/ai-chat/list-multiagent-sessions';
-			const params = payload;
+			const params = { sessionId, page: 1, limit: 5 };
 			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api', params);
-			if (response?.[0]) {
+
+			if (response?.[0] === true) {
 				dispatch({
-					type: Actions?.SET_AI_CHAT_SESSIONS_BY_ID,
-					payload: response?.[1]?.data?.[0],
+					type: Actions?.SET_AI_CHAT_SESSIONS,
+					payload: {
+						sessionId,
+						type: 'update',
+						updateSession: true,
+						sessionData: { ...(response?.[1]?.data?.[0] || {}), isNewSession: false },
+					},
 				});
-				return;
 			} else {
 				console.log('error==>updateAiChatSessions', response?.[1]);
 			}

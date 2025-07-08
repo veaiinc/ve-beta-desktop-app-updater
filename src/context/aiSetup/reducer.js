@@ -21,41 +21,81 @@ const actionHandlers = {
 		...state,
 		workflows: action?.payload,
 	}),
-	SET_AI_CHAT_SESSIONS: (state, action) => ({
-		...state,
-		aiChatSessions: action?.payload,
-	}),
-	SET_AI_CHAT_SESSIONS_BY_ID: (state, action) => {
-		const payload = action?.payload;
-		let aiChatSessions = { ...(state?.aiChatSessions || {}) };
+	SET_AI_CHAT_SESSIONS: (state, action) => {
+		let {
+			sessionId,
+			addNewSession,
+			type,
+			data = [],
+			currentPage,
+			hasMore,
+			updateSession,
+			sessionData,
+		} = action?.payload;
 
-		if (!aiChatSessions) {
-			aiChatSessions = {
-				data: [{ ...payload }],
-				hasMore: false,
-				currentPage: 1,
-				getData: true,
-			};
+		let aiChatSessions = { ...(state?.aiChatSessions || {}) };
+		let sessions = [...(aiChatSessions?.data || [])];
+
+		if (type === 'update') {
+			if (addNewSession) {
+				const newSession = {
+					_id: sessionId,
+					title: 'New Chat',
+					createdAt: Math.floor(Date.now() / 1000),
+					isNewSession: true,
+				};
+				if (!sessions?.length) {
+					sessions = [{ ...newSession }];
+					aiChatSessions = {
+						...aiChatSessions,
+						hasMore: false,
+						currentPage: 1,
+						getData: true,
+					};
+				} else {
+					sessions?.unshift(newSession);
+				}
+			}
+
+			if (updateSession) {
+				if (sessions?.length) {
+					let index = sessions?.findIndex((item) => item?._id === sessionId);
+					if (index !== -1) {
+						sessions[index] = sessionData;
+					}
+				}
+			}
+
 			return {
 				...state,
-				aiChatSessions,
+				aiChatSessions: {
+					...aiChatSessions,
+					data: sessions,
+				},
+			};
+		} else if (type === 'delete') {
+			sessions = sessions?.filter((session) => session?._id !== sessionId);
+			return {
+				...state,
+				aiChatSessions: {
+					...aiChatSessions,
+					data: sessions,
+				},
+			};
+		} else {
+			sessions = sessions?.filter((session) => session?.isNewSession);
+			return {
+				...state,
+				aiChatSessions: {
+					...aiChatSessions,
+					data: [...sessions, ...data],
+					hasMore,
+					currentPage,
+				},
 			};
 		}
-
-		let foundIndex = (aiChatSessions?.data || [])?.findIndex(
-			(item) => item?._id === payload?._id,
-		);
-		if (foundIndex !== -1) {
-			aiChatSessions.data[foundIndex] = payload;
-		} else {
-			aiChatSessions?.data?.unshift(payload);
-		}
-
-		return {
-			...state,
-			aiChatSessions,
-		};
 	},
+
 	UPDATE_STATE_VALUES_SUCCESS: (state, action) => ({ ...state, ...action.payload }),
 	SET_AI_ASSISTANTS: (state, action) => ({
 		...state,
