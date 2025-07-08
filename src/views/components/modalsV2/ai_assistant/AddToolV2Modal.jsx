@@ -35,7 +35,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		perPage: 10,
 		totalActions: 0,
 		isConnecting: false,
-		success: null,
+		// success: null,
 	});
 	const searchTimeoutRef = useRef(null);
 	const pageRef = useRef(1);
@@ -84,7 +84,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				page: 1,
 				search: '',
 				error: null,
-				success: null,
+				// success: null,
 				isConnecting: false,
 			}));
 			fetchActions(1, true, '');
@@ -144,7 +144,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 			addError: { ...prev.addError, [action._id]: undefined },
 			isConnecting: true,
 			error: null,
-			success: null,
+			// success: null,
 		}));
 
 		try {
@@ -164,7 +164,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				onSuccess: async () => {
 					setInfo((prev) => ({
 						...prev,
-						success: `Connected to ${action.app_name || action.app}`,
+						// success: `Connected to ${action.app_name || action.app}`,
 						isConnecting: false,
 					}));
 
@@ -427,7 +427,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 						</InfiniteScroll>
 					)}
 				</div>
-				{info.success && (
+				{/* {info.success && (
 					<div
 						className="success-message"
 						style={{
@@ -441,7 +441,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 					>
 						{info.success}
 					</div>
-				)}
+				)} */}
 			</div>
 		</ReactModal>
 	);
