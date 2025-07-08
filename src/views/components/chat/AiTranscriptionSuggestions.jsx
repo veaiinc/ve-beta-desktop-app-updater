@@ -6,7 +6,6 @@ import { ReactComponent as MemorySvg } from '../../../assets/svg/memory.svg';
 import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import Context from '../../../context/context';
 import { fileTypeIcons, redirectTo, redirectTypeMapper } from '../../../helpers';
-import { Switch } from 'antd';
 
 const AiTranscriptionSuggestions = ({ closeModal, showAmbientAssistance }) => {
 	const {
@@ -37,20 +36,15 @@ const AiTranscriptionSuggestions = ({ closeModal, showAmbientAssistance }) => {
 				files: aiTranscriptionSuggestions?.similar_files || [],
 			}));
 		}
+	}, [aiTranscriptionSuggestions]);
+
+	useEffect(() => {
 		return () => {
-			// Clear local state
-			setInfo({
-				userQuestions: [],
-				aiQuestions: [],
-				files: [],
-			});
-			// Clear context data
 			updateStateValues({
 				aiTranscriptionSuggestions: null,
-				activePromptForChat: null,
 			});
 		};
-	}, [aiTranscriptionSuggestions]);
+	}, []);
 
 	useEffect(() => {
 		if (!userQuestionsRef.current) return;
@@ -135,7 +129,7 @@ const AiTranscriptionSuggestions = ({ closeModal, showAmbientAssistance }) => {
 										question?.query || ''
 									}"`}</div>
 
-									{question?.memory_used && (
+									{question?.is_memory_used && (
 										<div className={s.extraInfo}>
 											<div className={s.horizontalLine}></div>
 											<div className={s.isMemoryUsed}>
