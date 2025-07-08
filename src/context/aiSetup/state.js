@@ -238,15 +238,20 @@ export const AiSetupState = () => {
 			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api', params);
 
 			if (response?.[0] === true) {
-				dispatch({
-					type: Actions?.SET_AI_CHAT_SESSIONS,
-					payload: {
-						sessionId,
-						type: 'update',
-						updateSession: true,
-						sessionData: { ...(response?.[1]?.data?.[0] || {}), isNewSession: false },
-					},
-				});
+				if (response?.[1]?.data?.[0]) {
+					dispatch({
+						type: Actions?.SET_AI_CHAT_SESSIONS,
+						payload: {
+							sessionId,
+							type: 'update',
+							updateSession: true,
+							sessionData: {
+								...(response?.[1]?.data?.[0] || {}),
+								isNewSession: false,
+							},
+						},
+					});
+				}
 			} else {
 				console.log('error==>updateAiChatSessions', response?.[1]);
 			}
