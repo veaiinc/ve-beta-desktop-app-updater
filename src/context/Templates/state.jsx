@@ -140,7 +140,7 @@ export const intialState = {
 	chatBoxSuggestions: null,
 	newChatSessionIds: [],
 	aiMessagesInfo: null,
-	isProactive: false,
+	proactiveInfoForChat: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1965,12 +1965,6 @@ export const TemplatesState = (props) => {
 				{ type: 'user', message: queryMessage || '' },
 				{
 					type: 'AI',
-					message: 'loading....',
-					content: (
-						<div className="aiMessageWrapper">
-							<AIMessageLoader />
-						</div>
-					),
 					contentType: 'loading',
 				},
 			];

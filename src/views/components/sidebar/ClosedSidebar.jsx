@@ -24,8 +24,8 @@ const navigationItemsMap = {
 const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 	const navigate = useNavigate();
 	const { workspaceMode } = useWorkspaceMode();
-	const location = useLocation()
-	
+	const location = useLocation();
+
 	const {
 		profileInfo: { userDetailsData },
 		subscriptionInfo: { currentPlan },
@@ -61,45 +61,49 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 		}
 	};
 
-	const isExactPathMatch = useCallback((route) => {
-		// strip trailing slash
-		const current = location.pathname.replace(/\/$/, '');
-		const target = route.replace(/\/$/, '');
-	  
-		// decide once: in “stable” workspace new‐chat = /home, otherwise /chat
-		const chatRoute = workspaceMode === 'stable' ? '/home' : '/chat';
-	  
-		if (target === '/agents') {
-		  // agents nav should also highlight on /ai-assistant
-		  return current.includes('/agents') || current.includes('/ai-assistant');
-		}
-	  
-		if (target === '/chat' || target === 'New Chat') {
-		  // whenever you ask “does /chat match?”, actually compare to our dynamic chatRoute
-		  return current?.includes(chatRoute);
-		}
-	  
-		// all other routes just match exact
-		return current === target;
-	  }, [location.pathname, workspaceMode]);
-	  
+	const isExactPathMatch = useCallback(
+		(route) => {
+			// strip trailing slash
+			const current = location.pathname.replace(/\/$/, '');
+			const target = route.replace(/\/$/, '');
+
+			// decide once: in “stable” workspace new‐chat = /home, otherwise /chat
+			const chatRoute = workspaceMode === 'stable' ? '/home' : '/chat';
+
+			if (target === '/agents') {
+				// agents nav should also highlight on /ai-assistant
+				return current.includes('/agents') || current.includes('/ai-assistant');
+			}
+
+			if (target === '/chat' || target === 'New Chat') {
+				// whenever you ask “does /chat match?”, actually compare to our dynamic chatRoute
+				return current?.includes(chatRoute);
+			}
+
+			// all other routes just match exact
+			return current === target;
+		},
+		[location.pathname, workspaceMode],
+	);
 
 	return (
-		<div className="sidebar-closing" onClick={() => onIconClick()}>
+		<div className="sidebar-closing">
 			<div className="topContainerClosed">
 				<SidebarClosingSvg onClick={() => onIconClick()} />
 				{!isEarlyAccessPage && (
 					<div className="closedIconsContainer">
-						{sidebarNavigationItems.map((item) => (
+						{sidebarNavigationItems.map((item, index) => (
 							<Tooltip
-								key={item?.id}
+								key={index}
 								title={<div className="tooltip-text">{item?.name}</div>}
 								placement="right"
 								arrow={false}
 								color={'transparent'}
 							>
 								<div
-									className={`closed-sidebar-item ${isExactPathMatch(item.route) ? 'active' : ''}`}
+									className={`closed-sidebar-item ${
+										isExactPathMatch(item.route) ? 'active' : ''
+									}`}
 									onClick={(e) => {
 										e.stopPropagation();
 										onOptionsClick(item);
@@ -136,12 +140,24 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 				)}
 			</div>
 			<div className="bottomContainerClosed">
-				<div style={{ marginBottom: '10px' }}>
-					<CreditsLeftSvg
-						totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
-						totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
-					/>
-				</div>
+				<Tooltip
+					title={
+						<div className="tooltip-text">
+							{currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed}{' '}
+							Credits Left
+						</div>
+					}
+					placement="right"
+					arrow={false}
+					color={'transparent'}
+				>
+					<div style={{ marginBottom: '10px' }}>
+						<CreditsLeftSvg
+							totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
+							totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
+						/>
+					</div>
+				</Tooltip>
 				<div className="closedSidebarProfile">
 					{userDetailsData?.logoURL ? (
 						<div className="crop-container">

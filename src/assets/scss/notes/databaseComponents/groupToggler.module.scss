@@ -6,7 +6,6 @@
 	// overflow: hidden;
 	// position: relative;
 	margin-bottom: 20px;
-	gap: 10px;
 
 	.groupTogglerHeader {
 		display: flex;
@@ -16,6 +15,7 @@
 		position: sticky;
 		top: 0;
 		z-index: 100;
+		margin-bottom: 10px;
 
 		.groupTogglerButton {
 			background-color: transparent;

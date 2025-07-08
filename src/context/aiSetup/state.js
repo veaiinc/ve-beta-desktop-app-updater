@@ -1177,17 +1177,6 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const handleAiTranscriptionSuggestions = async (chunk) => {
-		try {
-			dispatch({
-				type: Actions?.HANDLE_AI_TRANSCRIPTION_SUGGESTIONS,
-				payload: chunk,
-			});
-		} catch (error) {
-			console.log('error==>handleAiTranscriptionSuggestions', error);
-		}
-	};
-
 	const updateStateValues = async (updatedVaribaleValuesObj) => {
 		try {
 			dispatch({
@@ -1251,6 +1240,5 @@ export const AiSetupState = () => {
 		deleteAiSetupData,
 		editAiSetupData,
 		updateAiChatSessions,
-		handleAiTranscriptionSuggestions,
 	};
 };

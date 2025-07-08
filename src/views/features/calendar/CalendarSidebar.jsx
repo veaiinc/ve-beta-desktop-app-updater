@@ -1,4 +1,4 @@
-import { memo, useState, useCallback } from 'react';
+import { memo, useState, useCallback, useEffect, useContext } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSelector from '../../components/calendar/CalendarSelector';
 import CalendarCategories from '../../components/calendar/CalendarCategories';
@@ -6,6 +6,7 @@ import CalendarAiChat from '../../components/calendar/CalendarAiChat';
 import GoogleCalendar from '../../components/calendar/GoogleCalendar';
 import moment from 'moment';
 import SessionCard from '../../components/calendar/SessionCard.jsx';
+import Context from '../../../context/context.js';
 
 const CalendarSidebar = ({
 	currentCalendarDate,
@@ -23,6 +24,10 @@ const CalendarSidebar = ({
 	selectedCalendar,
 	showGoogleEvents,
 }) => {
+	const {
+		templates: { connectedThirdParties, getConnectedThirdParties },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		askAi: false,
 	});
@@ -36,6 +41,13 @@ const CalendarSidebar = ({
 
 	const currentDate = moment();
 	const formattedDate = currentDate.format('ddd, MMM D');
+
+	useEffect(() => {
+		if (!connectedThirdParties) getConnectedThirdParties();
+	}, []);
+
+	const isGoogleCalendarConnected =
+		connectedThirdParties?.data?.some((appInfo) => appInfo.app === 'google-calendar') ?? true;
 
 	return (
 		<>
@@ -58,12 +70,14 @@ const CalendarSidebar = ({
 							categoryFilter={categoryFilter}
 							updateCalendarInfo={updateCalendarInfo}
 						/>
-						<GoogleCalendar
-							connectedCalendars={connectedCalendars}
-							selectedCalendar={selectedCalendar}
-							updateCalendarInfo={updateCalendarInfo}
-							showGoogleEvents={showGoogleEvents}
-						/>
+						{!isGoogleCalendarConnected && (
+							<GoogleCalendar
+								connectedCalendars={connectedCalendars}
+								selectedCalendar={selectedCalendar}
+								updateCalendarInfo={updateCalendarInfo}
+								showGoogleEvents={showGoogleEvents}
+							/>
+						)}
 						<SessionCard
 							schedulerList={schedulerList}
 							selectedSession={selectedSession}

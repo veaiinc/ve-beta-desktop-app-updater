@@ -52,7 +52,9 @@ import MeetTranscript from './MeetTranscript';
 import useLiveIntelligenceStream from '../../../hooks/useLiveIntelligenceStream';
 import useRecallStream from '../../../hooks/useRecallStream';
 import NoteTakerTranscript from './NoteTakerTranscript';
-
+import Spinner from '../../components/loaders/Spinner';
+import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import { FetchMoreLoaderComp } from '../../../helpers';
 export const NotesRefContext = createContext(null);
 
 const initialState = {
@@ -108,13 +110,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const [searchParams] = useSearchParams();
 	const noteId = useParams()?.noteId;
 	const type = searchParams.get('type');
+	const history = searchParams.get('history');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const prevDocRef = useRef([]);
 	const previousBlocksRef = useRef(new Map());
 	const pendingUpdatesRef = useRef(new Map());
 	const debounceTimerRef = useRef(null);
-
 	const originalFaviconRef = useRef(null);
 	// const { createWebSocketConnection, sendMessage } = useChatStream();
 
@@ -160,7 +162,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	// Handler for transcript socket messages
 	const handleLiveIntelligenceMessageFunc = useCallback(
 		(event) => {
-			console.log(event);
 			const data = JSON.parse(event?.data || null);
 			handleTranscriptionSuggestions(data);
 		},
@@ -174,16 +175,16 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					setTranscriptList((prev) => [
 						...prev,
 						{
-							participant: msg?.data?.participant,
-							text: msg?.data?.text,
+							speakerName: msg?.data?.speakerName,
+							transcript: msg?.data?.transcript,
 							timestamp: msg?.data?.timestamp,
 						},
 					]);
 					const data = msg?.data;
-					if (data?.participant?.length > 0 || data?.text?.length > 0) {
+					if (data?.speakerName?.length > 0 || data?.transcript?.length > 0) {
 						updateCurrentContext &&
 							updateCurrentContext(
-								(data?.participant || '') + ' : ' + (data?.text || ''),
+								(data?.speakerName || '') + ' : ' + (data?.transcript || ''),
 							);
 					}
 				}

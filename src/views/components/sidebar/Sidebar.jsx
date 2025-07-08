@@ -1,6 +1,5 @@
 import { useState, useContext, useEffect, memo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import Intercom from '@intercom/messenger-js-sdk';
 import '../../../assets/scss/sidebar.scss';
 import {
 	stableNavigationItems,
@@ -69,9 +68,8 @@ const Sidebar = ({ activeWorkspaceId }) => {
 
 	const isHome = pathname?.includes('home');
 	const isChatSidebarRoute =
-		pathname?.includes('calendar') ||
-		pathname?.includes('tasks') ||
-		pathname?.includes('contact');
+		// pathname?.includes('calendar') ||
+		pathname?.includes('tasks') || pathname?.includes('contact');
 
 	const [info, setInfo] = useState({
 		switchWorkspaceModal: false,

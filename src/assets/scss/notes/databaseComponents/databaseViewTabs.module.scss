@@ -1,0 +1,62 @@
+.databaseViewTabs {
+	width: fit-content;
+
+	display: flex;
+	padding: 4px 0px;
+	align-items: center;
+	gap: 8px;
+	align-self: stretch;
+
+	.tabsArea {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+
+		.tab {
+			height: 28px;
+			max-width: 93px;
+			display: flex;
+			display: flex;
+			padding: 6px 8px;
+			gap: 8px;
+			align-items: center;
+
+			.tabIcon {
+				width: 20px;
+				height: 20px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.tabLabel {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+	}
+
+	.actionButtons {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+
+		.addTabButton {
+			width: 20px;
+			height: 20px;
+			background-color: transparent;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border: none;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			padding: 0;
+			padding: 3px;
+		}
+	}
+}

@@ -57,6 +57,7 @@ import {
 	getMeetBotDataQuery,
 	meetBotCreateMutation,
 	deleteLiveKitRoomMutation,
+	getMeetTranscriptHistoryQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -78,6 +79,8 @@ export const intialState = {
 		stack: [],
 		open: false,
 	},
+	transcriptHistory: [],
+	existingBots: null,
 };
 
 export const NotesState = (props) => {
@@ -1229,8 +1232,11 @@ export const NotesState = (props) => {
 						},
 					},
 				});
-				return newField;
+			} else {
+				message?.error('Failed to add new property');
 			}
+
+			return response;
 		} catch (error) {
 			console.error('error==>addDatabaseField', error);
 		}
@@ -1696,11 +1702,16 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const getExistingBots = async (payload) => {
+	const getExistingBots = async ({ page = 1, limit = 10, append = false }) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-
+			const payload = {
+				input: {
+					page,
+					limit,
+				},
+			};
 			const response = await service.query(
 				getMeetBotDataQuery,
 				payload,
@@ -1709,6 +1720,21 @@ export const NotesState = (props) => {
 				'page_notes_api_database',
 			);
 			if (response?.[0]) {
+				const currentPageBotsList = response?.[1]?.data?.listTranscriptionPages?.data;
+				const currentPage = response?.[1]?.data?.listTranscriptionPages?.currentPage;
+				const hasNextPage = response?.[1]?.data?.listTranscriptionPages?.hasNextPage;
+
+				const payload = {
+					data: append
+						? [...(state?.existingBots?.data || []), ...currentPageBotsList]
+						: currentPageBotsList,
+					hasNextPage,
+					currentPage,
+				};
+				dispatch({
+					type: Actions.GET_EXISTING_BOTS_SUCCESS,
+					payload,
+				});
 				return response;
 			}
 		} catch (error) {
@@ -1752,6 +1778,42 @@ export const NotesState = (props) => {
 			}
 		} catch (error) {
 			console.error('error==>deleteLiveKitRoom', error);
+		}
+	};
+
+	const getMeetTranscriptHistory = async (payload, append = false) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getMeetTranscriptHistoryQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api_database',
+			);
+			if (response?.[0]) {
+				const currentPageTranscriptsList = response?.[1]?.data?.listTranscriptions?.data;
+				const currentPage = response?.[1]?.data?.listTranscriptions?.currentPage;
+				const hasNextPage = response?.[1]?.data?.listTranscriptions?.hasNextPage;
+				const totalPages = response?.[1]?.data?.listTranscriptions?.totalPages;
+
+				const payload = {
+					data: append
+						? [...(state?.transcriptHistory?.data || []), ...currentPageTranscriptsList]
+						: currentPageTranscriptsList,
+					hasNextPage,
+					currentPage,
+					totalPages,
+				};
+				dispatch({
+					type: Actions.GET_MEET_TRANSCRIPT_HISTORY_SUCCESS,
+					payload,
+				});
+				return response;
+			}
+		} catch (error) {
+			console.error('error==>getMeetTranscriptHistory', error);
 		}
 	};
 
@@ -1811,5 +1873,6 @@ export const NotesState = (props) => {
 		getExistingBots,
 		createMeetBot,
 		deleteLiveKitRoom,
+		getMeetTranscriptHistory,
 	};
 };

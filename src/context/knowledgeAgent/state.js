@@ -16,21 +16,31 @@ export const initialState = {
 export const KnowledgeAgentState = () => {
 	const [state, dispatch] = useReducer(Reducer, initialState);
 
-	const getKnowledgeAssistantsList = async (page = 1, limit = 10, append = true) => {
+	const getKnowledgeAssistantsList = async (
+		page = 1,
+		limit = 10,
+		search = '',
+		sortBy = 'createdAt',
+		sortOrder = -1,
+		reset = true,
+	) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
-			const path = `/${workspaceId}/knowledge-agents?page=${page}&limit=${limit}`;
+			const searchParam =
+				search && search.trim() ? `&search=${encodeURIComponent(search.trim())}` : '';
+			const sortParam = `&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+			const path = `/${workspaceId}/knowledge-agents?page=${page}&limit=${limit}${searchParam}${sortParam}`;
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchGet(path, token, type);
 			const success = response?.[0] === true;
 			if (success) {
-				const data = append
-					? [
+				const data = reset
+					? [...(response?.[1]?.data || [])]
+					: [
 							...(state?.knowledgeAssistantsList?.data || []),
 							...(response?.[1]?.data || []),
-					  ]
-					: [...(response?.[1]?.data || [])];
+					  ];
 				const payload = {
 					data,
 					currentPage: response?.[1]?.currentPage ?? 1,
@@ -501,10 +511,16 @@ export const KnowledgeAgentState = () => {
 		return statusSummary;
 	};
 
-	const getActionsForKnowledgeAgent = async (agentId) => {
+	const getActionsForKnowledgeAgent = async (agentId, search = '') => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
-			const path = '/' + workspaceId + '/ai-assistants/' + agentId + '/action';
+			const path =
+				'/' +
+				workspaceId +
+				'/ai-assistants/' +
+				agentId +
+				'/action' +
+				(search ? `?search=${encodeURIComponent(search)}` : '');
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchGet(path, token, type);
@@ -638,46 +654,6 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
-	const deleteKnowledgeBaseFile = async (knowledgeFileId) => {
-		try {
-			const workspaceId = localStorage.getItem('workspaceId');
-			const path = `/${workspaceId}/knowledge-bases/${knowledgeFileId}/knowledgeAgent`;
-			const token = localStorage.getItem('usertoken');
-			const type = 'ai_assistant_api';
-			const response = await service?.fetchDelete(path, token, null, type);
-			const success = response?.[0] === true;
-			if (success) {
-				// Remove the deleted file from knowledge base info
-				const updatedKnowledgeBaseInfo = {
-					...state?.knowledgeBaseInfo,
-					data: (state?.knowledgeBaseInfo?.data || []).filter(
-						(file) => file._id !== knowledgeFileId,
-					),
-				};
-				dispatch({
-					type: Actions?.SET_KNOWLEDGE_BASE_INFO,
-					payload: updatedKnowledgeBaseInfo,
-				});
-
-				// Remove the deleted file from active status
-				const updatedActiveStatus = {
-					...state?.knowledgeBaseFilesActiveStatus,
-					data: (state?.knowledgeBaseFilesActiveStatus?.data || []).filter(
-						(status) => status._id !== knowledgeFileId,
-					),
-				};
-				dispatch({
-					type: Actions?.SET_KNOWLEDGE_BASE_ACTIVE_FILE_STATUS,
-					payload: updatedActiveStatus,
-				});
-			}
-			return [success, response?.[1]];
-		} catch (error) {
-			console.log('error==>deleteKnowledgeBaseFile', error);
-			return [false, error];
-		}
-	};
-
 	const uploadAgentProfilePic = async ({ agentId, file }) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -716,11 +692,11 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
-	const getTriggers = async () => {
+	const getTriggers = async (agentId) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const url = '/' + workspaceId + '/ai-assistant-triggers/ai-triggers';
+			const url = '/' + workspaceId + '/ai-assistant-triggers/' + agentId;
 			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
 			if (response?.[0] === true) {
 				dispatch({
@@ -739,36 +715,41 @@ export const KnowledgeAgentState = () => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const url = '/' + workspaceId + '/ai-assistant-triggers/ai-trigger';
+			const url = '/' + workspaceId + '/ai-assistant-triggers';
 
-			// triggerApp: 'gmail' | 'googleMeet'
+			// Handle different trigger types
 			switch (triggerApp) {
 				case 'gmail':
+				case 'outlook':
+				case 'schedule':
 					const response = await service?.fetchPost(
 						url,
-						triggerData, // { email: 'user@gmail.com' }
+						triggerData,
 						usertoken,
 						'ai_assistant_api',
 					);
 					if (response?.[0] === true) {
 						const newTrigger = response[1];
-						const data = [newTrigger, ...(state.triggers.data || [])];
+						const data = [newTrigger, ...(state.triggers?.data || [])];
 						const payload = {
 							...state.triggers,
-							data: [newTrigger, ...(state.triggers.data || [])],
+							data: [newTrigger, ...(state.triggers?.data || [])],
 						};
 						dispatch({
 							type: Actions.CONNECT_TRIGGER,
 							payload,
 						});
-						return [true];
+						return [true, response?.[1]];
 					}
 					return [false, response?.[1]];
 				case 'googleMeet':
-					return [false]; // TODO: implement google meet trigger
+					return [false, { message: 'Google Meet trigger not implemented yet' }]; // TODO: implement google meet trigger
+				default:
+					return [false, { message: `Unknown trigger type: ${triggerApp}` }];
 			}
 		} catch (error) {
 			console.log('error==>connectTrigger', error);
+			return [false, error];
 		}
 	};
 
@@ -776,7 +757,7 @@ export const KnowledgeAgentState = () => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}/ai-assistant-triggers/${triggerId}/ai-trigger`;
+			const url = `/${workspaceId}/ai-assistant-triggers/${triggerId}`;
 			const type = 'ai_assistant_api';
 
 			const response = await service.fetchDelete(url, usertoken, null, type);
@@ -951,6 +932,68 @@ export const KnowledgeAgentState = () => {
 		return [false, response?.[1]];
 	};
 
+	const getActivitiesForKnowledgeAgent = async (agentId, page = 1, limit = 10) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}/knowledge-agents/${agentId}/activities?page=${page}&limit=${limit}`;
+		const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+		if (response?.[0] === true) {
+			return [true, response?.[1]];
+		}
+		return [false, response?.[1]];
+	};
+
+	const updateToolVariables = async (agentId, toolId, payload) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}/ai-assistants/${agentId}/action/${toolId}`;
+		const response = await service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+		if (response?.[0] === true) {
+			return [true, response?.[1]];
+		}
+		return [false, response?.[1]];
+	};
+
+	const deleteKnowledgeBaseFile = async (knowledgeFileId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${workspaceId}/knowledge-bases/${knowledgeFileId}/knowledgeAgent`;
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const response = await service?.fetchDelete(path, token, null, type);
+			const success = response?.[0] === true;
+			if (success) {
+				// Remove the deleted file from knowledge base info
+				const updatedKnowledgeBaseInfo = {
+					...state?.knowledgeBaseInfo,
+					data: (state?.knowledgeBaseInfo?.data || []).filter(
+						(file) => file._id !== knowledgeFileId,
+					),
+				};
+				dispatch({
+					type: Actions?.SET_KNOWLEDGE_BASE_INFO,
+					payload: updatedKnowledgeBaseInfo,
+				});
+
+				// Remove the deleted file from active status
+				const updatedActiveStatus = {
+					...state?.knowledgeBaseFilesActiveStatus,
+					data: (state?.knowledgeBaseFilesActiveStatus?.data || []).filter(
+						(status) => status._id !== knowledgeFileId,
+					),
+				};
+				dispatch({
+					type: Actions?.SET_KNOWLEDGE_BASE_ACTIVE_FILE_STATUS,
+					payload: updatedActiveStatus,
+				});
+			}
+			return [success, response?.[1]];
+		} catch (error) {
+			console.log('error==>deleteKnowledgeBaseFile', error);
+			return [false, error];
+		}
+	};
+
 	const deleteKnowledgeAgent = async (agentId) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -994,6 +1037,18 @@ export const KnowledgeAgentState = () => {
 			return [false, error];
 		}
 	};
+	const listofAllappsActions = async (page = 1, limit = 10, search = '') => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}/agent-tools?page=${page}&limit=${limit}${
+			search ? `&search=${encodeURIComponent(search)}` : ''
+		}`;
+		const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+		if (response?.[0] === true) {
+			return [true, response?.[1]];
+		}
+		return [false, response?.[1]];
+	};
 
 	return {
 		...state,
@@ -1030,7 +1085,10 @@ export const KnowledgeAgentState = () => {
 		getPipedreamActionPayload,
 		getExistingconnectedAccounts,
 		deleteConnectedAccount,
+		getActivitiesForKnowledgeAgent,
+		updateToolVariables,
 		deleteKnowledgeBaseFile,
 		deleteKnowledgeAgent,
+		listofAllappsActions,
 	};
 };

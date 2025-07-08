@@ -698,7 +698,6 @@
 					border: 1px solid var(--stroke);
 					overflow: hidden;
 					background-size: cover !important;
-					background-position: center !important;
 					background: var(--card-over-card);
 
 					&:hover {
@@ -710,6 +709,10 @@
 
 					img {
 						transition: all 0.4s ease;
+						height: 100%;
+						width: 100%;
+						background-repeat: no-repeat;
+						background-size: cover;
 					}
 
 					.unpublished {

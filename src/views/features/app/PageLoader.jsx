@@ -5,6 +5,7 @@ import useTheme from '../../../hooks/useTheme';
 
 const PageLoader = () => {
 	useTheme();
+
 	return (
 		<div className={s.loaderContainer}>
 			<Spinner
