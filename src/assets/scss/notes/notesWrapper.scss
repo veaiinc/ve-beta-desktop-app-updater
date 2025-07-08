@@ -34,6 +34,14 @@
 			flex-grow: 1;
 		}
 	}
+	.switchContainer {
+		position: absolute;
+		right: 160px;
+		top: 16px;
+		&.SuggestionSidebarActive {
+			right: 16px;
+		}
+	}
 	.rightWrapper {
 		height: 100%;
 		width: 400px;

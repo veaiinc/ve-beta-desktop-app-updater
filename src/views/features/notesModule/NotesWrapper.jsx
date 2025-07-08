@@ -6,6 +6,7 @@ import Notes from './Notes';
 import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
 import Context from '../../../context/context';
 import DatabaseWithNote from './DatabaseWithNote';
+import ToggleSlider from '../../components/input/slider';
 
 const NotesWrapper = () => {
 	const {
@@ -14,6 +15,7 @@ const NotesWrapper = () => {
 	const [info, setInfo] = useState({
 		modalIsOpen: false,
 		sessionId: ObjectID()?.toString(),
+		showAmbientAssistance: true,
 	});
 
 	useEffect(() => {
@@ -75,14 +77,35 @@ const NotesWrapper = () => {
 				</div>
 				<div className="notesContainerWrapper">
 					{/* <Notes /> */}
-					<DatabaseWithNote showTranscriptTabs={true} />
+					<DatabaseWithNote
+						showTranscriptTabs={true}
+						showAmbientAssistance={info?.showAmbientAssistance}
+					/>
 				</div>
 			</div>
-			<AiTranscriptionSuggestions
-				data={aiTranscriptionSuggestions || []}
-				modalIsOpen={info?.modalIsOpen}
-				closeModal={handleCloseModal}
-			/>
+			<div
+				className={`switchContainer ${
+					info?.showAmbientAssistance ? 'SuggestionSidebarActive' : ''
+				}`}
+			>
+				<ToggleSlider
+					value={info?.showAmbientAssistance}
+					onChange={(checked) => {
+						setInfo((prev) => ({
+							...prev,
+							showAmbientAssistance: checked,
+						}));
+					}}
+				/>
+			</div>
+			{info?.showAmbientAssistance && (
+				<AiTranscriptionSuggestions
+					data={aiTranscriptionSuggestions || []}
+					modalIsOpen={info?.modalIsOpen}
+					closeModal={handleCloseModal}
+					showAmbientAssistance={info?.showAmbientAssistance}
+				/>
+			)}
 		</div>
 	);
 };
