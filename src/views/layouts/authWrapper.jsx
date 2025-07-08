@@ -81,7 +81,7 @@ const AuthWrapper = ({
 			<ExpiredSubscriptionModal />
 			<ExpiredTokenModal />
 			<AccessDeniedPopup />
-			{/* <CustomToast /> */}
+			<CustomToast />
 		</main>
 	);
 };
