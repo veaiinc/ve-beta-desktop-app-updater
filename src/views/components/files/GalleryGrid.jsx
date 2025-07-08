@@ -364,7 +364,9 @@ const GalleryGrid = ({
 											minHeight: '120px',
 											marginBottom: '8px',
 											backgroundSize: 'cover',
-											backgroundPosition: 'center',
+											backgroundPosition: `${
+												item?.coverImage?.xPosition * 50 + 50
+											}% ${50 - item?.coverImage?.yPosition * 50}%`,
 										}}
 									>
 										{!item?.coverImage?.thumbnailUrl && (

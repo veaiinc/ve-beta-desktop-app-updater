@@ -4,6 +4,8 @@ import Text from '../../elements/text';
 // import Down from '../actions/down.jsx';
 // import Up from '../actions/up.jsx';
 import Delete from '../actions/delete.jsx';
+import Down from '../actions/down.jsx';
+import Up from '../actions/up.jsx';
 
 import Edit from '../actions/edit.jsx';
 import Copy from '../actions/copy.jsx';
@@ -887,6 +889,24 @@ class ServiceItem extends Component {
 							<Copy />
 							<label className="tooltip-text">Duplicate</label>
 						</span>
+						{this.props.index > 0 && (
+							<span
+								className="tooltip"
+								onClick={(e) => this.props.handleMoveServiceBlock('up')}
+							>
+								<Up />
+								<label className="tooltip-text">Up</label>
+							</span>
+						)}
+						{this.props.index < this.props.itemsLength - 1 && (
+							<span
+								className="tooltip"
+								onClick={(e) => this.props.handleMoveServiceBlock('down')}
+							>
+								<Down />
+								<label className="tooltip-text">Down</label>
+							</span>
+						)}
 						<span
 							className="tooltip"
 							onClick={(e) =>

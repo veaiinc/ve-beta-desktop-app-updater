@@ -48,6 +48,16 @@ const actionHandlers = {
 		...state,
 		triggers: action?.payload,
 	}),
+
+	SET_AGENTS_LIST_FOR_AUTOMATION: (state, action) => ({
+		...state,
+		assistantListForAutomation: action?.payload,
+	}),
+
+	SET_ACTIVE_ASSISTANT_FOR_AUTOMATION: (state, action) => ({
+		...state,
+		currentAgentAutomation: action?.payload,
+	}),
 	RESET_STATE: () => initialState,
 };
 

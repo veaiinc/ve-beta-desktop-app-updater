@@ -33,7 +33,7 @@ const SidebarTooltip = ({ label, icon, onClick }) => (
 		title={<div style={tooltipTitleStyle}>{label}</div>}
 		placement="bottomRight"
 		arrow={false}
-		overlayInnerStyle={tooltipOverlayInnerStyle}
+		styles={{ body: tooltipOverlayInnerStyle }}
 	>
 		<div className="eachOption" onClick={onClick}>
 			{icon}

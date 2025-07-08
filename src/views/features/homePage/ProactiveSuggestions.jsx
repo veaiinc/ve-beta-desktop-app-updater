@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useRef, useState, useMemo, useCallback, use } from 'react';
+import { memo, useContext, useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import Context from '../../../context/context';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
@@ -1353,7 +1353,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 							onSend={handleCustomOnSendFunction}
 							customChatActions={true}
 							autoFocus={false}
-							animatePlaceholder={true}
+							animatePlaceholder={false}
 							onChatQueryChange={handleChatQueryChange}
 							showUpgradeSubscriptionBtn={false}
 							customChatBoxClick={() => {
