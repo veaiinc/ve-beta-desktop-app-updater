@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import { lazy } from 'react';
 
 // layouts
 import Public from '../views/layouts/Public';
@@ -75,9 +75,7 @@ const publicRoutes = [
 		path: '/onboarding',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
-					<Onboarding />
-				</Suspense>
+				<Onboarding />
 			</Public>
 		),
 	},
@@ -85,9 +83,7 @@ const publicRoutes = [
 		path: '/verify-user',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
-					<LoginPage />
-				</Suspense>
+				<LoginPage />
 			</Public>
 		),
 	},
@@ -95,9 +91,7 @@ const publicRoutes = [
 		path: '/referral/:referralCode',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
-					<LoginPage />
-				</Suspense>
+				<LoginPage />
 			</Public>
 		),
 	},
@@ -105,9 +99,7 @@ const publicRoutes = [
 		path: '/privacy-policy',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
-					<PrivacyPolicy />
-				</Suspense>
+				<PrivacyPolicy />
 			</Public>
 		),
 	},
@@ -115,9 +107,7 @@ const publicRoutes = [
 		path: '/terms-of-service',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
-					<TermsOfService />
-				</Suspense>
+				<TermsOfService />
 			</Public>
 		),
 	},
@@ -125,9 +115,7 @@ const publicRoutes = [
 		path: '/cookie-policy',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
-					<CookiePolicy />
-				</Suspense>
+				<CookiePolicy />
 			</Public>
 		),
 	},
@@ -135,9 +123,7 @@ const publicRoutes = [
 		path: '/changelog',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
-					<ChageLog />
-				</Suspense>
+				<ChageLog />
 			</Public>
 		),
 	},
@@ -145,9 +131,7 @@ const publicRoutes = [
 		path: '/user/verify-oauth-user',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
-					<OauthVerify />
-				</Suspense>
+				<OauthVerify />
 			</Public>
 		),
 	},
