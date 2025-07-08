@@ -441,7 +441,7 @@ const DocumentShare = ({
 					...prev,
 					loading: true,
 				}));
-			}, 800);
+			}, 1500);
 			setInfo((prev) => ({ ...prev, timeout }));
 		},
 		[info.timeout],

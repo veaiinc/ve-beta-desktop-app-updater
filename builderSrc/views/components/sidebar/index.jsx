@@ -10433,7 +10433,14 @@ else{
 									</label>
 									{this.state.showFontsDropDown ? (
 										<>
-											<div className="fonts-dropdown" ref={this.dropdownref}>
+											<div
+												style={{
+													top: 100,
+													left: 0,
+												}}
+												className="fonts-dropdown"
+												ref={this.dropdownref}
+											>
 												<div
 													style={{
 														width: '100%',
