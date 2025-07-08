@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState, useRef, useCallback } from 'react';
 import '../../../../assets/scss/ai_assistant/modal/addToolV2.scss';
 import ReactModal from '../index';
+import { createFrontendClient } from '@pipedream/sdk/browser';
 import Context from '../../../../context/context';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/docs/cross.svg';
 import Spinner from '../../loaders/Spinner';
@@ -8,6 +9,7 @@ import { useParams } from 'react-router-dom';
 import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 import { ReactComponent as SearchIcon } from '../../../../assets/svg/ai_assistant/search.svg';
 import { ReactComponent as AddIcon } from '../../../../assets/svg/ai_assistant/add.svg';
+import { message } from '../../globalComponents/CustomToast';
 
 const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 	const {
@@ -32,6 +34,8 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		page: 1,
 		perPage: 10,
 		totalActions: 0,
+		isConnecting: false,
+		// success: null,
 	});
 	const searchTimeoutRef = useRef(null);
 	const pageRef = useRef(1);
@@ -74,7 +78,15 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 	useEffect(() => {
 		if (isOpen) {
 			pageRef.current = 1;
-			setInfo((prev) => ({ ...prev, actions: [], page: 1, search: '', error: null }));
+			setInfo((prev) => ({
+				...prev,
+				actions: [],
+				page: 1,
+				search: '',
+				error: null,
+				// success: null,
+				isConnecting: false,
+			}));
 			fetchActions(1, true, '');
 		}
 	}, [isOpen]);
@@ -124,85 +136,142 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		? actionsInfo.data.map((a) => a.action_key || a.key || a.id)
 		: [];
 
-	// Add tool handler
+	// Add tool handler with Pipedream SDK integration
 	const handleAddTool = async (action) => {
 		setInfo((prev) => ({
 			...prev,
 			addLoading: { ...prev.addLoading, [action._id]: true },
 			addError: { ...prev.addError, [action._id]: undefined },
+			isConnecting: true,
+			error: null,
+			// success: null,
 		}));
+
 		try {
-			// 1. Connect tool to get connect URL
+			// 1. Connect tool to get connection token
 			const [connectSuccess, connectRes] = await connectTool({ app: action.app });
-			if (!connectSuccess || !connectRes?.data?.connect_link_url)
-				throw new Error(connectRes?.message || 'Failed to connect tool');
-			const connectUrl = connectRes.data.connect_link_url;
+			if (!connectSuccess || !connectRes?.data?.token) {
+				throw new Error(connectRes?.message || 'Failed to get connection token');
+			}
 
-			// 2. Open connect URL in a new tab
-			window.open(connectUrl, '_blank');
+			const { token } = connectRes.data;
+			const pd = createFrontendClient();
 
-			// 3. Prepare payload for addActionToKnowledgeAgent (tool definition format)
-			const name = action.name || action.key || action.id || '';
-			const description = action.description || '';
-			const url = `https://ap.api.ve.ai/third-party-integrations/1.0/pipedream/execute-action`;
-			const method = 'POST';
-			const contentType = 'json';
-			const headers = [{ name: 'Content-Type', value: 'application/json' }];
+			// 2. Use Pipedream SDK to connect account
+			await pd.connectAccount({
+				app: action.app,
+				token: token,
+				onSuccess: async () => {
+					setInfo((prev) => ({
+						...prev,
+						// success: `Connected to ${action.app_name || action.app}`,
+						isConnecting: false,
+					}));
 
-			// Build props with variable placeholders
-			const props = {};
-			const variables = [];
-			(action.configurable_props || []).forEach((prop) => {
-				if (prop.type === 'app') {
-					// For app type, we'll use a placeholder that will be resolved later
-					props[prop.name] = `{{${prop.name}}}`;
-				} else {
-					// Use variable placeholder
-					props[prop.name] = `{{${prop.name}}}`;
-					variables.push({
-						name: prop.name,
-						type: prop.type,
-						description: prop.description || `No description provided for ${prop.name}`,
-					});
-				}
+					// Fetch connected accounts to get the account ID
+					try {
+						const tenatUserId = userDetailsData?._id;
+						const accountsResponse = await getExistingconnectedAccounts({
+							tenatUserId,
+						});
+
+						let accountId = null;
+						if (accountsResponse?.data?.connected_accounts) {
+							// Find the newly connected account for this app
+							const newAccount = accountsResponse.data.connected_accounts.find(
+								(account) => account.app.name_slug === action.app,
+							);
+							if (newAccount) {
+								accountId = newAccount.id;
+							}
+						}
+
+						// 3. Prepare payload for addActionToKnowledgeAgent (tool definition format)
+						const name = action.name || action.key || action.id || '';
+						const description = action.description || '';
+						const workspaceId = localStorage.getItem('workspaceId');
+						const url = `https://us.api.ve.ai/third-party-integrations/1.0/pipedream/execute-action/${workspaceId}`;
+						const method = 'POST';
+						const contentType = 'json';
+						const headers = [{ name: 'Content-Type', value: 'application/json' }];
+
+						// Build props with variable placeholders
+						const props = {};
+						const variables = [];
+						(action.configurable_props || []).forEach((prop) => {
+							if (prop.type === 'app') {
+								// For app type, we'll use a placeholder that will be resolved later
+								props[prop.name] = `{{${prop.name}}}`;
+							} else {
+								// Use variable placeholder
+								props[prop.name] = `{{${prop.name}}}`;
+								variables.push({
+									name: prop.name,
+									type: prop.type,
+									description:
+										prop.description ||
+										`No description provided for ${prop.name}`,
+								});
+							}
+						});
+
+						// Build body as string, replacing objects with JSON
+						const bodyObj = {
+							action_key: action.key || action.id || '',
+							app: action.app || '',
+							account_id: accountId, // Use the actual account ID
+							props,
+						};
+						let body = JSON.stringify(bodyObj);
+						// Remove quotes around variable placeholders
+						body = body.replace(/"{{(.*?)}}"/g, '{{$1}}');
+
+						const payload = {
+							name,
+							description,
+							url,
+							method,
+							contentType,
+							body,
+							headers,
+							variables,
+							isAuthenticated: true,
+							agent: 'knowledgeAgent',
+						};
+
+						// 4. Submit action to backend
+						await addActionToKnowledgeAgent(agentId, payload);
+
+						message.success('Tool added successfully');
+						setInfo((prev) => ({
+							...prev,
+							addLoading: { ...prev.addLoading, [action._id]: false },
+							addError: { ...prev.addError, [action._id]: undefined },
+						}));
+						if (onToolAdded) onToolAdded();
+					} catch (error) {
+						console.error('Error fetching connected accounts after connection:', error);
+						throw new Error('Failed to complete tool setup');
+					}
+				},
+				onError: (err) => {
+					setInfo((prev) => ({
+						...prev,
+						error: err.message || 'Failed to connect to the app',
+						isConnecting: false,
+						addLoading: { ...prev.addLoading, [action._id]: false },
+						addError: {
+							...prev.addError,
+							[action._id]: err.message || 'Failed to connect to the app',
+						},
+					}));
+				},
 			});
-
-			// Build body as string, replacing objects with JSON
-			const bodyObj = {
-				action_key: action.key || action.id || '',
-				app: action.app || '',
-				account_id: null, // Will be resolved when the action is executed
-				props,
-			};
-			let body = JSON.stringify(bodyObj);
-			// Remove quotes around variable placeholders
-			body = body.replace(/"{{(.*?)}}"/g, '{{$1}}');
-
-			const payload = {
-				name,
-				description,
-				url,
-				method,
-				contentType,
-				body,
-				headers,
-				variables,
-				isAuthenticated: true,
-				agent: 'knowledgeAgent',
-			};
-
-			// 4. Submit action to backend immediately
-			await addActionToKnowledgeAgent(agentId, payload);
-
-			setInfo((prev) => ({
-				...prev,
-				addLoading: { ...prev.addLoading, [action._id]: false },
-				addError: { ...prev.addError, [action._id]: undefined },
-			}));
-			if (onToolAdded) onToolAdded();
 		} catch (error) {
 			setInfo((prev) => ({
 				...prev,
+				error: error.message || 'An unexpected error occurred',
+				isConnecting: false,
 				addLoading: { ...prev.addLoading, [action._id]: false },
 				addError: { ...prev.addError, [action._id]: error.message || 'Failed to add tool' },
 			}));
@@ -306,7 +375,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 																		disabled={
 																			!!info.addLoading[
 																				action._id
-																			]
+																			] || info.isConnecting
 																		}
 																	>
 																		{info.addLoading[
@@ -318,7 +387,9 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 																					height="16px"
 																					color="var(--primary-font)"
 																				/>
-																				Adding...
+																				{info.isConnecting
+																					? 'Connecting...'
+																					: 'Adding...'}
 																			</div>
 																		) : (
 																			<div className="add-button-container">
@@ -356,6 +427,21 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 						</InfiniteScroll>
 					)}
 				</div>
+				{/* {info.success && (
+					<div
+						className="success-message"
+						style={{
+							marginTop: '10px',
+							padding: '8px 12px',
+							backgroundColor: 'var(--success-bg)',
+							color: 'var(--success)',
+							borderRadius: '4px',
+							fontSize: '14px',
+						}}
+					>
+						{info.success}
+					</div>
+				)} */}
 			</div>
 		</ReactModal>
 	);
