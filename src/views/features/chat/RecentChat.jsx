@@ -256,9 +256,9 @@ const RecentChat = ({
 				currentUserMessageTimeoutRef.current = null;
 			}
 
-			if (!globalChatMessages?.[sessionId]) {
-				getRecentChatMessages(sessionId, 1, false, 1000, isPublicChat);
-			}
+			// if (!globalChatMessages?.[sessionId]) {
+			getRecentChatMessages(sessionId, 1, false, 1000, isPublicChat);
+			// }
 
 			const sessionIdsToClose = newChatSessionIds?.filter(
 				(id) => !globalChatMessages?.[id]?.isStreaming,
