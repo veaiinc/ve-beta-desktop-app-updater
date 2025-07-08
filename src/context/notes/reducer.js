@@ -509,7 +509,7 @@ const actionHandlers = {
 	}),
 	GET_EXISTING_BOTS_SUCCESS: (state, action) => ({
 		...state,
-		existingBots: action?.payload?.data || [],
+		existingBots: action?.payload,
 	}),
 	RESET_STATE: () => intialState,
 };

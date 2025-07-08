@@ -9,6 +9,7 @@ import Spinner from '../../components/loaders/Spinner';
 import EmptyMeetBotList from './emptyMeetBotList';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
+import { message } from '../../components/globalComponents/CustomToast';
 
 function formatDate(timestamp) {
 	const date = new Date(Number(timestamp) * 1000);
@@ -29,6 +30,10 @@ function isValidUrl(url) {
 	}
 }
 
+const limit = 10;
+const append = true;
+const infiniteScrollHeight = 'calc(100vh - 100px)';
+
 const MeetBot = () => {
 	const {
 		notes: { getExistingBots, createMeetBot, existingBots },
@@ -41,39 +46,25 @@ const MeetBot = () => {
 		meetingUrl: '',
 		selectedMode: 'meeting_bot',
 		creating: false,
-		loadingMeetings: false,
-		page: 1,
-		limit: 10,
-		hasMore: true,
-		currentPage: 1,
-		totalPages: 0,
 	});
+
+	const meetings = existingBots?.data;
+	const loadingMeetings = existingBots ? false : true;
+	const currentPage = existingBots?.currentPage ?? 1;
+	const hasNextPage = existingBots?.hasNextPage ?? false;
 
 	// Function to load meetings
 	const loadMeetings = async (page = 1, append = false) => {
 		try {
-			setInfo((prev) => ({ ...prev, loadingMeetings: true }));
-			const response = await getExistingBots(
-				{
-					input: {
-						limit: info.limit,
-						page: page,
-					},
-				},
+			const response = await getExistingBots({
+				page,
+				limit,
 				append,
-			);
-			if (response?.[1]?.data?.listTranscriptionPages) {
-				const { hasNextPage, currentPage, totalPages } =
-					response[1].data.listTranscriptionPages;
-				setInfo((prev) => ({
-					...prev,
-					loadingMeetings: false,
-					hasMore: hasNextPage,
-					currentPage: currentPage,
-					totalPages: totalPages,
-				}));
-			} else {
-				setInfo((prev) => ({ ...prev, loadingMeetings: false }));
+			});
+			const success = response[0];
+			if (!success) {
+				const errMsg = response[1].message;
+				message.error(errMsg || 'Oops! Unable to fetch existing bots!');
 			}
 		} catch (error) {
 			setInfo((prev) => ({ ...prev, loadingMeetings: false }));
@@ -82,18 +73,16 @@ const MeetBot = () => {
 
 	// Load existing bots when component mounts
 	useEffect(() => {
-		if (!existingBots || existingBots.length === 0) {
-			loadMeetings(1, false);
+		if (!existingBots) {
+			loadMeetings();
 		}
 	}, []);
 
 	// Function to load more meetings when scrolling
 	const loadMoreMeetings = () => {
-		if (info.loadingMeetings || !info.hasMore) return;
-
-		const nextPage = info.page + 1;
-		setInfo((prev) => ({ ...prev, page: nextPage }));
-		loadMeetings(nextPage, true);
+		if (!hasNextPage) return;
+		const page = currentPage + 1;
+		loadMeetings(page, append);
 	};
 
 	// Group meetings by date
@@ -174,10 +163,9 @@ const MeetBot = () => {
 			handleCreateMeet();
 		}
 	};
-
 	// Group meetings by date for display
-	const meetingsByDate = groupMeetingsByDate(existingBots || []);
-
+	const meetingsByDate = groupMeetingsByDate(meetings || []);
+	const meetingsLength = Object.values(meetingsByDate).flat().length;
 	return (
 		<div className="meetbot">
 			<div className="leftContainer">
@@ -238,7 +226,7 @@ const MeetBot = () => {
 						{/* <div className="upcomingTitle">Upcoming meeting</div>
                     <div className="upcoming">...</div> */}
 						{/* Meetings list with infinite scroll */}
-						{info.loadingMeetings && info.page === 1 ? (
+						{loadingMeetings ? (
 							<div className="loading-container">
 								<Spinner
 									width="32px"
@@ -253,10 +241,10 @@ const MeetBot = () => {
 							</div>
 						) : (
 							<InfiniteScroll
-								dataLength={Object.values(meetingsByDate).flat().length}
+								dataLength={meetingsLength}
 								next={loadMoreMeetings}
-								hasMore={info.hasMore}
-								height={'1000px'}
+								hasMore={hasNextPage}
+								height={infiniteScrollHeight}
 								loader={<FetchMoreLoaderComp />}
 							>
 								{Object.keys(meetingsByDate).map((date) => (
@@ -268,7 +256,9 @@ const MeetBot = () => {
 												<div
 													className="meetingCard"
 													onClick={() =>
-														navigate(`/meet/${meeting._id}?type=meeting_bot&history=true`)
+														navigate(
+															`/meet/${meeting._id}?type=meeting_bot&history=true`,
+														)
 													}
 													key={meeting._id}
 												>
