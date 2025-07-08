@@ -383,7 +383,7 @@ class NavbarComponent extends Component {
 											this.props?.section?.style?.showLogo &&
 											!properties?.imageURL
 												? '100px'
-												: '60px',
+												: '100px',
 										height: '60px',
 										background: 'transparent',
 
@@ -434,16 +434,17 @@ class NavbarComponent extends Component {
 										>
 											{this.props?.section?.style?.siteTitle}
 										</div>
-									) : this.props.section.objectFit ? (
-										<img
-											style={{
-												objectFit: this.props.section.objectFit,
-												height: '56px',
-												width: '56px',
-											}}
-											src={this.props?.section?.imageURL}
-										/>
 									) : (
+										// ) : this.props.section.objectFit ? (
+										// 	<img
+										// 		style={{
+										// 			objectFit: this.props.section.objectFit,
+										// 			height: '56px',
+										// 			width: '56px',
+										// 		}}
+										// 		src={this.props?.section?.imageURL}
+										// 	/>
+										// )
 										<ImageItem
 											preview={this.state?.preview}
 											previewType={this.state?.previewType}
@@ -743,7 +744,7 @@ class NavbarComponent extends Component {
 									className="navbar-image-wrapper"
 									style={{
 										width: '60px',
-										height: '60px',
+										height: '100px',
 										background: 'transparent',
 
 										border: this.state.hoveredImage
