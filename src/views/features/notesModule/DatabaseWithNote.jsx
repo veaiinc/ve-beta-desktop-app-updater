@@ -180,13 +180,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 							timestamp: msg?.data?.timestamp,
 						},
 					]);
-					const data = msg?.data;
-					if (data?.speakerName?.length > 0 || data?.transcript?.length > 0) {
-						updateCurrentContext &&
-							updateCurrentContext(
-								(data?.speakerName || '') + ' : ' + (data?.transcript || ''),
-							);
-					}
+					// const data = msg?.data;
+					// if (data?.speakerName?.length > 0 || data?.transcript?.length > 0) {
+					// 	updateCurrentContext &&
+					// 		updateCurrentContext(
+					// 			(data?.speakerName || '') + ' : ' + (data?.transcript || ''),
+					// 		);
+					// }
 				}
 			} catch (e) {
 				// ignore
@@ -1001,7 +1001,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	useEffect(() => {
 		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
 			recallConnection(handleSocketMessage);
-			createLiveIntelligenceStream(info?.sessionId, handleLiveIntelligenceMessageFunc);
+			createLiveIntelligenceStream(info?.sessionId, handleLiveIntelligenceMessageFunc, false);
 		}
 		// No cleanup needed, useRecallStream handles it
 		// eslint-disable-next-line react-hooks/exhaustive-deps

@@ -55,7 +55,7 @@ const useLiveIntelligenceStream = () => {
 	}, []);
 
 	const createWebSocketConnection = useCallback(
-		(sessionId, onMessageFunc) => {
+		(sessionId, onMessageFunc, sendData = true) => {
 			if (!sessionId) {
 				console.error('Session ID is required for live intelligence streaming');
 				return;
@@ -86,9 +86,11 @@ const useLiveIntelligenceStream = () => {
 					clearTimeout(sendTimeoutRef.current);
 				}
 
-				sendTimeoutRef.current = setTimeout(() => {
-					sendContextData();
-				}, SEND_TIMEOUT);
+				if (sendData) {
+					sendTimeoutRef.current = setTimeout(() => {
+						sendContextData();
+					}, SEND_TIMEOUT);
+				}
 			};
 
 			socketRef.current.onclose = () => {
@@ -132,7 +134,11 @@ const useLiveIntelligenceStream = () => {
 
 			if (!socketRef.current || socketRef.current.readyState === WebSocket.CLOSED) {
 				console.log('Connection closed, attempting to reconnect...');
-				createWebSocketConnection(currentSessionIdRef.current, messageHandlerRef.current);
+				createWebSocketConnection(
+					currentSessionIdRef.current,
+					messageHandlerRef.current,
+					true,
+				);
 				attempts++;
 				setTimeout(attemptSend, RETRY_DELAY);
 				return;
