@@ -394,6 +394,9 @@ class FormEvent extends Component {
 		const submitTextColor =
 			this.props.buttonProps?.content?.match(/color:\s*(.*?)[;\"]/)?.[1] || '#1A1A1A';
 
+		// Extract color from this.props.question, fallback to #1A1A1A
+		const eventTextColor = this.props.question?.match(/color:\s*(.*?)[;\"]/)?.[1] || '#1A1A1A';
+
 		return (
 			<>
 				<button
@@ -428,12 +431,12 @@ class FormEvent extends Component {
 						justifyContent: 'center',
 						transition: 'background-color 0.4s ease-in-out',
 					}}
-					onMouseOver={(e) => {
-						e.currentTarget.style.backgroundColor = '#6f5a9a';
-					}}
-					onMouseOut={(e) => {
-						e.currentTarget.style.backgroundColor = buttonBackground;
-					}}
+					// onMouseOver={(e) => {
+					// 	e.currentTarget.style.backgroundColor = '#6f5a9a';
+					// }}
+					// onMouseOut={(e) => {
+					// 	e.currentTarget.style.backgroundColor = buttonBackground;
+					// }}
 				>
 					<span>+</span>
 					Add Events
@@ -461,21 +464,21 @@ class FormEvent extends Component {
 						<tbody>
 							{this.state.events.map((event, index) => (
 								<tr key={index} style={{ border: '1px solid #ccc' }}>
-									<td style={{ color: submitTextColor, padding: '8px' }}>
+									<td style={{ color: eventTextColor, padding: '8px' }}>
 										{event.name}
 									</td>
-									<td style={{ color: submitTextColor, padding: '8px' }}>
+									<td style={{ color: eventTextColor, padding: '8px' }}>
 										{event.date
 											? moment(event.date, 'YYYYMMDD').format('DD/MM/YYYY')
 											: ''}
 									</td>
-									<td style={{ color: submitTextColor, padding: '8px' }}>
+									<td style={{ color: eventTextColor, padding: '8px' }}>
 										{event.time || ''}
 									</td>
-									<td style={{ color: submitTextColor, padding: '8px' }}>
+									<td style={{ color: eventTextColor, padding: '8px' }}>
 										{event.location || ''}
 									</td>
-									<td style={{ color: submitTextColor, padding: '8px' }}>
+									<td style={{ color: eventTextColor, padding: '8px' }}>
 										{event.noOfGuests || ''}
 									</td>
 									<td
