@@ -391,6 +391,9 @@ class FormEvent extends Component {
 	};
 	render() {
 		const buttonBackground = this.props.buttonProps?.btStyles?.background || '#8b75ba';
+		const submitTextColor =
+			this.props.buttonProps?.content?.match(/color:\s*(.*?)[;\"]/)?.[1] || '#1A1A1A';
+
 		return (
 			<>
 				<button
@@ -406,9 +409,7 @@ class FormEvent extends Component {
 							this.props.buttonProps?.content?.match(
 								/font-weight:\s*(.*?)[;"]/,
 							)?.[1] || '400',
-						color:
-							this.props.buttonProps?.content?.match(/color:\s*(.*?)[;"]/)?.[1] ||
-							'#FFFFFF',
+						color: submitTextColor,
 						backgroundColor: buttonBackground,
 						border: 'none',
 						borderRadius: '100px',
@@ -745,7 +746,11 @@ class FormEvent extends Component {
 										</div>
 									</div>
 
-									<div className="eventButton" onClick={this.handleAddEvent}>
+									<div
+										className="eventButton"
+										onClick={this.handleAddEvent}
+										style={{ color: submitTextColor }}
+									>
 										{this.state.editEventData ? 'Update' : 'Add'}
 									</div>
 								</div>
