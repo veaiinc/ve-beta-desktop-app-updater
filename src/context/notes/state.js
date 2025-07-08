@@ -1778,7 +1778,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const getMeetTranscriptHistory = async (payload) => {
+	const getMeetTranscriptHistory = async (payload, append = false) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -1790,10 +1790,24 @@ export const NotesState = (props) => {
 				'page_notes_api_database',
 			);
 			if (response?.[0]) {
+				const currentPageTranscriptsList = response?.[1]?.data?.listTranscriptions?.data;
+				const currentPage = response?.[1]?.data?.listTranscriptions?.currentPage;
+				const hasNextPage = response?.[1]?.data?.listTranscriptions?.hasNextPage;
+				const totalPages = response?.[1]?.data?.listTranscriptions?.totalPages;
+
+				const payload = {
+					data: append
+						? [...(state?.transcriptHistory?.data || []), ...currentPageTranscriptsList]
+						: currentPageTranscriptsList,
+					hasNextPage,
+					currentPage,
+					totalPages,
+				};
 				dispatch({
 					type: Actions.GET_MEET_TRANSCRIPT_HISTORY_SUCCESS,
-					payload: response?.[1]?.data?.listTranscriptions?.data,
+					payload,
 				});
+				return response;
 			}
 		} catch (error) {
 			console.error('error==>getMeetTranscriptHistory', error);

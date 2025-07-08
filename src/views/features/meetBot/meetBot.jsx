@@ -267,7 +267,9 @@ const MeetBot = () => {
 											{meetingsByDate[date].map((meeting) => (
 												<div
 													className="meetingCard"
-													onClick={() => navigate(`/meet/${meeting._id}`)}
+													onClick={() =>
+														navigate(`/meet/${meeting._id}?type=meeting_bot&history=true`)
+													}
 													key={meeting._id}
 												>
 													<div className="meetingInfo">
