@@ -7,7 +7,7 @@ import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import Context from '../../../context/context';
 import { fileTypeIcons, redirectTo, redirectTypeMapper } from '../../../helpers';
 
-const AiTranscriptionSuggestions = ({ closeModal }) => {
+const AiTranscriptionSuggestions = ({ closeModal, showAmbientAssistance }) => {
 	const {
 		templates: { aiTranscriptionSuggestions, updateStateValues },
 	} = useContext(Context);
@@ -37,6 +37,14 @@ const AiTranscriptionSuggestions = ({ closeModal }) => {
 			}));
 		}
 	}, [aiTranscriptionSuggestions]);
+
+	useEffect(() => {
+		return () => {
+			updateStateValues({
+				aiTranscriptionSuggestions: null,
+			});
+		};
+	}, []);
 
 	useEffect(() => {
 		if (!userQuestionsRef.current) return;
@@ -82,7 +90,12 @@ const AiTranscriptionSuggestions = ({ closeModal }) => {
 	}, []);
 
 	return (
-		<div className={s.aiTranscriptionSuggestions}>
+		<div
+			className={s.aiTranscriptionSuggestions}
+			style={{
+				width: showAmbientAssistance ? '600px' : '0px',
+			}}
+		>
 			<div className={s.header}>
 				<div className={s.leftContainer}>
 					{/* <div className={s.closeIconContainer} onClick={closeModal}>
@@ -116,7 +129,7 @@ const AiTranscriptionSuggestions = ({ closeModal }) => {
 										question?.query || ''
 									}"`}</div>
 
-									{question?.memory_used && (
+									{question?.is_memory_used && (
 										<div className={s.extraInfo}>
 											<div className={s.horizontalLine}></div>
 											<div className={s.isMemoryUsed}>
