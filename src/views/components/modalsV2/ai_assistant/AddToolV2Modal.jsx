@@ -249,6 +249,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 							addError: { ...prev.addError, [action._id]: undefined },
 						}));
 						if (onToolAdded) onToolAdded();
+						onClose();
 					} catch (error) {
 						console.error('Error fetching connected accounts after connection:', error);
 						throw new Error('Failed to complete tool setup');
