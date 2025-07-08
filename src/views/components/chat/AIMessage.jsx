@@ -127,9 +127,9 @@ const AIMessage = ({
 				<Markdown citations={citations}>{text}</Markdown>
 			)}
 
-			{messageData?.unintegrated_apps?.length > 0 && (
-				<UnintegratedAgentApps apps={messageData?.unintegrated_apps} />
-			)}
+			{/* {messageData?.unintegrated_apps?.length > 0 && ( */}
+			<UnintegratedAgentApps apps={messageData?.unintegrated_apps} />
+			{/* )} */}
 
 			{messageData?.messageId && (
 				<div
