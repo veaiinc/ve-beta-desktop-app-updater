@@ -323,7 +323,7 @@ export const getFaviconUrl = (url) => {
 		const domain = new URL(url)?.hostname;
 		const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
 
-		faviconCache?.set(url, faviconUrl);
+		faviconCache?.set(domain, faviconUrl);
 		return faviconUrl;
 	} catch (error) {
 		return null;
@@ -334,9 +334,9 @@ export const getWebsiteName = (url) => {
 	try {
 		const domain = new URL(url)?.hostname;
 		// Remove common TLDs and www
-		const name = domain?.replace(/^www\./i, '')?.split('.')?.[0];
+		const name = domain?.replace(/^www\./i, '');
 		// Capitalize first letter
-		return name?.charAt(0)?.toUpperCase() + name?.slice(1);
+		return name;
 	} catch (error) {
 		return url;
 	}
@@ -384,7 +384,6 @@ export const redirectTo = (type, id) => {
 		drive: `https://drive.google.com/file/d/${id}/view`,
 		notes: `https://ve.ai/note/${id}`,
 		proactiveai: `https://ve.ai/proactiveai/${id}`,
-		notes: `https://ve.ai/note/${id}`,
 	};
 
 	const url = urls?.[type];
@@ -406,3 +405,9 @@ export const redirectTypeMapper = {
 };
 
 const origin = fetchOriginSelection();
+
+// Email validation utility
+export const isValidEmail = (email) => {
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	return emailRegex.test(email);
+};

@@ -436,6 +436,7 @@ class Presentation extends Component {
 						isWorkflow={this.state.isWorkflow}
 						generateAIImages={(e) => this.props?.generateAIImagesP(e)}
 						generateAIText={(e) => this.props?.generateAITextP(e)}
+						themes={this.props?.themes}
 					/>
 				);
 			case 'events':
@@ -500,6 +501,7 @@ class Presentation extends Component {
 						isWorkflow={this.state.isWorkflow}
 						generateAIImages={(e) => this.props?.generateAIImagesP(e)}
 						generateAIText={(e) => this.props?.generateAITextP(e)}
+						themes={this.props?.themes}
 					/>
 				);
 			case 'form-q&a':
@@ -596,6 +598,7 @@ class Presentation extends Component {
 							this.props?.handleFormAnswerP(answer, key, order)
 						}
 						submitForm={(e, sectionId) => this.props?.submitFormP(e, sectionId)}
+						themes={this.props?.themes}
 					/>
 				);
 			case 'contract-with-signature':
@@ -721,6 +724,7 @@ class Presentation extends Component {
 							)
 						}
 						version={this.props.version}
+						themes={this.props?.themes}
 					/>
 				);
 			case 'invoice-with-payment':
@@ -808,6 +812,7 @@ class Presentation extends Component {
 						addPaymentScheduleBlock={(id, order) =>
 							this.props?.addPaymentScheduleBlockP(id, order)
 						}
+						themes={this.props?.themes}
 					/>
 				);
 			case 'invoice':
@@ -912,6 +917,7 @@ class Presentation extends Component {
 						currencySymbol={this.props?.currencySymbol}
 						activeFontColor={this.state?.activeFontColor}
 						currencySymbol2={this.props?.currencySymbol2}
+						themes={this.props?.themes}
 					/>
 				);
 			case 'table':
@@ -1028,12 +1034,14 @@ class Presentation extends Component {
 						DuplicateInTable={(type, index) =>
 							this.props?.DuplicateInTableP(type, index)
 						}
+						themes={this.props?.themes}
 					/>
 				);
 			default:
 				if (section?.isFluidSection) {
 					return (
 						<FluidLayout
+							triggerAdjustGridAreas={this.props.triggerAdjustGridAreas}
 							isWorkflow={this.state.isWorkflow}
 							duplicateSubBlock={(json, subBlockId) =>
 								this.props?.duplicateSubBlockP(json, subBlockId, section?._id)
@@ -1053,6 +1061,7 @@ class Presentation extends Component {
 									triggeredFont: e,
 								})
 							}
+							setActiveSection={(e) => this.props.setActiveSectionP(e)}
 							triggeredFont={this.state?.triggeredFont}
 							activeSubBlockId={this.state?.activeSubBlockId}
 							key={index}
@@ -1060,10 +1069,13 @@ class Presentation extends Component {
 							_id={section?._id}
 							blocks={section?.blocks}
 							style={section?.style}
+							section={section}
 							actionType={this.state?.actionType}
 							actionValue={this.state?.actionValue}
 							triggerFont={this.state?.triggerFont}
-							handleSideBar={(e, _id) => this.props.handleSideBarP(e, _id)}
+							handleSideBar={(e, _id) => {
+								this.props.handleOpenSideBar(e, _id, false, true);
+							}}
 							showAddBlock={(e) =>
 								this.props?.showAddBlockP(e, section?.order, index)
 							}
@@ -1169,6 +1181,13 @@ class Presentation extends Component {
 								this.props.handleSetIconLinkP(e, subBlockID, blockID)
 							}
 							activeModule={this.state?.activeModule}
+							handleAddLayout={(e, isFluid, isService) =>
+								this.props.handleAddLayout(e, isFluid, isService)
+							}
+							activeModuleId={this.props?.activeModuleId}
+							handleSaveSingleBlock={(e) => this.props.handleSaveSingleBlock(e)}
+							activeWorkflowModuleId={this.props?.activeWorkflowModuleId}
+							themes={this.props?.themes}
 						/>
 					);
 				} else {
@@ -1289,6 +1308,7 @@ class Presentation extends Component {
 							activeModule={this.state?.activeModule}
 							isWorkflow={this.state.isWorkflow}
 							iframeScroll={this.props?.iframeScroll}
+							themes={this.props?.themes}
 						/>
 					);
 				}
@@ -1296,7 +1316,7 @@ class Presentation extends Component {
 	};
 	hanldeAddBlock = (e) => {
 		e.stopPropagation();
-		this.props.showAddBlockP(e, this.state?.activeOrderNo, this.state?.activeKey);
+		this.props.showAddBlockP(e, this.state?.activeOrderNo + 0.1, this.state?.activeKey);
 	};
 
 	// function for presentation layout drag and drop

@@ -20,7 +20,7 @@
 			align-items: center;
 			width: fit-content;
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -67,6 +67,19 @@
 		transition: background 0.2s;
 		&:hover {
 			background: var(--primary-button-hover, #1de9b6);
+			color: var(--primary-font);
 		}
+	}
+}
+@media (max-width: 768px) {
+	.introStepContainer .introContent .introTitle {
+		font-size: 32px;
+		font-weight: 600;
+		line-height: 30px; /* 125% */
+	}
+	.introDesc {
+		font-size: 13px;
+		line-height: 20px;
+		width: 300px;
 	}
 }

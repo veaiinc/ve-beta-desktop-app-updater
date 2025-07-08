@@ -9,7 +9,6 @@ import WorkflowBuilderLayout from '../views/layouts/workflowBuilderLayout';
 import Public from '../views/layouts/Public';
 
 // Protected Pages
-import CalendarModule from '../views/features/calendar/Calendar';
 import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
 import EarlyAccess from '../views/features/earlyAccess/EarlyAccess';
 import AddGallery from '../views/features/gallery/AddGallery';
@@ -20,8 +19,6 @@ import UploadPhotos from '../views/features/gallery/UploadPhotos';
 import InitialHomePage from '../views/features/homePage/InitialHomePage';
 import ShareAndEarn from '../views/features/shareAndEarn/ShareAndEarn';
 import SettingsWrapper from '../views/features/settings/SettingsWrapper';
-import Tasks from '../views/features/tasks/Tasks';
-import Notes from '../views/features/notesModule/Notes';
 import Docs from '../views/features/docs/Docs';
 import LiteGallery from '../views/features/gallery/Litegallery';
 import MyTemplates from '../views/features/myTemplates/MyTemplates';
@@ -34,30 +31,34 @@ import AutomationBuilder from '../views/features/automationBuilder/AutomationBui
 import Automations from '../views/features/automations/Automations';
 import BrandSetup from '../views/features/settings/BrandSetup';
 import DocsFullView from '../views/components/docs/DocsFullView';
-import TaskFullView from '../views/features/tasks/TaskFullView';
-import ExpandedClientView from '../views/features/contacts/ExpandedClientView';
 import ElasticSearch from '../views/features/elasticSearch/ElasticSearch';
 import EditKnowledgeAgent from '../views/features/knowledgeAgent/EditAgent';
 import FormResCard from '../views/components/forms/FormResCard';
 import FormSummary from '../views/components/forms/FormSummary';
-import Integrations from '../views/features/integrationsList/Integrations';
 import SchedulerMainPage from '../views/features/calendar/SchedulerMainPage';
 import EditScheduler from '../views/features/calendar/EditScheduler';
-import Contacts from '../views/features/contacts/Contacts';
 import PricingPage from '../views/features/pricingPlans/pricingPage';
 import ProactiveAi from '../views/features/proactiveAi/ProactiveAi';
-import NotesPage from '../views/features/notesPage/NotesPage';
 import KnowledgeAgents from '../views/features/knowledgeAgent/KnowledgeAgents';
-import Files from '../views/features/files/Files';
 import AiAssistants from '../views/features/aiAssistant/AiAssistants';
 import KnowledgeAgentDetails from '../views/features/knowledgeAgent/AgentDetails';
-import Agents from '../views/features/agents/Agents';
-import Agent from '../views/features/agents/agent/Agent';
 import SmartFile from '../views/features/sales/smartFiles/SmartFile';
 import WorkflowBuilder from '../views/features/workflowBuilder/WorkflowBuilder';
 import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
 import Onboarding from '../views/features/onboarding/Onboarding';
+
+const Files = lazy(() => import('../views/features/files/Files'));
+const ExpandedClientView = lazy(() => import('../views/features/contacts/ExpandedClientView'));
 const BuilderApp = lazy(() => import('../../builderSrc/App'));
+const Contacts = lazy(() => import('../views/features/contacts/Contacts'));
+const Notes = lazy(() => import('../views/features/notesModule/Notes'));
+const Agents = lazy(() => import('../views/features/agents/Agents'));
+const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
+const CalendarModule = lazy(() => import('../views/features/calendar/Calendar'));
+const Tasks = lazy(() => import('../views/features/tasks/Tasks'));
+const TaskFullView = lazy(() => import('../views/features/tasks/TaskFullView'));
+const Integrations = lazy(() => import('../views/features/integrationsList/Integrations'));
+const NotesPage = lazy(() => import('../views/features/notesPage/NotesPage'));
 
 const betaRoutes = [
 	{
@@ -103,10 +104,12 @@ const betaRoutes = [
 			<AuthWrapper
 				title={'Chat'}
 				showBottomToolbar={false}
-				outerContainerStyle={{ paddingRight: '0px', backgroundColor: '' }}
+				outerContainerStyle={{
+					paddingRight: '0px',
+					backgroundColor: 'var(--chat-background-color)',
+				}}
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
-				showDynamicWidget={false}
 			>
 				<RecentChat />
 			</AuthWrapper>
@@ -217,7 +220,9 @@ const betaRoutes = [
 				outerContainerStyle={{ padding: '0 32px 0 0' }}
 				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
-				<Tasks />
+				<Suspense fallback={<p>Loading tasks...</p>}>
+					<Tasks />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -225,7 +230,9 @@ const betaRoutes = [
 		path: '/task/:taskId',
 		element: (
 			<AuthWrapper title={'Tasks'}>
-				<TaskFullView />
+				<Suspense fallback={<p>Loading task...</p>}>
+					<TaskFullView />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -233,7 +240,9 @@ const betaRoutes = [
 		path: '/integrations',
 		element: (
 			<AuthWrapper title={'Integrations'}>
-				<Integrations />
+				<Suspense fallback={<p>Loading integrations...</p>}>
+					<Integrations />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -246,7 +255,9 @@ const betaRoutes = [
 				outerContainerStyle={{ overflow: 'hidden', padding: '0 32px 0 0 ' }}
 				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
-				<CalendarModule />
+				<Suspense fallback={<p>Loading calendar...</p>}>
+					<CalendarModule />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -278,7 +289,19 @@ const betaRoutes = [
 		path: '/notes',
 		element: (
 			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
-				<NotesPage />
+				<Suspense fallback={<p>Loading notes...</p>}>
+					<NotesPage />
+				</Suspense>
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/database',
+		element: (
+			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
+				<Suspense fallback={<p>Loading notes...</p>}>
+					<NotesPage isDatabase={true} />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -290,7 +313,9 @@ const betaRoutes = [
 				outerContainerStyle={{ padding: '0 32px 0 0' }}
 				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
-				<Contacts />
+				<Suspense fallback={<p>Loading contacts...</p>}>
+					<Contacts />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -431,7 +456,28 @@ const betaRoutes = [
 				maxWidth={'100%'}
 				sidebarContainerClassName={'auth-sidebar-container'}
 			>
-				<Notes />
+				<Suspense fallback={<p>Loading notes...</p>}>
+					<Notes />
+				</Suspense>
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/note/:noteId/database',
+		element: (
+			<AuthWrapper
+				title={'Notes'}
+				outerContainerStyle={{
+					backgroundColor: 'var(--background-color)',
+					padding: '0px',
+				}}
+				sidebarContainerStyles={{ padding: '0px' }}
+				maxWidth={'100%'}
+				sidebarContainerClassName={'auth-sidebar-container'}
+			>
+				<Suspense fallback={<p>Loading notes...</p>}>
+					<Notes isDatabase={true} />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -451,7 +497,9 @@ const betaRoutes = [
 				outerContainerStyle={{ padding: '0 32px 0 0' }}
 				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
-				<ExpandedClientView />
+				<Suspense fallback={<p>Loading contact details...</p>}>
+					<ExpandedClientView />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -467,7 +515,9 @@ const betaRoutes = [
 		path: '/files',
 		element: (
 			<AuthWrapper title="Files" maxWidth={'100%'}>
-				<Files />
+				<Suspense fallback={<p>Loading files...</p>}>
+					<Files />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -502,7 +552,9 @@ const betaRoutes = [
 				outerContainerStyle={{ padding: '0' }}
 				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
 			>
-				<Agents />
+				<Suspense fallback={<p>Loading agents...</p>}>
+					<Agents />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -510,7 +562,9 @@ const betaRoutes = [
 		path: '/agent/:agentId',
 		element: (
 			<AuthWrapper title="Agent">
-				<Agent />
+				<Suspense fallback={<p>Loading agent...</p>}>
+					<Agent />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -523,6 +577,5 @@ const betaRoutes = [
 		),
 	},
 ];
-export const betaRoutesList = betaRoutes.map((route) => route.path).filter((path) => path !== '*');
 
 export default betaRoutes;

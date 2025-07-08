@@ -15,7 +15,7 @@ import { Drawer } from 'antd';
 import { useParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import SessionMetric from './sessionMetric.jsx';
-import Skeleton from 'react-loading-skeleton';
+// import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
 
 const SessionActivityModal = ({

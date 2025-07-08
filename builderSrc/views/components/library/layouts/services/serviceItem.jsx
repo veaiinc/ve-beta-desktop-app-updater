@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import ImageItem from '../../elements/image';
 import Text from '../../elements/text';
-import Down from '../actions/down.jsx';
-import Up from '../actions/up.jsx';
+// import Down from '../actions/down.jsx';
+// import Up from '../actions/up.jsx';
 import Delete from '../actions/delete.jsx';
 
 import Edit from '../actions/edit.jsx';
@@ -137,6 +137,13 @@ class ServiceItem extends Component {
 			this.setState({
 				showSubBlockOptions: false,
 			});
+			if (document.activeElement instanceof HTMLElement) {
+				document.activeElement.blur();
+			}
+			const selection = window.getSelection();
+			if (selection) {
+				selection.removeAllRanges();
+			}
 		}
 	};
 	replaceWithServiceTag = (text) => {

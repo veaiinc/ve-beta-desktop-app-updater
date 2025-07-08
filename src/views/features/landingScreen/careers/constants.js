@@ -21,33 +21,41 @@ export const paraContent2 = [
 export const categories = [
 	'All career',
 	'Engineering',
-	'Sales',
-	'Finance',
-	'Product',
-	'Customer Success',
-	'Partnerships',
-	'Human Resources',
 	'Design',
+	'Sales',
+	'Marketing',
+	'Customer Success',
 	'IT',
+	'Human Resources',
 	'Legal',
-	'Frontend Developer',
+	'Finance',
+	'Partnerships',
 ];
 
 export const jobs = [
 	{
-		title: 'Product Designer',
-		description: 'Full-time · San Francisco'
-	},
-	{
 		title: 'UI/UX Designer',
-		description: 'Part-time · Remote'
+		description: 'Part-time · Remote',
+		category: 'Design',
 	},
 	{
-		title: 'Graphic Designer',
-		description: 'Contract · New York'
+		title: 'Sales executive',
+		description: 'Full-time · San Francisco',
+		category: 'Sales',
 	},
 	{
-		title: 'Web Designer',
-		description: 'Freelance · Austin'
-	}
-]
+		title: 'Backend developer',
+		description: 'Contract · New York',
+		category: 'Engineering',
+	},
+	{
+		title: 'Ai engineer',
+		description: 'Freelance · Austin',
+		category: 'Engineering',
+	},
+	{
+		title: 'In-House Content Creator',
+		description: 'Fulltime · Hyderabad',
+		category: 'Marketing',
+	},
+];

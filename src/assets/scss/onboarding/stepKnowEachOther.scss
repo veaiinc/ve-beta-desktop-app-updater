@@ -1,5 +1,5 @@
 .knowEachOtherStepContainer {
-	width: 600px;
+	width: 655px;
 	margin: 0 auto;
 	display: flex;
 	flex-direction: column;
@@ -7,11 +7,11 @@
 	.stepHeader {
 		margin-bottom: 32px;
 		.stepHeaderContent {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-            align-self: stretch;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
 		}
 		.stepProgressContainer {
 			display: flex;
@@ -24,8 +24,14 @@
 			color: var(--primary-button);
 			font-size: 14px;
 			font-weight: 500;
-			margin-bottom: 8px;
+			margin-bottom: 40px;
 		}
+		.stepContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 33px;
+		}
+
 		.stepTitle {
 			color: var(--primary-font, #f2f2f3);
 			font-family: var(--primary-font-family);
@@ -48,12 +54,12 @@
 		.formRow {
 			display: flex;
 			flex-direction: column;
-			margin-bottom: 18px;
+			margin-bottom: 30px;
 			.formLabel {
 				color: var(--primary-font);
 				font-size: 14px;
 				font-weight: 500;
-				margin-bottom: 6px;
+				margin-bottom: 14px;
 				.optional {
 					color: var(--secondary-font);
 					font-size: 12px;
@@ -69,9 +75,23 @@
 				font-family: var(--primary-font-family);
 				outline: none;
 				height: 100px;
+				&::placeholder {
+					font-style: italic;
+				}
 			}
-			&::placeholder {
-				font-style: italic;
+			.linkedinInput {
+				background: var(--card);
+				color: var(--primary-font);
+				border-radius: 12px;
+				border: none;
+				font-size: 13px;
+				padding: 12px 16px;
+				font-family: var(--primary-font-family);
+				outline: none;
+				height: 40px;
+				&::placeholder {
+					font-style: italic;
+				}
 			}
 		}
 	}
@@ -84,6 +104,11 @@
 		font-family: var(--primary-font-family);
 		color: var(--primary-font, #f2f2f3);
 		font-weight: 500;
+	}
+	.inlineGroup {
+		display: flex;
+		align-items: center;
+		gap: 8px;
 	}
 	.inlineLabel {
 		color: var(--primary-font, #f2f2f3);
@@ -119,5 +144,169 @@
 	}
 	.inlineInput:focus {
 		border-bottom: 2px solid var(--primary-button, #79ecc9);
+	}
+}
+
+// Mobile responsive styles
+@media screen and (max-width: 768px) {
+	.knowEachOtherStepContainer {
+		width: 100%;
+		padding: 0 20px;
+		gap: 30px;
+
+		.stepHeader {
+			margin-bottom: 24px;
+			.stepContainer {
+				padding: 0px 20px;
+			}
+			.stepProgressContainer {
+				gap: 12px;
+				margin-bottom: 25px;
+			}
+
+			.stepProgress {
+				font-size: 12px;
+				margin-bottom: 6px;
+			}
+
+			.stepTitle {
+				font-size: 24px;
+				line-height: 28px;
+			}
+
+			.stepDesc {
+				font-size: 14px;
+				line-height: 20px;
+			}
+		}
+
+		.stepForm {
+			margin-bottom: 24px;
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+
+			.formRow {
+				margin-bottom: 16px;
+
+				.formLabel {
+					font-size: 13px;
+					margin-bottom: 4px;
+
+					.optional {
+						font-size: 11px;
+					}
+				}
+
+				.formInput {
+					font-size: 14px;
+					padding: 10px 12px;
+					height: 106px;
+				}
+			}
+		}
+
+		.inlineSentenceInputs {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			margin-bottom: 24px;
+			font-size: 16px;
+		}
+
+		.inlineGroup {
+			width: 100%;
+			justify-content: flex-start;
+		}
+
+		.inlineLabel {
+			font-size: 14px;
+		}
+
+		.inlineInput {
+			font-size: 14px;
+			min-width: 120px;
+			max-width: 100%;
+			width: 100%;
+			padding: 4px 8px;
+			margin-right: 0;
+		}
+
+		.btnsContainer {
+			display: flex;
+			flex-direction: row;
+			gap: 10px;
+
+			.backBtn,
+			.continueBtn {
+				width: 100%;
+				padding: 12px 16px;
+				font-size: 10px;
+			}
+		}
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.knowEachOtherStepContainer {
+		padding: 0 16px;
+		gap: 0px;
+
+		.stepHeader {
+			.stepTitle {
+				font-size: 24px;
+				line-height: 30px;
+			}
+
+			.stepDesc {
+				font-size: 13px;
+				line-height: 18px;
+			}
+		}
+
+		.inlineSentenceInputs {
+			gap: 20px;
+		}
+
+		.inlineGroup {
+			width: 100%;
+			justify-content: flex-start;
+		}
+
+		.inlineLabel {
+			font-size: 16px;
+			font-weight: 600;
+			line-height: 20px;
+		}
+
+		.inlineInput {
+			font-size: 14px;
+			padding: 3px 6px;
+		}
+		.btnsContainer {
+			position: fixed;
+			bottom: 20px;
+			left: 20px;
+			right: 20px;
+			background: var(--background-color);
+		}
+
+		.stepForm {
+			.formRow {
+				.formLabel {
+					font-size: 12px;
+					margin-bottom: 14px;
+				}
+
+				.formInput {
+					font-size: 13px;
+					padding: 8px 10px;
+					height: 106px;
+					.linkedinInput {
+						height: 40px;
+					}
+				}
+			}
+		}
 	}
 }

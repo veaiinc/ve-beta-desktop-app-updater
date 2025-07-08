@@ -1,34 +1,26 @@
-import React, { memo, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { memo } from 'react';
 import '../../assets/scss/workflowBuilder/workflowBuilderLayout.scss';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { Helmet } from 'react-helmet';
-import useAuth from '../hooks/useAuth';
-import useSubscription from '../hooks/useSubscription';
-import useTokenExpiry from '../hooks/useTokenExpiry';
-import useAccessControls from '../hooks/useAccessControls';
-import useTheme from '../hooks/useTheme';
-// import Context from '../../context/context';
-// import RenewBanner from '../components/globalComponents/RenewBanner';
-const WorkflowBuilderLayout = ({ title, children, hideQuickNav = false }) => {
-	// const {
-	// 	subscriptionInfo: { renewBanner },
-	// } = useContext(Context);
+import useAuth from '../../hooks/useAuth';
+import useSubscription from '../../hooks/useSubscription';
+import useTokenExpiry from '../../hooks/useTokenExpiry';
+import useAccessControls from '../../hooks/useAccessControls';
+import useTheme from '../../hooks/useTheme';
+
+const WorkflowBuilderLayout = ({ title, children }) => {
 	useTheme();
-	const checkAuth = useAuth();
-	const data = useSubscription();
-	const tokenData = useTokenExpiry();
-	const accessControls = useAccessControls();
-	useEffect(() => {
-		checkAuth();
-	}, []);
+	useAuth();
+	useSubscription();
+	useTokenExpiry();
+	useAccessControls();
+
 	return (
 		<div className="workflowBuilderParentContainer">
 			<Helmet>
 				<meta charSet="utf-8" />
 				<title>{title}</title>
 			</Helmet>
-			{/* {renewBanner && <RenewBanner />} */}
 			<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
 				<div className="childrenContainer">{children}</div>
 			</SkeletonTheme>

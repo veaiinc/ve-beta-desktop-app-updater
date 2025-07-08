@@ -1,0 +1,177 @@
+.optionsEditContainer {
+	width: 100%;
+	padding: 8px 0;
+}
+
+.optionsArea {
+	margin-top: 8px;
+	max-height: 300px;
+	overflow-y: auto;
+}
+
+.newOptionInput {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 12px;
+	padding: 0 16px;
+
+	input {
+		flex: 1;
+		padding: 8px 12px;
+		border-radius: 4px;
+		font-size: 14px;
+		background: transparent;
+		border: 1px solid var(--stroke);
+		color: var(--primary-font);
+	}
+
+	button {
+		padding: 8px 16px;
+		background-color: var(--primary-button);
+		color: var(--primary-button-font);
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+		font-size: 14px;
+		transition: background-color 0.2s;
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+	}
+}
+
+.optionItem {
+	position: relative;
+	padding: 4px 16px;
+
+	&:hover {
+		background: var(--hover-color);
+	}
+}
+
+.optionItemWrapper {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.selectListItemTagWrapper {
+	flex: 1;
+}
+
+.selectOptionItem {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.selectListItemColor {
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	cursor: pointer;
+	transition: transform 0.2s;
+	flex-shrink: 0;
+
+	&:hover {
+		transform: scale(1.1);
+	}
+}
+
+.selectOptionInput {
+	width: 100%;
+	padding: 4px 8px;
+	border: 1px solid var(--stroke);
+	border-radius: 4px;
+	font-size: 14px;
+	background: transparent;
+	color: var(--primary-font);
+
+	&:focus {
+		outline: none;
+		border-color: var(--primary-font);
+	}
+}
+
+.selectOptionItemWrapper {
+	flex: 1;
+	cursor: pointer;
+}
+
+.selectOptionLabelWrapper {
+	display: flex;
+	align-items: center;
+}
+
+.selectListItemLabel {
+	font-size: 14px;
+	color: var(--primary-font);
+}
+
+.optionActions {
+	display: flex;
+	align-items: center;
+}
+
+.deleteOption {
+	background: none;
+	border: none;
+	padding: 4px;
+	cursor: pointer;
+	color: var(--primary-font);
+	opacity: 0.6;
+	transition: opacity 0.2s;
+
+	&:hover {
+		opacity: 1;
+	}
+
+	&:disabled {
+		opacity: 0.3;
+		cursor: not-allowed;
+	}
+}
+
+.colorPicker {
+	position: absolute;
+	top: 100%;
+	left: 16px;
+	right: 16px;
+	border-radius: 4px;
+	padding: 12px;
+	z-index: 1000;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	background-color: var(--popup);
+}
+
+.colorsTitle {
+	font-size: 12px;
+	color: var(--secondary-font);
+	margin-bottom: 8px;
+}
+
+.colorsList {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(24px, 1fr));
+	gap: 8px;
+}
+
+.colorItem {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	cursor: pointer;
+	transition: transform 0.2s;
+	border: 2px solid transparent;
+
+	&:hover {
+		transform: scale(1.1);
+	}
+
+	&.selected {
+		border-color: var(--primary-font);
+	}
+}

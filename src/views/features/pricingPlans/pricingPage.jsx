@@ -29,11 +29,11 @@ const PricingPage = () => {
 		selectedPlanId: null,
 		isTrialSelected: false,
 	});
-	useEffect(() => {
-		if (!userWorkSpaceList) {
-			getUserWorkSpaceList();
-		}
-	}, [userWorkSpaceList]);
+	// useEffect(() => {
+	// 	if (!userWorkSpaceList) {
+	// 		getUserWorkSpaceList();
+	// 	}
+	// }, [userWorkSpaceList]);
 
 	useEffect(() => {
 		if (subscriptionPlans === null) {
@@ -41,11 +41,11 @@ const PricingPage = () => {
 		}
 	}, [subscriptionPlans]);
 
-	useEffect(() => {
-		if (!currentPlan) {
-			getCurrentSubscriptionPlan();
-		}
-	}, [currentPlan]);
+	// useEffect(() => {
+	// 	if (!currentPlan) {
+	// 		getCurrentSubscriptionPlan();
+	// 	}
+	// }, [currentPlan]);
 
 	const increaseTenantUsersCount = (planId) => {
 		setInfo((prev) => ({
@@ -79,7 +79,7 @@ const PricingPage = () => {
 		const payload = {
 			plan: {
 				planId: plan?._id,
-				quantity: currentPlan?.isSeatBasedPlan
+				quantity: plan?.isSeatBasedPlan
 					? info.tenantUsersCount[plan._id] || currentPlan?.tenantUsers || 1
 					: 1,
 				recurringType: info.billing === 'anually' ? 'yearly' : 'monthly',
@@ -95,13 +95,13 @@ const PricingPage = () => {
 			}));
 			window.location.href = response?.[1]?.url;
 		} else {
+			message.error(response?.[1]?.message);
 			setInfo((prev) => ({
 				...prev,
 				planLoading: false,
 				selectedPlanId: null,
 				isTrialSelected: false,
 			}));
-			message.error(response?.[1]?.message);
 		}
 	};
 
@@ -145,7 +145,6 @@ const PricingPage = () => {
 	const handleSelectTrial = (planId) => {
 		setInfo((prev) => ({ ...prev, selectedPlanId: planId, isTrialSelected: true }));
 	};
-
 	return (
 		<div className="pricing-page" id="pricing-page-scroll">
 			<div className="pricing-header">
@@ -159,7 +158,7 @@ const PricingPage = () => {
 					<div className="toggle-group">
 						<div
 							className={`toggle-btn${info.billing === 'anually' ? ' active' : ''}`}
-							onClick={() => setInfo((prev) => ({ ...prev, billing: '	anually' }))}
+							onClick={() => setInfo((prev) => ({ ...prev, billing: 'anually' }))}
 						>
 							Anually
 						</div>
@@ -187,12 +186,14 @@ const PricingPage = () => {
 									<span className="planAmount">
 										{plan?.currency === 'INR' ? '₹ ' : '$ '}
 										{info.billing === 'monthly'
-											? plan?.monthlyPrice
-											: plan?.yearlyPrice}
+											? plan?.monthlyPrice *
+											  (info?.tenantUsersCount[plan?._id] || 1)
+											: plan?.yearlyPrice *
+											  (info?.tenantUsersCount[plan?._id] || 1)}
 									</span>
 									<span className="tenantUsersLimit">
 										{plan?.tenantUserDetails?.numberOfUsers !== '*'
-											? plan?.tenantUserDetails?.numberOfUsers
+											? info?.tenantUsersCount?.[plan?._id] || 1
 											: 'Unlimited'}{' '}
 										User/
 										{info.billing === 'monthly' ? 'Monthly' : 'Yearly'}
@@ -237,7 +238,7 @@ const PricingPage = () => {
 											{(info.planLoading && !info.isTrialSelected) ||
 											(info.trailLoading && info.isTrialSelected) ? (
 												<Spinner
-													color="var(--background-color)"
+													color="var(--primary-font)"
 													width="16px"
 													height="16px"
 												/>

@@ -3,7 +3,7 @@ import '../../../assets/scss/settings/notifications.scss';
 import Context from '../../../context/context';
 import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import Spinner from '../../components/loaders/Spinner';
+// import Spinner from '../../components/loaders/Spinner';
 import { FetchMoreLoaderComp } from '../../../helpers';
 
 const AICreditsUsedRowData = [

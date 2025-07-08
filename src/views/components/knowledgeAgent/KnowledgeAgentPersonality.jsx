@@ -6,9 +6,9 @@ import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/ag
 import { ReactComponent as UploadIcon } from '../../../assets/svg/ai_assistant/upload.svg';
 import { ReactComponent as PencilWithLine } from '../../../assets/svg/tasks/pencilWithLine.svg';
 import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.svg';
-import CustomInput from '../globalComponents/CustomInput';
+// import CustomInput from '../globalComponents/CustomInput';
 import { Tooltip } from 'antd';
-import CustomTextArea from '../globalComponents/CustomTextArea';
+// import CustomTextArea from '../globalComponents/CustomTextArea';
 import Context from '../../../context/context';
 import PersonalityInputArea from './PersonalityInputArea';
 import KnowledgeAgentPrompt from './KnowledgeAgentPrompt';

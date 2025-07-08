@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, memo } from 'react';
 import '../../../assets/scss/chat/formWidget.scss';
 import { ReactComponent as ExpandIcon } from '../../../assets/svg/docs/expand.svg';
-import Template from '../../../../builderSrc/views/feature/home';
+// import Template from '../../../../builderSrc/views/feature/home';
 import FormModal from './FormModal';
 const builderAgentMapper = {
 	formBuilderAgent: {

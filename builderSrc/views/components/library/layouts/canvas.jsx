@@ -1,4 +1,4 @@
-import _, { transform } from 'lodash';
+import _ from 'lodash';
 import React, { Component } from 'react';
 import Button from '../elements/button';
 import CircleText from '../elements/circletext/CircleText.jsx';
@@ -23,16 +23,16 @@ import ReactPlayer from 'react-player';
 import Line from '../elements/line/index.jsx';
 import LogoSticker from '../elements/logosticker/index.jsx';
 import Video from '../elements/video/index.jsx';
-import Copy from './actions/copy.jsx';
-import Delete from './actions/delete.jsx';
+// import Copy from './actions/copy.jsx';
+// import Delete from './actions/delete.jsx';
 import Down from './actions/down.jsx';
-import Edit from './actions/edit.jsx';
+// import Edit from './actions/edit.jsx';
 import Up from './actions/up.jsx';
-import Link from './actions/link.jsx';
+// import Link from './actions/link.jsx';
 
-import Underlay from './actions/underlay.jsx';
-import Overlay from './actions/overlay.jsx';
-import DragIcon from './actions/drag.jsx';
+// import Underlay from './actions/underlay.jsx';
+// import Overlay from './actions/overlay.jsx';
+// import DragIcon from './actions/drag.jsx';
 
 import Draggable from 'react-draggable';
 
@@ -57,7 +57,7 @@ import FluidBlockOptionsControls, {
 	ShowZIndexValues,
 } from './fluid-engine/FluidBlockOptionsControls.jsx';
 import LayoutResizeHandle from './fluid-engine/layoutResizeHandle.jsx';
-import MenuBar from '../elements/menubar/menubar.jsx';
+// import MenuBar from '../elements/menubar/menubar.jsx';
 // const GRID_ROWS = 8;
 
 const elements = [
@@ -2223,7 +2223,7 @@ class Layout extends Component {
 			this.clipboardData = _.omit(selectedBlock, ['_id', 'order']);
 		}
 	};
-	pasteBlock = (component) => {
+	pasteBlock = async (component) => {
 		let clipboardData = _.omit(component, ['_id', 'order', 'mContent']);
 		let UpdateBlock = [...this.state.blocks];
 
@@ -2241,10 +2241,27 @@ class Layout extends Component {
 			},
 		};
 
-		this.props.duplicateSubBlock(payload, this.state.blocks[0]._id);
-		this.setState({
-			blocks: UpdateBlock,
-		});
+		// Await the duplication if possible
+		await this.props.duplicateSubBlock(payload, this.state.blocks[0]._id);
+
+		// Wait for the blocks to update (via props or state)
+		setTimeout(() => {
+			// Use the latest blocks from props if available, else from state
+			let updatedBlocks = this.props.blocks || this.state.blocks;
+			let subBlocks = updatedBlocks[0]?.subBlocks || [];
+			// Find the sub-block with the highest zIndex (most likely the new one)
+			let newSubBlock = subBlocks.reduce(
+				(max, sb) => (sb.divStyles?.zIndex > (max?.divStyles?.zIndex || 0) ? sb : max),
+				subBlocks[0],
+			);
+			if (newSubBlock) {
+				this.setState({
+					blocks: updatedBlocks,
+					activeComponentID: newSubBlock._id,
+					activeComponent: newSubBlock,
+				});
+			}
+		}, 300); // 300ms debounce for async update
 	};
 
 	handleDeleteBlock = (e) => {
@@ -3814,10 +3831,31 @@ class Layout extends Component {
 		let groupRect = this.groupResizeRef.current.getBoundingClientRect();
 		let layoutRect = this.blockRef.current.getBoundingClientRect();
 
-		if (parseInt(groupRect.bottom) >= parseInt(layoutRect.bottom)) {
-			this.setState({
-				gridRows: this.state.gridRows + 1,
-			});
+		// Add a buffer to the bottom comparison
+		const buffer = 4;
+		const mouseBuffer = 10;
+		const mouseY = e.clientY;
+		const layoutBottom = Math.ceil(layoutRect.bottom);
+
+		if (
+			Math.ceil(groupRect.bottom) + buffer >= layoutBottom ||
+			mouseY >= layoutBottom - mouseBuffer
+		) {
+			if (!this._expandingLayout) {
+				this._expandingLayout = true;
+				const cellHeight = layoutRect.height / this.state.gridRows;
+				this.setState(
+					{
+						gridRows: this.state.gridRows + 1,
+						layoutHeight: (this.state.layoutHeight || layoutRect.height) + cellHeight,
+					},
+					() => {
+						setTimeout(() => {
+							this._expandingLayout = false;
+						}, 100);
+					},
+				);
+			}
 		}
 
 		// Calculate the horizontal centers
@@ -3825,7 +3863,6 @@ class Layout extends Component {
 		const childCenterX = groupRect?.left + groupRect?.width / 2;
 
 		// Check if centers align horizontally
-
 		if (Math.abs(parentCenterX - childCenterX) < 6) {
 			this.setState({ isCenter: true });
 		} else {
@@ -4154,6 +4191,7 @@ class Layout extends Component {
 	handleCopyElements = () => {
 		let selectedComponents = this.state.selectedComponents;
 		let blocks = [...this.state.blocks];
+		let newIds = [];
 		blocks.forEach((block, key) => {
 			block.subBlocks.forEach((subBlock) => {
 				if (selectedComponents.includes(subBlock._id)) {
@@ -4179,11 +4217,49 @@ class Layout extends Component {
 					blockdata.divStyles.zIndex = (parseInt(blockdata.divStyles.zIndex) || 0) + 1;
 
 					block.subBlocks.push(blockdata);
+					newIds.push(blockdata._id);
 				}
 			});
 		});
 		this.setState({ blocks }, () => {
 			this.props.handleSaveblocks(blocks);
+			// Set the new group as the active selection
+			// Calculate selection box for the new group
+			setTimeout(() => {
+				let minLeft = Infinity,
+					minTop = Infinity,
+					maxRight = -Infinity,
+					maxBottom = -Infinity;
+				const layoutRect = this.blockRef.current?.getBoundingClientRect();
+				newIds.forEach((id) => {
+					const ref = this.boxRefs[id];
+					if (!ref || !layoutRect) return;
+					const rect = ref.getBoundingClientRect();
+					const left = rect.left - layoutRect.left;
+					const right = rect.right - layoutRect.left;
+					const top = rect.top - layoutRect.top;
+					const bottom = rect.bottom - layoutRect.top;
+					minLeft = Math.min(minLeft, left);
+					minTop = Math.min(minTop, top);
+					maxRight = Math.max(maxRight, right);
+					maxBottom = Math.max(maxBottom, bottom);
+				});
+				// Add padding
+				minLeft = Math.max(0, minLeft - 10);
+				minTop = Math.max(0, minTop - 10);
+				maxRight = Math.min(layoutRect?.width || maxRight, maxRight + 10);
+				maxBottom = Math.min(layoutRect?.height || maxBottom, maxBottom + 10);
+				this.setState({
+					selectedComponents: newIds,
+					selectionBox: {
+						startX: minLeft,
+						startY: minTop,
+						endX: maxRight,
+						endY: maxBottom,
+						isSelecting: true,
+					},
+				});
+			}, 100); // Wait for DOM update
 		});
 	};
 	handleDeleteElements = () => {
@@ -4826,8 +4902,15 @@ class Layout extends Component {
 
 	// Modify your ref callback
 	handleBoxRef = (component, element) => {
+		// Exit early if element is null (unmounting) or already processed
+		if ((!element || this.boxRefs[component?._id] === element) && this.props?.client) {
+			return;
+		}
 		// Store the ref in boxRefs
 		this.boxRefs[component?._id] = element;
+		setTimeout(() => {
+			this.returnAnimationClasses(component);
+		}, 100);
 		//! If it's a scroll animation, initialize the observer
 		// if (this.state?.preview == true && this.props?.client == true) {
 		// 	if (element && component?.animations?.animeType === 'scroll') {
@@ -6201,18 +6284,6 @@ class Layout extends Component {
 		const returnTrigger = () => {
 			let triggerHook = 0.9;
 			if (_.has(adjustments, 'animeArea')) {
-				// !old logic
-				// if (animeArea[0] >= 0 && animeArea[1] < 51) {
-				// 	triggerValue = 'start';
-				// 	triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
-				// } else if (animeArea[0] > 20 && animeArea[1] < 75) {
-				// 	triggerValue = 'center';
-				// 	triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
-				// } else if (animeArea[0] > 50 && animeArea[1] > 50) {
-				// 	triggerValue = 'end';
-				// 	triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
-				// }
-				// !new logic
 				if (animeArea[0] === 0) {
 					triggerValue = 'start';
 					triggerHook = 1;
@@ -6248,7 +6319,7 @@ class Layout extends Component {
 						{
 							autoAlpha: 1,
 							duration: 1,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 							immediateRender: false,
 							overwrite: true,
@@ -6362,9 +6433,9 @@ class Layout extends Component {
 							element.style.transform = `translateX(${returnDistance(direction)})`;
 							element.style.opacity = 0;
 						}
-						adjustments.initialPositionSet = true;
+						element.dataset.initialPositionSet = true;
 					};
-					if (!adjustments?.initialPositionSet) {
+					if (!element.dataset?.initialPositionSet) {
 						setInitialPosition();
 					}
 					element.style.willChange = 'opacity, transform';
@@ -6506,9 +6577,9 @@ class Layout extends Component {
 							parseFloat(scale / 100) || 1
 						})`;
 						element.style.opacity = 0;
-						adjustments.initialPositionSet = true;
+						element.dataset.initialPositionSet = true;
 					};
-					if (!adjustments?.initialPositionSet) {
+					if (!element.dataset?.initialPositionSet) {
 						setInitialPosition();
 					}
 					element.style.willChange = 'opacity, transform';
@@ -6647,9 +6718,9 @@ class Layout extends Component {
 						})`;
 						element.style.opacity = 0;
 
-						adjustments.initialPositionSet = true;
+						element.dataset.initialPositionSet = true;
 					};
-					if (!adjustments?.initialPositionSet) {
+					if (!element.dataset?.initialPositionSet) {
 						setInitialPosition();
 					}
 					element.style.willChange = 'opacity, transform';
@@ -6763,7 +6834,7 @@ class Layout extends Component {
 							rotate: 0,
 							scale: 1,
 							duration: 3,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -6868,9 +6939,9 @@ class Layout extends Component {
 						} else {
 							element.style.transform = `translateX(${returnDistance(direction)})`;
 						}
-						adjustments.initialPositionSet = true;
+						element.dataset.initialPositionSet = true;
 					};
-					if (!adjustments?.initialPositionSet) {
+					if (!element.dataset?.initialPositionSet) {
 						setInitialPosition();
 					}
 					element.style.willChange = 'transform';
@@ -6974,7 +7045,7 @@ class Layout extends Component {
 						{
 							filter: 'blur(0px)',
 							duration: 1,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -7020,7 +7091,6 @@ class Layout extends Component {
 			left: 'inset(0 100% 0 0)',
 			right: 'inset(0 0 0 100%)',
 		};
-
 		const clipStart = clipMap[adjustments?.direction || 'top'] || clipMap.top;
 		const add = () => {
 			element.style.setProperty('--clip-start', clipStart);
@@ -7067,7 +7137,7 @@ class Layout extends Component {
 						{
 							clipPath: 'inset(0% 0% 0% 0%)',
 							duration: 2,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -7260,9 +7330,9 @@ class Layout extends Component {
 					const setInitialPosition = () => {
 						element.style.transform = `translateX(${translate}) skewX(${skew})`;
 
-						adjustments.initialPositionSet = true;
+						element.dataset.initialPositionSet = true;
 					};
-					if (!adjustments?.initialPositionSet) {
+					if (!element.dataset?.initialPositionSet) {
 						setInitialPosition();
 					}
 					element.style.willChange = 'transform';
@@ -7276,7 +7346,7 @@ class Layout extends Component {
 							x: 0,
 							skewX: 0,
 							duration: 1,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -7386,7 +7456,7 @@ class Layout extends Component {
 							scale: 1,
 							autoAlpha: 1,
 							duration: 3,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 							immediateRender: false,
 							overwrite: true,
@@ -7496,7 +7566,7 @@ class Layout extends Component {
 							rotation: 0,
 							scale: 1,
 							duration: 2,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -7590,7 +7660,7 @@ class Layout extends Component {
 							scaleY: 1,
 							y: 0,
 							duration: 2,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -7690,7 +7760,7 @@ class Layout extends Component {
 							rotationX: 0,
 							scale: 1,
 							duration: 4,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -7786,7 +7856,7 @@ class Layout extends Component {
 						{
 							y: 0,
 							duration: 4,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -7889,7 +7959,7 @@ class Layout extends Component {
 							rotationY: 0,
 							scale: 1,
 							duration: speed || 2,
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -8026,7 +8096,7 @@ class Layout extends Component {
 						{
 							clipPath: shapeMap[direction]?.end || `circle(150% at center)`,
 							duration: parseFloat(animeIntensity + 1),
-							ease: 'none',
+							ease: 'power3.inOut',
 							paused: true,
 						},
 					);
@@ -8159,7 +8229,7 @@ class Layout extends Component {
 	returnAnimeDuration = (triggerValue = 'start', difference = 0) => {
 		const duration = window?.innerHeight * 1;
 		if (difference) {
-			return duration * (difference / 100);
+			return duration * ((difference < 90 ? difference + 5 : difference) / 100);
 		} else {
 			if (triggerValue == 'start') {
 				// return window?.innerHeight * 1 - 100;
@@ -9104,9 +9174,8 @@ class Layout extends Component {
 															this.onClickAnime(component);
 														}
 													}}
-													className={`column  ${this.returnAnimationClasses(
-														component,
-													)}
+													// ${this.returnAnimationClasses(component)}
+													className={`column  
 														 ${component.listCount && 'listAnimation'} ${
 														_.has(component, 'className')
 															? _.has(component, 'mclassName') &&
@@ -9468,6 +9537,7 @@ class Layout extends Component {
 					_.size(this.state.selectedComponents) > 0 && (
 						<MultiSelectionOptionComp
 							selectionBox={this.state?.selectionBox}
+							selectionBoxPosition={this.state?.selectionBoxPosition}
 							handleCopyElements={this.handleCopyElements}
 							handleDeleteElements={this.handleDeleteElements}
 						/>

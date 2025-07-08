@@ -240,6 +240,17 @@ const SubscribedUserPlanCard = ({
 			barGraph: false,
 			duration: 'Monthly',
 		},
+		{
+			id: 8,
+			title: 'Upload Allowed',
+			usedValue: parseFloat(
+				data?.cumulativeStorageUsedInBytes / (1024 * 1024 * 1024),
+			)?.toFixed(2),
+			totalValue: parseFloat(
+				(data?.storageLimitInBytes / (1024 * 1024 * 1024)) * 1.5,
+			)?.toFixed(2),
+			barGraph: true,
+		},
 	];
 
 	useEffect(() => {

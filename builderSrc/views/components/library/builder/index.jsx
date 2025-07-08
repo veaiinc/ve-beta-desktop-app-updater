@@ -2705,13 +2705,13 @@ class Builder extends Component {
 														setLastClick={(e) =>
 															this.props.setLastClick(e)
 														}
-														handleSaveblocks={(e, layoutHeight) =>
+														handleSaveblocks={(e, layoutHeight) => {
 															this.props.handleSaveblocks(
 																e,
 																section._id,
 																layoutHeight,
-															)
-														}
+															);
+														}}
 														handleSaveSingleBlock={(e) =>
 															this.props.handleSaveSingleBlock(
 																e,
@@ -3403,6 +3403,7 @@ class Builder extends Component {
 					_.has(this.state?.activeModule, 'showAsSlide') &&
 					this.state?.activeModule?.showAsSlide === true ? (
 						<Presentation
+							triggerAdjustGridAreas={this.props.triggerAdjustGridAreas}
 							client={this.props.client}
 							setTriggerFontP={(e) => this.props.setTriggerFont(e)}
 							setTriggeredFontP={(e) =>
@@ -3594,9 +3595,24 @@ class Builder extends Component {
 								this.props.handleAddElement(e, zIndex)
 							}
 							setLastClickP={(e) => this.props.setLastClick(e)}
-							handleSaveblocksP={(e) => this.props.handleSaveblocks(e)}
+							handleSaveblocksP={(e) => {
+								this.props.handleSaveblocks(e, this.state.activeSectionID);
+							}}
 							generateAIImagesP={(e) => this.props.generateAIImages(e)}
 							generateAITextP={(e) => this.props.generateAIText(e)}
+							handleAddLayout={(e, isFluid, isService) =>
+								this.props.handleAddLayout(e, isFluid, isService)
+							}
+							handleOpenSideBar={(e, _id) => {
+								this.props.handleOpenSideBar(e, _id, false, true);
+							}}
+							activeModuleId={this.props?.activeModuleId}
+							handleSaveSingleBlock={(e) => {
+								this.props.handleSaveSingleBlock(e, this.state.activeSectionID);
+							}}
+							activeWorkflowModuleId={this.props?.activeWorkflowModuleId}
+							handleSaveblocks={(e) => this.props.handleSaveblocks(e)}
+							themes={this.props?.themes}
 						/>
 					) : (
 						''

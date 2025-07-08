@@ -33,6 +33,7 @@ import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agen
 import PromptPopup from '../../homePage/PromptPopup';
 import ProactiveAIShare from '../../../features/homePage/proactiveai/ProactiveAIShare';
 import jwtDecode from 'jwt-decode';
+import ChainOfThoughtInterpreter from '../../homePage/ChainOfThoughtInterpreter';
 const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
@@ -59,7 +60,7 @@ const AISuggestionsModal = ({
 		isReportExpanded: false,
 		isQuestionsExpanded: false,
 		questionsAnswers: {},
-		activeTab: 'situation',
+		activeTab: 'actions',
 		chainOfThoughtData: {
 			hasChainOfThought: false,
 		},
@@ -117,6 +118,18 @@ const AISuggestionsModal = ({
 		},
 		[data],
 	);
+
+	const handleActionClick = useCallback((prompt, proactiveSessionId) => {
+		const sessionId = ObjectID()?.toString();
+		updateStateValues({
+			activePromptForChat: prompt,
+			proactiveInfoForChat: {
+				isProactive: true,
+				proactiveSessionId,
+			},
+		});
+		navigate(`/chat/${sessionId}`);
+	}, []);
 
 	const handleViewReportClick = useCallback(
 		(data) => {
@@ -289,6 +302,7 @@ const AISuggestionsModal = ({
 		crux,
 		createdAt,
 		thinker_sources,
+		sessionId,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -328,17 +342,21 @@ const AISuggestionsModal = ({
 											<div className="total">{totalDocs}</div>
 										</div>
 										<div className="prev-btn" onClick={handlePrevCardClick}>
-											<ChevronRightThinSvg />
+											<ChevronRightThinSvg
+												style={{ transform: 'rotate(270deg)' }}
+											/>
 										</div>
 										<div className="next-btn" onClick={handleNextCardClick}>
-											<ChevronRightThinSvg />
+											<ChevronRightThinSvg
+												style={{ transform: 'rotate(270deg)' }}
+											/>
 										</div>
 									</>
 								)}
 							</div>
 
 							<div className="right-container">
-								<div
+								{/* <div
 									className={`starLogoContainer ${
 										data?.isFavourite === true ? 'active' : ''
 									}`}
@@ -347,7 +365,7 @@ const AISuggestionsModal = ({
 									}}
 								>
 									<StarSvg />
-								</div>
+								</div> */}
 								<div className="btn teach-me-btn" onClick={handleOpenFeedbackPopup}>
 									<AgentsSvg style={{ color: 'var(--primary-button)' }} /> Teach
 									me
@@ -358,6 +376,94 @@ const AISuggestionsModal = ({
 								{/* <div className="btn download-btn">
 									<DownloadSvg />
 								</div> */}
+								{createdAt && (
+									<Tooltip
+										title={
+											<div className="tooltipOption">
+												Created At: {createdDate}
+											</div>
+										}
+										color="transparent"
+										arrow={false}
+									>
+										<div className="prioritySuggestionModal">
+											{/* <div className="icon">
+												<CalendarSvg />
+											</div> */}
+											<div className="priority-text">{`${createdDate}`}</div>
+										</div>
+									</Tooltip>
+								)}
+								{creditUsed && (
+									<Tooltip
+										title={
+											<div className="tooltipOption">
+												Credits Used: {creditUsed}
+											</div>
+										}
+										color="transparent"
+										arrow={false}
+									>
+										<div className="prioritySuggestionModal">
+											{/* <div className="icon">
+												<img
+													src={CreditCoinImage}
+													width={16}
+													height={16}
+													alt="credit-coin"
+												/>
+											</div> */}
+											<div className="priority-text">{`${creditUsed} C`}</div>
+										</div>
+									</Tooltip>
+								)}
+
+								{priority && (
+									<Tooltip
+										title={
+											<div className="tooltipOption">
+												Priority: {priority}
+											</div>
+										}
+										color="transparent"
+										arrow={false}
+									>
+										<div className="prioritySuggestionModal">
+											<div
+												className="indicator"
+												style={{
+													background:
+														priority === 'High'
+															? 'red'
+															: priority === 'Medium'
+															? 'orange'
+															: 'green',
+												}}
+											></div>
+											<div className="priority-text">{`${priority}`}</div>
+										</div>
+									</Tooltip>
+								)}
+
+								{confidence_score && (
+									<Tooltip
+										title={
+											<div className="tooltipOption">
+												Confidence Score: {confidence_score * 100}%
+											</div>
+										}
+										trigger="hover"
+										arrow={false}
+										placement="top"
+										color="transparent"
+									>
+										<div className="confidence">
+											<div className="value">{`${
+												confidence_score * 100
+											}%`}</div>
+										</div>
+									</Tooltip>
+								)}
 								<Tooltip
 									title={<div className="tooltipOption">Delete</div>}
 									placement="bottom"
@@ -381,94 +487,7 @@ const AISuggestionsModal = ({
 							</div>
 
 							<div className="suggestions-info">
-								<div className="info">
-									{confidence_score && (
-										<Tooltip
-											title={
-												<div className="tooltipOption">
-													Confidence Score: {confidence_score * 100}%
-												</div>
-											}
-											trigger="hover"
-											arrow={false}
-											placement="top"
-											color="transparent"
-										>
-											<div className="confidence">
-												<div className="value">{`${
-													confidence_score * 100
-												}%`}</div>
-											</div>
-										</Tooltip>
-									)}
-									{priority && (
-										<Tooltip
-											title={
-												<div className="tooltipOption">
-													Priority: {priority}
-												</div>
-											}
-											color="transparent"
-											arrow={false}
-										>
-											<div className="priority">
-												<div
-													className="indicator"
-													style={{
-														background:
-															priority === 'High'
-																? 'red'
-																: priority === 'Medium'
-																? 'orange'
-																: 'green',
-													}}
-												></div>
-												<div className="priority-text">{`${priority}`}</div>
-											</div>
-										</Tooltip>
-									)}
-									{creditUsed && (
-										<Tooltip
-											title={
-												<div className="tooltipOption">
-													Credits Used: {creditUsed}
-												</div>
-											}
-											color="transparent"
-											arrow={false}
-										>
-											<div className="priority">
-												<div className="icon">
-													<img
-														src={CreditCoinImage}
-														width={16}
-														height={16}
-														alt="credit-coin"
-													/>
-												</div>
-												<div className="priority-text">{`${creditUsed} C`}</div>
-											</div>
-										</Tooltip>
-									)}
-									{createdAt && (
-										<Tooltip
-											title={
-												<div className="tooltipOption">
-													Created At: {createdDate}
-												</div>
-											}
-											color="transparent"
-											arrow={false}
-										>
-											<div className="priority">
-												<div className="icon">
-													<CalendarSvg />
-												</div>
-												<div className="priority-text">{`${createdDate}`}</div>
-											</div>
-										</Tooltip>
-									)}
-								</div>
+								<div className="info"></div>
 
 								<div className="more-info">
 									{data?.knowledgeBase?.[0]?.metadata?.connectedEmail && (
@@ -511,7 +530,7 @@ const AISuggestionsModal = ({
 								</div>
 							</div>
 						</div>
-						{(solutions?.length > 0 ||
+						{/* {(solutions?.length > 0 ||
 							suggested_prompts?.length > 0 ||
 							suggested_actions?.length > 0) && (
 							<div
@@ -582,13 +601,13 @@ const AISuggestionsModal = ({
 													  ))
 													: solutions}
 
-												{Array?.isArray(suggested_actions)
+												 {Array?.isArray(suggested_actions)
 													? suggested_actions?.map((item, index) => (
 															<div
 																className="result-item"
 																key={index}
 																onClick={() =>
-																	handlePromptClick(item)
+																	handleActionClick(item)
 																}
 															>
 																<div className="result-text">
@@ -605,7 +624,7 @@ const AISuggestionsModal = ({
 																	</div>
 																</div>
 															</div>
-													  ))
+												
 													: suggested_actions}
 											</div>
 
@@ -646,32 +665,35 @@ const AISuggestionsModal = ({
 															: suggested_prompts}
 													</div>
 												</div>
-											)}
+											)} 
 										</div>
 									</Panel>
 								</Collapse>
 							</div>
-						)}
+						)} */}
+
 						<div className="tabs-container">
 							<div className="tab-buttons">
 								<div
 									className={`tab-btn ${
-										info?.activeTab === 'situation' ? 'active' : ''
+										info?.activeTab === 'actions' ? 'active' : ''
 									}`}
-									onClick={() => handleTabClick('situation')}
+									onClick={() => handleTabClick('actions')}
 								>
-									Situation Overview
+									Actions
 								</div>
-								{info?.chainOfThoughtData?.hasChainOfThought && (
-									<div
-										className={`tab-btn ${
-											info?.activeTab === 'chainOfThought' ? 'active' : ''
-										}`}
-										onClick={() => handleTabClick('chainOfThought')}
-									>
-										Chain of Thought
-									</div>
-								)}
+								{/* {info?.chainOfThoughtData?.hasChainOfThought && (
+									
+								)} */}
+
+								<div
+									className={`tab-btn ${
+										info?.activeTab === 'report' ? 'active' : ''
+									}`}
+									onClick={() => handleTabClick('report')}
+								>
+									Report
+								</div>
 
 								{thinker_sources?.length > 0 && (
 									<div
@@ -685,64 +707,70 @@ const AISuggestionsModal = ({
 								)}
 							</div>
 						</div>
-						{info?.activeTab === 'situation' && (
+						{info?.activeTab === 'actions' && (
 							<div className="situation-overview-container">
-								{research_report && (
-									<div
-										className={`report-container ${
-											info?.isReportExpanded ? 'active' : ''
-										}`}
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												isReportExpanded: !prev?.isReportExpanded,
-											}))
-										}
-									>
-										<Collapse
-											activeKey={info?.isReportExpanded ? ['1'] : []}
-											onChange={(key) =>
-												setInfo((prev) => ({
-													...prev,
-													isReportExpanded: key.length > 0,
-												}))
-											}
-											expandIcon={() => {
-												return (
-													<div className="expand-icon">
-														<ChevronRightThinSvg />
-													</div>
-												);
-											}}
-										>
-											<Panel
-												header={
-													<div className="cot-header">
-														<div className="cot-text">
-															<div className="title-text">Report</div>
-															<div className="description-text">
-																{crux ||
-																	'Summary of key insights and outcomes.'}
-															</div>
+								{suggested_actions?.length > 0 && (
+									<div className="suggested-actions-wrapper">
+										<div className="suggested-action-text">Actions</div>
+										<div className="suggested-actions-container">
+											{Array?.isArray(suggested_actions)
+												? suggested_actions?.map((item, index) => (
+														<div
+															className="suggested-action"
+															key={index}
+															onClick={() =>
+																handleActionClick(item, sessionId)
+															}
+														>
+															{/* <div className="result-text"> */}
+															{updateCitationIdsWithCitations(
+																item,
+																thinker_sources || [],
+															)}
+															{/* </div> */}
+
+															{/* <div className="logo-container">
+															<RocketSvg />
+															<div className="logo-text">Action</div>
+														</div> */}
 														</div>
-													</div>
-												}
-												key="1"
-											>
-												<div
-													className="report-description"
-													onClick={(e) => e.stopPropagation()}
-												>
-													<Markdown citations={thinker_sources || null}>
-														{research_report || ''}
-													</Markdown>
-												</div>
-											</Panel>
-										</Collapse>
+												  ))
+												: suggested_actions}
+										</div>
 									</div>
 								)}
 
-								{informationRequests?.length > 0 && (
+								{suggested_prompts?.length > 0 && (
+									<div className="suggested-prompts-container">
+										<div className="suggested-prompts-title">Prompts</div>
+										<div
+											className="suggested-prompts"
+											onClick={(e) => e.stopPropagation()}
+										>
+											{Array?.isArray(suggested_prompts)
+												? suggested_prompts?.map((item, index) => (
+														<div
+															className="prompt-item"
+															key={index}
+															onClick={() => handlePromptClick(item)}
+														>
+															<div className="logo">
+																<ArrowRightSvg />
+															</div>
+															<div className="item-text">
+																{updateCitationIdsWithCitations(
+																	item,
+																	thinker_sources || [],
+																)}
+															</div>
+														</div>
+												  ))
+												: suggested_prompts}
+										</div>
+									</div>
+								)}
+
+								{/* {informationRequests?.length > 0 && (
 									<div
 										className={`questions-wrapper ${
 											info?.isQuestionsExpanded ? 'active' : ''
@@ -835,19 +863,46 @@ const AISuggestionsModal = ({
 											</Panel>
 										</Collapse>
 									</div>
-								)}
+								)} */}
 							</div>
 						)}
 
-						{info?.activeTab === 'chainOfThought' && (
+						{info?.activeTab === 'report' && (
 							<div className="cot">
 								<div className="chain-of-thought-container">
-									<div className="chain-of-thought-content">
+									{/* <div className="chain-of-thought-content">
 										<CombinedChainOfThought
 											data={info?.chainOfThoughtData}
 											citations={thinker_sources || null}
 										/>
-									</div>
+									</div> */}
+									{info?.chainOfThoughtData?.hasChainOfThought && (
+										<div className="chain-of-thought-wrapper">
+											<div className="chain-of-thought-text">
+												Chain of thought
+											</div>
+											<div className="chain-of-thought-content">
+												<ChainOfThoughtInterpreter
+													data={info?.chainOfThoughtData}
+													citations={thinker_sources || null}
+													confidenceScore={confidence_score}
+												/>
+											</div>
+										</div>
+									)}
+
+									{research_report && (
+										<div className={`report-container`}>
+											<div
+												className="report-description"
+												onClick={(e) => e.stopPropagation()}
+											>
+												<Markdown citations={thinker_sources || null}>
+													{research_report || ''}
+												</Markdown>
+											</div>
+										</div>
+									)}
 								</div>
 							</div>
 						)}

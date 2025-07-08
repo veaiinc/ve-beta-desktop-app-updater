@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import GridStyleVertical from '../../../../assets/svg/gallery/gridStyleVertical';
 import { ReactComponent as ThumbnailV } from '../../../../assets/svg/gallery/thumbnailV.svg';
 import { ReactComponent as GridStyleHorizontal } from '../../../../assets/svg/gallery/gridStyleH.svg';

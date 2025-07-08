@@ -6,13 +6,13 @@ import google from '../../../assets/svg/Settings/google.svg';
 import googleDrive from '../../../assets/svg/Settings/google-drive.svg';
 import googleCalendar from '../../../assets/svg/Settings/google-calendar-logo.png';
 import dropbox from '../../../assets/svg/Settings/drop-box-logo.png';
-import meta from '../../../assets/svg/Settings/meta.svg';
+// import meta from '../../../assets/svg/Settings/meta.svg';
 import notion from '../../../assets/svg/Settings/notion.svg';
 import PayPal from '../../../assets/svg/Settings/paypal.svg';
-import Square from '../../../assets/svg/Settings/square.svg';
-import Stripe from '../../../assets/svg/Settings/stripe.svg';
+// import Square from '../../../assets/svg/Settings/square.svg';
+// import Stripe from '../../../assets/svg/Settings/stripe.svg';
 import Zoho from '../../../assets/svg/Settings/zoho-logo.svg';
-import microsoft365 from '../../../assets/svg/Settings/microsoft-365.svg';
+// import microsoft365 from '../../../assets/svg/Settings/microsoft-365.svg';
 import IntegrationConnectModel from '../../components/modalsV2/integrations/IntegrationConnectModel';
 import Context from '../../../context/context';
 // import { Modal } from 'antd';
@@ -397,14 +397,14 @@ const Integrations = () => {
 		// 		'Easily connect with Google Drive to sync your files and streamline communication.',
 		// 	isConnected: false,
 		// },
-		// {
-		// 	id: 5,
-		// 	icon: googleCalendar,
-		// 	title: 'Google Calendar',
-		// 	connectType: 'google-calendar',
-		// 	description: 'Easily connect with Google Calendar to sync your calendar.',
-		// 	isConnected: false,
-		// },
+		{
+			id: 5,
+			icon: googleCalendar,
+			title: 'Google Calendar',
+			connectType: 'google-calendar',
+			description: 'Easily connect with Google Calendar to sync your calendar.',
+			isConnected: false,
+		},
 		// {
 		// 	id: 6,
 		// 	icon: zoho,

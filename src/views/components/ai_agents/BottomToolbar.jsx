@@ -1,12 +1,11 @@
-import React, { memo, useCallback, useState, useRef, useEffect, useContext, useMemo } from 'react';
+import { memo, useCallback, useState, useRef, useEffect, useContext, useMemo } from 'react';
 import '../../../assets/scss/ai_agents/bottomToolbar.scss';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import Context from '../../../context/context';
-import ObjectID from 'bson-objectid';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
-import useVoiceIntegration from '../../hooks/useVoiceIntegration';
+import useVoiceIntegration from '../../../hooks/useVoiceIntegration';
 import ChatBox from '../chat/ChatBox';
 
 const BottomToolbar = ({

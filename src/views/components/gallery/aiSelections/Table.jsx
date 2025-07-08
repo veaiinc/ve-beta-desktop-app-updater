@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import '../../../../assets/scss/gallery/table.scss';
 
 const Table = ({ tableData, thead }) => {

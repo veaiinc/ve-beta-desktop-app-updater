@@ -144,6 +144,7 @@ const DocsFullView = () => {
 			sendSmartFileSettings,
 			deleteLead,
 			duplicateSmartFile,
+			updateStateValues,
 		},
 		activityInfo: {
 			resetActivityState,
@@ -274,6 +275,7 @@ const DocsFullView = () => {
 				deleteWorkflowId: fileData._id,
 			};
 			await deleteLead(payload);
+			updateStateValues({ docsFilesRefetch: true });
 			setInfo((prev) => ({ ...prev, deleteLeadModal: false }));
 			navigate('/docs');
 		}

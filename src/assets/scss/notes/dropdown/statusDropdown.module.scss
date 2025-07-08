@@ -1,0 +1,124 @@
+.statusDropdownButton {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-radius: 8px;
+	cursor: pointer;
+	padding: 4px;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	background-color: transparent;
+}
+
+.statusDropdownTooltip {
+	display: flex;
+	width: 250px;
+	padding: 6px 0px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+	border-radius: 12px;
+	background: var(--card, #202123);
+	border: 1px solid var(--stroke, #2c2d2e);
+	overflow: hidden;
+
+	.statusDropdownTooltipHeader {
+		display: flex;
+		padding: 10px 16px;
+		align-items: center;
+		gap: 6px;
+		align-self: stretch;
+		border-bottom: 1px solid var(--stroke, #2c2d2e);
+		width: 100%;
+
+		.statusDropdownSearchInput {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			align-self: stretch;
+			width: 100%;
+			.statusDropdownSearchInputIcon {
+				width: 16px;
+				height: 16px;
+				path {
+					stroke: var(--secondary-font) !important;
+				}
+				circle {
+					stroke: var(--secondary-font) !important;
+				}
+			}
+
+			.statusDropdownInput {
+				background-color: transparent;
+				border: none;
+				outline: none;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				flex-grow: 1;
+
+				&::placeholder {
+					color: var(--secondary-font, #7a7e85);
+				}
+			}
+		}
+	}
+
+	.statusDropdownTooltipBody {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 6px;
+		max-height: 250px;
+		justify-content: flex-start;
+		overflow-y: auto;
+
+		.statusDropdownTooltipBodyItem {
+			display: flex;
+			padding: 10px 16px;
+			align-items: flex-start;
+			gap: 10px;
+			align-self: stretch;
+			cursor: pointer;
+			align-items: center;
+			.statusDropdownTooltipBodyItemIcon {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				svg {
+					width: 16px;
+					height: 16px;
+				}
+			}
+
+			.statusDropdownTooltipBodyItemLabel {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				flex-grow: 1;
+			}
+
+			&:hover {
+				background-color: var(--card-hover, #2c2d2e);
+			}
+		}
+		.noOptionsText {
+			color: var(--secondary-font, #7a7e85);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			width: 100%;
+			text-align: center;
+			padding: 10px 0px;
+		}
+	}
+}

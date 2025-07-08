@@ -8,6 +8,7 @@ const TextField = ({
 	tooltipPlacement = 'bottom',
 	title = 'text',
 	prefix = '',
+	maxWidth = false,
 }) => {
 	const [info, setInfo] = useState({
 		isOpen: false,
@@ -29,8 +30,11 @@ const TextField = ({
 			destroyTooltipOnHide
 		>
 			<div
-				className="text-field filter-wrapper"
-				onClick={() => handleStateChange({ isOpen: !info?.isOpen })}
+				className={`text-field filter-wrapper ${maxWidth ? 'max-width' : ''}`}
+				onClick={(e) => {
+					e.stopPropagation();
+					handleStateChange({ isOpen: !info?.isOpen });
+				}}
 			>
 				{title === 'Id' && prefix ? `${prefix} - ` : ''}
 				{value}

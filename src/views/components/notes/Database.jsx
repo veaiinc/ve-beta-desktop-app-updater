@@ -1,0 +1,688 @@
+import { defaultProps, insertOrUpdateBlock } from '@blocknote/core';
+import { createReactBlockSpec } from '@blocknote/react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import s from '../../../assets/scss/notes/database.module.scss';
+import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
+import Context from '../../../context/context';
+import { NotesRefContext } from '../../features/notesModule/DatabaseWithNote';
+import CustomTextArea from '../globalComponents/CustomTextArea';
+import DatabaseAddFieldModal from '../modalsV2/notes/DatabaseAddFieldModal';
+import DatabaseAddModal from '../modalsV2/notes/DatabaseAddModal';
+import CheckBox from '../tasks/listView/CheckBox';
+import ChildTaskProgress from '../tasks/listView/ChildTaskProgress';
+import CreatedWithAi from '../tasks/listView/CreatedWithAi';
+import LinkText from '../tasks/listView/LinkText';
+import MultiSelect from '../tasks/listView/MultiSelect';
+import ParentTaskComponent from '../tasks/listView/ParentTaskComponent';
+import Person from '../tasks/listView/Person';
+import PersonMultiSelect from '../tasks/listView/PersonMultiSelect';
+import Priority from '../tasks/listView/Priority';
+import Select from '../tasks/listView/Select';
+import Status from '../tasks/listView/Status';
+import TaskHeader from '../tasks/listView/TaskHeader';
+import TaskId from '../tasks/listView/TaskId';
+import TextField from '../tasks/listView/TextField';
+import CheckBoxFilter from './DatabseComponents/CheckBoxFilter';
+import DateComponent from './DatabseComponents/DateComponent';
+import FilterComponent from './DatabseComponents/FilterComponent';
+import StatusFilter from './DatabseComponents/StatusFilter';
+import TableView from './DatabseComponents/views/TableView';
+import DateFilterComponent from './DatabseComponents/DateFilterComponent';
+import NumberComponent from './DatabseComponents/NumberComponent';
+import { ReactComponent as ChevronIcon } from '../../../assets/svg/tasks/chevronRightThin.svg';
+import ListView from './DatabseComponents/views/ListView';
+import Spinner from '../loaders/Spinner';
+import SortComponent from './DatabseComponents/SortComponent';
+import GroupComponent from './DatabseComponents/GroupComponent';
+import BoardView from './DatabseComponents/views/BoardView';
+import GalleryView from './DatabseComponents/views/GalleryView';
+import DatabaseHeader from './DatabseComponents/DatabaseHeader';
+
+export const rowTypes = {
+	text: TextField,
+	title: TextField,
+	select: Select,
+	person: Person,
+	multi_select: MultiSelect,
+	date: DateComponent,
+	serial_number: TaskId,
+	status: Status,
+	priority: Priority,
+	checkbox: CheckBox,
+	parentTask: ParentTaskComponent,
+	childTasks: ChildTaskProgress,
+	linkText: LinkText,
+	personMultiSelect: PersonMultiSelect,
+	createdWithAi: CreatedWithAi,
+	last_edited_time: DateComponent,
+	created_time: DateComponent,
+	last_edited_by: Person,
+	created_by: Person,
+	url: LinkText,
+	email: LinkText,
+	phone: LinkText,
+	number: NumberComponent,
+	statusFilter: StatusFilter,
+	checkboxFilter: CheckBoxFilter,
+	dateFilter: DateFilterComponent,
+};
+
+const DatabaseComponent = ({ block, editor }) => {
+	const {
+		notes: {
+			createDatabase,
+			database,
+			createDatabaseView,
+			getDatabase,
+			getDatabaseRows,
+			rowData,
+			updateDatabase,
+			listAvailableDatabases,
+			availableDatabases,
+			views,
+			getDatabaseViews,
+			deleteDatabaseView,
+			addDatabaseField,
+		},
+	} = useContext(Context);
+
+	const { previousBlocksRef, pageId } = useContext(NotesRefContext);
+	const timeoutRef = useRef(null);
+
+	const { databaseId } = block?.props || {};
+	const sourceBlockId = previousBlocksRef?.current?.get(block?.id)?._id;
+
+	const [info, setInfo] = useState({
+		addRowModalOpen: false,
+		addFieldModalOpen: false,
+		databaseName: 'Database',
+		newDatabase: null,
+		selectedDatabaseId: false,
+		databaseListLoading: false,
+		selectedViewId: null,
+		rowsLoading: false,
+		viewsLoading: false,
+		searchQuery: '',
+		debouncedSearchQuery: '',
+	});
+
+	const currentDatabase = useMemo(() => database?.[databaseId], [database, databaseId]);
+	const currentDatabaseViews = useMemo(() => views?.[block?.id], [views, block?.id]);
+
+	const currentDatabaseRows = useMemo(
+		() => rowData?.[info?.selectedViewId],
+		[rowData, info?.selectedViewId],
+	);
+
+	const selectedDatabaseView = useMemo(() => {
+		if (!currentDatabaseViews?.length) return null;
+
+		// If no selectedViewId, return first view
+		if (!info?.selectedViewId) {
+			return currentDatabaseViews[0];
+		}
+
+		// Find the selected view
+		return (
+			currentDatabaseViews.find((view) => view?._id === info?.selectedViewId) ||
+			currentDatabaseViews[0]
+		);
+	}, [currentDatabaseViews, info?.selectedViewId]);
+
+	const handleSearchChange = useCallback((value) => {
+		setInfo((prev) => ({ ...prev, searchQuery: value }));
+
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
+
+		timeoutRef.current = setTimeout(() => {
+			setInfo((prev) => ({ ...prev, debouncedSearchQuery: value }));
+		}, 500);
+	}, []);
+
+	const handleTabChange = useCallback((view) => {
+		// Clear search states without triggering the fetch effect
+		setInfo((prev) => ({
+			...prev,
+			selectedViewId: view?._id,
+			searchQuery: '',
+			debouncedSearchQuery: '', // Keep the same value to prevent effect trigger
+		}));
+	}, []);
+
+	// Reset search when switching tabs
+	useEffect(() => {
+		if (info?.selectedViewId) {
+			const row = rowData?.[info?.selectedViewId];
+			setInfo((prev) => ({
+				...prev,
+				searchQuery: row?.searchQuery || '',
+				debouncedSearchQuery: row?.searchQuery || '',
+			}));
+		}
+	}, [info?.selectedViewId]);
+
+	// Fetch rows when view, filters, or debounced search changes
+	useEffect(() => {
+		const currentRow = rowData?.[info?.selectedViewId];
+		const filterHasChanged =
+			JSON.stringify(currentRow?.filters) !== JSON.stringify(selectedDatabaseView?.filterBy);
+		const sortHasChanged =
+			JSON.stringify(currentRow?.sortBy) !== JSON.stringify(selectedDatabaseView?.sortBy);
+		const searchHasChanged = currentRow?.searchQuery !== info?.debouncedSearchQuery;
+		const groupHasChanged =
+			JSON.stringify(currentRow?.groupBy) !==
+			JSON.stringify(selectedDatabaseView?.groupBy?.fieldId);
+		const groupConfigHasChanged =
+			JSON.stringify(currentRow?.groupBy?.config) !==
+			JSON.stringify(selectedDatabaseView?.groupBy?.config);
+
+		if (
+			!filterHasChanged &&
+			!searchHasChanged &&
+			!sortHasChanged &&
+			!groupHasChanged &&
+			!groupHasChanged &&
+			currentRow?.data
+		) {
+			return;
+		}
+		fetchDatabaseRows(info.selectedViewId);
+	}, [
+		info?.selectedViewId,
+		selectedDatabaseView?.filterBy,
+		info?.debouncedSearchQuery,
+		selectedDatabaseView?.sortBy,
+		selectedDatabaseView?.groupBy?.fieldId,
+		selectedDatabaseView?.groupBy?.config,
+	]);
+
+	// Optimized fetch function with duplicate call prevention
+	const fetchDatabaseRows = useCallback(
+		async (viewId, filters = null) => {
+			if (!databaseId || !pageId || !viewId) return;
+			if (info?.rowsLoading) return;
+			setInfo((prev) => ({ ...prev, rowsLoading: true }));
+
+			await getDatabaseRows(
+				{
+					pageId,
+					databaseId,
+					databaseViewId: viewId,
+					input: {
+						docLimit: 25,
+						docPage: 1,
+						groupLimit: 10,
+						groupPage: 1,
+						search: info?.debouncedSearchQuery || '',
+					},
+				},
+				{
+					viewId,
+					filters: filters || selectedDatabaseView?.filterBy,
+					sortBy: selectedDatabaseView?.sortBy,
+					groupBy: selectedDatabaseView?.groupBy?.fieldId,
+					blockId: block?.id,
+				},
+			);
+			setInfo((prev) => ({ ...prev, rowsLoading: false }));
+		},
+		[
+			databaseId,
+			pageId,
+			getDatabaseRows,
+			selectedDatabaseView?.filterBy,
+			info?.debouncedSearchQuery,
+			selectedDatabaseView?.sortBy,
+			block?.id,
+		],
+	);
+
+	// Initialize view selection effect
+	useEffect(() => {
+		if (!currentDatabaseViews?.length || info?.selectedViewId) return;
+
+		const firstView = currentDatabaseViews[0];
+		if (firstView?._id) {
+			setInfo((prev) => ({
+				...prev,
+				selectedViewId: firstView._id,
+			}));
+		}
+	}, [currentDatabaseViews, info?.selectedViewId]);
+
+	// Handle database import list loading
+	useEffect(() => {
+		if (info?.newDatabase === false && !info?.databaseListLoading) {
+			setInfo((prev) => ({ ...prev, databaseListLoading: true }));
+			getAllAvailableDatabases();
+		}
+	}, [info?.newDatabase]);
+
+	// Load database data
+	useEffect(() => {
+		if (!pageId || !databaseId) return;
+		if (!currentDatabase) {
+			getDatabase({ pageId, databaseId });
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				databaseName: currentDatabase.databaseMetadata.name,
+			}));
+		}
+	}, [databaseId, currentDatabase?.databaseMetadata?._id]);
+
+	// Load database views
+	useEffect(() => {
+		if (databaseId && sourceBlockId && !currentDatabaseViews) {
+			getDatabaseViews({ pageId, blockId: sourceBlockId }, block?.id);
+		}
+	}, [sourceBlockId]);
+
+	// Cleanup on unmount
+	useEffect(() => {
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, []);
+
+	const fields = useMemo(
+		() => currentDatabase?.databaseMetadata?.fields || [],
+		[currentDatabase],
+	);
+
+	const initializeDatabase = useCallback(
+		async (selectedDatabaseId = null) => {
+			try {
+				let databaseResult = null;
+
+				if (selectedDatabaseId) {
+					databaseResult = await getDatabase({ pageId, databaseId: selectedDatabaseId });
+				} else {
+					databaseResult = await createDatabase({
+						pageId,
+						input: {
+							name: 'Database',
+							fields: [
+								{
+									name: 'Name',
+									type: 'title',
+								},
+							],
+							sourceBlockId,
+						},
+					});
+				}
+
+				if (databaseResult) {
+					const databaseView = await handleCreateDatabaseView(
+						databaseResult._id,
+						'table',
+					);
+
+					if (databaseView) {
+						editor.updateBlock(block?.id, {
+							props: {
+								databaseId: databaseResult._id,
+							},
+						});
+					}
+				}
+			} catch (error) {
+				console.error('Error initializing database:', error);
+			}
+		},
+		[pageId, sourceBlockId, getDatabase, createDatabase, editor, block?.id],
+	);
+
+	const handleCreateDatabaseView = useCallback(
+		async (targetDatabaseId, viewType) => {
+			const labelMapper = {
+				table: 'Table',
+				list: 'List',
+				board: 'Board',
+				calendar: 'Calendar',
+				gallery: 'Gallery',
+			};
+			try {
+				let boardGroupBy = null;
+				if (viewType === 'board') {
+					boardGroupBy = fields?.find((field) => field?.type === 'status')?._id;
+					if (!boardGroupBy) {
+						const response = await addDatabaseField({
+							pageId,
+							databaseId: targetDatabaseId,
+							input: { name: 'Status', type: 'status' },
+						});
+						if (response) {
+							boardGroupBy = response?._id;
+						}
+					}
+				}
+				const order = (currentDatabaseViews?.length ?? 0) + 1;
+				const databaseView = await createDatabaseView(
+					{
+						pageId,
+						input: {
+							blockId: sourceBlockId,
+							databaseId: targetDatabaseId,
+							label: labelMapper[viewType],
+							type: viewType,
+							order,
+							...(viewType === 'board' && {
+								groupBy: {
+									fieldId: boardGroupBy,
+								},
+							}),
+						},
+					},
+					block?.id,
+				);
+
+				if (databaseView) {
+					setInfo((prev) => ({
+						...prev,
+						selectedViewId: databaseView?._id,
+					}));
+				}
+
+				return databaseView;
+			} catch (error) {
+				console.error('Error creating database view:', error);
+				return null;
+			}
+		},
+		[
+			currentDatabaseViews?.length,
+			pageId,
+			sourceBlockId,
+			createDatabaseView,
+			block?.id,
+			fields,
+		],
+	);
+
+	const handleDebouncedDatabaseNameUpdate = useCallback(
+		(newName) => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+
+			timeoutRef.current = setTimeout(() => {
+				const trimmedName = newName?.trim();
+				if (!trimmedName || trimmedName === currentDatabase?.databaseMetadata?.name) {
+					return;
+				}
+
+				if (databaseId && pageId) {
+					updateDatabase({
+						pageId,
+						updateDatabaseId: databaseId,
+						input: {
+							name: trimmedName,
+						},
+					});
+				}
+			}, 800);
+		},
+		[databaseId, pageId, currentDatabase?.databaseMetadata?.name, updateDatabase],
+	);
+
+	const handleInfoChange = useCallback(
+		(data = {}) => {
+			setInfo((prev) => {
+				const newState = { ...prev, ...data };
+
+				// If databaseName is being updated, trigger the debounced update
+				if (data.databaseName !== undefined) {
+					handleDebouncedDatabaseNameUpdate(data.databaseName);
+				}
+
+				return newState;
+			});
+		},
+		[handleDebouncedDatabaseNameUpdate],
+	);
+
+	const getAllAvailableDatabases = useCallback(async () => {
+		try {
+			await listAvailableDatabases({ pageId });
+		} catch (error) {
+			console.error('Error fetching available databases:', error);
+		} finally {
+			setInfo((prev) => ({ ...prev, databaseListLoading: false }));
+		}
+	}, [pageId, listAvailableDatabases]);
+
+	const handleDeleteDatabaseView = useCallback(
+		async (viewId) => {
+			if (!currentDatabaseViews?.length) return;
+
+			try {
+				const deletedViewIndex = currentDatabaseViews.findIndex(
+					(view) => view?._id === viewId,
+				);
+
+				if (deletedViewIndex === -1) return;
+
+				// Determine new selected view
+				let newSelectedViewId = null;
+				if (currentDatabaseViews.length > 1) {
+					if (deletedViewIndex === 0) {
+						newSelectedViewId = currentDatabaseViews[1]?._id;
+					} else {
+						newSelectedViewId = currentDatabaseViews[deletedViewIndex - 1]?._id;
+					}
+				}
+
+				await deleteDatabaseView({ pageId, deleteDatabaseViewId: viewId }, block?.id);
+
+				if (newSelectedViewId) {
+					handleInfoChange({ selectedViewId: newSelectedViewId });
+				}
+			} catch (error) {
+				console.error('Error deleting database view:', error);
+			}
+		},
+		[pageId, deleteDatabaseView, block?.id, currentDatabaseViews, handleInfoChange],
+	);
+
+	const handleTabDropdownClick = useCallback(
+		(data) => {
+			if (data?.value === 'delete' && data?.tabId) {
+				handleDeleteDatabaseView(data.tabId);
+			}
+		},
+		[handleDeleteDatabaseView],
+	);
+
+	const { groupData, metaInfo } = useMemo(
+		() => currentDatabaseRows || { groupData: {}, metaInfo: {} },
+		[currentDatabaseRows],
+	);
+	const columns = useMemo(
+		() =>
+			fields.map((field) => ({
+				...field,
+				width: 180,
+			})),
+		[fields],
+	);
+	const allDatabases = useMemo(() => availableDatabases || [], [availableDatabases]);
+
+	return (
+		<div className={s.notesDatabaseContainer}>
+			{!databaseId ? (
+				<div className={s.notesDatabaseInitial}>
+					{info?.newDatabase === null && (
+						<div className={s.intialBtnContainer}>
+							<button onClick={() => initializeDatabase()}>Create Database</button>
+							<button onClick={() => handleInfoChange({ newDatabase: false })}>
+								Import Database
+							</button>
+						</div>
+					)}
+					{info?.newDatabase === false && (
+						<div className={s.showDatabaseContainer}>
+							<div className={s.showDatabaseContainerHeader}>
+								<button
+									className={s.showDatabaseContainerHeaderBackButton}
+									onClick={() => handleInfoChange({ newDatabase: null })}
+								>
+									<ChevronIcon
+										className={s.showDatabaseContainerHeaderBackButtonIcon}
+									/>
+								</button>
+								<div className={s.showDatabaseContainerHeaderTitle}>
+									Select Database
+								</div>
+							</div>
+							<div className={s.showDatabaseContainerBody}>
+								{info?.databaseListLoading ? (
+									<div>Loading databases...</div>
+								) : (
+									allDatabases.map((database) => (
+										<div
+											className={s.showDatabaseContainerBodyItem}
+											key={database?._id}
+											onClick={() => initializeDatabase(database?._id)}
+										>
+											{database?.name}
+										</div>
+									))
+								)}
+							</div>
+						</div>
+					)}
+				</div>
+			) : (
+				<>
+					<DatabaseHeader
+						databaseId={databaseId}
+						selectedDatabaseView={selectedDatabaseView}
+						fields={fields}
+						pageId={pageId}
+						block={block}
+						currentDatabaseViews={currentDatabaseViews}
+						handleTabChange={handleTabChange}
+						handleCreateDatabaseView={handleCreateDatabaseView}
+						handleTabDropdownClick={handleTabDropdownClick}
+						handleSearchChange={handleSearchChange}
+						searchQuery={info?.searchQuery}
+						selectedViewId={info?.selectedViewId}
+						openAddModal={() => handleInfoChange({ addRowModalOpen: true })}
+					/>
+					{info?.rowsLoading ? (
+						<div className={s.loadingContainer}>
+							<Spinner />
+						</div>
+					) : (
+						<>
+							{selectedDatabaseView?.type === 'table' && (
+								<TableView
+									groupData={groupData}
+									metaInfo={metaInfo}
+									columns={columns}
+									databaseId={databaseId}
+									pageId={pageId}
+									view={selectedDatabaseView}
+									blockId={block?.id}
+								/>
+							)}
+							{selectedDatabaseView?.type === 'list' && (
+								<ListView
+									groupData={groupData}
+									metaInfo={metaInfo}
+									columns={columns}
+									databaseId={databaseId}
+									pageId={pageId}
+									view={selectedDatabaseView}
+									blockId={block?.id}
+								/>
+							)}
+							{selectedDatabaseView?.type === 'board' && (
+								<BoardView
+									groupData={groupData}
+									metaInfo={metaInfo}
+									columns={columns}
+									databaseId={databaseId}
+									pageId={pageId}
+									view={selectedDatabaseView}
+									blockId={block?.id}
+								/>
+							)}
+							{selectedDatabaseView?.type === 'gallery' && (
+								<GalleryView
+									groupData={groupData}
+									metaInfo={metaInfo}
+									columns={columns}
+									databaseId={databaseId}
+									pageId={pageId}
+									view={selectedDatabaseView}
+									blockId={block?.id}
+								/>
+							)}
+						</>
+					)}
+
+					<DatabaseAddModal
+						isOpen={info?.addRowModalOpen}
+						onClose={() => handleInfoChange({ addRowModalOpen: false })}
+						viewId={info?.selectedViewId}
+						pageId={pageId}
+						databaseId={databaseId}
+						fields={fields}
+						blockId={block?.id}
+					/>
+					<DatabaseAddFieldModal
+						isOpen={info?.addFieldModalOpen}
+						onClose={() => handleInfoChange({ addFieldModalOpen: false })}
+						databaseId={databaseId}
+						pageId={pageId}
+					/>
+				</>
+			)}
+		</div>
+	);
+};
+
+export default memo(DatabaseComponent);
+
+export const Database = createReactBlockSpec(
+	{
+		type: 'database',
+		propSchema: {
+			textAlignment: defaultProps.textAlignment,
+			textColor: defaultProps.textColor,
+			backgroundColor: defaultProps.backgroundColor,
+			databaseId: {
+				default: null,
+			},
+			databaseViewId: {
+				default: null,
+			},
+		},
+		content: 'none',
+		isSelectable: false,
+	},
+	{
+		render: memo(DatabaseComponent),
+	},
+);
+
+export const insertDatabase = (editor, pageId) => ({
+	title: 'Database',
+	subtext: 'Database for storing your data',
+	key: 'database',
+	onItemClick: () => {
+		insertOrUpdateBlock(editor, {
+			type: 'database',
+		});
+	},
+	aliases: ['database', 'table', 'data', 'store'],
+	group: 'Advanced',
+	icon: <TableViewIcon />,
+});

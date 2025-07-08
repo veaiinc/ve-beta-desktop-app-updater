@@ -14,6 +14,29 @@ const Title = ({ title: initialTitle, updatePublishedTemplate }) => {
 		setTitle(initialTitle);
 	}, [initialTitle]);
 
+	// Add click outside functionality
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			// Check if click is outside input AND not on the save button
+			if (
+				inputRef.current &&
+				!inputRef.current.contains(event.target) &&
+				!event.target.closest('.save-btn') &&
+				!event.target.closest('.title-input')
+			) {
+				setIsEditing(false);
+			}
+		};
+
+		if (isEditing) {
+			document.addEventListener('mousedown', handleClickOutside);
+		}
+
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [isEditing]);
+
 	const handleTitleChange = async (e) => {
 		const value = e.target.value;
 		setTitle(value);
@@ -33,36 +56,27 @@ const Title = ({ title: initialTitle, updatePublishedTemplate }) => {
 
 	const handleTitleSave = async () => {
 		if (title && title.trim() !== '') {
-			console.log('title', title);
 			const response = await updatePublishedTemplate(title);
-			if (response) {
-				setIsEditing(false);
-			}
+			setIsEditing(false);
 		} else {
 			message.error('Title cannot be empty');
 		}
 	};
+
 	return (
 		<div className="title-container">
 			{isEditing ? (
 				<>
 					<input
 						className="title-input"
-						ref={inputRef}
 						type="text"
 						value={title}
 						onChange={handleTitleChange}
-						onBlur={(e) => {
-							if (
-								!e.relatedTarget ||
-								!e.relatedTarget.classList.contains('save-btn')
-							) {
-								setIsEditing(false);
-							}
-						}}
 						autoFocus
+						ref={inputRef}
 					/>
 					<span
+						ref={inputRef}
 						className="save-btn"
 						style={{
 							cursor: 'pointer',
@@ -77,18 +91,20 @@ const Title = ({ title: initialTitle, updatePublishedTemplate }) => {
 					</span>
 				</>
 			) : (
-				<span className="title-value" onClick={() => setIsEditing((prev) => !prev)}>
-					{title}
-				</span>
+				<>
+					<span className="title-value" onClick={() => setIsEditing((prev) => !prev)}>
+						{title}
+					</span>
+					<span className="tooltip">
+						<Tooltip title="Edit">
+							<Edit
+								className={`edit-icon  ${isEditing ? 'active-icon' : ''}`}
+								onClick={() => setIsEditing((prev) => !prev)}
+							/>
+						</Tooltip>
+					</span>
+				</>
 			)}
-			<span className="tooltip">
-				<Tooltip title="Edit">
-					<Edit
-						className={`edit-icon  ${isEditing ? 'active-icon' : ''}`}
-						onClick={() => setIsEditing((prev) => !prev)}
-					/>
-				</Tooltip>
-			</span>
 		</div>
 	);
 };

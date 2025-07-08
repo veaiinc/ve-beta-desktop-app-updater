@@ -111,7 +111,7 @@ import Shape19 from '../library/svgs/fluidShapes/shape19';
 
 import ColorPicker from '../properties/colorpicker';
 import Modal from '../../components/library/modals/index';
-import Slider from 'rc-slider';
+// import Slider from 'rc-slider';
 import Cropper from 'react-easy-crop';
 import moment from 'moment';
 import 'rc-slider/assets/index.css';
@@ -149,8 +149,8 @@ import { ReactComponent as UpDown } from '../library/svgs/upDown.svg';
 import { ReactComponent as Navigate } from '../library/svgs/navigate.svg';
 import { ReactComponent as Arrow } from '../library/svgs/arrow.svg';
 import ManagePages from '../pages';
-import randomatic from 'randomatic';
-import { TRUE } from 'sass';
+// import randomatic from 'randomatic';
+// import { TRUE } from 'sass';
 import { ReactComponent as PageIcon } from '../../../assets/svg/pages.svg';
 import { ReactComponent as BackIcon } from '../library/svgs/Pages/Back.svg';
 import { ReactComponent as GotoPage } from '../library/svgs/Pages/GotoPage.svg';
@@ -10433,7 +10433,14 @@ else{
 									</label>
 									{this.state.showFontsDropDown ? (
 										<>
-											<div className="fonts-dropdown" ref={this.dropdownref}>
+											<div
+												style={{
+													top: 100,
+													left: 0,
+												}}
+												className="fonts-dropdown"
+												ref={this.dropdownref}
+											>
 												<div
 													style={{
 														width: '100%',

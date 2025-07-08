@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+// import React, { Component } from 'react';
 import '../../assets/scss/generate.scss';
 import { ReactComponent as Up } from '../../assets/svg/up.svg';
 import { ReactComponent as Preview } from '../../assets/svg/preview.svg';

@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react';
+import { memo, useState } from 'react';
 import '../../../../assets/scss/tasks/taskHeader.scss';
 import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as ListViewIcon } from '../../../../assets/svg/tasks/list.svg';
@@ -33,12 +33,13 @@ export const layouts = {
 };
 
 const TaskHeader = ({
-	tabs,
+	tabArray,
 	activeTab,
 	handleTabChange,
 	handleAddTab,
 	handleTabDropdownClick,
 	handleTabsReorder,
+	showEditDuplicate = true,
 }) => {
 	const [info, setInfo] = useState({
 		showAddNewTabDropDown: false,
@@ -51,7 +52,7 @@ const TaskHeader = ({
 		}));
 	};
 
-	const tabArray = useMemo(() => Object?.values(tabs || {}), [tabs]);
+	// const tabArray = useMemo(() => Object?.values(tabs || {}), [tabs]);
 
 	const onDragEnd = (result) => {
 		if (!result.destination) return;
@@ -87,6 +88,7 @@ const TaskHeader = ({
 												handleTabChange={handleTabChange}
 												handleTabDropdownClick={handleTabDropdownClick}
 												tabLength={tabArray?.length}
+												showEditDuplicate={showEditDuplicate}
 											/>
 										</div>
 									)}

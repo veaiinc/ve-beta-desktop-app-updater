@@ -62,7 +62,7 @@ const Stages = ({ onNext }) => {
 	const [searchParams] = useSearchParams();
 	const invitedWorkspaceId = searchParams.get('invitedWorkspaceId') ?? false;
 	const invitedUserEmail = searchParams.get('inviteeEmail') ?? false;
-	const invitedUserOnboarding = invitedWorkspaceId && invitedUserEmail;
+	const invitedUserOnboarding = Boolean(invitedWorkspaceId && invitedUserEmail);
 	const pathname = location?.pathname;
 	if (pathname === '/create-workspace') {
 		localStorage.setItem('stage', 2);
@@ -126,7 +126,6 @@ const Stages = ({ onNext }) => {
 	const phoneNumberCntxt = userDetailsFromTenantAPI?.phoneNumber;
 	const profilePictureCntxt = userDetailsFromTenantAPI?.googleMeta?.picture ?? null;
 	const userLogo = userDetailsFromTenantAPI?.dp_s3_500w_key ?? null;
-
 	// Updated continue button validation based on mode
 	const continueBtnDisabled = isWorkspaceCreationMode
 		? !info?.companyName ||
@@ -134,6 +133,8 @@ const Stages = ({ onNext }) => {
 		  !info?.isWorkspaceHandleAvailable ||
 		  !info?.workspaceType ||
 		  info?.continueBtnLoading
+		: invitedUserOnboarding
+		? !info?.username || !info?.isPhoneNumberVerified
 		: !info?.username ||
 		  !info?.isPhoneNumberVerified ||
 		  !info?.companyName ||
@@ -488,6 +489,10 @@ const Stages = ({ onNext }) => {
 
 	const handleContinue = async () => {
 		if (continueBtnDisabled) return;
+		if (invitedUserOnboarding) {
+			navigate('/home');
+			return;
+		}
 		setInfo((prev) => ({ ...prev, continueBtnLoading: true }));
 		try {
 			const response = await createWorkspace({
@@ -582,7 +587,7 @@ const Stages = ({ onNext }) => {
 
 					<main className="singleStageContent">
 						{/* User Details Section - Only show if not in workspace creation mode */}
-						{!isWorkspaceCreationMode && (
+						{(!isWorkspaceCreationMode || invitedUserOnboarding) && (
 							<div className="userDetailsSection">
 								<div className="nameInputContainer">
 									<p className="question">What is your name?</p>
@@ -605,7 +610,7 @@ const Stages = ({ onNext }) => {
 												placeholder="Full Name"
 												autoFocus
 											/>
-											<Tooltip
+											{/* <Tooltip
 												title={
 													<ToolTipContainer
 														customContainerStyle={customContainerStyle}
@@ -627,7 +632,7 @@ const Stages = ({ onNext }) => {
 															onChange={handleSetProfilePicture}
 															className="profilePictureInput"
 														/>
-														{/* {info?.profilePicture ? (
+														{info?.profilePicture ? (
 															<img
 																src={info?.profilePicture}
 																alt={info?.username}
@@ -635,10 +640,10 @@ const Stages = ({ onNext }) => {
 															/>
 														) : (
 															<UploadIcon />
-														)} */}
+														)}
 													</label>
 												</div>
-											</Tooltip>
+											</Tooltip> */}
 										</div>
 									)}
 								</div>
@@ -746,140 +751,274 @@ const Stages = ({ onNext }) => {
 										</div>
 									</div>
 								)}
+
+								{/* Workspace Details Section */}
+								{!invitedUserOnboarding && (
+									<div className="workspaceDetailsSection">
+										<div className="companyNameContainer">
+											<p className="question">
+												Name of your Workspace handle?
+											</p>
+											<div className="companyNameAndLogoInputs">
+												<input
+													className="companyNameInput"
+													type="text"
+													placeholder="Company Name"
+													value={info?.companyName}
+													onChange={handleSetCompanyName}
+												/>
+												<Tooltip
+													title={
+														<ToolTipContainer
+															customContainerStyle={
+																customContainerStyle
+															}
+															contentStyling={contentStyling}
+															title={''}
+															content={'Upload your company logo'}
+															removeClassName={true}
+														/>
+													}
+													arrow={true}
+													color={'var(--card)'}
+												>
+													<div className="companyLogoInputContainer">
+														<label htmlFor="companyLogoInput">
+															<input
+																id="companyLogoInput"
+																type="file"
+																accept="image/*"
+																onChange={handleSetCompanyLogo}
+																className="companyLogoInput"
+															/>
+															{/* {info?.companyLogo ? (
+															<img
+																className="companyLogo"
+																src={info?.companyLogo}
+																alt="Company Logo"
+															/>
+														) : (
+															<UploadIcon />
+														)} */}
+														</label>
+													</div>
+												</Tooltip>
+											</div>
+											<div className="domainInfoContainer">
+												{info?.workspaceHandle?.length > 0 &&
+													(info?.workspaceHandle.length < 4 ? (
+														<span className="unavailable">
+															Workspace handle must be at least 4
+															characters
+														</span>
+													) : (
+														<>
+															<span className="domainName">
+																{info?.workspaceHandle}.ve.ai
+															</span>
+															{info?.checkingWorkspaceHandle ? (
+																<Spinner
+																	width="16px"
+																	height="16px"
+																/>
+															) : info?.isWorkspaceHandleAvailable ? (
+																<span className="available">
+																	will be your domain
+																</span>
+															) : (
+																<span className="unavailable">
+																	is already taken
+																</span>
+															)}
+														</>
+													))}
+											</div>
+										</div>
+
+										<div className="workspaceTypeContainer">
+											<p className="question">Your workspace type?</p>
+											<Tooltip
+												open={workspaceTypeContainerOpen}
+												trigger={[]}
+												title={
+													<WorkspaceTypeOptions
+														width={workspaceTypeContainerWidth}
+														handleSetWorkspaceType={
+															handleSetWorkspaceType
+														}
+														searchTerm={info?.workspaceType}
+														setWorkspaceTypeContainerOpen={
+															setWorkspaceTypeContainerOpen
+														}
+													/>
+												}
+												placement="bottom"
+												color={'transparent'}
+											>
+												<div className="workspaceTypeInputContainer">
+													<input
+														type="text"
+														placeholder="Type to search"
+														className="workspaceTypeInput"
+														value={info?.workspaceType}
+														onChange={handleWorkspaceTypeInput}
+													/>
+													{/* <div className="workspaceTypeDropdown">
+											<div className="labelContainer">
+												<DownArrow />
+											</div>
+										</div> */}
+												</div>
+											</Tooltip>
+										</div>
+										<div className="themeInputContainer">
+											<p
+												className="question"
+												style={{ color: 'var(--primary-font)' }}
+											>
+												How do you want things to look?
+											</p>
+											<div className="themeOptionsContainer">
+												{themePreferences.map((theme) => (
+													<div
+														key={theme.id}
+														className={`themeOption ${
+															info?.themePreference === theme.value
+																? 'active'
+																: ''
+														}`}
+														onClick={() =>
+															handleSetThemePreference(theme.value)
+														}
+													>
+														{theme.icon}
+														<span
+															className="themeOptionLabel"
+															style={{ color: 'var(--primary-font)' }}
+														>
+															{theme.label}
+														</span>
+													</div>
+												))}
+											</div>
+										</div>
+									</div>
+								)}
 							</div>
 						)}
-						{/* Workspace Details Section */}
-						<div className="workspaceDetailsSection">
-							<div className="companyNameContainer">
-								<p className="question">Name of your Workspace handle?</p>
-								<div className="companyNameAndLogoInputs">
-									<input
-										className="companyNameInput"
-										type="text"
-										placeholder="Company Name"
-										value={info?.companyName}
-										onChange={handleSetCompanyName}
-									/>
+						{/* Workspace Details Section - Show for workspace creation mode */}
+						{isWorkspaceCreationMode && !invitedUserOnboarding && (
+							<div className="workspaceDetailsSection">
+								<div className="companyNameContainer">
+									<p className="question">Name of your Workspace handle?</p>
+									<div className="companyNameAndLogoInputs">
+										<input
+											className="companyNameInput"
+											type="text"
+											placeholder="Company Name"
+											value={info?.companyName}
+											onChange={handleSetCompanyName}
+										/>
+										<Tooltip
+											title={
+												<ToolTipContainer
+													customContainerStyle={customContainerStyle}
+													contentStyling={contentStyling}
+													title={''}
+													content={'Upload your company logo'}
+													removeClassName={true}
+												/>
+											}
+											arrow={true}
+											color={'var(--card)'}
+										>
+											<div className="companyLogoInputContainer">
+												<label htmlFor="companyLogoInput">
+													<input
+														id="companyLogoInput"
+														type="file"
+														accept="image/*"
+														onChange={handleSetCompanyLogo}
+														className="companyLogoInput"
+													/>
+													{/* {info?.companyLogo ? (
+														<img
+															className="companyLogo"
+															src={info?.companyLogo}
+															alt="Company Logo"
+														/>
+													) : (
+														<UploadIcon />
+													)} */}
+												</label>
+											</div>
+										</Tooltip>
+									</div>
+
+									<div className="domainInfoContainer">
+										{info?.workspaceHandle?.length > 0 &&
+											(info?.workspaceHandle.length < 4 ? (
+												<span className="unavailable">
+													Workspace handle must be at least 4 characters
+												</span>
+											) : (
+												<>
+													<span className="domainName">
+														{info?.workspaceHandle}.ve.ai
+													</span>
+													{info?.checkingWorkspaceHandle ? (
+														<Spinner width="16px" height="16px" />
+													) : info?.isWorkspaceHandleAvailable ? (
+														<span className="available">
+															will be your domain
+														</span>
+													) : (
+														<span className="unavailable">
+															is already taken
+														</span>
+													)}
+												</>
+											))}
+									</div>
+								</div>
+
+								<div className="workspaceTypeContainer">
+									<p className="question">Your workspace type?</p>
 									<Tooltip
+										open={workspaceTypeContainerOpen}
+										trigger={[]}
 										title={
-											<ToolTipContainer
-												customContainerStyle={customContainerStyle}
-												contentStyling={contentStyling}
-												title={''}
-												content={'Upload your company logo'}
-												removeClassName={true}
+											<WorkspaceTypeOptions
+												width={workspaceTypeContainerWidth}
+												handleSetWorkspaceType={handleSetWorkspaceType}
+												searchTerm={info?.workspaceType}
+												setWorkspaceTypeContainerOpen={
+													setWorkspaceTypeContainerOpen
+												}
 											/>
 										}
-										arrow={true}
-										color={'var(--card)'}
+										placement="bottom"
+										color={'transparent'}
 									>
-										<div className="companyLogoInputContainer">
-											<label htmlFor="companyLogoInput">
-												<input
-													id="companyLogoInput"
-													type="file"
-													accept="image/*"
-													onChange={handleSetCompanyLogo}
-													className="companyLogoInput"
-												/>
-												{/* {info?.companyLogo ? (
-													<img
-														className="companyLogo"
-														src={info?.companyLogo}
-														alt="Company Logo"
-													/>
-												) : (
-													<UploadIcon />
-												)} */}
-											</label>
-										</div>
-									</Tooltip>
-								</div>
-
-								<div className="domainInfoContainer">
-									{info?.workspaceHandle?.length > 0 &&
-										(info?.workspaceHandle.length < 4 ? (
-											<span className="unavailable">
-												Workspace handle must be at least 4 characters
-											</span>
-										) : (
-											<>
-												<span className="domainName">
-													{info?.workspaceHandle}.ve.ai
-												</span>
-												{info?.checkingWorkspaceHandle ? (
-													<Spinner width="16px" height="16px" />
-												) : info?.isWorkspaceHandleAvailable ? (
-													<span className="available">
-														will be your domain
-													</span>
-												) : (
-													<span className="unavailable">
-														is already taken
-													</span>
-												)}
-											</>
-										))}
-								</div>
-							</div>
-
-							<div className="workspaceTypeContainer">
-								<p className="question">Your workspace type?</p>
-								<Tooltip
-									open={workspaceTypeContainerOpen}
-									trigger={[]}
-									title={
-										<WorkspaceTypeOptions
-											width={workspaceTypeContainerWidth}
-											handleSetWorkspaceType={handleSetWorkspaceType}
-											searchTerm={info?.workspaceType}
-											setWorkspaceTypeContainerOpen={
-												setWorkspaceTypeContainerOpen
-											}
-										/>
-									}
-									placement="bottom"
-									color={'transparent'}
-								>
-									<div className="workspaceTypeInputContainer">
-										<input
-											type="text"
-											placeholder="Type to search"
-											className="workspaceTypeInput"
-											value={info?.workspaceType}
-											onChange={handleWorkspaceTypeInput}
-										/>
-										{/* <div className="workspaceTypeDropdown">
+										<div className="workspaceTypeInputContainer">
+											<input
+												type="text"
+												placeholder="Type to search"
+												className="workspaceTypeInput"
+												value={info?.workspaceType}
+												onChange={handleWorkspaceTypeInput}
+											/>
+											{/* <div className="workspaceTypeDropdown">
 										<div className="labelContainer">
 											<DownArrow />
 										</div>
 									</div> */}
-									</div>
-								</Tooltip>
-							</div>
-						</div>
-						{/* Theme Preference Section - Only show if not in workspace creation mode */}
-						{!isWorkspaceCreationMode && (
-							<div className="themeInputContainer">
-								<p className="question">How do you want things to look?</p>
-								<div className="themeOptionsContainer">
-									{themePreferences.map((theme) => (
-										<div
-											key={theme.id}
-											className={`themeOption ${
-												info?.themePreference === theme.value
-													? 'active'
-													: ''
-											}`}
-											onClick={() => handleSetThemePreference(theme.value)}
-										>
-											{theme.icon}
-											<span className="themeOptionLabel">{theme.label}</span>
 										</div>
-									))}
+									</Tooltip>
 								</div>
 							</div>
 						)}
+						{/* Theme Preference Section - Only show if not in workspace creation mode */}
 					</main>
 				</div>
 			</div>

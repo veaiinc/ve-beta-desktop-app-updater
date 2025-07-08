@@ -19,28 +19,24 @@ import AISuggestionsReportUserComponent from '../views/components/chat/chatCompo
 const codeColorTheme = {
 	'code[class*="language-"]': {
 		color: 'var(--primary-font) !important',
-		background: 'none',
-		fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
-		fontSize: '1em',
-		lineHeight: '1.5',
+		background: 'transparent',
+		fontFamily: 'monospace, Consolas, Monaco, "Andale Mono", "Ubuntu Mono"',
 		tabSize: '4',
 		hyphens: 'none',
 		whiteSpace: 'pre',
 		wordBreak: 'normal',
+		lineHeight: '1.5',
 		wordWrap: 'normal',
 		textAlign: 'left',
 		wordSpacing: 'normal',
 	},
 	'pre[class*="language-"]': {
 		color: 'var(--primary-font) !important',
-		background: '#1e1e1e',
-		fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
-		fontSize: '1em',
+		background: 'transparent',
+		fontFamily: 'monospace, Consolas, Monaco, "Andale Mono", "Ubuntu Mono"',
 		lineHeight: '1.5',
-		padding: '1em',
-		margin: '0.5em 0',
+		padding: '16px',
 		overflow: 'auto',
-		borderRadius: '5px',
 	},
 	comment: {
 		color: 'var(--secondary-font)', // Adjusted for better contrast
@@ -318,17 +314,7 @@ const MarkdownCode = memo(({ code, match }) => {
 				</button>
 			</div>
 
-			<SyntaxHighlighter
-				style={codeColorTheme}
-				language={match[1]}
-				PreTag="div"
-				customStyle={{
-					backgroundColor: 'transparent',
-					margin: '0',
-					padding: '16px',
-					color: 'var(--primary-font)',
-				}}
-			>
+			<SyntaxHighlighter style={codeColorTheme} language={match[1]} PreTag="div">
 				{String(code)?.replace(/\n$/, '')}
 			</SyntaxHighlighter>
 		</div>
@@ -382,14 +368,16 @@ const createCustomComponents = (citations, markdown) => ({
 	},
 	code({ node, inline, className, children, ...props }) {
 		const match = /language-(\w+)/?.exec(className || '');
+		const codeCheck = !inline && match && match[1] !== 'plaintext';
 		let code;
-		if (!inline && match) {
+		if (codeCheck) {
 			code = markdown?.slice(
 				node?.position?.start?.offset + (3 + match[1]?.length),
 				node?.position?.end?.offset - 3,
 			);
 		}
-		return !inline && match ? (
+
+		return codeCheck ? (
 			<MarkdownCode code={code} match={match} node={node} />
 		) : (
 			<code {...props} className="code">

@@ -57,6 +57,7 @@ export default defineConfig({
 			'axios',
 			'moment',
 			'dayjs',
+			'@blocknote/core',
 		],
 		force: true,
 	},

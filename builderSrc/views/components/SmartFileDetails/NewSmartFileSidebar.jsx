@@ -10,13 +10,14 @@ import { ReactComponent as DownArrow } from '../../../assets/svg/smartFile/downA
 import { ReactComponent as UpperArrow } from '../../../assets/svg/smartFile/upperArrow.svg';
 import File from './File';
 import Variables from './Variables';
-import ViewDocument from '../ViewDocument/viewDocument';
+// import ViewDocument from '../ViewDocument/viewDocument';
 import { useNavigate, useLocation } from 'react-router-dom';
 import DocumentShare from '../../feature/document/DocumentShare';
 import FormDescription from '../../feature/document/FormDescription';
 import { fetchOriginSelection } from '../../../helper';
 import { ReactComponent as EditIcon } from '../../../assets/svg/edit.svg';
 import { Spin, message } from 'antd';
+import FieldsEmptyModel from './FieldsEmptyModel';
 
 let origin = fetchOriginSelection();
 
@@ -63,6 +64,8 @@ const SmartFileSidebar = ({
 		isAiEnabled: false,
 		documentTitle: '',
 		shareModalIsOpen: false,
+		sections: workflowInfo?.doc?.versions[0]?.sections || [],
+		isVariablesPresent: false,
 	});
 	const location = useLocation();
 	const isWorkflowPath = location.pathname.startsWith('/document');
@@ -74,6 +77,8 @@ const SmartFileSidebar = ({
 	const [titleInput, setTitleInput] = useState('');
 	const [isTitleLoading, setIsTitleLoading] = useState(false);
 	const titleInputRef = React.useRef(null);
+	const [showEmptyFieldsModal, setShowEmptyFieldsModal] = useState(false);
+	const [emptyFields, setEmptyFields] = useState([]);
 
 	// --- Workflow Warnings Logic ---
 	const workflowWarnings = useMemo(() => {
@@ -224,6 +229,52 @@ const SmartFileSidebar = ({
 	useEffect(() => {
 		setTitleInput(info.documentTitle || 'Untitled Document');
 	}, [info.documentTitle]);
+
+	useEffect(() => {
+		if (workflowInfo?.doc?.versions[0]?.sections !== info?.sections) {
+			setInfo((prev) => ({ ...prev, sections: workflowInfo?.doc?.versions[0]?.sections }));
+		}
+		let isVariablesPresent = false;
+
+		const handleCheckVariableInText = (subBlock) => {
+			// Check if subBlock has description or content with HTML
+			const description = subBlock?.description || '';
+			const title = subBlock?.title || '';
+			const content = subBlock?.content || '';
+
+			if (
+				(description && typeof description === 'string') ||
+				(title && typeof title === 'string') ||
+				(content && typeof content === 'string')
+			) {
+				// Check if content contains input tags with class "variable"
+				const hasVariableInputs =
+					(description.includes('<input') && description.includes('class="variable"')) ||
+					(title.includes('<input') && title.includes('class="variable"')) ||
+					(content.includes('<input') && content.includes('class="variable"'));
+
+				if (hasVariableInputs) {
+					setInfo((prev) => ({ ...prev, isVariablesPresent: true }));
+					return true;
+				}
+			}
+
+			return false;
+		};
+
+		// Check all sections for variables
+		workflowInfo?.doc?.versions[0]?.sections?.forEach((section) => {
+			// if (section.type === 'services') {
+			section.blocks?.forEach((block) => {
+				block.subBlocks?.forEach((subBlock) => {
+					if (subBlock?.type === 'text' || subBlock?.description || subBlock?.title) {
+						handleCheckVariableInText(subBlock);
+					}
+				});
+			});
+			// }
+		});
+	}, [workflowInfo?.doc?.versions[0]?.sections]);
 
 	const scrollToElement = useCallback(
 		(id) => {
@@ -387,6 +438,15 @@ const SmartFileSidebar = ({
 	}, [workflowId, info.status, chnageWorkflowStats]);
 
 	const handleButtonClick = () => {
+		// Validate empty fields before proceeding
+		if (!handleEmptyFieldsModal()) {
+			return; // Stop execution if validation fails
+		}
+
+		proceedWithAction();
+	};
+
+	const proceedWithAction = () => {
 		if (info.status === 'enquiry' || info.status === 'draft') {
 			handleShareModal();
 		} else {
@@ -410,7 +470,13 @@ const SmartFileSidebar = ({
 	const debouncedUpdateTitle = useRef();
 
 	const handleTitleInputBlurOrEnter = useCallback(() => {
-		if (!titleInput.trim() || titleInput === info.documentTitle) {
+		if (!titleInput.trim()) {
+			message.error('Document title cannot be empty');
+			setTitleInput(info.documentTitle || 'Untitled Document');
+			setIsEditingTitle(false);
+			return;
+		}
+		if (titleInput === info.documentTitle) {
 			setIsEditingTitle(false);
 			return;
 		}
@@ -444,6 +510,319 @@ const SmartFileSidebar = ({
 			setTitleInput(info.documentTitle || 'Untitled Document');
 		}
 	};
+
+	// Function to validate empty fields
+	const validateEmptyFields = useCallback(() => {
+		const emptyFieldNames = [];
+
+		// Check document title
+		if (!info?.documentTitle || info.documentTitle.trim() === '') {
+			emptyFieldNames.push('Document Title');
+		}
+
+		// Check variables data for empty fields
+		if (info?.variablesData && info.variablesData.length > 0) {
+			info.variablesData.forEach((variable) => {
+				// Skip Grand Total fields as they are calculated
+				if (
+					variable?.displayName !== 'Grand Total' &&
+					variable?.displayName !== 'Grand Total In Words'
+				) {
+					// Check the actual input value from the DOM
+					const inputElement = document.getElementById(`sidebar-${variable._id}`);
+					const currentValue = inputElement
+						? inputElement.value
+						: variable.value || variable.defaultValue || '';
+
+					if (!currentValue || currentValue.trim() === '') {
+						emptyFieldNames.push(
+							variable.displayName || variable.code || 'Unknown Field',
+						);
+					}
+				}
+			});
+		}
+
+		// Check services data for empty fields
+		let serviceUntickedErrorAdded = false;
+		if (fileOptions && fileOptions.length > 0) {
+			fileOptions.forEach((option) => {
+				const moduleData = option.moduleData;
+				if (moduleData?.versions?.[0]?.sections) {
+					moduleData.versions[0].sections.forEach((section) => {
+						if (
+							section.type === 'services' &&
+							section.blocks &&
+							section.blocks.length > 0
+						) {
+							// Check if ALL services are unticked (show === false)
+							const allUnticked = section.blocks.every(
+								(block) => !block.subBlocks?.[0]?.show,
+							);
+							if (allUnticked && !serviceUntickedErrorAdded) {
+								emptyFieldNames.push('Please select at least one service');
+								serviceUntickedErrorAdded = true;
+							}
+							// Existing quantity check
+							section.blocks.forEach((block, blockIndex) => {
+								if (block.subBlocks && block.subBlocks.length > 0) {
+									block.subBlocks.forEach((subBlock, subBlockIndex) => {
+										// Check service quantity
+										if (!subBlock.quantity || subBlock.quantity <= 0) {
+											emptyFieldNames.push(
+												`Service ${blockIndex + 1} Quantity`,
+											);
+										}
+									});
+								}
+							});
+						}
+					});
+				}
+			});
+		}
+
+		// Check events data for empty fields
+		if (fileOptions && fileOptions.length > 0) {
+			fileOptions.forEach((option) => {
+				const moduleData = option.moduleData;
+				if (moduleData?.versions?.[0]?.tables) {
+					moduleData.versions[0].tables.forEach((table) => {
+						if (table.type === 'events' && table.values && table.values.length > 0) {
+							table.values.forEach((event, eventIndex) => {
+								// Check event name
+								if (!event.name || event.name.trim() === '') {
+									emptyFieldNames.push(`Event ${eventIndex + 1} Name`);
+								}
+								// Check event location
+								if (!event.location || event.location.trim() === '') {
+									emptyFieldNames.push(`Event ${eventIndex + 1} Location`);
+								}
+								// Check event date
+								if (!event.date) {
+									emptyFieldNames.push(`Event ${eventIndex + 1} Date`);
+								}
+								// Check event description
+								if (!event.description || event.description.trim() === '') {
+									emptyFieldNames.push(`Event ${eventIndex + 1} Description`);
+								}
+								// Check event roles
+								if (event.roles && event.roles.length > 0) {
+									event.roles.forEach((role, roleIndex) => {
+										if (!role.type || role.type.trim() === '') {
+											emptyFieldNames.push(
+												`Event ${eventIndex + 1} Role ${
+													roleIndex + 1
+												} Type`,
+											);
+										}
+									});
+								}
+							});
+						}
+					});
+				}
+			});
+		}
+
+		// Check signature data for empty fields
+		if (fileOptions && fileOptions.length > 0) {
+			fileOptions.forEach((option) => {
+				const moduleData = option.moduleData;
+				if (moduleData?.versions?.[0]?.tables) {
+					moduleData.versions[0].tables.forEach((table) => {
+						if (
+							table.type === 'contract-with-signature' &&
+							table.values &&
+							table.values.length > 0
+						) {
+							// Check if there's a signature displayed in the UI (Your Signature section)
+							const signatureComponent =
+								document.querySelector('.signature-component');
+							const yourSignatureSection = signatureComponent?.querySelector(
+								'.acceptedBlocks:nth-child(2)',
+							);
+							const hasSignatureInUI =
+								yourSignatureSection &&
+								yourSignatureSection.querySelector('.signatureContainer') &&
+								!yourSignatureSection
+									.querySelector('.signatureContainer span')
+									?.textContent.includes('Not Signed Yet') &&
+								!yourSignatureSection
+									.querySelector('.signatureContainer span')
+									?.textContent.includes('Click to type');
+
+							// Check if there's a signed signature in the local state
+							const hasSignedSignature =
+								signatureComponent &&
+								signatureComponent.querySelector('img[alt="signature"]');
+
+							// Check if any signature has a valid tenant signature
+							const hasValidTenantSignature = table.values.some((signature) => {
+								const tenantSignature =
+									signature.values && signature.values.length > 1
+										? signature.values[1]
+										: null;
+								return (
+									tenantSignature &&
+									tenantSignature.value &&
+									tenantSignature.value.trim() !== ''
+								);
+							});
+
+							// Only add "Your Signature" once if no valid signature is found
+							if (
+								!hasValidTenantSignature &&
+								!hasSignatureInUI &&
+								!hasSignedSignature
+							) {
+								emptyFieldNames.push('Your Signature');
+							}
+						}
+					});
+				}
+			});
+		}
+
+		// Check client details for empty fields
+		if (info?.clientDetails) {
+			const clientDetails = info.clientDetails;
+			if (!clientDetails.name || clientDetails.name.trim() === '') {
+				emptyFieldNames.push('Client Name');
+			}
+			if (!clientDetails.email || clientDetails.email.trim() === '') {
+				emptyFieldNames.push('Client Email');
+			}
+		}
+
+		// Check payment schedule for missing dates
+		let paymentDateErrorAdded = false;
+		if (fileOptions && fileOptions.length > 0) {
+			fileOptions.forEach((option) => {
+				const moduleData = option.moduleData;
+				if (moduleData?.versions?.[0]?.sections) {
+					moduleData.versions[0].sections.forEach((section) => {
+						if (
+							section.type === 'invoice-with-payment' &&
+							section.blocks &&
+							section.blocks.length > 0
+						) {
+							section.blocks.forEach((block) => {
+								if (
+									block.subBlocks &&
+									block.subBlocks.length > 0 &&
+									!paymentDateErrorAdded
+								) {
+									block.subBlocks.forEach((subBlock) => {
+										if (
+											!subBlock.type ||
+											subBlock.type.trim() === '' ||
+											!subBlock.dueDate ||
+											subBlock.dueDate.trim() === ''
+										) {
+											emptyFieldNames.push(
+												'Please select a payment date for all installments',
+											);
+											paymentDateErrorAdded = true;
+										}
+									});
+								}
+							});
+						}
+					});
+				}
+			});
+		}
+
+		return emptyFieldNames;
+	}, [info?.variablesData, info?.documentTitle, info?.clientDetails, fileOptions]);
+
+	// Function to handle empty fields modal
+	const handleEmptyFieldsModal = useCallback(() => {
+		const emptyFieldNames = validateEmptyFields();
+
+		if (emptyFieldNames.length > 0) {
+			setEmptyFields(emptyFieldNames);
+			setShowEmptyFieldsModal(true);
+			return false; // Validation failed
+		}
+		return true; // Validation passed
+	}, [validateEmptyFields]);
+
+	// Function to handle fill fields action
+	const handleFillFields = useCallback(() => {
+		setShowEmptyFieldsModal(false);
+		// Focus on the first empty field
+		const firstEmptyField = emptyFields[0];
+
+		// Handle document title case
+		if (firstEmptyField === 'Document Title') {
+			setIsEditingTitle(true);
+			return;
+		}
+
+		// Handle client details
+		if (firstEmptyField === 'Client Name' || firstEmptyField === 'Client Email') {
+			// Find and focus on client details section
+			const clientDetailsElement = document.querySelector('.client-details-section');
+			if (clientDetailsElement) {
+				clientDetailsElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			}
+			return;
+		}
+
+		// Handle variable fields
+		if (firstEmptyField && info?.variablesData) {
+			const fieldIndex = info.variablesData.findIndex(
+				(variable) =>
+					variable.displayName === firstEmptyField || variable.code === firstEmptyField,
+			);
+			if (fieldIndex !== -1) {
+				const fieldId = info.variablesData[fieldIndex]._id;
+				const fieldElement = document.getElementById(`sidebar-${fieldId}`);
+				if (fieldElement) {
+					fieldElement.focus();
+					fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				}
+			}
+		}
+
+		// Handle service fields
+		if (firstEmptyField && firstEmptyField.includes('Service')) {
+			// Find the first services section and expand it
+			const servicesSection = document.querySelector('.customAccordionHeader');
+			if (servicesSection) {
+				servicesSection.click(); // Expand the accordion
+				setTimeout(() => {
+					servicesSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				}, 300);
+			}
+			return;
+		}
+
+		// Handle event fields
+		if (firstEmptyField && firstEmptyField.includes('Event')) {
+			// Find the first events section and expand it
+			const eventsSection = document.querySelector('.customAccordionHeader');
+			if (eventsSection) {
+				eventsSection.click(); // Expand the accordion
+				setTimeout(() => {
+					eventsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				}, 300);
+			}
+			return;
+		}
+
+		// Handle signature fields
+		if (firstEmptyField && firstEmptyField.includes('Signature')) {
+			// Find the signature section and expand it
+			const signatureSection = document.querySelector('.signature-component');
+			if (signatureSection) {
+				signatureSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			}
+			return;
+		}
+	}, [emptyFields, info?.variablesData]);
 
 	return (
 		<div
@@ -659,31 +1038,35 @@ const SmartFileSidebar = ({
 					</>
 				) : (
 					<>
-						<div className="smartFileFormSubHeader">
-							<span>Update manage document</span>
-						</div>
-						{info?.variablesData?.filter(
-							(ele) =>
-								ele?.displayName !== 'Grand Total' &&
-								ele?.displayName !== 'Grand Total In Words',
-						)?.length > 0 && (
-							<Variables
-								data={
-									info?.variablesData?.filter(
-										(ele) =>
-											ele?.displayName !== 'Grand Total' &&
-											ele?.displayName !== 'Grand Total In Words',
-									) || []
-								}
-								clientDetails={info?.clientDetails || {}}
-								variableBlockChanges={variableBlockChanges}
-								updateLocalStateData={updateLocalStateData}
-								scrollAndHighlightElement={scrollToElement}
-								handleReplaceMultipleInput={handleReplaceMultipleInput}
-								previewReady={previewReady}
-								formResponses={formResponses}
-								onVariableUpdate={refreshClientDetails}
-							/>
+						{info.isVariablesPresent && (
+							<>
+								<div className="smartFileFormSubHeader">
+									<span>Update manage document</span>
+								</div>
+								{info?.variablesData?.filter(
+									(ele) =>
+										ele?.displayName !== 'Grand Total' &&
+										ele?.displayName !== 'Grand Total In Words',
+								)?.length > 0 && (
+									<Variables
+										data={
+											info?.variablesData?.filter(
+												(ele) =>
+													ele?.displayName !== 'Grand Total' &&
+													ele?.displayName !== 'Grand Total In Words',
+											) || []
+										}
+										clientDetails={info?.clientDetails || {}}
+										variableBlockChanges={variableBlockChanges}
+										updateLocalStateData={updateLocalStateData}
+										scrollAndHighlightElement={scrollToElement}
+										handleReplaceMultipleInput={handleReplaceMultipleInput}
+										previewReady={previewReady}
+										formResponses={formResponses}
+										onVariableUpdate={refreshClientDetails}
+									/>
+								)}
+							</>
 						)}
 						{workflowWarnings.length > 0 && (
 							<div className="workflow-warnings-container-parent">
@@ -762,6 +1145,15 @@ const SmartFileSidebar = ({
 					status={info.status}
 				/>
 			)}
+
+			{/* Empty Fields Modal */}
+			<FieldsEmptyModel
+				isOpen={showEmptyFieldsModal}
+				closeModal={() => setShowEmptyFieldsModal(false)}
+				emptyFields={emptyFields}
+				onFillFields={handleFillFields}
+				onContinueAnyway={proceedWithAction}
+			/>
 		</div>
 	);
 };

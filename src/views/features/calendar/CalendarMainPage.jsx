@@ -2,7 +2,7 @@ import { memo, useState, useCallback, useEffect, useContext } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSidebar from './CalendarSidebar';
 import CalendarView from './CalendarView';
-import EditScheduler from './EditScheduler';
+// import EditScheduler from './EditScheduler';
 import Context from '../../../context/context';
 import ObjectId from 'bson-objectid';
 import moment from 'moment';
@@ -70,12 +70,7 @@ const Calendar = () => {
 	});
 
 	// Close left sidebar when component unmounts
-	useEffect(() => {
-		updateStateValues({ leftSidebarState: 'open' });
-		return () => {
-			updateStateValues({ leftSidebarState: null });
-		};
-	}, []);
+	// updateStateValues({ leftSidebarState: 'open' });
 
 	useEffect(() => {
 		const sessionId = ObjectId().toString();

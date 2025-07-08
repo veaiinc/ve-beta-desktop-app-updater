@@ -2,7 +2,7 @@
 :root,
 [theme='dark'] {
 	/* font families */
-	--primary-font-family: 'Inter';
+	--primary-font-family: 'GeneralSans';
 	--secondary-font-family: 'Manrope';
 	--chat-primary-font-family: 'GeneralSans';
 	--tertiary-font-family: 'LibreCaslonDisplay';
@@ -15,20 +15,21 @@
 	--info: rgb(80, 137, 249); /* #5089f9 */
 
 	/* main colors */
-	--background-color: rgb(15, 15, 16); /* #0f0f10 */
+	--background-color: #121212; /* #0f0f10 */
+	--chat-background-color: #191a1a;
 
 	/* font colors */
 	--primary-font: rgb(242, 242, 243); /* #f2f2f3 */
-	--secondary-font: rgb(122, 126, 133); /* #7a7e85 */
-	--chat-secondary-font: #c9c9cf; /* rgb(193, 193, 201) */
+	--secondary-font: #94989e; /* #7a7e85 */
+	--chat-secondary-font: #e1e1e5; /* rgb(193, 193, 201) */
 
 	/* card colors */
-	--card: rgb(24, 25, 27); /* #18191b */
+	--card: #1b1c1d; /* #18191b */
 	--new-card: rgb(26, 27, 30); /* #1a1b1e */
-	--card-hover: rgb(32, 33, 35); /* #202123 */
-	--card-over-card: rgb(32, 33, 35); /* #202123 */
-	--card-over-card-hover: rgb(39, 40, 43); /* #27282b */
-	--popup: rgb(32, 33, 35); /* #202123 */
+	--card-hover: #202122; /* #202123 */
+	--card-over-card: #1f2123; /* #202123 */
+	--card-over-card-hover: #242628; /* #27282b */
+	--popup: #202123; /* #202123 */
 
 	--backdrop: #0f0f10;
 
@@ -36,10 +37,11 @@
 	--stroke: rgb(44, 45, 46); /* #2c2d2e */
 	--stroke-hover: rgb(66, 69, 72); /* #424548 */
 	--stroke-active: rgb(32, 33, 35); /* #202123 */
+	--dividers: rgba(30, 31, 32, 1);
 
 	/* navbar colors */
-	--navbar: rgb(32, 33, 35); /* #202123 */
-	--right-bar: rgb(23, 24, 25); /* #171819 */
+	--navbar: #141415; /* #202123 */
+	--right-bar: #18191b; /* #171819 */
 
 	/* ai color code */
 	--ai-color-code: linear-gradient(
@@ -88,6 +90,7 @@
 [theme='light'] {
 	/* main colors */
 	--background-color: #ffffff; /* #fafafa */
+	--chat-background-color: var(--background-color);
 
 	/* common colors */
 	--info: #5089f9; /* #5089f9 */
@@ -115,6 +118,7 @@
 	--stroke-hover: #dbdbdb; /* #C9CBCF */
 	--stroke-active: rgb(242, 242, 243); /* #f2f2f3 */
 	--stroke-disabled: rgb(242, 242, 243); /* #f2f2f3 */
+	--dividers: rgba(240, 240, 240, 1);
 
 	/* navbar colors */
 	--navbar: #fafafa; /* #f2f2f3 */

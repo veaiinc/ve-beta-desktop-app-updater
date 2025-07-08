@@ -14,9 +14,10 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import TextSelector from '../../components/chat/chatComponents/TextSelector';
-import useWorkspaceMode from '../../../views/hooks/useWorkspaceMode';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import ChatHeader from '../../components/chat/ChatHeader';
-
+import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
+import { message } from '../../components/globalComponents/CustomToast';
 const RecentChat = ({
 	isPublicChat = false,
 	isPreview = false,
@@ -28,6 +29,8 @@ const RecentChat = ({
 	onChangeSessionId = null,
 	chatActive = false,
 	onNavigateBack = null,
+	showCitationsButton = true,
+	showDeleteChat = true,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const {
@@ -42,7 +45,6 @@ const RecentChat = ({
 			updateChatLoadingSessions,
 			newChatSessionIds,
 			getFollowUpQueries,
-			aiMessagesInfo,
 		},
 		aiSetup: { updateAiChatSessions, aiChatSessions },
 		chatStream: {
@@ -77,6 +79,8 @@ const RecentChat = ({
 		currentUserMessageIndex: null,
 		getFollowUpQueries: false,
 		chatQuery: '',
+		citationsAiMessageIndex: null,
+		citationsModalIsOpen: false,
 	});
 
 	const chatContentRef = useRef(null);
@@ -95,6 +99,7 @@ const RecentChat = ({
 	const globalChatMessagesRef = useRef(globalChatMessages);
 	const currentUserMessageTimeoutRef = useRef(null);
 	const followUpQueryTimeoutRef = useRef(null);
+
 	sessionId = isPreview ? sId : sessionId;
 
 	useEffect(() => {
@@ -242,6 +247,8 @@ const RecentChat = ({
 				setInfo((prev) => ({
 					...prev,
 					scrollExecuted: false,
+					citationsModalIsOpen: false,
+					citationsAiMessageIndex: null,
 				}));
 			}
 			if (currentUserMessageTimeoutRef.current) {
@@ -547,19 +554,27 @@ const RecentChat = ({
 						moduleTemplateId: moduleTemplateId || null,
 					};
 				}
-				let processing = null;
+				let processing = null,
+					memoryThinking = null;
 				let deepSearch = {},
-					deepResearch = {};
+					deepResearch = {},
+					normalSearch = {};
 
 				if (chainOfThought?.length > 0) {
 					for (let i = 0; i < chainOfThought?.length; i++) {
-						const { deep_search, deep_research } = chainOfThought?.[i] || {};
+						const { deep_search, deep_research, memory_thinking, normal_search } =
+							chainOfThought?.[i] || {};
 						if (deep_search) {
 							processing = 'Deep Search';
 							break;
 						} else if (deep_research) {
 							processing = 'Deep Research';
 							break;
+						} else if (normal_search) {
+							processing = 'Normal Search';
+							break;
+						} else if (memory_thinking) {
+							memoryThinking = memory_thinking;
 						}
 					}
 
@@ -567,6 +582,8 @@ const RecentChat = ({
 						deepSearch = handleDeepSearchChainOfThought(chainOfThought);
 					} else if (processing === 'Deep Research') {
 						deepResearch = handleDeepResearchChainOfThought(chainOfThought);
+					} else if (processing === 'Normal Search') {
+						normalSearch = handleDeepSearchChainOfThought(chainOfThought);
 					}
 				}
 
@@ -590,6 +607,8 @@ const RecentChat = ({
 						used_agents: designAgentsUsed || [],
 						...(processing === 'Deep Search' && { deepSearch }),
 						...(processing === 'Deep Research' && { deepResearch }),
+						...(processing === 'Normal Search' && { normalSearch }),
+						...(memoryThinking && { memory_thinking: memoryThinking }),
 					},
 				]?.concat(messages);
 			}
@@ -745,7 +764,7 @@ const RecentChat = ({
 			let { data = '' } = event || {};
 			data = JSON?.parse(data);
 
-			if (data?.hasOwnProperty('intermediate_response') || data?.memory_thinking) {
+			if (data?.hasOwnProperty('intermediate_response')) {
 				handleGlobalChatMessages({
 					payload: data,
 					sessionId,
@@ -813,7 +832,7 @@ const RecentChat = ({
 	const handleSendWebsocketMessage = useCallback(
 		async (data, lastQuery) => {
 			try {
-				await sendMessage(data);
+				await sendMessage(data, sessionId);
 				setTimeout(() => {
 					smoothScrollToLastMessage();
 				}, 0);
@@ -823,7 +842,16 @@ const RecentChat = ({
 					updateExtraInfo: true,
 				});
 			} catch (error) {
+				const info = typeof error?.message === 'string' ? error?.message || '' : '';
+				message.error(info);
 				console.error('Failed to send message:', error);
+
+				handleGlobalChatMessages({
+					sessionId,
+					updateExtraInfo: true,
+					removeStreaming: true,
+				});
+
 				// Handle error appropriately (show notification, etc.)
 			}
 		},
@@ -834,12 +862,39 @@ const RecentChat = ({
 		setInfo((prev) => ({ ...prev, showViewDocument: value }));
 	}, []);
 
+	const handleCloseCitationsModal = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			citationsModalIsOpen: false,
+			citationsAiMessageIndex: null,
+		}));
+	}, []);
+
+	const handleSourcesClick = useCallback(
+		(index) => {
+			setInfo((prev) => {
+				if (index !== prev?.citationsAiMessageIndex) {
+					updateStateValues({
+						chatSources: globalChatMessages?.[sessionId]?.messages?.[index]?.citations,
+					});
+				}
+				return {
+					...prev,
+					citationsModalIsOpen: index !== prev?.citationsAiMessageIndex,
+					citationsAiMessageIndex: index !== prev?.citationsAiMessageIndex ? index : null,
+				};
+			});
+		},
+		[globalChatMessages, sessionId, updateStateValues],
+	);
+
 	return (
 		<>
 			<div
 				className="chat-container"
 				style={{
 					height: isPublicChat ? 'calc(100% - 32px)' : '',
+					width: info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%',
 				}}
 			>
 				{/* header */}
@@ -849,18 +904,19 @@ const RecentChat = ({
 						onNavigateBack={onNavigateBack}
 						isNewChat={info?.isNewChat}
 						smoothScrollToParticularMessage={smoothScrollToParticularMessage}
+						showDeleteChat={showDeleteChat}
 					/>
 				)}
 
 				{/* chat body */}
-				<div className="chatBodyContainer">
+				<div className="chatBodyWrapper">
 					<div
 						className={`chatBodyParentContainer`}
 						ref={chatContentRef}
 						id="scrollableDiv"
-						style={{
-							'--chat-content-height': `${chatContentRef?.current?.clientHeight}px`,
-						}}
+						// style={{
+						// 	'--chat-content-height': `${chatContentRef?.current?.clientHeight}px`,
+						// }}
 					>
 						<TextSelector
 							styles={info?.tooltipStyles?.styles}
@@ -892,13 +948,23 @@ const RecentChat = ({
 											<div
 												key={index}
 												className={`chat-message ${chat?.type?.toLowerCase()}-message chat-${index}`}
+												style={{
+													minHeight:
+														index ===
+														globalChatMessages?.[sessionId]?.messages
+															?.length -
+															1
+															? `calc(${chatContentRef?.current?.clientHeight}px - 185px)`
+															: 'auto',
+												}}
 											>
 												<div className="message-content">
 													{chat?.type?.toLowerCase() === 'ai' ? (
 														<div
 															className="content"
 															style={{
-																...(info?.currentUserMessageIndex && {
+																...(info?.currentUserMessageIndex !==
+																	null && {
 																	opacity:
 																		index ===
 																		info?.currentUserMessageIndex +
@@ -931,19 +997,9 @@ const RecentChat = ({
 														>
 															<AIMessageRenderer
 																messageData={chat}
-																userMessageElement={
-																	userMessagesRefs.current?.[
-																		index - 1
-																	]
-																}
-																chatContentElement={
-																	chatContentRef?.current
-																}
 																handleNoteComponentModalOpen={
 																	handleNoteComponentModalOpen
 																}
-																tabsRefs={tabsRefs}
-																index={index}
 																handleViewDocument={
 																	handleViewDocument
 																}
@@ -951,6 +1007,19 @@ const RecentChat = ({
 																	info?.showViewDocument
 																}
 																isPublicChat={isPublicChat}
+																handleSourcesClick={
+																	handleSourcesClick
+																}
+																messageIndex={index}
+																showCitationsButton={
+																	showCitationsButton
+																}
+																isLastMessage={
+																	index ===
+																	globalChatMessages?.[sessionId]
+																		?.messages?.length -
+																		1
+																}
 															/>
 														</div>
 													) : (
@@ -978,7 +1047,8 @@ const RecentChat = ({
 															// }}
 
 															style={{
-																...(info?.currentUserMessageIndex && {
+																...(info?.currentUserMessageIndex !==
+																	null && {
 																	opacity:
 																		index ===
 																		info?.currentUserMessageIndex
@@ -1015,10 +1085,10 @@ const RecentChat = ({
 				</div>
 			</div>
 
-			{/* <CitationsModal
+			<CitationsModal
 				modalIsOpen={info?.citationsModalIsOpen}
 				closeModal={handleCloseCitationsModal}
-			/> */}
+			/>
 			<NoteComponentModal
 				modalIsOpen={info?.noteModalIsOpen}
 				closeModal={handleNoteComponentModalClose}

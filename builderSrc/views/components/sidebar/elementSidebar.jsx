@@ -12,7 +12,7 @@ import NavbarPopup from '../library/elementPopups/NavbarPopup';
 import IconPopup from '../library/elementPopups/IconPopup';
 import SmartFieldPopup from '../library/elementPopups/SmartFieldPopup';
 import DividerPopup from '../library/elementPopups/DividerPopup';
-import NavHiddenPopup from '../library/elementPopups/NavHiddenPopup';
+// import NavHiddenPopup from '../library/elementPopups/NavHiddenPopup';
 import NavImagePopup from '../library/elementPopups/NavImagePopup';
 import MenubarPopup from '../library/elementPopups/MenubarPopup';
 import SchedulerPopup from '../library/elementPopups/schedulerPopup';
@@ -347,7 +347,7 @@ class ElementSidebar extends Component {
 
 					{this.state?.activeType == 'navImage' && (
 						<NavImagePopup
-							activeComponent={this.props.activePopupComponent}
+							activeComponent={this.state?.activePopupComponent}
 							setActivePopupComponent={(value) => {
 								this.setState(
 									{

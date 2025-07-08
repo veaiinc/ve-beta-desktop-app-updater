@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/document/viewDocument.scss';
 import { ReactComponent as NetworkIcon } from '../../../assets/svg/document/network.svg';
@@ -19,7 +19,7 @@ import DuplicateLeadModal from './DuplicatedocumentModel';
 import AcceptDocumentModel from './AcceptDoc';
 import moment from 'moment';
 import MoveStageModal from '../../components/SmartFileDetails/MoveStageModal';
-import EditdocumentModel from './EditdocumentModel';
+// import EditdocumentModel from './EditdocumentModel';
 const MainDocumentSection = ({ workflowId, templateID }) => {
 	const navigate = useNavigate();
 	const {
@@ -32,6 +32,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 			getSmartFileData,
 			chnageWorkflowStats,
 			moveWorkflowStatus,
+			updateStateValues,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -68,6 +69,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 			const response = await deleteLead({ deleteWorkflowId: workflowId });
 			if (response?.[0] === true) {
 				message.success('Lead deleted successfully');
+				updateStateValues({ docsFilesRefetch: true });
 				navigate('/files?activeTab=Documents');
 			} else {
 				message.error(response?.[1] || 'Failed to delete lead');
@@ -440,7 +442,6 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 							// acceptDocumentFunc={handleAccept}
 						/>
 					)}
-
 				</div>
 			)}
 			{info.isShareModalOpen && (
@@ -486,7 +487,6 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 				moveStageFunc={handleMoveStage}
 				workflowStatus={info?.workflowInfo?.status}
 			/>
-
 		</>
 	);
 };

@@ -1,26 +1,32 @@
 import { memo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/contacts/singleContact.scss';
-import TaskWidget from '../globalComponents/TaskWidget';
-import AutomationWidget from '../globalComponents/AutomationWidget';
-import CalenderWidget from '../globalComponents/CalenderWidget';
-import QuickActions from '../globalComponents/QuickActions';
+// import TaskWidget from '../globalComponents/TaskWidget';
+// import AutomationWidget from '../globalComponents/AutomationWidget';
+// import CalenderWidget from '../globalComponents/CalenderWidget';
+// import QuickActions from '../globalComponents/QuickActions';
 import DocsGrid from '../files/DocsGrid';
 import ActivityContact from './ActivityContact';
 import OverviewContact from './overViewContact';
 
 const SingleContact = ({ selectedContact, selectedOptions }) => {
 	const navigate = useNavigate();
-	const [info, setInfo] = useState({
-		totalCount: null,
-	});
-	const handleTotalChange = (data) => {
-		setInfo((prevInfo) => ({ ...prevInfo, totalCount: data }));
-	};
+
+	// const handleTotalChange = (data) => {
+	// 	setInfo((prevInfo) => ({ ...prevInfo, totalCount: data }));
+	// };
 
 	const handleCreateDoc = useCallback(() => {
-		navigate(`/builder/create-document`);
-	}, []);
+		const name = selectedContact?.name || selectedContact?.firstName || '';
+		const email = selectedContact?.email || '';
+		const phoneNumber = selectedContact?.phoneNumber || selectedContact?.phone || '';
+
+		navigate(
+			`/builder/create-document?name=${encodeURIComponent(name)}&email=${encodeURIComponent(
+				email,
+			)}&phoneNumber=${encodeURIComponent(phoneNumber)}`,
+		);
+	}, [selectedContact]);
 
 	const handleDocClick = useCallback(
 		(doc) => {
@@ -40,7 +46,7 @@ const SingleContact = ({ selectedContact, selectedOptions }) => {
 			{selectedOptions === 'Activity' && <ActivityContact />}
 			{selectedOptions === 'Files' && (
 				<DocsGrid
-					handleTotalChange={handleTotalChange}
+					// handleTotalChange={handleTotalChange}
 					clientId={selectedContact?._id}
 					handleDocClick={handleDocClick}
 					handleCreateDoc={handleCreateDoc}

@@ -15,10 +15,9 @@ import {
 import AskAiButton from './AskAiButton';
 import { memo, useEffect } from 'react';
 import TextColorPicker from './TextColorPicker';
-import { useBlockNoteEditor, useComponentsContext } from '@blocknote/react';
 import AlignButton from './AlignButton';
 
-const NoteToolbar = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
+const NoteToolbar = ({ sendMessage, aiResonse, resetAiResponse }) => {
 	return (
 		<FormattingToolbarController
 			formattingToolbar={() => (
@@ -50,16 +49,16 @@ const NoteToolbar = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
 					<UnnestBlockButton key={'unnestBlockButton'} />
 
 					<CreateLinkButton key={'createLinkButton'} />
-					<AskAiButton
+					{/* <AskAiButton
 						key={'askAiButton'}
 						sendMessage={sendMessage}
 						aiResonse={aiResonse}
 						resetAiResponse={resetAiResponse}
-					/>
+					/> */}
 				</FormattingToolbar>
 			)}
 		/>
 	);
-});
+};
 
-export default NoteToolbar;
+export default memo(NoteToolbar);

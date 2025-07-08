@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import EasyIn from './hoverandpressAdjustments/EasyIn';
 import Skew from './hoverandpressAdjustments/Skew';
 import EasyOut from './hoverandpressAdjustments/EasyOut';

@@ -18,7 +18,7 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		gap: 24px;
+		gap: 50px;
 		max-width: 1700px;
 		width: 100%;
 		flex: 1 0 0;
@@ -46,11 +46,13 @@
 		}
 
 		.heading {
-			color: var(--background-color, #0c0c0d);
+			color: var(--background-color, #fff);
 			text-align: center;
-			font-size: 60px;
+			font-size: 105px;
 			font-weight: 600;
-			line-height: normal;
+			line-height: 115px;
+			letter-spacing: -3.15px;
+			margin-bottom: 0;
 
 			@media screen and (max-width: 768px) {
 				font-size: 24px;
@@ -69,17 +71,21 @@
 
 		.ctaButton {
 			display: flex;
+			width: 150px;
 			padding: 14px 24px;
 			justify-content: center;
 			align-items: center;
 			gap: 10px;
 			border-radius: 100px;
-			background: var(--background-color, #0c0c0d);
-			color: var(--primary-font);
-			border: none;
-			outline: none;
-			cursor: pointer;
-			margin-top: 8px;
+			border: 1.5px solid var(--stroke, #e3e3e3);
+			color: var(--primary-button-font);
+			transition: all 0.2s ease-in;
+			font-weight: 500;
+			&:hover{
+				border-color: var(--stroke-hover);
+				background-color: var(--primary-button-font);
+				color: var(--primary-button);
+			}
 		}
 	}
 }
