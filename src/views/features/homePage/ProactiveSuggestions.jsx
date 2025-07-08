@@ -257,16 +257,16 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
 			updateCardsData();
-			if (info?.activeCardContent) {
-				setInfo((prev) => ({
-					...prev,
-					activeCardContent: aiSuggestedPendingActions?.pendingActions?.find(
-						(c) => c?._id === info?.activeCardContent?._id,
-					),
-				}));
-			}
+			// if (info?.activeCardContent) {
+			// 	setInfo((prev) => ({
+			// 		...prev,
+			// 		activeCardContent: aiSuggestedPendingActions?.pendingActions?.find(
+			// 			(c) => c?._id === info?.activeCardContent?._id,
+			// 		),
+			// 	}));
+			// }
 		}
-	}, [aiSuggestedPendingActions, info?.activeCardContent]);
+	}, [aiSuggestedPendingActions]);
 
 	// useEffect(() => {
 	// 	if (!aiQuestions) {
@@ -493,6 +493,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	const handleCardClick = async (card, index) => {
 		if (!card?.read) {
 			await pendingActionsUpdate(card?._id, { read: true });
+			const payload = { read: true },
+				reset = false;
+			getAISuggestedPendingActions(payload, reset, 'update', card?._id);
 		}
 		setInfo((prev) => ({
 			...prev,
@@ -500,7 +503,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			openModal: true,
 			currentIndex: index,
 			selectedCardNumber: index + 1,
-			cards: prev.cards.map((c) => (c._id === card._id ? { ...c, read: true } : c)),
 		}));
 		handleModalOpen?.(true);
 		currentIndexRef.current = index;
@@ -571,23 +573,23 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		await getAISuggestedPendingActions(payload, false);
 	};
 
-	const handleFavouriteClick = async (id) => {
-		const card = info?.cards?.find((c) => c?._id === id);
-		const res = await pendingActionsUpdate(id, { isFavourite: !card?.isFavourite });
-		if (res?.[0] === true) {
-			getAISuggestedPendingActions(
-				{
-					isFavourite: !card?.isFavourite,
-				},
-				false,
-				'update',
-				id,
-			);
-			message.success(!card?.isFavourite ? 'Added to favourites' : 'Removed from favourites');
-		} else {
-			message.error('Failed to update');
-		}
-	};
+	// const handleFavouriteClick = async (id) => {
+	// 	const card = info?.cards?.find((c) => c?._id === id);
+	// 	const res = await pendingActionsUpdate(id, { isFavourite: !card?.isFavourite });
+	// 	if (res?.[0] === true) {
+	// 		getAISuggestedPendingActions(
+	// 			{
+	// 				isFavourite: !card?.isFavourite,
+	// 			},
+	// 			false,
+	// 			'update',
+	// 			id,
+	// 		);
+	// 		message.success(!card?.isFavourite ? 'Added to favourites' : 'Removed from favourites');
+	// 	} else {
+	// 		message.error('Failed to update');
+	// 	}
+	// };
 
 	const handleViewReportClick = useCallback((card) => {
 		const { chain_of_thought } = card;
@@ -1248,7 +1250,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 							onPrevCardClick={handleLeft}
 							totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
 							selectedCardNumber={currentIndexRef?.current + 1}
-							onFavouriteClick={handleFavouriteClick}
+							// onFavouriteClick={handleFavouriteClick}
 						/>
 					</>
 				)}
