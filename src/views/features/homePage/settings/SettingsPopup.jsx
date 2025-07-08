@@ -5,21 +5,21 @@ import EditCategory from './editCategory/EditCategory';
 
 const initalState = {
 	currentComponent: 'settings',
-}
+};
 
 const SettingsPopup = ({ isOpen, handleClose }) => {
 	const [info, setInfo] = useState(initalState);
 
 	useEffect(() => {
-		setInfo(initalState)
-	} ,[])
+		setInfo(initalState);
+	}, []);
 
 	function handleComponentChange(component) {
 		setInfo((prev) => ({
 			...prev,
 			currentComponent: component,
 		}));
-	};
+	}
 
 	const componentMapper = {
 		settings: (

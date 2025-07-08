@@ -24,9 +24,9 @@ import PromptsWidget from '../../components/globalComponents/PromptsWidget';
 // import BuildOptions from './BuildOptions';
 // import { ReactComponent as CommandSvg } from '../../../assets/svg/files/command.svg';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
-import { ReactComponent as SettingsIcon } from '../../../assets/svg/calendar/settingsSecondary.svg';
+// import { ReactComponent as SettingsIcon } from '../../../assets/svg/calendar/settingsSecondary.svg';
 import Spinner from '../../components/loaders/Spinner';
-import SettingsPopup from './settings/SettingsPopup';
+// import SettingsPopup from './settings/SettingsPopup';
 import { ReactComponent as CloseSearchbarIcon } from './assets/svg/closeIcon.svg';
 
 const suggestionContainerStyles = {
@@ -54,31 +54,38 @@ const positionClassMap = {
 const filters = [
 	{
 		name: 'Actionable Cards',
-		value: 11,
+		count: 11,
+		value: 'actionableCards',
 	},
 	{
 		name: 'Suggestions',
-		value: 3,
+		count: 3,
+		value: 'suggestions',
 	},
 	{
 		name: 'Drafts',
-		value: 2,
+		count: 2,
+		value: 'drafts',
 	},
 	{
 		name: 'Risks',
-		value: 23,
+		count: 2,
+		value: 'risks',
 	},
 	{
 		name: 'Opportunity',
-		value: 43,
+		count: 2,
+		value: 'opportunities',
 	},
 	{
 		name: 'Goal Progress',
-		value: 4,
+		count: 2,
+		value: 'goalProgress',
 	},
 	{
 		name: 'Others',
-		value: 484,
+		count: 484,
+		value: 'others',
 	},
 ];
 
@@ -177,9 +184,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			chatBoxSuggestions,
 		},
 		aiSetup: { getPromptsData, promptsData },
-		profileInfo: { aiCategories, getAiCategories },
-		themeInfo: { theme },
+		profileInfo: { insightTypes, getAiInsightTypes },
 	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		totalCardsData: [],
 		cards: [],
@@ -208,6 +215,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		searchOpen: false,
 		settingsOpen: false,
 	});
+
 	const promptsLength = promptsData?.data?.length ?? 0;
 	const promptsHasNextPage = Boolean(promptsData?.hasNextPage);
 	const promptsCurrentPage = Number(promptsData?.currentPage) || 1;
@@ -279,28 +287,38 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	// 	}
 	// }, []);
 
+	// useEffect(() => {
+	// 	if (!aiCategories) {
+	// 		getAiCategoriesOptions();
+	// 	} else {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			options: [...aiCategories],
+	// 		}));
+	// 	}
+	// }, [aiCategories, aiSuggestedPendingActions]);
+
 	useEffect(() => {
-		if (!aiCategories) {
-			getAiCategoriesOptions();
+		if (!insightTypes) {
+			getAiInsightTypesOptions();
 		} else {
 			setInfo((prev) => ({
 				...prev,
-				options: [...aiCategories],
-				selectedOption: aiCategories?.[0],
+				options: [...insightTypes],
 			}));
 		}
-	}, [aiCategories, aiSuggestedPendingActions]);
+	}, [insightTypes, aiSuggestedPendingActions]);
 
-	const getAiCategoriesOptions = async () => {
-		const response = await getAiCategories();
+	const getAiInsightTypesOptions = async () => {
+		const response = await getAiInsightTypes();
 		if (response?.[0] === true) {
 			setInfo((prev) => ({
 				...prev,
 				options: [...optionsList, ...response?.[1]],
-				selectedOption: response?.[1]?.[0],
 			}));
 		}
 	};
+
 	useEffect(() => {
 		if (info?.totalCardsData?.length > 0) {
 			updateWindow(info?.currentIndex);
@@ -379,7 +397,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 				const payload = {
 					...newUpdatedPayload,
 					page: nextPage,
-					...(option !== 'All' && { category: option }),
+					...(option !== 'All' && { insightType: option }),
 				};
 
 				await getAISuggestedPendingActions(payload, false);
@@ -720,7 +738,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			...(favourite && { isFavourited: favourite }),
 			search: info?.searchQuery,
 			// ...(info.selectedOption !== 'All' && { category: info?.selectedOption }),
-			category: info?.selectedOption,
+			insightType: info?.selectedOption,
 		};
 	}, [
 		payload,
@@ -805,6 +823,14 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	};
 	const handleOptionSelection = (option) => {
 		currentIndexRef.current = 0;
+		if (info.selectedOption === option) {
+			setInfo((prev) => ({
+				...prev,
+				selectedOption: '',
+				currentIndex: 0,
+			}));
+			return;
+		}
 		setInfo((prev) => ({
 			...prev,
 			selectedOption: option,
@@ -813,24 +839,23 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	};
 
 	const renderedOptions = useMemo(() => {
-		return filters.map(({ name, value }, index) => {
-			return (
+		return insightTypes
+			?.filter((item) => item?.insight_type.toLowerCase() !== 'others')
+			.map(({ count, insight_type }, index) => (
 				<div
-					className={`option ${info?.selectedOption === value ? 'active' : ''}`}
+					className={`option ${info?.selectedOption === insight_type ? 'active' : ''}`}
 					onClick={(e) => {
-						e.stopPropagation();
-						handleOptionSelection(value);
+						handleOptionSelection(insight_type);
 					}}
 					key={index}
 				>
 					<div className="option-label">
-						<span className="option-name">{name}</span>
-						<span className="option-value">{value}</span>
+						<span className="option-name">{insight_type}</span>
+						<span className="option-value">{count}</span>
 					</div>
 				</div>
-			);
-		});
-	}, [info?.options, info?.selectedOption]);
+			));
+	}, [info?.insightTypes, info?.selectedOption]);
 
 	const handleSearchToggle = () => {
 		setInfo((prev) => ({
@@ -1039,19 +1064,14 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 									/>
 								)}
 
-								{/* {(aiSuggestedPendingActions?.pendingActions?.length > 0 ||
-									info?.searchQuery?.length !== 0 ||
-									info?.selectedFilters?.length > 0) &&
-									!info?.showExploreMore && (
-										<div className="options-wrapper">
-											<div
-												className={`homepage__options-container`}
-												ref={optionsContainerRef}
-											>
-												{renderedOptions}
-											</div>
-										</div>
-									)} */}
+								<div className="options-wrapper">
+									<div
+										className={`homepage__options-container`}
+										ref={optionsContainerRef}
+									>
+										{renderedOptions}
+									</div>
+								</div>
 
 								<div
 									className={`actionMainContainer ${
@@ -1090,7 +1110,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 														/>
 														{info?.searchLoading && (
 															<div className="search-loader">
-																<Spinner color="var(--primary-button)" />
+																<Spinner color="var(--primary-button)" borderWidth={2} width="15px" height="15px" />
 															</div>
 														)}
 														{info?.searchOpen && (
@@ -1250,7 +1270,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																</button>
 															</div>
 														</Tooltip>
-														<button
+														{/* <button
 															className="settings-btn"
 															onClick={handleSettingsToggle}
 														>
@@ -1259,7 +1279,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 														<SettingsPopup
 															isOpen={info.settingsOpen}
 															handleClose={handleSettingsToggle}
-														/>
+														/> */}
 													</div>
 												)}
 											</div>

@@ -61,6 +61,7 @@
 				display: flex;
 				width: 100%;
 				textarea {
+					font-family: var(--primary-font-family);
 					display: flex;
 					height: 150px;
 					padding: 14px;
@@ -130,6 +131,7 @@
 
 		.cancelButton {
 			border: 1px solid var(--stroke, #2c2d2e);
+			color: var(--primary-font);
 			&:hover {
 				border-color: var(--stroke-hover);
 				background-color: var(--primary-font);
