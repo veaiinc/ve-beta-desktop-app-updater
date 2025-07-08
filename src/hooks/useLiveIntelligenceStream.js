@@ -6,6 +6,7 @@ const useLiveIntelligenceStream = () => {
 	const sendTimeoutRef = useRef(null);
 	const sendingContextRef = useRef(false);
 	const currentSessionIdRef = useRef(null);
+	const pageIdRef = useRef(null);
 	const isSocketFirstTimeConnectedRef = useRef(false);
 	const messageHandlerRef = useRef(null);
 	const MAX_RETRY_ATTEMPTS = 10;
@@ -19,6 +20,8 @@ const useLiveIntelligenceStream = () => {
 	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
+			currentSessionIdRef.current = null;
+			pageIdRef.current = null;
 			if (inactivityTimeoutRef.current) {
 				clearTimeout(inactivityTimeoutRef.current);
 			}
@@ -55,13 +58,14 @@ const useLiveIntelligenceStream = () => {
 	}, []);
 
 	const createWebSocketConnection = useCallback(
-		(sessionId, onMessageFunc) => {
+		(sessionId, pageId, onMessageFunc) => {
 			if (!sessionId) {
 				console.error('Session ID is required for live intelligence streaming');
 				return;
 			}
 
 			currentSessionIdRef.current = sessionId;
+			pageIdRef.current = pageId;
 			messageHandlerRef.current = onMessageFunc;
 
 			const usertoken = localStorage.getItem('usertoken');
@@ -132,7 +136,11 @@ const useLiveIntelligenceStream = () => {
 
 			if (!socketRef.current || socketRef.current.readyState === WebSocket.CLOSED) {
 				console.log('Connection closed, attempting to reconnect...');
-				createWebSocketConnection(currentSessionIdRef.current, messageHandlerRef.current);
+				createWebSocketConnection(
+					currentSessionIdRef.current,
+					pageIdRef.current,
+					messageHandlerRef.current,
+				);
 				attempts++;
 				setTimeout(attemptSend, RETRY_DELAY);
 				return;
@@ -153,6 +161,9 @@ const useLiveIntelligenceStream = () => {
 					current_context: currentContextRef.current,
 					location: locationData,
 					timezone: 'Asia/Calcutta',
+					...(pageIdRef.current && {
+						page_id: pageIdRef.current,
+					}),
 				};
 
 				try {
