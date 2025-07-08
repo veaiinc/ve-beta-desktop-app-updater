@@ -22,7 +22,7 @@ const actionHandlers = {
 		workflows: action?.payload,
 	}),
 	SET_AI_CHAT_SESSIONS: (state, action) => {
-		let {
+		const {
 			sessionId,
 			addNewSession,
 			type,
