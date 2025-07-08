@@ -1,16 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './empty-meet-bot-list.scss';
 import emptylist from './emptylist.png';
 const EmptyMeetBotList = () => {
-	const [currentSlide, setCurrentSlide] = useState(0);
 
-	const nextSlide = () => {
-		setCurrentSlide(1);
-	};
-
-	const prevSlide = () => {
-		setCurrentSlide(0);
-	};
 
 	return (
 		<div className="empty-meet-bot-container">
