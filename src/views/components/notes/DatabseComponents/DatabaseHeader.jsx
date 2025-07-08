@@ -6,7 +6,7 @@ import { ReactComponent as FilterIcon } from '../../../../assets/svg/tasks/newFi
 import { ReactComponent as SettingsIcon } from '../../../../assets/svg/tasks/newSort.svg';
 import FilterComponent from './FilterComponent';
 import SortComponent from './SortComponent';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import TaskHeader from '../../tasks/listView/TaskHeader';
 import ViewOptions from '../../dropDown/notes/database/ViewOptions';
 
@@ -109,4 +109,4 @@ const DatabaseHeader = ({
 	);
 };
 
-export default DatabaseHeader;
+export default memo(DatabaseHeader);

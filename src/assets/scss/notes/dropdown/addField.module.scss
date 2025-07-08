@@ -19,9 +19,8 @@
 		.optionsDropdownHeaderTitle {
 			flex-grow: 1;
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
-			font-style: var(--primary-font-family);
 			font-weight: 500;
 			line-height: 20px; /* 166.667% */
 		}
