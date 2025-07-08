@@ -1,0 +1,171 @@
+.addField {
+	display: flex;
+	width: 220px;
+	padding: 12px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	border-radius: 14px;
+	background-color: var(--card);
+	border: 1px solid var(--stroke);
+
+	.header {
+		display: flex;
+		padding-right: 8px;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+
+		.optionsDropdownHeaderTitle {
+			flex-grow: 1;
+			color: var(--primary-font);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: var(--primary-font-family);
+			font-weight: 500;
+			line-height: 20px; /* 166.667% */
+		}
+
+		svg {
+			path {
+				fill: var(--secondary-font);
+			}
+			cursor: pointer;
+		}
+	}
+
+	.inputWrapper {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+
+		.icon {
+			display: flex;
+			width: 32px;
+			height: 32px;
+			padding: 6px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 8px;
+			border: 1px solid var(--stroke);
+			flex-shrink: 0;
+		}
+		.nameInput {
+			display: flex;
+			height: 32.039px;
+			padding: 6px;
+			align-items: center;
+			border-radius: 8px;
+			border: 1px solid var(--stroke);
+			width: 100%;
+			background-color: transparent;
+
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+
+			&::placeholder {
+				color: var(--secondary-font);
+			}
+		}
+	}
+
+	.optionsWrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+		align-self: stretch;
+	}
+
+	.addFieldButton {
+		width: 100%;
+		border-radius: 8px;
+		background-color: var(--card-hover);
+		display: flex;
+		height: 31px;
+		border-radius: 8px;
+		cursor: pointer;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		color: var(--primary-font);
+		font-size: 12px;
+	}
+	.divider {
+		width: 100%;
+		height: 1px;
+		background-color: var(--stroke);
+	}
+
+	.option {
+		display: flex;
+		height: 31px;
+		transform: rotate(-0.037deg);
+		padding: 6px;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+		border-radius: 8px;
+		cursor: pointer;
+		gap: 8px;
+
+		.text {
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+
+			.icon {
+				path: {
+					stroke: var(--primary-font) !important;
+				}
+			}
+		}
+		.subText {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.optionInput {
+			width: 100px;
+			border-radius: 8px;
+			border: 1px solid var(--stroke);
+			background-color: transparent;
+			padding: 4px 6px;
+
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+
+			&::placeholder {
+				color: var(--secondary-font);
+			}
+		}
+
+		&:hover {
+			background-color: var(--card-hover);
+		}
+	}
+
+	.cursorPonter {
+		cursor: pointer;
+	}
+}

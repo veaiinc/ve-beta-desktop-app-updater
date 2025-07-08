@@ -219,10 +219,10 @@ class ImageItem extends BaseClass {
 			_.has(this.props, 'logo') &&
 			this.props.isLogo == true
 		) {
-			let oldWidth = imageSettings.width;
-			let oldHeight = imageSettings.height;
-			let newCropX = imageSettings.crop.x * (this.state.boxWidth / oldWidth);
-			let newCropY = imageSettings.crop.y * (this.state.boxHeight / oldHeight);
+			let oldWidth = imageSettings?.width;
+			let oldHeight = imageSettings?.height;
+			let newCropX = imageSettings?.crop?.x * (this.state.boxWidth / oldWidth);
+			let newCropY = imageSettings?.crop?.y * (this.state.boxHeight / oldHeight);
 			let newZoom = imageSettings?.zoom * (this.state.boxWidth / oldWidth);
 			imgSet = {
 				crop: {
