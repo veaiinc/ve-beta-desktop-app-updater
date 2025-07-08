@@ -538,7 +538,7 @@ const actionHandlers = {
 					deepResearch,
 					messageId: payload?.message_id,
 				};
-			} else if (processing === 'normal_search') {
+			} else if (processing === 'Normal Search') {
 				let normalSearch = message?.normalSearch || {};
 				let cot = normalSearch?.cot || [];
 
