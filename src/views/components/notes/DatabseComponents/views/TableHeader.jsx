@@ -36,44 +36,23 @@ const TableHeader = ({ columns, handleResizeStart, loading, databaseId, pageId }
 											className={s.headerContent}
 											{...provided.dragHandleProps}
 										>
-											<Tooltip
-												title={
-													<HeaderEditDropdown
-														databaseId={databaseId}
-														field={column}
-														pageId={pageId}
-													/>
-												}
-												arrow={false}
-												trigger={'click'}
-												color={'transparent'}
-												overlayStyle={{
-													minWidth: 'fit-content',
-													padding: '0',
-												}}
-												style={{ padding: 0 }}
-												placement="bottomLeft"
-											>
-												<div className={s.tableHeaderCellContent}>
-													{column?.Icon && (
-														<column.Icon
-															className={s.tableHeaderIcon}
+											<div className={s.tableHeaderCellContent}>
+												{column?.Icon && (
+													<column.Icon className={s.tableHeaderIcon} />
+												)}
+												<div className={s.headerLabel}>
+													{loading ? (
+														<Skeleton
+															height={16}
+															width="80%"
+															baseColor="#202020"
+															highlightColor="#444"
 														/>
+													) : (
+														column?.name
 													)}
-													<div className={s.headerLabel}>
-														{loading ? (
-															<Skeleton
-																height={16}
-																width="80%"
-																baseColor="#202020"
-																highlightColor="#444"
-															/>
-														) : (
-															column?.name
-														)}
-													</div>
 												</div>
-											</Tooltip>
+											</div>
 										</div>
 										{!loading && index < columns?.length - 1 && (
 											<div

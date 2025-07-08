@@ -60,6 +60,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 
 		if (response[0] === true) {
 			if (invitedWorkspaceId && invitedUserEmail) {
+				getWorkSpaceInfo(invitedWorkspaceId);
 				navigate(
 					`/onboarding?invitedWorkspaceId=${invitedWorkspaceId}&inviteeEmail=${invitedUserEmail}`,
 				);
@@ -70,7 +71,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 						if (!locationDetails) {
 							locationDetails = await getLocationsDetails();
 						}
-						await getWorkSpaceInfo(response?.[1]?.workspaceId);
+						getWorkSpaceInfo(response?.[1]?.workspaceId);
 						navigate('/home');
 					} else {
 						navigate('/early-access');
