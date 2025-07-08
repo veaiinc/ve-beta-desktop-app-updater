@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { memo, useContext, useEffect, useRef, useState, useMemo, useCallback, use } from 'react';
 import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import Context from '../../../context/context';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
@@ -156,6 +156,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	const mainContainerRef = useRef(null);
 	const optionsContainerRef = useRef(null); // Ref for the options container
 	const searchInputRef = useRef(null);
+	const selectedFiltersRef = useRef([]);
+	const searchQueryRef = useRef('');
 
 	const {
 		templates: {
@@ -300,12 +302,23 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		}
 	}, [info?.totalCardsData, info?.currentIndex]);
 
+	// useEffect(() => {
+	// 	if (info?.selectedOption !== firstOption) {
+	// 		return;
+	// 	}
+	// 	fetchPendingActions();
+	// }, [info?.selectedOption]);
+
 	useEffect(() => {
-		if (info?.selectedOption !== firstOption) {
-			return;
+		if (!aiSuggestedPendingActions) {
+			fetchPendingActions();
 		}
-		fetchPendingActions();
-	}, [info?.selectedOption]);
+		return () => {
+			if (selectedFiltersRef.current?.length || searchQueryRef.current?.length) {
+				updateStateValues({ aiSuggestedPendingActions: null });
+			}
+		};
+	}, []);
 
 	useEffect(() => {
 		if (isMountedRef.current) return;
@@ -535,6 +548,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 				}
 			}
 
+			selectedFiltersRef.current = updatedFilters;
 			return {
 				...prev,
 				selectedFilters: updatedFilters,
@@ -641,6 +655,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	};
 
 	const handleSearchQueryChange = (e) => {
+		searchQueryRef.current = e.target?.value;
 		setInfo((prev) => ({
 			...prev,
 			searchQuery: e.target?.value,
