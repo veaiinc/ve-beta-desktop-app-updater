@@ -542,10 +542,9 @@ const actionHandlers = {
 				let normalSearch = message?.normalSearch || {};
 				let cot = normalSearch?.cot || [];
 
-				if (payload?.step && payload?.step_id) {
+				if (payload?.step) {
 					cot?.push({
 						step: payload?.step,
-						step_id: payload?.step_id,
 					});
 				} else if (payload?.reading && payload?.step_id) {
 					cot = cot?.map((item) => {
