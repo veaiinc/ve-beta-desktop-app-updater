@@ -28,7 +28,7 @@ const ChatHeader = ({
 			globalChatMessages,
 			updatechatSessionFavourite,
 		},
-		aiSetup: { aiChatSessions, updateStateValues },
+		aiSetup: { aiChatSessions, updateStateValues, updateAiChatSessions },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -99,9 +99,11 @@ const ChatHeader = ({
 		const response = await deleteChatSession(sessionId);
 		if (response?.[0] === true) {
 			navigate('/home');
-			updateStateValues({
-				refetchChatHistoryList: true,
-			});
+			const payload = {
+				type: 'delete',
+				sessionId,
+			};
+			updateAiChatSessions(payload);
 		} else {
 			message.error('Failed to delete chat session');
 		}

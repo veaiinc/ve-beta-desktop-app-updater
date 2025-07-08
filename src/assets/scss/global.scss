@@ -27,6 +27,11 @@ a {
 	background-color: transparent;
 	border: none;
 }
+
+.jodit .jodit-workplace,
+.jodit-container .jodit-workplace {
+	overflow: unset !important;
+}
 .text_component {
 	a {
 		color: inherit;
