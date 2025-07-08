@@ -677,6 +677,40 @@ class Layout1 extends Component {
 			}, {});
 	};
 
+	// ! handling reordering of blocks
+	handleMoveServiceBlock = async (json, blockID, sectionID, move) => {
+		let currentBlocks = [...this.state?.blocks];
+		const blockIndex = currentBlocks.findIndex((block) => block._id === blockID);
+
+		let newIndex = blockIndex;
+		if (blockIndex !== -1) {
+			if (move === 'up' && blockIndex > 0) {
+				newIndex = blockIndex - 1;
+			} else if (move === 'down' && blockIndex < currentBlocks.length - 1) {
+				newIndex = blockIndex + 1;
+			}
+
+			if (newIndex !== blockIndex) {
+				// Swap the blocks
+				const temp = currentBlocks[newIndex];
+				currentBlocks[newIndex] = currentBlocks[blockIndex];
+				currentBlocks[blockIndex] = temp;
+			}
+		}
+
+		this.setState(
+			{
+				blocks: currentBlocks,
+				section: {
+					...this.state?.section,
+					blocks: currentBlocks,
+				},
+			},
+			() => {
+				this.props?.setActiveSection(this.state?.section);
+			},
+		);
+	};
 	render() {
 		let subTotal;
 		if (this.state.client) {
@@ -1292,6 +1326,14 @@ class Layout1 extends Component {
 												this.state.sectionID,
 											)
 										}
+										handleMoveServiceBlock={(type) =>
+											this.handleMoveServiceBlock(
+												block,
+												block._id,
+												this.state.sectionID,
+												type,
+											)
+										}
 										actionType={this.state.actionType}
 										actionValue={this.state.actionValue}
 										restrictServiceSelection={
@@ -1314,6 +1356,7 @@ class Layout1 extends Component {
 										builderCurrencySymbol={this.props?.builderCurrencySymbol}
 										clientGrandTotal={this.props?.clientGrandTotal}
 										activeModule={this.props.activeModule}
+										itemsLength={this.state.blocks.length}
 									/>
 								</div>
 							) : (
