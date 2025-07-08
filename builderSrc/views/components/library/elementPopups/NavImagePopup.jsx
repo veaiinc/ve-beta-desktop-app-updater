@@ -419,6 +419,7 @@ class NavImagePopup extends Images {
 				activeComponent: newComponent,
 			},
 			() => {
+				console.log(this.state.mZoom, this.state.zoom, newComponent, 'jeevan');
 				this.debounceFunction(() => {
 					this.props?.setActivePopupComponent(newComponent);
 				}, 500);
