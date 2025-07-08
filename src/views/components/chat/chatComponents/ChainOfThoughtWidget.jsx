@@ -95,7 +95,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 					<div className="memory-thinking">{memory_thinking || ''}</div>
 				)}
 
-				{(deepResearch || deepSearch) && (
+				{(deepResearch || deepSearch || normalSearch) && (
 					<div className="content-container">
 						{deepResearch && (
 							<DeepResearchChainOfThought

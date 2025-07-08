@@ -2570,13 +2570,13 @@ const GalleryPage = () => {
 				}));
 
 				// Refresh data
-				await Promise.all(
-					[
-						getAlbumImagesCount(galleryId),
-						getAlbums(galleryId),
-						info.coverType === 'gallery' && getGalleries({}, true),
-					].filter(Boolean),
-				);
+				// await Promise.all(
+				// 	[
+				// 		getAlbumImagesCount(galleryId),
+				// 		getAlbums(galleryId),
+				// 		info.coverType === 'gallery' && getGalleries({}, true),
+				// 	].filter(Boolean),
+				// );
 				message.destroy();
 				showMessage(
 					'success',
@@ -3923,40 +3923,24 @@ const GalleryPage = () => {
 																					? 'active'
 																					: ''
 																			}`}
-																			style={{
-																				background: src
-																					? `url(${src})`
-																					: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
-																				backgroundPosition: `${Math.max(
-																					0,
-																					(album
-																						?.coverImage
-																						?.xPosition ??
-																						0) * 100,
-																				)}% ${Math.max(
-																					0,
-																					(album
-																						?.coverImage
-																						?.yPosition ??
-																						0) * 100,
-																				)}%`,
-																				backgroundSize: `${Math.max(
-																					0,
-																					(album
-																						?.coverImage
-																						?.width ??
-																						1) * 100,
-																				)}% ${Math.max(
-																					0,
-																					(album
-																						?.coverImage
-																						?.height ??
-																						1) * 100,
-																				)}%`,
-																				...provided
-																					.draggableProps
-																					.style,
-																			}}
+																			// style={{
+																			// 	backgroundImage: src
+																			// 		? `url(${src})`
+																			// 		: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+																			// 	backgroundPosition: `${
+																			// 		album
+																			// 			?.coverImage
+																			// 			?.xPosition *
+																			// 			50 +
+																			// 		50
+																			// 	}%  ${
+																			// 		50 -
+																			// 		album
+																			// 			?.coverImage
+																			// 			?.yPosition *
+																			// 			50
+																			// 	} %`,
+																			// }}
 																			onClick={() =>
 																				handleClickAlbum(
 																					album,
@@ -3978,6 +3962,24 @@ const GalleryPage = () => {
 																				}))
 																			}
 																		>
+																			<img
+																				style={{
+																					backgroundImage: `url(${src})`,
+																					backgroundPosition: `${Math.floor(
+																						album
+																							?.coverImage
+																							?.xPosition *
+																							50 +
+																							50,
+																					)}%  ${Math.floor(
+																						50 -
+																							album
+																								?.coverImage
+																								?.yPosition *
+																								50,
+																					)}%`,
+																				}}
+																			/>
 																			{!isActive && (
 																				<div
 																					style={{

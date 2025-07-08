@@ -80,7 +80,7 @@ export const intialState = {
 		open: false,
 	},
 	transcriptHistory: [],
-	existingBots: [],
+	existingBots: null,
 };
 
 export const NotesState = (props) => {
@@ -1702,11 +1702,16 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const getExistingBots = async (payload, append = false) => {
+	const getExistingBots = async ({ page = 1, limit = 10, append = false }) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-
+			const payload = {
+				input: {
+					page,
+					limit,
+				},
+			};
 			const response = await service.query(
 				getMeetBotDataQuery,
 				payload,
@@ -1718,15 +1723,13 @@ export const NotesState = (props) => {
 				const currentPageBotsList = response?.[1]?.data?.listTranscriptionPages?.data;
 				const currentPage = response?.[1]?.data?.listTranscriptionPages?.currentPage;
 				const hasNextPage = response?.[1]?.data?.listTranscriptionPages?.hasNextPage;
-				const totalPages = response?.[1]?.data?.listTranscriptionPages?.totalPages;
 
 				const payload = {
 					data: append
-						? [...(state?.existingBots || []), ...currentPageBotsList]
+						? [...(state?.existingBots?.data || []), ...currentPageBotsList]
 						: currentPageBotsList,
 					hasNextPage,
 					currentPage,
-					totalPages,
 				};
 				dispatch({
 					type: Actions.GET_EXISTING_BOTS_SUCCESS,
