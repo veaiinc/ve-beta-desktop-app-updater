@@ -352,6 +352,7 @@ const GalleryGrid = ({
 									key={index}
 									onClick={() => handleNavigateGallery(item)}
 								>
+									{console.log(item, 'itemtesting')}
 									<div
 										className="card-item-style content-wrapper"
 										style={{
@@ -364,7 +365,9 @@ const GalleryGrid = ({
 											minHeight: '120px',
 											marginBottom: '8px',
 											backgroundSize: 'cover',
-											backgroundPosition: 'center',
+											backgroundPosition: `${
+												item?.coverImage?.xPosition * 50 + 50
+											}% ${50 - item?.coverImage?.yPosition * 50}%`,
 										}}
 									>
 										{!item?.coverImage?.thumbnailUrl && (
