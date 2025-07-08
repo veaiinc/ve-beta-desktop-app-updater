@@ -1699,7 +1699,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const getExistingBots = async (payload) => {
+	const getExistingBots = async (payload, append = false) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -1712,14 +1712,22 @@ export const NotesState = (props) => {
 				'page_notes_api_database',
 			);
 			if (response?.[0]) {
-				const isFirstPage = payload?.input?.page === 1;
-				const actionType = isFirstPage
-					? Actions.GET_EXISTING_BOTS_SUCCESS
-					: Actions.APPEND_EXISTING_BOTS_SUCCESS;
+				const currentPageBotsList = response?.[1]?.data?.listTranscriptionPages?.data;
+				const currentPage = response?.[1]?.data?.listTranscriptionPages?.currentPage;
+				const hasNextPage = response?.[1]?.data?.listTranscriptionPages?.hasNextPage;
+				const totalPages = response?.[1]?.data?.listTranscriptionPages?.totalPages;
 
+				const payload = {
+					data: append
+						? [...(state?.existingBots || []), ...currentPageBotsList]
+						: currentPageBotsList,
+					hasNextPage,
+					currentPage,
+					totalPages,
+				};
 				dispatch({
-					type: actionType,
-					payload: response?.[1]?.data?.listTranscriptionPages?.data,
+					type: Actions.GET_EXISTING_BOTS_SUCCESS,
+					payload,
 				});
 				return response;
 			}

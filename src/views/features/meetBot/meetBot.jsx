@@ -49,34 +49,41 @@ const MeetBot = () => {
 		totalPages: 0,
 	});
 
+	// Function to load meetings
+	const loadMeetings = async (page = 1, append = false) => {
+		try {
+			setInfo((prev) => ({ ...prev, loadingMeetings: true }));
+			const response = await getExistingBots(
+				{
+					input: {
+						limit: info.limit,
+						page: page,
+					},
+				},
+				append,
+			);
+			if (response?.[1]?.data?.listTranscriptionPages) {
+				const { hasNextPage, currentPage, totalPages } =
+					response[1].data.listTranscriptionPages;
+				setInfo((prev) => ({
+					...prev,
+					loadingMeetings: false,
+					hasMore: hasNextPage,
+					currentPage: currentPage,
+					totalPages: totalPages,
+				}));
+			} else {
+				setInfo((prev) => ({ ...prev, loadingMeetings: false }));
+			}
+		} catch (error) {
+			setInfo((prev) => ({ ...prev, loadingMeetings: false }));
+		}
+	};
+
 	// Load existing bots when component mounts
 	useEffect(() => {
 		if (!existingBots || existingBots.length === 0) {
-			setInfo((prev) => ({ ...prev, loadingMeetings: true }));
-			getExistingBots({
-				input: {
-					limit: info.limit,
-					page: info.page,
-				},
-			})
-				.then((response) => {
-					if (response?.[1]?.data?.listTranscriptionPages) {
-						const { hasNextPage, currentPage, totalPages } =
-							response[1].data.listTranscriptionPages;
-						setInfo((prev) => ({
-							...prev,
-							loadingMeetings: false,
-							hasMore: hasNextPage,
-							currentPage: currentPage,
-							totalPages: totalPages,
-						}));
-					} else {
-						setInfo((prev) => ({ ...prev, loadingMeetings: false }));
-					}
-				})
-				.catch(() => {
-					setInfo((prev) => ({ ...prev, loadingMeetings: false }));
-				});
+			loadMeetings(1, false);
 		}
 	}, []);
 
@@ -85,32 +92,8 @@ const MeetBot = () => {
 		if (info.loadingMeetings || !info.hasMore) return;
 
 		const nextPage = info.page + 1;
-		setInfo((prev) => ({ ...prev, page: nextPage, loadingMeetings: true }));
-
-		getExistingBots({
-			input: {
-				limit: info.limit,
-				page: nextPage,
-			},
-		})
-			.then((response) => {
-				if (response?.[1]?.data?.listTranscriptionPages) {
-					const { hasNextPage, currentPage, totalPages } =
-						response[1].data.listTranscriptionPages;
-					setInfo((prev) => ({
-						...prev,
-						loadingMeetings: false,
-						hasMore: hasNextPage,
-						currentPage: currentPage,
-						totalPages: totalPages,
-					}));
-				} else {
-					setInfo((prev) => ({ ...prev, loadingMeetings: false }));
-				}
-			})
-			.catch(() => {
-				setInfo((prev) => ({ ...prev, loadingMeetings: false }));
-			});
+		setInfo((prev) => ({ ...prev, page: nextPage }));
+		loadMeetings(nextPage, true);
 	};
 
 	// Group meetings by date
