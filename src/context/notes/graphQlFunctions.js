@@ -1016,9 +1016,63 @@ export const meetBotCreateMutation = gql`
 
 export const deleteLiveKitRoomMutation = gql`
 	mutation DeleteLiveKitRoom($pageId: ID!) {
-	deleteLiveKitRoom(pageId: $pageId) {
-	  message
-	  success
+		deleteLiveKitRoom(pageId: $pageId) {
+			message
+			success
+		}
 	}
-  }
+`;
+
+export const updateDatabaseViewMutation = gql`
+	mutation UpdateDatabaseView(
+		$pageId: ID!
+		$updateDatabaseViewId: ID!
+		$input: UpdateDatabaseViewInput!
+	) {
+		updateDatabaseView(pageId: $pageId, id: $updateDatabaseViewId, input: $input) {
+			_id
+			databaseId
+			pageId
+			blockId
+			label
+			cardSize
+			sortBy {
+				_id
+				fieldId
+				direction
+			}
+			filterBy {
+				_id
+				fieldId
+				fieldType
+				operator
+				value
+				filter
+			}
+			groupBy {
+				fieldId
+				visibleGroups
+				fieldType
+				defaultGroups
+				config {
+					statusBy
+					numberBy {
+						groupRange
+						groupInterval
+					}
+					dateBy
+					textBy
+				}
+			}
+			visibleFields
+			type
+			columnWidths
+			aggregations
+			order
+			createdAt
+			updatedAt
+			createdBy
+			updatedBy
+		}
+	}
 `;

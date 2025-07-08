@@ -1,5 +1,5 @@
-import { memo, useCallback, useEffect, useState } from 'react';
-import { Tooltip } from 'antd';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { message, Tooltip } from 'antd';
 import s from '../../../../../assets/scss/notes/dropdown/viewOptions.module.scss';
 import { ReactComponent as CrossSvg } from '../../../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../../assets/svg/tasks/chevronRightThin.svg';
@@ -10,12 +10,27 @@ import { ReactComponent as DuplicateIcon } from '../../../../../assets/svg/tasks
 import { ReactComponent as DeleteIcon } from '../../../../../assets/svg/tasks/dustBin.svg';
 import GroupDropDown from '../../tasks/GroupDropDown';
 import AllFields from './AllFields';
+import Context from '../../../../../context/context';
+import ViewLayouts from './ViewLayouts';
 
 const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) => {
+	const {
+		notes: { updateDatabaseView },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		openedDropDown: null,
 		isOpen: false,
+		viewLabel: '',
 	});
+
+	useEffect(() => {
+		if (view) {
+			console.log(view);
+
+			handleInfoChange({ viewLabel: view?.label || '' });
+		}
+	}, [view]);
 
 	const handleInfoChange = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
@@ -52,6 +67,25 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 		return selectedField?.name || 'Unknown Field';
 	}, [view?.groupBy?.fieldId, fields]);
 
+	const handleViewNameUpdate = async () => {
+		const label = info?.viewLabel?.trim();
+		if (!label) {
+			handleInfoChange({ viewLabel: view?.label });
+			return;
+		}
+		if (label === view?.label) {
+			return;
+		}
+		const payload = {
+			pageId,
+			updateDatabaseViewId: view?._id,
+			input: {
+				title: label,
+			},
+		};
+		const res = await updateDatabaseView(payload, blockId);
+	};
+
 	return (
 		<Tooltip
 			title={
@@ -75,6 +109,8 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 						pageId={pageId}
 						databaseId={databaseId}
 					/>
+				) : info?.openedDropDown === 'layouts' ? (
+					<ViewLayouts handleClose={handleClose} handleBack={resetGroupInfo} />
 				) : (
 					<div className={s.viewOptionDropdown}>
 						<div className={s.headerSection}>
@@ -84,13 +120,27 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 							</button>
 						</div>
 						<div className={s.viewSettings}>
-							<input type="text" placeholder="View name" />
+							<input
+								type="text"
+								placeholder="View name"
+								value={info?.viewLabel}
+								onChange={(e) => handleInfoChange({ viewLabel: e.target.value })}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter') {
+										e.onBlur();
+									}
+								}}
+								onBlur={() => handleViewNameUpdate()}
+							/>
 							<div className={s.option}>
 								<FolderSvg />
 								<div className={s.text}>Source</div>
 								<div className={s.subText}>Tasks</div>
 							</div>
-							<div className={s.option}>
+							<div
+								className={s.option}
+								onClick={() => handleInfoChange({ openedDropDown: 'layouts' })}
+							>
 								<GridSvg />
 
 								<div className={s.text}>Layout</div>

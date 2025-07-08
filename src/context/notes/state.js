@@ -52,6 +52,7 @@ import {
 	getNotesListDatabaseQuery,
 	getPageQueryDatabase,
 	createNotesDatabaseMutation,
+	updateDatabaseViewMutation,
 
 	// for meet bots
 	getMeetBotDataQuery,
@@ -131,8 +132,6 @@ export const NotesState = (props) => {
 				usertoken,
 				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
-
-			console.log('response==>getNotesList', response);
 			if (response?.[0]) {
 				const dataResponse = response?.[1]?.data?.createPage;
 				return [true, dataResponse];
@@ -147,7 +146,6 @@ export const NotesState = (props) => {
 
 	const getNotesPageData = async (payload, isDatabase = false) => {
 		try {
-			console.log('payload==>database', isDatabase);
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
@@ -1681,6 +1679,38 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const updateDatabaseView = async (payload, blockId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateDatabaseViewMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api_database',
+			);
+			if (response?.[0]) {
+				const view = state?.views?.[blockId] || [];
+				console.log('view response', response);
+
+				// const newView = view?.map((view) => {
+				// 	if (view?._id === payload?.databaseViewId) {
+				// 		return {
+				// 			...view,
+				// 			sortBy: [...(view?.sortBy || []), response?.[1]?.data?.addSort],
+				// 		};
+				// 	}
+				// 	return view;
+				// });
+				// dispatch({
+				// 	type: Actions.UPDATE_DATABASE_VIEWS,
+				// 	payload: { [blockId]: newView },
+				// });
+			}
+		} catch (error) {}
+	};
+
 	const updateRelatedViews = async ({
 		updatedRow,
 		updatedField,
@@ -1814,5 +1844,6 @@ export const NotesState = (props) => {
 		getExistingBots,
 		createMeetBot,
 		deleteLiveKitRoom,
+		updateDatabaseView,
 	};
 };
