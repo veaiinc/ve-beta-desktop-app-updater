@@ -135,7 +135,7 @@ const AiTranscriptionSuggestions = ({ closeModal, showAmbientAssistance }) => {
 										question?.query || ''
 									}"`}</div>
 
-									{question?.memory_used && (
+									{question?.is_memory_used && (
 										<div className={s.extraInfo}>
 											<div className={s.horizontalLine}></div>
 											<div className={s.isMemoryUsed}>
