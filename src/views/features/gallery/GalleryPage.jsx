@@ -3962,7 +3962,7 @@ const GalleryPage = () => {
 																				}))
 																			}
 																		>
-																			<img
+																			<div
 																				style={{
 																					backgroundImage: `url(${src})`,
 																					backgroundPosition: `${Math.floor(
