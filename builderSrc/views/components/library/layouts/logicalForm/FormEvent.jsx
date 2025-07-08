@@ -461,19 +461,21 @@ class FormEvent extends Component {
 						<tbody>
 							{this.state.events.map((event, index) => (
 								<tr key={index} style={{ border: '1px solid #ccc' }}>
-									<td style={{ color: '#333', padding: '8px' }}>{event.name}</td>
-									<td style={{ color: '#333', padding: '8px' }}>
+									<td style={{ color: submitTextColor, padding: '8px' }}>
+										{event.name}
+									</td>
+									<td style={{ color: submitTextColor, padding: '8px' }}>
 										{event.date
 											? moment(event.date, 'YYYYMMDD').format('DD/MM/YYYY')
 											: ''}
 									</td>
-									<td style={{ color: '#333', padding: '8px' }}>
+									<td style={{ color: submitTextColor, padding: '8px' }}>
 										{event.time || ''}
 									</td>
-									<td style={{ color: '#333', padding: '8px' }}>
+									<td style={{ color: submitTextColor, padding: '8px' }}>
 										{event.location || ''}
 									</td>
-									<td style={{ color: '#333', padding: '8px' }}>
+									<td style={{ color: submitTextColor, padding: '8px' }}>
 										{event.noOfGuests || ''}
 									</td>
 									<td
