@@ -14,6 +14,7 @@ import '../../../assets/scss/chat/aiMessage.scss';
 import PromptPopup from '../homePage/PromptPopup';
 import ClarifyWidget from './chatWidgets/ClarifyWidget';
 import FormWidget from './FormWidget';
+import UnintegratedAgentApps from './chatComponents/UnintegratedAgentApps';
 import { fileTypeIcons, getFaviconUrl, getWebsiteName } from '../../../helpers';
 
 const AIMessage = ({
@@ -124,6 +125,10 @@ const AIMessage = ({
 				<ClarifyWidget data={messageData?.data} />
 			) : (
 				<Markdown citations={citations}>{text}</Markdown>
+			)}
+
+			{messageData?.unintegrated_apps?.length > 0 && (
+				<UnintegratedAgentApps apps={messageData?.unintegrated_apps} />
 			)}
 
 			{messageData?.messageId && (

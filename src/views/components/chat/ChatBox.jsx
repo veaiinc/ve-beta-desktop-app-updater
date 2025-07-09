@@ -1121,7 +1121,7 @@ const ChatBox = ({
 	const clearTextArea = () => {
 		const textArea = textAreaRef?.current;
 		if (textArea) {
-			textArea.style.height = '34px'; // Reset to initial min-height
+			textArea.style.height = '26px'; // Reset to initial min-height
 		}
 	};
 
