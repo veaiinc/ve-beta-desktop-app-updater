@@ -6,263 +6,272 @@
 	user-select: none;
 	justify-content: space-between;
 	height: fit-content;
-}
 
-.calendarHeader {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 16px 20px;
-	border-bottom: 1px solid var(--stroke);
-}
+	.calendarHeader {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 16px 18px;
+		border-bottom: 1px solid var(--stroke);
 
-.navButtonContainer {
-	display: flex;
-	align-items: center;
-	gap: 8px;
+		.navButtonContainer {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			width: 100%;
 
-	.navButton {
-		background: none;
-		border: none;
-		font-size: 16px;
-		color: var(--secondary-font);
-		cursor: pointer;
-		padding: 4px 8px;
-		border-radius: 4px;
-		transition: all 0.15s ease;
+			.monthYear {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				flex-grow: 1;
+				width: 50px;
+				text-align: center;
+			}
 
-		&:hover {
-			background-color: var(--card);
-			color: var(--primary-font);
-		}
+			.navButton {
+				background-color: transparent;
+				border: 1px solid var(--stroke);
+				font-size: 16px;
+				width: 22px;
+				height: 30px;
+				color: var(--primary-font);
+				font-weight: 500;
+				font-size: large;
+				cursor: pointer;
+				border-radius: 4px;
+				transition: all 0.15s ease;
+				display: flex;
+				justify-content: center;
+				align-items: center;
 
-		&:active {
-			transform: scale(0.95);
-		}
-	}
-}
+				&:hover {
+					background-color: var(--card);
+					color: var(--primary-font);
+				}
 
-.monthYear {
-	font-size: 16px;
-	font-weight: 600;
-	color: var(--primary-font);
-	margin: 0;
-}
-
-.weekdayHeader {
-	display: grid;
-	grid-template-columns: repeat(7, 1fr);
-	padding: 8px 12px;
-	border-bottom: 1px solid var(--stroke);
-}
-
-.weekdayLabel {
-	text-align: center;
-	font-size: 11px;
-	font-weight: 500;
-	color: var(--secondary-font);
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	padding: 4px 0;
-}
-
-.calendarGrid {
-	padding: 8px;
-	height: 260px;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	gap: 6px;
-}
-
-.calendarWeek {
-	display: grid;
-	grid-template-columns: repeat(7, 1fr);
-	gap: 2px;
-	flex: 1;
-	align-items: center;
-	min-height: 36px;
-}
-
-.calendarDay {
-	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	height: 36px;
-	cursor: pointer;
-	border-radius: 6px;
-	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-	background-color: transparent;
-
-	&:hover {
-		background-color: var(--card);
-		transform: translateY(-1px);
-	}
-
-	&:active {
-		transform: translateY(0);
-	}
-}
-
-.dayNumber {
-	font-size: 14px;
-	font-weight: 400;
-	color: var(--primary-font);
-	z-index: 2;
-	position: relative;
-	transition: color 0.2s ease, font-weight 0.2s ease;
-}
-
-.otherMonth {
-	.dayNumber {
-		color: var(--secondary-font);
-		transition: color 0.2s ease;
-	}
-
-	&:hover {
-		background-color: var(--card);
-	}
-}
-
-.today {
-	.dayNumber {
-		color: var(--primary-font);
-		font-weight: 600;
-		transition: color 0.2s ease, font-weight 0.2s ease;
-	}
-
-	&:not(.rangeStart):not(.rangeEnd) {
-		background-color: var(--card);
-		transition: background-color 0.2s ease;
-
-		&:hover {
-			background-color: var(--card);
+				&:active {
+					transform: scale(0.95);
+				}
+			}
 		}
 	}
 
-	// Add special highlighting for today that works with selection
-	&::after {
-		content: '';
-		position: absolute;
-		top: 2px;
-		left: 2px;
-		right: 2px;
-		bottom: 2px;
-		border: 2px solid var(--primary-button);
-		border-radius: 4px;
-		pointer-events: none;
-		z-index: 1;
-		transition: border-color 0.2s ease, opacity 0.2s ease;
+	.weekdayHeader {
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		padding: 8px 12px;
+		border-bottom: 1px solid var(--stroke);
+
+		.weekdayLabel {
+			text-align: center;
+			font-size: 11px;
+			font-weight: 500;
+			color: var(--secondary-font);
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			padding: 4px 0;
+		}
 	}
 
-	&.inRange::after {
-		border-color: var(--primary-button-font);
-		opacity: 0.5;
+	.calendarGrid {
+		padding: 8px;
+		height: 260px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		gap: 6px;
+
+		.calendarWeek {
+			display: grid;
+			grid-template-columns: repeat(7, 1fr);
+			gap: 2px;
+			flex: 1;
+			align-items: center;
+			min-height: 36px;
+
+			.calendarDay {
+				position: relative;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				height: 36px;
+				cursor: pointer;
+				border-radius: 6px;
+				transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+				background-color: transparent;
+
+				&:hover {
+					background-color: var(--card);
+					transform: translateY(-1px);
+				}
+
+				&:active {
+					transform: translateY(0);
+				}
+			}
+
+			.dayNumber {
+				font-size: 14px;
+				font-weight: 400;
+				color: var(--primary-font);
+				z-index: 2;
+				position: relative;
+				transition: color 0.2s ease, font-weight 0.2s ease;
+			}
+
+			.otherMonth {
+				.dayNumber {
+					color: var(--secondary-font);
+					transition: color 0.2s ease;
+				}
+
+				&:hover {
+					background-color: var(--card);
+				}
+			}
+
+			.today {
+				.dayNumber {
+					color: var(--primary-font);
+					font-weight: 600;
+					transition: color 0.2s ease, font-weight 0.2s ease;
+				}
+
+				&:not(.rangeStart):not(.rangeEnd) {
+					background-color: var(--card);
+					transition: background-color 0.2s ease;
+
+					&:hover {
+						background-color: var(--card);
+					}
+				}
+
+				// Add special highlighting for today that works with selection
+				&::after {
+					content: '';
+					position: absolute;
+					top: 2px;
+					left: 2px;
+					right: 2px;
+					bottom: 2px;
+					border: 2px solid var(--primary-button);
+					border-radius: 4px;
+					pointer-events: none;
+					z-index: 1;
+					transition: border-color 0.2s ease, opacity 0.2s ease;
+				}
+
+				&.inRange::after {
+					border-color: var(--primary-button-font);
+					opacity: 0.5;
+				}
+
+				&.rangeStart::after,
+				&.rangeEnd::after {
+					border-color: var(--primary-button-font);
+					opacity: 0.5;
+				}
+			}
+
+			.rangeStart {
+				background-color: var(--primary-button) !important;
+				color: var(--primary-button-font);
+				transition: background-color 0.2s ease, color 0.2s ease;
+
+				.dayNumber {
+					color: var(--primary-button-font);
+					font-weight: 600;
+					transition: color 0.2s ease, font-weight 0.2s ease;
+				}
+
+				&:hover {
+					background-color: var(--primary-button) !important;
+				}
+			}
+
+			.rangeEnd {
+				background-color: var(--primary-button) !important;
+				color: var(--primary-button-font);
+				transition: background-color 0.2s ease, color 0.2s ease;
+
+				.dayNumber {
+					color: var(--primary-button-font);
+					font-weight: 600;
+					transition: color 0.2s ease, font-weight 0.2s ease;
+				}
+
+				&:hover {
+					background-color: var(--primary-button) !important;
+				}
+			}
+
+			.inRange {
+				background-color: var(--primary-button) !important;
+				transition: background-color 0.2s ease, opacity 0.2s ease;
+
+				.dayNumber {
+					color: var(--primary-button-font);
+					transition: color 0.2s ease;
+				}
+
+				&:hover {
+					background-color: var(--primary-button) !important;
+					opacity: 0.3;
+				}
+
+				// Connect range days visually
+				&:not(.rangeStart):not(.rangeEnd) {
+					border-radius: 0;
+				}
+
+				// First day in range
+				&:first-child {
+					border-top-left-radius: 6px;
+					border-bottom-left-radius: 6px;
+				}
+
+				// Last day in range
+				&:last-child {
+					border-top-right-radius: 6px;
+					border-bottom-right-radius: 6px;
+				}
+			}
+
+			// Range connection styling
+			.inRange:not(.rangeStart) {
+				margin-left: -1px;
+			}
+
+			.inRange:not(.rangeEnd) {
+				margin-right: -1px;
+			}
+
+			// Smooth range start/end styling
+			.rangeStart:not(.rangeEnd) {
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+				margin-right: -1px;
+			}
+
+			.rangeEnd:not(.rangeStart) {
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+				margin-left: -1px;
+			}
+
+			// Single day selection (start and end are same)
+			.rangeStart.rangeEnd {
+				border-radius: 6px;
+				margin: 0;
+			}
+
+			// Animation for smooth transitions
+			.calendarDay {
+				animation: none;
+			}
+		}
 	}
-
-	&.rangeStart::after,
-	&.rangeEnd::after {
-		border-color: var(--primary-button-font);
-		opacity: 0.5;
-	}
-}
-
-.rangeStart {
-	background-color: var(--primary-button) !important;
-	color: var(--primary-button-font);
-	transition: background-color 0.2s ease, color 0.2s ease;
-
-	.dayNumber {
-		color: var(--primary-button-font);
-		font-weight: 600;
-		transition: color 0.2s ease, font-weight 0.2s ease;
-	}
-
-	&:hover {
-		background-color: var(--primary-button) !important;
-	}
-}
-
-.rangeEnd {
-	background-color: var(--primary-button) !important;
-	color: var(--primary-button-font);
-	transition: background-color 0.2s ease, color 0.2s ease;
-
-	.dayNumber {
-		color: var(--primary-button-font);
-		font-weight: 600;
-		transition: color 0.2s ease, font-weight 0.2s ease;
-	}
-
-	&:hover {
-		background-color: var(--primary-button) !important;
-	}
-}
-
-.inRange {
-	background-color: var(--primary-button) !important;
-	transition: background-color 0.2s ease, opacity 0.2s ease;
-
-	.dayNumber {
-		color: var(--primary-button-font);
-		transition: color 0.2s ease;
-	}
-
-	&:hover {
-		background-color: var(--primary-button) !important;
-		opacity: 0.3;
-	}
-
-	// Connect range days visually
-	&:not(.rangeStart):not(.rangeEnd) {
-		border-radius: 0;
-	}
-
-	// First day in range
-	&:first-child {
-		border-top-left-radius: 6px;
-		border-bottom-left-radius: 6px;
-	}
-
-	// Last day in range
-	&:last-child {
-		border-top-right-radius: 6px;
-		border-bottom-right-radius: 6px;
-	}
-}
-
-// Range connection styling
-.inRange:not(.rangeStart) {
-	margin-left: -1px;
-}
-
-.inRange:not(.rangeEnd) {
-	margin-right: -1px;
-}
-
-// Smooth range start/end styling
-.rangeStart:not(.rangeEnd) {
-	border-top-right-radius: 0;
-	border-bottom-right-radius: 0;
-	margin-right: -1px;
-}
-
-.rangeEnd:not(.rangeStart) {
-	border-top-left-radius: 0;
-	border-bottom-left-radius: 0;
-	margin-left: -1px;
-}
-
-// Single day selection (start and end are same)
-.rangeStart.rangeEnd {
-	border-radius: 6px;
-	margin: 0;
-}
-
-// Animation for smooth transitions
-.calendarDay {
-	animation: none;
 }
 
 @keyframes fadeIn {
