@@ -1,5 +1,6 @@
 import { safeLazy } from '../utils/safeLazy';
 import { Navigate } from 'react-router-dom';
+import { Suspense } from 'react';
 
 // layouts
 import Public from '../views/layouts/Public';
@@ -7,6 +8,7 @@ import AuthWrapper from '../views/layouts/authWrapper';
 
 // pages
 import InitialHomePage from '../views/features/homePage/InitialHomePage';
+import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 const ShareAndEarn = safeLazy(
 	() => import('../views/features/shareAndEarn/ShareAndEarn'),
 	'ShareAndEarn',
@@ -36,7 +38,9 @@ const stableRoutes = [
 		path: '/create-workspace',
 		element: (
 			<Public>
-				<Onboarding />
+				<Suspense fallback={<SuspenseFallback />}>
+					<Onboarding />
+				</Suspense>
 			</Public>
 		),
 	},
@@ -44,7 +48,9 @@ const stableRoutes = [
 		path: '/share-and-earn',
 		element: (
 			<AuthWrapper title={'Share and Earn'}>
-				<ShareAndEarn />
+				<Suspense fallback={<SuspenseFallback />}>
+					<ShareAndEarn />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -52,7 +58,9 @@ const stableRoutes = [
 		path: '/settings/:type',
 		element: (
 			<AuthWrapper title={'Workspace Settings'}>
-				<SettingsWrapper />
+				<Suspense fallback={<SuspenseFallback />}>
+					<SettingsWrapper />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -69,7 +77,9 @@ const stableRoutes = [
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>
-				<RecentChat />
+				<Suspense fallback={<SuspenseFallback />}>
+					<RecentChat />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},
