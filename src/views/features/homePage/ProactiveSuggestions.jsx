@@ -823,25 +823,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		}));
 	};
 
-	const renderedOptions = useMemo(() => {
-		return info?.options
-			?.filter((item) => item?.insight_type.toLowerCase() !== 'others')
-			?.map(({ count, insight_type }, index) => (
-				<div
-					className={`option ${info?.selectedOption === insight_type ? 'active' : ''}`}
-					onClick={(e) => {
-						handleOptionSelection(insight_type);
-					}}
-					key={index}
-				>
-					<div className="option-label">
-						<span className="option-name">{insight_type}</span>
-						<span className="option-value">{count}</span>
-					</div>
-				</div>
-			));
-	}, [info?.options, info?.selectedOption]);
-
 	const handleSearchToggle = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -1056,7 +1037,34 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 												</div>
 											</div>
 
-											{renderedOptions}
+											{info?.options
+												?.filter(
+													(item) =>
+														item?.insight_type?.toLowerCase() !==
+														'others',
+												)
+												?.map(({ count, insight_type }, index) => (
+													<div
+														className={`option ${
+															info?.selectedOption === insight_type
+																? 'active'
+																: ''
+														}`}
+														onClick={(e) => {
+															handleOptionSelection(insight_type);
+														}}
+														key={index}
+													>
+														<div className="option-label">
+															<span className="option-name">
+																{insight_type}
+															</span>
+															<span className="option-value">
+																{count}
+															</span>
+														</div>
+													</div>
+												))}
 										</div>
 									</div>
 								)}
