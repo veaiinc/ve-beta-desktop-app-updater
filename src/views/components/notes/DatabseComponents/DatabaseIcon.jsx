@@ -6,7 +6,6 @@ import { ReactComponent as CheckBox } from '../../../../assets/svg/notes/databas
 import { ReactComponent as Select } from '../../../../assets/svg/notes/database/select.svg';
 import { ReactComponent as MultiSelect } from '../../../../assets/svg/notes/database/tags.svg';
 import { ReactComponent as Date } from '../../../../assets/svg/notes/database/calendar.svg';
-import { ReactComponent as PaperClip } from '../../../../assets/svg/notes/database/paperClip.svg';
 import { ReactComponent as Phone } from '../../../../assets/svg/notes/database/phone.svg';
 import { ReactComponent as Link } from '../../../../assets/svg/notes/database/link.svg';
 import { ReactComponent as Persons } from '../../../../assets/svg/notes/database/persons.svg';

@@ -1,10 +1,7 @@
 import { memo, useCallback, useContext, useMemo, useState } from 'react';
 import s from '../../../../../assets/scss/notes/dropdown/addField.module.scss';
 import { ReactComponent as CrossSvg } from '../../../../../assets/svg/gallery/cross.svg';
-import { ReactComponent as ChevronRightThinSvg } from '../../../../../assets/svg/tasks/chevronRightThin.svg';
-import { ReactComponent as SixDotsSvg } from '../../../../../assets/svg/tasks/sixDots.svg';
 import { ReactComponent as ArrowLeftSvg } from '../../../../../assets/svg/tasks/arrowLeft.svg';
-import { ReactComponent as PlusIcon } from '../../../../../assets/svg/tasks/plus.svg';
 
 import { Tooltip } from 'antd';
 import GroupConfigOptions from './GroupConfigOptions';
