@@ -4,18 +4,10 @@
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 16px;
-	margin: 30px auto;
+	margin: 0 auto;
 	position: relative; // Positioning context for absolute-positioned cards
 	max-width: 924px;
 	width: 100%;
-	.prompts-widget-empty {
-		display: flex;
-		align-items: flex-start;
-		justify-content: center;
-		width: 100%;
-		height: 100%;
-		color: var(--secondary-font);
-	}
 
 	.prompts-widget-cards {
 		display: flex;
@@ -402,10 +394,13 @@
 	max-width: 924px;
 	width: 100%;
 	flex-wrap: wrap;
-	height: 25vh;
 	justify-content: center;
 	color: var(--primary-font);
 	font-size: 14px;
 	font-weight: 500;
 	line-height: 20px;
+
+	.prompts-widget-empty {
+		height: 226px;
+	}
 }
