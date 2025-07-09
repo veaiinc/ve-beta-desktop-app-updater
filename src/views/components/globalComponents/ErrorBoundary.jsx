@@ -13,7 +13,6 @@ class ErrorBoundary extends Component {
 	componentDidCatch(error, errorInfo) {
 		console.error('Error caught in ErrorBoundary:', error, errorInfo);
 
-		// 🟠 Case 1: Dynamic import failed
 		if (
 			error instanceof TypeError &&
 			error.message.includes('Failed to fetch dynamically imported module')
@@ -22,7 +21,6 @@ class ErrorBoundary extends Component {
 			window.location.reload(true);
 		}
 
-		// 🔴 Case 2: MIME type error — JS file received HTML
 		if (
 			error instanceof TypeError &&
 			error.message.includes(`'text/html' is not a valid JavaScript MIME type`)
@@ -30,8 +28,6 @@ class ErrorBoundary extends Component {
 			console.warn('Detected invalid MIME type from dynamic import. Reloading...');
 			window.location.reload(true);
 		}
-
-		// Optionally report error to external service
 	}
 
 	render() {
