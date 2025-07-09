@@ -352,7 +352,7 @@ const OpenedSidebar = ({
 		if (isSidebarOpen) {
 			setShowSettingsSidebar(settingsSidebar);
 		}
-	}, [isSidebarOpen, settingsSidebar]);
+	}, [isSidebarOpen]);
 	useEffect(() => {
 		if (!tennantSettingsData) {
 			getTenantSettings();

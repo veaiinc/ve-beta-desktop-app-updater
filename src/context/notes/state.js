@@ -1804,7 +1804,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api_database',
+				'page_notes_api',
 			);
 			if (response?.[0]) {
 				return response;
