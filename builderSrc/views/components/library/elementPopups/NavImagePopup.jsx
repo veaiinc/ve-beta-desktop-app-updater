@@ -26,8 +26,10 @@ class NavImagePopup extends Images {
 			debounceInterval: null,
 
 			crop: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.crop,
+			mCrop: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.mImage_settings?.crop,
 
-			zoom: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.zoom,
+			zoom: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.zoom || 1,
+			mZoom: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.mImage_settings?.zoom || 1,
 
 			aspect: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.aspect,
 		};
@@ -42,8 +44,12 @@ class NavImagePopup extends Images {
 			this.setState({
 				activeComponent: nextProps.activeComponent,
 				crop: nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.crop,
+				mCrop: nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.mImage_settings
+					?.crop,
 
 				zoom: nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.zoom,
+				mZoom: nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.mImage_settings
+					?.zoom,
 
 				aspect: this.props.isMobileNavbar
 					? nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings
@@ -329,7 +335,7 @@ class NavImagePopup extends Images {
 							{
 								...newComponent.blocks[0].subBlocks[0],
 								mImage_settings: {
-									...newComponent.blocks[0].subBlocks[0]?.image_settings,
+									...newComponent.blocks[0].subBlocks[0]?.mImage_settings,
 									crop: value,
 								},
 							},
@@ -358,7 +364,7 @@ class NavImagePopup extends Images {
 		}
 		this.setState(
 			{
-				crop: value,
+				[this.props.isMobileNavbar ? 'mCrop' : 'crop']: value,
 				activeComponent: newComponent,
 			},
 			() => {
@@ -380,8 +386,8 @@ class NavImagePopup extends Images {
 							{
 								...newComponent.blocks[0].subBlocks[0],
 								mImage_settings: {
-									...newComponent?.blocks[0].subBlocks[0]?.image_settings,
-									zoom: value,
+									...newComponent?.blocks[0].subBlocks[0]?.mImage_settings,
+									zoom: parseFloat(value),
 								},
 							},
 						],
@@ -409,10 +415,11 @@ class NavImagePopup extends Images {
 		}
 		this.setState(
 			{
-				zoom: parseFloat(value),
+				[this.props.isMobileNavbar ? 'mZoom' : 'zoom']: parseFloat(value),
 				activeComponent: newComponent,
 			},
 			() => {
+				console.log(this.state.mZoom, this.state.zoom, newComponent, 'jeevan');
 				this.debounceFunction(() => {
 					this.props?.setActivePopupComponent(newComponent);
 				}, 500);
@@ -509,8 +516,16 @@ class NavImagePopup extends Images {
 										>
 											<Cropper
 												image={isImage}
-												crop={this.state?.crop}
-												zoom={this.state?.zoom}
+												crop={
+													this.props?.isMobileNavbar
+														? this.state?.mCrop || { x: 1, y: 1 }
+														: this.state?.crop || { x: 1, y: 1 }
+												}
+												zoom={
+													this.props?.isMobileNavbar
+														? this.state?.mZoom
+														: this.state?.zoom || 1
+												}
 												aspect={this.state?.aspect}
 												onCropChange={(e) => this.handleCropChange(e)}
 												onCropComplete={(e) => ''}
@@ -610,8 +625,12 @@ class NavImagePopup extends Images {
 										type="range"
 										min={1}
 										max={5}
-										step={0.5}
-										value={this.state?.zoom}
+										step={0.1}
+										value={
+											this.props.isMobileNavbar
+												? this.state.mZoom
+												: this.state?.zoom
+										}
 										onChange={(e) => this.handleZoomChange(e.target.value)}
 									/>
 								</div>
@@ -620,7 +639,11 @@ class NavImagePopup extends Images {
 										textAlign: 'center',
 									}}
 								>
-									{parseFloat(this.state?.zoom)?.toFixed(1)}
+									{parseFloat(
+										this.props.isMobileNavbar
+											? this.state.mZoom
+											: this.state?.zoom,
+									)?.toFixed(1)}
 								</p>
 							</div>
 						</div>

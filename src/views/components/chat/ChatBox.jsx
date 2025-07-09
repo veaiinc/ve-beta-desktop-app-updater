@@ -710,9 +710,8 @@ const ChatBox = ({
 					onChatQueryChange?.('');
 					clearTextArea();
 					if (!(globalChatMessages?.[sessionId]?.messages?.length > 0)) {
-						const addNewSession = true;
-						const payload = { sessionId };
-						updateAiChatSessions(payload, addNewSession);
+						const payload = { sessionId, addNewSession: true, type: 'update' };
+						updateAiChatSessions(payload);
 					}
 					if (customChatActions) {
 						return onSend({

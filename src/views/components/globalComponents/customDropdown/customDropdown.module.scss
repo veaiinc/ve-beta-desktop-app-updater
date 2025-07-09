@@ -1,0 +1,112 @@
+.dropdown {
+	position: relative;
+	font-family: var(--primary-font-family);
+	width: 100%;
+
+	&.open {
+		.arrow {
+			transform: rotate(180deg);
+			transition: transform 0.2s ease;
+		}
+		.menu {
+			visibility: visible;
+			opacity: 1;
+			transform: scaleY(1);
+		}
+	}
+
+	.control {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		background: var(--popup, #202123);
+		border: 1px solid var(--stroke, #2c2d2e);
+		padding: 0.5rem 1rem;
+		cursor: pointer;
+		border-radius: 4px;
+		user-select: none;
+
+		.value {
+			flex: 1;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+
+			.placeholder {
+				color: var(--secondary-font);
+				font-size: 14px;
+			}
+		}
+
+		.arrow {
+			width: 0;
+			transition: transform 0.2s ease;
+			height: 0;
+			border-left: 6px solid transparent;
+			border-right: 6px solid transparent;
+			border-top: 6px solid var(--primary-font);
+			transition: transform 0.2s ease; // smooth spin
+			&.open {
+				transform: rotate(180deg);
+			}
+		}
+	}
+
+	.menu {
+		position: absolute;
+		top: calc(100% + 4px);
+		left: 0;
+		width: 100%;
+		background: var(--popup, #202123);
+		border: 1px solid var(--stroke, #2c2d2e);
+		border-radius: 4px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+		z-index: 1000;
+		max-height: 240px;
+		overflow: hidden;
+
+		/* GSAP will handle these initial values */
+		transform-origin: top center;
+		visibility: hidden;
+		transform: scaleY(0);
+		opacity: 0;
+		.search {
+			width: 100%;
+			padding: 0.5rem;
+			border: none;
+			border-bottom: 1px solid #eee;
+			outline: none;
+			box-sizing: border-box;
+		}
+
+		.options {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+			max-height: 200px;
+			overflow-y: auto;
+
+			.option {
+				padding: 0.5rem 1rem;
+				cursor: pointer;
+				color: var(--primary-font, #f2f2f3);
+				font-size: 14px;
+				font-weight: 500;
+			}
+
+			.selected {
+				font-weight: bold;
+			}
+
+			.option:hover,
+			.highlight {
+				background: var(--stroke, #2c2d2e);
+			}
+
+			.noOptions {
+				padding: 0.5rem 1rem;
+				color: var(--secondary-font, #94989e);
+			}
+		}
+	}
+}

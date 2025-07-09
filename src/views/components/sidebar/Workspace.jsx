@@ -1,14 +1,9 @@
 import React, { memo, useCallback, useContext, useState, useEffect } from 'react';
 import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
-// import LogoutRedSvg from '../../../assets/svg/sidebar/logout_red.svg';
-// import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import Cookies from 'js-cookie';
 import Context from '../../../context/context';
-// import useLogout from '../../hooks/useLogout';
 import { fetchDomainName } from '../../../helpers';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
-// import LogoutRedSvg from '../../../assets/svg/sidebar/logout_red.svg';
-// import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 
 const workspaceOpenStyle = {
 	position: 'fixed',
@@ -24,27 +19,14 @@ const workspaceOpenStyle = {
 };
 
 const workspaceStyle = { display: 'flex', gap: '4px', alignItems: 'center' };
+const currentId = localStorage.getItem('workspaceId');
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, info }) => {
 	const {
 		profileInfo: { userWorkSpaceList },
 	} = useContext(Context);
-	// const navigate = useNavigate();
-	// const logoutFunc = useLogout();
+
 	const [searchWorkspace, setSearchWorkspace] = useState('');
 	const [focusedIndex, setFocusedIndex] = useState(0);
-
-	const currentId = info?.activeBusniessName?.activeWorkspaceId;
-	useEffect(() => {
-		if (userWorkSpaceList && info?.activeBusniessName?.activeWorkspaceId) {
-			const activeIndex = userWorkSpaceList.findIndex(
-				(workspace) =>
-					workspace.activeWorkspaceId === info.activeBusniessName.activeWorkspaceId,
-			);
-			// if (activeIndex !== -1) {
-			// 	setFocusedIndex(activeIndex);
-			// }
-		}
-	}, [userWorkSpaceList, info?.activeBusniessName?.activeWorkspaceId]);
 
 	const closeWorkspaceList = () => {
 		setsidebarStates({ ...sidebarStates, workSpaceOpen: false, navStyle: 'open' });
@@ -81,6 +63,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, info }) => {
 		window?.addEventListener('keydown', handleKeyDown);
 		return () => window?.removeEventListener('keydown', handleKeyDown);
 	}, [filteredWorkspaces, focusedIndex]);
+
 	useEffect(() => {
 		const el = document.querySelector(`.singleWorkspace[data-index="${focusedIndex}"]`);
 		if (el) {
@@ -132,14 +115,6 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, info }) => {
 		},
 		[userWorkSpaceList],
 	);
-
-	// const handleCreateWorkspace = () => {
-	// 	navigate(`/create-workspace`);
-	// };
-
-	// const handleLogout = useCallback(() => {
-	// 	logoutFunc();
-	// }, [logoutFunc]);
 
 	return (
 		<>
@@ -196,31 +171,13 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, info }) => {
 									<h6>{singleWorkspace?.businessName}</h6>
 								</div>
 
-								{singleWorkspace?.activeWorkspaceId ===
-									info?.activeBusniessName?.activeWorkspaceId && (
+								{singleWorkspace?.activeWorkspaceId === currentId && (
 									<div className="activeWorkspaceCheck">
 										<TickSvg />
 									</div>
 								)}
 							</div>
 						))}
-
-						{/* <div className="workspaceListFooter">
-							<hr
-								style={{
-									border: '0.1px solid var(--stroke)',
-									opacity: '.4',
-									width: '212px',
-									alignSelf: 'center',
-								}}
-							/>
-							<div className="singleWorkspace logoutOption" onClick={handleLogout}>
-								<h6 style={{ color: 'var(--error)' }}>Logout</h6>
-								<div className="workSpaceCircle">
-									<LogoutRedSvg />
-								</div>
-							</div>
-						</div> */}
 					</div>
 				) : (
 					''

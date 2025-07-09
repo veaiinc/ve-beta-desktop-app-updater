@@ -54,6 +54,7 @@ const HeadersDropDownComp = ({
 	selectedValueObj = {},
 	fetchMoreData,
 	hasNextPage,
+	labelField = 'label',
 }) => {
 	const logoutFunc = useLogout();
 	const [isOpen, setIsOpen] = useState(false);
@@ -61,7 +62,7 @@ const HeadersDropDownComp = ({
 	const [searchValue, setSearchValue] = useState('');
 
 	useEffect(() => {
-		setSearchValue('');
+		setSearchValue(selectedValue);
 	}, [selectedValue]);
 
 	const handleOptionClick = (option) => {
@@ -69,7 +70,7 @@ const HeadersDropDownComp = ({
 			onChangeFunc(option);
 		}
 
-		setSearchValue(option?.label);
+		setSearchValue(option?.[labelField]);
 		setIsOpen(false);
 	};
 	const handleClose = () => {
@@ -163,7 +164,7 @@ const HeadersDropDownComp = ({
 									onClick={() => handleOptionClick(option)}
 									style={{ ...dropDownTextStyling }}
 								>
-									{option?.label}
+									{option?.[labelField]}
 									{showSelectedValueTick ? (
 										option?.[uniqueIdentifierForTickIcon] ===
 										selectedValueObj?.[uniqueIdentifierForTickIcon] ? (

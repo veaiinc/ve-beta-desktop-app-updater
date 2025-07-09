@@ -2,75 +2,73 @@ import { memo, useCallback, useContext, useEffect, useRef, useState } from 'reac
 import s from './aiTranscriptionSuggestions.module.scss';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
+import { ReactComponent as QuestionSvg } from '../../../assets/svg/question.svg';
 import { ReactComponent as MemorySvg } from '../../../assets/svg/memory.svg';
 import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import Context from '../../../context/context';
 import { fileTypeIcons, redirectTo, redirectTypeMapper } from '../../../helpers';
-import { Switch } from 'antd';
+import { useSearchParams } from 'react-router-dom';
 
 const AiTranscriptionSuggestions = ({ closeModal, showAmbientAssistance }) => {
 	const {
 		templates: { aiTranscriptionSuggestions, updateStateValues },
 	} = useContext(Context);
+	const [searchParams, setSearchParams] = useSearchParams();
 	const [info, setInfo] = useState({
-		userQuestions: [],
-		aiQuestions: [],
 		files: [],
+		questions: [],
+		actions: [],
 	});
-	const aiQuestionsRef = useRef(null);
-	const userQuestionsRef = useRef(null);
+	const questionsRef = useRef(null);
 	const filesRef = useRef(null);
+	const actionsRef = useRef(null);
 
 	useEffect(() => {
 		if (aiTranscriptionSuggestions) {
-			const userQuestions = aiTranscriptionSuggestions?.prompts?.filter(
-				(prompt) => prompt?.entity === 'user',
+			const questions = aiTranscriptionSuggestions?.prompts?.filter(
+				(prompt) =>
+					prompt?.entity === 'user' ||
+					(prompt?.entity === 'agent' && prompt?.type === 'search'),
 			);
-			const aiQuestions = aiTranscriptionSuggestions?.prompts?.filter(
-				(prompt) => prompt?.entity === 'agent',
+			const actions = aiTranscriptionSuggestions?.prompts?.filter(
+				(prompt) => prompt?.entity === 'agent' && prompt?.type === 'action',
 			);
-
 			setInfo((prev) => ({
 				...prev,
-				userQuestions,
-				aiQuestions,
+				questions,
+				actions,
 				files: aiTranscriptionSuggestions?.similar_files || [],
 			}));
 		}
-		return () => {
-			// Clear local state
-			setInfo({
-				userQuestions: [],
-				aiQuestions: [],
-				files: [],
-			});
-			// Clear context data
-			updateStateValues({
-				aiTranscriptionSuggestions: null,
-				activePromptForChat: null,
-			});
-		};
 	}, [aiTranscriptionSuggestions]);
 
 	useEffect(() => {
-		if (!userQuestionsRef.current) return;
-		if (info?.userQuestions?.length > 0) {
-			userQuestionsRef.current.scrollTo({
-				top: userQuestionsRef.current.scrollHeight,
-				behavior: 'smooth',
+		return () => {
+			updateStateValues({
+				aiTranscriptionSuggestions: null,
 			});
-		}
-	}, [info?.userQuestions?.length]);
+		};
+	}, []);
 
 	useEffect(() => {
-		if (!aiQuestionsRef.current) return;
-		if (info?.aiQuestions?.length > 0) {
-			aiQuestionsRef.current.scrollTo({
-				top: aiQuestionsRef.current.scrollHeight,
+		if (!questionsRef.current) return;
+		if (info?.questions?.length > 0) {
+			questionsRef.current.scrollTo({
+				top: questionsRef.current.scrollHeight,
 				behavior: 'smooth',
 			});
 		}
-	}, [info?.aiQuestions?.length]);
+	}, [info?.questions?.length]);
+
+	useEffect(() => {
+		if (!actionsRef.current) return;
+		if (info?.actions?.length > 0) {
+			actionsRef.current.scrollTo({
+				top: actionsRef.current.scrollHeight,
+				behavior: 'smooth',
+			});
+		}
+	}, [info?.actions?.length]);
 
 	useEffect(() => {
 		if (!filesRef.current) return;
@@ -84,6 +82,9 @@ const AiTranscriptionSuggestions = ({ closeModal, showAmbientAssistance }) => {
 
 	const handleActionClick = useCallback(
 		(prompt) => {
+			const newParams = new URLSearchParams(searchParams);
+			newParams.set('chat', 'true');
+			setSearchParams(newParams);
 			updateStateValues({
 				activePromptForChat: prompt,
 			});
@@ -112,56 +113,85 @@ const AiTranscriptionSuggestions = ({ closeModal, showAmbientAssistance }) => {
 			</div>
 
 			<div className={s.body}>
-				{info?.userQuestions?.length > 0 && (
+				{info?.questions?.length > 0 && (
 					<div
-						className={s.suggestedQuestionsContainer}
+						className={s.questionsContainer}
 						style={{
 							height:
-								info?.aiQuestions?.length > 0 || info?.files?.length > 0
+								info?.actions?.length > 0 || info?.files?.length > 0
 									? '40vh'
 									: '100%',
 						}}
-						ref={userQuestionsRef}
 					>
-						{info?.userQuestions?.map((question, index) => (
-							<div className={s.suggestedUserQuestion} key={index}>
-								{/* <div className={s.questionContainer}>
-									<div className={s.questionType}>Detected Question</div>
-									<div className={s.questionText}>{question?. || ''}</div>
-								</div> */}
-								<div className={s.answerContainer}>
-									<div className={s.text}>Ask User</div>
-									<div className={s.answerText}>{`"${
-										question?.query || ''
-									}"`}</div>
-
-									{question?.memory_used && (
-										<div className={s.extraInfo}>
-											<div className={s.horizontalLine}></div>
-											<div className={s.isMemoryUsed}>
-												<MemorySvg />
-												Memory Used
+						<div className={s.questionsHeading}>
+							<QuestionSvg />
+							Need Help
+						</div>
+						<div className={s.suggestedQuestionsContainer} ref={questionsRef}>
+							{info?.questions?.map((question, index) => {
+								return question?.entity === 'user' ? (
+									<div className={s.wrapper}>
+										<div className={s.suggestedUserQuestion} key={index}>
+											<div className={s.answerContainer}>
+												<div className={s.questionHeader}>
+													<div className={s.text}>Ask User</div>
+													{question?.is_memory_used && (
+														<div className={s.isMemoryUsed}>
+															<MemorySvg />
+															Memory Used
+														</div>
+													)}
+												</div>
+												<div className={s.answerText}>{`"${
+													question?.query || ''
+												}"`}</div>
 											</div>
 										</div>
-									)}
-								</div>
-							</div>
-						))}
+										<div className={s.horizontalLine}></div>
+									</div>
+								) : (
+									<div className={s.wrapper}>
+										<div className={s.suggestedAiQuestion} key={index}>
+											<div className={s.answerContainer}>
+												<div className={s.questionHeader}>
+													<div className={s.text}>Ask AI</div>
+													{question?.is_memory_used && (
+														<div className={s.isMemoryUsed}>
+															<MemorySvg />
+															Memory Used
+														</div>
+													)}
+												</div>
+												<div
+													className={s.answerText}
+													onClick={() =>
+														handleActionClick(question?.query || '')
+													}
+												>
+													{`"${question?.query || ''}"`}
+												</div>
+											</div>
+										</div>
+										<div className={s.horizontalLine}></div>
+									</div>
+								);
+							})}
+						</div>
 					</div>
 				)}
 
-				{info?.aiQuestions?.length > 0 && (
+				{info?.actions?.length > 0 && (
 					<div className={s.actionsWrapper}>
 						<div className={s.text}>Actions</div>
-						<div className={s.actionsContainer} ref={aiQuestionsRef}>
-							{info?.aiQuestions?.map((question, index) => (
+						<div className={s.actionsContainer} ref={actionsRef}>
+							{info?.actions?.map((action, index) => (
 								<div
 									className={s.actionContainer}
 									key={index}
-									onClick={() => handleActionClick(question?.query || '')}
+									onClick={() => handleActionClick(action?.query || '')}
 								>
 									<ArrowRightSvg style={{ flexShrink: 0 }} />
-									{question?.query || ''}
+									{action?.query || ''}
 								</div>
 							))}
 						</div>

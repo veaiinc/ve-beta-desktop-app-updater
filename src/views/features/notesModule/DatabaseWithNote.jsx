@@ -110,7 +110,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const [searchParams] = useSearchParams();
 	const noteId = useParams()?.noteId;
 	const type = searchParams.get('type');
-	const history = searchParams.get('history');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const prevDocRef = useRef([]);
@@ -1001,7 +1000,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	useEffect(() => {
 		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
 			recallConnection(handleSocketMessage);
-			createLiveIntelligenceStream(info?.sessionId, handleLiveIntelligenceMessageFunc, false);
+			createLiveIntelligenceStream(
+				info?.sessionId,
+				noteId,
+				handleLiveIntelligenceMessageFunc,
+			);
 		}
 		// No cleanup needed, useRecallStream handles it
 		// eslint-disable-next-line react-hooks/exhaustive-deps

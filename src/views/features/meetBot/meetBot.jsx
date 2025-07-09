@@ -142,7 +142,9 @@ const MeetBot = () => {
 			const pageId = response?.[1]?.data?.startTranscription?.data?.pageId;
 			const type = response?.[1]?.data?.startTranscription?.data?.transcriptionSource;
 			const success = response?.[1]?.data?.startTranscription?.success;
+
 			if (success && pageId && type) {
+				await loadMeetings(1, false);
 				navigate(`/meet/${pageId}?type=${type}`);
 			}
 		} finally {
