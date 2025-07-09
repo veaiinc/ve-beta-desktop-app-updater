@@ -1,12 +1,12 @@
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
-import { message, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import s from '../../../../../assets/scss/notes/dropdown/viewOptions.module.scss';
 import { ReactComponent as CrossSvg } from '../../../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as ListSvg } from '../../../../../assets/svg/tasks/listDotsAndLines.svg';
 import { ReactComponent as FolderSvg } from '../../../../../assets/svg/tasks/folder.svg';
-import { ReactComponent as GridSvg } from '../../../../../assets/svg/tasks/grid.svg';
-import { ReactComponent as DuplicateIcon } from '../../../../../assets/svg/tasks/duplicate.svg';
+// import { ReactComponent as GridSvg } from '../../../../../assets/svg/tasks/grid.svg';
+// import { ReactComponent as DuplicateIcon } from '../../../../../assets/svg/tasks/duplicate.svg';
 import { ReactComponent as DeleteIcon } from '../../../../../assets/svg/tasks/dustBin.svg';
 import GroupDropDown from '../../tasks/GroupDropDown';
 import AllFields from './AllFields';
@@ -94,7 +94,7 @@ const ViewOptions = ({
 					...data,
 				},
 			};
-			const res = await updateDatabaseView(payload, blockId);
+			await updateDatabaseView(payload, blockId);
 		},
 		[view, pageId, blockId],
 	);
