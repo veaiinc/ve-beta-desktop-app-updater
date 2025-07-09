@@ -490,15 +490,6 @@ const DatabaseComponent = ({ block, editor }) => {
 		[pageId, deleteDatabaseView, block?.id, currentDatabaseViews, handleInfoChange],
 	);
 
-	const handleTabDropdownClick = useCallback(
-		(data) => {
-			if (data?.value === 'delete' && data?.tabId) {
-				handleDeleteDatabaseView(data.tabId);
-			}
-		},
-		[handleDeleteDatabaseView],
-	);
-
 	const { groupData, metaInfo } = useMemo(
 		() => currentDatabaseRows || { groupData: {}, metaInfo: {} },
 		[currentDatabaseRows],
@@ -569,11 +560,15 @@ const DatabaseComponent = ({ block, editor }) => {
 						currentDatabaseViews={currentDatabaseViews}
 						handleTabChange={handleTabChange}
 						handleCreateDatabaseView={handleCreateDatabaseView}
-						handleTabDropdownClick={handleTabDropdownClick}
+						handleDeleteDatabaseView={handleDeleteDatabaseView}
 						handleSearchChange={handleSearchChange}
 						searchQuery={info?.searchQuery}
 						selectedViewId={info?.selectedViewId}
 						openAddModal={() => handleInfoChange({ addRowModalOpen: true })}
+						databaseName={info?.databaseName}
+						onDatabaseNameChange={(newName) =>
+							handleInfoChange({ databaseName: newName })
+						}
 					/>
 					{info?.rowsLoading ? (
 						<div className={s.loadingContainer}>
