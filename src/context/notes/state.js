@@ -1695,21 +1695,24 @@ export const NotesState = (props) => {
 			);
 			if (response?.[0]) {
 				const view = state?.views?.[blockId] || [];
-				console.log('view response', response);
+				const { label, type } = response?.[1]?.data?.updateDatabaseView || {};
+				const updateData = { label, type };
 
-				// const newView = view?.map((view) => {
-				// 	if (view?._id === payload?.databaseViewId) {
-				// 		return {
-				// 			...view,
-				// 			sortBy: [...(view?.sortBy || []), response?.[1]?.data?.addSort],
-				// 		};
-				// 	}
-				// 	return view;
-				// });
-				// dispatch({
-				// 	type: Actions.UPDATE_DATABASE_VIEWS,
-				// 	payload: { [blockId]: newView },
-				// });
+				const newView = view?.map((view) => {
+					if (view?._id === payload?.updateDatabaseViewId) {
+						return {
+							...view,
+							...updateData,
+						};
+					}
+					return view;
+				});
+				dispatch({
+					type: Actions.UPDATE_DATABASE_VIEWS,
+					payload: { [blockId]: newView },
+				});
+			} else {
+				message?.error('failed to update view');
 			}
 		} catch (error) {}
 	};

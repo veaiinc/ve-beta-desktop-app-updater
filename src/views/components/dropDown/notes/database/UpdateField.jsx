@@ -384,6 +384,11 @@ const UpdateField = ({
 					placeholder="Enter field name"
 					value={info?.fieldName}
 					onChange={(e) => handleInfoChange({ fieldName: e.target.value })}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter') {
+							e.currentTarget.blur();
+						}
+					}}
 					onBlur={handleFieldNameBlur}
 					disabled={loading}
 					autoFocus
@@ -464,6 +469,11 @@ const UpdateField = ({
 							className={s.optionInput}
 							value={info?.prefix}
 							onChange={(e) => handleInfoChange({ prefix: e.target.value })}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter') {
+									e.currentTarget.blur();
+								}
+							}}
 							onBlur={handlePrefixBlur}
 							disabled={loading}
 						/>

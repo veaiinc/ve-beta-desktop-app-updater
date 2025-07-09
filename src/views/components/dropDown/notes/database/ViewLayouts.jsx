@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import s from '../../../../../assets/scss/notes/dropdown/viewLayouts.module.scss';
 import { ReactComponent as CrossSvg } from '../../../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as ArrowLeftSvg } from '../../../../../assets/svg/tasks/arrowLeft.svg';
@@ -8,7 +8,7 @@ import { ReactComponent as BoardViewIcon } from '../../../../../assets/svg/tasks
 import { ReactComponent as TableViewIcon } from '../../../../../assets/svg/tasks/grid.svg';
 import { ReactComponent as GalleryViewIcon } from '../../../../../assets/svg/tasks/blocks.svg';
 
-const layouts = {
+export const layouts = {
 	list: {
 		Icon: <ListViewIcon />,
 		label: 'List',
@@ -33,7 +33,17 @@ const layouts = {
 
 const layoutsArray = Object?.values(layouts);
 
-const ViewLayouts = ({ handleBack, handleClose }) => {
+const ViewLayouts = ({ handleBack, handleClose, view, updateView }) => {
+	const [info, setInfo] = useState({ loading: false });
+	const activeViewType = view?.type;
+
+	const handleUpdate = async (type) => {
+		if (info?.loading) return;
+		setInfo((prevInfo) => ({ ...prevInfo, loading: true }));
+		await updateView({ type });
+		setInfo((prevInfo) => ({ ...prevInfo, loading: false }));
+	};
+
 	return (
 		<div className={s.viewLayout}>
 			<div className={s.header}>
@@ -44,14 +54,17 @@ const ViewLayouts = ({ handleBack, handleClose }) => {
 			<div className={s.divider} />
 			<div className={s.viewsContainer}>
 				{layoutsArray?.map((item) => (
-					<div
+					<button
 						className={`${s.layoutWrapper} ${
-							item.viewType === 'table' ? s.active : ``
+							item.viewType === activeViewType ? s.active : ``
 						}`}
+						key={item?.viewType}
+						onClick={() => handleUpdate(item?.viewType)}
+						disabled={info?.loading}
 					>
 						{item?.Icon}
 						<div className={s.layoutText}>{item?.label}</div>
-					</div>
+					</button>
 				))}
 			</div>
 		</div>

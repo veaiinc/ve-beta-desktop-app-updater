@@ -11,7 +11,7 @@ import { ReactComponent as DeleteIcon } from '../../../../../assets/svg/tasks/du
 import GroupDropDown from '../../tasks/GroupDropDown';
 import AllFields from './AllFields';
 import Context from '../../../../../context/context';
-import ViewLayouts from './ViewLayouts';
+import ViewLayouts, { layouts } from './ViewLayouts';
 
 const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) => {
 	const {
@@ -67,24 +67,29 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 		return selectedField?.name || 'Unknown Field';
 	}, [view?.groupBy?.fieldId, fields]);
 
-	const handleViewNameUpdate = async () => {
-		const label = info?.viewLabel?.trim();
-		if (!label) {
-			handleInfoChange({ viewLabel: view?.label });
-			return;
-		}
-		if (label === view?.label) {
-			return;
-		}
-		const payload = {
-			pageId,
-			updateDatabaseViewId: view?._id,
-			input: {
-				title: label,
-			},
-		};
-		const res = await updateDatabaseView(payload, blockId);
-	};
+	const handleViewUpdate = useCallback(
+		async (data) => {
+			if (data?.label !== undefined) {
+				if (!data?.label) {
+					handleInfoChange({ viewLabel: view?.label });
+					return;
+				}
+				if (data?.label === view?.label) {
+					return;
+				}
+			}
+
+			const payload = {
+				pageId,
+				updateDatabaseViewId: view?._id,
+				input: {
+					...data,
+				},
+			};
+			const res = await updateDatabaseView(payload, blockId);
+		},
+		[view, pageId, blockId],
+	);
 
 	return (
 		<Tooltip
@@ -110,7 +115,12 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 						databaseId={databaseId}
 					/>
 				) : info?.openedDropDown === 'layouts' ? (
-					<ViewLayouts handleClose={handleClose} handleBack={resetGroupInfo} />
+					<ViewLayouts
+						handleClose={handleClose}
+						handleBack={resetGroupInfo}
+						updateView={handleViewUpdate}
+						view={view}
+					/>
 				) : (
 					<div className={s.viewOptionDropdown}>
 						<div className={s.headerSection}>
@@ -127,10 +137,10 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 								onChange={(e) => handleInfoChange({ viewLabel: e.target.value })}
 								onKeyDown={(e) => {
 									if (e.key === 'Enter') {
-										e.onBlur();
+										e?.currentTarget?.blur();
 									}
 								}}
-								onBlur={() => handleViewNameUpdate()}
+								onBlur={() => handleViewUpdate({ label: info?.viewLabel })}
 							/>
 							<div className={s.option}>
 								<FolderSvg />
@@ -141,11 +151,11 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 								className={s.option}
 								onClick={() => handleInfoChange({ openedDropDown: 'layouts' })}
 							>
-								<GridSvg />
+								{layouts?.[view?.type]?.Icon}
 
 								<div className={s.text}>Layout</div>
 								<div className={s.subText}>
-									List <ChevronRightThinSvg />
+									{layouts?.[view?.type]?.label} <ChevronRightThinSvg />
 								</div>
 							</div>
 						</div>
@@ -158,7 +168,7 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 
 								<div className={s.text}>Properties</div>
 								<div className={s.subText}>
-									5 Shown <ChevronRightThinSvg />
+									{fields?.length} Shown <ChevronRightThinSvg />
 								</div>
 							</div>
 							<div
@@ -171,9 +181,6 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 								<div className={s.subText}>
 									{getSelectedGroupName()} <ChevronRightThinSvg />
 								</div>
-							</div>
-							<div className={s.option}>
-								<div className={s.text}>ID prefix</div>
 							</div>
 						</div>
 						<div className="footerSection">
