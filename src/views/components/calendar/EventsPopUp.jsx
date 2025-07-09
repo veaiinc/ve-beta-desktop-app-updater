@@ -123,6 +123,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 			updateCalendarState,
 			calendarCategoriesList,
 			getCalendarCategories,
+			createCalendarCategory,
 		},
 		profileInfo: { userDetailsData },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -133,6 +134,9 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		...initialState,
 		selectedCategory: selectedCategory || null,
 		categories: [],
+		categoryInput: '',
+		categoryLoading: false,
+		categoryError: null,
 	});
 
 	useEffect(() => {
@@ -145,6 +149,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 					...(!calendarCategoriesList?.error && {
 						categories: [...calendarCategoriesList],
 					}),
+					categoryError: null,
 				}));
 			}
 		}
@@ -177,6 +182,15 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 			}
 		}
 	}, [info?.categories, info?.selectedCategory]);
+
+	useEffect(() => {
+		if (calendarCategoriesList && !calendarCategoriesList.error) {
+			setInfo((prev) => ({
+				...prev,
+				categories: [...calendarCategoriesList],
+			}));
+		}
+	}, [calendarCategoriesList]);
 
 	const convertToISOString = useCallback((date, time) => {
 		if (!date) return null;
@@ -463,10 +477,56 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		);
 	};
 
+	const doesCategoryExist = (name) =>
+		info.categories.some((cat) => cat?.name?.toLowerCase() === name.trim().toLowerCase());
+
+	const handleCreateCategory = async (name) => {
+		if (!name.trim()) return;
+		if (doesCategoryExist(name)) {
+			return;
+		}
+		const color = '#ff2727';
+		setInfo((prev) => ({ ...prev, categoryLoading: true }));
+		try {
+			await createCalendarCategory({ calendarCategory: name.trim(), categoryColor: color });
+			await getCalendarCategories();
+			setTimeout(() => {
+				setInfo((prev) => {
+					const newCat = (prev.categories || []).find(
+						(cat) => cat?.name?.toLowerCase() === name.trim().toLowerCase(),
+					);
+					if (!newCat) {
+						return {
+							...prev,
+							categoryLoading: false,
+						};
+					}
+					return {
+						...prev,
+						selectedCategory: newCat,
+						categoryInput: '',
+						categoryLoading: false,
+						showCategory: false,
+					};
+				});
+			}, 200); // Give time for context to update
+		} catch (e) {
+			setInfo((prev) => ({
+				...prev,
+				categoryLoading: false,
+			}));
+		}
+	};
+
 	if (!open) return null;
 
 	return (
-		<ReactModal isOpen={open} closeModal={handleClose} customStyles={customStyles}>
+		<ReactModal
+			isOpen={open}
+			closeModal={handleClose}
+			customStyles={customStyles}
+			shouldCloseOnOverlayClick={false}
+		>
 			<div className={styles['events-popup-container']}>
 				<div className={styles['events-popup-header']}>
 					<div className={styles['events-popup-header-text']}>Create Event</div>
@@ -652,13 +712,37 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 						<div className={styles['events-popup-categories-selector']}>
 							<input
 								type="text"
-								placeholder="Add to a category"
+								placeholder={
+									info?.selectedCategory ? info?.selectedCategory.name : ''
+								}
 								onBlur={() => updateEventInfo('showCategory', false)}
 								onFocus={() => {
 									updateEventInfo('showCategory', true);
 								}}
-								value={info?.selectedCategory?.name || ''}
+								value={
+									info.categoryInput !== undefined
+										? info?.categoryInput
+										: info?.selectedCategory?.name || ''
+								}
+								onChange={(e) => {
+									const val = e.target.value;
+									setInfo((prev) => ({
+										...prev,
+										categoryInput: val,
+										showCategory: true,
+									}));
+								}}
+								onKeyDown={async (e) => {
+									if (
+										e.key === 'Enter' &&
+										info.categoryInput &&
+										!doesCategoryExist(info.categoryInput)
+									) {
+										await handleCreateCategory(info.categoryInput);
+									}
+								}}
 								style={{ textTransform: 'capitalize' }}
+								autoFocus={info.showCategory}
 							/>
 							<div
 								className={styles['events-popup-down-arrow']}
@@ -674,28 +758,66 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 							</div>
 							{info?.showCategory && (
 								<div className={styles['events-popup-category-dropdown']}>
-									{info?.categories?.map((item) => (
-										<div
-											key={item?._id}
-											className={
-												styles['events-popup-category-dropdown-item']
-											}
-											onMouseDown={() => {
-												updateEventInfo('selectedCategory', item);
-												updateEventInfo('showCategory', false);
-											}}
-										>
-											{item?.name}
-										</div>
-									))}
-									{/* <div
-										className="events-popup-category-dropdown-item events-popup-add-category"
-										onClick={() =>
-											setInfo((prev) => ({ ...prev, addCategory: true }))
-										}
-									>
-										+ Add new
-									</div> */}
+									{info?.categoryInput
+										? info.categories
+												.filter((cat) =>
+													cat?.name
+														?.toLowerCase()
+														.includes(info.categoryInput.toLowerCase()),
+												)
+												.map((item) => (
+													<div
+														key={item?._id}
+														className={
+															styles[
+																'events-popup-category-dropdown-item'
+															]
+														}
+														onMouseDown={() => {
+															setInfo((prev) => ({
+																...prev,
+																selectedCategory: item,
+																showCategory: false,
+																categoryInput: '',
+															}));
+														}}
+													>
+														{item?.name}
+													</div>
+												))
+										: info.categories.map((item) => (
+												<div
+													key={item?._id}
+													className={
+														styles[
+															'events-popup-category-dropdown-item'
+														]
+													}
+													onMouseDown={() => {
+														setInfo((prev) => ({
+															...prev,
+															selectedCategory: item,
+															showCategory: false,
+															categoryInput: '',
+														}));
+													}}
+												>
+													{item?.name}
+												</div>
+										  ))}
+									{info.categoryInput &&
+										!doesCategoryExist(info.categoryInput) && (
+											<div
+												className={`${styles['events-popup-category-dropdown-item']} ${styles['events-popup-add-category']}`}
+												onMouseDown={async () => {
+													await handleCreateCategory(info.categoryInput);
+												}}
+											>
+												{info.categoryLoading
+													? 'Adding...'
+													: `+ Add "${info.categoryInput}"`}
+											</div>
+										)}
 								</div>
 							)}
 						</div>
