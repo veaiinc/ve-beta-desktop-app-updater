@@ -1,7 +1,14 @@
 // import React, { useState, memo, useCallback } from 'react';
 import Modal from 'react-modal';
 
-const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {} }) => {
+const ReactModal = ({
+	isOpen,
+	closeModal,
+	modalType,
+	children,
+	customStyles = {},
+	shouldCloseOnOverlayClick = true,
+}) => {
 	const customModalStylesForCenter = {
 		content: {
 			top: '50%',
@@ -85,7 +92,7 @@ const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {}
 								},
 						  }
 				}
-				shouldCloseOnOverlayClick={true}
+				shouldCloseOnOverlayClick={shouldCloseOnOverlayClick}
 				ariaHideApp={false}
 			>
 				{children}
