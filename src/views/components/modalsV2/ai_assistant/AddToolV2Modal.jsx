@@ -38,7 +38,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		// success: null,
 		connectedAccounts: [],
 		accountsLoading: false,
-		checkingAccounts: false, // New state for initial account check
+		checkingAccounts: false,
 	});
 	const searchTimeoutRef = useRef(null);
 	const pageRef = useRef(1);

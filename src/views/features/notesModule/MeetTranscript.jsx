@@ -53,8 +53,7 @@ const MeetTranscript = ({ transcriptList = [] }) => {
 		}
 	};
 
-	// Initial load on mount - always call API for meeting bot
-	useEffect(() => {
+		useEffect(() => {
 		if (type === 'meeting_bot') {
 			loadTranscripts(1, false);
 		}
