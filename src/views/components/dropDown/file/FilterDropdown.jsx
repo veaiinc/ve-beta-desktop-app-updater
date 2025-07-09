@@ -60,7 +60,7 @@ const FilterDropdown = ({
 			arrow={false}
 			trigger={'click'}
 			color={'transparent'}
-			overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+			styles={{ root: { minWidth: 'fit-content', padding: '0' } }}
 			style={{ padding: 0 }}
 		>
 			<div

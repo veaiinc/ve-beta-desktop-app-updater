@@ -96,7 +96,6 @@ const Sidebar = () => {
 						isEarlyAccessPage={isEarlyAccessPage}
 					/>
 				)}
-
 				<Notifications
 					showNotificationsDrawer={showNotificationsDrawer}
 					setShowNotificationsDrawer={setShowNotificationsDrawer}

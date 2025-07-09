@@ -555,6 +555,31 @@ const SmartFileSidebar = ({
 							section.blocks &&
 							section.blocks.length > 0
 						) {
+							// Fixed package validation
+							if (section.style?.services_selection === 2) {
+								// Try to get subtotal value (number)
+								let subTotal = 0;
+								if (typeof section.style.subTotalValue === 'number') {
+									subTotal = section.style.subTotalValue;
+								} else if (typeof section.style.subTotalValue === 'string') {
+									subTotal = parseFloat(
+										section.style.subTotalValue
+											.replace(/&nbsp;/g, ' ')
+											.replace(/<[^>]+>/g, '')
+											.replace(/"/g, ''),
+									);
+								}
+								if (!subTotal || subTotal === 0) {
+									emptyFieldNames.push(
+										`Selected Subtotal for ${
+											section.style?.subTotalTitle
+												?.replace(/<[^>]+>/g, '')
+												.replace(/&nbsp;/g, ' ')
+												.replace(/"/g, '') || 'Fixed Services'
+										} cannot be 0`,
+									);
+								}
+							}
 							// Check if ALL services are unticked (show === false)
 							const allUnticked = section.blocks.every(
 								(block) => !block.subBlocks?.[0]?.show,
@@ -590,33 +615,8 @@ const SmartFileSidebar = ({
 					moduleData.versions[0].tables.forEach((table) => {
 						if (table.type === 'events' && table.values && table.values.length > 0) {
 							table.values.forEach((event, eventIndex) => {
-								// Check event name
 								if (!event.name || event.name.trim() === '') {
 									emptyFieldNames.push(`Event ${eventIndex + 1} Name`);
-								}
-								// Check event location
-								if (!event.location || event.location.trim() === '') {
-									emptyFieldNames.push(`Event ${eventIndex + 1} Location`);
-								}
-								// Check event date
-								if (!event.date) {
-									emptyFieldNames.push(`Event ${eventIndex + 1} Date`);
-								}
-								// Check event description
-								if (!event.description || event.description.trim() === '') {
-									emptyFieldNames.push(`Event ${eventIndex + 1} Description`);
-								}
-								// Check event roles
-								if (event.roles && event.roles.length > 0) {
-									event.roles.forEach((role, roleIndex) => {
-										if (!role.type || role.type.trim() === '') {
-											emptyFieldNames.push(
-												`Event ${eventIndex + 1} Role ${
-													roleIndex + 1
-												} Type`,
-											);
-										}
-									});
 								}
 							});
 						}
@@ -783,8 +783,45 @@ const SmartFileSidebar = ({
 				if (fieldElement) {
 					fieldElement.focus();
 					fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					fieldElement.classList.add('highlight-error');
+					setTimeout(() => fieldElement.classList.remove('highlight-error'), 2000);
 				}
 			}
+		}
+
+		// Handle fixed package subtotal error
+		if (firstEmptyField && firstEmptyField.startsWith('Selected Subtotal for')) {
+			// Try to extract the section name
+			const match = firstEmptyField.match(/^Selected Subtotal for (.+) cannot be 0/);
+			const sectionName = match ? match[1].trim() : null;
+			// Find the subtotal input by label
+			let found = false;
+			const allServiceSections = document.querySelectorAll('.serviceParentContainer');
+			for (const section of allServiceSections) {
+				const label = section.querySelector('.serviceTitleText');
+				if (label && label.textContent.trim() === sectionName) {
+					const input = section.querySelector('input.serviceSubtotalValueInput');
+					if (input) {
+						input.focus();
+						input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+						input.classList.add('highlight-error');
+						setTimeout(() => input.classList.remove('highlight-error'), 2000);
+						found = true;
+						break;
+					}
+				}
+			}
+			// fallback: highlight the first subtotal input
+			if (!found) {
+				const input = document.querySelector('input.serviceSubtotalValueInput');
+				if (input) {
+					input.focus();
+					input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					input.classList.add('highlight-error');
+					setTimeout(() => input.classList.remove('highlight-error'), 2000);
+				}
+			}
+			return;
 		}
 
 		// Handle service fields
