@@ -841,7 +841,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	const renderedOptions = useMemo(() => {
 		return insightTypes
 			?.filter((item) => item?.insight_type.toLowerCase() !== 'others')
-			.map(({ count, insight_type }, index) => (
+			?.map(({ count, insight_type }, index) => (
 				<div
 					className={`option ${info?.selectedOption === insight_type ? 'active' : ''}`}
 					onClick={(e) => {
@@ -1110,7 +1110,12 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 														/>
 														{info?.searchLoading && (
 															<div className="search-loader">
-																<Spinner color="var(--primary-button)" borderWidth={2} width="15px" height="15px" />
+																<Spinner
+																	color="var(--primary-button)"
+																	borderWidth={2}
+																	width="15px"
+																	height="15px"
+																/>
 															</div>
 														)}
 														{info?.searchOpen && (
