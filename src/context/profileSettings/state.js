@@ -19,6 +19,7 @@ export const intialState = {
 	accessControlOpenModal: false,
 	userDetailsFromTenantAPI: null,
 	aiCategories: null,
+	insightTypes: null,
 };
 export const ProfileState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -539,6 +540,21 @@ export const ProfileState = () => {
 		}
 	};
 
+	const getAiInsightTypes = async () => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = '/' + workspaceId + '/knowledge-bases/pending-actions/insights';
+			const response = await service.fetchGet(url, usertoken, 'tenant');
+			if (response?.[0]) {
+				dispatch({ type: Actions?.SET_AI_INSIGHT_TYPES, payload: response?.[1] });
+			}
+			return response;
+		} catch (error) {
+			console.log('error==>getAiCategories', error);
+		}
+	};
+
 	// Update tenant profession
 	const updateTenantProfession = async (profession) => {
 		try {
@@ -609,5 +625,6 @@ export const ProfileState = () => {
 		getAiCategories,
 		getWorkSpaceInfo,
 		getIntercomToken,
+		getAiInsightTypes,
 	};
 };

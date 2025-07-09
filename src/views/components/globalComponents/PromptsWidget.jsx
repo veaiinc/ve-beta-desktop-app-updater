@@ -114,7 +114,7 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 				limit: 20,
 				sortBy: 'createdAt',
 				sortType: -1,
-				category: option,
+				insightType: option,
 			},
 			shouldReset,
 		);
@@ -143,15 +143,24 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 
 	return (
 		<>
-			<div className="prompts-widget" style={{ height: '100%' }}>
+			<div
+				className="prompts-widget"
+				//  style={{ height: '100%' }}
+			>
 				{info?.cardsLoading ? (
 					<div className="prompts-widget-cards-loading">
 						{skeletonLoaders?.map((item) => (
-							<Skeleton key={item} height={'226px'} width={'216px'} />
+							<Skeleton key={item} height={'223px'} width={'216px'} />
 						))}
 					</div>
 				) : cardsEmpty ? (
-					<div className="prompts-widget-cards-loading">No results found</div>
+					<div
+						className={`prompts-widget-cards-loading ${
+							cardsEmpty ? 'prompts-widget-empty' : ''
+						}`}
+					>
+						No results found
+					</div>
 				) : (
 					<div className="prompts-widget-cards" ref={containerRef} tabIndex={0}>
 						{cardsData?.map((card, index) => (
@@ -171,7 +180,9 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 								<div className="promptsCardTitle">{card?.title}</div>
 								<div className="promptsCardDetails">
 									<span className="promptsCardDetailsModuleType">
-										{card?.moduleType}
+										{card?.moduleType.toLowerCase() === 'chat_message'
+											? 'Chat'
+											: card?.moduleType}
 									</span>
 									<span className="promptsCardDetailsPriority">
 										<span className="promptsCardDetailsPriorityValue">

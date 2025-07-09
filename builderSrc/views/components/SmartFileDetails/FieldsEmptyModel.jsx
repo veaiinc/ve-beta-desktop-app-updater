@@ -57,7 +57,14 @@ const FieldsEmptyModel = ({
 						</div>
 						<ul className="missingFieldsUl">
 							{emptyFields.map((field, index) => (
-								<li key={index} className="missingFieldLi">
+								<li
+									key={index}
+									className={`missingFieldLi${
+										field.includes('Selected Subtotal for')
+											? ' subtotalError'
+											: ''
+									}`}
+								>
 									{field} :
 								</li>
 							))}
