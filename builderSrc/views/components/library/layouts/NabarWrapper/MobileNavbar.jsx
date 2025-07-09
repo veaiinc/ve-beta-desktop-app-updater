@@ -469,6 +469,11 @@ class MobileNavbarComponent extends Component {
 
 	clientRenderNavbar = () => {
 		let properties = this.props.navBar?.blocks[0]?.subBlocks[0] || {};
+		const newMImageSettings = {
+			crop: properties?.mImage_settings?.crop || { x: 1, y: 1 },
+			zoom: properties?.mImage_settings?.zoom || 1,
+			aspect: properties?.mImage_settings?.aspect || 1.5,
+		};
 
 		return (
 			<div
@@ -504,8 +509,12 @@ class MobileNavbarComponent extends Component {
 									<ImageItem
 										preview={this.props?.preview}
 										previewType={this.props?.previewType}
-										imageUrl={properties?.mImageURL || properties?.imageURL}
-										imageSettings={properties?.mImage_settings}
+										imageUrl={
+											properties?.mImageURL ||
+											this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]
+												?.imageURL
+										}
+										imageSettings={newMImageSettings}
 										settingData={(e) => this.props.imgSettingData(e)}
 										setActiveImage={(e) =>
 											this.props.setActiveImage(

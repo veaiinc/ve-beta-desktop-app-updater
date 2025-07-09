@@ -624,7 +624,7 @@ class NavImagePopup extends Images {
 										type="range"
 										min={1}
 										max={5}
-										step={0.5}
+										step={0.1}
 										value={
 											this.props.isMobileNavbar
 												? this.state.mZoom
