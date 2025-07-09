@@ -12,6 +12,7 @@ import OptionsComponent from './OptionsComponent';
 import { message } from '../../../globalComponents/CustomToast';
 import Context from '../../../../../context/context';
 import StatusComponent from './StatusComponent';
+import DatabaseIcon from '../../../notes/DatabseComponents/DatabaseIcon';
 
 const fieldTypes = [
 	{
@@ -330,7 +331,9 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 				<CrossSvg className={s.cursorPointer} onClick={handleClose} />
 			</div>
 			<div className={s.inputWrapper}>
-				<div className={s.icon}></div>
+				<div className={s.icon}>
+					<DatabaseIcon type={info?.selectedFieldType?.value} />
+				</div>
 				<input
 					type="text"
 					className={s.nameInput}

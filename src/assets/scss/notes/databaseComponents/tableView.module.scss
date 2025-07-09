@@ -133,6 +133,14 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	text-align: left;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
 }
 
 .resizeHandle {

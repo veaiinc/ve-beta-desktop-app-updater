@@ -13,7 +13,17 @@ import AllFields from './AllFields';
 import Context from '../../../../../context/context';
 import ViewLayouts, { layouts } from './ViewLayouts';
 
-const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) => {
+const ViewOptions = ({
+	children,
+	fields,
+	view,
+	databaseId,
+	blockId,
+	pageId,
+	handleDeleteDatabaseView,
+	isLastView,
+	databaseName,
+}) => {
 	const {
 		notes: { updateDatabaseView },
 	} = useContext(Context);
@@ -143,7 +153,7 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 							<div className={s.option}>
 								<FolderSvg />
 								<div className={s.text}>Source</div>
-								<div className={s.subText}>Tasks</div>
+								<div className={s.overflowText}>{databaseName}</div>
 							</div>
 							<div
 								className={s.option}
@@ -181,18 +191,26 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 								</div>
 							</div>
 						</div>
-						<div className="footerSection">
-							<div className={s.option}>
+						{!isLastView && (
+							<div className={s.footerSection}>
+								{/* <div className={s.option}>
 								<DuplicateIcon />
 
 								<div className={s.text}>Duplicate view</div>
-							</div>
-							<div className={s.option}>
-								<DeleteIcon />
+							</div> */}
 
-								<div className={s.text}>Delete view</div>
+								<div
+									className={s.option}
+									onClick={() => {
+										handleInfoChange({ isOpen: false });
+										handleDeleteDatabaseView(view?._id);
+									}}
+								>
+									<DeleteIcon />
+									<div className={s.text}>Delete view</div>
+								</div>
 							</div>
-						</div>
+						)}
 					</div>
 				)
 			}
