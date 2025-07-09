@@ -26,8 +26,6 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 
 	useEffect(() => {
 		if (view) {
-			console.log(view);
-
 			handleInfoChange({ viewLabel: view?.label || '' });
 		}
 	}, [view]);
