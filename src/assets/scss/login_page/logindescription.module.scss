@@ -30,7 +30,11 @@
 	overflow-wrap: break-word;
 	word-break: break-word;
 	box-sizing: border-box;
-
+	.scrollableContent {
+		display: flex;
+		gap: 20px;
+		flex-direction: column;
+	}
 	p {
 		margin: 0;
 		padding: 0;
@@ -145,6 +149,14 @@
 		overflow-wrap: break-word;
 		word-break: break-word;
 		max-width: 100%;
+	}
+}
+
+@media screen and (max-height: 800px) {
+	.scrollableContent {
+		// max-height: 55vh;
+		overflow-y: auto;
+		padding-right: 8px;
 	}
 }
 .todaySpan {
