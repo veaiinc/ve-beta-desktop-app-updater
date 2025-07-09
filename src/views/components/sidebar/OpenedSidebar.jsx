@@ -277,6 +277,7 @@ const OpenedSidebar = ({
 	setShowNotificationsDrawer,
 	setShowNotesDrawer,
 	isThisEarlyAccessPage,
+	isSidebarOpen,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
 
@@ -335,9 +336,8 @@ const OpenedSidebar = ({
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 500);
 	const [activeDropdown, setActiveDropdown] = useState(null);
 	const [activeSubModule, setActiveSubModule] = useState(null);
-	const [showSettingsSidebar, setShowSettingsSidebar] = useState(() => {
-		return JSON.parse(localStorage.getItem('showSettingsSidebar')) || false;
-	});
+	const [showSettingsSidebar, setShowSettingsSidebar] = useState(null);
+	const settingsSidebar = JSON.parse(localStorage.getItem('showSettingsSidebar')) || false;
 	const [selectedSettingsOption, setSelectedSettingsOption] = useState(null);
 
 	const location = useLocation();
@@ -348,6 +348,11 @@ const OpenedSidebar = ({
 	const settingsOptions = isAdmin ? settingsNavigationItems.admin : settingsNavigationItems.user;
 
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
+	useEffect(() => {
+		if (isSidebarOpen) {
+			setShowSettingsSidebar(settingsSidebar);
+		}
+	}, [isSidebarOpen]);
 	useEffect(() => {
 		if (!tennantSettingsData) {
 			getTenantSettings();
