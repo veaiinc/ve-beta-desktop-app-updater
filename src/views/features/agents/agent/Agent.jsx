@@ -1,31 +1,30 @@
-import { memo, useContext, useRef } from 'react';
+import { memo, useContext, useRef, useState } from 'react';
 import s from './agent.module.scss';
 import AgentDetails from '../../../components/agents/agentDetails/AgentDetails';
 import RecentChat from '../../chat/RecentChat';
 import ObjectID from 'bson-objectid';
 import Context from '../../../../context/context';
-import { useParams, useSearchParams } from 'react-router-dom';
 
 const sid = ObjectID().toString();
 const Agent = () => {
 	const {} = useContext(Context);
-	const [searchParams, setSearchParams] = useSearchParams();
-	const { agentId } = useParams();
+	const [info, setInfo] = useState({
+		rerender: false,
+	});
 	const chatBoxClickedRef = useRef(false);
 
 	const handleAgentChatActive = () => {
 		if (!chatBoxClickedRef.current) {
 			chatBoxClickedRef.current = true;
-
-			setSearchParams({
-				agentType: 'knowledge_agent',
-				assistantId: agentId,
-			});
+			setInfo((prev) => ({
+				...prev,
+				rerender: true,
+			}));
 		}
 	};
 	return (
 		<div className={s.agentContainer}>
-			<div className={s.chatBlock} >
+			<div className={s.chatBlock}>
 				<RecentChat
 					isPreview={true}
 					{...(chatBoxClickedRef?.current && { sId: sid })}
