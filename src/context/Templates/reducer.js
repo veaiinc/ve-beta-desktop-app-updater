@@ -649,14 +649,14 @@ const actionHandlers = {
 		return { ...state, chatLoadingSessions };
 	},
 	HANDLE_TRANSCRIPTION_SUGGESTIONS: (state, action) => {
-		const { prompt_to_ask, similar_files } = action?.payload || {};
+		const { suggested_prompt, similar_files } = action?.payload || {};
 		const aiTranscriptionSuggestions = state?.aiTranscriptionSuggestions || {};
 		const prompts = [...(aiTranscriptionSuggestions?.prompts || [])];
 
 		let files = [...(aiTranscriptionSuggestions?.similar_files || [])];
 
-		if (prompt_to_ask) {
-			prompts?.push(prompt_to_ask);
+		if (suggested_prompt) {
+			prompts?.push(suggested_prompt);
 		}
 
 		if (similar_files) {
