@@ -1110,7 +1110,12 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 														/>
 														{info?.searchLoading && (
 															<div className="search-loader">
-																<Spinner color="var(--primary-button)" borderWidth={2} width="15px" height="15px" />
+																<Spinner
+																	color="var(--primary-button)"
+																	borderWidth={2}
+																	width="15px"
+																	height="15px"
+																/>
 															</div>
 														)}
 														{info?.searchOpen && (
