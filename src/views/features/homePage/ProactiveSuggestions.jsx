@@ -1033,7 +1033,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 											>
 												<div className="option-label">
 													<span className="option-name">Insights</span>
-													<span className="option-value">{''}</span>
 												</div>
 											</div>
 
