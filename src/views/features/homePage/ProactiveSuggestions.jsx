@@ -207,7 +207,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		chatQuery: '',
 		showExploreMore: false,
 		options: optionsList,
-		selectedOption: '',
+		selectedOption: 'all',
 		showArrows: {
 			left: false,
 			right: false,
@@ -300,24 +300,14 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 
 	useEffect(() => {
 		if (!insightTypes) {
-			getAiInsightTypesOptions();
+			getAiInsightTypes();
 		} else {
 			setInfo((prev) => ({
 				...prev,
 				options: [...insightTypes],
 			}));
 		}
-	}, [insightTypes, aiSuggestedPendingActions]);
-
-	const getAiInsightTypesOptions = async () => {
-		const response = await getAiInsightTypes();
-		if (response?.[0] === true) {
-			setInfo((prev) => ({
-				...prev,
-				options: [...optionsList, ...response?.[1]],
-			}));
-		}
-	};
+	}, [insightTypes]);
 
 	useEffect(() => {
 		if (info?.totalCardsData?.length > 0) {
@@ -345,8 +335,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 
 	useEffect(() => {
 		if (isMountedRef.current) return;
+
 		fetchPendingActions();
-	}, [info?.selectedFilters, info?.sortOptions, info?.sortBy]);
+	}, [info?.selectedFilters, info?.selectedOption, info?.sortOptions, info?.sortBy]);
 
 	useEffect(() => {
 		if (isMountedRef.current) {
@@ -439,14 +430,14 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		};
 	}, [handleKeyDown]);
 
-	useEffect(() => {
-		if (info?.options?.length > 0 && !info?.selectedOption) {
-			setInfo((prev) => ({
-				...prev,
-				selectedOption: prev?.options[0],
-			}));
-		}
-	}, [info?.selectedOption, info?.options]);
+	// useEffect(() => {
+	// 	if (info?.options?.length > 0 && !info?.selectedOption) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			selectedOption: prev?.options[0],
+	// 		}));
+	// 	}
+	// }, [info?.selectedOption, info?.options]);
 
 	useEffect(() => {
 		if (info?.searchOpen && searchInputRef.current) {
@@ -737,8 +728,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			sortBy: info?.sortBy,
 			...(favourite && { isFavourited: favourite }),
 			search: info?.searchQuery,
-			// ...(info.selectedOption !== 'All' && { category: info?.selectedOption }),
-			insightType: info?.selectedOption,
+			...(info.selectedOption !== 'all' && { insightType: info?.selectedOption }),
 		};
 	}, [
 		payload,
@@ -821,16 +811,11 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		setTouchStartX(null);
 		setTouchEndX(null);
 	};
+
 	const handleOptionSelection = (option) => {
+		if (info?.selectedOption === option) return;
+
 		currentIndexRef.current = 0;
-		if (info.selectedOption === option) {
-			setInfo((prev) => ({
-				...prev,
-				selectedOption: '',
-				currentIndex: 0,
-			}));
-			return;
-		}
 		setInfo((prev) => ({
 			...prev,
 			selectedOption: option,
@@ -839,9 +824,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	};
 
 	const renderedOptions = useMemo(() => {
-		return insightTypes
+		return info?.options
 			?.filter((item) => item?.insight_type.toLowerCase() !== 'others')
-			.map(({ count, insight_type }, index) => (
+			?.map(({ count, insight_type }, index) => (
 				<div
 					className={`option ${info?.selectedOption === insight_type ? 'active' : ''}`}
 					onClick={(e) => {
@@ -855,7 +840,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 					</div>
 				</div>
 			));
-	}, [info?.insightTypes, info?.selectedOption]);
+	}, [info?.options, info?.selectedOption]);
 
 	const handleSearchToggle = () => {
 		setInfo((prev) => ({
@@ -871,7 +856,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		}));
 	};
 
-	const firstOption = info?.options?.[0];
 	return (
 		<>
 			{info?.showExploreMore && (
@@ -898,7 +882,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			>
 				{!info?.showExploreMore && (
 					<>
-						<div className="selected-filter">
+						{/* <div className="selected-filter">
 							{info?.selectedFilters?.length > 0 &&
 								info?.selectedFilters?.map((item) => (
 									<div key={item?.id} className="selected-filter-item">
@@ -909,7 +893,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 										/>
 									</div>
 								))}
-						</div>
+						</div> */}
 
 						{info?.activeBtn === 'questions' && (
 							<div className="ai-questions-wrapper">
@@ -918,160 +902,164 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 						)}
 						{info?.activeBtn === 'insights' && aiSuggestedPendingActions !== null && (
 							<>
-								{info?.selectedOption === firstOption ? (
-									(info?.cards?.length > 0 ||
-										info?.searchQuery?.length !== 0 ||
-										info?.selectedFilters?.length > 0) && (
-										<div
-											className="cards-container"
-											// style={{
-											// 	display: info?.cards?.length > 0 ? '' : 'none',
-											// }}
-											onTouchStart={handleTouchStart}
-											onTouchMove={handleTouchMove}
-											onTouchEnd={handleTouchEnd}
-										>
-											{info?.loading ? (
-												[
-													{ position: 0 },
-													{ position: 1 },
-													{ position: 2 },
-													{ position: -1 },
-													{ position: -2 },
-												]?.map((item, index) => {
-													const classList = [
-														'card',
-														'skeleton',
-														positionClassMap[item.position],
-													];
-													return (
+								{(info?.cards?.length > 0 ||
+									info?.options?.length > 1 ||
+									info?.searchQuery?.length !== 0 ||
+									info?.selectedFilters?.length > 0) && (
+									<div
+										className="cards-container"
+										// style={{
+										// 	display: info?.cards?.length > 0 ? '' : 'none',
+										// }}
+										onTouchStart={handleTouchStart}
+										onTouchMove={handleTouchMove}
+										onTouchEnd={handleTouchEnd}
+									>
+										{info?.loading ? (
+											[
+												{ position: 0 },
+												{ position: 1 },
+												{ position: 2 },
+												{ position: -1 },
+												{ position: -2 },
+											]?.map((item, index) => {
+												const classList = [
+													'card',
+													'skeleton',
+													positionClassMap[item.position],
+												];
+												return (
+													<div
+														key={index}
+														className={classList.join(' ')}
+													>
 														<div
-															key={index}
-															className={classList.join(' ')}
+															className="skeleton-container"
+															style={{
+																width: '100%',
+																height: '100%',
+																borderRadius: '10px',
+															}}
 														>
+															<Skeleton
+																height={'100%'}
+																width={'100%'}
+															/>
+														</div>
+													</div>
+												);
+											})
+										) : info?.cards?.length === 0 ? (
+											<div
+												className="no-data"
+												style={{ color: 'var(--primary-font)' }}
+											>
+												No data available
+											</div>
+										) : (
+											info?.cards?.map((card, index) => {
+												if (card?.position === null) return null;
+												const classList = [
+													'card',
+													positionClassMap[card?.position],
+												];
+												return (
+													<div
+														key={index}
+														className={classList?.join(' ')}
+														onClick={() => handleCardClick(card, index)}
+													>
+														<div className="header">
+															<div className="header__card-title">
+																{card?.title}
+															</div>
 															<div
-																className="skeleton-container"
-																style={{
-																	width: '100%',
-																	height: '100%',
-																	borderRadius: '10px',
-																}}
+																className={`header__card-description ${
+																	classList?.[1] === 'selected'
+																		? 'showDescription'
+																		: ''
+																}`}
 															>
-																<Skeleton
-																	height={'100%'}
-																	width={'100%'}
-																/>
+																{card?.description}
 															</div>
 														</div>
-													);
-												})
-											) : info?.cards?.length === 0 ? (
-												<div
-													className="no-data"
-													style={{ color: 'var(--primary-font)' }}
-												>
-													No data available
-												</div>
-											) : (
-												info?.cards?.map((card, index) => {
-													if (card?.position === null) return null;
-													const classList = [
-														'card',
-														positionClassMap[card?.position],
-													];
-													return (
-														<div
-															key={index}
-															className={classList?.join(' ')}
-															onClick={() =>
-																handleCardClick(card, index)
-															}
-														>
-															<div className="header">
-																<div className="header__card-title">
-																	{card?.title}
+														{classList?.[1] === 'selected' && (
+															<div className="footer">
+																<div className="module-type">
+																	{card?.moduleType}
 																</div>
-																<div
-																	className={`header__card-description ${
-																		classList?.[1] ===
-																		'selected'
-																			? 'showDescription'
-																			: ''
-																	}`}
-																>
-																	{card?.description}
-																</div>
-															</div>
-															{classList?.[1] === 'selected' && (
-																<div className="footer">
-																	<div className="module-type">
-																		{card?.moduleType}
-																	</div>
-																	<div className="module-priority">
-																		<span
-																			style={{
-																				backgroundColor:
-																					PriorityLevel[
-																						card
-																							?.priority
-																					],
-																			}}
-																		></span>
-																		<div className="module-priority-text">
+																<div className="module-priority">
+																	<span
+																		style={{
+																			backgroundColor:
+																				PriorityLevel[
+																					card?.priority
+																				],
+																		}}
+																	></span>
+																	<div className="module-priority-text">
+																		<div>{card?.priority}</div>
+																		{card?.priority &&
+																			card?.updatedAt && (
+																				<div
+																					style={{
+																						color: 'var(--secondary-font)',
+																					}}
+																				>
+																					|
+																				</div>
+																			)}
+																		<Tooltip
+																			title={dayjs(
+																				card?.updatedAt *
+																					1000,
+																			).format(
+																				'MMMM D, YYYY h:mm A',
+																			)}
+																		>
 																			<div>
-																				{card?.priority}
-																			</div>
-																			{card?.priority &&
-																				card?.updatedAt && (
-																					<div
-																						style={{
-																							color: 'var(--secondary-font)',
-																						}}
-																					>
-																						|
-																					</div>
-																				)}
-																			<Tooltip
-																				title={dayjs(
+																				{dayjs(
 																					card?.updatedAt *
 																						1000,
-																				).format(
-																					'MMMM D, YYYY h:mm A',
-																				)}
-																			>
-																				<div>
-																					{dayjs(
-																						card?.updatedAt *
-																							1000,
-																					)?.fromNow()}
-																				</div>
-																			</Tooltip>
-																		</div>
+																				)?.fromNow()}
+																			</div>
+																		</Tooltip>
 																	</div>
 																</div>
-															)}
-														</div>
-													);
-												})
-											)}
-										</div>
-									)
-								) : (
-									<PromptsWidget
-										option={info?.selectedOption}
-										currentIndex={currentIndexRef?.current}
-										searchQuery={info?.searchQuery}
-									/>
+															</div>
+														)}
+													</div>
+												);
+											})
+										)}
+									</div>
 								)}
 
-								<div className="options-wrapper">
-									<div
-										className={`homepage__options-container`}
-										ref={optionsContainerRef}
-									>
-										{renderedOptions}
+								{info?.options?.length && (
+									<div className="options-wrapper">
+										<div
+											className={`homepage__options-container`}
+											ref={optionsContainerRef}
+										>
+											<div
+												className={`option ${
+													info?.selectedOption === 'all' ? 'active' : ''
+												}`}
+												onClick={() => {
+													handleOptionSelection('all');
+												}}
+												key={info?.options?.length || 0}
+											>
+												<div className="option-label">
+													<span className="option-name">Insights</span>
+													<span className="option-value">{''}</span>
+												</div>
+											</div>
+
+											{renderedOptions}
+										</div>
 									</div>
-								</div>
+								)}
 
 								<div
 									className={`actionMainContainer ${

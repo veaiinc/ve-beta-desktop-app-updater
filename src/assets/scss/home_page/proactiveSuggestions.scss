@@ -10,6 +10,8 @@
 	height: 700px;
 	transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 	scrollbar-width: none !important;
+	margin-top: 40px;
+
 	&.active {
 		height: 160px;
 		margin-top: 70px;
