@@ -65,6 +65,13 @@
 				color: var(--secondary-font);
 				font-size: 12px;
 				font-weight: 500;
+				display: flex;
+				gap: 6px;
+				align-items: center;
+				svg {
+					width: 16px;
+					height: 16px;
+				}
 			}
 
 			.notesDatabaseSidebarFieldValue {

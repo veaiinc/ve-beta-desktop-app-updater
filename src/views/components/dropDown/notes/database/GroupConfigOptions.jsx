@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import s from '../../../../../assets/scss/notes/dropdown/groupConfigOptions.module.scss';
 import { ReactComponent as Tick } from '../../../../../assets/svg/tasks/tick.svg';
+import DatabaseIcon from '../../../notes/DatabseComponents/DatabaseIcon';
 
 const GroupConfigOptions = ({ options = [], selectedOption, onChange }) => {
 	return (
@@ -11,7 +12,10 @@ const GroupConfigOptions = ({ options = [], selectedOption, onChange }) => {
 					className={s.groupConfigOption}
 					onClick={() => onChange(option)}
 				>
-					<span>{option.label}</span>
+					<span className={s.text}>
+						<DatabaseIcon type={option?.value} />
+						{option.label}
+					</span>
 					{selectedOption === option.value && <Tick />}
 				</div>
 			))}

@@ -1,5 +1,5 @@
-import { memo, useCallback, useEffect, useState } from 'react';
-import { Tooltip } from 'antd';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { message, Tooltip } from 'antd';
 import s from '../../../../../assets/scss/notes/dropdown/viewOptions.module.scss';
 import { ReactComponent as CrossSvg } from '../../../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../../assets/svg/tasks/chevronRightThin.svg';
@@ -10,12 +10,35 @@ import { ReactComponent as DuplicateIcon } from '../../../../../assets/svg/tasks
 import { ReactComponent as DeleteIcon } from '../../../../../assets/svg/tasks/dustBin.svg';
 import GroupDropDown from '../../tasks/GroupDropDown';
 import AllFields from './AllFields';
+import Context from '../../../../../context/context';
+import ViewLayouts, { layouts } from './ViewLayouts';
 
-const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) => {
+const ViewOptions = ({
+	children,
+	fields,
+	view,
+	databaseId,
+	blockId,
+	pageId,
+	handleDeleteDatabaseView,
+	isLastView,
+	databaseName,
+}) => {
+	const {
+		notes: { updateDatabaseView },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		openedDropDown: null,
 		isOpen: false,
+		viewLabel: '',
 	});
+
+	useEffect(() => {
+		if (view) {
+			handleInfoChange({ viewLabel: view?.label || '' });
+		}
+	}, [view]);
 
 	const handleInfoChange = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
@@ -52,6 +75,30 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 		return selectedField?.name || 'Unknown Field';
 	}, [view?.groupBy?.fieldId, fields]);
 
+	const handleViewUpdate = useCallback(
+		async (data) => {
+			if (data?.label !== undefined) {
+				if (!data?.label) {
+					handleInfoChange({ viewLabel: view?.label });
+					return;
+				}
+				if (data?.label === view?.label) {
+					return;
+				}
+			}
+
+			const payload = {
+				pageId,
+				updateDatabaseViewId: view?._id,
+				input: {
+					...data,
+				},
+			};
+			const res = await updateDatabaseView(payload, blockId);
+		},
+		[view, pageId, blockId],
+	);
+
 	return (
 		<Tooltip
 			title={
@@ -75,6 +122,13 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 						pageId={pageId}
 						databaseId={databaseId}
 					/>
+				) : info?.openedDropDown === 'layouts' ? (
+					<ViewLayouts
+						handleClose={handleClose}
+						handleBack={resetGroupInfo}
+						updateView={handleViewUpdate}
+						view={view}
+					/>
 				) : (
 					<div className={s.viewOptionDropdown}>
 						<div className={s.headerSection}>
@@ -84,18 +138,32 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 							</button>
 						</div>
 						<div className={s.viewSettings}>
-							<input type="text" placeholder="View name" />
+							<input
+								type="text"
+								placeholder="View name"
+								value={info?.viewLabel}
+								onChange={(e) => handleInfoChange({ viewLabel: e.target.value })}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter') {
+										e?.currentTarget?.blur();
+									}
+								}}
+								onBlur={() => handleViewUpdate({ label: info?.viewLabel })}
+							/>
 							<div className={s.option}>
 								<FolderSvg />
 								<div className={s.text}>Source</div>
-								<div className={s.subText}>Tasks</div>
+								<div className={s.overflowText}>{databaseName}</div>
 							</div>
-							<div className={s.option}>
-								<GridSvg />
+							<div
+								className={s.option}
+								onClick={() => handleInfoChange({ openedDropDown: 'layouts' })}
+							>
+								{layouts?.[view?.type]?.Icon}
 
 								<div className={s.text}>Layout</div>
 								<div className={s.subText}>
-									List <ChevronRightThinSvg />
+									{layouts?.[view?.type]?.label} <ChevronRightThinSvg />
 								</div>
 							</div>
 						</div>
@@ -108,7 +176,7 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 
 								<div className={s.text}>Properties</div>
 								<div className={s.subText}>
-									5 Shown <ChevronRightThinSvg />
+									{fields?.length} Shown <ChevronRightThinSvg />
 								</div>
 							</div>
 							<div
@@ -122,22 +190,27 @@ const ViewOptions = ({ children, fields, view, databaseId, blockId, pageId }) =>
 									{getSelectedGroupName()} <ChevronRightThinSvg />
 								</div>
 							</div>
-							<div className={s.option}>
-								<div className={s.text}>ID prefix</div>
-							</div>
 						</div>
-						<div className="footerSection">
-							<div className={s.option}>
+						{!isLastView && (
+							<div className={s.footerSection}>
+								{/* <div className={s.option}>
 								<DuplicateIcon />
 
 								<div className={s.text}>Duplicate view</div>
-							</div>
-							<div className={s.option}>
-								<DeleteIcon />
+							</div> */}
 
-								<div className={s.text}>Delete view</div>
+								<div
+									className={s.option}
+									onClick={() => {
+										handleInfoChange({ isOpen: false });
+										handleDeleteDatabaseView(view?._id);
+									}}
+								>
+									<DeleteIcon />
+									<div className={s.text}>Delete view</div>
+								</div>
 							</div>
-						</div>
+						)}
 					</div>
 				)
 			}
