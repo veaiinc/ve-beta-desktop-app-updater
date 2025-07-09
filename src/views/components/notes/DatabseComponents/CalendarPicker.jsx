@@ -25,6 +25,15 @@ const CalendarPicker = ({
 		setCurrentMonth((prev) => prev.clone().add(1, 'month'));
 	};
 
+	// Add year navigation handlers
+	const handlePrevYear = () => {
+		setCurrentMonth((prev) => prev.clone().subtract(1, 'year'));
+	};
+
+	const handleNextYear = () => {
+		setCurrentMonth((prev) => prev.clone().add(1, 'year'));
+	};
+
 	const handleDateClick = (date) => {
 		// If the clicked date is from a different month, update the current month
 		if (!date.isSame(currentMonth, 'month')) {
@@ -142,24 +151,39 @@ const CalendarPicker = ({
 		<div className={`${styles.calendarContainer} ${className}`} style={style}>
 			{/* Header */}
 			<div className={styles.calendarHeader}>
-				<h3 className={styles.monthYear}>{currentMonth.format('MMMM YYYY')}</h3>
 				<div className={styles.navButtonContainer}>
+					<button
+						type="button"
+						className={styles.navButton}
+						onClick={handlePrevYear}
+						aria-label="Previous year"
+					>
+						⟪
+					</button>
 					<button
 						type="button"
 						className={styles.navButton}
 						onClick={handlePrevMonth}
 						aria-label="Previous month"
 					>
-						←
+						‹
 					</button>
-
+					<h3 className={styles.monthYear}>{currentMonth.format('MMMM YYYY')}</h3>
 					<button
 						type="button"
 						className={styles.navButton}
 						onClick={handleNextMonth}
 						aria-label="Next month"
 					>
-						→
+						›
+					</button>
+					<button
+						type="button"
+						className={styles.navButton}
+						onClick={handleNextYear}
+						aria-label="Next year"
+					>
+						⟫
 					</button>
 				</div>
 			</div>

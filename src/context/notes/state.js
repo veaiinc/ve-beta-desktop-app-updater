@@ -1714,7 +1714,9 @@ export const NotesState = (props) => {
 			} else {
 				message?.error('failed to update view');
 			}
-		} catch (error) {}
+		} catch (error) {
+			console.error('error==>updateDatabaseView', error);
+		}
 	};
 
 	const updateRelatedViews = async ({
