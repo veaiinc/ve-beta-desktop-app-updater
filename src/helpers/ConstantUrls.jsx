@@ -6,7 +6,7 @@ export const BLOGS_URL = 'https://ve.ai/blogs';
 
 export const LINKEDIN_URL = 'https://www.linkedin.com/company/veai';
 
-export const INSTAGRAM_URL = 'https://www.instagram.com/veaihq';
+export const INSTAGRAM_URL = 'https://www.instagram.com/veailive/?igsh=b2FuZmRmOXp4NDFm#';
 
 export const SHARE_AND_EARN_KIT_URL = 'https://veai.ve.ai/page/affiliate';
 

@@ -7,6 +7,7 @@ import useAuth from '../../hooks/useAuth';
 import useSubscription from '../../hooks/useSubscription';
 import useTokenExpiry from '../../hooks/useTokenExpiry';
 import useTheme from '../../hooks/useTheme';
+import CustomToast from '../components/globalComponents/CustomToast';
 // import Context from '../../context/context';
 // import RenewBanner from '../components/globalComponents/RenewBanner';
 const AutomationBuilderLayout = ({ title, children, hideQuickNav = false }) => {
@@ -29,6 +30,7 @@ const AutomationBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 			<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
 				<div className="childrenContainer">{children}</div>
 			</SkeletonTheme>
+			<CustomToast />
 		</div>
 	);
 };
