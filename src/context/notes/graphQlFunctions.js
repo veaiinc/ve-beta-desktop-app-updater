@@ -1023,6 +1023,31 @@ export const deleteLiveKitRoomMutation = gql`
 	}
 `;
 
+export const getMeetTranscriptHistoryQuery = gql`
+	query ListTranscriptions($pageId: ID!, $limit: Int!, $page: Int!) {
+	listTranscriptions(pageId: $pageId, limit: $limit, page: $page) {
+	  totalPages
+	  totalDocs
+	  limit
+	  currentPage
+	  hasNextPage
+	  hasPrevPage
+	  prevPage
+	  nextPage
+	  data {
+		_id
+		tenantId
+		pageId
+		speakerName
+		transcript
+		transcriptionSource
+		createdAt
+		updatedAt
+	  }
+	}
+  }
+`;
+
 export const updateDatabaseViewMutation = gql`
 	mutation UpdateDatabaseView(
 		$pageId: ID!

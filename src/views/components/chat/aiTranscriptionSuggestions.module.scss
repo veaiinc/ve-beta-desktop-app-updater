@@ -1,6 +1,7 @@
 .aiTranscriptionSuggestions {
 	display: flex;
-	width: 600px;
+	// width: 600px;
+	transition: width 0.3s ease-in-out;
 	height: 100vh;
 	padding: 20px 32px;
 	flex-direction: column;
@@ -50,112 +51,190 @@
 		gap: 40px;
 		align-self: stretch;
 		overflow-y: auto;
+		justify-content: space-between;
 
-		.suggestedQuestionsContainer {
+		.questionsContainer {
 			display: flex;
-			height: 40vh;
-			padding: 20px;
 			flex-direction: column;
 			align-items: flex-start;
-			gap: 20px;
+			gap: 8px;
 			align-self: stretch;
-			border-radius: 16px;
+			width: 100%;
 			background: var(--popup, #fff);
 			box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, 0.06);
-			overflow-y: auto;
+			background: var(--popup, #fff);
+			height: 40vh;
+			padding: 20px;
+			border-radius: 16px;
 
-			.suggestedUserQuestion {
+			.questionsHeading {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				// margin-bottom: 12px;
+				padding-bottom: 4px;
+				border-bottom: 1px solid var(--stroke);
+				align-items: flex-start;
+				width: 100%;
+				color: var(--primary-button, #79ecc9);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 22px;
+			}
+			.suggestedQuestionsContainer {
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
-				gap: 16px;
+				gap: 12px;
 				align-self: stretch;
-
-				.questionContainer {
+				flex-grow: 1;
+				overflow-y: auto;
+				.wrapper {
+					width: 100%;
 					display: flex;
 					flex-direction: column;
-					justify-content: center;
-					align-items: center;
-					gap: 6px;
+					gap: 12px;
+				}
+				.horizontalLine {
+					width: 100%;
+					height: 1px;
+					background: var(--stroke, #2c2d2e);
+				}
+				.suggestedUserQuestion {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 16px;
 					align-self: stretch;
 
-					.questionType {
-						align-self: flex-start;
-						color: var(--primary-font, #f2f2f3);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 23px;
-					}
+					.answerContainer {
+						display: flex;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: 6px;
+						align-self: stretch;
+						border-radius: 8px;
+						justify-content: space-between;
 
-					.questionText {
-						color: var(--primary-font, #f2f2f3);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 22px;
+						.questionHeader {
+							width: 100%;
+							display: flex;
+							justify-content: space-between;
+							align-items: center;
+							align-self: stretch;
+							.text {
+								display: flex;
+								height: 20px;
+								padding: 0px 4px;
+								justify-content: center;
+								align-items: center;
+								gap: 10px;
+								border-radius: 4px;
+								background: var(--primary-opacity, rgba(121, 236, 201, 0.25));
+								color: var(--primary-font, #f2f2f3);
+								font-family: var(--primary-font-family);
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: 20px;
+							}
+							.isMemoryUsed {
+								display: flex;
+								align-items: center;
+								gap: 6px;
+								align-self: flex-end;
+
+								color: var(--primary-font, #f2f2f3);
+								font-family: var(--primary-font-family);
+								font-size: 13px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
+						}
+
+						.answerText {
+							color: var(--primary-font, #f2f2f3);
+							font-family: var(--primary-font-family);
+							font-size: 15px;
+							font-style: italic;
+							font-weight: 500;
+							line-height: 24px;
+						}
 					}
 				}
 
-				.answerContainer {
+				.suggestedAiQuestion {
 					display: flex;
-					padding: 16px;
 					flex-direction: column;
 					align-items: flex-start;
-					gap: 6px;
+					gap: 16px;
 					align-self: stretch;
-					border-radius: 8px;
-					border: 1px solid var(--stroke, #2c2d2e);
-					background: var(--card, #1b1c1d);
-					transition: background 0.2s ease-in-out;
 
-					&:hover {
-						background: var(--card-over-card-hover, #1f2123);
-					}
-
-					.text {
-						color: var(--primary-button, #79ecc9);
-						font-family: var(--primary-font-family);
-						font-size: 13px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-					}
-
-					.answerText {
-						color: var(--primary-font, #f2f2f3);
-						font-family: var(--primary-font-family);
-						font-size: 15px;
-						font-style: italic;
-						font-weight: 500;
-						line-height: 24px;
-					}
-					.extraInfo {
+					.answerContainer {
 						display: flex;
 						flex-direction: column;
-						width: 100%;
-						margin-top: -8px;
-						.horizontalLine {
+						align-items: flex-start;
+						gap: 6px;
+						align-self: stretch;
+						border-radius: 8px;
+
+						.questionHeader {
 							width: 100%;
-							height: 1px;
-							background: var(--stroke, #2c2d2e);
-							margin: 12px 0;
+							display: flex;
+							justify-content: space-between;
+							align-items: center;
+							align-self: stretch;
+							.text {
+								display: flex;
+								height: 20px;
+								padding: 0px 4px;
+								justify-content: center;
+								align-items: center;
+								gap: 10px;
+								border-radius: 4px;
+								background: var(--primary-opacity, rgba(121, 236, 201, 0.25));
+								color: var(--primary-font, #f2f2f3);
+								font-family: var(--primary-font-family);
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: 20px;
+							}
+							.isMemoryUsed {
+								display: flex;
+								align-items: center;
+								gap: 6px;
+								align-self: flex-end;
+
+								color: var(--primary-font, #f2f2f3);
+								font-family: var(--primary-font-family);
+								font-size: 13px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
 						}
 
-						.isMemoryUsed {
-							display: flex;
-							align-items: center;
-							gap: 6px;
-							align-self: flex-end;
-
+						.answerText {
 							color: var(--primary-font, #f2f2f3);
 							font-family: var(--primary-font-family);
-							font-size: 13px;
-							font-style: normal;
+							font-size: 15px;
+							font-style: italic;
 							font-weight: 500;
-							line-height: normal;
+							line-height: 24px;
+							padding: 12px;
+							border-radius: 8px;
+							border: 1px solid var(--stroke, #2c2d2e);
+							background: var(--card-over-card-hover, #242628);
+							width: 100%;
+							cursor: pointer;
+							transition: background 0.3s ease-out;
+							&:hover {
+								background-color: var(--card-hover);
+							}
 						}
 					}
 				}
@@ -187,7 +266,7 @@
 				align-items: flex-start;
 				gap: 8px;
 				align-self: stretch;
-				height: 40vh;
+				// height: 40vh;
 				overflow-y: auto;
 
 				.actionContainer {
@@ -264,7 +343,7 @@
 				gap: 8px;
 				align-self: stretch;
 				height: 10vh;
-				flex-wrap: wrap;
+				flex-wrap: nowrap;
 				overflow-y: auto;
 				.file {
 					display: flex;

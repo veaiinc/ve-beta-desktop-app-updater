@@ -3962,7 +3962,7 @@ const GalleryPage = () => {
 																				}))
 																			}
 																		>
-																			<img
+																			<div
 																				style={{
 																					backgroundImage: `url(${src})`,
 																					backgroundPosition: `${Math.floor(
@@ -3978,6 +3978,9 @@ const GalleryPage = () => {
 																								?.yPosition *
 																								50,
 																					)}%`,
+																					height: '100%',
+																					backgroundSize:
+																						'cover',
 																				}}
 																			/>
 																			{!isActive && (
@@ -3993,6 +3996,9 @@ const GalleryPage = () => {
 																							'rgba(0, 0, 0, 0.8)',
 																						transition:
 																							'background-color 0.3s ease',
+																						height: '100%',
+																						backgroundSize:
+																							'cover',
 																					}}
 																				/>
 																			)}

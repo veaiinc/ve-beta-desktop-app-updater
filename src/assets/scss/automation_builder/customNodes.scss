@@ -172,6 +172,13 @@
 	span {
 		cursor: pointer;
 	}
+
+	.icon-dustbin,
+	.icon-copy {
+		path {
+			stroke: var(--primary-font) !important;
+		}
+	}
 }
 .customNodesToolTip {
 	.ant-tooltip-inner {

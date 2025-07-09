@@ -1,0 +1,189 @@
+.settingsPopup {
+	display: flex;
+	max-width: 600px;
+	width: 100%;
+	padding: 32px;
+	flex-direction: column;
+	gap: 32px;
+	border-radius: 24px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--popup, #202123);
+	color: var(--primary-font);
+	font-family: var(--primary-font);
+
+	.heading {
+		h1 {
+			color: var(--primary-font, #f2f2f3);
+			font-size: 22px;
+
+			font-weight: 500;
+		}
+		.description {
+			color: var(--secondary-font, #94989e);
+			font-size: 13px;
+			font-weight: 500;
+			line-height: 22px; /* 169.231% */
+		}
+	}
+
+	.divider {
+		max-width: 536px;
+		width: 100%;
+		height: 1px;
+		background: var(--stroke, #2c2d2e);
+	}
+
+	.settingsContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		align-self: stretch;
+
+		.setting {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+			width: 100%;
+			justify-content: center;
+			.settingTop {
+				display: flex;
+				justify-content: space-between;
+
+				.settingTopLeft {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					width: 100%;
+					position: relative;
+					&:hover {
+						.additionalOptionsContainer {
+							visibility: visible;
+						}
+					}
+
+					h2 {
+						color: var(--primary-font, #f2f2f3);
+						font-size: 14px;
+						font-weight: 500;
+					}
+
+					.additionalOptionsContainer {
+						width: 53.757px;
+						justify-content: space-between;
+						align-items: center;
+						display: flex;
+						transition: visibility 0.15s ease;
+						visibility: hidden;
+						position: absolute;
+						right: 30px;
+						z-index: 10;
+						top: 50%;
+						transform: translateY(-50%);
+						button {
+							outline: none;
+							border: none;
+							cursor: pointer;
+							background-color: transparent;
+							svg {
+								stroke: var(--primary-font);
+								width: 18px;
+								height: 18px;
+							}
+						}
+					}
+				}
+
+				.settingTopRight {
+					display: flex;
+					width: 32px;
+					height: 20px;
+					padding: 0px 2px;
+					justify-content: flex-end;
+					align-items: center;
+					gap: 24px;
+
+					.switchStyle {
+						background: var(--primary-button);
+						display: flex;
+						width: 100%;
+						padding: 0px 2px;
+						justify-content: flex-end;
+						align-items: center;
+						gap: 10px;
+						height: 23px;
+					}
+				}
+			}
+
+			.settingBottom {
+				.settingDescription {
+					color: var(--secondary-font, #94989e);
+					font-size: 13px;
+
+					font-weight: 500;
+					line-height: 20px; /* 153.846% */
+				}
+			}
+		}
+	}
+
+	.buttonsContainer {
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+
+		button {
+			outline: none;
+			border: none;
+			cursor: pointer;
+			border-radius: 100px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			background: transparent;
+			height: 40px;
+		}
+
+		.closeButton {
+			display: flex;
+			height: 40px;
+			padding: 12px 20px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			color: var(--primary-font, #f2f2f3);
+			font-size: 14px;
+			font-weight: 500;
+			border-radius: 100px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			transition: all 0.2s ease;
+			&:hover {
+				border-color: var(--stroke-hover);
+				color: var(--background-color);
+				background-color: var(--primary-font);
+			}
+		}
+
+		.addNewCategoryButton {
+			display: flex;
+			height: 40px;
+			padding: 0px 20px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			border-radius: 100px;
+			border: 1px solid var(--primary-button, #79ecc9);
+			color: var(--primary-button, #79ecc9);
+			font-size: 14px;
+			font-weight: 500;
+			height: 38px;
+			transition: all 0.2s ease;
+			&:hover {
+				border-color: var(--stroke-hover);
+				color: var(--background-color);
+				background-color: var(--primary-button);
+			}
+		}
+	}
+}

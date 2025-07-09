@@ -2,9 +2,10 @@
 	display: flex;
 	width: 800px;
 	flex-direction: column;
-	align-items: flex-start;
+	align-items: center;
 	gap: 20px;
 	flex-shrink: 0;
+	margin: auto;
 
 	.empty-meet-bot-header {
 		display: flex;
