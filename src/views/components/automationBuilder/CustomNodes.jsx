@@ -68,11 +68,13 @@ const eventTypeMapper = {
 	getManyChannels: 'Get Many Channels',
 	createChannel: 'Create Channel',
 	replyMessage: 'Reply to message',
+	agent: 'Connect Agent',
 };
 
 const appNameMapper = {
 	gmail: 'Gmail',
 	slack: 'Slack',
+	agent: 'Agent',
 	inApp: 'In App',
 	null: 'In App',
 };
@@ -209,7 +211,9 @@ export const ActionNode = ({ data }) => {
 							]
 						}
 						{eventTypeMapper?.[
-							data?.currentStep?.module || data?.currentStep?.criteria?.event
+							data?.currentStep?.module ||
+								data?.currentStep?.criteria?.event ||
+								data?.currentStep?.actionType
 						] ?? data?.currentStep?.criteria?.event}
 					</span>
 					<span>
@@ -368,13 +372,13 @@ const HoverComponentForNodes = ({
 			{showDuplicate && (
 				<Tooltip title="Duplicate node" placement="right">
 					<span onClick={handleDebouncedDuplicate}>
-						<Copy style={{ cursor: 'pointer' }} />
+						<Copy style={{ cursor: 'pointer' }} className={"icon-copy"} />
 					</span>
 				</Tooltip>
 			)}
 			<Tooltip title="Delete node" placement="right">
 				<span onClick={openDeleteModal}>
-					<Dustbin style={{ cursor: 'pointer' }} />
+					<Dustbin style={{ cursor: 'pointer' }} className={"icon-dustbin"} />
 				</span>
 			</Tooltip>
 		</div>

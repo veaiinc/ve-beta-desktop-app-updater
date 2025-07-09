@@ -5657,10 +5657,7 @@ const SortableComponent = ({
 														field?.question?.match(
 															/color:\s*(.*?)[;"]/,
 														)?.[1] || '#1A1A1A',
-													fontSize:
-														field?.question?.match(
-															/font-size:\s*(.*?)[;"]/,
-														)?.[1] || '14px',
+													fontSize: '16px',
 													width: '100%',
 													outline: 'none',
 													cursor: 'text',

@@ -54,7 +54,7 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 	const {
 		createWebSocketConnection: createLiveIntelligenceConnection,
 		closeWebSocketConnection: closeLiveIntelligenceConnection,
-		updateCurrentContext 
+		updateCurrentContext,
 	} = useLiveIntelligenceStream();
 
 	// Track mounted state and clear transcriptions on mount
@@ -89,8 +89,11 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 		const lastTranscription = transcriptions[transcriptions.length - 1];
 		const prevTranscriptionId = transcriptions[transcriptions.length - 2]?.id || null;
 		updateTranscription(lastTranscription, prevTranscriptionId);
-		{lastTranscription?.isFinal && updateCurrentContext && updateCurrentContext(lastTranscription?.displayedText)}
-		
+		{
+			lastTranscription?.isFinal &&
+				updateCurrentContext &&
+				updateCurrentContext(lastTranscription?.displayedText);
+		}
 	}, [transcriptions]);
 
 	// Use useTrackTranscription to get transcription segments
@@ -270,6 +273,7 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 				// Start live intelligence connection
 				createLiveIntelligenceConnection(
 					sessionIdRef.current,
+					pageId,
 					handleLiveIntelligenceMessage,
 				);
 			} else {
@@ -302,9 +306,7 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 	};
 
 	// Handle live intelligence messages
-	const handleLiveIntelligenceMessage = useCallback((event) => {
-
-	}, []);
+	const handleLiveIntelligenceMessage = useCallback((event) => {}, []);
 
 	// Helper for formatting time
 	const formatTime = (seconds) => {

@@ -10623,6 +10623,10 @@ else{
 										<div
 											className="fonts-dropdown font-variant-dropdown"
 											ref={this.dropdownfontref}
+											style={{
+												top: 100,
+												left: 0,
+											}}
 										>
 											{this.state?.fonts?.map((font, key) => {
 												if (

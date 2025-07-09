@@ -24,6 +24,7 @@ const workspaceOpenStyle = {
 };
 
 const workspaceStyle = { display: 'flex', gap: '4px', alignItems: 'center' };
+const currentId = localStorage.getItem('workspaceId');
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, info }) => {
 	const {
 		profileInfo: { userWorkSpaceList },
@@ -33,7 +34,6 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, info }) => {
 	const [searchWorkspace, setSearchWorkspace] = useState('');
 	const [focusedIndex, setFocusedIndex] = useState(0);
 
-	const currentId = info?.activeBusniessName?.activeWorkspaceId;
 	useEffect(() => {
 		if (userWorkSpaceList && info?.activeBusniessName?.activeWorkspaceId) {
 			const activeIndex = userWorkSpaceList.findIndex(
