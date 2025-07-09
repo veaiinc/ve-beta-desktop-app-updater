@@ -15,6 +15,7 @@ import GoogleActions from './GoogleActions';
 import SlackActions from './SlackActions';
 // import CreateMeeting from './CreateMeeting';
 import Delay from './Delay';
+import AgentAction from './AgentAction';
 
 const integrations = [
 	{
@@ -51,6 +52,17 @@ const actionGroups = [
 			// 	actionLabel: 'Create Meeting',
 			// 	actionType: 'createMeeting',
 			// },
+		],
+	},
+	{
+		_id: 'agent',
+		groupName: 'Agent',
+		icon: null,
+		actions: [
+			{
+				actionLabel: 'Connect Agent',
+				actionType: 'agent',
+			},
 		],
 	},
 	{
@@ -183,7 +195,7 @@ const Actions = ({
 				?.filter(Boolean);
 			setInfo((prev) => ({
 				...prev,
-				connectedIntegrations: [...connected, 'inApp'],
+				connectedIntegrations: [...connected, 'inApp', 'agent'],
 			}));
 		}
 	}, [connectedIntegrations]);
@@ -211,6 +223,9 @@ const Actions = ({
 				...(previousStepPath && { previousStepPath }),
 				...data,
 			};
+
+			console.log('payload', payload);
+
 			const response = await addStep(automationId, payload);
 			if (response?.[0]) {
 				onClose();
@@ -318,6 +333,16 @@ const Actions = ({
 			),
 			slack: (
 				<SlackActions
+					onBack={handleBack}
+					onSave={onSave}
+					loading={info?.saveLoader}
+					selectedAction={info?.selectedAction}
+					activeStepsData={activeStepsData}
+					handleChangeClick={handleChangeClick}
+				/>
+			),
+			agent: (
+				<AgentAction
 					onBack={handleBack}
 					onSave={onSave}
 					loading={info?.saveLoader}

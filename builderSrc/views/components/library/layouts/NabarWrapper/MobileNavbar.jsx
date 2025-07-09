@@ -83,7 +83,7 @@ class MobileNavbarComponent extends Component {
 											: '1px solid transparent',
 										// padding: '5px',
 										height: '40px',
-										width: '40px',
+										width: '80px',
 									}}
 									onMouseEnter={() => {
 										this.setState({ mobileHoverLogoEdit: true });
@@ -489,8 +489,8 @@ class MobileNavbarComponent extends Component {
 										this.props?.navBar?.style?.mNavbarAlign === 'four'
 											? '20px'
 											: '',
-									height: '36px',
-									width: '36px',
+									height: '80px',
+									width: '40px',
 								}}
 							>
 								{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.mImageURL ||

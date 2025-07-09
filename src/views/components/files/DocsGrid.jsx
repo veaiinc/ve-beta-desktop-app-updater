@@ -12,14 +12,14 @@ import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import EmptyState from './EmptyState';
-import { fetchOriginSelection } from '../../../helpers';
+// import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
 import { ReactComponent as Search } from '../../../assets/svg/search.svg';
 const DocumentShortPreview = lazy(() =>
 	import('../../../../builderSrc/views/feature/DocumentShortPreview'),
 );
 
-const origin = fetchOriginSelection();
+// const origin = fetchOriginSelection();
 
 // const filterOptions = [
 // 	{ label: 'All', value: '' },
