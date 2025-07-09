@@ -201,7 +201,7 @@ class App extends BaseClass {
 
 					const minSizeRem = selectedFont / 16;
 					const valueRem = (selectedFont / 16) * 2;
-					const viewportWidth = window.innerWidth - 50;
+					const viewportWidth = window.innerWidth;
 					const valueVw = (selectedFont * 100) / viewportWidth;
 					// let updatedValue = `clamp(${minSizeRem}rem, ${valueVw}vw ,${valueRem}rem)`;
 					let updatedValue = `${minSizeRem}rem`;
