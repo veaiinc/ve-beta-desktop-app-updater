@@ -1,10 +1,7 @@
 import { memo, useCallback, useContext, useMemo, useState } from 'react';
 import s from '../../../../../assets/scss/notes/dropdown/addField.module.scss';
 import { ReactComponent as CrossSvg } from '../../../../../assets/svg/gallery/cross.svg';
-import { ReactComponent as ChevronRightThinSvg } from '../../../../../assets/svg/tasks/chevronRightThin.svg';
-import { ReactComponent as SixDotsSvg } from '../../../../../assets/svg/tasks/sixDots.svg';
 import { ReactComponent as ArrowLeftSvg } from '../../../../../assets/svg/tasks/arrowLeft.svg';
-import { ReactComponent as PlusIcon } from '../../../../../assets/svg/tasks/plus.svg';
 
 import { Tooltip } from 'antd';
 import GroupConfigOptions from './GroupConfigOptions';
@@ -12,6 +9,7 @@ import OptionsComponent from './OptionsComponent';
 import { message } from '../../../globalComponents/CustomToast';
 import Context from '../../../../../context/context';
 import StatusComponent from './StatusComponent';
+import DatabaseIcon from '../../../notes/DatabseComponents/DatabaseIcon';
 
 const fieldTypes = [
 	{
@@ -330,7 +328,9 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 				<CrossSvg className={s.cursorPointer} onClick={handleClose} />
 			</div>
 			<div className={s.inputWrapper}>
-				<div className={s.icon}></div>
+				<div className={s.icon}>
+					<DatabaseIcon type={info?.selectedFieldType?.value} />
+				</div>
 				<input
 					type="text"
 					className={s.nameInput}

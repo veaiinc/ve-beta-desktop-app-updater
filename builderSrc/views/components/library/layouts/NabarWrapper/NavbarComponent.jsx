@@ -743,8 +743,8 @@ class NavbarComponent extends Component {
 									ref={this.imageRef}
 									className="navbar-image-wrapper"
 									style={{
-										width: '60px',
-										height: '100px',
+										width: '100px',
+										height: '60px',
 										background: 'transparent',
 
 										border: this.state.hoveredImage

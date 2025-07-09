@@ -608,6 +608,7 @@ class NavImagePopup extends Images {
 						>
 							<b
 								style={{
+									color: '#fff',
 									fontSize: '12px',
 									marginBottom: '12px',
 								}}
