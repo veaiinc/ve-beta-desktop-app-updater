@@ -14,8 +14,7 @@ const MeetTranscript = ({ transcriptList = [] }) => {
 	const { noteId } = useParams();
 	const [searchParams] = useSearchParams();
 	const type = searchParams.get('type');
-	const history = searchParams.get('history');
-
+	const [highlightIdx, setHighlightIdx] = useState(null);
 	const {
 		notes: { getMeetTranscriptHistory, transcriptHistory },
 	} = useContext(Context);
@@ -54,12 +53,12 @@ const MeetTranscript = ({ transcriptList = [] }) => {
 		}
 	};
 
-	// Initial load on mount (empty dependency array)
+	// Initial load on mount - always call API for meeting bot
 	useEffect(() => {
-		if (type === 'meeting_bot' && history) {
+		if (type === 'meeting_bot') {
 			loadTranscripts(1, false);
 		}
-	}, []);
+	}, [type]);
 
 	// Function to load more transcripts when scrolling
 	const loadMoreTranscripts = () => {
@@ -69,46 +68,24 @@ const MeetTranscript = ({ transcriptList = [] }) => {
 		loadTranscripts(nextPage, true);
 	};
 
-	// useEffect(() => {
-	// 	if (transcriptList.length > 0) {
-	// 		setHighlightIdx(transcriptList.length - 1);
-	// 		if (lastItemRef.current) {
-	// 			lastItemRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
-	// 		}
-	// 		const timeout = setTimeout(() => setHighlightIdx(null), 1200);
-	// 		return () => clearTimeout(timeout);
-	// 	}
-	// }, [transcriptList.length]);
-
-	// For live transcript (not history)
-	if (!history) {
-		if (!transcriptList.length) {
-			return <div className="meet-transcript-empty">No transcript yet.</div>;
+	useEffect(() => {
+		if (transcriptList.length > 0) {
+			setHighlightIdx(transcriptList.length - 1);
+			if (lastItemRef.current) {
+				lastItemRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+			}
+			const timeout = setTimeout(() => setHighlightIdx(null), 1200);
+			return () => clearTimeout(timeout);
 		}
-		return (
-			<div className="meet-transcript-list" ref={listRef}>
-				{transcriptList.map((item, idx) => (
-					<div
-						className={`meet-transcript-item`}
-						key={idx}
-						ref={idx === transcriptList.length - 1 ? lastItemRef : null}
-					>
-						<div className="meet-transcript-meta">
-							<span className="meet-transcript-participant">{item.speakerName}</span>
-							<span className="meet-transcript-time">
-								{moment(item.timestamp).format('HH:mm:ss')}
-							</span>
-						</div>
-						<div className="meet-transcript-text">{item.transcript}</div>
-					</div>
-				))}
-			</div>
-		);
-	}
+	}, [transcriptList.length]);
 
-	// For history transcript with infinite scroll
-	const historyData = transcriptHistory?.data || [];
+	// Get API data from transcript history
+	const apiData = transcriptHistory?.data || [];
 
+	// Combine API data with live socket data
+	const combinedData = [...apiData, ...transcriptList];
+
+	// Show loading spinner only on initial load
 	if (info.transcriptLoading && info.transcriptPage === 1) {
 		return (
 			<div className="loading-container">
@@ -122,29 +99,34 @@ const MeetTranscript = ({ transcriptList = [] }) => {
 		);
 	}
 
-	if (!historyData.length) {
-		return <div className="meet-transcript-empty">No transcript history found.</div>;
+	// Show empty state if no data available
+	if (!combinedData.length) {
+		return <div className="meet-transcript-empty">No transcript yet.</div>;
 	}
 
+	// Render with infinite scroll for API data and socket data
 	return (
 		<InfiniteScroll
-			dataLength={historyData.length}
+			dataLength={combinedData.length}
 			next={loadMoreTranscripts}
 			hasMore={info.transcriptHasMore}
 			height={'800px'}
 			loader={<FetchMoreLoaderComp />}
+			style={{ width: '100%' }}
 		>
 			<div className="meet-transcript-list" ref={listRef}>
-				{historyData.map((item, idx) => (
+				{combinedData.map((item, idx) => (
 					<div
 						className={`meet-transcript-item`}
 						key={item._id || idx}
-						ref={idx === historyData.length - 1 ? lastItemRef : null}
+						ref={idx === combinedData.length - 1 ? lastItemRef : null}
 					>
 						<div className="meet-transcript-meta">
 							<span className="meet-transcript-participant">{item.speakerName}</span>
 							<span className="meet-transcript-time">
-								{moment(Number(item.createdAt) * 1000).format('HH:mm:ss')}
+								{apiData.includes(item)
+									? moment(Number(item.createdAt) * 1000).format('HH:mm:ss')
+									: moment(item.timestamp).format('HH:mm:ss')}
 							</span>
 						</div>
 						<div className="meet-transcript-text">{item.transcript}</div>

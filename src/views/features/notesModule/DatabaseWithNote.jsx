@@ -110,7 +110,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const [searchParams] = useSearchParams();
 	const noteId = useParams()?.noteId;
 	const type = searchParams.get('type');
-	const history = searchParams.get('history');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const prevDocRef = useRef([]);
