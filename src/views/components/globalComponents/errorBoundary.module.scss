@@ -1,0 +1,132 @@
+.errorBoundaryWrapper {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	background: var(--background-color, #222);
+}
+
+.header {
+	display: flex;
+	padding: 32px 24px 20px 24px;
+	justify-content: flex-start;
+	align-items: center;
+	border-radius: 8px;
+	background: var(--background-color, #0c0c0d);
+}
+
+.logo {
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+}
+
+.errorContent {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 50px;
+	width: 100%;
+	padding: 0 20px;
+}
+
+.errorTitle {
+	color: var(--primary-font);
+	text-align: center;
+	font-family: var(--primary-font-family);
+	font-size: 40px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	text-transform: capitalize;
+}
+
+.errorText {
+	color: var(--primary-font, #f2f2f3);
+	text-align: center;
+	font-family: var(--primary-font-family);
+	font-size: 18px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: 28px;
+}
+
+.errorActions {
+	display: flex;
+	gap: 10px;
+}
+
+.errorButton {
+	display: flex;
+	height: 45px;
+	padding: 14px 24px;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	border-radius: 24px;
+	background: var(--primary-button, #00f3c5);
+	color: var(--background-color, #0c0c0d);
+	font-family: var(--primary-font-family);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	text-transform: capitalize;
+	border: none;
+	cursor: pointer;
+}
+
+.footer {
+	color: var(--primary-font, #f2f2f3);
+	text-align: center;
+	font-family: var(--primary-font-family);
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 20px;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	background: transparent;
+	padding: 12px 0;
+	z-index: 100;
+}
+
+.footerLink {
+	color: var(--primary-button);
+	text-decoration-line: underline;
+	text-decoration-style: solid;
+	text-decoration-skip-ink: auto;
+	text-decoration-thickness: auto;
+	text-underline-offset: auto;
+	text-underline-position: from-font;
+	font-weight: 500;
+}
+
+@media (max-width: 600px) {
+	.header {
+		padding: 20px 10px 12px 10px;
+	}
+	.errorContent {
+		gap: 30px;
+		padding: 0 5px;
+	}
+	.errorTitle {
+		font-size: 24px;
+	}
+	.errorText {
+		font-size: 15px;
+		line-height: 22px;
+	}
+	.errorButton {
+		height: 38px;
+		padding: 10px 14px;
+		font-size: 13px;
+	}
+	.footer {
+		font-size: 12px;
+		padding: 8px 0;
+	}
+}

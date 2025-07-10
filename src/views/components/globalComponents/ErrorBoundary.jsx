@@ -1,5 +1,6 @@
 import { Component } from 'react';
-
+import s from './errorBoundary.module.scss';
+import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 class ErrorBoundary extends Component {
 	constructor(props) {
 		super(props);
@@ -41,9 +42,48 @@ class ErrorBoundary extends Component {
 		if (hasError) {
 			return (
 				fallback || (
-					<div style={{ padding: '2rem', textAlign: 'center' }}>
-						<h2>Something went wrong.</h2>
-						<p>Please refresh the page or contact support if the issue persists.</p>
+					<div className={s.errorBoundaryWrapper}>
+						<div className={s.header}>
+							<div className={s.logo}>
+								<VeLogo />
+							</div>
+						</div>
+						<div className={s.errorContent}>
+							<div
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									alignItems: 'center',
+									gap: '20px',
+								}}
+							>
+								<h2 className={s.errorTitle}>Something went wrong.</h2>
+								<p className={s.errorText}>
+									Please refresh the page or contact support if the issue
+									persists.
+								</p>
+							</div>
+							<div className={s.errorActions}>
+								<button
+									className={s.errorButton}
+									onClick={() => window.location.reload(true)}
+								>
+									Refresh
+								</button>
+								<button
+									className={s.errorButton}
+									onClick={() => (window.location.href = '/contact-us')}
+								>
+									Contact Support
+								</button>
+							</div>
+						</div>
+						<footer className={s.footer}>
+							Need Help? Contact our support team at{' '}
+							<a href="mailto:support@ve.ai" className={s.footerLink}>
+								support@ve.ai
+							</a>
+						</footer>
 					</div>
 				)
 			);
