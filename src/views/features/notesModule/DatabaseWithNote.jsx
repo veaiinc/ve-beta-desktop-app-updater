@@ -161,13 +161,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		useLiveIntelligenceStream();
 
 	// Handler for transcript socket messages
-	const handleLiveIntelligenceMessageFunc = useCallback(
-		(event) => {
-			const data = JSON.parse(event?.data || null);
-			handleTranscriptionSuggestions(data);
-		},
-		[handleTranscriptionSuggestions],
-	);
+	// const handleLiveIntelligenceMessageFunc = useCallback(
+	// 	(event) => {
+	// 		const data = JSON.parse(event?.data || null);
+	// 		handleTranscriptionSuggestions(data);
+	// 	},
+	// 	[handleTranscriptionSuggestions],
+	// );
 	const handleSocketMessage = useCallback(
 		(event) => {
 			try {
@@ -188,6 +188,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					// 			(data?.speakerName || '') + ' : ' + (data?.transcript || ''),
 					// 		);
 					// }
+				} else if (msg?.event === 'live_intelligence.response' && msg?.data) {
+					handleTranscriptionSuggestions(msg?.data);
 				}
 			} catch (e) {
 				// ignore
