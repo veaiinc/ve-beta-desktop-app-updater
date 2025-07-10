@@ -402,13 +402,13 @@ const InitialHomePage = () => {
 					}
 				</div>
 
-				{/* <div className="home-page-container-content">
+				<div className="home-page-container-content">
 					<ProactiveSuggestions
 						option={info?.selectedOption}
 						previousOption={previousSelectedOptionRef.current}
 						handleModalOpen={handleModalOpen}
 					/>
-				</div> */}
+				</div>
 			</div>
 		</div>
 	);

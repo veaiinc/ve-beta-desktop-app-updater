@@ -81,11 +81,12 @@ const watermarkPositions = [
 	},
 ];
 
-const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
+const WaterMarkComponent = ({ info, setinfo, waterMarks, onSaveClick }) => {
 	// Context
 	const {
 		galleryInfo: { uploadWaterMark, getWaterMarks, deleteWaterMark },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
 	// States
@@ -224,39 +225,46 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 							)}
 						</div>
 					</div>
-
-					<div className="sliderContainers">
-						<div className="eachSliderContainer">
-							<span>Opacity</span>
-							<Slider
-								min={0}
-								max={100}
-								defaultValue={info?.watermarkOpacity}
-								style={{ width: '70%' }}
-								tooltip={{ open: false }}
-								trackStyle={{ backgroundColor: 'var(--primary-button)' }}
-								railStyle={{ backgroundColor: 'var(--stroke)' }}
-								onChange={(value) =>
-									setinfo((prev) => ({ ...prev, watermarkOpacity: value / 100 }))
-								}
-							/>
+					{tenantUserAccessControls && tenantUserAccessControls?.role === 'admin' && (
+						<div className="sliderContainers">
+							<div className="eachSliderContainer">
+								<span>Opacity</span>
+								<Slider
+									min={0}
+									max={100}
+									defaultValue={info?.watermarkOpacity * 100}
+									style={{ width: '70%' }}
+									tooltip={{ open: false }}
+									trackStyle={{ backgroundColor: 'var(--primary-button)' }}
+									railStyle={{ backgroundColor: 'var(--stroke)' }}
+									onChange={(value) =>
+										setinfo((prev) => ({
+											...prev,
+											watermarkOpacity: value / 100,
+										}))
+									}
+								/>
+							</div>
+							<div className="eachSliderContainer">
+								<span>Scale</span>
+								<Slider
+									min={0}
+									max={100}
+									defaultValue={info?.scaleWatermark * 100}
+									style={{ width: '70%' }}
+									tooltip={{ open: false }}
+									trackStyle={{ backgroundColor: 'var(--primary-button)' }}
+									railStyle={{ backgroundColor: 'var(--stroke)' }}
+									onChange={(value) =>
+										setinfo((prev) => ({
+											...prev,
+											scaleWatermark: value / 100,
+										}))
+									}
+								/>
+							</div>
 						</div>
-						<div className="eachSliderContainer">
-							<span>Scale</span>
-							<Slider
-								min={0}
-								max={100}
-								defaultValue={info?.scaleWatermark}
-								style={{ width: '70%' }}
-								tooltip={{ open: false }}
-								trackStyle={{ backgroundColor: 'var(--primary-button)' }}
-								railStyle={{ backgroundColor: 'var(--stroke)' }}
-								onChange={(value) =>
-									setinfo((prev) => ({ ...prev, scaleWatermark: value / 100 }))
-								}
-							/>
-						</div>
-					</div>
+					)}
 					<div
 						style={{
 							width: '100%',
@@ -362,6 +370,13 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 							</>
 						)}
 					</div>
+					{tenantUserAccessControls && tenantUserAccessControls?.role === 'admin' && (
+						<div className="saveButtonContainer">
+							<button onClick={onSaveClick} className="watermarkSaveButton">
+								Save
+							</button>
+						</div>
+					)}
 				</>
 			)}
 		</div>

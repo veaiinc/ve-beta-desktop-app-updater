@@ -383,7 +383,7 @@
 					.watermarklogo {
 						// max-width: 90px;
 						max-height: 40px;
-						width: 100%;
+						width: 95%;
 						position: absolute;
 						aspect-ratio: 16/9;
 					}
@@ -630,9 +630,31 @@
 		}
 	}
 }
-
+.saveButtonContainer {
+	width: 100%;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	.watermarkSaveButton {
+		display: flex;
+		width: 150px;
+		padding: 12px 24px;
+		justify-content: center;
+		align-items: center;
+		gap: 6px;
+		border-radius: 100px;
+		background: var(--primary-button, #79ecc9);
+		color: var(--background-color, #121212);
+		font-family: var(--primary-font-family);
+		font-size: 15px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		cursor: pointer;
+	}
+}
 .logos-dropdown {
-	width: 130px;
+	width: 135px;
 	// position: absolute;
 	// left: 0;
 	// top: 100%;
