@@ -137,6 +137,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		categoryInput: '',
 		categoryLoading: false,
 		categoryError: null,
+		categorySuccess: false,
 	});
 
 	useEffect(() => {
@@ -481,39 +482,56 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		info.categories.some((cat) => cat?.name?.toLowerCase() === name.trim().toLowerCase());
 
 	const handleCreateCategory = async (name) => {
-		if (!name.trim()) return;
-		if (doesCategoryExist(name)) {
+		const trimmed = name.trim();
+		if (!trimmed) {
+			setInfo((prev) => ({ ...prev, categoryError: 'Category name cannot be empty.' }));
+			return;
+		}
+		if (doesCategoryExist(trimmed)) {
+			setInfo((prev) => ({ ...prev, categoryError: 'Category already exists.' }));
 			return;
 		}
 		const color = '#ff2727';
-		setInfo((prev) => ({ ...prev, categoryLoading: true }));
+		setInfo((prev) => ({
+			...prev,
+			categoryLoading: true,
+			categoryError: null,
+			categorySuccess: false,
+		}));
+
+		const optimisticCat = { _id: `temp-${Date.now()}`, name: trimmed, optimistic: true };
+		setInfo((prev) => ({
+			...prev,
+			categories: [...prev.categories, optimisticCat],
+			selectedCategory: optimisticCat,
+			categoryInput: '',
+			showCategory: false,
+		}));
 		try {
-			await createCalendarCategory({ calendarCategory: name.trim(), categoryColor: color });
+			await createCalendarCategory({ calendarCategory: trimmed, categoryColor: color });
 			await getCalendarCategories();
 			setTimeout(() => {
 				setInfo((prev) => {
 					const newCat = (prev.categories || []).find(
-						(cat) => cat?.name?.toLowerCase() === name.trim().toLowerCase(),
+						(cat) =>
+							cat?.name?.toLowerCase() === trimmed.toLowerCase() && !cat.optimistic,
 					);
-					if (!newCat) {
-						return {
-							...prev,
-							categoryLoading: false,
-						};
-					}
 					return {
 						...prev,
-						selectedCategory: newCat,
-						categoryInput: '',
+						selectedCategory: newCat || prev.selectedCategory,
 						categoryLoading: false,
-						showCategory: false,
+						categoryError: null,
+						categorySuccess: true,
+						categories: prev.categories.filter((cat) => !cat.optimistic),
 					};
 				});
-			}, 200); // Give time for context to update
+			}, 200);
 		} catch (e) {
 			setInfo((prev) => ({
 				...prev,
 				categoryLoading: false,
+				categoryError: e.message || 'Failed to add category',
+				categories: prev.categories.filter((cat) => !cat.optimistic),
 			}));
 		}
 	};
@@ -718,6 +736,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								onBlur={() => updateEventInfo('showCategory', false)}
 								onFocus={() => {
 									updateEventInfo('showCategory', true);
+									updateEventInfo('categoryError', null);
 								}}
 								value={
 									info.categoryInput !== undefined
@@ -730,19 +749,29 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 										...prev,
 										categoryInput: val,
 										showCategory: true,
+										categoryError: null,
 									}));
 								}}
 								onKeyDown={async (e) => {
 									if (
 										e.key === 'Enter' &&
 										info.categoryInput &&
-										!doesCategoryExist(info.categoryInput)
+										!doesCategoryExist(info.categoryInput) &&
+										!info.categoryLoading
 									) {
 										await handleCreateCategory(info.categoryInput);
+									} else if (e.key === 'Escape') {
+										setInfo((prev) => ({
+											...prev,
+											showCategory: false,
+											categoryInput: '',
+											categoryError: null,
+										}));
 									}
 								}}
 								style={{ textTransform: 'capitalize' }}
 								autoFocus={info.showCategory}
+								disabled={info.categoryLoading}
 							/>
 							<div
 								className={styles['events-popup-down-arrow']}
@@ -757,67 +786,160 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								/>
 							</div>
 							{info?.showCategory && (
-								<div className={styles['events-popup-category-dropdown']}>
-									{info?.categoryInput
-										? info.categories
-												.filter((cat) =>
+								<div
+									className={styles['events-popup-category-dropdown']}
+									role="listbox"
+									aria-label="Category list"
+									tabIndex={-1}
+									style={{ maxHeight: 220, overflowY: 'auto' }}
+								>
+									{(() => {
+										const filtered = info?.categoryInput
+											? info.categories.filter((cat) =>
 													cat?.name
 														?.toLowerCase()
 														.includes(info.categoryInput.toLowerCase()),
-												)
-												.map((item) => (
-													<div
-														key={item?._id}
-														className={
-															styles[
-																'events-popup-category-dropdown-item'
-															]
-														}
-														onMouseDown={() => {
-															setInfo((prev) => ({
-																...prev,
-																selectedCategory: item,
-																showCategory: false,
-																categoryInput: '',
-															}));
-														}}
-													>
-														{item?.name}
-													</div>
-												))
-										: info.categories.map((item) => (
+											  )
+											: info.categories;
+										if (filtered.length === 0) {
+											return (
 												<div
-													key={item?._id}
 													className={
 														styles[
 															'events-popup-category-dropdown-item'
 														]
 													}
-													onMouseDown={() => {
+													style={{ color: '#888', fontStyle: 'italic' }}
+												>
+													No categories found
+												</div>
+											);
+										}
+										return filtered.map((item, idx) => (
+											<div
+												key={item?._id}
+												className={
+													styles['events-popup-category-dropdown-item']
+												}
+												role="option"
+												aria-selected={
+													info.selectedCategory?._id === item._id
+												}
+												tabIndex={0}
+												style={{
+													background:
+														info.selectedCategory?._id === item._id
+															? 'var(--card-over-card)'
+															: item.optimistic
+															? '#f9f9f9'
+															: 'transparent',
+													color: item.optimistic ? '#888' : 'inherit',
+													fontStyle: item.optimistic
+														? 'italic'
+														: 'normal',
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'space-between',
+													cursor: 'pointer',
+												}}
+												onMouseDown={() => {
+													setInfo((prev) => ({
+														...prev,
+														selectedCategory: item,
+														showCategory: false,
+														categoryInput: '',
+													}));
+												}}
+												onKeyDown={(e) => {
+													if (e.key === 'Enter') {
 														setInfo((prev) => ({
 															...prev,
 															selectedCategory: item,
 															showCategory: false,
 															categoryInput: '',
 														}));
-													}}
-												>
-													{item?.name}
-												</div>
-										  ))}
-									{info.categoryInput &&
-										!doesCategoryExist(info.categoryInput) && (
-											<div
-												className={`${styles['events-popup-category-dropdown-item']} ${styles['events-popup-add-category']}`}
-												onMouseDown={async () => {
-													await handleCreateCategory(info.categoryInput);
+													}
 												}}
 											>
-												{info.categoryLoading
-													? 'Adding...'
-													: `+ Add "${info.categoryInput}"`}
+												<span>
+													{item?.name} {item.optimistic && '(Adding...)'}
+												</span>
+												{info.selectedCategory?._id === item._id &&
+													!item.optimistic && (
+														<span
+															style={{
+																color: 'var(--primary)',
+																marginLeft: 8,
+															}}
+															aria-label="Selected"
+														>
+															✔
+														</span>
+													)}
+											</div>
+										));
+									})()}
+									{info.categoryInput &&
+										!doesCategoryExist(info.categoryInput) &&
+										!info.categoryLoading && (
+											<div
+												className={`${styles['events-popup-category-dropdown-item']} ${styles['events-popup-add-category']}`}
+												style={{
+													color: 'var(--primary)',
+													fontWeight: 500,
+													cursor: info.categoryLoading
+														? 'not-allowed'
+														: 'pointer',
+													opacity: info.categoryLoading ? 0.5 : 1,
+												}}
+												onMouseDown={async () => {
+													if (!info.categoryLoading)
+														await handleCreateCategory(
+															info.categoryInput,
+														);
+												}}
+												tabIndex={0}
+												aria-label="Add new category"
+											>
+												+ Add "{info.categoryInput}"
 											</div>
 										)}
+									{info.categoryLoading && (
+										<div
+											className={
+												styles['events-popup-category-dropdown-item']
+											}
+											style={{
+												opacity: 0.7,
+												display: 'flex',
+												alignItems: 'center',
+												gap: 8,
+											}}
+										>
+											<Spinner width="16px" height="16px" />
+											Adding category...
+										</div>
+									)}
+									{info.categoryError && (
+										<div
+											className={
+												styles['events-popup-category-dropdown-item']
+											}
+											style={{ color: 'red', fontWeight: 500 }}
+										>
+											{info.categoryError}
+										</div>
+									)}
+									{info.categorySuccess && (
+										<div
+											className={
+												styles['events-popup-category-dropdown-item']
+											}
+											style={{ color: 'green', fontWeight: 500 }}
+										>
+											Category added!
+										</div>
+									)}
 								</div>
 							)}
 						</div>
