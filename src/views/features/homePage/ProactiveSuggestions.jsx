@@ -964,6 +964,16 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 													>
 														<div className="header">
 															<div className="header__card-title">
+																{!card?.collectionType &&
+																	card?.title}
+															</div>
+															<div
+																className={`header__card-description ${
+																	classList?.[1] === 'selected'
+																		? 'showDescription'
+																		: ''
+																}`}
+															>
 																{card?.collectionType === 'forms' &&
 																	`a new for Response from ${getName(
 																		card,
@@ -978,7 +988,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																				card?.clientDetails
 																					?.email ||
 																				''
-																		  } has accepted ${''} awaiting your confirmation. Click to confirm.`
+																		  } has accepted your proposal, awaiting your confirmation. Click to confirm.`
 																		: card?.status ===
 																		  'contractSigned'
 																		? `${
@@ -987,23 +997,10 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																				card?.clientDetails
 																					?.email ||
 																				''
-																		  } has signed ${''} awaiting your confirmation. Click to confirm.`
+																		  } has signed contract, awaiting your confirmation. Click to confirm.`
 																		: '')}
-																{!(
-																	card?.collectionType ===
-																		'forms' ||
-																	card?.collectionType ==
-																		'workflows'
-																) && card?.title}
-															</div>
-															<div
-																className={`header__card-description ${
-																	classList?.[1] === 'selected'
-																		? 'showDescription'
-																		: ''
-																}`}
-															>
-																{card?.description}
+																{!card?.collectionType &&
+																	card?.description}
 															</div>
 														</div>
 														{classList?.[1] === 'selected' && (
