@@ -988,7 +988,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																				card?.clientDetails
 																					?.email ||
 																				''
-																		  } has accepted your proposal, awaiting your confirmation. Click to confirm.`
+																		  } has accepted ${
+																				card?.title || ''
+																		  }, awaiting your confirmation. Click to confirm.`
 																		: card?.status ===
 																		  'contractSigned'
 																		? `${
@@ -997,7 +999,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																				card?.clientDetails
 																					?.email ||
 																				''
-																		  } has signed contract, awaiting your confirmation. Click to confirm.`
+																		  } has signed ${
+																				card?.title || ''
+																		  }, awaiting your confirmation. Click to confirm.`
 																		: '')}
 																{!card?.collectionType &&
 																	card?.description}
