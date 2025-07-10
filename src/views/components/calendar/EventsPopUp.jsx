@@ -54,7 +54,7 @@ const initialState = {
 	phoneNumber: null,
 	meetingLink: null,
 };
-
+const color = '#ff2727';
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const customStyles = {
@@ -117,12 +117,11 @@ const sessionTypeInputConfig = {
 const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selectedSlot }) => {
 	const {
 		calendarInfo: {
-			calendarEvent,
 			createCalendarEvent,
-			getCalendarEventsList,
 			updateCalendarState,
 			calendarCategoriesList,
 			getCalendarCategories,
+			createCalendarCategory,
 		},
 		profileInfo: { userDetailsData },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -133,6 +132,9 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		...initialState,
 		selectedCategory: selectedCategory || null,
 		categories: [],
+		categoryInput: '',
+		categoryLoading: false,
+		categorySuccess: false,
 	});
 
 	useEffect(() => {
@@ -177,6 +179,15 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 			}
 		}
 	}, [info?.categories, info?.selectedCategory]);
+
+	useEffect(() => {
+		if (calendarCategoriesList && !calendarCategoriesList.error) {
+			setInfo((prev) => ({
+				...prev,
+				categories: [...calendarCategoriesList],
+			}));
+		}
+	}, [calendarCategoriesList]);
 
 	const convertToISOString = useCallback((date, time) => {
 		if (!date) return null;
@@ -399,7 +410,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 
 	const renderSessionTypeInput = () => {
 		const config = sessionTypeInputConfig[info.sessionType];
-		const value = info[config.value];
 
 		const validateInput = (value) => {
 			if (config.value === 'meetingLink') {
@@ -463,10 +473,63 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		);
 	};
 
+	const doesCategoryExist = (name) => {
+		return info.categories.some(
+			(cat) => cat?.name?.toLowerCase() === name?.trim().toLowerCase(),
+		);
+	};
+
+	const handleCreateCategory = async (name) => {
+		const trimmed = name.trim();
+		if (!trimmed) return;
+
+		setInfo((prev) => ({
+			...prev,
+			categoryLoading: true,
+			categorySuccess: false,
+		}));
+
+		const optimisticCat = { _id: `temp-${Date.now()}`, name: trimmed, optimistic: true };
+		setInfo((prev) => ({
+			...prev,
+			categories: [...prev.categories, optimisticCat],
+			selectedCategory: optimisticCat,
+			categoryInput: '',
+			showCategory: false,
+		}));
+		try {
+			await createCalendarCategory({ calendarCategory: trimmed, categoryColor: color });
+			await getCalendarCategories();
+			setInfo((prev) => {
+				const newCat = (prev.categories || []).find(
+					(cat) => cat?.name?.toLowerCase() === trimmed.toLowerCase() && !cat.optimistic,
+				);
+				return {
+					...prev,
+					selectedCategory: newCat || prev.selectedCategory,
+					categoryLoading: false,
+					categorySuccess: true,
+					categories: prev.categories.filter((cat) => !cat.optimistic),
+				};
+			});
+		} catch (e) {
+			setInfo((prev) => ({
+				...prev,
+				categoryLoading: false,
+				categories: prev.categories.filter((cat) => !cat.optimistic),
+			}));
+		}
+	};
+
 	if (!open) return null;
 
 	return (
-		<ReactModal isOpen={open} closeModal={handleClose} customStyles={customStyles}>
+		<ReactModal
+			isOpen={open}
+			closeModal={handleClose}
+			customStyles={customStyles}
+			shouldCloseOnOverlayClick={false}
+		>
 			<div className={styles['events-popup-container']}>
 				<div className={styles['events-popup-header']}>
 					<div className={styles['events-popup-header-text']}>Create Event</div>
@@ -652,13 +715,45 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 						<div className={styles['events-popup-categories-selector']}>
 							<input
 								type="text"
-								placeholder="Add to a category"
+								placeholder={
+									info?.selectedCategory ? info?.selectedCategory.name : ''
+								}
 								onBlur={() => updateEventInfo('showCategory', false)}
 								onFocus={() => {
 									updateEventInfo('showCategory', true);
 								}}
-								value={info?.selectedCategory?.name || ''}
+								value={
+									info.categoryInput !== undefined
+										? info?.categoryInput
+										: info?.selectedCategory?.name || ''
+								}
+								onChange={(e) => {
+									const val = e.target.value;
+									setInfo((prev) => ({
+										...prev,
+										categoryInput: val,
+										showCategory: true,
+									}));
+								}}
+								onKeyDown={async (e) => {
+									if (
+										e.key === 'Enter' &&
+										info.categoryInput &&
+										!doesCategoryExist(info.categoryInput) &&
+										!info.categoryLoading
+									) {
+										await handleCreateCategory(info.categoryInput);
+									} else if (e.key === 'Escape') {
+										setInfo((prev) => ({
+											...prev,
+											showCategory: false,
+											categoryInput: '',
+										}));
+									}
+								}}
 								style={{ textTransform: 'capitalize' }}
+								autoFocus={info.showCategory}
+								disabled={info.categoryLoading}
 							/>
 							<div
 								className={styles['events-popup-down-arrow']}
@@ -673,29 +768,150 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								/>
 							</div>
 							{info?.showCategory && (
-								<div className={styles['events-popup-category-dropdown']}>
-									{info?.categories?.map((item) => (
+								<div
+									className={styles['events-popup-category-dropdown']}
+									role="listbox"
+									aria-label="Category list"
+									tabIndex={-1}
+									style={{ maxHeight: 220, overflowY: 'auto' }}
+								>
+									{(() => {
+										const filtered = info?.categoryInput
+											? info.categories.filter((cat) =>
+													cat?.name
+														?.toLowerCase()
+														.includes(info.categoryInput.toLowerCase()),
+											  )
+											: info.categories;
+										if (filtered.length === 0) {
+											return (
+												<div
+													className={
+														styles[
+															'events-popup-category-dropdown-item'
+														]
+													}
+													style={{ color: '#888', fontStyle: 'italic' }}
+												>
+													No categories found
+												</div>
+											);
+										}
+										return filtered.map((item, idx) => (
+											<div
+												key={item?._id}
+												className={
+													styles['events-popup-category-dropdown-item']
+												}
+												role="option"
+												aria-selected={
+													info.selectedCategory?._id === item._id
+												}
+												tabIndex={0}
+												style={{
+													background:
+														info.selectedCategory?._id === item._id
+															? 'var(--card-over-card)'
+															: item.optimistic
+															? '#f9f9f9'
+															: 'transparent',
+													color: item.optimistic ? '#888' : 'inherit',
+													fontStyle: item.optimistic
+														? 'italic'
+														: 'normal',
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'space-between',
+													cursor: 'pointer',
+												}}
+												onMouseDown={() => {
+													setInfo((prev) => ({
+														...prev,
+														selectedCategory: item,
+														showCategory: false,
+														categoryInput: '',
+													}));
+												}}
+												onKeyDown={(e) => {
+													if (e.key === 'Enter') {
+														setInfo((prev) => ({
+															...prev,
+															selectedCategory: item,
+															showCategory: false,
+															categoryInput: '',
+														}));
+													}
+												}}
+											>
+												<span>
+													{item?.name} {item.optimistic && '(Adding...)'}
+												</span>
+												{info.selectedCategory?._id === item._id &&
+													!item.optimistic && (
+														<span
+															style={{
+																color: 'var(--primary)',
+																marginLeft: 8,
+															}}
+															aria-label="Selected"
+														>
+															✔
+														</span>
+													)}
+											</div>
+										));
+									})()}
+									{info.categoryInput &&
+										!doesCategoryExist(info.categoryInput) &&
+										!info.categoryLoading && (
+											<div
+												className={`${styles['events-popup-category-dropdown-item']} ${styles['events-popup-add-category']}`}
+												style={{
+													color: 'var(--primary)',
+													fontWeight: 500,
+													cursor: info.categoryLoading
+														? 'not-allowed'
+														: 'pointer',
+													opacity: info.categoryLoading ? 0.5 : 1,
+												}}
+												onMouseDown={async () => {
+													if (!info.categoryLoading)
+														await handleCreateCategory(
+															info.categoryInput,
+														);
+												}}
+												tabIndex={0}
+												aria-label="Add new category"
+											>
+												+ Add "{info.categoryInput}"
+											</div>
+										)}
+									{info.categoryLoading && (
 										<div
-											key={item?._id}
 											className={
 												styles['events-popup-category-dropdown-item']
 											}
-											onMouseDown={() => {
-												updateEventInfo('selectedCategory', item);
-												updateEventInfo('showCategory', false);
+											style={{
+												opacity: 0.7,
+												display: 'flex',
+												alignItems: 'center',
+												gap: 8,
 											}}
 										>
-											{item?.name}
+											<Spinner width="16px" height="16px" />
+											Adding category...
 										</div>
-									))}
-									{/* <div
-										className="events-popup-category-dropdown-item events-popup-add-category"
-										onClick={() =>
-											setInfo((prev) => ({ ...prev, addCategory: true }))
-										}
-									>
-										+ Add new
-									</div> */}
+									)}
+									{info.categorySuccess && (
+										<div
+											className={
+												styles['events-popup-category-dropdown-item']
+											}
+											style={{ color: 'green', fontWeight: 500 }}
+										>
+											Category added!
+										</div>
+									)}
 								</div>
 							)}
 						</div>

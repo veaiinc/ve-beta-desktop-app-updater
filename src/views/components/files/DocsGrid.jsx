@@ -322,9 +322,13 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 							<div
 								className="card-item create"
 								// onClick={handleCreateDoc}
-								onClick={() => {
-									navigate(`/builder/create-document`);
-								}}
+								onClick={
+									handleCreateDoc
+										? handleCreateDoc
+										: () => {
+												navigate(`/builder/create-document`);
+										  }
+								}
 							>
 								<div className="card-item-style card-item-style-btn">
 									<button className="card-btn">

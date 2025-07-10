@@ -49,9 +49,9 @@
 		}
 	}
 	.goalsCardsContainer {
-		display: flex;
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
 		gap: 24px;
-		justify-content: center;
 		width: 100%;
 		.goalCard {
 			padding: 20px;
@@ -196,6 +196,7 @@
 		}
 
 		.goalsCardsContainer {
+			display: flex;
 			flex-direction: column;
 			gap: 16px;
 			width: 100%;
@@ -291,6 +292,8 @@
 		}
 
 		.goalsCardsContainer {
+			display: flex;
+			flex-direction: column;
 			gap: 12px;
 
 			.goalCard {
