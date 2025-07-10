@@ -533,7 +533,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	};
 
 	const handleCardClick = async (card, index) => {
-		if (!card?.read) {
+		if (!card?.read && info?.selectedOption !== 'action') {
 			await pendingActionsUpdate(card?._id, { read: true });
 			const payload = { read: true },
 				reset = false;
@@ -554,7 +554,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		setInfo((prev) => ({
 			...prev,
 			openModal: false,
-			activeCardContent: null,
 			selectedCardNumber: null,
 		}));
 		handleModalOpen?.(false);
@@ -1357,6 +1356,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 							onPrevCardClick={handleLeft}
 							totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
 							selectedCardNumber={currentIndexRef?.current + 1}
+							selectedOption={info?.selectedOption}
 							// onFavouriteClick={handleFavouriteClick}
 						/>
 					</>
