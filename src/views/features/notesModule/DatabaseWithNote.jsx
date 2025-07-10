@@ -1000,12 +1000,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	useEffect(() => {
 		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
 			recallConnection(sessionId, noteId, handleSocketMessage);
-			createLiveIntelligenceStream(
-				sessionId,
-				noteId,
-				handleLiveIntelligenceMessageFunc,
-				false,
-			);
+			// createLiveIntelligenceStream(
+			// 	sessionId,
+			// 	noteId,
+			// 	handleLiveIntelligenceMessageFunc,
+			// 	false,
+			// );
 		}
 		// No cleanup needed, useRecallStream handles it
 		// eslint-disable-next-line react-hooks/exhaustive-deps

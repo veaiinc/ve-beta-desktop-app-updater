@@ -203,6 +203,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 					app: action.app,
 					token: token,
 					onSuccess: async () => {
+						message.success('Tool added successfully');
 						setInfo((prev) => ({ ...prev, isConnecting: false }));
 
 						// Fetch connected accounts to get the new account ID
