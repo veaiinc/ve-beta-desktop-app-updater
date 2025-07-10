@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import s from './agentDetails.module.scss';
 import Context from '../../../../context/context';
@@ -20,6 +20,7 @@ const AgentDetails = () => {
 	const [info, setInfo] = useState({
 		agentAction: agentActionParam,
 	});
+	const agentCredentialsRef = useRef(null);
 
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, getActiveKnowledgeAgentDetails },
@@ -62,17 +63,22 @@ const AgentDetails = () => {
 			return updated;
 		});
 	};
+	const handleEditClick = () => {
+		if (agentCredentialsRef.current) {
+			agentCredentialsRef.current.triggerEditAgentName();
+		}
+	};
 
 	return (
 		<div className={s.agentDetailsContainer}>
-			<AgentHeader />
+			<AgentHeader onEditClick={handleEditClick} />
 			<RunAndBuildToggle agentAction={info.agentAction} setAgentAction={setAgentAction} />
 			<div className={s.agentActionContainer}>
 				{info.agentAction === 'runAgent' ? (
 					<KnowledgeAgentDetails />
 				) : info.agentAction === 'buildAgent' ? (
 					<>
-						<AgentCredentials agentId={agentId} />
+						<AgentCredentials agentId={agentId} ref={agentCredentialsRef} />
 						<ConfigureAgent agentId={agentId} />
 					</>
 				) : null}

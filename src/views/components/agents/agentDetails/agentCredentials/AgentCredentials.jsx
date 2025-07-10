@@ -1,11 +1,11 @@
-import { memo, useState, useEffect, useContext } from 'react';
+import React, { memo, useState, useEffect, useContext, useRef, useImperativeHandle } from 'react';
 import s from './agentCredentials.module.scss';
 import Context from '../../../../../context/context';
 import { message } from '../../../../components/globalComponents/CustomToast';
 import PencilIcon from '../assets/PencilIcon';
 import CatIcon from '../assets/cat.png';
 
-const AgentCredentials = ({ agentId }) => {
+const AgentCredentials = React.forwardRef(({ agentId }, ref) => {
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, updateKnowledgeAgent, uploadAgentProfilePic },
 	} = useContext(Context);
@@ -19,6 +19,25 @@ const AgentCredentials = ({ agentId }) => {
 			agentDescription: false,
 		},
 	});
+
+	const agentNameInputRef = useRef(null);
+
+	useImperativeHandle(ref, () => ({
+		triggerEditAgentName() {
+			setInfo((prev) => ({
+				...prev,
+				editAgentDetails: {
+					...prev.editAgentDetails,
+					agentName: true,
+				},
+			}));
+			setTimeout(() => {
+				if (agentNameInputRef.current) {
+					agentNameInputRef.current.focus();
+				}
+			}, 0);
+		},
+	}));
 
 	useEffect(() => {
 		const name = activeKnowledgeAssistant?.data?.name ?? '';
@@ -106,6 +125,11 @@ const AgentCredentials = ({ agentId }) => {
 				[type]: !prev.editAgentDetails[type],
 			},
 		}));
+		if (type === 'agentName' && !info.editAgentDetails.agentName && agentNameInputRef.current) {
+			setTimeout(() => {
+				agentNameInputRef.current.focus();
+			}, 0);
+		}
 	};
 
 	return (
@@ -128,7 +152,6 @@ const AgentCredentials = ({ agentId }) => {
 					{info.editAgentDetails.agentName ? (
 						<input
 							type="text"
-							autoFocus
 							value={info.agentName}
 							onChange={(e) =>
 								setInfo((prev) => ({ ...prev, agentName: e.target.value }))
@@ -145,6 +168,7 @@ const AgentCredentials = ({ agentId }) => {
 							aria-label="Edit agent name"
 							className={s.input}
 							placeholder="Give a name to your agent and hit enter!"
+							ref={agentNameInputRef}
 						/>
 					) : (
 						<>
@@ -213,6 +237,6 @@ const AgentCredentials = ({ agentId }) => {
 			</div>
 		</div>
 	);
-};
+});
 
 export default memo(AgentCredentials);
