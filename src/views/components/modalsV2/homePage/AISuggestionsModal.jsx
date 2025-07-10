@@ -34,6 +34,7 @@ import PromptPopup from '../../homePage/PromptPopup';
 import ProactiveAIShare from '../../../features/homePage/proactiveai/ProactiveAIShare';
 import jwtDecode from 'jwt-decode';
 import ChainOfThoughtInterpreter from '../../homePage/ChainOfThoughtInterpreter';
+import FormDescription from '../../forms/FormDescription';
 const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
@@ -311,8 +312,6 @@ const AISuggestionsModal = ({
 		month: 'short',
 		day: 'numeric',
 	});
-
-	if (!data) return null;
 
 	return (
 		<Drawer
