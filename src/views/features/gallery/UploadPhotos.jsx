@@ -11,6 +11,7 @@ import Context from '../../../context/context';
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
+import { message } from '../../components/globalComponents/CustomToast';
 // import useSubscription from '../../hooks/useSubscription';
 // import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
 
@@ -29,6 +30,7 @@ const UploadPhotos = () => {
 			tenantAlbums,
 			getAlbums,
 			getImageDuplicatesList,
+			updateWaterMarkVisibility,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState, updateStateValues },
 	} = useContext(Context);
@@ -42,6 +44,7 @@ const UploadPhotos = () => {
 			name: 'southeast',
 			rpos: 10,
 			tpos: 'auto',
+			transformOrigin: 'bottom right',
 		},
 		initialUpload: false,
 		startedUploading: false,
@@ -62,6 +65,8 @@ const UploadPhotos = () => {
 		isAiEnabled: false,
 		isUploadComplete: false,
 		// lightGallery: false,
+		scaleWatermark: 0.15,
+		watermarkOpacity: 1,
 	});
 	const recentImageInitiatedRef = useRef(info.recentImageInitiated);
 	const params = new URLSearchParams(window.location.search);
@@ -104,6 +109,7 @@ const UploadPhotos = () => {
 			});
 		}
 	}, [aiFacesLogic, info?.isAiEnabled]);
+
 	useEffect(() => {
 		if (!waterMarks) {
 			getWaterMarks();
@@ -266,6 +272,8 @@ const UploadPhotos = () => {
 				...json,
 				watermarkPosition: info?.watermarkPosition?.name,
 				watermarkProfileId: info?.isWaterMarkApply ? info?.watermarkProfileId : null,
+				watermarkScale: info?.scaleWatermark,
+				watermarkOpacity: info?.watermarkOpacity,
 			};
 		}
 
@@ -456,7 +464,19 @@ const UploadPhotos = () => {
 
 		await Promise.allSettled(activeUploads);
 	};
-
+	const onSaveClick = async () => {
+		const payload = {
+			profileId: info?.watermarkProfileId,
+			scale: info?.scaleWatermark,
+			opacity: info?.watermarkOpacity,
+		};
+		const response = await updateWaterMarkVisibility(payload);
+		if (response?.[0]) {
+			message.success('Watermark successfully updated');
+		} else {
+			message.error('Failed to update the watermark');
+		}
+	};
 	return (
 		<div className="upload-gallery-container">
 			<div onClick={() => navigate(-1)} className="backHeader">
@@ -469,7 +489,19 @@ const UploadPhotos = () => {
 			</div>
 
 			<div className="watermark_progress_container">
-				<WaterMarkComponent info={info} setinfo={setinfo} waterMarks={waterMarks} />
+				<WaterMarkComponent
+					// info={info}
+					setinfo={setinfo}
+					waterMarks={waterMarks}
+					onSaveClick={onSaveClick}
+					waterMarkApply={info?.isWaterMarkApply}
+					startedUploading={info?.startedUploading}
+					isPopupOpen={info?.isPopupOpen}
+					watermarkPosition={info?.watermarkPosition}
+					watermarkProfileId={info?.watermarkProfileId}
+					watermarkOpacity={info?.watermarkOpacity}
+					scaleWatermark={info?.scaleWatermark}
+				/>
 				<UploadStatusComponent
 					info={info}
 					setinfo={setinfo}
