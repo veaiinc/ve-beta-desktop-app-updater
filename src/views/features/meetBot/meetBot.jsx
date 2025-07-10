@@ -338,7 +338,8 @@ const MeetBot = () => {
 						>
 							Video
 						</button>
-						<button
+						{/* Temporarily hide Audio until api works */}
+						{/* <button
 							className={`meetbot__drawer-tab${
 								info.selectedMode === 'desktop'
 									? ' meetbot__drawer-tab--active'
@@ -349,7 +350,7 @@ const MeetBot = () => {
 							}
 						>
 							Audio
-						</button>
+						</button> */}
 					</div>
 					<div className="meetbot__drawer-content">
 						<div className="meetbot__drawer-label">
