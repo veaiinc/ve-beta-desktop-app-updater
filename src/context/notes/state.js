@@ -52,6 +52,7 @@ import {
 	getNotesListDatabaseQuery,
 	getPageQueryDatabase,
 	createNotesDatabaseMutation,
+	updateDatabaseViewMutation,
 
 	// for meet bots
 	getMeetBotDataQuery,
@@ -134,8 +135,6 @@ export const NotesState = (props) => {
 				usertoken,
 				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
-
-			console.log('response==>getNotesList', response);
 			if (response?.[0]) {
 				const dataResponse = response?.[1]?.data?.createPage;
 				return [true, dataResponse];
@@ -150,7 +149,6 @@ export const NotesState = (props) => {
 
 	const getNotesPageData = async (payload, isDatabase = false) => {
 		try {
-			console.log('payload==>database', isDatabase);
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
@@ -1684,6 +1682,43 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const updateDatabaseView = async (payload, blockId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateDatabaseViewMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api_database',
+			);
+			if (response?.[0]) {
+				const view = state?.views?.[blockId] || [];
+				const { label, type } = response?.[1]?.data?.updateDatabaseView || {};
+				const updateData = { label, type };
+
+				const newView = view?.map((view) => {
+					if (view?._id === payload?.updateDatabaseViewId) {
+						return {
+							...view,
+							...updateData,
+						};
+					}
+					return view;
+				});
+				dispatch({
+					type: Actions.UPDATE_DATABASE_VIEWS,
+					payload: { [blockId]: newView },
+				});
+			} else {
+				message?.error('failed to update view');
+			}
+		} catch (error) {
+			console.error('error==>updateDatabaseView', error);
+		}
+	};
+
 	const updateRelatedViews = async ({
 		updatedRow,
 		updatedField,
@@ -1771,7 +1806,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api_database',
+				'page_notes_api',
 			);
 			if (response?.[0]) {
 				return response;
@@ -1874,5 +1909,6 @@ export const NotesState = (props) => {
 		createMeetBot,
 		deleteLiveKitRoom,
 		getMeetTranscriptHistory,
+		updateDatabaseView,
 	};
 };

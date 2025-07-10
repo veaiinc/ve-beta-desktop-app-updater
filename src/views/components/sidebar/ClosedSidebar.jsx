@@ -91,7 +91,7 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 		onIconClick();
 	};
 	return (
-		<div className="sidebar-closing">
+		<div className="sidebar-closing" onClick={() => onIconClick()}>
 			<div className="topContainerClosed">
 				<SidebarClosingSvg onClick={() => onIconClick()} />
 				{!isEarlyAccessPage && (

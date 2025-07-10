@@ -1,12 +1,11 @@
 import s from '../../../../assets/scss/notes/databaseComponents/databaseHeader.module.scss';
 import CustomTextArea from '../../globalComponents/CustomTextArea';
-import DatabaseViewTabs from './DatabaseViewTabs';
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/workflow/search.svg';
 import { ReactComponent as FilterIcon } from '../../../../assets/svg/tasks/newFilter.svg';
 import { ReactComponent as SettingsIcon } from '../../../../assets/svg/tasks/newSort.svg';
 import FilterComponent from './FilterComponent';
 import SortComponent from './SortComponent';
-import { memo, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import TaskHeader from '../../tasks/listView/TaskHeader';
 import ViewOptions from '../../dropDown/notes/database/ViewOptions';
 
@@ -19,11 +18,13 @@ const DatabaseHeader = ({
 	currentDatabaseViews,
 	handleTabChange,
 	handleCreateDatabaseView,
-	handleTabDropdownClick,
 	handleSearchChange,
 	searchQuery,
 	selectedViewId,
 	openAddModal,
+	databaseName,
+	onDatabaseNameChange,
+	handleDeleteDatabaseView,
 }) => {
 	const [info, setInfo] = useState({
 		filterSortOpen: false,
@@ -33,18 +34,25 @@ const DatabaseHeader = ({
 		setInfo((prev) => ({ ...prev, filterSortOpen: !prev.filterSortOpen }));
 	};
 
+	const handleTabDropdownClick = useCallback(
+		(data) => {
+			if (data?.value === 'delete' && data?.tabId) {
+				handleDeleteDatabaseView(data.tabId);
+			}
+		},
+		[handleDeleteDatabaseView],
+	);
+
 	return (
 		<div className={s.databaseHeader}>
 			<div className={s.titleArea}>
 				<CustomTextArea
-					// value={info?.databaseName}
-					defaultValue="Database"
-					// onChange={(e) => handleInfoChange({ databaseName: e.target.value })}
+					value={databaseName}
+					onChange={(e) => onDatabaseNameChange(e.target.value)}
 					className={s.title}
 				/>
 			</div>
 			<div className={s.viewsArea}>
-				{/* <DatabaseViewTabs /> */}
 				<TaskHeader
 					tabArray={currentDatabaseViews}
 					activeTab={selectedViewId}
@@ -77,6 +85,9 @@ const DatabaseHeader = ({
 						databaseId={databaseId}
 						blockId={block?.id}
 						pageId={pageId}
+						handleDeleteDatabaseView={handleDeleteDatabaseView}
+						isLastView={currentDatabaseViews?.length === 1}
+						databaseName={databaseName}
 					>
 						<button className={s.actionButton}>
 							<SettingsIcon />

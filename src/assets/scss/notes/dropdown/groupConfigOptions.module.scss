@@ -19,6 +19,16 @@
 		padding: 10px;
 		cursor: pointer;
 		justify-content: space-between;
+
+		.text {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			svg {
+				width: 16px;
+				height: 16px;
+			}
+		}
 		&:hover {
 			background-color: var(--card-hover);
 		}

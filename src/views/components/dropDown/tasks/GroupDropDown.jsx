@@ -329,7 +329,7 @@ const GroupDropDown = ({
 					databaseViewId: view?._id,
 					databaseId: databaseId,
 					input: {
-						fieldId: value ? value.value : null,
+						fieldId: value ? value.value : 'none',
 					},
 				},
 				blockId,

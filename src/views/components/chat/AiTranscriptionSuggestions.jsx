@@ -7,11 +7,13 @@ import { ReactComponent as MemorySvg } from '../../../assets/svg/memory.svg';
 import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import Context from '../../../context/context';
 import { fileTypeIcons, redirectTo, redirectTypeMapper } from '../../../helpers';
+import { useSearchParams } from 'react-router-dom';
 
 const AiTranscriptionSuggestions = ({ closeModal, showAmbientAssistance }) => {
 	const {
 		templates: { aiTranscriptionSuggestions, updateStateValues },
 	} = useContext(Context);
+	const [searchParams, setSearchParams] = useSearchParams();
 	const [info, setInfo] = useState({
 		files: [],
 		questions: [],
@@ -80,6 +82,9 @@ const AiTranscriptionSuggestions = ({ closeModal, showAmbientAssistance }) => {
 
 	const handleActionClick = useCallback(
 		(prompt) => {
+			const newParams = new URLSearchParams(searchParams);
+			newParams.set('chat', 'true');
+			setSearchParams(newParams);
 			updateStateValues({
 				activePromptForChat: prompt,
 			});

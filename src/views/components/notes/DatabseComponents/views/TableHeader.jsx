@@ -1,9 +1,10 @@
-import React, { memo, useEffect } from 'react';
+import { memo, useEffect } from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import Skeleton from 'react-loading-skeleton';
 import HeaderEditDropdown from '../../../dropDown/notes/database/HeaderEditDropdown';
 import { Tooltip } from 'antd';
 import s from '../../../../../assets/scss/notes/databaseComponents/tableView.module.scss';
+import DatabaseIcon from '../DatabaseIcon';
 
 const TableHeader = ({ columns, handleResizeStart, loading, databaseId, pageId }) => {
 	return (
@@ -49,7 +50,10 @@ const TableHeader = ({ columns, handleResizeStart, loading, databaseId, pageId }
 															highlightColor="#444"
 														/>
 													) : (
-														column?.name
+														<>
+															<DatabaseIcon type={column?.type} />
+															{column?.name}
+														</>
 													)}
 												</div>
 											</div>

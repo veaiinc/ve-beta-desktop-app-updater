@@ -15,7 +15,7 @@ const TableBody = ({
 	blockId,
 }) => {
 	const {
-		notes: { updateDatabaseSidebar, updateDatabaseRow },
+		notes: { updateDatabaseSidebar, updateDatabaseRow, addDatabaseRow },
 	} = useContext(Context);
 
 	const viewIdRef = useRef(viewId);
