@@ -20,7 +20,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 			getExistingconnectedAccounts,
 		},
 		profileInfo: { userDetailsData, getUserDetails },
-		knowledgeAgent: { actionsInfo }, // for already added actions
+		knowledgeAgent: { actionsInfo },
 	} = useContext(Context);
 	const { agentId } = useParams();
 	const [info, setInfo] = useState({
@@ -28,14 +28,13 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		isLoading: false,
 		error: null,
 		search: '',
-		addLoading: {}, // { [actionId]: boolean }
-		addError: {}, // { [actionId]: string }
+		addLoading: {},
+		addError: {},
 		hasNextPage: false,
 		page: 1,
 		perPage: 10,
 		totalActions: 0,
 		isConnecting: false,
-		// success: null,
 		connectedAccounts: [],
 		accountsLoading: false,
 		checkingAccounts: false,
@@ -43,12 +42,10 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 	const searchTimeoutRef = useRef(null);
 	const pageRef = useRef(1);
 
-	// Fetch user details if not available
 	useEffect(() => {
 		if (!userDetailsData) getUserDetails();
 	}, [userDetailsData]);
 
-	// Fetch all actions
 	const fetchActions = useCallback(
 		async (page = 1, reset = false, search = '') => {
 			setInfo((prev) => ({ ...prev, isLoading: true, error: null }));
@@ -77,7 +74,6 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		[listofAllappsActions, info.perPage],
 	);
 
-	// Initial fetch and on open
 	useEffect(() => {
 		if (isOpen) {
 			pageRef.current = 1;
@@ -87,16 +83,14 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				page: 1,
 				search: '',
 				error: null,
-				// success: null,
 				isConnecting: false,
 				connectedAccounts: [],
-				checkingAccounts: true, // Start with checking accounts
+				checkingAccounts: true,
 			}));
 			fetchConnectedAccounts();
 		}
 	}, [isOpen]);
 
-	// Debounced search
 	const handleSearch = useCallback(
 		(e) => {
 			const value = e.target.value;
@@ -117,7 +111,6 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		[fetchActions],
 	);
 
-	// Infinite scroll fetch more
 	const fetchMoreActions = useCallback(() => {
 		if (info.hasNextPage && !info.isLoading) {
 			const nextPage = pageRef.current + 1;
@@ -126,7 +119,6 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		}
 	}, [info.hasNextPage, info.isLoading, fetchActions, info.search]);
 
-	// Group actions by app name
 	const groupedActions = info.actions.reduce((acc, action) => {
 		const appName = (action.app_name || action.app || '')
 			.replace(/_/g, ' ')
@@ -136,12 +128,10 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		return acc;
 	}, {});
 
-	// Get already added action keys (from actionsInfo)
 	const addedActionKeys = Array.isArray(actionsInfo?.data)
 		? actionsInfo.data.map((a) => a.action_key || a.key || a.id)
 		: [];
 
-	// Fetch connected accounts
 	const fetchConnectedAccounts = async () => {
 		setInfo((prev) => ({ ...prev, accountsLoading: true }));
 		try {
@@ -159,14 +149,12 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 			setInfo((prev) => ({
 				...prev,
 				accountsLoading: false,
-				checkingAccounts: false, // Done checking accounts
+				checkingAccounts: false,
 			}));
+			fetchActions(1, true, '');
 		}
-		// Fetch actions after checking accounts
-		fetchActions(1, true, '');
 	};
 
-	// Add tool handler with account checking logic
 	const handleAddTool = async (action) => {
 		setInfo((prev) => ({
 			...prev,
@@ -179,17 +167,13 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		try {
 			let accountId = null;
 
-			// Check if we have an existing account for this app
 			const existingAccount = info.connectedAccounts.find(
 				(account) => account.app.name_slug === action.app,
 			);
 
 			if (existingAccount) {
-				// Use existing account - no need for Pipedream popup
 				accountId = existingAccount.id;
-				setInfo((prev) => ({ ...prev, isConnecting: false }));
 			} else {
-				// No existing account - need to connect via Pipedream
 				const [connectSuccess, connectRes] = await connectTool({ app: action.app });
 				if (!connectSuccess || !connectRes?.data?.token) {
 					throw new Error(connectRes?.message || 'Failed to get connection token');
@@ -198,54 +182,55 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				const { token } = connectRes.data;
 				const pd = createFrontendClient();
 
-				// Use Pipedream SDK to connect account
-				await pd.connectAccount({
-					app: action.app,
-					token: token,
-					onSuccess: async () => {
-						setInfo((prev) => ({ ...prev, isConnecting: false }));
+				await new Promise((resolve, reject) => {
+					pd.connectAccount({
+						app: action.app,
+						token: token,
+						onSuccess: async () => {
+							try {
+								const tenatUserId = userDetailsData?._id;
+								const accountsResponse = await getExistingconnectedAccounts({
+									tenatUserId,
+								});
 
-						// Fetch connected accounts to get the new account ID
-						try {
-							const tenatUserId = userDetailsData?._id;
-							const accountsResponse = await getExistingconnectedAccounts({
-								tenatUserId,
-							});
-
-							if (accountsResponse?.data?.connected_accounts) {
-								// Find the newly connected account for this app
-								const newAccount = accountsResponse.data.connected_accounts.find(
-									(account) => account.app.name_slug === action.app,
-								);
-								if (newAccount) {
-									accountId = newAccount.id;
+								if (accountsResponse?.data?.connected_accounts) {
+									const newAccount = accountsResponse.data.connected_accounts.find(
+										(account) => account.app.name_slug === action.app,
+									);
+									if (newAccount) {
+										accountId = newAccount.id;
+									} else {
+										throw new Error('Newly connected account not found');
+									}
+								} else {
+									throw new Error('Failed to fetch connected accounts');
 								}
+								resolve();
+							} catch (error) {
+								reject(error);
 							}
-						} catch (error) {
-							console.error(
-								'Error fetching connected accounts after connection:',
-								error,
-							);
-							throw new Error('Failed to complete tool setup');
-						}
-					},
-					onError: (err) => {
-						setInfo((prev) => ({
-							...prev,
-							error: err.message || 'Failed to connect to the app',
-							isConnecting: false,
-							addLoading: { ...prev.addLoading, [action._id]: false },
-							addError: {
-								...prev.addError,
-								[action._id]: err.message || 'Failed to connect to the app',
-							},
-						}));
-						return;
-					},
+						},
+						onError: (err) => {
+							setInfo((prev) => ({
+								...prev,
+								error: err.message || 'Failed to connect to the app',
+								isConnecting: false,
+								addLoading: { ...prev.addLoading, [action._id]: false },
+								addError: {
+									...prev.addError,
+									[action._id]: err.message || 'Failed to connect to the app',
+								},
+							}));
+							reject(err);
+						},
+					});
 				});
 			}
 
-			// Prepare payload for addActionToKnowledgeAgent (tool definition format)
+			if (!accountId) {
+				throw new Error('Account ID not found');
+			}
+
 			const name = action.name || action.key || action.id || '';
 			const description = action.description || '';
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -254,15 +239,12 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 			const contentType = 'json';
 			const headers = [{ name: 'Content-Type', value: 'application/json' }];
 
-			// Build props with variable placeholders
 			const props = {};
 			const variables = [];
 			(action.configurable_props || []).forEach((prop) => {
 				if (prop.type === 'app') {
-					// For app type, pass as object with authProvisionId
 					props[prop.name] = { authProvisionId: accountId };
 				} else {
-					// Use variable placeholder
 					props[prop.name] = `{{${prop.name}}}`;
 					variables.push({
 						name: prop.name,
@@ -272,15 +254,13 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				}
 			});
 
-			// Build body as string, replacing objects with JSON
 			const bodyObj = {
 				action_key: action.key || action.id || '',
 				app: action.app || '',
-				account_id: accountId, // Use the actual account ID
+				account_id: accountId,
 				props,
 			};
 			let body = JSON.stringify(bodyObj);
-			// Remove quotes around variable placeholders
 			body = body.replace(/"{{(.*?)}}"/g, '{{$1}}');
 
 			const payload = {
@@ -296,7 +276,6 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				agent: 'knowledgeAgent',
 			};
 
-			// Submit action to backend
 			await addActionToKnowledgeAgent(agentId, payload);
 
 			message.success('Tool added successfully');
@@ -304,6 +283,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				...prev,
 				addLoading: { ...prev.addLoading, [action._id]: false },
 				addError: { ...prev.addError, [action._id]: undefined },
+				isConnecting: false,
 			}));
 			if (onToolAdded) onToolAdded();
 			onClose();
@@ -318,7 +298,6 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		}
 	};
 
-	// Render
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -369,7 +348,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 										width="16px"
 										height="16px"
 										color="var(--primary-font)"
-									/>{' '}
+									/>
 									Loading more...
 								</div>
 							}
@@ -414,7 +393,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 																</div>
 																{isAdded ? (
 																	<span className="added-badge">
-																		&#10003; Added
+																		✓ Added
 																	</span>
 																) : (
 																	<button
@@ -474,21 +453,6 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 						</InfiniteScroll>
 					)}
 				</div>
-				{/* {info.success && (
-					<div
-						className="success-message"
-						style={{
-							marginTop: '10px',
-							padding: '8px 12px',
-							backgroundColor: 'var(--success-bg)',
-							color: 'var(--success)',
-							borderRadius: '4px',
-							fontSize: '14px',
-						}}
-					>
-						{info.success}
-					</div>
-				)} */}
 			</div>
 		</ReactModal>
 	);
