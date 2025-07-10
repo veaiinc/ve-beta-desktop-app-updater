@@ -834,6 +834,14 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		}));
 	};
 
+	const getName = (response) => {
+		if (!response?.response) return 'Unknown person';
+		const nameField = response?.response.find(
+			(item) => item?.variableId === '619f75683f381fd66dac4b65',
+		);
+		return nameField?.answer || 'Unknown person';
+	};
+
 	const handleSettingsToggle = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -956,7 +964,37 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 													>
 														<div className="header">
 															<div className="header__card-title">
-																{card?.title}
+																{card?.collectionType === 'forms' &&
+																	`a new for Response from ${getName(
+																		card,
+																	)}`}
+																{card?.collectionType ===
+																	'workflows' &&
+																	(card?.status ===
+																	'proposalAccepted'
+																		? `${
+																				card?.clientDetails
+																					?.name ||
+																				card?.clientDetails
+																					?.email ||
+																				''
+																		  } has accepted ${''} awaiting your confirmation. Click to confirm.`
+																		: card?.status ===
+																		  'contractSigned'
+																		? `${
+																				card?.clientDetails
+																					?.name ||
+																				card?.clientDetails
+																					?.email ||
+																				''
+																		  } has signed ${''} awaiting your confirmation. Click to confirm.`
+																		: '')}
+																{!(
+																	card?.collectionType ===
+																		'forms' ||
+																	card?.collectionType ==
+																		'workflows'
+																) && card?.title}
 															</div>
 															<div
 																className={`header__card-description ${
