@@ -2,14 +2,9 @@ import '@blocknote/core/fonts/inter.css';
 import { BlockNoteView } from '@blocknote/mantine';
 // import { createBlock } from '@blocknote/core';
 import '@blocknote/mantine/style.css';
-import {
-	getDefaultReactSlashMenuItems,
-	SuggestionMenuController,
-	useCreateBlockNote,
-} from '@blocknote/react';
+import { useCreateBlockNote } from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
 import NoteToolbar from '../../components/notes/NoteToolbar';
-import ShareComponent from '../../components/notes/ShareComponent';
 import {
 	useEffect,
 	memo,
@@ -24,24 +19,17 @@ import { useParams, useNavigate, useLocation, useSearchParams } from 'react-rout
 import Context from '../../../context/context';
 import moment from 'moment';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
-import MoreOptions from '../../components/notes/MoreOptions';
-import { StarSvg } from '../../../assets/svg/notes/Star';
-import { ReactComponent as DangerSvg } from '../../../assets/svg/notes/danger.svg';
 import { ReactComponent as CrossIcon } from '../../../assets/svg/notes/cross.svg';
 import { message } from '../../components/globalComponents/CustomToast';
 import { Helmet } from 'react-helmet';
-import Skeleton from 'react-loading-skeleton';
 import ObjectID from 'bson-objectid';
 import jwtDecode from 'jwt-decode';
-import { ReactComponent as DustBinIcon } from '../../../assets/svg/tasks/dustBin.svg';
-import { ReactComponent as RestoreIcon } from '../../../assets/svg/notes/restore.svg';
 import { Tooltip } from 'antd';
 import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
-import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ImageBlock } from '../../components/notes/ImageComponent';
-import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
+import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import { isEqual } from 'lodash';
 import { Database } from '../../components/notes/Database';
 import DatabaseSidebar from '../../components/modalsV2/notes/DatabaseSidebar';
@@ -52,10 +40,8 @@ import MeetTranscript from './MeetTranscript';
 import useLiveIntelligenceStream from '../../../hooks/useLiveIntelligenceStream';
 import useRecallStream from '../../../hooks/useRecallStream';
 import NoteTakerTranscript from './NoteTakerTranscript';
-import Spinner from '../../components/loaders/Spinner';
-import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
-import { FetchMoreLoaderComp } from '../../../helpers';
 import RecentChat from '../chat/RecentChat';
+import NotesHeader from '../../components/notes/DatabseComponents/NotesHeader';
 export const NotesRefContext = createContext(null);
 
 const initialState = {
@@ -898,7 +884,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		});
 	}, []);
 
-	const restorePage = async () => {
+	const restorePage = useCallback(async () => {
 		if (info?.deleteLoading) return;
 		setInfo((prev) => ({ ...prev, deleteLoading: true }));
 		const isDatabase = true;
@@ -921,7 +907,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			setInfo((prev) => ({ ...prev, deleteLoading: false }));
 			message?.error(`Couldn't restore page`);
 		}
-	};
+	}, [info?.deleteLoading, noteId]);
 
 	const handleCoverImageError = () => {
 		setInfo((prev) => ({ ...prev, coverImageError: true }));
@@ -1046,80 +1032,21 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 						</Helmet>
 					)}
 
-					{!info?.isDeleted ? (
-						<div className="notes-nav-menu">
-							<div className="notes-nav-left">
-								<div className="backBtnContainer">
-									<span
-										className="backBtn"
-										onClick={() => navigate(-1)}
-										aria-label="Go back to previous page"
-									>
-										<BackArrowSvg aria-hidden="true" />
-										<span>Notes</span>
-										<div className="divider"></div>
-									</span>
-								</div>
-								<div className="notes-nav-title">{info?.title}</div>
-							</div>
-
-							<div className="notes-nav-right">
-								<button
-									className="notes-nav-button"
-									onClick={() => handleFavorite(!info?.isFavorite)}
-								>
-									<StarSvg
-										fill={info?.isFavorite}
-										width={18}
-										height={18}
-										className="cursor-pointer"
-									/>
-								</button>
-
-								{info?.myAccess === 'full' && (
-									<ShareComponent pageId={noteId} makeApiCall={false} />
-								)}
-
-								<MoreOptions
-									notesConfigs={info?.notesConfigs}
-									onChange={handleMoreOptionsChange}
-									onDelete={handleDeletePage}
-									onDuplicate={handleDuplicatePage}
-								/>
-							</div>
-						</div>
-					) : (
-						<div className="deleted-badge">
-							<div className="badge-text-wrapper">
-								<DangerSvg />
-								<p className="delete-badge-message">
-									{info?.lastUpdated
-										? `${info?.lastUpdated?.firstName} ${
-												info?.lastUpdated?.lastName
-													? info?.lastUpdated?.lastName
-													: ''
-										  } `
-										: 'Someone '}
-									moved this page to trash{' '}
-									{info?.updatedAt ? moment?.unix(info?.updatedAt).fromNow() : ''}
-									.
-								</p>
-							</div>
-
-							<div className="badge-button-wrapper">
-								<button className="delete-badge-restore-btn" onClick={restorePage}>
-									<RestoreIcon />
-									Restore
-								</button>
-								<button
-									className="delete-badge-permanent-delete-btn"
-									onClick={() => handleDeletePage(true)}
-								>
-									<DustBinIcon /> Permanently delete
-								</button>
-							</div>
-						</div>
-					)}
+					<NotesHeader
+						isDeleted={info?.isDeleted}
+						title={info?.title}
+						isFavorite={info?.isFavorite}
+						noteId={noteId}
+						notesConfigs={info?.notesConfigs}
+						myAccess={info?.myAccess}
+						lastUpdated={info?.lastUpdated}
+						updatedAt={info?.updatedAt}
+						handleFavorite={handleFavorite}
+						handleMoreOptionsChange={handleMoreOptionsChange}
+						handleDeletePage={handleDeletePage}
+						handleDuplicatePage={handleDuplicatePage}
+						restorePage={restorePage}
+					/>
 
 					<div className="notes-editor-container">
 						<>
