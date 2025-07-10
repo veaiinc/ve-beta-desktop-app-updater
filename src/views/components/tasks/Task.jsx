@@ -1,10 +1,11 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import '../../../assets/scss/tasks/task.scss';
-import ListViewHeader from './listView/ListViewHeader';
+// import ListViewHeader from './listView/ListViewHeader';
 import { ReactComponent as ListViewIcon } from '../../../assets/svg/tasks/list.svg';
 import { ReactComponent as BoardViewIcon } from '../../../assets/svg/tasks/board.svg';
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
 import { ReactComponent as GalleryViewIcon } from '../../../assets/svg/tasks/blocks.svg';
+import { ReactComponent as PlusSvg } from '../../../assets/svg/tasks/plusInCircle.svg';
 import ListView from './views/ListView';
 import BoardView from './views/Board';
 import GalleryView from './views/GalleryView';
@@ -418,6 +419,9 @@ const Task = ({
 						{/* <div className="quick-actions-btn">
 							<QuickActions />
 						</div> */}
+						<button className="addTaskButton" onClick={handleAddButtonOnClick}>
+							<PlusSvg /> Create Task
+						</button>
 					</div>
 
 					<div className="task-content-area">

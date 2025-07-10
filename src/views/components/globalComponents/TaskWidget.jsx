@@ -959,6 +959,7 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 				colors={colors}
 				addNewTask={addNewTask}
 				isSubTask={info?.isCreatingSubtask}
+				defaultClient={clientId}
 			/>
 		</div>
 	);
