@@ -13,14 +13,13 @@ import AgentHeader from '../runBuildToggle/AgentHeader';
 const AgentDetails = () => {
 	const { agentId } = useParams();
 	const [searchParams, setSearchParams] = useSearchParams();
-
 	const agentActionParam = searchParams.get('agentAction') || 'buildAgent';
 	const configParam = searchParams.get('config') || 'prompt';
+	const agentCredentialsRef = useRef(null);
 
 	const [info, setInfo] = useState({
 		agentAction: agentActionParam,
 	});
-	const agentCredentialsRef = useRef(null);
 
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, getActiveKnowledgeAgentDetails },

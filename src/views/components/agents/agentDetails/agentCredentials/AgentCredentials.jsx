@@ -1,4 +1,12 @@
-import React, { memo, useState, useEffect, useContext, useRef, useImperativeHandle, forwardRef  } from 'react';
+import {
+	memo,
+	useState,
+	useEffect,
+	useContext,
+	useRef,
+	useImperativeHandle,
+	forwardRef,
+} from 'react';
 import s from './agentCredentials.module.scss';
 import Context from '../../../../../context/context';
 import { message } from '../../../../components/globalComponents/CustomToast';
@@ -6,6 +14,8 @@ import PencilIcon from '../assets/PencilIcon';
 import CatIcon from '../assets/cat.png';
 
 const AgentCredentials = forwardRef(({ agentId }, ref) => {
+	const agentNameInputRef = useRef(null);
+
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, updateKnowledgeAgent, uploadAgentProfilePic },
 	} = useContext(Context);
@@ -19,8 +29,6 @@ const AgentCredentials = forwardRef(({ agentId }, ref) => {
 			agentDescription: false,
 		},
 	});
-
-	const agentNameInputRef = useRef(null);
 
 	useImperativeHandle(ref, () => ({
 		triggerEditAgentName() {

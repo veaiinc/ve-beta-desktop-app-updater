@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import s from './agentHeader.module.scss';
 import { ReactComponent as BackSvg } from './assets/back.svg';
 import { ReactComponent as EditIcon } from './assets/edit.svg';
@@ -28,7 +28,7 @@ const AgentHeader = ({ onEditClick }) => {
 			const [success, data] = await deleteKnowledgeAgent(agentId);
 			if (success) {
 				message.success('Agent deleted successfully');
-				navigate('/agents')
+				navigate('/agents');
 			} else {
 				message.error(data?.message || 'Failed to delete agent');
 			}
