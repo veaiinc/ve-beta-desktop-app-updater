@@ -1,14 +1,10 @@
-import { memo, useCallback, useState, useEffect, useRef, useMemo } from 'react';
+import { memo, useCallback, useState, useEffect, useRef } from 'react';
 import '../../../../assets/scss/home_page/modals/aiSuggestionsModal.scss';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../../assets/svg/home_page/arrow-right.svg';
 import { ReactComponent as DeleteSvg } from '../../../../assets/svg/delete.svg';
-import { ReactComponent as CalendarSvg } from '../../../../assets/svg/home_page/calendar.svg';
 import { ReactComponent as AgentsSvg } from '../../../../assets/svg/sidebar/agentsIcon.svg';
-import { ReactComponent as RocketSvg } from '../../../../assets/svg/home_page/rocket.svg';
-import { ReactComponent as BulbSvg } from '../../../../assets/svg/home_page/bulb.svg';
-import CreditCoinImage from '../../../../assets/images/creditCoin.png';
-import { ReactComponent as ArrowUpRightSvg } from '../../../../assets/svg/sidebar/arrowupright.svg';
+// import CreditCoinImage from '../../../../assets/images/creditCoin.png';
 import {
 	handleCombinedChainOfThought,
 	updateCitationIdsWithCitations,
@@ -16,12 +12,10 @@ import {
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
-import { Collapse, Drawer, Tooltip } from 'antd';
+import { Drawer, Tooltip } from 'antd';
 import Context from '../../../../context/context';
 import { useContext } from 'react';
 import { message } from '../../globalComponents/CustomToast';
-import { ReactComponent as StarSvg } from '../../../../assets/svg/home_page/star.svg';
-import CombinedChainOfThought from '../../chat/chatComponents/CombinedChainOfThought';
 import {
 	getFaviconUrl,
 	getWebsiteName,
@@ -31,10 +25,10 @@ import {
 } from '../../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import PromptPopup from '../../homePage/PromptPopup';
-import ProactiveAIShare from '../../../features/homePage/proactiveai/ProactiveAIShare';
+// import ProactiveAIShare from '../../../features/homePage/proactiveai/ProactiveAIShare';
 import jwtDecode from 'jwt-decode';
 import ChainOfThoughtInterpreter from '../../homePage/ChainOfThoughtInterpreter';
-const { Panel } = Collapse;
+import FormDescription from '../../forms/FormDescription';
 
 const AISuggestionsModal = ({
 	open,
@@ -44,8 +38,8 @@ const AISuggestionsModal = ({
 	onPrevCardClick,
 	totalDocs,
 	selectedCardNumber,
-	onFavouriteClick,
 	shouldShowCards = true,
+	selectedOption = null,
 }) => {
 	const {
 		templates: {
@@ -164,22 +158,6 @@ const AISuggestionsModal = ({
 		[info?.chainOfThoughtData],
 	);
 
-	// const handleThumbClick = async (type) => {
-	// 	if (data?.feedback === type) return;
-	// 	const res = await pendingActionsUpdate(data?._id, { feedback: type });
-	// 	if (res?.[0] === true) {
-	// 		getAISuggestedPendingActions(
-	// 			{
-	// 				feedback: type,
-	// 			},
-	// 			'update',
-	// 			data?._id,
-	// 		);
-	// 	} else {
-	// 		message.error('Failed to update feedback');
-	// 	}
-	// };
-
 	const handleRunBtnClick = () => {
 		const questions = data?.informationRequests;
 		const answers = info?.questionsAnswers || {};
@@ -294,12 +272,9 @@ const AISuggestionsModal = ({
 		priority,
 		research_report,
 		suggested_actions,
-		solutions,
 		suggested_prompts,
 		usages,
-		informationRequests,
 		categories,
-		crux,
 		createdAt,
 		thinker_sources,
 		sessionId,
@@ -311,8 +286,6 @@ const AISuggestionsModal = ({
 		month: 'short',
 		day: 'numeric',
 	});
-
-	if (!data) return null;
 
 	return (
 		<Drawer
@@ -366,10 +339,15 @@ const AISuggestionsModal = ({
 								>
 									<StarSvg />
 								</div> */}
-								<div className="btn teach-me-btn" onClick={handleOpenFeedbackPopup}>
-									<AgentsSvg style={{ color: 'var(--primary-button)' }} /> Teach
-									me
-								</div>
+								{selectedOption !== 'action' && (
+									<div
+										className="btn teach-me-btn"
+										onClick={handleOpenFeedbackPopup}
+									>
+										<AgentsSvg style={{ color: 'var(--primary-button)' }} />{' '}
+										Teach me
+									</div>
+								)}
 
 								{/* <ProactiveAIShare proactiveAiId={data?._id} /> */}
 
@@ -387,9 +365,6 @@ const AISuggestionsModal = ({
 										arrow={false}
 									>
 										<div className="prioritySuggestionModal">
-											{/* <div className="icon">
-												<CalendarSvg />
-											</div> */}
 											<div className="priority-text">{`${createdDate}`}</div>
 										</div>
 									</Tooltip>
@@ -464,552 +439,307 @@ const AISuggestionsModal = ({
 										</div>
 									</Tooltip>
 								)}
-								<Tooltip
-									title={<div className="tooltipOption">Delete</div>}
-									placement="bottom"
-									color="transparent"
-									arrow={false}
-								>
-									<div className="btn delete-btn" onClick={handleDeleteCard}>
-										<DeleteSvg />
-									</div>
-								</Tooltip>
+								{selectedOption !== 'action' && (
+									<Tooltip
+										title={<div className="tooltipOption">Delete</div>}
+										placement="bottom"
+										color="transparent"
+										arrow={false}
+									>
+										<div className="btn delete-btn" onClick={handleDeleteCard}>
+											<DeleteSvg />
+										</div>
+									</Tooltip>
+								)}
 							</div>
 						</div>
 					</div>
 
-					<div className="body" ref={bodyRef}>
-						<div className="header-title-text">{title || ''}</div>
+					{selectedOption === 'action' ? (
+						<>
+							{data?.collectionType === 'forms' && (
+								<FormDescription response={data} activeTab={'responses'} />
+							)}
+						</>
+					) : (
+						<>
+							<div className="body" ref={bodyRef}>
+								<div className="header-title-text">{title || ''}</div>
 
-						<div className="body-header-wrapper">
-							<div className="body-header">
-								<div className="description">{description || ''}</div>
-							</div>
-
-							<div className="suggestions-info">
-								<div className="info"></div>
-
-								<div className="more-info">
-									{data?.knowledgeBase?.[0]?.metadata?.connectedEmail && (
-										<Tooltip
-											title={
-												<div className="tooltipOption">
-													Triggered Source
-												</div>
-											}
-											color="transparent"
-											arrow={false}
-											placement="bottom"
-										>
-											<div className="triggered-source-container">
-												<span
-													className="triggered-source-value"
-													onClick={() =>
-														redirectTo(
-															data?.moduleType,
-															data?.knowledgeBase?.[0]?.metadata
-																?.identifier,
-														)
-													}
-												>
-													{fileTypeIcons[data?.moduleType]}
-													{
-														data?.knowledgeBase?.[0]?.metadata
-															?.connectedEmail
-													}
-												</span>
-											</div>
-										</Tooltip>
-									)}
-									{categories?.length > 0 &&
-										categories?.map((category, idx) => (
-											<div key={idx} className="category">
-												{category}
-											</div>
-										))}
-								</div>
-							</div>
-						</div>
-						{/* {(solutions?.length > 0 ||
-							suggested_prompts?.length > 0 ||
-							suggested_actions?.length > 0) && (
-							<div
-								className={`ai-results-container`}
-								onClick={() =>
-									setInfo((prev) => ({
-										...prev,
-										isAIResultsExpanded: !prev?.isAIResultsExpanded,
-									}))
-								}
-							>
-								<Collapse
-									activeKey={info?.isAIResultsExpanded ? ['1'] : []}
-									onChange={(key) =>
-										setInfo((prev) => ({
-											...prev,
-											isAIResultsExpanded: key.length > 0,
-										}))
-									}
-									expandIcon={() => {
-										return (
-											<div className="expand-icon">
-												<ChevronRightThinSvg />
-											</div>
-										);
-									}}
-								>
-									<Panel
-										header={
-											<div className="cot-header">
-												<div className="cot-text">
-													<div className="title-text">
-														What you can do now
-													</div>
-													<div className="description-text">
-														AI-curated solutions and recommended actions
-														and prompts based on the current context.
-													</div>
-												</div>
-											</div>
-										}
-										key="1"
-									>
-										<div
-											className="ai-results-wrapper"
-											onClick={(e) => e?.stopPropagation()}
-										>
-											<div className="results-container">
-												{Array?.isArray(solutions)
-													? solutions?.map((item, index) => (
-															<div
-																className="solution-item"
-																key={index}
-															>
-																<div className="solution-text">
-																	{updateCitationIdsWithCitations(
-																		item,
-																		thinker_sources || [],
-																	)}
-																</div>
-																<div className="logo-container">
-																	<BulbSvg />
-																	<div className="logo-text">
-																		Solution
-																	</div>
-																</div>
-															</div>
-													  ))
-													: solutions}
-
-												 {Array?.isArray(suggested_actions)
-													? suggested_actions?.map((item, index) => (
-															<div
-																className="result-item"
-																key={index}
-																onClick={() =>
-																	handleActionClick(item)
-																}
-															>
-																<div className="result-text">
-																	{updateCitationIdsWithCitations(
-																		item,
-																		thinker_sources || [],
-																	)}
-																</div>
-
-																<div className="logo-container">
-																	<RocketSvg />
-																	<div className="logo-text">
-																		Action
-																	</div>
-																</div>
-															</div>
-												
-													: suggested_actions}
-											</div>
-
-											{suggested_prompts?.length > 0 && (
-												<div className="suggested-prompts-container">
-													<div className="suggested-prompts-title">
-														Recommended Prompts
-													</div>
-													<div
-														className="suggested-prompts"
-														onClick={(e) => e.stopPropagation()}
-													>
-														{Array?.isArray(suggested_prompts)
-															? suggested_prompts?.map(
-																	(item, index) => (
-																		<div
-																			className="prompt-item"
-																			key={index}
-																			onClick={() =>
-																				handlePromptClick(
-																					item,
-																				)
-																			}
-																		>
-																			<div className="logo">
-																				<ArrowRightSvg />
-																			</div>
-																			<div className="item-text">
-																				{updateCitationIdsWithCitations(
-																					item,
-																					thinker_sources ||
-																						[],
-																				)}
-																			</div>
-																		</div>
-																	),
-															  )
-															: suggested_prompts}
-													</div>
-												</div>
-											)} 
-										</div>
-									</Panel>
-								</Collapse>
-							</div>
-						)} */}
-
-						<div className="tabs-container">
-							<div className="tab-buttons">
-								<div
-									className={`tab-btn ${
-										info?.activeTab === 'actions' ? 'active' : ''
-									}`}
-									onClick={() => handleTabClick('actions')}
-								>
-									Actions
-								</div>
-								{/* {info?.chainOfThoughtData?.hasChainOfThought && (
-									
-								)} */}
-
-								<div
-									className={`tab-btn ${
-										info?.activeTab === 'report' ? 'active' : ''
-									}`}
-									onClick={() => handleTabClick('report')}
-								>
-									Report
-								</div>
-
-								{thinker_sources?.length > 0 && (
-									<div
-										className={`tab-btn ${
-											info?.activeTab === 'sources' ? 'active' : ''
-										}`}
-										onClick={() => handleTabClick('sources')}
-									>
-										Sources
+								<div className="body-header-wrapper">
+									<div className="body-header">
+										<div className="description">{description || ''}</div>
 									</div>
-								)}
-							</div>
-						</div>
-						{info?.activeTab === 'actions' && (
-							<div className="situation-overview-container">
-								{suggested_actions?.length > 0 && (
-									<div className="suggested-actions-wrapper">
-										<div className="suggested-action-text">Actions</div>
-										<div className="suggested-actions-container">
-											{Array?.isArray(suggested_actions)
-												? suggested_actions?.map((item, index) => (
-														<div
-															className="suggested-action"
-															key={index}
+
+									<div className="suggestions-info">
+										<div className="info"></div>
+
+										<div className="more-info">
+											{data?.knowledgeBase?.[0]?.metadata?.connectedEmail && (
+												<Tooltip
+													title={
+														<div className="tooltipOption">
+															Triggered Source
+														</div>
+													}
+													color="transparent"
+													arrow={false}
+													placement="bottom"
+												>
+													<div className="triggered-source-container">
+														<span
+															className="triggered-source-value"
 															onClick={() =>
-																handleActionClick(item, sessionId)
+																redirectTo(
+																	data?.moduleType,
+																	data?.knowledgeBase?.[0]
+																		?.metadata?.identifier,
+																)
 															}
 														>
-															{/* <div className="result-text"> */}
-															{updateCitationIdsWithCitations(
-																item,
-																thinker_sources || [],
-															)}
-															{/* </div> */}
-
-															{/* <div className="logo-container">
-															<RocketSvg />
-															<div className="logo-text">Action</div>
-														</div> */}
-														</div>
-												  ))
-												: suggested_actions}
+															{fileTypeIcons[data?.moduleType]}
+															{
+																data?.knowledgeBase?.[0]?.metadata
+																	?.connectedEmail
+															}
+														</span>
+													</div>
+												</Tooltip>
+											)}
+											{categories?.length > 0 &&
+												categories?.map((category, idx) => (
+													<div key={idx} className="category">
+														{category}
+													</div>
+												))}
 										</div>
 									</div>
-								)}
+								</div>
 
-								{suggested_prompts?.length > 0 && (
-									<div className="suggested-prompts-container">
-										<div className="suggested-prompts-title">Prompts</div>
+								<div className="tabs-container">
+									<div className="tab-buttons">
 										<div
-											className="suggested-prompts"
-											onClick={(e) => e.stopPropagation()}
+											className={`tab-btn ${
+												info?.activeTab === 'actions' ? 'active' : ''
+											}`}
+											onClick={() => handleTabClick('actions')}
 										>
-											{Array?.isArray(suggested_prompts)
-												? suggested_prompts?.map((item, index) => (
-														<div
-															className="prompt-item"
-															key={index}
-															onClick={() => handlePromptClick(item)}
-														>
-															<div className="logo">
-																<ArrowRightSvg />
-															</div>
-															<div className="item-text">
-																{updateCitationIdsWithCitations(
-																	item,
-																	thinker_sources || [],
-																)}
-															</div>
-														</div>
-												  ))
-												: suggested_prompts}
+											Actions
 										</div>
-									</div>
-								)}
 
-								{/* {informationRequests?.length > 0 && (
-									<div
-										className={`questions-wrapper ${
-											info?.isQuestionsExpanded ? 'active' : ''
-										}`}
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												isQuestionsExpanded: !prev?.isQuestionsExpanded,
-											}))
-										}
-									>
-										<Collapse
-											activeKey={info?.isQuestionsExpanded ? ['1'] : []}
-											onChange={(key) =>
-												setInfo((prev) => ({
-													...prev,
-													isQuestionsExpanded: key?.length > 0,
-												}))
-											}
-											expandIcon={() => {
-												return (
-													<div className="expand-icon">
-														<ChevronRightThinSvg />
-													</div>
-												);
-											}}
+										<div
+											className={`tab-btn ${
+												info?.activeTab === 'report' ? 'active' : ''
+											}`}
+											onClick={() => handleTabClick('report')}
 										>
-											<Panel
-												header={
-													<div className="cot-header">
-														<div className="cot-text">
-															<div className="title-text">
-																Questions AI have
-															</div>
-															<div className="description-text">
-																Unanswered queries needing follow-up
-																or clarity.
-															</div>
-														</div>
-													</div>
-												}
-												key="1"
+											Report
+										</div>
+
+										{thinker_sources?.length > 0 && (
+											<div
+												className={`tab-btn ${
+													info?.activeTab === 'sources' ? 'active' : ''
+												}`}
+												onClick={() => handleTabClick('sources')}
 											>
+												Sources
+											</div>
+										)}
+									</div>
+								</div>
+								{info?.activeTab === 'actions' && (
+									<div className="situation-overview-container">
+										{suggested_actions?.length > 0 && (
+											<div className="suggested-actions-wrapper">
+												<div className="suggested-action-text">Actions</div>
+												<div className="suggested-actions-container">
+													{Array?.isArray(suggested_actions)
+														? suggested_actions?.map((item, index) => (
+																<div
+																	className="suggested-action"
+																	key={index}
+																	onClick={() =>
+																		handleActionClick(
+																			item,
+																			sessionId,
+																		)
+																	}
+																>
+																	{updateCitationIdsWithCitations(
+																		item,
+																		thinker_sources || [],
+																	)}
+																</div>
+														  ))
+														: suggested_actions}
+												</div>
+											</div>
+										)}
+
+										{suggested_prompts?.length > 0 && (
+											<div className="suggested-prompts-container">
+												<div className="suggested-prompts-title">
+													Prompts
+												</div>
 												<div
-													className="questions-container"
+													className="suggested-prompts"
 													onClick={(e) => e.stopPropagation()}
 												>
-													{informationRequests.map(
-														(questionData, index) => (
-															<div
-																className="question-container"
-																key={index}
-															>
-																<div className="question">
-																	{questionData?.question || ''}
-																</div>
-																<input
-																	type="text"
-																	className="answers-input"
-																	placeholder="Enter your answer..."
-																	value={
-																		info?.questionsAnswers?.[
-																			index
-																		] || ''
+													{Array?.isArray(suggested_prompts)
+														? suggested_prompts?.map((item, index) => (
+																<div
+																	className="prompt-item"
+																	key={index}
+																	onClick={() =>
+																		handlePromptClick(item)
 																	}
-																	onChange={(e) => {
-																		setInfo({
-																			...info,
-																			questionsAnswers: {
-																				...info.questionsAnswers,
-																				[index]:
-																					e.target.value,
-																			},
-																		});
-																	}}
-																/>
-															</div>
-														),
-													)}
-													<button
-														onClick={handleRunBtnClick}
-														className="submit-btn"
-													>
-														Submit
-														<div className="icon-container">
-															<ArrowUpRightSvg />
-														</div>
-													</button>
+																>
+																	<div className="logo">
+																		<ArrowRightSvg />
+																	</div>
+																	<div className="item-text">
+																		{updateCitationIdsWithCitations(
+																			item,
+																			thinker_sources || [],
+																		)}
+																	</div>
+																</div>
+														  ))
+														: suggested_prompts}
 												</div>
-											</Panel>
-										</Collapse>
+											</div>
+										)}
 									</div>
-								)} */}
-							</div>
-						)}
+								)}
 
-						{info?.activeTab === 'report' && (
-							<div className="cot">
-								<div className="chain-of-thought-container">
-									{/* <div className="chain-of-thought-content">
-										<CombinedChainOfThought
-											data={info?.chainOfThoughtData}
-											citations={thinker_sources || null}
-										/>
-									</div> */}
-									{info?.chainOfThoughtData?.hasChainOfThought && (
-										<div className="chain-of-thought-wrapper">
-											<div className="chain-of-thought-text">
-												Chain of thought
-											</div>
-											<div className="chain-of-thought-content">
-												<ChainOfThoughtInterpreter
-													data={info?.chainOfThoughtData}
-													citations={thinker_sources || null}
-													confidenceScore={confidence_score}
-												/>
-											</div>
-										</div>
-									)}
-
-									{research_report && (
-										<div className={`report-container`}>
-											<div
-												className="report-description"
-												onClick={(e) => e.stopPropagation()}
-											>
-												<Markdown citations={thinker_sources || null}>
-													{research_report || ''}
-												</Markdown>
-											</div>
-										</div>
-									)}
-								</div>
-							</div>
-						)}
-
-						{info?.activeTab === 'sources' && (
-							<div className="source-content">
-								{(thinker_sources || [])?.map((citation, idx) => (
-									<div key={citation?.id || idx}>
-										<div
-											className="citation-item"
-											onClick={() =>
-												redirectTo?.(
-													citation?.type,
-													citation?.[
-														redirectTypeMapper?.[citation?.type]
-													],
-												)
-											}
-										>
-											<div className="citation-header">
-												<div className="citation-icon">
-													{citation?.type === 'url' ? (
-														getFaviconUrl(citation?.name) ? (
-															<img
-																src={getFaviconUrl(citation?.name)}
-																alt="favicon"
-																className="favicon-image"
-															/>
-														) : (
-															<div className="company-icon">
-																{getWebsiteName(
-																	citation?.name,
-																)?.charAt(0)}
-															</div>
-														)
-													) : (
-														<div className="company-icon">
-															{citation?.type === 's3_key'
-																? fileTypeIcons[
-																		citation?.name?.match(
-																			/\.(\w+)$/,
-																		)?.[1]
-																  ]
-																: fileTypeIcons[citation?.type]}
-														</div>
-													)}
-												</div>
-												<div className="citation-details">
-													<div className="website-name">
-														{citation?.type === 'url'
-															? getWebsiteName(citation?.name)
-															: citation?.name}
+								{info?.activeTab === 'report' && (
+									<div className="cot">
+										<div className="chain-of-thought-container">
+											{info?.chainOfThoughtData?.hasChainOfThought && (
+												<div className="chain-of-thought-wrapper">
+													<div className="chain-of-thought-text">
+														Chain of thought
 													</div>
-													{citation?.type === 'url' && (
-														<div className="citation-url">
-															{citation?.name}
-														</div>
-													)}
-
-													{citation?.snippet && (
-														<div className="citation-title">
-															{citation?.snippet}
-														</div>
-													)}
+													<div className="chain-of-thought-content">
+														<ChainOfThoughtInterpreter
+															data={info?.chainOfThoughtData}
+															citations={thinker_sources || null}
+															confidenceScore={confidence_score}
+														/>
+													</div>
 												</div>
-											</div>
-											<div className="arrow-icon">
-												<ArrowRightIcon />
-											</div>
-										</div>
-										<div className="citation-divider" />
-									</div>
-								))}
-							</div>
-						)}
-					</div>
+											)}
 
-					<div className="footer">
-						<div className="footer-content">
-							{/* <div className="footer-left">
-								<div
-									className={`thumbs-up-container ${
-										feedback === 'thumbsup' ? 'selected-thumb' : ''
-									}`}
-									onClick={() => handleThumbsClick('thumbsup')}
-								>
-									<ThumbsUpSvg />
-								</div>
-								<div
-									className={`thumbs-up-container ${
-										feedback === 'thumbsdown' ? 'selected-thumb' : ''
-									}`}
-									onClick={() => handleThumbsClick('thumbsdown')}
-								>
-									<ThumbsDownSvg />
-								</div>
-							</div> */}
-							<div className="btns-container">
-								<button
-									className="report-btn"
-									onClick={() => handleViewReportClick(data)}
-								>
-									Ask AI
-								</button>
+											{research_report && (
+												<div className={`report-container`}>
+													<div
+														className="report-description"
+														onClick={(e) => e.stopPropagation()}
+													>
+														<Markdown
+															citations={thinker_sources || null}
+														>
+															{research_report || ''}
+														</Markdown>
+													</div>
+												</div>
+											)}
+										</div>
+									</div>
+								)}
+
+								{info?.activeTab === 'sources' && (
+									<div className="source-content">
+										{(thinker_sources || [])?.map((citation, idx) => (
+											<div key={citation?.id || idx}>
+												<div
+													className="citation-item"
+													onClick={() =>
+														redirectTo?.(
+															citation?.type,
+															citation?.[
+																redirectTypeMapper?.[citation?.type]
+															],
+														)
+													}
+												>
+													<div className="citation-header">
+														<div className="citation-icon">
+															{citation?.type === 'url' ? (
+																getFaviconUrl(citation?.name) ? (
+																	<img
+																		src={getFaviconUrl(
+																			citation?.name,
+																		)}
+																		alt="favicon"
+																		className="favicon-image"
+																	/>
+																) : (
+																	<div className="company-icon">
+																		{getWebsiteName(
+																			citation?.name,
+																		)?.charAt(0)}
+																	</div>
+																)
+															) : (
+																<div className="company-icon">
+																	{citation?.type === 's3_key'
+																		? fileTypeIcons[
+																				citation?.name?.match(
+																					/\.(\w+)$/,
+																				)?.[1]
+																		  ]
+																		: fileTypeIcons[
+																				citation?.type
+																		  ]}
+																</div>
+															)}
+														</div>
+														<div className="citation-details">
+															<div className="website-name">
+																{citation?.type === 'url'
+																	? getWebsiteName(citation?.name)
+																	: citation?.name}
+															</div>
+															{citation?.type === 'url' && (
+																<div className="citation-url">
+																	{citation?.name}
+																</div>
+															)}
+
+															{citation?.snippet && (
+																<div className="citation-title">
+																	{citation?.snippet}
+																</div>
+															)}
+														</div>
+													</div>
+													<div className="arrow-icon">
+														<ArrowRightIcon />
+													</div>
+												</div>
+												<div className="citation-divider" />
+											</div>
+										))}
+									</div>
+								)}
 							</div>
-						</div>
-					</div>
+
+							<div className="footer">
+								<div className="footer-content">
+									<div className="btns-container">
+										<button
+											className="report-btn"
+											onClick={() => handleViewReportClick(data)}
+										>
+											Ask AI
+										</button>
+									</div>
+								</div>
+							</div>
+						</>
+					)}
 				</div>
 			</div>
 

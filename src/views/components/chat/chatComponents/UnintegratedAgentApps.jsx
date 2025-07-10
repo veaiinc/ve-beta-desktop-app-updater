@@ -1,15 +1,27 @@
-import { memo, useContext } from 'react';
+import { memo, useContext, useState } from 'react';
 import s from '../../../../assets/scss/chat/chatComponents/unintegratedAgentApps.module.scss';
 import { createFrontendClient } from '@pipedream/sdk/browser';
 import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';
+// import Spinner from '../../loaders/Spinner';
 
 const UnintegratedAgentApps = ({ apps = [] }) => {
 	const {
 		templates: { updateStateValues },
 		knowledgeAgent: { connectTool },
 	} = useContext(Context);
-	const handleAddTool = async (app) => {
+	const [info, setInfo] = useState({
+		loading: false,
+		selectedIndex: null,
+	});
+
+	const handleAddTool = async (app, index) => {
+		if (info?.loading) return;
+		setInfo((prev) => ({
+			...prev,
+			loading: true,
+			selectedIndex: index,
+		}));
 		try {
 			// 1. Connect tool to get connection token
 			const [connectSuccess, connectRes] = await connectTool({ app: app });
@@ -28,13 +40,18 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 					message.success('Tool added successfully');
 					updateStateValues({ activeInputForChat: 'proceed' });
 				},
-				onError: (err) => {
+				onError: () => {
 					throw new Error('Failed to connect to the app');
 				},
 			});
 		} catch (error) {
 			message?.error(error?.message || '');
 		}
+		setInfo((prev) => ({
+			...prev,
+			loading: false,
+			selectedIndex: null,
+		}));
 	};
 
 	return (
@@ -42,7 +59,11 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 			<div className={s.text}>Connect these tools</div>
 			<div className={s.appsContainer}>
 				{apps?.map((app, index) => (
-					<div className={s.appContainer} key={index} onClick={() => handleAddTool(app)}>
+					<div
+						className={s.appContainer}
+						key={index}
+						onClick={() => handleAddTool(app, index)}
+					>
 						{app || ''}
 					</div>
 				))}
