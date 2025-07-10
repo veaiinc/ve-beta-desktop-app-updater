@@ -116,6 +116,11 @@ const PersonMultiSelect = ({
 										</div>
 									</div>
 								)}
+								<div className="person-multi-select-selected-item person-multi-select-add-item">
+									<span className="person-multi-select-add-item-text">
+										+ Select Clients
+									</span>
+								</div>
 							</div>
 						) : (
 							`Select ${title}`
