@@ -79,7 +79,7 @@ const useLiveIntelligenceStream = () => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const region = localStorage.getItem('region') || 'us-east-1';
 
-			const baseUrl = `https://humbly-pleased-alien.ngrok-free.app/${workspaceId}/${sessionId}/${pageId}/live_intelligence_memory_frontend?token=${usertoken}`;
+			const baseUrl = `https://live.${region}.ve.ai/${workspaceId}/${sessionId}/${pageId}/live_intelligence_memory_frontend?token=${usertoken}`;
 
 			if (socketRef.current) {
 				socketRef.current.close();
@@ -235,7 +235,7 @@ const useLiveIntelligenceStream = () => {
 			if (hasPunctuation) {
 				if (!sendingContextRef.current) {
 					sendingContextRef.current = true;
-					
+
 					sendContextData();
 					if (sendTimeoutRef.current) {
 						clearTimeout(sendTimeoutRef.current);

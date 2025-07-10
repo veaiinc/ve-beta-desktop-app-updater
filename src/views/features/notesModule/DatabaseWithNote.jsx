@@ -153,6 +153,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const [activeTab, setActiveTab] = useState('transcript');
 	const location = useLocation();
 
+	console.log(transcriptList);
+
 	// Add hooks for live intelligence and recall stream
 	const { createWebSocketConnection: recallConnection } = useRecallStream();
 	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =

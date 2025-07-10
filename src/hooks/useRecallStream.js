@@ -37,7 +37,7 @@ const useRecallStream = () => {
 		reconnectAttemptsRef.current = 0; // Reset reconnect attempts
 		isIntentionallyClosedRef.current = false;
 
-		const wsUrl = `https://gazelle-ruling-monster.ngrok-free.app/frontend/ws/${pageId}?token=${usertoken}`;
+		const wsUrl = `wss://recall.${region}.ve.ai/frontend/ws/${pageId}?token=${usertoken}`;
 
 		const connect = () => {
 			socketRef.current = new WebSocket(wsUrl);
