@@ -81,7 +81,18 @@ const watermarkPositions = [
 	},
 ];
 
-const WaterMarkComponent = ({ info, setinfo, waterMarks, onSaveClick }) => {
+const WaterMarkComponent = ({
+	waterMarkApply,
+	startedUploading,
+	isPopupOpen,
+	watermarkPosition,
+	watermarkProfileId,
+	watermarkOpacity,
+	scaleWatermark,
+	setinfo,
+	waterMarks,
+	onSaveClick,
+}) => {
 	// Context
 	const {
 		galleryInfo: { uploadWaterMark, getWaterMarks, deleteWaterMark },
@@ -109,7 +120,7 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks, onSaveClick }) => {
 	};
 
 	const switchChangeHandler = (checked) => {
-		if (info?.isWaterMarkApply === checked || info?.startedUploading) return;
+		if (waterMarkApply === checked || startedUploading) return;
 		setinfo((prev) => ({ ...prev, isWaterMarkApply: checked }));
 	};
 
@@ -157,10 +168,10 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks, onSaveClick }) => {
 					<p>Use AI people on edited photos for delightful client experience.</p>
 				</div>
 
-				<Switch checked={info?.isWaterMarkApply || false} onChange={switchChangeHandler} />
+				<Switch checked={waterMarkApply || false} onChange={switchChangeHandler} />
 			</div>
 
-			{info?.isWaterMarkApply && (
+			{waterMarkApply && (
 				<>
 					<div className="watermark_container">
 						<img
@@ -175,18 +186,13 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks, onSaveClick }) => {
 							}}
 						/>
 
-						<div
-							className="grid-overlay"
-							style={{ zIndex: info?.isPopupOpen ? '0' : '1' }}
-						>
+						<div className="grid-overlay" style={{ zIndex: isPopupOpen ? '0' : '1' }}>
 							{watermarkPositions?.map(
 								({ position, top, left, bottom, right, transformOrigin }) => (
 									<div
 										key={position}
 										className={`grid-item ${
-											info?.watermarkPosition?.name === position
-												? 'selected'
-												: ''
+											watermarkPosition?.name === position ? 'selected' : ''
 										}`}
 										onClick={() =>
 											posactive(
@@ -202,23 +208,23 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks, onSaveClick }) => {
 								),
 							)}
 
-							{info.watermarkProfileId && (
+							{watermarkProfileId && (
 								<img
 									src={
 										waterMarks?.find(
-											(wm) => wm?.profileId === info?.watermarkProfileId,
+											(wm) => wm?.profileId === watermarkProfileId,
 										)?.resizedWatermakrUrl || ''
 									}
 									alt="Logo"
 									style={{
-										left: info?.watermarkPosition?.lpos,
-										right: info?.watermarkPosition?.rpos,
-										top: info?.watermarkPosition?.tpos,
-										bottom: info?.watermarkPosition?.bpos,
-										opacity: info.watermarkOpacity, // 0 to 1
-										transform: `scale(${info.scaleWatermark})`,
+										left: watermarkPosition?.lpos,
+										right: watermarkPosition?.rpos,
+										top: watermarkPosition?.tpos,
+										bottom: watermarkPosition?.bpos,
+										opacity: watermarkOpacity, // 0 to 1
+										transform: `scale(${scaleWatermark})`,
 										transition: 'all 0.2s ease-in-out',
-										transformOrigin: info?.watermarkPosition?.transformOrigin,
+										transformOrigin: watermarkPosition?.transformOrigin,
 									}}
 									className="watermarklogo"
 								/>
@@ -232,7 +238,7 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks, onSaveClick }) => {
 								<Slider
 									min={0}
 									max={100}
-									defaultValue={info?.watermarkOpacity * 100}
+									defaultValue={watermarkOpacity * 100}
 									style={{ width: '70%' }}
 									tooltip={{ open: false }}
 									trackStyle={{ backgroundColor: 'var(--primary-button)' }}
@@ -250,7 +256,7 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks, onSaveClick }) => {
 								<Slider
 									min={0}
 									max={100}
-									defaultValue={info?.scaleWatermark * 100}
+									defaultValue={scaleWatermark * 100}
 									style={{ width: '70%' }}
 									tooltip={{ open: false }}
 									trackStyle={{ backgroundColor: 'var(--primary-button)' }}
@@ -336,8 +342,7 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks, onSaveClick }) => {
 										<img
 											src={
 												waterMarks?.find(
-													(wm) =>
-														wm?.profileId === info?.watermarkProfileId,
+													(wm) => wm?.profileId === watermarkProfileId,
 												)?.resizedWatermakrUrl || ''
 											}
 										/>

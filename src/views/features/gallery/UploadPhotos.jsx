@@ -491,10 +491,17 @@ const UploadPhotos = () => {
 
 			<div className="watermark_progress_container">
 				<WaterMarkComponent
-					info={info}
+					// info={info}
 					setinfo={setinfo}
 					waterMarks={waterMarks}
 					onSaveClick={onSaveClick}
+					waterMarkApply={info?.isWaterMarkApply}
+					startedUploading={info?.startedUploading}
+					isPopupOpen={info?.isPopupOpen}
+					watermarkPosition={info?.watermarkPosition}
+					watermarkProfileId={info?.watermarkProfileId}
+					watermarkOpacity={info?.watermarkOpacity}
+					scaleWatermark={info?.scaleWatermark}
 				/>
 				<UploadStatusComponent
 					info={info}
