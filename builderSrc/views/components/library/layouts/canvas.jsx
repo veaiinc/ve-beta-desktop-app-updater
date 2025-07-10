@@ -8582,7 +8582,16 @@ class Layout extends Component {
 							>
 								Add Block
 							</a> */}
-							<div className="add-block-new-container">
+							<div
+								className="add-block-new-container "
+								onClick={(e) => {
+									e.stopPropagation();
+									e.preventDefault();
+									this.setState({ showAddBlock: true }, () => {
+										this.hanldeAddBlock(this.state.showAddBlock);
+									});
+								}}
+							>
 								<div
 									// onMouseEnter={() => {
 									// 	this.addBlockHoverTimeout = setTimeout(() => {
@@ -8596,18 +8605,13 @@ class Layout extends Component {
 									// }}
 
 									className="addBlankContainer"
-									onClick={(e) => {
-										e.stopPropagation();
-										e.preventDefault();
-										this.setState({ showAddBlock: true }, () => {
-											this.hanldeAddBlock(this.state.showAddBlock);
-										});
-									}}
 								>
 									<AddBlock />
 									<span className="tooltip-text">Add Layout</span>
 								</div>
-								<div className="addBlockDividerContainer">
+								<div className="addBlockDivider">Add</div>
+
+								{/* <div className="addBlockDividerContainer">
 									<div className="addBlockDivider"></div>
 								</div>
 								<div
@@ -8632,7 +8636,7 @@ class Layout extends Component {
 									) : (
 										''
 									)}
-								</div>
+								</div> */}
 							</div>
 						</>
 					) : (
