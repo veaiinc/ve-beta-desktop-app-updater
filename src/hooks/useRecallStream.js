@@ -13,7 +13,7 @@ const useRecallStream = () => {
 		};
 	}, []);
 
-	const createWebSocketConnection = useCallback((onMessageFunc) => {
+	const createWebSocketConnection = useCallback((sessionId, pageId, onMessageFunc) => {
 		const usertoken = localStorage.getItem('usertoken');
 		const workspaceId = localStorage.getItem('workspaceId');
 		const region = localStorage.getItem('region') || 'us-east-1';
@@ -25,10 +25,15 @@ const useRecallStream = () => {
 
 		messageHandlerRef.current = onMessageFunc;
 
-		const wsUrl = `wss://recall.${region}.ve.ai/frontend/ws`;
+		const wsUrl = `https://gazelle-ruling-monster.ngrok-free.app/frontend/ws/${pageId}?token=${usertoken}`;
 		socketRef.current = new WebSocket(wsUrl);
 
 		socketRef.current.onopen = () => {
+			socketRef.current.send(
+				JSON.stringify({
+					session_id: sessionId,
+				}),
+			);
 			console.log('Connected to Recall WebSocket server');
 		};
 

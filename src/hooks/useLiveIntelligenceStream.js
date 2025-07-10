@@ -16,7 +16,7 @@ const useLiveIntelligenceStream = () => {
 	const currentContextRef = useRef('');
 	const location = localStorage.getItem('locationDetails') || {};
 	const locationData = JSON.parse(location);
-
+     const sendDataRef=useRef(true)
 	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
@@ -58,7 +58,7 @@ const useLiveIntelligenceStream = () => {
 	}, []);
 
 	const createWebSocketConnection = useCallback(
-		(sessionId, pageId, onMessageFunc) => {
+		(sessionId, pageId, onMessageFunc, sendData=true) => {
 			if (!sessionId) {
 				console.error('Session ID is required for live intelligence streaming');
 				return;
@@ -67,12 +67,12 @@ const useLiveIntelligenceStream = () => {
 			currentSessionIdRef.current = sessionId;
 			pageIdRef.current = pageId;
 			messageHandlerRef.current = onMessageFunc;
-
+			sendDataRef.current = sendData;
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
 			const region = localStorage.getItem('region') || 'us-east-1';
 
-			const baseUrl = `https://live.${region}.ve.ai/${workspaceId}/${sessionId}/live_intelligence_memory?token=${usertoken}`;
+			const baseUrl = `https://humbly-pleased-alien.ngrok-free.app/${workspaceId}/${sessionId}/${pageId}/live_intelligence_memory_frontend?token=${usertoken}`;
 			// const baseUrl = `https://informally-cuddly-chimp.ngrok-free.app/${workspaceId}/${sessionId}/live_intelligence_streaming?token=${usertoken}`;
 
 			if (socketRef.current) {
@@ -85,14 +85,21 @@ const useLiveIntelligenceStream = () => {
 
 			socketRef.current.onopen = () => {
 				console.log('Connected to Live Intelligence WebSocket server');
+				socketRef.current.send(
+					JSON.stringify({
+						location: locationData,
+						timezone: 'Asia/Calcutta',
+					}),
+				);
 
 				if (sendTimeoutRef.current) {
 					clearTimeout(sendTimeoutRef.current);
 				}
-
+				if (sendData) {
 				sendTimeoutRef.current = setTimeout(() => {
-					sendContextData();
-				}, SEND_TIMEOUT);
+						sendContextData();
+					}, SEND_TIMEOUT);
+				}
 			};
 
 			socketRef.current.onclose = () => {
@@ -140,6 +147,7 @@ const useLiveIntelligenceStream = () => {
 					currentSessionIdRef.current,
 					pageIdRef.current,
 					messageHandlerRef.current,
+					sendDataRef.current,
 				);
 				attempts++;
 				setTimeout(attemptSend, RETRY_DELAY);
@@ -215,6 +223,7 @@ const useLiveIntelligenceStream = () => {
 		},
 		[sendContextData],
 	);
+
 
 	const closeWebSocketConnection = useCallback(() => {
 		stopSendingContext();
