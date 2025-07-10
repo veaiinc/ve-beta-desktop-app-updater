@@ -85,7 +85,7 @@
 			width: 100%;
 			flex-grow: 1;
 			overflow-y: auto;
-			position: initial;
+			position: static;
 		}
 	}
 }
@@ -120,7 +120,7 @@
 	}
 }
 
-@media screen and (max-width: 710px){
+@media screen and (max-width: 710px) {
 	.initial-home-page-container {
 		.home-page-container-header {
 			.title-container {
@@ -140,7 +140,6 @@
 		}
 		.home-page-container-content {
 			transform: scale(0.9);
-			overflow-y: unset !important;
 		}
 	}
 

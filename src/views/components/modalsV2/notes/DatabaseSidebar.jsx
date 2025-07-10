@@ -3,6 +3,7 @@ import Context from '../../../../context/context';
 import { Drawer } from 'antd';
 import s from '../../../../assets/scss/notes/modals/databaseSidebar.module.scss';
 import { rowTypes } from '../../notes/Database';
+import DatabaseIcon from '../../notes/DatabseComponents/DatabaseIcon';
 
 const DatabaseSidebar = ({ pageId }) => {
 	const {
@@ -125,7 +126,9 @@ const DatabaseSidebar = ({ pageId }) => {
 				<div className={s.notesDatabaseSidebarContent}>
 					{currentDatabase?.databaseMetadata?.fields?.map((field) => (
 						<div className={s.notesDatabaseSidebarField} key={field?._id}>
-							<div className={s.notesDatabaseSidebarFieldLabel}>{field.name}</div>
+							<div className={s.notesDatabaseSidebarFieldLabel}>
+								<DatabaseIcon type={field?.type} /> {field.name}
+							</div>
 							<div className={s.notesDatabaseSidebarFieldValue}>
 								{renderRowData(field, rowData?.values?.[field._id])}
 							</div>

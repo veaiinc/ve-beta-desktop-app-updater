@@ -387,7 +387,7 @@ class NavImagePopup extends Images {
 								...newComponent.blocks[0].subBlocks[0],
 								mImage_settings: {
 									...newComponent?.blocks[0].subBlocks[0]?.mImage_settings,
-									zoom: value,
+									zoom: parseFloat(value),
 								},
 							},
 						],
@@ -419,6 +419,7 @@ class NavImagePopup extends Images {
 				activeComponent: newComponent,
 			},
 			() => {
+				console.log(this.state.mZoom, this.state.zoom, newComponent, 'jeevan');
 				this.debounceFunction(() => {
 					this.props?.setActivePopupComponent(newComponent);
 				}, 500);
@@ -516,14 +517,14 @@ class NavImagePopup extends Images {
 											<Cropper
 												image={isImage}
 												crop={
-													this.props.isMobileNavbar
-														? this.state.mCrop
-														: this.state?.crop
+													this.props?.isMobileNavbar
+														? this.state?.mCrop || { x: 1, y: 1 }
+														: this.state?.crop || { x: 1, y: 1 }
 												}
 												zoom={
-													this.props.isMobileNavbar
-														? this.state.mZoom
-														: this.state?.zoom
+													this.props?.isMobileNavbar
+														? this.state?.mZoom
+														: this.state?.zoom || 1
 												}
 												aspect={this.state?.aspect}
 												onCropChange={(e) => this.handleCropChange(e)}
@@ -607,6 +608,7 @@ class NavImagePopup extends Images {
 						>
 							<b
 								style={{
+									color: '#fff',
 									fontSize: '12px',
 									marginBottom: '12px',
 								}}
@@ -624,7 +626,7 @@ class NavImagePopup extends Images {
 										type="range"
 										min={1}
 										max={5}
-										step={0.5}
+										step={0.1}
 										value={
 											this.props.isMobileNavbar
 												? this.state.mZoom
