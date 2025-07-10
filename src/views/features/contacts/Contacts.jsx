@@ -6,7 +6,9 @@ import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 // import QuickActions from '../../components/globalComponents/QuickActions';
 import ContactsListView from '../../components/contacts/ContactsListView';
 import ContactsWidgetView from '../../components/contacts/ContactsWidgetView';
+import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/chat/search.svg';
+import { ReactComponent as AddIcon } from '../../../assets/svg/files/add.svg';
 
 const suggestedPrompts = [
 	'Start a Deep Research on revamping the current Dashboard Layout',
@@ -39,6 +41,7 @@ const Contacts = () => {
 		selectedContact: null,
 		selectedContactOption: null,
 		activeView: 'widgetView',
+		openClientPopup: false,
 	});
 	const listItems = clientList?.data || [];
 	const isMountedRef = useRef(true);
@@ -159,6 +162,10 @@ const Contacts = () => {
 		[fetchClientList, info?.searchValue],
 	);
 
+	const handleCreateContact = () => {
+		setInfo((prev) => ({ ...prev, openClientPopup: true }));
+	};
+
 	return (
 		<div className="contacts-container">
 			<ChatLeftBarComponent>
@@ -237,6 +244,10 @@ const Contacts = () => {
 					<div className="header">
 						<h1 className="header-title">Your Contacts</h1>
 						{/* <QuickActions /> */}
+						<button className="create-contact-button" onClick={handleCreateContact}>
+							<AddIcon />
+							Create Contact
+						</button>
 						{/* <div className="search-bar-container">
 						<SearchIcon className="search-icon" />
 						<input type="text" className="search-bar" placeholder="Search" />
@@ -265,6 +276,12 @@ const Contacts = () => {
 					)}
 				</div>
 			)}
+
+			<CreateClientModal
+				modalIsOpen={info?.openClientPopup}
+				closeModal={() => setInfo((prev) => ({ ...prev, openClientPopup: false }))}
+				leadOrClient={true}
+			/>
 		</div>
 	);
 };
