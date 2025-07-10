@@ -208,12 +208,11 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 					<RecentChat
 						showIconText={false}
 						isPreview={true}
-						autoFocus={true}
+						autoFocus={false}
 						customChatBoxClick={handleChatActive}
 						chatActive={info?.chatActive}
 						sessionIdChanged={info?.sessionIdChanged}
 						onChangeSessionId={handleSessionIdChange}
-						onNewChatBtnClick={handleNewChat}
 						{...(!isFirstTimeChatActiveRef?.current && {
 							sId: info?.sessionId,
 						})}
