@@ -185,14 +185,17 @@ const AiTranscriptionSuggestions = ({ closeModal, showAmbientAssistance }) => {
 						<div className={s.text}>Actions</div>
 						<div className={s.actionsContainer} ref={actionsRef}>
 							{info?.actions?.map((action, index) => (
-								<div
-									className={s.actionContainer}
-									key={index}
-									onClick={() => handleActionClick(action?.query || '')}
-								>
-									<ArrowRightSvg style={{ flexShrink: 0 }} />
-									{action?.query || ''}
-								</div>
+								<>
+									<div
+										className={s.actionContainer}
+										key={index}
+										onClick={() => handleActionClick(action?.query || '')}
+									>
+										<ArrowRightSvg style={{ flexShrink: 0 }} />
+										{action?.query || ''}
+									</div>
+									<div className={s.horizontalLine} />
+								</>
 							))}
 						</div>
 					</div>

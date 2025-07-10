@@ -264,24 +264,18 @@
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
-				gap: 8px;
+				gap: 12px;
 				align-self: stretch;
 				// height: 40vh;
 				overflow-y: auto;
 
 				.actionContainer {
 					display: flex;
-					padding: 16px;
 					align-items: center;
-					gap: 16px;
+					gap: 8px;
 					align-self: stretch;
-					border-radius: 16px;
-					border: 1px solid var(--stroke, #2c2d2e);
 					width: 100%;
-
-					&:hover {
-						border: 1px solid var(--stroke-hover, #2c2d2e);
-					}
+					cursor: pointer;
 
 					color: var(--primary-font, #f2f2f3);
 					font-family: var(--primary-font-family);
@@ -289,32 +283,19 @@
 					font-style: normal;
 					font-weight: 500;
 					line-height: 23px;
-				}
-			}
-			.actionContainer {
-				display: flex;
-				padding: 16px;
-				align-items: center;
-				gap: 16px;
-				align-self: stretch;
-				border-radius: 16px;
-				border: 1px solid var(--stroke, #2c2d2e);
-				width: 100%;
-				cursor: pointer;
 
-				color: var(--primary-font, #f2f2f3);
-				font-family: var(--primary-font-family);
-				font-size: 15px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 23px;
-
-				svg {
-					width: 18px;
-					height: 18px;
-					path {
-						stroke: var(--primary-button, #f2f2f3) !important;
+					svg {
+						width: 18px;
+						height: 18px;
+						path {
+							stroke: var(--primary-button, #f2f2f3) !important;
+						}
 					}
+				}
+				.horizontalLine {
+					width: 100%;
+					height: 1px;
+					background-color: var(--stroke);
 				}
 			}
 		}
