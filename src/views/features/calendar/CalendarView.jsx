@@ -38,14 +38,15 @@ const CalendarView = ({
 }) => {
 	const {
 		calendarInfo: {
+			googleCalendarList,
 			calendarEventsList,
 			getCalendarEventsList,
 			calendarEvent,
 			resetCalendarState,
 			sendEventToAi,
 			googleCalendarEvents,
-			deleteCalendarEvent,
-			getGoogleCalendarEvents,
+			// deleteCalendarEvent,
+			// getGoogleCalendarEvents,
 		},
 		// profileInfo: { userWorkSpaceList, userDetailsData },
 		companyInfo: { tenantsUserList, getTeamMembers },
@@ -121,23 +122,36 @@ const CalendarView = ({
 				}));
 			}
 
-			// Map the calendarEventsList to the desired eventsList format
-			const mappedEventsList = calendarEventsList?.map((event) => ({
-				id: event?._id,
-				start: moment(event?.startDateTime).local().toDate(),
-				end: moment(event?.endDateTime).local().toDate(),
-				title: event?.title,
-				description: event?.description,
-				...(event || {}),
-			}));
+			const veEvents =
+				calendarEventsList?.map((event) => ({
+					id: event?._id,
+					start: moment(event?.startDateTime).local().toDate(),
+					end: moment(event?.endDateTime).local().toDate(),
+					title: event?.title,
+					description: event?.description,
+					...(event || {}),
+				})) || [];
+
+			const googleEvents =
+				googleCalendarList?.data?.map((event) => ({
+					id: event?._id,
+					start: moment(event?.startDateTime).local().toDate(),
+					end: moment(event?.endDateTime).local().toDate(),
+					title: event?.title,
+					description: event?.description || event?.googleCalendarMeta?.summary,
+					meetingLink: event?.meetingLink || event?.googleCalendarMeta?.hangoutLink,
+					...(event || {}),
+				})) || [];
+
+			const combinedEvents = [...veEvents, ...googleEvents];
 
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				eventsList: mappedEventsList,
+				eventsList: combinedEvents,
 				isLoading: false,
 			}));
 		}
-	}, [calendarEventsList]);
+	}, [calendarEventsList, googleCalendarList?.data]);
 
 	useEffect(() => {
 		// Filter events based on categoryFilter
@@ -265,46 +279,46 @@ const CalendarView = ({
 		setInfo((prev) => ({ ...prev, selectedEvent: null }));
 	}, [info, updateCalendarInfo]);
 
-	const handleDeleteEvent = useCallback(
-		async (eventId, isGoogleEvent = false) => {
-			if (!eventId) {
-				message.error('Invalid event ID');
-				return;
-			}
+	// const handleDeleteEvent = useCallback(
+	// 	async (eventId, isGoogleEvent = false) => {
+	// 		if (!eventId) {
+	// 			message.error('Invalid event ID');
+	// 			return;
+	// 		}
 
-			setInfo((prev) => ({ ...prev, deletingEvent: true }));
-			try {
-				await deleteCalendarEvent(eventId);
-				message.success('Event deleted successfully');
+	// 		setInfo((prev) => ({ ...prev, deletingEvent: true }));
+	// 		try {
+	// 			await deleteCalendarEvent(eventId);
+	// 			message.success('Event deleted successfully');
 
-				// Refresh the appropriate events list
-				if (isGoogleEvent) {
-					// For Google Calendar events, we need to refresh the Google events list
-					const updatedGoogleEvents = info.googleEvents.filter(
-						(event) => event.id !== eventId,
-					);
-					setInfo((prev) => ({ ...prev, googleEvents: updatedGoogleEvents }));
-					// Also refresh the Google Calendar events from the API
-					await getGoogleCalendarEvents();
-				} else {
-					// For regular calendar events, refresh the calendar events list
-					await getCalendarEventsList(selectedDate);
-				}
-			} catch (error) {
-				message.error('Failed to delete event. Please try again.');
-				console.error('Error deleting event:', error);
-			} finally {
-				setInfo((prev) => ({ ...prev, deletingEvent: false }));
-			}
-		},
-		[
-			deleteCalendarEvent,
-			getCalendarEventsList,
-			getGoogleCalendarEvents,
-			selectedDate,
-			info.googleEvents,
-		],
-	);
+	// 			// Refresh the appropriate events list
+	// 			if (isGoogleEvent) {
+	// 				// For Google Calendar events, we need to refresh the Google events list
+	// 				const updatedGoogleEvents = info.googleEvents.filter(
+	// 					(event) => event.id !== eventId,
+	// 				);
+	// 				setInfo((prev) => ({ ...prev, googleEvents: updatedGoogleEvents }));
+	// 				// Also refresh the Google Calendar events from the API
+	// 				await getGoogleCalendarEvents();
+	// 			} else {
+	// 				// For regular calendar events, refresh the calendar events list
+	// 				await getCalendarEventsList(selectedDate);
+	// 			}
+	// 		} catch (error) {
+	// 			message.error('Failed to delete event. Please try again.');
+	// 			console.error('Error deleting event:', error);
+	// 		} finally {
+	// 			setInfo((prev) => ({ ...prev, deletingEvent: false }));
+	// 		}
+	// 	},
+	// 	[
+	// 		deleteCalendarEvent,
+	// 		getCalendarEventsList,
+	// 		getGoogleCalendarEvents,
+	// 		selectedDate,
+	// 		info.googleEvents,
+	// 	],
+	// );
 
 	return (
 		<>

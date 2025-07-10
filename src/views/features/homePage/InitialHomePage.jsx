@@ -403,14 +403,6 @@ const InitialHomePage = () => {
 				</div>
 
 				<div className="home-page-container-content">
-					{/* {info?.selectedOption === 'All' ? (
-						<ProactiveSuggestions
-							option={info?.selectedOption}
-							previousOption={previousSelectedOptionRef.current}
-						/>
-					) : (
-						<GlobalWidget option={info?.selectedOption} />
-					)} */}
 					<ProactiveSuggestions
 						option={info?.selectedOption}
 						previousOption={previousSelectedOptionRef.current}
