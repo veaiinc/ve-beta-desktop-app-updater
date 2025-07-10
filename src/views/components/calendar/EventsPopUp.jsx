@@ -54,7 +54,7 @@ const initialState = {
 	phoneNumber: null,
 	meetingLink: null,
 };
-
+const color = '#ff2727';
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const customStyles = {
@@ -117,9 +117,7 @@ const sessionTypeInputConfig = {
 const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selectedSlot }) => {
 	const {
 		calendarInfo: {
-			calendarEvent,
 			createCalendarEvent,
-			getCalendarEventsList,
 			updateCalendarState,
 			calendarCategoriesList,
 			getCalendarCategories,
@@ -136,7 +134,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		categories: [],
 		categoryInput: '',
 		categoryLoading: false,
-		categoryError: null,
 		categorySuccess: false,
 	});
 
@@ -150,7 +147,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 					...(!calendarCategoriesList?.error && {
 						categories: [...calendarCategoriesList],
 					}),
-					categoryError: null,
 				}));
 			}
 		}
@@ -414,7 +410,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 
 	const renderSessionTypeInput = () => {
 		const config = sessionTypeInputConfig[info.sessionType];
-		const value = info[config.value];
 
 		const validateInput = (value) => {
 			if (config.value === 'meetingLink') {
@@ -478,24 +473,19 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		);
 	};
 
-	const doesCategoryExist = (name) =>
-		info.categories.some((cat) => cat?.name?.toLowerCase() === name.trim().toLowerCase());
+	const doesCategoryExist = (name) => {
+		return info.categories.some(
+			(cat) => cat?.name?.toLowerCase() === name?.trim().toLowerCase(),
+		);
+	};
 
 	const handleCreateCategory = async (name) => {
 		const trimmed = name.trim();
-		if (!trimmed) {
-			setInfo((prev) => ({ ...prev, categoryError: 'Category name cannot be empty.' }));
-			return;
-		}
-		if (doesCategoryExist(trimmed)) {
-			setInfo((prev) => ({ ...prev, categoryError: 'Category already exists.' }));
-			return;
-		}
-		const color = '#ff2727';
+		if (!trimmed) return;
+
 		setInfo((prev) => ({
 			...prev,
 			categoryLoading: true,
-			categoryError: null,
 			categorySuccess: false,
 		}));
 
@@ -510,27 +500,22 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		try {
 			await createCalendarCategory({ calendarCategory: trimmed, categoryColor: color });
 			await getCalendarCategories();
-			setTimeout(() => {
-				setInfo((prev) => {
-					const newCat = (prev.categories || []).find(
-						(cat) =>
-							cat?.name?.toLowerCase() === trimmed.toLowerCase() && !cat.optimistic,
-					);
-					return {
-						...prev,
-						selectedCategory: newCat || prev.selectedCategory,
-						categoryLoading: false,
-						categoryError: null,
-						categorySuccess: true,
-						categories: prev.categories.filter((cat) => !cat.optimistic),
-					};
-				});
-			}, 200);
+			setInfo((prev) => {
+				const newCat = (prev.categories || []).find(
+					(cat) => cat?.name?.toLowerCase() === trimmed.toLowerCase() && !cat.optimistic,
+				);
+				return {
+					...prev,
+					selectedCategory: newCat || prev.selectedCategory,
+					categoryLoading: false,
+					categorySuccess: true,
+					categories: prev.categories.filter((cat) => !cat.optimistic),
+				};
+			});
 		} catch (e) {
 			setInfo((prev) => ({
 				...prev,
 				categoryLoading: false,
-				categoryError: e.message || 'Failed to add category',
 				categories: prev.categories.filter((cat) => !cat.optimistic),
 			}));
 		}
@@ -736,7 +721,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								onBlur={() => updateEventInfo('showCategory', false)}
 								onFocus={() => {
 									updateEventInfo('showCategory', true);
-									updateEventInfo('categoryError', null);
 								}}
 								value={
 									info.categoryInput !== undefined
@@ -749,7 +733,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 										...prev,
 										categoryInput: val,
 										showCategory: true,
-										categoryError: null,
 									}));
 								}}
 								onKeyDown={async (e) => {
@@ -765,7 +748,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 											...prev,
 											showCategory: false,
 											categoryInput: '',
-											categoryError: null,
 										}));
 									}
 								}}
@@ -918,16 +900,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 										>
 											<Spinner width="16px" height="16px" />
 											Adding category...
-										</div>
-									)}
-									{info.categoryError && (
-										<div
-											className={
-												styles['events-popup-category-dropdown-item']
-											}
-											style={{ color: 'red', fontWeight: 500 }}
-										>
-											{info.categoryError}
 										</div>
 									)}
 									{info.categorySuccess && (
