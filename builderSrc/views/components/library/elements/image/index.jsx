@@ -210,11 +210,27 @@ class ImageItem extends BaseClass {
 
 		return `#${invertedHex}`;
 	};
+
+	scaleNavbarCropZoom = (crop, zoom) => {
+		const scale = 0.7; // Use 0.7 as requested
+		return {
+			crop: crop ? { x: crop.x * scale, y: crop.y * scale } : { x: 0, y: 0 },
+			zoom: zoom ? zoom * scale : 1,
+		};
+	};
+
 	render() {
 		let imageSettings = { ...this.state.imageSettings };
 		let imgSet;
 
-		if (
+		if (this.props.navbarImage) {
+			const scaled = this.scaleNavbarCropZoom(imageSettings.crop, imageSettings.zoom);
+			imgSet = {
+				...imageSettings,
+				crop: scaled.crop,
+				zoom: scaled.zoom,
+			};
+		} else if (
 			_.has(imageSettings, 'width') &&
 			_.has(this.props, 'logo') &&
 			this.props.isLogo == true

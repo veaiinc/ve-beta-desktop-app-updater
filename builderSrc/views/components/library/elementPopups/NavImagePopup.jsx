@@ -625,7 +625,7 @@ class NavImagePopup extends Images {
 									<input
 										type="range"
 										min={1}
-										max={5}
+										max={2}
 										step={0.1}
 										value={
 											this.props.isMobileNavbar
