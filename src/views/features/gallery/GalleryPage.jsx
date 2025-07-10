@@ -38,7 +38,7 @@ import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPop
 import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
-import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DeleteGalleryComponent from '../../components/gallery/gallerySettings/DeleteGalleryComponent';
 import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
@@ -4030,13 +4030,13 @@ const GalleryPage = () => {
 
 																			<div
 																				className="albumDetails"
-																				onClick={() =>
-																					handleClickAlbum(
-																						album,
-																						'albumName',
-																						album?.imagesCount,
-																					)
-																				}
+																				// onClick={() =>
+																				// 	handleClickAlbum(
+																				// 		album,
+																				// 		'albumName',
+																				// 		album?.imagesCount,
+																				// 	)
+																				// }
 																			>
 																				<p>
 																					{album?.title}
@@ -4825,14 +4825,14 @@ const GalleryPage = () => {
 								</div>
 
 								<div
-									style={{
-										overflow: info?.isRearranging
-											? 'auto'
-											: info?.scrolledTillEnd
-											? 'auto'
-											: 'hidden',
-										height: info?.isRearranging ? '79vh' : '83vh',
-									}}
+									// style={{
+									// 	overflow: info?.isRearranging
+									// 		? 'auto'
+									// 		: info?.scrolledTillEnd
+									// 		? 'auto'
+									// 		: 'hidden',
+									// 	height: info?.isRearranging ? '79vh' : '83vh',
+									// }}
 									className="galleryImagesContainer"
 									id="galleryScrollTarget"
 									onMouseEnter={() =>
@@ -4858,10 +4858,9 @@ const GalleryPage = () => {
 												Loading
 											</p>
 										}
-										scrollableTarget="galleryScrollTarget"
-										refreshFunction={info?.resetInfinityScroll}
+										resetInfinityScroll={info?.resetInfinityScroll}
 										disableDrop={true}
-										scrollThreshold={info?.isRearranging ? 0.8 : 0.8}
+										height={'88vh'}
 									>
 										{!info.isRearranging ? (
 											<ResponsiveMasonry
