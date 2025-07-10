@@ -66,11 +66,8 @@ class ErrorBoundary extends Component {
 								>
 									Refresh
 								</button>
-								<button
-									className={s.errorButton}
-									onClick={() => (window.location.href = '/contact-us')}
-								>
-									Contact Support
+								<button className={s.errorButton}>
+									<a href="mailto:support@ve.ai">Contact Support</a>
 								</button>
 							</div>
 						</div>
