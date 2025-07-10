@@ -827,25 +827,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		}));
 	};
 
-	const renderedOptions = useMemo(() => {
-		return insightTypes
-			?.filter((item) => item?.insight_type.toLowerCase() !== 'others')
-			?.map(({ count, insight_type }, index) => (
-				<div
-					className={`option ${info?.selectedOption === insight_type ? 'active' : ''}`}
-					onClick={(e) => {
-						handleOptionSelection(insight_type);
-					}}
-					key={index}
-				>
-					<div className="option-label">
-						<span className="option-name">{insight_type}</span>
-						<span className="option-value">{count}</span>
-					</div>
-				</div>
-			));
-	}, [info?.insightTypes, info?.selectedOption]);
-
 	const handleSearchToggle = () => {
 		setInfo((prev) => ({
 			...prev,
