@@ -781,6 +781,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				deleteBlockId: block._id,
 			});
 		});
+
+		setInfo((prevInfo) => ({ ...prevInfo, updatedAt: moment().unix() }));
 	};
 
 	// const onChange = () => {

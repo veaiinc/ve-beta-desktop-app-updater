@@ -129,7 +129,29 @@
 				cursor: pointer;
 				background: none;
 				outline: none;
+				padding: 0 2px;
+
+				.gear-svg {
+					path {
+						fill: var(--secondary-font);
+					}
+				}
 			}
+
+			.last-edited-label {
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px;
+			}
+		}
+
+		.notes-header-divider {
+			width: 1px;
+			height: 14px;
+			background-color: var(--stroke);
 		}
 	}
 
@@ -219,6 +241,7 @@
 		align-items: center;
 		flex-grow: 1;
 		overflow-y: auto;
+		padding-top: 48px;
 
 		.notes-cover-image-container {
 			width: 100%;

@@ -45,11 +45,24 @@ const NotesHeader = ({
 			</div>
 
 			<div className="notes-nav-right">
-				<button className="notes-nav-button" onClick={() => handleFavorite(!isFavorite)}>
-					<StarSvg fill={isFavorite} width={18} height={18} className="cursor-pointer" />
-				</button>
+				{updatedAt && (
+					<>
+						<span className="last-edited-label">
+							Edited {moment?.unix(updatedAt).fromNow()}
+						</span>
+						<div className="notes-header-divider" />
+					</>
+				)}
 
-				{myAccess === 'full' && <ShareComponent pageId={noteId} makeApiCall={false} />}
+				<button className="notes-nav-button" onClick={() => handleFavorite(!isFavorite)}>
+					<StarSvg
+						fill={isFavorite}
+						width={16}
+						height={16}
+						className="cursor-pointer"
+						color="var(--secondary-font)"
+					/>
+				</button>
 
 				<MoreOptions
 					notesConfigs={notesConfigs}
@@ -57,6 +70,8 @@ const NotesHeader = ({
 					onDelete={handleDeletePage}
 					onDuplicate={handleDuplicatePage}
 				/>
+
+				{myAccess === 'full' && <ShareComponent pageId={noteId} makeApiCall={false} />}
 			</div>
 		</div>
 	) : (
