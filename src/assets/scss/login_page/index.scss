@@ -669,7 +669,7 @@
 		.email-section {
 			flex: 0 0 350px;
 			max-width: 350px;
-
+			align-items: flex-end;
 			.verification-code-container {
 				max-width: 350px;
 			}
@@ -725,6 +725,42 @@
 		}
 		.description-section {
 			margin-top: 32px;
+		}
+	}
+}
+
+@media screen and (max-width: 1120px) and (min-width: 769px) {
+	.main-content-container {
+		justify-content: center !important;
+		align-items: center !important;
+		flex-direction: column !important;
+		padding: 0 !important;
+		gap: 0 !important;
+		min-height: 100vh !important;
+
+		.email-section {
+			margin: 0 !important;
+			max-width: 100% !important;
+			width: 100% !important;
+			display: flex !important;
+			justify-content: center !important;
+			align-items: center !important;
+			flex-direction: column !important;
+		}
+		.disclaimer-container {
+			position: static !important;
+			margin-top: 32px !important;
+			bottom: auto !important;
+			left: auto !important;
+			right: auto !important;
+			width: 100% !important;
+			max-width: 500px !important;
+			display: flex !important;
+			align-items: center !important;
+			justify-content: center !important;
+		}
+		.description-section {
+			display: none !important;
 		}
 	}
 }
@@ -1330,15 +1366,15 @@
 
 // Main content layout with Email and LoginDescription side by side
 .main-content-container {
+	align-items: center;
 	display: flex;
-	justify-content: flex-start;
-	align-items: stretch;
-	width: 100%;
+	gap: 0;
 	height: 100%;
+	justify-content: flex-start;
 	min-height: calc(100vh - 200px);
 	padding: 0;
-	gap: 0;
 	position: relative;
+	width: 100%;
 	z-index: 1;
 
 	.email-section {
@@ -1376,8 +1412,8 @@
 // Responsive design for side-by-side layout
 @media screen and (max-width: 1700px) {
 	.main-content-container {
-		padding: 0 320px;
-		padding-right: calc(400px + 48px);
+		padding: 0 250px;
+		padding-right: 440px;
 
 		.email-section {
 			flex: 0 0 350px;
@@ -1396,8 +1432,8 @@
 }
 @media screen and (max-width: 1500px) {
 	.main-content-container {
-		padding: 0 130px;
-		padding-right: calc(400px + 48px);
+		padding: 0 180px;
+		padding-right: 440px;
 		.email-section {
 			flex: 0 0 350px;
 			max-width: 350px;
@@ -1406,6 +1442,12 @@
 	.description-section {
 		margin-left: 24px;
 		padding: 32px 20px;
+	}
+}
+@media screen and (max-width: 1300px) {
+	.main-content-container {
+		padding: 0 100px;
+		padding-right: 440px;
 	}
 }
 @media screen and (max-width: 1120px) {
