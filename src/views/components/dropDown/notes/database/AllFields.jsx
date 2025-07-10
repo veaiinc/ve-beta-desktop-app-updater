@@ -10,6 +10,7 @@ import { ReactComponent as PlusIcon } from '../../../../../assets/svg/tasks/plus
 import s from '../../../../../assets/scss/notes/dropdown/allFields.module.scss';
 import AddField from './AddField';
 import UpdateField from './UpdateField';
+import DatabaseIcon from '../../../notes/DatabseComponents/DatabaseIcon';
 
 const ADD_NEW_KEY = 'ADD_NEW_KEY';
 
@@ -67,7 +68,7 @@ const AllFields = ({ fields = [], handleClose, handleBack, pageId, databaseId })
 							<div className={s.dragHandleIcon}>
 								<SixDotsSvg />
 							</div>
-							{/* {field.Icon && <field.Icon />} */}
+							<DatabaseIcon type={field?.type} />
 							<span className={s.propertyListItemTitle}>{field.name}</span>
 
 							{/* {field.show ? (

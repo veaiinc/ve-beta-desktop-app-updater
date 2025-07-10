@@ -140,105 +140,110 @@ const ExpiredSubscriptionModal = () => {
 							<Close />
 						</span>
 					</div>
-					{/* {expiredSubscriptionType && ( */}
-					<>
-						<div className="progressBarMainContainer">
-							<div
-								className="progressBarTextContainer"
-								style={{
-									justifyContent:
-										expiredSubscriptionType === 'Classic-Gallery-Upload' ||
-										expiredSubscriptionType === 'Classic-Gallery'
-											? 'space-between'
-											: 'flex-end',
-								}}
-							>
-								{(expiredSubscriptionType === 'Classic-Gallery-Upload' ||
-									expiredSubscriptionType === 'Classic-Gallery') && (
-									<span>Storage</span>
-								)}
-								<span className="progressBarValues">
-									{dataUsed} out of {dataLimit}
-								</span>
-							</div>
-							<div className="progressBarContainer">
+					{expiredSubscriptionType && (
+						<>
+							<div className="progressBarMainContainer">
 								<div
-									className="progressBar"
+									className="progressBarTextContainer"
 									style={{
-										width: `${
-											dataLimit
-												? Math.min((dataUsed / dataLimit) * 100, 100)
-												: 0
-										}%`,
+										justifyContent:
+											expiredSubscriptionType === 'Classic-Gallery-Upload' ||
+											expiredSubscriptionType === 'Classic-Gallery'
+												? 'space-between'
+												: 'flex-end',
 									}}
-								/>
-							</div>
-						</div>
-						{/* {expiredSubscriptionType === 'Classic-Gallery-Upload' && ( */}
-						<div className="progressBarMainContainer">
-							<div
-								className="progressBarTextContainer"
-								style={{
-									justifyContent:
-										expiredSubscriptionType === 'Classic-Gallery-Upload' ||
-										expiredSubscriptionType === 'Classic-Gallery'
-											? 'space-between'
-											: 'flex-end',
-								}}
-							>
-								{(expiredSubscriptionType === 'Classic-Gallery-Upload' ||
-									expiredSubscriptionType === 'Classic-Gallery') && (
+								>
+									{(expiredSubscriptionType === 'Classic-Gallery-Upload' ||
+										expiredSubscriptionType === 'Classic-Gallery') && (
+										<span>Storage</span>
+									)}
+									<span className="progressBarValues">
+										{dataUsed} out of {dataLimit}
+									</span>
+								</div>
+								<div className="progressBarContainer">
 									<div
+										className="progressBar"
 										style={{
-											display: 'flex',
-											alignItems: 'center',
-											gap: '4px',
+											width: `${
+												dataLimit
+													? Math.min((dataUsed / dataLimit) * 100, 100)
+													: 0
+											}%`,
+										}}
+									/>
+								</div>
+							</div>
+							{expiredSubscriptionType === 'Classic-Gallery-Upload' && (
+								<div className="progressBarMainContainer">
+									<div
+										className="progressBarTextContainer"
+										style={{
+											justifyContent:
+												expiredSubscriptionType ===
+													'Classic-Gallery-Upload' ||
+												expiredSubscriptionType === 'Classic-Gallery'
+													? 'space-between'
+													: 'flex-end',
 										}}
 									>
-										Upload Limit{' '}
-										<Tooltip
-											title={
-												<div className="expiredTooltipContainer">
-													"As Per the{' '}
-													<a href="/terms-of-service" target="_blank">
-														Terms and Conditions
-													</a>
-													, the upload limit is 1.5 times the storage
-													limit"
-												</div>
-											}
-											color="transparent"
-											arrow={false}
-											placement="bottom"
-										>
-											{' '}
-											<span className="expiredTooltipIcon"> ?</span>
-										</Tooltip>
+										{(expiredSubscriptionType === 'Classic-Gallery-Upload' ||
+											expiredSubscriptionType === 'Classic-Gallery') && (
+											<div
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '4px',
+												}}
+											>
+												Upload Limit{' '}
+												<Tooltip
+													title={
+														<div className="expiredTooltipContainer">
+															"As Per the{' '}
+															<a
+																href="/terms-of-service"
+																target="_blank"
+															>
+																Terms and Conditions
+															</a>
+															, the upload limit is 1.5 times the
+															storage limit"
+														</div>
+													}
+													color="transparent"
+													arrow={false}
+													placement="bottom"
+												>
+													{' '}
+													<span className="expiredTooltipIcon"> ?</span>
+												</Tooltip>
+											</div>
+										)}
+										<span className="Progress">
+											{dataUsed} out of {dataLimitForUpload}
+										</span>
 									</div>
-								)}
-								<span className="Progress">
-									{dataUsed} out of {dataLimitForUpload}
-								</span>
-							</div>
-							<div className="progressBarContainer">
-								<div
-									className="progressBar"
-									style={{
-										width: `${
-											dataLimitForUpload
-												? Math.min(
-														(dataUsed / dataLimitForUpload) * 100,
-														100,
-												  )
-												: 0
-										}%`,
-									}}
-								/>
-							</div>
-						</div>
-						{/* )} */}
-					</>
-					{/* )} */}
+									<div className="progressBarContainer">
+										<div
+											className="progressBar"
+											style={{
+												width: `${
+													dataLimitForUpload
+														? Math.min(
+																(dataUsed / dataLimitForUpload) *
+																	100,
+																100,
+														  )
+														: 0
+												}%`,
+											}}
+										/>
+									</div>
+								</div>
+							)}
+						</>
+					)}
 					<span className="expiredSubText">
 						{isAdmin
 							? 'Upgrade your plan to continue.'

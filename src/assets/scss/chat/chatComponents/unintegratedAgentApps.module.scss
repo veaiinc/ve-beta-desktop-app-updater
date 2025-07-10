@@ -1,0 +1,29 @@
+.unintegratedAgentAppsContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	.text {
+		color: var(--primary-button);
+		font-size: 15px;
+		font-weight: 500;
+	}
+
+	.appsContainer {
+		display: flex;
+		gap: 10px;
+		flex-wrap: wrap;
+
+		.appContainer {
+			padding: 6px 12px;
+			border-radius: 100px;
+			color: var(--primary-font);
+			font-weight: 500;
+			border: 1px solid var(--stroke);
+			cursor: pointer;
+
+			&:hover {
+				background-color: var(--card-over-card-hover);
+			}
+		}
+	}
+}
