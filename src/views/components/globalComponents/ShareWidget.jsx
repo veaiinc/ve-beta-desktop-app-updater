@@ -1,10 +1,12 @@
-import { memo } from 'react';
+import { memo, useContext, useState } from 'react';
 import ReactModal from '../modalsV2/index';
 import '../../../assets/scss/globalComponents/ShareWidget.scss';
 import { ReactComponent as CrossWhite } from '../../../assets/svg/Settings/CrossWhite.svg';
 import { ReactComponent as CopyIcon } from '../../../assets/svg/ai_assistant/url.svg';
 import { message } from '../globalComponents/CustomToast';
-
+import Context from '../../../context/context';
+import { useParams } from 'react-router-dom';
+//navigator.clipboard.writeText(copyLinkUrl);
 const ShareWidget = ({
 	isOpen,
 	onClose,
@@ -15,7 +17,61 @@ const ShareWidget = ({
 	embeddedCode,
 	customStyles = {},
 }) => {
+	const url = new URL(shareUrl);
+	const baseUrl = `${url.origin}/`;
+	const slug = url.pathname.replace('/', '');
+	const { id } = useParams();
+
+	const {
+		templates: { isSlugAvailable, updateSlug },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		editedSlug: slug,
+		editShareUrlSlug: false,
+	});
+
+	const toggleEditShareUrlSlug = () =>
+		setInfo((prev) => ({ ...prev, editShareUrlSlug: !prev.editShareUrlSlug }));
+
+	const handleEditSlug = (e) => {
+		const editedSlug = e.target.value;
+		setInfo((prev) => ({
+			...prev,
+			editedSlug,
+		}));
+	};
+
+	const handleUpdateSlug = async () => {
+		if (info.editedSlug === '') {
+			message.error('Hey! The slug cannot be empty.');
+			setInfo((prev) => ({
+				editedSlug: slug,
+				editShareUrlSlug: false,
+			}));
+			return;
+		}
+		const slugAvailable = await isSlugAvailable({ slug: info.editedSlug });
+		if (!slugAvailable) {
+			message.error(`Oops! The slug ${info.editedSlug} is already taken.`);
+		}
+		const response = await updateSlug({ slug: info.editedSlug, updateSlugId: id });
+		const success = response[0],
+			updatedSlug = response[1];
+		if (!success) {
+			message.error('An unexpected error occured while updating the slug');
+		}
+		message.success(`Updated your share url to ${baseUrl}${updatedSlug}`);
+		setInfo((prev) => ({ ...prev, editedSlug: updatedSlug }));
+		toggleEditShareUrlSlug();
+	};
+
 	const handleCopyLink = () => {
+		if (info.editedSlug !== slug) {
+			navigator.clipboard.writeText(copyLinkUrl);
+			message.success('Form link copied to clipboard');
+			return;
+		}
 		if (onCopyLink) {
 			onCopyLink();
 			onClose();
@@ -78,26 +134,54 @@ const ShareWidget = ({
 					<div className="link-container">
 						<div className="link-container-wrapper">
 							<div className="link-input-container">
-								<div className="domain-section-wrapper" onClick={handleCopyLink}>
-									<div className="domain-section">{shareUrl}</div>
-									<CopyIcon
-										className="copy-icon cursor-pointer"
-										title="Copy to clipboard"
-									/>
+								<div className="domain-section-wrapper">
+									<div
+										onClick={toggleEditShareUrlSlug}
+										className="domain-section"
+									>
+										<span className="baseUrl">{baseUrl}</span>
+										{info.editShareUrlSlug ? (
+											<input
+												value={info?.editedSlug}
+												onChange={handleEditSlug}
+												className="editShareUrlSlug"
+												autoFocus
+												onBlur={handleUpdateSlug}
+												onKeyDown={(e) => {
+													if (e.key === 'Enter') {
+														handleUpdateSlug();
+													}
+												}}
+												type="text"
+											/>
+										) : (
+											<span>{info.editedSlug}</span>
+										)}
+									</div>
+									{!info.editShareUrlSlug && (
+										<CopyIcon
+											onClick={handleCopyLink}
+											className="copy-icon cursor-pointer"
+											title="Copy to clipboard"
+										/>
+									)}
 								</div>
 							</div>
 						</div>
 					</div>
-
 					<div className="button-wrapper">
-						{embeddedCode && (
-							<button className="action-button" onClick={handleCopyEmbedded}>
-								Copy Embed Code
-							</button>
+						{!info.editShareUrlSlug && (
+							<>
+								{embeddedCode && (
+									<button className="action-button" onClick={handleCopyEmbedded}>
+										Copy Embed Code
+									</button>
+								)}
+								<button className="action-button" onClick={handleCopyLink}>
+									Copy Link
+								</button>
+							</>
 						)}
-						<button className="action-button" onClick={handleCopyLink}>
-							Copy Link
-						</button>
 					</div>
 				</div>
 			</div>
