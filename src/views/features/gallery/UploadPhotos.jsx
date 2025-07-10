@@ -62,6 +62,8 @@ const UploadPhotos = () => {
 		isAiEnabled: false,
 		isUploadComplete: false,
 		// lightGallery: false,
+		scaleWatermark: 0.15,
+		watermarkOpacity: 100,
 	});
 	const recentImageInitiatedRef = useRef(info.recentImageInitiated);
 	const params = new URLSearchParams(window.location.search);
@@ -104,6 +106,7 @@ const UploadPhotos = () => {
 			});
 		}
 	}, [aiFacesLogic, info?.isAiEnabled]);
+
 	useEffect(() => {
 		if (!waterMarks) {
 			getWaterMarks();
