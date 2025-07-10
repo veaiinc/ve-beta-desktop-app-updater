@@ -1,11 +1,11 @@
-import React, { memo, useState, useEffect, useContext, useRef, useImperativeHandle } from 'react';
+import React, { memo, useState, useEffect, useContext, useRef, useImperativeHandle, forwardRef  } from 'react';
 import s from './agentCredentials.module.scss';
 import Context from '../../../../../context/context';
 import { message } from '../../../../components/globalComponents/CustomToast';
 import PencilIcon from '../assets/PencilIcon';
 import CatIcon from '../assets/cat.png';
 
-const AgentCredentials = React.forwardRef(({ agentId }, ref) => {
+const AgentCredentials = forwardRef(({ agentId }, ref) => {
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, updateKnowledgeAgent, uploadAgentProfilePic },
 	} = useContext(Context);
