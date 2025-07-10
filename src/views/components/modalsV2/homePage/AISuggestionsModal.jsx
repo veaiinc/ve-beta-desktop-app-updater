@@ -457,7 +457,7 @@ const AISuggestionsModal = ({
 
 					{selectedOption === 'action' ? (
 						<>
-							{data?.formId && (
+							{data?.collectionType === 'forms' && (
 								<FormDescription response={data} activeTab={'responses'} />
 							)}
 						</>
