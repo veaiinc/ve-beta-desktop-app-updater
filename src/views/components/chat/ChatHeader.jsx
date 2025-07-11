@@ -209,7 +209,7 @@ const ChatHeader = ({
 				}`}
 			>
 				<div className={`${s.headerInfo} headerInfo`} onMouseLeave={handleMouseLeave}>
-					{info?.userMessages?.length > 1 && (
+					{info?.userMessages?.length > 3 && (
 						<div
 							className={`${s.nonActiveQuestionsContainer} nonActiveQuestionsContainer`}
 						>
@@ -231,34 +231,36 @@ const ChatHeader = ({
 							)}
 						</div>
 					)}
-
 					<div
 						className={s.leftContainer}
-						onMouseEnter={info?.userMessages?.length > 1 ? handleMouseEnter : undefined}
+						onMouseEnter={info?.userMessages?.length > 3 ? handleMouseEnter : undefined}
 					>
-						<div
-							className={`${s.questionWrapper} ${
-								info?.chatDropdownExpanded ? s.expanded : ''
-							}`}
-						>
-							<div className={s.chatQuestionContainer}>
-								{info?.userMessages?.length > 1 && (
-									<div
-										className={`${s.iconContainer} ${
-											info?.chatDropdownExpanded ? s.expanded : ''
-										}`}
-									>
-										<ChevronRightThinSvg width={18} height={18} />
-									</div>
-								)}
+						{info?.userMessages?.length > 3 && (
+							<div
+								className={`${s.questionWrapper} ${
+									info?.chatDropdownExpanded ? s.expanded : ''
+								}`}
+							>
+								<div className={s.chatQuestionContainer}>
+									{info?.userMessages?.length > 1 && (
+										<div
+											className={`${s.iconContainer} ${
+												info?.chatDropdownExpanded ? s.expanded : ''
+											}`}
+										>
+											<ChevronRightThinSvg width={18} height={18} />
+										</div>
+									)}
 
-								<div className={s.activeQuestion}>
-									{info?.userMessages?.[info?.activeUserMessageIndex]?.message ||
-										''}
+									<div className={s.activeQuestion}>
+										{info?.userMessages?.[info?.activeUserMessageIndex]
+											?.message || ''}
+									</div>
 								</div>
 							</div>
-						</div>
+						)}
 					</div>
+
 					<div className={s.rightContainer}>
 						{!isNewChat && (
 							<>
