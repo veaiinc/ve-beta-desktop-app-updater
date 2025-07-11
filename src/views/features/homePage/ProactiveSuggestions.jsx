@@ -534,7 +534,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 
 	const handleCardClick = async (card, index) => {
 		if (info?.selectedOption === 'action' && card?.templateId) {
-			navigate(`/builder/${card?.templateId}`);
+			navigate(`/builder/document/view/${card?.templateId}?workflow=true`);
 			return;
 		}
 		if (!card?.read && info?.selectedOption !== 'action') {
@@ -893,10 +893,10 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 								<AIQuestions />
 							</div>
 						)}
-						{info?.activeBtn === 'insights' && aiSuggestedPendingActions !== null && (
+						{info?.activeBtn === 'insights' && info?.options?.length && (
 							<>
 								{(info?.cards?.length > 0 ||
-									info?.options?.length > 1 ||
+									info?.options?.length ||
 									info?.searchQuery?.length !== 0 ||
 									info?.selectedFilters?.length > 0) && (
 									<div

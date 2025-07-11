@@ -168,6 +168,8 @@
 										z-index: 0;
 										&::placeholder {
 											font-size: 15px;
+											color: var(--secondary-font);
+											font-weight: 400;
 										}
 										&.startTextPage {
 											margin-top: 0px;
