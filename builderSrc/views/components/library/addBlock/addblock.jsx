@@ -386,7 +386,7 @@ class AddBlockV2 extends Component {
 		const options = {
 			root: document.querySelector('.ab-r-bottom'),
 			rootMargin: '0px',
-			threshold: 0.5, // Trigger when 50% of the section is visible
+			threshold: 0.5, 
 		};
 
 		this.observer = new IntersectionObserver((entries) => {
