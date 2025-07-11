@@ -10,6 +10,7 @@
 	.ctaContainer {
 		width: 100%;
 		max-width: 1000px;
+		height: fit-content;
 		display: flex;
 		flex-direction: column;
 		gap: 24px;
@@ -100,7 +101,6 @@
 		.sortAndFilterInfo {
 			display: flex;
 			align-items: center;
-			height: 40px;
 			gap: 2px;
 
 			.filter-container-search {
@@ -166,32 +166,36 @@
 				}
 			}
 
-			.sortContainer,
-			.notesFilterContainer {
-				.sortIcon,
-				.filterIcon {
-					border-radius: 6px;
-					cursor: pointer;
-					border: none;
-					transition: all 0.2s ease-in-out;
-					background-color: transparent;
-					display: flex;
-					width: 36px;
-					height: 36px;
-					padding: 8px;
-					justify-content: center;
-					align-items: center;
-					gap: 18px;
-					aspect-ratio: 1/1;
+			.sortFilterWrapper {
+				display: flex;
 
-					svg {
-						width: 20px;
-						height: 20px;
-					}
+				.sortContainer,
+				.notesFilterContainer {
+					.sortIcon,
+					.filterIcon {
+						border-radius: 6px;
+						cursor: pointer;
+						border: none;
+						transition: all 0.2s ease-in-out;
+						background-color: transparent;
+						display: flex;
+						width: 36px;
+						height: 36px;
+						padding: 8px;
+						justify-content: center;
+						align-items: center;
+						gap: 18px;
+						aspect-ratio: 1/1;
 
-					&:hover,
-					&.active {
-						background: var(--card);
+						svg {
+							width: 20px;
+							height: 20px;
+						}
+
+						&:hover,
+						&.active {
+							background: var(--card);
+						}
 					}
 				}
 			}
@@ -239,7 +243,7 @@
 
 			.noteCard {
 				display: flex;
-				width: 250px;
+				width: 322px;
 				height: 250px;
 				flex-direction: column;
 				align-items: flex-end;
@@ -393,37 +397,32 @@
 			.listInfiniteScroll {
 				display: flex;
 				flex-wrap: wrap;
-				// gap: 18px;
 				margin-bottom: 18px;
 				align-content: flex-start;
 				align-items: flex-start;
 			}
 
 			.noteListItem {
-				// width: 100%;
-				// height: 56px;
-				// display: flex;
-				// justify-content: flex-start;
-				// align-items: center;
-				// cursor: pointer;
-				// border: 1px solid transparent;
-				// border-radius: 8px;
-				// transition: all 0.2s ease-in-out;
 				display: flex;
 				padding: 20px 16px;
 				justify-content: space-between;
 				align-items: center;
 				align-self: stretch;
 				gap: 16px;
-				// background-color: red;
+				cursor: pointer;
+				transition: all 0.2s ease-in-out;
 
 				&:not(:last-child) {
 					border-bottom: 1px solid var(--stroke); /* or any color/style you prefer */
 				}
 
-				// &:hover {
-				// 	border: 1px solid var(--stroke-hover);
-				// }
+				&:hover {
+					background-color: var(--card);
+				}
+
+				&:active {
+					opacity: 0.9;
+				}
 
 				.iconImageContainer {
 					width: 20px;
@@ -477,16 +476,6 @@
 					flex-shrink: 0;
 
 					.icon {
-						// display: flex;
-						// width: 24px;
-						// height: 24px;
-						// flex-direction: column;
-						// justify-content: center;
-						// align-items: center;
-						// gap: 10px;
-						// border-radius: 6px;
-						// border: 0.8px solid var(--stroke, #2c2d2e);
-						// background: var(--popup, #202123);
 						display: flex;
 						align-items: center;
 
@@ -521,11 +510,25 @@
 	.notesPageContainer {
 		padding: 29px 25px 0 33px;
 		.ctaContainer {
+			.createNewNoteContainer {
+				.titleAndDescriptionContainer {
+					.title {
+						font-size: 14px;
+						line-height: 20px;
+					}
+					.description {
+						font-size: 12px;
+						line-height: 16px;
+					}
+				}
+			}
 			.sortAndFilterInfo {
-				flex-direction: column;
+				// flex-direction: column;
 				align-items: stretch;
 				gap: 6px;
 				width: 100%;
+				flex-wrap: wrap;
+
 				.sortInfo,
 				.filterInfo {
 					width: 100%;
@@ -534,6 +537,24 @@
 				}
 				.filter-container-search {
 					width: 100%;
+					flex-grow: 1;
+					width: fit-content;
+
+					.search-wrapper {
+						flex-grow: 1;
+
+						.search-input {
+							flex-grow: 1;
+						}
+
+						&.hide-search-input {
+							display: flex;
+							gap: 6px;
+							transition: all 0.4s cubic-bezier(0, 0, 0.2, 1);
+							width: 183px;
+							overflow: hidden;
+						}
+					}
 					.search-input {
 						width: 100%;
 						padding: 8px 0 10px 10px;
@@ -544,19 +565,6 @@
 
 		.notesContainer {
 			&.cardsView {
-				.createNewNoteContainer {
-					.titleAndDescriptionContainer {
-						.title {
-							font-size: 14px;
-							line-height: 20px;
-						}
-						.description {
-							font-size: 12px;
-							line-height: 16px;
-						}
-					}
-				}
-
 				.noteCard {
 					.noteCardHeader {
 						.noteCardTitle {
@@ -568,19 +576,6 @@
 			}
 
 			&.listView {
-				.createNewNoteContainer {
-					.titleAndDescriptionContainer {
-						.title {
-							font-size: 14px;
-							line-height: 20px;
-						}
-						.description {
-							font-size: 12px;
-							line-height: 16px;
-						}
-					}
-				}
-
 				.noteListItem {
 					.noteCardHeader {
 						.noteCardTitle {

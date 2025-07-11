@@ -33,7 +33,7 @@ const CardsViewNotes = ({ notes, fetchMoreNotes, userId, isDatabase = false }) =
 			style={{
 				display: 'flex',
 				flexWrap: 'wrap',
-				gap: '18px',
+				gap: '16px',
 				marginBottom: '18px',
 				justifyContent: 'flex-start',
 				alignItems: 'flex-start',

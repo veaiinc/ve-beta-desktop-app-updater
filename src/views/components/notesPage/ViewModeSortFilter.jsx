@@ -94,56 +94,59 @@ const ViewModeSortFilter = ({
 						</div>
 					</div>
 				</div>
-				<div className="sortContainer">
-					<SortAndFilterTooltip
-						type="sort"
-						tooltipOpen={info.sortTooltipOpen}
-						toggleTooltipOpen={() =>
-							setInfo((prev) => ({
-								...prev,
-								sortTooltipOpen: !prev.sortTooltipOpen,
-							}))
-						}
-						selectedOption={info.sort}
-						handleOptionClick={({ type, value }) => {
-							setInfo((prev) => ({
-								...prev,
-								[type]: value,
-								sortTooltipOpen: !prev.sortTooltipOpen,
-							}));
-							setSelectedSort(value);
-						}}
-					>
-						<button aria-label="Sort" className="sortIcon">
-							<SortIcon />
-						</button>
-					</SortAndFilterTooltip>
+				<div className="sortFilterWrapper">
+					<div className="sortContainer">
+						<SortAndFilterTooltip
+							type="sort"
+							tooltipOpen={info.sortTooltipOpen}
+							toggleTooltipOpen={() =>
+								setInfo((prev) => ({
+									...prev,
+									sortTooltipOpen: !prev.sortTooltipOpen,
+								}))
+							}
+							selectedOption={info.sort}
+							handleOptionClick={({ type, value }) => {
+								setInfo((prev) => ({
+									...prev,
+									[type]: value,
+									sortTooltipOpen: !prev.sortTooltipOpen,
+								}));
+								setSelectedSort(value);
+							}}
+						>
+							<button aria-label="Sort" className="sortIcon">
+								<SortIcon />
+							</button>
+						</SortAndFilterTooltip>
+					</div>
+					<div className="notesFilterContainer">
+						<SortAndFilterTooltip
+							type="filter"
+							tooltipOpen={info.filterTooltipOpen}
+							toggleTooltipOpen={() =>
+								setInfo((prev) => ({
+									...prev,
+									filterTooltipOpen: !prev.filterTooltipOpen,
+								}))
+							}
+							selectedOption={info.filter}
+							handleOptionClick={({ type, value }) => {
+								setInfo((prev) => ({
+									...prev,
+									[type]: value,
+									filterTooltipOpen: !prev.filterTooltipOpen,
+								}));
+								setSelectedFilter(value);
+							}}
+						>
+							<button aria-label="Filter" className="filterIcon">
+								<FilterIcon />
+							</button>
+						</SortAndFilterTooltip>
+					</div>
 				</div>
-				<div className="notesFilterContainer">
-					<SortAndFilterTooltip
-						type="filter"
-						tooltipOpen={info.filterTooltipOpen}
-						toggleTooltipOpen={() =>
-							setInfo((prev) => ({
-								...prev,
-								filterTooltipOpen: !prev.filterTooltipOpen,
-							}))
-						}
-						selectedOption={info.filter}
-						handleOptionClick={({ type, value }) => {
-							setInfo((prev) => ({
-								...prev,
-								[type]: value,
-								filterTooltipOpen: !prev.filterTooltipOpen,
-							}));
-							setSelectedFilter(value);
-						}}
-					>
-						<button aria-label="Filter" className="filterIcon">
-							<FilterIcon />
-						</button>
-					</SortAndFilterTooltip>
-				</div>
+
 				<div className="viewMode">
 					<button
 						onClick={() => setViewMode('list')}
