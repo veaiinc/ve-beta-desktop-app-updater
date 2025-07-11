@@ -3628,7 +3628,6 @@ const GalleryPage = () => {
 			...prev,
 			videosList: updatedVideosList,
 		}));
-		console.log(info?.videosList, 'videosList');
 	};
 
 	const removeSelectedVideoFromList = () => {
@@ -3640,6 +3639,7 @@ const GalleryPage = () => {
 		setInfo((prev) => ({
 			...prev,
 			videosList: updatedVideosList,
+			selectVideo: updatedVideosList?.[0],
 		}));
 	};
 	return (
