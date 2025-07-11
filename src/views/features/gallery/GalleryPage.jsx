@@ -59,7 +59,7 @@ import ShareAlbum from '../../components/modalsV2/gallery/ShareAlbum';
 import GalleryStyles from '../../components/modalsV2/gallery/GalleryStyles';
 import DownloadAlbum from '../../components/modalsV2/gallery/DownloadAlbum';
 import DeleteAlbumImagesPopup from '../../components/modalsV2/gallery/DeleteAlbumImagesPopup';
-import VideoUploadPopup from '../../co'
+import VideoUploadPopup from '../../components/modalsV2/gallery/UploadVideo';
 // import ToggleSlider from '../../components/input/slider';
 import { Switch, message } from 'antd';
 import ShowLightRoomCopy from '../../components/modalsV2/gallery/ShowLightRoomCopy';
@@ -68,7 +68,8 @@ import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
 // import SharePopup from '../../components/modalsV2/gallery/SharePopup';
 import GalleryViewer from './GalleryViewer';
 import { ReactComponent as ArrowSvg } from '../../../assets/svg/file/arrow.svg';
-
+import { getThumbnailUrl } from '../../../helpers/videoThumbnailHelpers';
+import GalleryVideos from '../../components/gallery/galleryVideos/GalleryVideos';
 // const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
@@ -336,6 +337,9 @@ const GalleryPage = () => {
 		currentWorkspaceId: null,
 		noImageSelected: false,
 		uploadImageLoader: false,
+		videoUploadPopup: false,
+		selectVideo: null,
+		videosList: null,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -356,7 +360,7 @@ const GalleryPage = () => {
 	const containerRef = useRef(null);
 	const data = [
 		{ name: 'Albums', number: albumImagesCount?.albums?.length },
-		{ name: 'Videos', number: tenantAlbums?.videos?.length },
+		{ name: 'Videos', number: tenantAlbums?.embeddedVideos?.length },
 		// { name: 'Slide Show', number: 1 },
 		{ name: 'Client Selections', number: clientSelectionsData?.totalDocs },
 		{
@@ -693,6 +697,8 @@ const GalleryPage = () => {
 				albumSlug: tenantAlbums?.albums?.[0]?.slug,
 				isPublished: tenantAlbums?.isPublished,
 				isOnline: tenantAlbums?.isPublished,
+				selectVideo: tenantAlbums?.embeddedVideos?.[0],
+				videosList: tenantAlbums?.embeddedVideos,
 			}));
 		}
 		// ... rest of the effect
@@ -3613,6 +3619,18 @@ const GalleryPage = () => {
 		}
 	};
 
+	const videoToggle = (value) => {
+		const updatedVideosList = info?.videosList?.map((video) =>
+			video?._id === info?.selectVideo?._id ? { ...video, isPublished: value } : video,
+		);
+
+		setInfo((prev) => ({
+			...prev,
+			videosList: updatedVideosList,
+		}));
+		console.log(info?.videosList, 'videosList');
+	};
+
 	return (
 		<>
 			<div className="galleryContainer">
@@ -3875,13 +3893,12 @@ const GalleryPage = () => {
 												<div
 													className="albums"
 													style={{
-														height: '160px',
+														height: '130px',
 													}}
 													{...provided.droppableProps}
 													ref={provided.innerRef}
 												>
-													{(info.activeTab === 'Albums' ||
-														info.activeTab !== 'Client Selections') && (
+													{info?.activeTab === 'Albums' && (
 														<div
 															className="create-album"
 															onClick={() =>
@@ -3894,9 +3911,21 @@ const GalleryPage = () => {
 															<p>+ New Album</p>
 														</div>
 													)}
+													{info?.activeTab === 'Videos' && (
+														<div
+															className="create-album"
+															onClick={() => {
+																setInfo((prev) => ({
+																	...prev,
+																	videoUploadPopup: true,
+																}));
+															}}
+														>
+															<p>+ Add Videos</p>
+														</div>
+													)}
 
-													{(info.activeTab === 'Albums' ||
-														info.activeTab !== 'Client Selections') &&
+													{info.activeTab === 'Albums' &&
 														sortByCustomIndex(
 															albumImagesCount?.albums,
 														)?.map((album, index) => {
@@ -4144,6 +4173,56 @@ const GalleryPage = () => {
 															},
 														)}
 													{provided.placeholder}
+
+													{info?.activeTab === 'Videos' && (
+														<div className="videosContainer">
+															{info?.videosList?.map((video) => (
+																<div
+																	key={video?._id}
+																	className={`eachVideoContainer ${
+																		info?.selectVideo?._id ===
+																		video?._id
+																			? 'selectedVideo'
+																			: ''
+																	}`}
+																	style={{
+																		backgroundImage: `url(${getThumbnailUrl(
+																			video,
+																		)})`,
+																		backgroundSize: 'cover',
+																		backgroundPosition:
+																			'center',
+																		backgroundRepeat:
+																			'no-repeat',
+																		borderRadius: '12px',
+																	}}
+																	onClick={() =>
+																		setInfo((prev) => ({
+																			...prev,
+																			selectVideo: video,
+																		}))
+																	}
+																>
+																	{!video?.isPublished && (
+																		<div className="videoOfflineIndicator">
+																			<CrossedOpenEye />
+																			Offline
+																		</div>
+																	)}
+																	{info?.selectVideo?._id !==
+																	video?._id ? (
+																		<div className="videoOverlay"></div>
+																	) : (
+																		<div className="videoTitleOverlay"></div>
+																	)}
+
+																	<p className="videoTitle">
+																		{video?.title}
+																	</p>
+																</div>
+															))}
+														</div>
+													)}
 												</div>
 											)}
 										</Droppable>
@@ -4173,7 +4252,7 @@ const GalleryPage = () => {
 						</div>
 					</div>
 				)}
-				{info?.scrolledTillEnd && (
+				{info?.scrolledTillEnd && info?.activeTab === 'Albums' && (
 					<div className="galleryTitleWhenScrolled" style={{ gap: '24px' }}>
 						{sortByCustomIndex(albumImagesCount?.albums)?.map((album) => {
 							const isActive = album._id === info.activeAlbumId;
@@ -5598,6 +5677,14 @@ const GalleryPage = () => {
 							</div>
 						</div>
 					))}
+				{info?.activeTab === 'Videos' && (
+					<GalleryVideos
+						selectedVideo={info?.selectVideo}
+						onUpdateVideoStatus={(value) => {
+							videoToggle(value);
+						}}
+					/>
+				)}
 				{info.selectedImages.length > 0 && (
 					<div className="selectedImagesCotainer">
 						<div className="selectedImagesCounter">
@@ -6145,7 +6232,11 @@ const GalleryPage = () => {
 				tagId={info?.activeTagId}
 				handleOpenUploadCover={openUploadCoverPhoto}
 			/>
-			<VideoUploadPopup />
+			<VideoUploadPopup
+				isOpen={info?.videoUploadPopup}
+				closeModal={() => setInfo((prev) => ({ ...prev, videoUploadPopup: false }))}
+				galleryId={galleryId}
+			/>
 		</>
 	);
 };
