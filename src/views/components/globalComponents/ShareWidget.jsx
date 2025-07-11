@@ -46,7 +46,15 @@ const ShareWidget = ({
 		if (info.editedSlug === '') {
 			message.error('Hey! The slug cannot be empty.');
 			setInfo((prev) => ({
+				...prev,
 				editedSlug: slug,
+				editShareUrlSlug: false,
+			}));
+			return;
+		}
+		if (info.editedSlug === slug) {
+			setInfo((prev) => ({
+				...prev,
 				editShareUrlSlug: false,
 			}));
 			return;
@@ -68,7 +76,7 @@ const ShareWidget = ({
 
 	const handleCopyLink = () => {
 		if (info.editedSlug !== slug) {
-			navigator.clipboard.writeText(copyLinkUrl);
+			navigator.clipboard.writeText(`${baseUrl}${info.editedSlug}`);
 			message.success('Form link copied to clipboard');
 			return;
 		}
