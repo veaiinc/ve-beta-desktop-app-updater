@@ -237,124 +237,6 @@ const File = ({
 		[info, eventsBlockChanges, scrollAndHighlightElement],
 	);
 
-	const updateFileData = useCallback(() => {
-		const payload = {
-			workflowId: workflowId,
-			proposalId: fileData?._id,
-			proposalInput: {
-				versions: {
-					tables: info?.fileData?.versions?.[0]?.tables,
-					sections: info?.fileData?.versions?.[0]?.sections,
-				},
-			},
-			versionId: info?.fileData?.activeVersion,
-		};
-
-		updateFiles(payload);
-	}, [info, workflowId, fileData]);
-
-	const handleDeboucne = useCallback(() => {
-		clearTimeout(info?.timeout);
-		const timeout = setTimeout(() => {
-			updateFileData();
-		}, 1000);
-		setInfo((prev) => ({ ...prev, timeout }));
-	}, [info, updateFileData]);
-
-	// handling event blocks reordering
-	const handleEventsOrdering = useCallback(
-		(sectionId, blockId, action) => {
-			const fileData = { ...(info?.fileData || {}) };
-			const { sections = [], tables = [] } = fileData?.versions?.[0] || {};
-			const newSections = sections?.map((sectionItem) => {
-				if (sectionItem?._id === sectionId) {
-					const currentBlocks = [...(sectionItem?.blocks || [])];
-					const blockIndex = currentBlocks.findIndex((block) => block?._id === blockId);
-					let newIndex = blockIndex;
-					if (action === 'up' && blockIndex > 0) {
-						newIndex = blockIndex - 1;
-					} else if (action === 'down' && blockIndex < currentBlocks.length - 1) {
-						newIndex = blockIndex + 1;
-					}
-					if (
-						blockIndex !== -1 &&
-						newIndex !== blockIndex &&
-						newIndex >= 0 &&
-						newIndex < currentBlocks.length
-					) {
-						const temp = currentBlocks[newIndex];
-						currentBlocks[newIndex] = currentBlocks[blockIndex];
-						currentBlocks[blockIndex] = temp;
-						// Update order property after swap
-						currentBlocks.forEach((block, idx) => {
-							block.order = idx + 1;
-						});
-					}
-					return {
-						...sectionItem,
-						blocks: currentBlocks,
-					};
-				}
-				return sectionItem;
-			});
-
-			let newEventsTables = [];
-			const newTables = tables?.map((tableItem) => {
-				if (tableItem?._id === sectionId && tableItem.type === 'events') {
-					const currentValues = [...(tableItem?.values || [])];
-					const valueIndex = currentValues.findIndex(
-						(value) => value?.blockId === blockId,
-					);
-					let newValueIndex = valueIndex;
-					if (action === 'up' && valueIndex > 0) {
-						newValueIndex = valueIndex - 1;
-					} else if (action === 'down' && valueIndex < currentValues.length - 1) {
-						newValueIndex = valueIndex + 1;
-					}
-					if (
-						valueIndex !== -1 &&
-						newValueIndex !== valueIndex &&
-						newValueIndex >= 0
-						// &&
-						// newValueIndex < currentValues.length
-					) {
-						const temp = currentValues[newValueIndex];
-						currentValues[newValueIndex] = currentValues[valueIndex];
-						currentValues[valueIndex] = temp;
-						// Update order property for values after swap
-						currentValues.forEach((val, idx) => {
-							val.order = idx + 1;
-						});
-					}
-					const newTableVal = {
-						...tableItem,
-						values: currentValues,
-					};
-					newEventsTables.push(newTableVal);
-					return newTableVal;
-				}
-				return tableItem;
-			});
-
-			fileData.versions[0] = {
-				...fileData?.versions?.[0],
-				sections: newSections,
-				tables: newTables,
-			};
-
-			const updatedEventsTableData = newTables.filter((t) => t.type === 'events');
-			eventsBlockChanges({ eventsTable: updatedEventsTableData });
-
-			setInfo((prev) => ({
-				...prev,
-				fileData,
-				eventsTableData: updatedEventsTableData,
-			}));
-			handleDeboucne();
-		},
-		[info, eventsBlockChanges, handleDeboucne],
-	);
-
 	const handleContractDataChanges = useCallback(
 		(updatedContractData) => {
 			const { sections = [], tables = [] } = fileData?.versions?.[0] || {};
@@ -426,6 +308,30 @@ const File = ({
 		[info],
 	);
 
+	const updateFileData = useCallback(() => {
+		const payload = {
+			workflowId: workflowId,
+			proposalId: fileData?._id,
+			proposalInput: {
+				versions: {
+					tables: info?.fileData?.versions?.[0]?.tables,
+					sections: info?.fileData?.versions?.[0]?.sections,
+				},
+			},
+			versionId: info?.fileData?.activeVersion,
+		};
+
+		updateFiles(payload);
+	}, [info, workflowId, fileData]);
+
+	const handleDeboucne = useCallback(() => {
+		clearTimeout(info?.timeout);
+		const timeout = setTimeout(() => {
+			updateFileData();
+		}, 1000);
+		setInfo((prev) => ({ ...prev, timeout }));
+	}, [info, updateFileData]);
+
 	const hasAnyData =
 		(info?.serviceTableData && info.serviceTableData.length > 0) ||
 		(info?.eventsTableData && info.eventsTableData.length > 0) ||
@@ -450,7 +356,6 @@ const File = ({
 					eventsDataChange={handleEventsTableChange}
 					scrollAndHighlightElement={scrollAndHighlightElement}
 					formResponses={formResponses}
-					eventsOrderChange={handleEventsOrdering}
 				/>
 			)}
 			{info?.paymentScheduleData && info.paymentScheduleData.length > 0 && (

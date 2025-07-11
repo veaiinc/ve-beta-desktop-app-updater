@@ -163,6 +163,7 @@ import { ReactComponent as SchedulerNew } from '../svgs/LeftBar/Scheduler.svg';
 import { ReactComponent as AIassit } from '../svgs/LeftBar/AIassit.svg';
 import { ReactComponent as Saved } from '../svgs/LeftBar/Saved.svg';
 import { ReactComponent as NewTable } from '../svgs/LeftBar/NewTable.svg';
+import { ReactComponent as AddBlank } from '../svgs/LeftBar/Addblock.svg';
 
 import _, { set } from 'lodash';
 
@@ -518,30 +519,37 @@ class AddBlockV2 extends Component {
 				>
 					<div
 						className="ab-l-top"
-						style={{ marginTop: this.state.scroolCalled ? '0px' : '27px' }}
+						// style={{ marginTop: this.state.scroolCalled ? '0px' : '27px' }}
 					>
-						{/* {this.state.isElement !== true && (
-                            <div
-                                className={`addBlank ${this.state.activeTab === 'fluid' ? 'active' : ''
-                                    }`}
-                                onClick={(e) => {
-                                    this.props.handleAddLayout(null, true);
-                                    this.setState({
-                                        activeTab: 'fluid',
-                                        showRightBar: true,
-                                        tabsclicked: true,
-                                    });
-                                }}
-                                data-tab="fluid"
-                            >
-                                <AddBlank />
-                            </div>
-                        )} */}
+						{this.state.isElement !== true && (
+							<Tooltip placement="right" title="Add Blank">
+								<div
+									className={`addBlank ${
+										this.state.activeTab === 'fluid' ? 'active' : ''
+									}`}
+									onClick={(e) => {
+										this.props.handleAddLayout(null, true);
+										this.setState({
+											activeTab: 'fluid',
+											showRightBar: true,
+											tabsclicked: true,
+										});
+									}}
+									data-tab="fluid"
+								>
+									<AddBlank />
+								</div>
+							</Tooltip>
+						)}
 
 						<Divider />
 						{this.sections.map((section) => (
 							<React.Fragment key={section.name}>
-								<Tooltip placement="right" title={section.title}>
+								<Tooltip
+									placement="right"
+									title={section.title}
+									overlayClassName="custom-tooltip"
+								>
 									<div
 										className={`addBlank ${
 											this.state.activeTab === section.name ? 'active' : ''
