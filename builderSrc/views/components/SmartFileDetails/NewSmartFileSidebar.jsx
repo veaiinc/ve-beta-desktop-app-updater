@@ -404,11 +404,12 @@ const SmartFileSidebar = ({
 	);
 
 	const refreshClientDetails = useCallback(() => {
-		if (workflowId) {
-			getSmartFileData({
-				getWorkflowWithModulesId: workflowId,
-			});
-		}
+		// ! commenting cause not using it now
+		// if (workflowId) {
+		// 	getSmartFileData({
+		// 		getWorkflowWithModulesId: workflowId,
+		// 	});
+		// }
 	}, [workflowId, getSmartFileData]);
 
 	if (!showSmartFileSidebar) {

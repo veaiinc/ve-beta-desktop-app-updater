@@ -232,8 +232,6 @@ const RecentChat = ({
 			if (info?.renderingTwice) {
 				//clearing context state when rendering different session
 				updateStateValues({
-					moreRecentChatStorage: null,
-					recentChatStorage: null,
 					// globalChatMessages: [],
 					citations: null,
 					chatPayload: {
@@ -430,6 +428,9 @@ const RecentChat = ({
 		if (recentChatStorage) {
 			const firstTimeApiCall = true;
 			recentChatHandler(recentChatStorage, false, firstTimeApiCall);
+			updateStateValues({
+				recentChatStorage: null,
+			});
 		}
 	}, [recentChatStorage]);
 
@@ -437,6 +438,9 @@ const RecentChat = ({
 		if (moreRecentChatStorage) {
 			const firstTimeApiCall = false;
 			recentChatHandler(moreRecentChatStorage, true, firstTimeApiCall);
+			updateStateValues({
+				moreRecentChatStorage: null,
+			});
 		}
 	}, [moreRecentChatStorage]);
 
@@ -1020,6 +1024,7 @@ const RecentChat = ({
 																		?.messages?.length -
 																		1
 																}
+																sessionId={sessionId}
 															/>
 														</div>
 													) : (
