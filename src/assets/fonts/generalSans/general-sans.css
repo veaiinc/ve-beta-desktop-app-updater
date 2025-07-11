@@ -18,6 +18,15 @@
 
 @font-face {
 	font-family: 'GeneralSans';
+	src: url('./GeneralSans-Regular.woff2') format('woff2'),
+		url('./GeneralSans-Regular.woff') format('woff');
+	font-weight: 400;
+	font-display: swap;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'GeneralSans';
 	src: url('./GeneralSans-Medium.woff2') format('woff2'),
 		url('./GeneralSans-Medium.woff') format('woff');
 	font-weight: 500;
@@ -42,20 +51,3 @@
 	font-display: swap;
 	font-style: normal;
 }
-
-@font-face {
-	font-family: 'GeneralSans';
-	src: url('./GeneralSans-Regular.woff2') format('woff2'),
-		url('./GeneralSans-Regular.woff') format('woff');
-	font-weight: 400;
-	font-display: swap;
-	font-style: normal;
-}
-/* @font-face {
-	font-family: 'GeneralSans';
-	src: url('./GeneralSans-Variable.woff2') format('woff2'),
-		url('./GeneralSans-Variable.woff') format('woff');
-	font-weight: 200 700;
-	font-display: swap;
-	font-style: normal;
-} */
