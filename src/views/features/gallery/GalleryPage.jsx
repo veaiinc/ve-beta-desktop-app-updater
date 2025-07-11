@@ -3,17 +3,16 @@ import { ReactComponent as ShareIcon } from '../../../assets/svg/gallery/share.s
 import sixDots from '../../../assets/svg/gallery/sixdots.svg';
 import { ReactComponent as ThreeDotsIcon } from '../../../assets/svg/gallery/threeDots.svg';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
-import { ReactComponent as FilterIcon } from '../../../assets/svg/gallery/newFilter.svg';
 import { ReactComponent as ExpandIcon } from '../../../assets/svg/gallery/expand.svg';
 import { ReactComponent as ForwardIcon } from '../../../assets/svg/gallery/forward.svg';
 import { ReactComponent as PinIcon } from '../../../assets/svg/gallery/pin.svg';
 import { ReactComponent as DragIcon } from '../../../assets/svg/gallery/drag.svg';
-import { ReactComponent as RotatingCircle } from '../../../assets/svg/gallery/rotating-circle.svg';
+import { ReactComponent as EditPenIcon } from '../../../assets/svg/gallery/newPenIcon.svg';
 import { ReactComponent as OptionsIcon } from '../../../assets/svg/gallery/dotsThree.svg';
 import { ReactComponent as CloudUpload } from '../../../assets/svg/Settings/CloudUpload.svg';
-import { ReactComponent as OpenEye } from '../../../assets/svg/gallery/open-eye.svg';
+import { ReactComponent as RearrangeIcon } from '../../../assets/svg/gallery/rearrangeIcon.svg';
 import { ReactComponent as CrossedOpenEye } from '../../../assets/svg/gallery/crossedOpenEye.svg';
-import { ReactComponent as GalleryPreview } from '../../../assets/svg/gallery/galleryPreview.svg';
+import { ReactComponent as NewFilterSvg } from '../../../assets/svg/tasks/newFiltersIcon.svg';
 import { ReactComponent as EditPen } from '../../../assets/svg/gallery/editpen.svg';
 import { ReactComponent as ChangeCalender } from '../../../assets/svg/gallery/changeCalender.svg';
 import { ReactComponent as BrushIcon } from '../../../assets/svg/gallery/brush.svg';
@@ -67,6 +66,7 @@ import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
 // import SharePopup from '../../components/modalsV2/gallery/SharePopup';
 import GalleryViewer from './GalleryViewer';
 import { ReactComponent as ArrowSvg } from '../../../assets/svg/file/arrow.svg';
+import { ReactComponent as SelectModeIcon } from '../../../assets/svg/gallery/selectModeIcon.svg';
 
 // const workspaceId = localStorage.getItem('workspaceId');
 
@@ -335,6 +335,7 @@ const GalleryPage = () => {
 		currentWorkspaceId: null,
 		noImageSelected: false,
 		uploadImageLoader: false,
+		selectingImages: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -357,19 +358,19 @@ const GalleryPage = () => {
 		{ name: 'Albums', number: albumImagesCount?.albums?.length },
 		// { name: 'Videos', number: 2 },
 		// { name: 'Slide Show', number: 1 },
-		{ name: 'Client Selections', number: clientSelectionsData?.totalDocs },
 		{
 			name: 'Ai People',
-			// number:
-			// 	imageProcessingStatus?.numberOfImagesPeoples > 0
-			// 		? parseInt(
-			// 				(imageProcessingStatus?.numberOfImagesGroupedFaces /
-			// 					imageProcessingStatus?.numberOfImagesPeoples) *
-			// 					100,
-			// 				0,
-			// 		  ) + '%'
-			// 		: '0',
+			number:
+				imageProcessingStatus?.numberOfImagesPeoples > 0
+					? parseInt(
+							(imageProcessingStatus?.numberOfImagesGroupedFaces /
+								imageProcessingStatus?.numberOfImagesPeoples) *
+								100,
+							0,
+					  ) + '%'
+					: '0',
 		},
+		{ name: 'Collection', number: clientSelectionsData?.totalDocs },
 		// {
 		// 	name: 'breaker',
 		// },
@@ -596,7 +597,7 @@ const GalleryPage = () => {
 	}, [galleryCredentials]);
 
 	useEffect(() => {
-		if (info?.activeTab === 'Client Selections' && info?.clientSelectionID) {
+		if (info?.activeTab === 'Collection' && info?.clientSelectionID) {
 			getClientSelectionImages(info?.clientSelectionID);
 		}
 	}, [info?.clientSelectionID, info?.activeTab]);
@@ -1052,7 +1053,7 @@ const GalleryPage = () => {
 
 		if (
 			activeTabFromParams &&
-			['Albums', 'Client Selections', 'Ai People', 'Insights'].includes(activeTabFromParams)
+			['Albums', 'Collection', 'Ai People', 'Insights'].includes(activeTabFromParams)
 		) {
 			setInfo((prev) => ({
 				...prev,
@@ -1400,7 +1401,7 @@ const GalleryPage = () => {
 
 			// Handle tags differently for client selections vs regular albums
 			let newSelectedImagesTags;
-			if (info.activeTab === 'Client Selections') {
+			if (info.activeTab === 'Collection') {
 				// For client selections, don't process tags
 				newSelectedImagesTags = prevInfo?.selectedImagesTags || [];
 			} else {
@@ -2077,7 +2078,7 @@ const GalleryPage = () => {
 			// const id = message.loading('Fetching image list...');
 
 			let response;
-			if (info.activeTab === 'Client Selections' && info.clientSelectionID) {
+			if (info.activeTab === 'Collection' && info.clientSelectionID) {
 				// Check if we have client selection images
 				if (!info.clientSelectionImages?.docs?.length) {
 					message.warning('No images found in this client selection');
@@ -2767,7 +2768,7 @@ const GalleryPage = () => {
 		const containerWidth = document.querySelector('.albums')?.clientWidth || 0;
 		const cardWidth = 130;
 		const numberOfCards =
-			info.activeTab === 'Client Selections'
+			info.activeTab === 'Collection'
 				? clientSelectionsData?.data?.length || 0
 				: albumImagesCount?.albums?.length + 1 || 0;
 		const cardHeight = 160;
@@ -3389,7 +3390,7 @@ const GalleryPage = () => {
 
 			// Handle Client Selections tab with no specific selections
 			if (
-				info.activeTab === 'Client Selections' &&
+				info.activeTab === 'Collection' &&
 				info.clientSelectionID &&
 				info.selectedImages.length === 0
 			) {
@@ -3539,7 +3540,7 @@ const GalleryPage = () => {
 	const getShareLink = () => {
 		const baseUrl = `${info?.galleryLink}`;
 		let pin = '';
-		if (info.activeTab === 'Client Selections' && info?.clientSelectionID) {
+		if (info.activeTab === 'Collection' && info?.clientSelectionID) {
 			const selection = clientSelectionsData?.data?.find(
 				(sel) => sel._id === info?.clientSelectionID,
 			);
@@ -3549,7 +3550,7 @@ const GalleryPage = () => {
 		} else {
 			pin = info?.activeGallery?.guestAccess?.pin || '';
 		}
-		if (info.activeTab === 'Client Selections' && info?.clientSelectionName) {
+		if (info.activeTab === 'Collection' && info?.clientSelectionName) {
 			return {
 				url: `${baseUrl}/selection/${info?.activeClientSelection}`,
 				pin: pin,
@@ -3615,7 +3616,7 @@ const GalleryPage = () => {
 	return (
 		<>
 			<div className="galleryContainer">
-				{!info?.isRearranging && (
+				{/* {!info?.isRearranging && (
 					<div className="galleryTitleWhenScrolled">
 						<span onClick={() => navigate('/home')} className="homeIcon">
 							<HomeIcon />
@@ -3631,7 +3632,7 @@ const GalleryPage = () => {
 							Files
 						</span>
 					</div>
-				)}
+				)} */}
 				{info?.isRearranging ? (
 					<div className="galleryRearrangingContainer">
 						<div className="galleryRearrangingImageContainer">
@@ -3719,85 +3720,18 @@ const GalleryPage = () => {
 													{info?.activeGallery?.title ||
 														'Untitled Gallery'}
 												</p>
+												{tenantAlbums && (
+													<span className="galleryImagesCount">
+														{tenantAlbums?.storageDetails?.imagesCount}{' '}
+														Images
+													</span>
+												)}
 											</div>
 										</div>
 									</div>
-									{data?.map((item, index) => (
-										<>
-											{item?.name !== 'breaker' && (
-												<div
-													key={index}
-													className={`galleryContent ${
-														info?.activeTab === item?.name
-															? 'active'
-															: ''
-													}`}
-													onClick={() =>
-														handleClickContent(item?.name, item?.number)
-													}
-													style={{ cursor: 'pointer' }}
-												>
-													<p
-														className={`galleryName ${
-															info?.activeTab === item?.name
-																? 'active'
-																: ''
-														}`}
-													>
-														{item?.name}
-													</p>
-													<p
-														className={`count ${
-															info?.activeTab === item?.name
-																? 'active'
-																: ''
-														}`}
-													>
-														{item?.number}
-													</p>
-												</div>
-											)}
-											{item?.name === 'breaker' && (
-												<div className="breaker"></div>
-											)}
-										</>
-									))}
 								</div>
 								<div className="shareContainer">
-									<div
-										className="onlineContainer"
-										onClick={handleOnlineToggle}
-										style={{ cursor: 'pointer' }}
-									>
-										<div className="onlineIndicatorContainer">
-											<div
-												className="onlineStatus"
-												style={{
-													backgroundColor: info.isOnline
-														? 'var(--primary-button)'
-														: 'var(--error)',
-												}}
-											></div>
-											<p className="onlineText">
-												{info.isOnline ? 'Online' : 'Offline'}
-											</p>
-										</div>
-										<Switch
-											checked={info.isOnline}
-											// onChange={handleOnlineToggle}
-											size="small"
-											style={{
-												backgroundColor: info.isOnline
-													? 'var(--primary-button)'
-													: 'var(--error)',
-											}}
-										/>
-									</div>
-									<div className="onlineContainer" onClick={openShareModal}>
-										<ShareIcon className="shareIcon" />
-										<p>Share</p>
-									</div>
-									<div
+									{/* <div
 										className="icon"
 										ref={iconRef}
 										onClick={(e) => {
@@ -3816,10 +3750,6 @@ const GalleryPage = () => {
 												ref={optionsRef}
 												onClick={(e) => e.stopPropagation()}
 											>
-												{/* <li>
-												<GalleryPreview />
-												<span>Preview Gallery</span>
-											</li> */}
 												{galleryOptions.map((option, index) =>
 													option.divider ? (
 														<hr
@@ -3843,8 +3773,120 @@ const GalleryPage = () => {
 												)}
 											</div>
 										)}
+									</div> */}
+									<Tooltip
+										title={
+											<div className="filterContainer">
+												{galleryOptions.map((option, index) =>
+													option.divider ? (
+														<hr
+															key={`divider-${index}`}
+															style={{
+																border: '1px solid var(--stroke)',
+																opacity: '1',
+																width: '100%',
+															}}
+														/>
+													) : (
+														<li
+															key={option.label}
+															onClick={option.onClick}
+															className="file-filter-option-items"
+														>
+															{option.icon}
+															<span>{option.label}</span>
+														</li>
+													),
+												)}
+											</div>
+										}
+										placement="bottom"
+										arrow={false}
+										color="transparent"
+										trigger={'click'}
+									>
+										<div className="onlineContainer">
+											<EditPenIcon />
+											<p>Edit</p>
+										</div>
+									</Tooltip>
+									<div className="onlineContainer" onClick={openShareModal}>
+										<ShareIcon className="shareIcon" />
+										<p>Share</p>
+									</div>
+									<div className="verticalLine"></div>
+									<div
+										className="onlineContainer toggleContainer"
+										onClick={handleOnlineToggle}
+										style={{ cursor: 'pointer' }}
+									>
+										<div className="onlineIndicatorContainer">
+											{/* <div
+												className="onlineStatus"
+												style={{
+													backgroundColor: info.isOnline
+														? 'var(--primary-button)'
+														: 'var(--error)',
+												}}
+											></div> */}
+											<p className="onlineText">
+												{info.isOnline
+													? 'Gallery Online'
+													: 'Gallery Offline'}
+											</p>
+										</div>
+										<Switch
+											checked={info.isOnline}
+											// onChange={handleOnlineToggle}
+											size="small"
+											style={{
+												backgroundColor: info.isOnline
+													? 'var(--primary-button)'
+													: 'var(--error)',
+											}}
+										/>
 									</div>
 								</div>
+							</div>
+							<div className="galleryMainContentContainer">
+								{data?.map((item, index) => (
+									<div>
+										{item?.name !== 'breaker' && (
+											<div
+												key={index}
+												className={`galleryContent ${
+													info?.activeTab === item?.name ? 'active' : ''
+												}`}
+												onClick={() =>
+													handleClickContent(item?.name, item?.number)
+												}
+												style={{ cursor: 'pointer' }}
+											>
+												<p
+													className={`galleryName ${
+														info?.activeTab === item?.name
+															? 'active'
+															: ''
+													}`}
+												>
+													{item?.name}
+												</p>
+												<p
+													className={`count ${
+														info?.activeTab === item?.name
+															? 'active'
+															: ''
+													}`}
+												>
+													{item?.number}
+												</p>
+											</div>
+										)}
+										{item?.name === 'breaker' && (
+											<div className="breaker"></div>
+										)}
+									</div>
+								))}
 							</div>
 							{info.activeTab !== 'Insights' && info.activeTab !== 'Ai People' && (
 								<div
@@ -3873,14 +3915,11 @@ const GalleryPage = () => {
 											{(provided) => (
 												<div
 													className="albums"
-													style={{
-														height: '160px',
-													}}
 													{...provided.droppableProps}
 													ref={provided.innerRef}
 												>
 													{(info.activeTab === 'Albums' ||
-														info.activeTab !== 'Client Selections') && (
+														info.activeTab !== 'Collection') && (
 														<div
 															className="create-album"
 															onClick={() =>
@@ -3890,12 +3929,12 @@ const GalleryPage = () => {
 																}))
 															}
 														>
-															<p>+ New Album</p>
+															<p>+ Create Album</p>
 														</div>
 													)}
 
 													{(info.activeTab === 'Albums' ||
-														info.activeTab !== 'Client Selections') &&
+														info.activeTab !== 'Collection') &&
 														sortByCustomIndex(
 															albumImagesCount?.albums,
 														)?.map((album, index) => {
@@ -3993,7 +4032,7 @@ const GalleryPage = () => {
 																						right: 0,
 																						bottom: 0,
 																						backgroundColor:
-																							'rgba(0, 0, 0, 0.8)',
+																							'rgba(0, 0, 0, 0.5)',
 																						transition:
 																							'background-color 0.3s ease',
 																						height: '100%',
@@ -4079,14 +4118,14 @@ const GalleryPage = () => {
 																					}`}
 																				</p>
 																			</div>
-																			<div className="overlay"></div>
+																			{/* <div className="overlay"></div> */}
 																		</div>
 																	)}
 																</Draggable>
 															);
 														})}
 
-													{info.activeTab === 'Client Selections' &&
+													{info.activeTab === 'Collection' &&
 														clientSelectionsData?.data?.map(
 															(album, index) => {
 																let src = null;
@@ -4172,6 +4211,7 @@ const GalleryPage = () => {
 						</div>
 					</div>
 				)}
+				<div className="line"></div>
 				{info?.scrolledTillEnd && (
 					<div className="galleryTitleWhenScrolled" style={{ gap: '24px' }}>
 						{sortByCustomIndex(albumImagesCount?.albums)?.map((album) => {
@@ -4490,6 +4530,28 @@ const GalleryPage = () => {
 													)}
 												</div>
 
+												<div
+													className={`rearrangeManually ${
+														info?.selectingImages && 'selected'
+													}`}
+													onClick={() => {
+														setInfo((prev) => ({
+															...prev,
+															selectingImages: !prev?.selectingImages,
+														}));
+													}}
+												>
+													<SelectModeIcon />
+													Select mode
+												</div>
+
+												<div
+													onClick={handleRearrange}
+													className="rearrangeManually"
+												>
+													<RearrangeIcon />
+													Rearrange
+												</div>
 												<div style={{ position: 'relative' }}>
 													<Tooltip
 														title={
@@ -4565,40 +4627,16 @@ const GalleryPage = () => {
 																}))
 															}
 															ref={filtersRef}
-															className="iconsContainer"
+															className="rearrangeManually"
 														>
-															<FilterIcon fill="var(--primary-font)" />
+															<NewFilterSvg />
+															Filter
 														</div>
 													</Tooltip>
 												</div>
-												<div
-													onClick={handleRearrange}
-													className="rearrangeManually"
-												>
-													Rearrange
-												</div>
-												<div
-													style={{ position: 'relative' }}
-													ref={albumSettingsIconRef}
-													onClick={() =>
-														setInfo((prevInfo) => ({
-															...prevInfo,
-															showAlbumSettings:
-																!prevInfo.showAlbumSettings,
-														}))
-													}
-												>
-													{/* <ThreeDotsIcon
-												className="threeDotsIcon"
-												style={{ cursor: 'pointer' }}
-											/> */}
-													<p
-														style={{ cursor: 'pointer' }}
-														className="rearrangeManually"
-													>
-														Album Settings
-													</p>
-													{info.showAlbumSettings && (
+
+												<Tooltip
+													title={
 														<div
 															className="galleryEditOptions"
 															ref={albumSettingsRef}
@@ -4664,11 +4702,6 @@ const GalleryPage = () => {
 																		isAlbumRename: true,
 																	}));
 																}}
-																style={{
-																	display: 'flex',
-																	alignItems: 'center',
-																	gap: '4px',
-																}}
 															>
 																<EditPen
 																	style={{
@@ -4685,11 +4718,6 @@ const GalleryPage = () => {
 																		showGalleryOptions: false,
 																		showOptions: false,
 																	}));
-																}}
-																style={{
-																	display: 'flex',
-																	alignItems: 'center',
-																	gap: '4px',
 																}}
 															>
 																<ShareIcon />
@@ -4709,23 +4737,11 @@ const GalleryPage = () => {
 																		webviewDownload: true,
 																	}))
 																}
-																style={{
-																	display: 'flex',
-																	alignItems: 'center',
-																	gap: '4px',
-																}}
 															>
 																<DownloadIcon />
 																Download album
 															</li>
-															<li
-																onClick={handleLightRoomCopy}
-																style={{
-																	display: 'flex',
-																	alignItems: 'center',
-																	gap: '4px',
-																}}
-															>
+															<li onClick={handleLightRoomCopy}>
 																<LightRoomIcon />
 																Light Room Copy List
 															</li>
@@ -4733,29 +4749,16 @@ const GalleryPage = () => {
 																onClick={() =>
 																	handleUploadCoverOpen('album')
 																}
-																style={{
-																	display: 'flex',
-																	alignItems: 'center',
-																	gap: '4px',
-																}}
 															>
 																<AlbumCoverIcon />
 																Album Cover
 															</li>
-															{/* <li
-														onClick={() =>
-															handleAlbumSettings('album-overview')
-														}
-													>
-														Album overview
-													</li> */}
 
 															<hr
 																style={{
-																	border: '1px solid #1F1F1F',
+																	border: '1px solid var(--stroke)',
+																	opacity: '1',
 																	width: '100%',
-																	margin: '0px',
-																	opacity: 0.5,
 																}}
 															/>
 
@@ -4784,9 +4787,33 @@ const GalleryPage = () => {
 																</span>
 															</div>
 														</div>
-													)}
-													<div></div>
-												</div>
+													}
+													placement="bottom"
+													arrow={false}
+													color="transparent"
+													trigger={'click'}
+												>
+													<div
+														style={{ position: 'relative' }}
+														// ref={albumSettingsIconRef}
+														// onClick={() =>
+														// 	setInfo((prevInfo) => ({
+														// 		...prevInfo,
+														// 		showAlbumSettings:
+														// 			!prevInfo.showAlbumSettings,
+														// 	}))
+														// }
+													>
+														<p
+															style={{ cursor: 'pointer' }}
+															className="rearrangeManually"
+														>
+															<SettingsIcon />
+															Album Settings
+														</p>
+														<div></div>
+													</div>
+												</Tooltip>
 												<div
 													className="rearrangeManually"
 													onClick={handleHideAlbum}
@@ -4907,9 +4934,7 @@ const GalleryPage = () => {
 																			onClick={(e) => {
 																				e.stopPropagation();
 																				if (
-																					info
-																						.selectedImages
-																						.length > 0
+																					info.selectingImages
 																				) {
 																					handleImageSelect(
 																						index,
@@ -4933,11 +4958,10 @@ const GalleryPage = () => {
 																				}}
 																				draggable={false}
 																			/>
-																			{info.isMouseInGallery && (
+																			{info.selectingImages && (
 																				<div className="imageOverlay"></div>
 																			)}
-
-																			{info?.selectedImages
+																			{/* {info?.selectedImages
 																				?.length === 0 && (
 																				<div
 																					style={{
@@ -4957,7 +4981,6 @@ const GalleryPage = () => {
 																						title="Click to Select"
 																						placement="top"
 																					>
-																						{/* <ArrowsOut className="rotating-circle" /> */}
 																						<Checkbox
 																							className={`rotating-circle ${
 																								info.selectedImages.includes(
@@ -4978,7 +5001,7 @@ const GalleryPage = () => {
 																						></Checkbox>
 																					</Tooltip>
 																				</div>
-																			)}
+																			)} */}
 																		</div>
 																	);
 																},
@@ -5204,7 +5227,7 @@ const GalleryPage = () => {
 							</div>
 						</div>
 					))}
-				{info.activeTab === 'Client Selections' &&
+				{info.activeTab === 'Collection' &&
 					(clientSelectionsData?.data?.length === 0 ? (
 						<div className="noAlbumContainer">
 							<Result
@@ -5212,7 +5235,7 @@ const GalleryPage = () => {
 								title="Albums Not Found"
 								subTitle="It's quiet for now... You haven't missed anything yet! Create your first album to start organizing your memories"
 								extra={
-									info.activeTab !== 'Client Selections' && (
+									info.activeTab !== 'Collection' && (
 										<button
 											className="create-album-button"
 											onClick={() =>
@@ -5750,7 +5773,7 @@ const GalleryPage = () => {
 											style={{ marginBottom: '15px' }}
 										>
 											<li onClick={handleDownload}>Download</li>
-											{info?.activeTab !== 'Client Selections' && (
+											{info?.activeTab !== 'Collection' && (
 												<li
 													style={{
 														cursor:
@@ -5775,7 +5798,7 @@ const GalleryPage = () => {
 												Set Gallery cover
 											</li>
 
-											{info?.activeTab !== 'Client Selections' && (
+											{info?.activeTab !== 'Collection' && (
 												<li
 													onClick={() =>
 														setInfo((prev) => ({
