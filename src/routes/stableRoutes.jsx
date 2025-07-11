@@ -1,6 +1,5 @@
-import { safeLazy } from '../utils/safeLazy';
 import { Navigate } from 'react-router-dom';
-import { Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 
 // layouts
 import Public from '../views/layouts/Public';
@@ -9,16 +8,12 @@ import AuthWrapper from '../views/layouts/authWrapper';
 // pages
 import InitialHomePage from '../views/features/homePage/InitialHomePage';
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-const ShareAndEarn = safeLazy(
-	() => import('../views/features/shareAndEarn/ShareAndEarn'),
-	'ShareAndEarn',
-);
-const SettingsWrapper = safeLazy(
-	() => import('../views/features/settings/SettingsWrapper'),
-	'SettingsWrapper',
-);
-const RecentChat = safeLazy(() => import('../views/features/chat/RecentChat'), 'RecentChat');
-const Onboarding = safeLazy(() => import('../views/features/onboarding/Onboarding'), 'Onboarding');
+
+// lazy loaded pages
+const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
+const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
+const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
+const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
 
 const stableRoutes = [
 	{
