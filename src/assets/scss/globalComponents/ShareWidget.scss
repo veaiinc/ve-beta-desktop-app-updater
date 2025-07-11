@@ -81,12 +81,29 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
-						cursor: pointer;
+
 						.domain-section {
 							flex: 1;
 							overflow: hidden;
 							text-overflow: ellipsis;
 							white-space: nowrap;
+
+							.baseUrl {
+								cursor: default;
+							}
+
+							.editShareUrlSlug {
+								padding: 0;
+								margin: 0;
+								outline: none;
+								border: none;
+								background-color: inherit;
+								font-family: var(--primary-font-family);
+								font-size: 14px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
 						}
 
 						.copy-icon {
@@ -118,6 +135,7 @@
 			align-items: center;
 			gap: 6px;
 			align-self: stretch;
+			min-height: 41px;
 
 			.action-button {
 				display: flex;
