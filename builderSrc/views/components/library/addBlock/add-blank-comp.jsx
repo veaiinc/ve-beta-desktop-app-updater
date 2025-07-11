@@ -88,9 +88,8 @@ class AddBlankComp extends Component {
 						onClick={(e) => {
 							e.stopPropagation();
 							e.preventDefault();
-							this.setState({ showAddBlock: true }, () => {
-								this.hanldeAddBlock(this.state.showAddBlock);
-							});
+							this.setState({ showAddBlock: true });
+							this.props?.hanldeAddBlock(e);
 						}}
 					>
 						<div
