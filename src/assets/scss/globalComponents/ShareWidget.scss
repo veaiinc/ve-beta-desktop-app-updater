@@ -87,12 +87,14 @@
 							overflow: hidden;
 							text-overflow: ellipsis;
 							white-space: nowrap;
+							display: flex;
 
 							.baseUrl {
 								cursor: default;
 							}
 
 							.editShareUrlSlug {
+								width: 50%;
 								padding: 0;
 								margin: 0;
 								outline: none;

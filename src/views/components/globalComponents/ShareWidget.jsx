@@ -6,6 +6,7 @@ import { ReactComponent as CopyIcon } from '../../../assets/svg/ai_assistant/url
 import { message } from '../globalComponents/CustomToast';
 import Context from '../../../context/context';
 import { useParams } from 'react-router-dom';
+import Spinner from '../loaders/Spinner';
 //navigator.clipboard.writeText(copyLinkUrl);
 const ShareWidget = ({
 	isOpen,
@@ -29,6 +30,7 @@ const ShareWidget = ({
 	const [info, setInfo] = useState({
 		editedSlug: slug,
 		editShareUrlSlug: false,
+		updateSlugLoading: false,
 	});
 
 	const toggleEditShareUrlSlug = () =>
@@ -59,6 +61,7 @@ const ShareWidget = ({
 			}));
 			return;
 		}
+		setInfo((prev) => ({ ...prev, updateSlugLoading: true }));
 		const slugAvailable = await isSlugAvailable({ slug: info.editedSlug });
 		if (!slugAvailable) {
 			message.error(`Oops! The slug ${info.editedSlug} is already taken.`);
@@ -70,7 +73,7 @@ const ShareWidget = ({
 			message.error('An unexpected error occured while updating the slug');
 		}
 		message.success(`Updated your share url to ${baseUrl}${updatedSlug}`);
-		setInfo((prev) => ({ ...prev, editedSlug: updatedSlug }));
+		setInfo((prev) => ({ ...prev, editedSlug: updatedSlug, updateSlugLoading: false }));
 		toggleEditShareUrlSlug();
 	};
 
@@ -149,19 +152,31 @@ const ShareWidget = ({
 									>
 										<span className="baseUrl">{baseUrl}</span>
 										{info.editShareUrlSlug ? (
-											<input
-												value={info?.editedSlug}
-												onChange={handleEditSlug}
-												className="editShareUrlSlug"
-												autoFocus
-												onBlur={handleUpdateSlug}
-												onKeyDown={(e) => {
-													if (e.key === 'Enter') {
-														handleUpdateSlug();
-													}
-												}}
-												type="text"
-											/>
+											<>
+												<input
+													name="slugEditInput"
+													value={info?.editedSlug}
+													onChange={handleEditSlug}
+													className="editShareUrlSlug"
+													autoFocus
+													onBlur={handleUpdateSlug}
+													onKeyDown={(e) => {
+														if (e.key === 'Enter') {
+															handleUpdateSlug();
+														}
+													}}
+													type="text"
+												/>
+												{info.updateSlugLoading && (
+													<Spinner
+														width="18px"
+														height="18px"
+														color="var(--primary-button)"
+														borderTopColor="transparent"
+														borderWidth={1.5}
+													/>
+												)}
+											</>
 										) : (
 											<span>{info.editedSlug}</span>
 										)}
