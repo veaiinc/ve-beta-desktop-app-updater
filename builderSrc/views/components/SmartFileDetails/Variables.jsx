@@ -200,7 +200,7 @@ const Variables = ({
 						<input
 							className={`custominputContainer`}
 							placeholder={ele?.displayName}
-							value={ele?.value || ''}
+							value={ele?.defaultValue || ''}
 							onChange={(e) => onChangeVariablesData(e, index)}
 							id={'sidebar-' + ele?._id}
 						/>
