@@ -97,7 +97,9 @@ export const Calendar = () => {
 				dispatch({
 					type: Actions.GET_CALENDAR_CATEGORIES,
 					payload: {
-						error: 'Something went wrong while creating category. Please try again.',
+						error:
+							response?.[1]?.message ||
+							'Something went wrong while creating category. Please try again.',
 					},
 				});
 			}
