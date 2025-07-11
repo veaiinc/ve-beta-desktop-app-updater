@@ -59,6 +59,7 @@ import ShareAlbum from '../../components/modalsV2/gallery/ShareAlbum';
 import GalleryStyles from '../../components/modalsV2/gallery/GalleryStyles';
 import DownloadAlbum from '../../components/modalsV2/gallery/DownloadAlbum';
 import DeleteAlbumImagesPopup from '../../components/modalsV2/gallery/DeleteAlbumImagesPopup';
+import VideoUploadPopup from '../../co'
 // import ToggleSlider from '../../components/input/slider';
 import { Switch, message } from 'antd';
 import ShowLightRoomCopy from '../../components/modalsV2/gallery/ShowLightRoomCopy';
@@ -355,7 +356,7 @@ const GalleryPage = () => {
 	const containerRef = useRef(null);
 	const data = [
 		{ name: 'Albums', number: albumImagesCount?.albums?.length },
-		// { name: 'Videos', number: 2 },
+		{ name: 'Videos', number: tenantAlbums?.videos?.length },
 		// { name: 'Slide Show', number: 1 },
 		{ name: 'Client Selections', number: clientSelectionsData?.totalDocs },
 		{
@@ -6144,6 +6145,7 @@ const GalleryPage = () => {
 				tagId={info?.activeTagId}
 				handleOpenUploadCover={openUploadCoverPhoto}
 			/>
+			<VideoUploadPopup />
 		</>
 	);
 };
