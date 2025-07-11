@@ -98,6 +98,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const { workspaceMode } = useWorkspaceMode();
 	const [searchParams] = useSearchParams();
 	const noteId = useParams()?.noteId;
+	const sessionId = noteId;
 	const type = searchParams.get('type');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
@@ -142,19 +143,21 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const [activeTab, setActiveTab] = useState('transcript');
 	const location = useLocation();
 
+	console.log(transcriptList);
+
 	// Add hooks for live intelligence and recall stream
 	const { createWebSocketConnection: recallConnection } = useRecallStream();
 	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
 		useLiveIntelligenceStream();
 
 	// Handler for transcript socket messages
-	const handleLiveIntelligenceMessageFunc = useCallback(
-		(event) => {
-			const data = JSON.parse(event?.data || null);
-			handleTranscriptionSuggestions(data);
-		},
-		[handleTranscriptionSuggestions],
-	);
+	// const handleLiveIntelligenceMessageFunc = useCallback(
+	// 	(event) => {
+	// 		const data = JSON.parse(event?.data || null);
+	// 		handleTranscriptionSuggestions(data);
+	// 	},
+	// 	[handleTranscriptionSuggestions],
+	// );
 	const handleSocketMessage = useCallback(
 		(event) => {
 			try {
@@ -168,14 +171,15 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 							timestamp: msg?.data?.timestamp,
 						},
 					]);
-					const data = msg?.data;
-					if (data?.speakerName?.length > 0 || data?.transcript?.length > 0) {
-						if (updateCurrentContext) {
-							updateCurrentContext(
-								(data?.speakerName || '') + ' : ' + (data?.transcript || ''),
-							);
-						}
-					}
+					// const data = msg?.data;
+					// if (data?.speakerName?.length > 0 || data?.transcript?.length > 0) {
+					// 	updateCurrentContext &&
+					// 		updateCurrentContext(
+					// 			(data?.speakerName || '') + ' : ' + (data?.transcript || ''),
+					// 		);
+					// }
+				} else if (msg?.event === 'live_intelligence.response' && msg?.data) {
+					handleTranscriptionSuggestions(msg?.data);
 				}
 			} catch (e) {
 				// ignore
@@ -991,15 +995,16 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	useEffect(() => {
 		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
-			recallConnection(handleSocketMessage);
-			createLiveIntelligenceStream(
-				info?.sessionId,
-				noteId,
-				handleLiveIntelligenceMessageFunc,
-			);
+			recallConnection(sessionId, noteId, handleSocketMessage);
+			// createLiveIntelligenceStream(
+			// 	sessionId,
+			// 	noteId,
+			// 	handleLiveIntelligenceMessageFunc,
+			// 	false,
+			// );
 		}
 		// No cleanup needed, useRecallStream handles it
-	}, [showTranscriptTabs, info?.sessionId, type]);
+	}, [showTranscriptTabs, sessionId, type]);
 
 	const handleChatBoxClick = () => {
 		if (info?.chatClicked) return;
