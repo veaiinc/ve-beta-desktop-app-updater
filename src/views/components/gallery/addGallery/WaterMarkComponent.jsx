@@ -10,7 +10,7 @@ const watermarkPositions = [
 	{
 		position: 'northwest',
 		top: 10,
-		left: -10,
+		left: 10,
 		bottom: 'auto',
 		right: 'auto', // Fixed to 'auto' for consistency
 		transformOrigin: 'top left',
@@ -18,7 +18,7 @@ const watermarkPositions = [
 	{
 		position: 'north',
 		top: 10,
-		left: 0,
+		left: 10,
 		bottom: 'auto',
 		right: 'auto',
 		transformOrigin: 'top center',
@@ -28,13 +28,13 @@ const watermarkPositions = [
 		top: 10,
 		left: 'auto',
 		bottom: 'auto',
-		right: -10, // Fixed to align with top-right corner
+		right: 10, // Fixed to align with top-right corner
 		transformOrigin: 'top right',
 	},
 	{
 		position: 'west',
 		top: 'calc(50% - 20px)',
-		left: -10,
+		left: 10,
 		bottom: 'auto',
 		right: 'auto',
 		transformOrigin: 'left center',
@@ -58,7 +58,7 @@ const watermarkPositions = [
 	{
 		position: 'southwest',
 		top: 'auto',
-		left: -10,
+		left: 10,
 		bottom: 10,
 		right: 'auto',
 		transformOrigin: 'bottom left',
@@ -66,7 +66,7 @@ const watermarkPositions = [
 	{
 		position: 'south',
 		top: 'auto',
-		left: 0,
+		left: 10,
 		bottom: 10,
 		right: 'auto',
 		transformOrigin: 'bottom center', // Fixed from 'center '
@@ -76,7 +76,7 @@ const watermarkPositions = [
 		top: 'auto',
 		left: 'auto',
 		bottom: 10,
-		right: -10,
+		right: 10,
 		transformOrigin: 'bottom right',
 	},
 ];
@@ -103,7 +103,7 @@ const WaterMarkComponent = ({
 	// States
 	const [showMoreOptions, setshowMoreOptions] = useState(false);
 	const fileInputRef = useRef();
-
+	const region = localStorage.getItem('region');
 	// functions
 	const posactive = async (e, t, r, b, l, transformOrigin) => {
 		setinfo((prev) => ({
@@ -231,7 +231,7 @@ const WaterMarkComponent = ({
 							)}
 						</div>
 					</div>
-					{tenantUserAccessControls && tenantUserAccessControls?.role === 'admin' && (
+					{false && (
 						<div className="sliderContainers">
 							<div className="eachSliderContainer">
 								<span>Opacity</span>
@@ -375,7 +375,7 @@ const WaterMarkComponent = ({
 							</>
 						)}
 					</div>
-					{tenantUserAccessControls && tenantUserAccessControls?.role === 'admin' && (
+					{false && (
 						<div className="saveButtonContainer">
 							<button onClick={onSaveClick} className="watermarkSaveButton">
 								Save
