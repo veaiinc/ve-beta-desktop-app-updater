@@ -38,7 +38,7 @@ import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPop
 import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
-import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DeleteGalleryComponent from '../../components/gallery/gallerySettings/DeleteGalleryComponent';
 import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
@@ -2570,13 +2570,13 @@ const GalleryPage = () => {
 				}));
 
 				// Refresh data
-				await Promise.all(
-					[
-						getAlbumImagesCount(galleryId),
-						getAlbums(galleryId),
-						info.coverType === 'gallery' && getGalleries({}, true),
-					].filter(Boolean),
-				);
+				// await Promise.all(
+				// 	[
+				// 		getAlbumImagesCount(galleryId),
+				// 		getAlbums(galleryId),
+				// 		info.coverType === 'gallery' && getGalleries({}, true),
+				// 	].filter(Boolean),
+				// );
 				message.destroy();
 				showMessage(
 					'success',
@@ -3923,40 +3923,24 @@ const GalleryPage = () => {
 																					? 'active'
 																					: ''
 																			}`}
-																			style={{
-																				background: src
-																					? `url(${src})`
-																					: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
-																				backgroundPosition: `${Math.max(
-																					0,
-																					(album
-																						?.coverImage
-																						?.xPosition ??
-																						0) * 100,
-																				)}% ${Math.max(
-																					0,
-																					(album
-																						?.coverImage
-																						?.yPosition ??
-																						0) * 100,
-																				)}%`,
-																				backgroundSize: `${Math.max(
-																					0,
-																					(album
-																						?.coverImage
-																						?.width ??
-																						1) * 100,
-																				)}% ${Math.max(
-																					0,
-																					(album
-																						?.coverImage
-																						?.height ??
-																						1) * 100,
-																				)}%`,
-																				...provided
-																					.draggableProps
-																					.style,
-																			}}
+																			// style={{
+																			// 	backgroundImage: src
+																			// 		? `url(${src})`
+																			// 		: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+																			// 	backgroundPosition: `${
+																			// 		album
+																			// 			?.coverImage
+																			// 			?.xPosition *
+																			// 			50 +
+																			// 		50
+																			// 	}%  ${
+																			// 		50 -
+																			// 		album
+																			// 			?.coverImage
+																			// 			?.yPosition *
+																			// 			50
+																			// 	} %`,
+																			// }}
 																			onClick={() =>
 																				handleClickAlbum(
 																					album,
@@ -3978,6 +3962,27 @@ const GalleryPage = () => {
 																				}))
 																			}
 																		>
+																			<div
+																				style={{
+																					backgroundImage: `url(${src})`,
+																					backgroundPosition: `${Math.floor(
+																						album
+																							?.coverImage
+																							?.xPosition *
+																							50 +
+																							50,
+																					)}%  ${Math.floor(
+																						50 -
+																							album
+																								?.coverImage
+																								?.yPosition *
+																								50,
+																					)}%`,
+																					height: '100%',
+																					backgroundSize:
+																						'cover',
+																				}}
+																			/>
 																			{!isActive && (
 																				<div
 																					style={{
@@ -3991,6 +3996,9 @@ const GalleryPage = () => {
 																							'rgba(0, 0, 0, 0.8)',
 																						transition:
 																							'background-color 0.3s ease',
+																						height: '100%',
+																						backgroundSize:
+																							'cover',
 																					}}
 																				/>
 																			)}
@@ -4022,13 +4030,13 @@ const GalleryPage = () => {
 
 																			<div
 																				className="albumDetails"
-																				onClick={() =>
-																					handleClickAlbum(
-																						album,
-																						'albumName',
-																						album?.imagesCount,
-																					)
-																				}
+																				// onClick={() =>
+																				// 	handleClickAlbum(
+																				// 		album,
+																				// 		'albumName',
+																				// 		album?.imagesCount,
+																				// 	)
+																				// }
 																			>
 																				<p>
 																					{album?.title}
@@ -4817,14 +4825,14 @@ const GalleryPage = () => {
 								</div>
 
 								<div
-									style={{
-										overflow: info?.isRearranging
-											? 'auto'
-											: info?.scrolledTillEnd
-											? 'auto'
-											: 'hidden',
-										height: info?.isRearranging ? '79vh' : '83vh',
-									}}
+									// style={{
+									// 	overflow: info?.isRearranging
+									// 		? 'auto'
+									// 		: info?.scrolledTillEnd
+									// 		? 'auto'
+									// 		: 'hidden',
+									// 	height: info?.isRearranging ? '79vh' : '83vh',
+									// }}
 									className="galleryImagesContainer"
 									id="galleryScrollTarget"
 									onMouseEnter={() =>
@@ -4850,10 +4858,9 @@ const GalleryPage = () => {
 												Loading
 											</p>
 										}
-										scrollableTarget="galleryScrollTarget"
-										refreshFunction={info?.resetInfinityScroll}
+										resetInfinityScroll={info?.resetInfinityScroll}
 										disableDrop={true}
-										scrollThreshold={info?.isRearranging ? 0.8 : 0.8}
+										height={'88vh'}
 									>
 										{!info.isRearranging ? (
 											<ResponsiveMasonry

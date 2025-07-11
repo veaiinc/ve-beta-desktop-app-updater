@@ -85,7 +85,11 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 		},
 		[location.pathname, workspaceMode],
 	);
-
+	const profileSelected = () => {
+		localStorage.setItem('showSettingsSidebar', true);
+		navigate('/settings/my-profile');
+		onIconClick();
+	};
 	return (
 		<div className="sidebar-closing" onClick={() => onIconClick()}>
 			<div className="topContainerClosed">
@@ -140,37 +144,62 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 				)}
 			</div>
 			<div className="bottomContainerClosed">
-				<div style={{ marginBottom: '10px' }}>
-					<CreditsLeftSvg
-						totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
-						totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
-					/>
-				</div>
-				<div className="closedSidebarProfile">
-					{userDetailsData?.logoURL ? (
-						<div className="crop-container">
-							<Cropper
-								image={userDetailsData?.logoURL} // Image URL to crop
-								crop={userDetailsData?.cropSettings?.crop}
-								zoom={userDetailsData?.cropSettings?.zoom}
-								showGrid={false}
-								onCropChange={(e) => ''}
-								onCropComplete={(e) => ''}
-								onZoomChange={(e) => ''}
-							/>
+				<Tooltip
+					title={
+						<div className="tooltip-text">
+							{currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed}{' '}
+							Credits Left
 						</div>
-					) : (
-						<div
-							className="noImageText"
-							style={{
-								background: userDetailsData?.cropSettings?.profileDpColor || '',
-								fontSize: '12px',
-							}}
-						>
-							{getInitials(userDetailsData?.firstName, userDetailsData?.lastName)}
-						</div>
-					)}
-				</div>
+					}
+					placement="right"
+					arrow={false}
+					color={'transparent'}
+				>
+					<div style={{ marginBottom: '10px' }}>
+						<CreditsLeftSvg
+							totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
+							totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
+						/>
+					</div>
+				</Tooltip>
+				<Tooltip
+					title={<div className="tooltip-text">My profile</div>}
+					placement="right"
+					arrow={false}
+					color={'transparent'}
+				>
+					<div
+						className="closedSidebarProfile"
+						onClick={profileSelected}
+						style={{
+							cursor: 'pointer',
+						}}
+					>
+						{userDetailsData?.logoURL ? (
+							<div className="crop-container">
+								<Cropper
+									image={userDetailsData?.logoURL} // Image URL to crop
+									crop={userDetailsData?.cropSettings?.crop}
+									zoom={userDetailsData?.cropSettings?.zoom}
+									showGrid={false}
+									onCropChange={(e) => ''}
+									onCropComplete={(e) => ''}
+									onZoomChange={(e) => ''}
+								/>
+							</div>
+						) : (
+							<div
+								className="noImageText"
+								style={{
+									background: userDetailsData?.cropSettings?.profileDpColor || '',
+									fontSize: '12px',
+								}}
+							>
+								{getInitials(userDetailsData?.firstName, userDetailsData?.lastName)}
+							</div>
+						)}
+					</div>
+				</Tooltip>
 			</div>
 		</div>
 	);

@@ -7,6 +7,7 @@ import GoogleCalendar from '../../components/calendar/GoogleCalendar';
 import moment from 'moment';
 import SessionCard from '../../components/calendar/SessionCard.jsx';
 import Context from '../../../context/context.js';
+import GoogleCalendarIcon from '../../../assets/svg/Settings/google-calendar-logo.png';
 
 const CalendarSidebar = ({
 	currentCalendarDate,
@@ -46,8 +47,9 @@ const CalendarSidebar = ({
 		if (!connectedThirdParties) getConnectedThirdParties();
 	}, []);
 
-	const isGoogleCalendarConnected =
-		connectedThirdParties?.data?.some((appInfo) => appInfo.app === 'google-calendar') ?? true;
+	const connectedEmailWithGoogleCalendar =
+		connectedThirdParties?.data?.find((appInfo) => appInfo.app === 'google-calendar')?.email ??
+		null;
 
 	return (
 		<>
@@ -70,7 +72,16 @@ const CalendarSidebar = ({
 							categoryFilter={categoryFilter}
 							updateCalendarInfo={updateCalendarInfo}
 						/>
-						{!isGoogleCalendarConnected && (
+						{connectedEmailWithGoogleCalendar ? (
+							<div className="connectedEmail">
+								<img width={24} src={GoogleCalendarIcon} />
+								<p>
+									<span>{connectedEmailWithGoogleCalendar}</span>
+									<br />
+									<span>Connected to Google Calendar </span>
+								</p>
+							</div>
+						) : (
 							<GoogleCalendar
 								connectedCalendars={connectedCalendars}
 								selectedCalendar={selectedCalendar}

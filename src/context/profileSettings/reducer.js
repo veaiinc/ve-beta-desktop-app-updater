@@ -81,6 +81,10 @@ const actionHandlers = {
 		...state,
 		aiCategories: action?.payload,
 	}),
+	SET_AI_INSIGHT_TYPES: (state, action) => ({
+		...state,
+		insightTypes: action?.payload,
+	}),
 	UPDATE_TENANT_PROFESSION: (state, action) => ({
 		...state,
 		tenantUserDetails: {

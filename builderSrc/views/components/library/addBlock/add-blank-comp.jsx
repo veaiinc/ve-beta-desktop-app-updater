@@ -83,33 +83,60 @@ class AddBlankComp extends Component {
 					''
 				)}
 				{!this.props?.activeModule?.showAsSlide && this.props.showBlockOptions ? (
-					<div className="add-block-new-container">
+					<div
+						className="add-block-new-container "
+						onClick={(e) => {
+							e.stopPropagation();
+							e.preventDefault();
+							this.setState({ showAddBlock: true });
+							this.props?.hanldeAddBlock(e);
+						}}
+					>
 						<div
-							onClick={(e) => this.props.hanldeAddBlock(e)}
+							// onMouseEnter={() => {
+							// 	this.addBlockHoverTimeout = setTimeout(() => {
+							// 		this.setState({ showAddBlock: true }, () => {
+							// 			this.hanldeAddBlock(this.state.showAddBlock);
+							// 		});
+							// 	}, 300); // 300ms delay
+							// }}
+							// onMouseLeave={() => {
+							// 	clearTimeout(this.addBlockHoverTimeout);
+							// }}
+
 							className="addBlankContainer"
 						>
 							<AddBlock />
-							<label className="tooltip-text">Add Block</label>
+							<span className="tooltip-text">Add Layout</span>
 						</div>
-						<div className="addBlockDividerContainer">
-							<div className="addBlockDivider"></div>
-						</div>
-						<div className="addBlankContainer">
-							{this.props.isElement !== true ? (
-								<div
-									className={`addBlank ${
-										this.props.activeTab === 'fluid' ? 'active' : ''
-									}`}
-									onClick={(e) => this.props.handleAddLayout(null, true)}
-								>
-									<AddBlank />
-								</div>
-							) : (
-								''
-							)}
+						<div className="addBlockDivider">Add</div>
 
-							<label className="tooltip-text">Add Blank</label>
-						</div>
+						{/* <div className="addBlockDividerContainer">
+						<div className="addBlockDivider"></div>
+					</div>
+					<div
+						className="addBlankContainer"
+						onClick={(e) =>
+							this.props.handleAddLayout(
+								{ emptyCardOrder: this.props?.index - 0.1 },
+								true,
+							)
+						}
+						style={{
+							cursor: 'pointer',
+							transition: 'color 0.3s ease',
+							fontSize: '10px',
+							fontWeight: 'bold',
+							textAlign: 'center',
+							width: '71.8px',
+						}}
+					>
+						{this.state.isElement !== true ? (
+							<div className="addBlank">Add Card</div>
+						) : (
+							''
+						)}
+					</div> */}
 					</div>
 				) : (
 					''

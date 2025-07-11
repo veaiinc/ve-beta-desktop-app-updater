@@ -43,6 +43,8 @@ import {
 	getFormResponseAnalyticsQuery,
 	updateWorkflowTemplateQuery,
 	duplicateSmartFileQuery,
+	isSlugAvailableQuery,
+	updateSlugMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -2426,7 +2428,7 @@ export const TemplatesState = (props) => {
 				sortBy,
 				isFavourited,
 				search,
-				category,
+				insightType,
 			} = payload || {};
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
@@ -2444,7 +2446,7 @@ export const TemplatesState = (props) => {
 			if (sortType && sortBy) filterParams?.push(`sortType=${sortType}&sortBy=${sortBy}`);
 			if (isFavourited) filterParams?.push(`isFavourite=${isFavourited}`);
 			filterParams?.push(`search=${search || ''}`);
-			if (category) filterParams?.push(`category=${category}`);
+			if (insightType) filterParams?.push(`insightType=${insightType}`);
 			const queryString = new URLSearchParams({ page, limit })?.toString();
 			const fullQuery = `${queryString}&${filterParams?.join('&')}`;
 
@@ -2745,6 +2747,51 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const isSlugAvailable = async ({ slug, moduleType = 'workflowtemplates' }) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const userToken = localStorage.getItem('usertoken');
+			const variables = { slug, moduleType };
+			const query = isSlugAvailableQuery;
+			const type = 'workflows_Api';
+
+			const response = await service.query(query, variables, workspaceId, userToken, type);
+
+			return response?.[0] === true ? response[1]?.data?.isSlugAvailable : false;
+		} catch (error) {
+			console.error('Error checking slug availability:', error);
+			return [false];
+		}
+	};
+
+	const updateSlug = async ({ slug, updateSlugId, moduleType = 'workflowtemplates' }) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const userToken = localStorage.getItem('usertoken');
+			const mutation = updateSlugMutation;
+
+			const variables = {
+				updateSlugId,
+				slug,
+				moduleType,
+			};
+			const type = 'workflows_Api';
+
+			const response = await service.mutation(
+				mutation,
+				variables,
+				workspaceId,
+				userToken,
+				type,
+			);
+
+			return response?.[0] === true ? [true, response[1]?.data?.updateSlug?.slug] : [false];
+		} catch (error) {
+			console.error('Error updating slug:', error);
+			return [false];
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -2841,5 +2888,7 @@ export const TemplatesState = (props) => {
 		getFollowUpQueries,
 		handleTranscriptionSuggestions,
 		updatechatSessionFavourite,
+		isSlugAvailable,
+		updateSlug,
 	};
 };

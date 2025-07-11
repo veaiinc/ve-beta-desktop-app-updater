@@ -1,5 +1,6 @@
-import { lazy, Suspense } from 'react';
+import { safeLazy } from '../utils/safeLazy';
 import { Navigate } from 'react-router-dom';
+import { Suspense } from 'react';
 
 // layouts
 import Public from '../views/layouts/Public';
@@ -7,10 +8,17 @@ import AuthWrapper from '../views/layouts/authWrapper';
 
 // pages
 import InitialHomePage from '../views/features/homePage/InitialHomePage';
-const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
-const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
-const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
-const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
+import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
+const ShareAndEarn = safeLazy(
+	() => import('../views/features/shareAndEarn/ShareAndEarn'),
+	'ShareAndEarn',
+);
+const SettingsWrapper = safeLazy(
+	() => import('../views/features/settings/SettingsWrapper'),
+	'SettingsWrapper',
+);
+const RecentChat = safeLazy(() => import('../views/features/chat/RecentChat'), 'RecentChat');
+const Onboarding = safeLazy(() => import('../views/features/onboarding/Onboarding'), 'Onboarding');
 
 const stableRoutes = [
 	{
@@ -30,7 +38,7 @@ const stableRoutes = [
 		path: '/create-workspace',
 		element: (
 			<Public>
-				<Suspense fallback={<p>Loading onboarding...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<Onboarding />
 				</Suspense>
 			</Public>
@@ -40,7 +48,7 @@ const stableRoutes = [
 		path: '/share-and-earn',
 		element: (
 			<AuthWrapper title={'Share and Earn'}>
-				<Suspense fallback={<p>Loading share and earn...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<ShareAndEarn />
 				</Suspense>
 			</AuthWrapper>
@@ -50,7 +58,7 @@ const stableRoutes = [
 		path: '/settings/:type',
 		element: (
 			<AuthWrapper title={'Workspace Settings'}>
-				<Suspense fallback={<p>Loading settings...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<SettingsWrapper />
 				</Suspense>
 			</AuthWrapper>
@@ -69,7 +77,7 @@ const stableRoutes = [
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>
-				<Suspense fallback={<p>Loading recent chat...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<RecentChat />
 				</Suspense>
 			</AuthWrapper>

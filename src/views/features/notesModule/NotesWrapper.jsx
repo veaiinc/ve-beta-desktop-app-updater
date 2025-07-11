@@ -6,14 +6,19 @@ import Notes from './Notes';
 import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
 import Context from '../../../context/context';
 import DatabaseWithNote from './DatabaseWithNote';
+import ToggleSlider from '../../components/input/slider';
+import { useSearchParams } from 'react-router-dom';
 
 const NotesWrapper = () => {
 	const {
 		templates: { aiTranscriptionSuggestions, updateStateValues },
 	} = useContext(Context);
+	const [searchParams] = useSearchParams();
 	const [info, setInfo] = useState({
 		modalIsOpen: false,
 		sessionId: ObjectID()?.toString(),
+		showAmbientAssistance: true,
+		chatOpen: false,
 	});
 
 	useEffect(() => {
@@ -21,6 +26,25 @@ const NotesWrapper = () => {
 			leftSidebarState: 'close',
 		});
 	}, []);
+
+	useEffect(() => {
+		const chat = searchParams.get('chat');
+		if (chat === 'false') {
+			if (info?.chatOpen) {
+				setInfo((prev) => ({
+					...prev,
+					chatOpen: false,
+				}));
+			}
+		} else if (chat === 'true') {
+			if (!info?.chatOpen) {
+				setInfo((prev) => ({
+					...prev,
+					chatOpen: true,
+				}));
+			}
+		}
+	}, [searchParams]);
 
 	// useEffect(() => {
 	// 	if (aiTranscriptionSuggestions && !info?.handledOnce) {
@@ -39,23 +63,6 @@ const NotesWrapper = () => {
 		}));
 	}, []);
 
-	// const handleCustomChatBoxClick = useCallback(() => {
-	// 	if (!info?.sessionId) {
-	// 		const sessionId = ObjectID()?.toString();
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			sessionId,
-	// 		}));
-	// 	}
-	// }, [info?.sessionId]);
-
-	// const handleCreateSocketConnection = useCallback(() => {
-	// 	setInfo((prev) => ({
-	// 		...prev,
-	// 		createSocketConnection: true,
-	// 	}));
-	// }, []);
-
 	return (
 		<div
 			className={'notes-parent-wrapper'}
@@ -64,25 +71,59 @@ const NotesWrapper = () => {
 			// }}
 		>
 			<div className="leftWrapper">
-				<div className="chat-wrapper">
-					<RecentChat
-						isPreview={true}
-						showDeleteChat={false}
-						showCitationsButton={false}
-						// customChatBoxClick={handleCustomChatBoxClick}
-						sId={info?.sessionId}
-					/>
+				<div
+					className="noteChatWrapper"
+					style={{
+						width: info?.chatOpen ? '400px' : '0px',
+					}}
+				>
+					<div
+						className="chat-wrapper"
+						style={{
+							transform: info?.chatOpen ? 'translateX(0%)' : 'translateX(-100%)',
+						}}
+					>
+						<RecentChat
+							isPreview={true}
+							showDeleteChat={false}
+							showCitationsButton={false}
+							// customChatBoxClick={handleCustomChatBoxClick}
+							sId={info?.sessionId}
+						/>
+					</div>
 				</div>
+
 				<div className="notesContainerWrapper">
 					{/* <Notes /> */}
-					<DatabaseWithNote showTranscriptTabs={true} />
+					<DatabaseWithNote
+						showTranscriptTabs={true}
+						showAmbientAssistance={info?.showAmbientAssistance}
+					/>
 				</div>
 			</div>
-			<AiTranscriptionSuggestions
-				data={aiTranscriptionSuggestions || []}
-				modalIsOpen={info?.modalIsOpen}
-				closeModal={handleCloseModal}
-			/>
+			<div
+				className={`switchContainer ${
+					info?.showAmbientAssistance ? 'SuggestionSidebarActive' : ''
+				}`}
+			>
+				<ToggleSlider
+					value={info?.showAmbientAssistance}
+					onChange={(checked) => {
+						setInfo((prev) => ({
+							...prev,
+							showAmbientAssistance: checked,
+						}));
+					}}
+				/>
+			</div>
+			{info?.showAmbientAssistance && (
+				<AiTranscriptionSuggestions
+					data={aiTranscriptionSuggestions || []}
+					modalIsOpen={info?.modalIsOpen}
+					closeModal={handleCloseModal}
+					showAmbientAssistance={info?.showAmbientAssistance}
+				/>
+			)}
 		</div>
 	);
 };

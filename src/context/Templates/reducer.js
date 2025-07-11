@@ -248,9 +248,9 @@ const actionHandlers = {
 
 			if (recentChatMessages) {
 				if (fetchMore) {
-					messages = messages?.concat(recentChatMessages);
+					messages = recentChatMessages?.concat(messages);
 				} else {
-					messages = recentChatMessages;
+					messages = recentChatMessages?.concat(messages);
 				}
 				sessionIdData.messages = messages;
 			}
@@ -267,11 +267,6 @@ const actionHandlers = {
 				let loadingMessage = sessionIdData?.loadingMessage;
 				loadingMessage = loadingMessage || '';
 				loadingMessage += payload?.intermediate_response;
-				sessionIdData.loadingMessage = loadingMessage;
-			}
-
-			if (payload?.hasOwnProperty('memory_thinking')) {
-				const loadingMessage = payload?.memory_thinking;
 				sessionIdData.loadingMessage = loadingMessage;
 			}
 
@@ -297,6 +292,12 @@ const actionHandlers = {
 				break;
 			}
 		}
+
+		const info = {};
+		if (payload?.hasOwnProperty('memory_thinking')) {
+			info.memory_thinking = payload?.memory_thinking;
+		}
+
 		if (requiredIndex !== -1) {
 			const message = messages?.[requiredIndex];
 			const { processing } = message;
@@ -537,6 +538,36 @@ const actionHandlers = {
 					deepResearch,
 					messageId: payload?.message_id,
 				};
+			} else if (processing === 'Normal Search') {
+				let normalSearch = message?.normalSearch || {};
+				let cot = normalSearch?.cot || [];
+
+				if (payload?.step) {
+					cot?.push({
+						step: payload?.step,
+					});
+				} else if (payload?.reading && payload?.step_id) {
+					cot = cot?.map((item) => {
+						if (item?.step_id === payload?.step_id) {
+							item.readings = [
+								...(item?.readings || []),
+								{ reading: payload?.reading },
+							];
+						}
+						return item;
+					});
+				}
+				normalSearch = {
+					...normalSearch,
+					cot,
+				};
+				messages[requiredIndex] = {
+					...message,
+					...payload,
+					message: (message?.message || '') + (payload?.answer || ''),
+					messageId: payload?.message_id,
+					normalSearch,
+				};
 			} else {
 				messages[requiredIndex] = {
 					...message,
@@ -561,6 +592,7 @@ const actionHandlers = {
 				...(state?.globalChatMessages || {}),
 				[sessionId]: {
 					...(state?.globalChatMessages?.[sessionId] || {}),
+					...info,
 					messages,
 				},
 			},
@@ -617,23 +649,16 @@ const actionHandlers = {
 		return { ...state, chatLoadingSessions };
 	},
 	HANDLE_TRANSCRIPTION_SUGGESTIONS: (state, action) => {
-		const {
-			message_chunk_id: chunkId,
-			prompt_to_ask,
-			response,
-			similar_files,
-		} = action?.payload || {};
+		const { suggested_prompt, similar_files } = action?.payload || {};
 		const aiTranscriptionSuggestions = state?.aiTranscriptionSuggestions || {};
 		const prompts = [...(aiTranscriptionSuggestions?.prompts || [])];
-		const responses = { ...(aiTranscriptionSuggestions?.responses || {}) };
+
 		let files = [...(aiTranscriptionSuggestions?.similar_files || [])];
 
-		if (prompt_to_ask) {
-			prompts?.push(prompt_to_ask);
+		if (suggested_prompt) {
+			prompts?.push(suggested_prompt);
 		}
-		if (chunkId && response) {
-			responses[chunkId] = (responses?.[chunkId] || '') + response || '';
-		}
+
 		if (similar_files) {
 			files = files?.concat(similar_files || []);
 		}
@@ -643,7 +668,6 @@ const actionHandlers = {
 			aiTranscriptionSuggestions: {
 				...aiTranscriptionSuggestions,
 				prompts,
-				responses,
 				similar_files: files,
 			},
 		};

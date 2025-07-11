@@ -207,7 +207,10 @@ const ChatBox = ({
 	const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
 	const placeholderIntervalId = useRef(null);
 	const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
-		totalCreditsLimit = currentPlan?.totalAiCreditLimit || 1;
+		totalCreditsLimit =
+			typeof currentPlan?.totalAiCreditLimit === 'number'
+				? currentPlan?.totalAiCreditLimit
+				: 1;
 
 	useEffect(() => {
 		if (
@@ -707,9 +710,8 @@ const ChatBox = ({
 					onChatQueryChange?.('');
 					clearTextArea();
 					if (!(globalChatMessages?.[sessionId]?.messages?.length > 0)) {
-						const addNewSession = true;
-						const payload = { sessionId };
-						updateAiChatSessions(payload, addNewSession);
+						const payload = { sessionId, addNewSession: true, type: 'update' };
+						updateAiChatSessions(payload);
 					}
 					if (customChatActions) {
 						return onSend({
@@ -1119,7 +1121,7 @@ const ChatBox = ({
 	const clearTextArea = () => {
 		const textArea = textAreaRef?.current;
 		if (textArea) {
-			textArea.style.height = '34px'; // Reset to initial min-height
+			textArea.style.height = '26px'; // Reset to initial min-height
 		}
 	};
 
@@ -1607,7 +1609,7 @@ const ChatBox = ({
 																</Tooltip>
 															)}
 
-															{!isPublicChat && (
+															{/* {!isPublicChat && (
 																// <SearchTypeTooltip
 																// 	isOpen={
 																// 		info?.searchTypeOpenForReason
@@ -1663,7 +1665,7 @@ const ChatBox = ({
 																	</div>
 																</Tooltip>
 																// </SearchTypeTooltip>
-															)}
+															)} */}
 
 															{!isPublicChat && (
 																<Tooltip

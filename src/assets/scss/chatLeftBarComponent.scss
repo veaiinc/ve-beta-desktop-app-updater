@@ -32,6 +32,10 @@
 			align-items: flex-end;
 			background: var(--card);
 
+			.chatBodyWrapper {
+				padding: 0 !important;
+			}
+
 			.markdown-custom-content {
 				--font-size: 14px;
 			}
@@ -53,7 +57,7 @@
 
 	.chat-left-bar-component-overlay,
 	.chat-left-bar-suggestions-overlay {
-		height: calc(100% - 164px);
+		height: calc(100% - 160px);
 		width: 100%;
 		position: absolute;
 		padding: 32px 24px;

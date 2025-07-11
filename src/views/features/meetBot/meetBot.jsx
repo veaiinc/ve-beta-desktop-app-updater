@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import Spinner from '../../components/loaders/Spinner';
 import EmptyMeetBotList from './emptyMeetBotList';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import { FetchMoreLoaderComp } from '../../../helpers';
+import { message } from '../../components/globalComponents/CustomToast';
 
 function formatDate(timestamp) {
 	const date = new Date(Number(timestamp) * 1000);
@@ -28,82 +30,71 @@ function isValidUrl(url) {
 	}
 }
 
+const limit = 10;
+const append = true;
+const infiniteScrollHeight = 'calc(100vh - 100px)';
+
 const MeetBot = () => {
 	const {
-		notes: { getExistingBots, createMeetBot },
+		notes: { getExistingBots, createMeetBot, existingBots },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
-		limit: 10,
-		page: 1,
 		drawerOpen: true,
 		meetingUrl: '',
 		selectedMode: 'meeting_bot',
-		meetingsByDate: {},
 		creating: false,
-		loadingMeetings: false,
-		hasMore: true, // For infinite scroll
-		totalMeetings: 0, // Track total meetings count
 	});
 
-	const fetchMeetings = async () => {
-		setInfo((prev) => ({ ...prev, loadingMeetings: true }));
-		const response = await getExistingBots({
-			input: {
-				limit: info.limit,
-				page: info.page,
-			},
-		});
-		const bots = response?.[1]?.data?.listTranscriptionPages?.data || [];
-		const totalCount = response?.[1]?.data?.listTranscriptionPages?.count || 0;
+	const meetings = existingBots?.data;
+	const loadingMeetings = existingBots ? false : true;
+	const currentPage = existingBots?.currentPage ?? 1;
+	const hasNextPage = existingBots?.hasNextPage ?? false;
 
-		// Check if we have more data to load
-		const hasMore = info.page * info.limit < totalCount;
-
-		// Group the new bots by date
-		const grouped = { ...info.meetingsByDate };
-		bots.forEach((bot) => {
-			const dateStr = formatDate(bot.createdAt);
-			if (!grouped[dateStr]) grouped[dateStr] = [];
-			grouped[dateStr].push(bot);
-		});
-
-		setInfo((prev) => ({
-			...prev,
-			meetingsByDate: grouped,
-			loadingMeetings: false,
-			hasMore: hasMore,
-			totalMeetings: totalCount,
-		}));
+	// Function to load meetings
+	const loadMeetings = async (page = 1, append = false) => {
+		try {
+			const response = await getExistingBots({
+				page,
+				limit,
+				append,
+			});
+			const success = response[0];
+			if (!success) {
+				const errMsg = response[1].message;
+				message.error(errMsg || 'Oops! Unable to fetch existing bots!');
+			}
+		} catch (error) {
+			setInfo((prev) => ({ ...prev, loadingMeetings: false }));
+		}
 	};
+
+	// Load existing bots when component mounts
+	useEffect(() => {
+		if (!existingBots) {
+			loadMeetings();
+		}
+	}, []);
 
 	// Function to load more meetings when scrolling
 	const loadMoreMeetings = () => {
-		if (info.loadingMeetings || !info.hasMore) return;
-
-		setInfo((prev) => ({
-			...prev,
-			page: prev.page + 1,
-		}));
+		if (!hasNextPage) return;
+		const page = currentPage + 1;
+		loadMeetings(page, append);
 	};
 
-	// Effect to fetch meetings when page changes
-	useEffect(() => {
-		fetchMeetings();
-	}, [info.page]);
-
-	// Initial load
-	useEffect(() => {
-		// Reset page to 1 and clear meetings when component mounts
-		setInfo((prev) => ({
-			...prev,
-			page: 1,
-			meetingsByDate: {},
-			hasMore: true,
-		}));
-	}, []);
+	// Group meetings by date
+	const groupMeetingsByDate = (meetings) => {
+		const grouped = {};
+		meetings.forEach((meeting) => {
+			const dateStr = formatDate(meeting.createdAt);
+			if (!grouped[dateStr]) grouped[dateStr] = [];
+			grouped[dateStr].push(meeting);
+		});
+		return grouped;
+	};
 
 	function formatCustomDate(date) {
 		const months = [
@@ -148,11 +139,12 @@ const MeetBot = () => {
 		try {
 			const response = await createMeetBot({ input });
 			setInfo((prev) => ({ ...prev, meetingUrl: '' }));
-			await fetchMeetings();
 			const pageId = response?.[1]?.data?.startTranscription?.data?.pageId;
 			const type = response?.[1]?.data?.startTranscription?.data?.transcriptionSource;
 			const success = response?.[1]?.data?.startTranscription?.success;
+
 			if (success && pageId && type) {
+				await loadMeetings(1, false);
 				navigate(`/meet/${pageId}?type=${type}`);
 			}
 		} finally {
@@ -173,7 +165,9 @@ const MeetBot = () => {
 			handleCreateMeet();
 		}
 	};
-
+	// Group meetings by date for display
+	const meetingsByDate = groupMeetingsByDate(meetings || []);
+	const meetingsLength = Object.values(meetingsByDate).flat().length;
 	return (
 		<div className="meetbot">
 			<div className="leftContainer">
@@ -234,108 +228,79 @@ const MeetBot = () => {
 						{/* <div className="upcomingTitle">Upcoming meeting</div>
                     <div className="upcoming">...</div> */}
 						{/* Meetings list with infinite scroll */}
-						<InfiniteScroll
-							dataLength={Object.values(info.meetingsByDate).flat().length}
-							next={loadMoreMeetings}
-							hasMore={info.hasMore}
-							loader={
-								<div
-									style={{
-										display: 'flex',
-										justifyContent: 'center',
-										alignItems: 'center',
-										padding: '20px 0',
-									}}
-								>
-									<Spinner
-										width="32px"
-										height="32px"
-										color="var(--primary-button)"
-										borderTopColor="var(--background-color)"
-									/>
-								</div>
-							}
-							endMessage={
-								<div
-									style={{
-										textAlign: 'center',
-										padding: '20px 0',
-										color: 'var(--secondary-font)',
-									}}
-								>
-									No more meetings to load
-								</div>
-							}
-							scrollableTarget="meetbot-list-container"
-						>
-							{info.loadingMeetings && info.page === 1 ? (
-								<div
-									style={{
-										display: 'flex',
-										justifyContent: 'center',
-										alignItems: 'center',
-										minHeight: 200,
-									}}
-								>
-									<Spinner
-										width="32px"
-										height="32px"
-										color="var(--primary-button)"
-										borderTopColor="var(--background-color)"
-									/>
-								</div>
-							) : Object.keys(info.meetingsByDate).length === 0 ? (
-								<div className="empty-meet-bot-list">
-									<EmptyMeetBotList />
-								</div>
-							) : (
-								Object.keys(info.meetingsByDate).map((date) => (
+						{loadingMeetings ? (
+							<div className="loading-container">
+								<Spinner
+									width="32px"
+									height="32px"
+									color="var(--primary-button)"
+									borderTopColor="var(--background-color)"
+								/>
+							</div>
+						) : Object.keys(meetingsByDate).length === 0 ? (
+							<div className="empty-meet-bot-list">
+								<EmptyMeetBotList />
+							</div>
+						) : (
+							<InfiniteScroll
+								dataLength={meetingsLength}
+								next={loadMoreMeetings}
+								hasMore={hasNextPage}
+								height={infiniteScrollHeight}
+								loader={<FetchMoreLoaderComp />}
+							>
+								{Object.keys(meetingsByDate).map((date) => (
 									<React.Fragment key={date}>
 										<div className="listSection">
 											<div className="listSectionTitle">{date}</div>
-											{!info.meetingsByDate[date].length ? (
-												<div className="empty-meet-bot-list">
-													<EmptyMeetBotList />
-												</div>
-											) : (
-												info.meetingsByDate[date].map((meeting) => (
-													<div
-														className="meetingCard"
-														onClick={() =>
-															navigate(`/meet/${meeting._id}`)
-														}
-														key={meeting._id}
-													>
-														<div className="meetingInfo">
-															<div className="meetingAvatar">
-																{meeting.coverImage ? (
-																	<img
-																		src={meeting.coverImage}
-																		alt="avatar"
-																		className="img"
-																	/>
-																) : (
-																	(meeting.createdBy?.name || '')
-																		.trim()
-																		.charAt(0)
-																		.toUpperCase() || '?'
-																)}
-															</div>
-															<div className="meetingTitle">
-																{meeting.title}
-															</div>
-															<div className="meetingMeta">
-																{meeting.createdBy?.name || ''}
-															</div>
+
+											{meetingsByDate[date].map((meeting) => (
+												<div
+													className="meetingCard"
+													onClick={() =>
+														navigate(
+															`/meet/${meeting._id}?type=meeting_bot&history=true`,
+														)
+													}
+													key={meeting._id}
+												>
+													<div className="meetingInfo">
+														<div className="meetingAvatar">
+															{(meeting.createdBy?.name || '')
+																.trim()
+																.charAt(0)
+																.toUpperCase() || '?'}
+														</div>
+														<div className="meetingTitle">
+															{meeting.title}
+														</div>
+														<div className="meetingMeta">
+															{meeting.createdBy?.name || ''}
 														</div>
 													</div>
-												))
-											)}
+													<div className="meetingImg">
+														{meeting.coverImage && (
+															<img
+																src={meeting.coverImage}
+																alt="avatar"
+															/>
+														)}
+														{!meeting.coverImage && (
+															<div className="imgPlaceholder">
+																{meeting.title
+																	.trim()
+																	.charAt(0)
+																	.toUpperCase() || '?'}
+															</div>
+														)}
+													</div>
+												</div>
+											))}
 										</div>
 									</React.Fragment>
-								))
-							)}
-						</InfiniteScroll>
+								))}
+							</InfiniteScroll>
+						)}
 					</div>
 				</div>
 			</div>
@@ -373,7 +338,8 @@ const MeetBot = () => {
 						>
 							Video
 						</button>
-						<button
+						{/* Temporarily hide Audio until api works */}
+						{/* <button
 							className={`meetbot__drawer-tab${
 								info.selectedMode === 'desktop'
 									? ' meetbot__drawer-tab--active'
@@ -384,7 +350,7 @@ const MeetBot = () => {
 							}
 						>
 							Audio
-						</button>
+						</button> */}
 					</div>
 					<div className="meetbot__drawer-content">
 						<div className="meetbot__drawer-label">
@@ -409,19 +375,30 @@ const MeetBot = () => {
 									onKeyDown={handleInputKeyDown}
 									disabled={info.creating}
 								/>
-								{info.meetingUrl &&
-									isValidUrl(info.meetingUrl) &&
-									!info.creating && (
-										<span
-											className="meetbot__drawer-tick"
-											onClick={handleCreateMeet}
-											title="Create meeting"
-										>
-											&#10003;
-										</span>
-									)}
+								{!info.creating && (
+									<button
+										className={`meetbot__drawer-tick${
+											!isValidUrl(info.meetingUrl)
+												? ' meetbot__drawer-tick--disabled'
+												: ''
+										}`}
+										onClick={handleCreateMeet}
+										disabled={!isValidUrl(info.meetingUrl)}
+										title="Create meeting"
+									>
+										Create
+									</button>
+								)}
 								{info.creating && (
-									<span className="meetbot__drawer-loader">...</span>
+									<span className="meetbot__drawer-loader">
+										<Spinner
+											width="16px"
+											height="16px"
+											color="var(--primary-button)"
+											borderTopColor="var(--background-color)"
+											borderWidth={1}
+										/>
+									</span>
 								)}
 							</div>
 						)}

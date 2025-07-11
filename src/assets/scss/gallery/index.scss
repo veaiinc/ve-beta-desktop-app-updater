@@ -698,18 +698,23 @@
 					border: 1px solid var(--stroke);
 					overflow: hidden;
 					background-size: cover !important;
-					background-position: center !important;
 					background: var(--card-over-card);
-
+					// height: 100%;
 					&:hover {
 						img {
 							transform: scale(1.1);
 							// filter: brightness(0.5);
+							height: 100% !important;
+							background-size: cover !important;
 						}
 					}
 
 					img {
 						transition: all 0.4s ease;
+						height: 100% !important;
+						width: 100%;
+						background-repeat: no-repeat;
+						background-size: cover !important;
 					}
 
 					.unpublished {
@@ -1157,8 +1162,8 @@
 			.galleryImagesContainer {
 				width: 100%;
 				padding: 0px 10px;
-				height: 83vh;
-				overflow: auto;
+				// height: 83vh;
+				// overflow: auto;
 				.imageUpload {
 					display: flex;
 					justify-content: center;
@@ -2073,6 +2078,7 @@
 	border-radius: 12px;
 	background: var(--card);
 	li {
+		color: var(--primary-font);
 		display: flex;
 		height: 30px;
 		padding: 6px;

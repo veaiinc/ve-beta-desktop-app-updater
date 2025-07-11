@@ -19,13 +19,19 @@ a {
 	text-decoration: none;
 	p,
 	span {
-		color: initial;
+		//commentd beacuse color are overriding in service table
+		// color: initial;
 	}
 }
 .modal-content {
 	border-radius: 12px;
 	background-color: transparent;
 	border: none;
+}
+
+.jodit .jodit-workplace,
+.jodit-container .jodit-workplace {
+	overflow: unset !important;
 }
 .text_component {
 	a {
@@ -3734,6 +3740,9 @@ input[type='number'] {
 		}
 	}
 }
+// .jodit-wysiwyg {
+// 	overflow: hidden;
+// }
 
 .jodit-react-container {
 	.jodit-container {

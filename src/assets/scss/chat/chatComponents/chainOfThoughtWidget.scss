@@ -8,7 +8,7 @@
 	border: 1px solid var(--stroke, #2c2d2e);
 	margin-bottom: 16px;
 	box-sizing: border-box;
-	transition: height 0.5s ease-in-out;
+	transition: height 0.5s ease;
 
 	.cot-wrapper {
 		margin-top: 0;
@@ -69,12 +69,20 @@
 
 	.widget-content-container {
 		display: flex;
-		padding: 12px 24px;
+		padding: 12px 24px 16px;
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 36px;
 		align-self: stretch;
 		flex-shrink: 0;
+
+		.memory-thinking {
+			font-size: 15px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			letter-spacing: 0.25px;
+		}
 
 		.loader-container {
 			display: flex;

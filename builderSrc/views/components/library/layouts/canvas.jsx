@@ -2223,7 +2223,7 @@ class Layout extends Component {
 			this.clipboardData = _.omit(selectedBlock, ['_id', 'order']);
 		}
 	};
-	pasteBlock = (component) => {
+	pasteBlock = async (component) => {
 		let clipboardData = _.omit(component, ['_id', 'order', 'mContent']);
 		let UpdateBlock = [...this.state.blocks];
 
@@ -2241,10 +2241,27 @@ class Layout extends Component {
 			},
 		};
 
-		this.props.duplicateSubBlock(payload, this.state.blocks[0]._id);
-		this.setState({
-			blocks: UpdateBlock,
-		});
+		// Await the duplication if possible
+		await this.props.duplicateSubBlock(payload, this.state.blocks[0]._id);
+
+		// Wait for the blocks to update (via props or state)
+		setTimeout(() => {
+			// Use the latest blocks from props if available, else from state
+			let updatedBlocks = this.props.blocks || this.state.blocks;
+			let subBlocks = updatedBlocks[0]?.subBlocks || [];
+			// Find the sub-block with the highest zIndex (most likely the new one)
+			let newSubBlock = subBlocks.reduce(
+				(max, sb) => (sb.divStyles?.zIndex > (max?.divStyles?.zIndex || 0) ? sb : max),
+				subBlocks[0],
+			);
+			if (newSubBlock) {
+				this.setState({
+					blocks: updatedBlocks,
+					activeComponentID: newSubBlock._id,
+					activeComponent: newSubBlock,
+				});
+			}
+		}, 300); // 300ms debounce for async update
 	};
 
 	handleDeleteBlock = (e) => {
@@ -3814,10 +3831,31 @@ class Layout extends Component {
 		let groupRect = this.groupResizeRef.current.getBoundingClientRect();
 		let layoutRect = this.blockRef.current.getBoundingClientRect();
 
-		if (parseInt(groupRect.bottom) >= parseInt(layoutRect.bottom)) {
-			this.setState({
-				gridRows: this.state.gridRows + 1,
-			});
+		// Add a buffer to the bottom comparison
+		const buffer = 4;
+		const mouseBuffer = 10;
+		const mouseY = e.clientY;
+		const layoutBottom = Math.ceil(layoutRect.bottom);
+
+		if (
+			Math.ceil(groupRect.bottom) + buffer >= layoutBottom ||
+			mouseY >= layoutBottom - mouseBuffer
+		) {
+			if (!this._expandingLayout) {
+				this._expandingLayout = true;
+				const cellHeight = layoutRect.height / this.state.gridRows;
+				this.setState(
+					{
+						gridRows: this.state.gridRows + 1,
+						layoutHeight: (this.state.layoutHeight || layoutRect.height) + cellHeight,
+					},
+					() => {
+						setTimeout(() => {
+							this._expandingLayout = false;
+						}, 100);
+					},
+				);
+			}
 		}
 
 		// Calculate the horizontal centers
@@ -3825,7 +3863,6 @@ class Layout extends Component {
 		const childCenterX = groupRect?.left + groupRect?.width / 2;
 
 		// Check if centers align horizontally
-
 		if (Math.abs(parentCenterX - childCenterX) < 6) {
 			this.setState({ isCenter: true });
 		} else {
@@ -4154,6 +4191,7 @@ class Layout extends Component {
 	handleCopyElements = () => {
 		let selectedComponents = this.state.selectedComponents;
 		let blocks = [...this.state.blocks];
+		let newIds = [];
 		blocks.forEach((block, key) => {
 			block.subBlocks.forEach((subBlock) => {
 				if (selectedComponents.includes(subBlock._id)) {
@@ -4179,11 +4217,49 @@ class Layout extends Component {
 					blockdata.divStyles.zIndex = (parseInt(blockdata.divStyles.zIndex) || 0) + 1;
 
 					block.subBlocks.push(blockdata);
+					newIds.push(blockdata._id);
 				}
 			});
 		});
 		this.setState({ blocks }, () => {
 			this.props.handleSaveblocks(blocks);
+			// Set the new group as the active selection
+			// Calculate selection box for the new group
+			setTimeout(() => {
+				let minLeft = Infinity,
+					minTop = Infinity,
+					maxRight = -Infinity,
+					maxBottom = -Infinity;
+				const layoutRect = this.blockRef.current?.getBoundingClientRect();
+				newIds.forEach((id) => {
+					const ref = this.boxRefs[id];
+					if (!ref || !layoutRect) return;
+					const rect = ref.getBoundingClientRect();
+					const left = rect.left - layoutRect.left;
+					const right = rect.right - layoutRect.left;
+					const top = rect.top - layoutRect.top;
+					const bottom = rect.bottom - layoutRect.top;
+					minLeft = Math.min(minLeft, left);
+					minTop = Math.min(minTop, top);
+					maxRight = Math.max(maxRight, right);
+					maxBottom = Math.max(maxBottom, bottom);
+				});
+				// Add padding
+				minLeft = Math.max(0, minLeft - 10);
+				minTop = Math.max(0, minTop - 10);
+				maxRight = Math.min(layoutRect?.width || maxRight, maxRight + 10);
+				maxBottom = Math.min(layoutRect?.height || maxBottom, maxBottom + 10);
+				this.setState({
+					selectedComponents: newIds,
+					selectionBox: {
+						startX: minLeft,
+						startY: minTop,
+						endX: maxRight,
+						endY: maxBottom,
+						isSelecting: true,
+					},
+				});
+			}, 100); // Wait for DOM update
 		});
 	};
 	handleDeleteElements = () => {
@@ -6208,18 +6284,6 @@ class Layout extends Component {
 		const returnTrigger = () => {
 			let triggerHook = 0.9;
 			if (_.has(adjustments, 'animeArea')) {
-				// !old logic
-				// if (animeArea[0] >= 0 && animeArea[1] < 51) {
-				// 	triggerValue = 'start';
-				// 	triggerHook = this.state?.animeTriggerPoints?.start || 0.9;
-				// } else if (animeArea[0] > 20 && animeArea[1] < 75) {
-				// 	triggerValue = 'center';
-				// 	triggerHook = this.state?.animeTriggerPoints?.center || 0.6;
-				// } else if (animeArea[0] > 50 && animeArea[1] > 50) {
-				// 	triggerValue = 'end';
-				// 	triggerHook = this.state?.animeTriggerPoints?.end || 0.2;
-				// }
-				// !new logic
 				if (animeArea[0] === 0) {
 					triggerValue = 'start';
 					triggerHook = 1;
@@ -8453,20 +8517,9 @@ class Layout extends Component {
 								<div className="add-element">
 									<a
 										className="add-element-button"
-										onMouseEnter={(e) => {
-											// Create a timeout to show the popup after a brief delay
-											this.hoverTimeout = setTimeout(() => {
-												this.hanldeAddElement(
-													e,
-													true,
-													this.state.sectionID,
-												);
-												this.toggleSideBar(e);
-											}, 300);
-										}}
-										onMouseLeave={() => {
-											// Clear the timeout if mouse leaves before delay
-											clearTimeout(this.hoverTimeout);
+										onClick={(e) => {
+											this.hanldeAddElement(e, true, this.state.sectionID);
+											this.toggleSideBar(e);
 										}}
 										style={{
 											left: 'calc(1% + 10px)',
@@ -8479,18 +8532,7 @@ class Layout extends Component {
 							)}
 
 							{this.state.showAddElement && (
-								<div
-									className="add-element-container"
-									ref={this.addElementRef}
-									onMouseLeave={() => {
-										// Hide the popup when mouse leaves the container
-										this.setState({
-											showAddElement: false,
-											searchQuery: '',
-											filteredElements: this.elements,
-										});
-									}}
-								>
+								<div className="add-element-container" ref={this.addElementRef}>
 									<input
 										type="text"
 										placeholder="Search Element"
@@ -8518,32 +8560,23 @@ class Layout extends Component {
 							>
 								Add Block
 							</a> */}
-							<div className="add-block-new-container">
-								<div
-									// onMouseEnter={() => {
-									// 	this.addBlockHoverTimeout = setTimeout(() => {
-									// 		this.setState({ showAddBlock: true }, () => {
-									// 			this.hanldeAddBlock(this.state.showAddBlock);
-									// 		});
-									// 	}, 300); // 300ms delay
-									// }}
-									// onMouseLeave={() => {
-									// 	clearTimeout(this.addBlockHoverTimeout);
-									// }}
-
-									className="addBlankContainer"
-									onClick={(e) => {
-										e.stopPropagation();
-										e.preventDefault();
-										this.setState({ showAddBlock: true }, () => {
-											this.hanldeAddBlock(this.state.showAddBlock);
-										});
-									}}
-								>
+							<div
+								className="add-block-new-container "
+								onClick={(e) => {
+									e.stopPropagation();
+									e.preventDefault();
+									this.setState({ showAddBlock: true }, () => {
+										this.hanldeAddBlock(this.state.showAddBlock);
+									});
+								}}
+							>
+								<div className="addBlankContainer">
 									<AddBlock />
 									<span className="tooltip-text">Add Layout</span>
 								</div>
-								<div className="addBlockDividerContainer">
+								<div className="addBlockDivider">Add</div>
+
+								{/* <div className="addBlockDividerContainer">
 									<div className="addBlockDivider"></div>
 								</div>
 								<div
@@ -8568,7 +8601,7 @@ class Layout extends Component {
 									) : (
 										''
 									)}
-								</div>
+								</div> */}
 							</div>
 						</>
 					) : (
@@ -8597,45 +8630,6 @@ class Layout extends Component {
 						</div>
 					) : null}
 					<div
-						// className={`layout ${
-						// 	_.has(this.state, 'style') &&
-						// 	_.has(this.state.style, 'blocksClassName') &&
-						// 	!_.has(this.state.style, 'heading')
-						// 		? _.has(this.state.style, 'mblocksClassName') &&
-						// 		  this.state.previewType === 'm' &&
-						// 		  this.state.preview
-						// 			? _.has(
-						// 					this.state.style,
-						// 					'flipmblockClassName'
-						// 			  ) && this.state.style?.flip == true
-						// 				? this.state.style.blocksClassName +
-						// 				  ' ' +
-						// 				  this.state.style.mblocksClassName +
-						// 				  ' ' +
-						// 				  this.state.style.flipmblockClassName
-						// 				: this.state.style.blocksClassName +
-						// 				  ' ' +
-						// 				  this.state.style.mblocksClassName
-						// 			: _.has(
-						// 					this.state.style,
-						// 					'flipblocksClassName'
-						// 			  ) && this.state.style.flip == true
-						// 			? this.state.style.blocksClassName +
-						// 			  ' ' +
-						// 			  this.state.style.flipblocksClassName
-						// 			: this.state.style.blocksClassName
-						// 		: _.has(this.state.style, 'heading')
-						// 		? _.has(this.state.style, 'mblocksClassName') &&
-						// 		  this.state.previewType === 'm' &&
-						// 		  this.state.preview
-						// 			? `${this.state.style.mblocksClassName} d-flex`
-						// 			: 'd-flex'
-						// 		: 'd-flex-column'
-						// } ${
-						// 	_.has(this.state.style, 'heading')
-						// 		? this.state.style.rowsClassName
-						// 		: ''
-						// }`}
 						className={` ${
 							_.has(this.state, 'style') &&
 							_.has(this.state.style, 'blocksClassName') &&
@@ -8672,11 +8666,7 @@ class Layout extends Component {
 						ref={this.divRef}
 						style={{
 							display: 'grid',
-							// gridTemplateColumns: `repeat(${this.state.gridCols}, 1fr)`,
-							// // gridTemplateRows: `repeat(auto-fill, 50px)`,
-							// gridTemplateRows: `repeat(${this.state.gridRows || 24}, 1fr)`,
 							gridTemplateColumns: `repeat(${this.state.gridCols}, 1fr)`,
-							// gridTemplateRows: `repeat(auto-fill, 50px)`,
 							gridTemplateRows:
 								this.props.client && this.state.previewType === 'm'
 									? `repeat(${
@@ -8697,24 +8687,7 @@ class Layout extends Component {
 							height: '100%',
 
 							minHeight: 'inherit',
-							// minHeight: this.state.layoutHeight
-							// 	? this.state.layoutHeight
-							// 	: `${this.getMinLayoutHeight()}px`,
-							// height: `${Math.max(
-							// 	this.state.layoutHeight,
-							// 	this.getMinLayoutHeight(),
-							// )}px`,
 
-							// list spacing code  -abdullah
-
-							// gap: `${
-							// 	_.has(this.state.style, 'listSpacing') &&
-							// 	_.has(this.state.style, 'gap')
-							// 		? `${this.state?.style?.gap}px`
-							// 		: '40px'
-							// }`,
-
-							// video alignment -Abdullah
 							justifyContent:
 								_.has(this.state.style, 'alignVideoBlock') &&
 								this.state.style.alignVideoBlock,
@@ -8733,7 +8706,6 @@ class Layout extends Component {
 								}`,
 
 							position: 'relative',
-							//minHeight: 1000,
 						}}
 					>
 						{/* Add grid overlay */}
@@ -9305,46 +9277,6 @@ class Layout extends Component {
 								}
 							});
 						})}
-						{/* {this.state.isClick &&
-							!this.state.showAddElement &&
-							!this.state.activeComponentID &&
-							this.props._id == this.state.activeSectionID && (
-								<div
-									style={{
-										zIndex: 9999,
-										position: 'relative',
-										left: this.state.posX,
-										top: this.state.posY,
-										minWidth: '10px',
-										maxWidth: '100%',
-									}}
-									ref={this.searchInputRef}
-									onClick={(e) => e.stopPropagation()}
-								>
-									<input
-										type="text"
-										className="add-element-input"
-										onChange={this.handleSlashInput}
-										onKeyPress={this.handleKeyPress}
-										value={this.state.slashInput}
-										autoFocus
-										onClick={(e) => e.stopPropagation()}
-									/>
-									{this.state.showSlashElement && (
-										<div className="add-slash-element-container">
-											{elements.map((element, index) => (
-												<div
-													key={index}
-													className="add-element-item"
-													onClick={() => this.AddElement(element)}
-												>
-													{element.text}
-												</div>
-											))}
-										</div>
-									)}
-								</div>
-							)} */}
 					</div>
 				</div>
 
@@ -9473,6 +9405,7 @@ class Layout extends Component {
 					_.size(this.state.selectedComponents) > 0 && (
 						<MultiSelectionOptionComp
 							selectionBox={this.state?.selectionBox}
+							selectionBoxPosition={this.state?.selectionBoxPosition}
 							handleCopyElements={this.handleCopyElements}
 							handleDeleteElements={this.handleDeleteElements}
 						/>

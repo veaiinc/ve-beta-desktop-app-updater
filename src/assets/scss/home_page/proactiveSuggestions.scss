@@ -10,6 +10,8 @@
 	height: 700px;
 	transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 	scrollbar-width: none !important;
+	margin-top: 40px;
+
 	&.active {
 		height: 160px;
 		margin-top: 70px;
@@ -23,6 +25,7 @@
 		width: 903px;
 		position: relative;
 		transition: all 0.3s ease;
+		margin-bottom: 15px;
 		.card {
 			display: flex;
 			width: 270px;
@@ -240,6 +243,7 @@
 		max-width: 800px;
 		display: flex;
 		flex-direction: row;
+		min-height: 41px;
 
 		justify-content: space-between;
 		align-items: center;
@@ -279,7 +283,6 @@
 					&:hover,
 					&.active {
 						background-color: var(--card);
-						border-color: var(--stroke-hover);
 						color: var(--primary-font);
 
 						svg {
@@ -301,15 +304,10 @@
 						cursor: pointer;
 
 						&.expanded {
-							background-color: var(--card);
-							border-color: var(--stroke-hover);
-							border-top-right-radius: 0;
-							border-bottom-right-radius: 0;
 							border-right: none;
 						}
 						&:hover {
 							background-color: var(--card);
-							border-color: var(--stroke-hover);
 						}
 					}
 
@@ -320,18 +318,17 @@
 						opacity: 0;
 						height: 41px;
 						overflow: hidden;
-						background: var(--card, #18191b);
 						border-radius: 8px;
 						border: 1px solid transparent;
 						transition: width 0.3s ease, opacity 0.2s ease 0.1s;
 						border-left: none;
 						border-top-left-radius: 0;
 						border-bottom-left-radius: 0;
+						position: relative;
 
 						&.expanded {
 							width: 200px;
 							opacity: 1;
-							border-color: var(--stroke-hover);
 						}
 
 						.search-input {
@@ -343,6 +340,13 @@
 							color: var(--primary-font, #7a7e85);
 							opacity: 1;
 							transition: opacity 0.2s ease 0.1s;
+						}
+
+						.search-loader {
+							position: absolute;
+							right: 40px;
+							top: 50%;
+							transform: translateY(-50%);
 						}
 					}
 				}
@@ -417,7 +421,6 @@
 			position: relative;
 			display: flex;
 			align-items: center;
-			gap: 24px;
 			.action-left {
 				display: flex;
 				align-items: center;
@@ -438,7 +441,6 @@
 					font-weight: 500;
 					line-height: normal;
 					background-color: transparent;
-					margin-left: 5px;
 					cursor: pointer;
 					border: 1px solid transparent;
 					height: 41px;
@@ -474,7 +476,6 @@
 
 					&:hover {
 						background-color: var(--card);
-						border: 1px solid var(--stroke-hover);
 						color: var(--primary-font);
 
 						&::after {
@@ -489,7 +490,6 @@
 
 					&.active {
 						background-color: var(--card);
-						border: 1px solid var(--stroke-hover);
 						color: var(--primary-font);
 					}
 				}
@@ -1397,10 +1397,9 @@
 	align-items: center;
 	max-width: 800px; /* Total width including arrows */
 	width: 100%;
-	margin: 30px auto;
+	// margin: 30px auto;
 	.homepage__options-container {
 		display: flex;
-		justify-content: space-between;
 		align-items: center;
 		align-content: center;
 		position: relative;
@@ -1424,8 +1423,11 @@
 			border-radius: 100px;
 			border: 1px solid transparent;
 			cursor: pointer;
+			transition: all 0.2s ease;
 			&:hover {
-				border: 1px solid var(--primary-button);
+				.option-label {
+					color: var(--primary-font);
+				}
 			}
 			.option-label {
 				display: flex;
@@ -1437,8 +1439,8 @@
 				font-weight: 500;
 				padding: 8px;
 				justify-content: center;
-				.option-name.active {
-					color: var(--primary-font, #f2f2f3);
+				.option-name {
+					text-transform: capitalize;
 				}
 				.option-value {
 					color: var(--secondary-font);
@@ -1451,12 +1453,11 @@
 				}
 			}
 			&.active {
-				border: 1px solid var(--primary-button);
+				.option-value {
+					opacity: 1;
+				}
 				.option-label {
-					color: var(--primary-button);
-					svg {
-						color: var(--primary-button);
-					}
+					color: var(--primary-font);
 				}
 			}
 		}

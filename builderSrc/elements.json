@@ -198,7 +198,8 @@
 		"divStyles": {
 			"dragX": 0,
 			"dragY": 0,
-			"gridArea": "5/1/7/4"
+			"gridArea": "5/1/7/4",
+			"mGridArea": "1/1/3/3"
 		}
 	},
 	"jNumber": {

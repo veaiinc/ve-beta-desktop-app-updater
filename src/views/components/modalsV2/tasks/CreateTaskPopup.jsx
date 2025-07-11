@@ -44,6 +44,7 @@ const CreateTaskPopup = ({
 	isSubTask = false,
 	responseMetadata,
 	colors,
+	defaultClient,
 }) => {
 	const [info, setInfo] = useState({
 		...initialState,
@@ -52,10 +53,11 @@ const CreateTaskPopup = ({
 	useEffect(() => {
 		setInfo({
 			...initialState,
+			clients: defaultClient ? [{ _id: defaultClient }] : [],
 			// status: responseMetadata?.status?.props?.options?.[0]?._id,
 			// subTaskStatus: responseMetadata?.status?.props?.options?.[0]?._id,
 		});
-	}, [isOpen, responseMetadata]);
+	}, [isOpen, responseMetadata, defaultClient]);
 
 	const updateModalInfo = useCallback((key, value) => {
 		if (key === 'title') {

@@ -36,6 +36,7 @@ import SortComponent from './DatabseComponents/SortComponent';
 import GroupComponent from './DatabseComponents/GroupComponent';
 import BoardView from './DatabseComponents/views/BoardView';
 import GalleryView from './DatabseComponents/views/GalleryView';
+import DatabaseHeader from './DatabseComponents/DatabaseHeader';
 
 export const rowTypes = {
 	text: TextField,
@@ -489,36 +490,6 @@ const DatabaseComponent = ({ block, editor }) => {
 		[pageId, deleteDatabaseView, block?.id, currentDatabaseViews, handleInfoChange],
 	);
 
-	const handleTabDropdownClick = useCallback(
-		(data) => {
-			if (data?.value === 'delete' && data?.tabId) {
-				handleDeleteDatabaseView(data.tabId);
-			}
-		},
-		[handleDeleteDatabaseView],
-	);
-
-	// const fetchMoreGroups = useCallback(async () => {
-	// 	// {
-	// 	// 	"pageId": "68303ca4d6bd82266428d1fa",
-	// 	// 	"databaseId": "68318359d285feb917809346",
-	// 	// 	  "databaseViewId": "683ae82adf485bd0f86c4d97",
-	// 	// 	"input": {
-	// 	// 	  "docLimit": 5,
-	// 	// 	  "docPage": 1,
-	// 	// 	  "groupLimit": 5,
-	// 	// 	  "groupPage": 1,
-	// 	// 	  "groupFilterId":"683ef366b11910e9368ffbe1"
-	// 	// 	},
-	// 	if (hasMoreGroups) {
-	// 		await fetchDatabaseRows(info?.selectedViewId, {
-	// 			page: metaInfo?.nextPage,
-	// 		});
-	// 	}
-	// }, [hasMoreGroups, info?.selectedViewId, metaInfo?.nextPage, fetchDatabaseRows]);
-
-	// Memoized derived values
-
 	const { groupData, metaInfo } = useMemo(
 		() => currentDatabaseRows || { groupData: {}, metaInfo: {} },
 		[currentDatabaseRows],
@@ -580,73 +551,25 @@ const DatabaseComponent = ({ block, editor }) => {
 				</div>
 			) : (
 				<>
-					<div className={s.notesDatabaseHeader}>
-						<div className={s.databaseTopContainer}>
-							<TaskHeader
-								tabArray={currentDatabaseViews}
-								activeTab={info?.selectedViewId}
-								handleTabChange={handleTabChange}
-								handleAddTab={(viewType) =>
-									handleCreateDatabaseView(databaseId, viewType)
-								}
-								handleTabDropdownClick={handleTabDropdownClick}
-								showEditDuplicate={false}
-							/>
-							<div className={s.notesDatabaseHeaderButtons}>
-								<input
-									type="text"
-									placeholder="Search"
-									className={s.notesDatabaseHeaderSearchInput}
-									value={info?.searchQuery}
-									onChange={(e) => handleSearchChange(e.target.value)}
-								/>
-								<div className={s.databaseTopContainerButtons}>
-									<GroupComponent
-										fields={fields}
-										databaseId={databaseId}
-										metaInfo={metaInfo}
-										view={selectedDatabaseView}
-										blockId={block?.id}
-									/>
-									<button
-										onClick={() => handleInfoChange({ addRowModalOpen: true })}
-									>
-										Add Row
-									</button>
-									<button
-										onClick={() =>
-											handleInfoChange({ addFieldModalOpen: true })
-										}
-									>
-										Add Field
-									</button>
-								</div>
-							</div>
-						</div>
-						<div className={s.notesDatabaseHeaderTitleContainer}>
-							<CustomTextArea
-								value={info?.databaseName}
-								onChange={(e) => handleInfoChange({ databaseName: e.target.value })}
-								className={s.notesDatabaseHeaderTitle}
-							/>
-						</div>
-						<div className={s.sortFilterWrapper}>
-							<FilterComponent
-								databaseId={databaseId}
-								view={selectedDatabaseView}
-								fields={fields}
-								pageId={pageId}
-								blockId={block?.id}
-							/>
-							<SortComponent
-								databaseId={databaseId}
-								view={selectedDatabaseView}
-								fields={fields}
-								pageId={pageId}
-								blockId={block?.id}
-							/>
-						</div>
-					</div>
+					<DatabaseHeader
+						databaseId={databaseId}
+						selectedDatabaseView={selectedDatabaseView}
+						fields={fields}
+						pageId={pageId}
+						block={block}
+						currentDatabaseViews={currentDatabaseViews}
+						handleTabChange={handleTabChange}
+						handleCreateDatabaseView={handleCreateDatabaseView}
+						handleDeleteDatabaseView={handleDeleteDatabaseView}
+						handleSearchChange={handleSearchChange}
+						searchQuery={info?.searchQuery}
+						selectedViewId={info?.selectedViewId}
+						openAddModal={() => handleInfoChange({ addRowModalOpen: true })}
+						databaseName={info?.databaseName}
+						onDatabaseNameChange={(newName) =>
+							handleInfoChange({ databaseName: newName })
+						}
+					/>
 					{info?.rowsLoading ? (
 						<div className={s.loadingContainer}>
 							<Spinner />

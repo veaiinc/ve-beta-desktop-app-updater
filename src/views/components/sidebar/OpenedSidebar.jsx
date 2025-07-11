@@ -69,10 +69,7 @@ const OpenedSidebarModules = ({
 	name,
 	Icon,
 	route,
-	initialColor = null,
-	isActive,
 	navigateTo,
-	isSelected,
 	subModules,
 	isDropdownVisible,
 	onDropdownToggle,
@@ -81,10 +78,6 @@ const OpenedSidebarModules = ({
 	setActiveSubModule,
 	handleSubModuleClick,
 	setShowNotificationsDrawer,
-	setShowChatsDrawer,
-	setShowNotesDrawer,
-	setHideClosedSidebarIcon,
-	selectedOption,
 }) => {
 	const location = useLocation();
 
@@ -93,17 +86,6 @@ const OpenedSidebarModules = ({
 	const {
 		aiSetup: { isVoiceIntegrationActive },
 	} = useContext(Context);
-
-	const [isHover, setisHover] = useState(false);
-
-	const onMouseEnter = () => {
-		if (isActive) return;
-		setisHover(true);
-	};
-	const onMouseLeave = () => {
-		if (isActive) return;
-		setisHover(false);
-	};
 
 	const redirectToFunction = (subModules, route, name) => {
 		if (name === 'Help') {
@@ -161,8 +143,6 @@ const OpenedSidebarModules = ({
 				className={`singleModuleItem ${isExactPathMatch() ? 'isExactPathMatch ' : ''} ${
 					isDropdownVisible ? 'calendar-active' : ''
 				}`}
-				onMouseEnter={onMouseEnter}
-				onMouseLeave={onMouseLeave}
 				onClick={() => {
 					if (isVoiceIntegrationActive) {
 						return message.error(
@@ -293,13 +273,11 @@ const settingsNavItemsMap = {
 const OpenedSidebar = ({
 	sidebarStates,
 	setsidebarStates,
-	info,
-	setIsOpen,
+	setIsSidebarOpen,
 	setShowNotificationsDrawer,
-	setShowChatsDrawer,
 	setShowNotesDrawer,
-	setHideClosedSidebarIcon,
 	isThisEarlyAccessPage,
+	isSidebarOpen,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
 
@@ -358,9 +336,8 @@ const OpenedSidebar = ({
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 500);
 	const [activeDropdown, setActiveDropdown] = useState(null);
 	const [activeSubModule, setActiveSubModule] = useState(null);
-	const [showSettingsSidebar, setShowSettingsSidebar] = useState(() => {
-		return JSON.parse(localStorage.getItem('showSettingsSidebar')) || false;
-	});
+	const [showSettingsSidebar, setShowSettingsSidebar] = useState(null);
+	const settingsSidebar = JSON.parse(localStorage.getItem('showSettingsSidebar')) || false;
 	const [selectedSettingsOption, setSelectedSettingsOption] = useState(null);
 
 	const location = useLocation();
@@ -371,6 +348,11 @@ const OpenedSidebar = ({
 	const settingsOptions = isAdmin ? settingsNavigationItems.admin : settingsNavigationItems.user;
 
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
+	useEffect(() => {
+		if (isSidebarOpen) {
+			setShowSettingsSidebar(settingsSidebar);
+		}
+	}, [isSidebarOpen]);
 	useEffect(() => {
 		if (!tennantSettingsData) {
 			getTenantSettings();
@@ -414,20 +396,17 @@ const OpenedSidebar = ({
 		logoutFunc();
 	}, [logoutFunc]);
 
-	const openWorkspacesFunction = (isOpen) => {
+	const openWorkspacesFunction = (isSidebarOpen) => {
 		setsidebarStates((prevState) => ({
 			...prevState,
-			workSpaceOpen: isOpen,
-			navStyle: isOpen ? 'workspace' : 'close',
+			workSpaceOpen: isSidebarOpen,
+			navStyle: isSidebarOpen ? 'workspace' : 'close',
 		}));
 	};
 
-	//close sidebar
 	const handleSidebarCollapse = (e) => {
-		// e.stopPropagation();
 		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
-		setIsOpen(false);
-		// setShowChatsDrawer(false);
+		setIsSidebarOpen(false);
 	};
 
 	const handleNavigateFunction = useCallback(
@@ -863,9 +842,6 @@ const OpenedSidebar = ({
 																handleSubModuleClick={
 																	handleSubModuleClick
 																}
-																setShowChatsDrawer={
-																	setShowChatsDrawer
-																}
 																setShowNotificationsDrawer={
 																	setShowNotificationsDrawer
 																}
@@ -1230,11 +1206,9 @@ const OpenedSidebar = ({
 										activeSubModule={activeSubModule}
 										setActiveSubModule={setActiveSubModule}
 										handleSubModuleClick={handleSubModuleClick}
-										setShowChatsDrawer={setShowChatsDrawer}
 										setShowNotificationsDrawer={setShowNotificationsDrawer}
 										setShowNotesDrawer={setShowNotesDrawer}
 										handleSidebarCollapse={handleSidebarCollapse}
-										setHideClosedSidebarIcon={setHideClosedSidebarIcon}
 									/>
 								</div>
 							))}
@@ -1346,10 +1320,7 @@ const OpenedSidebar = ({
 					<WorkspaceListComponent
 						setsidebarStates={setsidebarStates}
 						sidebarStates={sidebarStates}
-						info={info}
-						// userWorkSpaceList={userWorkSpaceList}
 						sidebarSettings="close"
-						// openWorkspacesFunction={openWorkspacesFunction}
 					/>
 				</div>
 			)}

@@ -73,9 +73,8 @@
 	color: var(--secondary-font);
 	font-size: 13px;
 	background: transparent;
-	border: 1px solid var(--stroke);
+	border: 1.5px solid var(--stroke);
 	border-right: none;
-	border-top: none;
 	min-width: 180px;
 	display: flex;
 	align-items: center;
@@ -134,6 +133,14 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	text-align: left;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
 }
 
 .resizeHandle {
@@ -175,14 +182,14 @@
 	color: var(--secondary-font);
 	font-size: 13px;
 	background: transparent;
-	border: 1px solid var(--stroke);
+	border: 1.5px solid var(--stroke);
 	border-top: none;
 	border-right: none;
 	min-width: 180px;
 	display: flex;
 	align-items: center;
 	box-sizing: border-box;
-	padding: 12px 8px;
+	padding: 5px 12px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

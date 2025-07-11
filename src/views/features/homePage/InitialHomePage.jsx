@@ -1,7 +1,7 @@
 import jwtDecode from 'jwt-decode';
 import { memo, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 // import { Tooltip } from 'antd';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 // import QuickActions from '../../components/globalComponents/QuickActions';
 // import { message } from '../../components/globalComponents/CustomToast';
@@ -178,15 +178,12 @@ const optionsList = [
 
 const InitialHomePage = () => {
 	const {
-		templates: { updateStateValues, aiSuggestedPendingActions, getAISuggestedPendingActions },
+		templates: { updateStateValues },
 		profileInfo: { userDetailsData, aiCategories, getAiCategories },
 		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
 
-	const navigate = useNavigate();
-	const timeoutIdRef = useRef(null);
 	const previousSelectedOptionRef = useRef(null);
-
 	const [info, setInfo] = useState({
 		selectedOption: '',
 		options: optionsList,
@@ -197,13 +194,6 @@ const InitialHomePage = () => {
 		}, {}),
 		aiSuggestionsModalOpen: false,
 	});
-
-	useEffect(() => {
-		return () => {
-			updateStateValues({ aiSuggestedPendingActions: null });
-			clearTimeout(timeoutIdRef.current);
-		};
-	}, []);
 
 	// useEffect(() => {
 	// 	if (!aiCategories) {
@@ -413,14 +403,6 @@ const InitialHomePage = () => {
 				</div>
 
 				<div className="home-page-container-content">
-					{/* {info?.selectedOption === 'All' ? (
-						<ProactiveSuggestions
-							option={info?.selectedOption}
-							previousOption={previousSelectedOptionRef.current}
-						/>
-					) : (
-						<GlobalWidget option={info?.selectedOption} />
-					)} */}
 					<ProactiveSuggestions
 						option={info?.selectedOption}
 						previousOption={previousSelectedOptionRef.current}

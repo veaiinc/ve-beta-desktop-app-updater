@@ -1919,6 +1919,22 @@ export const Galleries = () => {
 		}
 	};
 
+	// {{ _.tenntsBaseUrl }}/{{ _.workspaceId }}/watermarks METHOD PUT
+	const updateWaterMarkVisibility = async (payload) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const baseUrl = `/${workspaceId}/watermarks`;
+			const type = 'tenant';
+			const response = await service?.fetchPut(baseUrl, payload, usertoken, type);
+			if (response) {
+				return response;
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
 	const updateStateValues = async (updatedVariableValuesObj) => {
 		try {
 			dispatch({
@@ -2021,6 +2037,7 @@ export const Galleries = () => {
 		updateGuestAccess,
 		getGuestAccessDetails,
 		getMostUsedEntities,
+		updateWaterMarkVisibility,
 		updateStateValues,
 	};
 };

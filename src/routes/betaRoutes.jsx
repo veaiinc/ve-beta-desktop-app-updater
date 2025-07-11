@@ -1,5 +1,7 @@
-import { lazy, Suspense } from 'react';
+import { safeLazy } from '../utils/safeLazy';
 import { Navigate } from 'react-router-dom';
+import { Suspense } from 'react';
+
 // layouts
 import AuthWrapper from '../views/layouts/authWrapper';
 import GalleryViewLayout from '../views/layouts/galleryViewLayout';
@@ -47,18 +49,30 @@ import WorkflowBuilder from '../views/features/workflowBuilder/WorkflowBuilder';
 import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
 import Onboarding from '../views/features/onboarding/Onboarding';
 
-const Files = lazy(() => import('../views/features/files/Files'));
-const ExpandedClientView = lazy(() => import('../views/features/contacts/ExpandedClientView'));
-const BuilderApp = lazy(() => import('../../builderSrc/App'));
-const Contacts = lazy(() => import('../views/features/contacts/Contacts'));
-const Notes = lazy(() => import('../views/features/notesModule/Notes'));
-const Agents = lazy(() => import('../views/features/agents/Agents'));
-const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
-const CalendarModule = lazy(() => import('../views/features/calendar/Calendar'));
-const Tasks = lazy(() => import('../views/features/tasks/Tasks'));
-const TaskFullView = lazy(() => import('../views/features/tasks/TaskFullView'));
-const Integrations = lazy(() => import('../views/features/integrationsList/Integrations'));
-const NotesPage = lazy(() => import('../views/features/notesPage/NotesPage'));
+const Files = safeLazy(() => import('../views/features/files/Files'), 'Files');
+const ExpandedClientView = safeLazy(
+	() => import('../views/features/contacts/ExpandedClientView'),
+	'ExpandedClientView',
+);
+const BuilderApp = safeLazy(() => import('../../builderSrc/App'), 'BuilderApp');
+const Contacts = safeLazy(() => import('../views/features/contacts/Contacts'), 'Contacts');
+const Notes = safeLazy(() => import('../views/features/notesModule/Notes'), 'Notes');
+const Agents = safeLazy(() => import('../views/features/agents/Agents'), 'Agents');
+const Agent = safeLazy(() => import('../views/features/agents/agent/Agent'), 'Agent');
+const CalendarModule = safeLazy(
+	() => import('../views/features/calendar/Calendar'),
+	'CalendarModule',
+);
+const Tasks = safeLazy(() => import('../views/features/tasks/Tasks'), 'Tasks');
+const TaskFullView = safeLazy(() => import('../views/features/tasks/TaskFullView'), 'TaskFullView');
+const Integrations = safeLazy(
+	() => import('../views/features/integrationsList/Integrations'),
+	'Integrations',
+);
+const NotesPage = safeLazy(() => import('../views/features/notesPage/NotesPage'), 'NotesPage');
+
+// components
+import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 
 const betaRoutes = [
 	{
@@ -220,7 +234,7 @@ const betaRoutes = [
 				outerContainerStyle={{ padding: '0 32px 0 0' }}
 				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
-				<Suspense fallback={<p>Loading tasks...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<Tasks />
 				</Suspense>
 			</AuthWrapper>
@@ -230,7 +244,7 @@ const betaRoutes = [
 		path: '/task/:taskId',
 		element: (
 			<AuthWrapper title={'Tasks'}>
-				<Suspense fallback={<p>Loading task...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<TaskFullView />
 				</Suspense>
 			</AuthWrapper>
@@ -240,7 +254,7 @@ const betaRoutes = [
 		path: '/integrations',
 		element: (
 			<AuthWrapper title={'Integrations'}>
-				<Suspense fallback={<p>Loading integrations...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<Integrations />
 				</Suspense>
 			</AuthWrapper>
@@ -255,7 +269,7 @@ const betaRoutes = [
 				outerContainerStyle={{ overflow: 'hidden', padding: '0 32px 0 0 ' }}
 				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
-				<Suspense fallback={<p>Loading calendar...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<CalendarModule />
 				</Suspense>
 			</AuthWrapper>
@@ -289,7 +303,7 @@ const betaRoutes = [
 		path: '/notes',
 		element: (
 			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
-				<Suspense fallback={<p>Loading notes...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<NotesPage />
 				</Suspense>
 			</AuthWrapper>
@@ -299,7 +313,7 @@ const betaRoutes = [
 		path: '/database',
 		element: (
 			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
-				<Suspense fallback={<p>Loading notes...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<NotesPage isDatabase={true} />
 				</Suspense>
 			</AuthWrapper>
@@ -313,7 +327,7 @@ const betaRoutes = [
 				outerContainerStyle={{ padding: '0 32px 0 0' }}
 				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
-				<Suspense fallback={<p>Loading contacts...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<Contacts />
 				</Suspense>
 			</AuthWrapper>
@@ -456,7 +470,7 @@ const betaRoutes = [
 				maxWidth={'100%'}
 				sidebarContainerClassName={'auth-sidebar-container'}
 			>
-				<Suspense fallback={<p>Loading notes...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<Notes />
 				</Suspense>
 			</AuthWrapper>
@@ -475,7 +489,7 @@ const betaRoutes = [
 				maxWidth={'100%'}
 				sidebarContainerClassName={'auth-sidebar-container'}
 			>
-				<Suspense fallback={<p>Loading notes...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<Notes isDatabase={true} />
 				</Suspense>
 			</AuthWrapper>
@@ -497,7 +511,7 @@ const betaRoutes = [
 				outerContainerStyle={{ padding: '0 32px 0 0' }}
 				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
-				<Suspense fallback={<p>Loading contact details...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<ExpandedClientView />
 				</Suspense>
 			</AuthWrapper>
@@ -515,7 +529,7 @@ const betaRoutes = [
 		path: '/files',
 		element: (
 			<AuthWrapper title="Files" maxWidth={'100%'}>
-				<Suspense fallback={<p>Loading files...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<Files />
 				</Suspense>
 			</AuthWrapper>
@@ -538,7 +552,7 @@ const betaRoutes = [
 				childrenContainerStyles={{ maxWidth: '100%' }}
 				showSidebar={false}
 			>
-				<Suspense fallback={'loading builder...'}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<BuilderApp />
 				</Suspense>
 			</AuthWrapper>
@@ -552,7 +566,7 @@ const betaRoutes = [
 				outerContainerStyle={{ padding: '0' }}
 				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
 			>
-				<Suspense fallback={<p>Loading agents...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<Agents />
 				</Suspense>
 			</AuthWrapper>
@@ -562,7 +576,7 @@ const betaRoutes = [
 		path: '/agent/:agentId',
 		element: (
 			<AuthWrapper title="Agent">
-				<Suspense fallback={<p>Loading agent...</p>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<Agent />
 				</Suspense>
 			</AuthWrapper>

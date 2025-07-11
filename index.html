@@ -9,6 +9,38 @@
 		<link rel="icon" href="/ve-black-circle-logo.png" media="(prefers-color-scheme: dark)" />
 		<!-- Fallback favicon -->
 		<link rel="icon" href="/ve-black-circle-logo.png" />
+		<link
+			rel="preload"
+			as="style"
+			href="/src/assets/fonts/Inter/inter.css"
+			onload="this.rel='stylesheet'"
+		/>
+		<link
+			rel="preload"
+			as="style"
+			href="/src/assets/fonts/Manrope/manrope.css"
+			onload="this.rel='stylesheet'"
+		/>
+		<link
+			rel="preload"
+			as="style"
+			href="/src/assets/fonts/LibreCaslonDisplay/librecaslondisplay.css"
+			onload="this.rel='stylesheet'"
+		/>
+		<link
+			rel="preload"
+			as="style"
+			href="/src/assets/fonts/generalSans/general-sans.css"
+			onload="this.rel='stylesheet'"
+		/>
+
+		<link
+			rel="preload"
+			as="style"
+			href="/src/assets/scss/global.scss"
+			onload="this.rel='stylesheet'"
+		/>
+		<link rel="preload" as="style" href="/src/index.css" onload="this.rel='stylesheet'" />
 
 		<!-- Adaptive theme‑color for address‑bar tinting -->
 		<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
@@ -118,7 +150,20 @@
 		<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
 	</head>
 	<body>
-		<noscript>You need to enable JavaScript to run this app.</noscript>
+		<noscript>
+			<noscript>
+				<link rel="stylesheet" href="/src/assets/fonts/Inter/inter.css" />
+				<link rel="stylesheet" href="/src/assets/fonts/Manrope/manrope.css" />
+				<link
+					rel="stylesheet"
+					href="/src/assets/fonts/LibreCaslonDisplay/librecaslondisplay.css"
+				/>
+				<link rel="stylesheet" href="/src/assets/fonts/generalSans/general-sans.css" />
+				<link rel="stylesheet" href="/src/assets/scss/global.scss" />
+				<link rel="stylesheet" href="/src/index.css" />
+			</noscript>
+		</noscript>
+
 		<div id="root"></div>
 
 		<!-- Main bundle -->

@@ -32,8 +32,8 @@
 			transition: all 0.4s ease;
 			&:hover {
 				border-radius: 20px;
-				border: 1px solid var(--stroke, #2B2E31);
-				background: var(--new-card, #1C1D21);
+				border: 1px solid var(--stroke, #2b2e31);
+				background: var(--new-card, #1c1d21);
 			}
 			.serviceTitleContainer {
 				display: flex;
@@ -242,6 +242,12 @@
 			border-color: var(--primary-font, #f2f2f3);
 		}
 	}
+}
+
+.highlight-error {
+	border-color: var(--primary-font) !important;
+
+	transition: border 0.2s, background 0.2s;
 }
 
 // Responsive styles

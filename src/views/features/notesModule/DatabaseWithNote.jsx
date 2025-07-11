@@ -52,7 +52,9 @@ import MeetTranscript from './MeetTranscript';
 import useLiveIntelligenceStream from '../../../hooks/useLiveIntelligenceStream';
 import useRecallStream from '../../../hooks/useRecallStream';
 import NoteTakerTranscript from './NoteTakerTranscript';
-
+import Spinner from '../../components/loaders/Spinner';
+import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import { FetchMoreLoaderComp } from '../../../helpers';
 export const NotesRefContext = createContext(null);
 
 const initialState = {
@@ -81,7 +83,6 @@ const initialState = {
 	selectedEmoji: null,
 	coverImageRemoved: false,
 	iconImageRemoved: false,
-	sessionId: ObjectID()?.toString(),
 };
 
 const accessLevels = {
@@ -107,6 +108,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const { workspaceMode } = useWorkspaceMode();
 	const [searchParams] = useSearchParams();
 	const noteId = useParams()?.noteId;
+	const sessionId = noteId;
 	const type = searchParams.get('type');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
@@ -151,19 +153,21 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const [activeTab, setActiveTab] = useState('transcript');
 	const location = useLocation();
 
+	console.log(transcriptList);
+
 	// Add hooks for live intelligence and recall stream
 	const { createWebSocketConnection: recallConnection } = useRecallStream();
 	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
 		useLiveIntelligenceStream();
 
 	// Handler for transcript socket messages
-	const handleLiveIntelligenceMessageFunc = useCallback(
-		(event) => {
-			const data = JSON.parse(event?.data || null);
-			handleTranscriptionSuggestions(data);
-		},
-		[handleTranscriptionSuggestions],
-	);
+	// const handleLiveIntelligenceMessageFunc = useCallback(
+	// 	(event) => {
+	// 		const data = JSON.parse(event?.data || null);
+	// 		handleTranscriptionSuggestions(data);
+	// 	},
+	// 	[handleTranscriptionSuggestions],
+	// );
 	const handleSocketMessage = useCallback(
 		(event) => {
 			try {
@@ -172,18 +176,20 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					setTranscriptList((prev) => [
 						...prev,
 						{
-							participant: msg?.data?.participant,
-							text: msg?.data?.text,
+							speakerName: msg?.data?.speakerName,
+							transcript: msg?.data?.transcript,
 							timestamp: msg?.data?.timestamp,
 						},
 					]);
-					const data = msg?.data;
-					if (data?.participant?.length > 0 || data?.text?.length > 0) {
-						updateCurrentContext &&
-							updateCurrentContext(
-								(data?.participant || '') + ' : ' + (data?.text || ''),
-							);
-					}
+					// const data = msg?.data;
+					// if (data?.speakerName?.length > 0 || data?.transcript?.length > 0) {
+					// 	updateCurrentContext &&
+					// 		updateCurrentContext(
+					// 			(data?.speakerName || '') + ' : ' + (data?.transcript || ''),
+					// 		);
+					// }
+				} else if (msg?.event === 'live_intelligence.response' && msg?.data) {
+					handleTranscriptionSuggestions(msg?.data);
 				}
 			} catch (e) {
 				// ignore
@@ -997,12 +1003,17 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	useEffect(() => {
 		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
-			recallConnection(handleSocketMessage);
-			createLiveIntelligenceStream(info?.sessionId, handleLiveIntelligenceMessageFunc);
+			recallConnection(sessionId, noteId, handleSocketMessage);
+			// createLiveIntelligenceStream(
+			// 	sessionId,
+			// 	noteId,
+			// 	handleLiveIntelligenceMessageFunc,
+			// 	false,
+			// );
 		}
 		// No cleanup needed, useRecallStream handles it
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [showTranscriptTabs, info?.sessionId, type]);
+	}, [showTranscriptTabs, sessionId, type]);
 
 	return (
 		<NotesRefContext.Provider value={{ previousBlocksRef, pageId: noteId }}>

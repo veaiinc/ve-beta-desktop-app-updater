@@ -194,23 +194,21 @@ class NavbarComponent extends Component {
 		});
 	};
 
-	handleNavbarUpdate = (type, value) => {
-		// let newSection = { ...this.props.section };
-		// // newSection[type] = value
+	// handleNavbarUpdate = (type, value) => {
+	// 	let newSection = { ...this.props.section };
 
-		// if (type == 'image') {
-		// 	newSection.blocks[0].subBlocks[0].imageURL = value?.imageURL;
-		// }
-		this.setState(
-			{
-				// section: newSection,
-				section: value,
-			},
-			() => {
-				this.props.setActiveSection(value);
-			},
-		);
-	};
+	// 	if (type == 'image') {
+	// 		newSection.blocks[0].subBlocks[0].imageURL = value?.imageURL;
+	// 	}
+	// 	this.setState(
+	// 		{
+	// 			section: newSection,
+	// 		},
+	// 		() => {
+	// 			this.props.setActiveSection(newSection);
+	// 		},
+	// 	);
+	// };
 
 	renderClientModules = () => {
 		let modules = [...(this.props?.clientPortalModules || [])];
@@ -385,7 +383,7 @@ class NavbarComponent extends Component {
 											this.props?.section?.style?.showLogo &&
 											!properties?.imageURL
 												? '100px'
-												: '60px',
+												: '100px',
 										height: '60px',
 										background: 'transparent',
 
@@ -436,27 +434,26 @@ class NavbarComponent extends Component {
 										>
 											{this.props?.section?.style?.siteTitle}
 										</div>
-									) : this.props.section.objectFit ? (
-										<img
-											style={{
-												objectFit: this.props.section.objectFit,
-												height: '56px',
-												width: '56px',
-											}}
-											src={this.props?.section?.imageURL}
-										/>
 									) : (
+										// ) : this.props.section.objectFit ? (
+										// 	<img
+										// 		style={{
+										// 			objectFit: this.props.section.objectFit,
+										// 			height: '56px',
+										// 			width: '56px',
+										// 		}}
+										// 		src={this.props?.section?.imageURL}
+										// 	/>
+										// )
 										<ImageItem
-											crop={this.props?.section?.image_settings?.crop}
-											zoom={this.props?.section?.image_settings?.zoom}
 											preview={this.state?.preview}
 											previewType={this.state?.previewType}
-											imageUrl={this.props?.section?.imageURL}
-											imageSettings={this.props?.section?.image_settings}
+											imageUrl={properties?.imageURL}
+											imageSettings={properties?.image_settings}
 											settingData={(e) => this.props.imgSettingData(e)}
 											setActiveImage={(e) =>
 												this.props.setActiveImage(
-													this.state.sectionID,
+													this.props?.sectionID,
 													this.state?.blocks[0]?._id,
 													properties._id,
 													properties.imageURL,
@@ -680,7 +677,7 @@ class NavbarComponent extends Component {
 						noBounds={'.builder'}
 						activePopupComponent={this.props?.section}
 						setActivePopupComponent={(value) => {
-							this.handleNavbarUpdate('image', value);
+							this.props.setActiveSection(value);
 						}}
 						activeModuleId={this.props?.activeModuleId}
 					/>
@@ -746,7 +743,7 @@ class NavbarComponent extends Component {
 									ref={this.imageRef}
 									className="navbar-image-wrapper"
 									style={{
-										width: '60px',
+										width: '100px',
 										height: '60px',
 										background: 'transparent',
 
@@ -758,16 +755,14 @@ class NavbarComponent extends Component {
 									}}
 								>
 									<ImageItem
-										crop={this.props?.section?.image_settings?.crop}
-										zoom={this.props?.section?.image_settings?.zoom}
 										preview={this.state?.preview}
 										previewType={this.state?.previewType}
-										imageUrl={this.props?.section?.imageURL}
-										imageSettings={this.props?.section?.image_settings}
+										imageUrl={properties?.imageURL}
+										imageSettings={properties?.image_settings}
 										settingData={(e) => this.props.imgSettingData(e)}
 										setActiveImage={(e) =>
 											this.props.setActiveImage(
-												this.state.sectionID,
+												this.props?.sectionID,
 												this.state?.blocks[0]?._id,
 												properties._id,
 												properties.imageURL,

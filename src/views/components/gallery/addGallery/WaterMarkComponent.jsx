@@ -4,38 +4,108 @@ import { ReactComponent as DownArrowSvg } from '../../../../assets/svg/sidebar/d
 import Context from '../../../../context/context';
 import { ReactComponent as DeleteIcon } from '../../../../assets/svg/gallery/delete-red.svg';
 import { message } from '../../globalComponents/CustomToast';
+import { Slider } from 'antd/lib';
 
 const watermarkPositions = [
-	{ position: 'northwest', top: 10, left: 10, bottom: 'auto', right: 10 },
-	{ position: 'north', top: 10, left: 'calc(50% - 45px)', bottom: 'auto', right: 'auto' },
-	{ position: 'northeast', top: 10, left: 10, bottom: 'auto', right: 'auto' },
-	{ position: 'west', top: 'calc(50% - 20px)', left: 'auto', bottom: 'auto', right: 10 },
+	{
+		position: 'northwest',
+		top: 10,
+		left: 10,
+		bottom: 'auto',
+		right: 'auto', // Fixed to 'auto' for consistency
+		transformOrigin: 'top left',
+	},
+	{
+		position: 'north',
+		top: 10,
+		left: 10,
+		bottom: 'auto',
+		right: 'auto',
+		transformOrigin: 'top center',
+	},
+	{
+		position: 'northeast',
+		top: 10,
+		left: 'auto',
+		bottom: 'auto',
+		right: 10, // Fixed to align with top-right corner
+		transformOrigin: 'top right',
+	},
+	{
+		position: 'west',
+		top: 'calc(50% - 20px)',
+		left: 10,
+		bottom: 'auto',
+		right: 'auto',
+		transformOrigin: 'left center',
+	},
 	{
 		position: 'center',
+		top: '45%',
+		left: 10,
+		bottom: 'auto',
+		right: 'auto',
+		transformOrigin: 'center center',
+	},
+	{
+		position: 'east',
 		top: 'calc(50% - 20px)',
 		left: 'auto',
 		bottom: 'auto',
-		right: 'calc(50% - 45px)',
+		right: -10,
+		transformOrigin: 'right center',
 	},
-	{ position: 'east', top: 'calc(50% - 20px)', left: 10, bottom: 'auto', right: 'auto' },
-	{ position: 'southwest', top: 'auto', left: 'auto', bottom: 10, right: 10 },
-	{ position: 'south', top: 'auto', left: 'auto', bottom: 10, right: 'calc(50% - 45px)' },
-	{ position: 'southeast', top: 'auto', left: 10, bottom: 10, right: 'auto' },
+	{
+		position: 'southwest',
+		top: 'auto',
+		left: 10,
+		bottom: 10,
+		right: 'auto',
+		transformOrigin: 'bottom left',
+	},
+	{
+		position: 'south',
+		top: 'auto',
+		left: 10,
+		bottom: 10,
+		right: 'auto',
+		transformOrigin: 'bottom center', // Fixed from 'center '
+	},
+	{
+		position: 'southeast',
+		top: 'auto',
+		left: 'auto',
+		bottom: 10,
+		right: 10,
+		transformOrigin: 'bottom right',
+	},
 ];
 
-const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
+const WaterMarkComponent = ({
+	waterMarkApply,
+	startedUploading,
+	isPopupOpen,
+	watermarkPosition,
+	watermarkProfileId,
+	watermarkOpacity,
+	scaleWatermark,
+	setinfo,
+	waterMarks,
+	onSaveClick,
+}) => {
 	// Context
 	const {
 		galleryInfo: { uploadWaterMark, getWaterMarks, deleteWaterMark },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
 	// States
 	const [showMoreOptions, setshowMoreOptions] = useState(false);
 	const fileInputRef = useRef();
-
+	const region = localStorage.getItem('region');
 	// functions
-	const posactive = async (e, t, r, b, l) => {
+	const posactive = async (e, t, r, b, l, transformOrigin) => {
 		setinfo((prev) => ({
 			...prev,
 			watermarkPosition: {
@@ -44,12 +114,13 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 				rpos: r,
 				bpos: b,
 				lpos: l,
+				transformOrigin: transformOrigin || 'center center',
 			},
 		}));
 	};
 
 	const switchChangeHandler = (checked) => {
-		if (info?.isWaterMarkApply === checked || info?.startedUploading) return;
+		if (waterMarkApply === checked || startedUploading) return;
 		setinfo((prev) => ({ ...prev, isWaterMarkApply: checked }));
 	};
 
@@ -97,10 +168,10 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 					<p>Use AI people on edited photos for delightful client experience.</p>
 				</div>
 
-				<Switch checked={info?.isWaterMarkApply || false} onChange={switchChangeHandler} />
+				<Switch checked={waterMarkApply || false} onChange={switchChangeHandler} />
 			</div>
 
-			{info?.isWaterMarkApply && (
+			{waterMarkApply && (
 				<>
 					<div className="watermark_container">
 						<img
@@ -115,40 +186,91 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 							}}
 						/>
 
-						<div
-							className="grid-overlay"
-							style={{ zIndex: info?.isPopupOpen ? '0' : '1' }}
-						>
-							{watermarkPositions?.map(({ position, top, left, bottom, right }) => (
-								<div
-									key={position}
-									className={`grid-item ${
-										info?.watermarkPosition?.name === position ? 'selected' : ''
-									}`}
-									onClick={() => posactive(position, top, left, bottom, right)}
-								></div>
-							))}
+						<div className="grid-overlay" style={{ zIndex: isPopupOpen ? '0' : '1' }}>
+							{watermarkPositions?.map(
+								({ position, top, left, bottom, right, transformOrigin }) => (
+									<div
+										key={position}
+										className={`grid-item ${
+											watermarkPosition?.name === position ? 'selected' : ''
+										}`}
+										onClick={() =>
+											posactive(
+												position,
+												top,
+												left,
+												bottom,
+												right,
+												transformOrigin,
+											)
+										}
+									></div>
+								),
+							)}
 
-							{info.watermarkProfileId && (
+							{watermarkProfileId && (
 								<img
 									src={
 										waterMarks?.find(
-											(wm) => wm?.profileId === info?.watermarkProfileId,
+											(wm) => wm?.profileId === watermarkProfileId,
 										)?.resizedWatermakrUrl || ''
 									}
 									alt="Logo"
 									style={{
-										left: info?.watermarkPosition?.lpos,
-										right: info?.watermarkPosition?.rpos,
-										top: info?.watermarkPosition?.tpos,
-										bottom: info?.watermarkPosition?.bpos,
+										left: watermarkPosition?.lpos,
+										right: watermarkPosition?.rpos,
+										top: watermarkPosition?.tpos,
+										bottom: watermarkPosition?.bpos,
+										opacity: watermarkOpacity, // 0 to 1
+										transform: `scale(${scaleWatermark})`,
+										transition: 'all 0.2s ease-in-out',
+										transformOrigin: watermarkPosition?.transformOrigin,
 									}}
 									className="watermarklogo"
 								/>
 							)}
 						</div>
 					</div>
-
+					{tenantUserAccessControls?.role === 'admin' && region === 'us-east-1' && (
+						<div className="sliderContainers">
+							<div className="eachSliderContainer">
+								<span>Opacity</span>
+								<Slider
+									min={0}
+									max={100}
+									defaultValue={watermarkOpacity * 100}
+									style={{ width: '70%' }}
+									tooltip={{ open: false }}
+									trackStyle={{ backgroundColor: 'var(--primary-button)' }}
+									railStyle={{ backgroundColor: 'var(--stroke)' }}
+									onChange={(value) =>
+										setinfo((prev) => ({
+											...prev,
+											watermarkOpacity: value / 100,
+										}))
+									}
+								/>
+							</div>
+							<div className="eachSliderContainer">
+								<span>Scale</span>
+								<Slider
+									min={0}
+									max={100}
+									defaultValue={scaleWatermark * 100}
+									style={{ width: '70%' }}
+									tooltip={{ open: false }}
+									trackStyle={{ backgroundColor: 'var(--primary-button)' }}
+									railStyle={{ backgroundColor: 'var(--stroke)' }}
+									onChange={(value) =>
+										setinfo((prev) => ({
+											...prev,
+											scaleWatermark: value / 100,
+										}))
+									}
+								/>
+							</div>
+						</div>
+					)}
 					<div
 						style={{
 							width: '100%',
@@ -160,7 +282,7 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 						{waterMarks?.length > 0 ? (
 							<Tooltip
 								open={showMoreOptions}
-								placement="bottom"
+								placement="bottomLeft"
 								onOpenChange={setshowMoreOptions}
 								color="transparent"
 								arrow={false}
@@ -220,18 +342,17 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 										<img
 											src={
 												waterMarks?.find(
-													(wm) =>
-														wm?.profileId === info?.watermarkProfileId,
+													(wm) => wm?.profileId === watermarkProfileId,
 												)?.resizedWatermakrUrl || ''
 											}
 										/>
 										<span>
 											{showMoreOptions ? (
-												<DownArrowSvg />
-											) : (
 												<DownArrowSvg
 													style={{ transform: 'rotate(180deg)' }}
 												/>
+											) : (
+												<DownArrowSvg />
 											)}
 										</span>
 									</a>
@@ -254,6 +375,13 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 							</>
 						)}
 					</div>
+					{tenantUserAccessControls?.role === 'admin' && region === 'us-east-1' && (
+						<div className="saveButtonContainer">
+							<button onClick={onSaveClick} className="watermarkSaveButton">
+								Save
+							</button>
+						</div>
+					)}
 				</>
 			)}
 		</div>

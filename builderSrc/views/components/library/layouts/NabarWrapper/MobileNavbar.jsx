@@ -12,6 +12,7 @@ import HamburgerIcons from './HamburgerICons';
 import CartIcons from './CartIcons';
 // import { HamburgerOne } from '../../svgs/Navbar/Hamburger/HamburgerComponent';
 import _ from 'lodash';
+import ImageItem from '../../elements/image';
 class MobileNavbarComponent extends Component {
 	constructor(props) {
 		super(props);
@@ -35,6 +36,12 @@ class MobileNavbarComponent extends Component {
 	};
 
 	builderRenderNavbar = () => {
+		let properties = this.props.navBar?.blocks[0]?.subBlocks[0] || {};
+		const newMImageSettings = {
+			crop: properties?.mImage_settings?.crop || { x: 1, y: 1 },
+			zoom: properties?.mImage_settings?.zoom || 1,
+			aspect: properties?.mImage_settings?.aspect || 1.5,
+		};
 		return (
 			<>
 				<div
@@ -79,7 +86,9 @@ class MobileNavbarComponent extends Component {
 										border: this.state.mobileHoverLogoEdit
 											? `1px solid #ffffff`
 											: '1px solid transparent',
-										padding: '5px',
+										// padding: '5px',
+										height: '40px',
+										width: '80px',
 									}}
 									onMouseEnter={() => {
 										this.setState({ mobileHoverLogoEdit: true });
@@ -88,18 +97,51 @@ class MobileNavbarComponent extends Component {
 										this.setState({ mobileHoverLogoEdit: false });
 									}}
 								>
-									{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.imageURL ? (
-										<img
-											src={
-												this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]
-													?.imageURL
+									{properties?.mImageURL ? (
+										// {this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.mImageURL ? (
+										// <img
+										// 	src={
+										// 		this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]
+										// 			?.mImageURL
+										// 	}
+										// 	alt="logo"
+										// 	height={'40px'}
+										// 	width={'40px'}
+										// 	style={{
+										// 		objectFit: 'contain',
+										// 	}}
+										// />
+										<ImageItem
+											preview={this.props?.preview}
+											previewType={this.props?.previewType}
+											imageUrl={properties?.mImageURL}
+											imageSettings={newMImageSettings}
+											settingData={(e) => this.props.imgSettingData(e)}
+											setActiveImage={(e) =>
+												this.props.setActiveImage(
+													this.props?.sectionID,
+													this.state?.blocks[0]?._id,
+													properties._id,
+													properties.imageURL,
+													e,
+												)
 											}
-											alt="logo"
-											height={'40px'}
-											width={'40px'}
-											style={{
-												objectFit: 'contain',
-											}}
+											activeSubBlockId={this.state.activeSubBlockId}
+											refID={properties._id ? properties._id : null}
+											client={this.props.client}
+											label={properties?.label}
+											ImgOverlayColor={properties?.ImgOverlayColor}
+											ImgOverlayOpacity={properties?.ImgOverlayOpacity}
+											uploadImageBase64={(e) =>
+												this.props.uploadImageBase64(e)
+											}
+											generateAIImages={(e) => this.props.generateAIImages(e)}
+											generateAIText={(e) => this.props.generateAIText(e)}
+											isLogo={properties?.isLogo}
+											sectionBg={this.state.style?.sectionBackgroundColor}
+											imgSettingData={(e) => this.props.imgSettingData(e)}
+											style={this.props.navBar?.styles}
+											navbarImage={true}
 										/>
 									) : (
 										<div
@@ -238,14 +280,14 @@ class MobileNavbarComponent extends Component {
 											/>
 										</div>
 									)}
-									{(this.props?.navBar?.style?.cartValue ||
+									{/* {(this.props?.navBar?.style?.cartValue ||
 										!_.has(this.props?.navBar?.style, 'cartValue')) &&
 										(this.props?.navBar?.style?.showCart ||
 											!_.has(this.props?.navBar?.style, 'showCart') ||
 											this.props?.navBar?.style?.downloadIcon ||
 											!_.has(this.props?.navBar?.style, 'downloadIcon')) && (
 											<Divider />
-										)}
+										)} */}
 									{(this.props?.navBar?.style?.cartValue ||
 										!_.has(this.props?.navBar?.style, 'cartValue')) && (
 										<span
@@ -426,6 +468,13 @@ class MobileNavbarComponent extends Component {
 	};
 
 	clientRenderNavbar = () => {
+		let properties = this.props.navBar?.blocks[0]?.subBlocks[0] || {};
+		const newMImageSettings = {
+			crop: properties?.mImage_settings?.crop || { x: 1, y: 1 },
+			zoom: properties?.mImage_settings?.zoom || 1,
+			aspect: properties?.mImage_settings?.aspect || 1.5,
+		};
+
 		return (
 			<div
 				className={`navbar-inner-mobile-wrapper ${
@@ -451,20 +500,45 @@ class MobileNavbarComponent extends Component {
 										this.props?.navBar?.style?.mNavbarAlign === 'four'
 											? '20px'
 											: '',
+									height: '80px',
+									width: '40px',
 								}}
 							>
-								{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.imageURL ? (
-									<img
-										src={
+								{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.mImageURL ||
+								this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.imageURL ? (
+									<ImageItem
+										preview={this.props?.preview}
+										previewType={this.props?.previewType}
+										imageUrl={
+											properties?.mImageURL ||
 											this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]
 												?.imageURL
 										}
-										alt="logo"
-										height={'50px'}
-										width={'50px'}
-										style={{
-											objectFit: 'contain',
-										}}
+										imageSettings={newMImageSettings}
+										settingData={(e) => this.props.imgSettingData(e)}
+										setActiveImage={(e) =>
+											this.props.setActiveImage(
+												this.props?.sectionID,
+												this.state?.blocks[0]?._id,
+												properties._id,
+												properties.imageURL,
+												e,
+											)
+										}
+										activeSubBlockId={this.state.activeSubBlockId}
+										refID={properties._id ? properties._id : null}
+										client={this.props.client}
+										label={properties?.label}
+										ImgOverlayColor={properties?.ImgOverlayColor}
+										ImgOverlayOpacity={properties?.ImgOverlayOpacity}
+										uploadImageBase64={(e) => this.props.uploadImageBase64(e)}
+										generateAIImages={(e) => this.props.generateAIImages(e)}
+										generateAIText={(e) => this.props.generateAIText(e)}
+										isLogo={properties?.isLogo}
+										sectionBg={this.state.style?.sectionBackgroundColor}
+										imgSettingData={(e) => this.props.imgSettingData(e)}
+										style={this.props.navBar?.styles}
+										navbarImage={true}
 									/>
 								) : (
 									<div className="navbar-inner-mobile-title">
@@ -548,10 +622,10 @@ class MobileNavbarComponent extends Component {
 											/>
 										</div>
 
-										{this.props?.navBar?.style?.downloadIcon &&
+										{/* {this.props?.navBar?.style?.downloadIcon &&
 											this.props?.navBar?.style?.cartValue && (
 												<Divider height="20px" />
-											)}
+											)} */}
 									</>
 								)}
 								{(this.props?.navBar?.style?.showCart ||

@@ -1,18 +1,32 @@
 import { Navigate } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import { Suspense } from 'react';
+import { safeLazy } from '../utils/safeLazy';
 
 // layouts
 import Public from '../views/layouts/Public';
 
 // pages
 import LandingPage from '../views/features/landingScreen/LandingPage';
-const LoginPage = lazy(() => import('../views/features/loginPage/LoginPage'));
-const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
-const TermsOfService = lazy(() => import('../views/features/signin/TermsOfService'));
-const CookiePolicy = lazy(() => import('../views/features/signin/CookiePolicy'));
-const PrivacyPolicy = lazy(() => import('../views/features/signin/PrivacyPolicy'));
-const ChageLog = lazy(() => import('../views/features/signin/ChageLog'));
-const OauthVerify = lazy(() => import('../views/features/signin/oauth/OauthVerify'));
+import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
+const LoginPage = safeLazy(() => import('../views/features/loginPage/LoginPage'), 'LoginPage');
+const Onboarding = safeLazy(() => import('../views/features/onboarding/Onboarding'), 'Onboarding');
+const TermsOfService = safeLazy(
+	() => import('../views/features/signin/TermsOfService'),
+	'TermsOfService',
+);
+const CookiePolicy = safeLazy(
+	() => import('../views/features/signin/CookiePolicy'),
+	'CookiePolicy',
+);
+const PrivacyPolicy = safeLazy(
+	() => import('../views/features/signin/PrivacyPolicy'),
+	'PrivacyPolicy',
+);
+const ChageLog = safeLazy(() => import('../views/features/signin/ChageLog'), 'Changelog');
+const OauthVerify = safeLazy(
+	() => import('../views/features/signin/oauth/OauthVerify'),
+	'OauthVerify',
+);
 
 const publicRoutes = [
 	{
@@ -75,7 +89,7 @@ const publicRoutes = [
 		path: '/onboarding',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<Onboarding />
 				</Suspense>
 			</Public>
@@ -85,7 +99,7 @@ const publicRoutes = [
 		path: '/verify-user',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<LoginPage />
 				</Suspense>
 			</Public>
@@ -95,7 +109,7 @@ const publicRoutes = [
 		path: '/referral/:referralCode',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<LoginPage />
 				</Suspense>
 			</Public>
@@ -105,7 +119,7 @@ const publicRoutes = [
 		path: '/privacy-policy',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<PrivacyPolicy />
 				</Suspense>
 			</Public>
@@ -115,7 +129,7 @@ const publicRoutes = [
 		path: '/terms-of-service',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<TermsOfService />
 				</Suspense>
 			</Public>
@@ -125,7 +139,7 @@ const publicRoutes = [
 		path: '/cookie-policy',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<CookiePolicy />
 				</Suspense>
 			</Public>
@@ -135,7 +149,7 @@ const publicRoutes = [
 		path: '/changelog',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<ChageLog />
 				</Suspense>
 			</Public>
@@ -145,7 +159,7 @@ const publicRoutes = [
 		path: '/user/verify-oauth-user',
 		element: (
 			<Public>
-				<Suspense fallback={<div>Loading...</div>}>
+				<Suspense fallback={<SuspenseFallback />}>
 					<OauthVerify />
 				</Suspense>
 			</Public>

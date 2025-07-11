@@ -49,13 +49,14 @@ const Calendar = () => {
 		calendarInfo: {
 			calendarCategoriesList,
 			getCalendarCategories,
-			getCalendarChat,
 			resetCalendarAiChat,
 			getCalendarEventsList,
 			updateCalendarState,
 			refetchCalendarState,
 			getSchedulerList,
 			schedulerList,
+			googleCalendarList,
+			getGoogleCalendarList,
 		},
 		companyInfo: { getTeamMembers },
 		templates: { updateStateValues, getConnectedThirdParties, googleCalendarWatch },
@@ -70,12 +71,7 @@ const Calendar = () => {
 	});
 
 	// Close left sidebar when component unmounts
-	useEffect(() => {
-		updateStateValues({ leftSidebarState: 'open' });
-		return () => {
-			updateStateValues({ leftSidebarState: null });
-		};
-	}, []);
+	// updateStateValues({ leftSidebarState: 'open' });
 
 	useEffect(() => {
 		const sessionId = ObjectId().toString();
@@ -94,6 +90,25 @@ const Calendar = () => {
 			resetCalendarAiChat();
 		};
 	}, []);
+
+	// useEffect(() => {
+	// 	if (!calendarEventsFromGoogle) {
+	// 		const calendarId = 12;
+	// 		const isWorkspaceCalendar =false
+	// 		fetchCalendarEventsFromGoogle(calendarId, isWorkspaceCalendar);}
+	// }, [calendarEventsFromGoogle]);
+
+	// useEffect(() => {
+	// 	if (!googleCalendarEvents) {
+	// 		getGoogleCalendarEvents();
+	// 	}
+	// }, [googleCalendarEvents]);
+
+	useEffect(() => {
+		if (!googleCalendarList) {
+			getGoogleCalendarList();
+		}
+	}, [googleCalendarList]);
 
 	useEffect(() => {
 		if (calendarCategoriesList) {
