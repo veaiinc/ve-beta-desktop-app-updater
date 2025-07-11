@@ -2,6 +2,7 @@ import { memo, useState, useEffect, useContext, useCallback } from 'react';
 import '../../../../assets/scss/gallery/modals/uploadVideo.scss';
 import ReactModal from '../index';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
+import { ReactComponent as TrashSvg } from '../../../../assets/svg/gallery/delete-red.svg';
 import Context from '../../../../context/context';
 import slugify from 'slugify';
 import { message } from '../../globalComponents/CustomToast';
@@ -10,9 +11,15 @@ const customStyles = {
 	content: { zIndex: 999 },
 	overlay: { zIndex: 998 },
 };
-const VideoUploadPopup = ({ isOpen, closeModal, galleryId }) => {
+const VideoUploadPopup = ({
+	isOpen,
+	closeModal,
+	galleryId,
+	selectedVideo,
+	removeSelectedVideoFromList = () => {},
+}) => {
 	const {
-		galleryInfo: { uploadNewVideo, getAlbums, checkVideoSlugAvailability },
+		galleryInfo: { uploadNewVideo, getAlbums, checkVideoSlugAvailability, deleteVideo },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		videoTitle: '',
@@ -22,8 +29,16 @@ const VideoUploadPopup = ({ isOpen, closeModal, galleryId }) => {
 		videoSlugError: false,
 	});
 
+	useEffect(() => {
+		if (selectedVideo) {
+			setInfo((prev) => ({
+				...prev,
+				videoTitle: selectedVideo?.title,
+				videoLink: selectedVideo?.embeddedLink,
+			}));
+		}
+	}, [selectedVideo]);
 	const checkVideoSlugAvailable = async (slugConverted) => {
-		console.log(slugConverted, 'slugConverted');
 		if (slugConverted === '') {
 			setInfo((prev) => ({ ...prev, videoSlugError: false }));
 			return;
@@ -59,7 +74,7 @@ const VideoUploadPopup = ({ isOpen, closeModal, galleryId }) => {
 		handleDebouncedSearch(slugConverted);
 	};
 	const addNewVideo = async () => {
-		if (uploadLoading || videoSlugError) {
+		if (info?.uploadLoading || info?.videoSlugError) {
 			return;
 		}
 		setInfo((prev) => ({
@@ -95,6 +110,18 @@ const VideoUploadPopup = ({ isOpen, closeModal, galleryId }) => {
 			closeModal();
 		} else {
 			message.error('Something went wrong for Video Upload');
+		}
+	};
+
+	const deleteCurrentVideo = async () => {
+		const videoId = selectedVideo?._id;
+		const response = await deleteVideo(galleryId, videoId);
+		if (response[0]) {
+			message.success('Video deleted Successfully');
+			removeSelectedVideoFromList();
+			closeModal();
+		} else {
+			message.error('Something went wrong');
 		}
 	};
 	return (
@@ -139,9 +166,21 @@ const VideoUploadPopup = ({ isOpen, closeModal, galleryId }) => {
 					</div>
 				</div>
 				<div className="videoUploadButtonContainer">
-					<button className="videoUploadButton" onClick={addNewVideo}>
-						Add Video
-					</button>
+					{!selectedVideo ? (
+						<button className="videoUploadButton" onClick={addNewVideo}>
+							Add Video
+						</button>
+					) : (
+						<div className="videoEditOptions">
+							<button className="deleteVideoButton" onClick={deleteCurrentVideo}>
+								<TrashSvg />
+								Delete Video
+							</button>
+							<button className="videoUploadButton" onClick={() => {}}>
+								Update Video
+							</button>
+						</div>
+					)}
 				</div>
 			</div>
 		</ReactModal>

@@ -143,5 +143,27 @@
 			line-height: normal;
 			cursor: pointer;
 		}
+		.videoEditOptions {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			.deleteVideoButton {
+				display: flex;
+				padding: 12px 24px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				border-radius: 100px;
+				border: 1px solid var(--error, #c03744);
+				color: var(--error, #c03744);
+				font-family: var(--primary-font-family);
+				font-size: 15px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				background: transparent;
+				cursor: pointer;
+			}
+		}
 	}
 }

@@ -10,8 +10,9 @@ import {
 } from '../../../../helpers/videoThumbnailHelpers';
 import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';
+import UploadVideo from '../../modalsV2/gallery/UploadVideo';
 
-const GalleryVideos = ({ selectedVideo, onUpdateVideoStatus }) => {
+const GalleryVideos = ({ selectedVideo, onUpdateVideoStatus, removeSelectedVideoFromList }) => {
 	const { galleryId } = useParams();
 	const {
 		galleryInfo: { updateVideoStatus },
@@ -19,6 +20,7 @@ const GalleryVideos = ({ selectedVideo, onUpdateVideoStatus }) => {
 
 	const [info, setInfo] = useState({
 		videoOnline: null,
+		editVideoPopup: false,
 	});
 
 	useEffect(() => {
@@ -63,7 +65,15 @@ const GalleryVideos = ({ selectedVideo, onUpdateVideoStatus }) => {
 				<div className="videoHeaderContainer">
 					<div className="videoTitleText">{selectedVideo?.title}</div>
 					<div className="videoOptionsContainer">
-						<div className="editOptionContainer">
+						<div
+							className="editOptionContainer"
+							onClick={() => {
+								setInfo((prev) => ({
+									...prev,
+									editVideoPopup: true,
+								}));
+							}}
+						>
 							<EditIcon /> Edit
 						</div>
 						<div className="verticalLine"></div>
@@ -99,6 +109,15 @@ const GalleryVideos = ({ selectedVideo, onUpdateVideoStatus }) => {
 					)}
 				</div>
 			</div>
+			<UploadVideo
+				isOpen={info?.editVideoPopup}
+				closeModal={() => {
+					setInfo((prev) => ({ ...prev, editVideoPopup: false }));
+				}}
+				galleryId={galleryId}
+				selectedVideo={selectedVideo}
+				removeSelectedVideoFromList={removeSelectedVideoFromList}
+			/>
 		</>
 	);
 };

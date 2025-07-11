@@ -1983,6 +1983,22 @@ export const Galleries = () => {
 			console.error(error);
 		}
 	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/embedded-videos/vidoid
+	const deleteVideo = async (galleryId, videoId) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const baseUrl = `/${workspaceId}/galleries/${galleryId}/embedded-videos/${videoId}`;
+			const type = 'galleries';
+			const response = await service.fetchDelete(baseUrl, usertoken, null, type);
+			if (response) {
+				return response;
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	};
 	const updateStateValues = async (updatedVariableValuesObj) => {
 		try {
 			dispatch({
@@ -2090,5 +2106,6 @@ export const Galleries = () => {
 		uploadNewVideo,
 		updateVideoStatus,
 		checkVideoSlugAvailability,
+		deleteVideo,
 	};
 };

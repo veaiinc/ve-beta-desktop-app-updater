@@ -3631,6 +3631,17 @@ const GalleryPage = () => {
 		console.log(info?.videosList, 'videosList');
 	};
 
+	const removeSelectedVideoFromList = () => {
+		const selectedVideoId = info?.selectVideo?._id;
+		const updatedVideosList = info?.videosList?.filter(
+			(video) => video?._id !== selectedVideoId,
+		);
+
+		setInfo((prev) => ({
+			...prev,
+			videosList: updatedVideosList,
+		}));
+	};
 	return (
 		<>
 			<div className="galleryContainer">
@@ -3741,46 +3752,6 @@ const GalleryPage = () => {
 											</div>
 										</div>
 									</div>
-									{data?.map((item, index) => (
-										<>
-											{item?.name !== 'breaker' && (
-												<div
-													key={index}
-													className={`galleryContent ${
-														info?.activeTab === item?.name
-															? 'active'
-															: ''
-													}`}
-													onClick={() =>
-														handleClickContent(item?.name, item?.number)
-													}
-													style={{ cursor: 'pointer' }}
-												>
-													<p
-														className={`galleryName ${
-															info?.activeTab === item?.name
-																? 'active'
-																: ''
-														}`}
-													>
-														{item?.name}
-													</p>
-													<p
-														className={`count ${
-															info?.activeTab === item?.name
-																? 'active'
-																: ''
-														}`}
-													>
-														{item?.number}
-													</p>
-												</div>
-											)}
-											{item?.name === 'breaker' && (
-												<div className="breaker"></div>
-											)}
-										</>
-									))}
 								</div>
 								<div className="shareContainer">
 									<div
@@ -3864,6 +3835,46 @@ const GalleryPage = () => {
 										)}
 									</div>
 								</div>
+							</div>
+							<div className="galleryMainTabsContainer">
+								{data?.map((item, index) => (
+									<>
+										{item?.name !== 'breaker' && (
+											<div
+												key={index}
+												className={`galleryContent ${
+													info?.activeTab === item?.name ? 'active' : ''
+												}`}
+												onClick={() =>
+													handleClickContent(item?.name, item?.number)
+												}
+												style={{ cursor: 'pointer' }}
+											>
+												<p
+													className={`galleryName ${
+														info?.activeTab === item?.name
+															? 'active'
+															: ''
+													}`}
+												>
+													{item?.name}
+												</p>
+												<p
+													className={`count ${
+														info?.activeTab === item?.name
+															? 'active'
+															: ''
+													}`}
+												>
+													{item?.number}
+												</p>
+											</div>
+										)}
+										{item?.name === 'breaker' && (
+											<div className="breaker"></div>
+										)}
+									</>
+								))}
 							</div>
 							{info.activeTab !== 'Insights' && info.activeTab !== 'Ai People' && (
 								<div
@@ -5683,6 +5694,7 @@ const GalleryPage = () => {
 						onUpdateVideoStatus={(value) => {
 							videoToggle(value);
 						}}
+						removeSelectedVideoFromList={removeSelectedVideoFromList}
 					/>
 				)}
 				{info.selectedImages.length > 0 && (
@@ -6236,6 +6248,7 @@ const GalleryPage = () => {
 				isOpen={info?.videoUploadPopup}
 				closeModal={() => setInfo((prev) => ({ ...prev, videoUploadPopup: false }))}
 				galleryId={galleryId}
+				selectedVideo={null}
 			/>
 		</>
 	);
