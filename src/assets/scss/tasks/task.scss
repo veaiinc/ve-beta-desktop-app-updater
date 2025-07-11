@@ -30,6 +30,37 @@
 				width: 103px;
 				flex-shrink: 0;
 			}
+
+			.addTaskButton {
+				flex-shrink: 0;
+				margin-left: auto;
+				display: inline-flex;
+				height: 40px;
+				padding: 8px 16px;
+				align-items: center;
+				gap: 6px;
+				border-radius: 100px;
+				background: var(--primary-button, #79ecc9);
+				border: none;
+
+				color: var(--primary-button-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 21px; /* 150% */
+				cursor: pointer;
+
+				svg {
+					path {
+						fill: var(--primary-button-font);
+					}
+				}
+
+				&:active {
+					opacity: 0.9;
+				}
+			}
 		}
 
 		.task-content-area {
