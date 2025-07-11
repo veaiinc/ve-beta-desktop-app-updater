@@ -64,13 +64,27 @@ const ShareWidget = ({
 		setInfo((prev) => ({ ...prev, updateSlugLoading: true }));
 		const slugAvailable = await isSlugAvailable({ slug: info.editedSlug });
 		if (!slugAvailable) {
-			message.error(`Oops! The slug ${info.editedSlug} is already taken.`);
+			message.error(`Oops! The slug /${info.editedSlug} is already taken.`);
+			setInfo((prev) => ({
+				...prev,
+				updateSlugLoading: false,
+				editedSlug: slug,
+				editShareUrlSlug: false,
+			}));
+			return;
 		}
 		const response = await updateSlug({ slug: info.editedSlug, updateSlugId: id });
 		const success = response[0],
 			updatedSlug = response[1];
 		if (!success) {
 			message.error('An unexpected error occured while updating the slug');
+			setInfo((prev) => ({
+				...prev,
+				editedSlug: slug,
+				updateSlugLoading: false,
+				editShareUrlSlug: false,
+			}));
+			return;
 		}
 		message.success(`Updated your share url to ${baseUrl}${updatedSlug}`);
 		setInfo((prev) => ({ ...prev, editedSlug: updatedSlug, updateSlugLoading: false }));
