@@ -231,7 +231,7 @@ const WaterMarkComponent = ({
 							)}
 						</div>
 					</div>
-					{false && (
+					{tenantUserAccessControls?.role === 'admin' && region === 'us-east-1' && (
 						<div className="sliderContainers">
 							<div className="eachSliderContainer">
 								<span>Opacity</span>
@@ -375,7 +375,7 @@ const WaterMarkComponent = ({
 							</>
 						)}
 					</div>
-					{false && (
+					{tenantUserAccessControls?.role === 'admin' && region === 'us-east-1' && (
 						<div className="saveButtonContainer">
 							<button onClick={onSaveClick} className="watermarkSaveButton">
 								Save

@@ -13,7 +13,7 @@ import { ReactComponent as LockIcon } from '../../../assets/svg/notesPage/lock-i
 import { ReactComponent as StarSvg } from '../../../assets/svg/notesPage/star.svg';
 
 //constants
-const infiniteScrollHeight = 'calc(100vh - 142px)';
+const infiniteScrollHeight = '100%';
 
 const CardsViewNotes = ({ notes, fetchMoreNotes, userId, isDatabase = false }) => {
 	const navigate = useNavigate();
@@ -33,13 +33,13 @@ const CardsViewNotes = ({ notes, fetchMoreNotes, userId, isDatabase = false }) =
 			style={{
 				display: 'flex',
 				flexWrap: 'wrap',
-				gap: '18px',
+				gap: '16px',
 				marginBottom: '18px',
 				justifyContent: 'flex-start',
 				alignItems: 'flex-start',
 			}}
 		>
-			<CreateNewNote viewMode="cards" isDatabase={isDatabase} />
+			{/* <CreateNewNote viewMode="cards" isDatabase={isDatabase} /> */}
 			{notesList.map((note) => {
 				const { updatedAt, title, iconImage, coverImage, _id, permissions, favorites } =
 					note;

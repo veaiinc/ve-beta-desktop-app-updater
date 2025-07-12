@@ -53,7 +53,9 @@ const SortAndFilterTooltip = ({
 							key={option.value}
 							onClick={() => handleOptionClick({ type: 'filter', value: option })}
 							className={`filterOption ${
-								selectedOption.value === option.value ? 'selected' : ''
+								selectedOption.value === option.value
+									? 'selected-filter-option'
+									: ''
 							}`}
 						>
 							{option.label}
@@ -68,7 +70,9 @@ const SortAndFilterTooltip = ({
 							key={option.value}
 							onClick={() => handleOptionClick({ type: 'sort', value: option })}
 							className={`sortOption ${
-								selectedOption.value === option.value ? 'selected' : ''
+								selectedOption.value === option.value
+									? 'selected-filter-option'
+									: ''
 							}`}
 						>
 							{option.label}
