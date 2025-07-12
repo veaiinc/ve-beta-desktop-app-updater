@@ -3577,7 +3577,7 @@ const GalleryPage = () => {
 		if (!galleryCredentials || !info.activeGallery?.coverImage) return '';
 
 		const { baseURL, 'Key-Pair-Id': keyPairId, Signature, Policy } = galleryCredentials;
-		const { givenFileName } = albumImagesCount?.coverImage;
+		const givenFileName = albumImagesCount?.coverImage?.givenFileName;
 
 		if (!givenFileName) return '';
 		return `${baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${givenFileName}?Key-Pair-Id=${keyPairId}&Signature=${Signature}&Policy=${Policy}`;
