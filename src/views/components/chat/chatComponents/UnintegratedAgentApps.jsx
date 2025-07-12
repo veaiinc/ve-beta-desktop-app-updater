@@ -6,7 +6,7 @@ import { message } from '../../globalComponents/CustomToast';
 import Spinner from '../../loaders/Spinner';
 import { ReactComponent as CircleTick } from '../../../../assets/svg/circleTick.svg';
 
-const UnintegratedAgentApps = ({ apps = ['google', 'google'] }) => {
+const UnintegratedAgentApps = ({ apps = [] }) => {
 	const {
 		templates: { updateStateValues },
 		knowledgeAgent: { connectTool },
