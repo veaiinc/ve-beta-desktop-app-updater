@@ -699,8 +699,13 @@ const GalleryPage = () => {
 				albumSlug: tenantAlbums?.albums?.[0]?.slug,
 				isPublished: tenantAlbums?.isPublished,
 				isOnline: tenantAlbums?.isPublished,
-				selectVideo: tenantAlbums?.embeddedVideos?.[0],
 				videosList: tenantAlbums?.embeddedVideos,
+			}));
+		}
+		if (tenantAlbums && galleryId && !info?.selectVideo) {
+			setInfo((prev) => ({
+				...prev,
+				selectVideo: tenantAlbums?.embeddedVideos?.[0],
 			}));
 		}
 		// ... rest of the effect
@@ -3657,6 +3662,14 @@ const GalleryPage = () => {
 		}));
 	};
 
+	const updateSelectedVideo = () => {
+		const videosCount = tenantAlbums?.embeddedVideos?.length - 1;
+		const selectedVideo = tenantAlbums?.embeddedVideos?.[videosCount];
+		setInfo((prev) => ({
+			...prev,
+			selectVideo: selectedVideo,
+		}));
+	};
 	return (
 		<>
 			<div className="galleryContainer">
@@ -6273,6 +6286,7 @@ const GalleryPage = () => {
 					closeModal={() => setInfo((prev) => ({ ...prev, videoUploadPopup: false }))}
 					galleryId={galleryId}
 					selectedVideo={null}
+					updateSelectedVideo={updateSelectedVideo}
 				/>
 			)}
 		</>
