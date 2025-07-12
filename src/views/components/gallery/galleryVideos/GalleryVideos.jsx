@@ -53,14 +53,6 @@ const GalleryVideos = ({ selectedVideo, onUpdateVideoStatus, removeSelectedVideo
 	};
 	return (
 		<>
-			<div
-				style={{
-					height: '1px',
-					width: '100%',
-					border: 'none',
-					background: 'var(--dividers)',
-				}}
-			></div>
 			<div className="mainVideoContainer">
 				<div className="videoHeaderContainer">
 					<div className="videoTitleText">{selectedVideo?.title}</div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext, useCallback, memo } from 'react';
+import { useState, useEffect, useRef, useContext, useCallback, memo, useMemo } from 'react';
 import { ReactComponent as ShareIcon } from '../../../assets/svg/gallery/share.svg';
 import sixDots from '../../../assets/svg/gallery/sixdots.svg';
 import { ReactComponent as ThreeDotsIcon } from '../../../assets/svg/gallery/threeDots.svg';
@@ -2547,7 +2547,7 @@ const GalleryPage = () => {
 					yPosition: focalPoint?.y || 0,
 					zoom: info?.zoom || 1,
 				};
-
+				await getGalleryCredentials(galleryId);
 				// Update state
 				setInfo((prev) => ({
 					...prev,
@@ -3573,7 +3573,22 @@ const GalleryPage = () => {
 			pin: pin,
 		};
 	};
-	const galleryUrl = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+
+	const galleryUrl = useMemo(() => {
+		if (!galleryCredentials || !info.activeGallery?.coverImage) return '';
+
+		const { baseURL, 'Key-Pair-Id': keyPairId, Signature, Policy } = galleryCredentials;
+		const givenFileName = albumImagesCount?.coverImage?.givenFileName;
+
+		if (!givenFileName) return '';
+
+		return `${baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${givenFileName}?Key-Pair-Id=${keyPairId}&Signature=${Signature}&Policy=${Policy}`;
+	}, [
+		galleryCredentials, // now from context ✅
+		info.activeGallery,
+		tenantAlbums,
+		galleryId,
+	]);
 
 	const handleCloseGalleryViewer = () => {
 		setInfo((prev) => ({
@@ -3643,6 +3658,7 @@ const GalleryPage = () => {
 			selectVideo: updatedVideosList?.[0],
 		}));
 	};
+
 	return (
 		<>
 			<div className="galleryContainer">
@@ -3669,11 +3685,9 @@ const GalleryPage = () => {
 							<div
 								className="imageContaienr"
 								style={{
-									background:
-										albumImagesCount?.coverImage?.givenFileName &&
-										galleryCredentials
-											? `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), url(${galleryUrl}) lightgray 50% / cover no-repeat`
-											: '#000000',
+									background: galleryCredentials
+										? `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), url(${galleryUrl}) lightgray 50% / cover no-repeat`
+										: '#000000',
 									backgroundSize: 'cover',
 									backgroundPosition: 'center',
 									backgroundRepeat: 'no-repeat',
@@ -4286,6 +4300,7 @@ const GalleryPage = () => {
 						</div>
 					</div>
 				)}
+				<div className="horizontalRule"></div>
 				{info?.scrolledTillEnd && info?.activeTab === 'Albums' && (
 					<div className="galleryTitleWhenScrolled" style={{ gap: '24px' }}>
 						{sortByCustomIndex(albumImagesCount?.albums)?.map((album) => {

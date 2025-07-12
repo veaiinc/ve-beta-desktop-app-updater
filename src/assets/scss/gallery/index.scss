@@ -55,7 +55,7 @@
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	gap: 40px;
+	gap: 32px;
 	overflow: hidden;
 	background-color: transparent !important;
 	height: 95vh;
@@ -907,7 +907,7 @@
 		.galleryNavbar {
 			display: flex;
 			width: 100%;
-			gap: 16px;
+			gap: 32px;
 			flex-direction: column;
 			.albumDetailsContainer {
 				display: flex;
@@ -2519,4 +2519,11 @@
 		text-transform: capitalize;
 		z-index: 9;
 	}
+}
+
+.horizontalRule {
+	width: 100%;
+	height: 1px;
+	background: var(--dividers);
+	flex-shrink: 0;
 }
