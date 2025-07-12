@@ -14,7 +14,6 @@ const AIMessageRenderer = ({
 	messageIndex = null,
 	showCitationsButton = true,
 	isLastMessage = false,
-	sessionId = null,
 }) => {
 	return (
 		<div className="ai-message-renderer">
@@ -42,7 +41,6 @@ const AIMessageRenderer = ({
 						handleSourcesClick={handleSourcesClick}
 						messageIndex={messageIndex}
 						showCitationsButton={showCitationsButton}
-						sessionId={sessionId}
 					/>
 				</>
 			)}
