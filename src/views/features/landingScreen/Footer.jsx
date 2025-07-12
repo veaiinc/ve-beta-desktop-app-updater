@@ -131,9 +131,9 @@ const Footer = () => {
 								<li>
 									<Link to="/cookie-policy">Cookie</Link>
 								</li>
-								<li>
+								{/* <li>
 									<Link to="/changelog">Changelog</Link>
-								</li>
+								</li> */}
 							</ul>
 						</div>
 					</div>
