@@ -51,6 +51,7 @@ const Variables = ({
 					const key = variabledata[i]?.code;
 					if (clientVariableMapper[key]) {
 						ele.value = clientDetails[clientVariableMapper[key]];
+						ele.defaultValue = clientDetails[clientVariableMapper[key]];
 					}
 					variableMapper[ele?._id] = ele;
 				}
