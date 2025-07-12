@@ -1051,6 +1051,7 @@
 							font-style: normal;
 							font-weight: 500;
 							line-height: normal;
+							cursor: pointer;
 							&:hover {
 								border: 1px solid var(--stroke, #2c2d2e);
 								background: var(--card, #1b1c1d);

@@ -2547,7 +2547,7 @@ const GalleryPage = () => {
 					yPosition: focalPoint?.y || 0,
 					zoom: info?.zoom || 1,
 				};
-				await getGalleryCredentials(galleryId);
+				await getAlbumImagesCount(galleryId);
 				// Update state
 				setInfo((prev) => ({
 					...prev,
@@ -3573,20 +3573,17 @@ const GalleryPage = () => {
 			pin: pin,
 		};
 	};
-
 	const galleryUrl = useMemo(() => {
 		if (!galleryCredentials || !info.activeGallery?.coverImage) return '';
 
 		const { baseURL, 'Key-Pair-Id': keyPairId, Signature, Policy } = galleryCredentials;
-		const givenFileName = albumImagesCount?.coverImage?.givenFileName;
+		const { givenFileName } = albumImagesCount?.coverImage;
 
 		if (!givenFileName) return '';
-		const timestamp = Date.now(); // Cache busting
-
-		return `${baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${givenFileName}?t=${timestamp}&Key-Pair-Id=${keyPairId}&Signature=${Signature}&Policy=${Policy}`;
+		return `${baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${givenFileName}?Key-Pair-Id=${keyPairId}&Signature=${Signature}&Policy=${Policy}`;
 	}, [
 		galleryCredentials, // now from context ✅
-		info.activeGallery,
+		info.activeGallery?.coverImage,
 		tenantAlbums,
 		galleryId,
 	]);
