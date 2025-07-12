@@ -20,7 +20,7 @@
 		cursor: pointer;
 
 		&:hover,
-		&.selected {
+		&.selected-filter-option {
 			background: var(--card-hover, #202123);
 		}
 	}
