@@ -13,7 +13,7 @@ import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
 
 //constants
-const infiniteScrollHeight = 'calc(100vh - 142px)';
+const infiniteScrollHeight = '100%';
 
 const ListViewNotes = ({ notes, fetchMoreNotes, userId, isDatabase = false }) => {
 	const navigate = useNavigate();
@@ -29,16 +29,17 @@ const ListViewNotes = ({ notes, fetchMoreNotes, userId, isDatabase = false }) =>
 			dataLength={dataLength}
 			loader={<FetchMoreLoaderComp />}
 			height={infiniteScrollHeight}
-			style={{
-				display: 'flex',
-				flexWrap: 'wrap',
-				gap: '18px',
-				marginBottom: '18px',
-				alignContent: 'flex-start',
-				alignItems: 'flex-start',
-			}}
+			// style={{
+			// 	display: 'flex',
+			// 	flexWrap: 'wrap',
+			// 	gap: '18px',
+			// 	marginBottom: '18px',
+			// 	alignContent: 'flex-start',
+			// 	alignItems: 'flex-start',
+			// }}
+			className="listInfiniteScroll"
 		>
-			<CreateNewNote viewMode="list" isDatabase={isDatabase} />
+			{/* <CreateNewNote viewMode="list" isDatabase={isDatabase} /> */}
 			{notesList.map((note) => {
 				const { updatedAt, title, iconImage, _id, permissions, favorites } = note;
 				const isFavourite = favorites?.includes(userId);
@@ -61,6 +62,7 @@ const ListViewNotes = ({ notes, fetchMoreNotes, userId, isDatabase = false }) =>
 						</div>
 						<header className="noteCardHeader">
 							<h3 className="noteCardTitle">{title}</h3>
+							<p className="noteCardText"></p>
 						</header>
 						<footer className="noteCardFooter">
 							{isFavourite && (

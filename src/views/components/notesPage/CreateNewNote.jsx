@@ -59,7 +59,7 @@ const CreateNewNote = ({ viewMode, isDatabase = false }) => {
 			onClick={handleNewNotes}
 			className="createNewNoteContainer"
 		>
-			<NoteIcon />
+			<NoteIcon className="createNewNoteIcon" />
 			<div className="titleAndDescriptionContainer">
 				<h1 className="title">Add a New Note</h1>
 				<p className="description">
