@@ -342,6 +342,7 @@ const GalleryPage = () => {
 		selectVideo: null,
 		videosList: null,
 		coverLoading: false,
+		videoUploaded: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -700,6 +701,9 @@ const GalleryPage = () => {
 				isPublished: tenantAlbums?.isPublished,
 				isOnline: tenantAlbums?.isPublished,
 				videosList: tenantAlbums?.embeddedVideos,
+				selectVideo: info?.videoUploaded
+					? tenantAlbums?.embeddedVideos?.[tenantAlbums?.embeddedVideos?.length - 1]
+					: tenantAlbums?.embeddedVideos?.[0],
 			}));
 		}
 		if (tenantAlbums && galleryId && !info?.selectVideo) {
@@ -3582,7 +3586,7 @@ const GalleryPage = () => {
 		if (!galleryCredentials || !info.activeGallery?.coverImage) return '';
 
 		const { baseURL, 'Key-Pair-Id': keyPairId, Signature, Policy } = galleryCredentials;
-		const { givenFileName } = albumImagesCount?.coverImage;
+		const givenFileName = albumImagesCount?.coverImage?.givenFileName;
 
 		if (!givenFileName) return '';
 		return `${baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${givenFileName}?Key-Pair-Id=${keyPairId}&Signature=${Signature}&Policy=${Policy}`;
@@ -3663,13 +3667,9 @@ const GalleryPage = () => {
 	};
 
 	const updateSelectedVideo = () => {
-		const videosCount = tenantAlbums?.embeddedVideos?.length - 1;
-		const selectedVideo = tenantAlbums?.embeddedVideos?.[videosCount];
-		setInfo((prev) => ({
-			...prev,
-			selectVideo: selectedVideo,
-		}));
+		setInfo((prev) => ({ ...prev, videoUploaded: true }));
 	};
+
 	return (
 		<>
 			<div className="galleryContainer">

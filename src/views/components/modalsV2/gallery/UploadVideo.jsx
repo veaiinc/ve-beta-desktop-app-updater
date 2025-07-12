@@ -110,9 +110,9 @@ const VideoUploadPopup = ({
 		};
 		const response = await uploadNewVideo(payload, galleryId);
 		if (response?.[0]) {
+			updateSelectedVideo();
 			message.success('Video Uploaded Successfully');
 			await getAlbums(galleryId);
-			updateSelectedVideo();
 			setInfo((prev) => ({
 				...prev,
 				uploadLoading: false,
