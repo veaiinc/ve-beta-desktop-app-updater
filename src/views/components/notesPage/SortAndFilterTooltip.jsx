@@ -19,7 +19,7 @@ const tooltipOverlayInnerStyle = {
 	padding: '0px',
 };
 
-const filterOptions = [
+export const filterOptions = [
 	{ label: 'All', value: 'all' },
 	{ label: 'Private', value: 'private' },
 	{ label: 'Shared', value: 'shared' },
@@ -28,7 +28,7 @@ const filterOptions = [
 	{ label: 'Trashed', value: 'trashed' },
 ];
 
-const sortOptions = [
+export const sortOptions = [
 	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 	{ label: 'Recently Created', value: 'createdAt', sortType: -1 },
 	{ label: 'A-Z', value: 'title', sortType: 1 },
@@ -63,7 +63,7 @@ const SortAndFilterTooltip = ({
 						</div>
 					))}
 				</div>
-			) : 'sort' ? (
+			) : (
 				<div className="notesPageSortTooltip">
 					{sortOptions.map((option) => (
 						<div
@@ -80,7 +80,7 @@ const SortAndFilterTooltip = ({
 						</div>
 					))}
 				</div>
-			) : null
+			)
 		}
 		placement="bottom"
 		arrow={false}
