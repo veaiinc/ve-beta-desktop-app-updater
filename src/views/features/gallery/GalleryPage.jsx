@@ -6244,12 +6244,14 @@ const GalleryPage = () => {
 				tagId={info?.activeTagId}
 				handleOpenUploadCover={openUploadCoverPhoto}
 			/>
-			<VideoUploadPopup
-				isOpen={info?.videoUploadPopup}
-				closeModal={() => setInfo((prev) => ({ ...prev, videoUploadPopup: false }))}
-				galleryId={galleryId}
-				selectedVideo={null}
-			/>
+			{info?.videoUploadPopup && (
+				<VideoUploadPopup
+					isOpen={info?.videoUploadPopup}
+					closeModal={() => setInfo((prev) => ({ ...prev, videoUploadPopup: false }))}
+					galleryId={galleryId}
+					selectedVideo={null}
+				/>
+			)}
 		</>
 	);
 };

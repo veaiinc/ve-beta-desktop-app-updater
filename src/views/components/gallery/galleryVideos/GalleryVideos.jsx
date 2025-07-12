@@ -109,15 +109,17 @@ const GalleryVideos = ({ selectedVideo, onUpdateVideoStatus, removeSelectedVideo
 					)}
 				</div>
 			</div>
-			<UploadVideo
-				isOpen={info?.editVideoPopup}
-				closeModal={() => {
-					setInfo((prev) => ({ ...prev, editVideoPopup: false }));
-				}}
-				galleryId={galleryId}
-				selectedVideo={selectedVideo}
-				removeSelectedVideoFromList={removeSelectedVideoFromList}
-			/>
+			{info?.editVideoPopup && (
+				<UploadVideo
+					isOpen={info?.editVideoPopup}
+					closeModal={() => {
+						setInfo((prev) => ({ ...prev, editVideoPopup: false }));
+					}}
+					galleryId={galleryId}
+					selectedVideo={selectedVideo}
+					removeSelectedVideoFromList={removeSelectedVideoFromList}
+				/>
+			)}
 		</>
 	);
 };
