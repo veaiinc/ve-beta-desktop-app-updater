@@ -78,7 +78,7 @@ const GalleryVideos = ({ selectedVideo, onUpdateVideoStatus, removeSelectedVideo
 						</div>
 						<div className="verticalLine"></div>
 						<div className="switchContainer" onClick={handleVideoToggle}>
-							Video Online
+							{info?.videoOnline ? 'Video Online' : 'Video Offline'}
 							<Switch size="small" checked={info?.videoOnline} />
 						</div>
 					</div>
