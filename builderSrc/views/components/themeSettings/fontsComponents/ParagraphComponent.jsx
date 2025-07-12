@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback, useMemo, useContext, useEffect } from 'react';
+import React, { memo, useState, useCallback, useMemo, useContext, useEffect, useRef } from 'react';
 import '../../../../assets/scss/theme-settings/font-section.scss';
 import Context from '../../../../context/context';
 import { Select, Slider } from 'antd/lib';
@@ -48,7 +48,14 @@ const ParagraphComponent = () => {
 
 	const [info, setInfo] = useState({
 		selectedFont: [],
+		fontDropdownOpen: false,
+		transformDropDown: false,
+		weightDropDown: false,
 	});
+
+	const fontDropdownRef = useRef(null);
+	const transformRef = useRef(null);
+	const weightRef = useRef(null);
 
 	useEffect(() => {
 		let updateState = {};
@@ -62,6 +69,43 @@ const ParagraphComponent = () => {
 			...updateState,
 		}));
 	}, []);
+
+	useEffect(() => {
+		function handleClickOutside(event) {
+			if (fontDropdownRef.current && !fontDropdownRef.current.contains(event.target)) {
+				setInfo(
+					(prev = {
+						...prev,
+						fontDropdownOpen: false,
+					}),
+				);
+			}
+			if (transformRef.current && !transferRef.current.contains(event.target)) {
+				setInfo(
+					(prev = {
+						...prev,
+						transformDropDown: false,
+					}),
+				);
+			}
+			if (weightRef.current && !weightRef.current.contains(event.target)) {
+				setInfo(
+					(prev = {
+						...prev,
+						weightDropDown: false,
+					}),
+				);
+			}
+		}
+		if (info.fontDropdownOpen || info.transformDropDown || info.weightDropDown) {
+			document.addEventListener('mousedown', handleClickOutside);
+		} else {
+			document.removeEventListener('mousedown', handleClickOutside);
+		}
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [info.fontDropdownOpen, info.transformDropDown, info.weightDropDown]);
 
 	const fontOptions = useMemo(() => {
 		let fontGroupsNames = Object.keys(fonts);
@@ -219,6 +263,30 @@ const ParagraphComponent = () => {
 		updateTheme.isDesktopMobileFontLinked = !updateTheme.isDesktopMobileFontLinked;
 		updateSectionsContentFunction(sections, updateTheme);
 	}, [newTheme?.isDesktopMobileFontLinked, fontStyles, mobileFontStyles]);
+	const handleOpenDropDown = (type) => {
+		if (type == 'font') {
+			setInfo(
+				(prev = {
+					...prev,
+					fontDropdownOpen: true,
+				}),
+			);
+		} else if (type == 'transform') {
+			setInfo(
+				(prev = {
+					...prev,
+					transformDropDown: true,
+				}),
+			);
+		} else if (type == 'weight') {
+			setInfo(
+				(prev = {
+					...prev,
+					weightDropDown: true,
+				}),
+			);
+		}
+	};
 
 	return (
 		<div className="FontheadingContainer">
@@ -230,13 +298,21 @@ const ParagraphComponent = () => {
 					<div className="fontFamily_div">
 						<p>Font</p>
 					</div>
-
-					<div className="fontFamilyOptionsContainer">
+					<div
+						className="fontFamilyOptionsContainer"
+						ref={fontDropdownRef}
+						onClick={(e) => {
+							e.stopPropagation();
+							handleOpenDropDown('font');
+						}}
+						style={{ cursor: 'pointer' }}
+					>
 						<Select
 							style={{ width: '100%' }}
 							placeholder="Select Font"
 							options={fontOptions}
 							value={newTheme?.fonts?.p?.activeFontID}
+							open={fontDropdownOpen}
 							optionRender={(option, index) => {
 								let allFonts = Object.values(fonts).flat();
 								let fontStyle = _.find(allFonts, {
@@ -248,14 +324,13 @@ const ParagraphComponent = () => {
 									</div>
 								);
 							}}
-							onChange={(value) => handleSelectHandler('fontFamily', value)}
+							onChange={(value) => {
+								handleSelectHandler('fontFamily', value);
+							}}
 							showSearch
 							filterOption={(input, option) =>
 								(option?.label || '')?.toLowerCase().includes(input?.toLowerCase())
 							}
-							onSelect={(value) => {
-								handleSelectHandler('fontFamily', value);
-							}}
 						/>
 					</div>
 				</div>
@@ -267,7 +342,14 @@ const ParagraphComponent = () => {
 						<p>Transform</p>
 					</div>
 
-					<div className="fontFamilyOptionsContainer">
+					<div
+						className="fontFamilyOptionsContainer"
+						ref={transformRef}
+						onClick={(e) => {
+							e.stopPropagation();
+							handleOpenDropDown('transform');
+						}}
+					>
 						<Select
 							style={{ width: '100%' }}
 							placeholder="Select Transform"
@@ -283,7 +365,14 @@ const ParagraphComponent = () => {
 						<p>Weight</p>
 					</div>
 
-					<div className="fontFamilyOptionsContainer">
+					<div
+						className="fontFamilyOptionsContainer"
+						ref={weightRef}
+						onClick={(e) => {
+							e.stopPropagation();
+							handleOpenDropDown('weight');
+						}}
+					>
 						<Select
 							style={{ width: '100%' }}
 							placeholder="Select Weight"
