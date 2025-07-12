@@ -131,6 +131,12 @@ const KnowledgeAgentDetails = () => {
 		}));
 	}, [info?.activeAiAssistant?.sharedWith]);
 
+	const handleChatSessionClick = useCallback((activity) => {
+		navigate(
+			`/chat/${activity?.sessionID}?agentType=knowledge_agent&assistantId=${activity?.assistantId}`,
+		);
+	}, []);
+
 	// Sort activities by createdAt desc
 	const sortedActivities = [...info.activities].sort((a, b) => b.createdAt - a.createdAt);
 	const [current, ...older] = sortedActivities;
@@ -172,7 +178,11 @@ const KnowledgeAgentDetails = () => {
 					)}
 				</div> */}
 				<div className="chat-box-wrapper">
-					<ChatBox onSend={handleCustomOnSendFunction} customChatActions={true} />
+					<ChatBox
+						onSend={handleCustomOnSendFunction}
+						customChatActions={true}
+						showUpgradeSubscriptionBtn={false}
+					/>
 				</div>
 			</div>
 
@@ -199,7 +209,11 @@ const KnowledgeAgentDetails = () => {
 									<span className="group-label">Current</span>
 								</div>
 								{current && (
-									<div className="activity-card current" key={current._id}>
+									<div
+										className="activity-card current"
+										key={current?._id}
+										onClick={() => handleChatSessionClick(current)}
+									>
 										<div className="activity-card-content">
 											<div className="activity-title-main">
 												{current.originalQuery}
