@@ -3996,7 +3996,7 @@ const GalleryPage = () => {
 																}));
 															}}
 														>
-															<p>+ Add Videos</p>
+															<p>+ Add Video</p>
 														</div>
 													)}
 
@@ -4334,25 +4334,25 @@ const GalleryPage = () => {
 
 				{info.activeTab === 'Albums' &&
 					(albumImagesCount?.albums?.length === 0 ? (
-						<div className="noAlbumContainer">
-							<Result
-								status="404"
-								title="Albums Not Found"
-								subTitle="It's quiet for now... You haven't missed anything yet! Create your first album to start organizing your memories"
-								extra={
-									<button
-										className="create-album-button"
-										onClick={() =>
-											setInfo((prevData) => ({
-												...prevData,
-												showCreateAlbum: true,
-											}))
-										}
-									>
-										<p>Create Album</p>
-									</button>
-								}
-							/>
+						<div className="noAlbumsMainContainer">
+							<div className="noAlbumContainer">
+								<div className="noAlbumContainerTitle">Start upload images</div>
+								<div className="noAlbumContainerDescription">
+									It's quiet for now... You haven't missed anything yet! Create
+									your first album to start organizing your memories
+								</div>
+								<button
+									className="noAlbumUploadButton"
+									onClick={() =>
+										setInfo((prevData) => ({
+											...prevData,
+											showCreateAlbum: true,
+										}))
+									}
+								>
+									Upload Images
+								</button>
+							</div>
 						</div>
 					) : (
 						<div className="galleryViewer">
@@ -5331,27 +5331,14 @@ const GalleryPage = () => {
 					))}
 				{info.activeTab === 'Collection' &&
 					(clientSelectionsData?.data?.length === 0 ? (
-						<div className="noAlbumContainer">
-							<Result
-								status="404"
-								title="Albums Not Found"
-								subTitle="It's quiet for now... You haven't missed anything yet! Create your first album to start organizing your memories"
-								extra={
-									info.activeTab !== 'Collection' && (
-										<button
-											className="create-album-button"
-											onClick={() =>
-												setInfo((prevData) => ({
-													...prevData,
-													showCreateAlbum: true,
-												}))
-											}
-										>
-											<p>Create Album</p>
-										</button>
-									)
-								}
-							/>
+						<div className="noAlbumsMainContainer">
+							<div className="noAlbumContainer">
+								<div className="noAlbumContainerTitle">Start upload images</div>
+								<div className="noAlbumContainerDescription">
+									It's quiet for now... You haven't missed anything yet! Create
+									your first album to start organizing your memories
+								</div>
+							</div>
 						</div>
 					) : (
 						<div className="galleryViewer">

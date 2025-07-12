@@ -1,7 +1,7 @@
 import { memo, useContext, useEffect, useState } from 'react';
 import '../../../../assets/scss/gallery/galleryVideos.scss';
 import { ReactComponent as EditIcon } from '../../../../assets/svg/gallery/editPenNew.svg';
-import { Switch } from 'antd';
+import { Result, Switch } from 'antd';
 import { useParams } from 'react-router-dom';
 import {
 	getThumbnailUrl,
@@ -15,7 +15,7 @@ import UploadVideo from '../../modalsV2/gallery/UploadVideo';
 const GalleryVideos = ({ selectedVideo, onUpdateVideoStatus, removeSelectedVideoFromList }) => {
 	const { galleryId } = useParams();
 	const {
-		galleryInfo: { updateVideoStatus },
+		galleryInfo: { updateVideoStatus, tenantAlbums },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -53,12 +53,65 @@ const GalleryVideos = ({ selectedVideo, onUpdateVideoStatus, removeSelectedVideo
 	};
 	return (
 		<>
-			<div className="mainVideoContainer">
-				<div className="videoHeaderContainer">
-					<div className="videoTitleText">{selectedVideo?.title}</div>
-					<div className="videoOptionsContainer">
-						<div
-							className="editOptionContainer"
+			{tenantAlbums?.embeddedVideos?.length !== 0 ? (
+				<div className="mainVideoContainer">
+					<div className="videoHeaderContainer">
+						<div className="videoTitleText">{selectedVideo?.title}</div>
+						<div className="videoOptionsContainer">
+							<div
+								className="editOptionContainer"
+								onClick={() => {
+									setInfo((prev) => ({
+										...prev,
+										editVideoPopup: true,
+									}));
+								}}
+							>
+								<EditIcon /> Edit
+							</div>
+							<div className="verticalLine"></div>
+							<div className="switchContainer" onClick={handleVideoToggle}>
+								{info?.videoOnline ? 'Video Online' : 'Video Offline'}
+								<Switch size="small" checked={info?.videoOnline} />
+							</div>
+						</div>
+					</div>
+					<div className="videoMainContainer">
+						{selectedVideo ? (
+							parseVideoUrl(selectedVideo.embeddedLink).platform === 'dropbox' ? (
+								<video
+									src={getEmbedUrl(selectedVideo)}
+									controls
+									className="selectedVideoPlayer w-full h-96 rounded-lg"
+									poster={getThumbnailUrl(selectedVideo)}
+								/>
+							) : (
+								<iframe
+									className="selectedVideoPlayer w-full h-96 rounded-lg"
+									src={getEmbedUrl(selectedVideo)}
+									title={selectedVideo.title || 'Video Player'}
+									frameBorder="0"
+									// allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+									allowFullScreen
+								></iframe>
+							)
+						) : (
+							<div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
+								<p className="text-gray-500">Select a video to play</p>
+							</div>
+						)}
+					</div>
+				</div>
+			) : (
+				<div className="noAlbumsMainContainer">
+					<div className="noAlbumContainer">
+						<div className="noAlbumContainerTitle">Start upload videos</div>
+						<div className="noAlbumContainerDescription">
+							It's quiet for now... You haven't missed anything yet! Create your first
+							album to start organizing your memories
+						</div>
+						<button
+							className="noAlbumUploadButton"
 							onClick={() => {
 								setInfo((prev) => ({
 									...prev,
@@ -66,41 +119,11 @@ const GalleryVideos = ({ selectedVideo, onUpdateVideoStatus, removeSelectedVideo
 								}));
 							}}
 						>
-							<EditIcon /> Edit
-						</div>
-						<div className="verticalLine"></div>
-						<div className="switchContainer" onClick={handleVideoToggle}>
-							{info?.videoOnline ? 'Video Online' : 'Video Offline'}
-							<Switch size="small" checked={info?.videoOnline} />
-						</div>
+							Upload Video
+						</button>
 					</div>
 				</div>
-				<div className="videoMainContainer">
-					{selectedVideo ? (
-						parseVideoUrl(selectedVideo.embeddedLink).platform === 'dropbox' ? (
-							<video
-								src={getEmbedUrl(selectedVideo)}
-								controls
-								className="selectedVideoPlayer w-full h-96 rounded-lg"
-								poster={getThumbnailUrl(selectedVideo)}
-							/>
-						) : (
-							<iframe
-								className="selectedVideoPlayer w-full h-96 rounded-lg"
-								src={getEmbedUrl(selectedVideo)}
-								title={selectedVideo.title || 'Video Player'}
-								frameBorder="0"
-								// allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-								allowFullScreen
-							></iframe>
-						)
-					) : (
-						<div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
-							<p className="text-gray-500">Select a video to play</p>
-						</div>
-					)}
-				</div>
-			</div>
+			)}
 			{info?.editVideoPopup && (
 				<UploadVideo
 					isOpen={info?.editVideoPopup}
