@@ -7,13 +7,15 @@ import AuthWrapper from '../views/layouts/authWrapper';
 
 // pages
 import InitialHomePage from '../views/features/homePage/InitialHomePage';
-import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 
 // lazy loaded pages
 const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
 const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
 const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
+
+// components
+import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 
 const stableRoutes = [
 	{
