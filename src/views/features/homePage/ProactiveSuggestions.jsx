@@ -533,8 +533,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	};
 
 	const handleCardClick = async (card, index) => {
-		if (info?.selectedOption === 'action' && card?.templateId) {
-			navigate(`/builder/document/view/${card?.templateId}?workflow=true`);
+		if (info?.selectedOption === 'action' && card?._id) {
+			navigate(`/builder/document/view/${card._id}?workflow=true`);
 			return;
 		}
 		if (!card?.read && info?.selectedOption !== 'action') {
