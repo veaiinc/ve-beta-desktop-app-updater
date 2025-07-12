@@ -15,11 +15,18 @@ const VideoUploadPopup = ({
 	isOpen,
 	closeModal,
 	galleryId,
-	selectedVideo,
+	selectedVideo = null,
 	removeSelectedVideoFromList = () => {},
+	updateSelectedVideo = () => {},
 }) => {
 	const {
-		galleryInfo: { uploadNewVideo, getAlbums, checkVideoSlugAvailability, deleteVideo },
+		galleryInfo: {
+			uploadNewVideo,
+			getAlbums,
+			checkVideoSlugAvailability,
+			deleteVideo,
+			updateVideoStatus,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		videoTitle: '',
@@ -27,6 +34,8 @@ const VideoUploadPopup = ({
 		uploadLoading: false,
 		timeout: null,
 		videoSlugError: false,
+		videoDetailsLoading: false,
+		deleteVideoLoading: false,
 	});
 
 	useEffect(() => {
@@ -108,20 +117,47 @@ const VideoUploadPopup = ({
 				uploadLoading: false,
 			}));
 			closeModal();
+			updateSelectedVideo();
 		} else {
-			message.error('Something went wrong for Video Upload');
+			message.error(response?.[1]?.message);
 		}
 	};
 
 	const deleteCurrentVideo = async () => {
+		if (info?.deleteVideoLoading) return;
+		setInfo((prev) => ({ ...prev, deleteVideoLoading: true }));
 		const videoId = selectedVideo?._id;
 		const response = await deleteVideo(galleryId, videoId);
-		if (response[0]) {
+		if (response[0] === true) {
 			message.success('Video deleted Successfully');
 			removeSelectedVideoFromList();
+			setInfo((prev) => ({ ...prev, deleteVideoLoading: false }));
 			closeModal();
 		} else {
-			message.error('Something went wrong');
+			message.error(response?.[1]?.message);
+			setInfo((prev) => ({ ...prev, deleteVideoLoading: false }));
+		}
+	};
+
+	const editVideoDetails = async () => {
+		if (info?.videoDetailsLoading) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, videoDetailsLoading: true }));
+		const videoId = selectedVideo?._id;
+		const payload = {
+			title: info?.videoTitle,
+			embeddedLink: info?.videoLink,
+		};
+		const response = await updateVideoStatus(payload, videoId, galleryId);
+		if (response?.[0] === true) {
+			message.success('Video Update Successful');
+			await getAlbums(galleryId);
+			setInfo((prev) => ({ ...prev, videoDetailsLoading: false }));
+			closeModal();
+		} else {
+			message.error(response?.[1]?.message);
+			setInfo((prev) => ({ ...prev, videoDetailsLoading: false }));
 		}
 	};
 	return (
@@ -176,7 +212,7 @@ const VideoUploadPopup = ({
 								<TrashSvg />
 								Delete Video
 							</button>
-							<button className="videoUploadButton" onClick={() => {}}>
+							<button className="videoUploadButton" onClick={editVideoDetails}>
 								Update Video
 							</button>
 						</div>
