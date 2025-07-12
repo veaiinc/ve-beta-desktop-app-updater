@@ -33,8 +33,12 @@ const NotesPage = ({ isDatabase = false }) => {
 
 	const [info, setInfo] = useState({
 		viewMode: searchParams?.get('viewMode') || 'list', // cards, list
-		selectedFilter: getFilterAndSort('filter', searchParams?.get('f')),
-		selectedSort: getFilterAndSort('sort', searchParams?.get('s'), searchParams?.get('st')),
+		selectedFilter: getFilterAndSort('filter', searchParams?.get('filter')),
+		selectedSort: getFilterAndSort(
+			'sort',
+			searchParams?.get('sort'),
+			searchParams?.get('sortType'),
+		),
 		userId: null,
 		searchQuery: '',
 		loading: false,
@@ -49,9 +53,9 @@ const NotesPage = ({ isDatabase = false }) => {
 	useEffect(() => {
 		setSearchParams({
 			viewMode: info?.viewMode,
-			f: info?.selectedFilter?.value,
-			s: info?.selectedSort?.value,
-			st: info?.selectedSort?.sortType,
+			filter: info?.selectedFilter?.value,
+			sort: info?.selectedSort?.value,
+			sortType: info?.selectedSort?.sortType,
 		});
 	}, [
 		info?.viewMode,

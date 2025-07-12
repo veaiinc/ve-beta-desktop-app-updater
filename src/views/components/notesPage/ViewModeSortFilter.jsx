@@ -45,10 +45,8 @@ const ViewModeSortFilter = ({
 
 	const handleSearchInputToggle = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, showSearchInput: !info?.showSearchInput }));
-		if (!info?.showSearchInput) {
-			if (searchRef?.current) {
-				searchRef?.current?.focus();
-			}
+		if (!info?.showSearchInput && searchRef?.current) {
+			searchRef?.current?.focus();
 		}
 	};
 
