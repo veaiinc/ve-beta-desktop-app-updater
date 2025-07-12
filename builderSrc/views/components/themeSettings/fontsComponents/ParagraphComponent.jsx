@@ -33,6 +33,26 @@ const textTransformOptions = [
 	},
 ];
 
+const useClickOutside = (handler) => {
+	const ref = useRef();
+
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (ref.current instanceof HTMLElement && !ref.current.contains(event.target)) {
+				handler();
+			}
+		};
+
+		document.addEventListener('click', handleClickOutside, true);
+
+		return () => {
+			document.removeEventListener('click', handleClickOutside, true);
+		};
+	}, [handler]);
+
+	return ref;
+};
+
 const ParagraphComponent = () => {
 	const {
 		themeSettings: {
@@ -48,14 +68,25 @@ const ParagraphComponent = () => {
 
 	const [info, setInfo] = useState({
 		selectedFont: [],
-		fontDropdownOpen: false,
-		transformDropDown: false,
-		weightDropDown: false,
 	});
 
-	const fontDropdownRef = useRef(null);
-	const transformRef = useRef(null);
-	const weightRef = useRef(null);
+	const [selectStates, setSelectStates] = useState({
+		fontFamily: false,
+		transform: false,
+		weight: false,
+	});
+
+	const fontFamilyRef = useClickOutside(() => {
+		setSelectStates((prev) => ({ ...prev, fontFamily: false }));
+	});
+
+	const transformRef = useClickOutside(() => {
+		setSelectStates((prev) => ({ ...prev, transform: false }));
+	});
+
+	const weightRef = useClickOutside(() => {
+		setSelectStates((prev) => ({ ...prev, weight: false }));
+	});
 
 	useEffect(() => {
 		let updateState = {};
@@ -69,43 +100,24 @@ const ParagraphComponent = () => {
 			...updateState,
 		}));
 	}, []);
-
 	useEffect(() => {
-		function handleClickOutside(event) {
-			if (fontDropdownRef.current && !fontDropdownRef.current.contains(event.target)) {
-				setInfo(
-					(prev = {
-						...prev,
-						fontDropdownOpen: false,
-					}),
-				);
+		const handleClickOutside = (event) => {
+			if (fontFamilyRef.current && !fontFamilyRef.current.contains(event.target)) {
+				setSelectStates((prev) => ({ ...prev, fontFamily: false }));
 			}
-			if (transformRef.current && !transferRef.current.contains(event.target)) {
-				setInfo(
-					(prev = {
-						...prev,
-						transformDropDown: false,
-					}),
-				);
+			if (transformRef.current && !transformRef.current.contains(event.target)) {
+				setSelectStates((prev) => ({ ...prev, transform: false }));
 			}
 			if (weightRef.current && !weightRef.current.contains(event.target)) {
-				setInfo(
-					(prev = {
-						...prev,
-						weightDropDown: false,
-					}),
-				);
+				setSelectStates((prev) => ({ ...prev, weight: false }));
 			}
-		}
-		if (info.fontDropdownOpen || info.transformDropDown || info.weightDropDown) {
-			document.addEventListener('mousedown', handleClickOutside);
-		} else {
-			document.removeEventListener('mousedown', handleClickOutside);
-		}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, [info.fontDropdownOpen, info.transformDropDown, info.weightDropDown]);
+	}, []);
 
 	const fontOptions = useMemo(() => {
 		let fontGroupsNames = Object.keys(fonts);
@@ -228,6 +240,9 @@ const ParagraphComponent = () => {
 				[type]: currentFont?.value,
 				activeFontID: value,
 			};
+
+			// Close dropdown after selection
+			// setSelectStates((prev) => ({ ...prev, fontFamily: false }));
 		} else if (type === 'fontWeight') {
 			let variant = info.selectedFont?.variants?.[value];
 
@@ -243,9 +258,15 @@ const ParagraphComponent = () => {
 				fontStyle: variant?.style,
 				activeVariant: value,
 			};
+
+			// Close dropdown after selection
+			// setSelectStates((prev) => ({ ...prev, weight: false }));
 		} else if (type === 'textTransform') {
 			updateTheme.fonts.p[type] = value;
 			updateTheme.fonts.span[type] = value;
+
+			// Close dropdown after selection
+			// setSelectStates((prev) => ({ ...prev, transform: false }));
 		}
 
 		updateSectionsContentFunction(updatedSections, updateTheme);
@@ -263,30 +284,18 @@ const ParagraphComponent = () => {
 		updateTheme.isDesktopMobileFontLinked = !updateTheme.isDesktopMobileFontLinked;
 		updateSectionsContentFunction(sections, updateTheme);
 	}, [newTheme?.isDesktopMobileFontLinked, fontStyles, mobileFontStyles]);
-	const handleOpenDropDown = (type) => {
-		if (type == 'font') {
-			setInfo(
-				(prev = {
-					...prev,
-					fontDropdownOpen: true,
-				}),
-			);
-		} else if (type == 'transform') {
-			setInfo(
-				(prev = {
-					...prev,
-					transformDropDown: true,
-				}),
-			);
-		} else if (type == 'weight') {
-			setInfo(
-				(prev = {
-					...prev,
-					weightDropDown: true,
-				}),
-			);
+
+	const handleMouseDown = useCallback((e) => {
+		e.preventDefault();
+		e.stopPropagation();
+	}, []);
+
+	const handleDropdownVisibleChange = useCallback((open, type) => {
+		if (!open) {
+			return;
 		}
-	};
+		setSelectStates((prev) => ({ ...prev, [type]: open }));
+	}, []);
 
 	return (
 		<div className="FontheadingContainer">
@@ -294,25 +303,28 @@ const ParagraphComponent = () => {
 				className="gridBoxContainer"
 				style={{ marginTop: '32px', gridTemplateColumns: '1fr' }}
 			>
-				<div className="gridBox fontFamilyContainer">
+				<div className="gridBox fontFamilyContainer" ref={fontFamilyRef}>
 					<div className="fontFamily_div">
 						<p>Font</p>
 					</div>
-					<div
-						className="fontFamilyOptionsContainer"
-						ref={fontDropdownRef}
-						onClick={(e) => {
-							e.stopPropagation();
-							handleOpenDropDown('font');
-						}}
-						style={{ cursor: 'pointer' }}
-					>
+					<div className="fontFamilyOptionsContainer">
 						<Select
 							style={{ width: '100%' }}
 							placeholder="Select Font"
 							options={fontOptions}
-							value={newTheme?.fonts?.p?.activeFontID}
-							open={fontDropdownOpen}
+							open={selectStates.fontFamily}
+							onDropdownVisibleChange={(open) =>
+								handleDropdownVisibleChange(open, 'fontFamily')
+							}
+							dropdownRender={(menu) => (
+								<div
+									onMouseDown={handleMouseDown}
+									onMouseUp={handleMouseDown}
+									onClick={handleMouseDown}
+								>
+									{menu}
+								</div>
+							)}
 							optionRender={(option, index) => {
 								let allFonts = Object.values(fonts).flat();
 								let fontStyle = _.find(allFonts, {
@@ -324,61 +336,93 @@ const ParagraphComponent = () => {
 									</div>
 								);
 							}}
+							value={newTheme?.fonts?.p?.activeFontID}
 							onChange={(value) => {
 								handleSelectHandler('fontFamily', value);
+								setSelectStates((prev) => ({ ...prev, fontFamily: true }));
 							}}
 							showSearch
 							filterOption={(input, option) =>
 								(option?.label || '')?.toLowerCase().includes(input?.toLowerCase())
 							}
+							onBlur={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+							}}
 						/>
 					</div>
 				</div>
 			</div>
 
 			<div className="gridBoxContainer">
-				<div className="gridBox fontFamilyContainer">
+				<div className="gridBox fontFamilyContainer" ref={transformRef}>
 					<div className="fontFamily_div">
 						<p>Transform</p>
 					</div>
 
-					<div
-						className="fontFamilyOptionsContainer"
-						ref={transformRef}
-						onClick={(e) => {
-							e.stopPropagation();
-							handleOpenDropDown('transform');
-						}}
-					>
+					<div className="fontFamilyOptionsContainer">
 						<Select
 							style={{ width: '100%' }}
 							placeholder="Select Transform"
 							options={textTransformOptions}
+							open={selectStates.transform}
+							onDropdownVisibleChange={(open) =>
+								handleDropdownVisibleChange(open, 'transform')
+							}
+							dropdownRender={(menu) => (
+								<div
+									onMouseDown={handleMouseDown}
+									onMouseUp={handleMouseDown}
+									onClick={handleMouseDown}
+								>
+									{menu}
+								</div>
+							)}
 							value={newTheme?.fonts?.p?.textTransform || 'none'}
-							onChange={(value) => handleSelectHandler('textTransform', value)}
+							onChange={(value) => {
+								handleSelectHandler('textTransform', value);
+								setSelectStates((prev) => ({ ...prev, transform: true }));
+							}}
+							onBlur={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+							}}
 						/>
 					</div>
 				</div>
 
-				<div className="gridBox fontWeightContainer">
+				<div className="gridBox fontWeightContainer" ref={weightRef}>
 					<div className="fontFamily_div">
 						<p>Weight</p>
 					</div>
 
-					<div
-						className="fontFamilyOptionsContainer"
-						ref={weightRef}
-						onClick={(e) => {
-							e.stopPropagation();
-							handleOpenDropDown('weight');
-						}}
-					>
+					<div className="fontFamilyOptionsContainer">
 						<Select
 							style={{ width: '100%' }}
 							placeholder="Select Weight"
 							options={fontWeightOptions}
+							open={selectStates.weight}
+							onDropdownVisibleChange={(open) =>
+								handleDropdownVisibleChange(open, 'weight')
+							}
+							dropdownRender={(menu) => (
+								<div
+									onMouseDown={handleMouseDown}
+									onMouseUp={handleMouseDown}
+									onClick={handleMouseDown}
+								>
+									{menu}
+								</div>
+							)}
 							value={newTheme?.fonts?.p?.activeVariant}
-							onChange={(value) => handleSelectHandler('fontWeight', value)}
+							onChange={(value) => {
+								handleSelectHandler('fontWeight', value);
+								setSelectStates((prev) => ({ ...prev, weight: true }));
+							}}
+							onBlur={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+							}}
 						/>
 					</div>
 				</div>
