@@ -3581,8 +3581,9 @@ const GalleryPage = () => {
 		const givenFileName = albumImagesCount?.coverImage?.givenFileName;
 
 		if (!givenFileName) return '';
+		const timestamp = Date.now(); // Cache busting
 
-		return `${baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${givenFileName}?Key-Pair-Id=${keyPairId}&Signature=${Signature}&Policy=${Policy}`;
+		return `${baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${givenFileName}?t=${timestamp}&Key-Pair-Id=${keyPairId}&Signature=${Signature}&Policy=${Policy}`;
 	}, [
 		galleryCredentials, // now from context ✅
 		info.activeGallery,
