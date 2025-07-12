@@ -17,6 +17,7 @@ const VideoUploadPopup = ({
 	galleryId,
 	selectedVideo = null,
 	removeSelectedVideoFromList = () => {},
+	updateSelectedVideo = () => {},
 }) => {
 	const {
 		galleryInfo: {
@@ -111,12 +112,14 @@ const VideoUploadPopup = ({
 		if (response?.[0]) {
 			message.success('Video Uploaded Successfully');
 			await getAlbums(galleryId);
+			updateSelectedVideo();
 			setInfo((prev) => ({
 				...prev,
 				uploadLoading: false,
 				videoTitle: '',
 				videoLink: '',
 			}));
+
 			closeModal();
 		} else {
 			message.error(response?.[1]?.message);
