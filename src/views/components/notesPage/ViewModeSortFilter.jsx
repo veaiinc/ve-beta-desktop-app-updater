@@ -20,6 +20,7 @@ const ViewModeSortFilter = ({
 	setSearchQuery,
 	loading,
 }) => {
+	const searchRef = useRef(null);
 	const [info, setInfo] = useState({
 		sort: { label: 'Recently Updated', value: 'updatedAt' },
 		filter: { label: 'All', value: 'all' },
@@ -39,10 +40,15 @@ const ViewModeSortFilter = ({
 			setSearchQuery(info.searchQuery);
 		}, 1000);
 		return () => clearTimeout(debounceTimeout.current);
-	}, [info.searchQuery, setSearchQuery]);
+	}, [info.searchQuery]);
 
 	const handleSearchInputToggle = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, showSearchInput: !info?.showSearchInput }));
+		if (!info?.showSearchInput) {
+			if (searchRef?.current) {
+				searchRef?.current?.focus();
+			}
+		}
 	};
 
 	return (
@@ -70,6 +76,7 @@ const ViewModeSortFilter = ({
 								setInfo({ ...info, searchQuery: e.target.value });
 							}}
 							className="search-input"
+							ref={searchRef}
 						/>
 						<div className="search-spinner">
 							{searchLoading ? (
