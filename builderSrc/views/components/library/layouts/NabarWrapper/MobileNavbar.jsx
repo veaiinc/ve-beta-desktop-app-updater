@@ -500,8 +500,8 @@ class MobileNavbarComponent extends Component {
 										this.props?.navBar?.style?.mNavbarAlign === 'four'
 											? '20px'
 											: '',
-									height: '80px',
-									width: '40px',
+									height: '40px',
+									width: '80px',
 								}}
 							>
 								{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.mImageURL ||
