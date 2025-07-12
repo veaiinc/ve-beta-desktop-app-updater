@@ -87,11 +87,11 @@ const GalleryVideos = ({ selectedVideo, onUpdateVideoStatus, removeSelectedVideo
 								/>
 							) : (
 								<iframe
-									className="selectedVideoPlayer w-full h-96 rounded-lg"
+									className="selectedVideoPlayer"
 									src={getEmbedUrl(selectedVideo)}
 									title={selectedVideo.title || 'Video Player'}
 									frameBorder="0"
-									// allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+									allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
 									allowFullScreen
 								></iframe>
 							)
