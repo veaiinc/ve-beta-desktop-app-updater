@@ -146,6 +146,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
 		templates: { handleTranscriptionSuggestions },
+		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState(initialState);
@@ -154,7 +155,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const location = useLocation();
 
 	// Add hooks for live intelligence and recall stream
-	const { createWebSocketConnection: recallConnection, closeWebSocketConnection: closeRecallConnection } = useRecallStream();
+	const { createWebSocketConnection: recallConnection, sendMessage: recallSendMessage, closeWebSocketConnection: closeRecallConnection } =
+		useRecallStream();
 	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
 		useLiveIntelligenceStream();
 
@@ -272,6 +274,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			);
 		}
 	}, [noteId]);
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+	}, [tennantSettingsData]);
 
 	useEffect(() => {
 		if (blocks) {
@@ -1011,6 +1018,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			// 	handleLiveIntelligenceMessageFunc,
 			// 	false,
 			// );
+		} else if (showTranscriptTabs && type === 'desktop') {
+			// Connect to recall for note taker mode as well
+			recallConnection(sessionId, noteId, handleSocketMessage);
 		}
 		// No cleanup needed, useRecallStream handles it
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1326,7 +1336,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								type === 'meeting_bot' ? (
 									<MeetTranscript transcriptList={transcriptList} />
 								) : type === 'desktop' ? (
-									<NoteTakerTranscript />
+									<NoteTakerTranscript
+										sendMessage={recallSendMessage}
+										tenantId={tennantSettingsData?._id}
+										sessionId={sessionId}
+										pageId={noteId}
+									/>
 								) : null
 							) : (
 								<BlockNoteView
