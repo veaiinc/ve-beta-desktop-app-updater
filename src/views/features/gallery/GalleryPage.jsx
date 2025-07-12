@@ -341,6 +341,7 @@ const GalleryPage = () => {
 		videoUploadPopup: false,
 		selectVideo: null,
 		videosList: null,
+		coverLoading: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -2495,10 +2496,10 @@ const GalleryPage = () => {
 	};
 
 	const handleSetCoverPosition = async (focalPoint) => {
-		if (handleSetCoverPosition.isProcessing) return;
+		if (info?.coverLoading) return;
 
 		try {
-			handleSetCoverPosition.isProcessing = true;
+			setInfo((prev) => ({ ...prev, coverLoading: true }));
 
 			// const id = message.loading('Updating cover position...');
 
@@ -2602,13 +2603,12 @@ const GalleryPage = () => {
 			);
 		} finally {
 			setTimeout(() => {
-				handleSetCoverPosition.isProcessing = false;
+				setInfo((prev) => ({ ...prev, coverLoading: false }));
 			}, 1000);
 		}
 	};
 
 	// Initialize the processing flag
-	handleSetCoverPosition.isProcessing = false;
 
 	const handleAlbumDelete = () => {
 		const payload = {
@@ -5945,6 +5945,7 @@ const GalleryPage = () => {
 								message={message}
 								showUploadPhoto={info?.selectedImages.length > 0}
 								uploadImageLoader={info?.uploadImageLoader}
+								coverLoading={info?.coverLoading}
 							/>
 
 							<DeleteGalleryComponent
@@ -6060,6 +6061,7 @@ const GalleryPage = () => {
 				}
 				style={{ position: 'absolute', top: '60%', left: '0', right: '0', bottom: '0' }}
 				uploadImageLoader={info?.uploadImageLoader}
+				coverLoading={info?.coverLoading}
 			/>
 
 			<CollaboratorPopup
