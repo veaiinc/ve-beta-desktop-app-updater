@@ -70,7 +70,7 @@
 				.header__card-description {
 					display: -webkit-box;
 					-webkit-line-clamp: 4;
-					line-clamp: 6;
+					line-clamp: 4;
 					-webkit-box-orient: vertical;
 					overflow: hidden;
 					text-align: center;
@@ -81,9 +81,9 @@
 					font-weight: 400;
 					line-height: 22px; /* 135.714% */
 					user-select: none;
-					display: none;
+					height: 0;
 					&.showDescription {
-						display: block;
+						height: auto;
 					}
 				}
 			}
