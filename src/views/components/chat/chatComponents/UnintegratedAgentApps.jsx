@@ -3,7 +3,8 @@ import s from '../../../../assets/scss/chat/chatComponents/unintegratedAgentApps
 import { createFrontendClient } from '@pipedream/sdk/browser';
 import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';
-// import Spinner from '../../loaders/Spinner';
+import Spinner from '../../loaders/Spinner';
+import { ReactComponent as CircleTick } from '../../../../assets/svg/circleTick.svg';
 
 const UnintegratedAgentApps = ({ apps = [] }) => {
 	const {
@@ -13,6 +14,7 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 	const [info, setInfo] = useState({
 		loading: false,
 		selectedIndex: null,
+		connectedTools: {},
 	});
 
 	const handleAddTool = async (app, index) => {
@@ -39,6 +41,13 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 				onSuccess: async () => {
 					message.success('Tool added successfully');
 					updateStateValues({ activeInputForChat: 'proceed' });
+					setInfo((prev) => ({
+						...prev,
+						connectedTools: {
+							...prev?.connectedTools,
+							[index]: true,
+						},
+					}));
 				},
 				onError: () => {
 					throw new Error('Failed to connect to the app');
@@ -59,12 +68,20 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 			<div className={s.text}>Connect these tools</div>
 			<div className={s.appsContainer}>
 				{apps?.map((app, index) => (
-					<div
-						className={s.appContainer}
-						key={index}
-						onClick={() => handleAddTool(app, index)}
-					>
-						{app || ''}
+					<div className={s.appContainer} key={index}>
+						<div className={s.title}>{app || ''}</div>
+						{info?.connectedTools[index] && <CircleTick />}
+						{!info?.connectedTools[index] && (
+							<button
+								className={s.connectBtn}
+								onClick={() => handleAddTool(app, index)}
+							>
+								Connect
+								{info?.loading && info?.selectedIndex === index && (
+									<Spinner width={'12px'} height={'12px'} />
+								)}
+							</button>
+						)}
 					</div>
 				))}
 			</div>
