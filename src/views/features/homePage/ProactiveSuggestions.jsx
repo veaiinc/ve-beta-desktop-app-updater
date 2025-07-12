@@ -139,13 +139,13 @@ export const filterGroups = [
 const getDescription = (card) => {
 	if (card?.collectionType === 'workflows') {
 		if (card?.status === 'proposalAccepted') {
-			return `${card?.clientDetails?.name || card?.clientDetails?.email || ''} has accepted ${
-				card?.title || ''
-			}, awaiting your confirmation. Click to confirm.`;
+			return `${
+				card?.clientDetails?.name || card?.clientDetails?.email || ''
+			} has accepted your proposal, awaiting your confirmation. Click to confirm.`;
 		} else if (card?.status === 'contractSigned') {
-			return `${card?.clientDetails?.name || card?.clientDetails?.email || ''} has signed ${
-				card?.title || ''
-			}, awaiting your confirmation. Click to confirm.`;
+			return `${
+				card?.clientDetails?.name || card?.clientDetails?.email || ''
+			} has signed your contract, awaiting your confirmation. Click to confirm.`;
 		}
 	} else if (card?.collectionType === 'forms') {
 		return 'Form response';
@@ -162,7 +162,7 @@ const getName = (response) => {
 
 const getTitle = (card) => {
 	if (card?.collectionType === 'forms') {
-		return `a new for Response from ${getName(card)}`;
+		return `a new Response from ${getName(card)}`;
 	} else if (card?.collectionType === 'workflows') {
 		return card?.title || '';
 	}
