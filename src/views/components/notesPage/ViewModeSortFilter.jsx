@@ -18,12 +18,12 @@ const ViewModeSortFilter = ({
 	setSelectedFilter,
 	setSelectedSort,
 	setSearchQuery,
+	selectedFilter,
+	selectedSort,
 	loading,
 }) => {
 	const searchRef = useRef(null);
 	const [info, setInfo] = useState({
-		sort: { label: 'Recently Updated', value: 'updatedAt' },
-		filter: { label: 'All', value: 'all' },
 		sortTooltipOpen: false,
 		filterTooltipOpen: false,
 		searchQuery: '',
@@ -112,7 +112,7 @@ const ViewModeSortFilter = ({
 									sortTooltipOpen: !prev.sortTooltipOpen,
 								}))
 							}
-							selectedOption={info.sort}
+							selectedOption={selectedSort}
 							handleOptionClick={({ type, value }) => {
 								setInfo((prev) => ({
 									...prev,
@@ -137,7 +137,7 @@ const ViewModeSortFilter = ({
 									filterTooltipOpen: !prev.filterTooltipOpen,
 								}))
 							}
-							selectedOption={info.filter}
+							selectedOption={selectedFilter}
 							handleOptionClick={({ type, value }) => {
 								setInfo((prev) => ({
 									...prev,

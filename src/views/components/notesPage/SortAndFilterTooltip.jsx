@@ -63,7 +63,7 @@ const SortAndFilterTooltip = ({
 						</div>
 					))}
 				</div>
-			) : 'sort' ? (
+			) : (
 				<div className="notesPageSortTooltip">
 					{sortOptions.map((option) => (
 						<div
@@ -80,7 +80,7 @@ const SortAndFilterTooltip = ({
 						</div>
 					))}
 				</div>
-			) : null
+			)
 		}
 		placement="bottom"
 		arrow={false}

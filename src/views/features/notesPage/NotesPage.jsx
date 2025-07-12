@@ -118,6 +118,8 @@ const NotesPage = ({ isDatabase = false }) => {
 				setSearchQuery={setSearchQuery}
 				setLoading={setLoading}
 				loading={info?.loading}
+				selectedFilter={info?.selectedFilter}
+				selectedSort={info?.selectedSort}
 			/>
 			{info?.initialLoader ? (
 				<div className="notes-list-loader-container">
