@@ -35,22 +35,22 @@ export const categories = [
 export const jobs = [
 	{
 		title: 'UI/UX Designer',
-		description: 'Part-time · Remote',
+		description: 'Fulltime · Hyderabad',
 		category: 'Design',
 	},
 	{
 		title: 'Sales executive',
-		description: 'Full-time · San Francisco',
+		description: 'Fulltime · Hyderabad',
 		category: 'Sales',
 	},
 	{
 		title: 'Backend developer',
-		description: 'Contract · New York',
+		description: 'Fulltime · Hyderabad',
 		category: 'Engineering',
 	},
 	{
 		title: 'Ai engineer',
-		description: 'Freelance · Austin',
+		description: 'Fulltime · Hyderabad',
 		category: 'Engineering',
 	},
 	{
