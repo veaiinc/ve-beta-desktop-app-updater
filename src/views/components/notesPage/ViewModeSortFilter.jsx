@@ -21,6 +21,7 @@ const ViewModeSortFilter = ({
 	selectedFilter,
 	selectedSort,
 	loading,
+	isDatabase,
 }) => {
 	const searchRef = useRef(null);
 	const [info, setInfo] = useState({
@@ -53,7 +54,7 @@ const ViewModeSortFilter = ({
 
 	return (
 		<div className="ctaContainer">
-			<CreateNewNote viewMode="list" isDatabase={false} />
+			<CreateNewNote viewMode="list" isDatabase={isDatabase} />
 			<div className="sortAndFilterInfo">
 				{/* <span className="sortInfo">Sort By: {info.sort.label}</span>
 				<span className="filterInfo">Filter: {info.filter.label}</span> */}

@@ -120,6 +120,7 @@ const NotesPage = ({ isDatabase = false }) => {
 				loading={info?.loading}
 				selectedFilter={info?.selectedFilter}
 				selectedSort={info?.selectedSort}
+				isDatabase={isDatabase}
 			/>
 			{info?.initialLoader ? (
 				<div className="notes-list-loader-container">
