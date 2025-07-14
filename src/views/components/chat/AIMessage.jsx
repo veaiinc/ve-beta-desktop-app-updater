@@ -186,9 +186,9 @@ const AIMessage = ({
 							<div className="teach-me-container" onClick={handleTeachMeClick}>
 								<GraduationCapSvg
 									className="teach-me-icon"
-									style={{ width: '20px', height: '20px' }}
+									style={{ width: '19px', height: '19px' }}
 								/>
-								<div className="teach-me-text">Teach me</div>
+								{/* <div className="teach-me-text">Teach me</div> */}
 							</div>
 						</Tooltip>
 						{messageData?.citations?.length > 0 && showCitationsButton && (
