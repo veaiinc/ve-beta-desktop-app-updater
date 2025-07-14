@@ -4,16 +4,19 @@ import useIntercom from './useIntercom';
 import useSubscription from './useSubscription';
 import useTokenExpiry from './useTokenExpiry';
 import useAccessControls from './useAccessControls';
-import useActiveWorkspace from './useActiveWorkspace';
+import useWorkspaceMode from './useWorkspaceMode';
 
 const useAuthInitializer = () => {
-	useAuth();
+	const { authLoading } = useAuth();
+	const { workspaceModeLoading } = useWorkspaceMode();
 	useTheme();
 	useIntercom();
 	useSubscription();
 	useTokenExpiry();
-	useAccessControls();
-	useActiveWorkspace();
+	const { accessControlsLoading } = useAccessControls();
+
+	const authInitialized = authLoading || accessControlsLoading || workspaceModeLoading;
+	return { authInitialized };
 };
 
 export default useAuthInitializer;

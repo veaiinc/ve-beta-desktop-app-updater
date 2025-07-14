@@ -1,9 +1,14 @@
-import PageLoader from '../views/features/app/PageLoader';
+import WorkspaceNotFound from '../views/features/app/WorkspaceNotFound';
+import AuthWrapper from '../views/layouts/authWrapper';
 
 const workspaceNotFoundRoute = [
 	{
 		path: '*',
-		element: <PageLoader />,
+		element: (
+			<AuthWrapper title={'Workspace Not Found'}>
+				<WorkspaceNotFound />
+			</AuthWrapper>
+		),
 	},
 ];
 

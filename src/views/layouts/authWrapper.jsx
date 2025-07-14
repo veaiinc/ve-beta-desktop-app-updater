@@ -10,8 +10,6 @@ import AccessDeniedPopup from '../components/accessPopups/accessDeniedPopup';
 import CustomToast from '../components/globalComponents/CustomToast';
 import PageLoader from '../features/app/PageLoader';
 import useAuthInitializer from '../../hooks/useAuthInitializer';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
-import BlockPage from '../features/landingScreen/blockPage/BlockPage';
 
 const AuthWrapper = ({
 	title,
@@ -24,9 +22,8 @@ const AuthWrapper = ({
 	childrenContainerStyles = {},
 	showSidebar = true,
 }) => {
-	useAuthInitializer();
-	const { loading, workspaceNotFound } = useWorkspaceMode();
-	return loading ? (
+	const { authInitialized } = useAuthInitializer();
+	return authInitialized ? (
 		<PageLoader />
 	) : (
 		<main className="main-container">
@@ -74,7 +71,7 @@ const AuthWrapper = ({
 								className="childrenContainer"
 								style={{ maxWidth: maxWidth || '', ...childrenContainerStyles }}
 							>
-								{workspaceNotFound ? <BlockPage /> : children}
+								{children}
 							</div>
 						</div>
 					</SkeletonTheme>
