@@ -7,31 +7,37 @@ import { ReactComponent as SparkleSvg } from '../../assets/svg/ai_agents/sparkle
 import { ReactComponent as ChevronRightThinSvg } from '../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as DoubleRightArrowSvg } from '../../assets/svg/tasks/doubleRightArrow.svg';
 
-const SIDEBAR_STATE_KEY = 'chatSidebarClosed';
-
-const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
+const ChatLeftBarComponent = ({ children }) => {
 	const {
 		// subscriptionInfo: { renewBanner },
 		templates: { updateStateValues },
 	} = useContext(Context);
 
-	const [info, setInfo] = useState({
-		chatActive: false,
-		sessionId: null,
-		sessionIdChanged: false,
-		mobileActive: false,
-		isMobile: false,
-	});
+	const [info, setInfo] = useState(() => {
+		let isClosed = false;
+		try {
+			const stored = localStorage.getItem('chatSidebarClosed');
+			if (stored !== null && stored !== 'undefined') {
+				isClosed = JSON.parse(stored);
+			}
+		} catch (e) {
+			isClosed = false;
+		}
 
-	const [isClosed, setIsClosed] = useState(() => {
-		const saved = localStorage.getItem(SIDEBAR_STATE_KEY);
-		return saved === null ? false : saved === 'true';
+		return {
+			chatActive: false,
+			sessionId: null,
+			sessionIdChanged: false,
+			mobileActive: false,
+			isMobile: false,
+			isClosed,
+		};
 	});
 
 	// Save isClosed to localStorage whenever it changes
 	useEffect(() => {
-		localStorage.setItem(SIDEBAR_STATE_KEY, isClosed);
-	}, [isClosed]);
+		localStorage.setItem('chatSidebarClosed', info.isClosed);
+	}, [info.isClosed]);
 
 	const isFirstTimeChatActiveRef = useRef(true);
 	const isFirstTimeSuggestionsRenderRef = useRef(true);
@@ -130,19 +136,19 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 			)}
 			<div
 				className={`chat-left-bar-component${info?.mobileActive ? ' mobile-active' : ''}${
-					isClosed && !info?.isMobile ? ' closed' : ''
+					info.isClosed && !info?.isMobile ? ' closed' : ''
 				}`}
 			>
 				{(!info.isMobile || info.mobileActive) && (
 					<div
 						className={`chat-left-bar-toggle-btn${
-							isClosed && !info.isMobile ? ' closed' : ''
+							info.isClosed && !info.isMobile ? ' closed' : ''
 						}${info.isMobile ? ' mobile' : ''}`}
 						onClick={() => {
 							if (info.isMobile) {
 								setInfo((prev) => ({ ...prev, mobileActive: false }));
 							} else {
-								setIsClosed((prev) => !prev);
+								setInfo((prev) => ({ ...prev, isClosed: !prev.isClosed }));
 							}
 						}}
 					>
@@ -151,7 +157,7 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 							style={{
 								transform: info.isMobile
 									? 'rotate(180deg)'
-									: isClosed
+									: info.isClosed
 									? 'none'
 									: 'rotate(180deg)',
 							}}

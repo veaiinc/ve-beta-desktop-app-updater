@@ -117,6 +117,8 @@ const sessionTypeInputConfig = {
 };
 
 const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selectedSlot }) => {
+	const attendeeDropdownRef = useRef(null);
+
 	const {
 		calendarInfo: {
 			createCalendarEvent,
@@ -144,8 +146,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 	const [pendingAttendee, setPendingAttendee] = useState(null); // {name, email, tenantUserId, isWorkspaceUser, role}
 	const [pendingRole, setPendingRole] = useState('');
 	const [customRole, setCustomRole] = useState('');
-
-	const attendeeDropdownRef = useRef(null);
 
 	useEffect(() => {
 		if (open) {
