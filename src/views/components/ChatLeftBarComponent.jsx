@@ -7,6 +7,8 @@ import { ReactComponent as SparkleSvg } from '../../assets/svg/ai_agents/sparkle
 import { ReactComponent as ChevronRightThinSvg } from '../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as DoubleRightArrowSvg } from '../../assets/svg/tasks/doubleRightArrow.svg';
 
+const SIDEBAR_STATE_KEY = 'chatSidebarClosed';
+
 const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 	const {
 		// subscriptionInfo: { renewBanner },
@@ -21,7 +23,15 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 		isMobile: false,
 	});
 
-	const [isClosed, setIsClosed] = useState(false);
+	const [isClosed, setIsClosed] = useState(() => {
+		const saved = localStorage.getItem(SIDEBAR_STATE_KEY);
+		return saved === null ? false : saved === 'true';
+	});
+
+	// Save isClosed to localStorage whenever it changes
+	useEffect(() => {
+		localStorage.setItem(SIDEBAR_STATE_KEY, isClosed);
+	}, [isClosed]);
 
 	const isFirstTimeChatActiveRef = useRef(true);
 	const isFirstTimeSuggestionsRenderRef = useRef(true);
