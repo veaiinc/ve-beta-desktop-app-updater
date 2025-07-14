@@ -23,7 +23,7 @@ const AIMessageRenderer = ({
 				<>
 					{(messageData?.processing === 'Deep Search' ||
 						messageData?.processing === 'Deep Research' ||
-						messageData?.processing === 'normal_search' ||
+						messageData?.processing === 'Normal Search' ||
 						messageData?.memory_thinking) && (
 						<ChainOfThoughtWidget messageData={messageData} />
 					)}

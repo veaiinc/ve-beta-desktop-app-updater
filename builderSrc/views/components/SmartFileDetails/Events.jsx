@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import moment from 'moment';
 import { ReactComponent as Ai } from '../../../assets/svg/smartFile/ai.svg';
 import { ReactComponent as Close } from '../../../assets/svg/smartFile/close.svg';
+import { ReactComponent as ActionArrow } from '../library/svgs/LeftBar/NewDown.svg';
 import EventsPresetsPopOverComponent from './EventsPresetPopup';
 import Context from '../../../context/context';
 
@@ -24,6 +25,7 @@ const Events = ({
 	eventsDataChange,
 	scrollAndHighlightElement,
 	formResponses = [],
+	eventsOrderChange,
 }) => {
 	const {
 		templates: { getEventsPresets },
@@ -206,7 +208,8 @@ const Events = ({
 			date: '',
 			location: '',
 			addlServices: [],
-			blockId: selectedEventsArray?._id,
+			// blockId: selectedEventsArray?._id,
+			blockId: generateObjectId(),
 			subBlockId: generateObjectId(),
 		};
 		selectedEventsArray.values.push(newDummyObj);
@@ -381,13 +384,47 @@ const Events = ({
 						<div className="eventsBlockTitle" style={{ marginBottom: '8px' }}>
 							Event {ind + 1}
 						</div>
-						<div
-							className="deleteEventsContainer"
-							onClick={() => deletEventsValues(ind)}
-						>
-							<Dustbin />
-							Delete
-						</div>
+						{allEvents?.length > 1 && (
+							<div className="eventsActionsContainer">
+								{ind > 0 && (
+									<div
+										className="eventUpDownArrow"
+										title="move Up"
+										onClick={() => {
+											eventsOrderChange(item?.__blockId, item?.blockId, 'up');
+										}}
+									>
+										<ActionArrow
+											style={{
+												transform: 'rotate(180deg)',
+											}}
+										/>
+									</div>
+								)}
+								{ind != allEvents.length - 1 && (
+									<div
+										className="eventUpDownArrow"
+										title="move Down"
+										onClick={() => {
+											eventsOrderChange(
+												item?.__blockId,
+												item?.blockId,
+												'down',
+											);
+										}}
+									>
+										<ActionArrow />
+									</div>
+								)}
+								<div
+									className="deleteEventsContainer"
+									onClick={() => deletEventsValues(ind)}
+								>
+									<Dustbin />
+									Delete
+								</div>
+							</div>
+						)}
 						<div className="eventsDetailsContainer">
 							<div
 								className="inputWithLabelContainer"

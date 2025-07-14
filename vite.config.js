@@ -13,7 +13,7 @@ export default defineConfig({
 		chunkSizeWarningLimit: 2000,
 		minify: 'esbuild',
 		target: 'es2015',
-		sourcemap: false,
+		sourcemap: true,
 		reportCompressedSize: false,
 	},
 	plugins: [

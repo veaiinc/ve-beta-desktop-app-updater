@@ -35,6 +35,7 @@ const AIMessage = ({
 		documentPreview: { setNoteContent },
 		templates: { updateStateValues, aiMessagesInfo },
 	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		isCopiedToClipboard: false,
 		feedbackPopupOpen: false,
@@ -276,6 +277,7 @@ export default memo(AIMessage, (prevProps, nextProps) => {
 		prevProps.isLastMessage === nextProps.isLastMessage &&
 		prevProps.handleSourcesClick === nextProps.handleSourcesClick &&
 		prevProps.messageIndex === nextProps.messageIndex &&
-		prevProps.showCitationsButton === nextProps.showCitationsButton
+		prevProps.showCitationsButton === nextProps.showCitationsButton &&
+		prevProps.sessionId === nextProps.sessionId
 	);
 });

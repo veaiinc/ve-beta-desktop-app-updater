@@ -166,8 +166,12 @@
 										resize: none;
 										position: relative;
 										z-index: 0;
+										max-height: 300px;
+										transition: height 300ms ease-in-out;
 										&::placeholder {
 											font-size: 15px;
+											color: var(--secondary-font);
+											font-weight: 400;
 										}
 										&.startTextPage {
 											margin-top: 0px;

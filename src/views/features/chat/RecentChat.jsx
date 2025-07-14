@@ -93,6 +93,7 @@ const RecentChat = ({
 	const tabsRefs = useRef({});
 	const previousTabsRefs = useRef({});
 	const isFirstTimeConnectingToPublicChatRef = useRef(true);
+	const agentTimeoutIdRef = useRef(null);
 	const navigate = useNavigate();
 	const location = useLocation();
 	const newChatSessionIdsRef = useRef(newChatSessionIds);
@@ -119,6 +120,10 @@ const RecentChat = ({
 				if (followUpQueryTimeoutRef.current) {
 					clearTimeout(followUpQueryTimeoutRef.current);
 					followUpQueryTimeoutRef.current = null;
+				}
+				if (agentTimeoutIdRef.current) {
+					clearTimeout(agentTimeoutIdRef.current);
+					agentTimeoutIdRef.current = null;
 				}
 				updateStateValues({
 					moreRecentChatStorage: null,
@@ -232,8 +237,6 @@ const RecentChat = ({
 			if (info?.renderingTwice) {
 				//clearing context state when rendering different session
 				updateStateValues({
-					moreRecentChatStorage: null,
-					recentChatStorage: null,
 					// globalChatMessages: [],
 					citations: null,
 					chatPayload: {
@@ -254,6 +257,11 @@ const RecentChat = ({
 			if (currentUserMessageTimeoutRef.current) {
 				clearTimeout(currentUserMessageTimeoutRef.current);
 				currentUserMessageTimeoutRef.current = null;
+			}
+
+			if (agentTimeoutIdRef.current) {
+				clearTimeout(agentTimeoutIdRef.current);
+				agentTimeoutIdRef.current = null;
 			}
 
 			// if (!globalChatMessages?.[sessionId]) {
@@ -430,6 +438,9 @@ const RecentChat = ({
 		if (recentChatStorage) {
 			const firstTimeApiCall = true;
 			recentChatHandler(recentChatStorage, false, firstTimeApiCall);
+			updateStateValues({
+				recentChatStorage: null,
+			});
 		}
 	}, [recentChatStorage]);
 
@@ -437,6 +448,9 @@ const RecentChat = ({
 		if (moreRecentChatStorage) {
 			const firstTimeApiCall = false;
 			recentChatHandler(moreRecentChatStorage, true, firstTimeApiCall);
+			updateStateValues({
+				moreRecentChatStorage: null,
+			});
 		}
 	}, [moreRecentChatStorage]);
 
@@ -783,6 +797,15 @@ const RecentChat = ({
 				} else {
 					updateChatLoadingSessions({ sessionId, removeSessionId: true });
 				}
+
+				if (data?.agent_id) {
+					agentTimeoutIdRef.current = setTimeout(() => {
+						navigate(
+							`/agent/${data?.agent_id}?config=prompt&agentAction=buildAgent&sId=${sessionId}`,
+						);
+					}, 1000);
+				}
+
 				handleGlobalChatMessages({
 					removeLoadingMessage: true,
 					sessionId,

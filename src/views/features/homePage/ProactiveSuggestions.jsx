@@ -136,6 +136,50 @@ export const filterGroups = [
 	},
 ];
 
+const getDescription = (card) => {
+	if (card?.collectionType === 'workflows') {
+		if (card?.status === 'proposalAccepted') {
+			return `${
+				card?.clientDetails?.name || card?.clientDetails?.email || ''
+			} has accepted your proposal, awaiting your confirmation. Click to confirm.`;
+		} else if (card?.status === 'contractSigned') {
+			return `${
+				card?.clientDetails?.name || card?.clientDetails?.email || ''
+			} has signed your contract, awaiting your confirmation. Click to confirm.`;
+		}
+	} else if (card?.collectionType === 'forms') {
+		return 'Form response';
+	}
+};
+
+const getName = (response) => {
+	if (!response?.response) return 'Unknown person';
+	const nameField = response?.response.find(
+		(item) => item?.variableId === '619f75683f381fd66dac4b65',
+	);
+	return nameField?.answer || 'Unknown person';
+};
+
+const getTitle = (card) => {
+	if (card?.collectionType === 'forms') {
+		return `a new Response from ${getName(card)}`;
+	} else if (card?.collectionType === 'workflows') {
+		return card?.title || '';
+	}
+};
+
+const getModuleType = (card) => {
+	if (card?.collectionType === 'forms') {
+		return 'Form Response';
+	} else if (card?.collectionType === 'workflows') {
+		if (card?.status === 'proposalAccepted') {
+			return 'Proposal Accepted';
+		} else if (card?.status === 'contractSigned') {
+			return 'Contract Signed';
+		}
+	}
+};
+
 // const infiniteScrollStyle = {
 // 	display: 'flex',
 // 	flexDirection: 'column',
@@ -533,8 +577,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	};
 
 	const handleCardClick = async (card, index) => {
-		if (info?.selectedOption === 'action' && card?.templateId) {
-			navigate(`/builder/${card?.templateId}`);
+		if (info?.selectedOption === 'action' && card?._id) {
+			navigate(`/builder/document/view/${card?._id}?workflow=true`);
 			return;
 		}
 		if (!card?.read && info?.selectedOption !== 'action') {
@@ -834,14 +878,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		}));
 	};
 
-	const getName = (response) => {
-		if (!response?.response) return 'Unknown person';
-		const nameField = response?.response.find(
-			(item) => item?.variableId === '619f75683f381fd66dac4b65',
-		);
-		return nameField?.answer || 'Unknown person';
-	};
-
 	const handleSettingsToggle = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -893,10 +929,10 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 								<AIQuestions />
 							</div>
 						)}
-						{info?.activeBtn === 'insights' && aiSuggestedPendingActions !== null && (
+						{info?.activeBtn === 'insights' && info?.options?.length && (
 							<>
 								{(info?.cards?.length > 0 ||
-									info?.options?.length > 1 ||
+									info?.options?.length ||
 									info?.searchQuery?.length !== 0 ||
 									info?.selectedFilters?.length > 0) && (
 									<div
@@ -964,6 +1000,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 													>
 														<div className="header">
 															<div className="header__card-title">
+																{card?.collectionType &&
+																	getTitle(card)}
+
 																{!card?.collectionType &&
 																	card?.title}
 															</div>
@@ -974,43 +1013,20 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																		: ''
 																}`}
 															>
-																{card?.collectionType === 'forms' &&
-																	`a new for Response from ${getName(
-																		card,
-																	)}`}
-																{card?.collectionType ===
-																	'workflows' &&
-																	(card?.status ===
-																	'proposalAccepted'
-																		? `${
-																				card?.clientDetails
-																					?.name ||
-																				card?.clientDetails
-																					?.email ||
-																				''
-																		  } has accepted ${
-																				card?.title || ''
-																		  }, awaiting your confirmation. Click to confirm.`
-																		: card?.status ===
-																		  'contractSigned'
-																		? `${
-																				card?.clientDetails
-																					?.name ||
-																				card?.clientDetails
-																					?.email ||
-																				''
-																		  } has signed ${
-																				card?.title || ''
-																		  }, awaiting your confirmation. Click to confirm.`
-																		: '')}
 																{!card?.collectionType &&
 																	card?.description}
+
+																{card?.collectionType &&
+																	getDescription(card)}
 															</div>
 														</div>
 														{classList?.[1] === 'selected' && (
 															<div className="footer">
 																<div className="module-type">
-																	{card?.moduleType}
+																	{!card?.collectionType &&
+																		card?.moduleType}
+																	{card?.collectionType &&
+																		getModuleType(card)}
 																</div>
 																<div className="module-priority">
 																	<span
