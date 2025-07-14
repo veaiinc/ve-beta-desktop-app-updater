@@ -30,6 +30,13 @@ export const stableNavigationItems = [
 		route: 'New Chat',
 		icon: ChatSvg,
 	},
+	{
+		id: 7,
+		name: 'Live',
+		moduleRoute: null,
+		route: '/meet',
+		icon: MeetIcon,
+	},
 ];
 
 export const betaNavigationItems = [
