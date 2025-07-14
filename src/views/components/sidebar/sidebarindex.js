@@ -2,7 +2,7 @@ import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/n
 // import { ReactComponent as SearchIcon } from '../../../assets/svg/sidebar/searchIcon.svg';
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
 import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
-import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
+import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsNewIcon.svg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 import ChatSvg from '../../../assets/svg/sidebar/NewChat.jsx';
 import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
@@ -61,8 +61,8 @@ export const betaNavigationItems = [
 		icon: DatabaseIcon,
 	},
 	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
-	{ id: 5, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
-	{ id: 6, name: 'Tasks', route: '/tasks', icon: TasksSvg },
+	{ id: 5, name: 'Tasks', route: '/tasks', icon: TasksSvg },
+	{ id: 6, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
 	{ id: 7, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
 	{ id: 8, name: 'Automations', route: '/automations', icon: AutomationSvg },
 ];
@@ -97,17 +97,18 @@ export const internalNavigationItems = [
 		icon: DatabaseIcon,
 	},
 	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
-	{ id: 5, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
-	{ id: 6, name: 'Tasks', route: '/tasks', icon: TasksSvg },
-	{ id: 7, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
+	{ id: 5, name: 'Tasks', route: '/tasks', icon: TasksSvg },
+	{ id: 6, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
 	{
-		id: 8,
+		id: 7,
 		name: 'Meet',
 		moduleRoute: null,
 		route: '/meet',
 		icon: MeetIcon,
 	},
-	{ id: 8, name: 'Automations', route: '/automations', icon: AutomationSvg },
+	{ id: 8, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
+
+	{ id: 9, name: 'Automations', route: '/automations', icon: AutomationSvg },
 ];
 
 export const stableSettingsNavItems = {
