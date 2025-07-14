@@ -5,8 +5,10 @@ export const parseVideoUrl = (url) => {
 		/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
 	const vimeoRegex =
 		/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)([0-9]{6,11})(?:\/([a-z0-9]+))?/;
-	const facebookRegex = /(?:facebook\.com\/.*\/videos\/|fb\.watch\/)([0-9]+)/;
+	const facebookRegex =
+		/(?:facebook\.com\/(?:[^\/]+\/)?(?:videos|share\/v|watch\/v?|reel)\/([a-zA-Z0-9._-]+))(?:\/|\?|$)/;
 	const dropboxRegex = /dropbox\.com\/s\/([a-z0-9]+)/;
+	const instagramReelRegex = /instagram\.com\/reel\/([a-zA-Z0-9_-]+)/i;
 
 	if (youtubeRegex.test(url)) {
 		const match = url.match(youtubeRegex);
@@ -20,34 +22,37 @@ export const parseVideoUrl = (url) => {
 	} else if (dropboxRegex.test(url)) {
 		const match = url.match(dropboxRegex);
 		return { platform: 'dropbox', id: match[1], hash: null };
+	} else if (instagramReelRegex.test(url)) {
+		const match = url.match(instagramReelRegex);
+		return { platform: 'instagram', id: match[1], hash: null };
 	}
 	return { platform: 'unknown', id: null, hash: null };
 };
 
-// Function to get thumbnail URL (no external API calls)
 export const getThumbnailUrl = (video) => {
 	if (!video?.embeddedLink) return 'https://via.placeholder.com/640x360?text=No+Video+Available';
 	const { platform, id, hash } = parseVideoUrl(video.embeddedLink);
 	if (platform === 'youtube') {
 		return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
 	} else if (platform === 'vimeo') {
-		// Use placeholder for private/unlisted videos with a hash
 		if (hash) {
-			return 'https://via.placeholder.com/640x360?text=Vimeo+Thumbnail+Not+Available';
+			return `https://i.vimeocdn.com/video/${id}_${hash}_640.jpg`;
 		}
-		// Try a standard thumbnail URL for public Vimeo videos
 		return `https://i.vimeocdn.com/video/${id}_640.jpg`;
 	} else if (platform === 'facebook') {
 		return 'https://via.placeholder.com/640x360?text=Facebook+Thumbnail+Not+Available';
 	} else if (platform === 'dropbox') {
 		return 'https://via.placeholder.com/640x360?text=Dropbox+Thumbnail+Not+Available';
+	} else if (platform === 'instagram') {
+		return 'https://via.placeholder.com/640x360?text=Instagram+Reel';
 	}
 	return 'https://via.placeholder.com/640x360?text=Unknown+Video+Source';
 };
 
-// Function to get embed URL or direct video URL for playback
 export const getEmbedUrl = (video) => {
-	if (!video?.embeddedLink) return null;
+	if (!video?.embeddedLink) {
+		return null;
+	}
 	const { platform, id, hash } = parseVideoUrl(video.embeddedLink);
 	if (platform === 'youtube') {
 		return `https://www.youtube.com/embed/${id}?autoplay=0&rel=0`;
@@ -69,11 +74,13 @@ export const getEmbedUrl = (video) => {
 	} else if (platform === 'facebook') {
 		return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(
 			video.embeddedLink,
-		)}&autoplay=0`;
+		)}&show_text=false&width=560&autoplay=0`;
 	} else if (platform === 'dropbox') {
 		return video.embeddedLink
 			.replace('www.dropbox.com', 'dl.dropboxusercontent.com')
 			.replace('?dl=0', '?dl=1');
+	} else if (platform === 'instagram') {
+		return `https://www.instagram.com/reel/${id}/embed`;
 	}
 	return null;
 };

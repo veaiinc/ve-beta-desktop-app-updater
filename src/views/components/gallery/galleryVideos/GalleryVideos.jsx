@@ -82,16 +82,21 @@ const GalleryVideos = ({ selectedVideo, onUpdateVideoStatus, removeSelectedVideo
 								<video
 									src={getEmbedUrl(selectedVideo)}
 									controls
-									className="selectedVideoPlayer w-full h-96 rounded-lg"
+									className="selectedVideoPlayer"
 									poster={getThumbnailUrl(selectedVideo)}
 								/>
 							) : (
 								<iframe
-									className="selectedVideoPlayer"
+									className={`selectedVideoPlayer ${
+										parseVideoUrl(selectedVideo.embeddedLink).platform ===
+										'instagram'
+											? 'instagram'
+											: ''
+									}`}
 									src={getEmbedUrl(selectedVideo)}
 									title={selectedVideo.title || 'Video Player'}
 									frameBorder="0"
-									allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+									allow="autoplay"
 									allowFullScreen
 								></iframe>
 							)
