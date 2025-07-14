@@ -1,4 +1,4 @@
-import { memo, useCallback, useState, useContext, useEffect } from 'react';
+import { memo, useCallback, useState, useContext, useEffect, useRef } from 'react';
 import styles from '../../../assets/scss/calendar/eventsPopup.module.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
@@ -56,6 +56,8 @@ const initialState = {
 };
 const color = '#ff2727';
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const ROLE_OPTIONS = ['Member', 'Manager', 'Guest', 'Custom...'];
 
 const customStyles = {
 	overlay: {
@@ -137,6 +139,14 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		categorySuccess: false,
 	});
 
+	const [filteredAttendees, setFilteredAttendees] = useState([]);
+
+	const [pendingAttendee, setPendingAttendee] = useState(null); // {name, email, tenantUserId, isWorkspaceUser, role}
+	const [pendingRole, setPendingRole] = useState('');
+	const [customRole, setCustomRole] = useState('');
+
+	const attendeeDropdownRef = useRef(null);
+
 	useEffect(() => {
 		if (open) {
 			if (!calendarCategoriesList) {
@@ -188,6 +198,30 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 			}));
 		}
 	}, [calendarCategoriesList]);
+
+	useEffect(() => {
+		if (info.showAtendeeSuggestions && info.attendeesInputField) {
+			const search = info.attendeesInputField.toLowerCase();
+			const filtered = tenantsUserList?.filter(
+				(item) =>
+					!item?.isOwner &&
+					((item?.firstName && item.firstName.toLowerCase().includes(search)) ||
+						(item?.lastName && item.lastName.toLowerCase().includes(search)) ||
+						(item?.email && item.email.toLowerCase().includes(search))),
+			);
+			setFilteredAttendees(filtered || []);
+		} else {
+			setFilteredAttendees(tenantsUserList?.filter((item) => !item?.isOwner) || []);
+		}
+	}, [info.showAtendeeSuggestions, info.attendeesInputField, tenantsUserList]);
+
+	useEffect(() => {
+		if (!info.showAtendeeSuggestions) {
+			setPendingAttendee(null);
+			setPendingRole('');
+			setCustomRole('');
+		}
+	}, [info.showAtendeeSuggestions]);
 
 	const convertToISOString = useCallback((date, time) => {
 		if (!date) return null;
@@ -930,7 +964,14 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 							<input
 								type="text"
 								placeholder="Add attendee or email"
-								onBlur={() => updateEventInfo('showAtendeeSuggestions', false)}
+								onBlur={(e) => {
+									// If pendingAttendee, do not close dropdown
+									setTimeout(() => {
+										if (!pendingAttendee) {
+											updateEventInfo('showAtendeeSuggestions', false);
+										}
+									}, 100); // Delay to allow click events in dropdown
+								}}
 								onFocus={() => {
 									updateEventInfo('showAtendeeSuggestions', true);
 									updateEventInfo('submissionError', null);
@@ -941,42 +982,226 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								}
 								onKeyDown={(e) => {
 									if (e.key === 'Enter' && info?.attendeesInputField) {
-										addAttendees({ email: info?.attendeesInputField });
-										updateEventInfo('showAtendeeSuggestions', false);
+										if (!pendingAttendee) {
+											setPendingAttendee({
+												name: null,
+												email: info.attendeesInputField,
+												tenantUserId: null,
+												isWorkspaceUser: false,
+												role: 'Member',
+											});
+											setPendingRole('Member');
+											setCustomRole('');
+										}
 									}
 								}}
 							/>
 							{info?.showAtendeeSuggestions ? (
-								<div className={styles['events-popup-add-attendee-dropdown']}>
-									{tenantsUserList
-										?.filter((item) => !item?.isOwner)
-										?.map((item) => (
-											<div
-												className={styles['events-popup-dropdown-list']}
-												key={item?._id}
-												onMouseDown={() => {
-													addAttendees({
-														name: item?.firstName,
-														email: item?.email,
-														tenantUserId: item?._id,
-														isWorkspaceUser: true,
-														role: item?.role,
-													});
-												}}
-											>
-												<div className={styles['events-popup-avatar']}>
-													<Avtar />
+								<div
+									className={styles['events-popup-add-attendee-dropdown']}
+									ref={attendeeDropdownRef}
+								>
+									{pendingAttendee ? (
+										<div
+											style={{
+												width: '100%',
+												display: 'flex',
+												alignItems: 'center',
+												gap: 8,
+												padding: 8,
+											}}
+										>
+											<div style={{ flex: 1 }}>
+												<div style={{ fontWeight: 500 }}>
+													{pendingAttendee.name || pendingAttendee.email}
 												</div>
-												<div className={styles['events-popup-details']}>
-													<div className={styles['events-popup-name']}>
-														{`${item?.firstName}`}
-													</div>
-													<div className={styles['events-popup-email']}>
-														{item?.email}
-													</div>
+												<div style={{ fontSize: 12, color: '#888' }}>
+													{pendingAttendee.email}
 												</div>
 											</div>
-										))}
+											<div
+												className={
+													styles['events-popup-role-selector-container']
+												}
+											>
+												<select
+													className={styles['events-popup-role-dropdown']}
+													value={
+														pendingRole ||
+														pendingAttendee.role ||
+														'Member'
+													}
+													onChange={(e) => {
+														setPendingRole(e.target.value);
+														if (e.target.value !== 'Custom...')
+															setCustomRole('');
+													}}
+												>
+													{ROLE_OPTIONS.map((opt) => (
+														<option key={opt} value={opt}>
+															{opt}
+														</option>
+													))}
+												</select>
+												{pendingRole === 'Custom...' && (
+													<input
+														className={
+															styles['events-popup-role-custom-input']
+														}
+														placeholder="Enter role"
+														value={customRole}
+														onChange={(e) =>
+															setCustomRole(e.target.value)
+														}
+														autoFocus
+													/>
+												)}
+												<button
+													style={{
+														marginLeft: 8,
+														padding: '4px 10px',
+														borderRadius: 6,
+														border: 'none',
+														background: 'var(--primary-button)',
+														color: 'var(--primary-button-font)',
+														fontWeight: 500,
+														cursor: 'pointer',
+													}}
+													onClick={() => {
+														const roleToSet =
+															pendingRole === 'Custom...'
+																? customRole
+																: pendingRole ||
+																  pendingAttendee.role ||
+																  'Member';
+														if (!roleToSet) return;
+														addAttendees({
+															...pendingAttendee,
+															role: roleToSet,
+														});
+														setPendingAttendee(null);
+														setPendingRole('');
+														setCustomRole('');
+														updateEventInfo('attendeesInputField', '');
+														updateEventInfo(
+															'showAtendeeSuggestions',
+															false,
+														);
+													}}
+													disabled={
+														pendingRole === 'Custom...' && !customRole
+													}
+												>
+													Add
+												</button>
+												<button
+													style={{
+														marginLeft: 4,
+														padding: '4px 10px',
+														borderRadius: 6,
+														border: 'none',
+														background: 'var(--card-over-card-hover)',
+														color: 'var(--primary-font)',
+														fontWeight: 500,
+														cursor: 'pointer',
+													}}
+													onClick={() => {
+														setPendingAttendee(null);
+														setPendingRole('');
+														setCustomRole('');
+													}}
+												>
+													Cancel
+												</button>
+											</div>
+										</div>
+									) : (
+										<>
+											{filteredAttendees && filteredAttendees.length > 0
+												? filteredAttendees.map((item) => (
+														<div
+															className={
+																styles['events-popup-dropdown-list']
+															}
+															key={item?._id}
+															onMouseDown={() => {
+																setPendingAttendee({
+																	name: item?.firstName,
+																	email: item?.email,
+																	tenantUserId: item?._id,
+																	isWorkspaceUser: true,
+																	role: item?.role || 'Member',
+																});
+																setPendingRole(
+																	item?.role || 'Member',
+																);
+																setCustomRole('');
+															}}
+														>
+															<div
+																className={
+																	styles['events-popup-avatar']
+																}
+															>
+																<Avtar />
+															</div>
+															<div
+																className={
+																	styles['events-popup-details']
+																}
+															>
+																<div
+																	className={
+																		styles['events-popup-name']
+																	}
+																>
+																	{`${item?.firstName}`}
+																</div>
+																<div
+																	className={
+																		styles['events-popup-email']
+																	}
+																>
+																	{item?.email}
+																</div>
+															</div>
+														</div>
+												  ))
+												: null}
+											{/* If input is a valid email and not in the list, allow adding */}
+											{info.attendeesInputField &&
+												emailRegex.test(info.attendeesInputField) &&
+												!tenantsUserList?.some(
+													(item) =>
+														item.email.toLowerCase() ===
+														info.attendeesInputField.toLowerCase(),
+												) && (
+													<div
+														className={
+															styles['events-popup-dropdown-list']
+														}
+														style={{
+															color: 'var(--primary)',
+															fontWeight: 500,
+															cursor: 'pointer',
+														}}
+														onMouseDown={() => {
+															setPendingAttendee({
+																name: null,
+																email: info.attendeesInputField,
+																tenantUserId: null,
+																isWorkspaceUser: false,
+																role: 'Member',
+															});
+															setPendingRole('Member');
+															setCustomRole('');
+														}}
+													>
+														+ Add "{info.attendeesInputField}"
+													</div>
+												)}
+										</>
+									)}
 								</div>
 							) : (
 								''

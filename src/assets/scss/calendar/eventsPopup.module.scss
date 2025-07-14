@@ -1029,6 +1029,46 @@
 	}
 }
 
+.events-popup-role-selector-container {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-left: auto;
+}
+
+.events-popup-role-dropdown {
+	border: 1px solid var(--stroke);
+	border-radius: 6px;
+	background: var(--popup);
+	color: var(--primary-font);
+	font-size: 12px;
+	padding: 4px 8px;
+	outline: none;
+	min-width: 90px;
+	cursor: pointer;
+	transition: border-color 0.2s;
+}
+
+.events-popup-role-dropdown:focus {
+	border-color: var(--primary-button);
+}
+
+.events-popup-role-custom-input {
+	border: 1px solid var(--stroke);
+	border-radius: 6px;
+	background: var(--popup);
+	color: var(--primary-font);
+	font-size: 12px;
+	padding: 4px 8px;
+	outline: none;
+	min-width: 90px;
+	transition: border-color 0.2s;
+}
+
+.events-popup-role-custom-input:focus {
+	border-color: var(--primary-button);
+}
+
 // // Add styles for the antd tooltip
 // .ant-tooltip {
 // 	.ant-tooltip-inner {
