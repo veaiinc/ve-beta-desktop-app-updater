@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Context from '../context/context';
 
@@ -14,6 +14,10 @@ const locationMapper = {
 };
 
 const useAccessControls = () => {
+	const [info, setInfo] = useState({
+		accessControlsLoading: true,
+	});
+
 	const {
 		profileInfo: {
 			getTenantUserAccessControls,
@@ -25,9 +29,17 @@ const useAccessControls = () => {
 
 	const location = useLocation();
 
+	const fetchTenantUserAccessControls = async () => {
+		await getTenantUserAccessControls();
+		setInfo((prev) => ({
+			...prev,
+			accessControlsLoading: false,
+		}));
+	};
+
 	useEffect(() => {
 		if (!tenantUserAccessControls) {
-			getTenantUserAccessControls();
+			fetchTenantUserAccessControls();
 		}
 	}, [tenantUserAccessControls]);
 
@@ -53,7 +65,8 @@ const useAccessControls = () => {
 		});
 	}, [location?.pathname, tenantUserAccessControls]);
 
-	return { accessControlOpenModal };
+	const { accessControlsLoading } = info;
+	return { accessControlOpenModal, accessControlsLoading };
 };
 
 export default useAccessControls;
