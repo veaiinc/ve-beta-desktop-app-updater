@@ -343,6 +343,7 @@ const GalleryPage = () => {
 		videosList: null,
 		coverLoading: false,
 		videoUploaded: false,
+		thumbnailUrls: {},
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -377,7 +378,7 @@ const GalleryPage = () => {
 					  ) + '%'
 					: '0',
 		},
-		{ name: 'Collection', number: clientSelectionsData?.totalDocs },
+		{ name: 'Collections', number: clientSelectionsData?.totalDocs },
 		// {
 		// 	name: 'breaker',
 		// },
@@ -476,6 +477,23 @@ const GalleryPage = () => {
 		clickOutsideCheck(albumSettingsRef, albumSettingsIconRef, 'showAlbumSettings');
 		clickOutsideCheck(optionsContainerRef, optionsIconRef, 'showAlbumOptionsMenu');
 	}, []);
+
+	useEffect(() => {
+		if (info?.videosList?.length > 0) {
+			fetchThumbnails();
+		}
+	}, [info?.videosList]);
+
+	const fetchThumbnails = async () => {
+		const entries = await Promise.all(
+			info.videosList.map(async (video) => {
+				const url = await getThumbnailUrl(video);
+				return [video._id, url];
+			}),
+		);
+		const thumbnailUrls = Object.fromEntries(entries);
+		setInfo((prev) => ({ ...prev, thumbnailUrls }));
+	};
 
 	const handleScroll = (setInfo, info) => {
 		const container = document.querySelector('.galleryContainer');
@@ -604,7 +622,7 @@ const GalleryPage = () => {
 	}, [galleryCredentials]);
 
 	useEffect(() => {
-		if (info?.activeTab === 'Collection' && info?.clientSelectionID) {
+		if (info?.activeTab === 'Collections' && info?.clientSelectionID) {
 			getClientSelectionImages(info?.clientSelectionID);
 		}
 	}, [info?.clientSelectionID, info?.activeTab]);
@@ -1070,7 +1088,7 @@ const GalleryPage = () => {
 
 		if (
 			activeTabFromParams &&
-			['Albums', 'Collection', 'Ai People', 'Insights'].includes(activeTabFromParams)
+			['Albums', 'Collections', 'Ai People', 'Insights'].includes(activeTabFromParams)
 		) {
 			setInfo((prev) => ({
 				...prev,
@@ -1418,7 +1436,7 @@ const GalleryPage = () => {
 
 			// Handle tags differently for client selections vs regular albums
 			let newSelectedImagesTags;
-			if (info.activeTab === 'Collection') {
+			if (info.activeTab === 'Collections') {
 				// For client selections, don't process tags
 				newSelectedImagesTags = prevInfo?.selectedImagesTags || [];
 			} else {
@@ -2095,7 +2113,7 @@ const GalleryPage = () => {
 			// const id = message.loading('Fetching image list...');
 
 			let response;
-			if (info.activeTab === 'Collection' && info.clientSelectionID) {
+			if (info.activeTab === 'Collections' && info.clientSelectionID) {
 				// Check if we have client selection images
 				if (!info.clientSelectionImages?.docs?.length) {
 					message.warning('No images found in this client selection');
@@ -2784,7 +2802,7 @@ const GalleryPage = () => {
 		const containerWidth = document.querySelector('.albums')?.clientWidth || 0;
 		const cardWidth = 130;
 		const numberOfCards =
-			info.activeTab === 'Collection'
+			info.activeTab === 'Collections'
 				? clientSelectionsData?.data?.length || 0
 				: albumImagesCount?.albums?.length + 1 || 0;
 		const cardHeight = 160;
@@ -3406,7 +3424,7 @@ const GalleryPage = () => {
 
 			// Handle Client Selections tab with no specific selections
 			if (
-				info.activeTab === 'Collection' &&
+				info.activeTab === 'Collections' &&
 				info.clientSelectionID &&
 				info.selectedImages.length === 0
 			) {
@@ -3556,7 +3574,7 @@ const GalleryPage = () => {
 	const getShareLink = () => {
 		const baseUrl = `${info?.galleryLink}`;
 		let pin = '';
-		if (info.activeTab === 'Collection' && info?.clientSelectionID) {
+		if (info.activeTab === 'Collections' && info?.clientSelectionID) {
 			const selection = clientSelectionsData?.data?.find(
 				(sel) => sel._id === info?.clientSelectionID,
 			);
@@ -3566,7 +3584,7 @@ const GalleryPage = () => {
 		} else {
 			pin = info?.activeGallery?.guestAccess?.pin || '';
 		}
-		if (info.activeTab === 'Collection' && info?.clientSelectionName) {
+		if (info.activeTab === 'Collections' && info?.clientSelectionName) {
 			return {
 				url: `${baseUrl}/selection/${info?.activeClientSelection}`,
 				pin: pin,
@@ -4175,7 +4193,7 @@ const GalleryPage = () => {
 															);
 														})}
 
-													{info.activeTab === 'Collection' &&
+													{info.activeTab === 'Collections' &&
 														clientSelectionsData?.data?.map(
 															(album, index) => {
 																let src = null;
@@ -4245,9 +4263,9 @@ const GalleryPage = () => {
 																			: ''
 																	}`}
 																	style={{
-																		backgroundImage: `url(${decodeURIComponent(
-																			getThumbnailUrl(video),
-																		)})`,
+																		backgroundImage: `url(
+																			${info?.thumbnailUrls[video?._id] || ''}
+																		)`,
 																		backgroundSize: 'cover',
 																		backgroundPosition:
 																			'center',
@@ -5329,7 +5347,7 @@ const GalleryPage = () => {
 							</div>
 						</div>
 					))}
-				{info.activeTab === 'Collection' &&
+				{info.activeTab === 'Collections' &&
 					(clientSelectionsData?.data?.length === 0 ? (
 						<div className="noAlbumsMainContainer">
 							<div className="noAlbumContainer">
@@ -5871,7 +5889,7 @@ const GalleryPage = () => {
 											style={{ marginBottom: '15px' }}
 										>
 											<li onClick={handleDownload}>Download</li>
-											{info?.activeTab !== 'Collection' && (
+											{info?.activeTab !== 'Collections' && (
 												<li
 													style={{
 														cursor:
@@ -5896,7 +5914,7 @@ const GalleryPage = () => {
 												Set Gallery cover
 											</li>
 
-											{info?.activeTab !== 'Collection' && (
+											{info?.activeTab !== 'Collections' && (
 												<li
 													onClick={() =>
 														setInfo((prev) => ({

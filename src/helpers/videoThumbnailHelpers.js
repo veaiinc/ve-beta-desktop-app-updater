@@ -29,23 +29,44 @@ export const parseVideoUrl = (url) => {
 	return { platform: 'unknown', id: null, hash: null };
 };
 
-export const getThumbnailUrl = (video) => {
-	if (!video?.embeddedLink) return 'https://via.placeholder.com/640x360?text=No+Video+Available';
-	const { platform, id, hash } = parseVideoUrl(video.embeddedLink);
+export const getThumbnailUrl = async (video) => {
+	if (!video?.embeddedLink) {
+		return 'https://via.placeholder.com/640x360?text=No+Video+Available';
+	}
+
+	const { platform } = parseVideoUrl(video.embeddedLink);
+
 	if (platform === 'youtube') {
+		const { id } = parseVideoUrl(video.embeddedLink);
 		return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
-	} else if (platform === 'vimeo') {
-		if (hash) {
-			return `https://i.vimeocdn.com/video/${id}_${hash}_640.jpg`;
+	}
+
+	if (platform === 'vimeo') {
+		try {
+			const response = await fetch(
+				`https://vimeo.com/api/oembed.json?url=${encodeURIComponent(video.embeddedLink)}`,
+			);
+			if (!response.ok) throw new Error(`Vimeo oEmbed error: ${response.status}`);
+			const data = await response.json();
+			return data.thumbnail_url;
+		} catch (error) {
+			console.error('Failed to fetch Vimeo thumbnail:', error);
+			return 'https://via.placeholder.com/640x360?text=Vimeo+Thumbnail+Error';
 		}
-		return `https://i.vimeocdn.com/video/${id}_640.jpg`;
-	} else if (platform === 'facebook') {
+	}
+
+	if (platform === 'facebook') {
 		return 'https://via.placeholder.com/640x360?text=Facebook+Thumbnail+Not+Available';
-	} else if (platform === 'dropbox') {
+	}
+
+	if (platform === 'dropbox') {
 		return 'https://via.placeholder.com/640x360?text=Dropbox+Thumbnail+Not+Available';
-	} else if (platform === 'instagram') {
+	}
+
+	if (platform === 'instagram') {
 		return 'https://via.placeholder.com/640x360?text=Instagram+Reel';
 	}
+
 	return 'https://via.placeholder.com/640x360?text=Unknown+Video+Source';
 };
 
