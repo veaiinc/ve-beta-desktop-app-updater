@@ -29,6 +29,12 @@ const routeImports = {
 	internalRoutes: () => import('../routes/internalRoutes'),
 };
 
+const routeMap = {
+	stable: 'stableRoutes',
+	beta: 'betaRoutes',
+	internal: 'internalRoutes',
+};
+
 const useWorkspaceMode = () => {
 	const { pathname } = useLocation();
 	const logOut = useLogout();
@@ -44,23 +50,15 @@ const useWorkspaceMode = () => {
 		internalRoutes: null,
 		fallbackRoute,
 	});
+	const [workspaceNotFound, setWorkspaceNotFound] = useState(false);
 
-	const workspaceMode = tennantSettingsData?.workspaceMode ?? null; // stable, beta, internal
+	const workspaceMode = tennantSettingsData?.workspaceMode ?? null; // stable, beta, internal, suspended
 	const isPublicRoute = publicRoutesList.some((routePath) =>
 		matchPath({ path: routePath, end: true }, pathname),
 	);
-
-	const routeType = isPublicRoute
-		? 'publicRoutes'
-		: workspaceMode === 'stable'
-		? 'stableRoutes'
-		: workspaceMode === 'beta'
-		? 'betaRoutes'
-		: workspaceMode === 'internal'
-		? 'internalRoutes'
-		: 'fallbackRoute';
+	const routeType = isPublicRoute ? 'publicRoutes' : routeMap[workspaceMode] || 'fallbackRoute';
 	const routes = routesInfo[routeType] ?? routesInfo['fallbackRoute'];
-	const loading = isPublicRoute ? false : workspaceMode === null; // since public routes don't have workspace mode. Until workspace mode becomes stable/beta, loading is true.
+	const loading = isPublicRoute || workspaceNotFound ? false : workspaceMode === null; // since public routes don't have workspace mode. Until workspace mode becomes stable/beta, loading is true.
 
 	const fetchWorkspaceMode = async () => {
 		try {
@@ -70,6 +68,7 @@ const useWorkspaceMode = () => {
 				if (!success) {
 					const { code } = response[1];
 					if (code === 401) logOut();
+					else if (code === 404) setWorkspaceNotFound(true);
 				}
 			}
 		} catch (error) {
@@ -98,7 +97,8 @@ const useWorkspaceMode = () => {
 		importRoutes(routeType);
 	}, [routeType]);
 
-	return { loading, routes, workspaceMode };
+	console.log(workspaceMode, loading, workspaceNotFound, routes);
+	return { loading, routes, workspaceMode, workspaceNotFound };
 };
 
 export default useWorkspaceMode;

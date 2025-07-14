@@ -2,11 +2,14 @@
 import s from './pageLoader.module.scss';
 import Spinner from '../../components/loaders/Spinner';
 import useTheme from '../../../hooks/useTheme';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 
 const PageLoader = () => {
 	useTheme();
-
-	return (
+	const { workspaceNotFound } = useWorkspaceMode();
+	return workspaceNotFound ? (
+		<h1>Workspace Not Found!</h1>
+	) : (
 		<div className={s.loaderContainer}>
 			<Spinner
 				width="32px"

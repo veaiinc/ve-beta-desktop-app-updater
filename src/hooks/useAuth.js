@@ -7,8 +7,10 @@ const useAuth = () => {
 	const navigate = useNavigate();
 	const logOut = useLogout();
 	const {
-		profileInfo: { getUserDetails },
+		profileInfo: { userDetailsData, getUserDetails },
 	} = useContext(Context);
+
+	console.log(userDetailsData);
 
 	useEffect(() => {
 		getUserDetailsData();
