@@ -1405,6 +1405,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 									showExploreMore: true,
 								}));
 							}}
+							animateChatBox={false}
 						/>
 					</div>
 					{chatBoxSuggestions?.length > 0 && (

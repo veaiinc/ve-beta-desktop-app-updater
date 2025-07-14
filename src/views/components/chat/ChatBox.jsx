@@ -134,6 +134,7 @@ const ChatBox = ({
 	onChatQueryChange = null,
 	isBuildEnbled = true,
 	showUpgradeSubscriptionBtn = true,
+	animateChatBox = true,
 }) => {
 	const textAreaRef = useRef(null);
 	const location = useLocation();
@@ -198,6 +199,7 @@ const ChatBox = ({
 		openUpgradeModal: false,
 		askTooltipOpen: false,
 		chatBoxInfo: initialChatBoxInfo,
+		chatboxMinimized: true,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -223,6 +225,10 @@ const ChatBox = ({
 				chatInfo: { ...chatInfo, agentType: 'multi_agent', assistantId: null },
 			});
 		}
+		document.addEventListener('click', handleWindowClick);
+		return () => {
+			document.removeEventListener('click', handleWindowClick);
+		};
 	}, []);
 
 	useEffect(() => {
@@ -403,6 +409,21 @@ const ChatBox = ({
 		setPreviewOpen(true);
 	};
 
+	const handleWindowClick = useCallback(
+		(e) => {
+			if (!animateChatBox) return;
+			setInfo((prev) => {
+				if (prev?.chatboxMinimized) {
+					return prev;
+				}
+				return {
+					...prev,
+					chatboxMinimized: true,
+				};
+			});
+		},
+		[animateChatBox],
+	);
 	const handleGoalsClick = () => {
 		let chatBoxData = info?.chatBoxInfo;
 
@@ -704,6 +725,7 @@ const ChatBox = ({
 						chatQuery: '',
 						// recentFiles: [],// not clearing the recent files , because they want like sana
 						chatFilters: initialChatFilters,
+						chatboxMinimized: true,
 					}));
 					uploadedImagesRef.current = [];
 
@@ -1166,6 +1188,15 @@ const ChatBox = ({
 	// };
 
 	const handleChatBoxClick = (e) => {
+		if (animateChatBox) {
+			e?.stopPropagation();
+			if (info?.chatboxMinimized) {
+				setInfo((prev) => ({
+					...prev,
+					chatboxMinimized: false,
+				}));
+			}
+		}
 		if (customChatBoxClick) {
 			customChatBoxClick?.(e);
 		}
@@ -1217,10 +1248,7 @@ const ChatBox = ({
 	}, []);
 
 	return (
-		<div
-			className="chatParentWrapper"
-			{...(customChatBoxClick && { onClick: handleChatBoxClick })}
-		>
+		<div className="chatParentWrapper" onClick={handleChatBoxClick}>
 			<div className={`chatWrapper`}>
 				<div
 					className={`chat-box-container ${
@@ -1234,6 +1262,11 @@ const ChatBox = ({
 									className={`chatInputParentContainer ${
 										startPage ? ' startPageContainer' : ''
 									}`}
+									style={{
+										...(animateChatBox && {
+											height: info?.chatboxMinimized ? '60px' : '115px',
+										}),
+									}}
 								>
 									{chatReplyData && (
 										<div className="chat-reply-data">
@@ -2004,7 +2037,12 @@ const ChatBox = ({
 										className="removeImageIcon"
 										onClick={() => handleRemoveImage(ele)}
 									>
-										<Close />
+										<Close
+											style={{
+												width: '10px',
+												height: '10px',
+											}}
+										/>
 									</span>
 								)}
 							</div>

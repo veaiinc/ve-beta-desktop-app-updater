@@ -80,20 +80,22 @@
 							width: 100%;
 							padding: 14px;
 							flex-direction: column;
-							gap: 8px;
+							gap: 12px;
 							align-self: center;
 							border-radius: 16px;
 							background-color: var(--chat-box);
-							border: 1px solid var(--stroke);
-							transition: border 200ms ease-in-out;
+							border: 0.5px solid var(--stroke);
+							transition: border 200ms ease-in-out, height 300ms ease-in-out;
 							overflow: hidden;
 							position: relative;
+
 							&:hover {
-								border: 1px solid var(--stroke-hover);
+								border: 0.5px solid var(--stroke-hover);
 							}
 							&.startPageContainer {
 								padding: 12px;
 							}
+
 							.chat-reply-data {
 								display: flex;
 								gap: 12px;
@@ -148,6 +150,8 @@
 									position: relative;
 									width: 100%;
 									top: 2px;
+									height: 30px;
+									margin-bottom: 8px;
 
 									&.startPagePlaceholderContainer {
 										top: -3px;
@@ -165,6 +169,7 @@
 										line-height: normal;
 										resize: none;
 										position: relative;
+										padding: 4px 0px 4px 8px;
 										z-index: 0;
 										max-height: 300px;
 										transition: height 300ms ease-in-out;
@@ -472,7 +477,10 @@
 						}
 
 						.chatInputParentContainer:focus-within {
-							border: 1px solid var(--primary-button);
+							border: 0.5px solid var(--primary-button);
+							box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.2) inset,
+								0px 0px 15px 0px rgba(121, 236, 201, 0.25) inset,
+								0px 0px 12px 0px rgba(121, 236, 201, 0.2);
 						}
 					}
 				}
@@ -631,32 +639,33 @@
 
 		.imagePreviewBar {
 			display: flex;
-			gap: 10px;
+			gap: 8px;
 			align-items: center;
 			justify-content: flex-start;
 			flex-wrap: wrap;
-			height: 80px;
+			height: 40px;
 			overflow-y: auto;
-			// padding: 0px 12px;
+			padding: 0px 8px;
 			cursor: pointer;
 			width: 100%;
 			margin: auto;
+			box-sizing: border-box;
 
 			.previewOfUploadedImage {
-				height: 70px;
-				width: 70px;
+				height: 40px;
+				width: 40px;
 				background-color: var(--primary-font);
-				border-radius: 12px;
+				border-radius: 2px;
 				position: relative;
+				box-sizing: border-box;
 
 				.removeImageIcon {
 					position: absolute;
-					top: -4px;
-					right: -5px;
-					background-color: var(--card);
-					border-radius: 50%;
-					width: 20px;
-					height: 20px;
+					top: 1px;
+					right: 2px;
+					background-color: var(--backdrop);
+					width: 12px;
+					height: 12px;
 					display: flex;
 					justify-content: center;
 					align-items: center;
