@@ -6,7 +6,7 @@ import Public from '../views/layouts/Public';
 import AuthWrapper from '../views/layouts/authWrapper';
 
 // pages
-import InitialHomePage from '../views/features/homePage/InitialHomePage';
+import InitialHomePage from '../views/features/ambientAi/AmbientAi';
 
 // lazy loaded pages
 const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));

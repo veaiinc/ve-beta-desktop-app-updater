@@ -3,6 +3,7 @@ import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/n
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
 import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
 import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
+import { ReactComponent as InfiniteSvg } from '../../../assets/svg/sidebar/infinity.svg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 import ChatSvg from '../../../assets/svg/sidebar/NewChat.jsx';
 import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
@@ -38,6 +39,13 @@ export const betaNavigationItems = [
 		moduleRoute: null,
 		route: 'New Chat',
 		icon: ChatSvg,
+	},
+	{
+		id: 9,
+		name: 'Ambient AI',
+		moduleRoute: null,
+		route: '/ambient-ai',
+		icon: InfiniteSvg,
 	},
 	{
 		id: 1,
@@ -82,6 +90,13 @@ export const internalNavigationItems = [
 		route: '/home',
 		icon: HomeSvg,
 	},
+	{
+		id: 10,
+		name: 'Ambient AI',
+		moduleRoute: null,
+		route: '/ambient-ai',
+		icon: InfiniteSvg,
+	},
 	{ id: 2, name: 'Agents', route: '/agents', icon: AgentsSvg },
 	{
 		id: 3,
@@ -107,7 +122,7 @@ export const internalNavigationItems = [
 		route: '/meet',
 		icon: MeetIcon,
 	},
-	{ id: 8, name: 'Automations', route: '/automations', icon: AutomationSvg },
+	{ id: 9, name: 'Automations', route: '/automations', icon: AutomationSvg },
 ];
 
 export const stableSettingsNavItems = {

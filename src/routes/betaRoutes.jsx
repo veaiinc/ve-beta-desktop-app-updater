@@ -63,6 +63,7 @@ const NotesPage = lazy(() => import('../views/features/notesPage/NotesPage'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
+import AmbientAi from '../views/features/ambientAi/AmbientAi';
 
 const betaRoutes = [
 	{
@@ -75,6 +76,14 @@ const betaRoutes = [
 				showBottomToolbar={false}
 			>
 				<InitialHomePage />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/ambient-ai',
+		element: (
+			<AuthWrapper title={'Ambient AI'}>
+				<AmbientAi />
 			</AuthWrapper>
 		),
 	},
