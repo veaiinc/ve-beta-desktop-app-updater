@@ -48,6 +48,7 @@ import WorkflowBuilder from '../views/features/workflowBuilder/WorkflowBuilder';
 import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
 import Onboarding from '../views/features/onboarding/Onboarding';
 import Contacts from '../views/features/contacts/Contacts';
+import AmbientAi from '../views/features/ambientAi/AmbientAi';
 
 const Files = lazy(() => import('../views/features/files/Files'));
 const ExpandedClientView = lazy(() => import('../views/features/contacts/ExpandedClientView'));
@@ -63,7 +64,6 @@ const NotesPage = lazy(() => import('../views/features/notesPage/NotesPage'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-import AmbientAi from '../views/features/ambientAi/AmbientAi';
 
 const betaRoutes = [
 	{
