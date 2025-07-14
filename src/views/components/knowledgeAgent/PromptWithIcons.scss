@@ -1,14 +1,17 @@
 .custom-textarea {
 	width: 100%;
-	padding: 0px 5px;
-	background: transparent;
-	border: none;
-	border-radius: 4px;
-	color: var(--primary-font);
-	font-family: var(--primary-font-family);
-	font-size: 24px;
-	font-weight: 500;
 
+	background: transparent;
+	border: 1px solid var(--stroke);
+	border-radius: 14px;
+	color: var(--secondary-font);
+	font-family: var(--primary-font-family);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	gap: 10px;
+	line-height: 20px;
+	border: none;
 	// &:hover {
 	// 	cursor: pointer;
 	// 	background: var(--card);
