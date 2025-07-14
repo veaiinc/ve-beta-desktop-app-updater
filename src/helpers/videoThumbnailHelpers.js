@@ -2,7 +2,7 @@ export const parseVideoUrl = (url) => {
 	if (!url) return { platform: 'unknown', id: null, hash: null };
 
 	const youtubeRegex =
-		/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+		/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
 	const vimeoRegex =
 		/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)([0-9]{6,11})(?:\/([a-z0-9]+))?/;
 	const facebookRegex = /(?:facebook\.com\/.*\/videos\/|fb\.watch\/)([0-9]+)/;

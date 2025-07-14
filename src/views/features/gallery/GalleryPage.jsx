@@ -4245,8 +4245,8 @@ const GalleryPage = () => {
 																			: ''
 																	}`}
 																	style={{
-																		backgroundImage: `url(${getThumbnailUrl(
-																			video,
+																		backgroundImage: `url(${decodeURIComponent(
+																			getThumbnailUrl(video),
 																		)})`,
 																		backgroundSize: 'cover',
 																		backgroundPosition:
