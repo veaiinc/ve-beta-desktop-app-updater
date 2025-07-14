@@ -605,8 +605,10 @@ const ChatBox = ({
 					const payload = {
 						query,
 						timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-						web_search: chatBoxData?.webSearch,
-						...(!isPublicChat && {
+						...(chatInfo?.agentType !== 'knowledge_agent' && {
+							web_search: chatBoxData?.webSearch,
+						}),
+						...((!isPublicChat || chatInfo?.agentType !== 'knowledge_agent') && {
 							knowledge_base_search: chatBoxData?.workspaceSearch,
 						}),
 						...(!isPublicChat && { modules: Object?.keys(info?.chatFilters?.modules) }),
