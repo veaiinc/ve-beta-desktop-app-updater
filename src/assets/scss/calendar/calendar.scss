@@ -36,14 +36,14 @@
 	align-items: center;
 	gap: 10px;
 	flex-direction: column;
-	align-self: flex-end;
+	align-self: flex-start;
 	color: var(--primary-font);
 	font-family: var(--primary-font-family);
 	font-size: 16px;
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
-	padding-right: 16px;
+	padding-left: 16px;
 }
 .calendarParentContainer {
 	display: flex;

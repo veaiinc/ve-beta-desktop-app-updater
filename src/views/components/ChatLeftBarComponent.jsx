@@ -5,6 +5,7 @@ import ObjectID from 'bson-objectid';
 import RecentChat from '../features/chat/RecentChat';
 import { ReactComponent as SparkleSvg } from '../../assets/svg/ai_agents/sparkle.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as DoubleRightArrowSvg } from '../../assets/svg/tasks/doubleRightArrow.svg';
 
 const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 	const {
@@ -19,6 +20,8 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 		mobileActive: false,
 		isMobile: false,
 	});
+
+	const [isClosed, setIsClosed] = useState(false);
 
 	const isFirstTimeChatActiveRef = useRef(true);
 	const isFirstTimeSuggestionsRenderRef = useRef(true);
@@ -110,38 +113,42 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 
 	return (
 		<>
-			{/* Mobile Chat Toggle Button */}
-			{info?.isMobile && (
-				<div
-					className="mobile-chat-toggle"
-					onClick={toggleMobileChat}
-					style={{
-						position: 'fixed',
-						bottom: '20px',
-						right: '20px',
-						width: '56px',
-						height: '56px',
-						borderRadius: '50%',
-						background: 'var(--primary-button)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						cursor: 'pointer',
-						zIndex: 999,
-						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-					}}
-				>
-					<SparkleSvg style={{ width: '24px', height: '24px' }} />
+			{info?.isMobile && !info?.mobileActive && (
+				<div className="mobile-chat-toggle" onClick={toggleMobileChat}>
+					<SparkleSvg className="mobile-chat-toggle__icon" />
 				</div>
 			)}
-
 			<div
-				className={`chat-left-bar-component ${info?.mobileActive ? 'mobile-active' : ''}`}
-				style={{
-					// height: renewBanner ? 'calc(100dvh - 58px)' : '100dvh',
-					height: '100dvh',
-				}}
+				className={`chat-left-bar-component${info?.mobileActive ? ' mobile-active' : ''}${
+					isClosed && !info?.isMobile ? ' closed' : ''
+				}`}
 			>
+				{(!info.isMobile || info.mobileActive) && (
+					<div
+						className={`chat-left-bar-toggle-btn${
+							isClosed && !info.isMobile ? ' closed' : ''
+						}${info.isMobile ? ' mobile' : ''}`}
+						onClick={() => {
+							if (info.isMobile) {
+								setInfo((prev) => ({ ...prev, mobileActive: false }));
+							} else {
+								setIsClosed((prev) => !prev);
+							}
+						}}
+					>
+						<DoubleRightArrowSvg
+							className="chat-left-bar-toggle-btn__icon"
+							style={{
+								transform: info.isMobile
+									? 'rotate(180deg)'
+									: isClosed
+									? 'none'
+									: 'rotate(180deg)',
+							}}
+						/>
+					</div>
+				)}
+
 				<div
 					className={`chat-left-bar-component-overlay ${
 						info?.chatActive ? 'inactive' : ''
@@ -150,60 +157,9 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 					<div className="wrapper">{children}</div>
 				</div>
 
-				{/* {globalChatMessages?.[currentSessionId]?.messages?.length === 0 &&
-					isFirstTimeSuggestionsRenderRef?.current &&
-					info?.chatActive &&
-					!info?.isMobile && (
-						<div className="chat-left-bar-suggestions-overlay">
-							<div className="suggestions-container">
-								<div className="suggestions-header">
-									<div className="header-container">
-										<div className="left-container">
-											<div
-												className="icon-container"
-												onClick={handleGoBackClick}
-											>
-												<LeftSvg />
-											</div>
-											<div className="text-container">New Chat</div>
-										</div>
-									</div>
-								</div>
-								<div className="content">
-									<div className="suggestion-header">
-										<div className="icon">
-											<SparkleSvg />
-										</div>
-										<div className="text-container">AI Suggestions</div>
-									</div>
-									<div className="suggestions-content">
-										{suggestions?.map((suggestion) => (
-											<div
-												className="suggestion"
-												key={suggestion?.id}
-												onClick={() =>
-													handleSuggestionClick(suggestion?.name)
-												}
-											>
-												{suggestion?.name}
-											</div>
-										))}
-									</div>
-								</div>
-							</div>
-						</div>
-					)} */}
 				<div className="chatWrapper">
 					<div className="chatWrapperHeader">
-						<ChevronRightThinSvg
-							style={{
-								width: '16px',
-								height: '16px',
-								transform: 'rotate(180deg)',
-								cursor: 'pointer',
-							}}
-							onClick={goBack}
-						/>
+						<ChevronRightThinSvg className="chatWrapperHeader__icon" onClick={goBack} />
 					</div>
 					<RecentChat
 						showIconText={false}
