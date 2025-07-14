@@ -75,6 +75,16 @@ export const filterGroups = [
 	},
 ];
 
+const insightOptionsInOrder = {
+	actions: 0,
+	suggestion: 1,
+	drafts: 2,
+	risks: 3,
+	opportunity: 4,
+	goals: 5,
+	others: 6,
+};
+
 const getDescription = (card) => {
 	if (card?.collectionType === 'workflows') {
 		if (card?.status === 'proposalAccepted') {
@@ -89,6 +99,14 @@ const getDescription = (card) => {
 	} else if (card?.collectionType === 'forms') {
 		return 'Form response';
 	}
+};
+
+const sortByInsightsOrder = (data, orderMap) => {
+	return data?.slice()?.sort((a, b) => {
+		const indexA = orderMap[a?.insight_type] ?? Infinity;
+		const indexB = orderMap[b?.insight_type] ?? Infinity;
+		return indexA - indexB;
+	});
 };
 
 const getName = (response) => {
@@ -286,8 +304,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		if (!insightTypes) {
 			getAiInsightTypes();
 		} else {
-			const options = insightTypes;
-			insightTypesRef.current = insightTypes;
+			const options = sortByInsightsOrder(insightTypes, insightOptionsInOrder);
+			insightTypesRef.current = options;
 			selectedOptionRef.current = options?.[0]?.insight_type;
 			setInfo((prev) => ({
 				...prev,
