@@ -106,15 +106,14 @@ const AISuggestionsModal = ({
 			(eachItem) => eachItem?.userId === info?.currentUserId,
 		)?.[0]?.access;
 
-		const options = tabOptions?.filter((option) => {
-			if (option?.value === 'actions') {
-				return suggested_actions?.length || suggested_prompts?.length;
-			} else if (option?.value === 'report') {
-				return research_report?.length || chainOfThoughtData?.hasChainOfThought;
-			} else if (option?.value === 'sources') {
-				return thinker_sources?.length;
-			}
-		});
+		const visibilityMap = {
+			actions: suggested_actions?.length || suggested_prompts?.length,
+			report: research_report?.length || chainOfThoughtData?.hasChainOfThought,
+			sources: thinker_sources?.length,
+		};
+
+		const options = tabOptions?.filter((option) => visibilityMap[option?.value]);
+
 		setInfo((prev) => ({
 			...prev,
 			selectedFeedback: data?.rating,

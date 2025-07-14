@@ -41,19 +41,20 @@ export const betaNavigationItems = [
 		icon: ChatSvg,
 	},
 	{
-		id: 9,
-		name: 'Ambient AI',
-		moduleRoute: null,
-		route: '/ambient-ai',
-		icon: InfiniteSvg,
-	},
-	{
 		id: 1,
 		name: 'Home',
 		moduleRoute: '/home',
 		route: '/home',
 		icon: HomeSvg,
 	},
+	{
+		id: 9,
+		name: 'Ambient AI',
+		moduleRoute: null,
+		route: '/ambient-ai',
+		icon: InfiniteSvg,
+	},
+
 	{ id: 2, name: 'Agents', route: '/agents', icon: AgentsSvg },
 	{
 		id: 3,
