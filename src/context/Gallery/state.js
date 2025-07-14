@@ -1927,9 +1927,7 @@ export const Galleries = () => {
 			const baseUrl = `/${workspaceId}/watermarks`;
 			const type = 'tenant';
 			const response = await service?.fetchPut(baseUrl, payload, usertoken, type);
-			if (response) {
-				return response;
-			}
+			return response;
 		} catch (error) {
 			console.error(error);
 		}
@@ -1943,9 +1941,7 @@ export const Galleries = () => {
 			const baseUrl = `/${workspaceId}/galleries/${galleryId}/embedded-videos`;
 			const type = 'galleries';
 			const response = await service?.fetchPost(baseUrl, payload, usertoken, type);
-			if (response) {
-				return response;
-			}
+			return response;
 		} catch (error) {
 			console.error(error);
 		}
@@ -1959,9 +1955,7 @@ export const Galleries = () => {
 			const baseUrl = `/${workspaceId}/galleries/${galleryId}/embedded-videos/${videoId}`;
 			const type = 'galleries';
 			const response = await service?.fetchPut(baseUrl, payload, usertoken, type);
-			if (response) {
-				return response;
-			}
+			return response;
 		} catch (error) {
 			console.error(error);
 		}
@@ -1976,9 +1970,7 @@ export const Galleries = () => {
 			const baseUrl = `/${workspaceId}/galleries/${galleryId}/embedded-videos/slug-availability/${slug}`;
 			const type = 'galleries';
 			const response = await service?.fetchGet(baseUrl, usertoken, type);
-			if (response) {
-				return response;
-			}
+			return response;
 		} catch (error) {
 			console.error(error);
 		}
@@ -1992,9 +1984,7 @@ export const Galleries = () => {
 			const baseUrl = `/${workspaceId}/galleries/${galleryId}/embedded-videos/${videoId}`;
 			const type = 'galleries';
 			const response = await service.fetchDelete(baseUrl, usertoken, null, type);
-			if (response) {
-				return response;
-			}
+			return response;
 		} catch (error) {
 			console.error(error);
 		}
