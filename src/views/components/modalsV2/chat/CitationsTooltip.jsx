@@ -179,7 +179,12 @@ export const CitationsTooltip = memo(({ citationId, citations = null, placement 
 									</div>
 								)}
 							</div>
-							<div className="citation-text">
+							<div
+								className="citation-text"
+								style={{
+									maxWidth: citationInfo?.type === 'url' ? 'unset' : '80px',
+								}}
+							>
 								{citationInfo?.type === 'url'
 									? getWebsiteName(citationInfo?.name || '')
 									: citationInfo?.name || ''}

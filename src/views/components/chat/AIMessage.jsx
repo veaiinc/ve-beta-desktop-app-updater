@@ -16,7 +16,6 @@ import ClarifyWidget from './chatWidgets/ClarifyWidget';
 import FormWidget from './FormWidget';
 import UnintegratedAgentApps from './chatComponents/UnintegratedAgentApps';
 import { fileTypeIcons, getFaviconUrl, getWebsiteName } from '../../../helpers';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 const AIMessage = ({
 	text,
@@ -31,14 +30,11 @@ const AIMessage = ({
 	handleSourcesClick = null,
 	messageIndex = null,
 	showCitationsButton = true,
-	sessionId = null,
 }) => {
 	const {
 		documentPreview: { setNoteContent },
 		templates: { updateStateValues, aiMessagesInfo },
 	} = useContext(Context);
-	const location = useLocation();
-	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		isCopiedToClipboard: false,
@@ -130,20 +126,6 @@ const AIMessage = ({
 				<ClarifyWidget data={messageData?.data} />
 			) : (
 				<Markdown citations={citations}>{text}</Markdown>
-			)}
-
-			{messageData?.agent_id && !location?.pathname?.includes('agent') && (
-				<div
-					className="agentCreation"
-					onClick={() => {
-						navigate(
-							`/agent/${messageData?.agent_id}?config=prompt&agentAction=buildAgent&sId=${sessionId}`,
-						);
-					}}
-					role="button"
-				>
-					Agent created. Click to see.
-				</div>
 			)}
 
 			{messageData?.unintegrated_apps?.length > 0 && (

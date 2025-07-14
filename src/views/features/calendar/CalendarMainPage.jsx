@@ -8,6 +8,8 @@ import ObjectId from 'bson-objectid';
 import moment from 'moment';
 import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 import SchedulerSessionMainPage from '../../components/calendar/SchedulerSessionMainPage';
+import { message } from '../../components/globalComponents/CustomToast';
+
 const initialState = {
 	selectedWeek: [],
 	isCreateEventOpen: false,
@@ -162,8 +164,12 @@ const Calendar = () => {
 			selectedSession: null,
 		}));
 	}, []);
-
 	const updateCategoryList = useCallback(() => {
+		console.log(calendarCategoriesList);
+		if (calendarCategoriesList?.error) {
+			message.error(calendarCategoriesList?.error);
+			return;
+		}
 		const categories = calendarCategoriesList?.map((category) => ({
 			...category,
 			_id: category?._id,

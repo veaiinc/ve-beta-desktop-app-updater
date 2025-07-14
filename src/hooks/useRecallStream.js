@@ -38,6 +38,7 @@ const useRecallStream = () => {
 		isIntentionallyClosedRef.current = false;
 
 		const wsUrl = `wss://recall.${region}.ve.ai/frontend/ws/${pageId}?token=${usertoken}`;
+		// const wsUrl = `https://internally-well-earwig.ngrok-free.app/frontend/ws/${pageId}?token=${usertoken}`;
 
 		const connect = () => {
 			socketRef.current = new WebSocket(wsUrl);
@@ -102,7 +103,15 @@ const useRecallStream = () => {
 		}
 	}, []);
 
-	return { createWebSocketConnection, closeWebSocketConnection };
+	const sendMessage = useCallback((message) => {
+		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+			socketRef.current.send(JSON.stringify(message));
+		} else {
+			console.warn('WebSocket is not connected. Cannot send message:', message);
+		}
+	}, []);
+
+	return { createWebSocketConnection, closeWebSocketConnection, sendMessage };
 };
 
 export default useRecallStream;

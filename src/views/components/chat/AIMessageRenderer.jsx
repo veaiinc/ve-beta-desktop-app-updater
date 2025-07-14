@@ -14,7 +14,6 @@ const AIMessageRenderer = ({
 	messageIndex = null,
 	showCitationsButton = true,
 	isLastMessage = false,
-	sessionId = null,
 }) => {
 	return (
 		<div className="ai-message-renderer">
@@ -24,7 +23,7 @@ const AIMessageRenderer = ({
 				<>
 					{(messageData?.processing === 'Deep Search' ||
 						messageData?.processing === 'Deep Research' ||
-						messageData?.processing === 'normal_search' ||
+						messageData?.processing === 'Normal Search' ||
 						messageData?.memory_thinking) && (
 						<ChainOfThoughtWidget messageData={messageData} />
 					)}
@@ -42,7 +41,6 @@ const AIMessageRenderer = ({
 						handleSourcesClick={handleSourcesClick}
 						messageIndex={messageIndex}
 						showCitationsButton={showCitationsButton}
-						sessionId={sessionId}
 					/>
 				</>
 			)}

@@ -999,6 +999,7 @@ export const getMeetBotDataQuery = gql`
 					email
 				}
 				isDeleted
+				transcriptionSource
 			}
 		}
 	}
