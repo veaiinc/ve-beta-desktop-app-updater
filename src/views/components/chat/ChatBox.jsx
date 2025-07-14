@@ -1484,7 +1484,7 @@ const ChatBox = ({
 															>
 																<Tooltip
 																	title={
-																		<div className="chatbox-icon-tooltip-container upload-file-tooltip-container">
+																		<div className="chatbox-icon-tooltip-container upload-file-tooltip-btn-container">
 																			<PlusSvg
 																				width={20}
 																				height={20}
