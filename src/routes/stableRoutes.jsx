@@ -7,6 +7,8 @@ import AuthWrapper from '../views/layouts/authWrapper';
 
 // pages
 import InitialHomePage from '../views/features/homePage/InitialHomePage';
+import MeetBot from '../views/features/meetBot/meetBot';
+import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 
 // lazy loaded pages
 const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
@@ -77,6 +79,22 @@ const stableRoutes = [
 				<Suspense fallback={<SuspenseFallback />}>
 					<RecentChat />
 				</Suspense>
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/meet',
+		element: (
+			<AuthWrapper title={'Meet'}>
+				<MeetBot />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/meet/:noteId',
+		element: (
+			<AuthWrapper title={'Meet'}>
+				<NotesWrapper />
 			</AuthWrapper>
 		),
 	},
