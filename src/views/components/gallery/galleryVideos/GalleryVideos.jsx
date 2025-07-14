@@ -82,7 +82,7 @@ const GalleryVideos = ({ selectedVideo, onUpdateVideoStatus, removeSelectedVideo
 								<video
 									src={getEmbedUrl(selectedVideo)}
 									controls
-									className="selectedVideoPlayer"
+									className="selectedVideoPlayer w-full h-96 rounded-lg"
 									poster={getThumbnailUrl(selectedVideo)}
 								/>
 							) : (
@@ -96,7 +96,7 @@ const GalleryVideos = ({ selectedVideo, onUpdateVideoStatus, removeSelectedVideo
 									src={getEmbedUrl(selectedVideo)}
 									title={selectedVideo.title || 'Video Player'}
 									frameBorder="0"
-									allow="autoplay"
+									allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
 									allowFullScreen
 								></iframe>
 							)
