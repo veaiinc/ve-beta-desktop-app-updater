@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import './PromptWithIcons.scss';
-
+const actionPattern = /<([^>]+)>/g;
 const PromptWithIcons = ({ prompt, actionDetails, onChange, placeholder, className, style, readOnly, disabled, autoResize }) => {
     const [isEditing, setIsEditing] = useState(false);
     const textAreaRef = useRef(null);
@@ -20,9 +20,9 @@ const PromptWithIcons = ({ prompt, actionDetails, onChange, placeholder, classNa
         }, {});
 
         // Split the prompt by action patterns and render with icons
-        const parts = [];
+        let parts = [];
         let lastIndex = 0;
-        const actionPattern = /<([^>]+)>/g;
+       
         let match;
 
         while ((match = actionPattern.exec(prompt)) !== null) {

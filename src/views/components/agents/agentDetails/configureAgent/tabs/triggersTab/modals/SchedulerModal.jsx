@@ -2,6 +2,13 @@ import { memo, useState } from 'react';
 import { message } from '../../../../../../../components/globalComponents/CustomToast';
 import s from './schedulerModal.module.scss';
 
+const recurrenceOptions = [
+	{ value: 'hourly', label: 'Hourly' },
+	{ value: 'daily', label: 'Daily' },
+	{ value: 'weekly', label: 'Weekly' },
+	{ value: 'monthly', label: 'Monthly' },
+	{ value: 'yearly', label: 'Yearly' },
+];
 const SchedulerModal = ({
 	isOpen,
 	onClose,
@@ -13,13 +20,6 @@ const SchedulerModal = ({
 		recurrence: 'daily', // Default to daily
 	});
 
-	const recurrenceOptions = [
-		{ value: 'hourly', label: 'Hourly' },
-		{ value: 'daily', label: 'Daily' },
-		{ value: 'weekly', label: 'Weekly' },
-		{ value: 'monthly', label: 'Monthly' },
-		{ value: 'yearly', label: 'Yearly' },
-	];
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();

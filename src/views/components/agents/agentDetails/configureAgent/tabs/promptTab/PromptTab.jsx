@@ -5,8 +5,7 @@ import Context from '../../../../../../../context/context';
 import { useParams } from 'react-router-dom';
 import { message } from '../../../../../../components/globalComponents/CustomToast';
 import KnowledgeAgentPrompt from '../../../../../knowledgeAgent/KnowledgeAgentPrompt';
-import { getFaviconUrl } from '../../../../../../../helpers';
-
+const actionPattern = /<([^>]+)>/g;
 const PromptTab = () => {
 	const { agentId } = useParams();
 	const {
@@ -36,8 +35,8 @@ const PromptTab = () => {
 		if (!prompt) return [];
 
 		// Regular expression to match action names in angle brackets
-		const actionPattern = /<([^>]+)>/g;
-		const actions = [];
+	
+		let actions = [];
 		let match;
 
 		// Find all matches in the prompt
@@ -92,7 +91,7 @@ const PromptTab = () => {
 						});
 					}
 				} catch (error) {
-					console.error(`Error fetching action ${actionName}:`, error);
+					message.error(`Error fetching action ${actionName}:`, error);
 				}
 			}
 

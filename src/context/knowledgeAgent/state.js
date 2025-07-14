@@ -1135,7 +1135,6 @@ export const KnowledgeAgentState = () => {
 		if (response?.[0] === true) {
 			return [true, response?.[1]];
 		}
-		return [false, response?.[1]];
 	};
 
 	return {

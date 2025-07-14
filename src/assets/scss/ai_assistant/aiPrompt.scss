@@ -127,7 +127,7 @@
 				&:hover {
 					background-color: var(--primary-color, #79ecc9);
 					border-color: var(--primary-color, #79ecc9);
-					color: var(--card-bg, #1a1b1c);
+					color: var(--card-over-card, #1a1b1c);
 				}
 
 				.actionIcon {
@@ -151,7 +151,7 @@
 				border: 1px solid var(--stroke, #2c2d2e);
 				border-radius: 4px;
 				color: var(--secondary-font, #7a7e85);
-				font-family: 'monospace';
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 			}
 		}
