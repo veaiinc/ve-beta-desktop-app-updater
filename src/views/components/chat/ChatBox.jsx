@@ -1268,18 +1268,6 @@ const ChatBox = ({
 										}),
 									}}
 								>
-									{chatReplyData && (
-										<div className="chat-reply-data">
-											<div className="reply-icon"></div>
-											<div className="reply-text">{`"${chatReplyData}"`}</div>
-											<div
-												className="reply-close-icon"
-												onClick={handleReplyCloseClick}
-											>
-												<CloseSvg width={16} height={16} />
-											</div>
-										</div>
-									)}
 									<RecentFileTooltip
 										fileTypeIcons={fileTypeIcons}
 										handleRecentFileClick={handleRecentFileClick}
@@ -2095,6 +2083,16 @@ const ChatBox = ({
 							<div className="upgrade-button" onClick={handleUpgradeClick}>
 								Upgrade
 							</div>
+						</div>
+					</div>
+				)}
+
+				{chatReplyData && (
+					<div className="chat-reply-data">
+						<div className="reply-icon"></div>
+						<div className="reply-text">{`"${chatReplyData}"`}</div>
+						<div className="reply-close-icon" onClick={handleReplyCloseClick}>
+							<CloseSvg width={16} height={16} />
 						</div>
 					</div>
 				)}
