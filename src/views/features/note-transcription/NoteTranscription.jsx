@@ -18,7 +18,14 @@ const TranscriptionItem = memo(({ displayedText, isFinal }) => {
 	);
 });
 
-export default function NoteTranscription({ pageId, updateTranscription }) {
+export default function NoteTranscription({
+	pageId,
+	updateTranscription,
+	sendMessage,
+	tenantId,
+	sessionId,
+	recallPageId,
+}) {
 	const wsUrl = 'wss://ve-ai-transcriptions-8p8k0b44.livekit.cloud';
 	const [liveKitToken, setLiveKitToken] = useState(null);
 	const [transcriptions, setTranscriptions] = useState([]); // For rendering
@@ -88,12 +95,6 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 	useEffect(() => {
 		const lastTranscription = transcriptions[transcriptions.length - 1];
 		const prevTranscriptionId = transcriptions[transcriptions.length - 2]?.id || null;
-		updateTranscription(lastTranscription, prevTranscriptionId);
-		{
-			lastTranscription?.isFinal &&
-				updateCurrentContext &&
-				updateCurrentContext(lastTranscription?.displayedText);
-		}
 	}, [transcriptions]);
 
 	// Use useTrackTranscription to get transcription segments
@@ -122,6 +123,26 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 			debounce(fn, 200)(...args);
 		},
 		[debounce],
+	);
+
+	// Function to send transcription to recall socket
+	const sendTranscriptionToRecall = useCallback(
+		(transcriptionData) => {
+			if(transcriptionData.isFinal && sendMessage && tenantId && sessionId && recallPageId){
+			if ( sendMessage && tenantId && sessionId && recallPageId) {
+				const message = {
+					tenantId,
+					sessionId,
+					pageId: recallPageId,
+					speakerName: '',
+					transcript: transcriptionData.displayedText,
+					description: '',
+				};
+				sendMessage({ noteTakerTranscript: message });
+				}
+			}
+		},
+		[sendMessage, tenantId, sessionId, recallPageId],
 	);
 
 	// Typing effect for a single transcription
@@ -232,11 +253,19 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 						text: segment.text,
 						isFinal: segment.final,
 					});
-					// debouncedUpdateTranscription(updateTranscription, segment);
+					// Call updateTranscription with the correct format
+					const transcriptionData = {
+						id: segment.id,
+						displayedText: segment.text,
+						isFinal: segment.final,
+					};
+					debouncedUpdateTranscription(updateTranscription, transcriptionData);
+
+					// Send transcription to recall socket for live intelligence
+					sendTranscriptionToRecall(transcriptionData);
 				}
 			}
 		});
-
 		// Update live intelligence context with accumulated transcription text
 		// if (transcriptionText.trim()) {
 		// 	updateCurrentContext(transcriptionText.trim());
@@ -260,7 +289,6 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 			containerRef.current.scrollTop = containerRef.current.scrollHeight;
 		}
 	}, [transcriptions]);
-
 	// Handle start transcription
 	const handleStartTranscription = async () => {
 		// Fetch a new LiveKit token
@@ -271,11 +299,11 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 				setIsRecording(true);
 
 				// Start live intelligence connection
-				createLiveIntelligenceConnection(
-					sessionIdRef.current,
-					pageId,
-					handleLiveIntelligenceMessage,
-				);
+				// createLiveIntelligenceConnection(
+				// 	sessionIdRef.current,
+				// 	pageId,
+				// 	handleLiveIntelligenceMessage,
+				// );
 			} else {
 				console.error('Failed to fetch LiveKit token: Invalid response format', response);
 				message.error('Failed to fetch transcription token. Please try again.');
@@ -306,7 +334,10 @@ export default function NoteTranscription({ pageId, updateTranscription }) {
 	};
 
 	// Handle live intelligence messages
-	const handleLiveIntelligenceMessage = useCallback((event) => {}, []);
+	const handleLiveIntelligenceMessage = useCallback((event) => {
+		const data = JSON.parse(event?.data || null);
+		console.log(data, 'data');
+	}, []);
 
 	// Helper for formatting time
 	const formatTime = (seconds) => {
