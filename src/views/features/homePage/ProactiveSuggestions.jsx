@@ -794,6 +794,10 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																: 'var(--background-color)',
 													}}
 												>
+													{classList?.[1] === 'selected' &&
+														card?.read === false && (
+															<div className="unread-indicator" />
+														)}
 													<div className="header">
 														<div className="header__card-title">
 															{card?.collectionType && getTitle(card)}
