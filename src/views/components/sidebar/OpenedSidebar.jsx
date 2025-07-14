@@ -316,9 +316,13 @@ const OpenedSidebar = ({
 	const location = useLocation();
 
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
+	const isWorkspaceSuspended = workspaceMode === 'suspended';
 
-	// Add this constant for Settings options
-	const settingsOptions = isAdmin ? settingsNavigationItems.admin : settingsNavigationItems.user;
+	const settingsOptions = isWorkspaceSuspended
+		? []
+		: isAdmin
+		? settingsNavigationItems.admin
+		: settingsNavigationItems.user;
 
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
 	useEffect(() => {
@@ -507,14 +511,15 @@ const OpenedSidebar = ({
 					allPossibleApps,
 			  );
 
-	const settingEssentials =
-		tenantUserAccessControls?.role === 'admin'
-			? settingsNavigationItems.essentials
-			: filterModules(
-					settingsNavigationItems.essentials,
-					tenantUserAccessControls?.accessControls,
-					allPossibleApps,
-			  );
+	const settingEssentials = isWorkspaceSuspended
+		? []
+		: tenantUserAccessControls?.role === 'admin'
+		? settingsNavigationItems.essentials
+		: filterModules(
+				settingsNavigationItems.essentials,
+				tenantUserAccessControls?.accessControls,
+				allPossibleApps,
+		  );
 
 	const isExactPathMatch = useCallback(
 		(currentRoute, moduleName) => {

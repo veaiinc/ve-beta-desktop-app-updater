@@ -5,9 +5,9 @@ import CustomToast from '../components/globalComponents/CustomToast';
 
 const Public = ({ children }) => {
 	useTheme();
+	const { workspaceModeLoading } = useWorkspaceMode();
 
-	const { loading } = useWorkspaceMode();
-	return loading ? (
+	return workspaceModeLoading ? (
 		<PageLoader />
 	) : (
 		<>
