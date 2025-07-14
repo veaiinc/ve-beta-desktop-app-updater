@@ -1,12 +1,19 @@
+// import React from 'react';
 import s from './pageLoader.module.scss';
+import Spinner from '../../components/loaders/Spinner';
 import useTheme from '../../../hooks/useTheme';
-import WorkspaceNotFound from './WorkspaceNotFound';
 
 const PageLoader = () => {
 	useTheme();
 	return (
 		<div className={s.loaderContainer}>
-			<WorkspaceNotFound />
+			<Spinner
+				width="32px"
+				height="32px"
+				color="var(--primary-button)"
+				borderTopColor="var(--background-color)"
+				borderWidth="1.5"
+			/>
 		</div>
 	);
 };
