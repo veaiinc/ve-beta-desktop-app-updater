@@ -82,6 +82,13 @@ export const internalNavigationItems = [
 		route: '/home',
 		icon: HomeSvg,
 	},
+	{
+		id: 7,
+		name: 'Live',
+		moduleRoute: null,
+		route: '/meet',
+		icon: MeetIcon,
+	},
 	{ id: 2, name: 'Agents', route: '/agents', icon: AgentsSvg },
 	{
 		id: 3,
@@ -99,13 +106,7 @@ export const internalNavigationItems = [
 	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
 	{ id: 5, name: 'Tasks', route: '/tasks', icon: TasksSvg },
 	{ id: 6, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
-	{
-		id: 7,
-		name: 'Meet',
-		moduleRoute: null,
-		route: '/meet',
-		icon: MeetIcon,
-	},
+
 	{ id: 8, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
 
 	{ id: 9, name: 'Automations', route: '/automations', icon: AutomationSvg },
