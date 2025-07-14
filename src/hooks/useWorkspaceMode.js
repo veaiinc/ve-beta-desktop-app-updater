@@ -27,9 +27,11 @@ const routeImports = {
 	stableRoutes: () => import('../routes/stableRoutes'),
 	betaRoutes: () => import('../routes/betaRoutes'),
 	internalRoutes: () => import('../routes/internalRoutes'),
+	workspaceNotFoundRoute: () => import('../routes/workspaceNotFound'),
 };
 
 const routeMap = {
+	null: 'fallbackRoute',
 	stable: 'stableRoutes',
 	beta: 'betaRoutes',
 	internal: 'internalRoutes',
@@ -49,6 +51,7 @@ const useWorkspaceMode = () => {
 		betaRoutes: null,
 		internalRoutes: null,
 		fallbackRoute,
+		workspaceNotFoundRoute: null,
 	});
 	const [workspaceNotFound, setWorkspaceNotFound] = useState(false);
 
@@ -56,7 +59,11 @@ const useWorkspaceMode = () => {
 	const isPublicRoute = publicRoutesList.some((routePath) =>
 		matchPath({ path: routePath, end: true }, pathname),
 	);
-	const routeType = isPublicRoute ? 'publicRoutes' : routeMap[workspaceMode] || 'fallbackRoute';
+	const routeType = isPublicRoute
+		? 'publicRoutes'
+		: workspaceNotFound
+		? 'workspaceNotFoundRoute'
+		: routeMap[workspaceMode];
 	const routes = routesInfo[routeType] ?? routesInfo['fallbackRoute'];
 	const loading = isPublicRoute || workspaceNotFound ? false : workspaceMode === null; // since public routes don't have workspace mode. Until workspace mode becomes stable/beta, loading is true.
 
@@ -97,7 +104,6 @@ const useWorkspaceMode = () => {
 		importRoutes(routeType);
 	}, [routeType]);
 
-	console.log(workspaceMode, loading, workspaceNotFound, routes);
 	return { loading, routes, workspaceMode, workspaceNotFound };
 };
 
