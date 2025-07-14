@@ -4215,15 +4215,47 @@ const GalleryPage = () => {
 					<div className="galleryTitleWhenScrolled" style={{ gap: '24px' }}>
 						{sortByCustomIndex(albumImagesCount?.albums)?.map((album) => {
 							const isActive = album._id === info.activeAlbumId;
+							let src = null;
+							if (album?.coverImage?._id) {
+								const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+								src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
+							}
 							return (
 								<span
 									key={album._id}
 									className={`albumTabs ${isActive ? 'activeTab' : ''}`}
 									onClick={() => handleClickAlbum(album, 'albumName')}
 								>
-									{album.title}
-									<span className={`count ${isActive ? 'active' : ''}`}>
-										{album.imagesCount}
+									{/* <div
+										style={{
+											backgroundImage: `url(${src})`,
+											backgroundPosition: `${Math.floor(
+												album?.coverImage?.xPosition * 50 + 50,
+											)}%  ${Math.floor(
+												50 - album?.coverImage?.yPosition * 50,
+											)}%`,
+											width: '24px',
+											height: '24px',
+											borderRadius: '50%',
+											overflow: 'hidden',
+										}}
+									/> */}
+									{album?.coverImage?._id && (
+										<img
+											src={src}
+											style={{
+												width: '24px',
+												height: '24px',
+												borderRadius: '50%',
+												overflow: 'hidden',
+											}}
+										/>
+									)}
+									<span>
+										{album.title}
+										<span className={`count ${isActive ? 'active' : ''}`}>
+											{album.imagesCount}
+										</span>
 									</span>
 								</span>
 							);

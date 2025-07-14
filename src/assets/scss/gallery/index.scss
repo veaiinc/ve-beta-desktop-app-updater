@@ -2308,6 +2308,9 @@
 	position: relative;
 	padding: 4px;
 	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
 	&:hover {
 		background: var(--card-over-card-hover);
 	}
