@@ -22,16 +22,16 @@ const BlockPage = () => {
 						<BlockIcon />
 					</div>
 					<div className={s.blockPageContentBody}>
-						<h1 className={s.blockPageContentTitle}>Workspace is Blocked</h1>
+						<h1 className={s.blockPageContentTitle}>Workspace Suspended</h1>
 						<p className={s.blockPageContentDescription}>
 							We've hit a temporary issue with your current workspace. Don't worry,
-							you're not blocked—just your workspace. You can still access other
+							you're not suspended—just your workspace. You can still access other
 							workspaces or create a new one.
 						</p>
 					</div>
 				</section>
 			</main>
-			<nav className={s.blockPageContentButton} aria-label="Workspace actions">
+			{/* <nav className={s.blockPageContentButton} aria-label="Workspace actions">
 				<button type="button" className={s.blockPageContentButtonSwitch}>
 					<span className={s.blockPageContentButtonTextIcon}>
 						<SwitchIcon />
@@ -46,7 +46,7 @@ const BlockPage = () => {
 					</span>
 					<span className={s.blockPageContentButtonText}>Create New Workspace</span>
 				</button>
-			</nav>
+			</nav> */}
 			<footer className={s.blockPageFooter}>
 				<div className={s.blockPageFooterContent}>
 					Need Help? Contact our support team at{' '}
