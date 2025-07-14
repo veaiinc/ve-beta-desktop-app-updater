@@ -170,7 +170,12 @@ const AIMessage = ({
 								overlayInnerStyle={{ color: 'var(--primary-font)' }}
 							>
 								<PencilSparkleIcon
-									style={{ width: '20px', height: '20px' }}
+									style={{
+										width: '20px',
+										height: '20px',
+										position: 'relative',
+										top: '-2px',
+									}}
 									onClick={handlePencilClick}
 								/>
 							</Tooltip>
