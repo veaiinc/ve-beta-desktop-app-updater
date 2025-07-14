@@ -2,7 +2,7 @@ import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/n
 // import { ReactComponent as SearchIcon } from '../../../assets/svg/sidebar/searchIcon.svg';
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
 import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
-import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
+import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsNewIcon.svg';
 import { ReactComponent as InfiniteSvg } from '../../../assets/svg/sidebar/infinity.svg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 import ChatSvg from '../../../assets/svg/sidebar/NewChat.jsx';
@@ -69,8 +69,8 @@ export const betaNavigationItems = [
 		icon: DatabaseIcon,
 	},
 	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
-	{ id: 5, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
-	{ id: 6, name: 'Tasks', route: '/tasks', icon: TasksSvg },
+	{ id: 5, name: 'Tasks', route: '/tasks', icon: TasksSvg },
+	{ id: 6, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
 	{ id: 7, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
 	{ id: 8, name: 'Automations', route: '/automations', icon: AutomationSvg },
 ];
@@ -97,6 +97,13 @@ export const internalNavigationItems = [
 		route: '/ambient-ai',
 		icon: InfiniteSvg,
 	},
+	{
+		id: 7,
+		name: 'Live',
+		moduleRoute: null,
+		route: '/meet',
+		icon: MeetIcon,
+	},
 	{ id: 2, name: 'Agents', route: '/agents', icon: AgentsSvg },
 	{
 		id: 3,
@@ -112,16 +119,11 @@ export const internalNavigationItems = [
 		icon: DatabaseIcon,
 	},
 	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
-	{ id: 5, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
-	{ id: 6, name: 'Tasks', route: '/tasks', icon: TasksSvg },
-	{ id: 7, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
-	{
-		id: 8,
-		name: 'Meet',
-		moduleRoute: null,
-		route: '/meet',
-		icon: MeetIcon,
-	},
+	{ id: 5, name: 'Tasks', route: '/tasks', icon: TasksSvg },
+	{ id: 6, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
+
+	{ id: 8, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
+
 	{ id: 9, name: 'Automations', route: '/automations', icon: AutomationSvg },
 ];
 
