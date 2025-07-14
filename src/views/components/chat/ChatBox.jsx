@@ -1247,6 +1247,14 @@ const ChatBox = ({
 		}));
 	}, []);
 
+	const handleScrollButtonClick = useCallback(
+		(e) => {
+			e?.stopPropagation();
+			smoothScrollToBottom?.();
+		},
+		[smoothScrollToBottom],
+	);
+
 	return (
 		<div className="chatParentWrapper" onClick={handleChatBoxClick}>
 			<div className={`chatWrapper`}>
@@ -1995,7 +2003,7 @@ const ChatBox = ({
 			<div className="chatbarContainer" style={{ width: '100%' }}>
 				{showScrollButton && (
 					<div className="scroll-btn-wrapper">
-						<button className="scroll-button" onClick={() => smoothScrollToBottom?.()}>
+						<button className="scroll-button" onClick={handleScrollButtonClick}>
 							<ArrowUpRightSvg className="arrow-up" />
 						</button>
 					</div>
