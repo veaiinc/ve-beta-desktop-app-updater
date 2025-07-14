@@ -97,7 +97,6 @@ const PromptTab = () => {
 			}
 
 			setInfo({ ...info, actionDetails: actionDetailsArray });
-			console.log('Action details with favicons:', actionDetailsArray);
 		};
 
 		if (agentData?.prompt?.customEditedPrompt) {
