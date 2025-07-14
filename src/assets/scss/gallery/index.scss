@@ -58,7 +58,7 @@
 	gap: 40px;
 	overflow: hidden;
 	background-color: transparent !important;
-	height: 93vh;
+	height: 100vh;
 	overflow-y: auto;
 	position: relative;
 	width: 80vw;
@@ -1177,6 +1177,11 @@
 						background: rgba(0, 0, 0, 0.5); /* Adjust opacity as needed */
 						pointer-events: none;
 					}
+					.selectedTickSvg {
+						position: absolute;
+						top: 10px;
+						z-index: 9;
+					}
 					.rotating-circle {
 						position: absolute;
 						top: 10px;
@@ -1216,9 +1221,7 @@
 					}
 				}
 				.selected {
-					border: 2px solid var(--primary-font, #f2f2f3);
-					// border-radius: 12px;
-					padding: 6px;
+					border: 2px solid var(--primary-button, #f2f2f3);
 				}
 				.selectedImagesCotainer {
 					display: flex;

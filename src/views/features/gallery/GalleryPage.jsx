@@ -22,8 +22,7 @@ import { ReactComponent as LightRoomIcon } from '../../../assets/svg/gallery/lig
 import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/changeAlbumCover.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/svg/gallery/delete-red.svg';
 import { ReactComponent as LockIcon } from '../../../assets/svg/gallery/lockIcon.svg';
-import { ReactComponent as HomeIcon } from '../../../assets/svg/gallery/home.svg';
-import { ReactComponent as RightArrow } from '../../../assets/svg/gallery/rightArrow.svg';
+import { ReactComponent as TickSvg } from '../../../assets/svg/gallery/tickFilled.svg';
 import { ReactComponent as ToastSuccess } from '../../../assets/svg/gallery/toastSuccess.svg';
 import { ReactComponent as ToastWarning } from '../../../assets/svg/gallery/toastWarning.svg';
 import { ReactComponent as ToastError } from '../../../assets/svg/gallery/toastError.svg';
@@ -4629,7 +4628,9 @@ const GalleryPage = () => {
 															ref={filtersRef}
 															className="rearrangeManually"
 														>
-															<NewFilterSvg />
+															<NewFilterSvg
+																stroke={'var(--secondary-font)'}
+															/>
 															Filter
 														</div>
 													</Tooltip>
@@ -4955,9 +4956,18 @@ const GalleryPage = () => {
 																					width: '100%',
 																					display:
 																						'block',
+																					borderRadius:
+																						'12px',
 																				}}
 																				draggable={false}
 																			/>
+																			{info?.selectedImages?.includes(
+																				image?._id,
+																			) && (
+																				<div className="selectedTickSvg">
+																					<TickSvg />
+																				</div>
+																			)}
 																			{info.selectingImages && (
 																				<div className="imageOverlay"></div>
 																			)}
@@ -5633,31 +5643,6 @@ const GalleryPage = () => {
 						</div>
 						{!info.isRearranging && (
 							<div className="selectedImagesActions">
-								<div onClick={() => handleExpandClick(null, 'multiple')}>
-									<ExpandIcon />
-								</div>
-
-								<div style={{ position: 'relative' }} ref={forwardIconRef}>
-									<ForwardIcon onClick={handleForwardIcon} />
-
-									{info.showForward && (
-										<div className="forwardOptions" ref={forwardOptionsRef}>
-											{/* <li style={{ cursor: 'not-allowed' }}>
-																Copy to client selection
-															</li> */}
-											<li
-												onClick={() =>
-													setInfo((prev) => ({
-														...prev,
-														showMoveToAlbum: true,
-													}))
-												}
-											>
-												Move to Other Albums
-											</li>
-										</div>
-									)}
-								</div>
 								<div style={{ position: 'relative' }} ref={pinIconRef}>
 									<PinIcon onClick={handlePinIcon} />
 									{info.showPin && (
@@ -5720,6 +5705,24 @@ const GalleryPage = () => {
 										</div>
 									)}
 								</div>
+								<div onClick={() => handleExpandClick(null, 'multiple')}>
+									<ExpandIcon />
+								</div>
+								<div onClick={handleDownload}>
+									<DownloadIcon />
+								</div>
+								{info?.activeTab !== 'Collections' && (
+									<div
+										onClick={() =>
+											setInfo((prev) => ({
+												...prev,
+												showImageDeletePopup: true,
+											}))
+										}
+									>
+										<DeleteIcon />
+									</div>
+								)}
 								{/* <div style={{ position: 'relative' }} ref={optionsIconRef}>
 									<OptionsIcon onClick={handleOptionsIcon} />
 									{info.showAlbumOptionsMenu && (
@@ -5765,7 +5768,7 @@ const GalleryPage = () => {
 										</div>
 									)}
 								</div> */}
-								<Tooltip
+								{/* <Tooltip
 									title={
 										<div
 											className="optionsContainer"
@@ -5818,7 +5821,7 @@ const GalleryPage = () => {
 									color={'transparent'}
 								>
 									<OptionsIcon />
-								</Tooltip>
+								</Tooltip> */}
 							</div>
 						)}
 					</div>
