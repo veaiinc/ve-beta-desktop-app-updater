@@ -134,6 +134,7 @@ const ChatBox = ({
 	onChatQueryChange = null,
 	isBuildEnbled = true,
 	showUpgradeSubscriptionBtn = true,
+	animateChatBox = true,
 }) => {
 	const textAreaRef = useRef(null);
 	const location = useLocation();
@@ -198,10 +199,13 @@ const ChatBox = ({
 		openUpgradeModal: false,
 		askTooltipOpen: false,
 		chatBoxInfo: initialChatBoxInfo,
+		chatboxMinimized: true,
+		chatBoxContainerHeight: 60,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
+	const textAreaWrapperRef = useRef(null);
 	const uploadedImagesRef = useRef(info?.uploadedImages || []);
 	const recentFilesRef = useRef(info?.recentFiles || []);
 	const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
@@ -223,7 +227,27 @@ const ChatBox = ({
 				chatInfo: { ...chatInfo, agentType: 'multi_agent', assistantId: null },
 			});
 		}
+		document.addEventListener('click', handleWindowClick);
+		return () => {
+			document.removeEventListener('click', handleWindowClick);
+		};
 	}, []);
+
+	useEffect(() => {
+		if (!animateChatBox) return;
+		setInfo((prev) => {
+			const height = info?.chatboxMinimized
+				? '60px'
+				: `${textAreaRef?.current?.scrollHeight + 58 + 28}px`;
+			if (height === prev?.chatBoxContainerHeight) {
+				return prev;
+			}
+			return {
+				...prev,
+				chatBoxContainerHeight: height,
+			};
+		});
+	}, [info?.chatboxMinimized]);
 
 	useEffect(() => {
 		const sessionData = globalChatMessages?.[info?.chatSessionId],
@@ -403,6 +427,18 @@ const ChatBox = ({
 		setPreviewOpen(true);
 	};
 
+	const handleWindowClick = useCallback(() => {
+		if (!animateChatBox) return;
+		setInfo((prev) => {
+			if (prev?.chatboxMinimized) {
+				return prev;
+			}
+			return {
+				...prev,
+				chatboxMinimized: true,
+			};
+		});
+	}, [animateChatBox]);
 	const handleGoalsClick = () => {
 		let chatBoxData = info?.chatBoxInfo;
 
@@ -704,6 +740,7 @@ const ChatBox = ({
 						chatQuery: '',
 						// recentFiles: [],// not clearing the recent files , because they want like sana
 						chatFilters: initialChatFilters,
+						chatboxMinimized: true,
 					}));
 					uploadedImagesRef.current = [];
 
@@ -1094,12 +1131,20 @@ const ChatBox = ({
 
 	const handleTextAreaChange = (e) => {
 		const textArea = textAreaRef?.current;
+		const textAreaWrapper = textAreaWrapperRef?.current;
 		const query = e?.target?.value;
 		const lastChar = query?.trim()?.slice(-1);
 
+		let textAreaHeight = '';
+
 		if (textArea) {
 			textArea.style.height = 'auto';
-			textArea.style.height = textArea.scrollHeight + 'px';
+			textAreaHeight = Math.min(textArea?.scrollHeight, 250);
+			textArea.style.height = textAreaHeight + 'px';
+		}
+
+		if (textAreaWrapper) {
+			textAreaWrapper.style.height = textAreaHeight + 'px';
 		}
 
 		let isRecentFileOpen = false;
@@ -1115,13 +1160,14 @@ const ChatBox = ({
 			...prev,
 			chatQuery: query,
 			isRecentFileOpen,
+			chatBoxContainerHeight: textAreaHeight + 58 + 28 + 'px',
 		}));
 	};
 
 	const clearTextArea = () => {
 		const textArea = textAreaRef?.current;
 		if (textArea) {
-			textArea.style.height = '26px'; // Reset to initial min-height
+			textArea.style.height = '30px'; // Reset to initial min-height
 		}
 	};
 
@@ -1166,6 +1212,15 @@ const ChatBox = ({
 	// };
 
 	const handleChatBoxClick = (e) => {
+		if (animateChatBox) {
+			e?.stopPropagation();
+			if (info?.chatboxMinimized) {
+				setInfo((prev) => ({
+					...prev,
+					chatboxMinimized: false,
+				}));
+			}
+		}
 		if (customChatBoxClick) {
 			customChatBoxClick?.(e);
 		}
@@ -1216,11 +1271,16 @@ const ChatBox = ({
 		}));
 	}, []);
 
+	const handleScrollButtonClick = useCallback(
+		(e) => {
+			e?.stopPropagation();
+			smoothScrollToBottom?.();
+		},
+		[smoothScrollToBottom],
+	);
+
 	return (
-		<div
-			className="chatParentWrapper"
-			{...(customChatBoxClick && { onClick: handleChatBoxClick })}
-		>
+		<div className="chatParentWrapper" onClick={handleChatBoxClick}>
 			<div className={`chatWrapper`}>
 				<div
 					className={`chat-box-container ${
@@ -1229,24 +1289,19 @@ const ChatBox = ({
 				>
 					<div className="chatcontainer">
 						<div className="chatBodyContainer">
-							<div className="chatInputContainer">
+							<div
+								className="chatInputContainer"
+								style={{
+									...(animateChatBox && {
+										height: info?.chatBoxContainerHeight,
+									}),
+								}}
+							>
 								<div
 									className={`chatInputParentContainer ${
 										startPage ? ' startPageContainer' : ''
 									}`}
 								>
-									{chatReplyData && (
-										<div className="chat-reply-data">
-											<div className="reply-icon"></div>
-											<div className="reply-text">{`"${chatReplyData}"`}</div>
-											<div
-												className="reply-close-icon"
-												onClick={handleReplyCloseClick}
-											>
-												<CloseSvg width={16} height={16} />
-											</div>
-										</div>
-									)}
 									<RecentFileTooltip
 										fileTypeIcons={fileTypeIcons}
 										handleRecentFileClick={handleRecentFileClick}
@@ -1318,23 +1373,28 @@ const ChatBox = ({
 												startPage ? 'startPagePlaceholderContainer' : ''
 											}`}
 										>
-											<textarea
-												type="text"
-												value={info?.chatQuery}
-												onChange={handleTextAreaChange}
-												autoFocus={autoFocus}
-												onKeyDown={handleSendMessageFunc}
-												className={`textArea ${
-													startPage ? 'startTextPage' : ''
-												}`}
-												rows={1}
-												ref={textAreaRef}
-												placeholder={
-													!animatePlaceholder
-														? 'Start typing or use @ to mention a source.'
-														: ''
-												}
-											/>
+											<div
+												className="textAreaWrapper"
+												ref={textAreaWrapperRef}
+											>
+												<textarea
+													type="text"
+													value={info?.chatQuery}
+													onChange={handleTextAreaChange}
+													autoFocus={autoFocus}
+													onKeyDown={handleSendMessageFunc}
+													className={`textArea ${
+														startPage ? 'startTextPage' : ''
+													}`}
+													rows={1}
+													ref={textAreaRef}
+													placeholder={
+														!animatePlaceholder
+															? 'Start typing or use @ to mention a source.'
+															: ''
+													}
+												/>
+											</div>
 
 											{showPlaceholder && animatePlaceholder && (
 												<ChatBoxPlaceholder
@@ -1484,7 +1544,7 @@ const ChatBox = ({
 															>
 																<Tooltip
 																	title={
-																		<div className="chatbox-icon-tooltip-container upload-file-tooltip-container">
+																		<div className="chatbox-icon-tooltip-container upload-file-tooltip-btn-container">
 																			<PlusSvg
 																				width={20}
 																				height={20}
@@ -1974,7 +2034,7 @@ const ChatBox = ({
 			<div className="chatbarContainer" style={{ width: '100%' }}>
 				{showScrollButton && (
 					<div className="scroll-btn-wrapper">
-						<button className="scroll-button" onClick={() => smoothScrollToBottom?.()}>
+						<button className="scroll-button" onClick={handleScrollButtonClick}>
 							<ArrowUpRightSvg className="arrow-up" />
 						</button>
 					</div>
@@ -2004,7 +2064,12 @@ const ChatBox = ({
 										className="removeImageIcon"
 										onClick={() => handleRemoveImage(ele)}
 									>
-										<Close />
+										<Close
+											style={{
+												width: '10px',
+												height: '10px',
+											}}
+										/>
 									</span>
 								)}
 							</div>
@@ -2057,6 +2122,16 @@ const ChatBox = ({
 							<div className="upgrade-button" onClick={handleUpgradeClick}>
 								Upgrade
 							</div>
+						</div>
+					</div>
+				)}
+
+				{chatReplyData && (
+					<div className="chat-reply-data">
+						<div className="reply-icon"></div>
+						<div className="reply-text">{`"${chatReplyData}"`}</div>
+						<div className="reply-close-icon" onClick={handleReplyCloseClick}>
+							<CloseSvg width={16} height={16} />
 						</div>
 					</div>
 				)}

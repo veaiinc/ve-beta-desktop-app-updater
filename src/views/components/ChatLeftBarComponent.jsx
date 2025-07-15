@@ -208,6 +208,7 @@ const ChatLeftBarComponent = ({ children }) => {
 						})}
 						showCitationsButton={false}
 						onNavigateBack={handleGoBackClick}
+						animateChatBox={false}
 					/>
 				</div>
 			</div>

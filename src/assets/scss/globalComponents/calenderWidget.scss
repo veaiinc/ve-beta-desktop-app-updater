@@ -3,9 +3,9 @@
 	align-items: flex-start;
 	gap: 12px;
 	// flex: 1 0 0;
-	align-self: stretch;
 	border-radius: 24px;
 	position: relative;
+	width: 100%;
 	// margin: 0 auto;
 	.calenderWidgetContainer {
 		display: flex;
@@ -342,4 +342,10 @@
 	top: 10px;
 	left: 0;
 	// z-index: 100;
+}
+
+@media screen and (max-width: 1150px) {
+	.calender-main-container {
+		max-width: 412px !important;
+	}
 }

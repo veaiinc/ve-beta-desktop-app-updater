@@ -756,7 +756,7 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 
 	return (
 		<div className="task-main-container" style={{ width: width, height: height }}>
-			<div className="taskWidgetContainer">
+			<div className="taskGlobalWidgetContainer">
 				<div className="taskWidgetBody">
 					<div className="taskWidgetBodyHeader">
 						<div className="taskWidgetBodyHeaderLeft">

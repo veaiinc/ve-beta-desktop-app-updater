@@ -50,16 +50,16 @@
 }
 
 @media screen and (max-width: 425px) {
-	.initial-home-page-container {
-		.home-page-container-header {
+	.ambient-ai-container {
+		.ambient-ai-container-content {
 			margin-top: 45px;
 		}
 	}
 }
 
 @media screen and (max-width: 710px) {
-	.initial-home-page-container {
-		.home-page-container-header {
+	.ambient-ai-container {
+		.ambient-ai-container-content {
 			.title-container {
 				.title-text {
 					flex-direction: column;
