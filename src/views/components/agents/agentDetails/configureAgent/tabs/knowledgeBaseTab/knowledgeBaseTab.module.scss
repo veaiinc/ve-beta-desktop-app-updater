@@ -5,6 +5,9 @@
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 24px;
+	background: var(--card);
+	padding: 28px;
+	border-radius: 14px;
 
 	.knowledgeBaseHeader {
 		display: flex;
