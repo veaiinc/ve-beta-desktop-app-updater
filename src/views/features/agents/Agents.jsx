@@ -125,11 +125,12 @@ const Agents = () => {
 							<FilterIcon />
 						</div>
 					</div>
-					<div className={s.headerActions}>
-						<div className={s.headerTitle}>Your Agents</div>
-					</div>
+
 					<div className={s.body}>
-						<AgentsList agents={knowledgeAssistantsList?.data || []} />
+						<AgentsList
+							agents={knowledgeAssistantsList?.data || []}
+							isLoading={searchParams.searchLoading}
+						/>
 					</div>
 				</div>
 				<div className={s.suggestionsContainer}>

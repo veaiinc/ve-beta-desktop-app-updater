@@ -21,6 +21,12 @@ const navItems = [
 		icon : <PromptIcon />
 	},
 	{
+		id: 4,
+		label: 'Tools',
+		value: 'tools',
+		icon : <ToolIcon />
+	},
+	{
 		id: 2,
 		label: 'Knowledge Base',
 		value: 'knowledgeBase',
@@ -31,12 +37,6 @@ const navItems = [
 		label: 'Triggers',
 		value: 'trigger',
 		icon : <TriggerIcon />
-	},
-	{
-		id: 4,
-		label: 'Tools',
-		value: 'tools',
-		icon : <ToolIcon />
 	},
 ];
 
