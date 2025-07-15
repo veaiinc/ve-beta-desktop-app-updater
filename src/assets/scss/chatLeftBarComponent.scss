@@ -208,7 +208,7 @@
 		overflow: hidden !important;
 		box-shadow: none;
 		background: none;
-		transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s, transform 0.3s;
+		transition: width 1.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.9s, transform 0.3s;
 		z-index: 1000;
 		position: relative;
 
@@ -225,7 +225,7 @@
 		cursor: pointer;
 		padding: 6px 4px;
 		border-left: none;
-		transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		transition: right 0.9s cubic-bezier(0.4, 0, 0.2, 1);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -411,4 +411,31 @@
 			z-index: -1;
 		}
 	}
+}
+
+@keyframes slideInAnimation {
+	0% {
+		transform: translateX(-50%);
+	}
+	100% {
+		transform: translateX(0%);
+		opacity: 1;
+	}
+}
+@keyframes slideOutAnimation {
+	0% {
+		opacity: 1;
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-50%);
+		display: none;
+	}
+}
+
+.chat-left-bar-component.slide-in {
+	animation: slideInAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.chat-left-bar-component.slide-out {
+	animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }

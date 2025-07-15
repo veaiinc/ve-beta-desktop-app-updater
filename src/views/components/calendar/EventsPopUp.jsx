@@ -17,6 +17,7 @@ import ReactModal from '../modalsV2';
 // import { Tooltip } from 'antd';
 import PhoneInput from 'react-phone-number-input';
 import { isURL } from '../../../helpers';
+import { isValidEmail } from '../../../helpers';
 
 const initialState = {
 	title: '',
@@ -55,7 +56,6 @@ const initialState = {
 	meetingLink: null,
 };
 const color = '#ff2727';
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const ROLE_OPTIONS = ['Member', 'Manager', 'Guest', 'Custom...'];
 
@@ -368,7 +368,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 			tenantUserId = null,
 			role = null,
 		}) => {
-			if (!emailRegex.test(email)) {
+			if (!isValidEmail(email)) {
 				setInfo((prevInfo) => ({
 					...prevInfo,
 					submissionError: 'Invalid email address',
@@ -585,13 +585,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 							placeholder="E.g. Meeting"
 							value={info?.title}
 							onChange={(e) => updateEventInfo('title', e.target.value)}
-							style={{
-								display: 'flex',
-								padding: '12px 14px',
-								alignItems: 'center',
-								gap: '16px',
-								alignSelf: 'stretch',
-							}}
+							className={styles['events-popup-title-input']}
 						/>
 						<span className={styles['events-popup-agenda-label']}>Description</span>
 						<input
@@ -603,6 +597,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 							onChange={(e) => updateEventInfo('description', e.target.value)}
 							autoComplete="off"
 							autofill="off"
+							className={styles['events-popup-description-input']}
 						/>
 					</div>
 					<div
@@ -785,7 +780,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 										}));
 									}
 								}}
-								style={{ textTransform: 'capitalize' }}
+								className={styles['events-popup-category-input']}
 								autoFocus={info.showCategory}
 								disabled={info.categoryLoading}
 							/>
@@ -794,20 +789,18 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								onClick={() => updateEventInfo('showCategory', !info?.showCategory)}
 							>
 								<DownSvg
-									style={{
-										transform: info?.showCategory
-											? `rotate(180deg)`
-											: `rotate(0)`,
-									}}
+									className={
+										styles['events-popup-down-arrow-svg'] +
+										(info?.showCategory ? ' ' + styles.open : '')
+									}
 								/>
 							</div>
 							{info?.showCategory && (
 								<div
-									className={styles['events-popup-category-dropdown']}
+									className={`${styles['events-popup-category-dropdown']} ${styles['events-popup-category-dropdown-scroll']}`}
 									role="listbox"
 									aria-label="Category list"
 									tabIndex={-1}
-									style={{ maxHeight: 220, overflowY: 'auto' }}
 								>
 									{(() => {
 										const filtered = info?.categoryInput
@@ -820,12 +813,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 										if (filtered.length === 0) {
 											return (
 												<div
-													className={
-														styles[
-															'events-popup-category-dropdown-item'
-														]
-													}
-													style={{ color: '#888', fontStyle: 'italic' }}
+													className={`${styles['events-popup-category-dropdown-item']} ${styles['empty']}`}
 												>
 													No categories found
 												</div>
@@ -835,29 +823,18 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 											<div
 												key={item?._id}
 												className={
-													styles['events-popup-category-dropdown-item']
+													`${styles['events-popup-category-dropdown-item']} ` +
+													(info.selectedCategory?._id === item._id
+														? styles['selected']
+														: item.optimistic
+														? styles['optimistic']
+														: '')
 												}
 												role="option"
 												aria-selected={
 													info.selectedCategory?._id === item._id
 												}
 												tabIndex={0}
-												style={{
-													background:
-														info.selectedCategory?._id === item._id
-															? 'var(--card-over-card)'
-															: item.optimistic
-															? '#f9f9f9'
-															: 'transparent',
-													color: item.optimistic ? '#888' : 'inherit',
-													fontStyle: item.optimistic
-														? 'italic'
-														: 'normal',
-													display: 'flex',
-													alignItems: 'center',
-													justifyContent: 'space-between',
-													cursor: 'pointer',
-												}}
 												onMouseDown={() => {
 													setInfo((prev) => ({
 														...prev,
@@ -883,10 +860,11 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 												{info.selectedCategory?._id === item._id &&
 													!item.optimistic && (
 														<span
-															style={{
-																color: 'var(--primary)',
-																marginLeft: 8,
-															}}
+															className={
+																styles[
+																	'events-popup-category-selected-check'
+																]
+															}
 															aria-label="Selected"
 														>
 															✔
@@ -899,15 +877,12 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 										!doesCategoryExist(info.categoryInput) &&
 										!info.categoryLoading && (
 											<div
-												className={`${styles['events-popup-category-dropdown-item']} ${styles['events-popup-add-category']}`}
-												style={{
-													color: 'var(--primary)',
-													fontWeight: 500,
-													cursor: info.categoryLoading
-														? 'not-allowed'
-														: 'pointer',
-													opacity: info.categoryLoading ? 0.5 : 1,
-												}}
+												className={
+													`${styles['events-popup-category-dropdown-item']} ${styles['add-category']}` +
+													(info.categoryLoading
+														? ` ${styles['disabled']}`
+														: '')
+												}
 												onMouseDown={async () => {
 													if (!info.categoryLoading)
 														await handleCreateCategory(
@@ -925,12 +900,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 											className={
 												styles['events-popup-category-dropdown-item']
 											}
-											style={{
-												opacity: 0.7,
-												display: 'flex',
-												alignItems: 'center',
-												gap: 8,
-											}}
 										>
 											<Spinner width="16px" height="16px" />
 											Adding category...
@@ -941,7 +910,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 											className={
 												styles['events-popup-category-dropdown-item']
 											}
-											style={{ color: 'green', fontWeight: 500 }}
 										>
 											Category added!
 										</div>
@@ -1002,20 +970,26 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 									ref={attendeeDropdownRef}
 								>
 									{pendingAttendee ? (
-										<div
-											style={{
-												width: '100%',
-												display: 'flex',
-												alignItems: 'center',
-												gap: 8,
-												padding: 8,
-											}}
-										>
-											<div style={{ flex: 1 }}>
-												<div style={{ fontWeight: 500 }}>
+										<div className={styles['events-popup-pending-attendee']}>
+											<div
+												className={
+													styles['events-popup-pending-attendee-info']
+												}
+											>
+												<div
+													className={
+														styles['events-popup-pending-attendee-name']
+													}
+												>
 													{pendingAttendee.name || pendingAttendee.email}
 												</div>
-												<div style={{ fontSize: 12, color: '#888' }}>
+												<div
+													className={
+														styles[
+															'events-popup-pending-attendee-email'
+														]
+													}
+												>
 													{pendingAttendee.email}
 												</div>
 											</div>
@@ -1057,16 +1031,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 													/>
 												)}
 												<button
-													style={{
-														marginLeft: 8,
-														padding: '4px 10px',
-														borderRadius: 6,
-														border: 'none',
-														background: 'var(--primary-button)',
-														color: 'var(--primary-button-font)',
-														fontWeight: 500,
-														cursor: 'pointer',
-													}}
+													className={styles['events-popup-role-add-btn']}
 													onClick={() => {
 														const roleToSet =
 															pendingRole === 'Custom...'
@@ -1095,16 +1060,9 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 													Add
 												</button>
 												<button
-													style={{
-														marginLeft: 4,
-														padding: '4px 10px',
-														borderRadius: 6,
-														border: 'none',
-														background: 'var(--card-over-card-hover)',
-														color: 'var(--primary-font)',
-														fontWeight: 500,
-														cursor: 'pointer',
-													}}
+													className={
+														styles['events-popup-role-cancel-btn']
+													}
 													onClick={() => {
 														setPendingAttendee(null);
 														setPendingRole('');
@@ -1170,7 +1128,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 												: null}
 											{/* If input is a valid email and not in the list, allow adding */}
 											{info.attendeesInputField &&
-												emailRegex.test(info.attendeesInputField) &&
+												isValidEmail(info.attendeesInputField) &&
 												!tenantsUserList?.some(
 													(item) =>
 														item.email.toLowerCase() ===
@@ -1180,11 +1138,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 														className={
 															styles['events-popup-dropdown-list']
 														}
-														style={{
-															color: 'var(--primary)',
-															fontWeight: 500,
-															cursor: 'pointer',
-														}}
 														onMouseDown={() => {
 															setPendingAttendee({
 																name: null,
@@ -1233,7 +1186,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 													{item?.name}
 												</span>
 												<span className={styles['events-popup-role']}>
-													{item?.email}
+													{item?.email} - {item?.role}
 												</span>
 											</div>
 											<Close
@@ -1267,7 +1220,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 				</div>
 				<UpdateCategoryModal
 					show={info?.addCategory}
-					handleClose={() => setInfo((prev) => ({ ...prev, addCategory: false }))}
+					handleClose={() => updateEventInfo({ addCategory: false })}
 					selectedCategory={info?.selectedCategory}
 				/>
 			</div>

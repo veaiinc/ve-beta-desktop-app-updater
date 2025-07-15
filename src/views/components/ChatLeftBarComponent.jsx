@@ -41,6 +41,23 @@ const ChatLeftBarComponent = ({ children }) => {
 
 	const isFirstTimeChatActiveRef = useRef(true);
 	const isFirstTimeSuggestionsRenderRef = useRef(true);
+	const [animationClass, setAnimationClass] = useState('');
+	const prevIsClosedRef = useRef(info.isClosed);
+
+	useEffect(() => {
+		if (prevIsClosedRef.current !== info.isClosed) {
+			if (info.isClosed === false) {
+				setAnimationClass('slide-in');
+			} else if (info.isClosed === true) {
+				setAnimationClass('slide-out');
+			}
+			prevIsClosedRef.current = info.isClosed;
+		}
+	}, [info.isClosed]);
+
+	const handleAnimationEnd = () => {
+		setAnimationClass('');
+	};
 
 	useEffect(() => {
 		const sessionId = ObjectID()?.toString();
@@ -137,7 +154,8 @@ const ChatLeftBarComponent = ({ children }) => {
 			<div
 				className={`chat-left-bar-component${info?.mobileActive ? ' mobile-active' : ''}${
 					info.isClosed && !info?.isMobile ? ' closed' : ''
-				}`}
+				}${animationClass ? ` ${animationClass}` : ''}`}
+				onAnimationEnd={handleAnimationEnd}
 			>
 				{(!info.isMobile || info.mobileActive) && (
 					<div
