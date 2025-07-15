@@ -23,7 +23,7 @@ const SlashMenu = ({ editor, noteId }) => {
 
 		const allowedBlocks = ['heading', 'heading_2', 'heading_3', 'database'];
 
-		defaultItems = defaultItems.filter((item) => allowedBlocks.includes(item.key));
+		// defaultItems = defaultItems.filter((item) => allowedBlocks.includes(item.key));
 
 		// Return filtered items based on the query
 		return filterSuggestionItems(defaultItems, query);

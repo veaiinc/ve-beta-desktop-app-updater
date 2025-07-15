@@ -145,8 +145,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const location = useLocation();
 
 	// Add hooks for live intelligence and recall stream
-	const { createWebSocketConnection: recallConnection, sendMessage: recallSendMessage, closeWebSocketConnection: closeRecallConnection } =
-		useRecallStream();
+	const {
+		createWebSocketConnection: recallConnection,
+		sendMessage: recallSendMessage,
+		closeWebSocketConnection: closeRecallConnection,
+	} = useRecallStream();
 	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
 		useLiveIntelligenceStream();
 
@@ -180,8 +183,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					// }
 				} else if (msg?.event === 'live_intelligence.response' && msg?.data) {
 					handleTranscriptionSuggestions(msg?.data);
-				}
-				else if (msg?.event === 'transcript.done') {
+				} else if (msg?.event === 'transcript.done') {
 					closeRecallConnection();
 				}
 			} catch (e) {
@@ -471,9 +473,44 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		};
 	}, [info.timeouts]);
 
+	// useEffect(() => {
+	// 	const unsubscribe = editor.onChange(() => {
+	// 		const currentBlocks = editor.document;
+	// 		onEditorUpdate(currentBlocks);
+	// 	});
+
+	// 	return () => unsubscribe();
+	// }, [editor]);
+
 	useEffect(() => {
 		const unsubscribe = editor.onChange(() => {
 			const currentBlocks = editor.document;
+
+			// Check for blocks exceeding depth limit
+			const blocksToRevert = [];
+
+			const checkDepth = (blocks, currentDepth = 0) => {
+				blocks.forEach((block) => {
+					if (currentDepth > 3) {
+						// 0, 1, 2 = 3 levels max
+						blocksToRevert.push(block.id);
+					}
+					if (block.children && block.children.length > 0) {
+						checkDepth(block.children, currentDepth + 1);
+					}
+				});
+			};
+
+			checkDepth(currentBlocks);
+
+			// Revert blocks that are too deep
+			if (blocksToRevert.length > 0) {
+				blocksToRevert.forEach((blockId) => {
+					editor.removeBlocks([blockId]);
+				});
+				return; // Don't call onEditorUpdate for invalid changes
+			}
+
 			onEditorUpdate(currentBlocks);
 		});
 
@@ -1288,39 +1325,40 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									</div>
 								)}
 
-							{showTranscriptTabs && activeTab === 'transcript' ? (
-								type === 'meeting_bot' ? (
-									<MeetTranscript transcriptList={transcriptList} />
-								) : type === 'desktop' ? (
-									<NoteTakerTranscript
-										sendMessage={recallSendMessage}
-										tenantId={tennantSettingsData?._id}
-										sessionId={sessionId}
-										pageId={noteId}
-									/>
-								) : null
-							) : (
-								<BlockNoteView
-									editor={editor}
-									formattingToolbar={false}
-									// onChange={onChange}
-									style={innerContainerStyle || {}}
-									theme={'dark'}
-									editable={info?.myAccess !== 'view' || !info?.isDeleted}
-									slashMenu={false}
-								>
-									{(info?.myAccess !== 'view' || !info?.isDeleted) && (
-										<NoteToolbar
-											sendMessage={customSendMessage}
-											aiResonse={info?.aiResonse}
-											resetAiResponse={resetAiResponse}
+								{showTranscriptTabs && activeTab === 'transcript' ? (
+									type === 'meeting_bot' ? (
+										<MeetTranscript transcriptList={transcriptList} />
+									) : type === 'desktop' ? (
+										<NoteTakerTranscript
+											sendMessage={recallSendMessage}
+											tenantId={tennantSettingsData?._id}
+											sessionId={sessionId}
+											pageId={noteId}
 										/>
-									)}
-									<SlashMenu editor={editor} noteId={noteId} />
-								</BlockNoteView>
-							)}
-						</div>
-					</>
+									) : null
+								) : (
+									<BlockNoteView
+										editor={editor}
+										formattingToolbar={false}
+										// onChange={onChange}
+										style={innerContainerStyle || {}}
+										theme={'dark'}
+										editable={info?.myAccess !== 'view' || !info?.isDeleted}
+										slashMenu={false}
+									>
+										{(info?.myAccess !== 'view' || !info?.isDeleted) && (
+											<NoteToolbar
+												sendMessage={customSendMessage}
+												aiResonse={info?.aiResonse}
+												resetAiResponse={resetAiResponse}
+											/>
+										)}
+										<SlashMenu editor={editor} noteId={noteId} />
+									</BlockNoteView>
+								)}
+							</div>
+						</>
+					</div>
 				</div>
 			</div>
 			<DatabaseSidebar pageId={noteId} />
