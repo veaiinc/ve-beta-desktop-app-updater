@@ -53,7 +53,7 @@ class ErrorBoundary extends Component {
 									Refresh
 								</button>
 								<button className={s.errorButton}>
-									<a href="mailto:support@ve.ai">Contact Support</a>
+									<a href="/">Home</a>
 								</button>
 							</div>
 						</div>
