@@ -46,7 +46,6 @@
 					display: flex;
 					flex-direction: column;
 					align-items: center;
-					transition: width 300ms ease-in-out;
 
 					.chatInputContainer {
 						position: relative;
@@ -54,6 +53,23 @@
 						flex-direction: column;
 						gap: 10px;
 						width: 100%;
+						padding: 14px;
+						background-color: var(--chat-box);
+						border-radius: 16px;
+						border: 0.5px solid var(--stroke);
+						transition: border 200ms ease-in-out, height 300ms ease-in-out;
+
+						&:hover {
+							border: 0.5px solid var(--stroke-hover);
+						}
+
+						&:focus-within {
+							border: 0.5px solid var(--primary-button);
+							box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.2) inset,
+								0px 0px 15px 0px rgba(121, 236, 201, 0.25) inset,
+								0px 0px 12px 0px rgba(121, 236, 201, 0.2);
+						}
+
 						.suggestions-container {
 							display: flex;
 							align-items: center;
@@ -78,20 +94,12 @@
 						.chatInputParentContainer {
 							display: flex;
 							width: 100%;
-							padding: 14px;
 							flex-direction: column;
 							gap: 12px;
 							align-self: center;
-							border-radius: 16px;
-							background-color: var(--chat-box);
-							border: 0.5px solid var(--stroke);
-							transition: border 200ms ease-in-out, height 300ms ease-in-out;
 							overflow: hidden;
 							position: relative;
 
-							&:hover {
-								border: 0.5px solid var(--stroke-hover);
-							}
 							&.startPageContainer {
 								padding: 12px;
 							}
@@ -113,37 +121,39 @@
 									position: relative;
 									width: 100%;
 									top: 2px;
-									height: 30px;
 									margin-bottom: 8px;
 
 									&.startPagePlaceholderContainer {
 										top: -3px;
 									}
-									.textArea {
-										width: 100%;
-										border: none;
-										outline: none;
-										background: transparent;
-										color: var(--primary-font);
-										font-family: var(--primary-font-family);
-										font-size: 16px;
-										font-style: normal;
-										font-weight: 400;
-										line-height: normal;
-										resize: none;
-										position: relative;
-										padding: 4px 0px 4px 8px;
-										z-index: 0;
-										max-height: 300px;
+									.textAreaWrapper {
+										height: 30px;
 										transition: height 300ms ease-in-out;
-										&::placeholder {
-											font-size: 15px;
-											color: var(--secondary-font);
+										overflow: hidden;
+										.textArea {
+											width: 100%;
+											border: none;
+											outline: none;
+											background: transparent;
+											color: var(--primary-font);
+											font-family: var(--primary-font-family);
+											font-size: 16px;
+											font-style: normal;
 											font-weight: 400;
-										}
-										&.startTextPage {
-											margin-top: 0px;
-											top: 11px;
+											line-height: normal;
+											resize: none;
+											position: relative;
+											padding: 4px 0px 4px 8px;
+											z-index: 0;
+											&::placeholder {
+												font-size: 15px;
+												color: var(--secondary-font);
+												font-weight: 400;
+											}
+											&.startTextPage {
+												margin-top: 0px;
+												top: 11px;
+											}
 										}
 									}
 								}
@@ -437,13 +447,6 @@
 									}
 								}
 							}
-						}
-
-						.chatInputParentContainer:focus-within {
-							border: 0.5px solid var(--primary-button);
-							box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.2) inset,
-								0px 0px 15px 0px rgba(121, 236, 201, 0.25) inset,
-								0px 0px 12px 0px rgba(121, 236, 201, 0.2);
 						}
 					}
 				}

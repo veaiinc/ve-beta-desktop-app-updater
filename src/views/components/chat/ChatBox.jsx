@@ -134,7 +134,7 @@ const ChatBox = ({
 	onChatQueryChange = null,
 	isBuildEnbled = true,
 	showUpgradeSubscriptionBtn = true,
-	animateChatBox = true,
+	animateChatBox = false,
 }) => {
 	const textAreaRef = useRef(null);
 	const location = useLocation();
@@ -200,10 +200,12 @@ const ChatBox = ({
 		askTooltipOpen: false,
 		chatBoxInfo: initialChatBoxInfo,
 		chatboxMinimized: true,
+		chatBoxContainerHeight: 60,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
+	const textAreaWrapperRef = useRef(null);
 	const uploadedImagesRef = useRef(info?.uploadedImages || []);
 	const recentFilesRef = useRef(info?.recentFiles || []);
 	const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
@@ -230,6 +232,22 @@ const ChatBox = ({
 			document.removeEventListener('click', handleWindowClick);
 		};
 	}, []);
+
+	useEffect(() => {
+		if (!animateChatBox) return;
+		setInfo((prev) => {
+			const height = info?.chatboxMinimized
+				? '60px'
+				: `${textAreaRef?.current?.scrollHeight + 58 + 28}px`;
+			if (height === prev?.chatBoxContainerHeight) {
+				return prev;
+			}
+			return {
+				...prev,
+				chatBoxContainerHeight: height,
+			};
+		});
+	}, [info?.chatboxMinimized]);
 
 	useEffect(() => {
 		const sessionData = globalChatMessages?.[info?.chatSessionId],
@@ -409,21 +427,18 @@ const ChatBox = ({
 		setPreviewOpen(true);
 	};
 
-	const handleWindowClick = useCallback(
-		(e) => {
-			if (!animateChatBox) return;
-			setInfo((prev) => {
-				if (prev?.chatboxMinimized) {
-					return prev;
-				}
-				return {
-					...prev,
-					chatboxMinimized: true,
-				};
-			});
-		},
-		[animateChatBox],
-	);
+	const handleWindowClick = useCallback(() => {
+		if (!animateChatBox) return;
+		setInfo((prev) => {
+			if (prev?.chatboxMinimized) {
+				return prev;
+			}
+			return {
+				...prev,
+				chatboxMinimized: true,
+			};
+		});
+	}, [animateChatBox]);
 	const handleGoalsClick = () => {
 		let chatBoxData = info?.chatBoxInfo;
 
@@ -1116,12 +1131,20 @@ const ChatBox = ({
 
 	const handleTextAreaChange = (e) => {
 		const textArea = textAreaRef?.current;
+		const textAreaWrapper = textAreaWrapperRef?.current;
 		const query = e?.target?.value;
 		const lastChar = query?.trim()?.slice(-1);
 
+		let textAreaHeight = '';
+
 		if (textArea) {
 			textArea.style.height = 'auto';
-			textArea.style.height = textArea.scrollHeight + 'px';
+			textAreaHeight = Math.min(textArea?.scrollHeight, 250);
+			textArea.style.height = textAreaHeight + 'px';
+		}
+
+		if (textAreaWrapper) {
+			textAreaWrapper.style.height = textAreaHeight + 'px';
 		}
 
 		let isRecentFileOpen = false;
@@ -1137,13 +1160,14 @@ const ChatBox = ({
 			...prev,
 			chatQuery: query,
 			isRecentFileOpen,
+			chatBoxContainerHeight: textAreaHeight + 58 + 28 + 'px',
 		}));
 	};
 
 	const clearTextArea = () => {
 		const textArea = textAreaRef?.current;
 		if (textArea) {
-			textArea.style.height = '26px'; // Reset to initial min-height
+			textArea.style.height = '30px'; // Reset to initial min-height
 		}
 	};
 
@@ -1265,16 +1289,18 @@ const ChatBox = ({
 				>
 					<div className="chatcontainer">
 						<div className="chatBodyContainer">
-							<div className="chatInputContainer">
+							<div
+								className="chatInputContainer"
+								style={{
+									...(animateChatBox && {
+										height: info?.chatBoxContainerHeight,
+									}),
+								}}
+							>
 								<div
 									className={`chatInputParentContainer ${
 										startPage ? ' startPageContainer' : ''
 									}`}
-									style={{
-										...(animateChatBox && {
-											height: info?.chatboxMinimized ? '60px' : '115px',
-										}),
-									}}
 								>
 									<RecentFileTooltip
 										fileTypeIcons={fileTypeIcons}
@@ -1347,23 +1373,28 @@ const ChatBox = ({
 												startPage ? 'startPagePlaceholderContainer' : ''
 											}`}
 										>
-											<textarea
-												type="text"
-												value={info?.chatQuery}
-												onChange={handleTextAreaChange}
-												autoFocus={autoFocus}
-												onKeyDown={handleSendMessageFunc}
-												className={`textArea ${
-													startPage ? 'startTextPage' : ''
-												}`}
-												rows={1}
-												ref={textAreaRef}
-												placeholder={
-													!animatePlaceholder
-														? 'Start typing or use @ to mention a source.'
-														: ''
-												}
-											/>
+											<div
+												className="textAreaWrapper"
+												ref={textAreaWrapperRef}
+											>
+												<textarea
+													type="text"
+													value={info?.chatQuery}
+													onChange={handleTextAreaChange}
+													autoFocus={autoFocus}
+													onKeyDown={handleSendMessageFunc}
+													className={`textArea ${
+														startPage ? 'startTextPage' : ''
+													}`}
+													rows={1}
+													ref={textAreaRef}
+													placeholder={
+														!animatePlaceholder
+															? 'Start typing or use @ to mention a source.'
+															: ''
+													}
+												/>
+											</div>
 
 											{showPlaceholder && animatePlaceholder && (
 												<ChatBoxPlaceholder
