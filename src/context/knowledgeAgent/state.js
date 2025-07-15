@@ -1127,6 +1127,14 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
+	const getPipeDreamAction = async (action) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}/${action}/agent-tools`;
+		const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+		return response;
+	};
+
 	return {
 		...state,
 		createNewKnowledgeAgent,
@@ -1169,5 +1177,6 @@ export const KnowledgeAgentState = () => {
 		listofAllappsActions,
 		getKnowledgeAssistantsListForAutomation,
 		getActiveKnowledgeAgentForAutomation,
+		getPipeDreamAction,
 	};
 };

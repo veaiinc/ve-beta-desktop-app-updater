@@ -251,6 +251,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 						type: prop.type,
 						description: prop.description || `No description provided for ${prop.name}`,
 					});
+
 				}
 			});
 
@@ -274,6 +275,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				variables,
 				isAuthenticated: true,
 				agent: 'knowledgeAgent',
+				key: action.key
 			};
 
 			await addActionToKnowledgeAgent(agentId, payload);

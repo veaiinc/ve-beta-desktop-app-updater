@@ -4,7 +4,6 @@ import s from './agentDetails.module.scss';
 import Context from '../../../../context/context';
 
 // components
-import RunAndBuildToggle from '../runBuildToggle/RunAndBuildToggle';
 import ConfigureAgent from './configureAgent/ConfigureAgent';
 import AgentCredentials from './agentCredentials/AgentCredentials';
 import KnowledgeAgentDetails from '../../../../views/features/knowledgeAgent/AgentDetails';
@@ -24,7 +23,6 @@ const AgentDetails = () => {
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, getActiveKnowledgeAgentDetails },
 	} = useContext(Context);
-
 	useEffect(() => {
 		if (activeKnowledgeAssistant === null) {
 			getActiveKnowledgeAgentDetails(agentId);
@@ -70,14 +68,17 @@ const AgentDetails = () => {
 
 	return (
 		<div className={s.agentDetailsContainer}>
-			<AgentHeader onEditClick={handleEditClick} />
-			<RunAndBuildToggle agentAction={info.agentAction} setAgentAction={setAgentAction} />
+			<AgentHeader
+				onEditClick={handleEditClick}
+				agentAction={info.agentAction}
+				setAgentAction={setAgentAction}
+				activeKnowledgeAssistant={activeKnowledgeAssistant}
+			/>
 			<div className={s.agentActionContainer}>
 				{info.agentAction === 'runAgent' ? (
 					<KnowledgeAgentDetails />
 				) : info.agentAction === 'buildAgent' ? (
 					<>
-						<AgentCredentials agentId={agentId} ref={agentCredentialsRef} />
 						<ConfigureAgent agentId={agentId} />
 					</>
 				) : null}

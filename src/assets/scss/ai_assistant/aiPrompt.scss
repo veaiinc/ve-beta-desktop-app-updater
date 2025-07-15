@@ -2,8 +2,17 @@
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 30px;
+	gap: 28px;
+	background: var(--card);
+	padding: 28px;
+	border-radius: 14px;
 
+	.agentPromptDetailsContainer {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		width: 100%;
+		gap: 14px;
 	.aiModalContainer {
 		display: flex;
 		width: 100%;
@@ -55,6 +64,7 @@
 			}
 		}
 	}
+}
 
 	.systemProptParentContainer {
 		display: flex;
@@ -62,6 +72,7 @@
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 14px;
+		margin-bottom: 20px;
 
 		.systemProptHeader {
 			display: flex;
@@ -95,6 +106,68 @@
 			font-weight: 500;
 			line-height: 20px;
 		}
+
+		.promptWithIconsWrapper {
+			min-height: 130px;
+			align-items: flex-start;
+			justify-content: flex-start;
+			white-space: pre-wrap;
+			word-wrap: break-word;
+			overflow-wrap: break-word;
+		}
+
+		.promptWithIconsContainer {
+			width: 100%;
+			line-height: 1.6;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-weight: 400;
+
+			.actionWithIcon {
+				display: inline-flex;
+				align-items: center;
+				gap: 6px;
+				padding: 4px 8px;
+				margin: 2.5px;
+				background-color: var(--card-hover, #202123);
+				border: 1px solid var(--stroke, #2c2d2e);
+				border-radius: 6px;
+				transition: all 0.2s ease;
+
+				&:hover {
+					background-color: var(--primary-color, #79ecc9);
+					border-color: var(--primary-color, #79ecc9);
+					color: var(--card-over-card, #1a1b1c);
+
+				}
+
+				.actionIcon {
+					width: 16px;
+					height: 16px;
+					border-radius: 3px;
+					flex-shrink: 0;
+				}
+
+				.actionName {
+					font-weight: 500;
+					font-size: 13px;
+				}
+			}
+
+			.actionFallback {
+				display: inline-block;
+				padding: 2px 6px;
+				margin: 0 2px;
+				background-color: var(--card-hover, #202123);
+				border: 1px solid var(--stroke, #2c2d2e);
+				border-radius: 4px;
+				color: var(--secondary-font, #7a7e85);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+			}
+		}
+
 		.resetPromptContainer {
 			display: flex;
 			justify-content: flex-end;

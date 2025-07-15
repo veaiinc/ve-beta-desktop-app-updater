@@ -12,6 +12,7 @@ import { ReactComponent as FilterIcon } from '../../../assets/svg/agents/filter.
 import AgentsList from '../../components/agents/agentsList/AgentsList';
 import AgentSuggestion from '../../components/agents/suggestedCard/agentSuggestion';
 import Spinner from '../../components/loaders/Spinner';
+import ViewToggle from '../../components/agents/agentsList/ViewToggle';
 
 // constants
 const page = 1,
@@ -42,7 +43,12 @@ const Agents = () => {
 		sortBy: 'createdAt',
 		sortOrder: -1,
 		searchLoading: false,
+		viewMode: 'card',
 	});
+
+	const handleViewModeChange = (mode) => {
+		setSearchParams((prev) => ({ ...prev, viewMode: mode }));
+	};
 
 	// Debounced search function
 	const debouncedSearch = useDebounce((searchValue, sortBy, sortOrder) => {
@@ -105,34 +111,45 @@ const Agents = () => {
 			<div className={s.agentsListAndSuggestedAgentsContainer}>
 				<div className={s.agentActionsContainer}>
 					<div className={s.headerActionsContainer}>
-						<div className={s.searchContainer}>
-							{searchParams.searchLoading ? (
-								<Spinner width="16px" height="16px" />
-							) : (
-								<SearchIcon />
-							)}
-							<input
-								type="text"
-								placeholder="Search your agent"
-								value={searchParams.search}
-								onChange={handleSearchChange}
+						<div className={s.headerActions}>
+							<div className={s.headerTitle}>Your Agents</div>
+						</div>
+						<div className={s.headerActionsRight}>
+							<div className={s.searchContainer}>
+								{searchParams.searchLoading ? (
+									<Spinner width="16px" height="16px" />
+								) : (
+									<SearchIcon />
+								)}
+								<input
+									type="text"
+									placeholder="Search your agent"
+									value={searchParams.search}
+									onChange={handleSearchChange}
+								/>
+							</div>
+							<div className={s.actionsContainer} onClick={handleSortChange}>
+								<SortIcon />
+							</div>
+							<div className={s.actionsContainer} onClick={handleFilterChange}>
+								<FilterIcon />
+							</div>
+							<ViewToggle
+								viewMode={searchParams.viewMode}
+								onViewModeChange={handleViewModeChange}
 							/>
 						</div>
-						<div className={s.actionsContainer} onClick={handleSortChange}>
-							<SortIcon />
-						</div>
-						<div className={s.actionsContainer} onClick={handleFilterChange}>
-							<FilterIcon />
-						</div>
 					</div>
-					<div className={s.headerActions}>
-						<div className={s.headerTitle}>Your Agents</div>
-					</div>
+
 					<div className={s.body}>
-						<AgentsList agents={knowledgeAssistantsList?.data || []} />
+						<AgentsList
+							agents={knowledgeAssistantsList?.data || []}
+							isLoading={searchParams.searchLoading}
+							viewMode={searchParams.viewMode}
+						/>
 					</div>
 				</div>
-				<div className={s.suggestionsContainer}>
+				{/* <div className={s.suggestionsContainer}>
 					<div className={s.suggestionsHeader}>Suggested for you</div>
 					<div className={s.suggestionsBody}>
 						<AgentSuggestion
@@ -146,7 +163,7 @@ const Agents = () => {
 						<AgentSuggestion />
 						<AgentSuggestion />
 					</div>
-				</div>
+				</div> */}
 			</div>
 			{/* <QuickActions /> */}
 		</div>
