@@ -17,6 +17,12 @@ import FormWidget from './FormWidget';
 import UnintegratedAgentApps from './chatComponents/UnintegratedAgentApps';
 import { fileTypeIcons, getFaviconUrl, getWebsiteName } from '../../../helpers';
 
+const pencilIconStyles = {
+	width: '20px',
+	height: '20px',
+	position: 'relative',
+	top: '-2px',
+};
 const AIMessage = ({
 	text,
 	customePencilClickFunc = null,
@@ -170,12 +176,7 @@ const AIMessage = ({
 								overlayInnerStyle={{ color: 'var(--primary-font)' }}
 							>
 								<PencilSparkleIcon
-									style={{
-										width: '20px',
-										height: '20px',
-										position: 'relative',
-										top: '-2px',
-									}}
+									style={pencilIconStyles}
 									onClick={handlePencilClick}
 								/>
 							</Tooltip>
