@@ -30,6 +30,12 @@ import jwtDecode from 'jwt-decode';
 import ChainOfThoughtInterpreter from '../../homePage/ChainOfThoughtInterpreter';
 import FormDescription from '../../forms/FormDescription';
 
+const tabOptions = [
+	{ label: 'Actions', value: 'actions' },
+	{ label: 'Report', value: 'report' },
+	{ label: 'Sources', value: 'sources' },
+];
+
 const AISuggestionsModal = ({
 	open,
 	onClose,
@@ -60,6 +66,7 @@ const AISuggestionsModal = ({
 		},
 		feedbackPopupOpen: false,
 		isDeleting: false,
+		tabOptions: [],
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -78,16 +85,42 @@ const AISuggestionsModal = ({
 	useEffect(() => {
 		if (!data) return;
 
+		const {
+			title,
+			description,
+			confidence_score,
+			priority,
+			research_report,
+			suggested_actions,
+			suggested_prompts,
+			usages,
+			categories,
+			createdAt,
+			thinker_sources,
+			sessionId,
+		} = data || {};
+
 		const { chain_of_thought } = data;
 		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || null);
 		const accessType = (data?.permissions?.sharedWith || [])?.filter(
 			(eachItem) => eachItem?.userId === info?.currentUserId,
 		)?.[0]?.access;
+
+		const visibilityMap = {
+			actions: suggested_actions?.length || suggested_prompts?.length,
+			report: research_report?.length || chainOfThoughtData?.hasChainOfThought,
+			sources: thinker_sources?.length,
+		};
+
+		const options = tabOptions?.filter((option) => visibilityMap[option?.value]);
+
 		setInfo((prev) => ({
 			...prev,
 			selectedFeedback: data?.rating,
 			chainOfThoughtData,
 			accessType,
+			tabOptions: options,
+			activeTab: options?.[0]?.value,
 		}));
 		if (bodyRef?.current) {
 			bodyRef?.current?.scrollTo({
@@ -517,34 +550,18 @@ const AISuggestionsModal = ({
 
 								<div className="tabs-container">
 									<div className="tab-buttons">
-										<div
-											className={`tab-btn ${
-												info?.activeTab === 'actions' ? 'active' : ''
-											}`}
-											onClick={() => handleTabClick('actions')}
-										>
-											Actions
-										</div>
-
-										<div
-											className={`tab-btn ${
-												info?.activeTab === 'report' ? 'active' : ''
-											}`}
-											onClick={() => handleTabClick('report')}
-										>
-											Report
-										</div>
-
-										{thinker_sources?.length > 0 && (
+										{info?.tabOptions?.map((option) => (
 											<div
 												className={`tab-btn ${
-													info?.activeTab === 'sources' ? 'active' : ''
+													info?.activeTab === option?.value
+														? 'active'
+														: ''
 												}`}
-												onClick={() => handleTabClick('sources')}
+												onClick={() => handleTabClick(option?.value)}
 											>
-												Sources
+												{option?.label}
 											</div>
-										)}
+										))}
 									</div>
 								</div>
 								{info?.activeTab === 'actions' && (
