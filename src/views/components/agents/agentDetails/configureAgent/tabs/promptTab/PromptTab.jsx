@@ -5,6 +5,7 @@ import Context from '../../../../../../../context/context';
 import { useParams } from 'react-router-dom';
 import { message } from '../../../../../../components/globalComponents/CustomToast';
 import KnowledgeAgentPrompt from '../../../../../knowledgeAgent/KnowledgeAgentPrompt';
+import AgentCredentials from '../../../agentCredentials/AgentCredentials';
 const actionPattern = /<([^>]+)>/g;
 const PromptTab = () => {
 	const { agentId } = useParams();
@@ -122,6 +123,8 @@ const PromptTab = () => {
 					Submit
 				</button>
 			</div> */}
+		
+
 			<KnowledgeAgentPrompt assistant={agentData} actionDetails={info?.actionDetails} />
 		</div>
 	);

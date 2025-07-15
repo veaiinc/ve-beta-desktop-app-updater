@@ -8,26 +8,35 @@ import ToolsTab from './tabs/toolsTab/ToolsTab';
 import TriggersTab from './tabs/triggersTab/TriggersTab';
 import PromptTab from './tabs/promptTab/PromptTab';
 
+import { ReactComponent as PromptIcon } from '../configureAgent/tabs/assets/NotePencil.svg';
+import { ReactComponent as KnowledgeBaseIcon } from '../configureAgent/tabs/assets/PencilRuler.svg';
+import { ReactComponent as TriggerIcon } from '../configureAgent/tabs/assets/BookOpenText.svg';
+import { ReactComponent as ToolIcon } from '../configureAgent/tabs/assets/Lightning.svg';
+
 const navItems = [
 	{
 		id: 1,
 		label: 'Prompt',
 		value: 'prompt',
+		icon : <PromptIcon />
 	},
 	{
 		id: 2,
 		label: 'Knowledge Base',
 		value: 'knowledgeBase',
+		icon : <KnowledgeBaseIcon />
 	},
 	{
 		id: 3,
 		label: 'Triggers',
 		value: 'trigger',
+		icon : <TriggerIcon />
 	},
 	{
 		id: 4,
 		label: 'Tools',
 		value: 'tools',
+		icon : <ToolIcon />
 	},
 ];
 
@@ -76,6 +85,7 @@ const ConfigureAgent = ({ agentId }) => {
 							role="button"
 							tabIndex={0}
 						>
+							{item.icon}
 							{item.label}
 						</li>
 					))}
