@@ -19,6 +19,7 @@ const navigationItemsMap = {
 	beta: betaNavigationItems,
 	internal: internalNavigationItems,
 	stable: stableNavigationItems,
+	suspended: betaNavigationItems,
 };
 
 const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
@@ -85,11 +86,13 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 		},
 		[location.pathname, workspaceMode],
 	);
+
 	const profileSelected = () => {
 		localStorage.setItem('showSettingsSidebar', true);
 		navigate('/settings/my-profile');
 		onIconClick();
 	};
+
 	return (
 		<div className="sidebar-closing" onClick={() => onIconClick()}>
 			<div className="topContainerClosed">
@@ -132,7 +135,8 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 												item.name === 'Tasks' ||
 												item.name === 'Contacts' ||
 												item.name === 'Automations' ||
-												item.name === 'Database'
+												item.name === 'Database' ||
+												item.name === 'Home'
 													? 'var(--primary-font)'
 													: 'none',
 										}}

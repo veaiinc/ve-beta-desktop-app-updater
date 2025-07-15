@@ -1,6 +1,4 @@
 .container {
-	width: 100%;
-	margin: 24px 0;
 	display: flex;
 	justify-content: center;
 	position: relative;
@@ -32,14 +30,14 @@
 	}
 
 	.runAndBuildToggle {
-		width: fit-content;
 		display: flex;
 		height: 45px;
 		padding: 4px;
 		align-items: center;
-		gap: 4px;
-		border-radius: 50px;
-		background: var(--card, #1a1b1e);
+		gap: 13px;
+		border-radius: 11px;
+		border: 1px solid var(--stroke, #2c2d2e);
+		background: var(--card, #1b1c1d);
 
 		.toogleBtn {
 			height: 100%;
@@ -56,8 +54,9 @@
 			transition: all 0.2s ease;
 
 			&.active {
+				border-radius: 9px;
 				border: 2px solid var(--stroke-hover, #424548);
-				background: var(--card-over-card, #27282b);
+				background: var(--primary-button, #79ECC9);
 			}
 
 			span {
@@ -70,7 +69,12 @@
 				transition: all 0.2s ease;
 
 				&.active {
-					color: var(--primary-button, #79ecc9);
+					color: var(--background-color, #121212);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
 				}
 			}
 		}
