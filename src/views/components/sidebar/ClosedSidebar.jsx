@@ -135,7 +135,8 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 												item.name === 'Tasks' ||
 												item.name === 'Contacts' ||
 												item.name === 'Automations' ||
-												item.name === 'Database'
+												item.name === 'Database' ||
+												item.name === 'Home'
 													? 'var(--primary-font)'
 													: 'none',
 										}}
