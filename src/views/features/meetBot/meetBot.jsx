@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Drawer } from 'antd';
+import { Drawer, Switch } from 'antd';
 import './meetBot.scss';
-import { ReactComponent as Clock } from '../../../assets/svg/activity/clock.svg';
+import { ReactComponent as MicorPhoneIcon } from './micorPhoneIcon.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,7 @@ import EmptyMeetBotList from './emptyMeetBotList';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { message } from '../../components/globalComponents/CustomToast';
+import GuideMePopup from './guideMePopup';
 
 function formatDate(timestamp) {
 	const date = new Date(Number(timestamp) * 1000);
@@ -46,6 +47,7 @@ const MeetBot = () => {
 		meetingUrl: '',
 		selectedMode: 'meeting_bot',
 		creating: false,
+		guideMe: false,
 	});
 
 	const meetings = existingBots?.data;
@@ -321,100 +323,168 @@ const MeetBot = () => {
 					className="meetbot__right meetbot__right--open"
 					getContainer={false}
 				>
-					<SidebarClosingSvg
-						className="sidebarClosingSvg"
-						onClick={() => setInfo({ ...info, drawerOpen: false })}
-					/>
-					<div className="meetbot__drawer-tabs">
-						<button
-							className={`meetbot__drawer-tab${
-								info.selectedMode === 'meeting_bot'
-									? ' meetbot__drawer-tab--active'
-									: ''
-							}`}
-							onClick={() =>
-								setInfo((prev) => ({ ...prev, selectedMode: 'meeting_bot' }))
-							}
-						>
-							Video
-						</button>
-						{/* Temporarily hide Audio until api works */}
-						<button
-							className={`meetbot__drawer-tab${
-								info.selectedMode === 'desktop'
-									? ' meetbot__drawer-tab--active'
-									: ''
-							}`}
-							onClick={() =>
-								setInfo((prev) => ({ ...prev, selectedMode: 'desktop' }))
-							}
-						>
-							Audio
-						</button>
-					</div>
-					<div className="meetbot__drawer-content">
-						<div className="meetbot__drawer-label">
-							{info.selectedMode === 'meeting_bot'
-								? 'Record a live meeting'
-								: 'Start a Note Taker'}
-						</div>
-						<div className="meetbot__drawer-desc">
-							{info.selectedMode === 'meeting_bot'
-								? 'Works with Zoom, Google meet, or Microsoft Teams'
-								: 'Record audio directly from your desktop'}
-						</div>
-						{info.selectedMode === 'meeting_bot' && (
-							<div className="meetbot__drawer-input-wrapper">
-								<input
-									className="meetbot__drawer-input"
-									placeholder="Paste meeting URL"
-									value={info.meetingUrl}
-									onChange={(e) =>
-										setInfo((prev) => ({ ...prev, meetingUrl: e.target.value }))
-									}
-									onKeyDown={handleInputKeyDown}
-									disabled={info.creating}
-								/>
-								{!info.creating && (
-									<button
-										className={`meetbot__drawer-tick${
-											!isValidUrl(info.meetingUrl)
-												? ' meetbot__drawer-tick--disabled'
-												: ''
-										}`}
-										onClick={handleCreateMeet}
-										disabled={!isValidUrl(info.meetingUrl)}
-										title="Create meeting"
-									>
-										Create
-									</button>
-								)}
-								{info.creating && (
-									<span className="meetbot__drawer-loader">
-										<Spinner
-											width="16px"
-											height="16px"
-											color="var(--primary-button)"
-											borderTopColor="var(--background-color)"
-											borderWidth={1}
-										/>
-									</span>
-								)}
-							</div>
-						)}
-						{info.selectedMode === 'desktop' && (
-							<div className="meetbot__audio-btn-wrapper">
+					<div className="meetbot__drawer-header">
+						<SidebarClosingSvg
+							className="sidebarClosingSvg"
+							onClick={() => setInfo({ ...info, drawerOpen: false })}
+						/>
+						<div className="meetbot__drawer-tabs-container">
+							<div className="meetbot__drawer-tabs">
 								<button
-									disabled={info.creating}
-									onClick={handleCreateMeet}
-									className={`meetbot__audio-btn${
-										info.creating ? ' meetbot__audio-btn--disabled' : ''
+									className={`meetbot__drawer-tab${
+										info.selectedMode === 'meeting_bot'
+											? ' meetbot__drawer-tab--active'
+											: ''
 									}`}
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											selectedMode: 'meeting_bot',
+										}))
+									}
 								>
-									{info.creating ? 'Starting...' : 'Start Note Taker'}
+									Online
 								</button>
+								<button
+									className={`meetbot__drawer-tab${
+										info.selectedMode === 'desktop'
+											? ' meetbot__drawer-tab--active'
+											: ''
+									}`}
+									onClick={() =>
+										setInfo((prev) => ({ ...prev, selectedMode: 'desktop' }))
+									}
+								>
+									Offline
+								</button>
+
+								{/* Selection Indicator */}
+								<span
+									className="meetbot__drawer-indicator"
+									style={{
+										left:
+											info.selectedMode === 'meeting_bot'
+												? '0%'
+												: info.selectedMode === 'desktop'
+												? '60%'
+												: '0%',
+										transition: 'left 0.3s ease',
+									}}
+								/>
 							</div>
+						</div>
+					</div>
+
+					<div className="meetbot__drawer-content">
+						{info.selectedMode === 'meeting_bot' && (
+							<>
+								<div className="meetbotGuideMeContainer">
+									<div className="meetbotGuideMeContainerItemContainer">
+										<div className="meetbotGuideMeContainerItem">
+											<div className="meetbotGuideMeContainerItemTitle">
+												Ambient assistance
+											</div>
+											<div className="meetbotGuideMeDescriptionContainer">
+												Your AI actively captures key points, summarizes
+												conversations, and highlights actions in real-time.
+											</div>
+										</div>
+										<Switch
+											checked={info.guideMe}
+											onChange={(checked) =>
+												setInfo((prev) => ({ ...prev, guideMe: checked }))
+											}
+										/>
+									</div>
+									{info?.guideMe && (
+										<div className="meetbotGuideMeButtonContainer">
+											<button className="meetbotGuideButton">Guide me</button>
+										</div>
+									)}
+								</div>
+								<div
+									style={{
+										width: '100%',
+										height: '1px',
+										background: 'var(--stroke)',
+									}}
+								/>
+							</>
 						)}
+
+						<div className="meetbot__drawer-content-container">
+							<div>
+								<div className="meetbot__drawer-label">
+									{info.selectedMode === 'meeting_bot'
+										? 'Record a live meeting'
+										: 'Record a private note'}
+								</div>
+								<div className="meetbot__drawer-desc">
+									{info.selectedMode === 'meeting_bot'
+										? 'Works with Zoom, Google meet, or Microsoft Teams'
+										: `Only you know you're recording—no visible participants join your meeting.`}
+								</div>
+							</div>
+							{info.selectedMode === 'meeting_bot' && (
+								<div className="meetbot__drawer-input-wrapper">
+									<input
+										className="meetbot__drawer-input"
+										placeholder="Paste meeting URL"
+										value={info.meetingUrl}
+										onChange={(e) =>
+											setInfo((prev) => ({
+												...prev,
+												meetingUrl: e.target.value,
+											}))
+										}
+										onKeyDown={handleInputKeyDown}
+										disabled={info.creating}
+									/>
+									{!info.creating && (
+										<button
+											className={`meetbot__drawer-tick${
+												!isValidUrl(info.meetingUrl)
+													? ' meetbot__drawer-tick--disabled'
+													: ''
+											}`}
+											onClick={handleCreateMeet}
+											disabled={!isValidUrl(info.meetingUrl)}
+											title="Create meeting"
+										>
+											Create
+										</button>
+									)}
+									{info.creating && (
+										<span className="meetbot__drawer-loader">
+											<Spinner
+												width="16px"
+												height="16px"
+												color="var(--primary-button)"
+												borderTopColor="var(--background-color)"
+												borderWidth={1}
+											/>
+										</span>
+									)}
+								</div>
+							)}
+							{info.selectedMode === 'desktop' && (
+								<div className="meetbot__audio-btn-wrapper">
+									<button
+										disabled={info.creating}
+										onClick={handleCreateMeet}
+										className={`meetbot__audio-btn${
+											info.creating ? ' meetbot__audio-btn--disabled' : ''
+										}`}
+									>
+										<MicorPhoneIcon />
+										{info.creating ? 'Starting...' : 'Record'}
+									</button>
+								</div>
+							)}
+						</div>
+						<div
+							style={{ width: '100%', height: '1px', background: 'var(--stroke)' }}
+						/>
 					</div>
 				</Drawer>
 				{!info.drawerOpen && (
@@ -423,6 +493,10 @@ const MeetBot = () => {
 						onClick={() => setInfo({ ...info, drawerOpen: true })}
 					/>
 				)}
+				<GuideMePopup
+					isOpen={info.guideMe}
+					onClose={() => setInfo({ ...info, guideMe: false })}
+				/>
 			</div>
 		</div>
 	);
