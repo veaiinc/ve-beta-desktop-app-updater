@@ -24,9 +24,9 @@ const Agent = () => {
 	return (
 		<div className={s.agentContainer}>
 			{info?.sId && (
-				<div className={s.chatBlock}>
-					<RecentChat isPreview={true} sId={info?.sId} />
-				</div>
+			<div className={s.chatBlock}>
+				<RecentChat isPreview={true} sId={info?.sId} />
+			</div>
 			)}
 
 			<div className={s.agentBlock}>

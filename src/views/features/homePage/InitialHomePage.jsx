@@ -6,6 +6,7 @@ import Context from '../../../context/context';
 import ChatBox from '../../components/chat/ChatBox';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 import Suggestions from './Suggestions';
+import { useNavigate } from 'react-router-dom';
 
 const suggestionContainerStyles = {
 	position: 'absolute',
@@ -16,6 +17,7 @@ const suggestionContainerStyles = {
 	zIndex: '100',
 };
 const InitialHomePage = () => {
+	const navigate = useNavigate();
 	const {
 		templates: { updateStateValues, currentSessionId, chatBoxSuggestions },
 		profileInfo: { userDetailsData },
