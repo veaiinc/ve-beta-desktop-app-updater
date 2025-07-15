@@ -107,6 +107,29 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const pendingUpdatesRef = useRef(new Map());
 	const debounceTimerRef = useRef(null);
 	const originalFaviconRef = useRef(null);
+	// Map to track BlockNote id -> backend _id mapping
+	const blockIdToBackendIdRef = useRef(new Map());
+
+	// Helper function to get backend _id from BlockNote id
+	const getBackendId = useCallback((blockNoteId) => {
+		return blockIdToBackendIdRef.current.get(blockNoteId);
+	}, []);
+
+	// Helper function to calculate position between two positions
+	const calculatePositionBetween = useCallback((pos1, pos2) => {
+		return (pos1 + pos2) / 2;
+	}, []);
+
+	// Helper function to calculate position after a given position
+	const calculatePositionAfter = useCallback((pos) => {
+		return pos + 1000; // Use larger increments to avoid precision issues
+	}, []);
+
+	// Helper function to calculate position before a given position
+	const calculatePositionBefore = useCallback((pos) => {
+		return pos / 2; // Use division to get a position before
+	}, []);
+
 	// const { createWebSocketConnection, sendMessage } = useChatStream();
 
 	const {
@@ -274,8 +297,15 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	useEffect(() => {
 		if (blocks) {
-			previousBlocksRef.current = new Map(blocks?.data?.map((block) => [block.id, block]));
-			loadNotesContent(blocks?.data);
+			const flatBlocks = flattenBlocksFromBackend(blocks.data); // flatten nested tree
+			previousBlocksRef.current = new Map(flatBlocks.map((b) => [b.id, b]));
+			loadNotesContent(blocks.data); // this can still use nested data if needed
+
+			// Debug: Log the mapping
+			console.log(
+				'Block ID to Backend ID mapping:',
+				Array.from(blockIdToBackendIdRef.current.entries()),
+			);
 		}
 	}, [blocks]);
 
@@ -517,6 +547,29 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		return () => unsubscribe();
 	}, [editor]);
 
+	const flattenBlocksFromBackend = (blocks, parentId = null) => {
+		const flat = [];
+
+		for (const block of blocks) {
+			const { children, ...rest } = block;
+
+			// Store block with parentId info
+			flat.push({
+				...rest,
+				parentId,
+			});
+
+			// Create mapping from BlockNote id to backend _id
+			blockIdToBackendIdRef.current.set(block.id, block._id);
+
+			if (children && children.length > 0) {
+				flat.push(...flattenBlocksFromBackend(children, block.id));
+			}
+		}
+
+		return flat;
+	};
+
 	const getNotesPageDataFunc = useCallback(async () => {
 		const payload = {
 			pageId: noteId,
@@ -623,23 +676,249 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			id: old?.id,
 			type: old?.type,
 			props: old?.props,
-			children: old?.children,
 			content: old?.content,
+			// 🔥 IGNORE: children
 		};
 
 		const newBlockFormatted = {
 			id: newBlock?.id,
 			type: newBlock?.type,
 			props: newBlock?.props,
-			children: newBlock?.children,
 			content: newBlock?.type === 'database' ? [] : newBlock?.content,
 		};
 
-		if (oldBlock?.type !== newBlockFormatted?.type) {
+		if (oldBlock.type !== newBlockFormatted.type) return true;
+		if (!isEqual(oldBlock, newBlockFormatted)) {
+			console.log('Content changed for block:', oldBlock.id);
+			console.log('oldBlock', oldBlock);
+			console.log('newBlockFormatted', newBlockFormatted);
 			return true;
 		}
 
-		return !isEqual(oldBlock, newBlockFormatted);
+		return false;
+	};
+
+	const flattenBlocks = (blocks, parentId = null, depth = 0) => {
+		const flat = [];
+
+		for (let i = 0; i < blocks.length; i++) {
+			const block = blocks[i];
+			flat.push({
+				id: block.id,
+				type: block.type,
+				props: block.props,
+				content: block.content,
+				children: block.children,
+				parentId,
+				_depth: depth,
+			});
+
+			if (block.children?.length) {
+				flat.push(...flattenBlocks(block.children, block.id, depth + 1));
+			}
+		}
+
+		return flat;
+	};
+
+	const diffArraysNested = (flatNewArr) => {
+		const newMap = new Map(flatNewArr.map((item, index) => [item.id, { ...item, index }]));
+
+		const deleted = [];
+		const added = [];
+		const updated = [];
+
+		const allIds = new Set([...previousBlocksRef.current.keys(), ...newMap.keys()]);
+
+		// Group new blocks by parentId
+		const groupedByParent = flatNewArr.reduce((acc, block) => {
+			const key = block.parentId ?? 'root';
+			acc[key] ||= [];
+			acc[key].push(block);
+			return acc;
+		}, {});
+
+		// Sort siblings
+		Object.values(groupedByParent).forEach((group) => {
+			group.sort((a, b) => a.index - b.index);
+		});
+
+		for (const id of allIds) {
+			const oldItem = previousBlocksRef.current.get(id); // has _id and position
+			const newItem = newMap.get(id); // does not have _id or position
+
+			if (oldItem && !newItem) {
+				// Deleted
+				deleted.push(oldItem);
+				previousBlocksRef.current.delete(id);
+				// Remove from mapping
+				blockIdToBackendIdRef.current.delete(id);
+			} else if (!oldItem && newItem) {
+				// Added
+				const _id = ObjectID().toString();
+				const siblings = groupedByParent[newItem.parentId ?? 'root'];
+				const index = siblings.findIndex((b) => b.id === id);
+
+				const prev =
+					index > 0 ? previousBlocksRef.current.get(siblings[index - 1]?.id) : null;
+				const next =
+					index < siblings.length - 1
+						? previousBlocksRef.current.get(siblings[index + 1]?.id)
+						: null;
+
+				let position;
+				if (prev?.position && next?.position) {
+					// Between two blocks
+					position = calculatePositionBetween(prev.position, next.position);
+				} else if (prev?.position) {
+					// After the last block
+					position = calculatePositionAfter(prev.position);
+				} else if (next?.position) {
+					// Before the first block
+					position = calculatePositionBefore(next.position);
+				} else {
+					// First block in the group
+					position = 1000;
+				}
+
+				// Debug logging for new block position
+				console.log('New block position calculated:', {
+					id,
+					position,
+					prevPosition: prev?.position,
+					nextPosition: next?.position,
+					index,
+				});
+
+				const parentBackendId = newItem.parentId
+					? blockIdToBackendIdRef.current.get(newItem.parentId)
+					: null;
+
+				const newBlock = {
+					_id,
+					id,
+					type: newItem.type,
+					props: newItem.props,
+					content: newItem.content,
+					children: newItem.children,
+					parentId: parentBackendId, // ✅ use backend _id directly
+					position,
+				};
+
+				added.push(newBlock);
+				previousBlocksRef.current.set(id, newBlock);
+				// Update the mapping for new blocks
+				blockIdToBackendIdRef.current.set(id, _id);
+			} else if (oldItem && newItem) {
+				// Possible update
+				const siblings = groupedByParent[newItem.parentId ?? 'root'];
+				const index = siblings.findIndex((b) => b.id === id);
+
+				let position = oldItem.position;
+				let positionChanged = false;
+
+				// Check for content and parent changes
+				const contentChanged = compareFn(oldItem, newItem);
+
+				// Compare parentId correctly - oldItem.parentId is _id, newItem.parentId is id
+				let parentChanged = false;
+				if (oldItem.parentId !== null && newItem.parentId !== null) {
+					// Use the mapping to get the backend _id for the new parent
+					const newParentBackendId = blockIdToBackendIdRef.current.get(newItem.parentId);
+					parentChanged = oldItem.parentId !== newParentBackendId;
+
+					// Debug logging for parent comparison
+					if (parentChanged) {
+						console.log('Parent changed for block:', id);
+						console.log('oldItem.parentId (_id):', oldItem.parentId);
+						console.log('newItem.parentId (id):', newItem.parentId);
+						console.log('newParentBackendId:', newParentBackendId);
+					}
+				} else {
+					// One is null, the other is not
+					parentChanged = oldItem.parentId !== newItem.parentId;
+				}
+
+				// Always check for position changes (for reordering)
+				const prev =
+					index > 0 ? previousBlocksRef.current.get(siblings[index - 1]?.id) : null;
+				const next =
+					index < siblings.length - 1
+						? previousBlocksRef.current.get(siblings[index + 1]?.id)
+						: null;
+
+				// Check if current position is valid relative to neighbors
+				if (prev?.position && next?.position) {
+					// Between two blocks - should be between prev and next
+					if (position <= prev.position || position >= next.position) {
+						position = calculatePositionBetween(prev.position, next.position);
+						positionChanged = true;
+					}
+				} else if (prev?.position) {
+					// After the last block - should be after prev
+					if (position <= prev.position) {
+						position = calculatePositionAfter(prev.position);
+						positionChanged = true;
+					}
+				} else if (next?.position) {
+					// Before the first block - should be before next
+					if (position >= next.position) {
+						position = calculatePositionBefore(next.position);
+						positionChanged = true;
+					}
+				} else {
+					// Only block in the group - should be at a reasonable position
+					if (position < 1000) {
+						position = 1000;
+						positionChanged = true;
+					}
+				}
+
+				// Debug logging for position changes
+				if (positionChanged) {
+					console.log('Position changed for block:', id);
+					console.log('Old position:', oldItem.position);
+					console.log('New position:', position);
+					console.log('Prev block position:', prev?.position);
+					console.log('Next block position:', next?.position);
+				}
+
+				const isChanged = positionChanged || contentChanged || parentChanged;
+
+				// Debug logging for all changes
+				if (isChanged) {
+					console.log('Block changed:', id, {
+						positionChanged,
+						contentChanged,
+						parentChanged,
+						oldPosition: oldItem.position,
+						newPosition: position,
+					});
+				}
+
+				if (isChanged) {
+					const parentBackendId = newItem.parentId
+						? blockIdToBackendIdRef.current.get(newItem.parentId)
+						: null;
+
+					const updatedBlock = {
+						_id: oldItem._id,
+						id,
+						type: newItem.type,
+						props: newItem.props,
+						content: newItem.content,
+						children: newItem.children,
+						parentId: parentBackendId, // ✅ use backend _id directly
+						position,
+					};
+
+					updated.push(updatedBlock);
+					previousBlocksRef.current.set(id, updatedBlock);
+				}
+			}
+		}
+
+		return { added, deleted, updated };
 	};
 
 	const diffArrays = (newArr) => {
@@ -692,13 +971,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				// Calculate position based on surrounding blocks
 				let position;
 				if (prevPosition && nextPosition) {
-					position = (prevPosition + nextPosition) / 2;
+					position = calculatePositionBetween(prevPosition, nextPosition);
 				} else if (prevPosition) {
-					position = prevPosition + 1;
+					position = calculatePositionAfter(prevPosition);
 				} else if (nextPosition) {
-					position = nextPosition / 2;
+					position = calculatePositionBefore(nextPosition);
 				} else {
-					position = 1;
+					position = 1000;
 				}
 
 				const { type, props, children, content, id } = newItem;
@@ -733,23 +1012,23 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					// Only change position if it's not properly ordered relative to neighbors
 					if (prevPosition && nextPosition) {
 						if (position <= prevPosition || position >= nextPosition) {
-							position = (prevPosition + nextPosition) / 2;
+							position = calculatePositionBetween(prevPosition, nextPosition);
 							positionChanged = true;
 						}
 					} else if (prevPosition) {
 						if (position <= prevPosition) {
-							position = prevPosition + 1;
+							position = calculatePositionAfter(prevPosition);
 							positionChanged = true;
 						}
 					} else if (nextPosition) {
 						if (position >= nextPosition) {
-							position = nextPosition / 2;
+							position = calculatePositionBefore(nextPosition);
 							positionChanged = true;
 						}
 					} else {
 						// This is the only block
-						if (position !== 1) {
-							position = 1;
+						if (position < 1000) {
+							position = 1000;
 							positionChanged = true;
 						}
 					}
@@ -805,9 +1084,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	};
 
 	const onEditorUpdate = (currentTopLevelBlocks) => {
-		const { added, deleted, updated } = diffArrays(currentTopLevelBlocks);
+		const flatNewArr = flattenBlocks(currentTopLevelBlocks);
+		const { added, deleted, updated } = diffArraysNested(flatNewArr);
+		console.log('added', added);
+		console.log('deleted', deleted);
+		console.log('updated', updated);
 
-		added.forEach((block) =>
+		added.forEach((block) => {
 			createBlock({
 				pageId: noteId,
 				input: {
@@ -816,8 +1099,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 						? { textContent: block?.content }
 						: block.content,
 				},
-			}),
-		);
+			});
+		});
 
 		updated.forEach((block) => {
 			queueBlockUpdate(block, noteId);
@@ -831,7 +1114,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			});
 		});
 
-		setInfo((prevInfo) => ({ ...prevInfo, updatedAt: moment().unix() }));
+		setInfo((prev) => ({ ...prev, updatedAt: moment().unix() }));
 	};
 
 	// const onChange = () => {
