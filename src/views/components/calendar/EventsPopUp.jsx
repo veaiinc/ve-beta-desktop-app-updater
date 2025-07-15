@@ -57,7 +57,7 @@ const initialState = {
 };
 const color = '#ff2727';
 
-const ROLE_OPTIONS = ['Member', 'Manager', 'Guest', 'Custom...'];
+const RoleOptions = ['Member', 'Manager', 'Guest', 'Custom...'];
 
 const customStyles = {
 	overlay: {
@@ -139,89 +139,12 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		categoryInput: '',
 		categoryLoading: false,
 		categorySuccess: false,
+		pendingAttendee: null,
+		pendingRole: '',
+		customRole: '',
 	});
 
 	const [filteredAttendees, setFilteredAttendees] = useState([]);
-
-	const [pendingAttendee, setPendingAttendee] = useState(null); // {name, email, tenantUserId, isWorkspaceUser, role}
-	const [pendingRole, setPendingRole] = useState('');
-	const [customRole, setCustomRole] = useState('');
-
-	useEffect(() => {
-		if (open) {
-			if (!calendarCategoriesList) {
-				getCalendarCategories();
-			} else {
-				setInfo((prev) => ({
-					...prev,
-					...(!calendarCategoriesList?.error && {
-						categories: [...calendarCategoriesList],
-					}),
-				}));
-			}
-		}
-	}, [open, calendarCategoriesList, getCalendarCategories]);
-
-	useEffect(() => {
-		if (selectedSlot && selectedSlot.start && selectedSlot.end) {
-			const { date: startDate, time: startTime } = formatTimeAndDateForInput(
-				selectedSlot.start,
-			);
-			const { date: endDate, time: endTime } = formatTimeAndDateForInput(selectedSlot.end);
-			setInfo((prev) => ({
-				...prev,
-				startDate,
-				startTime,
-				endDate,
-				endTime,
-			}));
-		}
-	}, [selectedSlot]);
-
-	useEffect(() => {
-		if (info?.categories && !info?.selectedCategory) {
-			const defaultCategory = info?.categories?.find((category) => category?.name === 'all');
-			if (defaultCategory) {
-				setInfo((prev) => ({
-					...prev,
-					selectedCategory: defaultCategory,
-				}));
-			}
-		}
-	}, [info?.categories, info?.selectedCategory]);
-
-	useEffect(() => {
-		if (calendarCategoriesList && !calendarCategoriesList.error) {
-			setInfo((prev) => ({
-				...prev,
-				categories: [...calendarCategoriesList],
-			}));
-		}
-	}, [calendarCategoriesList]);
-
-	useEffect(() => {
-		if (info.showAtendeeSuggestions && info.attendeesInputField) {
-			const search = info.attendeesInputField.toLowerCase();
-			const filtered = tenantsUserList?.filter(
-				(item) =>
-					!item?.isOwner &&
-					((item?.firstName && item.firstName.toLowerCase().includes(search)) ||
-						(item?.lastName && item.lastName.toLowerCase().includes(search)) ||
-						(item?.email && item.email.toLowerCase().includes(search))),
-			);
-			setFilteredAttendees(filtered || []);
-		} else {
-			setFilteredAttendees(tenantsUserList?.filter((item) => !item?.isOwner) || []);
-		}
-	}, [info.showAtendeeSuggestions, info.attendeesInputField, tenantsUserList]);
-
-	useEffect(() => {
-		if (!info.showAtendeeSuggestions) {
-			setPendingAttendee(null);
-			setPendingRole('');
-			setCustomRole('');
-		}
-	}, [info.showAtendeeSuggestions]);
 
 	const convertToISOString = useCallback((date, time) => {
 		if (!date) return null;
@@ -554,9 +477,131 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 			}));
 		}
 	};
+	const handleSelectOrAddAttendee = useCallback(
+		(item) => {
+			if (item) {
+				setInfo((prev) => ({
+					...prev,
+					pendingAttendee: {
+						name: item?.firstName,
+						email: item?.email,
+						tenantUserId: item?._id,
+						isWorkspaceUser: true,
+						role: item?.role || 'Member',
+					},
+					pendingRole: item?.role || 'Member',
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					pendingAttendee: {
+						name: null,
+						email: info.attendeesInputField,
+						tenantUserId: null,
+						isWorkspaceUser: false,
+						role: 'Member',
+					},
+					pendingRole: 'Member',
+				}));
+			}
+			setInfo((prev) => ({ ...prev, customRole: '' }));
+		},
+		[info.attendeesInputField],
+	);
+	const handleAddPendingAttendee = useCallback(() => {
+		const roleToSet =
+			info.pendingRole === 'Custom...'
+				? info.customRole
+				: info.pendingRole || info.pendingAttendee?.role || 'Member';
+		if (!roleToSet) return;
+		addAttendees({
+			...info.pendingAttendee,
+			role: roleToSet,
+		});
+		setInfo((prev) => ({ ...prev, pendingAttendee: null }));
+		setInfo((prev) => ({ ...prev, pendingRole: '' }));
+		setInfo((prev) => ({ ...prev, customRole: '' }));
+		updateEventInfo('attendeesInputField', '');
+		updateEventInfo('showAtendeeSuggestions', false);
+	}, [info.pendingRole, info.customRole, info.pendingAttendee, addAttendees, updateEventInfo]);
+
+	useEffect(() => {
+		if (open) {
+			if (!calendarCategoriesList) {
+				getCalendarCategories();
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					...(!calendarCategoriesList?.error && {
+						categories: [...calendarCategoriesList],
+					}),
+				}));
+			}
+		}
+	}, [open, calendarCategoriesList, getCalendarCategories]);
+
+	useEffect(() => {
+		if (selectedSlot && selectedSlot.start && selectedSlot.end) {
+			const { date: startDate, time: startTime } = formatTimeAndDateForInput(
+				selectedSlot.start,
+			);
+			const { date: endDate, time: endTime } = formatTimeAndDateForInput(selectedSlot.end);
+			setInfo((prev) => ({
+				...prev,
+				startDate,
+				startTime,
+				endDate,
+				endTime,
+			}));
+		}
+	}, [selectedSlot]);
+
+	useEffect(() => {
+		if (info?.categories && !info?.selectedCategory) {
+			const defaultCategory = info?.categories?.find((category) => category?.name === 'all');
+			if (defaultCategory) {
+				setInfo((prev) => ({
+					...prev,
+					selectedCategory: defaultCategory,
+				}));
+			}
+		}
+	}, [info?.categories, info?.selectedCategory]);
+
+	useEffect(() => {
+		if (calendarCategoriesList && !calendarCategoriesList.error) {
+			setInfo((prev) => ({
+				...prev,
+				categories: [...calendarCategoriesList],
+			}));
+		}
+	}, [calendarCategoriesList]);
+
+	useEffect(() => {
+		if (info.showAtendeeSuggestions && info.attendeesInputField) {
+			const search = info.attendeesInputField.toLowerCase();
+			const filtered = tenantsUserList?.filter(
+				(item) =>
+					!item?.isOwner &&
+					((item?.firstName && item.firstName.toLowerCase().includes(search)) ||
+						(item?.lastName && item.lastName.toLowerCase().includes(search)) ||
+						(item?.email && item.email.toLowerCase().includes(search))),
+			);
+			setFilteredAttendees(filtered || []);
+		} else {
+			setFilteredAttendees(tenantsUserList?.filter((item) => !item?.isOwner) || []);
+		}
+	}, [info.showAtendeeSuggestions, info.attendeesInputField, tenantsUserList]);
+
+	useEffect(() => {
+		if (!info.showAtendeeSuggestions) {
+			setInfo((prev) => ({ ...prev, pendingAttendee: null }));
+			setInfo((prev) => ({ ...prev, pendingRole: '' }));
+			setInfo((prev) => ({ ...prev, customRole: '' }));
+		}
+	}, [info.showAtendeeSuggestions]);
 
 	if (!open) return null;
-
 	return (
 		<ReactModal
 			isOpen={open}
@@ -935,7 +980,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								onBlur={(e) => {
 									// If pendingAttendee, do not close dropdown
 									setTimeout(() => {
-										if (!pendingAttendee) {
+										if (!info.pendingAttendee) {
 											updateEventInfo('showAtendeeSuggestions', false);
 										}
 									}, 100); // Delay to allow click events in dropdown
@@ -950,16 +995,18 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								}
 								onKeyDown={(e) => {
 									if (e.key === 'Enter' && info?.attendeesInputField) {
-										if (!pendingAttendee) {
-											setPendingAttendee({
-												name: null,
-												email: info.attendeesInputField,
-												tenantUserId: null,
-												isWorkspaceUser: false,
-												role: 'Member',
-											});
-											setPendingRole('Member');
-											setCustomRole('');
+										if (!info.pendingAttendee) {
+											setInfo((prev) => ({
+												...prev,
+												pendingAttendee: {
+													name: null,
+													email: info.attendeesInputField,
+													tenantUserId: null,
+													isWorkspaceUser: false,
+													role: 'Member',
+												},
+												pendingRole: 'Member',
+											}));
 										}
 									}
 								}}
@@ -969,7 +1016,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 									className={styles['events-popup-add-attendee-dropdown']}
 									ref={attendeeDropdownRef}
 								>
-									{pendingAttendee ? (
+									{info.pendingAttendee ? (
 										<div className={styles['events-popup-pending-attendee']}>
 											<div
 												className={
@@ -981,7 +1028,8 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 														styles['events-popup-pending-attendee-name']
 													}
 												>
-													{pendingAttendee.name || pendingAttendee.email}
+													{info.pendingAttendee.name ||
+														info.pendingAttendee.email}
 												</div>
 												<div
 													className={
@@ -990,7 +1038,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 														]
 													}
 												>
-													{pendingAttendee.email}
+													{info.pendingAttendee.email}
 												</div>
 											</div>
 											<div
@@ -1001,60 +1049,50 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 												<select
 													className={styles['events-popup-role-dropdown']}
 													value={
-														pendingRole ||
-														pendingAttendee.role ||
+														info.pendingRole ||
+														info.pendingAttendee.role ||
 														'Member'
 													}
 													onChange={(e) => {
-														setPendingRole(e.target.value);
+														setInfo((prev) => ({
+															...prev,
+															pendingRole: e.target.value,
+														}));
 														if (e.target.value !== 'Custom...')
-															setCustomRole('');
+															setInfo((prev) => ({
+																...prev,
+																customRole: '',
+															}));
 													}}
 												>
-													{ROLE_OPTIONS.map((opt) => (
+													{RoleOptions.map((opt) => (
 														<option key={opt} value={opt}>
 															{opt}
 														</option>
 													))}
 												</select>
-												{pendingRole === 'Custom...' && (
+												{info.pendingRole === 'Custom...' && (
 													<input
 														className={
 															styles['events-popup-role-custom-input']
 														}
 														placeholder="Enter role"
-														value={customRole}
+														value={info.customRole}
 														onChange={(e) =>
-															setCustomRole(e.target.value)
+															setInfo((prev) => ({
+																...prev,
+																customRole: e.target.value,
+															}))
 														}
 														autoFocus
 													/>
 												)}
 												<button
 													className={styles['events-popup-role-add-btn']}
-													onClick={() => {
-														const roleToSet =
-															pendingRole === 'Custom...'
-																? customRole
-																: pendingRole ||
-																  pendingAttendee.role ||
-																  'Member';
-														if (!roleToSet) return;
-														addAttendees({
-															...pendingAttendee,
-															role: roleToSet,
-														});
-														setPendingAttendee(null);
-														setPendingRole('');
-														setCustomRole('');
-														updateEventInfo('attendeesInputField', '');
-														updateEventInfo(
-															'showAtendeeSuggestions',
-															false,
-														);
-													}}
+													onClick={handleAddPendingAttendee}
 													disabled={
-														pendingRole === 'Custom...' && !customRole
+														info.pendingRole === 'Custom...' &&
+														!info.customRole
 													}
 												>
 													Add
@@ -1064,9 +1102,18 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 														styles['events-popup-role-cancel-btn']
 													}
 													onClick={() => {
-														setPendingAttendee(null);
-														setPendingRole('');
-														setCustomRole('');
+														setInfo((prev) => ({
+															...prev,
+															pendingAttendee: null,
+														}));
+														setInfo((prev) => ({
+															...prev,
+															pendingRole: '',
+														}));
+														setInfo((prev) => ({
+															...prev,
+															customRole: '',
+														}));
 													}}
 												>
 													Cancel
@@ -1082,19 +1129,9 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 																styles['events-popup-dropdown-list']
 															}
 															key={item?._id}
-															onMouseDown={() => {
-																setPendingAttendee({
-																	name: item?.firstName,
-																	email: item?.email,
-																	tenantUserId: item?._id,
-																	isWorkspaceUser: true,
-																	role: item?.role || 'Member',
-																});
-																setPendingRole(
-																	item?.role || 'Member',
-																);
-																setCustomRole('');
-															}}
+															onMouseDown={() =>
+																handleSelectOrAddAttendee(item)
+															}
 														>
 															<div
 																className={
@@ -1138,17 +1175,9 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 														className={
 															styles['events-popup-dropdown-list']
 														}
-														onMouseDown={() => {
-															setPendingAttendee({
-																name: null,
-																email: info.attendeesInputField,
-																tenantUserId: null,
-																isWorkspaceUser: false,
-																role: 'Member',
-															});
-															setPendingRole('Member');
-															setCustomRole('');
-														}}
+														onMouseDown={() =>
+															handleSelectOrAddAttendee()
+														}
 													>
 														+ Add "{info.attendeesInputField}"
 													</div>
