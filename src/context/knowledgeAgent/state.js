@@ -1132,9 +1132,7 @@ export const KnowledgeAgentState = () => {
 		const usertoken = localStorage.getItem('usertoken');
 		const url = `/${workspaceId}/${action}/agent-tools`;
 		const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
-		if (response?.[0] === true) {
-			return [true, response?.[1]];
-		}
+		return response;
 	};
 
 	return {
