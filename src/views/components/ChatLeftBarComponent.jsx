@@ -42,17 +42,16 @@ const ChatLeftBarComponent = ({ children }) => {
 	const isFirstTimeChatActiveRef = useRef(true);
 	const isFirstTimeSuggestionsRenderRef = useRef(true);
 	const [animationClass, setAnimationClass] = useState('');
-	const prevIsClosedRef = useRef(info.isClosed);
 
 	useEffect(() => {
-		if (prevIsClosedRef.current !== info.isClosed) {
+		setAnimationClass((prevClass) => {
 			if (info.isClosed === false) {
-				setAnimationClass('slide-in');
+				return 'slide-in';
 			} else if (info.isClosed === true) {
-				setAnimationClass('slide-out');
+				return 'slide-out';
 			}
-			prevIsClosedRef.current = info.isClosed;
-		}
+			return prevClass;
+		});
 	}, [info.isClosed]);
 
 	const handleAnimationEnd = () => {

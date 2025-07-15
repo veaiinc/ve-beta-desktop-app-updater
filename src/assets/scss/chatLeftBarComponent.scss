@@ -208,7 +208,7 @@
 		overflow: hidden !important;
 		box-shadow: none;
 		background: none;
-		transition: width 1.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.9s, transform 0.3s;
+		transition: width 0.6s cubic-bezier(0.3, 0, 0.2, 1), padding 0.3s, transform 0.3s;
 		z-index: 1000;
 		position: relative;
 
@@ -419,12 +419,10 @@
 	}
 	100% {
 		transform: translateX(0%);
-		opacity: 1;
 	}
 }
 @keyframes slideOutAnimation {
 	0% {
-		opacity: 1;
 		transform: translateX(0);
 	}
 	100% {
@@ -435,7 +433,4 @@
 
 .chat-left-bar-component.slide-in {
 	animation: slideInAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-.chat-left-bar-component.slide-out {
-	animation: slideOutAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }

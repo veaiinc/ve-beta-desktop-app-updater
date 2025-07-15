@@ -332,7 +332,7 @@
 						align-self: stretch;
 						cursor: pointer;
 						text-transform: capitalize;
-						color: var(--primary);
+						color: var(--primary-font);
 						font-weight: 500;
 						opacity: 0.7;
 						display: flex;
@@ -410,7 +410,7 @@
 						}
 					}
 					.events-popup-category-selected-check {
-						color: var(--primary);
+						color: var(--primary-font);
 						margin-left: 8px;
 					}
 				}
@@ -588,7 +588,7 @@
 						gap: 16px;
 						cursor: pointer;
 						width: 100%;
-						color: var(--primary);
+						color: var(--primary-font);
 						font-weight: 500;
 
 						.events-popup-avatar {
@@ -674,7 +674,7 @@
 					cursor: pointer;
 				}
 				.events-popup-dropdown-list-add {
-					color: var(--primary);
+					color: var(--primary-font);
 					font-weight: 500;
 					cursor: pointer;
 				}
