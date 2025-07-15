@@ -168,34 +168,7 @@ const OpenedSidebarModules = ({
 						width: '100%',
 					}}
 				>
-					{Icon && (
-						<Icon
-							fill={
-								name === 'Notes' ||
-								name === 'Calendar' ||
-								name === 'Tasks' ||
-								name === 'Contacts' ||
-								name === 'Automations' ||
-								name === 'Database'
-									? 'none'
-									: 'var(--secondary-font)'
-							}
-							style={{
-								stroke:
-									name === 'Notes' ||
-									name === 'Calendar' ||
-									name === 'Tasks' ||
-									name === 'Contacts' ||
-									name === 'Automations' ||
-									name === 'Database'
-										? 'var(--secondary-font)'
-										: 'none',
-								height: '20px',
-								width: '20px',
-								color: 'var(--secondary-font)',
-							}}
-						/>
-					)}
+					{Icon && <Icon />}
 					<p style={{ margin: 0 }}>{name}</p>
 					{isExactPathMatch() && <TickSvg />}
 				</div>
@@ -343,9 +316,13 @@ const OpenedSidebar = ({
 	const location = useLocation();
 
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
+	const isWorkspaceSuspended = workspaceMode === 'suspended';
 
-	// Add this constant for Settings options
-	const settingsOptions = isAdmin ? settingsNavigationItems.admin : settingsNavigationItems.user;
+	const settingsOptions = isWorkspaceSuspended
+		? []
+		: isAdmin
+		? settingsNavigationItems.admin
+		: settingsNavigationItems.user;
 
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
 	useEffect(() => {
@@ -534,14 +511,15 @@ const OpenedSidebar = ({
 					allPossibleApps,
 			  );
 
-	const settingEssentials =
-		tenantUserAccessControls?.role === 'admin'
-			? settingsNavigationItems.essentials
-			: filterModules(
-					settingsNavigationItems.essentials,
-					tenantUserAccessControls?.accessControls,
-					allPossibleApps,
-			  );
+	const settingEssentials = isWorkspaceSuspended
+		? []
+		: tenantUserAccessControls?.role === 'admin'
+		? settingsNavigationItems.essentials
+		: filterModules(
+				settingsNavigationItems.essentials,
+				tenantUserAccessControls?.accessControls,
+				allPossibleApps,
+		  );
 
 	const isExactPathMatch = useCallback(
 		(currentRoute, moduleName) => {
