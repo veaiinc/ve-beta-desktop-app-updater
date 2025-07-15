@@ -11,7 +11,7 @@ const ViewToggle = ({ viewMode, onViewModeChange }) => {
 				title="Card View"
 			>
 				<div className={s.viewToggleIcon}>
-					<CardsViewIcon />
+					<CardsViewIcon active={viewMode === 'card'} />
 				</div>
 			</button>
 			<button
@@ -20,7 +20,7 @@ const ViewToggle = ({ viewMode, onViewModeChange }) => {
 				title="List View"
 			>
 				<div className={s.viewToggleIcon}>
-					<ListViewIcon />
+					<ListViewIcon active={viewMode === 'list'} />
 				</div>
 			</button>
 		</div>

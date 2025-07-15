@@ -42,13 +42,19 @@
 			.headerActionsContainer {
 				display: flex;
 				align-items: center;
-				justify-content: end;
+
+				justify-content: space-between;
 				gap: 8px;
 				width: 100%;
 				position: sticky;
 				top: 0;
 				background: var(--background-color);
 
+				.headerActionsRight {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+				}
 				.searchContainer {
 					display: flex;
 					width: 220px;

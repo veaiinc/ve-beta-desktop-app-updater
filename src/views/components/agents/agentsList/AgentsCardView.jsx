@@ -18,7 +18,7 @@ import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 
 // constants
-const infiniteScrollHeight = 'calc(100vh - 550px)';
+const infiniteScrollHeight = '100%';
 const infiniteScrollStyle = {
 	display: 'flex',
 	justifyContent: 'flex-start',

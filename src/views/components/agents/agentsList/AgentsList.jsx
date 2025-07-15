@@ -1,18 +1,11 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import s from './agentsList.module.scss';
 import Spinner from '../../loaders/Spinner';
 import AgentsCardView from './AgentsCardView';
 import AgentsListView from './AgentsListView';
-import ViewToggle from './ViewToggle';
 
-const AgentsList = ({ agents = [], isLoading = false }) => {
-	const [viewMode, setViewMode] = useState('card');
-
+const AgentsList = ({ agents = [], isLoading = false, viewMode = 'card' }) => {
 	const showLoading = isLoading && agents.length === 0;
-
-	const handleViewModeChange = (mode) => {
-		setViewMode(mode);
-	};
 
 	if (showLoading) {
 		return (
@@ -32,12 +25,6 @@ const AgentsList = ({ agents = [], isLoading = false }) => {
 
 	return (
 		<div className={s.agentsListWrapper}>
-			<div className={s.viewToggleWrapper}>
-				<div className={s.headerActions}>
-					<div className={s.headerTitle}>Your Agents</div>
-				</div>
-				<ViewToggle viewMode={viewMode} onViewModeChange={handleViewModeChange} />
-			</div>
 			{viewMode === 'card' ? (
 				<AgentsCardView agents={agents} />
 			) : (
