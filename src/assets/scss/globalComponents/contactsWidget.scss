@@ -2,12 +2,13 @@
 	display: flex;
 	align-items: flex-start;
 	gap: 12px;
-	flex: 1 0 0;
 	align-self: stretch;
 	border-radius: 24px;
 	margin: 0 auto;
 	height: 412px;
 	position: relative;
+	max-width: 380px;
+	width: 100%;
 	.contactsWidgetSection1 {
 		display: flex;
 		padding: 16px;
@@ -235,5 +236,11 @@
 				line-height: 20px; /* 125% */
 			}
 		}
+	}
+}
+
+@media screen and (max-width: 1150px) {
+	.contactsWidgetContainer {
+		max-width: 412px !important;
 	}
 }
