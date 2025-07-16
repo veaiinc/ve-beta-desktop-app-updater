@@ -482,7 +482,6 @@ class SummaryWarpper extends Component {
 							setTab={(e) => this.props.setActiveTab(e)}
 							handleSideBar={(e, _id) => this.props.handleOpenSideBar(e, _id, true)}
 							currencySymbol={this.props?.currencySymbol}
-							currencySymbol2={this.props?.currencySymbol2}
 							globalSummaryData={this.props?.globalSummaryData}
 							style={this.state?.style}
 							client={this.props?.client}

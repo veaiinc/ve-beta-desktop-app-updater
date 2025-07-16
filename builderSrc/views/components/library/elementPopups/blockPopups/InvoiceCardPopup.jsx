@@ -864,12 +864,8 @@ export default class InvoiceCardPopup extends Images {
 																			);
 																		}}
 																	>
-																		{this.props?.currencySymbol
-																			? this.props
-																					?.currencySymbol
-																			: this.props
-																					?.currencySymbol2 ||
-																			  '$'}
+																		{this.props
+																			?.currencySymbol || '$'}
 																	</span>
 																	|{' '}
 																	<span
@@ -1020,9 +1016,7 @@ export default class InvoiceCardPopup extends Images {
 															);
 														}}
 													>
-														{this.props?.currencySymbol
-															? this.props?.currencySymbol
-															: this.props?.currencySymbol2 || '$'}
+														{this.props?.currencySymbol || '$'}
 													</span>
 													|{' '}
 													<span
