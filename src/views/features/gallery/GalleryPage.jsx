@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext, useCallback, memo } from 'react';
+import { useState, useEffect, useRef, useContext, useCallback, memo, useMemo } from 'react';
 import { ReactComponent as ShareIcon } from '../../../assets/svg/gallery/share.svg';
 import sixDots from '../../../assets/svg/gallery/sixdots.svg';
 import { ReactComponent as ThreeDotsIcon } from '../../../assets/svg/gallery/threeDots.svg';
@@ -57,6 +57,7 @@ import ShareAlbum from '../../components/modalsV2/gallery/ShareAlbum';
 import GalleryStyles from '../../components/modalsV2/gallery/GalleryStyles';
 import DownloadAlbum from '../../components/modalsV2/gallery/DownloadAlbum';
 import DeleteAlbumImagesPopup from '../../components/modalsV2/gallery/DeleteAlbumImagesPopup';
+import VideoUploadPopup from '../../components/modalsV2/gallery/UploadVideo';
 // import ToggleSlider from '../../components/input/slider';
 import { Switch, message } from 'antd';
 import ShowLightRoomCopy from '../../components/modalsV2/gallery/ShowLightRoomCopy';
@@ -66,7 +67,8 @@ import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
 import GalleryViewer from './GalleryViewer';
 import { ReactComponent as ArrowSvg } from '../../../assets/svg/file/arrow.svg';
 import { ReactComponent as SelectModeIcon } from '../../../assets/svg/gallery/selectModeIcon.svg';
-
+import { getThumbnailUrl } from '../../../helpers/videoThumbnailHelpers';
+import GalleryVideos from '../../components/gallery/galleryVideos/GalleryVideos';
 // const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
@@ -335,6 +337,12 @@ const GalleryPage = () => {
 		noImageSelected: false,
 		uploadImageLoader: false,
 		selectingImages: false,
+		videoUploadPopup: false,
+		selectVideo: null,
+		videosList: null,
+		coverLoading: false,
+		videoUploaded: false,
+		thumbnailUrls: {},
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -355,7 +363,7 @@ const GalleryPage = () => {
 	const containerRef = useRef(null);
 	const data = [
 		{ name: 'Albums', number: albumImagesCount?.albums?.length },
-		// { name: 'Videos', number: 2 },
+		{ name: 'Videos', number: tenantAlbums?.embeddedVideos?.length },
 		// { name: 'Slide Show', number: 1 },
 		{
 			name: 'Ai People',
@@ -369,7 +377,7 @@ const GalleryPage = () => {
 					  ) + '%'
 					: '0',
 		},
-		{ name: 'Collection', number: clientSelectionsData?.totalDocs },
+		{ name: 'Collections', number: clientSelectionsData?.totalDocs },
 		// {
 		// 	name: 'breaker',
 		// },
@@ -468,6 +476,23 @@ const GalleryPage = () => {
 		clickOutsideCheck(albumSettingsRef, albumSettingsIconRef, 'showAlbumSettings');
 		clickOutsideCheck(optionsContainerRef, optionsIconRef, 'showAlbumOptionsMenu');
 	}, []);
+
+	useEffect(() => {
+		if (info?.videosList?.length > 0) {
+			fetchThumbnails();
+		}
+	}, [info?.videosList]);
+
+	const fetchThumbnails = async () => {
+		const entries = await Promise.all(
+			info.videosList.map(async (video) => {
+				const url = await getThumbnailUrl(video);
+				return [video._id, url];
+			}),
+		);
+		const thumbnailUrls = Object.fromEntries(entries);
+		setInfo((prev) => ({ ...prev, thumbnailUrls }));
+	};
 
 	const handleScroll = (setInfo, info) => {
 		const container = document.querySelector('.galleryContainer');
@@ -596,7 +621,7 @@ const GalleryPage = () => {
 	}, [galleryCredentials]);
 
 	useEffect(() => {
-		if (info?.activeTab === 'Collection' && info?.clientSelectionID) {
+		if (info?.activeTab === 'Collections' && info?.clientSelectionID) {
 			getClientSelectionImages(info?.clientSelectionID);
 		}
 	}, [info?.clientSelectionID, info?.activeTab]);
@@ -692,6 +717,16 @@ const GalleryPage = () => {
 				albumSlug: tenantAlbums?.albums?.[0]?.slug,
 				isPublished: tenantAlbums?.isPublished,
 				isOnline: tenantAlbums?.isPublished,
+				videosList: tenantAlbums?.embeddedVideos,
+				selectVideo: info?.videoUploaded
+					? tenantAlbums?.embeddedVideos?.[tenantAlbums?.embeddedVideos?.length - 1]
+					: tenantAlbums?.embeddedVideos?.[0],
+			}));
+		}
+		if (tenantAlbums && galleryId && !info?.selectVideo) {
+			setInfo((prev) => ({
+				...prev,
+				selectVideo: tenantAlbums?.embeddedVideos?.[0],
 			}));
 		}
 		// ... rest of the effect
@@ -1052,7 +1087,9 @@ const GalleryPage = () => {
 
 		if (
 			activeTabFromParams &&
-			['Albums', 'Collection', 'Ai People', 'Insights'].includes(activeTabFromParams)
+			['Albums', 'Videos', 'Collections', 'Ai People', 'Insights'].includes(
+				activeTabFromParams,
+			)
 		) {
 			setInfo((prev) => ({
 				...prev,
@@ -1400,7 +1437,7 @@ const GalleryPage = () => {
 
 			// Handle tags differently for client selections vs regular albums
 			let newSelectedImagesTags;
-			if (info.activeTab === 'Collection') {
+			if (info.activeTab === 'Collections') {
 				// For client selections, don't process tags
 				newSelectedImagesTags = prevInfo?.selectedImagesTags || [];
 			} else {
@@ -2077,7 +2114,7 @@ const GalleryPage = () => {
 			// const id = message.loading('Fetching image list...');
 
 			let response;
-			if (info.activeTab === 'Collection' && info.clientSelectionID) {
+			if (info.activeTab === 'Collections' && info.clientSelectionID) {
 				// Check if we have client selection images
 				if (!info.clientSelectionImages?.docs?.length) {
 					message.warning('No images found in this client selection');
@@ -2487,10 +2524,10 @@ const GalleryPage = () => {
 	};
 
 	const handleSetCoverPosition = async (focalPoint) => {
-		if (handleSetCoverPosition.isProcessing) return;
+		if (info?.coverLoading) return;
 
 		try {
-			handleSetCoverPosition.isProcessing = true;
+			setInfo((prev) => ({ ...prev, coverLoading: true }));
 
 			// const id = message.loading('Updating cover position...');
 
@@ -2539,7 +2576,7 @@ const GalleryPage = () => {
 					yPosition: focalPoint?.y || 0,
 					zoom: info?.zoom || 1,
 				};
-
+				await getAlbumImagesCount(galleryId);
 				// Update state
 				setInfo((prev) => ({
 					...prev,
@@ -2594,13 +2631,12 @@ const GalleryPage = () => {
 			);
 		} finally {
 			setTimeout(() => {
-				handleSetCoverPosition.isProcessing = false;
+				setInfo((prev) => ({ ...prev, coverLoading: false }));
 			}, 1000);
 		}
 	};
 
 	// Initialize the processing flag
-	handleSetCoverPosition.isProcessing = false;
 
 	const handleAlbumDelete = () => {
 		const payload = {
@@ -2767,7 +2803,7 @@ const GalleryPage = () => {
 		const containerWidth = document.querySelector('.albums')?.clientWidth || 0;
 		const cardWidth = 130;
 		const numberOfCards =
-			info.activeTab === 'Collection'
+			info.activeTab === 'Collections'
 				? clientSelectionsData?.data?.length || 0
 				: albumImagesCount?.albums?.length + 1 || 0;
 		const cardHeight = 160;
@@ -3389,7 +3425,7 @@ const GalleryPage = () => {
 
 			// Handle Client Selections tab with no specific selections
 			if (
-				info.activeTab === 'Collection' &&
+				info.activeTab === 'Collections' &&
 				info.clientSelectionID &&
 				info.selectedImages.length === 0
 			) {
@@ -3539,7 +3575,7 @@ const GalleryPage = () => {
 	const getShareLink = () => {
 		const baseUrl = `${info?.galleryLink}`;
 		let pin = '';
-		if (info.activeTab === 'Collection' && info?.clientSelectionID) {
+		if (info.activeTab === 'Collections' && info?.clientSelectionID) {
 			const selection = clientSelectionsData?.data?.find(
 				(sel) => sel._id === info?.clientSelectionID,
 			);
@@ -3549,7 +3585,7 @@ const GalleryPage = () => {
 		} else {
 			pin = info?.activeGallery?.guestAccess?.pin || '';
 		}
-		if (info.activeTab === 'Collection' && info?.clientSelectionName) {
+		if (info.activeTab === 'Collections' && info?.clientSelectionName) {
 			return {
 				url: `${baseUrl}/selection/${info?.activeClientSelection}`,
 				pin: pin,
@@ -3565,7 +3601,20 @@ const GalleryPage = () => {
 			pin: pin,
 		};
 	};
-	const galleryUrl = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+	const galleryUrl = useMemo(() => {
+		if (!galleryCredentials || !info.activeGallery?.coverImage) return '';
+
+		const { baseURL, 'Key-Pair-Id': keyPairId, Signature, Policy } = galleryCredentials;
+		const givenFileName = albumImagesCount?.coverImage?.givenFileName;
+
+		if (!givenFileName) return '';
+		return `${baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${givenFileName}?Key-Pair-Id=${keyPairId}&Signature=${Signature}&Policy=${Policy}`;
+	}, [
+		galleryCredentials, // now from context ✅
+		info.activeGallery?.coverImage,
+		tenantAlbums,
+		galleryId,
+	]);
 
 	const handleCloseGalleryViewer = () => {
 		setInfo((prev) => ({
@@ -3612,10 +3661,38 @@ const GalleryPage = () => {
 		}
 	};
 
+	const videoToggle = (value) => {
+		const updatedVideosList = info?.videosList?.map((video) =>
+			video?._id === info?.selectVideo?._id ? { ...video, isPublished: value } : video,
+		);
+
+		setInfo((prev) => ({
+			...prev,
+			videosList: updatedVideosList,
+		}));
+	};
+
+	const removeSelectedVideoFromList = () => {
+		const selectedVideoId = info?.selectVideo?._id;
+		const updatedVideosList = info?.videosList?.filter(
+			(video) => video?._id !== selectedVideoId,
+		);
+
+		setInfo((prev) => ({
+			...prev,
+			videosList: updatedVideosList,
+			selectVideo: updatedVideosList?.[0],
+		}));
+	};
+
+	const updateSelectedVideo = () => {
+		setInfo((prev) => ({ ...prev, videoUploaded: true }));
+	};
+
 	return (
 		<>
 			<div className="galleryContainer">
-				{/* {!info?.isRearranging && (
+				{!info?.isRearranging && (
 					<div className="galleryTitleWhenScrolled">
 						<span onClick={() => navigate('/home')} className="homeIcon">
 							<HomeIcon />
@@ -3631,18 +3708,16 @@ const GalleryPage = () => {
 							Files
 						</span>
 					</div>
-				)} */}
+				)}
 				{info?.isRearranging ? (
 					<div className="galleryRearrangingContainer">
 						<div className="galleryRearrangingImageContainer">
 							<div
 								className="imageContaienr"
 								style={{
-									background:
-										albumImagesCount?.coverImage?.givenFileName &&
-										galleryCredentials
-											? `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), url(${galleryUrl}) lightgray 50% / cover no-repeat`
-											: '#000000',
+									background: galleryCredentials
+										? `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), url(${galleryUrl}) lightgray 50% / cover no-repeat`
+										: '#000000',
 									backgroundSize: 'cover',
 									backgroundPosition: 'center',
 									backgroundRepeat: 'no-repeat',
@@ -3841,7 +3916,7 @@ const GalleryPage = () => {
 											style={{
 												backgroundColor: info.isOnline
 													? 'var(--primary-button)'
-													: 'var(--error)',
+													: '',
 											}}
 										/>
 									</div>
@@ -3917,8 +3992,7 @@ const GalleryPage = () => {
 													{...provided.droppableProps}
 													ref={provided.innerRef}
 												>
-													{(info.activeTab === 'Albums' ||
-														info.activeTab !== 'Collection') && (
+													{info?.activeTab === 'Albums' && (
 														<div
 															className="create-album"
 															onClick={() =>
@@ -3931,9 +4005,21 @@ const GalleryPage = () => {
 															<p>+ Create Album</p>
 														</div>
 													)}
+													{info?.activeTab === 'Videos' && (
+														<div
+															className="create-album"
+															onClick={() => {
+																setInfo((prev) => ({
+																	...prev,
+																	videoUploadPopup: true,
+																}));
+															}}
+														>
+															<p>+ Add Video</p>
+														</div>
+													)}
 
-													{(info.activeTab === 'Albums' ||
-														info.activeTab !== 'Collection') &&
+													{info.activeTab === 'Albums' &&
 														sortByCustomIndex(
 															albumImagesCount?.albums,
 														)?.map((album, index) => {
@@ -4022,23 +4108,7 @@ const GalleryPage = () => {
 																				}}
 																			/>
 																			{!isActive && (
-																				<div
-																					style={{
-																						position:
-																							'absolute',
-																						top: 0,
-																						left: 0,
-																						right: 0,
-																						bottom: 0,
-																						backgroundColor:
-																							'rgba(0, 0, 0, 0.5)',
-																						transition:
-																							'background-color 0.3s ease',
-																						height: '100%',
-																						backgroundSize:
-																							'cover',
-																					}}
-																				/>
+																				<div className="albumOverlay" />
 																			)}
 																			{!album?.isPublished && (
 																				<div className="unpublished">
@@ -4124,7 +4194,7 @@ const GalleryPage = () => {
 															);
 														})}
 
-													{info.activeTab === 'Collection' &&
+													{info.activeTab === 'Collections' &&
 														clientSelectionsData?.data?.map(
 															(album, index) => {
 																let src = null;
@@ -4181,6 +4251,56 @@ const GalleryPage = () => {
 															},
 														)}
 													{provided.placeholder}
+
+													{info?.activeTab === 'Videos' && (
+														<div className="videosContainer">
+															{info?.videosList?.map((video) => (
+																<div
+																	key={video?._id}
+																	className={`eachVideoContainer ${
+																		info?.selectVideo?._id ===
+																		video?._id
+																			? 'selectedVideo'
+																			: ''
+																	}`}
+																	style={{
+																		backgroundImage: `url(
+																			${info?.thumbnailUrls[video?._id] || ''}
+																		)`,
+																		backgroundSize: 'cover',
+																		backgroundPosition:
+																			'center',
+																		backgroundRepeat:
+																			'no-repeat',
+																		overflow: 'hidden',
+																	}}
+																	onClick={() =>
+																		setInfo((prev) => ({
+																			...prev,
+																			selectVideo: video,
+																		}))
+																	}
+																>
+																	{!video?.isPublished && (
+																		<div className="videoOfflineIndicator">
+																			<CrossedOpenEye />
+																			Offline
+																		</div>
+																	)}
+																	{info?.selectVideo?._id !==
+																	video?._id ? (
+																		<div className="videoOverlay"></div>
+																	) : (
+																		<div className="videoTitleOverlay"></div>
+																	)}
+
+																	<p className="videoTitle">
+																		{video?.title}
+																	</p>
+																</div>
+															))}
+														</div>
+													)}
 												</div>
 											)}
 										</Droppable>
@@ -4210,8 +4330,8 @@ const GalleryPage = () => {
 						</div>
 					</div>
 				)}
-				<div className="line"></div>
-				{info?.scrolledTillEnd && (
+				<div className="horizontalRule"></div>
+				{info?.scrolledTillEnd && info?.activeTab === 'Albums' && (
 					<div className="galleryTitleWhenScrolled" style={{ gap: '24px' }}>
 						{sortByCustomIndex(albumImagesCount?.albums)?.map((album) => {
 							const isActive = album._id === info.activeAlbumId;
@@ -4265,25 +4385,25 @@ const GalleryPage = () => {
 
 				{info.activeTab === 'Albums' &&
 					(albumImagesCount?.albums?.length === 0 ? (
-						<div className="noAlbumContainer">
-							<Result
-								status="404"
-								title="Albums Not Found"
-								subTitle="It's quiet for now... You haven't missed anything yet! Create your first album to start organizing your memories"
-								extra={
-									<button
-										className="create-album-button"
-										onClick={() =>
-											setInfo((prevData) => ({
-												...prevData,
-												showCreateAlbum: true,
-											}))
-										}
-									>
-										<p>Create Album</p>
-									</button>
-								}
-							/>
+						<div className="noAlbumsMainContainer">
+							<div className="noAlbumContainer">
+								<div className="noAlbumContainerTitle">Start upload images</div>
+								<div className="noAlbumContainerDescription">
+									It's quiet for now... You haven't missed anything yet! Create
+									your first album to start organizing your memories
+								</div>
+								<button
+									className="noAlbumUploadButton"
+									onClick={() =>
+										setInfo((prevData) => ({
+											...prevData,
+											showCreateAlbum: true,
+										}))
+									}
+								>
+									Upload Images
+								</button>
+							</div>
 						</div>
 					) : (
 						<div className="galleryViewer">
@@ -4920,7 +5040,7 @@ const GalleryPage = () => {
 										}
 										resetInfinityScroll={info?.resetInfinityScroll}
 										disableDrop={true}
-										height={'88vh'}
+										height={'83vh'}
 									>
 										{!info.isRearranging ? (
 											<ResponsiveMasonry
@@ -5269,29 +5389,16 @@ const GalleryPage = () => {
 							</div>
 						</div>
 					))}
-				{info.activeTab === 'Collection' &&
+				{info.activeTab === 'Collections' &&
 					(clientSelectionsData?.data?.length === 0 ? (
-						<div className="noAlbumContainer">
-							<Result
-								status="404"
-								title="Albums Not Found"
-								subTitle="It's quiet for now... You haven't missed anything yet! Create your first album to start organizing your memories"
-								extra={
-									info.activeTab !== 'Collection' && (
-										<button
-											className="create-album-button"
-											onClick={() =>
-												setInfo((prevData) => ({
-													...prevData,
-													showCreateAlbum: true,
-												}))
-											}
-										>
-											<p>Create Album</p>
-										</button>
-									)
-								}
-							/>
+						<div className="noAlbumsMainContainer">
+							<div className="noAlbumContainer">
+								<div className="noAlbumContainerTitle">Start upload images</div>
+								<div className="noAlbumContainerDescription">
+									It's quiet for now... You haven't missed anything yet! Create
+									your first album to start organizing your memories
+								</div>
+							</div>
 						</div>
 					) : (
 						<div className="galleryViewer">
@@ -5662,6 +5769,15 @@ const GalleryPage = () => {
 							</div>
 						</div>
 					))}
+				{info?.activeTab === 'Videos' && (
+					<GalleryVideos
+						selectedVideo={info?.selectVideo}
+						onUpdateVideoStatus={(value) => {
+							videoToggle(value);
+						}}
+						removeSelectedVideoFromList={removeSelectedVideoFromList}
+					/>
+				)}
 				{info.selectedImages.length > 0 && (
 					<div className="selectedImagesCotainer">
 						<div className="selectedImagesCounter">
@@ -5808,7 +5924,7 @@ const GalleryPage = () => {
 											style={{ marginBottom: '15px' }}
 										>
 											<li onClick={handleDownload}>Download</li>
-											{info?.activeTab !== 'Collection' && (
+											{info?.activeTab !== 'Collections' && (
 												<li
 													style={{
 														cursor:
@@ -5833,7 +5949,7 @@ const GalleryPage = () => {
 												Set Gallery cover
 											</li>
 
-											{info?.activeTab !== 'Collection' && (
+											{info?.activeTab !== 'Collections' && (
 												<li
 													onClick={() =>
 														setInfo((prev) => ({
@@ -5882,6 +5998,7 @@ const GalleryPage = () => {
 								message={message}
 								showUploadPhoto={info?.selectedImages.length > 0}
 								uploadImageLoader={info?.uploadImageLoader}
+								coverLoading={info?.coverLoading}
 							/>
 
 							<DeleteGalleryComponent
@@ -5997,6 +6114,7 @@ const GalleryPage = () => {
 				}
 				style={{ position: 'absolute', top: '60%', left: '0', right: '0', bottom: '0' }}
 				uploadImageLoader={info?.uploadImageLoader}
+				coverLoading={info?.coverLoading}
 			/>
 
 			<CollaboratorPopup
@@ -6202,6 +6320,15 @@ const GalleryPage = () => {
 				tagId={info?.activeTagId}
 				handleOpenUploadCover={openUploadCoverPhoto}
 			/>
+			{info?.videoUploadPopup && (
+				<VideoUploadPopup
+					isOpen={info?.videoUploadPopup}
+					closeModal={() => setInfo((prev) => ({ ...prev, videoUploadPopup: false }))}
+					galleryId={galleryId}
+					selectedVideo={null}
+					updateSelectedVideo={updateSelectedVideo}
+				/>
+			)}
 		</>
 	);
 };
