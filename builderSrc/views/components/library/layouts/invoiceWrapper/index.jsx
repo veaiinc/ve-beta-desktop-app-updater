@@ -519,7 +519,6 @@ class InvoiceWrapper extends Component {
 							activeVariable={(e) => this.props?.setContractActiveVariable(e)}
 							iveSubBlockId={this.props?.activeSubBlockId}
 							sections={this.props.sections}
-							currencySymbol2={this.props?.currencySymbol2}
 							isWorkflow={this.props.isWorkflow}
 							clientGrandTotal={this.props?.clientGrandTotal || 0}
 							activeImage={this.props?.activeImage}

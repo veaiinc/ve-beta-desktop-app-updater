@@ -530,7 +530,7 @@ class Home extends Proposals {
 			templateList: [],
 			invoiceTables: [],
 			currency: '',
-			currencySymbol2: null,
+			currencySymbol: null,
 			settingEnabled: false,
 			settingClosingFlag: false,
 			endUrl: '',
@@ -4718,7 +4718,7 @@ class Home extends Proposals {
 		const symbol = getSymbolFromCurrency(currency);
 
 		this.setState({
-			currencySymbol2: symbol,
+			currencySymbol: symbol,
 		});
 		return symbol;
 	};
@@ -6622,9 +6622,7 @@ class Home extends Proposals {
 														globalSummaryData={
 															this.state?.globalSummaryData
 														}
-														currencySymbol2={
-															this.state?.currencySymbol2
-														}
+														currencySymbol={this.state?.currencySymbol}
 														getModuleInfo={(id, type) =>
 															this.getModule(id, type)
 														}
@@ -7383,7 +7381,7 @@ class Home extends Proposals {
 												}
 												handleAcceptProposal={this?.handleAcceptProposal}
 												globalSummaryData={this.state?.globalSummaryData}
-												currencySymbol2={this.state?.currencySymbol2}
+												currencySymbol={this.state?.currencySymbol}
 												getModuleInfo={(id, type) =>
 													this.getModule(id, type)
 												}
