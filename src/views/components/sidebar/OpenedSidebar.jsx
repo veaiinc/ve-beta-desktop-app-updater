@@ -252,7 +252,8 @@ const OpenedSidebar = ({
 	isThisEarlyAccessPage,
 	isSidebarOpen,
 }) => {
-	const { workspaceMode } = useWorkspaceMode();
+	const { workspaceMode, workspaceNotFound } = useWorkspaceMode();
+	const workspaceId = localStorage.getItem('workspaceId');
 
 	const sidebarNavigationItems = navigationItemsMap[workspaceMode];
 	const settingsNavigationItems = settingsNavItemsMap[workspaceMode];
@@ -321,8 +322,8 @@ const OpenedSidebar = ({
 	const settingsOptions = isWorkspaceSuspended
 		? []
 		: isAdmin
-		? settingsNavigationItems.admin
-		: settingsNavigationItems.user;
+		? settingsNavigationItems?.admin || []
+		: settingsNavigationItems?.user || [];
 
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
 	useEffect(() => {
@@ -448,7 +449,7 @@ const OpenedSidebar = ({
 		}
 
 		return modulesList
-			.map((module) => {
+			?.map((module) => {
 				// Convert the module name to its mapped name (if exists in MODULE_NAME_MAP)
 				const formattedModuleName = module?.name?.toLowerCase();
 				const mappedName = MODULE_NAME_MAP[formattedModuleName] || formattedModuleName;
@@ -514,9 +515,9 @@ const OpenedSidebar = ({
 	const settingEssentials = isWorkspaceSuspended
 		? []
 		: tenantUserAccessControls?.role === 'admin'
-		? settingsNavigationItems.essentials
+		? settingsNavigationItems?.essentials || []
 		: filterModules(
-				settingsNavigationItems.essentials,
+				settingsNavigationItems?.essentials || [],
 				tenantUserAccessControls?.accessControls,
 				allPossibleApps,
 		  );
@@ -706,9 +707,15 @@ const OpenedSidebar = ({
 															/>
 														</div>
 													)}
-													<h6 className="workspaceName">
-														{tennantSettingsData?.businessName}
-													</h6>
+													{workspaceNotFound ? (
+														<h6 className="workspaceName">
+															{workspaceId}
+														</h6>
+													) : (
+														<h6 className="workspaceName">
+															{tennantSettingsData?.businessName}
+														</h6>
+													)}
 													{userWorkSpaceList?.length > 1 && (
 														<DownArrowSmallSvg
 															style={{
@@ -937,54 +944,68 @@ const OpenedSidebar = ({
 															setShowSettingsSidebar(false);
 														}}
 													>
-														<div>
-															{userDetailsData?.logoURL ? (
-																<div className="crop-container">
-																	<Cropper
-																		image={
-																			userDetailsData?.logoURL
-																		} // Image URL to crop
-																		crop={
-																			userDetailsData
-																				?.cropSettings?.crop
-																		}
-																		zoom={
-																			userDetailsData
-																				?.cropSettings?.zoom
-																		}
-																		showGrid={false}
-																		onCropChange={(e) => ''}
-																		onCropComplete={(e) => ''}
-																		onZoomChange={(e) => ''}
-																	/>
-																</div>
-															) : (
-																<div
-																	className="noImageText"
-																	style={{
-																		background:
-																			userDetailsData
-																				?.cropSettings
-																				?.profileDpColor ||
-																			'',
-																		fontSize: '12px',
-																	}}
-																>
-																	{getInitials(
-																		userDetailsData?.firstName,
-																		userDetailsData?.lastName,
+														{!workspaceNotFound && (
+															<>
+																<div>
+																	{userDetailsData?.logoURL ? (
+																		<div className="crop-container">
+																			<Cropper
+																				image={
+																					userDetailsData?.logoURL
+																				} // Image URL to crop
+																				crop={
+																					userDetailsData
+																						?.cropSettings
+																						?.crop
+																				}
+																				zoom={
+																					userDetailsData
+																						?.cropSettings
+																						?.zoom
+																				}
+																				showGrid={false}
+																				onCropChange={(e) =>
+																					''
+																				}
+																				onCropComplete={(
+																					e,
+																				) => ''}
+																				onZoomChange={(e) =>
+																					''
+																				}
+																			/>
+																		</div>
+																	) : (
+																		<div
+																			className="noImageText"
+																			style={{
+																				background:
+																					userDetailsData
+																						?.cropSettings
+																						?.profileDpColor ||
+																					'',
+																				fontSize: '12px',
+																			}}
+																		>
+																			{getInitials(
+																				userDetailsData?.firstName,
+																				userDetailsData?.lastName,
+																			)}
+																		</div>
 																	)}
 																</div>
-															)}
-														</div>
-														<div className="settingsOptionsUserName">
-															<span>
-																{userDetailsData?.firstName}
-															</span>
-															<span className="workspaceId">
-																{tennantSettingsData?.businessName}
-															</span>
-														</div>
+																<div className="settingsOptionsUserName">
+																	<span>
+																		{userDetailsData?.firstName}
+																	</span>
+																	<span className="workspaceId">
+																		{
+																			tennantSettingsData?.businessName
+																		}
+																	</span>
+																</div>
+															</>
+														)}
 													</div>
 													<div className="logoutIcon">
 														<LogoutRedSvg
