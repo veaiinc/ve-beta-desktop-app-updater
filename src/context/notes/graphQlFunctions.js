@@ -359,7 +359,7 @@ export const getBlocksQuery = gql`
 				id
 				type
 				pageId
-				parentBlockId
+				parentId
 				position
 				props
 				content
@@ -380,7 +380,7 @@ export const createBlockMutation = gql`
 			id
 			type
 			pageId
-			parentBlockId
+			parentId
 			position
 			props
 			content
@@ -400,7 +400,7 @@ export const updateBlockMutation = gql`
 			id
 			type
 			pageId
-			parentBlockId
+			parentId
 			position
 			props
 			content

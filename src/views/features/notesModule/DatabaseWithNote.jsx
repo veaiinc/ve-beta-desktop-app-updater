@@ -1072,9 +1072,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					pageId: noteId,
 					input: {
 						...rest,
-						content: Array.isArray(rest?.content)
-							? { textContent: rest?.content }
-							: rest.content,
+						content:
+							rest?.type === 'table'
+								? { tableContent: rest?.content }
+								: { textContent: rest?.content },
 					},
 				});
 			});
@@ -1095,9 +1096,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				pageId: noteId,
 				input: {
 					...block,
-					content: Array.isArray(block?.content)
-						? { textContent: block?.content }
-						: block.content,
+					content:
+						block?.type === 'table'
+							? { tableContent: block?.content }
+							: { textContent: block?.content },
 				},
 			});
 		});
