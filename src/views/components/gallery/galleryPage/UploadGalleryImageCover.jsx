@@ -9,6 +9,7 @@ import Spinner from '../../loaders/Spinner';
 import { isURL } from '../../../../helpers';
 import { ReactComponent as MobileIcon } from '../../../../assets/svg/gallery/mobileIcon.svg';
 import { Slider } from 'antd';
+
 const UploadGalleryImageCover = ({
 	info,
 	setInfo,
@@ -61,15 +62,19 @@ const UploadGalleryImageCover = ({
 		if (!container) return;
 
 		const { width, height } = container.getBoundingClientRect();
-		const deltaX = (e.clientX - startPos.x) / width; // Normalized movement in x
-		const deltaY = (e.clientY - startPos.y) / height; // Normalized movement in y
+		const deltaX = (e.clientX - startPos.x) / width; // Reduced sensitivity
+		const deltaY = (e.clientY - startPos.y) / height; // Reduced sensitivity
 
-		setFocusInfo((prev) => ({
-			focalPoint: {
-				x: Math.max(-1, Math.min(1, prev.focalPoint.x - deltaX)), // Update x independently
-				y: Math.max(-1, Math.min(1, prev.focalPoint.y + deltaY)), // Update y independently
-			},
-		}));
+		setFocusInfo((prev) => {
+			const newFocus = {
+				focalPoint: {
+					x: Math.max(-1, Math.min(1, prev.focalPoint.x - deltaX)),
+					y: Math.max(-1, Math.min(1, prev.focalPoint.y + deltaY)),
+				},
+			};
+
+			return newFocus;
+		});
 		setStartPos({ x: e.clientX, y: e.clientY });
 	};
 
@@ -145,15 +150,11 @@ const UploadGalleryImageCover = ({
 													width: '100%',
 													height: '100%',
 													backgroundImage: `url(${info?.imageURL})`,
-													backgroundPosition: focusInfo?.focalPoint?.x
-														? `${focusInfo?.focalPoint?.x * 50 + 50}% ${
-																50 - focusInfo?.focalPoint?.y * 50
-														  }%`
-														: 'center',
-													// backgroundSize: 'cover',
-													backgroundSize: 'auto',
+													backgroundPosition: `${
+														focusInfo?.focalPoint?.x * 50 + 50
+													}% ${50 - focusInfo?.focalPoint?.y * 50}%`,
+													backgroundSize: `${scale * 100}% auto`,
 													backgroundRepeat: 'no-repeat',
-													transform: `scale(${scale})`,
 													borderRadius: '12px',
 												}}
 											></div>
@@ -169,7 +170,6 @@ const UploadGalleryImageCover = ({
 											</div>
 										)}
 									</div>
-									{/* <LaptopLogo /> */}
 								</div>
 							) : (
 								<div className="mobile-preview">
@@ -187,21 +187,16 @@ const UploadGalleryImageCover = ({
 													width: '100%',
 													height: '100%',
 													backgroundImage: `url(${info?.imageURL})`,
-													backgroundPosition: focusInfo?.focalPoint?.x
-														? `${focusInfo?.focalPoint?.x * 50 + 50}% ${
-																50 - focusInfo?.focalPoint?.y * 50
-														  }%`
-														: 'center',
-													// backgroundSize: 'cover',
-													backgroundSize: 'auto',
+													backgroundPosition: `${
+														focusInfo?.focalPoint?.x * 50 + 50
+													}% ${50 - focusInfo?.focalPoint?.y * 50}%`,
+													backgroundSize: `${scale * 100}% auto`,
 													backgroundRepeat: 'no-repeat',
-													transform: `scale(${scale})`,
 													borderRadius: '12px',
 												}}
 											></div>
 										</div>
 									)}
-									{/* <img src={mobile} alt="mobile" className="mobile-logo" /> */}
 								</div>
 							)}
 						</div>
