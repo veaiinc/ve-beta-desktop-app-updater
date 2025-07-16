@@ -8,7 +8,7 @@ import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import ClosedSidebar from './ClosedSidebar';
 
 const Sidebar = () => {
-	const { workspaceMode } = useWorkspaceMode();
+	const { workspaceMode, workspaceNotFound } = useWorkspaceMode();
 
 	const { pathname } = useLocation();
 	const isHome = pathname?.includes('home');
@@ -37,7 +37,8 @@ const Sidebar = () => {
 	const isEarlyAccessPage =
 		pathname?.includes('/early-access') ||
 		pathname?.includes('/pricing') ||
-		workspaceMode === 'suspended';
+		workspaceMode === 'suspended' ||
+		workspaceNotFound;
 
 	return (
 		<>

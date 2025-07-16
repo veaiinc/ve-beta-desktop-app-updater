@@ -9,12 +9,15 @@ import Suggestions from './Suggestions';
 import { useNavigate } from 'react-router-dom';
 
 const suggestionContainerStyles = {
-	position: 'absolute',
-	top: '0',
-	left: '18%',
-	width: '100%',
-	height: '100%',
-	zIndex: '100',
+	// position: 'absolute',
+	// top: '0',
+	// left: '0',
+	// width: '100%',
+	// height: '520px',
+	// zIndex: '100',
+	// backgroundColor: 'var(--card)',
+	// overflow: 'auto',
+	// border: '1px solid var(--stroke)',
 };
 const InitialHomePage = () => {
 	const navigate = useNavigate();
@@ -73,14 +76,17 @@ const InitialHomePage = () => {
 							showUpgradeSubscriptionBtn={false}
 						/>
 					</div>
-					{chatBoxSuggestions?.length > 0 && (
-						<div className="suggestions-container">
-							<Suggestions
-								chatQuery={info?.chatQuery}
-								styles={suggestionContainerStyles}
-							/>
-						</div>
-					)}
+					<div
+						className="suggestions-container"
+						style={{
+							overflow: chatBoxSuggestions?.length > 0 ? 'unset' : 'hidden',
+						}}
+					>
+						<Suggestions
+							chatQuery={info?.chatQuery}
+							styles={suggestionContainerStyles}
+						/>
+					</div>
 					{/* {info?.chatQuery?.length === 0 &&
 						globalChatMessages?.[currentSessionId]?.chatBoxInfo?.build && (
 							<BuildOptions />
