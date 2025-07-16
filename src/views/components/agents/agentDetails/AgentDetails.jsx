@@ -1,10 +1,9 @@
-import { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import s from './agentDetails.module.scss';
 import Context from '../../../../context/context';
 
 // components
-import RunAndBuildToggle from '../runBuildToggle/RunAndBuildToggle';
 import ConfigureAgent from './configureAgent/ConfigureAgent';
 import AgentCredentials from './agentCredentials/AgentCredentials';
 import KnowledgeAgentDetails from '../../../../views/features/knowledgeAgent/AgentDetails';
@@ -13,9 +12,9 @@ import AgentHeader from '../runBuildToggle/AgentHeader';
 const AgentDetails = () => {
 	const { agentId } = useParams();
 	const [searchParams, setSearchParams] = useSearchParams();
-
 	const agentActionParam = searchParams.get('agentAction') || 'buildAgent';
 	const configParam = searchParams.get('config') || 'prompt';
+	const agentCredentialsRef = useRef(null);
 
 	const [info, setInfo] = useState({
 		agentAction: agentActionParam,
@@ -24,7 +23,6 @@ const AgentDetails = () => {
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, getActiveKnowledgeAgentDetails },
 	} = useContext(Context);
-
 	useEffect(() => {
 		if (activeKnowledgeAssistant === null) {
 			getActiveKnowledgeAgentDetails(agentId);
@@ -62,17 +60,25 @@ const AgentDetails = () => {
 			return updated;
 		});
 	};
+	const handleEditClick = () => {
+		if (agentCredentialsRef.current) {
+			agentCredentialsRef.current.triggerEditAgentName();
+		}
+	};
 
 	return (
 		<div className={s.agentDetailsContainer}>
-			<AgentHeader />
-			<RunAndBuildToggle agentAction={info.agentAction} setAgentAction={setAgentAction} />
+			<AgentHeader
+				onEditClick={handleEditClick}
+				agentAction={info.agentAction}
+				setAgentAction={setAgentAction}
+				activeKnowledgeAssistant={activeKnowledgeAssistant}
+			/>
 			<div className={s.agentActionContainer}>
 				{info.agentAction === 'runAgent' ? (
 					<KnowledgeAgentDetails />
 				) : info.agentAction === 'buildAgent' ? (
 					<>
-						<AgentCredentials agentId={agentId} />
 						<ConfigureAgent agentId={agentId} />
 					</>
 				) : null}

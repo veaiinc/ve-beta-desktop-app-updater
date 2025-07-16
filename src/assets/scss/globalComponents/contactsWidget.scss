@@ -2,12 +2,13 @@
 	display: flex;
 	align-items: flex-start;
 	gap: 12px;
-	flex: 1 0 0;
 	align-self: stretch;
 	border-radius: 24px;
 	margin: 0 auto;
 	height: 412px;
 	position: relative;
+	max-width: 380px;
+	width: 100%;
 	.contactsWidgetSection1 {
 		display: flex;
 		padding: 16px;
@@ -170,14 +171,13 @@
 			align-items: center;
 			align-self: stretch;
 			border-radius: 0px 0px 16px 16px;
-			border-top: 1px solid var(--stroke, #2c2d2e);
-			background: var(--card-over-card-hover, #27282b);
+			background: var(--card, #27282b);
 			cursor: pointer;
 
 			.contactsWidgetFooterTitle {
 				color: var(--primary-font, #f2f2f3);
 				font-family: var(--primary-font-family);
-				font-size: 14px;
+				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
@@ -192,7 +192,7 @@
 				align-items: center;
 				gap: 16px;
 				border-radius: 6px;
-				border: 1px solid var(--primary-button, #79ecc9);
+				// border: 1px solid var(--primary-button, #79ecc9);
 				cursor: pointer;
 			}
 		}
@@ -235,5 +235,11 @@
 				line-height: 20px; /* 125% */
 			}
 		}
+	}
+}
+
+@media screen and (max-width: 1150px) {
+	.contactsWidgetContainer {
+		max-width: 412px !important;
 	}
 }

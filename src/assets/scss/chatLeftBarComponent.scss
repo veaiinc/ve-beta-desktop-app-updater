@@ -9,6 +9,8 @@
 	background: var(--card);
 	position: relative;
 
+	height: 100dvh;
+
 	.loader-tabs-wrapper {
 		background: var(--card);
 	}
@@ -57,7 +59,7 @@
 
 	.chat-left-bar-component-overlay,
 	.chat-left-bar-suggestions-overlay {
-		height: calc(100% - 164px);
+		height: calc(100% - 160px);
 		width: 100%;
 		position: absolute;
 		padding: 32px 24px;
@@ -197,6 +199,74 @@
 			}
 		}
 	}
+
+	&.closed {
+		transform: translateX(0);
+		width: 40px;
+		min-width: 40px;
+		padding: 0 !important;
+		overflow: hidden !important;
+		box-shadow: none;
+		background: none;
+		transition: width 0.6s cubic-bezier(0.3, 0, 0.2, 1), padding 0.3s, transform 0.3s;
+		z-index: 1000;
+		position: relative;
+
+		> *:not(.chat-left-bar-toggle-btn) {
+			display: none !important;
+		}
+	}
+
+	.chat-left-bar-toggle-btn {
+		position: absolute;
+		top: 28px;
+		right: 23px;
+		z-index: 1001;
+		cursor: pointer;
+		padding: 6px 4px;
+		border-left: none;
+		transition: right 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		svg {
+			width: 20px;
+			height: 20px;
+			transition: transform 0.3s;
+		}
+
+		&.closed {
+			right: 6px;
+			border-radius: 0 8px 8px 0;
+		}
+
+		&.mobile-floating {
+			position: fixed !important;
+			top: 28px !important;
+			left: 6px !important;
+			right: auto !important;
+			z-index: 2000 !important;
+			background: var(--card);
+			border-radius: 0 8px 8px 0;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+			padding: 6px 4px;
+			border: 1px solid var(--stroke);
+			border-left: none;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		&.mobile {
+			display: flex;
+			right: 16px;
+			top: 11px;
+			z-index: 1010;
+			align-items: flex-start;
+			justify-content: flex-end;
+		}
+	}
 }
 
 // Mobile chat toggle button styles
@@ -230,41 +300,59 @@
 		height: 24px;
 		color: var(--primary-button-font);
 	}
-}
 
-// Mobile chat close button styles
-.mobile-chat-close {
-	position: absolute;
-	top: 16px;
-	right: 16px;
-	width: 32px;
-	height: 32px;
-	border-radius: 50%;
-	background: var(--card-hover);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	z-index: 1001;
-	border: 1px solid var(--stroke);
-	transition: all 0.2s ease-in-out;
-
-	&:hover {
-		background: var(--card-over-card);
-		transform: scale(1.1);
+	.mobile-chat-toggle__icon {
+		width: 24px;
+		height: 24px;
+		color: var(--primary-button-font);
 	}
 
-	&:active {
-		transform: scale(0.95);
+	.chat-left-bar-toggle-btn__icon {
+		width: 20px;
+		height: 20px;
+		transition: transform 0.3s;
 	}
 
-	svg {
+	.chatWrapperHeader__icon {
 		width: 16px;
 		height: 16px;
-		color: var(--primary-font);
+		transform: rotate(180deg);
+		cursor: pointer;
+	}
+
+	// Mobile chat close button styles
+	.mobile-chat-close {
+		position: absolute;
+		top: 16px;
+		right: 16px;
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		background: var(--card-hover);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		z-index: 1001;
+		border: 1px solid var(--stroke);
+		transition: all 0.2s ease-in-out;
+
+		&:hover {
+			background: var(--card-over-card);
+			transform: scale(1.1);
+		}
+
+		&:active {
+			transform: scale(0.95);
+		}
+
+		svg {
+			width: 16px;
+			height: 16px;
+			color: var(--primary-font);
+		}
 	}
 }
-
 // Media Queries - Mobile Responsive Styles
 @media (max-width: 768px) {
 	.chat-left-bar-component {
@@ -277,6 +365,10 @@
 		padding: 16px;
 		transform: translateX(-100%);
 		transition: transform 0.3s ease-in-out;
+		.chatWrapper {
+			left: 21px;
+			width: 88%;
+		}
 
 		&.mobile-active {
 			transform: translateX(0);
@@ -319,4 +411,25 @@
 			z-index: -1;
 		}
 	}
+}
+
+@keyframes slideInAnimation {
+	0% {
+		transform: translateX(-50%);
+	}
+	100% {
+		transform: translateX(0%);
+	}
+}
+@keyframes slideOutAnimation {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-50%);
+	}
+}
+
+.chat-left-bar-component.slide-in {
+	animation: slideInAnimation 0.6s cubic-bezier(0.1, 0, 0, 0.8) forwards;
 }

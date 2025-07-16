@@ -1,4 +1,4 @@
-import { memo, useCallback, useState, useContext, useEffect } from 'react';
+import { memo, useCallback, useState, useContext, useEffect, useRef } from 'react';
 import styles from '../../../assets/scss/calendar/eventsPopup.module.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
@@ -17,6 +17,7 @@ import ReactModal from '../modalsV2';
 // import { Tooltip } from 'antd';
 import PhoneInput from 'react-phone-number-input';
 import { isURL } from '../../../helpers';
+import { isValidEmail } from '../../../helpers';
 
 const initialState = {
 	title: '',
@@ -54,8 +55,9 @@ const initialState = {
 	phoneNumber: null,
 	meetingLink: null,
 };
+const color = '#ff2727';
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const RoleOptions = ['Member', 'Manager', 'Guest', 'Custom...'];
 
 const customStyles = {
 	overlay: {
@@ -115,14 +117,15 @@ const sessionTypeInputConfig = {
 };
 
 const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selectedSlot }) => {
+	const attendeeDropdownRef = useRef(null);
+
 	const {
 		calendarInfo: {
-			calendarEvent,
 			createCalendarEvent,
-			getCalendarEventsList,
 			updateCalendarState,
 			calendarCategoriesList,
 			getCalendarCategories,
+			createCalendarCategory,
 		},
 		profileInfo: { userDetailsData },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -133,50 +136,15 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		...initialState,
 		selectedCategory: selectedCategory || null,
 		categories: [],
+		categoryInput: '',
+		categoryLoading: false,
+		categorySuccess: false,
+		pendingAttendee: null,
+		pendingRole: '',
+		customRole: '',
 	});
 
-	useEffect(() => {
-		if (open) {
-			if (!calendarCategoriesList) {
-				getCalendarCategories();
-			} else {
-				setInfo((prev) => ({
-					...prev,
-					...(!calendarCategoriesList?.error && {
-						categories: [...calendarCategoriesList],
-					}),
-				}));
-			}
-		}
-	}, [open, calendarCategoriesList, getCalendarCategories]);
-
-	useEffect(() => {
-		if (selectedSlot && selectedSlot.start && selectedSlot.end) {
-			const { date: startDate, time: startTime } = formatTimeAndDateForInput(
-				selectedSlot.start,
-			);
-			const { date: endDate, time: endTime } = formatTimeAndDateForInput(selectedSlot.end);
-			setInfo((prev) => ({
-				...prev,
-				startDate,
-				startTime,
-				endDate,
-				endTime,
-			}));
-		}
-	}, [selectedSlot]);
-
-	useEffect(() => {
-		if (info?.categories && !info?.selectedCategory) {
-			const defaultCategory = info?.categories?.find((category) => category?.name === 'all');
-			if (defaultCategory) {
-				setInfo((prev) => ({
-					...prev,
-					selectedCategory: defaultCategory,
-				}));
-			}
-		}
-	}, [info?.categories, info?.selectedCategory]);
+	const [filteredAttendees, setFilteredAttendees] = useState([]);
 
 	const convertToISOString = useCallback((date, time) => {
 		if (!date) return null;
@@ -323,7 +291,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 			tenantUserId = null,
 			role = null,
 		}) => {
-			if (!emailRegex.test(email)) {
+			if (!isValidEmail(email)) {
 				setInfo((prevInfo) => ({
 					...prevInfo,
 					submissionError: 'Invalid email address',
@@ -399,7 +367,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 
 	const renderSessionTypeInput = () => {
 		const config = sessionTypeInputConfig[info.sessionType];
-		const value = info[config.value];
 
 		const validateInput = (value) => {
 			if (config.value === 'meetingLink') {
@@ -463,10 +430,185 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		);
 	};
 
-	if (!open) return null;
+	const doesCategoryExist = (name) => {
+		return info.categories.some(
+			(cat) => cat?.name?.toLowerCase() === name?.trim().toLowerCase(),
+		);
+	};
 
+	const handleCreateCategory = async (name) => {
+		const trimmed = name.trim();
+		if (!trimmed) return;
+
+		setInfo((prev) => ({
+			...prev,
+			categoryLoading: true,
+			categorySuccess: false,
+		}));
+
+		const optimisticCat = { _id: `temp-${Date.now()}`, name: trimmed, optimistic: true };
+		setInfo((prev) => ({
+			...prev,
+			categories: [...prev.categories, optimisticCat],
+			selectedCategory: optimisticCat,
+			categoryInput: '',
+			showCategory: false,
+		}));
+		try {
+			await createCalendarCategory({ calendarCategory: trimmed, categoryColor: color });
+			await getCalendarCategories();
+			setInfo((prev) => {
+				const newCat = (prev.categories || []).find(
+					(cat) => cat?.name?.toLowerCase() === trimmed.toLowerCase() && !cat.optimistic,
+				);
+				return {
+					...prev,
+					selectedCategory: newCat || prev.selectedCategory,
+					categoryLoading: false,
+					categorySuccess: true,
+					categories: prev.categories.filter((cat) => !cat.optimistic),
+				};
+			});
+		} catch (e) {
+			setInfo((prev) => ({
+				...prev,
+				categoryLoading: false,
+				categories: prev.categories.filter((cat) => !cat.optimistic),
+			}));
+		}
+	};
+	const handleSelectOrAddAttendee = useCallback(
+		(item) => {
+			if (item) {
+				setInfo((prev) => ({
+					...prev,
+					pendingAttendee: {
+						name: item?.firstName,
+						email: item?.email,
+						tenantUserId: item?._id,
+						isWorkspaceUser: true,
+						role: item?.role || 'Member',
+					},
+					pendingRole: item?.role || 'Member',
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					pendingAttendee: {
+						name: null,
+						email: info.attendeesInputField,
+						tenantUserId: null,
+						isWorkspaceUser: false,
+						role: 'Member',
+					},
+					pendingRole: 'Member',
+				}));
+			}
+			setInfo((prev) => ({ ...prev, customRole: '' }));
+		},
+		[info.attendeesInputField],
+	);
+	const handleAddPendingAttendee = useCallback(() => {
+		const roleToSet =
+			info.pendingRole === 'Custom...'
+				? info.customRole
+				: info.pendingRole || info.pendingAttendee?.role || 'Member';
+		if (!roleToSet) return;
+		addAttendees({
+			...info.pendingAttendee,
+			role: roleToSet,
+		});
+		setInfo((prev) => ({ ...prev, pendingAttendee: null }));
+		setInfo((prev) => ({ ...prev, pendingRole: '' }));
+		setInfo((prev) => ({ ...prev, customRole: '' }));
+		updateEventInfo('attendeesInputField', '');
+		updateEventInfo('showAtendeeSuggestions', false);
+	}, [info.pendingRole, info.customRole, info.pendingAttendee, addAttendees, updateEventInfo]);
+
+	useEffect(() => {
+		if (open) {
+			if (!calendarCategoriesList) {
+				getCalendarCategories();
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					...(!calendarCategoriesList?.error && {
+						categories: [...calendarCategoriesList],
+					}),
+				}));
+			}
+		}
+	}, [open, calendarCategoriesList, getCalendarCategories]);
+
+	useEffect(() => {
+		if (selectedSlot && selectedSlot.start && selectedSlot.end) {
+			const { date: startDate, time: startTime } = formatTimeAndDateForInput(
+				selectedSlot.start,
+			);
+			const { date: endDate, time: endTime } = formatTimeAndDateForInput(selectedSlot.end);
+			setInfo((prev) => ({
+				...prev,
+				startDate,
+				startTime,
+				endDate,
+				endTime,
+			}));
+		}
+	}, [selectedSlot]);
+
+	useEffect(() => {
+		if (info?.categories && !info?.selectedCategory) {
+			const defaultCategory = info?.categories?.find((category) => category?.name === 'all');
+			if (defaultCategory) {
+				setInfo((prev) => ({
+					...prev,
+					selectedCategory: defaultCategory,
+				}));
+			}
+		}
+	}, [info?.categories, info?.selectedCategory]);
+
+	useEffect(() => {
+		if (calendarCategoriesList && !calendarCategoriesList.error) {
+			setInfo((prev) => ({
+				...prev,
+				categories: [...calendarCategoriesList],
+			}));
+		}
+	}, [calendarCategoriesList]);
+
+	useEffect(() => {
+		if (info.showAtendeeSuggestions && info.attendeesInputField) {
+			const search = info.attendeesInputField.toLowerCase();
+			const filtered = tenantsUserList?.filter(
+				(item) =>
+					!item?.isOwner &&
+					((item?.firstName && item.firstName.toLowerCase().includes(search)) ||
+						(item?.lastName && item.lastName.toLowerCase().includes(search)) ||
+						(item?.email && item.email.toLowerCase().includes(search))),
+			);
+			setFilteredAttendees(filtered || []);
+		} else {
+			setFilteredAttendees(tenantsUserList?.filter((item) => !item?.isOwner) || []);
+		}
+	}, [info.showAtendeeSuggestions, info.attendeesInputField, tenantsUserList]);
+
+	useEffect(() => {
+		if (!info.showAtendeeSuggestions) {
+			setInfo((prev) => ({ ...prev, pendingAttendee: null }));
+			setInfo((prev) => ({ ...prev, pendingRole: '' }));
+			setInfo((prev) => ({ ...prev, customRole: '' }));
+		}
+	}, [info.showAtendeeSuggestions]);
+
+	if (!open) return null;
 	return (
-		<ReactModal isOpen={open} closeModal={handleClose} customStyles={customStyles}>
+		<ReactModal
+			isOpen={open}
+			closeModal={handleClose}
+			customStyles={customStyles}
+			shouldCloseOnOverlayClick={false}
+		>
 			<div className={styles['events-popup-container']}>
 				<div className={styles['events-popup-header']}>
 					<div className={styles['events-popup-header-text']}>Create Event</div>
@@ -488,13 +630,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 							placeholder="E.g. Meeting"
 							value={info?.title}
 							onChange={(e) => updateEventInfo('title', e.target.value)}
-							style={{
-								display: 'flex',
-								padding: '12px 14px',
-								alignItems: 'center',
-								gap: '16px',
-								alignSelf: 'stretch',
-							}}
+							className={styles['events-popup-title-input']}
 						/>
 						<span className={styles['events-popup-agenda-label']}>Description</span>
 						<input
@@ -506,6 +642,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 							onChange={(e) => updateEventInfo('description', e.target.value)}
 							autoComplete="off"
 							autofill="off"
+							className={styles['events-popup-description-input']}
 						/>
 					</div>
 					<div
@@ -652,50 +789,176 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 						<div className={styles['events-popup-categories-selector']}>
 							<input
 								type="text"
-								placeholder="Add to a category"
+								placeholder={
+									info?.selectedCategory ? info?.selectedCategory.name : ''
+								}
 								onBlur={() => updateEventInfo('showCategory', false)}
 								onFocus={() => {
 									updateEventInfo('showCategory', true);
 								}}
-								value={info?.selectedCategory?.name || ''}
-								style={{ textTransform: 'capitalize' }}
+								value={
+									info.categoryInput !== undefined
+										? info?.categoryInput
+										: info?.selectedCategory?.name || ''
+								}
+								onChange={(e) => {
+									const val = e.target.value;
+									setInfo((prev) => ({
+										...prev,
+										categoryInput: val,
+										showCategory: true,
+									}));
+								}}
+								onKeyDown={async (e) => {
+									if (
+										e.key === 'Enter' &&
+										info.categoryInput &&
+										!doesCategoryExist(info.categoryInput) &&
+										!info.categoryLoading
+									) {
+										await handleCreateCategory(info.categoryInput);
+									} else if (e.key === 'Escape') {
+										setInfo((prev) => ({
+											...prev,
+											showCategory: false,
+											categoryInput: '',
+										}));
+									}
+								}}
+								className={styles['events-popup-category-input']}
+								autoFocus={info.showCategory}
+								disabled={info.categoryLoading}
 							/>
 							<div
 								className={styles['events-popup-down-arrow']}
 								onClick={() => updateEventInfo('showCategory', !info?.showCategory)}
 							>
 								<DownSvg
-									style={{
-										transform: info?.showCategory
-											? `rotate(180deg)`
-											: `rotate(0)`,
-									}}
+									className={
+										styles['events-popup-down-arrow-svg'] +
+										(info?.showCategory ? ' ' + styles.open : '')
+									}
 								/>
 							</div>
 							{info?.showCategory && (
-								<div className={styles['events-popup-category-dropdown']}>
-									{info?.categories?.map((item) => (
+								<div
+									className={`${styles['events-popup-category-dropdown']} ${styles['events-popup-category-dropdown-scroll']}`}
+									role="listbox"
+									aria-label="Category list"
+									tabIndex={-1}
+								>
+									{(() => {
+										const filtered = info?.categoryInput
+											? info.categories.filter((cat) =>
+													cat?.name
+														?.toLowerCase()
+														.includes(info.categoryInput.toLowerCase()),
+											  )
+											: info.categories;
+										if (filtered.length === 0) {
+											return (
+												<div
+													className={`${styles['events-popup-category-dropdown-item']} ${styles['empty']}`}
+												>
+													No categories found
+												</div>
+											);
+										}
+										return filtered.map((item, idx) => (
+											<div
+												key={item?._id}
+												className={
+													`${styles['events-popup-category-dropdown-item']} ` +
+													(info.selectedCategory?._id === item._id
+														? styles['selected']
+														: item.optimistic
+														? styles['optimistic']
+														: '')
+												}
+												role="option"
+												aria-selected={
+													info.selectedCategory?._id === item._id
+												}
+												tabIndex={0}
+												onMouseDown={() => {
+													setInfo((prev) => ({
+														...prev,
+														selectedCategory: item,
+														showCategory: false,
+														categoryInput: '',
+													}));
+												}}
+												onKeyDown={(e) => {
+													if (e.key === 'Enter') {
+														setInfo((prev) => ({
+															...prev,
+															selectedCategory: item,
+															showCategory: false,
+															categoryInput: '',
+														}));
+													}
+												}}
+											>
+												<span>
+													{item?.name} {item.optimistic && '(Adding...)'}
+												</span>
+												{info.selectedCategory?._id === item._id &&
+													!item.optimistic && (
+														<span
+															className={
+																styles[
+																	'events-popup-category-selected-check'
+																]
+															}
+															aria-label="Selected"
+														>
+															✔
+														</span>
+													)}
+											</div>
+										));
+									})()}
+									{info.categoryInput &&
+										!doesCategoryExist(info.categoryInput) &&
+										!info.categoryLoading && (
+											<div
+												className={
+													`${styles['events-popup-category-dropdown-item']} ${styles['add-category']}` +
+													(info.categoryLoading
+														? ` ${styles['disabled']}`
+														: '')
+												}
+												onMouseDown={async () => {
+													if (!info.categoryLoading)
+														await handleCreateCategory(
+															info.categoryInput,
+														);
+												}}
+												tabIndex={0}
+												aria-label="Add new category"
+											>
+												+ Add "{info.categoryInput}"
+											</div>
+										)}
+									{info.categoryLoading && (
 										<div
-											key={item?._id}
 											className={
 												styles['events-popup-category-dropdown-item']
 											}
-											onMouseDown={() => {
-												updateEventInfo('selectedCategory', item);
-												updateEventInfo('showCategory', false);
-											}}
 										>
-											{item?.name}
+											<Spinner width="16px" height="16px" />
+											Adding category...
 										</div>
-									))}
-									{/* <div
-										className="events-popup-category-dropdown-item events-popup-add-category"
-										onClick={() =>
-											setInfo((prev) => ({ ...prev, addCategory: true }))
-										}
-									>
-										+ Add new
-									</div> */}
+									)}
+									{info.categorySuccess && (
+										<div
+											className={
+												styles['events-popup-category-dropdown-item']
+											}
+										>
+											Category added!
+										</div>
+									)}
 								</div>
 							)}
 						</div>
@@ -714,7 +977,14 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 							<input
 								type="text"
 								placeholder="Add attendee or email"
-								onBlur={() => updateEventInfo('showAtendeeSuggestions', false)}
+								onBlur={(e) => {
+									// If pendingAttendee, do not close dropdown
+									setTimeout(() => {
+										if (!info.pendingAttendee) {
+											updateEventInfo('showAtendeeSuggestions', false);
+										}
+									}, 100); // Delay to allow click events in dropdown
+								}}
 								onFocus={() => {
 									updateEventInfo('showAtendeeSuggestions', true);
 									updateEventInfo('submissionError', null);
@@ -725,42 +995,195 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 								}
 								onKeyDown={(e) => {
 									if (e.key === 'Enter' && info?.attendeesInputField) {
-										addAttendees({ email: info?.attendeesInputField });
-										updateEventInfo('showAtendeeSuggestions', false);
+										if (!info.pendingAttendee) {
+											setInfo((prev) => ({
+												...prev,
+												pendingAttendee: {
+													name: null,
+													email: info.attendeesInputField,
+													tenantUserId: null,
+													isWorkspaceUser: false,
+													role: 'Member',
+												},
+												pendingRole: 'Member',
+											}));
+										}
 									}
 								}}
 							/>
 							{info?.showAtendeeSuggestions ? (
-								<div className={styles['events-popup-add-attendee-dropdown']}>
-									{tenantsUserList
-										?.filter((item) => !item?.isOwner)
-										?.map((item) => (
+								<div
+									className={styles['events-popup-add-attendee-dropdown']}
+									ref={attendeeDropdownRef}
+								>
+									{info.pendingAttendee ? (
+										<div className={styles['events-popup-pending-attendee']}>
 											<div
-												className={styles['events-popup-dropdown-list']}
-												key={item?._id}
-												onMouseDown={() => {
-													addAttendees({
-														name: item?.firstName,
-														email: item?.email,
-														tenantUserId: item?._id,
-														isWorkspaceUser: true,
-														role: item?.role,
-													});
-												}}
+												className={
+													styles['events-popup-pending-attendee-info']
+												}
 											>
-												<div className={styles['events-popup-avatar']}>
-													<Avtar />
+												<div
+													className={
+														styles['events-popup-pending-attendee-name']
+													}
+												>
+													{info.pendingAttendee.name ||
+														info.pendingAttendee.email}
 												</div>
-												<div className={styles['events-popup-details']}>
-													<div className={styles['events-popup-name']}>
-														{`${item?.firstName}`}
-													</div>
-													<div className={styles['events-popup-email']}>
-														{item?.email}
-													</div>
+												<div
+													className={
+														styles[
+															'events-popup-pending-attendee-email'
+														]
+													}
+												>
+													{info.pendingAttendee.email}
 												</div>
 											</div>
-										))}
+											<div
+												className={
+													styles['events-popup-role-selector-container']
+												}
+											>
+												<select
+													className={styles['events-popup-role-dropdown']}
+													value={
+														info.pendingRole ||
+														info.pendingAttendee.role ||
+														'Member'
+													}
+													onChange={(e) => {
+														setInfo((prev) => ({
+															...prev,
+															pendingRole: e.target.value,
+														}));
+														if (e.target.value !== 'Custom...')
+															setInfo((prev) => ({
+																...prev,
+																customRole: '',
+															}));
+													}}
+												>
+													{RoleOptions.map((opt) => (
+														<option key={opt} value={opt}>
+															{opt}
+														</option>
+													))}
+												</select>
+												{info.pendingRole === 'Custom...' && (
+													<input
+														className={
+															styles['events-popup-role-custom-input']
+														}
+														placeholder="Enter role"
+														value={info.customRole}
+														onChange={(e) =>
+															setInfo((prev) => ({
+																...prev,
+																customRole: e.target.value,
+															}))
+														}
+														autoFocus
+													/>
+												)}
+												<button
+													className={styles['events-popup-role-add-btn']}
+													onClick={handleAddPendingAttendee}
+													disabled={
+														info.pendingRole === 'Custom...' &&
+														!info.customRole
+													}
+												>
+													Add
+												</button>
+												<button
+													className={
+														styles['events-popup-role-cancel-btn']
+													}
+													onClick={() => {
+														setInfo((prev) => ({
+															...prev,
+															pendingAttendee: null,
+														}));
+														setInfo((prev) => ({
+															...prev,
+															pendingRole: '',
+														}));
+														setInfo((prev) => ({
+															...prev,
+															customRole: '',
+														}));
+													}}
+												>
+													Cancel
+												</button>
+											</div>
+										</div>
+									) : (
+										<>
+											{filteredAttendees && filteredAttendees.length > 0
+												? filteredAttendees.map((item) => (
+														<div
+															className={
+																styles['events-popup-dropdown-list']
+															}
+															key={item?._id}
+															onMouseDown={() =>
+																handleSelectOrAddAttendee(item)
+															}
+														>
+															<div
+																className={
+																	styles['events-popup-avatar']
+																}
+															>
+																<Avtar />
+															</div>
+															<div
+																className={
+																	styles['events-popup-details']
+																}
+															>
+																<div
+																	className={
+																		styles['events-popup-name']
+																	}
+																>
+																	{`${item?.firstName}`}
+																</div>
+																<div
+																	className={
+																		styles['events-popup-email']
+																	}
+																>
+																	{item?.email}
+																</div>
+															</div>
+														</div>
+												  ))
+												: null}
+											{/* If input is a valid email and not in the list, allow adding */}
+											{info.attendeesInputField &&
+												isValidEmail(info.attendeesInputField) &&
+												!tenantsUserList?.some(
+													(item) =>
+														item.email.toLowerCase() ===
+														info.attendeesInputField.toLowerCase(),
+												) && (
+													<div
+														className={
+															styles['events-popup-dropdown-list']
+														}
+														onMouseDown={() =>
+															handleSelectOrAddAttendee()
+														}
+													>
+														+ Add "{info.attendeesInputField}"
+													</div>
+												)}
+										</>
+									)}
 								</div>
 							) : (
 								''
@@ -792,7 +1215,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 													{item?.name}
 												</span>
 												<span className={styles['events-popup-role']}>
-													{item?.email}
+													{item?.email} - {item?.role}
 												</span>
 											</div>
 											<Close
@@ -826,7 +1249,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 				</div>
 				<UpdateCategoryModal
 					show={info?.addCategory}
-					handleClose={() => setInfo((prev) => ({ ...prev, addCategory: false }))}
+					handleClose={() => updateEventInfo({ addCategory: false })}
 					selectedCategory={info?.selectedCategory}
 				/>
 			</div>

@@ -5,15 +5,10 @@ import svgr from '@svgr/rollup';
 export default defineConfig({
 	build: {
 		outDir: 'build',
-		rollupOptions: {
-			output: {
-				// No manual chunks - let Vite handle chunking automatically for speed
-			},
-		},
 		chunkSizeWarningLimit: 2000,
 		minify: 'esbuild',
 		target: 'es2015',
-		sourcemap: false,
+		sourcemap: true,
 		reportCompressedSize: false,
 	},
 	plugins: [

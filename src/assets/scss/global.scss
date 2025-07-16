@@ -19,7 +19,8 @@ a {
 	text-decoration: none;
 	p,
 	span {
-		color: initial;
+		//commentd beacuse color are overriding in service table
+		// color: initial;
 	}
 }
 .modal-content {

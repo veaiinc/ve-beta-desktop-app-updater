@@ -1,26 +1,14 @@
 import { useState, useEffect, memo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import '../../../assets/scss/sidebar.scss';
-import {
-	stableNavigationItems,
-	betaNavigationItems,
-	internalNavigationItems,
-} from './sidebarindex';
 import OpenedSidebar from './OpenedSidebar';
 import Notifications from './notifications/Notifications';
 import Notes from './notes/Notes';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import ClosedSidebar from './ClosedSidebar';
 
-const sidebarNavigationMap = {
-	beta: betaNavigationItems,
-	internal: internalNavigationItems,
-	stable: stableNavigationItems,
-};
-
 const Sidebar = () => {
-	const { workspaceMode } = useWorkspaceMode();
-	const sidebarNavigationItems = sidebarNavigationMap[workspaceMode];
+	const { workspaceMode, workspaceNotFound } = useWorkspaceMode();
 
 	const { pathname } = useLocation();
 	const isHome = pathname?.includes('home');
@@ -46,7 +34,11 @@ const Sidebar = () => {
 		localStorage.setItem('isSidebarOpen', JSON.stringify(isSidebarOpen));
 	}, [isSidebarOpen]);
 
-	const isEarlyAccessPage = pathname?.includes('/early-access') || pathname?.includes('/pricing');
+	const isEarlyAccessPage =
+		pathname?.includes('/early-access') ||
+		pathname?.includes('/pricing') ||
+		workspaceMode === 'suspended' ||
+		workspaceNotFound;
 
 	return (
 		<>

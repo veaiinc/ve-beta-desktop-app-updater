@@ -97,7 +97,9 @@ export const Calendar = () => {
 				dispatch({
 					type: Actions.GET_CALENDAR_CATEGORIES,
 					payload: {
-						error: 'Something went wrong while creating category. Please try again.',
+						error:
+							response?.[1]?.message ||
+							'Something went wrong while creating category. Please try again.',
 					},
 				});
 			}
@@ -540,19 +542,27 @@ export const Calendar = () => {
 		}
 	};
 
-	const getGoogleCalendarList = async (isWorkspaceCalendar = true) => {
+	const getGoogleCalendarList = async ({ page = 1, limit = 10 } = {}) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}${API.CALENDAR.getGoogleCalendarList}${
-				isWorkspaceCalendar ? '?isWorkspaceCalendar=true' : ''
-			}`;
-			const response = await service.fetchGet(url, usertoken, 'calendar_api');
-
+			const url = `/google-calendar/${workspaceId}/calendar-list	`;
+			const params = {
+				page,
+				limit,
+			};
+			const response = await service.fetchGet(url, usertoken, 'calendar_api', params);
 			if (response?.[0] === true) {
+				const { currentPage, hasNextPage, result } = response[1];
+				const data = [...(state?.googleCalendarList?.data || []), ...result];
+				const payload = {
+					currentPage,
+					hasNextPage,
+					data,
+				};
 				dispatch({
 					type: Actions.GET_GOOGLE_CALENDAR_LIST,
-					payload: response?.[1],
+					payload,
 				});
 				return response?.[1];
 			} else {

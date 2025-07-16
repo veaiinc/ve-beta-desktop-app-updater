@@ -608,6 +608,7 @@ class NavImagePopup extends Images {
 						>
 							<b
 								style={{
+									color: '#fff',
 									fontSize: '12px',
 									marginBottom: '12px',
 								}}
@@ -624,7 +625,7 @@ class NavImagePopup extends Images {
 									<input
 										type="range"
 										min={1}
-										max={5}
+										max={2}
 										step={0.1}
 										value={
 											this.props.isMobileNavbar

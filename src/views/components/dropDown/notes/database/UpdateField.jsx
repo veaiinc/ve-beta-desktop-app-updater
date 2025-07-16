@@ -1,10 +1,7 @@
 import React, { useCallback, useContext, useMemo, useState, useEffect } from 'react';
 import s from '../../../../../assets/scss/notes/dropdown/updateField.module.scss';
 import { ReactComponent as CrossSvg } from '../../../../../assets/svg/gallery/cross.svg';
-import { ReactComponent as ChevronRightThinSvg } from '../../../../../assets/svg/tasks/chevronRightThin.svg';
-import { ReactComponent as SixDotsSvg } from '../../../../../assets/svg/tasks/sixDots.svg';
 import { ReactComponent as ArrowLeftSvg } from '../../../../../assets/svg/tasks/arrowLeft.svg';
-import { ReactComponent as PlusIcon } from '../../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as DustbinOutlined } from '../../../../../assets/svg/tasks/dustBin.svg';
 
 import { Tooltip } from 'antd';
@@ -13,6 +10,7 @@ import OptionsComponent from './OptionsComponent';
 import { message } from '../../../globalComponents/CustomToast';
 import Context from '../../../../../context/context';
 import StatusComponent from './StatusComponent';
+import DatabaseIcon from '../../../notes/DatabseComponents/DatabaseIcon';
 
 const fieldTypes = [
 	{
@@ -377,13 +375,20 @@ const UpdateField = ({
 				<CrossSvg className={s.cursorPointer} onClick={handleClose} />
 			</div>
 			<div className={s.inputWrapper}>
-				<div className={s.icon}></div>
+				<div className={s.icon}>
+					<DatabaseIcon type={info?.selectedFieldType?.value} />
+				</div>
 				<input
 					type="text"
 					className={s.nameInput}
 					placeholder="Enter field name"
 					value={info?.fieldName}
 					onChange={(e) => handleInfoChange({ fieldName: e.target.value })}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter') {
+							e.currentTarget.blur();
+						}
+					}}
 					onBlur={handleFieldNameBlur}
 					disabled={loading}
 					autoFocus
@@ -408,7 +413,7 @@ const UpdateField = ({
 						handleInfoChange({ fieldTypeTooltipOpen: open });
 					}}
 				>
-					<div className={s.option}>
+					<div className={`${s.option} ${s.disabled}`}>
 						<div className={s.text}>Type</div>
 						<div className={s.subText}>{info?.selectedFieldType?.label}</div>
 					</div>
@@ -464,6 +469,11 @@ const UpdateField = ({
 							className={s.optionInput}
 							value={info?.prefix}
 							onChange={(e) => handleInfoChange({ prefix: e.target.value })}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter') {
+									e.currentTarget.blur();
+								}
+							}}
 							onBlur={handlePrefixBlur}
 							disabled={loading}
 						/>

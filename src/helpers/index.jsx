@@ -236,7 +236,6 @@ export const isURL = (url) => {
 
 let urlMapper = {
 	localhost: 'http://localhost:5173',
-	localhost: 'http://localhost:5173',
 	've.ai': 'https://builder.ve.ai',
 	've.co': 'https://builder.ve.co',
 	'www.ve.ai': 'https://builder.ve.ai',

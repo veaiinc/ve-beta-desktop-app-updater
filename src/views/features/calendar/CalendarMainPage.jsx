@@ -8,6 +8,8 @@ import ObjectId from 'bson-objectid';
 import moment from 'moment';
 import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 import SchedulerSessionMainPage from '../../components/calendar/SchedulerSessionMainPage';
+import { message } from '../../components/globalComponents/CustomToast';
+
 const initialState = {
 	selectedWeek: [],
 	isCreateEventOpen: false,
@@ -49,13 +51,14 @@ const Calendar = () => {
 		calendarInfo: {
 			calendarCategoriesList,
 			getCalendarCategories,
-			getCalendarChat,
 			resetCalendarAiChat,
 			getCalendarEventsList,
 			updateCalendarState,
 			refetchCalendarState,
 			getSchedulerList,
 			schedulerList,
+			googleCalendarList,
+			getGoogleCalendarList,
 		},
 		companyInfo: { getTeamMembers },
 		templates: { updateStateValues, getConnectedThirdParties, googleCalendarWatch },
@@ -89,6 +92,25 @@ const Calendar = () => {
 			resetCalendarAiChat();
 		};
 	}, []);
+
+	// useEffect(() => {
+	// 	if (!calendarEventsFromGoogle) {
+	// 		const calendarId = 12;
+	// 		const isWorkspaceCalendar =false
+	// 		fetchCalendarEventsFromGoogle(calendarId, isWorkspaceCalendar);}
+	// }, [calendarEventsFromGoogle]);
+
+	// useEffect(() => {
+	// 	if (!googleCalendarEvents) {
+	// 		getGoogleCalendarEvents();
+	// 	}
+	// }, [googleCalendarEvents]);
+
+	useEffect(() => {
+		if (!googleCalendarList) {
+			getGoogleCalendarList();
+		}
+	}, [googleCalendarList]);
 
 	useEffect(() => {
 		if (calendarCategoriesList) {
@@ -142,8 +164,12 @@ const Calendar = () => {
 			selectedSession: null,
 		}));
 	}, []);
-
 	const updateCategoryList = useCallback(() => {
+		console.log(calendarCategoriesList);
+		if (calendarCategoriesList?.error) {
+			message.error(calendarCategoriesList?.error);
+			return;
+		}
 		const categories = calendarCategoriesList?.map((category) => ({
 			...category,
 			_id: category?._id,

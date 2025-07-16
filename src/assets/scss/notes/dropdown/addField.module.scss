@@ -50,6 +50,10 @@
 			border-radius: 8px;
 			border: 1px solid var(--stroke);
 			flex-shrink: 0;
+			svg {
+				width: 16px;
+				height: 16px;
+			}
 		}
 		.nameInput {
 			display: flex;

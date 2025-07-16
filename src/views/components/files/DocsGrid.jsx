@@ -15,11 +15,9 @@ import EmptyState from './EmptyState';
 // import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
 import { ReactComponent as Search } from '../../../assets/svg/search.svg';
-import { safeLazy } from '../../../utils/safeLazy';
 import SuspenseFallback from '../globalComponents/SuspenseFallback';
-const DocumentShortPreview = safeLazy(
-	() => import('../../../../builderSrc/views/feature/DocumentShortPreview'),
-	'DocsGrid',
+const DocumentShortPreview = lazy(() =>
+	import('../../../../builderSrc/views/feature/DocumentShortPreview'),
 );
 
 // const origin = fetchOriginSelection();
@@ -322,9 +320,13 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 							<div
 								className="card-item create"
 								// onClick={handleCreateDoc}
-								onClick={() => {
-									navigate(`/builder/create-document`);
-								}}
+								onClick={
+									handleCreateDoc
+										? handleCreateDoc
+										: () => {
+												navigate(`/builder/create-document`);
+										  }
+								}
 							>
 								<div className="card-item-style card-item-style-btn">
 									<button className="card-btn">

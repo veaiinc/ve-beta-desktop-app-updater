@@ -1,32 +1,23 @@
 import { Navigate } from 'react-router-dom';
-import { Suspense } from 'react';
-import { safeLazy } from '../utils/safeLazy';
+import { lazy, Suspense } from 'react';
 
 // layouts
 import Public from '../views/layouts/Public';
 
 // pages
 import LandingPage from '../views/features/landingScreen/LandingPage';
+
+// lazy loaded pages
+const LoginPage = lazy(() => import('../views/features/loginPage/LoginPage'));
+const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
+const TermsOfService = lazy(() => import('../views/features/signin/TermsOfService'));
+const CookiePolicy = lazy(() => import('../views/features/signin/CookiePolicy'));
+const PrivacyPolicy = lazy(() => import('../views/features/signin/PrivacyPolicy'));
+const ChageLog = lazy(() => import('../views/features/signin/ChageLog'));
+const OauthVerify = lazy(() => import('../views/features/signin/oauth/OauthVerify'));
+
+// components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-const LoginPage = safeLazy(() => import('../views/features/loginPage/LoginPage'), 'LoginPage');
-const Onboarding = safeLazy(() => import('../views/features/onboarding/Onboarding'), 'Onboarding');
-const TermsOfService = safeLazy(
-	() => import('../views/features/signin/TermsOfService'),
-	'TermsOfService',
-);
-const CookiePolicy = safeLazy(
-	() => import('../views/features/signin/CookiePolicy'),
-	'CookiePolicy',
-);
-const PrivacyPolicy = safeLazy(
-	() => import('../views/features/signin/PrivacyPolicy'),
-	'PrivacyPolicy',
-);
-const ChageLog = safeLazy(() => import('../views/features/signin/ChageLog'), 'Changelog');
-const OauthVerify = safeLazy(
-	() => import('../views/features/signin/oauth/OauthVerify'),
-	'OauthVerify',
-);
 
 const publicRoutes = [
 	{

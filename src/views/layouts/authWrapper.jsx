@@ -22,9 +22,8 @@ const AuthWrapper = ({
 	childrenContainerStyles = {},
 	showSidebar = true,
 }) => {
-	const { loading } = useAuthInitializer();
-
-	return loading ? (
+	const { authInitialized } = useAuthInitializer();
+	return authInitialized ? (
 		<PageLoader />
 	) : (
 		<main className="main-container">
