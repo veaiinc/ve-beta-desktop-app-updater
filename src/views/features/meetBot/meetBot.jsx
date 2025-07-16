@@ -48,6 +48,7 @@ const MeetBot = () => {
 		selectedMode: 'meeting_bot',
 		creating: false,
 		guideMe: false,
+		guideMePopupOpen: false,
 	});
 
 	const meetings = existingBots?.data;
@@ -397,7 +398,15 @@ const MeetBot = () => {
 										/>
 									</div>
 									{info?.guideMe && (
-										<div className="meetbotGuideMeButtonContainer">
+										<div
+											className="meetbotGuideMeButtonContainer"
+											onClick={() =>
+												setInfo((prev) => ({
+													...prev,
+													guideMePopupOpen: true,
+												}))
+											}
+										>
 											<button className="meetbotGuideButton">Guide me</button>
 										</div>
 									)}
@@ -493,10 +502,12 @@ const MeetBot = () => {
 						onClick={() => setInfo({ ...info, drawerOpen: true })}
 					/>
 				)}
-				<GuideMePopup
-					isOpen={info.guideMe}
-					onClose={() => setInfo({ ...info, guideMe: false })}
-				/>
+				{info?.guideMePopupOpen && (
+					<GuideMePopup
+						isOpen={info?.guideMePopupOpen}
+						onClose={() => setInfo({ ...info, guideMePopupOpen: false })}
+					/>
+				)}
 			</div>
 		</div>
 	);
