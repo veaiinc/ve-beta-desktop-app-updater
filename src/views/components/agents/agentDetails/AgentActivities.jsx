@@ -8,7 +8,7 @@ import Spinner from '../../loaders/Spinner';
 import Context from '../../../../context/context';
 import { ReactComponent as BriefcaseIcon } from '../../../../assets/svg/agents/briefcase.svg';
 
-const PAGE_LIMIT = 10;
+const pageLimit = 10;
 
 const AgentActivities = () => {
 	const navigate = useNavigate();
@@ -27,7 +27,7 @@ const AgentActivities = () => {
 	const fetchActivities = async (page = 1) => {
 		setActivitiesInfo((prev) => ({ ...prev, loadingActivities: true }));
 		try {
-			const response = await getActivitiesForKnowledgeAgent(agentId, page, PAGE_LIMIT);
+			const response = await getActivitiesForKnowledgeAgent(agentId, page, pageLimit);
 			if (response?.[0]) {
 				const { data, hasNextPage: next, currentPage: cur } = response[1];
 				setActivitiesInfo((prev) => ({
