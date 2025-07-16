@@ -74,7 +74,9 @@ const useWorkspaceMode = () => {
 		isPublicRoute || workspaceNotFound ? false : workspaceMode === null;
 
 	useEffect(() => {
-		localStorage.setItem('workspaceMode', workspaceMode);
+		if (workspaceMode) {
+			localStorage.setItem('workspaceMode', workspaceMode);
+		}
 	}, [workspaceMode]);
 
 	useEffect(() => {
