@@ -111,7 +111,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, info }) => {
 					domain: host,
 				});
 			}
-			window.location.href = '/home';
+			window.location.href = '/ambient-ai';
 		},
 		[userWorkSpaceList],
 	);

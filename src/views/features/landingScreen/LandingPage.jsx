@@ -55,7 +55,7 @@ const LandingPage = () => {
 
 		if (token && region && workspaceId) {
 			if (!isOnboard) return navigate('/early-access');
-			return navigate('/home');
+			return navigate('/ambient-ai');
 		}
 	}, [navigate]);
 

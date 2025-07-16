@@ -585,7 +585,7 @@ const betaRoutes = [
 		path: '*',
 		element: (
 			<Public>
-				<Navigate to="/home" />
+				<Navigate to="/ambient-ai" />
 			</Public>
 		),
 	},

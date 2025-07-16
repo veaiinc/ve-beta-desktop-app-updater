@@ -77,9 +77,9 @@ export const betaNavigationItems = [
 		icon: DatabaseIcon,
 	},
 	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
-	{ id: 5, name: 'Tasks', route: '/tasks', icon: TasksSvg },
-	{ id: 6, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
-	{ id: 7, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
+	// { id: 5, name: 'Tasks', route: '/tasks', icon: TasksSvg },
+	// { id: 6, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
+	// { id: 7, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
 	{ id: 8, name: 'Automations', route: '/automations', icon: AutomationSvg },
 ];
 
@@ -126,9 +126,9 @@ export const internalNavigationItems = [
 		route: '/database',
 		icon: DatabaseIcon,
 	},
-	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
-	{ id: 5, name: 'Tasks', route: '/tasks', icon: TasksSvg },
-	{ id: 6, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
+	// { id: 4, name: 'Files', route: '/files', icon: FilesSvg },
+	// { id: 5, name: 'Tasks', route: '/tasks', icon: TasksSvg },
+	// { id: 6, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
 
 	{ id: 8, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
 
