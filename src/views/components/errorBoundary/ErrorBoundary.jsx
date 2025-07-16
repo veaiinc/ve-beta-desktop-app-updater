@@ -2,7 +2,6 @@ import { Component } from 'react';
 import s from './errorBoundary.module.scss';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 import logError from '../../../services/api/errorLogger';
-import { message } from '../globalComponents/CustomToast';
 import logout from '../../../helpers/logout';
 
 const extractErrorDetails = (componentStack) => {
@@ -35,7 +34,7 @@ class ErrorBoundary extends Component {
 		return { hasError: true, error };
 	}
 
-	componentDidCatch(error, errorInfo) {
+	async componentDidCatch(error, errorInfo) {
 		console.error('Error caught in ErrorBoundary:', error, errorInfo);
 		const { component, path } = extractErrorDetails(errorInfo?.componentStack);
 		const payload = {
@@ -45,11 +44,9 @@ class ErrorBoundary extends Component {
 			errorComponent: component,
 			errorComponentStack: errorInfo?.componentStack || 'Not Available',
 		};
-		const success = logError(payload);
+		const success = await logError(payload);
 		if (success) {
-			message.error(
-				'This issue was reported to the support team. We will get back to you soon!',
-			);
+			console.log('Error logged successfully');
 		} else {
 			console.error('Error logging failed');
 		}
@@ -90,8 +87,11 @@ class ErrorBoundary extends Component {
 								>
 									Refresh
 								</button>
-								<button className={s.errorButton}>
-									<a href="/home">Home</a>
+								<button
+									onClick={() => (window.location.href = '/home')}
+									className={s.errorButton}
+								>
+									<span>Home</span>
 								</button>
 								<button className={s.errorButton} onClick={() => logout()}>
 									<span>Logout</span>
