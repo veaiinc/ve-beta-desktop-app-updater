@@ -150,7 +150,8 @@ const UploadGalleryImageCover = ({
 																50 - focusInfo?.focalPoint?.y * 50
 														  }%`
 														: 'center',
-													backgroundSize: 'cover',
+													// backgroundSize: 'cover',
+													backgroundSize: 'auto',
 													backgroundRepeat: 'no-repeat',
 													transform: `scale(${scale})`,
 													borderRadius: '12px',
@@ -191,7 +192,8 @@ const UploadGalleryImageCover = ({
 																50 - focusInfo?.focalPoint?.y * 50
 														  }%`
 														: 'center',
-													backgroundSize: 'cover',
+													// backgroundSize: 'cover',
+													backgroundSize: 'auto',
 													backgroundRepeat: 'no-repeat',
 													transform: `scale(${scale})`,
 													borderRadius: '12px',
