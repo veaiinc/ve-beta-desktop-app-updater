@@ -1,6 +1,29 @@
 import { Component } from 'react';
 import s from './errorBoundary.module.scss';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
+import logError from '../../../services/api/errorLogger';
+import { message } from '../globalComponents/CustomToast';
+import logout from '../../../helpers/logout';
+
+const extractErrorDetails = (componentStack) => {
+	if (!componentStack) {
+		return { component: 'Unknown', path: 'Unknown' };
+	}
+	const lines = componentStack.trim().split('\n');
+	const firstFrame = lines.find((line) => line.includes('at') && line.includes('src/'));
+
+	if (!firstFrame) {
+		return { component: 'Unknown', path: 'Unknown' };
+	}
+
+	const componentMatch = firstFrame.match(/at (\w+)/);
+	const fullPathMatch = firstFrame.match(/http:\/\/localhost:\d+(\/src\/[^?\s\)]+)/);
+
+	return {
+		component: componentMatch ? componentMatch[1] : 'Unknown',
+		path: fullPathMatch ? fullPathMatch[1] : 'Unknown',
+	};
+};
 
 class ErrorBoundary extends Component {
 	constructor(props) {
@@ -14,7 +37,22 @@ class ErrorBoundary extends Component {
 
 	componentDidCatch(error, errorInfo) {
 		console.error('Error caught in ErrorBoundary:', error, errorInfo);
-
+		const { component, path } = extractErrorDetails(errorInfo?.componentStack);
+		const payload = {
+			errorType: error.name,
+			errorMessage: error.message,
+			errorPath: path,
+			errorComponent: component,
+			errorComponentStack: errorInfo?.componentStack || 'Not Available',
+		};
+		const success = logError(payload);
+		if (success) {
+			message.error(
+				'This issue was reported to the support team. We will get back to you soon!',
+			);
+		} else {
+			console.error('Error logging failed');
+		}
 		if (error instanceof TypeError) {
 			// perform hard reload on errors caused by lazy loading
 			const isLazyLoadingErr =
@@ -53,7 +91,10 @@ class ErrorBoundary extends Component {
 									Refresh
 								</button>
 								<button className={s.errorButton}>
-									<a href="/">Home</a>
+									<a href="/home">Home</a>
+								</button>
+								<button className={s.errorButton} onClick={() => logout()}>
+									<span>Logout</span>
 								</button>
 							</div>
 						</div>
