@@ -1745,7 +1745,8 @@ class App extends BaseClass {
 			} else {
 				currencySymbol = '$';
 			}
-
+			// ! updated to use user's currency symbol
+			currencySymbol = this.props?.currencySymbol || currencySymbol;
 			let subTotalWithStyling = selectedSection?.style?.subTotalValue + '';
 
 			let subTotalValue =
@@ -1777,10 +1778,12 @@ class App extends BaseClass {
 				}
 			}
 			currentSubTotal =
-				currencySymbol +
-				(currentSubTotal || 0)?.toLocaleString('en-IN', {
-					currency: 'INR',
-				});
+				currentSubTotal == 0
+					? '0'
+					: currencySymbol +
+					  (currentSubTotal || 0)?.toLocaleString('en-IN', {
+							currency: 'INR',
+					  });
 
 			return currentSubTotal;
 		}
@@ -1851,9 +1854,12 @@ class App extends BaseClass {
 						},
 					});
 
-					if (this.props?.clientGrandTotal) {
-						variableValue = toWords.convert(this.props?.clientGrandTotal);
-					}
+					// if (this.props?.clientGrandTotal) {
+					variableValue =
+						this.props?.clientGrandTotal == 0
+							? 'Zero'
+							: toWords.convert(this.props?.clientGrandTotal);
+					// }
 				}
 
 				return `<span class="variable" style="${style}${

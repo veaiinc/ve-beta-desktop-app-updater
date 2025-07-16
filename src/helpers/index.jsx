@@ -403,10 +403,27 @@ export const redirectTypeMapper = {
 	proactiveai: 'proactiveai_id',
 };
 
-const origin = fetchOriginSelection();
-
 // Email validation utility
 export const isValidEmail = (email) => {
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	return emailRegex.test(email);
+};
+
+export const getUserBrowser = () => {
+	const userAgent = navigator.userAgent;
+	const browser = userAgent.match(/Firefox|Chrome|Safari|Opera|Edge/)[0];
+	return browser;
+};
+
+export const getUserDevice = () => {
+	const ua = navigator.userAgent;
+
+	if (/iPhone|iPad|iPod/i.test(ua)) return 'iOS';
+	if (/Android/i.test(ua)) return 'Android';
+	if (/Windows Phone/i.test(ua)) return 'Windows Phone';
+	if (/Mac/i.test(ua) && !/iPhone|iPad|iPod/i.test(ua)) return 'Mac';
+	if (/Windows/i.test(ua)) return 'Windows';
+	if (/Linux/i.test(ua)) return 'Linux';
+
+	return 'Unknown';
 };
