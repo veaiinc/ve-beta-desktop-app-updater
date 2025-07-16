@@ -12,7 +12,7 @@ import AgentHeader from '../runBuildToggle/AgentHeader';
 const AgentDetails = () => {
 	const { agentId } = useParams();
 	const [searchParams, setSearchParams] = useSearchParams();
-	const agentActionParam = searchParams.get('agentAction') || 'buildAgent';
+	const agentActionParam = searchParams.get('agentAction') || 'runAgent';
 	const configParam = searchParams.get('config') || 'prompt';
 	const agentCredentialsRef = useRef(null);
 
@@ -30,7 +30,7 @@ const AgentDetails = () => {
 
 		// Ensure default params are set if not present
 		const newParams = {};
-		if (!searchParams.get('agentAction')) newParams.agentAction = 'buildAgent';
+		if (!searchParams.get('agentAction')) newParams.agentAction = 'runAgent';
 		if (!searchParams.get('config')) newParams.config = 'prompt';
 
 		if (Object.keys(newParams).length > 0) {
