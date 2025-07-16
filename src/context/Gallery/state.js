@@ -1927,14 +1927,68 @@ export const Galleries = () => {
 			const baseUrl = `/${workspaceId}/watermarks`;
 			const type = 'tenant';
 			const response = await service?.fetchPut(baseUrl, payload, usertoken, type);
-			if (response) {
-				return response;
-			}
+			return response;
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/embedded-videos
+	const uploadNewVideo = async (payload, galleryId) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const baseUrl = `/${workspaceId}/galleries/${galleryId}/embedded-videos`;
+			const type = 'galleries';
+			const response = await service?.fetchPost(baseUrl, payload, usertoken, type);
+			return response;
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/embedded-videos/vidoId
+	const updateVideoStatus = async (payload, videoId, galleryId) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const baseUrl = `/${workspaceId}/galleries/${galleryId}/embedded-videos/${videoId}`;
+			const type = 'galleries';
+			const response = await service?.fetchPut(baseUrl, payload, usertoken, type);
+			return response;
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/embedded-videos/slug-availability/{{slug}}.
+
+	const checkVideoSlugAvailability = async (galleryId, slug) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const baseUrl = `/${workspaceId}/galleries/${galleryId}/embedded-videos/slug-availability/${slug}`;
+			const type = 'galleries';
+			const response = await service?.fetchGet(baseUrl, usertoken, type);
+			return response;
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/embedded-videos/vidoid
+	const deleteVideo = async (galleryId, videoId) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const baseUrl = `/${workspaceId}/galleries/${galleryId}/embedded-videos/${videoId}`;
+			const type = 'galleries';
+			const response = await service.fetchDelete(baseUrl, usertoken, null, type);
+			return response;
+		} catch (error) {
+			console.error(error);
+		}
+	};
 	const updateStateValues = async (updatedVariableValuesObj) => {
 		try {
 			dispatch({
@@ -2039,5 +2093,9 @@ export const Galleries = () => {
 		getMostUsedEntities,
 		updateWaterMarkVisibility,
 		updateStateValues,
+		uploadNewVideo,
+		updateVideoStatus,
+		checkVideoSlugAvailability,
+		deleteVideo,
 	};
 };
