@@ -1,6 +1,6 @@
 .settings-overview {
 	display: flex;
-	width: 1011px;
+	width: 600px;
 	padding: 36px;
 	flex-direction: column;
 	align-items: center;
@@ -8,6 +8,52 @@
 	border-radius: 32px;
 	background: var(--popup);
 	// box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+	.uploadCoverTextContainer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+		.uploadCoverText {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.view-toggle {
+			display: flex;
+			padding: 4px;
+			align-items: center;
+			gap: 2px;
+			border-radius: 8px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			.toggle-button {
+				display: flex;
+				padding: 6px 16px;
+				justify-content: center;
+				align-items: center;
+				gap: 18px;
+				border-radius: 6px;
+				background: transparent;
+				border: none;
+				cursor: pointer;
+				svg {
+					path {
+						stroke: var(--secondary-font);
+					}
+				}
+				&.active {
+					background: var(--stroke-hover, #424548);
+					svg {
+						path {
+							stroke: var(--primary-font);
+						}
+					}
+				}
+			}
+		}
+	}
 	.title {
 		color: var(--primary-font);
 		font-family: var(--primary-font-family);
@@ -20,12 +66,12 @@
 	.album-cover-container {
 		display: flex;
 		gap: 28px;
-		height: 550px;
+		// height: 550px;
 		justify-content: center;
 		.album-preview {
 			display: flex;
-			width: 939px;
-			height: 453px;
+			width: 100%;
+			height: 100%;
 			position: relative;
 			align-items: center;
 			.laptop-preview {
@@ -41,7 +87,7 @@
 					width: 570px;
 					height: 336px;
 					background: var(--card);
-					padding: 16px;
+					// padding: 16px;
 					border-top-left-radius: 16px;
 					border-top-right-radius: 16px;
 					border-radius: 2.846px;
@@ -77,13 +123,13 @@
 			.mobile-preview {
 				display: flex;
 				padding: 1px;
-				position: absolute;
-				bottom: -94px;
-				left: 41px;
+				// position: absolute;
+				// bottom: -94px;
+				// left: 41px;
 				z-index: 100;
 				.mobile-preview-container {
-					width: 153px;
-					height: 291px;
+					width: 200px;
+					height: 310px;
 					border-radius: 24px;
 					overflow: hidden;
 					img {
@@ -92,13 +138,13 @@
 						object-fit: cover;
 					}
 				}
-				.mobile-logo {
-					position: absolute;
-					height: 100%;
-					width: 100%;
-					bottom: 0;
-					right: 0;
-				}
+				// .mobile-logo {
+				// 	position: absolute;
+				// 	height: 100%;
+				// 	width: 100%;
+				// 	bottom: 0;
+				// 	right: 0;
+				// }
 			}
 		}
 		.album-cover-image {
@@ -121,6 +167,23 @@
 				min-height: fit-content !important;
 				overflow: hidden;
 			}
+		}
+	}
+	.uploadScaleContainer {
+		width: 100%;
+		display: flex;
+		height: 37px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		align-self: stretch;
+		.uploadScaleText {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
 		}
 	}
 	.upload-cover-photo {

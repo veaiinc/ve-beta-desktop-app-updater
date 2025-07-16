@@ -1,15 +1,14 @@
 import React, { useEffect, useState, memo } from 'react';
-import { ReactComponent as LaptopLogo } from '../../../../assets/svg/gallery/laptop.svg';
+import { ReactComponent as DesktopIcon } from '../../../../assets/svg/gallery/desktopIcon.svg';
 import mobile from '../../../../assets/svg/gallery/mobile.png';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
-import Cropper from 'react-easy-crop';
 import ReactModal from '../../modalsV2/index';
-import { FocusedImage, FocusPicker } from 'image-focus';
 import '../../../../assets/scss/gallery/albumSettings.scss';
 import '../../../../assets/scss/gallery/uploadGalleryImageCover.scss';
 import Spinner from '../../loaders/Spinner';
 import { isURL } from '../../../../helpers';
-
+import { ReactComponent as MobileIcon } from '../../../../assets/svg/gallery/mobileIcon.svg';
+import { Slider } from 'antd';
 const UploadGalleryImageCover = ({
 	info,
 	setInfo,
@@ -25,36 +24,59 @@ const UploadGalleryImageCover = ({
 	uploadImageLoader,
 }) => {
 	const [focusInfo, setFocusInfo] = useState({
-		focalPoint: { x: 0, y: 0 },
+		focalPoint: { x: info?.crop?.x || 0, y: info?.crop?.y || 0 },
 	});
+	const [viewMode, setViewMode] = useState('desktop');
+	const [isDragging, setIsDragging] = useState(false);
+	const [startPos, setStartPos] = useState({ x: 0, y: 0 });
+	const [scale, setScale] = useState(1);
+
 	const customStyles = {
 		content: { zIndex: 99999 },
 		overlay: { zIndex: 99998 },
 	};
-	useEffect(() => {
-		setCoverPosition();
-	}, [info]);
+
 	useEffect(() => {
 		setFocusInfo({
-			focalPoint: { x: info?.crop?.x, y: info?.crop?.y },
+			focalPoint: { x: info?.crop?.x || 0, y: info?.crop?.y || 0 },
 		});
 	}, [info?.crop]);
 
-	const setCoverPosition = () => {
-		const imgEl = document.querySelector('.focused-image');
-		if (imgEl) {
-			const focusedImage = new FocusedImage(imgEl);
-			const focusPickerEl = document.querySelector('.focus-picker-img');
-			const focusPicker = new FocusPicker(focusPickerEl, {
-				onChange: (focus) => {
-					focusedImage.setFocus(focus);
-					setFocusInfo({
-						focalPoint: focus,
-					});
-				},
+	const handleMouseDown = (e) => {
+		if (isURL(info?.imageURL)) {
+			setIsDragging(true);
+			setStartPos({
+				x: e.clientX,
+				y: e.clientY,
 			});
 		}
 	};
+
+	const handleMouseMove = (e) => {
+		if (!isDragging) return;
+
+		const container = document.querySelector(
+			viewMode === 'desktop' ? '.screen' : '.mobile-preview-container',
+		);
+		if (!container) return;
+
+		const { width, height } = container.getBoundingClientRect();
+		const deltaX = (e.clientX - startPos.x) / width; // Normalized movement in x
+		const deltaY = (e.clientY - startPos.y) / height; // Normalized movement in y
+
+		setFocusInfo((prev) => ({
+			focalPoint: {
+				x: Math.max(-1, Math.min(1, prev.focalPoint.x - deltaX)), // Update x independently
+				y: Math.max(-1, Math.min(1, prev.focalPoint.y + deltaY)), // Update y independently
+			},
+		}));
+		setStartPos({ x: e.clientX, y: e.clientY });
+	};
+
+	const handleMouseUp = () => {
+		setIsDragging(false);
+	};
+
 	const isImageExists = isURL(info?.imageURL);
 
 	return (
@@ -64,112 +86,138 @@ const UploadGalleryImageCover = ({
 			modalType="center"
 			customStyles={customStyles}
 		>
-			<div div id="upload-gallery-cover" className="settings-overview">
-				<div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-					<p className="title">{title}</p>
+			<div id="upload-gallery-cover" className="settings-overview">
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						width: '100%',
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+						<p className="title">{title}</p>
+					</div>
 					<div>
 						<CrossSvg onClick={onClose} style={{ cursor: 'pointer' }} />
 					</div>
 				</div>
+				<div className="uploadCoverTextContainer">
+					<div className="uploadCoverText">
+						Set gallery cover for Desktop and mobile individually
+					</div>
+
+					<div className="view-toggle">
+						<button
+							className={`toggle-button ${viewMode === 'mobile' ? 'active' : ''}`}
+							onClick={() => setViewMode('mobile')}
+						>
+							<MobileIcon />
+						</button>
+						<button
+							className={`toggle-button ${viewMode === 'desktop' ? 'active' : ''}`}
+							onClick={() => setViewMode('desktop')}
+						>
+							<DesktopIcon />
+						</button>
+					</div>
+				</div>
+
 				{info?.coverPhoto && (
 					<div className="album-cover-container">
 						<div className="album-preview">
-							<div className="laptop-preview">
-								<div className="screen">
-									{isImageExists ? (
-										<div
-											style={{
-												width: '100%',
-												height: '100%',
-												backgroundImage: `url(${info?.imageURL})`,
-												backgroundPosition: focusInfo?.focalPoint?.x
-													? `${focusInfo?.focalPoint?.x * 50 + 50}% ${
-															50 - focusInfo?.focalPoint?.y * 50
-													  }%`
-													: 'center',
-												backgroundSize: 'cover',
-												backgroundRepeat: 'no-repeat',
-											}}
-										></div>
-									) : (
-										<div
-											style={{
-												width: '100%',
-												height: '100%',
-												color: 'var(--secondary-font)',
-											}}
-										>
-											No selected Image
-										</div>
-									)}
-								</div>
-								<LaptopLogo />
-							</div>
-							<div className="mobile-preview">
-								{isImageExists && (
-									<>
-										<div
-											className="mobile-preview-container"
-											style={{
-												backgroundImage: `url(${info?.imageURL})`,
-												backgroundPosition: focusInfo?.focalPoint?.x
-													? `${focusInfo?.focalPoint?.x * 50 + 50}% ${
-															50 - focusInfo?.focalPoint?.y * 50
-													  }%`
-													: 'center',
-												backgroundSize: 'cover',
-												backgroundRepeat: 'no-repeat',
-											}}
-										>
-											{/* <img src={imageURL} alt="mobile" /> */}
-										</div>
-										<img src={mobile} alt="mobile" className="mobile-logo" />
-									</>
-								)}
-							</div>
-						</div>
-						<div
-							className="album-cover-image"
-							style={{ display: 'flex', alignItems: 'center' }}
-						>
-							{/* <Cropper
-								image={info?.imageURL}
-								crop={info?.crop}
-								zoom={info?.zoom}
-								aspect={228 / 370}
-								onCropChange={(cropValue) =>
-									setInfo((prev) => ({
-										...prev,
-										crop: cropValue,
-									}))
-								}
-								onCropComplete={(croppedArea, croppedAreaPixels) => {
-									// You can store croppedAreaPixels if you need the final crop dimensions
-								}}
-								onZoomChange={(zoomValue) =>
-									setInfo((prev) => ({
-										...prev,
-										zoom: zoomValue,
-									}))
-								}
-								showGrid={false}
-								cropSize={{ width: 233.8432, height: 402.667 }}
-							/> */}
-							{isImageExists ? (
-								<div className="focused-image" style={{ overflow: 'hidden' }}>
-									<img
-										className="focus-picker-img"
-										src={info?.imageURL}
-										alt="cover"
-										style={{ width: '100%', objectFit: 'cover' }}
-									/>
+							{viewMode === 'desktop' ? (
+								<div className="desktopPreview">
+									<div
+										className="screen"
+										onMouseDown={handleMouseDown}
+										onMouseMove={handleMouseMove}
+										onMouseUp={handleMouseUp}
+										onMouseLeave={handleMouseUp}
+										style={{
+											cursor: isDragging ? 'grabbing' : 'grab',
+											overflow: 'hidden',
+										}}
+									>
+										{isImageExists ? (
+											<div
+												style={{
+													width: '100%',
+													height: '100%',
+													backgroundImage: `url(${info?.imageURL})`,
+													backgroundPosition: focusInfo?.focalPoint?.x
+														? `${focusInfo?.focalPoint?.x * 50 + 50}% ${
+																50 - focusInfo?.focalPoint?.y * 50
+														  }%`
+														: 'center',
+													backgroundSize: 'cover',
+													backgroundRepeat: 'no-repeat',
+													transform: `scale(${scale})`,
+													borderRadius: '12px',
+												}}
+											></div>
+										) : (
+											<div
+												style={{
+													width: '100%',
+													height: '100%',
+													color: 'var(--secondary-font)',
+												}}
+											>
+												No selected Image
+											</div>
+										)}
+									</div>
+									{/* <LaptopLogo /> */}
 								</div>
 							) : (
-								''
+								<div className="mobile-preview">
+									{isImageExists && (
+										<div
+											className="mobile-preview-container"
+											onMouseDown={handleMouseDown}
+											onMouseMove={handleMouseMove}
+											onMouseUp={handleMouseUp}
+											onMouseLeave={handleMouseUp}
+											style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+										>
+											<div
+												style={{
+													width: '100%',
+													height: '100%',
+													backgroundImage: `url(${info?.imageURL})`,
+													backgroundPosition: focusInfo?.focalPoint?.x
+														? `${focusInfo?.focalPoint?.x * 50 + 50}% ${
+																50 - focusInfo?.focalPoint?.y * 50
+														  }%`
+														: 'center',
+													backgroundSize: 'cover',
+													backgroundRepeat: 'no-repeat',
+													transform: `scale(${scale})`,
+													borderRadius: '12px',
+												}}
+											></div>
+										</div>
+									)}
+									{/* <img src={mobile} alt="mobile" className="mobile-logo" /> */}
+								</div>
 							)}
 						</div>
 					</div>
 				)}
+				<div className="uploadScaleContainer">
+					<div className="uploadScaleText">Scale</div>
+					<Slider
+						min={100}
+						max={300}
+						defaultValue={scale * 100}
+						style={{ width: '100%' }}
+						tooltip={{ open: false }}
+						onChange={(value) => setScale(value / 100)}
+						trackStyle={{ backgroundColor: 'var(--primary-button)' }}
+						railStyle={{ backgroundColor: 'var(--stroke)' }}
+					/>
+				</div>
 				<div className="upload-cover-photo">
 					{!showUploadPhoto && (
 						<p
@@ -179,7 +227,6 @@ const UploadGalleryImageCover = ({
 									message.error('Please create a album first');
 									return;
 								}
-
 								fileInputRef.current.click();
 							}}
 							style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
@@ -187,7 +234,6 @@ const UploadGalleryImageCover = ({
 							{uploadImageLoader ? <Spinner /> : 'Upload cover photo'}
 						</p>
 					)}
-
 					<input
 						ref={fileInputRef}
 						type="file"
@@ -195,9 +241,7 @@ const UploadGalleryImageCover = ({
 						accept={['image/png', 'image/jpeg']}
 						hidden
 						style={{ width: 0, visibility: 'hidden' }}
-						// style={{ visibility: 'hidden' }}
 					/>
-
 					{info?.coverPhoto && (
 						<p
 							className="bt"
