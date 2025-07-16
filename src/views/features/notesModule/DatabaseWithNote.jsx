@@ -83,7 +83,6 @@ const initialState = {
 	selectedEmoji: null,
 	coverImageRemoved: false,
 	iconImageRemoved: false,
-	sessionId: ObjectID()?.toString(),
 };
 
 const accessLevels = {
@@ -109,6 +108,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const { workspaceMode } = useWorkspaceMode();
 	const [searchParams] = useSearchParams();
 	const noteId = useParams()?.noteId;
+	const sessionId = noteId;
 	const type = searchParams.get('type');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
@@ -146,6 +146,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
 		templates: { handleTranscriptionSuggestions },
+		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState(initialState);
@@ -154,18 +155,22 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const location = useLocation();
 
 	// Add hooks for live intelligence and recall stream
-	const { createWebSocketConnection: recallConnection } = useRecallStream();
+	const {
+		createWebSocketConnection: recallConnection,
+		sendMessage: recallSendMessage,
+		closeWebSocketConnection: closeRecallConnection,
+	} = useRecallStream();
 	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
 		useLiveIntelligenceStream();
 
 	// Handler for transcript socket messages
-	const handleLiveIntelligenceMessageFunc = useCallback(
-		(event) => {
-			const data = JSON.parse(event?.data || null);
-			handleTranscriptionSuggestions(data);
-		},
-		[handleTranscriptionSuggestions],
-	);
+	// const handleLiveIntelligenceMessageFunc = useCallback(
+	// 	(event) => {
+	// 		const data = JSON.parse(event?.data || null);
+	// 		handleTranscriptionSuggestions(data);
+	// 	},
+	// 	[handleTranscriptionSuggestions],
+	// );
 	const handleSocketMessage = useCallback(
 		(event) => {
 			try {
@@ -186,6 +191,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					// 			(data?.speakerName || '') + ' : ' + (data?.transcript || ''),
 					// 		);
 					// }
+				} else if (msg?.event === 'live_intelligence.response' && msg?.data) {
+					handleTranscriptionSuggestions(msg?.data);
+				} else if (msg?.event === 'transcript.done') {
+					closeRecallConnection();
 				}
 			} catch (e) {
 				// ignore
@@ -267,6 +276,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			);
 		}
 	}, [noteId]);
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+	}, [tennantSettingsData]);
 
 	useEffect(() => {
 		if (blocks) {
@@ -999,16 +1013,20 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	useEffect(() => {
 		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
-			recallConnection(handleSocketMessage);
-			createLiveIntelligenceStream(
-				info?.sessionId,
-				noteId,
-				handleLiveIntelligenceMessageFunc,
-			);
+			recallConnection(sessionId, noteId, handleSocketMessage);
+			// createLiveIntelligenceStream(
+			// 	sessionId,
+			// 	noteId,
+			// 	handleLiveIntelligenceMessageFunc,
+			// 	false,
+			// );
+		} else if (showTranscriptTabs && type === 'desktop') {
+			// Connect to recall for note taker mode as well
+			recallConnection(sessionId, noteId, handleSocketMessage);
 		}
 		// No cleanup needed, useRecallStream handles it
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [showTranscriptTabs, info?.sessionId, type]);
+	}, [showTranscriptTabs, sessionId, type]);
 
 	return (
 		<NotesRefContext.Provider value={{ previousBlocksRef, pageId: noteId }}>
@@ -1320,7 +1338,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								type === 'meeting_bot' ? (
 									<MeetTranscript transcriptList={transcriptList} />
 								) : type === 'desktop' ? (
-									<NoteTakerTranscript />
+									<NoteTakerTranscript
+										sendMessage={recallSendMessage}
+										tenantId={tennantSettingsData?._id}
+										sessionId={sessionId}
+										pageId={noteId}
+									/>
 								) : null
 							) : (
 								<BlockNoteView
