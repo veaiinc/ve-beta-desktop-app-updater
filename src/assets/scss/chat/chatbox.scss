@@ -46,7 +46,6 @@
 					display: flex;
 					flex-direction: column;
 					align-items: center;
-					transition: width 300ms ease-in-out;
 
 					.chatInputContainer {
 						position: relative;
@@ -54,6 +53,23 @@
 						flex-direction: column;
 						gap: 10px;
 						width: 100%;
+						padding: 14px;
+						background-color: var(--chat-box);
+						border-radius: 16px;
+						border: 0.5px solid var(--stroke);
+						transition: border 200ms ease-in-out, height 300ms ease-in-out;
+
+						&:hover {
+							border: 0.5px solid var(--stroke-hover);
+						}
+
+						&:focus-within {
+							border: 0.5px solid var(--primary-button);
+							box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.2) inset,
+								0px 0px 15px 0px rgba(121, 236, 201, 0.25) inset,
+								0px 0px 12px 0px rgba(121, 236, 201, 0.2);
+						}
+
 						.suggestions-container {
 							display: flex;
 							align-items: center;
@@ -78,59 +94,16 @@
 						.chatInputParentContainer {
 							display: flex;
 							width: 100%;
-							padding: 14px;
 							flex-direction: column;
-							gap: 8px;
+							gap: 12px;
 							align-self: center;
-							border-radius: 16px;
-							background-color: var(--chat-box);
-							border: 1px solid var(--stroke);
-							transition: border 200ms ease-in-out;
 							overflow: hidden;
 							position: relative;
-							&:hover {
-								border: 1px solid var(--stroke-hover);
-							}
+
 							&.startPageContainer {
 								padding: 12px;
 							}
-							.chat-reply-data {
-								display: flex;
-								gap: 12px;
-								justify-content: center;
-								align-items: flex-start;
-								width: 100%;
-								margin-top: 10px;
-								padding: 12px 6px;
-								border-top-left-radius: 12px;
-								border-top-right-radius: 12px;
-								border-bottom-left-radius: 6px;
-								border-bottom-right-radius: 6px;
-								background-color: var(--card-over-card-hover);
 
-								.reply-text {
-									display: -webkit-box;
-									-webkit-line-clamp: 3;
-									line-clamp: 3;
-									-webkit-box-orient: vertical;
-									overflow: hidden;
-									text-overflow: ellipsis;
-									word-break: break-all;
-									flex-grow: 1;
-
-									color: var(--secondary-font);
-									font-family: var(--primary-font-family);
-									font-size: 13px;
-									font-style: normal;
-									font-weight: 500;
-									line-height: normal;
-								}
-
-								.reply-close-icon {
-									cursor: pointer;
-									height: 16px;
-								}
-							}
 							.recent-file-wrapper {
 								position: absolute;
 								width: 1px;
@@ -148,34 +121,39 @@
 									position: relative;
 									width: 100%;
 									top: 2px;
+									margin-bottom: 8px;
 
 									&.startPagePlaceholderContainer {
 										top: -3px;
 									}
-									.textArea {
-										width: 100%;
-										border: none;
-										outline: none;
-										background: transparent;
-										color: var(--primary-font);
-										font-family: var(--primary-font-family);
-										font-size: 16px;
-										font-style: normal;
-										font-weight: 400;
-										line-height: normal;
-										resize: none;
-										position: relative;
-										z-index: 0;
-										max-height: 300px;
+									.textAreaWrapper {
+										height: 30px;
 										transition: height 300ms ease-in-out;
-										&::placeholder {
-											font-size: 15px;
-											color: var(--secondary-font);
+										overflow: hidden;
+										.textArea {
+											width: 100%;
+											border: none;
+											outline: none;
+											background: transparent;
+											color: var(--primary-font);
+											font-family: var(--primary-font-family);
+											font-size: 16px;
+											font-style: normal;
 											font-weight: 400;
-										}
-										&.startTextPage {
-											margin-top: 0px;
-											top: 11px;
+											line-height: normal;
+											resize: none;
+											position: relative;
+											padding: 4px 0px 4px 8px;
+											z-index: 0;
+											&::placeholder {
+												font-size: 15px;
+												color: var(--secondary-font);
+												font-weight: 400;
+											}
+											&.startTextPage {
+												margin-top: 0px;
+												top: 11px;
+											}
 										}
 									}
 								}
@@ -470,10 +448,6 @@
 								}
 							}
 						}
-
-						.chatInputParentContainer:focus-within {
-							border: 1px solid var(--primary-button);
-						}
 					}
 				}
 			}
@@ -629,34 +603,70 @@
 			}
 		}
 
+		.chat-reply-data {
+			display: flex;
+			gap: 12px;
+			justify-content: center;
+			align-items: flex-start;
+			width: 100%;
+			margin-top: 10px;
+			padding: 12px 6px;
+			border-radius: 12px;
+			background-color: var(--card-over-card-hover);
+
+			.reply-text {
+				display: -webkit-box;
+				-webkit-line-clamp: 3;
+				line-clamp: 3;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				word-break: break-all;
+				flex-grow: 1;
+
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.reply-close-icon {
+				cursor: pointer;
+				height: 16px;
+			}
+		}
+
 		.imagePreviewBar {
 			display: flex;
-			gap: 10px;
+			gap: 8px;
 			align-items: center;
 			justify-content: flex-start;
 			flex-wrap: wrap;
-			height: 80px;
+			height: 40px;
 			overflow-y: auto;
-			// padding: 0px 12px;
+			padding: 0px 8px;
 			cursor: pointer;
 			width: 100%;
 			margin: auto;
+			box-sizing: border-box;
 
 			.previewOfUploadedImage {
-				height: 70px;
-				width: 70px;
+				height: 40px;
+				width: 40px;
 				background-color: var(--primary-font);
-				border-radius: 12px;
+				border-radius: 2px;
 				position: relative;
+				box-sizing: border-box;
 
 				.removeImageIcon {
 					position: absolute;
-					top: -4px;
-					right: -5px;
-					background-color: var(--card);
-					border-radius: 50%;
-					width: 20px;
-					height: 20px;
+					top: 1px;
+					right: 2px;
+					background-color: var(--backdrop);
+					width: 12px;
+					height: 12px;
 					display: flex;
 					justify-content: center;
 					align-items: center;
@@ -1156,7 +1166,7 @@
 	font-weight: 500;
 	line-height: normal;
 	position: absolute;
-	top: -70px;
+	top: -80px;
 	left: 50%;
 	transform: translateX(8%);
 	width: 400px;
@@ -1197,7 +1207,7 @@
 		}
 	}
 }
-.upload-file-tooltip-container {
+.upload-file-tooltip-btn-container {
 	width: 125px;
 	left: 36%;
 	transform: translateX(225%);
@@ -1237,8 +1247,8 @@
 	opacity: 0.5;
 	transition: opacity 0.2s ease-in-out;
 	svg {
-		width: 20px !important;
-		height: 20px !important;
+		width: 17px !important;
+		height: 17px !important;
 		path {
 			stroke: var(--primary-button-font) !important;
 		}

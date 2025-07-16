@@ -29,7 +29,7 @@ const routeImports = {
 	stableRoutes: () => import('../routes/stableRoutes'),
 	betaRoutes: () => import('../routes/betaRoutes'),
 	internalRoutes: () => import('../routes/internalRoutes'),
-	workspaceNotFoundRoute: () => import('../routes/workspaceNotFound'),
+	workspaceNotFoundRoute: () => import('../routes/workspaceNotFoundRoute'),
 	suspendedRoute: () => import('../routes/suspendedRoute'),
 };
 

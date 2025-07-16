@@ -89,6 +89,7 @@
 				font-weight: 400;
 				line-height: 18px;
 				position: relative;
+				text-align: start;
 
 				p {
 					width: 100%;
@@ -155,5 +156,8 @@
 				}
 			}
 		}
+	}
+	.agentActionContainer {
+		height: 100%;
 	}
 }

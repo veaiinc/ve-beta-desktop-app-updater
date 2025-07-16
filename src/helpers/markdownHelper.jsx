@@ -578,7 +578,11 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 							arrow={false}
 							trigger={'hover'}
 							color="transparent"
-							title={<div className="user-hover-icons-tooltip">Copy</div>}
+							title={
+								<div className="user-hover-icons-tooltip">
+									{info?.isCopiedToClipboard ? 'Copied' : 'Copy'}
+								</div>
+							}
 						>
 							{info?.isCopiedToClipboard ? (
 								<TickSvg />
