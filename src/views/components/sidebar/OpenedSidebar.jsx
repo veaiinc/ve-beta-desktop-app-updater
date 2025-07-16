@@ -784,63 +784,81 @@ const OpenedSidebar = ({
 															margin: '16px 0px',
 														}}
 													/> */}
-													{filteredModules?.map((singleItem, index) => (
-														<div key={index}>
-															<OpenedSidebarModules
-																name={singleItem.name}
-																Icon={singleItem.icon}
-																initialColor={
-																	singleItem.initialColor
-																}
-																route={singleItem.route}
-																navigateTo={(route) =>
-																	handleNavigateFunction(
-																		route,
-																		singleItem,
-																	)
-																}
-																isSelected={
-																	selectedOption ===
-																	singleItem.name
-																}
-																isActive={isExactPathMatch(
-																	singleItem.route,
-																	singleItem.name,
-																)}
-																subModules={singleItem.subModules}
-																isDropdownVisible={
-																	activeDropdown ===
-																	singleItem.name
-																}
-																onDropdownToggle={() =>
-																	handleDropdownToggle(
-																		singleItem.name,
-																	)
-																}
-																setActiveDropdown={
-																	setActiveDropdown
-																}
-																activeSubModule={activeSubModule}
-																setActiveSubModule={
-																	setActiveSubModule
-																}
-																handleSubModuleClick={
-																	handleSubModuleClick
-																}
-																setShowNotificationsDrawer={
-																	setShowNotificationsDrawer
-																}
-																setShowNotesDrawer={
-																	setShowNotesDrawer
+													<div
+														style={{
+															overflow: 'auto',
+															height: '100vh',
+														}}
+													>
+														{filteredModules?.map(
+															(singleItem, index) => (
+																<div key={index}>
+																	<OpenedSidebarModules
+																		name={singleItem.name}
+																		Icon={singleItem.icon}
+																		initialColor={
+																			singleItem.initialColor
+																		}
+																		route={singleItem.route}
+																		navigateTo={(route) =>
+																			handleNavigateFunction(
+																				route,
+																				singleItem,
+																			)
+																		}
+																		isSelected={
+																			selectedOption ===
+																			singleItem.name
+																		}
+																		isActive={isExactPathMatch(
+																			singleItem.route,
+																			singleItem.name,
+																		)}
+																		subModules={
+																			singleItem.subModules
+																		}
+																		isDropdownVisible={
+																			activeDropdown ===
+																			singleItem.name
+																		}
+																		onDropdownToggle={() =>
+																			handleDropdownToggle(
+																				singleItem.name,
+																			)
+																		}
+																		setActiveDropdown={
+																			setActiveDropdown
+																		}
+																		activeSubModule={
+																			activeSubModule
+																		}
+																		setActiveSubModule={
+																			setActiveSubModule
+																		}
+																		handleSubModuleClick={
+																			handleSubModuleClick
+																		}
+																		setShowNotificationsDrawer={
+																			setShowNotificationsDrawer
+																		}
+																		setShowNotesDrawer={
+																			setShowNotesDrawer
+																		}
+																	/>
+																</div>
+															),
+														)}
+
+														<div>
+															<hr
+																className={
+																	'horizontal-line-sidebar'
 																}
 															/>
 														</div>
-													))}
 
-													<div>
-														<hr className={'horizontal-line-sidebar'} />
+														<ChatHistory />
 													</div>
-													<ChatHistory />
 													<CreditsLeft />
 													<div
 														className={`settingsOptionsContainer  ${
