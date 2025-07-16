@@ -1,5 +1,5 @@
 import { memo, useContext, useMemo, useState } from 'react';
-import '../../../assets/scss/home_page/proactiveSuggestions.scss';
+import '../../../assets/scss/globalComponents/globalWidget.scss';
 import PromptCards from './PromptCard';
 import CalenderWidget from './CalenderWidget';
 import TaskWidget from './TaskWidget';
@@ -48,18 +48,6 @@ const optionsList = [
 	// 	icon: AutomationsSvg,
 	// },
 ];
-const divStyles = {
-	display: 'flex',
-	alignItems: 'flex-start',
-	gap: '12px',
-	alignSelf: 'stretch',
-	borderRadius: '24px',
-	margin: '0 auto',
-	justifyContent: 'center',
-	maxWidth: '924px',
-	width: '100%',
-	flexDirection: 'row',
-};
 
 const GlobalWidget = () => {
 	const {
@@ -145,8 +133,8 @@ const GlobalWidget = () => {
 	]);
 	return (
 		<div className="globalWidgetMainContainer">
-			<div className="homepage__options-main-container">{renderedOptions}</div>
-			<div style={divStyles}>
+			<div className="widgetOptionsContainer">{renderedOptions}</div>
+			<div className="globalWidgetWrapper">
 				{info?.selectedOption ? componentMapper[info?.selectedOption] : <CalenderWidget />}
 				<PromptCards option={info?.selectedOption} />
 			</div>

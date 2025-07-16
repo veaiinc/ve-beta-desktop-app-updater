@@ -31,6 +31,7 @@ const RecentChat = ({
 	onNavigateBack = null,
 	showCitationsButton = true,
 	showDeleteChat = true,
+	animateChatBox = true,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const {
@@ -1103,6 +1104,7 @@ const RecentChat = ({
 							showScrollButton={info?.showScrollButton}
 							smoothScrollToBottom={smoothScrollToBottom}
 							onChatQueryChange={handleChatQueryChange}
+							animateChatBox={animateChatBox}
 						/>
 					</div>
 				</div>

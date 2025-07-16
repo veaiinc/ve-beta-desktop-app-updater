@@ -550,8 +550,9 @@ const AISuggestionsModal = ({
 
 								<div className="tabs-container">
 									<div className="tab-buttons">
-										{info?.tabOptions?.map((option) => (
+										{info?.tabOptions?.map((option, index) => (
 											<div
+												key={index}
 												className={`tab-btn ${
 													info?.activeTab === option?.value
 														? 'active'

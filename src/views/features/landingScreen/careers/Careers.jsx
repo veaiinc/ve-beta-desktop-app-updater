@@ -51,7 +51,7 @@ const Careers = () => {
 					Build ambient intelligence that empowers the way people work.
 				</p>
 			</section>
-			<section className={s.categories}>
+			{/* <section className={s.categories}>
 				{categories.map((category, index) => (
 					<p
 						key={`category-${index}`}
@@ -61,7 +61,7 @@ const Careers = () => {
 						{category}
 					</p>
 				))}
-			</section>
+			</section> */}
 
 			<section className={s.jobContainer}>
 				{filteredJobs.length > 0 ? (
