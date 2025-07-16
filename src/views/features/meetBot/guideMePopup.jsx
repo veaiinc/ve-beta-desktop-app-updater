@@ -29,7 +29,7 @@ const GuideMePopup = ({ isOpen, onClose }) => {
 		}
 	}, [info.selectedOption]);
 	return (
-		<ReactModal isOpen={isOpen} onClose={onClose}>
+		<ReactModal isOpen={isOpen} closeModal={onClose}>
 			<div className="guideMePopupMainContainer">
 				<div className="guideMePopupMainContainerHeader">
 					<button

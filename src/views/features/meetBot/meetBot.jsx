@@ -505,7 +505,12 @@ const MeetBot = () => {
 				{info?.guideMePopupOpen && (
 					<GuideMePopup
 						isOpen={info?.guideMePopupOpen}
-						onClose={() => setInfo({ ...info, guideMePopupOpen: false })}
+						onClose={() =>
+							setInfo((prev) => ({
+								...prev,
+								guideMePopupOpen: false,
+							}))
+						}
 					/>
 				)}
 			</div>
