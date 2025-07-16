@@ -23,6 +23,7 @@ const UploadGalleryImageCover = ({
 	onClose,
 	showUploadPhoto,
 	uploadImageLoader,
+	coverLoading,
 }) => {
 	const [focusInfo, setFocusInfo] = useState({
 		focalPoint: { x: info?.crop?.x || 0, y: info?.crop?.y || 0 },
@@ -245,7 +246,7 @@ const UploadGalleryImageCover = ({
 							onClick={() => handleSetCoverPosition(focusInfo?.focalPoint)}
 							style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
 						>
-							Set cover photo
+							{coverLoading ? <Spinner /> : 'Set cover photo'}
 						</p>
 					)}
 				</div>
