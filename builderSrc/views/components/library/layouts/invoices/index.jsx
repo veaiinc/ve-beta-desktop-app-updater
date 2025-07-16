@@ -489,9 +489,7 @@ class Invoice extends Component {
 									className="invoice-table-cost"
 									style={{ color: this.state?.style?.valueColor }}
 								>
-									{this.props?.currencySymbol
-										? this.props?.currencySymbol
-										: this.props?.currencySymbol2}
+									{this.props?.currencySymbol}
 									{
 										// table?.styles?.services_selection == 2
 										// 	? table?.styles?.style?.subTotalValue
@@ -722,12 +720,8 @@ class Invoice extends Component {
 																			{value?.amount == '0'
 																				? ''
 																				: (this.props
-																						?.currencySymbol
-																						? this.props
-																								?.currencySymbol
-																						: this.props
-																								?.currencySymbol2 ||
-																						  '') +
+																						?.currencySymbol ||
+																						'') +
 																				  value?.amount}
 																		</span>
 																	)}
@@ -792,10 +786,6 @@ class Invoice extends Component {
 																			: `${
 																					this.props
 																						?.currencySymbol
-																						? this.props
-																								?.currencySymbol
-																						: this.props
-																								?.currencySymbol2
 																			  }${
 																					value?.quantity *
 																					value?.amount
@@ -881,13 +871,8 @@ class Invoice extends Component {
 																	{value?.amount == '0'
 																		? ''
 																		: (this.props
-																				?.currencySymbol
-																				? this.props
-																						?.currencySymbol
-																				: this.props
-																						?.currencySymbol2 ||
-																				  '') +
-																		  value?.amount}
+																				?.currencySymbol ||
+																				'') + value?.amount}
 																</span>
 															)}
 															{this.state?.section?.style?.taxes
@@ -960,10 +945,6 @@ class Invoice extends Component {
 																	: `${
 																			this.props
 																				?.currencySymbol
-																				? this.props
-																						?.currencySymbol
-																				: this.props
-																						?.currencySymbol2
 																	  }${
 																			value?.quantity *
 																			value?.amount
@@ -1790,11 +1771,7 @@ class Invoice extends Component {
 																}}
 															>
 																{`${
-																	this.props?.currencySymbol
-																		? this.props?.currencySymbol
-																		: this.props
-																				?.currencySymbol2 ||
-																		  ''
+																	this.props?.currencySymbol || ''
 																}${value?.amount}`}
 															</span>
 													  )
@@ -1807,11 +1784,9 @@ class Invoice extends Component {
 															color: this.state?.style?.valueColor,
 														}}
 													>
-														{`${
-															this.props?.currencySymbol
-																? this.props?.currencySymbol
-																: this.props?.currencySymbol2 || ''
-														}${value?.amount * value?.quantity}`}
+														{`${this.props?.currencySymbol || ''}${
+															value?.amount * value?.quantity
+														}`}
 													</span>
 												)}
 											</div>
@@ -1994,9 +1969,7 @@ class Invoice extends Component {
 													>
 														{value?.amount == '0'
 															? ''
-															: this.props?.currencySymbol
-															? this.props?.currencySymbol
-															: this.props?.currencySymbol2 || ''}
+															: this.props?.currencySymbol || ''}
 														<input
 															type="text"
 															style={{
@@ -2072,11 +2045,9 @@ class Invoice extends Component {
 												>
 													{value?.quantity * value?.amount == 0
 														? ''
-														: `${
-																this.props?.currencySymbol
-																	? this.props?.currencySymbol
-																	: this.props?.currencySymbol2
-														  }${value?.quantity * value?.amount}`}
+														: `${this.props?.currencySymbol}${
+																value?.quantity * value?.amount
+														  }`}
 												</span>
 											</div>
 										)}
@@ -2878,8 +2849,6 @@ class Invoice extends Component {
 												this.state?.showServiceTables
 													? `${
 															this.props?.currencySymbol
-																? this.props?.currencySymbol
-																: this.props?.currencySymbol2
 													  }${this.renderCurrencyValue(
 															this.props?.clientGrandTotal
 																? this.props?.clientGrandTotal
@@ -2892,8 +2861,6 @@ class Invoice extends Component {
 													: this.state?.isManual
 													? `${
 															this.props?.currencySymbol
-																? this.props?.currencySymbol
-																: this.props?.currencySymbol2
 													  }${this.renderCurrencyValue(
 															this.state?.totalCost,
 													  )}`
@@ -2953,11 +2920,7 @@ class Invoice extends Component {
 												>
 													{this.state?.section?.style?.discounts
 														?.showDiscount
-														? `-${
-																this.props?.currencySymbol
-																	? this.props?.currencySymbol
-																	: this.props?.currencySymbol2
-														  }${this.state?.discountValue}`
+														? `-${this.props?.currencySymbol}${this.state?.discountValue}`
 														: '0.0'}
 												</span>
 											</div>
@@ -3002,14 +2965,7 @@ class Invoice extends Component {
 																	}}
 																>
 																	{taxItem?.tax
-																		? `${
-																				this.props
-																					?.currencySymbol
-																					? this.props
-																							?.currencySymbol
-																					: this.props
-																							?.currencySymbol2
-																		  }${taxItem?.taxValue}`
+																		? `${this.props?.currencySymbol}${taxItem?.taxValue}`
 																		: '0.0'}
 																</span>
 															</div>
@@ -3084,8 +3040,6 @@ class Invoice extends Component {
 												this.state?.showServiceTables
 													? `${
 															this.props?.currencySymbol
-																? this.props?.currencySymbol
-																: this.props?.currencySymbol2
 													  }${this.renderCurrencyValue(
 															// this.props?.clientGrandTotal
 															// 	? this.props?.clientGrandTotal
@@ -3101,8 +3055,6 @@ class Invoice extends Component {
 													: this.state?.isManual
 													? `${
 															this.props?.currencySymbol
-																? this.props?.currencySymbol
-																: this.props?.currencySymbol2
 													  }${this.renderCurrencyValue(
 															// this.state?.totalCost,
 															this.state?.grandTotal
@@ -3470,7 +3422,6 @@ class Invoice extends Component {
 							module={this.props.module}
 							handleIsValidBgVideoURL={this.props.handleIsValidBgVideoURL}
 							currencySymbol={this.props?.currencySymbol}
-							currencySymbol2={this.props?.currencySymbol2}
 							active={this.props.active}
 						/>
 					</>
