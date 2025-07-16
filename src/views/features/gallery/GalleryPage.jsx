@@ -1088,7 +1088,9 @@ const GalleryPage = () => {
 
 		if (
 			activeTabFromParams &&
-			['Albums', 'Collections', 'Ai People', 'Insights'].includes(activeTabFromParams)
+			['Albums', 'Videos', 'Collections', 'Ai People', 'Insights'].includes(
+				activeTabFromParams,
+			)
 		) {
 			setInfo((prev) => ({
 				...prev,
@@ -3691,7 +3693,7 @@ const GalleryPage = () => {
 	return (
 		<>
 			<div className="galleryContainer">
-				{/* {!info?.isRearranging && (
+				{!info?.isRearranging && (
 					<div className="galleryTitleWhenScrolled">
 						<span onClick={() => navigate('/home')} className="homeIcon">
 							<HomeIcon />
@@ -3707,7 +3709,7 @@ const GalleryPage = () => {
 							Files
 						</span>
 					</div>
-				)} */}
+				)}
 				{info?.isRearranging ? (
 					<div className="galleryRearrangingContainer">
 						<div className="galleryRearrangingImageContainer">

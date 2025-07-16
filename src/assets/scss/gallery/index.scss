@@ -2492,6 +2492,7 @@
 		border-radius: 12px;
 		// border: 2px solid transparent;
 		position: relative;
+		cursor: pointer;
 		&.selectedVideo {
 			border: 2px solid var(--primary-button);
 		}
