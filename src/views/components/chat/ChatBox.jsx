@@ -1167,8 +1167,12 @@ const ChatBox = ({
 
 	const clearTextArea = () => {
 		const textArea = textAreaRef?.current;
+		const textAreaWrapper = textAreaWrapperRef?.current;
 		if (textArea) {
 			textArea.style.height = '30px'; // Reset to initial min-height
+		}
+		if (textAreaWrapper) {
+			textAreaWrapper.style.height = '30px';
 		}
 	};
 
@@ -2142,7 +2146,6 @@ const ChatBox = ({
 				closeModal={handleCloseUpgrageModal}
 				subscriptionState="addOnPlans"
 			/>
-
 		</div>
 	);
 };
