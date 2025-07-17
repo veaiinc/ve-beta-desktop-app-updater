@@ -839,8 +839,8 @@ const OpenedSidebar = ({
 
 													<div>
 														<hr className={'horizontal-line-sidebar'} />
-														<ChatHistory />
 													</div>
+													<ChatHistory />
 													<CreditsLeft />
 													<div
 														className={`settingsOptionsContainer  ${
