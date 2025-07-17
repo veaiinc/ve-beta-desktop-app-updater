@@ -414,6 +414,17 @@ const ChatBox = ({
 	}, [info?.chatSessionId]);
 
 	useEffect(() => {
+		if (!textAreaRef?.current) return;
+
+		if (!info?.chatboxMinimized) {
+			// Focus only if not already focused
+			if (document.activeElement !== textAreaRef.current) {
+				textAreaRef.current.focus();
+			}
+		}
+	}, [info?.chatboxMinimized]);
+
+	useEffect(() => {
 		setInfo((prev) => ({
 			...prev,
 			voiceIntegration: voiceIntegrationData?.shouldConnect || false,
@@ -2142,7 +2153,6 @@ const ChatBox = ({
 				closeModal={handleCloseUpgrageModal}
 				subscriptionState="addOnPlans"
 			/>
-
 		</div>
 	);
 };
