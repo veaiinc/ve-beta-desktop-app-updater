@@ -56,7 +56,6 @@ const InitialHomePage = () => {
 		userDetailsData?.firstName + ' ' + (userDetailsData?.lastName ?? '') ||
 		'User';
 	const greeting = getGreeting();
-	const { workspaceMode } = useWorkspaceMode();
 
 	return (
 		<div className="initial-home-page-wrapper">
