@@ -551,6 +551,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			flat.push({
 				...rest,
 				parentId,
+				children: [], // Keep children as empty array for consistency
 			});
 
 			// Create mapping from BlockNote id to backend _id
@@ -826,7 +827,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					type: newItem.type,
 					props: newItem.props,
 					content: newItem.content,
-					children: newItem.children,
+					children: [], // Keep children as empty array since we're flattening for comparison
 					parentId: parentBackendId,
 					position,
 				};
@@ -905,7 +906,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 						type: newItem.type,
 						props: newItem.props,
 						content: newItem.content,
-						children: newItem.children,
+						children: [], // Keep children as empty array since we're flattening for comparison
 						parentId: parentBackendId,
 						position,
 					};
@@ -978,8 +979,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					position = 1000;
 				}
 
-				const { type, props, children, content, id } = newItem;
-				const newItemFormatted = { _id, position, type, props, children, content, id };
+				const { type, props, content, id } = newItem;
+				const newItemFormatted = { _id, position, type, props, children: [], content, id };
 
 				added.push(newItemFormatted);
 				previousBlocksRef.current.set(id, newItemFormatted);
@@ -1041,7 +1042,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 						position,
 						type,
 						props,
-						children,
+						children: [], // Keep children as empty array since we're flattening for comparison
 						content,
 						id,
 					};
