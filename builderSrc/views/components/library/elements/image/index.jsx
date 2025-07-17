@@ -325,7 +325,8 @@ class ImageItem extends BaseClass {
 						if (this.state.preview !== true) {
 							this.setState({
 								showElementOptions: true,
-								showGenerateButton: this.state.previewMode == 'ml' ? false : true,
+								// ! commented coz not using
+								// showGenerateButton: this.state.previewMode == 'ml' ? false : true,
 							});
 						}
 					}}
