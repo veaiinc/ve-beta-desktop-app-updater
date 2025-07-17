@@ -1,6 +1,6 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/home_page/newUi.scss';
-const array = [{ value: 0 }, { value: 1 }, { value: 0 }, { value: 1 }];
+const array = [{ value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }, { value: 5 }];
 
 const getCardStyles = (index, activeIndex, dataLength) => {
 	const prev1 = (activeIndex - 1 + dataLength) % dataLength;
@@ -43,7 +43,7 @@ const getCardStyles = (index, activeIndex, dataLength) => {
 			width: '100%',
 			opacity: 0.25,
 		};
-	} else if (index < prev2) {
+	} else {
 		return {
 			top: 0,
 			bottom: '100%',
@@ -52,36 +52,48 @@ const getCardStyles = (index, activeIndex, dataLength) => {
 		};
 	}
 };
-const SCROLL_DELAY = 600;
+
+const SCROLL_THRESHOLD = 10;
+const SCROLL_STOP_DELAY = 40; // time between wheel events to detect gesture end
+
+let scrollTimeout = null;
+let scrollLocked = false;
 
 const NewUi = () => {
-	const lastScrollTime = useRef(0);
 	const [info, setInfo] = useState({
 		activeIndex: array?.length - 2,
 		dataLength: array?.length,
 		realDataLength: 2,
 	});
 
-	const handleWheel = (e) => {
-		console.log(e?.deltaY, 'deltaY');
-		const now = Date.now();
-		if (now - lastScrollTime.current < SCROLL_DELAY) return;
-		lastScrollTime.current = now;
+	const handleWheel = useCallback((e) => {
+		const delta = e.deltaY;
 
-		setInfo((prev) => {
-			if (e?.deltaY > 0) {
-				return {
-					...prev,
-					activeIndex: (prev?.activeIndex + 1) % prev?.dataLength,
-				};
-			}
-			return {
-				...prev,
-				activeIndex:
-					prev?.activeIndex - 1 < 0 ? prev?.dataLength - 1 : prev?.activeIndex - 1,
-			};
-		});
-	};
+		// Ignore tiny scrolls
+		if (Math.abs(delta) < SCROLL_THRESHOLD) return;
+
+		// If not locked, this is a new scroll gesture
+		if (!scrollLocked) {
+			scrollLocked = true;
+
+			setInfo((prev) => {
+				const newIndex =
+					delta > 0
+						? (prev.activeIndex + 1) % prev.dataLength
+						: prev.activeIndex - 1 < 0
+						? prev.dataLength - 1
+						: prev.activeIndex - 1;
+
+				return { ...prev, activeIndex: newIndex };
+			});
+		}
+
+		// Reset the timeout on every wheel event
+		clearTimeout(scrollTimeout);
+		scrollTimeout = setTimeout(() => {
+			scrollLocked = false; // Allow next gesture
+		}, SCROLL_STOP_DELAY);
+	}, []);
 
 	useEffect(() => {
 		window.addEventListener('wheel', handleWheel, { passive: true });
@@ -89,16 +101,25 @@ const NewUi = () => {
 	}, []);
 
 	return (
-		<div className="new-ui-wrapper">
-			{array?.map((item, index) => (
-				<div
-					key={index}
-					className="new-ui-item"
-					style={getCardStyles(index, info?.activeIndex, info?.dataLength)}
-				>
-					{item?.value}
-				</div>
-			))}
+		<div className="new-ui-container">
+			<div className="new-ui-wrapper">
+				{array?.map((item, index) => (
+					<div
+						key={index}
+						className="new-ui-item"
+						style={getCardStyles(index, info?.activeIndex, info?.dataLength)}
+					>
+						<div
+							className="item"
+							style={{
+								...(index === info?.activeIndex && {
+									opacity: 1,
+								}),
+							}}
+						></div>
+					</div>
+				))}
+			</div>
 		</div>
 	);
 };
