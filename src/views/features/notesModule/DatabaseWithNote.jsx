@@ -685,6 +685,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			return true;
 		}
 
+		// console.log('oldBlock', oldBlock);
+		// console.log('newBlockFormatted', newBlockFormatted);
+
 		if (oldBlock.type === 'table' && newBlockFormatted.type === 'table') {
 			function areArraysEqualCustom(a, b) {
 				if (!Array.isArray(a) || !Array.isArray(b)) return false;
@@ -813,7 +816,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					position = 1000;
 				}
 
-
 				const parentBackendId = newItem.parentId
 					? blockIdToBackendIdRef.current.get(newItem.parentId)
 					: null;
@@ -825,7 +827,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					props: newItem.props,
 					content: newItem.content,
 					children: newItem.children,
-					parentId: parentBackendId, // ✅ use backend _id directly
+					parentId: parentBackendId,
 					position,
 				};
 
@@ -904,7 +906,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 						props: newItem.props,
 						content: newItem.content,
 						children: newItem.children,
-						parentId: parentBackendId, // ✅ use backend _id directly
+						parentId: parentBackendId,
 						position,
 					};
 
