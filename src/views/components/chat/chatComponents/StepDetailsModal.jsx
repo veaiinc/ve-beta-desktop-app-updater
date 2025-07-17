@@ -10,9 +10,13 @@ const StepDetailsModal = ({ isOpen, closeModal, step, stepIndex }) => {
 
 	const getStepStatus = (step) => {
 		if (step.result) {
+			// Check if result is a string before calling toLowerCase()
+			const resultString =
+				typeof step.result === 'string' ? step.result : JSON.stringify(step.result);
+
 			if (
-				step.result.toLowerCase().includes('error') ||
-				step.result.toLowerCase().includes('failed')
+				resultString.toLowerCase().includes('error') ||
+				resultString.toLowerCase().includes('failed')
 			) {
 				return 'error';
 			}
