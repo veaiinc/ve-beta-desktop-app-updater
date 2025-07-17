@@ -32,10 +32,10 @@
 				flex-direction: column;
 				gap: 12px;
 
-				&.current-group {
-				}
-				&.older-group {
-				}
+				// &.current-group {
+				// }
+				// &.older-group {
+				// }
 
 				.activity-group-header {
 					display: flex;
@@ -81,7 +81,7 @@
 
 					&.current {
 						border-radius: 8px;
-						border: 0.5px solid var(--product-lime-blu, #79ecc9);
+						border: 0.5px solid var(--primary-button, #79ecc9);
 						background: var(--card-hover, #212326);
 					}
 					&.older {
