@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useContext, useCallback, memo, useMemo } from 'react';
 import { ReactComponent as ShareIcon } from '../../../assets/svg/gallery/share.svg';
 import sixDots from '../../../assets/svg/gallery/sixdots.svg';
+import { ReactComponent as TickSvg } from '../../../assets/svg/gallery/tickFilled.svg';
 import { ReactComponent as ThreeDotsIcon } from '../../../assets/svg/gallery/threeDots.svg';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
 import { ReactComponent as ExpandIcon } from '../../../assets/svg/gallery/expand.svg';
@@ -22,7 +23,8 @@ import { ReactComponent as LightRoomIcon } from '../../../assets/svg/gallery/lig
 import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/changeAlbumCover.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/svg/gallery/delete-red.svg';
 import { ReactComponent as LockIcon } from '../../../assets/svg/gallery/lockIcon.svg';
-import { ReactComponent as TickSvg } from '../../../assets/svg/gallery/tickFilled.svg';
+import { ReactComponent as HomeIcon } from '../../../assets/svg/gallery/home.svg';
+import { ReactComponent as RightArrow } from '../../../assets/svg/gallery/rightArrow.svg';
 import { ReactComponent as ToastSuccess } from '../../../assets/svg/gallery/toastSuccess.svg';
 import { ReactComponent as ToastWarning } from '../../../assets/svg/gallery/toastWarning.svg';
 import { ReactComponent as ToastError } from '../../../assets/svg/gallery/toastError.svg';
@@ -343,6 +345,7 @@ const GalleryPage = () => {
 		coverLoading: false,
 		videoUploaded: false,
 		thumbnailUrls: {},
+		selectedScreenType: 'desktop',
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -2461,7 +2464,7 @@ const GalleryPage = () => {
 						x: 0,
 						y: 0,
 					},
-					zoom: 1,
+					zoom: info?.zoom || 1,
 					uploadImageId: null,
 					imageURL: info?.imageURL,
 					coverImageDetails: null,
@@ -4095,18 +4098,29 @@ const GalleryPage = () => {
 																							?.xPosition *
 																							50 +
 																							50,
-																					)}%  ${Math.floor(
+																					)}% ${Math.floor(
 																						50 -
 																							album
 																								?.coverImage
 																								?.yPosition *
 																								50,
 																					)}%`,
+																					backgroundSize: `${
+																						album
+																							?.coverImage
+																							?.zoom *
+																						100
+																					}% auto`,
 																					height: '100%',
-																					backgroundSize:
-																						'cover',
+																					backgroundRepeat:
+																						'no-repeat',
+																					backgroundColor:
+																						'#ccc',
+																					borderRadius:
+																						'12px',
 																				}}
 																			/>
+
 																			{!isActive && (
 																				<div className="albumOverlay" />
 																			)}
@@ -6092,30 +6106,32 @@ const GalleryPage = () => {
 				handleNewAlbumCreated={(newAlbum) => handleNewAlbumCreated(newAlbum)}
 			/>
 
-			<UploadGalleryImageCover
-				info={info}
-				setInfo={setInfo}
-				fileInputRef={fileInputRef}
-				uploadGalleryCoverChangeHandler={uploadGalleryCoverChangeHandler}
-				handleSetCoverPosition={handleSetCoverPosition}
-				message={message}
-				title={info.coverType === 'gallery' ? 'Gallery Cover' : 'Album Cover'}
-				imageURL={info.imageURL}
-				isLoading={info.isLoadingCover}
-				open={info.showUploadCover}
-				showUploadPhoto={info?.selectedImages?.length > 0 && !info?.noImageSelected}
-				onClose={() =>
-					setInfo((prev) => ({
-						...prev,
-						showUploadCover: false,
-						noImageSelected: false,
-						selectedImages: [],
-					}))
-				}
-				style={{ position: 'absolute', top: '60%', left: '0', right: '0', bottom: '0' }}
-				uploadImageLoader={info?.uploadImageLoader}
-				coverLoading={info?.coverLoading}
-			/>
+			{info?.showUploadCover && (
+				<UploadGalleryImageCover
+					info={info}
+					setInfo={setInfo}
+					fileInputRef={fileInputRef}
+					uploadGalleryCoverChangeHandler={uploadGalleryCoverChangeHandler}
+					handleSetCoverPosition={handleSetCoverPosition}
+					message={message}
+					title={info.coverType === 'gallery' ? 'Gallery Cover' : 'Album Cover'}
+					imageURL={info.imageURL}
+					isLoading={info.isLoadingCover}
+					open={info.showUploadCover}
+					showUploadPhoto={info?.selectedImages?.length > 0 && !info?.noImageSelected}
+					onClose={() =>
+						setInfo((prev) => ({
+							...prev,
+							showUploadCover: false,
+							noImageSelected: false,
+							selectedImages: [],
+						}))
+					}
+					style={{ position: 'absolute', top: '60%', left: '0', right: '0', bottom: '0' }}
+					uploadImageLoader={info?.uploadImageLoader}
+					coverLoading={info?.coverLoading}
+				/>
+			)}
 
 			<CollaboratorPopup
 				open={info?.showCollaborators}

@@ -28,10 +28,8 @@ const UploadGalleryImageCover = ({
 	const [focusInfo, setFocusInfo] = useState({
 		focalPoint: { x: info?.crop?.x || 0, y: info?.crop?.y || 0 },
 	});
-	const [viewMode, setViewMode] = useState('desktop');
 	const [isDragging, setIsDragging] = useState(false);
 	const [startPos, setStartPos] = useState({ x: 0, y: 0 });
-	const [scale, setScale] = useState(1);
 
 	const customStyles = {
 		content: { zIndex: 99999 },
@@ -58,7 +56,7 @@ const UploadGalleryImageCover = ({
 		if (!isDragging) return;
 
 		const container = document.querySelector(
-			viewMode === 'desktop' ? '.screen' : '.mobile-preview-container',
+			info?.selectedScreenType === 'desktop' ? '.screen' : '.mobile-preview-container',
 		);
 		if (!container) return;
 
@@ -115,14 +113,22 @@ const UploadGalleryImageCover = ({
 
 					<div className="view-toggle">
 						<button
-							className={`toggle-button ${viewMode === 'mobile' ? 'active' : ''}`}
-							onClick={() => setViewMode('mobile')}
+							className={`toggle-button ${
+								info?.selectedScreenType === 'mobile' ? 'active' : ''
+							}`}
+							onClick={() =>
+								setInfo((prev) => ({ ...prev, selectedScreenType: 'mobile' }))
+							}
 						>
 							<MobileIcon />
 						</button>
 						<button
-							className={`toggle-button ${viewMode === 'desktop' ? 'active' : ''}`}
-							onClick={() => setViewMode('desktop')}
+							className={`toggle-button ${
+								info?.selectedScreenType === 'desktop' ? 'active' : ''
+							}`}
+							onClick={() =>
+								setInfo((prev) => ({ ...prev, selectedScreenType: 'desktop' }))
+							}
 						>
 							<DesktopIcon />
 						</button>
@@ -132,7 +138,7 @@ const UploadGalleryImageCover = ({
 				{info?.coverPhoto && (
 					<div className="album-cover-container">
 						<div className="album-preview">
-							{viewMode === 'desktop' ? (
+							{info?.selectedScreenType === 'desktop' ? (
 								<div className="desktopPreview">
 									<div
 										className="screen"
@@ -154,7 +160,7 @@ const UploadGalleryImageCover = ({
 													backgroundPosition: `${
 														focusInfo?.focalPoint?.x * 50 + 50
 													}% ${50 - focusInfo?.focalPoint?.y * 50}%`,
-													backgroundSize: `${scale * 100}% auto`,
+													backgroundSize: `${info?.zoom * 100}% auto`,
 													backgroundRepeat: 'no-repeat',
 													borderRadius: '12px',
 												}}
@@ -191,7 +197,7 @@ const UploadGalleryImageCover = ({
 													backgroundPosition: `${
 														focusInfo?.focalPoint?.x * 50 + 50
 													}% ${50 - focusInfo?.focalPoint?.y * 50}%`,
-													backgroundSize: `${scale * 100}% auto`,
+													backgroundSize: `auto ${info?.zoom * 100}%`,
 													backgroundRepeat: 'no-repeat',
 													borderRadius: '12px',
 												}}
@@ -207,11 +213,11 @@ const UploadGalleryImageCover = ({
 					<div className="uploadScaleText">Scale</div>
 					<Slider
 						min={100}
-						max={300}
-						defaultValue={scale * 100}
+						max={200}
+						defaultValue={info?.zoom * 100}
 						style={{ width: '100%' }}
 						tooltip={{ open: false }}
-						onChange={(value) => setScale(value / 100)}
+						onChange={(value) => setInfo((prev) => ({ ...prev, zoom: value / 100 }))}
 						trackStyle={{ backgroundColor: 'var(--primary-button)' }}
 						railStyle={{ backgroundColor: 'var(--stroke)' }}
 					/>
