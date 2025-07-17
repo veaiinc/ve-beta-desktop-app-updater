@@ -122,9 +122,6 @@ const OpenedSidebarModules = ({
 			return currentPath.includes('/agents') || currentPath.includes('/ai-assistant');
 		}
 		if (name === 'New Chat') {
-			if (workspaceMode === 'stable') {
-				return currentPath.includes('/home');
-			}
 			return currentPath.includes('/chat');
 		}
 
@@ -358,11 +355,6 @@ const OpenedSidebar = ({
 	}, [showSettingsSidebar]);
 
 	const handleNewChat = () => {
-		// For stable workspaceMode, redirecting to /home, check stableNavigationItems
-		if (workspaceMode === 'stable') {
-			navigate('/home');
-			return;
-		}
 		const sessionId = ObjectID()?.toString();
 		navigate(`/chat/${sessionId}`);
 		updateStateValues({
