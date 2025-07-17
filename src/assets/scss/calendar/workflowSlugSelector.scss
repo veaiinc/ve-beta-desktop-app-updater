@@ -1,0 +1,130 @@
+.workflowSlugSelector {
+	position: relative;
+	display: flex;
+	width: 100%;
+	padding: 12px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	border-radius: 10px;
+	background: #2c2d2e;
+
+	.selectorHeader,
+	.selectorContainer {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		width: 100%;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 13px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+	}
+
+	.selectorContainer {
+		display: flex;
+		transition: all 0.3s ease-out;
+
+		&.expanded {
+			display: none;
+		}
+	}
+
+	.selectBtn {
+		display: flex;
+		padding: 6px 10px;
+		align-items: center;
+		gap: 4px;
+		border-radius: 100px;
+		border: 1px solid #3d3f43;
+		cursor: pointer;
+		user-select: none;
+
+		> svg {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 12px;
+			height: 12px;
+			transition: transform 0.3s ease-out;
+		}
+
+		&.expanded {
+			> svg {
+				transform: rotate(180deg);
+			}
+		}
+	}
+
+	.workflowDropDown {
+		display: none;
+		width: 100%;
+		transition: all 0.3s ease-out;
+
+		&.expanded {
+			display: flex;
+		}
+	}
+
+	.workflowSlugList {
+		.ant-select-selector {
+			border-radius: 8px;
+			background: #1a1a1a;
+			box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+			border: none;
+
+			.ant-select-selection-search-input,
+			.ant-select-selection-placeholder,
+			.ant-select-selection-item {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				padding: 0px 8px;
+			}
+			.ant-select-selection-item {
+				margin: 0px 8px;
+			}
+
+			.ant-select-selection-placeholder {
+				color: var(--secondary-font);
+			}
+		}
+
+		.ant-select-arrow {
+			color: var(--secondary-font);
+		}
+
+		.ant-select-dropdown {
+			border-radius: 8px;
+			background: var(--card);
+			box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+			border: none;
+
+			.ant-select-item {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.ant-select-item-option-selected {
+				background: rgba(169, 24, 24, 0.15);
+				box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
+					4px 4px 6px 0px rgba(17, 17, 17, 0.51) inset;
+			}
+
+			.ant-select-item-option-content {
+				display: flex;
+				align-items: center;
+				justify-content: flex-start;
+			}
+		}
+	}
+}

@@ -1,0 +1,57 @@
+import React, { useState, memo } from 'react';
+import '../../../assets/scss/AiSetup/toggleBlock.scss';
+import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.svg';
+import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
+import { ReactComponent as Pencil } from '../../../assets/svg/calendar/pencil.svg';
+import { ReactComponent as Dropdown } from '../../../assets/svg/Settings/dropdown.svg';
+
+const ToggleBlock = ({ data, type, onDeleteClick, onEditClick }) => {
+	const [info, setInfo] = useState({
+		isOpen: false,
+	});
+
+	const updateInfo = (data) => {
+		setInfo((prev) => ({ ...prev, ...data }));
+	};
+
+	return (
+		<div className={`toggleBlockContainer ${info.isOpen ? 'toggleBlockContainerOpen' : ''}`}>
+			<div className="toggleBlockHeader">
+				<h1
+					className={
+						info.isOpen ? 'toggleBlockHeaderTitleOpen' : 'toggleBlockHeaderTitle'
+					}
+				>
+					{data?.heading}
+				</h1>
+				<div className="actionButtons" style={{ display: 'flex', gap: '8px' }}>
+					<button
+						className="actionButton"
+						onClick={() =>
+							onEditClick(type, data?._id, data?.heading, data?.description)
+						}
+					>
+						<Pencil />
+					</button>
+					<button className="actionButton" onClick={() => onDeleteClick(type, data?._id)}>
+						<Dustbin />
+					</button>
+				</div>
+				<button
+					onClick={() => updateInfo({ isOpen: !info.isOpen })}
+					className="toggleBlockHeaderButton"
+				>
+					<Dropdown
+						style={{
+							transform: info.isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+							transition: 'transform 0.2s',
+						}}
+					/>
+				</button>
+			</div>
+			{info.isOpen && <div className="toggleBlockContent">{data?.description}</div>}
+		</div>
+	);
+};
+
+export default memo(ToggleBlock);

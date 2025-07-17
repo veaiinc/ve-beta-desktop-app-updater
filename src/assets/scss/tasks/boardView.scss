@@ -1,0 +1,209 @@
+.board-view {
+	height: 100%;
+	overflow: hidden;
+	position: relative;
+	width: 100%;
+
+	&-container {
+		display: flex;
+		gap: 1rem;
+		padding: 1rem;
+		height: fit-content;
+		overflow-x: auto;
+		position: relative;
+		overflow-y: hidden;
+	}
+
+	&-empty-columns {
+		position: absolute;
+		right: 0;
+		top: 1rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		padding-right: 1rem;
+	}
+
+	&-item {
+		min-height: fit-content;
+		// min-width: 246px;
+		border-radius: 12px;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		transition: all 0.3s ease;
+		border-radius: 12px;
+		background: var(--card, #18191b);
+
+		// Style for empty groups
+
+		&-header {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			border-radius: 12px 12px 0 0;
+			padding: 16px 12px;
+
+			&-count {
+				color: var(--secondary-font);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			&-title {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+			}
+		}
+
+		// New wrapper to handle height
+		&-wrapper {
+			flex: 1;
+			// min-height: 0; // Important for nested flex scrolling
+			overflow-y: hidden;
+		}
+
+		&-cards {
+			max-height: 100%;
+			height: 100%;
+			width: fit-content;
+			min-width: 246px;
+
+			// Optional: Hide scrollbar but keep functionality
+			&::-webkit-scrollbar {
+				width: 6px;
+			}
+
+			&::-webkit-scrollbar-thumb {
+				background-color: var(--card);
+				border-radius: 3px;
+			}
+		}
+
+		&.empty-groups-column {
+			min-width: 246px;
+			// background: #202123;
+			margin-left: 1rem;
+
+			.empty-group-item {
+				padding: 0.5rem;
+				margin: 0.5rem;
+				border-radius: 8px;
+				background: var(--card);
+				cursor: pointer;
+				transition: all 0.2s ease;
+
+				&:hover {
+					background: var(--card);
+				}
+			}
+
+			.board-view-item-wrapper {
+				padding: 0.5rem;
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+				max-height: calc(100vh - 200px);
+				overflow-y: auto;
+			}
+		}
+
+		&.empty {
+			min-width: 50px;
+			width: 50px;
+			height: 50px;
+			margin-bottom: -35px;
+			opacity: 0.6;
+			cursor: pointer;
+
+			&:hover {
+				min-width: 246px;
+				width: 246px;
+				height: fit-content;
+				margin-bottom: 0;
+				opacity: 1;
+				z-index: 10;
+			}
+
+			.board-view-item-header {
+				overflow: hidden;
+				padding: 0.5rem;
+			}
+
+			.board-view-item-wrapper {
+				display: none;
+			}
+
+			&:hover {
+				.board-view-item-header {
+					padding: 1rem;
+				}
+
+				.board-view-item-wrapper {
+					display: block;
+				}
+			}
+		}
+
+		// Add styles for skeleton loading
+		.react-loading-skeleton {
+			background-color: var(--card);
+
+			&::after {
+				background-image: linear-gradient(90deg, var(--card), var(--card), var(--card));
+			}
+		}
+	}
+
+	&-card {
+		margin-bottom: 8px;
+
+		&.dragging {
+			opacity: 0.5;
+		}
+	}
+
+	&-message {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100%;
+		width: 100%;
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-weight: 500;
+		width: 100%;
+	}
+
+	&-card-skeleton {
+		margin-bottom: 0.75rem;
+		width: 287px;
+	}
+}
+
+.board-view-item-wrapper {
+	height: calc(100vh - 200px); // Adjust based on your layout
+	overflow-y: auto;
+	border-radius: 0 0 12px 12px;
+
+	.board-view-item-cards {
+		min-height: 100%;
+		padding: 0px 12px 12px 12px;
+		border-radius: 0 0 12px 12px;
+	}
+}
+
+.board-view-loader {
+	display: flex;
+	justify-content: center;
+	padding: 16px;
+	color: var(--secondary-font);
+}

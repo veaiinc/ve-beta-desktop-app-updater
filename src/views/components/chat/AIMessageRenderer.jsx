@@ -1,0 +1,57 @@
+import { memo } from 'react';
+import '../../../assets/scss/chat/aiMessageRenderer.scss';
+import AIMessage from './AIMessage';
+import ChainOfThoughtWidget from './chatComponents/ChainOfThoughtWidget';
+import AIMessageLoader from './AIMessageLoader';
+
+const AIMessageRenderer = ({
+	messageData,
+	handleNoteComponentModalOpen,
+	handleViewDocument,
+	showViewDocument = false,
+	isPublicChat = false,
+	handleSourcesClick = null,
+	messageIndex = null,
+	showCitationsButton = true,
+	isLastMessage = false,
+}) => {
+	return (
+		<div className="ai-message-renderer">
+			{messageData?.contentType === 'loading' ? (
+				<AIMessageLoader />
+			) : (
+				<>
+					{messageData?.is_error ? (
+						<div className="error-message">Something went wrong. Please try again.</div>
+					) : (
+						<>
+							{(messageData?.processing === 'Deep Search' ||
+								messageData?.processing === 'Deep Research' ||
+								messageData?.processing === 'Normal Search' ||
+								messageData?.memory_thinking) && (
+								<ChainOfThoughtWidget messageData={messageData} />
+							)}
+							<AIMessage
+								text={messageData?.message}
+								messageId={messageData?.messageId}
+								customePencilClickFunc={handleNoteComponentModalOpen}
+								rating={messageData?.rating}
+								citations={messageData?.citations}
+								messageData={messageData}
+								handleViewDocument={handleViewDocument}
+								showViewDocument={showViewDocument}
+								isLastMessage={isLastMessage}
+								isPublicChat={isPublicChat}
+								handleSourcesClick={handleSourcesClick}
+								messageIndex={messageIndex}
+								showCitationsButton={showCitationsButton}
+							/>
+						</>
+					)}
+				</>
+			)}
+		</div>
+	);
+};
+
+export default memo(AIMessageRenderer);

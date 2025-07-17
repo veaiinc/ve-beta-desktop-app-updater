@@ -1,0 +1,16 @@
+.tab-list-file {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+
+	.tab-list-file-no-data {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100%;
+		width: 100%;
+		font-size: 14px;
+		color: #666;
+		padding-top: 30px;
+	}
+}

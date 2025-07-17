@@ -1,0 +1,39 @@
+export const KNOWLEDGE_BASE = {
+	addToKnowledgeBase: '/add_to_knowledge_base',
+	deleteFromKnowledgeBase: '/delete_from_knowledge_base',
+	listFilesInKnowledgeBase: '/knowledge-bases',
+	uploadPDFsToKnowledgeBase: '/knowledge-bases/upload-file',
+	uploadURLsToKnowledgeBase: '/knowledge-bases',
+	deleteKnowledge: '/knowledge-bases',
+	updateKnowledgeBaseFile: '/knowledge-bases',
+};
+
+export const AI_PERSONALITY = {
+	listAiAssistants: '/ai-assistants',
+	createNewAiAssistant: '/ai-assistants',
+	getAiAssistantDetails: '/ai-assistants',
+	updateAiAssistant: '/ai-assistants',
+};
+export const AI_ASSISTANT_INSTRUCTIONS = {
+	getInstructions: '/instructions',
+	createInstruction: '/instructions',
+	updateInstruction: '/instructions',
+	deleteInstruction: '/instructions',
+};
+
+export const AI_PROMPT = {
+	getAiPrompt: '/prompt',
+	editAiPrompt: '/edit-prompt',
+	resetAiPrompt: '/reset-prompt',
+	defaultAiPrompt: '/default-prompt',
+	selectAiPrompt: '/select-prompt',
+};
+
+export const AI_ACTIONS = {
+	aiActions: '/action',
+	aiCrawl: '/crawl',
+};
+
+export const AI_CHAT_LOGS = {
+	aiChatLogs: '/external-chat-log-sessions',
+};

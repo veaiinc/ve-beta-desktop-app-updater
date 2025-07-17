@@ -1,0 +1,168 @@
+.insightsContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	padding: 40px;
+	border-radius: 40px;
+	background: var(--card);
+	height: 70vh;
+	overflow-y: scroll;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	.insightsData {
+		display: flex;
+		gap: 12px;
+		.insightsData-item {
+			display: flex;
+			padding: 24px;
+			border-radius: 8px;
+			border: 1px solid var(--stroke);
+			background: var(--card-over-card);
+			box-shadow: 0px 0px 30px 0px rgba(255, 255, 255, 0.03);
+			justify-content: space-between;
+			width: 33.33%;
+			.itemName {
+				color: var(--secondary-font);
+				font-size: 14px;
+				font-weight: 500;
+				display: flex;
+				align-items: center;
+			}
+			.count {
+				color: var(--primary-font);
+				font-size: 20px;
+				font-weight: 500;
+			}
+		}
+	}
+	.insightsHeader {
+		display: flex;
+		justify-content: space-between;
+		.heading {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+			p {
+				color: var(--primary-font);
+				font-size: 16px;
+				font-weight: 500;
+				line-height: 22.5px; /* 140.625% */
+				text-transform: capitalize;
+			}
+			.subHeading {
+				color: var(--secondary-font);
+				font-size: 12px;
+				font-weight: 400;
+				line-height: 9px; /* 75% */
+			}
+		}
+		.insightsHeader-icons {
+			display: flex;
+			gap: 14px;
+			p {
+				cursor: pointer;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				width: 39.895px;
+				height: 40px;
+				border-radius: 100px;
+				border: 1px solid var(--stroke);
+				background: var(--card-over-card);
+				svg {
+					path {
+						fill: var(--secondary-font);
+						fill-opacity: 0.48;
+					}
+				}
+			}
+			// Add these styles for the search container
+			.searchContainer {
+				display: flex;
+				gap: 10px;
+				padding: 12px 8px;
+				align-items: center;
+				transition: width 0.3s ease;
+				overflow: hidden;
+				cursor: pointer;
+				input {
+					display: none;
+					background: transparent;
+					border: none;
+					color: white;
+				}
+				svg {
+					path {
+						fill: var(--secondary-font);
+					}
+				}
+				&:hover {
+					background: var(--card, #171819);
+					box-shadow: 0px 0px 30px 0px rgba(122, 122, 122, 0.1);
+					border-radius: 100px;
+				}
+				&.expanded {
+					width: 200px;
+					border-radius: 100px;
+					border: 1px solid var(--stroke);
+					background: var(--card);
+					input {
+						display: block;
+					}
+				}
+			}
+			.filter-container {
+				position: relative;
+				cursor: pointer;
+				padding: 12px 0px;
+				margin: 0px;
+				.filter-dropdown {
+					display: flex;
+					flex-direction: column;
+					justify-content: space-evenly;
+					position: absolute;
+					top: 120%;
+					right: 0;
+					background: var(--card);
+					border-radius: 16px;
+					border: 1px solid var(--stroke);
+
+					width: 175px;
+					height: 259px;
+					z-index: 1000;
+					.filter-option {
+						padding: 8px 16px;
+						border-radius: 4px;
+						color: var(--primary-font);
+						font-size: 14px;
+						font-family: var(--primary-font-family);
+						font-weight: 400;
+						line-height: 16px;
+						font-style: normal;
+					}
+				}
+			}
+		}
+	}
+	.insightsDetails {
+		display: flex;
+		gap: 24px;
+		.insightsDetails-item {
+			display: flex;
+			gap: 4px;
+			padding: 8px;
+			border-radius: 4px;
+			border: 1px solid var(--stroke);
+			background: var(--card);
+			p {
+				color: var(--secondary-font);
+				font-size: 14px;
+				font-weight: 400;
+				line-height: 16px;
+			}
+		}
+	}
+}

@@ -1,0 +1,103 @@
+.databaseSidebarDrawer {
+	height: 100%;
+}
+
+.notesDatabaseSidebar {
+	height: 100%;
+	width: 450px;
+	display: flex;
+	flex-direction: column;
+	transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+	font-family: var(--primary-font-family);
+	background: var(--right-bar);
+
+	.notesDatabaseSidebarHeader {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+		padding: 8px 16px;
+		border-bottom: 1px solid var(--stroke, #2c2d2e);
+		background: var(--navbar, #202123);
+		position: sticky;
+		top: 0;
+		z-index: 1;
+
+		.notesDatabaseSidebarHeaderTitle {
+			color: var(--primary-font);
+			font-size: 16px;
+			font-weight: 500;
+		}
+
+		.deleteButton {
+			background: transparent;
+			border: none;
+			cursor: pointer;
+			color: var(--error);
+			font-size: 14px;
+			padding: 4px 8px;
+			border-radius: 4px;
+
+			&:hover {
+				background: rgba(255, 0, 0, 0.1);
+			}
+		}
+	}
+
+	.notesDatabaseSidebarContent {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		overflow-y: auto;
+		overflow-x: hidden;
+		padding: 16px;
+		gap: 8px;
+
+		.notesDatabaseSidebarField {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+			padding: 8px 12px;
+			border-radius: 8px;
+			background: var(--card);
+
+			.notesDatabaseSidebarFieldLabel {
+				color: var(--secondary-font);
+				font-size: 12px;
+				font-weight: 500;
+				display: flex;
+				gap: 6px;
+				align-items: center;
+				svg {
+					width: 16px;
+					height: 16px;
+				}
+			}
+
+			.notesDatabaseSidebarFieldValue {
+				width: 100%;
+				min-height: 28px;
+				display: flex;
+				align-items: center;
+
+				:global {
+					.select-options-wrapper {
+						width: 100%;
+					}
+
+					.select-selected-wrapper {
+						width: 100%;
+					}
+
+					.select-option-item {
+						color: var(--secondary-button-active);
+					}
+				}
+			}
+		}
+	}
+}
+
+.databaseSidebarMask {
+	background: rgba(0, 0, 0, 0.45);
+}

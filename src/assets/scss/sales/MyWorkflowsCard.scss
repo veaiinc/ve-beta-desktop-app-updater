@@ -1,0 +1,322 @@
+.myWorkflowCard {
+	display: flex;
+	padding: 24px;
+	align-items: flex-start;
+	gap: 28px;
+	align-self: stretch;
+	border-radius: 24px;
+	background: var(--card);
+	transition: all 0.5s ease-out;
+	padding-bottom: 0px;
+	cursor: pointer;
+	min-width: max-content;
+
+	.imageContainer {
+		display: flex;
+		flex-direction: column;
+		height: 284px;
+		justify-content: flex-end;
+		margin-bottom: 24px;
+		border-radius: 16px;
+		background-color: var(--card-over-card);
+
+		.hoverDropDownContainer {
+			display: flex;
+			flex-direction: column;
+			align-self: stretch;
+			// border: 2px solid green;
+			display: none;
+			align-items: flex-start;
+			flex: 1;
+			transition: transform 1s ease-in-out;
+			border-radius: 16px;
+			.arrowContainer {
+				display: flex;
+				align-self: stretch;
+				justify-content: center;
+				align-items: center;
+				padding: 8px;
+				svg {
+					transition: transform 0.5s ease-out;
+					fill: var(--secondary-font);
+				}
+			}
+
+			.hoverDropDownValues {
+				display: none;
+				transition: transform 1s ease-out;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 14px; /* 116.667% */
+				letter-spacing: 0.24px;
+				text-transform: capitalize;
+			}
+		}
+
+		.coverImage {
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			width: 200px;
+			// flex: 1;
+			height: 284px;
+			flex-shrink: 0;
+			border-radius: 16px;
+			overflow: scroll;
+			// opacity: 0.9;
+			align-self: flex-end;
+			transition: all 0.24s ease-out;
+			background-color: var(--card);
+			.builder {
+				zoom: 0.1;
+				overflow: hidden;
+				div {
+					width: 100%;
+				}
+			}
+		}
+	}
+	.imageContainer:hover .coverImage {
+		height: 114px !important	;
+	}
+
+	.imageContainer:hover .hoverDropDownContainer .hoverDropDownValues {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		gap: 12px;
+		align-self: stretch;
+		padding-left: 24px;
+		// align-items: flex-start;
+		// border: 2px solid blue;
+		color: var(--primary-font);
+		align-items: flex-start;
+		margin-top: 24px;
+	}
+	.imageContainer:hover .hoverDropDownContainer .arrowContainer svg {
+		transform: rotate(180deg);
+	}
+
+	.workflowContentContainer {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		align-items: flex-start;
+		flex: 1 0 0;
+		align-self: stretch;
+		max-height: 284px;
+
+		.myworkflowHeader {
+			overflow: hidden;
+			color: var(--primary-font);
+			text-overflow: ellipsis;
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 22px; /* 157.143% */
+			letter-spacing: -0.28px;
+		}
+
+		.actionBtnContainer {
+			display: flex;
+			align-self: stretch;
+			align-items: flex-start;
+			gap: 7px;
+			flex-shrink: 0;
+		}
+		.statsCardSuperContainer {
+			display: flex;
+
+			.statsInnerContainer {
+				display: flex;
+				align-items: center;
+
+				.innerSeperator {
+					display: flex;
+					padding: 0px 16px;
+					align-items: center;
+					gap: 10px;
+
+					.verticalSeperator {
+						width: 1px;
+						height: 89px;
+						background: var(--secondary-font);
+					}
+				}
+			}
+		}
+	}
+	.percentageSeperator {
+		display: none;
+		margin-top: 11px;
+		transition: all 0.5s;
+	}
+}
+
+.myWorkflowCard:hover {
+	border-radius: 24px;
+	border: 1px solid var(--stroke);
+	// background: var(--card-hover);
+	box-shadow: 0px 4px 40px 0px var(--card-over-card);
+	// .percentageSeperator {
+	// 	display: flex;
+	// 	align-self: stretch;
+	// 	height: 2px;
+	// 	border-radius: 100px;
+	// 	margin-top: 11px;
+	// 	background: red;
+
+	// 	.percentageCovered {
+	// 		width: 30%;
+	// 		height: 2px;
+	// 		border-radius: 100px;
+	// 		background: red;
+	// 	}
+	// }
+}
+.myWorkflowCard:hover .imageContainer .coverImage {
+	height: 264px; /* Reduce height on hover */
+}
+.myWorkflowCard:hover .imageContainer .hoverDropDownContainer {
+	display: block;
+	background: var(--card-hover);
+}
+
+.actionCardContainer {
+	display: flex;
+	flex-direction: column;
+	width: 130px;
+	height: 66px;
+	padding: 8px 16px;
+	gap: 4px;
+	align-items: flex-start;
+	flex-shrink: 0;
+	border-radius: 16px;
+	background: var(--card-over-card);
+	transition: all 0.24s ease-in-out;
+	.headerStyling {
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 14px;
+		letter-spacing: 0.24px;
+		text-transform: capitalize;
+	}
+	.textStyling {
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 26px; /* 162.5% */
+	}
+}
+
+.actionCardContainer:hover {
+	border: 1px rgba(63, 63, 63, 0.64);
+	background: var(--card-over-card-hover);
+}
+
+.actionRequiredCardContainer {
+	display: flex;
+	width: 130px;
+	height: 66px;
+	padding: 8px var(--Spacing-space-8, 16px);
+	justify-content: space-between;
+	align-items: center;
+	flex-shrink: 0;
+	border-radius: 16px;
+	background: rgba(174, 160, 82, 0.14);
+	cursor: pointer;
+
+	.headerStyling {
+		color: rgba(174, 160, 82, 0.8);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 14px;
+		letter-spacing: 0.24px;
+		text-transform: capitalize;
+	}
+
+	.textStyling {
+		color: rgba(174, 160, 82, 0.8);
+		font-family: var(--primary-font-family);
+		font-size: 24px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 26px; /* 108.333% */
+	}
+}
+.statsCardParentCotnainer {
+	display: flex;
+	width: 130px;
+	height: 160px;
+	padding: 16px 24px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 15px;
+	flex-shrink: 0;
+	border-radius: 16px;
+	background: var(--card-over-card);
+	transition: all 0.24s ease-in-out;
+
+	.dotContainer {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		.dot {
+			width: 4px;
+			height: 4px;
+			background-color: #368748;
+			border-radius: 100px;
+		}
+
+		.dotText {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 10px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 14px; /* 140% */
+			text-transform: uppercase;
+		}
+	}
+	.contentContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		align-self: stretch;
+
+		.titletextStyling {
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 32px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: 26px; /* 81.25% */
+		}
+		.enquiryText {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 16px; /* 133.333% */
+			letter-spacing: 0.24px;
+			text-transform: capitalize;
+		}
+	}
+}
+.statsCardParentCotnainer:hover {
+	border: 1px var(--stroke);
+	background: var(--card-over-card-hover);
+}

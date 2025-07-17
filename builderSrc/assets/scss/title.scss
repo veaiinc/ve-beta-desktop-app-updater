@@ -1,0 +1,54 @@
+.title-container {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 20px;
+	color: white;
+	width: 100%;
+
+	.title-value {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		padding: 5px;
+		border: none;
+		text-align: left;
+		border-bottom: 1px solid transparent;
+		transition: border-color 0.5s ease-in;
+		width: 300px;
+	}
+	&:hover .title-value {
+		border-bottom-color: gray;
+	}
+	.title-input {
+		font-size: 18px;
+		padding: 5px;
+		width: 90%;
+		border: none;
+		background-color: transparent;
+		border-bottom: 0.5px solid white;
+		color: white;
+		outline: none;
+	}
+	.template-name {
+		font-size: 14px;
+		color: gray;
+	}
+	.edit-icon {
+		opacity: 0;
+		cursor: pointer;
+		fill: gray;
+		transition: opacity 0.5s ease;
+
+		path {
+			stroke: black;
+		}
+	}
+	&:hover .edit-icon {
+		opacity: 1;
+	}
+	.active-icon {
+		opacity: 1;
+		fill: white;
+	}
+}

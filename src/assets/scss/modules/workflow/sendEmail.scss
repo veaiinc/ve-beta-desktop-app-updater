@@ -1,0 +1,156 @@
+.sendCustomEmailParentContainer {
+	width: 612px;
+	align-items: flex-start;
+	border-radius: 40px;
+	background: var(--popup);
+	box-shadow: 0px 53px 53px 0px var(--stroke), 0px 13px 29px 0px var(--stroke);
+	height: auto;
+	min-height: 400px;
+	display: flex;
+	padding: 40px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	align-self: stretch;
+	.sendEmailCustomHeaderContainer {
+		display: flex;
+		align-self: stretch;
+		align-items: center;
+
+		.sendEmailHeadertextStyle {
+			flex: 1 0 0;
+			align-self: stretch;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 26px; /* 144.444% */
+		}
+
+		.closeSvgWrapper {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			cursor: pointer;
+		}
+	}
+	.userDetailsDataContainer {
+		display: flex;
+		align-self: stretch;
+		height: 51px;
+		padding: 10px;
+		padding-bottom: 0px;
+		align-items: center;
+		gap: 13px;
+
+		.userDataContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 1px;
+			flex: 1 0 0;
+
+			.sendCustomEmailUserTextStyling {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 21px; /* 161.538% */
+			}
+			.sendCustomEmailIdTextStyling {
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 11px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 19px; /* 172.727% */
+				letter-spacing: 0.22px;
+			}
+		}
+		.ccBCCContainer {
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+			gap: 13px;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 11px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 19px; /* 172.727% */
+			letter-spacing: 0.22px;
+			cursor: pointer;
+		}
+	}
+
+	.subjecContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 6px;
+		align-self: stretch;
+
+		.siubjectLableTextStyling {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 11px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 16px; /* 145.455% */
+			margin-left: 14px;
+		}
+
+		.sendCustomEmailSubjectInput {
+			background-color: transparent;
+			outline: none;
+			display: flex;
+			padding: 11px 14px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			align-self: stretch;
+			border-radius: 10px;
+			border: 1px solid var(--stroke);
+			resize: none;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 26px; /* 185.714% */
+		}
+
+		.joditWrapper {
+			width: 100%;
+			max-height: 350px;
+			overflow-y: auto;
+			background-color: var(--popup);
+			border-radius: 10px;
+			border: 1px solid var(--stroke);
+		}
+	}
+
+	.sendEmailButton {
+		display: flex;
+		padding: 16px 24px;
+		justify-content: center;
+		align-items: center;
+		gap: 16px;
+		border-radius: 100px;
+		border: 1px solid var(--stroke);
+		background: var(--card);
+		cursor: pointer;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 13px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 16px; /* 123.077% */
+		letter-spacing: 0.26px;
+	}
+	.sendEmailButton:hover {
+		background-color: var(--primary-button);
+	}
+}

@@ -1,0 +1,364 @@
+import { memo, useMemo, useState, useContext, useEffect, useCallback } from 'react';
+import '../../../assets/scss/calendar/calendar.scss';
+import '../../../assets/scss/calendar/calendarView.scss';
+import CalendarWrapper from '../../components/calendar/CalendarWrapper';
+import CalendarHeader from '../../components/calendar/CalendarHeader';
+import CustomTimeGutterHeader from '../../components/calendar/CustomTimeGutterHeader';
+import CustomEventCard from '../../components/calendar/CustomEventCard';
+import CustomEventWrapper from '../../components/calendar/CustomEventWrapper';
+import MonthEventWrapper from '../../components/calendar/MonthEventWrapper';
+import Context from '../../../context/context';
+import moment from 'moment';
+import EventDetailsModal from '../../components/modalsV2/calendar/EventDetailsModal';
+import EventsPopUp from '../../components/calendar/EventsPopUp';
+import { message } from '../../components/globalComponents/CustomToast';
+
+const initialState = {
+	eventsList: [],
+	eventListError: null,
+	isLoading: true,
+	isEventCreated: false,
+	updateEventsList: false,
+	selectedEvent: null,
+	categoryBasedEventsList: [],
+};
+
+const CalendarView = ({
+	currentCalendarDate,
+	selectedWeek,
+	selectedDate,
+	selectedMonth,
+	isEventSelected,
+	categoryList,
+	selectedCategory,
+	categoryFilter,
+	updateCalendarInfo,
+	selectedWorkflowId,
+	showGoogleEvents,
+}) => {
+	const {
+		calendarInfo: {
+			googleCalendarList,
+			calendarEventsList,
+			getCalendarEventsList,
+			calendarEvent,
+			resetCalendarState,
+			sendEventToAi,
+			googleCalendarEvents,
+			// deleteCalendarEvent,
+			// getGoogleCalendarEvents,
+		},
+		// profileInfo: { userWorkSpaceList, userDetailsData },
+		companyInfo: { tenantsUserList, getTeamMembers },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		...initialState,
+		googleEvents: [],
+		isCreateEventOpen: false,
+		deletingEvent: false,
+	});
+
+	useEffect(() => {
+		if (googleCalendarEvents) {
+			if (googleCalendarEvents?.error?.length) {
+				message.error('Failed to fetch Google Calendar events');
+				return setInfo((prevInfo) => ({
+					...prevInfo,
+					googleEventListError: googleCalendarEvents?.error,
+					isLoading: false,
+				}));
+			}
+
+			const mappedGoogleEvents = googleCalendarEvents?.map((event) => ({
+				id: event?._id,
+				start: moment(event?.startDateTime).local().toDate(),
+				end: moment(event?.endDateTime).local().toDate(),
+				title: event?.title,
+				description: event?.description,
+				...(event || {}),
+			}));
+
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				googleEvents: mappedGoogleEvents,
+				isLoading: false,
+			}));
+		}
+	}, [googleCalendarEvents]);
+
+	useEffect(() => {
+		if (!tenantsUserList || tenantsUserList.length === 0) {
+			getTeamMembers();
+		}
+	}, [tenantsUserList]);
+
+	useEffect(() => {
+		if (calendarEvent?._id) {
+			handleSendEventToAi();
+			getCalendarEventsList(selectedDate);
+		}
+	}, [calendarEvent]);
+
+	useEffect(() => {
+		getCalendarEventsList(selectedDate);
+	}, [selectedMonth]);
+
+	useEffect(() => {
+		return () => {
+			resetCalendarState();
+			setInfo({ ...initialState });
+		};
+	}, []);
+
+	useEffect(() => {
+		if (calendarEventsList) {
+			if (calendarEventsList?.error?.length) {
+				message.error('Failed to fetch Ve calendar events');
+				return setInfo((prevInfo) => ({
+					...prevInfo,
+					eventListError: calendarEventsList?.error,
+					isLoading: false,
+				}));
+			}
+
+			const veEvents =
+				calendarEventsList?.map((event) => ({
+					id: event?._id,
+					start: moment(event?.startDateTime).local().toDate(),
+					end: moment(event?.endDateTime).local().toDate(),
+					title: event?.title,
+					description: event?.description,
+					...(event || {}),
+				})) || [];
+
+			const googleEvents =
+				googleCalendarList?.data?.map((event) => ({
+					id: event?._id,
+					start: moment(event?.startDateTime).local().toDate(),
+					end: moment(event?.endDateTime).local().toDate(),
+					title: event?.title,
+					description: event?.description || event?.googleCalendarMeta?.summary,
+					meetingLink: event?.meetingLink || event?.googleCalendarMeta?.hangoutLink,
+					...(event || {}),
+				})) || [];
+
+			const combinedEvents = [...veEvents, ...googleEvents];
+
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				eventsList: combinedEvents,
+				isLoading: false,
+			}));
+		}
+	}, [calendarEventsList, googleCalendarList?.data]);
+
+	useEffect(() => {
+		// Filter events based on categoryFilter
+		const defaultCategory = categoryList?.find(
+			(cat) => cat?.name?.toLowerCase() === 'all' || cat?.type?.toLowerCase() === 'all',
+		)?._id;
+
+		// Combine both event sources, respecting the showGoogleEvents setting
+		const combinedEvents = [
+			...(info?.eventsList || []),
+			...(showGoogleEvents ? info?.googleEvents || [] : []),
+		];
+
+		// If default category is selected, show all events
+		if (categoryFilter?.includes(defaultCategory)) {
+			setInfo((prev) => ({ ...prev, categoryBasedEventsList: combinedEvents }));
+			return;
+		}
+
+		// Otherwise filter events based on selected categories
+		const filteredEvents = combinedEvents?.filter((event) => {
+			const eventCategory = event?.calendarCategory;
+			return categoryFilter?.includes(eventCategory?._id);
+		});
+		setInfo((prev) => ({ ...prev, categoryBasedEventsList: filteredEvents }));
+	}, [categoryFilter, info?.eventsList, info?.googleEvents, categoryList, showGoogleEvents]);
+
+	const handleSendEventToAi = useCallback(async () => {
+		if (calendarEvent?._id) {
+			await sendEventToAi({
+				event_id: calendarEvent?._id,
+			});
+		}
+	}, [calendarEvent]);
+
+	const handleSelectEvent = useCallback(
+		(event) => {
+			updateCalendarInfo('isEventSelected', true);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				selectedEvent: event,
+			}));
+		},
+		[info?.selectedEvent],
+	);
+
+	const components = useMemo(
+		() => ({
+			timeGutterHeader: CustomTimeGutterHeader,
+			toolbar: (props) => (
+				<CalendarHeader
+					{...props}
+					currentCalendarDate={currentCalendarDate}
+					selectedDate={selectedDate}
+					selectedWeek={selectedWeek}
+					selectedMonth={selectedMonth}
+					tenantsUserList={tenantsUserList}
+					updateCalendarInfo={updateCalendarInfo}
+					selectedWorkflowId={selectedWorkflowId}
+					// userWorkSpaceList={userWorkSpaceList}
+				/>
+			),
+			week: {
+				event: CustomEventCard,
+			},
+			month: {
+				header: () => null,
+				event: (props) => {
+					const start = moment(props.event.start);
+					const end = moment(props.event.end);
+					const isMultiDay = !start.isSame(end, 'day');
+					return (
+						<MonthEventWrapper
+							{...props}
+							className={isMultiDay ? 'multi-day-event' : ''}
+						/>
+					);
+				},
+			},
+			eventWrapper: CustomEventWrapper,
+			// eventContainerWrapper: CustomEventContainer,
+		}),
+		[selectedDate, selectedWeek, currentCalendarDate, selectedWorkflowId, tenantsUserList],
+	);
+
+	const updateCalenderEventsList = useCallback(
+		(eventId, updateBody = {}) => {
+			const updatedEventsList = [...(info?.eventsList || [])];
+			for (let i = 0; i < updatedEventsList?.length; i++) {
+				if (updatedEventsList?.[i]?.id === eventId) {
+					updatedEventsList[i] = { ...updatedEventsList[i], ...updateBody };
+				}
+			}
+			setInfo((prev) => ({ ...prev, eventsList: updatedEventsList }));
+		},
+		[info?.eventsList],
+	);
+
+	const filterDeletedEvent = useCallback(
+		(eventId) => {
+			const filteredEventsList = info?.eventsList?.filter((event) => event?.id !== eventId);
+			setInfo((prev) => ({ ...prev, eventsList: filteredEventsList }));
+		},
+		[info?.eventsList],
+	);
+
+	const onSelectSlot = useCallback((event) => {
+		setInfo((prev) => ({
+			...prev,
+			isCreateEventOpen: true,
+			selectedSlot: event,
+		}));
+	}, []);
+
+	const handleCloseEventPopup = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			isCreateEventOpen: false,
+			selectedSlot: null,
+		}));
+	}, []);
+
+	const onClose = useCallback(() => {
+		updateCalendarInfo('isEventSelected', false);
+		setInfo((prev) => ({ ...prev, selectedEvent: null }));
+	}, [info, updateCalendarInfo]);
+
+	// const handleDeleteEvent = useCallback(
+	// 	async (eventId, isGoogleEvent = false) => {
+	// 		if (!eventId) {
+	// 			message.error('Invalid event ID');
+	// 			return;
+	// 		}
+
+	// 		setInfo((prev) => ({ ...prev, deletingEvent: true }));
+	// 		try {
+	// 			await deleteCalendarEvent(eventId);
+	// 			message.success('Event deleted successfully');
+
+	// 			// Refresh the appropriate events list
+	// 			if (isGoogleEvent) {
+	// 				// For Google Calendar events, we need to refresh the Google events list
+	// 				const updatedGoogleEvents = info.googleEvents.filter(
+	// 					(event) => event.id !== eventId,
+	// 				);
+	// 				setInfo((prev) => ({ ...prev, googleEvents: updatedGoogleEvents }));
+	// 				// Also refresh the Google Calendar events from the API
+	// 				await getGoogleCalendarEvents();
+	// 			} else {
+	// 				// For regular calendar events, refresh the calendar events list
+	// 				await getCalendarEventsList(selectedDate);
+	// 			}
+	// 		} catch (error) {
+	// 			message.error('Failed to delete event. Please try again.');
+	// 			console.error('Error deleting event:', error);
+	// 		} finally {
+	// 			setInfo((prev) => ({ ...prev, deletingEvent: false }));
+	// 		}
+	// 	},
+	// 	[
+	// 		deleteCalendarEvent,
+	// 		getCalendarEventsList,
+	// 		getGoogleCalendarEvents,
+	// 		selectedDate,
+	// 		info.googleEvents,
+	// 	],
+	// );
+
+	return (
+		<>
+			<div className="calendarViewParentContainer">
+				<div className="scheduler">
+					<CalendarWrapper
+						events={info?.categoryBasedEventsList || []}
+						defaultView={'month'}
+						views={['month', 'week', 'day']}
+						toolbar={true}
+						className="custom"
+						selectable
+						onSelectSlot={(event) => onSelectSlot(event)}
+						onSelectEvent={(event) => handleSelectEvent(event)}
+						date={selectedDate}
+						popup
+						components={components}
+						allDayMaxRows={1}
+					/>
+				</div>
+				<EventDetailsModal
+					selectedEvent={info?.selectedEvent}
+					isEventSelected={isEventSelected}
+					updateCalendarInfo={updateCalendarInfo}
+					handleSelectEvent={setInfo}
+					categoryList={categoryList}
+					updateCalenderEventsList={updateCalenderEventsList}
+					filterDeletedEvent={filterDeletedEvent}
+					onClose={onClose}
+				/>
+				<EventsPopUp
+					open={info?.isCreateEventOpen}
+					closeModal={handleCloseEventPopup}
+					categoryList={categoryList}
+					selectedCategory={selectedCategory}
+					selectedSlot={info?.selectedSlot}
+				/>
+			</div>
+		</>
+	);
+};
+
+export default memo(CalendarView);

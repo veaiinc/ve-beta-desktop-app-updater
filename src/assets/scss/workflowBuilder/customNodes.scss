@@ -1,0 +1,141 @@
+.trigger-node {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	width: 350px;
+
+	.trigger-extra-div {
+		display: inline-flex;
+		padding: 8px;
+		align-items: center;
+		gap: 4px;
+		border-radius: 12px 12px 0px 0px;
+		border-top: 1px solid var(--stroke);
+		border-right: 1px solid var(--stroke);
+		border-left: 1px solid var(--stroke);
+		background: var(--card);
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		width: 83px;
+	}
+
+	.triggerNodeContentContainer {
+		display: flex;
+		width: 350px;
+		padding: 12px;
+		// flex-direction: column;
+		align-items: flex-start;
+		gap: 14px;
+		border-radius: 0px 12px 12px 12px;
+		border: 1px solid var(--stroke);
+		background: var(--card);
+		cursor: pointer;
+
+		.triggerAcutalContentContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: stretch;
+			gap: 6px;
+			flex: 1;
+			.triggerUpperContent {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 2px;
+				align-self: stretch;
+				padding-bottom: 12px;
+				border-bottom: 1px solid var(--stroke);
+
+				.triggerUpperContentTitle {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: normal;
+				}
+				.triggerUpperContentSubtitle {
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+	}
+}
+
+.action-node {
+	display: flex;
+	width: 350px;
+	padding: 12px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+	border-radius: 12px;
+	border: 1px solid var(--stroke);
+	background: var(--card);
+
+	.upper-action-node-container {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		align-self: stretch;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 600;
+		line-height: normal;
+		padding-bottom: 12px;
+		border-bottom: 1px solid var(--stroke);
+	}
+
+	.lower-action-node-container {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 2px;
+		align-self: stretch;
+
+		.lower-action-node-title {
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.lower-action-node-subtitle {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+		}
+	}
+}
+
+.rightNodeToolBar {
+	display: inline-flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+
+	span {
+		cursor: pointer;
+	}
+}
+.customNodesToolTip {
+	.ant-tooltip-inner {
+		background-color: transparent !important;
+	}
+}

@@ -1,0 +1,377 @@
+.promptPopupContainer {
+	display: flex;
+	width: 550px;
+	padding: 24px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	border-radius: 24px;
+	background: var(--card, #18191b);
+	border: 1px solid var(--stroke);
+
+	.promptPopupContainerHeader {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		align-self: stretch;
+		.promptPopupContainerHeaderLeft {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 4px;
+			.promptPopupContainerHeaderLeftTitle {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family, 'Inter');
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.promptPopupContainerHeaderLeftSubtitle {
+				background: var(--ai-color-code);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				font-family: var(--primary-font-family, 'Inter');
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		.promptPopupContainerHeaderRight {
+			display: flex;
+			gap: 6px;
+
+			button {
+				display: flex;
+				width: 40px;
+				height: 40px;
+				padding: 6px 10px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				border-radius: 8px;
+				outline: none;
+				border: none;
+				background-color: transparent;
+				cursor: pointer;
+				transition: background-color 0.3s ease;
+
+				&.active {
+					background-color: var(--card-hover, #202123);
+				}
+
+				&:hover {
+					background-color: var(--card-hover, #202123);
+				}
+			}
+		}
+	}
+	.promptPopupContainerEditableFields {
+		margin-top: -20px;
+		display: flex;
+		font-size: 14px;
+		color: var(--primary-font);
+		border: 1px solid var(--stroke);
+		padding: 2px 8px 3px;
+		border-radius: 16px;
+	}
+	.promptPopupContainerBody {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: flex-end;
+		gap: 12px;
+		align-self: stretch;
+
+		.feedbackInputContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+
+			h4 {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.feedbackInput {
+				display: flex;
+				height: 150px;
+				padding: 14px;
+
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+				border-radius: 10px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: var(--popup, #202123);
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				resize: none;
+			}
+		}
+
+		.promptPopupContainerBodyText {
+			align-self: stretch;
+			padding: 18px;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 24px;
+			border-radius: 10px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			background: var(--popup, #202123);
+			.promptPopupContainerBodyTextTooltip {
+				display: inline-flex;
+				flex-direction: row;
+				align-items: center;
+				gap: 4px;
+				padding: 4px 10px;
+				border-radius: 37px;
+				border: 1px solid var(--stroke);
+				background: var(--popup);
+			}
+		}
+		.promptPopupContainerEmailPromptContainer {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			.promptPopupContainerEmailPrompt {
+				color: var(--secondary-font, #797e86);
+				font-family: var(--primary-font-family, 'Inter');
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+	}
+	.promptPopupContainerSelectedFilesDiv {
+		display: flex;
+		flex-direction: row;
+		gap: 12px;
+		align-items: flex-start;
+		width: 100%;
+		flex-wrap: wrap;
+		.promptPopupContainerEachSelectedFile {
+			display: flex;
+			padding: 8px 12px;
+			min-width: 158px;
+			justify-content: space-between;
+			align-items: center;
+			gap: 10px;
+			border-radius: 100px;
+			background: var(--card);
+			.promptPopupContainerEachSelectedFileText {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 22px;
+			}
+		}
+	}
+	.feedbacks-container {
+		display: flex;
+		align-items: flex-start;
+		align-content: flex-start;
+		gap: 8px;
+		align-self: stretch;
+		flex-wrap: wrap;
+		.feedback-label {
+			display: flex;
+			padding: 6px 12px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			border-radius: 20px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			background: var(--card-over-card, #202123);
+			cursor: pointer;
+			font-size: 14px;
+			font-weight: 500;
+			color: var(--primary-font);
+
+			&.selected-feedback {
+				border-radius: 20px;
+				border: 1px solid var(--primary-button, #cfff48);
+				box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.04);
+				color: var(--primary-button, #cfff48);
+				transition: all 0.3s ease;
+			}
+
+			&:hover {
+				background: var(--card-over-card-hover, #2e2f32);
+			}
+		}
+	}
+	.promptPopupContainerFilesDiv {
+		display: flex;
+		padding: 18px;
+		flex-direction: column;
+		align-items: center;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 16px;
+		background: var(--card);
+		.promptPopupContainerSelectionFiles {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+			.promptPopupContainerSelectionFilesTitle {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.promptPopupContainerSelectionFilesSearch {
+				display: flex;
+				padding: 12px;
+				align-items: center;
+				gap: 8px;
+				align-self: stretch;
+				border-radius: 12px;
+				border: 1px solid var(--stroke);
+				.inputSearchText {
+					color: var(--secondary-font);
+					background-color: transparent;
+					border: none;
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					flex: 1 0 0;
+				}
+			}
+		}
+		.promptPopupOptionsContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 2px;
+			align-self: stretch;
+			.promptPopupOptionsContainerFiles {
+				display: flex;
+				padding: 8px 12px;
+				justify-content: space-between;
+				align-items: center;
+				gap: 10px;
+				align-self: stretch;
+				border-radius: 10px;
+				&.selected {
+					background: var(--card-hover);
+				}
+				.promptPopupContainerFilesList {
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					gap: 10px;
+					.promptPopupContainerFilesListFileIcon {
+						width: 24px;
+						height: 24px;
+						border-radius: 6px;
+						background: var(--card);
+					}
+					.promptPopupContainerFilesListFile {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 22px;
+						flex: 1 0 0;
+					}
+				}
+			}
+		}
+	}
+	.promptPopupFooter {
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+
+		.leftPart {
+			span {
+				color: var(--primary-button, #cfff48);
+				font-size: 14px;
+				font-weight: 500;
+				display: flex;
+				padding: 6px 12px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				border-radius: 32px;
+				border: 1px solid var(--primary-button, #cfff48);
+			}
+		}
+
+		.rightPart {
+			display: flex;
+			gap: 6px;
+			button {
+				display: flex;
+				padding: 6px 18px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				align-self: stretch;
+				outline: none;
+				border: none;
+				color: var(--primary-font);
+				font-size: 14px;
+				cursor: pointer;
+				border-radius: 100px;
+			}
+
+			.runPrompt {
+				background-color: var(--card-hover, #202123);
+				text-wrap: nowrap;
+				svg {
+					width: 16px;
+					height: 16px;
+					aspect-ratio: 1/1;
+				}
+
+				&:hover {
+					background-color: var(--card-over-card-hover);
+					transition: background-color 0.3s ease;
+				}
+			}
+
+			.cancel {
+				border: 1px solid var(--stroke, #2c2d2e);
+
+				background: transparent;
+
+				&:hover {
+					background: var(--card-hover);
+					transition: background 0.3s ease;
+				}
+			}
+		}
+	}
+}
+.editableContentStyles {
+	border-bottom: 1px dashed var(--stroke);
+	padding: 4px;
+	color: var(--primary-font);
+	outline: none;
+	min-height: 30px;
+	overflow-y: auto;
+}

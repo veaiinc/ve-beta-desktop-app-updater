@@ -1,0 +1,151 @@
+.slackActionsContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	width: 100%;
+	height: 100%;
+
+	.slackActionsContainerBody {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		flex-grow: 1;
+		overflow-y: auto;
+		display: flex;
+		gap: 12px;
+
+		.slackActionsContainerBodyItemHeader {
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			padding: 0 24px;
+		}
+
+		.slackActionsContainerBodyItem {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+			width: 100%;
+			flex-grow: 1;
+			padding: 0 24px;
+
+			.inputWrapper {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+
+				.inputLabel {
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+
+				.inputField {
+					display: flex;
+					padding: 12px;
+					justify-content: space-between;
+					align-items: center;
+					align-self: stretch;
+					border-radius: 12px;
+					border: 1px solid #2c2d2e;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					background-color: transparent;
+
+					&::placeholder {
+						color: var(--secondary-font);
+					}
+				}
+			}
+		}
+		.actionsSaveButton {
+			display: flex;
+			padding: 12px;
+			background-color: var(--card);
+			justify-content: center;
+			align-items: center;
+			cursor: pointer;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			border: none;
+			outline: none;
+			&:hover {
+				background-color: var(--card-over-card-hover);
+			}
+		}
+	}
+
+	.messageHeader {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 8px;
+		width: 100%;
+
+		.addLineButton {
+			background: var(--popup);
+			border: 1px solid var(--stroke);
+			border-radius: 6px;
+			color: var(--primary-font);
+			padding: 4px 12px;
+			font-size: 12px;
+			font-family: var(--primary-font-family);
+			cursor: pointer;
+			transition: all 0.2s ease;
+
+			&:hover {
+				background: var(--card-over-card-hover);
+			}
+		}
+	}
+
+	.messageLinesContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		width: 100%;
+
+		.messageLineWrapper {
+			display: flex;
+			gap: 8px;
+			align-items: center;
+
+			.deleteLineButton {
+				background: var(--card);
+				border: 1px solid var(--stroke);
+				border-radius: 50%;
+				color: var(--primary-font);
+				width: 24px;
+				height: 24px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				font-size: 16px;
+				transition: all 0.2s ease;
+
+				&:hover {
+					background: var(--card-over-card-hover);
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,114 @@
+.earlyAccess {
+	display: flex;
+	// max-width: 1440px;
+	justify-content: center;
+	height: 100%;
+	width: 100%;
+	align-items: center;
+	color: var(--primary-font);
+	font-family: var(--secondary-font-family);
+
+	.container {
+		display: flex;
+		// max-width: 1200px;
+		// padding: 170px 0 150px 0;
+		// max-width: 1700px;
+
+		// padding: 170px 471px 150px 471px;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 50px;
+		max-width: 1700px;
+		width: 100%;
+		flex: 1 0 0;
+		height: 785px;
+		margin: 0 50px;
+		align-self: stretch;
+		border-radius: 16px;
+		background: var(--primary-button, #79ecc9);
+
+		@media screen and (max-width: 768px) {
+			gap: 10px;
+			height: 100%;
+			margin: 0;
+		}
+
+		.subHeading {
+			color: var(--background-color, #0c0c0d);
+			text-align: center;
+			font-size: 18px;
+			font-weight: 500;
+			line-height: normal;
+			@media screen and (max-width: 768px) {
+				font-size: 12px;
+			}
+		}
+
+		.heading {
+			color: var(--background-color, #fff);
+			text-align: center;
+			font-size: 105px;
+			font-weight: 600;
+			line-height: 115px;
+			letter-spacing: -3.15px;
+			margin-bottom: 0;
+
+			@media screen and (max-width: 768px) {
+				font-size: 24px;
+			}
+		}
+
+		.description {
+			color: var(--background-color, #0c0c0d);
+			text-align: center;
+			font-size: 22px;
+			font-weight: 500;
+			line-height: 32px;
+			max-width: 792px;
+			width: 80%;
+		}
+
+		.ctaButton {
+			display: flex;
+			width: 150px;
+			padding: 14px 24px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 100px;
+			border: 1.5px solid var(--stroke, #e3e3e3);
+			color: var(--primary-button-font);
+			transition: all 0.2s ease-in;
+			font-weight: 500;
+			&:hover{
+				border-color: var(--stroke-hover);
+				background-color: var(--primary-button-font);
+				color: var(--primary-button);
+			}
+		}
+	}
+}
+
+@media screen and (max-width: 768px) {
+	.earlyAccess {
+		padding: 0 16px;
+		height: 500px;
+
+		.container {
+			.heading {
+				text-align: center;
+				font-size: 45px;
+				font-weight: 600;
+				line-height: 50px;
+			}
+
+			.description {
+				text-align: center;
+				font-size: 18px;
+				font-weight: 600;
+				line-height: 30px;
+			}
+		}
+	}
+}

@@ -1,0 +1,222 @@
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import '../../../assets/scss/scheduler/schedulerMainPage.scss';
+import SessionCards from '../../components/scheduler/SessionCard';
+import SchedulerAvailability from '../../components/scheduler/SchedulerAvailability';
+import CreateSessionModal from '../../components/modalsV2/calendar/CreateSessionModal';
+import UpdateSessionSlot from '../../components/modalsV2/calendar/UpdateSessionSlot';
+import SchedulerRightDrawer from '../../components/calendar/SchedulerRightDrawer';
+import Context from '../../../context/context';
+
+const SchedulerMainPage = () => {
+	const {
+		calendarInfo: { getSchedulerList, schedulerList, createdSession, resetSchedulerState },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		createSessionModal: false,
+		updateSlotModal: false,
+		sessionsLoading: true,
+		schedulerList: null,
+		createdSession: null,
+		selectedSlotData: null,
+		rightDrawerOpen: false,
+		rightDrawerSession: null,
+	});
+
+	useEffect(() => {
+		getSchedulerList();
+	}, []);
+
+	useEffect(() => {
+		if (schedulerList) {
+			setInfo((prev) => ({
+				...prev,
+				schedulerList,
+				sessionsLoading: false,
+			}));
+		}
+	}, [schedulerList]);
+
+	useEffect(() => {
+		if (createdSession) {
+			setInfo((prev) => ({
+				...prev,
+				createSessionModal: false,
+				schedulerList: [...prev.schedulerList, createdSession],
+			}));
+		}
+	}, [createdSession]);
+
+	//cleanup
+	useEffect(() => {
+		return () => {
+			resetSchedulerState();
+			setInfo({
+				createSessionModal: false,
+				updateSessionSlot: false,
+				sessionsLoading: true,
+				schedulerList: null,
+				createdSession: null,
+				selectedSlotData: null,
+				rightDrawerOpen: false,
+				rightDrawerSession: null,
+			});
+		};
+	}, []);
+
+	const handleCreateSessionModal = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			createSessionModal: !prev.createSessionModal,
+		}));
+	}, []);
+
+	const toggleUpdateSlotModal = useCallback((slotData) => {
+		setInfo((prev) => ({
+			...prev,
+			updateSlotModal: !prev.updateSlotModal,
+			selectedSlotData: slotData || null,
+		}));
+	}, []);
+
+	const handleUpdateSession = useCallback((updatedSession) => {
+		console.log('updatedSession', updatedSession);
+		setInfo((prev) => ({
+			...prev,
+			schedulerList: prev.schedulerList.map((session) =>
+				session._id === updatedSession._id ? updatedSession : session,
+			),
+			updateSlotModal: false,
+			selectedSlotData: null,
+		}));
+	}, []);
+
+	// --- NEW: Handle right drawer open/close and session selection ---
+	const openRightDrawer = (sessionId) => {
+		const session = info.schedulerList?.find((s) => s._id === sessionId);
+		if (session) {
+			setInfo((prev) => ({
+				...prev,
+				rightDrawerOpen: true,
+				rightDrawerSession: session,
+			}));
+		}
+	};
+	const closeRightDrawer = () => {
+		setInfo((prev) => ({ ...prev, rightDrawerOpen: false, rightDrawerSession: null }));
+	};
+
+	// --- Handle update and delete callbacks from drawer ---
+	const handleSessionUpdated = (updatedSession) => {
+		setInfo((prev) => ({
+			...prev,
+			schedulerList: prev.schedulerList.map((s) =>
+				s._id === updatedSession._id ? updatedSession : s,
+			),
+			rightDrawerSession: updatedSession,
+		}));
+	};
+	const handleSessionDeleted = (deletedSessionId) => {
+		setInfo((prev) => ({
+			...prev,
+			schedulerList: prev.schedulerList.filter((s) => s._id !== deletedSessionId),
+			rightDrawerOpen: false,
+			rightDrawerSession: null,
+		}));
+	};
+
+	return (
+		<>
+			<div className="schedulerMainPageParentContainer">
+				<div className="calendarHeaderContainer">
+					<div className="calendarHeaderTitle">
+						<span>Manage</span> Your Sessions
+					</div>
+					<div className="calendarHeaderSubTitle">
+						Effortlessly manage your time with AI scheduling.
+					</div>
+				</div>
+
+				<div className="schedulerMainPageContainer">
+					<div className="sessionGridParentContainer">
+						<div
+							className="sessionGridContainer addNewSession"
+							onClick={handleCreateSessionModal}
+						>
+							<div>+ New session</div>
+						</div>
+						{info.sessionsLoading ? (
+							<SessionCardSkeleton />
+						) : (
+							info?.schedulerList?.length > 0 &&
+							info?.schedulerList?.map((item) => (
+								<SessionCards
+									key={item._id}
+									item={item}
+									onEditClick={() => openRightDrawer(item._id)}
+								/>
+							))
+						)}
+					</div>
+
+					<SchedulerAvailability
+						updateSlotModal={info?.updateSlotModal}
+						toggleUpdateSlotModal={toggleUpdateSlotModal}
+						schedulerList={info?.schedulerList}
+					/>
+				</div>
+			</div>
+			<CreateSessionModal
+				open={info?.createSessionModal}
+				closeModal={handleCreateSessionModal}
+			/>
+			<UpdateSessionSlot
+				open={info?.updateSlotModal}
+				closeModal={toggleUpdateSlotModal}
+				schedulerList={info?.schedulerList}
+				selectedSlotData={info?.selectedSlotData}
+				updateCalendarInfo={handleUpdateSession}
+			/>
+
+			{/* --- Right Drawer for editing session --- */}
+			{info.rightDrawerOpen && (
+				<SchedulerRightDrawer
+					open={info.rightDrawerOpen}
+					onClose={closeRightDrawer}
+					mode="edit"
+					sessionId={info.rightDrawerSession?._id}
+					sessionData={info.rightDrawerSession}
+					onSessionUpdated={handleSessionUpdated}
+					onSessionDeleted={handleSessionDeleted}
+				/>
+			)}
+		</>
+	);
+};
+
+export default SchedulerMainPage;
+
+export const SessionCardSkeleton = () => {
+	return (
+		<>
+			{[{}, {}, {}].map((item, index) => (
+				<div key={index} className="sessionGridContainer sessionCardSkeleton">
+					<div className="sessionGridItem">
+						<div className="sessionImage" />
+						<div className="sessionContent">
+							<div className="sessionHeader">
+								<span />
+							</div>
+							<div className="sessionInfo">
+								<div className="duration" />
+								<div className="priceSeparator">|</div>
+								<div className="price" />
+							</div>
+							<div className="location" />
+						</div>
+					</div>
+				</div>
+			))}
+		</>
+	);
+};

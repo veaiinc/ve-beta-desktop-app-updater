@@ -1,0 +1,41 @@
+import React, { useContext } from 'react';
+import { Switch } from 'antd';
+import Context from '../../../../context/context';
+
+const AiEnabledSwitch = ({ isAiEnabled, isProcessing, setinfo }) => {
+	const {
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+	} = useContext(Context);
+
+	const onChangeHandler = (checked) => {
+		if (isProcessing) return;
+
+		if (
+			checked &&
+			(validateExpiryData?.liteImageLimitWithAiFace === 0 ||
+				validateExpiryData?.liteImageLimit <= validateExpiryData?.liteImageUsed)
+		) {
+			updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Lite-Gallery',
+			});
+			return;
+		}
+
+		setinfo((prev) => ({ ...prev, isAiEnabled: checked }));
+	};
+	return (
+		<div className="duplicate_div" style={{ width: '100%' }}>
+			<div className="text_div">
+				<h1>Enable AI Face Recognition</h1>
+			</div>
+			<Switch
+				checked={isAiEnabled || false}
+				onChange={onChangeHandler}
+				disabled={isProcessing}
+			/>
+		</div>
+	);
+};
+
+export default AiEnabledSwitch;

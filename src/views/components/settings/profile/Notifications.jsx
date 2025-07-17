@@ -1,0 +1,366 @@
+import React, { memo, useState, useEffect, useContext } from 'react';
+import { ReactComponent as WhatsappIcon } from '../../../../assets/svg/Settings/whatsapp-logo.svg';
+import { ReactComponent as SlackIcon } from '../../../../assets/svg/Settings/slackColor.svg';
+import GmailIcon from '../../../../assets/svg/login_page/GmailIcon';
+import { Switch, Checkbox } from 'antd';
+import Context from '../../../../context/context';
+import { message } from '../../globalComponents/CustomToast';
+
+const appTypes = [
+	{
+		id: 0,
+		appType: 'email',
+		icon: <GmailIcon />,
+		description: 'Receive emails to stay updated while offline. You can turn them off anytime',
+	},
+	{
+		id: 1,
+		appType: 'whatsapp',
+		icon: <WhatsappIcon />,
+		description: 'Get notifications via WhatsApp',
+	},
+	{
+		id: 2,
+		appType: 'slack',
+		icon: <SlackIcon />,
+		description: 'Receive direct notifications from Slack',
+	},
+];
+
+const defaultModuleAppTypeSelectAll = { email: false, whatsapp: false, slack: false };
+
+const Notifications = () => {
+	const {
+		profileInfo: {
+			tennantSettingsData,
+			getDefaultNotificationSettings,
+			defaultNotificationSettings,
+			updateNotificationMethod, // requires tenantId, app, appType
+			updateAppNotificationPreferenceForModule,
+			updateModuleAppTypeSelectAll,
+		},
+	} = useContext(Context);
+
+	const tenantId = tennantSettingsData?._id;
+	const notificationMethods = defaultNotificationSettings?.global;
+	const notificationPreferences = defaultNotificationSettings?.events;
+
+	const [info, setInfo] = useState({
+		email: false,
+		whatsapp: false,
+		slack: false,
+		selectedOptions: {},
+		moduleAppTypeSelectAll: {}, // {module: {appType: boolean}}
+	});
+
+	const areAllNotificationMethodsDisabled = !info?.email && !info?.whatsapp && !info?.slack;
+
+	const showNotificationPreferences =
+		notificationPreferences?.length && !areAllNotificationMethodsDisabled;
+
+	useEffect(() => {
+		if (showNotificationPreferences) {
+			const selectedOptions = { ...(info?.selectedOptions || {}) };
+			const moduleAppTypeSelectAll = { ...(info?.moduleAppTypeSelectAll || {}) };
+
+			notificationPreferences?.forEach(({ module, actions }) => {
+				actions?.forEach(({ action, apps }) => {
+					if (!selectedOptions[module]) {
+						selectedOptions[module] = {};
+					}
+					selectedOptions[module][action] = apps;
+				});
+				moduleAppTypeSelectAll[module] = defaultModuleAppTypeSelectAll;
+			});
+
+			setInfo((prev) => ({
+				...prev,
+				selectedOptions,
+				moduleAppTypeSelectAll,
+			}));
+		}
+	}, [showNotificationPreferences]);
+
+	useEffect(() => {
+		if (notificationMethods) {
+			const { email, whatsapp, slack } = notificationMethods;
+			setInfo((prev) => ({
+				...prev,
+				email,
+				whatsapp,
+				slack,
+			}));
+		}
+	}, [notificationMethods]);
+
+	useEffect(() => {
+		if (tenantId) {
+			getDefaultNotificationSettings(tenantId);
+		}
+	}, [tenantId]);
+
+	const handleNotificationMethodChange = async (app) => {
+		const isEnabled = !info?.[app];
+		setInfo((prev) => ({ ...prev, [app]: isEnabled }));
+		const response = await updateNotificationMethod(tenantId, app, isEnabled);
+		if (!response?.[0]) {
+			message?.error(
+				'An unexpected error occured while updating your notification preferences!',
+			);
+		}
+	};
+
+	const handleModuleNotificationPreference = async (module, action, app) => {
+		const isEnabled = !info?.selectedOptions?.[module]?.[action]?.[app];
+		const selectedOptions = { ...(info?.selectedOptions || {}) };
+		selectedOptions[module] = {
+			...selectedOptions[module],
+			[action]: { ...selectedOptions[module]?.[action], [app]: isEnabled },
+		};
+		setInfo((prev) => ({
+			...prev,
+			selectedOptions,
+		}));
+		const response = await updateAppNotificationPreferenceForModule(
+			module,
+			action,
+			app,
+			isEnabled,
+			tenantId,
+		);
+		if (!response?.[0]) {
+			message?.error(
+				'An unexpected error occured while updating your notification preferences!',
+			);
+			selectedOptions[module] = {
+				...selectedOptions[module],
+				[action]: { ...selectedOptions[module]?.[action], [app]: !isEnabled },
+			};
+			setInfo((prev) => ({
+				...prev,
+				selectedOptions,
+			}));
+		}
+	};
+
+	const handleSetModuleAppTypeSelectAll = async (module, appType) => {
+		try {
+			const isEnabled = !info?.moduleAppTypeSelectAll?.[module]?.[appType];
+			const selectedOptions = info?.selectedOptions;
+			const updatedSelectedOptions = Object.fromEntries(
+				Object.entries(info?.selectedOptions?.[module] || {}).map(([action, apps]) => [
+					action,
+					{ ...apps, [appType]: isEnabled },
+				]),
+			);
+			const moduleAppTypeSelectAll = info?.moduleAppTypeSelectAll;
+			moduleAppTypeSelectAll[module] = {
+				...moduleAppTypeSelectAll[module],
+				[appType]: isEnabled,
+			};
+			selectedOptions[module] = updatedSelectedOptions;
+
+			setInfo((prev) => ({
+				...prev,
+				moduleAppTypeSelectAll,
+				selectedOptions,
+			}));
+
+			const response = await updateModuleAppTypeSelectAll(
+				module,
+				appType,
+				isEnabled,
+				tenantId,
+			);
+			if (!response?.[0]) {
+				message?.error(
+					'An unexpected error occurred while updating your notification preferences!',
+				);
+				moduleAppTypeSelectAll[module] = {
+					...moduleAppTypeSelectAll[module],
+					[appType]: !isEnabled,
+				};
+				selectedOptions[module] = updatedSelectedOptions;
+
+				setInfo((prev) => ({
+					...prev,
+					moduleAppTypeSelectAll,
+					selectedOptions,
+				}));
+			}
+		} catch (error) {
+			message?.error('Failed to update notification preferences');
+			console.error(error);
+		}
+	};
+
+	return (
+		<div className="notifications-container">
+			<div className="notifications-container-header">
+				<div className="notificationTitleContainer">
+					<div className="notificationTitle">Notification Methods</div>
+					<div className="notificationTitleDescription">
+						Select where and when you'll be notified
+					</div>
+				</div>
+				<div className="notifiactionSwitchesContainer">
+					{appTypes?.map(({ id, appType, icon, description }) => (
+						<div key={id} className="notifiactionSwitchesContainer-item">
+							<div className="notifiactionSwitchesContainer-item-left">
+								<div className="notifiactionSwitchesContainer-item-left-icon">
+									{icon}
+								</div>
+								<div className="notifiactionSwitchesContainerContent">
+									<div className="notifiactionSwitchesContainerContent-title">
+										{appType}
+									</div>
+									<div className="notifiactionSwitchesContainerContent-description">
+										{description}
+									</div>
+								</div>
+							</div>
+							<div>
+								<Switch
+									checked={info?.[appType]}
+									onChange={() => handleNotificationMethodChange(appType)}
+									size="small"
+									className="notification-switch"
+								/>
+							</div>
+						</div>
+					))}
+				</div>
+			</div>
+			{showNotificationPreferences && (
+				<div className="showNotificationPreference">
+					<div className="notificationContainerContentTitle">
+						Notification Preferences
+					</div>
+					<div className="notifications-container-content">
+						<div className="notificationContainerContent-items">
+							{appTypes
+								?.filter(({ appType }) => info?.[appType])
+								?.map(({ id, appType }) => (
+									<div
+										key={id}
+										className="notificationContainerContent-items-item"
+									>
+										{appType}
+									</div>
+								))}
+						</div>
+						<div className="notificationContainerOptions">
+							{notificationPreferences?.map(({ module, actions }, idx) => (
+								<React.Fragment key={idx}>
+									<div className="notificationContainerOptions-item-container">
+										<div className="notificationContainerOptions-item">
+											{/* replace "workflow" with "document" */}
+											{module?.includes('calendarevent')
+												? module?.replace('calendarevent', 'calendar event')
+												: module?.replace(/workflow/g, 'document ')}
+										</div>
+										<div className="notificationContainerOptions-item-container">
+											{appTypes
+												?.filter(({ appType }) => info?.[appType])
+												?.map(({ id, appType }) => (
+													<div
+														key={id}
+														style={{
+															width:
+																appType === 'whatsapp'
+																	? '70px'
+																	: '36px',
+															display: 'flex',
+															alignItems: 'center',
+															justifyContent: 'center',
+														}}
+													>
+														<Checkbox
+															className="custom-notification-checkbox"
+															checked={
+																info?.moduleAppTypeSelectAll?.[
+																	module
+																]?.[appType]
+															}
+															style={{
+																width: 'fit-content',
+																height: '16px',
+															}}
+															onChange={() =>
+																handleSetModuleAppTypeSelectAll(
+																	module,
+																	appType,
+																)
+															}
+														/>
+													</div>
+												))}
+										</div>
+									</div>
+									<div className="notificationContainerOptions-items">
+										{actions?.map(({ action }) => (
+											<div className="notificationContainerOptions-item-container">
+												<div className="notificationContainerOptionsTitle">
+													{/* replace "workflow" with "document" */}
+													{action?.includes('calendarevent')
+														? action?.replace(
+																'calendarevent',
+																'calendar event',
+														  )
+														: action?.replace(/workflow/g, 'document ')}
+												</div>
+												<div className="notificationContainerOptions-item-checkbox">
+													{appTypes
+														?.filter(({ appType }) => info?.[appType])
+														?.map(({ id, appType }) => (
+															<div
+																key={id}
+																style={{
+																	width:
+																		appType === 'whatsapp'
+																			? '70px'
+																			: '36px',
+																	display: 'flex',
+																	alignItems: 'center',
+																	justifyContent: 'center',
+																}}
+															>
+																<Checkbox
+																	className="custom-notification-checkbox"
+																	checked={
+																		info?.selectedOptions?.[
+																			module
+																		]?.[action]?.[appType]
+																	}
+																	style={{
+																		width: 'fit-content',
+																		height: '16px',
+																	}}
+																	onChange={() =>
+																		handleModuleNotificationPreference(
+																			module,
+																			action,
+																			appType,
+																		)
+																	}
+																/>
+															</div>
+														))}
+												</div>
+											</div>
+										))}
+									</div>
+									{idx !== notificationPreferences?.length - 1 && (
+										<div className="divider"></div>
+									)}
+								</React.Fragment>
+							))}
+						</div>
+					</div>
+				</div>
+			)}
+		</div>
+	);
+};
+
+export default memo(Notifications);

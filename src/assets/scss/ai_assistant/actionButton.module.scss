@@ -1,0 +1,35 @@
+.actionButton {
+	display: flex;
+	height: 46px;
+	padding: 12px 22px;
+	justify-content: center;
+	align-items: center;
+	gap: 6px;
+	border-radius: 59px;
+	font-family: var(--primary-font-family);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	cursor: pointer;
+	box-sizing: border-box;
+	border: none;
+	border: 1px solid transparent;
+	transition: all 0.3s ease-in;
+	background-color: var(--card);
+
+	border: 1px solid var(--stroke);
+
+	&:enabled {
+		color: var(--primary-button-font);
+		background-color: var(--primary-button);
+	}
+	&:disabled {
+		background-color: var(--card-over-card);
+		color: var(--secondary-font);
+		cursor: not-allowed;
+		&:hover {
+			opacity: 0.8;
+		}
+	}
+}

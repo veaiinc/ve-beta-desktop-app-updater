@@ -1,0 +1,86 @@
+.askAiParentContainer {
+	display: flex;
+	width: 100%;
+	padding: 16px 24px;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 8px;
+	align-self: stretch;
+	border-radius: 24px;
+	border: 1px solid var(--stroke);
+	background: var(--card);
+	cursor: default;
+
+	.aiHeadWrapper {
+		display: flex;
+		padding: 4px 0px;
+		align-items: center;
+		// gap: 12px;
+		margin-left: -13px; // custom style for AI sparkel  => not fixed yet
+		align-self: stretch;
+		height: 27px;
+
+		.aiIcon {
+			display: flex;
+			width: 16px;
+			height: 16px;
+			padding: 1px;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.aiLabel {
+			font-family: var(--primary-font-family);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			background: var(--ai-color-code);
+			background-clip: text;
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+		}
+	}
+
+	.aiBodyWrapper {
+		display: flex;
+		padding: 4px 0px;
+
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+	}
+
+	.aiActionBtn {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		position: relative;
+		background: var(--ai-color-code);
+		padding: 1px;
+		border-radius: 100px;
+		box-shadow: 0px 0px 5px 0px rgba(var(--ai-color-code), 1);
+		cursor: pointer;
+
+		span {
+			background: var(--card);
+			padding: 12px;
+			border-radius: 100px;
+			width: 100px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+
+			color: var(--primary-font);
+			text-align: center;
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+}

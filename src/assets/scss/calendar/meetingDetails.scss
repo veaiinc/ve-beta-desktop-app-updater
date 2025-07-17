@@ -1,0 +1,115 @@
+.meetingCardParentContainer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	width: 100%;
+	padding: 18px var(--Spacing-space-8, 16px);
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	flex-shrink: 0;
+	align-self: stretch;
+	border-radius: 12px;
+	border: 1px solid var(--stroke);
+	background: var(--popup);
+	cursor: default;
+	overflow: hidden; //to hide svg element overflow
+	user-select: none;
+
+	.meetingCard {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		align-items: flex-start;
+		flex: 1 0 0;
+		align-self: stretch;
+		gap: 25px;
+
+		.timeDurationWrapper {
+			display: flex;
+			// padding: 0px 5px;
+			justify-content: space-between;
+			align-items: center;
+			align-self: stretch;
+
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			// font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+
+			.durationBadge {
+				position: relative;
+				display: flex;
+				padding: 11px 14px;
+				justify-content: center;
+				align-items: center;
+				gap: 8px;
+
+				border-radius: var(--cartCount, 20px);
+				border: 1px solid var(--stroke);
+				// background: rgba(96, 85, 236, 0.2);
+				// box-shadow: 0px 0px 40px 0px rgba(96, 85, 236, 0.15);
+				// backdrop-filter: blur(50px);
+
+				.indicatorDot {
+					position: absolute;
+					top: 0px;
+					right: 0px;
+					width: 10px;
+					height: 10px;
+					background-color: var(--accent-color);
+					border-radius: 50%;
+				}
+			}
+		}
+
+		.meetingDetailsWrapper {
+			display: flex;
+			flex-direction: column;
+			padding: 0px 5px;
+			justify-content: center;
+			align-items: self-start;
+			gap: 7px;
+
+			font-family: var(--primary-font-family);
+			font-size: 10px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: normal;
+			color: var(--primary-font, rgba(242, 242, 243, 1));
+
+			.meetingTitle {
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				max-width: 165px;
+				color: var(--primary-font);
+				font-size: 18px;
+			}
+		}
+	}
+
+	.personImage {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		width: 120px; /* Adjust size as needed */
+		height: auto;
+	}
+
+	.personImage img {
+		width: 100%;
+		height: auto;
+	}
+
+	.ellipse {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		width: 120px; /* Adjust size as needed */
+		height: auto;
+	}
+}

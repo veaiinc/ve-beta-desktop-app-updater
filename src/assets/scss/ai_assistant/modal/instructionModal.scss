@@ -1,0 +1,69 @@
+.instruction-modal {
+	display: flex;
+	width: 520px;
+	padding: 32px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	border-radius: 32px;
+	background: var(--card-over-card);
+
+	&-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+		flex: 1 0 0;
+		width: 100%;
+
+		h2 {
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 20px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		svg {
+			cursor: pointer;
+		}
+	}
+
+	&-body {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		align-self: stretch;
+	}
+
+	&-footer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 16px;
+		align-self: stretch;
+
+		&-delete-button {
+			all: unset;
+			cursor: pointer;
+			svg {
+				width: 24px;
+				height: 24px;
+				path {
+					stroke: var(--primary-font) !important;
+				}
+			}
+
+			&:hover {
+				svg {
+					path {
+						stroke: var(--error) !important;
+					}
+					filter: drop-shadow(0px 0px 1px var(--error));
+				}
+			}
+		}
+	}
+}

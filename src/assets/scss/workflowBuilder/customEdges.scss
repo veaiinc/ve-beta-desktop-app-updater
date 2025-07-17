@@ -1,0 +1,70 @@
+.edgeButton {
+	width: 24px;
+	height: 24px;
+	background: var(--card);
+	border: 1px solid var(--stroke);
+	cursor: pointer;
+	border-radius: 50%;
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 1px 4px var(--card);
+	transition: all 0.2s ease;
+	padding: 0;
+	outline: none;
+
+	&:hover {
+		background: var(--card-hover);
+		transform: scale(1.1);
+	}
+
+	&:active {
+		transform: scale(0.95);
+	}
+}
+
+.addNewNodesPopUpContainer {
+	display: flex;
+	width: 780px;
+
+	padding: 20px 72px;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 12px;
+	flex-shrink: 0;
+
+	.addNodesTypeCategories {
+		cursor: pointer;
+		display: flex;
+		width: 150px;
+		padding: 12px;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 4px;
+		flex-shrink: 0;
+		border-radius: 12px;
+		border: 1px solid var(--stroke);
+		background: var(--card);
+		overflow: hidden;
+		color: var(--primary-font);
+		text-overflow: ellipsis;
+
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+}
+
+.reactFlowNodestoolTipContainer {
+	max-width: unset !important;
+
+	.ant-tooltip-inner {
+		padding: 0 !important;
+		background-color: transparent !important;
+		transform: translateY(-53%);
+	}
+}

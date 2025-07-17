@@ -1,0 +1,155 @@
+import { useContext, useEffect, useState, memo } from 'react';
+import Context from '../../../../context/context';
+
+import PeopleCard from '../galleryView/PeopleCard';
+import { ReactComponent as DownArrow } from '../../../../assets/svg/gallery/arrow-down.svg';
+import { ReactComponent as SearchIcon } from '../../../../assets/svg/workflow/search.svg';
+// import { useLocation } from 'react-router-dom';
+import InfiniteScroll from '../../globalComponents/InfiniteScroll';
+import { FetchMoreLoaderComp } from '../../../../helpers';
+
+const AiPeopleContainer = ({
+	galleryId,
+	galleryCredentials,
+	handleFaceClick,
+	showSearch,
+	searchValue,
+	handleSearch,
+}) => {
+	const {
+		galleryInfo: { getAiFace, aiFace },
+	} = useContext(Context);
+	const [info, setInfo] = useState({
+		page: 1,
+		hasNextPage: false,
+		showMore: false,
+	});
+	useEffect(() => {
+		if (!aiFace) {
+			getAiFace(galleryId, 1, 65, true);
+		}
+		setInfo((prev) => ({
+			...prev,
+			hasNextPage: aiFace?.hasNextPage,
+		}));
+	}, [aiFace, galleryId]);
+
+	return (
+		<>
+			{aiFace?.faces?.length > 0 && (
+				<div
+					className="aiPeople-container"
+					onClick={() => {
+						setInfo((prev) => {
+							const newShowMore = !prev.showMore;
+							if (!newShowMore) {
+								setTimeout(() => {
+									document
+										.getElementById('galleryScrollTarget_aiPeople')
+										?.scrollTo({
+											top: 0,
+											behavior: 'smooth',
+										});
+								}, 100);
+							}
+
+							return { ...prev, showMore: newShowMore };
+						});
+					}}
+				>
+					<div className="aiPeople-container-header">
+						<p>Ai People</p>
+						<div
+							className={`aiPeople-person-arrow ${info?.showMore ? 'rotated' : ''}`}
+							onClick={(e) => {
+								e.stopPropagation();
+								setInfo((prev) => {
+									const newShowMore = !prev.showMore;
+									if (!newShowMore) {
+										setTimeout(() => {
+											document
+												.getElementById('galleryScrollTarget_aiPeople')
+												?.scrollTo({
+													top: 0,
+													behavior: 'smooth',
+												});
+										}, 100);
+									}
+
+									return { ...prev, showMore: newShowMore };
+								});
+							}}
+						>
+							<DownArrow />
+						</div>
+					</div>
+					<div className="aiPeople-container-scroll">
+						<InfiniteScroll
+							dataLength={aiFace?.faces?.length || 0}
+							next={() => getAiFace(galleryId, aiFace?.currentPage + 1, 65)}
+							hasMore={info?.hasNextPage || false}
+							loader={<FetchMoreLoaderComp />}
+							height={'100%'}
+							style={{
+								maxHeight: info?.showMore ? '390px' : '195px',
+								overflowY: info?.showMore ? 'scroll' : 'hidden',
+							}}
+						>
+							<div
+								className={`aiPeople ${info?.showMore ? 'aiPeople-showMore' : ''}`}
+								id="galleryScrollTarget_aiPeople"
+							>
+								{aiFace?.faces?.map((face, index) => {
+									const originalWidth =
+										face?.imageDetails?.activeVersion?.originalWidth;
+									const originalHeight =
+										face?.imageDetails?.activeVersion?.originalHeight;
+									const boundingBox = face?.displayImage?.boundingBox;
+
+									if (
+										!originalWidth ||
+										!originalHeight ||
+										!boundingBox ||
+										typeof originalWidth !== 'number' ||
+										typeof originalHeight !== 'number'
+									) {
+										return null; // Skip rendering until data is ready
+									}
+
+									const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+									const src = `${galleryCredentials?.baseURL}/${face?.displayImage?.optimizedImageS3Key}?${params}`;
+
+									return (
+										<div
+											key={index}
+											className="aiPeople-person"
+											onClick={() => handleFaceClick(face)}
+										>
+											<div className="aiPeople-person-image">
+												<PeopleCard
+													url={src}
+													people={face?.displayImage}
+													thumbwidth={58}
+													thumbHeight={58}
+													key={face?._id}
+													match={{
+														params: { tenantID: face?.tenant_id },
+													}}
+													originalWidth={originalWidth}
+													originalHeight={originalHeight}
+												/>
+											</div>
+											<p>{face?.name}</p>
+										</div>
+									);
+								})}
+							</div>
+						</InfiniteScroll>
+					</div>
+				</div>
+			)}
+		</>
+	);
+};
+
+export default memo(AiPeopleContainer);

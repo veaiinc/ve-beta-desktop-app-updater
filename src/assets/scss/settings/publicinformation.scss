@@ -1,0 +1,229 @@
+.publicInformationComponent {
+	h1 {
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 32px;
+		font-style: normal;
+		font-weight: 300;
+		line-height: normal;
+	}
+	.header {
+		display: grid;
+		grid-template-columns: repeat(12, 1fr);
+		gap: 5px;
+		border-radius: 24px;
+		border: 1px solid var(--stroke, #313336);
+		padding: 40px;
+
+		.logoDivProfile {
+			grid-column: span 4;
+		}
+
+		.detailsBody {
+			grid-column: span 8;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			gap: 16px;
+
+			.flex-gap {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 16px;
+				width: 100%;
+
+				.inputContainer,
+				.inputDiv {
+					width: 100%;
+				}
+			}
+
+			.inputDiv {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+
+				.label {
+					color: #b0b0b0;
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px; /* 133.333% */
+					margin-left: -10px;
+				}
+
+				.inputdiv {
+					display: flex;
+					height: 48px;
+					padding: 11px 14px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+				}
+
+				.inputBox {
+					// padding: 0;
+					border-radius: 10px !important;
+					border: 1px solid var(--stroke) !important;
+
+					input {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 26px; /* 162.5% */
+						border: none;
+						outline: none;
+						background-color: transparent;
+						width: 100%;
+					}
+
+					.PhoneInput {
+						width: 100%;
+						color: var(--primary-font);
+
+						.PhoneInputInput {
+							color: var(--primary-font);
+						}
+
+						.PhoneInputCountrySelect {
+							color: var(--primary-font);
+							background-color: transparent;
+						}
+
+						.PhoneInputCountrySelectArrow {
+							color: var(--primary-font);
+							opacity: 1;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.imageCircleDiv {
+		width: 100px;
+		height: 100px;
+		border-radius: 50%;
+		border: 1px solid var(--stroke);
+		position: relative;
+		margin: auto;
+		overflow: hidden;
+
+		img {
+			width: 100%;
+			height: 100%;
+			border-radius: 50%;
+			object-fit: cover;
+		}
+
+		.noImageText {
+			width: 100%;
+			height: 100%;
+			border-radius: 50%;
+			background: var(--primary-button);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 24px;
+			color: var(--primary-font);
+			font-weight: bold;
+			font-family: var(--primary-font-family);
+			padding: 0px;
+		}
+
+		.editImage {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			height: 100%;
+			width: 100%;
+			background: rgba(0, 0, 0, 0.5);
+			border-radius: 50%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			opacity: 0;
+			transition: opacity 0.3s ease;
+			cursor: pointer;
+
+			svg {
+				width: 24px;
+				height: 24px;
+			}
+		}
+
+		&:hover {
+			.editImage {
+				opacity: 1;
+			}
+		}
+	}
+
+	.upload-brand-embeded-btn {
+		width: 100px;
+		margin: auto;
+		cursor: pointer;
+
+		.upload-brand-placeholder {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: 100px;
+			height: 100px;
+			border-radius: 50%;
+			border: 1px dashed var(--stroke);
+			color: var(--secondary-font);
+			cursor: pointer;
+			position: relative;
+			font-size: 12px;
+			font-weight: 400;
+			line-height: 16px;
+			font-family: var(--primary-font-family);
+			color: var(--secondary-font);
+			gap: 10px;
+			align-items: center;
+
+			svg {
+				width: 33px;
+				height: 24px;
+				margin-right: 3px;
+			}
+		}
+
+		.icon_name_div {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			align-items: center;
+			justify-content: center;
+		}
+	}
+}
+
+// Mobile responsive styles
+@media (max-width: 768px) {
+	.header {
+		grid-template-columns: 1fr;
+		gap: 24px;
+
+		.logoDivProfile {
+			grid-column: 1;
+			order: 1;
+			justify-self: center;
+		}
+
+		.detailsBody {
+			grid-column: 1;
+			order: 2;
+		}
+	}
+
+	h1 {
+		font-size: 24px;
+	}
+}

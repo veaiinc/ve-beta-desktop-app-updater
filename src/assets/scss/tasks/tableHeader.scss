@@ -1,0 +1,15 @@
+.tableHeader {
+    display: flex;
+    align-items: center;
+    background: #111111;
+    // Remove or comment out the top border
+    // border-top: 1px solid #171819;
+    border-bottom: 1px solid #171819;
+    height: 32px;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+
+    // ... rest of the styles
+} 

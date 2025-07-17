@@ -1,0 +1,10 @@
+.filterCheckBoxParentContainer {
+	display: flex;
+	width: 11px;
+	height: 11px;
+	padding: 4px;
+	align-items: center;
+	gap: 10px;
+	border-radius: 100px;
+	border: 2px solid var(--error);
+}

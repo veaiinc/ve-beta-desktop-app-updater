@@ -1,0 +1,316 @@
+.listViewHeaderContainer {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+
+	.listViewHeaderTitleWrapper {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+
+		.listViewHeader-title {
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 24px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.listViewHeader {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			height: fit-content;
+			border-bottom: 1px solid #171819;
+			gap: 16px;
+
+			.listViewHeaderTabsContainer {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				height: 43px;
+				flex: 1;
+				max-width: calc(100% - 300px);
+				overflow: visible;
+				min-width: 0;
+			}
+
+			.listViewHeaderActions {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				flex-shrink: 0;
+				width: fit-content;
+				padding: 4px 0;
+				button {
+					border: none;
+					background: none;
+					width: 20px;
+					height: 20px;
+					cursor: pointer;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+
+					svg {
+						path {
+							stroke: #e8e8e8 !important;
+						}
+					}
+				}
+
+				svg {
+					cursor: pointer;
+				}
+
+				.listViewHeaderAddTaskButton {
+					display: flex;
+					width: fit-content;
+					height: fit-content;
+					padding: 10px 12px;
+					justify-content: center;
+					align-items: center;
+					gap: 16px;
+					border-radius: 100px;
+					border: 1px solid transparent;
+					background-color: var(--primary-font);
+					color: var(--card);
+					cursor: pointer;
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					transition: all 0.3s ease;
+					white-space: nowrap;
+
+					&:hover {
+						background-color: transparent;
+						border: 1px solid var(--primary-font);
+						color: var(--primary-font);
+					}
+
+					&:disabled {
+						background-color: var(--card);
+						color: var(--secondary-font);
+						cursor: not-allowed;
+
+						&:hover {
+							background: var(--card);
+							border: 1px solid transparent;
+						}
+					}
+				}
+
+				.inputAndCloseContainer {
+					display: flex;
+					width: 215px;
+					height: 40px;
+					padding: 12px 10px;
+					align-items: center;
+					gap: 10px;
+					border-radius: 8px;
+					border: 1px solid var(--stroke);
+					.searchInputTag {
+						flex: 1;
+						background-color: transparent;
+						color: var(--primary-font);
+						transition: all 0.3s ease;
+						border: none;
+						font-family: var(--primary-font-family);
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+
+						&::placeholder {
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+						}
+					}
+
+				}
+				.list-separator {
+					width: 1px;
+					height: 28px;
+					background: var(--stroke, #2C2D2E);
+				}
+			}
+		}
+		.listViewHeaderTabsContainer {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			height: 43px;
+			width: 100%;
+			overflow: visible;
+
+			.listViewHeaderTabsAddButton {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 20px;
+				height: 20px;
+				background: none;
+				border: none;
+				cursor: pointer;
+			}
+		}
+	}
+	.listViewOptionsContainer {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		gap: 16px;
+		padding: 8px 0;
+		.listView-sortContainer {
+			border-right: 1px solid var(--stroke);
+			padding-right: 16px;
+			flex-shrink: 0;
+
+			svg {
+				path {
+					stroke: var(--primary-button) !important;
+				}
+			}
+
+			.listView-sortWrapper {
+				display: flex;
+				padding: 8px;
+				justify-content: center;
+				align-items: center;
+				gap: 8px;
+				width: fit-content;
+				overflow: hidden;
+				border-radius: 42px;
+				border: 1px solid var(--stroke);
+				background-color: var(--popup);
+				color: var(--primary-button);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px; /* 142.857% */
+				cursor: pointer;
+
+				.listView-sortField {
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 20px; /* 142.857% */
+					display: flex;
+					align-items: center;
+				}
+			}
+		}
+		.listView-filterContainer {
+			display: flex;
+			flex-grow: 1;
+			align-items: center;
+			gap: 8px;
+			width: fit-content;
+			overflow: auto;
+			.listView-addFilterButton {
+				all: unset;
+				flex-shrink: 0;
+				display: flex;
+				padding: 10px 12px;
+				justify-content: center;
+				align-items: center;
+				cursor: pointer;
+				transition: all 0.3s ease-in-out;
+				gap: 8px;
+				border-radius: 22px;
+
+				svg {
+					path {
+						stroke: var(--secondary-font) !important;
+					}
+				}
+
+				.listView-addFilterButtonText {
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+
+				&:hover {
+					background: var(--card);
+				}
+			}
+		}
+	}
+}
+
+.listView-sortTooltip {
+	min-width: 300px;
+	max-width: fit-content;
+	padding: 8px;
+	border-radius: 8px;
+	background-color: var(--card);
+	gap: 8px;
+	.listView-sortItemContainer {
+		margin-bottom: 8px;
+		.listView-sortItem {
+			display: flex;
+			align-items: center;
+			flex-direction: row;
+			gap: 8px;
+			
+			select {
+				width: 120px;
+				cursor: pointer;
+				height: 32px;
+				border-radius: 4px;
+				border: 1px solid var(--stroke);
+				background-color: transparent;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px; /* 142.857% */
+				text-indent: 8px;
+			}
+
+			.listView-sortItemRemoveButton {
+				width: 20px;
+				height: 20px;
+				border: none;
+				background: none;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				svg {
+					path {
+						stroke: var(--primary-font) !important;
+					}
+				}
+			}
+		}
+	}
+	.listView-sortItemAddButton {
+		display: flex;
+		align-items: center;
+		justify-content: start;
+		gap: 8px;
+		cursor: pointer;
+		span {
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px; /* 142.857% */
+		}
+	}
+}

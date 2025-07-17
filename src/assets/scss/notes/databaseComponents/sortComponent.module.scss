@@ -1,0 +1,73 @@
+.sortComponentWrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	width: fit-content;
+	font-family: var(--primary-font-family);
+
+	.sortComponentHeader {
+		display: flex;
+		gap: 8px;
+		width: 100%;
+		align-items: center;
+
+		.sortComponentHeaderTitle {
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--primary-font);
+		}
+	}
+
+	.sortComponentBody {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		width: 100%;
+
+		.sortComponentBodyItem {
+			display: flex;
+			justify-content: flex-start;
+			align-items: center;
+			gap: 4px;
+			border: 1px solid var(--stroke);
+			border-radius: 4px;
+			padding: 4px 8px;
+			width: fit-content;
+			cursor: pointer;
+
+			.sortComponentBodyItemValue {
+				font-size: 14px;
+				font-weight: 400;
+				color: var(--primary-font);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.sortComponentBodyItemTitle {
+				font-size: 14px;
+				font-weight: 400;
+				color: var(--primary-font);
+			}
+
+			.sortComponentBodyItemRemove {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+
+				svg {
+					path {
+						stroke: var(--error);
+					}
+				}
+			}
+		}
+
+		.noSort {
+			font-size: 14px;
+			font-weight: 400;
+			color: var(--secondary-font);
+		}
+	}
+}

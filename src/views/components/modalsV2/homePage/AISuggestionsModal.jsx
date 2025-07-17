@@ -1,0 +1,776 @@
+import { memo, useCallback, useState, useEffect, useRef } from 'react';
+import '../../../../assets/scss/home_page/modals/aiSuggestionsModal.scss';
+import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as ArrowRightSvg } from '../../../../assets/svg/home_page/arrow-right.svg';
+import { ReactComponent as DeleteSvg } from '../../../../assets/svg/delete.svg';
+import { ReactComponent as AgentsSvg } from '../../../../assets/svg/sidebar/agentsIcon.svg';
+// import CreditCoinImage from '../../../../assets/images/creditCoin.png';
+import {
+	handleCombinedChainOfThought,
+	updateCitationIdsWithCitations
+} from '../../../../helpers/chatHelpers';
+import { Markdown } from '../../../../helpers/markdownHelper';
+import { useNavigate } from 'react-router-dom';
+import ObjectID from 'bson-objectid';
+import { Drawer, Tooltip } from 'antd';
+import Context from '../../../../context/context';
+import { useContext } from 'react';
+import { message } from '../../globalComponents/CustomToast';
+import {
+	getFaviconUrl,
+	getWebsiteName,
+	fileTypeIcons,
+	redirectTo,
+	redirectTypeMapper
+} from '../../../../helpers';
+import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
+import PromptPopup from '../../homePage/PromptPopup';
+// import ProactiveAIShare from '../../../features/homePage/proactiveai/ProactiveAIShare';
+import jwtDecode from 'jwt-decode';
+import ChainOfThoughtInterpreter from '../../homePage/ChainOfThoughtInterpreter';
+import FormDescription from '../../forms/FormDescription';
+
+const tabOptions = [
+	{ label: 'Actions', value: 'actions' },
+	{ label: 'Report', value: 'report' },
+	{ label: 'Sources', value: 'sources' }
+];
+
+const AISuggestionsModal = ({
+	open,
+	onClose,
+	data,
+	onNextCardClick,
+	onPrevCardClick,
+	totalDocs,
+	selectedCardNumber,
+	shouldShowCards = true,
+	selectedOption = null
+}) => {
+	const {
+		templates: {
+			updateStateValues,
+			pendingActionsUpdate,
+			getAISuggestedPendingActions,
+			handleGlobalChatMessages
+		}
+	} = useContext(Context);
+	const [info, setInfo] = useState({
+		isAIResultsExpanded: true,
+		isReportExpanded: false,
+		isQuestionsExpanded: false,
+		questionsAnswers: {},
+		activeTab: 'actions',
+		chainOfThoughtData: {
+			hasChainOfThought: false
+		},
+		feedbackPopupOpen: false,
+		isDeleting: false,
+		tabOptions: []
+	});
+
+	const resizableContainerRef = useRef(null);
+	const widthRef = useRef(null);
+	const animationFrameId = useRef(null);
+	const mouseXPosition = useRef(null);
+	const navigate = useNavigate();
+	const bodyRef = useRef(null);
+
+	useEffect(() => {
+		const token = localStorage.getItem('usertoken');
+		const { user_id } = jwtDecode(token);
+		setInfo((prev) => ({ ...prev, currentUserId: user_id }));
+	}, []);
+
+	useEffect(() => {
+		if (!data) return;
+
+		const {
+			title,
+			description,
+			confidence_score,
+			priority,
+			research_report,
+			suggested_actions,
+			suggested_prompts,
+			usages,
+			categories,
+			createdAt,
+			thinker_sources,
+			sessionId
+		} = data || {};
+
+		const { chain_of_thought } = data;
+		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || null);
+		const accessType = (data?.permissions?.sharedWith || [])?.filter(
+			(eachItem) => eachItem?.userId === info?.currentUserId
+		)?.[0]?.access;
+
+		const visibilityMap = {
+			actions: suggested_actions?.length || suggested_prompts?.length,
+			report: research_report?.length || chainOfThoughtData?.hasChainOfThought,
+			sources: thinker_sources?.length
+		};
+
+		const options = tabOptions?.filter((option) => visibilityMap[option?.value]);
+
+		setInfo((prev) => ({
+			...prev,
+			selectedFeedback: data?.rating,
+			chainOfThoughtData,
+			accessType,
+			tabOptions: options,
+			activeTab: options?.[0]?.value
+		}));
+		if (bodyRef?.current) {
+			bodyRef?.current?.scrollTo({
+				top: 0,
+				behavior: 'smooth'
+			});
+		}
+	}, [data]);
+
+	const handlePromptClick = useCallback(
+		(prompt) => {
+			let chatPrompt = 'Proactive AI\n\n';
+			chatPrompt += `Title : ${data?.title}\n\n`;
+			chatPrompt += `Description : ${data?.description}\n\n`;
+			chatPrompt += `Prompt : ${prompt}`;
+
+			if (typeof updateStateValues === 'function') {
+				updateStateValues({ activePromptForChat: chatPrompt });
+			}
+			onClose?.();
+			navigate(`/chat/${ObjectID()?.toString()}`);
+		},
+		[data]
+	);
+
+	const handleActionClick = useCallback((prompt, proactiveSessionId) => {
+		const sessionId = ObjectID()?.toString();
+		updateStateValues({
+			activePromptForChat: prompt,
+			proactiveInfoForChat: {
+				isProactive: true,
+				proactiveSessionId
+			}
+		});
+		navigate(`/chat/${sessionId}`);
+	}, []);
+
+	const handleViewReportClick = useCallback(
+		(data) => {
+			const report = info?.chainOfThoughtData;
+			const messages = [
+				{
+					type: 'user',
+					moduleType: 'ai_suggestion_report',
+					data,
+					message: data?.title
+				},
+				{
+					type: 'AI',
+					moduleType: 'ai_suggestion_report',
+					data: {
+						research_report: data?.research_report
+					},
+					processing: 'Report',
+					report,
+					follow_up_query: data?.suggested_prompts,
+					stream_end: true
+				}
+			];
+			const sessionId = ObjectID()?.toString();
+			handleGlobalChatMessages({
+				updateExtraInfo: true,
+				recentChatMessages: messages,
+				sessionId
+			});
+			navigate(`/chat/${sessionId}`);
+		},
+		[info?.chainOfThoughtData]
+	);
+
+	const handleRunBtnClick = () => {
+		const questions = data?.informationRequests;
+		const answers = info?.questionsAnswers || {};
+
+		// Check if there's at least one non-empty answer
+		const hasAnswer = Object?.values(answers)?.some((a) => a?.trim()?.length > 0);
+		if (!hasAnswer) return;
+
+		let prompt = '';
+		if (questions?.length > 0) {
+			const answersText = questions
+				?.map((q, idx) => {
+					const answer = answers?.[idx]?.trim();
+					if (!answer) return null;
+					return `Q${idx + 1}: ${q?.question}\nA${idx + 1}: ${answer}`;
+				})
+				?.filter(Boolean)
+				?.join('\n\n');
+
+			prompt = `\n\nThese are answers of your questions:\n${answersText}\n`;
+		}
+
+		updateStateValues({ activePromptForChat: prompt });
+		navigate(`/chat/${ObjectID()?.toString()}`);
+	};
+
+	const handlePrevCardClick = () => {
+		onPrevCardClick?.();
+	};
+
+	const handleNextCardClick = () => {
+		onNextCardClick?.();
+	};
+
+	const handleMouseDown = (e) => {
+		if (!resizableContainerRef.current) return;
+
+		mouseXPosition.current = e.clientX;
+		widthRef.current = resizableContainerRef.current.offsetWidth;
+
+		document.addEventListener('mousemove', handleMouseMove);
+		document.addEventListener('mouseup', handleMouseUp);
+	};
+
+	const handleMouseMove = (e) => {
+		if (!resizableContainerRef.current || widthRef.current == null) return;
+		if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
+
+		animationFrameId.current = requestAnimationFrame(() => {
+			const deltaX = mouseXPosition.current - e.clientX;
+			const newWidth = widthRef.current + deltaX;
+
+			const minWidth = 600;
+			const maxWidth = window.innerWidth * 0.8 || 1000;
+			const clampedWidth = Math.max(minWidth, Math.min(newWidth, maxWidth));
+
+			resizableContainerRef.current.style.width = `${clampedWidth}px`;
+			resizableContainerRef.current.style.userSelect = 'none';
+
+			widthRef.current = clampedWidth;
+			mouseXPosition.current = e.clientX;
+		});
+	};
+
+	const handleMouseUp = () => {
+		if (animationFrameId.current) {
+			cancelAnimationFrame(animationFrameId.current);
+			animationFrameId.current = null;
+		}
+		document.removeEventListener('mousemove', handleMouseMove);
+		document.removeEventListener('mouseup', handleMouseUp);
+	};
+
+	const handleTabClick = (tab) => {
+		if (info?.activeTab !== tab) {
+			setInfo((prev) => ({
+				...prev,
+				activeTab: tab
+			}));
+		}
+	};
+
+	const handleThumbsClick = (thumbs) => {
+		setInfo((prev) => ({ ...prev, selectedFeedback: thumbs, feedbackPopupOpen: true }));
+	};
+
+	const handleDeleteCard = useCallback(async () => {
+		if (!data?._id || info.isDeleting) return;
+		const type = 'delete';
+		setInfo((prev) => ({ ...prev, isDeleting: true }));
+		const res = await pendingActionsUpdate(data?._id, { isDeleted: true }, type);
+		if (res?.[0] === true) {
+			getAISuggestedPendingActions(null, false, 'delete', data?._id);
+			onClose?.();
+		} else {
+			message.error('Failed to delete pending action');
+		}
+		setInfo((prev) => ({ ...prev, isDeleting: false }));
+	}, [data?._id, getAISuggestedPendingActions, onClose, pendingActionsUpdate, info.isDeleting]);
+
+	const handleOpenFeedbackPopup = () => {
+		setInfo((prev) => ({
+			...prev,
+			feedbackPopupOpen: true
+		}));
+	};
+
+	const {
+		title,
+		description,
+		confidence_score,
+		priority,
+		research_report,
+		suggested_actions,
+		suggested_prompts,
+		usages,
+		categories,
+		createdAt,
+		thinker_sources,
+		sessionId
+	} = data || {};
+
+	const creditUsed = usages?.[0]?.credit?.toFixed(2);
+	const createdDate = new Date(createdAt * 1000)?.toLocaleDateString('en-US', {
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric'
+	});
+
+	return (
+		<Drawer
+			open={open}
+			onClose={onClose}
+			placement="right"
+			width={'auto'}
+			style={{ padding: '0px', backgroundColor: 'transparent' }}
+			styles={{ header: { display: 'none' }, body: { padding: '0px', width: 'auto' } }}
+			rootClassName="ai-suggestions-drawer"
+			forceRender={false}
+			maskClassName="drawer-mask"
+		>
+			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
+				<div className="drag-handler" onMouseDown={handleMouseDown} />
+
+				<div className="ai-suggestions-container">
+					<div className="drawer-header">
+						<div className="header-content">
+							<div className="left-container">
+								{shouldShowCards && (
+									<>
+										<div className="total-docs">
+											<div className="current-doc">{selectedCardNumber}</div>
+											<div className="doc-divider">/</div>
+											<div className="total">{totalDocs}</div>
+										</div>
+										<div className="prev-btn" onClick={handlePrevCardClick}>
+											<ChevronRightThinSvg
+												style={{ transform: 'rotate(270deg)' }}
+											/>
+										</div>
+										<div className="next-btn" onClick={handleNextCardClick}>
+											<ChevronRightThinSvg
+												style={{ transform: 'rotate(270deg)' }}
+											/>
+										</div>
+									</>
+								)}
+							</div>
+
+							<div className="right-container">
+								{/* <div
+									className={`starLogoContainer ${
+										data?.isFavourite === true ? 'active' : ''
+									}`}
+									onClick={(e) => {
+										onFavouriteClick(data?._id);
+									}}
+								>
+									<StarSvg />
+								</div> */}
+								{selectedOption !== 'action' && (
+									<div
+										className="btn teach-me-btn"
+										onClick={handleOpenFeedbackPopup}
+									>
+										<AgentsSvg style={{ color: 'var(--primary-button)' }} />{' '}
+										Teach me
+									</div>
+								)}
+
+								{/* <ProactiveAIShare proactiveAiId={data?._id} /> */}
+
+								{/* <div className="btn download-btn">
+									<DownloadSvg />
+								</div> */}
+								{createdAt && (
+									<Tooltip
+										title={
+											<div className="tooltipOption">
+												Created At: {createdDate}
+											</div>
+										}
+										color="transparent"
+										arrow={false}
+									>
+										<div className="prioritySuggestionModal">
+											<div className="priority-text">{`${createdDate}`}</div>
+										</div>
+									</Tooltip>
+								)}
+								{creditUsed && (
+									<Tooltip
+										title={
+											<div className="tooltipOption">
+												Credits Used: {creditUsed}
+											</div>
+										}
+										color="transparent"
+										arrow={false}
+									>
+										<div className="prioritySuggestionModal">
+											{/* <div className="icon">
+												<img
+													src={CreditCoinImage}
+													width={16}
+													height={16}
+													alt="credit-coin"
+												/>
+											</div> */}
+											<div className="priority-text">{`${creditUsed} C`}</div>
+										</div>
+									</Tooltip>
+								)}
+
+								{priority && (
+									<Tooltip
+										title={
+											<div className="tooltipOption">
+												Priority: {priority}
+											</div>
+										}
+										color="transparent"
+										arrow={false}
+									>
+										<div className="prioritySuggestionModal">
+											<div
+												className="indicator"
+												style={{
+													background:
+														priority === 'High'
+															? 'red'
+															: priority === 'Medium'
+															? 'orange'
+															: 'green'
+												}}
+											></div>
+											<div className="priority-text">{`${priority}`}</div>
+										</div>
+									</Tooltip>
+								)}
+
+								{confidence_score && (
+									<Tooltip
+										title={
+											<div className="tooltipOption">
+												Confidence Score: {confidence_score * 100}%
+											</div>
+										}
+										trigger="hover"
+										arrow={false}
+										placement="top"
+										color="transparent"
+									>
+										<div className="confidence">
+											<div className="value">{`${
+												confidence_score * 100
+											}%`}</div>
+										</div>
+									</Tooltip>
+								)}
+								{selectedOption !== 'action' && (
+									<Tooltip
+										title={<div className="tooltipOption">Delete</div>}
+										placement="bottom"
+										color="transparent"
+										arrow={false}
+									>
+										<div className="btn delete-btn" onClick={handleDeleteCard}>
+											<DeleteSvg />
+										</div>
+									</Tooltip>
+								)}
+							</div>
+						</div>
+					</div>
+
+					{selectedOption === 'action' ? (
+						<>
+							{data?.collectionType === 'forms' && (
+								<FormDescription response={data} activeTab={'responses'} />
+							)}
+						</>
+					) : (
+						<>
+							<div className="body" ref={bodyRef}>
+								<div className="header-title-text">{title || ''}</div>
+
+								<div className="body-header-wrapper">
+									<div className="body-header">
+										<div className="description">{description || ''}</div>
+									</div>
+
+									<div className="suggestions-info">
+										<div className="info"></div>
+
+										<div className="more-info">
+											{data?.knowledgeBase?.[0]?.metadata?.connectedEmail && (
+												<Tooltip
+													title={
+														<div className="tooltipOption">
+															Triggered Source
+														</div>
+													}
+													color="transparent"
+													arrow={false}
+													placement="bottom"
+												>
+													<div className="triggered-source-container">
+														<span
+															className="triggered-source-value"
+															onClick={() =>
+																redirectTo(
+																	data?.moduleType,
+																	data?.knowledgeBase?.[0]
+																		?.metadata?.identifier
+																)
+															}
+														>
+															{fileTypeIcons[data?.moduleType]}
+															{
+																data?.knowledgeBase?.[0]?.metadata
+																	?.connectedEmail
+															}
+														</span>
+													</div>
+												</Tooltip>
+											)}
+											{categories?.length > 0 &&
+												categories?.map((category, idx) => (
+													<div key={idx} className="category">
+														{category}
+													</div>
+												))}
+										</div>
+									</div>
+								</div>
+
+								<div className="tabs-container">
+									<div className="tab-buttons">
+										{info?.tabOptions?.map((option, index) => (
+											<div
+												key={index}
+												className={`tab-btn ${
+													info?.activeTab === option?.value
+														? 'active'
+														: ''
+												}`}
+												onClick={() => handleTabClick(option?.value)}
+											>
+												{option?.label}
+											</div>
+										))}
+									</div>
+								</div>
+								{info?.activeTab === 'actions' && (
+									<div className="situation-overview-container">
+										{suggested_actions?.length > 0 && (
+											<div className="suggested-actions-wrapper">
+												<div className="suggested-action-text">Actions</div>
+												<div className="suggested-actions-container">
+													{Array?.isArray(suggested_actions)
+														? suggested_actions?.map((item, index) => (
+																<div
+																	className="suggested-action"
+																	key={index}
+																	onClick={() =>
+																		handleActionClick(
+																			item,
+																			sessionId
+																		)
+																	}
+																>
+																	{updateCitationIdsWithCitations(
+																		item,
+																		thinker_sources || []
+																	)}
+																</div>
+														  ))
+														: suggested_actions}
+												</div>
+											</div>
+										)}
+
+										{suggested_prompts?.length > 0 && (
+											<div className="suggested-prompts-container">
+												<div className="suggested-prompts-title">
+													Prompts
+												</div>
+												<div
+													className="suggested-prompts"
+													onClick={(e) => e.stopPropagation()}
+												>
+													{Array?.isArray(suggested_prompts)
+														? suggested_prompts?.map((item, index) => (
+																<div
+																	className="prompt-item"
+																	key={index}
+																	onClick={() =>
+																		handlePromptClick(item)
+																	}
+																>
+																	<div className="logo">
+																		<ArrowRightSvg />
+																	</div>
+																	<div className="item-text">
+																		{updateCitationIdsWithCitations(
+																			item,
+																			thinker_sources || []
+																		)}
+																	</div>
+																</div>
+														  ))
+														: suggested_prompts}
+												</div>
+											</div>
+										)}
+									</div>
+								)}
+
+								{info?.activeTab === 'report' && (
+									<div className="cot">
+										<div className="chain-of-thought-container">
+											{info?.chainOfThoughtData?.hasChainOfThought && (
+												<div className="chain-of-thought-wrapper">
+													<div className="chain-of-thought-text">
+														Chain of thought
+													</div>
+													<div className="chain-of-thought-content">
+														<ChainOfThoughtInterpreter
+															data={info?.chainOfThoughtData}
+															citations={thinker_sources || null}
+															confidenceScore={confidence_score}
+														/>
+													</div>
+												</div>
+											)}
+
+											{research_report && (
+												<div className={`report-container`}>
+													<div
+														className="report-description"
+														onClick={(e) => e.stopPropagation()}
+													>
+														<Markdown
+															citations={thinker_sources || null}
+														>
+															{research_report || ''}
+														</Markdown>
+													</div>
+												</div>
+											)}
+										</div>
+									</div>
+								)}
+
+								{info?.activeTab === 'sources' && (
+									<div className="source-content">
+										{(thinker_sources || [])?.map((citation, idx) => (
+											<div key={citation?.id || idx}>
+												<div
+													className="citation-item"
+													onClick={() =>
+														redirectTo?.(
+															citation?.type,
+															citation?.[
+																redirectTypeMapper?.[citation?.type]
+															]
+														)
+													}
+												>
+													<div className="citation-header">
+														<div className="citation-icon">
+															{citation?.type === 'url' ? (
+																getFaviconUrl(citation?.name) ? (
+																	<img
+																		src={getFaviconUrl(
+																			citation?.name
+																		)}
+																		alt="favicon"
+																		className="favicon-image"
+																	/>
+																) : (
+																	<div className="company-icon">
+																		{getWebsiteName(
+																			citation?.name
+																		)?.charAt(0)}
+																	</div>
+																)
+															) : (
+																<div className="company-icon">
+																	{citation?.type === 's3_key'
+																		? fileTypeIcons[
+																				citation?.name?.match(
+																					/\.(\w+)$/
+																				)?.[1]
+																		  ]
+																		: fileTypeIcons[
+																				citation?.type
+																		  ]}
+																</div>
+															)}
+														</div>
+														<div className="citation-details">
+															<div className="website-name">
+																{citation?.type === 'url'
+																	? getWebsiteName(citation?.name)
+																	: citation?.name}
+															</div>
+															{citation?.type === 'url' && (
+																<div className="citation-url">
+																	{citation?.name}
+																</div>
+															)}
+
+															{citation?.snippet && (
+																<div className="citation-title">
+																	{citation?.snippet}
+																</div>
+															)}
+														</div>
+													</div>
+													<div className="arrow-icon">
+														<ArrowRightIcon />
+													</div>
+												</div>
+												<div className="citation-divider" />
+											</div>
+										))}
+									</div>
+								)}
+							</div>
+
+							<div className="footer">
+								<div className="footer-content">
+									<div className="btns-container">
+										<button
+											className="report-btn"
+											onClick={() => handleViewReportClick(data)}
+										>
+											Ask AI
+										</button>
+									</div>
+								</div>
+							</div>
+						</>
+					)}
+				</div>
+			</div>
+
+			<PromptPopup
+				messageId={data?._id}
+				liked={info?.selectedFeedback}
+				open={info?.feedbackPopupOpen}
+				feedbackPopupOpen={info?.feedbackPopupOpen}
+				closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
+				feedbackType="pendingActionFeedback"
+				setLiked={(liked) => setInfo((prev) => ({ ...prev, selectedFeedback: liked }))}
+			/>
+		</Drawer>
+	);
+};
+
+export default memo(AISuggestionsModal);

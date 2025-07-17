@@ -1,0 +1,92 @@
+import { memo, useContext, useRef, useEffect, useCallback, useState } from 'react';
+import '../../../assets/scss/home_page/suggestions.scss';
+import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
+import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
+import ObjectID from 'bson-objectid';
+import Context from '../../../context/context';
+import { useNavigate } from 'react-router-dom';
+
+const Suggestions = ({ landingPage = false, chatQuery = '', styles = {} }) => {
+	const {
+		templates: { updateStateValues, getChatBoxSuggestions, chatBoxSuggestions },
+	} = useContext(Context);
+	const timeoutIdRef = useRef(null);
+	const suggestionsContainerRef = useRef(null);
+	const navigate = useNavigate();
+
+	const [info, setInfo] = useState({
+		height: '0px',
+	});
+
+	useEffect(() => {
+		handleDebounceChatQueryChange(chatQuery);
+	}, [chatQuery]);
+
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			height:
+				chatBoxSuggestions?.length > 0
+					? `${suggestionsContainerRef.current.scrollHeight}px`
+					: '0px',
+		}));
+	}, [chatBoxSuggestions]);
+
+	useEffect(() => {
+		return () => {
+			clearTimeout(timeoutIdRef.current);
+		};
+	}, []);
+
+	const handleDebounceChatQueryChange = useCallback((query) => {
+		if (timeoutIdRef.current) {
+			clearTimeout(timeoutIdRef.current);
+		}
+		if (query?.length > 0) {
+			timeoutIdRef.current = setTimeout(() => {
+				getChatBoxSuggestions({ partial_query: query });
+			}, 400);
+		}
+	}, []);
+
+	const handleSuggestionClick = (suggestion) => {
+		const sessionId = ObjectID()?.toString();
+		updateStateValues({
+			activePromptForChat: suggestion,
+		});
+		if (landingPage) {
+			navigate(`/c/${sessionId}`);
+		} else {
+			navigate(`/chat/${sessionId}`);
+		}
+	};
+	return (
+		<div
+			className="suggestions-wrapper"
+			style={{
+				height: landingPage ? '250px' : info?.height,
+				overflow: landingPage ? 'auto' : 'hidden',
+				...styles,
+			}}
+			ref={suggestionsContainerRef}
+		>
+			{chatBoxSuggestions?.map((suggestion, index) => (
+				<div
+					className="suggestion-container"
+					key={index}
+					onClick={() => handleSuggestionClick(suggestion)}
+				>
+					<div className="icon-container">
+						<SearchSvg />
+					</div>
+					<div className="suggestion-text">{suggestion}</div>
+					<div className="arrow-icon">
+						<ArrowRightSvg />
+					</div>
+				</div>
+			))}
+		</div>
+	);
+};
+
+export default memo(Suggestions);

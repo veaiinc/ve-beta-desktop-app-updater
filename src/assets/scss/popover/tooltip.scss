@@ -1,0 +1,30 @@
+.tooltipParentContainer {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 8px;
+	flex: 1 0 0;
+	width: 160px;
+	padding: var(--Spacing-space-7, 12px);
+	border-radius: 4px;
+	background: var(--popup);
+
+	.tooltipHeadertext {
+		color: var(--primary-font);
+		text-align: center;
+		font-family: var(--primary-font-family);
+		font-size: 11px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+	.tooltipHeaderSubtext {
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
+		font-size: 10px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+	}
+}

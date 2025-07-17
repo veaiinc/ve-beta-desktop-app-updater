@@ -1,0 +1,55 @@
+.options-dropdown-tooltip {
+	z-index: 10000;
+	max-width: unset;
+	.dropdown-options-container {
+		width: 502px;
+		max-height: 196px;
+		display: flex;
+		padding: 8px 0px;
+		flex-direction: column;
+		align-items: flex-start;
+		border-radius: 10px;
+		border: 1px solid var(--stroke, #2c2d2e);
+		background: var(--popup, #202123);
+		position: relative;
+		top: 10px;
+		left: 20px;
+		overflow-y: auto;
+
+		.options-container {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			.option {
+				flex-grow: 1;
+				display: flex;
+				gap: 2px;
+				padding: 14px;
+				justify-content: space-between;
+				align-items: center;
+				align-self: stretch;
+				cursor: pointer;
+				&:hover {
+					background: var(--card-over-card-hover, #27282b);
+				}
+
+				.text-container {
+					display: -webkit-box;
+					-webkit-box-orient: vertical;
+					-webkit-line-clamp: 1;
+					line-clamp: 1;
+					flex: 1 0 0;
+					overflow: hidden;
+					color: var(--primary-font, #f2f2f3);
+					text-overflow: ellipsis;
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+					text-transform: lowercase;
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,16 @@
+.custom-notification {
+	position: fixed;
+	top: 20px;
+	z-index: 1000;
+	transition: right 0.5s ease-in-out; /* Slide-in transition */
+}
+
+/* Animation for sliding in */
+.custom-notification.slide-in {
+	right: 20px; /* Final position */
+}
+
+/* Animation for sliding out */
+.custom-notification.slide-out {
+	right: -350px; /* Slide-out position */
+}

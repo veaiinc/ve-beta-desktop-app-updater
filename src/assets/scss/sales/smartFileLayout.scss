@@ -1,0 +1,22 @@
+.smartFileLayoutParentContainer {
+	width: 100vw;
+	height: 100dvh;
+	background: var(--background-color);
+	display: flex;
+	flex-direction: column;
+
+	.smartFileHeader {
+		padding: 24px 36px 24px 42px;
+		max-height: 58px;
+	}
+
+	.childrenContainer {
+		flex: 1;
+		background: inherit;
+		flex: 1;
+		height: 100%;
+		width: 100%;
+		max-width: 1200px;
+		margin: auto;
+	}
+}

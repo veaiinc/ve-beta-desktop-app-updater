@@ -1,0 +1,123 @@
+.createModalMainContainer {
+	display: flex;
+	padding: 40px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 32px;
+	width: 621px;
+	border-radius: 32px;
+	background: var(--popup);
+	// box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+	input {
+		color: var(--primary-font);
+	}
+	.headingContainer {
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+		.heading {
+			color: var(--primary-font);
+			font-size: 18px;
+			font-weight: 500;
+			line-height: 26px; /* 144.444% */
+		}
+		.closeIcon {
+			cursor: pointer;
+		}
+	}
+	.subHeading {
+		color: var(--secondary-font);
+		font-size: 11px;
+		font-weight: 400;
+		line-height: 16px; /* 145.455% */
+
+		span {
+			color: var(--error);
+			margin-left: 4px;
+		}
+	}
+
+	.datePicker {
+		background-color: transparent;
+		color: var(--primary-font);
+		padding: 11px 14px;
+		border: 1px solid var(--border);
+		input {
+			height: 18px;
+			border: none !important;
+			outline: none !important;
+			&::placeholder {
+				color: var(--secondary-font); // Adjust this color as needed
+			}
+		}
+		span {
+			svg {
+				fill: var(--secondary-font);
+			}
+		}
+	}
+
+	.inputContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		.error {
+			color: var(--error);
+			font-size: 11px;
+			font-weight: 400;
+			line-height: 16px;
+		}
+		.gallery-name {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			width: 100%;
+			input {
+				display: flex;
+				padding: 11px 14px;
+				width: 100%;
+				gap: 10px;
+				background: transparent;
+				align-self: stretch;
+				border-radius: 10px;
+				border: 1px solid var(--border);
+			}
+		}
+		.gallery-date {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			width: 100%;
+			input {
+				display: flex;
+				padding: 11px 14px;
+				width: 100%;
+				gap: 10px;
+				background: transparent;
+				align-self: stretch;
+				border-radius: 10px;
+				border: 1px solid var(--border);
+			}
+		}
+	}
+	.create-gallery-button {
+		display: flex;
+		width: 100%;
+		padding: 16px 24px;
+		justify-content: center;
+		align-items: center;
+		gap: 4px;
+		align-self: stretch;
+		border-radius: 100px;
+		background: var(--primary-button);
+		cursor: pointer;
+		border: none;
+		p {
+			color: var(--primary-button-font);
+			font-size: 13px;
+			font-weight: 500;
+			line-height: 16px;
+			letter-spacing: 0.26px;
+		}
+	}
+}

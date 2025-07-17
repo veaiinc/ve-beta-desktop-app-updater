@@ -1,0 +1,581 @@
+.formLeadsParentContainer {
+	color: var(--primary-font);
+	width: 100%;
+	height: calc(100vh - 110px);
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	padding: 18px 20px 0px 38px;
+	overflow: hidden;
+
+	.loaderContainer {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 80vh;
+	}
+
+	.errState,
+	.noFormFound {
+		color: red;
+		text-align: center;
+		margin-top: 40px;
+	}
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+	& {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+
+	.formWrapper {
+		display: flex;
+		gap: 35px;
+		width: 100%;
+		height: 100%;
+		justify-content: space-between;
+		overflow: hidden;
+
+		&::-webkit-scrollbar {
+			display: none;
+		}
+		& {
+			-ms-overflow-style: none;
+			scrollbar-width: none;
+		}
+	}
+
+	.headerContainer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+
+		.backBtn {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			cursor: pointer;
+			font-size: 14px;
+		}
+	}
+
+	.formDescription {
+		width: 50%;
+		padding: 12px;
+		margin: 50px;
+		background: var(--card);
+		border-radius: 24px;
+		height: calc(98% - 40px);
+		overflow-y: auto;
+
+		&::-webkit-scrollbar {
+			width: 6px;
+		}
+		&::-webkit-scrollbar-track {
+			background: var(--card);
+			border-radius: 8px;
+		}
+		&::-webkit-scrollbar-thumb {
+			background: var(--stroke);
+			border-radius: 8px;
+
+			&:hover {
+				background: var(--primary-font);
+			}
+		}
+	}
+
+	.backBtnContainer {
+		padding: 5px;
+	}
+
+	.formEnquiryContainer {
+		display: flex;
+		gap: 25px;
+		width: 55%;
+
+		.headerContainer {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+
+			.headerTitle {
+				font-size: 20px;
+			}
+		}
+
+		.button-space {
+			display: flex;
+			width: 100%;
+			margin-top: 16px;
+			gap: 16px;
+			flex-wrap: wrap;
+		}
+
+		.button-con {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.edit-button {
+			display: flex;
+			height: 32px;
+			padding: 8px 10px;
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+			border-radius: 8px;
+			border: 1px solid var(--stroke);
+			cursor: pointer;
+
+			&:hover {
+				background: var(--card-over-card-hover);
+			}
+
+			.copy-link {
+				path {
+					fill: var(--secondary-font) !important;
+				}
+			}
+
+			.edit {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 18px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				max-width: 100px;
+			}
+		}
+
+		.delete-button {
+			display: flex;
+			height: 32px;
+			padding: 8px 10px;
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+			border-radius: 8px;
+			border: 1px solid var(--error);
+			cursor: pointer;
+
+			&:hover {
+				background: rgba(199, 27, 58, 0.06);
+			}
+
+			.delete-button-text {
+				color: var(--error);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 18px;
+			}
+		}
+
+		.dividerr {
+			width: 1px;
+			height: 18px;
+			border-radius: 0.5px;
+			opacity: 0.3;
+			margin-top: 6px;
+			background: var(--secondary-font);
+		}
+
+		.formContainer {
+			display: flex;
+			gap: 24px;
+			width: 100%;
+			border-radius: 24px;
+			padding: 15px;
+			flex-direction: column;
+
+			.detailsContainer {
+				display: flex;
+				padding: 12px;
+				flex-direction: column;
+				align-items: center;
+				gap: 6px;
+				align-self: stretch;
+				border-radius: 16px;
+				border: 1px solid var(--stroke);
+				background: var(--card);
+				width: 100%;
+
+				.headerContainer {
+					display: flex;
+					justify-content: space-between;
+					gap: 8px;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					width: 100%;
+
+					.header-left {
+						display: flex;
+						justify-content: space-between;
+						color: var(--primary-font);
+						flex: 1;
+					}
+				}
+
+				.liveStatusContainer {
+					display: flex;
+					align-items: center;
+					gap: 16px;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					justify-content: flex-start;
+					align-self: flex-start !important;
+
+					.time {
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 20px;
+					}
+
+					.file-status {
+						display: flex;
+						height: 20px;
+						padding: 12px 13px;
+						justify-content: center;
+						align-items: center;
+						gap: 8px;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 14px;
+						border-radius: 100px;
+						border: 1px solid var(--stroke);
+						background: var(--card-over-card);
+					}
+				}
+			}
+		}
+	}
+
+	.formDetailsContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		align-self: stretch;
+
+		.headerContainer {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			width: 100%;
+			padding: 0 16px;
+
+			.formViewTabsContainer {
+				display: inline-flex;
+				align-items: center;
+				gap: 4px;
+				align-self: stretch;
+
+				.tabContainer {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					gap: 2px;
+
+					.formViewTab {
+						cursor: pointer;
+						display: flex;
+						padding: 10px 12px;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: 8px;
+						opacity: 0.7;
+						transition: opacity 0.3s ease;
+						font-size: 14px;
+
+						&:hover {
+							opacity: 0.8;
+						}
+					}
+
+					.divider {
+						width: 50px;
+						height: 2px;
+						background: var(--primary-font);
+						opacity: 0;
+						transition: opacity 0.3s ease;
+
+						&.active {
+							opacity: 1;
+						}
+					}
+				}
+			}
+
+			.downloadButton {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				cursor: pointer;
+
+				.downloadButtonItem {
+					position: relative;
+
+					svg {
+						width: 20px;
+						height: 20px;
+					}
+
+					&:hover::after {
+						content: 'Download';
+						position: absolute;
+						top: -25px;
+						left: 50%;
+						transform: translateX(-50%);
+						background: var(--secondary-font);
+						color: var(--primary-font);
+						padding: 4px 8px;
+						border-radius: 4px;
+						font-size: 12px;
+						white-space: nowrap;
+					}
+				}
+			}
+		}
+
+		.tabContent {
+			width: 100%;
+			align-self: stretch;
+		}
+	}
+
+	.searchContainer {
+		position: relative;
+		transition: width 0.3s ease;
+		overflow: hidden;
+		height: 32px;
+		display: flex;
+		align-items: center;
+
+		.searchBtn {
+			display: flex;
+			align-items: center;
+			height: 100%;
+			position: relative;
+			width: 100%;
+
+			&.searchExpand {
+				width: 140px;
+			}
+
+			.inputAndCloseContainer {
+				display: flex;
+				align-items: center;
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				background: var(--card);
+				border-radius: 14px;
+				padding: 0 8px;
+				opacity: 0;
+				transition: opacity 0.3s ease;
+				pointer-events: none;
+
+				.searchInputTag {
+					flex: 1;
+					background: transparent;
+					border: none;
+					outline: none;
+					color: var(--primary-font);
+					font-size: 12px;
+					padding: 0 8px;
+					width: 100%;
+
+					&::placeholder {
+						color: var(--secondary-font);
+					}
+				}
+
+				span {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
+					width: 16px;
+					height: 16px;
+				}
+			}
+
+			&.searchExpand .inputAndCloseContainer {
+				opacity: 1;
+				pointer-events: auto;
+			}
+		}
+	}
+}
+
+@media screen and (max-width: 900px) {
+	.formLeadsParentContainer {
+		padding-right: 0;
+
+		.formWrapper {
+			flex-direction: column;
+			overflow-y: auto;
+			overflow-x: hidden;
+		}
+
+		.formDescription {
+			width: 100%;
+			margin: 0;
+			height: auto;
+		}
+
+		.formEnquiryContainer {
+			width: 100%;
+			flex-direction: column;
+		}
+	}
+}
+
+@media screen and (max-width: 768px) {
+	.formLeadsParentContainer {
+		height: auto;
+		min-height: 100vh;
+		padding-right: 0;
+		gap: 16px;
+		overflow-y: auto;
+
+		.formWrapper {
+			flex-direction: column;
+			gap: 16px;
+			height: auto;
+			overflow: visible;
+		}
+
+		.formDescription {
+			width: 100%;
+			margin: 0;
+			height: auto;
+			min-height: 300px;
+			max-height: 500px;
+			padding: 16px;
+			position: relative;
+			order: 2;
+			top: -70px;
+		}
+
+		.formEnquiryContainer {
+			width: 100%;
+			flex-direction: column;
+			gap: 16px;
+			order: 1;
+
+			.headerContainer {
+				flex-wrap: wrap;
+
+				.headerTitle {
+					font-size: 16px;
+				}
+			}
+
+			.button-space {
+				gap: 8px;
+			}
+
+			.edit-button {
+				height: 28px;
+				padding: 6px 8px;
+				font-size: 11px;
+			}
+
+			.delete-button {
+				height: 28px;
+				padding: 6px 8px;
+				font-size: 11px;
+			}
+		}
+	}
+}
+
+// .status-indicator {
+// 	width: 8px;
+// 	height: 5px;
+// 	border-radius: 50%;
+
+// 	&--published {
+// 		background-color: #34d399;
+// 	}
+
+// 	&--draft {
+// 		background-color: #fbbf24;
+// 	}
+// }
+
+// .iframe-preview {
+// 	border-radius: 20px;
+// 	border: none;
+// 	width: 100%;
+// 	height: 100%;
+// }
+
+// .delete-menu-item {
+// 	display: flex;
+// 	align-items: center;
+// 	gap: 3px;
+// 	color: var(--error);
+// }
+
+// .delete-text {
+// 	color: var(--error);
+// }
+
+// .DocsStatusButtonOuterContainer {
+// 	border-radius: 35px;
+// 	display: flex;
+// 	height: 24px;
+// 	padding: 4px 10px;
+// 	justify-content: center;
+// 	align-items: center;
+// 	gap: 6px;
+// 	border: 1px solid var(--stroke, #2b2e31);
+// 	background: var(--card-over-card, #27282b) !important;
+
+// 	.DocsStatusCircle {
+// 		width: 6px;
+// 		height: 6px;
+// 		border-radius: 100%;
+// 		background: var(--product-lime-blu, #cfff48) !important;
+// 	}
+// 	.DocsButtontext {
+// 		color: var(--product-lime-blu, #cfff48);
+// 		font-family: var(--primary-font-family);
+// 		font-size: 12px;
+// 		font-style: normal;
+// 		font-weight: 500;
+// 		line-height: 21px; /* 175% */
+// 	}
+// }
+
+// .downloadButton {
+// 	display: flex;
+// 	align-items: center;
+// 	gap: 8px;
+// }

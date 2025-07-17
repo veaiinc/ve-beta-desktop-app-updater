@@ -1,0 +1,53 @@
+import { initialState } from './state';
+
+const actionHandlers = {
+	SET_AUTOMATION: (state, action) => ({
+		...state,
+		specificAutomationInfo: action.payload,
+	}),
+	SET_AUTOMATIONS_LIST: (state, action) => ({
+		...state,
+		automationsList: action?.payload,
+	}),
+
+	UPDATE_STATE_VALUES: (state, action) => ({
+		...state,
+		...action.payload,
+	}),
+
+	SET_CONNECTION_DETAILS: (state, action) => ({
+		...state,
+		connectedIntegrations: action.payload,
+	}),
+
+	UPDATE_AUTOMATION: (state, action) => ({
+		...state,
+		specificAutomationInfo: action.payload,
+	}),
+
+	SET_EXECUTION_HISTORY: (state, action) => {
+		return {
+			...state,
+			executionHistory: action.payload,
+		};
+	},
+
+	SET_VARIABLES: (state, action) => ({
+		...state,
+		variables: action?.payload,
+	}),
+
+	UPDATE_CONTEXT_STATE_IN_AUTOMATION_BUILDER: (state, action) => ({
+		...state,
+		...action?.payload,
+	}),
+
+	RESET_STATE: () => initialState,
+};
+
+const Reducer = (state, action) => {
+	const handler = actionHandlers[action.type];
+	return handler ? handler(state, action) : state;
+};
+
+export default Reducer;

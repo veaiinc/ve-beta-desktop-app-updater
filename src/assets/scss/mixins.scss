@@ -1,0 +1,102 @@
+@use 'sass:string';
+@use 'sass:map';
+@use './variables.scss' as *;
+@use './color.palette.scss' as *;
+
+@mixin font-16p-sb {
+	font-size: 16px;
+	font-family: $fontsemibold;
+}
+@mixin font-13p-sb {
+	font-size: 13px;
+	font-family: $fontsemibold;
+}
+@mixin font-13p-m {
+	font-size: 13px;
+	font-family: $fontmedium;
+}
+@mixin font-12p-sb {
+	font-size: 12px;
+	font-family: $fontsemibold;
+}
+@mixin font-12p-m {
+	font-size: 12px;
+	font-family: $fontmedium;
+}
+@mixin font-11p-m {
+	font-size: 11px;
+	font-family: $fontmedium;
+}
+@mixin transition {
+	transition: all 0.3s ease-in-out;
+}
+
+@mixin ellipsis {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+@keyframes slideFromLeft {
+	from {
+		position: relative;
+		opacity: 0;
+		left: -100vw;
+	}
+	to {
+		position: relative;
+		opacity: 1;
+		left: 0;
+	}
+}
+
+@function return-immediate($important) {
+	@if ($important) {
+		@return #{'!important'};
+	} @else {
+		@return null;
+	}
+}
+
+@mixin theme-aware($key, $color, $extraArg: 0, $important: null, $removequote: '') {
+	@each $theme-name, $theme-color in $themes {
+		.theme-#{$theme-name} & {
+			@if $key == 'box-shadow' {
+				#{$key}: $extraArg
+					map.get(map.get($themes, $theme-name), $color)
+					return-immediate($important);
+			} @else if string.index($key, 'border') {
+				#{$key}: $extraArg
+					map.get(map.get($themes, $theme-name), $color)
+					return-immediate($important);
+			} @else if string.index($key, 'border-left') {
+				#{$key}: map.get(map.get($themes, $theme-name), $color)
+					return-immediate($important);
+			} @else if string.index($key, 'outline') {
+				#{$key}: $extraArg
+					map.get(map.get($themes, $theme-name), $color)
+					return-immediate($important);
+			} @else if string.index($key, '-webkit-box-shadow') {
+				#{$key}: $extraArg
+					map.get(map.get($themes, $theme-name), $color)
+					return-immediate($important);
+			} @else if string.index($removequote, 'remove-quote') {
+				#{$key}: $extraArg
+					unquote(map.get(map.get($themes, $theme-name), $color))
+					return-immediate($important);
+			} @else {
+				#{$key}: map.get(map.get($themes, $theme-name), $color)
+					return-immediate($important);
+			}
+		}
+	}
+}
+
+@mixin os-aware-font($font) {
+	.otheros & {
+		font-family: '#{$font}';
+	}
+	.macos & {
+		font-family: -apple-system, BlinkMacSystemFont, '#{$font}';
+	}
+}

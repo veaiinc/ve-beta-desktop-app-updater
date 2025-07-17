@@ -1,0 +1,166 @@
+.myWorkflowModalParentContainer {
+	height: 100%;
+	width: 420px;
+	display: flex;
+	padding: 10px;
+	.innerContainer {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		align-self: stretch;
+		border-radius: 32px;
+		border: 1px solid var(--stroke);
+		background: var(--navbar);
+
+		.headerContianer {
+			padding: 32px 24px 15px 24px;
+			border-bottom: 1px solid var(--stroke);
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+
+			.headerTitle {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 22px; /* 157.143% */
+				letter-spacing: 0.28px;
+				text-transform: capitalize;
+			}
+
+			.closeBtnWrapper {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+			}
+		}
+		.filterContainerWrapper {
+			display: flex;
+			padding: 24px 16px;
+			align-items: center;
+			justify-content: space-between;
+			align-self: stretch;
+			position: relative;
+
+			.myWorkflowfilterContainer {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.searchBtn {
+				display: flex;
+				width: 36px;
+				transform: rotate(-0.037deg);
+				padding: 10px;
+				align-items: center;
+				gap: 10px;
+				flex-shrink: 0;
+				border-radius: 100px;
+				background: var(--card);
+				cursor: pointer;
+				transition: all 0.3s ease;
+				position: absolute;
+				right: 16px;
+
+				.inputAndCloseContainer {
+					display: none;
+					transition: all 0.3s ease;
+					.searchInputTag {
+						flex: 1;
+						background-color: transparent;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 16px; /* 123.077% */
+						letter-spacing: 0.26px;
+						transition: all 0.3s ease;
+						border: none;
+					}
+				}
+			}
+
+			.searchExpand {
+				display: flex;
+				width: 366px;
+				opacity: 1;
+				z-index: 99;
+
+				.inputAndCloseContainer {
+					display: flex;
+					flex: 1;
+					gap: 10px;
+					align-items: center;
+				}
+			}
+		}
+		.subCardContainer {
+			flex: 1;
+			overflow-y: auto;
+			display: flex;
+			flex-direction: column;
+			padding: 0px 16px 32px 16px;
+
+			height: 800px;
+			.modalSubCard {
+				display: flex;
+				flex-direction: column;
+				padding: 8px 16px;
+				gap: 3px;
+				border-radius: 16px;
+				border: 1px solid var(--stroke);
+				background: var(--card);
+				cursor: pointer;
+				.modalSubCardTitle {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 21px; /* 150% */
+				}
+				.modalSubLabelContainer {
+					display: flex;
+					align-self: stretch;
+					justify-content: space-between;
+					align-items: center;
+
+					.subLabelStyling {
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
+						font-size: 10px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 15px; /* 150% */
+					}
+					.actionRequiredCard {
+						display: flex;
+						align-items: center;
+						gap: 8px;
+						.requiredActionStatus {
+							color: var(--primary-font);
+							text-align: right;
+							font-family: var(--primary-font-family);
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 15px; /* 125% */
+							text-transform: capitalize;
+						}
+					}
+
+					.symbolContainer {
+						display: flex;
+						align-items: center;
+						gap: 6px;
+					}
+				}
+			}
+		}
+	}
+}

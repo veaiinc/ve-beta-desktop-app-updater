@@ -1,0 +1,23 @@
+import React, { memo } from 'react';
+
+const RefreshSvg = () => {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="12"
+			height="13"
+			viewBox="0 0 14 15"
+			fill="none"
+		>
+			<path
+				d="M12.8346 7.49984C12.8346 10.7198 10.2213 13.3332 7.0013 13.3332C3.7813 13.3332 1.81547 10.0898 1.81547 10.0898M1.81547 10.0898H4.45214M1.81547 10.0898V13.0065M1.16797 7.49984C1.16797 4.27984 3.75797 1.6665 7.0013 1.6665C10.8921 1.6665 12.8346 4.90984 12.8346 4.90984M12.8346 4.90984V1.99317M12.8346 4.90984H10.2446"
+				stroke="var(--primary-font)"
+				strokeWidth="0.875"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+};
+
+export default memo(RefreshSvg);

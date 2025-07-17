@@ -1,0 +1,417 @@
+.DocsActivityParentContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 32px;
+	flex: 1 0 0;
+	align-self: stretch;
+	// max-height: 900px;
+	// overflow-y: auto;
+
+	.activityInsightsContainer {
+		display: flex;
+		align-items: flex-start;
+		gap: 12px;
+		align-self: stretch;
+		user-select: none;
+
+		.insightsCard {
+			border-radius: 14px;
+			background: var(--card-over-card);
+			display: flex;
+			height: 96px;
+			padding: 16px;
+			flex-direction: column;
+			justify-content: space-between;
+			align-items: flex-start;
+			flex: 1 0 0;
+
+			.title {
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				align-self: stretch;
+			}
+
+			.details {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				align-self: stretch;
+
+				> svg {
+					width: 18px;
+					height: 18px;
+				}
+
+				.value {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 18px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: normal;
+				}
+			}
+		}
+	}
+
+	.tabsPreviewContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 24px;
+		align-self: stretch;
+		// max-height: 805px;
+		// overflow-y: auto;
+
+		.activityTabsContainer {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			align-self: stretch;
+			border-bottom: 1px solid var(--stroke);
+
+			.tab {
+				display: flex;
+				padding: 10px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				cursor: pointer;
+
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 16px;
+				transition: color 0.3s ease;
+
+				&:hover {
+					color: var(--primary-font);
+				}
+				&.active {
+					color: var(--primary-font);
+					border-bottom: 1px solid var(--primary-font);
+				}
+			}
+		}
+
+		.activityTabView {
+			width: 100%;
+			height: 100%;
+		}
+	}
+
+	.listViewContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		width: 100%;
+		gap: 6px;
+		align-self: stretch;
+
+		.itemContainer {
+			display: flex;
+			padding: 12px 15px;
+			justify-content: space-between;
+			align-items: center;
+			align-self: stretch;
+			border-radius: 14px;
+			transition: background-color 0.1s ease;
+
+			&:hover {
+				background: var(--background-color);
+				cursor: pointer;
+			}
+
+			.viewerInfoContainer {
+				display: flex;
+				align-items: center;
+				gap: 15px;
+
+				.viewerAvatar {
+					display: flex;
+					width: 38px;
+					height: 38px;
+					padding: 8.837px;
+					justify-content: center;
+					align-items: center;
+					gap: 8.837px;
+					border-radius: 87.488px;
+					background: var(--accent-color);
+					color: black; //has to change if required
+
+					span {
+						// color: #6c83ff;
+						font-family: var(--primary-font-family);
+						font-size: 12.372px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 14.14px;
+						letter-spacing: -0.247px;
+					}
+				}
+
+				.viewerDetails {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 4px;
+
+					.viewerName {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+
+					.viewerEmail {
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+						letter-spacing: -0.24px;
+					}
+				}
+			}
+
+			.viewerSessionsContainer {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: flex-end;
+				gap: 4px;
+
+				.viewerSessions {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 16px; /* 114.286% */
+					letter-spacing: -0.28px;
+					text-align: right;
+				}
+
+				.viewerTime {
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					letter-spacing: -0.24px;
+					text-align: right;
+				}
+			}
+		}
+	}
+
+	.timelineViewParentContainer {
+		display: flex;
+		width: 100%;
+		height: 100%;
+		justify-content: center;
+		align-items: center;
+		// background: rgba(36, 36, 36, 0.1);
+		overflow-y: auto;
+
+		.timelineEventContainer {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			height: 100%;
+			flex-shrink: 0;
+			gap: 40px;
+			// overflow-y: auto;
+
+			.timeLineEventBlock {
+				display: flex;
+				width: 100%;
+				height: 58px;
+				height: auto;
+				justify-content: space-between;
+				align-items: center;
+
+				.timelineDateBlock {
+					display: flex;
+					width: 106px;
+					height: 58px;
+					flex-direction: column;
+					align-items: center;
+					gap: 2px;
+					flex-shrink: 0;
+
+					.dateTimeWrapper {
+						display: flex;
+						flex-direction: column;
+						align-items: flex-end;
+						gap: 2px;
+
+						p {
+							text-align: right;
+							font-family: var(--primary-font-family);
+							font-style: normal;
+							line-height: normal;
+							align-self: stretch;
+						}
+
+						.dateLable {
+							color: var(--secondary-font);
+							font-size: 12px;
+							font-weight: 500;
+						}
+
+						.timeLable {
+							color: var(--secondary-font);
+							font-size: 11px;
+							font-weight: 400;
+						}
+					}
+				}
+
+				.timelineParentEventBlock {
+					display: flex;
+					width: 100%;
+					height: 58px;
+					align-items: flex-start;
+					gap: var(--Spacing-space-7, 12px);
+					flex-shrink: 0;
+
+					.eventBlock {
+						display: flex;
+						width: 100%;
+						align-items: flex-start;
+						gap: 12px;
+
+						.eventIcon {
+							display: flex;
+							align-items: center;
+							gap: 10px;
+
+							.eventIconContainer {
+								display: flex;
+								width: 36px;
+								height: 36px;
+								padding: var(--cartCount, 0px) 7.2px;
+								justify-content: center;
+								align-items: center;
+								gap: 9px;
+								border-radius: 89.1px;
+								border: 1px solid #535298;
+								background: #2e2b44;
+							}
+						}
+
+						.eventDetails {
+							display: flex;
+							flex-direction: column;
+							// justify-content: center;
+							align-items: flex-start;
+							gap: 8px;
+							flex: 1 0 0;
+							align-self: stretch;
+							width: fit-content;
+							height: 100%;
+
+							.eventType {
+								color: var(--primary-font);
+								align-self: stretch;
+								font-family: var(--primary-font-family);
+								font-size: 14px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: 16px;
+							}
+
+							.eventUserDetails {
+								display: flex;
+								flex-direction: row;
+								align-items: flex-start;
+								gap: 6px;
+								align-self: stretch;
+
+								.eventUserImg {
+									width: 18px;
+									height: 18px;
+									border-radius: var(--cartCount, 18px);
+								}
+
+								.userDetails {
+									display: flex;
+									width: 100%;
+									flex-direction: column;
+									align-items: flex-start;
+									gap: 2px;
+
+									.userLabel {
+										display: flex;
+										gap: 2px;
+
+										.labelKey {
+											color: var(--secondary-font);
+											font-family: var(--primary-font-family);
+											font-size: 12px;
+											font-style: normal;
+											font-weight: 400;
+											line-height: 16px;
+										}
+
+										.labelValue {
+											color: var(--primary-font);
+											font-family: var(--primary-font-family);
+											font-size: 12px;
+											font-style: normal;
+											font-weight: 400;
+											line-height: 16px;
+										}
+									}
+								}
+							}
+						}
+
+						.eventActions {
+							display: flex;
+							padding: 6px 10px;
+							justify-content: center;
+							align-items: center;
+							gap: 10px;
+							border-radius: 4px;
+							border: 1px solid var(--stroke);
+							background: var(--card);
+							min-width: 108px;
+							width: auto;
+
+							cursor: pointer;
+
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+
+							span {
+								color: var(--primary-font);
+								font-family: var(--primary-font-family);
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

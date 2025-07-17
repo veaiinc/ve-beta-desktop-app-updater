@@ -1,0 +1,161 @@
+.formModalContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 24px;
+	padding: 20px;
+	height: auto; /* Ensure it fills the Drawer */
+	background: var(--card); /* Consistent background */
+	overflow-y: auto; /* Allow scrolling if content overflows */
+
+	.formModalHeader {
+		width: 100%;
+		display: flex;
+		justify-content: flex-start;
+		align-items: flex-start;
+
+		svg {
+			transition: transform 0.2s ease, fill 0.2s ease;
+			&:hover {
+				transform: scale(1.1);
+				fill: var(--primary-font-hover, var(--primary-font)); /* Optional hover color */
+			}
+		}
+	}
+
+	.completedStatus {
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		padding: 24px 0;
+
+		.completedStatusText {
+			display: flex;
+			width: 120px;
+			height: 36px;
+			padding: 6px 8px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 6px;
+			background: var(--success); /* Dynamic in JS, fallback here */
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-weight: 500;
+			line-height: normal;
+			transition: background 0.3s ease;
+
+			&[data-completed='false'] {
+				background: var(--card-hover); /* Style for not completed */
+			}
+		}
+	}
+
+	.formResponsesParentContainer {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 20px;
+		flex: 1 0 0;
+		align-self: stretch;
+		background: var(--popup);
+		margin-bottom: 32px;
+		overflow-x: hidden;
+		padding: 20px;
+		border-radius: 8px; /* Soften edges */
+
+		.divider {
+			width: 100%;
+			height: 1px;
+			background: var(--stroke);
+			margin: 10px 0;
+			opacity: 0.5; /* Subtle separation */
+		}
+
+		.formResponseContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			align-self: stretch;
+			gap: 8px;
+
+			.questionContainer {
+				display: flex;
+				align-items: center;
+				justify-content: flex-start;
+				gap: 8px;
+
+				svg {
+					width: 20px;
+					height: 20px;
+					fill: var(--primary-font);
+					flex-shrink: 0; /* Prevent icon shrinking */
+				}
+
+				.question {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-weight: 400;
+					line-height: normal;
+					margin: 0; /* Remove default margins */
+				}
+			}
+
+			.answer {
+				margin-top: 4px;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 18px;
+				font-weight: 500;
+				line-height: normal;
+				word-break: break-word; /* Handle long text gracefully */
+			}
+		}
+	}
+
+	/* Resize Handle Styling */
+	.resize-handle {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 8px;
+		height: 100%;
+		cursor: ew-resize;
+		background: var(--stroke);
+		transition: background 0.2s ease;
+
+		&:hover {
+			background: var(--primary-font);
+		}
+	}
+}
+
+/* Ensure Drawer itself has no extra padding */
+:where(.ant-drawer-content) {
+	padding: 0;
+	background: var(--card);
+	overflow: hidden;
+}
+
+/* Scrollbar Styling for a polished look */
+.formResponsesParentContainer::-webkit-scrollbar {
+	width: 6px;
+	height: auto;
+}
+
+.formResponsesParentContainer::-webkit-scrollbar-track {
+	background: var(--card);
+	border-radius: 8px;
+}
+
+.formResponsesParentContainer::-webkit-scrollbar-thumb {
+	background: var(--stroke);
+	border-radius: 8px;
+}
+
+.formResponsesParentContainer::-webkit-scrollbar-thumb:hover {
+	background: var(--primary-font);
+}

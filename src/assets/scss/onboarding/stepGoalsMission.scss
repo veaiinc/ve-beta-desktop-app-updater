@@ -1,0 +1,368 @@
+.goalsMissionStepContainer {
+	width: 655px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 50px;
+	.stepHeader {
+		margin-bottom: 32px;
+		.stepProgressContainer {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			gap: 16px;
+			align-self: stretch;
+		}
+		.stepProgress {
+			color: var(--primary-button);
+			font-size: 14px;
+			font-weight: 500;
+			margin-bottom: 8px;
+		}
+		.stepContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 33px;
+		}
+		.stepHeaderContent {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+		}
+		.stepTitle {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 32px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: normal;
+		}
+		.stepDesc {
+			color: var(--secondary-font, #7a7e85);
+			font-family: var(--secondary-font-family);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 24px;
+		}
+	}
+	.goalsCardsContainer {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 24px;
+		width: 100%;
+		.goalCard {
+			padding: 20px;
+			width: 340px;
+			flex-shrink: 0;
+			gap: 14px;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			border-radius: 8px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			background: var(--card, #18191b);
+
+			position: relative;
+
+			&.selected {
+				border-color: var(--primary-button);
+				background: var(--card-over-card);
+			}
+
+			.goalCardContent {
+				display: flex;
+				align-items: flex-start;
+				justify-items: baseline;
+				gap: 14px;
+			}
+			.goalIcon {
+				font-size: 28px;
+				margin-bottom: 12px;
+			}
+			.goalTitle {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 20px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+			.goalDesc {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px;
+			}
+			.goalTags {
+				display: flex;
+				width: 306px;
+				align-items: flex-start;
+				align-content: flex-start;
+				gap: 8px;
+				flex-wrap: wrap;
+				.goalTag {
+					border-radius: 8px;
+					border: 1px solid var(--stroke, #2c2d2e);
+					background: var(--popup, #202123);
+					display: flex;
+					padding: 6px 8px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+	}
+	.formRow {
+		display: flex;
+		flex-direction: column;
+		margin-bottom: 30px;
+		.formLabel {
+			color: var(--primary-font, #f2f2f3);
+			font-size: 15px;
+			font-weight: 500;
+			margin-bottom: 8px;
+		}
+		.formInput {
+			background: var(--card, #18191b);
+			color: var(--primary-font, #f2f2f3);
+			border-radius: 12px;
+			border: none;
+			font-size: 15px;
+			padding: 16px 18px;
+			font-family: var(--primary-font-family);
+			outline: none;
+			min-height: 80px;
+			resize: vertical;
+			margin-bottom: 0;
+		}
+		.formInput::placeholder {
+			color: var(--secondary-font, #7a7e85);
+			font-style: italic;
+		}
+	}
+	.btnsContainer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 8px;
+	}
+}
+
+// Mobile responsive styles
+@media screen and (max-width: 768px) {
+	.goalsMissionStepContainer {
+		width: 100%;
+		padding: 0 20px;
+		gap: 30px;
+
+		.stepHeader {
+			margin-bottom: 24px;
+
+			.stepContainer {
+				gap: 15px;
+			}
+
+			.stepProgressContainer {
+				gap: 12px;
+				margin-bottom: 15px;
+			}
+
+			.stepProgress {
+				font-size: 12px;
+				margin-bottom: 6px;
+			}
+
+			.stepTitle {
+				font-size: 24px;
+				line-height: 28px;
+			}
+
+			.stepDesc {
+				font-size: 14px;
+				line-height: 20px;
+			}
+		}
+
+		.goalsCardsContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+			width: 100%;
+
+			.goalCard {
+				min-width: 100%;
+				max-width: 100%;
+				padding: 16px;
+				gap: 12px;
+				border: 2px solid var(--stroke, #2c2d2e);
+				position: relative;
+
+				&.selected {
+					border-color: var(--primary-button);
+					background: var(--card-over-card);
+				}
+
+				.goalCardContent {
+					gap: 12px;
+				}
+
+				.goalIcon {
+					font-size: 24px;
+					margin-bottom: 8px;
+				}
+
+				.goalTitle {
+					font-size: 18px;
+				}
+
+				.goalDesc {
+					font-size: 13px;
+					line-height: 18px;
+				}
+
+				.goalTags {
+					width: 100%;
+					gap: 6px;
+
+					.goalTag {
+						font-size: 12px;
+						padding: 4px 6px;
+					}
+				}
+			}
+		}
+
+		.formRow {
+			margin-bottom: 20px;
+
+			.formLabel {
+				font-size: 14px;
+				margin-bottom: 6px;
+			}
+
+			.formInput {
+				font-size: 14px;
+				padding: 12px 14px;
+				min-height: 70px;
+			}
+		}
+
+		.btnsContainer {
+			display: flex;
+			flex-direction: row;
+			gap: 10px;
+
+			.backBtn,
+			.continueBtn {
+				width: 100%;
+				height: 45px;
+				font-size: 14px;
+			}
+		}
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.goalsMissionStepContainer {
+		padding: 0 16px;
+		gap: 24px;
+
+		.stepHeader {
+			.stepTitle {
+				font-size: 20px;
+				line-height: 24px;
+			}
+
+			.stepDesc {
+				font-size: 13px;
+				line-height: 18px;
+			}
+		}
+
+		.goalsCardsContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+
+			.goalCard {
+				padding: 14px;
+				gap: 10px;
+				border: 2px solid var(--stroke, #2c2d2e);
+				position: relative;
+
+				&.selected {
+					border-color: var(--primary-button);
+					background: var(--card-over-card);
+				}
+
+				.goalIcon {
+					font-size: 20px;
+					margin-bottom: 6px;
+				}
+
+				.goalTitle {
+					font-size: 16px;
+				}
+
+				.goalDesc {
+					font-size: 12px;
+					line-height: 16px;
+				}
+
+				.goalTags {
+					gap: 4px;
+
+					.goalTag {
+						font-size: 11px;
+						padding: 3px 5px;
+					}
+				}
+			}
+		}
+
+		.formRow {
+			margin-bottom: 16px;
+
+			.formLabel {
+				font-size: 13px;
+			}
+
+			.formInput {
+				font-size: 13px;
+				padding: 10px 12px;
+				min-height: 60px;
+			}
+		}
+
+		.btnsContainer {
+			display: flex;
+			flex-direction: row;
+			gap: 10px;
+			position: fixed;
+			bottom: 10px;
+			left: 20px;
+			right: 20px;
+
+			.backBtn {
+				background: var(--background-color);
+			}
+			.backBtn,
+			.continueBtn {
+				height: 42px;
+				font-size: 13px;
+			}
+		}
+	}
+}

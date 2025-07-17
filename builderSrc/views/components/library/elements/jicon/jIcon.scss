@@ -1,0 +1,23 @@
+.j-icon-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	border-radius: 16px;
+}
+.fluid-j-icon-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	// border-radius: 16px;
+	cursor: pointer;
+}
+.j-icon-semi-curve {
+	border-radius: 10%;
+}
+.j-icon-curved {
+	border-radius: 50%;
+}

@@ -1,0 +1,12 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="FlowArrow" clip-path="url(#clip0_6047_354)">
+<path id="Vector" d="M3 13C4.10457 13 5 12.1046 5 11C5 9.89543 4.10457 9 3 9C1.89543 9 1 9.89543 1 11C1 12.1046 1.89543 13 3 13Z" stroke="#6055EC" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_2" d="M13 3L15 5L13 7" stroke="#6055EC" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_3" d="M5 11C10.5 11 7.5 5 13 5H15" stroke="#6055EC" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_6047_354">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>

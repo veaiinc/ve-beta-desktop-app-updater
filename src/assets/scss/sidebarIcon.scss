@@ -1,0 +1,18 @@
+.sidebar-icon {
+	stroke: var(--primary-font);
+	transition: stroke 0.3s ease;
+	.vertical-line {
+		stroke: var(--primary-font);
+		transform: translateX(
+			6px
+		); // More to the right, away from left edge (adds spacing from right border)
+		transition: transform 0.4s ease, stroke 0.3s ease;
+	}
+	&.active {
+		stroke: var(--secondary-font);
+		.vertical-line {
+			transform: translateX(0); // Slides back to left
+			stroke: var(--secondary-font);
+		}
+	}
+}

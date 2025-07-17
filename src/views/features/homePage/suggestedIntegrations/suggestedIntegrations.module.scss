@@ -1,0 +1,90 @@
+.sintegrations {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	.sintegrationsHeader {
+		display: flex;
+		flex-direction: column;
+		.sintegrationsHeaderTitle {
+			color: var(--secondary-font, #7a7e85);
+			font-family: Manrope;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+	.sintegrationsBody {
+		display: flex;
+		height: 100%;
+		min-height: 266px;
+		margin-bottom: 120px;
+		overflow-y: auto;
+		max-width: 1100px;
+		align-items: center;
+		align-content: center;
+		gap: 20px;
+		align-self: stretch;
+		flex-wrap: wrap;
+		.sintegrationsBodyItemCard {
+			display: flex;
+			width: 236.667px;
+			height: 266px;
+			padding: 24px;
+			flex-direction: column;
+			justify-content: space-between;
+			align-items: flex-start;
+			border-radius: 24px;
+			background: var(--card, #1a1b1e);
+			.integrationInfo {
+				display: flex;
+				flex-direction: column;
+				gap: 4px;
+			}
+		}
+
+		.integrationIconRow {
+			display: flex;
+			gap: 8px;
+			margin-bottom: 16px;
+		}
+		.integrationIcon {
+			width: 20px;
+			height: 20px;
+			flex-shrink: 0;
+		}
+		.integrationTitle {
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 24px;
+		}
+		.integrationDescription {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 18px;
+			letter-spacing: 0.2px;
+		}
+		.connectButton {
+			display: flex;
+			padding: 8px 12px;
+			justify-content: center;
+			align-items: center;
+			gap: 16px;
+			border-radius: 100px;
+			border: 1px solid var(--stroke, #313336);
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 16px;
+			cursor: pointer;
+		}
+	}
+}

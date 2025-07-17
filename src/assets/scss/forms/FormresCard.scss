@@ -1,0 +1,342 @@
+.formResCardScrollParent {
+	height: 100%;
+	overflow: auto;
+
+	.formResLayout {
+		display: flex;
+		width: 100%;
+		height: 100%;
+		overflow: auto;
+		gap: 8px;
+
+		@media screen and (max-width: 768px) {
+			flex-direction: column;
+			gap: 12px;
+		}
+
+		.formResponsesContainer {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			height: auto;
+			gap: 4px;
+
+			.no-responses {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				width: 100%;
+				align-self: center;
+			}
+
+			.resWrapper {
+				color: var(--color);
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: flex-start;
+				align-self: stretch;
+				width: 100%;
+				border-radius: 14px;
+				border: none;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				margin-bottom: 8px;
+				padding: 12px 16px;
+
+				@media screen and (max-width: 768px) {
+					padding: 8px 12px;
+				}
+
+				&:hover {
+					background: var(--card-over-card);
+					border: 0.445px solid var(--stroke);
+				}
+
+				&.open {
+					background: var(--card-over-card);
+					border: 0.445px solid var(--stroke);
+				}
+
+				.carddetails {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					align-self: stretch;
+					transition: all 0.3s ease;
+				}
+
+				.topRow {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					width: 100%;
+
+					@media screen and (max-width: 768px) {
+						flex-wrap: wrap;
+						gap: 8px;
+					}
+
+					.name {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 500;
+						display: flex;
+
+						@media screen and (max-width: 768px) {
+							font-size: 14px;
+							width: 100%;
+						}
+					}
+
+					.time {
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+
+						@media screen and (max-width: 768px) {
+							font-size: 11px;
+						}
+					}
+
+					.deleteButton {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						width: 32px;
+						height: 32px;
+						border-radius: 8px;
+						cursor: pointer;
+						opacity: 0;
+						transition: all 0.3s ease;
+						background: var(--card-over-card);
+						border: 1px solid var(--stroke);
+
+						&:hover {
+							border-color: var(--error);
+						}
+
+						svg {
+							width: 16px;
+							height: 16px;
+						}
+
+						@media screen and (max-width: 768px) {
+							opacity: 1;
+							width: 28px;
+							height: 28px;
+
+							svg {
+								width: 14px;
+								height: 14px;
+							}
+						}
+					}
+
+					&:hover .deleteButton {
+						opacity: 1;
+					}
+				}
+
+				&.open .deleteButton {
+					opacity: 1;
+				}
+
+				.download {
+					display: flex;
+					justify-content: flex-end;
+					align-items: center;
+					border-radius: 8px;
+					border: 1px solid var(--stroke);
+					width: fit-content;
+					opacity: 0;
+					transition: opacity 0.3s ease;
+
+					@media screen and (max-width: 768px) {
+						opacity: 1;
+						width: 100%;
+						justify-content: flex-start;
+						margin-top: 8px;
+					}
+
+					.downloadicon {
+						display: flex;
+						height: 36px;
+						padding: 0px 12px;
+						justify-content: center;
+						align-items: center;
+
+						@media screen and (max-width: 768px) {
+							height: 32px;
+							padding: 0px 8px;
+						}
+					}
+				}
+
+				&:hover .download {
+					opacity: 1;
+				}
+
+				&.open .download {
+					opacity: 1;
+				}
+
+				.resumey {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 16px;
+					align-items: center;
+					padding: 12px 12px 12px 0;
+
+					@media screen and (max-width: 768px) {
+						font-size: 11px;
+						padding: 8px 8px 8px 0;
+					}
+				}
+
+				.incard {
+					margin-top: 8px;
+					display: flex;
+					padding: 0px 16px;
+					flex-direction: column;
+					align-self: stretch;
+					gap: 8px;
+
+					@media screen and (max-width: 768px) {
+						padding: 0px 8px;
+					}
+
+					.options {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						padding-top: 2px;
+
+						@media screen and (max-width: 768px) {
+							font-size: 11px;
+						}
+					}
+
+					.actionsRow {
+						display: flex;
+						gap: 12px;
+						align-items: center;
+						margin-top: 2px;
+
+						@media screen and (max-width: 768px) {
+							flex-wrap: wrap;
+							gap: 8px;
+						}
+
+						.resoption {
+							display: flex;
+							height: 36px;
+							padding: 16px 12px 12px 10px;
+							align-items: center;
+							gap: 8px;
+							border-radius: 8px;
+							border: 1px solid var(--stroke-hover);
+							width: fit-content;
+							cursor: pointer;
+							&:hover {
+								background-color: var(--backdrop);
+							}
+
+							@media screen and (max-width: 768px) {
+								height: 32px;
+								padding: 8px;
+								font-size: 11px;
+							}
+
+							.optionicon {
+								display: flex;
+								width: 18px;
+								height: 18px;
+								padding: 1px;
+								justify-content: center;
+								align-items: center;
+
+								@media screen and (max-width: 768px) {
+									width: 16px;
+									height: 16px;
+								}
+							}
+
+							.option {
+								color: var(--secondary-font);
+								font-family: var(--primary-font-family);
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: 16px;
+
+								@media screen and (max-width: 768px) {
+									font-size: 11px;
+								}
+							}
+						}
+					}
+				}
+
+				&.skeleton {
+					background: #fff;
+					border-radius: 8px;
+					padding: 16px;
+					margin-bottom: 16px;
+					box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+					animation: pulse 1.5s infinite;
+
+					.skeleton-name {
+						width: 200px;
+						height: 24px;
+						background: #f0f0f0;
+						border-radius: 4px;
+						margin-bottom: 8px;
+					}
+
+					.skeleton-time {
+						width: 100px;
+						height: 16px;
+						background: #f0f0f0;
+						border-radius: 4px;
+					}
+				}
+				.downloadButton {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					cursor: pointer;
+					align-self: flex-end;
+
+					@media screen and (max-width: 768px) {
+						width: 100%;
+						justify-content: flex-start;
+					}
+				}
+			}
+		}
+	}
+}
+
+// @keyframes pulse {
+// 	0% {
+// 		opacity: 0.6;
+// 	}
+// 	50% {
+// 		opacity: 0.8;
+// 	}
+// 	100% {
+// 		opacity: 0.6;
+// 	}
+// }

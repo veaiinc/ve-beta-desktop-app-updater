@@ -1,0 +1,183 @@
+.modalOverlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+}
+
+.modalContent {
+	background: var(--card-over-card, #1a1b1c);
+	border-radius: 12px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	width: 90%;
+	max-width: 500px;
+	max-height: 90vh;
+	overflow-y: auto;
+}
+
+.modalHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 24px 24px 0 24px;
+	border-bottom: 1px solid var(--stroke, #2c2d2e);
+	padding-bottom: 16px;
+
+	.modalTitle {
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 18px;
+		font-weight: 600;
+		margin: 0;
+	}
+
+	.closeButton {
+		background: none;
+		border: none;
+		color: var(--secondary-font, #7a7e85);
+		font-size: 24px;
+		cursor: pointer;
+		padding: 0;
+		width: 32px;
+		height: 32px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 4px;
+		transition: background-color 0.2s;
+
+		&:hover {
+			background-color: var(--card-hover, #202123);
+		}
+	}
+}
+
+.modalBody {
+	padding: 24px;
+
+	.formGroup {
+		margin-bottom: 24px;
+
+		.formLabel {
+			display: block;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-weight: 500;
+			margin-bottom: 8px;
+		}
+
+		.dateTimeInput {
+			width: 100%;
+			padding: 12px 16px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			border-radius: 8px;
+			background-color: var(--card-over-card, #2c2d2e);
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			outline: none;
+			transition: border-color 0.2s;
+
+			&:focus {
+				border-color: var(--primary-color, #79ecc9);
+			}
+
+			&::-webkit-calendar-picker-indicator {
+				filter: invert(1);
+				cursor: pointer;
+			}
+		}
+
+		.recurrenceSelect {
+			width: 100%;
+			padding: 12px 16px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			border-radius: 8px;
+			background-color: var(--card-over-card, #2c2d2e);
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			outline: none;
+			transition: border-color 0.2s;
+			cursor: pointer;
+
+			&:focus {
+				border-color: var(--primary-color, #79ecc9);
+			}
+
+			&:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
+
+			option {
+				background-color: var(--card-over-card, #2c2d2e);
+				color: var(--primary-font, #f2f2f3);
+				padding: 8px;
+			}
+		}
+	}
+}
+
+.modalFooter {
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+	margin-top: 24px;
+	padding-top: 16px;
+	border-top: 1px solid var(--stroke, #2c2d2e);
+
+	.cancelButton {
+		padding: 10px 20px;
+		border: 1px solid var(--stroke, #2c2d2e);
+		border-radius: 6px;
+		background: transparent;
+		color: var(--secondary-font, #7a7e85);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s;
+
+		&:hover:not(:disabled) {
+			background-color: var(--card-hover, #202123);
+			border-color: var(--secondary-font, #7a7e85);
+		}
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+	}
+
+	.submitButton {
+		padding: 10px 20px;
+		border: none;
+		border-radius: 6px;
+		background: var(--primary-color, #79ecc9);
+		color: var(--card-bg, #1a1b1c);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s;
+
+		&:hover:not(:disabled) {
+			background: var(--primary-color-hover, #6dd4b8);
+			transform: translateY(-1px);
+		}
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+			transform: none;
+		}
+	}
+}
