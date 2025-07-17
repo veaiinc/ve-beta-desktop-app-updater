@@ -63,7 +63,6 @@ const PromptTab = () => {
     setInfo((prev) => ({ ...prev, accountsLoading: true }));
     try {
       const response = await getExistingconnectedAccounts({ tenatUserId });
-      console.log('Connected Accounts Response:', response);
       setInfo((prev) => ({
         ...prev,
         connectedAccounts: response?.data?.connected_accounts || [],
