@@ -300,12 +300,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			const flatBlocks = flattenBlocksFromBackend(blocks.data); // flatten nested tree
 			previousBlocksRef.current = new Map(flatBlocks.map((b) => [b.id, b]));
 			loadNotesContent(blocks.data); // this can still use nested data if needed
-
-			// Debug: Log the mapping
-			console.log(
-				'Block ID to Backend ID mapping:',
-				Array.from(blockIdToBackendIdRef.current.entries()),
-			);
 		}
 	}, [blocks]);
 
@@ -687,15 +681,53 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			content: newBlock?.type === 'database' ? [] : newBlock?.content,
 		};
 
-		if (oldBlock.type !== newBlockFormatted.type) return true;
-		if (!isEqual(oldBlock, newBlockFormatted)) {
-			console.log('Content changed for block:', oldBlock.id);
-			console.log('oldBlock', oldBlock);
-			console.log('newBlockFormatted', newBlockFormatted);
+		if (oldBlock.type !== newBlockFormatted.type) {
 			return true;
 		}
 
-		return false;
+		if (oldBlock.type === 'table' && newBlockFormatted.type === 'table') {
+			function areArraysEqualCustom(a, b) {
+				if (!Array.isArray(a) || !Array.isArray(b)) return false;
+				if (a.length !== b.length) return false;
+
+				for (let i = 0; i < a.length; i++) {
+					const valA = a[i];
+					const valB = b[i];
+
+					const isNullishA = valA == null; // true for null or undefined
+					const isNullishB = valB == null;
+
+					if (isNullishA && isNullishB) continue;
+					if (valA !== valB) return false;
+				}
+
+				return true;
+			}
+			const { content: oldContent, props: oldProps, id: oldId } = oldBlock;
+			const { content: newContent, props: newProps, id: newId } = newBlockFormatted;
+
+			if (oldId !== newId || oldProps?.textColor !== newProps?.textColor) {
+				return true;
+			}
+
+			if (
+				oldContent?.headerCols !== newContent?.headerCols ||
+				oldContent?.headerRows !== newContent?.headerRows
+			) {
+				return true;
+			}
+
+			if (!areArraysEqualCustom(oldContent?.columnWidths, newContent?.columnWidths)) {
+				return true;
+			}
+
+			if (!isEqual(oldContent?.rows, newContent?.rows)) {
+				return true;
+			}
+			return false;
+		}
+
+		return !isEqual(oldBlock, newBlockFormatted);
 	};
 
 	const flattenBlocks = (blocks, parentId = null, depth = 0) => {
@@ -781,14 +813,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					position = 1000;
 				}
 
-				// Debug logging for new block position
-				console.log('New block position calculated:', {
-					id,
-					position,
-					prevPosition: prev?.position,
-					nextPosition: next?.position,
-					index,
-				});
 
 				const parentBackendId = newItem.parentId
 					? blockIdToBackendIdRef.current.get(newItem.parentId)
@@ -826,14 +850,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					// Use the mapping to get the backend _id for the new parent
 					const newParentBackendId = blockIdToBackendIdRef.current.get(newItem.parentId);
 					parentChanged = oldItem.parentId !== newParentBackendId;
-
-					// Debug logging for parent comparison
-					if (parentChanged) {
-						console.log('Parent changed for block:', id);
-						console.log('oldItem.parentId (_id):', oldItem.parentId);
-						console.log('newItem.parentId (id):', newItem.parentId);
-						console.log('newParentBackendId:', newParentBackendId);
-					}
 				} else {
 					// One is null, the other is not
 					parentChanged = oldItem.parentId !== newItem.parentId;
@@ -874,27 +890,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					}
 				}
 
-				// Debug logging for position changes
-				if (positionChanged) {
-					console.log('Position changed for block:', id);
-					console.log('Old position:', oldItem.position);
-					console.log('New position:', position);
-					console.log('Prev block position:', prev?.position);
-					console.log('Next block position:', next?.position);
-				}
-
 				const isChanged = positionChanged || contentChanged || parentChanged;
-
-				// Debug logging for all changes
-				if (isChanged) {
-					console.log('Block changed:', id, {
-						positionChanged,
-						contentChanged,
-						parentChanged,
-						oldPosition: oldItem.position,
-						newPosition: position,
-					});
-				}
 
 				if (isChanged) {
 					const parentBackendId = newItem.parentId
