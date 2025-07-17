@@ -4,6 +4,15 @@
 			visibility: visible;
 		}
 	}
+
+	.error-message {
+		color: var(--error);
+		padding: 6px;
+		width: fit-content;
+		border-radius: 6px;
+		font-size: 12px;
+	}
+
 	.tabs-wrapper {
 		margin-bottom: 16px;
 		display: flex;

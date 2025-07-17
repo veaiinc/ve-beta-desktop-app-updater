@@ -213,13 +213,14 @@
 		border-radius: 0px 0px 16px 16px;
 		border-top: 1px solid var(--stroke, #2c2d2e);
 		background: var(--card-over-card-hover, #27282b);
+		max-width: 380px;
 		width: 100%;
 		cursor: pointer;
 
 		.taskWidgetFooterTitle {
 			color: var(--primary-font, #f2f2f3);
 			font-family: var(--primary-font-family);
-			font-size: 14px;
+			font-size: 13px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
@@ -234,7 +235,7 @@
 			align-items: center;
 			gap: 16px;
 			border-radius: 6px;
-			border: 1px solid var(--primary-button, #79ecc9);
+
 			cursor: pointer;
 		}
 	}

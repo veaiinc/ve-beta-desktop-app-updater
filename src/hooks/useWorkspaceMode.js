@@ -29,7 +29,7 @@ const routeImports = {
 	stableRoutes: () => import('../routes/stableRoutes'),
 	betaRoutes: () => import('../routes/betaRoutes'),
 	internalRoutes: () => import('../routes/internalRoutes'),
-	workspaceNotFoundRoute: () => import('../routes/workspaceNotFound'),
+	workspaceNotFoundRoute: () => import('../routes/workspaceNotFoundRoute'),
 	suspendedRoute: () => import('../routes/suspendedRoute'),
 };
 
@@ -72,6 +72,12 @@ const useWorkspaceMode = () => {
 	const routes = routesInfo[routeType] ?? routesInfo['fallbackRoute'];
 	const workspaceModeLoading =
 		isPublicRoute || workspaceNotFound ? false : workspaceMode === null;
+
+	useEffect(() => {
+		if (workspaceMode) {
+			localStorage.setItem('workspaceMode', workspaceMode);
+		}
+	}, [workspaceMode]);
 
 	useEffect(() => {
 		if (isPublicRoute) return;

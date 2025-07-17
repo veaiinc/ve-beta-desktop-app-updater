@@ -66,7 +66,7 @@ const AgentsCardView = ({ agents = [] }) => {
 		const [success, data] = await createNewKnowledgeAgent(agentName, agentDescription);
 		if (success) {
 			const assistantId = data?.insertedId;
-			navigate(`/agent/${assistantId}`);
+			navigate(`/agent/${assistantId}?agentAction=runAgent`);
 		} else {
 			message.error(data?.message);
 		}

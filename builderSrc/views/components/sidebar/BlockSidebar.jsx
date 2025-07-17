@@ -230,7 +230,6 @@ class BlockSidebar extends Component {
 							activeModuleId={this.props?.activeModuleId}
 							handleIsValidBgVideoURL={this.props.handleIsValidBgVideoURL}
 							currencySymbol={this.props?.currencySymbol}
-							currencySymbol2={this.props?.currencySymbol2}
 						/>
 					)}
 					{this.state?.activeType === 'signature' && (

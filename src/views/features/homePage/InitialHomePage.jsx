@@ -7,6 +7,7 @@ import ChatBox from '../../components/chat/ChatBox';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 import Suggestions from './Suggestions';
 import { useNavigate } from 'react-router-dom';
+import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const suggestionContainerStyles = {
 	// position: 'absolute',
