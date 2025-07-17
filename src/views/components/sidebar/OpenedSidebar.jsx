@@ -566,16 +566,16 @@ const OpenedSidebar = ({
 			onClick: (updateTheme, newThemeValue) => () => updateTheme(newThemeValue),
 		},
 		// {
-		// 	key: 'search',
-		// 	label: (_, isMac) => (isMac ? 'Search ⌘ + k' : 'Search Ctrl + k'),
-		// 	icon: () => <SearchSvg />,
-		// 	onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
+		//  key: 'search',
+		//  label: (_, isMac) => (isMac ? 'Search ⌘ + k' : 'Search Ctrl + k'),
+		//  icon: () => <SearchSvg />,
+		//  onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
 		// },
 		// {
-		// 	key: 'newChat',
-		// 	label: () => 'New Chat',
-		// 	icon: () => <NewEditSvg />,
-		// 	onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
+		//  key: 'newChat',
+		//  label: () => 'New Chat',
+		//  icon: () => <NewEditSvg />,
+		//  onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
 		// },
 	];
 
@@ -769,94 +769,76 @@ const OpenedSidebar = ({
 												display: 'flex',
 												flexDirection: 'column',
 												width: '100%',
+												overflowY: 'auto',
 												justifyContent: `${
 													isThisEarlyAccessPage ? 'flex-end' : ''
 												}`,
-												// overflowY: 'auto',
 											}}
 											id="chatsScroll"
 										>
 											{!isThisEarlyAccessPage && (
 												<>
 													{/* <hr
-														style={{
-															border: '0.7px solid var(--stroke)',
-															margin: '16px 0px',
-														}}
-													/> */}
-													<div
-														style={{
-															overflow: 'auto',
-															height: '100vh',
-														}}
-													>
-														{filteredModules?.map(
-															(singleItem, index) => (
-																<div key={index}>
-																	<OpenedSidebarModules
-																		name={singleItem.name}
-																		Icon={singleItem.icon}
-																		initialColor={
-																			singleItem.initialColor
-																		}
-																		route={singleItem.route}
-																		navigateTo={(route) =>
-																			handleNavigateFunction(
-																				route,
-																				singleItem,
-																			)
-																		}
-																		isSelected={
-																			selectedOption ===
-																			singleItem.name
-																		}
-																		isActive={isExactPathMatch(
-																			singleItem.route,
-																			singleItem.name,
-																		)}
-																		subModules={
-																			singleItem.subModules
-																		}
-																		isDropdownVisible={
-																			activeDropdown ===
-																			singleItem.name
-																		}
-																		onDropdownToggle={() =>
-																			handleDropdownToggle(
-																				singleItem.name,
-																			)
-																		}
-																		setActiveDropdown={
-																			setActiveDropdown
-																		}
-																		activeSubModule={
-																			activeSubModule
-																		}
-																		setActiveSubModule={
-																			setActiveSubModule
-																		}
-																		handleSubModuleClick={
-																			handleSubModuleClick
-																		}
-																		setShowNotificationsDrawer={
-																			setShowNotificationsDrawer
-																		}
-																		setShowNotesDrawer={
-																			setShowNotesDrawer
-																		}
-																	/>
-																</div>
-															),
-														)}
-
-														<div>
-															<hr
-																className={
-																	'horizontal-line-sidebar'
+                                                        style={{
+                                                            border: '0.7px solid var(--stroke)',
+                                                            margin: '16px 0px',
+                                                        }}
+                                                    /> */}
+													{filteredModules?.map((singleItem, index) => (
+														<div key={index}>
+															<OpenedSidebarModules
+																name={singleItem.name}
+																Icon={singleItem.icon}
+																initialColor={
+																	singleItem.initialColor
+																}
+																route={singleItem.route}
+																navigateTo={(route) =>
+																	handleNavigateFunction(
+																		route,
+																		singleItem,
+																	)
+																}
+																isSelected={
+																	selectedOption ===
+																	singleItem.name
+																}
+																isActive={isExactPathMatch(
+																	singleItem.route,
+																	singleItem.name,
+																)}
+																subModules={singleItem.subModules}
+																isDropdownVisible={
+																	activeDropdown ===
+																	singleItem.name
+																}
+																onDropdownToggle={() =>
+																	handleDropdownToggle(
+																		singleItem.name,
+																	)
+																}
+																setActiveDropdown={
+																	setActiveDropdown
+																}
+																activeSubModule={activeSubModule}
+																setActiveSubModule={
+																	setActiveSubModule
+																}
+																handleSubModuleClick={
+																	handleSubModuleClick
+																}
+																setShowNotificationsDrawer={
+																	setShowNotificationsDrawer
+																}
+																setShowNotesDrawer={
+																	setShowNotesDrawer
 																}
 															/>
 														</div>
+													))}
 
+													<div>
+														<hr className={'horizontal-line-sidebar'} />
 														<ChatHistory />
 													</div>
 													<CreditsLeft />
@@ -1097,8 +1079,8 @@ const OpenedSidebar = ({
 										{theme === 'dark' ? <SunIcon /> : <MoonIcon />}
 									</div>
 									{/* <div className="eachOption" onClick={triggerCmdK}>
-										<SearchSvg />
-									</div> */}
+                                        <SearchSvg />
+                                    </div> */}
 									<div className="eachOption" onClick={handleNewChat}>
 										<NewEditSvg />
 									</div>
