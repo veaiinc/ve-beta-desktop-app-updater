@@ -6,8 +6,7 @@ import { message } from '../components/globalComponents/CustomToast';
 import { useLocation } from 'react-router-dom';
 import '../../assets/scss/voice/voiceWrapper.scss';
 import { checkDevices } from '../../helpers';
-import useTheme from '../hooks/useTheme';
-
+import useTheme from '../../hooks/useTheme';
 const VoiceWrapper = () => {
 	useTheme();
 	const {
@@ -15,7 +14,7 @@ const VoiceWrapper = () => {
 	} = useContext(Context);
 
 	const location = useLocation();
-	const isHomePage = location.pathname === '/demo' || location.pathname === '/demo';
+	const isHomePage = location.pathname === '/demo' || location.pathname === '/';
 	const [info, setInfo] = useState({
 		deviceInfo: {},
 	});
@@ -38,7 +37,6 @@ const VoiceWrapper = () => {
 	useEffect(() => {
 		getDeviceInfo();
 	}, []);
-
 	const handleMouseDown = useCallback(
 		(e) => {
 			if (e.target.closest('.controls')) return; // Prevent dragging when clicking controls

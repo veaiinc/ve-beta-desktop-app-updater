@@ -36,6 +36,7 @@ import RecentFileTooltip from './RecentFileTooltip';
 import AskTooltip from './AskTooltip';
 import AddOnCards from '../settings/planbilling/addOnCards';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
+import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -2141,6 +2142,7 @@ const ChatBox = ({
 				closeModal={handleCloseUpgrageModal}
 				subscriptionState="addOnPlans"
 			/>
+
 		</div>
 	);
 };
