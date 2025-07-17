@@ -1,17 +1,33 @@
-import { app, BrowserWindow } from 'electron';
+// main.js
+import { app, BrowserWindow, ipcMain } from 'electron';
 
+let mainWindow = null;
+
+// ── Create the BrowserWindow ─────────────────────────────────────────────────
 app.whenReady().then(() => {
-	const win = new BrowserWindow({
-		title: 'Main window'
+	mainWindow = new BrowserWindow({
+		title: 'Main window',
+		width: 800,
+		height: 600,
+		webPreferences: {
+			preload: 'preload.js',
+			contextIsolation: true,
+			nodeIntegration: false
+		}
 	});
 
-	// You can use `process.env.VITE_DEV_SERVER_URL` when the vite command is called `serve`
+	ipcMain.on('reload-app', () => {
+		mainWindow.reload();
+	});
+
 	if (process.env.VITE_DEV_SERVER_URL) {
-		win.loadURL(process.env.VITE_DEV_SERVER_URL);
+		mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
 	} else {
-		// Load your file
-		win.loadFile('build/index.html');
+		mainWindow.loadFile('build/index.html');
 	}
 });
 
-export default app;
+// ── Graceful exit on macOS ───────────────────────────────────────────────────
+app.on('window-all-closed', () => {
+	if (process.platform !== 'darwin') app.quit();
+});

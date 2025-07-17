@@ -77,6 +77,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, info }) => {
 			const { activeWorkspaceId, isOnboard } = data;
 			const workspaceId = localStorage.getItem('workspaceId');
 			if (workspaceId === activeWorkspaceId) {
+				closeWorkspaceList?.();
 				return;
 			}
 			localStorage.setItem('workspaceId', activeWorkspaceId);
@@ -111,7 +112,12 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, info }) => {
 					domain: host
 				});
 			}
-			history.go(0);
+			window.location.hash = '/home';
+			if (window.api && typeof window.api.reloadApp === 'function') {
+				window.api.reloadApp();
+			} else {
+				window.location.reload();
+			}
 		},
 		[userWorkSpaceList]
 	);

@@ -119,12 +119,6 @@
 			"package.json",
 			"entitlements/**"
 		],
-		"publish": {
-			"provider": "github",
-			"owner": "kapilmotwani1010",
-			"repo": "ve-dashboard-v1",
-			"token": ""
-		},
 		"directories": {
 			"buildResources": "assets",
 			"output": "dist"

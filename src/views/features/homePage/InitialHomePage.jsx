@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/home_page/initialHomepage.scss';
 import { getGreeting } from '../../../helpers';
 import jwtDecode from 'jwt-decode';
