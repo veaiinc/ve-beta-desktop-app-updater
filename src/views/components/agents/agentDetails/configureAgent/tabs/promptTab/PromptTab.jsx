@@ -179,7 +179,6 @@ const PromptTab = () => {
           <div className="promptTab__drawer-content">
             <div className={s.drawerHeader}>
               <div className={s.drawerTitle}>
-                <span className={s.chevronIcon}>›</span>
                 <span>Tools</span>
               </div>
               {/* <button className={s.addToolButton}>
