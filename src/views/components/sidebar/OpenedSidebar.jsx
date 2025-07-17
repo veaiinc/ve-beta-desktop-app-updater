@@ -769,10 +769,10 @@ const OpenedSidebar = ({
 												display: 'flex',
 												flexDirection: 'column',
 												width: '100%',
-												overflowY: 'auto',
 												justifyContent: `${
 													isThisEarlyAccessPage ? 'flex-end' : ''
 												}`,
+												// overflowY: 'auto',
 											}}
 											id="chatsScroll"
 										>
