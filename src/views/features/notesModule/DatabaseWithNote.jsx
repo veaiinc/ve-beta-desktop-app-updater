@@ -686,9 +686,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			return true;
 		}
 
-		// console.log('oldBlock', oldBlock);
-		// console.log('newBlockFormatted', newBlockFormatted);
-
 		if (oldBlock.type === 'table' && newBlockFormatted.type === 'table') {
 			function areArraysEqualCustom(a, b) {
 				if (!Array.isArray(a) || !Array.isArray(b)) return false;
@@ -730,8 +727,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			}
 			return false;
 		}
+		const blockUpdated = !isEqual(oldBlock, newBlockFormatted);
 
-		return !isEqual(oldBlock, newBlockFormatted);
+		if (blockUpdated) {
+			console.log('oldBlock', oldBlock);
+			console.log('newBlockFormatted', newBlockFormatted);
+		}
+
+		return blockUpdated;
 	};
 
 	const flattenBlocks = (blocks, parentId = null, depth = 0) => {
@@ -844,6 +847,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				let position = oldItem.position;
 				let positionChanged = false;
 
+				console.log('block', { newItem, oldItem });
+
 				// Check for content and parent changes
 				const contentChanged = compareFn(oldItem, newItem);
 
@@ -851,8 +856,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				let parentChanged = false;
 				if (oldItem.parentId !== null && newItem.parentId !== null) {
 					// Use the mapping to get the backend _id for the new parent
-					const newParentBackendId = blockIdToBackendIdRef.current.get(newItem.parentId);
-					parentChanged = oldItem.parentId !== newParentBackendId;
+					// const newParentBackendId = blockIdToBackendIdRef.current.get(newItem.parentId);
+					// console.log('parentId', oldItem.parentId, newItem.parentId);
+
+					parentChanged = oldItem.parentId !== newItem.parentId;
 				} else {
 					// One is null, the other is not
 					parentChanged = oldItem.parentId !== newItem.parentId;
@@ -896,6 +903,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				const isChanged = positionChanged || contentChanged || parentChanged;
 
 				if (isChanged) {
+					console.log('isChanged', {
+						positionChanged,
+						contentChanged,
+						parentChanged,
+					});
 					const parentBackendId = newItem.parentId
 						? blockIdToBackendIdRef.current.get(newItem.parentId)
 						: null;
