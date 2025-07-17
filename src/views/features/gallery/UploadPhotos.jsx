@@ -12,8 +12,6 @@ import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
 import { message } from '../../components/globalComponents/CustomToast';
-// import useSubscription from '../../hooks/useSubscription';
-// import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
 
 const UploadPhotos = () => {
 	const { galleryId, albumId } = useParams();
@@ -50,7 +48,7 @@ const UploadPhotos = () => {
 		startedUploading: false,
 		uploadImages: {},
 		uploadSize: 0, // kb
-		uploadLimit: 5,
+		uploadLimit: navigator.hardwareConcurrency || 5, // Dynamic upload limit based on CPU cores
 		currentUpload: 1,
 		recentImageInitiated: null,
 		isSkipDuplicates: false,
@@ -64,13 +62,13 @@ const UploadPhotos = () => {
 		isRefreshPopupOpen: false,
 		isAiEnabled: false,
 		isUploadComplete: false,
-		// lightGallery: false,
 		scaleWatermark: 0.15,
 		watermarkOpacity: 1,
+		isProcessingDuplicates: false, // New state for duplicate processing feedback
 	});
+
 	const recentImageInitiatedRef = useRef(info.recentImageInitiated);
 	const params = new URLSearchParams(window.location.search);
-	// const lightGallery = params.get('light-gallery');
 	const lightGallery = !tenantAlbums?.storeOriginals ? 'true' : 'false';
 
 	const aiFacesLogic =
@@ -85,7 +83,6 @@ const UploadPhotos = () => {
 			info?.isAiEnabled &&
 			validateExpiryData?.liteImageLimitWithAiFace === 0
 		) {
-			// If AI is enabled but user has no AI face limit, disable AI and show subscription popup
 			setinfo((prev) => ({
 				...prev,
 				isAiEnabled: false,
@@ -104,9 +101,10 @@ const UploadPhotos = () => {
 						? info?.isAiEnabled && validateExpiryData?.liteImageLimitWithAiFace > 0
 						: true;
 			});
-			setinfo((prev) => {
-				return { ...prev, uploadImages: updatedUploadImages };
-			});
+			setinfo((prev) => ({
+				...prev,
+				uploadImages: updatedUploadImages,
+			}));
 		}
 	}, [aiFacesLogic, info?.isAiEnabled]);
 
@@ -134,15 +132,16 @@ const UploadPhotos = () => {
 		}
 	}, [tenantAlbums]);
 
-	// useEffect(() => {
-	// 	window.addEventListener('beforeunload', (e) => {
-	// 		e.preventDefault();
-	// 		const message = 'Are you sure you want to leave? All provided data will be lost.';
-	// 		return message;
-	// 	});
-	// }, []);
+	// Optimized duplicate detection with a hash set
+	const getDuplicateSet = () => {
+		const duplicateSet = new Set();
+		imageDuplicatesList?.list?.forEach((image) => {
+			duplicateSet.add(image?.displayName);
+		});
+		return duplicateSet;
+	};
 
-	// drop function
+	// Optimized onDropFunction with batched state updates
 	const onDropFunction = async (files) => {
 		if (
 			lightGallery === 'true' &&
@@ -162,7 +161,8 @@ const UploadPhotos = () => {
 			lightGallery === 'false' &&
 			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
-			(!validateExpiryData?.uploadAllowed || !validateExpiryData?.uploadAllowedForClassicGallery)
+			(!validateExpiryData?.uploadAllowed ||
+				!validateExpiryData?.uploadAllowedForClassicGallery)
 		) {
 			return updateSubscriptionState({
 				expiredSubscriptionModal: true,
@@ -170,71 +170,76 @@ const UploadPhotos = () => {
 			});
 		}
 
-		let updateInfo = { ...info };
+		setinfo((prev) => ({ ...prev, isProcessingDuplicates: true })); // Show processing feedback
 
-		if (updateInfo?.initialUpload) {
-			updateInfo.initialUpload = true;
-		}
+		const duplicateSet = getDuplicateSet(); // O(n) for creating the set
 		let totalSize = 0;
-
-		let uploadImagesLength = Object.keys(updateInfo?.uploadImages).length;
-
 		const imagesLimit = validateExpiryData?.liteImageLimit - validateExpiryData?.liteImageUsed;
+		let uploadImagesLength = Object.keys(info?.uploadImages).length;
+		let duplciatesFound = info.duplciatesFound || 0;
+		const updatedUploadImages = { ...info.uploadImages };
 
-		files?.some((file) => {
-			let uploadedImages = { ...updateInfo?.uploadImages };
+		// Batch process files
+		const validFiles = files.filter(
+			(file) => file?.type === 'image/jpeg' || file?.type === 'image/png',
+		);
 
-			if (uploadImagesLength > imagesLimit && lightGallery === 'true') {
-				return updateSubscriptionState({
-					expiredSubscriptionModal: true,
-					expiredSubscriptionType: 'Lite-Gallery',
-				});
-			}
+		if (uploadImagesLength + validFiles.length > imagesLimit && lightGallery === 'true') {
+			setinfo((prev) => ({ ...prev, isProcessingDuplicates: false }));
+			return updateSubscriptionState({
+				expiredSubscriptionModal: true,
+				expiredSubscriptionType: 'Lite-Gallery',
+			});
+		}
 
-			let findDuplicateImage = imageDuplicatesList?.list?.find(
-				(image) => image?.displayName === file?.name,
-			);
-
-			if (
-				!updateInfo?.uploadImages?.[file?.name] &&
-				(file?.type === 'image/jpeg' || file?.type === 'image/png')
-			) {
-				uploadedImages[file.name] = {
-					file: file,
+		validFiles.forEach((file) => {
+			if (!updatedUploadImages[file.name]) {
+				const isDuplicate = duplicateSet.has(file.name);
+				updatedUploadImages[file.name] = {
+					file,
 					isUploaded: null,
 					uploadedPerct: 0,
-					isDuplicate: findDuplicateImage ? true : false,
-					originalImage: findDuplicateImage,
+					isDuplicate,
+					originalImage: isDuplicate
+						? imageDuplicatesList?.list?.find(
+								(image) => image?.displayName === file?.name,
+						  )
+						: null,
 					originalDate: 0,
 					isFailed: false,
 				};
-
-				updateInfo.uploadImages = uploadedImages;
 				totalSize += file.size;
-
-				if (imageDuplicatesList?.list?.some((image) => image.displayName === file.name)) {
-					updateInfo.duplciatesFound = updateInfo?.duplciatesFound + 1;
+				if (isDuplicate) {
+					duplciatesFound += 1;
 				}
 			} else {
-				uploadedImages[file.name] = {
-					file: file,
+				updatedUploadImages[file.name] = {
+					file,
 					isUploaded: false,
 					uploadedPerct: 0,
-					isDuplicate: !!findDuplicateImage,
-					originalImage: findDuplicateImage,
+					isDuplicate: duplicateSet.has(file.name),
+					originalImage: duplicateSet.has(file.name)
+						? imageDuplicatesList?.list?.find(
+								(image) => image?.displayName === file?.name,
+						  )
+						: null,
 					isFailed: false,
 				};
 			}
 		});
 
-		updateInfo.uploadSize = updateInfo.uploadSize + totalSize / 1024;
-
-		setinfo(updateInfo);
+		// Single state update
+		setinfo((prev) => ({
+			...prev,
+			uploadImages: updatedUploadImages,
+			uploadSize: prev.uploadSize + totalSize / 1024,
+			duplciatesFound,
+			isProcessingDuplicates: false, // Reset processing feedback
+		}));
 	};
 
 	const getJsonFunction = (currentImage) => {
 		const imageKeysArray = Object.keys(info?.uploadImages || {});
-
 		const imageKeyIndex =
 			recentImageInitiatedRef.current !== null
 				? imageKeysArray[imageKeysArray.indexOf(currentImage)]
@@ -244,7 +249,6 @@ const UploadPhotos = () => {
 		if (image && image?.isUploaded) return null;
 
 		const imageName = image?.file?.name || '';
-
 		const tags = info?.selectedGalleryTags?.map((tag) => (tag != null ? tag._id : '')) || [];
 
 		let json = {
@@ -258,7 +262,6 @@ const UploadPhotos = () => {
 					: true,
 		};
 
-		// for duplicates
 		if (image?.isDuplicate === true && info?.isSkipDuplicates === false) {
 			json = {
 				...json,
@@ -266,7 +269,6 @@ const UploadPhotos = () => {
 			};
 		}
 
-		// if there is a watermark
 		if (info.isWaterMarkApply) {
 			json = {
 				...json,
@@ -280,7 +282,6 @@ const UploadPhotos = () => {
 		recentImageInitiatedRef.current = currentImage;
 		setinfo((prev) => ({
 			...prev,
-			// recentImageInitiated: currentImage,
 			currentUpload:
 				(prev?.isSkipDuplicates === true && image?.isDuplicate === false) ||
 				prev?.isSkipDuplicates === false
@@ -296,9 +297,7 @@ const UploadPhotos = () => {
 			let options = {
 				onUploadProgress: (progressEvent) => {
 					const { loaded, total } = progressEvent;
-
 					let percent = Math.floor((loaded * 100) / total);
-
 					if (percent <= 100) {
 						setinfo((prev) => {
 							const uploadImages = { ...prev.uploadImages };
@@ -324,31 +323,75 @@ const UploadPhotos = () => {
 					uploadImages[key]['file'] = { size, name: key };
 					return { ...prev, uploadImages };
 				});
-
 				return true;
 			} else if (response.status === 402) {
-				return updateSubscriptionState({
+				updateSubscriptionState({
 					expiredSubscriptionModal: true,
 					expiredSubscriptionType: 'Classic-Gallery',
 				});
-			} else {
 				return false;
 			}
+			return false;
 		} catch (error) {
-			console.log('something error occured');
+			console.error('Upload error:', error);
+			return false;
 		}
 	};
 
 	const uploadFilesConcurrently = async () => {
 		const queue = Object.keys(info.uploadImages);
 		const activeUploads = [];
-		let totalImages = Object.keys(info.uploadImages || {}).length;
+		let totalImages = queue.length;
 
-		setinfo((prev) => ({
-			...prev,
-			startedUploading: true,
-		}));
+		setinfo((prev) => ({ ...prev, isProcessingDuplicates: true }));
 
+		// Batch process duplicates upfront
+		const duplicates = [];
+		const nonDuplicates = [];
+		queue.forEach((file) => {
+			if (info.isSkipDuplicates && info.uploadImages[file]?.isDuplicate) {
+				duplicates.push(file);
+			} else {
+				nonDuplicates.push(file);
+			}
+		});
+
+		// Update state for all duplicates in one go
+		if (duplicates.length > 0) {
+			setinfo((prev) => {
+				let uploadImages = { ...prev.uploadImages };
+				duplicates.forEach((file) => {
+					uploadImages[file] = {
+						...uploadImages[file],
+						isUploaded: true,
+						uploadedPerct: 100,
+						file: { size: uploadImages[file].file.size, name: file },
+					};
+				});
+				return {
+					...prev,
+					uploadImages,
+					duplciatesFound: (prev.duplciatesFound || 0) + duplicates.length,
+					startedUploading: true,
+					isProcessingDuplicates: false,
+				};
+			});
+		} else {
+			setinfo((prev) => ({ ...prev, startedUploading: true, isProcessingDuplicates: false }));
+		}
+
+		// Early exit if all images are duplicates
+		if (info.isSkipDuplicates && duplicates.length === totalImages) {
+			setinfo((prev) => ({
+				...prev,
+				overAllProgress: 100,
+				isPopupOpen: true,
+			}));
+			updateStateValues({ reFetchSubscription: true });
+			return;
+		}
+
+		// Monitor upload progress
 		const interval = setInterval(async () => {
 			const response = await getImageUploadStatus(galleryId, albumId, info?.uploadBatchID);
 			if (response[0] === false) {
@@ -361,24 +404,16 @@ const UploadPhotos = () => {
 				processed25Percent = 0,
 				shouldClearInterval = false;
 
-			if (info?.isSkipDuplicates && totalImages === info?.duplciatesFound) {
+			if (info.isSkipDuplicates && totalImages === info?.duplciatesFound) {
 				result = 100;
 				shouldClearInterval = true;
-			} else if (info?.isSkipDuplicates && totalImages !== info?.duplciatesFound) {
-				let totalImagesWithoutDuplicates = totalImages - info?.duplciatesFound;
+			} else {
+				const totalImagesWithoutDuplicates = totalImages - (info?.duplciatesFound || 0);
 				processed25Percent =
 					processedCount > 0 ? (processedCount / totalImagesWithoutDuplicates) * 25 : 0;
 				uploaded75Percent =
 					uploadedCount > 0 ? (uploadedCount / totalImagesWithoutDuplicates) * 75 : 0;
 				result = Math.min(uploaded75Percent + processed25Percent, 100);
-			} else {
-				processed25Percent = processedCount > 0 ? (processedCount / totalImages) * 25 : 0;
-				uploaded75Percent = uploadedCount > 0 ? (uploadedCount / totalImages) * 75 : 0;
-				result = Math.min(uploaded75Percent + processed25Percent, 100);
-			}
-
-			if (result === 100) {
-				shouldClearInterval = true;
 			}
 
 			setinfo((prev) => ({
@@ -394,25 +429,12 @@ const UploadPhotos = () => {
 			}
 		}, 3000);
 
+		// Upload non-duplicate images
 		const nextUploadFunc = async () => {
-			if (queue.length === 0) return;
+			if (nonDuplicates.length === 0) return;
 
-			const currentFile = queue.shift();
-			const json = getJsonFunction(currentFile, aiFacesLogic);
-
-			if (info.isSkipDuplicates && info.uploadImages[currentFile]?.isDuplicate) {
-				setinfo((prev) => {
-					let uploadImages = { ...prev.uploadImages };
-					uploadImages[currentFile]['isUploaded'] = true;
-					uploadImages[currentFile]['uploadedPerct'] = 100;
-					const size = uploadImages[currentFile]['file'].size;
-					delete uploadImages[currentFile]['file'];
-					uploadImages[currentFile]['file'] = { size, name: currentFile };
-					return { ...prev, uploadImages };
-				});
-				nextUploadFunc();
-				return;
-			}
+			const currentFile = nonDuplicates.shift();
+			const json = getJsonFunction(currentFile);
 
 			let attempts = 0;
 			let isSuccessUpload = false;
@@ -422,7 +444,7 @@ const UploadPhotos = () => {
 					const uploadPromise = uploadOnS3Function(
 						info.uploadImages[currentFile],
 						currentFile,
-						signedURLUpload[1]['signedUrl'],
+						signedURLUpload[1].signedUrl,
 					);
 					activeUploads.push(uploadPromise);
 
@@ -435,7 +457,6 @@ const UploadPhotos = () => {
 				}
 
 				if (attempts !== 0) {
-					// Wait for 1 minute before retrying
 					setinfo((prev) => ({
 						...prev,
 						uploadImages: {
@@ -445,10 +466,8 @@ const UploadPhotos = () => {
 					}));
 					let waitTime = 2000 * attempts;
 					await new Promise((resolve) => {
-						console.log('waiting  for ', waitTime, 'seconds');
-						setTimeout(() => {
-							resolve();
-						}, waitTime);
+						console.log('waiting for ', waitTime, 'seconds');
+						setTimeout(() => resolve(), waitTime);
 					});
 				}
 				attempts++;
@@ -458,12 +477,14 @@ const UploadPhotos = () => {
 			}
 		};
 
-		for (let i = 0; i < info.uploadLimit && queue.length > 0; i++) {
+		// Start uploads for non-duplicates with dynamic limit
+		for (let i = 0; i < info.uploadLimit && nonDuplicates.length > 0; i++) {
 			nextUploadFunc();
 		}
 
 		await Promise.allSettled(activeUploads);
 	};
+
 	const onSaveClick = async () => {
 		const payload = {
 			profileId: info?.watermarkProfileId,
@@ -477,6 +498,7 @@ const UploadPhotos = () => {
 			message.error('Failed to update the watermark');
 		}
 	};
+
 	return (
 		<div className="upload-gallery-container">
 			<div onClick={() => navigate(-1)} className="backHeader">
@@ -490,7 +512,6 @@ const UploadPhotos = () => {
 
 			<div className="watermark_progress_container">
 				<WaterMarkComponent
-					// info={info}
 					setinfo={setinfo}
 					waterMarks={waterMarks}
 					onSaveClick={onSaveClick}
@@ -517,7 +538,6 @@ const UploadPhotos = () => {
 				setinfo={setinfo}
 				getImageDuplicatesList={getImageDuplicatesList}
 			/>
-			{/* <RefreshPopup info={info} setinfo={setinfo} /> */}
 		</div>
 	);
 };

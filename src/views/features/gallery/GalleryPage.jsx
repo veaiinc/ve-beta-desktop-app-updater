@@ -4658,6 +4658,7 @@ const GalleryPage = () => {
 														setInfo((prev) => ({
 															...prev,
 															selectingImages: !prev?.selectingImages,
+															selectedImages: [],
 														}));
 													}}
 												>
