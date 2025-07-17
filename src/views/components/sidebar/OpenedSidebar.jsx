@@ -778,12 +778,6 @@ const OpenedSidebar = ({
 										>
 											{!isThisEarlyAccessPage && (
 												<>
-													{/* <hr
-														style={{
-															border: '0.7px solid var(--stroke)',
-															margin: '16px 0px',
-														}}
-													/> */}
 													<div
 														style={{
 															overflow: 'auto',
