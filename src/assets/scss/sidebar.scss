@@ -649,6 +649,9 @@
 			&::-webkit-scrollbar {
 				display: none; // Hide scrollbar Chrome/Safari/Opera
 			}
+			&.earlyAccessPage {
+				max-height: 95vh !important;
+			}
 			.workspaceListHeader {
 				position: sticky;
 				top: 0;
