@@ -41,32 +41,26 @@ const ChatHeader = ({
 	const deleteChatSessionLoadingRef = useRef(false);
 
 	useEffect(() => {
-		const messages = globalChatMessages?.[sessionId]?.messages;
+		const messages = globalChatMessages?.[sessionId]?.messages || [];
+		const userMessages = [];
+		let index = 0,
+			lastIndex;
 
-		if (messages?.length > 0) {
-			const userMessages = [];
-			let index = 0,
-				lastIndex;
-
-			for (const message of messages) {
-				if (message?.type?.toLowerCase() === 'user') {
-					userMessages.push({
-						message: message?.message,
-						index: index++,
-					});
-				}
-			}
-
-			lastIndex = userMessages?.length - 1;
-
-			if (userMessages?.length > 0) {
-				setInfo((prev) => ({
-					...prev,
-					activeUserMessageIndex: lastIndex,
-					userMessages,
-				}));
+		for (const message of messages) {
+			if (message?.type?.toLowerCase() === 'user') {
+				userMessages.push({
+					message: message?.message,
+					index: index++,
+				});
 			}
 		}
+		lastIndex = userMessages?.length - 1;
+
+		setInfo((prev) => ({
+			...prev,
+			activeUserMessageIndex: lastIndex,
+			userMessages,
+		}));
 	}, [globalChatMessages?.[sessionId]?.messages?.length]);
 
 	useEffect(() => {
